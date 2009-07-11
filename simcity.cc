@@ -2043,7 +2043,12 @@ walk:
 
 				if(route_good && tolerance > 0 && best_journey_time > tolerance)
 				{
-					//TODO: Add recording for excessive journey times.
+					route_good = false;
+					if(!has_private_car)
+					{
+						// If does have private car, might be able to get there by car within the time. Check below.
+						start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
+					}
 				}
 				
 				if(route_good)
@@ -2298,13 +2303,24 @@ public_transport:
 				}
 				if(has_private_car)
 				{
-					//Must use private car, since there is no suitable route.
-					set_private_car_trip(num_pax, destinations[0].town);
-#ifdef DESTINATION_CITYCARS
-				//citycars with destination
-					if(!start_halts.empty() && start_halts[0].is_bound())
+					// Must use private car, since there is no suitable route.
+					// However, check first that car journey is within time tolerance.
+					
+					// As the crow flies distance. This is very much an approximation - *but*
+					// we use the standard speedbonus speed (for 'buses), which are generally
+					// slower than cars, so, very approximately, it should balance correctly. 
+					// TODO: (Long-term) get the accurate road distance between each town
+					// and have a speedbonus.tab entry for private cars.
+					const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
+					const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
+					const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+
+					if(car_minutes <= tolerance)
 					{
-						erzeuge_verkehrsteilnehmer(start_halts[0]->get_basis_pos(), step_count, destinations[current_destination].location);
+						set_private_car_trip(num_pax, destinations[0].town);
+#ifdef DESTINATION_CITYCARS
+						//citycars with destination
+						erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 					}
 #endif
 				}

@@ -35,16 +35,28 @@ static const char *sort_text[6] = {
 	"origin (amount)"
 };
 
-const char cost_type[MAX_HALT_COST][64] =
+static const char cost_type[MAX_HALT_COST][64] =
 {
 	"Happy",
 	"Unhappy",
 	"No Route",
+	"Too slow",
 	"hl_btn_sort_waiting",
 	"Arrived",
 	"Departed",
-	"Convoys",
-	"Too slow"
+	"Convoys"
+};
+
+static const char cost_tooltip[MAX_HALT_COST][128] =
+{
+	"The number of passengers who have travelled successfully from this stop",
+	"The number of passengers who have left because of overcrowding or excess waiting",
+	"The number of passengers who could not find a route to their destination",
+	"The number of passengers who decline to travel because the journey would take too long",
+	"The number of passengers/units of mail/goods waiting at this stop",
+	"The number of passengers/units of mail/goods that have arrived at this stop",
+	"The number of passengers/units of mail/goods that have departed from this stop",
+	"The number of convoys that have serviced this stop"
 };
 
 const uint8 index_of_haltinfo[MAX_HALT_COST] = {
@@ -63,7 +75,7 @@ const int cost_type_color[MAX_HALT_COST] =
 	COL_HAPPY,
 	COL_UNHAPPY,
 	COL_NO_ROUTE,
-	COL_DARK_PURPLE,
+	COL_PURPLE,
 	COL_WAITING,
 	COL_ARRIVED,
 	COL_DEPARTED,
@@ -146,6 +158,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 		filterButtons[cost].background = cost_type_color[cost];
 		filterButtons[cost].set_visible(false);
 		filterButtons[cost].pressed = false;
+		filterButtons[cost].set_tooltip(cost_tooltip[cost]);
 		add_komponente(filterButtons + cost);
 	}
 	add_komponente(&chart);

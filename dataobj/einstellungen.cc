@@ -343,11 +343,14 @@ einstellungen_t::einstellungen_t() :
 	// @author: jamespetts
 
 	min_local_tolerance = 45; // 3/4 of an hour.
-	max_local_tolerance = 60 - min_local_tolerance; // One hour
+	//max_local_tolerance = 60 - min_local_tolerance; // One hour
+	max_local_tolerance = 15; // One hour
 	min_midrange_tolerance = 60;
-	max_midrange_tolerance = 180 - min_midrange_tolerance; //: Three hours
+	//max_midrange_tolerance = 180 - min_midrange_tolerance; //: Three hours
+	max_midrange_tolerance = 120;
 	min_longdistance_tolerance = 180;
-	max_longdistance_tolerance = 330 - min_longdistance_tolerance; // Five and a half hours
+	//max_longdistance_tolerance = 330 - min_longdistance_tolerance; // Five and a half hours
+	max_longdistance_tolerance = 150;
 }
 
 

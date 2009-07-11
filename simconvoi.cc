@@ -2992,7 +2992,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	ware.reset_accumulated_distance();
 
 	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
-	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
+	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
