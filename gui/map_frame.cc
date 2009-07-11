@@ -132,21 +132,30 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	const stringhashtable_tpl<const fabrik_besch_t *> & fabesch = fabrikbauer_t::get_fabesch();
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter (fabesch);
 
+	minivec_tpl<uint8> colours;
+
 	// add factory names; shorten too long names
-	while(iter.next()) {
-		if(iter.get_current_value()->get_gewichtung()>0) {
+	while(iter.next()) 
+	{
+		if(iter.get_current_value()->get_gewichtung()>0) 
+		{
 			int i;
 
-			cstring_t label (translator::translate(iter.get_current_value()->get_name()));
-			for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i)<100;  i++  )
-				;
-			if(  i<label.len()  ) {
-				label.set_at(i++, '.');
-				label.set_at(i++, '.');
-				label.set_at(i++, '\0');
-			}
+			// Do not show multiple factories with the same colour.
+			// @author: jamespetts, July 2009
+			if(colours.append_unique(iter.get_current_value()->get_kennfarbe()))
+			{
+				cstring_t label (translator::translate(iter.get_current_value()->get_name()));
+				for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i)<100;  i++  )
+					;
+				if(  i<label.len()  ) {
+					label.set_at(i++, '.');
+					label.set_at(i++, '.');
+					label.set_at(i++, '\0');
+				}
 
-			legend.append(legend_entry(label, iter.get_current_value()->get_kennfarbe()));
+				legend.append(legend_entry(label, iter.get_current_value()->get_kennfarbe()));
+			}
 		}
 	}
 
