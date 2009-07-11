@@ -760,7 +760,7 @@ unsigned long dr_time(void)
 	{
 		// Case : use multimedia timer functions
 
-	// This is the trunk version
+	// This is the new trunk version
 
 	//if(  HPcps!=0  ) {
 	//	LARGE_INTEGER lpTime;

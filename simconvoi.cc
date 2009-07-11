@@ -2599,8 +2599,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		ALLOCA(uint32, max_loaded_waren, warenbauer_t::get_waren_anzahl());
-		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::get_waren_anzahl() );
+		ALLOCA(uint32, capacity_by_catg_index, warenbauer_t::get_max_catg_index());
+		memset( capacity_by_catg_index, 0, sizeof(uint32)*warenbauer_t::get_max_catg_index() );
 
 		unsigned i;
 		for(i=0; i<anz_vehikel; i++) {
@@ -2610,13 +2610,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const ware_besch_t* ware_besch = v->get_besch()->get_ware();
 			const uint16 menge = v->get_besch()->get_zuladung();
 			if(menge>0  &&  ware_besch!=warenbauer_t::nichts) {
-				max_loaded_waren[ware_besch->get_index()] += menge;
+				capacity_by_catg_index[ware_besch->get_catg_index()] += menge;
 			}
 
 			// then add the actual load
 #ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
-			while(iter_vehicle_ware.next()) {
+			while(iter_vehicle_ware.next()) 
+			{
 				ware_t ware = iter_vehicle_ware.get_current();
 #else
 			const vector_tpl<ware_t> &freight = v->get_fracht();
@@ -2630,18 +2631,6 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					// could this be joined with existing freight?
 					ware_t &tmp = total_fracht[i];
 
-					/* OLD SYSTEM - no account taken of origins and timings.
-					 *
-					 * // for pax: join according next stop
-					 * // for all others we *must* use target coordinates
-					 * if( ware.same_destination(tmp) ) {
-					 */
-
-					// New system: ensure that only sufficiently similar cargo
-					// packets are merged, to preserve, e.g., origins for revenue
-					// calculation. Does not require packets to be identical:
-					// some approximation of the timings is permitted, and intermediate
-					// stop data is merged without checking for equality.
 					if(ware.can_merge_with(tmp))
 					{
 						tmp.menge += ware.menge;
@@ -2666,49 +2655,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 #else
 		vector_tpl <ware_t>capacity;
 #endif
-		for(i = 0; i < warenbauer_t::get_waren_anzahl(); i++) 
+		
+		for( uint8 j = 0; j < warenbauer_t::get_max_catg_index(); j ++ ) 
 		{
-			if(max_loaded_waren[i] > 0 && i != warenbauer_t::INDEX_NONE) 
+			if( capacity_by_catg_index[j] > 0 ) 
 			{
-				ware_t ware(warenbauer_t::get_info(i));
-				ware.menge = max_loaded_waren[i];
-				if(ware.get_catg() == 0) 
-				{
-					capacity.append( ware );
-				} 
-				else 
-				{
-					// append to category?
-#ifdef SLIST_FREIGHT
-					slist_tpl<ware_t>::iterator beginning = capacity.begin();
-					slist_tpl<ware_t>::iterator end = capacity.end();
-					while (beginning != end && beginning->get_catg() < ware.get_catg()) ++beginning;
-					if (beginning != end && beginning->get_catg() == ware.get_catg()) 
-					{
-						beginning->menge += max_loaded_waren[i];
-					}
-					else 
-					{
-						// not yet there
-						capacity.insert(beginning, ware);
-					}
-#else
-					if(capacity.get_count() > 0)
-					{
-						uint16 beginning = 0;
-						uint16 end = capacity.get_count() - 1;
-						while(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() < ware.get_catg()) ++beginning;
-						if(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() == ware.get_catg())
-						{
-							capacity[beginning].menge += max_loaded_waren[i];
-						}
-						else
-						{
-							capacity.insert_at(beginning, ware);
-						}
-					}
-#endif
-				}
+				ware_t ware( warenbauer_t::get_info_catg_index(j) );
+				ware.menge = capacity_by_catg_index[j];
+				capacity.append( ware );
 			}
 		}
 

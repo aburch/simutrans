@@ -917,6 +917,10 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 			else if(  new_slope==ALL_DOWN_SLOPE  ) {
 				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
+					// do not lower tiles to sea
+					if (pos.z == welt->get_grundwasser()) {
+						return "Tile not empty.";
+					}
 					new_slope = hang_t::flach;
 				}
 				else if(  gr1->get_grund_hang()==hang_t::flach  ) {

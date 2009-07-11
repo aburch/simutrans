@@ -58,7 +58,12 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 	const ware_t& ware2 = td2p->ware;
 
 	// sort according to freight
-	int index = ware1.get_besch()->get_index()-ware2.get_besch()->get_index();
+	// If the ware1 and ware2 differs, they are sorted according to catg_index and index
+	int index = ware1.get_besch()->get_catg_index()-ware2.get_besch()->get_catg_index();
+	if(index==0) 
+	{
+		index = ware1.get_besch()->get_index()-ware2.get_besch()->get_index();
+	}
 	if(index!=0) 
 	{
 		return index;
