@@ -2048,7 +2048,6 @@ walk:
 					{
 						// If does have private car, might be able to get there by car within the time. Check below.
 						start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
-						break;
 					}
 				}
 				

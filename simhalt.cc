@@ -2110,6 +2110,10 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 		// because we have to keep the current haltestelle
 		// loop starts from 1, i.e. the next stop (Google)
 
+		uint32 accumulated_journey_time = 0;
+		halthandle_t previous_halt = self;
+		const uint16 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
+
 		for(uint8 i = 1; i < count; i++) 
 		{
 			const uint8 wrap_i = (i + fpl->get_aktuell()) % count; //aktuell = "current" (Google)
@@ -2118,11 +2122,17 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			if(plan_halt == self) 
 			{
 				// we will come later here again ...
+				//accumulated_journey_time = 0;
 				break;
 			}
 			else if(plan_halt.is_bound() && warray->get_count() > 0) 
 			{
-
+				// Calculate the journey time for *this* convoy from here (if not already calculated)
+				
+				accumulated_journey_time += (((float)accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
+												/ (float)average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 600.0F);
+				previous_halt = plan_halt;		
+								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				sint32 offset = simrand(warray->get_count());
 				for(uint32 i = 0;  i < warray->get_count();  i++) 
@@ -2141,42 +2151,45 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						continue;
 					}					
 
-					// Checks to see whether the freight has been waiting too long.
-					// If so, discard it.
+
+					// For goods that care about their speed, optimise loading for maximum speed of the journey.
+
 					if(tmp.get_besch()->get_speed_bonus() > 0)
-					{
-						// Only consider for discarding if the goods care about their timings.
-						// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
-						const uint16 base_max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
-						//const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
-						//const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
-						const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
-						
-						// Skip if the goods have recently arrived, and this is not their preferred line/convoy
-						// After waiting some time (1/3rd of their maximum wait), they will board anything.
-						const uint16 third_minutes = base_max_minutes / 3;
-						const uint16 twice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 2 : base_max_minutes;
-						const uint16 max_best_minutes = third_minutes > twice_journey ? twice_journey : third_minutes;
-						if(cnv != NULL && waiting_minutes <= third_minutes)
+					{												
+						// Try to ascertain whether it would be quicker to board this convoy, or wait for a faster one.
+
+						bool is_preferred = true;
+						if(cnv->get_line().is_bound())
 						{
-							if(cnv->get_line().is_bound())
+							const linehandle_t best_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+							if(best_line.is_bound() && best_line != cnv->get_line())
 							{
-								linehandle_t best_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
-								if(best_line.is_bound() && best_line != cnv->get_line())
-								{
-									continue;
-								}
-							}
-							else
-							{
-								convoihandle_t best_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
-								if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
-								{
-									continue;
-								}
+								is_preferred = false;
 							}
 						}
-					}					
+						else
+						{
+							const convoihandle_t best_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+							if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
+							{
+								is_preferred = false;
+							}
+						}
+
+						// Thanks to cwlau9 for suggesting this formula.
+						// July 2009
+						if(!is_preferred)
+						{
+							const uint16 preferred_waiting_minutes = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->waiting_time : 15;
+							const uint16 preferred_travelling_minutes = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time : 15;
+							const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+
+							if((waiting_minutes - preferred_waiting_minutes) + preferred_travelling_minutes < accumulated_journey_time)
+							{
+								continue;
+							}
+						}	
+					}
 
 					// compatible car and right target stop?
 					if(  tmp.get_zwischenziel() == plan_halt  ) 
@@ -2209,7 +2222,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						return neu;
 					}
 				}
-
+				
 				// nothing there to load
 			}
 		}
