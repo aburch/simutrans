@@ -2139,9 +2139,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					if(tmp.menge == 0) 
 					{
 						continue;
-					}
-					
-					
+					}					
 
 					// Checks to see whether the freight has been waiting too long.
 					// If so, discard it.
@@ -2183,17 +2181,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					// compatible car and right target stop?
 					if(  tmp.get_zwischenziel() == plan_halt  ) 
 					{
-						// Overcrowding is now dealt with elsewhere. This method creates deadlocks.
-						
-						/*if(  plan_halt->is_overcrowded(wtyp->get_catg_index())  ) 
-						{
-							if(  welt->get_einstellungen()->is_avoid_overcrowding()  &&  !(tmp.get_ziel()==plan_halt)  ) 
-							{
-								// do not go for transfer to overcrowded transfer stop
-								continue;
-							}
-						}*/
-
 						// not too much?
 						ware_t neu(tmp);
 						if(  tmp.menge > maxi  ) 

@@ -2672,7 +2672,6 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 }
 
 
-
 void convoi_t::open_schedule_window()
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
