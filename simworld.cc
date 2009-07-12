@@ -17,6 +17,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "path_explorer.h"
 #include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"
@@ -635,6 +636,9 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	msg->clear();
 	
 	is_shutting_down = false;
+
+	// Added by : Knightly
+	path_explorer_t::destroy();
 }
 
 
@@ -1168,6 +1172,9 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	intr_disable();
 	if(plan) {
 		destroy();
+
+		// Added by : Knightly
+		path_explorer_t::initialize();
 	}
 
 	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
@@ -1287,6 +1294,12 @@ DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
 		display_show_pointer(true);
 	}
 	mute_sound(false);
+
+	// Added by : Knightly
+	if (einstellungen->get_default_path_option() == 2)
+	{
+		path_explorer_t::full_instant_refresh();
+	}
 }
 
 
@@ -1480,7 +1493,16 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
 	fabrikbauer_t::neue_karte( this );
-	set_schedule_counter();
+
+	// Modified by : Knightly
+	if ( einstellungen->get_default_path_option() == 2 )
+	{
+		path_explorer_t::refresh_all_categories(true);
+	}
+	else
+	{
+		set_schedule_counter();
+	}
 
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
@@ -1594,6 +1616,9 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	base_pathing_counter = 0;
 
 	outstanding_cars = 0;
+
+	// Added by : Knightly
+	path_explorer_t::initialize();
 }
 
 
@@ -1619,7 +1644,12 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 	}
 
 	int hmax = plan->get_kartenboden()->get_hoehe();
-	// irgendwo ein Tunnel vergraben?
+	// tunnel slope below?
+	grund_t *gr = plan->get_boden_in_hoehe(h-Z_TILE_STEP);
+	if (gr && gr->get_grund_hang()!=hang_t::flach) {
+		return false;
+	}
+	// tunnel below?
 	while(h < hmax) {
 		if(plan->get_boden_in_hoehe(h)) {
 			return false;
@@ -2159,7 +2189,15 @@ karte_t::rotate90()
 	}
 
 	// finally recalculate schedules for goods in transit ...
-	set_schedule_counter();
+	// Modified by : Knightly
+	if ( einstellungen->get_default_path_option() == 2 )
+	{
+		path_explorer_t::refresh_all_categories(true);
+	}
+	else
+	{
+		set_schedule_counter();
+	}
 
 	set_dirty();
 }
@@ -2618,6 +2656,13 @@ void karte_t::neuer_monat()
 		sprintf( buf, "save/autosave%02i.sve", letzter_monat+1 );
 		speichern( buf, true );
 	}
+
+	// Added by : Knightly
+	// Note		: This should be done after all lines and convoys have rolled their statistics
+	if ( einstellungen->get_default_path_option() == 2 )
+	{
+		path_explorer_t::refresh_all_categories(true);
+	}
 }
 
 
@@ -2950,6 +2995,13 @@ karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
+	// Knightly : calling global path explorer
+	if ( einstellungen->get_default_path_option() == 2 )
+	{
+		path_explorer_t::step();
+		INT_CHECK("karte_t::step");
+	}
+	
 	ITERATE(convoi_array,i)
 	{
 		convoihandle_t cnv = convoi_array[i];
@@ -3651,6 +3703,10 @@ void karte_t::laden(loadsave_t *file)
 	display_progress(0, 100);	// does not matter, since fixed width
 
 	destroy();
+
+	// Added by : Knightly
+	path_explorer_t::initialize();
+
 	fast_forward = false;
 
 	// powernets zum laden vorbereiten -> tabelle loeschen
@@ -4087,6 +4143,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	if(file->get_experimental_version() >= 2)
 	{
 		file->rdwr_short(base_pathing_counter, "");
+	}
+
+	// Added by : Knightly
+	if ( einstellungen->get_default_path_option() == 2 )
+	{
+		path_explorer_t::full_instant_refresh();
 	}
 }
 

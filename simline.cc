@@ -135,11 +135,9 @@ void simline_t::add_convoy(convoihandle_t cnv)
 
 	// do we need to tell the world about our new schedule?
 	if(  update_schedules  ) {
-		// welt->set_schedule_counter();
 
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
-		//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
 	}
 }
 
@@ -279,8 +277,7 @@ void simline_t::renew_stops()
 	
 	// Added by Knightly
 	haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
-	//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
-	
+		
 	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
 }
 
@@ -400,20 +397,6 @@ void simline_t::recalc_catg_index()
 //		const convoihandle_t cnv = line_managed_convoys[i];
 		const convoi_t *cnv = line_managed_convoys[i].get_rep();
 		withdraw &= cnv->get_withdraw();
-		/*
-		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
-			// Only consider vehicles that really transport something
-			// this helps against routing errors through passenger
-			// trains pulling only freight wagons
-			if (cnv->get_vehikel(i)->get_fracht_max() == 0) {
-				continue;
-			}
-			const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
-			if(ware!=warenbauer_t::nichts  ) {
-				goods_catg_index.append_unique( ware->get_catg_index(), 1 );
-			}
-		}
-		*/
 
 		// Added by : Knightly
 		const minivec_tpl<uint8> &categories = cnv->get_goods_catg_index();
@@ -421,10 +404,38 @@ void simline_t::recalc_catg_index()
 		for (uint8 j = 0; j < catg_count; j++)
 			goods_catg_index.append_unique(categories[j], 1);
 	}
+	
+	// Modified by	: Knightly
+	// Purpose		: Determine removed and added categories and refresh only those categories.
+	//				  Avoids refreshing unchanged categories
+	minivec_tpl<uint8> differences(goods_catg_index.get_count() + old_goods_catg_index.get_count());
+
+	// removed categories : present in old category list but not in new category list
+	for (uint8 i = 0; i < old_goods_catg_index.get_count(); i++)
+	{
+		if ( ! goods_catg_index.is_contained( old_goods_catg_index[i] ) )
+		{
+			differences.append( old_goods_catg_index[i] );
+		}
+	}
+
+	// added categories : present in new category list but not in old category list
+	for (uint8 i = 0; i < goods_catg_index.get_count(); i++)
+	{
+		if ( ! old_goods_catg_index.is_contained( goods_catg_index[i] ) )
+		{
+			differences.append( goods_catg_index[i] );
+		}
+	}
+
+	// refresh only those categories which are either removed or added to the category list
+	haltestelle_t::refresh_routing(fpl, differences, sp, welt->get_einstellungen()->get_default_path_option());
+
+
+	/* Knightly : Keep old code in case the new approach doesn't work
 	// if different => schedule need recalculation
 	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
 		// surely changed
-		// welt->set_schedule_counter();
 
 		// Added by : Knightly
 		// Need to combine old and new category lists
@@ -432,15 +443,13 @@ void simline_t::recalc_catg_index()
 		{
 			old_goods_catg_index.append_unique(goods_catg_index[k], 1);
 		}
-		haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
-		//haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
+		haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());		
 	}
 	else {
 		// maybe changed => must test all entries
 		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
 			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
 				// different => recalc
-				// welt->set_schedule_counter();
 
 				// Added by : Knightly
 				// Need to combine old and new category lists
@@ -449,12 +458,12 @@ void simline_t::recalc_catg_index()
 					old_goods_catg_index.append_unique(goods_catg_index[k], 1);
 				}
 				haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
-				//haltestelle_t::force_all_halts_paths_stale(old_goods_catg_index);
-
+				
 				break;
 			}
 		}
 	}
+	*/
 }
 
 

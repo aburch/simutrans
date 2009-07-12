@@ -9,6 +9,8 @@
 
 #include "colors.h"
 
+#include "../path_explorer.h"
+#include "../simhalt.h"
 #include "../simdebug.h"
 #include "../simworld.h"
 #include "../simimg.h"
@@ -23,48 +25,54 @@
 #include "../utils/simstring.h"
 
 // y coordinates
-#define GRID_MODE						(0*13+6)
-#define UNDERGROUND						(1*13+6)
-#define SLICE							(2*13+6)
-#define DAY_NIGHT						(3*13+6)
-#define BRIGHTNESS						(4*13+6)
-#define SCROLL_INVERS					(5*13+6)
-#define SCROLL_SPEED					(6*13+6)
+#define GRID_MODE						(6)
+#define UNDERGROUND						(GRID_MODE+13)
+#define SLICE							(UNDERGROUND+13)
+#define DAY_NIGHT						(SLICE+13)
+#define BRIGHTNESS						(DAY_NIGHT+13)
+#define SCROLL_INVERS					(BRIGHTNESS+13)
+#define SCROLL_SPEED					(SCROLL_INVERS+13)
+#define FINANCE_LTR_GRAPHS				(SCROLL_SPEED+13)
+#define OTHER_LTR_GRAPHS				(FINANCE_LTR_GRAPHS+13)
 
-#define SEPERATE1						(7*13+6)
+#define SEPERATE1						(OTHER_LTR_GRAPHS+13)
 
+#define USE_TRANSPARENCY				(SEPERATE1+4)
+#define HIDE_TREES						(USE_TRANSPARENCY+13)
+#define HIDE_CITY_HOUSES				(HIDE_TREES+13)
 
-#define USE_TRANSPARENCY				(7*13+6+4)
-#define HIDE_TREES						(8*13+6+4)
-#define HIDE_CITY_HOUSES				(9*13+6+4)
+#define SEPERATE2						(HIDE_CITY_HOUSES+13)
 
-#define SEPERATE2						(10*13+6+4)
+#define USE_TRANSPARENCY_STATIONS		(SEPERATE2+4)
+#define SHOW_STATION_COVERAGE			(USE_TRANSPARENCY_STATIONS+13)
+#define SHOW_STATION_SIGNS				(SHOW_STATION_COVERAGE+13)
+#define SHOW_STATION_GOODS				(SHOW_STATION_SIGNS+13)
 
-#define USE_TRANSPARENCY_STATIONS		(10*13+6+2*4)
-#define SHOW_STATION_COVERAGE			(11*13+6+2*4)
-#define SHOW_STATION_SIGNS				(12*13+6+2*4)
-#define SHOW_STATION_GOODS				(13*13+6+2*4)
+#define SEPERATE3						(SHOW_STATION_GOODS+13)
 
-#define SEPERATE3						(14*13+6+2*4)
+#define CITY_WALKER						(SEPERATE3+4)
+#define STOP_WALKER						(CITY_WALKER+13)
+#define DENS_TRAFFIC					(STOP_WALKER+13)
+#define CONVOI_TOOLTIPS					(DENS_TRAFFIC+13)
 
-#define CITY_WALKER						(14*13+6+3*4)
-#define STOP_WALKER						(15*13+6+3*4)
-#define DENS_TRAFFIC					(16*13+6+3*4)
-#define CONVOI_TOOLTIPS					(17*13+6+3*4)
+#define SEPERATE4						(CONVOI_TOOLTIPS+13)
 
-#define SEPERATE4						(18*13+6+3*4)
+#define FPS_DATA						(SEPERATE4+4)
+#define IDLE_DATA						(FPS_DATA+13)
+#define FRAME_DATA						(IDLE_DATA+13)
+#define LOOP_DATA						(FRAME_DATA+13)
 
-#define FPS_DATA						(18*13+6+4*4)
-#define IDLE_DATA						(19*13+6+4*4)
-#define FRAME_DATA						(20*13+6+4*4)
-#define LOOP_DATA						(21*13+6+4*4)
+#define SEPERATE5						(LOOP_DATA+13)
 
-#define SEPERATE5						(22*13+6+4*4)
+#define CENTRALIZED_SEARCH				(SEPERATE5+7)
+#define USE_PERFORMANCE_COUNTER			(CENTRALIZED_SEARCH+13)
+#define PHASE_SORT_ELIGIBLE				(USE_PERFORMANCE_COUNTER+13)
+#define PHASE_FILL_MATRIX				(PHASE_SORT_ELIGIBLE+13)
+#define PHASE_PATH_EXPLORE				(PHASE_FILL_MATRIX+13)
+#define PHASE_WARE_REROUTE				(PHASE_PATH_EXPLORE+13)
+#define PATH_EXPLORE_STATUS				(PHASE_WARE_REROUTE+13)
 
-#define INSTANT_REFRESH_ROUTES			(22*13+6+4*4)
-
-#define BOTTOM							(23*13+6+12+5*4)
-
+#define BOTTOM							(PATH_EXPLORE_STATUS+30)
 
 // x coordinates
 #define RIGHT_WIDTH (220)
@@ -100,91 +108,135 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	traffic_density.add_listener(this);
 	add_komponente(&traffic_density);
 
+	uint8 b = 5;
+
 	// other settings
-	buttons[6].set_pos( koord(10,SCROLL_INVERS) );
-	buttons[6].set_typ(button_t::square_state);
-	buttons[6].set_text("4LIGHT_CHOOSE");
-	buttons[6].pressed = umgebung_t::scroll_multi < 0;
-	buttons[6].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
+	//6
+	buttons[++b].set_pos( koord(10,SCROLL_INVERS) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("4LIGHT_CHOOSE");
+	buttons[b].pressed = umgebung_t::scroll_multi < 0;
+	buttons[b].set_tooltip("The main game window can be scrolled by right-clicking and dragging the ground.");
 
-	buttons[7].set_pos( koord(10,STOP_WALKER) );
-	buttons[7].set_typ(button_t::square_state);
-	buttons[7].set_text("5LIGHT_CHOOSE");
-	buttons[7].pressed = welt->get_einstellungen()->get_show_pax();
-	buttons[7].set_tooltip("Pedestrians will appear near stops whenver a passenger vehicle unloads there.");
+	//7
+	buttons[++b].set_pos( koord(10,STOP_WALKER) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("5LIGHT_CHOOSE");
+	buttons[b].pressed = welt->get_einstellungen()->get_show_pax();
+	buttons[b].set_tooltip("Pedestrians will appear near stops whenver a passenger vehicle unloads there.");
 
-	buttons[8].set_pos( koord(10,CITY_WALKER) );
-	buttons[8].set_typ(button_t::square_state);
-	buttons[8].set_text("6LIGHT_CHOOSE");
-	buttons[8].pressed = welt->get_einstellungen()->get_random_pedestrians();
-	buttons[8].set_tooltip("Pedestrians will appear randomly in towns.");
+	//8
+	buttons[++b].set_pos( koord(10,CITY_WALKER) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("6LIGHT_CHOOSE");
+	buttons[b].pressed = welt->get_einstellungen()->get_random_pedestrians();
+	buttons[b].set_tooltip("Pedestrians will appear randomly in towns.");
 
-	buttons[9].set_pos( koord(10,DAY_NIGHT) );
-	buttons[9].set_typ(button_t::square_state);
-	buttons[9].set_text("8WORLD_CHOOSE");
-	buttons[9].pressed = umgebung_t::night_shift;
-	buttons[9].set_tooltip("Whether the lighting in the main game window simulates a periodic transition between day and night.");
+	//9
+	buttons[++b].set_pos( koord(10,DAY_NIGHT) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("8WORLD_CHOOSE");
+	buttons[b].pressed = umgebung_t::night_shift;
+	buttons[b].set_tooltip("Whether the lighting in the main game window simulates a periodic transition between day and night.");
 
-	buttons[10].set_pos( koord(10,USE_TRANSPARENCY) );
-	buttons[10].set_typ(button_t::square_state);
-	buttons[10].set_text("hide transparent");
-	buttons[10].pressed = umgebung_t::hide_with_transparency;
-	buttons[10].set_tooltip("All hidden items (such as trees and buildings) will appear as transparent.");
+	//10
+	buttons[++b].set_pos( koord(10,USE_TRANSPARENCY) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("hide transparent");
+	buttons[b].pressed = umgebung_t::hide_with_transparency;
+	buttons[b].set_tooltip("All hidden items (such as trees and buildings) will appear as transparent.");
 
-	buttons[11].set_pos( koord(10,HIDE_TREES) );
-	buttons[11].set_typ(button_t::square_state);
-	buttons[11].set_text("hide trees");
-	buttons[11].set_tooltip("Trees will be miniaturised or made transparent in the main game window.");
+	//11
+	buttons[++b].set_pos( koord(10,HIDE_TREES) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("hide trees");
+	buttons[b].set_tooltip("Trees will be miniaturised or made transparent in the main game window.");
 
 	// left right for hide messages
-	buttons[12].set_pos( koord(10,HIDE_CITY_HOUSES) );
-	buttons[12].set_typ(button_t::arrowleft);
-	buttons[13].set_pos( koord(RIGHT_WIDTH-10-10,HIDE_CITY_HOUSES) );
-	buttons[13].set_typ(button_t::arrowright);
+	//12
+	buttons[++b].set_pos( koord(10,HIDE_CITY_HOUSES) );
+	buttons[b].set_typ(button_t::arrowleft);
+	//13
+	buttons[++b].set_pos( koord(RIGHT_WIDTH-10-10,HIDE_CITY_HOUSES) );
+	buttons[b].set_typ(button_t::arrowright);
 
-	buttons[14].set_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
-	buttons[14].set_typ(button_t::square_state);
-	buttons[14].set_text("transparent station coverage");
-	buttons[14].pressed = umgebung_t::use_transparency_station_coverage;
-	buttons[14].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
+	//14
+	buttons[++b].set_pos( koord(10,USE_TRANSPARENCY_STATIONS) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("transparent station coverage");
+	buttons[b].pressed = umgebung_t::use_transparency_station_coverage;
+	buttons[b].set_tooltip("The display of the station coverage can either be a transparent rectangle or a series of boxes.");
 
-	buttons[15].set_pos( koord(10,SHOW_STATION_COVERAGE) );
-	buttons[15].set_typ(button_t::square_state);
-	buttons[15].set_text("show station coverage");
-	buttons[15].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
+	//15
+	buttons[++b].set_pos( koord(10,SHOW_STATION_COVERAGE) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("show station coverage");
+	buttons[b].set_tooltip("Show from how far that passengers or goods will come to use your stops. Toggle with the v key.");
 
-	buttons[16].set_pos( koord(10,UNDERGROUND) );
-	buttons[16].set_typ(button_t::square_state);
-	buttons[16].set_text("underground mode");
-	buttons[16].set_tooltip("See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U");
+	//16
+	buttons[++b].set_pos( koord(10,UNDERGROUND) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("underground mode");
+	buttons[b].set_tooltip("See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U");
 
-	buttons[17].set_pos( koord(10,GRID_MODE) );
-	buttons[17].set_typ(button_t::square_state);
-	buttons[17].set_text("show grid");
-	buttons[17].set_tooltip("Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.");
+	//17
+	buttons[++b].set_pos( koord(10,GRID_MODE) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("show grid");
+	buttons[b].set_tooltip("Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.");
 
-	buttons[18].set_pos( koord(10,SHOW_STATION_SIGNS) );
-	buttons[18].set_typ(button_t::square_state);
-	buttons[18].set_text("show station names");
-	buttons[18].pressed = umgebung_t::show_names&1;
-	buttons[18].set_tooltip("Shows the names of the individual stations in the main game window.");
+	//18
+	buttons[++b].set_pos( koord(10,SHOW_STATION_SIGNS) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("show station names");
+	buttons[b].pressed = umgebung_t::show_names&1;
+	buttons[b].set_tooltip("Shows the names of the individual stations in the main game window.");
 
-	buttons[19].set_pos( koord(10,SHOW_STATION_GOODS) );
-	buttons[19].set_typ(button_t::square_state);
-	buttons[19].set_text("show waiting bars");
-	buttons[19].pressed = umgebung_t::show_names&1;
-	buttons[19].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
+	//19	
+	buttons[++b].set_pos( koord(10,SHOW_STATION_GOODS) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("show waiting bars");
+	buttons[b].pressed = umgebung_t::show_names&1;
+	buttons[b].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 
-	buttons[20].set_pos( koord(10,INSTANT_REFRESH_ROUTES) );
-	buttons[20].set_typ(button_t::square_state);
-	buttons[20].set_text("Refresh routes instantly");
-	buttons[20].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
-	buttons[20].set_tooltip("Routes will update instantly after any changes to lines/schedules. Can make the game respond slowly on big maps.");
+	//20
+	buttons[++b].set_pos( koord(10,CENTRALIZED_SEARCH) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("Centralised path searching");
+	buttons[b].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
+	buttons[b].set_tooltip("Use centralised instead of distributed path searching system.");
 
-	buttons[21].set_pos( koord(10,SLICE) );
-	buttons[21].set_typ(button_t::square_state);
-	buttons[21].set_text("sliced underground mode");
-	buttons[21].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
+	//21
+	buttons[++b].set_pos( koord(10,SLICE) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("sliced underground mode");
+	buttons[b].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
+
+	// Added by : Knightly
+	//22
+	buttons[++b].set_pos( koord(10,USE_PERFORMANCE_COUNTER) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("Use performance counter");
+	buttons[b].pressed = umgebung_t::default_einstellungen.get_system_time_option() == 1;
+	buttons[b].set_tooltip("Read-only option : need to be set in simuconf.tab");
+	buttons[b].set_read_only(true);
+#if ( !WIN32 && !SDL )
+	buttons[b].disable();
+#endif
+	
+	//23
+	buttons[++b].set_pos( koord(10, FINANCE_LTR_GRAPHS) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("Inverse graphs (financial)");
+	buttons[b].pressed = !umgebung_t::finance_ltr_graphs;
+	buttons[b].set_tooltip("Graphs showing financial information will appear from right to left instead of left to right");
+	
+	//24
+	buttons[++b].set_pos( koord(10, OTHER_LTR_GRAPHS) );
+	buttons[b].set_typ(button_t::square_state);
+	buttons[b].set_text("Inverse graphs (other)");
+	buttons[b].pressed = !umgebung_t::other_ltr_graphs;
+	buttons[b].set_tooltip("Graphs showing non-financial information will appear from right to left instead of left to right");
 
 	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
 	inp_underground_level.set_groesse( koord(50,12));
@@ -199,7 +251,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[1].set_pos( koord(RIGHT_WIDTH-10-10,CONVOI_TOOLTIPS) );
 	buttons[1].set_typ(button_t::arrowright);
 
-	for(int i=0;  i<MAX_BUTTONS;  i++ ) {
+	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
 		add_komponente( buttons+i );
 	}
@@ -278,6 +330,12 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			// calc new images
 			welt->update_map();
 		}
+	} else if ((buttons+23)==komp) {
+		umgebung_t::finance_ltr_graphs ^= 1;
+		buttons[23].pressed = !umgebung_t::finance_ltr_graphs;
+	} else if ((buttons+24)==komp) {
+		umgebung_t::other_ltr_graphs ^= 1;
+		buttons[24].pressed = !umgebung_t::other_ltr_graphs;
 	}
 
 	else if((buttons+20)==komp)
@@ -287,11 +345,13 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		{
 			welt->get_einstellungen()->set_default_path_option(2);
 			buttons[20].pressed = true;
+			path_explorer_t::full_instant_refresh();
 		}
 		else
 		{
 			welt->get_einstellungen()->set_default_path_option(1);
 			buttons[20].pressed = false;
+			haltestelle_t::prepare_pathing_data_structures();
 		}
 		
 	}
@@ -299,8 +359,6 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	welt->set_dirty();
 	return true;
 }
-
-
 
 
 void color_gui_t::zeichnen(koord pos, koord gr)
@@ -367,4 +425,34 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	len = 15+display_proportional_clip(x+10, y+LOOP_DATA, translator::translate("Sim:"), ALIGN_LEFT, COL_BLACK, true);
 	sprintf( buf, "%d%c%d", loops/10, get_fraction_sep(), loops%10 );
 	display_proportional_clip(x+len, y+LOOP_DATA, buf, ALIGN_LEFT, farbe, true);
+
+	// Added by : Knightly
+	PLAYER_COLOR_VAL text_colour, figure_colour;
+	if ( welt->get_einstellungen()->get_default_path_option() == 2 )
+	{
+		text_colour = COL_BLACK;
+		figure_colour = COL_BLUE;
+	}
+	else
+	{
+		text_colour = MN_GREY0;
+		figure_colour = COL_LIGHT_BLUE;
+	}
+
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_SORT_ELIGIBLE, translator::translate("Sort eligible halts:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_SORT_ELIGIBLE, ntos(path_explorer_t::get_limit_sort_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_PATH_EXPLORE, translator::translate("Path exploration:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_PATH_EXPLORE, ntos(path_explorer_t::get_limit_path_explore(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PHASE_WARE_REROUTE, translator::translate("Goods re-route:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_WARE_REROUTE, ntos(path_explorer_t::get_limit_ware_reroute(), "%lu"), ALIGN_LEFT, figure_colour, true);
+
+	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, translator::translate( path_explorer_t::is_processing() ? "Processing ..." : "Stand-by" ), ALIGN_LEFT, figure_colour, true);
+
 }

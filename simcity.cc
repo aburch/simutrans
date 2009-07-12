@@ -1868,6 +1868,9 @@ void stadt_t::step_passagiere()
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
 	{
+		// Journey time tolerance. 0 = infinite. Default for mail.
+		uint16 tolerance = 0;
+
 		const uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
 		
@@ -1909,6 +1912,10 @@ void stadt_t::step_passagiere()
 				if(passenger_routing_choice <= passenger_routing_local_chance)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
+					if(wtyp == warenbauer_t::passagiere)
+					{
+						tolerance = simrand(welt->get_einstellungen()->get_max_local_tolerance()) + welt->get_einstellungen()->get_min_local_tolerance();
+					}
 					if((float)passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 					{
 						// Will always be a destination in the current town.
@@ -1924,12 +1931,20 @@ void stadt_t::step_passagiere()
 				else if(passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance))
 				{
 					//Medium
-					  destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
+					if(wtyp == warenbauer_t::passagiere)
+					{
+						tolerance = simrand(welt->get_einstellungen()->get_max_midrange_tolerance()) + welt->get_einstellungen()->get_min_midrange_tolerance();
+					}
+					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
 				}
 				else
 				//else if(passenger_routing_choice >= (100 - passenger_routing_longdistance_chance))
 				{
 					//Long distance
+					if(wtyp == warenbauer_t::passagiere)
+					{
+						tolerance = simrand(welt->get_einstellungen()->get_max_longdistance_tolerance()) + welt->get_einstellungen()->get_min_longdistance_tolerance();
+					}
 					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance);  //"Ziel" = "target" (Google)
 				}
 			}
@@ -2022,14 +2037,25 @@ walk:
 				}
 				
 				delete destination_list;
+
+				// Check first whether the best route is outside
+				// the passengers' tolerance.
+
+				if(route_good && tolerance > 0 && best_journey_time > tolerance)
+				{
+					route_good = false;
+					if(!has_private_car)
+					{
+						// If does have private car, might be able to get there by car within the time. Check below.
+						start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
+					}
+				}
 				
 				if(route_good)
 				{
-
 					pax.arrival_time = welt->get_zeit_ms();
 
 					// All passengers will use the quickest route.
-					// TODO: Consider whether to randomise a little.
 					start_halt = start_halts[best_start_halt];
 
 					if(start_halt == pax.get_ziel())
@@ -2058,12 +2084,29 @@ walk:
 							goto public_transport;
 						}
 
+						//Check first that car journey is within time tolerance.
+				
+						// As the crow flies distance. This is very much an approximation - *but*
+						// we use the standard speedbonus speed (for 'buses), which are generally
+						// slower than cars, so, very approximately, it should balance correctly. 
+						// TODO: (Long-term) get the accurate road distance between each town
+						// and have a speedbonus.tab entry for private cars.
+						const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
+						const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
+						const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+
+						if(car_minutes > tolerance)
+						{
+							goto public_transport;
+							// If the journey is too long to go by car,
+							// do not use the car.
+						}
+
 						// The basic preference for using a private car if available.
 						sint16 car_preference = welt->get_einstellungen()->get_base_car_preference_percent();
 						
 						//First, adjust for distance. For very long-distance journies, cars are less popular.
 						
-						//uint16 distance = abs(destinations[current_destination].location.x - pos.x) + abs(destinations[current_destination].location.x - pos.y);
 						if(distance > (midrange_passengers_max_distance * 3))
 						{
 							if(distance >= longdistance_passengers_max_distance)
@@ -2164,10 +2207,7 @@ walk:
 							set_private_car_trip(num_pax, destinations[current_destination].town);
 #ifdef DESTINATION_CITYCARS
 							//citycars with destination
-							if(start_halt.is_bound())
-							{
-								erzeuge_verkehrsteilnehmer(start_halt->get_basis_pos(), step_count, destinations[current_destination].location);
-							}
+							erzeuge_verkehrsteilnehmer(k, step_count, destinations[current_destination].location);
 #endif
 							current_destination ++;
 							break;
@@ -2182,7 +2222,6 @@ public_transport:
 					merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 					city_history_year[0][history_type] += pax.menge;
 					city_history_month[0][history_type] += pax.menge;
-
 				}
 
 				// send them also back
@@ -2252,7 +2291,32 @@ public_transport:
 						if(has_private_car)
 						{
 							//Must use private car, since the halt is crowded.
-							set_private_car_trip(num_pax, destinations[current_destination].town);
+							// However, check first that car journey is within time tolerance.
+					
+							// As the crow flies distance. This is very much an approximation - *but*
+							// we use the standard speedbonus speed (for 'buses), which are generally
+							// slower than cars, so, very approximately, it should balance correctly. 
+							// TODO: (Long-term) get the accurate road distance between each town
+							// and have a speedbonus.tab entry for private cars.
+							const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
+							const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
+							const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+
+							if(car_minutes <= tolerance)
+							{
+								set_private_car_trip(num_pax, destinations[0].town);
+#ifdef DESTINATION_CITYCARS
+								//citycars with destination
+								erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
+#endif
+							}
+							else
+							{
+								if(!start_halts.empty())
+								{
+									start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
+								}
+							}
 						}
 					}
 				} // Returning passengers
@@ -2277,15 +2341,33 @@ public_transport:
 				}
 				if(has_private_car)
 				{
-					//Must use private car, since there is no suitable route.
-					set_private_car_trip(num_pax, destinations[0].town);
-#ifdef DESTINATION_CITYCARS
-				//citycars with destination
-					if(!start_halts.empty() && start_halts[0].is_bound())
+					// Must use private car, since there is no suitable route.
+					// However, check first that car journey is within time tolerance.
+					
+					// As the crow flies distance. This is very much an approximation - *but*
+					// we use the standard speedbonus speed (for 'buses), which are generally
+					// slower than cars, so, very approximately, it should balance correctly. 
+					// TODO: (Long-term) get the accurate road distance between each town
+					// and have a speedbonus.tab entry for private cars.
+					const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
+					const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
+					const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+
+					if(car_minutes <= tolerance)
 					{
-						erzeuge_verkehrsteilnehmer(start_halts[0]->get_basis_pos(), step_count, destinations[current_destination].location);
-					}
+						set_private_car_trip(num_pax, destinations[0].town);
+#ifdef DESTINATION_CITYCARS
+						//citycars with destination
+						erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 #endif
+					}
+					else
+					{
+						if(!start_halts.empty())
+						{
+							start_halts[0]->add_pax_too_slow(pax_left_to_do);
+						}
+					}
 				}
 			}
 
@@ -2432,12 +2514,6 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 				if(distance <= max_distance && distance >= min_distance)
 				{
 					break;
-				}
-
-				// Knightly : 32 iterations all at once may take too long
-				if ( (i % 8) == 0)
-				{
-					INT_CHECK( "simcity 2458" );
 				}
 
 				random += town_step;

@@ -238,29 +238,6 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			
 			// Added by : Knightly
 			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
-			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
-
-			/*
-			ITERATE_PTR(fpl, j)
-			{
-				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-				if(!tmp_halt.is_bound())
-				{
-					// Try a public player halt
-					spieler_t* sp = welt->get_spieler(0);
-					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-				}
-				if(tmp_halt.is_bound())
-				{
-					for(uint8 i = 0; i < anz_vehikel; i ++)
-					{
-						const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
-						tmp_halt->reschedule[catg_index] = true;
-						tmp_halt->force_paths_stale(catg_index);
-					}
-				}
-			}
-			*/
 		}
 		delete fpl;
 	}
@@ -1348,34 +1325,6 @@ void convoi_t::start()
 			
 			// Added by : Knightly
 			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
-			//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
-
-
-			/*
-			ITERATE_PTR(fpl, j)
-			{
-				halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-				if(!tmp_halt.is_bound())
-				{
-					// Try a public player halt
-					spieler_t* sp = welt->get_spieler(0);
-					tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-				}
-				if(tmp_halt.is_bound())
-				{
-					for(uint8 i = 0; i < anz_vehikel; i ++)
-					{
-						const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
-						tmp_halt->reschedule[catg_index] = true;
-						tmp_halt->force_paths_stale(catg_index);
-					}
-				}
-				else
-				{
-					dbg->error("convoi_t::start()", "Halt in schedule does not exist");
-				}
-			}
-			*/
 		}
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
@@ -1634,17 +1583,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 	if(!line.is_bound() && old_state != INITIAL)
 	{
 		// New method - recalculate as necessary
-		/*
-		halthandle_t tmp_halt;
-
-		minivec_tpl<uint8> supported_categories;
-
-		for(uint8 i = 0; i < anz_vehikel; i ++)
-		{
-			const uint8 catg_index = fahr[i]->get_fracht_typ()->get_catg_index();
-			supported_categories.append(catg_index);
-		}
-		*/
 
 		// Added by : Knightly
 		if ( fpl == f && old_fpl )	// Case : Schedule window of operating convoy
@@ -1663,54 +1601,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 			}
 			haltestelle_t::refresh_routing(f, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 		}
-
-		/*
-		ITERATE_PTR(old_schedule, j)
-		{
-			if(fpl == f)
-			{
-				// Do not do this twice if both are the same.
-				break;
-			}
-
-			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-			if(!tmp_halt.is_bound())
-			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-			}
-			if(tmp_halt.is_bound())
-			{
-				ITERATE(supported_categories,i)
-				{
-					const uint8 catg_index = supported_categories[i];
-					tmp_halt->reschedule[catg_index] = true;
-					tmp_halt->force_paths_stale(catg_index);
-				}
-			}
-		}
-
-		ITERATE_PTR(f, k)
-		{
-			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, besitzer_p);
-			if(!tmp_halt.is_bound())
-			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[k].pos, sp);
-			}
-			if(tmp_halt.is_bound())
-			{
-				for(uint8 i = 0; i < anz_vehikel; i ++)
-				{
-					const uint8 catg_index = supported_categories[i];
-					tmp_halt->reschedule[catg_index] = true;
-					tmp_halt->force_paths_stale(catg_index);
-				}
-			}
-		}
-		*/
 	}
 	
 	// happens to be identical?
@@ -2709,8 +2599,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		ALLOCA(uint32, max_loaded_waren, warenbauer_t::get_waren_anzahl());
-		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::get_waren_anzahl() );
+		ALLOCA(uint32, capacity_by_catg_index, warenbauer_t::get_max_catg_index());
+		memset( capacity_by_catg_index, 0, sizeof(uint32)*warenbauer_t::get_max_catg_index() );
 
 		unsigned i;
 		for(i=0; i<anz_vehikel; i++) {
@@ -2720,13 +2610,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const ware_besch_t* ware_besch = v->get_besch()->get_ware();
 			const uint16 menge = v->get_besch()->get_zuladung();
 			if(menge>0  &&  ware_besch!=warenbauer_t::nichts) {
-				max_loaded_waren[ware_besch->get_index()] += menge;
+				capacity_by_catg_index[ware_besch->get_catg_index()] += menge;
 			}
 
 			// then add the actual load
 #ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
-			while(iter_vehicle_ware.next()) {
+			while(iter_vehicle_ware.next()) 
+			{
 				ware_t ware = iter_vehicle_ware.get_current();
 #else
 			const vector_tpl<ware_t> &freight = v->get_fracht();
@@ -2740,18 +2631,6 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					// could this be joined with existing freight?
 					ware_t &tmp = total_fracht[i];
 
-					/* OLD SYSTEM - no account taken of origins and timings.
-					 *
-					 * // for pax: join according next stop
-					 * // for all others we *must* use target coordinates
-					 * if( ware.same_destination(tmp) ) {
-					 */
-
-					// New system: ensure that only sufficiently similar cargo
-					// packets are merged, to preserve, e.g., origins for revenue
-					// calculation. Does not require packets to be identical:
-					// some approximation of the timings is permitted, and intermediate
-					// stop data is merged without checking for equality.
 					if(ware.can_merge_with(tmp))
 					{
 						tmp.menge += ware.menge;
@@ -2776,49 +2655,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 #else
 		vector_tpl <ware_t>capacity;
 #endif
-		for(i = 0; i < warenbauer_t::get_waren_anzahl(); i++) 
+		
+		for( uint8 j = 0; j < warenbauer_t::get_max_catg_index(); j ++ ) 
 		{
-			if(max_loaded_waren[i] > 0 && i != warenbauer_t::INDEX_NONE) 
+			if( capacity_by_catg_index[j] > 0 ) 
 			{
-				ware_t ware(warenbauer_t::get_info(i));
-				ware.menge = max_loaded_waren[i];
-				if(ware.get_catg() == 0) 
-				{
-					capacity.append( ware );
-				} 
-				else 
-				{
-					// append to category?
-#ifdef SLIST_FREIGHT
-					slist_tpl<ware_t>::iterator beginning = capacity.begin();
-					slist_tpl<ware_t>::iterator end = capacity.end();
-					while (beginning != end && beginning->get_catg() < ware.get_catg()) ++beginning;
-					if (beginning != end && beginning->get_catg() == ware.get_catg()) 
-					{
-						beginning->menge += max_loaded_waren[i];
-					}
-					else 
-					{
-						// not yet there
-						capacity.insert(beginning, ware);
-					}
-#else
-					if(capacity.get_count() > 0)
-					{
-						uint16 beginning = 0;
-						uint16 end = capacity.get_count() - 1;
-						while(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() < ware.get_catg()) ++beginning;
-						if(capacity[beginning] != capacity[end] && capacity[beginning].get_catg() == ware.get_catg())
-						{
-							capacity[beginning].menge += max_loaded_waren[i];
-						}
-						else
-						{
-							capacity.insert_at(beginning, ware);
-						}
-					}
-#endif
-				}
+				ware_t ware( warenbauer_t::get_info_catg_index(j) );
+				ware.menge = capacity_by_catg_index[j];
+				capacity.append( ware );
 			}
 		}
 
@@ -2826,7 +2670,6 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		freight_list_sorter_t::sort_freight(&total_fracht, buf, (freight_list_sorter_t::sort_mode_t)freight_info_order, &capacity, "loaded");
 	}
 }
-
 
 
 void convoi_t::open_schedule_window()
@@ -3102,7 +2945,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	ware.reset_accumulated_distance();
 
 	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
-	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60);
+	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
@@ -3669,58 +3512,12 @@ void convoi_t::set_line(linehandle_t org_line)
 
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
-		//haltestelle_t::force_all_halts_paths_stale(goods_catg_index);
-
-		/*
-		ITERATE_PTR(fpl, j)
-		{
-			halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-			if(!tmp_halt.is_bound())
-			{
-				// Try a public player halt
-				spieler_t* sp = welt->get_spieler(0);
-				tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-			}
-			if(tmp_halt.is_bound())
-			{
-				for(uint8 i = 0; i < anz_vehikel; i ++)
-				{
-					const uint8 catg_index = supported_categories[i];
-					tmp_halt->reschedule[catg_index] = true;
-					tmp_halt->force_paths_stale(catg_index);
-				}
-			}
-		}
-		*/
 	}
 	
 	line = org_line;
 	line_id = org_line->get_line_id();
 	schedule_t *new_fpl= org_line->get_schedule()->copy();
 	set_schedule(new_fpl);
-
-	/*  simline_t::add_convoy() will determine if connexions and paths need to be rebuilt
-	ITERATE_PTR(new_fpl, j)
-	{
-		halthandle_t tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, besitzer_p);
-		if(!tmp_halt.is_bound())
-		{
-			// Try a public player halt
-			spieler_t* sp = welt->get_spieler(0);
-			tmp_halt = haltestelle_t::get_halt(welt, fpl->eintrag[j].pos, sp);
-		}
-		if(tmp_halt.is_bound())
-		{
-			// Might be a waypoint, so must check whether bound.
-			for(uint8 i = 0; i < anz_vehikel; i ++)
-			{
-				const uint8 catg_index = supported_categories[i];
-				tmp_halt->reschedule[catg_index] = true;
-				tmp_halt->force_paths_stale(catg_index);
-			}
-		}
-	}
-	*/
 
 	line->add_convoy(self);
 }

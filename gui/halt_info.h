@@ -41,7 +41,7 @@ private:
 	world_view_t view;
 	button_t button;
 	button_t sort_button;     // @author hsiegeln
-	button_t filterButtons[7];
+	button_t filterButtons[8];
 	button_t toggler;
 
 	halthandle_t halt;

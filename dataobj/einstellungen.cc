@@ -331,6 +331,26 @@ einstellungen_t::einstellungen_t() :
 
 	// The default is a selective refresh.
 	default_path_option = 1;
+
+	// The default is using multimedia timer functions.
+	system_time_option = 0;
+
+	// The defaults for journey time tolerance.
+	// Applies to passengers only.
+	// NOTE: The *maximum* numbers need to be 
+	// added to the minimum numbers to produce
+	// the true maximum.
+	// @author: jamespetts
+
+	min_local_tolerance = 45; // 3/4 of an hour.
+	//max_local_tolerance = 60 - min_local_tolerance; // One hour
+	max_local_tolerance = 15; // One hour
+	min_midrange_tolerance = 60;
+	//max_midrange_tolerance = 180 - min_midrange_tolerance; //: Three hours
+	max_midrange_tolerance = 120;
+	min_longdistance_tolerance = 180;
+	//max_longdistance_tolerance = 330 - min_longdistance_tolerance; // Five and a half hours
+	max_longdistance_tolerance = 150;
 }
 
 
@@ -790,10 +810,28 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(speed_bonus_multiplier_percent, "");
 			speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 		}
+		else
+		{
+			// For older saved games, enforcing weight limits strictly is likely to lead
+			// to problems, so, whilst strictly enforced weight limits should be allowed
+			// for new games and games saved with this feature enabled, it should not be
+			// allowed for older saved games.
+			enforce_weight_limits = enforce_weight_limits < 2 ? enforce_weight_limits : 1;
+		}
 		
 		if(file->get_experimental_version() >= 4)
 		{
 			file->rdwr_byte(default_path_option, "");
+		}
+
+		if(file->get_experimental_version() >= 5)
+		{
+			file->rdwr_short(min_local_tolerance, "");
+			file->rdwr_short(max_local_tolerance, "");
+			file->rdwr_short(min_midrange_tolerance, "");
+			file->rdwr_short(max_midrange_tolerance, "");
+			file->rdwr_short(min_longdistance_tolerance, "");
+			file->rdwr_short(max_longdistance_tolerance, "");
 		}
 	}
 }
@@ -1104,8 +1142,23 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	speed_bonus_multiplier_percent = contents.get_int("speed_bonus_multiplier_percent", speed_bonus_multiplier_percent);
 	speed_bonus_multiplier = (float)speed_bonus_multiplier_percent / 100.0F;
 
-	bool instant_path_refresh = contents.get_int("instant_path_refresh", default_path_option == 2);
-	default_path_option = instant_path_refresh ? 2 : 1;
+	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
+	default_path_option = path_searching_approach ? 2 : 1;
+
+	// Added by : Knightly
+	system_time_option = contents.get_int("system_time_functions", system_time_option);
+	if (system_time_option > 1)
+	{
+		system_time_option = 1;
+	}
+
+	//@author: jamespetts
+	min_local_tolerance = contents.get_int("min_local_tolerance", min_local_tolerance);
+	max_local_tolerance = contents.get_int("max_local_tolerance", max_local_tolerance) - min_local_tolerance;
+	min_midrange_tolerance = contents.get_int("min_midrange_tolerance", min_midrange_tolerance);
+	max_midrange_tolerance = contents.get_int("max_midrange_tolerance", max_midrange_tolerance) - min_midrange_tolerance;
+	min_longdistance_tolerance = contents.get_int("min_longdistance_tolerance", min_longdistance_tolerance);
+	max_longdistance_tolerance = contents.get_int("max_longdistance_tolerance", max_longdistance_tolerance) - min_longdistance_tolerance;
 
 	/*
 	 * Selection of savegame format through inifile

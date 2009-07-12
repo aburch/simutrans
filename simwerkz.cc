@@ -11,6 +11,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "path_explorer.h"
 #include "simdebug.h"
 #include "simworld.h"
 #include "player/simplay.h"
@@ -883,7 +884,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		// finally: empty enough
 		if(  gr1->get_grund_hang()!=gr1->get_weg_hang()  ||  gr1->get_halt().is_bound()  ||  gr1->kann_alle_obj_entfernen(sp)  ||
-			gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ) {
+				   gr1->find<gebaeude_t>()  ||  gr1->get_depot()  ||  gr1->get_leitung()  ||  gr1->get_weg(air_wt)  ||  gr1->find<label_t>()  ||  gr1->get_typ()==grund_t::brueckenboden) {
 			return "Tile not empty.";
 		}
 
@@ -916,6 +917,10 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 			else if(  new_slope==ALL_DOWN_SLOPE  ) {
 				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
+					// do not lower tiles to sea
+					if (pos.z == welt->get_grundwasser()) {
+						return "Tile not empty.";
+					}
 					new_slope = hang_t::flach;
 				}
 				else if(  gr1->get_grund_hang()==hang_t::flach  ) {
@@ -1144,8 +1149,9 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					return "";
 				}
 			}
+			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
-	return "Das Feld gehoert\neinem anderen Spieler\n";
+	return "Cannot set marker here.\n";
 	}
 }
 
@@ -1703,12 +1709,15 @@ const char *wkz_tunnelbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 	grund_t *gr;
 	if(start==koord3d::invalid) {
 		gr = welt->lookup(pos);
-		if (gr && gr->is_visible() && gr->hat_wege() ) {
-			if(!spieler_t::check_owner( gr->obj_bei(0)->get_besitzer(), sp )) {
-				return "Das Feld gehoert\neinem anderen Spieler\n";
-			}
-			if(gr==NULL) {
+		if(gr  &&  gr->is_visible() &&  gr->hat_wege()) {
+			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
+			weg_t *w = gr->get_weg_nr(0);
+			if(  w==NULL  ||  w->get_besch()->get_wtyp()!=besch->get_waytype()  ) {
 				return "No suitable ground!";
+			}
+			wegbauer_t bauigel(welt, sp);
+			if(!bauigel.check_owner( w->get_besitzer(), sp )) {
+				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
 		else {
@@ -2869,7 +2878,15 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	if(msg==NULL) {
 		// no error? => recalc all station connections
-		welt->set_schedule_counter();
+		// Modified by : Knightly
+		if (welt->get_einstellungen()->get_default_path_option() == 2)
+		{
+			path_explorer_t::refresh_all_categories(true);
+		}
+		else
+		{
+			welt->set_schedule_counter();
+		}
 	}
 	return msg;
 }
@@ -4164,7 +4181,16 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			}
 		}
 		// since factory connections may have changed
-		welt->set_schedule_counter();
+		// Modified by : Knightly
+		if (welt->get_einstellungen()->get_default_path_option() == 2)
+		{
+			path_explorer_t::refresh_all_categories(true);
+		}
+		else
+		{
+			welt->set_schedule_counter();
+		}
+
 		//ok! they are connected => remove marker
 		init( welt, sp );
 		return NULL;

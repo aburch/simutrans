@@ -29,7 +29,7 @@
 #include "tpl/binary_heap_tpl.h"
 #include "tpl/minivec_tpl.h"
 
-#define MAX_HALT_COST				7 // Total number of cost items
+#define MAX_HALT_COST				8 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
 #define MAX_HALT_NON_MONEY_TYPES	7 // number of non money types in HALT's financial statistic
 #define HALT_ARRIVED				0 // the amount of ware that arrived here
@@ -39,6 +39,7 @@
 #define HALT_UNHAPPY				4 // number of unhappy passangers
 #define HALT_NOROUTE				5 // number of no-route passangers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
+#define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
 
 class cbuffer_t;
 class grund_t;
@@ -337,6 +338,11 @@ private:
 	 */
 	uint32 pax_unhappy;
 
+	// Number of passengers for whom the shortest journey
+	// exceeded their time tolerance.
+	// @author: jamespetts
+	uint32 pax_too_slow;
+
 	/**
 	 * Haltestellen werden beim warenrouting markiert. Jeder durchgang
 	 * hat eine eindeutige marke
@@ -421,6 +427,10 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void reroute_goods();
+
+	// Added by : Knightly
+	// Purpose	: Re-routing goods of a single ware category
+	bool reroute_goods(uint8 catg);
 
 	/**
 	 * getter/setter for sortby
@@ -529,9 +539,15 @@ public:
 	 */
 	void add_pax_unhappy(int n);
 
+	// The number of passengers for whom the shortest
+	// route exceeds their time tolerance.
+	// @author: jamespetts
+	void add_pax_too_slow(int n);
+
 	int get_pax_happy()    const { return pax_happy;    }
 	int get_pax_no_route() const { return pax_no_route; }
 	int get_pax_unhappy()  const { return pax_unhappy;  }
+	int get_pax_too_slow()  const { return pax_too_slow;  }
 
 
 #ifdef LAGER_NOT_IN_USE
@@ -790,10 +806,6 @@ public:
 	// @author: jamespetts
 	void force_paths_stale(const uint8 category);
 
-	// Added by : Knightly
-	// Purpose  : To mark all paths of all halts stale and re-route existing goods packets
-	// static void force_all_halts_paths_stale(const minivec_tpl<uint8> &categories);
-
 	// Added by		: Knightly
 	// Adapted from : Jamespetts' code
 	// Purpose		: To notify relevant halts to rebuild connexions and to notify all halts to recalculate paths
@@ -807,6 +819,14 @@ public:
 	// Return		: -1 if self halt is not found; or position of self halt in halt list if found
 	// Caution		: halt_list will be overwritten
 	sint16 create_reachable_halt_list(const schedule_t *const sched, const spieler_t *const sched_owner, minivec_tpl<halthandle_t> &halt_list);
+
+	// Added by : Knightly
+	// Purpose	: To keep track if pathing data structures are present or not
+	bool has_pathing_data_structures;
+
+	// Added by : Knightly
+	// Purpose	: For all halts, check if pathing data structures are present; if not, create and initialize them
+	static void prepare_pathing_data_structures();
 
 };
 #endif
