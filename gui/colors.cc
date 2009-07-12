@@ -64,13 +64,15 @@
 
 #define SEPERATE5						(LOOP_DATA+13)
 
-#define CENTRALIZED_SEARCH				(SEPERATE5+7)
-#define USE_PERFORMANCE_COUNTER			(CENTRALIZED_SEARCH+13)
-#define PHASE_SORT_ELIGIBLE				(USE_PERFORMANCE_COUNTER+13)
-#define PHASE_FILL_MATRIX				(PHASE_SORT_ELIGIBLE+13)
-#define PHASE_PATH_EXPLORE				(PHASE_FILL_MATRIX+13)
-#define PHASE_WARE_REROUTE				(PHASE_PATH_EXPLORE+13)
-#define PATH_EXPLORE_STATUS				(PHASE_WARE_REROUTE+13)
+#define CENTRALISED_SEARCH				(SEPERATE5+7)
+#define USE_PERFORMANCE_COUNTER			(CENTRALISED_SEARCH+13)
+#define PHASE_FIND_ELIGIBLE				(USE_PERFORMANCE_COUNTER+13)
+#define PHASE_REBUILD_CONNEXIONS		(PHASE_FIND_ELIGIBLE+13)
+#define PHASE_FILL_MATRIX				(PHASE_REBUILD_CONNEXIONS+13)
+#define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+13)
+#define PHASE_REROUTE_GOODS				(PHASE_EXPLORE_PATHS+13)
+#define PATH_EXPLORE_STATUS				(PHASE_REROUTE_GOODS+13)
+
 
 #define BOTTOM							(PATH_EXPLORE_STATUS+30)
 
@@ -153,6 +155,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_tooltip("Trees will be miniaturised or made transparent in the main game window.");
 
 	// left right for hide messages
+
 	//12
 	buttons[++b].set_pos( koord(10,HIDE_CITY_HOUSES) );
 	buttons[b].set_typ(button_t::arrowleft);
@@ -200,7 +203,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_tooltip("Shows a bar graph representing the number of passengers/mail/goods waiting at stops.");
 
 	//20
-	buttons[++b].set_pos( koord(10,CENTRALIZED_SEARCH) );
+	buttons[++b].set_pos( koord(10,CENTRALISED_SEARCH) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Centralised path searching");
 	buttons[b].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
@@ -439,18 +442,20 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 		figure_colour = COL_LIGHT_BLUE;
 	}
 
+	len = 15+display_proportional_clip(x+10, y+PHASE_REBUILD_CONNEXIONS, translator::translate("Rebuild connexions:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_REBUILD_CONNEXIONS, ntos(path_explorer_t::get_limit_rebuild_connexions(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_SORT_ELIGIBLE, translator::translate("Sort eligible halts:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_SORT_ELIGIBLE, ntos(path_explorer_t::get_limit_sort_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_FIND_ELIGIBLE, translator::translate("Find eligible halts:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_FIND_ELIGIBLE, ntos(path_explorer_t::get_limit_find_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_PATH_EXPLORE, translator::translate("Path exploration:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_PATH_EXPLORE, ntos(path_explorer_t::get_limit_path_explore(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_EXPLORE_PATHS, translator::translate("Explore paths:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_EXPLORE_PATHS, ntos(path_explorer_t::get_limit_explore_paths(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_WARE_REROUTE, translator::translate("Goods re-route:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_WARE_REROUTE, ntos(path_explorer_t::get_limit_ware_reroute(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_REROUTE_GOODS, translator::translate("Re-route goods:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, translator::translate( path_explorer_t::is_processing() ? "Processing ..." : "Stand-by" ), ALIGN_LEFT, figure_colour, true);

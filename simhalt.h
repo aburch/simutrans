@@ -11,6 +11,7 @@
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "halthandle_t.h"
+#include "simware.h"
 
 #include "simdings.h"
 #include "simtypes.h"
@@ -289,8 +290,6 @@ private:
 	// detecting when max_transfers has been reached.
 	uint32 *iterations;
 
-	void reset_connexions(uint8 category);
-
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
 	vector_tpl<ware_t> **waren;
@@ -421,6 +420,9 @@ private:
 	uint8 check_waiting;
 
 public:
+
+	void reset_connexions(uint8 category);
+
 	/**
 	* Called every 255 steps
 	* will distribute the goods to changed routes (if there are any)
@@ -827,6 +829,19 @@ public:
 	// Added by : Knightly
 	// Purpose	: For all halts, check if pathing data structures are present; if not, create and initialize them
 	static void prepare_pathing_data_structures();
+
+
+	// Added by		: Knightly
+	// Adapted from : haltestelle_t::add_connexion()
+	// Purpose		: Create goods list of specified goods category if it is not already present
+	void prepare_goods_list(uint8 category)
+	{
+		if ( waren[category] == NULL ) 
+		{
+			// indicates that this can route those goods
+			waren[category] = new vector_tpl<ware_t>(0);
+		}
+	}
 
 };
 #endif

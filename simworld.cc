@@ -1174,7 +1174,7 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 		destroy();
 
 		// Added by : Knightly
-		path_explorer_t::initialize();
+		path_explorer_t::initialize(this);
 	}
 
 	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
@@ -1618,7 +1618,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	outstanding_cars = 0;
 
 	// Added by : Knightly
-	path_explorer_t::initialize();
+	path_explorer_t::initialize(this);
 }
 
 
@@ -3705,7 +3705,7 @@ void karte_t::laden(loadsave_t *file)
 	destroy();
 
 	// Added by : Knightly
-	path_explorer_t::initialize();
+	path_explorer_t::initialize(this);
 
 	fast_forward = false;
 

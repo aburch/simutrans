@@ -1187,45 +1187,26 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 
 		// Check the average speed.
 		uint16 average_speed = 0;
-		// Check whether instant path refresh is on
-		if ( welt->get_einstellungen()->get_default_path_option() == 2 )
+		if(line.is_bound())
 		{
-			// Adapted by	: Knightly
-			// Purpose		: To make speed constant within the same month. Only the first month is affected.
-			//				  Ensures consistent journey time across different halts of the same line/schedule to avoid inappropriate transfer.
-			if ( line.is_bound() )
+			average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
+
+			if(average_speed == 0)
 			{
-				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : ( speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2 );
-			}
-			else if( cnv.is_bound() )
-			{
-				average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : ( speed_to_kmh(cnv->get_min_top_speed()) / 2 );
+				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
 			}
 		}
-		else
+		else if(cnv.is_bound())
 		{
-			if(line.is_bound())
+			average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
+			
+			if(average_speed == 0)
 			{
-				average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
-
-				if(average_speed == 0)
-				{
-					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-					average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
-				}
-			}
-			else if(cnv.is_bound())
-			{
-				average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
-				
-				if(average_speed == 0)
-				{
-					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-					average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
-				}
+				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+				average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
 			}
 		}
-
 
 		halthandle_t current_halt;
 		halthandle_t previous_halt = halt_list[self_halt_idx];
@@ -1237,8 +1218,8 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 		uint16 accumulated_journey_time = 0;
 		
 		// Start with the next halt from self halt, and iterate for (entry_count - 1) times, skipping the last self halt
-		for (uint8 i = 0,				current_halt_idx = (self_halt_idx + 1) % entry_count ; 
-			 i < entry_count - 1; 
+		for (uint8 i = 1,				current_halt_idx = (self_halt_idx + 1) % entry_count ; 
+			 i < entry_count; 
 			 i++,						current_halt_idx = (current_halt_idx + 1) % entry_count)
 		{
 			current_halt = halt_list[current_halt_idx];
@@ -1294,7 +1275,9 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 					delete new_connexion;
 				}
 				//TODO: Consider whether to add code for comfort here, too.
-
+			}
+			else
+			{
 				if(  waren[category] == NULL  ) 
 				{
 					// indicates that this can route those goods
@@ -1436,7 +1419,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 	// If the halt does not support this ware type, no connexion should be constructed
 	if (!is_enabled(ware_type))
 		return;
-	minivec_tpl<halthandle_t> tmp_halt_list(32);  // Initial size is set to 32 to avoid resizing. Should be enough for most schedules.
+	minivec_tpl<halthandle_t> tmp_halt_list(64);  // Initial size is set to 64 to avoid resizing. Should be enough for most schedules.
 	uint8 entry_count;
 	sint16 self_halt_idx;
 
@@ -1737,7 +1720,7 @@ haltestelle_t::path* haltestelle_t::get_path_to(halthandle_t goal, uint8 categor
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_t::get_connexions(uint8 c)
 { 
 
-	if(reschedule[c] || connexions_timestamp[c] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months())
+	if( welt->get_einstellungen()->get_default_path_option() != 2 && ( reschedule[c] || connexions_timestamp[c] <= welt->get_base_pathing_counter() - welt->get_einstellungen()->get_max_rerouting_interval_months() ) )
 	{
 		// Rebuild the connexions if they are stale.
 		rebuild_connexions(c);
