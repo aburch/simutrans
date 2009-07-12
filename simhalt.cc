@@ -1291,7 +1291,9 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 					delete new_connexion;
 				}
 				//TODO: Consider whether to add code for comfort here, too.
-
+			}
+			else
+			{
 				if(  waren[category] == NULL  ) 
 				{
 					// indicates that this can route those goods
