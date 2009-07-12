@@ -10,6 +10,8 @@
 
 #include <string>
 
+#include "simline.h"
+#include "simworld.h"
 #include "halthandle_t.h"
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
@@ -47,6 +49,13 @@ private:
 			convoihandle_t last_convoy;
 		};
 
+		// data structure for temporarily storing lines and lineless conovys
+		struct linkage_t
+		{
+			linehandle_t line;
+			convoihandle_t convoy;
+		};
+
 		// set of variables for finished path data
 		path_element_t **finished_matrix;
 		uint16 *finished_halt_index_map;
@@ -62,6 +71,10 @@ private:
 		// set of variables for full halt list
 		halthandle_t *all_halts_list;
 		uint16 all_halts_count;
+
+		// a vector for storing schedules of lines and lineless convoys
+		vector_tpl<linkage_t> *linkages;
+		uint32 linkages_count;
 
 		// set of variables for transfer list
 		uint16 *transfer_list;
@@ -98,18 +111,21 @@ private:
 		static uint8 representative_category;
 
 		// iteration limits
+		static uint32 limit_rebuild_connexions;
 		static uint32 limit_find_eligible;
 		static uint32 limit_fill_matrix;
 		static uint32 limit_explore_paths;
 		static uint32 limit_reroute_goods;
 
 		// back-up iteration limits
+		static uint32 backup_rebuild_connexions;
 		static uint32 backup_find_eligible;
 		static uint32 backup_fill_matrix;
 		static uint32 backup_explore_paths;
 		static uint32 backup_reroute_goods;
 
 		// default iteration limits
+		static const uint32 default_rebuild_connexions = 4096;
 		static const uint32 default_find_eligible = 4096;
 		static const uint32 default_fill_matrix = 4096;
 		static const uint32 default_explore_paths = 65536;
@@ -121,10 +137,11 @@ private:
 		// phase indices
 		static const uint8 phase_gate_sentinel = 0;
 		static const uint8 phase_init_prepare = 1;
-		static const uint8 phase_find_eligible = 2;
-		static const uint8 phase_fill_matrix = 3;
-		static const uint8 phase_explore_paths = 4;
-		static const uint8 phase_reroute_goods = 5;
+		static const uint8 phase_rebuild_connexions = 2;
+		static const uint8 phase_find_eligible = 3;
+		static const uint8 phase_fill_matrix = 4;
+		static const uint8 phase_explore_paths = 5;
+		static const uint8 phase_reroute_goods = 6;
 
 		// absolute time limits
 		static const uint32 time_midpoint = 32;
@@ -181,6 +198,7 @@ private:
 		
 		static void backup_limits()
 		{
+			backup_rebuild_connexions = limit_rebuild_connexions;
 			backup_find_eligible = limit_find_eligible;
 			backup_fill_matrix = limit_fill_matrix;
 			backup_explore_paths = limit_explore_paths;
@@ -188,6 +206,7 @@ private:
 		}
 		static void restore_limits()
 		{
+			limit_rebuild_connexions = backup_rebuild_connexions;
 			limit_find_eligible = backup_find_eligible;
 			limit_fill_matrix = backup_fill_matrix;
 			limit_explore_paths = backup_explore_paths;
@@ -195,6 +214,7 @@ private:
 		}
 		static void set_maximum_limits()
 		{
+			limit_rebuild_connexions = maximum_limit;
 			limit_find_eligible = maximum_limit;
 			limit_fill_matrix = maximum_limit;
 			limit_explore_paths = maximum_limit;
@@ -202,12 +222,14 @@ private:
 		}
 		static void set_default_limits()
 		{
+			limit_rebuild_connexions = default_rebuild_connexions;
 			limit_find_eligible = default_find_eligible;
 			limit_fill_matrix = default_fill_matrix;
 			limit_explore_paths = default_explore_paths;
 			limit_reroute_goods = default_reroute_goods;
 		}
 
+		static uint32 get_limit_rebuild_connexions() { return limit_rebuild_connexions; }
 		static uint32 get_limit_find_eligible() { return limit_find_eligible; }
 		static uint32 get_limit_fill_matrix() { return limit_fill_matrix; }
 		static uint32 get_limit_explore_paths() { return limit_explore_paths; }
@@ -215,6 +237,7 @@ private:
 
 	};
 
+	static karte_t *world;
 	static uint8 max_categories;
 	static uint8 category_empty;
 	static compartment_t *goods_compartment;
@@ -223,7 +246,7 @@ private:
 
 public:
 
-	static void initialize();
+	static void initialize(karte_t *welt);
 	static void destroy();
 	static void step();
 
@@ -236,6 +259,8 @@ public:
 		return goods_compartment[category].get_path_between(origin_halt, target_halt, aggregate_time, next_transfer);
 	}
 
+	static karte_t *get_world() { return world; }
+	static uint32 get_limit_rebuild_connexions() { return compartment_t::get_limit_rebuild_connexions(); }
 	static uint32 get_limit_find_eligible() { return compartment_t::get_limit_find_eligible(); }
 	static uint32 get_limit_fill_matrix() { return compartment_t::get_limit_fill_matrix(); }
 	static uint32 get_limit_explore_paths() { return compartment_t::get_limit_explore_paths(); }

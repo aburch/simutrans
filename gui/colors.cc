@@ -65,13 +65,14 @@
 
 #define CENTRALISED_SEARCH				(22*13+6+5*4)
 #define USE_PERFORMANCE_COUNTER			(23*13+6+5*4)
-#define PHASE_FIND_ELIGIBLE				(24*13+6+5*4)
-#define PHASE_FILL_MATRIX				(25*13+6+5*4)
-#define PHASE_EXPLORE_PATHS				(26*13+6+5*4)
-#define PHASE_REROUTE_GOODS				(27*13+6+5*4)
-#define PATH_EXPLORE_STATUS				(28*13+6+5*4)
+#define PHASE_REBUILD_CONNEXIONS		(24*13+6+5*4)
+#define PHASE_FIND_ELIGIBLE				(25*13+6+5*4)
+#define PHASE_FILL_MATRIX				(26*13+6+5*4)
+#define PHASE_EXPLORE_PATHS				(27*13+6+5*4)
+#define PHASE_REROUTE_GOODS				(28*13+6+5*4)
+#define PATH_EXPLORE_STATUS				(29*13+6+5*4)
 
-#define BOTTOM							(29*13+6+12+6*4)
+#define BOTTOM							(30*13+6+12+6*4)
 
 
 // x coordinates
@@ -402,6 +403,8 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 		figure_colour = COL_LIGHT_BLUE;
 	}
 
+	len = 15+display_proportional_clip(x+10, y+PHASE_REBUILD_CONNEXIONS, translator::translate("Rebuild connexions :"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_REBUILD_CONNEXIONS, ntos(path_explorer_t::get_limit_rebuild_connexions(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PHASE_FIND_ELIGIBLE, translator::translate("Find eligible halts :"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_FIND_ELIGIBLE, ntos(path_explorer_t::get_limit_find_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
