@@ -1,3 +1,8 @@
 **.d
 **.o
 config.default
+**.ncb
+**.sln
+**.suo
+**.vcproj.*
+**.exe
