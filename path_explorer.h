@@ -72,7 +72,7 @@ private:
 		halthandle_t *all_halts_list;
 		uint16 all_halts_count;
 
-		// a vector for storing schedules of lines and lineless convoys
+		// a vector for storing lines and lineless convoys
 		vector_tpl<linkage_t> *linkages;
 		uint32 linkages_count;
 

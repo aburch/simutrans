@@ -439,9 +439,9 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_init_prepare :  
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 
 			start = dr_time();	// start timing
@@ -484,7 +484,6 @@ void path_explorer_t::compartment_t::step()
 			convoihandle_t current_convoy;
 			linehandle_t current_line;
 			convoihandle_t dummy_convoy;
-			linehandle_t dummy_line;
 			linkage_t temp_linkage;
 
 
@@ -496,10 +495,11 @@ void path_explorer_t::compartment_t::step()
 				if ( !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
 				{
 					temp_linkage.convoy = current_convoy;
-					temp_linkage.line = dummy_line;
 					linkages->append(temp_linkage);
 				}
 			}
+
+			temp_linkage.convoy = dummy_convoy;	// reset the convoy handle component
 
 			// loop through all lines of all players
 			for (int i = 0; i < MAX_PLAYER_COUNT; i++) 
@@ -519,7 +519,6 @@ void path_explorer_t::compartment_t::step()
 					if ( current_line->get_goods_catg_index().is_contained(catg) )
 					{
 						temp_linkage.line = current_line;
-						temp_linkage.convoy = dummy_convoy;
 						linkages->append(temp_linkage);
 					}
 				}
@@ -548,9 +547,9 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_rebuild_connexions :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
@@ -788,9 +787,9 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_find_eligible :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
@@ -894,9 +893,9 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_fill_matrix :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
@@ -1074,9 +1073,9 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_explore_paths :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
@@ -1255,9 +1254,9 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_reroute_goods :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
