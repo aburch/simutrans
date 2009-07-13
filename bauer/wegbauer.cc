@@ -132,18 +132,22 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 {
 	const weg_besch_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
+	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
+	{
 		const weg_besch_t* const test = iter.get_current_value();
 		if(  ((test->get_wtyp()==wtyp  &&
 			(test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
-			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+			&&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
+		{
 				bool test_allowed = test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month();
-				if(  !best_allowed  ||  time==0  ||  test_allowed  ) {
+				if(  !best_allowed  ||  time==0  ||  test_allowed  ) 
+				{
 					if(  best==NULL  ||
 						( best->get_topspeed() <  test->get_topspeed()  &&  test->get_topspeed() <=     speed_limit  )    || // closer to desired speed (from the low end)
 						(     speed_limit      <  best->get_topspeed()  &&  test->get_topspeed() <   best->get_topspeed()) || // respects speed_limit better
 						( time!=0  &&  !best_allowed  &&  test_allowed)                                                       // current choice is actually not really allowed, timewise
-						) {
+						) 
+					{
 							best = test;
 							best_allowed = test_allowed;
 					}
@@ -162,11 +166,13 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
 	{
 		const weg_besch_t* const test = iter.get_current_value();
+		bool best_allowed = false; // Does the best way fulfill the timeline?
 		if(  ((test->get_wtyp()==wtyp  &&
 			     (test->get_styp()==system_type  ||  system_type==weg_t::type_all))  ||  (test->get_wtyp()==track_wt  &&  test->get_styp()==weg_t::type_tram  &&  wtyp==tram_wt))
 			     &&  test->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) 
 		{
-			if(  best==NULL  ||  time==0  ||  (test->get_intro_year_month()<=time  &&  time<test->get_retire_year_month())) 
+			bool test_allowed = test->get_intro_year_month() <= time && time < test->get_retire_year_month();
+			if(  best == NULL  ||  time == 0  ||  test_allowed) 
 			{
 				if(  best == NULL ||
 						((best->get_topspeed() < speed_limit && test->get_topspeed() >= speed_limit) ||
@@ -175,10 +181,11 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 						(((test->get_max_weight() <=  weight_limit && best->get_max_weight() < test->get_max_weight())))) ||
 						((best->get_topspeed() > speed_limit && test->get_topspeed() < best->get_topspeed()) ||		
 						(((best->get_max_weight() > weight_limit) && (test->get_max_weight()) < best->get_max_weight()))) ||
-						(time != 0 && (best->get_intro_year_month()>time  ||  time>=best->get_retire_year_month()))
+						(time!=0  &&  !best_allowed  &&  test_allowed)
 					) 
 				{
 					best = test;
+					best_allowed = test_allowed;
 				}
 			}
 		}

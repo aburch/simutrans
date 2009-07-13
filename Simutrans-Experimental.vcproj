@@ -2591,6 +2591,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base_texts_experimental_additional_5_1.dat"
+				>
+			</File>
+			<File
 				RelativePath="..\simutrans-experimental-binaries\config\electricity.tab"
 				>
 			</File>

@@ -2121,6 +2121,8 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				for(uint32 i = 0;  i < warray->get_count();  i++) 
 				{
 					ware_t &tmp = (*warray)[ i+offset ];
+					const halthandle_t next_transfer = tmp.get_zwischenziel();
+					const uint8 catg_index = tmp.get_besch()->get_catg_index();
 
 					// prevent overflow (faster than division)
 					if(i + offset + 1 >= warray->get_count()) 
@@ -2134,49 +2136,47 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						continue;
 					}					
 
-
-					// For goods that care about their speed, optimise loading for maximum speed of the journey.
-
-					if(tmp.get_besch()->get_speed_bonus() > 0)
-					{												
-						// Try to ascertain whether it would be quicker to board this convoy, or wait for a faster one.
-
-						bool is_preferred = true;
-						if(cnv->get_line().is_bound())
-						{
-							const linehandle_t best_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
-							if(best_line.is_bound() && best_line != cnv->get_line())
-							{
-								is_preferred = false;
-							}
-						}
-						else
-						{
-							const convoihandle_t best_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
-							if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
-							{
-								is_preferred = false;
-							}
-						}
-
-						// Thanks to cwlau9 for suggesting this formula.
-						// July 2009
-						if(!is_preferred)
-						{
-							const uint16 preferred_waiting_minutes = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->waiting_time : 15;
-							const uint16 preferred_travelling_minutes = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time : 15;
-							const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
-
-							if((waiting_minutes - preferred_waiting_minutes) + preferred_travelling_minutes < accumulated_journey_time)
-							{
-								continue;
-							}
-						}	
-					}
-
 					// compatible car and right target stop?
-					if(  tmp.get_zwischenziel() == plan_halt  ) 
+					if(next_transfer == plan_halt) 
 					{
+						// For goods that care about their speed, optimise loading for maximum speed of the journey.
+						if(tmp.get_besch()->get_speed_bonus() > 0)
+						{												
+							// Try to ascertain whether it would be quicker to board this convoy, or wait for a faster one.
+							
+							bool is_preferred = true;
+							if(cnv->get_line().is_bound())
+							{
+								const linehandle_t best_line = get_preferred_line(next_transfer, catg_index);
+								if(best_line.is_bound() && best_line != cnv->get_line())
+								{
+									is_preferred = false;
+								}
+							}
+							else
+							{
+								const convoihandle_t best_convoy = get_preferred_convoy(next_transfer, catg_index);
+								if(best_convoy.is_bound() && best_convoy.get_rep() != cnv)
+								{
+									is_preferred = false;
+								}
+							}
+
+							// Thanks to cwlau9 for suggesting this formula.
+							// July 2009
+							if(!is_preferred)
+							{
+								const uint16 preferred_waiting_minutes = connexions[catg_index].get(next_transfer) != NULL ? connexions[catg_index].get(next_transfer)->waiting_time : 15;
+								const uint16 preferred_travelling_minutes = connexions[catg_index].get(next_transfer) != NULL ? connexions[catg_index].get(next_transfer)->journey_time : 15;
+								const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+
+								if((waiting_minutes - preferred_waiting_minutes) + preferred_travelling_minutes < accumulated_journey_time)
+								{
+									continue;
+								}
+							}	
+						}
+						
 						// not too much?
 						ware_t neu(tmp);
 						if(  tmp.menge > maxi  ) 
@@ -2204,8 +2204,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						resort_freight_info = true;
 						return neu;
 					}
-				}
-				
+				}			
 				// nothing there to load
 			}
 		}
