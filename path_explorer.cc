@@ -7,14 +7,12 @@
 
 #include "path_explorer.h"
 
-#include "tpl/quickstone_hashtable_tpl.h"
 #include "tpl/slist_tpl.h"
 #include "dataobj/translator.h"
 #include "bauer/warenbauer.h"
 #include "besch/ware_besch.h"
 #include "simsys.h"
 #include "simgraph.h"
-#include "simhalt.h"
 #include "./player/simplay.h"
 
 
@@ -34,7 +32,7 @@ uint8 path_explorer_t::current_compartment = 0;
 bool path_explorer_t::processing = false;
 
 
-void path_explorer_t::initialize(karte_t *welt)
+void path_explorer_t::initialise(karte_t *welt)
 {
 	if (welt)
 	{
@@ -51,6 +49,8 @@ void path_explorer_t::initialize(karte_t *welt)
 
 	current_compartment = 0;
 	processing = false;
+
+	compartment_t::initialise();
 }
 
 
@@ -62,6 +62,8 @@ void path_explorer_t::destroy()
 	category_empty = 255;
 	max_categories = 0;
 	processing = false;
+
+	compartment_t::destroy();
 }
 
 
@@ -113,6 +115,9 @@ void path_explorer_t::full_instant_refresh()
 
 	// change all limits to maximum so that each phase is performed in one step
 	compartment_t::set_maximum_limits();
+
+	// clear all connexion hash tables
+	compartment_t::clear_all_connexion_tables();
 
 #ifdef DEBUG_EXPLORER_SPEED
 	unsigned long start, diff;
@@ -175,6 +180,9 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 
 	if (reset_working_set)
 	{
+		// clear all connexion hash tables
+		compartment_t::clear_all_connexion_tables();
+
 		// reset current category pointer : refresh will start from passengers
 		current_compartment = 0;
 	}
@@ -183,6 +191,8 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 ///////////////////////////////////////////////
 
 // compartment_t
+
+quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *path_explorer_t::compartment_t::connexion_list[65536];
 
 uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
 uint32 path_explorer_t::compartment_t::limit_find_eligible = default_find_eligible;
@@ -401,6 +411,18 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 }
 
 
+void path_explorer_t::compartment_t::initialise()
+{
+	initialise_connexion_list();
+}
+
+
+void path_explorer_t::compartment_t::destroy()
+{
+	destroy_all_connexion_tables();
+}
+
+
 void path_explorer_t::compartment_t::step()
 {
 
@@ -455,18 +477,19 @@ void path_explorer_t::compartment_t::step()
 			{
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
-			uint16 actual_halt_count = 0;
 
 			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
-			while (halt_iter.next())
+			for (uint16 i = 0; i < all_halts_count; i++)
 			{
-				if (halt_iter.get_current().is_bound())
+				halt_iter.next();
+				all_halts_list[i] = halt_iter.get_current();
+
+				// create an empty connexion hash table if the current halt does not already have one
+				if ( connexion_list[ all_halts_list[i].get_id() ] == NULL )
 				{
-					all_halts_list[actual_halt_count] = halt_iter.get_current();
-					actual_halt_count++;
+					connexion_list[ all_halts_list[i].get_id() ] = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
 				}
 			}
-			all_halts_count = actual_halt_count;
 
 			// create and initlialize a halthandle-entry to matrix-index map (halt index map)
 			working_halt_index_map = new uint16[65536];
@@ -552,15 +575,6 @@ void path_explorer_t::compartment_t::step()
 
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
-
-			if ( phase_counter == 0 )
-			{
-				// reset connexions of all halts for this compartment's goods category
-				for (uint16 i = 0; i < all_halts_count; i++)
-				{
-					all_halts_list[i]->reset_connexions(catg);
-				}
-			}
 
 			const spieler_t *const public_player = world->get_spieler(1); // public player is #1; #0 is human player
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
@@ -657,7 +671,9 @@ void path_explorer_t::compartment_t::step()
 				for (uint8 h = 0; h < entry_count; h++)
 				{
 					accumulated_journey_time = 0;
-					catg_connexions = halt_list[h]->get_connexions(catg);
+
+					// use hash tables in connexion list, but not the hash tables stored in the halt
+					catg_connexions = connexion_list[ halt_list[h].get_id() ];
 
 					// for each target halt (origin halt is excluded)
 					for (uint8 i = 1,		t = (h + 1) % entry_count; 
@@ -804,6 +820,10 @@ void path_explorer_t::compartment_t::step()
 			// add halt to working halt list only if it has connexions that support this compartment's goods category
 			while (phase_counter < all_halts_count)
 			{
+				// swap the old connexion hash table with a new one, then clear the old one
+				all_halts_list[phase_counter]->swap_connexions( catg, connexion_list[ all_halts_list[phase_counter].get_id() ] );
+				clear_connexion_table( all_halts_list[phase_counter].get_id() );
+
 				if (!all_halts_list[phase_counter]->get_connexions(catg)->empty())
 				{
 					// valid connexion(s) found
@@ -1357,6 +1377,7 @@ void path_explorer_t::compartment_t::step()
 
 }
 
+
 void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *const *const matrix, const halthandle_t *const halt_list, 
 														 const uint16 *const halt_map, const uint16 halt_count)
 {
@@ -1399,6 +1420,81 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 				// print destination
 				printf("Target :  %s\n\n", halt_list[y]->get_name());								
 			}
+		}
+	}
+}
+
+
+bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt, 
+													  uint16 &aggregate_time, halthandle_t &next_transfer)
+{
+	static const halthandle_t dummy_halt;
+	uint32 origin_index, target_index;
+	
+	// check if paths are available and if origin halt and target halt are in finished halt heap
+	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
+			&& ( origin_index = finished_halt_index_map[ origin_halt.get_id() ] ) != 65535
+			&& ( target_index = finished_halt_index_map[ target_halt.get_id() ] ) != 65535
+			&& finished_matrix[origin_index][target_index].next_transfer.is_bound() )
+	{
+		aggregate_time = finished_matrix[origin_index][target_index].aggregate_time;
+		next_transfer = finished_matrix[origin_index][target_index].next_transfer;
+		return true;
+	}
+
+	// requested path not found
+	aggregate_time = 65535;
+	next_transfer = dummy_halt;
+	return false;
+}
+
+
+void path_explorer_t::compartment_t::initialise_connexion_list()
+{
+	for (uint32 i = 0; i < 63336; i++)
+	{
+		connexion_list[i] = NULL;
+	}
+}
+
+
+void path_explorer_t::compartment_t::clear_connexion_table(const uint16 halt_id)
+{
+	if ( halt_id <= 65535 && connexion_list[halt_id] && !connexion_list[halt_id]->empty() )
+	{
+		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id]));
+
+		while(iter.next())
+		{
+			delete iter.get_current_value();
+		}
+		
+		connexion_list[halt_id]->clear();
+	}
+}
+
+
+void path_explorer_t::compartment_t::clear_all_connexion_tables()
+{
+	for (uint32 i = 0; i < 63356; i++)
+	{
+		if ( connexion_list[i] )
+		{
+			clear_connexion_table(i);
+		}
+	}
+}
+
+
+void path_explorer_t::compartment_t::destroy_all_connexion_tables()
+{
+	for (uint32 i = 0; i < 63356; i++)
+	{
+		if ( connexion_list[i] )
+		{
+			clear_connexion_table(i);
+			delete connexion_list[i];
+			connexion_list[i] = NULL;
 		}
 	}
 }

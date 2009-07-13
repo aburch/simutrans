@@ -281,7 +281,13 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
-	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
+	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
+
+	// Knightly : create the actual connexion hash tables
+	for(uint8 i = 0; i < max_categories; i ++)
+	{
+		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
+	}
 
 	// Modified by : Knightly
 	// Purpose	   : To withhold creation of pathing data structures if they are not needed
@@ -367,7 +373,14 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
-	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>[max_categories];
+	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
+
+	// Knightly : create the actual connexion hash tables
+	for(uint8 i = 0; i < max_categories; i ++)
+	{
+		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
+	}
+
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -505,6 +518,7 @@ haltestelle_t::~haltestelle_t()
 	for(uint8 i = 0; i < max_categories; i++)
 	{
 		reset_connexions(i);
+		delete connexions[i];
 	}
 
 	delete[] connexions;
@@ -952,7 +966,7 @@ haltestelle_t::step()
 					// Only consider for discarding if the goods care about their timings.
 					// Goods/passengers' maximum waiting times are proportionate to the length of the journey.
 					const uint16 base_max_minutes = (welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10;  // Minutes are recorded in tenths
-					const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
+					const uint16 thrice_journey = connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel())->journey_time * 3 : base_max_minutes;
 					const uint16 max_minutes = base_max_minutes < thrice_journey ? base_max_minutes : thrice_journey;
 					const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 					if(waiting_minutes > max_minutes)
@@ -1082,7 +1096,7 @@ bool haltestelle_t::reroute_goods(const uint8 catg)
 		// delete, if nothing connects here
 		if (new_warray->empty()) 
 		{
-			if(connexions[catg].empty())
+			if(connexions[catg]->empty())
 			{
 				// no connections from here => delete
 				delete new_warray;
@@ -1257,15 +1271,15 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 
 
 			// Check whether this is the best connexion so far, and, if so, add it.
-			if(!connexions[category].put(current_halt, new_connexion))
+			if(!connexions[category]->put(current_halt, new_connexion))
 			{
 				// The key exists in the hashtable already - check whether this entry is better.
-				connexion* existing_connexion = connexions[category].get(current_halt);
+				connexion* existing_connexion = connexions[category]->get(current_halt);
 				if(existing_connexion->journey_time > new_connexion->journey_time)
 				{
 					// The new connexion is better - replace it.
 					delete existing_connexion;
-					connexions[category].set(current_halt, new_connexion);
+					connexions[category]->set(current_halt, new_connexion);
 				}
 				else
 				{
@@ -1287,35 +1301,35 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 
 linehandle_t haltestelle_t::get_preferred_line(halthandle_t transfer, uint8 category) const
 {
-	if(connexions[category].empty() || connexions[category].get(transfer) == NULL)
+	if(connexions[category]->empty() || connexions[category]->get(transfer) == NULL)
 	{
 		linehandle_t dummy;
 		return dummy;
 	}
-	linehandle_t best_line = connexions[category].get(transfer)->best_line;
+	linehandle_t best_line = connexions[category]->get(transfer)->best_line;
 	return best_line;
 }
 
 convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 category) const
 {
-	if(connexions[category].empty() || connexions[category].get(transfer) == NULL)
+	if(connexions[category]->empty() || connexions[category]->get(transfer) == NULL)
 	{
 		convoihandle_t dummy;
 		return dummy;
 	}
-	convoihandle_t best_convoy  = connexions[category].get(transfer)->best_convoy;
+	convoihandle_t best_convoy = connexions[category]->get(transfer)->best_convoy;
 	return best_convoy;
 }
 
 void haltestelle_t::reset_connexions(uint8 category)
 {
-	if(connexions[category].empty())
+	if(connexions[category]->empty())
 	{
 		// Nothing to do here
 		return;
 	}
 	
-	quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(connexions[category]);
+	quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*(connexions[category]));
 
 	// Delete the connexions.
 	while(iter.next())
@@ -1325,7 +1339,7 @@ void haltestelle_t::reset_connexions(uint8 category)
 
 	
 	// Finally, clear the collection class.
-	connexions[category].clear();
+	connexions[category]->clear();
 }
 
 // Added by		: Knightly
@@ -1723,7 +1737,7 @@ quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* haltestelle_
 		rebuild_connexions(c);
 	}
 	
-	return &connexions[c]; 
+	return connexions[c]; 
 }
 
 void haltestelle_t::force_paths_stale(const uint8 category)
@@ -1831,6 +1845,7 @@ void haltestelle_t::prepare_pathing_data_structures()
 
 		if (!current_halt->has_pathing_data_structures)
 		{
+			// create data structures
 			current_halt->paths = new quickstone_hashtable_tpl<haltestelle_t, path* >[max_categories];
 			current_halt->open_list = new binary_heap_tpl<path_node*>[max_categories];
 
@@ -1838,8 +1853,15 @@ void haltestelle_t::prepare_pathing_data_structures()
 			current_halt->iterations = new uint32[max_categories];
 			for(uint8 i = 0; i < max_categories; i++)
 			{
+				// initilialise
 				current_halt->search_complete[i] = false;
 				current_halt->iterations[i] = 0;
+
+				// reset other flags as well to trigger recalculations
+				current_halt->paths_timestamp[i] = 0;
+				current_halt->connexions_timestamp[i] = 0;
+				current_halt->reschedule[i] = true;
+				current_halt->reroute[i] = true;
 			}
 
 			current_halt->has_pathing_data_structures = true;
@@ -2129,7 +2151,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						// Skip if the goods have recently arrived, and this is not their preferred line/convoy
 						// After waiting some time (1/3rd of their maximum wait), they will board anything.
 						const uint16 third_minutes = base_max_minutes / 3;
-						const uint16 twice_journey = connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()].get(tmp.get_zwischenziel())->journey_time * 2 : base_max_minutes;
+						const uint16 twice_journey = connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel()) != NULL ? connexions[tmp.get_besch()->get_catg_index()]->get(tmp.get_zwischenziel())->journey_time * 2 : base_max_minutes;
 						const uint16 max_best_minutes = third_minutes > twice_journey ? twice_journey : third_minutes;
 						if(cnv != NULL && waiting_minutes <= third_minutes)
 						{

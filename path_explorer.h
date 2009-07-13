@@ -11,6 +11,7 @@
 #include <string>
 
 #include "simline.h"
+#include "simhalt.h"
 #include "simworld.h"
 #include "halthandle_t.h"
 #include "convoihandle_t.h"
@@ -20,6 +21,7 @@
 #include "simmem.h"
 
 #include "tpl/vector_tpl.h"
+#include "tpl/quickstone_hashtable_tpl.h"
 
 class path_explorer_t
 {
@@ -106,6 +108,9 @@ private:
 		uint32 statistic_duration;
 		uint32 statistic_iteration;
 
+		// an array for keeping a list of connexion hash table
+		static quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_list[65536];
+
 		// iteration representative
 		static uint16 representative_halt_count;
 		static uint8 representative_category;
@@ -163,6 +168,8 @@ private:
 		compartment_t();
 		~compartment_t();
 
+		static void initialise();
+		static void destroy();
 		void step();
 		void reset(const bool reset_finished_set);
 
@@ -174,27 +181,15 @@ private:
 		void set_refresh() { refresh_requested = true; }
 
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
-							  uint16 &aggregate_time, halthandle_t &next_transfer)
-		{
-			static const halthandle_t dummy_halt;
-			uint32 origin_index, target_index;
-			
-			// check if paths are available and if origin halt and target halt are in finished halt heap
-			if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
-					&& (origin_index = finished_halt_index_map[origin_halt.get_id()]) != 65535
-					&& (target_index = finished_halt_index_map[target_halt.get_id()]) != 65535
-					&& finished_matrix[origin_index][target_index].next_transfer.is_bound() )
-			{
-				aggregate_time = finished_matrix[origin_index][target_index].aggregate_time;
-				next_transfer = finished_matrix[origin_index][target_index].next_transfer;
-				return true;
-			}
+							  uint16 &aggregate_time, halthandle_t &next_transfer);
 
-			// requested path not found
-			aggregate_time = 65535;
-			next_transfer = dummy_halt;
-			return false;
-		}
+		static void initialise_connexion_list();
+
+		static void clear_connexion_table(const uint16 halt_id);
+
+		static void clear_all_connexion_tables();
+
+		static void destroy_all_connexion_tables();
 		
 		static void backup_limits()
 		{
@@ -246,7 +241,7 @@ private:
 
 public:
 
-	static void initialize(karte_t *welt);
+	static void initialise(karte_t *welt);
 	static void destroy();
 	static void step();
 
