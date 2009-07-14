@@ -627,6 +627,10 @@ void path_explorer_t::compartment_t::step()
 				}
 
 				// create a list of reachable halts
+				if(current_schedule == NULL)
+				{
+					break;
+				}
 				entry_count = current_schedule->get_count();
 				halt_list.clear();
 
