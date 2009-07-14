@@ -282,7 +282,8 @@ private:
 #endif
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
-	quickstone_hashtable_tpl<haltestelle_t, connexion*> *connexions;
+	// Knightly : Change into an array of pointers to connexion hash tables
+	quickstone_hashtable_tpl<haltestelle_t, connexion*> **connexions;
 
 	quickstone_hashtable_tpl<haltestelle_t, path*> *paths;
 
@@ -420,6 +421,19 @@ private:
 	uint8 check_waiting;
 
 public:
+
+	// Added by : Knightly
+	void swap_connexions(const uint8 category, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
+	{
+		// swap the connexion hashtables
+		quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *temp = connexions[category];
+		connexions[category] = cxns;
+		cxns = temp;
+
+		// since this swap is equivalent to having the connexions rebuilt
+		resort_freight_info = true;
+	}
+
 
 	void reset_connexions(uint8 category);
 
