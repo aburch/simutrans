@@ -858,12 +858,6 @@ void path_explorer_t::compartment_t::step()
 			// check if this phase is finished
 			if (phase_counter == all_halts_count)
 			{
-				if ( working_halt_count > representative_halt_count )
-				{
-					representative_category = catg;
-					representative_halt_count = working_halt_count;
-				}
-
 				// iteration limit adjustment
 				if ( catg == representative_category )
 				{
@@ -892,6 +886,12 @@ void path_explorer_t::compartment_t::step()
 				// reset statistic variables
 				statistic_duration = 0;
 				statistic_iteration = 0;
+
+				if ( working_halt_count > representative_halt_count )
+				{
+					representative_category = catg;
+					representative_halt_count = working_halt_count;
+				}
 
 				current_phase = phase_fill_matrix;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
