@@ -221,9 +221,9 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Use performance counter");
 	buttons[b].pressed = umgebung_t::default_einstellungen.get_system_time_option() == 1;
-	buttons[b].set_tooltip("Read-only option: needs to be set in simuconf.tab");
+	buttons[b].set_tooltip("Read-only option for Windows/GDI version only: configurable in simuconf.tab");
 	buttons[b].set_read_only(true);
-#if ( !WIN32 && !SDL )
+#if ( !WIN32 || SDL )
 	buttons[b].disable();
 #endif
 	

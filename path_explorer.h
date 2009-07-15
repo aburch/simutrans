@@ -8,8 +8,6 @@
 #ifndef path_explorer_h
 #define path_explorer_h
 
-#include <string>
-
 #include "simline.h"
 #include "simhalt.h"
 #include "simworld.h"
@@ -18,7 +16,6 @@
 #include "linehandle_t.h"
 #include "simtypes.h"
 #include "simdebug.h"
-#include "simmem.h"
 
 #include "tpl/vector_tpl.h"
 #include "tpl/quickstone_hashtable_tpl.h"

@@ -1036,6 +1036,8 @@ void haltestelle_t::reroute_goods()
 	{
 		if (reroute[i])
 		{
+			// Reset reroute[c] flag immediately
+			reroute[i] = false;
 			if ( reroute_goods(i) )
 			{
 				// call this only if some ware packets are really re-reouted
@@ -1051,9 +1053,6 @@ void haltestelle_t::reroute_goods()
 // Purpose		: re-route goods of a single ware category
 bool haltestelle_t::reroute_goods(const uint8 catg)
 {
-	// Reset reroute[c] flag immediately
-	reroute[catg] = false;
-
 	if(waren[catg])
 	{
 		vector_tpl<ware_t> * warray = waren[catg];
@@ -1854,20 +1853,19 @@ void haltestelle_t::prepare_pathing_data_structures()
 
 			current_halt->search_complete = new bool[max_categories];
 			current_halt->iterations = new uint32[max_categories];
-			for(uint8 i = 0; i < max_categories; i++)
-			{
-				// initilialise
-				current_halt->search_complete[i] = false;
-				current_halt->iterations[i] = 0;
-
-				// reset other flags as well to trigger recalculations
-				current_halt->paths_timestamp[i] = 0;
-				current_halt->connexions_timestamp[i] = 0;
-				current_halt->reschedule[i] = true;
-				current_halt->reroute[i] = true;
-			}
 
 			current_halt->has_pathing_data_structures = true;
+		}
+
+		for (uint8 i = 0; i < max_categories; i++)
+		{
+			// reset all flags to trigger recalculations
+			current_halt->search_complete[i] = false;
+			current_halt->iterations[i] = 0;
+			current_halt->paths_timestamp[i] = 0;
+			current_halt->connexions_timestamp[i] = 0;
+			current_halt->reschedule[i] = true;
+			current_halt->reroute[i] = true;
 		}
 	}
 }
