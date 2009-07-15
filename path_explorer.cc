@@ -623,6 +623,7 @@ void path_explorer_t::compartment_t::step()
 				else
 				{
 					// Case : nothing is bound -> just ignore
+					phase_counter++;
 					continue;
 				}
 

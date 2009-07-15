@@ -35,7 +35,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <mmsystem.h>
 
 #ifndef PATH_MAX
 #define PATH_MAX (1024)
