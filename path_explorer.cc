@@ -164,27 +164,27 @@ void path_explorer_t::full_instant_refresh()
 
 void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 {
-	for (uint8 c = 0; c < max_categories; c++)
+	if (reset_working_set)
 	{
-		if (reset_working_set)
+		for (uint8 c = 0; c < max_categories; c++)
 		{
 			// do not remove the finished matrix and heap
 			goods_compartment[c].reset(false);
 		}
-		else
-		{
-			// only set flag
-			goods_compartment[c].set_refresh();
-		}
-	}
 
-	if (reset_working_set)
-	{
 		// clear all connexion hash tables
 		compartment_t::clear_all_connexion_tables();
 
 		// reset current category pointer : refresh will start from passengers
 		current_compartment = 0;
+	}
+	else
+	{
+		for (uint8 c = 0; c < max_categories; c++)
+		{
+			// only set flag
+			goods_compartment[c].set_refresh();
+		}
 	}
 }
 
