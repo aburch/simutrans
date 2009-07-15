@@ -602,7 +602,7 @@ void path_explorer_t::compartment_t::step()
 				current_linkage = (*linkages)[phase_counter];
 
 				// determine schedule, owner and average speed
-				if ( current_linkage.line.is_bound() )
+				if ( current_linkage.line.is_bound() && current_linkage.line->get_schedule() )
 				{
 					// Case : a line
 					current_schedule = current_linkage.line->get_schedule();
@@ -611,7 +611,7 @@ void path_explorer_t::compartment_t::step()
 													   current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) : 
 													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) / 2 ) );
 				}
-				else if ( current_linkage.convoy.is_bound() )
+				else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() )
 				{
 					// Case : a lineless convoy
 					current_schedule = current_linkage.convoy->get_schedule();
