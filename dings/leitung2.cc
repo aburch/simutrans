@@ -80,6 +80,7 @@ leitung_t::suche_fab_4(const koord pos)
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	set_net(NULL);
+	ribi = ribi_t::keine;
 	rdwr(file);
 }
 

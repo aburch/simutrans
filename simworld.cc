@@ -951,11 +951,12 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 			vector_tpl<uint8> city_flag; // city already connected to the graph? >0 nr of connection component
 			array2d_tpl<sint32> city_dist(einstellungen->get_anzahl_staedte(), einstellungen->get_anzahl_staedte());
 			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
-				for(  int j = max(i + 1, old_anzahl_staedte);  j < einstellungen->get_anzahl_staedte();  j++  ) {
+				city_dist.at(i,i) = 0;
+				for(  int j = i + 1;  j < einstellungen->get_anzahl_staedte();  j++  ) {
 					city_dist.at(i,j) = koord_distance(k[i], k[j]);
 					city_dist.at(j,i) = city_dist.at(i,j);
-					// count unbuildable connections
-					if(  city_dist.at(i,j) >= umgebung_t::intercity_road_length  ) {
+					// count unbuildable connections to new cities
+					if(  j>=old_anzahl_staedte && city_dist.at(i,j) >= umgebung_t::intercity_road_length  ) {
 						count++;
 					}
 				}
@@ -3531,6 +3532,7 @@ void karte_t::laden(loadsave_t *file)
 
 	destroy();
 	fast_forward = false;
+	simloops = 60;
 
 	// powernets zum laden vorbereiten -> tabelle loeschen
 	powernet_t::neue_karte();
