@@ -168,7 +168,7 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 	{
 		for (uint8 c = 0; c < max_categories; c++)
 		{
-			// do not remove the finished matrix and heap
+			// do not remove the finished matrix and halt index map
 			goods_compartment[c].reset(false);
 		}
 
@@ -975,7 +975,7 @@ void path_explorer_t::compartment_t::step()
 
 					current_connexion = origin_iter.get_current_value();
 
-					// determine the position of reachable halt in working heap
+					// determine the matrix index of reachable halt in working halt index map
 					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
 
 					// update corresponding matrix element
@@ -1432,7 +1432,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	static const halthandle_t dummy_halt;
 	uint32 origin_index, target_index;
 	
-	// check if paths are available and if origin halt and target halt are in finished halt heap
+	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
 	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
 			&& ( origin_index = finished_halt_index_map[ origin_halt.get_id() ] ) != 65535
 			&& ( target_index = finished_halt_index_map[ target_halt.get_id() ] ) != 65535
