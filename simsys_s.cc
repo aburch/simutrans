@@ -141,22 +141,9 @@ int dr_os_init(const int* parameter)
 	atexit(SDL_Quit); // clean up on exit
 
 	// Added by : Knightly
-	if ( umgebung_t::default_einstellungen.get_system_time_option() == 0 )
-	{
-		// set precision to 1ms if multimedia timer functions are used
-		timeBeginPeriod(1);
-	}
-	else
-	{
-		// although performance counter is selected, it may not be supported
-		LARGE_INTEGER f;
-		if ( QueryPerformanceFrequency(&f) == 0 )
-		{
-			// performance counter not supported
-			umgebung_t::default_einstellungen.set_system_time_option(0); // reset to using multimedia timer
-			timeBeginPeriod(1);	// set precision to 1ms
-		}
-	}
+	// Note		: SDL will call timeBeginPeriod(1) even if we don't call SDL_GetTicks()
+	//			  Thus, there is no benefit of using performance counter with SDL version
+	umgebung_t::default_einstellungen.set_system_time_option(0); // reset to using multimedia timer
 
 	return TRUE;
 }
@@ -259,14 +246,6 @@ int dr_os_close(void)
 	// Hajo: SDL doc says, screen is free'd by SDL_Quit and should not be
 	// free'd by the user
 	// SDL_FreeSurface(screen);
-
-	// Added by : Knightly
-	if ( umgebung_t::default_einstellungen.get_system_time_option() == 0 )
-	{
-		// reset precision if multimedia timer functions have been used
-		timeEndPeriod(1);
-	}
-
 
 	return TRUE;
 }
@@ -691,26 +670,7 @@ void ex_ord_update_mx_my()
 
 unsigned long dr_time(void)
 {
-	// Modified by : Knightly
-	// declare and initialize once
-	static LARGE_INTEGER t;		// for storing current time in counts
-	static LARGE_INTEGER f;		// for storing performance counter frequency, which is fixed when system is running
-	static const bool support_performance_counter = ( QueryPerformanceFrequency(&f) != 0 );
-		
-	if ( umgebung_t::default_einstellungen.get_system_time_option() == 1 )
-	{
-		// Case : use performance counter functions
-		QueryPerformanceCounter(&t);
-		return (unsigned long) (t.QuadPart * 1000 / f.QuadPart);
-	}
-	else
-	{
-		// Case : use multimedia timer functions
-		return timeGetTime();
-	}
-
-	// Knightly : this function actually calls timeGetTime()
-	// return SDL_GetTicks();
+	return SDL_GetTicks();
 }
 
 

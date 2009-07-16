@@ -272,7 +272,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 					if(first_run)
 					{
 						new_cnv = add_convoi();
-						new_cnv->set_name(old_cnv->get_name());
+						new_cnv->set_name(old_cnv->get_internal_name());
 						first_run = false;
 					}
 					vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
@@ -286,7 +286,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 			if(first_run)
 			{
 				new_cnv = add_convoi();
-				new_cnv->set_name(old_cnv->get_name());
+				new_cnv->set_name(old_cnv->get_internal_name());
 				first_run = false;
 			}
 			new_cnv->set_line(old_cnv->get_line());
@@ -297,8 +297,8 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 			{
 				if(first_run)
 				{
-					new_cnv = add_convoi();
-					new_cnv->set_name(old_cnv->get_name());
+					new_cnv = add_convoi();					
+					new_cnv->set_name(old_cnv->get_internal_name());
 					first_run = false;
 				}
 				new_cnv->set_schedule(old_cnv->get_schedule()->copy());

@@ -11,6 +11,7 @@
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "halthandle_t.h"
+#include "simware.h"
 
 #include "simdings.h"
 #include "simtypes.h"
@@ -281,15 +282,14 @@ private:
 #endif
 	// Table of all direct connexions to this halt, with routing information.
 	// Array: one entry per goods type.
-	quickstone_hashtable_tpl<haltestelle_t, connexion*> *connexions;
+	// Knightly : Change into an array of pointers to connexion hash tables
+	quickstone_hashtable_tpl<haltestelle_t, connexion*> **connexions;
 
 	quickstone_hashtable_tpl<haltestelle_t, path*> *paths;
 
 	// The number of iterations of paths currently traversed. Used for
 	// detecting when max_transfers has been reached.
 	uint32 *iterations;
-
-	void reset_connexions(uint8 category);
 
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
@@ -421,6 +421,22 @@ private:
 	uint8 check_waiting;
 
 public:
+
+	// Added by : Knightly
+	void swap_connexions(const uint8 category, quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>* &cxns)
+	{
+		// swap the connexion hashtables
+		quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *temp = connexions[category];
+		connexions[category] = cxns;
+		cxns = temp;
+
+		// since this swap is equivalent to having the connexions rebuilt
+		resort_freight_info = true;
+	}
+
+
+	void reset_connexions(uint8 category);
+
 	/**
 	* Called every 255 steps
 	* will distribute the goods to changed routes (if there are any)
@@ -827,6 +843,19 @@ public:
 	// Added by : Knightly
 	// Purpose	: For all halts, check if pathing data structures are present; if not, create and initialize them
 	static void prepare_pathing_data_structures();
+
+
+	// Added by		: Knightly
+	// Adapted from : haltestelle_t::add_connexion()
+	// Purpose		: Create goods list of specified goods category if it is not already present
+	void prepare_goods_list(uint8 category)
+	{
+		if ( waren[category] == NULL ) 
+		{
+			// indicates that this can route those goods
+			waren[category] = new vector_tpl<ware_t>(0);
+		}
+	}
 
 };
 #endif

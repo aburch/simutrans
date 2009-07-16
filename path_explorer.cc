@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2009 : Knightly
  *
- * A centralized, steppable path searching system using Floyd-Warshall Algorithm
+ * A centralised, steppable path searching system using Floyd-Warshall Algorithm
  */
 
 
@@ -13,7 +13,7 @@
 #include "besch/ware_besch.h"
 #include "simsys.h"
 #include "simgraph.h"
-#include "simhalt.h"
+#include "./player/simplay.h"
 
 
 // #define DEBUG_EXPLORER_SPEED
@@ -24,61 +24,70 @@
 
 // path_explorer_t
 
+karte_t *path_explorer_t::world = NULL;
 uint8 path_explorer_t::max_categories = 0;
 uint8 path_explorer_t::category_empty = 255;
-path_explorer_t::compartment_t *path_explorer_t::ware_compartment = NULL;
+path_explorer_t::compartment_t *path_explorer_t::goods_compartment = NULL;
 uint8 path_explorer_t::current_compartment = 0;
 bool path_explorer_t::processing = false;
 
 
-void path_explorer_t::initialize()
+void path_explorer_t::initialise(karte_t *welt)
 {
+	if (welt)
+	{
+		world = welt;
+	}
 	max_categories = warenbauer_t::get_max_catg_index();
 	category_empty = warenbauer_t::nichts->get_catg_index();
-	ware_compartment = new compartment_t[max_categories];
+	goods_compartment = new compartment_t[max_categories];
 
 	for (uint8 i = 0; i < max_categories; i++)
 	{
-		ware_compartment[i].set_category(i);
+		goods_compartment[i].set_category(i);
 	}
 
 	current_compartment = 0;
 	processing = false;
+
+	compartment_t::initialise();
 }
 
 
 void path_explorer_t::destroy()
 {
-	delete[] ware_compartment;
-	ware_compartment = NULL;
+	delete[] goods_compartment;
+	goods_compartment = NULL;
 	current_compartment = 0;
 	category_empty = 255;
 	max_categories = 0;
 	processing = false;
+
+	compartment_t::destroy();
 }
 
 
 void path_explorer_t::step()
 {
-	// at most check all ware categories once
+	// at most check all goods categories once
 	for (uint8 i = 0; i < max_categories; i++)
 	{
 		if ( current_compartment != category_empty
-			 && (!ware_compartment[current_compartment].is_refresh_completed() 
-			     || ware_compartment[current_compartment].is_refresh_requested() ) )
+			 && (!goods_compartment[current_compartment].is_refresh_completed() 
+			     || goods_compartment[current_compartment].is_refresh_requested() ) )
 		{
 			processing = true;	// this step performs something
 
 			// perform step
-			ware_compartment[current_compartment].step();
+			goods_compartment[current_compartment].step();
 
 			// if refresh is completed, move on to the next category
-			if ( ware_compartment[current_compartment].is_refresh_completed() )
+			if ( goods_compartment[current_compartment].is_refresh_completed() )
 			{
 				current_compartment = (current_compartment + 1) % max_categories;
 			}
 
-			// each step process at most 1 ware category
+			// each step process at most 1 goods category
 			return;
 		}
 
@@ -92,9 +101,9 @@ void path_explorer_t::step()
 
 void path_explorer_t::full_instant_refresh()
 {
-	// exclude empty ware (nichts)
-	int total_steps = (max_categories - 1) * 5;
-	int curr_step = 0;
+	// exclude empty goods (nichts)
+	uint16 total_steps = (max_categories - 1) * 6;
+	uint16 curr_step = 0;
 
 	processing = true;
 
@@ -107,6 +116,9 @@ void path_explorer_t::full_instant_refresh()
 	// change all limits to maximum so that each phase is performed in one step
 	compartment_t::set_maximum_limits();
 
+	// clear all connexion hash tables
+	compartment_t::clear_all_connexion_tables();
+
 #ifdef DEBUG_EXPLORER_SPEED
 	unsigned long start, diff;
 	start = dr_time();
@@ -117,20 +129,20 @@ void path_explorer_t::full_instant_refresh()
 		if ( c != category_empty )
 		{
 			// clear any previous leftovers
-			ware_compartment[c].reset(true);
+			goods_compartment[c].reset(true);
 
 #ifndef DEBUG_EXPLORER_SPEED
-			// go through all 5 phases
-			for (uint8 p = 0; p < 5; p++)
+			// go through all 6 phases
+			for (uint8 p = 0; p < 6; p++)
 			{
 				// perform step
-				ware_compartment[c].step();
+				goods_compartment[c].step();
 				curr_step++;
 				display_progress(curr_step, total_steps);
 			}
 #else
 			// one step should perform the first 4 compartment phases
-			ware_compartment[c].step();
+			goods_compartment[c].step();
 #endif
 		}
 	}
@@ -157,17 +169,20 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 		if (reset_working_set)
 		{
 			// do not remove the finished matrix and heap
-			ware_compartment[c].reset(false);
+			goods_compartment[c].reset(false);
 		}
 		else
 		{
 			// only set flag
-			ware_compartment[c].set_refresh();
+			goods_compartment[c].set_refresh();
 		}
 	}
 
 	if (reset_working_set)
 	{
+		// clear all connexion hash tables
+		compartment_t::clear_all_connexion_tables();
+
 		// reset current category pointer : refresh will start from passengers
 		current_compartment = 0;
 	}
@@ -177,15 +192,19 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 
 // compartment_t
 
-uint32 path_explorer_t::compartment_t::limit_sort_eligible = default_sort_eligible;
-uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
-uint32 path_explorer_t::compartment_t::limit_path_explore = default_path_explore;
-uint32 path_explorer_t::compartment_t::limit_ware_reroute = default_ware_reroute;
+quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *path_explorer_t::compartment_t::connexion_list[65536];
 
-uint32 path_explorer_t::compartment_t::backup_sort_eligible = default_sort_eligible;
+uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
+uint32 path_explorer_t::compartment_t::limit_find_eligible = default_find_eligible;
+uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
+uint32 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
+uint32 path_explorer_t::compartment_t::limit_reroute_goods = default_reroute_goods;
+
+uint32 path_explorer_t::compartment_t::backup_rebuild_connexions = default_rebuild_connexions;
+uint32 path_explorer_t::compartment_t::backup_find_eligible = default_find_eligible;
 uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
-uint32 path_explorer_t::compartment_t::backup_path_explore = default_path_explore;
-uint32 path_explorer_t::compartment_t::backup_ware_reroute = default_ware_reroute;
+uint32 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
+uint32 path_explorer_t::compartment_t::backup_reroute_goods = default_reroute_goods;
 
 uint16 path_explorer_t::compartment_t::representative_halt_count = 0;
 uint8 path_explorer_t::compartment_t::representative_category = 0;
@@ -193,16 +212,20 @@ uint8 path_explorer_t::compartment_t::representative_category = 0;
 path_explorer_t::compartment_t::compartment_t()
 {
 	finished_matrix = NULL;
-	finished_heap = NULL;
+	finished_halt_index_map = NULL;
 	finished_halt_count = 0;
 
 	working_matrix = NULL;
 	transport_matrix = NULL;
-	working_heap = NULL;
+	working_halt_index_map = NULL;
+	working_halt_list = NULL;
 	working_halt_count = 0;
 
 	all_halts_list = NULL;
 	all_halts_count = 0;
+
+	linkages = NULL;
+	linkages_count = 0;
 
 	transfer_list = NULL;
 	transfer_count = 0;;
@@ -214,7 +237,7 @@ path_explorer_t::compartment_t::compartment_t()
 	refresh_completed = true;
 	refresh_requested = true;
 
-	current_phase = phase_init_prepare;
+	current_phase = phase_gate_sentinel;
 
 	phase_counter = 0;
 	iterations = 0;
@@ -222,7 +245,7 @@ path_explorer_t::compartment_t::compartment_t()
 	via_index = 0;
 	origin = 0;
 
-	limit_origin_explore = 0;
+	limit_explore_origins = 0;
 
 	statistic_duration = 0;
 	statistic_iteration = 0;
@@ -239,9 +262,9 @@ path_explorer_t::compartment_t::~compartment_t()
 		}
 		delete[] finished_matrix;
 	}
-	if (finished_heap)
+	if (finished_halt_index_map)
 	{
-		delete finished_heap;
+		delete[] finished_halt_index_map;
 	}
 
 
@@ -261,9 +284,13 @@ path_explorer_t::compartment_t::~compartment_t()
 		}
 		delete[] transport_matrix;
 	}
-	if (working_heap)
+	if (working_halt_index_map)
 	{
-		delete working_heap;
+		delete[] working_halt_index_map;
+	}
+	if (working_halt_list)
+	{
+		delete[] working_halt_list;
 	}
 
 
@@ -272,6 +299,10 @@ path_explorer_t::compartment_t::~compartment_t()
 		delete[] all_halts_list;
 	}
 
+	if (linkages)
+	{
+		delete linkages;
+	}
 
 	if (transfer_list)
 	{
@@ -293,10 +324,10 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 			delete[] finished_matrix;
 			finished_matrix = NULL;
 		}
-		if (finished_heap)
+		if (finished_halt_index_map)
 		{
-			delete finished_heap;
-			finished_heap = NULL;
+			delete[] finished_halt_index_map;
+			finished_halt_index_map = NULL;
 		}		
 		finished_halt_count = 0;
 	}
@@ -319,11 +350,16 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		}
 		delete[] transport_matrix;
 		transport_matrix = NULL;
-	}	
-	if (working_heap)
+	}
+	if (working_halt_index_map)
 	{
-		delete working_heap;
-		working_heap = NULL;
+		delete[] working_halt_index_map;
+		working_halt_index_map = NULL;
+	}
+	if (working_halt_list)
+	{
+		delete[] working_halt_list;
+		working_halt_list = NULL;
 	}	
 	working_halt_count = 0;
 
@@ -334,6 +370,14 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		all_halts_list = NULL;
 	}	
 	all_halts_count = 0;
+
+
+	if (linkages)
+	{
+		delete linkages;
+		linkages = NULL;
+	}
+	linkages_count = 0;
 
 
 	if (transfer_list)
@@ -352,7 +396,7 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	refresh_completed = true;
 	refresh_requested = true;
 
-	current_phase = phase_init_prepare;
+	current_phase = phase_gate_sentinel;
 
 	phase_counter = 0;
 	iterations = 0;
@@ -360,10 +404,22 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	via_index = 0;
 	origin = 0;
 
-	limit_origin_explore = 0;
+	limit_explore_origins = 0;
 
 	statistic_duration = 0;
 	statistic_iteration = 0;
+}
+
+
+void path_explorer_t::compartment_t::initialise()
+{
+	initialise_connexion_list();
+}
+
+
+void path_explorer_t::compartment_t::destroy()
+{
+	destroy_all_connexion_tables();
 }
 
 
@@ -380,14 +436,15 @@ void path_explorer_t::compartment_t::step()
 	switch (current_phase)
 	{
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Phase 0 : initial preparation
-		case phase_init_prepare :
+		// Phase 0 : Determine if a new refresh should be done, and prepare relevant flags accordingly
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case phase_gate_sentinel :
 		{
 			if (refresh_requested)
 			{
 				refresh_requested = false;	// immediately reset it so that we can take new requests
 				refresh_completed = false;	// indicate that processing is at work
-				current_phase = phase_full_array;	// proceed to next phase
+				current_phase = phase_init_prepare;	// proceed to next phase
 				// no return statement here, as we want to fall through to the next phase
 			}
 			else
@@ -400,13 +457,13 @@ void path_explorer_t::compartment_t::step()
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Phase 1 : Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
+		// Phase 1 : Prepare a list of all halts, a halt index map, and a list of linkages for connexions reconstruction
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_full_array :  
+		case phase_init_prepare :  
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 
 			start = dr_time();	// start timing
@@ -420,27 +477,88 @@ void path_explorer_t::compartment_t::step()
 			{
 				all_halts_list = new halthandle_t[all_halts_count];
 			}
-			uint16 actual_halt_count = 0;
 
-			// copy halt handle to all halt list if it is bound
-			while (halt_iter.next())
+			// Save the halt list in an array first to prevent the list from being modified across steps, causing bugs
+			for (uint16 i = 0; i < all_halts_count; i++)
 			{
-				if (halt_iter.get_current().is_bound())
+				halt_iter.next();
+				all_halts_list[i] = halt_iter.get_current();
+
+				// create an empty connexion hash table if the current halt does not already have one
+				if ( connexion_list[ all_halts_list[i].get_id() ] == NULL )
 				{
-					all_halts_list[actual_halt_count] = halt_iter.get_current();
-					actual_halt_count++;
+					connexion_list[ all_halts_list[i].get_id() ] = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
 				}
 			}
-			all_halts_count = actual_halt_count;
+
+			// create and initlialize a halthandle-entry to matrix-index map (halt index map)
+			working_halt_index_map = new uint16[65536];
+			for (uint32 i = 0; i < 65536; i++)
+			{
+				// For quickstone handle, there can at most be 65535 valid entries, plus entry 0 which is reserved for null handle
+				// Thus, the range of quickstone entries [1, 65535] is mapped to the range of matrix index [0, 65534]
+				// Matrix index 65535 either means null handle or the halt has no connexion of the relevant goods category
+				// This is always created regardless
+				working_halt_index_map[i] = 65535;
+			}
+
+			// create a list of schedules of lines and lineless convoys
+			linkages = new vector_tpl<linkage_t>(1024);
+			convoihandle_t current_convoy;
+			linehandle_t current_line;
+			convoihandle_t dummy_convoy;
+			linkage_t temp_linkage;
+
+
+			// loop through all convoys
+			for (vector_tpl<convoihandle_t>::const_iterator i = world->convois_begin(), end = world->convois_end(); i != end; i++) 
+			{
+				current_convoy = *i;
+				// only consider lineless convoys which support this compartment's goods catetory
+				if ( !current_convoy->get_line().is_bound() && current_convoy->get_goods_catg_index().is_contained(catg) )
+				{
+					temp_linkage.convoy = current_convoy;
+					linkages->append(temp_linkage);
+				}
+			}
+
+			temp_linkage.convoy = dummy_convoy;	// reset the convoy handle component
+
+			// loop through all lines of all players
+			for (int i = 0; i < MAX_PLAYER_COUNT; i++) 
+			{
+				spieler_t *current_player = world->get_spieler(i);
+
+				if(  current_player == NULL  ) 
+				{
+					continue;
+				}
+
+				for (vector_tpl<linehandle_t>::const_iterator j = current_player->simlinemgmt.get_all_lines().begin(), 
+					 end = current_player->simlinemgmt.get_all_lines().end(); j != end; j++) 
+				{
+					current_line = *j;
+					// only consider lines which support this compartment's goods category
+					if ( current_line->get_goods_catg_index().is_contained(catg) )
+					{
+						temp_linkage.line = current_line;
+						linkages->append(temp_linkage);
+					}
+				}
+			}
+
+			linkages_count = linkages->get_count();
+
 
 #ifdef DEBUG_COMPARTMENT_STEP
 			diff = dr_time() - start;	// stop timing
 
 			printf("\tTotal Halt Count :  %lu \n", all_halts_count);
-			printf("\t\t\tConstructing full halt list takes :  %lu ms \n", diff);
+			printf("\tTotal Lines/Lineless Convoys Count :  %ul \n", linkages_count);
+			printf("\t\t\tInitial prepration takes :  %lu ms \n", diff);
 #endif
 
-			current_phase = phase_sort_eligible;	// proceed to the next phase
+			current_phase = phase_rebuild_connexions;	// proceed to the next phase
 
 #ifndef DEBUG_EXPLORER_SPEED
 			return;
@@ -448,44 +566,172 @@ void path_explorer_t::compartment_t::step()
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Phase 2 : Construct a sorted halt list. Only halts which support current ware type will be added
+		// Phase 2 : Rebuild connexions for this compartment's goods category
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_sort_eligible :
+		case phase_rebuild_connexions :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
-			// create working heap only if we are not resuming 
-			if (phase_counter == 0)
-			{
-				// size is set to total number of halts to avoid resizing
-				working_heap = new halthandle_sorted_heap_t( all_halts_count ? all_halts_count : 1 );
-			}
+			const spieler_t *const public_player = world->get_spieler(1); // public player is #1; #0 is human player
+			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
 
-			halthandle_sorted_heap_t &current_heap = *working_heap;	// to avoid deferencing frequently
-			
+			linkage_t current_linkage;
+			schedule_t *current_schedule;
+			spieler_t *current_owner;
+			uint32 current_average_speed;
+
+			uint8 entry_count;
+			halthandle_t current_halt;
+
+			minivec_tpl<halthandle_t> halt_list(64);
+			minivec_tpl<uint16> journey_time_list(64);
+
+			uint16 accumulated_journey_time;
+			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
+			haltestelle_t::connexion *new_connexion;
+
 			start = dr_time();	// start timing
 
-			// add halt to heap only if it has connexions that support this compartment's ware category
-			while (phase_counter < all_halts_count)
+			// for each schedule of line / lineless convoy
+			while (phase_counter < linkages_count)
 			{
-				// connexions are always rebuilt to ensure that we are working on the most up-to-date data
-				all_halts_list[phase_counter]->rebuild_connexions(catg);
+				current_linkage = (*linkages)[phase_counter];
 
-				if (!all_halts_list[phase_counter]->get_connexions(catg)->empty())
+				// determine schedule, owner and average speed
+				if ( current_linkage.line.is_bound() )
 				{
-					// valid connexion(s) found
-					current_heap.insert(all_halts_list[phase_counter], true);			
+					// Case : a line
+					current_schedule = current_linkage.line->get_schedule();
+					current_owner = current_linkage.line->get_besitzer();
+					current_average_speed = (uint32) ( current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? 
+													   current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) : 
+													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) / 2 ) );
+				}
+				else if ( current_linkage.convoy.is_bound() )
+				{
+					// Case : a lineless convoy
+					current_schedule = current_linkage.convoy->get_schedule();
+					current_owner = current_linkage.convoy->get_besitzer();
+					current_average_speed = (uint32) ( current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? 
+													   current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) : 
+													   ( speed_to_kmh(current_linkage.convoy->get_min_top_speed()) / 2 ) );
+				}
+				else
+				{
+					// Case : nothing is bound -> just ignore
+					continue;
+				}
+
+				// create a list of reachable halts
+				if(current_schedule == NULL)
+				{
+					break;
+				}
+				entry_count = current_schedule->get_count();
+				halt_list.clear();
+
+				for (uint8 i = 0; i < entry_count; i++)
+				{
+					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[i].pos, current_owner);
+					
+					if( !current_halt.is_bound() )
+					{
+						// Try a public player halt
+						current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[i].pos, public_player);
+					}
+
+					if ( current_halt.is_bound() && current_halt->is_enabled(ware_type) )
+					{
+						// Assign to halt list only if current halt supports this compartment's goods category
+						halt_list.append(current_halt, 64);
+					}
+				}
+
+				// precalculate journey times between consecutive halts
+				entry_count = halt_list.get_count();
+				journey_time_list.clear();
+				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
+
+				for (uint8 i = 0; i < entry_count; i++)
+				{
+					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
+					journey_time_list.append
+					(
+						(uint16)(((float)accurate_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos())
+						/ (float)current_average_speed) * world->get_einstellungen()->get_journey_time_multiplier() * 600),
+						64 
+					);
+				}
+
+				journey_time_list[0] = journey_time_list[entry_count];	// copy the last entry to the first entry
+				journey_time_list.remove_at(entry_count);	// remove the last entry
+
+				// rebuild connexions for all halts in halt list
+				// for each origin halt
+				for (uint8 h = 0; h < entry_count; h++)
+				{
+					accumulated_journey_time = 0;
+
+					// use hash tables in connexion list, but not the hash tables stored in the halt
+					catg_connexions = connexion_list[ halt_list[h].get_id() ];
+
+					// for each target halt (origin halt is excluded)
+					for (uint8 i = 1,		t = (h + 1) % entry_count; 
+						 i < entry_count; 
+						 i++,				t = (t + 1) % entry_count) 
+					{
+
+						// Case : origin halt is encountered again
+						if ( halt_list[t] == halt_list[h] )
+						{
+							// reset and process the next
+							accumulated_journey_time = 0;
+							continue;
+						}
+
+						// Case : suitable halt
+						accumulated_journey_time += journey_time_list[t];
+
+						// Check the journey times to the connexion
+						new_connexion = new haltestelle_t::connexion;
+						new_connexion->waiting_time = halt_list[h]->get_average_waiting_time(halt_list[t], catg);
+						new_connexion->journey_time = accumulated_journey_time;
+						new_connexion->best_convoy = current_linkage.convoy;
+						new_connexion->best_line = current_linkage.line;
+
+						// Adapted from haltestelle_t::add_connexion()
+						// Check whether this is the best connexion so far, and, if so, add it.
+						if( !catg_connexions->put(halt_list[t], new_connexion) )
+						{
+							// The key exists in the hashtable already - check whether this entry is better.
+							haltestelle_t::connexion* existing_connexion = catg_connexions->get(halt_list[t]);
+							if( existing_connexion->journey_time > new_connexion->journey_time )
+							{
+								// The new connexion is better - replace it.
+								delete existing_connexion;
+								catg_connexions->set(halt_list[t], new_connexion);
+							}
+							else
+							{
+								delete new_connexion;
+							}
+						}
+						else
+						{
+							halt_list[h]->prepare_goods_list(catg);
+						}
+					}
 				}
 
 				phase_counter++;
-				
+
 				// iteration control
 				iterations++;
-				if (iterations == limit_sort_eligible)
+				if (iterations == limit_rebuild_connexions)
 				{
 					break;
 				}
@@ -501,40 +747,32 @@ void path_explorer_t::compartment_t::step()
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
-			printf("\t\t\tConstructing sorted halt list takes :  %lu ms \n", diff);
+			printf("\t\t\tRebuilding connexions takes :  %lu ms \n", diff);
 #endif
 
 			// check if this phase is finished
-			if (phase_counter == all_halts_count)
+			if (phase_counter == linkages_count)
 			{
-				working_halt_count = current_heap.get_count();
-
-				if ( working_halt_count > representative_halt_count )
-				{
-					representative_category = catg;
-					representative_halt_count = working_halt_count;
-				}
-
 				// iteration limit adjustment
 				if ( catg == representative_category )
 				{
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_sort_eligible == maximum_limit )
+						if ( limit_rebuild_connexions == maximum_limit )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_sort_eligible;
+							const uint32 percentage = projected_iterations * 100 / backup_rebuild_connexions;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_sort_eligible = projected_iterations;
+								backup_rebuild_connexions = projected_iterations;
 							}
 						}
 						else
 						{
-							const uint32 percentage = projected_iterations * 100 / limit_sort_eligible;
+							const uint32 percentage = projected_iterations * 100 / limit_rebuild_connexions;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_sort_eligible = projected_iterations;
+								limit_rebuild_connexions = projected_iterations;
 							}
 						}
 					}
@@ -543,6 +781,121 @@ void path_explorer_t::compartment_t::step()
 				// reset statistic variables
 				statistic_duration = 0;
 				statistic_iteration = 0;
+
+				// delete immediately after use
+				if (linkages)
+				{
+					delete linkages;
+					linkages = NULL;
+				}
+				linkages_count = 0;
+
+				current_phase = phase_find_eligible;	// proceed to the next phase
+				phase_counter = 0;	// reset counter
+
+			}
+
+			iterations = 0;	// reset iteration counter
+
+#ifndef DEBUG_EXPLORER_SPEED
+			return;
+#endif
+		}
+
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		// Phase 3 : Construct eligible halt list which contains halts supporting current goods type. Also, update halt index map
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		case phase_find_eligible :
+		{
+#ifdef DEBUG_COMPARTMENT_STEP
+			step_count++;
+
+			printf("\t\tCurrent Step : %lu \n", step_count);
+#endif
+
+			// create working halt list only if we are not resuming and there is at least one halt
+			if ( phase_counter == 0 && all_halts_count > 0 )
+			{
+				working_halt_list = new halthandle_t[all_halts_count];
+			}
+
+			start = dr_time();	// start timing
+
+			// add halt to working halt list only if it has connexions that support this compartment's goods category
+			while (phase_counter < all_halts_count)
+			{
+				// swap the old connexion hash table with a new one, then clear the old one
+				all_halts_list[phase_counter]->swap_connexions( catg, connexion_list[ all_halts_list[phase_counter].get_id() ] );
+				clear_connexion_table( all_halts_list[phase_counter].get_id() );
+
+				if (!all_halts_list[phase_counter]->get_connexions(catg)->empty())
+				{
+					// valid connexion(s) found
+					working_halt_list[working_halt_count] = all_halts_list[phase_counter];
+					working_halt_index_map[ all_halts_list[phase_counter].get_id() ] = working_halt_count;
+					working_halt_count++;
+				}
+
+				phase_counter++;
+				
+				// iteration control
+				iterations++;
+				if (iterations == limit_find_eligible)
+				{
+					break;
+				}
+			}
+
+			diff = dr_time() - start;	// stop timing
+
+			// iteration statistics collection
+			if ( catg == representative_category )
+			{
+				statistic_duration += ( diff ? diff : 1 );
+				statistic_iteration += iterations;
+			}
+
+#ifdef DEBUG_COMPARTMENT_STEP
+			printf("\t\t\tConstructing eligible halt list takes :  %lu ms \n", diff);
+#endif
+
+			// check if this phase is finished
+			if (phase_counter == all_halts_count)
+			{
+				// iteration limit adjustment
+				if ( catg == representative_category )
+				{
+					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
+					if ( projected_iterations > 0 )
+					{
+						if ( limit_find_eligible == maximum_limit )
+						{
+							const uint32 percentage = projected_iterations * 100 / backup_find_eligible;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								backup_find_eligible = projected_iterations;
+							}
+						}
+						else
+						{
+							const uint32 percentage = projected_iterations * 100 / limit_find_eligible;
+							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
+							{
+								limit_find_eligible = projected_iterations;
+							}
+						}
+					}
+				}
+
+				// reset statistic variables
+				statistic_duration = 0;
+				statistic_iteration = 0;
+
+				if ( working_halt_count > representative_halt_count )
+				{
+					representative_category = catg;
+					representative_halt_count = working_halt_count;
+				}
 
 				current_phase = phase_fill_matrix;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
@@ -560,13 +913,13 @@ void path_explorer_t::compartment_t::step()
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Phase 3 : Create and fill working path matrix with data. Determine transfer list at the same time.
+		// Phase 4 : Create and fill working path matrix with data. Determine transfer list at the same time.
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		case phase_fill_matrix :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
@@ -591,7 +944,6 @@ void path_explorer_t::compartment_t::step()
 
 					// build transfer list
 					transfer_list = new uint16[working_halt_count];
-					transfer_count = 0;
 				}
 			}
 
@@ -601,13 +953,11 @@ void path_explorer_t::compartment_t::step()
 			uint32 reachable_halt_index;
 			haltestelle_t::connexion *current_connexion;
 
-			halthandle_sorted_heap_t &current_heap = *working_heap;	// to avoid deferencing frequently
-
 			start = dr_time();	// start timing
 
 			while (phase_counter < working_halt_count)
 			{
-				current_halt = current_heap[phase_counter];
+				current_halt = working_halt_list[phase_counter];
 
 				// temporary variables for determining transfer halt
 				bool is_transfer_halt = false;
@@ -629,7 +979,7 @@ void path_explorer_t::compartment_t::step()
 					current_connexion = origin_iter.get_current_value();
 
 					// determine the position of reachable halt in working heap
-					current_heap.get_position(reachable_halt, reachable_halt_index);
+					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
 
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
@@ -720,7 +1070,14 @@ void path_explorer_t::compartment_t::step()
 				statistic_duration = 0;
 				statistic_iteration = 0;
 
-				current_phase = phase_path_explore;	// proceed to the next phase
+				// delete immediately after use
+				if (working_halt_list)
+				{
+					delete[] working_halt_list;
+					working_halt_list = NULL;
+				}
+
+				current_phase = phase_explore_paths;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
 
 #ifdef DEBUG_COMPARTMENT_STEP
@@ -736,13 +1093,13 @@ void path_explorer_t::compartment_t::step()
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Phase 4 : Path exploration using the matrix.
+		// Phase 5 : Path exploration using the matrix.
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_path_explore :
+		case phase_explore_paths :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
@@ -754,13 +1111,13 @@ void path_explorer_t::compartment_t::step()
 			// initialize only when not resuming
 			if (via_index == 0 && origin == 0)
 			{
-				if (limit_path_explore == maximum_limit)
+				if (limit_explore_paths == maximum_limit)
 				{
-					limit_origin_explore = maximum_limit;
+					limit_explore_origins = maximum_limit;
 				}
 				else
 				{
-					limit_origin_explore = limit_path_explore * time_midpoint / ( working_halt_count ? working_halt_count : 1 );
+					limit_explore_origins = limit_explore_paths * time_midpoint / ( working_halt_count ? working_halt_count : 1 );
 				}
 			}
 
@@ -798,7 +1155,7 @@ void path_explorer_t::compartment_t::step()
 
 					// iteration control
 					iterations++;
-					if (iterations == limit_origin_explore)
+					if (iterations == limit_explore_origins)
 					{
 						goto loop_termination;
 					}
@@ -822,7 +1179,7 @@ void path_explorer_t::compartment_t::step()
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
-			printf("\t\t\tPath searching -> %lu iterations takes :  %lu ms \t [ %lu ] \n", iterations, diff, limit_path_explore);
+			printf("\t\t\tPath searching -> %lu iterations takes :  %lu ms \t [ %lu ] \n", iterations, diff, limit_explore_paths);
 #endif
 
 			if (via_index == transfer_count)
@@ -833,20 +1190,20 @@ void path_explorer_t::compartment_t::step()
 					const uint32 average = statistic_iteration / statistic_duration;
 					if ( average > 0 )
 					{
-						if ( limit_path_explore == maximum_limit )
+						if ( limit_explore_paths == maximum_limit )
 						{
-							const uint32 percentage = average * 100 / backup_path_explore;
+							const uint32 percentage = average * 100 / backup_explore_paths;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_path_explore = average;
+								backup_explore_paths = average;
 							}
 						}
 						else
 						{
-							const uint32 percentage = average * 100 / limit_path_explore;
+							const uint32 percentage = average * 100 / limit_explore_paths;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_path_explore = average;
+								limit_explore_paths = average;
 							}
 						}
 					}
@@ -867,17 +1224,17 @@ void path_explorer_t::compartment_t::step()
 					delete[] finished_matrix;
 					finished_matrix = NULL;	
 				}											
-				if (finished_heap)
+				if (finished_halt_index_map)
 				{
-					delete finished_heap;
-					finished_heap = NULL;
+					delete[] finished_halt_index_map;
+					finished_halt_index_map = NULL;
 				}
 
 				// transfer working to finished
 				finished_matrix = working_matrix;
 				working_matrix = NULL;
-				finished_heap = working_heap;
-				working_heap = NULL;
+				finished_halt_index_map = working_halt_index_map;
+				working_halt_index_map = NULL;
 				finished_halt_count = working_halt_count;
 				// working_halt_count is reset below after deleting transport matrix								
 
@@ -899,8 +1256,11 @@ void path_explorer_t::compartment_t::step()
 				}
 				transfer_count = 0;
 
-				current_phase = phase_ware_reroute;	// proceed to the next phase
-				limit_origin_explore = 0;	// reset step limit
+				// Debug paths : to execute, working_halt_list should not be deleted in the previous phase
+				// enumerate_all_paths(finished_matrix, working_halt_list, finished_halt_index_map, finished_halt_count);
+
+				current_phase = phase_reroute_goods;	// proceed to the next phase
+				limit_explore_origins = 0;	// reset step limit
 				// reset counters
 				via_index = 0;
 				origin = 0;
@@ -910,20 +1270,17 @@ void path_explorer_t::compartment_t::step()
 			
 			iterations = 0;	// reset iteration counter
 
-			// Debug paths
-			// enumerate_all_paths(finished_matrix, *finished_heap);
-
 			return;
 		}
 
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		// Phase 5 : Re-route existing goods in the halts
+		// Phase 6 : Re-route existing goods in the halts
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_ware_reroute :
+		case phase_reroute_goods :
 		{
+#ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
 
-#ifdef DEBUG_COMPARTMENT_STEP
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
@@ -933,14 +1290,14 @@ void path_explorer_t::compartment_t::step()
 			{
 				if ( all_halts_list[phase_counter]->reroute_goods(catg) )
 				{
-					// only halts with relevant ware packets are counted
+					// only halts with relevant goods packets are counted
 					iterations++;
 				}
 
 				phase_counter++;
 
 				// iteration control
-				if (iterations == limit_ware_reroute)
+				if (iterations == limit_reroute_goods)
 				{
 					break;
 				}
@@ -967,20 +1324,20 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_ware_reroute == maximum_limit )
+						if ( limit_reroute_goods == maximum_limit )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_ware_reroute;
+							const uint32 percentage = projected_iterations * 100 / backup_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_ware_reroute = projected_iterations;
+								backup_reroute_goods = projected_iterations;
 							}
 						}
 						else
 						{
-							const uint32 percentage = projected_iterations * 100 / limit_ware_reroute;
+							const uint32 percentage = projected_iterations * 100 / limit_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_ware_reroute = projected_iterations;
+								limit_reroute_goods = projected_iterations;
 							}
 						}
 					}
@@ -990,7 +1347,7 @@ void path_explorer_t::compartment_t::step()
 				statistic_duration = 0;
 				statistic_iteration = 0;
 
-				current_phase = phase_init_prepare;	// reset to the 1st phase
+				current_phase = phase_gate_sentinel;	// reset to the 1st phase
 				phase_counter = 0;	// reset counter
 
 				// delete immediately after use
@@ -1024,12 +1381,12 @@ void path_explorer_t::compartment_t::step()
 
 }
 
-void path_explorer_t::compartment_t::enumerate_all_paths(path_element_t **matrix, halthandle_sorted_heap_t &heap)
+
+void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *const *const matrix, const halthandle_t *const halt_list, 
+														 const uint16 *const halt_map, const uint16 halt_count)
 {
 	// Debugging code : Enumerate all paths for validation
 	halthandle_t transfer_halt;
-	uint32 pos;
-	const uint16 halt_count = heap.get_count();
 
 	for (uint16 x = 0; x < halt_count; x++)
 	{
@@ -1038,7 +1395,7 @@ void path_explorer_t::compartment_t::enumerate_all_paths(path_element_t **matrix
 			if (x != y)
 			{
 				// print origin
-				printf("\n\nOrigin :  %s\n", heap[x]->get_name());
+				printf("\n\nOrigin :  %s\n", halt_list[x]->get_name());
 				
 				transfer_halt = matrix[x][y].next_transfer;
 
@@ -1048,13 +1405,13 @@ void path_explorer_t::compartment_t::enumerate_all_paths(path_element_t **matrix
 				}
 				else
 				{
-					while (transfer_halt != heap[y])
+					while (transfer_halt != halt_list[y])
 					{
 						printf("\t\t\t\t%s\n", transfer_halt->get_name());
 
-						if (heap.get_position(transfer_halt, pos))
+						if ( halt_map[transfer_halt.get_id()] != 65535 )
 						{
-							transfer_halt = matrix[pos][y].next_transfer;
+							transfer_halt = matrix[ halt_map[transfer_halt.get_id()] ][y].next_transfer;
 						}
 						else
 						{
@@ -1065,8 +1422,83 @@ void path_explorer_t::compartment_t::enumerate_all_paths(path_element_t **matrix
 				}
 
 				// print destination
-				printf("Target :  %s\n\n", heap[y]->get_name());								
+				printf("Target :  %s\n\n", halt_list[y]->get_name());								
 			}
+		}
+	}
+}
+
+
+bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt, 
+													  uint16 &aggregate_time, halthandle_t &next_transfer)
+{
+	static const halthandle_t dummy_halt;
+	uint32 origin_index, target_index;
+	
+	// check if paths are available and if origin halt and target halt are in finished halt heap
+	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
+			&& ( origin_index = finished_halt_index_map[ origin_halt.get_id() ] ) != 65535
+			&& ( target_index = finished_halt_index_map[ target_halt.get_id() ] ) != 65535
+			&& finished_matrix[origin_index][target_index].next_transfer.is_bound() )
+	{
+		aggregate_time = finished_matrix[origin_index][target_index].aggregate_time;
+		next_transfer = finished_matrix[origin_index][target_index].next_transfer;
+		return true;
+	}
+
+	// requested path not found
+	aggregate_time = 65535;
+	next_transfer = dummy_halt;
+	return false;
+}
+
+
+void path_explorer_t::compartment_t::initialise_connexion_list()
+{
+	for (uint32 i = 0; i < 63336; i++)
+	{
+		connexion_list[i] = NULL;
+	}
+}
+
+
+void path_explorer_t::compartment_t::clear_connexion_table(const uint16 halt_id)
+{
+	if ( halt_id <= 65535 && connexion_list[halt_id] && !connexion_list[halt_id]->empty() )
+	{
+		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id]));
+
+		while(iter.next())
+		{
+			delete iter.get_current_value();
+		}
+		
+		connexion_list[halt_id]->clear();
+	}
+}
+
+
+void path_explorer_t::compartment_t::clear_all_connexion_tables()
+{
+	for (uint32 i = 0; i < 63356; i++)
+	{
+		if ( connexion_list[i] )
+		{
+			clear_connexion_table(i);
+		}
+	}
+}
+
+
+void path_explorer_t::compartment_t::destroy_all_connexion_tables()
+{
+	for (uint32 i = 0; i < 63356; i++)
+	{
+		if ( connexion_list[i] )
+		{
+			clear_connexion_table(i);
+			delete connexion_list[i];
+			connexion_list[i] = NULL;
 		}
 	}
 }

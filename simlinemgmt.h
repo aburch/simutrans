@@ -100,6 +100,10 @@ public:
 	 */
 	void get_lines(int type, vector_tpl<linehandle_t>* lines) const;
 
+	// Added by : Knightly
+	// Purpose	: Return all managed lines
+	const vector_tpl<linehandle_t> &get_all_lines() const { return all_managed_lines; }
+
 	karte_t* get_welt() const { return welt; }
 
 	/**
