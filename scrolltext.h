@@ -76,7 +76,7 @@
 " Alex Revo","Russian",
 " Roman Schwörer","French & German",
 " Yannis Kaskamanid", "Greek",
-" Igor Elizer", "Portugese",
+" Igor Eliezer", "Portuguese",
 " Joan-Josep Bargues", "Catalan",
 " Susanna Björverud", "Swedish",
 " Xavier Paz", "Spanish",
