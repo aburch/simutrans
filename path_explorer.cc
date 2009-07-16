@@ -1461,7 +1461,7 @@ void path_explorer_t::compartment_t::initialise_connexion_list()
 
 void path_explorer_t::compartment_t::clear_connexion_table(const uint16 halt_id)
 {
-	if ( halt_id <= 65535 && connexion_list[halt_id] && !connexion_list[halt_id]->empty() )
+	if ( connexion_list[halt_id] && !connexion_list[halt_id]->empty() )
 	{
 		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id]));
 

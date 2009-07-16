@@ -134,7 +134,7 @@ private:
 		static const uint32 default_reroute_goods = 4096;
 
 		// maximum limit for full refresh
-		static const uint32 maximum_limit = 4294967295;
+		static const uint32 maximum_limit = UINT32_MAX_VALUE;
 
 		// phase indices
 		static const uint8 phase_gate_sentinel = 0;
