@@ -111,7 +111,7 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *komp,val
 			static char default_str[1024];
 			sprintf( default_str, "%s,%i", besch->get_name(), i );
 			wkz.default_param = default_str;
-			welt->set_werkzeug( &wkz, welt->get_active_player() );
+			welt->set_werkzeug( &wkz );
 			destroy_win(this);
 		}
 	}

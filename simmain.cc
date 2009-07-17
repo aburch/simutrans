@@ -63,7 +63,6 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/translator.h"
-#include "dataobj/network.h"
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
@@ -192,18 +191,14 @@ static void zeige_banner(karte_t *welt)
 	win_set_pos( b, 0, -48 );
 
 	do {
-		static long ms_pause = max(950/umgebung_t::fps,50);
 		win_poll_event(&ev);
 		check_pos_win(&ev);
 		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 			umgebung_t::quit_simutrans = true;
 		}
-		dr_sleep(ms_pause);
-		static uint32 last_step = dr_time();
-		uint32 next_step = dr_time();
-		welt->sync_step( next_step-last_step, true, true );
+		INT_CHECK("simmain 189");
+		dr_sleep(10);
 		welt->step();
-		last_step = next_step;
 	} while(win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
 
 
@@ -488,19 +483,6 @@ int simu_main(int argc, char** argv)
 	} else {
 		init_logging(NULL, false, false);
 	}
-
-	// starting a server?
-	if(  gimme_arg(argc, argv, "-server", 0)  ) {
-		const char *p = gimme_arg(argc, argv, "-server", 1);
-		int portadress = p ? atoi( p ) : 13353;
-		if(  portadress==0  ) {
-			portadress = 13353;
-		}
-		// will fail fatal on the opening routine ...
-		dbg->message( "simmain()", "Server started on port %i", portadress );
-		umgebung_t::server = umgebung_t::networkmode = network_init_server( portadress );
-	}
-
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
 	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
@@ -665,9 +647,6 @@ int simu_main(int argc, char** argv)
 	print("Reading forest configuration ...\n");
 	baum_t::forestrules_init(umgebung_t::objfilename);
 
-	print("Reading menu configuration ...\n");
-	werkzeug_t::init_menu();
-
 	// loading all paks
 	print("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
 	obj_reader_t::load(umgebung_t::objfilename, translator::translate("Loading paks ...") );
@@ -686,7 +665,7 @@ int simu_main(int argc, char** argv)
 	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );
 
 	print("Reading menu configuration ...\n");
-	werkzeug_t::read_menu(umgebung_t::objfilename);
+	werkzeug_t::init_menu(umgebung_t::objfilename);
 
 	if(  translator::get_language()==-1  ) {
 		ask_language();
@@ -701,13 +680,7 @@ int simu_main(int argc, char** argv)
 		/**
 		 * Added automatic adding of extension
 		 */
-		const char *name = gimme_arg(argc, argv, "-load", 1);
-		if(  strstr(name,"net:")==name  ) {
-			strcpy( buf, name );
-		}
-		else {
-			sprintf(buf, SAVE_PATH_X "%s", (const char*)searchfolder_t::complete(name, "sve"));
-		}
+		sprintf(buf, SAVE_PATH_X "%s", (const char*)searchfolder_t::complete(gimme_arg(argc, argv, "-load", 1), "sve"));
 		loadgame = buf;
 		new_world = false;
 	}
@@ -838,10 +811,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 #endif
 
 	welt->set_fast_forward(false);
-	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-		view->display(true);
-		intr_refresh_display(true);
-	}
+	view->display(true);
+	intr_refresh_display(true);
 
 #ifdef USE_SOFTPOINTER
 	// Hajo: give user a mouse to work with
@@ -861,12 +832,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	sprachengui_t::init_font_from_lang();
 
 	welt->get_message()->clear();
+	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 
-	if(  !umgebung_t::networkmode  ||  new_world  ) {
-		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
-		zeige_banner(welt);
-	}
+	zeige_banner(welt);
 
+	intr_set(welt, view);
 
 	while (!umgebung_t::quit_simutrans) {
 		// play next tune?
@@ -874,10 +844,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		// to purge all previous old messages
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
-
-		if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-			welt->set_pause( false );
-		}
 
 		if (new_world) {
 			climate_gui_t *cg = new climate_gui_t(&umgebung_t::default_einstellungen);
@@ -902,16 +868,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					umgebung_t::quit_simutrans = true;
 				}
 				INT_CHECK("simmain 807");
-				if(  umgebung_t::networkmode  ) {
-					static int count = 0;
-					if(  ((count++)&7)==0 ) {
-						static uint32 last_step = dr_time();
-						uint32 next_step = dr_time();
-						welt->sync_step( next_step-last_step, true, true );
-						welt->step();
-						last_step = next_step;
-					}
-				}
 				dr_sleep(5);
 			} while(
 				!wg->get_load() &&
@@ -981,7 +937,14 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		loadgame = ""; // only first time
 
 		// run the loop
-		welt->interactive(quit_month);
+		while(welt->interactive()) {
+#ifdef DEBUG
+			if(  welt->get_current_month() >= quit_month  ) {
+				umgebung_t::quit_simutrans = true;
+				break;
+			}
+#endif
+		}
 
 		new_world = true;
 		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
@@ -1004,8 +967,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	delete view;
 	view = 0;
-
-	network_core_shutdown();
 
 	simgraph_exit();
 

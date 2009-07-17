@@ -215,31 +215,8 @@ static uint16 str_to_key( const char *str )
 
 
 
-// just fills the default tables before other tools are added
-void werkzeug_t::init_menu()
-{
-	for(  uint16 i=0;  i<GENERAL_TOOL_COUNT;  i++  ) {
-		werkzeug_t *w = create_general_tool( i );
-		w->id = i | GENERAL_TOOL;
-		general_tool.append(w);
-	}
-	for(  uint16 i=0;  i<SIMPLE_TOOL_COUNT;  i++  ) {
-		werkzeug_t *w = create_simple_tool( i );
-		w->id = i | SIMPLE_TOOL;
-		simple_tool.append(w);
-	}
-	for(  uint16 i=0;  i<DIALOGE_TOOL_COUNT;  i++  ) {
-		werkzeug_t *w = create_dialog_tool( i );
-		w->id = i | DIALOGE_TOOL;
-		dialog_tool.append(w);
-	}
-}
-
-
-
-
 // read a tab file to add images, cursors and sound to the tools
-void werkzeug_t::read_menu(cstring_t objfilename)
+void werkzeug_t::init_menu(cstring_t objfilename)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
@@ -264,7 +241,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 		 * final is the sound
 		 * -1 will disable any of them
 		 */
-		werkzeug_t *w = general_tool[i];
+		werkzeug_t *w = create_general_tool( i );
 		if(*str  &&  *str!=',') {
 			// ok, first comes icon
 			while(*str==' ') {
@@ -328,6 +305,8 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				char_to_tool.append(w);
 			}
 		}
+		w->id = i | GENERAL_TOOL;
+		general_tool.append(w);
 	}
 
 	// now the simple tools
@@ -336,7 +315,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 		char id[256];
 		sprintf( id, "simple_tool[%i]", i );
 		const char *str = contents.get( id );
-		werkzeug_t *w = simple_tool[i];
+		werkzeug_t *w = create_simple_tool( i );
 		/* str should now contain something like 1,2,-1
 		 * first parameter is the image number in "GeneralTools"
 		 * next is the cursor in "GeneralTools"
@@ -379,6 +358,8 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				char_to_tool.append(w);
 			}
 		}
+		w->id = i | SIMPLE_TOOL;
+		simple_tool.append(w);
 	}
 
 	// now the dialoge tools
@@ -387,7 +368,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 		char id[256];
 		sprintf( id, "dialog_tool[%i]", i );
 		const char *str = contents.get( id );
-		werkzeug_t *w = dialog_tool[i];
+		werkzeug_t *w = create_dialog_tool( i );
 		/* str should now contain something like 1,2,-1
 		 * first parameter is the image number in "GeneralTools"
 		 * next is the cursor in "GeneralTools"
@@ -430,10 +411,12 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				char_to_tool.append(w);
 			}
 		}
+		w->id = i | DIALOGE_TOOL;
+		dialog_tool.append(w);
 	}
 
 	// now the toolbar tools
-	DBG_MESSAGE( "werkzeug_t::read_menu()", "Reading toolbars" );
+	DBG_MESSAGE( "werkzeug_t::init_menu()", "Reading toolbars" );
 	// default size
 	koord size( contents.get_int("icon_width",32), contents.get_int("icon_height",32) );
 	// first: add main menu
@@ -496,7 +479,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 					}
 					else {
 						if(  icon>=skinverwaltung_t::werkzeuge_toolbars->get_bild_anzahl()  ) {
-							dbg->fatal( "werkzeug_t::read_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
+							dbg->fatal( "werkzeug_t::init_menu()", "wrong icon (%i) given for toolbar_tool[%i][%i]", icon, i, j );
 						}
 						icon = skinverwaltung_t::werkzeuge_toolbars->get_bild_nr(icon);
 					}
@@ -544,15 +527,13 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						if(param_str!=NULL) {
 							addtool->default_param = strdup(param_str);
 						}
-						addtool->id = general_tool.get_count() | GENERAL_TOOL;
-						general_tool.append( addtool );
 					}
 					else {
 						addtool = general_tool[toolnr];
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No general tool %i defined (max %i)!", toolnr, GENERAL_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"simple_tool[")) {
@@ -571,15 +552,13 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						if(param_str!=NULL) {
 							addtool->default_param = strdup(param_str);
 						}
-						addtool->id = simple_tool.get_count() | SIMPLE_TOOL;
-						simple_tool.append( addtool );
 					}
 					else {
 						addtool = simple_tool[toolnr];
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No simple tool %i defined (max %i)!", toolnr, SIMPLE_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"dialog_tool[")) {
@@ -598,15 +577,13 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						if(param_str!=NULL) {
 							addtool->default_param = strdup(param_str);
 						}
-						addtool->id = dialog_tool.get_count() | DIALOGE_TOOL;
-						dialog_tool.append( addtool );
 					}
 					else {
 						addtool = dialog_tool[toolnr];
 					}
 				}
 				else {
-					dbg->error( "werkzeug_t::read_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
+					dbg->error( "werkzeug_t::init_menu()", "When parsing menuconf.tab: No dialog tool %i defined (max %i)!", toolnr, DIALOGE_TOOL_COUNT );
 				}
 			}
 			else if(strstr(toolname,"toolbar[")) {
@@ -614,7 +591,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				assert(toolnr>0);
 				if(toolbar_tool.get_count()==toolnr) {
 					if(param_str==NULL) {
-						dbg->fatal( "werkzeug_t::read_menu()", "Missing parameter for toolbar" );
+						dbg->fatal( "werkzeug_t::init_menu()", "Missing parameter for toolbar" );
 					}
 					char *c = strdup(param_str);
 					const char *title = c;
@@ -629,7 +606,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						tb->command_key = str_to_key(key_str);
 						char_to_tool.append(tb);
 					}
-					tb->id = toolbar_tool.get_count() | TOOLBAR_TOOL;
+					tb->id = toolnr | TOOLBAR_TOOL;
 					toolbar_tool.append(tb);
 					addtool = tb;
 				}
@@ -649,7 +626,6 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 	std::sort(char_to_tool.begin(), char_to_tool.end(), compare_werkzeug);
 }
 
-
 void werkzeug_t::update_toolbars(karte_t *welt)
 {
 	// renew toolbar
@@ -657,7 +633,6 @@ void werkzeug_t::update_toolbars(karte_t *welt)
 		(*i)->update(welt, welt->get_active_player());
 	}
 }
-
 
 void werkzeug_t::draw_after( karte_t *welt, koord pos ) const
 {
@@ -779,8 +754,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 		}
 
 	}
-	else if(!close  &&  this!=werkzeug_t::toolbar_tool[0]) {
-		// not open and not main menu
+	else if(!close) {
 		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, (long)this );
 		DBG_MESSAGE("toolbar_t::init()", "ID=%id", id);
 	}
@@ -789,24 +763,23 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 
 
 
-bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
+bool two_click_werkzeug_t::init( karte_t *welt, spieler_t * )
 {
-	first_click[sp->get_player_nr()] = true;
-	welt->show_distance = start[sp->get_player_nr()] = koord3d::invalid;
-	cleanup( sp, true );
+	first_click = true;
+	welt->show_distance = start = koord3d::invalid;
+	cleanup( true );
 
 	return true;
 }
 
-
 const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(  !first_click[sp->get_player_nr()]  &&  start_marker[sp->get_player_nr()]  ) {
-		start [sp->get_player_nr()]= start_marker[sp->get_player_nr()]->get_pos(); // if map was rotated.
+	if( !first_click && start_marker ) {
+		start = start_marker->get_pos(); // if map was rotated.
 	}
 
 	// remove marker
-	cleanup( sp, true );
+	cleanup( true );
 
 	const char *error = valid_pos( welt, sp, pos );
 	if( error ) {
@@ -814,20 +787,19 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		return error;
 	}
 
-	if(  first_click[sp->get_player_nr()]  ) {
+	if( first_click ) {
 		// set starting position.
 		start_at( welt, sp, pos );
 	}
 	else {
 		DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
 
-		error = do_work( welt, sp, start[sp->get_player_nr()], pos );
+		error = do_work( welt, sp, start, pos );
 		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
 		return error;
 	}
 	return NULL;
 }
-
 
 const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
 {
@@ -835,15 +807,13 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 	if(  buttonstate == 0  ) {
 		return NULL;
 	}
-
-	const uint8 sp_nr = sp->get_player_nr();
-	if(  start[sp_nr] == pos  ) {
+	if( start == pos ) {
 		init( welt, sp );
 	}
 
-	if(  start[sp_nr] == koord3d::invalid  ) {
+	if( start == koord3d::invalid ) {
 		// start dragging.
-		cleanup( sp, true );
+		cleanup( true );
 		const char *error = valid_pos( welt, sp, pos );
 		if( error ) {
 			return error;
@@ -852,47 +822,43 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 	}
 	else {
 		// continue dragging.
-		cleanup( sp, false );
+		cleanup( false );
 
-		if( start_marker[sp_nr] ) {
-			start[sp_nr] = start_marker[sp_nr]->get_pos(); // if map was rotated.
+		if( start_marker ) {
+			start = start_marker->get_pos(); // if map was rotated.
 		}
 
 		display_show_load_pointer( true );
-		mark_tiles( welt, sp, start[sp_nr], pos );
+		mark_tiles( welt, sp, start, pos );
 		display_show_load_pointer( false );
 	}
 	return NULL;
 }
 
-
 void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_start )
 {
-	const uint8 sp_nr = sp->get_player_nr();
-	first_click[sp_nr] = false;
-	welt->show_distance = start[sp_nr] = new_start;
-	start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
-	start_marker[sp_nr]->set_bild( get_marker_image() );
-	grund_t *gr = welt->lookup( start[sp_nr] );
+	first_click = false;
+	welt->show_distance = start = new_start;
+	start_marker = new zeiger_t(welt, start, sp);
+	start_marker->set_bild( get_marker_image() );
+	grund_t *gr = welt->lookup( start );
 	if( gr ) {
-		gr->obj_add(start_marker[sp_nr]);
+		gr->obj_add(start_marker);
 	}
-	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start[sp_nr].get_str());
+	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start.get_str());
 }
 
-
-void two_click_werkzeug_t::cleanup( spieler_t *sp, bool delete_start_marker )
+void two_click_werkzeug_t::cleanup( bool delete_start_marker )
 {
-	const uint8 sp_nr = sp->get_player_nr();
 	// delete marker.
-	if(  start_marker[sp_nr]!=NULL  &&  delete_start_marker) {
-		start_marker[sp_nr]->mark_image_dirty( start_marker[sp_nr]->get_bild(), 0 );
-		delete start_marker[sp_nr];
-		start_marker[sp_nr] = NULL;
+	if(start_marker != NULL  &&  delete_start_marker ) {
+		start_marker->mark_image_dirty( start_marker->get_bild(), 0 );
+		delete start_marker;
+		start_marker = NULL;
 	}
 	// delete old route.
-	while(!marked[sp_nr].empty()) {
-		zeiger_t *z = marked[sp_nr].remove_first();
+	while(!marked.empty()) {
+		zeiger_t *z = marked.remove_first();
 		z->mark_image_dirty( z->get_bild(), 0 );
 		z->mark_image_dirty( z->get_after_bild(), 0 );
 		delete z;
@@ -900,7 +866,6 @@ void two_click_werkzeug_t::cleanup( spieler_t *sp, bool delete_start_marker )
 	// delete tooltip.
 	win_set_static_tooltip( NULL );
 }
-
 
 image_id two_click_werkzeug_t::get_marker_image()
 {

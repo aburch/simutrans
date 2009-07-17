@@ -57,7 +57,7 @@ ifeq ($(OSTYPE),mingw)
   ifeq ($(BACKEND),gdi)
     STD_LIBS +=  -lunicows
   endif
-  STD_LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32
+  STD_LIBS += -lmingw32 -lgdi32 -lwinmm
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -169,7 +169,6 @@ SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
-SOURCES += dataobj/network.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc

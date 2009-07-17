@@ -288,10 +288,10 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
 		haus_tool.default_param = param_str;
-		welt->set_werkzeug( &haus_tool, sp );
+		welt->set_werkzeug( &haus_tool );
 	}
-	else if(welt->get_werkzeug(sp->get_player_nr())==&haus_tool) {
+	else if(welt->get_werkzeug()==&haus_tool) {
 		besch = NULL;
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 	}
 }

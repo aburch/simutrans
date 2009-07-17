@@ -150,10 +150,10 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, besch->get_name() );
 		baum_tool.default_param = param_str;
 		baum_tool.cursor = werkzeug_t::general_tool[WKZ_PLANT_TREE]->cursor;
-		welt->set_werkzeug( &baum_tool, sp );
+		welt->set_werkzeug( &baum_tool );
 	}
-	else if(welt->get_werkzeug(sp->get_player_nr())==&baum_tool) {
+	else if(welt->get_werkzeug()==&baum_tool) {
 		besch = NULL;
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 	}
 }

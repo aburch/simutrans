@@ -1884,8 +1884,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		ALLOCA(uint32, max_loaded_waren, warenbauer_t::get_waren_anzahl());
-		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::get_waren_anzahl() );
+		ALLOCA(uint32, capacity_by_catg_index, warenbauer_t::get_max_catg_index());
+		memset( capacity_by_catg_index, 0, sizeof(uint32)*warenbauer_t::get_max_catg_index() );
 
 		unsigned i;
 		for(i=0; i<anz_vehikel; i++) {
@@ -1895,7 +1895,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const ware_besch_t* ware_besch = v->get_besch()->get_ware();
 			const uint16 menge = v->get_besch()->get_zuladung();
 			if(menge>0  &&  ware_besch!=warenbauer_t::nichts) {
-				max_loaded_waren[ware_besch->get_index()] += menge;
+				capacity_by_catg_index[ware_besch->get_catg_index()] += menge;
 			}
 
 			// then add the actual load
@@ -1928,24 +1928,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
-		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
-			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
-				ware_t ware(warenbauer_t::get_info(i));
-				ware.menge = max_loaded_waren[i];
-				if(ware.get_catg()==0) {
-					capacity.append( ware );
-				} else {
-					// append to category?
-					slist_tpl<ware_t>::iterator j   = capacity.begin();
-					slist_tpl<ware_t>::iterator end = capacity.end();
-					while (j != end && j->get_catg() < ware.get_catg()) ++j;
-					if (j != end && j->get_catg() == ware.get_catg()) {
-						j->menge += max_loaded_waren[i];
-					} else {
-						// not yet there
-						capacity.insert(j, ware);
-					}
-				}
+		for( uint8 j = 0; j < warenbauer_t::get_max_catg_index(); j ++ ) {
+			if( capacity_by_catg_index[j] > 0 ) {
+				ware_t ware( warenbauer_t::get_info_catg_index(j) );
+				ware.menge = capacity_by_catg_index[j];
+				capacity.append( ware );
 			}
 		}
 
