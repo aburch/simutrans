@@ -52,6 +52,13 @@ enum city_cost {
 	MAX_CITY_HISTORY	// Total number of items in array
 };
 
+enum route_status 
+{
+	no_route = 0,
+	too_slow = 1,
+	good = 2
+};
+
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.

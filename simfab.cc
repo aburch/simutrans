@@ -1299,10 +1299,7 @@ fabrik_t::neuer_monat()
 	}
 	// This needs to be re-checked regularly, as cities grow.
 	stadt_t* c = welt->get_city(pos.get_2d());
-	/*if(c == NULL)
-	{
-		city = NULL;
-	}*/
+
 	if(city == NULL && c != NULL)
 	{
 		city = c;
