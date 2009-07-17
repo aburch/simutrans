@@ -8,6 +8,8 @@
 #ifndef SIMTYPES_H
 #define SIMTYPES_H
 
+#include <climits>
+
 #if defined _MSC_VER
 #	if _MSC_VER <= 1200
 #		error "Simutrans cannot be compiled with Visual C++ 6.0 or earlier."
@@ -93,10 +95,12 @@ typedef unsigned short      uint16;
 #ifndef __BEOS__
 typedef   signed int        sint32;
 typedef unsigned int        uint32;
+#define UINT32_MAX_VALUE	UINT_MAX
 #else
 // BeOS: int!=long (even though both 32 bit)
 typedef   signed long       sint32;
 typedef unsigned long       uint32;
+#define UINT32_MAX_VALUE	ULONG_MAX	
 #endif
 #ifdef _MSC_VER
 typedef   signed __int64	  sint64;
