@@ -162,6 +162,8 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 	steps = 0;
 	steps_next = 255;
 	use_calc_height = true;
+	dx = 0;
+	dy = 0;
 }
 
 
@@ -175,6 +177,8 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	steps = 0;
 	steps_next = 255;
 	use_calc_height = true;
+	dx = 0;
+	dy = 0;
 }
 
 

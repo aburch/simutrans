@@ -228,6 +228,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	last_lieferziel_start = 0;
 	total_input = total_output = 0;
 	status = nothing;
+	currently_producing = false;
 }
 
 

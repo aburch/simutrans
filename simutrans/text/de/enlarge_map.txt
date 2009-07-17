@@ -1,0 +1,6 @@
+<title>Hilfe zum Dialog Kartenfläche vergrößern</title>
+
+<h1><strong>Kartefläche vergrößern</strong></h1>
+
+<p>In diesem Dialog kann die bestehende Spielkarte nach Rechts und Unten vergrößert werden.
+</p>
