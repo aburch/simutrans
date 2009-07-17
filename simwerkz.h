@@ -71,6 +71,8 @@ char *tooltip_with_price(const char * tip, sint64 price);
 class wkz_abfrage_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Abfrage"); }
 	const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 
@@ -91,7 +93,7 @@ private:
 public:
 	wkz_raise_t() : werkzeug_t() { offset = Z_GRID; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Anheben", sp->get_welt()->get_einstellungen()->cst_alter_land); }
-	virtual image_id get_icon(spieler_t *sp) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	const char *work( karte_t *, spieler_t *, koord3d );
@@ -105,7 +107,7 @@ private:
 public:
 	wkz_lower_t() : werkzeug_t() { offset = Z_GRID; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Absenken", sp->get_welt()->get_einstellungen()->cst_alter_land); }
-	virtual image_id get_icon(spieler_t *sp) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d);
@@ -355,7 +357,7 @@ class wkz_lock_game_t : public werkzeug_t {
 		welt->get_einstellungen()->set_allow_player_change( false );
 		destroy_all_win();
 		welt->switch_active_player( 0 );
-		welt->set_werkzeug( general_tool[WKZ_ABFRAGE] );
+		welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
 		return NULL;
 	}
 };

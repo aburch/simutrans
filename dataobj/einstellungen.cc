@@ -9,6 +9,7 @@
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simconst.h"
+#include "../simtools.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../utils/simstring.h"
@@ -182,6 +183,10 @@ einstellungen_t::einstellungen_t() :
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
+
+	// some network thing to keep client in sync
+	random_counter = 0;	// will be set when actually saving
+	frames_per_second = umgebung_t::fps;
 }
 
 
@@ -461,6 +466,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_version()>102001) {
 			file->rdwr_bool( no_routing_over_overcrowding, "" );
 			file->rdwr_bool( with_private_paks, "" );
+			random_counter = get_random_seed();
+			file->rdwr_long( random_counter, "" );
+			file->rdwr_long( frames_per_second, "" );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+			}
 		}
 	}
 }

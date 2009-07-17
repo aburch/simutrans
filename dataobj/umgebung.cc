@@ -11,6 +11,10 @@
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 
+bool umgebung_t::networkmode = false;
+bool umgebung_t::server = false;
+long umgebung_t::server_frames_ahead = 1;
+
 cstring_t umgebung_t::objfilename;	// will start empty ...
 
 bool umgebung_t::night_shift = false;

@@ -156,6 +156,9 @@ private:
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
 
+	uint32 random_counter;
+	uint32 frames_per_second;	// only used in network mode ...
+
 public:
 	/* the big cost section */
 	sint32 maint_building;	// normal building
@@ -362,6 +365,10 @@ public:
 	// true, if this pak should be used with extensions (default)
 	bool get_with_private_paks() const { return with_private_paks; }
 	void set_with_private_paks(bool b) { with_private_paks = b; }
+
+	// usually only used in network mode => no need to set them!
+	uint32 get_random_counter() const { return random_counter; }
+	uint32 get_frames_per_second() const { return frames_per_second; }
 };
 
 #endif

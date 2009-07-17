@@ -355,13 +355,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%i,%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, production, fab_besch->get_name() );
 		if(bt_land_chain.pressed) {
-			welt->set_werkzeug( &land_chain_tool );
+			welt->set_werkzeug( &land_chain_tool, sp );
 		}
 		else if(bt_city_chain.pressed) {
-			welt->set_werkzeug( &city_chain_tool );
+			welt->set_werkzeug( &city_chain_tool, sp );
 		}
 		else {
-			welt->set_werkzeug( &fab_tool );
+			welt->set_werkzeug( &fab_tool, sp );
 		}
 	}
 	else if(fab_besch!=NULL) {
@@ -372,6 +372,6 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		prod_str[0] = 0;
 		tstrncpy( rot_str, translator::translate("random"), 16 );
 		fab_besch = NULL;
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 	}
 }

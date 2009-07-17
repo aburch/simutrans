@@ -158,6 +158,7 @@ public:
 	uint16 command_key;// key to toggle action for this function
 	uint16 id;			// value to trigger this command (see documentation)
 
+
 	static vector_tpl<werkzeug_t *> general_tool;
 	static vector_tpl<werkzeug_t *> simple_tool;
 	static vector_tpl<werkzeug_t *> dialog_tool;
@@ -168,7 +169,9 @@ public:
 	// since only a single toolstr a time can be visible ...
 	static char toolstr[1024];
 
-	static void init_menu(cstring_t objfilename);
+	static void init_menu();
+
+	static void read_menu(cstring_t objfilename);
 
 	werkzeug_t() { id = 0xFFFFu; cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
@@ -177,7 +180,11 @@ public:
 	void set_icon(image_id i) { icon = i; }
 
 	// this will draw the tool with some indication, if active
-	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug()==this; }
+	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug(welt->get_active_player_nr())==this; }
+
+	// when true, local execution would do no harm
+	virtual bool is_init_network_save() const { return false; }
+	virtual bool is_work_network_save() const { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after( karte_t *w, koord pos ) const;
@@ -210,7 +217,7 @@ public:
  */
 class two_click_werkzeug_t : public werkzeug_t {
 public:
-	two_click_werkzeug_t() : werkzeug_t() { start_marker = NULL; };
+	two_click_werkzeug_t() : werkzeug_t() { memset( start_marker, 0, sizeof(start_marker[MAX_PLAYER_COUNT]) ); }
 
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool exit( karte_t *welt, spieler_t *sp ) { return init( welt, sp ); }
@@ -236,15 +243,15 @@ private:
 
 	virtual image_id get_marker_image();
 
-	bool first_click;
-	koord3d start;
+	bool first_click[MAX_PLAYER_COUNT];
+	koord3d start[MAX_PLAYER_COUNT];
 	void start_at( karte_t *, spieler_t *, koord3d &new_start );
-	void cleanup( bool delete_start_marker );
+	void cleanup( spieler_t *sp, bool delete_start_marker );
 
-	zeiger_t *start_marker;
+	zeiger_t *start_marker[MAX_PLAYER_COUNT];
 
 protected:
-	slist_tpl< zeiger_t* > marked;
+	slist_tpl< zeiger_t* > marked[MAX_PLAYER_COUNT];
 };
 
 /* toolbar are a new overclass */
@@ -268,6 +275,7 @@ public:
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
 	virtual image_id get_icon(spieler_t *) const;
 	bool is_selected(karte_t *welt) const;
+	virtual bool is_init_network_save() const { return true; }
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
 	void update(karte_t *, spieler_t *);	// just refresh content

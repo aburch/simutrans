@@ -110,12 +110,22 @@ bool wegbauer_t::alle_wege_geladen()
 }
 
 
-bool wegbauer_t::register_besch(const weg_besch_t *besch)
+bool wegbauer_t::register_besch(weg_besch_t *besch)
 {
 	DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
 	if(  alle_wegtypen.remove(besch->get_name())  ) {
 		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
+
+	// add the tool
+	wkz_wegebau_t *wkz = new wkz_wegebau_t();
+	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+	wkz->default_param = besch->get_name();
+	wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+	werkzeug_t::general_tool.append( wkz );
+	besch->set_builder( wkz );
+
 	alle_wegtypen.put(besch->get_name(), besch);
 	return true;
 }
@@ -219,7 +229,6 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  */
 void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, karte_t *welt)
 {
-	static stringhashtable_tpl<wkz_wegebau_t *> way_tool;
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
@@ -241,17 +250,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 
 	// now add sorted ways ...
 	for (vector_tpl<const weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		const weg_besch_t* besch = *i;
-		wkz_wegebau_t *wkz = way_tool.get(besch->get_name());
-		if(wkz==NULL) {
-			// not yet in hashtable
-			wkz = new wkz_wegebau_t();
-			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-			wkz->default_param = besch->get_name();
-			way_tool.put(besch->get_name(),wkz);
-		}
-		wzw->add_werkzeug( (werkzeug_t*)wkz );
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 

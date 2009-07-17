@@ -34,7 +34,7 @@ class wegbauer_t
 public:
 	static const weg_besch_t *leitung_besch;
 
-	static bool register_besch(const weg_besch_t *besch);
+	static bool register_besch(weg_besch_t *besch);
 	static bool alle_wege_geladen();
 
 	// generates timeline message
