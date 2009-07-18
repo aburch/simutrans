@@ -33,6 +33,9 @@ struct sound_info
 	 * Prioritaet des sounds. Falls die Anzahl der abspielbaren Sounds
 	 * vom System begrenzt wird, werden nur die Sounds hoher Priorität
 	 * abgespielt
+	 *
+	 * Priority of the sounds. If the number of playable sounds in the
+	 * system is limited, only the sounds played high priority (Google)
 	 * @author Hj. Malthaner
 	 */
 	uint8 pri;

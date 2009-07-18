@@ -217,7 +217,6 @@ private:
 	// @author: jamespetts
 	bool reversed;
 
-	
 	//@author: jamespetts
 	uint16 diagonal_costs;
 	uint16 base_costs;
@@ -227,6 +226,8 @@ private:
 #ifdef debug_corners
 	uint16 current_corner;
 #endif
+
+	static sint64 sound_ticks;
 
 protected:
 	virtual void hop();

@@ -330,7 +330,7 @@ einstellungen_t::einstellungen_t() :
 	with_private_paks = true;
 
 	// The default is a selective refresh.
-	default_path_option = 1;
+	default_path_option = 2;
 
 	// The default is using multimedia timer functions.
 	system_time_option = 0;
