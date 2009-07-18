@@ -1895,8 +1895,7 @@ void stadt_t::step_passagiere()
 			// "The aim for passenger search"
 			pax_zieltyp will_return;
 
-			uint8 destination_count = simrand((max_destinations + 1));
-			if(destination_count < 1) destination_count = 1;
+			const uint8 destination_count = simrand(max_destinations) + 1;
 
 			// Split passengers: 1/3rd are local only, 
 			// 1/3rd are local or medium distance, 
@@ -1949,7 +1948,7 @@ void stadt_t::step_passagiere()
 				}
 			}
 			
-			INT_CHECK( "simcity 2460" );
+			INT_CHECK( "simcity 1952" );
 
 			uint8 current_destination = 0;
 
