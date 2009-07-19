@@ -2187,11 +2187,14 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							if(!is_preferred)
 							{
 								const uint16 preferred_waiting_minutes = connexions[catg_index]->get(next_transfer) != NULL ? connexions[catg_index]->get(next_transfer)->waiting_time : 15;
+								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10) / 3;  // Minutes are recorded in tenths. One third max for this purpose.
+								const uint16 max_minutes = preferred_waiting_minutes > base_max_minutes ? preferred_waiting_minutes : base_max_minutes;
 								const uint16 preferred_travelling_minutes = connexions[catg_index]->get(next_transfer) != NULL ? connexions[catg_index]->get(next_transfer)->journey_time : 15;
 								const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 
-								if((waiting_minutes - preferred_waiting_minutes) + preferred_travelling_minutes < accumulated_journey_time)
+								if(max_minutes > waiting_minutes && ((preferred_waiting_minutes * 3) - waiting_minutes + preferred_travelling_minutes) < accumulated_journey_time)
 								{
+									// Note: *3 rather than *1.5 because preferred_waiting_minutes are already *divided* by a number to produce a suppressed amount for route calculation.
 									continue;
 								}
 							}	

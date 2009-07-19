@@ -238,7 +238,7 @@ einstellungen_t::einstellungen_t() :
 	max_bonus_min_distance = 1024;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	journey_time_multiplier_percent = 30;
+	journey_time_multiplier_percent = 20;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -330,7 +330,7 @@ einstellungen_t::einstellungen_t() :
 	with_private_paks = true;
 
 	// The default is a selective refresh.
-	default_path_option = 1;
+	default_path_option = 2;
 
 	// The default is using multimedia timer functions.
 	system_time_option = 0;
@@ -656,6 +656,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_short(median_bonus_distance, "");
 				file->rdwr_short(max_bonus_multiplier_percent, "");
 				file->rdwr_short(journey_time_multiplier_percent, "");
+				if(file->get_experimental_version() < 5)
+				{
+					// In earlier versions, the default was set to a higher level. This
+					// is a problem when the new journey time tolerance features is used.
+					journey_time_multiplier_percent = (journey_time_multiplier_percent * 2) / 3;
+				}					
 				file->rdwr_byte(tolerable_comfort_short, "");
 				file->rdwr_byte(tolerable_comfort_median_short, "");
 				file->rdwr_byte(tolerable_comfort_median_median, "");

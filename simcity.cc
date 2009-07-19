@@ -1874,7 +1874,7 @@ void stadt_t::step_passagiere()
 		const uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
 		
-		const uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
+		uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
 		// Passengers with a private car will not tolerate second best destinations,
 		// and will use their private car to get to their first choice destination
 		// regardless of whether they might go to other destinations by public transport.
@@ -1895,8 +1895,7 @@ void stadt_t::step_passagiere()
 			// "The aim for passenger search"
 			pax_zieltyp will_return;
 
-			uint8 destination_count = simrand((max_destinations + 1));
-			if(destination_count < 1) destination_count = 1;
+			const uint8 destination_count = simrand(max_destinations) + 1;
 
 			// Split passengers: 1/3rd are local only, 
 			// 1/3rd are local or medium distance, 
@@ -1949,15 +1948,15 @@ void stadt_t::step_passagiere()
 				}
 			}
 			
-			INT_CHECK( "simcity 2460" );
+			INT_CHECK( "simcity 1952" );
 
 			uint8 current_destination = 0;
 
-			bool route_good = false;
+			route_status route_good = no_route;
 
 			bool can_walk_ziel = false;
 
-			while(!route_good && current_destination < destination_count)
+			while(route_good != good && current_destination < destination_count)
 			{			
 				// Dario: Check if there's a stop near destination
 				const planquadrat_t* dest_plan = welt->lookup(destinations[current_destination].location);
@@ -1996,7 +1995,7 @@ walk:
 					city_history_year[0][history_type] += pax_left_to_do;
 					city_history_month[0][history_type] += pax_left_to_do;
 
-					route_good = true;
+					route_good = good;
 					current_destination ++;
 					break;
 				}
@@ -2033,7 +2032,7 @@ walk:
 						continue;
 					}
 
-					route_good = true;
+					route_good = good;
 				}
 				
 				delete destination_list;
@@ -2041,17 +2040,12 @@ walk:
 				// Check first whether the best route is outside
 				// the passengers' tolerance.
 
-				if(route_good && tolerance > 0 && best_journey_time > tolerance)
+				if(route_good == good && tolerance > 0 && best_journey_time > tolerance)
 				{
-					route_good = false;
-					if(!has_private_car)
-					{
-						// If does have private car, might be able to get there by car within the time. Check below.
-						start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
-					}
+					route_good = too_slow;
 				}
 				
-				if(route_good)
+				if(route_good == good)
 				{
 					pax.arrival_time = welt->get_zeit_ms();
 
@@ -2065,8 +2059,6 @@ walk:
 						// that same stop, and never leave.
 						can_walk_ziel = true;
 						goto walk; // Not ideal, I know. Can anyone suggest anything better that does not increase overhead?
-						/*route_good = true;
-						break;*/
 					}
 					pax.set_origin(start_halt);
 
@@ -2225,15 +2217,10 @@ public_transport:
 				}
 
 				// send them also back
-				if(will_return != no_return && route_good)
+				if(will_return != no_return && route_good == good)
 				{
 					// this comes most of the times for free and balances also the amounts!
 					halthandle_t ret_halt = pax.get_ziel();
-					//if (will_return != town_return) 
-					//{
-					//	// restore normal mail amount => more mail from attractions and factories than going to them
-					//	pax.menge = pax_left_to_do;
-					//}
 
 					// we just have to ensure, the ware can be delivered at this station
 					bool found = false;
@@ -2274,11 +2261,14 @@ public_transport:
 						else 
 						{
 							// no route back
-							ret_halt->add_pax_no_route(pax_left_to_do);
 							if(has_private_car)
 							{
 								//Must use private car, since there is no route back.
 								set_private_car_trip(num_pax, destinations[current_destination].town);
+							}
+							else
+							{	
+								ret_halt->add_pax_no_route(pax_left_to_do);
 							}
 
 						}
@@ -2312,9 +2302,20 @@ public_transport:
 							}
 							else
 							{
+								if(current_destination == 0)
+								{
+									// If passengers cannot get to their destination by private car because the journey is too long,
+									// they should have a chance of having alternative destinations. This should be re-set on the *first*
+									// pass only. 
+									max_destinations = (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
+								}
 								if(!start_halts.empty())
 								{
-									start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
+									if(current_destination + 1 >= destination_count)
+									{
+										// Only record too slow if alternative destinations not canvassed.
+										start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
+									}
 								}
 							}
 						}
@@ -2324,7 +2325,7 @@ public_transport:
 				current_destination ++;
 			} // While loop (route_good)
 
-			if(!route_good)
+			if(route_good != good)
 			{
 				if(start_halts.get_count() > 0)
 				{
@@ -2334,7 +2335,14 @@ public_transport:
 						// If the passengers have a private car, then they should not record as "no route"
 						if(start_halt.is_bound())
 						{
-							start_halt->add_pax_no_route(pax_left_to_do);							
+							if(route_good == no_route)
+							{
+								start_halt->add_pax_no_route(pax_left_to_do);
+							}
+							else // route_good == too_slow
+							{
+								start_halt->add_pax_too_slow(pax_left_to_do);
+							}
 						}
 						merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
 					}

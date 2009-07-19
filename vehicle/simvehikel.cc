@@ -64,6 +64,8 @@
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
+#include "../simtools.h"
+
 
 #include "../bauer/vehikelbauer.h"
 
@@ -162,6 +164,8 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt):
 	steps = 0;
 	steps_next = 255;
 	use_calc_height = true;
+	dx = 0;
+	dy = 0;
 }
 
 
@@ -175,6 +179,8 @@ vehikel_basis_t::vehikel_basis_t(karte_t *welt, koord3d pos):
 	steps = 0;
 	steps_next = 255;
 	use_calc_height = true;
+	dx = 0;
+	dy = 0;
 }
 
 
@@ -967,12 +973,18 @@ void vehikel_t::remove_stale_freight()
 void
 vehikel_t::play_sound() const
 {
-	if(  besch->get_sound() >= 0  &&  !welt->is_fast_forward()  ) {
+	if(  besch->get_sound() >= 0  &&  !welt->is_fast_forward() && sound_ticks < welt->get_zeit_ms() ) 
+	{
 		struct sound_info info;
 		info.index = besch->get_sound();
 		info.volume = 255;
 		info.pri = 0;
-		welt->play_sound_area_clipped(get_pos().get_2d(), info);
+		if(welt->play_sound_area_clipped(get_pos().get_2d(), info))
+		{
+			// Only reset the counter if the sound can be heard.
+			sint64 sound_offset = simrand(30000) + 5000;
+			sound_ticks = welt->get_zeit_ms() + sound_offset;
+		}
 	}
 }
 
@@ -1068,6 +1080,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	 hop_count = 0;
 }
 
+sint64 vehikel_t::sound_ticks = 0;
 
 vehikel_t::vehikel_t(karte_t *welt) :
 	vehikel_basis_t(welt)

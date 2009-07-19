@@ -164,27 +164,27 @@ void path_explorer_t::full_instant_refresh()
 
 void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 {
-	for (uint8 c = 0; c < max_categories; c++)
-	{
-		if (reset_working_set)
-		{
-			// do not remove the finished matrix and heap
-			goods_compartment[c].reset(false);
-		}
-		else
-		{
-			// only set flag
-			goods_compartment[c].set_refresh();
-		}
-	}
-
 	if (reset_working_set)
 	{
+		for (uint8 c = 0; c < max_categories; c++)
+		{
+			// do not remove the finished matrix and halt index map
+			goods_compartment[c].reset(false);
+		}
+
 		// clear all connexion hash tables
 		compartment_t::clear_all_connexion_tables();
 
 		// reset current category pointer : refresh will start from passengers
 		current_compartment = 0;
+	}
+	else
+	{
+		for (uint8 c = 0; c < max_categories; c++)
+		{
+			// only set flag
+			goods_compartment[c].set_refresh();
+		}
 	}
 }
 
@@ -602,7 +602,7 @@ void path_explorer_t::compartment_t::step()
 				current_linkage = (*linkages)[phase_counter];
 
 				// determine schedule, owner and average speed
-				if ( current_linkage.line.is_bound() )
+				if ( current_linkage.line.is_bound() && current_linkage.line->get_schedule() )
 				{
 					// Case : a line
 					current_schedule = current_linkage.line->get_schedule();
@@ -611,7 +611,7 @@ void path_explorer_t::compartment_t::step()
 													   current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) : 
 													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) / 2 ) );
 				}
-				else if ( current_linkage.convoy.is_bound() )
+				else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() )
 				{
 					// Case : a lineless convoy
 					current_schedule = current_linkage.convoy->get_schedule();
@@ -623,14 +623,11 @@ void path_explorer_t::compartment_t::step()
 				else
 				{
 					// Case : nothing is bound -> just ignore
+					phase_counter++;
 					continue;
 				}
 
 				// create a list of reachable halts
-				if(current_schedule == NULL)
-				{
-					break;
-				}
 				entry_count = current_schedule->get_count();
 				halt_list.clear();
 
@@ -978,7 +975,7 @@ void path_explorer_t::compartment_t::step()
 
 					current_connexion = origin_iter.get_current_value();
 
-					// determine the position of reachable halt in working heap
+					// determine the matrix index of reachable halt in working halt index map
 					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
 
 					// update corresponding matrix element
@@ -1435,7 +1432,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	static const halthandle_t dummy_halt;
 	uint32 origin_index, target_index;
 	
-	// check if paths are available and if origin halt and target halt are in finished halt heap
+	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
 	if ( paths_available && origin_halt.is_bound() && target_halt.is_bound()
 			&& ( origin_index = finished_halt_index_map[ origin_halt.get_id() ] ) != 65535
 			&& ( target_index = finished_halt_index_map[ target_halt.get_id() ] ) != 65535
@@ -1464,7 +1461,7 @@ void path_explorer_t::compartment_t::initialise_connexion_list()
 
 void path_explorer_t::compartment_t::clear_connexion_table(const uint16 halt_id)
 {
-	if ( halt_id <= 65535 && connexion_list[halt_id] && !connexion_list[halt_id]->empty() )
+	if ( connexion_list[halt_id] && !connexion_list[halt_id]->empty() )
 	{
 		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id]));
 

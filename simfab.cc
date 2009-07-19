@@ -228,6 +228,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	last_lieferziel_start = 0;
 	total_input = total_output = 0;
 	status = nothing;
+	currently_producing = false;
 }
 
 
@@ -1299,10 +1300,7 @@ fabrik_t::neuer_monat()
 	}
 	// This needs to be re-checked regularly, as cities grow.
 	stadt_t* c = welt->get_city(pos.get_2d());
-	/*if(c == NULL)
-	{
-		city = NULL;
-	}*/
+
 	if(city == NULL && c != NULL)
 	{
 		city = c;
