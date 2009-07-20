@@ -379,6 +379,7 @@ sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 	}
 //    double perlin_noise_2D(double x, double y, double persistence);
 //    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
+	k = k + koord(sets->get_origin_x(), sets->get_origin_y());
 	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness())*(double)sets->get_max_mountain_height())) / 16;
 }
 
@@ -1432,11 +1433,11 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	// new recalc the images of the old map near the seam ...
 	for (sint16 x=0; x<old_x-20; x++) {
-		for (sint16 y=old_y-20; y<old_y; y++) {
+		for (sint16 y=max(old_y-20,0); y<old_y; y++) {
 			plan[x+y*cached_groesse_gitter_x].get_kartenboden()->calc_bild();
 		}
 	}
-	for (sint16 x=old_x-20; x<old_x; x++) {
+	for (sint16 x=max(old_x-20,0); x<old_x; x++) {
 		for (sint16 y=0; y<old_y; y++) {
 			plan[x+y*cached_groesse_gitter_x].get_kartenboden()->calc_bild();
 		}
