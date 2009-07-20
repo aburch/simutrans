@@ -2652,23 +2652,27 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		layout &= (besch->get_all_layouts()-1);
 	}
 
-	const bool has_old_halt = bd->is_halt();
+	halthandle_t old_halt = bd->get_halt();
 	uint16 old_level = 0;
 
-	if( has_old_halt ) {
+	halthandle_t halt;
+
+	if( old_halt.is_bound() ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
 		old_level = old_besch->get_level();
 		if( old_besch->get_level() >= besch->get_level() ) {
 			return "Upgrade must have\na higher level";
 		}
-		else {
-			hausbauer_t::remove( welt, NULL, gb );
-		}
+		gb->entferne( NULL );
+		delete gb;
+		halt = old_halt;
+	}
+	else {
+		halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());
 	}
 
 	// seems everything ok, lets build
-	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());
 	bool neu = !halt.is_bound();
 
 	if(neu) {
