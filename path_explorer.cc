@@ -141,7 +141,7 @@ void path_explorer_t::full_instant_refresh()
 				display_progress(curr_step, total_steps);
 			}
 #else
-			// one step should perform the first 4 compartment phases
+			// one step should perform the compartment phases from the first phase till the path exploration phase
 			goods_compartment[c].step();
 #endif
 		}
@@ -578,6 +578,7 @@ void path_explorer_t::compartment_t::step()
 
 			const spieler_t *const public_player = world->get_spieler(1); // public player is #1; #0 is human player
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
+			const float journey_time_adjustment = world->get_einstellungen()->get_journey_time_multiplier() * 600;
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
@@ -586,6 +587,7 @@ void path_explorer_t::compartment_t::step()
 
 			uint8 entry_count;
 			halthandle_t current_halt;
+			float journey_time_factor;
 
 			minivec_tpl<halthandle_t> halt_list(64);
 			minivec_tpl<uint16> journey_time_list(64);
@@ -602,7 +604,7 @@ void path_explorer_t::compartment_t::step()
 				current_linkage = (*linkages)[phase_counter];
 
 				// determine schedule, owner and average speed
-				if ( current_linkage.line.is_bound() && current_linkage.line->get_schedule() )
+				if ( current_linkage.line.is_bound() && current_linkage.line->get_schedule() && current_linkage.line->count_convoys() )
 				{
 					// Case : a line
 					current_schedule = current_linkage.line->get_schedule();
@@ -650,6 +652,7 @@ void path_explorer_t::compartment_t::step()
 
 				// precalculate journey times between consecutive halts
 				entry_count = halt_list.get_count();
+				journey_time_factor = journey_time_adjustment / (float)current_average_speed;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
 
@@ -658,8 +661,8 @@ void path_explorer_t::compartment_t::step()
 					// journey time from halt 0 to halt 1 is stored in journey_time_list[1]
 					journey_time_list.append
 					(
-						(uint16)(((float)accurate_distance(halt_list[i]->get_basis_pos(), halt_list[(i+1)%entry_count]->get_basis_pos())
-						/ (float)current_average_speed) * world->get_einstellungen()->get_journey_time_multiplier() * 600),
+						(uint16)( (float)accurate_distance( halt_list[i]->get_basis_pos(), 
+															halt_list[(i+1)%entry_count]->get_basis_pos() ) * journey_time_factor ),
 						64 
 					);
 				}
@@ -821,17 +824,17 @@ void path_explorer_t::compartment_t::step()
 			// add halt to working halt list only if it has connexions that support this compartment's goods category
 			while (phase_counter < all_halts_count)
 			{
-				// swap the old connexion hash table with a new one, then clear the old one
-				all_halts_list[phase_counter]->swap_connexions( catg, connexion_list[ all_halts_list[phase_counter].get_id() ] );
-				clear_connexion_table( all_halts_list[phase_counter].get_id() );
-
-				if (!all_halts_list[phase_counter]->get_connexions(catg)->empty())
+				if ( ! connexion_list[ all_halts_list[phase_counter].get_id() ]->empty() )
 				{
-					// valid connexion(s) found
+					// valid connexion(s) found -> add to working halt list and update halt index map
 					working_halt_list[working_halt_count] = all_halts_list[phase_counter];
 					working_halt_index_map[ all_halts_list[phase_counter].get_id() ] = working_halt_count;
 					working_halt_count++;
 				}
+
+				// swap the old connexion hash table with a new one, then clear the old one
+				all_halts_list[phase_counter]->swap_connexions( catg, connexion_list[ all_halts_list[phase_counter].get_id() ] );
+				clear_connexion_table( all_halts_list[phase_counter].get_id() );
 
 				phase_counter++;
 				
@@ -888,6 +891,7 @@ void path_explorer_t::compartment_t::step()
 				statistic_duration = 0;
 				statistic_iteration = 0;
 
+				// update representative category and halt count where necessary
 				if ( working_halt_count > representative_halt_count )
 				{
 					representative_category = catg;
