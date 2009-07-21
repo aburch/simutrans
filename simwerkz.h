@@ -91,7 +91,7 @@ private:
 public:
 	wkz_raise_t() : werkzeug_t() { offset = Z_GRID; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Anheben", sp->get_welt()->get_einstellungen()->cst_alter_land); }
-	virtual image_id get_icon(spieler_t *sp) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	const char *work( karte_t *, spieler_t *, koord3d );
@@ -105,7 +105,7 @@ private:
 public:
 	wkz_lower_t() : werkzeug_t() { offset = Z_GRID; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Absenken", sp->get_welt()->get_einstellungen()->cst_alter_land); }
-	virtual image_id get_icon(spieler_t *sp) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	bool init( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	bool exit( karte_t *, spieler_t * ) { is_dragging = false; return true; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d);

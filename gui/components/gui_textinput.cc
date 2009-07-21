@@ -58,7 +58,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 					}
 					break;
 				case SIM_KEY_RIGHT: // right arrow
-					if (cursor_pos >= 0) {
+					if (cursor_pos > 0) {
 						cursor_pos = get_next_char(text, cursor_pos);
 					}
 					if (cursor_pos > strlen(text)) {
