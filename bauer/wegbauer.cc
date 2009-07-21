@@ -604,12 +604,14 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		case strasse:
 		{
 			const weg_t *str=to->get_weg(road_wt);
-			// we allow connection to any road
-			ok =	(str  ||  !fundament)  &&  !to->ist_wasser()  &&  check_for_leitung(zv,to);
-			if(!ok) {
-				return false;
+			if((bautyp&elevated_flag)==0) {
+				// we allow connection to any road
+				ok =	(str  ||  !fundament)  &&  !to->ist_wasser()  &&  check_for_leitung(zv,to);
+				if(!ok) {
+					return false;
+				}
+				ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
 			}
-			ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
 			if(!ok) {
 				const weg_t *sch=to->get_weg(track_wt);
 				if(sch  &&  sch->get_besch()->get_styp()==7) {
