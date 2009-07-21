@@ -887,7 +887,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			int current_citicens = (2500l * einstellungen->get_mittlere_einwohnerzahl()) /(simrand(20000)+100);
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			stadt.append(s, current_citicens, 64);
+			stadt.append(s, s->get_einwohner(), 64);
 			if(is_display_init()) {
 				old_progress ++;
 				display_progress(old_progress, max_display_progress);
