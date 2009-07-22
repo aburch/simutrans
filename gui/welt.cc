@@ -83,7 +83,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_groesse_x() );
-	inp_x_size.set_limits( 64, min(32766,4194304/sets->get_groesse_y()) );
+	inp_x_size.set_limits( 8, min(32766,4194304/sets->get_groesse_y()) );
 	inp_x_size.set_increment_mode( sets->get_groesse_x()>=512 ? 128 : 64 );
 	inp_x_size.wrap_mode( false );
 	add_komponente( &inp_x_size );
@@ -92,7 +92,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_y_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
 	inp_y_size.add_listener(this);
-	inp_y_size.set_limits( 64, min(32766,4194304/sets->get_groesse_x()) );
+	inp_y_size.set_limits( 8, min(32766,4194304/sets->get_groesse_x()) );
 	inp_y_size.set_value( sets->get_groesse_y() );
 	inp_y_size.set_increment_mode( sets->get_groesse_y()>=512 ? 128 : 64 );
 	inp_y_size.wrap_mode( false );
@@ -350,14 +350,14 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 
 	if(komp==&inp_x_size) {
 		sets->set_groesse_x( v.i );
-		inp_x_size.set_increment_mode( v.i>=512 ? 128 : 64 );
-		inp_y_size.set_limits( 64, min(32766,16777216/sets->get_groesse_x()) );
+		inp_x_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
+		inp_y_size.set_limits( 8, min(32766,16777216/sets->get_groesse_x()) );
 		update_preview();
 	}
 	else if(komp==&inp_y_size) {
 		sets->set_groesse_y( v.i );
-		inp_y_size.set_increment_mode( v.i>=512 ? 128 : 64 );
-		inp_x_size.set_limits( 64, min(32766,16777216/sets->get_groesse_y()) );
+		inp_y_size.set_increment_mode( v.i>=64 ? (v.i>=512 ? 128 : 64) : 8 );
+		inp_x_size.set_limits( 8, min(32766,16777216/sets->get_groesse_y()) );
 		update_preview();
 	}
 	else if(komp==&inp_number_of_towns) {
