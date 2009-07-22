@@ -51,11 +51,11 @@ tunnel_t::calc_bild()
 	if(gr->ist_karten_boden()) {
 		hang_t::typ hang = gr->get_grund_hang();
 		set_bild( besch->get_hintergrund_nr(hang, get_pos().z >= welt->get_snowline()));
-		after_bild = besch->get_vordergrund_nr(hang, get_pos().z >= welt->get_snowline());
+		set_after_bild( besch->get_vordergrund_nr(hang, get_pos().z >= welt->get_snowline()) );
 	}
 	else {
 		set_bild( IMG_LEER );
-		after_bild = IMG_LEER;
+		set_after_bild( IMG_LEER );
 	}
 }
 
@@ -122,4 +122,18 @@ void tunnel_t::entferne( spieler_t *sp2 )
 		}
 	}
 	spieler_t::accounting(sp2, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION );
+}
+
+void tunnel_t::set_bild( image_id b )
+{
+	mark_image_dirty( bild, get_yoff() );
+	mark_image_dirty( b, get_yoff() );
+	bild = b;
+}
+
+void tunnel_t::set_after_bild( image_id b )
+{
+	mark_image_dirty( after_bild, get_yoff() );
+	mark_image_dirty( b, get_yoff() );
+	after_bild = b;
 }
