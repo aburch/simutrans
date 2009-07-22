@@ -284,6 +284,10 @@ private:
 	uint16 min_longdistance_tolerance;
 	uint16 max_longdistance_tolerance;
 
+	// Used for larger maps.
+	// @author: jamespetts
+	/*uint8 scale_divider;*/
+
 
 public:
 	/* the big cost section */
@@ -582,6 +586,8 @@ public:
 	uint16 get_max_midrange_tolerance() const { return max_midrange_tolerance; }
 	uint16 get_min_longdistance_tolerance() const { return min_longdistance_tolerance; }
 	uint16 get_max_longdistance_tolerance() const { return max_longdistance_tolerance; }
+
+	/*uint8 get_scale_divider() const { return scale_divider; }*/
 };
 
 #endif

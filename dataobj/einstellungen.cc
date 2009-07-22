@@ -351,6 +351,8 @@ einstellungen_t::einstellungen_t() :
 	min_longdistance_tolerance = 180;
 	//max_longdistance_tolerance = 330 - min_longdistance_tolerance; // Five and a half hours
 	max_longdistance_tolerance = 150;
+
+	/*scale_divider = 1;*/
 }
 
 
@@ -839,6 +841,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(min_longdistance_tolerance, "");
 			file->rdwr_short(max_longdistance_tolerance, "");
 		}
+
+		/*if(file->get_experimental_version() >= 6)
+		{
+			file->rdwr_byte(scale_divider, "");
+		}*/
 	}
 }
 
@@ -1165,6 +1172,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_midrange_tolerance = contents.get_int("max_midrange_tolerance", max_midrange_tolerance) - min_midrange_tolerance;
 	min_longdistance_tolerance = contents.get_int("min_longdistance_tolerance", min_longdistance_tolerance);
 	max_longdistance_tolerance = contents.get_int("max_longdistance_tolerance", max_longdistance_tolerance) - min_longdistance_tolerance;
+
+	/*scale_divider = contents.get_int("scale_divider", scale_divider);*/
 
 	/*
 	 * Selection of savegame format through inifile

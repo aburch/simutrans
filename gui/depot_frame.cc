@@ -47,7 +47,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
 	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
-	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified() )
+	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) )
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = depot->get_selected_line(); //linehandle_t();
@@ -702,12 +702,15 @@ void depot_frame_t::fahrplaneingabe()
 	}	
 }
 
-bool depot_frame_t::check_way_electrified()
+bool depot_frame_t::check_way_electrified(bool init)
 {
 	const waytype_t wt = depot->get_wegtyp();
 	const weg_t *w = get_welt()->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
 	const bool way_electrified = w ? w->is_electrified() : false;
-	convoy_assembler.set_electrified( way_electrified );
+	if(!init)
+	{
+		convoy_assembler.set_electrified( way_electrified );
+	}
 	if( way_electrified ) 
 	{
 		img_bolt.set_image(skinverwaltung_t::electricity->get_bild_nr(0));
