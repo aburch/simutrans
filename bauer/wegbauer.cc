@@ -1357,6 +1357,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 				bd_nach = new tunnelboden_t(welt, pos + diff, hang_t::flach);
 				bd_nach_new = true;
 			}
+			ok = ok && bd_nach->ist_tunnel();
 			// all checks are done here (slopes, crossings, stations etc)
 			ok = ok && is_allowed_step(bd_von, bd_nach, &dummy_cost);
 
