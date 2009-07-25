@@ -289,6 +289,7 @@ void weg_t::info(cbuffer_t & buf) const
 	{
 		if(permissive_way_constraint_set(i + 8))
 		{
+			buf.append("\n");
 			char tmpbuf[30];
 			sprintf(tmpbuf, "Permissive %i", i + 8);
 			buf.append(translator::translate(tmpbuf));
@@ -296,6 +297,7 @@ void weg_t::info(cbuffer_t & buf) const
 		}
 		if(prohibitive_way_constraint_set(i))
 		{
+			buf.append("\n");
 			char tmpbuf[30];
 			sprintf(tmpbuf, "Prohibitive %i", i);
 			buf.append(translator::translate(tmpbuf));
