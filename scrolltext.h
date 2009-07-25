@@ -39,6 +39,7 @@
 "Isidoro","vehicle replacement",
 "Gerw","signal automation",
 "Knightly","fixes, optimisations",
+"Hanczar","profiling, fixes",
 "Ansgar","Linux builds, patches",
 "Bernd Gabriel","patches",
 "Nathan Samson","patches",
