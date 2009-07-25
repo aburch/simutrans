@@ -1247,15 +1247,8 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		// stopps
 		if(flags&is_halt_flag  &&  get_halt()->get_besitzer()==sp) {
 			const char *fail;
-			bool remove_halt = true;
-			// do not remove bus halts on tram track
-			if(wt == track_wt && hat_weg(road_wt)) {
-				gebaeude_t * gb = find<gebaeude_t>();
-				if (gb && gb->get_tile()->get_besch()->get_extra()==road_wt ) {
-					remove_halt = false;
-				}
-			}
-			if(remove_halt && !haltestelle_t::remove(welt, sp, pos, fail)) {
+			// remove only if there is no other way
+			if(get_weg_nr(1)==NULL && !haltestelle_t::remove(welt, sp, pos, fail)) {
 				return false;
 			}
 		}
