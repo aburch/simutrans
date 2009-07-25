@@ -1072,14 +1072,15 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 #ifdef debug_corners	 
 	current_corner = 0;
 #endif
-	 direction_steps = 4;
-	 is_overweight = false;
-	 reversed = false;
-	 current_revenue = 0;
-	 hop_count = 0;
-	 base_costs = 0;
-     hill_up = 0;
-     hill_down = 0;
+	direction_steps = 4;
+	is_overweight = false;
+	reversed = false;
+	current_revenue = 0;
+	hop_count = 0;
+	base_costs = 0;
+	diagonal_costs = 0;
+    hill_up = 0;
+    hill_down = 0;
 }
 
 sint64 vehikel_t::sound_ticks = 0;
@@ -1104,16 +1105,17 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 	//@author: jamespetts 
 #ifdef debug_corners 
-	 current_corner = 0;
+	current_corner = 0;
 #endif
-	 direction_steps = 4;
-	 is_overweight = false;
-	 reversed = false;
-	 current_revenue = 0;
-	 hop_count = 0;
-	 base_costs = 0;
-     hill_up = 0;
-     hill_down = 0;
+	direction_steps = 4;
+	is_overweight = false;
+	reversed = false;
+	current_revenue = 0;
+	hop_count = 0;
+	base_costs = 0;
+	diagonal_costs = 0;
+    hill_up = 0;
+    hill_down = 0;
 }
 
 
@@ -1215,8 +1217,6 @@ vehikel_t::hop()
 		if(costs != base_costs)
 		{
 			// Recalculate base costs only if necessary
-			// With this formula, no need to initialise base 
-			// costs or diagonal costs!
 			base_costs = costs;
 			diagonal_costs = (costs * diagonal_length) / 255;
 		}
