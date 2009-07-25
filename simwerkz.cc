@@ -1776,6 +1776,10 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 	}
 	bool can_delete = true;
 
+	if (wt == tram_wt) {
+		wt = track_wt;
+	}
+
 	// found a route => check if I can delete anything on it
 	for(  uint32 i=0;  can_delete  &&  i<=verbindung.get_max_n();  i++  ) {
 		grund_t *gr=welt->lookup(verbindung.position_bei(i));
