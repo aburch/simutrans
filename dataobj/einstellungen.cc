@@ -708,17 +708,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(longdistance_passengers_min_distance, "");
 			file->rdwr_short(longdistance_passengers_max_distance, "");
 
-			if(file->get_experimental_version() < 6)
-			{
-				// Versions before 6 did not have scaling to kilometres
-				local_passengers_min_distance /= journey_time_multiplier;
-				local_passengers_max_distance /= journey_time_multiplier;
-				midrange_passengers_min_distance /= journey_time_multiplier;
-				midrange_passengers_max_distance /= journey_time_multiplier;
-				longdistance_passengers_min_distance /= journey_time_multiplier;
-				longdistance_passengers_max_distance /= journey_time_multiplier;
-			}
-
 			file->rdwr_byte(passenger_routing_packet_size, "");
 			file->rdwr_byte(max_alternative_destinations, "");
 			file->rdwr_byte(passenger_routing_local_chance, "");
