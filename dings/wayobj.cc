@@ -43,8 +43,8 @@
 // the descriptions ...
 const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 
-vector_tpl<const way_obj_besch_t *> wayobj_t::liste;
-stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
+vector_tpl<way_obj_besch_t *> wayobj_t::liste;
+stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
 
 
@@ -447,7 +447,7 @@ bool wayobj_t::alles_geladen()
 bool wayobj_t::register_besch(way_obj_besch_t *besch)
 {
 	// avoid duplicates with same name
-	const way_obj_besch_t *old_besch = table.get(besch->get_name());
+	way_obj_besch_t *old_besch = table.get(besch->get_name());
 	if(old_besch) {
 		dbg->warning( "wayobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		table.remove(besch->get_name());

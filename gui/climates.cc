@@ -88,8 +88,15 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &hilly );
 	intTopOfButton += 12;
 
-	// summer snowline alsway startig above highest climate
-	intTopOfButton += 12+5;
+	cities_ignore_height.init( button_t::square, "Cities ignore height", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	cities_ignore_height.set_tooltip("Cities will be built all over the terrain, rather than preferring lower ground");
+	cities_ignore_height.pressed=umgebung_t::hilly;
+	cities_ignore_height.add_listener( this );
+	add_komponente( &cities_ignore_height );
+	intTopOfButton += 12;
+
+	// summer snowline always starting above highest climate
+	intTopOfButton += 18+5;
 
 	// artic starts at maximum end of climate
 	snowline_winter.set_pos(koord(LEFT_ARROW,intTopOfButton) );
@@ -215,6 +222,11 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt_gui->update_preview();
 		}
 	}
+	else if(komp == & cities_ignore_height)
+	{
+		umgebung_t::cities_ignore_height ^= 1;
+		cities_ignore_height.pressed ^= 1;
+	}
 	else {
 		// all climate borders from here on
 		sint16 *climate_borders = (sint16 *)sets->get_climate_borders();
@@ -251,6 +263,8 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 
 	hilly.pressed = umgebung_t::hilly;
 
+	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
+
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;
@@ -262,12 +276,12 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	y += 24+5;
+	y += 36+5;
 
 	// season stuff
 	display_proportional_clip(x, y, translator::translate("Summer snowline"), ALIGN_LEFT, COL_BLACK, true);
 	display_proportional_clip(x+TEXT_RIGHT, y, ntos( sets->get_climate_borders()[arctic_climate], 0) , ALIGN_RIGHT, COL_WHITE, true);     // x = round(roughness * 10)-4  // 0.6 * 10 - 4 = 2    //29-Nov-01     Markus W. Added
-	y += 12;
+	y += 12+5;
 	display_proportional_clip(x, y, translator::translate("Winter snowline"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12+5;
 

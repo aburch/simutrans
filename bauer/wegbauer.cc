@@ -60,8 +60,6 @@
 
 #include "../vehicle/movingobj.h"
 
-#include "../tpl/stringhashtable_tpl.h"
-
 #include "../gui/messagebox.h"
 #include "../gui/karte.h"	// for debugging
 #include "../gui/werkzeug_waehler.h"
@@ -82,8 +80,12 @@
 
 const weg_besch_t *wegbauer_t::leitung_besch = NULL;
 
-static stringhashtable_tpl <const weg_besch_t *> alle_wegtypen;
+static stringhashtable_tpl <weg_besch_t *> alle_wegtypen;
 
+stringhashtable_tpl <weg_besch_t *> * wegbauer_t::get_all_ways()
+{
+	return &alle_wegtypen;
+}
 
 bool wegbauer_t::alle_wege_geladen()
 {
@@ -110,7 +112,7 @@ bool wegbauer_t::alle_wege_geladen()
 }
 
 
-bool wegbauer_t::register_besch(const weg_besch_t *besch)
+bool wegbauer_t::register_besch(weg_besch_t *besch)
 {
 	DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
 	if(  alle_wegtypen.remove(besch->get_name())  ) {
@@ -132,7 +134,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 {
 	const weg_besch_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
+	for(  stringhashtable_iterator_tpl<weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
 	{
 		const weg_besch_t* const test = iter.get_current_value();
 		if(  ((test->get_wtyp()==wtyp  &&
@@ -163,7 +165,7 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type)
 {
 	const weg_besch_t* best = NULL;
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
+	for(  stringhashtable_iterator_tpl<weg_besch_t*> iter(alle_wegtypen); iter.next();  ) 
 	{
 		const weg_besch_t* const test = iter.get_current_value();
 		bool best_allowed = false; // Does the best way fulfill the timeline?
@@ -213,8 +215,8 @@ void wegbauer_t::neuer_monat(karte_t *welt)
 	const uint16 current_month = welt->get_timeline_year_month();
 	if(current_month!=0) {
 		// check, what changed
-		slist_tpl <const weg_besch_t *> matching;
-		stringhashtable_iterator_tpl<const weg_besch_t *> iter(alle_wegtypen);
+		slist_tpl <weg_besch_t *> matching;
+		stringhashtable_iterator_tpl<weg_besch_t *> iter(alle_wegtypen);
 		while(iter.next()) {
 			const weg_besch_t * besch = iter.get_current_value();
 			char	buf[256];
@@ -263,11 +265,11 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
-	vector_tpl<const weg_besch_t*> matching;
+	vector_tpl<weg_besch_t*> matching;
 
-	stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen);
+	stringhashtable_iterator_tpl<weg_besch_t*> iter(alle_wegtypen);
 	while(iter.next()) {
-		const weg_besch_t* besch = iter.get_current_value();
+		weg_besch_t* besch = iter.get_current_value();
 		if (besch->get_styp() == styp &&
 				besch->get_wtyp() == wtyp &&
 				besch->get_cursor()->get_bild_nr(1) != IMG_LEER && (
@@ -280,7 +282,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 	std::sort(matching.begin(), matching.end(), compare_ways);
 
 	// now add sorted ways ...
-	for (vector_tpl<const weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
+	for (vector_tpl<weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
 		const weg_besch_t* besch = *i;
 		wkz_wegebau_t *wkz = way_tool.get(besch->get_name());
 		if(wkz==NULL) {

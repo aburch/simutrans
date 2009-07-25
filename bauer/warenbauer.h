@@ -58,6 +58,8 @@ public:
 
 	static const ware_besch_t *get_info(uint16 idx) { return waren[idx]; }
 
+	static ware_besch_t *get_modifiable_info(uint16 idx) { return waren[idx]; }
+
 	static uint16 get_waren_anzahl() { return waren.get_count(); }
 
 	// ware by catg

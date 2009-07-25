@@ -76,12 +76,12 @@ class stadt_t
 	* @author V. Meyer
 	*/
 	class best_t {
-		sint32 best_wert;
+		sint8 best_wert;
 		koord best_pos;
 	public:
 		void reset(koord pos) { best_wert = 0; best_pos = pos; }
 
-		void check(koord pos, sint32 wert) {
+		void check(koord pos, sint8 wert) {
 			if(wert > best_wert) {
 				best_wert = wert;
 				best_pos = pos;
@@ -91,7 +91,7 @@ class stadt_t
 		bool found() const { return best_wert > 0; }
 
 		koord get_pos() const { return best_pos;}
-	// sint32 get_wert() const { return best_wert; }
+	// sint8 get_wert() const { return best_wert; }
 	};
 
 public:
@@ -313,13 +313,13 @@ private:
 	 * @return true on match, false otherwise
 	 * @author Hj. Malthaner
 	 */
-	bool bewerte_loc(koord pos, const char *regel, int rotation);
+	inline bool bewerte_loc(koord pos, const char *regel, uint16 rotation);
 
 	/**
 	 * Check rule in all transformations at given position
 	 * @author Hj. Malthaner
 	 */
-	sint32 bewerte_pos(koord pos, const char *regel);
+	inline sint8 bewerte_pos(koord pos, const char *regel);
 
 	void bewerte_strasse(koord pos, sint32 rd, const char* regel);
 	void bewerte_haus(koord pos, sint32 rd, const char* regel);

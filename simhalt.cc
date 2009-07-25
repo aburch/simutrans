@@ -980,6 +980,22 @@ haltestelle_t::step()
 							add_pax_unhappy(tmp.menge);
 						}
 						
+						// If goods/passengers leave, then they must register a waiting time, or else
+						// overcrowded stops would have excessively low waiting times. Because they leave
+						// before they have got transport, the waiting time registered must be increased
+						// by 1.5x to reflect an estimate of how long that they would likely have had to
+						// have waited to get transport.
+						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+						if(waiting_minutes == 0 && welt->get_zeit_ms() != tmp.arrival_time)
+						{ 
+							waiting_minutes = 1;
+						}
+						waiting_minutes *= 1.5;
+						if(waiting_minutes > 0)
+						{
+							add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+						}
+						
 						// The goods/passengers leave.
 						tmp.menge = 0;
 					}		

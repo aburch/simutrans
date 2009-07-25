@@ -38,7 +38,7 @@ public:
 	static bool speedbonus_init(cstring_t objfilename);
 	static sint32 get_speedbonus( sint32 monthyear, waytype_t wt );
 
-	static bool register_besch(const vehikel_besch_t *besch);
+	static bool register_besch(vehikel_besch_t *besch);
 	static bool alles_geladen();
 
 	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb )
@@ -49,7 +49,8 @@ public:
 	static vehikel_t* baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade );
 
 	static const vehikel_besch_t * get_info(const char *name);
-	static slist_tpl<const vehikel_besch_t*>* get_info(waytype_t typ);
+	static slist_tpl<vehikel_besch_t*>* get_info(waytype_t typ);
+	static slist_tpl<vehikel_besch_t*>* get_modifiable_info(waytype_t typ);
 
 	/* extended sreach for vehicles for KI
 	* @author prissi

@@ -1073,11 +1073,13 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	current_corner = 0;
 #endif
 	 direction_steps = 4;
-	 //local_bonus_supplement = 0;
 	 is_overweight = false;
 	 reversed = false;
 	 current_revenue = 0;
 	 hop_count = 0;
+	 base_costs = 0;
+     hill_up = 0;
+     hill_down = 0;
 }
 
 sint64 vehikel_t::sound_ticks = 0;
@@ -1105,11 +1107,13 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	 current_corner = 0;
 #endif
 	 direction_steps = 4;
-	 //local_bonus_supplement = 0;
 	 is_overweight = false;
 	 reversed = false;
 	 current_revenue = 0;
 	 hop_count = 0;
+	 base_costs = 0;
+     hill_up = 0;
+     hill_down = 0;
 }
 
 

@@ -41,12 +41,14 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	uint32 price;
+	uint32 scaled_price;
 
 	/**
 	 * Maintenance cost per square/month
 	 * @author Hj. Malthaner
 	 */
 	uint32 maintenance;
+	uint32 scaled_maintenance;
 
 	/**
 	 * Max speed
@@ -95,9 +97,19 @@ private:
 	uint8 way_constraints_prohibitive;
 
 public:
-	long get_preis() const { return price; }
+	uint32 get_preis() const { return scaled_price; }
 
-	long get_wartung() const { return maintenance; }
+	uint32 get_base_price() const { return price; }
+
+	uint32 get_wartung() const { return scaled_maintenance; }
+
+	uint32 get_base_maintenance() const { return  maintenance; }
+
+	void set_scale(float scale_factor) 
+	{
+		scaled_price = price * scale_factor > 0 ? price * scale_factor : 1;
+		scaled_maintenance = maintenance * scale_factor > 0 ? maintenance * scale_factor : 1;
+	}
 
 	/**
 	 * Determines max speed in km/h allowed on this way

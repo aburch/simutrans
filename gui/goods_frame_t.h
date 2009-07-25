@@ -31,7 +31,10 @@ private:
 
 	// static, so we remember the last settings
 	static int relative_speed_change;
+	// Distance in km
 	static uint16 distance;
+	// Distance in tiles
+	static uint16 tile_distance;
 	static uint8 comfort;
 	static bool sortreverse;
 	static sort_mode_t sortby;

@@ -13,6 +13,8 @@
 #include "../simtypes.h"
 #include "../simwerkz.h"
 
+#include "../tpl/stringhashtable_tpl.h"
+
 
 class weg_besch_t;
 class kreuzung_besch_t;
@@ -34,7 +36,7 @@ class wegbauer_t
 public:
 	static const weg_besch_t *leitung_besch;
 
-	static bool register_besch(const weg_besch_t *besch);
+	static bool register_besch(weg_besch_t *besch);
 	static bool alle_wege_geladen();
 
 	// generates timeline message
@@ -49,6 +51,8 @@ public:
 	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type);
 
 	static const weg_besch_t * get_besch(const char *way_name,const uint16 time=0);
+
+	static stringhashtable_tpl <weg_besch_t *> * get_all_ways();
 
 	/**
 	 * Fill menu with icons of given waytype

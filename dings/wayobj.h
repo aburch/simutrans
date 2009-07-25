@@ -109,8 +109,8 @@ public:
 
 	/* the static routines */
 private:
-	static vector_tpl<const way_obj_besch_t *> liste;
-	static stringhashtable_tpl<const way_obj_besch_t *> table;
+	static vector_tpl<way_obj_besch_t *> liste;
+	static stringhashtable_tpl<way_obj_besch_t *> table;
 
 public:
 	static const way_obj_besch_t *default_oberleitung;
@@ -131,6 +131,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt);
+
+	static vector_tpl<way_obj_besch_t *> * get_all_wayobjects() { return &liste; }
 };
 
 #endif

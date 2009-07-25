@@ -483,7 +483,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) 
 	{
 		uint16 loks = 0, waggons = 0, pax=0, electrics = 0;
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
+		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) 
 		{
 			const vehikel_besch_t* info = vehinfo.get_current();
@@ -531,7 +531,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	}
 	else {
 		// list only matching ones
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
+		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) {
 			const vehikel_besch_t* info = vehinfo.get_current();
 			const vehikel_besch_t *veh = NULL;

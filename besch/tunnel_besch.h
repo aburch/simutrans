@@ -33,7 +33,9 @@ private:
 
 	uint32 topspeed;	// speed in km/h
 	uint32 preis;	// 1/100 credits
+	uint32 scaled_price; // The price after scaling. @author: jamespetts
 	uint32 maintenance;	// monthly cost for bits_per_month=18
+	uint32 scaled_maintenance;
 	uint8 wegtyp;	// waytype for tunnel
 	uint32 max_weight; // maximum weight for vehicles. @author: jamespetts
 
@@ -97,9 +99,19 @@ public:
 	// get costs etc.
 	waytype_t get_waytype() const { return static_cast<waytype_t>(wegtyp); }
 
-	sint32 get_preis() const { return preis; }
+	sint32 get_preis() const { return scaled_price; }
 
-	sint32 get_wartung() const { return maintenance; }
+	sint32 get_base_price() const { return preis; }
+
+	sint32 get_wartung() const { return scaled_maintenance; }
+
+	sint32 get_base_maintenance() const { return maintenance; }
+
+	void set_scale(float scale_factor) 
+	{ 
+		scaled_price = preis * scale_factor > 0 ? preis * scale_factor : 1; 
+		scaled_maintenance = maintenance * scale_factor > 0 ? maintenance * scale_factor : 1;
+	}
 
 	uint32  get_topspeed() const { return topspeed; }
 

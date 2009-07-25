@@ -44,6 +44,11 @@ private:
 	// @author: jamespetts
 	button_t hilly;
 
+	// If this is selected, cities will not prefer
+	// lower grounds as they do by default.
+	// @ author: jamespetts
+	button_t cities_ignore_height;
+
 public:
 	climate_gui_t(einstellungen_t* sets);
 

@@ -73,6 +73,7 @@ private:
 	uint16 gewicht; //Weight
 	uint32 leistung; //Power
 	uint16 betriebskosten;  //Running costs
+	uint16 scaled_running_costs; //@author: jamespetts
 	uint32 fixed_maintenance; //@author: jamespetts, April 2009
 
 	uint16 intro_date; // introduction date
@@ -284,7 +285,9 @@ public:
 	uint16 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
-	uint16 get_betriebskosten() const { return betriebskosten; }
+	uint16 get_betriebskosten() const { return scaled_running_costs; }
+	uint16 get_base_running_costs() const { return betriebskosten; }
+	void set_scale(float scale_factor) { scaled_running_costs = betriebskosten * scale_factor > 0 ? betriebskosten * scale_factor : 1; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint32 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.

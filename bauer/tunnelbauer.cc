@@ -42,7 +42,6 @@
 #include "../gui/werkzeug_waehler.h"
 
 #include "wegbauer.h"
-#include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
 
@@ -58,6 +57,10 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 	tunnel_by_name.put(besch->get_name(), besch);
 }
 
+stringhashtable_tpl <tunnel_besch_t *> * tunnelbauer_t::get_all_tunnels()
+{
+	return &tunnel_by_name;
+}
 
 
 // now we have to convert old tunnel to new ones ...
