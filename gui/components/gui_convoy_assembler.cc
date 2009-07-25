@@ -1139,7 +1139,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					translator::translate(veh_type->get_ware()->get_mass()),
 					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
 					);
-			k = n;
 			}
 			else if(zuladung > 0 && veh_type->get_overcrowded_capacity() > 0)
 			{
@@ -1150,8 +1149,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					translator::translate(veh_type->get_ware()->get_mass()),
 					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
 					);
-			k = n;
 			}
+			
+			k = n;
 
 		}
 		else {

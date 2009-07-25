@@ -2966,22 +2966,27 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
-	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric);
-	bool ok = (sch!=0)  &&  (needs_no_electric  ||  sch->is_electrified());
+	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
+	const bool ok = (sch != NULL) && (needs_no_electric || sch->is_electrified()) && check_way_constraints(sch);
 
-	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting() || !check_way_constraints(sch)) {
+	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
+	{
 		return ok;
 	}
-	else {
+	else 
+	{
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
-		if(bd->get_pos()==get_pos()) {
+		if(bd->get_pos() == get_pos()) 
+		{
 			return true;
 		}
 		// we cannot pass an end of choose area
-		if(sch->has_sign()) {
+		if(sch->has_sign()) 
+		{
 			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(rs->get_besch()->get_wtyp()==get_waytype()  &&  rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
+			if(rs->get_besch()->get_wtyp()==get_waytype() && rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) 
+			{
 				return false;
 			}
 		}

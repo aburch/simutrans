@@ -291,7 +291,7 @@ void weg_t::info(cbuffer_t & buf) const
 		{
 			buf.append(translator::translate("Way constraint permissive"));
 			buf.append(": ");
-			buf.append(i);
+			buf.append(i + 8);
 			buf.append("\n");
 		}
 		if(prohibitive_way_constraint_set(i))

@@ -125,7 +125,8 @@ public:
 		engine_type = (uint8)engine;
 		geschw = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
-		way_constraints_prohibitive = way_constraints_permissive = 0;
+		way_constraints_prohibitive = 255;
+		way_constraints_permissive = 0;
 		loading_time = 2000;
 	}
 
@@ -361,12 +362,12 @@ public:
 
 	bool permissive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_permissive & 1)<<i != 0);
+		return ((way_constraints_permissive >> i) & 1 != 0);
 	}
 
 	bool prohibitive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_prohibitive & 1)<<i != 0);
+		return ((way_constraints_prohibitive >> i) & 1 != 0);
 	}
 	
 	/*The level of catering provided by this vehicle (0 if none)
