@@ -53,7 +53,7 @@ vector_tpl<werkzeug_t *>werkzeug_t::dialog_tool(DIALOGE_TOOL_COUNT);
 // the number of toolbars is not know yet
 vector_tpl<toolbar_t *>werkzeug_t::toolbar_tool(0);
 
-char werkzeug_t::toolstr[1024];
+char werkzeug_t::toolstr[1088];
 
 
 werkzeug_t *create_general_tool(int toolnr)

@@ -1496,11 +1496,11 @@ const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) cons
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
-	const sint64 base_maintenance = besch->get_wartung();
+	const sint64 base_maintenance = besch->get_base_maintenance();
 	const sint64 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
-	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h, %dt",
+	sprintf(toolstr, "%s, %ld$ (%.2lf$) / km, %dkm/h, %dt",
 		translator::translate(besch->get_name()),
-		besch->get_preis()/100l,
+		besch->get_base_price()/100l,
 		adjusted_maintenance/100.0F,
 		besch->get_topspeed(),
 		besch->get_max_weight());
@@ -1645,7 +1645,7 @@ const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 			besch->get_max_weight());
 	}
 	if(besch->get_max_length()>0) {
-		n += sprintf(toolstr+n, ", %dkm", besch->get_max_length());
+		n += sprintf(toolstr+n, ", %d %s", besch->get_max_length(), translator::translate("tiles"));
 	}
 	return toolstr;
 }
@@ -1669,11 +1669,11 @@ const char *wkz_brueckenbau_t::work(karte_t *welt, spieler_t *sp, koord3d pos )
 const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
-	const sint32 base_maintenance = besch->get_wartung();
+	const sint32 base_maintenance = besch->get_base_maintenance();
 	const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
-	int n = sprintf(toolstr, "%s, %d$ (%d$)",
+	int n = sprintf(toolstr, "%s, %d$ (%d$) / km",
 		  translator::translate(besch->get_name()),
-		  besch->get_preis()/100,
+		  besch->get_base_price()/100,
 		  adjusted_maintenance/100);
 
 	if(besch->get_waytype()!=powerline_wt) {
@@ -1865,6 +1865,10 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 	}
 	bool can_delete = true;
 
+	if (wt == tram_wt) {
+		wt = track_wt;
+	}
+
 	// found a route => check if I can delete anything on it
 	for(  uint32 i=0;  can_delete  &&  i<=verbindung.get_max_n();  i++  ) {
 		grund_t *gr=welt->lookup(verbindung.position_bei(i));
@@ -1979,11 +1983,11 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
-			const uint32 base_maintenance = besch->get_wartung();
+			const uint32 base_maintenance = besch->get_base_maintenance();
 			const uint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
-			sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
+			sprintf(toolstr, "%s, %ld$ (%ld$) / km, %dkm/h",
 					translator::translate(besch->get_name()),
-					besch->get_preis()/100l,
+					besch->get_base_price()/100l,
 					adjusted_maintenance/100l,
 					besch->get_topspeed());
 			return toolstr;
@@ -2652,23 +2656,27 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		layout &= (besch->get_all_layouts()-1);
 	}
 
-	const bool has_old_halt = bd->is_halt();
+	halthandle_t old_halt = bd->get_halt();
 	uint16 old_level = 0;
 
-	if( has_old_halt ) {
+	halthandle_t halt;
+
+	if( old_halt.is_bound() ) {
 		gebaeude_t* gb = bd->find<gebaeude_t>();
 		const haus_besch_t *old_besch = gb->get_tile()->get_besch();
 		old_level = old_besch->get_level();
 		if( old_besch->get_level() >= besch->get_level() ) {
 			return "Upgrade must have\na higher level";
 		}
-		else {
-			hausbauer_t::remove( welt, NULL, gb );
-		}
+		gb->entferne( NULL );
+		delete gb;
+		halt = old_halt;
+	}
+	else {
+		halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());
 	}
 
 	// seems everything ok, lets build
-	halthandle_t halt = suche_nahe_haltestelle(sp,welt,bd->get_pos());
 	bool neu = !halt.is_bound();
 
 	if(neu) {

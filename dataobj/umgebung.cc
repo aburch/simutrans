@@ -111,6 +111,8 @@ bool umgebung_t::shuffle_midi = true;
 
 bool umgebung_t::hilly = false;
 
+bool umgebung_t::cities_ignore_height = false;
+
 bool umgebung_t::finance_ltr_graphs = true;
 bool umgebung_t::other_ltr_graphs = true;
 
@@ -192,6 +194,12 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( show_vehicle_states, "" );
 		file->rdwr_bool(finance_ltr_graphs, "");
 		file->rdwr_bool(other_ltr_graphs, "");
+	}
+
+	if(file->get_experimental_version() >= 6)
+	{
+		file->rdwr_bool(hilly, "");
+		file->rdwr_bool(cities_ignore_height, "");
 	}
 }
 

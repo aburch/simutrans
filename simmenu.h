@@ -166,7 +166,7 @@ public:
 	static void update_toolbars(karte_t *welt);
 
 	// since only a single toolstr a time can be visible ...
-	static char toolstr[1024];
+	static char toolstr[1088];
 
 	static void init_menu(cstring_t objfilename);
 

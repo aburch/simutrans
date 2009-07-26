@@ -46,6 +46,7 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/binary_heap_tpl.h"
 #include "tpl/ordered_vector_tpl.h"
+#include "tpl/stringhashtable_tpl.h"
 
 #include "boden/boden.h"
 #include "boden/wasser.h"
@@ -87,10 +88,12 @@
 
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
+#include "besch/tunnel_besch.h"
 
 #include "player/simplay.h"
 #include "player/ai_passenger.h"
 #include "player/ai_goods.h"
+
 
 
 //#define DEMO
@@ -382,6 +385,7 @@ sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 	}
 //    double perlin_noise_2D(double x, double y, double persistence);
 //    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
+	k = k + koord(sets->get_origin_x(), sets->get_origin_y());
 	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness())*(double)sets->get_max_mountain_height())) / 16;
 }
 
@@ -906,7 +910,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			int current_citicens = (2500l * einstellungen->get_mittlere_einwohnerzahl()) /(simrand(20000)+100);
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
-			stadt.append(s, current_citicens, 64);
+			stadt.append(s, s->get_einwohner(), 64);
 			if(is_display_init()) {
 				old_progress ++;
 				display_progress(old_progress, max_display_progress);
@@ -1461,11 +1465,11 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	// new recalc the images of the old map near the seam ...
 	for (sint16 x=0; x<old_x-20; x++) {
-		for (sint16 y=old_y-20; y<old_y; y++) {
+		for (sint16 y=max(old_y-20,0); y<old_y; y++) {
 			plan[x+y*cached_groesse_gitter_x].get_kartenboden()->calc_bild();
 		}
 	}
-	for (sint16 x=old_x-20; x<old_x; x++) {
+	for (sint16 x=max(old_x-20,0); x<old_x; x++) {
 		for (sint16 y=0; y<old_y; y++) {
 			plan[x+y*cached_groesse_gitter_x].get_kartenboden()->calc_bild();
 		}
@@ -1620,6 +1624,9 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
+
+	//@author: jamespetts
+	set_scale();
 }
 
 
@@ -1633,6 +1640,70 @@ karte_t::~karte_t()
 	}
 
 	delete msg;
+}
+
+void karte_t::set_scale()
+{
+	const float scale_factor = get_einstellungen()->get_journey_time_multiplier();
+	
+	// Vehicles
+	for(int i = road_wt; i <= air_wt; i++) 
+	{
+		slist_tpl<vehikel_besch_t*>* vehicle_list = vehikelbauer_t::get_modifiable_info((waytype_t)i);
+		if(vehicle_list != NULL)
+		{
+			slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehicle_list);
+			while (vehinfo.next()) 
+			{
+				vehikel_besch_t* info = vehinfo.get_current();
+				info->set_scale(scale_factor);
+			}
+		}
+	}
+
+	// Ways
+
+	stringhashtable_tpl <weg_besch_t *> * ways = wegbauer_t::get_all_ways();
+
+	if(ways != NULL)
+	{
+		stringhashtable_iterator_tpl <weg_besch_t *> iter(ways);
+		while(iter.next())
+		{
+			iter.access_current_value()->set_scale(scale_factor);
+		}
+	}
+
+
+	// Tunnels
+
+	stringhashtable_tpl <tunnel_besch_t *> * tunnels = tunnelbauer_t::get_all_tunnels();
+
+	
+	if(tunnels != NULL)
+	{
+		stringhashtable_iterator_tpl <tunnel_besch_t *> iter(tunnels);
+		while(iter.next())
+		{
+			iter.access_current_value()->set_scale(scale_factor);
+		}
+	}
+
+	// Way objects
+
+	vector_tpl<way_obj_besch_t * > * way_objects = wayobj_t::get_all_wayobjects();
+	ITERATE_PTR(way_objects,j)
+	{
+		way_objects->get_element(j)->set_scale(scale_factor);
+	}
+
+	// Goods
+
+	const uint16 goods_count = warenbauer_t::get_waren_anzahl();
+	for(uint16 i = 0; i < goods_count; i ++)
+	{
+		warenbauer_t::get_modifiable_info(i)->set_scale(scale_factor);
+	}
 }
 
 
@@ -2719,7 +2790,7 @@ void karte_t::recalc_average_speed()
 
 		char	buf[256];
 		for(int i=road_wt; i<=air_wt; i++) {
-			slist_tpl<const vehikel_besch_t*>* cl = vehikelbauer_t::get_info((waytype_t)i);
+			slist_tpl<vehikel_besch_t*>* cl = vehikelbauer_t::get_info((waytype_t)i);
 			if(cl) {
 				const char *vehicle_type=NULL;
 				switch(i) {
@@ -2750,7 +2821,7 @@ void karte_t::recalc_average_speed()
 				}
 				vehicle_type = translator::translate( vehicle_type );
 
-				slist_iterator_tpl<const vehikel_besch_t*> vehinfo(cl);
+				slist_iterator_tpl<vehikel_besch_t*> vehinfo(cl);
 				while (vehinfo.next()) {
 					const vehikel_besch_t* info = vehinfo.get_current();
 					const uint16 intro_month = info->get_intro_year_month();
@@ -3644,6 +3715,8 @@ karte_t::laden(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 
+	const float old_scale_factor = get_einstellungen()->get_journey_time_multiplier();
+
 #ifndef DEMO
 	loadsave_t file;
 
@@ -3686,6 +3759,10 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		outstanding_cars += s->get_outstanding_cars();
 	}
 
+	if(old_scale_factor != get_einstellungen()->get_journey_time_multiplier())
+	{
+		set_scale();
+	}
 	return ok;
 }
 

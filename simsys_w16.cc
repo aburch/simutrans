@@ -62,7 +62,6 @@ static HINSTANCE hInstance;
 
 static BITMAPINFOHEADER *AllDib = NULL;
 static unsigned short *AllDibData = NULL;
-static LONGLONG HPcps = 0;	// High performance counter ticks
 
 volatile HDC hdc = NULL;
 
@@ -760,15 +759,6 @@ unsigned long dr_time(void)
 	{
 		// Case : use multimedia timer functions
 
-	// This is the new trunk version
-
-	//if(  HPcps!=0  ) {
-	//	LARGE_INTEGER lpTime;
-	//	QueryPerformanceCounter( &lpTime );
-	//	return (unsigned long)((lpTime.QuadPart*1000)/HPcps);
-	//}
-	//else {
-
 		return timeGetTime();
 	}
 }
@@ -828,15 +818,17 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdL
 
 	GetWindowRect(GetDesktopWindow(), &MaxSize);
 
-	// get high resolution timer services, since Win2k and up may have only 5ms resolution!
+	// maybe set timer to 1ms intervall on Win2k upwards ...
 	{
-		LARGE_INTEGER lpTime;
-		if(  QueryPerformanceFrequency( &lpTime )  ) {
-			HPcps = lpTime.QuadPart;
+		OSVERSIONINFO osinfo;
+		osinfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+		if (GetVersionEx(&osinfo)  &&  osinfo.dwPlatformId==VER_PLATFORM_WIN32_NT) {
+			timeBeginPeriod(1);
 		}
 	}
 
 	simu_main(argc, argv);
+	timeEndPeriod(1);
 
 #ifdef MULTI_THREAD
 	if(	hFlushThread ) {

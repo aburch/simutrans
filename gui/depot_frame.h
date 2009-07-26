@@ -172,7 +172,7 @@ public:
 	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
 	// Check the electrification
-	bool check_way_electrified();
+	bool check_way_electrified(bool init = false);
 };
 
 #endif

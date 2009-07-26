@@ -29,6 +29,7 @@ class ware_besch_t : public obj_besch_std_name_t {
 	*/
 	uint16 value;
 	uint16 base_value;
+	uint16 scaled_value;
 
 	/**
 	* Category of the good
@@ -69,7 +70,11 @@ public:
 		return static_cast<const text_besch_t *>(get_child(2))->get_text();
 	}
 
-	uint16 get_preis() const { return value; }
+	uint16 get_preis() const { return scaled_value; }
+
+	uint16 get_base_value() const { return value; }
+
+	void set_scale(float scale_factor) { scaled_value = value * scale_factor; }
 
 	/**
 	* @return speed bonus value of the good

@@ -145,40 +145,46 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *welt) :
 bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==x_size+0) {
-		if(sets->get_groesse_x() > max(512,this->welt->get_groesse_x()) ) {
+		if( sets->get_groesse_x() > 512 ) {
 			sets->set_groesse_x( (sets->get_groesse_x()-1)&0x1F80 );
-			update_preview();
-		} else if(sets->get_groesse_x() > max(64,this->welt->get_groesse_x()) ) {
+		} else if(sets->get_groesse_x() > 64 ) {
 			sets->set_groesse_x( (sets->get_groesse_x()-1)&0x1FC0 );
-			update_preview();
+		} else if(sets->get_groesse_x() > 8 ) {
+			sets->set_groesse_x( (sets->get_groesse_x()-1)&0x1FF8 );
 		}
+		sets->set_groesse_x( max( welt->get_groesse_x(), sets->get_groesse_x() ) );
+		update_preview();
 	}
 	else if(komp==x_size+1) {
-		if(sets->get_groesse_x() < 512 ) {
+		if(sets->get_groesse_x() < 64 ) {
+			sets->set_groesse_x( (sets->get_groesse_x()+8)&0x1FF8 );
+		} else if( sets->get_groesse_x() < 512 ) {
 			sets->set_groesse_x( (sets->get_groesse_x()+64)&0x1FC0 );
-			update_preview();
 		} else if(sets->get_groesse_x() < 4096 ) {
 			sets->set_groesse_x( (sets->get_groesse_x()+128)&0x1F80 );
-			update_preview();
 		}
+		update_preview();
 	}
 	else if(komp==y_size+0) {
-		if(sets->get_groesse_y() > max(512,this->welt->get_groesse_y()) ) {
+		if( sets->get_groesse_y() > 512 ) {
 			sets->set_groesse_y( (sets->get_groesse_y()-1)&0x1F80 );
-			update_preview();
-		} else if(sets->get_groesse_y() > max(64,this->welt->get_groesse_y()) ) {
+		} else if( sets->get_groesse_y() > 64 ) {
 			sets->set_groesse_y( (sets->get_groesse_y()-1)&0x1FC0 );
-			update_preview();
+		} else if( sets->get_groesse_y() > 8 ) {
+			sets->set_groesse_y( (sets->get_groesse_y()-1)&0x1FF8 );
 		}
+		sets->set_groesse_y( max( welt->get_groesse_y(), sets->get_groesse_y() ) );
+		update_preview();
 	}
 	else if(komp==y_size+1) {
-		if(sets->get_groesse_y() < 512 ) {
+		if(sets->get_groesse_y() < 64 ) {
+			sets->set_groesse_y( (sets->get_groesse_y()+8)&0x1FF8 );
+		} else if(sets->get_groesse_y() < 512 ) {
 			sets->set_groesse_y( (sets->get_groesse_y()+64)&0x1FC0 );
-			update_preview();
 		} else if(sets->get_groesse_y() < 4096 ) {
 			sets->set_groesse_y( (sets->get_groesse_y()+128)&0x1F80 );
-			update_preview();
 		}
+		update_preview();
 	}
 	else if(komp==number_of_towns+0) {
 		if(sets->get_anzahl_staedte()>0 ) {
@@ -254,15 +260,18 @@ enlarge_map_frame_t::update_preview()
 	// reset noise seed
 	setsimrand( 0xFFFFFFFF, welt->get_einstellungen()->get_karte_nummer() );
 
-	const int mx = sets->get_groesse_x()/preview_size;
-	const int my = sets->get_groesse_y()/preview_size;
-
 	// "welt" still nows the old size. The new size is saved in "sets".
 	sint16 old_x = welt->get_groesse_x();
 	sint16 old_y = welt->get_groesse_y();
+	sint16 pre_x = min(sets->get_groesse_x(), preview_size);
+	sint16 pre_y = min(sets->get_groesse_y(), preview_size);
 
-	for(  int j=0;  j<preview_size;  j++  ) {
-		for(  int i=0;  i<preview_size;  i++  ) {
+	const int mx = sets->get_groesse_x()/pre_x;
+	const int my = sets->get_groesse_y()/pre_y;
+
+
+	for(  int j=0;  j<pre_y;  j++  ) {
+		for(  int i=0;  i<pre_x;  i++  ) {
 			COLOR_VAL color;
 			koord pos(i*mx,j*my);
 
@@ -282,6 +291,11 @@ enlarge_map_frame_t::update_preview()
 				color = reliefkarte_t::calc_hoehe_farbe(height*Z_TILE_STEP, sets->get_grundwasser()/Z_TILE_STEP);
 			}
 			karte[j*preview_size+i] = color;
+		}
+	}
+	for(  int j=0;  j<preview_size;  j++  ) {
+		for(  int i=(j<pre_y ? pre_x : 0);  i<preview_size;   i++  ) {
+			karte[j*preview_size+i] = COL_GREY1;
 		}
 	}
 	sets->heightfield = "";

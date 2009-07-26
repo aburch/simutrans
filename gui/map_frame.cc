@@ -405,7 +405,7 @@ void map_frame_t::resize(const koord delta)
 
 	if(scale_visible) {
 		// plus scale bar
-		offset_y += LINESPACE+4;
+		offset_y += LINESPACE+24;
 	}
 
 	if(directory_visible) {
@@ -491,15 +491,30 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	}
 
 	// draw scale
-	if(scale_visible) {
+	if(scale_visible) 
+	{
 		koord bar_pos = pos + koord( 0, offset_y+2 );
 		// color bar
-		for( int i=0;  i<MAX_SEVERITY_COLORS;  i++) {
+		for(uint8 i = 0; i < MAX_SEVERITY_COLORS; i++) 
+		{
 			display_fillbox_wh(bar_pos.x + 30 + i*(gr.x-60)/MAX_SEVERITY_COLORS, bar_pos.y+2,  (gr.x-60)/(MAX_SEVERITY_COLORS-1), 7, reliefkarte_t::calc_severity_color(i,MAX_SEVERITY_COLORS), false);
 		}
 		display_proportional(bar_pos.x + 26, bar_pos.y, translator::translate("min"), ALIGN_RIGHT, COL_BLACK, false);
 		display_proportional(bar_pos.x + size.x - 26, bar_pos.y, translator::translate("max"), ALIGN_LEFT, COL_BLACK, false);
-		offset_y += LINESPACE+4;
+		char scale_text[64] = "NULL";
+		if(fmod(1, welt->get_einstellungen()->get_journey_time_multiplier()) == 0)
+		{
+			// Can use integer
+			sprintf(scale_text, "%i %s %s", (uint16)(1 / welt->get_einstellungen()->get_journey_time_multiplier()), translator::translate("tiles"), translator::translate("per 1 km"));
+		}
+		else
+		{
+			// Otherwise, must use float
+			
+			sprintf(scale_text, "%f %s %s", (1 / welt->get_einstellungen()->get_journey_time_multiplier()), translator::translate("tiles"), translator::translate("per 1 km"));
+		}
+		display_proportional(bar_pos.x + 4, bar_pos.y + 16, scale_text, ALIGN_LEFT, COL_BLACK, false);
+		offset_y += LINESPACE+24;
 	}
 
 	// draw factory descriptions

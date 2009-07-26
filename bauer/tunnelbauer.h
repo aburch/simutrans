@@ -12,6 +12,7 @@
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
 #include "../simwerkz.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration
@@ -41,6 +42,8 @@ public:
 	static bool laden_erfolgreich();
 
 	static const tunnel_besch_t *get_besch(const char *);
+
+	static stringhashtable_tpl <tunnel_besch_t *> * get_all_tunnels();
 
 	static const tunnel_besch_t *find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
 

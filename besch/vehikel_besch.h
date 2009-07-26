@@ -73,6 +73,7 @@ private:
 	uint16 gewicht; //Weight
 	uint32 leistung; //Power
 	uint16 betriebskosten;  //Running costs
+	uint16 scaled_running_costs; //@author: jamespetts
 	uint32 fixed_maintenance; //@author: jamespetts, April 2009
 
 	uint16 intro_date; // introduction date
@@ -124,7 +125,8 @@ public:
 		engine_type = (uint8)engine;
 		geschw = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
-		way_constraints_prohibitive = way_constraints_permissive = 0;
+		way_constraints_prohibitive = 255;
+		way_constraints_permissive = 0;
 		loading_time = 2000;
 	}
 
@@ -284,7 +286,9 @@ public:
 	uint16 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
-	uint16 get_betriebskosten() const { return betriebskosten; }
+	uint16 get_betriebskosten() const { return scaled_running_costs; }
+	uint16 get_base_running_costs() const { return betriebskosten; }
+	void set_scale(float scale_factor) { scaled_running_costs = betriebskosten * scale_factor > 0 ? betriebskosten * scale_factor : 1; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint32 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
@@ -358,12 +362,12 @@ public:
 
 	bool permissive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_permissive & 1)<<i != 0);
+		return ((way_constraints_permissive >> i) & 1 != 0);
 	}
 
 	bool prohibitive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_prohibitive & 1)<<i != 0);
+		return ((way_constraints_prohibitive >> i) & 1 != 0);
 	}
 	
 	/*The level of catering provided by this vehicle (0 if none)

@@ -1072,12 +1072,15 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 #ifdef debug_corners	 
 	current_corner = 0;
 #endif
-	 direction_steps = 4;
-	 //local_bonus_supplement = 0;
-	 is_overweight = false;
-	 reversed = false;
-	 current_revenue = 0;
-	 hop_count = 0;
+	direction_steps = 4;
+	is_overweight = false;
+	reversed = false;
+	current_revenue = 0;
+	hop_count = 0;
+	base_costs = 0;
+	diagonal_costs = 0;
+    hill_up = 0;
+    hill_down = 0;
 }
 
 sint64 vehikel_t::sound_ticks = 0;
@@ -1102,14 +1105,17 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 	//@author: jamespetts 
 #ifdef debug_corners 
-	 current_corner = 0;
+	current_corner = 0;
 #endif
-	 direction_steps = 4;
-	 //local_bonus_supplement = 0;
-	 is_overweight = false;
-	 reversed = false;
-	 current_revenue = 0;
-	 hop_count = 0;
+	direction_steps = 4;
+	is_overweight = false;
+	reversed = false;
+	current_revenue = 0;
+	hop_count = 0;
+	base_costs = 0;
+	diagonal_costs = 0;
+    hill_up = 0;
+    hill_down = 0;
 }
 
 
@@ -1211,8 +1217,6 @@ vehikel_t::hop()
 		if(costs != base_costs)
 		{
 			// Recalculate base costs only if necessary
-			// With this formula, no need to initialise base 
-			// costs or diagonal costs!
 			base_costs = costs;
 			diagonal_costs = (costs * diagonal_length) / 255;
 		}
@@ -2962,22 +2966,27 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
-	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric);
-	bool ok = (sch!=0)  &&  (needs_no_electric  ||  sch->is_electrified());
+	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
+	const bool ok = (sch != NULL) && (needs_no_electric || sch->is_electrified()) && check_way_constraints(sch);
 
-	if(!ok  ||  !target_halt.is_bound()  ||  !cnv->is_waiting() || !check_way_constraints(sch)) {
+	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
+	{
 		return ok;
 	}
-	else {
+	else 
+	{
 		// we are searching a stop here:
 		// ok, we can go where we already are ...
-		if(bd->get_pos()==get_pos()) {
+		if(bd->get_pos() == get_pos()) 
+		{
 			return true;
 		}
 		// we cannot pass an end of choose area
-		if(sch->has_sign()) {
+		if(sch->has_sign()) 
+		{
 			const roadsign_t* rs = bd->find<roadsign_t>();
-			if(rs->get_besch()->get_wtyp()==get_waytype()  &&  rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA) {
+			if(rs->get_besch()->get_wtyp()==get_waytype() && rs->get_besch()->get_flags() & roadsign_besch_t::END_OF_CHOOSE_AREA) 
+			{
 				return false;
 			}
 		}

@@ -369,7 +369,7 @@ static const uint8 rotate_rules_270[] = {
  * @return true on match, false otherwise
  * @author Hj. Malthaner
  */
-bool stadt_t::bewerte_loc(const koord pos, const char* regel, int rotation)
+bool stadt_t::bewerte_loc(const koord pos, const char* regel, uint16 rotation)
 {
 	koord k;
 	const uint8* index_to_rule = 0;
@@ -441,7 +441,7 @@ bool stadt_t::bewerte_loc(const koord pos, const char* regel, int rotation)
  * prissi: but the rules should explicitly forbid building then?!?
  * @author Hj. Malthaner
  */
-sint32 stadt_t::bewerte_pos(const koord pos, const char* regel)
+sint8 stadt_t::bewerte_pos(const koord pos, const char* regel)
 {
 	// will be called only a single time, so we can stop after a single match
 	if(bewerte_loc(pos, regel,   0) ||
@@ -3402,23 +3402,39 @@ void stadt_t::baue()
 
 
 // geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+// "determine suitable place to the city foundation through chance" (Google)
+// "anzahl" = "amount" (Google)
 vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
-	for (int i = 0; i < MAX_CLIMATES; i++) {
-		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, wl->get_timeline_year_month(), false, (climate)i)) {
+	for (int i = 0; i < MAX_CLIMATES; i++) 
+	{
+		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, wl->get_timeline_year_month(), false, (climate)i)) 
+		{
 			cl |= (1 << i);
 		}
 	}
+
+	// For clustering cities by climate type, we need a list of at least 4x the number of sites actually needed
+	// for towns so that, from that expanded list, the final locations can be chosen. 
+	const sint32 multiplied_number = umgebung_t::cities_ignore_height || welt == NULL ? anzahl : anzahl * 4;
+
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	slist_tpl<koord>* list = wl->finde_plaetze(2, 3, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
+	weighted_vector_tpl<koord>* pre_result;
+	if(welt != NULL && !umgebung_t::cities_ignore_height)
+	{
+		pre_result = new weighted_vector_tpl<koord>(multiplied_number);
+	}
 
-	for (int i = 0; i < anzahl; i++) {
+	for (int i = 0; i < multiplied_number; i++) 
+	{
 		int len = list->get_count();
 		// check distances of all cities to their respective neightbours
-		while (len > 0) {
+		while (len > 0) 
+		{
 			int minimum_dist = 0x7FFFFFFF;  // init with maximum
 			koord k;
 			const int index = simrand(len);
@@ -3427,27 +3443,106 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 			len--;
 
 			// check minimum distance
-			for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) {
-				int dist = koord_distance( k, (*result)[j] );
-				if (minimum_dist > dist) {
+			for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) 
+			{
+				int dist = koord_distance( k, (*pre_result)[j] );
+				if (minimum_dist > dist) 
+				{
 					minimum_dist = dist;
 				}
 			}
-			if (minimum_dist > minimum_city_distance) {
-				// all citys are far enough => ok, find next place
-				result->append(k);
-				break;
+			if (minimum_dist > minimum_city_distance) 
+			{
+				// all cities are far enough => ok, find next place
+
+				if(welt != NULL && !umgebung_t::cities_ignore_height)
+				{
+					const sint16 height_above_water = welt->lookup_hgt(k) - welt->get_grundwasser();
+					uint32 weight;
+					switch(height_above_water)
+					{
+					case 1:
+						weight = 24;
+						break;
+					case 2:
+						weight = 22;
+						break;
+					case 3:
+						weight = 16;
+						break;
+					case 4:
+						weight = 12;
+						break;
+					case 5:
+						weight = 10;
+						break;
+					case 6:
+						weight = 9;
+						break;
+					case 7:
+						weight = 8;
+						break;
+					case 8:
+						weight = 7;
+						break;
+					case 9:
+						weight = 6;
+						break;
+					case 10:
+						weight = 5;
+						break;
+					case 11:
+						weight = 4;
+						break;
+					case 12:
+					case 13:
+						weight = 3;
+						break;
+					case 14:
+					case 15:
+						weight = 2;
+						break;
+					default:
+						weight = 1;
+					};
+					pre_result->append(k, weight); 
+					break;
+				}
+				else
+				{
+					result->append(k);
+					break;
+				}
 			}
 			// if we reached here, the city was not far enough => try again
 		}
 
-		if (len <= 0 && i < anzahl - 1) {
+		if (len <= 0 && i < anzahl - 1) 
+		{
 			dbg->warning("stadt_t::random_place()", "Not enough places found!");
 			break;
 		}
 	}
 	list->clear();
 	delete list;
+
+	if(welt != NULL && !umgebung_t::cities_ignore_height)
+	{
+		uint16 weight = 0;
+		const uint16 total_weight = pre_result->get_sum_weight();
+		for (int i = 0; i < anzahl; i++) 
+		{
+			// Now produce the real results from the pre-list.
+			weight = simrand(total_weight);
+			if(!result->append_unique(pre_result->at_weight(weight)))
+			{
+				i--;
+			}
+		}
+
+		pre_result->clear();
+		delete pre_result;
+	}
 
 	return result;
 }

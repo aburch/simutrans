@@ -168,7 +168,7 @@ private:
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
-	uint16 journey_time_multiplier_percent;
+	float journey_time_multiplier;
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -283,6 +283,10 @@ private:
 	uint16 max_midrange_tolerance;
 	uint16 min_longdistance_tolerance;
 	uint16 max_longdistance_tolerance;
+
+	// Used for larger maps.
+	// @author: jamespetts
+	/*uint8 scale_divider;*/
 
 
 public:
@@ -474,7 +478,7 @@ public:
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
 	float get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
-	float get_journey_time_multiplier() const { return (float)journey_time_multiplier_percent * 0.01F; }
+	float get_journey_time_multiplier() const { return journey_time_multiplier; }
 	uint8 get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	uint8 get_tolerable_comfort_median_short() const { return tolerable_comfort_median_short; }
 	uint8 get_tolerable_comfort_median_median() const { return tolerable_comfort_median_median; }
@@ -582,6 +586,8 @@ public:
 	uint16 get_max_midrange_tolerance() const { return max_midrange_tolerance; }
 	uint16 get_min_longdistance_tolerance() const { return min_longdistance_tolerance; }
 	uint16 get_max_longdistance_tolerance() const { return max_longdistance_tolerance; }
+
+	/*uint8 get_scale_divider() const { return scale_divider; }*/
 };
 
 #endif

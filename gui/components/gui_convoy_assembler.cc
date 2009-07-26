@@ -483,7 +483,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) 
 	{
 		uint16 loks = 0, waggons = 0, pax=0, electrics = 0;
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
+		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) 
 		{
 			const vehikel_besch_t* info = vehinfo.get_current();
@@ -531,7 +531,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	}
 	else {
 		// list only matching ones
-		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
+		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) {
 			const vehikel_besch_t* info = vehinfo.get_current();
 			const vehikel_besch_t *veh = NULL;
@@ -1139,7 +1139,6 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					translator::translate(veh_type->get_ware()->get_mass()),
 					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
 					);
-			k = n;
 			}
 			else if(zuladung > 0 && veh_type->get_overcrowded_capacity() > 0)
 			{
@@ -1150,8 +1149,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					translator::translate(veh_type->get_ware()->get_mass()),
 					veh_type->get_ware()->get_catg() == 0 ? translator::translate(veh_type->get_ware()->get_name()) : translator::translate(veh_type->get_ware()->get_catg_name())
 					);
-			k = n;
 			}
+			
+			k = n;
 
 		}
 		else {

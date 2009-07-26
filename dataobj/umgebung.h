@@ -227,6 +227,8 @@ public:
 	// @author: jamespetts
 	static bool hilly;
 
+	static bool cities_ignore_height;
+
 	static einstellungen_t default_einstellungen;
 
 	// load/saving settings from file

@@ -50,6 +50,7 @@ class werkzeug_t;
 class scenario_t;
 class message_t;
 class weg_besch_t;
+class tunnel_besch_t;
 
 
 /**
@@ -391,6 +392,9 @@ private:
 	// Used for detecting whether paths/connexions are stale.
 	// @author: jamespetts
 	uint16 base_pathing_counter;
+
+	// @author: jamespetts
+	void set_scale();
 
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files

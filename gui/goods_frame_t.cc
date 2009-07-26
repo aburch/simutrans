@@ -39,6 +39,7 @@ goods_frame_t::sort_mode_t goods_frame_t::sortby = unsortiert;
 bool goods_frame_t::sortreverse = false;
 
 uint16 goods_frame_t::distance = 1;
+uint16 goods_frame_t::tile_distance = 0;
 uint8 goods_frame_t::comfort = 50;
 
 const char *goods_frame_t::sort_text[SORT_MODES] = 
@@ -68,6 +69,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
+	tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_journey_time_multiplier();
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 24));
 	add_komponente(&change_speed_label);
 
@@ -177,12 +179,12 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 				{
 					const uint16 base_price = w[i]->get_preis();
 					const sint32 min_price = base_price << 7;
-					const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), distance, NULL);
+					const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(w[i]->get_speed_bonus(), tile_distance, NULL);
 					const sint32 base_bonus = base_price * (1000l + (relative_speed_change - 100l) * speed_bonus_rating);
-					const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
+					const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * tile_distance;
 					price[i] = revenue;
 
-					const uint16 journey_minutes = ((float)distance / (float)((50 * relative_speed_change)/100)) * 0.3 * 60;
+					const uint16 journey_minutes = ((float)tile_distance / (float)((50 * relative_speed_change)/100)) * 0.3 * 60;
 
 					if(w[i]->get_catg_index() < 1)
 					{
@@ -271,7 +273,7 @@ void goods_frame_t::sort_list()
 	// now sort
 	qsort((void *)good_list, n, sizeof(unsigned short), compare_goods);
 
-	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::distance, goods_frame_t::comfort, goods_frame_t::welt, wtype);
+	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::welt, wtype);
 }
 
 /**
@@ -320,12 +322,14 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(distance > 1) 
 		{
 			distance --;
+			tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_journey_time_multiplier();
 			sort_list();
 		}
 	}
 	else if(komp == &distance_up) 
 	{
 		distance ++;
+		tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_journey_time_multiplier();
 		sort_list();
 	}
 	else if(komp == &comfort_down) 

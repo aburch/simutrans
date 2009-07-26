@@ -980,6 +980,22 @@ haltestelle_t::step()
 							add_pax_unhappy(tmp.menge);
 						}
 						
+						// If goods/passengers leave, then they must register a waiting time, or else
+						// overcrowded stops would have excessively low waiting times. Because they leave
+						// before they have got transport, the waiting time registered must be increased
+						// by 1.5x to reflect an estimate of how long that they would likely have had to
+						// have waited to get transport.
+						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+						if(waiting_minutes == 0 && welt->get_zeit_ms() != tmp.arrival_time)
+						{ 
+							waiting_minutes = 1;
+						}
+						waiting_minutes *= 1.5;
+						if(waiting_minutes > 0)
+						{
+							add_waiting_time(waiting_minutes, tmp.get_zwischenziel(), tmp.get_besch()->get_catg_index());
+						}
+						
 						// The goods/passengers leave.
 						tmp.menge = 0;
 					}		
@@ -2187,9 +2203,10 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							if(!is_preferred)
 							{
 								const uint16 preferred_waiting_minutes = connexions[catg_index]->get(next_transfer) != NULL ? connexions[catg_index]->get(next_transfer)->waiting_time : 15;
-								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10) / 3;  // Minutes are recorded in tenths. One third max for this purpose.
-								const uint16 max_minutes = preferred_waiting_minutes > base_max_minutes ? preferred_waiting_minutes : base_max_minutes;
+								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10) / 3;  
 								const uint16 preferred_travelling_minutes = connexions[catg_index]->get(next_transfer) != NULL ? connexions[catg_index]->get(next_transfer)->journey_time : 15;
+								// Minutes are recorded in tenths. One third max for this purpose.
+								const uint16 max_minutes = preferred_waiting_minutes > (base_max_minutes > preferred_travelling_minutes / 2 ? preferred_travelling_minutes / 2 : base_max_minutes) ? preferred_waiting_minutes : base_max_minutes;
 								const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 
 								if(max_minutes > waiting_minutes && ((preferred_waiting_minutes * 3) - waiting_minutes + preferred_travelling_minutes) < accumulated_journey_time)

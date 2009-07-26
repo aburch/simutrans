@@ -234,11 +234,11 @@ einstellungen_t::einstellungen_t() :
 
 	// Revenue calibration settings
 	// @author: jamespetts
-	min_bonus_max_distance = 16;
-	max_bonus_min_distance = 1024;
+	min_bonus_max_distance = 4;
+	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	journey_time_multiplier_percent = 20;
+	journey_time_multiplier = 2.5F;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -276,9 +276,9 @@ einstellungen_t::einstellungen_t() :
 	// Passenger destination ranges
 
 	local_passengers_min_distance = 0;
-	local_passengers_max_distance = 64;
+	local_passengers_max_distance = 16;
 	midrange_passengers_min_distance = 0;
-	midrange_passengers_max_distance = 128;
+	midrange_passengers_max_distance = 96;
 	longdistance_passengers_min_distance = 0;
 	longdistance_passengers_max_distance = 4096;
 
@@ -638,14 +638,17 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		{
 			bool dummy;
 			file->rdwr_bool(dummy, "" );
-			// ISSUE: Version issue - incompatible with previous 
-			// 102.1 saved games, both in Standard and Experimental
 			file->rdwr_bool( with_private_paks, "" );
 		}
 		if(file->get_experimental_version() >= 1)
 		{
 			file->rdwr_short(min_bonus_max_distance, "");
 			file->rdwr_short(max_bonus_min_distance, "");
+			if(file->get_experimental_version() < 6)
+			{
+				min_bonus_max_distance /= journey_time_multiplier;
+				max_bonus_min_distance /= journey_time_multiplier;
+			}
 			if(file->get_experimental_version() == 1)
 			{
 				uint16 dummy;
@@ -655,13 +658,15 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance, "");
 				file->rdwr_short(max_bonus_multiplier_percent, "");
-				file->rdwr_short(journey_time_multiplier_percent, "");
+				uint16 distance_per_tile = 100;
+				file->rdwr_short(distance_per_tile, "");
 				if(file->get_experimental_version() < 5)
 				{
 					// In earlier versions, the default was set to a higher level. This
 					// is a problem when the new journey time tolerance features is used.
-					journey_time_multiplier_percent = (journey_time_multiplier_percent * 2) / 3;
-				}					
+					distance_per_tile = (distance_per_tile * 2) / 2.5;
+				}		
+				journey_time_multiplier = distance_per_tile / 100.0F;
 				file->rdwr_byte(tolerable_comfort_short, "");
 				file->rdwr_byte(tolerable_comfort_median_short, "");
 				file->rdwr_byte(tolerable_comfort_median_median, "");
@@ -853,6 +858,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	simuconf.read(contents);
 
 	if(  !einstellungen_only  ) {
+
+		// This needs to be first as other settings are based on this.
+		// @author: jamespetts
+		uint16 distance_per_tile = journey_time_multiplier * 100;
+		journey_time_multiplier = contents.get_int("distance_per_tile", distance_per_tile) / 100.0F;
+
 		umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 		umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
 		umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
@@ -985,11 +996,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Revenue calibration settings
 	// @author: jamespetts
-	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance);
-	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance);
-	median_bonus_distance = contents.get_int("median_bonus_distance", median_bonus_distance);
+	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance) / journey_time_multiplier;
+	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance) / journey_time_multiplier;
+	median_bonus_distance = contents.get_int("median_bonus_distance", median_bonus_distance) / journey_time_multiplier;
 	max_bonus_multiplier_percent = contents.get_int("max_bonus_multiplier_percent", max_bonus_multiplier_percent);
-	journey_time_multiplier_percent = contents.get_int("journey_time_multiplier_percent", journey_time_multiplier_percent);
 	tolerable_comfort_short = contents.get_int("tolerable_comfort_short", tolerable_comfort_short);
 	tolerable_comfort_long = contents.get_int("tolerable_comfort_long", tolerable_comfort_long);
 	tolerable_comfort_short_minutes = contents.get_int("tolerable_comfort_short_minutes", tolerable_comfort_short_minutes);
@@ -1025,12 +1035,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
 	// Passenger destination ranges
-	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance);
-	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", local_passengers_max_distance);
-	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance);
-	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance);
-	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance);
-	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance);
+	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance) / journey_time_multiplier;
+	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", local_passengers_max_distance) / journey_time_multiplier;
+	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) / journey_time_multiplier;
+	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance) / journey_time_multiplier;
+	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) / journey_time_multiplier;
+	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) / journey_time_multiplier;
 
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
@@ -1165,6 +1175,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_midrange_tolerance = contents.get_int("max_midrange_tolerance", max_midrange_tolerance) - min_midrange_tolerance;
 	min_longdistance_tolerance = contents.get_int("min_longdistance_tolerance", min_longdistance_tolerance);
 	max_longdistance_tolerance = contents.get_int("max_longdistance_tolerance", max_longdistance_tolerance) - min_longdistance_tolerance;
+
+	/*scale_divider = contents.get_int("scale_divider", scale_divider);*/
 
 	/*
 	 * Selection of savegame format through inifile
