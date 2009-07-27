@@ -626,6 +626,10 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		delete br;
 
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
+		// remove also the second way on the bridge
+		if(gr->get_weg_nr(0)!=0) {
+			gr->remove_everything_from_way(sp,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
+		}
 
 		// we may have a second way/powerline here ...
 		gr->obj_loesche_alle(sp);
