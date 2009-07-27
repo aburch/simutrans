@@ -2229,12 +2229,12 @@ bool vehikel_t::check_way_constraints(const weg_t *way) const
 	// Permissive way constraints
 	// If vehicle has it, way must have it.
 	uint8 my_or = besch->get_permissive_constraints() | way->get_way_constraints_permissive();
-	bool permissive = way->get_way_constraints_permissive() ^ my_or;
+	const bool permissive = way->get_way_constraints_permissive() ^ my_or;
 
 	// Prohibitive way constraints
 	// If way has it, vehicle must have it.
 	my_or = besch->get_prohibitive_constraints() | way->get_way_constraints_prohibitive();
-	bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
+	const bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
 
 	return (!permissive) && (!prohibitive);
 }
