@@ -179,10 +179,12 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			request_focus(this);
 		}
 		cursor_pos = 0;
-		for( size_t i=strlen(text); i>0;  i-- ) {
-			if(ev->cx+cursor_offset > display_calc_proportional_string_len_width(text,i)) {
-				cursor_pos = i;
-				break;
+		if (text) {
+			for( size_t i=strlen(text); i>0;  i-- ) {
+				if(ev->cx+cursor_offset > display_calc_proportional_string_len_width(text,i)) {
+					cursor_pos = i;
+					break;
+				}
 			}
 		}
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
