@@ -1450,9 +1450,9 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 const char *wkz_wegebau_t::valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos )
 {
 	grund_t *gr=welt->lookup(pos);
-	if (gr) {
-		// ignore tunnel tiles
-		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  ) {
+	if (gr && gr->is_visible()) {
+		// ignore tunnel tiles (except road tunnel for tram track building ..)
+		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(besch->get_wtyp()==track_wt  &&  besch->get_styp()==7  && gr->hat_weg(road_wt)) ) {
 			return "";
 		}
 		// ignore water
@@ -1486,7 +1486,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	}
 
 	bauigel.route_fuer(bautyp, besch);
-	if(event_get_last_control_shift()==2  ||  grund_t::underground_mode) {
+	if(event_get_last_control_shift()==2) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		bauigel.set_keep_existing_ways(false);
 		bauigel.calc_straight_route(start,end);
@@ -1850,7 +1850,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 					can_delete &= gr->remove_everything_from_way(sp,wt,rem);
 					if(can_delete  &&  gr->get_weg(wt)==NULL) {
 						if(gr->get_weg_nr(0)!=0) {
-							gr->remove_everything_from_way(sp,gr->get_weg_nr(0)->get_waytype(),ribi_t::alle);
+							gr->remove_everything_from_way(sp,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
 						}
 						gr->obj_loesche_alle(sp);
 						if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) {
