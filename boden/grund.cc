@@ -1,7 +1,6 @@
 /*
- * Untergrund Basisklasse für Simutrans.
- * Überarbeitet Januar 2001
- * von Hj. Malthaner
+ * Base class for grounds in simutrans.
+ * by Hj. Malthaner
  */
 
 #include <string.h>
@@ -1248,10 +1247,30 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 
 		// stopps
 		if(flags&is_halt_flag  &&  get_halt()->get_besitzer()==sp) {
-			const char *fail;
+			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
-			if(get_weg_nr(1)==NULL && !haltestelle_t::remove(welt, sp, pos, fail)) {
-				return false;
+			if(get_weg_nr(1)==NULL) {
+				remove_halt = true;
+			}
+			else {
+#ifdef delete_matching_stops
+				// delete halts with the same waytype ... may lead to confusing / unexpected but completely logical results ;)
+				gebaeude_t *gb = find<gebaeude_t>();
+				if (gb) {
+					waytype_t halt_wt = (waytype_t)gb->get_tile()->get_besch()->get_extra();
+					if (halt_wt == wt || (wt==track_wt && halt_wt==tram_wt) || (wt==tram_wt && halt_wt==track_wt)) {
+						remove_halt = true;
+					}
+				}
+#else
+				remove_halt = false;
+#endif
+			}
+			if (remove_halt) {
+				const char *fail;
+				if (!haltestelle_t::remove(welt, sp, pos, fail)) {
+					return false;
+				}
 			}
 		}
 
@@ -1298,36 +1317,35 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				delete d;
 			}
 			// remove tunnel portal, if not the last tile ...
-			else if(add==ribi_t::keine  &&  d->get_typ()==ding_t::tunnel) {
+			// must be done before weg_entfernen() to get maintenance right
+			else if(d->get_typ()==ding_t::tunnel) {
 				uint8 wt = ((tunnel_t *)d)->get_besch()->get_waytype();
-				if((flags&has_way2)==0  &&  weg->get_waytype()==wt) {
-					// last way was belonging to this tunnel
-					d->entferne(sp);
-					delete d;
-				}
-				else {
-					// we must leave the way to prevent destroying the other one
-					add = get_weg_nr(1)->get_ribi_unmasked();
-					weg->calc_bild();
+				if (weg->get_waytype()==wt) {
+					if((flags&has_way2)==0) {
+						if (add==ribi_t::keine) {
+							// last way was belonging to this tunnel
+							d->entferne(sp);
+							delete d;
+						}
+					}
+					else {
+						// we must leave the way to prevent destroying the other one
+						add |= get_weg_nr(1)->get_ribi_unmasked();
+						weg->calc_bild();
+					}
 				}
 			}
-
 		}
-
 
 		// need to remove railblocks to recalcualte connections
 		// remove all ways or just some?
 		if(add==ribi_t::keine) {
 			costs -= weg_entfernen(wt, true);
-			if(add==ribi_t::keine  &&  (flags&is_kartenboden)  &&  get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
-				// remove tunnel portals
-				tunnel_t *t = find<tunnel_t>();
-				if(t) {
-					t->entferne(sp);
-					delete t;
-				}
-				// remove tunnelportal and set to normal ground
+			// make tunnel portals to normal ground
+			if((flags&is_kartenboden)  &&  get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
+				// remove remaining dings
 				obj_loesche_alle( sp );
+				// set to normal ground
 				welt->access(pos.get_2d())->kartenboden_setzen( new boden_t( welt, pos, slope ) );
 			}
 		}

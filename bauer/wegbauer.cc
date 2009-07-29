@@ -763,6 +763,17 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 							(to->hat_weg(track_wt)  &&  check_owner(to->get_weg(track_wt)->get_besitzer(),sp))  ||
 							(to->hat_weg(road_wt)  &&  check_owner(to->get_weg(road_wt)->get_besitzer(),sp)  &&  to->get_weg_nr(1)==NULL))
 					 &&  check_for_leitung(zv,to);
+			// tram track allowed in road tunnels, but only along existing roads / tracks
+			if(from!=to) {
+				if(from->ist_tunnel()) {
+					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt) |  from->get_weg_ribi_unmasked(track_wt);
+					ok = ok && ((ribi & ribi_typ(zv))!=0);
+				}
+				if(to->ist_tunnel()) {
+					const ribi_t::ribi ribi = to->get_weg_ribi_unmasked(road_wt) |  to->get_weg_ribi_unmasked(track_wt);
+					ok = ok && ((ribi & ribi_typ(-zv))!=0);
+				}
+			}
 			if(ok) {
 				// check for depots/stops/...
 				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {

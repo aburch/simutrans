@@ -659,13 +659,15 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			}
 		} else {
 			ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp);
+			ribi_t::ribi bridge_ribi;
 
 			if(gr->get_grund_hang() != hang_t::flach) {
-				ribi &= ~ribi_typ(hang_t::gegenueber(gr->get_grund_hang()));
+				bridge_ribi = ~ribi_typ(hang_t::gegenueber(gr->get_grund_hang()));
 			}
 			else {
-				ribi &= ~ribi_typ(gr->get_weg_hang());
+				bridge_ribi = ~ribi_typ(gr->get_weg_hang());
 			}
+			ribi &= bridge_ribi;
 
 			bruecke_t *br = gr->find<bruecke_t>();
 			br->entferne(sp);
@@ -680,9 +682,10 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 				// may fail, if this was the last tile
 				weg->set_besch(weg->get_besch());
 				weg->set_ribi( ribi );
-				if(gr->get_weg_nr(1)) {
-					gr->get_weg_nr(1)->set_ribi( ribi );
-				}
+			}
+			weg=gr->get_weg_nr(1);
+			if(weg) {
+				gr->remove_everything_from_way(sp,weg->get_waytype(), weg->get_ribi_unmasked() & bridge_ribi);
 			}
 		}
 
