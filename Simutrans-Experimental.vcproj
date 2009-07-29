@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Simutrans-Experimental"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3"
+				PreprocessorDefinitions="SLIST_FREIGHT;ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
