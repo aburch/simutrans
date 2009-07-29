@@ -644,11 +644,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_short(min_bonus_max_distance, "");
 			file->rdwr_short(max_bonus_min_distance, "");
-			if(file->get_experimental_version() < 6)
-			{
-				min_bonus_max_distance /= journey_time_multiplier;
-				max_bonus_min_distance /= journey_time_multiplier;
-			}
 			if(file->get_experimental_version() == 1)
 			{
 				uint16 dummy;
@@ -658,7 +653,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance, "");
 				file->rdwr_short(max_bonus_multiplier_percent, "");
-				uint16 distance_per_tile = 100;
+				uint16 distance_per_tile = journey_time_multiplier * 100.0F;
 				file->rdwr_short(distance_per_tile, "");
 				if(file->get_experimental_version() < 5)
 				{
@@ -667,6 +662,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					distance_per_tile = (distance_per_tile * 2) / 2.5;
 				}		
 				journey_time_multiplier = distance_per_tile / 100.0F;
+				if(file->get_experimental_version() < 6)
+				{
+					min_bonus_max_distance /= journey_time_multiplier;
+					max_bonus_min_distance /= journey_time_multiplier;
+				}
 				file->rdwr_byte(tolerable_comfort_short, "");
 				file->rdwr_byte(tolerable_comfort_median_short, "");
 				file->rdwr_byte(tolerable_comfort_median_median, "");
