@@ -205,11 +205,9 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
 	else {
 DBG_DEBUG("haltestelle_t::remove()","not last");
 		// acceptance and type may have been changed ... (due to post office/dock/railways station deletion)
-		const uint8 old_enables = enables;
 		halt->recalc_station_type();
-		if(  old_enables&(PAX|POST|WARE) != enables&(PAX|POST|WARE)  ) {
-			welt->set_schedule_counter();
-		}
+		// recalc all station connections
+		welt->set_schedule_counter();
 	}
 
 	// if building was removed this is false!
