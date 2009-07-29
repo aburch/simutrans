@@ -204,8 +204,12 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
 	}
 	else {
 DBG_DEBUG("haltestelle_t::remove()","not last");
-		// may have been changed ... (due to post office/dock/railways station deletion)
+		// acceptance and type may have been changed ... (due to post office/dock/railways station deletion)
+		const uint8 old_enables = enables;
 		halt->recalc_station_type();
+		if(  old_enables&(PAX|POST|WARE) != enables&(PAX|POST|WARE)  ) {
+			welt->set_schedule_counter();
+		}
 	}
 
 	// if building was removed this is false!
@@ -954,7 +958,7 @@ void haltestelle_t::rebuild_destinations()
 								continue;
 							}
 							const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
-							if(ware!=warenbauer_t::nichts  &&  !add_catg_index.is_contained(ware->get_catg_index())) {
+							if(ware!=warenbauer_t::nichts  &&  is_enabled(ware)  &&  !add_catg_index.is_contained(ware->get_catg_index())) {
 								// now add the freights
 								hat_gehalten( ware, fpl, cnv_owner );
 								add_catg_index.append_unique(ware->get_catg_index());
@@ -975,7 +979,10 @@ void haltestelle_t::rebuild_destinations()
 		// ok, now add line to the connections
 		if(line->count_convoys()>0  &&  (i_am_public  ||  line_owner==get_besitzer())) {
 			for( uint j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
-				hat_gehalten( warenbauer_t::get_info_catg_index(line->get_goods_catg_index()[j]), fpl, line_owner );
+				const ware_besch_t *ware=warenbauer_t::get_info_catg_index(line->get_goods_catg_index()[j]);
+				if(is_enabled(ware)) {
+					hat_gehalten( ware, fpl, line_owner );
+				}
 			}
 		}
 	}
