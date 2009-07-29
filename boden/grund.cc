@@ -1107,7 +1107,7 @@ DBG_MESSAGE("grund_t::weg_entfernen()","weg %p",weg);
 			}
 		}
 
-		sint32 costs=weg->get_besch()->get_preis();	// costs for removal are construction costs
+		sint32 costs = weg->get_besch()->get_preis();	// costs for removal are construction costs
 		weg->entferne( NULL );
 		delete weg;
 

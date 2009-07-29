@@ -215,7 +215,12 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
 	}
 	else {
 DBG_DEBUG("haltestelle_t::remove()","not last");
-		// may have been changed ... (due to post office/dock/railways station deletion)
+		// acceptance and type may have been changed ... (due to post office/dock/railways station deletion)
+		const uint8 old_enables = halt->enables;
+ 		halt->recalc_station_type();
+		if(  old_enables&(PAX|POST|WARE) != halt->enables&(PAX|POST|WARE)  ) {
+			welt->set_schedule_counter();
+		}
 		halt->recalc_station_type();
 	}
 
@@ -2154,11 +2159,15 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				sint32 offset = simrand(warray->get_count());
-				for(uint32 i = 0;  i < warray->get_count();  i++) 
+
+				halthandle_t next_transfer;
+				uint8 catg_index;
+
+				for(uint16 i = 0;  i < warray->get_count();  i++) 
 				{
 					ware_t &tmp = (*warray)[ i+offset ];
-					const halthandle_t next_transfer = tmp.get_zwischenziel();
-					const uint8 catg_index = tmp.get_besch()->get_catg_index();
+					next_transfer = tmp.get_zwischenziel();
+					catg_index = tmp.get_besch()->get_catg_index();
 
 					// prevent overflow (faster than division)
 					if(i + offset + 1 >= warray->get_count()) 
@@ -2175,8 +2184,10 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					// compatible car and right target stop?
 					if(next_transfer == plan_halt) 
 					{
+						const uint16 speed_bonus = tmp.get_besch()->get_speed_bonus();
+						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 						// For goods that care about their speed, optimise loading for maximum speed of the journey.
-						if(tmp.get_besch()->get_speed_bonus() > 0)
+						if(speed_bonus > 0)
 						{												
 							// Try to ascertain whether it would be quicker to board this convoy, or wait for a faster one.
 							
@@ -2198,20 +2209,26 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								}
 							}
 
-							// Thanks to cwlau9 for suggesting this formula.
+							// Thanks to cwlau9 for suggesting this formula (now heavily modified by Knightly and jamespetts)
 							// July 2009
 							if(!is_preferred)
 							{
-								const uint16 preferred_waiting_minutes = connexions[catg_index]->get(next_transfer) != NULL ? connexions[catg_index]->get(next_transfer)->waiting_time : 15;
-								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / tmp.get_besch()->get_speed_bonus()) * 10) / 3;  
-								const uint16 preferred_travelling_minutes = connexions[catg_index]->get(next_transfer) != NULL ? connexions[catg_index]->get(next_transfer)->journey_time : 15;
+								const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
+								const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
+								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / speed_bonus) * 10) / 2;  
+								const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
 								// Minutes are recorded in tenths. One third max for this purpose.
-								const uint16 max_minutes = preferred_waiting_minutes > (base_max_minutes > preferred_travelling_minutes / 2 ? preferred_travelling_minutes / 2 : base_max_minutes) ? preferred_waiting_minutes : base_max_minutes;
-								const uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
+								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
+								const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
 
-								if(max_minutes > waiting_minutes && ((preferred_waiting_minutes * 3) - waiting_minutes + preferred_travelling_minutes) < accumulated_journey_time)
+								if(max_minutes > waiting_minutes || preferred_advantage_minutes > ((average_waiting_minutes * 2) / 3))
 								{
-									// Note: *3 rather than *1.5 because preferred_waiting_minutes are already *divided* by a number to produce a suppressed amount for route calculation.
+									// Realistic human behaviour: in the absence of information about the waiting time to the preferred convoy,
+									// take a slightly optimistic assumption about that waiting time based on 2/3rds of the average waiting times
+									// for convoys generally and an attempt to calculate a cost/benefit analysis of waiting for the best convoy
+									// or taking the present one, taking into account the time saved by taking the best convoy.	But, if the wait
+									// so far has been too long, take the next convoy that will take one to the next destination in any event,
+									// out of some measure of frustration. 
 									continue;
 								}
 							}	
@@ -2232,7 +2249,6 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 						}
 				
 						book(neu.menge, HALT_DEPARTED);
-						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - neu.arrival_time);
 						if(waiting_minutes == 0 && welt->get_zeit_ms() != neu.arrival_time)
 						{ 
 							waiting_minutes = 1;

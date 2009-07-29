@@ -40,15 +40,15 @@ private:
 	 * Price per square
 	 * @author Hj. Malthaner
 	 */
-	uint32 price;
-	uint32 scaled_price;
+	sint32 price;
+	sint32 scaled_price;
 
 	/**
 	 * Maintenance cost per square/month
 	 * @author Hj. Malthaner
 	 */
-	uint32 maintenance;
-	uint32 scaled_maintenance;
+	sint32 maintenance;
+	sint32 scaled_maintenance;
 
 	/**
 	 * Max speed
@@ -97,13 +97,13 @@ private:
 	uint8 way_constraints_prohibitive;
 
 public:
-	uint32 get_preis() const { return scaled_price; }
+	sint32 get_preis() const { return scaled_price; }
 
-	uint32 get_base_price() const { return price; }
+	sint32 get_base_price() const { return price; }
 
-	uint32 get_wartung() const { return scaled_maintenance; }
+	sint32 get_wartung() const { return scaled_maintenance; }
 
-	uint32 get_base_maintenance() const { return  maintenance; }
+	sint32 get_base_maintenance() const { return  maintenance; }
 
 	void set_scale(float scale_factor) 
 	{
