@@ -185,7 +185,7 @@ private:
 	const weg_besch_t *besch;
 	const weg_besch_t *get_besch(karte_t *,bool) const;
 public:
-	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *) const;
 	virtual const char *get_tooltip(spieler_t *);
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );

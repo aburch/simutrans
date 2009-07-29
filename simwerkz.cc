@@ -1418,6 +1418,13 @@ const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) cons
 	return besch;
 }
 
+image_id wkz_wegebau_t::get_icon(spieler_t *) const
+{
+	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
+	const bool is_tram = besch ? (besch->get_wtyp()==tram_wt) || (besch->get_styp() == weg_t::type_tram) : false;
+	return (grund_t::underground_mode==grund_t::ugm_all && !is_tram ) ? IMG_LEER : icon;
+}
+
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
