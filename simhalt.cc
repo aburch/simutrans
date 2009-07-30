@@ -175,8 +175,7 @@ halthandle_t haltestelle_t::create(karte_t *welt, koord pos, spieler_t *sp)
  * removes a ground tile from a station
  * @author prissi
  */
-bool
-haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&msg)
+bool haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&msg)
 {
 	msg = NULL;
 	grund_t *bd = welt->lookup(pos);
@@ -194,17 +193,18 @@ haltestelle_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, const char *&ms
 	}
 
 DBG_MESSAGE("haltestelle_t::remove()","removing segment from %d,%d,%d", pos.x, pos.y, pos.z);
-
 	// otherwise there will be marked tiles left ...
 	halt->mark_unmark_coverage(false);
-	halt->rem_grund(bd);
 
-	// remove station building?
-	gebaeude_t* gb = bd->find<gebaeude_t>();
-	if(gb) {
-DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
-		hausbauer_t::remove( welt, sp, gb );
-		bd = NULL;	// no need to recalc image
+	// only try to remove connected buildings, when still in list to avoid infinite loops
+	if(  halt->rem_grund(bd)  ) {
+		// remove station building?
+		gebaeude_t* gb = bd->find<gebaeude_t>();
+		if(gb) {
+			DBG_MESSAGE("haltestelle_t::remove()",  "removing building" );
+			hausbauer_t::remove( welt, sp, gb );
+			bd = NULL;	// no need to recalc image
+		}
 	}
 
 	if(!halt->existiert_in_welt()) {
@@ -218,10 +218,10 @@ DBG_DEBUG("haltestelle_t::remove()","not last");
 		// acceptance and type may have been changed ... (due to post office/dock/railways station deletion)
 		const uint8 old_enables = halt->enables;
  		halt->recalc_station_type();
-		if(  old_enables&(PAX|POST|WARE) != halt->enables&(PAX|POST|WARE)  ) {
+		if(  old_enables&(PAX|POST|WARE) != halt->enables&(PAX|POST|WARE)  ) 
+		{
 			welt->set_schedule_counter();
 		}
-		halt->recalc_station_type();
 	}
 
 	// if building was removed this is false!
@@ -569,8 +569,7 @@ haltestelle_t::~haltestelle_t()
 }
 
 
-void
-haltestelle_t::rotate90( const sint16 y_size )
+void haltestelle_t::rotate90( const sint16 y_size )
 {
 	init_pos.rotate90( y_size );
 	// rotate waren destinations
@@ -1228,7 +1227,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			if(average_speed == 0)
 			{
 				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) / 2;
+				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) >> 1;
 			}
 		}
 		else if(cnv.is_bound())
@@ -1238,7 +1237,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			if(average_speed == 0)
 			{
 				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(cnv->get_min_top_speed()) / 2;
+				average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1;
 			}
 		}
 
@@ -1431,7 +1430,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 	if(connexions_timestamp[category] == 0 || reschedule[category])
 	{
 		// Spread the load of rebuilding this with pathing - advance by half the interval.
-		connexions_timestamp[category] += (welt->get_einstellungen()->get_max_rerouting_interval_months() / 2);
+		connexions_timestamp[category] += (welt->get_einstellungen()->get_max_rerouting_interval_months() >> 1);
 	}
 
 	reschedule[category] = false;
@@ -2215,7 +2214,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							{
 								const connexion* next_connexion = connexions[catg_index]->get(next_transfer);
 								const uint16 average_waiting_minutes = next_connexion != NULL ? next_connexion->waiting_time : 15;
-								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / speed_bonus) * 10) / 2;  
+								const uint16 base_max_minutes = ((welt->get_einstellungen()->get_passenger_max_wait() / speed_bonus) * 10) >> 1;  
 								const uint16 preferred_travelling_minutes = next_connexion != NULL ? next_connexion->journey_time : 15;
 								// Minutes are recorded in tenths. One third max for this purpose.
 								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
@@ -3470,93 +3469,106 @@ bool haltestelle_t::add_grund(grund_t *gr)
 
 	assert(welt->lookup(pos)->get_halt() == self  &&  gr->is_halt());
 	init_pos = tiles.front().grund->get_pos().get_2d();
+	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	{
+		path_explorer_t::refresh_all_categories(true);
+	}
+	else
+	{
+		welt->set_schedule_counter();
+	}
+
 	return true;
 }
 
 
 
-void haltestelle_t::rem_grund(grund_t *gr)
+bool haltestelle_t::rem_grund(grund_t *gr)
 {
 	// namen merken
-	if(gr) {
-		slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
-		if (i == tiles.end()) {
-			// was not part of station => do nothing
-			dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
-			return;
-		}
-
-		// first tile => remove name from this tile ...
-		char buf[256];
-		const char* station_name_to_transfer = NULL;
-		if (i == tiles.begin()  &&  (*i).grund->get_name()) {
-			tstrncpy(buf, get_name(), lengthof(buf));
-			station_name_to_transfer = buf;
-			set_name(NULL);
-		}
-
-		// now remove tile from list
-		tiles.erase(i);
-		init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
-
-		// re-add name
-		if (station_name_to_transfer != NULL  &&  !tiles.empty()) {
-			label_t *lb = tiles.front().grund->find<label_t>();
-			if(lb) {
-				delete lb;
-			}
-			set_name( station_name_to_transfer );
-		}
-
-		planquadrat_t *pl = welt->access( gr->get_pos().get_2d() );
-		if(pl) {
-			// no longer connected (upper level)
-			gr->set_halt(halthandle_t());
-			// still connected elsewhere?
-			for(unsigned i=0;  i<pl->get_boden_count();  i++  ) {
-				if(pl->get_boden_bei(i)->get_halt()==self) {
-					// still connected with other ground => do not remove from plan ...
-					DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.get_count());
-					return;
-				}
-			}
-			DBG_DEBUG("haltestelle_t::rem_grund()", "remove also floor, count=%i", tiles.get_count());
-			// otherwise remove from plan ...
-			pl->set_halt(halthandle_t());
-			pl->get_kartenboden()->set_flag(grund_t::dirty);
-		}
-
-		int cov = welt->get_einstellungen()->get_station_coverage();
-		for (int y = -cov; y <= cov; y++) {
-			for (int x = -cov; x <= cov; x++) {
-				planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
-				if(pl) {
-					pl->remove_from_haltlist(welt,self);
-					pl->get_kartenboden()->set_flag(grund_t::dirty);
-				}
-			}
-		}
-
-		// factory reach may have been changed ...
-		verbinde_fabriken();
-
-		// remove lines eventually
-		for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
-			const schedule_t *fpl = registered_lines[j]->get_schedule();
-			bool ok=false;
-			for(  int k=0;  k<fpl->get_count();  k++  ) {
-				if(get_halt(welt,fpl->eintrag[k].pos,registered_lines[j]->get_besitzer())==self) {
-					ok = true;
-					break;
-				}
-			}
-			// need removal?
-			if(!ok) {
-				registered_lines.remove_at(j);
-			}
-		}
-
+	if(!gr) {
+		return false;
 	}
+
+	slist_tpl<tile_t>::iterator i = std::find(tiles.begin(), tiles.end(), gr);
+	if (i == tiles.end()) {
+		// was not part of station => do nothing
+		dbg->error("haltestelle_t::rem_grund()","removed illegal ground from halt");
+		return false;
+	}
+
+	// first tile => remove name from this tile ...
+	char buf[256];
+	const char* station_name_to_transfer = NULL;
+	if (i == tiles.begin()  &&  (*i).grund->get_name()) {
+		tstrncpy(buf, get_name(), lengthof(buf));
+		station_name_to_transfer = buf;
+		set_name(NULL);
+	}
+
+	// now remove tile from list
+	tiles.erase(i);
+	welt->set_schedule_counter();
+	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
+
+	// re-add name
+	if (station_name_to_transfer != NULL  &&  !tiles.empty()) {
+		label_t *lb = tiles.front().grund->find<label_t>();
+		if(lb) {
+			delete lb;
+		}
+		set_name( station_name_to_transfer );
+	}
+
+	planquadrat_t *pl = welt->access( gr->get_pos().get_2d() );
+	if(pl) {
+		// no longer connected (upper level)
+		gr->set_halt(halthandle_t());
+		// still connected elsewhere?
+		for(unsigned i=0;  i<pl->get_boden_count();  i++  ) {
+			if(pl->get_boden_bei(i)->get_halt()==self) {
+				// still connected with other ground => do not remove from plan ...
+				DBG_DEBUG("haltestelle_t::rem_grund()", "keep floor, count=%i", tiles.get_count());
+				return true;
+			}
+		}
+		DBG_DEBUG("haltestelle_t::rem_grund()", "remove also floor, count=%i", tiles.get_count());
+		// otherwise remove from plan ...
+		pl->set_halt(halthandle_t());
+		pl->get_kartenboden()->set_flag(grund_t::dirty);
+	}
+
+	int cov = welt->get_einstellungen()->get_station_coverage();
+	for (int y = -cov; y <= cov; y++) {
+		for (int x = -cov; x <= cov; x++) {
+			planquadrat_t *pl = welt->access( gr->get_pos().get_2d()+koord(x,y) );
+			if(pl) {
+				pl->remove_from_haltlist(welt,self);
+				pl->get_kartenboden()->set_flag(grund_t::dirty);
+			}
+		}
+	}
+
+	// factory reach may have been changed ...
+	verbinde_fabriken();
+
+	// remove lines eventually
+	for(  int j=registered_lines.get_count()-1;  j>=0;  j--  ) {
+		const schedule_t *fpl = registered_lines[j]->get_schedule();
+		bool ok=false;
+		for(  int k=0;  k<fpl->get_count();  k++  ) {
+			if(get_halt(welt,fpl->eintrag[k].pos,registered_lines[j]->get_besitzer())==self) {
+				ok = true;
+				break;
+			}
+		}
+		// need removal?
+		if(!ok) {
+			registered_lines.remove_at(j);
+		}
+	}
+
+	return true;
 }
 
 

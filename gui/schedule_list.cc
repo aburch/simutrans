@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2004 Hj. Malthaner
  *
  * Line management
  *
@@ -165,7 +165,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 
 	// halt list?
 	cont_haltestellen.set_groesse(koord(500, 28));
-	scrolly_haltestellen.set_pos(koord(0, 14 + SCL_HEIGHT+BUTTON_HEIGHT+2));
+	scrolly_haltestellen.set_pos(koord(0, 7 + SCL_HEIGHT+2*BUTTON_HEIGHT+2));
 	scrolly_haltestellen.set_visible(false);
 	add_komponente(&scrolly_haltestellen);
 
@@ -176,6 +176,12 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	bt_new_line.set_text("New Line");
 	add_komponente(&bt_new_line);
 	bt_new_line.add_listener(this);
+	if (tabs.get_active_tab_index()>0) {
+		bt_new_line.enable();
+	}
+	else {
+		bt_new_line.disable();
+	}
 
 	bt_change_line.set_pos(koord(11+BUTTON_WIDTH, 7 + SCL_HEIGHT));
 	bt_change_line.set_groesse(koord(BUTTON_WIDTH,BUTTON_HEIGHT));
@@ -297,6 +303,12 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp,value_t /
 	else if (komp == &tabs) {
 		update_lineinfo( linehandle_t() );
 		build_line_list(tabs.get_active_tab_index());
+		if (tabs.get_active_tab_index()>0) {
+			bt_new_line.enable();
+		}
+		else {
+			bt_new_line.disable();
+		}
 	}
 	else if (komp == &scl) {
 		// get selected line

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -631,6 +631,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 void depot_frame_t::new_line()
 {
 	selected_line = depot->create_line();
+	depot->set_selected_line(selected_line);
 DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
 	layout(NULL);
 	update_data();
@@ -682,7 +683,7 @@ void depot_frame_t::fahrplaneingabe()
 				// Fahrplandialog oeffnen
 				create_win(new fahrplan_gui_t(fpl, cnv->get_besitzer(), convoihandle_t() ), w_info, (long)fpl);
 
-				// evtl. hat ein callback cnv gelöscht, so erneut testen
+				// maybe convoi was deleted by a callback, so test again
 				if(cnv.is_bound()  &&  fpl != NULL) {
 					cnv->set_schedule(fpl);
 				}

@@ -453,7 +453,7 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 	if (gr->is_halt()  &&  halt.is_bound()  &&  fabrik_t::get_fab(welt,pos.get_2d())==NULL) {
 		// halt and not a factory (oil rig etc.)
 		const spieler_t* owner = halt->get_besitzer();
-		if (owner == sp || owner == welt->get_spieler(1)) {
+		if(  spieler_t::check_owner( owner, sp )  ) {
 			return haltestelle_t::remove(welt, sp, gr->get_pos(), msg);
 		}
 	}
@@ -2891,7 +2891,8 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			dbg->fatal("wkz_station_t::work()","tool called for illegal besch \"%\"", default_param );
 	}
 
-	if(msg==NULL) {
+	if(msg==NULL) 
+	{
 		// no error? => recalc all station connections
 		// Modified by : Knightly
 		if (welt->get_einstellungen()->get_default_path_option() == 2)
