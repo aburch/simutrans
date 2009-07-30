@@ -2221,7 +2221,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								const uint16 max_minutes = base_max_minutes > preferred_travelling_minutes ? preferred_travelling_minutes : base_max_minutes;
 								const sint16 preferred_advantage_minutes = accumulated_journey_time - preferred_travelling_minutes;
 
-								if(max_minutes > waiting_minutes || preferred_advantage_minutes > ((average_waiting_minutes * 2) / 3))
+								if(max_minutes > waiting_minutes && preferred_advantage_minutes > ((average_waiting_minutes * 2) / 3))
 								{
 									// Realistic human behaviour: in the absence of information about the waiting time to the preferred convoy,
 									// take a slightly optimistic assumption about that waiting time based on 2/3rds of the average waiting times
