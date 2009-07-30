@@ -611,7 +611,7 @@ void path_explorer_t::compartment_t::step()
 					current_owner = current_linkage.line->get_besitzer();
 					current_average_speed = (uint32) ( current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? 
 													   current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) : 
-													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) / 2 ) );
+													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) >> 1 ) );
 				}
 				else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() )
 				{
@@ -620,7 +620,7 @@ void path_explorer_t::compartment_t::step()
 					current_owner = current_linkage.convoy->get_besitzer();
 					current_average_speed = (uint32) ( current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? 
 													   current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) : 
-													   ( speed_to_kmh(current_linkage.convoy->get_min_top_speed()) / 2 ) );
+													   ( speed_to_kmh(current_linkage.convoy->get_min_top_speed()) >> 1 ) );
 				}
 				else
 				{

@@ -1047,7 +1047,7 @@ void stadt_t::calc_internal_passengers()
 	{
 		internal_passenger_multiplier = 0.85F;
 	}
-	else if((city_history_month[0][HIST_CITICENS] <= median_town_size / 2))
+	else if((city_history_month[0][HIST_CITICENS] <= median_town_size >> 1))
 	{
 		internal_passenger_multiplier = 0.33F;
 	}

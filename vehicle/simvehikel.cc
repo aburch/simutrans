@@ -1932,7 +1932,7 @@ uint8 vehikel_t::get_comfort() const
 	// Else
 	// Overcrowded - adjust comfort. Standing passengers
 	// are very uncomfortable (no more than 10).
-	const uint8 standing_comfort = 10 < besch->get_comfort() - 5 ? 10 : besch->get_comfort() / 2;
+	const uint8 standing_comfort = 10 < besch->get_comfort() - 5 ? 10 : besch->get_comfort() >> 1;
 	uint16 passenger_count = 0;
 #ifdef SLIST_FREIGHT
 	slist_iterator_tpl<ware_t> iter(fracht);
