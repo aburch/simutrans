@@ -414,7 +414,7 @@ public:
 #endif
 
 	bool add_grund(grund_t *gb);
-	void rem_grund(grund_t *gb);
+	bool rem_grund(grund_t *gb);
 
 	uint32 get_capacity(uint8 typ) const { return capacity[typ]; }
 
