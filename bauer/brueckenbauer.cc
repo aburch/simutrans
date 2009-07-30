@@ -674,18 +674,18 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			delete br;
 
 			// removes single signals, bridge head, pedestrians, stops, changes catenary etc
-			gr->remove_everything_from_way(sp,wegtyp,ribi);	// removes stop and signals correctly
+			weg_t *weg=gr->get_weg_nr(1);
+			if(weg) {
+				gr->remove_everything_from_way(sp,weg->get_waytype(),bridge_ribi);
+			}
+			gr->remove_everything_from_way(sp,wegtyp,bridge_ribi);	// removes stop and signals correctly
 
 			// corrects the ways
-			weg_t *weg=gr->get_weg_nr(0);
+			weg=gr->get_weg(wegtyp);
 			if(weg) {
 				// may fail, if this was the last tile
 				weg->set_besch(weg->get_besch());
 				weg->set_ribi( ribi );
-			}
-			weg=gr->get_weg_nr(1);
-			if(weg) {
-				gr->remove_everything_from_way(sp,weg->get_waytype(), weg->get_ribi_unmasked() & bridge_ribi);
 			}
 		}
 
