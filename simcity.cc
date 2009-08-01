@@ -2131,8 +2131,7 @@ walk:
 						{
 							congestion_total = (city_history_month[0][HIST_CONGESTION] / 1.33);
 						}
-						sint16 congestion_factor = ((car_preference - congestion_total) > always_prefer_car_percent) ? congestion_total : (car_preference - always_prefer_car_percent);
-						car_preference -= congestion_factor;
+						car_preference = ((car_preference - congestion_total) > always_prefer_car_percent) ? car_preference - congestion_total : always_prefer_car_percent;
 
 						// Thirdly adjust for service quality of the public transport.
 						// Compare the average speed, including waiting times, with the speed bonus speed for
