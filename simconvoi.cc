@@ -2820,7 +2820,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	if(current_stop != fpl->get_aktuell())
 	{
 		const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
-		const uint16 average_speed = (journey_distance / journey_time) * 20;
+		const uint16 average_speed = ((double)journey_distance / journey_time) * 20.0;
 		book(average_speed, CONVOI_AVERAGE_SPEED);
 		last_departure_time = welt->get_zeit_ms();
 		
@@ -2945,7 +2945,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	ware.reset_accumulated_distance();
 
 	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
-	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();

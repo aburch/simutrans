@@ -2085,7 +2085,7 @@ walk:
 						// and have a speedbonus.tab entry for private cars.
 						const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
 						const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-						const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+						const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
 						if(car_minutes > tolerance)
 						{
@@ -2138,7 +2138,7 @@ walk:
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
-						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0F - welt->get_einstellungen()->get_journey_time_multiplier()));
+						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0F - welt->get_einstellungen()->get_distance_per_tile()));
 						const sint32 ref_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance, welt);
 						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
@@ -2290,7 +2290,7 @@ public_transport:
 							// and have a speedbonus.tab entry for private cars.
 							const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
 							const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-							const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+							const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
 							if(car_minutes <= tolerance)
 							{
@@ -2359,7 +2359,7 @@ public_transport:
 					// and have a speedbonus.tab entry for private cars.
 					const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
 					const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-					const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_journey_time_multiplier() * 60.0F);
+					const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
 					if(car_minutes <= tolerance)
 					{

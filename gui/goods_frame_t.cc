@@ -69,7 +69,7 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 	speed_bonus[0] = 0;
 	distance_txt[0] = 0;
 	comfort_txt[0] = 0;
-	tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_journey_time_multiplier();
+	tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_distance_per_tile();
 	change_speed_label.set_pos(koord(BUTTON4_X+5, y + 24));
 	add_komponente(&change_speed_label);
 
@@ -322,14 +322,14 @@ bool goods_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		if(distance > 1) 
 		{
 			distance --;
-			tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_journey_time_multiplier();
+			tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_distance_per_tile();
 			sort_list();
 		}
 	}
 	else if(komp == &distance_up) 
 	{
 		distance ++;
-		tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_journey_time_multiplier();
+		tile_distance = distance / goods_frame_t::welt->get_einstellungen()->get_distance_per_tile();
 		sort_list();
 	}
 	else if(komp == &comfort_down) 
