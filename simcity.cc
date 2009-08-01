@@ -2238,7 +2238,6 @@ public_transport:
 								//Must use private car, since there is no route back.
 								set_private_car_trip(num_pax, destinations[current_destination].town);
 #ifdef DESTINATION_CITYCARS
-								//citycars with destination
 								erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 #endif
 							}

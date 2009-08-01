@@ -74,8 +74,9 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 		gr->find<crossing_t>(2)->release_crossing(this);
 	}
 
-	// just to be sure we are removed from this list!
-	if(time_to_life>=0) {
+	// just to be sure we are removed from both lists.
+	if(time_to_life>=0) 
+	{
 		welt->sync_remove(this);
 	}
 }
@@ -389,7 +390,18 @@ stadtauto_t::~stadtauto_t()
 		{
 			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
 		}
-
+	}
+	else
+	{
+		// Just to make sure.
+		if(welt->unassigned_cars.remove(this))
+		{
+			DBG_MESSAGE("stadtauto_t", "Failure to remove city car from list!");
+		}
+		else
+		{
+			DBG_MESSAGE("stadtauto_t", "Succeeded in removing city car from list.");
+		}
 	}
 	welt->buche( -1, karte_t::WORLD_CITYCARS );
 	//"Buche" = "Books" (Babelfish)

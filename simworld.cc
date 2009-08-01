@@ -2692,15 +2692,17 @@ void karte_t::neuer_monat()
 		}
 	}
 
+	stadtauto_t* car;
 	while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
 	{
 		//Make sure that there are not too many cars on the roads. 
-		stadtauto_t* car = unassigned_cars.remove_first();
+		car = unassigned_cars.remove_first();
 		if(car != NULL)
 		{
 			car->kill();
 		}
 	}
+	car = NULL;
 
 	INT_CHECK("simworld 1289");
 
