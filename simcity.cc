@@ -1985,7 +1985,6 @@ void stadt_t::step_passagiere()
 
 				halthandle_t start_halt;
 			
-				unsigned ziel_count = 0;
 				// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
 				minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
 				for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
@@ -1994,7 +1993,6 @@ void stadt_t::step_passagiere()
 					if (halt->is_enabled(wtyp)) 
 					{
 						destination_list.append(halt);
-						ziel_count++;
 						for(int i = start_halts.get_count() - 1; i >= 0; i--)
 						{
 							if(halt == start_halts[i])
