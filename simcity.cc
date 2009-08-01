@@ -1787,16 +1787,23 @@ void stadt_t::step_passagiere()
 {
 	//@author: jamespetts
 	// Passenger routing and generation metrics.	
-	const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
-	const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
-	const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
-	const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
-	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
-	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
+	static const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
+	static const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
+	static const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
+	static const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
+	static const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
+	static const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
-	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
-	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
-	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
+	static const uint16 max_local_tolerance = welt->get_einstellungen()->get_max_local_tolerance();
+	static const uint16 min_local_tolerance = welt->get_einstellungen()->get_min_local_tolerance();
+	static const uint16 max_midrange_tolerance = welt->get_einstellungen()->get_max_midrange_tolerance();
+	static const uint16 min_midrange_tolerance = welt->get_einstellungen()->get_min_midrange_tolerance();
+	static const uint16 max_longdistance_tolerance = welt->get_einstellungen()->get_max_longdistance_tolerance();
+	static const uint16 min_longdistance_tolerance = welt->get_einstellungen()->get_min_longdistance_tolerance();
+
+	static const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
+	static const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
+	static const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
 
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();
@@ -1843,8 +1850,8 @@ void stadt_t::step_passagiere()
 	const halthandle_t* halt_list = plan->get_haltlist();
 
 	// suitable start search
-	minivec_tpl<halthandle_t> start_halts(2);
-	for (uint h = 0; h < plan->get_haltlist_count(); h++) 
+	minivec_tpl<halthandle_t> start_halts(plan->get_haltlist_count());
+	for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 	{
 		halthandle_t halt = halt_list[h];
 		if (halt->is_enabled(wtyp)  &&  !halt->is_overcrowded(wtyp->get_catg_index())) 
@@ -1867,10 +1874,7 @@ void stadt_t::step_passagiere()
 
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
-	{
-		// Journey time tolerance. 0 = infinite. Default for mail.
-		uint16 tolerance = 0;
-
+	{		
 		const uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
 		
@@ -1904,17 +1908,13 @@ void stadt_t::step_passagiere()
 			uint8 passenger_routing_choice;
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
-			{
+			{				
 				passenger_routing_choice = simrand(100);
 
 				//if(pax_routed < (number_packets / 3))
 				if(passenger_routing_choice <= passenger_routing_local_chance)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
-					if(wtyp == warenbauer_t::passagiere)
-					{
-						tolerance = simrand(welt->get_einstellungen()->get_max_local_tolerance()) + welt->get_einstellungen()->get_min_local_tolerance();
-					}
 					if((float)passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 					{
 						// Will always be a destination in the current town.
@@ -1924,27 +1924,48 @@ void stadt_t::step_passagiere()
 					{
 						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
 					}
-					
+
+					// Knightly : tolerance has to be assigned afterwards to avoid being overwritten
+					if(wtyp == warenbauer_t::passagiere)
+					{
+						destinations[destinations_assigned].tolerance = simrand(max_local_tolerance - min_local_tolerance + 1) + min_local_tolerance;
+					}
+					else
+					{
+						destinations[destinations_assigned].tolerance = 0;	// tolerance level for mail is 0
+					}
 				}
 				//else if(pax_routed < ((number_packets / 3) * 2))
 				else if(passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance))
 				{
 					//Medium
+					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
+
+					// Knightly : tolerance has to be assigned afterwards to avoid being overwritten
 					if(wtyp == warenbauer_t::passagiere)
 					{
-						tolerance = simrand(welt->get_einstellungen()->get_max_midrange_tolerance()) + welt->get_einstellungen()->get_min_midrange_tolerance();
+						destinations[destinations_assigned].tolerance = simrand(max_midrange_tolerance - min_midrange_tolerance + 1) + min_midrange_tolerance;
 					}
-					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
+					else
+					{
+						destinations[destinations_assigned].tolerance = 0;	// // tolerance level for mail is 0
+					}
 				}
 				else
 				//else if(passenger_routing_choice >= (100 - passenger_routing_longdistance_chance))
 				{
 					//Long distance
+					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance);  //"Ziel" = "target" (Google)
+
+					// Knightly : tolerance has to be assigned afterwards to avoid being overwritten
 					if(wtyp == warenbauer_t::passagiere)
 					{
-						tolerance = simrand(welt->get_einstellungen()->get_max_longdistance_tolerance()) + welt->get_einstellungen()->get_min_longdistance_tolerance();
+						destinations[destinations_assigned].tolerance = simrand(max_longdistance_tolerance - min_longdistance_tolerance + 1) + min_longdistance_tolerance;
 					}
-					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance);  //"Ziel" = "target" (Google)
+					else
+					{
+						destinations[destinations_assigned].tolerance = 0;	// // tolerance level for mail is 0
+					}
 				}
 			}
 			
@@ -1964,23 +1985,24 @@ void stadt_t::step_passagiere()
 
 				halthandle_t start_halt;
 			
-				unsigned ziel_count = 0;
-				for (uint h = 0; h < dest_plan->get_haltlist_count(); h++) 
+				// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
+				minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
+				for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 				{
 					halthandle_t halt = dest_list[h];
 					if (halt->is_enabled(wtyp)) 
 					{
-						ziel_count++;
-						for(int i = start_halts.get_count(); i >= 0; i--)
+						destination_list.append(halt);
+						for(int i = start_halts.get_count() - 1; i >= 0; i--)
 						{
-							if(start_halts.get_count() > i && halt == start_halts[i])
+							if(halt == start_halts[i])
 							{
 								can_walk_ziel = true;
 								start_halt = start_halts[i];
 								haltestelle_t::erzeuge_fussgaenger(welt, start_halts[i]->get_basis_pos3d(), pax_left_to_do);
+								goto walk; // because we found at least one valid step ...
 							}
 						}
-							break; // because we found at least one valid step ...
 					}
 				}
 
@@ -2010,37 +2032,27 @@ walk:
 
 				uint16 best_journey_time = 65535;
 				uint8 best_start_halt = 0;
-				minivec_tpl<halthandle_t> *destination_list = start_halts.empty() ? NULL : start_halts[0]->build_destination_list(pax);
 				
 				ITERATE(start_halts,i)
 				{
-					if(start_halts.empty())
-					{
-						break;
-					}
 					halthandle_t current_halt = start_halts[i];
 
-					uint16 current_journey_time = current_halt->find_route(destination_list, pax, best_journey_time);
+					uint16 current_journey_time = current_halt->find_route(&destination_list, pax, best_journey_time);
 					if(current_journey_time < best_journey_time)
 					{
 						best_journey_time = current_journey_time;
 						best_start_halt = i;
 					}
-					if(!pax.get_ziel().is_bound())
+					if(pax.get_ziel().is_bound())
 					{
-						//Only continue processing if there is a route.
-						continue;
+						route_good = good;
 					}
-
-					route_good = good;
 				}
 				
-				delete destination_list;
-
 				// Check first whether the best route is outside
 				// the passengers' tolerance.
 
-				if(route_good == good && tolerance > 0 && best_journey_time > tolerance)
+				if(route_good == good && destinations[current_destination].tolerance > 0 && best_journey_time > destinations[current_destination].tolerance)
 				{
 					route_good = too_slow;
 				}
@@ -2052,14 +2064,6 @@ walk:
 					// All passengers will use the quickest route.
 					start_halt = start_halts[best_start_halt];
 
-					if(start_halt == pax.get_ziel())
-					{
-						// Without this, where there are overlapping stops, passengers
-						// for nearby destinations accumulate at a stop, destined for 
-						// that same stop, and never leave.
-						can_walk_ziel = true;
-						goto walk; // Not ideal, I know. Can anyone suggest anything better that does not increase overhead?
-					}
 					pax.set_origin(start_halt);
 
 					// Now, decide whether passengers would prefer to use their private cars,
@@ -2087,7 +2091,7 @@ walk:
 						const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 						const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
-						if(car_minutes > tolerance)
+						if(car_minutes > destinations[current_destination].tolerance)
 						{
 							goto public_transport;
 							// If the journey is too long to go by car,
@@ -2107,12 +2111,12 @@ walk:
 							}
 							else
 							{
-								float proportion = ((float)distance - (float)(midrange_passengers_max_distance * 3.0F)) / (float)longdistance_passengers_max_distance;
+								const float proportion = ((float)distance - (float)(midrange_passengers_max_distance * 3.0F)) / (float)longdistance_passengers_max_distance;
 								car_preference /= (10 * proportion);
 							}
 						}
 						
-						// Secondly, congestion. Drivers will turn to public transport if the oirin or destination towns are congested.
+						// Secondly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
 
 						// This percentage of drivers will prefer to use the car however congested that it is.
 						static const sint16 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
@@ -2127,8 +2131,7 @@ walk:
 						{
 							congestion_total = (city_history_month[0][HIST_CONGESTION] / 1.33);
 						}
-						sint16 congestion_factor = ((car_preference - congestion_total) > always_prefer_car_percent) ? congestion_total : (car_preference - always_prefer_car_percent);
-						car_preference -= congestion_factor;
+						car_preference = ((car_preference - congestion_total) > always_prefer_car_percent) ? car_preference - congestion_total : always_prefer_car_percent;
 
 						// Thirdly adjust for service quality of the public transport.
 						// Compare the average speed, including waiting times, with the speed bonus speed for
@@ -2292,7 +2295,7 @@ public_transport:
 							const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 							const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
-							if(car_minutes <= tolerance)
+							if(car_minutes <= destinations[current_destination].tolerance)
 							{
 								set_private_car_trip(num_pax, destinations[0].town);
 #ifdef DESTINATION_CITYCARS
@@ -2361,7 +2364,7 @@ public_transport:
 					const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 					const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
-					if(car_minutes <= tolerance)
+					if(car_minutes <= destinations[current_destination].tolerance)
 					{
 						set_private_car_trip(num_pax, destinations[0].town);
 #ifdef DESTINATION_CITYCARS
@@ -2518,7 +2521,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 			for(uint8 i = 0; i < 32; i ++)
 			{
 				zielstadt = welt->get_town_at(random);
-				distance = koord_distance(this->get_pos(), zielstadt->get_pos());
+				distance = accurate_distance(this->get_pos(), zielstadt->get_pos());
 				if(distance <= max_distance && distance >= min_distance)
 				{
 					break;

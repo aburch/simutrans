@@ -1893,7 +1893,6 @@ void haltestelle_t::prepare_pathing_data_structures()
 minivec_tpl<halthandle_t>* haltestelle_t::build_destination_list(ware_t &ware)
 {
 	const ware_besch_t * warentyp = ware.get_besch();
-	const uint8 ware_catg_index = warentyp->get_catg_index();
 
 	if(ware.get_zielpos() == koord::invalid && ware.get_ziel().is_bound())
 	{
