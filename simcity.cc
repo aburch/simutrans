@@ -1905,14 +1905,14 @@ void stadt_t::step_passagiere()
 			// 1/3rd are local or medium distance, 
 			// and 1/3rd are of any distance.
 			// Note: a random town will be found if there are no towns within range.
-			uint8 passenger_routing_choice;
+			const uint8 passenger_routing_choice = simrand(100);
+			const journey_distance_type range = passenger_routing_choice <= passenger_routing_local_chance ? local : passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? midrange : longdistance;
+			const uint16 tolerance = wtyp != warenbauer_t::passagiere ? 0 : range == local ? simrand(welt->get_einstellungen()->get_max_local_tolerance()) + welt->get_einstellungen()->get_min_local_tolerance() : range == midrange ? simrand(welt->get_einstellungen()->get_max_midrange_tolerance()) + welt->get_einstellungen()->get_min_midrange_tolerance() : simrand(welt->get_einstellungen()->get_max_longdistance_tolerance()) + welt->get_einstellungen()->get_min_longdistance_tolerance();
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
 			{				
-				passenger_routing_choice = simrand(100);
-
 				//if(pax_routed < (number_packets / 3))
-				if(passenger_routing_choice <= passenger_routing_local_chance)
+				if(range == local)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
 					if((float)passenger_routing_choice <= adjusted_passenger_routing_local_chance)
@@ -1924,48 +1924,18 @@ void stadt_t::step_passagiere()
 					{
 						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
 					}
-
-					// Knightly : tolerance has to be assigned afterwards to avoid being overwritten
-					if(wtyp == warenbauer_t::passagiere)
-					{
-						destinations[destinations_assigned].tolerance = simrand(max_local_tolerance - min_local_tolerance + 1) + min_local_tolerance;
-					}
-					else
-					{
-						destinations[destinations_assigned].tolerance = 0;	// tolerance level for mail is 0
-					}
 				}
 				//else if(pax_routed < ((number_packets / 3) * 2))
-				else if(passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance))
+				else if(range == midrange)
 				{
 					//Medium
 					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
-
-					// Knightly : tolerance has to be assigned afterwards to avoid being overwritten
-					if(wtyp == warenbauer_t::passagiere)
-					{
-						destinations[destinations_assigned].tolerance = simrand(max_midrange_tolerance - min_midrange_tolerance + 1) + min_midrange_tolerance;
-					}
-					else
-					{
-						destinations[destinations_assigned].tolerance = 0;	// // tolerance level for mail is 0
-					}
 				}
 				else
-				//else if(passenger_routing_choice >= (100 - passenger_routing_longdistance_chance))
+				//else if(range == longdistance)
 				{
 					//Long distance
 					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance);  //"Ziel" = "target" (Google)
-
-					// Knightly : tolerance has to be assigned afterwards to avoid being overwritten
-					if(wtyp == warenbauer_t::passagiere)
-					{
-						destinations[destinations_assigned].tolerance = simrand(max_longdistance_tolerance - min_longdistance_tolerance + 1) + min_longdistance_tolerance;
-					}
-					else
-					{
-						destinations[destinations_assigned].tolerance = 0;	// // tolerance level for mail is 0
-					}
 				}
 			}
 			
@@ -2052,7 +2022,7 @@ walk:
 				// Check first whether the best route is outside
 				// the passengers' tolerance.
 
-				if(route_good == good && destinations[current_destination].tolerance > 0 && best_journey_time > destinations[current_destination].tolerance)
+				if(route_good == good && tolerance > 0 && best_journey_time > tolerance)
 				{
 					route_good = too_slow;
 				}
@@ -2068,7 +2038,7 @@ walk:
 
 					// Now, decide whether passengers would prefer to use their private cars,
 					// even though they can travel by public transport.
-					uint16 distance = accurate_distance(destinations[current_destination].location, pos);
+					const uint16 distance = accurate_distance(destinations[current_destination].location, k);
 					if(has_private_car)
 					{
 						//Weighted random.
@@ -2087,11 +2057,10 @@ walk:
 						// slower than cars, so, very approximately, it should balance correctly. 
 						// TODO: (Long-term) get the accurate road distance between each town
 						// and have a speedbonus.tab entry for private cars.
-						const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
 						const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-						const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
+						const uint16 car_minutes = (((float)distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
-						if(car_minutes > destinations[current_destination].tolerance)
+						if(car_minutes > tolerance)
 						{
 							goto public_transport;
 							// If the journey is too long to go by car,
@@ -2268,6 +2237,10 @@ public_transport:
 							{
 								//Must use private car, since there is no route back.
 								set_private_car_trip(num_pax, destinations[current_destination].town);
+#ifdef DESTINATION_CITYCARS
+								//citycars with destination
+								erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
+#endif
 							}
 							else
 							{	
@@ -2295,7 +2268,7 @@ public_transport:
 							const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 							const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
-							if(car_minutes <= destinations[current_destination].tolerance)
+							if(car_minutes <= tolerance)
 							{
 								set_private_car_trip(num_pax, destinations[0].town);
 #ifdef DESTINATION_CITYCARS
@@ -2316,8 +2289,20 @@ public_transport:
 								{
 									if(current_destination + 1 >= destination_count)
 									{
-										// Only record too slow if alternative destinations not canvassed.
-										start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
+										// Only record too slow if alternative destinations not canvassed
+										// and if the trip by *public* transport is too slow.
+										if(tolerance > 0 && best_journey_time > tolerance)
+										{
+											start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
+										}
+										else if(start_halts[best_start_halt]->is_overcrowded(wtyp->get_catg_index()))
+										{
+											start_halts[best_start_halt]->add_pax_unhappy(pax_left_to_do);
+										}
+										else
+										{
+											start_halts[best_start_halt]->add_pax_no_route(pax_left_to_do);
+										}
 									}
 								}
 							}
@@ -2364,7 +2349,7 @@ public_transport:
 					const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 					const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
 
-					if(car_minutes <= destinations[current_destination].tolerance)
+					if(car_minutes <= tolerance)
 					{
 						set_private_car_trip(num_pax, destinations[0].town);
 #ifdef DESTINATION_CITYCARS
@@ -2376,7 +2361,16 @@ public_transport:
 					{
 						if(!start_halts.empty())
 						{
-							start_halts[0]->add_pax_too_slow(pax_left_to_do);
+							switch(route_good)
+							{
+							case no_route:
+								start_halts[0]->add_pax_no_route(pax_left_to_do);
+								break;
+
+							case too_slow:
+								start_halts[0]->add_pax_too_slow(pax_left_to_do);
+								break;
+							};
 						}
 					}
 				}

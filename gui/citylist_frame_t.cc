@@ -55,6 +55,22 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
 	"Transported"
 };
 
+const char citylist_frame_t::hist_type_tooltip[karte_t::MAX_WORLD_COST][256] =
+{
+	"The number of inhabitants of the region",
+	"The number of inhabitants by which the region has increased",
+	"The number of urban areas in the region",
+	"The number of industries in the region",
+	"The total number of convoys in the region",
+	"The number of private car trips in the region overall",
+	"The percentage of passengers transported in the region overall",
+	"The total number of passengers wanting to be transported in the region",
+	"The amount of mail transported in the region overall",
+	"The total amount of mail generated in the region",
+	"The percentage of available goods that have been transported in the region",
+	"The total number of mail/passengers/goods transported in the region"
+};
+
 const uint8 citylist_frame_t::hist_type_color[karte_t::MAX_WORLD_COST] =
 {
 	COL_WHITE,
@@ -150,6 +166,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
 		filterButtons[cost].init(button_t::box_state, hist_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), yb+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		filterButtons[cost].set_tooltip(hist_type_tooltip[cost]);
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = hist_type_color[cost];
 		filterButtons[cost].set_visible(false);

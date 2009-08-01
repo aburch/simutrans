@@ -47,6 +47,7 @@ message_option_t::message_option_t(karte_t *welt) :
 
 		buttons[i*4+1].set_pos( koord(BUTTON_ROW+10,18+i*2*LINESPACE) );
 		buttons[i*4+1].set_typ(button_t::square_state);
+		buttons[i*4+1].set_tooltip("Show in ticker");
 		buttons[i*4+1].pressed = (ticker_msg>>i)&1;
 		buttons[i*4+1].add_listener(this);
 		add_komponente( buttons+i*4+1 );
@@ -54,11 +55,13 @@ message_option_t::message_option_t(karte_t *welt) :
 		buttons[i*4+2].set_pos( koord(BUTTON_ROW+30,18+i*2*LINESPACE) );
 		buttons[i*4+2].set_typ(button_t::square_state);
 		buttons[i*4+2].pressed = (auto_msg>>i)&1;
+		buttons[i*4+2].set_tooltip("Show a transient dialogue box");
 		buttons[i*4+2].add_listener(this);
 		add_komponente( buttons+i*4+2 );
 
 		buttons[i*4+3].set_pos( koord(BUTTON_ROW+50,18+i*2*LINESPACE) );
 		buttons[i*4+3].set_typ(button_t::square_state);
+		buttons[i*4+3].set_tooltip("Show a non-transient dialogue box");
 		buttons[i*4+3].pressed = (window_msg>>i)&1;
 		buttons[i*4+3].add_listener(this);
 		add_komponente( buttons+i*4+3 );
