@@ -250,7 +250,7 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 		grund_t *gr;
 		//DBG_DEBUG("planquadrat_t::rdwr()","Reading boden");
 		do {
-			grund_t::typ gtyp = (grund_t::typ)file->rd_obj_id();
+			short gtyp = file->rd_obj_id();
 
 			switch(gtyp) {
 				case -1: gr = NULL; break;

@@ -10,6 +10,7 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
+#include "../tpl/weighted_vector_tpl.h"
 #include "../besch/baum_besch.h"
 #include "../simcolor.h"
 #include "../dataobj/umgebung.h"
@@ -32,6 +33,7 @@ private:
 	// static for administration
 	static stringhashtable_tpl<const baum_besch_t *> besch_names;
 	static vector_tpl<const baum_besch_t *> baum_typen;
+	static vector_tpl<weighted_vector_tpl<uint32> > baum_typen_per_climate;
 
 	// static for the forest rule set
 	static uint8 forest_base_size;
@@ -53,8 +55,7 @@ private:
 
 	static uint16 random_tree_for_climate_intern(climate cl);
 
-	static bool plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count);
-
+	static uint8 plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count, const uint8 count=1);
 public:
 	// only the load save constructor should be called outside
 	// otherwise I suggest use the plant tree function (see below)

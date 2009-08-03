@@ -188,6 +188,8 @@ private:
 	// Needed for power consumption of such factories.
 	vector_tpl<fabrik_t *> city_factories;
 
+	enum journey_distance_type { local, midrange, longdistance };
+
 public:
 	/**
 	 * Returns pointer to history for city

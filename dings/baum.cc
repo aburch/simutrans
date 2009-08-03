@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -129,12 +129,15 @@ DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 /*************************** first the static function for the baum_t and baum_besch_t administration ***************/
 
 /*
- * Diese Tabelle ermöglicht das Auffinden dient zur Auswahl eines Baumtypen
+ * Diese Tabelle ermoeglicht das Auffinden dient zur Auswahl eines Baumtypen
  */
 vector_tpl<const baum_besch_t *> baum_t::baum_typen(0);
 
+// index vector into baumtypen, accessible per climate
+vector_tpl<weighted_vector_tpl<uint32> > baum_t::baum_typen_per_climate(MAX_CLIMATES);
+
 /*
- * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
+ * Diese Tabelle ermoeglicht das Auffinden einer Beschreibung durch ihren Namen
  */
 stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
 
@@ -142,13 +145,7 @@ stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
 // the same for a certain climate
 int baum_t::get_anzahl_besch(climate cl)
 {
-	uint16 total_number=0;
-	for( uint32 i=0;  i<baum_typen.get_count();  i++  ) {
-		if (baum_typen[i]->is_allowed_climate(cl)) {
-			total_number ++;
-		}
-	}
-	return total_number;
+	return baum_typen_per_climate[cl].get_count();
 }
 
 
@@ -156,18 +153,17 @@ int baum_t::get_anzahl_besch(climate cl)
 /**
  * tree planting function - it takes care of checking suitability of area
  */
-bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 maximum_count)
+uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 maximum_count, const uint8 count)
 {
-	const planquadrat_t *plan = welt->lookup(pos);
-	if(plan) {
-		grund_t * gr = plan->get_kartenboden();
-		if(gr!=NULL  &&
-			get_anzahl_besch(welt->get_climate(gr->get_pos().z))>0  &&
+	grund_t * gr = welt->lookup_kartenboden(pos);
+	if(gr) {
+		if(get_anzahl_besch(welt->get_climate(gr->get_pos().z))>0  &&
 			gr->ist_natur()  &&
 			gr->get_top()<maximum_count)
 		{
-			if(gr->get_top()>0) {
-				switch(gr->obj_bei(0)->get_typ()) {
+			ding_t *ding = gr->obj_bei(0);
+			if(ding) {
+				switch(ding->get_typ()) {
 					case ding_t::wolke:
 					case ding_t::aircraft:
 					case ding_t::baum:
@@ -177,19 +173,22 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 max
 						// ok to built here
 						break;
 					case ding_t::groundobj:
-						if(((groundobj_t *)(gr->obj_bei(0)))->get_besch()->can_built_trees_here()) {
+						if(((groundobj_t *)ding)->get_besch()->can_built_trees_here()) {
 							break;
 						}
 						// leave these (and all other empty)
 					default:
-						return false;
+						return 0;
 				}
 			}
-			gr->obj_add( new baum_t(welt, gr->get_pos()) ); //plants the tree
-			return true; //tree was planted - currently unused value is not checked
+			const uint8 count_planted = min( maximum_count - gr->get_top(), count);
+			for (uint8 i=0; i<count_planted; i++) {
+				gr->obj_add( new baum_t(welt, gr->get_pos()) ); //plants the tree(s)
+			}
+			return count_planted;
 		}
 	}
-	return false;
+	return 0;
 }
 
 
@@ -257,17 +256,23 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 			const sint32 x_tree_pos = (j-(wh.x>>1));
 			const sint32 y_tree_pos = (i-(wh.y>>1));
 
-			const uint32 distance = 1 + ((uint32) sqrt( (double)(x_tree_pos*x_tree_pos*(wh.y*wh.y) + y_tree_pos*y_tree_pos*(wh.x*wh.x))));
+			const uint64 distance = 1 + ((uint64) sqrt( ((double)x_tree_pos*x_tree_pos*(wh.y*wh.y) + (double)y_tree_pos*y_tree_pos*(wh.x*wh.x))));
 			const uint32 tree_probability = ( 8 * (uint32)((wh.x*wh.x)+(wh.y*wh.y)) ) / distance;
 
-			for (uint8 c2 = 0 ; c2<max_no_of_trees_on_square; c2++) {
+			if (tree_probability < 38) {
+				continue;
+			}
+
+			uint8 number_to_plant = 0;
+			const uint8 max_trees_here = min(max_no_of_trees_on_square,  (tree_probability - 38 +1)/2);
+			for (uint8 c2 = 0 ; c2<max_trees_here; c2++) {
 				const uint32 rating = simrand(10) + 38 + c2*2;
 				if (rating < tree_probability ) {
-					const koord pos( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos));
-					baum_t::plant_tree_on_coordinate(welt, pos, 3 );
-					number_of_new_trees ++;
+					number_to_plant++;
 				}
 			}
+
+			number_of_new_trees += baum_t::plant_tree_on_coordinate(welt, koord( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos)), max_no_of_trees_on_square, number_to_plant);
 		}
 	}
 	return number_of_new_trees;
@@ -309,6 +314,18 @@ bool baum_t::alles_geladen()
 		while(  iter.next()  ) {
 			baum_typen.append( iter.get_current_value() );
 		}
+		// fill the vector with zeros
+		for (uint8 j=0; j<MAX_CLIMATES; j++) {
+			baum_typen_per_climate.append( weighted_vector_tpl<uint32>() );
+		}
+		// now register all trees for all fitting climates
+		for( uint32 i=0;  i<baum_typen.get_count();  i++  ) {
+			for (uint8 j=0; j<MAX_CLIMATES; j++) {
+				if (baum_typen[i]->is_allowed_climate((climate)j)) {
+					baum_typen_per_climate[j].append(i, baum_typen[i]->get_distribution_weight(), /*extend weighted vector if necess by*/ 4 );
+				}
+			}
+		}
 	}
 	return true;
 }
@@ -333,7 +350,7 @@ void baum_t::calc_off()
 {
 	int liob;
 	int reob;
-	switch (welt->lookup( get_pos().get_2d())->get_kartenboden()->get_grund_hang() ) {
+	switch (welt->lookup( get_pos())->get_grund_hang() ) {
 		case 0:
 			liob=simrand(30)-15;
 			reob=simrand(30)-15;
@@ -439,28 +456,16 @@ baum_t::get_outline_bild() const
  */
 uint16 baum_t::random_tree_for_climate_intern(climate cl)
 {
-	int weight = 0;
-
-	for( uint32 i=0;  i<baum_typen.get_count();  i++  ) {
-		if (baum_typen[i]->is_allowed_climate(cl)) {
-			weight += baum_typen[i]->get_distribution_weight();
-		}
-	}
+	uint32 weight = baum_typen_per_climate[cl].get_sum_weight();
 
 	// now weight their distribution
 	if (weight > 0) {
-		const int w=simrand(weight);
-		weight = 0;
-		for( uint32 i=0; i<baum_typen.get_count();  i++  ) {
-			if (baum_typen[i]->is_allowed_climate(cl)) {
-				weight += baum_typen[i]->get_distribution_weight();
-				if(weight>=w) {
-					return i;
-				}
-			}
-		}
+		return baum_typen_per_climate[cl].at_weight( simrand(weight) );
+
 	}
-	return 0xFFFF;
+	else {
+		return 0xFFFF;
+	}
 }
 
 

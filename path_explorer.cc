@@ -578,7 +578,7 @@ void path_explorer_t::compartment_t::step()
 
 			const spieler_t *const public_player = world->get_spieler(1); // public player is #1; #0 is human player
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
-			const float journey_time_adjustment = world->get_einstellungen()->get_journey_time_multiplier() * 600;
+			const float journey_time_adjustment = world->get_einstellungen()->get_distance_per_tile() * 600;
 
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
@@ -611,7 +611,7 @@ void path_explorer_t::compartment_t::step()
 					current_owner = current_linkage.line->get_besitzer();
 					current_average_speed = (uint32) ( current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? 
 													   current_linkage.line->get_finance_history(1, LINE_AVERAGE_SPEED) : 
-													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) / 2 ) );
+													   ( speed_to_kmh(current_linkage.line->get_convoy(0)->get_min_top_speed()) >> 1 ) );
 				}
 				else if ( current_linkage.convoy.is_bound() && current_linkage.convoy->get_schedule() )
 				{
@@ -620,7 +620,7 @@ void path_explorer_t::compartment_t::step()
 					current_owner = current_linkage.convoy->get_besitzer();
 					current_average_speed = (uint32) ( current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? 
 													   current_linkage.convoy->get_finance_history(1, CONVOI_AVERAGE_SPEED) : 
-													   ( speed_to_kmh(current_linkage.convoy->get_min_top_speed()) / 2 ) );
+													   ( speed_to_kmh(current_linkage.convoy->get_min_top_speed()) >> 1 ) );
 				}
 				else
 				{

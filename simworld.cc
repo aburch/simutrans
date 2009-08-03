@@ -1644,7 +1644,7 @@ karte_t::~karte_t()
 
 void karte_t::set_scale()
 {
-	const float scale_factor = get_einstellungen()->get_journey_time_multiplier();
+	const float scale_factor = get_einstellungen()->get_distance_per_tile();
 	
 	// Vehicles
 	for(int i = road_wt; i <= air_wt; i++) 
@@ -2692,15 +2692,17 @@ void karte_t::neuer_monat()
 		}
 	}
 
+	stadtauto_t* car;
 	while(!unassigned_cars.empty() && (sint32)unassigned_cars.get_count() > outstanding_cars)
 	{
 		//Make sure that there are not too many cars on the roads. 
-		stadtauto_t* car = unassigned_cars.remove_first();
+		car = unassigned_cars.remove_first();
 		if(car != NULL)
 		{
 			car->kill();
 		}
 	}
+	car = NULL;
 
 	INT_CHECK("simworld 1289");
 
@@ -3715,7 +3717,7 @@ karte_t::laden(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 
-	const float old_scale_factor = get_einstellungen()->get_journey_time_multiplier();
+	const float old_scale_factor = get_einstellungen()->get_distance_per_tile();
 
 #ifndef DEMO
 	loadsave_t file;
@@ -3759,7 +3761,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		outstanding_cars += s->get_outstanding_cars();
 	}
 
-	if(old_scale_factor != get_einstellungen()->get_journey_time_multiplier())
+	if(old_scale_factor != get_einstellungen()->get_distance_per_tile())
 	{
 		set_scale();
 	}

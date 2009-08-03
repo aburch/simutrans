@@ -55,6 +55,8 @@ private:
 	cbuffer_t info_buf;
 
 public:
+	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, SORT_MODES = 6 };
+
 	halt_info_t(karte_t *welt, halthandle_t halt);
 
 	/**
