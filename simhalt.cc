@@ -32,6 +32,7 @@
 #include "simwin.h"
 #include "simworld.h"
 #include "simware.h"
+#include "simsys.h"
 
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
@@ -347,6 +348,9 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	alle_haltestellen.insert(self);
 
 	check_waiting = 0;
+
+	// Added by : Knightly
+	inauguration_time = 0;
 }
 
 
@@ -437,6 +441,9 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	}
 
 	check_waiting = 0;
+
+	// Added by : Knightly
+	inauguration_time = dr_time();
 }
 
 
@@ -3455,7 +3462,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	init_pos = tiles.front().grund->get_pos().get_2d();
 	if (welt->get_einstellungen()->get_default_path_option() == 2)
 	{
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 	else
 	{
@@ -3494,7 +3501,7 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 	tiles.erase(i);
 	if (welt->get_einstellungen()->get_default_path_option() == 2)
 	{
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 	else
 	{

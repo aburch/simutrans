@@ -55,6 +55,9 @@ private:
 			convoihandle_t convoy;
 		};
 
+		// store the start time of refresh
+		unsigned long refresh_start_time;
+
 		// set of variables for finished path data
 		path_element_t **finished_matrix;
 		uint16 *finished_halt_index_map;

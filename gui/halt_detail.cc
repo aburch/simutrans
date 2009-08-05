@@ -240,9 +240,8 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					pb->add_listener( this );
 					posbuttons.append( pb );
 					cont.add_komponente( pb );
-				}
 
-				buf.append("\n");
+					buf.append("\n");
 					buf.append("(");
 					buf.append(cnx->journey_time * 0.1); // Convert from tenths
 					buf.append(translator::translate(" mins. travelling"));
@@ -259,7 +258,8 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 					}
 					buf.append("\n");
 
-				offset_y += 2 * LINESPACE;
+					offset_y += 2 * LINESPACE;
+				}
 			}
 		}
 	}

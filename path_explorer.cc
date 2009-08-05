@@ -211,6 +211,8 @@ uint8 path_explorer_t::compartment_t::representative_category = 0;
 
 path_explorer_t::compartment_t::compartment_t()
 {
+	refresh_start_time = 0;
+
 	finished_matrix = NULL;
 	finished_halt_index_map = NULL;
 	finished_halt_count = 0;
@@ -313,6 +315,8 @@ path_explorer_t::compartment_t::~compartment_t()
 
 void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 {
+	refresh_start_time = 0;
+
 	if (reset_finished_set)
 	{
 		if (finished_matrix)
@@ -444,6 +448,7 @@ void path_explorer_t::compartment_t::step()
 			{
 				refresh_requested = false;	// immediately reset it so that we can take new requests
 				refresh_completed = false;	// indicate that processing is at work
+				refresh_start_time = dr_time();
 				current_phase = phase_init_prepare;	// proceed to next phase
 				// no return statement here, as we want to fall through to the next phase
 			}
@@ -506,7 +511,6 @@ void path_explorer_t::compartment_t::step()
 			linkages = new vector_tpl<linkage_t>(1024);
 			convoihandle_t current_convoy;
 			linehandle_t current_line;
-			convoihandle_t dummy_convoy;
 			linkage_t temp_linkage;
 
 
@@ -522,7 +526,8 @@ void path_explorer_t::compartment_t::step()
 				}
 			}
 
-			temp_linkage.convoy = dummy_convoy;	// reset the convoy handle component
+			static const convoihandle_t null_convoy_handle;
+			temp_linkage.convoy = null_convoy_handle;	// reset the convoy handle component
 
 			// loop through all lines of all players
 			for (int i = 0; i < MAX_PLAYER_COUNT; i++) 
@@ -643,7 +648,8 @@ void path_explorer_t::compartment_t::step()
 						current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[i].pos, public_player);
 					}
 
-					if ( current_halt.is_bound() && current_halt->is_enabled(ware_type) )
+					// Make sure that the halt found was built before refresh started and that it supports current goods category
+					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
 					{
 						// Assign to halt list only if current halt supports this compartment's goods category
 						halt_list.append(current_halt, 64);
@@ -824,6 +830,14 @@ void path_explorer_t::compartment_t::step()
 			// add halt to working halt list only if it has connexions that support this compartment's goods category
 			while (phase_counter < all_halts_count)
 			{
+				// halts may be removed during the process of refresh
+				if ( ! all_halts_list[phase_counter].is_bound() )
+				{
+					clear_connexion_table( all_halts_list[phase_counter].get_id() );
+					phase_counter++;
+					continue;
+				}
+
 				if ( ! connexion_list[ all_halts_list[phase_counter].get_id() ]->empty() )
 				{
 					// valid connexion(s) found -> add to working halt list and update halt index map
@@ -960,24 +974,32 @@ void path_explorer_t::compartment_t::step()
 			{
 				current_halt = working_halt_list[phase_counter];
 
+				// halts may be removed during the process of refresh
+				if ( ! current_halt.is_bound() )
+				{
+					phase_counter++;
+					continue;
+				}
+
 				// temporary variables for determining transfer halt
 				bool is_transfer_halt = false;
 				linehandle_t previous_line;
 				convoihandle_t previous_convoy;
 
-				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> origin_iter( *(current_halt->get_connexions(catg)) );
+				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_iter( *(current_halt->get_connexions(catg)) );
 
 				// iterate over the connexions of the current halt
-				while (origin_iter.next())
+				while (connexions_iter.next())
 				{
-					reachable_halt = origin_iter.get_current_key();
+					reachable_halt = connexions_iter.get_current_key();
 
+					// halts may be removed during the process of refresh
 					if (!reachable_halt.is_bound())
 					{
 						continue;
 					}
 
-					current_connexion = origin_iter.get_current_value();
+					current_connexion = connexions_iter.get_current_value();
 
 					// determine the matrix index of reachable halt in working halt index map
 					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
@@ -1289,6 +1311,13 @@ void path_explorer_t::compartment_t::step()
 
 			while (phase_counter < all_halts_count)
 			{
+				// halts may be removed during the process of refresh
+				if ( ! all_halts_list[phase_counter].is_bound() )
+				{
+					phase_counter++;
+					continue;
+				}
+
 				if ( all_halts_list[phase_counter]->reroute_goods(catg) )
 				{
 					// only halts with relevant goods packets are counted
@@ -1364,6 +1393,7 @@ void path_explorer_t::compartment_t::step()
 #endif
 
 				step_count = 0;
+				refresh_start_time = 0;
 				refresh_completed = true;
 			}
 
