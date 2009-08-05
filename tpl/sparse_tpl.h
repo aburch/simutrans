@@ -33,8 +33,8 @@ class sparse_tpl
 			data_count = 0;
 			data = NULL;
 			col_ind = NULL;
-			row_ptr = new uint16[ size.x + 1];
-			for( uint16 i = 0; i < size.x + 1; i++ ) {
+			row_ptr = new uint16[ size.y + 1];
+			for( uint16 i = 0; i < size.y + 1; i++ ) {
 				row_ptr[i] = 0;
 			}
 		}
@@ -54,7 +54,7 @@ class sparse_tpl
 
 		void clear() {
 			data_count = 0;
-			for( uint16 i = 0; i < size.x + 1; i++ ) {
+			for( uint16 i = 0; i < size.y + 1; i++ ) {
 				row_ptr[i] = 0;
 			}
 			resize_data(0);
