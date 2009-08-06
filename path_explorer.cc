@@ -192,16 +192,27 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 
 // compartment_t
 
+const char *const path_explorer_t::compartment_t::phase_name[] = 
+{
+	"flag",
+	"prepare",
+	"rebuild",
+	"sieve",
+	"matrix",
+	"explore",
+	"reroute"
+};
+
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *path_explorer_t::compartment_t::connexion_list[65536];
 
 uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
-uint32 path_explorer_t::compartment_t::limit_find_eligible = default_find_eligible;
+uint32 path_explorer_t::compartment_t::limit_sieve_eligible = default_sieve_eligible;
 uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
 uint32 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::limit_reroute_goods = default_reroute_goods;
 
 uint32 path_explorer_t::compartment_t::backup_rebuild_connexions = default_rebuild_connexions;
-uint32 path_explorer_t::compartment_t::backup_find_eligible = default_find_eligible;
+uint32 path_explorer_t::compartment_t::backup_sieve_eligible = default_sieve_eligible;
 uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
 uint32 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::backup_reroute_goods = default_reroute_goods;
@@ -233,13 +244,14 @@ path_explorer_t::compartment_t::compartment_t()
 	transfer_count = 0;;
 
 	catg = 255;
+	catg_name = NULL;
 	step_count = 0;
 
 	paths_available = false;
 	refresh_completed = true;
 	refresh_requested = true;
 
-	current_phase = phase_gate_sentinel;
+	current_phase = phase_check_flag;
 
 	phase_counter = 0;
 	iterations = 0;
@@ -391,7 +403,9 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	}	
 	transfer_count = 0;
 
+#ifdef DEBUG_COMPARTMENT_STEP
 	step_count = 0;
+#endif
 
 	if (reset_finished_set)
 	{
@@ -400,7 +414,7 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	refresh_completed = true;
 	refresh_requested = true;
 
-	current_phase = phase_gate_sentinel;
+	current_phase = phase_check_flag;
 
 	phase_counter = 0;
 	iterations = 0;
@@ -431,7 +445,7 @@ void path_explorer_t::compartment_t::step()
 {
 
 #ifdef DEBUG_COMPARTMENT_STEP
-	printf("\n\nCategory :  %s / %s \n", translator::translate( warenbauer_t::get_info_catg_index(catg)->get_catg_name()), translator::translate( warenbauer_t::get_info_catg_index(catg)->get_name()) );
+	printf("\n\nCategory :  %s \n", translator::translate( catg_name ) );
 #endif
 
 	// For timing use
@@ -442,7 +456,7 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Phase 0 : Determine if a new refresh should be done, and prepare relevant flags accordingly
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_gate_sentinel :
+		case phase_check_flag :
 		{
 			if (refresh_requested)
 			{
@@ -796,7 +810,7 @@ void path_explorer_t::compartment_t::step()
 				}
 				linkages_count = 0;
 
-				current_phase = phase_find_eligible;	// proceed to the next phase
+				current_phase = phase_sieve_eligible;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
 
 			}
@@ -811,7 +825,7 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Phase 3 : Construct eligible halt list which contains halts supporting current goods type. Also, update halt index map
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_find_eligible :
+		case phase_sieve_eligible :
 		{
 #ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
@@ -854,7 +868,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				iterations++;
-				if (iterations == limit_find_eligible)
+				if (iterations == limit_sieve_eligible)
 				{
 					break;
 				}
@@ -882,20 +896,20 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_find_eligible == maximum_limit )
+						if ( limit_sieve_eligible == maximum_limit )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_find_eligible;
+							const uint32 percentage = projected_iterations * 100 / backup_sieve_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_find_eligible = projected_iterations;
+								backup_sieve_eligible = projected_iterations;
 							}
 						}
 						else
 						{
-							const uint32 percentage = projected_iterations * 100 / limit_find_eligible;
+							const uint32 percentage = projected_iterations * 100 / limit_sieve_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_find_eligible = projected_iterations;
+								limit_sieve_eligible = projected_iterations;
 							}
 						}
 					}
@@ -1377,7 +1391,7 @@ void path_explorer_t::compartment_t::step()
 				statistic_duration = 0;
 				statistic_iteration = 0;
 
-				current_phase = phase_gate_sentinel;	// reset to the 1st phase
+				current_phase = phase_check_flag;	// reset to the 1st phase
 				phase_counter = 0;	// reset counter
 
 				// delete immediately after use
@@ -1390,9 +1404,9 @@ void path_explorer_t::compartment_t::step()
 
 #ifdef DEBUG_COMPARTMENT_STEP
 				printf("\tFinished in : %lu Steps \n\n", step_count);
+				step_count = 0;
 #endif
 
-				step_count = 0;
 				refresh_start_time = 0;
 				refresh_completed = true;
 			}
@@ -1481,6 +1495,14 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	aggregate_time = 65535;
 	next_transfer = dummy_halt;
 	return false;
+}
+
+
+void path_explorer_t::compartment_t::set_category(uint8 category)
+{ 
+	catg = category;
+	const ware_besch_t *ware_type = warenbauer_t::get_info_catg_index(catg);
+	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
 }
 
 
