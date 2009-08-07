@@ -329,8 +329,8 @@ enable_home:
 			const int pos_y = pos_y0; // line 1
 			char tmp[256];
 			convoy_metrics_t metrics(*cnv.get_rep());
-			uint32 min_speed = metrics.get_speed(cnv->get_sum_gesamtgewicht());
-			uint32 max_speed = metrics.get_speed(cnv->get_sum_gewicht());
+			const uint32 min_speed = metrics.get_speed(cnv->get_sum_gesamtgewicht());
+			const uint32 max_speed = metrics.get_speed(cnv->get_sum_gewicht());
 			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
 			mean_convoi_speed /= 2;
 			//sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );

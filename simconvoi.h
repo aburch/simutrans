@@ -364,10 +364,6 @@ private:
 	 */
 	void calc_acceleration(long delta_t);
 
-	// Calculate the total power as adjusted to take account of steam engine physics
-	//@author: jamespetts
-	sint32 calc_adjusted_power();
-
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
 	* "Convoi holds by stop and sets ratio for freight" (Babelfish)
@@ -708,6 +704,10 @@ public:
 	* @see simwin
 	*/
 	void zeige_info();
+
+	// Calculate the total power as adjusted to take account of steam engine physics
+	//@author: jamespetts
+	sint32 calc_adjusted_power();
 
 #if 0
 private:

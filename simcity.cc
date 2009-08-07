@@ -389,7 +389,10 @@ void stadt_t::disable_location_cache() {
 void clear_location_cache(stadt_t *city)
 {
 	printf("Location Cache: hits/writes = %lld/%lld\n", cache_hits, cache_writes);
-	location_cache->clear();
+	if(location_cache)
+	{
+		location_cache->clear();
+	}
 	location_cache_city = city; 
 	cache_hits=0; 
 	cache_writes=0;
@@ -426,10 +429,10 @@ uint16 stadt_t::bewerte_loc_cache(const koord pos, bool force)
 		flag |= gr->is_halt() ? rule_is_stop : rule_no_stop;
 		flag |= hang_t::ist_wegbar(gr->get_grund_hang()) ? rule_good_slope : rule_bad_slope;
 #ifdef use_cache
-//		if (location_cache) {
+		if (location_cache) {
 			location_cache->set(pos, flag | rule_known);
 			cache_writes ++;
-//		}
+		}
 #endif
 	}
 	return flag & rule_any_rule;
@@ -2021,8 +2024,19 @@ void stadt_t::step_passagiere()
 			// and 1/3rd are of any distance.
 			// Note: a random town will be found if there are no towns within range.
 			const uint8 passenger_routing_choice = simrand(100);
-			const journey_distance_type range = passenger_routing_choice <= passenger_routing_local_chance ? local : passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? midrange : longdistance;
-			const uint16 tolerance = wtyp != warenbauer_t::passagiere ? 0 : range == local ? simrand(welt->get_einstellungen()->get_max_local_tolerance()) + welt->get_einstellungen()->get_min_local_tolerance() : range == midrange ? simrand(welt->get_einstellungen()->get_max_midrange_tolerance()) + welt->get_einstellungen()->get_min_midrange_tolerance() : simrand(welt->get_einstellungen()->get_max_longdistance_tolerance()) + welt->get_einstellungen()->get_min_longdistance_tolerance();
+			const journey_distance_type range = 
+				passenger_routing_choice <= passenger_routing_local_chance ? 
+				local :
+			passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? 
+				midrange : longdistance;
+			const uint16 tolerance = 
+				wtyp != warenbauer_t::passagiere ? 
+				0 : 
+				range == local ? 
+					simrand(max_local_tolerance) + min_local_tolerance : 
+				range == midrange ? 
+					simrand(max_midrange_tolerance) + min_midrange_tolerance : 
+				simrand(max_longdistance_tolerance) + min_longdistance_tolerance;
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
 			{				
