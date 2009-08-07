@@ -243,12 +243,12 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 					buf.append("\n");
 					buf.append("(");
-					buf.append(cnx->journey_time * 0.1); // Convert from tenths
+					buf.append(cnx->journey_time / 10); // Convert from tenths
 					buf.append(translator::translate(" mins. travelling"));
 					buf.append(", ");
 					if(cnx->waiting_time > 9)
 					{
-						buf.append(cnx->waiting_time * 0.1); // Convert from tenths
+						buf.append(cnx->waiting_time / 10); // Convert from tenths
 						buf.append(translator::translate(" mins. waiting)"));
 					}
 					else

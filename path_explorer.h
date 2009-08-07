@@ -42,10 +42,27 @@ private:
 		// element used during path search only for storing best lines/convoys
 		struct transport_element_t
 		{
-			linehandle_t first_line;
-			linehandle_t last_line;
-			convoihandle_t first_convoy;
-			convoihandle_t last_convoy;
+			union
+			{
+				struct
+				{
+					uint16 first_line;
+					uint16 first_convoy;
+				};
+				uint32 first_transport;
+			};
+
+			union
+			{
+				struct
+				{
+					uint16 last_line;
+					uint16 last_convoy;
+				};
+				uint32 last_transport;
+			};
+
+			transport_element_t() { first_transport = last_transport = 0; }
 		};
 
 		// data structure for temporarily storing lines and lineless conovys

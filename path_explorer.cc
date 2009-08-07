@@ -1021,12 +1021,18 @@ void path_explorer_t::compartment_t::step()
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
 					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
-					transport_matrix[phase_counter][reachable_halt_index].first_line 
-						= transport_matrix[phase_counter][reachable_halt_index].last_line 
-						= current_connexion->best_line;
-					transport_matrix[phase_counter][reachable_halt_index].first_convoy 
-						= transport_matrix[phase_counter][reachable_halt_index].last_convoy 
-						= current_connexion->best_convoy;					
+					if ( current_connexion->best_line.is_bound() )
+					{
+						transport_matrix[phase_counter][reachable_halt_index].first_line 
+							= transport_matrix[phase_counter][reachable_halt_index].last_line 
+							= current_connexion->best_line.get_id();
+					}
+					else
+					{
+						transport_matrix[phase_counter][reachable_halt_index].first_convoy 
+							= transport_matrix[phase_counter][reachable_halt_index].last_convoy 
+							= current_connexion->best_convoy.get_id();
+					}
 
 					// Debug journey times
 					// printf("\n%s -> %s : %lu \n",current_halt->get_name(), reachable_halt->get_name(), working_matrix[phase_counter][reachable_halt_index].journey_time);
@@ -1174,17 +1180,14 @@ void path_explorer_t::compartment_t::step()
 						// The first 2 comparisons may seem redundant, but they cut down search time by 10%
 						if ( working_matrix[origin][via].aggregate_time < working_matrix[origin][target].aggregate_time &&
 							 working_matrix[via][target].aggregate_time < working_matrix[origin][target].aggregate_time &&
-							 ( combined_time = working_matrix[origin][via].aggregate_time + working_matrix[via][target].aggregate_time ) 
+							 ( combined_time = (uint32)working_matrix[origin][via].aggregate_time + working_matrix[via][target].aggregate_time ) 
 									< working_matrix[origin][target].aggregate_time &&
-							 ( transport_matrix[origin][via].last_line != transport_matrix[via][target].first_line
-							   || transport_matrix[origin][via].last_convoy != transport_matrix[via][target].first_convoy ) )
+							 transport_matrix[origin][via].last_transport != transport_matrix[via][target].first_transport )
 						{
-							working_matrix[origin][target].aggregate_time = combined_time;
+							working_matrix[origin][target].aggregate_time = (uint16)combined_time;
 							working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
-							transport_matrix[origin][target].first_line = transport_matrix[origin][via].first_line;
-							transport_matrix[origin][target].first_convoy = transport_matrix[origin][via].first_convoy;
-							transport_matrix[origin][target].last_line = transport_matrix[via][target].last_line;
-							transport_matrix[origin][target].last_convoy = transport_matrix[via][target].last_convoy;
+							transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
+							transport_matrix[origin][target].last_transport = transport_matrix[via][target].last_transport;
 						}
 					}
 
