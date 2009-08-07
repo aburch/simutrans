@@ -32,6 +32,7 @@
 #include "simwin.h"
 #include "simworld.h"
 #include "simware.h"
+#include "simsys.h"
 
 #include "bauer/hausbauer.h"
 #include "bauer/warenbauer.h"
@@ -216,12 +217,7 @@ DBG_DEBUG("haltestelle_t::remove()","destroy");
 	else {
 DBG_DEBUG("haltestelle_t::remove()","not last");
 		// acceptance and type may have been changed ... (due to post office/dock/railways station deletion)
-		const uint8 old_enables = halt->enables;
  		halt->recalc_station_type();
-		if(  old_enables&(PAX|POST|WARE) != halt->enables&(PAX|POST|WARE)  ) 
-		{
-			welt->set_schedule_counter();
-		}
 	}
 
 	// if building was removed this is false!
@@ -352,6 +348,9 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	alle_haltestellen.insert(self);
 
 	check_waiting = 0;
+
+	// Added by : Knightly
+	inauguration_time = 0;
 }
 
 
@@ -442,6 +441,9 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	}
 
 	check_waiting = 0;
+
+	// Added by : Knightly
+	inauguration_time = dr_time();
 }
 
 
@@ -556,16 +558,6 @@ haltestelle_t::~haltestelle_t()
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
-
-	// Modified by : Knightly
-	if (welt->get_einstellungen()->get_default_path_option() == 2)
-	{
-		path_explorer_t::refresh_all_categories(true);
-	}
-	else
-	{
-		welt->set_schedule_counter();
-	}
 }
 
 
@@ -3470,7 +3462,7 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	init_pos = tiles.front().grund->get_pos().get_2d();
 	if (welt->get_einstellungen()->get_default_path_option() == 2)
 	{
-		path_explorer_t::refresh_all_categories(true);
+		path_explorer_t::refresh_all_categories(false);
 	}
 	else
 	{
@@ -3507,7 +3499,14 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 
 	// now remove tile from list
 	tiles.erase(i);
-	welt->set_schedule_counter();
+	if (welt->get_einstellungen()->get_default_path_option() == 2)
+	{
+		path_explorer_t::refresh_all_categories(false);
+	}
+	else
+	{
+		welt->set_schedule_counter();
+	}
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 
 	// re-add name

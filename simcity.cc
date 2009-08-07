@@ -1905,23 +1905,23 @@ void stadt_t::step_passagiere()
 {
 	//@author: jamespetts
 	// Passenger routing and generation metrics.	
-	static const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
-	static const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
-	static const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
-	static const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
-	static const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
-	static const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
+	const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
+	const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
+	const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
+	const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
+	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
+	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
-	static const uint16 max_local_tolerance = welt->get_einstellungen()->get_max_local_tolerance();
-	static const uint16 min_local_tolerance = welt->get_einstellungen()->get_min_local_tolerance();
-	static const uint16 max_midrange_tolerance = welt->get_einstellungen()->get_max_midrange_tolerance();
-	static const uint16 min_midrange_tolerance = welt->get_einstellungen()->get_min_midrange_tolerance();
-	static const uint16 max_longdistance_tolerance = welt->get_einstellungen()->get_max_longdistance_tolerance();
-	static const uint16 min_longdistance_tolerance = welt->get_einstellungen()->get_min_longdistance_tolerance();
+	const uint16 max_local_tolerance = welt->get_einstellungen()->get_max_local_tolerance();
+	const uint16 min_local_tolerance = welt->get_einstellungen()->get_min_local_tolerance();
+	const uint16 max_midrange_tolerance = welt->get_einstellungen()->get_max_midrange_tolerance();
+	const uint16 min_midrange_tolerance = welt->get_einstellungen()->get_min_midrange_tolerance();
+	const uint16 max_longdistance_tolerance = welt->get_einstellungen()->get_max_longdistance_tolerance();
+	const uint16 min_longdistance_tolerance = welt->get_einstellungen()->get_min_longdistance_tolerance();
 
-	static const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
-	static const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
-	static const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
+	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
+	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
+	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
 
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();
@@ -2217,7 +2217,7 @@ walk:
 						// Secondly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
 
 						// This percentage of drivers will prefer to use the car however congested that it is.
-						static const sint16 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
+						const sint16 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
 
 						//Average congestion of origin and destination towns, and, at the same time, reduce factor.
 						uint8 congestion_total;

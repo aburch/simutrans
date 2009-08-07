@@ -42,10 +42,27 @@ private:
 		// element used during path search only for storing best lines/convoys
 		struct transport_element_t
 		{
-			linehandle_t first_line;
-			linehandle_t last_line;
-			convoihandle_t first_convoy;
-			convoihandle_t last_convoy;
+			union
+			{
+				struct
+				{
+					uint16 first_line;
+					uint16 first_convoy;
+				};
+				uint32 first_transport;
+			};
+
+			union
+			{
+				struct
+				{
+					uint16 last_line;
+					uint16 last_convoy;
+				};
+				uint32 last_transport;
+			};
+
+			transport_element_t() { first_transport = last_transport = 0; }
 		};
 
 		// data structure for temporarily storing lines and lineless conovys
@@ -54,6 +71,9 @@ private:
 			linehandle_t line;
 			convoihandle_t convoy;
 		};
+
+		// store the start time of refresh
+		unsigned long refresh_start_time;
 
 		// set of variables for finished path data
 		path_element_t **finished_matrix;
@@ -79,8 +99,9 @@ private:
 		uint16 *transfer_list;
 		uint16 transfer_count;
 
-		uint8 catg;			// category managed by this compartment
-		uint16 step_count;	// number of steps done so far for a path refresh request
+		uint8 catg;				// category managed by this compartment
+		const char *catg_name;	// name of the category
+		uint16 step_count;		// number of steps done so far for a path refresh request
 
 		// coordination flags
 		bool paths_available;
@@ -105,6 +126,9 @@ private:
 		uint32 statistic_duration;
 		uint32 statistic_iteration;
 
+		// an array of names for the various phases
+		static const char *const phase_name[];
+
 		// an array for keeping a list of connexion hash table
 		static quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_list[65536];
 
@@ -114,21 +138,21 @@ private:
 
 		// iteration limits
 		static uint32 limit_rebuild_connexions;
-		static uint32 limit_find_eligible;
+		static uint32 limit_sieve_eligible;
 		static uint32 limit_fill_matrix;
 		static uint32 limit_explore_paths;
 		static uint32 limit_reroute_goods;
 
 		// back-up iteration limits
 		static uint32 backup_rebuild_connexions;
-		static uint32 backup_find_eligible;
+		static uint32 backup_sieve_eligible;
 		static uint32 backup_fill_matrix;
 		static uint32 backup_explore_paths;
 		static uint32 backup_reroute_goods;
 
 		// default iteration limits
 		static const uint32 default_rebuild_connexions = 4096;
-		static const uint32 default_find_eligible = 4096;
+		static const uint32 default_sieve_eligible = 4096;
 		static const uint32 default_fill_matrix = 4096;
 		static const uint32 default_explore_paths = 65536;
 		static const uint32 default_reroute_goods = 4096;
@@ -137,10 +161,10 @@ private:
 		static const uint32 maximum_limit = UINT32_MAX_VALUE;
 
 		// phase indices
-		static const uint8 phase_gate_sentinel = 0;
+		static const uint8 phase_check_flag = 0;
 		static const uint8 phase_init_prepare = 1;
 		static const uint8 phase_rebuild_connexions = 2;
-		static const uint8 phase_find_eligible = 3;
+		static const uint8 phase_sieve_eligible = 3;
 		static const uint8 phase_fill_matrix = 4;
 		static const uint8 phase_explore_paths = 5;
 		static const uint8 phase_reroute_goods = 6;
@@ -174,11 +198,14 @@ private:
 		bool is_refresh_completed() { return refresh_completed; }
 		bool is_refresh_requested() { return refresh_requested; }
 
-		void set_category(uint8 category) { catg = category; }
+		void set_category(uint8 category);
 		void set_refresh() { refresh_requested = true; }
 
 		bool get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt,
 							  uint16 &aggregate_time, halthandle_t &next_transfer);
+
+		const char *get_category_name() { return ( catg_name ? catg_name : "" ); }
+		const char *get_current_phase_name() { return phase_name[current_phase]; }
 
 		static void initialise_connexion_list();
 
@@ -191,7 +218,7 @@ private:
 		static void backup_limits()
 		{
 			backup_rebuild_connexions = limit_rebuild_connexions;
-			backup_find_eligible = limit_find_eligible;
+			backup_sieve_eligible = limit_sieve_eligible;
 			backup_fill_matrix = limit_fill_matrix;
 			backup_explore_paths = limit_explore_paths;
 			backup_reroute_goods = limit_reroute_goods;
@@ -199,7 +226,7 @@ private:
 		static void restore_limits()
 		{
 			limit_rebuild_connexions = backup_rebuild_connexions;
-			limit_find_eligible = backup_find_eligible;
+			limit_sieve_eligible = backup_sieve_eligible;
 			limit_fill_matrix = backup_fill_matrix;
 			limit_explore_paths = backup_explore_paths;
 			limit_reroute_goods = backup_reroute_goods;
@@ -207,7 +234,7 @@ private:
 		static void set_maximum_limits()
 		{
 			limit_rebuild_connexions = maximum_limit;
-			limit_find_eligible = maximum_limit;
+			limit_sieve_eligible = maximum_limit;
 			limit_fill_matrix = maximum_limit;
 			limit_explore_paths = maximum_limit;
 			limit_reroute_goods = maximum_limit;
@@ -215,14 +242,14 @@ private:
 		static void set_default_limits()
 		{
 			limit_rebuild_connexions = default_rebuild_connexions;
-			limit_find_eligible = default_find_eligible;
+			limit_sieve_eligible = default_sieve_eligible;
 			limit_fill_matrix = default_fill_matrix;
 			limit_explore_paths = default_explore_paths;
 			limit_reroute_goods = default_reroute_goods;
 		}
 
 		static uint32 get_limit_rebuild_connexions() { return limit_rebuild_connexions; }
-		static uint32 get_limit_find_eligible() { return limit_find_eligible; }
+		static uint32 get_limit_sieve_eligible() { return limit_sieve_eligible; }
 		static uint32 get_limit_fill_matrix() { return limit_fill_matrix; }
 		static uint32 get_limit_explore_paths() { return limit_explore_paths; }
 		static uint32 get_limit_reroute_goods() { return limit_reroute_goods; }
@@ -253,12 +280,13 @@ public:
 
 	static karte_t *get_world() { return world; }
 	static uint32 get_limit_rebuild_connexions() { return compartment_t::get_limit_rebuild_connexions(); }
-	static uint32 get_limit_find_eligible() { return compartment_t::get_limit_find_eligible(); }
+	static uint32 get_limit_sieve_eligible() { return compartment_t::get_limit_sieve_eligible(); }
 	static uint32 get_limit_fill_matrix() { return compartment_t::get_limit_fill_matrix(); }
 	static uint32 get_limit_explore_paths() { return compartment_t::get_limit_explore_paths(); }
 	static uint32 get_limit_reroute_goods() { return compartment_t::get_limit_reroute_goods(); }
 	static bool is_processing() { return processing; }
-
+	static const char *get_current_category_name() { return goods_compartment[current_compartment].get_category_name(); }
+	static const char *get_current_phase_name() { return goods_compartment[current_compartment].get_current_phase_name(); }
 
 };
 

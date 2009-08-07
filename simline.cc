@@ -430,40 +430,6 @@ void simline_t::recalc_catg_index()
 
 	// refresh only those categories which are either removed or added to the category list
 	haltestelle_t::refresh_routing(fpl, differences, sp, welt->get_einstellungen()->get_default_path_option());
-
-
-	/* Knightly : Keep old code in case the new approach doesn't work
-	// if different => schedule need recalculation
-	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
-		// surely changed
-
-		// Added by : Knightly
-		// Need to combine old and new category lists
-		for (uint8 k = 0; k < goods_catg_index.get_count(); k++)
-		{
-			old_goods_catg_index.append_unique(goods_catg_index[k], 1);
-		}
-		haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());		
-	}
-	else {
-		// maybe changed => must test all entries
-		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
-				// different => recalc
-
-				// Added by : Knightly
-				// Need to combine old and new category lists
-				for (uint8 k = 0; k < goods_catg_index.get_count(); k++)
-				{
-					old_goods_catg_index.append_unique(goods_catg_index[k], 1);
-				}
-				haltestelle_t::refresh_routing(fpl, old_goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
-				
-				break;
-			}
-		}
-	}
-	*/
 }
 
 

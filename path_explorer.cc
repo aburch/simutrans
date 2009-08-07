@@ -192,16 +192,27 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 
 // compartment_t
 
+const char *const path_explorer_t::compartment_t::phase_name[] = 
+{
+	"flag",
+	"prepare",
+	"rebuild",
+	"sieve",
+	"matrix",
+	"explore",
+	"reroute"
+};
+
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *path_explorer_t::compartment_t::connexion_list[65536];
 
 uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
-uint32 path_explorer_t::compartment_t::limit_find_eligible = default_find_eligible;
+uint32 path_explorer_t::compartment_t::limit_sieve_eligible = default_sieve_eligible;
 uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
 uint32 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::limit_reroute_goods = default_reroute_goods;
 
 uint32 path_explorer_t::compartment_t::backup_rebuild_connexions = default_rebuild_connexions;
-uint32 path_explorer_t::compartment_t::backup_find_eligible = default_find_eligible;
+uint32 path_explorer_t::compartment_t::backup_sieve_eligible = default_sieve_eligible;
 uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
 uint32 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::backup_reroute_goods = default_reroute_goods;
@@ -211,6 +222,8 @@ uint8 path_explorer_t::compartment_t::representative_category = 0;
 
 path_explorer_t::compartment_t::compartment_t()
 {
+	refresh_start_time = 0;
+
 	finished_matrix = NULL;
 	finished_halt_index_map = NULL;
 	finished_halt_count = 0;
@@ -231,13 +244,14 @@ path_explorer_t::compartment_t::compartment_t()
 	transfer_count = 0;;
 
 	catg = 255;
+	catg_name = NULL;
 	step_count = 0;
 
 	paths_available = false;
 	refresh_completed = true;
 	refresh_requested = true;
 
-	current_phase = phase_gate_sentinel;
+	current_phase = phase_check_flag;
 
 	phase_counter = 0;
 	iterations = 0;
@@ -313,6 +327,8 @@ path_explorer_t::compartment_t::~compartment_t()
 
 void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 {
+	refresh_start_time = 0;
+
 	if (reset_finished_set)
 	{
 		if (finished_matrix)
@@ -387,7 +403,9 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	}	
 	transfer_count = 0;
 
+#ifdef DEBUG_COMPARTMENT_STEP
 	step_count = 0;
+#endif
 
 	if (reset_finished_set)
 	{
@@ -396,7 +414,7 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	refresh_completed = true;
 	refresh_requested = true;
 
-	current_phase = phase_gate_sentinel;
+	current_phase = phase_check_flag;
 
 	phase_counter = 0;
 	iterations = 0;
@@ -427,7 +445,7 @@ void path_explorer_t::compartment_t::step()
 {
 
 #ifdef DEBUG_COMPARTMENT_STEP
-	printf("\n\nCategory :  %s / %s \n", translator::translate( warenbauer_t::get_info_catg_index(catg)->get_catg_name()), translator::translate( warenbauer_t::get_info_catg_index(catg)->get_name()) );
+	printf("\n\nCategory :  %s \n", translator::translate( catg_name ) );
 #endif
 
 	// For timing use
@@ -438,12 +456,13 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Phase 0 : Determine if a new refresh should be done, and prepare relevant flags accordingly
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_gate_sentinel :
+		case phase_check_flag :
 		{
 			if (refresh_requested)
 			{
 				refresh_requested = false;	// immediately reset it so that we can take new requests
 				refresh_completed = false;	// indicate that processing is at work
+				refresh_start_time = dr_time();
 				current_phase = phase_init_prepare;	// proceed to next phase
 				// no return statement here, as we want to fall through to the next phase
 			}
@@ -506,7 +525,6 @@ void path_explorer_t::compartment_t::step()
 			linkages = new vector_tpl<linkage_t>(1024);
 			convoihandle_t current_convoy;
 			linehandle_t current_line;
-			convoihandle_t dummy_convoy;
 			linkage_t temp_linkage;
 
 
@@ -522,7 +540,8 @@ void path_explorer_t::compartment_t::step()
 				}
 			}
 
-			temp_linkage.convoy = dummy_convoy;	// reset the convoy handle component
+			static const convoihandle_t null_convoy_handle;
+			temp_linkage.convoy = null_convoy_handle;	// reset the convoy handle component
 
 			// loop through all lines of all players
 			for (int i = 0; i < MAX_PLAYER_COUNT; i++) 
@@ -643,7 +662,8 @@ void path_explorer_t::compartment_t::step()
 						current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[i].pos, public_player);
 					}
 
-					if ( current_halt.is_bound() && current_halt->is_enabled(ware_type) )
+					// Make sure that the halt found was built before refresh started and that it supports current goods category
+					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
 					{
 						// Assign to halt list only if current halt supports this compartment's goods category
 						halt_list.append(current_halt, 64);
@@ -790,7 +810,7 @@ void path_explorer_t::compartment_t::step()
 				}
 				linkages_count = 0;
 
-				current_phase = phase_find_eligible;	// proceed to the next phase
+				current_phase = phase_sieve_eligible;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
 
 			}
@@ -805,7 +825,7 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Phase 3 : Construct eligible halt list which contains halts supporting current goods type. Also, update halt index map
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_find_eligible :
+		case phase_sieve_eligible :
 		{
 #ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
@@ -824,6 +844,14 @@ void path_explorer_t::compartment_t::step()
 			// add halt to working halt list only if it has connexions that support this compartment's goods category
 			while (phase_counter < all_halts_count)
 			{
+				// halts may be removed during the process of refresh
+				if ( ! all_halts_list[phase_counter].is_bound() )
+				{
+					clear_connexion_table( all_halts_list[phase_counter].get_id() );
+					phase_counter++;
+					continue;
+				}
+
 				if ( ! connexion_list[ all_halts_list[phase_counter].get_id() ]->empty() )
 				{
 					// valid connexion(s) found -> add to working halt list and update halt index map
@@ -840,7 +868,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				iterations++;
-				if (iterations == limit_find_eligible)
+				if (iterations == limit_sieve_eligible)
 				{
 					break;
 				}
@@ -868,20 +896,20 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_find_eligible == maximum_limit )
+						if ( limit_sieve_eligible == maximum_limit )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_find_eligible;
+							const uint32 percentage = projected_iterations * 100 / backup_sieve_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_find_eligible = projected_iterations;
+								backup_sieve_eligible = projected_iterations;
 							}
 						}
 						else
 						{
-							const uint32 percentage = projected_iterations * 100 / limit_find_eligible;
+							const uint32 percentage = projected_iterations * 100 / limit_sieve_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_find_eligible = projected_iterations;
+								limit_sieve_eligible = projected_iterations;
 							}
 						}
 					}
@@ -960,24 +988,32 @@ void path_explorer_t::compartment_t::step()
 			{
 				current_halt = working_halt_list[phase_counter];
 
+				// halts may be removed during the process of refresh
+				if ( ! current_halt.is_bound() )
+				{
+					phase_counter++;
+					continue;
+				}
+
 				// temporary variables for determining transfer halt
 				bool is_transfer_halt = false;
 				linehandle_t previous_line;
 				convoihandle_t previous_convoy;
 
-				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> origin_iter( *(current_halt->get_connexions(catg)) );
+				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_iter( *(current_halt->get_connexions(catg)) );
 
 				// iterate over the connexions of the current halt
-				while (origin_iter.next())
+				while (connexions_iter.next())
 				{
-					reachable_halt = origin_iter.get_current_key();
+					reachable_halt = connexions_iter.get_current_key();
 
+					// halts may be removed during the process of refresh
 					if (!reachable_halt.is_bound())
 					{
 						continue;
 					}
 
-					current_connexion = origin_iter.get_current_value();
+					current_connexion = connexions_iter.get_current_value();
 
 					// determine the matrix index of reachable halt in working halt index map
 					reachable_halt_index = working_halt_index_map[reachable_halt.get_id()];
@@ -985,12 +1021,18 @@ void path_explorer_t::compartment_t::step()
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
 					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
-					transport_matrix[phase_counter][reachable_halt_index].first_line 
-						= transport_matrix[phase_counter][reachable_halt_index].last_line 
-						= current_connexion->best_line;
-					transport_matrix[phase_counter][reachable_halt_index].first_convoy 
-						= transport_matrix[phase_counter][reachable_halt_index].last_convoy 
-						= current_connexion->best_convoy;					
+					if ( current_connexion->best_line.is_bound() )
+					{
+						transport_matrix[phase_counter][reachable_halt_index].first_line 
+							= transport_matrix[phase_counter][reachable_halt_index].last_line 
+							= current_connexion->best_line.get_id();
+					}
+					else
+					{
+						transport_matrix[phase_counter][reachable_halt_index].first_convoy 
+							= transport_matrix[phase_counter][reachable_halt_index].last_convoy 
+							= current_connexion->best_convoy.get_id();
+					}
 
 					// Debug journey times
 					// printf("\n%s -> %s : %lu \n",current_halt->get_name(), reachable_halt->get_name(), working_matrix[phase_counter][reachable_halt_index].journey_time);
@@ -1138,17 +1180,14 @@ void path_explorer_t::compartment_t::step()
 						// The first 2 comparisons may seem redundant, but they cut down search time by 10%
 						if ( working_matrix[origin][via].aggregate_time < working_matrix[origin][target].aggregate_time &&
 							 working_matrix[via][target].aggregate_time < working_matrix[origin][target].aggregate_time &&
-							 ( combined_time = working_matrix[origin][via].aggregate_time + working_matrix[via][target].aggregate_time ) 
+							 ( combined_time = (uint32)working_matrix[origin][via].aggregate_time + working_matrix[via][target].aggregate_time ) 
 									< working_matrix[origin][target].aggregate_time &&
-							 ( transport_matrix[origin][via].last_line != transport_matrix[via][target].first_line
-							   || transport_matrix[origin][via].last_convoy != transport_matrix[via][target].first_convoy ) )
+							 transport_matrix[origin][via].last_transport != transport_matrix[via][target].first_transport )
 						{
-							working_matrix[origin][target].aggregate_time = combined_time;
+							working_matrix[origin][target].aggregate_time = (uint16)combined_time;
 							working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
-							transport_matrix[origin][target].first_line = transport_matrix[origin][via].first_line;
-							transport_matrix[origin][target].first_convoy = transport_matrix[origin][via].first_convoy;
-							transport_matrix[origin][target].last_line = transport_matrix[via][target].last_line;
-							transport_matrix[origin][target].last_convoy = transport_matrix[via][target].last_convoy;
+							transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
+							transport_matrix[origin][target].last_transport = transport_matrix[via][target].last_transport;
 						}
 					}
 
@@ -1289,6 +1328,13 @@ void path_explorer_t::compartment_t::step()
 
 			while (phase_counter < all_halts_count)
 			{
+				// halts may be removed during the process of refresh
+				if ( ! all_halts_list[phase_counter].is_bound() )
+				{
+					phase_counter++;
+					continue;
+				}
+
 				if ( all_halts_list[phase_counter]->reroute_goods(catg) )
 				{
 					// only halts with relevant goods packets are counted
@@ -1348,7 +1394,7 @@ void path_explorer_t::compartment_t::step()
 				statistic_duration = 0;
 				statistic_iteration = 0;
 
-				current_phase = phase_gate_sentinel;	// reset to the 1st phase
+				current_phase = phase_check_flag;	// reset to the 1st phase
 				phase_counter = 0;	// reset counter
 
 				// delete immediately after use
@@ -1361,9 +1407,10 @@ void path_explorer_t::compartment_t::step()
 
 #ifdef DEBUG_COMPARTMENT_STEP
 				printf("\tFinished in : %lu Steps \n\n", step_count);
+				step_count = 0;
 #endif
 
-				step_count = 0;
+				refresh_start_time = 0;
 				refresh_completed = true;
 			}
 
@@ -1451,6 +1498,14 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 	aggregate_time = 65535;
 	next_transfer = dummy_halt;
 	return false;
+}
+
+
+void path_explorer_t::compartment_t::set_category(uint8 category)
+{ 
+	catg = category;
+	const ware_besch_t *ware_type = warenbauer_t::get_info_catg_index(catg);
+	catg_name = ware_type->get_catg() == 0 ? ware_type->get_name() : ware_type->get_catg_name();
 }
 
 

@@ -2890,20 +2890,6 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		default:
 			dbg->fatal("wkz_station_t::work()","tool called for illegal besch \"%\"", default_param );
 	}
-
-	if(msg==NULL) 
-	{
-		// no error? => recalc all station connections
-		// Modified by : Knightly
-		if (welt->get_einstellungen()->get_default_path_option() == 2)
-		{
-			path_explorer_t::refresh_all_categories(true);
-		}
-		else
-		{
-			welt->set_schedule_counter();
-		}
-	}
 	return msg;
 }
 
