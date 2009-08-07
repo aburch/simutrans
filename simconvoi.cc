@@ -3047,11 +3047,68 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		{
 			// Passengers
 			float proportion = 0.0F;
+			// Knightly : Reorganised the switch cases to get rid of goto statements
 			switch(catering_level)
 			{
-			
+
+			case 5:
+			default:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level4_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level5_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge));
+					break;
+				}
+
+			case 4:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level3_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level4_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge));
+					break;
+				}
+
+			case 3:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level2_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level3_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge));
+					break;
+				}
+
+			case 2:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level1_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level2_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge));
+					break;
+				}
+
 			case 1:
-			case_1:
 				if(journey_minutes < welt->get_einstellungen()->get_catering_min_minutes())
 				{
 					break;
@@ -3066,73 +3123,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge));
 				break;
 
-			case 2:
-			case_2:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level1_minutes())
-				{
-					// If only C++ had C#'s goto case syntax...
-					goto case_1;
-				}
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level2_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge));
-				break;
-
-			case 3:
-			case_3:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level2_minutes())
-				{
-					goto case_2;
-				}
-				
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level3_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge));
-				break;
-
-			case 4:
-			case_4:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level3_minutes())
-				{
-					goto case_3;
-				}
-				
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level4_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge));
-				break;
-
-			case 5:
-			default:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level4_minutes())
-				{
-					goto case_4;
-				}
-				
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level5_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge));
-				break;
 			};
 		}
 	}
