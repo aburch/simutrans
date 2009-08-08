@@ -197,7 +197,7 @@ const char *const path_explorer_t::compartment_t::phase_name[] =
 	"flag",
 	"prepare",
 	"rebuild",
-	"sieve",
+	"filter",
 	"matrix",
 	"explore",
 	"reroute"
@@ -206,13 +206,13 @@ const char *const path_explorer_t::compartment_t::phase_name[] =
 quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *path_explorer_t::compartment_t::connexion_list[65536];
 
 uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
-uint32 path_explorer_t::compartment_t::limit_sieve_eligible = default_sieve_eligible;
+uint32 path_explorer_t::compartment_t::limit_filter_eligible = default_filter_eligible;
 uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
 uint32 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::limit_reroute_goods = default_reroute_goods;
 
 uint32 path_explorer_t::compartment_t::backup_rebuild_connexions = default_rebuild_connexions;
-uint32 path_explorer_t::compartment_t::backup_sieve_eligible = default_sieve_eligible;
+uint32 path_explorer_t::compartment_t::backup_filter_eligible = default_filter_eligible;
 uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
 uint32 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::backup_reroute_goods = default_reroute_goods;
@@ -810,7 +810,7 @@ void path_explorer_t::compartment_t::step()
 				}
 				linkages_count = 0;
 
-				current_phase = phase_sieve_eligible;	// proceed to the next phase
+				current_phase = phase_filter_eligible;	// proceed to the next phase
 				phase_counter = 0;	// reset counter
 
 			}
@@ -825,7 +825,7 @@ void path_explorer_t::compartment_t::step()
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		// Phase 3 : Construct eligible halt list which contains halts supporting current goods type. Also, update halt index map
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-		case phase_sieve_eligible :
+		case phase_filter_eligible :
 		{
 #ifdef DEBUG_COMPARTMENT_STEP
 			step_count++;
@@ -868,7 +868,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				iterations++;
-				if (iterations == limit_sieve_eligible)
+				if (iterations == limit_filter_eligible)
 				{
 					break;
 				}
@@ -896,20 +896,20 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_sieve_eligible == maximum_limit )
+						if ( limit_filter_eligible == maximum_limit )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_sieve_eligible;
+							const uint32 percentage = projected_iterations * 100 / backup_filter_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_sieve_eligible = projected_iterations;
+								backup_filter_eligible = projected_iterations;
 							}
 						}
 						else
 						{
-							const uint32 percentage = projected_iterations * 100 / limit_sieve_eligible;
+							const uint32 percentage = projected_iterations * 100 / limit_filter_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_sieve_eligible = projected_iterations;
+								limit_filter_eligible = projected_iterations;
 							}
 						}
 					}
