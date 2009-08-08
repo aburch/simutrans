@@ -2239,7 +2239,7 @@ walk:
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
-						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0F - welt->get_einstellungen()->get_distance_per_tile()));
+						const uint16 average_speed = ((distance * welt->get_einstellungen()->get_distance_per_tile()) * 600) / best_journey_time;
 						const sint32 ref_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance, welt);
 						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
@@ -2384,56 +2384,14 @@ public_transport:
 				
 						if(has_private_car)
 						{
-							//Must use private car, since the halt is crowded.
-							// However, check first that car journey is within time tolerance.
-					
-							// As the crow flies distance. This is very much an approximation - *but*
-							// we use the standard speedbonus speed (for 'buses), which are generally
-							// slower than cars, so, very approximately, it should balance correctly. 
-							// TODO: (Long-term) get the accurate road distance between each town
-							// and have a speedbonus.tab entry for private cars.
-							const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
-							const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-							const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
-
-							if(car_minutes <= tolerance)
-							{
-								set_private_car_trip(num_pax, destinations[0].town);
+							// Must use private car, since the halt is crowded.
+							// Do not check tolerance, as they must come back!
+							
+							set_private_car_trip(num_pax, destinations[0].town);
 #ifdef DESTINATION_CITYCARS
-								//citycars with destination
-								erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
+							//citycars with destination
+							erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 #endif
-							}
-							else
-							{
-								if(current_destination == 0)
-								{
-									// If passengers cannot get to their destination by private car because the journey is too long,
-									// they should have a chance of having alternative destinations. This should be re-set on the *first*
-									// pass only. 
-									max_destinations = (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
-								}
-								if(!start_halts.empty())
-								{
-									if(current_destination + 1 >= destination_count)
-									{
-										// Only record too slow if alternative destinations not canvassed
-										// and if the trip by *public* transport is too slow.
-										if(tolerance > 0 && best_journey_time > tolerance)
-										{
-											start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
-										}
-										else if(start_halts[best_start_halt]->is_overcrowded(wtyp->get_catg_index()))
-										{
-											start_halts[best_start_halt]->add_pax_unhappy(pax_left_to_do);
-										}
-										else
-										{
-											start_halts[best_start_halt]->add_pax_no_route(pax_left_to_do);
-										}
-									}
-								}
-							}
 						}
 					}
 				} // Returning passengers
@@ -2467,7 +2425,7 @@ public_transport:
 				{
 					// Must use private car, since there is no suitable route.
 					// However, check first that car journey is within time tolerance.
-					
+				
 					// As the crow flies distance. This is very much an approximation - *but*
 					// we use the standard speedbonus speed (for 'buses), which are generally
 					// slower than cars, so, very approximately, it should balance correctly. 
@@ -2510,7 +2468,7 @@ public_transport:
 
 	else 
 	{
-		// the unhappy passengers will be added to all crowded stops
+		// The unhappy passengers will be added to all crowded stops
 		// however, there might be no stop too
 		// NOTE: Because of the conditional statement in the original loop,
 		// reaching this code means that passengers must have no private car.
@@ -2520,19 +2478,35 @@ public_transport:
 		pax_zieltyp will_return;
 		//const koord ziel = finde_passagier_ziel(&will_return);
 		destination destination_now = finde_passagier_ziel(&will_return);
-		//If the passengers do not have their own private transport, they will be unhappy.
-		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) 
-		{
-			halthandle_t halt = halt_list[h];
-			if (halt->is_enabled(wtyp)) 
-			{
-				//assert(halt->get_ware_summe(wtyp)>halt->get_capacity();
-				halt->add_pax_unhappy(num_pax);
-			}
-		}
 
-		merke_passagier_ziel(destination_now.location, COL_DARK_ORANGE);
-		// we do not show no route for destination stop!
+		// First, check whether the passengers can *walk*. Just because
+		// they do not have a start halt does not mean that they cannot
+		// walk to their destination!
+		const double tile_distance = accurate_distance(k, destination_now.location);
+		const double total_distance = tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+		if(total_distance < 1.5)
+		{
+			// Passengers will walk to their destination if it is less than 1.5km away.
+			merke_passagier_ziel(destination_now.location, COL_YELLOW);
+			city_history_year[0][history_type] += num_pax;
+			city_history_month[0][history_type] += num_pax;
+		}
+		else
+		{
+			//If the passengers do not have their own private transport, they will be unhappy.
+			for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) 
+			{
+				halthandle_t halt = halt_list[h];
+				if (halt->is_enabled(wtyp)) 
+				{
+					//assert(halt->get_ware_summe(wtyp)>halt->get_capacity();
+					halt->add_pax_unhappy(num_pax);
+				}
+			}
+
+			merke_passagier_ziel(destination_now.location, COL_DARK_ORANGE);
+			// we do not show no route for destination stop!
+		}
 	}
 	//	long t1 = get_current_time_millis();
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));

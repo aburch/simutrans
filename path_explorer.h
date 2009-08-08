@@ -138,21 +138,21 @@ private:
 
 		// iteration limits
 		static uint32 limit_rebuild_connexions;
-		static uint32 limit_sieve_eligible;
+		static uint32 limit_filter_eligible;
 		static uint32 limit_fill_matrix;
 		static uint32 limit_explore_paths;
 		static uint32 limit_reroute_goods;
 
 		// back-up iteration limits
 		static uint32 backup_rebuild_connexions;
-		static uint32 backup_sieve_eligible;
+		static uint32 backup_filter_eligible;
 		static uint32 backup_fill_matrix;
 		static uint32 backup_explore_paths;
 		static uint32 backup_reroute_goods;
 
 		// default iteration limits
 		static const uint32 default_rebuild_connexions = 4096;
-		static const uint32 default_sieve_eligible = 4096;
+		static const uint32 default_filter_eligible = 4096;
 		static const uint32 default_fill_matrix = 4096;
 		static const uint32 default_explore_paths = 65536;
 		static const uint32 default_reroute_goods = 4096;
@@ -164,7 +164,7 @@ private:
 		static const uint8 phase_check_flag = 0;
 		static const uint8 phase_init_prepare = 1;
 		static const uint8 phase_rebuild_connexions = 2;
-		static const uint8 phase_sieve_eligible = 3;
+		static const uint8 PHASE_FILTER_ELIGIBLE = 3;
 		static const uint8 phase_fill_matrix = 4;
 		static const uint8 phase_explore_paths = 5;
 		static const uint8 phase_reroute_goods = 6;
@@ -218,7 +218,7 @@ private:
 		static void backup_limits()
 		{
 			backup_rebuild_connexions = limit_rebuild_connexions;
-			backup_sieve_eligible = limit_sieve_eligible;
+			backup_filter_eligible = limit_filter_eligible;
 			backup_fill_matrix = limit_fill_matrix;
 			backup_explore_paths = limit_explore_paths;
 			backup_reroute_goods = limit_reroute_goods;
@@ -226,7 +226,7 @@ private:
 		static void restore_limits()
 		{
 			limit_rebuild_connexions = backup_rebuild_connexions;
-			limit_sieve_eligible = backup_sieve_eligible;
+			limit_filter_eligible = backup_filter_eligible;
 			limit_fill_matrix = backup_fill_matrix;
 			limit_explore_paths = backup_explore_paths;
 			limit_reroute_goods = backup_reroute_goods;
@@ -234,7 +234,7 @@ private:
 		static void set_maximum_limits()
 		{
 			limit_rebuild_connexions = maximum_limit;
-			limit_sieve_eligible = maximum_limit;
+			limit_filter_eligible = maximum_limit;
 			limit_fill_matrix = maximum_limit;
 			limit_explore_paths = maximum_limit;
 			limit_reroute_goods = maximum_limit;
@@ -242,14 +242,14 @@ private:
 		static void set_default_limits()
 		{
 			limit_rebuild_connexions = default_rebuild_connexions;
-			limit_sieve_eligible = default_sieve_eligible;
+			limit_filter_eligible = default_filter_eligible;
 			limit_fill_matrix = default_fill_matrix;
 			limit_explore_paths = default_explore_paths;
 			limit_reroute_goods = default_reroute_goods;
 		}
 
 		static uint32 get_limit_rebuild_connexions() { return limit_rebuild_connexions; }
-		static uint32 get_limit_sieve_eligible() { return limit_sieve_eligible; }
+		static uint32 get_limit_filter_eligible() { return limit_filter_eligible; }
 		static uint32 get_limit_fill_matrix() { return limit_fill_matrix; }
 		static uint32 get_limit_explore_paths() { return limit_explore_paths; }
 		static uint32 get_limit_reroute_goods() { return limit_reroute_goods; }
@@ -280,7 +280,7 @@ public:
 
 	static karte_t *get_world() { return world; }
 	static uint32 get_limit_rebuild_connexions() { return compartment_t::get_limit_rebuild_connexions(); }
-	static uint32 get_limit_sieve_eligible() { return compartment_t::get_limit_sieve_eligible(); }
+	static uint32 get_limit_filter_eligible() { return compartment_t::get_limit_filter_eligible(); }
 	static uint32 get_limit_fill_matrix() { return compartment_t::get_limit_fill_matrix(); }
 	static uint32 get_limit_explore_paths() { return compartment_t::get_limit_explore_paths(); }
 	static uint32 get_limit_reroute_goods() { return compartment_t::get_limit_reroute_goods(); }

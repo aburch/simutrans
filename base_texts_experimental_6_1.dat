@@ -1,0 +1,21 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 6.1.
+#
+# Author: jamespetts
+# Created: July 2009
+#
+obj=program_text
+name=tiles
+note=For representing the number of tiles, as opposed to kilometres.
+-
+obj=program_text
+name=per 1 km
+note=Used in the map window for displaying the current scale.
+-
+obj=program_text
+name=Cities ignore height
+note=From the climates window.
+-
+obj=program_text
+name=Cities will be built all over the terrain, rather than preferring lower ground
+note=Tooltip for the "cities ignore height" button in the climates window.

@@ -529,7 +529,7 @@ void convoi_t::calc_acceleration(long delta_t)
 		// prissi:
 		// integer sucks with planes => using floats ...
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
-		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:calc_adjusted_power()) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll ? 0l : calc_adjusted_power()) - deccel) * (double)delta_t )/ (double)sum_gesamtgewicht);
 		//"leistung" = "performance" (Google)
 
 		// we normalize delta_t to 1/64th and check for speed limit */
