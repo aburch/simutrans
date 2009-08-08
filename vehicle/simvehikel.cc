@@ -1533,12 +1533,33 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 		return;
 	}
 
-	// assume straight flat track
-	current_friction = 1;
+	const waytype_t waytype = get_waytype();
+
+	// assume straight flat way
+	switch(waytype)
+	{
+	case air_wt:
+	case maglev_wt:
+	case monorail_wt:
+	case tram_wt:
+	case narrowgauge_wt:
+	case track_wt:
+	default:
+		current_friction = 1;
+		break;
+
+	case road_wt:
+		current_friction = 4;
+		break;
+
+	case water_wt:
+		current_friction = 6;
+		break;
+	};
+
 	
 	//The level (if any) of additional friction to apply around corners.
-	waytype_t waytype = get_waytype();
-	static uint8 curve_friction_factor = welt->get_einstellungen()->get_curve_friction_factor(waytype);
+	const uint8 curve_friction_factor = welt->get_einstellungen()->get_curve_friction_factor(waytype);
 
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction

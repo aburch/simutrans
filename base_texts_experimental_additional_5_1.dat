@@ -1,0 +1,45 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 5.1.
+#
+# Author: jamespetts
+# Created: July 2009
+#
+obj=program_text
+name=Rebuild connexions:
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=Find eligible halts:
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=Fill path matrix:
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=Explore paths:
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=Re-route goods:
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=Status:
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=
+note=Information about the path explorer in the display window.
+-
+obj=program_text
+name=Processing ...
+note=Status of the path explorer in teh display window.
+-
+obj=program_text
+name=Stand-by
+note=Status of the path explorer in teh display window.

@@ -1,0 +1,66 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 6.3.
+#
+# Author: jamespetts
+# Created: July 2009
+#
+obj=program_text
+name=Show in ticker
+note=Tooltip for the message options window
+-
+obj=program_text
+name=Show a transient dialogue box
+note=Tooltip for the message options window
+-
+obj=program_text
+name=Show a non-transient dialogue box
+note=Tooltip for the message options window
+-
+obj=program_text
+name=The number of inhabitants of the region
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The number of inhabitants by which the region has increased
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The number of urban areas in the region
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The number of industries in the region
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The total number of convoys in the region
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The number of private car trips in the region overall
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The percentage of passengers transported in the region overall
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The total number of passengers wanting to be transported in the region
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The amount of mail transported in the region overall
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The total amount of mail generated in the region
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The percentage of available goods that have been transported in the region
+note=Tooltip from the city list chart window
+-
+obj=program_text
+name=The total number of mail/passengers/goods transported in the region
+note=Tooltip from the city list chart window
+-

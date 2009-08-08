@@ -494,12 +494,13 @@ void convoi_t::calc_acceleration(long delta_t)
 {
 	// Prissi: more pleasant and a little more "physical" model *
 	int sum_friction_weight = 0;
-	sum_gesamtgewicht = 0;
+	sum_gesamtgewicht = 0; // "Total weight" (Google)
 	// calculate total friction
+	int total_vehicle_weight;
+	vehikel_t* v;
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		const vehikel_t* v = fahr[i];
-		int total_vehicle_weight = v->get_gesamtgewicht();
-
+		v = fahr[i];
+		total_vehicle_weight = v->get_gesamtgewicht();
 		sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
 		sum_gesamtgewicht += total_vehicle_weight;
 	}
@@ -519,12 +520,16 @@ void convoi_t::calc_acceleration(long delta_t)
 		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
 		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
 		 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
-		sint32 deccel = ( ( (akt_speed*sum_friction_weight)>>6 )*(akt_speed>>2) ) / 25 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+	
+		// Slight reduction of extent to which speed increases friction.
+		// @author: jamespetts, August 2009
+		const sint32 adjusted_speed = akt_speed >> 2;
+		const sint32 deccel = ( ( ((adjusted_speed)*sum_friction_weight)>>5 )*(adjusted_speed) ) / 33 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
 
 		// prissi:
 		// integer sucks with planes => using floats ...
 		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
-		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:calc_adjusted_power()) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll ? 0l : calc_adjusted_power()) - deccel) * (double)delta_t )/ (double)sum_gesamtgewicht);
 		//"leistung" = "performance" (Google)
 
 		// we normalize delta_t to 1/64th and check for speed limit */
@@ -609,8 +614,8 @@ sint32 convoi_t::calc_adjusted_power()
 	}
 	else
 	{
-		float difference = 450.0F - (power_from_steam  - 50.0F);
-		float proportion = difference / 450.0F;
+		float difference = 400.0F - (power_from_steam  - 50.0F);
+		float proportion = difference / 400.0F;
 		float factor = 0.66F * proportion;
 		speed_factor = 1 + factor;
 	}
@@ -623,15 +628,14 @@ sint32 convoi_t::calc_adjusted_power()
 
 	if(current_speed <= lowpoint_speed)
 	{
-		// Changed from 0.4 to dampen effect slightly: was too harsh.
-		speed_factor *= 0.45F;
+		speed_factor *= 0.4F;
 	}
 	else if(current_speed <= midpoint_speed)
 	{
 		float speed_differential_actual = (float)current_speed - (float)lowpoint_speed;
 		float speed_differential_maximum = (float)midpoint_speed - (float)lowpoint_speed;
 		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.45F) + 0.45F);
+		speed_factor *= ((factor_modification * 0.4F) + 0.4F);
 	}
 	else if(current_speed <= high_speed)
 	{
@@ -3047,11 +3051,68 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		{
 			// Passengers
 			float proportion = 0.0F;
+			// Knightly : Reorganised the switch cases to get rid of goto statements
 			switch(catering_level)
 			{
-			
+
+			case 5:
+			default:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level4_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level5_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge));
+					break;
+				}
+
+			case 4:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level3_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level4_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge));
+					break;
+				}
+
+			case 3:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level2_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level3_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge));
+					break;
+				}
+
+			case 2:
+				if(journey_minutes >= welt->get_einstellungen()->get_catering_level1_minutes())
+				{
+					if(journey_minutes > welt->get_einstellungen()->get_catering_level2_minutes())
+					{
+						final_revenue += (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge);
+						break;
+					}
+					
+					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
+					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge));
+					break;
+				}
+
 			case 1:
-			case_1:
 				if(journey_minutes < welt->get_einstellungen()->get_catering_min_minutes())
 				{
 					break;
@@ -3066,73 +3127,6 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge));
 				break;
 
-			case 2:
-			case_2:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level1_minutes())
-				{
-					// If only C++ had C#'s goto case syntax...
-					goto case_1;
-				}
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level2_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge));
-				break;
-
-			case 3:
-			case_3:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level2_minutes())
-				{
-					goto case_2;
-				}
-				
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level3_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge));
-				break;
-
-			case 4:
-			case_4:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level3_minutes())
-				{
-					goto case_3;
-				}
-				
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level4_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge));
-				break;
-
-			case 5:
-			default:
-				if(journey_minutes < welt->get_einstellungen()->get_catering_level4_minutes())
-				{
-					goto case_4;
-				}
-				
-				if(journey_minutes > welt->get_einstellungen()->get_catering_level5_minutes())
-				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge);
-					break;
-				}
-				
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge));
-				break;
 			};
 		}
 	}
@@ -4172,7 +4166,6 @@ void convoy_metrics_t::get_possible_freight_weight(uint8 catg_index, uint32 &min
 
 void convoy_metrics_t::add_vehicle(const vehikel_besch_t &besch)
 {
-	power += besch.get_leistung() * besch.get_gear() / 64;
 	length += besch.get_length();
 	vehicle_weight += besch.get_gewicht();
 	uint32 payload = besch.get_zuladung();
@@ -4192,9 +4185,11 @@ void convoy_metrics_t::add_vehicle(const vehikel_besch_t &besch)
 void convoy_metrics_t::calc(convoi_t &cnv)
 {
 	reset();
-	for(unsigned i = cnv.get_vehikel_anzahl();  i-- > 0; ) {
+	for(unsigned i = cnv.get_vehikel_anzahl();  i-- > 0; ) 
+	{
 		add_vehicle(*cnv.get_vehikel(i)->get_besch());
 	}
+	power = cnv.calc_adjusted_power();
 }
 
 void convoy_metrics_t::calc(vector_tpl<const vehikel_besch_t *> &vehicles)
@@ -4207,5 +4202,9 @@ void convoy_metrics_t::calc(vector_tpl<const vehikel_besch_t *> &vehicles)
 
 uint32 convoy_metrics_t::get_speed(uint32 weight) 
 { 
+	// This was correct for the old physics formulae, but not now. Use maximum theoretical
+	// speed, not maximum actual speed until a new formula can be found.
+
 	return min(max_top_speed, (uint32) sqrt((((double)power/(double)weight)-1)*2500)); 
+	//return max_top_speed;
 }

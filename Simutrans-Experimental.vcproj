@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Simutrans-Experimental"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -43,7 +43,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
-				PreprocessorDefinitions="SLIST_FREIGHT;ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;SLIST_FREIGHT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -130,7 +130,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG;SLIST_FREIGHT"
 				RuntimeLibrary="2"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
@@ -214,7 +214,7 @@
 				EnableIntrinsicFunctions="true"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG;SDL"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG;SDL;SLIST_FREIGHT"
 				RuntimeLibrary="2"
 				FloatingPointModel="2"
 				UsePrecompiledHeader="0"
@@ -298,7 +298,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;SDL"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;SDL;SLIST_FREIGHT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -2378,6 +2378,10 @@
 			</File>
 			<File
 				RelativePath=".\besch\writer\sound_writer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tpl\sparse_tpl.h"
 				>
 			</File>
 			<File

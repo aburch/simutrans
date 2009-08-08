@@ -33,8 +33,8 @@ class sparse_tpl
 			data_count = 0;
 			data = NULL;
 			col_ind = NULL;
-			row_ptr = new uint16[ size.x + 1];
-			for( uint16 i = 0; i < size.x + 1; i++ ) {
+			row_ptr = new uint16[ size.y + 1];
+			for( uint16 i = 0; i < size.y + 1; i++ ) {
 				row_ptr[i] = 0;
 			}
 		}
@@ -54,7 +54,7 @@ class sparse_tpl
 
 		void clear() {
 			data_count = 0;
-			for( uint16 i = 0; i < size.x + 1; i++ ) {
+			for( uint16 i = 0; i < size.y + 1; i++ ) {
 				row_ptr[i] = 0;
 			}
 			resize_data(0);
@@ -211,12 +211,27 @@ class sparse_tpl
 		 */
 		uint16 pos_to_index( koord pos ) const {
 			uint16 row_start = row_ptr[ pos.y ];
-			uint16 row_end = row_ptr[ pos.y + 1 ];
-			for( uint16 i = row_start; i < row_end; i++ ) {
+			uint16 row_end = row_ptr[ pos.y + 1 ];			
+			if (row_start >= row_end || col_ind[row_end-1] < pos.x) return row_end;
+			if (col_ind[row_start]>=pos.x) return row_start;	
+			
+			do {
+				uint16 i = (row_start + row_end) / 2;
 				if( col_ind[i] >= pos.x ) {
+					row_end = i;
+				}
+				else {
+					row_start = i;
+				}
+			} while (row_end > row_start + 1);
+				
+			
+			/*for( uint16 i = row_start; i < row_end; i++ ) {
+				if( col_ind[i] >= pos.x ) {
+
 					return i;
 				}
-			}
+			}*/
 			return row_end;
 		}
 

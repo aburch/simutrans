@@ -903,6 +903,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		if (old_x+old_y == 0)
 			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
 
+		// activate location evalution cache
+		stadt_t::reset_location_cache(koord(get_groesse_x(),get_groesse_y()));
 		// Loop only new cities:
 		for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
 //			int citizens=(int)(einstellungen->get_mittlere_einwohnerzahl()*0.9);
@@ -919,6 +921,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 				printf("*");fflush(NULL);
 			}
 		}
+		// disable location evalution cache
+		stadt_t::disable_location_cache();
+		
 		delete pos;
 
 		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
@@ -957,6 +962,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 					- (old_anzahl_staedte*(old_anzahl_staedte-1))/2;
 		// something to do??
 		if(  max_count > 0  ) {
+			// print("Building intercity roads ...\n");
 			// find townhall of city i and road in front of it
 			vector_tpl<koord3d> k;
 			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
@@ -1109,14 +1115,27 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 						// mark as built
 						city_dist.at(conn) =  umgebung_t::intercity_road_length;
 						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length;
+						count ++;
 					}
 					else {
 						// do not try again
 						city_dist.at(conn) =  umgebung_t::intercity_road_length+1;
 						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length+1;
+						count ++;
+						
+						if (phase==0) {
+							// do not try to connect to this connected component again
+							for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+								if (  city_flag[i] == conn_comp  && city_dist.at(i, conn.y)<umgebung_t::intercity_road_length) {
+									city_dist.at(i, conn.y) =  umgebung_t::intercity_road_length+1;
+									city_dist.at(conn.y, i) =  umgebung_t::intercity_road_length+1;
+									count++;
+								}
+							}
+						}
 					}
-					count ++;
 				}
+				//printf("IC-Road Progress : %d/%d\n", count, max_count);
 				// progress bar stuff
 				if(  is_display_init()  &&  count<=max_count  ) {
 					int progress_count = 16+ 2*new_anzahl_staedte+ (count*einstellungen->get_anzahl_staedte()*2)/max_count;
@@ -2122,6 +2141,10 @@ void karte_t::set_werkzeug( werkzeug_t *w )
 		werkzeug = w;
 		werkzeug_last_pos = koord::invalid;
 		werkzeug_last_button = 0;
+	}
+	else {
+		// init again, to interrupt dragging
+		werkzeug->init(this,active_player);
 	}
 }
 

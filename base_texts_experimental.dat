@@ -1,0 +1,439 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Author: jamespetts
+# Created: June 2009
+# 
+# Note: Simutranslator will merge the default texts for Simutrans-Standard 
+# with the translated texts that are specific to Simutrans-Experimental. 
+# Therefore, to get the optimum texts for Simutrans-Experimental in English
+# (with texts from Simutrans-Standard changed appropraitely), use the supplied
+# en.tab, and not the en.tab from Simutranslator. Use Simutranslator for non-English
+# languages.
+#
+obj=program_text
+name=rpl_cnv_replace
+note="Replace" from the convoy replacer window
+-
+obj=program_text
+name=rpl_cnv_sell
+note="Sell" from the convoy replacer window
+-
+obj=program_text
+name=rpl_cnv_skip
+note="Skip" from the convoy replacer window
+-
+obj=program_text
+name=gl_btn_sort_catg
+note=Sorting by category in the goods list
+-
+obj=program_text
+name=signale bauen
+note=Text for the automatic signal builder
+-
+obj=program_text
+name=set signal spacing
+note=Text for the automatic signal builder
+-
+obj=program_text
+name=remove interm. signals
+note=Text for the automatic signal builder
+-
+obj=program_text
+name=replace other signals
+note=Text for the automatic signal builder
+-
+obj=program_text
+name=LOCO_INFO_EXT
+note=Text for the depot window showing statistics for powered vehicles.
+-
+obj=program_text
+name=%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+note=Text for the depot window showing statistics for unpowered vehicles.
+-
+obj=program_text
+name=%s\nCost:     %d$\nMaint.: %1.2f$/km, %1.2f$/month\nCapacity: %d (%d)%s %s\nWeight: %dt\nTop speed: %dkm/h\n
+note=Text for the depot window showing statistics for unpowered vehicles that allow overcrowding.
+-
+obj=program_text
+name=Capital expenditure on infrastructure
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Vehicle running costs (both fixed and distance related)
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Capital expenditure on vehicle purchases and upgrades
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Gross revenue
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Recurring expenses of infrastructure maintenance
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Total capital assets, excluding liabilities
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Total liquid assets
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Total assets less total liabilities
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Total income less total expenditure
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Operating revenue less operating expenditure
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Percentage of revenue retained as profit
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Number of units of passengers and goods transported
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Revenue from electricity transmission
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Cost of overdraft interest payments
+note=Tooltip for the finances window
+-
+obj=program_text
+name=The maximum amount that can be borrowed without prohibiting further capital outlays
+note=Tooltip for the finances window
+-
+obj=program_text
+name=Passengers %d %c, %d %c, %d no route\n\nCapacity: %i\n
+-
+obj=program_text
+name=too heavy
+note=Convoy tooltip that displays when a vehicle is overweight for the way.
+-
+obj=program_text
+name=Show the map in the same isometric orientation as the main game window
+note=Tooltip for the minimap
+-
+obj=program_text
+name=The main game window can be scrolled by right-clicking and dragging the ground.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Pedestrians will appear near stops whenver a passenger vehicle unloads there.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Pedestrians will appear randomly in towns.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Whether the lighting in the main game window simulates a periodic transition between day and night.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=The main game window can be scrolled by right-clicking and dragging the ground.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=All hidden items (such as trees and buildings) will appear as transparent.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Trees will be miniaturised or made transparent in the main game window.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=The display of the station coverage can either be a transparent rectangle or a series of boxes.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Show from how far that passengers or goods will come to use your stops. Toggle with the v key.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=See under the ground, to build tunnels and underground railways/metros. Toggle with SHIFT + U
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Shows the borderlines of each tile in the main game window. Can be useful for construction. Toggle with the # key.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Shows the names of the individual stations in the main game window.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Shows a bar graph representing the number of passengers/mail/goods waiting at stops.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=Routes will update instantly after any changes to lines/schedules. Can make the game respond slowly on big maps.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.
+note=Tooltip for the display menu
+-
+obj=program_text
+name=\nMUST USE: 
+note=Permissive way constraint as it appears in the depot window.
+-
+obj=program_text
+name=\nMAY USE:  
+note=Prohibitive way constraint as it appears in the depot window.
+-
+obj=program_text
+name=Way constraint permissive 
+-
+obj=program_text
+name=Way constraint prohibitive %n\n
+-
+obj=program_text
+name=This is a tilting vehicle\n
+note=From the depot window
+-
+obj=program_text
+name=Catering level: %i\n
+note=From the depot window
+-
+obj=program_text
+name=Comfort:
+note=From the depot window
+-
+obj=program_text
+name=Loading time:
+note=From the depot window
+-
+obj=program_text
+name=This is a travelling post office
+note=From the depot window
+
+obj=program_text
+name=Obsolescence increase
+-
+obj=program_text
+name=\nMax. weight:
+-
+obj=program_text
+name= mins. travelling
+note=Waiting time display
+-
+obj=program_text
+name= mins. waiting)
+note=Waiting time display
+-
+obj=program_text
+name=waiting time unknown)
+note=Waiting time display
+-
+obj=program_text
+name=\nNetwork ID:
+note=For power lines/substations
+-
+obj=program_text
+name=To be replaced by:
+note=For the convoy replacer
+-
+obj=program_text
+name=Replace cycle:
+note=For the convoy replacer
+-
+obj=program_text
+name=Replace
+note=For the convoy replacer
+-
+obj=program_text
+name=Sell
+note=For the convoy replacer
+-
+obj=program_text
+name=Skip
+note=For the convoy replacer
+-
+obj=program_text
+name=replace all in line
+note=For the convoy replacer
+-
+obj=program_text
+name=Replace all convoys like this belonging to this line
+note=For the convoy replacer
+-
+obj=program_text
+name=replace all
+note=For the convoy replacer
+-
+obj=program_text
+name=Replace all convoys like this
+note=For the convoy replacer
+-
+obj=program_text
+name=Full replace
+note=For the convoy replacer
+-
+obj=program_text
+name=Send convoy to depot, replace and restart it automatically
+note=For the convoy replacer
+-
+obj=program_text
+name=Replace but stay
+note=For the convoy replacer
+-
+obj=program_text
+name=Send convoy to depot, replace it and stay there
+note=For the convoy replacer
+-
+obj=program_text
+name=Mark for replacing
+note=For the convoy replacer
+-
+obj=program_text
+name=Mark for replacing. The convoy will replace when manually sent to depot
+note=For the convoy replacer
+-
+obj=program_text
+name=Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected.
+note=Closure of industries
+-
+obj=program_text
+name=origin
+note=For showing the origin of passengers/goods in stations/convoys
+-
+obj=program_text
+name=That would exceed\nyour credit limit.
+note=Credit limit message
+-
+obj=program_text
+name=You have been overdrawn\nfor one month
+note=Overdraft message
+-
+obj=program_text
+name=\n\nInterest on your debt is\naccumulating at %i %%
+note=Interest message
+-
+obj=program_text
+name=\n\nYour credit rating is being affected.
+note=Credit limit affected.
+-
+obj=program_text
+name=You have been overdrawn\nfor %i months
+note=Overdraft message
+-
+obj=program_text
+name=Power demand
+note=Shown the city windows.
+-
+obj=program_text
+name=Passenger destinations
+note=Tooltip for PaxDest on the minimap
+-
+obj=program_text
+name=Road
+-
+obj=program_text
+name=Rail
+-
+obj=program_text
+name=Narrow gauge
+-
+obj=program_text
+name=Distance\nComfort\nSpeedbonus\nroad %i km/h, rail %i km/h\nships %i km/h, planes %i km/h.
+note=For the "list of all goods" window.
+-
+obj=program_text
+name=clf_chk_obsolete
+note=Vehicle filter by obsolete
+-
+obj=program_text
+name=Electrical consumption: 
+note=For cities. *Must* have trailing space.
+-
+obj=program_text
+name=City
+-
+obj=program_text
+name=Hilly landscape
+note=For the climate window
+-
+obj=program_text
+name=Automatically replace this convoy.
+note=Tooltip for the replace button.
+-
+obj=program_text
+name=Constructed by %s\n
+note=Author message
+-
+obj=program_text
+name= via %s
+note=Note the leading space
+-
+obj=program_text
+name= from %s
+note=Note the leading space
+-
+obj=program_text
+name=Average speed
+-
+obj=program_text
+name=Comfort
+-
+obj=program_text
+name=Retire
+-
+obj=program_text
+name=Refresh routes instantly
+note=From the display window
+-
+obj=program_text
+name=Replacing
+note=Status shown on replace button when it is in active use
+-
+obj=program_text
+name=Replacing\nvehicles of\n%-20s\ncompleted
+note=Message when replacing vehicles is complete
+-
+obj=program_text
+name=origin (detail)
+note=From the convoy and stop information windows
+-
+obj=program_text
+name=origin (amount)
+note=From the convoy and stop information windows
+-
+obj=program_text
+name=Fixed Costs
+note=From the finances window
+-
+obj=program_text
+name=Next Month:
+-
+obj=program_text
+name=Credit limit
+note=From the finances window
+-
+obj=program_text
+name=Car ownership
+note=From the city details window
+-
+obj=program_text
+name=Congestion
+note=From the city details window
+-
+obj=program_text
+name=Power supply
+-
+obj=program_text
+name=Goods supplied
+-
+obj=program_text
+name=Interest
+note=In the monetary sense of "interest".

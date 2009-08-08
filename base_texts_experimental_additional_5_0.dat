@@ -1,0 +1,78 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 5.0.
+#
+# Author: jamespetts
+# Created: July 2009
+#
+obj=program_text
+name=Too slow
+note=This is displayed when passengers can find a route to their destination, but the fastest route's journey time exceeds their time tolerance.
+-
+obj=program_text
+name=The number of passengers who have travelled successfully from this stop
+note=Tooltip from the chart buttons on the stop information window: Happy
+-
+obj=program_text
+name=The number of passengers who have left because of overcrowding or excess waiting
+note=Tooltip from the chart buttons on the stop information window: Unhappy
+-
+obj=program_text
+name=The number of passengers who could not find a route to their destination
+note=Tooltip from the chart buttons on the stop information window: No route
+-
+obj=program_text
+name=The number of passengers who decline to travel because the journey would take too long
+note=Tooltip from the chart buttons on the stop information window: Too slow
+-
+obj=program_text
+name=The number of passengers/units of mail/goods waiting at this stop
+note=Tooltip from the chart buttons on the stop information window: Waiting
+-
+obj=program_text
+name=The number of passengers/units of mail/goods that have arrived at this stop
+note=Tooltip from the chart buttons on the stop information window: Arrived
+-
+obj=program_text
+name=The number of passengers/units of mail/goods that have departed from this stop
+note=Tooltip from the chart buttons on the stop information window: Departed
+-
+obj=program_text
+name=The number of convoys that have serviced this stop
+note=Tooltip from the chart buttons on the stop information window: Convoys
+-
+obj=program_text
+name=Cannot set marker here.\n
+note=Generic error when trying to set marker
+-
+obj=program_text
+name=Centralised path searching
+note=Name of toggle button in "Display" for the new pathing system.
+-
+obj=program_text
+name=Use centralised instead of distributed path searching system.
+note=Tooltip for the toggle button in "Display" for the new pathing system.
+-
+obj=program_text
+name=Use performance counter
+note=Name of toggle button in "Display" for the performance counter setting.
+-
+obj=program_text
+name=Read-only option : need to be set in simuconf.tab
+note=Tooltip for the toggle button in "Display" for the performance counter setting.
+-
+obj=program_text
+name=Inverse graphs (financial)
+note=Name of toggle button in "Display" for the inverse financial graphs
+-
+obj=program_text
+name=Inverse graphs (other)
+note=Name of toggle button in "Display" for the other inverse graphs
+-
+obj=program_text
+name=Graphs showing financial information will appear from right to left instead of left to right
+note=Tooltip for the toggle button in "Display" for the inverse financial graphs
+-
+obj=program_text
+name=Graphs showing non-financial information will appear from right to left instead of left to right
+note=Tooltip for the toggle button in "Display" for the other inverse graphs
+-

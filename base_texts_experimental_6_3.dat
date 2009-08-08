@@ -1,0 +1,30 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 6.3.
+#
+# Author: jamespetts
+# Created: August 2009
+#
+obj=program_text
+name=Rebuild connexions:
+note=Information in the "display" dialogue about the status of the centralised path finding algorithm.
+-
+obj=program_text
+name=Filter eligible halts:
+note=Information in the "display" dialogue about the status of the centralised path finding algorithm.
+-
+obj=program_text
+name=Fill path matrix:
+note=Information in the "display" dialogue about the status of the centralised path finding algorithm.
+-
+obj=program_text
+name=Explore paths:
+note=Information in the "display" dialogue about the status of the centralised path finding algorithm.
+-
+obj=program_text
+name=Re-route goods:
+note=Information in the "display" dialogue about the status of the centralised path finding algorithm.
+-
+obj=program_text
+name=Status:
+note=Information in the "display" dialogue about the status of the centralised path finding algorithm.
+-

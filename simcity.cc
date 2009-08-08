@@ -295,61 +295,26 @@ static int res_neighbour_score[] = {  8, 0, -8 };
  * maximum 7x7 rules
  * @author Hj. Malthaner
  */
-struct rule_t {
+class rule_entry_t {
+public:
+	uint8 x,y;
+	uint16 flag;
+	rule_entry_t() : x(0), y(0), flag(0) {}
+	rule_entry_t(uint8 x_, uint8 y_, uint16 f_) : x(x_), y(y_), flag(f_) {}
+};
+	
+class rule_t {
+public:
 	int  chance;
-	char rule[49];
+	vector_tpl<rule_entry_t> rule;
+	rule_t() : chance(0) {}	
 };
 
 // house rules
-static int num_house_rules = 0;
-static struct rule_t* house_rules = 0;
+static vector_tpl<rule_t *> house_rules;
 
 // and road rules
-static int num_road_rules = 0;
-static struct rule_t* road_rules = 0;
-
-// rotation of the rules ...
-static const uint8 rotate_rules_0[] = {
-	 0,  1,  2,  3,  4,  5,  6,
-	 7,  8,  9, 10, 11, 12, 13,
-	14, 15, 16, 17, 18, 19, 20,
-	21, 22, 23, 24, 25, 26, 27,
-	28, 29, 30, 31, 32, 33, 34,
-	35, 36, 37, 38, 39, 40, 41,
-	42, 43, 44, 45, 46, 47, 48
-};
-
-
-static const uint8 rotate_rules_90[] = {
-	6, 13, 20, 27, 34, 41, 48,
-	5, 12, 19, 26, 33, 40, 47,
-	4, 11, 18, 25, 32, 39, 46,
-	3, 10, 17, 24, 31, 38, 45,
-	2,  9, 16, 23, 30, 37, 44,
-	1,  8, 15, 22, 29, 36, 43,
-	0,  7, 14, 21, 28, 35, 42
-};
-
-static const uint8 rotate_rules_180[] = {
-	48, 47, 46, 45, 44, 43, 42,
-	41, 40, 39, 38, 37, 36, 35,
-	34, 33, 32, 31, 30, 29, 28,
-	27, 26, 25, 24, 23, 22, 21,
-	20, 19, 18, 17, 16, 15, 14,
-	13, 12, 11, 10,  9,  8,  7,
-	 6,  5,  4,  3,  2,  1,  0
-};
-
-static const uint8 rotate_rules_270[] = {
-	42, 35, 28, 21, 14,  7, 0,
-	43, 36, 29, 22, 15,  8, 1,
-	44, 37, 30, 23, 16,  9, 2,
-	45, 38, 31, 24, 17, 10, 3,
-	46, 39, 32, 25, 18, 11, 4,
-	47, 40, 33, 26, 19, 12, 5,
-	48, 41, 34, 27, 20, 13, 6
-};
-
+static vector_tpl<rule_t *> road_rules;
 
 /**
  * Symbols in rules:
@@ -363,68 +328,193 @@ static const uint8 rotate_rules_270[] = {
  * u = good slope for way
  * U = not a slope for ways
  * . = beliebig
- *
+ */
+enum {	rule_anything	= 0,	// .
+	rule_no_road 	= 1, 	// S
+	rule_is_road 	= 2, 	// s
+ 	rule_is_natur  	= 4, 	// n
+  	rule_no_house	= 8, 	// H
+   	rule_is_house	= 16, 	// h
+   	rule_no_stop 	= 32,	// T
+	rule_is_stop	= 64, 	// t
+ 	rule_good_slope	= 128, 	// u
+  	rule_bad_slope	= 256,	// U
+   	rule_indefinite	= 512, 
+   	rule_known	= 1024,	// location already evaluated
+    	rule_any_rule = rule_indefinite -1,     	
+};
+
+/* 
+ * translation of char rules to the integers
+ */
+uint16 rule_char_to_int(const char r)
+{
+	switch (r) {
+		case '.': return rule_anything;
+		case 'S': return rule_no_road;
+		case 's': return rule_is_road;
+		case 'h': return rule_is_house;
+		case 'H': return rule_no_house;
+		case 'n': return rule_is_natur;
+		case 'u': return rule_good_slope;
+		case 'U': return rule_bad_slope;
+		case 't': return rule_is_stop;
+		case 'T': return rule_no_stop;
+		default:  return rule_indefinite;
+	}
+}
+
+// static array to cache evaluations of locations
+static sparse_tpl<uint16>*location_cache = NULL;
+
+static stadt_t* location_cache_city = NULL;
+
+static uint64 cache_hits=0, cache_writes=0;
+#define use_cache
+
+void stadt_t::reset_location_cache(koord size) {
+#ifdef use_cache
+	if (location_cache) delete location_cache;
+	location_cache = new sparse_tpl<uint16> (size);
+	location_cache_city = NULL;
+#endif
+}
+
+void stadt_t::disable_location_cache() {
+	if (location_cache) delete location_cache;
+	location_cache = NULL;
+	location_cache_city = NULL;
+}
+
+void clear_location_cache(stadt_t *city)
+{
+	printf("Location Cache: hits/writes = %lld/%lld\n", cache_hits, cache_writes);
+	if(location_cache)
+	{
+		location_cache->clear();
+	}
+	location_cache_city = city; 
+	cache_hits=0; 
+	cache_writes=0;
+}
+
+/*
+ * checks loc against all possible rules, stores this in location_cache
+ * cache must be active (not NULL) - this must be checked before calling
+ */
+uint16 stadt_t::bewerte_loc_cache(const koord pos, bool force)
+{
+	uint16 flag=0;
+#ifdef use_cache
+//	if (location_cache) {
+		if (location_cache_city!=this) {
+			clear_location_cache(this);
+		}
+		else if (!force) {
+			flag = location_cache->get(pos);
+			cache_hits++;			
+		}
+//	}
+#endif	
+	if (flag==0) {
+		const grund_t* gr = welt->lookup_kartenboden(pos);
+		// outside 
+		if (gr==NULL) return 0;
+		// now do all the tests
+		flag |= gr->hat_weg(road_wt) ? rule_is_road : rule_no_road;
+		flag |= gr->get_typ() == grund_t::fundament ? (gr->obj_bei(0)->get_typ()==ding_t::gebaeude ? rule_is_house :0) : rule_no_house;
+		if (gr->ist_natur() && gr->kann_alle_obj_entfernen(NULL)== NULL) {
+			flag |= rule_is_natur;
+		}
+		flag |= gr->is_halt() ? rule_is_stop : rule_no_stop;
+		flag |= hang_t::ist_wegbar(gr->get_grund_hang()) ? rule_good_slope : rule_bad_slope;
+#ifdef use_cache
+		if (location_cache) {
+			location_cache->set(pos, flag | rule_known);
+			cache_writes ++;
+		}
+#endif
+	}
+	return flag & rule_any_rule;
+}
+
+/*
  * @param pos position to check
  * @param regel the rule to evaluate
  * @return true on match, false otherwise
  * @author Hj. Malthaner
  */
-bool stadt_t::bewerte_loc(const koord pos, const char* regel, uint16 rotation)
+bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, uint16 rotation)
 {
+	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
 	koord k;
-	const uint8* index_to_rule = 0;
-	switch (rotation) {
-		case   0: index_to_rule = rotate_rules_0;   break;
-		case  90: index_to_rule = rotate_rules_90;  break;
-		case 180: index_to_rule = rotate_rules_180; break;
-		case 270: index_to_rule = rotate_rules_270; break;
-	}
+	const bool uses_cache = location_cache != NULL;
 
-	uint8 rule_index = 0;
-	for (k.y = pos.y - 3; k.y <= pos.y + 3; k.y++) {
-		for (k.x = pos.x - 3; k.x <= pos.x + 3; k.x++) {
-			const char rule = regel[index_to_rule[rule_index++]];
-			if (rule != 0) {
+		for(uint32 i=0; i<regel.rule.get_count(); i++){
+		rule_entry_t &r = regel.rule[i];
+		uint8 x,y;
+		switch (rotation) {
+			case   0: x=r.x; y=r.y; break;
+			case  90: x=r.y; y=6-r.x; break;
+			case 180: x=6-r.x; y=6-r.y; break;
+			case 270: x=6-r.y; y=r.x; break;
+		}
+		
+		if (r.flag!=0) {
+			const koord k(pos.x+x-3, pos.y+y-3);
+			
+			if (uses_cache) {
+				if ((bewerte_loc_cache(k) & r.flag) ==0) return false;
+			}
+			else {
 				const grund_t* gr = welt->lookup_kartenboden(k);
 				if (gr == NULL) {
 					// outside of the map => cannot apply this rule
 					return false;
 				}
 
-				switch (rule) {
-					case 's':
+				switch (r.flag) {
+					case rule_is_road:
 						// road?
 						if (!gr->hat_weg(road_wt)) return false;
 						break;
-					case 'S':
+
+					case rule_no_road:
 						// not road?
 						if (gr->hat_weg(road_wt)) return false;
 						break;
-					case 'h':
+
+					case rule_is_house:
 						// is house
 						if (gr->get_typ() != grund_t::fundament  ||  gr->obj_bei(0)->get_typ()!=ding_t::gebaeude) return false;
 						break;
-					case 'H':
+
+					case rule_no_house:
 						// no house
 						if (gr->get_typ() == grund_t::fundament) return false;
 						break;
-					case 'n':
+
+					case rule_is_natur:
 						// nature/empty
 						if (!gr->ist_natur() || gr->kann_alle_obj_entfernen(NULL) != NULL) return false;
 						break;
- 					case 'u':
+
+ 					case rule_bad_slope:
  						// unbuildable for road
  						if (!hang_t::ist_wegbar(gr->get_grund_hang())) return false;
  						break;
- 					case 'U':
+
+ 					case rule_good_slope:
  						// road may be buildable
  						if (hang_t::ist_wegbar(gr->get_grund_hang())) return false;
  						break;
-					case 't':
+
+					case rule_is_stop:
 						// here is a stop/extension building
 						if (!gr->is_halt()) return false;
 						break;
-					case 'T':
+
+					case rule_no_stop:
 						// no stop
 						if (gr->is_halt()) return false;
 						break;
@@ -432,6 +522,7 @@ bool stadt_t::bewerte_loc(const koord pos, const char* regel, uint16 rotation)
 			}
 		}
 	}
+	//printf("Success\n");
 	return true;
 }
 
@@ -441,7 +532,7 @@ bool stadt_t::bewerte_loc(const koord pos, const char* regel, uint16 rotation)
  * prissi: but the rules should explicitly forbid building then?!?
  * @author Hj. Malthaner
  */
-sint8 stadt_t::bewerte_pos(const koord pos, const char* regel)
+sint8 stadt_t::bewerte_pos(const koord pos, rule_t &regel)
 {
 	// will be called only a single time, so we can stop after a single match
 	if(bewerte_loc(pos, regel,   0) ||
@@ -454,7 +545,7 @@ sint8 stadt_t::bewerte_pos(const koord pos, const char* regel)
 }
 
 
-void stadt_t::bewerte_strasse(koord k, sint32 rd, const char* regel)
+void stadt_t::bewerte_strasse(koord k, sint32 rd, rule_t &regel)
 {
 	if (simrand(rd) == 0) {
 		best_strasse.check(k, bewerte_pos(k, regel));
@@ -462,7 +553,7 @@ void stadt_t::bewerte_strasse(koord k, sint32 rd, const char* regel)
 }
 
 
-void stadt_t::bewerte_haus(koord k, sint32 rd, const char* regel)
+void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
 {
 	if (simrand(rd) == 0) {
 		best_haus.check(k, bewerte_pos(k, regel));
@@ -517,7 +608,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	res_neighbour_score[1] = contents.get_int("res_near_com",  0);
 	res_neighbour_score[2] = contents.get_int("res_near_ind", -8);
 
-	num_house_rules = 0;
+	uint32 num_house_rules = 0;
 	for (;;) {
 		sprintf(buf, "house_%d", num_house_rules + 1);
 		if (contents.get_string(buf, 0)) {
@@ -528,7 +619,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	}
 	DBG_MESSAGE("stadt_t::init()", "Read %d house building rules", num_house_rules);
 
-	num_road_rules = 0;
+	uint32 num_road_rules = 0;
 	for (;;) {
 		sprintf(buf, "road_%d", num_road_rules + 1);
 		if (contents.get_string(buf, 0)) {
@@ -539,11 +630,10 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	}
 	DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
 
-	house_rules = new struct rule_t[num_house_rules];
-	for (int i = 0; i < num_house_rules; i++) {
+	for (uint32 i = 0; i < num_house_rules; i++) {
+		house_rules.append(new rule_t());
 		sprintf(buf, "house_%d.chance", i + 1);
-		house_rules[i].chance = contents.get_int(buf, 0);
-		memset(house_rules[i].rule, 0, sizeof(house_rules[i].rule));
+		house_rules[i]->chance = contents.get_int(buf, 0);
 
 		sprintf(buf, "house_%d", i + 1);
 		const char* rule = contents.get_string(buf, "");
@@ -565,19 +655,32 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		}
 
 		// put rule into memory
-		const uint offset = (7 - (uint)size) / 2;
+		const uint8 offset = (7 - (uint)size) / 2;
 		for (uint y = 0; y < size; y++) {
 			for (uint x = 0; x < size; x++) {
-				house_rules[i].rule[(offset + y) * 7 + x + offset] = rule[x + y * (size + 1)];
+				// leave midpoint out, should be 'n', which is checked in baue() anyway
+				if (x+offset!=3 || y+offset!=3) {
+					uint16 flag = rule_char_to_int(rule[x + y * (size + 1)]);
+					if (flag!=rule_anything && flag!=rule_indefinite) {					
+						house_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
+					}
+				}
+				else {
+					if (rule[x + y * (size + 1)]!='n') {
+						dbg->warning("stadt_t::cityrules_init()", "house rule %d mid point is not 'n' - will be ignored", i + 1);
+					}
+				}
 			}
 		}
+		printf("House-Rule %d: chance %d\n",i,house_rules[i]->chance);
+		for(uint32 j=0; j< house_rules[i]->rule.get_count(); j++)
+			printf("House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
 	}
 
-	road_rules = new struct rule_t[num_road_rules];
-	for (int i = 0; i < num_road_rules; i++) {
+	for (uint32 i = 0; i < num_road_rules; i++) {
+		road_rules.append(new rule_t());
 		sprintf(buf, "road_%d.chance", i + 1);
-		road_rules[i].chance = contents.get_int(buf, 0);
-		memset(road_rules[i].rule, 0, sizeof(road_rules[i].rule));
+		road_rules[i]->chance = contents.get_int(buf, 0);
 
 		sprintf(buf, "road_%d", i + 1);
 		const char* rule = contents.get_string(buf, "");
@@ -602,9 +705,24 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		const uint8 offset = (7 - (uint)size) / 2;
 		for (uint y = 0; y < size; y++) {
 			for (uint x = 0; x < size; x++) {
-				road_rules[i].rule[(offset + y) * 7 + x + offset] = rule[x + y * (size + 1)];
+				// leave midpoint out, should be 'n', which is checked in baue() anyway
+				if (x+offset!=3 || y+offset!=3) {
+					uint16 flag = rule_char_to_int(rule[x + y * (size + 1)]);
+					if (flag!=rule_anything && flag!=rule_indefinite) {					
+						road_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
+					}
+				}
+				else {
+					if (rule[x + y * (size + 1)]!='n') {
+						dbg->warning("stadt_t::cityrules_init()", "road rule %d mid point is not 'n' - will be ignored", i + 1);
+					}
+				}
 			}
 		}
+		printf("Road-Rule %d: chance %d\n",i,road_rules[i]->chance);
+		for(uint32 j=0; j< road_rules[i]->rule.get_count(); j++)
+			printf("Road-Rule %d: Pos (%d,%d) Flag %d\n",i,road_rules[i]->rule[j].x,road_rules[i]->rule[j].y,road_rules[i]->rule[j].flag);
+		
 	}
 	return true;
 }
@@ -1787,23 +1905,23 @@ void stadt_t::step_passagiere()
 {
 	//@author: jamespetts
 	// Passenger routing and generation metrics.	
-	static const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
-	static const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
-	static const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
-	static const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
-	static const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
-	static const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
+	const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
+	const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
+	const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
+	const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
+	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
+	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
-	static const uint16 max_local_tolerance = welt->get_einstellungen()->get_max_local_tolerance();
-	static const uint16 min_local_tolerance = welt->get_einstellungen()->get_min_local_tolerance();
-	static const uint16 max_midrange_tolerance = welt->get_einstellungen()->get_max_midrange_tolerance();
-	static const uint16 min_midrange_tolerance = welt->get_einstellungen()->get_min_midrange_tolerance();
-	static const uint16 max_longdistance_tolerance = welt->get_einstellungen()->get_max_longdistance_tolerance();
-	static const uint16 min_longdistance_tolerance = welt->get_einstellungen()->get_min_longdistance_tolerance();
+	const uint16 max_local_tolerance = welt->get_einstellungen()->get_max_local_tolerance();
+	const uint16 min_local_tolerance = welt->get_einstellungen()->get_min_local_tolerance();
+	const uint16 max_midrange_tolerance = welt->get_einstellungen()->get_max_midrange_tolerance();
+	const uint16 min_midrange_tolerance = welt->get_einstellungen()->get_min_midrange_tolerance();
+	const uint16 max_longdistance_tolerance = welt->get_einstellungen()->get_max_longdistance_tolerance();
+	const uint16 min_longdistance_tolerance = welt->get_einstellungen()->get_min_longdistance_tolerance();
 
-	static const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
-	static const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
-	static const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
+	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
+	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();
+	const uint8 passenger_routing_midrange_chance = welt->get_einstellungen()->get_passenger_routing_midrange_chance();
 
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
 	//	long t0 = get_current_time_millis();
@@ -1906,8 +2024,19 @@ void stadt_t::step_passagiere()
 			// and 1/3rd are of any distance.
 			// Note: a random town will be found if there are no towns within range.
 			const uint8 passenger_routing_choice = simrand(100);
-			const journey_distance_type range = passenger_routing_choice <= passenger_routing_local_chance ? local : passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? midrange : longdistance;
-			const uint16 tolerance = wtyp != warenbauer_t::passagiere ? 0 : range == local ? simrand(welt->get_einstellungen()->get_max_local_tolerance()) + welt->get_einstellungen()->get_min_local_tolerance() : range == midrange ? simrand(welt->get_einstellungen()->get_max_midrange_tolerance()) + welt->get_einstellungen()->get_min_midrange_tolerance() : simrand(welt->get_einstellungen()->get_max_longdistance_tolerance()) + welt->get_einstellungen()->get_min_longdistance_tolerance();
+			const journey_distance_type range = 
+				passenger_routing_choice <= passenger_routing_local_chance ? 
+				local :
+			passenger_routing_choice <= (passenger_routing_local_chance + passenger_routing_midrange_chance) ? 
+				midrange : longdistance;
+			const uint16 tolerance = 
+				wtyp != warenbauer_t::passagiere ? 
+				0 : 
+				range == local ? 
+					simrand(max_local_tolerance) + min_local_tolerance : 
+				range == midrange ? 
+					simrand(max_midrange_tolerance) + min_midrange_tolerance : 
+				simrand(max_longdistance_tolerance) + min_longdistance_tolerance;
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
 			{				
@@ -2088,7 +2217,7 @@ walk:
 						// Secondly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
 
 						// This percentage of drivers will prefer to use the car however congested that it is.
-						static const sint16 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
+						const sint16 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
 
 						//Average congestion of origin and destination towns, and, at the same time, reduce factor.
 						uint8 congestion_total;
@@ -2110,7 +2239,7 @@ walk:
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
-						const uint16 average_speed = (60 * distance) / (best_journey_time * (1.0F - welt->get_einstellungen()->get_distance_per_tile()));
+						const uint16 average_speed = ((distance * welt->get_einstellungen()->get_distance_per_tile()) * 600) / best_journey_time;
 						const sint32 ref_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
 						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance, welt);
 						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
@@ -2255,56 +2384,14 @@ public_transport:
 				
 						if(has_private_car)
 						{
-							//Must use private car, since the halt is crowded.
-							// However, check first that car journey is within time tolerance.
-					
-							// As the crow flies distance. This is very much an approximation - *but*
-							// we use the standard speedbonus speed (for 'buses), which are generally
-							// slower than cars, so, very approximately, it should balance correctly. 
-							// TODO: (Long-term) get the accurate road distance between each town
-							// and have a speedbonus.tab entry for private cars.
-							const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
-							const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-							const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
-
-							if(car_minutes <= tolerance)
-							{
-								set_private_car_trip(num_pax, destinations[0].town);
+							// Must use private car, since the halt is crowded.
+							// Do not check tolerance, as they must come back!
+							
+							set_private_car_trip(num_pax, destinations[0].town);
 #ifdef DESTINATION_CITYCARS
-								//citycars with destination
-								erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
+							//citycars with destination
+							erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 #endif
-							}
-							else
-							{
-								if(current_destination == 0)
-								{
-									// If passengers cannot get to their destination by private car because the journey is too long,
-									// they should have a chance of having alternative destinations. This should be re-set on the *first*
-									// pass only. 
-									max_destinations = (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
-								}
-								if(!start_halts.empty())
-								{
-									if(current_destination + 1 >= destination_count)
-									{
-										// Only record too slow if alternative destinations not canvassed
-										// and if the trip by *public* transport is too slow.
-										if(tolerance > 0 && best_journey_time > tolerance)
-										{
-											start_halts[best_start_halt]->add_pax_too_slow(pax_left_to_do);
-										}
-										else if(start_halts[best_start_halt]->is_overcrowded(wtyp->get_catg_index()))
-										{
-											start_halts[best_start_halt]->add_pax_unhappy(pax_left_to_do);
-										}
-										else
-										{
-											start_halts[best_start_halt]->add_pax_no_route(pax_left_to_do);
-										}
-									}
-								}
-							}
 						}
 					}
 				} // Returning passengers
@@ -2338,7 +2425,7 @@ public_transport:
 				{
 					// Must use private car, since there is no suitable route.
 					// However, check first that car journey is within time tolerance.
-					
+				
 					// As the crow flies distance. This is very much an approximation - *but*
 					// we use the standard speedbonus speed (for 'buses), which are generally
 					// slower than cars, so, very approximately, it should balance correctly. 
@@ -2381,7 +2468,7 @@ public_transport:
 
 	else 
 	{
-		// the unhappy passengers will be added to all crowded stops
+		// The unhappy passengers will be added to all crowded stops
 		// however, there might be no stop too
 		// NOTE: Because of the conditional statement in the original loop,
 		// reaching this code means that passengers must have no private car.
@@ -2391,19 +2478,35 @@ public_transport:
 		pax_zieltyp will_return;
 		//const koord ziel = finde_passagier_ziel(&will_return);
 		destination destination_now = finde_passagier_ziel(&will_return);
-		//If the passengers do not have their own private transport, they will be unhappy.
-		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) 
-		{
-			halthandle_t halt = halt_list[h];
-			if (halt->is_enabled(wtyp)) 
-			{
-				//assert(halt->get_ware_summe(wtyp)>halt->get_capacity();
-				halt->add_pax_unhappy(num_pax);
-			}
-		}
 
-		merke_passagier_ziel(destination_now.location, COL_DARK_ORANGE);
-		// we do not show no route for destination stop!
+		// First, check whether the passengers can *walk*. Just because
+		// they do not have a start halt does not mean that they cannot
+		// walk to their destination!
+		const double tile_distance = accurate_distance(k, destination_now.location);
+		const double total_distance = tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+		if(total_distance < 1.5)
+		{
+			// Passengers will walk to their destination if it is less than 1.5km away.
+			merke_passagier_ziel(destination_now.location, COL_YELLOW);
+			city_history_year[0][history_type] += num_pax;
+			city_history_month[0][history_type] += num_pax;
+		}
+		else
+		{
+			//If the passengers do not have their own private transport, they will be unhappy.
+			for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) 
+			{
+				halthandle_t halt = halt_list[h];
+				if (halt->is_enabled(wtyp)) 
+				{
+					//assert(halt->get_ware_summe(wtyp)>halt->get_capacity();
+					halt->add_pax_unhappy(num_pax);
+				}
+			}
+
+			merke_passagier_ziel(destination_now.location, COL_DARK_ORANGE);
+			// we do not show no route for destination stop!
+		}
 	}
 	//	long t1 = get_current_time_millis();
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
@@ -2639,6 +2742,11 @@ void stadt_t::check_bau_spezial(bool new_town)
 					rotate = (simrand(20) & 2) + is_rotate;
 				}
 				hausbauer_t::baue( welt, besitzer_p, welt->lookup(best_pos)->get_kartenboden()->get_pos(), rotate, besch );
+				// invalidate cache
+				if (location_cache)
+				for(uint16 x=0; x < besch->get_b(rotate); x++)
+					for(uint16 y=0; y < besch->get_h(rotate); y++)
+						bewerte_loc_cache( best_pos + koord(x,y),true);		
 				// tell the player, if not during initialization
 				if (!new_town) {
 					char buf[256];
@@ -2704,6 +2812,14 @@ void stadt_t::check_bau_spezial(bool new_town)
 						char buf[256];
 						sprintf(buf, translator::translate("With a big festival\n%s built\na new monument.\n%i citicens rejoiced."), get_name(), bev);
 						welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
+					}
+					//invalidate cache
+					if (location_cache) {
+						for (int i = 0; i < total_size.x; i++) {
+							for (int j = 0; j < total_size.x; j++) {
+								bewerte_loc_cache(best_pos + koord(i,j), true);
+							}
+						}
 					}
 				}
 			}
@@ -2801,6 +2917,10 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				alte_str == koord::invalid;
 			}
 		}
+		// invalidate cache
+		for(uint16 x=0; x < besch->get_b(layout); x++)
+			for(uint16 y=0; y <= besch->get_h(layout); y++)
+				bewerte_loc_cache( best_pos + koord(x,y), true);	
 
 		if (umziehen  &&  alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
@@ -2809,6 +2929,11 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road());
 			bauer.calc_route(welt->lookup(alte_str)->get_kartenboden()->get_pos(), welt->lookup(best_pos + koord(0, besch->get_h(layout)))->get_kartenboden()->get_pos());
 			bauer.baue();
+			// invalidate cache
+			if (location_cache)
+			for(uint32 i=0; i<bauer.get_route().get_count(); i++)
+				bewerte_loc_cache( (bauer.get_route())[i].get_2d(), true);
+				
 		} else if (neugruendung) {
 			lo = best_pos - koord(2, 2);
 			ur = best_pos + koord(besch->get_b(layout), besch->get_h(layout)) + koord(2, 2);
@@ -2845,7 +2970,7 @@ gebaeude_t::typ stadt_t::was_ist_an(const koord k) const
 	gebaeude_t::typ t = gebaeude_t::unbekannt;
 
 	if (gr != NULL) {
-		const gebaeude_t* gb = dynamic_cast<const gebaeude_t*>(gr->first_obj());
+	const gebaeude_t* gb = dynamic_cast<const gebaeude_t*>(gr->first_obj());
 		if (gb != NULL) {
 			t = gb->get_haustyp();
 		}
@@ -3131,7 +3256,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		// and make sure our house is not on a neighbouring tile, to avoid boring towns
 		int streetdir = 0;
 		for (int i = 0; i < 8; i++) {
-			grund_t* gr = welt->lookup(k + neighbours[i])->get_kartenboden();
+			grund_t* gr = welt->lookup_kartenboden(k + neighbours[i]);
 			if (gr != NULL && gr->get_weg_hang() == gr->get_grund_hang()) {
 				strasse_t* weg = static_cast<strasse_t*>(gr->get_weg(road_wt));
 				if (weg != NULL) {
@@ -3351,14 +3476,16 @@ void stadt_t::baue()
 
 		// since only a single location is checked, we can stop after we have found a positive rule
 		best_strasse.reset(k);
-		int offset = simrand(num_road_rules);	// start with random rule
-		for (int i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
-			int rule = ( i+offset ) % num_road_rules;
-			bewerte_strasse(k, 8 + road_rules[rule].chance, road_rules[rule].rule);
+		const uint32 num_road_rules = road_rules.get_count();
+		uint32 offset = simrand(num_road_rules);	// start with random rule
+		for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+			uint32 rule = ( i+offset ) % num_road_rules;
+			bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
 		}
 		// ok => then built road
 		if (best_strasse.found()) {
 			baue_strasse(best_strasse.get_pos(), NULL, false);
+			if (location_cache) bewerte_loc_cache(best_strasse.get_pos(), true);
 			INT_CHECK("simcity 1156");
 			return;
 		}
@@ -3367,14 +3494,16 @@ void stadt_t::baue()
 
 		// since only a single location is checked, we can stop after we have found a positive rule
 		best_haus.reset(k);
+		const uint32 num_house_rules = house_rules.get_count();
 		offset = simrand(num_house_rules);	// start with random rule
-		for (int i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
-			int rule = ( i+offset ) % num_house_rules;
-			bewerte_haus(k, 8 + house_rules[rule].chance, house_rules[rule].rule);
+		for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
+			uint32 rule = ( i+offset ) % num_house_rules;
+			bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
 		}
 		// one rule applied?
 		if (best_haus.found()) {
 			baue_gebaeude(best_haus.get_pos());
+			if (location_cache) bewerte_loc_cache(best_haus.get_pos(), true);
 			INT_CHECK("simcity 1163");
 			return;
 		}
@@ -3425,29 +3554,78 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 		pre_result = new weighted_vector_tpl<koord>(multiplied_number);
 	}
 
+	// pre processed array: max 1 city from each square can be built
+	// each entry represents a cell of minimum_city_distance/2 length and width
+	const uint32 xmax = (2*wl->get_groesse_x())/minimum_city_distance+1;
+	const uint32 ymax = (2*wl->get_groesse_y())/minimum_city_distance+1;
+	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);
+	while (!list->empty()) 
+	{
+		const koord k = list->remove_first();
+		places.at( (2*k.x)/minimum_city_distance, (2*k.y)/minimum_city_distance).append(k);
+	}
+	// weigthed index vector into places array
+	weighted_vector_tpl<koord> index_to_places(xmax*ymax);	
+	for(uint32 i=0; i<xmax; i++) {
+		for(uint32 j=0; j<ymax; j++) {
+			if (!places.at(i,j).empty()) {
+				index_to_places.append( koord(i,j), places.at(i,j).get_count());
+			}
+		}
+	}
+	// post-processing array: 
+	// each entry represents a cell of minimum_city_distance length and width
+	// to limit the search for neighboring cities
+	const uint32 xmax2 = wl->get_groesse_x()/minimum_city_distance+1;
+	const uint32 ymax2 = wl->get_groesse_y()/minimum_city_distance+1;
+	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);	
+	
+	uint64 its = 0;
+
 	for (int i = 0; i < multiplied_number; i++) 
 	{
-		int len = list->get_count();
 		// check distances of all cities to their respective neightbours
-		while (len > 0) 
+		while (!index_to_places.empty()) 
 		{
-			int minimum_dist = 0x7FFFFFFF;  // init with maximum
-			koord k;
-			const int index = simrand(len);
-			k = list->at(index);
-			list->remove(k);
-			len--;
+			// find a random cell
+			const uint32 weight = simrand(index_to_places.get_sum_weight());
+			const koord ip = index_to_places.at_weight(weight);
+			// remove this cell from index list				
+			index_to_places.remove(ip);
+			// get random place in the cell
+			if (places.at(ip).empty()) continue;			
+			const uint32 j = simrand(places.at(ip).get_count());
+			const koord k = places.at(ip)[j];
 
 			// check minimum distance
-			for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) 
+			/*for (int j = 0; (j < i) && minimum_dist > minimum_city_distance; j++) 
 			{
 				const uint32 dist = welt != NULL && !umgebung_t::cities_ignore_height ? koord_distance( k, (*pre_result)[j] ) : koord_distance( k, (*result)[j]);
 				if (minimum_dist > dist) 
 				{
 					minimum_dist = dist;
+				}*/
+				bool ok = true;
+			
+			const koord k2mcd = koord( k.x/minimum_city_distance, k.y/minimum_city_distance );
+			for(sint32 i=k2mcd.x-1; ok && i<=k2mcd.x+1; i++) 
+			{
+				for(sint32 j=k2mcd.y-1; ok && j<=k2mcd.y+1; j++) 
+				{
+					if (i>=0 && i<xmax2 && j>=0 && j<ymax2)
+					{
+						for(uint32 l=0; ok && l<result_places.at(i,j).get_count(); l++) 
+						{
+							its++;
+							if (koord_distance(k, result_places.at(i,j)[l]) < minimum_city_distance)
+							{
+								ok = false;
+							}
+						}
+					}
 				}
 			}
-			if (minimum_dist > minimum_city_distance) 
+			if (ok) //minimum_dist > minimum_city_distance) {
 			{
 				// all cities are far enough => ok, find next place
 
@@ -3502,18 +3680,31 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 						weight = 1;
 					};
 					pre_result->append(k, weight); 
+					result_places.at(k2mcd).append(k);
 					break;
 				}
 				else
 				{
 					result->append(k);
+					result_places.at(k2mcd).append(k);
 					break;
+				}
+			}
+			else 
+			{
+				// remove the place from the list
+				places.at(ip).remove_at(j);
+				// re-insert in index list with new weight
+				if (!places.at(ip).empty()) 
+				{
+					index_to_places.append( ip, places.at(ip).get_count());
 				}
 			}
 			// if we reached here, the city was not far enough => try again
 		}
 
-		if (len <= 0 && i < anzahl - 1) 
+		printf("simcity::  placed city %d its= %d\n", i, its);
+		if (index_to_places.empty() && i < anzahl - 1)
 		{
 			dbg->warning("stadt_t::random_place()", "Not enough places found!");
 			break;
@@ -3540,6 +3731,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 		delete pre_result;
 	}
 
+	printf("simcity::  number of iterations %d\n", its);
 	return result;
 }
 

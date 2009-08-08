@@ -342,15 +342,15 @@ einstellungen_t::einstellungen_t() :
 	// the true maximum.
 	// @author: jamespetts
 
-	min_local_tolerance = 45; // 3/4 of an hour.
-	//max_local_tolerance = 60 - min_local_tolerance; // One hour
-	max_local_tolerance = 15; // One hour
-	min_midrange_tolerance = 60;
-	//max_midrange_tolerance = 180 - min_midrange_tolerance; //: Three hours
-	max_midrange_tolerance = 120;
-	min_longdistance_tolerance = 180;
-	//max_longdistance_tolerance = 330 - min_longdistance_tolerance; // Five and a half hours
-	max_longdistance_tolerance = 150;
+	min_local_tolerance = 45 * 10; // 3/4 of an hour.
+	max_local_tolerance = 60 * 10; // One hour
+	//max_local_tolerance = 15; // One hour
+	min_midrange_tolerance = 60 * 10;
+	max_midrange_tolerance = 180 * 10; //: Three hours
+	//max_midrange_tolerance = 120;
+	min_longdistance_tolerance = 180 * 10;
+	max_longdistance_tolerance = 330 * 10; // Five and a half hours
+	//max_longdistance_tolerance = 150;
 }
 
 
@@ -1168,15 +1168,24 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		system_time_option = 1;
 	}
 
+	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts
-	min_local_tolerance = contents.get_int("min_local_tolerance", min_local_tolerance);
-	max_local_tolerance = contents.get_int("max_local_tolerance", max_local_tolerance) - min_local_tolerance;
-	min_midrange_tolerance = contents.get_int("min_midrange_tolerance", min_midrange_tolerance);
-	max_midrange_tolerance = contents.get_int("max_midrange_tolerance", max_midrange_tolerance) - min_midrange_tolerance;
-	min_longdistance_tolerance = contents.get_int("min_longdistance_tolerance", min_longdistance_tolerance);
-	max_longdistance_tolerance = contents.get_int("max_longdistance_tolerance", max_longdistance_tolerance) - min_longdistance_tolerance;
-
-	/*scale_divider = contents.get_int("scale_divider", scale_divider);*/
+	const uint16 min_local_tolerance_minutes = contents.get_int("min_local_tolerance", (min_local_tolerance / 10));
+	min_local_tolerance = min_local_tolerance_minutes * 10;
+	const uint16 max_local_tolerance_minutes = contents.get_int("max_local_tolerance", (max_local_tolerance / 10));
+	max_local_tolerance = max_local_tolerance_minutes * 10;
+	max_local_tolerance -= max_local_tolerance > min_local_tolerance ? min_local_tolerance : 0;
+	const uint16 min_midrange_tolerance_minutes = contents.get_int("min_midrange_tolerance", (min_midrange_tolerance/ 10));
+	min_midrange_tolerance = min_midrange_tolerance_minutes * 10;
+	const uint16 max_midrange_tolerance_minutes = contents.get_int("max_midrange_tolerance", (max_midrange_tolerance / 10));
+	max_midrange_tolerance = max_midrange_tolerance_minutes * 10;
+	max_midrange_tolerance -= max_midrange_tolerance  > min_midrange_tolerance ? min_midrange_tolerance : 0;
+	const uint16 min_longdistance_tolerance_minutes = contents.get_int("min_longdistance_tolerance", (min_longdistance_tolerance / 10));
+	min_longdistance_tolerance = min_longdistance_tolerance_minutes * 10;
+	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
+	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
+	max_longdistance_tolerance -= max_longdistance_tolerance > min_longdistance_tolerance ? min_longdistance_tolerance : 0;
+	
 
 	/*
 	 * Selection of savegame format through inifile

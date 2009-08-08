@@ -218,7 +218,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-				if( h->get_station_type()&haltestelle_t::dock  ) 
+				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
 					break;
@@ -250,7 +250,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-				if( h->get_station_type()&haltestelle_t::dock  ) 
+				if( h.is_bound() && h->get_station_type()&haltestelle_t::dock  ) 
 				{
 					start_hub = h;
 					break;
@@ -654,7 +654,8 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-				if( h->get_station_type()&haltestelle_t::airstop  ) {
+				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  )
+				{
 					start_hub = h;
 					break;
 				}
@@ -685,7 +686,7 @@ bool ai_passenger_t::create_air_transport_vehikel(const stadt_t *start_stadt, co
 			while(iter.next())
 			{
 				halthandle_t h = iter.get_current_key();
-				if( h->get_station_type()&haltestelle_t::airstop  ) 
+				if( h.is_bound() && h->get_station_type()&haltestelle_t::airstop  ) 
 				{
 					start_hub = h;
 					break;

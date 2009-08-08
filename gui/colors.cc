@@ -67,8 +67,8 @@
 #define CENTRALISED_SEARCH				(SEPERATE5+7)
 #define USE_PERFORMANCE_COUNTER			(CENTRALISED_SEARCH+13)
 #define PHASE_REBUILD_CONNEXIONS		(USE_PERFORMANCE_COUNTER+13)
-#define PHASE_FIND_ELIGIBLE				(PHASE_REBUILD_CONNEXIONS+13)
-#define PHASE_FILL_MATRIX				(PHASE_FIND_ELIGIBLE+13)
+#define PHASE_FILTER_ELIGIBLE			(PHASE_REBUILD_CONNEXIONS+13)
+#define PHASE_FILL_MATRIX				(PHASE_FILTER_ELIGIBLE+13)
 #define PHASE_EXPLORE_PATHS				(PHASE_FILL_MATRIX+13)
 #define PHASE_REROUTE_GOODS				(PHASE_EXPLORE_PATHS+13)
 #define PATH_EXPLORE_STATUS				(PHASE_REROUTE_GOODS+13)
@@ -442,11 +442,23 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 		figure_colour = COL_LIGHT_BLUE;
 	}
 
+	char status_string[32];
+	if ( path_explorer_t::is_processing() )
+	{
+		tstrncpy(status_string, translator::translate( path_explorer_t::get_current_category_name() ), 15);
+		strcat(status_string, " / ");
+		strncat(status_string, translator::translate( path_explorer_t::get_current_phase_name() ), 8);
+	}
+	else
+	{
+		strcpy(status_string, "stand-by");
+	}
+
 	len = 15+display_proportional_clip(x+10, y+PHASE_REBUILD_CONNEXIONS, translator::translate("Rebuild connexions:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_REBUILD_CONNEXIONS, ntos(path_explorer_t::get_limit_rebuild_connexions(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
-	len = 15+display_proportional_clip(x+10, y+PHASE_FIND_ELIGIBLE, translator::translate("Find eligible halts:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_FIND_ELIGIBLE, ntos(path_explorer_t::get_limit_find_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	len = 15+display_proportional_clip(x+10, y+PHASE_FILTER_ELIGIBLE, translator::translate("Filter eligible halts:"), ALIGN_LEFT, text_colour, true);
+	display_proportional_clip(x+len, y+PHASE_FILTER_ELIGIBLE, ntos(path_explorer_t::get_limit_filter_eligible(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PHASE_FILL_MATRIX, translator::translate("Fill path matrix:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
@@ -458,6 +470,6 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PATH_EXPLORE_STATUS, translator::translate("Status:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, translator::translate( path_explorer_t::is_processing() ? "Processing ..." : "Stand-by" ), ALIGN_LEFT, figure_colour, true);
+	display_proportional_clip(x+len, y+PATH_EXPLORE_STATUS, status_string, ALIGN_LEFT, figure_colour, true);
 
 }

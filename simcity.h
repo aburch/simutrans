@@ -24,6 +24,8 @@ class spieler_t;
 class cbuffer_t;
 class cstring_t;
 
+class rule_t;
+
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX (33)	// workers
 #define TOURIST_PAX (16)		// tourists
@@ -104,6 +106,13 @@ public:
 	sint16 get_private_car_ownership(sint32 monthyear);
 	float get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(cstring_t objfilename);
+
+	/*
+	 * resets the cache for the evalution of locations in city building
+	 * must be called when the world is enlarged or loaded
+	 */
+	static void reset_location_cache(koord size) ;
+	static void disable_location_cache();
 
 private:
 	static karte_t *welt;
@@ -315,16 +324,21 @@ private:
 	 * @return true on match, false otherwise
 	 * @author Hj. Malthaner
 	 */
-	inline bool bewerte_loc(koord pos, const char *regel, uint16 rotation);
+	inline bool bewerte_loc(koord pos, rule_t &regel, uint16 rotation);
+
+	/*
+	 * evaluates the location, tests again all rules, and caches the result
+	 */
+	uint16 bewerte_loc_cache(const koord pos, bool force=false);
 
 	/**
 	 * Check rule in all transformations at given position
 	 * @author Hj. Malthaner
 	 */
-	inline sint8 bewerte_pos(koord pos, const char *regel);
+	inline sint8 bewerte_pos(koord pos, rule_t &regel);
 
-	void bewerte_strasse(koord pos, sint32 rd, const char* regel);
-	void bewerte_haus(koord pos, sint32 rd, const char* regel);
+	void bewerte_strasse(koord pos, sint32 rd, rule_t &regel);
+	void bewerte_haus(koord pos, sint32 rd, rule_t &regel);
 
 	void pruefe_grenzen(koord pos);
 
