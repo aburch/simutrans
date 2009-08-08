@@ -164,7 +164,7 @@ private:
 		static const uint8 phase_check_flag = 0;
 		static const uint8 phase_init_prepare = 1;
 		static const uint8 phase_rebuild_connexions = 2;
-		static const uint8 PHASE_FILTER_ELIGIBLE = 3;
+		static const uint8 phase_filter_eligible = 3;
 		static const uint8 phase_fill_matrix = 4;
 		static const uint8 phase_explore_paths = 5;
 		static const uint8 phase_reroute_goods = 6;
