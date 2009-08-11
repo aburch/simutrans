@@ -3597,6 +3597,16 @@ sint32 convoi_t::get_running_cost() const
 	return running_cost;
 }
 
+sint32 convoi_t::get_per_kilometre_running_cost() const
+{
+	sint32 running_cost = 0;
+	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) { //"anzahl" = "number" (Babelfish)
+		sint32 vehicle_running_cost = fahr[i]->get_besch()->get_base_running_costs(welt);
+		running_cost += vehicle_running_cost;
+	}
+	return running_cost;
+}
+
 uint32 convoi_t::get_fixed_maintenance() const
 {
 	uint32 running_cost = 0;

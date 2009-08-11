@@ -351,9 +351,9 @@ enable_home:
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
 			uint32 fixed_monthly = cnv->get_fixed_maintenance();
 			if (fixed_monthly)
-				sprintf(tmp, translator::translate("(%1.2f$/km, %1.2f$/mon)"), cnv->get_running_cost()/100.0, fixed_monthly/100.0 );
+				sprintf(tmp, translator::translate("(%1.2f$/km, %1.2f$/mon)"), cnv->get_per_kilometre_running_cost()/100.0, fixed_monthly/100.0 );
 			else
-				sprintf(tmp, translator::translate("(%1.2f$/km)"), cnv->get_running_cost()/100.0 );
+				sprintf(tmp, translator::translate("(%1.2f$/km)"), cnv->get_per_kilometre_running_cost()/100.0 );
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
 		}
 

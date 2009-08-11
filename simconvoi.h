@@ -502,6 +502,11 @@ public:
 	*/
 	sint32 get_running_cost() const;
 
+	// Gets the running cost per kilometre
+	// for GUI purposes.
+	// @author: jamespetts
+	sint32 get_per_kilometre_running_cost() const;
+
 	/**
 	* returns the total monthly fixed maintenance cost for all vehicles in convoi
 	* @author Bernd Gabriel
