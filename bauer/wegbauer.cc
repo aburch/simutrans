@@ -57,6 +57,7 @@
 #include "../dings/crossing.h"
 #include "../dings/leitung2.h"
 #include "../dings/groundobj.h"
+#include "../dings/wayobj.h"
 
 #include "../vehicle/movingobj.h"
 
@@ -2000,6 +2001,11 @@ void wegbauer_t::baue_schiene()
 					spieler_t *s = weg->get_besitzer();
 					spieler_t::add_maintenance( s, -weg->get_besch()->get_wartung());
 					weg->set_besch(besch);
+					const wayobj_t* wayobj = gr->get_wayobj(weg->get_waytype());
+					if(wayobj != NULL)
+					{
+						weg->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
+					}
 					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 					weg->set_besitzer(sp);
 					cost -= besch->get_preis();
@@ -2008,6 +2014,11 @@ void wegbauer_t::baue_schiene()
 			else {
 				weg_t *sch=weg_t::alloc((waytype_t)besch->get_wtyp());
 				sch->set_besch(besch);
+				const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());
+				if(wayobj != NULL)
+				{
+					sch->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
+				}
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
 					ribi = ribi_t::doppelt(ribi);
 				}
