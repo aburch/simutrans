@@ -1202,6 +1202,10 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 
 	stadt.clear();
 
+DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
+	// Call this before building cities
+	hausbauer_t::neue_karte();
+
 	cached_groesse_gitter_x = 0;
 	cached_groesse_gitter_y = 0;
 
@@ -1224,8 +1228,6 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	nosave = false;
 
-DBG_DEBUG("karte_t::init()","hausbauer_t::neue_karte()");
-	hausbauer_t::neue_karte();
 	fabrikbauer_t::neue_karte(this);
 	// new system ...
 	const int max_display_progress=16+einstellungen->get_anzahl_staedte()*4+einstellungen->get_land_industry_chains();
