@@ -2044,6 +2044,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong(financial_history[k][j], " ");
 		}
 	}
+	pax_happy    = financial_history[0][HALT_HAPPY];
+	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
+	pax_no_route = financial_history[0][HALT_NOROUTE];
 }
 
 
