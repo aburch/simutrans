@@ -288,6 +288,7 @@ public:
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return scaled_running_costs; }
 	uint16 get_base_running_costs() const { return betriebskosten; }
+	uint16 get_base_running_costs(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	void set_scale(float scale_factor) { scaled_running_costs = betriebskosten * scale_factor > 0 ? betriebskosten * scale_factor : 1; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
@@ -303,7 +304,7 @@ public:
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
-	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
+	inline uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
 
 	/**
 	* @return introduction year
