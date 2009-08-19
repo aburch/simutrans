@@ -304,7 +304,7 @@ public:
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
-	inline uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
+	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
 
 	/**
 	* @return introduction year
