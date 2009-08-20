@@ -32,12 +32,6 @@
 #include "components/gui_chart.h"
 #include "components/list_button.h"
 
-#ifndef WIN32
-// G++ seems to go wrong without this.
-#include "../besch/vehikel_besch.cc"
-#endif
-
-
 convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 : gui_frame_t(cnv->get_name(), cnv->get_besitzer()),
   scrolly(&veh_info),
