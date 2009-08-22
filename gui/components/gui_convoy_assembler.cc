@@ -753,7 +753,7 @@ DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","appended %s",in
 		}
 		else 
 		{
-			// append/insert into convoi
+			// append/insert into convoy
 			if(vehicles.get_count()+new_vehicle_info.get_count() <= max_convoy_length) {
 
 				koord k=koord(veh_action==va_insert?insert_vehicle_in_front_action:append_vehicle_action,0);
@@ -811,7 +811,7 @@ void gui_convoy_assembler_t::update_data()
 		}
 		convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(vehicles[i - 1], NULL) ? COL_DARK_GREEN : COL_YELLOW;
 
-		// change grren into blue for retired vehicles
+		// change green into blue for retired vehicles
 		for(i=0;  i<vehicles.get_count(); i++) {
 			if(vehicles[i]->is_future(month_now) || vehicles[i]->is_retired(month_now)) {
 				if (convoi_pics[i].lcolor == COL_DARK_GREEN) {
