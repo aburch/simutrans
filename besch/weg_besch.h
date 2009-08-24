@@ -107,8 +107,8 @@ public:
 
 	void set_scale(float scale_factor) 
 	{
-		scaled_price = price * scale_factor > 0 ? price * scale_factor : 1;
-		scaled_maintenance = maintenance * scale_factor > 0 ? maintenance * scale_factor : 1;
+		scaled_price = price * scale_factor < 1 ? (price > 0 ? 1 : 0) : price * scale_factor;
+		scaled_maintenance = maintenance * scale_factor < (price > 0 ? 1 : 0) ? 1: maintenance * scale_factor;
 	}
 
 	/**

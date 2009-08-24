@@ -406,11 +406,12 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 						vb=(*convoy_assembler.get_vehicles())[convoy_assembler.get_vehicles()->get_count()-1];
 					}
 					vehikel_t* veh = depot->find_oldest_newest(vb, true);
-					if (veh == NULL) 
+					const bool upgrade_now = convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade && cnv.is_bound();
+					if (veh == NULL || upgrade_now) 
 					{
 						// nothing there => we buy it
 						veh = depot->buy_vehicle(vb, convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade);
-						if(convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade && cnv.is_bound())
+						if(upgrade_now)
 						{
 							//Upgrading, so vehicles must be *replaced*.
 							for(uint16 i = 0; i < cnv->get_vehikel_anzahl(); i ++)

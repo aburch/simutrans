@@ -1695,7 +1695,6 @@ void karte_t::set_scale()
 		}
 	}
 
-
 	// Tunnels
 
 	stringhashtable_tpl <tunnel_besch_t *> * tunnels = tunnelbauer_t::get_all_tunnels();
@@ -3742,8 +3741,6 @@ karte_t::laden(const char *filename)
 	mute_sound(true);
 	display_show_load_pointer(true);
 
-	const float old_scale_factor = get_einstellungen()->get_distance_per_tile();
-
 #ifndef DEMO
 	loadsave_t file;
 
@@ -3761,13 +3758,14 @@ karte_t::laden(const char *filename)
 		// too old
 		create_win(new news_img("WRONGSAVE"), w_info, magic_none);
 	}
-	else {
+	else 
+	{
 /*
 		event_t ev;
 		ev.ev_class=EVENT_NONE;
 		check_pos_win(&ev);
 */
-DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
+		DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
 		ok = true;
@@ -3786,10 +3784,6 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		outstanding_cars += s->get_outstanding_cars();
 	}
 
-	if(old_scale_factor != get_einstellungen()->get_distance_per_tile())
-	{
-		set_scale();
-	}
 	return ok;
 }
 
@@ -3818,6 +3812,8 @@ void karte_t::laden(loadsave_t *file)
 	// powernets zum laden vorbereiten -> tabelle loeschen
 	powernet_t::neue_karte();
 
+	const float old_scale_factor = get_einstellungen()->get_distance_per_tile();
+
 	// jetzt geht das laden los
 	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
 	einstellungen->rdwr(file);
@@ -3831,6 +3827,11 @@ void karte_t::laden(loadsave_t *file)
 	}
 	else {
 		warenbauer_t::set_multiplier( 1000 );
+	}
+
+	if(old_scale_factor != get_einstellungen()->get_distance_per_tile())
+	{
+		set_scale();
 	}
 
 	// just an initialisation for the loading
