@@ -446,6 +446,7 @@ fabrik_t::add_random_field(uint16 probability)
 		if(lt) {
 			gr2->obj_add( lt );
 		}
+		gr2->calc_bild();
 		return true;
 	}
 	return false;
