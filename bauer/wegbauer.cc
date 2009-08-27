@@ -1336,40 +1336,30 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			// create fake tunnel grounds if needed
 			bool bd_von_new = false, bd_nach_new = false;
 			grund_t *bd_von = welt->lookup(pos);
-			if(  bd_von  ) {
-				// if we have a slope, we must adjust height correspondingly
-				if(  bd_von->get_weg_hang()!=hang_t::flach  ) {
-					if(  ribi_typ(bd_von->get_weg_hang())==ribi_typ(diff)  ) {
-						// upwards
-						pos.z += Z_TILE_STEP;
-					}
-				}
-			}
-			else {
-				// check for slope down ...
-				bd_von = welt->lookup(pos+koord3d(0,0,-Z_TILE_STEP));
-				if(  bd_von  &&  bd_von->get_weg_hang()!=hang_t::flach) {
-					route[route.get_count()-1].z -= 1;
-					pos.z -= Z_TILE_STEP;
-				}
-			}
 			if(  bd_von == NULL ) {
 				bd_von = new tunnelboden_t(welt, pos, hang_t::flach);
 				bd_von_new = true;
 			}
+			// take care of slopes
+			pos.z = bd_von->get_vmove(diff);
 
 			// check next tile
 			grund_t *bd_nach = welt->lookup(pos + diff);
 			if(  !bd_nach  ) {
 				// check for slope down ...
 				bd_nach = welt->lookup(pos + diff + koord3d(0,0,-Z_TILE_STEP));
+				if(  bd_nach  &&  bd_nach->get_weg_hang() == hang_t::flach  ) {
+					// Don't care about _flat_ tunnels below.
+					bd_nach= NULL;
+				}
 			}
 			if(  bd_nach == NULL  ){
 				bd_nach = new tunnelboden_t(welt, pos + diff, hang_t::flach);
 				bd_nach_new = true;
 			}
-			ok = ok && bd_nach->ist_tunnel();
-			// all checks are done here (slopes, crossings, stations etc)
+			// check for tunnel and right slope
+			ok = ok && bd_nach->ist_tunnel() && bd_nach->get_vmove(-diff)==pos.z;
+			// all other checks are done here (crossings, stations etc)
 			ok = ok && is_allowed_step(bd_von, bd_nach, &dummy_cost);
 
 			// check for last tile
