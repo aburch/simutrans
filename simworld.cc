@@ -4198,9 +4198,11 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		sint8 hgt; // trial height
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
-		// starting (maximal height)
-		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_level ? max(grundwasser, grund_t::underground_level) : 32;
-		const sint8 hmin = grund_t::underground_mode==grund_t::ugm_all ? grundwasser-10 : grundwasser;
+		// for the calculation of hmin/hmax see simview.cc
+		// for the definition of underground_level see grund_t::set_underground_mode
+		const sint8 hmin = grund_t::underground_mode!=grund_t::ugm_all ? min(grundwasser, grund_t::underground_level) : grundwasser-10;
+		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? 32 : min(grund_t::underground_level, 32);
+
 		// find matching and visible grund
 		for(hgt = hmax; hgt>=hmin; hgt-=Z_TILE_STEP) {
 
