@@ -3743,7 +3743,9 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					if(updated) {
 						fpl->cleanup();
 						// remove line from old stop is needed at here
-						last_halt->remove_line(line);
+						if(last_halt.is_bound()) {
+							last_halt->remove_line(line);
+						}
 						sp->simlinemgmt.update_line(line);
 					}
 				}
