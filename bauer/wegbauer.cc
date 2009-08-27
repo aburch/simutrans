@@ -724,7 +724,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
-					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt) |  from->get_weg_ribi_unmasked(track_wt);
+					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt) |  from->get_weg_ribi_unmasked(track_wt) |  ribi_t::doppelt(ribi_typ(from->get_grund_hang()));
 					ok = ok && ((ribi & ribi_typ(zv))!=0);
 				}
 				if(to->ist_tunnel()) {
