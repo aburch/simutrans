@@ -3341,6 +3341,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		return;
 	}
 
+	// If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
+	if( two_click_werkzeug_t* tool = dynamic_cast<two_click_werkzeug_t*>(get_werkzeug()) ) {
+		tool->cleanup( this, false );
+	}
+
 	// do not set value for empyt player
 	uint8 old_sp[MAX_PLAYER_COUNT];
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -4215,6 +4220,10 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			const grund_t *gr = lookup(koord3d(mi,mj,hgt));
 			if(gr != NULL) {
 				found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
+				if( ( gr->get_typ() == grund_t::tunnelboden || gr->get_typ() == grund_t::monorailboden ) && gr->get_weg_nr(0) == NULL ) {
+					// This is only a dummy ground placed by wkz_tunnelbau_t or wkz_wegebau_t as a preview.
+					found = false;
+				}
 				if (found) {
 					break;
 				}

@@ -195,7 +195,7 @@ private:
 
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
-	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&error );
 };
 
 class wkz_brueckenbau_t : public werkzeug_t {
@@ -204,16 +204,15 @@ class wkz_brueckenbau_t : public werkzeug_t {
 	const char *work( karte_t *welt, spieler_t *sp, koord3d k );
 };
 
-class wkz_tunnelbau_t : public werkzeug_t {
-private:
-	koord3d start;
-	zeiger_t *wkz_tunnelbau_bauer;
+class wkz_tunnelbau_t : public two_click_werkzeug_t {
 public:
-	wkz_tunnelbau_t() : werkzeug_t() { wkz_tunnelbau_bauer=NULL; }
 	const char *get_tooltip(spieler_t *);
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	const char *work( karte_t *welt, spieler_t *sp, koord3d k );
+private:
+	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d &, karte_t* );
+
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&error );
 };
 
 class wkz_wayremover_t : public two_click_werkzeug_t {
@@ -224,7 +223,7 @@ public:
 private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
-	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&error );
 };
 
 class wkz_wayobj_t : public two_click_werkzeug_t {
@@ -240,7 +239,7 @@ private:
 
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
-	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&error );
 
 public:
 	wkz_wayobj_t(bool b=true) : two_click_werkzeug_t(), build(b) {};
@@ -373,7 +372,7 @@ public:
 private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
-	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d & );
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&error );
 };
 
 /* stop moving tool */

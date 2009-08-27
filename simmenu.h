@@ -218,28 +218,37 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
+	bool is_first_click() { return first_click; };
+	void cleanup( karte_t *, bool delete_start_marker );
+
 private:
 	/*
-	 * These two routines have to be implemented in inherited classes.
-	 * mark_tiles: fill marked_tiles.
-	 * work: do the real work.
-	 * returned string is passed by work/move.
+	 * This routine should fill marked_tiles.
 	 */
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
+
+	/*
+	 * This routine is called, if the real work should be done.
+	 * If the tool supports single clicks, end is sometimes == koord3d::invalid.
+	 * Returned string is passed by work/move.
+	 */
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
 
 	/*
 	 * Can the tool start/end on this koord3d?
-	 * NULL = yes, other return values are passed by work/move.
+	 * 0 = no
+	 * 1 = This tool can work on this tile (with single click)
+	 * 2 = On this tile can dragging start/end
+	 * 3 = Both (1 and 2). Not used by any tool yet.
+	 * error will contain an error message (if this is != NULL, return value should be 0).
 	 */
-	virtual const char *valid_pos( karte_t *, spieler_t *, const koord3d &start ) = 0;
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &start, const char *&error ) = 0;
 
 	virtual image_id get_marker_image();
 
 	bool first_click;
 	koord3d start;
 	void start_at( karte_t *, spieler_t *, koord3d &new_start );
-	void cleanup( bool delete_start_marker );
 
 	zeiger_t *start_marker;
 
