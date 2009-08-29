@@ -4199,15 +4199,20 @@ void convoy_metrics_t::calc(convoi_t &cnv)
 	{
 		add_vehicle(*cnv.get_vehikel(i)->get_besch());
 	}
-	power = cnv.calc_adjusted_power();
+	power = cnv.calc_adjusted_power() / 64; //BG, 30.08.2009: gear factor '/ 64' was missing
 }
 
-void convoy_metrics_t::calc(vector_tpl<const vehikel_besch_t *> &vehicles)
+void convoy_metrics_t::calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles)
 {
 	reset();
 	for(unsigned i = vehicles.get_count();  i-- > 0; ) {
 		add_vehicle(*vehicles[i]);
 	}
+	//BG, 30.08.2009: power calculation was missing:
+	for(unsigned i = vehicles.get_count();  i-- > 0; ) {
+		power += vehicles[i]->get_effective_power_index(max_top_speed);
+	}
+	power *= world.get_einstellungen()->get_global_power_factor() / 64;
 }
 
 uint32 convoy_metrics_t::get_speed(uint32 weight) 

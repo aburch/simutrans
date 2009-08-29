@@ -397,6 +397,15 @@ public:
 	}
 
 	bool can_follow_any() const { return nachfolger==0; }
+
+	/**
+	 * Get effective power index. 
+	 * Steam engine power depends on its speed.
+	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / 64
+	 * (method extracted from sint32 convoi_t::calc_adjusted_power())
+	 * @author Bernd Gabriel
+	 */
+	uint32 get_effective_power_index(uint16 current_speed /* in kmh */ ) const;
 };
 
 #endif
