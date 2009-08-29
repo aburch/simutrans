@@ -767,7 +767,7 @@ bool two_click_werkzeug_t::init( karte_t *welt, spieler_t * )
 {
 	first_click = true;
 	welt->show_distance = start = koord3d::invalid;
-	cleanup( true );
+	cleanup( welt, true );
 
 	return true;
 }
@@ -779,26 +779,34 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	}
 
 	// remove marker
-	cleanup( true );
+	cleanup( welt, true );
 
-	const char *error = valid_pos( welt, sp, pos );
-	if( error ) {
+	const char *error;
+	uint8 value = is_valid_pos( welt, sp, pos, error );
+	if( error || value == 0 ) {
 		init( welt, sp );
 		return error;
 	}
 
 	if( first_click ) {
-		// set starting position.
-		start_at( welt, sp, pos );
+		if( value & 1 ) {
+			// Work here directly.
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
+			error = do_work( welt, sp, pos, koord3d::invalid );
+		}
+		else {
+			// set starting position.
+			start_at( welt, sp, pos );
+		}
 	}
 	else {
-		DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
-
-		error = do_work( welt, sp, start, pos );
+		if( value & 2 ) {
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
+			error = do_work( welt, sp, start, pos );
+		}
 		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
-		return error;
 	}
-	return NULL;
+	return error;
 }
 
 const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate, koord3d pos )
@@ -811,26 +819,32 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 		init( welt, sp );
 	}
 
+	const char *error;
+	uint8 value = is_valid_pos( welt, sp, pos, error );
+
 	if( start == koord3d::invalid ) {
 		// start dragging.
-		cleanup( true );
-		const char *error = valid_pos( welt, sp, pos );
-		if( error ) {
+		cleanup( welt, true );
+		if( error || value == 0 ) {
 			return error;
 		}
-		start_at( welt, sp, pos );
+		if( value & 2 ) {
+			start_at( welt, sp, pos );
+		}
 	}
 	else {
 		// continue dragging.
-		cleanup( false );
+		cleanup( welt, false );
 
 		if( start_marker ) {
 			start = start_marker->get_pos(); // if map was rotated.
 		}
 
-		display_show_load_pointer( true );
-		mark_tiles( welt, sp, start, pos );
-		display_show_load_pointer( false );
+		if( value & 2 ) {
+			display_show_load_pointer( true );
+			mark_tiles( welt, sp, start, pos );
+			display_show_load_pointer( false );
+		}
 	}
 	return NULL;
 }
@@ -848,7 +862,7 @@ void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_
 	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start.get_str());
 }
 
-void two_click_werkzeug_t::cleanup( bool delete_start_marker )
+void two_click_werkzeug_t::cleanup( karte_t *welt, bool delete_start_marker )
 {
 	// delete marker.
 	if(start_marker != NULL  &&  delete_start_marker ) {
@@ -861,7 +875,15 @@ void two_click_werkzeug_t::cleanup( bool delete_start_marker )
 		zeiger_t *z = marked.remove_first();
 		z->mark_image_dirty( z->get_bild(), 0 );
 		z->mark_image_dirty( z->get_after_bild(), 0 );
+		koord3d pos = z->get_pos();
+		grund_t *gr = welt->lookup( pos );
 		delete z;
+		// Remove dummy ground (placed by wkz_tunnelbau_t and wkz_wegebau_t):
+		if( (gr->get_typ() == grund_t::tunnelboden  ||  gr->get_typ() == grund_t::monorailboden)  &&  gr->get_weg_nr(0) == NULL ) {
+			welt->access(pos.get_2d())->boden_entfernen(gr);
+			delete gr;
+			assert( !welt->lookup(pos));
+		}
 	}
 	// delete tooltip.
 	win_set_static_tooltip( NULL );

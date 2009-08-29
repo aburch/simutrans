@@ -27,6 +27,7 @@
 	ADD: Underground slope (in principle even compatible to older savegames) using standard slope tool
 	ADD: changing slopes now also with objects on top
 	ADD: (Dwachs) tram track can be build in road tunnels
+	ADD: (gerw) click-and-drag for tunnels
 
 
 

@@ -3582,6 +3582,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		return;
 	}
 
+	// If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
+	if( two_click_werkzeug_t* tool = dynamic_cast<two_click_werkzeug_t*>(get_werkzeug()) ) {
+		tool->cleanup( this, false );
+	}
+
 	// do not set value for empyt player
 	uint8 old_sp[MAX_PLAYER_COUNT];
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -4504,9 +4509,11 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		sint8 hgt; // trial height
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
-		// starting (maximal height)
-		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_level ? max(grundwasser, grund_t::underground_level) : 32;
-		const sint8 hmin = grund_t::underground_mode==grund_t::ugm_all ? grundwasser-10 : grundwasser;
+		// for the calculation of hmin/hmax see simview.cc
+		// for the definition of underground_level see grund_t::set_underground_mode
+		const sint8 hmin = grund_t::underground_mode!=grund_t::ugm_all ? min(grundwasser, grund_t::underground_level) : grundwasser-10;
+		const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? 32 : min(grund_t::underground_level, 32);
+
 		// find matching and visible grund
 		for(hgt = hmax; hgt>=hmin; hgt-=Z_TILE_STEP) {
 
@@ -4519,6 +4526,10 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			const grund_t *gr = lookup(koord3d(mi,mj,hgt));
 			if(gr != NULL) {
 				found = /*select_karten_boden ? gr->ist_karten_boden() :*/ gr->is_visible();
+				if( ( gr->get_typ() == grund_t::tunnelboden || gr->get_typ() == grund_t::monorailboden ) && gr->get_weg_nr(0) == NULL ) {
+					// This is only a dummy ground placed by wkz_tunnelbau_t or wkz_wegebau_t as a preview.
+					found = false;
+				}
 				if (found) {
 					break;
 				}
