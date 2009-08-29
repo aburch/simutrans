@@ -74,7 +74,10 @@ public:
 
 	uint16 get_base_value() const { return value; }
 
-	void set_scale(float scale_factor) { scaled_value = value * scale_factor; }
+	void set_scale(float scale_factor) { 
+		// BG: 29.08.2009: explicit typecasts avoid warnings
+		scaled_value = (uint16)(value * scale_factor); 
+	}
 
 	/**
 	* @return speed bonus value of the good

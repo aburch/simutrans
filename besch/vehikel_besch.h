@@ -289,7 +289,10 @@ public:
 	uint16 get_betriebskosten() const { return scaled_running_costs; }
 	uint16 get_base_running_costs() const { return betriebskosten; }
 	uint16 get_base_running_costs(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
-	void set_scale(float scale_factor) { scaled_running_costs = betriebskosten * scale_factor > 0 ? betriebskosten * scale_factor : 1; }
+	void set_scale(float scale_factor) { 
+		// BG: 29.08.2009: explicit typecasts avoid warnings
+		scaled_running_costs = (uint16)(betriebskosten * scale_factor > 0 ? betriebskosten * scale_factor : 1); 
+	}
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint32 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
