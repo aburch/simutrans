@@ -589,7 +589,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( way_count_tunnel, "" );
 			file->rdwr_long( way_max_bridge_len, "" );
 			file->rdwr_long( way_count_leaving_road, "" );
-			if(file->get_experimental_version() < 6)
+			if(file->is_loading() && file->get_experimental_version() < 6)
 			{
 				// Scale the costs to match the scale factor.
 				cst_multiply_dock *= distance_per_tile;
@@ -597,6 +597,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				cst_multiply_roadstop *= distance_per_tile;
 				cst_multiply_airterminal *= distance_per_tile;
 				cst_multiply_post *= distance_per_tile;
+				maint_building *= distance_per_tile;
 				cst_signal *= distance_per_tile;
 				cst_tunnel *= distance_per_tile;
 				cst_third_rail *= distance_per_tile;
@@ -938,7 +939,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
 
 	starting_money = contents.get_int64("starting_money", starting_money );
-	maint_building = contents.get_int("maintenance_building", maint_building);
+	maint_building = contents.get_int("maintenance_building", maint_building) * distance_per_tile;
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations ) != 0;
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );

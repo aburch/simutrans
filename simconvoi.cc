@@ -604,7 +604,7 @@ sint32 convoi_t::calc_adjusted_power()
 	// See here for details: http://www.railway-technical.com/st-vs-de.shtml
 
 	//This is needed to add back at the end.
-	uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
+	const uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
 	
 	float speed_factor;
 	
