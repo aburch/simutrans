@@ -19,6 +19,7 @@
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../dings/zeiger.h"
 #include "../simgraph.h"
 #include "../simmenu.h"
 
@@ -243,8 +244,8 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
 	inp_underground_level.set_groesse( koord(50,12));
-	inp_underground_level.set_limits(welt->get_grundwasser(), 20);
-	inp_underground_level.set_value( grund_t::underground_level );
+	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
+	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
 	add_komponente(&inp_underground_level);
 	inp_underground_level.add_listener(this);
 

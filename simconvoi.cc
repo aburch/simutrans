@@ -583,7 +583,7 @@ sint32 convoi_t::calc_adjusted_power()
 		return sum_gear_und_leistung;
 	}
 	const uint16 max_speed = fahr[0]->get_besch()->get_geschw();
-	float highpoint_speed = (max_speed >= 30) ? max_speed - 30 : 30;
+	float highpoint_speed = (max_speed >= 60) ? max_speed - 30 : 30;
 	const uint16 current_speed = speed_to_kmh(akt_speed);
 	
 	// Within 15% of top speed - locomotive less efficient
@@ -604,7 +604,7 @@ sint32 convoi_t::calc_adjusted_power()
 	// See here for details: http://www.railway-technical.com/st-vs-de.shtml
 
 	//This is needed to add back at the end.
-	uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
+	const uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
 	
 	float speed_factor;
 	

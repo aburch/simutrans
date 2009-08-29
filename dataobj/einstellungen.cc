@@ -589,6 +589,21 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( way_count_tunnel, "" );
 			file->rdwr_long( way_max_bridge_len, "" );
 			file->rdwr_long( way_count_leaving_road, "" );
+			if(file->is_loading() && file->get_experimental_version() < 6)
+			{
+				// Scale the costs to match the scale factor.
+				cst_multiply_dock *= distance_per_tile;
+				cst_multiply_station *= distance_per_tile;
+				cst_multiply_roadstop *= distance_per_tile;
+				cst_multiply_airterminal *= distance_per_tile;
+				cst_multiply_post *= distance_per_tile;
+				maint_building *= distance_per_tile;
+				cst_signal *= distance_per_tile;
+				cst_tunnel *= distance_per_tile;
+				cst_third_rail *= distance_per_tile;
+				cst_buy_land *= distance_per_tile;
+				cst_remove_tree *= distance_per_tile;
+			}
 		}
 		else {
 			// name of stops
@@ -924,7 +939,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
 
 	starting_money = contents.get_int64("starting_money", starting_money );
-	maint_building = contents.get_int("maintenance_building", maint_building);
+	maint_building = contents.get_int("maintenance_building", maint_building) * distance_per_tile;
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations ) != 0;
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
@@ -957,27 +972,27 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
 
 	/* now the cost section */
-	cst_multiply_dock = contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100;
-	cst_multiply_station = contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100;
-	cst_multiply_roadstop = contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100;
-	cst_multiply_airterminal = contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100;
-	cst_multiply_post = contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100;
+	cst_multiply_dock = (contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile;
+	cst_multiply_station = (contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile;
+	cst_multiply_roadstop = (contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100) * distance_per_tile;
+	cst_multiply_airterminal = (contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100) * distance_per_tile;
+	cst_multiply_post = (contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100) * distance_per_tile;
 	cst_multiply_headquarter = contents.get_int64("cost_multiply_headquarter", cst_multiply_headquarter/(-100) ) * -100;
 	cst_depot_air = contents.get_int64("cost_depot_air", cst_depot_air/(-100) ) * -100;
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
 	cst_depot_road = contents.get_int64("cost_depot_road", cst_depot_road/(-100) ) * -100;
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
-	cst_signal = contents.get_int64("cost_signal", cst_signal/(-100) ) * -100;
-	cst_tunnel = contents.get_int64("cost_tunnel", cst_tunnel/(-100) ) * -100;
-	cst_third_rail = contents.get_int64("cost_third_rail", cst_third_rail/(-100) ) * -100;
+	cst_signal = (contents.get_int64("cost_signal", cst_signal/(-100) ) * -100) * distance_per_tile;
+	cst_tunnel = (contents.get_int64("cost_tunnel", cst_tunnel/(-100) ) * -100) * distance_per_tile;
+	cst_third_rail = (contents.get_int64("cost_third_rail", cst_third_rail/(-100) ) * -100) * distance_per_tile;
 
 	// alter landscape
-	cst_buy_land = contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100;
+	cst_buy_land = (contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile;
 	cst_alter_land = contents.get_int64("cost_alter_land", cst_alter_land/(-100) ) * -100;
 	cst_set_slope = contents.get_int64("cost_set_slope", cst_set_slope/(-100) ) * -100;
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
-	cst_remove_tree = contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100;
+	cst_remove_tree = (contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile;
 	cst_multiply_remove_haus = contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100;
 	cst_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", cst_multiply_remove_field/(-100) ) * -100;
 	// powerlines
