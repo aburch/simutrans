@@ -4199,7 +4199,30 @@ void convoy_metrics_t::calc(convoi_t &cnv)
 	{
 		add_vehicle(*cnv.get_vehikel(i)->get_besch());
 	}
-	power = cnv.calc_adjusted_power() / 64; //BG, 30.08.2009: gear factor '/ 64' was missing
+	//BG, 30.08.2009: cannot use cnv.calc_adjusted_power() here.
+	/* 
+	 * Convoy_metrics are used to display them in the depot or convoy frame only.
+	 * They show the top speeds for given power and full resp. empty convoy.
+	 * Nominal power and top speed given in vehikel_besch_t both are max values and this power is valid for this top speed.
+	 * Thus we need the max power here instead of the actual speed controlled power.
+	 *
+	 * It looked a bit strange while playing: 2 identical steam trains (8ft Stirling with 1 KBay-Mail and 6 KBay-Pax)
+	 * The convoy frame of the standing train said, convoy was able to run 53..59 km/h, 
+	 * while frame of the running train said, convoy could run 85 km/h.
+	 * The user (at least me) expects always the same value: the top speed at top speed power, which is the 85.
+	 *
+	 * cnv.calc_adjusted_power() returns the power at current speed. 
+	 * Thus do the same calculation with top speed (using get_effective_power_index(max_top_speed)).
+	 *
+	 * At first glance the effective power calculation might have been skipped at all, but the convoy top speed 
+	 * can differ from the vehicle's top speed and thus steam engine might still be in the reduced power range.
+	 */
+	//power = cnv.calc_adjusted_power() / 64; //BG, 30.08.2009: gear factor '/ 64' was missing
+	for(unsigned i = cnv.get_vehikel_anzahl();  i-- > 0; )
+	{
+		power += cnv.get_vehikel(i)->get_besch()->get_effective_power_index(max_top_speed);
+	}
+	power *= cnv.get_welt()->get_einstellungen()->get_global_power_factor() / 64;
 }
 
 void convoy_metrics_t::calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles)
