@@ -1875,16 +1875,25 @@ void haltestelle_t::recalc_station_type()
 				}
 				break;
 
+			// two ways on ground can only happen for tram tracks on streets, there buses and trams can stop
 			case haus_besch_t::generic_stop:
 				switch (besch->get_extra()) {
 					case road_wt:
 						new_station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
+						if (gr->has_two_ways()) { // tram track on street
+							new_station_type |= tramstop;
+						}
 						break;
 					case water_wt:       new_station_type |= dock;            break;
 					case air_wt:         new_station_type |= airstop;         break;
 					case monorail_wt:    new_station_type |= monorailstop;    break;
 					case track_wt:       new_station_type |= railstation;     break;
-					case tram_wt:        new_station_type |= tramstop;        break;
+					case tram_wt:
+						new_station_type |= tramstop;
+						if (gr->has_two_ways()) { // tram track on street
+							new_station_type |= (besch->get_enabled()&3)!=0 ? busstop : loadingbay;
+						}
+						break;
 					case maglev_wt:      new_station_type |= maglevstop;      break;
 					case narrowgauge_wt: new_station_type |= narrowgaugestop; break;
 				}
