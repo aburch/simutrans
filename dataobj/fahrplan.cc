@@ -57,9 +57,8 @@ void schedule_t::copy_from(const schedule_t *src)
 	for(  uint8 i=0;  i<src->eintrag.get_count();  i++  ) {
 		eintrag.append(src->eintrag[i]);
 	}
-	if(  aktuell>=eintrag.get_count()  ) {
-		aktuell = max(1,eintrag.get_count())-1;
-	}
+	set_aktuell( src->get_aktuell() );
+
 	abgeschlossen = src->ist_abgeschlossen();
 }
 
