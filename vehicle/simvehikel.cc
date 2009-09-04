@@ -1900,10 +1900,14 @@ void automobil_t::get_screen_offset( int &xoff, int &yoff ) const
 
 bool automobil_t::ist_weg_frei(int &restart_speed)
 {
-	const grund_t *gr = welt->lookup(pos_next);
-
 	// check for traffic lights (only relevant for the first car in a convoi)
 	if(ist_erstes) {
+		const grund_t *gr = welt->lookup(pos_next);
+		if (gr==NULL)  {
+			// weg not existent (likely destroyed)
+			cnv->suche_neue_route();
+			return false;
+		}
 		// pruefe auf Schienenkreuzung
 		strasse_t *str=(strasse_t *)gr->get_weg(road_wt);
 
@@ -2400,6 +2404,11 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	}
 
 	const grund_t *gr = welt->lookup(pos_next);
+	if(gr==NULL) {
+		// weg not existent (likely destroyed)
+		cnv->suche_neue_route();
+		return false;
+	}
 	if(gr->get_top()>250) {
 		// too many objects here
 		return false;
@@ -2879,8 +2888,12 @@ schiff_t::ist_weg_frei(int &restart_speed)
 	restart_speed = -1;
 
 	if(ist_erstes) {
-		grund_t *gr = welt->lookup( pos_next );
-
+		const grund_t *gr = welt->lookup( pos_next );
+		if(gr==NULL) {
+			// weg not existent (likely destroyed)
+			cnv->suche_neue_route();
+			return false;
+		}
 		weg_t *w = gr->get_weg(water_wt);
 		if(w  &&  w->is_crossing()) {
 			// ok, here is a draw/turnbridge ...
@@ -3194,6 +3207,7 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 
 	grund_t *gr = welt->lookup( pos_next );
 	if(gr==NULL) {
+		// weg not existent (likely destroyed)
 		cnv->suche_neue_route();
 		return false;
 	}
