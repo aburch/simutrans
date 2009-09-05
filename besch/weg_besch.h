@@ -107,8 +107,9 @@ public:
 
 	void set_scale(float scale_factor) 
 	{
-		scaled_price = price * scale_factor < 1 ? (price > 0 ? 1 : 0) : price * scale_factor;
-		scaled_maintenance = maintenance * scale_factor < (price > 0 ? 1 : 0) ? 1: maintenance * scale_factor;
+		// BG: 29.08.2009: explicit typecasts avoid warnings
+		scaled_price = (sint32)(price * scale_factor < 1 ? (price > 0 ? 1 : 0) : price * scale_factor);
+		scaled_maintenance = (sint32)(maintenance * scale_factor < (price > 0 ? 1 : 0) ? 1: maintenance * scale_factor);
 	}
 
 	/**

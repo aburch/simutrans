@@ -451,7 +451,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 	*txt_convoi_count = '\0';
 	*txt_convoi_speed = '\0';
 	if (vehicles.get_count()>0) {
-		convoy_metrics_t metrics(vehicles);
+		convoy_metrics_t metrics(*welt, vehicles);
 		uint32 min_speed = metrics.get_speed(metrics.get_vehicle_weight() + metrics.get_max_freight_weight());
 		uint32 max_speed = metrics.get_speed(metrics.get_vehicle_weight() /*+ metrics.get_min_freight_weight()*/);
 		sprintf(txt_convoi_count, "%s %d (%s %i)",

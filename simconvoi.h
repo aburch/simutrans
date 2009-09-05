@@ -998,9 +998,9 @@ private:
 	void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight);
 	void reset();
 public:
-	convoy_metrics_t(vector_tpl<const vehikel_besch_t *> &vehicles) { calc(vehicles); };
+	convoy_metrics_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles) { calc(world, vehicles); };
 	convoy_metrics_t(convoi_t &cnv) { calc(cnv); }
-	void calc(vector_tpl<const vehikel_besch_t *> &vehicles);
+	void calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles);
 	void calc(convoi_t &cnv);
 	uint32 get_power() { return power; }
 	uint32 get_length() { return length; }
