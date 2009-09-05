@@ -38,14 +38,6 @@ extern log_t *dbg;
  */
 void init_logging(const char *logname, bool force_flush, bool log_debug);
 
-
-/**
- * Console output, realised as a macro
- * @author Hj. Malthaner
- */
-
-#define print printf
-
 #ifndef DEBUG
 
 // nothing to debug -> then ignore

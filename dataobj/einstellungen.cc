@@ -635,7 +635,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	// Default pak file path
 	objfilename = ltrim(contents.get_string("pak_file_path", "" ));
 
-	print("Reading simuconf.tab successful!\n");
+	printf("Reading simuconf.tab successful!\n");
 
 	simuconf.close();
 }

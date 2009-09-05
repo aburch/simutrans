@@ -344,7 +344,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 	}
 
 	// very fast, so we do not bother updating progress bar
-	print("Distributing %i tourist attractions ...\n",max_number);fflush(NULL);
+	printf("Distributing %i tourist attractions ...\n",max_number);fflush(NULL);
 
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {

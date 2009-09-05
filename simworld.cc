@@ -837,7 +837,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 		}
 	}
 
-print("Creating cities ...\n");
+printf("Creating cities ...\n");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
 
@@ -1220,7 +1220,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// tourist attractions
 	fabrikbauer_t::verteile_tourist(this, einstellungen->get_tourist_attractions());
 
-	print("Preparing startup ...\n");
+	printf("Preparing startup ...\n");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
 	}

@@ -66,7 +66,6 @@
 #include "../gui/karte.h"	// for debugging
 #include "../gui/werkzeug_waehler.h"
 
-
 #ifdef DEBUG_ROUTES
 #include "../simsys.h"
 #endif

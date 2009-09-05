@@ -393,7 +393,7 @@ int simu_main(int argc, char** argv)
 	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 
 	// parsing config/simuconf.tab
-	print("Reading low level config data ...\n");
+	printf("Reading low level config data ...\n");
 	bool found_settings = false;
 	bool found_simuconf = false;
 	bool multiuser = (gimme_arg(argc, argv, "-singleuser", 0) == NULL);
@@ -562,7 +562,7 @@ int simu_main(int argc, char** argv)
 		}
 	}
 
-	print("Preparing display ...\n");
+	printf("Preparing display ...\n");
 	simgraph_init(disp_width, disp_height, fullscreen);
 
 	// if no object files given, we ask the user
@@ -614,7 +614,7 @@ int simu_main(int argc, char** argv)
 
 	// just check before loading objects
 	if (!gimme_arg(argc, argv, "-nosound", 0)  &&  dr_init_sound()) {
-		print("Reading compatibility sound data ...\n");
+		printf("Reading compatibility sound data ...\n");
 		sound_besch_t::init();
 	}
 	else {
@@ -638,17 +638,17 @@ int simu_main(int argc, char** argv)
 	sprachengui_t::init_font_from_lang();
 	chdir(umgebung_t::program_dir);
 
-	print("Reading city configuration ...\n");
+	printf("Reading city configuration ...\n");
 	stadt_t::cityrules_init(umgebung_t::objfilename);
 
-	print("Reading speedbonus configuration ...\n");
+	printf("Reading speedbonus configuration ...\n");
 	vehikelbauer_t::speedbonus_init(umgebung_t::objfilename);
 
-	print("Reading forest configuration ...\n");
+	printf("Reading forest configuration ...\n");
 	baum_t::forestrules_init(umgebung_t::objfilename);
 
 	// loading all paks
-	print("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
+	printf("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
 	obj_reader_t::load(umgebung_t::objfilename, translator::translate("Loading paks ...") );
 	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		// try to read addons from private directory
@@ -664,7 +664,7 @@ int simu_main(int argc, char** argv)
 	// set overtaking offsets
 	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );
 
-	print("Reading menu configuration ...\n");
+	printf("Reading menu configuration ...\n");
 	werkzeug_t::init_menu(umgebung_t::objfilename);
 
 	if(  translator::get_language()==-1  ) {
@@ -717,10 +717,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// init midi before loading sounds
 	if(dr_init_midi()) {
-		print("Reading midi data ...\n");
+		printf("Reading midi data ...\n");
 		if(!midi_init(umgebung_t::user_dir)) {
 			if(!midi_init(umgebung_t::program_dir)) {
-				print("Midi disabled ...\n");
+				printf("Midi disabled ...\n");
 			}
 		}
 		if(gimme_arg(argc, argv, "-nomidi", 0)) {
@@ -728,7 +728,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 	}
 	else {
-		print("Midi disabled ...\n");
+		printf("Midi disabled ...\n");
 		midi_set_mute(true);
 	}
 

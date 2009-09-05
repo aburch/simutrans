@@ -183,7 +183,7 @@ int midi_init(const char *directory)
 
 				if(len > 1) {
 					sprintf( full_path, "%s%s", directory, buf );
-					print("  Reading MIDI file '%s' - %s", full_path, title);
+					printf("  Reading MIDI file '%s' - %s", full_path, title);
 					max_midi = dr_load_midi(full_path);
 
 					if(max_midi >= 0) {
