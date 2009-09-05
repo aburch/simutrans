@@ -4393,10 +4393,6 @@ karte_t::interactive_event(event_t &ev)
 				// close topmost win
 				destroy_win( win_get_top() );
 				break;
-			case 8:
-				sound_play(click_sound);
-				destroy_all_win();
-				break;
 
 			case SIM_KEY_F1:
 				set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP] );
@@ -4404,8 +4400,21 @@ karte_t::interactive_event(event_t &ev)
 
 			// just ignore the key
 			case 0:
-			case 13:
 				break;
+
+			// distinguish between backspace and ctrl-H (both keycode==8), and enter and ctrl-M (both keycode==13)
+			case 8:
+			case 13:
+				if(  (ev.ev_key_mod & 2) == 0  ) {
+					// Control is _not_ pressed => Backspace or Enter pressed.
+					if(  ev.ev_code == 8  ) {
+						// Backspace
+						sound_play(click_sound);
+						destroy_all_win();
+					}
+					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
+					break;
+				}
 
 			default:
 				{
