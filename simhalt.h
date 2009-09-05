@@ -598,5 +598,10 @@ public:
 	* @author prissi
 	*/
 	void mark_unmark_coverage(const bool mark) const;
+
+	/*
+	* deletes factory references so map rotation won't segfault
+	*/
+	void release_factory_links();
 };
 #endif

@@ -2022,6 +2022,12 @@ karte_t::rotate90()
 	// clear marked region
 	zeiger->change_pos( koord3d::invalid );
 
+	// preprocessing, detach stops from factories to prevent crash
+	slist_iterator_tpl <halthandle_t> halt_pre_iter (haltestelle_t::get_alle_haltestellen());
+	while( halt_pre_iter.next() ) {
+		halt_pre_iter.get_current()->release_factory_links();
+	}
+
 	// first: rotate all things on the map
 	planquadrat_t *new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
 	for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
@@ -2030,6 +2036,7 @@ karte_t::rotate90()
 			int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
 			new_plan[new_nr] = plan[nr];
 			plan[nr] = planquadrat_t();
+
 			// now rotate everything on the ground(s)
 			for(  uint i=0;  i<new_plan[new_nr].get_boden_count();  i++  ) {
 				new_plan[new_nr].get_boden_bei(i)->rotate90();

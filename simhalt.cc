@@ -401,6 +401,7 @@ haltestelle_t::~haltestelle_t()
 void haltestelle_t::rotate90( const sint16 y_size )
 {
 	init_pos.rotate90( y_size );
+
 	// rotate waren destinations
 	// iterate over all different categories
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
@@ -422,6 +423,8 @@ void haltestelle_t::rotate90( const sint16 y_size )
 			}
 		}
 	}
+
+	// relinking factories
 	verbinde_fabriken();
 }
 
@@ -2577,4 +2580,15 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 	}
 DBG_MESSAGE("haltestelle_t::reserve_position()","failed for gr=%i,%i, cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 	return false;
+}
+
+/* deletes factory references so map rotation won't segfault
+*/
+void haltestelle_t::release_factory_links()
+{
+	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
+	while( fab_iter.next() ) {
+		fab_iter.get_current()->unlink_halt(self);
+	}
+	fab_list.clear();
 }
