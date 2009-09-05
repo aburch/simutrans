@@ -2884,7 +2884,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	sint8 rotation;
 	const haus_besch_t *besch=get_besch(rotation);
-	if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && pos.z>=grund_t::underground_level) ) {
+	if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && plan->get_kartenboden()->get_hoehe() > grund_t::underground_level) ) {
 		// in underground mode, buildings will be done invisible above ground => disallow such confusion
 		if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
 			return "Cannot built this station/building\nin underground mode here.";

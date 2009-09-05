@@ -242,6 +242,10 @@ halt_info_t::zeichnen(koord pos, koord gr)
 			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
 		}
+		if (halttype & haltestelle_t::tramstop) {
+			display_color_img(skinverwaltung_t::tramhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
+			left += 23;
+		}
 		if (halttype & haltestelle_t::maglevstop) {
 			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 23;
