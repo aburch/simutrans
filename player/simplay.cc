@@ -259,7 +259,6 @@ void spieler_t::step()
 			halt_list[j]->step();
 			INT_CHECK("simplay 156");
 		}
-		i++;
 	}
 }
 
@@ -631,7 +630,7 @@ halthandle_t spieler_t::halt_add(koord pos)
 void
 spieler_t::halt_add(halthandle_t halt)
 {
-	if (!halt_list.is_contained(halt)) {
+	if(!halt_list.is_contained(halt)) {
 		halt_list.append(halt);
 		haltcount ++;
 	}
@@ -643,8 +642,7 @@ spieler_t::halt_add(halthandle_t halt)
  * Entfernt eine Haltestelle des Spielers aus der Liste
  * @author Hj. Malthaner
  */
-void
-spieler_t::halt_remove(halthandle_t halt)
+void spieler_t::halt_remove(halthandle_t halt)
 {
 	halt_list.remove(halt);
 }

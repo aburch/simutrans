@@ -117,6 +117,7 @@ protected:
 	//slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
 	vector_tpl<halthandle_t> halt_list; ///< "List of the stops" (Babelfish)
 
+
 	class income_message_t {
 	public:
 		char str[33];

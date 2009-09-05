@@ -83,7 +83,6 @@ haltestelle_t::connexion* haltestelle_t::head_connexion = NULL;
 #endif
 
 
-
 halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
