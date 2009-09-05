@@ -856,6 +856,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
 
 		// Loop only new cities:
+#ifdef DEBUG
+		uint32 tbegin = dr_time();
+#endif
 		for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
 //			int citizens=(int)(einstellungen->get_mittlere_einwohnerzahl()*0.9);
 //			citizens = citizens/10+simrand(2*citizens+1);
@@ -872,6 +875,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 			}
 		}
 		delete pos;
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
 		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
 			// Hajo: do final init after world was loaded/created
