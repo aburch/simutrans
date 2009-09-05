@@ -28,6 +28,7 @@
 	ADD: changing slopes now also with objects on top
 	ADD: (Dwachs) tram track can be build in road tunnels
 	ADD: (gerw) click-and-drag for tunnels
+	ADD: (Nathan Samson) allow left_to_right_graphs (=1 in simuconf.tab)
 
 
 

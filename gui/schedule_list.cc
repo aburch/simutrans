@@ -31,6 +31,7 @@
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/umgebung.h"
 
 #include "../boden/wege/kanal.h"
 #include "../boden/wege/maglev.h"

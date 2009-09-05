@@ -45,7 +45,8 @@ halt_detail_t::halt_detail_t(halthandle_t halt_) :
 	const koord size = txt_info.get_groesse();
 	if (size.y < 400) {
 		set_fenstergroesse(koord(300, size.y + 32));
-	} else {
+	}
+	else {
 		set_fenstergroesse(koord(300, 400));
 	}
 
@@ -135,7 +136,8 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				}
 			}
 		}
-	} else {
+	}
+	else {
 		buf.append(" ");
 		buf.append(translator::translate("keine"));
 		buf.append("\n");
@@ -160,7 +162,8 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 				offset_y += LINESPACE;
 			}
 		}
-	} else {
+	}
+	else {
 		buf.append(" ");
 		buf.append(translator::translate("keine"));
 		buf.append("\n");

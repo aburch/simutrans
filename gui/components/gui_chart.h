@@ -46,8 +46,7 @@ public:
 	 * set dimension
 	 * @author hsiegeln
 	 */
-	void set_dimension(int x, int y)
-	{
+	void set_dimension(int x, int y) {
 		x_elements = x;
 		y_elements = y;
 	}
@@ -63,7 +62,7 @@ public:
 	 * returns curve's id
 	 * @author hsiegeln
 	 */
-	int add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value);
+	int add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value );
 
 	void remove_curves() { curves.clear(); }
 

@@ -23,45 +23,43 @@
 
 #include "../utils/simstring.h"
 
-#define MAX_BUTTONS (21)
-
 // y coordinates
-#define GRID_MODE			(0*13+6)
-#define UNDERGROUND		(1*13+6)
-#define SLICE			(2*13+6)
-#define DAY_NIGHT			(3*13+6)
-#define BRIGHTNESS		(4*13+6)
-#define SCROLL_INVERS (5*13+6)
-#define SCROLL_SPEED	(6*13+6)
+#define GRID_MODE			(6)
+#define UNDERGROUND		(GRID_MODE+13)
+#define SLICE			(UNDERGROUND+13)
+#define DAY_NIGHT			(SLICE+13)
+#define BRIGHTNESS		(DAY_NIGHT+13)
+#define SCROLL_INVERS (BRIGHTNESS+13)
+#define SCROLL_SPEED	(SCROLL_INVERS+13)
 
-#define SEPERATE1 (7*13+6)
+#define SEPERATE1 (SCROLL_SPEED+13)
 
-#define USE_TRANSPARENCY	(7*13+6+4)
-#define HIDE_TREES				(8*13+6+4)
-#define HIDE_CITY_HOUSES	(9*13+6+4)
+#define USE_TRANSPARENCY	(SEPERATE1+4)
+#define HIDE_TREES				(USE_TRANSPARENCY+13)
+#define HIDE_CITY_HOUSES	(HIDE_TREES+13)
 
-#define SEPERATE2 (10*13+6+4)
+#define SEPERATE2 (HIDE_CITY_HOUSES+13)
 
-#define USE_TRANSPARENCY_STATIONS	(10*13+6+2*4)
-#define SHOW_STATION_COVERAGE			(11*13+6+2*4)
-#define SHOW_STATION_SIGNS				(12*13+6+2*4)
-#define SHOW_STATION_GOODS				(13*13+6+2*4)
+#define USE_TRANSPARENCY_STATIONS	(SEPERATE2+4)
+#define SHOW_STATION_COVERAGE			(USE_TRANSPARENCY_STATIONS+13)
+#define SHOW_STATION_SIGNS				(SHOW_STATION_COVERAGE+13)
+#define SHOW_STATION_GOODS				(SHOW_STATION_SIGNS+13)
 
-#define SEPERATE3	(14*13+6+2*4)
+#define SEPERATE3	(SHOW_STATION_GOODS+13)
 
-#define CITY_WALKER								(14*13+6+3*4)
-#define STOP_WALKER								(15*13+6+3*4)
-#define DENS_TRAFFIC							(16*13+6+3*4)
-#define CONVOI_TOOLTIPS							(17*13+6+3*4)
+#define CITY_WALKER								(SEPERATE3+4)
+#define STOP_WALKER								(CITY_WALKER+13)
+#define DENS_TRAFFIC							(STOP_WALKER+13)
+#define CONVOI_TOOLTIPS							(DENS_TRAFFIC+13)
 
-#define SEPERATE4	(18*13+6+3*4)
+#define SEPERATE4	(CONVOI_TOOLTIPS+13)
 
-#define FPS_DATA (18*13+6+4*4)
-#define IDLE_DATA (19*13+6+4*4)
-#define FRAME_DATA (20*13+6+4*4)
-#define LOOP_DATA (21*13+6+4*4)
+#define FPS_DATA (SEPERATE4+4)
+#define IDLE_DATA (FPS_DATA+13)
+#define FRAME_DATA (IDLE_DATA+13)
+#define LOOP_DATA (FRAME_DATA+13)
 
-#define BOTTOM (22*13+6+12+5*4)
+#define BOTTOM (LOOP_DATA+30)
 
 // x coordinates
 #define RIGHT_WIDTH (220)
@@ -178,7 +176,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[1].set_pos( koord(RIGHT_WIDTH-10-10,CONVOI_TOOLTIPS) );
 	buttons[1].set_typ(button_t::arrowright);
 
-	for(int i=0;  i<MAX_BUTTONS;  i++ ) {
+	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
 		add_komponente( buttons+i );
 	}

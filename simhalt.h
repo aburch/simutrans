@@ -450,13 +450,6 @@ public:
 	 */
 	uint32 get_ware_fuer_zwischenziel(const ware_besch_t *warentyp, const halthandle_t zwischenziel) const;
 
-	/**
-	 * @returns the sum of all waiting goods (100t coal + 10
-	 * passengers + 2000 liter oil = 2110)
-	 * @author Markus Weber
-	 */
-	uint32 sum_all_waiting_goods() const;
-
 	// true, if we accept/deliver this kind of good
 	bool gibt_ab(const ware_besch_t *warentyp) const { return waren[warentyp->get_catg_index()] != NULL; }
 

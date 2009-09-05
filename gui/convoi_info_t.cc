@@ -140,7 +140,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
 	for (int cost = 0; cost<MAX_CONVOI_COST; cost++) {
-		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true);
+		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true );
 		filterButtons[cost].init(button_t::box_state, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 230+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
@@ -414,7 +414,8 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			const char* txt;
 			if (b_depot_found) {
 				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
-			} else {
+			}
+			else {
 				txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 			}
 			create_win( new news_img(txt), w_time_delete, magic_none);
@@ -441,7 +442,8 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			filterButtons[i].pressed = !filterButtons[i].pressed;
 			if(filterButtons[i].pressed) {
 				chart.show_curve(i);
-			} else {
+			}
+			else {
 				chart.hide_curve(i);
 			}
 

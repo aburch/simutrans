@@ -671,7 +671,8 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 									slist_tpl<fabs_to_crossconnect_t>::iterator i = std::find(factories_to_correct.begin(), factories_to_correct.end(), fabs_to_crossconnect_t(zfab, 0));
 									if (i == factories_to_correct.end()) {
 										factories_to_correct.append(fabs_to_crossconnect_t(zfab, 1));
-									} else {
+									}
+									else {
 										i->demand += 1;
 									}
 								}
@@ -791,7 +792,8 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 			(*i).fab->add_supplier( (*fab)->get_pos().get_2d() );
 			if (i->demand < 0) {
 				i = factories_to_correct.erase(i);
-			} else {
+			}
+			else {
 				++i;
 			}
 		}

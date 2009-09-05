@@ -714,14 +714,16 @@ void depot_frame_t::update_data()
 		case 1:
 			if(icnv == -1) {
 				sprintf(txt_convois, translator::translate("1 convoi"));
-			} else {
+			}
+			else {
 				sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
 			}
 			break;
 		default:
 			if(icnv == -1) {
 				sprintf(txt_convois, translator::translate("%d convois"), depot->convoi_count());
-			} else {
+			}
+			else {
 				sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
 			}
 			break;

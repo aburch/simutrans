@@ -97,7 +97,8 @@ void cbuffer_t::printf(const char* fmt, ...)
 	}
 	else if(capacity-size <= (uint)count) {
 		size = capacity - 1;
-	} else {
+	}
+	else {
 		size += count;
 	}
 	va_end(ap);

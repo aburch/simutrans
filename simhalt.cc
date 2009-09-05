@@ -60,9 +60,6 @@
 
 #include "vehicle/simpeople.h"
 
-#ifdef LAGER_NOT_IN_USE
-#include "dings/lagerhaus.h"
-#endif
 
 karte_t *haltestelle_t::welt = NULL;
 
@@ -297,9 +294,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	this->init_pos = k;
 	besitzer_p = sp;
-#ifdef LAGER_NOT_IN_USE
-	lager = NULL;
-#endif
 
 	enables = NOT_ENABLED;
 
@@ -742,7 +736,7 @@ haltestelle_t::step()
  */
 void haltestelle_t::neuer_monat()
 {
-	if(  welt->get_active_player()==besitzer_p  &&  status_color == COL_RED  ) {
+	if(  welt->get_active_player()==besitzer_p  &&  overcrowded  ) {
 		char buf[256];
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), get_name());
 		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
@@ -1397,27 +1391,6 @@ uint32 haltestelle_t::get_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const
 			ware_t &ware = (*warray)[i];
 			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zwischenziel()==zwischenziel) {
 				sum += ware.menge;
-			}
-		}
-	}
-	return sum;
-}
-
-
-
-/**
- * @returns the sum of all waiting goods (100t coal + 10
- * passengers + 2000 liter oil = 2110)
- * @author Markus Weber
- */
-uint32 haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
-{
-	uint32 sum = 0;
-
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		if(waren[i]) {
-			for( unsigned j=0;  j<waren[i]->get_count();  j++  ) {
-				sum += (*(waren[i]))[j].menge;
 			}
 		}
 	}
@@ -2094,18 +2067,6 @@ void haltestelle_t::laden_abschliessen()
 
 	// what kind of station here?
 	recalc_station_type();
-#ifdef LAGER_NOT_IN_USE
-	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
-		koord3d k(i->grund->get_pos());
-		// nach sondergebaeuden suchen
-
-		lagerhaus_t* l = welt->lookup(k)->find<lagerhaus_t>();
-		if  (l != NULL) {
-			lager = l;
-		break;
-		}
-	}
-#endif
 
 	// handle name for old stations which don't exist in kartenboden
 	grund_t* bd = welt->lookup(get_basis_pos3d());
@@ -2167,7 +2128,7 @@ void haltestelle_t::recalc_status()
 {
 	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW;
 
-	// since the status is ored ...
+	// since the status is ordered ...
 	uint8 status_bits = 0;
 
 	memset( overcrowded, 0, 8 );
@@ -2181,7 +2142,8 @@ void haltestelle_t::recalc_status()
 		}
 		if(get_pax_unhappy() > 40 ) {
 			status_bits = (total_sum>max_ware+200 || get_pax_unhappy()>200) ? 2 : 1;
-		} else if(total_sum>max_ware) {
+		}
+		else if(total_sum>max_ware) {
 			status_bits = total_sum>max_ware+200 ? 2 : 1;
 		}
 	}

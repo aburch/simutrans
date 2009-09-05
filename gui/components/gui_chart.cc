@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include "gui_chart.h"
+#include "../../dataobj/umgebung.h"
 #include "../../utils/simstring.h"
 #include "../../simdebug.h"
 #include "../../simgraph.h"
@@ -21,7 +22,7 @@ static char tooltip[64];
  */
 void gui_chart_t::set_background(int i)
 {
-  background = i;
+	background = i;
 }
 
 
@@ -37,11 +38,10 @@ gui_chart_t::gui_chart_t() : gui_komponente_t()
 
 	// Hajo: transparent by default
 	background = -1;
-};
+}
 
 
-int
-gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value)
+int gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value )
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -54,27 +54,26 @@ gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elem
 	new_curve.type = type;
 	curves.append(new_curve);
 	return curves.get_count();
-};
+}
 
 
 void gui_chart_t::hide_curve(unsigned int id)
 {
-  if (id <= curves.get_count()) {
-    curves.at(id).show = false;
-  }
+	if (id <= curves.get_count()) {
+		curves.at(id).show = false;
+	}
 }
 
 
 void gui_chart_t::show_curve(unsigned int id)
 {
-  if (id <= curves.get_count()) {
-    curves.at(id).show = true;
-  }
+	if (id <= curves.get_count()) {
+		curves.at(id).show = true;
+	}
 }
 
 
-void
-gui_chart_t::zeichnen(koord offset)
+void gui_chart_t::zeichnen(koord offset)
 {
 	offset += pos;
 
@@ -93,6 +92,15 @@ gui_chart_t::zeichnen(koord offset)
 	// Hajo: draw background if desired
 	if(background != -1) {
 		display_fillbox_wh_clip(offset.x, offset.y, groesse.x, groesse.y, background, false);
+	}
+	int tmpx, factor;
+	if(umgebung_t::left_to_right_graphs) {
+		tmpx = offset.x + groesse.x - groesse.x % (x_elements - 1);
+		factor = -1;
+	}
+	else {
+		tmpx = offset.x;
+		factor = 1;
 	}
 
 	// draw zero line
@@ -118,16 +126,21 @@ gui_chart_t::zeichnen(koord offset)
 		if (show_x_axis) {
 			// display x-axis
 			sprintf(digit, "%i", abs(seed-i));
-			display_proportional_clip(offset.x+(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log((double)abs((seed-i)))) : 0), offset.y+groesse.y+6, digit, ALIGN_LEFT, MN_GREY4, true );
+			display_proportional_clip(tmpx+factor*(groesse.x / (x_elements - 1))*i - (seed != i ? (int)(2*log((double)abs((seed-i)))) : 0), offset.y+groesse.y+6, digit, ALIGN_LEFT, MN_GREY4, true );
 		}
 		// year's vertical lines
-		display_vline_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, MN_GREY4, false);
+		display_vline_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*i, offset.y+1, groesse.y-2, MN_GREY4, false);
 	}
 
 	// display current value?
 	int tooltip_n=-1;
 	if(tooltipkoord!=koord::invalid) {
-		tooltip_n = (tooltipkoord.x*x_elements+4)/(groesse.x|1);
+		if(umgebung_t::left_to_right_graphs) {
+			tooltip_n = x_elements-1-(tooltipkoord.x*x_elements+4)/(groesse.x|1);
+		}
+		else {
+			tooltip_n = (tooltipkoord.x*x_elements+4)/(groesse.x|1);
+		}
 	}
 
 	// draw chart's curves
@@ -139,7 +152,7 @@ gui_chart_t::zeichnen(koord offset)
 				//tmp=c.values[year*c.size+c.offset];
 				c.type == 0 ? tmp = c.values[i*c.size+c.offset] : tmp = c.values[i*c.size+c.offset] / 100;
 				// display marker(box) for financial value
-				display_fillbox_wh_clip(offset.x+(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, true);
+				display_fillbox_wh_clip(tmpx+factor*(groesse.x / (x_elements - 1))*i-2, offset.y+baseline- (int)(tmp/scale)-2, 5, 5, c.color, true);
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
@@ -149,17 +162,25 @@ gui_chart_t::zeichnen(koord offset)
 
 				// draw line between two financial markers; this is only possible from the second value on
 				if (i>0) {
-					display_direct_line(offset.x+(groesse.x / (x_elements - 1))*(i-1),
+					display_direct_line(tmpx+factor*(groesse.x / (x_elements - 1))*(i-1),
 						offset.y+baseline-(int)(last_year/scale),
-						offset.x+(groesse.x / (x_elements - 1))*i,
+						tmpx+factor*(groesse.x / (x_elements - 1))*(i),
 						offset.y+baseline-(int)(tmp/scale),
 						c.color);
-				} else {
+				}
+				else {
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
-					if ((c.show_value) && (baseline-tmp/scale-8 > 0) && (baseline-tmp/scale+8 < groesse.y) && (abs((int)(tmp/scale)) > 9)) {
-						number_to_string(cmin, tmp);
-						display_proportional_clip(offset.x - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, c.color, true );
+					if(  c.show_value  ) {
+						if(  umgebung_t::left_to_right_graphs  ) {
+							number_to_string(cmin, tmp);
+							const sint16 width = proportional_string_width(cmin)+7;
+							display_ddd_proportional( tmpx + 8, offset.y+baseline-(int)(tmp/scale)-4, width, 0, COL_GREY4, c.color, cmin, true);
+						}
+						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < groesse.y  &&  abs((int)(tmp/scale)) > 9  ) {
+							number_to_string(cmin, tmp);
+							display_proportional_clip(tmpx - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, c.color, true );
+						}
 					}
 				}
 				last_year=tmp;
@@ -167,12 +188,10 @@ gui_chart_t::zeichnen(koord offset)
 		}
 		last_year=tmp=0;
 	}
-
 }
 
 
-void
-gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax) const
+void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax) const
 {
 	sint64 tmp=0;
 	sint64 min = 0, max = 0;
@@ -205,8 +224,6 @@ gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, c
 	// baseline: y-pos for the "zero" line in the chart
 	*baseline = (sint64)(groesse.y - abs((int)(min / *scale )));
 }
-
-
 
 
 /**

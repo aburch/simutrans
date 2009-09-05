@@ -109,6 +109,8 @@ bool umgebung_t::mute_sound = false;
 bool umgebung_t::mute_midi = false;
 bool umgebung_t::shuffle_midi = true;
 
+bool umgebung_t::left_to_right_graphs = false;
+
 // default settings for new games
 einstellungen_t umgebung_t::default_einstellungen;
 
@@ -185,6 +187,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states, "" );
+		file->rdwr_bool( left_to_right_graphs, "" );
 	}
 }
 

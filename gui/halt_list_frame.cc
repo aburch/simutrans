@@ -448,7 +448,8 @@ void halt_list_frame_t::set_ware_filter_ab(const ware_besch_t *ware, int mode)
 			if(mode != 1) {
 				waren_filter_ab.remove(ware);
 			}
-		} else {
+		}
+		else {
 			if(mode != 0) {
 				waren_filter_ab.append(ware);
 			}
@@ -463,7 +464,8 @@ void halt_list_frame_t::set_ware_filter_an(const ware_besch_t *ware, int mode)
 			if(mode != 1) {
 				waren_filter_an.remove(ware);
 			}
-		} else {
+		}
+		else {
 			if(mode != 0) {
 				waren_filter_an.append(ware);
 			}

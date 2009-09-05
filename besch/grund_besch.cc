@@ -183,7 +183,8 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 					// ok, now we have to calculate the y coordinate ...
 					if(backborder_y<tile_y) {
 						tile_y_corrected = -((back_y-tile_y)*x)/(back_y - backborder_y);
-					} else {
+					}
+					else {
 						tile_y_corrected = -x;
 					}
 				}
@@ -204,7 +205,8 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 					// ok, now we have to calculate the y coordinate ...
 					if(frontborder_y>tile_y) {
 						tile_y_corrected = -((back_y-tile_y)*x)/(frontborder_y-back_y);
-					} else {
+					}
+					else {
 						tile_y_corrected = x;
 					}
 				}

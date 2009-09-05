@@ -361,7 +361,8 @@ void convoi_frame_t::set_ware_filter(const ware_besch_t *ware, int mode)
 			if(mode != 1) {
 				waren_filter.remove(ware);
 			}
-		} else {
+		}
+		else {
 			if(mode != 0) {
 				waren_filter.append(ware);
 			}

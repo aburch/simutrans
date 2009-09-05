@@ -138,7 +138,8 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->max_height = decode_uint8(p);
 		besch->number_seasons = decode_uint8(p);
 
-	} else {
+	}
+	else {
 		// old node, version 0
 
 		besch->wegtyp = (uint8)v;

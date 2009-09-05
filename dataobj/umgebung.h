@@ -221,6 +221,8 @@ public:
 	static sint16 global_volume, midi_volume;
 	static bool mute_sound, mute_midi, shuffle_midi;
 
+	static bool left_to_right_graphs;
+
 	static einstellungen_t default_einstellungen;
 
 	// load/saving settings from file

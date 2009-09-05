@@ -49,7 +49,8 @@ void gui_label_t::zeichnen(koord offset)
 				*const_cast<char *>(separator) = '\0';
 				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, translator::translate(text), ALIGN_RIGHT, color, true);
 				*const_cast<char *>(separator) = ',';
-			} else {
+			}
+			else {
 				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);
 			}
 		}

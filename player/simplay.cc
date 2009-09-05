@@ -264,7 +264,7 @@ void spieler_t::step()
 				}
 				halt_iterator_start ++;
 				// iterator until 8192 passengers were handled
-				units_handled += iter.get_current()->sum_all_waiting_goods();
+				units_handled += iter.get_current()->get_finance_history(0,HALT_WAITING);
 				iter.get_current()->step();
 			}
 			INT_CHECK("simplay 156");

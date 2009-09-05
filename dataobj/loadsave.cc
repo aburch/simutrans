@@ -218,7 +218,8 @@ int loadsave_t::lsputc(int c)
 {
 	if(is_zipped()) {
 		return gzputc(fp, c);
-	} else {
+	}
+	else {
 		return fputc(c, fp);
 	}
 }
@@ -227,7 +228,8 @@ int loadsave_t::lsgetc()
 {
 	if(is_zipped()) {
 		return gzgetc(fp);
-	} else {
+	}
+	else {
 		return fgetc(fp);
 	}
 }
@@ -236,7 +238,8 @@ long loadsave_t::write(const void *buf, size_t len)
 {
 	if(is_zipped()) {
 		return gzwrite(fp, const_cast<void *>(buf), len);
-	} else {
+	}
+	else {
 		return (long)fwrite(buf, 1, len, fp);
 	}
 }
@@ -245,7 +248,8 @@ long loadsave_t::read(void *buf, size_t len)
 {
 	if(is_zipped()) {
 		return gzread(fp, buf, len);
-	} else {
+	}
+	else {
 		return (long)fread(buf, 1, len, fp);
 	}
 }
@@ -285,7 +289,8 @@ void loadsave_t::rdwr_short(sint16 &i, const char *)
 		if(saving) {
 			sint16 ii = (sint16)endian_uint16((uint16 *)&i);
 			write(&ii, sizeof(sint16));
-		} else {
+		}
+		else {
 			uint16 ii;
 			read(&ii, sizeof(sint16));
 			i = (sint16)endian_uint16(&ii);
@@ -293,7 +298,8 @@ void loadsave_t::rdwr_short(sint16 &i, const char *)
 #else
 		if(saving) {
 			write(&i, sizeof(sint16));
-		} else {
+		}
+		else {
 			read(&i, sizeof(sint16));
 		}
 #endif
@@ -321,7 +327,8 @@ void loadsave_t::rdwr_long(sint32 &l, const char *)
 		if(saving) {
 			uint32 ii = (sint32)endian_uint32((uint32 *)&l);
 			write(&ii, sizeof(uint32));
-		} else {
+		}
+		else {
 			uint32 ii;
 			read(&ii, sizeof(uint32));
 			l = (sint32)endian_uint32(&ii);
@@ -329,7 +336,8 @@ void loadsave_t::rdwr_long(sint32 &l, const char *)
 #else
 		if(saving) {
 			write(&l, sizeof(sint32));
-		} else {
+		}
+		else {
 			read(&l, sizeof(sint32));
 		}
 #endif
@@ -356,7 +364,8 @@ void loadsave_t::rdwr_longlong(sint64 &ll, const char *)
 		if(saving) {
 			sint64 ii = (sint64)endian_uint64((uint64 *)&ll);
 			write(&ii, sizeof(sint64));
-		} else {
+		}
+		else {
 			uint64 ii;
 			read(&ii, sizeof(sint64));
 			ll = (sint64)endian_uint64(&ii);
@@ -364,7 +373,8 @@ void loadsave_t::rdwr_longlong(sint64 &ll, const char *)
 #else
 		if(saving) {
 			write(&ll, sizeof(sint64));
-		} else {
+		}
+		else {
 			read(&ll, sizeof(sint64));
 		}
 #endif
@@ -381,7 +391,8 @@ void loadsave_t::rdwr_double(double &dbl)
 	if(!is_xml()) {
 		if(saving) {
 			write(&dbl, sizeof(double));
-		} else {
+		}
+		else {
 			read(&dbl, sizeof(double));
 		}
 	}
@@ -410,7 +421,8 @@ void loadsave_t::rdwr_bool(bool &i, const char *)
 		if(saving) {
 			if(is_zipped()) {
 				gzprintf(fp, "%*s<bool>%s</bool>\n", ident, "", i ? "true" : "false" );
-			} else {
+			}
+			else {
 				fprintf(fp, "%*s<bool>%s</bool>\n", ident, "", i ? "true" : "false" );
 			}
 		}
@@ -555,7 +567,8 @@ void loadsave_t::rdwr_str(const char *&s)
 			const char *str = s ? s: "";
 			if(is_zipped()) {
 				gzprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
-			} else {
+			}
+			else {
 				fprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
 			}
 		}
@@ -607,7 +620,8 @@ void loadsave_t::rdwr_str(char *s, int size)
 			const char *str = s ? s: "";
 			if(is_zipped()) {
 				gzprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
-			} else {
+			}
+			else {
 				fprintf(fp, "%*s<![CDATA[%s]]>\n", ident, "", str );
 			}
 		}
@@ -721,14 +735,16 @@ void loadsave_t::wr_obj_id(const char *id_text)
 		if(  !is_xml()  ) {
 			if(is_zipped()) {
 				gzprintf(fp, "%s\n", id_text);
-			} else {
+			}
+			else {
 				fprintf(fp, "%s\n", id_text);
 			}
 		}
 		else {
 			if(is_zipped()) {
 				gzprintf(fp, "<id=\"%s\"/>\n", id_text);
-			} else {
+			}
+			else {
 				fprintf(fp, "<id=\"%s\"/>\n", id_text);
 			}
 		}
@@ -807,9 +823,11 @@ uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_ex
 		}
 		if(!strncmp(version_text, "bin", 3)) {
 			*mode = binary;
-		} else if(!strncmp(version_text, "zip", 3)) {
+		}
+		else if(!strncmp(version_text, "zip", 3)) {
 			*mode = zipped;
-		} else {
+		}
+		else {
 			*mode = text;
 		}
 
@@ -836,7 +854,8 @@ void loadsave_t::start_tag(const char *tag)
 		if(saving) {
 			if(is_zipped()) {
 				gzprintf(fp, "%*s<%s>\n", ident, "", tag);
-			} else {
+			}
+			else {
 				fprintf(fp, "%*s<%s>\n", ident, "", tag);
 			}
 			ident ++;
@@ -863,7 +882,8 @@ void loadsave_t::end_tag(const char *tag)
 			ident --;
 			if(is_zipped()) {
 				gzprintf(fp, "%*s</%s>\n", ident, "", tag);
-			} else {
+			}
+			else {
 				fprintf(fp, "%*s</%s>\n", ident, "", tag);
 			}
 		}

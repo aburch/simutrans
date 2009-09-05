@@ -71,7 +71,8 @@ obj_besch_t * good_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->weight_per_unit = decode_uint16(p);
 		besch->color = decode_uint8(p);
 
-	} else {
+	}
+	else {
 		// old node, version 0
 		besch->base_value = v;
 		besch->catg = decode_uint16(p);
