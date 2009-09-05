@@ -71,7 +71,6 @@ slist_tpl<halthandle_t> haltestelle_t::alle_haltestellen;
 stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 
 
-
 halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spieler_t *sp )
 {
 	const planquadrat_t *plan = welt->lookup(pos);
@@ -775,6 +774,7 @@ void haltestelle_t::reroute_goods()
 {
 	// reroute only on demand
 	reroute_counter = welt->get_schedule_counter();
+	uint8 sync_step_counter = 1;
 
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		if(waren[i]) {
@@ -800,6 +800,10 @@ void haltestelle_t::reroute_goods()
 						liefere_an_fabrik(ware);
 					}
 					continue;
+				}
+
+				if(  (sync_step_counter++) == 0  ) {
+					INT_CHECK( "simhalt" );
 				}
 
 				// check if this good can still reach its destination

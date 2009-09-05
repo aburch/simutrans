@@ -2802,6 +2802,9 @@ karte_t::step()
 		else if(delta_t>250  &&  next_wait_time>0) {
 			// too long pause
 			next_wait_time --;
+			if( delta_t>500  &&  umgebung_t::fps<2*realFPS  ) {
+				next_wait_time = 0;
+			}
 		}
 		last_step_nr[steps%32] = ticks;
 	}

@@ -114,6 +114,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	}
 
 	haltcount = 0;
+	halt_iterator_start = 0;
 
 	maintenance = 0;
 
@@ -244,15 +245,30 @@ void spieler_t::set_player_color(uint8 col1, uint8 col2)
  */
 void spieler_t::step()
 {
-	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
-	uint8 i = (uint8)(welt->get_steps()+player_nr);
-	slist_iterator_tpl <halthandle_t> iter( halt_list );
-	while(iter.next()) {
-		if( (i & 31) == 0 ) {
-			iter.get_current()->step();
+	if(  halt_list.get_count()>0  ) {
+
+		uint32 it = halt_iterator_start;
+		slist_iterator_tpl <halthandle_t> iter( halt_list );
+		while(  it>0  &&  iter.next()  ) {
+			it--;
+		}
+		if(  it>0  ) {
+			halt_iterator_start = 0;
+		}
+		else {
+			uint32 units_handled = 0;
+			while(  units_handled<8192  ) {
+				if(  !iter.next()  ) {
+					halt_iterator_start = 0;
+					break;
+				}
+				halt_iterator_start ++;
+				// iterator until 8192 passengers were handled
+				units_handled += iter.get_current()->sum_all_waiting_goods();
+				iter.get_current()->step();
+			}
 			INT_CHECK("simplay 156");
 		}
-		i++;
 	}
 }
 
@@ -498,9 +514,10 @@ halthandle_t spieler_t::halt_add(koord pos)
 void
 spieler_t::halt_add(halthandle_t halt)
 {
-	if (!halt_list.is_contained(halt)) {
+	if(!halt_list.is_contained(halt)) {
 		halt_list.append(halt);
 		haltcount ++;
+		halt_iterator_start = 0;
 	}
 }
 
@@ -510,9 +527,9 @@ spieler_t::halt_add(halthandle_t halt)
  * Entfernt eine Haltestelle des Spielers aus der Liste
  * @author Hj. Malthaner
  */
-void
-spieler_t::halt_remove(halthandle_t halt)
+void spieler_t::halt_remove(halthandle_t halt)
 {
+	halt_iterator_start = 0;
 	halt_list.remove(halt);
 }
 
