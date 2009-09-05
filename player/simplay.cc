@@ -517,7 +517,6 @@ spieler_t::halt_add(halthandle_t halt)
 	if(!halt_list.is_contained(halt)) {
 		halt_list.append(halt);
 		haltcount ++;
-		halt_iterator_start = 0;
 	}
 }
 
