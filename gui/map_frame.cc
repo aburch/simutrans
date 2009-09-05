@@ -280,6 +280,30 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	return true;
 }
 
+void map_frame_t::zoom(bool zoom_out)
+{
+	if (zoom_out) {
+		// zoom out
+		if(reliefkarte_t::get_karte()->zoom_in>1) {
+			reliefkarte_t::get_karte()->zoom_in--;
+		}
+		else if(reliefkarte_t::get_karte()->zoom_out<4  ) {
+			reliefkarte_t::get_karte()->zoom_out++;
+		}
+	}
+	else {
+		// zoom in
+		if(reliefkarte_t::get_karte()->zoom_out>1) {
+			reliefkarte_t::get_karte()->zoom_out--;
+		}
+		else if(reliefkarte_t::get_karte()->zoom_in<8  ) {
+			reliefkarte_t::get_karte()->zoom_in++;
+		}
+	}
+	// recalc sliders
+	reliefkarte_t::get_karte()->calc_map_groesse();
+	scrolly.set_groesse( scrolly.get_groesse() );
+}
 
 
 /**
@@ -298,9 +322,9 @@ void map_frame_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)) {
+	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev->mx-scrolly.get_pos().x,ev->my-scrolly.get_pos().y-16)) {
 		// otherwise these would go to the vertical scroll bar
-		reliefkarte_t::get_karte()->infowin_event(ev);
+		zoom(IS_WHEELUP(ev));
 		return;
 	}
 

@@ -63,6 +63,7 @@ private:
 	static const uint8 map_type_color[MAX_BUTTON_TYPE];
 	button_t filter_buttons[MAX_BUTTON_TYPE];
 
+	void zoom(bool zoom_out);
 	button_t zoom_buttons[2];
 	gui_label_t zoom_label;
 	button_t b_rotate45;
