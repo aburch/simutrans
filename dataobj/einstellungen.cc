@@ -589,21 +589,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( way_count_tunnel, "" );
 			file->rdwr_long( way_max_bridge_len, "" );
 			file->rdwr_long( way_count_leaving_road, "" );
-			if(file->is_loading() && file->get_experimental_version() < 6)
-			{
-				// Scale the costs to match the scale factor.
-				cst_multiply_dock *= distance_per_tile;
-				cst_multiply_station *= distance_per_tile;
-				cst_multiply_roadstop *= distance_per_tile;
-				cst_multiply_airterminal *= distance_per_tile;
-				cst_multiply_post *= distance_per_tile;
-				maint_building *= distance_per_tile;
-				cst_signal *= distance_per_tile;
-				cst_tunnel *= distance_per_tile;
-				cst_third_rail *= distance_per_tile;
-				cst_buy_land *= distance_per_tile;
-				cst_remove_tree *= distance_per_tile;
-			}
 		}
 		else {
 			// name of stops
@@ -670,17 +655,29 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_short(max_bonus_multiplier_percent, "");
 				uint16 distance_per_tile_integer = distance_per_tile * 100.0F;
 				file->rdwr_short(distance_per_tile_integer, "");
-				if(file->get_experimental_version() < 5)
+				if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
 				{
 					// In earlier versions, the default was set to a higher level. This
 					// is a problem when the new journey time tolerance features is used.
-					distance_per_tile = (distance_per_tile_integer * 2) / 2.5;
+					distance_per_tile_integer *= 0.8F;
 				}		
 				distance_per_tile = distance_per_tile_integer / 100.0F;
 				if(file->get_experimental_version() < 6)
 				{
 					min_bonus_max_distance /= distance_per_tile;
 					max_bonus_min_distance /= distance_per_tile;
+					// Scale the costs to match the scale factor.
+					cst_multiply_dock *= distance_per_tile;
+					cst_multiply_station *= distance_per_tile;
+					cst_multiply_roadstop *= distance_per_tile;
+					cst_multiply_airterminal *= distance_per_tile;
+					cst_multiply_post *= distance_per_tile;
+					maint_building *= distance_per_tile;
+					cst_signal *= distance_per_tile;
+					cst_tunnel *= distance_per_tile;
+					cst_third_rail *= distance_per_tile;
+					cst_buy_land *= distance_per_tile;
+					cst_remove_tree *= distance_per_tile;
 				}
 				file->rdwr_byte(tolerable_comfort_short, "");
 				file->rdwr_byte(tolerable_comfort_median_short, "");
