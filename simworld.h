@@ -226,12 +226,6 @@ private:
 	void calc_hoehe(int x1, int y1, int x2, int y2);
 
 	/**
-	 * Landschafterzeugung mit "perlin noise"
-	 * @author Hj. Malthaner
-	 */
-	void calc_hoehe_mit_perlin();
-
-	/**
 	 * Helferroutine fuer cleanup_karte()
 	 * @see karte_t::cleanup_karte
 	 * @author Hj. Malthaner

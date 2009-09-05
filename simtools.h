@@ -14,4 +14,8 @@ uint32 simrand_plain(void);
 
 double perlin_noise_2D(const double x, const double y, const double persistence);
 
+// just more speed with those (generate a precalculated map, which needs only smoothing)
+void init_perlin_map( sint32 w, sint32 h );
+void exit_perlin_map();
+
 #endif

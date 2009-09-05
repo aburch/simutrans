@@ -371,6 +371,14 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
  */
 sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 {
+	// Hajo: to Markus: replace the fixed values with your
+	// settings. Amplitude is the top highness of the
+	// montains, frequency is something like landscape 'roughness'
+	// amplitude may not be greater than 160.0 !!!
+	// please don't allow frequencies higher than 0.8 it'll
+	// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
+	// seem to be ok, less is boring flat, more is too crumbled
+	// the old defaults are given here: f=0.6, a=160.0
 	switch( sets->get_rotation() ) {
 		// 0: do nothing
 		case 1: k = koord(k.y,size.x-k.x); break;
@@ -383,39 +391,6 @@ sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness())*(double)sets->get_max_mountain_height())) / 16;
 }
 
-
-
-void
-karte_t::calc_hoehe_mit_perlin()
-{
-	display_set_progress_text(translator::translate("Init map ..."));
-	const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
-	for(int y=0; y<=get_groesse_y(); y++) {
-
-		for(int x=0; x<=get_groesse_x(); x++) {
-			// Hajo: to Markus: replace the fixed values with your
-			// settings. Amplitude is the top highness of the
-			// montains, frequency is something like landscape 'roughness'
-			// amplitude may not be greater than 160.0 !!!
-			// please don't allow frequencies higher than 0.8 it'll
-			// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
-			// seem to be ok, less is boring flat, more is too crumbled
-			// the old defaults are given here: f=0.6, a=160.0
-			koord pos(x,y);
-			const int h = perlin_hoehe( einstellungen, pos, koord::invalid );
-			set_grid_hgt( pos, h*Z_TILE_STEP );
-			//	  DBG_MESSAGE("karte_t::calc_hoehe_mit_perlin()","%i",h);
-		}
-
-		if(is_display_init()) {
-			display_progress((y*16)/get_groesse_y(), display_total);
-		}
-		else {
-			printf("X");fflush(NULL);
-		}
-	}
-	print(" - ok\n");fflush(NULL);
-}
 
 
 void karte_t::raise_clean(sint16 x, sint16 y, sint16 h)
@@ -1345,7 +1320,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	display_progress(0,max_display_progress);
 	setsimrand( 0xFFFFFFFF, einstellungen->get_karte_nummer() );
-	if(  old_x == 0  &&  einstellungen->heightfield.len() > 0  ){
+	if(  old_x==0  &&  einstellungen->heightfield.len() > 0  ){
 		// init from file
 		const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
 
@@ -1360,6 +1335,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		display_progress(16, display_total);
 	}
 	else {
+		init_perlin_map(get_groesse_x(),get_groesse_y());
 		int next_progress, old_progress = 0;
 		// loop only new tiles:
 		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
@@ -1374,7 +1350,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 				display_progress(old_progress, max_display_progress);
 			}
 		}
-
+		exit_perlin_map();
 		// now lower the corners and edge between new/old part to ground level
 		sint16 i;
 		for(  i=0;  i<=get_groesse_x();  i++  ) {
