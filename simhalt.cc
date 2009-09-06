@@ -2009,8 +2009,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				for(int i = 0; i < count; i++) {
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt,file);
-					if(  ware.menge  ) {
+					if(  ware.menge  &&  welt->ist_in_kartengrenzen(ware.get_zielpos())  ) {
 						add_ware_to_halt(ware);
+					}
+					else if(  ware.menge>0  ) {
+						dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
 					}
 				}
 			}
