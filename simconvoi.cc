@@ -2196,8 +2196,12 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 
 		freight_info_resort |= v->entladen(k, halt);
 		if(!no_load) {
-			// do not load anymore
+			// load
 			freight_info_resort |= v->beladen(k, halt);
+		}
+		else {
+			// do not load anymore - but call beladen() to recalculate vehikel weight
+			freight_info_resort |= v->beladen(k, halthandle_t());
 		}
 
 	}
