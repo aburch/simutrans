@@ -48,7 +48,7 @@ void cbuffer_t::clear()
  */
 void cbuffer_t::append(const char * text)
 {
-  while(size < capacity-2  &&  *text) {
+  while(size < capacity-1  &&  *text) {
     buf[size++] = *text++;
   }
 
