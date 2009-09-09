@@ -581,6 +581,7 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 		delete all_rotations_beach[slope];
 		delete all_rotations_slope[slope];
 	}
+	printf("done\n");
 }
 
 
