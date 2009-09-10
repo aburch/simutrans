@@ -739,7 +739,7 @@ haltestelle_t::step()
  */
 void haltestelle_t::neuer_monat()
 {
-	if(  welt->get_active_player()==besitzer_p  &&  overcrowded  ) {
+	if(  welt->get_active_player()==besitzer_p  &&  status_color==COL_RED  ) {
 		char buf[256];
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), get_name());
 		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
@@ -2147,7 +2147,7 @@ void haltestelle_t::recalc_status()
 			overcrowded[0] |= 1;
 		}
 		if(get_pax_unhappy() > 40 ) {
-			status_bits = (total_sum>max_ware+200 || get_pax_unhappy()>200) ? 2 : 1;
+			status_bits = (total_sum>max_ware+200 || (total_sum>max_ware  &&  get_pax_unhappy()>200)) ? 2 : 1;
 		}
 		else if(total_sum>max_ware) {
 			status_bits = total_sum>max_ware+200 ? 2 : 1;
