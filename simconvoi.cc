@@ -589,7 +589,7 @@ bool convoi_t::sync_step(long delta_t)
 				// now actually move the units
 				while(sp_soll>>12) {
 					uint32 sp_hat = fahr[0]->fahre_basis(1<<12);
-					int v_nr = get_vehicle_at_length((steps_driven++)>>4);
+					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
 					if(state==INITIAL) {
 						break;
