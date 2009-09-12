@@ -383,7 +383,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 			}
 
 			const uint32 power = (test_besch->get_leistung()*test_besch->get_gear())/64;
-			const uint16 maintenance = besch->get_betriebskosten() > 0 ? besch->get_betriebskosten() : 1;
+			const uint16 maintenance = test_besch->get_betriebskosten() > 0 ? test_besch->get_betriebskosten() : 1;
 			if(target_freight) {
 				// this is either a railcar/trailer or a truck/boat/plane
 				if(  test_besch->get_zuladung()==0  ||  !test_besch->get_ware()->is_interchangeable(target_freight)  ) {
