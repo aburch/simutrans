@@ -230,16 +230,16 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	//23
 	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
-	buttons[b].set_text("Inverse graphs (financial)");
+	buttons[b].set_text("Inverse graphs");
 	buttons[b].pressed = !umgebung_t::left_to_right_graphs;
-	buttons[b].set_tooltip("Graphs showing financial information will appear from right to left instead of left to right");
+	buttons[b].set_tooltip("Graphs right to left instead of left to right");
 	
 	//24
-	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
-	buttons[b].set_typ(button_t::square_state);
-	buttons[b].set_text("Inverse graphs (other)");
-	buttons[b].pressed = !umgebung_t::left_to_right_graphs;
-	buttons[b].set_tooltip("Graphs showing non-financial information will appear from right to left instead of left to right");
+	//buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
+	//buttons[b].set_typ(button_t::square_state);
+	//buttons[b].set_text("Inverse graphs (other)");
+	//buttons[b].pressed = !umgebung_t::left_to_right_graphs;
+	//buttons[b].set_tooltip("Graphs showing non-financial information will appear from right to left instead of left to right");
 
 	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
 	inp_underground_level.set_groesse( koord(50,12));

@@ -214,7 +214,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	chart.set_pos( koord(LINE_NAME_COLUMN_WIDTH+50,11) );
 	chart.set_seed(0);
 	chart.set_background(MN_GREY1);
-	chart.set_ltr(umgebung_t::other_ltr_graphs);
+	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	add_komponente(&chart);
 
 	// add filter buttons

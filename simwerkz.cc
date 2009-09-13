@@ -2906,6 +2906,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		case haus_besch_t::generic_stop:
 			switch(besch->get_extra()) {
 				case road_wt:
+					
 					if(!sp->can_afford(-(welt->get_einstellungen()->cst_multiply_roadstop * besch->get_level())))
 					{
 						return CREDIT_MESSAGE;

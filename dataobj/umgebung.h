@@ -221,15 +221,13 @@ public:
 	static sint16 global_volume, midi_volume;
 	static bool mute_sound, mute_midi, shuffle_midi;
 	
-	static bool finance_ltr_graphs, other_ltr_graphs;
+	static bool left_to_right_graphs;
 
 	// Whether to generate a hilly landscape
 	// @author: jamespetts
 	static bool hilly;
 
 	static bool cities_ignore_height;
-
-	static bool left_to_right_graphs;
 
 	static einstellungen_t default_einstellungen;
 

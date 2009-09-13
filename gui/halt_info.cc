@@ -146,7 +146,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
-	chart.set_ltr(umgebung_t::other_ltr_graphs);
+	chart.set_ltr(umgebung_t::left_to_right_graphs);
 
 	for (int cost = 0; cost < MAX_HALT_COST; cost++) 
 	{

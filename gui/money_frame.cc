@@ -99,7 +99,15 @@ char money_frame_t::digit[4];
  */
 const char *money_frame_t::display_money(int type, char *buf, int old)
 {
-	money_to_string(buf, sp->get_finance_history_year(old, type) / 100.0 );
+	if(type == COST_CREDIT_LIMIT)
+	{
+		// No idea why this is necessary - prodices odd figures otherwise.
+		money_to_string(buf, sp->get_credit_limit() / 100.0 );
+	}
+	else
+	{
+		money_to_string(buf, sp->get_finance_history_year(old, type) / 100.0 );
+	}
 	return(buf);
 }
 
@@ -185,6 +193,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	mchart.set_dimension(MAX_PLAYER_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
+	mchart.set_ltr(umgebung_t::left_to_right_graphs);
 	for (int i = 0; i<MAX_PLAYER_COST; i++) 
 	{
 		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i < 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
@@ -444,8 +453,9 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	display_money(COST_MARGIN, str_buf[23], 0);
 	str_buf[23][strlen(str_buf[23])-1] = 0;	// remove percent sign
 	margin.set_text(str_buf[23]);
-	credit_limit.set_text(display_money(COST_CREDIT_LIMIT, str_buf[24], 0));
 	margin.set_color(get_money_colour(COST_MARGIN, 0));
+
+	credit_limit.set_text(display_money(COST_CREDIT_LIMIT, str_buf[24], 0));
 	credit_limit.set_color(get_money_colour(COST_CREDIT_LIMIT, 0));
 
 	// warning/success messages
