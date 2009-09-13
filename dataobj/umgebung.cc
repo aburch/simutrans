@@ -113,8 +113,7 @@ bool umgebung_t::hilly = false;
 
 bool umgebung_t::cities_ignore_height = false;
 
-bool umgebung_t::finance_ltr_graphs = true;
-bool umgebung_t::other_ltr_graphs = true;
+bool umgebung_t::left_to_right_graphs = true;
 
 
 // default settings for new games
@@ -192,14 +191,16 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states, "" );
-		file->rdwr_bool(finance_ltr_graphs, "");
-		file->rdwr_bool(other_ltr_graphs, "");
+		bool dummy;
+		file->rdwr_bool(dummy, "");
+		file->rdwr_bool(left_to_right_graphs, "");
 	}
 
 	if(file->get_experimental_version() >= 6)
 	{
 		file->rdwr_bool(hilly, "");
 		file->rdwr_bool(cities_ignore_height, "");
+
 	}
 }
 

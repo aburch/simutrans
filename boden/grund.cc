@@ -1215,7 +1215,8 @@ grund_t::get_vmove(koord dir) const
 		h += corner1(slope)*Z_TILE_STEP;
 	} else if(dir == koord::nord) {
 		h += corner3(slope)*Z_TILE_STEP;
-	} else {
+	}
+	else {
 		// commented out: allow diagonal directions now (assume flat for these)
 		//dbg->fatal("grund_t::get_vmove()","no valid direction given (%x)",ribi_typ(dir));	// error: not a direction ...
 	}

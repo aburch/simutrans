@@ -42,7 +42,8 @@ const char *boden_t::get_name() const
 		return "Kreuzung";
 	} else if(hat_wege()) {
 		return get_weg_nr(0)->get_name();
-	} else {
+	}
+	else {
 		return "Boden";
 	}
 }
@@ -58,7 +59,8 @@ void boden_t::calc_bild_internal()
 		if (is_visible()) {
 			if(weg  &&  weg->hat_gehweg()) {
 				set_bild(skinverwaltung_t::fussweg->get_bild_nr(slope_this));
-			} else {
+			}
+			else {
 				set_bild(grund_besch_t::get_ground_tile(slope_this,get_disp_height()) );
 			}
 		}
@@ -69,7 +71,8 @@ void boden_t::calc_bild_internal()
 #else
 		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
 			set_bild(skinverwaltung_t::fussweg->get_bild_nr(grund_besch_t::slopetable[slope_this]));
-		} else {
+		}
+		else {
 			set_bild( grund_besch_t::get_ground_tile(slope_this,get_hoehe() ) );
 		}
 #endif

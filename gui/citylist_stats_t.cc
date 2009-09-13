@@ -137,7 +137,8 @@ void citylist_stats_t::zeichnen(koord offset)
 	// some cities there?
 	if (total_bev > 0) {
 		sprintf(total_bev_string,"%s %d (%+.1f)", total_bev_translation, total_bev, total_growth/10.0 );
-	} else {
+	}
+	else {
 		total_bev_string[0] = 0;
 	}
 }

@@ -754,7 +754,7 @@ bool convoi_t::sync_step(long delta_t)
 				// now actually move the units
 				while(sp_soll>>12) {
 					uint32 sp_hat = fahr[0]->fahre_basis(1<<12);
-					int v_nr = get_vehicle_at_length((steps_driven++)>>4);
+					int v_nr = get_vehicle_at_length((++steps_driven)>>4);
 					// stop when depot reached
 					if(state==INITIAL) {
 						break;
@@ -3308,10 +3308,16 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			freight_info_resort |= v->entladen(k, halt);
 			gewinn += v->current_revenue;
 		}
+
 		if(!no_load) 
 		{
-			// do not load anymore
+			// load 
 			freight_info_resort |= v->beladen(k, halt, second_run);
+		}
+		else 
+		{
+			// do not load anymore - but call beladen() to recalculate vehikel weight
+			freight_info_resort |= v->beladen(k, halthandle_t());
 		}
 
 		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
@@ -3324,7 +3330,6 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			// Bernd Gabriel, 05.07.2009: must reinitialize convoy_length
 			convoy_length = 0;
 		}
-
 	}
 
 	// any loading went on?

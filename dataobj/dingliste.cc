@@ -129,7 +129,8 @@ static void dl_free(ding_t** p, uint8 size)
 	assert(size > 1);
 	if (size <= 16) {
 		freelist_t::putback_node(sizeof(*p) * size, p);
-	} else {
+	}
+	else {
 		guarded_free(p);
 	}
 }
@@ -141,7 +142,8 @@ static ding_t** dl_alloc(uint8 size)
 	ding_t** p;
 	if (size <= 16) {
 		p = static_cast<ding_t**>(freelist_t::gimme_node(size * sizeof(*p)));
-	} else {
+	}
+	else {
 		p = MALLOCN(ding_t*, size);
 	}
 	return p;
@@ -447,7 +449,8 @@ bool dingliste_t::add(ding_t* ding)
 		// check for other ways to keep order! (maximum is two ways per tile at the moment)
 		if( obj.some[0]->get_typ()==ding_t::way  &&  ((weg_t *)ding)->get_waytype()>((weg_t *)obj.some[0])->get_waytype()) {
 			intern_insert_at(ding, 1);
-		} else {
+		}
+		else {
 			intern_insert_at(ding, 0);
 		}
 		return true;
@@ -784,7 +787,8 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						wo->set_flag(ding_t::not_on_map);
 						delete wo;
 						d = NULL;
-					} else {
+					}
+					else {
 						d = wo;
 					}
 					break;
@@ -801,7 +805,8 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						pedestrian->set_flag(ding_t::not_on_map);
 						delete pedestrian;
 						d = NULL;
-					} else {
+					}
+					else {
 						d = pedestrian;
 					}
 					break;
@@ -816,7 +821,8 @@ dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 						// no citycars ... delete this
 						car->set_flag(ding_t::not_on_map);
 						delete car;
-					} else {
+					}
+					else {
 						d = car;
 					}
 					break;

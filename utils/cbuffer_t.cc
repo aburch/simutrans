@@ -48,7 +48,7 @@ void cbuffer_t::clear()
  */
 void cbuffer_t::append(const char * text)
 {
-  while(size < capacity-2  &&  *text) {
+  while(size < capacity-1  &&  *text) {
     buf[size++] = *text++;
   }
 
@@ -97,7 +97,8 @@ void cbuffer_t::printf(const char* fmt, ...)
 	}
 	else if(capacity-size <= (uint)count) {
 		size = capacity - 1;
-	} else {
+	}
+	else {
 		size += count;
 	}
 	va_end(ap);

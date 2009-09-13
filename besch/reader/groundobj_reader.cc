@@ -54,7 +54,8 @@ obj_besch_t * groundobj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->speed = kmh_to_speed( decode_uint16(p) );
 		besch->waytype = (waytype_t)decode_uint16(p);
 		besch->cost_removal = decode_sint32(p);
-	} else {
+	}
+	else {
 		// old node, version 0, never existed
 		dbg->fatal( "groundobj_reader_t::read_node()", "version %i not supported!", version );
 	}

@@ -33,7 +33,8 @@ void loadsave_frame_t::action(const char *filename)
 {
 	if(do_load) {
 		welt->laden(filename);
-	} else {
+	}
+	else {
 		welt->speichern(filename,false);
 		welt->set_dirty();
 	}
@@ -52,7 +53,8 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 
 	if(do_load) {
 		set_name("Laden");
-	} else {
+	}
+	else {
 		set_filename(welt->get_einstellungen()->get_filename());
 		set_name("Speichern");
 	}

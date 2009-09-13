@@ -28,7 +28,9 @@
 	ADD: changing slopes now also with objects on top
 	ADD: (Dwachs) tram track can be build in road tunnels
 	ADD: (gerw) click-and-drag for tunnels
-
+	ADD: (Nathan Samson) allow left_to_right_graphs (=1 in simuconf.tab)
+	ADD: (z9999) better display of depots in minimap
+	ADD: (Dwachs) zooming of map with mousewheel
 
 
 Release of 102.0 (r2366)

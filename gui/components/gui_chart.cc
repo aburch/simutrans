@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include "gui_chart.h"
+#include "../../dataobj/umgebung.h"
 #include "../../utils/simstring.h"
 #include "../../simdebug.h"
 #include "../../simgraph.h"
@@ -21,7 +22,7 @@ static char tooltip[64];
  */
 void gui_chart_t::set_background(int i)
 {
-  background = i;
+	background = i;
 }
 
 
@@ -38,11 +39,10 @@ gui_chart_t::gui_chart_t() : gui_komponente_t()
 
 	// Hajo: transparent by default
 	background = -1;
-};
+}
 
 
-int
-gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value)
+int gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value )
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -55,27 +55,26 @@ gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elem
 	new_curve.type = type;
 	curves.append(new_curve);
 	return curves.get_count();
-};
+}
 
 
 void gui_chart_t::hide_curve(unsigned int id)
 {
-  if (id <= curves.get_count()) {
-    curves.at(id).show = false;
-  }
+	if (id <= curves.get_count()) {
+		curves.at(id).show = false;
+	}
 }
 
 
 void gui_chart_t::show_curve(unsigned int id)
 {
-  if (id <= curves.get_count()) {
-    curves.at(id).show = true;
-  }
+	if (id <= curves.get_count()) {
+		curves.at(id).show = true;
+	}
 }
 
 
-void
-gui_chart_t::zeichnen(koord offset)
+void gui_chart_t::zeichnen(koord offset)
 {
 	offset += pos;
 
@@ -100,6 +99,7 @@ gui_chart_t::zeichnen(koord offset)
 		tmpx = offset.x + groesse.x - groesse.x % (x_elements - 1);
 		factor = -1;
 	} else {
+
 		tmpx = offset.x;
 		factor = 1;
 	}
@@ -139,10 +139,10 @@ gui_chart_t::zeichnen(koord offset)
 		if (ltr) {
 			tooltip_n = x_elements-1-(tooltipkoord.x*x_elements+4)/(groesse.x|1);
 		} else {
+
 			tooltip_n = (tooltipkoord.x*x_elements+4)/(groesse.x|1);
 		}
 	}
-
 	// draw chart's curves
 	for (slist_iterator_tpl<curve_t> i(curves); i.next();) {
 		const curve_t& c = i.get_current();
@@ -167,7 +167,8 @@ gui_chart_t::zeichnen(koord offset)
 						tmpx+factor*(groesse.x / (x_elements - 1))*(i),
 						offset.y+baseline-(int)(tmp/scale),
 						c.color);
-				} else {
+				}
+				else {
 					// for the first element print the current value (optionally)
 					// only print value if not too narrow to min/max/zero
 					if ((c.show_value) && (baseline-tmp/scale-8 > 0) && (baseline-tmp/scale+8 < groesse.y) && (abs((int)(tmp/scale)) > 9)) {
@@ -180,12 +181,10 @@ gui_chart_t::zeichnen(koord offset)
 		}
 		last_year=tmp=0;
 	}
-
 }
 
 
-void
-gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax) const
+void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, char *cmax) const
 {
 	sint64 tmp=0;
 	sint64 min = 0, max = 0;
@@ -218,8 +217,6 @@ gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cmin, c
 	// baseline: y-pos for the "zero" line in the chart
 	*baseline = (sint64)(groesse.y - abs((int)(min / *scale )));
 }
-
-
 
 
 /**

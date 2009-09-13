@@ -103,8 +103,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 }
 
 
-static double
-int_noise(const long x, const long y)
+static double int_noise(const long x, const long y)
 {
     long n = x + y*101 + noise_seed;
 
@@ -112,13 +111,16 @@ int_noise(const long x, const long y)
     return ( 1.0 - (double)((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
 }
 
-static double
-smoothed_noise(const int x, const int y)
+
+static float *map = 0;
+static sint32 map_w=0;
+
+void init_perlin_map( sint32 w, sint32 h )
 {
 	if(!umgebung_t::hilly)
 	{
 		/* this gives a very smooth world */
-		const double corners = ( int_noise(x-1, y-1)+int_noise(x+1, y-1)+
+		/*const double corners = ( int_noise(x-1, y-1)+int_noise(x+1, y-1)+
 								 int_noise(x-1, y+1)+int_noise(x+1, y+1) );
 
 		const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
@@ -126,13 +128,81 @@ smoothed_noise(const int x, const int y)
 
 		const double center  =  int_noise(x, y);
 
-		return (corners + sides+sides + center*4.0) / 16.0;
+		return (corners + sides+sides + center*4.0) / 16.0;*/
+
+		map_w = w+2;
+		map = new float[map_w*(h+2)];
+		for(  sint32 y=0;  y<h+2;  y++ ) 
+		{
+			for(  sint32 x=0;  x<map_w;  x++ ) 
+			{
+				map[x+(y*map_w)] = int_noise( x-1, y-1 );
+			}
+		}
 	}
 	else
 	{
 	 //a hilly world
-		const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
+		/*const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
+								 int_noise(x, y-1) + int_noise(x, y+1) );*/
+		map_w = w+2;
+		map = new float[map_w*(h+2)];
+		for(  sint32 y=0;  y<h+2;  y++ ) 
+		{
+			for(  sint32 x=0;  x<map_w;  x++ ) 
+			{
+				map[x+(y*map_w)] = ( int_noise(x-1, y) + int_noise(x+1, y) +
 								 int_noise(x, y-1) + int_noise(x, y+1) );
+			}
+		}
+	}
+}
+
+
+
+void exit_perlin_map()
+{
+	map_w = 0;
+	delete map;
+	map = 0;
+}
+
+
+#define map_noise(x,y) (map[(x)+1+((y)+1)*map_w])
+
+
+static double smoothed_noise(const int x, const int y)
+{
+	/* this gives a very smooth world */
+	if(map) {
+		const double corners =
+			map_noise(x-1, y-1)+map_noise(x+1, y-1)+map_noise(x-1, y+1)+map_noise(x+1, y+1);
+
+		const double sides =
+			map_noise(x-1, y) + map_noise(x+1, y) + map_noise(x, y-1) + map_noise(x, y+1);
+
+		const double center = map_noise(x, y);
+
+		return (corners + sides+sides + center*4.0) / 16.0;
+	}
+	else {
+		const double corners =
+			int_noise(x-1, y-1)+int_noise(x+1, y-1)+int_noise(x-1, y+1)+int_noise(x+1, y+1);
+
+		const double sides =
+			int_noise(x-1, y) + int_noise(x+1, y) + int_noise(x, y-1) + int_noise(x, y+1);
+
+		const double center = int_noise(x,y);
+
+		return (corners + sides+sides + center*4.0) / 16.0;
+	}
+}
+
+
+/* a hilly world
+    const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
+                             int_noise(x, y-1) + int_noise(x, y+1) );
+>>>>>>> Simutrans-base/master:simtools.cc
 
 		const double center  =  int_noise(x, y);
 
@@ -141,10 +211,9 @@ smoothed_noise(const int x, const int y)
 
 // this gives very hilly world
 //   return int_noise(x,y);
-}
+}*/
 
-static double
-linear_interpolate(const double a, const double b, const double x)
+static double linear_interpolate(const double a, const double b, const double x)
 {
 //    return  a*(1.0-x) + b*x;
 //    return  a - a*x + b*x;
@@ -152,8 +221,7 @@ linear_interpolate(const double a, const double b, const double x)
 }
 
 
-static double
-interpolated_noise(const double x, const double y)
+static double interpolated_noise(const double x, const double y)
 {
 // The function floor is needed because (int) rounds always towards zero,
 // but we need integer_x be the biggest integer not bigger than x.
@@ -182,21 +250,18 @@ interpolated_noise(const double x, const double y)
  * x,y Koordinaten des Punktes
  * p   Persistenz
  */
-
 double perlin_noise_2D(const double x, const double y, const double p)
 {
     double total = 0.0;
-    int i;
+    for(  int  i=0;  i<6;  i++  ) {
+		const double frequency = (double)(1 << i);
+		const double amplitude = pow(p, (double)i);
 
-    for(i=0; i<6; i++) {
-
-	const double frequency = (double)(1 << i);
-	const double amplitude = pow(p, (double)i);
-
-	total += interpolated_noise((x * frequency) / 64.0,
-                                    (y * frequency) / 64.0) * amplitude;
+		total += interpolated_noise((x * frequency) / 64.0,
+										(y * frequency) / 64.0) * amplitude;
     }
 
     return total;
 }
 #endif
+

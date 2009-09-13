@@ -377,6 +377,14 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
  */
 sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 {
+	// Hajo: to Markus: replace the fixed values with your
+	// settings. Amplitude is the top highness of the
+	// montains, frequency is something like landscape 'roughness'
+	// amplitude may not be greater than 160.0 !!!
+	// please don't allow frequencies higher than 0.8 it'll
+	// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
+	// seem to be ok, less is boring flat, more is too crumbled
+	// the old defaults are given here: f=0.6, a=160.0
 	switch( sets->get_rotation() ) {
 		// 0: do nothing
 		case 1: k = koord(k.y,size.x-k.x); break;
@@ -389,39 +397,6 @@ sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness())*(double)sets->get_max_mountain_height())) / 16;
 }
 
-
-
-void
-karte_t::calc_hoehe_mit_perlin()
-{
-	display_set_progress_text(translator::translate("Init map ..."));
-	const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
-	for(int y=0; y<=get_groesse_y(); y++) {
-
-		for(int x=0; x<=get_groesse_x(); x++) {
-			// Hajo: to Markus: replace the fixed values with your
-			// settings. Amplitude is the top highness of the
-			// montains, frequency is something like landscape 'roughness'
-			// amplitude may not be greater than 160.0 !!!
-			// please don't allow frequencies higher than 0.8 it'll
-			// break the AI's pathfinding. Frequency values of 0.5 .. 0.7
-			// seem to be ok, less is boring flat, more is too crumbled
-			// the old defaults are given here: f=0.6, a=160.0
-			koord pos(x,y);
-			const int h = perlin_hoehe( einstellungen, pos, koord::invalid );
-			set_grid_hgt( pos, h*Z_TILE_STEP );
-			//	  DBG_MESSAGE("karte_t::calc_hoehe_mit_perlin()","%i",h);
-		}
-
-		if(is_display_init()) {
-			display_progress((y*16)/get_groesse_y(), display_total);
-		}
-		else {
-			printf("X");fflush(NULL);
-		}
-	}
-	print(" - ok\n");fflush(NULL);
-}
 
 
 void karte_t::raise_clean(sint16 x, sint16 y, sint16 h)
@@ -885,7 +860,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 		}
 	}
 
-print("Creating cities ...\n");
+printf("Creating cities ...\n");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
 
@@ -906,6 +881,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		// activate location evalution cache
 		stadt_t::reset_location_cache(koord(get_groesse_x(),get_groesse_y()));
 		// Loop only new cities:
+#ifdef DEBUG
+		uint32 tbegin = dr_time();
+#endif
 		for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
 //			int citizens=(int)(einstellungen->get_mittlere_einwohnerzahl()*0.9);
 //			citizens = citizens/10+simrand(2*citizens+1);
@@ -925,6 +903,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		stadt_t::disable_location_cache();
 		
 		delete pos;
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
 		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
 			// Hajo: do final init after world was loaded/created
@@ -1286,7 +1265,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	// tourist attractions
 	fabrikbauer_t::verteile_tourist(this, einstellungen->get_tourist_attractions());
 
-	print("Preparing startup ...\n");
+	printf("Preparing startup ...\n");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
 	}
@@ -1396,7 +1375,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	display_progress(0,max_display_progress);
 	setsimrand( 0xFFFFFFFF, einstellungen->get_karte_nummer() );
-	if(  old_x == 0  &&  einstellungen->heightfield.len() > 0  ){
+	if(  old_x==0  &&  einstellungen->heightfield.len() > 0  ){
 		// init from file
 		const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
 
@@ -1411,6 +1390,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		display_progress(16, display_total);
 	}
 	else {
+		init_perlin_map(get_groesse_x(),get_groesse_y());
 		int next_progress, old_progress = 0;
 		// loop only new tiles:
 		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
@@ -1425,7 +1405,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 				display_progress(old_progress, max_display_progress);
 			}
 		}
-
+		exit_perlin_map();
 		// now lower the corners and edge between new/old part to ground level
 		sint16 i;
 		for(  i=0;  i<=get_groesse_x();  i++  ) {
@@ -2185,6 +2165,12 @@ karte_t::rotate90()
 	// clear marked region
 	zeiger->change_pos( koord3d::invalid );
 
+	// preprocessing, detach stops from factories to prevent crash
+	slist_iterator_tpl <halthandle_t> halt_pre_iter (haltestelle_t::get_alle_haltestellen());
+	while( halt_pre_iter.next() ) {
+		halt_pre_iter.get_current()->release_factory_links();
+	}
+
 	// first: rotate all things on the map
 	planquadrat_t *new_plan = new planquadrat_t[cached_groesse_gitter_y*cached_groesse_gitter_x];
 	for( int x=0;  x<cached_groesse_gitter_x;  x++  ) {
@@ -2193,6 +2179,7 @@ karte_t::rotate90()
 			int new_nr = (cached_groesse_karte_y-y)+(x*cached_groesse_gitter_y);
 			new_plan[new_nr] = plan[nr];
 			plan[nr] = planquadrat_t();
+
 			// now rotate everything on the ground(s)
 			for(  uint i=0;  i<new_plan[new_nr].get_boden_count();  i++  ) {
 				new_plan[new_nr].get_boden_bei(i)->rotate90();
@@ -4714,10 +4701,6 @@ karte_t::interactive_event(event_t &ev)
 				// close topmost win
 				destroy_win( win_get_top() );
 				break;
-			case 8:
-				sound_play(click_sound);
-				destroy_all_win();
-				break;
 
 			case SIM_KEY_F1:
 				set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP] );
@@ -4725,8 +4708,21 @@ karte_t::interactive_event(event_t &ev)
 
 			// just ignore the key
 			case 0:
-			case 13:
 				break;
+
+			// distinguish between backspace and ctrl-H (both keycode==8), and enter and ctrl-M (both keycode==13)
+			case 8:
+			case 13:
+				if(  (ev.ev_key_mod & 2) == 0  ) {
+					// Control is _not_ pressed => Backspace or Enter pressed.
+					if(  ev.ev_code == 8  ) {
+						// Backspace
+						sound_play(click_sound);
+						destroy_all_win();
+					}
+					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
+					break;
+				}
 
 			default:
 				{

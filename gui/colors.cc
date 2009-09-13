@@ -33,10 +33,9 @@
 #define BRIGHTNESS						(DAY_NIGHT+13)
 #define SCROLL_INVERS					(BRIGHTNESS+13)
 #define SCROLL_SPEED					(SCROLL_INVERS+13)
-#define FINANCE_LTR_GRAPHS				(SCROLL_SPEED+13)
-#define OTHER_LTR_GRAPHS				(FINANCE_LTR_GRAPHS+13)
+#define LEFT_TO_RIGHT_GRAPHS			(SCROLL_SPEED+13)
 
-#define SEPERATE1						(OTHER_LTR_GRAPHS+13)
+#define SEPERATE1						(LEFT_TO_RIGHT_GRAPHS+13)
 
 #define USE_TRANSPARENCY				(SEPERATE1+4)
 #define HIDE_TREES						(USE_TRANSPARENCY+13)
@@ -229,17 +228,17 @@ color_gui_t::color_gui_t(karte_t *welt) :
 #endif
 	
 	//23
-	buttons[++b].set_pos( koord(10, FINANCE_LTR_GRAPHS) );
+	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Inverse graphs (financial)");
-	buttons[b].pressed = !umgebung_t::finance_ltr_graphs;
+	buttons[b].pressed = !umgebung_t::left_to_right_graphs;
 	buttons[b].set_tooltip("Graphs showing financial information will appear from right to left instead of left to right");
 	
 	//24
-	buttons[++b].set_pos( koord(10, OTHER_LTR_GRAPHS) );
+	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Inverse graphs (other)");
-	buttons[b].pressed = !umgebung_t::other_ltr_graphs;
+	buttons[b].pressed = !umgebung_t::left_to_right_graphs;
 	buttons[b].set_tooltip("Graphs showing non-financial information will appear from right to left instead of left to right");
 
 	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
@@ -335,11 +334,11 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt->update_map();
 		}
 	} else if ((buttons+23)==komp) {
-		umgebung_t::finance_ltr_graphs ^= 1;
-		buttons[23].pressed = !umgebung_t::finance_ltr_graphs;
+		umgebung_t::left_to_right_graphs ^= 1;
+		buttons[23].pressed = !umgebung_t::left_to_right_graphs;
 	} else if ((buttons+24)==komp) {
-		umgebung_t::other_ltr_graphs ^= 1;
-		buttons[24].pressed = !umgebung_t::other_ltr_graphs;
+		umgebung_t::left_to_right_graphs ^= 1;
+		buttons[24].pressed = !umgebung_t::left_to_right_graphs;
 	}
 
 	else if((buttons+20)==komp)

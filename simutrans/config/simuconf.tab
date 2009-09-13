@@ -346,6 +346,9 @@ frames_per_second = 25
 # How much faster should the game proceed with fast forward (limited by your computer and size of the map)
 fast_forward = 100
 
+# show graphs old style (right to left, default) or rather left to right
+left_to_right_graphs  = 1
+
 # show the windows close etc. buttons on the right (like windows 98)
 window_buttons_right = 0
 

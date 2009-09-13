@@ -22,7 +22,8 @@ void citycar_reader_t::register_obj(obj_besch_t *&data)
 			besch->length[i] = 12+2;
 		} else if(i<6) {
 			besch->length[i] = 8+2;
-		} else {
+		}
+		else {
 			besch->length[i] = 16+2;
 		}
 	}

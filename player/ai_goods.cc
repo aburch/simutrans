@@ -295,7 +295,8 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 				if( tile_list[0].is_contained( bauigel.get_route()[0]) ) {
 					start = bauigel.get_route()[0].get_2d();
 					ziel = bauigel.get_route()[bauigel.max_n].get_2d();
-				} else {
+				}
+				else {
 					start = bauigel.get_route()[bauigel.max_n].get_2d();
 					ziel = bauigel.get_route()[0].get_2d();
 				}
@@ -677,7 +678,8 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		if( starttiles.is_contained( bauigel.get_route()[0] ) ) {
 			tile1 = bauigel.get_route()[0];
 			tile2 = bauigel.get_route()[bauigel.max_n];
-		} else {
+		}
+		else {
 			tile1 = bauigel.get_route()[bauigel.max_n];
 			tile2 = bauigel.get_route()[0];
 		}

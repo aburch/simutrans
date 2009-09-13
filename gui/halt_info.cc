@@ -186,9 +186,13 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);
-		if(old_len!=freight_info.len()) {
-			// will grow as needed
+		// will grow as needed
+		if (freight_info.is_full()) {
 			freight_info.extent( 1024 );
+			// tell the halt to give the info in the now larger buffer
+			halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
+		}
+		if(old_len!=freight_info.len()) {
 			text.set_text(freight_info);
 			text.recalc_size();
 		}
@@ -316,13 +320,15 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		for (int i=0;i<MAX_HALT_COST;i++) {
 			filterButtons[i].set_visible(toggler.pressed);
 		}
-	} else {
+	}
+	else {
 		for( int i = 0; i<MAX_HALT_COST; i++) {
 			if (comp == &filterButtons[i]) {
 				filterButtons[i].pressed = !filterButtons[i].pressed;
 				if(filterButtons[i].pressed) {
 					chart.show_curve(i);
-				} else {
+				}
+				else {
 					chart.hide_curve(i);
 				}
 				break;

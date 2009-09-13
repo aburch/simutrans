@@ -83,7 +83,8 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 							for (size_t pos = cursor_pos; pos <= len-(prev_pos-cursor_pos); pos++) {
 								text[pos] = text[pos+(prev_pos-cursor_pos)];
 							}
-						} else {
+						}
+						else {
 							cursor_pos = get_prev_char(text, cursor_pos);
 							text[cursor_pos] = 0;
 						}
@@ -160,7 +161,8 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 							text[pos] = text[pos-num_letter];
 						}
 						memcpy( text+cursor_pos, letter, num_letter );
-					} else {
+					}
+					else {
 						// append to text
 						memcpy( text+len, letter, num_letter );
 						text[len+num_letter] = 0;

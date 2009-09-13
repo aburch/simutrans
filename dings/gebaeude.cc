@@ -752,7 +752,8 @@ gebaeude_t::rdwr(loadsave_t *file)
 						type = gebaeude_t::wohnung;
 					} else if(strncmp(buf+3,"FAB",3)==0) {
 						type = gebaeude_t::industrie;
-					} else {
+					}
+					else {
 						type = gebaeude_t::gewerbe;
 					}
 					level --;

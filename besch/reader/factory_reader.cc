@@ -107,7 +107,8 @@ factory_supplier_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 1
 
 		// not there yet ...
-	} else {
+	}
+	else {
 		// old node, version 0
 		besch->kapazitaet = v;
 		besch->anzahl = decode_uint16(p);
@@ -142,7 +143,8 @@ factory_product_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 1
 		besch->kapazitaet = decode_uint16(p);
 		besch->faktor = decode_uint16(p);
-	} else {
+	}
+	else {
 		// old node, version 0
 		decode_uint16(p);
 		besch->kapazitaet = v;
@@ -229,7 +231,9 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = decode_uint16(p);
 		besch->fields = 0;
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
-	} else 
+	} 
+
+	else 
 	{
 		// old node, version 0, without pax_level
 		DBG_DEBUG("factory_reader_t::read_node()","version=0");

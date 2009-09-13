@@ -151,7 +151,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::other_ltr_graphs);
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true);
+		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true );
 	}
 
 	mchart.set_pos(koord(60,8));
@@ -161,7 +161,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	mchart.set_background(MN_GREY1);
 	mchart.set_ltr(umgebung_t::other_ltr_graphs);
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {
-		mchart.add_curve(hist_type_color[cost], welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true);
+		mchart.add_curve(hist_type_color[cost], welt->get_finance_history_month(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_MONTHS, hist_type_type[cost], false, true );
 	}
 
 	for (int cost = 0; cost<karte_t::MAX_WORLD_COST; cost++) {

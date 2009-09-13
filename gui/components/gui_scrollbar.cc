@@ -209,13 +209,16 @@ void scrollbar_t::infowin_event(const event_t *ev)
 			if (type == vertical) {
 				if (y < real_knob_position()+12) {
 					space_press(0);
-				} else {
+				}
+				else {
 					space_press(1);
 				}
-			} else {
+			}
+			else {
 				if (x < real_knob_position()+12) {
 					space_press(0);
-				} else {
+				}
+				else {
 					space_press(1);
 				}
 			}

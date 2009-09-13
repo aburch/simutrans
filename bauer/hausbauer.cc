@@ -413,7 +413,8 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 			} else if (besch->get_utyp() == haus_besch_t::hafen) {
 				// its a dock!
 				gr->obj_add(gb);
-			} else {
+			}
+			else {
 				// very likely remove all
 				leitung_t *lt = NULL;
 				if(!gr->hat_wege()) {

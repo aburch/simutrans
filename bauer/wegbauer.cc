@@ -65,7 +65,6 @@
 #include "../gui/karte.h"	// for debugging
 #include "../gui/werkzeug_waehler.h"
 
-
 #ifdef DEBUG_ROUTES
 #include "../simsys.h"
 #endif
@@ -1346,11 +1345,17 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		// no legal ground to start ...
 		return;
 	}
+	if ((bautyp&tunnel_flag) && !test_bd->ist_tunnel()) {
+		// start tunnelbuilding in tunnels
+		return;
+	}
 	test_bd = welt->lookup(ziel);
 	if((bautyp&tunnel_flag)==0  &&  test_bd  &&  !is_allowed_step(test_bd,test_bd,&dummy_cost)) {
 		// ... or to end
 		return;
 	}
+	// we have to reach target height if no tunnel building or sliced mode or target ground exists.
+	const bool target_3d = (bautyp&tunnel_flag)==0  || grund_t::underground_mode==grund_t::ugm_level  ||  test_bd!=NULL;
 
 	koord3d pos=start;
 
@@ -1443,7 +1448,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		route.append(pos);
 DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,ok);
 	}
-	ok = ok && (bautyp&tunnel_flag && grund_t::underground_mode!=grund_t::ugm_level ? pos.get_2d()==ziel.get_2d() : pos==ziel);
+	ok = ok && ( target_3d ? pos==ziel : pos.get_2d()==ziel.get_2d() );
 
 	// we can built a straight route?
 	if(ok) {

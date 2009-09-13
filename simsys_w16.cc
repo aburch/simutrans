@@ -601,6 +601,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
+			sys_event.key_mod = (GetKeyState(VK_CONTROL) < 0) * 2; // control state
 
 			if (numlock) {
 				// do low level special stuff here
@@ -636,7 +637,6 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			// check for F-Keys!
 			if (sys_event.code == 0 && wParam >= VK_F1 && wParam <= VK_F15) {
 				sys_event.code = wParam - VK_F1 + SIM_KEY_F1;
-				sys_event.key_mod = (GetKeyState(VK_CONTROL) != 0) * 2; // control state
 				//printf("WindowsEvent: Key %i, (state %i)\n", sys_event.code, sys_event.key_mod);
 			}
 			// some result?
@@ -666,6 +666,8 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			else {
 				sys_event.type = SIM_KEYBOARD;
 				sys_event.code = wParam;
+				short ks = GetKeyState(VK_CONTROL);
+				sys_event.key_mod = (GetKeyState(VK_CONTROL) < 0) * 2; // control state
 			}
 			break;
 

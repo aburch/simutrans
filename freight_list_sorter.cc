@@ -105,6 +105,10 @@ dbg->error("freight_list_sorter::compare_ware()","illegal sort mode!");
 void
 freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing )
 {
+	// buffer full, no need to proceed
+	if (buf.is_full()) {
+		return;
+	}
 	// not the first line?
 	if(buf.len()>0) {
 		buf.append("\n");
@@ -365,7 +369,14 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				sprintf(tmp, translator::translate(" from %s"), origin_name);
 				buf.append(tmp);
 			}
+
 			buf.append("\n");
+			// debug ende
+
+			// buffer full, no need to proceed
+			if (buf.is_full()) {
+				break;
+			}
 		}
 	}
 

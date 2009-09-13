@@ -89,7 +89,8 @@ world_view_t::zeichnen(koord offset) //"Draw" (Babelfish)
 		int hgt;
 		if(!ding) {
 			hgt = tile_raster_scale_y( plan->get_kartenboden()->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
-		} else {
+		}
+		else {
 			hgt = tile_raster_scale_y( ding->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
 			if(ding->get_typ() == ding_t::aircraft) {
 				const aircraft_t *plane =  dynamic_cast <const aircraft_t *>(ding);

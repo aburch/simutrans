@@ -53,7 +53,8 @@ void gui_flowtext_t::set_text(const char *text)
 				if (!endtag) {
 					att = ATT_A_START;
 					param = word;
-				} else {
+				}
+				else {
 					att = ATT_A_END;
 					links.append(hyperlink_t(param.substr(8, param.len() - 1)));
 				}
@@ -85,7 +86,8 @@ void gui_flowtext_t::set_text(const char *text)
 					lead++;
 				}
 				att = ATT_UNKNOWN;
-			} else {
+			}
+			else {
 				// ignore all unknown
 				att = ATT_UNKNOWN;
 			}

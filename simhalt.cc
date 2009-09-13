@@ -61,9 +61,6 @@
 
 #include "vehicle/simpeople.h"
 
-#ifdef LAGER_NOT_IN_USE
-#include "dings/lagerhaus.h"
-#endif
 
 karte_t *haltestelle_t::welt = NULL;
 
@@ -364,9 +361,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	this->init_pos = k;
 	besitzer_p = sp;
-#ifdef LAGER_NOT_IN_USE
-	lager = NULL;
-#endif
 
 	enables = NOT_ENABLED;
 
@@ -563,6 +557,7 @@ haltestelle_t::~haltestelle_t()
 void haltestelle_t::rotate90( const sint16 y_size )
 {
 	init_pos.rotate90( y_size );
+
 	// rotate waren destinations
 	// iterate over all different categories
 	for(uint32 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
@@ -618,6 +613,8 @@ void haltestelle_t::rotate90( const sint16 y_size )
 			}
 		}
 	}
+
+	// relinking factories
 	verbinde_fabriken();
 }
 
@@ -1010,7 +1007,7 @@ haltestelle_t::step()
  */
 void haltestelle_t::neuer_monat()
 {
-	if(  welt->get_active_player()==besitzer_p  &&  status_color == COL_RED  ) {
+	if(  welt->get_active_player()==besitzer_p  &&  status_color==COL_RED  ) {
 		char buf[256];
 		sprintf(buf, translator::translate("!0_STATION_CROWDED"), get_name());
 		welt->get_message()->add_message(buf, get_basis_pos(),message_t::full, PLAYER_FLAG|besitzer_p->get_player_nr(), IMG_LEER );
@@ -2324,24 +2321,25 @@ uint32 haltestelle_t::get_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const
 
 
 
+
 /**
  * @returns the sum of all waiting goods (100t coal + 10
  * passengers + 2000 liter oil = 2110)
  * @author Markus Weber
  */
-uint32 haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
-{
-	uint32 sum = 0;
-
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		if(waren[i]) {
-			for( unsigned j=0;  j<waren[i]->get_count();  j++  ) {
-				sum += (*(waren[i]))[j].menge;
-			}
-		}
-	}
-	return sum;
-}
+//uint32 haltestelle_t::sum_all_waiting_goods() const      //15-Feb-2002    Markus Weber    Added
+//{
+//	uint32 sum = 0;
+//
+//	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+//		if(waren[i]) {
+//			for( unsigned j=0;  j<waren[i]->get_count();  j++  ) {
+//				sum += (*(waren[i]))[j].menge;
+//			}
+//		}
+//	}
+//	return sum;
+//}
 
 
 
@@ -3009,9 +3007,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				{
 					// add to internal storage (use this function, since the old categories were different)
 					ware_t ware(welt, file);
-					if(ware.menge > 0) 
+					if(ware.menge > 0  &&  welt->ist_in_kartengrenzen(ware.get_zielpos()))
 					{
 						add_ware_to_halt(ware, file->get_experimental_version() >= 2);
+					}
+					else if(  ware.menge>0  ) 
+					{
+						dbg->error( "haltestelle_t::rdwr()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
 					}
 				}
 			}
@@ -3203,18 +3205,6 @@ void haltestelle_t::laden_abschliessen()
 
 	// what kind of station here?
 	recalc_station_type();
-#ifdef LAGER_NOT_IN_USE
-	for (slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
-		koord3d k(i->grund->get_pos());
-		// nach sondergebaeuden suchen
-
-		lagerhaus_t* l = welt->lookup(k)->find<lagerhaus_t>();
-		if  (l != NULL) {
-			lager = l;
-		break;
-		}
-	}
-#endif
 
 	// handle name for old stations which don't exist in kartenboden
 	grund_t* bd = welt->lookup(get_basis_pos3d());
@@ -3277,7 +3267,7 @@ void haltestelle_t::recalc_status()
 {
 	status_color = financial_history[0][HALT_CONVOIS_ARRIVED] > 0 ? COL_GREEN : COL_YELLOW;
 
-	// since the status is ored ...
+	// since the status is ordered ...
 	uint8 status_bits = 0;
 
 	memset( overcrowded, 0, 8 );
@@ -3290,8 +3280,9 @@ void haltestelle_t::recalc_status()
 			overcrowded[0] |= 1;
 		}
 		if(get_pax_unhappy() > 40 ) {
-			status_bits = (total_sum>max_ware+200 || get_pax_unhappy()>200) ? 2 : 1;
-		} else if(total_sum>max_ware) {
+			status_bits = (total_sum>max_ware+200 || (total_sum>max_ware  &&  get_pax_unhappy()>200)) ? 2 : 1;
+		}
+		else if(total_sum>max_ware) {
 			status_bits = total_sum>max_ware+200 ? 2 : 1;
 		}
 	}
@@ -3962,3 +3953,14 @@ void haltestelle_t::connexion::operator delete(void *p)
 }
 
 #endif
+
+/* deletes factory references so map rotation won't segfault
+*/
+void haltestelle_t::release_factory_links()
+{
+	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
+	while( fab_iter.next() ) {
+		fab_iter.get_current()->unlink_halt(self);
+	}
+	fab_list.clear();
+}

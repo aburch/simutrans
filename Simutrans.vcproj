@@ -588,10 +588,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\lagerhaus.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\dings\leitung2.cc"
 				>
 			</File>

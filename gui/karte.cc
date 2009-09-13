@@ -651,10 +651,12 @@ void reliefkarte_t::calc_map()
 	if(mode==MAP_DEPOT) {
 		slist_iterator_tpl <depot_t *> iter (depot_t::get_depot_list());
 		while(iter.next()) {
-			koord pos = iter.get_current()->get_pos().get_2d();
-			// offset of one to avoid
-			static uint8 depot_typ_to_color[12]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE };
-			set_relief_farbe_area(pos, 3, depot_typ_to_color[iter.get_current()->get_typ()-ding_t::bahndepot] );
+			if(iter.get_current()->get_besitzer()==welt->get_active_player()) {
+				koord pos = iter.get_current()->get_pos().get_2d();
+				// offset of one to avoid
+				static uint8 depot_typ_to_color[19]={ COL_ORANGE, COL_YELLOW, COL_RED, 0, 0, 0, 0, 0, 0, COL_PURPLE, COL_DARK_RED, COL_DARK_ORANGE, 0, 0, 0, 0, 0, 0, COL_LIGHT_RED };
+				set_relief_farbe_area(pos, 7, depot_typ_to_color[iter.get_current()->get_typ()-ding_t::bahndepot] );
+			}
 		}
 		return;
 	}

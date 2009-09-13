@@ -435,7 +435,8 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			weg = weg_t::alloc(besch->get_waytype());
 			weg->set_besch(weg_besch);
 			bruecke->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
-		} else {
+		}
+		else {
 			leitung_t *lt = new leitung_t(welt, bruecke->get_pos(), sp);
 			bruecke->obj_add( lt );
 			lt->laden_abschliessen();
@@ -491,7 +492,8 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				weg->laden_abschliessen();
 			}
 			gr->calc_bild();
-		} else {
+		}
+		else {
 			leitung_t *lt = gr->get_leitung();
 			if(  lt==NULL  ) {
 				lt = new leitung_t( welt, end, sp );
@@ -542,11 +544,13 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		weg->set_max_weight( besch->get_max_weight() );
 		weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 	} else {
+
 		leitung_t *lt = bruecke->get_leitung();
 		if(!lt) {
 			lt = new leitung_t(welt, bruecke->get_pos(), sp); //"leading" (Google)
 			bruecke->obj_add( lt );
-		} else {
+		}
+		else {
 			// remove maintainance
 			spieler_t::add_maintenance( sp, -wegbauer_t::leitung_besch->get_wartung());
 		}
@@ -657,7 +661,8 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 				br->entferne(sp);
 				delete br;
 			}
-		} else {
+		}
+		else {
 			ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp);
 			ribi_t::ribi bridge_ribi;
 
