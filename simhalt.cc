@@ -723,7 +723,6 @@ bool haltestelle_t::step()
 	}
 	else if(reroute_counter!=welt->get_schedule_counter()) {
 		// all new connection updated => recalc routes
-		haltestelle_t::is_rerouting = RERROUTE_GOODS;
 		if(  !reroute_goods()  ) {
 			return false;
 		}
