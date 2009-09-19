@@ -257,19 +257,22 @@ void spieler_t::step()
 		}
 		else {
 			uint32 units_handled = 0;
-			while(  units_handled<8192  ) {
+			while(  units_handled<1024  ) {
 				if(  !iter.next()  ) {
 					halt_iterator_start = 0;
 					break;
 				}
-				halt_iterator_start ++;
 				// iterator until 8192 passengers were handled
 				units_handled += iter.get_current()->get_finance_history(0,HALT_WAITING);
-				iter.get_current()->step();
+				if(  !iter.get_current()->step()  ) {
+					// too much rerouted => needs continue at next round!
+					break;
+				}
+				halt_iterator_start ++;
 			}
-			INT_CHECK("simplay 156");
 		}
 	}
+	INT_CHECK("simplay 156");
 }
 
 

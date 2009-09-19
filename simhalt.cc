@@ -98,8 +98,7 @@ halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spie
 }
 
 
-halthandle_t
-haltestelle_t::get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp )
 {
 	const grund_t *gr = welt->lookup(pos);
 	if(gr) {
@@ -132,15 +131,16 @@ haltestelle_t::get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp )
 
 koord haltestelle_t::get_basis_pos() const
 {
-	if (tiles.empty()) return koord::invalid;
-	assert(tiles.front().grund->get_pos().get_2d() == init_pos);
-	return tiles.front().grund->get_pos().get_2d();
+	return get_basis_pos3d().get_2d();
 }
 
 
 koord3d haltestelle_t::get_basis_pos3d() const
 {
-	if (tiles.empty()) return koord3d::invalid;
+	if (tiles.empty()) {
+		return koord3d::invalid;
+	}
+	assert(tiles.front().grund->get_pos().get_2d() == init_pos);
 	return tiles.front().grund->get_pos();
 }
 
@@ -299,6 +299,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	reroute_counter = welt->get_schedule_counter()-1;
 	rebuilt_destination_counter = reroute_counter;
+	last_index = 255;	// force total reouting
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
@@ -713,22 +714,22 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 
 
 
-void
-haltestelle_t::step()
+bool haltestelle_t::step()
 {
 //	DBG_MESSAGE("haltestelle_t::step()","%s (cnt %i)",get_name(),reroute_counter);
 	if(rebuilt_destination_counter!=welt->get_schedule_counter()) {
 		// schedule has changed ...
 		rebuild_destinations();
 	}
-	else {
+	else if(reroute_counter!=welt->get_schedule_counter()) {
 		// all new connection updated => recalc routes
-		if(reroute_counter!=welt->get_schedule_counter()) {
-			reroute_goods();
-	//		DBG_MESSAGE("haltestelle_t::step()","rerouting goods at %s",get_name());
+		haltestelle_t::is_rerouting = RERROUTE_GOODS;
+		if(  !reroute_goods()  ) {
+			return false;
 		}
 	}
 	recalc_status();
+	return true;
 }
 
 
@@ -763,74 +764,95 @@ void haltestelle_t::neuer_monat()
 
 
 /**
- * Called every 255 steps
+ * Called after schedule calculation of all stations is finished
  * will distribute the goods to changed routes (if there are any)
+ * returns true upon completion
  * @author Hj. Malthaner
  */
-void haltestelle_t::reroute_goods()
+bool haltestelle_t::reroute_goods()
 {
 	// reroute only on demand
 	reroute_counter = welt->get_schedule_counter();
 	uint8 sync_step_counter = 1;
 
-	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		if(waren[i]) {
-			vector_tpl<ware_t> * warray = waren[i];
-			vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
+	uint16 packets = 0;	// count of rerouted packets
+	if(  last_index==255  ) {
+		last_index = 0;
+		last_ware_index = 0;
+	}
 
-			// Hajo:
-			// Step 1: re-route goods now and then to adapt to changes in
-			// world layout, remove all goods which destination was removed from the map
-			// prissi;
-			// also the empty entries of the array are cleared
-			for(int j=warray->get_count()-1;  j>=0;  j--  ) {
-				ware_t & ware = (*warray)[j];
+	for(  ; last_index<warenbauer_t::get_max_catg_index(); last_index++) {
 
-				if(ware.menge==0) {
-					continue;
-				}
+		if(waren[last_index]) {
 
-				// since also the factory halt list is added to the ground, we can use just this ...
-				if(welt->lookup(ware.get_zielpos())->is_connected(self)) {
-					// we are already there!
-					if(ware.is_freight()) {
-						liefere_an_fabrik(ware);
+			// first: clean out the array
+			if(  last_ware_index==0  ) {
+				vector_tpl<ware_t> * warray = waren[last_index];
+				vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
+
+				for(int j=warray->get_count()-1;  j>=0;  j--  ) {
+					ware_t & ware = (*warray)[j];
+
+					if(ware.menge==0) {
+						continue;
 					}
-					continue;
+
+					// since also the factory halt list is added to the ground, we can use just this ...
+					if(welt->lookup(ware.get_zielpos())->is_connected(self)) {
+						// we are already there!
+						if(ware.is_freight()) {
+							liefere_an_fabrik(ware);
+						}
+						continue;
+					}
+
+					// add to new array
+					new_warray->append( ware );
 				}
 
-				if(  (sync_step_counter++) == 0  ) {
-					INT_CHECK( "simhalt" );
+				// delete, if nothing connects here
+				if (new_warray->empty()) {
+					if(  warenziele[last_index].empty()  ) {
+						// no connections from here => delete
+						delete new_warray;
+						new_warray = NULL;
+					}
 				}
 
-				// check if this good can still reach its destination
-				if(  suche_route( ware, NULL, false )==NO_ROUTE  ) {
-					// remove invalid destinations
-					continue;
-				}
-
-				// add to new array
-				new_warray->append( ware );
+				// replace the array
+				delete waren[last_index];
+				waren[last_index] = new_warray;
 			}
 
-			INT_CHECK( "simhalt.cc 489" );
+			// if somtehing left
+			// re-route goods to adapt to changes in world layout,
+			// remove all goods which destination was removed from the map
+			if(waren[last_index]  &&  waren[last_index]->get_count()>0) {
 
-			// delete, if nothing connects here
-			if (new_warray->empty()) {
-				if(  warenziele[i].empty()  ) {
-					// no connections from here => delete
-					delete new_warray;
-					new_warray = NULL;
+				vector_tpl<ware_t> * warray = waren[last_index];
+				while(  last_ware_index<warray->get_count()  ) {
+
+					if(  suche_route( (*warray)[last_ware_index], NULL, false )==NO_ROUTE  ) {
+						// remove invalid destinations
+						warray->remove_at(last_ware_index);
+					}
+					else {
+						last_ware_index++;
+					}
+					// break after a certain number of reroute actions
+					if(  ++packets==255  ) {
+						return false;
+					}
 				}
+				// now we are finisched with this array
+				// => reset last_ware_index for the next categorie
 			}
-
-			// replace the array
-			delete waren[i];
-			waren[i] = new_warray;
 		}
 	}
 	// likely the display must be updated after this
 	resort_freight_info = true;
+	last_index = 255;	// all categories are rerouted
+	return true;	// all updated ...
 }
 
 
@@ -917,6 +939,7 @@ void haltestelle_t::rebuild_destinations()
 	};
 	rebuilt_destination_counter = welt->get_schedule_counter();
 	resort_freight_info = true;	// might result in error in routing
+	last_index = 255;	// must reroute everything
 
 	const bool i_am_public = get_besitzer()==welt->get_spieler(1);
 

@@ -25,7 +25,6 @@
 #include "tpl/vector_tpl.h"
 
 
-
 #define MAX_HALT_COST   7 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
 #define MAX_HALT_NON_MONEY_TYPES 7 // number of non money types in HALT's financial statistic
@@ -208,6 +207,9 @@ private:
 
 	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
 	uint8 reroute_counter;						// the reroute goods
+	// since we do partial routing, we remeber the last offset
+	uint8 last_index;
+	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
 	uint8 enables;
@@ -282,11 +284,12 @@ private:
 
 public:
 	/**
-	* Called every 255 steps
+	* Called after schedule calculation of all stations is finished
 	* will distribute the goods to changed routes (if there are any)
+	* returns true upon completion
 	* @author Hj. Malthaner
 	*/
-	void reroute_goods();
+	bool reroute_goods();
 
 	/**
 	 * getter/setter for sortby
@@ -342,10 +345,10 @@ public:
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/**
-	 * Haltestellen messen regelmaessig die Fahrplaene pruefen
+	 * called regularily to update status and reroute stuff
 	 * @author Hj. Malthaner
 	 */
-	void step();
+	bool step();
 
 	/**
 	 * Called every month/every 24 game hours
