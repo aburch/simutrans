@@ -770,8 +770,6 @@ void haltestelle_t::neuer_monat()
  */
 bool haltestelle_t::reroute_goods()
 {
-	// reroute only on demand
-	reroute_counter = welt->get_schedule_counter();
 	uint8 sync_step_counter = 1;
 
 	uint16 packets = 0;	// count of rerouted packets
@@ -851,6 +849,7 @@ bool haltestelle_t::reroute_goods()
 	// likely the display must be updated after this
 	resort_freight_info = true;
 	last_index = 255;	// all categories are rerouted
+	reroute_counter = welt->get_schedule_counter();	// no need to reroute further
 	return true;	// all updated ...
 }
 
