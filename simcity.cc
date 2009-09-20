@@ -2957,7 +2957,7 @@ void stadt_t::check_bau_factory(bool new_town)
 		for (int i = 0; i < 8; i++) {
 			if (industry_increase_every[i] == bev) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
-				fabrikbauer_t::increase_industry_density( welt, true );
+				fabrikbauer_t::increase_industry_density( welt, true, true );
 			}
 		}
 	}

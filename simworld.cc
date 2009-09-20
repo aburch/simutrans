@@ -1305,8 +1305,25 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	{
 		path_explorer_t::full_instant_refresh();
 	}
-}
 
+	// Set the target and actual industry densities.
+	if(actual_industry_density <= 0)
+	{
+		double weight;
+		ITERATE(fab_list, i)
+		{
+			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+			if(!factory_type->is_electricity_producer())
+			{
+				// Power stations are excluded from the target weight:
+				// a different system is used for them.
+				weight = factory_type->get_gewichtung();
+				actual_industry_density += (1.0 / weight);
+			}
+		}
+		target_industry_density = actual_industry_density;
+	}
+}
 
 
 void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
@@ -1608,6 +1625,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	einstellungen = sets;
 	schedule_counter = 0;
 	nosave = false;
+	actual_industry_density = target_industry_density = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
@@ -2663,7 +2681,6 @@ void karte_t::neuer_monat()
 
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
-	//slist_iterator_tpl<fabrik_t*> iter (fab_list);
 	sint16 number_of_factories = fab_list.get_count();
 	for(sint16 i = number_of_factories - 1; i >= 0; i--)
 	{
@@ -2674,10 +2691,22 @@ void karte_t::neuer_monat()
 		sint16 difference = number_of_factories - fab_list.get_count();
 		i -= difference;
 	}
-	/*while(iter.next()) {
-		fabrik_t * fab = iter.get_current();
-		fab->neuer_monat();
-	}*/
+
+	// Check to see whether more factories need to be added
+	// to replace ones that have closed.
+	// @author: jamespetts
+
+	if(actual_industry_density < target_industry_density)
+	{
+		// Only add one per month, and randomise.
+		const double proportion = target_industry_density - actual_industry_density;
+		const uint8 chance = simrand(10);
+		if(chance + proportion >= 10)
+		{
+			fabrikbauer_t::increase_industry_density(this, true, false, true);
+		}
+	}
+
 	INT_CHECK("simworld 1278");
 
 	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
@@ -3719,6 +3748,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	{
 		file->rdwr_short(base_pathing_counter, "");
 	}
+	if(file->get_experimental_version() >= 7)
+	{
+		file->rdwr_double(target_industry_density);
+	}
+
 	if(needs_redraw) 
 	{
 		update_map();
@@ -4245,6 +4279,35 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	if(file->get_experimental_version() >= 2)
 	{
 		file->rdwr_short(base_pathing_counter, "");
+	}
+	
+	// Reconstruct the actual industry density.
+	// @author: jamespetts
+	
+	if(actual_industry_density <= 0)
+	{
+		// Make sure that this is not double counted
+		double weight;
+		ITERATE(fab_list, i)
+		{
+			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+			if(!factory_type->is_electricity_producer())
+			{
+				// Power stations are excluded from the target weight:
+				// a different system is used for them.
+				weight = factory_type->get_gewichtung();
+				actual_industry_density += (1.0 / weight);
+			}
+		}
+
+		if(file->get_experimental_version() >= 7)
+		{
+			file->rdwr_double(target_industry_density);
+		}
+		else
+		{
+			target_industry_density = actual_industry_density;
+		}
 	}
 
 	// Added by : Knightly

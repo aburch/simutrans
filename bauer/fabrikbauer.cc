@@ -382,7 +382,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
  * "build the factory, according to info" (Google)
  * @author Hj.Malthaner
  */
-fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler)
+fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler, bool increase_target_density)
 {
 	fabrik_t * fab = new fabrik_t(pos, spieler, info);
 
@@ -394,6 +394,11 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	fab->baue(rotate);
 	welt->add_fab(fab);
 	add_factory_to_fab_map( welt, fab );
+	welt->increase_actual_industry_density(1.0 / (double)info->get_gewichtung());
+	if(increase_target_density)
+	{
+		welt->increase_target_industry_density(1.0 / (double)info->get_gewichtung());
+	}
 
 	// make all water station
 	if(info->get_platzierung() == fabrik_besch_t::Wasser) {
@@ -487,8 +492,9 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
 
 /**
  * vorbedingung: pos ist für fabrikbau geeignet
+ * "precondition: pos is suited for factory construction" (Google)
  */
-int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains )
+int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains, bool increase_target_density )
 {
 	karte_t* welt = sp->get_welt();
 	int n = 1;
@@ -576,7 +582,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
 	INT_CHECK("fabrikbauer 594");
 
-	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp);
+	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp, increase_target_density);
 
 	INT_CHECK("fabrikbauer 596");
 
@@ -840,7 +846,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
  * or built a new consumer near the indicated position
  * @return: number of factories built
  */
-int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
+int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool increase_target_density, bool do_not_add_beyond_target_density )
 {
 	int nr = 0;
 	fabrik_t *last_built_consumer = NULL;
@@ -849,11 +855,8 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 	// find last consumer
 	if(!welt->get_fab_list().empty()) 
 	{
-		//slist_iterator_tpl<fabrik_t*> iter (welt->get_fab_list());
-		//while(iter.next()) {
 		ITERATE(welt->get_fab_list(), i)
 		{
-			//fabrik_t *fab = iter.get_current();
 			fabrik_t *fab = welt->get_fab_list()[i];
 			if(fab->get_besch()->get_produkte()==0) 
 			{
@@ -923,11 +926,8 @@ next_ware_check:
 	uint32 total_produktivity = 1;
 	uint32 electric_productivity = 0;
 
-	//slist_iterator_tpl<fabrik_t*> iter (welt->get_fab_list());
-	//while(iter.next()) {
 	ITERATE(welt->get_fab_list(), i)
 	{
-		//fabrik_t * fab = iter.get_current();
 		fabrik_t * fab = welt->get_fab_list()[i];
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
@@ -939,12 +939,12 @@ next_ware_check:
 		}
 	}
 
-		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
-		
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
-		{
-			total_produktivity += ((float)((*i)->get_finance_history_month(0, HIST_CITICENS) * (*i)->get_electricity_consumption(welt->get_timeline_year_month())) * 0.02);
-		}
+	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+	
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
+	{
+		total_produktivity += ((float)((*i)->get_finance_history_month(0, HIST_CITICENS) * (*i)->get_electricity_consumption(welt->get_timeline_year_month())) * 0.02);
+	}
 
 	// now decide producer of electricity or normal ...
 	sint32 promille = (electric_productivity*4000l)/total_produktivity;
@@ -955,6 +955,14 @@ next_ware_check:
 		for(int retrys=20;  retrys>0;  retrys--  ) {
 			const fabrik_besch_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
 			if(fab) {
+				if(do_not_add_beyond_target_density && !fab->is_electricity_producer())
+				{
+					//Make sure that industries are not added beyond target density.
+					if((double)(1.0 / fab->get_gewichtung()) > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
+					{
+						continue;
+					}
+				}
 				const bool in_city = fab->get_platzierung() == fabrik_besch_t::Stadt;
 				if(in_city  &&  welt->get_staedte().get_count()==0) {
 					// we cannot built this factory here
@@ -970,7 +978,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Platz gefunden ...
-					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1 );
+					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1, increase_target_density );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( welt, pos.get_2d() );
 						if(in_city) {

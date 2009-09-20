@@ -305,6 +305,8 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
+	welt->decrease_actual_industry_density(get_besch()->get_gewichtung());
+
 	//Disconnect this factory from all chains.
 	//@author: jamespetts
 	uint32 number_of_customers = lieferziele.get_count();
@@ -1258,9 +1260,23 @@ fabrik_t::neuer_monat()
 		ausgang[index].abgabe_sum = 0;
 	}
 
+	// This needs to be re-checked regularly, as cities grow.
+	stadt_t* c = welt->get_city(pos.get_2d());
+
+	if(city == NULL && c != NULL)
+	{
+		city = c;
+		city->add_city_factory(this);
+	}
+	if(city != NULL && c != city && c != NULL)
+	{
+		city = c;
+		city->add_city_factory(this);
+	}
+
 	// Check to see whether factory is obsolete.
 	// If it is, give it a chance of being closed down.
-	//@author: jamespetts
+	// @author: jamespetts
 
 	if(welt->use_timeline() && besch->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
 	{
@@ -1279,11 +1295,12 @@ fabrik_t::neuer_monat()
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
+		
 		else
 		{
 			float proportion = (float)difference / (float)max_difference;
-			proportion *= 100; //Set to percentage value.
-			uint8 chance = simrand(100);
+			proportion *= 10.0F; //Set to percentage value, but take into account fact will be frequently checked.
+			const float chance = (float)(simrand(10000) / 100.0F);
 			if(chance <= proportion)
 			{
 				uint32 number_of_customers = lieferziele.get_count();
@@ -1298,19 +1315,6 @@ fabrik_t::neuer_monat()
 				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 			}
 		}
-	}
-	// This needs to be re-checked regularly, as cities grow.
-	stadt_t* c = welt->get_city(pos.get_2d());
-
-	if(city == NULL && c != NULL)
-	{
-		city = c;
-		city->add_city_factory(this);
-	}
-	if(city != NULL && c != city && c != NULL)
-	{
-		city = c;
-		city->add_city_factory(this);
 	}
 }
 
