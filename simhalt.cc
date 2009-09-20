@@ -845,6 +845,8 @@ bool haltestelle_t::reroute_goods()
 				// => reset last_ware_index for the next categorie
 			}
 		}
+
+		last_ware_index = 0;
 	}
 	// likely the display must be updated after this
 	resort_freight_info = true;
