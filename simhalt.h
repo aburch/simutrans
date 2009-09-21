@@ -25,6 +25,9 @@
 #include "tpl/vector_tpl.h"
 
 
+#define RESCHEDULING (1)
+#define REROUTING (2)
+
 #define MAX_HALT_COST   7 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
 #define MAX_HALT_NON_MONEY_TYPES 7 // number of non money types in HALT's financial statistic
@@ -101,7 +104,16 @@ private:
 	uint8 overcrowded[8];	// bit set, when overcrowded
 	void recalc_status();
 
+	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
+
 public:
+	/**
+	 * Handles changes of schedules and the resulting rerouting
+	 */
+	static void step_all();
+
+	static uint8 get_rerouting_status() { return status_step; }
+
 	/**
 	 * Tries to generate some pedestrians on the sqaure and the
 	 * adjacent sqaures. Return actual number of generated
@@ -208,7 +220,7 @@ private:
 	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
 	uint8 reroute_counter;						// the reroute goods
 	// since we do partial routing, we remeber the last offset
-	uint8 last_index;
+	uint8 last_catg_index;
 	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
@@ -289,7 +301,7 @@ public:
 	* returns true upon completion
 	* @author Hj. Malthaner
 	*/
-	bool reroute_goods();
+	bool reroute_goods(sint16 &units_remaining);
 
 	/**
 	 * getter/setter for sortby
@@ -320,10 +332,10 @@ public:
 
 	/**
 	 * Rebuilds the list of reachable destinations
-	 *
+	 * returns the search number of connections
 	 * @author Hj. Malthaner
 	 */
-	void rebuild_destinations();
+	sint32 rebuild_destinations();
 
 	uint8 get_rebuild_destination_counter() const  { return rebuilt_destination_counter; }
 
@@ -348,7 +360,7 @@ public:
 	 * called regularily to update status and reroute stuff
 	 * @author Hj. Malthaner
 	 */
-	bool step();
+	bool step(sint16 &units_remaining);
 
 	/**
 	 * Called every month/every 24 game hours

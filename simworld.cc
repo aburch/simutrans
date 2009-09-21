@@ -2878,9 +2878,11 @@ karte_t::step()
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  spieler[i] != NULL  ) {
 			spieler[i]->step();
-			INT_CHECK("simworld 1975");
 		}
 	}
+	INT_CHECK("simworld 1975");
+
+	haltestelle_t::step_all();
 
 	// ok, next step
 	INT_CHECK("simworld 1975");

@@ -114,7 +114,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	}
 
 	haltcount = 0;
-	halt_iterator_start = 0;
 
 	maintenance = 0;
 
@@ -240,39 +239,11 @@ void spieler_t::set_player_color(uint8 col1, uint8 col2)
 
 
 /**
- * Wird von welt in kurzen abständen aufgerufen
+ * Any action goes here (only need for AI at the moment)
  * @author Hj. Malthaner
  */
 void spieler_t::step()
 {
-	if(  halt_list.get_count()>0  ) {
-
-		uint32 it = halt_iterator_start;
-		slist_iterator_tpl <halthandle_t> iter( halt_list );
-		while(  it>0  &&  iter.next()  ) {
-			it--;
-		}
-		if(  it>0  ) {
-			halt_iterator_start = 0;
-		}
-		else {
-			uint32 units_handled = 0;
-			while(  units_handled<1024  ) {
-				if(  !iter.next()  ) {
-					halt_iterator_start = 0;
-					break;
-				}
-				// iterator until 8192 passengers were handled
-				units_handled += iter.get_current()->get_finance_history(0,HALT_WAITING);
-				if(  !iter.get_current()->step()  ) {
-					// too much rerouted => needs continue at next round!
-					break;
-				}
-				halt_iterator_start ++;
-			}
-		}
-	}
-	INT_CHECK("simplay 156");
 }
 
 
@@ -531,7 +502,6 @@ spieler_t::halt_add(halthandle_t halt)
  */
 void spieler_t::halt_remove(halthandle_t halt)
 {
-	halt_iterator_start = 0;
 	halt_list.remove(halt);
 }
 
