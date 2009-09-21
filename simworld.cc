@@ -2699,9 +2699,9 @@ void karte_t::neuer_monat()
 	if(actual_industry_density < target_industry_density)
 	{
 		// Only add one per month, and randomise.
-		const double proportion = target_industry_density - actual_industry_density;
-		const uint8 chance = simrand(10);
-		if(chance + proportion >= 10)
+		const double proportion = ((target_industry_density - actual_industry_density) / target_industry_density) * 100;
+		const uint8 chance = simrand(100);
+		if(chance < proportion)
 		{
 			fabrikbauer_t::increase_industry_density(this, true, false, true);
 		}

@@ -238,7 +238,7 @@ einstellungen_t::einstellungen_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	distance_per_tile = 2.5F;
+	distance_per_tile = 0.25F;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -662,23 +662,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					distance_per_tile_integer *= 0.8F;
 				}		
 				distance_per_tile = distance_per_tile_integer / 100.0F;
-				if(file->get_experimental_version() < 6)
-				{
-					min_bonus_max_distance /= distance_per_tile;
-					max_bonus_min_distance /= distance_per_tile;
-					// Scale the costs to match the scale factor.
-					cst_multiply_dock *= distance_per_tile;
-					cst_multiply_station *= distance_per_tile;
-					cst_multiply_roadstop *= distance_per_tile;
-					cst_multiply_airterminal *= distance_per_tile;
-					cst_multiply_post *= distance_per_tile;
-					maint_building *= distance_per_tile;
-					cst_signal *= distance_per_tile;
-					cst_tunnel *= distance_per_tile;
-					cst_third_rail *= distance_per_tile;
-					cst_buy_land *= distance_per_tile;
-					cst_remove_tree *= distance_per_tile;
-				}
+				
 				file->rdwr_byte(tolerable_comfort_short, "");
 				file->rdwr_byte(tolerable_comfort_median_short, "");
 				file->rdwr_byte(tolerable_comfort_median_median, "");
@@ -708,6 +692,24 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 				file->rdwr_short(tpo_min_minutes, "");
 				file->rdwr_short(tpo_revenue, "");
+			}
+
+			if(file->get_experimental_version() < 6)
+			{
+				min_bonus_max_distance /= distance_per_tile;
+				max_bonus_min_distance /= distance_per_tile;
+				// Scale the costs to match the scale factor.
+				cst_multiply_dock *= distance_per_tile;
+				cst_multiply_station *= distance_per_tile;
+				cst_multiply_roadstop *= distance_per_tile;
+				cst_multiply_airterminal *= distance_per_tile;
+				cst_multiply_post *= distance_per_tile;
+				maint_building *= distance_per_tile;
+				cst_signal *= distance_per_tile;
+				cst_tunnel *= distance_per_tile;
+				cst_third_rail *= distance_per_tile;
+				cst_buy_land *= distance_per_tile;
+				cst_remove_tree *= distance_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent, "");

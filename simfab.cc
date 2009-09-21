@@ -1280,14 +1280,31 @@ fabrik_t::neuer_monat()
 
 	if(welt->use_timeline() && besch->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
 	{
-		uint32 difference =  welt->get_timeline_year_month() - besch->get_haus()->get_retire_year_month();
-		uint32 max_difference = welt->get_einstellungen()->get_factory_max_years_obsolete() * 12;
+		const uint32 difference =  welt->get_timeline_year_month() - besch->get_haus()->get_retire_year_month();
+		const uint32 max_difference = welt->get_einstellungen()->get_factory_max_years_obsolete() * 12;
+		bool closedown = false;
 		if(difference > max_difference)
 		{
-			uint32 number_of_customers = lieferziele.get_count();
-			uint32 number_of_suppliers = suppliers.get_count();
+			closedown = true;
+		}
+		
+		else
+		{
+			float proportion = (float)difference / (float)max_difference;
+			proportion *= 4.0F; //Set to percentage value, but take into account fact will be frequently checked.
+			const float chance = (float)(simrand(10000) / 100.0F);
+			if(chance <= proportion)
+			{
+				closedown = true;
+			}
+		}
+
+		if(closedown)
+		{
+			const uint32 number_of_customers = lieferziele.get_count();
+			const uint32 number_of_suppliers = suppliers.get_count();
 			char buf[192];
-			uint16 jobs =  besch->get_pax_level();
+			const uint16 jobs = besch->get_pax_level();
 			sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
 			welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 			grund_t *gr = 0;
@@ -1295,29 +1312,8 @@ fabrik_t::neuer_monat()
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
-		
-		else
-		{
-			float proportion = (float)difference / (float)max_difference;
-			proportion *= 10.0F; //Set to percentage value, but take into account fact will be frequently checked.
-			const float chance = (float)(simrand(10000) / 100.0F);
-			if(chance <= proportion)
-			{
-				uint32 number_of_customers = lieferziele.get_count();
-				uint32 number_of_suppliers = suppliers.get_count();
-				char buf[192];
-				uint16 jobs =  besch->get_pax_level();
-				sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-				welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
-				grund_t *gr = 0;
-				gr = welt->lookup(pos);
-				gebaeude_t* gb = gr->find<gebaeude_t>();
-				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
-			}
-		}
 	}
 }
-
 
 
 static void info_add_ware_description(cbuffer_t & buf, const ware_production_t & ware)
