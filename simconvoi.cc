@@ -485,8 +485,6 @@ void convoi_t::add_running_cost(sint32 cost)
 	book(cost, CONVOI_PROFIT);
 }
 
-
-
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
@@ -496,11 +494,9 @@ void convoi_t::calc_acceleration(long delta_t)
 	int sum_friction_weight = 0;
 	sum_gesamtgewicht = 0; // "Total weight" (Google)
 	// calculate total friction
-	int total_vehicle_weight;
-	vehikel_t* v;
 	for(unsigned i=0; i<anz_vehikel; i++) {
-		v = fahr[i];
-		total_vehicle_weight = v->get_gesamtgewicht();
+		vehikel_t* v = fahr[i];
+		int total_vehicle_weight = v->get_gesamtgewicht();
 		sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
 		sum_gesamtgewicht += total_vehicle_weight;
 	}
@@ -4222,12 +4218,7 @@ void convoy_metrics_t::calc(convoi_t &cnv)
 	 * At first glance the effective power calculation might have been skipped at all, but the convoy top speed 
 	 * can differ from the vehicle's top speed and thus steam engine might still be in the reduced power range.
 	 */
-	//power = cnv.calc_adjusted_power() / 64; //BG, 30.08.2009: gear factor '/ 64' was missing
-	for(unsigned i = cnv.get_vehikel_anzahl();  i-- > 0; )
-	{
-		power += cnv.get_vehikel(i)->get_besch()->get_effective_power_index(max_top_speed);
-	}
-	power *= cnv.get_welt()->get_einstellungen()->get_global_power_factor() / 64;
+	power = cnv.get_effective_power(max_top_speed);
 }
 
 void convoy_metrics_t::calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles)
@@ -4243,11 +4234,47 @@ void convoy_metrics_t::calc(karte_t &world, vector_tpl<const vehikel_besch_t *> 
 	power *= world.get_einstellungen()->get_global_power_factor() / 64;
 }
 
+// Calculate the maximum speed in kmh the given power in kWh can move the given weight in t.
+#define max_kmh(power, weight) (sqrt(((power)/(weight))-1) * 50)
+
 uint32 convoy_metrics_t::get_speed(uint32 weight) 
 { 
 	// This was correct for the old physics formulae, but not now. Use maximum theoretical
 	// speed, not maximum actual speed until a new formula can be found.
 
-	return min(max_top_speed, (uint32) sqrt((((double)power/(double)weight)-1)*2500)); 
+	return min(max_top_speed, (uint32) max_kmh(power, weight)); 
 	//return max_top_speed;
+}
+
+/* Calculate convoy's effective power according to given speed.
+ *
+ * The power of a steam engine depends on its speed.
+ *
+ * @author Bernd Gabriel, Sep, 17 2009: temporary fix. A convoy_metrics_t should become part of a convoi_t.
+ */
+float convoi_t::get_effective_power(uint32 speed) 
+{ 
+	uint32 power = 0;
+	uint32 weight = 0;
+	for(unsigned i = anz_vehikel; i-- > 0; )
+	{
+		vehikel_t &vehicle = *fahr[i];
+		power += vehicle.get_besch()->get_effective_power_index(speed);
+		weight += vehicle.get_gesamtgewicht();
+	}
+	sum_gesamtgewicht = weight;
+	return power * get_welt()->get_einstellungen()->get_global_power_factor() / 64;
+}
+
+/* Set the new desired speed. 
+ *
+ * It will be reached after several calls to calc_acceleration().
+ *
+ * @param set_akt_speed in simutrans speed representation (see: kmh_to_speed()).
+ * @author Bernd Gabriel, Sep, 17 2009: temporary fix. A convoy_metrics_t should become part of a convoi_t.
+ */
+void convoi_t::set_akt_speed_soll(sint32 set_akt_speed) 
+{ 
+	float power = get_effective_power(min_top_speed);
+	akt_speed_soll = min(set_akt_speed, min(min_top_speed, kmh_to_speed((uint32) max_kmh(power, sum_gesamtgewicht)))); 
 }

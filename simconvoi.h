@@ -585,7 +585,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 
-	void set_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
+	void set_akt_speed_soll(sint32 set_akt_speed); // { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
 
 	/**
 	 * @return current speed, this might be different from topspeed
@@ -604,6 +604,8 @@ public:
 	sint32 get_min_top_speed() const {return min_top_speed;}
 	sint32 get_sum_gewicht() const {return sum_gewicht;}
 	sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	// @author Bernd Gabriel: moved from convoy_metrics_t::calc():
+	float get_effective_power(uint32 speed);
 
 	uint32 get_length() const;
 
@@ -985,7 +987,7 @@ public:
  */
 class convoy_metrics_t {
 private:
-	uint32 power;
+	float power;
 	uint32 length; // length in 1/TILE_STEPSth of a tile
 	uint32 vehicle_weight;
 	// several freight of the same category may weigh different: 
@@ -1002,7 +1004,7 @@ public:
 	convoy_metrics_t(convoi_t &cnv) { calc(cnv); }
 	void calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles);
 	void calc(convoi_t &cnv);
-	uint32 get_power() { return power; }
+	float get_power() { return power; }
 	uint32 get_length() { return length; }
 	uint32 get_vehicle_weight() { return vehicle_weight; }
 	uint32 get_max_freight_weight() { return max_freight_weight; }
