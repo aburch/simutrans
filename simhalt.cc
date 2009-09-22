@@ -1067,7 +1067,6 @@ struct HNode {
 	halthandle_t halt;
 	uint16 depth;
 	HNode *link;
-	HNode *next;	// for linked list
 };
 
 /**
