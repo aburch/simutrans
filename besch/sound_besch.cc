@@ -77,7 +77,7 @@ DBG_MESSAGE("sound_besch_t::init()","successfully opened sound/sound.tab"  );
 			if(fn[0]>0) {
 DBG_MESSAGE("sound_besch_t::init()","reading sound %s", fn  );
 				compatible_sound_id[i] = get_sound_id( fn );
-DBG_MESSAGE("sound_besch_t::init()","assigned system sound %d to sound %s (id=%i)", i, fn, compatible_sound_id[i] );
+DBG_MESSAGE("sound_besch_t::init()","assigned system sound %d to sound %s (id=%i)", i, (const char *)fn, compatible_sound_id[i] );
 			}
 		}
 		// now assign special sounds for climates, beaches and forest
@@ -107,13 +107,13 @@ sint16 sound_besch_t::get_sound_id(const char *name)
 		if(id!=NO_SOUND) {
 			s = new sound_ids(id,name);
 			name_sound.put(s->filename, s );
-DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully loaded sound %s internal id %i", s->filename, s->id );
+DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully loaded sound %s internal id %i", (const char *)s->filename, s->id );
 			return s->id;
 		}
 		dbg->warning("sound_besch_t::get_sound_id()","sound \"%s\" not found", name );
 		return NO_SOUND;
 	}
-DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s internal id %i", s->filename, s->id );
+DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s internal id %i", (const char *)s->filename, s->id );
 	return s->id;
 }
 
