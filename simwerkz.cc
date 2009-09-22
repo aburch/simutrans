@@ -1645,6 +1645,7 @@ const char *wkz_tunnelbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3
 		welt->mute_sound(true);
 		bauigel.baue();
 		welt->mute_sound(false);
+		welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
 		return NULL;
 	}
 }
