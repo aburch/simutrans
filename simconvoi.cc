@@ -355,7 +355,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			// airplanes may have no ground ...
 			schiene_t *sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
 			if(sch0) {
-				sch0->reserve(self);
+				sch0->reserve(self,ribi_t::keine);
 			}
 		}
 		fahr[0]->set_erstes(true);
@@ -1248,6 +1248,7 @@ convoi_t::can_go_alte_richtung()
 
 	// now get the actual length and the tile length
 	int convoi_length = 15;
+	int tile_length = 24;
 	unsigned i;	// for visual C++
 	const vehikel_t* pred = NULL;
 	for(i=0; i<anz_vehikel; i++) {
@@ -1256,7 +1257,7 @@ convoi_t::can_go_alte_richtung()
 
 		convoi_length += v->get_besch()->get_length();
 
-		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))) {
+		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
 			// ending here is an error!
 			// this is an already broken train => restart
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
@@ -1272,8 +1273,20 @@ convoi_t::can_go_alte_richtung()
 			return false;
 		}
 
+		if(  pred  &&  pred->get_pos()!=v->get_pos()  ) {
+			tile_length += (ribi_t::ist_gerade(welt->lookup(pred->get_pos())->get_weg_ribi_unmasked(pred->get_waytype())) ? 16 : 8192/vehikel_t::get_diagonal_multiplier())*koord_distance(pred->get_pos(),v->get_pos());
+		}
+
 		pred = v;
 	}
+	// check if convoi is way too short (even for diagonal tracks)
+	tile_length += (ribi_t::ist_gerade(welt->lookup(fahr[anz_vehikel-1]->get_pos())->get_weg_ribi_unmasked(fahr[anz_vehikel-1]->get_waytype())) ? 16 : 8192/vehikel_t::get_diagonal_multiplier());
+	if(  convoi_length>tile_length  ) {
+		dbg->warning("convoi_t::go_alte_richtung()","convoy too short (id %i) => fixing!",self.get_id());
+		akt_speed = 8;
+		return false;
+	}
+
 	int length = min((convoi_length/16)+4,route.get_max_n()-1);	// maximum length in tiles to check
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
@@ -1484,7 +1497,7 @@ convoi_t::vorfahren()
 			// eventually reserve this
 			schiene_t * sch0 = dynamic_cast<schiene_t *>( welt->lookup(fahr[i]->get_pos())->get_weg(fahr[i]->get_waytype()) );
 			if(sch0) {
-				sch0->reserve(this->self);
+				sch0->reserve(self,ribi_t::keine);
 			}
 			else {
 				break;
@@ -1674,7 +1687,7 @@ convoi_t::rdwr(loadsave_t *file)
 				if(v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
-						sch->reserve(self);
+						sch->reserve(self,ribi_t::keine);
 					}
 					// add to crossing
 					if(gr->ist_uebergang()) {
