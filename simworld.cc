@@ -4064,6 +4064,8 @@ karte_t::reset_timer()
 	DBG_MESSAGE("karte_t::reset_timer()","called");
 	// Reset timers
 	uint32 last_tick_sync = dr_time();
+	mouse_rest_time = last_tick_sync;
+	sound_wait_time = AMBIENT_SOUND_INTERVALL;
 	intr_set_last_time(last_tick_sync);
 	intr_enable();
 
@@ -4258,7 +4260,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		// zeiger bewegen
 		const koord3d prev_pos = zeiger->get_pos();
-		if(prev_pos != pos ||  ev->button_state != mb_alt) {
+		if(  prev_pos != pos  ||  ev->button_state != mb_alt) {
 
 			mb_alt = ev->button_state;
 
@@ -4275,6 +4277,12 @@ void karte_t::bewege_zeiger(const event_t *ev)
 				}
 				is_dragging = true;
 				werkzeug->move( this, get_active_player(), 1, pos );
+			}
+
+			if(  (ev->button_state&7)==0  ) {
+				// time, since mouse got here
+				mouse_rest_time = dr_time();
+				sound_wait_time = AMBIENT_SOUND_INTERVALL;	// 13s no movement: play sound
 			}
 		}
 	}
@@ -4504,6 +4512,38 @@ karte_t::interactive()
 		// check for too much time eaten by frame updates ...
 		if(!fast_forward  &&  !pause) {
 			last_interaction = dr_time();
+			if(  mouse_rest_time+sound_wait_time < last_interaction  ) {
+				// we play an ambient sound, if enabled
+				grund_t *gr = lookup(zeiger->get_pos());
+				if(  gr  ) {
+					if(  gr->ist_natur()  ) {
+						sint16 id = NO_SOUND;
+						if(  gr->get_pos().z >= get_snowline()  ) {
+							id = sound_besch_t::climate_sounds[ arctic_climate ];
+						}
+						else {
+							sound_besch_t::climate_sounds[ get_climate(zeiger->get_pos().z) ];
+						}
+						if(  id==NO_SOUND  ) {
+							// try, if there is another sound ready
+							if(  zeiger->get_pos().z==grundwasser  &&  !gr->ist_wasser()  ) {
+								id = sound_besch_t::beach_sound;
+							}
+							else if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_typ()==ding_t::baum  ) {
+								id = sound_besch_t::forest_sound;
+							}
+						}
+						if(  id!=NO_SOUND  ) {
+							struct sound_info ambient_sound;
+							ambient_sound.index = id;
+							ambient_sound.volume = 255;
+							ambient_sound.pri = 0;
+							sound_play( ambient_sound );
+						}
+					}
+				}
+				sound_wait_time *= 2;
+			}
 		}
 
 		// get an event

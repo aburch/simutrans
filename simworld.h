@@ -131,6 +131,10 @@ private:
 	 */
 	sint32 mi, mj;
 
+	/* time when last mouse moved to check for ambient sound events */
+	uint32 mouse_rest_time;
+	uint32 sound_wait_time;	// waiting time before next event
+
 	/**
 	 * If this is true, the map will not be scrolled
 	 * on right-drag
