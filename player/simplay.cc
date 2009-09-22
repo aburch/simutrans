@@ -414,7 +414,7 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 			add_message(pos, betrag);
 		}
 
-		if(  !(labs((sint32)betrag)<=10000)  &&  !welt->is_fast_forward()  ) {
+		if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
 			struct sound_info info;
 
 			info.index = SFX_CASH;

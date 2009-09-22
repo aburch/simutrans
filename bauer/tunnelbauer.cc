@@ -146,7 +146,7 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, const karte_t* welt)
+void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t* welt)
 {
 	static stringhashtable_tpl<wkz_tunnelbau_t *> tunnel_tool;
 
@@ -175,6 +175,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, con
 			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
 			wkz->default_param = besch->get_name();
+			wkz->ok_sound = sound_ok;
 			tunnel_tool.put(besch->get_name(),wkz);
 		}
 		wzw->add_werkzeug( (werkzeug_t*)wkz );

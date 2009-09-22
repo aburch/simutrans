@@ -195,7 +195,7 @@ static stringhashtable_tpl<wkz_station_t *> station_tool;
 static stringhashtable_tpl<wkz_depot_t *> depot_tool;
 
 // all these menus will need a waytype ...
-void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, const karte_t* welt)
+void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 sound_ok, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
@@ -213,6 +213,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 						wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 						wkz->cursor = besch->get_cursor()->get_bild_nr(0);
 						wkz->default_param = besch->get_name();
+						wkz->ok_sound = sound_ok;
 						depot_tool.put(besch->get_name(),wkz);
 					}
 					wzw->add_werkzeug( (werkzeug_t*)wkz );
@@ -225,6 +226,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 						wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 						wkz->cursor = besch->get_cursor()->get_bild_nr(0),
 						wkz->default_param = besch->get_name();
+						wkz->ok_sound = sound_ok;
 						station_tool.put(besch->get_name(),wkz);
 					}
 					wzw->add_werkzeug( (werkzeug_t*)wkz );

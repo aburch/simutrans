@@ -52,7 +52,7 @@ public:
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, karte_t *welt );
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound, karte_t *welt );
 
 	enum bautyp_t {
 		strasse=road_wt,

@@ -150,8 +150,8 @@ public:
 	static vector_tpl<werkzeug_t *>char_to_tool;
 
 	image_id cursor;
-	int ok_sound;
-	int failed_sound;
+	sint16 ok_sound;
+	sint16 failed_sound;
 	sint8 offset;
 	const char *default_param;
 

@@ -69,7 +69,7 @@ public:
 	 * this is only needed for stations and depots => use waytype too!
 	 * @author prissi
 	 */
-	static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, const karte_t* welt);
+	static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, sint16 sound_ok, const karte_t* welt);
 
 	/**
 	 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge

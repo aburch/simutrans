@@ -670,6 +670,20 @@ bool toolbar_t::is_selected(karte_t *) const
 }
 
 
+// just returns sound info after bracket
+static sint16 get_sound( const char *c )
+{
+	while(  *c  &&  *c!=')'  ) {
+		c++;
+	}
+	while(  *c  &&  *c!=','  ) {
+		c++;
+	}
+	return (*c ? atoi( c+1 )-2 : NO_SOUND);
+}
+
+
+
 // fills and displays a toolbar
 void toolbar_t::update(karte_t *welt, spieler_t *sp)
 {
@@ -696,24 +710,24 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
-					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(c+1) : 0);
-					wegbauer_t::fill_menu( wzw, way, subtype, welt );
+					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(++c) : 0);
+					wegbauer_t::fill_menu( wzw, way, subtype, get_sound(c), welt );
 				}
 				else if(strstr(w->default_param,"bridges(")) {
 					waytype_t way = (waytype_t)atoi(w->default_param+8);
-					brueckenbauer_t::fill_menu( wzw, way, welt );
+					brueckenbauer_t::fill_menu( wzw, way, get_sound(w->default_param+5), welt );
 				}
 				else if(strstr(w->default_param,"tunnels(")) {
 					waytype_t way = (waytype_t)atoi(w->default_param+8);
-					tunnelbauer_t::fill_menu( wzw, way, welt );
+					tunnelbauer_t::fill_menu( wzw, way, get_sound(w->default_param+8), welt );
 				}
 				else if(strstr(w->default_param,"signs(")) {
 					waytype_t way = (waytype_t)atoi(w->default_param+6);
-					roadsign_t::fill_menu( wzw, way, welt );
+					roadsign_t::fill_menu( wzw, way, get_sound(w->default_param+6), welt );
 				}
 				else if(strstr(w->default_param,"wayobjs(")) {
 					waytype_t way = (waytype_t)atoi(w->default_param+8);
-					wayobj_t::fill_menu( wzw, way, welt );
+					wayobj_t::fill_menu( wzw, way, get_sound(w->default_param+8), welt );
 				}
 				else if(strstr(w->default_param,"buildings(")) {
 					const char *c = w->default_param+10;
@@ -721,8 +735,8 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
-					waytype_t way = (waytype_t)(*c!=0 ? atoi(c+1) : 0);
-					hausbauer_t::fill_menu( wzw, utype, way, welt );
+					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
+					hausbauer_t::fill_menu( wzw, utype, way, get_sound(c), welt );
 				}
 				else if(w->default_param[0]=='-') {
 					// add dummy werkzeug as seperator
@@ -797,6 +811,10 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		else {
 			// set starting position.
 			start_at( welt, sp, pos );
+		}
+		if(  error==NULL  ) {
+			// no sound
+			return "";
 		}
 	}
 	else {

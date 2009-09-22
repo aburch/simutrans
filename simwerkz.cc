@@ -360,11 +360,13 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	grund_t *gr = welt->lookup(pos);
 	if (!gr || !gr->is_visible()) {
+		msg = "";
 		return false;
 	}
 
 	// check if there is something to remove from here ...
 	if(gr->get_top()==0  ) {
+		msg = "";
 		return false;
 	}
 

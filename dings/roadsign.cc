@@ -496,7 +496,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
  * Fill menu with icons of given stops from the list
  * @author Hj. Malthaner
  */
-void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt)
+void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
 {
 	static stringhashtable_tpl<wkz_roadsign_t *> sign_tool;
 	const uint16 time = welt->get_timeline_year_month();
@@ -514,6 +514,7 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_
 					wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 					wkz->cursor = besch->get_cursor()->get_bild_nr(0),
 					wkz->default_param = besch->get_name();
+					wkz->ok_sound = sound_ok;
 					sign_tool.put(besch->get_name(),wkz);
 				}
 				wzw->add_werkzeug( (werkzeug_t*)wkz );
