@@ -644,15 +644,17 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append(buffer);
 		}
 
-		buf.append(translator::translate("Passagierrate"));
-		buf.append(": ");
-		buf.append(get_passagier_level());
-		buf.append("\n");
+		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {
+			buf.append(translator::translate("Passagierrate"));
+			buf.append(": ");
+			buf.append(get_passagier_level());
+			buf.append("\n");
 
-		buf.append(translator::translate("Postrate"));
-		buf.append(": ");
-		buf.append(get_post_level());
-		buf.append("\n");
+			buf.append(translator::translate("Postrate"));
+			buf.append(": ");
+			buf.append(get_post_level());
+			buf.append("\n");
+		}
 
 		buf.append(translator::translate("\nBauzeit von"));
 		buf.append(tile->get_besch()->get_intro_year_month()/12);

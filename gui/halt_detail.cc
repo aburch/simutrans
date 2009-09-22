@@ -151,7 +151,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	buf.append(":\n");
 	offset_y += LINESPACE;
 
-	if (!nimmt_an.empty()) {
+	if (!nimmt_an.empty()  &&  halt->get_ware_enabled()) {
 		for(uint32 i=0; i<warenbauer_t::get_waren_anzahl(); i++) {
 			const ware_besch_t *ware = warenbauer_t::get_info(i);
 			if(nimmt_an.is_contained(ware)) {
