@@ -340,8 +340,65 @@ weg_t::count_sign()
 
 
 
-void
-weg_t::calc_bild()
+// much faster recalculation of season image
+bool weg_t::check_season( const long )
+{
+	// use snow image if above snowline and above ground
+	bool snow = (get_pos().z >= welt->get_snowline());
+	bool old_snow = (flags&IS_SNOW)!=0;
+	if(  !(snow ^ old_snow)  ) {
+		// season is not changing ...
+		return true;
+	}
+
+	if(  besch==NULL  ) {
+		// now way to calculate this
+		return true;
+	}
+
+	grund_t *from = welt->lookup(get_pos());
+	if(from->ist_bruecke()  &&  from->obj_bei(0)==this) {
+		// first way on a bridge (bruecke_t will set the image)
+		return true;
+	}
+
+	// set new season
+	flags &= ~IS_SNOW;
+	if(  snow  ) {
+		flags |= IS_SNOW;
+	}
+
+	hang_t::typ hang = from->get_weg_hang();
+	if(hang != hang_t::flach) {
+		set_bild( besch->get_hang_bild_nr( hang, snow ) );
+		return true;
+	}
+
+	if(  ribi_t::ist_kurve(ribi)  &&  besch->has_diagonal_bild()  ) {
+		if(  bild==besch->get_bild_nr( ribi, old_snow )  ) {
+			set_bild( besch->get_bild_nr( ribi, snow ) );
+		}
+		else {
+			set_bild( besch->get_diagonal_bild_nr( ribi, snow ) );
+		}
+	}
+	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
+		if(  bild==besch->get_bild_nr( ribi, old_snow )  ) {
+			set_bild( besch->get_bild_nr( ribi, snow ) );
+		}
+		else {
+			set_bild( besch->get_bild_nr( ribi+16, snow ) );
+		}
+	}
+	else {
+		set_bild( besch->get_bild_nr( ribi, snow ) );
+	}
+	return true;
+}
+
+
+
+void weg_t::calc_bild()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(get_pos());
@@ -364,6 +421,10 @@ weg_t::calc_bild()
 
 	// use snow image if above snowline and above ground
 	bool snow = (get_pos().z >= welt->get_snowline());
+	flags &= ~IS_SNOW;
+	if(  snow  ) {
+		flags |= IS_SNOW;
+	}
 
 	hang_t::typ hang = from->get_weg_hang();
 	if(hang != hang_t::flach) {

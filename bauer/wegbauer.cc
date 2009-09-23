@@ -111,7 +111,12 @@ bool wegbauer_t::alle_wege_geladen()
 
 bool wegbauer_t::register_besch(const weg_besch_t *besch)
 {
+#ifdef DEBUG
 	DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
+	if(  besch->has_switch_bild()  ) {
+		DBG_DEBUG("wegbauer_t::register_besch()", "with switches" );
+	}
+#endif
 	if(  alle_wegtypen.remove(besch->get_name())  ) {
 		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}

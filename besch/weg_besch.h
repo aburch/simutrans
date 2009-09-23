@@ -33,7 +33,7 @@ class weg_besch_t : public obj_besch_std_name_t {
     friend class way_reader_t;
 
 public:
-		enum { elevated=1, joined=7 /* only tram */, special=255 };
+	enum { elevated=1, joined=7 /* only tram */, special=255 };
 
 private:
 	/**
@@ -122,16 +122,32 @@ public:
 		return static_cast<const bildliste_besch_t *>(get_child(2))->get_bild_nr(ribi);
 	}
 
+	image_id get_bild_nr_switch(ribi_t::ribi ribi, uint8 season, bool nw) const
+	{
+		uint8 listen_nr = (season && number_seasons == 1) ? 6 : 2;
+		const bildliste_besch_t *bl = static_cast<const bildliste_besch_t *>(get_child(listen_nr));
+		// only do this if extended switches are there
+		if(  bl->get_anzahl()>16  ) {
+			static uint8 ribi_to_extra[16] = {
+				255, 255, 255, 255, 255, 255, 255, 0,
+				255, 255, 255, 1, 255, 2, 3, 4
+			};
+			return bl->get_bild_nr( ribi_to_extra[ribi]+16+(nw*5) );
+		}
+		// else return standard values
+		return bl->get_bild_nr( ribi );
+	}
+
 	image_id get_hang_bild_nr(hang_t::typ hang, uint8 season) const
 	{
 #ifndef DOUBLE_GROUNDS
-	if(!hang_t::ist_einfach(hang)) {
-		return IMG_LEER;
-	}
-	if(season && number_seasons == 1) {
-		return static_cast<const bildliste_besch_t *>(get_child(7))->get_bild_nr(hang / 3 - 1);
-	}
-	return static_cast<const bildliste_besch_t *>(get_child(3))->get_bild_nr(hang / 3 - 1);
+		if(!hang_t::ist_einfach(hang)) {
+			return IMG_LEER;
+		}
+		if(season && number_seasons == 1) {
+			return static_cast<const bildliste_besch_t *>(get_child(7))->get_bild_nr(hang / 3 - 1);
+		}
+		return static_cast<const bildliste_besch_t *>(get_child(3))->get_bild_nr(hang / 3 - 1);
 #else
 		int nr;
 		switch(hang) {
@@ -167,6 +183,10 @@ public:
 
 	bool has_diagonal_bild() const {
 		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(0)!=IMG_LEER;
+	}
+
+	bool has_switch_bild() const {
+		return static_cast<const bildliste_besch_t *>(get_child(2))->get_anzahl()>16;
 	}
 
 	/**

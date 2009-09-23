@@ -487,7 +487,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 		return false;
 	}
 
-	if(!sch0->reserve(cnv)) {
+	if(!sch0->reserve(cnv,ribi_t::keine)) {
 		// could not even reserve first tile ...
 		return false;
 	}
@@ -505,7 +505,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 			break;
 		}
 		// otherwise we might check one tile too much
-		if(!sch1->reserve(cnv)) {
+		if(  !sch1->reserve( cnv, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_max_n(),i+1)) ) )  ) {
 			success = false;
 		}
 	}
