@@ -4275,6 +4275,6 @@ float convoi_t::get_effective_power(uint32 speed)
  */
 void convoi_t::set_akt_speed_soll(sint32 set_akt_speed) 
 { 
-	float power = get_effective_power(min_top_speed);
+	float power = get_effective_power(speed_to_kmh(min_top_speed)); // Bernd Gabriel, Sep, 23 2009: speed_to_kmh() was missing.
 	akt_speed_soll = min(set_akt_speed, min(min_top_speed, kmh_to_speed((uint32) max_kmh(power, sum_gesamtgewicht)))); 
 }
