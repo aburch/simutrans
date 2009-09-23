@@ -85,8 +85,8 @@ void dr_play_sample(int sample_number, int volume)
 			oldvol = volume;
 		}
 		// terminate the current sound
-		sndPlaySound( NULL, SND_ASYNC );
+//		sndPlaySound( NULL, SND_ASYNC );
 		// now play
-		sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT); // XXX this cast seems wrong, samples[] contains char strings, not wide char strings.
+		sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP  ); // XXX this cast seems wrong, samples[] contains char strings, not wide char strings.
 	}
 }

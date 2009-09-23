@@ -412,16 +412,17 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
 			add_message(pos, betrag);
-		}
 
-		if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
-			struct sound_info info;
+			// and same for sound too ...
+			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
+				struct sound_info info;
 
-			info.index = SFX_CASH;
-			info.volume = 255;
-			info.pri = 0;
+				info.index = SFX_CASH;
+				info.volume = 255;
+				info.pri = 0;
 
-			welt->play_sound_area_clipped(pos, info);
+				welt->play_sound_area_clipped(pos, info);
+			}
 		}
 	}
 }

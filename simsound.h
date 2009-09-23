@@ -68,6 +68,7 @@ void sound_play(const sound_info inf);
 bool sound_get_shuffle_midi();
 void sound_set_shuffle_midi( bool shuffle );
 
+
 /**
  * setzt Lautstärke für MIDI playback
  * @param volume volume in range 0..255
@@ -88,7 +89,7 @@ int sound_get_midi_volume();
  * gets midi title
  * @author Hj. Malthaner
  */
-const char * sound_get_midi_title(int index);
+const char *sound_get_midi_title(int index);
 
 
 /**

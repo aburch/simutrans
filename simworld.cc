@@ -3261,13 +3261,16 @@ bool
 karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
 	if(is_sound) {
-		const int center = display_get_width() >> 7;
-		pos -= koord(center,center);
-		const int dist = koord_distance( pos, ij_off );
+		const int dist = koord_distance( pos, zeiger->get_pos() );
 
-		if(dist < 25) {
-			info.volume = 255-dist*9;
-			sound_play(info);
+		if(dist < 100) {
+			int xw = (2*display_get_width())/get_tile_raster_width();
+			int yw = (4*display_get_height())/get_tile_raster_width();
+
+			info.volume = (255l*(xw+yw))/(xw+yw+(64*dist));
+			if(  info.volume>8  ) {
+				sound_play(info);
+			}
 		}
 		return dist < 25;
 	}
@@ -4516,13 +4519,13 @@ karte_t::interactive()
 				// we play an ambient sound, if enabled
 				grund_t *gr = lookup(zeiger->get_pos());
 				if(  gr  ) {
-					if(  gr->ist_natur()  ) {
-						sint16 id = NO_SOUND;
+					sint16 id = NO_SOUND;
+					if(  gr->ist_natur()  ||  gr->ist_wasser()  ) {
 						if(  gr->get_pos().z >= get_snowline()  ) {
 							id = sound_besch_t::climate_sounds[ arctic_climate ];
 						}
 						else {
-							sound_besch_t::climate_sounds[ get_climate(zeiger->get_pos().z) ];
+							id = sound_besch_t::climate_sounds[ get_climate(zeiger->get_pos().z) ];
 						}
 						if(  id==NO_SOUND  ) {
 							// try, if there is another sound ready
@@ -4533,13 +4536,13 @@ karte_t::interactive()
 								id = sound_besch_t::forest_sound;
 							}
 						}
-						if(  id!=NO_SOUND  ) {
-							struct sound_info ambient_sound;
-							ambient_sound.index = id;
-							ambient_sound.volume = 255;
-							ambient_sound.pri = 0;
-							sound_play( ambient_sound );
-						}
+					}
+					if(  id!=NO_SOUND  ) {
+						struct sound_info ambient_sound;
+						ambient_sound.index = id;
+						ambient_sound.volume = 255;
+						ambient_sound.pri = 0;
+						sound_play( ambient_sound );
 					}
 				}
 				sound_wait_time *= 2;
