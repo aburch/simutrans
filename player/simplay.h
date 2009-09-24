@@ -127,7 +127,7 @@ protected:
 
 	int last_message_index;
 
-	void add_message(koord k, int summe);
+	void add_message(koord k, sint32 summe);
 
 	/**
 	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers

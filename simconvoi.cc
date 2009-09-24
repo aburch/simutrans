@@ -2177,7 +2177,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 			pos.z += Z_TILE_STEP;
 		}
 		while(  grund  &&  grund->get_halt() == halt  ) {
-			station_lenght += TILE_STEPS;
+			station_lenght += 16;
 			pos += zv;
 			grund = welt->lookup(pos);
 			if(  grund==NULL  ) {

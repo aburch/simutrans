@@ -221,10 +221,18 @@ void spieler_t::age_messages(long /*delta_t*/)
 
 
 
-void spieler_t::add_message(koord k, int betrag)
+void spieler_t::add_message(koord k, sint32 betrag)
 {
-	income_message_t *m = new income_message_t(betrag,k);
-	messages.append( m );
+	if(  !messages.empty()  &&  messages.back()->pos==k  &&  messages.back()->alter==127  ) {
+		// last message exactly at same place, not aged
+		betrag += (sint32)(100.0*atof(messages.back()->str));
+		money_to_string(messages.back()->str, betrag/100.0);
+	}
+	else {
+		// otherwise new message
+		income_message_t *m = new income_message_t(betrag,k);
+		messages.append( m );
+	}
 }
 
 
