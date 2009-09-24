@@ -1,6 +1,8 @@
 #ifndef KOORD_H
 #define KOORD_H
 
+#include <stdlib.h>
+
 #include "ribi.h"
 #include "../simtypes.h"
 
