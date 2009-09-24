@@ -75,8 +75,12 @@ int dr_load_sample(char const* filename)
 void dr_play_sample(int sample_number, int volume)
 {
 	if(use_sound!=0  &&  sample_number>=0  &&  sample_number<64  &&  volume>1) {
-//MESSAGE("dr_play_sample()", "%i sample %i, volume %i ",use_sound,sample_number,volume);
-		// prissis short version
+
+		static int last_sample_nr = -1;
+		if(  last_sample_nr==-1) {
+			last_sample_nr = sample_number;
+		}
+
 		static int oldvol = -1;
 		volume = (volume<<8)-1;
 		if(oldvol!=volume) {
@@ -84,9 +88,14 @@ void dr_play_sample(int sample_number, int volume)
 			waveOutSetVolume( 0, vol );
 			oldvol = volume;
 		}
-		// terminate the current sound
-//		sndPlaySound( NULL, SND_ASYNC );
-		// now play
-		sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP  ); // XXX this cast seems wrong, samples[] contains char strings, not wide char strings.
+
+		// XXX this cast seems wrong, samples[] contains char strings, not wide char strings.
+		if(  !sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP )  &&  last_sample_nr!=sample_number  ) {
+			// terminate the current sound, if not already the requeste one ...
+			sndPlaySound( NULL, SND_ASYNC );
+			// and play the new sample ...
+			sndPlaySound(static_cast<WCHAR const*>(samples[sample_number]), SND_MEMORY | SND_ASYNC | SND_NODEFAULT | SND_NOSTOP );
+		}
+		last_sample_nr = sample_number;
 	}
 }
