@@ -1460,31 +1460,24 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error )
 {
 	grund_t *gr=welt->lookup(pos);
-	if (gr && gr->is_visible()) {
+	if(gr  &&  gr->is_visible()  &&  hang_t::ist_wegbar(gr->get_weg_hang())) {
 		// ignore tunnel tiles (except road tunnel for tram track building ..)
 		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(besch->get_wtyp()==track_wt  &&  besch->get_styp()==7  && gr->hat_weg(road_wt)) ) {
-			error = "";
 			return 0;
 		}
 		// ignore water
 		if( besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser ) {
-			error = "";
 			return 0;
 		}
 		// check for ownership
-		/* if(sp!=NULL  &&  (gr->obj_count()==0  ||  !spieler_t::check_owner( sp, gr->obj_bei(0)->get_besitzer()))){
-			return "Das Feld gehoert\neinem anderen Spieler\n";
-		} */
 		if(sp!=NULL  && gr->kann_alle_obj_entfernen(sp)!=NULL  &&  gr->get_weg((waytype_t)besch->get_wtyp())==NULL) {
 			error =  "Das Feld gehoert\neinem anderen Spieler\n";
 			return 0;
 		}
 	}
 	else {
-		error = "";
 		return 0;
 	}
-	error = NULL;
 	return 2;
 }
 
@@ -1656,8 +1649,8 @@ const char *wkz_tunnelbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3
 
 uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error )
 {
-	error = NULL;
-	if( !is_first_click() ) {
+	if(  !is_first_click()  ) {
+		error = NULL;
 		// All pos are valid for the second click!
 		return 2;
 	}
@@ -1789,7 +1782,6 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 	if(gr==NULL) {
 		DBG_MESSAGE("wkz_wayremover()", "no ground on %i,%i",pos.x, pos.y);
 		// wrong ground or not this way here => exit
-		error = "";
 		return 0;
 	}
 	// do not remove ground from depot
@@ -1797,7 +1789,6 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 		error = "No suitable ground!";
 		return 0;
 	}
-	error = NULL;
 	return 2;
 }
 
@@ -2036,13 +2027,9 @@ uint8 wkz_wayobj_t::is_valid_pos( karte_t * welt, spieler_t * sp, const koord3d&
 	if(  gr == NULL  ) {
 		DBG_MESSAGE("wkz_wayobj_t::is_valid_pos()", "no ground on %s",pos.get_str());
 		// wrong ground or not this way here => exit
-		error = "";
 		return 0;
 	}
-	else {
-		error = NULL;
-		return 2;
-	}
+	return 2;
 }
 
 void wkz_wayobj_t::mark_tiles( karte_t * welt, spieler_t * sp, const koord3d &start, const koord3d &end )
@@ -3568,13 +3555,7 @@ const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 uint8 wkz_forest_t::is_valid_pos( karte_t *welt, spieler_t *, const koord3d &pos, const char *&error )
 {
-	// on map?
-	const planquadrat_t *plan = welt->lookup(pos.get_2d());
-	if(plan == NULL || !plan->get_kartenboden()->is_visible()) {
-		error = "";
-		return 0;
-	}
-	error = NULL;
+	// do really nothing ...
 	return 2;
 }
 

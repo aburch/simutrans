@@ -274,7 +274,8 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	koord3d end = koord3d::invalid;
 	if(event_get_last_control_shift()!=2) {
 		end = finde_ende(welt, gr->get_pos(), zv, wegtyp);
-	} else {
+	}
+	else {
 		end = gr->get_pos()+zv;
 		if(welt->lookup(end)  ||  welt->lookup_kartenboden(pos+zv)->get_hoehe()<=end.z) {
 			end = koord3d::invalid;

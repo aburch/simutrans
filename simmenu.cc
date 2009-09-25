@@ -795,15 +795,15 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	// remove marker
 	cleanup( welt, true );
 
-	const char *error;
+	const char *error = "";	//default: nosound
 	uint8 value = is_valid_pos( welt, sp, pos, error );
-	if( error || value == 0 ) {
+	if(  value == 0  ) {
 		init( welt, sp );
 		return error;
 	}
 
-	if( first_click ) {
-		if( value & 1 ) {
+	if(  first_click  ) {
+		if(  value & 1  ) {
 			// Work here directly.
 			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( welt, sp, pos, koord3d::invalid );
@@ -811,10 +811,6 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		else {
 			// set starting position.
 			start_at( welt, sp, pos );
-		}
-		if(  error==NULL  ) {
-			// no sound
-			return "";
 		}
 	}
 	else {
@@ -831,19 +827,19 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 {
 	DBG_MESSAGE("two_click_werkzeug_t::move", "Button: %d, Pos: %s", buttonstate, pos.get_str());
 	if(  buttonstate == 0  ) {
-		return NULL;
+		return "";
 	}
 	if( start == pos ) {
 		init( welt, sp );
 	}
 
-	const char *error;
+	const char *error = "";
 	uint8 value = is_valid_pos( welt, sp, pos, error );
 
-	if( start == koord3d::invalid ) {
+	if(  start == koord3d::invalid  ) {
 		// start dragging.
 		cleanup( welt, true );
-		if( error || value == 0 ) {
+		if(  value == 0  ) {
 			return error;
 		}
 		if( value & 2 ) {
@@ -864,7 +860,7 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 			display_show_load_pointer( false );
 		}
 	}
-	return NULL;
+	return "";
 }
 
 void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_start )
