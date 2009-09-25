@@ -1960,12 +1960,14 @@ void karte_t::set_werkzeug( werkzeug_t *w )
 		set_dirty();
 		if(w!=werkzeug) {
 
-			// reinit same tool => do not play sound twice
-			struct sound_info info;
-			info.index = SFX_SELECT;
-			info.volume = 255;
-			info.pri = 0;
-			sound_play(info);
+			if(  SFX_SELECT!=NO_SOUND  ) {
+				// reinit same tool => do not play sound twice
+				struct sound_info info;
+				info.index = SFX_SELECT;
+				info.volume = 255;
+				info.pri = 0;
+				sound_play(info);
+			}
 
 			// only exit, if it is not the same tool again ...
 			werkzeug->exit(this,active_player);

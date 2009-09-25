@@ -1517,19 +1517,21 @@ const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d 
 {
 	wegbauer_t bauigel(welt, sp);
 	calc_route( bauigel, start, end );
+	if(  bauigel.get_route().get_count()>1  ) {
+		long cost = bauigel.calc_costs();
+		welt->mute_sound(true);
+		bauigel.baue();
+		welt->mute_sound(false);
 
-	long cost = bauigel.calc_costs();
-	welt->mute_sound(true);
-	bauigel.baue();
-	welt->mute_sound(false);
-	if(cost>10000) {
 		struct sound_info info;
 		info.index = SFX_CASH;
 		info.volume = 255;
 		info.pri = 0;
 		sound_play(info);
+
+		return NULL;
 	}
-	return NULL;
+	return "";
 }
 
 void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -2981,6 +2983,13 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 			if(sp == welt->get_active_player()) {
 				welt->set_werkzeug( general_tool[WKZ_ABFRAGE] );
 			}
+
+			struct sound_info info;
+			info.index = ok_sound;
+			info.volume = 255;
+			info.pri = 0;
+			sound_play(info);
+
 			return NULL;
 		}
 		return "Cannot built depot here!";
