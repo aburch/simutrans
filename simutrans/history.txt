@@ -34,6 +34,7 @@
 	ADD: switches change graphics for diagonal going trains (only eyecandy)
 	ADD: ambient sound effects (for all grphics + forest + beaches)
 	CHANGE: less lagging updating/rerouting after schedule chnages even with large stations
+	ADD: (Dwachs) Public player can remove all
 
 
 Release of 102.0 (r2366)

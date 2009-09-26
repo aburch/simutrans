@@ -269,7 +269,7 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 
 	if(  wt==powerline_wt  &&  gr->get_leitung()  ) {
 		// check for ownership
-		if(sp!=NULL  &&  !spieler_t::check_owner( sp, gr->get_leitung()->get_besitzer())){
+		if(sp!=NULL  &&  gr->get_leitung()->ist_entfernbar(sp)!=NULL) {
 			return NULL;
 		}
 		// ok
@@ -281,7 +281,7 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 	// tram
 	if(wt==tram_wt) {
 		weg_t *way = gr->get_weg(track_wt);
-		if (way && way->get_besch()->get_styp() == weg_t::type_tram && spieler_t::check_owner( sp, way->get_besitzer())) {
+		if (way && way->get_besch()->get_styp() == weg_t::type_tram &&  way->ist_entfernbar(sp)!=NULL) {
 			return gr;
 		}
 		else {
@@ -295,7 +295,7 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 		return NULL;
 	}
 	// check for ownership
-	if(sp!=NULL  &&  !spieler_t::check_owner( sp, gr->get_weg(wt)->get_besitzer())){
+	if(sp!=NULL  &&  gr->get_weg(wt)->ist_entfernbar(sp)!=NULL){
 		return NULL;
 	}
 	// ok, now we have a valid ground
@@ -397,7 +397,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
-	if(lt!=NULL  &&  spieler_t::check_owner(lt->get_besitzer(),sp)) {
+	if(lt!=NULL  &&  lt->ist_entfernbar(sp)!=NULL) {
 		bool is_leitungsbruecke = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
@@ -577,13 +577,13 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 			// do not delete the middle of a bridge
 			return false;
 		}
-		if(w==NULL  ||  !spieler_t::check_owner( sp, w->get_besitzer())) {
+		if(w==NULL  ||  w->ist_entfernbar(sp)!=NULL) {
 			w = gr->get_weg_nr(0);
 			if(w==NULL) {
 				// no way at all ...
 				return true;
 			}
-			if(!spieler_t::check_owner( sp, w->get_besitzer())) {
+			if(w->ist_entfernbar(sp)!=NULL){
 				msg = w->ist_entfernbar(sp);
 				return false;
 			}
@@ -1832,7 +1832,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 		grund_t *gr=welt->lookup(verbindung.position_bei(i));
 		if(gr) {
 			if(  wt!=powerline_wt  ) {
-				if(gr->get_weg(wt)==NULL  ||  !spieler_t::check_owner( sp, gr->get_weg(wt)->get_besitzer())) {
+				if(gr->get_weg(wt)==NULL  ||  gr->get_weg(wt)->ist_entfernbar(sp)!=NULL ) {
 					can_delete = false;
 				}
 				else {
@@ -1850,7 +1850,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 			}
 			else {
 				leitung_t *lt = gr->get_leitung();
-				can_delete = lt  &&  spieler_t::check_owner( sp, lt->get_besitzer() );
+				can_delete = lt  &&  lt->ist_entfernbar(sp)!=NULL;
 			}
 		}
 		else {

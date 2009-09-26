@@ -418,7 +418,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
  */
 const char * depot_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(sp!=get_besitzer()) {
+	if(sp!=get_besitzer()  &&  sp!=welt->get_spieler(1)) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 	if (!vehicles.empty()) {
