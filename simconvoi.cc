@@ -558,7 +558,21 @@ bool convoi_t::sync_step(long delta_t)
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
-					state = (get_pos() == fpl->get_current_eintrag().pos ? LOADING : ROUTING_1);
+					bool is_same = (get_pos() == fpl->get_current_eintrag().pos);
+					if(  !is_same  ) {
+						halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
+						is_same =  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() );
+					}
+
+					if(  is_same  ) {
+						// two cases: same position but in station => laoding, in depot: waiting
+						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+						state = gr  &&  gr->get_depot() ? INITIAL : LOADING;
+					}
+					else {
+						// go to next
+						state = ROUTING_1;
+					}
 				}
 			}
 			else {
