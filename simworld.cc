@@ -1306,7 +1306,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 		path_explorer_t::full_instant_refresh();
 	}
 
-	// Set the target and actual industry densities.
+	// Set the actual industry density and industry density proportion
 	if(actual_industry_density <= 0)
 	{
 		double weight;
@@ -1321,7 +1321,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 				actual_industry_density += (1.0 / weight);
 			}
 		}
-		target_industry_density = actual_industry_density;
+		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 	}
 }
 
@@ -1625,7 +1625,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	einstellungen = sets;
 	schedule_counter = 0;
 	nosave = false;
-	actual_industry_density = target_industry_density = 0;
+	actual_industry_density = industry_density_proportion = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
@@ -2669,7 +2669,7 @@ void karte_t::neuer_monat()
 	INT_CHECK("simworld 1701");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","convois");
-	// hsiegeln - call new month for convois
+	// hsiegeln - call new month for convoys
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->new_month();
@@ -2682,9 +2682,10 @@ void karte_t::neuer_monat()
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
 	sint16 number_of_factories = fab_list.get_count();
+	fabrik_t * fab;
 	for(sint16 i = number_of_factories - 1; i >= 0; i--)
 	{
-		fabrik_t * fab = fab_list[i];
+		fab = fab_list[i];
 		fab->neuer_monat();
 		// The number of factories might have diminished,
 		// so must adjust i to prevent out of bounds errors.
@@ -2696,6 +2697,7 @@ void karte_t::neuer_monat()
 	// to replace ones that have closed.
 	// @author: jamespetts
 
+	const double target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
 	{
 		// Only add one per month, and randomise.
@@ -2703,7 +2705,7 @@ void karte_t::neuer_monat()
 		const uint8 chance = simrand(100);
 		if(chance < proportion)
 		{
-			fabrikbauer_t::increase_industry_density(this, true, false, true);
+			fabrikbauer_t::increase_industry_density(this, true, true);
 		}
 	}
 
@@ -3129,7 +3131,7 @@ karte_t::step()
 	}
 
 	// now step all towns (to generate passengers)
-	sint64 bev=0;
+	sint64 bev = 0;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->step(delta_t);
 		bev += (*i)->get_finance_history_month( 0, HIST_CITICENS );
@@ -3750,7 +3752,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	}
 	if(file->get_experimental_version() >= 7)
 	{
-		file->rdwr_double(target_industry_density);
+		file->rdwr_double(industry_density_proportion);
 	}
 
 	if(needs_redraw) 
@@ -4302,11 +4304,11 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 		if(file->get_experimental_version() >= 7)
 		{
-			file->rdwr_double(target_industry_density);
+			file->rdwr_double(industry_density_proportion);
 		}
 		else
 		{
-			target_industry_density = actual_industry_density;
+			industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 		}
 	}
 

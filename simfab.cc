@@ -305,7 +305,7 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
-	welt->decrease_actual_industry_density(get_besch()->get_gewichtung());
+	welt->decrease_actual_industry_density(1.0 / (double)get_besch()->get_gewichtung());
 
 	//Disconnect this factory from all chains.
 	//@author: jamespetts
@@ -316,8 +316,8 @@ fabrik_t::~fabrik_t()
 	{
 		char buf[192];
 		uint16 jobs =  besch->get_pax_level();
-		sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-		welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+		sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+		welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)
 		{
 			fabrik_t* tmp = get_fab(welt, lieferziele[i]);
@@ -1305,14 +1305,15 @@ fabrik_t::neuer_monat()
 			const uint32 number_of_suppliers = suppliers.get_count();
 			char buf[192];
 			const uint16 jobs = besch->get_pax_level();
-			sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-			welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+			sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+			welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 			grund_t *gr = 0;
 			gr = welt->lookup(pos);
 			gebaeude_t* gb = gr->find<gebaeude_t>();
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}
+	// NOTE: No code should come after this part, as the closing down code may cause this object to be deleted.
 }
 
 

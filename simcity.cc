@@ -2953,9 +2953,14 @@ void stadt_t::check_bau_rathaus(bool new_town)
  */
 void stadt_t::check_bau_factory(bool new_town)
 {
-	if (!new_town && industry_increase_every[0] > 0 && bev % industry_increase_every[0] == 0) {
-		for (int i = 0; i < 8; i++) {
-			if (industry_increase_every[i] == bev) {
+	if (!new_town && industry_increase_every[0] > 0 && bev % industry_increase_every[0] == 0) 
+	{
+		for (int i = 0; i < 8; i++) 
+		{
+			if (industry_increase_every[i] == bev && welt->get_actual_industry_density() < welt->get_target_industry_density()) 
+			{
+				// Only add an industry if there is a need for it: if the actual industry density is less than the target density.
+				// @author: jamespetts
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
 				fabrikbauer_t::increase_industry_density( welt, true, true );
 			}

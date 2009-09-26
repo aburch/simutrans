@@ -344,7 +344,7 @@ private:
 	// Data for maintaining industry density even
 	// after industries close
 	// @author: jamespetts
-	double target_industry_density;
+	double industry_density_proportion;
 	double actual_industry_density;
 
 	// what game objectives
@@ -827,10 +827,9 @@ public:
 	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
 
 	// Getter/setter methods for maintaining the industry density
-	inline double get_target_industry_density() const { return target_industry_density; }
+	inline double get_target_industry_density() const { return finance_history_month[0][WORLD_CITICENS] * industry_density_proportion; }
 	inline double get_actual_industry_density() const { return actual_industry_density; }
 	
-	inline void increase_target_industry_density(double value) { target_industry_density += value; }
 	inline void decrease_actual_industry_density(double value) { actual_industry_density -= value; }
 	inline void increase_actual_industry_density(double value) { actual_industry_density += value; }
 

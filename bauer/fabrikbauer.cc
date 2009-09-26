@@ -382,7 +382,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
  * "build the factory, according to info" (Google)
  * @author Hj.Malthaner
  */
-fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler, bool increase_target_density)
+fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler)
 {
 	fabrik_t * fab = new fabrik_t(pos, spieler, info);
 
@@ -395,10 +395,6 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	welt->add_fab(fab);
 	add_factory_to_fab_map( welt, fab );
 	welt->increase_actual_industry_density(1.0 / (double)info->get_gewichtung());
-	if(increase_target_density)
-	{
-		welt->increase_target_industry_density(1.0 / (double)info->get_gewichtung());
-	}
 
 	// make all water station
 	if(info->get_platzierung() == fabrik_besch_t::Wasser) {
@@ -494,7 +490,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
  * vorbedingung: pos ist für fabrikbau geeignet
  * "precondition: pos is suited for factory construction" (Google)
  */
-int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains, bool increase_target_density )
+int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains)
 {
 	karte_t* welt = sp->get_welt();
 	int n = 1;
@@ -582,7 +578,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
 	INT_CHECK("fabrikbauer 594");
 
-	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp, increase_target_density);
+	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp);
 
 	INT_CHECK("fabrikbauer 596");
 
@@ -846,7 +842,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
  * or built a new consumer near the indicated position
  * @return: number of factories built
  */
-int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool increase_target_density, bool do_not_add_beyond_target_density )
+int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density )
 {
 	int nr = 0;
 	fabrik_t *last_built_consumer = NULL;
@@ -978,7 +974,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Platz gefunden ...
-					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1, increase_target_density );
+					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1);
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( welt, pos.get_2d() );
 						if(in_city) {

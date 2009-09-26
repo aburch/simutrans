@@ -47,7 +47,7 @@ message_option_t::message_option_t(karte_t *welt) :
 
 		buttons[i*4+1].set_pos( koord(BUTTON_ROW+10,18+i*2*LINESPACE) );
 		buttons[i*4+1].set_typ(button_t::square_state);
-		buttons[i*4+1].set_tooltip("Show in ticker");
+		buttons[i*4+1].set_tooltip("Show in the ticker");
 		buttons[i*4+1].pressed = (ticker_msg>>i)&1;
 		buttons[i*4+1].add_listener(this);
 		add_komponente( buttons+i*4+1 );
