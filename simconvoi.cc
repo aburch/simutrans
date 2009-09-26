@@ -391,7 +391,8 @@ convoi_t::get_pos() const
 {
 	if(anz_vehikel > 0 && fahr[0]) {
 		return state==INITIAL ? home_depot : fahr[0]->get_pos();
-	} else {
+	}
+	else {
 		return koord3d::invalid;
 	}
 }
@@ -2438,8 +2439,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 	}
 }
 
-void
-convoi_t::init_financial_history()
+void convoi_t::init_financial_history()
 {
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -2448,8 +2448,9 @@ convoi_t::init_financial_history()
 	}
 }
 
-sint32
-convoi_t::get_running_cost() const
+
+
+sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
 	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
@@ -2464,20 +2465,87 @@ void convoi_t::check_pending_updates()
 {
 	if (line_update_pending.is_bound()  &&  line.is_bound()) {
 		int aktuell = fpl->get_aktuell(); // save current position of schedule
+		koord3d current = fpl->get_current_eintrag().pos;
+		bool is_same = false;
+		bool is_depot = false;
+		schedule_t* new_fpl = line_update_pending->get_schedule();
+		int m = fpl->get_count();
+		int n = new_fpl->get_count();
+
+		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
+			// was no entry or is no entry => goto  1st stop
+			aktuell = 0;
+		}
+		else if(aktuell<fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
+			// next pos is the same => keep the convoi state
+			is_same = true;
+		}
+
+		// check depot first (must also keept this state)
+		is_depot = (welt->lookup(current)->get_depot() != NULL);
+		if(is_depot) {
+			// depot => aktuell+1 (depot will be restore later before this)
+			aktuell = (aktuell+1)%fpl->get_count();
+			current = fpl->get_current_eintrag().pos;
+		}
+
+		/* there could be only one entry that matches best:
+		 * we try first same sequence as in old schedule;
+		 * if not found, we try for same nextnext station
+		 */
+		koord3d previous = fpl->eintrag[(aktuell+fpl->get_count()-1)%fpl->get_count()].pos;
+		koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
+		int how_good_matching = -1;
+		const uint8 new_count = new_fpl->get_count();
+
+		for(  uint8 i=0;  i<new_count;  i++  ) {
+			int quality =
+				(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
+				(new_fpl->eintrag[(i+2)%new_count].pos==next)*2 +
+				(new_fpl->eintrag[i].pos==previous);
+			if(  quality>how_good_matching  ) {
+				// better match than previous
+				aktuell = i;
+				how_good_matching = quality;
+			}
+		}
+
+		if(how_good_matching==-1) {
+			// nothing matches => take the one from the line
+			aktuell = new_fpl->get_aktuell();
+		}
+
 		line = line_update_pending;
 		line_update_pending = linehandle_t();
+
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 			fpl->eingabe_beginnen();
 		}
 		else {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 		}
-		if(state!=INITIAL) {
-			state = FAHRPLANEINGABE;
+
+		if(is_depot) {
+			// next was depot. restore it.
+			fpl->insert(welt->lookup(current));
+			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+		}
+
+ 		if(state!=INITIAL) {
+			if(is_same  ||  is_depot) {
+				// same destination => remove wrong freight and keep current state
+				for(uint8 i=0; i<anz_vehikel; i++) {
+					fahr[i]->remove_stale_freight();
+				}
+			}
+			else {
+				// need re-routing
+				state = FAHRPLANEINGABE;
+			}
 		}
 	}
 }
