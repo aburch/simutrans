@@ -319,16 +319,16 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 {
 	grund_t *gr = get_kartenboden();
 	if(gr) {
-		koord k=gr->get_pos().get_2d();
-		uint8 slope = welt->calc_natural_slope(k);
+		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		gr->set_pos(koord3d(k,welt->min_hgt(k)));
-		if(welt->max_hgt(k) <= welt->get_grundwasser()  &&  gr->get_typ()!=grund_t::wasser) {
+		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? 1 : 0);
+
+		if(max_hgt <= welt->get_grundwasser()  &&  gr->get_typ()!=grund_t::wasser) {
 			kartenboden_setzen(new wasser_t(welt, gr->get_pos()) );
 		}
 		else {
-			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 		gr->set_grund_hang( slope );
 	}
@@ -338,17 +338,15 @@ void planquadrat_t::angehoben(karte_t *welt)
 {
 	grund_t *gr = get_kartenboden();
 	if(gr) {
-		koord k ( gr->get_pos().get_2d() );
-		uint8 slope = welt->calc_natural_slope(k);
+		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		gr->set_pos(koord3d(k,welt->min_hgt(k)));
-		if (welt->max_hgt(k) > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
+		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? 1 : 0);
+		if (max_hgt > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
 			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
 		}
 		else {
-			gr->set_grund_hang( slope );
-			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 	}
 }

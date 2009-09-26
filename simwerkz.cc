@@ -659,7 +659,8 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 	if(  buttonstate==1  ) {
 		char buf[16];
 		if(!is_dragging) {
-			drag_height = welt->lookup_hgt(pos.get_2d())+Z_TILE_STEP;
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+			drag_height = gr->get_hoehe() + corner4(gr->get_grund_hang()) +1;
 		}
 		is_dragging = true;
 		sprintf( buf, "%i", drag_height );
@@ -685,8 +686,9 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			return "Terraforming not possible\nhere in underground view";
 	}
 
-	if(welt->ist_in_gittergrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
-		const int hgt = welt->lookup_hgt(pos);
+	if(welt->ist_in_kartengrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
+		grund_t *gr = welt->lookup_kartenboden(pos);
+		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
 
 		if(hgt < 14*Z_TILE_STEP) {
 
@@ -706,7 +708,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 					if(diff==0) break;
 					n += diff;
 				}
-				ok = true;
+				ok = height==welt->lookup_hgt(pos);
 			}
 			else {
 				if(  is_dragging  ) {
@@ -718,18 +720,8 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			}
 			if(n>0) {
 				spieler_t::accounting(sp, welt->get_einstellungen()->cst_alter_land*n, pos, COST_CONSTRUCTION);
-				// update image
-				for(int j=-n; j<=n; j++) {
-					for(int i=-n; i<=n; i++) {
-						const planquadrat_t* p = welt->lookup(pos + koord(i, j));
-						if (p)  {
-							grund_t* g = p->get_kartenboden();
-							if (g) g->calc_bild();
-						}
-					}
-				}
 			}
-			return !ok ? "Tile not empty." : NULL;
+			return !ok ? "Tile not empty." : (n ? NULL : "");
 		}
 		else {
 			// no mountains heigher than 14 ...
@@ -771,9 +763,9 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		(grund_t::underground_mode == grund_t::ugm_level && welt->lookup_kartenboden(pos)->get_hoehe()>grund_t::underground_level+1 )) {
 			return "Terraforming not possible\nhere in underground view";
 	}
-	if(welt->ist_in_gittergrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
-
-		const int hgt = welt->lookup_hgt(pos);
+	if(welt->ist_in_kartengrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
+		grund_t *gr = welt->lookup_kartenboden(pos);
+		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
 
 		if(hgt > welt->get_grundwasser()) {
 
@@ -792,7 +784,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 					if(diff==0) break;
 					n += diff;
 				}
-				ok = welt->lookup_hgt(pos);
+				ok = height==welt->lookup_hgt(pos);
 			}
 			else {
 				if(  is_dragging  ) {
@@ -804,18 +796,8 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			}
 			if(n>0) {
 				spieler_t::accounting(sp, welt->get_einstellungen()->cst_alter_land*n, pos, COST_CONSTRUCTION);
-				// update image
-				for(int j=-n; j<=n; j++) {
-					for(int i=-n; i<=n; i++) {
-						const planquadrat_t* p = welt->lookup(pos + koord(i, j));
-						if (p)  {
-							grund_t* g = p->get_kartenboden();
-							if (g) g->calc_bild();
-						}
-					}
-				}
 			}
-			return !ok ? "Tile not empty." : NULL;
+			return !ok ? "Tile not empty." : (n ? NULL : "");
 		}
 		else {
 			// below water level
@@ -918,11 +900,21 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		if(new_slope == RESTORE_SLOPE) {
 			// prissi: special action: set to natural slope
-			new_pos = pos;
-			slope_this = welt->calc_natural_slope(pos.get_2d());
-			DBG_MESSAGE("natural_slope","%i",slope_this);
+			const sint8 min_hgt = welt->min_hgt(pos.get_2d());
+			// if natural heihgt is != actual height change height first
+			if (min_hgt > pos.z) {
+				new_slope=ALL_UP_SLOPE;
+			}
+			else if (min_hgt < pos.z-1) {
+				new_slope=ALL_DOWN_SLOPE;
+			}
+			else {
+				new_pos = koord3d(pos.get_2d(), min_hgt);
+				slope_this = welt->calc_natural_slope(pos.get_2d(), true);
+				DBG_MESSAGE("natural_slope","%i",slope_this);
+			}
 		}
-		else {
+		if(new_slope != RESTORE_SLOPE) {
 			// now check offsets before changing the slope ...
 			sint8 change_to_slope=new_slope;
 			if(new_slope==ALL_DOWN_SLOPE) {
@@ -1082,6 +1074,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 					}
 				}
 			}
+			welt->set_grid_hgt(pos.get_2d(), gr1->get_hoehe() + corner4(gr1->get_grund_hang()));
 			spieler_t::accounting(sp, new_slope==RESTORE_SLOPE?welt->get_einstellungen()->cst_alter_land:welt->get_einstellungen()->cst_set_slope, pos.get_2d(), COST_CONSTRUCTION);
 		}
 
