@@ -1032,6 +1032,7 @@ sint32 haltestelle_t::rebuild_destinations()
 								add_catg_index.append_unique(ware->get_catg_index());
 							}
 						}
+						break;	// since we found it already ...
 					}
 				}
 				connections_searched ++;
