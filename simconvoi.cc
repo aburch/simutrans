@@ -2483,48 +2483,50 @@ void convoi_t::check_pending_updates()
 		bool is_same = false;
 		bool is_depot = false;
 		schedule_t* new_fpl = line_update_pending->get_schedule();
-		int m = fpl->get_count();
-		int n = new_fpl->get_count();
 
 		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
 			// was no entry or is no entry => goto  1st stop
 			aktuell = 0;
 		}
-		else if(aktuell<fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
+		else if(aktuell<new_fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
 			// next pos is the same => keep the convoi state
 			is_same = true;
 		}
 
 		// check depot first (must also keept this state)
 		is_depot = (welt->lookup(current)->get_depot() != NULL);
+		/*
 		if(is_depot) {
 			// depot => aktuell+1 (depot will be restore later before this)
 			aktuell = (aktuell+1)%fpl->get_count();
 			current = fpl->get_current_eintrag().pos;
 		}
+		*/
 
 		/* there could be only one entry that matches best:
 		 * we try first same sequence as in old schedule;
 		 * if not found, we try for same nextnext station
 		 */
-		koord3d previous = fpl->eintrag[(aktuell+fpl->get_count()-1)%fpl->get_count()].pos;
 		koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
-		int how_good_matching = -1;
+		koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
+		koord3d nextnextnext = fpl->eintrag[(aktuell+3)%fpl->get_count()].pos;
+		int how_good_matching = 0;
 		const uint8 new_count = new_fpl->get_count();
 
 		for(  uint8 i=0;  i<new_count;  i++  ) {
 			int quality =
+				(new_fpl->eintrag[i].pos==current)*8 +
 				(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
-				(new_fpl->eintrag[(i+2)%new_count].pos==next)*2 +
-				(new_fpl->eintrag[i].pos==previous);
+				(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
+				(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
 			if(  quality>how_good_matching  ) {
 				// better match than previous
-				aktuell = i;
+				aktuell = (i+new_count-1)%new_count;
 				how_good_matching = quality;
 			}
 		}
 
-		if(how_good_matching==-1) {
+		if(how_good_matching==0) {
 			// nothing matches => take the one from the line
 			aktuell = new_fpl->get_aktuell();
 		}
@@ -2535,16 +2537,16 @@ void convoi_t::check_pending_updates()
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell); // set new schedule current position to best match
+			fpl->set_aktuell(aktuell+1); // set new schedule current position to best match
 			fpl->eingabe_beginnen();
 		}
 		else {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell); // set new schedule current position to best match
+			fpl->set_aktuell(aktuell); // set new schedule current position to one before best match
 		}
 
 		if(is_depot) {
-			// next was depot. restore it.
+			// next was depot. restore it
 			fpl->insert(welt->lookup(current));
 			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		}
