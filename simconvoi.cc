@@ -731,6 +731,8 @@ void convoi_t::step()
 
 		case DUMMY4:
 		case DUMMY5:
+			break;
+
 		case FAHRPLANEINGABE:
 			// schedule window closed?
 			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
@@ -2551,7 +2553,7 @@ void convoi_t::check_pending_updates()
 					(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
 				if(  quality>how_good_matching  ) {
 					// better match than previous
-					aktuell = (i+new_count-1)%new_count;
+					aktuell = i%new_count;
 					how_good_matching = quality;
 				}
 			}
@@ -2568,7 +2570,7 @@ void convoi_t::check_pending_updates()
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell+1); // set new schedule current position to best match
+			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 			fpl->eingabe_beginnen();
 		}
 		else {
@@ -2587,7 +2589,6 @@ void convoi_t::check_pending_updates()
 				/* same destination
 				 * We are already there = adnvance & remove wrong freight and keep current state
 				 */
-				fpl->advance();
 				for(uint8 i=0; i<anz_vehikel; i++) {
 					fahr[i]->remove_stale_freight();
 				}
