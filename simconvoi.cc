@@ -2479,56 +2479,61 @@ void convoi_t::check_pending_updates()
 {
 	if (line_update_pending.is_bound()  &&  line.is_bound()) {
 		int aktuell = fpl->get_aktuell(); // save current position of schedule
-		koord3d current = fpl->get_current_eintrag().pos;
 		bool is_same = false;
 		bool is_depot = false;
 		schedule_t* new_fpl = line_update_pending->get_schedule();
+		koord3d current = koord3d::invalid;
 
 		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
 			// was no entry or is no entry => goto  1st stop
 			aktuell = 0;
 		}
-		else if(aktuell<new_fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
-			// next pos is the same => keep the convoi state
-			is_same = true;
-		}
-
-		// check depot first (must also keept this state)
-		is_depot = (welt->lookup(current)->get_depot() != NULL);
-		/*
-		if(is_depot) {
-			// depot => aktuell+1 (depot will be restore later before this)
-			aktuell = (aktuell+1)%fpl->get_count();
+		else {
+			// something to check for ...
 			current = fpl->get_current_eintrag().pos;
-		}
-		*/
 
-		/* there could be only one entry that matches best:
-		 * we try first same sequence as in old schedule;
-		 * if not found, we try for same nextnext station
-		 */
-		koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
-		koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
-		koord3d nextnextnext = fpl->eintrag[(aktuell+3)%fpl->get_count()].pos;
-		int how_good_matching = 0;
-		const uint8 new_count = new_fpl->get_count();
-
-		for(  uint8 i=0;  i<new_count;  i++  ) {
-			int quality =
-				(new_fpl->eintrag[i].pos==current)*8 +
-				(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
-				(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
-				(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
-			if(  quality>how_good_matching  ) {
-				// better match than previous
-				aktuell = (i+new_count-1)%new_count;
-				how_good_matching = quality;
+			if(aktuell<new_fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
+				// next pos is the same => keep the convoi state
+				is_same = true;
 			}
-		}
 
-		if(how_good_matching==0) {
-			// nothing matches => take the one from the line
-			aktuell = new_fpl->get_aktuell();
+			// check depot first (must also keept this state)
+			is_depot = (welt->lookup(current)  &&  welt->lookup(current)->get_depot() != NULL);
+			/*
+			if(is_depot) {
+				// depot => aktuell+1 (depot will be restore later before this)
+				aktuell = (aktuell+1)%fpl->get_count();
+				current = fpl->get_current_eintrag().pos;
+			}
+			*/
+
+			/* there could be only one entry that matches best:
+			 * we try first same sequence as in old schedule;
+			 * if not found, we try for same nextnext station
+			 */
+			const koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
+			const koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
+			const koord3d nextnextnext = fpl->eintrag[(aktuell+3)%fpl->get_count()].pos;
+			int how_good_matching = 0;
+			const uint8 new_count = new_fpl->get_count();
+
+			for(  uint8 i=0;  i<new_count;  i++  ) {
+				int quality =
+					(new_fpl->eintrag[i].pos==current)*8 +
+					(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
+					(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
+					(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
+				if(  quality>how_good_matching  ) {
+					// better match than previous
+					aktuell = (i+new_count-1)%new_count;
+					how_good_matching = quality;
+				}
+			}
+
+			if(how_good_matching==0) {
+				// nothing matches => take the one from the line
+				aktuell = new_fpl->get_aktuell();
+			}
 		}
 
 		line = line_update_pending;
