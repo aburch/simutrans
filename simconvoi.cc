@@ -2553,7 +2553,10 @@ void convoi_t::check_pending_updates()
 
  		if(state!=INITIAL) {
 			if(is_same  ||  is_depot) {
-				// same destination => remove wrong freight and keep current state
+				/* same destination
+				 * We are already there = adnvance & remove wrong freight and keep current state
+				 */
+				fpl->advance();
 				for(uint8 i=0; i<anz_vehikel; i++) {
 					fahr[i]->remove_stale_freight();
 				}
