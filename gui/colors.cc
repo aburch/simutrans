@@ -343,6 +343,7 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	else if((buttons+20)==komp)
 	{
+		// TEMPORARY: Disable this because the distributed path search causes crashes. Re-enable when fixed.
 		const uint8 current_option = welt->get_einstellungen()->get_default_path_option();
 		if(current_option == 1)
 		{
@@ -350,13 +351,12 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			buttons[20].pressed = true;
 			path_explorer_t::full_instant_refresh();
 		}
-		else
+		/*else
 		{
 			welt->get_einstellungen()->set_default_path_option(1);
 			buttons[20].pressed = false;
 			haltestelle_t::prepare_pathing_data_structures();
-		}
-		
+		}*/
 	}
 
 	welt->set_dirty();

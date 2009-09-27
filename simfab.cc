@@ -1291,7 +1291,7 @@ fabrik_t::neuer_monat()
 		else
 		{
 			float proportion = (float)difference / (float)max_difference;
-			proportion *= 4.0F; //Set to percentage value, but take into account fact will be frequently checked.
+			proportion *= 2.0F; //Set to percentage value, but take into account fact will be frequently checked.
 			const float chance = (float)(simrand(10000) / 100.0F);
 			if(chance <= proportion)
 			{
