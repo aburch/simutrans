@@ -1128,6 +1128,7 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 		if(  next_to_ziel != NULL  ) {
 			*next_to_ziel = koord::invalid;
 		}
+		return ROUTE_OK;
 	}
 
 	// single threading makes some things easier
@@ -1223,28 +1224,20 @@ found:
 		// ziel gefunden
 		ware.set_ziel( tmp->halt );
 
-		if(tmp->link == NULL) {
-			// kein zwischenziel
-			ware.set_zwischenziel(ware.get_ziel());
-			if(next_to_ziel!=NULL) {
-				// for reverse route the next hop, but not hop => enter start
-				*next_to_ziel = self->get_basis_pos();
+		assert(tmp->link != NULL);
+
+		if(next_to_ziel!=NULL) {
+			// for reverse route the next hop
+			*next_to_ziel = tmp->link->halt->get_basis_pos();
+		}
+		// find the intermediate stops
+		while(tmp->link->link) {
+			tmp = tmp->link;
+			if(  avoid_overcrowding  &&  tmp->halt->is_overcrowded(ware_catg_index)  ) {
+				return ROUTE_OVERCROWDED;
 			}
 		}
-		else {
-			if(next_to_ziel!=NULL) {
-				// for reverse route the next hop
-				*next_to_ziel = tmp->link->halt->get_basis_pos();
-			}
-			// find the intermediate stops
-			while(tmp->link->link) {
-				tmp = tmp->link;
-				if(  avoid_overcrowding  &&  tmp->halt->is_overcrowded(ware_catg_index)  ) {
-					return ROUTE_OVERCROWDED;
-				}
-			}
-			ware.set_zwischenziel(tmp->halt);
-		}
+		ware.set_zwischenziel(tmp->halt);
 		return ROUTE_OK;
 	}
 	else {
