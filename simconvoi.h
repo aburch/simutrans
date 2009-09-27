@@ -280,7 +280,7 @@ private:
 	* Berechne route von Start- zu Zielkoordinate
 	* @author Hanjsörg Malthaner
 	*/
-	int drive_to(koord3d s, koord3d z);
+	bool drive_to();
 
 	/**
 	* Setup vehicles for moving in same direction than before

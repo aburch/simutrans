@@ -545,42 +545,6 @@ bool convoi_t::sync_step(long delta_t)
 			break;
 
 		case FAHRPLANEINGABE:
-			// schedule window closed?
-			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
-
-				set_schedule(fpl);
-
-				if(fpl->get_count()==0) {
-					// no entry => no route ...
-					state = NO_ROUTE;
-					wait_lock = 0;
-				}
-				else {
-					// Schedule changed at station
-					// this station? then complete loading task else drive on
-					bool is_same = (get_pos() == fpl->get_current_eintrag().pos);
-					if(  !is_same  ) {
-						halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
-						is_same =  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() );
-					}
-
-					if(  is_same  ) {
-						// two cases: same position but in station => laoding, in depot: waiting
-						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-						state = gr  &&  gr->get_depot() ? INITIAL : LOADING;
-					}
-					else {
-						// go to next
-						state = ROUTING_1;
-					}
-				}
-			}
-			else {
-				// still entring => check only each 500ms for change
-				wait_lock = 500;
-			}
-			break;
-
 		case ROUTING_1:
 		case DUMMY4:
 		case DUMMY5:
@@ -689,17 +653,43 @@ bool convoi_t::sync_step(long delta_t)
  * Berechne route von Start- zu Zielkoordinate
  * @author Hanjsörg Malthaner
  */
-int convoi_t::drive_to(koord3d start, koord3d ziel)
+bool convoi_t::drive_to()
 {
-	INT_CHECK("simconvoi 293");
+	if(  anz_vehikel>0  ) {
+		koord3d start = fahr[0]->get_pos();
+		koord3d ziel = fpl->get_current_eintrag().pos;
 
-	if (anz_vehikel == 0 || !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)) {
-		get_besitzer()->bescheid_vehikel_problem(self,ziel);
-		// wait 10s before next attempt
-		wait_lock = 10000;
-		return false;
+		// avoid stopping midhalt
+		if(  start==ziel  ) {
+			halthandle_t halt = haltestelle_t::get_halt(welt,ziel,get_besitzer());
+			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
+				for(  uint32 i=route.index_of(start);  i<route.get_max_n();  i++  ) {
+					grund_t *gr = welt->lookup(route.position_bei(i));
+					if(  gr  && gr->get_halt()==halt  ) {
+						ziel = gr->get_pos();
+					}
+					else {
+						break;
+					}
+				}
+			}
+		}
+
+		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
+			get_besitzer()->bescheid_vehikel_problem(self,ziel);
+			// wait 10s before next attempt
+			wait_lock = 10000;
+			return false;
+		}
+		if(!route.empty()) {
+			vorfahren();
+		}
+		else {
+			state = NO_ROUTE;
+		}
+		return true;
 	}
-	return true;
+	return false;
 }
 
 
@@ -741,6 +731,51 @@ void convoi_t::step()
 
 		case DUMMY4:
 		case DUMMY5:
+		case FAHRPLANEINGABE:
+			// schedule window closed?
+			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
+
+				set_schedule(fpl);
+
+				if(fpl->get_count()==0) {
+					// no entry => no route ...
+					state = NO_ROUTE;
+				}
+				else {
+					// Schedule changed at station
+					// this station? then complete loading task else drive on
+					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
+					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() )  ) {
+						if(  h==haltestelle_t::get_halt( welt, route.position_bei(route.get_max_n()), get_besitzer() )  ){
+							state = get_pos()==route.position_bei(route.get_max_n()) ? LOADING : DRIVING;
+							break;
+						}
+						else {
+							if(  drive_to()  ) {
+								state = DRIVING;
+								break;
+							}
+						}
+					}
+
+					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
+						// position in depot: waiting
+						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+						if(  gr  &&  gr->get_depot()  ) {
+							state = INITIAL;
+						}
+						else {
+							state = ROUTING_1;
+						}
+					}
+					else {
+						// go to next
+						state = ROUTING_1;
+					}
+				}
+			}
+			break;
+
 		case ROUTING_1:
 			{
 				vehikel_t* v = fahr[0];
@@ -755,13 +790,7 @@ void convoi_t::step()
 						fpl->advance();
 					}
 					// Hajo: now calculate a new route
-					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
-					if(!route.empty()) {
-						vorfahren();
-					}
-					else {
-						state = NO_ROUTE;
-					}
+					drive_to();
 					// finally, was there a record last time?
 					if(max_record_speed>welt->get_record_speed(fahr[0]->get_waytype())) {
 						welt->notify_record(self, max_record_speed, record_pos);
@@ -783,10 +812,7 @@ void convoi_t::step()
 				}
 				else {
 					// Hajo: now calculate a new route
-					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
-					if(!route.empty()) {
-						vorfahren();
-					}
+					drive_to();
 				}
 			}
 			break;
