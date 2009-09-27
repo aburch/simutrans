@@ -471,7 +471,7 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
  * Fill menu with icons of given stops from the list
  * @author Hj. Malthaner
  */
-void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt)
+void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
 {
 	static stringhashtable_tpl<wkz_wayobj_t *> wayobj_tool;
 
@@ -490,6 +490,7 @@ DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.get_count());
 					wkz = new wkz_wayobj_t();
 					wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 					wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+					wkz->ok_sound = sound_ok;
 					wkz->default_param = besch->get_name();
 					wayobj_tool.put(besch->get_name(),wkz);
 				}

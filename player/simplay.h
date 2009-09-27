@@ -117,7 +117,6 @@ protected:
 	//slist_tpl<halthandle_t> halt_list; ///< Liste der Haltestellen
 	vector_tpl<halthandle_t> halt_list; ///< "List of the stops" (Babelfish)
 
-
 	class income_message_t {
 	public:
 		char str[33];
@@ -137,7 +136,7 @@ protected:
 
 	int last_message_index;
 
-	void add_message(koord k, int summe);
+	void add_message(koord k, sint32 summe);
 
 	/**
 	 * Kennfarbe (Fahrzeuge, Gebäude) des Speielers

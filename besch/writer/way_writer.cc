@@ -16,9 +16,11 @@
  */
 void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	static const char* const ribi_codes[16] = {
+	static const char* const ribi_codes[26] = {
 		"-", "n",  "e",  "ne",  "s",  "ns",  "se",  "nse",
-		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew"
+		"w", "nw", "ew", "new", "sw", "nsw", "sew", "nsew",
+		"nse1", "new1", "nsw1", "sew1", "nsew1",	// different crossings: northwest/southeast is straight
+		"nse2", "new2", "nsw2", "sew2", "nsew2",
 	};
 	int ribi, hang;
 
@@ -121,7 +123,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		cstring_t str = obj.get(buf);
 		if(strlen(str) > 0) {
 			// way images defined without seasons
-			for (ribi = 0; ribi < 16; ribi++) {
+			const uint8 ribinr = *(obj.get("image[new2][0]"))==0 ? 16 : 26;
+			for (ribi = 0; ribi < ribinr; ribi++) {
 				char buf[40];
 
 				sprintf(buf, "image[%s]", ribi_codes[ribi]);
@@ -168,7 +171,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		while(number_seasons < 2) {
 			sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
 			cstring_t str = obj.get(buf);
-			if(strlen(str) > 0) {
+			if(str.len() > 0) {
 				number_seasons++;
 			} else {
 				break;
@@ -177,8 +180,11 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 		node.write_data_at(outfp, &number_seasons, 25, 1);
 		write_head(outfp, node, obj);
 
+		// has switch images for both directions?
+		const uint8 ribinr = *(obj.get("image[new2][0]"))==0 ? 16 : 26;
+
 		for (uint8 season = 0; season <= number_seasons ; season++) {
-			for (ribi = 0; ribi < 16; ribi++) {
+			for (ribi = 0; ribi < ribinr; ribi++) {
 				char buf[40];
 
 				sprintf(buf, "image[%s][%d]", ribi_codes[ribi], season);

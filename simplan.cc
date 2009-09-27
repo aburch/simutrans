@@ -319,16 +319,16 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 {
 	grund_t *gr = get_kartenboden();
 	if(gr) {
-		koord k=gr->get_pos().get_2d();
-		uint8 slope = welt->calc_natural_slope(k);
+		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		gr->set_pos(koord3d(k,welt->min_hgt(k)));
-		if(welt->max_hgt(k) <= welt->get_grundwasser()  &&  gr->get_typ()!=grund_t::wasser) {
+		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? 1 : 0);
+
+		if(max_hgt <= welt->get_grundwasser()  &&  gr->get_typ()!=grund_t::wasser) {
 			kartenboden_setzen(new wasser_t(welt, gr->get_pos()) );
 		}
 		else {
-			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 		gr->set_grund_hang( slope );
 	}
@@ -338,17 +338,15 @@ void planquadrat_t::angehoben(karte_t *welt)
 {
 	grund_t *gr = get_kartenboden();
 	if(gr) {
-		koord k ( gr->get_pos().get_2d() );
-		uint8 slope = welt->calc_natural_slope(k);
+		const uint8 slope = gr->get_grund_hang();
 
 		gr->obj_loesche_alle(NULL);
-		gr->set_pos(koord3d(k,welt->min_hgt(k)));
-		if (welt->max_hgt(k) > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
+		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? 1 : 0);
+		if (max_hgt > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
 			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
 		}
 		else {
-			gr->set_grund_hang( slope );
-			reliefkarte_t::get_karte()->calc_map_pixel(k);
+			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 		}
 	}
 }
@@ -446,14 +444,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		const sint8 h0 = gr->get_disp_height();
 		for(uint8 i=1;  i<ground_size;  i++) {
 			grund_t* gr=data.some[i];
-			const sint8 h = gr->get_hoehe();
-			// too high
-			if (h > hmax) break;
-			// not too low?
-			if (h >= hmin) {
-				const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
-				gr->display_overlay(xpos, yypos );
-			}
+			const sint8 h = gr->get_disp_height();
+			const sint16 yypos = ypos - (h-h0)*get_tile_raster_width()/(2*Z_TILE_STEP);
+			gr->display_overlay(xpos, yypos );
 		}
 	}
 }

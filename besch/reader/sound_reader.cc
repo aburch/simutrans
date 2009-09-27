@@ -34,6 +34,14 @@ obj_besch_t * sound_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Versioned node, version 2
 		besch->nr = decode_uint16(p);
 	}
+	else if(  version == 2  ) {
+		// Versioned node, version 2
+		besch->nr = decode_uint16(p);
+		uint16 len = decode_uint16(p);
+		if(  len>0  ) {
+			besch->nr = besch->get_sound_id(p);
+		}
+	}
 	else {
 		dbg->fatal("sound_reader_t::read_node()","version %i not supported. File corrupt?", version);
 	}

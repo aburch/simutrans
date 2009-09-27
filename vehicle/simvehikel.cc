@@ -3399,7 +3399,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 				count --;
 				next_signal_index = i;
 			}
-			if(!sch1->reserve(cnv->self)) {
+			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_max_n(),i+1)) ) )  ) {
 				success = false;
 			}
 			if(next_crossing_index==65535  &&  sch1->is_crossing()) {
@@ -3511,7 +3511,7 @@ waggon_t::betrete_feld()
 		sch0->book(cargo, WAY_STAT_GOODS);
 		if(ist_erstes) {
 			sch0->book(1, WAY_STAT_CONVOIS);
-			sch0->reserve(cnv->self);
+			sch0->reserve( cnv->self, get_fahrtrichtung() );
 		}
 	}
 }
@@ -3901,7 +3901,7 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
 			// we unreserve also nonexisting tiles! (may happen during deletion)
 			if(reserve) {
 				start_now = true;
-				if(!sch1->reserve(cnv->self)) {
+				if(!sch1->reserve(cnv->self,ribi_t::keine)) {
 					// unsuccessful => must unreserve all
 					success = false;
 					end = i;

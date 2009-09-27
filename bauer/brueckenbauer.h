@@ -88,7 +88,7 @@ public:
 	 * Fill menu with icons of given waytype
 	 * @author priss
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
 };
 
 #endif

@@ -31,6 +31,10 @@
 	ADD: (Nathan Samson) allow left_to_right_graphs (=1 in simuconf.tab)
 	ADD: (z9999) better display of depots in minimap
 	ADD: (Dwachs) zooming of map with mousewheel
+	ADD: switches change graphics for diagonal going trains (only eyecandy)
+	ADD: ambient sound effects (for all grphics + forest + beaches)
+	CHANGE: less lagging updating/rerouting after schedule chnages even with large stations
+	ADD: (Dwachs) Public player can remove all
 
 
 Release of 102.0 (r2366)

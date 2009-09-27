@@ -479,7 +479,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
  */
 const char * depot_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(sp!=get_besitzer()) {
+	if(sp!=get_besitzer()  &&  sp!=welt->get_spieler(1)) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 	if (!vehicles.empty()) {
@@ -582,7 +582,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 		return false;
 	}
 
-	if(!sch0->reserve(cnv)) {
+	if(!sch0->reserve(cnv,ribi_t::keine)) {
 		// could not even reserve first tile ...
 		return false;
 	}
@@ -600,7 +600,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 			break;
 		}
 		// otherwise we might check one tile too much
-		if(!sch1->reserve(cnv)) {
+		if(  !sch1->reserve( cnv, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_max_n(),i+1)) ) )  ) {
 			success = false;
 		}
 	}

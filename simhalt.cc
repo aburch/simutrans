@@ -79,6 +79,44 @@ haltestelle_t::path_node* haltestelle_t::head_path_node = NULL;
 haltestelle_t::connexion* haltestelle_t::head_connexion = NULL;
 #endif
 
+static uint32 halt_iterator_start = 0;
+uint8 haltestelle_t::status_step = 0;
+
+
+void haltestelle_t::step_all()
+{
+	if(  alle_haltestellen.get_count()>0  ) {
+
+		uint32 it = halt_iterator_start;
+		slist_iterator_tpl <halthandle_t> iter( alle_haltestellen );
+		while(  it>0  &&  iter.next()  ) {
+			it--;
+		}
+		if(  it>0  ) {
+			halt_iterator_start = 0;
+		}
+		else {
+			sint16 units_remaining = 128;
+			while(  units_remaining>0  ) {
+				if(  !iter.next()  ) {
+					halt_iterator_start = 0;
+					break;
+				}
+				// iterate until the specified number of units were handled
+				if(  !iter.get_current()->step(units_remaining)  ) {
+					// too much rerouted => needs continue at next round!
+					break;
+				}
+				halt_iterator_start ++;
+			}
+		}
+	}
+	else {
+		// save reinit
+		halt_iterator_start = 0;
+	}
+}
+
 
 halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spieler_t *sp )
 {
@@ -243,6 +281,8 @@ halthandle_t haltestelle_t::create(karte_t *welt, loadsave_t *file)
  */
 void haltestelle_t::destroy(halthandle_t &halt)
 {
+	// jsut play save: restart iterator at zero ...
+	halt_iterator_start = 0;
 	haltestelle_t *p = halt.get_rep();
 	delete p;
 }
@@ -341,7 +381,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	
 	rdwr(file);
 
-	alle_haltestellen.insert(self);
+	alle_haltestellen.append(self);
 
 	check_waiting = 0;
 
@@ -354,7 +394,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 {
 	self = halthandle_t(this);
 	assert( !alle_haltestellen.is_contained(self) );
-	alle_haltestellen.insert(self);
+	alle_haltestellen.append(self);
 
 	welt = wl;
 	marke = 0;
@@ -364,8 +404,9 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	enables = NOT_ENABLED;
 
-	// reroute_counter = welt->get_schedule_counter()-1;
-	rebuilt_destination_counter = welt->get_schedule_counter()-1;
+	reroute_counter = welt->get_schedule_counter()-1;
+	rebuilt_destination_counter = reroute_counter;
+	last_catg_index = 255;	// force total reouting
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
@@ -378,8 +419,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	{
 		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
 	}
-
-
+	
 	pax_happy = 0;
 	pax_unhappy = 0;
 	pax_no_route = 0;
@@ -902,9 +942,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 }
 
 
-
-void
-haltestelle_t::step()
+bool haltestelle_t::step(sint16 &units_remaining)
 {
 	if (welt->get_einstellungen()->get_default_path_option() != 2)
 	{
@@ -916,17 +954,38 @@ haltestelle_t::step()
 				reschedule[i] = true;
 				reroute[i] = true;		// Added by : Knightly
 			}
+				// schedule has changed ...
+			status_step = RESCHEDULING;
+			//units_remaining -= (rebuild_destinations()/96)+2;
 
 			// Relocated from rebuild_connexions() by Knightly
 			// Reason : Now rebuild_connexions() is performed only on demand, 
 			//			so it's safer to reset counter here right away
 			rebuilt_destination_counter = welt->get_schedule_counter();
 		}
+
+		else if(reroute_counter!=welt->get_schedule_counter())
+		{
+			// all new connection updated => recalc routes
+			status_step = REROUTING;
+			if(  !reroute_goods(units_remaining)  ) 
+			{
+				return false;
+			}
+		}
 		
-		// Knightly : Every step needs to invoke reroute_goods()
-		//			  Only goods categories scheduled for re-routing will actually be re-routed
-		reroute_goods();
+		
+		else 
+		{
+			// nothing needs to be done
+			status_step = 0;
+			units_remaining = 0;
+		}
 	}
+
+	// Knightly : Every step needs to invoke reroute_goods()
+	// Only goods categories scheduled for re-routing will actually be re-routed
+	reroute_goods();
 
 	recalc_status();
 	
@@ -1038,8 +1097,87 @@ void haltestelle_t::neuer_monat()
  */
 // Modified by : Knightly
 
-void haltestelle_t::reroute_goods()
+bool haltestelle_t::reroute_goods(/*sint16 &units_remaining*/)
 {
+	//uint8 sync_step_counter = 1;
+
+	//if(last_catg_index == 255) 
+	//{
+	//	last_catg_index = 0;
+	//	last_ware_index = 0;
+	//}
+
+	//for(  ; last_catg_index<warenbauer_t::get_max_catg_index(); last_catg_index++) 
+	//{
+	//	if(waren[last_catg_index]) 
+	//	{
+
+	//		// first: clean out the array
+	//		if(  last_ware_index==0  ) 
+	//		{
+	//			vector_tpl<ware_t> * warray = waren[last_catg_index];
+	//			vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
+
+	//			for(int j=warray->get_count()-1;  j>=0;  j--  ) 
+	//			{
+	//				ware_t & ware = (*warray)[j];
+
+	//				if(ware.menge==0) 
+	//				{
+	//					continue;
+	//				}
+	//				// delete, if nothing connects here
+	//			if (new_warray->empty()) {
+	//				if(  warenziele[last_catg_index].empty()  )
+	//				{
+	//					// no connections from here => delete
+	//					delete new_warray;
+	//					new_warray = NULL;
+	//				}
+	//			}
+
+	//			// replace the array
+	//			delete waren[last_catg_index];
+	//			waren[last_catg_index] = new_warray;
+	//			}
+	//		}
+
+	//		// if somtehing left
+	//		// re-route goods to adapt to changes in world layout,
+	//		// remove all goods which destination was removed from the map
+	//		if(waren[last_catg_index]  &&  waren[last_catg_index]->get_count()>0) 
+	//		{
+	//			vector_tpl<ware_t> * warray = waren[last_catg_index];
+	//			while(  last_ware_index<warray->get_count()  ) 
+	//			{
+
+	//				if(  suche_route( (*warray)[last_ware_index], NULL, false )==NO_ROUTE  ) 
+	//				{
+	//					// remove invalid destinations
+	//					warray->remove_at(last_ware_index);
+	//				}
+	//				else {
+	//					last_ware_index++;
+	//				}
+	//				// break after a certain number of reroute actions
+	//				if(  --units_remaining==0  ) 
+	//				{
+	//					return false;
+	//				}
+	//			}
+	//			// now we are finisched with this array
+	//			// => reset last_ware_index for the next categorie
+	//				// likely the display must be updated after this
+	//		}
+	//	}
+	//resort_freight_info = true;
+	//last_catg_index = 255;	// all categories are rerouted
+	//reroute_counter = welt->get_schedule_counter();	// no need to reroute further
+	//return true;	// all updated ...
+	//}
+
+	bool any_rerouted = false;
+	
 	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
 	{
 		if (reroute[i])
@@ -1050,11 +1188,12 @@ void haltestelle_t::reroute_goods()
 			{
 				// call this only if some ware packets are really re-reouted
 				INT_CHECK( "simhalt.cc 489" );
+				any_rerouted = true;
 			}
 		}
 	}
+	return any_rerouted;
 }
-
 
 // Added by		: Knightly
 // Adapted from : reroute_goods()
@@ -1064,7 +1203,7 @@ bool haltestelle_t::reroute_goods(const uint8 catg)
 	if(waren[catg])
 	{
 		vector_tpl<ware_t> * warray = waren[catg];
-		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
+		vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(waren[catg]->get_count());
 
 		// Hajo:
 		// Step 1: re-route goods now and then to adapt to changes in
@@ -1331,6 +1470,7 @@ convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 
 	return best_convoy;
 }
 
+
 void haltestelle_t::reset_connexions(uint8 category)
 {
 	if(connexions[category]->empty())
@@ -1346,10 +1486,6 @@ void haltestelle_t::reset_connexions(uint8 category)
 	{
 		delete iter.get_current_value();
 	}
-
-	
-	// Finally, clear the collection class.
-	connexions[category]->clear();
 }
 
 // Added by		: Knightly
@@ -1395,6 +1531,7 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 					// Try a public player halt
 					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, public_player);
 				}
+				//connections_searched ++;
 			}
 
 			if ( tmp_halt == self && self_halt_idx == -1 )
@@ -1510,7 +1647,10 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 				}
 			}
 		}
+		//connections_searched ++;
 	}
+
+	//return connections_searched;
 }
 
 

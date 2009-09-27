@@ -130,9 +130,10 @@ public:
 	 * Fill menu with icons of given stops from the list
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, const karte_t *welt);
+	static void fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
 
 	static vector_tpl<way_obj_besch_t *> * get_all_wayobjects() { return &liste; }
+
 };
 
 #endif

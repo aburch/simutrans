@@ -29,6 +29,7 @@
 #include "simsys.h"
 #include "simticker.h"
 #include "simwin.h"
+#include "simhalt.h"
 #include "simworld.h"
 
 #include "dataobj/translator.h"
@@ -1153,6 +1154,17 @@ void win_display_flush(double konto)
 	else {
 		sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
 	}
+
+#ifdef DEBUG
+	if(  umgebung_t::verbose_debug>3  ) {
+		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
+			strcat(stretch_text, "+" );
+		}
+		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
+			strcat(stretch_text, "*" );
+		}
+	}
+#endif
 
 	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
 		sprintf(delta_pos,"-(%d,%d) ", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );

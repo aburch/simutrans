@@ -24,6 +24,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+
 #include "tpl/quickstone_hashtable_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
 #include "tpl/fixed_list_tpl.h"
@@ -41,6 +42,10 @@
 #define HALT_NOROUTE				5 // number of no-route passangers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
+
+#define RESCHEDULING (1)
+#define REROUTING (2)
+
 
 class cbuffer_t;
 class grund_t;
@@ -105,7 +110,16 @@ private:
 	uint8 overcrowded[8];	// bit set, when overcrowded
 	void recalc_status();
 
+	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
+
 public:
+	/**
+	 * Handles changes of schedules and the resulting rerouting
+	 */
+	static void step_all();
+
+	static uint8 get_rerouting_status() { return status_step; }
+
 	/**
 	 * Tries to generate some pedestrians on the sqaure and the
 	 * adjacent sqaures. Return actual number of generated
@@ -311,7 +325,11 @@ private:
 	stationtyp station_type;
 
 	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
-	// uint8 reroute_counter;						// the reroute goods
+
+	uint8 reroute_counter;						// the reroute goods
+	// since we do partial routing, we remeber the last offset
+	uint8 last_catg_index;
+	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
 	uint8 enables;
@@ -465,11 +483,12 @@ public:
 	* will distribute the goods to changed routes (if there are any)
 	* @author Hj. Malthaner
 	*/
-	void reroute_goods();
+	bool reroute_goods(/*sint16 &units_remaining*/);
 
 	// Added by : Knightly
 	// Purpose	: Re-routing goods of a single ware category
 	bool reroute_goods(uint8 catg);
+
 
 	/**
 	 * getter/setter for sortby
@@ -498,7 +517,6 @@ public:
 	void verbinde_fabriken();
 	void remove_fabriken(fabrik_t *fab);
 
-
 	uint8 get_rebuild_destination_counter() const  { return rebuilt_destination_counter; }
 
 	// New routing method: finds shortest route in *time*, not necessarily distance
@@ -526,7 +544,8 @@ public:
 	 * Haltestellen messen regelmaessig die Fahrplaene pruefen
 	 * @author Hj. Malthaner
 	 */
-	void step();
+
+	bool step(sint16 &units_remaining);
 
 	/**
 	 * Called every month/every 24 game hours

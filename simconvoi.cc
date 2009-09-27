@@ -399,7 +399,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			// airplanes may have no ground ...
 			schiene_t *sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
 			if(sch0) {
-				sch0->reserve(self);
+				sch0->reserve(self,ribi_t::keine);
 			}
 		}
 		fahr[0]->set_erstes(true);
@@ -436,7 +436,8 @@ convoi_t::get_pos() const
 {
 	if(anz_vehikel > 0 && fahr[0]) {
 		return state==INITIAL ? home_depot : fahr[0]->get_pos();
-	} else {
+	}
+	else {
 		return koord3d::invalid;
 	}
 }
@@ -713,7 +714,21 @@ bool convoi_t::sync_step(long delta_t)
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
-					state = (get_pos() == fpl->get_current_eintrag().pos ? LOADING : ROUTING_1);
+					bool is_same = (get_pos() == fpl->get_current_eintrag().pos);
+					if(  !is_same  ) {
+						halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
+						is_same =  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() );
+					}
+
+					if(  is_same  ) {
+						// two cases: same position but in station => laoding, in depot: waiting
+						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+						state = gr  &&  gr->get_depot() ? INITIAL : LOADING;
+					}
+					else {
+						// go to next
+						state = ROUTING_1;
+					}
 				}
 			}
 			else {
@@ -1670,6 +1685,7 @@ convoi_t::can_go_alte_richtung()
 
 	// now get the actual length and the tile length
 	int convoi_length = 15;
+	int tile_length = 24;
 	unsigned i;	// for visual C++
 	const vehikel_t* pred = NULL;
 	for(i=0; i<anz_vehikel; i++) {
@@ -1678,7 +1694,7 @@ convoi_t::can_go_alte_richtung()
 
 		convoi_length += v->get_besch()->get_length();
 
-		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))) {
+		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
 			// ending here is an error!
 			// this is an already broken train => restart
 			dbg->warning("convoi_t::go_alte_richtung()","broken convoy (id %i) found => fixing!",self.get_id());
@@ -1694,8 +1710,20 @@ convoi_t::can_go_alte_richtung()
 			return false;
 		}
 
+		if(  pred  &&  pred->get_pos()!=v->get_pos()  ) {
+			tile_length += (ribi_t::ist_gerade(welt->lookup(pred->get_pos())->get_weg_ribi_unmasked(pred->get_waytype())) ? 16 : 8192/vehikel_t::get_diagonal_multiplier())*koord_distance(pred->get_pos(),v->get_pos());
+		}
+
 		pred = v;
 	}
+	// check if convoi is way too short (even for diagonal tracks)
+	tile_length += (ribi_t::ist_gerade(welt->lookup(fahr[anz_vehikel-1]->get_pos())->get_weg_ribi_unmasked(fahr[anz_vehikel-1]->get_waytype())) ? 16 : 8192/vehikel_t::get_diagonal_multiplier());
+	if(  convoi_length>tile_length  ) {
+		dbg->warning("convoi_t::go_alte_richtung()","convoy too short (id %i) => fixing!",self.get_id());
+		akt_speed = 8;
+		return false;
+	}
+
 	int length = min((convoi_length/16)+4,route.get_max_n()-1);	// maximum length in tiles to check
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
@@ -1981,7 +2009,7 @@ convoi_t::vorfahren() //"move forward" (Babelfish)
 			// eventually reserve this
 			schiene_t * sch0 = dynamic_cast<schiene_t *>( welt->lookup(fahr[i]->get_pos())->get_weg(fahr[i]->get_waytype()) );
 			if(sch0) {
-				sch0->reserve(this->self);
+				sch0->reserve(self,ribi_t::keine);
 			}
 			else {
 				break;
@@ -2256,7 +2284,7 @@ convoi_t::rdwr(loadsave_t *file)
 				if(v->get_waytype()==track_wt  ||  v->get_waytype()==monorail_wt  ||  v->get_waytype()==maglev_wt  ||  v->get_waytype()==narrowgauge_wt) {
 					schiene_t* sch = (schiene_t*)gr->get_weg(v->get_waytype());
 					if(sch) {
-						sch->reserve(self);
+						sch->reserve(self,ribi_t::keine);
 					}
 					// add to crossing
 					if(gr->ist_uebergang()) {
@@ -3578,8 +3606,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 	}
 }
 
-void
-convoi_t::init_financial_history()
+void convoi_t::init_financial_history()
 {
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -3621,20 +3648,87 @@ void convoi_t::check_pending_updates()
 {
 	if (line_update_pending.is_bound()  &&  line.is_bound()) {
 		int aktuell = fpl->get_aktuell(); // save current position of schedule
+		koord3d current = fpl->get_current_eintrag().pos;
+		bool is_same = false;
+		bool is_depot = false;
+		schedule_t* new_fpl = line_update_pending->get_schedule();
+		int m = fpl->get_count();
+		int n = new_fpl->get_count();
+
+		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
+			// was no entry or is no entry => goto  1st stop
+			aktuell = 0;
+		}
+		else if(aktuell<fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
+			// next pos is the same => keep the convoi state
+			is_same = true;
+		}
+
+		// check depot first (must also keept this state)
+		is_depot = (welt->lookup(current)->get_depot() != NULL);
+		if(is_depot) {
+			// depot => aktuell+1 (depot will be restore later before this)
+			aktuell = (aktuell+1)%fpl->get_count();
+			current = fpl->get_current_eintrag().pos;
+		}
+
+		/* there could be only one entry that matches best:
+		 * we try first same sequence as in old schedule;
+		 * if not found, we try for same nextnext station
+		 */
+		koord3d previous = fpl->eintrag[(aktuell+fpl->get_count()-1)%fpl->get_count()].pos;
+		koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
+		int how_good_matching = -1;
+		const uint8 new_count = new_fpl->get_count();
+
+		for(  uint8 i=0;  i<new_count;  i++  ) {
+			int quality =
+				(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
+				(new_fpl->eintrag[(i+2)%new_count].pos==next)*2 +
+				(new_fpl->eintrag[i].pos==previous);
+			if(  quality>how_good_matching  ) {
+				// better match than previous
+				aktuell = i;
+				how_good_matching = quality;
+			}
+		}
+
+		if(how_good_matching==-1) {
+			// nothing matches => take the one from the line
+			aktuell = new_fpl->get_aktuell();
+		}
+
 		line = line_update_pending;
 		line_update_pending = linehandle_t();
+
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 			fpl->eingabe_beginnen();
 		}
 		else {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell); // set new schedule current position to old schedule current position
+			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 		}
-		if(state!=INITIAL) {
-			state = FAHRPLANEINGABE;
+
+		if(is_depot) {
+			// next was depot. restore it.
+			fpl->insert(welt->lookup(current));
+			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
+		}
+
+ 		if(state!=INITIAL) {
+			if(is_same  ||  is_depot) {
+				// same destination => remove wrong freight and keep current state
+				for(uint8 i=0; i<anz_vehikel; i++) {
+					fahr[i]->remove_stale_freight();
+				}
+			}
+			else {
+				// need re-routing
+				state = FAHRPLANEINGABE;
+			}
 		}
 	}
 }

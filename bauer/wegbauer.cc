@@ -114,7 +114,12 @@ bool wegbauer_t::alle_wege_geladen()
 
 bool wegbauer_t::register_besch(weg_besch_t *besch)
 {
+#ifdef DEBUG
 	DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
+	if(  besch->has_switch_bild()  ) {
+		DBG_DEBUG("wegbauer_t::register_besch()", "with switches" );
+	}
+#endif
 	if(  alle_wegtypen.remove(besch->get_name())  ) {
 		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
@@ -259,7 +264,7 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  * Fill menu with icons of given waytype, return number of added entries
  * @author Hj. Malthaner/prissi/dariok
  */
-void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, karte_t *welt)
+void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound, karte_t *welt)
 {
 	static stringhashtable_tpl<wkz_wegebau_t *> way_tool;
 	const uint16 time = welt->get_timeline_year_month();
@@ -291,6 +296,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
 			wkz->default_param = besch->get_name();
+			wkz->ok_sound = ok_sound;
 			way_tool.put(besch->get_name(),wkz);
 		}
 		wzw->add_werkzeug( (werkzeug_t*)wkz );
