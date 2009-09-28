@@ -693,49 +693,51 @@ bool convoi_t::sync_step(long delta_t)
 			break;
 
 		case FAHRPLANEINGABE:
-			// schedule window closed?
-			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
+//<<<<<<< HEAD:simconvoi.cc
+//			// schedule window closed?
+//			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
+//
+//				set_schedule(fpl);
+//				
+//				// Added by : Knightly
+//				// Purpose  : Remove the original schedule after update
+//				if (old_fpl)
+//				{
+//					delete old_fpl;
+//					old_fpl = NULL;
+//				}
+//
+//				if(fpl->get_count()==0) {
+//					// no entry => no route ...
+//					state = NO_ROUTE;
+//					wait_lock = 0;
+//				}
+//				else {
+//					// Schedule changed at station
+//					// this station? then complete loading task else drive on
+//					bool is_same = (get_pos() == fpl->get_current_eintrag().pos);
+//					if(  !is_same  ) {
+//						halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
+//						is_same =  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() );
+//					}
+//
+//					if(  is_same  ) {
+//						// two cases: same position but in station => laoding, in depot: waiting
+//						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+//						state = gr  &&  gr->get_depot() ? INITIAL : LOADING;
+//					}
+//					else {
+//						// go to next
+//						state = ROUTING_1;
+//					}
+//				}
+//			}
+//			else {
+//				// still entring => check only each 500ms for change
+//				wait_lock = 500;
+//			}
+//			break;
 
-				set_schedule(fpl);
-				
-				// Added by : Knightly
-				// Purpose  : Remove the original schedule after update
-				if (old_fpl)
-				{
-					delete old_fpl;
-					old_fpl = NULL;
-				}
-
-				if(fpl->get_count()==0) {
-					// no entry => no route ...
-					state = NO_ROUTE;
-					wait_lock = 0;
-				}
-				else {
-					// Schedule changed at station
-					// this station? then complete loading task else drive on
-					bool is_same = (get_pos() == fpl->get_current_eintrag().pos);
-					if(  !is_same  ) {
-						halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
-						is_same =  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() );
-					}
-
-					if(  is_same  ) {
-						// two cases: same position but in station => laoding, in depot: waiting
-						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-						state = gr  &&  gr->get_depot() ? INITIAL : LOADING;
-					}
-					else {
-						// go to next
-						state = ROUTING_1;
-					}
-				}
-			}
-			else {
-				// still entring => check only each 500ms for change
-				wait_lock = 500;
-			}
-			break;
 
 		case ROUTING_1:
 		case DUMMY4:
@@ -862,17 +864,43 @@ bool convoi_t::sync_step(long delta_t)
  * "Compute route from starting to goal coordinate" (Babelfish)
  * @author Hanjsörg Malthaner
  */
-int convoi_t::drive_to(koord3d start, koord3d ziel)
+bool convoi_t::drive_to()
 {
-	INT_CHECK("simconvoi 293");
+	if(  anz_vehikel>0  ) {
+		koord3d start = fahr[0]->get_pos();
+		koord3d ziel = fpl->get_current_eintrag().pos;
 
-	if (anz_vehikel == 0 || !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)) {
-		get_besitzer()->bescheid_vehikel_problem(self,ziel);
-		// wait 10s before next attempt
-		wait_lock = 10000;
-		return false;
+		// avoid stopping midhalt
+		if(  start==ziel  ) {
+			halthandle_t halt = haltestelle_t::get_halt(welt,ziel,get_besitzer());
+			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
+				for(  uint32 i=route.index_of(start);  i<route.get_max_n();  i++  ) {
+					grund_t *gr = welt->lookup(route.position_bei(i));
+					if(  gr  && gr->get_halt()==halt  ) {
+						ziel = gr->get_pos();
+					}
+					else {
+						break;
+					}
+				}
+			}
+		}
+
+		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
+			get_besitzer()->bescheid_vehikel_problem(self,ziel);
+			// wait 10s before next attempt
+			wait_lock = 10000;
+			return false;
+		}
+		if(!route.empty()) {
+			vorfahren();
+		}
+		else {
+			state = NO_ROUTE;
+		}
+		return true;
 	}
-	return true;
+	return false;
 }
 
 
@@ -1027,6 +1055,53 @@ end_loop:
 
 		case DUMMY4:
 		case DUMMY5:
+			break;
+
+		case FAHRPLANEINGABE:
+			// schedule window closed?
+			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
+
+				set_schedule(fpl);
+
+				if(fpl->get_count()==0) {
+					// no entry => no route ...
+					state = NO_ROUTE;
+				}
+				else {
+					// Schedule changed at station
+					// this station? then complete loading task else drive on
+					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
+					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() )  ) {
+						if(  h==haltestelle_t::get_halt( welt, route.position_bei(route.get_max_n()), get_besitzer() )  ){
+							state = get_pos()==route.position_bei(route.get_max_n()) ? LOADING : DRIVING;
+							break;
+						}
+						else {
+							if(  drive_to()  ) {
+								state = DRIVING;
+								break;
+							}
+						}
+					}
+
+					if(  fpl->get_current_eintrag().pos==get_pos()  ) {
+						// position in depot: waiting
+						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
+						if(  gr  &&  gr->get_depot()  ) {
+							state = INITIAL;
+						}
+						else {
+							state = ROUTING_1;
+						}
+					}
+					else {
+						// go to next
+						state = ROUTING_1;
+					}
+				}
+			}
+			break;
+
 		case ROUTING_1:
 			{
 				vehikel_t* v = fahr[0];
@@ -1041,13 +1116,9 @@ end_loop:
 						fpl->advance();
 					}
 					// Hajo: now calculate a new route
-					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
-					if(!route.empty()) { 
-						vorfahren(); //"Drive"
-					}
-					else {
-						state = NO_ROUTE;
-					}
+
+					drive_to();
+
 					// finally, was there a record last time?
 					if(max_record_speed>welt->get_record_speed(fahr[0]->get_waytype())) {
 						welt->notify_record(self, max_record_speed, record_pos);
@@ -1069,10 +1140,7 @@ end_loop:
 				}
 				else {
 					// Hajo: now calculate a new route
-					drive_to(v->get_pos(), fpl->get_current_eintrag().pos);
-					if(!route.empty()) {
-						vorfahren();
-					}
+					drive_to();
 				}
 			}
 			break;
@@ -3648,56 +3716,61 @@ void convoi_t::check_pending_updates()
 {
 	if (line_update_pending.is_bound()  &&  line.is_bound()) {
 		int aktuell = fpl->get_aktuell(); // save current position of schedule
-		koord3d current = fpl->get_current_eintrag().pos;
 		bool is_same = false;
 		bool is_depot = false;
 		schedule_t* new_fpl = line_update_pending->get_schedule();
+		koord3d current = koord3d::invalid;
 
 		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
 			// was no entry or is no entry => goto  1st stop
 			aktuell = 0;
 		}
-		else if(aktuell<new_fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
-			// next pos is the same => keep the convoi state
-			is_same = true;
-		}
-
-		// check depot first (must also keept this state)
-		is_depot = (welt->lookup(current)->get_depot() != NULL);
-		/*
-		if(is_depot) {
-			// depot => aktuell+1 (depot will be restore later before this)
-			aktuell = (aktuell+1)%fpl->get_count();
+		else {
+			// something to check for ...
 			current = fpl->get_current_eintrag().pos;
-		}
-		*/
 
-		/* there could be only one entry that matches best:
-		 * we try first same sequence as in old schedule;
-		 * if not found, we try for same nextnext station
-		 */
-		koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
-		koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
-		koord3d nextnextnext = fpl->eintrag[(aktuell+3)%fpl->get_count()].pos;
-		int how_good_matching = 0;
-		const uint8 new_count = new_fpl->get_count();
-
-		for(  uint8 i=0;  i<new_count;  i++  ) {
-			int quality =
-				(new_fpl->eintrag[i].pos==current)*8 +
-				(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
-				(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
-				(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
-			if(  quality>how_good_matching  ) {
-				// better match than previous
-				aktuell = (i+new_count-1)%new_count;
-				how_good_matching = quality;
+			if(aktuell<new_fpl->get_count()  &&  current==new_fpl->eintrag[aktuell].pos  ) {
+				// next pos is the same => keep the convoi state
+				is_same = true;
 			}
-		}
 
-		if(how_good_matching==0) {
-			// nothing matches => take the one from the line
-			aktuell = new_fpl->get_aktuell();
+			// check depot first (must also keept this state)
+			is_depot = (welt->lookup(current)  &&  welt->lookup(current)->get_depot() != NULL);
+			/*
+			if(is_depot) {
+				// depot => aktuell+1 (depot will be restore later before this)
+				aktuell = (aktuell+1)%fpl->get_count();
+				current = fpl->get_current_eintrag().pos;
+			}
+			*/
+
+			/* there could be only one entry that matches best:
+			 * we try first same sequence as in old schedule;
+			 * if not found, we try for same nextnext station
+			 */
+			const koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
+			const koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
+			const koord3d nextnextnext = fpl->eintrag[(aktuell+3)%fpl->get_count()].pos;
+			int how_good_matching = 0;
+			const uint8 new_count = new_fpl->get_count();
+
+			for(  uint8 i=0;  i<new_count;  i++  ) {
+				int quality =
+					(new_fpl->eintrag[i].pos==current)*8 +
+					(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
+					(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
+					(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
+				if(  quality>how_good_matching  ) {
+					// better match than previous
+					aktuell = i%new_count;
+					how_good_matching = quality;
+				}
+			}
+
+			if(how_good_matching==0) {
+				// nothing matches => take the one from the line
+				aktuell = new_fpl->get_aktuell();
+			}
 		}
 
 		line = line_update_pending;
@@ -3706,7 +3779,7 @@ void convoi_t::check_pending_updates()
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
 			fpl->copy_from( line->get_schedule() );
-			fpl->set_aktuell(aktuell+1); // set new schedule current position to best match
+			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 			fpl->eingabe_beginnen();
 		}
 		else {
@@ -3725,7 +3798,6 @@ void convoi_t::check_pending_updates()
 				/* same destination
 				 * We are already there = adnvance & remove wrong freight and keep current state
 				 */
-				fpl->advance();
 				for(uint8 i=0; i<anz_vehikel; i++) {
 					fahr[i]->remove_stale_freight();
 				}

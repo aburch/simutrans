@@ -1099,8 +1099,6 @@ void haltestelle_t::neuer_monat()
 
 bool haltestelle_t::reroute_goods(/*sint16 &units_remaining*/)
 {
-	//uint8 sync_step_counter = 1;
-
 	//if(last_catg_index == 255) 
 	//{
 	//	last_catg_index = 0;
