@@ -3583,11 +3583,14 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 bool
 schiff_t::ist_befahrbar(const grund_t *bd) const
 {
-	if(  bd->ist_wasser()  ) {
-		return true;
+	if(  bd->ist_wasser()  ) 
+	{
+		// If there are permissive constraints, this vehicle cannot use the open water.
+		return besch->get_permissive_constraints() == 0;
 	}
+
 	const weg_t *w = bd->get_weg(water_wt);
-	return (w  &&  w->get_max_speed()>0);
+	return (w  &&  w->get_max_speed()>0 && check_way_constraints(w));
 }
 
 
