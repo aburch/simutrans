@@ -101,9 +101,7 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 
-		char buf[32];
-		money_to_string( buf, cnv->calc_restwert()/100.0 );
-		sprintf( tmp, "%s %s", translator::translate("Restwert:"), buf );
+		money_to_string( tmp+sprintf( tmp, "%s ", translator::translate("Restwert:") ), cnv->calc_restwert()/100.0 );
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 	}
