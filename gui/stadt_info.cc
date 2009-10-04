@@ -11,6 +11,7 @@
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
@@ -143,28 +144,30 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	char buf[1024];
-	char* b = buf;
-	b += sprintf(b, "%s: %d (%+.1f)\n",
-		translator::translate("City size"),
-		c->get_einwohner(),
-		c->get_wachstum() / 10.0
-	);
+	static cbuffer_t buf(1024);
+	buf.clear();
 
-	b += sprintf(b, translator::translate("%d buildings\n"), c->get_buildings());
+	buf.append( translator::translate("City size") );
+	buf.append( ": " );
+	buf.append( c->get_einwohner(), 0 );
+	buf.append( " (" );
+	buf.append( c->get_wachstum() / 10.0, 1 );
+	buf.append( ") \n" );
+	buf.printf( translator::translate("%d buildings\n"), c->get_buildings() );
 
 	const koord ul = c->get_linksoben();
 	const koord lr = c->get_rechtsunten();
-	b += sprintf(b, "\n%d,%d - %d,%d\n\n", ul.x, ul.y, lr.x , lr.y);
+	buf.printf( "\n%d,%d - %d,%d\n\n", ul.x, ul.y, lr.x , lr.y);
 
-	b += sprintf(b, "%s: %d\n%s: %d\n\n",
-		translator::translate("Unemployed"),
-		c->get_unemployed(),
-		translator::translate("Homeless"),
-		c->get_homeless()
-	);
+	buf.append( translator::translate("Unemployed") );
+	buf.append( ": " );
+	buf.append( c->get_unemployed(), 0 );
+	buf.append( "\n" );
+	buf.append( translator::translate("Homeless") );
+	buf.append( ": " );
+	buf.append( c->get_homeless(), 0 );
 
-	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
+	display_multiline_text(pos.x+8, pos.y+48, (const char *)buf, COL_BLACK);
 
 	const unsigned long current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {

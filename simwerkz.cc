@@ -2002,7 +2002,7 @@ bool wkz_wayobj_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d
 {
 	// get a default vehikel
 	vehikel_besch_t remover_besch( wt, 500, vehikel_besch_t::diesel );
-	vehikel_t* test_driver = vehikelrbauer_t::baue(start, sp, NULL, &remover_besch);
+	vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
 	bool can_built;
 	if( start != to ) {
 		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0);

@@ -150,8 +150,8 @@ gebaeude_t::rotate90()
 			layout = layout_rotate[layout] % haus_besch->get_all_layouts();
 		}
 		// have to rotate the tiles :(
-		if (!haus_besch->can_rotate() && haus_besch->get_all_layouts() == 1) {
-			if (welt->get_einstellungen()->get_rotation() & 1) == 0) {
+		if(  !haus_besch->can_rotate()  &&  haus_besch->get_all_layouts() == 1  ) {
+			if(  (welt->get_einstellungen()->get_rotation() & 1) == 0  ) {
 				// rotate 180 degree
 				new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
 			}

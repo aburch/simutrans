@@ -156,7 +156,7 @@ void gui_chart_t::zeichnen(koord offset)
 
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
-					number_to_string(tooltip, tmp);
+					number_to_string(tooltip, tmp, 2);
 					win_set_tooltip( get_maus_x()+16, get_maus_y()-16, tooltip );
 				}
 
@@ -173,12 +173,12 @@ void gui_chart_t::zeichnen(koord offset)
 					// only print value if not too narrow to min/max/zero
 					if(  c.show_value  ) {
 						if(  umgebung_t::left_to_right_graphs  ) {
-							number_to_string(cmin, tmp);
+							number_to_string(cmin, tmp, 2);
 							const sint16 width = proportional_string_width(cmin)+7;
 							display_ddd_proportional( tmpx + 8, offset.y+baseline-(int)(tmp/scale)-4, width, 0, COL_GREY4, c.color, cmin, true);
 						}
 						else if(  (baseline-tmp/scale-8) > 0  &&  (baseline-tmp/scale+8) < groesse.y  &&  abs((int)(tmp/scale)) > 9  ) {
-							number_to_string(cmin, tmp);
+							number_to_string(cmin, tmp, 2);
 							display_proportional_clip(tmpx - 4, offset.y+baseline-(int)(tmp/scale)-4, cmin, ALIGN_RIGHT, c.color, true );
 						}
 					}
@@ -212,8 +212,8 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 		}
 	}
 
-	number_to_string(cmin, min);
-	number_to_string(cmax, max);
+	number_to_string(cmin, min, 2);
+	number_to_string(cmax, max, 2);
 
 	// scale: factor to calculate money with, to get y-pos offset
 	*scale = (float)(max - min) / (groesse.y-2);

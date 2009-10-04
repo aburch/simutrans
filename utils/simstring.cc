@@ -121,40 +121,60 @@ void money_to_string(char * p, double f)
 }
 
 
-void number_to_string(char * p, double f)
+int number_to_string(char * p, double f, int decimals  )
 {
-  char   tmp[128];
-  char   *tp = tmp;
-  long    i,l;
+	char   tmp[128];
+	char   *tp = tmp;
+	long    i,l, num_chars;
+	bool	has_decimals;
 
-  sprintf(tp,"%.2f",f);
+	if(  decimals>0  ) {
+		num_chars = sprintf(tp,"%.*f",decimals,f);
+	}
+	else {
+		int num_chars = sprintf(tp,"%.0f",f);
+		// some compilers produce trailing dots then ...
+		if(  tp[num_chars-1]=='.'  ) {
+			tp[num_chars--] = 0;
+		}
+		has_decimals = false;
+	}
 
-  // Hajo: skip sign
-  if(*tp == '-') {
-    *p ++ = *tp++;
-  }
+	// Hajo: skip sign
+	if(*tp == '-') {
+		*p ++ = *tp++;
+	}
 
-  // Hajo: format string
-  l = (long)(size_t)(strchr(tp,'.') - tp);
+	// Hajo: format string
+	l = has_decimals ? (long)(size_t)(strchr(tp,'.') - tp) : strlen(tp);
 
-  i = l % 3;
+	i = l % 3;
 
-  if(i != 0) {
-    memcpy(p, tp, i);
-    p += i;
-    *p++ = thousand_sep;
-  }
+	if(i != 0) {
+		memcpy(p, tp, i);
+		p += i;
+		*p++ = thousand_sep;
+	}
 
-  while(i < l) {
-    *p++ = tp[i++];
-    *p++ = tp[i++];
-    *p++ = tp[i++];
-    *p++ = thousand_sep;
-  }
-  --p;
-  i = l+1;
+	while(i < l) {
+		*p++ = tp[i++];
+		*p++ = tp[i++];
+		*p++ = tp[i++];
+		*p++ = thousand_sep;
+	}
+	--p;
+	i = l+1;
 
-  *p = 0;
+	if(  has_decimals  ) {
+		*p++ = fraction_sep;
+		while(  tp[i]!=0  ) {
+			*p++ = tp[i++];
+		}
+		*p = 0;
+	}
+	*p = 0;
+
+	return (int)(p-tmp);
 }
 
 
