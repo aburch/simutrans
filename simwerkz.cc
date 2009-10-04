@@ -397,7 +397,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	// prissi: check powerline (can cross ground of another player)
 	leitung_t* lt = gr->get_leitung();
-	if(lt!=NULL  &&  lt->ist_entfernbar(sp)!=NULL) {
+	if(lt!=NULL  &&  lt->ist_entfernbar(sp)==NULL) {
 		bool is_leitungsbruecke = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
@@ -538,14 +538,15 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 
 	// remove all other stuff (clouds ... )
 	bool return_ok = false;
-	if(gr->obj_count()>0) {
+	uint8 num_obj = gr->obj_count();
+	if(num_obj>0) {
 		msg = gr->kann_alle_obj_entfernen(sp);
 		return_ok = (msg==NULL  &&  !(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden)  &&  gr->obj_loesche_alle(sp));
-	DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
+		DBG_MESSAGE("wkz_remover()",  "removing everything from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 	}
 
 	if(lt) {
-DBG_MESSAGE("wkz_remover()",  "add again powerline");
+		DBG_MESSAGE("wkz_remover()",  "add again powerline");
 		gr->obj_add(lt);
 	}
 	if(cr) {
@@ -557,6 +558,8 @@ DBG_MESSAGE("wkz_remover()",  "add again powerline");
 		return false;
 	}
 	if(return_ok) {
+		// no sound
+		msg = "";
 		return true;
 	}
 
