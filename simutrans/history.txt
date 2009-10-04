@@ -35,6 +35,7 @@
 	ADD: ambient sound effects (for all grphics + forest + beaches)
 	CHANGE: less lagging updating/rerouting after schedule chnages even with large stations
 	ADD: (Dwachs) Public player can remove all
+	ADD: two siwtches (-addons and -noaddons) to regulate loading of addons together with pakset
 
 
 Release of 102.0 (r2366)

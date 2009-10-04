@@ -526,7 +526,7 @@ int simu_main(int argc, char** argv)
 
 	fullscreen |= (gimme_arg(argc, argv, "-fullscreen", 0) != NULL);
 
-	if (gimme_arg(argc, argv, "-screensize", 0) != NULL) {
+	if(gimme_arg(argc, argv, "-screensize", 0) != NULL) {
 		const char* res_str = gimme_arg(argc, argv, "-screensize", 1);
 		int n = 0;
 
@@ -597,6 +597,12 @@ int simu_main(int argc, char** argv)
 			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy, false );
 			simuconf.close();
+		}
+		if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
+			umgebung_t::default_einstellungen.set_with_private_paks( true );
+		}
+		if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
+			umgebung_t::default_einstellungen.set_with_private_paks( false );
 		}
 	}
 	else {
