@@ -15,6 +15,7 @@
 #include "../besch/ware_besch.h"
 
 #include "../dataobj/translator.h"
+#include "../utils/simstring.h"
 #include "components/list_button.h"
 
 
@@ -46,7 +47,7 @@ void goods_stats_t::zeichnen(koord offset)
 		const sint32 grundwert128 = wtyp->get_preis()<<7;
 		const sint32 grundwert_bonus = wtyp->get_preis()*(1000l+(bonus-100l)*wtyp->get_speed_bonus());
 		const sint32 price = (grundwert128>grundwert_bonus ? grundwert128 : grundwert_bonus);
-		sprintf(buf, "%.2f$", price/300000.0);
+		money_to_string( buf, price/300000.0 );
 		display_proportional_clip(offset.x + 130, yoff, buf, 	ALIGN_RIGHT, 	COL_BLACK, true);
 
 		sprintf(buf, "%d%%", wtyp->get_speed_bonus());

@@ -1127,20 +1127,6 @@ fabrik_t::neuer_monat()
 
 static void info_add_ware_description(cbuffer_t & buf, const ware_production_t & ware)
 {
-  const ware_besch_t * type = ware.get_typ();
-
-  buf.append(" -");
-  buf.append(translator::translate(type->get_name()));
-  buf.append(" ");
-  buf.append(ware.menge >> fabrik_t::precision_bits);
-  buf.append("/");
-  buf.append(ware.max >> fabrik_t::precision_bits);
-  buf.append(translator::translate(type->get_mass()));
-
-  if(type->get_catg() != 0) {
-    buf.append(", ");
-    buf.append(translator::translate(type->get_catg_name()));
-  }
 }
 
 
@@ -1296,7 +1282,9 @@ void
 fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.clear();
-	buf.printf("%s %li %s\n", translator::translate("Durchsatz"), get_current_production(), translator::translate("units/day"));
+	buf.append( translator::translate("Durchsatz") );
+	buf.append( get_current_production(), 0 );
+	buf.append( translator::translate("units/day") );
 
 	if (!lieferziele.empty()) {
 		buf.append("\n");
@@ -1376,10 +1364,24 @@ fabrik_t::info(cbuffer_t& buf) const
 		buf.append(":\n");
 
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
-			info_add_ware_description(buf, ausgang[index]);
+			const ware_besch_t * type = ausgang[index].get_typ();
+
+			buf.append(" -");
+			buf.append(translator::translate(type->get_name()));
+			buf.append(" ");
+			buf.append(ausgang[index].menge / (double)(1<<precision_bits), 1 );
+			buf.append(translator::translate(type->get_mass()));
+			buf.append("/");
+			buf.append(ausgang[index].max >> fabrik_t::precision_bits,0);
+			buf.append(translator::translate(type->get_mass()));
+
+			if(type->get_catg() != 0) {
+				buf.append(", ");
+				buf.append(translator::translate(type->get_catg_name()));
+			}
 
 			buf.append(", ");
-			buf.append((int)(besch->get_produkt(index)->get_faktor()*100/256));
+			buf.append((besch->get_produkt(index)->get_faktor()*100l)/256.0,1);
 			buf.append("%\n");
 		}
 	}
@@ -1395,12 +1397,13 @@ fabrik_t::info(cbuffer_t& buf) const
 			buf.append(" -");
 			buf.append(translator::translate(eingang[index].get_typ()->get_name()));
 			buf.append(" ");
-			buf.append(eingang[index].menge >> precision_bits);
+			buf.append(eingang[index].menge / (double)(1<<precision_bits), 1 );
+			buf.append(translator::translate(eingang[index].get_typ()->get_mass()));
 			buf.append("/");
-			buf.append(eingang[index].max >> precision_bits);
+			buf.append(eingang[index].max >> precision_bits,0);
 			buf.append(translator::translate(eingang[index].get_typ()->get_mass()));
 			buf.append(", ");
-			buf.append((int)(besch->get_lieferant(index)->get_verbrauch()*100/256));
+			buf.append((besch->get_lieferant(index)->get_verbrauch()*100l)/256.0,1);
 			buf.append("%\n");
 		}
 	}
