@@ -144,6 +144,7 @@ private:
 
 	// if true, this map cannot be saved
 	bool nosave;
+	bool nosave_warning;
 
 	/*
 	* the current convoi to follow
@@ -854,6 +855,7 @@ public:
 
 	bool cannot_save() const { return nosave; }
 	void set_nosave() { nosave = true; }
+	void set_nosave_warning() { nosave_warning = true; }
 
 	// rotate map view by 90 degree
 	void rotate90();

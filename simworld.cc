@@ -458,17 +458,14 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 
 
 
-// karte_t methoden
-
-void
-karte_t::destroy()
+void karte_t::destroy()
 {
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	// rotate the map until it can be saved
+	nosave_warning = nosave = false;
 	for( int i=0;  i<4  &&  nosave;  i++  ) {
 DBG_MESSAGE("karte_t::destroy()", "rotating");
-		nosave = false;
 		rotate90();
 	}
 	if(nosave) {
@@ -694,7 +691,7 @@ void karte_t::init_felder()
 
 	scenario = new scenario_t(this);
 
-	nosave = false;
+	nosave_warning = nosave = false;
 }
 
 
@@ -1168,7 +1165,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 DBG_DEBUG("karte_t::init()","built timeline");
 	stadtauto_t::built_timeline_liste(this);
 
-	nosave = false;
+	nosave_warning = nosave = false;
 
 	fabrikbauer_t::neue_karte(this);
 	// new system ...
@@ -1504,7 +1501,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	grid_hgts = 0;
 	einstellungen = sets;
 	schedule_counter = 0;
-	nosave = false;
+	nosave_warning = nosave = false;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
@@ -2161,11 +2158,10 @@ sint16 karte_t::max_hgt(const koord pos) const
 }
 
 
-void
-karte_t::rotate90()
+void karte_t::rotate90()
 {
 	// asumme we can save this rotation
-	nosave = false;
+	nosave_warning = nosave = false;
 
 	//announce current target rotation
 	einstellungen->rotate90();
@@ -3478,16 +3474,28 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		display_progress(0,get_groesse_y());
 	}
 
-	// rotate the map until it can be saved
-	for( int i=0;  i<4  &&  nosave;  i++  ) {
-		nosave = false;
+	// rotate the map until it can be saved completely
+	nosave_warning = nosave = false;
+	for( int i=0;  i<4  &&  nosave_warning;  i++  ) {
 		rotate90();
 		needs_redraw = true;
 	}
-	if(nosave) {
-		dbg->error( "karte_t::speichern()","Map cannot be saved in any rotation!" );
-		create_win( new news_img("Map not saveable in any rotation!"), w_time_delete, magic_none);
-		return;
+	// seems not successful
+	if(nosave_warning) {
+		// but then we try to rotate until only warnings => some buildings may be broken, but factories should be fine
+		for( int i=0;  i<4  &&  nosave;  i++  ) {
+			rotate90();
+			needs_redraw = true;
+		}
+		if(  nosave  ) {
+			dbg->error( "karte_t::speichern()","Map cannot be saved in any rotation!" );
+			create_win( new news_img("Map may be not saveable in any rotation!"), w_time_delete, magic_none);
+			// still broken, but we try anyway to save it ...
+		}
+	}
+	// only broken buildings => just warn
+	if(nosave_warning) {
+		dbg->error( "karte_t::speichern()","Some buildings may be broken by saving!" );
 	}
 
 	// If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)

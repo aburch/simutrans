@@ -131,8 +131,7 @@ gebaeude_t::~gebaeude_t()
 
 
 
-void
-gebaeude_t::rotate90()
+void gebaeude_t::rotate90()
 {
 	ding_t::rotate90();
 
@@ -168,15 +167,18 @@ gebaeude_t::rotate90()
 		}
 
 		// suche a tile exist?
-		if (haus_besch->get_b(layout) > new_offset.x && haus_besch->get_h(layout) > new_offset.y) {
+		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
 			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
 			set_tile( new_tile );
 			insta_zeit = old_insta_zeit;
-			if (haus_besch->get_utyp() != haus_besch_t::hafen && !tile->has_image()) {
+			if(  haus_besch->get_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
-				if(!is_factory  ||  new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(0,0,0)==NULL) {
+				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
+					welt->set_nosave_warning();
+				}
+				if(  is_factory  &&  (new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(0,0,0)==NULL)  ) {
 					// there are factories without a valid zero tile
 					// => this map rotation cannot be reloaded!
 					welt->set_nosave();
@@ -194,8 +196,7 @@ gebaeude_t::rotate90()
 /* sets the corresponding pointer to a factory
  * @author prissi
  */
-void
-gebaeude_t::set_fab(fabrik_t *fb)
+void gebaeude_t::set_fab(fabrik_t *fb)
 {
 	// sets the pointer in non-zero
 	if(fb) {
