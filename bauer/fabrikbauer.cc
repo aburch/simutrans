@@ -854,11 +854,29 @@ next_ware_check:
 
 	// first: do we have to continue unfinished buissness?
 	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()) {
+		int org_rotation = -1;
+		// rotate until we can save it, if one of the factory is non-rotateable ...
+		if(welt->cannot_save()  &&  !can_factory_tree_rotate(last_built_consumer->get_besch()) ) {
+			org_rotation = welt->get_einstellungen()->get_rotation();
+			for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) {
+				welt->rotate90();
+			}
+			assert( !welt->cannot_save() );
+		}
+
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
 		do {
 			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_spieler(1) );
 			last_built_consumer_ware ++;
 		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
+
+		// must rotate back?
+		if(org_rotation>=0) {
+			for(  int i=0;  i<4  &&  welt->get_einstellungen()->get_rotation()!=org_rotation;  i++  ) {
+				welt->rotate90();
+			}
+			welt->update_map();
+		}
 
 		// only return, if successfull
 		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
