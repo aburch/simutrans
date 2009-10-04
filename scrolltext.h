@@ -40,7 +40,6 @@
 " Vladimir Slavik", "pak128",
 " Frank Penz","pak.german",
 " Yoshihiro Shishido","pak.japan128",
-" Frank Penz","pak.german",
 " Sven Osada","pak96.comic",
 "","",
 "Graphics:","",

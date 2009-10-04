@@ -403,7 +403,10 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 					if(welt->ist_in_kartengrenzen(k)) {
 						// add all water to station
 						grund_t *gr = welt->lookup(k)->get_kartenboden();
-						if(gr->ist_wasser() && gr->hat_weg(water_wt) == 0) {
+						// build only on gb, otherwise can't remove it
+						// also savegame restore only halt on gb
+						// this needs for bad fish swarm
+						if(gr->ist_wasser()  &&  gr->hat_weg(water_wt) == 0  &&  gr->find<gebaeude_t>()) {
 							halt->add_grund( gr );
 						}
 					}
