@@ -272,17 +272,19 @@ enable_home:
 		int len = display_proportional(pos.x + 11, pos.y + 16 + 20 + 1 * LINESPACE, translator::translate("Gewinn"), ALIGN_LEFT, COL_BLACK, true ) + 5;
 		money_to_string( tmp, cnv->get_jahresgewinn()/100.0 );
 		len += display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, cnv->get_jahresgewinn()>0?MONEY_PLUS:MONEY_MINUS, true )+5;
-		sprintf(tmp," (%1.2f$/km)", cnv->get_running_cost()/100.0 );
+		money_to_string( tmp+1, cnv->get_running_cost()/100.0 );
+		strcat( tmp, "/km)" );
+		tmp[0] = '(';
 		display_proportional( pos.x+11+len, pos.y+16+20+1*LINESPACE, tmp, ALIGN_LEFT, COL_BLACK, true );
 
 		// the weight entry
 		info_buf.clear();
 		info_buf.append( translator::translate("Gewicht") );
 		info_buf.append( ": " );
-		info_buf.append( cnv->get_sum_gesamtgewicht() );
-		info_buf.append( " (" );
-		info_buf.append( cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht() );
-		info_buf.append( ") t" );
+		info_buf.append( cnv->get_sum_gesamtgewicht(), 0 );
+		info_buf.append( "t (" );
+		info_buf.append( cnv->get_sum_gesamtgewicht()-cnv->get_sum_gewicht(), 0 );
+		info_buf.append( "t)" );
 		display_proportional( pos.x+11, pos.y+16+20+2*LINESPACE, info_buf, ALIGN_LEFT, COL_BLACK, true );
 
 		// next stop
