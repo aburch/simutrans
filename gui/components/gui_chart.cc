@@ -205,13 +205,12 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
 				c.type == 0 ? tmp = c.values[i*c.size+c.offset] : tmp = c.values[i*c.size+c.offset] / 100;
 				if (min > tmp) {
 					min = tmp ;
+					precision = c.precision;
 				}
 				if (max < tmp) {
 					max = tmp;
+					precision = c.precision;
 				}
-			}
-			if(  c.precision > precision  ) {
-				precision = c.precision;
 			}
 		}
 	}
