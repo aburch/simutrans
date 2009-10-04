@@ -140,7 +140,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
 	for (int cost = 0; cost<MAX_CONVOI_COST; cost++) {
-		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true );
+		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 2 );
 		filterButtons[cost].init(button_t::box_state, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 230+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];

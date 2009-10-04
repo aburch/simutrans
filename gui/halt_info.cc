@@ -131,7 +131,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	chart.set_background(MN_GREY1);
 
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
-		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true);
+		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
 			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 198+(BUTTON_HEIGHT+2)*(cost/4) ),
 			koord(BUTTON_WIDTH, BUTTON_HEIGHT));
