@@ -345,7 +345,8 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 					if(gr->get_typ()==grund_t::fundament) {
 						const koord newk = k+pos.get_2d();
 						const uint8 new_slope = gr->get_hoehe()==welt->min_hgt(newk) ? 0 : welt->calc_natural_slope(newk);
-						if(welt->lookup(koord3d(newk,welt->min_hgt(newk)))!=gr) {
+						const grund_t *gr2 = welt->lookup(koord3d(newk,welt->min_hgt(newk)));
+						if(gr2  &&  gr2!=gr) {
 							// there is another ground below => do not change hight, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
 						}
