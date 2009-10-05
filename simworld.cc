@@ -3489,7 +3489,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		}
 		if(  nosave  ) {
 			dbg->error( "karte_t::speichern()","Map cannot be saved in any rotation!" );
-			create_win( new news_img("Map may be not saveable in any rotation!"), w_time_delete, magic_none);
+			create_win( new news_img("Map may be not saveable in any rotation!"), w_info, magic_none);
 			// still broken, but we try anyway to save it ...
 		}
 	}
