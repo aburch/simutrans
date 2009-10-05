@@ -3971,8 +3971,13 @@ bool wkz_show_underground_t::init( karte_t *welt, spieler_t * )
 		//  switch between full underground or normal/sliced view
 		case 'U':
 			if (grund_t::underground_mode==grund_t::ugm_all) {
-				// switch back to normal or sliced view
-				grund_t::set_underground_mode( save_underground_level==127 ? grund_t::ugm_none : grund_t::ugm_level, save_underground_level);
+				// check if the old level is valid then switch back to sliced view
+				if (-128<save_underground_level && save_underground_level<127) {
+					grund_t::set_underground_mode(grund_t::ugm_level, save_underground_level);
+				}
+				else {
+					grund_t::set_underground_mode(grund_t::ugm_none, 0);
+				}
 			}
 			else {
 				grund_t::set_underground_mode( grund_t::ugm_all, 0);
