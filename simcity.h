@@ -20,6 +20,8 @@ class spieler_t;
 class cbuffer_t;
 class cstring_t;
 
+class rule_t;
+
 // part of passengers going to factories or toursit attractions (100% mx)
 #define FACTORY_PAX (33)	// workers
 #define TOURIST_PAX (16)		// tourists
@@ -261,16 +263,21 @@ private:
 	 * @return true on match, false otherwise
 	 * @author Hj. Malthaner
 	 */
-	bool bewerte_loc(koord pos, const char *regel, int rotation);
+	bool bewerte_loc(koord pos, rule_t &regel, int rotation);
+
+	/*
+	 * evaluates the location, tests again all rules, and caches the result
+	 */
+	uint16 bewerte_loc_cache(const koord pos, bool force=false);
 
 	/**
 	 * Check rule in all transformations at given position
 	 * @author Hj. Malthaner
 	 */
-	sint32 bewerte_pos(koord pos, const char *regel);
+	sint32 bewerte_pos(koord pos, rule_t &regel);
 
-	void bewerte_strasse(koord pos, sint32 rd, const char* regel);
-	void bewerte_haus(koord pos, sint32 rd, const char* regel);
+	void bewerte_strasse(koord pos, sint32 rd, rule_t &regel);
+	void bewerte_haus(koord pos, sint32 rd, rule_t &regel);
 
 	void pruefe_grenzen(koord pos);
 

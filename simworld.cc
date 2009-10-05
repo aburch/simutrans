@@ -834,6 +834,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 				printf("*");fflush(NULL);
 			}
 		}
+
 		delete pos;
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
@@ -873,6 +874,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 					- (old_anzahl_staedte*(old_anzahl_staedte-1))/2;
 		// something to do??
 		if(  max_count > 0  ) {
+			// print("Building intercity roads ...\n");
 			// find townhall of city i and road in front of it
 			vector_tpl<koord3d> k;
 			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
@@ -1025,13 +1027,25 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 						// mark as built
 						city_dist.at(conn) =  umgebung_t::intercity_road_length;
 						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length;
+						count ++;
 					}
 					else {
 						// do not try again
 						city_dist.at(conn) =  umgebung_t::intercity_road_length+1;
 						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length+1;
+						count ++;
+
+						if (phase==0) {
+							// do not try to connect to this connected component again
+							for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+								if (  city_flag[i] == conn_comp  && city_dist.at(i, conn.y)<umgebung_t::intercity_road_length) {
+									city_dist.at(i, conn.y) =  umgebung_t::intercity_road_length+1;
+									city_dist.at(conn.y, i) =  umgebung_t::intercity_road_length+1;
+									count++;
+								}
+							}
+						}
 					}
-					count ++;
 				}
 				// progress bar stuff
 				if(  is_display_init()  &&  count<=max_count  ) {
