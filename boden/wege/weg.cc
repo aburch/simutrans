@@ -534,3 +534,16 @@ void weg_t::laden_abschliessen()
 		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
 }
+
+
+// returns NULL, if removal is allowed
+// players can remove public owned ways
+const char *weg_t::ist_entfernbar(const spieler_t *sp)
+{
+	if (get_player_nr()==1) {
+		return NULL;
+	}
+	else {
+		return ding_t::ist_entfernbar(sp);
+	}
+}

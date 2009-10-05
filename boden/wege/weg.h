@@ -172,6 +172,12 @@ public:
 	void zeige_info() {} // show no info
 
 	/**
+	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @author Hj. Malthaner
+	 */
+	virtual const char *ist_entfernbar(const spieler_t *sp);
+
+	/**
 	* Wegtyp zurückliefern
 	*/
 	virtual waytype_t get_waytype() const = 0;

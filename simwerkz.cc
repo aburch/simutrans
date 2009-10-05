@@ -281,7 +281,7 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 	// tram
 	if(wt==tram_wt) {
 		weg_t *way = gr->get_weg(track_wt);
-		if (way && way->get_besch()->get_styp() == weg_t::type_tram &&  way->ist_entfernbar(sp)!=NULL) {
+		if (way && way->get_besch()->get_styp() == weg_t::type_tram &&  way->ist_entfernbar(sp)==NULL) {
 			return gr;
 		}
 		else {
@@ -1853,7 +1853,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 			}
 			else {
 				leitung_t *lt = gr->get_leitung();
-				can_delete = lt  &&  lt->ist_entfernbar(sp)!=NULL;
+				can_delete = lt  &&  lt->ist_entfernbar(sp)==NULL;
 			}
 		}
 		else {
