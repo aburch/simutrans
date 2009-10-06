@@ -123,21 +123,19 @@ void money_to_string(char * p, double f)
 
 int number_to_string(char * p, double f, int decimals  )
 {
-	char   tmp[128];
-	char   *tp = tmp;
-	long    i,l, num_chars;
-	bool	has_decimals;
+	char  tmp[128];
+	char  *tp = tmp;
+	long  i,l;
+	bool  has_decimals;
 
 	if(  decimals>0  ) {
-		num_chars = sprintf(tp,"%.*f",decimals,f);
+		sprintf(tp,"%.*f",decimals,f);
+		has_decimals = true;
 	}
 	else {
-		int num_chars = sprintf(tp,"%.0f",f);
+		sprintf(tp,"%.0f", f);
 		// some compilers produce trailing dots then ...
-		if(  tp[num_chars-1]=='.'  ) {
-			tp[num_chars--] = 0;
-		}
-		has_decimals = false;
+		has_decimals = strchr(tp,'.')!=NULL;
 	}
 
 	// Hajo: skip sign
@@ -162,15 +160,14 @@ int number_to_string(char * p, double f, int decimals  )
 		*p++ = tp[i++];
 		*p++ = thousand_sep;
 	}
-	--p;
-	i = l+1;
+	p--;
 
 	if(  has_decimals  ) {
+		i++;
 		*p++ = fraction_sep;
 		while(  tp[i]!=0  ) {
 			*p++ = tp[i++];
 		}
-		*p = 0;
 	}
 	*p = 0;
 
