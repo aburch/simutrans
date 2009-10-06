@@ -34,6 +34,8 @@ private:
 
 	stadt_t *stadt;
 
+    button_t allow_growth;
+
 	gui_textinput_t name_input;
 
 	gui_tab_panel_t year_month_tabs;

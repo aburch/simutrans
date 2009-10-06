@@ -772,6 +772,7 @@ next_name:;
 	check_bau_rathaus(true);
 
 	wachstum = 0;
+	allow_citygrowth = true;
 	change_size( citizens );
 
 	// fill with start citicens ...
@@ -922,6 +923,14 @@ void stadt_t::rdwr(loadsave_t* file)
 		sint32 dummy = 0;
 		file->rdwr_long(dummy, " ");
 		file->rdwr_long(dummy, "\n");
+	}
+
+	// since 102.2 there are static cities
+	if(file->get_version()>102001) {
+		file->rdwr_bool(allow_citygrowth,"");
+	}
+	else if(  file->is_loading()  ) {
+		allow_citygrowth = true;
 	}
 
 
@@ -1081,7 +1090,7 @@ void stadt_t::change_size(long delta_citicens)
 			bev += delta_citicens;
 		}
 		else {
-//			remove_city();
+//				remove_city();
 			bev = 0;
 		}
 		step_bau();
@@ -1235,6 +1244,12 @@ void stadt_t::calc_growth()
 				}
 			}
 		}
+	}
+
+	// maybe this town should stay static
+	if(  !allow_citygrowth  ) {
+		wachstum = 0;
+		return;
 	}
 
 	/* four parts contribute to town growth:

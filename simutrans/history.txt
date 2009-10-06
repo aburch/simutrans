@@ -37,6 +37,8 @@
 	ADD: (Dwachs) Public player can remove all
 	ADD: two siwtches (-addons and -noaddons) to regulate loading of addons together with pakset
 	CHANGE: (Dwachs) 2-5x faster city generation
+	CHANGE: (Knightly) even faster routing of goods due to ignoring non-transfer stations in breath search
+	ADD: switch to keep towns static
 
 
 Release of 102.0 (r2366)

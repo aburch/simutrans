@@ -50,6 +50,11 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&name_input);
 	set_fenstergroesse(koord(410, 305+20+20));
 
+	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,104) );;
+	allow_growth.pressed = stadt->get_citygrowth();
+	allow_growth.add_listener( this );
+	add_komponente(&allow_growth);
+
 	//CHART YEAR
 	chart.set_pos(koord(1,1));
 	chart.set_groesse(koord(360,120));
@@ -190,20 +195,27 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 
 bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-	for ( int i = 0; i<MAX_CITY_HISTORY; i++) {
-		if (komp == &filterButtons[i]) {
-			filterButtons[i].pressed ^= 1;
-			if (filterButtons[i].pressed) {
-				stadt->stadtinfo_options |= (1<<i);
-				chart.show_curve(i);
-				mchart.show_curve(i);
+	if(  komp==&allow_growth  ) {
+		stadt->set_citygrowth_yesno( !stadt->get_citygrowth() );
+		allow_growth.pressed = stadt->get_citygrowth();
+		return true;
+	}
+	else {
+		for ( int i = 0; i<MAX_CITY_HISTORY; i++) {
+			if (komp == &filterButtons[i]) {
+				filterButtons[i].pressed ^= 1;
+				if (filterButtons[i].pressed) {
+					stadt->stadtinfo_options |= (1<<i);
+					chart.show_curve(i);
+					mchart.show_curve(i);
+				}
+				else {
+					stadt->stadtinfo_options &= ~(1<<i);
+					chart.hide_curve(i);
+					mchart.hide_curve(i);
+				}
+				return true;
 			}
-			else {
-				stadt->stadtinfo_options &= ~(1<<i);
-				chart.hide_curve(i);
-				mchart.hide_curve(i);
-			}
-			return true;
 		}
 	}
 	return false;

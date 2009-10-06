@@ -104,6 +104,8 @@ private:
 	koord lo, ur;		// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
 
+	bool allow_citygrowth;	// town can be static and will grow (true by default)
+
 	// this counter indicate which building will be processed next
 	uint32 step_count;
 
@@ -407,6 +409,10 @@ public:
 	/* change size of city
 	* @author prissi */
 	void change_size( long delta_citicens );
+
+	// when ng is false, no town growth any more
+	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }
+	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(long delta_t);
 
