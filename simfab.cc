@@ -1285,9 +1285,9 @@ fabrik_t::info(cbuffer_t& buf) const
 	buf.append( translator::translate("Durchsatz") );
 	buf.append( get_current_production(), 0 );
 	buf.append( translator::translate("units/day") );
+	buf.append( "\n\n" );
 
 	if (!lieferziele.empty()) {
-		buf.append("\n");
 		buf.append(translator::translate("Abnehmer"));
 		buf.append(":\n");
 
