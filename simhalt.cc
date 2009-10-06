@@ -773,7 +773,7 @@ bool haltestelle_t::step(sint16 &units_remaining)
 	if(rebuilt_destination_counter!=welt->get_schedule_counter()) {
 		// schedule has changed ...
 		status_step = RESCHEDULING;
-		units_remaining -= (rebuild_destinations()/96)+2;
+		units_remaining -= (rebuild_destinations()/256)+2;
 	}
 	else if(reroute_counter!=welt->get_schedule_counter()) {
 		// all new connection updated => recalc routes
@@ -992,10 +992,10 @@ void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl
 sint32 haltestelle_t::rebuild_destinations()
 {
 	// Hajo: first, remove all old entries
-	for (uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++){
+	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  ){
 		warenziele[i].clear();
 		non_identical_schedules[i] = 0;
-	};
+	}
 	rebuilt_destination_counter = welt->get_schedule_counter();
 	resort_freight_info = true;	// might result in error in routing
 	last_catg_index = 255;	// must reroute everything
