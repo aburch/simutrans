@@ -3484,6 +3484,12 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 		return "";
 	}
 
+	koord size = besch->get_groesse();
+	const sint64 cost = welt->get_einstellungen()->cst_multiply_headquarter * besch->get_level() * size.x * size.y;
+	if(  -cost > sp->get_finance_history_month(0,COST_CASH)  ) {
+		return "Not enough money!";
+	}
+
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
 		// check for underground ..
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
@@ -3499,7 +3505,6 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			hausbauer_t::remove( welt, sp, prev_hq );
 		}
 
-		koord size = besch->get_groesse();
 		int rotate = 0;
 
 		if(welt->ist_platz_frei(pos.get_2d(), size.x, size.y, NULL, besch->get_allowed_climate_bits())) {
@@ -3518,7 +3523,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 				city->add_gebaeude_to_stadt( hq );
 			}
 			sp->add_headquarter( besch->get_extra()+1, pos.get_2d() );
-			sp->buche(welt->get_einstellungen()->cst_multiply_headquarter * besch->get_level() * size.x * size.y, pos.get_2d(), COST_CONSTRUCTION);
+			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 			}
