@@ -2568,14 +2568,14 @@ void convoi_t::check_pending_updates()
 						aktuell %= new_count;
 						how_good_matching = quality;
 					}
-					// if we go to same, then we do not need route recalculation ...
-					is_same = new_fpl->eintrag[aktuell].pos==current;
 				}
 
 				if(how_good_matching==0) {
 					// nothing matches => take the one from the line
 					aktuell = new_fpl->get_aktuell();
 				}
+				// if we go to same, then we do not need route recalculation ...
+				is_same = new_fpl->eintrag[aktuell].pos==current;
 			}
 		}
 
