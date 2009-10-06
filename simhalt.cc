@@ -307,6 +307,11 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
+	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+
+	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+		non_identical_schedules[i] = 0;
+	}
 
 	status_color = COL_YELLOW;
 
@@ -345,6 +350,11 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
 	warenziele = new vector_tpl<halthandle_t>[ warenbauer_t::get_max_catg_index() ];
+	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+
+	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+		non_identical_schedules[i] = 0;
+	}
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -435,6 +445,7 @@ haltestelle_t::~haltestelle_t()
 	}
 	free( waren );
 	delete[] warenziele;
+	delete[] non_identical_schedules;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -983,6 +994,7 @@ sint32 haltestelle_t::rebuild_destinations()
 	// Hajo: first, remove all old entries
 	for (uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++){
 		warenziele[i].clear();
+		non_identical_schedules[i] = 0;
 	};
 	rebuilt_destination_counter = welt->get_schedule_counter();
 	resort_freight_info = true;	// might result in error in routing
@@ -1026,14 +1038,19 @@ sint32 haltestelle_t::rebuild_destinations()
 							const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
 							if(ware!=warenbauer_t::nichts  &&  is_enabled(ware)  &&  !add_catg_index.is_contained(ware->get_catg_index())) {
 								// now add the freights
+								uint32 old_warenzielcount = warenziele[ ware->get_catg_index() ].get_count();
 								hat_gehalten( ware, fpl, cnv_owner );
+								if(  old_warenzielcount != warenziele[ ware->get_catg_index() ].get_count()  ) {
+									// added additional stops => might be transfer stop
+									non_identical_schedules[ ware->get_catg_index() ]++;
+								}
 								add_catg_index.append_unique(ware->get_catg_index());
 							}
 						}
 						break;	// since we found it already ...
 					}
 				}
-				connections_searched ++;
+				connections_searched += fpl->get_count();
 			}
 		}
 	}
@@ -1049,11 +1066,16 @@ sint32 haltestelle_t::rebuild_destinations()
 			for( uint j=0; j<line->get_goods_catg_index().get_count();  j++  ) {
 				const ware_besch_t *ware=warenbauer_t::get_info_catg_index(line->get_goods_catg_index()[j]);
 				if(is_enabled(ware)) {
+					uint32 old_warenzielcount = warenziele[ ware->get_catg_index() ].get_count();
 					hat_gehalten( ware, fpl, line_owner );
+					if(  old_warenzielcount != warenziele[ ware->get_catg_index() ].get_count()  ) {
+						// added additional stops => might be transfer stop
+						non_identical_schedules[ ware->get_catg_index() ]++;
+					}
 				}
 			}
+			connections_searched += fpl->get_count();
 		}
-		connections_searched ++;
 	}
 
 	return connections_searched;
@@ -1131,18 +1153,8 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 
 	// single threading makes some things easier
 	static uint32 current_mark = 0;
-	static HNode nodes[65535];
+	static HNode nodes[32768];
 
-	/* Need to clean up?
-	 * Otherwise we just incease the mark => less time for cleanups
-	 */
-	if(  current_mark == 0xFFFFFFFFu  ) {
-		slist_iterator_tpl<halthandle_t > halt_iter (alle_haltestellen);
-		while(  halt_iter.next()  ) {
-			halt_iter.get_current()->marke = 0;
-		}
-		current_mark = 0;
-	}
 	current_mark ++;
 
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
@@ -1152,13 +1164,14 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 	slist_tpl<HNode *> queue;
 #else
 	// we need just need to know the current bottom of the list with respect to the nodes array
-	uint32 bottom_of_the_list = 0;
+	uint32 progress_pointer = 0;
 #endif
-	uint32 step = 1;
-	HNode *tmp;
+	uint32 allocation_pointer = 1;
+	HNode *current_node;
+	HNode *new_node;
 
 	nodes[0].halt = self;
-	nodes[0].link = 0;
+	nodes[0].link = NULL;
 	nodes[0].depth = 0;
 
 #ifdef USE_ROUTE_SLIST_TPL
@@ -1172,70 +1185,79 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 #ifdef USE_ROUTE_SLIST_TPL
 		tmp = queue.remove_first();
 #else
-		tmp = &nodes[bottom_of_the_list++];
+		current_node = &nodes[progress_pointer++];
 #endif
-
-		const halthandle_t halt = tmp->halt;
-
-		// we end this loop always with this jump (if sucessful)
-		if(ziel_list.is_contained(halt)) {
-			goto found;
-		}
 
 		// Hajo: check for max transfers -> don't add more stations
 		//      to queue if the limit is reached
-		if(tmp->depth < max_transfers  &&  step<64000u  ) {
-			const vector_tpl<halthandle_t> *wz = halt->get_warenziele(ware_catg_index);
+		if( current_node->depth < max_transfers ) {
+			const vector_tpl<halthandle_t> *wz = current_node->halt->get_warenziele(ware_catg_index);
 			for(  uint32 i=0;  i<wz->get_count();  i++  ) {
 
 				// since these are precalculated, they should be always pointing to a valid ground
 				// (if not, we were just under construction, and will be fine after 16 steps)
-				const halthandle_t &tmp_halt = (*wz)[i];
-				if(tmp_halt.is_bound() &&  tmp_halt->marke!=current_mark) {
+				const halthandle_t &reachable_halt = (*wz)[i];
+				if( reachable_halt.is_bound() &&  reachable_halt->marke != current_mark ) {
 
-					HNode *node = &nodes[step++];
-					node->halt = tmp_halt;
-					node->depth = tmp->depth + 1;
-					node->link = tmp;
-
-#ifdef USE_ROUTE_SLIST_TPL
-					queue.append( node );
-#endif
 					// betretene Haltestellen markieren
-					tmp_halt->marke = current_mark;
+					reachable_halt->marke = current_mark;
+
+					// Knightly : Only transfer halts and destination halt are added to the HNode array
+					if(  ziel_list.is_contained(reachable_halt)  ) {
+						// Case : Destination found
+						new_node = &nodes[allocation_pointer++];
+						new_node->halt = reachable_halt;
+						new_node->depth = current_node->depth + 1;
+						new_node->link = current_node;
+#ifdef USE_ROUTE_SLIST_TPL
+						queue.append( new_node );
+#endif
+						current_node = new_node;
+						goto found;
+					}
+					else if(  reachable_halt->non_identical_schedules[ware_catg_index] > 1  &&  allocation_pointer < 32000u  ) {
+						// Case : Transfer halt
+						new_node = &nodes[allocation_pointer++];
+						new_node->halt = reachable_halt;
+						new_node->depth = current_node->depth + 1;
+						new_node->link = current_node;
+#ifdef USE_ROUTE_SLIST_TPL
+						queue.append( new_node );
+#endif
+					}
 				}
 			}
 		} // max transfers
 
 #ifdef USE_ROUTE_SLIST_TPL
-	} while (!queue.empty() && step < welt->get_einstellungen()->get_max_hops());
+	} while (!queue.empty() && progress_pointer < max_hops);
 #else
-	} while(  bottom_of_the_list < step  &&  step < max_hops  );
+	} while(  progress_pointer < allocation_pointer  &&  progress_pointer < max_hops  );
 #endif
 
 	// if the loop ends, nothing was found
-	tmp = 0;
+	current_node = NULL;
 
 found:
 
-	if(tmp) {
+	if(current_node) {
 		// ziel gefunden
-		ware.set_ziel( tmp->halt );
+		ware.set_ziel( current_node->halt );
 
-		assert(tmp->link != NULL);
+		assert(current_node->link != NULL);
 
 		if(next_to_ziel!=NULL) {
 			// for reverse route the next hop
-			*next_to_ziel = tmp->link->halt->get_basis_pos();
+			*next_to_ziel = current_node->link->halt->get_basis_pos();
 		}
 		// find the intermediate stops
-		while(tmp->link->link) {
-			tmp = tmp->link;
-			if(  avoid_overcrowding  &&  tmp->halt->is_overcrowded(ware_catg_index)  ) {
+		while(current_node->link->link) {
+			current_node = current_node->link;
+			if(  avoid_overcrowding  &&  current_node->halt->is_overcrowded(ware_catg_index)  ) {
 				return ROUTE_OVERCROWDED;
 			}
 		}
-		ware.set_zwischenziel(tmp->halt);
+		ware.set_zwischenziel(current_node->halt);
 		return ROUTE_OK;
 	}
 	else {

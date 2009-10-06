@@ -199,7 +199,19 @@ private:
 	// List with all reachable destinations
 	vector_tpl<halthandle_t>* warenziele;
 
-	// loest warte_menge ab
+	/**
+	 * For each schedule/line, that adds halts to a warenziel array,
+	 * this counter is incremented. Each ware category needs a separate
+	 * counter. If this counter is more than 1, this halt is a transfer
+	 * halt, i.e. contains non_identical_schedules with overlapping
+	 * destinations.
+	 * Non-transfer stops do not need to be searched for connections
+	 * => large speedup possible. (Vector would better though.)
+	 * @author Knightly
+	 */
+	uint8 *non_identical_schedules;
+
+	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
 
 	/**
