@@ -141,6 +141,9 @@ static vector_tpl<rule_t *> road_rules;
  * . = beliebig
  */
 
+// here '.' is ignored, since it will not be tested anyway
+const char* allowed_chars_in_rule = "SsnHhTtUu";
+
 /*
  * @param pos position to check
  * @param regel the rule to evaluate
@@ -162,51 +165,51 @@ bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 			case 270: x=6-r.y; y=r.x; break;
 		}
 
-		if (r.flag!=0) {
-			const koord k(pos.x+x-3, pos.y+y-3);
-			const grund_t* gr = welt->lookup_kartenboden(k);
-			if (gr == NULL) {
-				// outside of the map => cannot apply this rule
-				return false;
-			}
-			switch (r.flag) {
-				case 's':
-					// road?
-					if (!gr->hat_weg(road_wt)) return false;
-					break;
-				case 'S':
-					// not road?
-					if (gr->hat_weg(road_wt)) return false;
-					break;
-				case 'h':
-					// is house
-					if (gr->get_typ() != grund_t::fundament  ||  gr->obj_bei(0)->get_typ()!=ding_t::gebaeude) return false;
-					break;
-				case 'H':
-					// no house
-					if (gr->get_typ() == grund_t::fundament) return false;
-					break;
-				case 'n':
-					// nature/empty
-					if (!gr->ist_natur() || gr->kann_alle_obj_entfernen(NULL) != NULL) return false;
-					break;
-				case 'U':
-					// unbuildable for road
-					if (!hang_t::ist_wegbar(gr->get_grund_hang())) return false;
-					break;
-				case 'u':
-					// road may be buildable
-					if (hang_t::ist_wegbar(gr->get_grund_hang())) return false;
-					break;
-				case 't':
-					// here is a stop/extension building
-					if (!gr->is_halt()) return false;
-					break;
-				case 'T':
-					// no stop
-					if (gr->is_halt()) return false;
-					break;
-			}
+		const koord k(pos.x+x-3, pos.y+y-3);
+		const grund_t* gr = welt->lookup_kartenboden(k);
+		if (gr == NULL) {
+			// outside of the map => cannot apply this rule
+			return false;
+		}
+		switch (r.flag) {
+			case 's':
+				// road?
+				if (!gr->hat_weg(road_wt)) return false;
+				break;
+			case 'S':
+				// not road?
+				if (gr->hat_weg(road_wt)) return false;
+				break;
+			case 'h':
+				// is house
+				if (gr->get_typ() != grund_t::fundament  ||  gr->obj_bei(0)->get_typ()!=ding_t::gebaeude) return false;
+				break;
+			case 'H':
+				// no house
+				if (gr->get_typ() == grund_t::fundament) return false;
+				break;
+			case 'n':
+				// nature/empty
+				if (!gr->ist_natur() || gr->kann_alle_obj_entfernen(NULL) != NULL) return false;
+				break;
+			case 'U':
+				// unbuildable for road
+				if (!hang_t::ist_wegbar(gr->get_grund_hang())) return false;
+				break;
+			case 'u':
+				// road may be buildable
+				if (hang_t::ist_wegbar(gr->get_grund_hang())) return false;
+				break;
+			case 't':
+				// here is a stop/extension building
+				if (!gr->is_halt()) return false;
+				break;
+			case 'T':
+				// no stop
+				if (gr->is_halt()) return false;
+				break;
+			default: ;
+				// ignore
 		}
 	}
 	return true;
@@ -344,13 +347,15 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		const uint8 offset = (7 - (uint)size) / 2;
 		for (uint y = 0; y < size; y++) {
 			for (uint x = 0; x < size; x++) {
+				const char flag = rule[x + y * (size + 1)];
+				// check for allowed characters; ignore '.';
 				// leave midpoint out, should be 'n', which is checked in baue() anyway
-				if (x+offset!=3 || y+offset!=3) {
-					house_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,rule[x + y * (size + 1)]));
+				if ((x+offset!=3  ||  y+offset!=3)  &&  (flag!=0  &&  strchr(allowed_chars_in_rule, flag))) {
+					house_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
 				}
 				else {
-					if (rule[x + y * (size + 1)]!='n') {
-						dbg->warning("stadt_t::cityrules_init()", "house rule %d mid point is not 'n' - will be ignored", i + 1);
+					if ((x+offset!=3  ||  y+offset!=3)  &&  flag!='.') {
+						dbg->warning("stadt_t::cityrules_init()", "house rule %d entry (%d,%d) is '%c' and will be ignored", i + 1, x+offset, y+offset, flag);
 					}
 				}
 			}
@@ -385,13 +390,15 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		const uint8 offset = (7 - (uint)size) / 2;
 		for (uint y = 0; y < size; y++) {
 			for (uint x = 0; x < size; x++) {
+				const char flag = rule[x + y * (size + 1)];
+				// check for allowed characters; ignore '.';
 				// leave midpoint out, should be 'n', which is checked in baue() anyway
-				if (x+offset!=3 || y+offset!=3) {
-					road_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,rule[x + y * (size + 1)]));
+				if ((x+offset!=3  ||  y+offset!=3)  &&  (flag!=0  &&  strchr(allowed_chars_in_rule, flag))) {
+					road_rules[i]->rule.append(rule_entry_t(x+offset,y+offset,flag));
 				}
 				else {
-					if (rule[x + y * (size + 1)]!='n') {
-						dbg->warning("stadt_t::cityrules_init()", "road rule %d mid point is not 'n' - will be ignored", i + 1);
+					if ((x+offset!=3  ||  y+offset!=3)  &&  flag!='.') {
+						dbg->warning("stadt_t::cityrules_init()", "road rule %d entry (%d,%d) is '%c' and will be ignored", i + 1, x+offset, y+offset, flag);
 					}
 				}
 			}
