@@ -40,6 +40,7 @@
 	CHANGE: (Knightly) even faster routing of goods due to ignoring non-transfer stations in breath search
 	ADD: switch to keep towns static
 	ADD: (gerw) minimaps in city info window are clickable
+	CHANGE: after 40 retrys, factory construction will ignore climates to avoid broken chains (if possible at all)
 
 
 Release of 102.0 (r2366)
