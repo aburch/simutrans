@@ -849,7 +849,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			// check the resulting slope
 			ribis = gr1->get_weg_nr(0)->get_ribi_unmasked();
 			if(  gr1->get_weg_nr(1)  ) {
-				ribi_t::ribi ribis = gr1->get_weg_nr(1)->get_ribi_unmasked();
+				ribis |= gr1->get_weg_nr(1)->get_ribi_unmasked();
 			}
 			if(  new_slope==RESTORE_SLOPE  ||  !ribi_t::ist_einfach(ribis)  ||  (new_slope<hang_t::erhoben  &&  ribi_t::rueckwaerts(ribi_typ(new_slope))!=ribis)  ) {
 				// has the wrong tilt

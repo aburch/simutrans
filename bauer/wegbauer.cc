@@ -267,32 +267,60 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
  * @author prissi
  */
 bool
-wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp, const spieler_t *sp) const
+wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const spieler_t *sp) const
 {
-	const weg_t *w = bd->get_weg_nr(0);
-	if(  w  &&  w->get_waytype() == wtyp  ) {
-		if(  ribi_t::doppelt(w->get_ribi_unmasked()) == ribi_t::doppelt(ribi_typ(zv))  ) {
-			return true;
-		}
-		w = bd->get_weg_nr(1);
+	const waytype_t wtyp = wtyp0==tram_wt ? track_wt : wtyp0;
+	// nothing to cross here
+	if (!bd->hat_wege()) {
+		return true;
 	}
-	// no crossings in tunnels
-	if(w  && (bautyp & tunnel_flag) ) {
+	// no triple crossings please
+	if (bd->has_two_ways() && !bd->hat_weg(wtyp)) {
 		return false;
 	}
-	if(w  &&  !bd->get_halt().is_bound()  &&  check_owner(w->get_besitzer(),sp)  &&  crossing_logic_t::get_crossing(wtyp,w->get_waytype())!=NULL) {
+	const weg_t *w = bd->get_weg_nr(0);
+	// index of our wtype at the tile (must exists due to triple-crossing-check above)
+	const uint8 iwtyp = w->get_waytype() != wtyp;
+	// get the other way
+	if(iwtyp==0) {
+		w = bd->get_weg_nr(1);
+		// no other way here
+		if (w==NULL) {
+			return true;
+		}
+	}
+	// right owner of the other way
+	if(!check_owner(w->get_besitzer(),sp)) {
+		return false;
+	}
+	// special case: tram track on road
+	if ( (wtyp==road_wt  &&  w->get_waytype()==track_wt  &&  w->get_besch()->get_styp()==7)  ||
+		     (wtyp0==tram_wt  &&  w->get_waytype()==road_wt) ) {
+		return true;
+	}
+	// check for existing crossing
+	crossing_t *cr = bd->find<crossing_t>();
+	if (cr) {
+		// index of the waytype in ns-direction at the crossing
+		const uint8 ns_way = cr->get_dir();
+		// only cross with the right direction
+		return (ns_way==iwtyp ? ribi_t::ist_gerade_ns(ribi_typ(zv)) : ribi_t::ist_gerade_ow(ribi_typ(zv)));
+	}
+	// no crossings in tunnels
+	if(bautyp & tunnel_flag) {
+		return false;
+	}
+	// crossing available and ribis ok
+	if(crossing_logic_t::get_crossing(wtyp,w->get_waytype())!=NULL) {
 		ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 		// it is our way we want to cross: can we built a crossing here?
 		// both ways must be straight and no ends
-		return ribi_t::ist_gerade(w_ribi)
+		return  ribi_t::ist_gerade(w_ribi)
 					&&  !ribi_t::ist_einfach(w_ribi)
 					&&  ribi_t::ist_gerade(ribi_typ(zv))
-					&&  (w_ribi&ribi_typ(zv))==0;
+				&&  (w_ribi&ribi_typ(zv))==0;
 	}
-	if(  !w  ) {
-		return true;
-	}
-	// nothing to cross here
+	// cannot build crossing here
 	return false;
 }
 
@@ -607,6 +635,13 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		}
 	}
 
+	// universal check for crossings
+	if (to!=from  &&  (bautyp&elevated_flag)==0  &&  (bautyp&bautyp_mask)!=leitung) {
+		waytype_t wtyp = (waytype_t)(bautyp == river ? water_wt :  bautyp&bautyp_mask);
+		if(!check_crossing(zv,to,wtyp,sp)  ||  !check_crossing(-zv,from,wtyp,sp)) {
+			return false;
+		}
+	}
 	// no check way specific stuff
 	switch(bautyp&bautyp_mask) {
 
@@ -618,13 +653,6 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				ok =	(str  ||  !fundament)  &&  !to->ist_wasser()  &&  check_for_leitung(zv,to);
 				if(!ok) {
 					return false;
-				}
-				ok = !to->hat_wege()  ||  check_crossing(zv,to,road_wt,sp);
-			}
-			if(!ok) {
-				const weg_t *sch=to->get_weg(track_wt);
-				if(sch  &&  sch->get_besch()->get_styp()==7) {
-					ok = true;
 				}
 			}
 			if(ok) {
@@ -658,7 +686,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			// ok, regular construction here
 			if((bautyp&elevated_flag)==0) {
-				ok =	!fundament  &&  !to->ist_wasser()  &&  check_crossing(zv,to,track_wt,sp)  &&
+				ok =	!fundament  &&  !to->ist_wasser()  &&
 				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
 					check_for_leitung(zv,to);
 			}
@@ -695,7 +723,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			if((bautyp&elevated_flag)==0) {
 				// classical monorail
-				ok =	!fundament  &&  !to->ist_wasser()  &&  check_crossing(zv,to,besch->get_wtyp(),sp)  &&
+				ok =	!fundament  &&  !to->ist_wasser()  &&
 				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
 					check_for_leitung(zv,to)  &&  !to->get_depot();
 				// check for end/start of bridge
@@ -722,10 +750,9 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 
 		case schiene_tram: // Dario: Tramway
 		{
-			ok =	(ok ||
-							(to->hat_weg(track_wt)  &&  check_owner(to->get_weg(track_wt)->get_besitzer(),sp))  ||
-							(to->hat_weg(road_wt)  &&  check_owner(to->get_weg(road_wt)->get_besitzer(),sp)  &&  to->get_weg_nr(1)==NULL))
-					 &&  check_for_leitung(zv,to);
+			const weg_t *sch=to->get_weg(track_wt);
+			// roads are checked in check_crossing
+			ok = (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&  check_for_leitung(zv,to);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
