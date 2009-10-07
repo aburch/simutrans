@@ -1356,7 +1356,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
 		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
 			koord k = koord(ix,iy);
-			access(k)->kartenboden_setzen(new boden_t(this, koord3d(ix,iy,0),0));
+			access(k)->kartenboden_setzen(new boden_t(this, koord3d(ix,iy,min_hgt(k)),0));
 			access(k)->abgesenkt(this);
 			grund_t *gr = lookup_kartenboden(k);
 			gr->set_grund_hang(calc_natural_slope(k));
