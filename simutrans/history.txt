@@ -39,6 +39,7 @@
 	CHANGE: (Dwachs) 2-5x faster city generation
 	CHANGE: (Knightly) even faster routing of goods due to ignoring non-transfer stations in breath search
 	ADD: switch to keep towns static
+	ADD: (gerw) minimaps in city info window are clickable
 
 
 Release of 102.0 (r2366)

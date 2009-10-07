@@ -20,6 +20,9 @@
 
 #include "../simgraph.h"
 
+#define PAX_DEST_X (140)
+#define PAX_DEST_Y (24)
+#define PAX_DEST_MARGIN (4)
 
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
@@ -187,8 +190,8 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	}
 	pax_destinations_last_change =  current_pax_destinations;
 
-	display_array_wh(pos.x + 140, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_old);
-	display_array_wh(pos.x + 140 + PAX_DESTINATIONS_SIZE + 4, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_new);
+	display_array_wh(pos.x + PAX_DEST_X, pos.y + PAX_DEST_Y, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_old);
+	display_array_wh(pos.x + PAX_DEST_X + PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN, pos.y + PAX_DEST_Y, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_new);
 }
 
 
@@ -241,6 +244,22 @@ void stadt_info_t::infowin_event(const event_t *ev)
 {
 	if(  IS_WINDOW_TOP(ev)  ) {
 		reliefkarte_t::get_karte()->set_city( stadt );
+	}
+	if( ev->ev_code == MOUSE_LEFTBUTTON  &&  PAX_DEST_Y <= ev->my  &&  ev->my < PAX_DEST_Y + PAX_DESTINATIONS_SIZE  ) {
+		uint16 mx = ev->mx;
+		if( mx > PAX_DEST_X + PAX_DESTINATIONS_SIZE ) {
+			// Little trick to handle both maps with the same code: Just remap the x-values of the right map.
+			mx -= PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN;
+		}
+		if( PAX_DEST_X <= mx && mx < PAX_DEST_X + PAX_DESTINATIONS_SIZE ) {
+			// Clicked in a minimap.
+			mx -= PAX_DEST_X;
+			const uint16 my = ev->my - PAX_DEST_Y;
+			const koord p = koord(
+				(mx * stadt->get_welt()->get_groesse_x()) / (PAX_DESTINATIONS_SIZE),
+				(my * stadt->get_welt()->get_groesse_y()) / (PAX_DESTINATIONS_SIZE));
+			stadt->get_welt()->change_world_position( p );
+		}
 	}
 	gui_frame_t::infowin_event(ev);
 }
