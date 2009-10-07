@@ -1040,7 +1040,7 @@ sint32 haltestelle_t::rebuild_destinations()
 								// now add the freights
 								uint32 old_warenzielcount = warenziele[ ware->get_catg_index() ].get_count();
 								hat_gehalten( ware, fpl, cnv_owner );
-								if(  old_warenzielcount != warenziele[ ware->get_catg_index() ].get_count()  ) {
+								if(  old_warenzielcount != warenziele[ ware->get_catg_index() ].get_count()  &&  non_identical_schedules[ ware->get_catg_index() ] < 255  ) {
 									// added additional stops => might be transfer stop
 									non_identical_schedules[ ware->get_catg_index() ]++;
 								}
@@ -1068,7 +1068,7 @@ sint32 haltestelle_t::rebuild_destinations()
 				if(is_enabled(ware)) {
 					uint32 old_warenzielcount = warenziele[ ware->get_catg_index() ].get_count();
 					hat_gehalten( ware, fpl, line_owner );
-					if(  old_warenzielcount != warenziele[ ware->get_catg_index() ].get_count()  ) {
+					if(  old_warenzielcount != warenziele[ ware->get_catg_index() ].get_count()  &&  non_identical_schedules[ ware->get_catg_index() ] < 255  ) {
 						// added additional stops => might be transfer stop
 						non_identical_schedules[ ware->get_catg_index() ]++;
 					}
