@@ -1370,8 +1370,7 @@ fabrik_t::info(cbuffer_t& buf) const
 			buf.append(" -");
 			buf.append(translator::translate(type->get_name()));
 			buf.append(" ");
-			buf.append(ausgang[index].menge / (double)(1<<precision_bits), 1 );
-			buf.append(translator::translate(type->get_mass()));
+			buf.append(ausgang[index].menge / (double)(1<<precision_bits), 0 );
 			buf.append("/");
 			buf.append(ausgang[index].max >> fabrik_t::precision_bits,0);
 			buf.append(translator::translate(type->get_mass()));
@@ -1382,7 +1381,7 @@ fabrik_t::info(cbuffer_t& buf) const
 			}
 
 			buf.append(", ");
-			buf.append((besch->get_produkt(index)->get_faktor()*100l)/256.0,1);
+			buf.append((besch->get_produkt(index)->get_faktor()*100l)/256.0,0);
 			buf.append("%\n");
 		}
 	}
@@ -1398,13 +1397,12 @@ fabrik_t::info(cbuffer_t& buf) const
 			buf.append(" -");
 			buf.append(translator::translate(eingang[index].get_typ()->get_name()));
 			buf.append(" ");
-			buf.append(eingang[index].menge / (double)(1<<precision_bits), 1 );
-			buf.append(translator::translate(eingang[index].get_typ()->get_mass()));
+			buf.append(eingang[index].menge / (double)(1<<precision_bits), 0 );
 			buf.append("/");
 			buf.append(eingang[index].max >> precision_bits,0);
 			buf.append(translator::translate(eingang[index].get_typ()->get_mass()));
 			buf.append(", ");
-			buf.append((besch->get_lieferant(index)->get_verbrauch()*100l)/256.0,1);
+			buf.append((besch->get_lieferant(index)->get_verbrauch()*100l)/256.0,0);
 			buf.append("%\n");
 		}
 	}
