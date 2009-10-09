@@ -3302,14 +3302,162 @@ void karte_t::blick_aendern(event_t *ev)
 }
 
 
-// nordhang = 3
-// suedhang = 12
+static sint8 median( sint8 a, sint8 b, sint8 c )
+{
+#if 0
+	if(  a==b  ||  a==c  ) {
+		return a;
+	}
+	else if(  b==c  ) {
+		return b;
+	}
+	else {
+		// noting matches
+//		return (3*128+1 + a+b+c)/3-128;
+		return -128;
+	}
+#elif 0
+	if(  a<=b  ) {
+		return b<=c ? b : max(a,c);;
+	}
+	else {
+		return b>c ? b : min(a,c);;
+	}
+#else
+		return (3*128+2 + a+b+c)/3-128;
+#endif
+}
+
+
 
 /**
- * returns the natural slope a a position
+ * returns the natural slope a a position using the actual slopes
  * @author prissi
  */
-uint8 karte_t::calc_natural_slope( const koord pos, const bool check ) const
+uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
+{
+	grund_t *gr = lookup_kartenboden(pos);
+	if(!gr) {
+		return hang_t::flach;
+	}
+	else {
+		// now we check each four corners
+		grund_t *gr1, *gr2, *gr3;
+
+		// back right
+		gr1 = lookup_kartenboden(pos+koord(0,-1));
+		gr2 = lookup_kartenboden(pos+koord(1,-1));
+		gr3 = lookup_kartenboden(pos+koord(1,0));
+		// now get the correct height
+		sint16 height1 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner2(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner1(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner4(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner one
+
+		// front right
+		gr1 = lookup_kartenboden(pos+koord(1,0));
+		gr2 = lookup_kartenboden(pos+koord(1,1));
+		gr3 = lookup_kartenboden(pos+koord(0,1));
+		// now get the correct height
+		sint16 height2 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner1(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner4(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner3(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner two
+
+		// front left
+		gr1 = lookup_kartenboden(pos+koord(0,1));
+		gr2 = lookup_kartenboden(pos+koord(-1,1));
+		gr3 = lookup_kartenboden(pos+koord(-1,0));
+		// now get the correct height
+		sint16 height3 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner4(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner3(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner2(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner three
+
+		// back left
+		gr1 = lookup_kartenboden(pos+koord(-1,0));
+		gr2 = lookup_kartenboden(pos+koord(-1,-1));
+		gr3 = lookup_kartenboden(pos+koord(0,-1));
+		// now get the correct height
+		sint16 height4 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner3(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner2(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner1(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner four
+
+		// new height of that tile ...
+		sint8 min_height = min(min(height1,height2), min(height3,height4));
+		sint8 max_height = max(max(height1,height2), max(height3,height4));
+#ifndef DOUBLE_GROUNDS
+		/* check for an artificial slope on a steep sidewall */
+		bool not_ok = abs(max_height-min_height)>2  ||  min_height == -128;
+
+		// now we must make clear, that there is mo ground above/below the sloe
+		if(  new_height!=min_height  ) {
+			not_ok |= lookup(koord3d(pos,new_height))!=NULL;
+			if(  new_height>min_height  ) {
+				not_ok |= lookup(koord3d(pos,new_height-1))!=NULL;
+			}
+			if(  new_height<min_height  ) {
+				not_ok |= lookup(koord3d(pos,new_height+1))!=NULL;
+			}
+		}
+
+		if(  not_ok  ) {
+			/* difference too high or ground above/below
+			 * we just keep it as it was ...
+			 */
+			new_height = gr->get_hoehe();
+			return gr->get_grund_hang();
+		}
+
+		new_height = min_height;
+#if 0
+		// Since we have now the correct slopes, we update the grid:
+		sint8 *p = &grid_hgts[pos.x + pos.y*(get_groesse_x()+1)];
+		*p = height4;
+		*(p+1) = height3;
+		*(p+get_groesse_x()+2) = height2;
+		*(p+get_groesse_x()+1) = height1;
+#endif
+
+		// since slopes could be two unit height, we just return best effort ...
+		return (height4-new_height>0 ? 8 : 0) + (height1-new_height>0 ? 4 : 0) + (height2-new_height ? 2 : 0) + (height3-new_height>0 ? 1 : 0);
+#else
+		if(  max_height-min_height>2  ) {
+			/* this is an artificial slope on a steep sidewall
+			 * we just keep it as it was ...
+			 */
+			new_height = gr->get_hoehe();
+			return gr->get_grund_hang();
+		}
+		new_height = min_height;
+
+		const int d1=height1-mini;
+		const int d2=height2-mini;
+		const int d3=height3-mini;
+		const int d4=height4-mini;
+
+		return (d1*27) + (d2*9) + (d3*3) + d4;
+#endif
+	}
+	return 0;
+}
+
+
+
+/**
+ * returns the natural slope a a position using the grid
+ * @author prissi
+ */
+uint8 karte_t::calc_natural_slope( const koord pos ) const
 {
 	if(ist_in_kartengrenzen(pos.x, pos.y)) {
 
@@ -3328,13 +3476,7 @@ uint8 karte_t::calc_natural_slope( const koord pos, const bool check ) const
 		const int d4=h4-mini;
 
 #ifndef DOUBLE_GROUNDS
-		if (check) {
-			// allowed max height difference is 1
-			return ((d1?1:0)<<3) | ((d2?1:0)<<2) | ((d3?1:0)<<1) | (d4?1:0);
-		}
-		else {
-			return (d1<<3) | (d2<<2) | (d3<<1) | d4;
-		}
+		return (d1<<3) | (d2<<2) | (d3<<1) | d4;
 #else
 		return (d1*27) + (d2*9) + (d3*3) + d4;
 #endif
@@ -3344,8 +3486,7 @@ uint8 karte_t::calc_natural_slope( const koord pos, const bool check ) const
 
 
 
-bool
-karte_t::ist_wasser(koord pos, koord dim) const
+bool karte_t::ist_wasser(koord pos, koord dim) const
 {
 	koord k;
 

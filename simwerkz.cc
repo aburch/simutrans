@@ -479,7 +479,8 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 			delete f;
 			// fields have foundations ...
 			koord pos = gr->get_pos().get_2d();
-			welt->access(pos)->boden_ersetzen( gr, new boden_t(welt, gr->get_pos(), welt->calc_natural_slope(pos) ) );
+			sint8 dummy;
+			welt->access(pos)->boden_ersetzen( gr, new boden_t(welt, gr->get_pos(), welt->recalc_natural_slope(pos,dummy) ) );
 			welt->lookup_kartenboden(pos)->calc_bild();
 			welt->lookup_kartenboden(pos)->set_flag( grund_t::dirty );
 		}
@@ -821,7 +822,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 {
 	bool ok = false;
 
-	grund_t * gr1 = welt->lookup(pos);
+	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
 
 		// check for underground mode
@@ -834,7 +835,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			return "Maximum tile height difference reached.";
 		}
 
-		if(  new_slope==RESTORE_SLOPE  &&  gr1->get_typ()!=grund_t::boden  ) {
+		if(  new_slope==RESTORE_SLOPE  &&  !(gr1->get_typ()==grund_t::boden  ||  gr1->get_typ()==grund_t::wasser)  ) {
 			return "No suitable ground!";
 		}
 
@@ -903,19 +904,10 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		if(new_slope == RESTORE_SLOPE) {
 			// prissi: special action: set to natural slope
-			const sint8 min_hgt = welt->min_hgt(pos.get_2d());
-			// if natural heihgt is != actual height change height first
-			if (min_hgt > pos.z) {
-				new_slope=ALL_UP_SLOPE;
-			}
-			else if (min_hgt < pos.z-1) {
-				new_slope=ALL_DOWN_SLOPE;
-			}
-			else {
-				new_pos = koord3d(pos.get_2d(), min_hgt);
-				slope_this = welt->calc_natural_slope(pos.get_2d(), true);
-				DBG_MESSAGE("natural_slope","%i",slope_this);
-			}
+			sint8 min_hgt;
+			slope_this = welt->recalc_natural_slope(pos.get_2d(),min_hgt);
+			new_pos = koord3d(pos.get_2d(), min_hgt);
+			DBG_MESSAGE("natural_slope","%i",slope_this);
 		}
 		if(new_slope != RESTORE_SLOPE) {
 			// now check offsets before changing the slope ...

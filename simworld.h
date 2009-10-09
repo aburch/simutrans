@@ -688,10 +688,13 @@ public:
 
 	/**
 	 * returns the natural slope a a position
-	 * if (check) check maximal height difference and truncate if necessary
+	 * uses the corner height for the best slope
 	 * @author prissi
 	 */
-	uint8	calc_natural_slope( const koord pos, const bool check=false ) const;
+	uint8	recalc_natural_slope( const koord pos, sint8 &new_height ) const;
+
+	// no checking, and only using the grind for calculation
+	uint8	calc_natural_slope( const koord pos ) const;
 
 	/**
 	 * Wird vom Strassenbauer als Orientierungshilfe benutzt.
