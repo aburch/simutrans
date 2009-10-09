@@ -33,6 +33,17 @@ private:
 	sint32 anzahl_staedte;
 	sint32 mittlere_einwohnerzahl;
 
+	// town growth factors
+	sint32 passenger_multiplier;
+	sint32 mail_multiplier;
+	sint32 goods_multiplier;
+	sint32 electricity_multiplier;
+
+	// Also there are size dependen factors (0=no growth)
+	sint32 growthfactor_small;
+	sint32 growthfactor_medium;
+	sint32 growthfactor_large;
+
 	uint16 station_coverage_size;
 
 	/**
@@ -342,7 +353,7 @@ public:
 	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
 
 	// allowed modes are 0,1,2
-	enum { TO_PREVIOUS, TO_TRANSFER, TO_DESTINATION };
+	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
 	uint8 get_pay_for_total_distance_mode() const { return pay_for_total_distance ; }
 	void set_pay_for_total_distance_mode( uint8 b ) { pay_for_total_distance = b < 2 ? b : 0; }
 
@@ -362,6 +373,25 @@ public:
 	// true, if this pak should be used with extensions (default)
 	bool get_with_private_paks() const { return with_private_paks; }
 	void set_with_private_paks(bool b) { with_private_paks = b; }
+
+	// town growth stuff
+	sint32 get_passenger_multiplier() const { return passenger_multiplier; }
+	void set_passenger_multiplier(sint32 n) { passenger_multiplier = n; }
+	sint32 get_mail_multiplier() const { return mail_multiplier; }
+	void set_mail_multiplier(sint32 n) { mail_multiplier = n; }
+	sint32 get_goods_multiplier() const { return goods_multiplier; }
+	void set_goods_multiplier(sint32 n) { goods_multiplier = n; }
+	sint32 get_electricity_multiplier() const { return electricity_multiplier; }
+	void set_electricity_multiplier(sint32 n) { electricity_multiplier = n; }
+
+	// Also there are size dependen factors (0=no growth)
+	sint32 get_growthfactor_small() const { return growthfactor_small; }
+	void set_growthfactor_small(sint32 n) { growthfactor_small = n; }
+	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
+	void set_growthfactor_medium(sint32 n) { growthfactor_medium = n; }
+	sint32 get_growthfactor_large() const { return growthfactor_large; }
+	void set_growthfactor_large(sint32 n) { growthfactor_large = n; }
+
 };
 
 #endif

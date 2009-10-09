@@ -41,6 +41,7 @@
 	ADD: switch to keep towns static
 	ADD: (gerw) minimaps in city info window are clickable
 	CHANGE: after 40 retrys, factory construction will ignore climates to avoid broken chains (if possible at all)
+	ADD: citygrowth parameter configurable in simuconf.tab
 
 
 Release of 102.0 (r2366)
