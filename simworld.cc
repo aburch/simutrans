@@ -687,6 +687,7 @@ void karte_t::init_felder()
 
 	convoihandle_t::init( 1024 );
 	linehandle_t::init( 1024 );
+
 	halthandle_t::init( 1024 );
 
 	scenario = new scenario_t(this);

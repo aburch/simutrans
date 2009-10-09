@@ -70,6 +70,8 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
 
+uint8 haltestelle_t::markers[65536];
+static uint8 current_mark = 255;
 
 
 void haltestelle_t::step_all()
@@ -298,8 +300,10 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
 	self = halthandle_t(this);
 
+	// force init next time
+	current_mark = 255;
+
 	welt = wl;
-	marke = 0;
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -336,8 +340,10 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	assert( !alle_haltestellen.is_contained(self) );
 	alle_haltestellen.append(self);
 
+	// force init next time
+	current_mark = 255;
+
 	welt = wl;
-	marke = 0;
 
 	this->init_pos = k;
 	besitzer_p = sp;
@@ -1082,6 +1088,12 @@ sint32 haltestelle_t::rebuild_destinations()
 }
 
 
+void haltestelle_t::init_markers()
+{
+	memset( markers, 0, halthandle_t::get_size() );
+	current_mark = 0;
+}
+
 
 /* HNode is used for route search */
 struct HNode {
@@ -1151,11 +1163,14 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 		return ROUTE_OK;
 	}
 
-	// single threading makes some things easier
-	static uint32 current_mark = 0;
-	static HNode nodes[32768];
-
+	// set curretn marker
 	current_mark ++;
+	if(  current_mark==0  ) {
+		init_markers();
+	}
+
+	// single threading makes some things easier
+	static HNode nodes[32768];
 
 	// die Berechnung erfolgt durch eine Breitensuche fuer Graphen
 	// Warteschlange fuer Breitensuche
@@ -1177,7 +1192,7 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 #ifdef USE_ROUTE_SLIST_TPL
 	queue.insert( &nodes[0] );	// init queue mit erstem feld
 #endif
-	self->marke = current_mark;
+	markers[ self.get_id() ] = current_mark;
 
 	const uint32 max_hops = welt->get_einstellungen()->get_max_hops();
 	// here the normal routing with overcrowded stops is done
@@ -1189,25 +1204,26 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 #endif
 
 		// Hajo: check for max transfers -> don't add more stations
-		//      to queue if the limit is reached
+		//       to queue if the limit is reached
 		if( current_node->depth < max_transfers ) {
-			const vector_tpl<halthandle_t> *wz = current_node->halt->get_warenziele(ware_catg_index);
-			for(  uint32 i=0;  i<wz->get_count();  i++  ) {
+			const vector_tpl<halthandle_t> &wz = current_node->halt->warenziele[ware_catg_index];
+			for(  uint32 i=0;  i<wz.get_count();  i++  ) {
 
 				// since these are precalculated, they should be always pointing to a valid ground
 				// (if not, we were just under construction, and will be fine after 16 steps)
-				const halthandle_t &reachable_halt = (*wz)[i];
-				if( reachable_halt.is_bound() &&  reachable_halt->marke != current_mark ) {
+				const halthandle_t &reachable_halt = wz[i];
+				if(  markers[ reachable_halt.get_id() ]<current_mark  &&  reachable_halt.is_bound()  ) {
 
 					// betretene Haltestellen markieren
-					reachable_halt->marke = current_mark;
+					markers[ reachable_halt.get_id() ] = current_mark;
 
 					// Knightly : Only transfer halts and destination halt are added to the HNode array
 					if(  ziel_list.is_contained(reachable_halt)  ) {
 						// Case : Destination found
 						new_node = &nodes[allocation_pointer++];
 						new_node->halt = reachable_halt;
-						new_node->depth = current_node->depth + 1;
+						// Knightly : node depth will not be used afterwards, so no need to assign a value
+						// new_node->depth = current_node->depth + 1;
 						new_node->link = current_node;
 #ifdef USE_ROUTE_SLIST_TPL
 						queue.append( new_node );

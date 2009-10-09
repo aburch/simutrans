@@ -206,7 +206,7 @@ private:
 	 * halt, i.e. contains non_identical_schedules with overlapping
 	 * destinations.
 	 * Non-transfer stops do not need to be searched for connections
-	 * => large speedup possible. (Vector would better though.)
+	 * => large speedup possible.
 	 * @author Knightly
 	 */
 	uint8 *non_identical_schedules;
@@ -260,13 +260,6 @@ private:
 	 */
 	uint32 pax_unhappy;
 
-	/**
-	 * Haltestellen werden beim warenrouting markiert. Jeder durchgang
-	 * hat eine eindeutige marke
-	 * @author Hj. Malthaner
-	 */
-	uint32 marke;
-
 #ifdef USE_QUOTE
 	// for station rating
 	const char * quote_bezeichnung(int quote) const;
@@ -305,6 +298,15 @@ private:
 	haltestelle_t(karte_t *welt, loadsave_t *file);
 	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
 	~haltestelle_t();
+
+	/**
+	 * Markers used in suche_route() to avoid processing the same halt more than once
+	 * Originally they are instance variables of haltestelle_t
+	 * Now consolidated into a static array to speed up suche_route()
+	 * @author Knightly
+	 */
+	static uint8 markers[65536];
+	static uint8 current_marker;
 
 public:
 	/**
@@ -630,5 +632,12 @@ public:
 	* deletes factory references so map rotation won't segfault
 	*/
 	void release_factory_links();
+
+	/**
+	 * Initialise the markers to zero
+	 * @author Knightly
+	 */
+	static void init_markers();
+
 };
 #endif
