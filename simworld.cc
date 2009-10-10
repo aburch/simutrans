@@ -1929,7 +1929,12 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		const sint8 hn_ne = min(hne, h0_ne);
 		const sint8 hn_nw = min(hnw, h0_nw);
 		// nothing to do?
-		if (h0_sw <= hsw  &&  h0_se <= hse  &&  h0_ne <= hne  &&  h0_nw <= hnw) return 0;
+		if (gr->ist_wasser()) {
+			if (h0_nw <= hnw) return 0;
+		}
+		else {
+			if (h0_sw <= hsw  &&  h0_se <= hse  &&  h0_ne <= hne  &&  h0_nw <= hnw) return 0;
+		}
 		// calc new height and slope
 		const sint8 hneu = min(min(hn_sw,hn_se), min(hn_ne,hn_nw));
 		bool ok = ( (hn_sw-hneu<2) && (hn_se-hneu<2) && (hn_ne-hneu<2) && (hn_nw-hneu<2)); // may fail on water tiles since lookup_hgt might be modified from previous lower_to calls
@@ -2040,8 +2045,7 @@ int karte_t::lower(koord pos)
 	int n = 0;
 	if(ok && ist_in_kartengrenzen(pos)) {
 		grund_t *gr = lookup_kartenboden(pos);
-		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
-
+		const sint8 hnew = gr->ist_wasser() ? lookup_hgt(pos) : gr->get_hoehe() + corner4(gr->get_grund_hang());
 		n = lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1);
 	}
 	return (n+3)>>2;
