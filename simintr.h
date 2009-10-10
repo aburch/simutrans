@@ -42,10 +42,17 @@ void interrupt_force();
 void interrupt_check();
 void interrupt_check(const char* caller_info);
 
-// standard version
-#define INT_CHECK(info) interrupt_check();
-
-// debug version
-// #define INT_CHECK(info) interrupt_check(info);
+#ifndef PROFILE
+	#ifndef DEBUG
+		// standard version
+		#define INT_CHECK(info) interrupt_check();
+	#else
+		// debug version
+		#define INT_CHECK(info) interrupt_check(info);
+	#endif
+#else
+	// profile version: no interrupt_check.
+	#define INT_CHECK(info);
+#endif
 
 #endif

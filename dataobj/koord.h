@@ -5,6 +5,7 @@
 
 #include "ribi.h"
 #include "../simtypes.h"
+#include <stdlib.h>
 
 class loadsave_t;
 

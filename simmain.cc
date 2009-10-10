@@ -805,7 +805,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	}
 
-#ifdef DEBUG
+#if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
 		show_times(welt, view);
@@ -818,6 +818,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 #endif
 
 	welt->set_fast_forward(false);
+#ifdef PROFILE
+	welt->set_fast_forward(true);
+	if( loadgame == "" )
+	{
+		dbg->fatal("simmain", "no game loaden in profile mode. Use -load");
+	}
+#endif
 	view->display(true);
 	intr_refresh_display(true);
 
@@ -839,9 +846,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	sprachengui_t::init_font_from_lang();
 
 	welt->get_message()->clear();
-	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 
-	zeige_banner(welt);
+#ifndef PROFILE
+		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+		zeige_banner(welt);
+#endif
 
 	intr_set(welt, view);
 
@@ -945,7 +954,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		// run the loop
 		while(welt->interactive()) {
-#ifdef DEBUG
+#if defined DEBUG || defined PROFILE
 			if(  welt->get_current_month() >= quit_month  ) {
 				umgebung_t::quit_simutrans = true;
 				break;
