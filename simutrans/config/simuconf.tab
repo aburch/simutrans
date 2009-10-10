@@ -110,9 +110,9 @@ max_transfers = 9
 
 # town growth is size dependent. There are three different sizes (<1000, 1000-10000, >10000)
 # the idea is, that area increase by square but growth is linear
-#growthfactor_villages = 100
+#growthfactor_villages = 400
 #growthfactor_cities = 200
-#growthfactor_capitals = 400
+#growthfactor_capitals = 100
 
 # passenger generation (default is 16) Smaller values means less passengers
 #passenger_factor=16

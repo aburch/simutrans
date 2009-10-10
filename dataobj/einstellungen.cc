@@ -76,10 +76,10 @@ einstellungen_t::einstellungen_t() :
 	goods_multiplier = 20;
 	electricity_multiplier = 0;
 
-	// Also there are size dependen factors (0=no growth)
-	growthfactor_small = 100;
+	// Also there are size dependen factors (0 causes crash !)
+	growthfactor_small = 400;
 	growthfactor_medium = 200;
-	growthfactor_large = 400;
+	growthfactor_large = 100;
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
@@ -563,14 +563,14 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	no_routing_over_overcrowding = contents.get_int("no_routing_over_overcrowded", no_routing_over_overcrowding )!=0;
 
 	// city stuff
-	passenger_multiplier = contents.get_int("passenger_multiplier", passenger_multiplier ) != 0;
-	mail_multiplier = contents.get_int("mail_multiplier", mail_multiplier ) != 0;
-	goods_multiplier = contents.get_int("goods_multiplier", goods_multiplier ) != 0;
-	electricity_multiplier = contents.get_int("electricity_multiplier", electricity_multiplier ) != 0;
+	passenger_multiplier = contents.get_int("passenger_multiplier", passenger_multiplier );
+	mail_multiplier = contents.get_int("mail_multiplier", mail_multiplier );
+	goods_multiplier = contents.get_int("goods_multiplier", goods_multiplier );
+	electricity_multiplier = contents.get_int("electricity_multiplier", electricity_multiplier );
 
-	growthfactor_small = contents.get_int("growthfactor_villages", growthfactor_small ) != 0;
-	growthfactor_medium = contents.get_int("growthfactor_cities", growthfactor_medium ) != 0;
-	growthfactor_large = contents.get_int("growthfactor_capitals", growthfactor_large ) != 0;
+	growthfactor_small = contents.get_int("growthfactor_villages", growthfactor_small );
+	growthfactor_medium = contents.get_int("growthfactor_cities", growthfactor_medium );
+	growthfactor_large = contents.get_int("growthfactor_capitals", growthfactor_large );
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;

@@ -1262,18 +1262,18 @@ void stadt_t::calc_growth()
 	/* four parts contribute to town growth:
 	 * passenger transport 40%, mail 20%, goods (30%), and electricity (10%)
 	 */
-	sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (40<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
-	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (20<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
+	sint32 pas = (city_history_month[0][HIST_PAS_TRANSPORTED] * (welt->get_einstellungen()->get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
+	sint32 mail = (city_history_month[0][HIST_MAIL_TRANSPORTED] * (welt->get_einstellungen()->get_mail_multiplier()<<6)) / (city_history_month[0][HIST_MAIL_GENERATED] + 1);
 	sint32 electricity = 0;
-	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (20<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
+	sint32 goods = city_history_month[0][HIST_GOODS_NEEDED]==0 ? 0 : (city_history_month[0][HIST_GOODS_RECIEVED] * (welt->get_einstellungen()->get_goods_multiplier()<<6)) / (city_history_month[0][HIST_GOODS_NEEDED]);
 
 	// smaller towns should growth slower to have villages for a longer time
-	sint32 weight_factor = 100;
+	sint32 weight_factor = welt->get_einstellungen()->get_growthfactor_large();
 	if(bev<1000) {
-		weight_factor = 400;
+		weight_factor = welt->get_einstellungen()->get_growthfactor_small();
 	}
 	else if(bev<10000) {
-		weight_factor = 200;
+		weight_factor = welt->get_einstellungen()->get_growthfactor_medium();
 	}
 
 	// now give the growth for this step
