@@ -146,8 +146,6 @@ private:
 	// runways need to meet some special conditions enforced here
 	bool intern_calc_route_runways(koord3d start, const koord3d ziel);
 
-	ribi_t::ribi calc_ribi(int step);
-
 	void baue_tunnel_und_bruecken();
 
 	// adds the ground before underground construction (always called before the following construction routines)
@@ -166,7 +164,9 @@ private:
 public:
 	const koord3d_vector_t &get_route() const { return route; }
 
-	sint32 n, max_n;
+	uint32 get_count() const { return route.get_count(); }
+
+	sint32 n;
 
 	/**
 	 * If a way is built on top of another way, should the type

@@ -250,7 +250,7 @@ enable_home:
 		cnv->get_freight_info(freight_info);
 		text.set_text(freight_info);
 
-		route_bar.set_base(cnv->get_route()->get_max_n());
+		route_bar.set_base(cnv->get_route()->get_count()-1);
 		cnv_route_index = cnv->get_vehikel(0)->get_route_index()-1;
 
 		// all gui stuff set => display it
@@ -386,20 +386,20 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 					continue;
 				}
 				koord3d pos = depot->get_pos();
-				if(!shortest_route->empty()    &&    koord_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_max_n()) {
+				if(!shortest_route->empty()    &&    koord_distance(pos.get_2d(),cnv->get_pos().get_2d())>=shortest_route->get_count()-1) {
 					// the current route is already shorter, no need to search further
 					continue;
 				}
 				bool found = cnv->get_vehikel(0)->calc_route(cnv->get_pos(), pos,    50, route); // do not care about speed
 				if (found) {
-					if(  route->get_max_n() < shortest_route->get_max_n()    ||    shortest_route->empty()  ) {
+					if(  route->get_count() < shortest_route->get_count()    ||    shortest_route->empty()  ) {
 						shortest_route->kopiere(route);
 						home = pos;
 					}
 				}
 			}
 			delete route;
-			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_max_n());
+			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
 
 			// if route to a depot has been found, update the convoi's schedule
 			bool b_depot_found = false;

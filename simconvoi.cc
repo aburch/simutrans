@@ -663,7 +663,7 @@ bool convoi_t::drive_to()
 		if(  start==ziel  ) {
 			halthandle_t halt = haltestelle_t::get_halt(welt,ziel,get_besitzer());
 			if(  halt.is_bound()  &&  route.is_contained(start)  ) {
-				for(  uint32 i=route.index_of(start);  i<route.get_max_n();  i++  ) {
+				for(  uint32 i=route.index_of(start);  i<route.get_count();  i++  ) {
 					grund_t *gr = welt->lookup(route.position_bei(i));
 					if(  gr  && gr->get_halt()==halt  ) {
 						ziel = gr->get_pos();
@@ -748,8 +748,8 @@ void convoi_t::step()
 					// this station? then complete loading task else drive on
 					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
 					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() )  ) {
-						if(  h==haltestelle_t::get_halt( welt, route.position_bei(route.get_max_n()), get_besitzer() )  ){
-							state = get_pos()==route.position_bei(route.get_max_n()) ? LOADING : DRIVING;
+						if(  h==haltestelle_t::get_halt( welt, route.position_bei(route.get_count()-1), get_besitzer() )  ){
+							state = get_pos()==route.position_bei(route.get_count()-1) ? LOADING : DRIVING;
 							break;
 						}
 						else {
@@ -1282,7 +1282,7 @@ convoi_t::can_go_alte_richtung()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).get_2d(), route.position_bei(min(2,route.get_max_n())).get_2d()));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).get_2d(), route.position_bei(min(2,route.get_count()-1)).get_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;
@@ -1330,7 +1330,7 @@ convoi_t::can_go_alte_richtung()
 		return false;
 	}
 
-	int length = min((convoi_length/16)+4,route.get_max_n()-1);	// maximum length in tiles to check
+	int length = min((convoi_length/16)+4,route.get_count());	// maximum length in tiles to check
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
@@ -1372,7 +1372,7 @@ convoi_t::can_go_alte_richtung()
 
 	// since we need the route for every vehicle of this convoi,
 	// we must set the current route index (instead assuming 1)
-	length = min((convoi_length/8),route.get_max_n()-1);	// maximum length in tiles to check
+	length = min((convoi_length/8),route.get_count()-1);	// maximum length in tiles to check
 	bool ok=false;
 	for(i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
@@ -2719,7 +2719,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 
 	while( distance > 0 ) {
 
-		if(  route_index >= route.get_max_n()  ) {
+		if(  route_index >= route.get_count()  ) {
 			return false;
 		}
 
@@ -2790,7 +2790,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	time_overtaking = (time_overtaking << 16)/akt_speed;
 	while ( time_overtaking > 0 ) {
 
-		if ( route_index >= route.get_max_n() ) {
+		if ( route_index >= route.get_count() ) {
 			return false;
 		}
 

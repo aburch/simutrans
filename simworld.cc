@@ -752,7 +752,7 @@ void karte_t::create_rivers( sint16 number )
 			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
 			riverbuilder.set_maximum( dist*50 );
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
-			if(  riverbuilder.max_n >= einstellungen->get_min_river_length()  ) {
+			if(  riverbuilder.get_count() >= (uint32)einstellungen->get_min_river_length()  ) {
 				// do not built too short rivers
 				riverbuilder.baue();
 				number --;
@@ -893,9 +893,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 			uint8 conn_comp=1; // current connection component for phase 0
 			vector_tpl<uint8> city_flag; // city already connected to the graph? >0 nr of connection component
 			array2d_tpl<sint32> city_dist(einstellungen->get_anzahl_staedte(), einstellungen->get_anzahl_staedte());
-			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+			for(  sint32 i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
 				city_dist.at(i,i) = 0;
-				for(  int j = i + 1;  j < einstellungen->get_anzahl_staedte();  j++  ) {
+				for(  sint32 j = i + 1;  j < einstellungen->get_anzahl_staedte();  j++  ) {
 					city_dist.at(i,j) = koord_distance(k[i], k[j]);
 					city_dist.at(j,i) = city_dist.at(i,j);
 					// count unbuildable connections to new cities
@@ -1006,8 +1006,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 					bool build = false;
 					// set appropriate max length for way builder
 					if(  connected  ) {
-						if(  2*verbindung.get_max_n() > city_dist.at(conn)  ) {
-							bauigel.set_maximum(verbindung.get_max_n() / 2);
+						if(  2*verbindung.get_count() > city_dist.at(conn)  ) {
+							bauigel.set_maximum(verbindung.get_count() / 2);
 							build = true;
 						}
 					}
@@ -1020,7 +1020,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 						bauigel.calc_route(k[conn.x],k[conn.y]);
 					}
 
-					if(  build  &&  bauigel.max_n >= 1  ) {
+					if(  build  &&  bauigel.get_count() >= 2  ) {
 						bauigel.baue();
 						if (phase==0) {
 							city_flag[ conn.y ] = conn_comp;

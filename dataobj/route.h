@@ -86,11 +86,7 @@ public:
 	 */
 	const koord3d& position_bei(const uint16 n) const { return route[n]; }
 
-	/**
-	 * @return letzer index in der Koordinatenliste
-	 * @author Hj. Malthaner
-	 */
-	uint32 get_max_n() const { return route.get_count() - 1; }
+	uint32 get_count() const { return route.get_count(); }
 
 	bool empty() const { return route.get_count()<2; }
 
@@ -116,7 +112,12 @@ public:
 	 * fügt k hinten in die route ein
 	 * @author prissi
 	 */
-	void append(koord3d k);
+	inline void append(koord3d k)
+	{
+		route.append(k);
+	}
+
+
 
 	/**
 	 * removes all tiles from the route

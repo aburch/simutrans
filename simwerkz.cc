@@ -1457,7 +1457,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 		bauigel.set_keep_existing_faster_ways(true);
 		bauigel.calc_route(start,end);
 	}
-	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.max_n);
+	DBG_MESSAGE("wkz_wegebau()", "builder found route with %d sqaures length.", bauigel.get_count());
 }
 
 const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -1487,12 +1487,12 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 	calc_route( bauigel, start, end );
 
 	uint8 offset = (besch->get_styp()==1  &&  besch->get_wtyp()!=air_wt) ? 1 : 0;
-	if(bauigel.max_n>0) {
+	if(  bauigel.get_count()>2  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
 
 		// make dummy route from bauigel
-		for( int j=0;  j<=bauigel.max_n;  j++  ) {
+		for(  uint32 j=0;  j<bauigel.get_count();  j++   ) {
 			koord3d pos = bauigel.get_route()[j] + koord3d(0,0,offset);
 			grund_t *gr = welt->lookup( pos );
 			if( !gr ) {
@@ -1654,12 +1654,12 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 
 	welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
 
-	if(bauigel.max_n>0) {
+	if(  bauigel.get_count()>2  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
 
 		// make dummy route from bauigel
-		for( int j=0;  j<=bauigel.max_n;  j++  ) {
+		for(  uint32 j=0;  j<bauigel.get_count();  j++  ) {
 			koord3d pos = bauigel.get_route()[j];
 			grund_t *gr = welt->lookup(pos);
 			if( !gr ) {
@@ -1717,7 +1717,7 @@ void wkz_wayremover_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &
 	route_t verbindung;
 	bool can_built = calc_route( verbindung, sp, start, end );
 	if( can_built ) {
-		for( uint32 j = 0; j <= verbindung.get_max_n(); j++ ) {
+		for( uint32 j = 0; j < verbindung.get_count(); j++ ) {
 			koord3d pos = verbindung.position_bei(j);
 			zeiger_t *marker = new zeiger_t( welt, pos, sp );
 			marker->set_bild( cursor );
@@ -1770,7 +1770,7 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		delete test_driver;
 	}
 	DBG_MESSAGE("wkz_wayremover()", "route search returned %d", can_delete);
-	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_max_n());
+	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_count());
 	return can_delete;
 }
 
@@ -1789,7 +1789,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 	}
 
 	// found a route => check if I can delete anything on it
-	for(  uint32 i=0;  can_delete  &&  i<=verbindung.get_max_n();  i++  ) {
+	for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
 		grund_t *gr=welt->lookup(verbindung.position_bei(i));
 		if(gr) {
 			if(  wt!=powerline_wt  ) {
@@ -1821,7 +1821,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 	}
 
 	// if successful => delete everything
-	for( uint32 i=0;  can_delete  &&  i<=verbindung.get_max_n();  i++  ) {
+	for( uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
 
 		grund_t *gr=welt->lookup(verbindung.position_bei(i));
 
@@ -1849,7 +1849,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 			// calculated removing directions
 			ribi_t::ribi rem = ~( verbindung.get_route().get_ribi(i) );
 			// if start=end tile then delete every direction
-			if( verbindung.get_max_n() == 1 ) {
+			if(  verbindung.get_count() <= 2  ) {
 				rem = 0;
 			}
 
@@ -1993,7 +1993,7 @@ void wkz_wayobj_t::mark_tiles( karte_t * welt, spieler_t * sp, const koord3d &st
 	if( can_built ) {
 		sint32 cost_estimate = 0;
 
-		for( uint32 j = 0; j <= verbindung.get_max_n(); j++ ) {
+		for( uint32 j = 0; j < verbindung.get_count(); j++ ) {
 			koord3d pos = verbindung.position_bei(j);
 			grund_t *gr = welt->lookup(pos);
 
@@ -2057,7 +2057,7 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 	}
 
 	// built wayobj ...
-	for(uint32 i=0;  i<=verbindung.get_max_n();  i++  ) {
+	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
 		if( build ) {
 			wayobj_t::extend_wayobj_t( welt, verbindung.get_route()[i], sp, verbindung.get_route().get_ribi(i), besch );
 		}
