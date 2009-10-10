@@ -40,6 +40,11 @@ public:
 	void entferne(spieler_t *sp);
 
 	bool check_season( const long ) { calc_bild(); return true; };
+	/**
+	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @author Hj. Malthaner
+	 */
+	virtual const char *ist_entfernbar(const spieler_t *sp);
 };
 
 #endif
