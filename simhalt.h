@@ -106,6 +106,15 @@ private:
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
+	/**
+	 * Markers used in suche_route() to avoid processing the same halt more than once
+	 * Originally they are instance variables of haltestelle_t
+	 * Now consolidated into a static array to speed up suche_route()
+	 * @author Knightly
+	 */
+	static uint8 markers[65536];
+	static uint8 current_mark;
+
 public:
 	/**
 	 * Handles changes of schedules and the resulting rerouting

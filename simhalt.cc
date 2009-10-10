@@ -76,8 +76,8 @@ uint8 haltestelle_t::status_step = 0;
  * Now consolidated into a static array to speed up suche_route()
  * @author Knightly
  */
-static uint8 markers[65536];
-static uint8 current_mark = 255;	// 255: array must be init before next search
+uint8 haltestelle_t::markers[65536];
+uint8 haltestelle_t::current_mark = 0;
 
 
 void haltestelle_t::step_all()
