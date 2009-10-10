@@ -845,6 +845,13 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			return "Tile not empty.";
 		}
 
+		if(  !welt->ist_in_kartengrenzen(pos.get_2d()+koord(1,1))  ||  !welt->ist_in_kartengrenzen(pos.get_2d()+koord(-1,-1))) {
+			return "Zu nah am Kartenrand";
+		}
+
+		// slopes may affect the position and the total height!
+		koord3d new_pos = pos;
+
 		ribi_t::ribi ribis = new_slope<hang_t::erhoben ? ribi_t::rueckwaerts(ribi_typ(new_slope)) : ribi_t::alle;
 		if(  gr1->hat_wege()  ) {
 			// check the resulting slope
@@ -864,26 +871,21 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				if(  gr1->get_weg_hang()==hang_t::flach  ) {
 					new_slope = hang_typ(ribis);
 				}
-				else if(  gr1->get_weg_hang()==hang_typ(ribi_t::rueckwaerts(ribis))  ) {
-					new_slope = hang_t::flach;
-					pos.z += Z_TILE_STEP;
-				}
-				else {
+				else if(  gr1->get_weg_hang()!=hang_typ(ribi_t::rueckwaerts(ribis))  ) {
 					return "Maximum tile height difference reached.";
 				}
 			}
 			else if(  new_slope==ALL_DOWN_SLOPE  ) {
 				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
 					// do not lower tiles to sea
-					if (pos.z == welt->get_grundwasser()) {
+					if (pos.z == welt->get_grundwasser()  &&  !gr1->ist_tunnel()) {
 						return "Tile not empty.";
 					}
-					new_slope = hang_t::flach;
 				}
 				else if(  gr1->get_grund_hang()==hang_t::flach  ) {
 					new_slope = hang_typ(ribi_t::rueckwaerts(ribis));
-					pos.z -= Z_TILE_STEP;
-					if(  welt->lookup(pos)  ) {
+					new_pos.z -= Z_TILE_STEP;
+					if(  welt->lookup(new_pos)  ) {
 						return "Tile not empty.";
 					}
 				}
@@ -893,82 +895,50 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 		}
 
-		if(  !welt->ist_in_kartengrenzen(pos.get_2d()+koord(1,1))  ||  !welt->ist_in_kartengrenzen(pos.get_2d()+koord(-1,-1))) {
-			return "Zu nah am Kartenrand";
-		}
-
-		// slopes may affect the position and the total height!
-		sint8 slope_this;
-		koord3d new_pos;
-		koord3d old_pos = gr1->get_pos();
 
 		if(new_slope == RESTORE_SLOPE) {
 			// prissi: special action: set to natural slope
 			sint8 min_hgt;
-			slope_this = welt->recalc_natural_slope(pos.get_2d(),min_hgt);
+			new_slope = welt->recalc_natural_slope(pos.get_2d(),min_hgt);
 			new_pos = koord3d(pos.get_2d(), min_hgt);
-			DBG_MESSAGE("natural_slope","%i",slope_this);
+			DBG_MESSAGE("natural_slope","%i",new_slope);
 		}
-		if(new_slope != RESTORE_SLOPE) {
-			// now check offsets before changing the slope ...
-			sint8 change_to_slope=new_slope;
-			if(new_slope==ALL_DOWN_SLOPE) {
-				if (gr1->get_grund_hang()>0  ) {
-					// is more intiutive: if there is a slope, first downgrade it
-					change_to_slope = 0;
-				}
+		else if(new_slope == ALL_DOWN_SLOPE) {
+			new_slope = 0;
+			// is more intiutive: if there is a slope, first downgrade it
+			if (gr1->get_grund_hang()==0  ) {
+				new_pos.z -= Z_TILE_STEP;
 			}
-			slope_this = (change_to_slope>=ALL_UP_SLOPE) ? 0 : change_to_slope;
-			new_pos = pos + koord3d(0,0,(change_to_slope==ALL_UP_SLOPE?Z_TILE_STEP:(change_to_slope==ALL_DOWN_SLOPE?-Z_TILE_STEP:0)));
-#ifdef DOUBLE_GROUNDS
-			// if already the same, double the slope
-			if(slope_this==gr1->get_grund_hang()) {
-				slope_this *= 2;
-			}
-#endif
+		}
+		else if(new_slope == ALL_UP_SLOPE) {
+			new_slope = 0;
+			new_pos.z += Z_TILE_STEP;
 		}
 
-		// now check for grounds above
-		if(  pos==gr1->get_pos()  &&  slope_this!=hang_t::flach  ) {
-			grund_t *gr2 = welt->lookup(pos+koord3d(0,0,Z_TILE_STEP));
-			if(  gr2  &&  gr2->get_weg_hang()!=new_slope  ) {
+		// already some ground here (tunnel, bridge, monorail?)
+		if(new_pos.z!=pos.z  &&  welt->lookup(new_pos)!=NULL) {
+			return "Tile not empty.";
+		}
+		// check for grounds above / below
+		if (new_pos.z >= pos.z) {
+			grund_t *gr2 = welt->lookup(new_pos+koord3d(0,0,Z_TILE_STEP));
+			// only raise corners that are raised above
+			if(  gr2  &&  (new_slope & (~gr2->get_weg_hang())) ) {
 				return "Tile not empty.";
 			}
 		}
-		// and now for flat slopes
-		if(  pos.z>gr1->get_pos().z  ) {
-			grund_t *gr2 = welt->lookup(pos+koord3d(0,0,Z_TILE_STEP));
-			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  ) {
+		if (new_pos.z <= pos.z) {
+			grund_t *gr2 = welt->lookup(new_pos+koord3d(0,0,-Z_TILE_STEP));
+			// only lower corners that are not raised below
+			if(  gr2  &&  (gr2->get_weg_hang() & (~new_slope)) ) {
 				return "Tile not empty.";
-			}
-		}
-		// now for downwards case
-		else if(  pos.z<gr1->get_pos().z  ) {
-			if(  welt->lookup(pos)  ) {
-				// here is already a ground
-				return "Maximum tile height difference reached.";
-			}
-			// the ground below must be either flat or have the same slope, else bad stuff may happen
-			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
-			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
-				// could lead to crossconnected ways => forbidden
-				return "Maximum tile height difference reached.";
-			}
-		}
-		// just flatten this tile
-		else if(  slope_this==hang_t::flach  ) {
-			// the ground below must be either flat or have the same slope, else bad stuff may happen
-			grund_t *gr2 = welt->lookup(pos-koord3d(0,0,Z_TILE_STEP));
-			if(  gr2  &&  gr2->get_weg_hang()!=slope_this  &&  gr2->get_weg_hang()!=hang_t::flach  ) {
-				// could lead to crossconnected ways => forbidden
-				return "Maximum tile height difference reached.";
 			}
 		}
 
 		// check, if action is valid ...
 		const sint16 hgt=new_pos.z/Z_TILE_STEP;
 		// maximum difference
-		const sint8 test_hgt = hgt+(slope_this!=0);
+		const sint8 test_hgt = hgt+(new_slope!=0);
 
 		if(  gr1->get_typ()==grund_t::boden  ) {
 			// first left side
@@ -1011,8 +981,8 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 
 		// ok, now we set the slope ...
-		ok = (new_pos!=old_pos);
-		ok |= slope_this!=gr1->get_grund_hang();
+		ok = (new_pos!=pos);
+		ok |= new_slope!=gr1->get_grund_hang();
 
 		if(ok) {
 
@@ -1021,28 +991,23 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				return "Tile not empty.";
 			}
 
-			// already some ground here (tunnel, bridge, monorail?)
-			if(new_pos!=gr1->get_pos()  &&  welt->lookup(new_pos)!=NULL) {
-				return "Tile not empty.";
-			}
-
 			// ok, was sucess
-			if(!gr1->ist_wasser()  &&  slope_this==0  &&  new_pos.z==welt->get_grundwasser()  &&  gr1->get_typ()!=grund_t::tunnelboden  ) {
+			if(!gr1->ist_wasser()  &&  new_slope==0  &&  new_pos.z==welt->get_grundwasser()  &&  gr1->get_typ()!=grund_t::tunnelboden  ) {
 				// now water
 				gr1->obj_loesche_alle(sp);
 				welt->access(pos.get_2d())->kartenboden_setzen( new wasser_t(welt,new_pos) );
 			}
-			else if(gr1->ist_wasser()  &&  (new_pos.z>welt->get_grundwasser()  ||  slope_this!=0)) {
+			else if(gr1->ist_wasser()  &&  (new_pos.z>welt->get_grundwasser()  ||  new_slope!=0)) {
 				gr1->obj_loesche_alle(sp);
-				welt->access(pos.get_2d())->kartenboden_setzen( new boden_t(welt,new_pos,slope_this) );
+				welt->access(pos.get_2d())->kartenboden_setzen( new boden_t(welt,new_pos,new_slope) );
 			}
 			else {
-				gr1->set_grund_hang(slope_this);
+				gr1->set_grund_hang(new_slope);
 				gr1->set_pos(new_pos);
 				gr1->clear_flag(grund_t::marked);
 				gr1->set_flag(grund_t::dirty);
 				// eventually update new positions
-				if(  new_pos!=old_pos  ) {
+				if(  new_pos!=pos  ) {
 					for(  int i=0;  i<gr1->get_top();  i++  ) {
 						gr1->obj_bei(i)->set_pos( new_pos );
 					}
@@ -1054,7 +1019,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 			if(  gr1->ist_karten_boden()  ) {
 				// no lakes on slopes ...
-				if(  slope_this!=hang_t::flach  ) {
+				if(  new_slope!=hang_t::flach  ) {
 					groundobj_t *d = gr1->find<groundobj_t>();
 					if(  d  &&  d->get_besch()->get_phases()!=16  ) {
 						d->entferne(sp);
@@ -1068,8 +1033,8 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 						gr->calc_bild();
 					}
 				}
+				welt->set_grid_hgt(pos.get_2d(), gr1->get_hoehe() + corner4(gr1->get_grund_hang()));
 			}
-			welt->set_grid_hgt(pos.get_2d(), gr1->get_hoehe() + corner4(gr1->get_grund_hang()));
 			spieler_t::accounting(sp, new_slope==RESTORE_SLOPE?welt->get_einstellungen()->cst_alter_land:welt->get_einstellungen()->cst_set_slope, pos.get_2d(), COST_CONSTRUCTION);
 		}
 

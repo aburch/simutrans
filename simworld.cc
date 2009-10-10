@@ -3332,7 +3332,7 @@ static sint8 median( sint8 a, sint8 b, sint8 c )
 
 
 /**
- * returns the natural slope a a position using the actual slopes
+ * returns the natural slope at a position using the actual slopes
  * @author prissi
  */
 uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
@@ -3400,14 +3400,16 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 		/* check for an artificial slope on a steep sidewall */
 		bool not_ok = abs(max_height-min_height)>2  ||  min_height == -128;
 
-		// now we must make clear, that there is mo ground above/below the sloe
-		if(  new_height!=min_height  ) {
+		const sint8 old_height = gr->get_hoehe();
+		new_height = min_height;
+		// now we must make clear, that there is no ground above/below the slope
+		if(  old_height!=new_height  ) {
 			not_ok |= lookup(koord3d(pos,new_height))!=NULL;
-			if(  new_height>min_height  ) {
-				not_ok |= lookup(koord3d(pos,new_height-1))!=NULL;
+			if(  old_height > new_height  ) {
+				not_ok |= lookup(koord3d(pos,old_height-1))!=NULL;
 			}
-			if(  new_height<min_height  ) {
-				not_ok |= lookup(koord3d(pos,new_height+1))!=NULL;
+			if(  old_height < new_height  ) {
+				not_ok |= lookup(koord3d(pos,old_height+1))!=NULL;
 			}
 		}
 
@@ -3418,8 +3420,6 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 			new_height = gr->get_hoehe();
 			return gr->get_grund_hang();
 		}
-
-		new_height = min_height;
 #if 0
 		// Since we have now the correct slopes, we update the grid:
 		sint8 *p = &grid_hgts[pos.x + pos.y*(get_groesse_x()+1)];
