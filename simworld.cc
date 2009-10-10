@@ -1929,16 +1929,20 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		const sint8 hn_ne = min(hne, h0_ne);
 		const sint8 hn_nw = min(hnw, h0_nw);
 		// nothing to do?
-		if (gr->ist_wasser()) {
-			if (h0_nw <= hnw) return 0;
+		if(  gr->ist_wasser()  ) {
+			if(  h0_nw <= hnw  ) {
+				return 0;
+			}
 		}
 		else {
-			if (h0_sw <= hsw  &&  h0_se <= hse  &&  h0_ne <= hne  &&  h0_nw <= hnw) return 0;
+			if(  h0_sw <= hsw  &&  h0_se <= hse  &&  h0_ne <= hne  &&  h0_nw <= hnw  ) {
+				return 0;
+			}
 		}
 		// calc new height and slope
 		const sint8 hneu = min(min(hn_sw,hn_se), min(hn_ne,hn_nw));
 		bool ok = ( (hn_sw-hneu<2) && (hn_se-hneu<2) && (hn_ne-hneu<2) && (hn_nw-hneu<2)); // may fail on water tiles since lookup_hgt might be modified from previous lower_to calls
-		if (!ok && !gr->ist_wasser()) {
+		if(  !ok && !gr->ist_wasser()  ) {
 			assert(false);
 		}
 		const uint8 sneu = (hn_sw-hneu) | ((hn_se-hneu)<<1) | ((hn_ne-hneu)<<2) | ((hn_nw-hneu)<<3);
@@ -1990,8 +1994,12 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		}
 
 		lookup_kartenboden(koord(x,y))->calc_bild();
-		if ((x+1)<cached_groesse_karte_x) lookup_kartenboden(koord(x+1,y))->calc_bild();
-		if ((y+1)<cached_groesse_karte_y) lookup_kartenboden(koord(x,y+1))->calc_bild();
+		if(  (x+1)<cached_groesse_karte_x  ) {
+			lookup_kartenboden(koord(x+1,y))->calc_bild();
+		}
+		if(  (y+1)<cached_groesse_karte_y  ) {
+			lookup_kartenboden(koord(x,y+1))->calc_bild();
+		}
 	}
 	return n;
 }
@@ -3404,8 +3412,9 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 		/* check for an artificial slope on a steep sidewall */
 		bool not_ok = abs(max_height-min_height)>2  ||  min_height == -128;
 
-		const sint8 old_height = gr->get_hoehe();
+		sint8 old_height = gr->get_hoehe();
 		new_height = min_height;
+
 		// now we must make clear, that there is no ground above/below the slope
 		if(  old_height!=new_height  ) {
 			not_ok |= lookup(koord3d(pos,new_height))!=NULL;
@@ -3415,13 +3424,14 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
 			if(  old_height < new_height  ) {
 				not_ok |= lookup(koord3d(pos,old_height+1))!=NULL;
 			}
+			not_ok |= lookup(koord3d(pos,new_height))!=NULL;
 		}
 
 		if(  not_ok  ) {
 			/* difference too high or ground above/below
 			 * we just keep it as it was ...
 			 */
-			new_height = gr->get_hoehe();
+			new_height = old_height;
 			return gr->get_grund_hang();
 		}
 #if 0

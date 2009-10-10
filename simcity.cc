@@ -1559,23 +1559,24 @@ koord stadt_t::get_zufallspunkt() const
  */
 koord stadt_t::finde_passagier_ziel(pax_zieltyp* will_return)
 {
-	const int rand = simrand(100);
+	const sint16 rand = simrand(100);
 
 	// about 1/3 are workers
-	if (rand < FACTORY_PAX && arbeiterziele.get_sum_weight() > 0) {
+	if(  rand < welt->get_einstellungen()->get_factory_worker_percentage()  &&  arbeiterziele.get_sum_weight() > 0  ) {
 		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight()));
 		*will_return = factoy_return;	// worker will return
 		return fab->get_pos().get_2d();
-	} else if (rand < TOURIST_PAX + FACTORY_PAX && welt->get_ausflugsziele().get_sum_weight() > 0) {
+	} else if(  rand < welt->get_einstellungen()->get_tourist_percentage() + welt->get_einstellungen()->get_factory_worker_percentage()  &&  welt->get_ausflugsziele().get_sum_weight() > 0  ) {
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
 		return gb->get_pos().get_2d();
-	} else {
+	}
+	else {
 		// if we reach here, at least a single town existes ...
 		const stadt_t* zielstadt = welt->get_random_stadt();
 
 		// we like nearer towns more
-		if( koord_distance( zielstadt->pos, pos ) > 120 ) {
+		if(  koord_distance( zielstadt->pos, pos ) > 120  ) {
 			// retry once ...
 			zielstadt = welt->get_random_stadt();
 		}

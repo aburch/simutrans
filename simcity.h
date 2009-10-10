@@ -22,10 +22,6 @@ class cstring_t;
 
 class rule_t;
 
-// part of passengers going to factories or toursit attractions (100% mx)
-#define FACTORY_PAX (33)	// workers
-#define TOURIST_PAX (16)		// tourists
-
 
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history

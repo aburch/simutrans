@@ -299,15 +299,6 @@ private:
 	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
 	~haltestelle_t();
 
-	/**
-	 * Markers used in suche_route() to avoid processing the same halt more than once
-	 * Originally they are instance variables of haltestelle_t
-	 * Now consolidated into a static array to speed up suche_route()
-	 * @author Knightly
-	 */
-	static uint8 markers[65536];
-	static uint8 current_marker;
-
 public:
 	/**
 	* Called after schedule calculation of all stations is finished

@@ -878,7 +878,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			else if(  new_slope==ALL_DOWN_SLOPE  ) {
 				if(  gr1->get_grund_hang()==hang_typ(ribis)  ) {
 					// do not lower tiles to sea
-					if (pos.z == welt->get_grundwasser()  &&  !gr1->ist_tunnel()) {
+					if(  pos.z == welt->get_grundwasser()  &&  !gr1->ist_tunnel()  ) {
 						return "Tile not empty.";
 					}
 				}
@@ -904,14 +904,14 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			DBG_MESSAGE("natural_slope","%i",new_slope);
 		}
 		else if(new_slope == ALL_DOWN_SLOPE) {
-			new_slope = 0;
+			new_slope = hang_t::flach;
 			// is more intiutive: if there is a slope, first downgrade it
 			if (gr1->get_grund_hang()==0  ) {
 				new_pos.z -= Z_TILE_STEP;
 			}
 		}
 		else if(new_slope == ALL_UP_SLOPE) {
-			new_slope = 0;
+			new_slope = hang_t::flach;
 			new_pos.z += Z_TILE_STEP;
 		}
 
@@ -1051,9 +1051,10 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
 		if (gr) {
 			// check for underground mode
-			if (grund_t::underground_mode == grund_t::ugm_all ||
-				(grund_t::underground_mode == grund_t::ugm_level && gr->get_hoehe()>grund_t::underground_level)) {
-					return "";
+			if(  grund_t::underground_mode == grund_t::ugm_all  ||
+				(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe()>grund_t::underground_level)
+			) {
+				return "";
 			}
 			if(!gr->get_text()) {
 				const ding_t* thing = gr->obj_bei(0);

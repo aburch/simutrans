@@ -6,7 +6,7 @@
 # This file can be found in many places:
 #
 # simutrans/config/simuconf.tab (this one)
-# ~/simutrans/simuconf.tab (in the user directory, if singleuser_install != 0 or not present, first only pak-file path will be read)
+# ~/simutrans/simuconf.tab (in the user directory, if singleuser_install == 0 or not present, first only pak-file path will be read)
 # simutrans/pakfilefolder/config/simuconf.tab
 # ~/simutrans/simuconf.tab (readed a second time, s.a.)
 #
@@ -116,6 +116,11 @@ max_transfers = 9
 
 # passenger generation (default is 16) Smaller values means less passengers
 #passenger_factor=16
+
+# amount of passengers that travel from/to factories or attractions
+# the ramining percentage goes to other cities
+#factory_worker_percentage = 33
+#tourist_percentage = 16
 
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
 #seperate_halt_capacities = 0

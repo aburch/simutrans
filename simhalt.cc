@@ -70,8 +70,14 @@ stringhashtable_tpl<halthandle_t> haltestelle_t::all_names;
 static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
 
-uint8 haltestelle_t::markers[65536];
-static uint8 current_mark = 255;
+/**
+ * Markers used in suche_route() to avoid processing the same halt more than once
+ * Originally they are instance variables of haltestelle_t
+ * Now consolidated into a static array to speed up suche_route()
+ * @author Knightly
+ */
+static uint8 markers[65536];
+static uint8 current_mark = 255;	// 255: array must be init before next search
 
 
 void haltestelle_t::step_all()
@@ -299,9 +305,7 @@ void haltestelle_t::destroy_all(karte_t *welt)
 haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
 	self = halthandle_t(this);
-
-	// force init next time
-	current_mark = 255;
+	markers[ self.get_id() ] = current_mark;
 
 	welt = wl;
 
@@ -340,8 +344,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	assert( !alle_haltestellen.is_contained(self) );
 	alle_haltestellen.append(self);
 
-	// force init next time
-	current_mark = 255;
+	markers[ self.get_id() ] = current_mark;
 
 	welt = wl;
 
@@ -1088,13 +1091,6 @@ sint32 haltestelle_t::rebuild_destinations()
 }
 
 
-void haltestelle_t::init_markers()
-{
-	memset( markers, 0, halthandle_t::get_size() );
-	current_mark = 0;
-}
-
-
 /* HNode is used for route search */
 struct HNode {
 	halthandle_t halt;
@@ -1166,7 +1162,8 @@ int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_ov
 	// set curretn marker
 	current_mark ++;
 	if(  current_mark==0  ) {
-		init_markers();
+		memset( markers, 0, halthandle_t::get_size() );
+		current_mark = 1;
 	}
 
 	// single threading makes some things easier

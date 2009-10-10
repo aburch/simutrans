@@ -44,6 +44,10 @@ private:
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
 
+	// percentage of routing
+	sint16 factory_worker_percentage;
+	sint16 tourist_percentage;
+
 	uint16 station_coverage_size;
 
 	/**
@@ -392,6 +396,11 @@ public:
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 	void set_growthfactor_large(sint32 n) { growthfactor_large = n; }
 
+	// amount of different destinations
+	void set_factory_worker_percentage(sint32 n) { factory_worker_percentage = n; }
+	sint32 get_factory_worker_percentage() const { return factory_worker_percentage; }
+	void set_tourist_percentage(sint32 n) { tourist_percentage = n; }
+	sint32 get_tourist_percentage() const { return tourist_percentage; }
 };
 
 #endif

@@ -81,6 +81,9 @@ einstellungen_t::einstellungen_t() :
 	growthfactor_medium = 200;
 	growthfactor_large = 400;
 
+	factory_worker_percentage = 33;
+	tourist_percentage = 16;
+
 	electric_promille = 330;
 
 #ifdef OTTD_LIKE
@@ -375,6 +378,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_long( growthfactor_small, "" );
 				file->rdwr_long( growthfactor_medium, "" );
 				file->rdwr_long( growthfactor_large, "" );
+				file->rdwr_short( factory_worker_percentage, "" );
+				file->rdwr_short( tourist_percentage, "" );
 			}
 
 			file->rdwr_long( electric_promille, "" );
@@ -550,6 +555,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
+	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
+	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
