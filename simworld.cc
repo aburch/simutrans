@@ -4536,6 +4536,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		//bool select_karten_boden = event_get_last_control_shift()==2;
 
 		sint8 hgt; // trial height
+		sint8 groff; // offset for lower raise tool
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
 		// for the calculation of hmin/hmax see simview.cc
@@ -4560,6 +4561,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 					found = false;
 				}
 				if (found) {
+					groff = corner4(gr->get_grund_hang());
 					break;
 				}
 
@@ -4577,6 +4579,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mi = bd->get_pos().x;
 			mj = bd->get_pos().y;
 			hgt= bd->get_disp_height();
+			groff = bd->is_visible() ? corner4(bd->get_grund_hang()) : 0;
 			found = true;
 		}
 		// no suitable location found (outside map, ...)
@@ -4585,7 +4588,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		}
 
 		// the new position - extra logic for raise / lower tool
-		const koord3d pos = koord3d(mi,mj, zeiger->get_yoff()==Z_GRID ? lookup_hgt(koord(mi,mj)) : hgt);
+		const koord3d pos = koord3d(mi,mj, hgt + (zeiger->get_yoff()==Z_GRID ? groff : 0));
 
 		// rueckwaerttransformation um die zielkoordinaten
 		// mit den mauskoordinaten zu vergleichen
