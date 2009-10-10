@@ -6,10 +6,9 @@
 #define bigger_map_gui_h
 
 #include "gui_frame.h"
-#include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
-#include "components/gui_textinput.h"
+#include "components/gui_numberinput.h"
 
 class einstellungen_t;
 
@@ -33,17 +32,11 @@ private:
 	bool changed_number_of_towns;
 	int old_lang;
 
-	// since decrease/increase buttons always pair these ...
-	button_t x_size[2];
-	button_t y_size[2];
-
-	button_t number_of_towns[2];
-	button_t town_size[2];
+	gui_numberinput_t inp_x_size, inp_y_size, inp_number_of_towns, inp_town_size;
 
 	button_t start_button;
 
-	gui_label_t memory, xsize, ysize;//, no_towns, townsize;
-	char xsize_str[16], ysize_str[16], no_towns_str[16], townsize_str[16];
+	gui_label_t memory;// memory requirement
 	char memory_str[256];
 
 	karte_t *welt;
