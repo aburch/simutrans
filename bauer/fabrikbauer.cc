@@ -291,7 +291,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 		groesse += koord(6,6);
 	}
 
-	climate_bits climates = ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
+	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
 
 	// check no factory but otherwise good place
 	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
