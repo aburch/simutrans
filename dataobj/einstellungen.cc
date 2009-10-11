@@ -35,7 +35,7 @@ einstellungen_t::einstellungen_t() :
 	anzahl_staedte = 16;
 	mittlere_einwohnerzahl = 1600;
 
-	station_coverage_size = 3;
+	station_coverage_size = 2;
 
 	verkehr_level = 7;
 
@@ -85,6 +85,7 @@ einstellungen_t::einstellungen_t() :
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
+	factory_worker_radius = 77;
 
 
 
@@ -547,6 +548,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_long( growthfactor_large, "" );
 				file->rdwr_short( factory_worker_percentage, "" );
 				file->rdwr_short( tourist_percentage, "" );
+				file->rdwr_short( factory_worker_radius, "" );
 			}
 
 			file->rdwr_long( electric_promille, "" );
@@ -962,6 +964,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
 	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
+	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;

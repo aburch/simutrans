@@ -24,6 +24,9 @@ gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
  */
 void gui_container_t::add_komponente(gui_komponente_t *komp)
 {
+	/* insert builds the diologe from bottom to top:
+	 * Essential for comobo-boxes, so they overlap lower elements
+	 */
 	komponenten.insert(komp);
 	list_dirty = true;
 }

@@ -29,6 +29,7 @@ enum magic_numbers {
 	magic_reserved = 0,
 
 	// from here on, delete second 'new'-ed object in create_win
+	magic_settings_frame_t,
 	magic_sprachengui_t,
 	magic_welt_gui_t,
 	magic_climate,

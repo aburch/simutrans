@@ -517,8 +517,8 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		wkz.exit( welt, this );
 	}
 
-	koord diff1( sgn(size1.x), sgn(size1.y) );
-	vehikel_t* v = vehikelbauer_t::baue(pos1+size1-diff1, this, NULL, rail_engine);
+	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
+	vehikel_t* v = vehikelbauer_t::baue( start_pos, this, NULL, rail_engine);
 
 	// V.Meyer: give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
@@ -531,7 +531,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	 */
 	for(int i = 0; i < anz_vehikel; i++) {
 		// use the vehicle we searched before
-		vehikel_t* v = vehikelbauer_t::baue(pos1+size1-diff1, this, NULL, rail_vehicle);
+		vehikel_t* v = vehikelbauer_t::baue(start_pos, this, NULL, rail_vehicle);
 		cnv->add_vehikel( v );
 	}
 
@@ -669,7 +669,7 @@ bool ai_goods_t::create_simple_rail_transport()
 		INT_CHECK("simplay 2478");
 	}
 
-	if(ok  &&  bauigel.get_count()-1 > 3) {
+	if(ok  &&  bauigel.get_count() > 4) {
 DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		// connect to track
@@ -1056,6 +1056,12 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
 					wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
 					wkz.exit( welt, this );
+					if( (count_road != 255) && suche_platz1_platz2(start, ziel, 0) ) {
+						state = NR_BAUE_STRASSEN_ROUTE;
+					}
+					else {
+						state = NR_BAUE_CLEAN_UP;
+					}
 				}
 			}
 			else {

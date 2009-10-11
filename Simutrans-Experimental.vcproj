@@ -943,6 +943,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\settings_frame.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\settings_stats.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\signal.cc"
 				>
 			</File>
@@ -2178,6 +2186,14 @@
 			</File>
 			<File
 				RelativePath=".\utils\searchfolder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\settings_frame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\settings_stats.h"
 				>
 			</File>
 			<File

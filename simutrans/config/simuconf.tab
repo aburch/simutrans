@@ -37,13 +37,13 @@
 
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
-# 10000 is ok for everything else (consumes 16*x Bytes main  memory)
-max_route_steps = 1000000
+# 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
+#max_route_steps = 1000000
 
 # size of catchment area of a station (default 2)
 # older game size was 3
-# savegames with another catch area will be unloadable
-station_coverage = 2
+# savegames with another catch area will give strange results
+#station_coverage = 2
 
 # Max number of steps in goods pathfinding
 # This should be equal or greater than the biggest group
@@ -57,16 +57,11 @@ station_coverage = 2
 # Depending on your CPU power, you might want to limit the search
 # depth.
 #
-# 300 seems to be a good compromise for most games. 100 is ok for
-# small games. 8000 should suffice for even the largest maps, but
-# will take a good amount of CPU time if you have complex transport
-# networks. Max. allowed value is 9994.
-#
 # prissi: On a 512x512 map with more than 150000 people daily, the saturation
 # value for "no route" was higher, around 8000. Using 300 instead almost doubled
 # the value of "no route"
 #
-max_hops = 2000
+#max_hops = 2000
 
 # Passengers and goods will change vehicles at most "max_transfer"
 # times to reach their destination.
@@ -83,7 +78,7 @@ max_hops = 2000
 # T. Kubes: I would say 8 for now, but this definitely should be difficulty
 # dependent setting.
 #
-max_transfers = 9
+# max_transfers = 9
 
 # way builder internal weights (defaults)
 # a higher weight make it more unlikely
@@ -269,6 +264,7 @@ max_transfers = 9
 #cost_multiply_headquarter=1000
 
 # cost for depots
+#cost_depot_air=5000
 #cost_depot_rail=1000
 #cost_depot_road=1300
 #cost_depot_ship=2500
@@ -279,14 +275,16 @@ max_transfers = 9
 #cost_third_rail=80
 
 # other construction/destruction stuff
-#cost_alter_land=1000
 #cost_buy_land=100
+#cost_alter_land=1000
 #cost_set_slope=2500
 #cost_found_city=5000000
 #cost_multiply_found_industry=20000
 #cost_remove_tree=100
 #cost_multiply_remove_haus=1000
 #cost_multiply_remove_field=5000
+#cost_transformer=2500
+#cost_maintain_transformer=20
 
 ###################################other stuff##################################
 #

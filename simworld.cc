@@ -3603,7 +3603,7 @@ static sint8 median( sint8 a, sint8 b, sint8 c )
 		return b>c ? b : min(a,c);;
 	}
 #else
-		return (3*128+2 + a+b+c)/3-128;
+		return (6*128+3 + a+a+b+b+c+c)/6-128;
 #endif
 }
 
