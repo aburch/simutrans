@@ -766,9 +766,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			if(ok) {
 				// check for depots/stops/...
-				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+				if(  fundament  ||  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
 					return false;
 				}
+				// with this check, laying tracks into road depot is still possible, althoguh we cannot drive there ...
+
 				// calculate costs
 				*costs = to->hat_weg(track_wt) ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
 				// perfer own track
