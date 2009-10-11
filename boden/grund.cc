@@ -1249,7 +1249,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		koord here = pos.get_2d();
 
 		// stopps
-		if(flags&is_halt_flag  &&  get_halt()->get_besitzer()==sp) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==sp  || sp==welt->get_spieler(1))) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {
