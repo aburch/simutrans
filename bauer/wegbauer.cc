@@ -1880,7 +1880,7 @@ void wegbauer_t::baue_strasse()
 		grund_t* gr = welt->lookup(route[i]);
 		sint64 cost = 0;
 
-		bool extend = gr->weg_erweitern(road_wt, route.get_ribi(i));
+		bool extend = gr->weg_erweitern(road_wt, route.get_short_ribi(i));
 
 		// bridges/tunnels have their own track type and must not upgrade
 		if(gr->get_typ()==grund_t::brueckenboden  ||  gr->get_typ()==grund_t::tunnelboden) {
@@ -1911,7 +1911,7 @@ void wegbauer_t::baue_strasse()
 
 			str->set_besch(besch);
 			str->set_gehweg(add_sidewalk);
-			cost = -gr->neuen_weg_bauen(str, route.get_ribi(i), sp)-besch->get_preis();
+			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp)-besch->get_preis();
 
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
@@ -1937,7 +1937,7 @@ void wegbauer_t::baue_schiene()
 		for(  uint32 i=0;  i<get_count();  i++  ) {
 			sint64 cost = 0;
 			grund_t* gr = welt->lookup(route[i]);
-			ribi_t::ribi ribi = route.get_ribi(i);
+			ribi_t::ribi ribi = route.get_short_ribi(i);
 
 			if(gr->get_typ()==grund_t::wasser) {
 				// not building on the sea ...
@@ -2057,7 +2057,7 @@ wegbauer_t::baue_fluss()
 	// Do we join an other river?
 	uint32 start_n = 0;
 	for(  uint32 idx=start_n;  idx<get_count();  idx++  ) {
-		if(  welt->lookup(route[idx])->hat_weg(water_wt)  ) {
+		if(  welt->lookup(route[idx])->hat_weg(water_wt)  ||  welt->lookup(route[idx])->get_hoehe()==welt->get_grundwasser() ) {
 			start_n = idx;
 		}
 	}
@@ -2084,7 +2084,7 @@ wegbauer_t::baue_fluss()
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
 		if(  gr->get_typ()!=grund_t::wasser  ) {
 			// get direction
-			ribi_t::ribi ribi = route.get_ribi(i);
+			ribi_t::ribi ribi = route.get_short_ribi(i);
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
 				weg_t *sch=weg_t::alloc(water_wt);

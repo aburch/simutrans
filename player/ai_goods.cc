@@ -669,7 +669,7 @@ bool ai_goods_t::create_simple_rail_transport()
 		INT_CHECK("simplay 2478");
 	}
 
-	if(ok  &&  bauigel.get_count()-1 > 3) {
+	if(ok  &&  bauigel.get_count() > 4) {
 DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		// connect to track
@@ -1051,6 +1051,12 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
 					wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
 					wkz.exit( welt, this );
+					if( (count_road != 255) && suche_platz1_platz2(start, ziel, 0) ) {
+						state = NR_BAUE_STRASSEN_ROUTE;
+					}
+					else {
+						state = NR_BAUE_CLEAN_UP;
+					}
 				}
 			}
 			else {
