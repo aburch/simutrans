@@ -58,7 +58,7 @@ einstellungen_t::einstellungen_t() :
 	use_timeline = 2;
 	starting_year = 1930;
 	starting_month = 0;
-	bits_per_month = 18;
+	bits_per_month = 20;
 
 	beginner_mode = false;
 	beginner_price_factor = 1500;
@@ -71,6 +71,22 @@ einstellungen_t::einstellungen_t() :
 	passenger_factor = 10;
 
 	electric_promille = 1000;
+
+	// town growth factors
+	passenger_multiplier = 40;
+	mail_multiplier = 20;
+	goods_multiplier = 20;
+	electricity_multiplier = 20;
+
+	// Also there are size dependen factors (0 causes crash !)
+	growthfactor_small = 400;
+	growthfactor_medium = 200;
+	growthfactor_large = 100;
+
+	factory_worker_percentage = 33;
+	tourist_percentage = 16;
+
+
 
 #ifdef OTTD_LIKE
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
@@ -86,7 +102,7 @@ einstellungen_t::einstellungen_t() :
 	factory_spacing = 6;
 
 	/* prissi: do not distribute goods to overflowing factories */
-	just_in_time=true;
+	just_in_time = true;
 
 	fussgaenger = true;
 	stadtauto_duration = 120;	// ten years
@@ -173,7 +189,7 @@ einstellungen_t::einstellungen_t() :
 	way_count_straight=1;
 	way_count_curve=2;
 	way_count_double_curve=6;
-	way_count_90_curve=50;
+	way_count_90_curve=15;
 	way_count_slope=10;
 	way_count_tunnel=8;
 	way_max_bridge_len=15;
@@ -315,10 +331,6 @@ einstellungen_t::einstellungen_t() :
 	global_power_factor = 1.0F;
 
 	avoid_overcrowding = false;
-	
-	// Customisable city growth
-	// @author: jamespetts
-	city_weight_factor = 100;
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts
@@ -523,6 +535,20 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short( origin_y, "oy" );
 
 			file->rdwr_long( passenger_factor, "" );
+
+			// town grow stuff
+			if(file->get_version()>102001) {
+				file->rdwr_long( passenger_multiplier, "" );
+				file->rdwr_long( mail_multiplier, "" );
+				file->rdwr_long( goods_multiplier, "" );
+				file->rdwr_long( electricity_multiplier, "" );
+				file->rdwr_long( growthfactor_small, "" );
+				file->rdwr_long( growthfactor_medium, "" );
+				file->rdwr_long( growthfactor_large, "" );
+				file->rdwr_short( factory_worker_percentage, "" );
+				file->rdwr_short( tourist_percentage, "" );
+			}
+
 			file->rdwr_long( electric_promille, "" );
 
 			file->rdwr_short( factory_spacing, "" );
@@ -829,7 +855,13 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 3)
 		{
-			file->rdwr_short(city_weight_factor, "");
+			if(file->get_experimental_version() < 7)
+			{
+				// Was city weight factor. Now replaced by a more
+				// sophisticated customisable city growth from Standard.
+				uint16 dummy;
+				file->rdwr_short(dummy, "");
+			}
 			file->rdwr_byte(enforce_weight_limits, "");
 			uint16 speed_bonus_multiplier_percent = speed_bonus_multiplier * 100;
 			file->rdwr_short(speed_bonus_multiplier_percent, "");
@@ -929,10 +961,22 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
+	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
+	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
 	max_rerouting_interval_months = contents.get_int("max_rerouting_interval_months", max_rerouting_interval_months);
+
+	// city stuff
+	passenger_multiplier = contents.get_int("passenger_multiplier", passenger_multiplier );
+	mail_multiplier = contents.get_int("mail_multiplier", mail_multiplier );
+	goods_multiplier = contents.get_int("goods_multiplier", goods_multiplier );
+	electricity_multiplier = contents.get_int("electricity_multiplier", electricity_multiplier );
+
+	growthfactor_small = contents.get_int("growthfactor_villages", growthfactor_small );
+	growthfactor_medium = contents.get_int("growthfactor_cities", growthfactor_medium );
+	growthfactor_large = contents.get_int("growthfactor_capitals", growthfactor_large );
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
@@ -1161,10 +1205,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	uint16 global_power_factor_percent = 100;
 	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
 	global_power_factor = (float)global_power_factor_percent / 100;
-
-	// City weight factor. Customisable city growth.
-	// @author: jamespetts
-	city_weight_factor = contents.get_int("city_weight_factor", city_weight_factor);
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts

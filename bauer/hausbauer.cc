@@ -350,13 +350,15 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
 						const koord newk = k+pos.get_2d();
-						const uint8 new_slope = gr->get_hoehe()==welt->min_hgt(newk) ? 0 : welt->calc_natural_slope(newk);
-						if(welt->lookup(koord3d(newk,welt->min_hgt(newk)))!=gr) {
-							// there is another ground below => do not change hight, keep foundation
+						sint8 new_hgt;
+						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
+						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+						if(gr2  &&  gr2!=gr) {
+							// there is another ground below => do not change height, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
 						}
 						else {
-							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,welt->min_hgt(newk) ), new_slope) );
+							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(new_slope!=0) {

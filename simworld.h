@@ -159,6 +159,7 @@ private:
 
 	// if true, this map cannot be saved
 	bool nosave;
+	bool nosave_warning;
 
 	/*
 	* the current convoi to follow
@@ -805,10 +806,13 @@ public:
 
 	/**
 	 * returns the natural slope a a position
-	 * if (check) check maximal height difference and truncate if necessary
+	 * uses the corner height for the best slope
 	 * @author prissi
 	 */
-	uint8	calc_natural_slope( const koord pos, const bool check=false ) const;
+	uint8	recalc_natural_slope( const koord pos, sint8 &new_height ) const;
+
+	// no checking, and only using the grind for calculation
+	uint8	calc_natural_slope( const koord pos ) const;
 
 	/**
 	 * Wird vom Strassenbauer als Orientierungshilfe benutzt.
@@ -985,6 +989,7 @@ public:
 
 	bool cannot_save() const { return nosave; }
 	void set_nosave() { nosave = true; }
+	void set_nosave_warning() { nosave_warning = true; }
 
 	// rotate map view by 90 degree
 	void rotate90();

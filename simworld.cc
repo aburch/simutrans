@@ -464,19 +464,16 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 
 
 
-// karte_t methoden
-
-void
-karte_t::destroy()
+void karte_t::destroy()
 {
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
 
 	// rotate the map until it can be saved
+	nosave_warning = nosave = false;
 	for( int i=0;  i<4  &&  nosave;  i++  ) {
 DBG_MESSAGE("karte_t::destroy()", "rotating");
-		nosave = false;
 		rotate90();
 	}
 	if(nosave) {
@@ -714,11 +711,12 @@ void karte_t::init_felder()
 
 	convoihandle_t::init( 1024 );
 	linehandle_t::init( 1024 );
+
 	halthandle_t::init( 1024 );
 
 	scenario = new scenario_t(this);
 
-	nosave = false;
+	nosave_warning = nosave = false;
 }
 
 
@@ -778,7 +776,7 @@ void karte_t::create_rivers( sint16 number )
 			riverbuilder.route_fuer(wegbauer_t::river, river_besch);
 			riverbuilder.set_maximum( dist*50 );
 			riverbuilder.calc_route( lookup_kartenboden(end)->get_pos(), lookup_kartenboden(start)->get_pos() );
-			if(  riverbuilder.max_n >= einstellungen->get_min_river_length()  ) {
+			if(  riverbuilder.get_count() >= (uint32)einstellungen->get_min_river_length()  ) {
 				// do not built too short rivers
 				riverbuilder.baue();
 				number --;
@@ -842,8 +840,6 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		if (old_x+old_y == 0)
 			change_world_position( koord3d((*pos)[0], min_hgt((*pos)[0])) );
 
-		// activate location evalution cache
-		stadt_t::reset_location_cache(koord(get_groesse_x(),get_groesse_y()));
 		// Loop only new cities:
 #ifdef DEBUG
 		uint32 tbegin = dr_time();
@@ -863,9 +859,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 				printf("*");fflush(NULL);
 			}
 		}
-		// disable location evalution cache
-		stadt_t::disable_location_cache();
-		
+
 		delete pos;
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
@@ -923,9 +917,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 			uint8 conn_comp=1; // current connection component for phase 0
 			vector_tpl<uint8> city_flag; // city already connected to the graph? >0 nr of connection component
 			array2d_tpl<sint32> city_dist(einstellungen->get_anzahl_staedte(), einstellungen->get_anzahl_staedte());
-			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
+			for(  sint32 i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
 				city_dist.at(i,i) = 0;
-				for(  int j = i + 1;  j < einstellungen->get_anzahl_staedte();  j++  ) {
+				for(  sint32 j = i + 1;  j < einstellungen->get_anzahl_staedte();  j++  ) {
 					city_dist.at(i,j) = koord_distance(k[i], k[j]);
 					city_dist.at(j,i) = city_dist.at(i,j);
 					// count unbuildable connections to new cities
@@ -1036,8 +1030,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 					bool build = false;
 					// set appropriate max length for way builder
 					if(  connected  ) {
-						if(  2*verbindung.get_max_n() > city_dist.at(conn)  ) {
-							bauigel.set_maximum(verbindung.get_max_n() / 2);
+						if(  2*verbindung.get_count() > city_dist.at(conn)  ) {
+							bauigel.set_maximum(verbindung.get_count() / 2);
 							build = true;
 						}
 					}
@@ -1050,7 +1044,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 						bauigel.calc_route(k[conn.x],k[conn.y]);
 					}
 
-					if(  build  &&  bauigel.max_n >= 1  ) {
+					if(  build  &&  bauigel.get_count() >= 2  ) {
 						bauigel.baue();
 						if (phase==0) {
 							city_flag[ conn.y ] = conn_comp;
@@ -1065,7 +1059,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 						city_dist.at(conn) =  umgebung_t::intercity_road_length+1;
 						city_dist.at(conn.y, conn.x) =  umgebung_t::intercity_road_length+1;
 						count ++;
-						
+
 						if (phase==0) {
 							// do not try to connect to this connected component again
 							for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
@@ -1214,7 +1208,7 @@ DBG_DEBUG("karte_t::init()","distributing trees");
 DBG_DEBUG("karte_t::init()","built timeline");
 	stadtauto_t::built_timeline_liste(this);
 
-	nosave = false;
+	nosave_warning = nosave = false;
 
 	fabrikbauer_t::neue_karte(this);
 	// new system ...
@@ -1371,7 +1365,10 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		display_progress(16, display_total);
 	}
 	else {
-		init_perlin_map(get_groesse_x(),get_groesse_y());
+		if(  sets->get_rotation()==0  ) {
+			// otherwise neagtive offsets may occur, so we cache only non-rotated maps
+			init_perlin_map(new_groesse_x,new_groesse_y);
+		}
 		int next_progress, old_progress = 0;
 		// loop only new tiles:
 		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
@@ -1414,7 +1411,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
 		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
 			koord k = koord(ix,iy);
-			access(k)->kartenboden_setzen(new boden_t(this, koord3d(ix,iy,0),0));
+			access(k)->kartenboden_setzen(new boden_t(this, koord3d(ix,iy,min_hgt(k)),0));
 			access(k)->abgesenkt(this);
 			grund_t *gr = lookup_kartenboden(k);
 			gr->set_grund_hang(calc_natural_slope(k));
@@ -1588,7 +1585,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	grid_hgts = 0;
 	einstellungen = sets;
 	schedule_counter = 0;
-	nosave = false;
+	nosave_warning = nosave = false;
 	actual_industry_density = industry_density_proportion = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
@@ -2083,11 +2080,20 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		const sint8 hn_ne = min(hne, h0_ne);
 		const sint8 hn_nw = min(hnw, h0_nw);
 		// nothing to do?
-		if (h0_sw <= hsw  &&  h0_se <= hse  &&  h0_ne <= hne  &&  h0_nw <= hnw) return 0;
+		if(  gr->ist_wasser()  ) {
+			if(  h0_nw <= hnw  ) {
+				return 0;
+			}
+		}
+		else {
+			if(  h0_sw <= hsw  &&  h0_se <= hse  &&  h0_ne <= hne  &&  h0_nw <= hnw  ) {
+				return 0;
+			}
+		}
 		// calc new height and slope
 		const sint8 hneu = min(min(hn_sw,hn_se), min(hn_ne,hn_nw));
 		bool ok = ( (hn_sw-hneu<2) && (hn_se-hneu<2) && (hn_ne-hneu<2) && (hn_nw-hneu<2)); // may fail on water tiles since lookup_hgt might be modified from previous lower_to calls
-		if (!ok && !gr->ist_wasser()) {
+		if(  !ok && !gr->ist_wasser()  ) {
 			assert(false);
 		}
 		const uint8 sneu = (hn_sw-hneu) | ((hn_se-hneu)<<1) | ((hn_ne-hneu)<<2) | ((hn_nw-hneu)<<3);
@@ -2139,8 +2145,12 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 		}
 
 		lookup_kartenboden(koord(x,y))->calc_bild();
-		if ((x+1)<cached_groesse_karte_x) lookup_kartenboden(koord(x+1,y))->calc_bild();
-		if ((y+1)<cached_groesse_karte_y) lookup_kartenboden(koord(x,y+1))->calc_bild();
+		if(  (x+1)<cached_groesse_karte_x  ) {
+			lookup_kartenboden(koord(x+1,y))->calc_bild();
+		}
+		if(  (y+1)<cached_groesse_karte_y  ) {
+			lookup_kartenboden(koord(x,y+1))->calc_bild();
+		}
 	}
 	return n;
 }
@@ -2194,8 +2204,7 @@ int karte_t::lower(koord pos)
 	int n = 0;
 	if(ok && ist_in_kartengrenzen(pos)) {
 		grund_t *gr = lookup_kartenboden(pos);
-		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
-
+		const sint8 hnew = gr->ist_wasser() ? lookup_hgt(pos) : gr->get_hoehe() + corner4(gr->get_grund_hang());
 		n = lower_to(pos.x, pos.y, hnew, hnew, hnew, hnew-1);
 	}
 	return (n+3)>>2;
@@ -2334,11 +2343,10 @@ sint16 karte_t::max_hgt(const koord pos) const
 }
 
 
-void
-karte_t::rotate90()
+void karte_t::rotate90()
 {
 	// asumme we can save this rotation
-	nosave = false;
+	nosave_warning = nosave = false;
 
 	//announce current target rotation
 	einstellungen->rotate90();
@@ -3573,14 +3581,164 @@ void karte_t::blick_aendern(event_t *ev)
 }
 
 
-// nordhang = 3
-// suedhang = 12
+static sint8 median( sint8 a, sint8 b, sint8 c )
+{
+#if 0
+	if(  a==b  ||  a==c  ) {
+		return a;
+	}
+	else if(  b==c  ) {
+		return b;
+	}
+	else {
+		// noting matches
+//		return (3*128+1 + a+b+c)/3-128;
+		return -128;
+	}
+#elif 0
+	if(  a<=b  ) {
+		return b<=c ? b : max(a,c);;
+	}
+	else {
+		return b>c ? b : min(a,c);;
+	}
+#else
+		return (3*128+2 + a+b+c)/3-128;
+#endif
+}
+
+
 
 /**
- * returns the natural slope a a position
+ * returns the natural slope at a position using the actual slopes
  * @author prissi
  */
-uint8 karte_t::calc_natural_slope( const koord pos, const bool check ) const
+uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
+{
+	grund_t *gr = lookup_kartenboden(pos);
+	if(!gr) {
+		return hang_t::flach;
+	}
+	else {
+		// now we check each four corners
+		grund_t *gr1, *gr2, *gr3;
+
+		// back right
+		gr1 = lookup_kartenboden(pos+koord(0,-1));
+		gr2 = lookup_kartenboden(pos+koord(1,-1));
+		gr3 = lookup_kartenboden(pos+koord(1,0));
+		// now get the correct height
+		sint16 height1 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner2(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner1(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner4(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner one
+
+		// front right
+		gr1 = lookup_kartenboden(pos+koord(1,0));
+		gr2 = lookup_kartenboden(pos+koord(1,1));
+		gr3 = lookup_kartenboden(pos+koord(0,1));
+		// now get the correct height
+		sint16 height2 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner1(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner4(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner3(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner two
+
+		// front left
+		gr1 = lookup_kartenboden(pos+koord(0,1));
+		gr2 = lookup_kartenboden(pos+koord(-1,1));
+		gr3 = lookup_kartenboden(pos+koord(-1,0));
+		// now get the correct height
+		sint16 height3 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner4(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner3(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner2(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner three
+
+		// back left
+		gr1 = lookup_kartenboden(pos+koord(-1,0));
+		gr2 = lookup_kartenboden(pos+koord(-1,-1));
+		gr3 = lookup_kartenboden(pos+koord(0,-1));
+		// now get the correct height
+		sint16 height4 = median (
+			gr1 ? (sint16)gr1->get_hoehe()+corner3(gr1->get_grund_hang()) : grundwasser,
+			gr2 ? (sint16)gr2->get_hoehe()+corner2(gr2->get_grund_hang()) : grundwasser,
+			gr3 ? (sint16)gr3->get_hoehe()+corner1(gr3->get_grund_hang()) : grundwasser
+		);
+		// now we have height for corner four
+
+		// new height of that tile ...
+		sint8 min_height = min(min(height1,height2), min(height3,height4));
+		sint8 max_height = max(max(height1,height2), max(height3,height4));
+#ifndef DOUBLE_GROUNDS
+		/* check for an artificial slope on a steep sidewall */
+		bool not_ok = abs(max_height-min_height)>2  ||  min_height == -128;
+
+		sint8 old_height = gr->get_hoehe();
+		new_height = min_height;
+
+		// now we must make clear, that there is no ground above/below the slope
+		if(  old_height!=new_height  ) {
+			not_ok |= lookup(koord3d(pos,new_height))!=NULL;
+			if(  old_height > new_height  ) {
+				not_ok |= lookup(koord3d(pos,old_height-1))!=NULL;
+			}
+			if(  old_height < new_height  ) {
+				not_ok |= lookup(koord3d(pos,old_height+1))!=NULL;
+			}
+			not_ok |= lookup(koord3d(pos,new_height))!=NULL;
+		}
+
+		if(  not_ok  ) {
+			/* difference too high or ground above/below
+			 * we just keep it as it was ...
+			 */
+			new_height = old_height;
+			return gr->get_grund_hang();
+		}
+#if 0
+		// Since we have now the correct slopes, we update the grid:
+		sint8 *p = &grid_hgts[pos.x + pos.y*(get_groesse_x()+1)];
+		*p = height4;
+		*(p+1) = height3;
+		*(p+get_groesse_x()+2) = height2;
+		*(p+get_groesse_x()+1) = height1;
+#endif
+
+		// since slopes could be two unit height, we just return best effort ...
+		return (height4-new_height>0 ? 8 : 0) + (height1-new_height>0 ? 4 : 0) + (height2-new_height ? 2 : 0) + (height3-new_height>0 ? 1 : 0);
+#else
+		if(  max_height-min_height>2  ) {
+			/* this is an artificial slope on a steep sidewall
+			 * we just keep it as it was ...
+			 */
+			new_height = gr->get_hoehe();
+			return gr->get_grund_hang();
+		}
+		new_height = min_height;
+
+		const int d1=height1-mini;
+		const int d2=height2-mini;
+		const int d3=height3-mini;
+		const int d4=height4-mini;
+
+		return (d1*27) + (d2*9) + (d3*3) + d4;
+#endif
+	}
+	return 0;
+}
+
+
+
+/**
+ * returns the natural slope a a position using the grid
+ * @author prissi
+ */
+uint8 karte_t::calc_natural_slope( const koord pos ) const
 {
 	if(ist_in_kartengrenzen(pos.x, pos.y)) {
 
@@ -3599,13 +3757,7 @@ uint8 karte_t::calc_natural_slope( const koord pos, const bool check ) const
 		const int d4=h4-mini;
 
 #ifndef DOUBLE_GROUNDS
-		if (check) {
-			// allowed max height difference is 1
-			return ((d1?1:0)<<3) | ((d2?1:0)<<2) | ((d3?1:0)<<1) | (d4?1:0);
-		}
-		else {
-			return (d1<<3) | (d2<<2) | (d3<<1) | d4;
-		}
+		return (d1<<3) | (d2<<2) | (d3<<1) | d4;
 #else
 		return (d1*27) + (d2*9) + (d3*3) + d4;
 #endif
@@ -3615,8 +3767,7 @@ uint8 karte_t::calc_natural_slope( const koord pos, const bool check ) const
 
 
 
-bool
-karte_t::ist_wasser(koord pos, koord dim) const
+bool karte_t::ist_wasser(koord pos, koord dim) const
 {
 	koord k;
 
@@ -3762,16 +3913,28 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		display_progress(0,get_groesse_y());
 	}
 
-	// rotate the map until it can be saved
-	for( int i=0;  i<4  &&  nosave;  i++  ) {
-		nosave = false;
+	// rotate the map until it can be saved completely
+	nosave_warning = nosave = false;
+	for( int i=0;  i<4  &&  nosave_warning;  i++  ) {
 		rotate90();
 		needs_redraw = true;
 	}
-	if(nosave) {
-		dbg->error( "karte_t::speichern()","Map cannot be saved in any rotation!" );
-		create_win( new news_img("Map not saveable in any rotation!"), w_time_delete, magic_none);
-		return;
+	// seems not successful
+	if(nosave_warning) {
+		// but then we try to rotate until only warnings => some buildings may be broken, but factories should be fine
+		for( int i=0;  i<4  &&  nosave;  i++  ) {
+			rotate90();
+			needs_redraw = true;
+		}
+		if(  nosave  ) {
+			dbg->error( "karte_t::speichern()","Map cannot be saved in any rotation!" );
+			create_win( new news_img("Map may be not saveable in any rotation!"), w_info, magic_none);
+			// still broken, but we try anyway to save it ...
+		}
+	}
+	// only broken buildings => just warn
+	if(nosave_warning) {
+		dbg->error( "karte_t::speichern()","Some buildings may be broken by saving!" );
 	}
 
 	// If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
@@ -4748,6 +4911,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		//bool select_karten_boden = event_get_last_control_shift()==2;
 
 		sint8 hgt; // trial height
+		sint8 groff; // offset for lower raise tool
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
 		// for the calculation of hmin/hmax see simview.cc
@@ -4772,6 +4936,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 					found = false;
 				}
 				if (found) {
+					groff = corner4(gr->get_grund_hang());
 					break;
 				}
 
@@ -4789,6 +4954,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mi = bd->get_pos().x;
 			mj = bd->get_pos().y;
 			hgt= bd->get_disp_height();
+			groff = bd->is_visible() ? corner4(bd->get_grund_hang()) : 0;
 			found = true;
 		}
 		// no suitable location found (outside map, ...)
@@ -4797,7 +4963,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		}
 
 		// the new position - extra logic for raise / lower tool
-		const koord3d pos = koord3d(mi,mj, zeiger->get_yoff()==Z_GRID ? lookup_hgt(koord(mi,mj)) : hgt);
+		const koord3d pos = koord3d(mi,mj, hgt + (zeiger->get_yoff()==Z_GRID ? groff : 0));
 
 		// rueckwaerttransformation um die zielkoordinaten
 		// mit den mauskoordinaten zu vergleichen

@@ -152,7 +152,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	for (int cost = 0; cost<MAX_CONVOI_COST; cost++) {
-		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true );
+		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 2 );
 		filterButtons[cost].init(button_t::box_state, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 230+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
@@ -285,7 +285,7 @@ enable_home:
 		cnv->get_freight_info(freight_info);
 		text.set_text(freight_info);
 
-		route_bar.set_base(cnv->get_route()->get_max_n());
+		route_bar.set_base(cnv->get_route()->get_count()-1);
 		cnv_route_index = cnv->get_vehikel(0)->get_route_index()-1;
 
 		// all gui stuff set => display it
@@ -351,9 +351,22 @@ enable_home:
 			// Bernd Gabriel, 17.06.2009: add fixed maintenance info
 			uint32 fixed_monthly = cnv->get_fixed_maintenance();
 			if (fixed_monthly)
-				sprintf(tmp, translator::translate("(%1.2f$/km, %1.2f$/mon)"), cnv->get_per_kilometre_running_cost()/100.0, fixed_monthly/100.0 );
+			{
+				char tmp_2[64];
+				money_to_string( tmp_2+1, cnv->get_per_kilometre_running_cost()/100.0 );
+				strcat(tmp_2, translator::translate("/km)"));
+				tmp_2[0] = '(';
+				
+				sprintf(tmp, tmp_2, translator::translate(" %1.2f$/mon)"), fixed_monthly/100.0 );
+
+			}
 			else
-				sprintf(tmp, translator::translate("(%1.2f$/km)"), cnv->get_per_kilometre_running_cost()/100.0 );
+			{
+				//sprintf(tmp, translator::translate("(%1.2f$/km)"), cnv->get_per_kilometre_running_cost()/100.0 );
+				money_to_string( tmp+1, cnv->get_per_kilometre_running_cost()/100.0 );
+				strcat( tmp, "/km)" );
+				tmp[0] = '(';
+			}
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
 		}
 
@@ -470,6 +483,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 				cnv->set_replace(false);
 				return true;
 			}
+
 			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, magic_replace + cnv.get_id() );
 			return true;
 		}

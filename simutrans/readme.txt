@@ -201,6 +201,12 @@ simutrans -objects winter_pak/
 "winter_pak" is the directory where the PAK files are stored. Use the
 name of your setup instead! The trailing slash is mandatory.
 
+If you have a non-portable installation (i.e. no single user mode), then
+you can have additional add-ons in your personal simutrans directory.
+That way those are kept, when updating the main pak sets.
+You can additionally specify "-addons" or "-noaddons" to force loading
+or prevent addons to be loaded with a pakset. This overrides the setting
+in simuconf.tab.
 
 
 7) Turn sound and music off (as of Simutrans 0.81.23exp)

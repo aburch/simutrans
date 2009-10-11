@@ -112,6 +112,15 @@ private:
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
+	/**
+	 * Markers used in suche_route() to avoid processing the same halt more than once
+	 * Originally they are instance variables of haltestelle_t
+	 * Now consolidated into a static array to speed up suche_route()
+	 * @author Knightly
+	 */
+	static uint8 markers[65536];
+	static uint8 current_mark;
+
 public:
 	/**
 	 * Handles changes of schedules and the resulting rerouting
@@ -307,6 +316,20 @@ private:
 
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
+
+	/**
+	 * For each schedule/line, that adds halts to a warenziel array,
+	 * this counter is incremented. Each ware category needs a separate
+	 * counter. If this counter is more than 1, this halt is a transfer
+	 * halt, i.e. contains non_identical_schedules with overlapping
+	 * destinations.
+	 * Non-transfer stops do not need to be searched for connections
+	 * => large speedup possible.
+	 * @author Knightly
+	 */
+	uint8 *non_identical_schedules;
+
+	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
 
 	/**
@@ -355,6 +378,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	uint32 pax_unhappy;
+
 
 	// Number of passengers for whom the shortest journey
 	// exceeded their time tolerance.
@@ -883,5 +907,12 @@ public:
 	* deletes factory references so map rotation won't segfault
 	*/
 	void release_factory_links();
+
+	/**
+	 * Initialise the markers to zero
+	 * @author Knightly
+	 */
+	static void init_markers();
+
 };
 #endif

@@ -285,8 +285,7 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 
 
 
-koord3d
-fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch)
+koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, const int radius, koord groesse, bool wasser, const haus_besch_t *besch, bool ignore_climates)
 {
 	static vector_tpl<koord3d> list(10000);
 	koord k;
@@ -296,6 +295,8 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 	if(wasser) {
 		groesse += koord(6,6);
 	}
+
+	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
 
 	// check no factory but otherwise good place
 	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
@@ -309,7 +310,7 @@ fabrikbauer_t::finde_zufallsbauplatz(karte_t * welt, const koord3d pos, const in
 			if(is_fabrik  &&  is_factory_at(k.x,k.y)) {
 				continue;
 			}
-			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,besch->get_allowed_climate_bits())) {
+			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,climates)) {
 				list.append(welt->lookup(k)->get_kartenboden()->get_pos());
 				// nicht gleich daneben nochmal suchen
 				k.x += 4;
@@ -362,7 +363,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 		}
 
 		int	rotation=simrand(attraction->get_all_layouts()-1);
-		pos = finde_zufallsbauplatz(welt, pos, 20, attraction->get_groesse(rotation),false,attraction);	// so far -> land only
+		pos = finde_zufallsbauplatz(welt, pos, 20, attraction->get_groesse(rotation),false,attraction,false);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
 			hausbauer_t::baue(welt, welt->get_spieler(1), pos, rotation, attraction);
@@ -410,7 +411,10 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 					if(welt->ist_in_kartengrenzen(k)) {
 						// add all water to station
 						grund_t *gr = welt->lookup(k)->get_kartenboden();
-						if(gr->ist_wasser() && gr->hat_weg(water_wt) == 0) {
+						// build only on gb, otherwise can't remove it
+						// also savegame restore only halt on gb
+						// this needs for bad fish swarm
+						if(gr->ist_wasser()  &&  gr->hat_weg(water_wt) == 0  &&  gr->find<gebaeude_t>()) {
 							halt->add_grund( gr );
 						}
 					}
@@ -770,7 +774,8 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 
 		int rotate = simrand(hersteller->get_haus()->get_all_layouts()-1);
 		koord3d parent_pos = our_fab->get_pos();
-		koord3d k = finde_zufallsbauplatz(welt, our_fab->get_pos()+(retry_koord[retry%25]*DISTANCE*2), DISTANCE, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser,hersteller->get_haus());
+		// ignore climates, when already 40 retrys occurred ...
+		koord3d k = finde_zufallsbauplatz(welt, our_fab->get_pos()+(retry_koord[retry%25]*DISTANCE*2), DISTANCE, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser,hersteller->get_haus(),j>40);
 
 		INT_CHECK("fabrikbauer 697");
 
@@ -887,8 +892,19 @@ next_ware_check:
 	}
 
 	// first: do we have to continue unfinished buissness?
-	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten())
-	{
+
+	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()) {
+		int org_rotation = -1;
+		// rotate until we can save it, if one of the factory is non-rotateable ...
+		if(welt->cannot_save()  &&  !can_factory_tree_rotate(last_built_consumer->get_besch()) ) {
+			org_rotation = welt->get_einstellungen()->get_rotation();
+			for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) {
+				welt->rotate90();
+			}
+			assert( !welt->cannot_save() );
+		}
+
+
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
 		do {
 			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_spieler(1) );
@@ -896,9 +912,16 @@ next_ware_check:
 		} 
 		while(last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
-		// only return, if successful
-		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) 
-		{
+		// must rotate back?
+		if(org_rotation>=0) {
+			for(  int i=0;  i<4  &&  welt->get_einstellungen()->get_rotation()!=org_rotation;  i++  ) {
+				welt->rotate90();
+			}
+			welt->update_map();
+		}
+
+		// only return, if successfull
+		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
 			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player
 			if(tell_me) 
@@ -947,6 +970,7 @@ next_ware_check:
 	int no_electric = promille > welt->get_einstellungen()->get_electric_promille();
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i o/oo)", electric_productivity, total_produktivity, promille );
 
+	bool not_yet_too_desperate_to_ignore_climates = false;
 	while(  no_electric<2  ) {
 		for(int retrys=20;  retrys>0;  retrys--  ) {
 			const fabrik_besch_t *fab=get_random_consumer( no_electric==0, ALL_CLIMATES, welt->get_timeline_year_month() );
@@ -970,7 +994,7 @@ next_ware_check:
 
 				int	rotation=simrand(fab->get_haus()->get_all_layouts()-1);
 				if(!in_city) {
-					pos = finde_zufallsbauplatz(welt, pos, 20, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus());
+					pos = finde_zufallsbauplatz(welt, pos, 20, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),not_yet_too_desperate_to_ignore_climates);
 				}
 				if(welt->lookup(pos)) {
 					// Platz gefunden ...
@@ -992,6 +1016,11 @@ next_ware_check:
 						}
 						return nr;
 					}
+				}
+				else if(  retrys==1  &&  not_yet_too_desperate_to_ignore_climates  ) {
+					// from now one, we will ignore climates to avoid broken chains
+					not_yet_too_desperate_to_ignore_climates = true;
+					retrys = 20;
 				}
 			}
 		}

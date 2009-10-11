@@ -44,6 +44,11 @@ public:
 	void zeige_info() {} // show no info
 
 	void rotate90();
+	/**
+	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @author Hj. Malthaner
+	 */
+	virtual const char *ist_entfernbar(const spieler_t *sp);
 };
 
 #endif

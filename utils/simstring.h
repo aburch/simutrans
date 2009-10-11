@@ -50,7 +50,8 @@ char *make_single_line_string(const char *in,int number_of_lines);
 void money_to_string(char * buf, double f);
 
 
-void number_to_string(char * buf, double f);
+// returns the number of characters
+int number_to_string(char * buf, double f, int decimal_places );
 
 
 /**

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "cbuffer_t.h"
+#include "simstring.h"
 #include "../simtypes.h"
 
 
@@ -48,11 +49,10 @@ void cbuffer_t::clear()
  */
 void cbuffer_t::append(const char * text)
 {
-  while(size < capacity-1  &&  *text) {
-    buf[size++] = *text++;
-  }
-
-  buf[size] = 0;
+	while(size < capacity-1  &&  *text) {
+		buf[size++] = *text++;
+	}
+	buf[size] = 0;
 }
 
 
@@ -63,26 +63,38 @@ void cbuffer_t::append(const char * text)
  */
 void cbuffer_t::append(long n)
 {
-  char tmp[32];
-  char * p = tmp+31;
-  bool neg = false;
-  *p = '\0';
+	char tmp[32];
+	char * p = tmp+31;
+	bool neg = false;
+	*p = '\0';
 
-  if(n < 0) {
-    neg = true;
-    n = -n;
-  }
+	if(n < 0) {
+		neg = true;
+		n = -n;
+	}
 
-  do {
-    *--p  = '0' + (n % 10);
+	do {
+		*--p  = '0' + (n % 10);
+	} while((n/=10) > 0);
 
-  } while((n/=10) > 0);
+	if(neg) {
+		*--p = '-';
+	}
 
-  if(neg) {
-    *--p = '-';
-  }
+	append(p);
+}
 
-  append(p);
+
+/**
+ * Appends a number. If buffer is full, exceeding digits will not
+ * be appended.
+ * @author Hj. Malthaner
+ */
+void cbuffer_t::append(double n,int decimals)
+{
+	char tmp[32];
+	int len = number_to_string( tmp, n, decimals );
+	append(tmp);
 }
 
 

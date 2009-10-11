@@ -107,7 +107,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(" (");
 
 			if (!fab->get_eingang().empty()) {
-				buf.append(fab->get_total_in());
+				buf.append(fab->get_total_in(),0);
 			}
 			else {
 				buf.append("-");
@@ -115,14 +115,14 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(", ");
 
 			if (!fab->get_ausgang().empty()) {
-				buf.append(fab->get_total_out());
+				buf.append(fab->get_total_out(),0);
 			}
 			else {
 				buf.append("-");
 			}
 			buf.append(", ");
 
-			buf.append(fab->get_current_production());
+			buf.append(fab->get_current_production(),0);
 			buf.append(") ");
 
 

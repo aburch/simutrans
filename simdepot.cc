@@ -592,7 +592,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	bool success = true;
 	uint16 tiles = cnv->get_tile_length();
 	uint32 i;
-	for(  i=0;  success  &&  i<tiles  &&  i<=route->get_max_n();  i++  ) {
+	for(  i=0;  success  &&  i<tiles  &&  i<route->get_count();  i++  ) {
 		schiene_t * sch1 = (schiene_t *) welt->lookup( route->position_bei(i))->get_weg(wt);
 		if(sch1==NULL) {
 			dbg->warning("waggon_t::is_next_block_free()","invalid route");
@@ -600,7 +600,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 			break;
 		}
 		// otherwise we might check one tile too much
-		if(  !sch1->reserve( cnv, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_max_n(),i+1)) ) )  ) {
+		if(  !sch1->reserve( cnv, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,i+1)) ) )  ) {
 			success = false;
 		}
 	}

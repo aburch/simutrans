@@ -30,7 +30,6 @@ class rule_t;
 #define FACTORY_PAX (33)	// workers
 #define TOURIST_PAX (16)		// tourists
 
-
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
@@ -107,13 +106,6 @@ public:
 	float get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(cstring_t objfilename);
 
-	/*
-	 * resets the cache for the evalution of locations in city building
-	 * must be called when the world is enlarged or loaded
-	 */
-	static void reset_location_cache(koord size) ;
-	static void disable_location_cache();
-
 private:
 	static karte_t *welt;
 	spieler_t *besitzer_p;
@@ -130,6 +122,8 @@ private:
 	koord pos;			// Gruendungsplanquadrat der Stadt
 	koord lo, ur;		// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
+
+	bool allow_citygrowth;	// town can be static and will grow (true by default)
 
 	// this counter indicate which building will be processed next
 	uint32 step_count;
@@ -324,7 +318,9 @@ private:
 	 * @return true on match, false otherwise
 	 * @author Hj. Malthaner
 	 */
-	inline bool bewerte_loc(koord pos, rule_t &regel, uint16 rotation);
+
+	bool bewerte_loc(koord pos, rule_t &regel, int rotation);
+
 
 	/*
 	 * evaluates the location, tests again all rules, and caches the result
@@ -335,7 +331,8 @@ private:
 	 * Check rule in all transformations at given position
 	 * @author Hj. Malthaner
 	 */
-	inline sint8 bewerte_pos(koord pos, rule_t &regel);
+
+	sint32 bewerte_pos(koord pos, rule_t &regel);
 
 	void bewerte_strasse(koord pos, sint32 rd, rule_t &regel);
 	void bewerte_haus(koord pos, sint32 rd, rule_t &regel);
@@ -475,6 +472,10 @@ public:
 	/* change size of city
 	* @author prissi */
 	void change_size( long delta_citicens );
+
+	// when ng is false, no town growth any more
+	void set_citygrowth_yesno( bool ng ) { allow_citygrowth = ng; }
+	bool get_citygrowth() const { return allow_citygrowth; }
 
 	void step(long delta_t);
 

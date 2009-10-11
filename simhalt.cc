@@ -82,6 +82,14 @@ haltestelle_t::connexion* haltestelle_t::head_connexion = NULL;
 static uint32 halt_iterator_start = 0;
 uint8 haltestelle_t::status_step = 0;
 
+/**
+ * Markers used in suche_route() to avoid processing the same halt more than once
+ * Originally they are instance variables of haltestelle_t
+ * Now consolidated into a static array to speed up suche_route()
+ * @author Knightly
+ */
+uint8 haltestelle_t::markers[65536];
+uint8 haltestelle_t::current_mark = 0;
 
 void haltestelle_t::step_all()
 {
@@ -306,9 +314,9 @@ void haltestelle_t::destroy_all(karte_t *welt)
 haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
 	self = halthandle_t(this);
+	markers[ self.get_id() ] = current_mark;
 
 	welt = wl;
-	marke = 0;
 
 	pax_happy = 0;
 	pax_unhappy = 0;
@@ -317,7 +325,12 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
-	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+
+	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+		non_identical_schedules[i] = 0;
+	}
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
@@ -367,7 +380,6 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 		reroute[i] = false;
 	}
 
-
 	status_color = COL_YELLOW;
 
 	// reroute_counter = welt->get_schedule_counter()-1;
@@ -396,8 +408,9 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	assert( !alle_haltestellen.is_contained(self) );
 	alle_haltestellen.append(self);
 
+	markers[ self.get_id() ] = current_mark;
+
 	welt = wl;
-	marke = 0;
 
 	this->init_pos = k;
 	besitzer_p = sp;
@@ -410,7 +423,12 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
-	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
+	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+
+	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+		non_identical_schedules[i] = 0;
+	}
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
@@ -588,6 +606,7 @@ haltestelle_t::~haltestelle_t()
 	delete[] reschedule;
 	delete[] reroute;
 
+	delete[] non_identical_schedules;
 
 	// routes may have changed without this station ...
 	verbinde_fabriken();
@@ -956,7 +975,7 @@ bool haltestelle_t::step(sint16 &units_remaining)
 			}
 				// schedule has changed ...
 			status_step = RESCHEDULING;
-			//units_remaining -= (rebuild_destinations()/96)+2;
+			//units_remaining -= (rebuild_destinations()/256)+2;
 
 			// Relocated from rebuild_connexions() by Knightly
 			// Reason : Now rebuild_connexions() is performed only on demand, 
@@ -1479,6 +1498,12 @@ void haltestelle_t::reset_connexions(uint8 category)
 	
 	quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*(connexions[category]));
 
+	// From Standard
+	for(  uint8 i=0;  i<warenbauer_t::get_max_catg_index();  i++  )
+	{
+		non_identical_schedules[i] = 0;
+	}
+
 	// Delete the connexions.
 	while(iter.next())
 	{
@@ -1629,6 +1654,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 		fpl = line->get_schedule();
 		assert(fpl);
 		// ok, now add line to the connections
+
 		if(line->count_convoys( )> 0 && (i_am_public || line->get_convoy(0)->get_besitzer() == get_besitzer()))
 		{
 			// Interrupt checks here caused crashes on rotation.
@@ -1644,12 +1670,15 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 					add_connexion(category, dummy_convoy, line, tmp_halt_list, (uint8)self_halt_idx);
 				}
 			}
+			//connections_searched += fpl->get_count();
 		}
+
 		//connections_searched ++;
 	}
 
 	//return connections_searched;
 }
+
 
 
 
@@ -1832,7 +1861,6 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 	search_complete[category] = true;
 	//delete current_node;
 }
-
 
 void haltestelle_t::flush_paths(uint8 category)
 {

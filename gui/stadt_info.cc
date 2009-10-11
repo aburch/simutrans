@@ -11,6 +11,7 @@
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
 
@@ -22,6 +23,9 @@
 #define BUTTONS_PER_ROW 4 // This is 4 in Simutrans-Standard
 #define BUTTON_ROW_WIDTH 384
 
+#define PAX_DEST_X (140)
+#define PAX_DEST_Y (24)
+#define PAX_DEST_MARGIN (4)
 
 // @author hsiegeln
 const char *hist_type[MAX_CITY_HISTORY] =
@@ -56,6 +60,11 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&name_input);
 	set_fenstergroesse(koord(410, 305 + (14*(1+((MAX_CITY_HISTORY - 1) / BUTTONS_PER_ROW)))));
 
+	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,104) );;
+	allow_growth.pressed = stadt->get_citygrowth();
+	allow_growth.add_listener( this );
+	add_komponente(&allow_growth);
+
 	//CHART YEAR
 	chart.set_pos(koord(1,1));
 	chart.set_groesse(koord(360,120));
@@ -64,7 +73,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
-		chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true );
+		chart.add_curve( hist_type_color[i], stadt->get_city_history_year(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
 	}
 	//CHART YEAR END
 
@@ -76,7 +85,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	mchart.set_background(MN_GREY1);
 	mchart.set_ltr(umgebung_t::left_to_right_graphs);
 	for(  uint32 i = 0;  i<MAX_CITY_HISTORY;  i++  ) {
-		mchart.add_curve( hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true );
+		mchart.add_curve( hist_type_color[i], stadt->get_city_history_month(), MAX_CITY_HISTORY, i, 12, STANDARD, (stadt->stadtinfo_options & (1<<i))!=0, true, 0 );
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END
@@ -152,49 +161,43 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 
 	gui_frame_t::zeichnen(pos, gr);
 
-	char buf[1024];
-	char* b = buf;
-	b += sprintf(b, "%s: %d (%+.1f)\n",
-		translator::translate("City size"),
-		c->get_einwohner(),
-		c->get_wachstum() / 10.0F
-	);
+	static cbuffer_t buf(1024);
+	buf.clear();
 
-	b += sprintf(b, translator::translate("%d buildings\n"), c->get_buildings());
+	buf.append( translator::translate("City size") );
+	buf.append( ": " );
+	buf.append( c->get_einwohner(), 0 );
+	buf.append( " (" );
+	buf.append( c->get_wachstum() / 10.0, 1 );
+	buf.append( ") \n" );
+	buf.printf( translator::translate("%d buildings\n"), c->get_buildings() );
 
 	const koord ul = c->get_linksoben();
 	const koord lr = c->get_rechtsunten();
-	b += sprintf(b, "\n%d,%d - %d,%d\n\n", ul.x, ul.y, lr.x , lr.y);
+	buf.printf( "\n%d,%d - %d,%d\n\n", ul.x, ul.y, lr.x , lr.y);
 
-	b += sprintf(b, "%s: %d\n%s: %d\n\n",
-		translator::translate("Unemployed"),
-		c->get_unemployed(),
-		translator::translate("Homeless"),
-		c->get_homeless()
-	);
-
-	// Obsolete - this is now shown in the graph.
-	/*b += sprintf(b, "%s: %d %%. \n", 
-		translator::translate("Car ownership"), 
-		c->get_private_car_ownership(c->get_welt()->get_timeline_year_month())
-		);*/
+	buf.append( translator::translate("Unemployed") );
+	buf.append( ": " );
+	buf.append( c->get_unemployed(), 0 );
+	buf.append( "\n" );
+	buf.append( translator::translate("Homeless") );
+	buf.append( ": " );
+	buf.append( c->get_homeless(), 0 );
 
 	if(c->get_power_demand() < 1000)
 	{
-		b += sprintf(b, "%s: %i MW\n",
-			translator::translate("Power demand"),
-			(c->get_power_demand())
-			);
+		buf.append("%s: %i MW\n");
+		buf.append(translator::translate("Power demand"));
+		buf.append(c->get_power_demand());
 	}
 	else
 	{
-		b += sprintf(b, "%s: %i GW\n",
-			translator::translate("Power demand"),
-			(c->get_power_demand() / 1000)
-			);
+		buf.append("%s: %i GW\n");
+		buf.append(translator::translate("Power demand"));
+		buf.append(c->get_power_demand() / 1000);
 	}
 
-	display_multiline_text(pos.x+8, pos.y+48, buf, COL_BLACK);
+	display_multiline_text(pos.x+8, pos.y+48, (const char *)buf, COL_BLACK);
 
 	const unsigned long current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {
@@ -209,28 +212,35 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	}
 	pax_destinations_last_change =  current_pax_destinations;
 
-	display_array_wh(pos.x + 140, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_old);
-	display_array_wh(pos.x + 140 + PAX_DESTINATIONS_SIZE + 4, pos.y + 24, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_new);
+	display_array_wh(pos.x + PAX_DEST_X, pos.y + PAX_DEST_Y, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_old);
+	display_array_wh(pos.x + PAX_DEST_X + PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN, pos.y + PAX_DEST_Y, PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE, pax_dest_new);
 }
 
 
 
 bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-	for ( int i = 0; i<MAX_CITY_HISTORY; i++) {
-		if (komp == &filterButtons[i]) {
-			filterButtons[i].pressed ^= 1;
-			if (filterButtons[i].pressed) {
-				stadt->stadtinfo_options |= (1<<i);
-				chart.show_curve(i);
-				mchart.show_curve(i);
+	if(  komp==&allow_growth  ) {
+		stadt->set_citygrowth_yesno( !stadt->get_citygrowth() );
+		allow_growth.pressed = stadt->get_citygrowth();
+		return true;
+	}
+	else {
+		for ( int i = 0; i<MAX_CITY_HISTORY; i++) {
+			if (komp == &filterButtons[i]) {
+				filterButtons[i].pressed ^= 1;
+				if (filterButtons[i].pressed) {
+					stadt->stadtinfo_options |= (1<<i);
+					chart.show_curve(i);
+					mchart.show_curve(i);
+				}
+				else {
+					stadt->stadtinfo_options &= ~(1<<i);
+					chart.hide_curve(i);
+					mchart.hide_curve(i);
+				}
+				return true;
 			}
-			else {
-				stadt->stadtinfo_options &= ~(1<<i);
-				chart.hide_curve(i);
-				mchart.hide_curve(i);
-			}
-			return true;
 		}
 	}
 	return false;
@@ -256,6 +266,22 @@ void stadt_info_t::infowin_event(const event_t *ev)
 {
 	if(  IS_WINDOW_TOP(ev)  ) {
 		reliefkarte_t::get_karte()->set_city( stadt );
+	}
+	if( ev->ev_code == MOUSE_LEFTBUTTON  &&  PAX_DEST_Y <= ev->my  &&  ev->my < PAX_DEST_Y + PAX_DESTINATIONS_SIZE  ) {
+		uint16 mx = ev->mx;
+		if( mx > PAX_DEST_X + PAX_DESTINATIONS_SIZE ) {
+			// Little trick to handle both maps with the same code: Just remap the x-values of the right map.
+			mx -= PAX_DESTINATIONS_SIZE + PAX_DEST_MARGIN;
+		}
+		if( PAX_DEST_X <= mx && mx < PAX_DEST_X + PAX_DESTINATIONS_SIZE ) {
+			// Clicked in a minimap.
+			mx -= PAX_DEST_X;
+			const uint16 my = ev->my - PAX_DEST_Y;
+			const koord p = koord(
+				(mx * stadt->get_welt()->get_groesse_x()) / (PAX_DESTINATIONS_SIZE),
+				(my * stadt->get_welt()->get_groesse_y()) / (PAX_DESTINATIONS_SIZE));
+			stadt->get_welt()->change_world_position( p );
+		}
 	}
 	gui_frame_t::infowin_event(ev);
 }

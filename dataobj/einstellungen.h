@@ -34,6 +34,21 @@ private:
 	sint32 anzahl_staedte;
 	sint32 mittlere_einwohnerzahl;
 
+	// town growth factors
+	sint32 passenger_multiplier;
+	sint32 mail_multiplier;
+	sint32 goods_multiplier;
+	sint32 electricity_multiplier;
+
+	// Also there are size dependen factors (0=no growth)
+	sint32 growthfactor_small;
+	sint32 growthfactor_medium;
+	sint32 growthfactor_large;
+
+	// percentage of routing
+	sint16 factory_worker_percentage;
+	sint16 tourist_percentage;
+
 	uint16 station_coverage_size;
 
 	/**
@@ -246,10 +261,6 @@ private:
 
 	//@author: jamespetts
 	float global_power_factor; 
-
-	// Customisable city growth.
-	// @author: jamespetts
-	uint16 city_weight_factor;
 	
 	// Whether and how weight limits are enforced
 	// @author: jamespetts
@@ -548,8 +559,6 @@ public:
 
 	float get_global_power_factor() const { return global_power_factor; }
 
-	uint16 get_city_weight_factor() const { return city_weight_factor; }
-
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
 	float get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
@@ -587,7 +596,29 @@ public:
 	uint16 get_min_longdistance_tolerance() const { return min_longdistance_tolerance; }
 	uint16 get_max_longdistance_tolerance() const { return max_longdistance_tolerance; }
 
-	/*uint8 get_scale_divider() const { return scale_divider; }*/
+	// town growth stuff
+	sint32 get_passenger_multiplier() const { return passenger_multiplier; }
+	void set_passenger_multiplier(sint32 n) { passenger_multiplier = n; }
+	sint32 get_mail_multiplier() const { return mail_multiplier; }
+	void set_mail_multiplier(sint32 n) { mail_multiplier = n; }
+	sint32 get_goods_multiplier() const { return goods_multiplier; }
+	void set_goods_multiplier(sint32 n) { goods_multiplier = n; }
+	sint32 get_electricity_multiplier() const { return electricity_multiplier; }
+	void set_electricity_multiplier(sint32 n) { electricity_multiplier = n; }
+
+	// Also there are size dependen factors (0=no growth)
+	sint32 get_growthfactor_small() const { return growthfactor_small; }
+	void set_growthfactor_small(sint32 n) { growthfactor_small = n; }
+	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
+	void set_growthfactor_medium(sint32 n) { growthfactor_medium = n; }
+	sint32 get_growthfactor_large() const { return growthfactor_large; }
+	void set_growthfactor_large(sint32 n) { growthfactor_large = n; }
+
+	// amount of different destinations
+	void set_factory_worker_percentage(sint32 n) { factory_worker_percentage = n; }
+	sint32 get_factory_worker_percentage() const { return factory_worker_percentage; }
+	void set_tourist_percentage(sint32 n) { tourist_percentage = n; }
+	sint32 get_tourist_percentage() const { return tourist_percentage; }
 };
 
 #endif
