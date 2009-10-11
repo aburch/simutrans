@@ -10,6 +10,14 @@
 #include "settings_stats.h"
 
 
+/* stuff not set here ....
+INIT_NUM( "intercity_road_length", umgebung_t::intercity_road_length);
+INIT_NUM( "river_number", river_number );
+INIT_NUM( "river_min_length", min_river_length );
+INIT_NUM( "river_max_length", max_river_length );
+INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
+*/
+
 
 // just free memory
 void settings_stats_t::free_all()
@@ -219,4 +227,64 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 }
 
 
+
+void settings_costs_stats_t::init(einstellungen_t *sets)
+{
+	INIT_INIT
+	INIT_NUM( "maintenance_building", sets->maint_building/100, 1, 100000000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_COST( "cost_multiply_dock", -sets->cst_multiply_dock, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_station", -sets->cst_multiply_station, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_roadstop", -sets->cst_multiply_roadstop, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_airterminal", -sets->cst_multiply_airterminal, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_post", -sets->cst_multiply_post, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_headquarter", -sets->cst_multiply_headquarter, 1, 100000000, 10, false );
+	INIT_COST( "cost_depot_air", -sets->cst_depot_air, 1, 100000000, 10, false );
+	INIT_COST( "cost_depot_rail", -sets->cst_depot_rail, 1, 100000000, 10, false );
+	INIT_COST( "cost_depot_road", -sets->cst_depot_road, 1, 100000000, 10, false );
+	INIT_COST( "cost_depot_ship", -sets->cst_depot_ship, 1, 100000000, 10, false );
+	INIT_COST( "cost_signal", -sets->cst_signal, 1, 100000000, 10, false );
+	INIT_COST( "cost_tunnel", -sets->cst_tunnel, 1, 100000000, 10, false );
+	INIT_COST( "cost_third_rail", -sets->cst_third_rail, 1, 100000000, 10, false );
+	INIT_COST( "cost_buy_land", -sets->cst_buy_land, 1, 100000000, 10, false );
+	INIT_COST( "cost_alter_land", -sets->cst_alter_land, 1, 100000000, 10, false );
+	INIT_COST( "cost_set_slope", -sets->cst_set_slope, 1, 100000000, 10, false );
+	INIT_COST( "cost_found_city", -sets->cst_found_city, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_found_industry", -sets->cst_multiply_found_industry, 1, 100000000, 10, false );
+	INIT_COST( "cost_remove_tree", -sets->cst_remove_tree, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_remove_haus", -sets->cst_multiply_remove_haus, 1, 100000000, 10, false );
+	INIT_COST( "cost_multiply_remove_field", -sets->cst_multiply_remove_field, 1, 100000000, 10, false );
+	INIT_COST( "cost_transformer", -sets->cst_transformer, 1, 100000000, 10, false );
+	INIT_COST( "cost_maintain_transformer", -sets->cst_maintain_transformer, 1, 100000000, 10, false );
+	set_groesse( settings_stats_t::get_groesse() );
+}
+
+void settings_costs_stats_t::read(einstellungen_t *sets)
+{
+	EXIT_INIT
+	EXIT_NUM_VALUE( sets->maint_building )*100;
+	EXIT_COST_VALUE( sets->cst_multiply_dock )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_station )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_roadstop )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_airterminal )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_post )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_headquarter )*(-1);
+	EXIT_COST_VALUE( sets->cst_depot_air )*(-1);
+	EXIT_COST_VALUE( sets->cst_depot_rail )*(-1);
+	EXIT_COST_VALUE( sets->cst_depot_road )*(-1);
+	EXIT_COST_VALUE( sets->cst_depot_ship )*(-1);
+	EXIT_COST_VALUE( sets->cst_signal )*(-1);
+	EXIT_COST_VALUE( sets->cst_tunnel )*(-1);
+	EXIT_COST_VALUE( sets->cst_third_rail )*(-1);
+	EXIT_COST_VALUE( sets->cst_buy_land )*(-1);
+	EXIT_COST_VALUE( sets->cst_alter_land )*(-1);
+	EXIT_COST_VALUE( sets->cst_set_slope )*(-1);
+	EXIT_COST_VALUE( sets->cst_found_city )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_found_industry )*(-1);
+	EXIT_COST_VALUE( sets->cst_remove_tree )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_remove_haus )*(-1);
+	EXIT_COST_VALUE( sets->cst_multiply_remove_field )*(-1);
+	EXIT_COST_VALUE( sets->cst_transformer )*(-1);
+	EXIT_COST_VALUE( sets->cst_maintain_transformer )*(-1);
+	set_groesse( settings_stats_t::get_groesse() );
+}
 

@@ -18,11 +18,13 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Settings")
 	sets(s),
 	scrolly_general(&general),
 	scrolly_economy(&economy),
-	scrolly_routing(&routing)
+	scrolly_routing(&routing),
+	scrolly_costs(&costs)
 {
 	general.init( sets );
 	economy.init( sets );
 	routing.init( sets );
+	costs.init( sets );
 
 	// tab panel
 	tabs.set_pos(koord(0,0));
@@ -30,7 +32,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Settings")
 	tabs.add_tab(&scrolly_general, translator::translate("General"));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
-//	tabs.add_tab(&scl, translator::translate("Economy"));
+	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
 	add_komponente(&tabs);
 
 
@@ -73,6 +75,7 @@ void settings_frame_t::infowin_event(const event_t *ev)
 		general.read( sets );
 		routing.read( sets );
 		economy.read( sets );
+		costs.read( sets );
 	}
 	gui_frame_t::infowin_event(ev);
 }

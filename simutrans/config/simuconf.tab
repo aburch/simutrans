@@ -264,6 +264,7 @@
 #cost_multiply_headquarter=1000
 
 # cost for depots
+#cost_depot_air=5000
 #cost_depot_rail=1000
 #cost_depot_road=1300
 #cost_depot_ship=2500
@@ -274,14 +275,16 @@
 #cost_third_rail=80
 
 # other construction/destruction stuff
-#cost_alter_land=1000
 #cost_buy_land=100
+#cost_alter_land=1000
 #cost_set_slope=2500
 #cost_found_city=5000000
 #cost_multiply_found_industry=20000
 #cost_remove_tree=100
 #cost_multiply_remove_haus=1000
 #cost_multiply_remove_field=5000
+#cost_transformer=2500
+#cost_maintain_transformer=20
 
 ###################################other stuff##################################
 #

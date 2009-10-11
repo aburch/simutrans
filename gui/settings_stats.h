@@ -99,11 +99,12 @@ class einstellungen_t;
 	uint32 read_numinp = 0;\
 	uint32 read_button = 0;\
 
-#define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() );
-#define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 );
-#define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value();
-#define EXIT_BOOL(t) (t)( button.at(read_button++)->pressed );
-#define EXIT_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed;
+#define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
+#define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
+#define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
+#define EXIT_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
+#define EXIT_BOOL(t) (t)( button.at(read_button++)->pressed )
+#define EXIT_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
 
 
 /**
@@ -151,6 +152,13 @@ public:
 };
 
 class settings_economy_stats_t : protected settings_stats_t, public gui_container_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
+class settings_costs_stats_t : protected settings_stats_t, public gui_container_t
 {
 public:
 	void init( einstellungen_t *sets );

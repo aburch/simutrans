@@ -36,6 +36,8 @@ private:
 	gui_scrollpane_t scrolly_economy;
 	settings_routing_stats_t	routing;
 	gui_scrollpane_t scrolly_routing;
+	settings_costs_stats_t	costs;
+	gui_scrollpane_t scrolly_costs;
 
 public:
 	settings_frame_t(einstellungen_t *sets);
