@@ -35,7 +35,7 @@ einstellungen_t::einstellungen_t() :
 	anzahl_staedte = 16;
 	mittlere_einwohnerzahl = 1600;
 
-	station_coverage_size = 3;
+	station_coverage_size = 2;
 
 	verkehr_level = 7;
 
@@ -83,6 +83,7 @@ einstellungen_t::einstellungen_t() :
 
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
+	factory_worker_radius = 77;
 
 	electric_promille = 330;
 
@@ -111,8 +112,8 @@ einstellungen_t::einstellungen_t() :
 	strcpy( city_road_type, "city_road" );
 
 	max_route_steps = 1000000;
-	max_transfers = 7;
-	max_hops = 300;
+	max_transfers = 9;
+	max_hops = 2000;
 	no_routing_over_overcrowding = false;
 
 	/* multiplier for steps on diagonal:
@@ -380,6 +381,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_long( growthfactor_large, "" );
 				file->rdwr_short( factory_worker_percentage, "" );
 				file->rdwr_short( tourist_percentage, "" );
+				file->rdwr_short( factory_worker_radius, "" );
 			}
 
 			file->rdwr_long( electric_promille, "" );
@@ -556,6 +558,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
 	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
+	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );

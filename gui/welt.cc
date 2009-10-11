@@ -39,6 +39,7 @@
 
 #include "sprachen.h"
 #include "climates.h"
+#include "settings_frame.h"
 
 #define START_HEIGHT (28)
 
@@ -203,9 +204,9 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	open_sprach_gui.set_pos( koord(10,intTopOfButton) );
 	open_sprach_gui.set_groesse( koord(80, 14) );
 	open_sprach_gui.set_typ( button_t::roundbox );
-	open_sprach_gui.set_text("Sprache");
+	open_sprach_gui.set_text("Settings");
 	open_sprach_gui.add_listener( this );
-	open_sprach_gui.pressed = win_get_magic( magic_sprachengui_t );
+	open_sprach_gui.pressed = win_get_magic( magic_settings_frame_t );
 	add_komponente( &open_sprach_gui );
 
 	open_climate_gui.set_pos( koord(80+20,intTopOfButton) );
@@ -408,14 +409,13 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		allow_player_change.pressed = sets->get_allow_player_change();
 	}
 	else if(komp==&open_sprach_gui) {
-		gui_fenster_t *sprachen_gui = win_get_magic( magic_sprachengui_t );
-		if(  sprachen_gui  ) {
-			destroy_win( sprachen_gui );
+		gui_fenster_t *sg = win_get_magic( magic_settings_frame_t );
+		if(  sg  ) {
+			destroy_win( sg );
 			open_sprach_gui.pressed = false;
 		}
 		else {
-			sprachengui_t *sg = new sprachengui_t();
-			create_win(10, 40, sg, w_info, magic_sprachengui_t );
+			create_win(10, 40, new settings_frame_t(sets), w_info, magic_settings_frame_t );
 			open_sprach_gui.pressed = true;
 		}
 	}
@@ -492,7 +492,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		use_intro_dates.set_text("Use timeline start year");
 		allow_player_change.set_text("Allow player change");
 //		use_beginner_mode.set_text("Beginner mode");
-		open_sprach_gui.set_text("Sprache");
+		open_sprach_gui.set_text("Settings");
 		open_climate_gui.set_text("Climate Control");
 		load_game.set_text("Load game");
 		load_scenario.set_text("Load scenario");
@@ -503,7 +503,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	}
 
 	open_climate_gui.pressed = win_get_magic( magic_climate );
-	open_sprach_gui.pressed = win_get_magic( magic_sprachengui_t );
+	open_sprach_gui.pressed = win_get_magic( magic_settings_frame_t );
 
 	gui_frame_t::zeichnen(pos, gr);
 

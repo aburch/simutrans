@@ -45,7 +45,7 @@ private:
 	const char * text;	// only for direct acess of non-translateable things. Do not use!
 
 public:
-	gui_label_t(const char* text, int color = COL_BLACK, align_t align = left);
+	gui_label_t(const char* text=NULL, int color=COL_BLACK, align_t align=left);
 
 	/**
 	 * setzt den Text des Labels

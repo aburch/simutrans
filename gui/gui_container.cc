@@ -24,7 +24,7 @@ gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
  */
 void gui_container_t::add_komponente(gui_komponente_t *komp)
 {
-	komponenten.insert(komp);
+	komponenten.append(komp);
 	list_dirty = true;
 }
 

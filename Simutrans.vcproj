@@ -745,6 +745,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\settings_frame.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\settings_stats.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\signal.cc"
 				>
 			</File>

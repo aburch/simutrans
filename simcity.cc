@@ -1055,7 +1055,7 @@ void stadt_t::add_factory_arbeiterziel(fabrik_t* fab)
 {
 	const koord k = fab->get_pos().get_2d() - pos;
 	// worker do not travel more than 50 tiles
-	if(  (k.x*k.x) + (k.y*k.y) < CONNECT_TO_TOWN_SQUARE_DISTANCE  ) {
+	if(  koord_distance( fab->get_pos(), pos ) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
 		// no fish swarms ...
 		if (strcmp("fish_swarm", fab->get_besch()->get_name()) != 0) {
 //			DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()", "found %s with level %i", fab->get_name(), fab->get_besch()->get_pax_level());

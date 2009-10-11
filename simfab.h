@@ -30,9 +30,6 @@ class stadt_t;
 #define MAX_PRODBASE_SHIFT (4)
 
 
-// up to this distance, factories will be connected to their towns ...
-#define CONNECT_TO_TOWN_SQUARE_DISTANCE 5000
-
 // to prepare for 64 precision ...
 class ware_production_t
 {
