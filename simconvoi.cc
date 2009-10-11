@@ -676,18 +676,15 @@ bool convoi_t::drive_to()
 		}
 
 		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
+			state = NO_ROUTE;
 			get_besitzer()->bescheid_vehikel_problem(self,ziel);
 			// wait 10s before next attempt
 			wait_lock = 10000;
-			return false;
-		}
-		if(!route.empty()) {
-			vorfahren();
 		}
 		else {
-			state = NO_ROUTE;
+			vorfahren();
+			return true;
 		}
-		return true;
 	}
 	return false;
 }
