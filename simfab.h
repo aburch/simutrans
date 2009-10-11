@@ -171,7 +171,7 @@ private:
 
 	// This is the city within whose city limits the factory is located.
 	// NULL if it is outside a city. This is re-checked monthly.
-	//@author: jamespetts
+	// @author: jamespetts
 	stadt_t* city;
 
 public:

@@ -38,6 +38,7 @@ class haus_tile_besch_t : public obj_besch_t {
 	friend class tile_reader_t;
 
 	const haus_besch_t	*haus;
+	haus_besch_t		*modifiable_haus;
 
 	uint8  seasons;
 	uint8  phasen;	    // Wie viele Animationsphasen haben wir?
@@ -45,8 +46,10 @@ class haus_tile_besch_t : public obj_besch_t {
 
 public:
 	void set_besch(const haus_besch_t *haus_besch) { haus = haus_besch; }
+	void set_modifiable_besch(haus_besch_t *haus_besch) { modifiable_haus = haus_besch; }
 
 	const haus_besch_t *get_besch() const { return haus; }
+	haus_besch_t *get_modifiable_besch() const { return modifiable_haus; }
 
 	int get_index() const { return index; }
 	int get_seasons() const { return seasons; }
@@ -177,6 +180,17 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	uint8  layouts;        // 1 2 oder 4
 	uint8  enables;		// if it is a stop, what is enabled ...
 	uint8  chance;         // Hajo: chance to build, special buildings, only other is weight factor
+
+	// @author: jamespetts. 
+	// Additional fields for separate station capacity/maintenance
+	// If these are not specified in the .dat file, they are calculated
+	// from the "level" in the old way.
+
+	sint32 station_price;
+	sint32 scaled_station_price;
+	sint32 station_maintenance;
+	sint32 scaled_station_maintenance;
+	uint16 station_capacity;
 
 	climate_bits	allowed_climates;
 
@@ -318,6 +332,23 @@ public:
 	* @author prissi
 	*/
 	uint16 get_animation_time() const { return animation_time; }
+
+	sint32 get_station_maintenance() const { return scaled_station_maintenance; }
+
+	sint32 get_base_staiton_maintenance() const { return  station_maintenance; }
+
+	sint32 get_station_price() const { return scaled_station_price; }
+
+	sint32 get_base_staiton_price() const { return  station_price; }
+
+	uint16 get_station_capacity() const { return station_capacity; }
+	
+	void set_scale(float scale_factor) 
+	{
+		// BG: 29.08.2009: explicit typecasts avoid warnings
+		scaled_station_price = (sint32)(station_price * scale_factor < 1 ? (station_price > 0 ? 1 : 0) : station_price * scale_factor);
+		scaled_station_maintenance = (sint32)(station_maintenance * scale_factor < (station_maintenance > 0 ? 1 : 0) ? 1: station_maintenance * scale_factor);
+	}
 };
 
 #endif

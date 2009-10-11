@@ -553,7 +553,8 @@ DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 	// "all factories clear up" (Babelfish)
 	//slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
 	//while(fab_iter.next()) {
-	for(sint16 i = fab_list.get_count() - 1; i >= 0; i --)
+	//for(sint16 i = fab_list.get_count() - 1; i >= 0; i --)
+	ITERATE(fab_list, i)
 	{
 		//delete fab_iter.get_current();
 		delete fab_list[i];
@@ -1676,6 +1677,17 @@ void karte_t::set_scale()
 	ITERATE_PTR(way_objects,j)
 	{
 		way_objects->get_element(j)->set_scale(scale_factor);
+	}
+
+	// Stations
+
+	slist_iterator_tpl <halthandle_t> halt_pre_iter (haltestelle_t::get_alle_haltestellen());
+	while( halt_pre_iter.next() ) 
+	{
+		koord3d t = halt_pre_iter.get_current()->get_basis_pos3d();
+		grund_t *gr = lookup(t);
+		gebaeude_t* gb = gr->find<gebaeude_t>();
+		gb->get_tile()->get_modifiable_besch()->set_scale(scale_factor); 
 	}
 
 	// Goods

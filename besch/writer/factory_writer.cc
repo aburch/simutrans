@@ -97,6 +97,7 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	fabrik_besch_t besch;
+	cstring_t str;
 
 	const char* placing = obj.get("location");
 
@@ -117,7 +118,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	besch.pax_level      = obj.get_int("pax_level", 12);
 
-	obj_node_t node(this, 20, &parent);
+	obj_node_t node(this, 21, &parent);
 
 	obj.put("type", "fac");
 
@@ -172,6 +173,24 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	uint16 electricity_percent = obj.get_int("electricity_percent", 17);
 
+	// Upgrades: these are the industry types to which this industry
+	// can be upgraded. "None" means that it cannot be upgraded. 
+	// @author: jamespetts
+	sint8 upgrades = 0;
+	do {
+		char buf[40];
+		sprintf(buf, "upgrade[%d]", upgrades);
+		str = obj.get(buf);
+		if (str.len() > 0) {
+			if (upgrades == 0 && !STRICMP(str, "none")) 
+			{
+				str = "";
+			}
+			xref_writer_t::instance()->write_obj(fp, node, obj_factory, str, false);
+			upgrades++;
+		}
+	} while (str.len() > 0);
+
 	// new version with pax_level
 	uint16 version = 0x8002;
 
@@ -182,9 +201,11 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+
+	// 0x200 - version 7.0 and greater. Includes xref factories for upgrades.
+	version += 0x200;
 	
-	node.write_uint16(fp, version,                      0); // version
+	node.write_uint16(fp, version,                     0); // version
 
 	node.write_uint16(fp, (uint16) besch.platzierung,  2);
 	node.write_uint16(fp, besch.produktivitaet,        4);
@@ -196,6 +217,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, besch.produkte,             14);
 	node.write_uint16(fp, besch.pax_level,            16);
 	node.write_uint16(fp, electricity_percent,		  18);
+	node.write_sint8 (fp, upgrades,					  20);
 
 	node.write(fp);
 }

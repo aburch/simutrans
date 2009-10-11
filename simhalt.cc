@@ -2805,8 +2805,19 @@ sint64 haltestelle_t::calc_maintenance()
 	for(slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 		grund_t* gr = i->grund;
 		gebaeude_t* gb = gr->find<gebaeude_t>();
-		if(gb) {
-			maintenance += welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
+		if(gb) 
+		{
+			const haus_besch_t* besch = gb->get_tile()->get_besch();
+			if(besch->get_base_staiton_maintenance() == 2147483647)
+			{
+				// Default value - no specific maintenance set. Use the old method
+				maintenance += welt->get_einstellungen()->maint_building * besch->get_level();
+			}
+			else
+			{
+				// New method - get the specified factor.
+				maintenance += besch->get_station_maintenance();
+			}
 		}
 	}
 	return maintenance;
@@ -2826,9 +2837,21 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 		for(slist_tpl<tile_t>::const_iterator i = tiles.begin(), end = tiles.end(); i != end; ++i) {
 			grund_t* gr = i->grund;
 			gebaeude_t* gb = gr->find<gebaeude_t>();
-			if(gb) {
+			if(gb) 
+			{
 				spieler_t *gb_sp=gb->get_besitzer();
-				sint32 costs = welt->get_einstellungen()->maint_building * gb->get_tile()->get_besch()->get_level();
+				const haus_besch_t* besch = gb->get_tile()->get_besch();
+				sint32 costs;
+				if(besch->get_base_staiton_maintenance() == 2147483647)
+				{
+					// Default value - no specific maintenance set. Use the old method
+					costs = welt->get_einstellungen()->maint_building * besch->get_level();
+				}
+				else
+				{
+					// New method - get the specified factor.
+					costs = besch->get_station_maintenance();
+				}
 				total_costs += costs;
 				if(!sp->can_afford(welt->calc_adjusted_monthly_figure(total_costs*60)))
 				{
@@ -2872,7 +2895,19 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				if(public_owner!=gb_sp) {
 					spieler_t *gb_sp=gb->get_besitzer();
-					sint32 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
+					sint32 costs;
+
+					if(gb->get_tile()->get_besch()->get_base_staiton_maintenance() == 2147483647)
+					{
+						// Default value - no specific maintenance set. Use the old method
+						costs = welt->get_einstellungen()->maint_building * gb->get_tile()->get_besch()->get_level();
+					}
+					else
+					{
+						// New method - get the specified factor.
+						costs = gb->get_tile()->get_besch()->get_station_maintenance();
+					}
+					
 					spieler_t::add_maintenance( gb_sp, -costs );
 					spieler_t::accounting(gb_sp, -(welt->calc_adjusted_monthly_figure(costs*60)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
@@ -2943,20 +2978,25 @@ void haltestelle_t::recalc_station_type()
 			if(besch) {
 				// enabled the matching types
 				enables |= besch->get_enabled();
-				if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
-					if(besch->get_enabled()&1) {
-						capacity[0] += besch->get_level()*32;
+				if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) 
+				{
+					if(besch->get_enabled()&1) 
+					{
+						capacity[0] += besch->get_station_capacity();
 					}
-					if(besch->get_enabled()&2) {
-						capacity[1] += besch->get_level()*32;
+					if(besch->get_enabled()&2)
+					{
+						capacity[1] += besch->get_station_capacity();
 					}
-					if(besch->get_enabled()&4) {
-						capacity[2] += besch->get_level()*32;
+					if(besch->get_enabled()&4) 
+					{
+						capacity[2] += besch->get_station_capacity();
 					}
 				}
-				else {
+				else 
+				{
 					// no sperate capacities: sum up all
-					capacity[0] += besch->get_level()*32;
+					capacity[0] += besch->get_station_capacity();
 					capacity[2] = capacity[1] = capacity[0];
 				}
 			}

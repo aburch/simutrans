@@ -1301,15 +1301,76 @@ fabrik_t::neuer_monat()
 
 		if(closedown)
 		{
-			const uint32 number_of_customers = lieferziele.get_count();
-			const uint32 number_of_suppliers = suppliers.get_count();
-			char buf[192];
-			const uint16 jobs = besch->get_pax_level();
-			sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-			welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 			grund_t *gr = 0;
 			gr = welt->lookup(pos);
 			gebaeude_t* gb = gr->find<gebaeude_t>();
+			char buf[192];
+			
+			const int upgrades_count = besch->get_upgrades_count();
+			if(upgrades_count > 0)
+			{
+				// This factory has some upgrades: consider upgrading.
+				minivec_tpl<const fabrik_besch_t*> upgrade_list(upgrades_count);
+				const double max_density = welt->get_target_industry_density() * 1.5;
+				const double adjusted_density = welt->get_actual_industry_density() - (1 / besch->get_gewichtung());
+				for(uint16 i = 0; i < upgrades_count; i ++)
+				{
+					// Check whether any upgrades are suitable.
+					// Currently, they must be of identical size and have
+					// identical outputs and inputs, as the upgrade mechanism
+					// is very simple. In future, it might be possible to write
+					// more sophisticated upgrading code to enable industries
+					// that are not identical in such a way to be upgraded.
+					// Thus, non-suitable upgrades are allowed to be specified
+					// in the .dat files for future compatibility.
+
+					const fabrik_besch_t* fab = besch->get_upgrades(i);
+					if(	fab->is_electricity_producer() == besch->is_electricity_producer() &&
+						fab->get_haus()->get_b() == besch->get_haus()->get_b() &&
+						fab->get_haus()->get_h() == besch->get_haus()->get_h() &&
+						fab->get_haus()->get_groesse() == besch->get_haus()->get_groesse() &&
+						fab->get_lieferanten() == besch->get_lieferanten() &&
+						fab->get_produkte() ==  besch->get_produkte() &&
+						fab->get_haus()->get_intro_year_month() <= welt->get_timeline_year_month() &&
+						fab->get_haus()->get_retire_year_month() >= welt->get_timeline_year_month() &&
+						adjusted_density < (max_density + (1 / fab->get_gewichtung())))
+					{
+						upgrade_list.append_unique(fab);
+					}
+				}
+				
+				const uint8 list_count = upgrade_list.get_count();
+				if(list_count > 0)
+				{
+					double total_density = 0;
+					ITERATE(upgrade_list, j)
+					{
+						total_density += (1 / upgrade_list[j]->get_gewichtung());
+					}
+					const double average_density = total_density / list_count;
+					const double probability_floating = 1 / ((1 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count());
+					const uint32 chance = simrand(probability_floating);
+					if(chance < list_count)
+					{
+						// All the conditions are met: upgrade.
+						const fabrik_besch_t* new_type = upgrade_list[chance];
+						const char* old_name = get_name();
+						besch = new_type;
+						gb->calc_bild();
+						// Base production is randomised, so is an instance value. Must re-set from the type.
+						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%n."), translator::translate(old_name), translator::translate(get_name()));
+						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, MN_GREY3, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+						return;
+					}
+				}
+			}
+
+			const uint32 number_of_customers = lieferziele.get_count();
+			const uint32 number_of_suppliers = suppliers.get_count();
+			const uint16 jobs = besch->get_pax_level();
+			sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+			welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}

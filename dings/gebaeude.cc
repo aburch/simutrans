@@ -96,7 +96,16 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		set_yoff(-TILE_HEIGHT_STEP);
 	}
 
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+	sint64 maint;
+	if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+	{
+		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+	}
+	else
+	{
+		maint = tile->get_besch()->get_station_maintenance();
+	}
+	spieler_t::add_maintenance(get_besitzer(), maint);
 }
 
 
@@ -129,7 +138,16 @@ gebaeude_t::~gebaeude_t()
 	anim_time = 0;
 	if(tile) 
 	{
-		spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+		sint64 maint;
+		if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+		{
+			maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+		}
+		else
+		{
+			maint = tile->get_besch()->get_station_maintenance();
+		}
+		spieler_t::add_maintenance(get_besitzer(), -maint);
 	}
 }
 
@@ -859,6 +877,9 @@ gebaeude_t::rdwr(loadsave_t *file)
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
+ * 
+ * "After loading is called adapting to the world - normally used to the
+ * look of the thing in the ground and surrounding area" (Google)
  *
  * @author Hj. Malthaner
  */
@@ -867,7 +888,16 @@ gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
 
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+	sint64 maint;
+	if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+	{
+		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+	}
+	else
+	{
+		maint = tile->get_besch()->get_station_maintenance();
+	}
+	spieler_t::add_maintenance(get_besitzer(), maint);
 
 	// citybuilding, but no town?
 	if(tile->get_offset()==koord(0,0)  &&  tile->get_besch()->is_connected_with_town()) {

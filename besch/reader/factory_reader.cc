@@ -213,13 +213,18 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = decode_uint16(p);
 		if(experimental)
 		{
-			if(experimental_version == 0)
+			if(experimental_version >= 0)
 			{
 				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F);
 				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
 			}
-			else
+			if(experimental_version >= 1)
 			{
+				besch->upgrades = decode_uint8(p);
+			}
+			if(experimental_version > 1)
+			{
+				// Check for incompatible future versions
 				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
 		}
@@ -245,7 +250,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
 	} 
 
-	else 
+	else
 	{
 		// old node, version 0, without pax_level
 		DBG_DEBUG("factory_reader_t::read_node()","version=0");

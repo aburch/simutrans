@@ -168,23 +168,27 @@ bool hausbauer_t::alles_geladen()
 }
 
 
-bool hausbauer_t::register_besch(const haus_besch_t *besch)
+bool hausbauer_t::register_besch(haus_besch_t *besch)
 {
-	::register_besch(spezial_objekte, besch);
+	const haus_besch_t* const_besch = besch;
+
+	::register_besch(spezial_objekte, const_besch);
 
 	// avoid duplicates with same name
 	if(besch_names.remove(besch->get_name())) {
-		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", const_besch->get_name() );
 	}
-	besch_names.put(besch->get_name(), besch);
+	besch_names.put(besch->get_name(), const_besch);
 
-	/* supply the tiles with a pointer back to the matchin description
+	/* supply the tiles with a pointer back to the matching description
 	 * this is needed, since each building is build of seperate tiles,
 	 * even if it is part of the same description (haus_besch_t)
 	 */
-	const int max_index = besch->get_all_layouts()*besch->get_groesse().x*besch->get_groesse().y;
-	for( int i=0;  i<max_index;  i++  ) {
-		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_besch(besch);
+	const int max_index = const_besch->get_all_layouts() * const_besch->get_groesse().x * const_besch->get_groesse().y;
+	for( int i=0;  i<max_index;  i++  ) 
+	{
+		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_besch(const_besch);
+		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_modifiable_besch(besch);
 	}
 
 	return true;

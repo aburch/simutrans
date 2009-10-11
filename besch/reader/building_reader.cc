@@ -175,9 +175,35 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	// Hajo: old versions of PAK files have no version stamp.
 	// But we know, the highest bit was always cleared.
 	const uint16 v = decode_uint16(p);
-	const int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
+	int version = (v & 0x8000)!=0 ? v&0x7FFF : 0;
 
-	if(version == 5) {
+	// Whether the read file is from Simutrans-Experimental
+	//@author: jamespetts
+
+	uint16 experimental_version = 0;
+	const bool experimental = version > 0 ? v & EXP_VER : false;
+	if(version > 0)
+	{
+		if(experimental)
+		{
+			// Experimental version to start at 0 and increment.
+			version = version & EXP_VER ? version & 0x3FFF : 0;
+			while(version > 0x100)
+			{
+				version -= 0x100;
+				experimental_version ++;
+			}
+			experimental_version -= 1;
+		}
+	}
+
+	// These two cannot be set properly here - must be set to the maximum 
+	// value so that simhalt.cc can detect when they need to be set properly.
+	besch->station_maintenance = 2147483647; 
+	besch->station_price = 2147483647;
+
+	if(version == 5) 
+	{
 		// Versioned node, version 5
 		// animation intergvall in ms added
 		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
@@ -194,7 +220,25 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = decode_uint16(p);
+		
+		// Set default levels for Experimental
+		besch->station_capacity = besch->level * 32;
+
+		if(experimental)
+		{
+			if(experimental_version > 0)
+			{
+				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
+			}
+			else
+			{
+				besch->station_capacity = decode_uint16(p);
+				besch->station_maintenance = decode_sint32(p);
+				besch->station_price = decode_sint32(p);
+			}
+		}
 	}
+
 	else if(version == 4) {
 		// Versioned node, version 4
 		// climates and seasons added
@@ -212,6 +256,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
 		besch->animation_time = 300;
+
 	}
 	else if(version == 3) {
 		// Versioned node, version 3
@@ -284,6 +329,15 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->animation_time = 300;
 	}
+
+	if(!experimental)
+	{
+		// Set default levels for Experimental
+		besch->station_capacity = besch->level * 32;
+	}
+
+	besch->scaled_station_maintenance = besch->station_maintenance;
+	besch->scaled_station_price = besch->station_price;
 
 	// correct old station buildings ...
 	if (besch->level <= 0 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) {

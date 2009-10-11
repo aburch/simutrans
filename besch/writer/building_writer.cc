@@ -46,8 +46,19 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	// Hajo: temp vars of appropriate size
 	uint16 v16;
 
-	// Hajo: write version data
+	// Set version data
 	v16 = 0x8002;
+
+	// This is the overlay flag for Simutrans-Experimental
+	// This sets the *second* highest bit to 1. 
+	v16 |= EXP_VER;
+
+	// Finally, this is the experimental version number. This is *added*
+	// to the standard version number, to be subtracted again when read.
+	// Start at 0x100 and increment in hundreds (hex).
+	v16 += 0x100;
+
+	// Write version data
 	node.write_uint16(fp, v16, 0);
 
 	v16 = besch.phasen;
@@ -68,7 +79,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	haus_besch_t besch;
 
 	// Hajo: take care, hardocded size of node on disc here!
-	obj_node_t node(this, 26, &parent);
+	obj_node_t node(this, 36, &parent);
 
 	write_head(fp, node, obj);
 
@@ -198,6 +209,14 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	besch.obsolete_date  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
 	besch.obsolete_date += obj.get_int("retire_month", 1) - 1;
 
+	// @author: jamespetts
+	// Station-specific capacity and price information.
+	// Stands in place of the "level" setting, but uses "level" data by default.
+
+	besch.station_capacity = obj.get_int("station_capacity", besch.level * 32);
+	besch.station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Set default in the *reader*.
+	besch.station_price = obj.get_int("station_price", 2147483647);
+
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < besch.layouts; l++) { // each layout
@@ -293,6 +312,9 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, besch.intro_date,                20);
 	node.write_uint16(fp, besch.obsolete_date,             22);
 	node.write_uint16(fp, besch.animation_time,            24);
+	node.write_uint16(fp, besch.station_capacity,		   26);
+	node.write_sint32(fp, besch.station_maintenance        28);
+	node.write_sint32(fp, besch.station_price			   32);
 
 	// probably add some icons, if defined
 	slist_tpl<cstring_t> cursorkeys;

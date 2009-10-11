@@ -1,4 +1,4 @@
-#/*
+/*
  * Spieleinstellungen
  *
  * Hj. Malthaner
@@ -939,7 +939,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
 
 	starting_money = contents.get_int64("starting_money", starting_money );
-	maint_building = contents.get_int("maintenance_building", maint_building) * distance_per_tile;
+	maint_building = contents.get_int("maintenance_building", maint_building);
+	maint_building *= distance_per_tile;
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations ) != 0;
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
