@@ -1941,10 +1941,9 @@ void stadt_t::baue_gebaeude(const koord k)
 
 	// no covered by a downgoing monorail?
 	if (gr->ist_natur() &&
-			gr->kann_alle_obj_entfernen(welt->get_spieler(1)) == NULL && (
-				gr->get_grund_hang() == hang_t::flach ||
-				welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL
-			)) {
+		  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
+		  (  gr->get_grund_hang() == hang_t::flach  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  )
+	) {
 		// bisher gibt es 2 Sorten Haeuser
 		// arbeit-spendende und wohnung-spendende
 
@@ -2248,12 +2247,12 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	}
 
 	// we must not built on water or runways etc.
-	if (bd->hat_wege() && !bd->hat_weg(road_wt) && !bd->hat_weg(track_wt)) {
+	if(  bd->hat_wege()  &&  !bd->hat_weg(road_wt)  &&  !bd->hat_weg(track_wt)  ) {
 		return false;
 	}
 
 	// somebody else's things on it?
-	if (bd->kann_alle_obj_entfernen(welt->get_spieler(1))) {
+	if(  bd->kann_alle_obj_entfernen(NULL)  ) {
 		return false;
 	}
 
