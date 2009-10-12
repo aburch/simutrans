@@ -397,7 +397,7 @@ public:
 	 *
 	 * @author prissi
 	 */
-	int suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding );
+	int suche_route( ware_t &ware, koord *next_to_ziel, const bool no_routing_over_overcrowding );
 
 	int get_pax_enabled()  const { return enables & PAX;  }
 	int get_post_enabled() const { return enables & POST; }

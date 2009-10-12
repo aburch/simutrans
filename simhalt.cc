@@ -1117,7 +1117,7 @@ struct HNode {
  *
  * @author Hj. Malthaner/prissi/gerw
  */
-int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, bool avoid_overcrowding )
+int haltestelle_t::suche_route( ware_t &ware, koord *next_to_ziel, const bool no_routing_over_overcrowding )
 {
 	const ware_besch_t * warentyp = ware.get_besch();
 	const uint8 ware_catg_index = warentyp->get_catg_index();
@@ -1266,7 +1266,7 @@ found:
 		// find the intermediate stops
 		while(current_node->link->link) {
 			current_node = current_node->link;
-			if(  avoid_overcrowding  &&  current_node->halt->is_overcrowded(ware_catg_index)  ) {
+			if(  no_routing_over_overcrowding  &&  current_node->halt->is_overcrowded(ware_catg_index)  ) {
 				return ROUTE_OVERCROWDED;
 			}
 		}

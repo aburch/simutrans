@@ -39,6 +39,8 @@ private:
 	settings_costs_stats_t	costs;
 	gui_scrollpane_t scrolly_costs;
 
+	button_t revert_to_default, revert_to_last_save;
+
 public:
 	settings_frame_t(einstellungen_t *sets);
 
