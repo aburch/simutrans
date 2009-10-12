@@ -56,7 +56,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
-	INIT_NUM( "water_animation_ms", umgebung_t::water_animation, 50, 1000, 25, true );
+	INIT_NUM( "water_animation_ms", umgebung_t::water_animation, 0, 1000, 25, false );
 	INIT_NUM( "random_grounds_probability", umgebung_t::ground_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM( "random_wildlife_probability", umgebung_t::moving_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	SEPERATOR

@@ -13,6 +13,7 @@
 #include "../besch/spezial_obj_tpl.h"
 
 #include "../boden/boden.h"
+#include "../boden/wasser.h"
 #include "../boden/fundament.h"
 
 #include "../dataobj/translator.h"
@@ -350,6 +351,9 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						if(gr2  &&  gr2!=gr) {
 							// there is another ground below => do not change height, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
+						}
+						else if(  new_hgt<=welt->get_grundwasser()  &&  new_slope==hang_t::flach  ) {
+							welt->access(newk)->kartenboden_setzen(new wasser_t(welt, koord3d(newk,new_hgt) ) );
 						}
 						else {
 							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
