@@ -37,7 +37,7 @@ einstellungen_t::einstellungen_t() :
 
 	station_coverage_size = 2;
 
-	verkehr_level = 7;
+	verkehr_level = 5;
 
 	show_pax = true;
 
@@ -104,7 +104,7 @@ einstellungen_t::einstellungen_t() :
 	just_in_time = true;
 
 	fussgaenger = true;
-	stadtauto_duration = 120;	// ten years
+	stadtauto_duration = 36;	// three years
 
 	// to keep names consistent
 	numbered_stations = false;
@@ -577,6 +577,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
+	verkehr_level = contents.get_int("citycar_level", verkehr_level);	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
 
 	starting_money = contents.get_int64("starting_money", starting_money );

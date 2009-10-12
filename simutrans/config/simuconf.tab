@@ -182,9 +182,12 @@
 # (1=on, 0=off)
 #pedes_and_car_info = 0
 
+# How much citycars will be generated
+#citycar_level = 5
+
 # After how many month a citycar breaks (and will be forever gone) ...
 # default is ten years
-#default_citycar_life = 120
+#default_citycar_life = 36
 
 # (=1) drive on the left side of the road
 #drive_left = 0

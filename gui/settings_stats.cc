@@ -195,6 +195,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
+	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 1, 1200, 12, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 	set_groesse( settings_stats_t::get_groesse() );
 }
@@ -223,6 +224,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	EXIT_NUM( sets->set_growthfactor_large );
 	EXIT_BOOL( sets->set_random_pedestrians );
 	EXIT_BOOL( sets->set_show_pax );
+	EXIT_NUM( sets->set_verkehr_level );
 	EXIT_NUM( sets->set_stadtauto_duration );
 }
 
