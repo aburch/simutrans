@@ -69,7 +69,7 @@ const uint32 stadt_t::step_bau_interval = 21000;
  * try to built cities at least this distance apart
  * @author prissi
  */
-static int minimum_city_distance = 16;
+static uint32 minimum_city_distance = 16;
 
 /*
  * chance to do renovation instead new building (in percent)
@@ -88,7 +88,7 @@ static uint32 min_building_desity = 25;
  * add a new consumer every % people increase
  * @author prissi
  */
-static int industry_increase_every[8];
+static uint32 industry_increase_every[8];
 
 
 // the following are the scores for the different building types
@@ -251,6 +251,29 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
 
 
 
+uint32 stadt_t::get_industry_increase()
+{
+	return industry_increase_every[0];
+}
+
+void stadt_t::set_industry_increase(uint32 ind_increase)
+{
+	for (int i = 0; i < 8; i++) {
+		industry_increase_every[i] = ind_increase << i;
+	}
+}
+
+uint32 stadt_t::get_minimum_city_distance()
+{
+	return minimum_city_distance;
+}
+
+void stadt_t::set_minimum_city_distance(uint32 s)
+{
+	minimum_city_distance = s;
+}
+
+
 
 /**
  * Reads city configuration data
@@ -276,10 +299,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
 	min_building_desity = (uint32)contents.get_int("minimum_building_desity", 25);
-	int ind_increase = contents.get_int("industry_increase_every", 0);
-	for (int i = 0; i < 8; i++) {
-		industry_increase_every[i] = ind_increase << i;
-	}
+	set_industry_increase( contents.get_int("industry_increase_every", 0) );
 
 	// init the building value tables
 	ind_start_score = contents.get_int("ind_start_score", 0);

@@ -12,6 +12,7 @@
 #include <unistd.h>
 #endif
 
+#include "../simcity.h"
 #include "../simwin.h"
 
 #include "../dataobj/umgebung.h"
@@ -91,6 +92,8 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str, false );
 			simuconf.close();
 		}
+		stadt_t::cityrules_init(umgebung_t::objfilename);
+		chdir( umgebung_t::program_dir );
 		chdir( umgebung_t::objfilename );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
@@ -105,6 +108,12 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str, false );
 			simuconf.close();
 		}
+
+		// and update ...
+		general.init( sets );
+		economy.init( sets );
+		routing.init( sets );
+		costs.init( sets );
 	}
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
@@ -114,6 +123,12 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 			sets->rdwr(&file);
 			file.close();
 		}
+
+		// and update ...
+		general.init( sets );
+		economy.init( sets );
+		routing.init( sets );
+		costs.init( sets );
 	}
 	return true;
 }

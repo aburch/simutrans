@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include "../simcity.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "settings_stats.h"
@@ -176,10 +177,12 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
 	INIT_NUM( "crossconnect_factories_percentage", sets->get_crossconnect_factor(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "industry_increase_every", stadt_t::get_industry_increase(), 0, 100000, 100, false );
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "minimum_city_distance", stadt_t::get_minimum_city_distance(), 1, 20000, 10, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -209,9 +212,11 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	EXIT_BOOL( sets->set_just_in_time );
 	EXIT_BOOL( sets->set_crossconnect_factories );
 	EXIT_NUM( sets->set_crossconnect_factor );
+	EXIT_NUM( stadt_t::set_industry_increase );
 	EXIT_NUM( sets->set_factory_spacing );
 	EXIT_NUM( sets->set_electric_promille );
 	EXIT_NUM( sets->set_passenger_factor );
+	EXIT_NUM( stadt_t::set_minimum_city_distance );
 	EXIT_NUM( sets->set_factory_worker_radius );
 	EXIT_NUM( sets->set_factory_worker_percentage );
 	EXIT_NUM( sets->set_tourist_percentage );
