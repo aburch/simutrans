@@ -2451,7 +2451,7 @@ void stadt_t::baue()
 		// try to find a public owned building
 		for(uint8 i=0; i<4; i++) {
 			gb = buildings[simrand(buildings.get_count())];
-			if (spieler_t::check_owner(welt->get_spieler(1),gb->get_besitzer())) {
+			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  ) {
 				renoviere_gebaeude(gb);
 				break;
 			}
