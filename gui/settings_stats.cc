@@ -171,6 +171,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 {
 	INIT_INIT
 	INIT_COST( "starting_money", sets->get_starting_money(), 1, 0x7FFFFFFFul, 10000, false );
+	INIT_NUM( "pay_for_total_distance", sets->get_pay_for_total_distance_mode(), 0, 2, gui_numberinput_t::AUTOLINEAR, true );
 	INIT_BOOL( "first_beginner", sets->get_beginner_mode() );
 	INIT_NUM( "beginner_price_factor", sets->get_beginner_price_factor(), 1, 25000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
@@ -207,6 +208,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 {
 	EXIT_INIT
 	EXIT_COST( sets->set_starting_money );
+	EXIT_NUM( sets->set_pay_for_total_distance_mode );
 	EXIT_BOOL( sets->set_beginner_mode );
 	EXIT_NUM( sets->set_beginner_price_factor );
 	EXIT_BOOL( sets->set_just_in_time );
