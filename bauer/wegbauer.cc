@@ -1438,6 +1438,9 @@ DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,
 	if(ok) {
 DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max_n=%i",get_count()-1);
 	}
+	else {
+		route.clear();
+	}
 }
 
 
