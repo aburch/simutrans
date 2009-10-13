@@ -1134,7 +1134,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
-	if(gr  && gr->is_visible() && gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
+	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
 		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
 		if(fab==NULL) {
 			return "Transformer only next to factory!";
@@ -1156,8 +1156,9 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 			gr->obj_add(s);
 			s->laden_abschliessen();
 		}
+		return NULL;	// ok
 	}
-	return NULL;
+	return "Transformer only next to factory!";
 }
 
 
