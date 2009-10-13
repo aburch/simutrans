@@ -50,7 +50,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_NUM( "show_month", umgebung_t::show_month, 0, 5, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "show_month", umgebung_t::show_month, 0, 4, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 2, gui_numberinput_t::AUTOLINEAR, false );
@@ -199,7 +199,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
-	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 1, 1200, 12, false );
+	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 12, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 	set_groesse( settings_stats_t::get_groesse() );
 }
@@ -251,9 +251,6 @@ void settings_costs_stats_t::init(einstellungen_t *sets)
 	INIT_COST( "cost_depot_rail", -sets->cst_depot_rail, 1, 100000000, 10, false );
 	INIT_COST( "cost_depot_road", -sets->cst_depot_road, 1, 100000000, 10, false );
 	INIT_COST( "cost_depot_ship", -sets->cst_depot_ship, 1, 100000000, 10, false );
-	INIT_COST( "cost_signal", -sets->cst_signal, 1, 100000000, 10, false );
-	INIT_COST( "cost_tunnel", -sets->cst_tunnel, 1, 100000000, 10, false );
-	INIT_COST( "cost_third_rail", -sets->cst_third_rail, 1, 100000000, 10, false );
 	INIT_COST( "cost_buy_land", -sets->cst_buy_land, 1, 100000000, 10, false );
 	INIT_COST( "cost_alter_land", -sets->cst_alter_land, 1, 100000000, 10, false );
 	INIT_COST( "cost_set_slope", -sets->cst_set_slope, 1, 100000000, 10, false );
@@ -281,9 +278,6 @@ void settings_costs_stats_t::read(einstellungen_t *sets)
 	EXIT_COST_VALUE( sets->cst_depot_rail )*(-1);
 	EXIT_COST_VALUE( sets->cst_depot_road )*(-1);
 	EXIT_COST_VALUE( sets->cst_depot_ship )*(-1);
-	EXIT_COST_VALUE( sets->cst_signal )*(-1);
-	EXIT_COST_VALUE( sets->cst_tunnel )*(-1);
-	EXIT_COST_VALUE( sets->cst_third_rail )*(-1);
 	EXIT_COST_VALUE( sets->cst_buy_land )*(-1);
 	EXIT_COST_VALUE( sets->cst_alter_land )*(-1);
 	EXIT_COST_VALUE( sets->cst_set_slope )*(-1);

@@ -186,9 +186,6 @@ public:
 	sint64 cst_depot_road;
 	sint64 cst_depot_ship;
 	sint64 cst_depot_air;
-	sint64 cst_signal;
-	sint64 cst_tunnel;
-	sint64 cst_third_rail;
 
 	// alter landscape
 	sint64 cst_buy_land;

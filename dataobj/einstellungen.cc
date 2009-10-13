@@ -161,9 +161,6 @@ einstellungen_t::einstellungen_t() :
 	cst_depot_road=-130000;
 	cst_depot_ship=-250000;
 	cst_depot_air=-500000;
-	cst_signal=-50000;
-	cst_tunnel=-1000000;
-	cst_third_rail=-8000;
 	// alter landscape
 	cst_buy_land=-10000;
 	cst_alter_land=-100000;
@@ -426,9 +423,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong( cst_depot_road, "" );
 			file->rdwr_longlong( cst_depot_ship, "" );
 			file->rdwr_longlong( cst_depot_air, "" );
-			file->rdwr_longlong( cst_signal, "" );
-			file->rdwr_longlong( cst_tunnel, "" );
-			file->rdwr_longlong( cst_third_rail, "" );
+			if(  file->get_version()<=102001  ) {
+				sint64 dummy64 = 100000;
+				file->rdwr_longlong( dummy64, "" );
+				file->rdwr_longlong( dummy64, "" );
+				file->rdwr_longlong( dummy64, "" );
+			}
 			// alter landscape
 			file->rdwr_longlong( cst_buy_land, "" );
 			file->rdwr_longlong( cst_alter_land, "" );
@@ -624,9 +624,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
 	cst_depot_road = contents.get_int64("cost_depot_road", cst_depot_road/(-100) ) * -100;
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
-	cst_signal = contents.get_int64("cost_signal", cst_signal/(-100) ) * -100;
-	cst_tunnel = contents.get_int64("cost_tunnel", cst_tunnel/(-100) ) * -100;
-	cst_third_rail = contents.get_int64("cost_third_rail", cst_third_rail/(-100) ) * -100;
 
 	// alter landscape
 	cst_buy_land = contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100;

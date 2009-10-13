@@ -25,7 +25,7 @@
 #include "components/action_listener.h"
 
 
-settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Settings"),
+settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	sets(s),
 	scrolly_general(&general),
 	scrolly_economy(&economy),
