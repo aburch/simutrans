@@ -85,12 +85,12 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 	if(  komp==&revert_to_default  ) {
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
+		*sets = einstellungen_t();
 		chdir( umgebung_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
 			cstring_t dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str, false );
-			simuconf.close();
 		}
 		stadt_t::cityrules_init(umgebung_t::objfilename);
 		chdir( umgebung_t::program_dir );
@@ -99,15 +99,14 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 			sint16 dummy16;
 			cstring_t dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str, false );
-			simuconf.close();
 		}
 		chdir(  umgebung_t::user_dir  );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
 			cstring_t dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str, false );
-			simuconf.close();
 		}
+		simuconf.close();
 
 		// and update ...
 		general.init( sets );

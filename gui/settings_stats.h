@@ -31,7 +31,7 @@ class einstellungen_t;
 	sint16 ypos = 4;\
 	remove_all();\
 	free_all();\
-	seperator = 0;
+	seperator = 0;\
 
 #define INIT_NUM(t,a,b,c,d,e) \
 {\
