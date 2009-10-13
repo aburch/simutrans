@@ -348,22 +348,29 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						sint8 new_hgt;
 						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
 						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+						bool ground_recalc = true;
 						if(gr2  &&  gr2!=gr) {
 							// there is another ground below => do not change height, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
+							ground_recalc = false;
 						}
 						else if(  new_hgt<=welt->get_grundwasser()  &&  new_slope==hang_t::flach  ) {
 							welt->access(newk)->kartenboden_setzen(new wasser_t(welt, koord3d(newk,new_hgt) ) );
 						}
-						else {
+						else if(  gr2==NULL  ||  (gr2==gr  &&  gr->get_grund_hang()!=new_slope)  ) {
 							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
 						}
+						else {
+							ground_recalc = false;
+						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
-						if(new_slope!=0) {
-							if(pos.x<welt->get_groesse_x()-1)
+						if(ground_recalc) {
+							if(pos.x<welt->get_groesse_x()-1) {
 								welt->lookup_kartenboden(newk+koord::ost)->calc_bild();
-							if(pos.y<welt->get_groesse_y()-1)
+							}
+							if(pos.y<welt->get_groesse_y()-1) {
 								welt->lookup_kartenboden(newk+koord::sued)->calc_bild();
+							}
 						}
 					}
 				}
