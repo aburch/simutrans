@@ -2,6 +2,8 @@
 #
 # Low-Level values and constants
 #
+# Lines starting with '#' or any non_character letter will be ignored!
+# To actually set a value, remove the leading '#'!
 #
 # This file can be found in many places:
 #
@@ -14,10 +16,10 @@
 #
 # This simuconf.tab will be read first => we set meaningful defaults here.
 #
-# load/save the files in the users or the program directory directory? (default: 1 = user directory)
+# load/save the files in the users or the program directory directory? (default: 0 = user directory)
 # ATTENTION!
 # will be only used if this file is located in the program directory at config/simuconf.tab!
-#singleuser_install = 1
+#singleuser_install = 0
 
 # Default pak file path
 # which graphics you want to play?
