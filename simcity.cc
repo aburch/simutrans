@@ -339,6 +339,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	}
 	DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
 
+	house_rules.clear();
 	for (uint32 i = 0; i < num_house_rules; i++) {
 		house_rules.append(new rule_t());
 		sprintf(buf, "house_%d.chance", i + 1);
@@ -382,6 +383,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 		}
 	}
 
+	road_rules.clear();
 	for (uint32 i = 0; i < num_road_rules; i++) {
 		road_rules.append(new rule_t());
 		sprintf(buf, "road_%d.chance", i + 1);
