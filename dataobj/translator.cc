@@ -44,8 +44,12 @@ static char *fgets_line(char *buffer, int max_len, FILE *file)
 
 const char* translator::lang_info::translate(const char* text) const
 {
-	if (text    == NULL) return "(null)";
-	if (text[0] == '\0') return text;
+	if (text    == NULL) {
+		return "(null)";
+	}
+	if (text[0] == '\0') {
+		return text;
+	}
 	const char* trans = texts.get(text);
 	return trans != NULL ? trans : text;
 }
@@ -155,7 +159,7 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 					src += len;
 				}
 			}
-			else {
+			else if(c>=13) {
 				// just copy
 				src ++;
 				*dst++ = c;
