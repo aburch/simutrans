@@ -77,6 +77,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "cursor_overlay_color", umgebung_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
 
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -141,6 +142,8 @@ void settings_routing_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "way_tunnel", sets->way_count_tunnel, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_max_bridge_len", sets->way_max_bridge_len, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_leaving_road", sets->way_count_leaving_road, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -201,6 +204,8 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
 	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 12, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
+
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -288,6 +293,8 @@ void settings_costs_stats_t::read(einstellungen_t *sets)
 	EXIT_COST_VALUE( sets->cst_multiply_remove_field )*(-1);
 	EXIT_COST_VALUE( sets->cst_transformer )*(-1);
 	EXIT_COST_VALUE( sets->cst_maintain_transformer )*(-1);
+
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
