@@ -1783,24 +1783,33 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		// found a route => check if I can delete anything on it
 		for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
 			grund_t *gr=welt->lookup(verbindung.position_bei(i));
-			if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ||  (gr->is_halt()  &&  !spieler_t::check_owner( gr->get_halt()->get_besitzer(), sp ) )  ) {
-				can_delete = false;
-				break;
+			if(  wt!=powerline_wt  ) {
+				if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ||  (gr->is_halt()  &&  !spieler_t::check_owner( gr->get_halt()->get_besitzer(), sp ) )  ) {
+					can_delete = false;
+					break;
+				}
+				if(  gr->kann_alle_obj_entfernen(sp)!=NULL  ) {
+					// we have to do a fine check
+					for( uint i=0;  i<gr->get_top();  i++  ) {
+						ding_t *d = gr->obj_bei(i);
+						uint8 type = d->get_typ();
+						if(type>=ding_t::automobil  &&  type!=ding_t::aircraft) {
+							can_delete = false;
+							break;
+						}
+						// something else that is not mine ...
+						if(  d->ist_entfernbar(sp)!=NULL  &&  gr->get_leitung()!=d  ) {
+							can_delete = false;
+							break;
+						}
+					}
+				}
 			}
-			if(  gr->kann_alle_obj_entfernen(sp)!=NULL  ) {
-				// we have to do a fine check
-				for( uint i=0;  i<gr->get_top();  i++  ) {
-					ding_t *d = gr->obj_bei(i);
-					uint8 type = d->get_typ();
-					if(type>=ding_t::automobil  &&  type!=ding_t::aircraft) {
-						can_delete = false;
-						break;
-					}
-					// something else that is not mine ...
-					if(  d->ist_entfernbar(sp)!=NULL  &&  gr->get_leitung()==d  ) {
-						can_delete = false;
-						break;
-					}
+			else {
+				// for powerline: only a ground and a powerline to remove
+				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  gr->get_leitung()->ist_entfernbar(sp)!=NULL  ) {
+					can_delete = false;
+					break;
 				}
 			}
 		}

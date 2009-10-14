@@ -492,7 +492,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		use_intro_dates.set_text("Use timeline start year");
 		allow_player_change.set_text("Allow player change");
 //		use_beginner_mode.set_text("Beginner mode");
-		open_setting_gui.set_text("Settings");
+		open_setting_gui.set_text("Setting");
 		open_climate_gui.set_text("Climate Control");
 		load_game.set_text("Load game");
 		load_scenario.set_text("Load scenario");
