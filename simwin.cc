@@ -1177,7 +1177,7 @@ bool win_change_zoom_factor(bool magnify)
 		ev.cy = 0;
 		ev.button_state = 0;
 
-		for(  uint i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
+		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
 			wins[i].gui->infowin_event(&ev);
 		}
 	}
