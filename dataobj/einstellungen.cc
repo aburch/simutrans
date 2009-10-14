@@ -549,6 +549,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 			umgebung_t::river_type[umgebung_t::river_types] = NULL;
 			if(*test) {
 				umgebung_t::river_type[umgebung_t::river_types] = strdup( test );
+				umgebung_t::river_types++;
 			}
 		}
 

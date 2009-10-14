@@ -164,6 +164,10 @@ static char* recode(const char* src, bool translate_from_utf, bool translate_to_
 				src ++;
 				*dst++ = c;
 			}
+			else {
+				// ignore this character
+				src ++;
+			}
 		}
 	} while (c != '\0');
 	*dst = 0;
