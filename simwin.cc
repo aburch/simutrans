@@ -651,8 +651,10 @@ void display_all_win()
 	const char *current_tooltip = tooltip_text;
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		display_win(i);
-		// prissi: tooltips are only allowed for the uppermost window and main menu => only last survives
-		tooltip_text = current_tooltip;
+		if(  i+1==wins.get_count()  &&  current_tooltip!=NULL  ) {
+			// prissi: tooltips are only allowed for the uppermost window and main menu => only last survives
+			tooltip_text = current_tooltip;
+		}
 	}
 }
 

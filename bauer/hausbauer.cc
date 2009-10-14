@@ -358,6 +358,9 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 							welt->access(newk)->kartenboden_setzen(new wasser_t(welt, koord3d(newk,new_hgt) ) );
 						}
 						else {
+							if(  (gr2==NULL  ||  gr2==gr)  &&  gr->get_grund_hang()==new_slope  ) {
+								ground_recalc = false;
+							}
 							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
