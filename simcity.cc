@@ -2403,7 +2403,12 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 void stadt_t::baue()
 {
 	// will check a single random pos in the city, then baue will be called
-	const koord k(lo + koord(simrand(ur.x - lo.x + 1), simrand(ur.y - lo.y + 1)));
+	const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
+
+	// do not build on any border tile
+	if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
+		return;
+	}
 
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr==NULL) {

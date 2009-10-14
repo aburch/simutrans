@@ -1240,7 +1240,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes
-				if(gb_part  &&  gb_part->get_tile()->get_besch()==hb && spieler_t::check_owner(gb_part->get_besitzer(),sp)) {
+				if(  gb_part  &&  gb_part->get_tile()->get_besch()==hb  &&  spieler_t::check_owner(gb_part->get_besitzer(),sp)  ) {
 					spieler_t::add_maintenance( old_owner, -welt->get_einstellungen()->maint_building*hb->get_level() );
 					spieler_t::add_maintenance( sp, +welt->get_einstellungen()->maint_building*hb->get_level() );
 					gb->set_besitzer(sp);
