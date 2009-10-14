@@ -499,63 +499,63 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename, bool einstellungen_only )
+void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename )
 {
 	tabfileobj_t contents;
 
 	simuconf.read(contents);
 
-	if(  !einstellungen_only  ) {
-		umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
-		umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
-		umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
-		umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
+	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
+	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
+	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
+	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
 
-		umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
-		umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
-		umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
-		umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
-		umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
+	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
+	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
+	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
+	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
+	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
 
-		umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
-		umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
-		umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs);
+	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
+	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
+	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs);
 
-		umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
-		umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
-		umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
-		umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color);
+	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
+	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
+	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
+	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color);
 
-		// display stuff
-		umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
-		umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
-		umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
+	// display stuff
+	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
+	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
+	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
 
-		umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-		const char *test = ltrim(contents.get("intercity_road_type"));
+	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
+	const char *test = ltrim(contents.get("intercity_road_type"));
+	if(*test) {
 		free( (void *)umgebung_t::intercity_road_type );
 		umgebung_t::intercity_road_type = NULL;
-		if(*test) {
-			umgebung_t::intercity_road_type = strdup(test);
-		}
+		umgebung_t::intercity_road_type = strdup(test);
+	}
 
-		// up to ten rivers are possible
-		umgebung_t::river_types = 0;
-		for(  int i = 0;  i<10;  i++  ) {
-			char name[32];
-			sprintf( name, "river_type[%i]", i );
-			const char *test = ltrim(contents.get(name));
-			free( (void *)umgebung_t::river_type[umgebung_t::river_types] );
-			umgebung_t::river_type[umgebung_t::river_types] = NULL;
-			if(*test) {
-				umgebung_t::river_type[umgebung_t::river_types] = strdup( test );
+	// up to ten rivers are possible
+	for(  int i = 0;  i<10;  i++  ) {
+		char name[32];
+		sprintf( name, "river_type[%i]", i );
+		const char *test = ltrim(contents.get(name));
+		if(*test) {
+			const int add_river = i<umgebung_t::river_types ? i : umgebung_t::river_types;
+			free( (void *)umgebung_t::river_type[add_river] );
+			umgebung_t::river_type[add_river] = NULL;
+			umgebung_t::river_type[add_river] = strdup( test );
+			if(  add_river==umgebung_t::river_types  ) {
 				umgebung_t::river_types++;
 			}
 		}
-
-		umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
-		umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 	}
+
+	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
+	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 
 	// routing stuff
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );

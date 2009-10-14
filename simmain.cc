@@ -443,7 +443,7 @@ int simu_main(int argc, char** argv)
 	if(  found_simuconf  ) {
 		if(simuconf.open("config/simuconf.tab")) {
 			printf("parse_simuconf() at config/simuconf.tab: ");
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, false );
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
 
@@ -453,7 +453,7 @@ int simu_main(int argc, char** argv)
 		cstring_t obj_conf( cstring_t(umgebung_t::user_dir) + "simuconf.tab" );
 		if(simuconf.open(obj_conf)) {
 			printf("parse_simuconf() at %s: ", (const char *)obj_conf );
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, false );
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
 
@@ -585,7 +585,7 @@ int simu_main(int argc, char** argv)
 	if(simuconf.open((const char *)obj_conf)) {
 		sint16 idummy;
 		printf("parse_simuconf() at %s: ", (const char *)obj_conf);
-		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy, false );
+		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		simuconf.close();
 	}
@@ -595,7 +595,7 @@ int simu_main(int argc, char** argv)
 		if(simuconf.open(obj_conf)) {
 			sint16 idummy;
 			printf("parse_simuconf() at %s: ", (const char *)obj_conf);
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy, false );
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
 		if(gimme_arg(argc, argv, "-addons", 0) != NULL) {

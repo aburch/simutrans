@@ -229,7 +229,7 @@ public:
 	void rdwr(loadsave_t *file);
 
 	// init form this file ...
-	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename, bool omit_umgebung );
+	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename );
 
 	void set_groesse_x(sint32 g) {groesse_x=g;}
 	void set_groesse_y(sint32 g) {groesse_y=g;}
