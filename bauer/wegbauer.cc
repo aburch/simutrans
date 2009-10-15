@@ -2071,17 +2071,27 @@ wegbauer_t::baue_fluss()
 		return;
 	}
 
-	// first lower riverbed
+	// first check then lower riverbed
 	const sint8 start_h = route[start_n].z;
-	for(  uint32 idx=start_n;  idx<get_count();  idx++  ) {
-		koord3d pos = route[idx];
-		if(pos.z < start_h){
-			// do not handle both joining and water ...
-			continue;
+	uint32 i = start_n;
+	while(i<get_count()) {
+		// first find all tiles that are on the same level as tile i
+		// and check whether we can lower all of them
+		bool ok = true;
+		uint32 j;
+		for(j=i; j<get_count() &&  ok; j++) {
+			// one step higher?
+			if (route[j].z > route[i].z) break;
+			// check
+			ok = welt->can_ebne_planquadrat(route[j].get_2d(), max(route[j].z-1, start_h));
 		}
-		if(  !welt->ebne_planquadrat( NULL, pos.get_2d(), max(pos.z-1, start_h) )  ) {
-			dbg->message( "wegbauer_t::baue_fluss()","lowering tile %s failed.", pos.get_str() );
+		// now lower all tiles that have the same height as tile i
+		if (ok) {
+			for(uint32 k=i; k<j; k++) {
+				welt->ebne_planquadrat(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
+			}
 		}
+		i = ok ? j : j+1;
 	}
 
 	// now build the river
