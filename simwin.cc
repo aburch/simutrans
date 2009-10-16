@@ -76,7 +76,6 @@ class simwin_t
 public:
 	koord pos;         // Fensterposition
 	uint32 dauer;        // Wie lange soll das Fenster angezeigt werden ?
-	sint16 xoff, yoff;   // Offsets zur Maus beim verschieben
 	uint8 wt;	// the flags for the window type
 	long magic_number;	// either magic number or this pointer (which is unique too)
 	gui_fenster_t *gui;
@@ -649,13 +648,21 @@ void display_win(int win)
 void display_all_win()
 {
 	const char *current_tooltip = tooltip_text;
+	const sint16 x = get_maus_x();
+	const sint16 y = get_maus_y();
+	bool getroffen = false;
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
+		tooltip_text = NULL;
 		display_win(i);
-		if(  i+1==wins.get_count()  &&  current_tooltip!=NULL  ) {
-			// prissi: tooltips are only allowed for the uppermost window and main menu => only last survives
-			tooltip_text = current_tooltip;
+		if(  !getroffen  &&  tooltip_text!=NULL  ) {
+			current_tooltip = tooltip_text;
+		}
+		if(  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y)  ) {
+			// prissi: tooltips are only allowed for non overlapping windows
+			current_tooltip = tooltip_text;
 		}
 	}
+	tooltip_text = current_tooltip;
 }
 
 
