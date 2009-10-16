@@ -48,6 +48,8 @@ public:
 
 	static const weg_besch_t * get_besch(const char *way_name,const uint16 time=0);
 
+	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
+
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner

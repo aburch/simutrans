@@ -18,6 +18,11 @@
 #include "../simimg.h"
 #include "../simtools.h"
 
+#include "../bauer/hausbauer.h"
+#include "../bauer/wegbauer.h"
+
+#include "../besch/haus_besch.h"
+
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
@@ -64,6 +69,20 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->sets = sets;
 	this->old_lang = -1;
 	this->sets->set_beginner_mode(umgebung_t::default_einstellungen.get_beginner_mode());
+
+	// find earliest start date ...
+	uint16 game_start = 2999;
+	// first townhalls
+	slist_iterator_tpl<const haus_besch_t*> iter(hausbauer_t::get_list(haus_besch_t::rathaus));
+	while(  iter.next()  ) {
+		uint16 year = (iter.get_current()->get_intro_year_month()+11)/12;
+		if(  year<game_start  ) {
+			game_start = year;
+		}
+	}
+	// then streets
+	game_start = max( game_start, (wegbauer_t::get_earliest_way(road_wt)->get_intro_year_month()+11)/12 );
+
 	loaded_heightfield = load_heightfield = false;
 	load = start = close = scenario = quit = false;
 	int intTopOfButton=START_HEIGHT;
@@ -187,7 +206,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_intro_date.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_intro_date.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_intro_date.add_listener(this);
-	inp_intro_date.set_limits(1400,2050);
+	inp_intro_date.set_limits(game_start,2999);
 	inp_intro_date.set_increment_mode(10);
 	inp_intro_date.set_value(abs(sets->get_starting_year()) );
 	add_komponente( &inp_intro_date );

@@ -159,6 +159,21 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 
 
 
+const weg_besch_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
+{
+	uint32 start_year_month = 0x7FFFFFFFul;
+	const weg_besch_t *besch = NULL;
+	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
+		const weg_besch_t* const test = iter.get_current_value();
+		if(  test->get_wtyp()==wtyp  &&  (besch==NULL  ||  test->get_intro_year_month()<besch->get_intro_year_month())  ) {
+			besch = test;
+		}
+	}
+	return besch;
+}
+
+
+
 const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 time)
 {
 //DBG_MESSAGE("wegbauer_t::get_besch","return besch for %s in (%i)",way_name, time/12);
