@@ -214,8 +214,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 
 
 
-void
-convoi_t::laden_abschliessen()
+void convoi_t::laden_abschliessen()
 {
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
@@ -248,8 +247,8 @@ convoi_t::laden_abschliessen()
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
 		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 			vehikel_t* v = fahr[i];
-			v->set_erstes(i == 0u);
-			v->set_letztes(i == (anz_vehikel - 1u));
+			v->set_erstes( i==0 );
+			v->set_letztes( i+1==anz_vehikel );
 			// this sets the convoi and will renew the block reservation, if needed!
 			v->set_convoi(this);
 
@@ -996,9 +995,14 @@ void convoi_t::start()
 		state = ROUTING_1;
 
 		// recalc weight and image
+		// also for any vehicle entered a depot, set_letztes is true! => reset it correctly
 		for(unsigned i=0; i<anz_vehikel; i++) {
+			fahr[i]->set_erstes( false );
+			fahr[i]->set_letztes( false );
 			fahr[i]->beladen( home_depot.get_2d(), halthandle_t() );
 		}
+		fahr[0]->set_erstes( true );
+		fahr[anz_vehikel-1]->set_letztes( true );
 		// do not show the vehicle - it will be wrong positioned -vorfahren() will correct this
 		fahr[0]->set_bild(IMG_LEER);
 
