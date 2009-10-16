@@ -351,7 +351,7 @@ const gui_fenster_t *win_get_top()
 
 int win_get_open_count()
 {
-	return wins.get_count()-1;
+	return wins.get_count();
 }
 
 
@@ -392,7 +392,7 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 
 	if(  magic!=magic_none  &&  win_get_magic(magic)  ) {
 		focus = NULL;
-		top_win( gui );
+		top_win( win_get_magic(magic) );
 		return -1;
 	}
 
