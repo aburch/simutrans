@@ -2635,6 +2635,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Makefile"
+				>
+			</File>
+			<File
 				RelativePath="..\simutrans-experimental-binaries\config\privatecar.tab"
 				>
 			</File>
