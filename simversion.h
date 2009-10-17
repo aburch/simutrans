@@ -3,8 +3,8 @@
 
 #define MAKEOBJ_VERSION "50"
 
-#define VERSION_NUMBER "102.2 Nightly"
-#define WIDE_VERSION_NUMBER L"102.2 Nightly"
+#define VERSION_NUMBER "102.2"
+#define WIDE_VERSION_NUMBER L"102.2"
 
 #define VERSION_DATE __DATE__
 
@@ -14,6 +14,6 @@
 #define SAVEGAME_VER_NR  "0.102.2"
 #define SAVEGAME_VERSION (SAVEGAME_PREFIX SAVEGAME_VER_NR)
 
-#define RES_VERSION_NUMBER  0, 102, 0, 0
+#define RES_VERSION_NUMBER  0, 102, 2, 0
 
 #endif
