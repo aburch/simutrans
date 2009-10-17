@@ -52,7 +52,7 @@ const char citylist_frame_t::hist_type[karte_t::MAX_WORLD_COST][20] =
 	"sended",
 	"Post",
 	"Arrived",
-	"Transported"
+	"Goods"
 };
 
 const char citylist_frame_t::hist_type_tooltip[karte_t::MAX_WORLD_COST][256] =
@@ -239,15 +239,16 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
  */
 void citylist_frame_t::resize(const koord delta)
 {
-  gui_frame_t::resize(delta);
+	gui_frame_t::resize(delta);
 
-  koord groesse = get_fenstergroesse()-koord(0,58);	// fensterhoehe - 16(title) -42 (header)
-  if(show_stats.pressed) {
-	  // addition space for statistics
-	  groesse += koord(0,-CHART_HEIGHT);
-  }
-  scrolly.set_pos( koord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
-  scrolly.set_groesse(groesse);
+	koord groesse = get_fenstergroesse()-koord(0,58);	// fensterhoehe - 16(title) -42 (header)
+	if(show_stats.pressed) {
+		// addition space for statistics
+		groesse += koord(0,-CHART_HEIGHT);
+	}
+	scrolly.set_pos( koord(0, 42+(show_stats.pressed*CHART_HEIGHT) ) );
+	scrolly.set_groesse(groesse);
+	set_dirty();
 }
 
 

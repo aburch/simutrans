@@ -106,6 +106,11 @@ public:
 	float get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(cstring_t objfilename);
 
+	static uint32 get_industry_increase();
+	static void set_industry_increase(uint32 ind_increase);
+	static uint32 get_minimum_city_distance();
+	static void set_minimum_city_distance(uint32 s);
+
 private:
 	static karte_t *welt;
 	spieler_t *besitzer_p;

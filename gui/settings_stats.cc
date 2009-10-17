@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include "../simcity.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "settings_stats.h"
@@ -49,14 +50,14 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
 	INIT_NUM( "show_names", umgebung_t::show_names, 0, 3, gui_numberinput_t::AUTOLINEAR, true );
-	INIT_NUM( "show_month", umgebung_t::show_month, 0, 5, gui_numberinput_t::AUTOLINEAR, true );
+	INIT_NUM( "show_month", umgebung_t::show_month, 0, 4, gui_numberinput_t::AUTOLINEAR, true );
 	SEPERATOR
 	INIT_NUM( "bits_per_month", sets->get_bits_per_month(), 16, 24, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "use_timeline", sets->get_use_timeline(), 0, 2, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "starting_year", sets->get_starting_year(), 0, 2999, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "starting_month", sets->get_starting_month(), 0, 11, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
-	INIT_NUM( "water_animation_ms", umgebung_t::water_animation, 50, 1000, 25, true );
+	INIT_NUM( "water_animation_ms", umgebung_t::water_animation, 0, 1000, 25, false );
 	INIT_NUM( "random_grounds_probability", umgebung_t::ground_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	INIT_NUM( "random_wildlife_probability", umgebung_t::moving_object_probability, 0, 0x7FFFFFFFul, gui_numberinput_t::POWER2, false );
 	SEPERATOR
@@ -76,6 +77,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "cursor_overlay_color", umgebung_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
 
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -139,6 +141,8 @@ void settings_routing_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "way_tunnel", sets->way_count_tunnel, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_max_bridge_len", sets->way_max_bridge_len, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "way_leaving_road", sets->way_count_leaving_road, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -174,10 +178,12 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
 	INIT_NUM( "crossconnect_factories_percentage", sets->get_crossconnect_factor(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "industry_increase_every", stadt_t::get_industry_increase(), 0, 100000, 100, false );
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "minimum_city_distance", stadt_t::get_minimum_city_distance(), 1, 20000, 10, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
@@ -193,7 +199,10 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
+	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 12, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
+
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 
@@ -206,9 +215,11 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	EXIT_BOOL( sets->set_just_in_time );
 	EXIT_BOOL( sets->set_crossconnect_factories );
 	EXIT_NUM( sets->set_crossconnect_factor );
+	EXIT_NUM( stadt_t::set_industry_increase );
 	EXIT_NUM( sets->set_factory_spacing );
 	EXIT_NUM( sets->set_electric_promille );
 	EXIT_NUM( sets->set_passenger_factor );
+	EXIT_NUM( stadt_t::set_minimum_city_distance );
 	EXIT_NUM( sets->set_factory_worker_radius );
 	EXIT_NUM( sets->set_factory_worker_percentage );
 	EXIT_NUM( sets->set_tourist_percentage );
@@ -221,6 +232,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	EXIT_NUM( sets->set_growthfactor_large );
 	EXIT_BOOL( sets->set_random_pedestrians );
 	EXIT_BOOL( sets->set_show_pax );
+	EXIT_NUM( sets->set_verkehr_level );
 	EXIT_NUM( sets->set_stadtauto_duration );
 }
 
@@ -240,9 +252,6 @@ void settings_costs_stats_t::init(einstellungen_t *sets)
 	INIT_COST( "cost_depot_rail", -sets->cst_depot_rail, 1, 100000000, 10, false );
 	INIT_COST( "cost_depot_road", -sets->cst_depot_road, 1, 100000000, 10, false );
 	INIT_COST( "cost_depot_ship", -sets->cst_depot_ship, 1, 100000000, 10, false );
-	INIT_COST( "cost_signal", -sets->cst_signal, 1, 100000000, 10, false );
-	INIT_COST( "cost_tunnel", -sets->cst_tunnel, 1, 100000000, 10, false );
-	INIT_COST( "cost_third_rail", -sets->cst_third_rail, 1, 100000000, 10, false );
 	INIT_COST( "cost_buy_land", -sets->cst_buy_land, 1, 100000000, 10, false );
 	INIT_COST( "cost_alter_land", -sets->cst_alter_land, 1, 100000000, 10, false );
 	INIT_COST( "cost_set_slope", -sets->cst_set_slope, 1, 100000000, 10, false );
@@ -270,9 +279,6 @@ void settings_costs_stats_t::read(einstellungen_t *sets)
 	EXIT_COST_VALUE( sets->cst_depot_rail )*(-1);
 	EXIT_COST_VALUE( sets->cst_depot_road )*(-1);
 	EXIT_COST_VALUE( sets->cst_depot_ship )*(-1);
-	EXIT_COST_VALUE( sets->cst_signal )*(-1);
-	EXIT_COST_VALUE( sets->cst_tunnel )*(-1);
-	EXIT_COST_VALUE( sets->cst_third_rail )*(-1);
 	EXIT_COST_VALUE( sets->cst_buy_land )*(-1);
 	EXIT_COST_VALUE( sets->cst_alter_land )*(-1);
 	EXIT_COST_VALUE( sets->cst_set_slope )*(-1);
@@ -283,6 +289,8 @@ void settings_costs_stats_t::read(einstellungen_t *sets)
 	EXIT_COST_VALUE( sets->cst_multiply_remove_field )*(-1);
 	EXIT_COST_VALUE( sets->cst_transformer )*(-1);
 	EXIT_COST_VALUE( sets->cst_maintain_transformer )*(-1);
+
+	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
 

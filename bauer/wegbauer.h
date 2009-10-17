@@ -54,6 +54,8 @@ public:
 
 	static stringhashtable_tpl <weg_besch_t *> * get_all_ways();
 
+	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
+
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner

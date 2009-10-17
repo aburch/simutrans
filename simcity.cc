@@ -258,7 +258,7 @@ const uint32 stadt_t::step_bau_interval = 21000;
  * try to built cities at least this distance apart
  * @author prissi
  */
-static int minimum_city_distance = 16;
+static uint32 minimum_city_distance = 16;
 
 /*
  * chance to do renovation instead new building (in percent)
@@ -277,7 +277,7 @@ static uint32 min_building_desity = 25;
  * add a new consumer every % people increase
  * @author prissi
  */
-static int industry_increase_every[8];
+static uint32 industry_increase_every[8];
 
 
 // the following are the scores for the different building types
@@ -633,6 +633,29 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
 
 
 
+uint32 stadt_t::get_industry_increase()
+{
+	return industry_increase_every[0];
+}
+
+void stadt_t::set_industry_increase(uint32 ind_increase)
+{
+	for (int i = 0; i < 8; i++) {
+		industry_increase_every[i] = ind_increase << i;
+	}
+}
+
+uint32 stadt_t::get_minimum_city_distance()
+{
+	return minimum_city_distance;
+}
+
+void stadt_t::set_minimum_city_distance(uint32 s)
+{
+	minimum_city_distance = s;
+}
+
+
 
 /**
  * Reads city configuration data
@@ -658,10 +681,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
 	min_building_desity = (uint32)contents.get_int("minimum_building_desity", 25);
-	int ind_increase = contents.get_int("industry_increase_every", 0);
-	for (int i = 0; i < 8; i++) {
-		industry_increase_every[i] = ind_increase << i;
-	}
+	set_industry_increase( contents.get_int("industry_increase_every", 0) );
 
 	// init the building value tables
 	ind_start_score = contents.get_int("ind_start_score", 0);
@@ -701,6 +721,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	}
 	DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
 
+	house_rules.clear();
 	for (uint32 i = 0; i < num_house_rules; i++) {
 		house_rules.append(new rule_t());
 		sprintf(buf, "house_%d.chance", i + 1);
@@ -749,6 +770,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 			printf("House-Rule %d: Pos (%d,%d) Flag %d\n",i,house_rules[i]->rule[j].x,house_rules[i]->rule[j].y,house_rules[i]->rule[j].flag);
 	}
 
+	road_rules.clear();
 	for (uint32 i = 0; i < num_road_rules; i++) {
 		road_rules.append(new rule_t());
 		sprintf(buf, "road_%d.chance", i + 1);
@@ -3089,10 +3111,9 @@ void stadt_t::baue_gebaeude(const koord k)
 
 	// no covered by a downgoing monorail?
 	if (gr->ist_natur() &&
-			gr->kann_alle_obj_entfernen(welt->get_spieler(1)) == NULL && (
-				gr->get_grund_hang() == hang_t::flach ||
-				welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL
-			)) {
+		  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
+		  (  gr->get_grund_hang() == hang_t::flach  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  )
+	) {
 		// bisher gibt es 2 Sorten Haeuser
 		// arbeit-spendende und wohnung-spendende
 
@@ -3393,12 +3414,12 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	}
 
 	// we must not built on water or runways etc.
-	if (bd->hat_wege() && !bd->hat_weg(road_wt) && !bd->hat_weg(track_wt)) {
+	if(  bd->hat_wege()  &&  !bd->hat_weg(road_wt)  &&  !bd->hat_weg(track_wt)  ) {
 		return false;
 	}
 
 	// somebody else's things on it?
-	if (bd->kann_alle_obj_entfernen(welt->get_spieler(1))) {
+	if(  bd->kann_alle_obj_entfernen(NULL)  ) {
 		return false;
 	}
 
@@ -3527,7 +3548,12 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 void stadt_t::baue()
 {
 	// will check a single random pos in the city, then baue will be called
-	const koord k(lo + koord(simrand(ur.x - lo.x + 1), simrand(ur.y - lo.y + 1)));
+	const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
+
+	// do not build on any border tile
+	if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
+		return;
+	}
 
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr==NULL) {
@@ -3577,7 +3603,7 @@ void stadt_t::baue()
 		// try to find a public owned building
 		for(uint8 i=0; i<4; i++) {
 			gb = buildings[simrand(buildings.get_count())];
-			if (spieler_t::check_owner(welt->get_spieler(1),gb->get_besitzer())) {
+			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  ) {
 				renoviere_gebaeude(gb);
 				break;
 			}

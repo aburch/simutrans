@@ -1196,9 +1196,10 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 		return CREDIT_MESSAGE;
 	}	
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
-	if(gr  && gr->is_visible() && gr->get_grund_hang() == 0 && !gr->ist_wasser() && !gr->hat_wege() && gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
 
-		fabrik_t *fab = leitung_t::suche_fab_4(k.get_2d());
+	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
+
+		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
 		stadt_t* city = NULL;
 		if(fab == NULL) 
 		{
@@ -1232,8 +1233,9 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 			gr->obj_add(s);
 			s->laden_abschliessen();
 		}
+		return NULL;	// ok
 	}
-	return NULL;
+	return "Transformer only next to factory!";
 }
 
 
@@ -1319,7 +1321,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes
-				if(gb_part  &&  gb_part->get_tile()->get_besch()==hb && spieler_t::check_owner(welt->get_spieler(1),gb->get_besitzer())) {
+				if(  gb_part  &&  gb_part->get_tile()->get_besch()==hb  &&  spieler_t::check_owner(gb_part->get_besitzer(),sp)  ) {
 					spieler_t::add_maintenance( old_owner, -welt->get_einstellungen()->maint_building*hb->get_level() );
 					spieler_t::add_maintenance( sp, +welt->get_einstellungen()->maint_building*hb->get_level() );
 					gb->set_besitzer(sp);
@@ -1578,7 +1580,7 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 	calc_route( bauigel, start, end );
 
 	uint8 offset = (besch->get_styp()==1  &&  besch->get_wtyp()!=air_wt) ? 1 : 0;
-	if(  bauigel.get_count()>2  ) {
+	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
 
@@ -1752,7 +1754,7 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 
 	welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
 
-	if(  bauigel.get_count()>2  ) {
+	if(  bauigel.get_count()>1  ) {
 		// Set tooltip first (no dummygrounds, if bauigel.calc_casts() is called).
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -bauigel.calc_costs() ) );
 
@@ -1847,14 +1849,20 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 
 bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d &start, const koord3d &end )
 {
-	bool can_delete;
+	waytype_t wt = (waytype_t)atoi(default_param);
+	if (wt == tram_wt) {
+		wt = track_wt;
+	}
+	karte_t *welt = sp->get_welt();
+
 	if(  start == end  ) {
 		verbindung.clear();
-		verbindung.append( start );
-		can_delete = true;
+		grund_t *gr=welt->lookup(start);
+		if(  gr  &&  gr->get_weg(wt)  ) {
+			verbindung.append( start );
+		}
 	}
 	else {
-		waytype_t wt = (waytype_t)atoi(default_param);
 		// get a default vehikel
 		fahrer_t* test_driver;
 		if(  wt!=powerline_wt  ) {
@@ -1864,11 +1872,49 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		else {
 			test_driver = (fahrer_t * )new electron_t();
 		}
-		can_delete = verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0, 0);
+		verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0, 0);
 		delete test_driver;
 	}
-	DBG_MESSAGE("wkz_wayremover()", "route search returned %d", can_delete);
 	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_count());
+
+	bool can_delete = verbindung.get_count()>0;
+	if(  can_delete  ) {
+		// found a route => check if I can delete anything on it
+		for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
+			grund_t *gr=welt->lookup(verbindung.position_bei(i));
+			if(  wt!=powerline_wt  ) {
+				if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ||  (gr->is_halt()  &&  !spieler_t::check_owner( gr->get_halt()->get_besitzer(), sp ) )  ) {
+					can_delete = false;
+					break;
+				}
+				if(  gr->kann_alle_obj_entfernen(sp)!=NULL  ) {
+					// we have to do a fine check
+					for( uint i=0;  i<gr->get_top();  i++  ) {
+						ding_t *d = gr->obj_bei(i);
+						uint8 type = d->get_typ();
+						if(type>=ding_t::automobil  &&  type!=ding_t::aircraft) {
+							can_delete = false;
+							break;
+						}
+						// something else that is not mine ...
+						if(  d->ist_entfernbar(sp)!=NULL  &&  gr->get_leitung()!=d  ) {
+							can_delete = false;
+							break;
+						}
+					}
+				}
+			}
+			else {
+				// for powerline: only a ground and a powerline to remove
+				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  gr->get_leitung()->ist_entfernbar(sp)!=NULL  ) {
+					can_delete = false;
+					break;
+				}
+			}
+		}
+	}
+	DBG_MESSAGE("wkz_wayremover()", "route search returned %d", can_delete);
+
 	return can_delete;
 }
 
@@ -1880,46 +1926,10 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 		DBG_MESSAGE("wkz_wayremover()","no route found");
 		return "Ways not connected";
 	}
-	bool can_delete = true;
-
-	if (wt == tram_wt) {
-		wt = track_wt;
-	}
-
-	// found a route => check if I can delete anything on it
-	for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
-		grund_t *gr=welt->lookup(verbindung.position_bei(i));
-		if(gr) {
-			if(  wt!=powerline_wt  ) {
-				if(gr->get_weg(wt)==NULL  ||  gr->get_weg(wt)->ist_entfernbar(sp)!=NULL ) {
-					can_delete = false;
-				}
-				else {
-					if(gr->kann_alle_obj_entfernen(sp)!=NULL) {
-						// we have to do a fine check
-						for( uint i=1;  i<gr->get_top();  i++  ) {
-							uint8 type = gr->obj_bei(i)->get_typ();
-							if(type>=ding_t::automobil  &&  type!=ding_t::aircraft) {
-								can_delete = false;
-								break;
-							}
-						}
-					}
-				}
-			}
-			else {
-				leitung_t *lt = gr->get_leitung();
-				can_delete = lt  &&  lt->ist_entfernbar(sp)==NULL;
-			}
-		}
-		else {
-			can_delete = false;
-		}
-
-	}
+	bool can_delete = true;	// assume success
 
 	// if successful => delete everything
-	for( uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
+	for( uint32 i=0;  i<verbindung.get_count();  i++  ) {
 
 		grund_t *gr=welt->lookup(verbindung.position_bei(i));
 

@@ -2215,22 +2215,12 @@ static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 
 bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
 {
-	for(int i=0; i<4; i++) {
-		koord p = pos + ebene_offsets[i];
-
-		if(lookup_hgt(p) > hgt) {
-
-			if(!can_lower_to(p.x, p.y, hgt, hgt, hgt, hgt)) {
-				return false;
-			}
-
-		} else if(lookup_hgt(p) < hgt) {
-			if(!can_raise_to(p.x, p.y, hgt, hgt, hgt, hgt)) {
-				return false;
-			}
-		}
+	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
+		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 	}
-	return true;
+	else {
+		return can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
+	}
 }
 
 
@@ -2239,39 +2229,21 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
 bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 {
 	int n = 0;
-	bool ok = true;
-
-	for(int i=0; i<4; i++) {
-		koord p = pos + ebene_offsets[i];
-
-		if(lookup_hgt(p) > hgt) {
-
-			if(can_lower_to(p.x, p.y, hgt, hgt, hgt, hgt)) {
-				n += lower_to(p.x, p.y, hgt, hgt, hgt, hgt);
-			} else {
-				ok = false;
-				break;
-			}
-
-		} else if(lookup_hgt(p) < hgt) {
-
-			if(can_raise_to(p.x, p.y, hgt, hgt, hgt, hgt)) {
-				n += raise_to(p.x, p.y, hgt, hgt, hgt, hgt);
-			} else {
-				ok = false;
-				break;
-			}
+	bool ok = false;
+	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
+		if (can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt)) {
+			n = lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
+			ok = true;
 		}
 	}
-	// was changed => recalc + pay for it
-	if(n>0) {
-		// update image
-		for(int j=pos.y-n; j<=pos.y+n; j++) {
-			for(int i=pos.x-n; i<=pos.x+n; i++) {
-				grund_t *gr = lookup_kartenboden( koord(i,j) );
-				if(gr) gr->calc_bild();
-			}
+	else {
+		if (can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt)) {
+			n = raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
+			ok = true;
 		}
+	}
+	// was changed => pay for it
+	if(n>0) {
 		spieler_t::accounting(sp, n*get_einstellungen()->cst_alter_land, pos, COST_CONSTRUCTION );
 	}
 	return ok;

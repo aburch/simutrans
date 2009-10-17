@@ -616,7 +616,7 @@ bool spieler_t::accounting_with_check( spieler_t *sp, const sint64 amount, koord
 
 bool spieler_t::check_owner( const spieler_t *owner, const spieler_t *test )
 {
-	return owner == test  ||  owner == NULL  ||  test == NULL  ||  test == welt->get_spieler(1);
+	return owner == test  ||  owner == NULL  ||  test == welt->get_spieler(1);
 }
 
 

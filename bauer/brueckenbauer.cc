@@ -466,7 +466,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	}
 
 	// must determine end tile: on a slope => likely need auffahrt
-	bool need_auffahrt = (pos.z==end.z);
+	bool need_auffahrt = pos.z == welt->lookup(end)->get_vmove(-zv);
 	if(need_auffahrt) { //"Need ramp" (Google)
 		grund_t *gr = welt->lookup(end);
 		weg_t *w = gr->get_weg( (waytype_t)weg_besch->get_wtyp());

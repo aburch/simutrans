@@ -202,6 +202,21 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 
 
 
+const weg_besch_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
+{
+	uint32 start_year_month = 0x7FFFFFFFul;
+	const weg_besch_t *besch = NULL;
+	for(  stringhashtable_iterator_tpl<weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
+		const weg_besch_t* const test = iter.get_current_value();
+		if(  test->get_wtyp()==wtyp  &&  (besch==NULL  ||  test->get_intro_year_month()<besch->get_intro_year_month())  ) {
+			besch = test;
+		}
+	}
+	return besch;
+}
+
+
+
 const weg_besch_t * wegbauer_t::get_besch(const char * way_name,const uint16 time)
 {
 //DBG_MESSAGE("wegbauer_t::get_besch","return besch for %s in (%i)",way_name, time/12);
@@ -809,9 +824,11 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			if(ok) {
 				// check for depots/stops/...
-				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+				if(  fundament  ||  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
 					return false;
 				}
+				// with this check, laying tracks into road depot is still possible, althoguh we cannot drive there ...
+
 				// calculate costs
 				*costs = to->hat_weg(track_wt) ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
 				// perfer own track
@@ -1479,6 +1496,9 @@ DBG_MESSAGE("wegbauer_t::calc_straight_route()","step %i,%i = %i",diff.x,diff.y,
 	if(ok) {
 DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max_n=%i",get_count()-1);
 	}
+	else {
+		route.clear();
+	}
 }
 
 
@@ -2122,17 +2142,27 @@ wegbauer_t::baue_fluss()
 		return;
 	}
 
-	// first lower riverbed
+	// first check then lower riverbed
 	const sint8 start_h = route[start_n].z;
-	for(  uint32 idx=start_n;  idx<get_count();  idx++  ) {
-		koord3d pos = route[idx];
-		if(pos.z < start_h){
-			// do not handle both joining and water ...
-			continue;
+	uint32 i = start_n;
+	while(i<get_count()) {
+		// first find all tiles that are on the same level as tile i
+		// and check whether we can lower all of them
+		bool ok = true;
+		uint32 j;
+		for(j=i; j<get_count() &&  ok; j++) {
+			// one step higher?
+			if (route[j].z > route[i].z) break;
+			// check
+			ok = welt->can_ebne_planquadrat(route[j].get_2d(), max(route[j].z-1, start_h));
 		}
-		if(  !welt->ebne_planquadrat( NULL, pos.get_2d(), max(pos.z-1, start_h) )  ) {
-			dbg->message( "wegbauer_t::baue_fluss()","lowering tile %s failed.", pos.get_str() );
+		// now lower all tiles that have the same height as tile i
+		if (ok) {
+			for(uint32 k=i; k<j; k++) {
+				welt->ebne_planquadrat(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
+			}
 		}
+		i = ok ? j : j+1;
 	}
 
 	// now build the river

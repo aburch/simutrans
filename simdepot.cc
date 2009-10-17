@@ -131,13 +131,13 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	if(fpl_adjust) {
 		// here a regular convoi arrived
 
-		for(unsigned i=0; i< acnv->get_vehikel_anzahl(); i++) {
+		for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
 			vehikel_t *v = acnv->get_vehikel(i);
-			if(v) {
-				// Hajo: reset vehikel data
-				v->loesche_fracht();
-			}
+			// Hajo: reset vehikel data
+			v->loesche_fracht();
 			v->set_pos( koord3d::invalid );
+			v->set_erstes( i==0 );
+			v->set_letztes( i+1==acnv->get_vehikel_anzahl() );
 		}
 		// Volker: remove depot from schedule
 		schedule_t *fpl = acnv->get_schedule();

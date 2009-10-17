@@ -1679,9 +1679,6 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 	//return connections_searched;
 }
 
-
-
-
 //@author: jamespetts
 // Modified by : Knightly
 void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 category)

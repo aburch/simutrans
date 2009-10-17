@@ -37,7 +37,7 @@ einstellungen_t::einstellungen_t() :
 
 	station_coverage_size = 2;
 
-	verkehr_level = 7;
+	verkehr_level = 5;
 
 	show_pax = true;
 
@@ -106,7 +106,7 @@ einstellungen_t::einstellungen_t() :
 	just_in_time = true;
 
 	fussgaenger = true;
-	stadtauto_duration = 120;	// ten years
+	stadtauto_duration = 36;	// three years
 
 	// to keep names consistent
 	numbered_stations = false;
@@ -170,9 +170,6 @@ einstellungen_t::einstellungen_t() :
 	cst_depot_road=-130000;
 	cst_depot_ship=-250000;
 	cst_depot_air=-500000;
-	cst_signal=-50000;
-	cst_tunnel=-1000000;
-	cst_third_rail=-8000;
 	// alter landscape
 	cst_buy_land=-10000;
 	cst_alter_land=-100000;
@@ -593,9 +590,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong( cst_depot_road, "" );
 			file->rdwr_longlong( cst_depot_ship, "" );
 			file->rdwr_longlong( cst_depot_air, "" );
-			file->rdwr_longlong( cst_signal, "" );
-			file->rdwr_longlong( cst_tunnel, "" );
-			file->rdwr_longlong( cst_third_rail, "" );
+			if(  file->get_version()<=102001  ) {
+				sint64 dummy64 = 100000;
+				file->rdwr_longlong( dummy64, "" );
+				file->rdwr_longlong( dummy64, "" );
+				file->rdwr_longlong( dummy64, "" );
+			}
 			// alter landscape
 			file->rdwr_longlong( cst_buy_land, "" );
 			file->rdwr_longlong( cst_alter_land, "" );
@@ -733,9 +733,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				cst_multiply_airterminal *= distance_per_tile;
 				cst_multiply_post *= distance_per_tile;
 				maint_building *= distance_per_tile;
-				cst_signal *= distance_per_tile;
-				cst_tunnel *= distance_per_tile;
-				cst_third_rail *= distance_per_tile;
 				cst_buy_land *= distance_per_tile;
 				cst_remove_tree *= distance_per_tile;
 			}
@@ -899,64 +896,69 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename, bool einstellungen_only )
+void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename )
 {
 	tabfileobj_t contents;
 
 	simuconf.read(contents);
 
-	if(  !einstellungen_only  ) {
 
-		// This needs to be first as other settings are based on this.
-		// @author: jamespetts
-		uint16 distance_per_tile_integer = distance_per_tile * 100;
-		distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) / 100.0F;
+	// This needs to be first as other settings are based on this.
+	// @author: jamespetts
+	uint16 distance_per_tile_integer = distance_per_tile * 100;
+	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) / 100.0F;
 
-		umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
-		umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
-		umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
-		umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
+	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
+	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
+	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
+	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
 
-		umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
-		umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
-		umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
-		umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
-		umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
+	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
+	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
+	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
+	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
+	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
 
-		umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
-		umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
-		umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs);
+	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
+	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
+	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs);
 
-		umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
-		umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
-		umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
-		umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color);
+	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
+	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
+	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
+	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color);
 
-		// display stuff
-		umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
-		umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
-		umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
+	// display stuff
+	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
+	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
+	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
 
-		umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-		const char *test = ltrim(contents.get("intercity_road_type"));
-		if(*test  &&  test) {
-			delete umgebung_t::intercity_road_type;
-			umgebung_t::intercity_road_type = strdup(test);
-		}
+	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
+	const char *test = ltrim(contents.get("intercity_road_type"));
+	if(*test) {
+		free( (void *)umgebung_t::intercity_road_type );
+		umgebung_t::intercity_road_type = NULL;
+		umgebung_t::intercity_road_type = strdup(test);
+	}
 
-		// up to ten rivers are possible
-		for(  int i = 0;  i<10;  i++  ) {
-			char name[32];
-			sprintf( name, "river_type[%i]", i );
-			const char *test = ltrim(contents.get(name));
-			if(test  &&  *test) {
-				umgebung_t::river_type[umgebung_t::river_types++] = strdup( test );
+	// up to ten rivers are possible
+	for(  int i = 0;  i<10;  i++  ) {
+		char name[32];
+		sprintf( name, "river_type[%i]", i );
+		const char *test = ltrim(contents.get(name));
+		if(*test) {
+			const int add_river = i<umgebung_t::river_types ? i : umgebung_t::river_types;
+			free( (void *)umgebung_t::river_type[add_river] );
+			umgebung_t::river_type[add_river] = NULL;
+			umgebung_t::river_type[add_river] = strdup( test );
+			if(  add_river==umgebung_t::river_types  ) {
+				umgebung_t::river_types++;
 			}
 		}
-
-		umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
-		umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 	}
+
+	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
+	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 
 	// routing stuff
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
@@ -983,6 +985,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
+	verkehr_level = contents.get_int("citycar_level", verkehr_level);	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
 
 	starting_money = contents.get_int64("starting_money", starting_money );
@@ -1030,9 +1033,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
 	cst_depot_road = contents.get_int64("cost_depot_road", cst_depot_road/(-100) ) * -100;
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
-	cst_signal = (contents.get_int64("cost_signal", cst_signal/(-100) ) * -100) * distance_per_tile;
-	cst_tunnel = (contents.get_int64("cost_tunnel", cst_tunnel/(-100) ) * -100) * distance_per_tile;
-	cst_third_rail = (contents.get_int64("cost_third_rail", cst_third_rail/(-100) ) * -100) * distance_per_tile;
 
 	// alter landscape
 	cst_buy_land = (contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile;

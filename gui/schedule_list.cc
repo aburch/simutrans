@@ -268,18 +268,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp,value_t /
 		}
 	}
 	else if (komp == &bt_new_line) {
-		if (tabs.get_active_tab_index() > 0) {
-			// create typed line
-			assert(tabs.get_active_tab_index()<max_idx);
-			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
-			linehandle_t new_line = sp->simlinemgmt.create_line(type,sp);
-			create_win( new line_management_gui_t(new_line, sp), w_info, (long)line.get_rep());
-			update_lineinfo( new_line );
-			build_line_list( tabs.get_active_tab_index() );
-		}
-		else {
-			create_win( new news_img("Cannot create generic line!\nSelect line type by\nusing filter tabs."), w_time_delete, magic_none);
-		}
+		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
+		// create typed line
+		uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
+		linehandle_t new_line = sp->simlinemgmt.create_line(type,sp);
+		create_win( new line_management_gui_t(new_line, sp), w_info, (long)new_line.get_rep());
+		update_lineinfo( new_line );
+		build_line_list( tabs.get_active_tab_index() );
 	}
 	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
