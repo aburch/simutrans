@@ -657,7 +657,9 @@ void display_all_win()
 		if(  !getroffen  &&  tooltip_text!=NULL  ) {
 			current_tooltip = tooltip_text;
 		}
-		if(  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y)  ) {
+		if(  (!wins[i].rollup  &&  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y))  ||
+		     (wins[i].rollup  &&  x>=wins[i].pos.x  &&  x<wins[i].pos.x+wins[i].gui->get_fenstergroesse().x  &&  y>=wins[i].pos.y  &&  y<wins[i].pos.y+16)
+		) {
 			// prissi: tooltips are only allowed for non overlapping windows
 			current_tooltip = tooltip_text;
 		}
