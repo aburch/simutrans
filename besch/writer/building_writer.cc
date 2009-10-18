@@ -313,8 +313,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, besch.obsolete_date,             22);
 	node.write_uint16(fp, besch.animation_time,            24);
 	node.write_uint16(fp, besch.station_capacity,		   26);
-	node.write_sint32(fp, besch.station_maintenance        28);
-	node.write_sint32(fp, besch.station_price			   32);
+	node.write_sint32(fp, besch.station_maintenance,       28);
+	node.write_sint32(fp, besch.station_price,			   32);
 
 	// probably add some icons, if defined
 	slist_tpl<cstring_t> cursorkeys;

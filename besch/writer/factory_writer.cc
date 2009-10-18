@@ -182,7 +182,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
 		if (str.len() > 0) {
-			if (upgrades == 0 && !STRICMP(str, "none")) 
+			if (upgrades == 0) 
 			{
 				str = "";
 			}
