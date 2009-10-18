@@ -215,7 +215,7 @@ void midi_play(const int no)
 {
 	if (no > max_midi) {
 		dbg->warning("midi_play()", "MIDI index %d too high (total loaded: %d)", no, max_midi);
-	} else 	if(!midi_get_mute()) {
+	} else if(!midi_get_mute()) {
 		dr_play_midi(no);
 	}
 }
@@ -250,7 +250,8 @@ void midi_set_mute(bool on)
 
 
 
-bool midi_get_mute() {
+bool midi_get_mute()
+{
 	return  (umgebung_t::mute_midi || max_midi==-1);
 }
 

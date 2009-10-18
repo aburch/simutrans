@@ -24,6 +24,10 @@
 #include "../utils/simstring.h"
 #include "../tpl/slist_tpl.h"
 
+#ifdef WIN32
+#define socklen_t int
+#endif
+
 static bool network_active = false;
 static SOCKET my_socket = INVALID_SOCKET;
 static SOCKET my_client_socket = INVALID_SOCKET;
@@ -203,8 +207,8 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 
 	if(  FD_ISSET(my_socket, &fds)  ) {
 		struct sockaddr_in client_name;
-		int size = sizeof(client_name);
-		SOCKET s = accept(my_socket, (struct sockaddr *)&client_name, (int *)&size);
+		socklen_t size = sizeof(client_name);
+		SOCKET s = accept(my_socket, (struct sockaddr *)&client_name, &size);
 		if(  s!=INVALID_SOCKET  ) {
 			dbg->message("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
 			network_add_client(s);
@@ -230,7 +234,7 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 			FD_ZERO(&fds);
 			FD_SET(sender,&fds);
 			tv.tv_usec = 0;
-			if(  select(sender+1, &fds, NULL, NULL, &tv )!=1  ) {
+			if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
 				break;
 			}
 			if(  recv((SOCKET)sender, buf+bytes, 1, 0 )==0  ) {
@@ -267,7 +271,7 @@ bool network_check_server_connection()
 		FD_ZERO(&fds);
 		FD_SET(clients.front(),&fds);
 
-		int action = select(clients.front()+1, NULL, &fds, NULL, &tv );
+		int action = select((int)clients.front()+1, NULL, &fds, NULL, &tv );
 		if(  action<=0  ) {
 			// timeout
 			return false;
@@ -333,7 +337,7 @@ const char *network_send_file( SOCKET s, const char *filename )
 	}
 
 	while(  !feof(fp)  ) {
-		int bytes_read = fread( buffer, 1, sizeof(buffer), fp );
+		size_t bytes_read = fread( buffer, 1, sizeof(buffer), fp );
 		if(  send(s,buffer,bytes_read,0)==-1) {
 			network_remove_client(s);
 			return "Client closed connection during transfer";
