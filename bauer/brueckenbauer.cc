@@ -647,6 +647,8 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			p->entferne(p->get_besitzer());
 			delete p;
 		}
+		// refresh map
+		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
 	}
 	// finally delete the bridge ends
 	while (!end_list.empty()) {

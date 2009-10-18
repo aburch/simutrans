@@ -474,8 +474,9 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		gr->obj_loesche_alle(sp);
 		welt->access(pos.get_2d())->boden_entfernen(gr);
 		welt->access(pos.get_2d())->get_kartenboden()->set_flag(grund_t::dirty);
-		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
 		delete gr;
+
+		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
 	}
 
 	// Und die Tunnelenden am Schluﬂ
