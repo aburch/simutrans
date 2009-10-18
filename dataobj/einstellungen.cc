@@ -501,6 +501,9 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			// network stuff
 			random_counter = get_random_seed();
 			file->rdwr_long( random_counter, "" );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+			}
 			file->rdwr_long( frames_per_second, "" );
 			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
 				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting

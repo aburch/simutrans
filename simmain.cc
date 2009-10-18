@@ -192,7 +192,7 @@ static void zeige_banner(karte_t *welt)
 	win_set_pos( b, 0, -48 );
 
 	do {
-		static long ms_pause = max(950/umgebung_t::fps,50);
+		static long ms_pause = 1000/max(100,umgebung_t::fps);
 		win_poll_event(&ev);
 		check_pos_win(&ev);
 		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
@@ -345,6 +345,7 @@ int simu_main(int argc, char** argv)
 #else
 	std::set_new_handler(sim_new_handler);
 #endif
+	umgebung_t::init();
 
 	// you really want help with this?
 	if (gimme_arg(argc, argv, "-h",     0) ||

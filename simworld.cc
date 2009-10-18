@@ -4542,7 +4542,7 @@ karte_t::reset_timer()
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
 		last_step_time = last_tick_sync;
-		next_step_time = last_tick_sync+(1000/einstellungen->get_frames_per_second());
+		next_step_time = last_tick_sync+(1000/einstellungen->get_frames_per_second() );
 		set_frame_time( 1000/einstellungen->get_frames_per_second() );
 		intr_disable();
 		// other stuff needed to synchronize
