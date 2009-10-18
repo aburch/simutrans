@@ -30,6 +30,7 @@
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"
+#include "../gui/karte.h"
 
 #include "../besch/bruecke_besch.h"
 #include "../besch/skin_besch.h"

@@ -1,3 +1,7 @@
+	FIX: minimap was not updated when a bridge was deleted
+
+
+
 Release of 102.2 (r2785)
 
 18-Oct-2009:
