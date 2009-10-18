@@ -35,7 +35,14 @@ public:
 
 	static cstring_t objfilename;
 
-	// scrollrichtung
+	// true, if we are in networkmode
+	static bool networkmode;
+	static long server_frames_ahead;
+
+	// true, if we are the server
+	static bool server;
+
+// scrollrichtung
 	static sint16 scroll_multi;
 
 	/**

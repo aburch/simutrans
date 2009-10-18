@@ -9,6 +9,9 @@
 bool umgebung_t::drive_on_left = false;
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
+bool umgebung_t::networkmode = false;
+bool umgebung_t::server = false;
+long umgebung_t::server_frames_ahead = 1;
 
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";

@@ -304,9 +304,9 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
 		haus_tool.default_param = param_str;
-		welt->set_werkzeug( &haus_tool );
+		welt->set_werkzeug( &haus_tool, sp );
 	}
-	else if(welt->get_werkzeug()==&haus_tool) {
+	else if(welt->get_werkzeug(sp->get_player_nr())==&haus_tool) {
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_LEER );
 		}
@@ -315,7 +315,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
 
 		besch = NULL;
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 	}
 }
 

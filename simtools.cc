@@ -13,19 +13,22 @@
 static unsigned long mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
 static int mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
 
+static bool allowed = false;
+
+
 /* initializes mersenne_twister[N] with a seed */
 static void init_genrand(uint32 s)
 {
-    mersenne_twister[0]= s & 0xffffffffUL;
-    for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
-        mersenne_twister[mersenne_twister_index] = (1812433253UL * (mersenne_twister[mersenne_twister_index-1] ^ (mersenne_twister[mersenne_twister_index-1] >> 30)) + mersenne_twister_index);
-        /* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
-        /* In the previous versions, MSBs of the seed affect   */
-        /* only MSBs of the array mersenne_twister[].                        */
-        /* 2002/01/09 modified by Makoto Matsumoto             */
-        mersenne_twister[mersenne_twister_index] &= 0xffffffffUL;
-        /* for >32 bit machines */
-    }
+	mersenne_twister[0]= s & 0xffffffffUL;
+	for (mersenne_twister_index=1; mersenne_twister_index<MERSENNE_TWISTER_N; mersenne_twister_index++) {
+		mersenne_twister[mersenne_twister_index] = (1812433253UL * (mersenne_twister[mersenne_twister_index-1] ^ (mersenne_twister[mersenne_twister_index-1] >> 30)) + mersenne_twister_index);
+		/* See Knuth TAOCP Vol2. 3rd Ed. P.106 for multiplier. */
+		/* In the previous versions, MSBs of the seed affect   */
+		/* only MSBs of the array mersenne_twister[].                        */
+		/* 2002/01/09 modified by Makoto Matsumoto             */
+		mersenne_twister[mersenne_twister_index] &= 0xffffffffUL;
+		/* for >32 bit machines */
+	}
 }
 
 
@@ -34,7 +37,7 @@ static void MTgenerate(void)
 {
 	static uint32 mag01[2]={0x0UL, MATRIX_A};
 	uint32 y;
-    int kk;
+	int kk;
 
 	if (mersenne_twister_index == MERSENNE_TWISTER_N+1)   /* if init_genrand() has not been called, */
 		init_genrand(5489UL); /* a default initial seed is used */
@@ -52,6 +55,14 @@ static void MTgenerate(void)
 
 	mersenne_twister_index = 0;
 }
+
+
+// returns current seed value
+uint32 get_random_seed()
+{
+	return mersenne_twister[mersenne_twister_index];
+}
+
 
 
 /* generates a random number on [0,0xffffffff]-interval */
@@ -77,11 +88,22 @@ uint32 simrand_plain(void)
 /* generates a random number on [0,max-1]-interval */
 uint32 simrand(const uint32 max)
 {
+	if(!allowed) {
+		return 0;
+	}
 	if(max<=1) {	// may rather assert this?
 		return 0;
 	}
 
 	return simrand_plain() % max;
+}
+
+
+bool set_random_allowed( bool a )
+{
+	bool old = allowed;
+	allowed = a;
+	return old;
 }
 
 
@@ -93,6 +115,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
+		allowed = true;
 	}
 	if(noise_seed!=0xFFFFFFFF) {
 		noise_seed = ns*15731;
@@ -103,10 +126,10 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 static double int_noise(const long x, const long y)
 {
-    long n = x + y*101 + noise_seed;
+	long n = x + y*101 + noise_seed;
 
-    n = (n<<13) ^ n;
-    return ( 1.0 - (double)((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
+	n = (n<<13) ^ n;
+	return ( 1.0 - (double)((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0);
 }
 
 
@@ -123,7 +146,6 @@ void init_perlin_map( sint32 w, sint32 h )
 		}
 	}
 }
-
 
 
 void exit_perlin_map()
@@ -165,12 +187,12 @@ static double smoothed_noise(const int x, const int y)
 
 
 /* a hilly world
-    const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
-                             int_noise(x, y-1) + int_noise(x, y+1) );
+	const double sides   = ( int_noise(x-1, y) + int_noise(x+1, y) +
+							 int_noise(x, y-1) + int_noise(x, y+1) );
 
-    const double center  =  int_noise(x, y);
+	const double center  =  int_noise(x, y);
 
-    return (sides+sides + center*4) / 8.0;
+	return (sides+sides + center*4) / 8.0;
 */
 
 // this gives very hilly world
@@ -181,7 +203,7 @@ static double linear_interpolate(const double a, const double b, const double x)
 {
 //    return  a*(1.0-x) + b*x;
 //    return  a - a*x + b*x;
-    return  a + x*(b-a);
+	return  a + x*(b-a);
 }
 
 
@@ -192,21 +214,21 @@ static double interpolated_noise(const double x, const double y)
 // So  (int)      -1.5  = -1.0
 // But (int)floor(-1.5) = -2.0
 // Modified 2008/10/17 by Gerd Wachsmuth
-    const int    integer_X    = (int)floor(x);
-    const int    integer_Y    = (int)floor(y);
+	const int    integer_X    = (int)floor(x);
+	const int    integer_Y    = (int)floor(y);
 
-    const double fractional_X = x - (double)integer_X;
-    const double fractional_Y = y - (double)integer_Y;
+	const double fractional_X = x - (double)integer_X;
+	const double fractional_Y = y - (double)integer_Y;
 
-    const double v1 = smoothed_noise(integer_X,     integer_Y);
-    const double v2 = smoothed_noise(integer_X + 1, integer_Y);
-    const double v3 = smoothed_noise(integer_X,     integer_Y + 1);
-    const double v4 = smoothed_noise(integer_X + 1, integer_Y + 1);
+	const double v1 = smoothed_noise(integer_X,     integer_Y);
+	const double v2 = smoothed_noise(integer_X + 1, integer_Y);
+	const double v3 = smoothed_noise(integer_X,     integer_Y + 1);
+	const double v4 = smoothed_noise(integer_X + 1, integer_Y + 1);
 
-    const double i1 = linear_interpolate(v1 , v2 , fractional_X);
-    const double i2 = linear_interpolate(v3 , v4 , fractional_X);
+	const double i1 = linear_interpolate(v1 , v2 , fractional_X);
+	const double i2 = linear_interpolate(v3 , v4 , fractional_X);
 
-    return linear_interpolate(i1 , i2 , fractional_Y);
+	return linear_interpolate(i1 , i2 , fractional_Y);
 }
 
 
@@ -220,13 +242,8 @@ double perlin_noise_2D(const double x, const double y, const double p)
     for(  int  i=0;  i<6;  i++  ) {
 		const double frequency = (double)(1 << i);
 		const double amplitude = pow(p, (double)i);
-
-		total += interpolated_noise((x * frequency) / 64.0,
-										(y * frequency) / 64.0) * amplitude;
+		total += interpolated_noise( (x * frequency) / 64.0, (y * frequency) / 64.0) * amplitude;
     }
 
     return total;
 }
-
-
-

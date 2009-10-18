@@ -52,12 +52,21 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
  * Registers a new bridge type
  * @author V. Meyer, Hj. Malthaner
  */
-void brueckenbauer_t::register_besch(const bruecke_besch_t *besch)
+void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 {
 	// avoid duplicates with same name
 	if(  bruecken_by_name.remove(besch->get_name())  ) {
 		dbg->warning( "brueckenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
+
+	// add the tool
+	wkz_brueckenbau_t *wkz = new wkz_brueckenbau_t();
+	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+	wkz->default_param = besch->get_name();
+	wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+	werkzeug_t::general_tool.append( wkz );
+	besch->set_builder( wkz );
 	bruecken_by_name.put(besch->get_name(), besch);
 }
 
@@ -104,8 +113,7 @@ bool brueckenbauer_t::laden_erfolgreich()
  * Find a matchin bridge
  * @author Hj. Malthaner
  */
-const bruecke_besch_t *
-brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
 {
 	const bruecke_besch_t *find_besch=NULL;
 
@@ -159,18 +167,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 
 	// now sorted ...
 	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		const bruecke_besch_t* besch = *i;
-		wkz_brueckenbau_t *wkz = bruecken_tool.get(besch->get_name());
-		if(wkz==NULL) {
-			// not yet in hashtable
-			wkz = new wkz_brueckenbau_t();
-			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-			wkz->default_param = besch->get_name();
-			wkz->ok_sound = sound_ok;
-			bruecken_tool.put(besch->get_name(),wkz);
-		}
-		wzw->add_werkzeug( (werkzeug_t*)wkz );
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 

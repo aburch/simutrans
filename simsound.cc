@@ -268,7 +268,7 @@ void check_midi()
 	if(dr_midi_pos() < 0  ||  new_midi == 1) {
 		if(umgebung_t::shuffle_midi  &&  max_midi>1) {
 			// shuffle songs
-			int new_midi = simrand(max_midi-1);
+			int new_midi = (dr_time()/5)%(max_midi-1);
 			if(new_midi>=current_midi) {
 				new_midi ++;
 			}

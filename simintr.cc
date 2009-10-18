@@ -87,11 +87,11 @@ interrupt_check()
 void interrupt_check(const char* caller_info)
 {
 	static const char * last_caller = "program start";
-	const unsigned long now = dr_time();
-	if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
-		return;
-	}
 	if(enabled) {
+		const unsigned long now = dr_time();
+		if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
+			return;
+		}
 		const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
 		if(diff>0) {
 			enabled = false;
@@ -104,8 +104,7 @@ void interrupt_check(const char* caller_info)
 }
 
 
-void
-intr_set(karte_t *welt, karte_ansicht_t *view)
+void intr_set(karte_t *welt, karte_ansicht_t *view)
 {
 	welt_modell = welt;
 	welt_ansicht = view;

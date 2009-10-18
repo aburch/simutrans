@@ -1299,6 +1299,7 @@ convoi_t::can_go_alte_richtung()
 		const vehikel_t* v = fahr[i];
 		grund_t *gr = welt->lookup(v->get_pos());
 
+
 		convoi_length += v->get_besch()->get_length();
 
 		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
@@ -1941,8 +1942,8 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		ALLOCA(uint32, capacity_by_catg_index, warenbauer_t::get_max_catg_index());
-		memset( capacity_by_catg_index, 0, sizeof(uint32)*warenbauer_t::get_max_catg_index() );
+		ALLOCA(uint32, max_loaded_waren, warenbauer_t::get_waren_anzahl());
+		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::get_waren_anzahl() );
 
 		unsigned i;
 		for(i=0; i<anz_vehikel; i++) {
@@ -1952,7 +1953,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			const ware_besch_t* ware_besch = v->get_besch()->get_ware();
 			const uint16 menge = v->get_besch()->get_zuladung();
 			if(menge>0  &&  ware_besch!=warenbauer_t::nichts) {
-				capacity_by_catg_index[ware_besch->get_catg_index()] += menge;
+				max_loaded_waren[ware_besch->get_index()] += menge;
 			}
 
 			// then add the actual load
@@ -1985,11 +1986,24 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
-		for( uint8 j = 0; j < warenbauer_t::get_max_catg_index(); j ++ ) {
-			if( capacity_by_catg_index[j] > 0 ) {
-				ware_t ware( warenbauer_t::get_info_catg_index(j) );
-				ware.menge = capacity_by_catg_index[j];
-				capacity.append( ware );
+		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
+			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
+				ware_t ware(warenbauer_t::get_info(i));
+				ware.menge = max_loaded_waren[i];
+				if(ware.get_catg()==0) {
+					capacity.append( ware );
+				} else {
+					// append to category?
+					slist_tpl<ware_t>::iterator j   = capacity.begin();
+					slist_tpl<ware_t>::iterator end = capacity.end();
+					while (j != end && j->get_catg() < ware.get_catg()) ++j;
+					if (j != end && j->get_catg() == ware.get_catg()) {
+						j->menge += max_loaded_waren[i];
+					} else {
+						// not yet there
+						capacity.insert(j, ware);
+					}
+				}
 			}
 		}
 

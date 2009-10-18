@@ -55,14 +55,21 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 	if(  tunnel_by_name.remove(besch->get_name())  ) {
 		dbg->warning( "tunnelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
+	// add the tool
+	wkz_tunnelbau_t *wkz = new wkz_tunnelbau_t();
+	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+	wkz->default_param = besch->get_name();
+	wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+	werkzeug_t::general_tool.append( wkz );
+	besch->set_builder( wkz );
 	tunnel_by_name.put(besch->get_name(), besch);
 }
 
 
 
 // now we have to convert old tunnel to new ones ...
-bool
-tunnelbauer_t::laden_erfolgreich()
+bool tunnelbauer_t::laden_erfolgreich()
 {
 	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
 	while(  iter.next()  ) {
@@ -93,8 +100,7 @@ tunnelbauer_t::laden_erfolgreich()
 
 
 
-const tunnel_besch_t *
-tunnelbauer_t::get_besch(const char *name)
+const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
 {
 	return tunnel_by_name.get(name);
 }
@@ -105,8 +111,7 @@ tunnelbauer_t::get_besch(const char *name)
  * Find a matchin tunnel
  * @author Hj. Malthaner
  */
-const tunnel_besch_t *
-tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
 {
 	const tunnel_besch_t *find_besch=NULL;
 
@@ -148,8 +153,6 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  */
 void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t* welt)
 {
-	static stringhashtable_tpl<wkz_tunnelbau_t *> tunnel_tool;
-
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
 
@@ -167,18 +170,7 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 
 	// now sorted ...
 	for (vector_tpl<const tunnel_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		const tunnel_besch_t* besch = *i;
-		wkz_tunnelbau_t *wkz = tunnel_tool.get(besch->get_name());
-		if(wkz==NULL) {
-			// not yet in hashtable
-			wkz = new wkz_tunnelbau_t();
-			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-			wkz->default_param = besch->get_name();
-			wkz->ok_sound = sound_ok;
-			tunnel_tool.put(besch->get_name(),wkz);
-		}
-		wzw->add_werkzeug( (werkzeug_t*)wkz );
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 

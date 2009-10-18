@@ -62,7 +62,7 @@ public:
 
 	static const haus_tile_besch_t* find_tile(const char* name, int idx);
 
-	static bool register_besch(const haus_besch_t *besch);
+	static bool register_besch(haus_besch_t *besch);
 	static bool alles_geladen();
 
 	/* Fill menu with icons of buildings of a given type

@@ -89,6 +89,8 @@ public:
 	#define MAX_WORLD_HISTORY_YEARS  (12) // number of years to keep history
 	#define MAX_WORLD_HISTORY_MONTHS  (12) // number of months to keep history
 
+	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
+
 private:
 	// die Einstellungen
 	einstellungen_t *einstellungen;
@@ -105,8 +107,8 @@ private:
 	// all cursor interaction goes via this function
 	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
 	// see simwerkz.cc for practical examples of such functions
-	werkzeug_t *werkzeug;
-	koord werkzeug_last_pos;	// last position a tool was called
+	werkzeug_t *werkzeug[MAX_PLAYER_COUNT];
+	koord3d werkzeug_last_pos;	// last position a tool was called
 	uint8 werkzeug_last_button;
 
 	/**
@@ -184,7 +186,8 @@ private:
 	zeiger_t *zeiger;
 
 	slist_tpl<sync_steppable *> sync_add_list;	// these objects are move to the sync_list (but before next sync step, so they do not interfere!)
-	ptrhashtable_tpl<sync_steppable *, sync_steppable *> sync_list;
+	slist_tpl<sync_steppable *> sync_list;
+	slist_tpl<sync_steppable *> sync_remove_list;
 
 	vector_tpl<convoihandle_t> convoi_array;
 
@@ -278,8 +281,8 @@ private:
 	 * Die Spieler
 	 * @author Hj. Malthaner
 	 */
-	spieler_t *spieler[MAX_PLAYER_COUNT];                   // Mensch ist spieler Nr. 0
-	spieler_t	*active_player;
+	spieler_t *spieler[MAX_PLAYER_COUNT];   // Mensch ist spieler Nr. 0
+	spieler_t *active_player;
 	uint8 active_player_nr;
 
 	/*
@@ -301,9 +304,7 @@ private:
 	// default time stretching factor
 	uint32 time_multiplier;
 
-	// true, if fast forward
-	bool fast_forward;
-	bool pause;
+	uint8 step_mode;
 
 	/**
 	 * fuer performancevergleiche
@@ -317,17 +318,19 @@ private:
 	uint32 last_step_nr[32];
 	uint8 last_frame_idx;
 	uint32 last_interaction;	// ms, when the last time events were handled
-	uint32 next_wait_time;	// contains a wait executed in the interactive loop
-	uint32 this_wait_time;
+	uint32 last_step_time;	// ms, when the last step was done
+	uint32 next_step_time;	// ms, when the next steps is to be done
+	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
+	uint32 idle_time;
 
-	sint32 current_month;	// monat+12*jahr
+	sint32 current_month;  // monat+12*jahr
 	sint32 letzter_monat;  // Absoluter Monat 0..12
 	sint32 letztes_jahr;   // Absolutes Jahr
 
 	uint8 season;	// current season
 
 	long steps;          // Anzahl steps seit Erzeugung
-	bool is_sound;	// flag, that now no sound will play
+	bool is_sound;       // flag, that now no sound will play
 	bool finish_loop;    // flag fuer simulationsabbruch (false == abbruch)
 
 	// may change due to timeline
@@ -339,6 +342,8 @@ private:
 	message_t *msg;
 
 	int average_speed[8];
+
+	uint32 tile_counter;
 
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
@@ -477,13 +482,12 @@ public:
 	void notify_record( convoihandle_t cnv, sint32 max_speed, koord pos );
 
 	// time lapse mode ...
-	bool is_paused() const { return pause; }
-	// stop the game and all interaction
-	void do_freeze();
-	void set_pause( bool );
+	bool is_paused() const { return step_mode&PAUSE_FLAG; }
+	void set_pause( bool );	// stops the game with interaction
+	void do_freeze();	// stops the game and all interaction
 
-	bool is_fast_forward() const { return fast_forward; }
-	void set_fast_forward(bool ff) { fast_forward = ff; reset_timer(); }
+	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
+	void set_fast_forward(bool ff);
 
 	zeiger_t * get_zeiger() const { return zeiger; }
 
@@ -571,7 +575,7 @@ public:
 	 * Idle time. Nur zur Anzeige verwenden!
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_schlaf_zeit() const { return next_wait_time; }
+	uint32 get_schlaf_zeit() const { return idle_time; }
 
 	/**
 	 * Anzahl frames in der letzten Sekunde Realzeit
@@ -613,8 +617,8 @@ public:
 		return (climate)height_to_climate[h];
 	}
 
-	void set_werkzeug( werkzeug_t *w );
-	werkzeug_t *get_werkzeug() const { return werkzeug; }
+	void set_werkzeug( werkzeug_t *w, spieler_t * sp );
+	werkzeug_t *get_werkzeug(uint8 nr) const { return werkzeug[nr]; }
 
 	// all stuf concerning map size
 	inline int get_groesse_x() const { return cached_groesse_gitter_x; }
@@ -854,7 +858,7 @@ public:
 	 * sucht naechstgelegene Stadt an Position i,j
 	 * @author Hj. Malthaner
 	 */
-	stadt_t * suche_naechste_stadt(koord pos) const;
+	stadt_t *suche_naechste_stadt(koord pos) const;
 
 	bool cannot_save() const { return nosave; }
 	void set_nosave() { nosave = true; }
@@ -962,7 +966,7 @@ public:
 	 * returns false to exit
 	 * @author Hansjörg Malthaner
 	 */
-	bool interactive();
+	bool interactive(uint32 quit_month);
 };
 
 #endif

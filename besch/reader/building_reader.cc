@@ -284,6 +284,10 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 		besch->animation_time = 300;
 	}
+	// there are additional nodes for cursor/icon
+	if(  node.children > 2+besch->groesse.x*besch->groesse.y*besch->layouts  ) {
+		besch->flags = (haus_besch_t::flag_t)((int)besch->flags | (int)haus_besch_t::FLAG_HAS_CURSOR);
+	}
 
 	// correct old station buildings ...
 	if (besch->level <= 0 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) {

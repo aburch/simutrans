@@ -984,6 +984,10 @@ void stadt_t::rdwr(loadsave_t* file)
  */
 void stadt_t::laden_abschliessen()
 {
+	step_count = 0;
+	next_step = 0;
+	next_bau_step = 0;
+
 	// there might be broken savegames
 	if(name==NULL) {
 		set_name( "simcity" );
@@ -1778,8 +1782,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_rathaus(bool new_town)
 {
-	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), new_town, welt->get_climate(welt->max_hgt(pos)));
-	if (besch != NULL) {
+	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), bev==0, welt->get_climate(welt->max_hgt(pos)));
+	if(besch != NULL) {
 		grund_t* gr = welt->lookup(pos)->get_kartenboden();
 		gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
 		bool neugruendung = !gb || !gb->ist_rathaus();
@@ -1790,7 +1794,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 
 		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name);
 
-		if (!neugruendung) {
+		if(  bev!=0  ) {
 
 			const haus_besch_t* besch_alt = gb->get_tile()->get_besch();
 			if (besch_alt->get_level() == besch->get_level()) {

@@ -13,6 +13,7 @@
 
 
 class skin_besch_t;
+class werkzeug_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -29,8 +30,8 @@ class skin_besch_t;
  * @author  Volker Meyer, Hj. Malthaner
  */
 class weg_besch_t : public obj_besch_std_name_t {
-    friend class way_writer_t;
-    friend class way_reader_t;
+	friend class way_writer_t;
+	friend class way_reader_t;
 
 public:
 	enum { elevated=1, joined=7 /* only tram */, special=255 };
@@ -88,6 +89,9 @@ private:
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
 	sint8 number_seasons;
+
+	// this is the defualt tools for building this way ...
+	werkzeug_t *builder;
 
 public:
 	long get_preis() const { return price; }
@@ -211,6 +215,14 @@ public:
 	const skin_besch_t * get_cursor() const
 	{
 		return (const skin_besch_t *)(get_child(5));
+	}
+
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
 	}
 };
 

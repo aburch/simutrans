@@ -37,8 +37,6 @@
 
 const roadsign_besch_t *roadsign_t::default_signal=NULL;
 
-
-vector_tpl<const roadsign_besch_t *> roadsign_t::liste;
 stringhashtable_tpl<const roadsign_besch_t *> roadsign_t::table;
 
 
@@ -285,8 +283,7 @@ void roadsign_t::calc_bild()
 
 
 // only used for traffic light: change the current state
-bool
-roadsign_t::sync_step(long /*delta_t*/)
+bool roadsign_t::sync_step(long /*delta_t*/)
 {
 	// change every ~16s hours in normal speed
 	uint8 new_zustand = ( (welt->get_zeit_ms()>>14) + welt->get_einstellungen()->get_rotation() )&1;
@@ -315,8 +312,7 @@ roadsign_t::rotate90()
 
 
 // to correct offset on slopes
-void
-roadsign_t::display_after(int xpos, int ypos, bool ) const
+void roadsign_t::display_after(int xpos, int ypos, bool ) const
 {
 	if(after_bild!=IMG_LEER) {
 		const int raster_width = get_tile_raster_width();
@@ -334,8 +330,7 @@ roadsign_t::display_after(int xpos, int ypos, bool ) const
 
 
 
-void
-roadsign_t::rdwr(loadsave_t *file)
+void roadsign_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t r( file, "roadsign_t" );
 
@@ -373,8 +368,7 @@ roadsign_t::rdwr(loadsave_t *file)
 
 
 
-void
-roadsign_t::entferne(spieler_t *sp)
+void roadsign_t::entferne(spieler_t *sp)
 {
 	spieler_t::accounting(sp, -besch->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
 }
@@ -432,17 +426,8 @@ static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_bes
 /* static stuff from here on ... */
 bool roadsign_t::alles_geladen()
 {
-	liste.resize(table.get_count());
-	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
-	while(  iter.next()  ) {
-		liste.append( iter.get_current_value() );
-	}
-
-	if(liste.empty()) {
+	if(table.empty()) {
 		DBG_MESSAGE("roadsign_t", "No signs found - feature disabled");
-	}
-	else {
-		std::sort( liste.begin(), liste.end(), compare_roadsign_besch );
 	}
 	return true;
 }
@@ -451,10 +436,29 @@ bool roadsign_t::alles_geladen()
 
 bool roadsign_t::register_besch(roadsign_besch_t *besch)
 {
-	// remove duplicates
-	if(  table.remove( besch->get_name() )  ) {
+	// avoid duplicates with same name
+	const roadsign_besch_t *old_besch = table.get(besch->get_name());
+	if(old_besch) {
 		dbg->warning( "roadsign_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		table.remove(besch->get_name());
+		delete old_besch->get_builder();
+		delete old_besch;
 	}
+
+	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+		// add the tool
+		wkz_roadsign_t *wkz = new wkz_roadsign_t();
+		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+		wkz->default_param = besch->get_name();
+		wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+		werkzeug_t::general_tool.append( wkz );
+		besch->set_builder( wkz );
+	}
+	else {
+		besch->set_builder( NULL );
+	}
+
 	roadsign_t::table.put(besch->get_name(), besch);
 
 	if(besch->get_wtyp()==track_wt  &&  besch->get_flags()==roadsign_besch_t::SIGN_SIGNAL) {
@@ -493,33 +497,29 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 
 
 /**
- * Fill menu with icons of given stops from the list
+ * Fill menu with icons of given signals/roadsings from the list
  * @author Hj. Malthaner
  */
 void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
 {
-	static stringhashtable_tpl<wkz_roadsign_t *> sign_tool;
 	const uint16 time = welt->get_timeline_year_month();
 
-	for (vector_tpl<const roadsign_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
-		const roadsign_besch_t* besch = (*iter);
+	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
+	vector_tpl<const roadsign_besch_t *>matching;
+
+	while(  iter.next()  ) {
+		const roadsign_besch_t* besch = iter.get_current_value();
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
-			if(besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->get_wtyp()) {
+			if(besch->get_builder()  &&  wtyp==besch->get_wtyp()) {
 				// only add items with a cursor
-				wkz_roadsign_t *wkz = sign_tool.get(besch->get_name());
-				if(wkz==NULL) {
-					// not yet in hashtable
-					wkz = new wkz_roadsign_t();
-					wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-					wkz->cursor = besch->get_cursor()->get_bild_nr(0),
-					wkz->default_param = besch->get_name();
-					wkz->ok_sound = sound_ok;
-					sign_tool.put(besch->get_name(),wkz);
-				}
-				wzw->add_werkzeug( (werkzeug_t*)wkz );
+				matching.append(besch);
 			}
 		}
+	}
+	std::sort( matching.begin(), matching.end(), compare_roadsign_besch );
+	for (vector_tpl<const roadsign_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 
@@ -528,11 +528,11 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound
  * Finds a matching roadsing
  * @author prissi
  */
-const roadsign_besch_t *
-roadsign_t::roadsign_search(uint8 flag,const waytype_t wt,const uint16 time)
+const roadsign_besch_t *roadsign_t::roadsign_search(uint8 flag,const waytype_t wt,const uint16 time)
 {
-	for (vector_tpl<const roadsign_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
-		const roadsign_besch_t* besch = (*iter);
+	stringhashtable_iterator_tpl<const roadsign_besch_t *>iter(table);
+	while(  iter.next()  ) {
+		const roadsign_besch_t* besch = iter.get_current_value();
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->get_wtyp()==wt  &&  besch->get_flags()==flag) {
 				return besch;

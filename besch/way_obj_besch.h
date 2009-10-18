@@ -15,6 +15,7 @@
 
 
 class skin_besch_t;
+class werkzeug_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -73,6 +74,8 @@ private:
      * @author Hj. Malthaner
      */
 	uint8 own_wtyp;
+
+	werkzeug_t *builder;
 
 public:
 	long get_preis() const { return price; }
@@ -208,6 +211,13 @@ public:
 	*/
 	const skin_besch_t * get_cursor() const { return (const skin_besch_t *)(get_child(8)); }
 
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
+	}
 };
 
 #endif

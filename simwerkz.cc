@@ -1396,7 +1396,7 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 
 bool wkz_wegebau_t::is_selected( karte_t *welt ) const
 {
-	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug());
+	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
 	return (selected  &&  selected->get_besch(welt,false) == get_besch(welt,false));
 }
 
@@ -1503,7 +1503,7 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 			}
 			ribi_t::ribi zeige = gr->get_weg_ribi_unmasked(besch->get_wtyp()) | bauigel.get_route().get_ribi( j );
 
-			zeiger_t *way = new zeiger_t( welt, pos, sp );
+			zeiger_t *way = new zeiger_t( welt, pos, NULL );
 			if(gr->get_weg_hang()) {
 				way->set_bild( besch->get_hang_bild_nr(gr->get_weg_hang(),0) );
 			}
@@ -1514,7 +1514,7 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 				way->set_bild( besch->get_bild_nr(zeige,0) );
 			}
 			gr->obj_add( way );
-			marked.insert( way );
+			marked[sp->get_player_nr()].insert( way );
 			way->mark_image_dirty( way->get_bild(), 0 );
 		}
 	}
@@ -1681,7 +1681,7 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 				way->set_bild( wb->get_bild_nr(zeige,0) );
 			}
 			gr->obj_add( way );
-			marked.insert( way );
+			marked[sp->get_player_nr()].insert( way );
 			way->mark_image_dirty( way->get_bild(), 0 );
 		}
 		welt->lookup(end)->set_flag(grund_t::marked);
@@ -1720,10 +1720,10 @@ void wkz_wayremover_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &
 	if( can_built ) {
 		for( uint32 j = 0; j < verbindung.get_count(); j++ ) {
 			koord3d pos = verbindung.position_bei(j);
-			zeiger_t *marker = new zeiger_t( welt, pos, sp );
+			zeiger_t *marker = new zeiger_t( welt, pos, NULL );
 			marker->set_bild( cursor );
 			marker->mark_image_dirty( marker->get_bild(), 0 );
-			marked.insert( marker );
+			marked[sp->get_player_nr()].insert( marker );
 			welt->lookup(pos)->obj_add( marker );
 		}
 	}
@@ -1941,7 +1941,7 @@ const way_obj_besch_t *wkz_wayobj_t::get_besch( const karte_t* welt ) const
 
 bool wkz_wayobj_t::is_selected( karte_t *welt ) const
 {
-	const wkz_wayobj_t *selected = dynamic_cast<const wkz_wayobj_t *>(welt->get_werkzeug());
+	const wkz_wayobj_t *selected = dynamic_cast<const wkz_wayobj_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
 	return (selected  &&  selected->get_besch(welt) == get_besch(welt));
 }
 
@@ -2025,7 +2025,7 @@ void wkz_wayobj_t::mark_tiles( karte_t * welt, spieler_t * sp, const koord3d &st
 
 			zeiger_t *way_obj = NULL;
 			if( build ) {
-				way_obj = new zeiger_t( welt, pos, sp );
+				way_obj = new zeiger_t( welt, pos, NULL );
 				if(  gr->get_weg_hang()  ) {
 					way_obj->set_after_bild( besch->get_front_slope_image_id(gr->get_weg_hang()) );
 					way_obj->set_bild( besch->get_back_slope_image_id(gr->get_weg_hang()) );
@@ -2041,14 +2041,14 @@ void wkz_wayobj_t::mark_tiles( karte_t * welt, spieler_t * sp, const koord3d &st
 			}
 			else {
 				if( gr->get_wayobj( wt ) ) {
-					way_obj = new zeiger_t( welt, pos, sp );
+					way_obj = new zeiger_t( welt, pos, NULL );
 					way_obj->set_bild( cursor ); //skinverwaltung_t::bauigelsymbol->get_bild_nr(0));
 				}
 			}
 			if( way_obj ) {
 				way_obj->mark_image_dirty( way_obj->get_bild(), 0 );
 				gr->obj_add( way_obj );
-				marked.insert( way_obj );
+				marked[sp->get_player_nr()].insert( way_obj );
 			}
 		}
 		win_set_static_tooltip( tooltip_with_price("Building costs estimates", -cost_estimate ) );
@@ -2931,7 +2931,7 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 			hausbauer_t::neues_gebaeude( welt, sp, bd->get_pos(), layout, besch );
 			sp->buche(cost, pos.get_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) {
-				welt->set_werkzeug( general_tool[WKZ_ABFRAGE] );
+				welt->set_werkzeug( general_tool[WKZ_ABFRAGE], sp );
 			}
 
 			struct sound_info info;
@@ -3387,7 +3387,7 @@ const char *wkz_link_factory_t::work( karte_t *welt, spieler_t *sp, koord3d pos 
 		if(last_fab==NULL) {
 			// first click
 			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-			wkz_linkzeiger = new zeiger_t(welt, gr->get_pos(), sp);
+			wkz_linkzeiger = new zeiger_t(welt, gr->get_pos(), NULL);
 			wkz_linkzeiger->set_bild( cursor );
 			gr->obj_add(wkz_linkzeiger);
 			last_fab = fab;
@@ -3492,7 +3492,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			sp->add_headquarter( besch->get_extra()+1, pos.get_2d() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) {
-				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}
 			return NULL;
 		}
@@ -3542,12 +3542,12 @@ void wkz_forest_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &star
 			uint8 hang = gr->get_grund_hang() | gr->get_weg_hang();
 			uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
 
-			zeiger_t *marker = new zeiger_t( welt, gr->get_pos(), sp );
+			zeiger_t *marker = new zeiger_t( welt, gr->get_pos(), NULL );
 			marker->set_after_bild( grund_besch_t::marker->get_bild( gr->get_grund_hang()&7 ) );
 			marker->set_bild( grund_besch_t::marker->get_bild( back_hang ) );
 			marker->mark_image_dirty( marker->get_bild(), 0 );
 			gr->obj_add( marker );
-			marked.insert( marker );
+			marked[sp->get_player_nr()].insert( marker );
 		}
 	}
 }
@@ -3654,7 +3654,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				waytype[1] = bd->get_weg_nr(1)->get_waytype();
 			}
 		}
-		wkz_linkzeiger = new zeiger_t(welt, last_pos, sp);
+		wkz_linkzeiger = new zeiger_t(welt, last_pos, NULL);
 		wkz_linkzeiger->set_bild( cursor );
 		bd->obj_add(wkz_linkzeiger);
 	}
@@ -3995,7 +3995,7 @@ const char *wkz_show_underground_t::work( karte_t *welt, spieler_t *sp, koord3d 
 	welt->update_map();
 
 	if(sp == welt->get_active_player()) {
-		welt->set_werkzeug( general_tool[WKZ_ABFRAGE] );
+		welt->set_werkzeug( general_tool[WKZ_ABFRAGE], sp );
 	}
 
 	return NULL;

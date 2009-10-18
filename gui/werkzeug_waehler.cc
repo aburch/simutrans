@@ -96,14 +96,14 @@ void werkzeug_waehler_t::infowin_event(const event_t *ev)
 			const int wz_idx = x+(tool_icon_width*y);
 
 			if (wz_idx < (int)tools.get_count()) {
-				welt->set_werkzeug( tools[wz_idx] );
+				welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
 			}
 			dirty = true;
 		}
 	}
 	/* this resets to query-tool, when closing toolsbar ... */
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 	}
 }
 

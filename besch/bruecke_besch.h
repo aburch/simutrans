@@ -23,6 +23,8 @@
 
 #include "../dataobj/ribi.h"
 
+class werkzeug_t;
+
 
 class bruecke_besch_t : public obj_besch_std_name_t {
     friend class bridge_writer_t;
@@ -53,6 +55,9 @@ private:
 	/* number of seasons (0 = none, 1 = no snow/snow
 	*/
 	sint8 number_seasons;
+
+	werkzeug_t *builder;
+
 public:
 	/*
 	 * Nummerierung all der verschiedenen Schienstücke
@@ -143,6 +148,14 @@ public:
 	 * @author prissi
 	 */
 	int get_retire_year_month() const { return obsolete_date; }
+
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
+	}
 };
 
 #endif

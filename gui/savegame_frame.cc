@@ -303,9 +303,13 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 		// Save/Load Button or Enter-Key pressed
 		//---------------------------------------
 
-		tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
-		strcat(buf, ibuf);
-		strcat(buf, suffix);
+		if (strstr(ibuf,"net:")==ibuf) {
+			tstrncpy(buf,ibuf,lengthof(buf));
+		} else {
+			tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
+			strcat(buf, ibuf);
+			strcat(buf, suffix);
+		}
 
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
 

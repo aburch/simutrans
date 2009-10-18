@@ -17,6 +17,12 @@
 #include <string.h>
 #include <math.h>
 
+#ifdef _MSC_VER
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
 #include "simcity.h"
 #include "simcolor.h"
 #include "simconvoi.h"
@@ -72,6 +78,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
 #include "dataobj/powernet.h"
+#include "dataobj/network.h"
 
 #include "utils/simstring.h"
 
@@ -493,10 +500,6 @@ DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 	haltestelle_t::destroy_all(this);
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
-	// entfernt alle synchronen objekte aus der liste
-	sync_list.clear();
-DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
-
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
 	sint32 no_of_cities=einstellungen->get_anzahl_staedte();
@@ -506,7 +509,15 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	einstellungen->set_anzahl_staedte(no_of_cities);
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
-	// dinge aufräumen
+	while(!sync_list.empty()) {
+		sync_steppable *ss = sync_list.remove_first();
+		delete ss;
+	}
+	// entfernt alle synchronen objekte aus der liste
+	sync_list.clear();
+DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
+
+// dinge aufräumen
 	cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
 	cached_groesse_karte_x = cached_groesse_karte_y = 0;
 	if(plan) {
@@ -684,6 +695,8 @@ void karte_t::init_felder()
 			finance_history_month[month][cost_type] = 0;
 		}
 	}
+
+	tile_counter = 0;
 
 	convoihandle_t::init( 1024 );
 	linehandle_t::init( 1024 );
@@ -1103,6 +1116,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 
 void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 {
+	set_random_allowed( true );
 	mute_sound(true);
 
 	intr_disable();
@@ -1110,7 +1124,9 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 		destroy();
 	}
 
-	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
+	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
+	}
 	if(is_display_init()) {
 		display_show_pointer(false);
 	}
@@ -1124,7 +1140,7 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	x_off = y_off = 0;
 
 	ticks = 0;
-	last_step_ticks = 0;
+	last_step_ticks = ticks;
 	schedule_counter = 0;
 	// ticks = 0x7FFFF800;  // Testing the 31->32 bit step
 
@@ -1197,13 +1213,13 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	printf("Preparing startup ...\n");
 	if(zeiger == 0) {
-		zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
+		zeiger = new zeiger_t(this, koord3d::invalid, NULL );
 	}
 
 	// finishes the line preparation and sets id 0 to invalid ...
 	spieler[0]->simlinemgmt.laden_abschliessen();
 
-	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
 
 	recalc_average_speed();
 
@@ -1219,9 +1235,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	active_player = spieler[0];
 
 	set_dirty();
-
-	fast_forward = false;
-	pause = false;
+	step_mode = PAUSE_FLAG;
 	simloops = 60;
 	reset_timer();
 
@@ -1493,13 +1507,15 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	ticks_per_tag = (1 << ticks_bits_per_tag);
 	last_step_ticks = 0;
 	last_interaction = dr_time();
-	fast_forward = false;
-	pause = false;
+	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
-	next_wait_time = this_wait_time = 30;
+	next_step_time = last_step_time = 0;
+	time_budget = 0;
 
-	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
-	werkzeug_last_pos = koord::invalid;
+	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
+	}
+	werkzeug_last_pos = koord3d::invalid;
 	werkzeug_last_button = 0;
 
 	follow_convoi = convoihandle_t();
@@ -2101,38 +2117,47 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 
 
 // new tool definition
-void karte_t::set_werkzeug( werkzeug_t *w )
+void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
-	if(w->init(this,active_player)) {
+	if(!umgebung_t::networkmode  ||  w->is_init_network_save()  ) {
 
-		set_dirty();
-		if(w!=werkzeug) {
+		if(w->init(this,sp)) {
 
-			if(  SFX_SELECT!=NO_SOUND  ) {
+			set_dirty();
+			if(w!=werkzeug[sp->get_player_nr()]) {
+
 				// reinit same tool => do not play sound twice
 				struct sound_info info;
 				info.index = SFX_SELECT;
 				info.volume = 255;
 				info.pri = 0;
 				sound_play(info);
+
+				// only exit, if it is not the same tool again ...
+				werkzeug[sp->get_player_nr()]->exit(this,sp);
 			}
 
-			// only exit, if it is not the same tool again ...
-			werkzeug->exit(this,active_player);
+			if(  sp==active_player  ) {
+				// reset pointer
+				koord3d zpos = zeiger->get_pos();
+				zeiger->set_bild( w->cursor );
+				zeiger->set_yoff( w->offset );
+				if(!zeiger->area_changed()) {
+					// reset to default 1,1 size
+					zeiger->set_area( koord(1,1), false );
+				}
+				zeiger->change_pos( zpos );
+				werkzeug_last_pos = koord3d::invalid;
+				werkzeug_last_button = 0;
+			}
+			werkzeug[sp->get_player_nr()] = w;
 		}
-
-		// reset pointer
-		koord3d zpos = zeiger->get_pos();
-		zeiger->set_bild( w->cursor );
-		zeiger->set_yoff( w->offset );
-		if(!zeiger->area_changed()) {
-			// reset to default 1,1 size
-			zeiger->set_area( koord(1,1), false );
-		}
-		zeiger->change_pos( zpos );
-		werkzeug = w;
-		werkzeug_last_pos = koord::invalid;
-		werkzeug_last_button = 0;
+	}
+	else {
+		// queue tool for network
+		static char commandstring[4096];
+		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), w->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->default_param==NULL ? "" : w->default_param );
+		network_send_server( commandstring, len );
 	}
 }
 
@@ -2412,22 +2437,38 @@ stadt_t *karte_t::suche_naechste_stadt(const koord pos) const
 
 // -------- Verwaltung von synchronen Objekten ------------------
 
-bool
-karte_t::sync_add(sync_steppable *obj)
+static bool sync_step_running = false;
+
+bool karte_t::sync_add(sync_steppable *obj)
 {
-	assert(obj != NULL);
-	sync_add_list.insert( obj );
+	if(  sync_step_running  ) {
+		sync_add_list.insert( obj );
+	}
+	else {
+		sync_list.insert( obj );
+	}
 	return true;
 }
 
-bool
-karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
+bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
-	assert(obj != NULL);
-	if(sync_add_list.remove(obj)) {
-		return true;
+	if(  sync_step_running  ) {
+		if(sync_add_list.remove(obj)) {
+			return true;
+		}
+		else {
+			sync_remove_list.append(obj);
+		}
 	}
-	return sync_list.remove( obj );
+	else {
+		if(sync_add_list.remove(obj)) {
+			return true;
+		}
+		else {
+			sync_list.remove(obj);
+		}
+	}
+	return false;
 }
 
 
@@ -2438,11 +2479,12 @@ karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der 
  * only time consuming thing are done in step()
  * everything else is done here
  */
-void
-karte_t::sync_step(long delta_t, bool sync, bool display )
+void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
+	bool old_allowed = set_random_allowed( true );
 	if(sync) {
 		// only omitted, when called to display a new frame during fast forward
+		sync_step_running = true;
 
 		// just for progress
 		ticks += delta_t;
@@ -2450,26 +2492,34 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 		// ingore calls by interrupt during fast forward ...
 		while(!sync_add_list.empty()) {
 			sync_steppable *ss = sync_add_list.remove_first();
-			sync_list.put( ss, ss );
+			sync_list.insert( ss );
 		}
 
-		ptrhashtable_iterator_tpl<sync_steppable*,sync_steppable*> iter (sync_list);
+		// now remove everything from last time
+		while(!sync_remove_list.empty()) {
+			sync_steppable *ss = sync_remove_list.remove_first();
+			sync_list.remove( ss );
+		}
 
-		// Hajo: we use a slight hack here to remove the current
-		// object from the list without wrecking the iterator
-		bool ok = iter.next();
-		while(ok) {
-			sync_steppable *ss = iter.get_current_value();
-
-			// Hajo: advance iterator, so that we can remove the current object
-			// safely
-			ok = iter.next();
-
-			if (!ss->sync_step(delta_t)) {
-				sync_list.remove(ss);
+		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  i!=sync_list.end();  ) {
+			// if false, then remove
+			sync_steppable *ss = *i;
+			if(!ss->sync_step(delta_t)) {
+				i = sync_list.erase(i);
 				delete ss;
 			}
+			else {
+				++i;
+			}
 		}
+
+		// now remove everything from this time
+		while(!sync_remove_list.empty()) {
+			sync_steppable *ss = sync_remove_list.remove_first();
+			sync_list.remove( ss );
+		}
+
+		sync_step_running = false;
 	}
 
 	if(display) {
@@ -2499,6 +2549,7 @@ karte_t::sync_step(long delta_t, bool sync, bool display )
 		intr_refresh_display( false );
 		update_frame_sleep_time(delta_t);
 	}
+	set_random_allowed( old_allowed );
 }
 
 
@@ -2518,11 +2569,14 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		simloops = 60;
 	}
 
-	if(pause) {
+	if(  step_mode&PAUSE_FLAG  ) {
 		// not changing pauses
-		next_wait_time = 50;
+		next_step_time = last_ms+50;
 	}
-	else if(!fast_forward) {
+	else if(  step_mode==FIX_RATIO) {
+		simloops = realFPS;
+	}
+	else if(  step_mode==NORMAL  ) {
 		// calculate simloops
 		uint16 last_step = (steps+31)%32;
 		if(last_step_nr[last_step]>last_step_nr[steps%32]) {
@@ -2544,7 +2598,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 				if(  1000u/get_frame_time() < 2*realFPS  ) {
 					if(  realFPS < (umgebung_t::fps/2)  ) {
 						set_frame_time( get_frame_time()-1 );
-						next_wait_time = 0;
+						next_step_time = last_ms;
 					}
 					else {
 						reduce_frame_time();
@@ -2553,7 +2607,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 				else {
 					// do not set time too short!
 					set_frame_time( 500/max(1,realFPS) );
-					next_wait_time = 0;
+					next_step_time = last_ms;
 				}
 			}
 		}
@@ -2891,10 +2945,9 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 
 
 
-void
-karte_t::step()
+void karte_t::step()
 {
-	static uint32 tile_counter = 0;
+	unsigned long time = dr_time();
 
 	// first: check for new month
 	if(ticks > next_month_ticks) {
@@ -2909,11 +2962,13 @@ karte_t::step()
 			last_step_ticks %= karte_t::ticks_per_tag;
 		}
 
+		set_random_allowed( true );
 		neuer_monat();
+		set_random_allowed( false );
 	}
 
 	const long delta_t = (long)ticks-(long)last_step_ticks;
-	if(!fast_forward) {
+	if(  step_mode==NORMAL  ) {
 		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
 		 * Also avoid too large or negative steps
 		 */
@@ -2926,25 +2981,24 @@ karte_t::step()
 
 		if(delta_t<170) {
 			// to short pause
-			if(next_wait_time+1<(uint32)get_frame_time()) {
-				next_wait_time ++;
+			if(idle_time+1<(uint32)get_frame_time()) {
+				idle_time ++;
 			}
 			else {
-				next_wait_time = get_frame_time();
+				idle_time = get_frame_time();
 			}
-			this_wait_time = next_wait_time;
 			return;
 		}
-		else if(delta_t>250  &&  next_wait_time>0) {
+		else if(delta_t>250  &&  idle_time>0) {
 			// too long pause
-			next_wait_time --;
-			if( delta_t>500  &&  umgebung_t::fps<2*realFPS  ) {
-				next_wait_time = 0;
+			idle_time --;
+			if(  delta_t>500  &&  umgebung_t::fps<2*realFPS  ) {
+				idle_time = 0;
 			}
 		}
 		last_step_nr[steps%32] = ticks;
 	}
-	else {
+	else if(  step_mode==FAST_FORWARD  ) {
 		// fast forward first: get average simloops (i.e. calculate acceleration)
 		last_step_nr[steps%32] = dr_time();
 		int last_5_simloops = simloops;
@@ -2957,28 +3011,32 @@ karte_t::step()
 		}
 		// now try to approach the target speed
 		if(last_5_simloops<umgebung_t::max_acceleration) {
-			if(next_wait_time>0) {
-				next_wait_time --;
+			if(idle_time>0) {
+				idle_time --;
 			}
 		}
 		else if(simloops>8u*umgebung_t::max_acceleration) {
-			if(next_wait_time<get_frame_time()-10) {
-				next_wait_time ++;
+			if(idle_time<get_frame_time()-10) {
+				idle_time ++;
 			}
 		}
 		// cap it ...
-		if(next_wait_time>=get_frame_time()-10) {
-			next_wait_time = get_frame_time()-10;
+		if(idle_time>=get_frame_time()-10) {
+			idle_time = get_frame_time()-10;
 		}
+		time_budget = 0;
+	}
+	else {
+		// network mode
 	}
 	// now do the step ...
 	last_step_ticks = ticks;
-	this_wait_time = next_wait_time;
 	steps ++;
 
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
+	set_random_allowed( true );
 	// check for pending seasons change
 	if(pending_season_change>0) {
 		// process
@@ -3029,7 +3087,7 @@ karte_t::step()
 			spieler[i]->step();
 		}
 	}
-	INT_CHECK("simworld 1975");
+	set_random_allowed( false );
 
 	haltestelle_t::step_all();
 
@@ -3643,9 +3701,13 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		dbg->error( "karte_t::speichern()","Some buildings may be broken by saving!" );
 	}
 
-	// If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
-	if( two_click_werkzeug_t* tool = dynamic_cast<two_click_werkzeug_t*>(get_werkzeug()) ) {
-		tool->cleanup( this, false );
+	/* If the current tool is a two_click_werkzeug, call cleanup() in order to delete dummy grounds (tunnel + monorail preview)
+	 * THIS MUST NOT BE DONE IN NETWORK MODE!
+	 */
+	for(  uint8 sp_nr=0;  sp_nr<MAX_PLAYER_COUNT;  sp_nr++  ) {
+		if(  two_click_werkzeug_t* tool = dynamic_cast<two_click_werkzeug_t*>(werkzeug[sp_nr]) ) {
+			tool->cleanup( spieler[sp_nr], false );
+		}
 	}
 
 	// do not set value for empyt player
@@ -3787,6 +3849,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::laden(const char *filename)
 {
+	const char *name = filename;
 	bool ok=false;
 	mute_sound(true);
 	display_show_load_pointer(true);
@@ -3796,7 +3859,53 @@ bool karte_t::laden(const char *filename)
 
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
-	if(!file.rd_open(filename)) {
+	if(  strstr(filename,"net:")==filename  ) {
+		name = "client-network.sve";
+		SOCKET s;
+
+		// open from network
+		const char *err = network_open_address( filename+4, s );
+		if(  err==NULL  ) {
+			char buf[64];
+			int len;
+			dbg->message( "karte_t::laden", "send :" NET_TO_SERVER NET_GAME NET_END_CMD );
+			len = send( s, NET_TO_SERVER NET_GAME NET_END_CMD, 9, 0 );
+			err = "Server did not respond!";
+			len = 64;
+			network_add_client( s );
+			if(  network_check_activity( 1000, buf, len )!=INVALID_SOCKET  ) {
+				// wait for sync message to finish
+				if(  memcmp( NET_FROM_SERVER NET_GAME, buf, 7 )!=0  ) {
+					err = "Protocoll error (expecting " NET_GAME ")";
+				}
+				else {
+					err = network_recieve_file( s, name, atol(buf+7) );
+				}
+			}
+		}
+		if(err) {
+			create_win( new news_img(err), w_info, magic_none );
+			network_close_socket( s );
+			display_show_load_pointer(false);
+			step_mode = NORMAL;
+			return false;
+		}
+		else {
+			chdir( umgebung_t::user_dir );
+			umgebung_t::networkmode = true;
+		}
+	}
+	else {
+		// probably finish network mode?
+		if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+			// remain only in networkmode, if I am the server
+			umgebung_t::networkmode = false;
+			network_core_shutdown();
+			// closing the socket will tell the server, I a away too
+		}
+	}
+
+	if(!file.rd_open(name)) {
 
 		if(  (sint32)file.get_version()==-1  ||  file.get_version()>loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL )  ) {
 			create_win( new news_img("WRONGSAVE"), w_info, magic_none );
@@ -3817,10 +3926,28 @@ bool karte_t::laden(const char *filename)
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
+
+		if(  umgebung_t::server  ) {
+			step_mode = FIX_RATIO;
+		}
+		else if(  umgebung_t::networkmode  ) {
+			network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
+			step_mode = PAUSE_FLAG|FIX_RATIO;
+		}
+		else {
+			step_mode = NORMAL;
+		}
+
 		ok = true;
 		file.close();
 		create_win( new news_img("Spielstand wurde\ngeladen!\n"), w_time_delete, magic_none);
 		set_dirty();
+
+		reset_timer();
+		recalc_average_speed();
+		mute_sound(false);
+
+		set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
 	}
 #endif
 	einstellungen->set_filename(filename);
@@ -3835,15 +3962,16 @@ void karte_t::laden(loadsave_t *file)
 	char buf[80];
 
 	intr_disable();
-	werkzeug = werkzeug_t::general_tool[WKZ_ABFRAGE];
+	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
+	}
 	destroy_all_win();
-
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
 
 	destroy();
-	fast_forward = false;
+	tile_counter = 0;
 	simloops = 60;
 
 	// powernets zum laden vorbereiten -> tabelle loeschen
@@ -3852,10 +3980,18 @@ void karte_t::laden(loadsave_t *file)
 	// jetzt geht das laden los
 	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
 	einstellungen->rdwr(file);
-	if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()!=2) {
-		// not locked => eventually switch off timeline settings, if explicitly stated
-		einstellungen->set_use_timeline( umgebung_t::default_einstellungen.get_use_timeline() );
-		DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.get_use_timeline() );
+
+	if(  umgebung_t::networkmode  ) {
+		// to have games synchronized, transfer random counter too
+		setsimrand( einstellungen->get_random_counter(), 0xFFFFFFFFu );
+	}
+
+	if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()!=2) {
+			// not locked => eventually switch off timeline settings, if explicitly stated
+			einstellungen->set_use_timeline( umgebung_t::default_einstellungen.get_use_timeline() );
+			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.get_use_timeline() );
+		}
 	}
 	if(einstellungen->get_beginner_mode()) {
 		warenbauer_t::set_multiplier( get_einstellungen()->get_starting_year() );
@@ -3891,7 +4027,7 @@ DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 	init_felder();
 
 	// reinit pointer with new pointer object and old values
-	zeiger = new zeiger_t(this, koord3d::invalid, spieler[0]);
+	zeiger = new zeiger_t(this, koord3d::invalid, NULL );
 
 	hausbauer_t::neue_karte();
 	fabrikbauer_t::neue_karte(this);
@@ -3911,7 +4047,9 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero
 	next_month_ticks = 	( (ticks >> karte_t::ticks_bits_per_tag) + 1 ) << karte_t::ticks_bits_per_tag;
+	last_step_ticks = ticks;
 	steps = 0;
+	step_mode = PAUSE_FLAG;
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 	recalc_average_speed();	// resets timeline
@@ -4262,14 +4400,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	}
 
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
-
-	pause = false;
-	reset_timer();
-	recalc_average_speed();
-	set_dirty();
-	mute_sound(false);
-
-	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
 }
 
 
@@ -4386,18 +4516,42 @@ karte_t::reset_timer()
 {
 	DBG_MESSAGE("karte_t::reset_timer()","called");
 	// Reset timers
-	uint32 last_tick_sync = dr_time();
+	long last_tick_sync = dr_time();
 	mouse_rest_time = last_tick_sync;
 	sound_wait_time = AMBIENT_SOUND_INTERVALL;
 	intr_set_last_time(last_tick_sync);
-	intr_enable();
 
-	if(fast_forward) {
+	if(  umgebung_t::networkmode  &&  (step_mode&PAUSE_FLAG)==0  ) {
+		step_mode = FIX_RATIO;
+	}
+
+	last_step_time = last_tick_sync;
+	last_step_ticks = ticks;
+	time_budget = 0;
+
+
+	if(  step_mode&PAUSE_FLAG  ) {
+		intr_disable();
+	}
+	else if(step_mode==FAST_FORWARD) {
+		next_step_time = last_tick_sync+1;
 		set_frame_time( 100 );
 		time_multiplier = 16;
+		intr_enable();
+	}
+	else if(step_mode==FIX_RATIO) {
+		last_frame_idx = 0;
+		last_step_time = last_tick_sync;
+		next_step_time = last_tick_sync+(1000/einstellungen->get_frames_per_second());
+		set_frame_time( 1000/einstellungen->get_frames_per_second() );
+		intr_disable();
+		// other stuff needed to synchronize
+		tile_counter = 0;
+		pending_season_change = 1;
 	}
 	else {
 		set_frame_time( 1000/umgebung_t::fps );
+		intr_enable();
 	}
 }
 
@@ -4431,13 +4585,15 @@ void karte_t::step_month( sint16 months )
 
 void karte_t::change_time_multiplier(sint32 delta)
 {
-	time_multiplier += delta;
-	if(time_multiplier<=0) {
-		time_multiplier = 1;
-	}
-	if(fast_forward) {
-		fast_forward = false;
-		reset_timer();
+	if(  !umgebung_t::networkmode  ) {
+		time_multiplier += delta;
+		if(time_multiplier<=0) {
+			time_multiplier = 1;
+		}
+		if(step_mode!=NORMAL) {
+			step_mode = NORMAL;
+			reset_timer();
+		}
 	}
 }
 
@@ -4463,14 +4619,34 @@ void karte_t::do_freeze()
 
 void karte_t::set_pause(bool p)
 {
+	bool pause = step_mode&PAUSE_FLAG;
 	if(p!=pause) {
-		pause = p;
+		step_mode ^= PAUSE_FLAG;
 		if(p) {
 			intr_disable();
 		}
 		else {
 			reset_timer();
-			intr_enable();
+		}
+	}
+}
+
+
+
+void karte_t::set_fast_forward(bool ff)
+{
+	if(  !umgebung_t::networkmode  ) {
+		if(  ff  ) {
+			if(  step_mode==NORMAL  ) {
+				step_mode = FAST_FORWARD;
+				reset_timer();
+			}
+		}
+		else {
+			if(  step_mode==FAST_FORWARD  ) {
+				step_mode = NORMAL;
+				reset_timer();
+			}
 		}
 	}
 }
@@ -4586,23 +4762,25 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 		// zeiger bewegen
 		const koord3d prev_pos = zeiger->get_pos();
-		if(  prev_pos != pos  ||  ev->button_state != mb_alt) {
+		if(  (prev_pos != pos ||  ev->button_state != mb_alt)  ) {
 
 			mb_alt = ev->button_state;
 
 			zeiger->change_pos(pos);
-			if(  ev->button_state == 0  ) {
-				is_dragging = false;
-				if(  werkzeug_last_pos != pos.get_2d()  ) {
-					werkzeug->move( this, get_active_player(), 0, pos );
+			if(  !umgebung_t::networkmode  ) {
+				if(  ev->button_state == 0  ) {
+					is_dragging = false;
+					if(  werkzeug_last_pos != pos  ) {
+						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 0, pos );
+					}
 				}
-			}
-			else if(ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos.get_2d()) {
-				if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {
-					werkzeug->move( this, get_active_player(), 1, prev_pos );
+				else if(ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos) {
+					if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {
+						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 1, prev_pos );
+					}
+					is_dragging = true;
+					werkzeug[get_active_player_nr()]->move( this, get_active_player(), 1, pos );
 				}
-				is_dragging = true;
-				werkzeug->move( this, get_active_player(), 1, pos );
 			}
 
 			if(  (ev->button_state&7)==0  ) {
@@ -4667,7 +4845,9 @@ void karte_t::switch_active_player(uint8 new_player)
 		werkzeug_t::update_toolbars(this);
 		set_dirty();
 	}
-	set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+
+	werkzeug_last_pos = koord3d::invalid;
+	zeiger->set_bild( werkzeug[active_player_nr]->cursor );
 }
 
 
@@ -4731,7 +4911,7 @@ karte_t::interactive_event(event_t &ev)
 				break;
 
 			case SIM_KEY_F1:
-				set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP] );
+				set_werkzeug( werkzeug_t::dialog_tool[WKZ_HELP], get_active_player() );
 				break;
 
 			// just ignore the key
@@ -4757,7 +4937,7 @@ karte_t::interactive_event(event_t &ev)
 					bool ok=false;
 					for (vector_tpl<werkzeug_t *>::const_iterator iter = werkzeug_t::char_to_tool.begin(), end = werkzeug_t::char_to_tool.end(); iter != end; ++iter) {
 						if(  (*iter)->command_key==ev.ev_code  ) {
-							set_werkzeug( *iter );
+							set_werkzeug( *iter, get_active_player() );
 							ok = true;
 							break;
 						}
@@ -4775,8 +4955,14 @@ karte_t::interactive_event(event_t &ev)
 DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 		const char *err = NULL;
-		if(werkzeug_last_pos!=koord(mi,mj)) {
-			err = werkzeug->work( this, get_active_player(), zeiger->get_pos() );
+		if(werkzeug_last_pos!=zeiger->get_pos()  &&  (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save())  ) {
+			err = werkzeug[get_active_player_nr()]->work( this, get_active_player(), zeiger->get_pos() );
+		}
+		else {
+			// queue tool for network
+			static char commandstring[4096];
+			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), werkzeug[get_active_player_nr()]->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->default_param==NULL ? "" : werkzeug[get_active_player_nr()]->default_param );
+			network_send_server( commandstring, len );
 		}
 
 		/* tools can return three kinds of messages
@@ -4785,8 +4971,8 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 		 * "bla" error message, which should be shown
 		 */
 		if(err==NULL) {
-			if(werkzeug->ok_sound!=NO_SOUND) {
-				struct sound_info info = {werkzeug->ok_sound,255,0};
+			if(werkzeug[get_active_player_nr()]->ok_sound!=NO_SOUND) {
+				struct sound_info info = {werkzeug[get_active_player_nr()]->ok_sound,255,0};
 				sound_play(info);
 			}
 		}
@@ -4796,7 +4982,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 			sound_play(info);
 			create_win( new news_img(err), w_time_delete, magic_none);
 		}
-		werkzeug_last_pos = koord::invalid;
+		werkzeug_last_pos = koord3d::invalid;
 	}
 
 	// mouse wheel scrolled -> rezoom
@@ -4817,26 +5003,42 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 
 
-void
-karte_t::beenden(bool b)
+void karte_t::beenden(bool b)
 {
-	finish_loop=false;
+	finish_loop=true;
 	umgebung_t::quit_simutrans = b;
 }
 
 
 
-bool
-karte_t::interactive()
+
+bool karte_t::interactive(uint32 quit_month)
 {
 	event_t ev;
-	finish_loop = true;
+	finish_loop = false;
 	bool swallowed = false;
 	bool cursor_hidden = false;
 
+	char network_buffer[4096];
+	int len_last_command;
+
+	uint32 last_randoms[16];
+	uint8  network_frame_count = 0;
+
+	// only needed for network
+	slist_tpl<char *>command_queue;
+	long next_command_step=-1;
+	const uint32 frame_time = 1000/max(20,einstellungen->get_frames_per_second());
+	reset_timer();
+
+	if(  umgebung_t::server  ) {
+		step_mode |= FIX_RATIO;
+		reset_timer();
+	}
+
 	do {
 		// check for too much time eaten by frame updates ...
-		if(!fast_forward  &&  !pause) {
+		if(  step_mode==NORMAL  ) {
 			last_interaction = dr_time();
 			if(  mouse_rest_time+sound_wait_time < last_interaction  ) {
 				// we play an ambient sound, if enabled
@@ -4911,40 +5113,295 @@ karte_t::interactive()
 			}
 		}
 
-		INT_CHECK( "karte_t::interactive()" );
-		if(this_wait_time==0) {
-			if(!pause  &&  fast_forward) {
-				sync_step( MAGIC_STEP, true, false );
-				step();
+		if(  umgebung_t::networkmode  ) {
+			// did we recieved a new command?
+			len_last_command = sizeof(network_buffer);
+			SOCKET s = network_check_activity( min(5u,next_step_time-dr_time()), network_buffer, len_last_command );
+			if(  s!=INVALID_SOCKET  &&  !network_check_server_connection()  ) {
+				// pause for loosing of connection
+				network_core_shutdown();
+				umgebung_t::networkmode = false;
+				len_last_command = 0;
+				step_mode = PAUSE_FLAG;
+				reset_timer();
+				// and tell the player
+				create_win( new news_img("Lost connection to server!"), w_info, magic_none );
 			}
-			else if(pause) {
-				sync_step( 0, false, true );
-				this_wait_time = 50;
+
+			if(  s!=INVALID_SOCKET  ) {
+				assert( len_last_command>0 );
+
+				if(  memcmp( network_buffer, NET_TO_SERVER, 4 )==0  ) {
+					if(  !umgebung_t::server  ) {
+						dbg->fatal("NETWORK","Only server should recieve this: \"%s\"!", network_buffer );
+					}
+					else {
+						if(  memcmp( network_buffer+4, NET_INFO, 4 )==0  ) {
+							// just transfer einstellungen_t
+							chdir( umgebung_t::user_dir );
+							loadsave_t file;
+							remove("tmp");
+							if(file.wr_open("tmp",loadsave_t::xml,umgebung_t::objfilename)) {
+								einstellungen->rdwr(&file);
+								file.close();
+								network_send_file( s, "tmp" );
+							}
+							set_pause( 1 );
+//							network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
+						}
+						else if(  memcmp( network_buffer+4, NET_GAME, 4 )==0  ) {
+							// transfer game, all clients need to sync (save, reload, and pause)
+
+							// now save and send
+							chdir( umgebung_t::user_dir );
+							speichern( "server-network.sve", false );
+							long old_steps = steps;
+							// ok, now sending game
+							if(  network_send_file( s, "server-network.sve" )==NULL  ) {
+								char cmd[128];
+								int n = sprintf( cmd, NET_FROM_SERVER NET_SYNC " %li" NET_END_CMD, steps );
+								network_send_all( cmd, n, true );
+								laden( "server-network.sve" );
+								steps = old_steps;
+								for(  int clients_to_wait=network_get_clients();  clients_to_wait>0;  ) {
+									len_last_command = sizeof(network_buffer);
+									SOCKET s = network_check_activity( 5, network_buffer, len_last_command );
+									if(  s!=INVALID_SOCKET  &&  len_last_command>0  &&  memcmp( network_buffer, NET_TO_SERVER NET_READY NET_END_CMD, 9 )==0  ) {
+										clients_to_wait--;
+									}
+								}
+								// we are now on time
+								reset_timer();
+								network_frame_count = 0;
+								// unpause all clients
+								static char commandstring[4096];
+								int len = sprintf( commandstring, NET_FROM_SERVER NET_READY " %li" NET_END_CMD, steps );
+								network_send_all( commandstring, len, true );
+							}
+						}
+						else if(  memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0  ||  memcmp( network_buffer+4, NET_WKZ_WORK, 4 )==0  ) {
+							const bool init = memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0;
+							size_t i=8;
+							long client_steps = atol( network_buffer+8 );
+							while(  network_buffer[i]!=','  &&  i<len_last_command  ) {
+								// skip ","
+								i++;
+							}
+							i++;
+							uint32 client_random = i<len_last_command ? atol( network_buffer+i ) : 0;
+							while(  network_buffer[i]!=','  &&  i<len_last_command  ) {
+								// skip ","
+								i++;
+							}
+							// check for similar random counter!
+							if(  steps>client_steps  &&  client_steps+16>steps  ) {
+								if(  last_randoms[client_steps&15]!=client_random  ) {
+									printf( "" );
+								}
+							}
+							if(  i<len_last_command  ) {
+								next_command_step = steps+umgebung_t::server_frames_ahead; // do this next xxx frames
+								char command_string[4096];
+								int len = sprintf( command_string, NET_FROM_SERVER "%s %i,%i%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, next_command_step, get_random_seed(), network_buffer+i );
+								command_queue.append( strdup( command_string+3 ) );
+								network_send_all( command_string, len, true );
+							}
+						}
+#ifdef DEBUG
+						else if(  memcmp( network_buffer+4, NET_CHECK, 5 )==0  ) {
+							const bool init = memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0;
+							long client_steps = 0;
+							uint32 client_random = 0;
+							sscanf( network_buffer+10, "%li,%lu", &client_steps, &client_random );
+							// check for identical random counter!
+							if(  steps>=client_steps  &&  client_steps+16>steps  ) {
+								if(  last_randoms[client_steps&15]!=client_random  ) {
+									printf( "" );
+								}
+							}
+						}
+#endif
+					}
+				}
+				else {
+					// from server
+					if(  strncmp( network_buffer, NET_FROM_SERVER, 3 )==0  ) {
+						bool tool = true;
+						bool work = false;
+						if(  memcmp( network_buffer+3, NET_WKZ_INIT, 4 )==0  ) {
+							work = false;
+						}
+						else if(  memcmp( network_buffer+3, NET_WKZ_WORK, 4 )==0  ) {
+							work = true;
+						}
+						else if(  memcmp( network_buffer+3, NET_READY, 5 )==0  ) {
+							tool = false;
+							if(  steps==0  ) {
+								sscanf( network_buffer+8, "%li", &steps );
+							}
+							assert( steps == atol(network_buffer+8) );
+							step_mode = FIX_RATIO;
+							// lagging at least one farme
+							dr_sleep( (1000*umgebung_t::server_frames_ahead)/einstellungen->get_frames_per_second() );
+							reset_timer();
+							network_frame_count = 0;
+						}
+						else if(  memcmp( network_buffer+3, NET_SYNC, 4 )==0  ) {
+							tool = false;
+						}
+						else {
+							tool = false;
+							dbg->error("NETWORK","Unknow command \"%s\"", network_buffer );
+						}
+						// need to collect them first ...
+						if(  tool  ) {
+							command_queue.append( strdup(network_buffer+3) );
+							// eventually execute this next ...
+							if(  next_command_step<steps  ||  command_queue.empty()  ) {
+								next_command_step = atol( network_buffer+8 );
+							}
+						}
+					}
+				}
+			}
+		}
+		else {
+			// we wait here for maximum 9ms
+			// average is 5 ms, so we usually
+			// are quite responsive
+			const sint32 wait_time = (sint32)(next_step_time-dr_time());
+			if(wait_time>0) {
+				if(wait_time<10  ||  step_mode!=NORMAL) {
+					dr_sleep( wait_time );
+				}
+				else {
+					dr_sleep( 5 );
+				}
 			}
 			else {
+				// just do the steps ...
 				step();
 			}
 		}
 
-		// we wait here for maximum 9ms
-		// average is 5 ms, so we usually
-		// are quite responsive
-		if(this_wait_time>0) {
-			if(this_wait_time<10  ||  fast_forward  ||  pause) {
-				dr_sleep( this_wait_time );
-				this_wait_time = 0;
+		while(  !command_queue.empty()  &&  (next_command_step==steps  ||  step_mode&PAUSE_FLAG)  ) {
+			char *network_buffer = command_queue.remove_first();
+			if(  memcmp( network_buffer, NET_SYNC, 4 )==0  ) {
+				if(  !umgebung_t::server  ) {
+					long old_steps = steps;
+					// saving and reloading game, sending notification when ready
+					chdir( umgebung_t::user_dir );
+					speichern( "client-network.sve", false );
+					// ok, now sending game
+					laden( "client-network.sve" );
+					steps = old_steps;
+					reset_timer();
+					network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
+					step_mode = PAUSE_FLAG|FIX_RATIO;
+				}
+				// server needs to do nothing
 			}
 			else {
-				this_wait_time -= 5;
-				dr_sleep( 5 );
+				const bool init = memcmp( network_buffer, NET_WKZ_INIT, 4 )==0;
+				if(!umgebung_t::server) {
+					DBG_MESSAGE("command","%s",network_buffer);
+				}
+				koord3d p = koord3d::invalid;
+				uint16 id=0xFFFF;
+				uint16 player_nr = PLAYER_UNOWNED;
+				uint16 z_pos = -256;
+				static char default_param[4096];
+				long steps_nr = 0;
+				uint32 random_counter;
+				sscanf( network_buffer+5, "%li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &random_counter, &id, &player_nr, &p.x, &p.y, &z_pos, default_param );
+				size_t len = strlen(default_param);
+				if(  len>0  &&  default_param[len-1]==';'  ) {
+					default_param[len-1] = 0;
+				}
+				p.z = z_pos;
+				if(  id==(SIMPLE_TOOL|WKZ_PAUSE)  ) {
+					steps = steps_nr;
+				}
+				assert(  steps_nr==steps );
+				werkzeug_t *wkz=NULL;
+				if(  id&GENERAL_TOOL  ) {
+					wkz = werkzeug_t::general_tool[id&0xFFF];
+				}
+				else if(  id&SIMPLE_TOOL  ) {
+					wkz = werkzeug_t::simple_tool[id&0xFFF];
+				}
+				else if(  id&DIALOGE_TOOL  ) {
+					wkz = werkzeug_t::dialog_tool[id&0xFFF];
+				}
+				if(  wkz  ) {
+					const char *old_default_param = wkz->default_param;
+					wkz->default_param = default_param;
+					if(  init  ) {
+						if(  wkz->init( this, spieler[player_nr] )  ) {
+							set_dirty();
+							if(wkz!=werkzeug[player_nr]) {
+								// only exit, if it is not the same tool again ...
+								werkzeug[player_nr]->exit(this,spieler[player_nr]);
+							}
+							werkzeug[player_nr] = wkz;
+							// update cursor and lastpos
+							if(  player_nr==active_player_nr  ) {
+								zeiger->set_bild( wkz->cursor );
+								werkzeug_last_pos = koord3d::invalid;
+							}
+						}
+					}
+					else {
+						wkz->work( this, spieler[player_nr], p );
+					}
+					wkz->default_param = old_default_param;
+				}
+
+			}
+			free( network_buffer );
+			// when execute next command?
+			if(  !command_queue.empty()  ) {
+				next_command_step = atol( command_queue.front()+5 );
 			}
 		}
+
+		// time for the next step?
+		uint32 time = dr_time();
+		if(  next_step_time<=time  ) {
+			if(  step_mode&PAUSE_FLAG  ) {
+				sync_step( 0, false, true );
+			}
+			else {
+				if(  step_mode==FAST_FORWARD  ) {
+					sync_step( MAGIC_STEP, true, false );
+				}
+				else if(  step_mode==FIX_RATIO  ) {
+					time_budget = next_step_time-time;
+					next_step_time += frame_time;
+					sync_step( frame_time, true, true );
+					if(  network_frame_count++==4  ) {
+						// ever fourth frame
+						step();
+						network_frame_count = 0;
+						last_randoms[steps&15] = get_random_seed();
+						if(  !umgebung_t::server  ) {
+							int n = sprintf( network_buffer, NET_TO_SERVER NET_CHECK " %li,%lu", steps, last_randoms[steps&15] );
+							network_send_server( network_buffer, n );
+						}
+					}
+				}
+				else {
+					INT_CHECK( "karte_t::interactive()" );
+				}
+			}
+		}
+
 
 		if (!swallowed) {
 			interactive_event(ev);
 		}
 
-	} while(ev.button_state != 0);
+	} while(!finish_loop  &&  get_current_month()<quit_month);
 
 	return finish_loop;
 }

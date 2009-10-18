@@ -71,6 +71,8 @@ char *tooltip_with_price(const char * tip, sint64 price);
 class wkz_abfrage_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *) { return translator::translate("Abfrage"); }
 	const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 
@@ -173,10 +175,14 @@ class wkz_plant_tree_t : public werkzeug_t {
  */
 class wkz_fahrplan_add_t : public werkzeug_t {
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k );
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_fahrplan_ins_t : public werkzeug_t {
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k );
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_wegebau_t : public two_click_werkzeug_t {
@@ -354,7 +360,7 @@ class wkz_lock_game_t : public werkzeug_t {
 		welt->get_einstellungen()->set_allow_player_change( false );
 		destroy_all_win();
 		welt->switch_active_player( 0 );
-		welt->set_werkzeug( general_tool[WKZ_ABFRAGE] );
+		welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
 		return NULL;
 	}
 };
@@ -431,6 +437,8 @@ class wkz_screenshot_t : public werkzeug_t {
 		create_win( new news_img("Screenshot\ngespeichert.\n"), w_time_delete, magic_none);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // builts next chain
@@ -491,6 +499,8 @@ class wkz_zoom_in_t : public werkzeug_t {
 		welt->set_dirty();
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_zoom_out_t : public werkzeug_t {
@@ -500,6 +510,8 @@ class wkz_zoom_out_t : public werkzeug_t {
 		welt->set_dirty();
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_coverage_t : public werkzeug_t {
@@ -510,6 +522,8 @@ class wkz_show_coverage_t : public werkzeug_t {
 		welt->set_dirty();
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_name_t : public werkzeug_t {
@@ -523,6 +537,8 @@ class wkz_show_name_t : public werkzeug_t {
 		welt->set_dirty();
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_grid_t : public werkzeug_t {
@@ -533,6 +549,8 @@ class wkz_show_grid_t : public werkzeug_t {
 		welt->set_dirty();
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_trees_t : public werkzeug_t {
@@ -543,6 +561,8 @@ class wkz_show_trees_t : public werkzeug_t {
 		welt->set_dirty();
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_houses_t : public werkzeug_t {
@@ -559,6 +579,8 @@ class wkz_show_houses_t : public werkzeug_t {
 		welt->set_dirty();
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_underground_t : public werkzeug_t {
@@ -568,6 +590,8 @@ class wkz_show_underground_t : public werkzeug_t {
 	void draw_after( karte_t *w, koord pos ) const;
 	bool init( karte_t *welt, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_rotate90_t : public werkzeug_t {
@@ -603,6 +627,8 @@ class wkz_fill_trees_t : public werkzeug_t {
 class wkz_daynight_level_t : public werkzeug_t {
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 
@@ -613,6 +639,8 @@ class wkz_vehicle_tooltips_t : public werkzeug_t {
 		umgebung_t::show_vehicle_states = (umgebung_t::show_vehicle_states+1)%3;
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /********************** dialoge tools *****************************/
@@ -625,6 +653,8 @@ class wkz_help_t : public werkzeug_t {
 		create_win(new help_frame_t("general.txt"), w_info, magic_mainhelp);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open info/quit dialoge
@@ -635,6 +665,8 @@ class wkz_optionen_t : public werkzeug_t {
 		create_win(240, 120, new optionen_gui_t(welt), w_info, magic_optionen_gui_t);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open minimap
@@ -645,6 +677,8 @@ class wkz_minimap_t : public werkzeug_t {
 		create_win( new map_frame_t(welt), w_info, magic_reliefmap);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open line management
@@ -658,6 +692,8 @@ class wkz_lines_t : public werkzeug_t {
 		}
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open messages
@@ -668,6 +704,8 @@ class wkz_messages_t : public werkzeug_t {
 		create_win( new message_frame_t(welt), w_info, magic_messageframe );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open messages
@@ -678,6 +716,8 @@ class wkz_finances_t : public werkzeug_t {
 		create_win( new money_frame_t(sp), w_info, (long)sp );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open player dialoge
@@ -688,6 +728,8 @@ class wkz_players_t : public werkzeug_t {
 		create_win( 272, 160, new ki_kontroll_t(welt), w_info, magic_ki_kontroll_t);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open player dialoge
@@ -698,6 +740,8 @@ class wkz_displayoptions_t : public werkzeug_t {
 		create_win(new color_gui_t(welt), w_info, magic_color_gui_t);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open sound dialoge
@@ -708,6 +752,8 @@ class wkz_sound_t : public werkzeug_t {
 		create_win(new sound_frame_t(), w_info, magic_sound_kontroll_t);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open language dialoge
@@ -718,6 +764,8 @@ class wkz_language_t : public werkzeug_t {
 		create_win(new sprachengui_t(), w_info, magic_sprachengui_t);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // open player color dialoge
@@ -728,6 +776,8 @@ class wkz_playercolor_t : public werkzeug_t {
 		create_win(new farbengui_t(sp), w_info, magic_farbengui_t);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // jump to position dialoge
@@ -738,6 +788,8 @@ class wkz_jump_t : public werkzeug_t {
 		create_win( new jump_frame_t(welt), w_info, magic_jump);
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // load game dialoge
@@ -769,6 +821,8 @@ class wkz_list_halt_t : public werkzeug_t {
 		create_win( new halt_list_frame_t(sp), w_info, magic_halt_list_t );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* open the list of vehicle */
@@ -779,6 +833,8 @@ class wkz_list_convoi_t : public werkzeug_t {
 		create_win( new convoi_frame_t(sp), w_info, magic_convoi_t );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* open the list of towns */
@@ -789,6 +845,8 @@ class wkz_list_town_t : public werkzeug_t {
 		create_win( new citylist_frame_t(welt), w_info, magic_citylist_frame_t );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* open the list of goods */
@@ -799,6 +857,8 @@ class wkz_list_goods_t : public werkzeug_t {
 		create_win( new goods_frame_t(welt), w_info, magic_goodslist );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* open the list of factories */
@@ -809,6 +869,8 @@ class wkz_list_factory_t : public werkzeug_t {
 		create_win( new factorylist_frame_t(welt), w_info, magic_factorylist );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* open the list of attraction */
@@ -819,6 +881,8 @@ class wkz_list_curiosity_t : public werkzeug_t {
 		create_win( new curiositylist_frame_t(welt), w_info, magic_curiositylist );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* factory building dialog */
@@ -829,6 +893,8 @@ class wkz_factorybuilder_t : public werkzeug_t {
 		create_win( new factory_edit_frame_t(sp,welt), w_info, magic_edit_factory );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* attraction building dialog */
@@ -839,6 +905,8 @@ class wkz_attractionbuilder_t : public werkzeug_t {
 		create_win( new curiosity_edit_frame_t(sp,welt), w_info, magic_edit_attraction );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* house building dialog */
@@ -849,6 +917,8 @@ class wkz_housebuilder_t : public werkzeug_t {
 		create_win( new citybuilding_edit_frame_t(sp,welt), w_info, magic_edit_house );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* house building dialog */
@@ -859,6 +929,8 @@ class wkz_treebuilder_t : public werkzeug_t {
 		create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // to increase map-size
@@ -879,6 +951,8 @@ class wkz_list_label_t : public werkzeug_t {
 		create_win( new labellist_frame_t(welt), w_info, magic_labellist );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 /* open the list of label */
