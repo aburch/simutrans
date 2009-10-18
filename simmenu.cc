@@ -862,9 +862,9 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 		init( welt, sp );
 	}
 
-	const char *error = "";
+	const char *error = NULL;
 	uint8 value = is_valid_pos( welt, sp, pos, error );
-	if( error || value == 0 ) {
+	if(  error  ||  value == 0  ) {
 		return error;
 	}
 
