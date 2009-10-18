@@ -208,6 +208,14 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 				}
+				if(experimental_version >= 7)
+				{
+					besch->tractive_effort = decode_uint16(p);
+				}
+				else
+				{
+					besch->tractive_effort = 0;
+				}
 			}
 			else
 			{
