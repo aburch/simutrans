@@ -2585,12 +2585,12 @@ void convoi_t::check_pending_updates()
 
 		// destroy old schedule and all related windows
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
-			fpl->copy_from( line->get_schedule() );
+			fpl->copy_from( new_fpl );
 			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 			fpl->eingabe_beginnen();
 		}
 		else {
-			fpl->copy_from( line->get_schedule() );
+			fpl->copy_from( new_fpl );
 			fpl->set_aktuell(aktuell); // set new schedule current position to one before best match
 		}
 
@@ -2603,7 +2603,7 @@ void convoi_t::check_pending_updates()
  		if(state!=INITIAL) {
 			if(is_same  ||  is_depot) {
 				/* same destination
-				 * We are already there = adnvance & remove wrong freight and keep current state
+				 * We are already there => remove wrong freight and keep current state
 				 */
 				for(uint8 i=0; i<anz_vehikel; i++) {
 					fahr[i]->remove_stale_freight();

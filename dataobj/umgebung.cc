@@ -5,111 +5,163 @@
 #include "../simcolor.h"
 #include "../utils/cstring_t.h"
 
-
-// Hajo: hier Standardwerte belegen.
-
+// since this is used at load time and not to be changed afterwards => extra init!
+bool umgebung_t::drive_on_left = false;
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 
-cstring_t umgebung_t::objfilename;	// will start empty ...
-
-bool umgebung_t::night_shift = false;
-
-bool umgebung_t::hide_with_transparency = true;
-bool umgebung_t::hide_trees = false;
-uint8 umgebung_t::hide_buildings = umgebung_t::NOT_HIDE;
-
-/* station stuff */
-bool umgebung_t::use_transparency_station_coverage = true;
-uint8 umgebung_t::station_coverage_show = NOT_SHOWN_COVERAGE;
-
-sint32  umgebung_t::show_names = 3;
-sint16 umgebung_t::scroll_multi = 1;
-
-sint32 umgebung_t::message_flags[4] =  { 0x017F, 0x0108, 0x0080, 0 };
-
-bool umgebung_t::no_tree = false;
-uint32 umgebung_t::water_animation = 250; // 250ms per wave stage
-uint32 umgebung_t::ground_object_probability = 10; // every n-th tile
-uint32 umgebung_t::moving_object_probability = 1000; // every n-th tile
-
-bool umgebung_t::verkehrsteilnehmer_info = false;
-bool umgebung_t::tree_info = true;
-bool umgebung_t::ground_info = false;
-bool umgebung_t::townhall_info = false;
-bool umgebung_t::single_info = true;
-
-bool umgebung_t::window_buttons_right = false;
-bool umgebung_t::window_frame_active = false;
-
-// debug level (0: only fatal, 1: error, 2: warning, 3: alles
-uint8 umgebung_t::verbose_debug = 0;
-
-uint8 umgebung_t::default_sortmode = 1;	// sort by amount
-sint8 umgebung_t::default_mapmode = 0;	// show cities
-
-/**
- * show month in date?
- * @author hsiegeln
- */
-uint8 umgebung_t::show_month = 3;
-
-/**
- * Max. Länge für initiale Stadtverbindungen
- * @author Hj. Malthaner
- */
-sint32 umgebung_t::intercity_road_length = 200;
-
-/**
- * Typ (Name) initiale Stadtverbindungen
- * @author Hj. Malthaner
- */
-const char *umgebung_t::intercity_road_type = NULL;
-
-const char *umgebung_t::river_type[10] = {
-	0, 0, 0, 0, 0,
-	0, 0, 0, 0, 0,
-};
-uint8 umgebung_t::river_types = 0;
-
-
-/* prissi: autosave every x months (0=off) */
-sint32 umgebung_t::autosave = 0;
-
-/* prissi: drive on the left side of the road */
-bool umgebung_t::drive_on_left=false;
-
-// default: make 25 frames per second (if possible)
-uint32 umgebung_t::fps=25;
-
-// maximum speedup set to 1000 (effectively no limit)
-sint16 umgebung_t::max_acceleration=50;
-
-bool umgebung_t::quit_simutrans = false;
-
-bool umgebung_t::show_tooltips = true;
-uint8 umgebung_t::tooltip_color = 4;
-uint8 umgebung_t::tooltip_textcolor = COL_BLACK;
-
-uint8 umgebung_t::cursor_overlay_color = COL_ORANGE;
-
-uint8 umgebung_t::show_vehicle_states = 1;
-
-sint8 umgebung_t::daynight_level = 0;
-
+// this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
-
-// midi/sound option
+sint16 umgebung_t::scroll_multi = 1;
 sint16 umgebung_t::global_volume = 127;
 sint16 umgebung_t::midi_volume = 127;
 bool umgebung_t::mute_sound = false;
 bool umgebung_t::mute_midi = false;
 bool umgebung_t::shuffle_midi = true;
 
-bool umgebung_t::left_to_right_graphs = false;
+// only used internally => do not touch further
+bool umgebung_t::quit_simutrans = false;
 
 // default settings for new games
 einstellungen_t umgebung_t::default_einstellungen;
+
+
+// the following initialisation is not important; set values in init()!
+cstring_t umgebung_t::objfilename;
+bool umgebung_t::night_shift;
+bool umgebung_t::hide_with_transparency;
+bool umgebung_t::hide_trees;
+uint8 umgebung_t::hide_buildings;
+bool umgebung_t::use_transparency_station_coverage;
+uint8 umgebung_t::station_coverage_show;
+sint32  umgebung_t::show_names;
+sint32 umgebung_t::message_flags[4];
+bool umgebung_t::no_tree;
+uint32 umgebung_t::water_animation;
+uint32 umgebung_t::ground_object_probability;
+uint32 umgebung_t::moving_object_probability;
+bool umgebung_t::verkehrsteilnehmer_info;
+bool umgebung_t::tree_info;
+bool umgebung_t::ground_info;
+bool umgebung_t::townhall_info;
+bool umgebung_t::single_info;
+bool umgebung_t::window_buttons_right;
+bool umgebung_t::window_frame_active;
+uint8 umgebung_t::verbose_debug;
+uint8 umgebung_t::default_sortmode;
+sint8 umgebung_t::default_mapmode;
+uint8 umgebung_t::show_month;
+sint32 umgebung_t::intercity_road_length;
+const char *umgebung_t::intercity_road_type;
+const char *umgebung_t::river_type[10] = {
+	0, 0, 0, 0, 0,
+	0, 0, 0, 0, 0,
+};
+uint8 umgebung_t::river_types;
+sint32 umgebung_t::autosave;
+uint32 umgebung_t::fps;
+sint16 umgebung_t::max_acceleration;
+bool umgebung_t::show_tooltips;
+uint8 umgebung_t::tooltip_color;
+uint8 umgebung_t::tooltip_textcolor;
+uint8 umgebung_t::cursor_overlay_color;
+uint8 umgebung_t::show_vehicle_states;
+sint8 umgebung_t::daynight_level;
+bool umgebung_t::left_to_right_graphs;
+
+
+
+// Hajo: hier Standardwerte belegen.
+void umgebung_t::init()
+{
+	// settings for messages
+	message_flags[0] = 0x017F;
+	message_flags[1] = 0x0108;
+	message_flags[2] = 0x0080;
+	message_flags[3] = 0;
+
+	night_shift = false;
+
+	hide_with_transparency = true;
+	hide_trees = false;
+	hide_buildings = umgebung_t::NOT_HIDE;
+
+	/* station stuff */
+	use_transparency_station_coverage = true;
+	station_coverage_show = NOT_SHOWN_COVERAGE;
+
+	show_names = 3;
+
+	no_tree = false;
+	water_animation = 250; // 250ms per wave stage
+	ground_object_probability = 10; // every n-th tile
+	moving_object_probability = 1000; // every n-th tile
+
+	verkehrsteilnehmer_info = false;
+	tree_info = true;
+	ground_info = false;
+	townhall_info = false;
+	single_info = true;
+
+	window_buttons_right = false;
+	window_frame_active = false;
+
+	// debug level (0: only fatal, 1: error, 2: warning, 3: alles
+	verbose_debug = 0;
+
+	default_sortmode = 1;	// sort by amount
+	default_mapmode = 0;	// show cities
+
+	/**
+	 * show month in date?
+	 * @author hsiegeln
+	 */
+	show_month = 3;
+
+	/**
+	 * Max. Länge für initiale Stadtverbindungen
+	 * @author Hj. Malthaner
+	 */
+	intercity_road_length = 200;
+
+	/**
+	 * Typ (Name) initiale Stadtverbindungen
+	 * @author Hj. Malthaner
+	 */
+	intercity_road_type = NULL;
+
+	river_types = 0;
+
+
+	/* prissi: autosave every x months (0=off) */
+	autosave = 0;
+
+	// default: make 25 frames per second (if possible)
+	fps=25;
+
+	// maximum speedup set to 1000 (effectively no limit)
+	max_acceleration=50;
+
+	show_tooltips = true;
+	tooltip_color = 4;
+	tooltip_textcolor = COL_BLACK;
+
+	cursor_overlay_color = COL_ORANGE;
+
+	show_vehicle_states = 1;
+
+	daynight_level = 0;
+
+	// midi/sound option
+	global_volume = 127;
+	midi_volume = 127;
+	mute_sound = false;
+	mute_midi = false;
+	shuffle_midi = true;
+
+	left_to_right_graphs = false;
+}
+
 
 
 

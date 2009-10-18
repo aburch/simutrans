@@ -225,6 +225,9 @@ public:
 
 	static einstellungen_t default_einstellungen;
 
+	// init with default values
+	static void init();
+
 	// load/saving settings from file
 	static void rdwr(loadsave_t *file);
 };
