@@ -1,0 +1,42 @@
+<title>bauen im Untergrund</title>
+
+<p>
+Es gibt 2 mögliche Untergrundansichten.<br/>
+<em>vollständige Untergrundansicht</em><br/>
+Mit <em>U</em> schaltest Du in die vollständige Untergrundansicht. In dieser Ansicht werden alle Oberflächenobjekte ausgeblendet.<br/>
+<em>Untergrundansicht als Ebene</em><br/>
+Mit <em>Strg + U</em> schaltest Du in die Untergrundansicht mit Ebenen. In dieser Ansicht werden alle Objekte ausgeblendet, die sich über der ausgewählten Ebene befinden. Das sind alle Oberflächenobjekte und auch alle Objekte im Untergrund, die sich oberhalb der ausgewählten Ebene befinden.<br/><br/>
+Der Ebenenwechsel erfolgt mit <em>+</em> (höher) und <em>-</em> (tiefer) oder über die <a href="display.txt">Anzeigeeinstellungen</a>.
+</p>
+
+<p>
+<strong>Mauszeiger (Cursor)</strong><br/>
+<em>volle Untergrundansicht</em><br/>
+Bei der vollen Untergrundansicht wird das Raster der Oberfläche angezeigt. Bei unbebauten Feldern possitioniert sich der Mauszeiger an diesem Raster. Bei bebauten Feldern possitionirt sich der Mauszeiger auf die bebauten Felder.<br/>
+Da das Possitionieren des Mauszeigers über das Oberflächenraster recht schwierig ist, sollte beim bauen im Untergrund die Ebenenansicht verwendet werden.<br/><br/>
+<em>Untergrundansicht als Ebene</em><br/>
+Bei der Ebenenansicht wird ein Raster auf der aktiven Ebene eingeblendet. Der Mauszeiger possitioniert sich an diesem Raster. Da sich der Mauszeiger immer in der aktiven Ebene befindet, ist das Bauen sehr viel leichter.
+</p>
+
+<p>
+<strong>Streckenbau</strong><br/>
+<h1><em>allgemein</em></h1><br/>
+Im allgemeinen werden Strecken im Untergrund mit den Bauwerkzeugen für Tunnel gebaut. Um im Untergrund bauen zu können, muss ein Tunnel oder ein Tunneleingang (<em>Taste Strg + Klick mit Tunnelwerkzeug auf Hangfeld</em>) gebaut werden.<br/><br/>
+
+<em>Ebenenwechsel</em><br/>
+Um die Ebene im Untergrund zu wechseln, sind die Werkzeuge <em>Niveau absenken/anheben</em> aus dem Menü <a href="slopes.txt">Geländewerkzeuge</a> zu verwenden. Um die Ebene zu wechseln, einfach mit dem entsprechenden Werkzeug auf das Streckenende klicken.<br/><br/>
+
+<h1><em>Sonderfall Straßenbahn</em></h1><br/>
+Straßenbahnschienen werden auch im Untergrund mit den normalen Schienenwerkzeugen auf die Straße gebaut.
+</p>
+
+<p>
+<strong>Stationen und Nebengebäude</strong><br/>
+Nur eigene <em>Stationen</em> können übereinander gebaut werden.<br/><br/>
+<em>Nebengebäude</em> können nicht im Untergrund gebaut werden.
+</p>
+
+<p>
+<strong>Signale</strong><br/>
+Können verwendet werden wie an der Oberfläche.
+</p>
