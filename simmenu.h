@@ -225,7 +225,7 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
-	bool is_first_click() { return first_click; };
+	bool is_first_click(spieler_t *sp) { return first_click[sp?sp->get_player_nr():PLAYER_UNOWNED]; }
 	void cleanup( spieler_t *, bool delete_start_marker );
 
 private:
