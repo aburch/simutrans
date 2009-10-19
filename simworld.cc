@@ -4131,7 +4131,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		}
 	}
 	else {
-		// jsut restore the corners as ground level
+		// just restore the corners as ground level
 		DBG_MESSAGE("karte_t::laden()","calculating grid corners");
 		for( sint32 i=1;  i<get_groesse_x()+1;  i++  ) {
 			grid_hgts[i] = grundwasser;

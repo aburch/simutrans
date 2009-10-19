@@ -248,6 +248,7 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 	}
 	else {
 		grund_t *gr;
+		sint8 hgt = welt->get_grundwasser();
 		//DBG_DEBUG("planquadrat_t::rdwr()","Reading boden");
 		do {
 			short gtyp = file->rd_obj_id();
@@ -287,9 +288,12 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 					data.one = gr;
 					ground_size = 1;
 					gr->set_kartenboden(true);
+					hgt = welt->lookup_hgt(pos);
 				}
 				else {
+					// other ground may not reset the height
 					boden_hinzufuegen(gr);
+					welt->set_grid_hgt( pos+koord(1,1), hgt );
 				}
 			}
 		} while(gr != 0);
