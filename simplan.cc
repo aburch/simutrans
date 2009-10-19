@@ -169,8 +169,7 @@ bool planquadrat_t::boden_entfernen(grund_t *bd)
 
 
 
-void
-planquadrat_t::kartenboden_setzen(grund_t *bd)
+void planquadrat_t::kartenboden_setzen(grund_t *bd)
 {
 	assert(bd);
 	grund_t *tmp = get_kartenboden();
@@ -291,9 +290,9 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 					hgt = welt->lookup_hgt(pos);
 				}
 				else {
-					// other ground may not reset the height
+					// other ground must not reset the height
 					boden_hinzufuegen(gr);
-					welt->set_grid_hgt( pos+koord(1,1), hgt );
+					welt->set_grid_hgt( pos, hgt );
 				}
 			}
 		} while(gr != 0);

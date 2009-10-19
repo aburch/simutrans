@@ -3500,7 +3500,7 @@ uint8 karte_t::recalc_natural_slope( const koord pos, sint8 &new_height ) const
  */
 uint8 karte_t::calc_natural_slope( const koord pos ) const
 {
-	if(ist_in_kartengrenzen(pos.x, pos.y)) {
+	if(ist_in_gittergrenzen(pos.x, pos.y)) {
 
 		const sint8 * p = &grid_hgts[pos.x + pos.y*(get_groesse_x()+1)];
 

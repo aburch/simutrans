@@ -159,20 +159,15 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 
 void grund_t::rdwr(loadsave_t *file)
 {
+	// water saves its correct height => no need to save grid heights anymore
+	sint8 z = ist_wasser() ? welt->lookup_hgt(pos.get_2d()) : pos.z;
+
 	xml_tag_t g( file, "grund_t" );
 	if(file->get_version()<101000) {
 		pos.rdwr(file);
 	}
 	else {
-		// water saves its correct height => no need to save grid heights anymore
-		sint8 z = (file->is_saving()  &&  ist_wasser()) ? welt->lookup_hgt(pos.get_2d()) : pos.z;
 		file->rdwr_byte( z, "" );
-		if(  file->is_loading()  ) {
-			if(  get_typ()==grund_t::wasser  &&  z>welt->get_grundwasser()  ) {
-				z = welt->get_grundwasser();
-			}
-			welt->set_grid_hgt( pos.get_2d()+koord(1,1), z );
-		}
 		pos.z = get_typ()==grund_t::wasser ? welt->get_grundwasser() : z;
 	}
 
@@ -210,6 +205,17 @@ void grund_t::rdwr(loadsave_t *file)
 	else {
 		// safe init for old version
 		slope = 0;
+	}
+
+	// restore grid
+	if(  file->is_loading()  ) {
+		if(  get_typ()==grund_t::wasser  &&  z>welt->get_grundwasser()  ) {
+			z = welt->get_grundwasser();
+		}
+		else {
+			z += corner4(slope);
+		}
+		welt->set_grid_hgt( pos.get_2d(), z );
 	}
 
 	// loading ways from here on
