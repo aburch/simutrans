@@ -102,17 +102,17 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
 					const ding_t* thing = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
-					if (thing == NULL || thing->get_besitzer() == NULL || thing->get_besitzer() == this) {
-						if(gr->is_halt()  &&  check_owner( this, gr->get_halt()->get_besitzer())  &&  gr->hat_weg(road_wt)) {
+					if(  thing == NULL  ||  thing->get_besitzer()==NULL  ||  thing->get_besitzer()==this  ) {
+						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
-						} else if(test_dist<dist  &&  gr->hat_weg(road_wt)  &&  !gr->is_halt()  ) {
+						} else if(  test_dist<dist  &&  gr->hat_weg(road_wt)  &&  !gr->is_halt()  ) {
 							ribi_t::ribi  ribi = gr->get_weg_ribi_unmasked(road_wt);
 							if(  ribi_t::ist_gerade(ribi)  ||  ribi_t::ist_einfach(ribi)  ) {
 								best_pos = trypos;
 								dist = test_dist;
 							}
-						} else if(test_dist+2<dist  &&  gr->ist_natur()  ) {
+						} else if(  test_dist+2<dist  &&  gr->ist_natur()  ) {
 							// also ok for a stop, but second choice
 							// so wie gave it a malus of 2
 							best_pos = trypos;

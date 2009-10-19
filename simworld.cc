@@ -1566,11 +1566,19 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 {
 	const planquadrat_t *plan = lookup(koord(x,y));
 
-	if(plan == 0 || !is_plan_height_changeable(x, y)) {
+	if(  plan==NULL  ) {
 		return false;
 	}
 
-	int hmax = plan->get_kartenboden()->get_hoehe();
+	const sint8 hmax = plan->get_kartenboden()->get_hoehe();
+	if(  hmax==h  ) {
+		return true;
+	}
+
+	if(  !is_plan_height_changeable(x, y)  ) {
+		return false;
+	}
+
 	// tunnel slope below?
 	grund_t *gr = plan->get_boden_in_hoehe(h-Z_TILE_STEP);
 	if (gr && gr->get_grund_hang()!=hang_t::flach) {
@@ -1785,8 +1793,12 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 			n += raise_to(x-1,y, hw, hsw, hnw, hw);
 		}
 		lookup_kartenboden(koord(x,y))->calc_bild();
-		if ((x+1)<cached_groesse_karte_x) lookup_kartenboden(koord(x+1,y))->calc_bild();
-		if ((y+1)<cached_groesse_karte_y) lookup_kartenboden(koord(x,y+1))->calc_bild();
+		if ((x+1)<cached_groesse_karte_x) {
+			lookup_kartenboden(koord(x+1,y))->calc_bild();
+		}
+		if ((y+1)<cached_groesse_karte_y) {
+			lookup_kartenboden(koord(x,y+1))->calc_bild();
+		}
 	}
 	return n;
 }
@@ -2095,14 +2107,15 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 {
 	int n = 0;
 	bool ok = false;
-	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
-		if (can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt)) {
+	const sint8 old_hgt = lookup_kartenboden(pos)->get_hoehe();
+	if(  old_hgt>=hgt  ) {
+		if(  can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt)  ) {
 			n = lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 			ok = true;
 		}
 	}
 	else {
-		if (can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt)) {
+		if(  can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt)  ) {
 			n = raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 			ok = true;
 		}
@@ -2976,6 +2989,7 @@ void karte_t::step()
 		// needs plausibility check?!?
 		if(delta_t>10000  || delta_t<0) {
 			last_step_ticks = ticks;
+			next_step_time = time+10;
 			return;
 		}
 
@@ -2997,6 +3011,7 @@ void karte_t::step()
 			}
 		}
 		last_step_nr[steps%32] = ticks;
+		next_step_time = time+idle_time;
 	}
 	else if(  step_mode==FAST_FORWARD  ) {
 		// fast forward first: get average simloops (i.e. calculate acceleration)
@@ -3025,6 +3040,7 @@ void karte_t::step()
 			idle_time = get_frame_time()-10;
 		}
 		time_budget = 0;
+		next_step_time = time+idle_time;
 	}
 	else {
 		// network mode
@@ -4551,6 +4567,7 @@ karte_t::reset_timer()
 	}
 	else {
 		set_frame_time( 1000/umgebung_t::fps );
+		next_step_time = dr_time()+10;
 		intr_enable();
 	}
 }

@@ -473,8 +473,6 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 		return false;
 	}
 
-	INT_CHECK( "simplay 1742" );
-
 	// is there already a connection?
 	// get a default vehikel
 	vehikel_besch_t test_besch(road_wt, 25, vehikel_besch_t::diesel );
