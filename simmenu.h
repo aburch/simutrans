@@ -217,7 +217,9 @@ public:
  */
 class two_click_werkzeug_t : public werkzeug_t {
 public:
-	two_click_werkzeug_t() : werkzeug_t() { memset( start_marker, 0, sizeof(void *)*MAX_PLAYER_COUNT ); }
+	two_click_werkzeug_t() : werkzeug_t() {
+		memset( start_marker, 0, sizeof(void *)*MAX_PLAYER_COUNT );
+	}
 
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool exit( karte_t *welt, spieler_t *sp ) { return init( welt, sp ); }
@@ -225,7 +227,7 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
-	bool is_first_click(spieler_t *sp) { return first_click[sp?sp->get_player_nr():PLAYER_UNOWNED]; }
+	bool is_first_click(spieler_t *sp);
 	void cleanup( spieler_t *, bool delete_start_marker );
 
 private:
@@ -253,7 +255,7 @@ private:
 
 	virtual image_id get_marker_image();
 
-	bool first_click[MAX_PLAYER_COUNT];
+	bool first_click_var[MAX_PLAYER_COUNT];
 	koord3d start[MAX_PLAYER_COUNT];
 	void start_at( karte_t *, spieler_t *, koord3d &new_start );
 

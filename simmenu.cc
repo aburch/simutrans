@@ -805,16 +805,22 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 
 bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 {
-	first_click[sp->get_player_nr()] = true;
+	first_click_var[sp->get_player_nr()] = true;
 	welt->show_distance = start[sp->get_player_nr()] = koord3d::invalid;
 	cleanup( sp, true );
 	return true;
 }
 
 
+bool two_click_werkzeug_t::is_first_click( spieler_t *sp )
+{
+	return first_click_var[sp->get_player_nr()];
+}
+
+
 const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	if(  !first_click[sp->get_player_nr()]  &&  start_marker[sp->get_player_nr()]  ) {
+	if(  !is_first_click(sp)  &&  start_marker[sp->get_player_nr()]  ) {
 		start[sp->get_player_nr()]= start_marker[sp->get_player_nr()]->get_pos(); // if map was rotated.
 	}
 
@@ -828,7 +834,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		return error;
 	}
 
-	if(  first_click[sp->get_player_nr()]  ) {
+	if(  is_first_click(sp)  ) {
 		if( value & 1 ) {
 			// Work here directly.
 			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
@@ -899,7 +905,7 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_start )
 {
 	const uint8 sp_nr = sp->get_player_nr();
-	first_click[sp_nr] = false;
+	first_click_var[sp_nr] = false;
 	welt->show_distance = start[sp_nr] = new_start;
 	start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
 	start_marker[sp_nr]->set_bild( get_marker_image() );

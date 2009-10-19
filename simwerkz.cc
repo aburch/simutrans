@@ -1604,7 +1604,7 @@ const char *wkz_tunnelbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3
 
 uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error )
 {
-	if(  !is_first_click()  ) {
+	if(  !is_first_click(sp)  ) {
 		error = NULL;
 		// All pos are valid for the second click!
 		return 2;
