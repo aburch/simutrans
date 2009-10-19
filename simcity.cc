@@ -82,7 +82,7 @@ static uint32 renovation_percentage = 12;
  * the higher this value, the slower the city expansion if there are still "holes"
  * @author prissi
  */
-static uint32 min_building_desity = 25;
+static uint32 min_building_density = 25;
 
 /**
  * add a new consumer every % people increase
@@ -298,7 +298,9 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
-	min_building_desity = (uint32)contents.get_int("minimum_building_desity", 25);
+	// to keep compatible with the typo, here both are ok
+	min_building_density = (uint32)contents.get_int("minimum_building_desity", 25);
+	min_building_density = (uint32)contents.get_int("minimum_building_density", min_building_density);
 	set_industry_increase( contents.get_int("industry_increase_every", 0) );
 
 	// init the building value tables
@@ -581,7 +583,7 @@ void stadt_t::pruefe_grenzen(koord k)
 {
 	if(  has_low_density  ) {
 		// has extra wide borders => change density calculation
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-4)*abs(ur.y-lo.y-4)+1) > min_building_desity);
+		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-4)*abs(ur.y-lo.y-4)+1) > min_building_density);
 		if(!has_low_density)  {
 			// full recalc needed due to map borders ...
 			recalc_city_size();
@@ -589,7 +591,7 @@ void stadt_t::pruefe_grenzen(koord k)
 		}
 	}
 	else {
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_desity);
+		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
 		if(has_low_density)  {
 			// wide borders again ..
 			lo -= koord(2,2);
@@ -669,7 +671,7 @@ void stadt_t::recalc_city_size()
 		}
 	}
 
-	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_desity);
+	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
 	if(  has_low_density  ) {
 		// wider borders for faster growth of sparse small towns
 		lo.x -= 2;

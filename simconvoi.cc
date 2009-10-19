@@ -2222,7 +2222,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 
 	int station_lenght=0;
 	if(gr->ist_wasser()) {
-		// habour has any size
+		// harbour has any size
 		station_lenght = 24*16;
 	}
 	else {

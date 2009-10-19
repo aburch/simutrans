@@ -130,7 +130,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		besch.level = obj.get_int("passengers",  besch.level);
 		besch.extra_data = obj.get_int("hq_level", 0);
 		besch.utype = haus_besch_t::firmensitz;
-	} else if (!STRICMP(type_name, "habour")) {
+	} else if (!STRICMP(type_name, "habour")  ||  !STRICMP(type_name, "harbour")) {
 		besch.utype = haus_besch_t::hafen;
 		besch.extra_data = water_wt;
 	} else if (!STRICMP(type_name, "fac")) {

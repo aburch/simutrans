@@ -1,6 +1,7 @@
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly
+	FIX: min_building_density and harbour are now recognized in dat/tab files
 
 
 
