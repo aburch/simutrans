@@ -26,7 +26,7 @@ message_stats_t::message_stats_t(karte_t *w)
 	msg = welt->get_message();
 	last_count = 0;
 	message_selected = -1;
-	set_groesse(koord(600,msg->get_count()*14 + 30));
+	set_groesse(koord(600,min(msg->get_count(),2000)*14 + 30));
 }
 
 
@@ -75,7 +75,7 @@ void message_stats_t::infowin_event(const event_t * ev)
 		}
 	}
 
-	unsigned count = msg->get_count();
+	unsigned count = min(2000,msg->get_count());
 	if(last_count!=count) {
 		last_count = count;
 		set_groesse(koord(600,last_count*14 + 30));
