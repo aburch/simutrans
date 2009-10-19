@@ -2584,7 +2584,6 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 
 	if(  step_mode&PAUSE_FLAG  ) {
 		// not changing pauses
-		next_step_time = last_ms+50;
 	}
 	else if(  step_mode==FIX_RATIO) {
 		simloops = realFPS;
@@ -2595,33 +2594,14 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		if(last_step_nr[last_step]>last_step_nr[steps%32]) {
 			simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
 		}
-		// way too slow => try to increase time ...
-		if(  last_ms-last_interaction > 100  ) {
-			increase_frame_time();
-			increase_frame_time();
-			increase_frame_time();
+		// change frame spacing ... (pause will be changed by step() directly)
+		if(  realFPS>(umgebung_t::fps*17)/16  ) {
 			increase_frame_time();
 		}
-		else {
-			// change frame spacing ... (pause will be changed by step() directly)
-			if(realFPS>(umgebung_t::fps*17/16)) {
-				increase_frame_time();
-			}
-			else if(realFPS<umgebung_t::fps) {
-				if(  1000u/get_frame_time() < 2*realFPS  ) {
-					if(  realFPS < (umgebung_t::fps/2)  ) {
-						set_frame_time( get_frame_time()-1 );
-						next_step_time = last_ms;
-					}
-					else {
-						reduce_frame_time();
-					}
-				}
-				else {
-					// do not set time too short!
-					set_frame_time( 500/max(1,realFPS) );
-					next_step_time = last_ms;
-				}
+		else if(realFPS<umgebung_t::fps) {
+			reduce_frame_time();
+			if(  realFPS<(umgebung_t::fps/2)  ) {
+				reduce_frame_time();
 			}
 		}
 	}
@@ -3011,7 +2991,7 @@ void karte_t::step()
 			}
 		}
 		last_step_nr[steps%32] = ticks;
-		next_step_time = time+idle_time;
+		next_step_time = time+(3200/get_time_multiplier());
 	}
 	else if(  step_mode==FAST_FORWARD  ) {
 		// fast forward first: get average simloops (i.e. calculate acceleration)
@@ -4557,7 +4537,6 @@ karte_t::reset_timer()
 	}
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
-		last_step_time = last_tick_sync;
 		next_step_time = last_tick_sync+(1000/einstellungen->get_frames_per_second() );
 		set_frame_time( 1000/einstellungen->get_frames_per_second() );
 		intr_disable();
@@ -4567,7 +4546,7 @@ karte_t::reset_timer()
 	}
 	else {
 		set_frame_time( 1000/umgebung_t::fps );
-		next_step_time = dr_time()+10;
+		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
 	}
 }
@@ -5292,12 +5271,8 @@ bool karte_t::interactive(uint32 quit_month)
 					dr_sleep( wait_time );
 				}
 				else {
-					dr_sleep( 5 );
+					dr_sleep( 9 );
 				}
-			}
-			else {
-				// just do the steps ...
-				step();
 			}
 		}
 
@@ -5390,7 +5365,8 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 			else {
 				if(  step_mode==FAST_FORWARD  ) {
-					sync_step( MAGIC_STEP, true, false );
+					sync_step( 100, true, false );
+					step();
 				}
 				else if(  step_mode==FIX_RATIO  ) {
 					time_budget = next_step_time-time;
@@ -5408,6 +5384,7 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 				}
 				else {
+					step();
 					INT_CHECK( "karte_t::interactive()" );
 				}
 			}
