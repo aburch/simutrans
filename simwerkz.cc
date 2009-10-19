@@ -1627,8 +1627,13 @@ uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d
 		}
 	}
 	else {
-		error = "No suitable ground!";
-		return 0;
+		if(  (gr==NULL  ||  gr->ist_karten_boden())  &&  grund_t::underground_mode != grund_t::ugm_none  ) {
+			return 2;
+		}
+		else {
+			error = "No suitable ground!";
+			return 0;
+		}
 	}
 	// if starting tile is tunnel .. build underground tracks
 	if(gr->ist_tunnel()) {
