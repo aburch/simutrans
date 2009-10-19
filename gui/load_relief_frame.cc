@@ -26,10 +26,11 @@ void load_relief_frame_t::action(const char *filename)
 }
 
 
-void load_relief_frame_t::del_action(const char *filename)
+bool load_relief_frame_t::del_action(const char *filename)
 {
 	cstring_t p("maps/");
 	remove(p+filename);
+	return false;
 }
 
 

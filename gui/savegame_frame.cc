@@ -311,9 +311,10 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 			strcat(buf, suffix);
 		}
 
+		action(buf);
+
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
 
-		action(buf);
 	}
 	else if(komp == &cancelbutton) {
 		// Cancel-button pressed
@@ -324,8 +325,8 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 	else {
 		// File in list selected
 		//--------------------------
-		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end  &&  !in_action; ++i) {
-			if (komp == i->button || komp == i->del) {
+		for(  slist_tpl<entry>::iterator i = entries.begin(), end = entries.end();  i != end  &&  !in_action;  ++i  ) {
+			if(  komp == i->button  ||  komp == i->del  ) {
 				in_action = true;
 				const bool action_btn = komp == i->button;
 				buf[0] = 0;
@@ -339,11 +340,25 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 
 				if(action_btn) {
 					action(buf);
+					destroy_win(this);
 				}
 				else {
-					del_action(buf);
+					if(  del_action(buf)  ) {
+						destroy_win(this);
+					}
+					else {
+						// remove only file from list
+						button_frame.remove_komponente( i->button );
+						delete i->button;
+						button_frame.remove_komponente( i->del );
+						delete i->del;
+						button_frame.remove_komponente( i->label );
+						delete i->label;
+						entries.erase( i );
+						resize( koord(0,0) );
+						in_action = false;
+					}
 				}
-				destroy_win(this);
 				break;
 			}
 		}
@@ -366,17 +381,24 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 		groesse.y = display_get_height()-64;
 		// position adjustment will be done automatically ... nice!
 	}
-	scrolly.set_groesse( koord(groesse.x,groesse.y-30-40-8) );
 	gui_frame_t::set_fenstergroesse(groesse);
 	input.set_groesse(koord(groesse.x-75-10-10, 14));
+
+	sint16 y = 0;
 	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 		// resize all but delete button
-		// button_t*    button1 = i->del;
+		button_t*    button1 = i->del;
+		button1->set_pos( koord( button1->get_pos().x, y ) );
 		button_t*    button2 = i->button;
 		gui_label_t* label   = i->label;
+		button2->set_pos( koord( button2->get_pos().x, y ) );
 		button2->set_groesse(koord( groesse.x/2-40, 14));
-		label->set_pos(koord(groesse.x/2-40+30, label->get_pos().y));
+		label->set_pos(koord(groesse.x/2-40+30, y));
+		y += 14;
 	}
+
+	button_frame.set_groesse( koord( groesse.x, y ) );
+	scrolly.set_groesse( koord(groesse.x,groesse.y-30-40-8) );
 
 	divider1.set_pos(koord(10,groesse.y-44));
 	divider1.set_groesse(koord(groesse.x-20,0));
