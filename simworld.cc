@@ -2584,6 +2584,8 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 
 	if(  step_mode&PAUSE_FLAG  ) {
 		// not changing pauses
+		next_step_time = dr_time()+100;
+		idle_time = 100;
 	}
 	else if(  step_mode==FIX_RATIO) {
 		simloops = realFPS;
@@ -2601,7 +2603,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		else if(realFPS<umgebung_t::fps) {
 			reduce_frame_time();
 			if(  realFPS<(umgebung_t::fps/2)  ) {
-				reduce_frame_time();
+				set_frame_time( get_frame_time()-1 );
 			}
 		}
 	}
@@ -2972,24 +2974,7 @@ void karte_t::step()
 			next_step_time = time+10;
 			return;
 		}
-
-		if(delta_t<170) {
-			// to short pause
-			if(idle_time+1<(uint32)get_frame_time()) {
-				idle_time ++;
-			}
-			else {
-				idle_time = get_frame_time();
-			}
-			return;
-		}
-		else if(delta_t>250  &&  idle_time>0) {
-			// too long pause
-			idle_time --;
-			if(  delta_t>500  &&  umgebung_t::fps<2*realFPS  ) {
-				idle_time = 0;
-			}
-		}
+		idle_time = 0;
 		last_step_nr[steps%32] = ticks;
 		next_step_time = time+(3200/get_time_multiplier());
 	}
@@ -5271,7 +5256,9 @@ bool karte_t::interactive(uint32 quit_month)
 					dr_sleep( wait_time );
 				}
 				else {
+					INT_CHECK( "karte_t::interactive()" );
 					dr_sleep( 9 );
+					INT_CHECK( "karte_t::interactive()" );
 				}
 			}
 		}
@@ -5362,6 +5349,7 @@ bool karte_t::interactive(uint32 quit_month)
 		if(  next_step_time<=time  ) {
 			if(  step_mode&PAUSE_FLAG  ) {
 				sync_step( 0, false, true );
+				idle_time = 100;
 			}
 			else {
 				if(  step_mode==FAST_FORWARD  ) {
@@ -5384,7 +5372,9 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 				}
 				else {
+					INT_CHECK( "karte_t::interactive()" );
 					step();
+					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;
 					INT_CHECK( "karte_t::interactive()" );
 				}
 			}
