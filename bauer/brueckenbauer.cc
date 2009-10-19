@@ -612,8 +612,10 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// search neighbors
 		for(int r = 0; r < 4; r++) {
 			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
-				tmp_list.insert(to->get_pos());
-				marker.markiere(to);
+				if(  wegtyp != powerline_wt  ||  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt  ) {
+					tmp_list.insert(to->get_pos());
+					marker.markiere(to);
+				}
 			}
 		}
 	} while (!tmp_list.empty());
@@ -657,7 +659,6 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		grund_t *gr = welt->lookup(pos);
 		if(wegtyp==powerline_wt) {
-			gr->get_leitung()->calc_bild();
 			ding_t *br;
 			while ((br = gr->find<bruecke_t>()) != 0) {
 				br->entferne(sp);
@@ -699,7 +700,11 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// then add the new ground, copy everything and replace the old one
 		grund_t *gr_new = new boden_t(welt, pos, gr->get_grund_hang());
 		gr_new->take_obj_from( gr );
-		welt->access(pos.get_2d())->kartenboden_setzen(gr_new );
+		welt->access(pos.get_2d())->kartenboden_setzen( gr_new );
+
+		if(  wegtyp == powerline_wt  ) {
+			gr_new->get_leitung()->calc_neighbourhood(); // Recalc the image. calc_bild() doesn't do the right job...
+		}
 	}
 
 	welt->set_dirty();

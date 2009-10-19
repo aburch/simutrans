@@ -407,7 +407,7 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 			msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
 			return msg == NULL;
 		}
-		else {
+		else if(  !gr->ist_bruecke()  ) {
 			lt->entferne(sp);
 			delete lt;
 			return true;
