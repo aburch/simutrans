@@ -619,11 +619,13 @@ int simu_main(int argc, char** argv)
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
-		if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
-			umgebung_t::default_einstellungen.set_with_private_paks( true );
-		}
-		if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
-			umgebung_t::default_einstellungen.set_with_private_paks( false );
+		if(  gimme_arg(argc, argv, "-objects", 1) != NULL  ) {
+			if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
+				umgebung_t::default_einstellungen.set_with_private_paks( true );
+			}
+			if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
+				umgebung_t::default_einstellungen.set_with_private_paks( false );
+			}
 		}
 	}
 	else {
