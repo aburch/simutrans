@@ -168,6 +168,9 @@ void grund_t::rdwr(loadsave_t *file)
 		sint8 z = (file->is_saving()  &&  ist_wasser()) ? welt->lookup_hgt(pos.get_2d()) : pos.z;
 		file->rdwr_byte( z, "" );
 		if(  file->is_loading()  ) {
+			if(  get_typ()==grund_t::wasser  &&  z>welt->get_grundwasser()  ) {
+				z = welt->get_grundwasser();
+			}
 			welt->set_grid_hgt( pos.get_2d()+koord(1,1), z );
 		}
 		pos.z = get_typ()==grund_t::wasser ? welt->get_grundwasser() : z;
