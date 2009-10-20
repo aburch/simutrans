@@ -385,8 +385,7 @@ void convoi_t::rotate90( const sint16 y_size )
  * @return Position des Convois
  * @author Hj. Malthaner
  */
-koord3d
-convoi_t::get_pos() const
+koord3d convoi_t::get_pos() const
 {
 	if(anz_vehikel > 0 && fahr[0]) {
 		return state==INITIAL ? home_depot : fahr[0]->get_pos();
@@ -401,8 +400,7 @@ convoi_t::get_pos() const
  * Sets the name. Creates a copy of name.
  * @author Hj. Malthaner
  */
-void
-convoi_t::set_name(const char *name)
+void convoi_t::set_name(const char *name)
 {
 	char buf[128];
 	name_offset = sprintf(buf,"(%i) ",self.get_id() );
@@ -678,7 +676,7 @@ bool convoi_t::drive_to()
 			state = NO_ROUTE;
 			get_besitzer()->bescheid_vehikel_problem(self,ziel);
 			// wait 10s before next attempt
-			wait_lock = 10000;
+			wait_lock = 25000;
 		}
 		else {
 			vorfahren();
@@ -805,8 +803,6 @@ void convoi_t::step()
 				if(fpl->get_count()==0) {
 					// no entries => no route ...
 					get_besitzer()->bescheid_vehikel_problem(self, v->get_pos());
-					// wait 10s before next attempt
-					wait_lock = 10000;
 				}
 				else {
 					// Hajo: now calculate a new route
@@ -832,13 +828,8 @@ void convoi_t::step()
 				if(restart_speed>=0) {
 					akt_speed = restart_speed;
 				}
-				// wait a little before next try
 				if(state==CAN_START  ||  state==CAN_START_ONE_MONTH) {
-					wait_lock = 1000;
 					set_tiles_overtaking( 0 );
-				}
-				else if(state==CAN_START_TWO_MONTHS) {
-					wait_lock = 2500;
 				}
 			}
 			break;
@@ -857,10 +848,6 @@ void convoi_t::step()
 				if(state!=DRIVING) {
 					set_tiles_overtaking( 0 );
 				}
-				// wait a little before next try
-				if(state==WAITING_FOR_CLEARANCE_ONE_MONTH  ||  state==WAITING_FOR_CLEARANCE_TWO_MONTHS) {
-					wait_lock = 2500;
-				}
 			}
 			break;
 
@@ -873,6 +860,45 @@ void convoi_t::step()
 			break;
 
 		default:	/* keeps compiler silent*/
+			break;
+	}
+
+	// calculate new waiting time
+	switch( state ) {
+		// handled by routine
+		case LOADING:
+			break;
+
+		// immediate action needed
+		case SELF_DESTRUCT:
+		case LEAVING_DEPOT:
+		case ENTERING_DEPOT:
+		case DRIVING:
+		case DUMMY4:
+		case DUMMY5:
+			wait_lock = 0;
+			break;
+
+		// just waiting for action here
+		case INITIAL:
+		case FAHRPLANEINGABE:
+		case NO_ROUTE:
+			wait_lock = 25000;
+			break;
+
+		// action soon needed
+		case ROUTING_1:
+		case CAN_START:
+		case WAITING_FOR_CLEARANCE:
+			wait_lock = 500;
+			break;
+
+		// waiting for free way, not too heavy, not to slow
+		case CAN_START_ONE_MONTH:
+		case WAITING_FOR_CLEARANCE_ONE_MONTH:
+		case CAN_START_TWO_MONTHS:
+		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
+			wait_lock = 2500;
 			break;
 	}
 }
@@ -1016,9 +1042,11 @@ void convoi_t::start()
 		else {
 			welt->set_schedule_counter();
 		}
+		wait_lock = 0;
 
 		DBG_MESSAGE("convoi_t::start()","Convoi %s wechselt von INITIAL nach ROUTING_1", name_and_id);
-	} else {
+	}
+	else {
 		dbg->warning("convoi_t::start()","called with state=%s\n",state_names[state]);
 	}
 }
@@ -1248,6 +1276,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 			welt->set_schedule_counter();
 		}
 	}
+	wait_lock = 0;
 	return true;
 }
 
@@ -1274,8 +1303,7 @@ schedule_t *convoi_t::create_schedule()
  * false: must recalculate position
  * on all error we better use the normal starting procedure ...
  */
-bool
-convoi_t::can_go_alte_richtung()
+bool convoi_t::can_go_alte_richtung()
 {
 	// invalid route? nothing to test, must start new
 	if(route.empty()) {
@@ -1412,8 +1440,8 @@ convoi_t::can_go_alte_richtung()
 
 
 
-void
-convoi_t::vorfahren()
+// put the convoi on its way
+void convoi_t::vorfahren()
 {
 	// Hajo: init speed settings
 	sp_soll = 0;
@@ -1530,7 +1558,6 @@ convoi_t::vorfahren()
 			if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
 				fahr[0]->play_sound();
 			}
-			wait_lock = 0;
 			state = DRIVING;
 		}
 	}
@@ -1550,6 +1577,7 @@ convoi_t::vorfahren()
 		}
 	}
 
+	wait_lock = 0;
 	INT_CHECK("simconvoi 711");
 }
 
@@ -2039,6 +2067,7 @@ void convoi_t::open_schedule_window()
 
 	akt_speed = 0;	// stop the train ...
 	state = FAHRPLANEINGABE;
+	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 
 	// Fahrplandialog oeffnen
@@ -2051,8 +2080,7 @@ void convoi_t::open_schedule_window()
  * die Beschraenkungen werden hier geprueft, die für die Nachfolger von
  * vor gelten - daher muß vor != NULL sein..
  */
-bool
-convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
+bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
 {
 	const vehikel_besch_t *soll;
 
@@ -2081,8 +2109,7 @@ convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *h
  * die Beschraenkungen werden hier geprueft, die für die Vorgänger von
  *  hinter gelten - daher muß hinter != NULL sein.
  */
-bool
-convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
+bool convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
 {
 	const vehikel_besch_t *soll;
 
@@ -2109,8 +2136,7 @@ convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *h
 
 
 
-bool
-convoi_t::pruefe_alle()
+bool convoi_t::pruefe_alle()
 {
 	bool ok = (anz_vehikel == 0 || pruefe_vorgaenger(NULL, fahr[0]->get_besch()));
 	unsigned i;
@@ -2417,7 +2443,7 @@ void convoi_t::dump() const
  */
 bool convoi_t::hat_keine_route() const
 {
-  return (state==NO_ROUTE);
+	return (state==NO_ROUTE);
 }
 
 
@@ -2478,6 +2504,7 @@ void convoi_t::prepare_for_new_schedule(schedule_t *f)
 	// Hajo: set_fahrplan sets state to ROUTING_1
 	// need to undo that
 	state = FAHRPLANEINGABE;
+	wait_lock = 25000;
 }
 
 
@@ -2496,6 +2523,7 @@ void convoi_t::book(sint64 amount, int cost_type)
 	}
 }
 
+
 void convoi_t::init_financial_history()
 {
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {
@@ -2506,7 +2534,6 @@ void convoi_t::init_financial_history()
 }
 
 
-
 sint32 convoi_t::get_running_cost() const
 {
 	sint32 running_cost = 0;
@@ -2515,7 +2542,6 @@ sint32 convoi_t::get_running_cost() const
 	}
 	return running_cost;
 }
-
 
 
 void convoi_t::check_pending_updates()
@@ -2626,6 +2652,7 @@ void convoi_t::check_pending_updates()
 			else {
 				// need re-routing
 				state = FAHRPLANEINGABE;
+				wait_lock = 0;
 			}
 		}
 	}
