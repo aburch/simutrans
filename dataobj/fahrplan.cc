@@ -312,7 +312,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			bool ok = false;
 			if(  f1<eintrag.get_count()  ) {
 				grund_t *gr1 = welt->lookup(eintrag[f1].pos);
-				if(  gr1->get_depot()  ) {
+				if(  gr1  &&  gr1->get_depot()  ) {
 					// skip depot
 					f1++;
 					ok = true;
@@ -320,7 +320,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			}
 			if(  f2<fpl->eintrag.get_count()  ) {
 				grund_t *gr2 = welt->lookup(fpl->eintrag[f2].pos);
-				if(  gr2->get_depot()  ) {
+				if(  gr2  &&  gr2->get_depot()  ) {
 					ok = true;
 					f2++;
 				}

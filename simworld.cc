@@ -2596,8 +2596,11 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		if(last_step_nr[last_step]>last_step_nr[steps%32]) {
 			simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
 		}
+		else if(  last_step_nr[last_step]<=last_step_nr[steps%32]  ) {
+			simloops = 1;
+		}
 		// change frame spacing ... (pause will be changed by step() directly)
-		if(  realFPS>(umgebung_t::fps*17)/16  ) {
+		if(  realFPS>(umgebung_t::fps*17)/16  ||  simloops<10  ) {
 			increase_frame_time();
 		}
 		else if(realFPS<umgebung_t::fps) {
@@ -4510,6 +4513,10 @@ karte_t::reset_timer()
 	last_step_ticks = ticks;
 	time_budget = 0;
 
+	// reinit simloop counter
+	for(  int i=0;  i<32;  i++  ) {
+		last_step_nr[i] = steps;
+	}
 
 	if(  step_mode&PAUSE_FLAG  ) {
 		intr_disable();
