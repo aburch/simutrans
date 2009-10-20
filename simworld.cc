@@ -5250,16 +5250,16 @@ bool karte_t::interactive(uint32 quit_month)
 			// we wait here for maximum 9ms
 			// average is 5 ms, so we usually
 			// are quite responsive
+			INT_CHECK( "karte_t::interactive()" );
 			const sint32 wait_time = (sint32)(next_step_time-dr_time());
 			if(wait_time>0) {
-				if(wait_time<10  ||  step_mode!=NORMAL) {
+				if(wait_time<10  ) {
 					dr_sleep( wait_time );
 				}
 				else {
-					INT_CHECK( "karte_t::interactive()" );
 					dr_sleep( 9 );
-					INT_CHECK( "karte_t::interactive()" );
 				}
+					INT_CHECK( "karte_t::interactive()" );
 			}
 		}
 
