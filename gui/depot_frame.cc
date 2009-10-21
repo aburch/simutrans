@@ -1105,6 +1105,11 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 
 void depot_frame_t::infowin_event(const event_t *ev)
 {
+	if(ev->ev_code!=WIN_CLOSE  &&  get_welt()->get_active_player() != depot->get_besitzer()) {
+		destroy_win(this);
+		return;
+	}
+
 	gui_frame_t::infowin_event(ev);
 
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
