@@ -423,25 +423,6 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 		win.flags.size = gui->has_min_sizer();
 		win.gui = gui;
 
-		// Hajo: Notify window to be shown
-		if(gui) {
-			focus = NULL;	// free focus
-			event_t ev;
-
-			ev.ev_class = INFOWIN;
-			ev.ev_code = WIN_OPEN;
-			ev.mx = 0;
-			ev.my = 0;
-			ev.cx = 0;
-			ev.cy = 0;
-			ev.button_state = 0;
-
-			void *old = inside_event_handling;
-			inside_event_handling = gui;
-			gui->infowin_event(&ev);
-			inside_event_handling = old;
-		}
-
 		// take care of time delete windows ...
 		win.wt = (wt&w_time_delete) ? (uint8)w_info : wt;
 		win.dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
@@ -449,14 +430,25 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 		win.closing = false;
 		win.rollup = false;
 
-		koord gr;
+		// Hajo: Notify window to be shown
+		assert(gui);
+		focus = NULL;	// free focus
+		event_t ev;
 
-		if(gui != NULL) {
-			gr = gui->get_fenstergroesse();
-		}
-		else {
-			gr = koord(192, 92);
-		}
+		ev.ev_class = INFOWIN;
+		ev.ev_code = WIN_OPEN;
+		ev.mx = 0;
+		ev.my = 0;
+		ev.cx = 0;
+		ev.cy = 0;
+		ev.button_state = 0;
+
+		void *old = inside_event_handling;
+		inside_event_handling = gui;
+		gui->infowin_event(&ev);
+		inside_event_handling = old;
+
+		koord gr = gui->get_fenstergroesse();
 
 		if(x == -1) {
 			// try to keep the toolbar below all other toolbars
