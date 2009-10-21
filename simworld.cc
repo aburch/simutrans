@@ -2590,23 +2590,39 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 	else if(  step_mode==FIX_RATIO) {
 		simloops = realFPS;
 	}
-	else if(  step_mode==NORMAL  ) {
+	else if(step_mode==NORMAL) {
 		// calculate simloops
 		uint16 last_step = (steps+31)%32;
 		if(last_step_nr[last_step]>last_step_nr[steps%32]) {
 			simloops = (10000*32l)/(last_step_nr[last_step]-last_step_nr[steps%32]);
 		}
-		else if(  last_step_nr[last_step]<=last_step_nr[steps%32]  ) {
-			simloops = 1;
-		}
-		// change frame spacing ... (pause will be changed by step() directly)
-		if(  realFPS>(umgebung_t::fps*17)/16  ||  simloops<10  ) {
+		// way too slow => try to increase time ...
+		if(  last_ms-last_interaction > 100  ) {
+			increase_frame_time();
+			increase_frame_time();
+			increase_frame_time();
 			increase_frame_time();
 		}
-		else if(realFPS<umgebung_t::fps) {
-			reduce_frame_time();
-			if(  realFPS<(umgebung_t::fps/2)  ) {
-				set_frame_time( get_frame_time()-1 );
+		else {
+			// change frame spacing ... (pause will be changed by step() directly)
+			if(realFPS>(umgebung_t::fps*17/16)) {
+				increase_frame_time();
+			}
+			else if(realFPS<umgebung_t::fps) {
+				if(  1000u/get_frame_time() < 2*realFPS  ) {
+					if(  realFPS < (umgebung_t::fps/2)  ) {
+						set_frame_time( get_frame_time()-1 );
+						next_step_time = last_ms;
+					}
+					else {
+						reduce_frame_time();
+					}
+				}
+				else {
+					// do not set time too short!
+					set_frame_time( 500/max(1,realFPS) );
+					next_step_time = last_ms;
+				}
 			}
 		}
 	}
