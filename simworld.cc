@@ -2975,7 +2975,7 @@ void karte_t::step()
 
 		set_random_allowed( true );
 		neuer_monat();
-		set_random_allowed( false );
+		set_random_allowed( !umgebung_t::networkmode );
 	}
 
 	const long delta_t = (long)ticks-(long)last_step_ticks;
@@ -3084,7 +3084,7 @@ void karte_t::step()
 			spieler[i]->step();
 		}
 	}
-	set_random_allowed( false );
+	set_random_allowed( !umgebung_t::networkmode );
 
 	haltestelle_t::step_all();
 
