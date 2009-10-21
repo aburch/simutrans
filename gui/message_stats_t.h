@@ -23,7 +23,7 @@ class message_stats_t : public gui_komponente_t
 private:
 	message_t *msg;
 	karte_t *welt;
-	unsigned last_count;
+	uint16 last_count;
 	sint32 message_selected;
 
 public:

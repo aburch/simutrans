@@ -2290,10 +2290,7 @@ void karte_t::rotate90()
 	ij_off.rotate90( cached_groesse_karte_x );
 
 	// rotate messages
-	uint max_message = msg->get_count();
-	for( uint i=0;  i<max_message;  i++  ) {
-		msg->get_node(i)->pos.rotate90( cached_groesse_karte_x );
-	}
+	msg->rotate90( cached_groesse_karte_x );
 
 	// rotate view in dialoge windows
 	win_rotate90( cached_groesse_karte_x );

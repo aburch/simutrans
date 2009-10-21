@@ -95,8 +95,9 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
 	sint32 now = welt->get_current_month()-2;
-	for (uint i=max(20,list.get_count())-20; i<list.get_count();  i++  ) {
-		const node& n = list[i];
+	uint32 i = 0;
+	for(  slist_tpl<node>::const_iterator iter = list.begin(), end = list.end();  iter!=end  &&  i<20; ++iter  ) {
+		const node& n = *iter;
 		if (n.time >= now &&
 				strcmp(n.msg, text) == 0 &&
 				(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
@@ -104,6 +105,7 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 			// we had exactly this message already
 			return;
 		}
+		i++;
 	}
 
 	// we do not allow messages larger than 256 bytes
@@ -116,8 +118,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n.bild = bild;
 
 	// insert at the top
-	list.insert_at(0,n);
-	char* p = list[0].msg;
+	list.insert(n);
+	char* p = list.front().msg;
 	// should we open an autoclose windows?
 	if(art & auto_win_flags) {
 		news_window* news;
@@ -139,4 +141,15 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		}
 		create_win(-1, -1, news, w_info, magic_none);
 	}
+}
+
+
+
+
+void message_t::rotate90( sint16 size_w )
+{
+	for(  slist_tpl<message_t::node>::iterator iter = list.begin(), end = list.end();  iter!=end; ++iter  ) {
+		(*iter).pos.rotate90( size_w );
+	}
+
 }
