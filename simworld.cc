@@ -2595,6 +2595,9 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		}
 		// way too slow => try to increase time ...
 		if(  last_ms-last_interaction > 100  ) {
+			if(  last_ms-last_interaction > 300  ) {
+				set_frame_time( 250 );
+			}
 			increase_frame_time();
 			increase_frame_time();
 			increase_frame_time();
