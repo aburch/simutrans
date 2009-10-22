@@ -384,7 +384,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		update_werkzeug( false );
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
-		if (cnv.is_bound()) {
+		if(cnv.is_bound()) {
 			// if a line is selected
 			if (new_line.is_bound()  &&  new_line->get_schedule()->matches( sp->get_welt(), fpl )) {
 				// if the selected line is different to the convoi's line, apply it
@@ -397,6 +397,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 			else {
 				// no line is selected or line does not match => unset the line
 				cnv->unset_line();
+				cnv->set_schedule( fpl );
 			}
 		}
 	}
