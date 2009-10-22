@@ -1321,16 +1321,25 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 	grund_t *bd = welt->lookup(pos);
 	if (bd && bd->is_visible()) {
 		// now just for error messages, we assuming a valid ground
-		// and check for ownership
-		if(!bd->is_halt()  &&  bd->obj_count()!=0  &&  !spieler_t::check_owner( sp, bd->obj_bei(0)->get_besitzer())) {
-			return "Das Feld gehoert\neinem anderen Spieler\n";
-		}
-		if(bd->is_halt()  &&  !spieler_t::check_owner( sp, bd->get_halt()->get_besitzer()) ) {
-			return "Das Feld gehoert\neinem anderen Spieler\n";
-		}
 		// check for right way type
 		if(!fpl->ist_halt_erlaubt(bd)) {
 			return fpl->fehlermeldung();
+		}
+		// and check for ownership
+		if(  !bd->is_halt()  ) {
+			weg_t *w = bd->get_weg( fpl->get_waytype() );
+			if(  w==NULL  &&  fpl->get_waytype()==tram_wt  ) {
+				w = bd->get_weg( track_wt );
+			}
+			if(  w!=NULL  &&  w->get_besitzer()!=welt->get_spieler(1)  &&  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
+				return "Das Feld gehoert\neinem anderen Spieler\n";
+			}
+			if(  bd->get_depot()  &&  !spieler_t::check_owner( bd->get_depot()->get_besitzer(), sp )  ) {
+				return "Das Feld gehoert\neinem anderen Spieler\n";
+			}
+		}
+		if(  bd->is_halt()  &&  !spieler_t::check_owner( sp, bd->get_halt()->get_besitzer()) ) {
+			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		// ok, now we have a valid ground
 		if(append) {
