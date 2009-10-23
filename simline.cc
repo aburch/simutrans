@@ -95,15 +95,15 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	bool update_schedules = false;
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
 		// already on the road => need to add them
-		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+		for(  uint8 i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
 			// trains pulling only freight wagons
-			if (cnv->get_vehikel(i)->get_fracht_max() == 0) {
+			if(  cnv->get_vehikel(i)->get_fracht_max() == 0  ) {
 				continue;
 			}
 			const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
-			if(ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())) {
+			if(  ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())  ) {
 				goods_catg_index.append( ware->get_catg_index(), 1 );
 				update_schedules = true;
 			}

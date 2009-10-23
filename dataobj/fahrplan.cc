@@ -300,7 +300,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 		return false;
 	}
 	// now we have to check all entries ...
-	// we need to do this that complicated, because they last stop may make the difference
+	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
 	while(  f1+f2<eintrag.get_count()+fpl->eintrag.get_count()  ) {
 		if(f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()  &&  fpl->eintrag[f2].pos == eintrag[f1].pos) {

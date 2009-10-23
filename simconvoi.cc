@@ -179,6 +179,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 convoi_t::~convoi_t()
 {
+	bool update_schedules = !line.is_bound()  &&  fpl  &&  fpl->get_count()>0;
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
 
@@ -206,7 +207,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		delete fpl;
 	}
 
-	// @author hsiegeln - deregister from line
+	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
 
 	self.detach();
@@ -1250,6 +1251,11 @@ bool convoi_t::set_schedule(schedule_t * f)
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
 
 	if(f == NULL) {
+		if(  state==INITIAL  ) {
+			delete fpl;
+			fpl = NULL;
+			return true;
+		}
 		return false;
 	}
 
@@ -1271,10 +1277,6 @@ bool convoi_t::set_schedule(schedule_t * f)
 	// ok, now we have a schedule
 	if(old_state!=INITIAL) {
 		state = FAHRPLANEINGABE;
-		if(  !line.is_bound()  ) {
-			// asynchronous recalculation of routes
-			welt->set_schedule_counter();
-		}
 	}
 	wait_lock = 0;
 	return true;
@@ -2379,6 +2381,14 @@ void convoi_t::destroy()
 		fahr[0]->set_convoi(NULL);
 	}
 
+	if(  line.is_bound()  ) {
+		// needs to be done here to remove correctly ware catg from lines
+		unset_line();
+		delete fpl;
+		fpl = NULL;
+		state = INITIAL;
+	}
+
 	for(int i=anz_vehikel-1;  i>=0; i--) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
 			// remove from rails/roads/crossings
@@ -2448,52 +2458,6 @@ bool convoi_t::hat_keine_route() const
 
 
 
-/**
-* set line
-* since convoys must operate on a copy of the route's fahrplan, we apply a fresh copy
-* @author hsiegeln
-*/
-void convoi_t::set_line(linehandle_t org_line)
-{
-	// to remove a convoi from a line, call unset_line(); passing a NULL is not allowed!
-	if(!org_line.is_bound()) {
-		return;
-	}
-	if(line.is_bound()) {
-		unset_line();
-	}
-	else if(fpl  &&  fpl->get_count()>0) {
-		// since this schedule is no longer served
-		welt->set_schedule_counter();
-	}
-	line = org_line;
-	line_id = org_line->get_line_id();
-	schedule_t *new_fpl= org_line->get_schedule()->copy();
-	set_schedule(new_fpl);
-	line->add_convoy(self);
-}
-
-
-
-
-/**
-* unset line
-* removes convoy from route without destroying its fahrplan
-* @author hsiegeln
-*/
-void convoi_t::unset_line()
-{
-	if(line.is_bound()) {
-DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl=%p",line.get_id(),fpl);
-		line->remove_convoy(self);
-		line = linehandle_t();
-	}
-	// just to be sure ...
-	line_id = INVALID_LINE_ID;
-}
-
-
-
 void convoi_t::prepare_for_new_schedule(schedule_t *f)
 {
 	alte_richtung = fahr[0]->get_fahrtrichtung();
@@ -2544,13 +2508,56 @@ sint32 convoi_t::get_running_cost() const
 }
 
 
+/**
+* set line
+* since convoys must operate on a copy of the route's fahrplan, we apply a fresh copy
+* @author hsiegeln
+*/
+void convoi_t::set_line(linehandle_t org_line)
+{
+	// to remove a convoi from a line, call unset_line(); passing a NULL is not allowed!
+	if(!org_line.is_bound()) {
+		return;
+	}
+	if(line.is_bound()) {
+		unset_line();
+	}
+	line_update_pending = org_line;
+	check_pending_updates();
+}
+
+
+
+/**
+* unset line
+* removes convoy from route without destroying its fahrplan
+* => no need to recalculate connetions!
+* @author hsiegeln
+*/
+void convoi_t::unset_line()
+{
+	if(line.is_bound()) {
+DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl=%p",line.get_id(),fpl);
+		line->remove_convoy(self);
+		line = linehandle_t();
+	}
+	// just to be sure ...
+	line_id = INVALID_LINE_ID;
+}
+
+
+
 void convoi_t::check_pending_updates()
 {
-	if (line_update_pending.is_bound()  &&  line.is_bound()) {
+	if(  line_update_pending.is_bound()  ) {
+		// create dummy schedule
+		if(  fpl==NULL  ) {
+			fpl = create_schedule();
+		}
+		schedule_t* new_fpl = line_update_pending->get_schedule();
 		int aktuell = fpl->get_aktuell(); // save current position of schedule
 		bool is_same = false;
 		bool is_depot = false;
-		schedule_t* new_fpl = line_update_pending->get_schedule();
 		koord3d current = koord3d::invalid, depot = koord3d::invalid;
 
 		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
@@ -2620,11 +2627,15 @@ void convoi_t::check_pending_updates()
 			}
 		}
 
+		// we may need to update the line and connection tables
+		if(  !line.is_bound()  ) {
+			line_update_pending->add_convoy(self);
+		}
 		line = line_update_pending;
 		line_update_pending = linehandle_t();
 
 		// destroy old schedule and all related windows
-		if(fpl &&  !fpl->ist_abgeschlossen()) {
+		if(!fpl->ist_abgeschlossen()) {
 			fpl->copy_from( new_fpl );
 			fpl->set_aktuell(aktuell); // set new schedule current position to best match
 			fpl->eingabe_beginnen();

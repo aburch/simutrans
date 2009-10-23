@@ -150,6 +150,8 @@ fahrplan_gui_t::~fahrplan_gui_t()
 	update_werkzeug( false );
 	// hide schedule on minimap (may not current, but for safe)
 	reliefkarte_t::get_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
+	delete fpl;
+
 }
 
 
@@ -162,10 +164,12 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_load("Full load"),
 	stats(sp_->get_welt(),sp_),
 	scrolly(&stats),
-	fpl(fpl_),
+	old_fpl(fpl_),
 	sp(sp_),
 	cnv(cnv_)
 {
+	old_fpl->eingabe_beginnen();
+	fpl = old_fpl->copy();
 	stats.set_fahrplan(fpl);
 	if(!cnv.is_bound()) {
 		old_line = new_line = linehandle_t();
@@ -174,8 +178,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	else {
 		old_line = new_line = cnv_->get_line();
 	}
-	this->fpl = fpl;
-	fpl->eingabe_beginnen();
 	strcpy(no_line, translator::translate("<no line>"));
 
 	sint16 ypos = 0;
@@ -283,8 +285,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 }
 
 
-
-
 void fahrplan_gui_t::update_werkzeug(bool set)
 {
 	karte_t *welt = sp->get_welt();
@@ -384,21 +384,34 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		update_werkzeug( false );
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
+		old_fpl->eingabe_abschliessen();
+		// now apply the changes
 		if(cnv.is_bound()) {
 			// if a line is selected
-			if (new_line.is_bound()  &&  new_line->get_schedule()->matches( sp->get_welt(), fpl )) {
+			if (new_line.is_bound()  ) {
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
-					uint8 akt = fpl->get_aktuell();
 					cnv->set_line( new_line );
-					cnv->get_schedule()->set_aktuell( akt );
+				}
+				else {
+					old_fpl->set_aktuell( fpl->get_aktuell() );
+					cnv->set_schedule( old_fpl );
 				}
 			}
 			else {
 				// no line is selected or line does not match => unset the line
 				cnv->unset_line();
-				cnv->set_schedule( fpl );
+				// since matches does not check for depots, we need to do it this way ...
+				if(  fpl->get_count()!=old_fpl->get_count()  ||  !old_fpl->matches( sp->get_welt(), fpl )  ) {
+					sp->get_welt()->set_schedule_counter();
+				}
+				old_fpl->copy_from( fpl );
+				cnv->set_schedule( old_fpl );
 			}
+		}
+		else {
+			// the changes for lines or depot convois are handled by line gui ....
+			old_fpl->copy_from( fpl );
 		}
 	}
 	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  ) {
