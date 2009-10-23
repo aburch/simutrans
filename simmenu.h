@@ -231,6 +231,7 @@ public:
 	void cleanup( spieler_t *, bool delete_start_marker );
 
 private:
+
 	/*
 	 * This routine should fill marked_tiles.
 	 */

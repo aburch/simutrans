@@ -4836,12 +4836,19 @@ void karte_t::switch_active_player(uint8 new_player)
 		}
 	}
 	else {
+		koord3d old_zeiger_pos = zeiger->get_pos();
+		zeiger->set_pos( koord3d::invalid );
+		if(  dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])  ) {
+			dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])->cleanup( active_player, false );
+		}
 		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 		msg->add_message(buf, koord::invalid, message_t::warnings, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+		werkzeug_last_pos = koord3d::invalid;
+		zeiger->set_pos( old_zeiger_pos );
 	}
 
 	// update menue entries (we do not want player1 to run anything)
@@ -4850,7 +4857,6 @@ void karte_t::switch_active_player(uint8 new_player)
 		set_dirty();
 	}
 
-	werkzeug_last_pos = koord3d::invalid;
 	zeiger->set_bild( werkzeug[active_player_nr]->cursor );
 }
 
