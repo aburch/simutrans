@@ -127,8 +127,8 @@ void convoi_t::reset()
 	jahresgewinn = 0;
 
 	max_record_speed = 0;
-	akt_speed_soll = 0;            // Sollgeschwindigkeit
-	akt_speed = 0;                 // momentane Geschwindigkeit
+	akt_speed_soll = 0;     // Sollgeschwindigkeit / set speed
+	akt_speed = 0;          // momentane Geschwindigkeit / current speed
 	sp_soll = 0;
 
 	heaviest_vehicle = 0;
@@ -485,174 +485,437 @@ void convoi_t::add_running_cost(sint32 cost)
 	book(cost, CONVOI_PROFIT);
 }
 
-/* Calculates (and sets) new akt_speed
- * needed for driving, entering and leaving a depot)
- */
-void convoi_t::calc_acceleration(long delta_t)
+
+#define PI (3.141592654)
+
+// GEAR_FACTOR: a gear of 1.0 is stored as 64
+#define GEAR_FACTOR 64
+
+bool is_track_way_type(waytype_t wt)
 {
-	// Prissi: more pleasant and a little more "physical" model *
-	int sum_friction_weight = 0;
-	sum_gesamtgewicht = 0; // "Total weight" (Google)
-	// calculate total friction
-	for(unsigned i=0; i<anz_vehikel; i++) {
-		vehikel_t* v = fahr[i];
-		int total_vehicle_weight = v->get_gesamtgewicht();
-		sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
-		sum_gesamtgewicht += total_vehicle_weight;
+	switch (wt)
+	{
+		case track_wt:
+		case water_wt:         
+		case overheadlines_wt: 
+		case monorail_wt:      
+		case maglev_wt:
+		case tram_wt:
+		case narrowgauge_wt:
+			return true;
 	}
+	return false;
+}
 
-	// try to simulate quadratic friction
-	if(sum_gesamtgewicht != 0) {
-		/*
-		 * The parameter consist of two parts (optimized for good looking):
-		 *  - every vehicle in a convoi has a the friction of its weight
-		 *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
-		 * => heavier loaded and faster traveling => less power for acceleration is available!
-		 * since delta_t can have any value, we have to scale the step size by this value.
-		 * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
-		 * @author prissi
-		 */
+inline double speed_to_v(sint32 speed)
+{
+	return (speed * VEHICLE_SPEED_FACTOR) / (3.6 * 1024.0);
+}
 
-		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
-		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
-		 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
-	
-		// Slight reduction of extent to which speed increases friction.
-		// @author: jamespetts, August 2009
-		const sint32 adjusted_speed = akt_speed >> 2;
-		const sint32 deccel = ( ( ((adjusted_speed)*sum_friction_weight)>>5 )*(adjusted_speed) ) / 33 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+inline sint32 v_to_speed(double v)
+{
+	return (sint32)(v * 3.6 * 1024.0 + 0.5) / VEHICLE_SPEED_FACTOR;
+}
 
-		// prissi:
-		// integer sucks with planes => using floats ...
-		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
-		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll ? 0l : calc_adjusted_power()) - deccel) * (double)delta_t )/ (double)sum_gesamtgewicht);
-		//"leistung" = "performance" (Google)
-
-		// we normalize delta_t to 1/64th and check for speed limit */
-//		sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
-
-		// we need more accurate arithmetic, so we store the previous value
-		delta_v += previous_delta_v;
-		previous_delta_v = delta_v & 0x0FFF;
-		// and finally calculate new speed
-		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
-
-	}
-	else {
-		// very old vehicle ...
-		akt_speed += 16;
-	}
-
-	// obey speed maximum with additional const brake ...
-	if(akt_speed > akt_speed_soll) {
-		akt_speed -= 24;
-		if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
-			akt_speed = akt_speed_soll+kmh_to_speed(20);
+/**
+ * get force in kN according to current speed in m/s
+ * @author Bernd Gabriel, Oct, 22 2009
+ */
+double convoi_t::get_force(double speed)
+{
+	speed = abs(speed);
+	double force = 0.0; 
+	bool is_track = false;
+	for (int i = 0; i < anz_vehikel; ++i) {
+		const vehikel_t &v = *fahr[i];
+		const vehikel_besch_t &b = *v.get_besch();
+		if (i == 0)
+		{
+			is_track = is_track_way_type(b.get_waytype());
+		}
+		double p = b.get_leistung(); // p in kW, get_leistung() in kW
+		if (p > 0)
+		{
+			double v = b.get_geschw() / (2.0 * 3.6); // half speed in m/s, get_geschw() in km/h
+			if (is_track && b.get_engine_type() == b.steam)
+			{
+				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
+				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
+				* to steam shortage and economics. See here for details: http://www.railway-technical.com/st-vs-de.shtml
+				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
+				*
+				* F = P / v;
+				*/
+				if (speed < v)
+				{
+					// the constant force 
+					force += (p * b.get_gear()) / (v * GEAR_FACTOR); // GEAR_FACTOR: a gear of 1.0 is stored as 64
+				}
+				else
+				{
+					// less force due to steam shortage and economics. Turns over to a constant power machine.
+					force += (p * b.get_gear()) / (speed * GEAR_FACTOR);
+				}
+			}
+			else 
+			{
+				/** Other engines are constant power engines. Their force depends on the current speed:
+				*
+				* F = P / speed;  At speed = 0 we get an infinite force. Wow!
+				*
+				* In reality there are some limits. Most of all the friction of steel wheels on steel rails depending 
+				* on engine weight and the stability of the engine. Another important factor for the actual torque or 
+				* force is the gear. An express train engine has a high gear ratio allowing higher speed with lower 
+				* force, while a heavy freight train enige needs a low gear ratio allowing lower speed but higher force 
+				* to pull more weight.
+				*
+				* In reality the highest speed of an engine is given by permission not by the pulled weight.
+				*
+				* We consider a stronger gear factor producing additional force in the start-up process, where a greater gear factor allows a more forceful start.
+				* This will enforce the player to make more use of slower freight engines.
+				*
+				* Example: 
+				* The german series 230(130 DR) was a univeral engine with 2200 kW, 250 kN start-up force and 140 km/h allowed top speed.
+				* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN start-up force and 100 km/h allowed top speed.
+				*
+				* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
+				*/
+				double gear10 = (10.0 * GEAR_FACTOR) / b.get_gear();
+				if (speed < gear10)
+				{
+					// lower speed does not effect higher than a maximum force calculated by gear.
+					force += p / gear10;
+				}
+				else 
+				{
+					force += p / speed;
+				}
+			}
 		}
 	}
-
-	// new record?
-	if(akt_speed > max_record_speed) {
-		max_record_speed = akt_speed;
-		record_pos = fahr[0]->get_pos().get_2d();
-	}
+	return force;
 }
 
-sint32 convoi_t::calc_adjusted_power()
+
+/* Calculates new akt_speed without setting it.
+ */
+void convoi_t::calc_acceleration(long delta_t, const int akt_speed_soll, sint32 &akt_speed)
 {
-	switch(fahr[0]->get_waytype())
-	{
-		// Adjustment of power only applies to steam vehicles
-		// with direct drive (as in steam railway locomotives),
-		// not steam vehicles with geared driving (as with steam
-		// road vehicles) or propellor shaft driving (as with
-		// water craft). Aircraft and maglev, although not
-		// likely ever to be steam, cannot conceivably have
-		// direct drive. 
+/*******************************************************************************
 
-	case road_wt:
-	case water_wt:
-	case air_wt:
-	case maglev_wt:
-	case invalid_wt:
-	case ignore_wt:
-		return sum_gear_und_leistung;
-	}
-	const uint16 max_speed = fahr[0]->get_besch()->get_geschw();
-	float highpoint_speed = (max_speed >= 60) ? max_speed - 30 : 30;
-	const uint16 current_speed = speed_to_kmh(akt_speed);
-	
-	// Within 15% of top speed - locomotive less efficient
-	float high_speed = (float)max_speed * 0.85F; 
-	
-	if(power_from_steam < 1 || current_speed > highpoint_speed && current_speed < high_speed)
-	{
-		// Either no steam engines, or going fast
-		// enough that it makes no difference,
-		// so the simple formula prevails.
-		return sum_gear_und_leistung;
-	}
-	// There must be a steam locomotive here.
-	// So, reduce the power at higher and lower speeds.
-	// Should be approx (for medium speed locomotive):
-	// 40% power at 15kph 70% power at 25kph;
-	// 85% power at 32kph; and 100% power at >50kph.
-	// See here for details: http://www.railway-technical.com/st-vs-de.shtml
+We know: delta_v = a * delta_t, where a is nearly constant for very small delta_t only.
 
-	//This is needed to add back at the end.
-	const uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
-	
-	float speed_factor;
-	
-	if(power_from_steam > 500)
-	{
-		speed_factor = 1.0F;
-	}
-	else
-	{
-		float difference = 400.0F - (power_from_steam  - 50.0F);
-		float proportion = difference / 400.0F;
-		float factor = 0.66F * proportion;
-		speed_factor = 1 + factor;
-	}
-	
-	//These values are needed to apply different power reduction factors
-	//depending on the maximum speed.
+At http://de.wikipedia.org/wiki/Fahrwiderstand we find a 
+complete explanation of the force equation of a land vehicle.
+(Sorry, there seems to be no english pendant at wikipedia).
 
-	float lowpoint_speed = highpoint_speed * 0.3F;
-	float midpoint_speed = lowpoint_speed * 2.0F;
+Force balance: Fm = Ff + Fr + Fs + Fa; 
 
-	if(current_speed <= lowpoint_speed)
-	{
-		speed_factor *= 0.4F;
-	}
-	else if(current_speed <= midpoint_speed)
-	{
-		float speed_differential_actual = (float)current_speed - (float)lowpoint_speed;
-		float speed_differential_maximum = (float)midpoint_speed - (float)lowpoint_speed;
-		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.4F) + 0.4F);
-	}
-	else if(current_speed <= high_speed)
-	{
-		// Not at high speed
-		float speed_differential_actual = (float)current_speed - (float)midpoint_speed;
-		float speed_differential_maximum = (float)highpoint_speed - (float)lowpoint_speed;
-		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.15F) + 0.8F);
-	}
-	else
-	{
-		// Must be within 15% of top speed here.
-		float speed_differential_actual = (float)max_speed - (float)current_speed;
-		float speed_differential_maximum = (float)max_speed - (float)high_speed;
-		float factor_modification = speed_differential_actual / speed_differential_maximum;
-		speed_factor *= ((factor_modification * 0.15F) + 0.8F);
-	}
+Fm: machine force in Newton [N] = [kg*m/s^2]
+Ff: air resistance, always > 0
+    Ff = cw/2 * A * rho * v^2, 
+		cw: friction factor: average passenger cars and high speed trains: 0.25 - 0.5, average trucks and trains: 0.7
+		A: largest profile: average passenger cars: 3, average trucks: 6, average train: 10 [m^2]
+		rho = density of medium (air): 1.2 [kg/m^3]
+		v: speed [m/s]
+Fr: roll resistance, always > 0 
+    Fr = fr * g * m * cos(alpha)
+		fr: roll resistance factor: steel wheel on track: 0.0015, car wheel on road: 0.015
+		g: gravitation constant: 9,81 [m/s^2]
+		m: mass [kg]
+		alpha: inclination: 0=flat
+Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
+	Fs = g * m * sin(alpha)
+		g: gravitation constant: 9.81 [m/s^2]
+		m: mass [kg]
+		alpha: inclination: 0=flat
+Fa: accelerating force
+	Fa = m * a
+		m: mass [kg]
+		a: acceleration
 
-	uint32 modified_power_from_steam = power_from_steam_with_gear * speed_factor;
-	return modified_power_from_steam + power_without_steam;
+Let F = Fm - Fr - Fs.
+Let cf = cw/2 * A * rho.
+Let Frs = Fr + Fs = g * (fr * m * cos(alpha) + m * sin(alpha))
+
+Then
+
+cf * v^2 + m * a - F = 0
+
+a = (F - cf * v^2 - Frs) / m
+
+*******************************************************************************/
+//#define CF_TRACK 0.7 / 2 * 10 * 1.2
+#define CF_TRACK 4.2
+//#define CF_ROAD 0.7 / 2 * 6 * 1.2
+#define CF_ROAD 2.52
+#define FR_TRACK 0.0015
+#define FR_ROAD  0.015
+#define FR_WATER 0.015
+
+	bool is_track = false;
+	double fr = FR_ROAD;
+	double cf = CF_ROAD;
+	double m = 0.0; // in kg
+	double mcos = 0.0; // m * cos(alpha)
+	double msin = 0.0; // m * sin(alpha)
+	// calculate total friction
+	for (int i = (int)anz_vehikel; --i >= 0;) {
+		const vehikel_t &v = *fahr[i];
+		const vehikel_besch_t &b = *v.get_besch();
+		if (i == 0)  
+		{
+			waytype_t wt = b.get_waytype();
+			switch (wt)
+			{
+				case water_wt:
+					fr = FR_WATER;
+					break;
+			
+				default: 
+					if (is_track_way_type(wt))
+					{
+						fr = FR_TRACK;
+						cf = CF_TRACK;
+					}
+					break;
+			}
+
+		}
+
+		int weight = v.get_gesamtgewicht(); // vehicle weight in tons
+		m += weight; 
+		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
+		// Including the 1000 for tons to kg conversion 50 corresponds to an inclination of 28 per mille.
+		int sin_alpha = v.get_frictionfactor(); 
+		if (sin_alpha)
+		{
+			msin += weight * sin_alpha;
+			mcos += weight * sqrt(1000000.0 - sin_alpha * sin_alpha); // Remember: sin(alpha)^2 + cos(alpha)^2 = 1
+		}
+		else
+		{			 
+			mcos += weight;
+		}
+	}
+	m *= 1000.0; // convert from tons to kg 
+	double Frs = 9.81 * (fr * mcos + msin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+
+	double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+	double vmax = speed_to_v(akt_speed_soll);
+	double fmax = min(cf * vmax * vmax, get_force(vmax) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
+
+	// iterate the passed time.
+	while (delta_t > 0)
+	{
+		// the driver's part: select accelerating force:
+		double f;
+		if (v < vmax)
+		{
+			// below set speed: full acceleration
+			f = get_force(v) * 1000 - Frs;
+		}
+		else if (v < 1.05 * vmax)
+		{
+			// at or slightly above set speed: hold this speed
+			f = fmax;
+		}
+		else if (v > 1.1 * vmax)
+		{
+			// running too fast, slam on the brakes! 
+			// assuming the brakes are as strong as the start-up force.
+			// hill-down Frs might become negative and works against the brake.
+			f = -get_force(0) * 1000 - Frs;
+		}
+		else 
+		{
+			// slightly above end speed: coasting 'til back to set speed.
+			f = 0;
+		}
+
+		// accelerate: calculate new speed according to acceleration within the passed second.
+		if (delta_t >= 128)
+		{
+			v += 2 * (f - sgn(v) * cf * v * v) / m; 
+		}
+		else
+		{
+			v += delta_t * (f - sgn(v) * cf * v * v) / (128 * m); 
+		}
+		delta_t -= 128; // another 2 seconds passed: 1 second = 64 delta_t:  
+	}
+	akt_speed = v_to_speed(v); // new_speed in simutrans vehicle speed, v in m/s
 }
+
+
+///* Calculates (and sets) new akt_speed
+// * needed for driving, entering and leaving a depot)
+// */
+//void convoi_t::calc_acceleration(long delta_t)
+//{
+//	// Prissi: more pleasant and a little more "physical" model *
+//	int sum_friction_weight = 0;
+//	sum_gesamtgewicht = 0; // "Total weight" (Google)
+//	// calculate total friction
+//	for(unsigned i=0; i<anz_vehikel; i++) {
+//		vehikel_t* v = fahr[i];
+//		int total_vehicle_weight = v->get_gesamtgewicht();
+//		sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
+//		sum_gesamtgewicht += total_vehicle_weight;
+//	}
+//
+//	// try to simulate quadratic friction
+//	if(sum_gesamtgewicht != 0) {
+//		/*
+//		 * The parameter consist of two parts (optimized for good looking):
+//		 *  - every vehicle in a convoi has a the friction of its weight
+//		 *  - the dynamic friction is calculated that way, that v^2*weight*frictionfactor = 200 kW
+//		 * => heavier loaded and faster traveling => less power for acceleration is available!
+//		 * since delta_t can have any value, we have to scale the step size by this value.
+//		 * however, there is a quadratic friction term => if delta_t is too large the calculation may get weird results
+//		 * @author prissi
+//		 */
+//
+//		/* but for integer, we have to use the order below and calculate actually 64*deccel, like the sum_gear_und_leistung
+//		 * since akt_speed=10/128 km/h and we want 64*200kW=(100km/h)^2*100t, we must multiply by (128*2)/100
+//		 * But since the acceleration was too fast, we just deccelerate 4x more => >>6 instead >>8 */
+//	
+//		// Slight reduction of extent to which speed increases friction.
+//		// @author: jamespetts, August 2009
+//		const sint32 adjusted_speed = akt_speed >> 2;
+//		const sint32 deccel = ( ( ((adjusted_speed)*sum_friction_weight)>>5 )*(adjusted_speed) ) / 33 + (sum_gesamtgewicht*64);	// this order is needed to prevent overflows!
+//
+//		// prissi:
+//		// integer sucks with planes => using floats ...
+//		//sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel)*(double)delta_t)/(double)sum_gesamtgewicht);
+//		sint32 delta_v =  (sint32)( ( (double)( (akt_speed>akt_speed_soll ? 0l : calc_adjusted_power()) - deccel) * (double)delta_t )/ (double)sum_gesamtgewicht);
+//		//"leistung" = "performance" (Google)
+//
+//		// we normalize delta_t to 1/64th and check for speed limit */
+////		sint32 delta_v = ( ( (akt_speed>akt_speed_soll?0l:sum_gear_und_leistung) - deccel) * delta_t)/sum_gesamtgewicht;
+//
+//		// we need more accurate arithmetic, so we store the previous value
+//		delta_v += previous_delta_v;
+//		previous_delta_v = delta_v & 0x0FFF;
+//		// and finally calculate new speed
+//		akt_speed = max(akt_speed_soll>>4, akt_speed+(sint32)(delta_v>>12l) );
+//
+//	}
+//	else {
+//		// very old vehicle ...
+//		akt_speed += 16;
+//	}
+//
+//	// obey speed maximum with additional const brake ...
+//	if(akt_speed > akt_speed_soll) {
+//		akt_speed -= 24;
+//		if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
+//			akt_speed = akt_speed_soll+kmh_to_speed(20);
+//		}
+//	}
+//
+//	// new record?
+//	if(akt_speed > max_record_speed) {
+//		max_record_speed = akt_speed;
+//		record_pos = fahr[0]->get_pos().get_2d();
+//	}
+//}
+//
+//sint32 convoi_t::calc_adjusted_power(sint32 akt_speed)
+//{
+//	switch(fahr[0]->get_waytype())
+//	{
+//		// Adjustment of power only applies to steam vehicles
+//		// with direct drive (as in steam railway locomotives),
+//		// not steam vehicles with geared driving (as with steam
+//		// road vehicles) or propellor shaft driving (as with
+//		// water craft). Aircraft and maglev, although not
+//		// likely ever to be steam, cannot conceivably have
+//		// direct drive. 
+//
+//	case road_wt:
+//	case water_wt:
+//	case air_wt:
+//	case maglev_wt:
+//	case invalid_wt:
+//	case ignore_wt:
+//		return sum_gear_und_leistung;
+//	}
+//	const uint16 max_speed = fahr[0]->get_besch()->get_geschw();
+//	float highpoint_speed = float((max_speed >= 60) ? max_speed - 30 : 30);
+//	const uint16 current_speed = speed_to_kmh(akt_speed);
+//	
+//	// Within 15% of top speed - locomotive less efficient
+//	float high_speed = (float)max_speed * 0.85F; 
+//	
+//	if(power_from_steam < 1 || current_speed > highpoint_speed && current_speed < high_speed)
+//	{
+//		// Either no steam engines, or going fast
+//		// enough that it makes no difference,
+//		// so the simple formula prevails.
+//		return sum_gear_und_leistung;
+//	}
+//	// There must be a steam locomotive here.
+//	// So, reduce the power at higher and lower speeds.
+//	// Should be approx (for medium speed locomotive):
+//	// 40% power at 15kph 70% power at 25kph;
+//	// 85% power at 32kph; and 100% power at >50kph.
+//	// See here for details: http://www.railway-technical.com/st-vs-de.shtml
+//
+//	//This is needed to add back at the end.
+//	const uint32 power_without_steam = sum_gear_und_leistung - power_from_steam_with_gear;
+//	
+//	float speed_factor;
+//	
+//	if(power_from_steam > 500)
+//	{
+//		speed_factor = 1.0F;
+//	}
+//	else
+//	{
+//		float difference = 400.0F - (power_from_steam  - 50.0F);
+//		float proportion = difference / 400.0F;
+//		float factor = 0.66F * proportion;
+//		speed_factor = 1 + factor;
+//	}
+//	
+//	//These values are needed to apply different power reduction factors
+//	//depending on the maximum speed.
+//
+//	float lowpoint_speed = highpoint_speed * 0.3F;
+//	float midpoint_speed = lowpoint_speed * 2.0F;
+//
+//	if(current_speed <= lowpoint_speed)
+//	{
+//		speed_factor *= 0.4F;
+//	}
+//	else if(current_speed <= midpoint_speed)
+//	{
+//		float speed_differential_actual = (float)current_speed - (float)lowpoint_speed;
+//		float speed_differential_maximum = (float)midpoint_speed - (float)lowpoint_speed;
+//		float factor_modification = speed_differential_actual / speed_differential_maximum;
+//		speed_factor *= ((factor_modification * 0.4F) + 0.4F);
+//	}
+//	else if(current_speed <= high_speed)
+//	{
+//		// Not at high speed
+//		float speed_differential_actual = (float)current_speed - (float)midpoint_speed;
+//		float speed_differential_maximum = (float)highpoint_speed - (float)lowpoint_speed;
+//		float factor_modification = speed_differential_actual / speed_differential_maximum;
+//		speed_factor *= ((factor_modification * 0.15F) + 0.8F);
+//	}
+//	else
+//	{
+//		// Must be within 15% of top speed here.
+//		float speed_differential_actual = (float)max_speed - (float)current_speed;
+//		float speed_differential_maximum = (float)max_speed - (float)high_speed;
+//		float factor_modification = speed_differential_actual / speed_differential_maximum;
+//		speed_factor *= ((factor_modification * 0.15F) + 0.8F);
+//	}
+//
+//	uint32 modified_power_from_steam = uint32(power_from_steam_with_gear * speed_factor);
+//	return modified_power_from_steam + power_without_steam;
+//}
 
 
 
