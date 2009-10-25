@@ -222,6 +222,10 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				besch->upgrades = decode_uint8(p);
 			}
+			else
+			{
+				besch->upgrades = 0;
+			}
 			if(experimental_version > 1)
 			{
 				// Check for incompatible future versions
@@ -276,6 +280,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		besch->electricity_proportion = 0.17F;
 		besch->inverse_electricity_proportion = 1.0F / besch->electricity_proportion;
+		besch->upgrades = 0;
 	}
 
 	return besch;
@@ -288,4 +293,5 @@ void factory_reader_t::register_obj(obj_besch_t *&data)
 	size_t fab_name_len = strlen( besch->get_name() );
 	besch->electricity_producer = ( fab_name_len>11   &&  (strcmp(besch->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(besch->get_name()+fab_name_len-11, "Power Plant")==0) );
 	fabrikbauer_t::register_besch(besch);
+	obj_for_xref(get_type(), besch->get_name(), data);
 }

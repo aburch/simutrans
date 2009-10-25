@@ -1274,6 +1274,13 @@ fabrik_t::neuer_monat()
 		city->add_city_factory(this);
 	}
 
+	// TESTING CODE
+	const fabrik_besch_t* TEST_1 = besch->get_upgrades(0);
+	const haus_besch_t* TEST_2 = besch->get_haus();
+	const fabrik_lieferant_besch_t* TEST_3 = besch->get_lieferant(0);
+	const field_besch_t* TEST_4 = besch->get_field();
+	const fabrik_produkt_besch_t* TEST_5 = besch->get_produkt(0);
+
 	// Check to see whether factory is obsolete.
 	// If it is, give it a chance of being closed down.
 	// @author: jamespetts
@@ -1291,7 +1298,7 @@ fabrik_t::neuer_monat()
 		else
 		{
 			float proportion = (float)difference / (float)max_difference;
-			proportion *= 2.0F; //Set to percentage value, but take into account fact will be frequently checked.
+			proportion *= 2.5F; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100.0F - large change to take into account frequency of checking)
 			const float chance = (float)(simrand(10000) / 100.0F);
 			if(chance <= proportion)
 			{
@@ -1325,7 +1332,7 @@ fabrik_t::neuer_monat()
 					// in the .dat files for future compatibility.
 
 					const fabrik_besch_t* fab = besch->get_upgrades(i);
-					if(	fab->is_electricity_producer() == besch->is_electricity_producer() &&
+					if(	fab != NULL && fab->is_electricity_producer() == besch->is_electricity_producer() &&
 						fab->get_haus()->get_b() == besch->get_haus()->get_b() &&
 						fab->get_haus()->get_h() == besch->get_haus()->get_h() &&
 						fab->get_haus()->get_groesse() == besch->get_haus()->get_groesse() &&
@@ -1356,11 +1363,12 @@ fabrik_t::neuer_monat()
 						const fabrik_besch_t* new_type = upgrade_list[chance];
 						const char* old_name = get_name();
 						besch = new_type;
+						const char* new_name = get_name();
 						gb->calc_bild();
 						// Base production is randomised, so is an instance value. Must re-set from the type.
 						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
-						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%n."), translator::translate(old_name), translator::translate(get_name()));
-						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, MN_GREY3, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
+						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 						return;
 					}
 				}

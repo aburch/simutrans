@@ -233,14 +233,7 @@ public:
 
 	int is_electricity_producer() const { return electricity_producer; }
 
-	const fabrik_besch_t * get_upgrades(int i) const
-	{
-		if(i < 0 || i >= upgrades)
-		{
-			return NULL;
-		}
-		return static_cast<const fabrik_besch_t *>(get_child(6 + i));
-	}
+	const fabrik_besch_t * get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? static_cast<const fabrik_besch_t *>(get_child((2 + lieferanten + produkte + fields + i))) : NULL; }
 
 	int get_upgrades_count() const { return upgrades; }
 };

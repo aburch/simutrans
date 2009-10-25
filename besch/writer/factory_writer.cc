@@ -93,6 +93,15 @@ void factory_supplier_writer_t::write_obj(FILE* outfp, obj_node_t& parent, int c
 	node.write(outfp);
 }
 
+void factory_upgrade_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* str)
+{
+	obj_node_t node(this, 0, &parent);  
+	
+	xref_writer_t::instance()->write_obj(outfp, node, obj_factory, str, true);
+
+	node.write(outfp);
+}
+
 
 void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -174,18 +183,17 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 electricity_percent = obj.get_int("electricity_percent", 17);
 
 	// Upgrades: these are the industry types to which this industry
-	// can be upgraded. "None" means that it cannot be upgraded. 
+	// can be upgraded. 
 	// @author: jamespetts
 	sint8 upgrades = 0;
-	do {
+	do 
+	{
 		char buf[40];
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
-		if (str.len() > 0) {
-			if (upgrades == 0) 
-			{
-				str = "";
-			}
+		if (str.len() > 0) 
+		{
+			//factory_upgrade_writer_t::instance()->write_obj(fp, node, str);
 			xref_writer_t::instance()->write_obj(fp, node, obj_factory, str, false);
 			upgrades++;
 		}
