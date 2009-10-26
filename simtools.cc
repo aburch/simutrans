@@ -151,7 +151,7 @@ void init_perlin_map( sint32 w, sint32 h )
 void exit_perlin_map()
 {
 	map_w = 0;
-	delete map;
+	delete [] map;
 	map = 0;
 }
 

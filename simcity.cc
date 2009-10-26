@@ -1071,8 +1071,7 @@ void stadt_t::set_name(const char *new_name)
 /* show city info dialoge
  * @author prissi
  */
-void
-stadt_t::zeige_info(void)
+void stadt_t::zeige_info(void)
 {
 	create_win( new stadt_info_t(this), w_info, (long)this );
 }

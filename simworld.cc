@@ -112,8 +112,7 @@ static bool is_dragging = false;
 
 
 // changes the snowline height (for the seasons)
-bool
-karte_t::recalc_snowline()
+bool karte_t::recalc_snowline()
 {
 	static int mfactor[12] = { 99, 95, 80, 50, 25, 10, 0, 5, 20, 35, 65, 85 };
 	static uint8 month_to_season[12] = { 2, 2, 2, 3, 3, 0, 0, 0, 0, 1, 1, 2 };
