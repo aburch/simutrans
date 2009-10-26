@@ -388,7 +388,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		// now apply the changes
 		if(cnv.is_bound()) {
 			// if a line is selected
-			if (new_line.is_bound()  ) {
+			if(  new_line.is_bound()  ) {
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
 					cnv->set_line( new_line );

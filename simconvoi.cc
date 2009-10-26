@@ -2663,6 +2663,9 @@ void convoi_t::check_pending_updates()
 			else {
 				// need re-routing
 				state = FAHRPLANEINGABE;
+			}
+			// make this change immediately
+			if(  state!=LOADING  ) {
 				wait_lock = 0;
 			}
 		}
