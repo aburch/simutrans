@@ -4487,8 +4487,7 @@ static void warte_auf_mausklick_oder_taste(event_t *ev)
  * marks an area using the grund_t mark flag
  * @author prissi
  */
-void
-karte_t::mark_area( const koord3d pos, const koord size, const bool mark )
+void karte_t::mark_area( const koord3d pos, const koord size, const bool mark )
 {
 	for( sint16 y=pos.y;  y<pos.y+size.y;  y++  ) {
 		for( sint16 x=pos.x;  x<pos.x+size.x;  x++  ) {
@@ -4837,6 +4836,7 @@ void karte_t::switch_active_player(uint8 new_player)
 	}
 	else {
 		koord3d old_zeiger_pos = zeiger->get_pos();
+		zeiger->set_bild( IMG_LEER );	// unmarks also area
 		zeiger->set_pos( koord3d::invalid );
 		if(  dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])  ) {
 			dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])->cleanup( active_player, false );
@@ -4848,6 +4848,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 		msg->add_message(buf, koord::invalid, message_t::warnings, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		werkzeug_last_pos = koord3d::invalid;
+		zeiger->set_area( koord(1,1), false );
 		zeiger->set_pos( old_zeiger_pos );
 	}
 
