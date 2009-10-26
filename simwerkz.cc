@@ -4086,3 +4086,175 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 		}
 	}
 }
+
+
+
+/************************* internal tools, only need for networking ***************/
+
+/* Handles all action of convois in depots. Needs a default param,
+ * [convoi_id] the internal id of the convoi to be changed. 0 will create a new convoi
+ * then the acutal command will follow after ','
+ * following simple command exists:
+ * 'x' : self destruct
+ * 'b' : start the journey of a convoi
+ * 'f' : open the schedule window
+ * 'd' : dissassemble convoi and store vehicle in this depot
+ * The next commands need [namber] after the ',':
+ * 'c' : copy convoi with id [number]
+ * 'r' : remove vehicle at [number] and put it into depot here
+ * 's' : sell vehicle at [number]
+ * The last tools needs a string with the name of a vehicle:
+ * 'a' : append this vehicle to the end of this convoi
+ * 'i' : insert this vehicle at the front of this convoi
+ */
+const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
+{
+#if 0
+	grund_t *gr = welt->lookup(k);
+	depot_t *depot = gr ? gr->get_depot() : NULL;
+
+	convoi_t *cnv = NULL;
+	sint32 id = atol(default_param);
+	if(  id==0  ) {
+		// create new convoi
+		convoi_t* new_cnv = new convoi_t(sp);
+		new_cnv->set_home_depot(k);
+		cnv = new_cnv;
+	}
+	else {
+		// find the convoi with this ID
+		for( uint16 h=0;  h<welt->get_convoi_count();  h++  ) {
+			convoihandle_t test = welt->get_convoi( h );
+			if(  test.get_id()==id  ) {
+				cnv = test.get_rep();
+			}
+		}
+	}
+
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p++!=','  ) { }
+
+	assert( cnv!=NULL &&  *p>=' '  );
+
+	// first letter is now the actual command
+	switch(  *p  ) {
+		case 'x': // self destruction ...
+			cnv->self_destruct();
+			return "";
+
+		case 'b': // start convoi
+			if(  depot  ) {
+				depot->start_convoi( cnv->self );
+			}
+			else {
+				welt->sync_add( cnv );
+				cnv->start();
+			}
+			return "";
+
+		case 'f': // change schedule
+			cnv->open_schedule_window();
+			break;
+
+		case 'd': {	// disassemble (assumes a valid depot)!
+			if(  cnv->get_line().is_bound()  ) {
+				cnv->unset_line();
+				cnv->set_schedule( NULL );
+			}
+			// store vehicles in depot
+			vehikel_t *v;
+			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
+				gr = welt->lookup( v->get_pos() );
+				if(gr) {
+					gr->obj_remove( v );
+				}
+				v->loesche_fracht();
+				v->set_erstes(false);
+				v->set_letztes(false);
+				v->set_flag( ding_t::not_on_map );
+				depot->append_vehikel( v );
+			}
+			// and remove from welt
+			cnv->self_destruct();
+			break;
+		}
+
+		case 'a':	// append a vehicle
+		case 'i': {	// insert a vehicle in front
+			// get the name
+			char name[1024];
+			for(  int i=0;  p[i+1]!=0  &&  p[i+1]!=','  &&  i<1024;  i++  ) {
+				name[i] = p[i+1];
+				name[i+1] = 0;
+			}
+			// create and append it
+			const vehikel_besch_t *vb = vehikelbauer_t::get_info( name );
+			vehikel_t* veh = vehikelbauer_t::baue( k, sp, NULL, vb );
+			cnv->add_vehikel( veh, *p=='i' );
+			if(  cnv->get_vehikel_anzahl()==0  ) {
+				cnv->set_name(veh->get_name());
+			}
+			break;
+		}
+
+		case 'c': {	// copy a convoi
+			int copy_id = atoi(p+1);
+			// find the convoi with this ID
+			for( uint16 h=0;  h<welt->get_convoi_count();  h++  ) {
+				convoihandle_t old_cnv = welt->get_convoi( h );
+				// found one => then copy it
+				if(  old_cnv.get_id()==copy_id  ) {
+					cnv->set_name(old_cnv->get_internal_name());
+					int vehicle_count = old_cnv->get_vehikel_anzahl();
+					for( uint8 i = 0;  i<vehicle_count;  i++  ) {
+						const vehikel_besch_t *info = old_cnv->get_vehikel(i)->get_besch();
+						vehikel_t *oldest_vehicle = NULL;
+						// still in depot?
+						if(  depot  ) {
+							oldest_vehicle = depot->get_oldest_vehicle( info );
+						}
+						// we need to buy it
+						if(  oldest_vehicle==NULL  ) {
+							oldest_vehicle = vehikelbauer_t::baue( k, sp, NULL, info );
+						}
+						oldest_vehicle->set_pos(k);
+						cnv->add_vehikel( oldest_vehicle, false );
+					}
+					if(old_cnv->get_line().is_bound()) {
+						cnv->set_line(old_cnv->get_line());
+					}
+					else {
+						if (old_cnv->get_schedule() != NULL) {
+							cnv->set_schedule(old_cnv->get_schedule()->copy());
+						}
+					}
+				}
+				assert( h+1<=welt->get_convoi_count() );
+			}
+			break;
+		}
+
+		case 's':	// sells a vehikel
+		case 'r': {	// removes a vehicle (assumes a valid depot)
+			int nr = atoi(p+1);
+			if(  *p=='r'  ) {
+				depot->append_vehicle( cnv->remove_vehikel_bei( nr ) );
+			}
+			else {
+				// just sell ...
+				vehikel_t *v = cnv->remove_vehikel_bei( nr );
+				sp->buche( v->calc_restwert(), k.get_2d(), COST_NEW_VEHICLE );
+				delete v;
+			}
+			break;
+		}
+	}
+
+	// notify a depot of the change
+	if(  depot  ) {
+		depot->convoi_changed( cnv->self );
+	}
+#endif
+	return "";	// also nothing to do ...
+}

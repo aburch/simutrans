@@ -939,6 +939,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					}
 				}
 				dr_sleep(5);
+				welt->reset_interaction();
 			} while(
 				!wg->get_load() &&
 				!wg->get_scenario() &&

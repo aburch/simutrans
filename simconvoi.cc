@@ -1169,8 +1169,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel
 }
 
 
-vehikel_t *
-convoi_t::remove_vehikel_bei(uint16 i)
+vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 {
 	vehikel_t *v = NULL;
 	if(i<anz_vehikel) {
@@ -1915,8 +1914,7 @@ convoi_t::rdwr(loadsave_t *file)
 }
 
 
-void
-convoi_t::zeige_info()
+void convoi_t::zeige_info()
 {
 	if(!in_depot()) {
 
@@ -2361,9 +2359,12 @@ void convoi_t::self_destruct()
 		for(  int i=0;  i<anz_vehikel;  i++  ) {
 			fahr[i]->set_flag( ding_t::not_on_map );
 		}
+		destroy();
 	}
-	state = SELF_DESTRUCT;
-	wait_lock = 0;
+	else {
+		state = SELF_DESTRUCT;
+		wait_lock = 0;
+	}
 }
 
 

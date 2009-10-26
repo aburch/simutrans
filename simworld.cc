@@ -4510,8 +4510,7 @@ void karte_t::mark_area( const koord3d pos, const koord size, const bool mark )
 
 
 
-void
-karte_t::reset_timer()
+void karte_t::reset_timer()
 {
 	DBG_MESSAGE("karte_t::reset_timer()","called");
 	// Reset timers
@@ -4524,7 +4523,7 @@ karte_t::reset_timer()
 		step_mode = FIX_RATIO;
 	}
 
-	last_step_time = last_tick_sync;
+	last_step_time = last_interaction = last_tick_sync;
 	last_step_ticks = ticks;
 	time_budget = 0;
 
@@ -4556,6 +4555,13 @@ karte_t::reset_timer()
 		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
 	}
+}
+
+
+
+void karte_t::reset_interaction()
+{
+	last_interaction = dr_time();
 }
 
 

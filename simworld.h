@@ -516,6 +516,7 @@ public:
 	bool use_timeline() const { return einstellungen->get_use_timeline(); }
 
 	void reset_timer();
+	void reset_interaction();
 	void step_year();
 
 	// jump one or more months ahead

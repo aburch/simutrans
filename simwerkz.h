@@ -185,6 +185,12 @@ class wkz_fahrplan_ins_t : public werkzeug_t {
 	virtual bool is_work_network_save() const { return true; }
 };
 
+class wkz_change_convoi_t : public werkzeug_t {
+	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return false; }
+};
+
 class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
