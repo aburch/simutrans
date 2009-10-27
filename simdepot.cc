@@ -242,6 +242,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 			}
 			if (old_cnv->get_line().is_bound()) {
 				new_cnv->set_line(old_cnv->get_line());
+				new_cnv->get_schedule()->set_aktuell( old_cnv->get_schedule()->get_aktuell() );
 			}
 			else {
 				if (old_cnv->get_schedule() != NULL) {
