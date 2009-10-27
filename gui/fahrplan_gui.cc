@@ -394,6 +394,7 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 					cnv->set_line( new_line );
 				}
 				else {
+					old_fpl->copy_from( fpl );
 					old_fpl->set_aktuell( fpl->get_aktuell() );
 					cnv->set_schedule( old_fpl );
 				}

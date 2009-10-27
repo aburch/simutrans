@@ -1273,6 +1273,7 @@ void depot_frame_t::apply_line()
 		if(selected_line.is_bound()) {
 			// set new route only, a valid route is selected:
 			cnv->set_line(selected_line);
+			cnv->get_schedule()->set_aktuell( selected_line->get_schedule()->get_aktuell() );
 		}
 		else {
 			// sometimes the user might wish to remove convoy from line
