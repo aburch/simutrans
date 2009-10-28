@@ -3645,7 +3645,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	// ok, now we have old_stop
 	if(  h.is_bound()  &&  !(bd->is_halt()  ||  (h->get_station_type()&haltestelle_t::dock  &&  bd->ist_wasser())  )  ) {
 		// not this halt ...
-		return "No suitable ground! 1";
+		return "No suitable ground!";
 	}
 	// check waytypes
 	if(  waytype[0] == invalid_wt  &&  (bd->ist_wasser()  ||  bd->hat_wege())  ) {
@@ -3656,7 +3656,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		// ok;
 		}
 		else
-			return "No suitable ground! 3";
+			return "No suitable ground!";
 	}
 
 
