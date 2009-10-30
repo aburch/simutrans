@@ -1371,8 +1371,6 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 			return self_halt_idx;
 
 		halthandle_t tmp_halt;
-		const spieler_t *const public_player = welt->get_spieler(1); // public player is #1; #0 is human player
-		const bool is_public_halt = ( besitzer_p == public_player );
 
 		if (!welt)
 		{
@@ -1381,22 +1379,8 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 
 		for (uint8 i = 0; i < entry_count; i++)
 		{
-			tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, besitzer_p);
+			tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sched_owner);
 			
-			if(!tmp_halt.is_bound())
-			{
-				if(is_public_halt)
-				{
-					// Public halts can connect to all other halts, thus try line/convoy owner
-					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sched_owner);
-				}
-				else
-				{
-					// Try a public player halt
-					tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, public_player);
-				}
-			}
-
 			if ( tmp_halt == self && self_halt_idx == -1 )
 			{
 				self_halt_idx = i;
@@ -1795,27 +1779,6 @@ void haltestelle_t::refresh_routing(const schedule_t *const sched, const minivec
 			{
 				tmp_halt = get_halt(welt, sched->eintrag[i].pos, player);
 				
-				if(!tmp_halt.is_bound())
-				{
-					if(player == welt->get_spieler(1))
-					{
-						// Public halts can connect to all other halts, so try each.
-						uint8 x = 0;
-						spieler_t* sp =	welt->get_spieler(x);
-						while(sp != NULL && !tmp_halt.is_bound())
-						{
-							tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
-							sp = welt->get_spieler(++x);
-						}	
-					}
-					else
-					{
-						// Try a public player halt (public player is #1; #0 is human player)
-						spieler_t* sp = welt->get_spieler(1);
-						tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sp);
-					}
-				}
-
 				if(tmp_halt.is_bound())
 				{
 					for (uint8 j = 0; j < catg_count; j++)

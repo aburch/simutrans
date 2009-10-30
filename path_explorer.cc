@@ -595,7 +595,6 @@ void path_explorer_t::compartment_t::step()
 			printf("\t\tCurrent Step : %lu \n", step_count);
 #endif
 
-			const spieler_t *const public_player = world->get_spieler(1); // public player is #1; #0 is human player
 			const ware_besch_t *const ware_type = warenbauer_t::get_info_catg_index(catg);
 			const float journey_time_adjustment = world->get_einstellungen()->get_distance_per_tile() * 600;
 
@@ -656,12 +655,6 @@ void path_explorer_t::compartment_t::step()
 				{
 					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[i].pos, current_owner);
 					
-					if( !current_halt.is_bound() )
-					{
-						// Try a public player halt
-						current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[i].pos, public_player);
-					}
-
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
 					{
