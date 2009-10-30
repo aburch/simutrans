@@ -20,6 +20,10 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/quickstone_hashtable_tpl.h"
 
+// It should not be necessary to check for change of lines/convoys at transfers
+// The relevant code is kept in place just in case
+// #define CHECK_TRANSPORT_CHANGE
+
 class path_explorer_t
 {
 
@@ -39,6 +43,7 @@ private:
 			path_element_t() { aggregate_time = 65535; }
 		};
 
+#ifdef CHECK_TRANSPORT_CHANGE
 		// element used during path search only for storing best lines/convoys
 		struct transport_element_t
 		{
@@ -64,6 +69,7 @@ private:
 
 			transport_element_t() { first_transport = last_transport = 0; }
 		};
+#endif
 
 		// data structure for temporarily storing lines and lineless conovys
 		struct linkage_t
@@ -82,7 +88,9 @@ private:
 
 		// set of variables for working path data
 		path_element_t **working_matrix;
+#ifdef CHECK_TRANSPORT_CHANGE
 		transport_element_t **transport_matrix;
+#endif
 		uint16 *working_halt_index_map;
 		halthandle_t *working_halt_list;
 		uint16 working_halt_count;
