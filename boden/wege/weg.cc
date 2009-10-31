@@ -351,8 +351,8 @@ bool weg_t::check_season( const long )
 		return true;
 	}
 
-	if(  besch==NULL  ) {
-		// now way to calculate this
+	// no way to calculate this or no image set (not visible, in tunnel mouth, etc)
+	if(  besch==NULL  ||  bild==IMG_LEER  ) {
 		return true;
 	}
 
