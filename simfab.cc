@@ -1273,14 +1273,14 @@ fabrik_t::neuer_monat()
 		city = c;
 		city->add_city_factory(this);
 	}
-
+#ifdef DEBUG
 	// TESTING CODE
 	const fabrik_besch_t* TEST_1 = besch->get_upgrades(0);
 	const haus_besch_t* TEST_2 = besch->get_haus();
 	const fabrik_lieferant_besch_t* TEST_3 = besch->get_lieferant(0);
 	const field_besch_t* TEST_4 = besch->get_field();
 	const fabrik_produkt_besch_t* TEST_5 = besch->get_produkt(0);
-
+#endif
 	// Check to see whether factory is obsolete.
 	// If it is, give it a chance of being closed down.
 	// @author: jamespetts
@@ -1377,8 +1377,9 @@ fabrik_t::neuer_monat()
 			const uint32 number_of_customers = lieferziele.get_count();
 			const uint32 number_of_suppliers = suppliers.get_count();
 			const uint16 jobs = besch->get_pax_level();
-			sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-			welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+			// This is repeated elsewhere.
+			//sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+			//welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}

@@ -1293,8 +1293,11 @@ void haltestelle_t::verbinde_fabriken()
 {
 	// unlink all
 	slist_iterator_tpl <fabrik_t *> fab_iter(fab_list);
-	while( fab_iter.next() ) {
-		fab_iter.get_current()->unlink_halt(self);
+	while( fab_iter.next() ) 
+	{
+		fabrik_t* current_factory = fab_iter.get_current();
+		assert(current_factory);
+		current_factory->unlink_halt(self);
 	}
 	fab_list.clear();
 
