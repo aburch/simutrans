@@ -99,6 +99,7 @@ endif
 ifneq ($(PROFILE),)
   CFLAGS   += -pg -DPROFILE -fno-inline
   CXXFLAGS += -pg -DPROFILE -fno-inline
+  LDFLAGS += -pg
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
