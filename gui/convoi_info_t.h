@@ -20,6 +20,7 @@
 
 #include "../utils/cbuffer_t.h"
 
+//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 #define ACCELERATOR_BUTTON MAX_CONVOI_COST
 #define BUTTON_COUNT (ACCELERATOR_BUTTON + 1)
 

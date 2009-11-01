@@ -491,7 +491,7 @@ void convoi_t::add_running_cost(sint32 cost)
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
 
-bool is_track_way_type(waytype_t wt)
+inline bool is_track_way_type(waytype_t wt)
 {
 	switch (wt)
 	{
@@ -509,12 +509,12 @@ bool is_track_way_type(waytype_t wt)
 
 inline double speed_to_v(sint32 speed)
 {
-	return (speed * VEHICLE_SPEED_FACTOR) / (3.6 * 1024.0);
+	return (speed * VEHICLE_SPEED_FACTOR) * (1.0 / (3.6 * 1024.0));
 }
 
 inline sint32 v_to_speed(double v)
 {
-	return (sint32)(v * 3.6 * 1024.0 + 0.5) / VEHICLE_SPEED_FACTOR;
+	return (sint32)(v * (3.6 * 1024.0) + 0.5) / VEHICLE_SPEED_FACTOR;
 }
 
 /**
@@ -536,7 +536,6 @@ double convoi_t::get_force(double speed)
 		double p = b.get_leistung(); // p in kW, get_leistung() in kW
 		if (p > 0)
 		{
-			double v = b.get_geschw() / (2.0 * 3.6); // half speed in m/s, get_geschw() in km/h
 			if (is_track && b.get_engine_type() == b.steam)
 			{
 				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
@@ -546,6 +545,7 @@ double convoi_t::get_force(double speed)
 				*
 				* F = P / v;
 				*/
+				double v = b.get_geschw() / (2.0 * 3.6); // half speed in m/s, get_geschw() in km/h
 				if (speed < v)
 				{
 					// the constant force 
@@ -596,10 +596,9 @@ double convoi_t::get_force(double speed)
 	return force;
 }
 
-
 /* Calculates new akt_speed without setting it.
  */
-void convoi_t::calc_acceleration(long delta_t, const int akt_speed_soll, sint32 &akt_speed)
+void convoi_t::calc_acceleration(long delta_t, const int akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 /*******************************************************************************
 
@@ -656,9 +655,9 @@ a = (F - cf * v^2 - Frs) / m
 	bool is_track = false;
 	double fr = FR_ROAD;
 	double cf = CF_ROAD;
-	double m = 0.0; // in kg
 	double mcos = 0.0; // m * cos(alpha)
 	double msin = 0.0; // m * sin(alpha)
+	int tons = 0;
 	// calculate total friction
 	for (int i = (int)anz_vehikel; --i >= 0;) {
 		const vehikel_t &v = *fahr[i];
@@ -684,7 +683,7 @@ a = (F - cf * v^2 - Frs) / m
 		}
 
 		int weight = v.get_gesamtgewicht(); // vehicle weight in tons
-		m += weight; 
+		tons += weight; 
 		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
 		// Including the 1000 for tons to kg conversion 50 corresponds to an inclination of 28 per mille.
 		int sin_alpha = v.get_frictionfactor(); 
@@ -698,18 +697,22 @@ a = (F - cf * v^2 - Frs) / m
 			mcos += weight;
 		}
 	}
-	m *= 1000.0; // convert from tons to kg 
+	sum_gesamtgewicht = tons;
+	double m = tons * 1000.0; // convert from tons to kg 
 	double Frs = 9.81 * (fr * mcos + msin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 
 	double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 	double vmax = speed_to_v(akt_speed_soll);
 	double fmax = min(cf * vmax * vmax, get_force(vmax) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
 
+#define DT_SLICE 128
+
 	// iterate the passed time.
 	while (delta_t > 0)
 	{
 		// the driver's part: select accelerating force:
 		double f;
+		bool is_breaking = false; // don't roll backwards, due to breaking
 		if (v < vmax)
 		{
 			// below set speed: full acceleration
@@ -726,6 +729,7 @@ a = (F - cf * v^2 - Frs) / m
 			// assuming the brakes are as strong as the start-up force.
 			// hill-down Frs might become negative and works against the brake.
 			f = -get_force(0) * 1000 - Frs;
+			is_breaking = true;
 		}
 		else 
 		{
@@ -733,18 +737,27 @@ a = (F - cf * v^2 - Frs) / m
 			f = 0;
 		}
 
-		// accelerate: calculate new speed according to acceleration within the passed second.
-		if (delta_t >= 128)
+		// accelerate: calculate new speed according to acceleration within the passed second(s).
+		long dt;
+		if (delta_t >= DT_SLICE)
 		{
 			v += 2 * (f - sgn(v) * cf * v * v) / m; 
+			dt = DT_SLICE;
 		}
 		else
 		{
-			v += delta_t * (f - sgn(v) * cf * v * v) / (128 * m); 
+			v += delta_t * (f - sgn(v) * cf * v * v) / (DT_SLICE * m); 
+			dt = delta_t;
 		}
-		delta_t -= 128; // another 2 seconds passed: 1 second = 64 delta_t:  
+		if (is_breaking && v < 0)
+		{
+			v = 0;
+		}
+		akt_speed = v_to_speed(v); // new_speed in simutrans vehicle speed, v in m/s
+		sp_soll += dt * akt_speed;
+
+		delta_t -= DT_SLICE; // another 2 seconds passed: 1 second = 64 delta_t:  
 	}
-	akt_speed = v_to_speed(v); // new_speed in simutrans vehicle speed, v in m/s
 }
 
 
@@ -1003,7 +1016,7 @@ bool convoi_t::sync_step(long delta_t)
 				// ok, so we will accelerate
 				akt_speed_soll = max( akt_speed_soll, kmh_to_speed(30) );
 				calc_acceleration(delta_t);
-				sp_soll += (akt_speed*delta_t);
+				//moved to inside calc_acceleration(): sp_soll += (akt_speed*delta_t);
 				// Make sure that the last_stop_pos is set here so as not
 				// to skew average speed readings from vehicles emerging 
 				// from depots.
@@ -1057,7 +1070,7 @@ bool convoi_t::sync_step(long delta_t)
 				calc_acceleration(delta_t);
 
 				// now actually move the units
-				sp_soll += (akt_speed*delta_t);
+				//moved to inside calc_acceleration(): sp_soll += (akt_speed*delta_t);
 				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll);
 				// stop when depot reached ...
 				if(state==INITIAL) {
@@ -4481,7 +4494,7 @@ void convoy_metrics_t::calc(convoi_t &cnv)
 	 * At first glance the effective power calculation might have been skipped at all, but the convoy top speed 
 	 * can differ from the vehicle's top speed and thus steam engine might still be in the reduced power range.
 	 */
-	power = cnv.get_effective_power(max_top_speed);
+	power = cnv.get_effective_power(max_top_speed); 
 }
 
 void convoy_metrics_t::calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles)

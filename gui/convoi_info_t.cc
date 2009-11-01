@@ -261,19 +261,17 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 
 		//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 		{
-			//const long delta_t = 10000;
 			convoy_metrics_t metrics(*cnv.get_rep());
 			const int akt_speed_soll = kmh_to_speed(metrics.get_speed(cnv->get_sum_gesamtgewicht()));
 			sint32 akt_speed = 0;
+			sint32 sp_soll = 0;
 			int i = MAX_MONTHS;
 			physics_curves[--i][0] = akt_speed;
 			while (i > 0)
 			{
-				cnv->calc_acceleration(15 * 64, akt_speed_soll, akt_speed);
+				cnv->calc_acceleration(15 * 64, akt_speed_soll, akt_speed, sp_soll);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
-
-			//chart.add_curve(0, (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, true, true);
 		}
 
 
