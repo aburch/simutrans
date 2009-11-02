@@ -4351,21 +4351,24 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 	// recalculate halt connections
-	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
+	set_schedule_counter();
 	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().get_count();
-	while(iter.next()) {
-		if((hnr++%32)==0) {
+	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
+		if((hnr++%64)==0) {
 			display_progress(get_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, get_groesse_y()+256+stadt.get_count());
 		}
-		iter.get_current()->rebuild_destinations();
+		(*i)->rebuild_destinations();
 	}
 
 #if 0
 	// reroute goods for benchmarking
 	long dt = dr_time();
-	iter.begin();
-	while(iter.next()) {
-		iter.get_current()->reroute_goods();
+	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
+		sint16 dummy = 0x7FFF;
+		if((hnr++%64)==0) {
+			display_progress(get_groesse_y()+48+stadt.get_count()+128+(hnr*40)/hmax, get_groesse_y()+256+stadt.get_count());
+		}
+		(*i)->reroute_goods(dummy);
 	}
 	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
@@ -4421,8 +4424,7 @@ void karte_t::update_map()
 
 // return an index to a halt (or creates a new one)
 // only used during loading
-halthandle_t
-karte_t::get_halt_koord_index(koord k)
+halthandle_t karte_t::get_halt_koord_index(koord k)
 {
 	if(!ist_in_kartengrenzen(k)) {
 		return halthandle_t();

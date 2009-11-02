@@ -630,7 +630,7 @@ void vehikel_t::set_convoi(convoi_t *c)
 		// just correct freight deistinations
 		slist_iterator_tpl <ware_t> iter (fracht);
 		while(iter.next()) {
-			iter.access_current().laden_abschliessen(welt);
+			iter.access_current().laden_abschliessen(welt,get_besitzer());
 		}
 	}
 }

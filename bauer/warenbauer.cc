@@ -36,8 +36,7 @@ static spezial_obj_tpl<ware_besch_t> spezial_objekte[] = {
 
 
 
-bool
-warenbauer_t::alles_geladen()
+bool warenbauer_t::alles_geladen()
 {
 	if(!::alles_geladen(spezial_objekte)) {
 		return false;

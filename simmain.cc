@@ -190,9 +190,12 @@ static void zeige_banner(karte_t *welt)
 
 	// hide titelbar with this trick
 	win_set_pos( b, 0, -48 );
+	welt->set_pause( false );
+	welt->reset_interaction();
+	welt->reset_timer();
 
 	do {
-		static long ms_pause = 1000/max(100,umgebung_t::fps);
+		static long ms_pause = 1000/min(100,umgebung_t::fps);
 		win_poll_event(&ev);
 		check_pos_win(&ev);
 		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
@@ -854,13 +857,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 #endif
 
 	welt->set_fast_forward(false);
+	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-#ifdef PROFILE
-		welt->set_fast_forward(true);
-		if( loadgame == "" ) {
-			dbg->fatal("simmain", "no game loaden in profile mode. Use -load");
-		}
-#endif
 		view->display(true);
 		intr_refresh_display(true);
 	}
@@ -888,13 +886,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->get_message()->clear();
 
-#ifndef PROFILE
 	if(  !umgebung_t::networkmode  ||  new_world  ) {
 		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
 	}
-#endif
-
 
 	while (!umgebung_t::quit_simutrans) {
 		// play next tune?

@@ -46,16 +46,14 @@ ware_t::ware_t(karte_t *welt,loadsave_t *file)
 }
 
 
-void
-ware_t::set_besch(const ware_besch_t* type)
+void ware_t::set_besch(const ware_besch_t* type)
 {
 	index = type->get_index();
 }
 
 
 
-void
-ware_t::rdwr(karte_t *welt,loadsave_t *file)
+void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 {
 	sint32 amount = menge;
 	file->rdwr_long(amount, " ");
@@ -107,13 +105,15 @@ ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 
 
-void
-ware_t::laden_abschliessen(karte_t *welt)
+void ware_t::laden_abschliessen(karte_t *welt,spieler_t *sp)
 {
 	// since some halt was referred by with several koordinates
 	// this routine will correct it
 	if(ziel.is_bound()) {
 		ziel = welt->lookup(ziel->get_init_pos())->get_halt();
+	}
+	else {
+		ziel = haltestelle_t::get_halt( welt, zielpos, NULL );
 	}
 	if(zwischenziel.is_bound()) {
 		zwischenziel = welt->lookup(zwischenziel->get_init_pos())->get_halt();

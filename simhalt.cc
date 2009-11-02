@@ -854,7 +854,7 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 				vector_tpl<ware_t> * warray = waren[last_catg_index];
 				vector_tpl<ware_t> * new_warray = new vector_tpl<ware_t>(warray->get_count());
 
-				for(int j=warray->get_count()-1;  j>=0;  j--  ) {
+				for(  int j=warray->get_count()-1;  j>=0;  j--  ) {
 					ware_t & ware = (*warray)[j];
 
 					if(ware.menge==0) {
@@ -862,7 +862,7 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 					}
 
 					// since also the factory halt list is added to the ground, we can use just this ...
-					if(welt->lookup(ware.get_zielpos())->is_connected(self)) {
+					if(  welt->lookup(ware.get_zielpos())->is_connected(self)  ) {
 						// we are already there!
 						if(ware.is_freight()) {
 							liefere_an_fabrik(ware);
@@ -875,7 +875,7 @@ bool haltestelle_t::reroute_goods(sint16 &units_remaining)
 				}
 
 				// delete, if nothing connects here
-				if (new_warray->empty()) {
+				if(  new_warray->empty()  ) {
 					if(  warenziele[last_catg_index].empty()  ) {
 						// no connections from here => delete
 						delete new_warray;
@@ -2157,7 +2157,7 @@ void haltestelle_t::laden_abschliessen()
 		if(waren[i]) {
 			vector_tpl<ware_t> * warray = waren[i];
 			for(unsigned j=0; j<warray->get_count(); j++) {
-				(*warray)[j].laden_abschliessen(welt);
+				(*warray)[j].laden_abschliessen(welt,besitzer_p);
 			}
 			// merge identical entries (should only happen with old games)
 			for(unsigned j=0; j<warray->get_count(); j++) {
