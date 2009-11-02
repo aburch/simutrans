@@ -2594,8 +2594,8 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 		}
 		// way too slow => try to increase time ...
 		if(  last_ms-last_interaction > 100  ) {
-			if(  last_ms-last_interaction > 300  ) {
-				set_frame_time( 5+get_frame_time() );
+			if(  last_ms-last_interaction > 500  ) {
+				set_frame_time( 1+get_frame_time() );
 			}
 			else {
 				increase_frame_time();
@@ -3662,6 +3662,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 				einstellungen->set_filename(filename);
 			}
 		}
+		reset_interaction();
 	}
 	display_show_load_pointer( false );
 #endif
