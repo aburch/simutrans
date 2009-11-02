@@ -29,8 +29,8 @@
 #define START_HEIGHT (28)
 
 #define LEFT_ARROW (130)
-#define RIGHT_ARROW (170)
-#define TEXT_RIGHT (155) // 10 are offset in routine ..
+#define RIGHT_ARROW (180)
+#define TEXT_RIGHT (165) // 10 are offset in routine ..
 
 #include <sys/stat.h>
 #include <time.h>
