@@ -20,9 +20,10 @@
 #include "tpl/vector_tpl.h"
 #include "tpl/quickstone_hashtable_tpl.h"
 
-// It should not be necessary to check for change of lines/convoys at transfers
-// The relevant code is kept in place just in case
-// #define CHECK_TRANSPORT_CHANGE
+// It is necessary to check for change of lines/convoys at transfers,
+// because there may be unusually long waiting times caused by 
+// the "load closer halts' pax first" policy with always almost full convoys.
+#define CHECK_TRANSPORT_CHANGE
 
 class path_explorer_t
 {
@@ -125,12 +126,14 @@ private:
 
 		// phase counters for path searching
 		uint16 via_index;
-		uint16 origin;
+		uint16 origin_index;
 
-		// origins limit for path searching
-		uint32 limit_explore_origins;
+		// variables for limiting search
+		uint16 *connected_halt_list;
+		uint16 connected_halt_count;
+		bool process_next_transfer;
 
-		// statistics for determining limit_explore_paths
+		// statistics for determining limits
 		uint32 statistic_duration;
 		uint32 statistic_iteration;
 
@@ -148,25 +151,26 @@ private:
 		static uint32 limit_rebuild_connexions;
 		static uint32 limit_filter_eligible;
 		static uint32 limit_fill_matrix;
-		static uint32 limit_explore_paths;
+		static uint64 limit_explore_paths;
 		static uint32 limit_reroute_goods;
 
 		// back-up iteration limits
 		static uint32 backup_rebuild_connexions;
 		static uint32 backup_filter_eligible;
 		static uint32 backup_fill_matrix;
-		static uint32 backup_explore_paths;
+		static uint64 backup_explore_paths;
 		static uint32 backup_reroute_goods;
 
 		// default iteration limits
 		static const uint32 default_rebuild_connexions = 4096;
 		static const uint32 default_filter_eligible = 4096;
 		static const uint32 default_fill_matrix = 4096;
-		static const uint32 default_explore_paths = 65536;
+		static const uint64 default_explore_paths = 1048576;
 		static const uint32 default_reroute_goods = 4096;
 
 		// maximum limit for full refresh
-		static const uint32 maximum_limit = UINT32_MAX_VALUE;
+		static const uint32 maximum_limit_32bit = 0xFFFFFFFF;
+		static const uint64 maximum_limit_64bit = 0xFFFFFFFFFFFFFFFF;
 
 		// phase indices
 		static const uint8 phase_check_flag = 0;
@@ -241,11 +245,11 @@ private:
 		}
 		static void set_maximum_limits()
 		{
-			limit_rebuild_connexions = maximum_limit;
-			limit_filter_eligible = maximum_limit;
-			limit_fill_matrix = maximum_limit;
-			limit_explore_paths = maximum_limit;
-			limit_reroute_goods = maximum_limit;
+			limit_rebuild_connexions = maximum_limit_32bit;
+			limit_filter_eligible = maximum_limit_32bit;
+			limit_fill_matrix = maximum_limit_32bit;
+			limit_explore_paths = maximum_limit_64bit;
+			limit_reroute_goods = maximum_limit_32bit;
 		}
 		static void set_default_limits()
 		{
@@ -259,7 +263,7 @@ private:
 		static uint32 get_limit_rebuild_connexions() { return limit_rebuild_connexions; }
 		static uint32 get_limit_filter_eligible() { return limit_filter_eligible; }
 		static uint32 get_limit_fill_matrix() { return limit_fill_matrix; }
-		static uint32 get_limit_explore_paths() { return limit_explore_paths; }
+		static uint64 get_limit_explore_paths() { return limit_explore_paths; }
 		static uint32 get_limit_reroute_goods() { return limit_reroute_goods; }
 
 	};
@@ -290,7 +294,7 @@ public:
 	static uint32 get_limit_rebuild_connexions() { return compartment_t::get_limit_rebuild_connexions(); }
 	static uint32 get_limit_filter_eligible() { return compartment_t::get_limit_filter_eligible(); }
 	static uint32 get_limit_fill_matrix() { return compartment_t::get_limit_fill_matrix(); }
-	static uint32 get_limit_explore_paths() { return compartment_t::get_limit_explore_paths(); }
+	static uint64 get_limit_explore_paths() { return compartment_t::get_limit_explore_paths(); }
 	static uint32 get_limit_reroute_goods() { return compartment_t::get_limit_reroute_goods(); }
 	static bool is_processing() { return processing; }
 	static const char *get_current_category_name() { return goods_compartment[current_compartment].get_category_name(); }

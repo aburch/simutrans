@@ -14,7 +14,7 @@ static double large_number_factor = 1e99;	// off
 
 
 // a single use number to string ...
-char *ntos(int number, const char *format)
+char *ntos(long number, const char *format)
 {
 	static char tempstring[32];
 	int r;

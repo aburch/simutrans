@@ -208,13 +208,13 @@ quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *path_explore
 uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
 uint32 path_explorer_t::compartment_t::limit_filter_eligible = default_filter_eligible;
 uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
-uint32 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
+uint64 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::limit_reroute_goods = default_reroute_goods;
 
 uint32 path_explorer_t::compartment_t::backup_rebuild_connexions = default_rebuild_connexions;
 uint32 path_explorer_t::compartment_t::backup_filter_eligible = default_filter_eligible;
 uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
-uint32 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
+uint64 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::backup_reroute_goods = default_reroute_goods;
 
 uint16 path_explorer_t::compartment_t::representative_halt_count = 0;
@@ -259,9 +259,11 @@ path_explorer_t::compartment_t::compartment_t()
 	iterations = 0;
 
 	via_index = 0;
-	origin = 0;
+	origin_index = 0;
 
-	limit_explore_origins = 0;
+	connected_halt_list = NULL;
+	connected_halt_count = 0;
+	process_next_transfer = true;
 
 	statistic_duration = 0;
 	statistic_iteration = 0;
@@ -325,6 +327,11 @@ path_explorer_t::compartment_t::~compartment_t()
 	if (transfer_list)
 	{
 		delete[] transfer_list;
+	}
+
+	if (connected_halt_list)
+	{
+		delete[] connected_halt_list;
 	}
 }
 
@@ -409,6 +416,14 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	}	
 	transfer_count = 0;
 
+	if (connected_halt_list)
+	{
+		delete[] connected_halt_list;
+		connected_halt_list = NULL;
+	}
+	connected_halt_count = 0;
+	process_next_transfer = true;
+
 #ifdef DEBUG_COMPARTMENT_STEP
 	step_count = 0;
 #endif
@@ -426,9 +441,7 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	iterations = 0;
 
 	via_index = 0;
-	origin = 0;
-
-	limit_explore_origins = 0;
+	origin_index = 0;
 
 	statistic_duration = 0;
 	statistic_iteration = 0;
@@ -778,7 +791,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_rebuild_connexions == maximum_limit )
+						if ( limit_rebuild_connexions == maximum_limit_32bit )
 						{
 							const uint32 percentage = projected_iterations * 100 / backup_rebuild_connexions;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -895,7 +908,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_filter_eligible == maximum_limit )
+						if ( limit_filter_eligible == maximum_limit_32bit )
 						{
 							const uint32 percentage = projected_iterations * 100 / backup_filter_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1059,9 +1072,6 @@ void path_explorer_t::compartment_t::step()
 					}
 				}
 
-				// Special case
-				working_matrix[phase_counter][phase_counter].aggregate_time = 0;
-
 				++phase_counter;
 				
 				// iteration control
@@ -1093,7 +1103,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_fill_matrix == maximum_limit )
+						if ( limit_fill_matrix == maximum_limit_32bit )
 						{
 							const uint32 percentage = projected_iterations * 100 / backup_fill_matrix;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
@@ -1151,20 +1161,14 @@ void path_explorer_t::compartment_t::step()
 
 			// temporary variables
 			uint16 combined_time;
-			uint16 via;
-			uint16 target;
+			uint16 idx;
+			uint64 iterations_processed = 0;
 
 			// initialize only when not resuming
-			if (via_index == 0 && origin == 0)
+			if (via_index == 0 && origin_index == 0)
 			{
-				if (limit_explore_paths == maximum_limit)
-				{
-					limit_explore_origins = maximum_limit;
-				}
-				else
-				{
-					limit_explore_origins = limit_explore_paths * time_midpoint / ( working_halt_count ? working_halt_count : 1 );
-				}
+				// build connected halt list
+				connected_halt_list = new uint16[working_halt_count];
 			}
 
 			start = dr_time();	// start timing
@@ -1172,14 +1176,34 @@ void path_explorer_t::compartment_t::step()
 			// for each transfer halt
 			while ( via_index < transfer_count )
 			{
-				via = transfer_list[via_index];
+				const uint16 via = transfer_list[via_index];
+
+				if ( process_next_transfer )
+				{
+					// prevent reconstruction of connected halt list while resuming in subsequent steps
+					process_next_transfer = false;
+
+					// identify halts which are connected with the current transfer halt
+					for ( idx = 0; idx < working_halt_count; ++idx )
+					{
+						if ( working_matrix[via][idx].aggregate_time != 65535 )
+						{
+							connected_halt_list[connected_halt_count] = idx;
+							++connected_halt_count;
+						}
+					}
+				}
 
 				// for each origin
-				while ( origin < working_halt_count )
+				while ( origin_index < connected_halt_count )
 				{
+					const uint16 origin = connected_halt_list[origin_index];
+
 					// for each destination
-					for ( target = 0; target < working_halt_count; ++target )
+					for ( idx = 0; idx < connected_halt_count; ++idx )
 					{
+						const uint16 target = connected_halt_list[idx];
+						
 						// The first 2 comparisons may seem redundant, but they cut down search time by 10%
 						if ( 
 							 working_matrix[origin][via].aggregate_time < working_matrix[origin][target].aggregate_time 
@@ -1200,18 +1224,20 @@ void path_explorer_t::compartment_t::step()
 						}
 					}
 
-					++origin;
+					++origin_index;
 
 					// iteration control
-					++iterations;
-					if (iterations == limit_explore_origins)
+					iterations_processed += connected_halt_count;
+					if (iterations_processed >= limit_explore_paths)
 					{
 						goto loop_termination;
 					}
 
 				}
 
-				origin = 0;
+				origin_index = 0;
+				connected_halt_count = 0;
+				process_next_transfer = true;
 				++via_index;
 			}
 
@@ -1224,11 +1250,11 @@ void path_explorer_t::compartment_t::step()
 			{
 				// the variables have different meaning here
 				++statistic_duration;	// step count
-				statistic_iteration += iterations * working_halt_count / ( diff ? diff : 1 );	// sum of iterations per ms
+				statistic_iteration += static_cast<uint32>( iterations_processed / ( diff ? diff : 1 ) );	// sum of iterations per ms
 			}
 
 #ifdef DEBUG_COMPARTMENT_STEP
-			printf("\t\t\tPath searching -> %lu iterations takes :  %lu ms \t [ %lu ] \n", iterations, diff, limit_explore_paths);
+			printf("\t\t\tPath searching -> %lu iterations takes :  %lu ms \n", static_cast<unsigned long>(iterations_processed), diff);
 #endif
 
 			if (via_index == transfer_count)
@@ -1236,23 +1262,23 @@ void path_explorer_t::compartment_t::step()
 				// iteration limit adjustment
 				if ( catg == representative_category )
 				{
-					const uint32 average = statistic_iteration / statistic_duration;
-					if ( average > 0 )
+					const uint64 projected_iterations = static_cast<uint64>( statistic_iteration / statistic_duration ) * static_cast<uint64>( time_midpoint );
+					if ( projected_iterations > 0 )
 					{
-						if ( limit_explore_paths == maximum_limit )
+						if ( limit_explore_paths == maximum_limit_64bit )
 						{
-							const uint32 percentage = average * 100 / backup_explore_paths;
+							const uint32 percentage = static_cast<uint32>( projected_iterations * 100 / backup_explore_paths );
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_explore_paths = average;
+								backup_explore_paths = projected_iterations;
 							}
 						}
 						else
 						{
-							const uint32 percentage = average * 100 / limit_explore_paths;
+							const uint32 percentage = static_cast<uint32>( projected_iterations * 100 / limit_explore_paths );
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								limit_explore_paths = average;
+								limit_explore_paths = projected_iterations;
 							}
 						}
 					}
@@ -1307,20 +1333,26 @@ void path_explorer_t::compartment_t::step()
 				}
 				transfer_count = 0;
 
+				if (connected_halt_list)
+				{
+					delete[] connected_halt_list;
+					connected_halt_list = NULL;
+				}
+				connected_halt_count = 0;
+				process_next_transfer = true;
+
 				// Debug paths : to execute, working_halt_list should not be deleted in the previous phase
 				// enumerate_all_paths(finished_matrix, working_halt_list, finished_halt_index_map, finished_halt_count);
 
 				current_phase = phase_reroute_goods;	// proceed to the next phase
-				limit_explore_origins = 0;	// reset step limit
+
 				// reset counters
 				via_index = 0;
-				origin = 0;
+				origin_index = 0;
 
 				paths_available = true;
 			}
 			
-			iterations = 0;	// reset iteration counter
-
 			return;
 		}
 
@@ -1382,7 +1414,7 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_reroute_goods == maximum_limit )
+						if ( limit_reroute_goods == maximum_limit_32bit )
 						{
 							const uint32 percentage = projected_iterations * 100 / backup_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
