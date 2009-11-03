@@ -863,22 +863,24 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(visible){
 		if(  flags&has_way1  ) {
 			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), rasterweite );
-			const ding_t* d = obj_bei(0);
+			ding_t* d = obj_bei(0);
 			display_color_img( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
 			PLAYER_COLOR_VAL pc = d->get_outline_colour();
 			if(pc) {
 				display_img_blend( d->get_bild(), xpos, ynpos, pc, true, dirty|d->get_flag(ding_t::dirty) );
 			}
+			d->clear_flag( ding_t::dirty );
 		}
 
 		if(  flags&has_way2  ){
 			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), rasterweite );
-			const ding_t* d = obj_bei(1);
+			ding_t* d = obj_bei(1);
 			display_color_img( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
 			PLAYER_COLOR_VAL pc = d->get_outline_colour();
 			if(pc) {
 				display_img_blend( d->get_bild(), xpos, ynpos, pc, true, dirty|d->get_flag(ding_t::dirty) );
 			}
+			d->clear_flag( ding_t::dirty );
 		}
 	}
 }
