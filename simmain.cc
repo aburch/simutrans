@@ -915,6 +915,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			create_win((disp_width - 220 - cg->get_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
 
 			do {
+				// disable pause to allow for screen updates
+				welt->set_pause( false );
+				welt->set_fast_forward(false);
+
 				INT_CHECK("simmain 803");
 				win_poll_event(&ev);
 				INT_CHECK("simmain 805");
