@@ -854,8 +854,6 @@ void convoi_t::step()
 
 		// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
-			besitzer_p->buche( calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
-			besitzer_p->buche( -calc_restwert(), get_pos().get_2d(), COST_ASSETS );
 			welt->set_dirty();
 			destroy();
 			break;
@@ -2190,8 +2188,6 @@ void convoi_t::laden()
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
-			besitzer_p->buche( calc_restwert(), COST_NEW_VEHICLE );
-			besitzer_p->buche( -calc_restwert(), COST_ASSETS );
 			welt->set_dirty();
 			destroy();
 			return;
@@ -2387,8 +2383,15 @@ void convoi_t::destroy()
 		unset_line();
 		delete fpl;
 		fpl = NULL;
-		state = INITIAL;
 	}
+
+	if(  state != INITIAL  ) {
+		state = SELF_DESTRUCT;
+	}
+
+	// pay the current value
+	besitzer_p->buche( calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
+	besitzer_p->buche( -calc_restwert(), COST_ASSETS );
 
 	for(int i=anz_vehikel-1;  i>=0; i--) {
 		if(  !fahr[i]->get_flag( ding_t::not_on_map )  ) {
@@ -2402,6 +2405,7 @@ void convoi_t::destroy()
 			fahr[i]->set_flag( ding_t::not_on_map );
 
 		}
+		fahr[i]->entferne(besitzer_p);
 		delete fahr[i];
 	}
 	anz_vehikel = 0;

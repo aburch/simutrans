@@ -6,6 +6,7 @@
 	FIX: do not show more than the last 2000 messages in message center to prevent scrollbar malfunction
 	FIX: margin calculation was wrong
 	FIX: first halts are now first in connection list => consistently transfer at first possibility
+	FIX: no money when selling convois at the depot
 
 
 

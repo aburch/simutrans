@@ -49,7 +49,7 @@
 #include "simgraph.h"
 
 // undefine for debugging the update routines
-#define DEBUG_FLUSH_BUFFER
+//#define DEBUG_FLUSH_BUFFER
 
 /*
  * Hajo: RGB 1555
