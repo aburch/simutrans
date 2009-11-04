@@ -507,14 +507,6 @@ public:
 	uint32 liefere_an(ware_t ware);
 	uint32 starte_mit_route(ware_t ware);
 
-	/**
-	 * wird von Fahrzeug aufgerufen, wenn dieses an der Haltestelle
-	 * gehalten hat.
-	 * @param typ der beförderte warentyp
-	 * @author Hj. Malthaner
-	 */
-	void hat_gehalten( const ware_besch_t *warentyp, const schedule_t *fpl, const spieler_t *sp );
-
 	const grund_t *find_matching_position(waytype_t wt) const;
 
 	/* checks, if there is an unoccupied loading bay for this kind of thing

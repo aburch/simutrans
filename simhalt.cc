@@ -958,44 +958,35 @@ void haltestelle_t::verbinde_fabriken()
 /*
  * removes factory to a halt
  */
-void
-haltestelle_t::remove_fabriken(fabrik_t *fab)
+void haltestelle_t::remove_fabriken(fabrik_t *fab)
 {
 	fab_list.remove(fab);
 }
 
 
 
-void haltestelle_t::hat_gehalten(const ware_besch_t *type, const schedule_t *fpl, const spieler_t *sp )
-{
-	if(type != warenbauer_t::nichts) {
-		for(int i=0; i<fpl->get_count(); i++) {
+// only needed for rebuild_destinations(), but mingw hickup on local classes
+class warenzielsorter_t {
+public:
+	halthandle_t halt;
+	uint8 stops;
+	uint8 catg_index;
 
-			// Hajo: Haltestelle selbst wird nicht in Zielliste aufgenommen
-			halthandle_t halt = get_halt(welt, fpl->eintrag[i].pos, sp);
-			// not existing, or own, or not enabled => ignore
-			if(!halt.is_bound()  ||  halt==self  ||  !halt->is_enabled(type)) {
-				continue;
-			}
-
-			// we need to do this here; otherwise the position of the stop (if in water) may not directly be a halt!
-			vector_tpl<halthandle_t> &wz_list = warenziele[ type->get_catg_index() ];
-			if(  !wz_list.is_contained(halt)  ) {
-				wz_list.append( halt );
-				if(  waren[type->get_catg_index()] == NULL  ) {
-					// indicates that this can route those goods
-					waren[type->get_catg_index()] = new vector_tpl<ware_t>(0);
-				}
-			}
-		}
+	warenzielsorter_t( halthandle_t h, uint8 s, uint8 ci ) :
+		halt(h),
+		stops(s),
+		catg_index(ci)
+		{}
+	warenzielsorter_t() { stops=0; catg_index=0; }
+	inline bool operator == (const warenzielsorter_t &k) const {
+		return halt==k.halt  &&  stops<=k.stops  &&  catg_index==k.catg_index;
 	}
-}
-
-
+};
 
 /**
  * Rebuilds the list of reachable destinations
- *
+ * returns the number of stops considered for this
+ * The warenziele are sorted by nubmer of intermediate stops; next are first
  * @author Hj. Malthaner
  */
 sint32 haltestelle_t::rebuild_destinations()
@@ -1012,22 +1003,6 @@ sint32 haltestelle_t::rebuild_destinations()
 
 	const bool i_am_public = (get_besitzer()==welt->get_spieler(1));
 
-	class warenzielsorter_t {
-	public:
-		halthandle_t halt;
-		uint8 stops;
-		uint8 catg_index;
-
-		warenzielsorter_t( halthandle_t h, uint8 s, uint8 ci ) :
-			halt(h),
-			stops(s),
-			catg_index(ci)
-			{}
-		warenzielsorter_t() { stops=0; catg_index=0; }
-		inline bool operator == (const warenzielsorter_t &k) const {
-			return halt==k.halt  &&  stops<=k.stops  &&  catg_index==k.catg_index;
-		}
-	};
 	vector_tpl<warenzielsorter_t> warenziele_by_stops;
 	vector_tpl<uint8> add_catg_index(4);
 	sint32 connections_searched = 0;
