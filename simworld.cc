@@ -1550,6 +1550,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 karte_t::~karte_t()
 {
+	is_sound = false;
+
 	destroy();
 
 	if(einstellungen) {
