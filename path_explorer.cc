@@ -229,9 +229,7 @@ path_explorer_t::compartment_t::compartment_t()
 	finished_halt_count = 0;
 
 	working_matrix = NULL;
-#ifdef CHECK_TRANSPORT_CHANGE
 	transport_matrix = NULL;
-#endif
 	working_halt_index_map = NULL;
 	working_halt_list = NULL;
 	working_halt_count = 0;
@@ -259,10 +257,12 @@ path_explorer_t::compartment_t::compartment_t()
 	iterations = 0;
 
 	via_index = 0;
-	origin_index = 0;
+	origin_cluster_index = 0;
+	target_cluster_index = 0;
+	origin_member_index = 0;
 
-	connected_halt_list = NULL;
-	connected_halt_count = 0;
+	inbound_connections = NULL;
+	outbound_connections = NULL;
 	process_next_transfer = true;
 
 	statistic_duration = 0;
@@ -294,7 +294,6 @@ path_explorer_t::compartment_t::~compartment_t()
 		}
 		delete[] working_matrix;
 	}
-#ifdef CHECK_TRANSPORT_CHANGE
 	if (transport_matrix)
 	{
 		for (uint16 i = 0; i < working_halt_count; ++i)
@@ -303,7 +302,6 @@ path_explorer_t::compartment_t::~compartment_t()
 		}
 		delete[] transport_matrix;
 	}
-#endif
 	if (working_halt_index_map)
 	{
 		delete[] working_halt_index_map;
@@ -329,9 +327,14 @@ path_explorer_t::compartment_t::~compartment_t()
 		delete[] transfer_list;
 	}
 
-	if (connected_halt_list)
+	if (inbound_connections)
 	{
-		delete[] connected_halt_list;
+		delete inbound_connections;
+	}
+
+	if (outbound_connections)
+	{
+		delete outbound_connections;
 	}
 }
 
@@ -369,7 +372,6 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		delete[] working_matrix;
 		working_matrix = NULL;
 	}	
-#ifdef CHECK_TRANSPORT_CHANGE
 	if (transport_matrix)
 	{
 		for (uint16 i = 0; i < working_halt_count; ++i)
@@ -379,7 +381,6 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 		delete[] transport_matrix;
 		transport_matrix = NULL;
 	}
-#endif
 	if (working_halt_index_map)
 	{
 		delete[] working_halt_index_map;
@@ -416,12 +417,16 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	}	
 	transfer_count = 0;
 
-	if (connected_halt_list)
+	if (inbound_connections)
 	{
-		delete[] connected_halt_list;
-		connected_halt_list = NULL;
+		delete inbound_connections;
+		inbound_connections = NULL;
 	}
-	connected_halt_count = 0;
+	if (outbound_connections)
+	{
+		delete outbound_connections;
+		outbound_connections = NULL;
+	}
 	process_next_transfer = true;
 
 #ifdef DEBUG_COMPARTMENT_STEP
@@ -441,7 +446,9 @@ void path_explorer_t::compartment_t::reset(const bool reset_finished_set)
 	iterations = 0;
 
 	via_index = 0;
-	origin_index = 0;
+	origin_cluster_index = 0;
+	target_cluster_index = 0;
+	origin_member_index = 0;
 
 	statistic_duration = 0;
 	statistic_iteration = 0;
@@ -559,8 +566,7 @@ void path_explorer_t::compartment_t::step()
 				}
 			}
 
-			static const convoihandle_t null_convoy_handle;
-			temp_linkage.convoy = null_convoy_handle;	// reset the convoy handle component
+			temp_linkage.convoy = convoihandle_t();	// reset the convoy handle component
 
 			// loop through all lines of all players
 			for (int i = 0; i < MAX_PLAYER_COUNT; ++i) 
@@ -976,14 +982,12 @@ void path_explorer_t::compartment_t::step()
 						working_matrix[i] = new path_element_t[working_halt_count];
 					}
 
-#ifdef CHECK_TRANSPORT_CHANGE
 					// build transport matrix
 					transport_matrix = new transport_element_t*[working_halt_count];
 					for (uint16 i = 0; i < working_halt_count; ++i)
 					{
 						transport_matrix[i] = new transport_element_t[working_halt_count];
 					}
-#endif
 
 					// build transfer list
 					transfer_list = new uint16[working_halt_count];
@@ -1035,7 +1039,6 @@ void path_explorer_t::compartment_t::step()
 					// update corresponding matrix element
 					working_matrix[phase_counter][reachable_halt_index].next_transfer = reachable_halt;
 					working_matrix[phase_counter][reachable_halt_index].aggregate_time = current_connexion->waiting_time + current_connexion->journey_time;
-#ifdef CHECK_TRANSPORT_CHANGE
 					if ( current_connexion->best_line.is_bound() )
 					{
 						transport_matrix[phase_counter][reachable_halt_index].first_line 
@@ -1048,7 +1051,6 @@ void path_explorer_t::compartment_t::step()
 							= transport_matrix[phase_counter][reachable_halt_index].last_convoy 
 							= current_connexion->best_convoy.get_id();
 					}
-#endif
 
 					// Debug journey times
 					// printf("\n%s -> %s : %lu \n",current_halt->get_name(), reachable_halt->get_name(), working_matrix[phase_counter][reachable_halt_index].journey_time);
@@ -1071,6 +1073,9 @@ void path_explorer_t::compartment_t::step()
 						}
 					}
 				}
+
+				// Special case
+				working_matrix[phase_counter][phase_counter].aggregate_time = 0;
 
 				++phase_counter;
 				
@@ -1161,19 +1166,20 @@ void path_explorer_t::compartment_t::step()
 
 			// temporary variables
 			uint16 combined_time;
-			uint16 idx;
+			uint16 target_member_index;
 			uint64 iterations_processed = 0;
 
 			// initialize only when not resuming
-			if (via_index == 0 && origin_index == 0)
+			if ( via_index == 0 && origin_cluster_index == 0 && target_cluster_index == 0 && origin_member_index == 0 )
 			{
-				// build connected halt list
-				connected_halt_list = new uint16[working_halt_count];
+				// build data structures for inbound/outbound connections to/from transfer halts
+				inbound_connections = new connection_t(16, working_halt_count);
+				outbound_connections = new connection_t(16, working_halt_count);
 			}
 
 			start = dr_time();	// start timing
 
-			// for each transfer halt
+			// for each transfer
 			while ( via_index < transfer_count )
 			{
 				const uint16 via = transfer_list[via_index];
@@ -1184,62 +1190,88 @@ void path_explorer_t::compartment_t::step()
 					process_next_transfer = false;
 
 					// identify halts which are connected with the current transfer halt
-					for ( idx = 0; idx < working_halt_count; ++idx )
+					for ( uint16 idx = 0; idx < working_halt_count; ++idx )
 					{
-						if ( working_matrix[via][idx].aggregate_time != 65535 )
+						if ( working_matrix[via][idx].aggregate_time != 65535 && via != idx )
 						{
-							connected_halt_list[connected_halt_count] = idx;
-							++connected_halt_count;
+							inbound_connections->register_connection( transport_matrix[idx][via].last_transport, idx );
+							outbound_connections->register_connection( transport_matrix[via][idx].first_transport, idx );
 						}
 					}
 				}
 
-				// for each origin
-				while ( origin_index < connected_halt_count )
+				// for each origin cluster
+				while ( origin_cluster_index < inbound_connections->get_cluster_count() )
 				{
-					const uint16 origin = connected_halt_list[origin_index];
+					const connection_t::connection_cluster_t &origin_cluster = (*inbound_connections)[origin_cluster_index];
+					const uint32 inbound_transport = origin_cluster.transport;
+					const vector_tpl<uint16> &origin_halt_list = origin_cluster.connected_halts;
 
-					// for each destination
-					for ( idx = 0; idx < connected_halt_count; ++idx )
+					// for each target cluster
+					while ( target_cluster_index < outbound_connections->get_cluster_count() )
 					{
-						const uint16 target = connected_halt_list[idx];
-						
-						// The first 2 comparisons may seem redundant, but they cut down search time by 10%
-						if ( 
-							 working_matrix[origin][via].aggregate_time < working_matrix[origin][target].aggregate_time 
-							 && working_matrix[via][target].aggregate_time < working_matrix[origin][target].aggregate_time 
-							 && ( combined_time = working_matrix[origin][via].aggregate_time + working_matrix[via][target].aggregate_time ) 
-									< working_matrix[origin][target].aggregate_time
-#ifdef CHECK_TRANSPORT_CHANGE
-							 && transport_matrix[origin][via].last_transport != transport_matrix[via][target].first_transport
-#endif
-						   )
+						const connection_t::connection_cluster_t &target_cluster = (*outbound_connections)[target_cluster_index];
+						const uint32 outbound_transport = target_cluster.transport;
+						if ( inbound_transport == outbound_transport )
 						{
-							working_matrix[origin][target].aggregate_time = combined_time;
-							working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
-#ifdef CHECK_TRANSPORT_CHANGE
-							transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
-							transport_matrix[origin][target].last_transport = transport_matrix[via][target].last_transport;
-#endif
+							++target_cluster_index;
+							continue;
 						}
-					}
+						const vector_tpl<uint16> &target_halt_list = target_cluster.connected_halts;
 
-					++origin_index;
+						// for each origin cluster member
+						while ( origin_member_index < origin_halt_list.get_count() )
+						{
+							const uint16 origin = origin_halt_list[origin_member_index];
 
-					// iteration control
-					iterations_processed += connected_halt_count;
-					if (iterations_processed >= limit_explore_paths)
-					{
-						goto loop_termination;
-					}
+							// for each target cluster member
+							for ( target_member_index = 0; target_member_index < target_halt_list.get_count(); ++target_member_index )
+							{
+								const uint16 target = target_halt_list[target_member_index];
+								
+								if ( ( combined_time = working_matrix[origin][via].aggregate_time 
+													 + working_matrix[via][target].aggregate_time ) 
+											< working_matrix[origin][target].aggregate_time			   )
+								{
+									working_matrix[origin][target].aggregate_time = combined_time;
+									working_matrix[origin][target].next_transfer = working_matrix[origin][via].next_transfer;
+									transport_matrix[origin][target].first_transport = transport_matrix[origin][via].first_transport;
+									transport_matrix[origin][target].last_transport = transport_matrix[via][target].last_transport;
+								}
+							}	// loop : target cluster member
 
-				}
+							++origin_member_index;
 
-				origin_index = 0;
-				connected_halt_count = 0;
+							// iteration control
+							iterations_processed += target_halt_list.get_count();
+							if (iterations_processed >= limit_explore_paths)
+							{
+								goto loop_termination;
+							}
+
+						}	// loop : origin cluster member
+
+						origin_member_index = 0;
+
+						++target_cluster_index;
+
+					}	// loop : target cluster
+
+					target_cluster_index = 0;
+
+					++origin_cluster_index;
+
+				}	// loop : origin cluster
+
+				origin_cluster_index = 0;
+
+				// clear the inbound/outbound connections
+				inbound_connections->reset();
+				outbound_connections->reset();
 				process_next_transfer = true;
+
 				++via_index;
-			}
+			}	// loop : transfer
 
 		loop_termination :
 
@@ -1314,7 +1346,6 @@ void path_explorer_t::compartment_t::step()
 				// working_halt_count is reset below after deleting transport matrix								
 
 				// path search completed -> delete auxilliary data structures
-#ifdef CHECK_TRANSPORT_CHANGE
 				if (transport_matrix)
 				{
 					for (uint16 i = 0; i < working_halt_count; ++i)
@@ -1324,7 +1355,6 @@ void path_explorer_t::compartment_t::step()
 					delete[] transport_matrix;
 					transport_matrix = NULL;
 				}
-#endif
 				working_halt_count = 0;
 				if (transfer_list)
 				{
@@ -1333,12 +1363,16 @@ void path_explorer_t::compartment_t::step()
 				}
 				transfer_count = 0;
 
-				if (connected_halt_list)
+				if (inbound_connections)
 				{
-					delete[] connected_halt_list;
-					connected_halt_list = NULL;
+					delete inbound_connections;
+					inbound_connections = NULL;
 				}
-				connected_halt_count = 0;
+				if (outbound_connections)
+				{
+					delete outbound_connections;
+					outbound_connections = NULL;
+				}
 				process_next_transfer = true;
 
 				// Debug paths : to execute, working_halt_list should not be deleted in the previous phase
@@ -1348,7 +1382,9 @@ void path_explorer_t::compartment_t::step()
 
 				// reset counters
 				via_index = 0;
-				origin_index = 0;
+				origin_cluster_index = 0;
+				target_cluster_index = 0;
+				origin_member_index = 0;
 
 				paths_available = true;
 			}
@@ -1523,7 +1559,6 @@ void path_explorer_t::compartment_t::enumerate_all_paths(const path_element_t *c
 bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_halt, const halthandle_t target_halt, 
 													  uint16 &aggregate_time, halthandle_t &next_transfer)
 {
-	static const halthandle_t dummy_halt;
 	uint32 origin_index, target_index;
 	
 	// check if origin and target halts are both present in matrix; if yes, check the validity of the next transfer
@@ -1539,7 +1574,7 @@ bool path_explorer_t::compartment_t::get_path_between(const halthandle_t origin_
 
 	// requested path not found
 	aggregate_time = 65535;
-	next_transfer = dummy_halt;
+	next_transfer = halthandle_t();
 	return false;
 }
 
