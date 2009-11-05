@@ -1004,7 +1004,7 @@ sint32 haltestelle_t::rebuild_destinations()
 	const bool i_am_public = (get_besitzer()==welt->get_spieler(1));
 
 	vector_tpl<warenzielsorter_t> warenziele_by_stops;
-	vector_tpl<uint8> add_catg_index(4);
+	minivec_tpl<uint8> add_catg_index(warenbauer_t::get_max_catg_index());
 	sint32 connections_searched = 0;
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");
@@ -1048,20 +1048,18 @@ sint32 haltestelle_t::rebuild_destinations()
 						(line->get_goods_catg_index()[ctg]==1  &&  halt->get_post_enabled())  ||
 						(line->get_goods_catg_index()[ctg]>=2  &&  halt->get_ware_enabled())
 					) {
-						do {
-							warenzielsorter_t wzs( halt, stop_count, line->get_goods_catg_index()[ctg] );
-							// might be a new halt to add
-							if(  !warenziele_by_stops.is_contained(wzs)  ) {
-								warenziele_by_stops.append(wzs);
-								non_identical_schedules_flag[line->get_goods_catg_index()[ctg]] = true;
-							}
-						} while(  line->get_goods_catg_index()[ctg++]>=2  &&  ctg<line->get_goods_catg_index().get_count()  );
+						warenzielsorter_t wzs( halt, stop_count, line->get_goods_catg_index()[ctg] );
+						// might be a new halt to add
+						if(  !warenziele_by_stops.is_contained(wzs)  ) {
+							warenziele_by_stops.append(wzs);
+							non_identical_schedules_flag[line->get_goods_catg_index()[ctg]] = true;
+						}
 					}
 				}
 			}
 			// since per schedule this counter must be incremented only once to identify transfer stops (which have >1)
 			for(  uint8 ctg=0;  ctg<line->get_goods_catg_index().get_count();  ctg ++  ) {
-				uint8 catg_index = line->get_goods_catg_index()[ctg];
+				const uint8 catg_index = line->get_goods_catg_index()[ctg];
 				if(  non_identical_schedules_flag[catg_index]  ) {
 					non_identical_schedules_flag[catg_index] = false;
 					if(  non_identical_schedules[catg_index] < 255  ) {
@@ -1133,14 +1131,12 @@ sint32 haltestelle_t::rebuild_destinations()
 									(add_catg_index[ctg]==1  &&  halt->get_post_enabled())  ||
 									(add_catg_index[ctg]>=2  &&  halt->get_ware_enabled())
 								) {
-									do {
-										warenzielsorter_t wzs( halt, stop_count, add_catg_index[ctg] );
-										// might be a new halt to add
-										if(  !warenziele_by_stops.is_contained(wzs)  ) {
-											warenziele_by_stops.append(wzs);
-											non_identical_schedules_flag[ctg] = true;
-										}
-									} while(  add_catg_index[ctg++]>=2  &&  ctg<add_catg_index.get_count()  );
+									warenzielsorter_t wzs( halt, stop_count, add_catg_index[ctg] );
+									// might be a new halt to add
+									if(  !warenziele_by_stops.is_contained(wzs)  ) {
+										warenziele_by_stops.append(wzs);
+										non_identical_schedules_flag[add_catg_index[ctg]] = true;
+									}
 								}
 							}
 						}
@@ -1150,7 +1146,7 @@ sint32 haltestelle_t::rebuild_destinations()
 
 				// since per schedule this counter must be incremented only once to identify transfer stops (which have >1)
 				for(  uint8 ctg=0;  ctg<add_catg_index.get_count();  ctg ++  ) {
-					uint8 catg_index = add_catg_index[ctg];
+					const uint8 catg_index = add_catg_index[ctg];
 					if(  non_identical_schedules_flag[catg_index]  ) {
 						non_identical_schedules_flag[catg_index] = false;
 						if(  non_identical_schedules[catg_index] < 255  ) {
@@ -1165,11 +1161,14 @@ sint32 haltestelle_t::rebuild_destinations()
 	}
 
 	// now add them to warenziele ...
-	for(  uint8  stops=0;  stops<255;  stops++  ) {
-		for(  uint32 i=0;  i<warenziele_by_stops.get_count();  i++  ) {
+	uint32 processed_entries = 0;
+	uint8 stops = 1;
+	while(  processed_entries<warenziele_by_stops.get_count() ) {
+		for(  uint32 i=processed_entries;  i<warenziele_by_stops.get_count();  i++  ) {
 
 			if(  warenziele_by_stops[i].stops==stops  ) {
 				vector_tpl<halthandle_t> &wz_list = warenziele[ warenziele_by_stops[i].catg_index ];
+				// this test is needed, since the same halt may be added earlier, since it came first in another schedule
 				if(  !wz_list.is_contained( warenziele_by_stops[i].halt )  ) {
 					wz_list.append( warenziele_by_stops[i].halt );
 					if(  waren[ warenziele_by_stops[i].catg_index ] == NULL  ) {
@@ -1177,8 +1176,15 @@ sint32 haltestelle_t::rebuild_destinations()
 						waren[ warenziele_by_stops[i].catg_index ] = new vector_tpl<ware_t>(0);
 					}
 				}
+				// after processing, current entry becomes useless
+				//		--> overwrite it with an unprocessed entry where necessary
+				if ( i != processed_entries ) {
+					warenziele_by_stops[i] = warenziele_by_stops[processed_entries];
+				}
+				++processed_entries;
 			}
 		}
+		++stops;
 	}
 
 	return connections_searched;
