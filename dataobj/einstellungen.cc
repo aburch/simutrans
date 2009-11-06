@@ -198,7 +198,7 @@ einstellungen_t::einstellungen_t() :
 
 	// some network thing to keep client in sync
 	random_counter = 0;	// will be set when actually saving
-	frames_per_second = umgebung_t::fps;
+	frames_per_second = 10;
 }
 
 
