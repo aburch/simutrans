@@ -2378,7 +2378,7 @@ void convoi_t::destroy()
 		fahr[0]->set_convoi(NULL);
 	}
 
-	if(!fpl->ist_abgeschlossen()) {
+	if(fpl!=NULL  &&  !fpl->ist_abgeschlossen()) {
 		destroy_win((long)fpl);
 	}
 
