@@ -1076,6 +1076,11 @@ sint32 haltestelle_t::rebuild_destinations()
 
 			// find first own index
 			fpl = cnv->get_schedule();
+			if(  fpl==NULL  ) {
+				// may happen for cnv in depots
+				continue;
+			}
+
 			for(  first_self_index=0;  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self;  ) {
 				first_self_index++;
 			}
