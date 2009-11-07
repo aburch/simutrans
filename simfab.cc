@@ -1273,14 +1273,7 @@ fabrik_t::neuer_monat()
 		city = c;
 		city->add_city_factory(this);
 	}
-#ifdef DEBUG
-	// TESTING CODE
-	const fabrik_besch_t* TEST_1 = besch->get_upgrades(0);
-	const haus_besch_t* TEST_2 = besch->get_haus();
-	const fabrik_lieferant_besch_t* TEST_3 = besch->get_lieferant(0);
-	const field_besch_t* TEST_4 = besch->get_field();
-	const fabrik_produkt_besch_t* TEST_5 = besch->get_produkt(0);
-#endif
+
 	// Check to see whether factory is obsolete.
 	// If it is, give it a chance of being closed down.
 	// @author: jamespetts

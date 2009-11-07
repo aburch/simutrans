@@ -49,15 +49,6 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 	// Set version data
 	v16 = 0x8002;
 
-	// This is the overlay flag for Simutrans-Experimental
-	// This sets the *second* highest bit to 1. 
-	v16 |= EXP_VER;
-
-	// Finally, this is the experimental version number. This is *added*
-	// to the standard version number, to be subtracted again when read.
-	// Start at 0x100 and increment in hundreds (hex).
-	v16 += 0x100;
-
 	// Write version data
 	node.write_uint16(fp, v16, 0);
 
@@ -294,8 +285,19 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		}
 	}
 
+	uint16 version = 0x8005;
+	
+	// This is the overlay flag for Simutrans-Experimental
+	// This sets the *second* highest bit to 1. 
+	version |= EXP_VER;
+
+	// Finally, this is the experimental version number. This is *added*
+	// to the standard version number, to be subtracted again when read.
+	// Start at 0x100 and increment in hundreds (hex).
+	version += 0x100;
+	
 	// Hajo: write version data
-	node.write_uint16(fp, 0x8005,                           0);
+	node.write_uint16(fp, version,                           0);
 
 	// Hajo: write besch data
 	node.write_uint8 (fp, (uint8) besch.gtyp,               2);

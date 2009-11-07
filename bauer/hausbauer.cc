@@ -278,11 +278,6 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
 				gr = welt->lookup(koord3d(k,0)+pos);
-				// FIXME: This routine is broken. When deleting industries next to sloping tiles,
-				// gr returns as NULL for those tiles. Thereafter, the industries are not properly
-				// deleted, leading to access violations (segraults in Linux) when halts connected
-				// to those industries try to iterate through the list of industries to which they
-				// are connected.
 				assert(gr);
 				if(gr != NULL)
 				{
