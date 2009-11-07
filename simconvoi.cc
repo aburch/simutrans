@@ -2378,6 +2378,10 @@ void convoi_t::destroy()
 		fahr[0]->set_convoi(NULL);
 	}
 
+	if(!fpl->ist_abgeschlossen()) {
+		destroy_win((long)fpl);
+	}
+
 	if(  line.is_bound()  ) {
 		// needs to be done here to remove correctly ware catg from lines
 		unset_line();
