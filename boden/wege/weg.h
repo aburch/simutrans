@@ -173,12 +173,12 @@ public:
 	
 	bool permissive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_permissive >> i) & 1 != 0);
+		return (((way_constraints_permissive >> i) & 1) != 0);
 	}
 
 	bool prohibitive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_prohibitive >> i) & 1 != 0);
+		return (((way_constraints_prohibitive >> i) & 1) != 0);
 	}
 
 

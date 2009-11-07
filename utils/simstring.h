@@ -6,7 +6,7 @@
 
 // a single use number to string ...
 // format could be zero, the "%d" is assumed
-char *ntos(int number, const char *format);
+char *ntos(long number, const char *format);
 
 
 /**
