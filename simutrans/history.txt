@@ -8,6 +8,7 @@
 	FIX: first halts are now first in connection list => consistently transfer at first possibility
 	FIX: no money when selling convois at the depot
 	FIX: (Knightly) inverse scrolling consistently for minimap and main view
+	FIX: also ask when a single pakset with addons is present what to load
 
 
 
