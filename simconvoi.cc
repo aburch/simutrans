@@ -1242,6 +1242,10 @@ convoi_t::set_erstes_letztes()
 
 bool convoi_t::set_schedule(schedule_t * f)
 {
+	if(  state==SELF_DESTRUCT  ) {
+		return false;
+	}
+
 	enum states old_state = state;
 	state = INITIAL;	// because during a sync-step we might be called twice ...
 
