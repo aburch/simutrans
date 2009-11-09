@@ -1166,7 +1166,7 @@ void path_explorer_t::compartment_t::step()
 
 			// temporary variables
 			uint16 combined_time;
-			uint16 target_member_index;
+			uint32 target_member_index;
 			uint64 iterations_processed = 0;
 
 			// initialize only when not resuming
@@ -1198,6 +1198,9 @@ void path_explorer_t::compartment_t::step()
 							outbound_connections->register_connection( transport_matrix[via][idx].first_transport, idx );
 						}
 					}
+
+					// should take into account the iterations above
+					iterations += working_halt_count + ( inbound_connections->get_total_member_count() * inbound_connections->get_cluster_count() );
 				}
 
 				// for each origin cluster
