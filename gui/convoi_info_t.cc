@@ -17,6 +17,7 @@
 #include "../simgraph.h"
 #include "../simworld.h"
 #include "../simwin.h"
+#include "../convoy_metrics.h"
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"

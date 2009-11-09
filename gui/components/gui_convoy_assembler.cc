@@ -16,6 +16,7 @@
 #include "../../simskin.h"
 #include "../../simworld.h"
 #include "../../simconvoi.h"
+#include "../../convoy_metrics.h"
 
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/vehikelbauer.h"

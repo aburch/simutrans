@@ -114,7 +114,8 @@ static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehik
 void convoi_t::reset()
 {
 	is_electric = false;
-	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = power_from_steam = power_from_steam_with_gear = 0;
+	//sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = power_from_steam = power_from_steam_with_gear = 0;
+	sum_gesamtgewicht = sum_gewicht = sum_leistung = 0;
 	previous_delta_v = 0;
 	min_top_speed = 9999999;
 
@@ -486,26 +487,8 @@ void convoi_t::add_running_cost(sint32 cost)
 }
 
 
-#define PI (3.141592654)
-
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
-
-inline bool is_track_way_type(waytype_t wt)
-{
-	switch (wt)
-	{
-		case track_wt:
-		case water_wt:         
-		case overheadlines_wt: 
-		case monorail_wt:      
-		case maglev_wt:
-		case tram_wt:
-		case narrowgauge_wt:
-			return true;
-	}
-	return false;
-}
 
 inline double speed_to_v(sint32 speed)
 {
@@ -518,80 +501,15 @@ inline sint32 v_to_speed(double v)
 }
 
 /**
- * get force in kN according to current speed in m/s
+ * get force in kN according to current speed in simutrans speed
  * @author Bernd Gabriel, Oct, 22 2009
  */
-double convoi_t::get_force(double speed)
+uint32 convoi_t::get_force(sint32 speed)
 {
-	speed = abs(speed);
-	double force = 0.0; 
-	bool is_track = false;
+	uint16 v = abs(speed_to_kmh(speed));
+	uint32 force = 0; 
 	for (int i = 0; i < anz_vehikel; ++i) {
-		const vehikel_t &v = *fahr[i];
-		const vehikel_besch_t &b = *v.get_besch();
-		if (i == 0)
-		{
-			is_track = is_track_way_type(b.get_waytype());
-		}
-		double p = b.get_leistung(); // p in kW, get_leistung() in kW
-		if (p > 0)
-		{
-			if (is_track && b.get_engine_type() == b.steam)
-			{
-				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
-				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
-				* to steam shortage and economics. See here for details: http://www.railway-technical.com/st-vs-de.shtml
-				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
-				*
-				* F = P / v;
-				*/
-				double v = b.get_geschw() / (2.0 * 3.6); // half speed in m/s, get_geschw() in km/h
-				if (speed < v)
-				{
-					// the constant force 
-					force += (p * b.get_gear()) / (v * GEAR_FACTOR); // GEAR_FACTOR: a gear of 1.0 is stored as 64
-				}
-				else
-				{
-					// less force due to steam shortage and economics. Turns over to a constant power machine.
-					force += (p * b.get_gear()) / (speed * GEAR_FACTOR);
-				}
-			}
-			else 
-			{
-				/** Other engines are constant power engines. Their force depends on the current speed:
-				*
-				* F = P / speed;  At speed = 0 we get an infinite force. Wow!
-				*
-				* In reality there are some limits. Most of all the friction of steel wheels on steel rails depending 
-				* on engine weight and the stability of the engine. Another important factor for the actual torque or 
-				* force is the gear. An express train engine has a high gear ratio allowing higher speed with lower 
-				* force, while a heavy freight train enige needs a low gear ratio allowing lower speed but higher force 
-				* to pull more weight.
-				*
-				* In reality the highest speed of an engine is given by permission not by the pulled weight.
-				*
-				* We consider a stronger gear factor producing additional force in the start-up process, where a greater gear factor allows a more forceful start.
-				* This will enforce the player to make more use of slower freight engines.
-				*
-				* Example: 
-				* The german series 230(130 DR) was a univeral engine with 2200 kW, 250 kN start-up force and 140 km/h allowed top speed.
-				* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN start-up force and 100 km/h allowed top speed.
-				*
-				* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
-				*/
-				double gear10 = (10.0 * GEAR_FACTOR) / b.get_gear();
-				if (speed < gear10)
-				{
-					// lower speed does not effect higher than a maximum force calculated by gear.
-					force += p / gear10;
-				}
-				else 
-				{
-					force += p / speed;
-				}
-			}
-		}
+		force += fahr[i]->get_besch()->get_force(v);
 	}
 	return force;
 }
@@ -661,9 +579,9 @@ a = (F - cf * v^2 - Frs) / m
 	// calculate total friction
 	for (int i = (int)anz_vehikel; --i >= 0;) {
 		const vehikel_t &v = *fahr[i];
-		const vehikel_besch_t &b = *v.get_besch();
 		if (i == 0)  
 		{
+		const vehikel_besch_t &b = *v.get_besch();
 			waytype_t wt = b.get_waytype();
 			switch (wt)
 			{
@@ -671,15 +589,16 @@ a = (F - cf * v^2 - Frs) / m
 					fr = FR_WATER;
 					break;
 			
-				default: 
-					if (is_track_way_type(wt))
-					{
-						fr = FR_TRACK;
-						cf = CF_TRACK;
-					}
+				case track_wt:
+				case overheadlines_wt: 
+				case monorail_wt:      
+				case maglev_wt:
+				case tram_wt:
+				case narrowgauge_wt:
+					fr = FR_TRACK;
+					cf = CF_TRACK;
 					break;
 			}
-
 		}
 
 		int weight = v.get_gesamtgewicht(); // vehicle weight in tons
@@ -703,7 +622,7 @@ a = (F - cf * v^2 - Frs) / m
 
 	double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 	double vmax = speed_to_v(akt_speed_soll);
-	double fmax = min(cf * vmax * vmax, get_force(vmax) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
+	double fmax = min(cf * vmax * vmax, get_force(akt_speed_soll) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
 
 #define DT_SLICE 128
 
@@ -716,7 +635,7 @@ a = (F - cf * v^2 - Frs) / m
 		if (v < vmax)
 		{
 			// below set speed: full acceleration
-			f = get_force(v) * 1000 - Frs;
+			f = get_force(akt_speed) * 1000 - Frs;
 		}
 		else if (v < 1.05 * vmax)
 		{
@@ -728,7 +647,7 @@ a = (F - cf * v^2 - Frs) / m
 			// running too fast, slam on the brakes! 
 			// assuming the brakes are as strong as the start-up force.
 			// hill-down Frs might become negative and works against the brake.
-			f = -get_force(0) * 1000 - Frs;
+			f = -1000.0 * get_force(0) - Frs;
 			is_breaking = true;
 		}
 		else 
@@ -1729,12 +1648,12 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 			is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 		}
 		sum_leistung += info->get_leistung();
-		if(info->get_engine_type() == vehikel_besch_t::steam)
-		{
-			power_from_steam += info->get_leistung();
-			power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
-		}
-		sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+		//if(info->get_engine_type() == vehikel_besch_t::steam)
+		//{
+		//	power_from_steam += info->get_leistung();
+		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+		//}
+		//sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 		sum_gewicht += info->get_gewicht();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
@@ -1782,12 +1701,12 @@ convoi_t::remove_vehikel_bei(uint16 i)
 
 			const vehikel_besch_t *info = v->get_besch();
 			sum_leistung -= info->get_leistung();
-			if(info->get_engine_type() == vehikel_besch_t::steam)
-			{
-				power_from_steam -= info->get_leistung();
-				power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
-			}
-			sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+			//if(info->get_engine_type() == vehikel_besch_t::steam)
+			//{
+			//	power_from_steam -= info->get_leistung();
+			//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+			//}
+			//sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 			sum_gewicht -= info->get_gewicht();
 		}
 		sum_gesamtgewicht = sum_gewicht;
@@ -2496,12 +2415,12 @@ convoi_t::rdwr(loadsave_t *file)
 			// info
 			if(info) {
 				sum_leistung += info->get_leistung();
-				if(info->get_engine_type() == vehikel_besch_t::steam)
-				{
-					power_from_steam += info->get_leistung();
-					power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
-				}
-				sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+				//if(info->get_engine_type() == vehikel_besch_t::steam)
+				//{
+				//	power_from_steam += info->get_leistung();
+				//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+				//}
+				//sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 				sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
@@ -4406,121 +4325,6 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 	return false;
 }
 
-/**
- * Bernd Gabriel, 23.06.2009: convoi_metrics_t: 
- *
- * Extracted from gui_convoy_assembler_t::zeichnen() and gui_convoy_label_t::zeichnen()
- */
-
-#ifndef MAXUINT32
-#define MAXUINT32 ((uint32)~((uint32)0))
-#endif
-
-void convoy_metrics_t::reset()
-{
-	power = 0;
-	length = 0;
-	vehicle_weight = 0;
-	min_freight_weight = 0;
-	max_freight_weight = 0;
-	max_top_speed = MAXUINT32;	
-}
-
-void convoy_metrics_t::get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight)
-{
-	max_weight = 0;
-	min_weight = MAXUINT32;
-	for (uint16 j=0; j<warenbauer_t::get_waren_anzahl(); j++) {
-		const ware_besch_t &ware = *warenbauer_t::get_info(j);
-		if (ware.get_catg_index() == catg_index) {
-			uint32 weight = ware.get_weight_per_unit();
-			if (max_weight < weight) 
-			{
-				max_weight = weight;
-			}
-			if (min_weight > weight) 
-			{
-				min_weight = weight;
-			}
-		}
-	}
-	// No freight of given category found? Then there is no min weight!
-	if (min_weight == MAXUINT32) 
-	{
-		min_weight = 0;
-	}
-}
-
-void convoy_metrics_t::add_vehicle(const vehikel_besch_t &besch)
-{
-	length += besch.get_length();
-	vehicle_weight += besch.get_gewicht();
-	uint32 payload = besch.get_zuladung();
-	if (payload > 0)
-	{
-		uint32 min_weight, max_weight;
-		get_possible_freight_weight(besch.get_ware()->get_catg_index(), min_weight, max_weight);
-		min_freight_weight += (min_weight * payload + 499) / 1000;
-		max_freight_weight += (max_weight * payload + 499) / 1000;
-	}
-	if (max_top_speed > besch.get_geschw())
-	{
-		max_top_speed = besch.get_geschw();
-	}
-}
-
-void convoy_metrics_t::calc(convoi_t &cnv)
-{
-	reset();
-	for(unsigned i = cnv.get_vehikel_anzahl();  i-- > 0; ) 
-	{
-		add_vehicle(*cnv.get_vehikel(i)->get_besch());
-	}
-	//BG, 30.08.2009: cannot use cnv.calc_adjusted_power() here.
-	/* 
-	 * Convoy_metrics are used to display them in the depot or convoy frame only.
-	 * They show the top speeds for given power and full resp. empty convoy.
-	 * Nominal power and top speed given in vehikel_besch_t both are max values and this power is valid for this top speed.
-	 * Thus we need the max power here instead of the actual speed controlled power.
-	 *
-	 * It looked a bit strange while playing: 2 identical steam trains (8ft Stirling with 1 KBay-Mail and 6 KBay-Pax)
-	 * The convoy frame of the standing train said, convoy was able to run 53..59 km/h, 
-	 * while frame of the running train said, convoy could run 85 km/h.
-	 * The user (at least me) expects always the same value: the top speed at top speed power, which is the 85.
-	 *
-	 * cnv.calc_adjusted_power() returns the power at current speed. 
-	 * Thus do the same calculation with top speed (using get_effective_power_index(max_top_speed)).
-	 *
-	 * At first glance the effective power calculation might have been skipped at all, but the convoy top speed 
-	 * can differ from the vehicle's top speed and thus steam engine might still be in the reduced power range.
-	 */
-	power = cnv.get_effective_power(max_top_speed); 
-}
-
-void convoy_metrics_t::calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles)
-{
-	reset();
-	for(unsigned i = vehicles.get_count();  i-- > 0; ) {
-		add_vehicle(*vehicles[i]);
-	}
-	//BG, 30.08.2009: power calculation was missing:
-	for(unsigned i = vehicles.get_count();  i-- > 0; ) {
-		power += vehicles[i]->get_effective_power_index(max_top_speed);
-	}
-	power *= world.get_einstellungen()->get_global_power_factor() / 64;
-}
-
-// Calculate the maximum speed in kmh the given power in kWh can move the given weight in t.
-#define max_kmh(power, weight) (sqrt(((power)/(weight))-1) * 50)
-
-uint32 convoy_metrics_t::get_speed(uint32 weight) 
-{ 
-	// This was correct for the old physics formulae, but not now. Use maximum theoretical
-	// speed, not maximum actual speed until a new formula can be found.
-
-	return min(max_top_speed, (uint32) max_kmh(power, weight)); 
-	//return max_top_speed;
-}
 
 /* Calculate convoy's effective power according to given speed.
  *
@@ -4542,6 +4346,8 @@ float convoi_t::get_effective_power(uint32 speed)
 	return power * get_welt()->get_einstellungen()->get_global_power_factor() / 64;
 }
 
+#define max_kmh(power, weight) (sqrt(((power)/(weight))-1) * 50)
+
 /* Set the new desired speed. 
  *
  * It will be reached after several calls to calc_acceleration().
@@ -4554,3 +4360,4 @@ void convoi_t::set_akt_speed_soll(sint32 set_akt_speed)
 	float power = get_effective_power(speed_to_kmh(min_top_speed)); // Bernd Gabriel, Sep, 23 2009: speed_to_kmh() was missing.
 	akt_speed_soll = min(set_akt_speed, min(min_top_speed, kmh_to_speed((uint32) max_kmh(power, sum_gesamtgewicht)))); 
 }
+

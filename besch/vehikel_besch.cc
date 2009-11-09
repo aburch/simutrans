@@ -58,30 +58,90 @@ uint32 vehikel_besch_t::get_adjusted_monthly_fixed_maintenance(karte_t *welt) co
 	return welt->calc_adjusted_monthly_figure(calc_running_cost(welt, get_fixed_maintenance()));
 }
 
-
-// GEAR_FACTOR: a gear of 1.0 is stored as 64
-#define GEAR_FACTOR 64
-
-inline bool is_track_way_type(waytype_t wt)
+/**
+ * Get the constant force threshold speed in km/h.
+ * Below this threshold the engine works as constant force engine.
+ * Above this threshold the engine works as constant power engine.
+ * @author Bernd Gabriel, Nov 4, 2009
+ */
+uint16 vehikel_besch_t::calc_const_force_threshold() const
 {
-	switch (wt)
+	/** 
+	* Vehicles specify their (nominal) power. The formula 
+	* 
+	* force = power / speed
+	*
+	* calculates the force, that results from the power at a given speed.
+	*
+	* Calculating this force we obviously must reduce the maximum result,
+	* as vehicles can neither produce nor bear an infinite force.
+	*
+	* There are different kinds of force transmissions, which lead to different
+	* threshold speeds, at which the engine leaves the constant/maximum force range.
+	*
+	* Below this threshold the engine works as constant force engine.
+	* Above this threshold the engine works as constant power engine.
+	*/
+	switch (get_waytype())
 	{
+		case air_wt:
+		case water_wt:
+			// constant force machines at all speeds.
+			//return get_geschw();
+			break;
+
 		case track_wt:
-		case water_wt:         
 		case overheadlines_wt: 
 		case monorail_wt:      
 		case maglev_wt:
 		case tram_wt:
 		case narrowgauge_wt:
-			return true;
+			if (get_engine_type() == steam)
+			{
+				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
+				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
+				* to steam shortage and economics. See here for details: http://www.railway-technical.com/st-vs-de.shtml
+				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
+				*/
+				// steamers are constant force machines unless about half of maximum speed, when the steam runs short.
+				return get_geschw() / 2;
+			}
 	}
-	return false;
+	/** Constant power characteristic, but we limit maximum force to a tenth of the power multiplied by gear.
+	*
+	* We consider a stronger gear factor producing additional force in the start-up process, where a greater gear factor allows a more forceful start.
+	* This will enforce the player to make more use of slower freight engines.
+	*
+	* Example: 
+	* The german series 230(130 DR) was a univeral engine with 2200 kW, 250 kN start-up force and 140 km/h allowed top speed.
+	* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN start-up force and 100 km/h allowed top speed.
+	*
+	* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
+	*/
+	return 10;
 }
+
+/**
+ * Get effective force in kN. 
+ * Non steam engine force depends on its speed.
+ * @author Bernd Gabriel
+ */
+uint32 vehikel_besch_t::get_force(uint16 speed /* in km/h */ ) const
+{
+	if (geared_power == 0) 
+	{
+		// no power, no force
+		return 0;
+	}
+	// we must convert the speed from km/h to m/s: 1 km/h = 1000 m / 3600 s.
+	return (geared_power * 36) / (max(speed, force_threshold_speed) * (10 * GEAR_FACTOR));
+}
+
 
 /**
  * Get effective power index. 
  * Steam engine power depends on its speed.
- * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / 64
+ * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * (method extracted from sint32 convoi_t::calc_adjusted_power())
  * @author Bernd Gabriel
  */
@@ -92,113 +152,14 @@ uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in km/h */ ) c
 	 * In fact this is nearly the *same* calculation due to formula: power = force * speed.
 	 * @author: Bernd Gabriel, Nov, 01 2009: steam train related calculations no longer needed with overhauled physics in calc_acceleration()
 	 */
-	uint32 p = get_leistung(); // p in kW, get_leistung() in kW
-	if (p > 0)
+	if (geared_power == 0) 
 	{
-		if (get_engine_type() == steam && is_track_way_type(get_waytype()))
-		{
-			uint16 v = get_geschw() / 2; // half speed in km/h, get_geschw() in km/h
-			if (speed < v)
-			{
-				// the constant force 
-				return (p * get_gear() * speed) / v;
-			}
-			// less force due to steam shortage and economics. Turns over to a constant power machine.
-		}
-		else 
-		{
-			// gear works up to full speed:
-			uint16 gear10 = 10;
-			if (speed < gear10)
-			{
-				return (uint32)((p * get_gear() * speed) / gear10);
-			}
-			// gear works at low speed only:
-			//double gear10 = (10.0 * GEAR_FACTOR) / get_gear();
-			//if (speed < gear10)
-			//{
-			//	return (uint32)((p * GEAR_FACTOR * speed) / gear10);
-			//}
-			//return p * GEAR_FACTOR;
-		}
+		// no power, no force
+		return 0;
 	}
-	// constant power machine:
-	return p * get_gear();
-
-	//uint32 power = get_leistung();
-	//uint32 power_index = power * get_gear();
-	//if(get_engine_type() != vehikel_besch_t::steam)
-	//{
-	//	// Not a steam vehicle: effective power == nominal power 
-	//	return power_index;
-	//}
-	//switch (get_waytype()) 
-	//{
-	//	// Adjustment of power only applies to steam vehicles
-	//	// with direct drive (as in steam railway locomotives),
-	//	// not steam vehicles with geared driving (as with steam
-	//	// road vehicles) or propellor shaft driving (as with
-	//	// water craft). Aircraft and maglev, although not
-	//	// likely ever to be steam, cannot conceivably have
-	//	// direct drive. 
-	//case road_wt:
-	//case water_wt:
-	//case air_wt:
-	//case maglev_wt:
-	//case invalid_wt:
-	//case ignore_wt:
-	//	return power_index;
-	//}
-
-	//const uint16 max_speed = get_geschw();
-	//const uint16 highpoint_speed = (max_speed >= 60) ? max_speed - 30 : 30;
-	//
-	//// Within 15% of top speed - locomotive less efficient
-	//const uint16 high_speed = (max_speed * 85) / 100;
-	//
-	//if(highpoint_speed < current_speed && current_speed < high_speed)
-	//{
-	//	// going fast enough that it makes no difference, so the simple formula prevails.
-	//	return power_index;
-	//}
-	//// Reduce the power at higher and lower speeds.
-	//// Should be approx (for medium speed locomotive):
-	////  40% power at 15kph 
-	////  70% power at 25kph
-	////  85% power at 32kph 
-	//// 100% power at >50kph.
-	//// See here for details: http://www.railway-technical.com/st-vs-de.shtml
-	//
-	//float speed_factor = 1.0F;	
-	//if(power <= 500)
-	//{
-	//	speed_factor += (0.66F / 400.0F) * (450 - (sint32)power);
-	//}
-
-	//if (current_speed >= high_speed)
-	//{
-	//	// Must be within 15% of top speed here.
-	//	float factor_modification = 0.15F * (max_speed - current_speed) / (float)(max_speed - high_speed);
-	//	return (uint32)(power_index * speed_factor * (factor_modification + 0.8F));
-	//}
-	//
-	////These values are needed to apply different power reduction factors
-	////depending on the maximum speed.
-
-	//uint16 lowpoint_speed = highpoint_speed / 3;
-
-	//if(current_speed <= lowpoint_speed)
-	//{
-	//	return (uint32)(power_index * speed_factor * 0.4F);
-	//}
-
-	//uint16 midpoint_speed = lowpoint_speed * 2;
-	//if(current_speed <= midpoint_speed)
-	//{
-	//	float factor_modification = 0.4F * (current_speed - lowpoint_speed) / (float)(midpoint_speed - lowpoint_speed);
-	//	return (uint32)(power_index * speed_factor * (factor_modification + 0.4F));
-	//}
-	//// Not at high speed
-	//float factor_modification = 0.15F * (current_speed - midpoint_speed) / (float)(highpoint_speed - lowpoint_speed);
-	//return (uint32)(power_index * speed_factor * (factor_modification + 0.8F));
+	if (speed < force_threshold_speed)
+	{
+		return (geared_power * speed) / force_threshold_speed;
+	}
+	return geared_power;
 }

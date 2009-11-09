@@ -12,6 +12,7 @@
 #include "../../simconst.h"
 #include "../../simconvoi.h"
 #include "../../simgraph.h"
+#include "../../convoy_metrics.h"
 #include "../../bauer/warenbauer.h"
 #include "../../dataobj/translator.h"
 #include "../../player/simplay.h"

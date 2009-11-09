@@ -1520,13 +1520,26 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	}
 }
 
+/** gets the waytype specific friction on straight flat way.
+ * extracted from vehikel_t::calc_akt_speed()
+ * @author Bernd Gabriel, Nov, 05 2009
+ */
+sint16 get_friction_of_waytype(waytype_t waytype)
+{
+	switch(waytype)
+	{
+		case road_wt:	return 4;
+		case water_wt:	return 6;
+	}
+	return 1;
+}
+
 
 /* calculates the current friction coefficient based on the curent track
  * flat, slope, (curve)...
  * @author prissi, HJ
  */
-void
-vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
+void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
 	if(gr == NULL)
 	{
@@ -1536,34 +1549,34 @@ vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu
 	const waytype_t waytype = get_waytype();
 
 	// assume straight flat way
-	switch(waytype)
-	{
-	case air_wt:
-	case maglev_wt:
-	case monorail_wt:
-	case tram_wt:
-	case narrowgauge_wt:
-	case track_wt:
-	default:
-		current_friction = 1;
-		break;
+	//switch(waytype)
+	//{
+	//case air_wt:
+	//case maglev_wt:
+	//case monorail_wt:
+	//case tram_wt:
+	//case narrowgauge_wt:
+	//case track_wt:
+	//default:
+	//	current_friction = 1;
+	//	break;
 
-	case road_wt:
-		current_friction = 4;
-		break;
+	//case road_wt:
+	//	current_friction = 4;
+	//	break;
 
-	case water_wt:
-		current_friction = 6;
-		break;
-	};
+	//case water_wt:
+	//	current_friction = 6;
+	//	break;
+	//};
+	current_friction = get_friction_of_waytype(waytype);
 
 	
-	//The level (if any) of additional friction to apply around corners.
-	const uint8 curve_friction_factor = welt->get_einstellungen()->get_curve_friction_factor(waytype);
-
 	// Old method - not realistic. Now uses modified speed limit. Preserved optionally.
 	// curve: higher friction
 	if(alte_fahrtrichtung != fahrtrichtung) { //"Old direction != direction"	
+		//The level (if any) of additional friction to apply around corners.
+		const uint8 curve_friction_factor = welt->get_einstellungen()->get_curve_friction_factor(waytype);
 		current_friction += curve_friction_factor;
 	}
 

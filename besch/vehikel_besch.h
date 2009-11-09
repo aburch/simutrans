@@ -17,6 +17,9 @@
 #include "../simworld.h"
 #include "../simtypes.h"
 
+// GEAR_FACTOR: a gear of 1.0 is stored as 64
+#define GEAR_FACTOR 64
+
 const uint32 DEFAULT_FIXED_VEHICLE_MAINTENANCE = 0;
 
 /**
@@ -69,9 +72,9 @@ private:
 	uint32 upgrade_price; //Price if this vehicle is bought as an upgrade, not a new vehicle.
 	uint16 zuladung; //Payload
 	uint16 overcrowded_capacity; // The capacity of a vehicle if overcrowded (usually expressed as the standing capacity).
-	uint16 geschw; //Speed
-	uint16 gewicht; //Weight
-	uint32 leistung; //Power
+	uint16 geschw; //Speed in km/h
+	uint16 gewicht; //Weight in tons
+	uint32 leistung; //Power in kW
 	uint16 betriebskosten;  //Running costs
 	uint16 scaled_running_costs; //@author: jamespetts
 	uint32 fixed_maintenance; //@author: jamespetts, April 2009
@@ -108,6 +111,15 @@ private:
 
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
 
+	uint32 geared_power; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
+	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
+	/**
+	 * Get the constant force threshold speed in km/h.
+	 * Below this threshold the engine works as constant force engine.
+	 * Above this threshold the engine works as constant power engine.
+	 * @author Bernd Gabriel, Nov 4, 2009
+	 */
+	uint16 calc_const_force_threshold() const;
 public:
 	// since we have a second constructor
 	vehikel_besch_t() { }
@@ -119,6 +131,7 @@ public:
 		fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = 64;
+		geared_power = leistung * gear;
 		len = 8;
 		sound = -1;
 		typ = wtyp;
@@ -406,6 +419,7 @@ public:
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_power_index(uint16 current_speed /* in kmh */ ) const;
+	uint32 get_force(uint16 speed /* in km/h */ ) const;
 };
 
 #endif

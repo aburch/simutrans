@@ -234,17 +234,17 @@ private:
 	// How much of the convoy's power comes from steam engines?
 	// Needed when applying realistic physics to steam engines.
 	// @author: jamespetts
-	uint32 power_from_steam;
+	//uint32 power_from_steam;
 
 	/**
 	* Gesamtleistung mit Gear. Wird nicht gespeichert, sondern aus den Einzelleistungen
 	* errechnet.
 	* @author prissi
 	*/
-	sint32 sum_gear_und_leistung;
+	//sint32 sum_gear_und_leistung;
 
 	// @author: jamespetts
-	sint32 power_from_steam_with_gear;
+	//sint32 power_from_steam_with_gear;
 
 	/* sum_gewicht: leergewichte aller vehicles *
 	* sum_gesamtgewicht: gesamtgewichte aller vehicles *
@@ -602,19 +602,21 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	uint32 get_sum_leistung() const {return sum_leistung;}
-	uint32 get_power_from_steam() const {return power_from_steam;}
-	uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
+	//uint32 get_power_from_steam() const {return power_from_steam;}
+	//uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
 	sint32 get_min_top_speed() const {return min_top_speed;}
 	sint32 get_sum_gewicht() const {return sum_gewicht;}
 	sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
-	// @author Bernd Gabriel: moved from convoy_metrics_t::calc():
-	float get_effective_power(uint32 speed);
+	/** Get effective power in kW at given speed in km/h
+	 * @author Bernd Gabriel: moved from convoy_metrics_t::calc():
+	 */
+	float get_effective_power(uint32 speed); 
 
 	/**
-	 * get force in kN according to current speed in m/s
+	 * get force in kN according to current speed in simutrans speed
 	 * @author Bernd Gabriel, Oct, 22 2009
 	 */
-	double get_force(double speed);
+	uint32 get_force(sint32 speed);
 	/**
 	 * Calculates akt_speed without setting it.
 	 * @author Bernd Gabriel, Sep, 24 2009: extracted from calc_acceleration(), which sets akt_speed
@@ -992,41 +994,6 @@ public:
 
 	// Added by : Knightly
 	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
-};
-
-/**
- * Calculate some convoy metrics. 
- *
- * Extracted from gui_convoy_assembler_t::zeichnen() and gui_convoy_label_t::zeichnen()
- * @author: Bernd Gabriel
- */
-class convoy_metrics_t {
-private:
-	float power;
-	uint32 length; // length in 1/TILE_STEPSth of a tile
-	uint32 vehicle_weight; // in tons
-	// several freight of the same category may weigh different: 
-	uint32 min_freight_weight; // in tons
-	uint32 max_freight_weight; // in tons
-	// max top speed of convoy limited by minimum top speed of the vehicles.
-	uint32 max_top_speed; // in kmh
-
-	void add_vehicle(const vehikel_besch_t &besch);
-	void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight);
-	void reset();
-public:
-	convoy_metrics_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles) { calc(world, vehicles); };
-	convoy_metrics_t(convoi_t &cnv) { calc(cnv); }
-	void calc(karte_t &world, vector_tpl<const vehikel_besch_t *> &vehicles);
-	void calc(convoi_t &cnv);
-	float get_power() { return power; }
-	uint32 get_length() { return length; }
-	uint32 get_vehicle_weight() { return vehicle_weight; }
-	uint32 get_max_freight_weight() { return max_freight_weight; }
-	uint32 get_min_freight_weight() { return min_freight_weight; }
-	uint32 get_speed(uint32 weight);
-	//
-	uint32 get_tile_length() { return (length + TILE_STEPS - 1) / TILE_STEPS; }
 };
 
 #endif
