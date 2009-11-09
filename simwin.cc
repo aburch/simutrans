@@ -29,6 +29,7 @@
 #include "simsys.h"
 #include "simticker.h"
 #include "simwin.h"
+#include "simhalt.h"
 #include "simworld.h"
 
 #include "dataobj/translator.h"
@@ -39,6 +40,7 @@
 #include "dings/zeiger.h"
 
 #include "gui/help_frame.h"
+#include "gui/messagebox.h"
 #include "gui/werkzeug_waehler.h"
 
 #include "ifc/gui_fenster.h"
@@ -57,10 +59,10 @@ static gui_komponente_t * focus=NULL;
 // (Mathew Hounsell)
 // I added a button to the map window to fix it's size to the best one.
 // This struct is the flow back to the object of the refactoring.
-class simwin_gadget_flags
+class simwin_gadget_flags_t
 {
 public:
-	simwin_gadget_flags( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ) { }
+	simwin_gadget_flags_t( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ) { }
 
 	bool close;
 	bool help;
@@ -69,36 +71,32 @@ public:
 	bool next;
 };
 
-class simwin
+class simwin_t
 {
 public:
 	koord pos;         // Fensterposition
 	uint32 dauer;        // Wie lange soll das Fenster angezeigt werden ?
-	sint16 xoff, yoff;   // Offsets zur Maus beim verschieben
 	uint8 wt;	// the flags for the window type
 	long magic_number;	// either magic number or this pointer (which is unique too)
 	gui_fenster_t *gui;
 	bool closing;
 	bool rollup;
 
-	simwin_gadget_flags flags; // (Mathew Hounsell) See Above.
+	simwin_gadget_flags_t flags; // (Mathew Hounsell) See Above.
 
-	simwin() : flags() {}
+	simwin_t() : flags() {}
 
-	bool operator== (const simwin &) const;
+	bool operator== (const simwin_t &) const;
 };
 
-bool simwin::operator== (const simwin &other) const { return gui == other.gui; }
+bool simwin_t::operator== (const simwin_t &other) const { return gui == other.gui; }
 
 // true , if windows need to be redraw "dirty" (including title)
 static bool windows_dirty = false;
 
-static vector_tpl<simwin> kill_list(64);
-
-static const int MAX_WIN = 64;          // 64 Fenster sollten reichen
-
-static simwin wins[MAX_WIN+1];
-static int ins_win = 0;		        // zeiger auf naechsten freien eintrag
+#define MAX_WIN (64)
+static vector_tpl<simwin_t> wins(MAX_WIN);
+static vector_tpl<simwin_t> kill_list(MAX_WIN);
 
 static karte_t* wl = NULL; // Zeiger auf aktuelle Welt, wird in win_set_welt gesetzt
 
@@ -112,11 +110,13 @@ static const char * static_tooltip_text = 0;
 
 static bool show_ticker=0;
 
-// Hajo: if we are inside the event handler, windows may not be
-// destroyed immediately
-static bool inside_event_handling = false;
+/* Hajo: if we are inside the event handler,
+ * the window handler has gui pointer as value,
+ * to defer destruction if this window
+ */
+static void *inside_event_handling = NULL;
 
-static void destroy_framed_win(simwin *wins);
+static void destroy_framed_win(simwin_t *win);
 
 //=========================================================================
 // Helper Functions
@@ -157,7 +157,7 @@ static int display_gadget_box(simwin_gadget_et const  code,
 //-------------------------------------------------------------------------
 // (Mathew Hounsell) Created
 static int display_gadget_boxes(
-               simwin_gadget_flags const * const flags,
+               simwin_gadget_flags_t const * const flags,
                int const x, int const y,
                int const color,
                bool const pushed
@@ -191,7 +191,7 @@ static int display_gadget_boxes(
 }
 
 static simwin_gadget_et decode_gadget_boxes(
-               simwin_gadget_flags const * const flags,
+               simwin_gadget_flags_t const * const flags,
                int const x,
                int const px
 ) {
@@ -243,7 +243,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 		const PLAYER_COLOR_VAL titel_farbe,
 		const char * const text,
 		const bool closing,
-		const simwin_gadget_flags * const flags )
+		const simwin_gadget_flags_t * const flags )
 {
 	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
 	display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, false);
@@ -266,13 +266,10 @@ static void win_draw_window_title(const koord pos, const koord gr,
  */
 static void win_draw_window_dragger(koord pos, koord gr)
 {
-  pos += gr;
-
-  for(int x=0; x<dragger_size; x++) {
-    display_fillbox_wh(pos.x-x,
-		       pos.y-dragger_size+x,
-		       x, 1, (x & 1) ? COL_BLACK : MN_GREY4, true);
-  }
+	pos += gr;
+	for(  int x=0;  x<dragger_size;  x++  ) {
+		display_fillbox_wh( pos.x-x, pos.y-dragger_size+x, x, 1, (x & 1) ? COL_BLACK : MN_GREY4, true);
+	}
 }
 
 
@@ -304,7 +301,8 @@ void release_focus(gui_komponente_t *this_focus)
 {
 	if(focus  &&  focus==this_focus) {
 		focus = NULL;
-	} else {
+	}
+	else {
 		dbg->warning("void release_focus()","Focus was already released");
 	}
 }
@@ -324,12 +322,11 @@ bool has_focus(const gui_komponente_t *req_focus)
 
 
 // returns the window (if open) otherwise zero
-gui_fenster_t *
-win_get_magic(long magic)
+gui_fenster_t *win_get_magic(long magic)
 {
 	if(magic!=-1  &&  magic!=0) {
 		// es kann nur ein fenster fuer jede pos. magic number geben
-		for(int i=0; i<ins_win; i++) {
+		for(  uint i=0;  i<wins.get_count();  i++  ) {
 			if(wins[i].magic_number == magic) {
 				// if 'special' magic number, return it
 				return wins[i].gui;
@@ -345,30 +342,24 @@ win_get_magic(long magic)
  * Returns top window
  * @author prissi
  */
-const gui_fenster_t *
-win_get_top()
+const gui_fenster_t *win_get_top()
 {
-	return (ins_win - 1>=0) ? wins[ins_win-1].gui : NULL;
+	return wins.get_count()>0 ? wins[wins.get_count()-1].gui : NULL;
 }
-
 
 
 int win_get_open_count()
 {
-	return ins_win;
+	return wins.get_count();
 }
 
 
 // brings a window to front, if open
-bool
-top_win(const gui_fenster_t *gui)
+bool top_win(const gui_fenster_t *gui)
 {
-	int i;
-	for(i=ins_win-1; i>=0; i--) {
+	for(  uint i=0;  i<wins.get_count()-1;  i++  ) {
 		if(wins[i].gui==gui) {
-			if(ins_win-1!=i) {
-				top_win(i);
-			}
+			top_win(i);
 			return true;
 		}
 	}
@@ -382,49 +373,54 @@ top_win(const gui_fenster_t *gui)
  */
 bool win_is_top(const gui_fenster_t *ig)
 {
-  const int i = ins_win - 1;
-  return i>=0 ? wins[i].gui == ig : false;
+	return wins.get_count()>0 ? wins[wins.get_count()-1].gui == ig : false;
 }
 
 
 // window functions
 
-int
-create_win(gui_fenster_t *gui, uint8 wt, long magic)
+int create_win(gui_fenster_t *gui, uint8 wt, long magic)
 {
 	return create_win( -1, -1, gui, wt, magic);
 }
 
-int
-create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
-{
-DBG_DEBUG("create_win()","ins_win=%d", ins_win);
-	assert(ins_win >= 0);
 
-	if(ins_win < MAX_WIN) {
+int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
+{
+	assert(gui!=NULL  &&  magic!=0);
+
+	if(  magic!=magic_none  &&  win_get_magic(magic)  ) {
+		focus = NULL;
+		top_win( win_get_magic(magic) );
+		return -1;
+	}
+
+	/* if there are too many handles (likely in large games)
+	 * we search for any error/news message at the bottom of the stack and delete it
+	 * => newer information might be more important ...
+	 */
+	if(  wins.get_count()==MAX_WIN  ) {
+		// we try to remove one of the lowest news windows (magic_none)
+		for(  uint i=0;  i<MAX_WIN;  i++  ) {
+			if(  wins[i].magic_number == magic_none  &&  dynamic_cast<news_window *>(wins[i].gui)!=NULL  ) {
+				destroy_win( wins[i].gui );
+				break;
+			}
+		}
+	}
+
+	if(  wins.get_count() < MAX_WIN  ) {
+
+		wins.append( simwin_t() );
+		simwin_t &win = wins[wins.get_count()-1];
 
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
-		wins[ins_win].flags.close = true;
-		wins[ins_win].flags.help = ( gui->get_hilfe_datei() != NULL );
-		wins[ins_win].flags.prev = gui->has_prev();
-		wins[ins_win].flags.next = gui->has_next();
-		wins[ins_win].flags.size = gui->has_min_sizer();
-
-		if(magic != -1) {
-			// es kann nur ein fenster fuer jede pos. magic number geben
-
-			for(int i=0; i<ins_win; i++) {
-				if(wins[i].wt==wt  &&  wins[i].magic_number==magic) {
-					// gibts schon, wir machen kein neues
-					// aber wir machen es sichtbar, falls verdeckt
-DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
-					focus = NULL;	// free focus
-					top_win(i);
-					return -1;
-				}
-			}
-		}
+		win.flags.close = true;
+		win.flags.help = ( gui->get_hilfe_datei() != NULL );
+		win.flags.prev = gui->has_prev();
+		win.flags.next = gui->has_next();
+		win.flags.size = gui->has_min_sizer();
 
 		// Hajo: Notify window to be shown
 		if(gui) {
@@ -439,25 +435,19 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 			ev.cy = 0;
 			ev.button_state = 0;
 
+			void *old = inside_event_handling;
+			inside_event_handling = gui;
 			gui->infowin_event(&ev);
-		}
-
-		// this window already open?
-		// prissi: (why do we have these magic cookies???)
-		for (int i=0; i<ins_win; i++) {
-			if (wins[i].gui == gui) {
-				top_win(i);
-				return -1;
-			}
+			inside_event_handling = old;
 		}
 
 		// take care of time delete windows ...
-		wins[ins_win].gui = gui;
-		wins[ins_win].wt = (wt&w_time_delete) ? (uint8)w_info : wt;
-		wins[ins_win].dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
-		wins[ins_win].magic_number = magic;
-		wins[ins_win].closing = false;
-		wins[ins_win].rollup = false;
+		win.gui = gui;
+		win.wt = (wt&w_time_delete) ? (uint8)w_info : wt;
+		win.dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
+		win.magic_number = magic;
+		win.closing = false;
+		win.rollup = false;
 
 		koord gr;
 
@@ -472,7 +462,7 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 			// try to keep the toolbar below all other toolbars
 			y = 32;
 			if(wt & w_no_overlap) {
-				for(int i=0; i<ins_win; i++) {
+				for( int i=0;  i<wins.get_count()-1;  i++  ) {
 					if(wins[i].wt & w_no_overlap) {
 						if(wins[i].pos.y>=y) {
 							sint16 lower_y = wins[i].pos.y + wins[i].gui->get_fenstergroesse().y;
@@ -499,12 +489,9 @@ DBG_DEBUG("create_win()","magic=%d already there, bring to front", magic);
 		if(y<32) {
 			y = 32;
 		}
-		wins[ins_win].pos = koord(x,y);
-
+		win.pos = koord(x,y);
 		mark_rect_dirty_wc( x, y, x+gr.x, y+gr.y );
-
-DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
-		return ins_win ++;
+		return wins.get_count();
 	}
 	else {
 		return -1;
@@ -515,7 +502,7 @@ DBG_DEBUG("create_win()","new ins_win=%d", ins_win+1);
  * Destroy a framed window
  * @author Hj. Malthaner
  */
-static void destroy_framed_win(simwin *wins)
+static void destroy_framed_win(simwin_t *wins)
 {
 	// mark dirty
 	koord gr = wins->gui->get_fenstergroesse();
@@ -532,6 +519,7 @@ static void destroy_framed_win(simwin *wins)
 		ev.cx = 0;
 		ev.cy = 0;
 		ev.button_state = 0;
+
 		wins->gui->infowin_event(&ev);
 	}
 
@@ -543,8 +531,7 @@ static void destroy_framed_win(simwin *wins)
 
 
 
-void
-destroy_win(const long magic)
+void destroy_win(const long magic)
 {
 	const gui_fenster_t *gui = win_get_magic(magic);
 	if(gui) {
@@ -554,26 +541,17 @@ destroy_win(const long magic)
 
 
 
-void
-destroy_win(const gui_fenster_t *gui)
+void destroy_win(const gui_fenster_t *gui)
 {
-	int i;
-	for(i=ins_win-1; i>=0; i--) {
+	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		if(wins[i].gui == gui) {
-			if(inside_event_handling) {
-				// only add this, if not already added
-				if (!kill_list.is_contained(wins[i])) {
-					kill_list.append(wins[i]);
-				}
+			if(inside_event_handling==wins[i].gui) {
+				kill_list.append_unique(wins[i]);
 			}
 			else {
 				destroy_framed_win(&wins[i]);
 			}
-			// compact the window list
-			if(i < ins_win-1) {
-				memmove(&wins[i], &wins[i+1], sizeof(simwin) * (ins_win - i - 1));
-			}
-			ins_win--;
+			wins.remove_at(i);
 			break;
 		}
 	}
@@ -583,35 +561,29 @@ destroy_win(const gui_fenster_t *gui)
 
 void destroy_all_win()
 {
-	for(int i=ins_win-1; i>=0; i--) {
-		if(inside_event_handling) {
+	while(  !wins.empty()  ) {
+		if(inside_event_handling==wins[0].gui) {
 			// only add this, if not already added
-			if (!kill_list.is_contained(wins[i])) {
-				kill_list.append(wins[i]);
-			}
+			kill_list.append_unique(wins[0]);
 		}
 		else {
-			destroy_framed_win(wins+i);
+			destroy_framed_win(&wins[0]);
 		}
 		// compact the window list
-		if(i < ins_win-1) {
-			memmove(&wins[i], &wins[i+1], sizeof(simwin) * (ins_win - i - 1));
-		}
-		ins_win--;
+		wins.remove_at(0);
 	}
 }
 
 
 int top_win(int win)
 {
-DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
-	if (win==ins_win-1) {
+	if(win==wins.get_count()-1) {
 		return win;
 	} // already topped
 
-	simwin tmp = wins[win];
-	memmove(&wins[win], &wins[win+1], sizeof(simwin) * (ins_win - win - 1));
-	wins[ins_win-1] = tmp;
+	simwin_t tmp = wins[win];
+	wins.remove_at(win);
+	wins.append(tmp);
 
 	// mark dirty
 	koord gr = wins[win].gui->get_fenstergroesse();
@@ -627,9 +599,12 @@ DBG_MESSAGE("top_win()","win=%i ins_win=%i",win,ins_win);
 	ev.cy = 0;
 	ev.button_state = 0;
 
+	void *old = inside_event_handling;
+	inside_event_handling = tmp.gui;
 	tmp.gui->infowin_event(&ev);
+	inside_event_handling = old;
 
-	return ins_win-1;
+	return wins.get_count()-1;
 }
 
 
@@ -651,7 +626,7 @@ void display_win(int win)
 			wins[win].closing,
 			( & wins[win].flags ) );
 	// mark top window, if requested
-	if(umgebung_t::window_frame_active  &&  win==ins_win-1) {
+	if(umgebung_t::window_frame_active  &&  win==wins.get_count()-1) {
 		if(!wins[win].rollup) {
 			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , titel_farbe, titel_farbe+1 );
 		}
@@ -670,24 +645,33 @@ void display_win(int win)
 }
 
 
-void
-display_all_win()
+void display_all_win()
 {
 	const char *current_tooltip = tooltip_text;
-	for(int i=0; i<ins_win; i++) {
+	const sint16 x = get_maus_x();
+	const sint16 y = get_maus_y();
+	bool getroffen = false;
+	for(  uint i=0;  i<wins.get_count();  i++  ) {
+		tooltip_text = NULL;
 		display_win(i);
-		// prissi: tooltips are only allowed for the uppermost window and main menu
-		if(i<ins_win-1) {
-			tooltip_text = current_tooltip;
+		if(  !getroffen  &&  tooltip_text!=NULL  ) {
+			current_tooltip = tooltip_text;
+		}
+		if(  (!wins[i].rollup  &&  wins[i].gui->getroffen(x-wins[i].pos.x,y-wins[i].pos.y))  ||
+		     (wins[i].rollup  &&  x>=wins[i].pos.x  &&  x<wins[i].pos.x+wins[i].gui->get_fenstergroesse().x  &&  y>=wins[i].pos.y  &&  y<wins[i].pos.y+16)
+		) {
+			// prissi: tooltips are only allowed for non overlapping windows
+			current_tooltip = tooltip_text;
 		}
 	}
+	tooltip_text = current_tooltip;
 }
 
 
 
 void win_rotate90( sint16 new_ysize )
 {
-	for(int i=0; i<ins_win; i++) {
+	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		wins[i].gui->map_rotate90( new_ysize );
 	}
 }
@@ -697,7 +681,7 @@ void win_rotate90( sint16 new_ysize )
 static void remove_old_win()
 {
 	// alte fenster entfernen, falls dauer abgelaufen
-	for(int i=ins_win-1; i>=0; i--) {
+	for(  int i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
 		if(wins[i].dauer > 0) {
 			wins[i].dauer --;
 			if(wins[i].dauer == 0) {
@@ -741,7 +725,7 @@ void move_win(int win, event_t *ev)
 
 int win_get_posx(gui_fenster_t *gui)
 {
-	for(int i=ins_win-1; i>=0; i--) {
+	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
 		if(wins[i].gui == gui) {
 			return wins[i].pos.x;
 		}
@@ -752,7 +736,7 @@ int win_get_posx(gui_fenster_t *gui)
 
 int win_get_posy(gui_fenster_t *gui)
 {
-	for(int i=ins_win-1; i>=0; i--) {
+	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
 		if(wins[i].gui == gui) {
 			return wins[i].pos.y;
 		}
@@ -763,7 +747,7 @@ int win_get_posy(gui_fenster_t *gui)
 
 void win_set_pos(gui_fenster_t *gui, int x, int y)
 {
-	for(int i=ins_win-1; i>=0; i--) {
+	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
 		if(wins[i].gui == gui) {
 			wins[i].pos.x = x;
 			wins[i].pos.y = y;
@@ -777,7 +761,7 @@ void win_set_pos(gui_fenster_t *gui, int x, int y)
 
 static void process_kill_list()
 {
-	for (uint i = 0; i < kill_list.get_count(); i++) {
+	for(uint i = 0; i < kill_list.get_count(); i++) {
 		destroy_framed_win(&kill_list[i]);
 	}
 	kill_list.clear();
@@ -792,17 +776,14 @@ bool check_pos_win(event_t *ev)
 {
 	static bool is_resizing = false;
 
-	int i;
 	bool swallowed = false;
 
 	const int x = ev->mx;
 	const int y = ev->my;
 
-	inside_event_handling = true;
 
 	// for the moment, no none events
 	if (ev->ev_class == EVENT_NONE) {
-		inside_event_handling = false;
 		process_kill_list();
 		return false;
 	}
@@ -821,30 +802,32 @@ bool check_pos_win(event_t *ev)
 			if(wl->ist_in_kartengrenzen(p)) {
 				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
 			}
-			inside_event_handling = false;
 			return true;
 		}
 	}
 	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD) {
 		// click in main menu
 		event_t wev = *ev;
+		inside_event_handling = werkzeug_t::toolbar_tool[0];
 		werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()->infowin_event( &wev );
+		inside_event_handling = NULL;
 		// swallow event
-		inside_event_handling = false;
 		return true;
 	}
 
 
-	for(i=ins_win-1; i>=0  &&  !swallowed; i--) {
+	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
 
 		// check click inside window
 		if(  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )  ) {
+
+			inside_event_handling = wins[i].gui;
 
 			// all events in window are swallowed
 			swallowed = true;
 
 			// Top window first
-			if(ins_win-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
+			if(wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
 				i = top_win(i);
 			}
 
@@ -951,15 +934,16 @@ bool check_pos_win(event_t *ev)
 					swallowed = false;
 				}
 			}
+			inside_event_handling = NULL;
 		}
 	}
 
 	// if no focused, we do not deliver keyboard input
-	if(focus==NULL && ev->ev_class == EVENT_KEYBOARD) {
+	if(focus==NULL  &&  ev->ev_class == EVENT_KEYBOARD) {
 		swallowed = false;
 	}
 
-	inside_event_handling = false;
+	inside_event_handling = NULL;
 	process_kill_list();
 
 	return swallowed;
@@ -1154,6 +1138,17 @@ void win_display_flush(double konto)
 		sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
 	}
 
+#ifdef DEBUG
+	if(  umgebung_t::verbose_debug>3  ) {
+		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
+			strcat(stretch_text, "+" );
+		}
+		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
+			strcat(stretch_text, "*" );
+		}
+	}
+#endif
+
 	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
 		sprintf(delta_pos,"-(%d,%d) ", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
 	}
@@ -1202,7 +1197,7 @@ bool win_change_zoom_factor(bool magnify)
 		ev.cy = 0;
 		ev.button_state = 0;
 
-		for(int i=0; i<ins_win; i++) {
+		for(  sint32 i=wins.get_count()-1;  i>=0;  i=min(i,wins.get_count())-1  ) {
 			wins[i].gui->infowin_event(&ev);
 		}
 	}

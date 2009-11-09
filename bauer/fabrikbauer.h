@@ -102,7 +102,7 @@ public:
 	 * @return: Anzahl gebauter Fabriken
 	 * @author Hj.Malthaner
 	 */
-	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains );
+	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains);
 
 	/**
 	 * Helper function for baue_hierachie(): builts the connections (chain) for one single product)
@@ -116,12 +116,12 @@ public:
 	 * or built a new consumer near the indicated position
 	 * @return: number of factories built
 	 */
-	static int increase_industry_density( karte_t *welt, bool tell_me );
+	static int increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density = false );
 
 
 private:
 	// bauhilfen
-	static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch);
+	static koord3d finde_zufallsbauplatz(karte_t *welt, koord3d pos, int radius, koord groesse,bool on_water, const haus_besch_t *besch, bool ignore_climates);
 
 	// check, if we have to rotate the factories before building this tree
 	static bool can_factory_tree_rotate( const fabrik_besch_t *besch );

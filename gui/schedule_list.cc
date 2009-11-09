@@ -268,18 +268,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp,value_t /
 		}
 	}
 	else if (komp == &bt_new_line) {
-		if (tabs.get_active_tab_index() > 0) {
-			// create typed line
-			assert(tabs.get_active_tab_index()<max_idx);
-			uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
-			linehandle_t new_line = sp->simlinemgmt.create_line(type,sp);
-			create_win( new line_management_gui_t(new_line, sp), w_info, (long)line.get_rep());
-			update_lineinfo( new_line );
-			build_line_list( tabs.get_active_tab_index() );
-		}
-		else {
-			create_win( new news_img("Cannot create generic line!\nSelect line type by\nusing filter tabs."), w_time_delete, magic_none);
-		}
+		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
+		// create typed line
+		uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
+		linehandle_t new_line = sp->simlinemgmt.create_line(type,sp);
+		create_win( new line_management_gui_t(new_line, sp), w_info, (long)new_line.get_rep());
+		update_lineinfo( new_line );
+		build_line_list( tabs.get_active_tab_index() );
 	}
 	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
@@ -398,7 +393,7 @@ schedule_list_gui_t::display(koord pos)
 	len2 += display_proportional(pos.x+LINE_NAME_COLUMN_WIDTH+len2, pos.y+16+14+SCL_HEIGHT+14+4+LINESPACE, ctmp, ALIGN_LEFT, profit>=0?MONEY_PLUS:MONEY_MINUS, true );
 
 	int rest_width = max( (get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH)/2, max(len2,len) );
-	number_to_string(ctmp, capacity);
+	number_to_string(ctmp, capacity, 2);
 	sprintf(buffer, translator::translate("Capacity: %s\nLoad: %d (%d%%)"), ctmp, load, loadfactor);
 	display_multiline_text(pos.x + LINE_NAME_COLUMN_WIDTH + rest_width, pos.y+16 + 14 + SCL_HEIGHT + 14 +4 , buffer, COL_BLACK);
 }
@@ -517,7 +512,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// chart
 		chart.remove_curves();
 		for(i=0; i<MAX_LINE_COST; i++)  {
-			chart.add_curve(cost_type_color[i], new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true);
+			chart.add_curve(cost_type_color[i], new_line->get_finance_history(), MAX_LINE_COST, statistic[i], MAX_MONTHS, statistic_type[i], filterButtons[i].pressed, true, statistic_type[i]*2 );
 			if(filterButtons[i].pressed) {
 				chart.show_curve(i);
 			}

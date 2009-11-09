@@ -33,6 +33,7 @@ class button_t :
 public:
 	/* the button with the postfix state do not automatically change their state like the normal button do
 	 * the _state buttons must be changed by the caller!
+	 * _automatic buttons do eveything themselves, i.e. depress/release alternately
 	 *
 	 * square: button with text on the right side next to it
 	 * box:  button with is used for many selection purposes; can have colored background
@@ -41,8 +42,11 @@ public:
 	 * repeat arrows: calls the caller until the mouse is released
 	 * scrollbar: well you guess it. Not used by gui_frame_t things ...
 	 */
-	enum type { square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright, posbutton,
-					   square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_state, repeatarrowleft_state, repeatarrowright_state };
+	enum type {
+		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright, posbutton,
+		square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_state, repeatarrowleft_state, repeatarrowright_state,
+		square_automatic=257
+	};
 
 private:
 	/**

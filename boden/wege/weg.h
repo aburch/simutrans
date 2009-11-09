@@ -62,7 +62,8 @@ public:
 		HAS_SIGN       = 0x04,
 		HAS_SIGNAL     = 0x08,
 		HAS_WAYOBJ     = 0x10,
-		HAS_CROSSING   = 0x20
+		HAS_CROSSING   = 0x20,
+		IS_SNOW = 0x80	// marker, if above snowline currently
 	};
 
 	enum system_type { type_flat=0, type_elevated=1, type_tram=7, type_underground=64, type_all=255 };
@@ -140,7 +141,7 @@ public:
 	virtual ~weg_t();
 
 	/* seasonal image recalculation */
-	bool check_season(const long /*month*/) { calc_bild(); return true; }
+	bool check_season(const long /*month*/);
 
 	/* actual image recalculation */
 	void calc_bild();
@@ -172,12 +173,12 @@ public:
 	
 	bool permissive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_permissive >> i) & 1 != 0);
+		return (((way_constraints_permissive >> i) & 1) != 0);
 	}
 
 	bool prohibitive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_prohibitive >> i) & 1 != 0);
+		return (((way_constraints_prohibitive >> i) & 1) != 0);
 	}
 
 
@@ -215,6 +216,12 @@ public:
 	virtual void info(cbuffer_t & buf) const;
 
 	void zeige_info() {} // show no info
+
+	/**
+	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @author Hj. Malthaner
+	 */
+	virtual const char *ist_entfernbar(const spieler_t *sp);
 
 	/**
 	* Wegtyp zurückliefern
@@ -319,6 +326,7 @@ public:
 	inline bool has_signal() const {return flags&HAS_SIGNAL; }
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
 	inline bool is_crossing() const {return flags&HAS_CROSSING; }
+	inline bool is_snow() const {return flags&IS_SNOW; }
 
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const {return bild;}

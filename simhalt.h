@@ -24,6 +24,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+
 #include "tpl/quickstone_hashtable_tpl.h"
 #include "tpl/koordhashtable_tpl.h"
 #include "tpl/fixed_list_tpl.h"
@@ -41,6 +42,10 @@
 #define HALT_NOROUTE				5 // number of no-route passangers
 #define HALT_CONVOIS_ARRIVED        6 // number of convois arrived this month
 #define HALT_TOO_SLOW		        7 // The number of passengers whose estimated journey time exceeds their tolerance.
+
+#define RESCHEDULING (1)
+#define REROUTING (2)
+
 
 class cbuffer_t;
 class grund_t;
@@ -105,7 +110,25 @@ private:
 	uint8 overcrowded[8];	// bit set, when overcrowded
 	void recalc_status();
 
+	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
+
+	/**
+	 * Markers used in suche_route() to avoid processing the same halt more than once
+	 * Originally they are instance variables of haltestelle_t
+	 * Now consolidated into a static array to speed up suche_route()
+	 * @author Knightly
+	 */
+	static uint8 markers[65536];
+	static uint8 current_mark;
+
 public:
+	/**
+	 * Handles changes of schedules and the resulting rerouting
+	 */
+	static void step_all();
+
+	static uint8 get_rerouting_status() { return status_step; }
+
 	/**
 	 * Tries to generate some pedestrians on the sqaure and the
 	 * adjacent sqaures. Return actual number of generated
@@ -293,6 +316,20 @@ private:
 
 	// loest warte_menge ab
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
+
+	/**
+	 * For each schedule/line, that adds halts to a warenziel array,
+	 * this counter is incremented. Each ware category needs a separate
+	 * counter. If this counter is more than 1, this halt is a transfer
+	 * halt, i.e. contains non_identical_schedules with overlapping
+	 * destinations.
+	 * Non-transfer stops do not need to be searched for connections
+	 * => large speedup possible.
+	 * @author Knightly
+	 */
+	uint8 *non_identical_schedules;
+
+	// Array with different categries that contains all waiting goods at this stop
 	vector_tpl<ware_t> **waren;
 
 	/**
@@ -311,7 +348,11 @@ private:
 	stationtyp station_type;
 
 	uint8 rebuilt_destination_counter;	// new schedule, first rebuilt destinations asynchroniously
-	// uint8 reroute_counter;						// the reroute goods
+
+	uint8 reroute_counter;						// the reroute goods
+	// since we do partial routing, we remeber the last offset
+	uint8 last_catg_index;
+	uint32 last_ware_index;
 
 	/* station flags (most what enabled) */
 	uint8 enables;
@@ -337,6 +378,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	uint32 pax_unhappy;
+
 
 	// Number of passengers for whom the shortest journey
 	// exceeded their time tolerance.
@@ -465,11 +507,12 @@ public:
 	* will distribute the goods to changed routes (if there are any)
 	* @author Hj. Malthaner
 	*/
-	void reroute_goods();
+	bool reroute_goods(/*sint16 &units_remaining*/);
 
 	// Added by : Knightly
 	// Purpose	: Re-routing goods of a single ware category
 	bool reroute_goods(uint8 catg);
+
 
 	/**
 	 * getter/setter for sortby
@@ -498,7 +541,6 @@ public:
 	void verbinde_fabriken();
 	void remove_fabriken(fabrik_t *fab);
 
-
 	uint8 get_rebuild_destination_counter() const  { return rebuilt_destination_counter; }
 
 	// New routing method: finds shortest route in *time*, not necessarily distance
@@ -526,7 +568,8 @@ public:
 	 * Haltestellen messen regelmaessig die Fahrplaene pruefen
 	 * @author Hj. Malthaner
 	 */
-	void step();
+
+	bool step(sint16 &units_remaining);
 
 	/**
 	 * Called every month/every 24 game hours
@@ -864,5 +907,12 @@ public:
 	* deletes factory references so map rotation won't segfault
 	*/
 	void release_factory_links();
+
+	/**
+	 * Initialise the markers to zero
+	 * @author Knightly
+	 */
+	static void init_markers();
+
 };
 #endif

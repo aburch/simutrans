@@ -343,6 +343,7 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	else if((buttons+20)==komp)
 	{
+		// TEMPORARY: Disable this because the distributed path search causes crashes. Re-enable when fixed.
 		const uint8 current_option = welt->get_einstellungen()->get_default_path_option();
 		if(current_option == 1)
 		{
@@ -350,13 +351,12 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			buttons[20].pressed = true;
 			path_explorer_t::full_instant_refresh();
 		}
-		else
+		/*else
 		{
 			welt->get_einstellungen()->set_default_path_option(1);
 			buttons[20].pressed = false;
 			haltestelle_t::prepare_pathing_data_structures();
-		}
-		
+		}*/
 	}
 
 	welt->set_dirty();
@@ -464,7 +464,7 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x+len, y+PHASE_FILL_MATRIX, ntos(path_explorer_t::get_limit_fill_matrix(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PHASE_EXPLORE_PATHS, translator::translate("Explore paths:"), ALIGN_LEFT, text_colour, true);
-	display_proportional_clip(x+len, y+PHASE_EXPLORE_PATHS, ntos(path_explorer_t::get_limit_explore_paths(), "%lu"), ALIGN_LEFT, figure_colour, true);
+	display_proportional_clip(x+len, y+PHASE_EXPLORE_PATHS, ntos((long)path_explorer_t::get_limit_explore_paths(), "%lu"), ALIGN_LEFT, figure_colour, true);
 
 	len = 15+display_proportional_clip(x+10, y+PHASE_REROUTE_GOODS, translator::translate("Re-route goods:"), ALIGN_LEFT, text_colour, true);
 	display_proportional_clip(x+len, y+PHASE_REROUTE_GOODS, ntos(path_explorer_t::get_limit_reroute_goods(), "%lu"), ALIGN_LEFT, figure_colour, true);

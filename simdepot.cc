@@ -131,13 +131,13 @@ depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 	if(fpl_adjust) {
 		// here a regular convoi arrived
 
-		for(unsigned i=0; i< acnv->get_vehikel_anzahl(); i++) {
+		for(unsigned i=0; i<acnv->get_vehikel_anzahl(); i++) {
 			vehikel_t *v = acnv->get_vehikel(i);
-			if(v) {
-				// Hajo: reset vehikel data
-				v->loesche_fracht();
-			}
+			// Hajo: reset vehikel data
+			v->loesche_fracht();
 			v->set_pos( koord3d::invalid );
+			v->set_erstes( i==0 );
+			v->set_letztes( i+1==acnv->get_vehikel_anzahl() );
 		}
 		// Volker: remove depot from schedule
 		schedule_t *fpl = acnv->get_schedule();
@@ -479,7 +479,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
  */
 const char * depot_t::ist_entfernbar(const spieler_t *sp)
 {
-	if(sp!=get_besitzer()) {
+	if(sp!=get_besitzer()  &&  sp!=welt->get_spieler(1)) {
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 	if (!vehicles.empty()) {
@@ -582,7 +582,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 		return false;
 	}
 
-	if(!sch0->reserve(cnv)) {
+	if(!sch0->reserve(cnv,ribi_t::keine)) {
 		// could not even reserve first tile ...
 		return false;
 	}
@@ -592,7 +592,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	bool success = true;
 	uint16 tiles = cnv->get_tile_length();
 	uint32 i;
-	for(  i=0;  success  &&  i<tiles  &&  i<=route->get_max_n();  i++  ) {
+	for(  i=0;  success  &&  i<tiles  &&  i<route->get_count();  i++  ) {
 		schiene_t * sch1 = (schiene_t *) welt->lookup( route->position_bei(i))->get_weg(wt);
 		if(sch1==NULL) {
 			dbg->warning("waggon_t::is_next_block_free()","invalid route");
@@ -600,7 +600,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 			break;
 		}
 		// otherwise we might check one tile too much
-		if(!sch1->reserve(cnv)) {
+		if(  !sch1->reserve( cnv, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,i+1)) ) )  ) {
 			success = false;
 		}
 	}

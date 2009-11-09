@@ -13,6 +13,8 @@
 #define NO_SOUND (sint16)(0xFFFFu)
 #define LOAD_SOUND (sint8)(0xFFFEu)
 
+#define AMBIENT_SOUND_INTERVALL (13000)
+
 /*
  *  Autor:
  *      prissi
@@ -50,6 +52,11 @@ private:
 	sint16 nr;	// for old sounds/system sounds etc.
 
 public:
+	// sounds for ambient
+	static sint16 beach_sound;
+	static sint16 forest_sound;
+	static sint16 climate_sounds[MAX_CLIMATES];
+
 	static sint16 get_sound_id(const char *name);
 
 	static bool register_besch(sound_besch_t *besch);

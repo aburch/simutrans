@@ -305,6 +305,8 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
+	welt->decrease_actual_industry_density(1.0 / (double)get_besch()->get_gewichtung());
+
 	//Disconnect this factory from all chains.
 	//@author: jamespetts
 	uint32 number_of_customers = lieferziele.get_count();
@@ -314,8 +316,8 @@ fabrik_t::~fabrik_t()
 	{
 		char buf[192];
 		uint16 jobs =  besch->get_pax_level();
-		sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-		welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+		sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+		welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 		for(sint32 i = number_of_customers - 1; i >= 0; i --)
 		{
 			fabrik_t* tmp = get_fab(welt, lieferziele[i]);
@@ -1258,47 +1260,6 @@ fabrik_t::neuer_monat()
 		ausgang[index].abgabe_sum = 0;
 	}
 
-	// Check to see whether factory is obsolete.
-	// If it is, give it a chance of being closed down.
-	//@author: jamespetts
-
-	if(welt->use_timeline() && besch->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
-	{
-		uint32 difference =  welt->get_timeline_year_month() - besch->get_haus()->get_retire_year_month();
-		uint32 max_difference = welt->get_einstellungen()->get_factory_max_years_obsolete() * 12;
-		if(difference > max_difference)
-		{
-			uint32 number_of_customers = lieferziele.get_count();
-			uint32 number_of_suppliers = suppliers.get_count();
-			char buf[192];
-			uint16 jobs =  besch->get_pax_level();
-			sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-			welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
-			grund_t *gr = 0;
-			gr = welt->lookup(pos);
-			gebaeude_t* gb = gr->find<gebaeude_t>();
-			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
-		}
-		else
-		{
-			float proportion = (float)difference / (float)max_difference;
-			proportion *= 100; //Set to percentage value.
-			uint8 chance = simrand(100);
-			if(chance <= proportion)
-			{
-				uint32 number_of_customers = lieferziele.get_count();
-				uint32 number_of_suppliers = suppliers.get_count();
-				char buf[192];
-				uint16 jobs =  besch->get_pax_level();
-				sprintf(buf, translator::translate("Industry: %s has closed down, with the loss of %d jobs. %d upstream suppliers and %d downstream customers are affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-				welt->get_message()->add_message(buf, pos.get_2d(), message_t::general, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
-				grund_t *gr = 0;
-				gr = welt->lookup(pos);
-				gebaeude_t* gb = gr->find<gebaeude_t>();
-				hausbauer_t::remove(welt, welt->get_spieler(1), gb);
-			}
-		}
-	}
 	// This needs to be re-checked regularly, as cities grow.
 	stadt_t* c = welt->get_city(pos.get_2d());
 
@@ -1312,26 +1273,115 @@ fabrik_t::neuer_monat()
 		city = c;
 		city->add_city_factory(this);
 	}
-}
 
+	// Check to see whether factory is obsolete.
+	// If it is, give it a chance of being closed down.
+	// @author: jamespetts
+
+	if(welt->use_timeline() && besch->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
+	{
+		const uint32 difference =  welt->get_timeline_year_month() - besch->get_haus()->get_retire_year_month();
+		const uint32 max_difference = welt->get_einstellungen()->get_factory_max_years_obsolete() * 12;
+		bool closedown = false;
+		if(difference > max_difference)
+		{
+			closedown = true;
+		}
+		
+		else
+		{
+			float proportion = (float)difference / (float)max_difference;
+			proportion *= 2.5F; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100.0F - large change to take into account frequency of checking)
+			const float chance = (float)(simrand(10000) / 100.0F);
+			if(chance <= proportion)
+			{
+				closedown = true;
+			}
+		}
+
+		if(closedown)
+		{
+			grund_t *gr = 0;
+			gr = welt->lookup(pos);
+			gebaeude_t* gb = gr->find<gebaeude_t>();
+			char buf[192];
+			
+			const int upgrades_count = besch->get_upgrades_count();
+			if(upgrades_count > 0)
+			{
+				// This factory has some upgrades: consider upgrading.
+				minivec_tpl<const fabrik_besch_t*> upgrade_list(upgrades_count);
+				const double max_density = welt->get_target_industry_density() * 1.5;
+				const double adjusted_density = welt->get_actual_industry_density() - (1 / besch->get_gewichtung());
+				for(uint16 i = 0; i < upgrades_count; i ++)
+				{
+					// Check whether any upgrades are suitable.
+					// Currently, they must be of identical size and have
+					// identical outputs and inputs, as the upgrade mechanism
+					// is very simple. In future, it might be possible to write
+					// more sophisticated upgrading code to enable industries
+					// that are not identical in such a way to be upgraded.
+					// Thus, non-suitable upgrades are allowed to be specified
+					// in the .dat files for future compatibility.
+
+					const fabrik_besch_t* fab = besch->get_upgrades(i);
+					if(	fab != NULL && fab->is_electricity_producer() == besch->is_electricity_producer() &&
+						fab->get_haus()->get_b() == besch->get_haus()->get_b() &&
+						fab->get_haus()->get_h() == besch->get_haus()->get_h() &&
+						fab->get_haus()->get_groesse() == besch->get_haus()->get_groesse() &&
+						fab->get_lieferanten() == besch->get_lieferanten() &&
+						fab->get_produkte() ==  besch->get_produkte() &&
+						fab->get_haus()->get_intro_year_month() <= welt->get_timeline_year_month() &&
+						fab->get_haus()->get_retire_year_month() >= welt->get_timeline_year_month() &&
+						adjusted_density < (max_density + (1 / fab->get_gewichtung())))
+					{
+						upgrade_list.append_unique(fab);
+					}
+				}
+				
+				const uint8 list_count = upgrade_list.get_count();
+				if(list_count > 0)
+				{
+					double total_density = 0;
+					ITERATE(upgrade_list, j)
+					{
+						total_density += (1 / upgrade_list[j]->get_gewichtung());
+					}
+					const double average_density = total_density / list_count;
+					const double probability_floating = 1 / ((1 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count());
+					const uint32 chance = simrand(probability_floating);
+					if(chance < list_count)
+					{
+						// All the conditions are met: upgrade.
+						const fabrik_besch_t* new_type = upgrade_list[chance];
+						const char* old_name = get_name();
+						besch = new_type;
+						const char* new_name = get_name();
+						gb->calc_bild();
+						// Base production is randomised, so is an instance value. Must re-set from the type.
+						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
+						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+						return;
+					}
+				}
+			}
+
+			const uint32 number_of_customers = lieferziele.get_count();
+			const uint32 number_of_suppliers = suppliers.get_count();
+			const uint16 jobs = besch->get_pax_level();
+			// This is repeated elsewhere.
+			//sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
+			//welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
+			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
+		}
+	}
+	// NOTE: No code should come after this part, as the closing down code may cause this object to be deleted.
+}
 
 
 static void info_add_ware_description(cbuffer_t & buf, const ware_production_t & ware)
 {
-  const ware_besch_t * type = ware.get_typ();
-
-  buf.append(" -");
-  buf.append(translator::translate(type->get_name()));
-  buf.append(" ");
-  buf.append(ware.menge >> fabrik_t::precision_bits);
-  buf.append("/");
-  buf.append(ware.max >> fabrik_t::precision_bits);
-  buf.append(translator::translate(type->get_mass()));
-
-  if(type->get_catg() != 0) {
-    buf.append(", ");
-    buf.append(translator::translate(type->get_catg_name()));
-  }
 }
 
 
@@ -1487,7 +1537,10 @@ void
 fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.clear();
-	buf.printf("%s %i %s\n", translator::translate("Durchsatz"), get_current_production(), translator::translate("units/day"));
+	buf.append( translator::translate("Durchsatz") );
+	buf.append( get_current_production(), 0 );
+	buf.append( translator::translate("units/day") );
+	buf.append( "\n" );
 	if(get_besch()->is_electricity_producer())
 	{
 		buf.append(translator::translate("Electrical output: "));
@@ -1596,10 +1649,23 @@ fabrik_t::info(cbuffer_t& buf) const
 		buf.append(":\n");
 
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
-			info_add_ware_description(buf, ausgang[index]);
+			const ware_besch_t * type = ausgang[index].get_typ();
+
+			buf.append(" -");
+			buf.append(translator::translate(type->get_name()));
+			buf.append(" ");
+			buf.append(ausgang[index].menge / (double)(1<<precision_bits), 0 );
+			buf.append("/");
+			buf.append(ausgang[index].max >> fabrik_t::precision_bits,0);
+			buf.append(translator::translate(type->get_mass()));
+
+			if(type->get_catg() != 0) {
+				buf.append(", ");
+				buf.append(translator::translate(type->get_catg_name()));
+			}
 
 			buf.append(", ");
-			buf.append((int)(besch->get_produkt(index)->get_faktor()*100/256));
+			buf.append((besch->get_produkt(index)->get_faktor()*100l)/256.0,0);
 			buf.append("%\n");
 		}
 	}
@@ -1615,12 +1681,12 @@ fabrik_t::info(cbuffer_t& buf) const
 			buf.append(" -");
 			buf.append(translator::translate(eingang[index].get_typ()->get_name()));
 			buf.append(" ");
-			buf.append(eingang[index].menge >> precision_bits);
+			buf.append(eingang[index].menge / (double)(1<<precision_bits), 0 );
 			buf.append("/");
-			buf.append(eingang[index].max >> precision_bits);
+			buf.append(eingang[index].max >> precision_bits,0);
 			buf.append(translator::translate(eingang[index].get_typ()->get_mass()));
 			buf.append(", ");
-			buf.append((int)(besch->get_lieferant(index)->get_verbrauch()*100/256));
+			buf.append((besch->get_lieferant(index)->get_verbrauch()*100l)/256.0,0);
 			buf.append("%\n");
 		}
 	}

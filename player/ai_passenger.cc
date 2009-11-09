@@ -299,7 +299,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
 			bauigel.calc_route( welt->lookup_kartenboden(bushalt)->get_pos(), welt->lookup_kartenboden(town_road)->get_pos() );
-			if(bauigel.max_n <= 1) {
+			if(bauigel.get_count()-1 <= 1) {
 				return false;
 			}
 			bauigel.baue();
@@ -317,7 +317,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
 			bauigel.calc_route( welt->lookup_kartenboden(bushalt)->get_pos(), welt->lookup_kartenboden(town_road)->get_pos() );
-			if(bauigel.max_n <= 1) {
+			if(bauigel.get_count()-1 <= 1) {
 				return false;
 			}
 			bauigel.baue();
@@ -518,11 +518,11 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	koord center=pos+dx;
 	bauigel.route_fuer( wegbauer_t::luft, taxi_besch, NULL, NULL );
 	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::nord)->get_pos(), welt->lookup_kartenboden(center+koord::sued)->get_pos() );
-	assert(bauigel.max_n > 1);
+	assert(bauigel.get_count()-1 > 1);
 	bauigel.baue();
 	bauigel.route_fuer( wegbauer_t::luft, taxi_besch, NULL, NULL );
 	bauigel.calc_straight_route( welt->lookup_kartenboden(center+koord::west)->get_pos(), welt->lookup_kartenboden(center+koord::ost)->get_pos() );
-	assert(bauigel.max_n > 1);
+	assert(bauigel.get_count()-1 > 1);
 	bauigel.baue();
 	// now try to connect one of the corners with a road
 	koord bushalt = koord::invalid, runwaystart, runwayend;
@@ -540,9 +540,9 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		bushalt = pos+trypos[i];
 		bauigel.calc_route(welt->lookup_kartenboden(bushalt)->get_pos(),welt->lookup_kartenboden(town_road)->get_pos());
 		// no road => try next
-		if(  bauigel.max_n>=1  &&   bauigel.max_n<lenght  ) {
+		if(  bauigel.get_count()-1>=1  &&   bauigel.get_count()-1<lenght  ) {
 			rotation = i;
-			lenght = bauigel.max_n;
+			lenght = bauigel.get_count()-1;
 		}
 	}
 
@@ -579,7 +579,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// built also runway now ...
 	bauigel.route_fuer( wegbauer_t::luft, runway_besch, NULL, NULL );
 	bauigel.calc_straight_route( welt->lookup_kartenboden(pos+trypos[rotation==0?3:0])->get_pos(), welt->lookup_kartenboden(pos+trypos[1+(rotation&1)])->get_pos() );
-	assert(bauigel.max_n > 1);
+	assert(bauigel.get_count()-1 > 1);
 	bauigel.baue();
 	// now the airstops (only on single tiles, this will always work
 	const haus_besch_t* airstop_besch = hausbauer_t::get_random_station(haus_besch_t::generic_stop, air_wt, welt->get_timeline_year_month(), 0 );

@@ -2,11 +2,13 @@
 #
 # Low-Level values and constants
 #
+# Lines starting with '#' or any non_character letter will be ignored!
+# To actually set a value, remove the leading '#'!
 #
 # This file can be found in many places:
 #
 # simutrans/config/simuconf.tab (this one)
-# ~/simutrans/simuconf.tab (in the user directory, if singleuser_install != 0 or not present, first only pak-file path will be read)
+# ~/simutrans/simuconf.tab (in the user directory, if singleuser_install == 0 or not present, first only pak-file path will be read)
 # simutrans/pakfilefolder/config/simuconf.tab
 # ~/simutrans/simuconf.tab (readed a second time, s.a.)
 #
@@ -14,10 +16,10 @@
 #
 # This simuconf.tab will be read first => we set meaningful defaults here.
 #
-# load/save the files in the users or the program directory directory? (default: 1 = user directory)
+# load/save the files in the users or the program directory directory? (default: 0 = user directory)
 # ATTENTION!
 # will be only used if this file is located in the program directory at config/simuconf.tab!
-#singleuser_install = 1
+#singleuser_install = 0
 
 # Default pak file path
 # which graphics you want to play?
@@ -37,13 +39,13 @@
 
 # maximum number of position tested during a way search
 # 100000 should be ok even for large maps with ships
-# 10000 is ok for everything else (consumes 16*x Bytes main  memory)
-max_route_steps = 1000000
+# 10000 is ok for everything else (consumes 16*x Bytes main memory, no further harm)
+#max_route_steps = 1000000
 
 # size of catchment area of a station (default 2)
 # older game size was 3
-# savegames with another catch area will be unloadable
-station_coverage = 2
+# savegames with another catch area will give strange results
+#station_coverage = 2
 
 # Max number of steps in goods pathfinding
 # This should be equal or greater than the biggest group
@@ -57,16 +59,11 @@ station_coverage = 2
 # Depending on your CPU power, you might want to limit the search
 # depth.
 #
-# 300 seems to be a good compromise for most games. 100 is ok for
-# small games. 8000 should suffice for even the largest maps, but
-# will take a good amount of CPU time if you have complex transport
-# networks. Max. allowed value is 9994.
-#
 # prissi: On a 512x512 map with more than 150000 people daily, the saturation
 # value for "no route" was higher, around 8000. Using 300 instead almost doubled
 # the value of "no route"
 #
-max_hops = 2000
+#max_hops = 2000
 
 # Passengers and goods will change vehicles at most "max_transfer"
 # times to reach their destination.
@@ -83,58 +80,82 @@ max_hops = 2000
 # T. Kubes: I would say 8 for now, but this definitely should be difficulty
 # dependent setting.
 #
-max_transfers = 9
+# max_transfers = 9
 
 # way builder internal weights (defaults)
 # a higher weight make it more unlikely
 # make the curves negative, and the waybuilder will built strange tracks ...
-way_straight=1
-way_curve=2
-way_double_curve=6
-way_90_curve=15
-way_slope=10
-way_tunnel=8
-way_max_bridge_len=15
-way_leaving_road=25
+#
+#way_straight=1
+#way_curve=2
+#way_double_curve=6
+#way_90_curve=15
+#way_slope=10
+#way_tunnel=8
+#way_max_bridge_len=15
+#way_leaving_road=25
 
-##################################industry stuff#################################
+###############################passenger stuff##############################
 # also pak dependent
 
+# town growth multiplier factors (electricity is not used at the moment)
+# A heigher factor mean faster growth
+# passenger_multiplier = 40
+# mail_multiplier = 20
+# goods_multiplier = 20
+# electricity_multiplier = 0
+
+# town growth is size dependent. There are three different sizes (<1000, 1000-10000, >10000)
+# the idea is, that area increase by square but growth is linear
+#growthfactor_villages = 400
+#growthfactor_cities = 200
+#growthfactor_capitals = 100
+
 # passenger generation (default is 16) Smaller values means less passengers
-passenger_factor=16
+#passenger_factor=16
+
+# amount of passengers that travel from/to factories or attractions
+# the ramining percentage goes to other cities
+#factory_worker_percentage = 33
+#tourist_percentage = 16
 
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
-seperate_halt_capacities = 0
+#seperate_halt_capacities = 0
 
 # three modes (default = 0)
 # 1: the payment is only relative to the distance to next interchange, 2 to the trips destination (default 0 is distance since last stop)
-pay_for_total_distance = 0
+#pay_for_total_distance = 0
 
 # things to overcrowded destinations won't load if active (default off)
-avoid_overcrowding = 0
+#avoid_overcrowding = 0
 
 # do not create goods/passenger/mail when the only route is over an overcrowded stop
-no_routing_over_overcrowded = 0
+#no_routing_over_overcrowded = 0
 
 # in beginner mode, all good prices are multiplied by a factor (default 1500=1.5)
-beginner_price_factor = 1500
+#beginner_price_factor = 1500
+
+##################################factory stuff#################################
+
+# smallest distance between two adjacent factories
+#factory_spacing = 6
 
 # allow all possible supplier to connect to your factories?
 # best to leave it in default position. (only on for simuTTD)
-crossconnect_factories = 0
+#crossconnect_factories = 0
 
 # how big is the chance for crossconnections in percent
 # (100% will give nearly the same results as crossconnect_factories=1)
-crossconnect_factories_percentage = 33
+#crossconnect_factories_percentage = 33
 
 # how much is the total electric power available (in relation to total production) in parts per thousand
-electric_promille = 330
+#electric_promille = 330
 
 # with this switch on (default), overcrowded factories will not recieve goods any more
-just_in_time = 1
+#just_in_time = 1
 
 # use beginner mode for new maps (can be switched anyway on the new map dialog)
-first_beginner = 0
+#first_beginner = 0
 
 ##################################display stuff#################################
 
@@ -145,49 +166,52 @@ first_beginner = 0
 # Do you want to have random pedestrians in town? Look nice but needs some
 # CPU time to process them. (1=on, 0=off)
 # Impact on frame time: ~10% (16 cities on a new standard map)
-random_pedestrians = 1
+#random_pedestrians = 1
 
 # there are some other grounds (like rocky, lakes etc. )
 # which could be added to the map (default 10)
 # show random objects to break uniformity (every n suited tiles)
-random_grounds_probability = 10
+#random_grounds_probability = 10
 
 # show random moving animals (n = every n suited tiles, default 1000)
-random_wildlife_probability = 1000
+#random_wildlife_probability = 1000
 
 # animate the water each intervall (if images available)
 # costs some time for the additional redraw (~1-3%)
-water_animation_ms = 250
+#water_animation_ms = 250
 
 # Show info windows for private cars and pedestrians?
 # (1=on, 0=off)
-pedes_and_car_info = 0
+#pedes_and_car_info = 0
+
+# How much citycars will be generated
+#citycar_level = 5
 
 # After how many month a citycar breaks (and will be forever gone) ...
 # default is ten years
-default_citycar_life = 120
+#default_citycar_life = 36
 
 # (=1) drive on the left side of the road
-drive_left = 0
+#drive_left = 0
 
 # Show infos on trees?
 # (1=on, 0=off)
-tree_info = 1
+#tree_info = 1
 
 # Show infos also on bare ground?
 # (1=on, 0=off)
-ground_info = 0
+#ground_info = 0
 
 # Show passenger level of townhalls?
 # (1=on, 0=off)
-townhall_info = 0
+#townhall_info = 0
 
 # always open only a single info window for the ground,
 # even if there are more objects on this tile
-only_single_info = 1
+#only_single_info = 1
 
 # Should stations get numbered names? (1=yes, 0=no)
-numbered_stations = 0
+#numbered_stations = 0
 
 # Show name signs and statistic?
 # 0 = don't show anything
@@ -195,24 +219,40 @@ numbered_stations = 0
 # 2 = statistics
 # 3 = names and statistics
 #
-show_names = 3
-
+#show_names = 3
 
 # Color of cursor overlay, which is blended over marked ground tiles
 # The available colors and their numbers can be found on
 #    http://simutrans-germany.com/wiki/wiki/tiki-index.php?page=en_FactoryDef#mapcolor
 # Suggested values (155 is the default)
 # -- pak64, pak.german, pak128
-cursor_overlay_color = 155
+#cursor_overlay_color = 155
 # -- pak128.japan
 #cursor_overlay_color = 149
 
+# show the windows close etc. buttons on the right (like windows 98)
+#window_buttons_right = 0
+
+# draw a frame with titlebar color around active window
+#window_frame_active = 0
+
+# show tooltips (default 1=show)
+#show_tooltips = 1
+
+# background color (+-1 arounf this index is used), taken from playercolor table
+#tooltip_background_color = 4
+
+# tooltip text color (240=black, 215=white)
+#tooltip_text_color = 240
 
 ###################################money stuff##################################
 #
 # These values are usually set in the pak files
 # You can adjust all the cost in the game, that are not inside some pak file
 #
+
+# show graphs old style (right to left, default) or rather left to right
+#left_to_right_graphs  = 0
 
 # Starting money of the player. Given in Credit cents (1/100 Cr)
 #starting_money = 20000000
@@ -229,6 +269,7 @@ cursor_overlay_color = 155
 #cost_multiply_headquarter=1000
 
 # cost for depots
+#cost_depot_air=5000
 #cost_depot_rail=1000
 #cost_depot_road=1300
 #cost_depot_ship=2500
@@ -239,14 +280,16 @@ cursor_overlay_color = 155
 #cost_third_rail=80
 
 # other construction/destruction stuff
-#cost_alter_land=1000
 #cost_buy_land=100
+#cost_alter_land=1000
 #cost_set_slope=2500
 #cost_found_city=5000000
 #cost_multiply_found_industry=20000
 #cost_remove_tree=100
 #cost_multiply_remove_haus=1000
 #cost_multiply_remove_field=5000
+#cost_transformer=2500
+#cost_maintain_transformer=20
 
 ###################################other stuff##################################
 #
@@ -293,7 +336,7 @@ cursor_overlay_color = 155
 # 1 = use introduction dates
 # 2 = (default) use settings during game creation
 #
-use_timeline = 2
+#use_timeline = 2
 
 # Starting year of the game:
 # Setting it below 1850 is not recommended for 64 set!
@@ -302,64 +345,48 @@ use_timeline = 2
 #
 # other recommended vaule for 64 is 1956
 #
-starting_year = 1930
+#starting_year = 1930
 
 # Starting month of the game for people who want to start in summer (default 1=January)
 #starting_month = 6
 
 # Should month be shown in date? (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4)
 # This is most useful, if you use longer months than the default length (see below)
-#
-show_month = 4
+#show_month = 3
 
 # Global time multiplier (will be save with new games)
 # 2^bits_per_month = duration of a game month in microseconds real time
-# default is 18. For example, 21 will make the month 2^3=8 times longer in real time
+# default before 99.x was 18. For example, 21 will make the month 2^3=8 times longer in real time
 # production and maintainance cost will be adjusted accordingly.
 #
-bits_per_month = 20
+#bits_per_month = 20
 
 ###################################system stuff##################################
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
-saveformat = zipped
+# other options are "xml" and "xml_zipped"
+# xml detecht more errors of broken savegames but are much larger
+#saveformat = zipped
 
 # autosave every x months (0=off)
-autosave = 0
+#autosave = 0
 
 # display (screen/window) width
 # also see readme.txt, -screensize option
-display_width  = 704
+#display_width  = 704
 
 # display (screen/window) height
 # also see readme.txt, -screensize option
-display_height = 560
+#display_height = 560
 
 # show full screen
-fullscreen = 0
+#fullscreen = 0
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
-frames_per_second = 25
+#frames_per_second = 25
 
 # How much faster should the game proceed with fast forward (limited by your computer and size of the map)
-fast_forward = 100
+#fast_forward = 50
 
-# show graphs old style (right to left, default) or rather left to right
-left_to_right_graphs  = 1
-
-# show the windows close etc. buttons on the right (like windows 98)
-window_buttons_right = 0
-
-# draw a frame with titlebar color around active window
-window_frame_active = 0
-
-# show tooltips (default 1=show)
-show_tooltips = 1
-
-# background color (+-1 arounf this index is used), taken from playercolor table
-tooltip_background_color = 4
-
-# tooltip text color (240=black, 215=white)
-tooltip_text_color = 240

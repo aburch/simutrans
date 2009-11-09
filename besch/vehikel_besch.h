@@ -110,6 +110,8 @@ private:
 	uint16 loading_time; //Time in MS (at speed 1.0) to load/unload.
 
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
+	
+	uint16 tractive_effort; // Reserved for future physics upgrades.
 
 	uint32 geared_power; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
 	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
@@ -141,6 +143,7 @@ public:
 		way_constraints_prohibitive = 255;
 		way_constraints_permissive = 0;
 		loading_time = 2000;
+		tractive_effort = 0;
 	}
 
 	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(2)); }
@@ -318,6 +321,7 @@ public:
 	uint16 get_loading_time() const { return zuladung > 0 ? loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
+	uint16 get_tractive_effort() const { return tractive_effort; }
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
 	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
@@ -379,12 +383,12 @@ public:
 
 	bool permissive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_permissive >> i) & 1 != 0);
+		return (((way_constraints_permissive >> i) & 1) != 0);
 	}
 
 	bool prohibitive_way_constraint_set(uint8 i) const
 	{
-		return ((way_constraints_prohibitive >> i) & 1 != 0);
+		return (((way_constraints_prohibitive >> i) & 1) != 0);
 	}
 	
 	/*The level of catering provided by this vehicle (0 if none)

@@ -146,6 +146,10 @@ private:
 	 */
 	sint32 mi, mj;
 
+	/* time when last mouse moved to check for ambient sound events */
+	uint32 mouse_rest_time;
+	uint32 sound_wait_time;	// waiting time before next event
+
 	/**
 	 * If this is true, the map will not be scrolled
 	 * on right-drag
@@ -155,6 +159,7 @@ private:
 
 	// if true, this map cannot be saved
 	bool nosave;
+	bool nosave_warning;
 
 	/*
 	* the current convoi to follow
@@ -198,7 +203,6 @@ private:
 
 	vector_tpl<convoihandle_t> convoi_array;
 
-	//slist_tpl<fabrik_t *> fab_list;
 	vector_tpl<fabrik_t *> fab_list;
 
 	weighted_vector_tpl<gebaeude_t *> ausflugsziele;
@@ -247,16 +251,23 @@ private:
 	void calc_hoehe(int x1, int y1, int x2, int y2);
 
 	/**
-	 * Helferroutine fuer cleanup_karte()
-	 * @see karte_t::cleanup_karte
-	 * @author Hj. Malthaner
+	 * Raise tile (x,y): height of each corner is given
 	 */
-	void raise_clean(sint16 x, sint16 y, sint16 h);
-
-	bool can_raise_to(sint16 x, sint16 y, sint16 h) const;
+	bool can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+	/**
+	 * Raise grid point (x,y), used during map creation/enlargement
+	 */
 	int  raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
 
-	bool can_lower_to(sint16 x, sint16 y, sint16 h) const;
+	/**
+	 * Lower tile (x,y): height of each corner is given
+	 */
+	bool can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
+	/**
+	 * Lwer grid point (x,y), used during map creation/enlargement
+	 */
 	int  lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
 
 	/**
@@ -341,6 +352,12 @@ private:
 
 	// may change due to timeline
 	const weg_besch_t *city_road;
+
+	// Data for maintaining industry density even
+	// after industries close
+	// @author: jamespetts
+	double industry_density_proportion;
+	double actual_industry_density;
 
 	// what game objectives
 	scenario_t *scenario;
@@ -789,8 +806,12 @@ public:
 
 	/**
 	 * returns the natural slope a a position
+	 * uses the corner height for the best slope
 	 * @author prissi
 	 */
+	uint8	recalc_natural_slope( const koord pos, sint8 &new_height ) const;
+
+	// no checking, and only using the grind for calculation
 	uint8	calc_natural_slope( const koord pos ) const;
 
 	/**
@@ -820,6 +841,13 @@ public:
 	 */
 	inline bool ist_markiert(koord3d k) const { return marker.ist_markiert(lookup(k)); }
 	inline bool ist_markiert(const grund_t* gr) const { return marker.ist_markiert(gr); }
+
+	// Getter/setter methods for maintaining the industry density
+	inline double get_target_industry_density() const { return finance_history_month[0][WORLD_CITICENS] * industry_density_proportion; }
+	inline double get_actual_industry_density() const { return actual_industry_density; }
+	
+	inline void decrease_actual_industry_density(double value) { actual_industry_density -= value; }
+	inline void increase_actual_industry_density(double value) { actual_industry_density += value; }
 
 	 /**
 	 * Initialize map.
@@ -961,6 +989,7 @@ public:
 
 	bool cannot_save() const { return nosave; }
 	void set_nosave() { nosave = true; }
+	void set_nosave_warning() { nosave_warning = true; }
 
 	// rotate map view by 90 degree
 	void rotate90();
@@ -985,7 +1014,7 @@ public:
 	 * "Height at the grid point" (Google)
 	 * @author Hj. Malthaner
 	 */
-	inline sint16 lookup_hgt(koord k) const {
+	inline sint8 lookup_hgt(koord k) const {
 		return ist_in_gittergrenzen(k.x, k.y) ? grid_hgts[k.x + k.y*(cached_groesse_gitter_x+1)]*Z_TILE_STEP : grundwasser;
 	}
 
@@ -1036,8 +1065,6 @@ public:
 	bool play_sound_area_clipped(koord pos, sound_info info);
 
 	void mute_sound( bool state ) { is_sound = !state; }
-
-	bool set_hoehe(int x,int y,int h,int &n);
 
 	/**
 	 * Saves the map to a file

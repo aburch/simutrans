@@ -484,8 +484,8 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	vehikel_t* test_driver = vehikelbauer_t::baue(welt->lookup_kartenboden(platz1)->get_pos(), this, NULL, &test_besch);
 	route_t verbindung;
 	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
-		verbindung.get_max_n()<2u*koord_distance(platz1,platz2))  {
-DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_max_n() );
+		verbindung.get_count()<2u*koord_distance(platz1,platz2))  {
+DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_count() );
 		// found something with the nearly same lenght
 		delete test_driver;
 		return true;
@@ -504,7 +504,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 	INT_CHECK("simplay 846");
 
 	bauigel.calc_route(welt->lookup_kartenboden(platz1)->get_pos(),welt->lookup_kartenboden(platz2)->get_pos());
-	if(bauigel.max_n > 1) {
+	if(bauigel.get_count()-1 > 1) {
 DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		return true;

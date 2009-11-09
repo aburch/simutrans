@@ -168,15 +168,16 @@ crossing_logic_t::release_crossing( const vehikel_basis_t *v )
 void
 crossing_logic_t::set_state( crossing_state_t new_state )
 {
+	// play sound (if there and closing)
+	if(new_state==CROSSING_CLOSED  &&  besch->get_sound()>=0  &&  !welt->is_fast_forward()) {
+		struct sound_info info;
+		info.index = besch->get_sound();
+		info.volume = 255;
+		info.pri = 0;
+		welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), info);
+	}
+
 	if(new_state!=zustand) {
-		// play sound (if there and closing)
-		if(new_state==CROSSING_CLOSED  &&  besch->get_sound()>=0) {
-			struct sound_info info;
-			info.index = besch->get_sound();
-			info.volume = 255;
-			info.pri = 0;
-			welt->play_sound_area_clipped(crossings[0]->get_pos().get_2d(), info);
-		}
 		zustand = new_state;
 		for(  uint8 i=0;  i<crossings.get_count();  i++  ) {
 			crossings[i]->state_changed();

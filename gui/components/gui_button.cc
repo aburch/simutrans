@@ -22,6 +22,7 @@
 #include "../../utils/cstring_t.h"
 
 #define STATE_MASK (127)
+#define AUTOMATIC_MASK (255)
 static const char *empty="";
 
 /*
@@ -297,7 +298,11 @@ void button_t::infowin_event(const event_t *ev)
 
 	if(type<=STATE_MASK) {
 		// Hajo: check button state, if we should look depressed
-		pressed = (ev->button_state==1)  &&  b_enabled;
+		pressed = (ev->button_state==1);
+	}
+
+	if(  type>AUTOMATIC_MASK  &&  IS_LEFTCLICK(ev)  ) {
+		pressed = !pressed;
 	}
 
 	if(IS_LEFTRELEASE(ev)) {

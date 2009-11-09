@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	} else {
 		puts(
 			"\nMakeobj-Experimental, based on Makeobj version " MAKEOBJ_VERSION " for Simutrans " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " and higher\n"
-			"Experimental version by James E. Petts, derived from Makeobj, \n (c) 2002-2006 V. Meyer , Hj. Malthaner and \n"
+			"Experimental version by James E. Petts, derived from Makeobj, (c) 2002-2006 V. Meyer , Hj. Malthaner and \n"
 			"M. Pristovsek (markus@pristovsek.de). This is open source software, released under the Artistic Licence.\n"
 		);
 	}

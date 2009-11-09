@@ -41,23 +41,23 @@ private:
 		uint16 i;
 
 		// scan rest of array
-		for(i = next; i<size; i++) {
-			if(data[i] == 0) {
+		for(  i=next;  i<size;  i++  ) {
+			if(  data[i] == 0  ) {
 				next = i+1;
 				return i;
 			}
 		}
 
 		// scan whole array
-		for(i = 1; i<size; i++) {
-			if(data[i] == 0) {
+		for(  i=1;  i<size;  i++  ) {
+			if(  data[i]==0  ) {
 				next = i+1;
 				return i;
 			}
 		}
 
 		// no free entry found, extent array if possible
-		uint16 newsize = (uint16)max( 65535ul, 2l*size );
+		uint16 newsize = (uint16)min( 65535ul, 2l*size );
 		if(  size<newsize  ) {
 			T ** newdata = new T* [newsize];
 			memcpy( newdata, data, sizeof(T*)*size );
@@ -185,30 +185,21 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	T* get_rep() const
-	{
-		return data[entry];
-	}
+	T* get_rep() const { return data[entry]; }
 
 	/**
 	 * @return the index into the tombstone table. May be used as
 	 * an ID for the referenced object.
 	 */
-	uint16 get_id() const
-	{
-		return entry;
-	}
+	uint16 get_id() const { return entry; }
 
 	/**
-	 * Overloaded dereference operator. With this, quickstines can
+	 * Overloaded dereference operator. With this, quickstones can
 	 * be used as if they were pointers.
 	 *
 	 * @author Hj. Malthaner
 	 */
-	T* operator->() const
-	{
-		return data[entry];
-	}
+	T* operator->() const { return data[entry]; }
 
 	bool operator== (const quickstone_tpl<T> &other) const
 	{
@@ -226,6 +217,8 @@ public:
 	{
 		return entry <= other.entry;
 	}
+
+	static uint16 get_size() { return size; }
 
 };
 

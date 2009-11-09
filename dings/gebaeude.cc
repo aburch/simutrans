@@ -96,7 +96,16 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 		set_yoff(-TILE_HEIGHT_STEP);
 	}
 
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+	sint64 maint;
+	if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+	{
+		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+	}
+	else
+	{
+		maint = tile->get_besch()->get_station_maintenance();
+	}
+	spieler_t::add_maintenance(get_besitzer(), maint);
 }
 
 
@@ -129,14 +138,22 @@ gebaeude_t::~gebaeude_t()
 	anim_time = 0;
 	if(tile) 
 	{
-		spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+		sint64 maint;
+		if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+		{
+			maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+		}
+		else
+		{
+			maint = tile->get_besch()->get_station_maintenance();
+		}
+		spieler_t::add_maintenance(get_besitzer(), -maint);
 	}
 }
 
 
 
-void
-gebaeude_t::rotate90()
+void gebaeude_t::rotate90()
 {
 	ding_t::rotate90();
 
@@ -154,9 +171,12 @@ gebaeude_t::rotate90()
 			layout = layout_rotate[layout] % haus_besch->get_all_layouts();
 		}
 		// have to rotate the tiles :(
-		if (!haus_besch->can_rotate() && haus_besch->get_all_layouts() == 1 && (welt->get_einstellungen()->get_rotation() & 1) == 0) {
-			// rotate 180 degree
-			new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
+		if(  !haus_besch->can_rotate()  &&  haus_besch->get_all_layouts() == 1  ) {
+			if(  (welt->get_einstellungen()->get_rotation() & 1) == 0  ) {
+				// rotate 180 degree
+				new_offset = koord(haus_besch->get_b() - 1 - new_offset.x, haus_besch->get_h() - 1 - new_offset.y);
+			}
+			// do nothing here, since we cannot fix it porperly
 		}
 		else {
 			// rotate on ...
@@ -169,15 +189,18 @@ gebaeude_t::rotate90()
 		}
 
 		// suche a tile exist?
-		if (haus_besch->get_b(layout) > new_offset.x && haus_besch->get_h(layout) > new_offset.y) {
+		if(  haus_besch->get_b(layout) > new_offset.x  &&  haus_besch->get_h(layout) > new_offset.y  ) {
 			const haus_tile_besch_t* const new_tile = haus_besch->get_tile(layout, new_offset.x, new_offset.y);
 			// add new tile: but make them old (no construction)
 			uint32 old_insta_zeit = insta_zeit;
 			set_tile( new_tile );
 			insta_zeit = old_insta_zeit;
-			if (haus_besch->get_utyp() != haus_besch_t::hafen && !tile->has_image()) {
+			if(  haus_besch->get_utyp() != haus_besch_t::hafen  &&  !tile->has_image()  ) {
 				// may have a rotation, that is not recoverable
-				if(!is_factory  ||  new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(0,0,0)==NULL) {
+				if(  !is_factory  &&  new_offset!=koord(0,0)  ) {
+					welt->set_nosave_warning();
+				}
+				if(  is_factory  &&  (new_offset!=koord(0,0)  ||  ptr.fab->get_besch()->get_haus()->get_tile(0,0,0)==NULL)  ) {
 					// there are factories without a valid zero tile
 					// => this map rotation cannot be reloaded!
 					welt->set_nosave();
@@ -195,8 +218,7 @@ gebaeude_t::rotate90()
 /* sets the corresponding pointer to a factory
  * @author prissi
  */
-void
-gebaeude_t::set_fab(fabrik_t *fb)
+void gebaeude_t::set_fab(fabrik_t *fb)
 {
 	// sets the pointer in non-zero
 	if(fb) {
@@ -648,15 +670,17 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append(buffer);
 		}
 
-		buf.append(translator::translate("Passagierrate"));
-		buf.append(": ");
-		buf.append(get_passagier_level());
-		buf.append("\n");
+		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {
+			buf.append(translator::translate("Passagierrate"));
+			buf.append(": ");
+			buf.append(get_passagier_level());
+			buf.append("\n");
 
-		buf.append(translator::translate("Postrate"));
-		buf.append(": ");
-		buf.append(get_post_level());
-		buf.append("\n");
+			buf.append(translator::translate("Postrate"));
+			buf.append(": ");
+			buf.append(get_post_level());
+			buf.append("\n");
+		}
 
 		buf.append(translator::translate("\nBauzeit von"));
 		buf.append(tile->get_besch()->get_intro_year_month()/12);
@@ -857,6 +881,9 @@ gebaeude_t::rdwr(loadsave_t *file)
 /**
  * Wird nach dem Laden der Welt aufgerufen - üblicherweise benutzt
  * um das Aussehen des Dings an Boden und Umgebung anzupassen
+ * 
+ * "After loading is called adapting to the world - normally used to the
+ * look of the thing in the ground and surrounding area" (Google)
  *
  * @author Hj. Malthaner
  */
@@ -865,7 +892,16 @@ gebaeude_t::laden_abschliessen()
 {
 	calc_bild();
 
-	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->maint_building*tile->get_besch()->get_level() );
+	sint64 maint;
+	if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+	{
+		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
+	}
+	else
+	{
+		maint = tile->get_besch()->get_station_maintenance();
+	}
+	spieler_t::add_maintenance(get_besitzer(), maint);
 
 	// citybuilding, but no town?
 	if(tile->get_offset()==koord(0,0)  &&  tile->get_besch()->is_connected_with_town()) {

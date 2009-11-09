@@ -947,6 +947,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\settings_frame.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\settings_stats.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\signal.cc"
 				>
 			</File>
@@ -2189,6 +2197,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\settings_frame.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\settings_stats.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\signal.h"
 				>
 			</File>
@@ -2607,6 +2623,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\base_texts_experimental_7_0.dat"
+				>
+			</File>
+			<File
 				RelativePath=".\base_texts_experimental_additional_5_0.dat"
 				>
 			</File>
@@ -2620,6 +2640,10 @@
 			</File>
 			<File
 				RelativePath="..\simutrans-experimental-binaries\text\en.tab"
+				>
+			</File>
+			<File
+				RelativePath=".\Makefile"
 				>
 			</File>
 			<File

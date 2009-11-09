@@ -187,6 +187,7 @@ private:
 	float electricity_proportion; // Modifier of electricity consumption.
 	uint16 inverse_electricity_proportion;
 	bool electricity_producer;
+	uint8 upgrades; // The industry types to which this industry can be upgraded.
 
 public:
 	/*
@@ -231,6 +232,10 @@ public:
 	uint16 get_inverse_electricity_proportion() const { return inverse_electricity_proportion; }
 
 	int is_electricity_producer() const { return electricity_producer; }
+
+	const fabrik_besch_t * get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? static_cast<const fabrik_besch_t *>(get_child((2 + lieferanten + produkte + fields + i))) : NULL; }
+
+	int get_upgrades_count() const { return upgrades; }
 };
 
 #endif

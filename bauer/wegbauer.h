@@ -54,11 +54,13 @@ public:
 
 	static stringhashtable_tpl <weg_besch_t *> * get_all_ways();
 
+	static const weg_besch_t *get_earliest_way(const waytype_t wtyp);
+
 	/**
 	 * Fill menu with icons of given waytype
 	 * @author Hj. Malthaner
 	 */
-	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, karte_t *welt );
+	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound, karte_t *welt );
 
 	enum bautyp_t {
 		strasse=road_wt,
@@ -152,8 +154,6 @@ private:
 	// runways need to meet some special conditions enforced here
 	bool intern_calc_route_runways(koord3d start, const koord3d ziel);
 
-	ribi_t::ribi calc_ribi(int step);
-
 	void baue_tunnel_und_bruecken();
 
 	// adds the ground before underground construction (always called before the following construction routines)
@@ -172,7 +172,9 @@ private:
 public:
 	const koord3d_vector_t &get_route() const { return route; }
 
-	sint32 n, max_n;
+	uint32 get_count() const { return route.get_count(); }
+
+	sint32 n;
 
 	/**
 	 * If a way is built on top of another way, should the type

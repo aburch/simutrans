@@ -84,4 +84,20 @@ class factory_writer_t : public obj_writer_t {
 		virtual const char* get_type_name() const { return "factory"; }
 };
 
+class factory_upgrade_writer_t : public obj_writer_t 
+{
+	private:
+		static factory_upgrade_writer_t the_instance;
+
+		factory_upgrade_writer_t() { register_writer(false); }
+
+	public:
+		static factory_upgrade_writer_t* instance() { return &the_instance; }
+
+		virtual obj_type get_type() const { return obj_factory; }
+		virtual const char* get_type_name() const { return "factory upgrade"; }
+
+		void write_obj(FILE* outfp, obj_node_t& parent, const char* str);
+};
+
 #endif

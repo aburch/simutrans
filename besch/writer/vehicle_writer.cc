@@ -76,7 +76,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 52;
+	int total_len = 54;
 
 	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -114,7 +114,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x300;
+	version += 0x400;
 
 	node.write_uint16(fp, version, 0);
 
@@ -316,6 +316,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// Upgrades: these are the vehicle types to which this vehicle
 	// can be upgraded. "None" means that it cannot be upgraded. 
+	// @author: jamespetts
 	uint8 upgrades = 0;
 	do {
 		char buf[40];
@@ -501,10 +502,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint32 fixed_maintenance = obj.get_int("fixed_maintenance", 0);
 	node.write_uint32(fp, fixed_maintenance, 48);
 
+	// Tractive effort. Currently unused - reserved for future enhancements in physics.
+	// @author: jamespetts
+	uint16 tractive_effort = obj.get_int("tractive_effort", 0);
+	node.write_uint16(fp, tractive_effort, 52);
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 52);
-		node.write_data_at(fp, sound_str,     53, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 54);
+		node.write_data_at(fp, sound_str,     55, sound_str_len);
 	}
 
 	node.write(fp);

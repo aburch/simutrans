@@ -59,13 +59,19 @@ public:
 	 */
 	void append(const char * text);
 
-
 	/**
 	 * Appends a number. If buffer is full, exceeding digits will not
 	 * be appended.
 	 * @author Hj. Malthaner
 	 */
 	void append(long n);
+
+	/**
+	 * Appends a number. If buffer is full, exceeding digits will not
+	 * be appended.
+	 * @author Hj. Malthaner
+	 */
+	void append(double n, int precision);
 
 	/* Append formatted text to the buffer */
 	void printf(const char* fmt, ...);

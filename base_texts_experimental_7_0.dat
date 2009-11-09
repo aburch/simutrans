@@ -1,0 +1,35 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 7.0.
+#
+# Author: jamespetts
+# Created: September 2009
+#
+obj=program_text
+name=Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected.
+note=Message shown when industries close down. This is an updated version.
+-
+obj=program_text
+name=Show in the ticker
+note=Tooltip from the message options dialogue.
+-
+obj=program_text
+name=Show a transient dialogue box
+note=Tooltip from the message options dialogue.
+-
+obj=program_text
+name=Show a non-transient dialogue box
+note=Tooltip from the message options dialogue.
+-
+obj=program_text
+name=Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community
+note=Revised welcome ticker text.
+-
+obj=program_text
+name=/km)
+note=Part of the running cost per kilometre display from the convoy information dialogue.
+-
+obj=program_text
+name= %1.2f$/mon)
+note=Part of the running cost per month display from the convoy information dialogue.
+
+

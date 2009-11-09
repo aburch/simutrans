@@ -225,10 +225,18 @@ void spieler_t::age_messages(long /*delta_t*/)
 
 
 
-void spieler_t::add_message(koord k, int betrag)
+void spieler_t::add_message(koord k, sint32 betrag)
 {
-	income_message_t *m = new income_message_t(betrag,k);
-	messages.append( m );
+	if(  !messages.empty()  &&  messages.back()->pos==k  &&  messages.back()->alter==127  ) {
+		// last message exactly at same place, not aged
+		betrag += (sint32)(100.0*atof(messages.back()->str));
+		money_to_string(messages.back()->str, betrag/100.0);
+	}
+	else {
+		// otherwise new message
+		income_message_t *m = new income_message_t(betrag,k);
+		messages.append( m );
+	}
 }
 
 
@@ -243,11 +251,12 @@ void spieler_t::set_player_color(uint8 col1, uint8 col2)
 
 
 /**
- * Wird von welt in kurzen abständen aufgerufen
+ * Any action goes here (only need for AI at the moment)
  * @author Hj. Malthaner
  */
 void spieler_t::step()
 {
+	/*
 	// die haltestellen müssen die Fahrpläne rgelmaessig pruefen
 	uint8 i = (uint8)(welt->get_steps()+player_nr);
 	//slist_iterator_tpl <halthandle_t> iter( halt_list );
@@ -260,6 +269,7 @@ void spieler_t::step()
 			INT_CHECK("simplay 156");
 		}
 	}
+	*/
 }
 
 
@@ -540,16 +550,17 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 		if(  koord_distance(welt->get_world_position(),pos)<2*(uint32)(display_get_width()/get_tile_raster_width())+3  ) {
 			// only display, if near the screen ...
 			add_message(pos, betrag);
-		}
 
-		if(  !(labs((sint32)betrag)<=10000)  &&  !welt->is_fast_forward()  ) {
-			struct sound_info info;
+			// and same for sound too ...
+			if(  betrag>=10000  &&  !welt->is_fast_forward()  ) {
+				struct sound_info info;
 
-			info.index = SFX_CASH;
-			info.volume = 255;
-			info.pri = 0;
+				info.index = SFX_CASH;
+				info.volume = 255;
+				info.pri = 0;
 
-			welt->play_sound_area_clipped(pos, info);
+				welt->play_sound_area_clipped(pos, info);
+			}
 		}
 	}
 }
@@ -605,7 +616,7 @@ bool spieler_t::accounting_with_check( spieler_t *sp, const sint64 amount, koord
 
 bool spieler_t::check_owner( const spieler_t *owner, const spieler_t *test )
 {
-	return owner == test  ||  owner == NULL  ||  test == NULL  ||  test == welt->get_spieler(1);
+	return owner == test  ||  owner == NULL  ||  test == welt->get_spieler(1);
 }
 
 

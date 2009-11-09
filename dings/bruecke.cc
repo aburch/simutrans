@@ -166,3 +166,15 @@ void bruecke_t::rotate90()
 	// the rotated image parameter is just one in front/back
 	img = rotate90_img[img];
 }
+
+// returns NULL, if removal is allowed
+// players can remove public owned ways
+const char *bruecke_t::ist_entfernbar(const spieler_t *sp)
+{
+	if (get_player_nr()==1) {
+		return NULL;
+	}
+	else {
+		return ding_t::ist_entfernbar(sp);
+	}
+}

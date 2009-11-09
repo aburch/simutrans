@@ -164,9 +164,13 @@ void grund_t::rdwr(loadsave_t *file)
 		pos.rdwr(file);
 	}
 	else {
-		sint8 z = pos.z;
+		// water saves its correct height => no need to save grid heights anymore
+		sint8 z = (file->is_saving()  &&  ist_wasser()) ? welt->lookup_hgt(pos.get_2d()) : pos.z;
 		file->rdwr_byte( z, "" );
-		pos.z = z;
+		if(  file->is_loading()  ) {
+			welt->set_grid_hgt( pos.get_2d()+koord(1,1), z );
+		}
+		pos.z = get_typ()==grund_t::wasser ? welt->get_grundwasser() : z;
 	}
 
 	if(file->is_saving()) {
@@ -286,7 +290,7 @@ void grund_t::rdwr(loadsave_t *file)
 				}
 
 				if(weg) {
-					if(this->get_typ()==fundament) {
+					if(get_typ()==fundament) {
 						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
 						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
 						// we do not delete them, to keep maitenance costs correct
@@ -1247,7 +1251,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		koord here = pos.get_2d();
 
 		// stopps
-		if(flags&is_halt_flag  &&  get_halt()->get_besitzer()==sp) {
+		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==sp  || sp==welt->get_spieler(1))) {
 			bool remove_halt = get_typ()!=boden;
 			// remove only if there is no other way
 			if(get_weg_nr(1)==NULL) {

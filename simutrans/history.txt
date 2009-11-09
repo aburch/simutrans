@@ -1,3 +1,6 @@
+Release of 102.2 (r2785)
+
+18-Oct-2009:
 	CHANGE: cursor now works with full 3d-coordinates
 	ADD: (mostly gerw) sparse data and overlay in main map for passenger destinations
 	ADD: No connections found via overcrowded stops, if overcrowded flag active
@@ -31,6 +34,18 @@
 	ADD: (Nathan Samson) allow left_to_right_graphs (=1 in simuconf.tab)
 	ADD: (z9999) better display of depots in minimap
 	ADD: (Dwachs) zooming of map with mousewheel
+	ADD: switches change graphics for diagonal going trains (only eyecandy)
+	ADD: ambient sound effects (for all grphics + forest + beaches)
+	CHANGE: less lagging updating/rerouting after schedule chnages even with large stations
+	ADD: (Dwachs) Public player can remove all
+	ADD: two switches (-addons and -noaddons) to regulate loading of addons together with pakset
+	CHANGE: (Dwachs) 2-5x faster city generation
+	CHANGE: (Knightly) even faster routing of goods due to ignoring non-transfer stations in breath search
+	ADD: switch to keep towns static
+	ADD: (gerw) minimaps in city info window are clickable
+	CHANGE: after 40 retrys, factory construction will ignore climates to avoid broken chains (if possible at all)
+	ADD: citygrowth parameter configurable in simuconf.tab
+	ADD: setting dialog allow access to all settings also found in simuconf.tab before starting a game
 
 
 Release of 102.0 (r2366)

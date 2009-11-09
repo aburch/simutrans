@@ -37,7 +37,7 @@ bool umgebung_t::verkehrsteilnehmer_info = false;
 bool umgebung_t::tree_info = true;
 bool umgebung_t::ground_info = false;
 bool umgebung_t::townhall_info = false;
-bool umgebung_t::single_info = false;
+bool umgebung_t::single_info = true;
 
 bool umgebung_t::window_buttons_right = false;
 bool umgebung_t::window_frame_active = false;
@@ -50,21 +50,18 @@ sint8 umgebung_t::default_mapmode = 0;	// show cities
 
 /**
  * show month in date?
- *
  * @author hsiegeln
  */
-uint8 umgebung_t::show_month = 0;
+uint8 umgebung_t::show_month = 3;
 
 /**
  * Max. Länge für initiale Stadtverbindungen
- *
  * @author Hj. Malthaner
  */
 sint32 umgebung_t::intercity_road_length = 200;
 
 /**
  * Typ (Name) initiale Stadtverbindungen
- *
  * @author Hj. Malthaner
  */
 const char *umgebung_t::intercity_road_type = NULL;
@@ -86,7 +83,7 @@ bool umgebung_t::drive_on_left=false;
 uint32 umgebung_t::fps=25;
 
 // maximum speedup set to 1000 (effectively no limit)
-sint16 umgebung_t::max_acceleration=1000;
+sint16 umgebung_t::max_acceleration=50;
 
 bool umgebung_t::quit_simutrans = false;
 

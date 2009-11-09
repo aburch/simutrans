@@ -62,14 +62,14 @@ public:
 
 	static const haus_tile_besch_t* find_tile(const char* name, int idx);
 
-	static bool register_besch(const haus_besch_t *besch);
+	static bool register_besch(haus_besch_t *besch);
 	static bool alles_geladen();
 
 	/* Fill menu with icons of buildings of a given type
 	 * this is only needed for stations and depots => use waytype too!
 	 * @author prissi
 	 */
-	static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, const karte_t* welt);
+	static void fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp, waytype_t wt, sint16 sound_ok, const karte_t* welt);
 
 	/**
 	 * Gewerbegebäude passend zum Level liefern. Zur Zeit sind die Einträge

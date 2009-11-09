@@ -61,7 +61,7 @@ void gui_numberinput_t::set_value(sint32 new_value)
 		new_value = value;
 	}
 	// To preserve cursor position if text was edited, only set new text if changed (or empty before)
-	if(  new_value != get_text_value()  ||  textbuffer[0]<=32  ) {
+	if(  textbuffer[0]<32  ||  new_value != get_text_value()  ) {
 		sprintf(textbuffer, "%d", new_value);
 		textinp.set_text(textbuffer, 20);
 	}
@@ -203,6 +203,17 @@ sint32 gui_numberinput_t::get_prev_value()
 	}
 }
 
+
+
+
+// all init in one ...
+void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap )
+{
+	set_limits( min, max );
+	set_value( value );
+	set_increment_mode( mode );
+	wrap_mode( wrap );
+}
 
 
 

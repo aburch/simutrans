@@ -18,6 +18,11 @@
 #include "../simimg.h"
 #include "../simtools.h"
 
+#include "../bauer/hausbauer.h"
+#include "../bauer/wegbauer.h"
+
+#include "../besch/haus_besch.h"
+
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
@@ -39,6 +44,7 @@
 
 #include "sprachen.h"
 #include "climates.h"
+#include "settings_frame.h"
 
 #define START_HEIGHT (28)
 
@@ -63,6 +69,20 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->sets = sets;
 	this->old_lang = -1;
 	this->sets->set_beginner_mode(umgebung_t::default_einstellungen.get_beginner_mode());
+
+	// find earliest start date ...
+	uint16 game_start = 2999;
+	// first townhalls
+	slist_iterator_tpl<const haus_besch_t*> iter(hausbauer_t::get_list(haus_besch_t::rathaus));
+	while(  iter.next()  ) {
+		uint16 year = (iter.get_current()->get_intro_year_month()+11)/12;
+		if(  year<game_start  ) {
+			game_start = year;
+		}
+	}
+	// then streets
+	game_start = max( game_start, (wegbauer_t::get_earliest_way(road_wt)->get_intro_year_month()+11)/12 );
+
 	loaded_heightfield = load_heightfield = false;
 	load = start = close = scenario = quit = false;
 	int intTopOfButton=START_HEIGHT;
@@ -186,7 +206,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_intro_date.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_intro_date.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_intro_date.add_listener(this);
-	inp_intro_date.set_limits(1400,2050);
+	inp_intro_date.set_limits(game_start,2999);
 	inp_intro_date.set_increment_mode(10);
 	inp_intro_date.set_value(abs(sets->get_starting_year()) );
 	add_komponente( &inp_intro_date );
@@ -200,13 +220,13 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	intTopOfButton += 12;
 
 	intTopOfButton += 10;
-	open_sprach_gui.set_pos( koord(10,intTopOfButton) );
-	open_sprach_gui.set_groesse( koord(80, 14) );
-	open_sprach_gui.set_typ( button_t::roundbox );
-	open_sprach_gui.set_text("Sprache");
-	open_sprach_gui.add_listener( this );
-	open_sprach_gui.pressed = win_get_magic( magic_sprachengui_t );
-	add_komponente( &open_sprach_gui );
+	open_setting_gui.set_pos( koord(10,intTopOfButton) );
+	open_setting_gui.set_groesse( koord(80, 14) );
+	open_setting_gui.set_typ( button_t::roundbox );
+	open_setting_gui.set_text("Setting");
+	open_setting_gui.add_listener( this );
+	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
+	add_komponente( &open_setting_gui );
 
 	open_climate_gui.set_pos( koord(80+20,intTopOfButton) );
 	open_climate_gui.set_groesse( koord(150, 14) );
@@ -407,16 +427,15 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_allow_player_change( allow_player_change.pressed^1 );
 		allow_player_change.pressed = sets->get_allow_player_change();
 	}
-	else if(komp==&open_sprach_gui) {
-		gui_fenster_t *sprachen_gui = win_get_magic( magic_sprachengui_t );
-		if(  sprachen_gui  ) {
-			destroy_win( sprachen_gui );
-			open_sprach_gui.pressed = false;
+	else if(komp==&open_setting_gui) {
+		gui_fenster_t *sg = win_get_magic( magic_settings_frame_t );
+		if(  sg  ) {
+			destroy_win( sg );
+			open_setting_gui.pressed = false;
 		}
 		else {
-			sprachengui_t *sg = new sprachengui_t();
-			create_win(10, 40, sg, w_info, magic_sprachengui_t );
-			open_sprach_gui.pressed = true;
+			create_win(10, 40, new settings_frame_t(sets), w_info, magic_settings_frame_t );
+			open_setting_gui.pressed = true;
 		}
 	}
 	else if(komp==&open_climate_gui) {
@@ -492,7 +511,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		use_intro_dates.set_text("Use timeline start year");
 		allow_player_change.set_text("Allow player change");
 //		use_beginner_mode.set_text("Beginner mode");
-		open_sprach_gui.set_text("Sprache");
+		open_setting_gui.set_text("Setting");
 		open_climate_gui.set_text("Climate Control");
 		load_game.set_text("Load game");
 		load_scenario.set_text("Load scenario");
@@ -503,7 +522,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	}
 
 	open_climate_gui.pressed = win_get_magic( magic_climate );
-	open_sprach_gui.pressed = win_get_magic( magic_sprachengui_t );
+	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
 
 	gui_frame_t::zeichnen(pos, gr);
 

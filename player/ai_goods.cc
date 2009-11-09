@@ -290,14 +290,14 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			bauigel.set_keep_city_roads(true);
 			bauigel.set_maximum(10000);
 			bauigel.calc_route(tile_list[0], tile_list[1]);
-			if(bauigel.max_n > 1) {
+			if(  bauigel.get_count() > 2  ) {
 				// Sometimes reverse route is the best, so we have to change the koords.
 				if( tile_list[0].is_contained( bauigel.get_route()[0]) ) {
 					start = bauigel.get_route()[0].get_2d();
-					ziel = bauigel.get_route()[bauigel.max_n].get_2d();
+					ziel = bauigel.get_route()[bauigel.get_count()-1].get_2d();
 				}
 				else {
-					start = bauigel.get_route()[bauigel.max_n].get_2d();
+					start = bauigel.get_route()[bauigel.get_count()-1].get_2d();
 					ziel = bauigel.get_route()[0].get_2d();
 				}
 				ok = true;
@@ -517,8 +517,8 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		wkz.exit( welt, this );
 	}
 
-	koord diff1( sgn(size1.x), sgn(size1.y) );
-	vehikel_t* v = vehikelbauer_t::baue(pos1+size1-diff1, this, NULL, rail_engine);
+	koord3d start_pos = welt->lookup_kartenboden(pos1.get_2d() + (abs(size1.x)>abs(size1.y) ? koord(size1.x,0) : koord(0,size1.y)))->get_pos();
+	vehikel_t* v = vehikelbauer_t::baue( start_pos, this, NULL, rail_engine);
 
 	// V.Meyer: give the new convoi name from first vehicle
 	cnv->set_name(rail_engine->get_name());
@@ -531,7 +531,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 	 */
 	for(int i = 0; i < anz_vehikel; i++) {
 		// use the vehicle we searched before
-		vehikel_t* v = vehikelbauer_t::baue(pos1+size1-diff1, this, NULL, rail_vehicle);
+		vehikel_t* v = vehikelbauer_t::baue(start_pos, this, NULL, rail_vehicle);
 		cnv->add_vehikel( v );
 	}
 
@@ -669,7 +669,7 @@ bool ai_goods_t::create_simple_rail_transport()
 		INT_CHECK("simplay 2478");
 	}
 
-	if(ok  &&  bauigel.max_n > 3) {
+	if(ok  &&  bauigel.get_count() > 4) {
 DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		// connect to track
@@ -677,10 +677,10 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		koord3d tile1, tile2;
 		if( starttiles.is_contained( bauigel.get_route()[0] ) ) {
 			tile1 = bauigel.get_route()[0];
-			tile2 = bauigel.get_route()[bauigel.max_n];
+			tile2 = bauigel.get_route()[bauigel.get_count()-1];
 		}
 		else {
-			tile1 = bauigel.get_route()[bauigel.max_n];
+			tile1 = bauigel.get_route()[bauigel.get_count()-1];
 			tile2 = bauigel.get_route()[0];
 		}
 		// No botflag, since we want to connect with the station.
@@ -1056,6 +1056,12 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
 					wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
 					wkz.exit( welt, this );
+					if( (count_road != 255) && suche_platz1_platz2(start, ziel, 0) ) {
+						state = NR_BAUE_STRASSEN_ROUTE;
+					}
+					else {
+						state = NR_BAUE_CLEAN_UP;
+					}
 				}
 			}
 			else {

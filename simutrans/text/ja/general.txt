@@ -1,4 +1,59 @@
-<h1>Simutrans総合ヘルプ</h1>
+<title>Simutrans総合ヘルプ</title>
+
+<h1>総合ヘルプ</h1>
+<p>
+※印のものは長い間、更新されていません。現在の内容と大きく異なる場合<br>
+があります。
+英語のものは、日本語ヘルプがまだありません。
+</p>
+<p>
+<a href="simutrans.txt">Welcome</a>　|　<a href="window.txt">Game Interface</a>　|　<a href="mouse.txt">Mouse Help</a> (to be written)<br><br>
+<a href="keys.txt">キーボード</a>
+<br>
+</p>
+<p>
+<i>ゲームオプション</i>: <a href="options.txt">※ゲームオプション</a><br><br>
+<a href="language.txt">※言語</a>　|　<a href="color.txt">※カラーダイアログ</a>　|　<a href="display.txt">※表示設定</a><br><br>
+<a href="sound.txt">※サウンドダイアログ</a>　|　<a href="players.txt">ライバル会社一覧</a>　|　<a href="load.txt">※ゲームの再開</a><br><br>
+<a href="save.txt">※ゲームの保存</a>　|　<a href="new_world.txt">※新しいマップの作成</a>　|　
+<a href="climates.txt">Climate Control</a><br><br>
+<a href="load_relief.txt">Load Height Map</a>　|　<a href="settings.txt">高度な設定</a>
+</p>
+
+<p>
+<i>メインメニュー</i><br><br>
+<a href="options.txt">※ゲームオプション</a>　|　<a href="map.txt">マップウィンドウ</a>
+　|　<a href="inspection_tool.txt">Inspection Tool</a><br><br>
+<a href="slopetools.txt">スロープツール</a>　|　<a href="railtools.txt">※鉄道ツール</a>　|　<a href="monorailtools.txt">Monorail Tools</a><br><br>
+<a href="tramtools.txt">Tram Tools</a>　|　<a href="roadtools.txt">※道路ツール</a>　|　<a href="shiptools.txt">※船舶ツール</a><br><br>
+<a href="airtools.txt">Airport Tools</a>　|　<a href="special.txt">Special Construction Tools</a>　|　 <a href="edittools.txt">Game Edit Tools</a><br><br>
+<a href="removal_tool.txt">Destroy/Remove</a>
+</p>
+<p>
+<i>一覧表</i><br><br>
+<a href="linemanagement.txt">Line Management</a>　|　<a href="list.txt">Lists</a>　|　<a href="haltlist.txt">Stops/Station List</a><br><br>
+<a href="haltlist_filter.txt">Stops/Station List Filter</a>　|　<a href="convoi.txt">Vehicle List</a>　|　<a href="convoi_filter.txt">Vehicle List Filter</a><br><br>
+<a href="citylist_filter.txt">町一覧</a>　|　<a href="goods_filter.txt">Goods List</a>　|　<a href="factorylist_filter.txt">Industry List</a><br><br>
+<a href="curiositylist_filter.txt">Attractions List</a>　|　<a href="mailbox.txt">メッセージ表/メッセージ表設定</a>　|　<a href="finances.txt">※財務</a>
+</p>
+<p>
+<i>その他のオプション</i><br><br>
+<a href="window.txt">Save Screenshot</a>　|　<a href="window.txt">Pause</a>　|　<a href="window.txt">Fast Forward</a>　|　<a href="window.txt">Help</a>
+</p>
+<p>
+<a href="inspection_tool.txt"><i>その他のダイアログ</i><br><br>
+<a href="depot.txt">※車庫ダイアログ</a>　|　<a href="schedule.txt">※スケジュールダイアログ</a>　|　<a href="station.txt">※駅情報ダイアログ</a><br><br>
+<a href="station_details.txt">※駅情報詳細ダイアログ</a>　|　<a href="convoiinfo.txt">Convoy/Vehicle Information</a><br><br>
+<a href="convoidetail.txt">Convoy/Vehicle Details</a>　|　<a href="citywindow.txt">街の詳細</a>　|　<a href="industry_info.txt">Industry Information</a>
+</p>
+
+<p>
+If no help is found here, try<br>
+<em>http://guide.simutrans.com</em>, or<br>
+<em>http://wiki.simutrans.com</em>, or<br>
+<em>http://simutrans-tips.com</em>, or<br>
+<em>http://forum.simutrans.com</em>.
+</p>
 
 <p>
 原著 Hj. Malthaner

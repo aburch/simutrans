@@ -1,4 +1,4 @@
-#/*
+/*
  * Spieleinstellungen
  *
  * Hj. Malthaner
@@ -35,9 +35,9 @@ einstellungen_t::einstellungen_t() :
 	anzahl_staedte = 16;
 	mittlere_einwohnerzahl = 1600;
 
-	station_coverage_size = 3;
+	station_coverage_size = 2;
 
-	verkehr_level = 7;
+	verkehr_level = 5;
 
 	show_pax = true;
 
@@ -58,7 +58,7 @@ einstellungen_t::einstellungen_t() :
 	use_timeline = 2;
 	starting_year = 1930;
 	starting_month = 0;
-	bits_per_month = 18;
+	bits_per_month = 20;
 
 	beginner_mode = false;
 	beginner_price_factor = 1500;
@@ -71,6 +71,23 @@ einstellungen_t::einstellungen_t() :
 	passenger_factor = 10;
 
 	electric_promille = 1000;
+
+	// town growth factors
+	passenger_multiplier = 40;
+	mail_multiplier = 20;
+	goods_multiplier = 20;
+	electricity_multiplier = 20;
+
+	// Also there are size dependen factors (0 causes crash !)
+	growthfactor_small = 400;
+	growthfactor_medium = 200;
+	growthfactor_large = 100;
+
+	factory_worker_percentage = 33;
+	tourist_percentage = 16;
+	factory_worker_radius = 77;
+
+
 
 #ifdef OTTD_LIKE
 	/* prissi: crossconnect all factories (like OTTD and similar games) */
@@ -86,10 +103,10 @@ einstellungen_t::einstellungen_t() :
 	factory_spacing = 6;
 
 	/* prissi: do not distribute goods to overflowing factories */
-	just_in_time=true;
+	just_in_time = true;
 
 	fussgaenger = true;
-	stadtauto_duration = 120;	// ten years
+	stadtauto_duration = 36;	// three years
 
 	// to keep names consistent
 	numbered_stations = false;
@@ -153,9 +170,6 @@ einstellungen_t::einstellungen_t() :
 	cst_depot_road=-130000;
 	cst_depot_ship=-250000;
 	cst_depot_air=-500000;
-	cst_signal=-50000;
-	cst_tunnel=-1000000;
-	cst_third_rail=-8000;
 	// alter landscape
 	cst_buy_land=-10000;
 	cst_alter_land=-100000;
@@ -173,7 +187,7 @@ einstellungen_t::einstellungen_t() :
 	way_count_straight=1;
 	way_count_curve=2;
 	way_count_double_curve=6;
-	way_count_90_curve=50;
+	way_count_90_curve=15;
 	way_count_slope=10;
 	way_count_tunnel=8;
 	way_max_bridge_len=15;
@@ -238,7 +252,7 @@ einstellungen_t::einstellungen_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	distance_per_tile = 2.5F;
+	distance_per_tile = 0.25F;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -315,10 +329,6 @@ einstellungen_t::einstellungen_t() :
 	global_power_factor = 1.0F;
 
 	avoid_overcrowding = false;
-	
-	// Customisable city growth
-	// @author: jamespetts
-	city_weight_factor = 100;
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts
@@ -523,6 +533,21 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short( origin_y, "oy" );
 
 			file->rdwr_long( passenger_factor, "" );
+
+			// town grow stuff
+			if(file->get_version()>102001) {
+				file->rdwr_long( passenger_multiplier, "" );
+				file->rdwr_long( mail_multiplier, "" );
+				file->rdwr_long( goods_multiplier, "" );
+				file->rdwr_long( electricity_multiplier, "" );
+				file->rdwr_long( growthfactor_small, "" );
+				file->rdwr_long( growthfactor_medium, "" );
+				file->rdwr_long( growthfactor_large, "" );
+				file->rdwr_short( factory_worker_percentage, "" );
+				file->rdwr_short( tourist_percentage, "" );
+				file->rdwr_short( factory_worker_radius, "" );
+			}
+
 			file->rdwr_long( electric_promille, "" );
 
 			file->rdwr_short( factory_spacing, "" );
@@ -565,9 +590,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_longlong( cst_depot_road, "" );
 			file->rdwr_longlong( cst_depot_ship, "" );
 			file->rdwr_longlong( cst_depot_air, "" );
-			file->rdwr_longlong( cst_signal, "" );
-			file->rdwr_longlong( cst_tunnel, "" );
-			file->rdwr_longlong( cst_third_rail, "" );
+			if(  file->get_version()<=102001  ) {
+				sint64 dummy64 = 100000;
+				file->rdwr_longlong( dummy64, "" );
+				file->rdwr_longlong( dummy64, "" );
+				file->rdwr_longlong( dummy64, "" );
+			}
 			// alter landscape
 			file->rdwr_longlong( cst_buy_land, "" );
 			file->rdwr_longlong( cst_alter_land, "" );
@@ -662,23 +690,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					distance_per_tile_integer *= 0.8F;
 				}		
 				distance_per_tile = distance_per_tile_integer / 100.0F;
-				if(file->get_experimental_version() < 6)
-				{
-					min_bonus_max_distance /= distance_per_tile;
-					max_bonus_min_distance /= distance_per_tile;
-					// Scale the costs to match the scale factor.
-					cst_multiply_dock *= distance_per_tile;
-					cst_multiply_station *= distance_per_tile;
-					cst_multiply_roadstop *= distance_per_tile;
-					cst_multiply_airterminal *= distance_per_tile;
-					cst_multiply_post *= distance_per_tile;
-					maint_building *= distance_per_tile;
-					cst_signal *= distance_per_tile;
-					cst_tunnel *= distance_per_tile;
-					cst_third_rail *= distance_per_tile;
-					cst_buy_land *= distance_per_tile;
-					cst_remove_tree *= distance_per_tile;
-				}
+				
 				file->rdwr_byte(tolerable_comfort_short, "");
 				file->rdwr_byte(tolerable_comfort_median_short, "");
 				file->rdwr_byte(tolerable_comfort_median_median, "");
@@ -708,6 +720,21 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 				file->rdwr_short(tpo_min_minutes, "");
 				file->rdwr_short(tpo_revenue, "");
+			}
+
+			if(file->get_experimental_version() < 6)
+			{
+				min_bonus_max_distance /= distance_per_tile;
+				max_bonus_min_distance /= distance_per_tile;
+				// Scale the costs to match the scale factor.
+				cst_multiply_dock *= distance_per_tile;
+				cst_multiply_station *= distance_per_tile;
+				cst_multiply_roadstop *= distance_per_tile;
+				cst_multiply_airterminal *= distance_per_tile;
+				cst_multiply_post *= distance_per_tile;
+				maint_building *= distance_per_tile;
+				cst_buy_land *= distance_per_tile;
+				cst_remove_tree *= distance_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent, "");
@@ -827,7 +854,13 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 3)
 		{
-			file->rdwr_short(city_weight_factor, "");
+			if(file->get_experimental_version() < 7)
+			{
+				// Was city weight factor. Now replaced by a more
+				// sophisticated customisable city growth from Standard.
+				uint16 dummy;
+				file->rdwr_short(dummy, "");
+			}
 			file->rdwr_byte(enforce_weight_limits, "");
 			uint16 speed_bonus_multiplier_percent = speed_bonus_multiplier * 100;
 			file->rdwr_short(speed_bonus_multiplier_percent, "");
@@ -863,81 +896,101 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename, bool einstellungen_only )
+void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename )
 {
 	tabfileobj_t contents;
 
 	simuconf.read(contents);
 
-	if(  !einstellungen_only  ) {
 
-		// This needs to be first as other settings are based on this.
-		// @author: jamespetts
-		uint16 distance_per_tile_integer = distance_per_tile * 100;
-		distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) / 100.0F;
+	// This needs to be first as other settings are based on this.
+	// @author: jamespetts
+	uint16 distance_per_tile_integer = distance_per_tile * 100;
+	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) / 100.0F;
 
-		umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
-		umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
-		umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
-		umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
+	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
+	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
+	umgebung_t::moving_object_probability = contents.get_int("random_wildlife_probability", umgebung_t::moving_object_probability);
+	umgebung_t::drive_on_left = contents.get_int("drive_left", umgebung_t::drive_on_left );
 
-		umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
-		umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
-		umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
-		umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
-		umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
+	umgebung_t::verkehrsteilnehmer_info = contents.get_int("pedes_and_car_info", umgebung_t::verkehrsteilnehmer_info) != 0;
+	umgebung_t::tree_info = contents.get_int("tree_info", umgebung_t::tree_info) != 0;
+	umgebung_t::ground_info = contents.get_int("ground_info", umgebung_t::ground_info) != 0;
+	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
+	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info);
 
-		umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
-		umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
-		umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs);
+	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right);
+	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active);
+	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs);
 
-		umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
-		umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
-		umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
-		umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color);
+	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips);
+	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color);
+	umgebung_t::tooltip_textcolor = contents.get_int("tooltip_text_color", umgebung_t::tooltip_textcolor);
+	umgebung_t::cursor_overlay_color = contents.get_int("cursor_overlay_color", umgebung_t::cursor_overlay_color);
 
-		// display stuff
-		umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
-		umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
-		umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
+	// display stuff
+	umgebung_t::show_names = contents.get_int("show_names", umgebung_t::show_names);
+	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
+	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
 
-		umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-		const char *test = ltrim(contents.get("intercity_road_type"));
-		if(*test  &&  test) {
-			delete umgebung_t::intercity_road_type;
-			umgebung_t::intercity_road_type = strdup(test);
-		}
+	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
+	const char *test = ltrim(contents.get("intercity_road_type"));
+	if(*test) {
+		free( (void *)umgebung_t::intercity_road_type );
+		umgebung_t::intercity_road_type = NULL;
+		umgebung_t::intercity_road_type = strdup(test);
+	}
 
-		// up to ten rivers are possible
-		for(  int i = 0;  i<10;  i++  ) {
-			char name[32];
-			sprintf( name, "river_type[%i]", i );
-			const char *test = ltrim(contents.get(name));
-			if(test  &&  *test) {
-				umgebung_t::river_type[umgebung_t::river_types++] = strdup( test );
+	// up to ten rivers are possible
+	for(  int i = 0;  i<10;  i++  ) {
+		char name[32];
+		sprintf( name, "river_type[%i]", i );
+		const char *test = ltrim(contents.get(name));
+		if(*test) {
+			const int add_river = i<umgebung_t::river_types ? i : umgebung_t::river_types;
+			free( (void *)umgebung_t::river_type[add_river] );
+			umgebung_t::river_type[add_river] = NULL;
+			umgebung_t::river_type[add_river] = strdup( test );
+			if(  add_river==umgebung_t::river_types  ) {
+				umgebung_t::river_types++;
 			}
 		}
-
-		umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
-		umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 	}
+
+	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
+	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps);
 
 	// routing stuff
 	max_route_steps = contents.get_int("max_route_steps", max_route_steps );
 	max_hops = contents.get_int("max_hops", max_hops );
 	max_transfers = contents.get_int("max_transfers", max_transfers );
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
+	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
+	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
+	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
 	max_rerouting_interval_months = contents.get_int("max_rerouting_interval_months", max_rerouting_interval_months);
 
+	// city stuff
+	passenger_multiplier = contents.get_int("passenger_multiplier", passenger_multiplier );
+	mail_multiplier = contents.get_int("mail_multiplier", mail_multiplier );
+	goods_multiplier = contents.get_int("goods_multiplier", goods_multiplier );
+	electricity_multiplier = contents.get_int("electricity_multiplier", electricity_multiplier );
+
+	growthfactor_small = contents.get_int("growthfactor_villages", growthfactor_small );
+	growthfactor_medium = contents.get_int("growthfactor_cities", growthfactor_medium );
+	growthfactor_large = contents.get_int("growthfactor_capitals", growthfactor_large );
+
 	fussgaenger = contents.get_int("random_pedestrians", fussgaenger ) != 0;
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
+	verkehr_level = contents.get_int("citycar_level", verkehr_level);	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
 
 	starting_money = contents.get_int64("starting_money", starting_money );
-	maint_building = contents.get_int("maintenance_building", maint_building) * distance_per_tile;
+	maint_building = contents.get_int("maintenance_building", maint_building);
+	maint_building *= distance_per_tile;
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations ) != 0;
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
@@ -980,9 +1033,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
 	cst_depot_road = contents.get_int64("cost_depot_road", cst_depot_road/(-100) ) * -100;
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
-	cst_signal = (contents.get_int64("cost_signal", cst_signal/(-100) ) * -100) * distance_per_tile;
-	cst_tunnel = (contents.get_int64("cost_tunnel", cst_tunnel/(-100) ) * -100) * distance_per_tile;
-	cst_third_rail = (contents.get_int64("cost_third_rail", cst_third_rail/(-100) ) * -100) * distance_per_tile;
 
 	// alter landscape
 	cst_buy_land = (contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile;
@@ -1158,10 +1208,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	uint16 global_power_factor_percent = 100;
 	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
 	global_power_factor = (float)global_power_factor_percent / 100;
-
-	// City weight factor. Customisable city growth.
-	// @author: jamespetts
-	city_weight_factor = contents.get_int("city_weight_factor", city_weight_factor);
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts

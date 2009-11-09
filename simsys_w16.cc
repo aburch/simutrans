@@ -437,6 +437,13 @@ int dr_screenshot(const char *filename)
  * Hier sind die Funktionen zur Messageverarbeitung
  */
 
+static inline unsigned int ModifierKeys()
+{
+	return
+		(GetKeyState(VK_SHIFT)   < 0  ? 1 : 0) |
+		(GetKeyState(VK_CONTROL) < 0  ? 2 : 0); // highest bit set or return value<0 -> key is pressed
+}
+
 struct sys_event sys_event;
 
 /* Windows eventhandler: does most of the work */
@@ -512,7 +519,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONDOWN: /* originally ButtonPress */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTBUTTON;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -521,7 +528,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_LBUTTONUP: /* originally ButtonRelease */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_LEFTUP;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -530,7 +537,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONDOWN: /* originally ButtonPress */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTBUTTON;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -539,7 +546,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_RBUTTONUP: /* originally ButtonRelease */
 			sys_event.type    = SIM_MOUSE_BUTTONS;
 			sys_event.code    = SIM_MOUSE_RIGHTUP;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -548,7 +555,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		case WM_MOUSEMOVE:
 			sys_event.type    = SIM_MOUSE_MOVE;
 			sys_event.code    = SIM_MOUSE_MOVED;
-			sys_event.key_mod = wParam>>2;
+			sys_event.key_mod = ModifierKeys();
 			sys_event.mb = last_mb = (wParam&3);
 			sys_event.mx      = LOWORD(lParam);
 			sys_event.my      = HIWORD(lParam);
@@ -601,7 +608,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
-			sys_event.key_mod = (GetKeyState(VK_CONTROL) < 0) * 2; // control state
+			sys_event.key_mod = ModifierKeys();
 
 			if (numlock) {
 				// do low level special stuff here
@@ -666,8 +673,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 			else {
 				sys_event.type = SIM_KEYBOARD;
 				sys_event.code = wParam;
-				short ks = GetKeyState(VK_CONTROL);
-				sys_event.key_mod = (GetKeyState(VK_CONTROL) < 0) * 2; // control state
+				sys_event.key_mod = ModifierKeys();
 			}
 			break;
 

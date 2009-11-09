@@ -452,18 +452,18 @@ int simu_main(int argc, char** argv)
 	chdir( umgebung_t::program_dir );
 	if(  found_simuconf  ) {
 		if(simuconf.open("config/simuconf.tab")) {
-			printf("parse_simuconf() at config/simuconf.tab");
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, false );
+			printf("parse_simuconf() at config/simuconf.tab: ");
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
 
 	// if set for multiuser, then parses the users config (if there)
 	// retrieve everything (but we must do this again once more ... )
 	if(multiuser) {
-		cstring_t obj_conf = umgebung_t::user_dir;
-		if(simuconf.open(obj_conf + "simuconf.tab")) {
-			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename, false );
+		cstring_t obj_conf( cstring_t(umgebung_t::user_dir) + "simuconf.tab" );
+		if(simuconf.open(obj_conf)) {
+			printf("parse_simuconf() at %s: ", (const char *)obj_conf );
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
 
@@ -536,7 +536,7 @@ int simu_main(int argc, char** argv)
 
 	fullscreen |= (gimme_arg(argc, argv, "-fullscreen", 0) != NULL);
 
-	if (gimme_arg(argc, argv, "-screensize", 0) != NULL) {
+	if(gimme_arg(argc, argv, "-screensize", 0) != NULL) {
 		const char* res_str = gimme_arg(argc, argv, "-screensize", 1);
 		int n = 0;
 
@@ -594,19 +594,25 @@ int simu_main(int argc, char** argv)
 	cstring_t dummy("");
 	if(simuconf.open((const char *)obj_conf)) {
 		sint16 idummy;
-		printf("parse_simuconf() at %sconfig/simuconf.tab", (const char *)obj_conf);
-		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy, false );
+		printf("parse_simuconf() at %s: ", (const char *)obj_conf);
+		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		simuconf.close();
 	}
 	// and parse again parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
-		cstring_t obj_conf = umgebung_t::user_dir;
-		if(simuconf.open(obj_conf + "simuconf.tab")) {
+		cstring_t obj_conf( cstring_t(umgebung_t::user_dir) + "simuconf.tab" );
+		if(simuconf.open(obj_conf)) {
 			sint16 idummy;
-			printf("parse_simuconf() at %ssimuconf.tab", (const char *)obj_conf);
-			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy, false );
+			printf("parse_simuconf() at %s: ", (const char *)obj_conf);
+			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
+		}
+		if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
+			umgebung_t::default_einstellungen.set_with_private_paks( true );
+		}
+		if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
+			umgebung_t::default_einstellungen.set_with_private_paks( false );
 		}
 	}
 	else {
@@ -816,7 +822,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	}
 
-#ifdef DEBUG
+#if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
 		show_times(welt, view);
@@ -829,6 +835,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 #endif
 
 	welt->set_fast_forward(false);
+#ifdef PROFILE
+	welt->set_fast_forward(true);
+	if( loadgame == "" )
+	{
+		dbg->fatal("simmain", "no game loaden in profile mode. Use -load");
+	}
+#endif
 	view->display(true);
 	intr_refresh_display(true);
 
@@ -850,9 +863,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	sprachengui_t::init_font_from_lang();
 
 	welt->get_message()->clear();
-	ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 
-	zeige_banner(welt);
+#ifndef PROFILE
+		ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+		zeige_banner(welt);
+#endif
 
 	intr_set(welt, view);
 
@@ -956,7 +971,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		// run the loop
 		while(welt->interactive()) {
-#ifdef DEBUG
+#if defined DEBUG || defined PROFILE
 			if(  welt->get_current_month() >= quit_month  ) {
 				umgebung_t::quit_simutrans = true;
 				break;

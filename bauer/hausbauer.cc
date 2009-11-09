@@ -13,6 +13,7 @@
 #include "../besch/spezial_obj_tpl.h"
 
 #include "../boden/boden.h"
+#include "../boden/wasser.h"
 #include "../boden/fundament.h"
 
 #include "../dataobj/translator.h"
@@ -168,23 +169,27 @@ bool hausbauer_t::alles_geladen()
 }
 
 
-bool hausbauer_t::register_besch(const haus_besch_t *besch)
+bool hausbauer_t::register_besch(haus_besch_t *besch)
 {
-	::register_besch(spezial_objekte, besch);
+	const haus_besch_t* const_besch = besch;
+
+	::register_besch(spezial_objekte, const_besch);
 
 	// avoid duplicates with same name
 	if(besch_names.remove(besch->get_name())) {
-		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", const_besch->get_name() );
 	}
-	besch_names.put(besch->get_name(), besch);
+	besch_names.put(besch->get_name(), const_besch);
 
-	/* supply the tiles with a pointer back to the matchin description
+	/* supply the tiles with a pointer back to the matching description
 	 * this is needed, since each building is build of seperate tiles,
 	 * even if it is part of the same description (haus_besch_t)
 	 */
-	const int max_index = besch->get_all_layouts()*besch->get_groesse().x*besch->get_groesse().y;
-	for( int i=0;  i<max_index;  i++  ) {
-		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_besch(besch);
+	const int max_index = const_besch->get_all_layouts() * const_besch->get_groesse().x * const_besch->get_groesse().y;
+	for( int i=0;  i<max_index;  i++  ) 
+	{
+		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_besch(const_besch);
+		const_cast<haus_tile_besch_t *>(besch->get_tile(i))->set_modifiable_besch(besch);
 	}
 
 	return true;
@@ -197,7 +202,7 @@ static stringhashtable_tpl<wkz_station_t *> station_tool;
 static stringhashtable_tpl<wkz_depot_t *> depot_tool;
 
 // all these menus will need a waytype ...
-void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, const karte_t* welt)
+void hausbauer_t::fill_menu(werkzeug_waehler_t* wzw, haus_besch_t::utyp utyp, waytype_t wt, sint16 sound_ok, const karte_t* welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
@@ -215,6 +220,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 						wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 						wkz->cursor = besch->get_cursor()->get_bild_nr(0);
 						wkz->default_param = besch->get_name();
+						wkz->ok_sound = sound_ok;
 						depot_tool.put(besch->get_name(),wkz);
 					}
 					wzw->add_werkzeug( (werkzeug_t*)wkz );
@@ -227,6 +233,7 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 						wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 						wkz->cursor = besch->get_cursor()->get_bild_nr(0),
 						wkz->default_param = besch->get_name();
+						wkz->ok_sound = sound_ok;
 						station_tool.put(besch->get_name(),wkz);
 					}
 					wzw->add_werkzeug( (werkzeug_t*)wkz );
@@ -267,19 +274,27 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
 		// first remove fabrik_t pointers
+		grund_t *gr = NULL;
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
-				grund_t *gr = welt->lookup(koord3d(k,0)+pos);
-				gebaeude_t *gb_part = gr->find<gebaeude_t>();
-				if(gb_part) {
-					// there may be buildings with holes, so we only remove our or the hole!
-					if(gb_part->get_tile()->get_besch()==hb) {
-						gb_part->set_fab( NULL );
-						planquadrat_t *plan = welt->access( k+pos.get_2d() );
-						for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) {
-							halthandle_t halt = plan->get_haltlist()[i];
-							halt->remove_fabriken( fab );
-							plan->remove_from_haltlist( welt, halt );
+				gr = welt->lookup(koord3d(k,0)+pos);
+				assert(gr);
+				if(gr != NULL)
+				{
+					gebaeude_t *gb_part = gr->find<gebaeude_t>();
+					if(gb_part) 
+					{
+						// there may be buildings with holes, so we only remove our or the hole!
+						if(gb_part->get_tile()->get_besch()==hb) 
+						{
+							gb_part->set_fab( NULL );
+							planquadrat_t *plan = welt->access( k+pos.get_2d() );
+							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) 
+							{
+								halthandle_t halt = plan->get_haltlist()[i];
+								halt->remove_fabriken( fab );
+								plan->remove_from_haltlist( welt, halt );
+							}
 						}
 					}
 				}
@@ -344,20 +359,32 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 					// and maybe restore land below
 					if(gr->get_typ()==grund_t::fundament) {
 						const koord newk = k+pos.get_2d();
-						const uint8 new_slope = gr->get_hoehe()==welt->min_hgt(newk) ? 0 : welt->calc_natural_slope(newk);
-						if(welt->lookup(koord3d(newk,welt->min_hgt(newk)))!=gr) {
-							// there is another ground below => do not change hight, keep foundation
+						sint8 new_hgt;
+						const uint8 new_slope = welt->recalc_natural_slope(newk,new_hgt);
+						const grund_t *gr2 = welt->lookup(koord3d(newk,new_hgt));
+						bool ground_recalc = true;
+						if(gr2  &&  gr2!=gr) {
+							// there is another ground below => do not change height, keep foundation
 							welt->access(newk)->kartenboden_setzen( new boden_t(welt, gr->get_pos(), hang_t::flach ) );
+							ground_recalc = false;
+						}
+						else if(  new_hgt<=welt->get_grundwasser()  &&  new_slope==hang_t::flach  ) {
+							welt->access(newk)->kartenboden_setzen(new wasser_t(welt, koord3d(newk,new_hgt) ) );
 						}
 						else {
-							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,welt->min_hgt(newk) ), new_slope) );
+							if(  (gr2==NULL  ||  gr2==gr)  &&  gr->get_grund_hang()==new_slope  ) {
+								ground_recalc = false;
+							}
+							welt->access(newk)->kartenboden_setzen(new boden_t(welt, koord3d(newk,new_hgt), new_slope) );
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
-						if(new_slope!=0) {
-							if(pos.x<welt->get_groesse_x()-1)
+						if(ground_recalc) {
+							if(pos.x<welt->get_groesse_x()-1) {
 								welt->lookup_kartenboden(newk+koord::ost)->calc_bild();
-							if(pos.y<welt->get_groesse_y()-1)
+							}
+							if(pos.y<welt->get_groesse_y()-1) {
 								welt->lookup_kartenboden(newk+koord::sued)->calc_bild();
+							}
 						}
 					}
 				}

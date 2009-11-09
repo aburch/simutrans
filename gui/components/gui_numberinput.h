@@ -62,6 +62,9 @@ public:
 
 	virtual void set_groesse(koord groesse);
 
+	// all init in one ...
+	void init( sint32 value, sint32 min, sint32 max, sint32 mode, bool wrap );
+
 	/**
 	 * sets and get the current value.
 	 * return current value (or min or max in currently set to outside value)

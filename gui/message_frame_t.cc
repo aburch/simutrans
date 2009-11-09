@@ -30,7 +30,7 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 	scrolly.set_pos( koord(0,BUTTON_HEIGHT) );
 	add_komponente(&scrolly);
 
-	option_bt.init(button_t::box, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	option_bt.init(button_t::roundbox, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	option_bt.add_listener(this);
 	add_komponente(&option_bt);
 

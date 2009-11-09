@@ -177,7 +177,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	int version = v & 0x8000 ? v & 0x7FFF : 0;
 
 	// Whether the read file is from Simutrans-Experimental
-	//@author: jamespetts
+	// @author: jamespetts
 
 	const bool experimental = version > 0 ? v & EXP_VER : false;
 	uint16 experimental_version = 0;
@@ -200,6 +200,12 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->produktivitaet = decode_uint16(p); //"productivity" (Babelfish)
 		besch->bereich = decode_uint16(p); //"range" (Babelfish)
 		besch->gewichtung = decode_uint16(p); //"weighting" (Babelfish)
+		if(besch->gewichtung < 1)
+		{
+			// Avoid divide by zero errors when
+			// determining industry density figures.
+			besch->gewichtung = 1;
+		}
 		besch->kennfarbe = decode_uint8(p); //"identification colour code" (Babelfish)
 		besch->fields = decode_uint8(p); //"fields" (Babelfish)
 		besch->lieferanten = decode_uint16(p); //"supplier" (Babelfish)
@@ -207,14 +213,23 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = decode_uint16(p);
 		if(experimental)
 		{
-			if(experimental_version == 0)
+			if(experimental_version >= 0)
 			{
 				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F);
 				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
 			}
+			if(experimental_version >= 1)
+			{
+				besch->upgrades = decode_uint8(p);
+			}
 			else
 			{
-				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-E, number %i", experimental_version );
+				besch->upgrades = 0;
+			}
+			if(experimental_version > 1)
+			{
+				// Check for incompatible future versions
+				dbg->fatal( "factory_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
 		}
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
@@ -225,6 +240,12 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->produktivitaet = decode_uint16(p);
 		besch->bereich = decode_uint16(p);
 		besch->gewichtung = decode_uint16(p);
+		if(besch->gewichtung < 1)
+		{
+			// Avoid divide by zero errors when
+			// determining industry density figures.
+			besch->gewichtung = 1;
+		}
 		besch->kennfarbe = (uint8)decode_uint16(p);
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
@@ -233,7 +254,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
 	} 
 
-	else 
+	else
 	{
 		// old node, version 0, without pax_level
 		DBG_DEBUG("factory_reader_t::read_node()","version=0");
@@ -242,6 +263,12 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->produktivitaet = decode_uint16(p)|0x8000;
 		besch->bereich = decode_uint16(p);
 		besch->gewichtung = decode_uint16(p);
+		if(besch->gewichtung < 1)
+		{
+			// Avoid divide by zero errors when
+			// determining industry density figures.
+			besch->gewichtung = 1;
+		}
 		besch->kennfarbe = (uint8)decode_uint16(p);
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
@@ -253,6 +280,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		besch->electricity_proportion = 0.17F;
 		besch->inverse_electricity_proportion = 1.0F / besch->electricity_proportion;
+		besch->upgrades = 0;
 	}
 
 	return besch;
@@ -265,4 +293,5 @@ void factory_reader_t::register_obj(obj_besch_t *&data)
 	size_t fab_name_len = strlen( besch->get_name() );
 	besch->electricity_producer = ( fab_name_len>11   &&  (strcmp(besch->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(besch->get_name()+fab_name_len-11, "Power Plant")==0) );
 	fabrikbauer_t::register_besch(besch);
+	obj_for_xref(get_type(), besch->get_name(), data);
 }

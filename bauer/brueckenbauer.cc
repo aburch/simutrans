@@ -137,7 +137,7 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const karte_t *welt)
+void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
 {
 	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
 
@@ -167,6 +167,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, c
 			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
 			wkz->default_param = besch->get_name();
+			wkz->ok_sound = sound_ok;
 			bruecken_tool.put(besch->get_name(),wkz);
 		}
 		wzw->add_werkzeug( (werkzeug_t*)wkz );
@@ -465,7 +466,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	}
 
 	// must determine end tile: on a slope => likely need auffahrt
-	bool need_auffahrt = (pos.z==end.z);
+	bool need_auffahrt = pos.z == welt->lookup(end)->get_vmove(-zv);
 	if(need_auffahrt) { //"Need ramp" (Google)
 		grund_t *gr = welt->lookup(end);
 		weg_t *w = gr->get_weg( (waytype_t)weg_besch->get_wtyp());

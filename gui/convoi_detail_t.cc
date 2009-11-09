@@ -111,9 +111,8 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		offset_y += LINESPACE;
 
 		// current resale value
-		char buf[32];
-		money_to_string( buf, cnv->calc_restwert()/100.0 );
-		sprintf( tmp, "%s %s", translator::translate("Restwert:"), buf );
+		money_to_string( tmp+sprintf( tmp, "%s ", translator::translate("Restwert:") ), cnv->calc_restwert()/100.0 );
+
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 		
@@ -121,13 +120,14 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		uint16 count = cnv->get_vehikel_anzahl();
 		if (count > 0)
 		{
-/* Bernd Gabriel, 17.06.2009:
-The average percentage tells nothing about the real cost increase: If a cost-intensive 
-loco is very old and at max increase (1 * 400% * 1000 cr/month, but 15 low-cost cars are 
-brand new (15 * 100% * 100 cr/month), an average percentage of 
-(1 * 400% + 15 * 100%) / 16 = 118.75% does not tell the truth. Actually we pay
-(1 * 400% * 1000 + 15 * 100% * 100) / (1 * 1000 + 15 * 100) = 220% twice as much as in the
-early years of the loco.
+
+		/* Bernd Gabriel, 17.06.2009:
+		The average percentage tells nothing about the real cost increase: If a cost-intensive 
+		loco is very old and at max increase (1 * 400% * 1000 cr/month, but 15 low-cost cars are 
+		brand new (15 * 100% * 100 cr/month), an average percentage of 
+		(1 * 400% + 15 * 100%) / 16 = 118.75% does not tell the truth. Actually we pay
+		(1 * 400% * 1000 + 15 * 100% * 100) / (1 * 1000 + 15 * 100) = 220% twice as much as in the
+		early years of the loco.
 
 			uint32 percentage = 0;
 			karte_t *welt = cnv->get_welt();
@@ -141,10 +141,10 @@ early years of the loco.
 				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
 				offset_y += LINESPACE;
 			}
-On the other hand: a single effective percentage does not tell the truth as well. Supposed we 
-calculate the percentage from the costs per km, the relations for the month costs can widely differ.
-Therefore I show different values for running and monthly costs:
-*/
+		On the other hand: a single effective percentage does not tell the truth as well. Supposed we 
+		calculate the percentage from the costs per km, the relations for the month costs can widely differ.
+		Therefore I show different values for running and monthly costs:
+		*/
 			uint32 run_actual = 0, run_nominal = 0, run_percent = 0;
 			uint32 mon_actual = 0, mon_nominal = 0, mon_percent = 0;
 			karte_t *welt = cnv->get_welt();
