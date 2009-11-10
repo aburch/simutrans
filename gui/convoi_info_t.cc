@@ -178,7 +178,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		}
 
 		int btn = ACCELERATOR_BUTTON;
-		chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true);
+		chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true, 0);
 		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+2)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[btn].add_listener(this);
 		filterButtons[btn].background = cost_type_color[btn];
