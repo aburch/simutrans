@@ -944,6 +944,7 @@ class wkz_enlarge_map_t : public werkzeug_t{
 	const char *get_tooltip(spieler_t *) { return translator::translate("enlarge map"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_bigger_map); }
 	bool init( karte_t *welt, spieler_t *sp ) {
+		destroy_all_win();
 		create_win( new enlarge_map_frame_t(sp,welt), w_info, magic_bigger_map );
 		return false;
 	}
