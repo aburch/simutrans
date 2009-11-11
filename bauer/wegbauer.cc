@@ -103,6 +103,10 @@ bool wegbauer_t::alle_wege_geladen()
 	maglev_t::default_maglev = wegbauer_t::weg_search(maglev_wt,1,0,weg_t::type_flat);
 	narrowgauge_t::default_narrowgauge = wegbauer_t::weg_search(narrowgauge_wt,1,0,weg_t::type_flat);
 	kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,1,0,weg_t::type_flat);
+	if(  kanal_t::default_kanal==0  ) {
+		// find also hidden rivers ...
+		kanal_t::default_kanal = wegbauer_t::weg_search(water_wt,0,0,weg_t::type_all);
+	}
 	runway_t::default_runway = wegbauer_t::weg_search(air_wt,1,0,weg_t::type_flat);
 	wegbauer_t::leitung_besch = wegbauer_t::weg_search(powerline_wt,1,0,weg_t::type_flat);
 	return true;
