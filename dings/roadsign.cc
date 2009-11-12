@@ -285,8 +285,8 @@ void roadsign_t::calc_bild()
 // only used for traffic light: change the current state
 bool roadsign_t::sync_step(long /*delta_t*/)
 {
-	// change every ~16s hours in normal speed
-	uint8 new_zustand = ( (welt->get_zeit_ms()>>14) + welt->get_einstellungen()->get_rotation() )&1;
+	// change every ~32s
+	uint8 new_zustand = ( (welt->get_zeit_ms()>>15) + welt->get_einstellungen()->get_rotation() )&1;
 	if(zustand!=new_zustand) {
 		zustand = new_zustand;
 		dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
