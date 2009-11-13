@@ -9,6 +9,7 @@
 	FIX: no money when selling convois at the depot
 	FIX: (Knightly) inverse scrolling consistently for minimap and main view
 	FIX: also ask when a single pakset with addons is present what to load
+	FIX: game starts in normal mode (instead paused) again
 
 
 

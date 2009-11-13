@@ -985,6 +985,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				}
 				destroy_all_win();
 				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
+				welt->set_pause(false);
 			}
 			else if(wg->get_load()) {
 				delete wg;
@@ -1012,6 +1013,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		new_world = true;
 		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		welt->set_fast_forward(false);
+		welt->set_pause(false);
 		setsimrand(dr_time(), dr_time());
 	}
 
