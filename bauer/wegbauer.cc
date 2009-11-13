@@ -1923,10 +1923,11 @@ void wegbauer_t::baue_strasse()
 				// we take ownership => we take care to maintain the roads completely ...
 				spieler_t *s = weg->get_besitzer();
 				spieler_t::add_maintenance(s, -weg->get_besch()->get_wartung());
+				// cost is the more expensive one, so downgrading is between removing and new buidling
+				cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 				weg->set_besch(besch);
 				spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 				weg->set_besitzer(sp);
-				cost -= besch->get_preis();
 			}
 		}
 		else {
@@ -1987,10 +1988,11 @@ void wegbauer_t::baue_schiene()
 					// we take ownership => we take care to maintain the roads completely ...
 					spieler_t *s = weg->get_besitzer();
 					spieler_t::add_maintenance( s, -weg->get_besch()->get_wartung());
+					// cost is the more expensive one, so downgrading is between removing and new buidling
+					cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 					weg->set_besch(besch);
 					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 					weg->set_besitzer(sp);
-					cost -= besch->get_preis();
 				}
 			}
 			else {
@@ -2018,8 +2020,7 @@ void wegbauer_t::baue_schiene()
 
 
 
-void
-wegbauer_t::baue_leitung()
+void wegbauer_t::baue_leitung()
 {
 	if(  get_count() < 1  ) {
 		return;
@@ -2070,8 +2071,7 @@ class fluss_fahrer_t : fahrer_t
 
 
 // make a river
-void
-wegbauer_t::baue_fluss()
+void wegbauer_t::baue_fluss()
 {
 	/* since the contraits of the wayfinder ensures that a river flows always downwards
 	 * we can assume that the first tiles are the ocean.
@@ -2161,8 +2161,7 @@ wegbauer_t::baue_fluss()
 
 
 
-void
-wegbauer_t::baue()
+void wegbauer_t::baue()
 {
 	if(get_count()<2  ||  get_count() > maximum) {
 DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
@@ -2220,6 +2219,8 @@ INT_CHECK("simbau 1072");
 DBG_MESSAGE("wegbauer_t::baue", "took %i ms",dr_time()-ms);
 #endif
 }
+
+
 
 /*
  * This function calculates the distance of pos to the cuboid
