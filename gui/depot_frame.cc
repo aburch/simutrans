@@ -1453,6 +1453,9 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 
 		if(value != -1) {
+			if (buf[n-1]!='\n') {
+				n += sprintf(buf + n, "\n");
+			}
 			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert:"), 	value);
 		}
 

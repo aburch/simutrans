@@ -203,7 +203,7 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 {
 	vehicles.remove(veh);
 	get_besitzer()->buche(veh->calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
-	get_besitzer()->buche(-veh->calc_restwert(), COST_ASSETS );
+	get_besitzer()->buche(-(sint64)veh->calc_restwert(), COST_ASSETS );
 	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
 	delete veh;
 }
