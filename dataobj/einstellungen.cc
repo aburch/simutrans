@@ -683,6 +683,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		loadsave_t::set_savemode(loadsave_t::xml);
 	} else if(strcmp(str, "xml_zipped") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_zipped);
+	} else if(strcmp(str, "bzip2") == 0) {
+		loadsave_t::set_savemode(loadsave_t::bzip2);
+	} else if(strcmp(str, "xml_bzip2") == 0) {
+		loadsave_t::set_savemode(loadsave_t::xml_bzip2);
 	}
 
 	/*
