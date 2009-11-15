@@ -25,35 +25,35 @@ endif
 
 
 ifeq ($(OSTYPE),beos)
-  STD_LIBS ?= -lz
+  STD_LIBS ?= -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),freebsd)
-  STD_LIBS ?= -lz
+  STD_LIBS ?= -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mac)
   CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
   CXXFLAGS   += -DUSE_HW -DUSE_C
-  STD_LIBS ?= -lz
+  STD_LIBS ?= -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),linux)
-  STD_LIBS ?= -lz
+  STD_LIBS ?= -lz -lbz2
 endif
 
 
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
   OS_OPT   ?= -mwin32
-  STD_LIBS ?= -lgdi32 -lwinmm -lz
+  STD_LIBS ?= -lgdi32 -lwinmm -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
   OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  STD_LIBS ?= -lz
+  STD_LIBS ?= -lz -lbz2
   ifeq ($(BACKEND),gdi)
     STD_LIBS +=  -lunicows
   endif

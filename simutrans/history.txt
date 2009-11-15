@@ -1,3 +1,7 @@
+	CHANGE: default savegame now bzip2 (games 33% smaller)
+
+
+Release Candidate 102.2.1
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly
@@ -10,7 +14,7 @@
 	FIX: (Knightly) inverse scrolling consistently for minimap and main view
 	FIX: also ask when a single pakset with addons is present what to load
 	FIX: game starts in normal mode (instead paused) again
-	FIX: downgrading roads were cheaper than destruction => now downgrading will be as expensive as removal
+	FIX: downgrading ways were cheaper than destruction => now downgrading will be as expensive as removal
 
 
 
