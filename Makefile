@@ -415,6 +415,10 @@ ifeq ($(BACKEND),posix)
   SOURCES += sound/no_sound.cc
 endif
 
+ifeq ($(COLOUR_DEPTH),0)
+  CFLAGS   += -DNO_GRAPHIC
+  CXXFLAGS += -DNO_GRAPHIC
+endif
 
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc

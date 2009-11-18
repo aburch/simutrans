@@ -844,6 +844,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	}
 
+	welt->set_fast_forward(false);
 #if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
@@ -853,10 +854,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// finish after a certain month? (must be entered decimal, i.e. 12*year+month
 	if(  gimme_arg(argc, argv, "-until", 0) != NULL  ) {
 		quit_month = atoi( gimme_arg(argc, argv, "-until", 1) );
+		welt->set_fast_forward(true);
 	}
 #endif
 
-	welt->set_fast_forward(false);
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
 		view->display(true);
@@ -886,7 +887,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->get_message()->clear();
 
-	if(  !umgebung_t::networkmode  ||  new_world  ) {
+	if(  !umgebung_t::networkmode  &&  new_world  ) {
 		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
 	}

@@ -4,15 +4,12 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include <SDL/SDL.h>
-
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
 #endif
 
 #ifdef _WIN32
-#include <SDL/SDL_syswm.h>
 #include <windows.h>
 #else
 #include <sys/stat.h>
@@ -190,13 +187,22 @@ unsigned long dr_time(void)
 	return time(NULL);
 }
 
-void dr_sleep(uint32 usec)
+void dr_sleep(uint32 msec)
 {
-	timespec sleepfor, zero;
-	sleepfor.tv_sec = usec/1000;
-	usec = usec % 1000;
-	sleepfor.tv_nsec = 1000 * usec;
-	nanosleep( &sleepfor, &zero);
+/*
+	// this would be 100% POSIX but is usually not very accurate ...
+	if(  msec>0  ) {
+		struct timeval tv;
+		tv.sec = 0;
+		tv.usec = msec*1000;
+		select(0, 0, 0, 0, &tv);
+	}
+*/
+#ifdef _WIN32
+	Sleep( msec );
+#else
+	sleep( msec );
+#endif
 }
 
 bool dr_fatal_notify(const char* msg, int choices)
@@ -207,13 +213,20 @@ bool dr_fatal_notify(const char* msg, int choices)
 
 int main(int argc, char **argv)
 {
+#ifdef _WIN32
+	char pathname[1024];
+
+	// prepare commandline
+	GetModuleFileNameA( GetModuleHandle(NULL), pathname, 1024 );
+	argv[0] = pathname;
+#else
 #ifndef __BEOS__
-#	if defined __GLIBC__
+#if defined __GLIBC__
 	/* glibc has a non-standard extension */
 	char* buffer2 = NULL;
-#	else
+#else
 	char buffer2[PATH_MAX];
-#	endif
+#endif
 	char buffer[PATH_MAX];
 	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
 	if (length != -1) {
@@ -223,6 +236,7 @@ int main(int argc, char **argv)
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
 	argv[0] = realpath(argv[0], buffer2);
+#endif
 #endif
 	return simu_main(argc, argv);
 }
