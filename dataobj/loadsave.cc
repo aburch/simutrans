@@ -43,18 +43,33 @@ bool loadsave_t::rd_open(const char *filename)
 	}
 	// now check for BZ2 format
 	char buf[80];
-	bse = BZ_OK+1;
-	bzfp = NULL;
-	bzfp = BZ2_bzReadOpen( &bse, fp, 0, 0, NULL, 0 );
-	if(  bse==BZ_OK  ) {
-		// else: use zlib
-		memset( buf, 0, 80 );
-		if(  BZ2_bzRead( &bse, bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  bse==BZ_OK  ) {
+	if(  fread( buf, 1, 80, fp )==80  ) {
+		if(  buf[0]=='B'  &&  buf[1]=='Z'  ) {
 			mode = bzip2;
-			// get the rest of the string
-			for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
-				buf[i] = lsgetc();
+		}
+		fseek(fp,0,SEEK_SET);
+	}
+
+	if(  mode==bzip2  ) {
+		bse = BZ_OK+1;
+		bzfp = NULL;
+		bzfp = BZ2_bzReadOpen( &bse, fp, 0, 0, NULL, 0 );
+		bool ok = false;
+		if(  bse==BZ_OK  ) {
+			// else: use zlib
+			memset( buf, 0, 80 );
+			if(  BZ2_bzRead( &bse, bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  bse==BZ_OK  ) {
+				// get the rest of the string
+				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
+					buf[i] = lsgetc();
+				}
+				ok = true;
 			}
+		}
+		// BZ-Header but wrong data ...
+		if(  !ok  ) {
+			close();
+			return false;
 		}
 	}
 
@@ -941,13 +956,8 @@ uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_ex
 			version_text += 3;
 		}
 		else if(  *version_text  ) {
-			if(  mode  ) {
-				*mode = text;
-			}
-			else {
-				// illegal version ...
-				version = 999999999;
-			}
+			// illegal version ...
+			version = 999999999;
 		}
 	}
 
