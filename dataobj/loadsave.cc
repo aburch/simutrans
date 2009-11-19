@@ -176,7 +176,7 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	else {
 		// uncompressed xml should be here ...
 		assert(  mode==xml  );
-		fp = fopen(filename, "w");
+		fp = fopen(filename, "wb");
 	}
 
 	if(!fp) {
@@ -510,10 +510,10 @@ void loadsave_t::rdwr_bool(bool &i, const char *)
 		if(saving) {
 			write( "                                                                ", min(64,ident) );
 			if(  i  ) {
-				write( "<bool>true</bool>\n", 18 );
+				write( "<bool>true</bool>\n", sizeof("<bool>true</bool>\n") );
 			}
 			else {
-				write( "<bool>true</bool>\n", 19 );
+				write( "<bool>false</bool>\n", sizeof("<bool>false</bool>\n") );
 			}
 		}
 		else {
