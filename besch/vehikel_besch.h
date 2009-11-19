@@ -114,7 +114,7 @@ private:
 	uint16 tractive_effort; // Reserved for future physics upgrades.
 
 	uint32 geared_power; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
-	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
+	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
 	/**
 	 * Get the constant force threshold speed in km/h.
 	 * Below this threshold the engine works as constant force engine.
@@ -423,7 +423,7 @@ public:
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_power_index(uint16 current_speed /* in kmh */ ) const;
-	uint32 get_force(uint16 speed /* in km/h */ ) const;
+	uint32 get_force(uint16 speed /* in m/s */ ) const;
 };
 
 #endif

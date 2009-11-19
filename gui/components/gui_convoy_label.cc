@@ -12,7 +12,7 @@
 #include "../../simconst.h"
 #include "../../simconvoi.h"
 #include "../../simgraph.h"
-#include "../../convoy_metrics.h"
+#include "../../convoy.h"
 #include "../../bauer/warenbauer.h"
 #include "../../dataobj/translator.h"
 #include "../../player/simplay.h"
@@ -81,19 +81,18 @@ void gui_convoy_label_t::zeichnen(koord offset)
 	offset.y+=get_image_size().y;
 	if (show_number || show_max_speed)
 	{
-		convoy_metrics_t metrics(*cnv.get_rep());
+		existing_convoy_t convoy(*cnv.get_rep());			
 		char tmp[128];
 		if (show_number) {
 			sprintf(tmp, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
-				//translator::translate("Station tiles:"), (cnv->get_length()+TILE_STEPS-1)/TILE_STEPS );
-				translator::translate("Station tiles:"), metrics.get_tile_length() );
+				translator::translate("Station tiles:"), (convoy.get_vehicle_summary().length + TILE_STEPS - 1)/TILE_STEPS);
 			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
 			offset.y+=LINESPACE;
 		}
 		if (show_max_speed) {
-			uint32 min_speed = metrics.get_speed(metrics.get_vehicle_weight() + metrics.get_max_freight_weight());
-			uint32 max_speed = metrics.get_speed(metrics.get_vehicle_weight() /*+ metrics.get_min_freight_weight()*/);
+			const uint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
+			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(convoy.get_vehicle_summary().weight / 1000, 0));
 			sprintf(tmp,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h", 
 				translator::translate("Max. speed:"), min_speed, 
 				translator::translate("..."), max_speed );

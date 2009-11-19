@@ -241,7 +241,7 @@ private:
 	* errechnet.
 	* @author prissi
 	*/
-	//sint32 sum_gear_und_leistung;
+	sint32 sum_gear_und_leistung;
 
 	// @author: jamespetts
 	//sint32 power_from_steam_with_gear;
@@ -431,7 +431,7 @@ private:
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
 public:
-	route_t* get_route() { return &route; }
+	inline route_t* get_route() { return &route; }
 
 	/**
 	* Checks if this convoi has a driveable route
@@ -443,10 +443,10 @@ public:
 	* get line
 	* @author hsiegeln
 	*/
-	linehandle_t get_line() const {return line;}
+	inline linehandle_t get_line() const {return line;}
 
 	/* true, if electrification needed for this convoi */
-	bool needs_electrification() const { return is_electric; }
+	inline bool needs_electrification() const { return is_electric; }
 
 	/**
 	* set line
@@ -471,19 +471,19 @@ public:
 	* get state
 	* @author hsiegeln
 	*/
-	int get_state() { return state; }
+	inline int get_state() { return state; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
 	* @author hsiegeln
 	*/
-	bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE  &&  state<=CAN_START_ONE_MONTH)  ||  state==WAITING_FOR_CLEARANCE_TWO_MONTHS  ||  state==CAN_START_TWO_MONTHS;}
+	inline bool is_waiting() { return (state>=WAITING_FOR_CLEARANCE  &&  state<=CAN_START_ONE_MONTH)  ||  state==WAITING_FOR_CLEARANCE_TWO_MONTHS  ||  state==CAN_START_TWO_MONTHS;}
 
 	/**
 	* reset state to no error message
 	* @author prissi
 	*/
-	void reset_waiting() { state=WAITING_FOR_CLEARANCE; }
+	inline void reset_waiting() { state=WAITING_FOR_CLEARANCE; }
 
 	/**
 	* Das Handle für uns selbst. In Anlehnung an 'this' aber mit
@@ -497,7 +497,7 @@ public:
 	* "The profit in this year" (Babelfish)
 	* @author Hanjsörg Malthaner
 	*/
-	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
+	inline const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
 	/**
 	* returns the total running cost for all vehicles in convoi
@@ -553,21 +553,21 @@ public:
 	* @return Name des Convois
 	* @author Hj. Malthaner
 	*/
-	const char *get_internal_name() const {return name_and_id+name_offset;}
+	inline const char *get_internal_name() const {return name_and_id+name_offset;}
 
 	/**
 	* Allows editing ...
 	* @return Name des Convois
 	* @author Hj. Malthaner
 	*/
-	char *access_internal_name() {return name_and_id+name_offset;}
+	inline char *access_internal_name() {return name_and_id+name_offset;}
 
 	/**
 	* Gibt Namen des Convois zurück.
 	* @return Name des Convois
 	* @author Hj. Malthaner
 	*/
-	const char *get_name() const {return name_and_id;}
+	inline const char *get_name() const {return name_and_id;}
 
 	/**
 	* Sets the name. Copies name into this->name and translates it.
@@ -595,28 +595,29 @@ public:
 	 *         actual currently set speed.
 	 * @author Hj. Malthaner
 	 */
-	const sint32& get_akt_speed() const { return akt_speed; }
+	inline const sint32& get_akt_speed() const { return akt_speed; }
 
 	/**
 	 * @return total power of this convoi
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_sum_leistung() const {return sum_leistung;}
-	//uint32 get_power_from_steam() const {return power_from_steam;}
-	//uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
-	sint32 get_min_top_speed() const {return min_top_speed;}
-	sint32 get_sum_gewicht() const {return sum_gewicht;}
-	sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
-	/** Get effective power in kW at given speed in km/h
-	 * @author Bernd Gabriel: moved from convoy_metrics_t::calc():
+	inline uint32 get_sum_leistung() const {return sum_leistung;}
+	//inline uint32 get_power_from_steam() const {return power_from_steam;}
+	//inline uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
+	inline sint32 get_min_top_speed() const {return min_top_speed;}
+	inline sint32 get_sum_gewicht() const {return sum_gewicht;}
+	inline sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	/** Get power index in kW multiplied by gear.
+	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
+	 * @author Bernd Gabriel, Nov, 14 2009
 	 */
-	float get_effective_power(uint32 speed); 
+	inline sint32 get_power_index() { return sum_gear_und_leistung; }
 
 	/**
 	 * get force in kN according to current speed in simutrans speed
 	 * @author Bernd Gabriel, Oct, 22 2009
 	 */
-	uint32 get_force(sint32 speed);
+	//uint32 get_force(sint32 speed);
 	/**
 	 * Calculates akt_speed without setting it.
 	 * @author Bernd Gabriel, Sep, 24 2009: extracted from calc_acceleration(), which sets akt_speed
@@ -678,12 +679,12 @@ public:
 	* @return Vehicle count
 	* @author Hj. Malthaner
 	*/
-	uint8 get_vehikel_anzahl() const { return anz_vehikel; }
+	inline uint8 get_vehikel_anzahl() const { return anz_vehikel; }
 
 	/**
 	 * @return Vehicle at position i
 	 */
-	vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
+	inline vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.
@@ -707,7 +708,7 @@ public:
 	* @return Current schedule
 	* @author Hj. Malthaner
 	*/
-	schedule_t* get_schedule() const { return fpl; }
+	inline schedule_t* get_schedule() const { return fpl; }
 
 	/**
 	* Creates a new schedule if there isn't one already.
@@ -720,7 +721,7 @@ public:
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
 	*/
-	spieler_t * get_besitzer() { return besitzer_p; }
+	inline spieler_t * get_besitzer() { return besitzer_p; }
 
 	/**
 	* Opens an information window
@@ -751,7 +752,7 @@ public:
 	*/
 	void get_freight_info(cbuffer_t & buf);
 	void set_sortby(uint8 order);
-	uint8 get_sortby() const { return freight_info_order; }
+	inline uint8 get_sortby() const { return freight_info_order; }
 
 	/**
 	* Opens the schedule window
@@ -796,7 +797,7 @@ public:
 	* @author Volker Meyer
 	* @date  09.06.2003
 	*/
-	bool in_depot() const { return state == INITIAL; }
+	inline bool in_depot() const { return state == INITIAL; }
 
 	/**
 	* loading_level was ladegrad before. Actual percentage loaded of loadable
@@ -804,14 +805,14 @@ public:
 	* @author Volker Meyer
 	* @date  12.06.2003
 	*/
-	const sint32 &get_loading_level() const { return loading_level; }
+	inline const sint32 &get_loading_level() const { return loading_level; }
 
 	/**
 	* At which loading level is the train allowed to start? 0 during driving.
 	* @author Volker Meyer
 	* @date  12.06.2003
 	*/
-	const sint32 &get_loading_limit() const { return loading_limit; }
+	inline const sint32 &get_loading_limit() const { return loading_limit; }
 
 	/**
 	* Schedule convoid for self destruction. Will be executed
@@ -853,13 +854,13 @@ public:
 	* return a pointer to the financial history
 	* @author hsiegeln
 	*/
-	sint64* get_finance_history() { return *financial_history; }
+	inline sint64* get_finance_history() { return *financial_history; }
 
 	/**
 	* return a specified element from the financial history
 	* @author hsiegeln
 	*/
-	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
+	inline sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
 
 	/**
 	* only purpose currently is to roll financial history
@@ -873,13 +874,13 @@ public:
 	 */
 	void neues_jahr();
 
-	void set_update_line(linehandle_t l) { line_update_pending = l; }
+	inline void set_update_line(linehandle_t l) { line_update_pending = l; }
 
 	void check_pending_updates();
 
-	void set_home_depot(koord3d hd) { home_depot = hd; }
+	inline void set_home_depot(koord3d hd) { home_depot = hd; }
 
-	koord3d get_home_depot() { return home_depot; }
+	inline koord3d get_home_depot() { return home_depot; }
 
 	/**
 	* this give the index of the next signal or the end of the route
@@ -887,8 +888,8 @@ public:
 	* The slowdown ist done by the vehicle routines
 	* @author prissi
 	*/
-	uint16 get_next_stop_index() const {return next_stop_index;}
-	void set_next_stop_index(uint16 n) {next_stop_index=n;}
+	inline uint16 get_next_stop_index() const {return next_stop_index;}
+	inline void set_next_stop_index(uint16 n) {next_stop_index=n;}
 
 	/* the current state of the convoi */
 	uint8 get_status_color() const;
@@ -897,21 +898,21 @@ public:
 	uint16 get_tile_length() const;
 
 	// get cached obsolescence.
-	bool has_obsolete_vehicles() const { return has_obsolete; }
+	inline bool has_obsolete_vehicles() const { return has_obsolete; }
 
-	bool get_withdraw() const { return withdraw; }
+	inline bool get_withdraw() const { return withdraw; }
 
 	void set_withdraw(bool new_withdraw);
 
-	bool get_no_load() const { return no_load; }
+	inline bool get_no_load() const { return no_load; }
 
-	void set_no_load(bool new_no_load) { no_load = new_no_load; }
+	inline void set_no_load(bool new_no_load) { no_load = new_no_load; }
 
-	bool get_replace() const { return replace; }
+	inline bool get_replace() const { return replace; }
 
-	void set_replace(bool new_replace) { replace = new_replace; }
+	inline void set_replace(bool new_replace) { replace = new_replace; }
 
-	bool get_depot_when_empty() const { return depot_when_empty; }
+	inline bool get_depot_when_empty() const { return depot_when_empty; }
 
 	void set_depot_when_empty(bool new_dwe) 
 	{ 
@@ -925,11 +926,11 @@ public:
 		}
 	}
 
-	bool get_autostart() const { return autostart; }
+	inline bool get_autostart() const { return autostart; }
 
-	void set_autostart(bool new_autostart) { autostart=new_autostart; }
+	inline void set_autostart(bool new_autostart) { autostart=new_autostart; }
 
-	const vector_tpl<const vehikel_besch_t *> *get_replacing_vehicles() const { return &replacing_vehicles; }
+	inline const vector_tpl<const vehikel_besch_t *> *get_replacing_vehicles() const { return &replacing_vehicles; }
 	void set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv);
 
 	// True if the convoy has the same vehicles
@@ -950,16 +951,16 @@ public:
 	uint8 get_catering_level(uint8 type) const;
 
 	//@author: jamespetts
-	bool get_reversable() const { return reversable; }
-	bool is_reversed() const { return reversed; }
+	inline bool get_reversable() const { return reversable; }
+	inline bool is_reversed() const { return reversed; }
 
 	//@author: jamespetts
 	uint32 calc_heaviest_vehicle();
-	uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
+	inline uint32 get_heaviest_vehicle() const { return heaviest_vehicle; }
 	
 	//@author: jamespetts
 	uint16 calc_longest_loading_time();
-	uint16 get_longest_loading_time() const { return longest_loading_time; }
+	inline uint16 get_longest_loading_time() const { return longest_loading_time; }
 
 	// @author: jamespetts
 	// Returns the number of standing passengers (etc.) in this convoy.
@@ -981,11 +982,11 @@ public:
 
 	// @author: jamespetts
 	static const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w);
-	const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) { return calc_adjusted_speed_bonus(base_bonus, distance, welt); }
+	inline const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) { return calc_adjusted_speed_bonus(base_bonus, distance, welt); }
 
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
-	uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
+	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
 
 	// Added by		: Knightly
 	// Adapted from : simline_t
@@ -993,7 +994,7 @@ public:
 	void recalc_catg_index();
 
 	// Added by : Knightly
-	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
+	inline const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 };
 
 #endif

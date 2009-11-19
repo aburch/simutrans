@@ -48,6 +48,7 @@
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
 
+#include "convoy.h"
 
 // zeige debugging info in infofenster wenn definiert
 // #define DEBUG 1
@@ -115,7 +116,7 @@ void convoi_t::reset()
 {
 	is_electric = false;
 	//sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = power_from_steam = power_from_steam_with_gear = 0;
-	sum_gesamtgewicht = sum_gewicht = sum_leistung = 0;
+	sum_gesamtgewicht = sum_gewicht = sum_leistung = sum_gear_und_leistung = 0;
 	previous_delta_v = 0;
 	min_top_speed = 9999999;
 
@@ -486,198 +487,205 @@ void convoi_t::add_running_cost(sint32 cost)
 	book(cost, CONVOI_PROFIT);
 }
 
-
-// GEAR_FACTOR: a gear of 1.0 is stored as 64
-#define GEAR_FACTOR 64
-
-inline double speed_to_v(sint32 speed)
-{
-	return (speed * VEHICLE_SPEED_FACTOR) * (1.0 / (3.6 * 1024.0));
-}
-
-inline sint32 v_to_speed(double v)
-{
-	return (sint32)(v * (3.6 * 1024.0) + 0.5) / VEHICLE_SPEED_FACTOR;
-}
-
-/**
- * get force in kN according to current speed in simutrans speed
- * @author Bernd Gabriel, Oct, 22 2009
- */
-uint32 convoi_t::get_force(sint32 speed)
-{
-	uint16 v = abs(speed_to_kmh(speed));
-	uint32 force = 0; 
-	for (int i = 0; i < anz_vehikel; ++i) {
-		force += fahr[i]->get_besch()->get_force(v);
-	}
-	return force;
-}
-
-/* Calculates new akt_speed without setting it.
- */
 void convoi_t::calc_acceleration(long delta_t, const int akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
-/*******************************************************************************
-
-We know: delta_v = a * delta_t, where a is nearly constant for very small delta_t only.
-
-At http://de.wikipedia.org/wiki/Fahrwiderstand we find a 
-complete explanation of the force equation of a land vehicle.
-(Sorry, there seems to be no english pendant at wikipedia).
-
-Force balance: Fm = Ff + Fr + Fs + Fa; 
-
-Fm: machine force in Newton [N] = [kg*m/s^2]
-Ff: air resistance, always > 0
-    Ff = cw/2 * A * rho * v^2, 
-		cw: friction factor: average passenger cars and high speed trains: 0.25 - 0.5, average trucks and trains: 0.7
-		A: largest profile: average passenger cars: 3, average trucks: 6, average train: 10 [m^2]
-		rho = density of medium (air): 1.2 [kg/m^3]
-		v: speed [m/s]
-Fr: roll resistance, always > 0 
-    Fr = fr * g * m * cos(alpha)
-		fr: roll resistance factor: steel wheel on track: 0.0015, car wheel on road: 0.015
-		g: gravitation constant: 9,81 [m/s^2]
-		m: mass [kg]
-		alpha: inclination: 0=flat
-Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
-	Fs = g * m * sin(alpha)
-		g: gravitation constant: 9.81 [m/s^2]
-		m: mass [kg]
-		alpha: inclination: 0=flat
-Fa: accelerating force
-	Fa = m * a
-		m: mass [kg]
-		a: acceleration
-
-Let F = Fm - Fr - Fs.
-Let cf = cw/2 * A * rho.
-Let Frs = Fr + Fs = g * (fr * m * cos(alpha) + m * sin(alpha))
-
-Then
-
-cf * v^2 + m * a - F = 0
-
-a = (F - cf * v^2 - Frs) / m
-
-*******************************************************************************/
-//#define CF_TRACK 0.7 / 2 * 10 * 1.2
-#define CF_TRACK 4.2
-//#define CF_ROAD 0.7 / 2 * 6 * 1.2
-#define CF_ROAD 2.52
-#define FR_TRACK 0.0015
-#define FR_ROAD  0.015
-#define FR_WATER 0.015
-
-	bool is_track = false;
-	double fr = FR_ROAD;
-	double cf = CF_ROAD;
-	double mcos = 0.0; // m * cos(alpha)
-	double msin = 0.0; // m * sin(alpha)
-	int tons = 0;
-	// calculate total friction
-	for (int i = (int)anz_vehikel; --i >= 0;) {
-		const vehikel_t &v = *fahr[i];
-		if (i == 0)  
-		{
-		const vehikel_besch_t &b = *v.get_besch();
-			waytype_t wt = b.get_waytype();
-			switch (wt)
-			{
-				case water_wt:
-					fr = FR_WATER;
-					break;
-			
-				case track_wt:
-				case overheadlines_wt: 
-				case monorail_wt:      
-				case maglev_wt:
-				case tram_wt:
-				case narrowgauge_wt:
-					fr = FR_TRACK;
-					cf = CF_TRACK;
-					break;
-			}
-		}
-
-		int weight = v.get_gesamtgewicht(); // vehicle weight in tons
-		tons += weight; 
-		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
-		// Including the 1000 for tons to kg conversion 50 corresponds to an inclination of 28 per mille.
-		int sin_alpha = v.get_frictionfactor(); 
-		if (sin_alpha)
-		{
-			msin += weight * sin_alpha;
-			mcos += weight * sqrt(1000000.0 - sin_alpha * sin_alpha); // Remember: sin(alpha)^2 + cos(alpha)^2 = 1
-		}
-		else
-		{			 
-			mcos += weight;
-		}
-	}
-	sum_gesamtgewicht = tons;
-	double m = tons * 1000.0; // convert from tons to kg 
-	double Frs = 9.81 * (fr * mcos + msin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
-
-	double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
-	double vmax = speed_to_v(akt_speed_soll);
-	double fmax = min(cf * vmax * vmax, get_force(akt_speed_soll) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
-
-#define DT_SLICE 128
-
-	// iterate the passed time.
-	while (delta_t > 0)
-	{
-		// the driver's part: select accelerating force:
-		double f;
-		bool is_breaking = false; // don't roll backwards, due to breaking
-		if (v < vmax)
-		{
-			// below set speed: full acceleration
-			f = get_force(akt_speed) * 1000 - Frs;
-		}
-		else if (v < 1.05 * vmax)
-		{
-			// at or slightly above set speed: hold this speed
-			f = fmax;
-		}
-		else if (v > 1.1 * vmax)
-		{
-			// running too fast, slam on the brakes! 
-			// assuming the brakes are as strong as the start-up force.
-			// hill-down Frs might become negative and works against the brake.
-			f = -1000.0 * get_force(0) - Frs;
-			is_breaking = true;
-		}
-		else 
-		{
-			// slightly above end speed: coasting 'til back to set speed.
-			f = 0;
-		}
-
-		// accelerate: calculate new speed according to acceleration within the passed second(s).
-		long dt;
-		if (delta_t >= DT_SLICE)
-		{
-			v += 2 * (f - sgn(v) * cf * v * v) / m; 
-			dt = DT_SLICE;
-		}
-		else
-		{
-			v += delta_t * (f - sgn(v) * cf * v * v) / (DT_SLICE * m); 
-			dt = delta_t;
-		}
-		if (is_breaking && v < 0)
-		{
-			v = 0;
-		}
-		akt_speed = v_to_speed(v); // new_speed in simutrans vehicle speed, v in m/s
-		sp_soll += dt * akt_speed;
-
-		delta_t -= DT_SLICE; // another 2 seconds passed: 1 second = 64 delta_t:  
-	}
+	// existing_convoy_t is designed to become a part of convoi_t. 
+	// There it will help to minimize updating convoy summary data.
+	existing_convoy_t convoy(*this);
+	convoy.calc_move(delta_t, akt_speed_soll, akt_speed, sp_soll);
 }
+
+//// GEAR_FACTOR: a gear of 1.0 is stored as 64
+//#define GEAR_FACTOR 64
+//
+//inline double speed_to_v(sint32 speed)
+//{
+//	return (speed * VEHICLE_SPEED_FACTOR) * (1.0 / (3.6 * 1024.0));
+//}
+//
+//inline sint32 v_to_speed(double v)
+//{
+//	return (sint32)(v * (3.6 * 1024.0) + 0.5) / VEHICLE_SPEED_FACTOR;
+//}
+//
+///**
+// * get force in kN according to current speed in simutrans speed
+// * @author Bernd Gabriel, Oct, 22 2009
+// */
+//uint32 convoi_t::get_force(sint32 speed)
+//{
+//	uint16 v = abs(speed_to_kmh(speed));
+//	uint32 force = 0; 
+//	for (int i = 0; i < anz_vehikel; ++i) {
+//		force += fahr[i]->get_besch()->get_force(v);
+//	}
+//	return force;
+//}
+//
+///* Calculates new akt_speed without setting it.
+// */
+//void convoi_t::calc_acceleration(long delta_t, const int akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+//{
+///*******************************************************************************
+//
+//We know: delta_v = a * delta_t, where a is nearly constant for very small delta_t only.
+//
+//At http://de.wikipedia.org/wiki/Fahrwiderstand we find a 
+//complete explanation of the force equation of a land vehicle.
+//(Sorry, there seems to be no english pendant at wikipedia).
+//
+//Force balance: Fm = Ff + Fr + Fs + Fa; 
+//
+//Fm: machine force in Newton [N] = [kg*m/s^2]
+//Ff: air resistance, always > 0
+//    Ff = cw/2 * A * rho * v^2, 
+//		cw: friction factor: average passenger cars and high speed trains: 0.25 - 0.5, average trucks and trains: 0.7
+//		A: largest profile: average passenger cars: 3, average trucks: 6, average train: 10 [m^2]
+//		rho = density of medium (air): 1.2 [kg/m^3]
+//		v: speed [m/s]
+//Fr: roll resistance, always > 0 
+//    Fr = fr * g * m * cos(alpha)
+//		fr: roll resistance factor: steel wheel on track: 0.0015, car wheel on road: 0.015
+//		g: gravitation constant: 9,81 [m/s^2]
+//		m: mass [kg]
+//		alpha: inclination: 0=flat
+//Fs: slope force/resistance, downhill: Fs < 0 (force), uphill: Fs > 0 (resistance)
+//	Fs = g * m * sin(alpha)
+//		g: gravitation constant: 9.81 [m/s^2]
+//		m: mass [kg]
+//		alpha: inclination: 0=flat
+//Fa: accelerating force
+//	Fa = m * a
+//		m: mass [kg]
+//		a: acceleration
+//
+//Let F = Fm - Fr - Fs.
+//Let cf = cw/2 * A * rho.
+//Let Frs = Fr + Fs = g * (fr * m * cos(alpha) + m * sin(alpha))
+//
+//Then
+//
+//cf * v^2 + m * a - F = 0
+//
+//a = (F - cf * v^2 - Frs) / m
+//
+//*******************************************************************************/
+////#define CF_TRACK 0.7 / 2 * 10 * 1.2
+//#define CF_TRACK 4.2
+////#define CF_ROAD 0.7 / 2 * 6 * 1.2
+//#define CF_ROAD 2.52
+//#define FR_TRACK 0.0015
+//#define FR_ROAD  0.015
+//#define FR_WATER 0.015
+//
+//	bool is_track = false;
+//	double fr = FR_ROAD;
+//	double cf = CF_ROAD;
+//	double mcos = 0.0; // m * cos(alpha)
+//	double msin = 0.0; // m * sin(alpha)
+//	int tons = 0;
+//	// calculate total friction
+//	for (int i = (int)anz_vehikel; --i >= 0;) {
+//		const vehikel_t &v = *fahr[i];
+//		if (i == 0)  
+//		{
+//			const vehikel_besch_t &b = *v.get_besch();
+//			waytype_t wt = b.get_waytype();
+//			switch (wt)
+//			{
+//				case water_wt:
+//					fr = FR_WATER;
+//					break;
+//			
+//				case track_wt:
+//				case overheadlines_wt: 
+//				case monorail_wt:      
+//				case maglev_wt:
+//				case tram_wt:
+//				case narrowgauge_wt:
+//					fr = FR_TRACK;
+//					cf = CF_TRACK;
+//					break;
+//			}
+//		}
+//
+//		int weight = v.get_gesamtgewicht(); // vehicle weight in tons
+//		tons += weight; 
+//		// v.get_frictionfactor() between about -14 (downhill) and 50 (uphill). 
+//		// Including the 1000 for tons to kg conversion 50 corresponds to an inclination of 28 per mille.
+//		int sin_alpha = v.get_frictionfactor(); 
+//		if (sin_alpha)
+//		{
+//			msin += weight * sin_alpha;
+//			mcos += weight * sqrt(1000000.0 - sin_alpha * sin_alpha); // Remember: sin(alpha)^2 + cos(alpha)^2 = 1
+//		}
+//		else
+//		{			 
+//			mcos += weight;
+//		}
+//	}
+//	sum_gesamtgewicht = tons;
+//	double m = tons * 1000.0; // convert from tons to kg 
+//	double Frs = 9.81 * (fr * mcos + msin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+//
+//	double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+//	double vmax = speed_to_v(akt_speed_soll);
+//	double fmax = min(cf * vmax * vmax, get_force(akt_speed_soll) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
+//
+//#define DT_SLICE 128
+//
+//	// iterate the passed time.
+//	while (delta_t > 0)
+//	{
+//		// the driver's part: select accelerating force:
+//		double f;
+//		bool is_breaking = false; // don't roll backwards, due to breaking
+//		if (v < vmax)
+//		{
+//			// below set speed: full acceleration
+//			f = get_force(akt_speed) * 1000 - Frs;
+//		}
+//		else if (v < 1.05 * vmax)
+//		{
+//			// at or slightly above set speed: hold this speed
+//			f = fmax;
+//		}
+//		else if (v > 1.1 * vmax)
+//		{
+//			// running too fast, slam on the brakes! 
+//			// assuming the brakes are as strong as the start-up force.
+//			// hill-down Frs might become negative and works against the brake.
+//			f = -1000.0 * get_force(0) - Frs;
+//			is_breaking = true;
+//		}
+//		else 
+//		{
+//			// slightly above end speed: coasting 'til back to set speed.
+//			f = 0;
+//		}
+//
+//		// accelerate: calculate new speed according to acceleration within the passed second(s).
+//		long dt;
+//		if (delta_t >= DT_SLICE)
+//		{
+//			v += 2 * (f - sgn(v) * cf * v * v) / m; 
+//			dt = DT_SLICE;
+//		}
+//		else
+//		{
+//			v += delta_t * (f - sgn(v) * cf * v * v) / (DT_SLICE * m); 
+//			dt = delta_t;
+//		}
+//		if (is_breaking && v < 0)
+//		{
+//			v = 0;
+//		}
+//		akt_speed = v_to_speed(v); // new_speed in simutrans vehicle speed, v in m/s
+//		sp_soll += dt * akt_speed;
+//
+//		delta_t -= DT_SLICE; // another 2 seconds passed: 1 second = 64 delta_t:  
+//	}
+//}
 
 
 ///* Calculates (and sets) new akt_speed
@@ -1737,7 +1745,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		//	power_from_steam += info->get_leistung();
 		//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 		//}
-		//sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+		sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 		sum_gewicht += info->get_gewicht();
 		min_top_speed = min( min_top_speed, kmh_to_speed( v->get_besch()->get_geschw() ) );
 		sum_gesamtgewicht = sum_gewicht;
@@ -1790,7 +1798,7 @@ convoi_t::remove_vehikel_bei(uint16 i)
 			//	power_from_steam -= info->get_leistung();
 			//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 			//}
-			//sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+			sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 			sum_gewicht -= info->get_gewicht();
 		}
 		sum_gesamtgewicht = sum_gewicht;
@@ -2517,7 +2525,7 @@ convoi_t::rdwr(loadsave_t *file)
 				//	power_from_steam += info->get_leistung();
 				//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 				//}
-				//sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+				sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
 				sum_gewicht += info->get_gewicht();
 				is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
 			}
@@ -4513,27 +4521,27 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 }
 
 
-/* Calculate convoy's effective power according to given speed.
- *
- * The power of a steam engine depends on its speed.
- *
- * @author Bernd Gabriel, Sep, 17 2009: temporary fix. A convoy_metrics_t should become part of a convoi_t.
- */
-float convoi_t::get_effective_power(uint32 speed) 
-{ 
-	uint32 power = 0;
-	uint32 weight = 0;
-	for(unsigned i = anz_vehikel; i-- > 0; )
-	{
-		vehikel_t &vehicle = *fahr[i];
-		power += vehicle.get_besch()->get_effective_power_index(speed);
-		weight += vehicle.get_gesamtgewicht();
-	}
-	sum_gesamtgewicht = weight;
-	return power * get_welt()->get_einstellungen()->get_global_power_factor() / 64;
-}
-
-#define max_kmh(power, weight) (sqrt(((power)/(weight))-1) * 50)
+///* Calculate convoy's effective power according to given speed.
+// *
+// * The power of a steam engine depends on its speed.
+// *
+// * @author Bernd Gabriel, Sep, 17 2009: temporary fix. A convoy_metrics_t should become part of a convoi_t.
+// */
+//float convoi_t::get_effective_power(uint32 speed) 
+//{ 
+//	uint32 power = 0;
+//	uint32 weight = 0;
+//	for(unsigned i = anz_vehikel; i-- > 0; )
+//	{
+//		vehikel_t &vehicle = *fahr[i];
+//		power += vehicle.get_besch()->get_effective_power_index(speed);
+//		weight += vehicle.get_gesamtgewicht();
+//	}
+//	sum_gesamtgewicht = weight;
+//	return power * get_welt()->get_einstellungen()->get_global_power_factor() / 64;
+//}
+//
+//#define max_kmh(power, weight) (sqrt(((power)/(weight))-1) * 50)
 
 /* Set the new desired speed. 
  *
@@ -4544,7 +4552,9 @@ float convoi_t::get_effective_power(uint32 speed)
  */
 void convoi_t::set_akt_speed_soll(sint32 set_akt_speed) 
 { 
-	float power = get_effective_power(min_top_speed); //FIXME: This is an issue with the physics. Bernd Gabriel is rewriting this.
-	akt_speed_soll = min(set_akt_speed, min(min_top_speed, kmh_to_speed((uint32) max_kmh(power, sum_gesamtgewicht)))); 
+	// BG, Nov, 14 2009: this is the speed the convoi is set to go. Which speed it actually *can* run, is a matter of calc_acceleration().
+	//float power = get_effective_power(min_top_speed); //FIXME: This is an issue with the physics. Bernd Gabriel is rewriting this.
+	//akt_speed_soll = min(set_akt_speed, min(min_top_speed, kmh_to_speed((uint32) max_kmh(power, sum_gesamtgewicht)))); 
+	akt_speed_soll = min(set_akt_speed, min_top_speed); 
 }
 

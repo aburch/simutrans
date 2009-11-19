@@ -59,7 +59,7 @@ uint32 vehikel_besch_t::get_adjusted_monthly_fixed_maintenance(karte_t *welt) co
 }
 
 /**
- * Get the constant force threshold speed in km/h.
+ * Get the constant force threshold speed in m/s.
  * Below this threshold the engine works as constant force engine.
  * Above this threshold the engine works as constant power engine.
  * @author Bernd Gabriel, Nov 4, 2009
@@ -84,7 +84,6 @@ uint16 vehikel_besch_t::calc_const_force_threshold() const
 	*/
 	switch (get_waytype())
 	{
-		case air_wt:
 		case water_wt:
 			// constant force machines at all speeds.
 			//return get_geschw();
@@ -96,16 +95,18 @@ uint16 vehikel_besch_t::calc_const_force_threshold() const
 		case maglev_wt:
 		case tram_wt:
 		case narrowgauge_wt:
-			if (get_engine_type() == steam)
+			if (get_engine_type() != steam)
 			{
-				/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
-				* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
-				* to steam shortage and economics. See here for details: http://www.railway-technical.com/st-vs-de.shtml
-				* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
-				*/
-				// steamers are constant force machines unless about half of maximum speed, when the steam runs short.
-				return get_geschw() / 2;
+				break;
 			}
+			/** This is a steam engine on tracks. Steam engines on tracks are constant force engines.
+			* The force is constant from 0 to about half of maximum speed. Above the power becomes nearly constant due 
+			* to steam shortage and economics. See here for details: http://www.railway-technical.com/st-vs-de.shtml
+			* We assume, that the given power is meant for the half of the engines allowed maximum speed and get the constant force:
+			*/
+			// steamers are constant force machines unless about half of maximum speed, when the steam runs short.
+		case air_wt: // constant force machines at all speeds, but is too weak then.
+			return (uint16)(get_geschw() / (3.6 * 2));
 	}
 	/** Constant power characteristic, but we limit maximum force to a tenth of the power multiplied by gear.
 	*
@@ -118,23 +119,21 @@ uint16 vehikel_besch_t::calc_const_force_threshold() const
 	*
 	* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
 	*/
-	return 10;
+	return 3; // = rounded 10 / 3.6
 }
 
 /**
- * Get effective force in kN. 
- * Non steam engine force depends on its speed.
+ * Get effective force in kN at given speed in m/s. 
  * @author Bernd Gabriel
  */
-uint32 vehikel_besch_t::get_force(uint16 speed /* in km/h */ ) const
+uint32 vehikel_besch_t::get_force(uint16 speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{
 		// no power, no force
 		return 0;
 	}
-	// we must convert the speed from km/h to m/s: 1 km/h = 1000 m / 3600 s.
-	return (geared_power * 36) / (max(speed, force_threshold_speed) * (10 * GEAR_FACTOR));
+	return geared_power / (max(speed, force_threshold_speed) * GEAR_FACTOR);
 }
 
 

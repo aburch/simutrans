@@ -467,7 +467,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\convoy_metrics.cc"
+				RelativePath=".\convoy.cpp"
 				>
 			</File>
 			<File
@@ -1489,7 +1489,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\convoy_metrics.h"
+				RelativePath=".\convoy.h"
 				>
 			</File>
 			<File

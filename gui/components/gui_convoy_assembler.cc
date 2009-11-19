@@ -16,7 +16,7 @@
 #include "../../simskin.h"
 #include "../../simworld.h"
 #include "../../simconvoi.h"
-#include "../../convoy_metrics.h"
+#include "../../convoy.h"
 
 #include "../../bauer/warenbauer.h"
 #include "../../bauer/vehikelbauer.h"
@@ -452,15 +452,28 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 	*txt_convoi_count = '\0';
 	*txt_convoi_speed = '\0';
 	if (vehicles.get_count()>0) {
-		convoy_metrics_t metrics(*welt, vehicles);
-		uint32 min_speed = metrics.get_speed(metrics.get_vehicle_weight() + metrics.get_max_freight_weight());
-		uint32 max_speed = metrics.get_speed(metrics.get_vehicle_weight() /*+ metrics.get_min_freight_weight()*/);
+		potential_convoy_t convoy(*welt, vehicles);
+		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
+		uint32 allowed_speed = vsum.max_speed;
+		uint32 min_weight = vsum.weight / 1000;
+		uint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight / 1000;
+		uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, 0));
+		uint32 max_speed = min_speed;
+		char *speed_format = "%s %d km/h @ %d t";
+		if (min_speed < allowed_speed)
+		{
+			speed_format = "%s %d km/h @ %d t %s %d km/h @ %d t";
+			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, 0));
+			if (max_speed == allowed_speed)
+				// show max weight, that can be pulled with max allowed speed
+				min_weight = convoy.calc_max_weight() / 1000;
+		}
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
-			translator::translate("Station tiles:"), metrics.get_tile_length() );
-		sprintf(txt_convoi_speed,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h", 
-			translator::translate("Max. speed:"), min_speed, 
-			translator::translate("..."), max_speed );
+			translator::translate("Station tiles:"), (vsum.length + TILE_STEPS - 1) / TILE_STEPS);
+		sprintf(txt_convoi_speed,  speed_format, 
+			translator::translate("Max. speed:"), min_speed, max_weight,
+			translator::translate("..."), max_speed,min_weight );
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
