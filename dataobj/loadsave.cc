@@ -510,10 +510,10 @@ void loadsave_t::rdwr_bool(bool &i, const char *)
 		if(saving) {
 			write( "                                                                ", min(64,ident) );
 			if(  i  ) {
-				write( "<bool>true</bool>\n", sizeof("<bool>true</bool>\n") );
+				write( "<bool>true</bool>\n", sizeof("<bool>true</bool>\n")-1 );
 			}
 			else {
-				write( "<bool>false</bool>\n", sizeof("<bool>false</bool>\n") );
+				write( "<bool>false</bool>\n", sizeof("<bool>false</bool>\n")-1 );
 			}
 		}
 		else {
