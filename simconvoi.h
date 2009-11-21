@@ -14,6 +14,7 @@
 #include "dataobj/route.h"
 #include "vehicle/overtaker.h"
 #include "tpl/array_tpl.h"
+#include "tpl/minivec_tpl.h"
 
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
@@ -136,6 +137,11 @@ private:
 	* @author Hj. Malthaner
 	*/
 	array_tpl<vehikel_t*> fahr;
+
+	/*
+	 * a list of all catg_index, which can be transported by this convoy.
+	 */
+	minivec_tpl<uint8> goods_catg_index;
 
 	/**
 	* Convoi owner
@@ -583,6 +589,11 @@ public:
 	* @author Hj. Malthaner
 	*/
 	vehikel_t * remove_vehikel_bei(unsigned short i);
+
+	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
+
+	// recalculates the good transported by this convoy and (in case of changes) will start schedule recalculation
+	void recalc_catg_index();
 
 	/**
 	* Sets a schedule

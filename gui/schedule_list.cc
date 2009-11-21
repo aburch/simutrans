@@ -46,30 +46,24 @@
 #include "karte.h"
 
 
-const char schedule_list_gui_t::cost_type[MAX_LINE_COST][64] =
+static const char *cost_type[MAX_LINE_COST] =
 {
-	"Free Capacity",
-	"Transported",
-	"Revenue",
-	"Operation",
-	"Profit",
-	"Convoys",
-	"Distance"
+	"Free Capacity", "Transported", "Revenue", "Operation", "Profit", "Convoys", "Distance"
+};
+
+const int cost_type_color[MAX_LINE_COST] =
+{
+	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS, COL_DISTANCE
 };
 
 static uint8 tabs_to_lineindex[9];
 static uint8 max_idx=0;
 
-const int schedule_list_gui_t::cost_type_color[MAX_LINE_COST] =
-{
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_VEHICLE_ASSETS, COL_DISTANCE
-};
-
-uint8 schedule_list_gui_t::statistic[MAX_LINE_COST]={
+static uint8 statistic[MAX_LINE_COST]={
 	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_CONVOIS, LINE_DISTANCE
 };
 
-uint8 schedule_list_gui_t::statistic_type[MAX_LINE_COST]={
+static uint8 statistic_type[MAX_LINE_COST]={
 	STANDARD, STANDARD, MONEY, MONEY, MONEY, STANDARD, STANDARD
 };
 

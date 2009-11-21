@@ -77,13 +77,12 @@ private:
 	vector_tpl<convoihandle_t> line_managed_convoys;
 
 	/*
-	 * a list of all convoys assigned to this line
-	 * @author hsiegeln
+	 * a list of all catg_index, which can be transported by this line.
 	 */
 	minivec_tpl<uint8> goods_catg_index;
 
 	/*
- 	 * struct holds new financial history for line
+	 * struct holds new financial history for line
 	 * @author hsiegeln
 	 */
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];

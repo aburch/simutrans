@@ -1156,6 +1156,13 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		freight_info_resort = true;
+		// Add good_catg_index:
+		if(v->get_fracht_max() != 0) {
+			const ware_besch_t *ware=v->get_fracht_typ();
+			if(ware!=warenbauer_t::nichts  ) {
+				goods_catg_index.append_unique( ware->get_catg_index(), 1 );
+			}
+		}
 		// check for obsolete
 		if(!has_obsolete  &&  welt->use_timeline()) {
 			has_obsolete = v->get_besch()->is_retired( welt->get_timeline_year_month() );
@@ -1214,6 +1221,8 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			}
 		}
 
+		recalc_catg_index();
+
 		// still requires electrifications?
 		if(is_electric) {
 			is_electric = false;
@@ -1227,8 +1236,53 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 	return v;
 }
 
-void
-convoi_t::set_erstes_letztes()
+
+// recalc what good this convoy is moving
+void convoi_t::recalc_catg_index()
+{
+	// first copy old
+	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
+	for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
+		old_goods_catg_index.append( goods_catg_index[i] );
+	}
+	goods_catg_index.clear();
+
+	for(  uint8 i = 0;  i < get_vehikel_anzahl();  i++  ) {
+		// Only consider vehicles that really transport something
+		// this helps against routing errors through passenger
+		// trains pulling only freight wagons
+		if(get_vehikel(i)->get_fracht_max() == 0) {
+			continue;
+		}
+		const ware_besch_t *ware=get_vehikel(i)->get_fracht_typ();
+		if(ware!=warenbauer_t::nichts  ) {
+			goods_catg_index.append_unique( ware->get_catg_index(), 1 );
+		}
+	}
+	/* since during composition of convois all kinds of composition could happen,
+	 * we do not enforce schedule recalculation here; it will be done anyway all times when leaving the INTI state ...
+	 */
+#if 0
+	// if different => schedule need recalculation
+	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
+		// surely changed
+		welt->set_schedule_counter();
+	}
+	else {
+		// maybe changed => must test all entries
+		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
+			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
+				// different => recalc
+				welt->set_schedule_counter();
+				break;
+			}
+		}
+	}
+#endif
+}
+
+
+void convoi_t::set_erstes_letztes()
 {
 	// anz_vehikel muss korrekt init sein
 	if(anz_vehikel>0) {
@@ -1937,6 +1991,10 @@ convoi_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_bool( no_load, "" );
 		file->rdwr_bool( withdraw, "" );
+	}
+
+	if( file->is_loading() ) {
+		recalc_catg_index();
 	}
 }
 

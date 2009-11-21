@@ -96,17 +96,11 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	// what goods can this line transport?
 	bool update_schedules = false;
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
-		// already on the road => need to add them
-		for(  uint8 i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
-			// Only consider vehicles that really transport something
-			// this helps against routing errors through passenger
-			// trains pulling only freight wagons
-			if(  cnv->get_vehikel(i)->get_fracht_max() == 0  ) {
-				continue;
-			}
-			const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
-			if(  ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())  ) {
-				goods_catg_index.append( ware->get_catg_index(), 1 );
+		const minivec_tpl<uint8> &convoys_goods = cnv->get_goods_catg_index();
+		for(  uint8 i = 0;  i < convoys_goods.get_count();  i++  ) {
+			const uint8 catg_index = convoys_goods[i];
+			if(  !goods_catg_index.is_contained( catg_index )  ) {
+				goods_catg_index.append( catg_index, 1 );
 				update_schedules = true;
 			}
 		}
@@ -321,20 +315,14 @@ void simline_t::recalc_catg_index()
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
-//		const convoihandle_t cnv = line_managed_convoys[i];
+		// const convoihandle_t cnv = line_managed_convoys[i];
 		const convoi_t *cnv = line_managed_convoys[i].get_rep();
 		withdraw &= cnv->get_withdraw();
-		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
-			// Only consider vehicles that really transport something
-			// this helps against routing errors through passenger
-			// trains pulling only freight wagons
-			if (cnv->get_vehikel(i)->get_fracht_max() == 0) {
-				continue;
-			}
-			const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
-			if(ware!=warenbauer_t::nichts  ) {
-				goods_catg_index.append_unique( ware->get_catg_index(), 1 );
-			}
+
+		const minivec_tpl<uint8> &convoys_goods = cnv->get_goods_catg_index();
+		for(  uint8 i = 0;  i < convoys_goods.get_count();  i++  ) {
+			const uint8 catg_index = convoys_goods[i];
+			goods_catg_index.append_unique( catg_index, 1 );
 		}
 	}
 	// if different => schedule need recalculation

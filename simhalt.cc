@@ -1006,7 +1006,6 @@ sint32 haltestelle_t::rebuild_destinations()
 	const bool i_am_public = (get_besitzer()==welt->get_spieler(1));
 
 	vector_tpl<warenzielsorter_t> warenziele_by_stops;
-	minivec_tpl<uint8> add_catg_index_for_convoys( warenbauer_t::get_max_catg_index() );
 	const minivec_tpl<uint8> *add_catg_index;
 	sint32 connections_searched = 0;
 
@@ -1047,19 +1046,9 @@ sint32 haltestelle_t::rebuild_destinations()
 				continue;
 			}
 
-			// since the goods category test is expensive for convois, this code is doubled
 			owner = line->get_besitzer();
-			if(  !i_am_public  &&  owner!=get_besitzer()  ) {
-				continue;
-			}
-
 			fpl = line->get_schedule();
 			add_catg_index = &line->get_goods_catg_index();
-
-			// find first own index
-			for(  first_self_index=0;  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self;  ) {
-				first_self_index++;
-			}
 		}
 		else {
 			convoihandle_t cnv = *index_for_convoys;
@@ -1068,45 +1057,28 @@ sint32 haltestelle_t::rebuild_destinations()
 				continue;
 			}
 
-			// since the goods category test is expensive for convois, this code is doubled
 			owner = cnv->get_besitzer();
-			if(  !i_am_public  &&  owner!=get_besitzer()  ) {
-				continue;
-			}
-
-			// find first own index
 			fpl = cnv->get_schedule();
-			if(  fpl==NULL  ) {
-				// may happen for cnv in depots
-				continue;
-			}
+			add_catg_index = &cnv->get_goods_catg_index();
+		}
 
-			for(  first_self_index=0;  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self;  ) {
-				first_self_index++;
-			}
-			if(  first_self_index == fpl->get_count()  ) {
-				// this convoi does not stop here (the usual case)
-				continue;
-			}
+		if(  !i_am_public  &&  owner!=get_besitzer()  ) {
+			continue;
+		}
 
-			// what goods can this convoy transport?
-			add_catg_index_for_convoys.clear();
-			for(  uint vi=0;  vi<cnv->get_vehikel_anzahl();  vi++  ) {
-				// Only consider vehicles that really transport something
-				// this helps against routing errors through passenger
-				// trains pulling only freight wagons
-				if (cnv->get_vehikel(vi)->get_fracht_max() == 0) {
-					continue;
-				}
-				const ware_besch_t *ware=cnv->get_vehikel(vi)->get_fracht_typ();
-				if(ware!=warenbauer_t::nichts  &&  is_enabled(ware)  ) {
-					add_catg_index_for_convoys.append_unique(ware->get_catg_index());
-				}
-			}
-			if(  add_catg_index_for_convoys.get_count()==0  ) {
-				continue;
-			}
-			add_catg_index = &add_catg_index_for_convoys;
+		if(  fpl==NULL  ) {
+			// may happen for cnv in depots
+			continue;
+		}
+
+		// find first own index
+		for(  first_self_index=0;  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self;  ) {
+			first_self_index++;
+		}
+
+		if(  first_self_index == fpl->get_count()  ) {
+			// this convoi does not stop here (the usual case for convoys)
+			continue;
 		}
 
 		INT_CHECK("simhalt.cc 612");

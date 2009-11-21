@@ -4352,6 +4352,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	swap(stadt, new_weighted_stadt);
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
+#ifdef DEBUG
+	long dt = dr_time();
+#endif
 	// recalculate halt connections
 	set_schedule_counter();
 	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().get_count();
@@ -4361,10 +4364,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		}
 		(*i)->rebuild_destinations();
 	}
+#ifdef DEBUG
+	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
+#endif
 
 #if 0
 	// reroute goods for benchmarking
-	long dt = dr_time();
+	dt = dr_time();
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		sint16 dummy = 0x7FFF;
 		if((hnr++%64)==0) {
