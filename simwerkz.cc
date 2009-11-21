@@ -1633,18 +1633,20 @@ uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d
 	// search for ground
 	// start needs valid tile!
 	grund_t *gr = welt->lookup(pos);
-	if(gr  &&  gr->is_visible() &&  gr->hat_wege()) {
-		const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
-		// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
-		weg_t *w = gr->get_weg_nr(0);
-		if(  w==NULL  ||  w->get_besch()->get_wtyp()!=besch->get_waytype()  ) {
-			error = "No suitable ground!";
-			return 0;
-		}
-		wegbauer_t bauigel(welt, sp);
-		if(!bauigel.check_owner( w->get_besitzer(), sp )) {
-			error = "Das Feld gehoert\neinem anderen Spieler\n";
-			return 0;
+	if(  gr  &&  gr->is_visible()  ) {
+		if( gr->hat_wege() ) {
+			const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
+			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
+			weg_t *w = gr->get_weg_nr(0);
+			if(  w==NULL  ||  w->get_besch()->get_wtyp()!=besch->get_waytype()  ) {
+				error = "No suitable ground!";
+				return 0;
+			}
+			wegbauer_t bauigel(welt, sp);
+			if(!bauigel.check_owner( w->get_besitzer(), sp )) {
+				error = "Das Feld gehoert\neinem anderen Spieler\n";
+				return 0;
+			}
 		}
 	}
 	else {

@@ -248,13 +248,14 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	const waytype_t wegtyp = besch->get_waytype();
 	const weg_t *weg = gr->get_weg(wegtyp);
 
-	if(!weg || gr->get_typ() != grund_t::boden) {
+	if(  gr->get_typ() != grund_t::boden  ) {
 		return "Tunnel must start on single way!";
 	}
 	if(!hang_t::ist_einfach(gr->get_grund_hang())) {
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
-	if(weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->get_grund_hang()))) {
+	// If there is a way on this tile, it must have the right ribis.
+	if( weg  &&  (weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->get_grund_hang())))  ) {
 		return "Tunnel must start on single way!";
 	}
 	if(  gr->has_two_ways()  &&  wegtyp != road_wt  ) {
@@ -398,6 +399,29 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 	weg->set_max_speed( besch->get_topspeed() );
 	tunnel->calc_bild();
 	tunnel->set_flag(grund_t::dirty);
+
+
+	// Auto-connect to a way outside the new tunnel mouth
+	grund_t *ground_outside = welt->lookup(end-zv);
+	if( !ground_outside ) {
+		ground_outside = welt->lookup(end-zv+koord3d(0,0,-1));
+		if(  ground_outside  &&  ground_outside->get_grund_hang() != tunnel->get_grund_hang()  ) {
+			// Not the correct slope.
+			ground_outside = NULL;
+		}
+	}
+	if( ground_outside ) {
+		weg_t *way_outside = ground_outside->get_weg( besch->get_waytype() );
+		if( way_outside ) {
+			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
+			wegbauer_t bauigel(welt, sp);
+			if(bauigel.check_owner( way_outside->get_besitzer(), sp )) {
+				tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
+				ground_outside->weg_erweitern(besch->get_waytype(), ribi_typ(zv));
+			}
+		}
+	}
+
 
 	if(sp!=NULL) {
 		spieler_t::add_maintenance( sp,  besch->get_wartung() );
