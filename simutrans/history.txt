@@ -3,6 +3,7 @@
 	ADD: (gerw) built tunnel without ways
 	FIX: no longer possible for neagtive prices (cheat bus)
 	ADD: (Dwachs) starting money per year
+	ADD: lines will be listed numerically correct, if the contain a number
 
 
 Release Candidate 102.2.1

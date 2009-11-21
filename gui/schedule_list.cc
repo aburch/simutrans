@@ -7,6 +7,7 @@
  * (see licence.txt)
  */
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "messagebox.h"
@@ -69,6 +70,33 @@ static uint8 statistic_type[MAX_LINE_COST]={
 
 #define LINE_NAME_COLUMN_WIDTH ((BUTTON_WIDTH*3)+11+11)
 #define SCL_HEIGHT (170)
+
+
+static bool compare_lines(line_scrollitem_t* a, line_scrollitem_t* b)
+{
+	// first: try to sort by number
+	const char *atxt = a->get_text();
+	int aint = 0;
+	if(  isdigit(atxt[0])  ) {
+		aint = atoi( atxt );
+	}
+	else if(  isdigit(atxt[1])  ) {
+		aint = atoi( atxt+1 );
+	}
+	const char *btxt = b->get_text();
+	int bint = 0;
+	if(  isdigit(btxt[0])  ) {
+		bint = atoi( btxt );
+	}
+	else if(  isdigit(btxt[1])  ) {
+		bint = atoi( btxt+1 );
+	}
+	if(  aint!=bint  ) {
+		return aint-bint<0;
+	}
+	// otherwise: sort by name
+	return strcmp(atxt, btxt)<0;
+}
 
 
 // Hajo: 17-Jan-04: changed layout to make components fit into
@@ -234,8 +262,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
  * Mausklicks werden hiermit an die GUI-Komponenten
  * gemeldet
  */
-void
-schedule_list_gui_t::infowin_event(const event_t *ev)
+void schedule_list_gui_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_CLOSE) {
@@ -340,8 +367,7 @@ void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 
 
 
-void
-schedule_list_gui_t::display(koord pos)
+void schedule_list_gui_t::display(koord pos)
 {
 	int icnv = line->count_convoys();
 
@@ -422,13 +448,22 @@ void schedule_list_gui_t::build_line_list(int filter)
 	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	scl.clear_elements();
 	sp->simlinemgmt.get_lines(tabs_to_lineindex[filter], &lines);
+	vector_tpl<line_scrollitem_t *>selected_lines;
+
 	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
 		linehandle_t l = *i;
-		scl.append_element( new line_scrollitem_t(l) );
-		if (line == l) {
+		selected_lines.append( new line_scrollitem_t(l) );
+	}
+
+	std::sort(selected_lines.begin(),selected_lines.end(),compare_lines);
+
+	for (vector_tpl<line_scrollitem_t *>::const_iterator i = selected_lines.begin(), end = selected_lines.end(); i != end; i++) {
+		scl.append_element( *i );
+		if(line == (*i)->get_line()  ) {
 			sel = scl.get_count() - 1;
 		}
 	}
+
 	scl.set_sb_offset( sb_offset );
 	if(  sel>=0  ) {
 		scl.set_selection( sel );
@@ -539,6 +574,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 	}
 	line = new_line;
 }
+
 
 void schedule_list_gui_t::show_lineinfo(linehandle_t line)
 {
