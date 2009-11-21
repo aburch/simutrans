@@ -1,5 +1,6 @@
 	CHANGE: default savegame now bzip2 (games 33% smaller)
 	ADD: Odometer and distance per month available for convois/lines
+	ADD: (gerw) built tunnel without ways
 
 
 Release Candidate 102.2.1
