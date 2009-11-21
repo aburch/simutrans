@@ -99,6 +99,9 @@ protected:
 	 */
 	sint64 konto;
 
+	// remember the starting money
+	sint64 starting_money;
+
 	/**
 	 * Zählt wie viele Monate das Konto schon ueberzogen ist
 	 *
