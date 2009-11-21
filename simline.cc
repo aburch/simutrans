@@ -11,7 +11,9 @@
 #include "simlinemgmt.h"
 
 
-uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
+uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST] = {
+	LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE
+};
 
 karte_t *simline_t::welt=NULL;
 
@@ -155,9 +157,21 @@ void simline_t::rdwr(loadsave_t *file)
 	fpl->rdwr(file);
 
 	//financial history
-	for (int j = 0; j<MAX_LINE_COST; j++) {
+	if(  file->get_version()<103000  ) {
+		for (int j = 0; j<6; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
+		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
-			file->rdwr_longlong(financial_history[k][j], " ");
+			financial_history[k][LINE_DISTANCE] = 0;
+		}
+	}
+	else {
+		for (int j = 0; j<MAX_LINE_COST; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
 		}
 	}
 

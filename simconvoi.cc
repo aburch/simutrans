@@ -131,6 +131,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	go_on_ticks = WAIT_INFINITE;
 
 	jahresgewinn = 0;
+	total_distance_traveled = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -424,19 +425,24 @@ uint32 convoi_t::get_length() const
 
 
 /**
- * Vehicles of the convoi add their running cost by using this
- * method
+ * convoi add their running cost for traveling one tile
  * @author Hj. Malthaner
  */
-void convoi_t::add_running_cost(sint32 cost)
+void convoi_t::add_running_cost()
 {
-	// Fahrtkosten
+	sint64 cost = 0;
+	for( uint8 i=0; i<anz_vehikel; i++ ) {
+		cost -= fahr[i]->get_besch()->get_betriebskosten();
+	}
 	jahresgewinn += cost;
+
 	get_besitzer()->buche(cost, COST_VEHICLE_RUN);
 
-	// hsiegeln
-	book(cost, CONVOI_OPERATIONS);
-	book(cost, CONVOI_PROFIT);
+	book( cost, CONVOI_OPERATIONS );
+	book( cost, CONVOI_PROFIT );
+
+	total_distance_traveled ++;
+	book( 1, CONVOI_DISTANCE );
 }
 
 
@@ -1824,6 +1830,20 @@ convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
+			financial_history[k][CONVOI_DISTANCE] = 0;
+		}
+	}
+	else if(  file->get_version()<103000  ){
+		// load statistics
+		for (int j = 0; j<5; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
+		}
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
+			financial_history[k][CONVOI_DISTANCE] = 0;
+		}
 	}
 	else {
 		// load statistics
@@ -1832,6 +1852,11 @@ convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
+	}
+
+	// the convoi odometer
+	if(  file->get_version()>=103000  ){
+		file->rdwr_longlong( total_distance_traveled, "" );
 	}
 
 	// since it was saved as an signed int

@@ -18,7 +18,7 @@
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 
-#define MAX_CONVOI_COST   5 // Total number of cost items
+#define MAX_CONVOI_COST   6 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
 #define MAX_CONVOI_NON_MONEY_TYPES 2 // number of non money types in convoi's financial statistic
 #define CONVOI_CAPACITY   0 // the amount of ware that could be transported, theoretically
@@ -26,6 +26,7 @@
 #define CONVOI_REVENUE		2 // the income this CONVOI generated
 #define CONVOI_OPERATIONS         3 // the cost of operations this CONVOI generated
 #define CONVOI_PROFIT             4 // total profit of this convoi
+#define CONVOI_DISTANCE           5 // total distance traveld this month
 
 class depot_t;
 class karte_t;
@@ -246,6 +247,9 @@ private:
 	*/
 	sint64 jahresgewinn;
 
+	/* the odometer */
+	sint64 total_distance_traveled;
+
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
 	* Since 99.15 it will stored directly in the vehikel_t
@@ -406,15 +410,17 @@ public:
 	convoihandle_t self;
 
 	/**
-	* Der Gewinn in diesem Jahr
-	* @author Hanjsörg Malthaner
-	*/
+	 * Der Gewinn in diesem Jahr
+	 * @author Hanjsörg Malthaner
+	 */
 	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
+	const sint64 & get_total_distance_traveled() const { return total_distance_traveled; }
+
 	/**
-	* returns the total running cost for all vehicles in convoi
-	* @author hsiegeln
-	*/
+	 * returns the total running cost for all vehicles in convoi
+	 * @author hsiegeln
+	 */
 	sint32 get_running_cost() const;
 
 	/**
@@ -509,11 +515,10 @@ public:
 	uint32 get_length() const;
 
 	/**
-	 * Vehicles of the convoi add their running cost by using this
-	 * method
+	 * Add the costs for traveling one tile
 	 * @author Hj. Malthaner
 	 */
-	void add_running_cost(sint32 cost);
+	void add_running_cost();
 
 	/**
 	 * moving the veicles of a convoi and acceleration/deacceleration

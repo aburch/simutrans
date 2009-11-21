@@ -94,10 +94,20 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		int offset_y = pos.y+14+16;
 
 		// current value
-		char tmp[256];
+		char tmp[512];
 
 		// current power
 		sprintf( tmp, translator::translate("Leistung: %d kW"), cnv->get_sum_leistung() );
+		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		offset_y += LINESPACE;
+
+		char number[64];
+		number_to_string( number, cnv->get_total_distance_traveled(), 0 );
+		sprintf( tmp, translator::translate("Odometer: %s km"), number );
+		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
+		offset_y += LINESPACE;
+
+		sprintf( tmp, "%s %i", translator::translate("Station tiles:"), cnv->get_tile_length() );
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;
 

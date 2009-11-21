@@ -994,8 +994,7 @@ vehikel_t::verlasse_feld()
 /* this routine add a vehicle to a tile and will insert it in the correct sort order to prevent overlaps
  * @author prissi
  */
-void
-vehikel_t::betrete_feld()
+void vehikel_t::betrete_feld()
 {
 	vehikel_basis_t::betrete_feld();
 	if(ist_erstes  &&  reliefkarte_t::is_visible  ) {
@@ -1004,11 +1003,11 @@ vehikel_t::betrete_feld()
 }
 
 
-void
-vehikel_t::hop()
+void vehikel_t::hop()
 {
-	// Fahrtkosten
-	cnv->add_running_cost(-besch->get_betriebskosten());
+	if(  ist_erstes  ) {
+		cnv->add_running_cost();
+	}
 
 	verlasse_feld();
 

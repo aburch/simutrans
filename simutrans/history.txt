@@ -1,4 +1,5 @@
 	CHANGE: default savegame now bzip2 (games 33% smaller)
+	ADD: Odometer and distance per month available for convois/lines
 
 
 Release Candidate 102.2.1
