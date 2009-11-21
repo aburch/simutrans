@@ -109,8 +109,8 @@ public:
 
 	void set_scale(float scale_factor) 
 	{ 
-		scaled_price = preis * scale_factor > 0 ? preis * scale_factor : 1; 
-		scaled_maintenance = maintenance * scale_factor > 0 ? maintenance * scale_factor : 1;
+		scaled_price = preis * scale_factor > 0 ? (uint32) (preis * scale_factor) : 1; 
+		scaled_maintenance = maintenance * scale_factor > 0 ? (uint32) (maintenance * scale_factor) : 1;
 	}
 
 	uint32  get_topspeed() const { return topspeed; }

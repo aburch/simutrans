@@ -362,7 +362,10 @@ private:
 	/* Calculates (and sets) akt_speed
 	 * needed for driving, entering and leaving a depot)
 	 */
-	void calc_acceleration(long delta_t);
+	void calc_acceleration(long delta_t)
+	{
+		calc_acceleration(delta_t, akt_speed_soll, akt_speed, sp_soll);
+	}
 
 	/**
 	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
@@ -607,6 +610,18 @@ public:
 	// @author Bernd Gabriel: moved from convoy_metrics_t::calc():
 	float get_effective_power(uint32 speed);
 
+	/**
+	 * get force in kN according to current speed in m/s
+	 * @author Bernd Gabriel, Oct, 22 2009
+	 */
+	double get_force(double speed);
+	/**
+	 * Calculates akt_speed without setting it.
+	 * @author Bernd Gabriel, Sep, 24 2009: extracted from calc_acceleration(), which sets akt_speed
+	 */
+    void calc_acceleration(long delta_t, const int akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
+	//sint32 calc_adjusted_power(sint32 akt_speed);
+
 	uint32 get_length() const;
 
 	/**
@@ -714,7 +729,7 @@ public:
 
 	// Calculate the total power as adjusted to take account of steam engine physics
 	//@author: jamespetts
-	sint32 calc_adjusted_power();
+	//sint32 calc_adjusted_power() { return calc_adjusted_power(akt_speed); }
 
 #if 0
 private:
@@ -989,12 +1004,12 @@ class convoy_metrics_t {
 private:
 	float power;
 	uint32 length; // length in 1/TILE_STEPSth of a tile
-	uint32 vehicle_weight;
+	uint32 vehicle_weight; // in tons
 	// several freight of the same category may weigh different: 
-	uint32 min_freight_weight;
-	uint32 max_freight_weight;
+	uint32 min_freight_weight; // in tons
+	uint32 max_freight_weight; // in tons
 	// max top speed of convoy limited by minimum top speed of the vehicles.
-	uint32 max_top_speed; 
+	uint32 max_top_speed; // in kmh
 
 	void add_vehicle(const vehikel_besch_t &besch);
 	void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight);

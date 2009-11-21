@@ -34,7 +34,7 @@
 
 #include "convoi_detail_t.h"
 
-const char cost_type[MAX_CONVOI_COST][64] =
+const char cost_type[BUTTON_COUNT][64] =
 {
 	"Free Capacity",
 	"Transported",
@@ -42,7 +42,20 @@ const char cost_type[MAX_CONVOI_COST][64] =
 	"Comfort",
 	"Revenue",
 	"Operation",
-	"Profit"
+	"Profit",
+	"Acceleration"
+};
+
+const int cost_type_color[BUTTON_COUNT] =
+{
+	COL_FREE_CAPACITY, 
+	COL_TRANSPORTED, 
+	COL_AVERAGE_SPEED, 
+	COL_COMFORT, 
+	COL_REVENUE, 
+	COL_OPERATION, 
+	COL_PROFIT, 
+	COL_YELLOW
 };
 
 //bool convoi_info_t::route_search_in_progress = false;
@@ -65,11 +78,6 @@ const char *convoi_info_t::sort_text[SORT_MODES] =
 	"Menge",
 	"origin (detail)",
 	"origin (amount)"
-};
-
-const int cost_type_color[MAX_CONVOI_COST] =
-{
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT
 };
 
 
@@ -160,6 +168,24 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		filterButtons[cost].pressed = false;
 		add_komponente(filterButtons + cost);
 	}
+
+	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
+	{
+		for (int i = 0; i < MAX_MONTHS; i++)
+		{
+			physics_curves[i][0] = 0;
+		}
+
+		int btn = ACCELERATOR_BUTTON;
+		chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true, 0);
+		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+2)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		filterButtons[btn].add_listener(this);
+		filterButtons[btn].background = cost_type_color[btn];
+		filterButtons[btn].set_visible(false);
+		filterButtons[btn].pressed = false;
+		add_komponente(filterButtons + btn);
+	}
+
 	add_komponente(&chart);
 	add_komponente(&view);
 
@@ -232,6 +258,23 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
 	else {
+
+		//Bernd Gabriel, Sep, 24 2009: acceleration curve:
+		{
+			convoy_metrics_t metrics(*cnv.get_rep());
+			const int akt_speed_soll = kmh_to_speed(metrics.get_speed(cnv->get_sum_gesamtgewicht()));
+			sint32 akt_speed = 0;
+			sint32 sp_soll = 0;
+			int i = MAX_MONTHS;
+			physics_curves[--i][0] = akt_speed;
+			while (i > 0)
+			{
+				cnv->calc_acceleration(15 * 64, akt_speed_soll, akt_speed, sp_soll);
+				physics_curves[--i][0] = speed_to_kmh(akt_speed);
+			}
+		}
+
+
 		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
 		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK);
 
@@ -514,13 +557,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		chart.set_visible(toggler.pressed);
 		set_fenstergroesse(get_fenstergroesse() + offset); // "Window size"
 		resize(koord(0,0));
-		for (int i=0;i<MAX_CONVOI_COST;i++) {
+		for (int i=0;i<BUTTON_COUNT;i++) {
 			filterButtons[i].set_visible(toggler.pressed);
 		}
 		return true;
 	}
 
-	for ( int i = 0; i<MAX_CONVOI_COST; i++) {
+	for ( int i = 0; i<BUTTON_COUNT; i++) {
 		if (komp == &filterButtons[i]) {
 			filterButtons[i].pressed = !filterButtons[i].pressed;
 			if(filterButtons[i].pressed) {
