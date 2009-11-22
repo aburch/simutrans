@@ -31,13 +31,20 @@ private:
 	
 	private:
 
+		// structure for storing connexion hashtable and serving transport counter
+		struct connexion_list_entry_t
+		{
+			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_table;
+			uint8 serving_transport;
+		};
+
 		// element used during path search and for storing calculated paths
 		struct path_element_t
 		{
 			uint16 aggregate_time;
 			halthandle_t next_transfer;
 
-			path_element_t() { aggregate_time = 65535; }
+			path_element_t() : aggregate_time(65535) { }
 		};
 
 		// element used during path search only for storing best lines/convoys
@@ -63,7 +70,7 @@ private:
 				uint32 last_transport;
 			};
 
-			transport_element_t() { first_transport = last_transport = 0; }
+			transport_element_t() : first_transport(0), last_transport(0) { }
 		};
 
 		// structure used for storing indices of halts connected to a transfer, grouped by transport
@@ -268,7 +275,7 @@ private:
 		static const char *const phase_name[];
 
 		// an array for keeping a list of connexion hash table
-		static quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_list[65536];
+		static connexion_list_entry_t connexion_list[65536];
 
 		// iteration representative
 		static uint16 representative_halt_count;
@@ -329,7 +336,7 @@ private:
 		~compartment_t();
 
 		static void initialise();
-		static void destroy();
+		static void finalise();
 		void step();
 		void reset(const bool reset_finished_set);
 
@@ -348,11 +355,11 @@ private:
 
 		static void initialise_connexion_list();
 
-		static void clear_connexion_table(const uint16 halt_id);
+		static void reset_connexion_entry(const uint16 halt_id);
 
-		static void clear_all_connexion_tables();
+		static void reset_connexion_list();
 
-		static void destroy_all_connexion_tables();
+		static void finalise_connexion_list();
 		
 		static void backup_limits()
 		{
@@ -405,7 +412,7 @@ private:
 public:
 
 	static void initialise(karte_t *welt);
-	static void destroy();
+	static void finalise();
 	static void step();
 
 	static void full_instant_refresh();
