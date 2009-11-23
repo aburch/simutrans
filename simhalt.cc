@@ -790,13 +790,14 @@ bool haltestelle_t::step(sint16 &units_remaining)
 		if(  !reroute_goods(units_remaining)  ) {
 			return false;
 		}
+		recalc_status();
 	}
 	else {
 		// nothing needs to be done
 		status_step = 0;
 		units_remaining = 0;
 	}
-
+	// only update needed after monthly change: really slow, but does not matter at all
 	recalc_status();
 	return true;
 }
@@ -1153,7 +1154,6 @@ sint32 haltestelle_t::rebuild_destinations()
 		}
 		++stops;
 	}
-
 	return connections_searched;
 }
 
@@ -1362,20 +1362,8 @@ void haltestelle_t::add_pax_happy(int n)
 {
 	pax_happy += n;
 	book(n, HALT_HAPPY);
+	recalc_status();
 }
-
-
-
-/**
- * Found no route
- * @author Hj. Malthaner
- */
-void haltestelle_t::add_pax_no_route(int n)
-{
-	pax_no_route += n;
-	book(n, HALT_NOROUTE);
-}
-
 
 
 /**
@@ -1386,6 +1374,18 @@ void haltestelle_t::add_pax_unhappy(int n)
 {
 	pax_unhappy += n;
 	book(n, HALT_UNHAPPY);
+	recalc_status();
+}
+
+
+/**
+ * Found no route
+ * @author Hj. Malthaner
+ */
+void haltestelle_t::add_pax_no_route(int n)
+{
+	pax_no_route += n;
+	book(n, HALT_NOROUTE);
 }
 
 
@@ -2073,6 +2073,7 @@ void haltestelle_t::recalc_station_type()
 		}
 	}
 	station_type = (haltestelle_t::stationtyp)new_station_type;
+	recalc_status();
 
 //DBG_DEBUG("haltestelle_t::recalc_station_type()","result=%x, capacity[0]=%i, capacity[1], capacity[2]",new_station_type,capacity[0],capacity[1],capacity[2]);
 }
@@ -2276,7 +2277,6 @@ void haltestelle_t::book(sint64 amount, int cost_type)
 {
 	assert(cost_type <= MAX_HALT_COST);
 	financial_history[0][cost_type] += amount;
-	recalc_status();
 }
 
 

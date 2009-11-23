@@ -102,7 +102,6 @@ private:
 	uint8 status_color;
 	uint32 capacity[3]; // passenger, post, goods
 	uint8 overcrowded[8];	// bit set, when overcrowded
-	void recalc_status();
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
@@ -116,6 +115,9 @@ private:
 	static uint8 current_mark;
 
 public:
+	/* recalculates the station bar */
+	void recalc_status();
+
 	/**
 	 * Handles changes of schedules and the resulting rerouting
 	 */

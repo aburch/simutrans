@@ -1314,15 +1314,13 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf)
 }
 
 
-void
-vehikel_t::loesche_fracht()
+void vehikel_t::loesche_fracht()
 {
 	fracht.clear();
 }
 
 
-bool
-vehikel_t::beladen(koord , halthandle_t halt)
+bool vehikel_t::beladen(koord , halthandle_t halt)
 {
 	bool ok = true;
 	if(halt.is_bound()) {

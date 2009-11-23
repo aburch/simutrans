@@ -2359,6 +2359,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 
 	// only load vehicles in station
 	// don't load when vehicle is being withdrawn
+	bool changed_loading_level = false;
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 
@@ -2374,16 +2375,20 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 			v->last_stop_pos = v->get_pos().get_2d();
 		}
 
-		freight_info_resort |= v->entladen(k, halt);
+		changed_loading_level |= v->entladen(k, halt);
 		if(!no_load) {
 			// load
-			freight_info_resort |= v->beladen(k, halt);
+			changed_loading_level |= v->beladen(k, halt);
 		}
 		else {
 			// do not load anymore - but call beladen() to recalculate vehikel weight
-			freight_info_resort |= v->beladen(k, halthandle_t());
+			v->beladen(k, halthandle_t());
 		}
 
+	}
+	freight_info_resort |= changed_loading_level;
+	if(  changed_loading_level  ) {
+		halt->recalc_status();
 	}
 
 	// any loading went on?
