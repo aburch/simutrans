@@ -15,6 +15,7 @@
 
 
 class skin_besch_t;
+class werkzeug_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -82,6 +83,9 @@ private:
 	* @author: jamespetts*/
 	uint8 way_constraints_permissive;
 	uint8 way_constraints_prohibitive;
+
+	werkzeug_t *builder;
+
 
 public:
 	sint32 get_preis() const { return scaled_price; }
@@ -247,6 +251,13 @@ public:
 
 	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
 	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
+	}
 };
 
 #endif

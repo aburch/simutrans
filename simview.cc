@@ -22,6 +22,8 @@
 #include "dataobj/umgebung.h"
 #include "dings/zeiger.h"
 
+#include "simtools.h"
+
 
 karte_ansicht_t::karte_ansicht_t(karte_t *welt)
 {
@@ -43,6 +45,7 @@ static const sint8 hours2night[] =
 void
 karte_ansicht_t::display(bool force_dirty)
 {
+	uint32 rs = get_random_seed();
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();
 	const sint16 menu_height = werkzeug_t::toolbar_tool[0]->iconsize.y;
@@ -251,6 +254,8 @@ karte_ansicht_t::display(bool force_dirty)
 			}
 		}
 	}
+
+	assert( rs == get_random_seed() );
 
 	if(force_dirty) {
 		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );

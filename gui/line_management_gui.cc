@@ -33,6 +33,8 @@ line_management_gui_t::infowin_event(const event_t *ev)
 		destroy_win( this );
 	}
 	else {
+		fahrplan_gui_t::infowin_event(ev);
+
 		if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 			// Added by : Knightly
 			// Check if the schedule is modified
@@ -42,6 +44,5 @@ line_management_gui_t::infowin_event(const event_t *ev)
 				sp->simlinemgmt.update_line(line);
 			}
 		}
-		fahrplan_gui_t::infowin_event(ev);
 	}
 }

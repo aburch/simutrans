@@ -9,6 +9,7 @@
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simconst.h"
+#include "../simtools.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../utils/simstring.h"
@@ -339,6 +340,7 @@ einstellungen_t::einstellungen_t() :
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
+
 	// The default is a selective refresh.
 	default_path_option = 2;
 
@@ -361,6 +363,10 @@ einstellungen_t::einstellungen_t() :
 	min_longdistance_tolerance = 180 * 10;
 	max_longdistance_tolerance = 330 * 10; // Five and a half hours
 	//max_longdistance_tolerance = 150;
+
+	// some network thing to keep client in sync
+	random_counter = 0;	// will be set when actually saving
+	frames_per_second = 10;
 }
 
 
@@ -668,6 +674,19 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(dummy, "" );
 			file->rdwr_bool( with_private_paks, "" );
 		}
+
+		if(file->get_version()>102002) {
+			// network stuff
+			random_counter = get_random_seed();
+			file->rdwr_long( random_counter, "" );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+			}
+			file->rdwr_long( frames_per_second, "" );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+		}
+
 		if(file->get_experimental_version() >= 1)
 		{
 			file->rdwr_short(min_bonus_max_distance, "");

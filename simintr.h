@@ -15,8 +15,8 @@ class karte_ansicht_t;
 
 bool reduce_frame_time();
 bool increase_frame_time();
-unsigned long get_frame_time();
-void set_frame_time(unsigned long time);
+long get_frame_time();
+void set_frame_time(long time);
 
 
 void intr_refresh_display(bool dirty);

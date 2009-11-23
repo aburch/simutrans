@@ -300,6 +300,8 @@ private:
 	// @author: jamespetts
 	/*uint8 scale_divider;*/
 
+	uint32 random_counter;
+	uint32 frames_per_second;	// only used in network mode ...
 
 public:
 	/* the big cost section */
@@ -635,6 +637,11 @@ public:
 	// radius within factories belog to towns (usually set to 77 but 1/8 of map size may be meaningful too)
 	sint32 get_factory_worker_radius() const { return factory_worker_radius; }
 	void set_factory_worker_radius(sint32 n) { factory_worker_radius = n; }
+
+	// usually only used in network mode => no need to set them!
+	uint32 get_random_counter() const { return random_counter; }
+	uint32 get_frames_per_second() const { return frames_per_second; }
+
 };
 
 #endif

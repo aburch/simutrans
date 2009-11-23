@@ -30,15 +30,19 @@ static bool enabled = false;
 #define FRAME_TIME_MULTI (16)
 
 // pause between two frames
-static unsigned long frame_time = 36*FRAME_TIME_MULTI;
+static long frame_time = 36*FRAME_TIME_MULTI;
 
 
 bool reduce_frame_time()
 {
 	if(frame_time > 25*FRAME_TIME_MULTI) {
-		frame_time --;
+		frame_time -= 1;
+		if(  frame_time>150*FRAME_TIME_MULTI  ) {
+			frame_time -= 8;
+		}
 		return true;
-	} else {
+	}
+	else {
 		frame_time = 25*FRAME_TIME_MULTI;
 		return false;
 	}
@@ -54,12 +58,12 @@ bool increase_frame_time()
 	}
 }
 
-unsigned long get_frame_time()
+long get_frame_time()
 {
 	return frame_time/FRAME_TIME_MULTI;
 }
 
-void set_frame_time(unsigned long time)
+void set_frame_time(long time)
 {
 	frame_time = clamp( time, 10, 250 )*FRAME_TIME_MULTI;
 }
@@ -87,11 +91,11 @@ interrupt_check()
 void interrupt_check(const char* caller_info)
 {
 	static const char * last_caller = "program start";
-	const unsigned long now = dr_time();
-	if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
-		return;
-	}
 	if(enabled) {
+		const long now = dr_time();
+		if((now-last_time)*FRAME_TIME_MULTI < frame_time) {
+			return;
+		}
 		const long diff = ((now - last_time)*welt_modell->get_time_multiplier())/16;
 		if(diff>0) {
 			enabled = false;
@@ -104,8 +108,7 @@ void interrupt_check(const char* caller_info)
 }
 
 
-void
-intr_set(karte_t *welt, karte_ansicht_t *view)
+void intr_set(karte_t *welt, karte_ansicht_t *view)
 {
 	welt_modell = welt;
 	welt_ansicht = view;

@@ -176,8 +176,35 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 	::register_besch(spezial_objekte, const_besch);
 
 	// avoid duplicates with same name
-	if(besch_names.remove(besch->get_name())) {
-		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", const_besch->get_name() );
+	const haus_besch_t *old_besch = besch_names.get(besch->get_name());
+	if(old_besch) {
+		dbg->warning( "hausbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		besch_names.remove(besch->get_name());
+		delete old_besch->get_builder();
+		delete old_besch;
+	}
+	// probably need a tools, if it has a cursor
+	const skin_besch_t *sb = besch->get_cursor();
+	if(  sb  &&  sb->get_bild_nr(1)!=IMG_LEER) {
+		werkzeug_t *wkz;
+		if(  besch->get_utyp()==haus_besch_t::depot  ) {
+			wkz = new wkz_depot_t();
+		}
+		else if(  besch->get_utyp()==haus_besch_t::firmensitz  ) {
+			wkz = new wkz_headquarter_t();
+		}
+		else {
+			wkz = new wkz_station_t();
+		}
+		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		wkz->cursor = besch->get_cursor()->get_bild_nr(0),
+		wkz->default_param = besch->get_name();
+		wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+		werkzeug_t::general_tool.append( wkz );
+		besch->set_builder( wkz );
+	}
+	else {
+		besch->set_builder( NULL );
 	}
 	besch_names.put(besch->get_name(), const_besch);
 
@@ -209,35 +236,9 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 	for(  vector_tpl<const haus_besch_t *>::const_iterator iter = station_building.begin(), end = station_building.end();  iter != end;  ++iter  ) {
 		const haus_besch_t* besch = (*iter);
 //		DBG_DEBUG("hausbauer_t::fill_menu()", "try to add %s (%p)", besch->get_name(), besch);
-		if(  besch->get_utyp()==utyp  &&  besch->get_cursor()->get_bild_nr(1) != IMG_LEER  &&  besch->get_extra()==(uint16)wt  ) {
+		if(  besch->get_utyp()==utyp  &&  besch->get_builder()  &&  (utyp==haus_besch_t::firmensitz  ||  besch->get_extra()==(uint16)wt)  ) {
 			if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
-
-				if(utyp==haus_besch_t::depot) {
-					wkz_depot_t *wkz = depot_tool.get(besch->get_name());
-					if(wkz==NULL) {
-						// not yet in hashtable
-						wkz = new wkz_depot_t();
-						wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-						wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-						wkz->default_param = besch->get_name();
-						wkz->ok_sound = sound_ok;
-						depot_tool.put(besch->get_name(),wkz);
-					}
-					wzw->add_werkzeug( (werkzeug_t*)wkz );
-				}
-				else {
-					wkz_station_t *wkz = station_tool.get(besch->get_name());
-					if(wkz==NULL) {
-						// not yet in hashtable
-						wkz = new wkz_station_t();
-						wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-						wkz->cursor = besch->get_cursor()->get_bild_nr(0),
-						wkz->default_param = besch->get_name();
-						wkz->ok_sound = sound_ok;
-						station_tool.put(besch->get_name(),wkz);
-					}
-					wzw->add_werkzeug( (werkzeug_t*)wkz );
-				}
+				wzw->add_werkzeug( besch->get_builder() );
 			}
 		}
 	}

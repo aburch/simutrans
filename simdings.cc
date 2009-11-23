@@ -277,17 +277,16 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 	image_id bild = get_after_bild();
 	if(bild != IMG_LEER) {
 		const int raster_width = get_tile_raster_width();
+		const bool dirty = get_flag(ding_t::dirty);
 
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
-		// unfourtunately the dirty flag is already cleared, when we reach here ...
-		// thus we assume we need redraw
 		if(besitzer_n!=PLAYER_UNOWNED) {
-			display_color_img(bild, xpos, ypos, besitzer_n, true, false );
+			display_color_img(bild, xpos, ypos, besitzer_n, true, dirty );
 		}
 		else {
-			display_img(bild, xpos, ypos, false );
+			display_img(bild, xpos, ypos, dirty );
 		}
 	}
 }

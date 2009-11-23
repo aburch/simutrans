@@ -40,9 +40,10 @@ void loadsave_frame_t::action(const char *filename)
 	}
 }
 
-void loadsave_frame_t::del_action(const char *filename)
+bool loadsave_frame_t::del_action(const char *filename)
 {
 	remove(filename);
+	return false;
 }
 
 

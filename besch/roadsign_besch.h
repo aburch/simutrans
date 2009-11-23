@@ -17,6 +17,7 @@
 
 
 class skin_besch_t;
+class werkzeug_t;
 
 /*
  *  Autor:
@@ -57,6 +58,8 @@ private:
 	*/
 	uint16 intro_date;
 	uint16 obsolete_date;
+
+	werkzeug_t *builder;
 
 public:
 	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32, SIGN_LONGBLOCK_SIGNAL=64, END_OF_CHOOSE_AREA=128 };
@@ -115,6 +118,14 @@ public:
 	* @author prissi
 	*/
 	uint16 get_retire_year_month() const { return obsolete_date; }
+
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
+	}
 };
 
 #endif

@@ -23,6 +23,8 @@
 
 #include "../dataobj/ribi.h"
 
+class werkzeug_t;
+
 
 class bruecke_besch_t : public obj_besch_std_name_t {
     friend class bridge_writer_t;
@@ -59,6 +61,9 @@ private:
 	* @author: jamespetts*/
 	uint8 way_constraints_permissive;
 	uint8 way_constraints_prohibitive;
+
+	werkzeug_t *builder;
+
 
 public:
 	/*
@@ -157,6 +162,7 @@ public:
 	 */
 	int get_retire_year_month() const { return obsolete_date; }
 
+
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
 	 * the byte into bool values. See here for
@@ -176,6 +182,15 @@ public:
 
 	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
 	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
+	}
+
 };
 
 #endif

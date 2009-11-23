@@ -303,10 +303,13 @@ public:
 		node_t* succ = pos.ptr->next;
 		if (pred == NULL) {
 			head = succ;
-		} else {
+		}
+		else {
 			pred->next = succ;
 		}
-		if (succ == NULL) tail = pred;
+		if (succ == NULL) {
+			tail = pred;
+		}
 		delete pos.ptr;
 		--node_count;
 		return iterator(succ, pred);

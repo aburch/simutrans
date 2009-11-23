@@ -1,3 +1,16 @@
+	FIX: minimap was not updated when a bridge was deleted
+	FIX: AI could not built any lines
+	FIX: grid slopes were not (re)set correctly
+	FIX: min_building_density and harbour are now recognized in dat/tab files
+	ADD: do not close load/save dialogue after deleting
+	FIX: do not show more than the last 2000 messages in message center to prevent scrollbar malfunction
+	FIX: margin calculation was wrong
+	FIX: first halts are now first in connection list => consistently transfer at first possibility
+	FIX: no money when selling convois at the depot
+	FIX: (Knightly) inverse scrolling consistently for minimap and main view
+
+
+
 Release of 102.2 (r2785)
 
 18-Oct-2009:

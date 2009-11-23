@@ -59,7 +59,7 @@ public:
 	 * Registers a new bridge type
 	 * @author V. Meyer, Hj. Malthaner
 	 */
-	static void register_besch(const bruecke_besch_t *besch);
+	static void register_besch(bruecke_besch_t *besch);
 
 
 	static bool laden_erfolgreich();

@@ -121,7 +121,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	// maps etc.
 	intTopOfButton += 5;
-	random_map.set_pos( koord(11, intTopOfButton) );
+	random_map.set_pos( koord(10, intTopOfButton) );
 	random_map.set_groesse( koord(104, BUTTON_HEIGHT) );
 	random_map.set_typ(button_t::roundbox);
 	random_map.add_listener( this );

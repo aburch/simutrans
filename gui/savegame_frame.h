@@ -74,9 +74,10 @@ protected:
 
 	/**
 	 * Aktion, die nach X-Knopfdruck gestartet wird.
+	 * if true, then the dialogue will be closed
 	 * @author Volker Meyer
 	 */
-	virtual void del_action(const char *filename) = 0;
+	virtual bool del_action(const char *filename) = 0;
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname) = 0;

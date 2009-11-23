@@ -13,6 +13,7 @@
 
 
 class skin_besch_t;
+class werkzeug_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -29,8 +30,8 @@ class skin_besch_t;
  * @author  Volker Meyer, Hj. Malthaner
  */
 class weg_besch_t : public obj_besch_std_name_t {
-    friend class way_writer_t;
-    friend class way_reader_t;
+	friend class way_writer_t;
+	friend class way_reader_t;
 
 public:
 	enum { elevated=1, joined=7 /* only tram */, special=255 };
@@ -95,6 +96,8 @@ private:
 	* @author: jamespetts*/
 	uint8 way_constraints_permissive;
 	uint8 way_constraints_prohibitive;
+	// this is the defualt tools for building this way ...
+	werkzeug_t *builder;
 
 public:
 	sint32 get_preis() const { return scaled_price; }
@@ -238,6 +241,14 @@ public:
 
 	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
 	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
+	}
 };
 
 #endif

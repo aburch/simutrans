@@ -181,8 +181,8 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		//chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i < COST_ALL_TRANSPORTED)) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
-		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i < COST_ALL_TRANSPORTED) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0  );
+		//chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i <= COST_ALL_TRANSPORTED)) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
+		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i <= COST_ALL_TRANSPORTED) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0  );
 	}
 	//CHART YEAR END
 
@@ -195,8 +195,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	mchart.set_ltr(umgebung_t::left_to_right_graphs);
 
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		// mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i < 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
-		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i < 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
+		// mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
+		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
+		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, true, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END
@@ -451,7 +452,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 	money.set_color(get_money_colour(COST_NETWEALTH, 0));
 
 	display_money(COST_MARGIN, str_buf[23], 0);
-	str_buf[23][strlen(str_buf[23])-1] = 0;	// remove percent sign
+	str_buf[23][strlen(str_buf[23])-1] = '%';	// remove cent sign
 	margin.set_text(str_buf[23]);
 	margin.set_color(get_money_colour(COST_MARGIN, 0));
 
@@ -546,7 +547,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&headquarter) {
-		sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER] );
+		sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_HEADQUARTER], sp );
 		return true;
 	}
 

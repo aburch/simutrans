@@ -2725,7 +2725,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	}
 
 	if (flags & DT_DIRTY) {
-		// here, because only now we know the lenght also for ALIGN_LEFT text
+		// here, because only now we know the length also for ALIGN_LEFT text
 		mark_rect_dirty_wc(x0, y, x - 1, y + 10 - 1);
 	}
 	// warning: aktual len might be longer, due to clipping!

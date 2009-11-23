@@ -361,9 +361,10 @@ void map_frame_t::infowin_event(const event_t *ev)
 	if(reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)  &&  IS_RIGHTDRAG(ev)) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
+		const int scroll_direction = ( umgebung_t::scroll_multi>0 ? 1 : -1 );
 
-		x += (ev->mx - ev->cx)*2;
-		y += (ev->my - ev->cy)*2;
+		x += (ev->mx - ev->cx)*scroll_direction*2;
+		y += (ev->my - ev->cy)*scroll_direction*2;
 
 		is_dragging = true;
 		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(true);

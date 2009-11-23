@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include <algorithm>
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -19,12 +20,18 @@
 #include "simpeople.h"
 #include "../besch/fussgaenger_besch.h"
 
-int fussgaenger_t::count = 0;
-
 uint32 fussgaenger_t::strecke[] = {6000, 11000, 15000, 20000, 25000, 30000, 35000, 40000};
 
 static weighted_vector_tpl<const fussgaenger_besch_t*> liste;
 stringhashtable_tpl<const fussgaenger_besch_t *> fussgaenger_t::table;
+
+
+static bool compare_fussgaenger_besch(const fussgaenger_besch_t* a, const fussgaenger_besch_t* b)
+{
+	/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
+	 * über den Namen herbei. */
+	return strcmp(a->get_name(), b->get_name())<0;
+}
 
 
 bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
@@ -36,17 +43,24 @@ bool fussgaenger_t::register_besch(const fussgaenger_besch_t *besch)
 	return true;
 }
 
+
 bool fussgaenger_t::alles_geladen()
 {
 	liste.resize(table.get_count());
-	stringhashtable_iterator_tpl<const fussgaenger_besch_t *>iter(table);
-	while(  iter.next()  ) {
-		const fussgaenger_besch_t* besch = iter.get_current_value();
-		liste.append(besch, besch->get_gewichtung(), 1);
-	}
-
-	if (liste.empty()) {
+	if (table.empty()) {
 		DBG_MESSAGE("fussgaenger_t", "No pedestrians found - feature disabled");
+	}
+	else {
+		vector_tpl<const fussgaenger_besch_t*> temp_liste(0);
+		stringhashtable_iterator_tpl<const fussgaenger_besch_t *>iter(table);
+		while(  iter.next()  ) {
+			temp_liste.append(iter.get_current_value());
+		}
+		// needs to sort them, to have same order on any computer ...
+		std::sort(temp_liste.begin(),temp_liste.end(),compare_fussgaenger_besch);
+		for (vector_tpl<const fussgaenger_besch_t *>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
+			liste.append( (*i), (*i)->get_gewichtung() );
+		}
 	}
 	return true ;
 }
@@ -56,7 +70,6 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, loadsave_t *file)
  : verkehrsteilnehmer_t(welt)
 {
 	rdwr(file);
-	count ++;
 	if(besch) {
 		welt->sync_add(this);
 	}
@@ -67,8 +80,7 @@ fussgaenger_t::fussgaenger_t(karte_t *welt, koord3d pos)
  : verkehrsteilnehmer_t(welt, pos)
 {
 	besch = liste.at_weight(simrand(liste.get_sum_weight()));
-	time_to_life = strecke[count & 7];
-	count ++;
+	time_to_life = strecke[simrand(7)];
 	calc_bild();
 }
 
@@ -102,7 +114,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version()<89004) {
-		time_to_life = strecke[count & 7];
+		time_to_life = strecke[simrand(7)];
 	}
 }
 
@@ -125,7 +137,7 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 				fussgaenger_t* fg = new fussgaenger_t(welt, k);
 				bool ok = welt->lookup(k)->obj_add(fg) != 0;	// 256 limit reached
 				if (ok) {
-					for (int i = 0; i < (fussgaenger_t::count & 3); i++) {
+					for (int j = 0; j < (i & 3); i++) {
 						fg->sync_step(64 * 24);
 					}
 					welt->sync_add(fg);
@@ -144,15 +156,9 @@ void fussgaenger_t::erzeuge_fussgaenger_an(karte_t *welt, const koord3d k, int &
 
 bool fussgaenger_t::sync_step(long delta_t)
 {
-	if(time_to_life<0) {
-		// remove obj
-//DBG_MESSAGE("verkehrsteilnehmer_t::sync_step()","stopped");
-		return false;
-	}
-
 	time_to_life -= delta_t;
 
 	weg_next += 128*delta_t;
 	weg_next -= fahre_basis( weg_next );
-	return true;
+	return time_to_life>0;
 }

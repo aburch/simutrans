@@ -476,8 +476,6 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 		return false;
 	}
 
-	INT_CHECK( "simplay 1742" );
-
 	// is there already a connection?
 	// get a default vehikel
 	vehikel_besch_t test_besch(road_wt, 25, vehikel_besch_t::diesel );
@@ -486,7 +484,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
 		verbindung.get_count()<2u*koord_distance(platz1,platz2))  {
 DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_count() );
-		// found something with the nearly same lenght
+		// found something with the nearly same length
 		delete test_driver;
 		return true;
 	}

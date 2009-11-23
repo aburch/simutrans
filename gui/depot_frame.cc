@@ -528,6 +528,11 @@ end:
 
 void depot_frame_t::infowin_event(const event_t *ev)
 {
+	if(ev->ev_code!=WIN_CLOSE  &&  get_welt()->get_active_player() != depot->get_besitzer()) {
+		destroy_win(this);
+		return;
+	}
+
 	gui_frame_t::infowin_event(ev);
 
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
@@ -656,6 +661,7 @@ void depot_frame_t::apply_line()
 		if(selected_line.is_bound()) {
 			// set new route only, a valid route is selected:
 			cnv->set_line(selected_line);
+			cnv->get_schedule()->set_aktuell( selected_line->get_schedule()->get_aktuell() );
 		}
 		else {
 			// sometimes the user might wish to remove convoy from line

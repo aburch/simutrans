@@ -57,7 +57,7 @@ ifeq ($(OSTYPE),mingw)
   ifeq ($(BACKEND),gdi)
     STD_LIBS +=  -lunicows
   endif
-  STD_LIBS += -lmingw32 -lgdi32 -lwinmm
+  STD_LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -99,6 +99,7 @@ endif
 ifneq ($(PROFILE),)
   CFLAGS   += -pg -DPROFILE -fno-inline
   CXXFLAGS += -pg -DPROFILE -fno-inline
+  LDFLAGS += -pg
 endif
 
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
@@ -169,6 +170,7 @@ SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
+SOURCES += dataobj/network.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc

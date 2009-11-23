@@ -30,6 +30,7 @@
 
 #include "../gui/messagebox.h"
 #include "../gui/werkzeug_waehler.h"
+#include "../gui/karte.h"
 
 #include "../besch/bruecke_besch.h"
 #include "../besch/skin_besch.h"
@@ -52,12 +53,21 @@ static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
  * Registers a new bridge type
  * @author V. Meyer, Hj. Malthaner
  */
-void brueckenbauer_t::register_besch(const bruecke_besch_t *besch)
+void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 {
 	// avoid duplicates with same name
 	if(  bruecken_by_name.remove(besch->get_name())  ) {
 		dbg->warning( "brueckenbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
+
+	// add the tool
+	wkz_brueckenbau_t *wkz = new wkz_brueckenbau_t();
+	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+	wkz->default_param = besch->get_name();
+	wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+	werkzeug_t::general_tool.append( wkz );
+	besch->set_builder( wkz );
 	bruecken_by_name.put(besch->get_name(), besch);
 }
 
@@ -104,8 +114,7 @@ bool brueckenbauer_t::laden_erfolgreich()
  * Find a matchin bridge
  * @author Hj. Malthaner
  */
-const bruecke_besch_t *
-brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
 {
 	const bruecke_besch_t *find_besch=NULL;
 
@@ -159,18 +168,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 
 	// now sorted ...
 	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		const bruecke_besch_t* besch = *i;
-		wkz_brueckenbau_t *wkz = bruecken_tool.get(besch->get_name());
-		if(wkz==NULL) {
-			// not yet in hashtable
-			wkz = new wkz_brueckenbau_t();
-			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-			wkz->default_param = besch->get_name();
-			wkz->ok_sound = sound_ok;
-			bruecken_tool.put(besch->get_name(),wkz);
-		}
-		wzw->add_werkzeug( (werkzeug_t*)wkz );
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 
@@ -613,8 +611,10 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// Nachbarn raussuchen
 		for(int r = 0; r < 4; r++) {
 			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
-				tmp_list.insert(to->get_pos());
-				marker.markiere(to);
+				if(  wegtyp != powerline_wt  ||  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt  ) {
+					tmp_list.insert(to->get_pos());
+					marker.markiere(to);
+				}
 			}
 		}
 	} while (!tmp_list.empty());
@@ -649,6 +649,8 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 			p->entferne(p->get_besitzer());
 			delete p;
 		}
+		// refresh map
+		reliefkarte_t::get_karte()->calc_map_pixel(pos.get_2d());
 	}
 	// Und die Brückenenden am Schluß
 	while (!end_list.empty()) {
@@ -656,7 +658,6 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		grund_t *gr = welt->lookup(pos);
 		if(wegtyp==powerline_wt) {
-			gr->get_leitung()->calc_bild();
 			ding_t *br;
 			while ((br = gr->find<bruecke_t>()) != 0) {
 				br->entferne(sp);
@@ -698,7 +699,11 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// then add the new ground, copy everything and replace the old one
 		grund_t *gr_new = new boden_t(welt, pos, gr->get_grund_hang());
 		gr_new->take_obj_from( gr );
-		welt->access(pos.get_2d())->kartenboden_setzen(gr_new );
+		welt->access(pos.get_2d())->kartenboden_setzen( gr_new );
+
+		if(  wegtyp == powerline_wt  ) {
+			gr_new->get_leitung()->calc_neighbourhood(); // Recalc the image. calc_bild() doesn't do the right job...
+		}
 	}
 
 	welt->set_dirty();

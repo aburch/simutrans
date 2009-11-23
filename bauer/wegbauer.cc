@@ -114,14 +114,27 @@ bool wegbauer_t::alle_wege_geladen()
 
 bool wegbauer_t::register_besch(weg_besch_t *besch)
 {
-#ifdef DEBUG
 	DBG_DEBUG("wegbauer_t::register_besch()", besch->get_name());
-	if(  besch->has_switch_bild()  ) {
-		DBG_DEBUG("wegbauer_t::register_besch()", "with switches" );
-	}
-#endif
-	if(  alle_wegtypen.remove(besch->get_name())  ) {
+	const weg_besch_t *old_besch = alle_wegtypen.get(besch->get_name());
+	if(  old_besch  ) {
+		alle_wegtypen.remove(besch->get_name());
 		dbg->warning( "wegbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+		delete old_besch->get_builder();
+		delete old_besch;
+	}
+
+	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+		// add the tool
+		wkz_wegebau_t *wkz = new wkz_wegebau_t();
+		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+		wkz->default_param = besch->get_name();
+		wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+		werkzeug_t::general_tool.append( wkz );
+		besch->set_builder( wkz );
+	}
+	else {
+		besch->set_builder( NULL );
 	}
 	alle_wegtypen.put(besch->get_name(), besch);
 	return true;
@@ -281,7 +294,6 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  */
 void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound, karte_t *welt)
 {
-	static stringhashtable_tpl<wkz_wegebau_t *> way_tool;
 	const uint16 time = welt->get_timeline_year_month();
 
 	// list of matching types (sorted by speed)
@@ -292,7 +304,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 		weg_besch_t* besch = iter.get_current_value();
 		if (besch->get_styp() == styp &&
 				besch->get_wtyp() == wtyp &&
-				besch->get_cursor()->get_bild_nr(1) != IMG_LEER && (
+				besch->get_builder() && (
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
 				)) {
@@ -303,18 +315,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 
 	// now add sorted ways ...
 	for (vector_tpl<weg_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		const weg_besch_t* besch = *i;
-		wkz_wegebau_t *wkz = way_tool.get(besch->get_name());
-		if(wkz==NULL) {
-			// not yet in hashtable
-			wkz = new wkz_wegebau_t();
-			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-			wkz->default_param = besch->get_name();
-			wkz->ok_sound = ok_sound;
-			way_tool.put(besch->get_name(),wkz);
-		}
-		wzw->add_werkzeug( (werkzeug_t*)wkz );
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 
@@ -324,8 +325,7 @@ void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const 
 /* allow for railroad crossing
  * @author prissi
  */
-bool
-wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const spieler_t *sp) const
+bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wtyp0, const spieler_t *sp) const
 {
 	const waytype_t wtyp = wtyp0==tram_wt ? track_wt : wtyp0;
 	// nothing to cross here

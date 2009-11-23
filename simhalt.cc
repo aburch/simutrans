@@ -1193,6 +1193,8 @@ bool haltestelle_t::reroute_goods(/*sint16 &units_remaining*/)
 	//return true;	// all updated ...
 	//}
 
+	// NOTE: A large number of updates have not been implemented in this method.
+
 	bool any_rerouted = false;
 	
 	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
@@ -1323,8 +1325,7 @@ void haltestelle_t::verbinde_fabriken()
 /*
  * removes factory to a halt
  */
-void
-haltestelle_t::remove_fabriken(fabrik_t *fab)
+void haltestelle_t::remove_fabriken(fabrik_t *fab)
 {
 	fab_list.remove(fab);
 }
@@ -1490,7 +1491,6 @@ convoihandle_t haltestelle_t::get_preferred_convoy(halthandle_t transfer, uint8 
 	return best_convoy;
 }
 
-
 void haltestelle_t::reset_connexions(uint8 category)
 {
 	if(connexions[category]->empty())
@@ -1655,11 +1655,12 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 				{
 					add_connexion(category, dummy_convoy, line, tmp_halt_list, (uint8)self_halt_idx);
 				}
-			}
+
 			//connections_searched += fpl->get_count();
 		}
 
 		//connections_searched ++;
+
 	}
 
 	//return connections_searched;
@@ -3354,7 +3355,7 @@ void haltestelle_t::laden_abschliessen()
 			vector_tpl<ware_t> * warray = waren[i];
 			ITERATE_PTR(warray,j) 
 			{
-				(*warray)[j].laden_abschliessen(welt);
+				(*warray)[j].laden_abschliessen(welt,besitzer_p);
 			}
 			// merge identical entries (should only happen with old games)
 			ITERATE_PTR(warray,j)

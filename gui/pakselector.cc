@@ -28,11 +28,12 @@ void pakselector_t::action(const char *filename)
 }
 
 
-void pakselector_t::del_action(const char *filename)
+bool pakselector_t::del_action(const char *filename)
 {
 	// cannot delete set => use this for selection
 	umgebung_t::objfilename = (cstring_t)filename + "/";
 	umgebung_t::default_einstellungen.set_with_private_paks( true );
+	return true;
 }
 
 const char *pakselector_t::get_info(const char *)

@@ -159,17 +159,15 @@ grund_t::grund_t(karte_t *wl, loadsave_t *file)
 
 void grund_t::rdwr(loadsave_t *file)
 {
+	// water saves its correct height => no need to save grid heights anymore
+	sint8 z = ist_wasser() ? welt->lookup_hgt(pos.get_2d()) : pos.z;
+
 	xml_tag_t g( file, "grund_t" );
 	if(file->get_version()<101000) {
 		pos.rdwr(file);
 	}
 	else {
-		// water saves its correct height => no need to save grid heights anymore
-		sint8 z = (file->is_saving()  &&  ist_wasser()) ? welt->lookup_hgt(pos.get_2d()) : pos.z;
 		file->rdwr_byte( z, "" );
-		if(  file->is_loading()  ) {
-			welt->set_grid_hgt( pos.get_2d()+koord(1,1), z );
-		}
 		pos.z = get_typ()==grund_t::wasser ? welt->get_grundwasser() : z;
 	}
 
@@ -207,6 +205,17 @@ void grund_t::rdwr(loadsave_t *file)
 	else {
 		// safe init for old version
 		slope = 0;
+	}
+
+	// restore grid
+	if(  file->is_loading()  ) {
+		if(  get_typ()==grund_t::wasser  &&  z>welt->get_grundwasser()  ) {
+			z = welt->get_grundwasser();
+		}
+		else {
+			z += corner4(slope);
+		}
+		welt->set_grid_hgt( pos.get_2d(), z );
 	}
 
 	// loading ways from here on
@@ -856,22 +865,24 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(visible){
 		if(  flags&has_way1  ) {
 			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), rasterweite );
-			const ding_t* d = obj_bei(0);
+			ding_t* d = obj_bei(0);
 			display_color_img( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
 			PLAYER_COLOR_VAL pc = d->get_outline_colour();
 			if(pc) {
 				display_img_blend( d->get_bild(), xpos, ynpos, pc, true, dirty|d->get_flag(ding_t::dirty) );
 			}
+			d->clear_flag( ding_t::dirty );
 		}
 
 		if(  flags&has_way2  ){
 			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), rasterweite );
-			const ding_t* d = obj_bei(1);
+			ding_t* d = obj_bei(1);
 			display_color_img( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
 			PLAYER_COLOR_VAL pc = d->get_outline_colour();
 			if(pc) {
 				display_img_blend( d->get_bild(), xpos, ynpos, pc, true, dirty|d->get_flag(ding_t::dirty) );
 			}
+			d->clear_flag( ding_t::dirty );
 		}
 	}
 }

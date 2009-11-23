@@ -47,7 +47,6 @@ vector_tpl<way_obj_besch_t *> wayobj_t::liste;
 stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
 
-
 wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 {
 	rdwr(file);
@@ -433,11 +432,8 @@ static bool compare_wayobj_besch(const way_obj_besch_t* a, const way_obj_besch_t
 
 bool wayobj_t::alles_geladen()
 {
-	if (wayobj_t::liste.empty()) {
+	if(table.empty()) {
 		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
-	}
-	else {
-		std::sort(liste.begin(), liste.end(), compare_wayobj_besch);
 	}
 	return true;
 }
@@ -451,11 +447,25 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 	if(old_besch) {
 		dbg->warning( "wayobj_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 		table.remove(besch->get_name());
-		liste.remove(old_besch);
+		delete old_besch->get_builder();
+		delete old_besch;
+	}
+
+	if(  besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  ) {
+		// only add images for wayobjexts with cursor ...
+		wkz_wayobj_t *wkz = new wkz_wayobj_t();
+		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+		wkz->default_param = besch->get_name();
+		wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+		werkzeug_t::general_tool.append( wkz );
+		besch->set_builder( wkz );
+	}
+	else {
+		besch->set_builder( NULL );
 	}
 
 	table.put(besch->get_name(), besch);
-	liste.append(besch);
 	if(besch->get_own_wtyp()==overheadlines_wt  &&  besch->get_wtyp()==track_wt  &&
 		(default_oberleitung==NULL  ||  default_oberleitung->get_topspeed()<besch->get_topspeed())) {
 		default_oberleitung = besch;
@@ -468,45 +478,41 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
 
 
 /**
- * Fill menu with icons of given stops from the list
+ * Fill menu with icons of given wayobjects from the list
  * @author Hj. Malthaner
  */
 void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
 {
-	static stringhashtable_tpl<wkz_wayobj_t *> wayobj_tool;
-
 	const uint16 time=welt->get_timeline_year_month();
-DBG_DEBUG("wayobj_t::fill_menu()","maximum %i",liste.get_count());
-	for (vector_tpl<const way_obj_besch_t*>::const_iterator iter = liste.begin(), end = liste.end();  iter != end;  ++iter  ) {
-		const way_obj_besch_t* besch = (*iter);
+
+	stringhashtable_iterator_tpl<const way_obj_besch_t *>iter(table);
+	vector_tpl<const way_obj_besch_t *>matching;
+
+	while(  iter.next()  ) {
+		const way_obj_besch_t* besch = iter.get_current_value();
 		if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
 
 			DBG_DEBUG("wayobj_t::fill_menu()", "try to add %s(%p)", besch->get_name(), besch);
-			if(besch->get_cursor()->get_bild_nr(1)!=IMG_LEER  &&  wtyp==besch->get_wtyp()) {
+			if(besch->get_builder()  &&  wtyp==besch->get_wtyp()) {
 				// only add items with a cursor
-				wkz_wayobj_t *wkz = wayobj_tool.get(besch->get_name());
-				if(wkz==NULL) {
-					// not yet in hashtable
-					wkz = new wkz_wayobj_t();
-					wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-					wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-					wkz->ok_sound = sound_ok;
-					wkz->default_param = besch->get_name();
-					wayobj_tool.put(besch->get_name(),wkz);
-				}
-				wzw->add_werkzeug( (werkzeug_t*)wkz );
+				matching.append(besch);
 			}
 		}
+	}
+	// sort the tools before adding to menu
+	std::sort(matching.begin(), matching.end(), compare_wayobj_besch);
+	for (vector_tpl<const way_obj_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 
 
 
-const way_obj_besch_t*
-wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
+const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 {
-	for (vector_tpl<const way_obj_besch_t*>::const_iterator i = liste.begin(), end = liste.end();  i != end;  ++i  ) {
-		const way_obj_besch_t* besch = (*i);
+	stringhashtable_iterator_tpl<const way_obj_besch_t *>iter(table);
+	while(  iter.next()  ) {
+		const way_obj_besch_t* besch = iter.get_current_value();
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))
 			&&  besch->get_wtyp()==wt  &&  besch->get_own_wtyp()==own) {
 				return besch;

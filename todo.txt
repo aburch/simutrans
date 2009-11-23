@@ -8,6 +8,7 @@ To be done:
 - renaming factories/player
 - longer financial history
 - detail on vehicles (like factory_details)
+- another road type for tramways?
 
 CHECK:
 resize greater than 2400*1536 crashes simutrans

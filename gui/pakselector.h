@@ -21,7 +21,7 @@ protected:
 	* Aktion, die nach X-Knopfdruck gestartet wird.
 	* @author V. Meyer
 	*/
-	virtual void del_action(const char *filename);
+	virtual bool del_action(const char *filename);
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);

@@ -352,7 +352,20 @@ void root_writer_t::uncopy(const char* name)
 
 			// now make a name
 			cstring_t writer = node_writer_name(infp);
-			cstring_t outfile = writer + "." + name_from_next_node(infp) + ".pak";
+			cstring_t node_name;
+			if(  writer=="factory"  ) {
+				// we need to take name from following building node ...
+				obj_node_info_t node;
+				size_t pos = ftell(infp);
+				fread(&node, sizeof(node), 1, infp);
+				fseek(infp, node.size, SEEK_CUR );
+				node_name = name_from_next_node(infp);
+				fseek( infp, pos, SEEK_SET );
+			}
+			else {
+				node_name = name_from_next_node(infp);
+			}
+			cstring_t outfile = writer + "." + node_name + ".pak";
 			FILE* outfp = fopen(outfile, "wb");
 			if (!outfp) {
 				printf("  ERROR: could not open %s for writing (aborting)\n", (const char*)outfile);

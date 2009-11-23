@@ -150,6 +150,8 @@ fahrplan_gui_t::~fahrplan_gui_t()
 	update_werkzeug( false );
 	// hide schedule on minimap (may not current, but for safe)
 	reliefkarte_t::get_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
+	delete fpl;
+
 }
 
 
@@ -162,10 +164,12 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_load("Full load"),
 	stats(sp_->get_welt(),sp_),
 	scrolly(&stats),
-	fpl(fpl_),
+	old_fpl(fpl_),
 	sp(sp_),
 	cnv(cnv_)
 {
+	old_fpl->eingabe_beginnen();
+	fpl = old_fpl->copy();
 	stats.set_fahrplan(fpl);
 	if(!cnv.is_bound()) {
 		old_line = new_line = linehandle_t();
@@ -174,8 +178,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	else {
 		old_line = new_line = cnv_->get_line();
 	}
-	this->fpl = fpl;
-	fpl->eingabe_beginnen();
 	strcpy(no_line, translator::translate("<no line>"));
 
 	sint16 ypos = 0;
@@ -283,21 +285,19 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 }
 
 
-
-
 void fahrplan_gui_t::update_werkzeug(bool set)
 {
 	karte_t *welt = sp->get_welt();
 	if(!set  ||  mode==removing  ||  mode==undefined_mode) {
 		// reset tools, if still selected ...
-		if(welt->get_werkzeug()==werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]) {
+		if(welt->get_werkzeug(sp->get_player_nr())==werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]) {
 			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->default_param==(const char *)fpl) {
-				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}
 		}
-		else if(welt->get_werkzeug()==werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]) {
+		else if(welt->get_werkzeug(sp->get_player_nr())==werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]) {
 			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->default_param==(const char *)fpl) {
-				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE] );
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}
 		}
 	}
@@ -305,11 +305,11 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 		//  .. or set them again
 		if(mode==adding) {
 			werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->default_param = (const char *)fpl;
-			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD] );
+			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD], sp );
 		}
 		else if(mode==inserting) {
 			werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->default_param = (const char *)fpl;
-			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS] );
+			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS], sp );
 		}
 	}
 }
@@ -384,20 +384,35 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 		update_werkzeug( false );
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
-		if (cnv.is_bound()) {
+		old_fpl->eingabe_abschliessen();
+		// now apply the changes
+		if(cnv.is_bound()) {
 			// if a line is selected
-			if (new_line.is_bound()  &&  new_line->get_schedule()->matches( sp->get_welt(), fpl )) {
+			if(  new_line.is_bound()  ) {
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
-					uint8 akt = fpl->get_aktuell();
 					cnv->set_line( new_line );
-					cnv->get_schedule()->set_aktuell( akt );
+				}
+				else {
+					old_fpl->copy_from( fpl );
+					old_fpl->set_aktuell( fpl->get_aktuell() );
+					cnv->set_schedule( old_fpl );
 				}
 			}
 			else {
 				// no line is selected or line does not match => unset the line
 				cnv->unset_line();
+				// since matches does not check for depots, we need to do it this way ...
+				if(  fpl->get_count()!=old_fpl->get_count()  ||  !old_fpl->matches( sp->get_welt(), fpl )  ) {
+					sp->get_welt()->set_schedule_counter();
+				}
+				old_fpl->copy_from( fpl );
+				cnv->set_schedule( old_fpl );
 			}
+		}
+		else {
+			// the changes for lines or depot convois are handled by line gui ....
+			old_fpl->copy_from( fpl );
 		}
 	}
 	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  ) {

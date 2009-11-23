@@ -851,6 +851,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\obj_reader.cc"
 				>
 			</File>
@@ -2022,6 +2026,10 @@
 			</File>
 			<File
 				RelativePath=".\boden\wege\narrowgauge.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network.h"
 				>
 			</File>
 			<File

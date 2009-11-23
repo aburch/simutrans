@@ -691,7 +691,7 @@ void vehikel_t::set_convoi(convoi_t *c)
 #ifdef SLIST_FREIGHT
 		slist_iterator_tpl <ware_t> iter (fracht);
 		while(iter.next()) {
-			iter.access_current().laden_abschliessen(welt);
+			iter.access_current().laden_abschliessen(welt,get_besitzer());
 #else
 		ITERATE(fracht,i)
 		{

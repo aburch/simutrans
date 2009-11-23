@@ -16,9 +16,6 @@ class fussgaenger_t : public verkehrsteilnehmer_t
 private:
 	static stringhashtable_tpl<const fussgaenger_besch_t *> table;
 
-public:
-	static int count;
-
 private:
 	static uint32 strecke[8];
 

@@ -63,6 +63,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/translator.h"
+#include "dataobj/network.h"
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
@@ -189,16 +190,23 @@ static void zeige_banner(karte_t *welt)
 
 	// hide titelbar with this trick
 	win_set_pos( b, 0, -48 );
+	welt->set_pause( false );
+	welt->reset_interaction();
+	welt->reset_timer();
 
 	do {
+		static long ms_pause = 1000/min(100,umgebung_t::fps);
 		win_poll_event(&ev);
 		check_pos_win(&ev);
 		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 			umgebung_t::quit_simutrans = true;
 		}
-		INT_CHECK("simmain 189");
-		dr_sleep(10);
+		dr_sleep(ms_pause);
+		static uint32 last_step = dr_time();
+		uint32 next_step = dr_time();
+		welt->sync_step( next_step-last_step, true, true );
 		welt->step();
+		last_step = next_step;
 	} while(win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
 
 
@@ -344,6 +352,7 @@ int simu_main(int argc, char** argv)
 #else
 	std::set_new_handler(sim_new_handler);
 #endif
+	umgebung_t::init();
 
 	// you really want help with this?
 	if (gimme_arg(argc, argv, "-h",     0) ||
@@ -493,6 +502,21 @@ int simu_main(int argc, char** argv)
 	} else {
 		init_logging(NULL, false, false);
 	}
+
+#if 0	// server not yet fully implemented, be patient
+	// starting a server?
+	if(  gimme_arg(argc, argv, "-server", 0)  ) {
+		const char *p = gimme_arg(argc, argv, "-server", 1);
+		int portadress = p ? atoi( p ) : 13353;
+		if(  portadress==0  ) {
+			portadress = 13353;
+		}
+		// will fail fatal on the opening routine ...
+		dbg->message( "simmain()", "Server started on port %i", portadress );
+		umgebung_t::server = umgebung_t::networkmode = network_init_server( portadress );
+	}
+#endif
+
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
 	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );
 	DBG_MESSAGE( "program_dir", umgebung_t::program_dir );
@@ -608,11 +632,13 @@ int simu_main(int argc, char** argv)
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
-		if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
-			umgebung_t::default_einstellungen.set_with_private_paks( true );
-		}
-		if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
-			umgebung_t::default_einstellungen.set_with_private_paks( false );
+		if(  gimme_arg(argc, argv, "-objects", 1) != NULL  ) {
+			if(gimme_arg(argc, argv, "-addons", 0) != NULL) {
+				umgebung_t::default_einstellungen.set_with_private_paks( true );
+			}
+			if(gimme_arg(argc, argv, "-noaddons", 0) != NULL) {
+				umgebung_t::default_einstellungen.set_with_private_paks( false );
+			}
 		}
 	}
 	else {
@@ -670,6 +696,9 @@ int simu_main(int argc, char** argv)
 
 	baum_t::forestrules_init(umgebung_t::objfilename);
 
+	printf("Reading menu configuration ...\n");
+	werkzeug_t::init_menu();
+
 	// loading all paks
 	printf("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
 	obj_reader_t::load(umgebung_t::objfilename, translator::translate("Loading paks ...") );
@@ -688,7 +717,7 @@ int simu_main(int argc, char** argv)
 	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );
 
 	printf("Reading menu configuration ...\n");
-	werkzeug_t::init_menu(umgebung_t::objfilename);
+	werkzeug_t::read_menu(umgebung_t::objfilename);
 
 	if(  translator::get_language()==-1  ) {
 		ask_language();
@@ -703,7 +732,13 @@ int simu_main(int argc, char** argv)
 		/**
 		 * Added automatic adding of extension
 		 */
-		sprintf(buf, SAVE_PATH_X "%s", (const char*)searchfolder_t::complete(gimme_arg(argc, argv, "-load", 1), "sve"));
+		const char *name = gimme_arg(argc, argv, "-load", 1);
+		if(  strstr(name,"net:")==name  ) {
+			strcpy( buf, name );
+		}
+		else {
+			sprintf(buf, SAVE_PATH_X "%s", (const char*)searchfolder_t::complete(name, "sve"));
+		}
 		loadgame = buf;
 		new_world = false;
 	}
@@ -782,6 +817,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	chdir(umgebung_t::user_dir);
 
+	// reset random counter to true randomness
+	setsimrand(dr_time(), dr_time());
+	set_random_allowed( true );
+
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
@@ -835,15 +874,15 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 #endif
 
 	welt->set_fast_forward(false);
-#ifdef PROFILE
-	welt->set_fast_forward(true);
-	if( loadgame == "" )
-	{
-		dbg->fatal("simmain", "no game loaden in profile mode. Use -load");
+	welt->reset_timer();
+	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+		view->display(true);
+		intr_refresh_display(true);
 	}
-#endif
-	view->display(true);
-	intr_refresh_display(true);
+	else {
+		intr_disable();
+	}
+
 
 #ifdef USE_SOFTPOINTER
 	// Hajo: give user a mouse to work with
@@ -864,12 +903,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->get_message()->clear();
 
-#ifndef PROFILE
+	if(  !umgebung_t::networkmode  ||  new_world  ) {
 		ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
-#endif
-
-	intr_set(welt, view);
+	}
 
 	while (!umgebung_t::quit_simutrans) {
 		// play next tune?
@@ -877,6 +914,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 		// to purge all previous old messages
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
+
+		if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+			welt->set_pause( false );
+		}
 
 		if (new_world) {
 			climate_gui_t *cg = new climate_gui_t(&umgebung_t::default_einstellungen);
@@ -890,9 +931,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			welt_gui_t *wg = new welt_gui_t(welt, &umgebung_t::default_einstellungen);
 			create_win((disp_width - 220 - cg->get_fenstergroesse().x -10 -10- 260)/2 + 220 + 10, (disp_height - 300) / 2, wg, w_do_not_delete, magic_welt_gui_t );
 
-			setsimrand(dr_time(), dr_time());
-
 			do {
+				// disable pause to allow for screen updates
+				welt->set_pause( false );
+				welt->set_fast_forward(false);
+
 				INT_CHECK("simmain 803");
 				win_poll_event(&ev);
 				INT_CHECK("simmain 805");
@@ -901,7 +944,18 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					umgebung_t::quit_simutrans = true;
 				}
 				INT_CHECK("simmain 807");
+				if(  umgebung_t::networkmode  ) {
+					static int count = 0;
+					if(  ((count++)&7)==0 ) {
+						static uint32 last_step = dr_time();
+						uint32 next_step = dr_time();
+						welt->sync_step( next_step-last_step, true, true );
+						welt->step();
+						last_step = next_step;
+					}
+				}
 				dr_sleep(5);
+				welt->reset_interaction();
 			} while(
 				!wg->get_load() &&
 				!wg->get_scenario() &&
@@ -970,19 +1024,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		loadgame = ""; // only first time
 
 		// run the loop
-		while(welt->interactive()) {
-#if defined DEBUG || defined PROFILE
-			if(  welt->get_current_month() >= quit_month  ) {
-				umgebung_t::quit_simutrans = true;
-				break;
-			}
-#endif
-		}
+		welt->interactive(quit_month);
 
 		new_world = true;
 		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		welt->set_fast_forward(false);
-
+		setsimrand(dr_time(), dr_time());
 	}
 
 	intr_disable();
@@ -1001,6 +1048,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	delete view;
 	view = 0;
+
+	network_core_shutdown();
 
 	simgraph_exit();
 
