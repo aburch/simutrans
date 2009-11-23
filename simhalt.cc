@@ -1565,7 +1565,7 @@ void haltestelle_t::rebuild_connexions(const uint8 category)
 		assert(fpl);
 		// ok, now add line to the connections
 
-		if(line->count_convoys( )> 0 && (i_am_public || line->get_convoy(0)->get_besitzer() == get_besitzer()))
+		if(line->count_convoys() > 0 && (i_am_public || line->get_besitzer() == besitzer_p))
 		{
 			// Interrupt checks here caused crashes on rotation.
 			//INT_CHECK("simhalt.cc 613");

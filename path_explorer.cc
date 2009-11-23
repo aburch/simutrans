@@ -634,6 +634,7 @@ void path_explorer_t::compartment_t::step()
 
 			minivec_tpl<halthandle_t> halt_list(64);
 			minivec_tpl<uint16> journey_time_list(64);
+			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
 			uint16 accumulated_journey_time;
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
@@ -675,6 +676,7 @@ void path_explorer_t::compartment_t::step()
 				// create a list of reachable halts
 				entry_count = current_schedule->get_count();
 				halt_list.clear();
+				recurrence_list.clear();
 
 				for (uint8 i = 0; i < entry_count; ++i)
 				{
@@ -685,6 +687,8 @@ void path_explorer_t::compartment_t::step()
 					{
 						// Assign to halt list only if current halt supports this compartment's goods category
 						halt_list.append(current_halt, 64);
+						// Initialise the corresponding recurrence list entry to false
+						recurrence_list.append(false, 64);
 					}
 				}
 
@@ -712,6 +716,12 @@ void path_explorer_t::compartment_t::step()
 				// for each origin halt
 				for (uint8 h = 0; h < entry_count; ++h)
 				{
+					if ( recurrence_list[h] )
+					{
+						// skip this halt if it has already been processed
+						continue;
+					}
+
 					accumulated_journey_time = 0;
 
 					// use hash tables in connexion list, but not the hash tables stored in the halt
@@ -730,6 +740,8 @@ void path_explorer_t::compartment_t::step()
 						{
 							// reset and process the next
 							accumulated_journey_time = 0;
+							// mark this halt in the recurrence list to avoid duplicated processing
+							recurrence_list[t] = true;
 							continue;
 						}
 
