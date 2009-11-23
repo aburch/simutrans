@@ -1003,14 +1003,14 @@ static void rezoom_img(const unsigned int n)
 					}
 					break;
 				case 3:
-					for(  y=0;  y<newzoomheight;  y++  ) {
+					for(  sint16 y=0;  y<newzoomheight;  y++  ) {
 						uint8 *p1 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+0-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
 						uint8 *p2 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+1-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
 						uint8 *p3 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+3-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
 //						uint8 *p1 = baseimage + ((y*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
 //						uint8 *p2 = baseimage + ((y*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
 //						uint8 *p3 = baseimage + ((y*zoom_den[zoom_factor]+2)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
-						for(  x=0;  x<newzoomwidth;  x++  ) {
+						for(  sint16 x=0;  x<newzoomwidth;  x++  ) {
 							uint8 valid=0;
 							uint16 r=0,g=0,b=0;
 							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*4;
