@@ -939,6 +939,14 @@ void convoi_t::step()
 
 			// If there is a pending replacement, just do it
 			if (get_replace() && replacing_vehicles.get_count()>0) {
+
+				// Knightly : before replacing, copy the existing set of goods category index
+				minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
+				for( uint8 i = 0; i < goods_catg_index.get_count(); ++i ) 
+				{
+					old_goods_catg_index.append( goods_catg_index[i] );
+				}
+
 				const grund_t *gr = welt->lookup(home_depot);
 				depot_t *dep;
 				if ( gr && (dep=gr->get_depot()) ) {
@@ -1034,6 +1042,45 @@ end_loop:
 						}
 
 					}
+
+					// Knightly : recalculate goods category index and determine if refresh is needed
+					recalc_catg_index();
+
+					minivec_tpl<uint8> differences(goods_catg_index.get_count() + old_goods_catg_index.get_count());
+
+					// removed categories : present in old category list but not in new category list
+					for ( uint8 i = 0; i < old_goods_catg_index.get_count(); ++i )
+					{
+						if ( ! goods_catg_index.is_contained( old_goods_catg_index[i] ) )
+						{
+							differences.append( old_goods_catg_index[i] );
+						}
+					}
+
+					// added categories : present in new category list but not in old category list
+					for ( uint8 i = 0; i < goods_catg_index.get_count(); ++i )
+					{
+						if ( ! old_goods_catg_index.is_contained( goods_catg_index[i] ) )
+						{
+							differences.append( goods_catg_index[i] );
+						}
+					}
+
+					if ( differences.get_count() > 0 )
+					{
+						if ( line.is_bound() )
+						{
+							// let the line decide if refresh is needed
+							line->recalc_catg_index();
+						}
+						else
+						{
+							// refresh only those categories which are either removed or added to the category list
+							haltestelle_t::refresh_routing(fpl, differences, besitzer_p, welt->get_einstellungen()->get_default_path_option());
+						}
+					}
+
+
 					if (autostart) {
 						dep->start_convoi(self);
 					}
