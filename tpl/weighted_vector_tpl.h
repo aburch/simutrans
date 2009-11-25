@@ -154,7 +154,9 @@ template<class T> class weighted_vector_tpl
 				return false;
 			}
 #endif
-			if (count == size) resize(count + extend);
+			if (count == size) {
+				resize(count + extend);
+			}
 			nodes[count].data   = elem;
 			nodes[count].weight = total_weight;
 			count++;
@@ -198,9 +200,47 @@ template<class T> class weighted_vector_tpl
 				total_weight += weight;
 				count++;
 				return true;
-			} else {
+			}
+			else {
 				return append(elem, weight, 1);
 			}
+		}
+
+		/**
+		 * Insert `elem' with respect to ordering.
+		 */
+		template<class StrictWeakOrdering>
+		void insert_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
+		{
+			uint32 i = 0;
+			for(  ; i < count; ++i  ) {
+				/* We are past `elem'.  Insert here. */
+				if(  comp(elem, (*this)[i])  )
+					break;
+			}
+
+			insert_at(i, elem, weight);
+		}
+
+		/**
+		 * Only insert `elem' if not already contained in this vector.
+		 * Respects the ordering and assumes the vector is ordered.
+		 */
+		template<class StrictWeakOrdering>
+		void insert_unique_ordered(const T& elem, unsigned long weight, StrictWeakOrdering comp)
+		{
+			uint32 i = 0;
+			for(  ; i < count; ++i  ) {
+				const T& here = (*this)[i];
+
+				/* We are past `elem'.  Insert here. */
+				if(  comp(elem, here)  )
+					break;
+				if(  here == elem  )
+					return;
+			}
+
+			insert_at(i, elem, weight);
 		}
 
 		/** removes element, if contained */

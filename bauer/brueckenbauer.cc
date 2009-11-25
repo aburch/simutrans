@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <string.h>
 
 #include "../simdebug.h"
@@ -161,10 +160,9 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 					time == 0 ||
 					(b->get_intro_year_month() <= time && time < b->get_retire_year_month())
 				)) {
-			matching.append(b);
+			matching.insert_ordered( b, compare_bridges);
 		}
 	}
-	std::sort(matching.begin(), matching.end(), compare_bridges);
 
 	// now sorted ...
 	for (vector_tpl<const bruecke_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {

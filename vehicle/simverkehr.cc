@@ -9,8 +9,6 @@
  * April 2000
  */
 
-#include <algorithm>
-
 #include "../simdebug.h"
 #include "../simgraph.h"
 #include "../simmesg.h"
@@ -368,12 +366,10 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 			const int retire_month = info->get_retire_year_month();
 
 			if (!welt->use_timeline() || (intro_month <= month_now && month_now < retire_month)) {
-				temp_liste.append(info);
+				temp_liste.insert_ordered( info, compare_stadtauto_besch );
 			}
 		}
 	}
-	// needs to sort them, to have same order on any computer ...
-	std::sort(temp_liste.begin(),temp_liste.end(),compare_stadtauto_besch);
 	liste_timeline.resize( temp_liste.get_count() );
 	for (vector_tpl<const stadtauto_besch_t*>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
 		liste_timeline.append( (*i), (*i)->get_gewichtung() );

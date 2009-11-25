@@ -7,7 +7,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 
 #include "../simcolor.h"
@@ -121,7 +120,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 			const haus_besch_t *besch = (*i);
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.append(besch);
+				hauslist.insert_ordered(besch,compare_haus_besch);
 			}
 		}
 	}
@@ -133,7 +132,7 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 			const haus_besch_t *besch = (*i);
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.append(besch);
+				hauslist.insert_ordered(besch,compare_haus_besch);
 			}
 		}
 	}
@@ -145,12 +144,10 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 			const haus_besch_t *besch = (*i);
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
-				hauslist.append(besch);
+				hauslist.insert_ordered(besch,compare_haus_besch);
 			}
 		}
 	}
-
-	std::sort(hauslist.begin(), hauslist.end(), compare_haus_besch);
 
 	// now buil scrolled list
 	scl.clear_elements();

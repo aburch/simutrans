@@ -797,8 +797,6 @@ bool haltestelle_t::step(sint16 &units_remaining)
 		status_step = 0;
 		units_remaining = 0;
 	}
-	// only update needed after monthly change: really slow, but does not matter at all
-	recalc_status();
 	return true;
 }
 

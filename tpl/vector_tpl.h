@@ -108,14 +108,6 @@ template<class T> class vector_tpl
 			return true;
 		}
 
-		/** removes element, if contained */
-		void remove(const T& elem)
-		{
-			for (uint32 i = 0; i < count; i++) {
-				if (data[i] == elem) return remove_at(i);
-			}
-		}
-
 		/** insets data at a certain pos */
 		void insert_at(const uint32 pos, const T& elem)
 		{
@@ -184,6 +176,16 @@ template<class T> class vector_tpl
 			data[pos] = elem;
 			if (pos >= count) {
 				count = pos + 1;
+			}
+		}
+
+		/** removes element, if contained */
+		void remove(const T& elem)
+		{
+			for (uint32 i = 0; i < count; i++) {
+				if (data[i] == elem) {
+					return remove_at(i);
+				}
 			}
 		}
 

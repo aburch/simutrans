@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 #include <math.h>
 
@@ -321,10 +320,8 @@ bool baum_t::alles_geladen()
 	else {
 		stringhashtable_iterator_tpl<const baum_besch_t*> iter(besch_names);
 		while(  iter.next()  ) {
-			baum_typen.append( iter.get_current_value() );
+			baum_typen.insert_ordered( iter.get_current_value(), compare_baum_besch );
 		}
-		// needs to sort them, to have same order on any computer ...
-		std::sort(baum_typen.begin(),baum_typen.end(),compare_baum_besch);
 		// fill the vector with zeros
 		for (uint8 j=0; j<MAX_CLIMATES; j++) {
 			baum_typen_per_climate.append( weighted_vector_tpl<uint32>() );

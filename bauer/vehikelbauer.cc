@@ -293,7 +293,9 @@ bool vehikelbauer_t::alles_geladen()
 	while (typ_iter.next()) {
 		slist_tpl<const vehikel_besch_t*>& typ_liste = typ_iter.access_current_value();
 		uint count = typ_liste.get_count();
-		if (count == 0) continue;
+		if (count == 0) {
+			continue;
+		}
 		const vehikel_besch_t** const tmp     = new const vehikel_besch_t*[count];
 		const vehikel_besch_t** const tmp_end = tmp + count;
 		for (const vehikel_besch_t** i = tmp; i != tmp_end; i++) {

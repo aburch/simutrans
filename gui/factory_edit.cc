@@ -7,7 +7,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 
 #include "../simcolor.h"
@@ -135,22 +134,20 @@ void factory_edit_frame_t::fill_list( bool translate )
 
 				if(city_chain) {
 					if(besch->get_platzierung()==fabrik_besch_t::Stadt  &&  besch->get_produkt(0)==NULL) {
-						fablist.append(besch);
+						fablist.insert_ordered( besch, compare_fabrik_besch );
 					}
 				}
 				if(land_chain) {
 					if(besch->get_platzierung()==fabrik_besch_t::Land  &&  besch->get_produkt(0)==NULL) {
-						fablist.append(besch);
+						fablist.insert_ordered( besch, compare_fabrik_besch );
 					}
 				}
 				if(!city_chain  &&  !land_chain) {
-					fablist.append(besch);
+					fablist.insert_ordered( besch, compare_fabrik_besch );
 				}
 			}
 		}
 	}
-
-	std::sort(fablist.begin(), fablist.end(), compare_fabrik_besch);
 
 	// now buil scrolled list
 	scl.clear_elements();

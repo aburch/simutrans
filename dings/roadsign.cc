@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -513,11 +512,10 @@ void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound
 
 			if(besch->get_builder()  &&  wtyp==besch->get_wtyp()) {
 				// only add items with a cursor
-				matching.append(besch);
+				matching.insert_ordered( besch, compare_roadsign_besch );
 			}
 		}
 	}
-	std::sort( matching.begin(), matching.end(), compare_roadsign_besch );
 	for (vector_tpl<const roadsign_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
 		wzw->add_werkzeug( (*i)->get_builder() );
 	}
