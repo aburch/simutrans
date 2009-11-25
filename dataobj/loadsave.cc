@@ -200,6 +200,8 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	// delete trailing path seperator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
+	version = int_version(SAVEGAME_VER_NR, NULL, NULL );
+
 	if(  !is_xml()  ) {
 		char str[4096];
 		size_t len;
@@ -218,7 +220,6 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 		ident = 1;
 	}
 
-	version = int_version(SAVEGAME_VER_NR, NULL, NULL );
 	this->mode = mode;
 	this->filename = filename;
 
