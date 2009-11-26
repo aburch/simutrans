@@ -417,6 +417,18 @@ public:
 		return enables&WARE;
 	}
 
+	// a separate version for checking with goods category index
+	int is_enabled( const uint8 ctg )
+	{
+		if (ctg==0) {
+			return enables&PAX;
+		}
+		else if(ctg==1) {
+			return enables&POST;
+		}
+		return enables&WARE;
+	}
+
 	/**
 	 * Found route and station uncrowded
 	 * @author Hj. Malthaner
