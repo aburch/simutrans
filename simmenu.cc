@@ -828,7 +828,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	cleanup( sp, true );
 
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( welt, sp, pos, error );
+	uint8 value = is_valid_pos( welt, sp, pos, error, start[sp->get_player_nr()] );
 	if(  value == 0  ) {
 		init( welt, sp );
 		return error;
@@ -869,15 +869,13 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 	}
 
 	const char *error = NULL;
-	uint8 value = is_valid_pos( welt, sp, pos, error );
-	if(  error  ||  value == 0  ) {
-		return error;
-	}
 
 	if(  start[sp_nr] == koord3d::invalid  ) {
 		// start dragging.
 		cleanup( sp, true );
-		if(  value == 0  ) {
+
+		uint8 value = is_valid_pos( welt, sp, pos, error, koord3d::invalid );
+		if( error || value == 0 ) {
 			return error;
 		}
 		if( value & 2 ) {
@@ -891,7 +889,10 @@ const char *two_click_werkzeug_t::move( karte_t *welt, spieler_t *sp, uint16 but
 		if( start_marker[sp_nr] ) {
 			start[sp_nr] = start_marker[sp_nr]->get_pos(); // if map was rotated.
 		}
-
+		uint8 value = is_valid_pos( welt, sp, pos, error, start[sp_nr] );
+		if( error || value == 0 ) {
+			return error;
+		}
 		if( value & 2 ) {
 			display_show_load_pointer( true );
 			mark_tiles( welt, sp, start[sp_nr], pos );

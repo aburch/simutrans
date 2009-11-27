@@ -4,6 +4,7 @@
 	FIX: no longer possible for neagtive prices (cheat bus)
 	ADD: (Dwachs) starting money per year
 	ADD: lines will be listed numerically correct, if the contain a number
+	ADD: bridge building with click-and-drag
 
 
 Release Candidate 102.2.1
