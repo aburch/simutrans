@@ -2049,7 +2049,7 @@ void wegbauer_t::baue_leitung()
 		else {
 			spieler_t::add_maintenance( lt->get_besitzer(),  -wegbauer_t::leitung_besch->get_wartung() );
 		}
-		lt->laden_abschliessen();
+		lt->leitung_t::laden_abschliessen();
 
 		if((i&3)==0) {
 			INT_CHECK( "wegbauer 1584" );
