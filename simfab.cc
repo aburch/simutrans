@@ -1271,16 +1271,14 @@ void fabrik_t::recalc_factory_status()
 }
 
 
-void
-fabrik_t::zeige_info() const
+void fabrik_t::zeige_info() const
 {
 	gebaeude_t *gb = welt->lookup(pos)->find<gebaeude_t>();
 	create_win(new fabrik_info_t(this, gb), w_info, (long)gb );
 }
 
 
-void
-fabrik_t::info(cbuffer_t& buf) const
+void fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.clear();
 	buf.append( translator::translate("Durchsatz") );

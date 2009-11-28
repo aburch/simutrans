@@ -24,6 +24,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
+#include "../gui/trafficlight_info.h"
 #include "../gui/werkzeug_waehler.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -57,6 +58,7 @@ roadsign_t::roadsign_t(karte_t *welt, spieler_t *sp, koord3d pos, ribi_t::ribi d
 	this->dir = dir;
 	bild = after_bild = IMG_LEER;
 	zustand = 0;
+	ticks_ns = ticks_ow = 16;
 	set_besitzer( sp );
 	// if more than one state, we will switch direction and phase for traffic lights
 	automatic = (besch->get_bild_anzahl()>4  &&  besch->get_wtyp()==road_wt);
@@ -113,6 +115,17 @@ DBG_MESSAGE("roadsign_t::set_dir()","ribi %i",dir);
 }
 
 
+void roadsign_t::zeige_info()
+{
+	if(  automatic  ) {
+		create_win(new trafficlight_info_t(this), w_info, (long)this );
+	}
+	else {
+		ding_t::zeige_info();
+	}
+}
+
+
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
@@ -132,6 +145,11 @@ void roadsign_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("\ndirection:"));
 	buf.append(dir);
 	buf.append("\n");
+	if(  automatic  ) {
+		buf.append(translator::translate("\nSet phases:"));
+		buf.append("\n");
+		buf.append("\n");
+	}
 }
 
 
@@ -285,7 +303,9 @@ void roadsign_t::calc_bild()
 bool roadsign_t::sync_step(long /*delta_t*/)
 {
 	// change every ~32s
-	uint8 new_zustand = ( (welt->get_zeit_ms()>>15) + welt->get_einstellungen()->get_rotation() )&1;
+	uint32 ticks = (welt->get_zeit_ms()>>10) % (ticks_ns+ticks_ow);
+
+	uint8 new_zustand = welt->get_einstellungen()->get_rotation()&1 ? ticks>ticks_ow : ticks>ticks_ns ;
 	if(zustand!=new_zustand) {
 		zustand = new_zustand;
 		dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
@@ -296,8 +316,7 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 
 
 
-void
-roadsign_t::rotate90()
+void roadsign_t::rotate90()
 {
 	ding_t::rotate90();
 	// only meaningful for traffic lights
@@ -336,9 +355,22 @@ void roadsign_t::rdwr(loadsave_t *file)
 	ding_t::rdwr(file);
 
 	uint8 dummy=0;
+	if(  file->get_version()<103000  ) {
+		file->rdwr_byte(dummy, " ");
+		if(  file->is_loading()  ) {
+			ticks_ns = ticks_ow = 16;
+		}
+	}
+	else {
+		file->rdwr_byte(ticks_ns, "" );
+		file->rdwr_byte(ticks_ow, "" );
+	}
+	dummy = zustand;
 	file->rdwr_byte(dummy, " ");
-	file->rdwr_byte(zustand, " ");
-	file->rdwr_byte(dir, "\n");
+	zustand = dummy;
+	dummy = dir;
+	file->rdwr_byte(dummy, "\n");
+	dir = dummy;
 	if(file->get_version()<89000) {
 		dir = ribi_t::rueckwaerts(dir);
 	}

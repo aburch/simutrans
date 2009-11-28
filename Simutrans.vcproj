@@ -963,6 +963,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\trafficlight_info.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\translator.cc"
 				>
 			</File>

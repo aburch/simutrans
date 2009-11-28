@@ -167,8 +167,7 @@ void ding_t::info(cbuffer_t & buf) const
 }
 
 
-void
-ding_t::zeige_info()
+void ding_t::zeige_info()
 {
 	create_win( new ding_infowin_t(this), w_info, (long)this);
 }

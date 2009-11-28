@@ -2268,10 +2268,11 @@ void convoi_t::laden()
 		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->get_current_eintrag().waiting_time_shift));
 	}
 
-	INT_CHECK("simconvoi 1077");
-
 	// Nun wurde ein/ausgeladen werden
 	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
+
+		// This is the minimum time it takes for loading
+		wait_lock = WTT_LOADING;
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
@@ -2289,8 +2290,10 @@ void convoi_t::laden()
 		fpl->advance();
 		state = ROUTING_1;
 	}
-	// This is the minimum time it takes for loading
-	wait_lock = WTT_LOADING;
+	else {
+		// just wait a little longer to get maximum load ...
+		wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
+	}
 }
 
 

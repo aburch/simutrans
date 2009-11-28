@@ -34,9 +34,9 @@ protected:
 	 */
 	const ding_t* ding;
 
-		KOORD_VAL calc_draw_info( koord, bool ) const;
+	KOORD_VAL calc_draw_info( koord, bool ) const;
 
-	public:
+public:
 	ding_infowin_t(const ding_t* ding);
 
 	/**
