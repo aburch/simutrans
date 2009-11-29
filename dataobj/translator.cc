@@ -42,7 +42,7 @@ static char *fgets_line(char *buffer, int max_len, FILE *file)
 }
 
 
-const char* translator::lang_info::translate(const char* text) const
+const char *translator::lang_info::translate(const char* text) const
 {
 	if (text    == NULL) {
 		return "(null)";
@@ -250,8 +250,8 @@ static void init_city_names(bool is_utf_language)
 		// ok, could open file
 		char buf[256];
 		bool file_is_utf = is_unicode_file(file);
-		while (!feof(file)) {
-			if (fgets_line(buf, 128, file)) {
+		while(  !feof(file)  ) {
+			if(  fgets_line(buf, 128, file)  &&  buf[0]>0  &&  buf[0]!='#'  ) {
 				rtrim(buf);
 				char* c = recode(buf, file_is_utf, is_utf_language);
 				namen_liste.append(c);

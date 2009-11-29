@@ -6,6 +6,7 @@
 	ADD: lines will be listed numerically correct, if the contain a number
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
+	CHANGE: ignore empty entries and lines starting with # in citylists
 
 
 Release Candidate 102.2.1
