@@ -7,6 +7,7 @@
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
 	CHANGE: ignore empty entries and lines starting with # in citylists
+	FIX: deleting line does not longer crash in halt_detail windows
 
 
 Release Candidate 102.2.1
