@@ -664,7 +664,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	maint_building = contents.get_int("maintenance_building", maint_building);
 
-	numbered_stations = contents.get_int("numbered_stations", numbered_stations ) != 0;
+	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
 
 	// time stuff

@@ -759,10 +759,10 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 	 */
 
 	// strings for intown / outside of town
-	const char *base_name = inside ? translator::translate("%s city %d %s") : translator::translate("%s land %d %s");
+	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s" );
 
-	// finally: is there a stop with this name alrady?
-	for(  int i=1;  i<32767;  i++  ) {
+	// finally: is there a stop with this name already?
+	for(  uint32 i=1;  i<65536;  i++  ) {
 		sprintf(buf, base_name, city_name, i, stop );
 		if(  !all_names.get(buf).is_bound()  ) {
 			return strdup(buf);
