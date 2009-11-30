@@ -261,6 +261,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 	else {
 
 		//Bernd Gabriel, Sep, 24 2009: acceleration curve:
+		if (filterButtons[ACCELERATOR_BUTTON].is_visible() && filterButtons[ACCELERATOR_BUTTON].pressed)
 		{
 			existing_convoy_t convoy(*cnv.get_rep());
 			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));

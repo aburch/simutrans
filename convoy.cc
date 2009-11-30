@@ -112,10 +112,20 @@ void weight_summary_t::add_weight(uint32 tons, sint32 sin_alpha)
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	double p3 = (environ.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * environ.cf);
-	double q2 = vehicle.power / (0.002 * environ.cf);
-	double sd = sqrt(q2 * q2 + p3 * p3 * p3);
-	double vmax = (pow(q2 + sd, 1.0/3.0) - pow(sd - q2, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
+	double p = (environ.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * environ.cf);
+	double p3 = p * p * p;
+	double q = vehicle.power / (0.002 * environ.cf);
+	double q2 = q * q;
+	double sd;
+	if (q2 >= p3)
+		sd = + sqrt(q2 - p3);
+	else
+		sd = - sqrt(p3 - q2);
+	double vmax;
+	if (q2 >= sd)
+		vmax = (pow(q2 + sd, 1.0/3.0) + pow(q2 - sd, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
+	else
+		vmax = (pow(q2 + sd, 1.0/3.0) - pow(sd - q2, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
 	return min(vehicle.max_speed, (sint32) vmax); 
 }
 
@@ -246,7 +256,7 @@ void potential_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 	vehicle.clear();
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		const vehikel_besch_t &b = *vehicles.get_element(i);
+		const vehikel_besch_t &b = *vehicles[i];
 		vehicle.add_vehicle(b);
 	}
 }
@@ -258,7 +268,7 @@ void potential_convoy_t::update_environ_summary(environ_summary_t &environ)
 	uint32 i = vehicles.get_count();
 	if (i > 0)
 	{
-		const vehikel_besch_t &b = *vehicles.get_element(0);
+		const vehikel_besch_t &b = *vehicles[0];
 		environ.set_by_waytype(b.get_waytype());
 	}		
 }
@@ -269,7 +279,7 @@ void potential_convoy_t::update_freight_summary(freight_summary_t &freight)
 	freight.clear();
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		const vehikel_besch_t &b = *vehicles.get_element(i);
+		const vehikel_besch_t &b = *vehicles[i];
 		freight.add_vehicle(b);
 	}
 }
@@ -280,7 +290,7 @@ uint32 potential_convoy_t::get_force_summary(uint16 speed /* in m/s */)
 	uint32 force = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		force += vehicles.get_element(i)->get_force(speed);
+		force += vehicles[i]->get_force(speed);
 	}
 	return force;
 }

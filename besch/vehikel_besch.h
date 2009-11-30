@@ -132,8 +132,8 @@ public:
 		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
-		gear = 64;
-		geared_power = leistung * gear;
+		gear = GEAR_FACTOR;
+		geared_power = GEAR_FACTOR;
 		len = 8;
 		sound = -1;
 		typ = wtyp;

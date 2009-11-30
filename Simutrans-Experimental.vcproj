@@ -467,7 +467,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\convoy.cpp"
+				RelativePath=".\convoy.cc"
 				>
 			</File>
 			<File

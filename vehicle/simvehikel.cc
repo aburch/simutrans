@@ -1584,74 +1584,19 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 	const hang_t::typ hang = gr->get_weg_hang();
 	if(hang!=hang_t::flach) 
 	{
-		if(ribi_typ(hang) == fahrtrichtung)
+		// Bernd Gabriel, Nov, 30 2009: at least 1 partial direction must match for uphill (op '&'), but not the 
+		// complete direction. The hill might begin in a curve and then '==' accidently accelerates the vehicle.
+		if(ribi_typ(hang) & fahrtrichtung)
 		{
 			//Uphill
 			current_friction += 45;
-			//hill_up ++;
-			//hill_down = 0;
-
-			//switch(hill_up)
-			//{
-			//case 0:
-			//	break;
-
-			//case 1:
-			//	current_friction += 18;
-			//	break;
-
-			//case 2:
-			//	current_friction += 25;
-			//	break;
-
-			//case 3:
-			//	current_friction += 32;
-			//	break;
-
-			//case 4:
-			//	current_friction += 38;
-			//	break;
-
-			//case 5:
-			//default:
-			//	current_friction += 45;
-			//	break;
-
-			//};
 		}
-
 		else
 		{
 			//Downhill
 			current_friction -= 45;
-			//hill_down ++;
-			//hill_up = 0;
-	
-			//switch(hill_down)
-			//{
-			//case 0:
-			//	break;
-
-			//case 1:
-			//	current_friction -= 10;
-			//	break;
-
-			//case 2:
-			//	current_friction -= 13;
-			//	break;
-
-			//case 3:
-			//default:
-			//	current_friction -= 15;
-			//};
 		}
 	}
-	//else
-	//{
-	//	//No hill at all - reset hill count.
-	//	hill_up = 0;
-	//	hill_down = 0;
-	//}
 
 	if(ist_erstes) { //"Is the first" (Google)
 		uint32 akt_speed = speed_limit;
