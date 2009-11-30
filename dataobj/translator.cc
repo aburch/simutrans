@@ -251,10 +251,12 @@ static void init_city_names(bool is_utf_language)
 		char buf[256];
 		bool file_is_utf = is_unicode_file(file);
 		while(  !feof(file)  ) {
-			if(  fgets_line(buf, 128, file)  &&  buf[0]>0  &&  buf[0]!='#'  ) {
+			if(  fgets_line(buf, 128, file)  ) {
 				rtrim(buf);
-				char* c = recode(buf, file_is_utf, is_utf_language);
-				namen_liste.append(c);
+				char *c = recode(buf, file_is_utf, is_utf_language);
+				if(  *c!=0  &&  *c!='#'  ) {
+					namen_liste.append(c);
+				}
 			}
 		}
 		fclose(file);
