@@ -305,7 +305,7 @@ bool roadsign_t::sync_step(long /*delta_t*/)
 	// change every ~32s
 	uint32 ticks = (welt->get_zeit_ms()>>10) % (ticks_ns+ticks_ow);
 
-	uint8 new_zustand = (ticks>=ticks_ow) ^ (welt->get_einstellungen()->get_rotation()&1);
+	uint8 new_zustand = (ticks>=ticks_ns) ^ (welt->get_einstellungen()->get_rotation()&1);
 	if(zustand!=new_zustand) {
 		zustand = new_zustand;
 		dir = (new_zustand==0) ? ribi_t::nordsued : ribi_t::ostwest;
