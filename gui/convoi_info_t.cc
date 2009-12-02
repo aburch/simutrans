@@ -259,11 +259,12 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
 	else {
+		//Bernd Gabriel, Dec, 02 2009: common existing_convoy_t for acceleration curve and weight/speed info.
+		existing_convoy_t convoy(*cnv.get_rep());
 
 		//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 		if (filterButtons[ACCELERATOR_BUTTON].is_visible() && filterButtons[ACCELERATOR_BUTTON].pressed)
 		{
-			existing_convoy_t convoy(*cnv.get_rep());
 			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
 			sint32 akt_speed = 0;
 			sint32 sp_soll = 0;
@@ -274,17 +275,6 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 				convoy.calc_move(15 * 64, akt_speed_soll, akt_speed, sp_soll);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
-			//convoy_metrics_t metrics(*cnv.get_rep());
-			//const int akt_speed_soll = kmh_to_speed(metrics.get_speed(cnv->get_sum_gesamtgewicht()));
-			//sint32 akt_speed = 0;
-			//sint32 sp_soll = 0;
-			//int i = MAX_MONTHS;
-			//physics_curves[--i][0] = akt_speed;
-			//while (i > 0)
-			//{
-			//	cnv->calc_acceleration(15 * 64, akt_speed_soll, akt_speed, sp_soll);
-			//	physics_curves[--i][0] = speed_to_kmh(akt_speed);
-			//}
 		}
 
 
@@ -381,7 +371,7 @@ enable_home:
 		const char *caption = translator::translate("%s:");
 
 		// Bernd Gabriel, Nov, 14 2009: no longer needed: //use median speed to avoid flickering
-		existing_convoy_t convoy(*cnv.get_rep());
+		//existing_convoy_t convoy(*cnv.get_rep());
 		uint32 empty_weight = convoy.get_vehicle_summary().weight;
 		uint32 gross_weight = convoy.get_weight_summary().weight / 1000;
 		{

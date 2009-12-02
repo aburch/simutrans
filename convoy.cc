@@ -110,22 +110,19 @@ void weight_summary_t::add_weight(uint32 tons, sint32 sin_alpha)
 
 /******************************************************************************/
 
+inline double signed_power(double base, double expo)
+{
+	if (base >= 0)
+		return pow(base, expo);
+	return -pow(-base, expo);
+}
+
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	double p = (environ.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * environ.cf);
-	double p3 = p * p * p;
-	double q = vehicle.power / (0.002 * environ.cf);
-	double q2 = q * q;
-	double sd;
-	if (q2 >= p3)
-		sd = + sqrt(q2 - p3);
-	else
-		sd = - sqrt(p3 - q2);
-	double vmax;
-	if (q2 >= sd)
-		vmax = (pow(q2 + sd, 1.0/3.0) + pow(q2 - sd, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
-	else
-		vmax = (pow(q2 + sd, 1.0/3.0) - pow(sd - q2, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
+	double p3 = (environ.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * environ.cf);
+	double q2 = vehicle.power / (0.002 * environ.cf);
+	double sd = signed_power(q2 * q2 + p3 * p3 * p3, 1.0/2.0);
+	double vmax = (signed_power(q2 + sd, 1.0/3.0) + signed_power(q2 - sd, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
 	return min(vehicle.max_speed, (sint32) vmax); 
 }
 
