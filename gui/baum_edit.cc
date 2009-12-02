@@ -7,7 +7,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 
 #include "../simcolor.h"
@@ -60,6 +59,8 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 {
 	bt_timeline.set_text( "Random age" );
 
+	baum_tool.id = werkzeug_t::general_tool[WKZ_PLANT_TREE]->id;
+
 	remove_komponente( &bt_obsolete );
 	offset_of_comp -= BUTTON_HEIGHT;
 
@@ -79,12 +80,8 @@ void baum_edit_frame_t::fill_list( bool translate )
 	baumlist.clear();
 	const vector_tpl<const baum_besch_t *> *s = baum_t::get_all_besch();
 	for (vector_tpl<const baum_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
-		if(*i) {
-			baumlist.append(*i);
-		}
+		baumlist.insert_ordered( *i, compare_baum_besch );
 	}
-
-	std::sort(baumlist.begin(), baumlist.end(), compare_baum_besch);
 
 	// now buil scrolled list
 	scl.clear_elements();

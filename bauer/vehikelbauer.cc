@@ -174,7 +174,8 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 	}
 	// BG, 06.06.2009: fixed maintenance for created vehicles
 	sp->add_maintenance(vb->get_fixed_maintenance(sp->get_welt()), spieler_t::MAINT_VEHICLE);
-	sp->buche( (sint32)vb->get_preis(), COST_ASSETS );
+	sp->buche(-(sint64)vb->get_preis(), k.get_2d(), COST_NEW_VEHICLE );
+	sp->buche( (sint64)vb->get_preis(), COST_ASSETS );
 
 	return v;
 }
@@ -302,7 +303,9 @@ bool vehikelbauer_t::alles_geladen()
 	while (typ_iter.next()) {
 		slist_tpl<vehikel_besch_t*>& typ_liste = typ_iter.access_current_value();
 		uint count = typ_liste.get_count();
-		if (count == 0) continue;
+		if (count == 0) {
+			continue;
+		}
 		vehikel_besch_t** const tmp     = new vehikel_besch_t*[count];
 		vehikel_besch_t** const tmp_end = tmp + count;
 		for (vehikel_besch_t** i = tmp; i != tmp_end; i++) {

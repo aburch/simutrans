@@ -588,7 +588,7 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	is_shutting_down = false;
 
 	// Added by : Knightly
-	path_explorer_t::destroy();
+	path_explorer_t::finalise();
 }
 
 
@@ -4683,6 +4683,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	swap(stadt, new_weighted_stadt);
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
+#ifdef DEBUG
+	long dt = dr_time();
+#endif
 	// recalculate halt connections
 	set_schedule_counter();
 	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().get_count();
@@ -4691,10 +4694,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			display_progress(get_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, get_groesse_y()+256+stadt.get_count());
 		}
 	}
+#ifdef DEBUG
+	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
+#endif
 
 #if 0
 	// reroute goods for benchmarking
-	long dt = dr_time();
+	dt = dr_time();
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		sint16 dummy = 0x7FFF;
 		if((hnr++%64)==0) {
@@ -5797,6 +5803,10 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 	} while(!finish_loop  &&  get_current_month()<quit_month);
+
+	if(  get_current_month() >= quit_month  ) {
+		umgebung_t::quit_simutrans = true;
+	}
 
 	return finish_loop;
 }

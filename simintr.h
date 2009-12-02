@@ -42,7 +42,10 @@ void interrupt_force();
 void interrupt_check();
 void interrupt_check(const char* caller_info);
 
-#ifndef PROFILE
+#if defined NO_GRAPHIC && defined PROFILE
+	// 0 bit graphic + profiling: no interrupt_check.
+	#define INT_CHECK(info);
+#else
 	#ifndef DEBUG
 		// standard version
 		#define INT_CHECK(info) interrupt_check();
@@ -50,9 +53,5 @@ void interrupt_check(const char* caller_info);
 		// debug version
 		#define INT_CHECK(info) interrupt_check(info);
 	#endif
-#else
-	// profile version: no interrupt_check.
-	#define INT_CHECK(info);
 #endif
-
 #endif

@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-debug.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
@@ -467,6 +467,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\convoy.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\crossing.cc"
 				>
 			</File>
@@ -772,10 +776,6 @@
 			</File>
 			<File
 				RelativePath=".\gui\labellist_stats_t.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\dings\lagerhaus.cc"
 				>
 			</File>
 			<File
@@ -1223,6 +1223,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\trafficlight_info.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\translator.cc"
 				>
 			</File>
@@ -1490,6 +1494,10 @@
 			</File>
 			<File
 				RelativePath=".\convoihandle_t.h"
+				>
+			</File>
+			<File
+				RelativePath=".\convoy.h"
 				>
 			</File>
 			<File
@@ -1926,10 +1934,6 @@
 			</File>
 			<File
 				RelativePath=".\gui\labellist_stats_t.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dings\lagerhaus.h"
 				>
 			</File>
 			<File

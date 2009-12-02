@@ -54,7 +54,7 @@ void path_explorer_t::initialise(karte_t *welt)
 }
 
 
-void path_explorer_t::destroy()
+void path_explorer_t::finalise()
 {
 	delete[] goods_compartment;
 	goods_compartment = NULL;
@@ -63,7 +63,7 @@ void path_explorer_t::destroy()
 	max_categories = 0;
 	processing = false;
 
-	compartment_t::destroy();
+	compartment_t::finalise();
 }
 
 
@@ -116,8 +116,8 @@ void path_explorer_t::full_instant_refresh()
 	// change all limits to maximum so that each phase is performed in one step
 	compartment_t::set_maximum_limits();
 
-	// clear all connexion hash tables
-	compartment_t::clear_all_connexion_tables();
+	// clear all connexion hash tables and reset serving transport counters
+	compartment_t::reset_connexion_list();
 
 #ifdef DEBUG_EXPLORER_SPEED
 	unsigned long start, diff;
@@ -172,8 +172,8 @@ void path_explorer_t::refresh_all_categories(const bool reset_working_set)
 			goods_compartment[c].reset(false);
 		}
 
-		// clear all connexion hash tables
-		compartment_t::clear_all_connexion_tables();
+		// clear all connexion hash tables and reset serving transport counters
+		compartment_t::reset_connexion_list();
 
 		// reset current category pointer : refresh will start from passengers
 		current_compartment = 0;
@@ -203,7 +203,7 @@ const char *const path_explorer_t::compartment_t::phase_name[] =
 	"reroute"
 };
 
-quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *path_explorer_t::compartment_t::connexion_list[65536];
+path_explorer_t::compartment_t::connexion_list_entry_t path_explorer_t::compartment_t::connexion_list[65536];
 
 uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
 uint32 path_explorer_t::compartment_t::limit_filter_eligible = default_filter_eligible;
@@ -461,9 +461,9 @@ void path_explorer_t::compartment_t::initialise()
 }
 
 
-void path_explorer_t::compartment_t::destroy()
+void path_explorer_t::compartment_t::finalise()
 {
-	destroy_all_connexion_tables();
+	finalise_connexion_list();
 }
 
 
@@ -530,9 +530,9 @@ void path_explorer_t::compartment_t::step()
 				all_halts_list[i] = halt_iter.get_current();
 
 				// create an empty connexion hash table if the current halt does not already have one
-				if ( connexion_list[ all_halts_list[i].get_id() ] == NULL )
+				if ( connexion_list[ all_halts_list[i].get_id() ].connexion_table == NULL )
 				{
-					connexion_list[ all_halts_list[i].get_id() ] = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
+					connexion_list[ all_halts_list[i].get_id() ].connexion_table = new quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*>();
 				}
 			}
 
@@ -634,6 +634,7 @@ void path_explorer_t::compartment_t::step()
 
 			minivec_tpl<halthandle_t> halt_list(64);
 			minivec_tpl<uint16> journey_time_list(64);
+			minivec_tpl<bool> recurrence_list(64);		// an array indicating whether certain halts have been processed already
 
 			uint16 accumulated_journey_time;
 			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *catg_connexions;
@@ -675,6 +676,7 @@ void path_explorer_t::compartment_t::step()
 				// create a list of reachable halts
 				entry_count = current_schedule->get_count();
 				halt_list.clear();
+				recurrence_list.clear();
 
 				for (uint8 i = 0; i < entry_count; ++i)
 				{
@@ -685,6 +687,8 @@ void path_explorer_t::compartment_t::step()
 					{
 						// Assign to halt list only if current halt supports this compartment's goods category
 						halt_list.append(current_halt, 64);
+						// Initialise the corresponding recurrence list entry to false
+						recurrence_list.append(false, 64);
 					}
 				}
 
@@ -712,10 +716,18 @@ void path_explorer_t::compartment_t::step()
 				// for each origin halt
 				for (uint8 h = 0; h < entry_count; ++h)
 				{
+					if ( recurrence_list[h] )
+					{
+						// skip this halt if it has already been processed
+						continue;
+					}
+
 					accumulated_journey_time = 0;
 
 					// use hash tables in connexion list, but not the hash tables stored in the halt
-					catg_connexions = connexion_list[ halt_list[h].get_id() ];
+					catg_connexions = connexion_list[ halt_list[h].get_id() ].connexion_table;
+					// any serving line/lineless convoy increments serving transport count
+					++connexion_list[ halt_list[h].get_id() ].serving_transport;
 
 					// for each target halt (origin halt is excluded)
 					for (uint8 i = 1,		t = (h + 1) % entry_count; 
@@ -728,6 +740,8 @@ void path_explorer_t::compartment_t::step()
 						{
 							// reset and process the next
 							accumulated_journey_time = 0;
+							// mark this halt in the recurrence list to avoid duplicated processing
+							recurrence_list[t] = true;
 							continue;
 						}
 
@@ -862,25 +876,29 @@ void path_explorer_t::compartment_t::step()
 			// add halt to working halt list only if it has connexions that support this compartment's goods category
 			while (phase_counter < all_halts_count)
 			{
+				const halthandle_t &current_halt = all_halts_list[phase_counter];
+
 				// halts may be removed during the process of refresh
-				if ( ! all_halts_list[phase_counter].is_bound() )
+				if ( ! current_halt.is_bound() )
 				{
-					clear_connexion_table( all_halts_list[phase_counter].get_id() );
+					reset_connexion_entry( current_halt.get_id() );
 					++phase_counter;
 					continue;
 				}
 
-				if ( ! connexion_list[ all_halts_list[phase_counter].get_id() ]->empty() )
+				if ( ! connexion_list[ current_halt.get_id() ].connexion_table->empty() )
 				{
 					// valid connexion(s) found -> add to working halt list and update halt index map
-					working_halt_list[working_halt_count] = all_halts_list[phase_counter];
-					working_halt_index_map[ all_halts_list[phase_counter].get_id() ] = working_halt_count;
+					working_halt_list[working_halt_count] = current_halt;
+					working_halt_index_map[ current_halt.get_id() ] = working_halt_count;
 					++working_halt_count;
 				}
 
-				// swap the old connexion hash table with a new one, then clear the old one
-				all_halts_list[phase_counter]->swap_connexions( catg, connexion_list[ all_halts_list[phase_counter].get_id() ] );
-				clear_connexion_table( all_halts_list[phase_counter].get_id() );
+				// swap the old connexion hash table with a new one
+				current_halt->swap_connexions( catg, connexion_list[ current_halt.get_id() ].connexion_table );
+				// transfer the value of the serving transport counter
+				current_halt->set_schedule_count( catg, connexion_list[ current_halt.get_id() ].serving_transport );
+				reset_connexion_entry( current_halt.get_id() );
 
 				++phase_counter;
 				
@@ -1013,10 +1031,12 @@ void path_explorer_t::compartment_t::step()
 					continue;
 				}
 
-				// temporary variables for determining transfer halt
-				bool is_transfer_halt = false;
-				linehandle_t previous_line;
-				convoihandle_t previous_convoy;
+				// determine if this halt is a transfer halt
+				if ( current_halt->get_schedule_count(catg) > 1 )
+				{
+					transfer_list[transfer_count] = phase_counter;
+					++transfer_count;
+				}
 
 				quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> connexions_iter( *(current_halt->get_connexions(catg)) );
 
@@ -1054,24 +1074,6 @@ void path_explorer_t::compartment_t::step()
 
 					// Debug journey times
 					// printf("\n%s -> %s : %lu \n",current_halt->get_name(), reachable_halt->get_name(), working_matrix[phase_counter][reachable_halt_index].journey_time);
-
-					// check if it is already determined to be a transfer halt
-					if (!is_transfer_halt)
-					{
-						if ( !previous_line.is_bound() && !previous_convoy.is_bound() )
-						{
-							// Case : first processed connexion of the current halt -> initialize line info
-							previous_line = current_connexion->best_line;
-							previous_convoy = current_connexion->best_convoy;
-						}
-						else if (previous_line != current_connexion->best_line || previous_convoy != current_connexion->best_convoy)
-						{
-							// Case : a different line is encountered -> current halt is a transfer halt
-							is_transfer_halt = true;	// set flag to avoid checking for transfer again for the current halt
-							transfer_list[transfer_count] = phase_counter;
-							++transfer_count;
-						}
-					}
 				}
 
 				// Special case
@@ -1166,7 +1168,7 @@ void path_explorer_t::compartment_t::step()
 
 			// temporary variables
 			uint16 combined_time;
-			uint16 target_member_index;
+			uint32 target_member_index;
 			uint64 iterations_processed = 0;
 
 			// initialize only when not resuming
@@ -1198,6 +1200,9 @@ void path_explorer_t::compartment_t::step()
 							outbound_connections->register_connection( transport_matrix[via][idx].first_transport, idx );
 						}
 					}
+
+					// should take into account the iterations above
+					iterations += working_halt_count + ( inbound_connections->get_total_member_count() * inbound_connections->get_cluster_count() );
 				}
 
 				// for each origin cluster
@@ -1591,48 +1596,50 @@ void path_explorer_t::compartment_t::initialise_connexion_list()
 {
 	for (uint32 i = 0; i < 63336; ++i)
 	{
-		connexion_list[i] = NULL;
+		connexion_list[i].connexion_table = NULL;
+		connexion_list[i].serving_transport = 0;
 	}
 }
 
 
-void path_explorer_t::compartment_t::clear_connexion_table(const uint16 halt_id)
+void path_explorer_t::compartment_t::reset_connexion_entry(const uint16 halt_id)
 {
-	if ( connexion_list[halt_id] && !connexion_list[halt_id]->empty() )
+	if ( connexion_list[halt_id].connexion_table && !connexion_list[halt_id].connexion_table->empty() )
 	{
-		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id]));
+		quickstone_hashtable_iterator_tpl<haltestelle_t, haltestelle_t::connexion*> iter(*(connexion_list[halt_id].connexion_table));
 
 		while(iter.next())
 		{
 			delete iter.get_current_value();
 		}
 		
-		connexion_list[halt_id]->clear();
+		connexion_list[halt_id].connexion_table->clear();
 	}
+	connexion_list[halt_id].serving_transport = 0;
 }
 
 
-void path_explorer_t::compartment_t::clear_all_connexion_tables()
+void path_explorer_t::compartment_t::reset_connexion_list()
 {
 	for (uint32 i = 0; i < 63356; ++i)
 	{
-		if ( connexion_list[i] )
+		if ( connexion_list[i].connexion_table )
 		{
-			clear_connexion_table(i);
+			reset_connexion_entry(i);
 		}
 	}
 }
 
 
-void path_explorer_t::compartment_t::destroy_all_connexion_tables()
+void path_explorer_t::compartment_t::finalise_connexion_list()
 {
 	for (uint32 i = 0; i < 63356; ++i)
 	{
-		if ( connexion_list[i] )
+		if ( connexion_list[i].connexion_table )
 		{
-			clear_connexion_table(i);
-			delete connexion_list[i];
-			connexion_list[i] = NULL;
+			reset_connexion_entry(i);
+			delete connexion_list[i].connexion_table;
+			connexion_list[i].connexion_table = NULL;
 		}
 	}
 }

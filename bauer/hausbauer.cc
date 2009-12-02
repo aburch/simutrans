@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <string.h>
 
 #include "../besch/haus_besch.h"
@@ -107,13 +106,13 @@ bool hausbauer_t::alles_geladen()
 
 		switch(besch->get_typ()) {
 			case gebaeude_t::wohnung:
-				wohnhaeuser.append(besch);
+				wohnhaeuser.insert_ordered(besch,compare_haus_besch);
 				break;
 			case gebaeude_t::industrie:
-				industriehaeuser.append(besch);
+				industriehaeuser.insert_ordered(besch,compare_haus_besch);
 				break;
 			case gebaeude_t::gewerbe:
-				gewerbehaeuser.append(besch);
+				gewerbehaeuser.insert_ordered(besch,compare_haus_besch);
 				break;
 
 			case gebaeude_t::unbekannt:
@@ -125,7 +124,7 @@ bool hausbauer_t::alles_geladen()
 					sehenswuerdigkeiten_land.append(besch);
 					break;
 				case haus_besch_t::firmensitz:
-					headquarter.append(besch);
+					headquarter.insert_ordered(besch,compare_haus_besch);
 					break;
 				case haus_besch_t::rathaus:
 					rathaeuser.append(besch);
@@ -142,7 +141,7 @@ bool hausbauer_t::alles_geladen()
 				case haus_besch_t::depot:
 				case haus_besch_t::generic_stop:
 				case haus_besch_t::generic_extension:
-					station_building.append(besch);
+					station_building.insert_ordered(besch,compare_station_besch);
 					break;
 
 				case haus_besch_t::weitere:
@@ -159,11 +158,6 @@ bool hausbauer_t::alles_geladen()
 	}
 
 	// now sort them according level
-	std::sort(wohnhaeuser.begin(),      wohnhaeuser.end(),      compare_haus_besch);
-	std::sort(gewerbehaeuser.begin(),   gewerbehaeuser.end(),   compare_haus_besch);
-	std::sort(industriehaeuser.begin(), industriehaeuser.end(), compare_haus_besch);
-	std::sort(station_building.begin(), station_building.end(), compare_station_besch);
-	std::sort(headquarter.begin(),      headquarter.end(),      compare_haus_besch);
 	warne_ungeladene(spezial_objekte, 1);
 	return true;
 }

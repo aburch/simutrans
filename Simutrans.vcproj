@@ -66,7 +66,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;G:\Program Files\PlatformSDK\Lib&quot;;G:\Projects\zlib\lib"
 				IgnoreAllDefaultLibraries="false"
@@ -144,7 +144,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;G:\Program Files\PlatformSDK\Lib&quot;;G:\Projects\zlib\lib"
 				IgnoreDefaultLibraryNames="libcmt.lib"
@@ -959,6 +959,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\thing_info.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\trafficlight_info.cc"
 				>
 			</File>
 			<File

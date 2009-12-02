@@ -9,7 +9,10 @@
 
 class pakselector_t : public savegame_frame_t
 {
+private:
 	button_t load_addons;
+	bool at_least_one_add;
+
 protected:
 	/**
 	* Aktion, die nach Knopfdruck gestartet wird.

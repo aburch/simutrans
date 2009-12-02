@@ -114,6 +114,7 @@ typedef unsigned long long  uint64;
 #	define GCC_PACKED __attribute__ ((__packed__))
 #	define NORETURN   __attribute__ ((noreturn))
 #endif
+#define UINT64_MAX_VALUE	ULLONG_MAX
 
 #ifdef __cplusplus
 
