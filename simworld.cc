@@ -588,7 +588,7 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	is_shutting_down = false;
 
 	// Added by : Knightly
-	path_explorer_t::destroy();
+	path_explorer_t::finalise();
 }
 
 

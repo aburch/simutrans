@@ -112,15 +112,6 @@ private:
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
-	/**
-	 * Markers used in suche_route() to avoid processing the same halt more than once
-	 * Originally they are instance variables of haltestelle_t
-	 * Now consolidated into a static array to speed up suche_route()
-	 * @author Knightly
-	 */
-	static uint8 markers[65536];
-	static uint8 current_mark;
-
 public:
 	/**
 	 * Handles changes of schedules and the resulting rerouting
@@ -318,13 +309,9 @@ private:
 	// "solves wait mixes off" (Babelfish); "solves warte volume from" (Google)
 
 	/**
-	 * For each schedule/line, that adds halts to a warenziel array,
-	 * this counter is incremented. Each ware category needs a separate
-	 * counter. If this counter is more than 1, this halt is a transfer
-	 * halt, i.e. contains non_identical_schedules with overlapping
-	 * destinations.
-	 * Non-transfer stops do not need to be searched for connections
-	 * => large speedup possible.
+	 * For each line/lineless convoy which serves the current halt, this
+	 * counter is incremented. Each ware category needs a separate counter.
+	 * If this counter is more than 1, this halt is a transfer halt.
 	 * @author Knightly
 	 */
 	uint8 *non_identical_schedules;
@@ -499,6 +486,9 @@ public:
 		resort_freight_info = true;
 	}
 
+	// Added by : Knightly
+	uint8 get_schedule_count(const uint8 category) const { return non_identical_schedules[category]; }
+	void set_schedule_count(const uint8 category, const uint8 schedule_count) { non_identical_schedules[category] = schedule_count; }
 
 	void reset_connexions(uint8 category);
 
@@ -507,11 +497,11 @@ public:
 	* will distribute the goods to changed routes (if there are any)
 	* @author Hj. Malthaner
 	*/
-	bool reroute_goods(/*sint16 &units_remaining*/);
+	uint32 reroute_goods();
 
 	// Added by : Knightly
 	// Purpose	: Re-routing goods of a single ware category
-	bool reroute_goods(uint8 catg);
+	uint32 reroute_goods(uint8 catg);
 
 
 	/**
@@ -569,7 +559,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 
-	bool step(sint16 &units_remaining);
+	void step(sint16 &units_remaining);
 
 	/**
 	 * Called every month/every 24 game hours

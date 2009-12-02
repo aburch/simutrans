@@ -775,10 +775,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\lagerhaus.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\dings\leitung2.cc"
 				>
 			</File>
@@ -1926,10 +1922,6 @@
 			</File>
 			<File
 				RelativePath=".\gui\labellist_stats_t.h"
-				>
-			</File>
-			<File
-				RelativePath=".\dings\lagerhaus.h"
 				>
 			</File>
 			<File
