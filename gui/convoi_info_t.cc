@@ -17,6 +17,7 @@
 #include "../simgraph.h"
 #include "../simworld.h"
 #include "../simwin.h"
+#include "../convoy.h"
 
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
@@ -260,18 +261,30 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 	else {
 
 		//Bernd Gabriel, Sep, 24 2009: acceleration curve:
+		if (filterButtons[ACCELERATOR_BUTTON].is_visible() && filterButtons[ACCELERATOR_BUTTON].pressed)
 		{
-			convoy_metrics_t metrics(*cnv.get_rep());
-			const int akt_speed_soll = kmh_to_speed(metrics.get_speed(cnv->get_sum_gesamtgewicht()));
+			existing_convoy_t convoy(*cnv.get_rep());
+			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
 			sint32 akt_speed = 0;
 			sint32 sp_soll = 0;
 			int i = MAX_MONTHS;
 			physics_curves[--i][0] = akt_speed;
 			while (i > 0)
 			{
-				cnv->calc_acceleration(15 * 64, akt_speed_soll, akt_speed, sp_soll);
+				convoy.calc_move(15 * 64, akt_speed_soll, akt_speed, sp_soll);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
+			//convoy_metrics_t metrics(*cnv.get_rep());
+			//const int akt_speed_soll = kmh_to_speed(metrics.get_speed(cnv->get_sum_gesamtgewicht()));
+			//sint32 akt_speed = 0;
+			//sint32 sp_soll = 0;
+			//int i = MAX_MONTHS;
+			//physics_curves[--i][0] = akt_speed;
+			//while (i > 0)
+			//{
+			//	cnv->calc_acceleration(15 * 64, akt_speed_soll, akt_speed, sp_soll);
+			//	physics_curves[--i][0] = speed_to_kmh(akt_speed);
+			//}
 		}
 
 
@@ -367,18 +380,17 @@ enable_home:
 		const int pos_y0 = pos.y + 16 + 20;
 		const char *caption = translator::translate("%s:");
 
-		//use median speed to avoid flickering
+		// Bernd Gabriel, Nov, 14 2009: no longer needed: //use median speed to avoid flickering
+		existing_convoy_t convoy(*cnv.get_rep());
+		uint32 empty_weight = convoy.get_vehicle_summary().weight;
+		uint32 gross_weight = convoy.get_weight_summary().weight / 1000;
 		{
 			const int pos_y = pos_y0; // line 1
 			char tmp[256];
-			convoy_metrics_t metrics(*cnv.get_rep());
-			const uint32 min_speed = metrics.get_speed(cnv->get_sum_gesamtgewicht());
-			const uint32 max_speed = metrics.get_speed(cnv->get_sum_gewicht());
-			mean_convoi_speed += speed_to_kmh(cnv->get_akt_speed()*4);
-			mean_convoi_speed /= 2;
-			//sprintf(tmp,translator::translate("%i km/h (max. %ikm/h)"), (mean_convoi_speed+3)/4, speed_to_kmh(cnv->get_min_top_speed()) );
+			const uint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
+			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, 0));
 			sprintf(tmp, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
-				(mean_convoi_speed+3)/4, min_speed, translator::translate("..."), max_speed );
+				speed_to_kmh(cnv->get_akt_speed()), min_speed, translator::translate("..."), max_speed );
 			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
 		}
 
@@ -420,8 +432,8 @@ enable_home:
 			// Bernd Gabriel, 01.07.2009: inconsistent adding of ':'. Sometimes in code, sometimes in translation. Consistently moved to code.
 			sprintf(tmp, caption, translator::translate("Gewicht"));
 			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
-			int freight_weight = cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
-			sprintf(tmp, translator::translate(freight_weight ? "%d (%d) t" : "%d t"), cnv->get_sum_gesamtgewicht(), freight_weight);
+			int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
+			sprintf(tmp, translator::translate(freight_weight ? "%d (%d) t" : "%d t"), gross_weight, freight_weight);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
 				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
 				!cnv->get_finance_history(0, CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month

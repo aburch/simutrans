@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Simutrans-Experimental"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -464,6 +464,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\convoi_info_t.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\convoy.cc"
 				>
 			</File>
 			<File
@@ -1486,6 +1490,10 @@
 			</File>
 			<File
 				RelativePath=".\convoihandle_t.h"
+				>
+			</File>
+			<File
+				RelativePath=".\convoy.h"
 				>
 			</File>
 			<File

@@ -327,6 +327,9 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 	}
 
+	// @author Bernd Gabriel, Nov 4, 2009
+	besch->geared_power = besch->leistung * besch->gear;
+	besch->force_threshold_speed = besch->calc_const_force_threshold();
 
 	if(besch->sound==LOAD_SOUND) {
 		uint8 len=decode_sint8(p);

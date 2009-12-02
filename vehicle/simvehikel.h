@@ -833,4 +833,6 @@ public:
 	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
 };
 
+sint16 get_friction_of_waytype(waytype_t waytype);
+
 #endif
