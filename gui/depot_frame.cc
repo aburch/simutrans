@@ -725,6 +725,7 @@ bool depot_frame_t::check_way_electrified(bool init)
 	{
 		img_bolt.set_image(skinverwaltung_t::electricity->get_bild_nr(0));
 	}
+
 	else
 	{
 		img_bolt.set_image(IMG_LEER);

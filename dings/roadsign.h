@@ -29,11 +29,13 @@ protected:
 
 	enum { SHOW_FONT=1, SHOW_BACK=2, SWITCH_AUTOMATIC=16 };
 
-	uint8 zustand;	// counter for steps ...
+	uint8 zustand:3;	// counter for steps ...
+	uint8 dir:4;
 
 	uint8 automatic:1;
+	uint8 ticks_ns;
+	uint8 ticks_ow;
 
-	uint8 dir;
 
 	sint8 after_offset;
 
@@ -66,6 +68,9 @@ public:
 	 */
 	~roadsign_t();
 
+	// since traffic lights need their own window
+	void zeige_info();
+
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	 * Beobachtungsfenster angezeigt wird.
@@ -83,6 +88,12 @@ public:
 
 	// changes the state of a traffic light
 	bool sync_step(long);
+
+	// change the phases of the traffic lights
+	uint8 get_ticks_ns() const { return ticks_ns; }
+	void set_ticks_ns(uint8 ns) { ticks_ns = ns; }
+	uint8 get_ticks_ow() const { return ticks_ow; }
+	void set_ticks_ow(uint8 ow) { ticks_ow = ow; }
 
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const { return bild; }

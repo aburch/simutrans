@@ -861,6 +861,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
 	}
 
+	welt->set_fast_forward(false);
 #if defined DEBUG || defined PROFILE
 	// do a render test?
 	if (gimme_arg(argc, argv, "-times", 0) != NULL) {
@@ -870,10 +871,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	// finish after a certain month? (must be entered decimal, i.e. 12*year+month
 	if(  gimme_arg(argc, argv, "-until", 0) != NULL  ) {
 		quit_month = atoi( gimme_arg(argc, argv, "-until", 1) );
+		welt->set_fast_forward(true);
 	}
 #endif
 
-	welt->set_fast_forward(false);
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
 		view->display(true);
@@ -903,7 +904,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->get_message()->clear();
 
-	if(  !umgebung_t::networkmode  ||  new_world  ) {
+	if(  !umgebung_t::networkmode  &&  new_world  ) {
 		ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
 	}
@@ -1002,6 +1003,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				}
 				destroy_all_win();
 				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
+				welt->set_pause(false);
 			}
 			else if(wg->get_load()) {
 				delete wg;
@@ -1029,6 +1031,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		new_world = true;
 		welt->get_message()->get_message_flags(&umgebung_t::message_flags[0], &umgebung_t::message_flags[1], &umgebung_t::message_flags[2], &umgebung_t::message_flags[3]);
 		welt->set_fast_forward(false);
+		welt->set_pause(false);
 		setsimrand(dr_time(), dr_time());
 	}
 

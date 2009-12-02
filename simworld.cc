@@ -588,7 +588,7 @@ DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	is_shutting_down = false;
 
 	// Added by : Knightly
-	path_explorer_t::destroy();
+	path_explorer_t::finalise();
 }
 
 
@@ -2302,6 +2302,11 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 				werkzeug[sp->get_player_nr()]->exit(this,sp);
 			}
 
+			else {
+				// init again, to interrupt dragging
+				werkzeug[sp->get_player_nr()]->init(this,active_player);
+			}
+
 			if(  sp==active_player  ) {
 				// reset pointer
 				koord3d zpos = zeiger->get_pos();
@@ -2315,6 +2320,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 				werkzeug_last_pos = koord3d::invalid;
 				werkzeug_last_button = 0;
 			}
+			
 			werkzeug[sp->get_player_nr()] = w;
 		}
 	}
@@ -2323,10 +2329,6 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 		static char commandstring[4096];
 		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), w->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->default_param==NULL ? "" : w->default_param );
 		network_send_server( commandstring, len );
-	}
-	else {
-		// init again, to interrupt dragging
-		werkzeug->init(this,active_player);
 	}
 }
 
@@ -4276,7 +4278,7 @@ void karte_t::laden(loadsave_t *file)
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
-	fast_forward = false;
+	//fast_forward = false;
 
 	tile_counter = 0;
 
@@ -4681,6 +4683,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	swap(stadt, new_weighted_stadt);
 	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
+#ifdef DEBUG
+	long dt = dr_time();
+#endif
 	// recalculate halt connections
 	set_schedule_counter();
 	int hnr=0, hmax=haltestelle_t::get_alle_haltestellen().get_count();
@@ -4689,10 +4694,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			display_progress(get_groesse_y()+48+stadt.get_count()+128+(hnr*80)/hmax, get_groesse_y()+256+stadt.get_count());
 		}
 	}
+#ifdef DEBUG
+	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
+#endif
 
 #if 0
 	// reroute goods for benchmarking
-	long dt = dr_time();
+	dt = dr_time();
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		sint16 dummy = 0x7FFF;
 		if((hnr++%64)==0) {
@@ -5795,6 +5803,10 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 	} while(!finish_loop  &&  get_current_month()<quit_month);
+
+	if(  get_current_month() >= quit_month  ) {
+		umgebung_t::quit_simutrans = true;
+	}
 
 	return finish_loop;
 }

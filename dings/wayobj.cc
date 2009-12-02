@@ -485,7 +485,7 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_o
 {
 	const uint16 time=welt->get_timeline_year_month();
 
-	stringhashtable_iterator_tpl<const way_obj_besch_t *>iter(table);
+	stringhashtable_iterator_tpl<way_obj_besch_t *> iter(table);
 	vector_tpl<const way_obj_besch_t *>matching;
 
 	while(  iter.next()  ) {
@@ -510,7 +510,7 @@ void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_o
 
 const way_obj_besch_t *wayobj_t::wayobj_search(waytype_t wt,waytype_t own,uint16 time)
 {
-	stringhashtable_iterator_tpl<const way_obj_besch_t *>iter(table);
+	stringhashtable_iterator_tpl<way_obj_besch_t *> iter(table);
 	while(  iter.next()  ) {
 		const way_obj_besch_t* besch = iter.get_current_value();
 		if((time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))

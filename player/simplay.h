@@ -106,6 +106,9 @@ protected:
 	 */
 	sint64 konto; //"account" (Google)
 
+	// remember the starting money
+	sint64 starting_money;
+
 	/**
 	 * Zählt wie viele Monate das Konto schon ueberzogen ist
 	 * "Count how many months the account is already overdrawn"  (Google)

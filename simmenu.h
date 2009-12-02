@@ -245,14 +245,14 @@ private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
 
 	/*
-	 * Can the tool start/end on this koord3d?
+	 * Can the tool start/end on pos? If it is the second click, start is the position of the first click
 	 * 0 = no
 	 * 1 = This tool can work on this tile (with single click)
 	 * 2 = On this tile can dragging start/end
 	 * 3 = Both (1 and 2). Not used by any tool yet.
 	 * error will contain an error message (if this is != NULL, return value should be 0).
 	 */
-	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &start, const char *&error ) = 0;
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
 
 	virtual image_id get_marker_image();
 

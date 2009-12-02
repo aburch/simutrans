@@ -9,6 +9,8 @@
 #define loadsave_h
 
 #include <stdio.h>
+//#include <bzlib.h>
+#include "../bzlib.h"
 
 #include "../utils/cstring_t.h"
 #include "../simtypes.h"
@@ -31,7 +33,7 @@
 
 class loadsave_t {
 public:
-	enum mode_t { text=8, xml=2, binary=1, zipped=4, xml_zipped=6 };
+	enum mode_t { text=1, xml=2, binary=0, zipped=4, xml_zipped=6, bzip2=8, xml_bzip2=10 };
 
 private:
 	int mode;
@@ -44,9 +46,11 @@ private:
 	cstring_t filename;	// the current name ...
 
 	FILE *fp;
+	BZFILE *bzfp;
+	int bse;
 
 	// Hajo: putc got a name clash on my system
-	int lsputc(int c);
+	void lsputc(int c);
 
 	// Hajo: getc got a name clash on my system
 	int lsgetc();
@@ -79,10 +83,10 @@ public:
 	 */
 	bool is_eof();
 
-	void* get_file() { return fp; }
 	bool is_loading() const { return !saving; }
 	bool is_saving() const { return saving; }
 	bool is_zipped() const { return mode&zipped; }
+	bool is_bzip2() const { return mode&bzip2; }
 	bool is_xml() const { return mode&xml; }
 	uint32 get_version() const { return version; }
 	uint32 get_experimental_version() const { return experimental_version; }

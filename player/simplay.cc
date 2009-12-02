@@ -96,7 +96,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	player_nr = nr;
 	set_player_color( nr*8, nr*8+24 );
 
-	konto = welt->get_einstellungen()->get_starting_money();
+	konto = welt->get_einstellungen()->get_starting_money(welt->get_last_year());
+	starting_money = konto;
 
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
@@ -113,7 +114,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_year[year][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-				finance_history_year[year][cost_type] = welt->get_einstellungen()->get_starting_money();
+				finance_history_year[year][cost_type] = starting_money;
 			}
 		}
 	}
@@ -122,7 +123,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_month[month][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-				finance_history_month[month][cost_type] = welt->get_einstellungen()->get_starting_money();
+				finance_history_month[month][cost_type] = starting_money;
 			}
 		}
 	}
@@ -543,7 +544,7 @@ sint64 spieler_t::calc_credit_limit()
 
 sint64 spieler_t::get_base_credit_limit()
 {
-	return welt->get_einstellungen()->get_starting_money() / 10;
+	return welt->get_einstellungen()->get_starting_money(welt->get_current_month() / 12) / 10;
 }
 
 // add and amount, including the display of the message and some other things ...
@@ -945,7 +946,7 @@ void spieler_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-		for (int year = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++)
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++)
 		{
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) 
 			{

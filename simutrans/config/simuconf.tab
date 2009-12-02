@@ -257,6 +257,12 @@
 # Starting money of the player. Given in Credit cents (1/100 Cr)
 #starting_money = 20000000
 
+# New system of year dependent starting money. Up to ten triplets are
+# possible. The entries are of the form:
+# startingmoney[i]=year,money(in 1/10 credits),interpolate (1) or step(0)
+# starting_money[0]=1930,20000000,1
+# starting_money[1]=2030,35000000,1
+
 # Maintenance costs of buildings
 #maintenance_building = 2000
 

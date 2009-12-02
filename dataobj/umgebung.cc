@@ -70,7 +70,9 @@ uint8 umgebung_t::tooltip_textcolor;
 uint8 umgebung_t::cursor_overlay_color;
 uint8 umgebung_t::show_vehicle_states;
 sint8 umgebung_t::daynight_level;
-bool umgebung_t::left_to_right_graphs;
+bool umgebung_t::hilly = false;
+bool umgebung_t::cities_ignore_height = false;
+bool umgebung_t::left_to_right_graphs = true;
 
 
 
@@ -150,12 +152,6 @@ void umgebung_t::init()
 	tooltip_textcolor = COL_BLACK;
 
 	cursor_overlay_color = COL_ORANGE;
-
-bool umgebung_t::hilly = false;
-
-bool umgebung_t::cities_ignore_height = false;
-
-bool umgebung_t::left_to_right_graphs = true;
 
 	show_vehicle_states = 1;
 

@@ -78,21 +78,14 @@ bool pakselector_t::check_file( const char *filename, const char * )
 	if(f) {
 		fclose(f);
 	}
-	// found only one?
-	if(f!=NULL) {
-		if(entries.get_count()==0) {
-			umgebung_t::objfilename = (cstring_t)filename + "/";
-		}
-		else if(  !umgebung_t::objfilename.empty()  ) {
-			umgebung_t::objfilename = "";
-		}
-	}
 	return f!=NULL;
 }
 
 
 pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir )
 {
+	at_least_one_add = false;
+
 	// remove unneccessary buttons
 	remove_komponente( &input );
 	remove_komponente( &savebutton );
@@ -120,6 +113,10 @@ void pakselector_t::fill_list()
 			// no addons for this
 			iter->del->set_visible( false );
 			iter->del->disable();
+			if(entries.get_count()==1) {
+				// only single entry and no addons => no need to question further ...
+				umgebung_t::objfilename = (cstring_t)iter->button->get_text() + "/";
+			}
 		}
 	}
 	chdir( umgebung_t::program_dir );

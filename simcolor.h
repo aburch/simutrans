@@ -103,5 +103,6 @@ typedef unsigned char COLOR_VAL;
 #define COL_INTEREST (101)
 #define COL_CREDIT_LIMIT (99)
 #define COL_CAR_OWNERSHIP (95)
+#define COL_DISTANCE (87)
 
 #endif

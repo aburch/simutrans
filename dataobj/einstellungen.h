@@ -119,6 +119,14 @@ private:
 
 	sint64 starting_money;
 
+	typedef struct {
+		sint16 year;
+		sint64 money;
+		bool interpol;
+	} yearmoney;
+
+	yearmoney startingmoneyperyear[10];
+
 	/**
 	 * Use numbering for stations?
 	 *
@@ -452,7 +460,7 @@ public:
 	sint32 get_max_transfers() const { return max_transfers; }
 	void set_max_transfers(sint32 m) { max_transfers=m; }
 
-	sint64 get_starting_money() const { return starting_money; }
+	sint64 get_starting_money(sint16 year) const;
 	void set_starting_money(sint64 s) { starting_money = s; }
 
 	bool get_random_pedestrians() const { return fussgaenger; }
