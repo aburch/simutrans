@@ -369,7 +369,7 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		stringhashtable_iterator_tpl<const stadtauto_besch_t *>iter(table);
+		stringhashtable_iterator_tpl<const stadtauto_besch_t *> iter(table);
 		while(   iter.next()  ) {
 			const stadtauto_besch_t* info = iter.get_current_value();
 			const int intro_month = info->get_intro_year_month();
@@ -720,12 +720,16 @@ stadtauto_t::betrete_feld()
 		time_to_life = 0;
 
 		//"fussgaenger" = pedestrian (Babelfish)
-		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
+		int number = 2;
+		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos_next, number);
+		/*fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
 		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
+		
+		
 		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
 			fg->sync_step(64*24);
 		}
-		welt->sync_add( fg );
+		welt->sync_add( fg );*/
 	}
 #endif
 	vehikel_basis_t::betrete_feld();

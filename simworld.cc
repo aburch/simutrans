@@ -2302,6 +2302,11 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 				werkzeug[sp->get_player_nr()]->exit(this,sp);
 			}
 
+			else {
+				// init again, to interrupt dragging
+				werkzeug[sp->get_player_nr()]->init(this,active_player);
+			}
+
 			if(  sp==active_player  ) {
 				// reset pointer
 				koord3d zpos = zeiger->get_pos();
@@ -2315,6 +2320,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 				werkzeug_last_pos = koord3d::invalid;
 				werkzeug_last_button = 0;
 			}
+			
 			werkzeug[sp->get_player_nr()] = w;
 		}
 	}
@@ -2323,10 +2329,6 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 		static char commandstring[4096];
 		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), w->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->default_param==NULL ? "" : w->default_param );
 		network_send_server( commandstring, len );
-	}
-	else {
-		// init again, to interrupt dragging
-		werkzeug->init(this,active_player);
 	}
 }
 
@@ -4276,7 +4278,7 @@ void karte_t::laden(loadsave_t *file)
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
-	fast_forward = false;
+	//fast_forward = false;
 
 	tile_counter = 0;
 

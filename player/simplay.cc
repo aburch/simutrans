@@ -945,7 +945,7 @@ void spieler_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-		for (int year = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++)
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++)
 		{
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) 
 			{

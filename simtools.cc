@@ -229,7 +229,7 @@ static double smoothed_noise(const int x, const int y)
 	const double center  =  int_noise(x, y);
 
 	return (sides+sides + center*4) / 8.0;
-*/
+
 
 // this gives very hilly world
 //   return int_noise(x,y);

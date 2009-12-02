@@ -685,6 +685,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( frames_per_second, "" );
 			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
 				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+			}
 		}
 
 		if(file->get_experimental_version() >= 1)

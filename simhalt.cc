@@ -1657,6 +1657,7 @@ void haltestelle_t::rebuild_connexions(uint8 category)
 				}
 
 			//connections_searched += fpl->get_count();
+			}
 		}
 
 		//connections_searched ++;

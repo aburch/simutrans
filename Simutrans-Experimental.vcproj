@@ -69,7 +69,7 @@
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-debug.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
@@ -1434,6 +1434,10 @@
 			</File>
 			<File
 				RelativePath=".\besch\writer\building_writer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bzlib.h"
 				>
 			</File>
 			<File

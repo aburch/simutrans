@@ -194,7 +194,7 @@ class haus_besch_t : public obj_besch_std_name_t { // Daten für ein ganzes Gebäu
 	sint32 scaled_station_maintenance;
 	uint16 station_capacity;
 
-	climate_bits	allowed_climates;
+	climate_bits allowed_climates;
 
 	// when was this building allowed
 	uint16 intro_date;
@@ -352,13 +352,17 @@ public:
 		// BG: 29.08.2009: explicit typecasts avoid warnings
 		scaled_station_price = (sint32)(station_price * scale_factor < 1 ? (station_price > 0 ? 1 : 0) : station_price * scale_factor);
 		scaled_station_maintenance = (sint32)(station_maintenance * scale_factor < (station_maintenance > 0 ? 1 : 0) ? 1: station_maintenance * scale_factor);
+	}
+
 	// default tool for building
 	werkzeug_t *get_builder() const {
 		return builder;
 	}
+
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
 	}
 };
+	
 
 #endif
