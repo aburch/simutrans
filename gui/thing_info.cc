@@ -44,8 +44,7 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding_) :
 /* calculates the height of the text that flows around the world_view
  * if draw is true, it will also draw the text
  */
-KOORD_VAL
-ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
+KOORD_VAL ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
 {
 	const bool unicode = translator::get_lang()->utf_encoded;
 	KOORD_VAL x=0, word_x=0, y = 10;

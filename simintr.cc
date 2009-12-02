@@ -68,8 +68,7 @@ void set_frame_time(long time)
 	frame_time = clamp( time, 10, 250 )*FRAME_TIME_MULTI;
 }
 
-void
-intr_refresh_display(bool dirty)
+void intr_refresh_display(bool dirty)
 {
 	wasser_t::prepare_for_refresh();
 	dr_prepare_flush();
@@ -79,8 +78,7 @@ intr_refresh_display(bool dirty)
 }
 
 
-void
-interrupt_check()
+void interrupt_check()
 {
 	interrupt_check( "0" );
 }
@@ -120,14 +118,12 @@ void intr_set(karte_t *welt, karte_ansicht_t *view)
  * currently only used by the pause tool. Use with care!
  * @author Hj. Malthaner
  */
-void
-intr_set_last_time(long time)
+void intr_set_last_time(long time)
 {
 	last_time = time;
 }
 
-long
-intr_get_last_time()
+long intr_get_last_time()
 {
 	return last_time;
 }

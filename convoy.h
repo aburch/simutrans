@@ -102,7 +102,14 @@ inline double speed_to_v(sint32 speed)
 
 /**
  * Convert m/s to simutrans speed
- */
+ * Redundant given math.h.
+ 
+inline double get_min(double a, double b)
+{
+	return a < b ? a : b;
+}
+*/
+
 inline sint32 v_to_speed(double v)
 {
 	return (sint32)(v * (3.6 * 1024.0) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
@@ -112,12 +119,6 @@ inline double x_to_steps(double v)
 {
 	return (v * (3.6 * 1024.0) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
-
-inline double min(double a, double b)
-{
-	return a < b ? a : b;
-}
-
 
 /******************************************************************************/
 

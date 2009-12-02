@@ -108,11 +108,13 @@ private:
 	uint8 status_color;
 	uint32 capacity[3]; // passenger, post, goods
 	uint8 overcrowded[8];	// bit set, when overcrowded
-	void recalc_status();
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
 public:
+	/* recalculates the station bar */
+	void recalc_status();
+
 	/**
 	 * Handles changes of schedules and the resulting rerouting
 	 */
@@ -586,6 +588,18 @@ public:
 			return enables&PAX;
 		}
 		else if(wtyp==warenbauer_t::post) {
+			return enables&POST;
+		}
+		return enables&WARE;
+	}
+
+	// a separate version for checking with goods category index
+	int is_enabled( const uint8 ctg )
+	{
+		if (ctg==0) {
+			return enables&PAX;
+		}
+		else if(ctg==1) {
 			return enables&POST;
 		}
 		return enables&WARE;

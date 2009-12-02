@@ -1195,8 +1195,7 @@ vehikel_t::verlasse_feld()
 /* this routine add a vehicle to a tile and will insert it in the correct sort order to prevent overlaps
  * @author prissi
  */
-void
-vehikel_t::betrete_feld()
+void vehikel_t::betrete_feld()
 {
 	vehikel_basis_t::betrete_feld();
 	if(ist_erstes  &&  reliefkarte_t::is_visible  ) {
@@ -1205,8 +1204,7 @@ vehikel_t::betrete_feld()
 }
 
 
-void
-vehikel_t::hop()
+void vehikel_t::hop()
 {	
 	// Fahrtkosten
 	// "Travel costs" (Babelfish)
@@ -1763,15 +1761,13 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf)
 }
 
 
-void
-vehikel_t::loesche_fracht()
+void vehikel_t::loesche_fracht()
 {
 	fracht.clear();
 }
 
 
-bool
-vehikel_t::beladen(koord, halthandle_t halt, bool overcrowd)
+bool vehikel_t::beladen(koord, halthandle_t halt, bool overcrowd)
 {
 	bool ok = true;
 	if(halt.is_bound()) 

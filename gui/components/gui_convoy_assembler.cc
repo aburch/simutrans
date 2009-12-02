@@ -1330,6 +1330,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		
 		if(value != -1) 
 		{
+			if (buf[j-1]!='\n') 
+			{
+				j += sprintf(buf + j, "\n");
+			}
 			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
 		}
 		

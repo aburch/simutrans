@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -54,15 +53,14 @@ bool fussgaenger_t::alles_geladen()
 		vector_tpl<const fussgaenger_besch_t*> temp_liste(0);
 		stringhashtable_iterator_tpl<const fussgaenger_besch_t *>iter(table);
 		while(  iter.next()  ) {
-			temp_liste.append(iter.get_current_value());
+			// just entered them sorted
+			temp_liste.insert_ordered( iter.get_current_value(), compare_fussgaenger_besch );
 		}
-		// needs to sort them, to have same order on any computer ...
-		std::sort(temp_liste.begin(),temp_liste.end(),compare_fussgaenger_besch);
 		for (vector_tpl<const fussgaenger_besch_t *>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
 			liste.append( (*i), (*i)->get_gewichtung() );
 		}
 	}
-	return true ;
+	return true;
 }
 
 

@@ -677,7 +677,7 @@ void display_all_win()
 			// prissi: tooltips are only allowed for non overlapping windows
 			current_tooltip = tooltip_text;
 		}
-		inside_event_handling = NULL;
+		inside_event_handling = old_gui;
 	}
 	tooltip_text = current_tooltip;
 }

@@ -67,22 +67,7 @@ char *fgets_line(char *buffer, int max_len, FILE *file)
 	return result;
 }
 
-
-//// allow all kinds of line feeds
-//static char *fgets_line(char *buffer, int max_len, FILE *file)
-//{
-//	char *result = fgets(buffer, max_len, file);
-//	size_t len = strlen(buffer);
-//	// remove all trailing junk
-//	while(  len>1  &&  (buffer[len-1]==13  ||  buffer[len-1]==10)  ) {
-//		buffer[len-1] = 0;
-//		len--;
-//	}
-//	return result;
-//}
-
-
-const char* translator::lang_info::translate(const char* text) const
+const char *translator::lang_info::translate(const char* text) const
 {
 	if (text    == NULL) {
 		return "(null)";
@@ -290,11 +275,13 @@ static void init_city_names(bool is_utf_language)
 		// ok, could open file
 		char buf[256];
 		bool file_is_utf = is_unicode_file(file);
-		while (!feof(file)) {
-			if (fgets_line(buf, 128, file)) {
+		while(  !feof(file)  ) {
+			if(  fgets_line(buf, 128, file)  ) {
 				rtrim(buf);
-				char* c = recode(buf, file_is_utf, is_utf_language);
-				namen_liste.append(c);
+				char *c = recode(buf, file_is_utf, is_utf_language);
+				if(  *c!=0  &&  *c!='#'  ) {
+					namen_liste.append(c);
+				}
 			}
 		}
 		fclose(file);

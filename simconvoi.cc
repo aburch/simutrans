@@ -160,6 +160,9 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	wait_lock = 0;
 	go_on_ticks = WAIT_INFINITE;
 
+	jahresgewinn = 0;
+	total_distance_traveled = 0;
+
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
 
@@ -471,19 +474,20 @@ uint32 convoi_t::get_length() const
 
 
 /**
- * Vehicles of the convoi add their running cost by using this
- * method
+ * convoi add their running cost for traveling one tile
  * @author Hj. Malthaner
  */
-void convoi_t::add_running_cost(sint32 cost)
+void convoi_t::add_running_cost(sint64 cost)
 {
-	// Fahrtkosten
 	jahresgewinn += cost;
+
 	get_besitzer()->buche(cost, COST_VEHICLE_RUN);
 
-	// hsiegeln
-	book(cost, CONVOI_OPERATIONS);
-	book(cost, CONVOI_PROFIT);
+	book( cost, CONVOI_OPERATIONS );
+	book( cost, CONVOI_PROFIT );
+
+	total_distance_traveled ++;
+	book( 1, CONVOI_DISTANCE );
 }
 
 
@@ -537,7 +541,6 @@ bool convoi_t::sync_step(long delta_t)
 			break;
 
 		case FAHRPLANEINGABE:
-//<<<<<<< HEAD:simconvoi.cc
 //			// schedule window closed?
 //			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
 //
@@ -1198,7 +1201,8 @@ void convoi_t::new_month()
 	{
 		running_cost += fahr[j]->get_besch()->get_fixed_maintenance(welt);
 	}
-	add_running_cost(-(sint32)welt->calc_adjusted_monthly_figure(running_cost));
+	
+	add_running_cost(welt->calc_adjusted_monthly_figure(running_cost));
 
 	// everything normal: update history
 	for (int j = 0; j<MAX_CONVOI_COST; j++) {
@@ -1468,6 +1472,13 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		sum_gesamtgewicht = sum_gewicht;
 		calc_loading();
 		freight_info_resort = true;
+		// Add good_catg_index:
+		if(v->get_fracht_max() != 0) {
+			const ware_besch_t *ware=v->get_fracht_typ();
+			if(ware!=warenbauer_t::nichts  ) {
+				goods_catg_index.append_unique( ware->get_catg_index(), 1 );
+			}
+		}
 		// check for obsolete
 		if(!has_obsolete  &&  welt->use_timeline()) {
 			has_obsolete = v->get_besch()->is_retired( welt->get_timeline_year_month() );
@@ -1534,6 +1545,8 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 			has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 		}
 
+		recalc_catg_index();
+
 		// still requires electrifications?
 		if(is_electric) {
 			is_electric = false;
@@ -1551,8 +1564,53 @@ vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 	return v;
 }
 
-void
-convoi_t::set_erstes_letztes() //"set only last" (Google)
+// recalc what good this convoy is moving
+void convoi_t::recalc_catg_index()
+{
+	// first copy old
+	minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
+	for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
+		old_goods_catg_index.append( goods_catg_index[i] );
+	}
+	goods_catg_index.clear();
+
+	for(  uint8 i = 0;  i < get_vehikel_anzahl();  i++  ) {
+		// Only consider vehicles that really transport something
+		// this helps against routing errors through passenger
+		// trains pulling only freight wagons
+		if(get_vehikel(i)->get_fracht_max() == 0) {
+			continue;
+		}
+		const ware_besch_t *ware=get_vehikel(i)->get_fracht_typ();
+		if(ware!=warenbauer_t::nichts  ) {
+			goods_catg_index.append_unique( ware->get_catg_index(), 1 );
+		}
+	}
+	/* since during composition of convois all kinds of composition could happen,
+	 * we do not enforce schedule recalculation here; it will be done anyway all times when leaving the INTI state ...
+	 */
+#if 0
+	// if different => schedule need recalculation
+	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
+		// surely changed
+		welt->set_schedule_counter();
+	}
+	else {
+		// maybe changed => must test all entries
+		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
+			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
+				// different => recalc
+				welt->set_schedule_counter();
+				break;
+			}
+		}
+	}
+#endif
+}
+
+
+//"set only last" (Google)
+void convoi_t::set_erstes_letztes()
 {
 	// anz_vehikel muss korrekt init sein
 	// "anz vehicle must be correctly INIT" (Babelfish)
@@ -1573,6 +1631,10 @@ convoi_t::set_erstes_letztes() //"set only last" (Google)
 
 bool convoi_t::set_schedule(schedule_t * f)
 {
+	if(  state==SELF_DESTRUCT  ) {
+		return false;
+	}
+
 	enum states old_state = state;
 	state = INITIAL;	// because during a sync-step we might be called twice ...
 
@@ -2359,6 +2421,20 @@ convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
+			financial_history[k][CONVOI_DISTANCE] = 0;
+		}
+	}
+	else if(  file->get_version()<103000  ){
+		// load statistics
+		for (int j = 0; j<5; j++) {
+			for (int k = MAX_MONTHS-1; k>=0; k--) {
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
+		}
+		for (int k = MAX_MONTHS-1; k>=0; k--) {
+			financial_history[k][CONVOI_DISTANCE] = 0;
+		}
 	}
 	else 
 	{
@@ -2379,6 +2455,11 @@ convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
+	}
+
+	// the convoi odometer
+	if(  file->get_version()>=103000  ){
+		file->rdwr_longlong( total_distance_traveled, "" );
 	}
 
 	// since it was saved as an signed int
@@ -2556,6 +2637,11 @@ convoi_t::rdwr(loadsave_t *file)
 		// left twenty seconds ago, to avoid anomalies when
 		// measuring average speed. 
 		last_departure_time = welt->get_zeit_ms() - 20000;
+	}
+
+	// This must come *after* all the loading/saving.
+	if( file->is_loading() ) {
+		recalc_catg_index();
 	}
 }
 
@@ -2896,17 +2982,15 @@ void convoi_t::laden() //"load" (Babelfish)
 		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->get_current_eintrag().waiting_time_shift));
 	}
 
-	INT_CHECK("simconvoi 1077");
-	
-	current_stop = fpl->get_aktuell();
-
 	// Nun wurde ein/ausgeladen werden
 	// "Now, a / unloaded" (Google)
 	if(loading_level >= loading_limit  ||  no_load  ||  welt->get_zeit_ms() > go_on_ticks)  
 	{
 
-		if(withdraw && has_no_cargo()) 
-		{
+		// This is the minimum time it takes for loading
+		wait_lock = longest_loading_time;
+
+		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
 			welt->set_dirty();
 			destroy();
@@ -2923,10 +3007,11 @@ void convoi_t::laden() //"load" (Babelfish)
 		fpl->advance();
 		state = ROUTING_1;
 	}
-		
-	// This is the minimum time it takes for loading
-	//wait_lock = WTT_LOADING;
-	wait_lock = longest_loading_time;
+
+	else {
+		// just wait a little longer to get maximum load ...
+		wait_lock = (longest_loading_time*2)+(self.get_id())%1024;
+	}
 }
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
@@ -3306,9 +3391,11 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	}
 
 	// only load vehicles in station
-	// don't load if vehicle is being withdrawn
-	int convoy_length = 0;
+
+	//int convoy_length = 0;
 	bool second_run = anz_vehikel <= 1;
+	uint8 convoy_length = 0;
+	bool changed_loading_level = false;
 	for(uint8 i=0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
@@ -3330,15 +3417,15 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			gewinn += v->current_revenue;
 		}
 
-		if(!no_load) 
-		{
-			// load 
-			freight_info_resort |= v->beladen(k, halt, second_run);
+		changed_loading_level |= v->entladen(k, halt);
+		if(!no_load) {
+			// load
+			changed_loading_level |= v->beladen(k, halt);
 		}
 		else 
 		{
 			// do not load anymore - but call beladen() to recalculate vehikel weight
-			freight_info_resort |= v->beladen(k, halthandle_t());
+			v->beladen(k, halthandle_t());
 		}
 
 		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
@@ -3351,6 +3438,10 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			// Bernd Gabriel, 05.07.2009: must reinitialize convoy_length
 			convoy_length = 0;
 		}
+	}
+	freight_info_resort |= changed_loading_level;
+	if(  changed_loading_level  ) {
+		halt->recalc_status();
 	}
 
 	// any loading went on?
@@ -3430,6 +3521,10 @@ void convoi_t::destroy()
 	// can be only done here, with a valid convoihandle ...
 	if(fahr[0]) {
 		fahr[0]->set_convoi(NULL);
+	}
+
+	if(fpl!=NULL  &&  !fpl->ist_abgeschlossen()) {
+		destroy_win((long)fpl);
 	}
 
 	if(  line.is_bound()  ) {
@@ -4217,26 +4312,6 @@ convoi_t::calc_longest_loading_time()
 		}
 	}
 	return longest;
-}
-
-// Added by		: Knighty
-// Adapted from : simline_t
-// Purpose		: To recalculate the list of supported goods categories
-void convoi_t::recalc_catg_index()
-{
-	goods_catg_index.clear();
-
-	for(uint8 i = 0; i < anz_vehikel; i++) 
-	{
-		if (fahr[i]->get_fracht_max() > 0)
-		{
-			const ware_besch_t *ware_type = fahr[i]->get_fracht_typ();
-			if (ware_type != warenbauer_t::nichts) 
-			{
-				goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
-			}
-		}
-	}
 }
 
 // Bernd Gabriel, 18.06.2009: extracted from new_month()
