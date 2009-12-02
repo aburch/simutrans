@@ -3,7 +3,7 @@
 
 #ifdef WIN32
 // must be include before all simutrans stuff!
-#include <winsock.h>
+#include <WinSock.h>
 #undef min
 #undef max
 #else
