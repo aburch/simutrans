@@ -482,7 +482,6 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
 		wkz->default_param = besch->get_name();
-		wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
 		werkzeug_t::general_tool.append( wkz );
 		besch->set_builder( wkz );
 	}

@@ -59,8 +59,6 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 {
 	bt_timeline.set_text( "Random age" );
 
-	baum_tool.id = werkzeug_t::general_tool[WKZ_PLANT_TREE]->id;
-
 	remove_komponente( &bt_obsolete );
 	offset_of_comp -= BUTTON_HEIGHT;
 

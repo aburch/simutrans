@@ -135,8 +135,15 @@ enum {
 class werkzeug_t {
 protected:
 	image_id icon;
+	/*
+	 * value to trigger this command (see documentation)
+	 * must be initialized in constructor
+	 */
+	uint16 id;
 
 public:
+	uint16 get_id() { return id; }
+
 	static werkzeug_t *dummy;
 
 	// for sorting: compare tool key
@@ -156,8 +163,6 @@ public:
 	const char *default_param;
 
 	uint16 command_key;// key to toggle action for this function
-	uint16 id;			// value to trigger this command (see documentation)
-
 
 	static vector_tpl<werkzeug_t *> general_tool;
 	static vector_tpl<werkzeug_t *> simple_tool;
@@ -173,7 +178,7 @@ public:
 
 	static void read_menu(cstring_t objfilename);
 
-	werkzeug_t() { id = 0xFFFFu; cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
+	werkzeug_t() : id(0xFFFFu) { cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }

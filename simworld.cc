@@ -2170,7 +2170,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 	else {
 		// queue tool for network
 		static char commandstring[4096];
-		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), w->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->default_param==NULL ? "" : w->default_param );
+		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), w->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->default_param==NULL ? "" : w->default_param );
 		network_send_server( commandstring, len );
 	}
 }
@@ -4990,7 +4990,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 		else {
 			// queue tool for network
 			static char commandstring[4096];
-			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), werkzeug[get_active_player_nr()]->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->default_param==NULL ? "" : werkzeug[get_active_player_nr()]->default_param );
+			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), werkzeug[get_active_player_nr()]->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->default_param==NULL ? "" : werkzeug[get_active_player_nr()]->default_param );
 			network_send_server( commandstring, len );
 		}
 
