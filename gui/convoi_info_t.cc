@@ -43,8 +43,10 @@ const char cost_type[BUTTON_COUNT][64] =
 	"Comfort",
 	"Revenue",
 	"Operation",
-	"Profit",
-	"Acceleration"
+	"Profit"
+#ifdef ACCELERATION_BUTTON
+	, "Acceleration"
+#endif
 };
 
 const int cost_type_color[BUTTON_COUNT] =
@@ -55,8 +57,10 @@ const int cost_type_color[BUTTON_COUNT] =
 	COL_COMFORT, 
 	COL_REVENUE, 
 	COL_OPERATION, 
-	COL_PROFIT, 
-	COL_YELLOW
+	COL_PROFIT
+#ifdef ACCELERATION_BUTTON
+	, COL_YELLOW
+#endif
 };
 
 //bool convoi_info_t::route_search_in_progress = false;
@@ -170,6 +174,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		add_komponente(filterButtons + cost);
 	}
 
+#ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 	{
 		for (int i = 0; i < MAX_MONTHS; i++)
@@ -177,7 +182,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 			physics_curves[i][0] = 0;
 		}
 
-		int btn = ACCELERATOR_BUTTON;
+		int btn = ACCELERATION_BUTTON;
 		chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true, 0);
 		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+2)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[btn].add_listener(this);
@@ -186,6 +191,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		filterButtons[btn].pressed = false;
 		add_komponente(filterButtons + btn);
 	}
+#endif
 
 	add_komponente(&chart);
 	add_komponente(&view);
@@ -262,8 +268,9 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		//Bernd Gabriel, Dec, 02 2009: common existing_convoy_t for acceleration curve and weight/speed info.
 		existing_convoy_t convoy(*cnv.get_rep());
 
+#ifdef ACCELERATION_BUTTON
 		//Bernd Gabriel, Sep, 24 2009: acceleration curve:
-		if (filterButtons[ACCELERATOR_BUTTON].is_visible() && filterButtons[ACCELERATOR_BUTTON].pressed)
+		if (filterButtons[ACCELERATION_BUTTON].is_visible() && filterButtons[ACCELERATION_BUTTON].pressed)
 		{
 			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
 			sint32 akt_speed = 0;
@@ -276,7 +283,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
 		}
-
+#endif
 
 		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
 		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK);
