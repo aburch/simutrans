@@ -113,12 +113,6 @@ inline double x_to_steps(double v)
 	return (v * (3.6 * 1024.0) + VEHICLE_SPEED_FACTOR - 1) / VEHICLE_SPEED_FACTOR;
 }
 
-inline double min(double a, double b)
-{
-	return a < b ? a : b;
-}
-
-
 /******************************************************************************/
 
 struct vehicle_summary_t

@@ -13,6 +13,20 @@
 #include "bauer/warenbauer.h"
 #include "vehicle/simvehikel.h"
 
+// make sure, that no macro calculates a or b twice:
+inline double double_min(double a, double b)
+{
+	return a < b ? a : b;
+}
+
+// helps to calculate roots. pow fails to calculate roots of negative bases.
+inline double signed_power(double base, double expo)
+{
+	if (base >= 0)
+		return pow(base, expo);
+	return -pow(-base, expo);
+}
+
 
 static void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight)
 {
@@ -110,13 +124,6 @@ void weight_summary_t::add_weight(uint32 tons, sint32 sin_alpha)
 
 /******************************************************************************/
 
-inline double signed_power(double base, double expo)
-{
-	if (base >= 0)
-		return pow(base, expo);
-	return -pow(-base, expo);
-}
-
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
 	double p3 = (environ.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * environ.cf);
@@ -163,7 +170,7 @@ void convoy_t::calc_move(long delta_t, const weight_summary_t &weight, sint32 ak
 		double Frs = 9.81 * (environ.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 		double vmax = speed_to_v(akt_speed_soll);
-		double fmax = min(environ.cf * vmax * vmax, get_force(vmax) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
+		double fmax = double_min(environ.cf * vmax * vmax, get_force(vmax) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
 		static uint32 count1 = 0;
 		static uint32 count2 = 0;
 		static uint32 count3 = 0;
