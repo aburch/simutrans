@@ -347,9 +347,9 @@ void simline_t::recalc_catg_index()
 void simline_t::set_withdraw( bool yes_no )
 {
 	withdraw = yes_no  &&  (line_managed_convoys.get_count()>0);
-	// then recreate current
-	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+	// convois in depots will be immeadiately destroyed, thus we go backwards
+	for( sint32 i=line_managed_convoys.get_count()-1;  i>=0;  i--  ) {
+		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);
-		line_managed_convoys[i]->set_no_load(yes_no);
 	}
 }
