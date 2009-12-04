@@ -60,7 +60,9 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 {
 	rot_str[0] = 0;
 	prod_str[0] = 0;
-	land_chain_tool.default_param = city_chain_tool.default_param = fab_tool.default_param = param_str;
+	land_chain_tool.set_default_param(param_str);
+	city_chain_tool.set_default_param(param_str);
+	fab_tool.set_default_param(param_str);
 	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_FACTORY]->cursor;
 
 	fab_besch = NULL;

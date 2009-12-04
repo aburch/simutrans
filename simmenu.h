@@ -141,6 +141,7 @@ protected:
 	 */
 	uint16 id;
 
+	const char *default_param;
 public:
 	uint16 get_id() { return id; }
 
@@ -160,7 +161,6 @@ public:
 	sint16 ok_sound;
 	sint16 failed_sound;
 	sint8 offset;
-	const char *default_param;
 
 	uint16 command_key;// key to toggle action for this function
 
@@ -183,6 +183,9 @@ public:
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
+
+	virtual const char* get_default_param() const { return default_param; }
+	void set_default_param(const char* str) { default_param = str; }
 
 	// this will draw the tool with some indication, if active
 	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug(welt->get_active_player_nr())==this; }

@@ -510,7 +510,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		// we need overhead wires
 		const way_obj_besch_t *e = wayobj_t::wayobj_search(track_wt,overheadlines_wt,welt->get_timeline_year_month());
 		wkz_wayobj_t wkz;
-		wkz.default_param = e->get_name();
+		wkz.set_default_param(e->get_name());
 		wkz.init( welt, this );
 		wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
 		wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
@@ -1046,7 +1046,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					char param[16];
 					sprintf( param, "%i", track_wt );
 					wkz_wayremover_t wkz;
-					wkz.default_param = param;
+					wkz.set_default_param(param);
 					wkz.init( welt, this );
 					wkz.work( welt, this, welt->lookup_kartenboden(platz1)->get_pos() );
 					wkz.work( welt, this, welt->lookup_kartenboden(platz2)->get_pos() );
@@ -1231,7 +1231,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 						char param[16];
 						sprintf( param, "%i", track_wt );
 						wkz_wayremover_t wkz;
-						wkz.default_param = param;
+						wkz.set_default_param(param);
 						wkz.init( welt, this );
 						wkz.work( welt, this, start_pos );
 						wkz.work( welt, this, end_pos );
@@ -1245,7 +1245,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							char param[16];
 							sprintf( param, "%i", wt );
 							wkz_wayremover_t wkz;
-							wkz.default_param = param;
+							wkz.set_default_param(param);
 							wkz.init( welt, this );
 							wkz.work( welt, this, start_pos );
 							if(wkz.work( welt, this, end_pos )!=NULL) {

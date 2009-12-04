@@ -332,12 +332,11 @@ long loadsave_t::write(const void *buf, size_t len)
 long loadsave_t::read(void *buf, size_t len)
 {
 	if(is_bzip2()) {
-		size_t l = 0;
 		if(  bse==BZ_OK  ) {
 			BZ2_bzRead( &bse, bzfp, const_cast<void *>(buf), len);
 		}
 		// little trick: zero if not ok ...
-		return (long)l&~(bse-BZ_OK);
+		return (long)len&~(bse-BZ_OK);
 	}
 	else {
 		return gzread(fp, buf, len);
@@ -689,7 +688,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 			write(s, len);
 		}
 		else {
-			read(&len, sizeof(sint16));
+			long res = read(&len, sizeof(sint16));
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif

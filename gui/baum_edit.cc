@@ -63,7 +63,7 @@ baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	offset_of_comp -= BUTTON_HEIGHT;
 
 	besch = NULL;
-	baum_tool.default_param = NULL;
+	baum_tool.set_default_param(NULL);
 
 	fill_list( is_show_trans_name );
 
@@ -143,7 +143,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		img[3].set_image( besch->get_bild_nr( 0, 3 ) );
 
 		sprintf( param_str, "%i%i,%s", bt_climates.pressed, bt_timeline.pressed, besch->get_name() );
-		baum_tool.default_param = param_str;
+		baum_tool.set_default_param(param_str);
 		baum_tool.cursor = werkzeug_t::general_tool[WKZ_PLANT_TREE]->cursor;
 		welt->set_werkzeug( &baum_tool, sp );
 	}
