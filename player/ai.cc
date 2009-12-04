@@ -510,4 +510,11 @@ DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d
 }
 
 
+void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local)
+{
+	// necessary to show error message if a human helps us poor AI
+	spieler_t::tell_tool_result(tool, pos, err, local);
+
+	// TODO: process the result...
+}
 

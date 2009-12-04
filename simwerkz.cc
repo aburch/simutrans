@@ -1369,16 +1369,16 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) const
+const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
-	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
+	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
 	if(besch==NULL) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
 			if(wt<=air_wt) {
 				// search fastest way.
-				besch = wegbauer_t::weg_search(wt, 0xffffffff, welt->get_timeline_year_month(), weg_t::type_flat);
+				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 			}
 			else {
 				besch = wegbauer_t::leitung_besch;
@@ -1406,7 +1406,7 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
-	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
+	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
 	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
@@ -1415,10 +1415,32 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 	return toolstr;
 }
 
+// default ways are not intialized sychronous for different clients
+// return always name of a way, never the string containing the waytype
+const char* wkz_wegebau_t::get_default_param() const
+{
+	if (besch) {
+		return besch->get_name();
+	}
+	else {
+		if (default_param == NULL) {
+			// no chance to guess anything sensible
+			return NULL;
+		}
+		const weg_besch_t* test_besch = get_besch(0, false);
+		if (test_besch) {
+			return test_besch->get_name();
+		}
+		else {
+			return default_param;
+		}
+	}
+}
+
 bool wkz_wegebau_t::is_selected( karte_t *welt ) const
 {
 	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
-	return (selected  &&  selected->get_besch(welt,false) == get_besch(welt,false));
+	return (selected  &&  selected->get_besch(welt->get_timeline_year_month(),false) == get_besch(welt->get_timeline_year_month(),false));
 }
 
 bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
@@ -1426,7 +1448,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
-	besch = get_besch(welt, true);
+	besch = get_besch(welt->get_timeline_year_month(), true);
 	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}

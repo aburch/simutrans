@@ -51,6 +51,7 @@ class stadt_t;
 class gebaeude_t;
 class koord3d;
 class ware_production_t;
+class werkzeug_t;
 
 /**
  * play info for simutrans human and AI are derived from this class
@@ -340,6 +341,15 @@ public:
 	 * @date 26-Nov-2001
 	 */
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+
+	/**
+	 * Tells the player the result of tool-work commands
+	 * If player is active then play sound, popup error msg etc
+	 * AI players react upon this call and proceed
+	 * local is true if tool was called by player on our client
+	 * @author Dwachs
+	 */
+	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
 
 private:
 	/* undo informations *

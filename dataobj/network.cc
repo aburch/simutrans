@@ -29,9 +29,18 @@
 #endif
 
 static bool network_active = false;
+// local server cocket
 static SOCKET my_socket = INVALID_SOCKET;
+// local client socket
 static SOCKET my_client_socket = INVALID_SOCKET;
 static char pending[4096];
+
+// global client id
+static SOCKET client_id;
+SOCKET network_get_client_id()
+{
+	return client_id;
+}
 
 /**
  * Initializes the network core (as that is needed for some platforms
@@ -56,7 +65,7 @@ bool network_initialize()
 
 
 // open a socket or give a decent error message
-const char *network_open_address( const char *cp, SOCKET &sock )
+const char *network_open_address( const char *cp)
 {
 	// Network load. Address format e.g.: "net:128.0.0.1:13353"
 	char address[32];
@@ -88,7 +97,7 @@ const char *network_open_address( const char *cp, SOCKET &sock )
 		return "Cannot init network!";
 	}
 
-	my_client_socket = sock = socket(PF_INET,SOCK_STREAM,0);
+	my_client_socket = socket(PF_INET,SOCK_STREAM,0);
 	if(my_client_socket==INVALID_SOCKET) {
 		return "Cannot create socket";
 	}
@@ -102,8 +111,41 @@ const char *network_open_address( const char *cp, SOCKET &sock )
 	return NULL;
 }
 
+// connect to address (cp), receive game, save to (filename)
+const char* network_connect(const char *cp, const char *filename)
+{
+	// open from network
+	const char *err = network_open_address( cp );
+	if(  err==NULL  ) {
+		int len;
+		dbg->warning( "network_connect", "send :" NET_TO_SERVER NET_GAME NET_END_CMD );
+		len = send( my_client_socket, NET_TO_SERVER NET_GAME NET_END_CMD, 9, 0 );
 
-
+		len = 64;
+		char buf[64];
+		network_add_client( my_client_socket );
+		if(  network_check_activity( 1000, buf, len )!=INVALID_SOCKET  ) {
+			// wait for sync message to finish
+			if(  memcmp( NET_FROM_SERVER NET_GAME, buf, 7 )!=0  ) {
+				err = "Protocoll error (expecting " NET_GAME ")";
+			}
+			else {
+				int len = 0;
+				client_id = INVALID_SOCKET;
+				sscanf(buf+7, " %lli,%li" NET_END_CMD, &client_id, &len);
+				dbg->warning( "network_connect", "received: id=%lli len=%li", client_id, len);
+				err = network_recieve_file( my_client_socket, filename, len );
+			}
+		}
+		else {
+			err = "Server did not respond!";
+		}
+	}
+	if(err) {
+		network_close_socket( my_client_socket );
+	}
+	return err;
+}
 // if sucessful, starts a server on this port
 bool network_init_server( int port )
 {
@@ -132,14 +174,16 @@ bool network_init_server( int port )
 
 	network_add_client( my_socket );
 	pending[0] = 0;
+	client_id = 0;
 
 	return true;
 }
 
 
 
-// to query all open sockets, we maintian this list
+// to query all open sockets, we maintain this list
 static slist_tpl<SOCKET> clients;
+static uint32 our_client_id;
 
 void network_add_client( SOCKET sock )
 {
@@ -210,7 +254,7 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 		socklen_t size = sizeof(client_name);
 		SOCKET s = accept(my_socket, (struct sockaddr *)&client_name, &size);
 		if(  s!=INVALID_SOCKET  ) {
-			dbg->message("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
+			dbg->warning("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
 			network_add_client(s);
 		}
 		// not a request
@@ -245,7 +289,7 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 			bytes ++;
 		} while(  bytes+1<len  &&  buf[bytes-1]!=*NET_END_CMD  );
 		buf[bytes] = 0;
-		dbg->message( "network_check_activity()", "recieved '%s'", buf );
+		dbg->warning( "network_check_activity()", "recieved '%s'", buf );
 		// read something sucessful
 		len = bytes;
 		return sender;
@@ -287,7 +331,7 @@ bool network_check_server_connection()
 void network_send_all(char *msg, int len, bool exclude_us )
 {
 	slist_iterator_tpl<SOCKET> iter(clients);
-	dbg->message( "network_send_all()", msg );
+	dbg->warning( "network_send_all()", msg );
 	while( iter.next() ) {
 		SOCKET s = iter.get_current();
 		if(exclude_us  &&  s==my_socket) {
@@ -306,6 +350,7 @@ void network_send_all(char *msg, int len, bool exclude_us )
 // send data to server
 void network_send_server(char *msg, int len )
 {
+	dbg->warning( "network_send_server()", msg );
 	if(  !umgebung_t::server  ) {
 		// I am client
 		send( clients.front(), msg, len, 0 );
@@ -330,7 +375,8 @@ const char *network_send_file( SOCKET s, const char *filename )
 
 	// initial: size of file
 	char command[128];
-	int n = sprintf( command, NET_FROM_SERVER NET_GAME " %li" NET_END_CMD, i );
+	int n = sprintf( command, NET_FROM_SERVER NET_GAME " %lli,%li" NET_END_CMD, (sint64)s, i );
+	dbg->warning( "network_send_file()", command );
 	if(  send(s,command,n,0)==-1  ) {
 		network_remove_client(s);
 		return "Client closed connection during transfer";

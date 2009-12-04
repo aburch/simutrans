@@ -220,11 +220,12 @@ class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
 	const weg_besch_t *besch;
-	const weg_besch_t *get_besch(karte_t *,bool) const;
+	const weg_besch_t *get_besch(uint16,bool) const;
 public:
 	wkz_wegebau_t() : two_click_werkzeug_t(), besch(NULL) { id = WKZ_WEGEBAU | GENERAL_TOOL; }
 	virtual image_id get_icon(spieler_t *) const;
 	virtual const char *get_tooltip(spieler_t *);
+	virtual const char* get_default_param() const;
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
 

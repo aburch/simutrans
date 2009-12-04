@@ -35,8 +35,8 @@ typedef int SOCKET;
 
 bool network_initialize();
 
-// open a socket or give a decent error message
-const char *network_open_address( const char *cp, SOCKET &sock );
+// connects to server at (cp), receives game, saves it to (filename)
+const char* network_connect(const char *cp, const char *filename);
 
 void network_close_socket( SOCKET sock );
 
@@ -72,4 +72,6 @@ void network_send_server(char *msg, int len );
 
 void network_core_shutdown();
 
+// get our id on the server
+SOCKET network_get_client_id();
 #endif
