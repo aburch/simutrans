@@ -56,6 +56,24 @@ vector_tpl<toolbar_t *>werkzeug_t::toolbar_tool(0);
 char werkzeug_t::toolstr[1024];
 
 
+werkzeug_t *create_tool(int toolnr)
+{
+	werkzeug_t *wkz = NULL;
+	if(  toolnr & GENERAL_TOOL  ) {
+		wkz = werkzeug_t::general_tool[toolnr & 0xFFF];
+	}
+	else if(  toolnr & SIMPLE_TOOL  ) {
+		wkz = werkzeug_t::simple_tool[toolnr & 0xFFF];
+	}
+	else if(  toolnr & DIALOGE_TOOL  ) {
+		wkz = werkzeug_t::dialog_tool[toolnr & 0xFFF];
+	}
+	if (wkz == NULL) {
+		dbg->error("create_tool()","cannot satisfy request for tool with id %i!",toolnr);
+	}
+	return wkz;
+}
+
 werkzeug_t *create_general_tool(int toolnr)
 {
 	werkzeug_t* tool = NULL;
@@ -96,7 +114,8 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_REMOVE_WAYOBJ:    tool = new wkz_wayobj_remover_t(); break;
 		case WKZ_SLICED_AND_UNDERGROUND_VIEW: tool = new wkz_show_underground_t(); break;
 		case WKZ_BUY_HOUSE:        tool = new wkz_buy_house_t(); break;
-		default:                   dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
+		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
+		                           return NULL;
 	}
 	// check for right id (exception: WKZ_SLICED_AND_UNDERGROUND_VIEW)
 	assert(tool->get_id()  ==  (toolnr | GENERAL_TOOL)  ||  toolnr==WKZ_SLICED_AND_UNDERGROUND_VIEW);
@@ -128,7 +147,8 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_FILL_TREES:        tool = new wkz_fill_trees_t(); break;
 		case WKZ_DAYNIGHT_LEVEL:    tool = new wkz_daynight_level_t(); break;
 		case WKZ_VEHICLE_TOOLTIPS:  tool = new wkz_vehicle_tooltips_t(); break;
-		default:                    dbg->fatal("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
+		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
+		                            return NULL;
 	}
 	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL));
 	return tool;
@@ -166,7 +186,8 @@ werkzeug_t *create_dialog_tool(int toolnr)
 		case WKZ_ENLARGE_MAP:    tool = new wkz_enlarge_map_t(); break;
 		case WKZ_LIST_LABEL:     tool = new wkz_list_label_t(); break;
 		case WKZ_CLIMATES:       tool = new wkz_climates_t(); break;
-		default:                 dbg->fatal("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
+		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
+		                         return NULL;
 	}
 	assert(tool->get_id() == (toolnr | DIALOGE_TOOL));
 	return tool;

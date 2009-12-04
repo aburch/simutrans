@@ -299,4 +299,7 @@ public:
 	void append(werkzeug_t *w) { tools.append(w); }
 };
 
+// create new instance of tool
+werkzeug_t *create_tool(int toolnr);
+
 #endif
