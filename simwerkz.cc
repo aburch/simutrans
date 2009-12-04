@@ -3010,7 +3010,8 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	grund_t *gr=wkz_intern_koord_to_weg_grund(sp,welt,k,besch->get_wtyp());
 	if(gr) {
 		// get the sign dirction
-		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);		signal_t *s = gr->find<signal_t>();
+		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
+		signal_t *s = gr->find<signal_t>();
 		if(s  &&  s->get_besch()!=besch) {
 			// only one sign per tile
 			return error;
