@@ -31,7 +31,7 @@ inline double signed_power(double base, double expo)
 static void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, uint32 &max_weight)
 {
 	max_weight = 0;
-	min_weight = UINT32_MAX_VALUE;
+	min_weight = INT_MAX;
 	for (uint16 j=0; j<warenbauer_t::get_waren_anzahl(); j++) 
 	{
 		const ware_besch_t &ware = *warenbauer_t::get_info(j);
@@ -49,7 +49,7 @@ static void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, ui
 		}
 	}
 	// No freight of given category found? Then there is no min weight!
-	if (min_weight == UINT32_MAX_VALUE) 
+	if (min_weight == INT_MAX) 
 	{
 		min_weight = 0;
 	}
@@ -60,7 +60,7 @@ static void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, ui
 void environ_summary_t::add_vehicle(const vehikel_t &v)
 {
 	waytype_t waytype = v.get_waytype();
-	if (max_speed == SINT32_MAX_VALUE)
+	if (max_speed == INT_MAX)
 	{
 		// all vehicles have the same waytype, thus setting once is enough
 		set_by_waytype(waytype);
@@ -150,7 +150,7 @@ uint32 convoy_t::calc_max_weight()
 void convoy_t::calc_move(long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 	double dx = 0;
-	if (environ.max_speed < SINT32_MAX_VALUE)
+	if (environ.max_speed < INT_MAX)
 	{
 		sint32 speed_limit = kmh_to_speed(environ.max_speed);
 		if (akt_speed_soll > speed_limit)
@@ -247,10 +247,10 @@ void convoy_t::calc_move(long delta_t, const weight_summary_t &weight, sint32 ak
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
 		dx = x_to_steps(dx);
 	}
-	if (dx < SINT32_MAX_VALUE - sp_soll)
+	if (dx < INT_MAX - sp_soll)
 		sp_soll += (sint32) dx;
 	else
-		sp_soll = SINT32_MAX_VALUE;
+		sp_soll = INT_MAX;
 }
 
 /******************************************************************************/
@@ -303,16 +303,10 @@ uint32 potential_convoy_t::get_force_summary(uint16 speed /* in m/s */)
 
 void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 {
-	//vehicle.clear();
-	//for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
-	//{
-	//	const vehikel_besch_t &b = *convoy.get_vehikel(i)->get_besch();
-	//	vehicle.add_vehicle(b);
-	//}
 	vehicle.length = convoy.get_length();
 	vehicle.max_speed = speed_to_kmh(convoy.get_min_top_speed());
 	vehicle.power = (convoy.get_power_index() + GEAR_FACTOR - 1) / GEAR_FACTOR;
-	vehicle.weight = convoy.get_sum_gesamtgewicht();
+	vehicle.weight = convoy.get_sum_gewicht() * 1000;
 }
 
 

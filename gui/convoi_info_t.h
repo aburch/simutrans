@@ -79,9 +79,10 @@ private:
 	*/
 	cbuffer_t freight_info;
 
+#ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 	sint64 physics_curves[MAX_MONTHS][1];
-
+#endif
 	static const char *sort_text[SORT_MODES];
 
 public:

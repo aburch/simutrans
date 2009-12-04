@@ -67,8 +67,6 @@ a = (F - cf * v^2 - Frs) / m
 #include "simconvoi.h"
 #include "simworld.h"
 
-#define SINT32_MAX_VALUE INT_MAX
-
 // CF_*: constants related to air resistance
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
@@ -125,7 +123,7 @@ struct vehicle_summary_t
 	inline void clear()
 	{
 		length = power = weight = 0;
-		max_speed = SINT32_MAX_VALUE; // if there is no vehicle, there is no speed limit!
+		max_speed = INT_MAX; // if there is no vehicle, there is no speed limit!
 	}
 
 	inline void add_vehicle(const vehikel_besch_t &b)
@@ -149,7 +147,7 @@ struct environ_summary_t
 	{
 		cf = CF_ROAD;
 		fr = FR_ROAD;
-		max_speed = SINT32_MAX_VALUE; 
+		max_speed = INT_MAX; 
 	}
 
 	inline void set_by_waytype(waytype_t waytype)

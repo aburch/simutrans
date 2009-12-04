@@ -379,7 +379,7 @@ enable_home:
 
 		// Bernd Gabriel, Nov, 14 2009: no longer needed: //use median speed to avoid flickering
 		//existing_convoy_t convoy(*cnv.get_rep());
-		uint32 empty_weight = convoy.get_vehicle_summary().weight;
+		uint32 empty_weight = convoy.get_vehicle_summary().weight / 1000;
 		uint32 gross_weight = convoy.get_weight_summary().weight / 1000;
 		{
 			const int pos_y = pos_y0; // line 1
