@@ -451,9 +451,7 @@ bool grund_t::zeige_info()
 }
 
 
-
-void
-grund_t::info(cbuffer_t& buf) const
+void grund_t::info(cbuffer_t& buf) const
 {
 	if(flags&is_halt_flag) {
 		welt->lookup(pos.get_2d())->get_halt()->info( buf );
