@@ -192,7 +192,7 @@ void network_add_client( SOCKET sock )
 {
 	if(  !clients.is_contained(sock)  ) {
 		// do not wait to join small (command) packets when sending (may cause 200ms delay!)
-		setsockopt( sock, TCP_NODELAY, NULL, 0 );
+		setsockopt( sock, SOL_SOCKET, TCP_NODELAY, NULL, 0 );
 		clients.append( sock );
 	}
 }
