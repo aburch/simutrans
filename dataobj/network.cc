@@ -111,8 +111,9 @@ const char *network_open_address( const char *cp)
 	return NULL;
 }
 
+
 // connect to address (cp), receive game, save to (filename)
-const char* network_connect(const char *cp, const char *filename)
+const char *network_connect(const char *cp, const char *filename)
 {
 	// open from network
 	const char *err = network_open_address( cp );
@@ -146,6 +147,8 @@ const char* network_connect(const char *cp, const char *filename)
 	}
 	return err;
 }
+
+
 // if sucessful, starts a server on this port
 bool network_init_server( int port )
 {
@@ -188,9 +191,12 @@ static uint32 our_client_id;
 void network_add_client( SOCKET sock )
 {
 	if(  !clients.is_contained(sock)  ) {
+		// do not wait to join small (command) packets when sending (may cause 200ms delay!)
+		setsockopt( sock, TCP_NODELAY, NULL, 0 );
 		clients.append( sock );
 	}
 }
+
 
 static void network_remove_client( SOCKET sock )
 {
@@ -199,11 +205,13 @@ static void network_remove_client( SOCKET sock )
 	}
 }
 
+
 // number of currently active clients
 int network_get_clients()
 {
 	return clients.get_count()-1;
 }
+
 
 static int fill_set(fd_set *fds)
 {
@@ -216,7 +224,6 @@ static int fill_set(fd_set *fds)
 	}
 	return s_max+1;
 }
-
 
 
 /* do appropriate action for network server:
@@ -298,7 +305,6 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 }
 
 
-
 bool network_check_server_connection()
 {
 	if(  !umgebung_t::server  ) {
@@ -326,7 +332,6 @@ bool network_check_server_connection()
 
 
 
-
 // send data to all clients
 void network_send_all(char *msg, int len, bool exclude_us )
 {
@@ -346,7 +351,6 @@ void network_send_all(char *msg, int len, bool exclude_us )
 }
 
 
-
 // send data to server
 void network_send_server(char *msg, int len )
 {
@@ -360,7 +364,6 @@ void network_send_server(char *msg, int len )
 		tstrncpy( pending, msg, min(4096,len+1) );
 	}
 }
-
 
 
 const char *network_send_file( SOCKET s, const char *filename )
@@ -393,7 +396,6 @@ const char *network_send_file( SOCKET s, const char *filename )
 	// ok, new client has savegame
 	return NULL;
 }
-
 
 
 const char *network_recieve_file( SOCKET s, const char *save_as, const long length )
@@ -434,7 +436,6 @@ const char *network_recieve_file( SOCKET s, const char *save_as, const long leng
 }
 
 
-
 void network_close_socket( SOCKET sock )
 {
 	if(  sock != INVALID_SOCKET  ) {
@@ -452,7 +453,6 @@ void network_close_socket( SOCKET sock )
 		clients.remove( sock );
 	}
 }
-
 
 
 /**
