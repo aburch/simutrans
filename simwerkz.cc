@@ -328,28 +328,47 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(gr) {
 		DBG_MESSAGE("wkz_abfrage()","checking map square %s", pos.get_str());
 
-		int old_count = win_get_open_count();
-		for(int n=0; n<gr->get_top(); n++) {
-			ding_t *dt = gr->obj_bei(n);
-			if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
-				DBG_MESSAGE("wkz_abfrage()", "index %d", n);
-				dt->zeige_info();
-				// did some new window open?
-				if(umgebung_t::single_info  &&  old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
-					return NULL;
+		if(  umgebung_t::single_info  ) {
+			int old_count = win_get_open_count();
+			for(int n=gr->get_top()-1;  n>=0;  n--  ) {
+				ding_t *dt = gr->obj_bei(n);
+				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
+					DBG_MESSAGE("wkz_abfrage()", "index %d", n);
+					dt->zeige_info();
+					// did some new window open?
+					if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+						return NULL;
+					}
+				}
+			}
+		}
+		else {
+			// lowest (less interesting) first
+			gr->zeige_info();
+			for(int n=0; n<gr->get_top();  n++  ) {
+				ding_t *dt = gr->obj_bei(n);
+				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
+					dt->zeige_info();
 				}
 			}
 		}
 
 		if(gr->get_depot()  &&  gr->get_depot()->get_besitzer()==sp) {
+			int old_count = win_get_open_count();
 			gr->get_depot()->zeige_info();
-			return NULL;
+			// did some new window open?
+			if(umgebung_t::single_info  &&  old_count!=win_get_open_count()) {
+				return NULL;
+			}
 		}
 
-		gr->zeige_info();
+		if(  umgebung_t::single_info  ) {
+			gr->zeige_info();
+		}
 	}
 	return NULL;
 }
+
 
 /* delete things from a tile
  * citycars and pedestrian first and then go up to queue to more important objects

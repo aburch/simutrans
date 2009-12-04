@@ -9,6 +9,7 @@
 	CHANGE: ignore empty entries and lines starting with # in citylists
 	FIX: deleting line does not longer crash in halt_detail windows
 	FIX: withdraw all with convois in depot causes crash (and maybe also not withdraw all)
+	CHANGE:info windows now open less important first resp. for single window topmost object first (usually most important)
 
 
 Release Candidate 102.2.1
