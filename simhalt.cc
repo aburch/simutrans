@@ -1004,7 +1004,6 @@ void haltestelle_t::step(sint16 &units_remaining)
 			//   karte_t::set_schedule_counter()
 			status_step = REROUTING;
 		}
-		recalc_status();
 	}
 
 	recalc_status();
@@ -1118,7 +1117,6 @@ void haltestelle_t::neuer_monat()
 // Modified by : Knightly
 uint32 haltestelle_t::reroute_goods()
 {
-
 	uint32 packets_rerouted = 0;
 	
 	for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++) 
