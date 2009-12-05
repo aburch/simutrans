@@ -38,12 +38,22 @@
 
 static const char cost_type[MAX_CONVOI_COST][64] =
 {
-	"Free Capacity", "Transported", "Average speed", "Comfort", "Revenue", "Operation", "Profit", "Distance"
+	"Free Capacity", "Transported", "Average speed", "Comfort", "Revenue", "Operation", "Profit", 
+#ifdef ACCELERATION_BUTTON
+	"Acceleration"
+#else
+	"Distance"
+#endif
 };
 
 static const int cost_type_color[MAX_CONVOI_COST] =
 {
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_DISTANCE
+	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT, 
+#ifdef ACCELERATION_BUTTON
+	COL_YELLOW
+#else
+	COL_DISTANCE
+#endif
 };
 
 static const bool cost_type_money[MAX_CONVOI_COST] =
@@ -163,22 +173,24 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 		add_komponente(filterButtons + cost);
 	}
 
+#ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
-	/*{
-		for (int i = 0; i < MAX_MONTHS; i++)
-		{
-			physics_curves[i][0] = 0;
-		}
+	
+	for (int i = 0; i < MAX_MONTHS; i++)
+	{
+		physics_curves[i][0] = 0;
+	}
 
-		int btn = ACCELERATOR_BUTTON;
-		chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true, 0);
-		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+2)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-		filterButtons[btn].add_listener(this);
-		filterButtons[btn].background = cost_type_color[btn];
-		filterButtons[btn].set_visible(false);
-		filterButtons[btn].pressed = false;
-		add_komponente(filterButtons + btn);
-	}*/
+	int btn = ACCELERATION_BUTTON;
+	chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true, 0);
+	filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+2)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	filterButtons[btn].add_listener(this);
+	filterButtons[btn].background = cost_type_color[btn];
+	filterButtons[btn].set_visible(false);
+	filterButtons[btn].pressed = false;
+	add_komponente(filterButtons + btn);
+
+#endif
 
 	add_komponente(&chart);
 	add_komponente(&view);
@@ -252,12 +264,13 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 		destroy_win(dynamic_cast <gui_fenster_t *> (this));
 	}
 	else {
+		//Bernd Gabriel, Dec, 02 2009: common existing_convoy_t for acceleration curve and weight/speed info.
+		existing_convoy_t convoy(*cnv.get_rep());
 
-		// There is no space for the acceleration button given the new odometer.
+#ifdef ACCELERATION_BUTTON
 		//Bernd Gabriel, Sep, 24 2009: acceleration curve:
-		/*if (filterButtons[ACCELERATOR_BUTTON].is_visible() && filterButtons[ACCELERATOR_BUTTON].pressed)
+		if (filterButtons[ACCELERATION_BUTTON].is_visible() && filterButtons[ACCELERATION_BUTTON].pressed)
 		{
-			existing_convoy_t convoy(*cnv.get_rep());
 			const int akt_speed_soll = kmh_to_speed(convoy.calc_max_speed(convoy.get_weight_summary()));
 			sint32 akt_speed = 0;
 			sint32 sp_soll = 0;
@@ -268,19 +281,8 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 				convoy.calc_move(15 * 64, akt_speed_soll, akt_speed, sp_soll);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
-			//convoy_metrics_t metrics(*cnv.get_rep());
-			//const int akt_speed_soll = kmh_to_speed(metrics.get_speed(cnv->get_sum_gesamtgewicht()));
-			//sint32 akt_speed = 0;
-			//sint32 sp_soll = 0;
-			//int i = MAX_MONTHS;
-			//physics_curves[--i][0] = akt_speed;
-			//while (i > 0)
-			//{
-			//	cnv->calc_acceleration(15 * 64, akt_speed_soll, akt_speed, sp_soll);
-			//	physics_curves[--i][0] = speed_to_kmh(akt_speed);
-			//}
-		}*/
-
+		}
+#endif
 
 		// Bernd Gabriel, 01.07.2009: show some colored texts and indicator
 		input.set_color(cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK);
@@ -375,8 +377,8 @@ enable_home:
 		const char *caption = translator::translate("%s:");
 
 		// Bernd Gabriel, Nov, 14 2009: no longer needed: //use median speed to avoid flickering
-		existing_convoy_t convoy(*cnv.get_rep());
-		uint32 empty_weight = convoy.get_vehicle_summary().weight;
+		//existing_convoy_t convoy(*cnv.get_rep());
+		uint32 empty_weight = convoy.get_vehicle_summary().weight / 1000;
 		uint32 gross_weight = convoy.get_weight_summary().weight / 1000;
 		{
 			const int pos_y = pos_y0; // line 1

@@ -929,7 +929,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<102002  ) 
+	else if(  file->get_version()<102003  ) 
 	{
 		// saved everything
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++)

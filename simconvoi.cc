@@ -491,7 +491,6 @@ void convoi_t::add_running_cost(sint64 cost)
 }
 
 
-
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */

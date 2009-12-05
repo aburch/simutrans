@@ -494,12 +494,11 @@ public:
 	convoihandle_t self;
 
 	/**
-
 	 * Der Gewinn in diesem Jahr
 	 * "The profit in this year" (Babelfish)
 	 * @author Hanjsörg Malthaner
 	 */
-	const sint64 & get_jahresgewinn() const {return jahresgewinn;}
+	inline const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
 	const sint64 & get_total_distance_traveled() const { return total_distance_traveled; }
 
