@@ -70,7 +70,7 @@ roadsign_t::~roadsign_t()
 {
 	const grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
-		weg_t *weg = gr->get_weg((waytype_t)besch->get_wtyp());
+		weg_t *weg = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		if(weg) {
 			// Weg wieder freigeben, wenn das Signal nicht mehr da ist.
 			weg->set_ribi_maske(ribi_t::keine);
@@ -89,7 +89,7 @@ roadsign_t::~roadsign_t()
 void roadsign_t::set_dir(ribi_t::ribi dir)
 {
 	this->dir = dir;
-	weg_t *weg = welt->lookup(get_pos())->get_weg((waytype_t)besch->get_wtyp());
+	weg_t *weg = welt->lookup(get_pos())->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 	if(besch->get_wtyp()!=track_wt  &&   besch->get_wtyp()!=monorail_wt&&   besch->get_wtyp()!=maglev_wt&&   besch->get_wtyp()!=narrowgauge_wt) {
 		weg->count_sign();
 	}
@@ -417,13 +417,13 @@ void roadsign_t::entferne(spieler_t *sp)
 void roadsign_t::laden_abschliessen()
 {
 	grund_t *gr=welt->lookup(get_pos());
-	if(gr==NULL  ||  !gr->hat_weg(besch->get_wtyp())) {
+	if(gr==NULL  ||  !gr->hat_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)) {
 		dbg->error("roadsign_t::laden_abschliessen","roadsing: way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
 		// after loading restore directions
 		set_dir(dir);
-		gr->get_weg(besch->get_wtyp())->count_sign();
+		gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt)->count_sign();
 	}
 	// only traffic light need switches
 	if(automatic) {
@@ -483,8 +483,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 		wkz_roadsign_t *wkz = new wkz_roadsign_t();
 		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-		wkz->default_param = besch->get_name();
-		wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+		wkz->set_default_param(besch->get_name());
 		werkzeug_t::general_tool.append( wkz );
 		besch->set_builder( wkz );
 	}

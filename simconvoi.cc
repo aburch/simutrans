@@ -2461,6 +2461,11 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_longlong( total_distance_traveled, "" );
 	}
 
+	// the convoi odometer
+	if(  file->get_version()>=103000  ){
+		file->rdwr_longlong( total_distance_traveled, "" );
+	}
+
 	// since it was saved as an signed int
 	// we recalc it anyhow
 	if(file->is_loading()) 
@@ -2989,6 +2994,9 @@ void convoi_t::laden() //"load" (Babelfish)
 		// This is the minimum time it takes for loading
 		wait_lock = longest_loading_time;
 
+		// This is the minimum time it takes for loading
+		wait_lock = WTT_LOADING;
+
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
 			welt->set_dirty();
@@ -3437,6 +3445,10 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			// Bernd Gabriel, 05.07.2009: must reinitialize convoy_length
 			convoy_length = 0;
 		}
+	}
+	freight_info_resort |= changed_loading_level;
+	if(  changed_loading_level  ) {
+		halt->recalc_status();
 	}
 	freight_info_resort |= changed_loading_level;
 	if(  changed_loading_level  ) {

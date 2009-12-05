@@ -170,6 +170,17 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	else if(  mode==binary  ) {
 		// no compression
 		fp = fopen(filename, "wb");
+		if(  is_bzip2()  ) {
+			// the additional magic for bzip2
+			bse = BZ_OK+1;
+			bzfp = NULL;
+			if(  fp  ) {
+				bzfp = BZ2_bzWriteOpen( &bse, fp, 9, 0, 30 /* default is 30 */ );
+				if(  bse!=BZ_OK  ) {
+					return false;
+				}
+			}
+		}
 	}
 	else if(  is_bzip2()  ) {
 		// XML or bzip ...
@@ -365,12 +376,11 @@ long loadsave_t::write(const void *buf, size_t len)
 long loadsave_t::read(void *buf, size_t len)
 {
 	if(is_bzip2()) {
-		size_t l = 0;
 		if(  bse==BZ_OK  ) {
 			BZ2_bzRead( &bse, bzfp, const_cast<void *>(buf), len);
 		}
 		// little trick: zero if not ok ...
-		return (long)l&~(bse-BZ_OK);
+		return (long)len&~(bse-BZ_OK);
 	}
 	else {
 		return gzread(fp, buf, len);
@@ -723,7 +733,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 			write(s, len);
 		}
 		else {
-			read(&len, sizeof(sint16));
+			long res = read(&len, sizeof(sint16));
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
@@ -951,7 +961,6 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 
 loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension_str)
 {	
-	uint32 version;
 	uint32 experimental_version = 0;
 
 	// major number (0..)
@@ -978,6 +987,8 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	// minor number (..08)
 	uint32 v2 = atoi(version_text);
+
+	// Experimental version
 	uint16 count = 0;
 	while(*version_text && *version_text++ != '.')
 	{
@@ -985,7 +996,6 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	}
 	if(!*version_text) 
 	{
-		experimental_version = 0;
 		// Decrement the pointer if this is not an Experimental version.
 		//*version_text -= count;
 		while(count > 0)
@@ -1003,9 +1013,13 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 			count--;
 		}
 	}
-	
 
-	version = v0 * 1000000 + v1 * 1000 + v2;
+	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
+
+	if(experimental_version != 0)
+	{
+		*version_text ++;
+	}
 
 	while(  isdigit(*version_text)  ) {
 		version_text++;
@@ -1049,5 +1063,4 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	return loadsave_version;
 }
-
 

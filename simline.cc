@@ -10,8 +10,6 @@
 #include "simworld.h"
 #include "simlinemgmt.h"
 
-
-
 uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE };
 
 karte_t *simline_t::welt=NULL;
@@ -217,7 +215,6 @@ void simline_t::rdwr(loadsave_t *file)
 				}
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
-
 		}
 	}
 
@@ -465,10 +462,10 @@ void simline_t::recalc_catg_index()
 void simline_t::set_withdraw( bool yes_no )
 {
 	withdraw = yes_no  &&  (line_managed_convoys.get_count()>0);
-	// then recreate current
-	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+	// convois in depots will be immeadiately destroyed, thus we go backwards
+	for( sint32 i=line_managed_convoys.get_count()-1;  i>=0;  i--  ) {
+		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);
-		line_managed_convoys[i]->set_no_load(yes_no);
 	}
 }
 

@@ -77,7 +77,6 @@ static const char *sort_text[MAX_SORT_MODES] = {
 	"Convoys",
 	"Distance"
 };
-
 static uint8 current_sort_mode = 0;
 
 #define LINE_NAME_COLUMN_WIDTH ((BUTTON_WIDTH*3)+11+11)

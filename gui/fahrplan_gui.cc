@@ -291,12 +291,12 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 	if(!set  ||  mode==removing  ||  mode==undefined_mode) {
 		// reset tools, if still selected ...
 		if(welt->get_werkzeug(sp->get_player_nr())==werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]) {
-			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->default_param==(const char *)fpl) {
+			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->get_default_param()==(const char *)fpl) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}
 		}
 		else if(welt->get_werkzeug(sp->get_player_nr())==werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]) {
-			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->default_param==(const char *)fpl) {
+			if(werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->get_default_param()==(const char *)fpl) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}
 		}
@@ -304,11 +304,11 @@ void fahrplan_gui_t::update_werkzeug(bool set)
 	else {
 		//  .. or set them again
 		if(mode==adding) {
-			werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->default_param = (const char *)fpl;
+			werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD]->set_default_param((const char *)fpl);
 			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_ADD], sp );
 		}
 		else if(mode==inserting) {
-			werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->default_param = (const char *)fpl;
+			werkzeug_t::general_tool[WKZ_FAHRPLAN_INS]->set_default_param((const char *)fpl);
 			sp->get_welt()->set_werkzeug( werkzeug_t::general_tool[WKZ_FAHRPLAN_INS], sp );
 		}
 	}

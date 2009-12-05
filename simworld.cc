@@ -2327,7 +2327,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 	else {
 		// queue tool for network
 		static char commandstring[4096];
-		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), w->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->default_param==NULL ? "" : w->default_param );
+		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%lli,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), (sint64)network_get_client_id(), w->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->get_default_param()==NULL ? "" : w->get_default_param() );
 		network_send_server( commandstring, len );
 	}
 }
@@ -4154,31 +4154,9 @@ bool karte_t::laden(const char *filename)
 
 	if(  strstr(filename,"net:")==filename  ) {
 		name = "client-network.sve";
-		SOCKET s;
-
-		// open from network
-		const char *err = network_open_address( filename+4, s );
-		if(  err==NULL  ) {
-			char buf[64];
-			int len;
-			dbg->message( "karte_t::laden", "send :" NET_TO_SERVER NET_GAME NET_END_CMD );
-			len = send( s, NET_TO_SERVER NET_GAME NET_END_CMD, 9, 0 );
-			err = "Server did not respond!";
-			len = 64;
-			network_add_client( s );
-			if(  network_check_activity( 1000, buf, len )!=INVALID_SOCKET  ) {
-				// wait for sync message to finish
-				if(  memcmp( NET_FROM_SERVER NET_GAME, buf, 7 )!=0  ) {
-					err = "Protocoll error (expecting " NET_GAME ")";
-				}
-				else {
-					err = network_recieve_file( s, name, atol(buf+7) );
-				}
-			}
-		}
+		const char *err = network_connect(filename+4, name);
 		if(err) {
 			create_win( new news_img(err), w_info, magic_none );
-			network_close_socket( s );
 			display_show_load_pointer(false);
 			step_mode = NORMAL;
 			return false;
@@ -5248,8 +5226,6 @@ void karte_t::switch_active_player(uint8 new_player)
 	zeiger->set_bild( werkzeug[active_player_nr]->cursor );
 }
 
-
-
 void
 karte_t::interactive_event(event_t &ev)
 {
@@ -5354,31 +5330,16 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 		const char *err = NULL;
 		if(werkzeug_last_pos!=zeiger->get_pos()  &&  (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save())  ) {
+			// do the work
 			err = werkzeug[get_active_player_nr()]->work( this, get_active_player(), zeiger->get_pos() );
+			// play sound / error message
+			get_active_player()->tell_tool_result(werkzeug[get_active_player_nr()], zeiger->get_pos(), err, true);
 		}
 		else {
 			// queue tool for network
 			static char commandstring[4096];
-			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), werkzeug[get_active_player_nr()]->id, get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->default_param==NULL ? "" : werkzeug[get_active_player_nr()]->default_param );
+			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%lli,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), (sint64)network_get_client_id(), werkzeug[get_active_player_nr()]->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->get_default_param()==NULL ? "" : werkzeug[get_active_player_nr()]->get_default_param() );
 			network_send_server( commandstring, len );
-		}
-
-		/* tools can return three kinds of messages
-		 * NULL = success
-		 * "" = failure, but just do not try again
-		 * "bla" error message, which should be shown
-		 */
-		if(err==NULL) {
-			if(werkzeug[get_active_player_nr()]->ok_sound!=NO_SOUND) {
-				struct sound_info info = {werkzeug[get_active_player_nr()]->ok_sound,255,0};
-				sound_play(info);
-			}
-		}
-		else if(*err!=0) {
-			// something went really wrong
-			struct sound_info info = {SFX_FAILURE,255,0};
-			sound_play(info);
-			create_win( new news_img(err), w_time_delete, magic_none);
 		}
 		werkzeug_last_pos = koord3d::invalid;
 	}
@@ -5399,16 +5360,38 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 	INT_CHECK("simworld 2117");
 }
 
-
-
 void karte_t::beenden(bool b)
 {
 	finish_loop=true;
 	umgebung_t::quit_simutrans = b;
 }
 
+// command from network together with the step when they has to be executed
+class command_node_t {
+public:
+	const char *buf;
+	long step;
+	command_node_t(const char *_buf) {
+		buf = _buf;
+		step = atol( _buf+5 );
+	}
+	inline bool operator <= (const command_node_t c) const { return step <= c.step; }
+};
 
+// contains tools of players at other clients
+class tool_node_t {
+public:
+	werkzeug_t *wkz;
+	sint64 client_id;
+	uint8 player_id;
+	const char* default_param;
+	tool_node_t() : wkz(NULL), client_id(-1), player_id(255), default_param(NULL) {}
+	tool_node_t(werkzeug_t *_wkz, uint8 _player_id, sint64 _client_id) : wkz(_wkz), player_id(_player_id), client_id(_client_id), default_param(NULL) {}
+	// compares only the ids
+	inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
+};
 
+static vector_tpl<tool_node_t> tool_list;
 
 bool karte_t::interactive(uint32 quit_month)
 {
@@ -5424,7 +5407,7 @@ bool karte_t::interactive(uint32 quit_month)
 	uint8  network_frame_count = 0;
 
 	// only needed for network
-	slist_tpl<char *>command_queue;
+	binary_heap_tpl <command_node_t*>command_queue;
 	long next_command_step=-1;
 	const uint32 frame_time = 1000/max(20,einstellungen->get_frames_per_second());
 	reset_timer();
@@ -5598,10 +5581,13 @@ bool karte_t::interactive(uint32 quit_month)
 								}
 							}
 							if(  i<len_last_command  ) {
-								next_command_step = steps+umgebung_t::server_frames_ahead; // do this next xxx frames
+								long new_command_step = steps+umgebung_t::server_frames_ahead; // do this next xxx frames
 								char command_string[4096];
-								int len = sprintf( command_string, NET_FROM_SERVER "%s %i,%i%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, next_command_step, get_random_seed(), network_buffer+i );
-								command_queue.append( strdup( command_string+3 ) );
+								int len = sprintf( command_string, NET_FROM_SERVER "%s %i,%i%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, new_command_step, get_random_seed(), network_buffer+i );
+								command_queue.insert(new command_node_t(strdup( command_string+3 )));
+								next_command_step = command_queue.front()->step;
+								dbg->warning("append command_queue", "next: %ld new: %ld steps: %ld %s", next_command_step, new_command_step, steps, command_string+3);
+
 								network_send_all( command_string, len, true );
 							}
 						}
@@ -5653,11 +5639,10 @@ bool karte_t::interactive(uint32 quit_month)
 						}
 						// need to collect them first ...
 						if(  tool  ) {
-							command_queue.append( strdup(network_buffer+3) );
-							// eventually execute this next ...
-							if(  next_command_step<steps  ||  command_queue.empty()  ) {
-								next_command_step = atol( network_buffer+8 );
-							}
+							command_node_t *cmd = new command_node_t( strdup(network_buffer+3) );
+							command_queue.insert(cmd);
+							next_command_step = command_queue.front()->step;
+							dbg->warning("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, cmd->buf);
 						}
 					}
 				}
@@ -5681,7 +5666,9 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 		while(  !command_queue.empty()  &&  (next_command_step==steps  ||  step_mode&PAUSE_FLAG)  ) {
-			char *network_buffer = command_queue.remove_first();
+			command_node_t *cmd = command_queue.pop();
+			const char *network_buffer = cmd->buf;
+			dbg->warning("command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, network_buffer);
 			if(  memcmp( network_buffer, NET_SYNC, 4 )==0  ) {
 				if(  !umgebung_t::server  ) {
 					long old_steps = steps;
@@ -5700,16 +5687,17 @@ bool karte_t::interactive(uint32 quit_month)
 			else {
 				const bool init = memcmp( network_buffer, NET_WKZ_INIT, 4 )==0;
 				if(!umgebung_t::server) {
-					DBG_MESSAGE("command","%s",network_buffer);
+					dbg->warning("command","%s",network_buffer);
 				}
 				koord3d p = koord3d::invalid;
 				uint16 id=0xFFFF;
+				sint64 client_id=-1;
 				uint16 player_nr = PLAYER_UNOWNED;
 				uint16 z_pos = -256;
 				static char default_param[4096];
 				long steps_nr = 0;
 				uint32 random_counter;
-				sscanf( network_buffer+5, "%li,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &random_counter, &id, &player_nr, &p.x, &p.y, &z_pos, default_param );
+				sscanf( network_buffer+5, "%li,%lu,%lli,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &random_counter, &client_id,&id, &player_nr, &p.x, &p.y, &z_pos, default_param );
 				size_t len = strlen(default_param);
 				if(  len>0  &&  default_param[len-1]==';'  ) {
 					default_param[len-1] = 0;
@@ -5719,45 +5707,111 @@ bool karte_t::interactive(uint32 quit_month)
 					steps = steps_nr;
 				}
 				assert(  steps_nr==steps );
-				werkzeug_t *wkz=NULL;
-				if(  id&GENERAL_TOOL  ) {
-					wkz = werkzeug_t::general_tool[id&0xFFF];
+				werkzeug_t *wkz = NULL;
+				// our tool or from network?
+				if (client_id != network_get_client_id()) {
+					// do we have a tool for this client already?
+					tool_node_t new_tool_node(NULL, player_nr, client_id);
+					uint32 index;
+					if (tool_list.is_contained(new_tool_node)) {
+						index = tool_list.index_of(new_tool_node);
+					}
+					else {
+						tool_list.append(new_tool_node);
+						index = tool_list.get_count()-1;
+					}
+					tool_node_t &tool_node = tool_list[index];
+
+					if (tool_node.wkz == NULL  ||  tool_node.wkz->get_id() != id) {
+						if (tool_node.wkz) {
+								// only exit, if it is not the same tool again ...
+								tool_node.wkz->exit(this,spieler[player_nr]);
+								if (tool_node.default_param) {
+									free((void*)tool_node.default_param);
+									tool_node.default_param = NULL;
+								}
+								delete tool_node.wkz;
+						}
+						tool_node.wkz = create_tool(id);
+					}
+					if (tool_node.wkz) {
+						if (tool_node.default_param) {
+							free((void*)tool_node.default_param);
+							tool_node.default_param = NULL;
+						}
+						tool_node.default_param = strdup(default_param);
+						tool_node.wkz->set_default_param( tool_node.default_param );
+						wkz = tool_node.wkz;
+					}
 				}
-				else if(  id&SIMPLE_TOOL  ) {
-					wkz = werkzeug_t::simple_tool[id&0xFFF];
-				}
-				else if(  id&DIALOGE_TOOL  ) {
-					wkz = werkzeug_t::dialog_tool[id&0xFFF];
+				else {
+					// local player applied a tool
+					if (werkzeug[player_nr]  &&
+						(werkzeug[player_nr]->get_id() != id  ||
+						 (werkzeug[player_nr]->get_default_param()!=NULL ? strcmp(werkzeug[player_nr]->get_default_param(),default_param)!=0 : default_param[0]!=0))) {
+						// only exit, if it is not the same tool again ...
+						werkzeug[player_nr]->exit(this,spieler[player_nr]);
+						werkzeug[player_nr] = NULL;
+					}
+					if (werkzeug[player_nr] == NULL) {
+						// get the right tool
+						vector_tpl<werkzeug_t*> &wkz_list = id&GENERAL_TOOL ? werkzeug_t::general_tool : id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
+						for(uint32 i=0; i<wkz_list.get_count(); i++) {
+							if (wkz_list[i]  &&  wkz_list[i]->get_id()==id &&  (wkz_list[i]->get_default_param()!=NULL ? strcmp(wkz_list[i]->get_default_param(),default_param)==0 : default_param[0]==0)) {
+								wkz = wkz_list[i];
+								break;
+							}
+						}
+						if (wkz==NULL) {
+							if(  id&GENERAL_TOOL  ) {
+								wkz = werkzeug_t::general_tool[id&0xFFF];
+							}
+							else if(  id&SIMPLE_TOOL  ) {
+								wkz = werkzeug_t::simple_tool[id&0xFFF];
+							}
+							else if(  id&DIALOGE_TOOL  ) {
+								wkz = werkzeug_t::dialog_tool[id&0xFFF];
+							}
+						}
+						werkzeug[player_nr] = wkz;
+					}
+					else {
+						wkz = werkzeug[player_nr];
+					}
 				}
 				if(  wkz  ) {
-					const char *old_default_param = wkz->default_param;
-					wkz->default_param = default_param;
+					const char* old_default_param = wkz->get_default_param();
+					wkz->set_default_param(default_param);
+					dbg->warning("command","%d:%d:%s",id&0xFFF,init,wkz->get_tooltip(spieler[player_nr]));
 					if(  init  ) {
 						if(  wkz->init( this, spieler[player_nr] )  ) {
 							set_dirty();
-							if(wkz!=werkzeug[player_nr]) {
-								// only exit, if it is not the same tool again ...
-								werkzeug[player_nr]->exit(this,spieler[player_nr]);
-							}
-							werkzeug[player_nr] = wkz;
 							// update cursor and lastpos
-							if(  player_nr==active_player_nr  ) {
+							if(client_id == network_get_client_id()  &&  player_nr==active_player_nr  ) {
 								zeiger->set_bild( wkz->cursor );
 								werkzeug_last_pos = koord3d::invalid;
 							}
 						}
 					}
 					else {
-						wkz->work( this, spieler[player_nr], p );
+						const char *err = wkz->work( this, spieler[player_nr], p );
+						// only local players or KIs get the callback
+						if (client_id == network_get_client_id()  ||  spieler[player_nr]->get_ai_id()!=spieler_t::HUMAN) {
+							spieler[player_nr]->tell_tool_result(wkz, p, err, client_id == network_get_client_id());
+						}
 					}
-					wkz->default_param = old_default_param;
+					wkz->set_default_param(old_default_param);
 				}
 
 			}
-			free( network_buffer );
+			delete cmd->buf;
+			delete cmd;
 			// when execute next command?
 			if(  !command_queue.empty()  ) {
-				next_command_step = atol( command_queue.front()+5 );
+				next_command_step = command_queue.front()->step;
+			}
+			else {
+				next_command_step = -1;
 			}
 		}
 

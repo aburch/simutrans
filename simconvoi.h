@@ -493,8 +493,7 @@ public:
 	*/
 	convoihandle_t self;
 
-	/**
-	 * Der Gewinn in diesem Jahr
+	/*
 	 * "The profit in this year" (Babelfish)
 	 * @author Hanjsörg Malthaner
 	 */

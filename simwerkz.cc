@@ -334,29 +334,47 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	grund_t *gr = get_grund(welt, pos);
 	if(gr) {
 		DBG_MESSAGE("wkz_abfrage()","checking map square %s", pos.get_str());
-
-		int old_count = win_get_open_count();
-		for(int n=0; n<gr->get_top(); n++) {
-			ding_t *dt = gr->obj_bei(n);
-			if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
-				DBG_MESSAGE("wkz_abfrage()", "index %d", n);
-				dt->zeige_info();
-				// did some new window open?
-				if(umgebung_t::single_info  &&  old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
-					return NULL;
+		if(  umgebung_t::single_info  ) {
+			int old_count = win_get_open_count();
+			for(int n=gr->get_top()-1;  n>=0;  n--  ) {
+				ding_t *dt = gr->obj_bei(n);
+				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
+					DBG_MESSAGE("wkz_abfrage()", "index %d", n);
+					dt->zeige_info();
+					// did some new window open?
+					if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+						return NULL;
+					}
+				}
+			}
+		}
+		else {
+			// lowest (less interesting) first
+			gr->zeige_info();
+			for(int n=0; n<gr->get_top();  n++  ) {
+				ding_t *dt = gr->obj_bei(n);
+				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
+					dt->zeige_info();
 				}
 			}
 		}
 
 		if(gr->get_depot()  &&  gr->get_depot()->get_besitzer()==sp) {
+			int old_count = win_get_open_count();
 			gr->get_depot()->zeige_info();
-			return NULL;
+			// did some new window open?
+			if(umgebung_t::single_info  &&  old_count!=win_get_open_count()) {
+				return NULL;
+			}
 		}
 
-		gr->zeige_info();
+		if(  umgebung_t::single_info  ) {
+			gr->zeige_info();
+		}
 	}
 	return NULL;
 }
+
 
 /* delete things from a tile
  * citycars and pedestrian first and then go up to queue to more important objects
@@ -1454,16 +1472,16 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-const weg_besch_t *wkz_wegebau_t::get_besch( karte_t *welt, bool remember ) const
+const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
-	const weg_besch_t *besch = wegbauer_t::get_besch(default_param,0);
+	const weg_besch_t *besch = default_param ? wegbauer_t::get_besch(default_param,0) :NULL;
 	if(besch==NULL) {
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
 			if(wt<=air_wt) {
 				// search fastest way.
-				besch = wegbauer_t::weg_search(wt, 0xffffffff, welt->get_timeline_year_month(), weg_t::type_flat);
+				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 			}
 			else {
 				besch = wegbauer_t::leitung_besch;
@@ -1491,7 +1509,7 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
-	const weg_besch_t *besch = get_besch(sp->get_welt(),false);
+	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
 	const sint64 base_maintenance = besch->get_base_maintenance();
 	const sint64 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
 	sprintf(toolstr, "%s, %ld$ (%.2lf$) / km, %dkm/h, %dt",
@@ -1503,10 +1521,32 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 	return toolstr;
 }
 
+// default ways are not intialized sychronous for different clients
+// return always name of a way, never the string containing the waytype
+const char* wkz_wegebau_t::get_default_param() const
+{
+	if (besch) {
+		return besch->get_name();
+	}
+	else {
+		if (default_param == NULL) {
+			// no chance to guess anything sensible
+			return NULL;
+		}
+		const weg_besch_t* test_besch = get_besch(0, false);
+		if (test_besch) {
+			return test_besch->get_name();
+		}
+		else {
+			return default_param;
+		}
+	}
+}
+
 bool wkz_wegebau_t::is_selected( karte_t *welt ) const
 {
 	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
-	return (selected  &&  selected->get_besch(welt,false) == get_besch(welt,false));
+	return (selected  &&  selected->get_besch(welt->get_timeline_year_month(),false) == get_besch(welt->get_timeline_year_month(),false));
 }
 
 bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
@@ -1514,7 +1554,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
-	besch = get_besch(welt, true);
+	besch = get_besch(welt->get_timeline_year_month(), true);
 	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
@@ -1762,6 +1802,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	}
 	win_set_static_tooltip( tooltip_with_price("Building costs estimates", costs ) );
 }
+
 uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error, const koord3d &start )
 {
 	const bruecke_besch_t *besch = brueckenbauer_t::get_besch(default_param);
@@ -3268,6 +3309,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 wkz_roadsign_t::wkz_roadsign_t() : werkzeug_t()
 {
 	wkz_roadsign_bauer = NULL;
+	id = WKZ_ROADSIGN | GENERAL_TOOL;
 	signal_spacing = 2;
 	remove_intermediate_signals = true;
 	replace_other_signals = true;
@@ -3525,9 +3567,9 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 
 	if(gr) {
 		// get the sign dirction
-		weg_t *weg = gr->get_weg(b->get_wtyp()!= tram_wt ? b->get_wtyp() : track_wt);
+		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		signal_t *s = gr->find<signal_t>();
-		if(s  &&  s->get_besch()!=b) {
+		if(s  &&  s->get_besch()!=besch) {
 			// only one sign per tile
 			return error;
 		}
