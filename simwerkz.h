@@ -210,7 +210,7 @@ public:
 
 class wkz_change_convoi_t : public werkzeug_t {
 public:
-	wkz_change_convoi_t() : werkzeug_t() { id = -1; }
+	wkz_change_convoi_t() : werkzeug_t() { id = -1; }	// not working yet
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return false; }
