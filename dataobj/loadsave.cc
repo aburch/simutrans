@@ -960,9 +960,15 @@ uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_ex
 			version = 999999999;
 		}
 	}
+	else {
+		// skip the minus sign
+		if (*version_text=='-') {
+			version_text++;
+		}
+	}
 
 	if(  pak_extension_str  ) {
-		if(  *version_text  &&  (version<103000  ||  *version_text=='-')  )  {
+		if(  *version_text  )  {
 			// also pak extension was saved
 			if(version>=99008) {
 				while(  *version_text>=32  ) {
