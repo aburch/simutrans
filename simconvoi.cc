@@ -2068,7 +2068,7 @@ void convoi_t::vorfahren()
 		}
 	}
 
-	wait_lock = reverse_delay;;
+	wait_lock = reverse_delay;
 	INT_CHECK("simconvoi 711");
 }
 
@@ -2427,7 +2427,7 @@ convoi_t::rdwr(loadsave_t *file)
 	else if(  file->get_version()<103000  )
 	{
 		// load statistics
-		for (int j = 0; j<5; j++) 
+		for (int j = 0; j<CONVOI_DISTANCE; j++) 
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
@@ -3000,9 +3000,6 @@ void convoi_t::laden() //"load" (Babelfish)
 
 		// This is the minimum time it takes for loading
 		wait_lock = longest_loading_time;
-
-		// This is the minimum time it takes for loading
-		wait_lock = WTT_LOADING;
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty

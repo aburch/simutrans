@@ -177,7 +177,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()<103000  ) 
 	{
-		for (int j = 0; j<6; j++) 
+		for (int j = 0; j<LINE_DISTANCE; j++) 
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
