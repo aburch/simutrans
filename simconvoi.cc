@@ -2424,10 +2424,22 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else if(  file->get_version()<103000  ){
+	else if(  file->get_version()<103000  )
+	{
 		// load statistics
-		for (int j = 0; j<5; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (int j = 0; j<5; j++) 
+		{
+			for (int k = MAX_MONTHS-1; k>=0; k--) 
+			{
+				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				{
+					// Versions of Experimental saves with 1 and below
+					// did not have settings for average speed or comfort.
+					// Thus, this value must be skipped properly to
+					// assign the values.
+					financial_history[k][j] = 0;
+					continue;
+				}
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
@@ -2454,11 +2466,6 @@ convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
-	}
-
-	// the convoi odometer
-	if(  file->get_version()>=103000  ){
-		file->rdwr_longlong( total_distance_traveled, "" );
 	}
 
 	// the convoi odometer

@@ -891,7 +891,7 @@ sint16 loadsave_t::rd_obj_id()
 		if(!is_xml()) {
 			sint8 idc;
 			read(&idc, sizeof(sint8));
-			id = (sint8)idc;
+			id = (sint16)idc;
 		}
 		else {
 			sint64 ll;
