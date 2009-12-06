@@ -1004,6 +1004,7 @@ void haltestelle_t::step(sint16 &units_remaining)
 			//   karte_t::set_schedule_counter()
 			status_step = REROUTING;
 		}
+		recalc_status();
 	}
 
 	recalc_status();

@@ -450,7 +450,6 @@ const char* allowed_chars_in_rule = "SsnHhTtUu";
  * @return true on match, false otherwise
  * @author Hj. Malthaner
  */
-//<<<<<<< HEAD:simcity.cc
 //bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, uint16 rotation)
 //{
 //	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
@@ -527,7 +526,6 @@ const char* allowed_chars_in_rule = "SsnHhTtUu";
 //						break;
 //				}
 //			}
-//=======
 bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 {
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
@@ -588,7 +586,6 @@ bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 				break;
 			default: ;
 				// ignore
-//>>>>>>> Simutrans-base/master:simcity.cc
 		}
 	}
 	//printf("Success\n");

@@ -6,8 +6,11 @@
 	ADD: lines will be listed numerically correct, if the contain a number
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
+<<<<<<< HEAD:simutrans/history.txt
 	CHANGE: ignore empty entries and lines starting with # in citylists
 	FIX: deleting line does not longer crash in halt_detail windows
+=======
+>>>>>>> Simutrans-base/master:simutrans/history.txt
 
 
 Release Candidate 102.2.1
@@ -24,6 +27,14 @@ Release Candidate 102.2.1
 	FIX: also ask when a single pakset with addons is present what to load
 	FIX: game starts in normal mode (instead paused) again
 	FIX: downgrading ways were cheaper than destruction => now downgrading will be as expensive as removal
+<<<<<<< HEAD:simutrans/history.txt
+=======
+	CHANGE: ignore empty entries and lines starting with # in citylists
+	FIX: deleting line does not longer crash in halt_detail windows
+	FIX: withdraw all with convois in depot causes crash (and maybe also not withdraw all)
+	FIX: several issues with tram signals
+	CHANGE: info windows now open less important first resp. for single window topmost object first (usually most important)
+>>>>>>> Simutrans-base/master:simutrans/history.txt
 
 
 

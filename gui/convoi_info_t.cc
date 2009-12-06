@@ -35,7 +35,6 @@
 
 #include "convoi_detail_t.h"
 
-
 static const char cost_type[MAX_CONVOI_COST][64] =
 {
 	"Free Capacity", "Transported", "Average speed", "Comfort", "Revenue", "Operation", "Profit", 

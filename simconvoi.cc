@@ -2424,10 +2424,22 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else if(  file->get_version()<103000  ){
+	else if(  file->get_version()<103000  )
+	{
 		// load statistics
-		for (int j = 0; j<5; j++) {
-			for (int k = MAX_MONTHS-1; k>=0; k--) {
+		for (int j = 0; j<5; j++) 
+		{
+			for (int k = MAX_MONTHS-1; k>=0; k--) 
+			{
+				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				{
+					// Versions of Experimental saves with 1 and below
+					// did not have settings for average speed or comfort.
+					// Thus, this value must be skipped properly to
+					// assign the values.
+					financial_history[k][j] = 0;
+					continue;
+				}
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
@@ -2989,6 +3001,9 @@ void convoi_t::laden() //"load" (Babelfish)
 		// This is the minimum time it takes for loading
 		wait_lock = longest_loading_time;
 
+		// This is the minimum time it takes for loading
+		wait_lock = WTT_LOADING;
+
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
 			welt->set_dirty();
@@ -3437,6 +3452,10 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			// Bernd Gabriel, 05.07.2009: must reinitialize convoy_length
 			convoy_length = 0;
 		}
+	}
+	freight_info_resort |= changed_loading_level;
+	if(  changed_loading_level  ) {
+		halt->recalc_status();
 	}
 	freight_info_resort |= changed_loading_level;
 	if(  changed_loading_level  ) {

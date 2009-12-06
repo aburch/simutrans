@@ -156,6 +156,13 @@ public:
 
 
 	bool empty() const { return node_count == 0; }
+
+
+	const T& front() {
+		assert(!empty());
+
+		return nodes[1];
+	}
 };
 
 #endif

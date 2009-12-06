@@ -66,7 +66,7 @@ citybuilding_edit_frame_t::citybuilding_edit_frame_t(spieler_t* sp_,karte_t* wel
 {
 	rot_str[0] = 0;
 	besch = NULL;
-	haus_tool.default_param = NULL;
+	haus_tool.set_default_param(NULL);
 	haus_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->cursor;
 	haus_tool.id = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->id;
 
@@ -286,7 +286,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 
 		// the tools will be always updated, even though the data up there might be still current
 		sprintf( param_str, "%i%c%s", bt_climates.pressed, rotation==255 ? '#' : '0'+rotation, besch->get_name() );
-		haus_tool.default_param = param_str;
+		haus_tool.set_default_param(param_str);
 		welt->set_werkzeug( &haus_tool, sp );
 	}
 	else if(welt->get_werkzeug(sp->get_player_nr())==&haus_tool) {
