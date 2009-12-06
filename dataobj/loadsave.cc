@@ -1016,12 +1016,12 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
 
-	if(experimental_version != 0)
+	/*if(experimental_version != 0)
 	{
 		*version_text ++;
-	}
+	}*/
 
-	while(  isdigit(*version_text)  ) {
+	while(  isdigit(*version_text) || *version_text == '.'  ) {
 		version_text++;
 	}
 
