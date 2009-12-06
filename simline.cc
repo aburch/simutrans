@@ -227,7 +227,8 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		for(uint8 i = 0; i < MAX_LINE_COST; i ++)
+		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : MAX_LINE_COST;
+		for(uint8 i = 0; i < counter; i ++)
 		{	
 			file->rdwr_long(rolling_average[i], "");
 			file->rdwr_short(rolling_average_count[i], "");

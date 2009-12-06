@@ -540,51 +540,6 @@ bool convoi_t::sync_step(long delta_t)
 			break;
 
 		case FAHRPLANEINGABE:
-//			// schedule window closed?
-//			if(fpl!=NULL  &&  fpl->ist_abgeschlossen()) {
-//
-//				set_schedule(fpl);
-//				
-//				// Added by : Knightly
-//				// Purpose  : Remove the original schedule after update
-//				if (old_fpl)
-//				{
-//					delete old_fpl;
-//					old_fpl = NULL;
-//				}
-//
-//				if(fpl->get_count()==0) {
-//					// no entry => no route ...
-//					state = NO_ROUTE;
-//					wait_lock = 0;
-//				}
-//				else {
-//					// Schedule changed at station
-//					// this station? then complete loading task else drive on
-//					bool is_same = (get_pos() == fpl->get_current_eintrag().pos);
-//					if(  !is_same  ) {
-//						halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
-//						is_same =  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() );
-//					}
-//
-//					if(  is_same  ) {
-//						// two cases: same position but in station => laoding, in depot: waiting
-//						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
-//						state = gr  &&  gr->get_depot() ? INITIAL : LOADING;
-//					}
-//					else {
-//						// go to next
-//						state = ROUTING_1;
-//					}
-//				}
-//			}
-//			else {
-//				// still entring => check only each 500ms for change
-//				wait_lock = 500;
-//			}
-//			break;
-
-
 		case ROUTING_1:
 		case DUMMY4:
 		case DUMMY5:
@@ -2530,7 +2485,7 @@ convoi_t::rdwr(loadsave_t *file)
 			}
 			else 
 			{
-				sint64 diff_ticks= welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
+				sint64 diff_ticks = welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
 				file->rdwr_longlong(diff_ticks, "dt" );
 			}
 		}
@@ -2636,7 +2591,8 @@ convoi_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 2)
 	{
 		file->rdwr_longlong(last_departure_time, "");
-		for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
+		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : MAX_CONVOI_COST;
+		for(uint8 i = 0; i < count; i ++)
 		{	
 			file->rdwr_long(rolling_average[i], "");
 			file->rdwr_short(rolling_average_count[i], "");
