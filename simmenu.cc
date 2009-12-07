@@ -56,23 +56,6 @@ vector_tpl<toolbar_t *>werkzeug_t::toolbar_tool(0);
 char werkzeug_t::toolstr[1088];
 
 
-werkzeug_t *create_tool(int toolnr)
-{
-	werkzeug_t *wkz = NULL;
-	if(  toolnr & GENERAL_TOOL  ) {
-		wkz = werkzeug_t::general_tool[toolnr & 0xFFF];
-	}
-	else if(  toolnr & SIMPLE_TOOL  ) {
-		wkz = werkzeug_t::simple_tool[toolnr & 0xFFF];
-	}
-	else if(  toolnr & DIALOGE_TOOL  ) {
-		wkz = werkzeug_t::dialog_tool[toolnr & 0xFFF];
-	}
-	if (wkz == NULL) {
-		dbg->error("create_tool()","cannot satisfy request for tool with id %i!",toolnr);
-	}
-	return wkz;
-}
 
 werkzeug_t *create_general_tool(int toolnr)
 {
@@ -193,6 +176,23 @@ werkzeug_t *create_dialog_tool(int toolnr)
 	return tool;
 }
 
+werkzeug_t *create_tool(int toolnr)
+{
+	werkzeug_t *wkz = NULL;
+	if(  toolnr & GENERAL_TOOL  ) {
+		wkz = create_general_tool(toolnr & 0xFFF);
+	}
+	else if(  toolnr & SIMPLE_TOOL  ) {
+		wkz = create_simple_tool(toolnr & 0xFFF);
+	}
+	else if(  toolnr & DIALOGE_TOOL  ) {
+		wkz = create_dialog_tool(toolnr & 0xFFF);
+	}
+	if (wkz == NULL) {
+		dbg->error("create_tool()","cannot satisfy request for tool with id %i!",toolnr);
+	}
+	return wkz;
+}
 
 
 static uint16 str_to_key( const char *str )
@@ -827,6 +827,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 
 bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 {
+	dbg->warning("two_click_werkzeug_t::init", "" );
 	first_click_var[sp->get_player_nr()] = true;
 	welt->show_distance = start[sp->get_player_nr()] = koord3d::invalid;
 	cleanup( sp, true );
@@ -859,7 +860,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	if(  is_first_click(sp)  ) {
 		if( value & 1 ) {
 			// Work here directly.
-			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
+			dbg->warning("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( welt, sp, pos, koord3d::invalid );
 		}
 		else {
@@ -869,7 +870,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	}
 	else {
 		if( value & 2 ) {
-			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
+			dbg->warning("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
 			error = do_work( welt, sp, start[sp->get_player_nr()], pos );
 		}
 		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
