@@ -2106,8 +2106,6 @@ convoi_t::reverse_order(bool rev)
 
 
 
-
-
 void
 convoi_t::rdwr(loadsave_t *file)
 {
