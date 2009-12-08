@@ -246,10 +246,10 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 		char str[4096];
 		size_t len;
 		if(  version<103000  ) {
-			len = sprintf( str, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension );
+			len = sprintf( str, "%s%s%s\n", savegame_version, "zip", this->pak_extension );
 		}
 		else {
-			len = sprintf( str, "%s-%s\n", SAVEGAME_VERSION, this->pak_extension );
+			len = sprintf( str, "%s-%s\n", savegame_version, this->pak_extension );
 		}
 		write( str, len );
 	}
