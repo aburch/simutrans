@@ -246,10 +246,10 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 		char str[4096];
 		size_t len;
 		if(  version<103000  ) {
-			len = sprintf( str, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension );
+			len = sprintf( str, "%s%s%s\n", savegame_version, "zip", this->pak_extension );
 		}
 		else {
-			len = sprintf( str, "%s-%s\n", SAVEGAME_VERSION, this->pak_extension );
+			len = sprintf( str, "%s-%s\n", savegame_version, this->pak_extension );
 		}
 		write( str, len );
 	}
@@ -592,7 +592,6 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		write( nr, len );
 	}
 	else {
-		uint32 test = get_version();
 		const int len = (int)strlen(typ);
 		assert(len<256);
 		// find start of tag
@@ -1016,11 +1015,6 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
 
-	/*if(experimental_version != 0)
-	{
-		*version_text ++;
-	}*/
-
 	while(  isdigit(*version_text) || *version_text == '.'  ) {
 		version_text++;
 	}
@@ -1042,9 +1036,15 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 			version = 999999999;
 		}
 	}
+	else {
+		// skip the minus sign
+		if (*version_text=='-') {
+			version_text++;
+		}
+	}
 
 	if(  pak_extension_str  ) {
-		if(  *version_text  &&  (version<103000  ||  *version_text=='-')  )  {
+		if(  *version_text  )  {
 			// also pak extension was saved
 			if(version>=99008) {
 				while(  *version_text>=32  ) {

@@ -405,7 +405,7 @@ const char *network_recieve_file( SOCKET s, const char *save_as, const long leng
 
 	DBG_MESSAGE("network_recieve_file","Game size %li", length );
 
-	if(is_display_init()) {
+	if(is_display_init()  &&  length>0) {
 		display_set_progress_text(translator::translate("Transferring game ..."));
 		display_progress(0, length);
 	}

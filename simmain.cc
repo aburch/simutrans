@@ -503,7 +503,6 @@ int simu_main(int argc, char** argv)
 		init_logging(NULL, false, false);
 	}
 
-#if 0	// server not yet fully implemented, be patient
 	// starting a server?
 	if(  gimme_arg(argc, argv, "-server", 0)  ) {
 		const char *p = gimme_arg(argc, argv, "-server", 1);
@@ -515,7 +514,6 @@ int simu_main(int argc, char** argv)
 		dbg->message( "simmain()", "Server started on port %i", portadress );
 		umgebung_t::server = umgebung_t::networkmode = network_init_server( portadress );
 	}
-#endif
 
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
 	DBG_MESSAGE( "Debuglevel","%i", umgebung_t::verbose_debug );

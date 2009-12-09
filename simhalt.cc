@@ -3039,8 +3039,16 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
 				dbg->error("haltestelle_t::rdwr()", "invalid position %s", k.get_str() );
-				gr = welt->lookup(k.get_2d())->get_kartenboden();
-				dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
+				const planquadrat_t* tmp = welt->lookup(k.get_2d());
+				if (tmp)
+				{
+					gr = tmp->get_kartenboden();
+					dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
+				}
+				else
+				{
+					dbg->fatal("haltestelle_t::rdwr()", "invalid halt co-ordinate at %i, %i, %i", k.x, k.y, k.z);
+				}
 			}
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...
@@ -3142,7 +3150,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	{
 		for (int j = 0; j < MAX_HALT_COST; j++) 
 		{
-			for (int k = MAX_MONTHS		- 1; k >= 0; k--) 
+			for (int k = MAX_MONTHS	- 1; k >= 0; k--) 
 			{
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}

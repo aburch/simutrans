@@ -4037,11 +4037,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 
 	sint32 fabs = fab_list.get_count();
 	file->rdwr_long(fabs, "\n");
-	//slist_iterator_tpl<fabrik_t*> fiter( fab_list );
-	//while(fiter.next()) {
 	for(sint16 i = fab_list.get_count() - 1; i >= 0; i --)
 	{
-		//(fiter.get_current())->rdwr(file);
 		fab_list[i]->rdwr(file);
 		if(silent) {
 			INT_CHECK("saving");
@@ -4695,13 +4692,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	}
 	else {
 		// most recent savegame version is 99018
-		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
-			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+		for (int year = 0;  year<MAX_WORLD_HISTORY_YEARS;  year++) {
+			for (int cost_type = 0; cost_type<MAX_WORLD_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
 		}
-		for (int month = 0;month</*MAX_WORLD_HISTORY_MONTHS*/12;month++) {
-			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
+		for (int month = 0;month<MAX_WORLD_HISTORY_MONTHS;month++) {
+			for (int cost_type = 0; cost_type<MAX_WORLD_COST; cost_type++) {
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
 		}
