@@ -271,7 +271,7 @@ static uint32 renovation_percentage = 12;
  * the higher this value, the slower the city expansion if there are still "holes"
  * @author prissi
  */
-static uint32 min_building_desity = 25;
+static uint32 min_building_density = 25;
 
 /**
  * add a new consumer every % people increase
@@ -450,7 +450,6 @@ const char* allowed_chars_in_rule = "SsnHhTtUu";
  * @return true on match, false otherwise
  * @author Hj. Malthaner
  */
-//<<<<<<< HEAD:simcity.cc
 //bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, uint16 rotation)
 //{
 //	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
@@ -527,7 +526,6 @@ const char* allowed_chars_in_rule = "SsnHhTtUu";
 //						break;
 //				}
 //			}
-//=======
 bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 {
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
@@ -588,7 +586,6 @@ bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 				break;
 			default: ;
 				// ignore
-//>>>>>>> Simutrans-base/master:simcity.cc
 		}
 	}
 	//printf("Success\n");
@@ -680,7 +677,9 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
-	min_building_desity = (uint32)contents.get_int("minimum_building_desity", 25);
+	// to keep compatible with the typo, here both are ok
+	min_building_density = (uint32)contents.get_int("minimum_building_desity", 25);
+	min_building_density = (uint32)contents.get_int("minimum_building_density", min_building_density);
 	set_industry_increase( contents.get_int("industry_increase_every", 0) );
 
 	// init the building value tables
@@ -972,7 +971,7 @@ void stadt_t::pruefe_grenzen(koord k)
 {
 	if(  has_low_density  ) {
 		// has extra wide borders => change density calculation
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-4)*abs(ur.y-lo.y-4)+1) > min_building_desity);
+		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/(abs(ur.x-lo.x-4)*abs(ur.y-lo.y-4)+1) > min_building_density);
 		if(!has_low_density)  {
 			// full recalc needed due to map borders ...
 			recalc_city_size();
@@ -980,7 +979,7 @@ void stadt_t::pruefe_grenzen(koord k)
 		}
 	}
 	else {
-		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_desity);
+		has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
 		if(has_low_density)  {
 			// wide borders again ..
 			lo -= koord(2,2);
@@ -1069,7 +1068,7 @@ void stadt_t::recalc_city_size()
 		}
 	}
 
-	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_desity);
+	has_low_density = (buildings.get_count()<10  ||  (buildings.get_count()*100l)/((ur.x-lo.x)*(ur.y-lo.y)+1) > min_building_density);
 	if(  has_low_density  ) {
 		// wider borders for faster growth of sparse small towns
 		lo.x -= 2;
@@ -1494,6 +1493,10 @@ void stadt_t::rdwr(loadsave_t* file)
  */
 void stadt_t::laden_abschliessen()
 {
+	step_count = 0;
+	next_step = 0;
+	next_bau_step = 0;
+
 	// there might be broken savegames
 	if(name==NULL) {
 		set_name( "simcity" );
@@ -1575,8 +1578,7 @@ void stadt_t::set_name(const char *new_name)
 /* show city info dialoge
  * @author prissi
  */
-void
-stadt_t::zeige_info(void)
+void stadt_t::zeige_info(void)
 {
 	create_win( new stadt_info_t(this), w_info, (long)this );
 }
@@ -2919,8 +2921,8 @@ void stadt_t::check_bau_spezial(bool new_town)
 
 void stadt_t::check_bau_rathaus(bool new_town)
 {
-	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), new_town, welt->get_climate(welt->max_hgt(pos)));
-	if (besch != NULL) {
+	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), bev==0, welt->get_climate(welt->max_hgt(pos)));
+	if(besch != NULL) {
 		grund_t* gr = welt->lookup(pos)->get_kartenboden();
 		gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
 		bool neugruendung = !gb || !gb->ist_rathaus();
@@ -2931,7 +2933,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 
 		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name);
 
-		if (!neugruendung) {
+		if(  bev!=0  ) {
 
 			const haus_besch_t* besch_alt = gb->get_tile()->get_besch();
 			if (besch_alt->get_level() == besch->get_level()) {

@@ -66,10 +66,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-debug.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
@@ -779,10 +779,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\lagerhaus.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\dings\leitung2.cc"
 				>
 			</File>
@@ -852,6 +848,10 @@
 			</File>
 			<File
 				RelativePath=".\boden\wege\narrowgauge.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network.cc"
 				>
 			</File>
 			<File
@@ -1223,6 +1223,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\trafficlight_info.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\translator.cc"
 				>
 			</File>
@@ -1434,6 +1438,10 @@
 			</File>
 			<File
 				RelativePath=".\besch\writer\building_writer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\bzlib.h"
 				>
 			</File>
 			<File
@@ -1929,10 +1937,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\dings\lagerhaus.h"
-				>
-			</File>
-			<File
 				RelativePath=".\dings\leitung2.h"
 				>
 			</File>
@@ -2030,6 +2034,10 @@
 			</File>
 			<File
 				RelativePath=".\boden\wege\narrowgauge.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network.h"
 				>
 			</File>
 			<File

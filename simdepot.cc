@@ -217,7 +217,8 @@ void depot_t::remove_vehicle(convoihandle_t cnv, int ipos)
 void depot_t::sell_vehicle(vehikel_t* veh)
 {
 	vehicles.remove(veh);
-	get_besitzer()->buche(veh->calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE);
+	get_besitzer()->buche(veh->calc_restwert(), get_pos().get_2d(), COST_NEW_VEHICLE );
+	get_besitzer()->buche(-(sint64)veh->calc_restwert(), COST_ASSETS );
 	DBG_MESSAGE("depot_t::sell_vehicle()", "this=%p sells %p", this, veh);
 	veh->before_delete();
 	delete veh;
@@ -290,6 +291,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 				first_run = false;
 			}
 			new_cnv->set_line(old_cnv->get_line());
+			new_cnv->get_schedule()->set_aktuell( old_cnv->get_schedule()->get_aktuell() );
 		}
 		else 
 		{
@@ -315,6 +317,10 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
 	if(cnv.is_bound()) 
 	{
+		if(  cnv->get_line().is_bound()  ) {
+			cnv->unset_line();
+			cnv->set_schedule( NULL );
+		}
 		if(!sell)
 		{
 			// store vehicles in depot

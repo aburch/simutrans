@@ -133,10 +133,18 @@ enum {
 };
 
 class werkzeug_t {
-protected:
-	image_id icon;
-
 public:
+	image_id icon;
+	/*
+	 * value to trigger this command (see documentation)
+	 * must be initialized in constructor
+	 */
+	uint16 id;
+
+	const char *default_param;
+
+	uint16 get_id() { return id; }
+
 	static werkzeug_t *dummy;
 
 	// for sorting: compare tool key
@@ -153,10 +161,8 @@ public:
 	sint16 ok_sound;
 	sint16 failed_sound;
 	sint8 offset;
-	const char *default_param;
 
 	uint16 command_key;// key to toggle action for this function
-	uint16 id;			// value to trigger this command (see documentation)
 
 	static vector_tpl<werkzeug_t *> general_tool;
 	static vector_tpl<werkzeug_t *> simple_tool;
@@ -168,16 +174,25 @@ public:
 	// since only a single toolstr a time can be visible ...
 	static char toolstr[1088];
 
-	static void init_menu(cstring_t objfilename);
+	static void init_menu();
 
-	werkzeug_t() { id = 0xFFFFu; cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
+	static void read_menu(cstring_t objfilename);
+
+	werkzeug_t() : id(0xFFFFu) { cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
 
+	virtual const char* get_default_param() const { return default_param; }
+	void set_default_param(const char* str) { default_param = str; }
+
 	// this will draw the tool with some indication, if active
-	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug()==this; }
+	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug(welt->get_active_player_nr())==this; }
+
+	// when true, local execution would do no harm
+	virtual bool is_init_network_save() const { return false; }
+	virtual bool is_work_network_save() const { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after( karte_t *w, koord pos ) const;
@@ -210,7 +225,9 @@ public:
  */
 class two_click_werkzeug_t : public werkzeug_t {
 public:
-	two_click_werkzeug_t() : werkzeug_t() { start_marker = NULL; };
+	two_click_werkzeug_t() : werkzeug_t() {
+		memset( start_marker, 0, sizeof(void *)*MAX_PLAYER_COUNT );
+	}
 
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool exit( karte_t *welt, spieler_t *sp ) { return init( welt, sp ); }
@@ -218,10 +235,11 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
-	bool is_first_click() { return first_click; };
-	void cleanup( karte_t *, bool delete_start_marker );
+	bool is_first_click(spieler_t *sp);
+	void cleanup( spieler_t *, bool delete_start_marker );
 
 private:
+
 	/*
 	 * This routine should fill marked_tiles.
 	 */
@@ -235,25 +253,25 @@ private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &start, const koord3d &end ) = 0;
 
 	/*
-	 * Can the tool start/end on this koord3d?
+	 * Can the tool start/end on pos? If it is the second click, start is the position of the first click
 	 * 0 = no
 	 * 1 = This tool can work on this tile (with single click)
 	 * 2 = On this tile can dragging start/end
 	 * 3 = Both (1 and 2). Not used by any tool yet.
 	 * error will contain an error message (if this is != NULL, return value should be 0).
 	 */
-	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &start, const char *&error ) = 0;
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
 
 	virtual image_id get_marker_image();
 
-	bool first_click;
-	koord3d start;
+	bool first_click_var[MAX_PLAYER_COUNT];
+	koord3d start[MAX_PLAYER_COUNT];
 	void start_at( karte_t *, spieler_t *, koord3d &new_start );
 
-	zeiger_t *start_marker;
+	zeiger_t *start_marker[MAX_PLAYER_COUNT];
 
 protected:
-	slist_tpl< zeiger_t* > marked;
+	slist_tpl< zeiger_t* > marked[MAX_PLAYER_COUNT];
 };
 
 /* toolbar are a new overclass */
@@ -277,10 +295,14 @@ public:
 	werkzeug_waehler_t *get_werkzeug_waehler() const { return wzw; }
 	virtual image_id get_icon(spieler_t *) const;
 	bool is_selected(karte_t *welt) const;
+	virtual bool is_init_network_save() const { return true; }
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
 	void update(karte_t *, spieler_t *);	// just refresh content
 	void append(werkzeug_t *w) { tools.append(w); }
 };
+
+// create new instance of tool
+werkzeug_t *create_tool(int toolnr);
 
 #endif

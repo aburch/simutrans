@@ -39,7 +39,7 @@ public:
 	 *
 	 * @author V. Meyer
 	 */
-	static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&msg, bool ai_bridge=false );
+	static koord3d finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&msg, bool ai_bridge=false, sint16 min_length=0 );
 
 	/*
 	 * Brückenendpunkte bei Rampen werden auf flachem Grund gebaut und müssen daher genauer
@@ -59,7 +59,7 @@ public:
 	 * Registers a new bridge type
 	 * @author V. Meyer, Hj. Malthaner
 	 */
-	static void register_besch(const bruecke_besch_t *besch);
+	static void register_besch(bruecke_besch_t *besch);
 
 
 	static bool laden_erfolgreich();

@@ -106,17 +106,17 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
 					const ding_t* thing = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
-					if (thing == NULL || thing->get_besitzer() == NULL || thing->get_besitzer() == this) {
-						if(gr->is_halt()  &&  check_owner( this, gr->get_halt()->get_besitzer())  &&  gr->hat_weg(road_wt)) {
+					if(  thing == NULL  ||  thing->get_besitzer()==NULL  ||  thing->get_besitzer()==this  ) {
+						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
-						} else if(test_dist<dist  &&  gr->hat_weg(road_wt)  &&  !gr->is_halt()  ) {
+						} else if(  test_dist<dist  &&  gr->hat_weg(road_wt)  &&  !gr->is_halt()  ) {
 							ribi_t::ribi  ribi = gr->get_weg_ribi_unmasked(road_wt);
 							if(  ribi_t::ist_gerade(ribi)  ||  ribi_t::ist_einfach(ribi)  ) {
 								best_pos = trypos;
 								dist = test_dist;
 							}
-						} else if(test_dist+2<dist  &&  gr->ist_natur()  ) {
+						} else if(  test_dist+2<dist  &&  gr->ist_natur()  ) {
 							// also ok for a stop, but second choice
 							// so wie gave it a malus of 2
 							best_pos = trypos;
@@ -527,7 +527,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// now try to connect one of the corners with a road
 	koord bushalt = koord::invalid, runwaystart, runwayend;
 	koord trypos[4] = { koord(0,0), koord(size.x,0), koord(0,size.y), koord(size.x,size.y) };
-	sint32 lenght=9999;
+	sint32 length=9999;
 	rotation=-1;
 
 	bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, road_vehicle->get_geschw(), road_vehicle->get_gewicht(), welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
@@ -540,9 +540,9 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		bushalt = pos+trypos[i];
 		bauigel.calc_route(welt->lookup_kartenboden(bushalt)->get_pos(),welt->lookup_kartenboden(town_road)->get_pos());
 		// no road => try next
-		if(  bauigel.get_count()-1>=1  &&   bauigel.get_count()-1<lenght  ) {
+		if(  bauigel.get_count()-1>=1  &&   bauigel.get_count()-1<length  ) {
 			rotation = i;
-			lenght = bauigel.get_count()-1;
+			length = bauigel.get_count()-1;
 		}
 	}
 
@@ -985,7 +985,7 @@ void ai_passenger_t::step()
 			 * The second condition may happen due to extensive replacement operations;
 			 * in such a case it is save enough to expand anyway.
 			 */
-			if(!(konto>0  ||  finance_history_month[0][COST_ASSETS]+konto>welt->get_einstellungen()->get_starting_money())  ) {
+			if(!(konto>0  ||  finance_history_month[0][COST_ASSETS]+konto>starting_money)  ) {
 				return;
 			}
 
@@ -1251,7 +1251,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 		// despite its name: try airplane
 		case NR_BAUE_AIRPORT_ROUTE:
 			// try airline (if we are wealthy enough) ...
-			if(  !air_transport  ||  finance_history_month[1][COST_CASH]<welt->get_einstellungen()->get_starting_money()  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
+			if(  !air_transport  ||  finance_history_month[1][COST_CASH]<starting_money  ||  !create_air_transport_vehikel( start_stadt, end_stadt )) {
 				state = NR_BAUE_CLEAN_UP;
 			}
 			else {

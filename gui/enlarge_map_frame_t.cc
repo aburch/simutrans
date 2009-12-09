@@ -43,7 +43,6 @@
 #define RIGHT_COLUMN_WIDTH (60)
 
 
-
 koord enlarge_map_frame_t::koord_from_rotation( einstellungen_t *sets, sint16 x, sint16 y, sint16 w, sint16 h )
 {
 	koord offset( sets->get_origin_x(), sets->get_origin_y() );
@@ -58,13 +57,12 @@ koord enlarge_map_frame_t::koord_from_rotation( einstellungen_t *sets, sint16 x,
 
 
 
-enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *welt) :
+enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	gui_frame_t("enlarge map"),
-	memory(memory_str)
+	memory(memory_str),
+	welt(w)
 {
-	this->welt = welt;
-
-	sets = new einstellungen_t(*welt->get_einstellungen()); // Make a copy.
+	sets = new einstellungen_t(*(welt->get_einstellungen())); // Make a copy.
 	sets->set_groesse_x(welt->get_groesse_x());
 	sets->set_groesse_y(welt->get_groesse_y());
 
@@ -150,12 +148,14 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 		sets->set_mittlere_einwohnerzahl( v.i );
 	}
 	else if(komp==&start_button) {
-			destroy_win(this);
-			news_img* info_win = new news_img("Vergroessere die Karte\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0));
-			create_win(200, 100, info_win, w_info, magic_none);
-			intr_refresh_display(true);
-			welt->enlarge_map(sets, NULL);
-			destroy_win( info_win );
+		// since soon those are invalid
+		news_img* info_win = new news_img("Vergroessere die Karte\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0));
+		create_win(200, 100, info_win, w_info, magic_none);
+		// just hide it for the moment ...
+		win_set_pos( this, display_get_width()+2, display_get_height()+2 );
+		intr_refresh_display( true );
+		welt->enlarge_map(sets, NULL);
+		destroy_all_win();
 	}
 	else {
 		return false;
@@ -197,8 +197,7 @@ void enlarge_map_frame_t::zeichnen(koord pos, koord gr)
  * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
  * @author Hj. Malthaner
  */
-void
-enlarge_map_frame_t::update_preview()
+void enlarge_map_frame_t::update_preview()
 {
 	// reset noise seed
 	setsimrand( 0xFFFFFFFF, welt->get_einstellungen()->get_karte_nummer() );

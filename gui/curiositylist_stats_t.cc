@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include "curiositylist_stats_t.h"
 
 #include "../simgraph.h"
@@ -82,10 +81,9 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t so
 		if (geb != NULL &&
 				geb->get_tile()->get_offset() == koord(0, 0) &&
 				geb->get_passagier_level() != 0) {
-			attractions.append(geb);
+			attractions.insert_ordered( geb, compare_curiosities(sortby, sortreverse) );
 		}
 	}
-	std::sort(attractions.begin(), attractions.end(), compare_curiosities(sortby, sortreverse));
 }
 
 

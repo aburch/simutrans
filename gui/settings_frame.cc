@@ -85,6 +85,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 	if(  komp==&revert_to_default  ) {
 		// reread from simucon.tab(s) the settings and apply them
 		tabfile_t simuconf;
+		umgebung_t::init();
 		*sets = einstellungen_t();
 		chdir( umgebung_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) {

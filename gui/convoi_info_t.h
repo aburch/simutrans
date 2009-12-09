@@ -30,7 +30,6 @@
 #define BUTTON_COUNT MAX_CONVOI_COST
 #endif
 
-
 /**
  * Displays an information window for a convoi
  *
@@ -57,7 +56,7 @@ private:
 	button_t go_home_button;
 	button_t no_load_button;
 	button_t replace_button;
-	button_t filterButtons[BUTTON_COUNT];
+	button_t filterButtons[MAX_CONVOI_COST];
 
 	button_t sort_button;
 	button_t details_button;

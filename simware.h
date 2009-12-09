@@ -7,6 +7,7 @@
 
 class warenbauer_t;
 class karte_t;
+class spieler_t;
 
 /** Eine Klasse zur Verwaltung von Informationen ueber Fracht und Waren */
 // "A class for the management of information on cargo and goods" (Google translations)
@@ -93,7 +94,7 @@ public:
 
 	void rdwr(karte_t *welt,loadsave_t *file);
 
-	void laden_abschliessen(karte_t *welt);
+	void laden_abschliessen(karte_t *welt,spieler_t *sp);
 
 	// find out the category ...
 	bool is_passenger() const { return index == 0; }

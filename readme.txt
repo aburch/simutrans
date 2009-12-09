@@ -3,11 +3,12 @@ How to compile
 
 Congratulations, you checked out the simutrans source. To compile it,
 you have two options, either using Microsoft Visual C++ Express (which
-is free in Version 7.0) or GCC.
+is free in Version 7.0 or up) or GCC.
 
 To compile you will need the following libraries:
 libz (http://www.zlib.net/)
 libpng (http://www.libpng.org/pub/png/) for makeobj
+libbz2.lib (compile from source from http://www.bzip.org/downloads.html)
 
 For the recommended SDL-support you need
 libSDL (http://www.libsdl.org/)
@@ -27,8 +28,8 @@ makes the installation of additional libraries like libz and libsdl and so
 on very easy. However, to compile the command line is easier.
 
 For all other systems, it is recommended you get the latest GCC and
-matching zlib, and libpng and a game library. For unix system you may
-have to use tools like apt-get or yast.
+matching zlib, libbzip2, and libpng and a game library. For lunix system
+you may have to use tools like apt-get or yast.
 
 Check out the latest source from the SVN or check out a certain revision.
 I recommend always to use the latest source, since it does not make any
@@ -77,12 +78,11 @@ compiling OpenTTD, which contains a libpng and a libz suited for
 simutrans too:
 http://wiki.openttd.org/index.php/MicrosoftVisualCExpress
 
-You can compile without zlib, just make sure you disabled support for
-compressed savegames in your simuconf.tab. But you will not able to
-load compressed savegames then.
+The bzip2 source tarball comes with an archive where you can easily
+built your own libbz2.lib file.
 
 For debugging, you have to set the correct working directory, i.e. the
 directory where the pak/ folders are located and use the -use_workdir
 command line option.
 
-Berlin, Mai 2007
+Berlin, Nov 2009

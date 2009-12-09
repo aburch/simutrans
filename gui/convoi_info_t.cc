@@ -35,33 +35,31 @@
 
 #include "convoi_detail_t.h"
 
-const char cost_type[BUTTON_COUNT][64] =
+static const char cost_type[MAX_CONVOI_COST][64] =
 {
-	"Free Capacity",
-	"Transported",
-	"Average speed",
-	"Comfort",
-	"Revenue",
-	"Operation",
-	"Profit"
+	"Free Capacity", "Transported", "Average speed", "Comfort", "Revenue", "Operation", "Profit", 
 #ifdef ACCELERATION_BUTTON
-	, "Acceleration"
+	"Acceleration"
+#else
+	"Distance"
 #endif
 };
 
-const int cost_type_color[BUTTON_COUNT] =
+static const int cost_type_color[MAX_CONVOI_COST] =
 {
-	COL_FREE_CAPACITY, 
-	COL_TRANSPORTED, 
-	COL_AVERAGE_SPEED, 
-	COL_COMFORT, 
-	COL_REVENUE, 
-	COL_OPERATION, 
-	COL_PROFIT
+	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT, 
 #ifdef ACCELERATION_BUTTON
-	, COL_YELLOW
+	COL_YELLOW
+#else
+	COL_DISTANCE
 #endif
 };
+
+static const bool cost_type_money[MAX_CONVOI_COST] =
+{
+	false, false, false, false, true, true, true, false
+};
+
 
 //bool convoi_info_t::route_search_in_progress = false;
 
@@ -165,7 +163,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	for (int cost = 0; cost<MAX_CONVOI_COST; cost++) {
-		chart.add_curve(cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 1, false, true, cost<MAX_CONVOI_NON_MONEY_TYPES ? 0 : 2 );
+		chart.add_curve( cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
 		filterButtons[cost].init(button_t::box_state, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 230+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
@@ -176,21 +174,21 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 #ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
+	
+	for (int i = 0; i < MAX_MONTHS; i++)
 	{
-		for (int i = 0; i < MAX_MONTHS; i++)
-		{
-			physics_curves[i][0] = 0;
-		}
-
-		int btn = ACCELERATION_BUTTON;
-		chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true, 0);
-		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+2)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-		filterButtons[btn].add_listener(this);
-		filterButtons[btn].background = cost_type_color[btn];
-		filterButtons[btn].set_visible(false);
-		filterButtons[btn].pressed = false;
-		add_komponente(filterButtons + btn);
+		physics_curves[i][0] = 0;
 	}
+
+	int btn = ACCELERATION_BUTTON;
+	chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1, 0, MAX_MONTHS, 0, false, true, 0);
+	filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+2)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	filterButtons[btn].add_listener(this);
+	filterButtons[btn].background = cost_type_color[btn];
+	filterButtons[btn].set_visible(false);
+	filterButtons[btn].pressed = false;
+	add_komponente(filterButtons + btn);
+
 #endif
 
 	add_komponente(&chart);
@@ -566,13 +564,13 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		chart.set_visible(toggler.pressed);
 		set_fenstergroesse(get_fenstergroesse() + offset); // "Window size"
 		resize(koord(0,0));
-		for (int i=0;i<BUTTON_COUNT;i++) {
+		for (int i=0;i<MAX_CONVOI_COST;i++) {
 			filterButtons[i].set_visible(toggler.pressed);
 		}
 		return true;
 	}
 
-	for ( int i = 0; i<BUTTON_COUNT; i++) {
+	for ( int i = 0; i<MAX_CONVOI_COST; i++) {
 		if (komp == &filterButtons[i]) {
 			filterButtons[i].pressed = !filterButtons[i].pressed;
 			if(filterButtons[i].pressed) {

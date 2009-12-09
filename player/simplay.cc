@@ -75,6 +75,20 @@
 karte_t *spieler_t::welt = NULL;
 
 
+/**
+ * Encapsulate margin calculation  (Operating_Profit / Income)
+ * @author Ben Love
+ */
+static sint64 calc_margin(sint64 operating_profit, sint64 proceeds)
+{
+	if (proceeds == 0) {
+		return 0;
+	}
+	return (10000 * operating_profit) / proceeds;
+}
+
+
+
 spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	simlinemgmt(wl)
 {
@@ -82,7 +96,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	player_nr = nr;
 	set_player_color( nr*8, nr*8+24 );
 
-	konto = welt->get_einstellungen()->get_starting_money();
+	konto = welt->get_einstellungen()->get_starting_money(welt->get_last_year());
+	starting_money = konto;
 
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
@@ -99,7 +114,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_year[year][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-				finance_history_year[year][cost_type] = welt->get_einstellungen()->get_starting_money();
+				finance_history_year[year][cost_type] = starting_money;
 			}
 		}
 	}
@@ -108,7 +123,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 		for (int cost_type=0; cost_type<MAX_PLAYER_COST; cost_type++) {
 			finance_history_month[month][cost_type] = 0;
 			if ((cost_type == COST_CASH) || (cost_type == COST_NETWEALTH)) {
-				finance_history_month[month][cost_type] = welt->get_einstellungen()->get_starting_money();
+				finance_history_month[month][cost_type] = starting_money;
 			}
 		}
 	}
@@ -476,29 +491,20 @@ void spieler_t::calc_finance_history()
 	finance_history_year[0][COST_PROFIT] = profit;
 	finance_history_month[0][COST_PROFIT] = mprofit;
 
-	finance_history_year[0][COST_NETWEALTH] = finance_history_year[0][COST_ASSETS] + konto;
 	finance_history_year[0][COST_CASH] = konto;
+	finance_history_year[0][COST_NETWEALTH] = finance_history_year[0][COST_ASSETS] + konto;
 	finance_history_year[0][COST_OPERATING_PROFIT] = finance_history_year[0][COST_INCOME] + finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE];
-	sint64 margin_div = (finance_history_year[0][COST_VEHICLE_RUN] + finance_history_year[0][COST_MAINTENANCE]);
-	if(margin_div<0) {
-		margin_div = -margin_div;
-	}
-	finance_history_year[0][COST_MARGIN] = margin_div!= 0 ? (100*finance_history_year[0][COST_OPERATING_PROFIT]) / margin_div : 0;
+	finance_history_year[0][COST_MARGIN] = calc_margin(finance_history_year[0][COST_OPERATING_PROFIT], finance_history_year[0][COST_INCOME]);
 	sint64 total_credit_limit = 0;
 	for(uint8 i = 0; i < MAX_PLAYER_HISTORY_MONTHS; i ++)
 	{
 		total_credit_limit += finance_history_month[i][COST_CREDIT_LIMIT];
 	}
 	finance_history_year[0][COST_CREDIT_LIMIT] = total_credit_limit / MAX_PLAYER_HISTORY_MONTHS;
-
-	finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
 	finance_history_month[0][COST_CASH] = konto;
+	finance_history_month[0][COST_NETWEALTH] = finance_history_month[0][COST_ASSETS] + konto;
 	finance_history_month[0][COST_OPERATING_PROFIT] = finance_history_month[0][COST_INCOME] + finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE];
-	margin_div = (finance_history_month[0][COST_VEHICLE_RUN] + finance_history_month[0][COST_MAINTENANCE]);
-	if(margin_div<0) {
-		margin_div = -margin_div;
-	}
-	finance_history_month[0][COST_MARGIN] = margin_div!=0 ? (100*finance_history_month[0][COST_OPERATING_PROFIT]) / margin_div : 0;
+	finance_history_month[0][COST_MARGIN] = calc_margin(finance_history_month[0][COST_OPERATING_PROFIT], finance_history_month[0][COST_INCOME]);
 	finance_history_month[0][COST_SCENARIO_COMPLETED] = finance_history_year[0][COST_SCENARIO_COMPLETED] = welt->get_scenario()->completed(player_nr);
 	finance_history_month[0][COST_CREDIT_LIMIT] = calc_credit_limit();
 }
@@ -538,7 +544,7 @@ sint64 spieler_t::calc_credit_limit()
 
 sint64 spieler_t::get_base_credit_limit()
 {
-	return welt->get_einstellungen()->get_starting_money() / 10;
+	return welt->get_einstellungen()->get_starting_money(welt->get_current_month() / 12) / 10;
 }
 
 // add and amount, including the display of the message and some other things ...
@@ -805,6 +811,7 @@ void spieler_t::rdwr(loadsave_t *file)
 					if (cost_type < 9) 
 					{
 						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+
 					} 
 					else 
 					{
@@ -844,7 +851,6 @@ void spieler_t::rdwr(loadsave_t *file)
 							{ 
 								tmp = -tmp;
 							}
-							finance_history_year[year][COST_MARGIN] = (tmp==0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
 						}
 					}
 				}
@@ -860,12 +866,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
 			}
-			sint64 tmp = finance_history_year[year][COST_VEHICLE_RUN] + finance_history_year[year][COST_MAINTENANCE];
-			if(tmp < 0) 
-			{ 
-				tmp = -tmp; 
-			}
-			finance_history_year[year][COST_MARGIN] = (tmp== 0) ? 0 : (finance_history_year[year][COST_OPERATING_PROFIT] * 100) / tmp;
+
 			finance_history_year[year][COST_INTEREST] = 0;
 			finance_history_year[year][COST_CREDIT_LIMIT] = 0;
 		}
@@ -876,12 +877,6 @@ void spieler_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
 			}
-			sint64 tmp = finance_history_month[month][COST_VEHICLE_RUN] + finance_history_month[month][COST_MAINTENANCE];
-			if(tmp < 0)
-			{ 
-				tmp = -tmp;
-			}
-			finance_history_month[month][COST_MARGIN] = (tmp==0) ? 0 : (finance_history_month[month][COST_OPERATING_PROFIT] * 100) / tmp;
 			finance_history_year[month][COST_INTEREST] = 0;
 			finance_history_year[month][COST_CREDIT_LIMIT] = 0;
 			finance_history_month[month][COST_INTEREST] = 0;
@@ -934,9 +929,10 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else {
-		// most recent savegame version
-		for (int year = 0; year < MAX_PLAYER_HISTORY_YEARS;year++) 
+	else if(  file->get_version()<102003  ) 
+	{
+		// saved everything
+		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++)
 		{
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) 
 			{
@@ -950,7 +946,7 @@ void spieler_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) 
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++)
 		{
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) 
 			{
@@ -965,6 +961,45 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
+	else 
+	{
+		// most recent savegame version: only save what is needed
+		for(int year = 0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) 
+		{
+			for(  int cost_type = 0;   cost_type<MAX_PLAYER_COST;   cost_type++  ) 
+			{
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) 
+				{
+					if(file->get_experimental_version() <= 1 && (cost_type == COST_INTEREST || cost_type == COST_CREDIT_LIMIT))
+					{
+						finance_history_year[year][cost_type] = 0;
+					}
+					else
+					{
+						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+					}
+				}
+			}
+		}
+		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) 
+		{
+			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) 
+			{
+				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) 
+				{
+					if(file->get_experimental_version() <= 1 && (cost_type == COST_INTEREST || cost_type == COST_CREDIT_LIMIT))
+					{
+						finance_history_month[month][cost_type] = 0;
+					}
+					else
+					{
+						file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+					}
+				}
+			}
+		}
+	}
+
 	// we have to pay maintenance at the beginning of a month
 	if(file->get_version()<99018  &&  file->is_loading()) 
 	{
@@ -1000,16 +1035,25 @@ void spieler_t::rdwr(loadsave_t *file)
 		dbg->fatal("spieler_t::rdwr()", "Halt count is out of bounds: %d -> corrupt savegame?", halt_count|haltcount);
 	}
 
-	if(file->is_loading()) 
-	{
-		// first: financial sanity check
-		for (int year = 0; year < MAX_PLAYER_HISTORY_YEARS; year++) 
-		{
-			sint64 value=0;
-			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) 
-			{
-				value += finance_history_year[year][cost_type];
-			}
+	if(file->is_loading()) {
+
+		/* prior versions calculated margin incorrectly.
+		 * we also save only some values and recalculate all dependent ones
+		 * (remember: negative costs are just saved as negative numbers!)
+		 */
+		for(  int year=0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) {
+			finance_history_year[year][COST_NETWEALTH] = finance_history_year[year][COST_CASH]+finance_history_year[year][COST_ASSETS];
+			// only revnue minus running costs
+			finance_history_year[year][COST_OPERATING_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE];
+			// including also investements into vehicles/infrastructure
+			finance_history_year[year][COST_PROFIT] = finance_history_year[year][COST_INCOME]+finance_history_year[year][COST_VEHICLE_RUN]+finance_history_year[year][COST_MAINTENANCE]+finance_history_year[year][COST_CONSTRUCTION]+finance_history_year[year][COST_NEW_VEHICLE];
+			finance_history_year[year][COST_MARGIN] = calc_margin(finance_history_year[year][COST_OPERATING_PROFIT], finance_history_year[year][COST_INCOME]);
+		}
+		for(  int month=0;  month<MAX_PLAYER_HISTORY_MONTHS;  month++  ) {
+			finance_history_month[month][COST_NETWEALTH] = finance_history_month[month][COST_CASH]+finance_history_month[month][COST_ASSETS];
+			finance_history_month[month][COST_OPERATING_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE];
+			finance_history_month[month][COST_PROFIT] = finance_history_month[month][COST_INCOME]+finance_history_month[month][COST_VEHICLE_RUN]+finance_history_month[month][COST_MAINTENANCE]+finance_history_month[month][COST_CONSTRUCTION]+finance_history_month[month][COST_NEW_VEHICLE];
+			finance_history_month[month][COST_MARGIN] = calc_margin(finance_history_month[month][COST_OPERATING_PROFIT], finance_history_month[month][COST_INCOME]);
 		}
 
 		// halt_count will be zero for newer savegames
@@ -1229,5 +1273,26 @@ spieler_t::undo()
 	return cost!=0;
 }
 
-
+void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, bool local)
+{
+	/* tools can return three kinds of messages
+	 * NULL = success
+	 * "" = failure, but just do not try again
+	 * "bla" error message, which should be shown
+	 */
+	if (welt->get_active_player()==this  &&  local) {
+		if(err==NULL) {
+			if(tool->ok_sound!=NO_SOUND) {
+				struct sound_info info = {tool->ok_sound,255,0};
+				sound_play(info);
+			}
+		}
+		else if(*err!=0) {
+			// something went really wrong
+			struct sound_info info = {SFX_FAILURE,255,0};
+			sound_play(info);
+			create_win( new news_img(err), w_time_delete, magic_none);
+		}
+	}
+}
 

@@ -1,3 +1,43 @@
+	CHANGE: default savegame now bzip2 (games 33% smaller)
+	ADD: Odometer and distance per month available for convois/lines
+	ADD: (gerw) built tunnel without ways
+	FIX: no longer possible for neagtive prices (cheat bus)
+	ADD: (Dwachs) starting money per year
+	ADD: lines will be listed numerically correct, if the contain a number
+	ADD: bridge building with click-and-drag
+	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
+<<<<<<< HEAD:simutrans/history.txt
+	CHANGE: ignore empty entries and lines starting with # in citylists
+	FIX: deleting line does not longer crash in halt_detail windows
+=======
+>>>>>>> Simutrans-base/master:simutrans/history.txt
+
+
+Release Candidate 102.2.1
+	FIX: minimap was not updated when a bridge was deleted
+	FIX: AI could not built any lines
+	FIX: grid slopes were not (re)set correctly
+	FIX: min_building_density and harbour are now recognized in dat/tab files
+	ADD: do not close load/save dialogue after deleting
+	FIX: do not show more than the last 2000 messages in message center to prevent scrollbar malfunction
+	FIX: margin calculation was wrong
+	FIX: first halts are now first in connection list => consistently transfer at first possibility
+	FIX: no money when selling convois at the depot
+	FIX: (Knightly) inverse scrolling consistently for minimap and main view
+	FIX: also ask when a single pakset with addons is present what to load
+	FIX: game starts in normal mode (instead paused) again
+	FIX: downgrading ways were cheaper than destruction => now downgrading will be as expensive as removal
+<<<<<<< HEAD:simutrans/history.txt
+=======
+	CHANGE: ignore empty entries and lines starting with # in citylists
+	FIX: deleting line does not longer crash in halt_detail windows
+	FIX: withdraw all with convois in depot causes crash (and maybe also not withdraw all)
+	FIX: several issues with tram signals
+	CHANGE: info windows now open less important first resp. for single window topmost object first (usually most important)
+>>>>>>> Simutrans-base/master:simutrans/history.txt
+
+
+
 Release of 102.2 (r2785)
 
 18-Oct-2009:

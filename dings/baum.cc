@@ -303,6 +303,14 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 
 
 
+static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
+{
+	/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
+	 * über den Namen herbei. */
+	return strcmp(a->get_name(), b->get_name())<0;
+}
+
+
 bool baum_t::alles_geladen()
 {
 	if (besch_names.empty()) {
@@ -312,16 +320,16 @@ bool baum_t::alles_geladen()
 	else {
 		stringhashtable_iterator_tpl<const baum_besch_t*> iter(besch_names);
 		while(  iter.next()  ) {
-			baum_typen.append( iter.get_current_value() );
+			baum_typen.insert_ordered( iter.get_current_value(), compare_baum_besch );
 		}
 		// fill the vector with zeros
 		for (uint8 j=0; j<MAX_CLIMATES; j++) {
 			baum_typen_per_climate.append( weighted_vector_tpl<uint32>() );
 		}
 		// now register all trees for all fitting climates
-		for( uint32 i=0;  i<baum_typen.get_count();  i++  ) {
-			for (uint8 j=0; j<MAX_CLIMATES; j++) {
-				if (baum_typen[i]->is_allowed_climate((climate)j)) {
+		for(  uint32 i=0;  i<baum_typen.get_count();  i++  ) {
+			for(  uint8 j=0;  j<MAX_CLIMATES;  j++  ) {
+				if(  baum_typen[i]->is_allowed_climate((climate)j)  ) {
 					baum_typen_per_climate[j].append(i, baum_typen[i]->get_distribution_weight(), /*extend weighted vector if necess by*/ 4 );
 				}
 			}

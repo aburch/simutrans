@@ -16,9 +16,9 @@
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
 
-#define MAX_LINE_COST			8 // Total number of cost items
+#define MAX_LINE_COST			9 // Total number of cost items
 #define MAX_MONTHS				12 // Max history
-#define MAX_NON_MONEY_TYPES		3 // number of non money types in line's financial statistic
+#define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
 
 #define LINE_CAPACITY			0 // the amount of ware that could be transported, theoretically
 #define LINE_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
@@ -28,6 +28,7 @@
 #define LINE_OPERATIONS         5 // the cost of operations this line generated
 #define LINE_PROFIT             6 // total profit of line
 #define LINE_CONVOIS			7 // number of convois for this line
+#define LINE_DISTANCE		    8 // distance converd by all convois
 
 class karte_t;
 class loadsave_t;
@@ -78,13 +79,13 @@ private:
 	vector_tpl<convoihandle_t> line_managed_convoys;
 
 	/*
-	 * ???
 	 * @author hsiegeln
+	 * a list of all catg_index, which can be transported by this line.
 	 */
 	minivec_tpl<uint8> goods_catg_index;
 
 	/*
- 	 * struct holds new financial history for line
+	 * struct holds new financial history for line
 	 * @author hsiegeln
 	 */
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];

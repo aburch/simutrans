@@ -142,8 +142,8 @@ void gui_scrolled_list_t::adjust_scrollbar()
 	}
 }
 
-void
-gui_scrolled_list_t::infowin_event(const event_t *ev)
+
+void gui_scrolled_list_t::infowin_event(const event_t *ev)
 {
 	const int x = ev->cx;
 	const int y = ev->cy;

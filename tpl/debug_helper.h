@@ -3,8 +3,6 @@
 
 #ifdef simdebug_h
 
-#define ERROR dbg->error
-#define WARNING dbg->warning
 #define MESSAGE dbg->message
 
 #else

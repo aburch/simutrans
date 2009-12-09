@@ -1,0 +1,77 @@
+<title>Ajuda - Interface/Janela do Jogo</title>
+
+<h1><strong>Interface/Janela do Jogo</strong></h1>
+
+<p>
+O Simutrans é jogado através da <strong>Interface/Janela do Jogo,</strong> que fornece informações sobre o jogo atual; acesso às barras de ferramentas e controles do jogo, e uma visão do jogo atual.
+</p>
+<p>
+<em>Barra de título</em>: o lado esquerdo da barra de título da <strong>Interface/Janela do Jogo</strong> mostra a versão e a data de lançamento do Simutrans que está sendo jogado no momento.<br>
+O lado direito da barra de título oferece controles para minimizar, maximizar a <strong>Interface/Janela do Jogo</strong> e também para sair do Simutrans.
+</p>
+<p>
+<em>Ícones</em>: uma fileira de ícones, utilizada para acessar as barras de ferramentas e os controles do jogo enquanto ele está sendo jogado, está diretamente abaixo da <em>barra de título</em>. Os <em>ícones</em> (clique para usar) estão agrupados em três conjuntos:
+</p>
+<p>
+- Os ícones do <a href="general.txt"><it>Menu Principal</it></a> incluem:<br>
+- <em>Disquete</em>: abre as <a href="options.txt">Preferências</a><br>
+- <em>Mapa</em>: abre o <a href="map.txt">Mapa</a>
+<br>
+- <em>Lupa</em> seleciona a <a href="inspection_tool.txt">Ferramenta Verificar</a><br>
+- <em>Barranco</em>: abre o <a href="slopetools.txt">Editor de terrenos</a><br>
+- <em>Locomotiva</em>: abre a <a href="railtools.txt">barra de ferramentas Ferrovias</a>
+<br>
+- <em>Monotrilho/Maglev</em>: <a href="monorailtools.txt">barra de ferramentas Monotrilhos e Maglevs</a><br>
+- <em>Bonde</em>: abre a <a href="tramtools.txt">barra de ferramentas Bondes</a>
+<br>
+- <em>Caminhão</em>: abre a <a href="roadtools.txt">barra de ferramentas Estradas</a><br>
+- <em>Barco</em>: abre a <a href="shiptools.txt">barra de ferramentas Navegação</a>
+<br>
+- <em>Avião</em>: abre a <a href="airtools.txt">barra de ferramentas Aeroportos</a>
+<br>
+- <em>Círculo amarelo com uma bola vermelha dentro</em> (um <em>guindaste</em> no pak128): abre a <a href="special.txt">barra de Ferramentas Especiais</a><br>
+- <em>X vermelho</em> (um <em>trator</em> no pak128): seleciona a <a href="removal_tool.txt">ferramenta Eliminar</a>
+</p>
+<p>
+- Os ícones do <a href="general.txt"><it>Menu de Gerenciamento</it></a> incluem:<br>
+- <em>Rede de transportes</em>: abre o <a href="linemanagement.txt">Gerenciador de Linhas</a>
+<br>
+- <em>Lista</em>: abre as <a href="list.txt">Listas</a>
+<br>
+- <em>Caixa de correio</em>: abre as <a href="mailbox.txt">Mensagens</a>
+<br>
+- <em>Cédula de dinheiro</em>: abre as <a href="finances.txt">Finanças</a>
+</p>
+<p>
+- Os ícones das <a href="general.txt"><it>Outras Opções</it></a> incluem:<br>
+- <em>Câmera fotográfica</em>: captura uma imagem do que está acontecendo no momento na <strong>Interface/Janela do Jogo</strong> (sem a <em>barra de título</em>) e salva a imagem como um arquivo bitmap (.bmp) na pasta ...simutrans/screenshot/<br>
+{Dica: as imagens também podem ser capturadas pressionando a tecla <a href="keys.txt">[c]</a>.}
+<br>
+- <em>Duas barras verticais amarelas</em>: pausa/volta ao jogo .<br>
+{Dica: Pressionando-se [p] também pausa/volta ao jogo}.<br>
+- <em>ícone >></em>: ativa/desativa a função Avanço Rápido (muda a velocidade com a qual o Tempo, <em>T</em>, passa no jogo).<br>
+{Dica: A função Avanço Rápido também pode ser ativada/desativada pressionando-se <a href="keys.txt">[W]</a><br>
+IMPORTANTE: O jogo pode não rodar perfeitamente; a janela <a href="display.txt"><strong>Vídeo</strong></a>, acessível a partir de <a href="options.txt">Preferências</a>, indica se o computador aceita essa função sem problemas.}<br>
+- <em>?</em>: abre a <a href="general.txt">Ajuda</a> do jogo.
+</p>
+<p>
+A <em>visão do jogo</em> de uma porção do mundo (jogo) atual é mostrada abaixo dos <em>Ícones</em>.<br>
+Você pode aumentar ou diminuir o zoom na visão do jogo e também visualizar as outras partes do mundo atual usando o <a href="mouse.txt">mouse</a> ou o <a href="keys.txt">teclado</a>.
+</p>
+<p>
+Uma <em>barra deslizante temporária</em> aparece e mostra <a href="mailbox.txt">mensagens</a> na parte inferior da visão do jogo.<br>
+{Dica: Clique em uma mensagem para centralizar a visão do jogo para a posição informada na mensagem.}
+</p>
+<p>
+Uma <em>barra inferior</em> a qual mostra informações sobre o jogo atual é mostrada na visão do jogo.<br>
+A informação fornecida, da esquerda para a direita na barra inferior inclui:<br>
+- <em>Data e hora</em>: a data e hora atuais do jogo carregado, seguido por um ícone e o nome da estação.<br>
+- <em>Caixa atual</em>: o dinheiro atualmente disponível para construção e outros custos (compra de veículos, manutenção da infra-estrutura para transportes e custos operacionais para os veículos que estão em funcionamento).<br>
+- <em>Coordenadas</em>: indica a posição do cursor do mouse na visão do jogo. Os números representam as coordenadas X, Y, e a altitude.<br>
+- <em>T</em>: indica a velocidade com a qual o tempo passa no jogo.<br>
+{Dica: Pressione <a href="keys.txt">[.]</a> / [,]  para acelerar/desacelerar o Tempo, (T); o menu <a href="display.txt"><strong>Vídeo</strong></a> indica se o computador suporta esta mudança.<br>
+O uso da função <a href="fast_forward.txt">Avanço</a> substitui <em>T</em> por ">>" na barra inferior.}<br>
+- <em>Linha do tempo</em>: indica se a <a href="new_world.txt">Linha do tempo</a> foi ativada para o jogo atual.
+</p>
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 16/02/2008.
+</p>

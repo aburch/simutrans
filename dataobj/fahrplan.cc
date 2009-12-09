@@ -300,7 +300,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 		return false;
 	}
 	// now we have to check all entries ...
-	// we need to do this that complicated, because they last stop may make the difference
+	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
 	while(  f1+f2<eintrag.get_count()+fpl->eintrag.get_count()  ) {
 		if(f1<eintrag.get_count()  &&  f2<fpl->eintrag.get_count()  &&  fpl->eintrag[f2].pos == eintrag[f1].pos && fpl->eintrag[f2].ladegrad == eintrag[f1].ladegrad && fpl->eintrag[f2].waiting_time_shift == eintrag[f1].waiting_time_shift) {
@@ -312,7 +312,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			bool ok = false;
 			if(  f1<eintrag.get_count()  ) {
 				grund_t *gr1 = welt->lookup(eintrag[f1].pos);
-				if(  gr1->get_depot()  ) {
+				if(  gr1  &&  gr1->get_depot()  ) {
 					// skip depot
 					f1++;
 					ok = true;
@@ -320,7 +320,7 @@ schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 			}
 			if(  f2<fpl->eintrag.get_count()  ) {
 				grund_t *gr2 = welt->lookup(fpl->eintrag[f2].pos);
-				if(  gr2->get_depot()  ) {
+				if(  gr2  &&  gr2->get_depot()  ) {
 					ok = true;
 					f2++;
 				}

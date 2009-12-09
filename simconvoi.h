@@ -21,18 +21,18 @@
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 
-#define MAX_CONVOI_COST   7 // Total number of cost items
-#define MAX_MONTHS     12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES 4 // number of non money types in convoi's financial statistic
+#define MAX_CONVOI_COST				8 // Total number of cost items
+#define MAX_MONTHS					12 // Max history
+#define MAX_CONVOI_NON_MONEY_TYPES	4 // number of non money types in convoi's financial statistic
 
-#define CONVOI_CAPACITY			  0 // the amount of ware that could be transported, theoretically
-#define CONVOI_TRANSPORTED_GOODS  1 // the amount of ware that has been transported
-#define CONVOI_AVERAGE_SPEED	  2 // The average speed of the convoy per rolling month
-#define CONVOI_COMFORT			  3 // The aggregate comfort rating of this convoy
-#define CONVOI_REVENUE			  4 // the income this CONVOI generated
-#define CONVOI_OPERATIONS         5 // the cost of operations this CONVOI generated
-#define CONVOI_PROFIT             6 // total profit of this convoi
-
+#define CONVOI_CAPACITY				0 // the amount of ware that could be transported, theoretically
+#define CONVOI_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
+#define CONVOI_AVERAGE_SPEED		2 // The average speed of the convoy per rolling month
+#define CONVOI_COMFORT				3 // The aggregate comfort rating of this convoy
+#define CONVOI_REVENUE				4 // the income this CONVOI generated
+#define CONVOI_OPERATIONS			5 // the cost of operations this CONVOI generated
+#define CONVOI_PROFIT				6 // total profit of this convoi
+#define CONVOI_DISTANCE				7 // total distance traveld this month
 
 class depot_t;
 class karte_t;
@@ -125,10 +125,6 @@ private:
 	// Purpose  : To hold the original schedule before opening schedule window
 	schedule_t *old_fpl;
 
-	// Added by : Knightly
-	// Purpose  : A mini-vector for storing supporting goods categories
-	minivec_tpl<uint8> goods_catg_index;
-
 	/**
 	* loading_level was ladegrad before. Actual percentage loaded for loadable vehicles (station length!).
 	* needed as int, since used by the gui
@@ -151,6 +147,11 @@ private:
 	* @author Hj. Malthaner
 	*/
 	array_tpl<vehikel_t*> fahr;
+
+	/*
+	 * a list of all catg_index, which can be transported by this convoy.
+	 */
+	minivec_tpl<uint8> goods_catg_index;
 
 	/**
 	* Convoi owner
@@ -288,6 +289,9 @@ private:
 	* @author Hanjsörg Malthaner
 	*/
 	sint64 jahresgewinn;
+
+	/* the odometer */
+	sint64 total_distance_traveled;
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
@@ -489,17 +493,18 @@ public:
 	*/
 	convoihandle_t self;
 
-	/**
-	* Der Gewinn in diesem Jahr
-	* "The profit in this year" (Babelfish)
-	* @author Hanjsörg Malthaner
-	*/
+	/*
+	 * "The profit in this year" (Babelfish)
+	 * @author Hanjsörg Malthaner
+	 */
 	inline const sint64 & get_jahresgewinn() const {return jahresgewinn;}
 
+	const sint64 & get_total_distance_traveled() const { return total_distance_traveled; }
+
 	/**
-	* returns the total running cost for all vehicles in convoi
-	* @author hsiegeln
-	*/
+	 * returns the total running cost for all vehicles in convoi
+	 * @author hsiegeln
+	 */
 	sint32 get_running_cost() const;
 
 	// Gets the running cost per kilometre
@@ -612,11 +617,10 @@ public:
 	uint32 get_length() const;
 
 	/**
-	 * Vehicles of the convoi add their running cost by using this
-	 * method
+	 * Add the costs for traveling one tile
 	 * @author Hj. Malthaner
 	 */
-	void add_running_cost(sint32 cost);
+	void add_running_cost(sint64 cost);
 
 	/**
 	 * moving the veicles of a convoi and acceleration/deacceleration
@@ -681,6 +685,11 @@ public:
 	* @author Hj. Malthaner
 	*/
 	vehikel_t * remove_vehikel_bei(unsigned short i);
+
+	const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
+
+	// recalculates the good transported by this convoy and (in case of changes) will start schedule recalculation
+	void recalc_catg_index();
 
 	/**
 	* Sets a schedule
@@ -967,14 +976,6 @@ public:
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
-
-	// Added by		: Knightly
-	// Adapted from : simline_t
-	// Purpose		: To recalculate list of supported goods category
-	void recalc_catg_index();
-
-	// Added by : Knightly
-	inline const minivec_tpl<uint8> &get_goods_catg_index() const { return goods_catg_index; }
 };
 
 #endif

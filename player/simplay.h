@@ -32,7 +32,7 @@ enum player_cost {
 	COST_NETWEALTH,			// Total Cash + Assets
 	COST_PROFIT,			// COST_POWERLINES+COST_INCOME-(COST_CONSTRUCTION+COST_VEHICLE_RUN+COST_NEW_VEHICLE+COST_MAINTENANCE+COST_INTEREST)
 	COST_OPERATING_PROFIT,	// COST_POWERLINES+COST_INCOME-(COST_VEHICLE_RUN+COST_MAINTENANCE)
-	COST_MARGIN,			// COST_OPERATING_PROFIT/(COST_VEHICLE_RUN+COST_MAINTENANCE)
+	COST_MARGIN,			// COST_OPERATING_PROFIT/COST_INCOME
 	COST_ALL_TRANSPORTED,	// all transported goods
 	COST_POWERLINES,		// revenue from the power grid
 	COST_TRANSPORTED_PAS,	// number of passengers that actually reached destination
@@ -54,6 +54,7 @@ class stadt_t;
 class gebaeude_t;
 class koord3d;
 class ware_production_t;
+class werkzeug_t;
 
 /**
  * play info for simutrans human and AI are derived from this class
@@ -105,6 +106,9 @@ protected:
 	 * @author Hj. Malthaner
 	 */
 	sint64 konto; //"account" (Google)
+
+	// remember the starting money
+	sint64 starting_money;
 
 	/**
 	 * Zählt wie viele Monate das Konto schon ueberzogen ist
@@ -361,6 +365,15 @@ public:
 	 * @date 26-Nov-2001
 	 */
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
+
+	/**
+	 * Tells the player the result of tool-work commands
+	 * If player is active then play sound, popup error msg etc
+	 * AI players react upon this call and proceed
+	 * local is true if tool was called by player on our client
+	 * @author Dwachs
+	 */
+	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
 
 private:
 	/* undo informations *

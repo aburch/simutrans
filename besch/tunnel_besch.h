@@ -56,6 +56,8 @@ private:
 	*/
 	uint8 has_way;
 
+	werkzeug_t *builder;
+
 public:
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season) const
 	{
@@ -147,6 +149,14 @@ public:
 			return static_cast<const weg_besch_t *>(get_child(5 + number_seasons * 2));
 		}
 		return NULL;
+	}
+
+	// default tool for building
+	werkzeug_t *get_builder() const {
+		return builder;
+	}
+	void set_builder( werkzeug_t *w )  {
+		builder = w;
 	}
 };
 

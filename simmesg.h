@@ -5,7 +5,7 @@
 #include "simcolor.h"
 #include "simimg.h"
 #include "dataobj/koord.h"
-#include "tpl/vector_tpl.h"
+#include "tpl/slist_tpl.h"
 
 class karte_t;
 
@@ -46,14 +46,14 @@ private:
 	sint32 auto_win_flags;
 	sint32 ignore_flags;
 
-	vector_tpl<node> list;
+	slist_tpl<node> list;
 
 public:
-	uint32 get_count() const { return list.get_count(); }
+	const slist_tpl<node> &get_list() const { return list; }
 
 	void clear() { list.clear(); }
 
-	node*	get_node(unsigned i) { return &(list[i]); }
+	void rotate90( sint16 size_w );
 };
 
 #endif

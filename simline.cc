@@ -10,11 +10,9 @@
 #include "simworld.h"
 #include "simlinemgmt.h"
 
-
-uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT };
+uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE };
 
 karte_t *simline_t::welt=NULL;
-
 
 
 simline_t::simline_t(karte_t* welt, spieler_t* sp)
@@ -101,15 +99,15 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	if(  cnv->get_state()!=convoi_t::INITIAL  ) {
 		/*
 		// already on the road => need to add them
-		for(uint i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
+		for(  uint8 i=0;  i<cnv->get_vehikel_anzahl();  i++  ) {
 			// Only consider vehicles that really transport something
 			// this helps against routing errors through passenger
 			// trains pulling only freight wagons
-			if (cnv->get_vehikel(i)->get_fracht_max() == 0) {
+			if(  cnv->get_vehikel(i)->get_fracht_max() == 0  ) {
 				continue;
 			}
 			const ware_besch_t *ware=cnv->get_vehikel(i)->get_fracht_typ();
-			if(ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())) {
+			if(  ware!=warenbauer_t::nichts  &&  !goods_catg_index.is_contained(ware->get_catg_index())  ) {
 				goods_catg_index.append( ware->get_catg_index(), 1 );
 				update_schedules = true;
 			}
@@ -176,20 +174,47 @@ void simline_t::rdwr(loadsave_t *file)
 	fpl->rdwr(file);
 
 	//financial history
-	for (int j = 0; j < MAX_LINE_COST; j++) 
+
+	if(  file->get_version()<102003  ) 
 	{
-		for (int k = MAX_MONTHS - 1; k >= 0; k--) 
+		for (int j = 0; j<LINE_DISTANCE; j++) 
 		{
-			if((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1)
+			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
-				// Versions of Experimental saves with 1 and below
-				// did not have settings for average speed or comfort.
-				// Thus, this value must be skipped properly to
-				// assign the values.
-				financial_history[k][j] = 0;
-				continue;
+				if((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1)
+				{
+					// Versions of Experimental saves with 1 and below
+					// did not have settings for average speed or comfort.
+					// Thus, this value must be skipped properly to
+					// assign the values.
+					financial_history[k][j] = 0;
+					continue;
+				}
+				file->rdwr_longlong(financial_history[k][j], " ");
 			}
-			file->rdwr_longlong(financial_history[k][j], " ");
+		}
+		for (int k = MAX_MONTHS-1; k>=0; k--) 
+		{
+			financial_history[k][LINE_DISTANCE] = 0;
+		}
+	}
+	else 
+	{
+		for (int j = 0; j<MAX_LINE_COST; j++) 
+		{
+			for (int k = MAX_MONTHS-1; k>=0; k--)
+			{
+				if((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1)
+				{
+					// Versions of Experimental saves with 1 and below
+					// did not have settings for average speed or comfort.
+					// Thus, this value must be skipped properly to
+					// assign the values.
+					financial_history[k][j] = 0;
+					continue;
+				}
+				file->rdwr_longlong(financial_history[k][j], " ");
+			}
 		}
 	}
 
@@ -202,7 +227,8 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		for(uint8 i = 0; i < MAX_LINE_COST; i ++)
+		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : MAX_LINE_COST;
+		for(uint8 i = 0; i < counter; i ++)
 		{	
 			file->rdwr_long(rolling_average[i], "");
 			file->rdwr_short(rolling_average_count[i], "");
@@ -394,15 +420,15 @@ void simline_t::recalc_catg_index()
 	// then recreate current
 	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
 		// what goods can this line transport?
-//		const convoihandle_t cnv = line_managed_convoys[i];
+		// const convoihandle_t cnv = line_managed_convoys[i];
 		const convoi_t *cnv = line_managed_convoys[i].get_rep();
 		withdraw &= cnv->get_withdraw();
 
-		// Added by : Knightly
-		const minivec_tpl<uint8> &categories = cnv->get_goods_catg_index();
-		const uint8 catg_count = categories.get_count();
-		for (uint8 j = 0; j < catg_count; j++)
-			goods_catg_index.append_unique(categories[j], 1);
+		const minivec_tpl<uint8> &convoys_goods = cnv->get_goods_catg_index();
+		for(  uint8 i = 0;  i < convoys_goods.get_count();  i++  ) {
+			const uint8 catg_index = convoys_goods[i];
+			goods_catg_index.append_unique( catg_index, 1 );
+		}
 	}
 	
 	// Modified by	: Knightly
@@ -437,10 +463,10 @@ void simline_t::recalc_catg_index()
 void simline_t::set_withdraw( bool yes_no )
 {
 	withdraw = yes_no  &&  (line_managed_convoys.get_count()>0);
-	// then recreate current
-	for(unsigned i=0;  i<line_managed_convoys.get_count();  i++ ) {
+	// convois in depots will be immeadiately destroyed, thus we go backwards
+	for( sint32 i=line_managed_convoys.get_count()-1;  i>=0;  i--  ) {
+		line_managed_convoys[i]->set_no_load(yes_no);	// must be first, since set withdraw might destroy convoi if in depot!
 		line_managed_convoys[i]->set_withdraw(yes_no);
-		line_managed_convoys[i]->set_no_load(yes_no);
 	}
 }
 

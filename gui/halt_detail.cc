@@ -280,6 +280,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 	// ok, we have now this counter for pending updates
 	destination_counter = halt->get_rebuild_destination_counter();
+	cached_line_count = halt->registered_lines.get_count();
 }
 
 
@@ -314,7 +315,7 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 void halt_detail_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
-		if(halt->get_rebuild_destination_counter()!=destination_counter || cached_active_player!=halt->get_welt()->get_active_player()) {
+		if(  halt->get_rebuild_destination_counter()!=destination_counter  ||  cached_active_player!=halt->get_welt()->get_active_player()  ||  halt->registered_lines.get_count()!=cached_line_count  ) {
 			// fill buffer with halt detail
 			halt_detail_info(cb_info_buffer);
 			txt_info.set_text(cb_info_buffer);

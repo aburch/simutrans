@@ -55,7 +55,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt) :
 	vehikel_basis_t(welt)
 {
 	set_besitzer( welt->get_spieler(1) );
-	time_to_life = -1;
+	time_to_life = 0;
 	weg_next = 0;
 }
 
@@ -74,8 +74,9 @@ verkehrsteilnehmer_t::~verkehrsteilnehmer_t()
 		gr->find<crossing_t>(2)->release_crossing(this);
 	}
 
+
 	// just to be sure we are removed from both lists.
-	if(time_to_life>=0) 
+	if(time_to_life>0) 
 	{
 		welt->sync_remove(this);
 	}
@@ -341,30 +342,45 @@ bool stadtauto_t::alles_geladen()
 }
 
 
+static bool compare_stadtauto_besch(const stadtauto_besch_t* a, const stadtauto_besch_t* b)
+{
+	int diff = a->get_intro_year_month() - b->get_intro_year_month();
+	if (diff == 0) {
+		diff = a->get_geschw() - b->get_geschw();
+	}
+	if (diff == 0) {
+		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
+		 * über den Namen herbei. */
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return diff < 0;
+}
+
+
 void stadtauto_t::built_timeline_liste(karte_t *welt)
 {
 	// this list will contain all citycars
 	liste_timeline.clear();
-
+	vector_tpl<const stadtauto_besch_t*> temp_liste(0);
 	if(  !table.empty()  ) {
 		const int month_now = welt->get_current_month();
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		stringhashtable_iterator_tpl<const stadtauto_besch_t *>iter(table);
+		stringhashtable_iterator_tpl<const stadtauto_besch_t *> iter(table);
 		while(   iter.next()  ) {
 			const stadtauto_besch_t* info = iter.get_current_value();
 			const int intro_month = info->get_intro_year_month();
 			const int retire_month = info->get_retire_year_month();
 
-//DBG_DEBUG("stadtauto_t::built_timeline_liste()","iyear=%i, imonth=%i", intro_month/12, intro_month%12+1);
-//DBG_DEBUG("stadtauto_t::built_timeline_liste()","ryear=%i, rmonth=%i", retire_month/12, retire_month%12+1);
-
 			if (!welt->use_timeline() || (intro_month <= month_now && month_now < retire_month)) {
-				liste_timeline.append(info, info->get_gewichtung(), 1);
-//DBG_DEBUG("stadtauto_t::built_timeline_liste()","adding %s to liste",info->get_name());
+				temp_liste.insert_ordered( info, compare_stadtauto_besch );
 			}
 		}
+	}
+	liste_timeline.resize( temp_liste.get_count() );
+	for (vector_tpl<const stadtauto_besch_t*>::const_iterator i = temp_liste.begin(), end = temp_liste.end(); i != end; ++i) {
+		liste_timeline.append( (*i), (*i)->get_gewichtung() );
 	}
 }
 
@@ -452,12 +468,10 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 
 bool stadtauto_t::sync_step(long delta_t)
 {
-	if(time_to_life<=0) {
-		// remove obj
+	time_to_life -= delta_t;
+	if(  time_to_life<=0  ) {
 		return false;
 	}
-
-	time_to_life -= delta_t;
 
 	if(current_speed==0) {
 		// stuck in traffic jam
@@ -483,7 +497,7 @@ bool stadtauto_t::sync_step(long delta_t)
 		weg_next -= fahre_basis( weg_next );
 	}
 
-	return true;
+	return time_to_life>0;
 }
 
 
@@ -702,12 +716,16 @@ stadtauto_t::betrete_feld()
 		time_to_life = 0;
 
 		//"fussgaenger" = pedestrian (Babelfish)
-		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
+		int number = 2;
+		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos_next, number);
+		/*fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
 		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
+		
+		
 		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
 			fg->sync_step(64*24);
 		}
-		welt->sync_add( fg );
+		welt->sync_add( fg );*/
 	}
 #endif
 	vehikel_basis_t::betrete_feld();

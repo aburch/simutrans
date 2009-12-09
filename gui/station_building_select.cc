@@ -47,6 +47,7 @@ station_building_select_t::station_building_select_t(karte_t *welt, const haus_b
 	const koord img_offsets[4]={ koord(rw*2-x_diff,0), koord(-x_diff,rw), koord(rw*4-x_diff,rw), koord(rw*2-x_diff,rw*2) };
 	const koord base_offsets[6]={ koord(0,0), koord(width+10,0), koord(0,height+BUTTON_HEIGHT+10),  koord(width+10,height+BUTTON_HEIGHT+10), koord(width+10,0), koord(0,0) };
 
+	wkz.id = werkzeug_t::general_tool[WKZ_STATION]->id;
 	// image placeholder
 	for( sint16 i=0;  i<layout;  i++ ) {
 		for( sint16 j=0;  j<4;  j++ ) {
@@ -110,8 +111,8 @@ bool station_building_select_t::action_triggered( gui_action_creator_t *komp,val
 		if(komp == &actionbutton[i]) {
 			static char default_str[1024];
 			sprintf( default_str, "%s,%i", besch->get_name(), i );
-			wkz.default_param = default_str;
-			welt->set_werkzeug( &wkz );
+			wkz.set_default_param(default_str);
+			welt->set_werkzeug( &wkz, welt->get_active_player() );
 			destroy_win(this);
 		}
 	}

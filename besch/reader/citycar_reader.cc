@@ -16,7 +16,7 @@ void citycar_reader_t::register_obj(obj_besch_t *&data)
 {
     stadtauto_besch_t *besch = static_cast<stadtauto_besch_t *>(data);
 
-	// init the lenght information
+	// init the length information
 	for( int i=0;  i<8;  i++ ) {
 		if(i<4) {
 			besch->length[i] = 12+2;

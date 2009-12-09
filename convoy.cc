@@ -13,6 +13,7 @@
 #include "bauer/warenbauer.h"
 #include "vehicle/simvehikel.h"
 
+
 // make sure, that no macro calculates a or b twice:
 inline double double_min(double a, double b)
 {

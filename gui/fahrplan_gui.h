@@ -103,7 +103,8 @@ private:
 	fahrplan_gui_stats_t stats;
 	gui_scrollpane_t scrolly;
 
-	schedule_t* fpl;
+	schedule_t *fpl;
+	schedule_t* old_fpl;
 	spieler_t *sp;
 	convoihandle_t cnv;
 

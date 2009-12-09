@@ -121,10 +121,10 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 // prepares a general tool just like a player work do
 bool ai_t::init_general_tool( int tool, const char *param )
 {
-	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
-	werkzeug_t::general_tool[tool]->default_param = param;
+	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
+	werkzeug_t::general_tool[tool]->set_default_param(param);
 	bool ok = werkzeug_t::general_tool[tool]->init( welt, this );
-	werkzeug_t::general_tool[tool]->default_param = old_param;
+	werkzeug_t::general_tool[tool]->set_default_param(old_param);
 	return ok;
 }
 
@@ -135,8 +135,8 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 {
 	grund_t *gr = welt->lookup_kartenboden(k);
 	koord3d pos = gr ? gr->get_pos() : koord3d::invalid;
-	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
-	werkzeug_t::general_tool[tool]->default_param = param;
+	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
+	werkzeug_t::general_tool[tool]->set_default_param(param);
 	const char * err = werkzeug_t::general_tool[tool]->work( welt, this, pos );
 	if(err) {
 		if(*err) {
@@ -146,7 +146,7 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 			dbg->message("ai_t::call_general_tool()","not succesful for tool %i at (%s)", tool, pos.get_str() );
 		}
 	}
-	werkzeug_t::general_tool[tool]->default_param = old_param;
+	werkzeug_t::general_tool[tool]->set_default_param(old_param);
 	return err==0;
 }
 
@@ -339,7 +339,7 @@ bool ai_t::built_update_headquarter()
 	if(besch!=NULL) {
 		// cost is negative!
 		sint64 cost = welt->get_einstellungen()->cst_multiply_headquarter*besch->get_level()*besch->get_b()*besch->get_h();
-		if(  konto+cost > welt->get_einstellungen()->get_starting_money()  ) {
+		if(  konto+cost > starting_money ) {
 			// and enough money left ...
 			koord place = get_headquarter_pos();
 			if(place!=koord::invalid) {
@@ -476,8 +476,6 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 		return false;
 	}
 
-	INT_CHECK( "simplay 1742" );
-
 	// is there already a connection?
 	// get a default vehikel
 	vehikel_besch_t test_besch(road_wt, 25, vehikel_besch_t::diesel );
@@ -486,7 +484,7 @@ bool ai_t::create_simple_road_transport(koord platz1, koord size1, koord platz2,
 	if (verbindung.calc_route(welt, welt->lookup_kartenboden(platz1)->get_pos(), welt->lookup_kartenboden(platz2)->get_pos(), test_driver, 0, 0)  &&
 		verbindung.get_count()<2u*koord_distance(platz1,platz2))  {
 DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection between %d,%d to %d,%d is only %i",platz1.x, platz1.y, platz2.x, platz2.y, verbindung.get_count() );
-		// found something with the nearly same lenght
+		// found something with the nearly same length
 		delete test_driver;
 		return true;
 	}
@@ -515,4 +513,11 @@ DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d
 }
 
 
+void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local)
+{
+	// necessary to show error message if a human helps us poor AI
+	spieler_t::tell_tool_result(tool, pos, err, local);
+
+	// TODO: process the result...
+}
 

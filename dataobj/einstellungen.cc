@@ -9,6 +9,7 @@
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simconst.h"
+#include "../simtools.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
 #include "../utils/simstring.h"
@@ -339,6 +340,7 @@ einstellungen_t::einstellungen_t() :
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
+
 	// The default is a selective refresh.
 	default_path_option = 2;
 
@@ -361,6 +363,10 @@ einstellungen_t::einstellungen_t() :
 	min_longdistance_tolerance = 180 * 10;
 	max_longdistance_tolerance = 330 * 10; // Five and a half hours
 	//max_longdistance_tolerance = 150;
+
+	// some network thing to keep client in sync
+	random_counter = 0;	// will be set when actually saving
+	frames_per_second = 10;
 }
 
 
@@ -578,6 +584,14 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			// cost section ...
 			file->rdwr_bool( freeplay, "" );
 			file->rdwr_longlong( starting_money, "" );
+			if(  file->get_version()>=103000  ) {
+				// these must be saved, since new player will get different amounts eventually
+				for(  int i=0;  i<10;  i++  ) {
+					file->rdwr_short( startingmoneyperyear[i].year, 0 );
+					file->rdwr_longlong( startingmoneyperyear[i].money, 0 );
+					file->rdwr_bool( startingmoneyperyear[i].interpol, 0 );
+				}
+			}
 			file->rdwr_long( maint_building, "" );
 
 			file->rdwr_longlong( cst_multiply_dock, "" );
@@ -668,6 +682,20 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(dummy, "" );
 			file->rdwr_bool( with_private_paks, "" );
 		}
+
+		if(file->get_version()>102002) {
+			// network stuff
+			random_counter = get_random_seed();
+			file->rdwr_long( random_counter, "" );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+			}
+			file->rdwr_long( frames_per_second, "" );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+			}
+		}
+
 		if(file->get_experimental_version() >= 1)
 		{
 			file->rdwr_short(min_bonus_max_distance, "");
@@ -988,11 +1016,62 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	verkehr_level = contents.get_int("citycar_level", verkehr_level);	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
 
+	// starting money
 	starting_money = contents.get_int64("starting_money", starting_money );
+	/* up to ten blocks year, money, interpolation={0,1} are possible:
+	 * starting_money[i]=y,m,int
+	 * y .. year
+	 * m .. money (in 1/100 Cr)
+	 * int .. interpolation: 0 - no interpolation, !=0 linear interpolated
+	 * (m) is the starting money for player start after (y), if (i)!=0, the starting money
+	 * is linearly interpolated between (y) and the next greater year given in another entry.
+	 * starting money for given year is:
+	 */
+	int j=0;
+	for(  int i = 0;  i<10;  i++  ) {
+		char name[32];
+		sprintf( name, "starting_money[%i]", i );
+		int *test = contents.get_ints(name);
+		if ((test[0]>1) && (test[0]<=3)) {
+			// insert sorted by years
+			int k=0;
+			for (k=0; k<i; k++) {
+				if (startingmoneyperyear[k].year > test[1]) {
+					for (int l=j; l>=k; l--)
+						memcpy( &startingmoneyperyear[l+1], &startingmoneyperyear[l], sizeof(yearmoney));
+					break;
+				}
+			}
+			startingmoneyperyear[k].year = test[1];
+			startingmoneyperyear[k].money = test[2];
+			if (test[0]==3) {
+				startingmoneyperyear[k].interpol = test[3]!=0;
+			}
+			else {
+				startingmoneyperyear[k].interpol = false;
+			}
+			j++;
+		}
+		else {
+			// invalid entry
+		}
+		delete [] test;
+	}
+	// at least one found => use this now!
+	if(  j>0  &&  startingmoneyperyear[0].money>0  ) {
+		starting_money = 0;
+	}
+	// fill remaining entries
+	for(  int i=j+1; i<10; i++  ) {
+		startingmoneyperyear[i].year = 0;
+		startingmoneyperyear[i].money = 0;
+		startingmoneyperyear[i].interpol = 0;
+	}
+
 	maint_building = contents.get_int("maintenance_building", maint_building);
 	maint_building *= distance_per_tile;
 
-	numbered_stations = contents.get_int("numbered_stations", numbered_stations ) != 0;
+	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
 
 	// time stuff
@@ -1259,6 +1338,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		loadsave_t::set_savemode(loadsave_t::xml);
 	} else if(strcmp(str, "xml_zipped") == 0) {
 		loadsave_t::set_savemode(loadsave_t::xml_zipped);
+	} else if(strcmp(str, "bzip2") == 0) {
+		loadsave_t::set_savemode(loadsave_t::bzip2);
+	} else if(strcmp(str, "xml_bzip2") == 0) {
+		loadsave_t::set_savemode(loadsave_t::xml_bzip2);
 	}
 
 	/*
@@ -1276,4 +1359,47 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	printf("Reading simuconf.tab successful!\n");
 
 	simuconf.close();
+}
+
+
+sint64 einstellungen_t::get_starting_money(sint16 year) const
+{
+	if(  starting_money>0  ) {
+		return starting_money;
+	}
+
+	// search entry with startingmoneyperyear[i].year >= year
+	int i;
+	bool found = false;
+	for(  i=0;  i<10;  i++  ) {
+		if(startingmoneyperyear[i].year!=0) {
+			if (startingmoneyperyear[i].year>=year) {
+				found = true;
+				break;
+			}
+		}
+		else {
+			// year is behind the latest given date
+			assert(  i!=0  );
+			return startingmoneyperyear[i-1].money;
+		}
+	}
+	if (i==0) {
+		// too early: use first entry
+		return startingmoneyperyear[0].money;
+	}
+	else {
+		// now: startingmoneyperyear[i-1].year <= year <= startingmoneyperyear[i].year
+		if (startingmoneyperyear[i-1].interpol) {
+			// linear interpolation
+			return startingmoneyperyear[i-1].money +
+				(startingmoneyperyear[i].money-startingmoneyperyear[i-1].money)
+				* (year-startingmoneyperyear[i-1].year) /(startingmoneyperyear[i].year-startingmoneyperyear[i-1].year);
+		}
+		else {
+			// no interpolation
+			return startingmoneyperyear[i-1].money;
+		}
+
+	}
 }

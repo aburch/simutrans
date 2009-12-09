@@ -421,42 +421,34 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();
 		win.flags.size = gui->has_min_sizer();
-
-		// Hajo: Notify window to be shown
-		if(gui) {
-			focus = NULL;	// free focus
-			event_t ev;
-
-			ev.ev_class = INFOWIN;
-			ev.ev_code = WIN_OPEN;
-			ev.mx = 0;
-			ev.my = 0;
-			ev.cx = 0;
-			ev.cy = 0;
-			ev.button_state = 0;
-
-			void *old = inside_event_handling;
-			inside_event_handling = gui;
-			gui->infowin_event(&ev);
-			inside_event_handling = old;
-		}
+		win.gui = gui;
 
 		// take care of time delete windows ...
-		win.gui = gui;
 		win.wt = (wt&w_time_delete) ? (uint8)w_info : wt;
 		win.dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
 		win.magic_number = magic;
 		win.closing = false;
 		win.rollup = false;
 
-		koord gr;
+		// Hajo: Notify window to be shown
+		assert(gui);
+		focus = NULL;	// free focus
+		event_t ev;
 
-		if(gui != NULL) {
-			gr = gui->get_fenstergroesse();
-		}
-		else {
-			gr = koord(192, 92);
-		}
+		ev.ev_class = INFOWIN;
+		ev.ev_code = WIN_OPEN;
+		ev.mx = 0;
+		ev.my = 0;
+		ev.cx = 0;
+		ev.cy = 0;
+		ev.button_state = 0;
+
+		void *old = inside_event_handling;
+		inside_event_handling = gui;
+		gui->infowin_event(&ev);
+		inside_event_handling = old;
+
+		koord gr = gui->get_fenstergroesse();
 
 		if(x == -1) {
 			// try to keep the toolbar below all other toolbars
@@ -498,6 +490,21 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 	}
 }
 
+
+/* sometimes a window cannot destroyed while it is still handled;
+ * in those cases it will added to kill list and it is only destructed
+ * by this function
+ */
+static void process_kill_list()
+{
+	for(uint i = 0; i < kill_list.get_count(); i++) {
+		wins.remove(kill_list[i]);
+		destroy_framed_win(&kill_list[i]);
+	}
+	kill_list.clear();
+}
+
+
 /**
  * Destroy a framed window
  * @author Hj. Malthaner
@@ -509,7 +516,6 @@ static void destroy_framed_win(simwin_t *wins)
 	mark_rect_dirty_wc( wins->pos.x, wins->pos.y, wins->pos.x+gr.x, wins->pos.y+gr.y );
 
 	if(wins->gui) {
-
 		event_t ev;
 
 		ev.ev_class = INFOWIN;
@@ -520,7 +526,10 @@ static void destroy_framed_win(simwin_t *wins)
 		ev.cy = 0;
 		ev.button_state = 0;
 
+		void *old = inside_event_handling;
+		inside_event_handling = wins->gui;
 		wins->gui->infowin_event(&ev);
+		inside_event_handling = old;
 	}
 
 	if(  (wins->wt&w_do_not_delete)==0  ) {
@@ -550,8 +559,8 @@ void destroy_win(const gui_fenster_t *gui)
 			}
 			else {
 				destroy_framed_win(&wins[i]);
+				wins.remove_at(i);
 			}
-			wins.remove_at(i);
 			break;
 		}
 	}
@@ -647,12 +656,17 @@ void display_win(int win)
 
 void display_all_win()
 {
+	// first: empty kill list
+	process_kill_list();
+	// then display windows
 	const char *current_tooltip = tooltip_text;
 	const sint16 x = get_maus_x();
 	const sint16 y = get_maus_y();
 	bool getroffen = false;
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		tooltip_text = NULL;
+		void *old_gui = inside_event_handling;
+		inside_event_handling = wins[i].gui;
 		display_win(i);
 		if(  !getroffen  &&  tooltip_text!=NULL  ) {
 			current_tooltip = tooltip_text;
@@ -663,6 +677,7 @@ void display_all_win()
 			// prissi: tooltips are only allowed for non overlapping windows
 			current_tooltip = tooltip_text;
 		}
+		inside_event_handling = old_gui;
 	}
 	tooltip_text = current_tooltip;
 }
@@ -756,15 +771,6 @@ void win_set_pos(gui_fenster_t *gui, int x, int y)
 			return;
 		}
 	}
-}
-
-
-static void process_kill_list()
-{
-	for(uint i = 0; i < kill_list.get_count(); i++) {
-		destroy_framed_win(&kill_list[i]);
-	}
-	kill_list.clear();
 }
 
 

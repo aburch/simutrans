@@ -9,7 +9,10 @@
 
 class pakselector_t : public savegame_frame_t
 {
+private:
 	button_t load_addons;
+	bool at_least_one_add;
+
 protected:
 	/**
 	* Aktion, die nach Knopfdruck gestartet wird.
@@ -21,7 +24,7 @@ protected:
 	* Aktion, die nach X-Knopfdruck gestartet wird.
 	* @author V. Meyer
 	*/
-	virtual void del_action(const char *filename);
+	virtual bool del_action(const char *filename);
 
 	// returns extra file info
 	virtual const char *get_info(const char *fname);

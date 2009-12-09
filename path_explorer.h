@@ -31,13 +31,20 @@ private:
 	
 	private:
 
+		// structure for storing connexion hashtable and serving transport counter
+		struct connexion_list_entry_t
+		{
+			quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_table;
+			uint8 serving_transport;
+		};
+
 		// element used during path search and for storing calculated paths
 		struct path_element_t
 		{
 			uint16 aggregate_time;
 			halthandle_t next_transfer;
 
-			path_element_t() { aggregate_time = 65535; }
+			path_element_t() : aggregate_time(65535) { }
 		};
 
 		// element used during path search only for storing best lines/convoys
@@ -63,7 +70,7 @@ private:
 				uint32 last_transport;
 			};
 
-			transport_element_t() { first_transport = last_transport = 0; }
+			transport_element_t() : first_transport(0), last_transport(0) { }
 		};
 
 		// structure used for storing indices of halts connected to a transfer, grouped by transport
@@ -78,9 +85,9 @@ private:
 				uint32 transport;
 				vector_tpl<uint16> connected_halts;
 
-				connection_cluster_t(const uint16 halt_vector_size) : connected_halts(halt_vector_size) { }
+				connection_cluster_t(const uint32 halt_vector_size) : connected_halts(halt_vector_size) { }
 
-				connection_cluster_t(const uint16 halt_vector_size, const uint32 transport_id, const uint16 halt_id) 
+				connection_cluster_t(const uint32 halt_vector_size, const uint32 transport_id, const uint16 halt_id) 
 					: transport(transport_id), connected_halts(halt_vector_size)
 				{
 					connected_halts.append(halt_id);
@@ -100,7 +107,7 @@ private:
 					// clear connected halt list and copy over from source one by one
 					connected_halts.clear();
 					connected_halts.resize( source.connected_halts.get_size() );
-					for ( uint16 i = 0; i < source.connected_halts.get_count(); ++i )
+					for ( uint32 i = 0; i < source.connected_halts.get_count(); ++i )
 					{
 						connected_halts.append( source.connected_halts[i] );
 					}
@@ -112,16 +119,16 @@ private:
 		private:
 
 			vector_tpl<connection_cluster_t*> connection_clusters;
-			uint16 usage_level;			// number of connection clusters used
-			uint16 halt_vector_size;	// size of connected halt vector in connection cluster object
+			uint32 usage_level;			// number of connection clusters used
+			uint32 halt_vector_size;	// size of connected halt vector in connection cluster object
 
 		public:
 
-			connection_t(const uint16 cluster_count, const uint16 working_halt_count) 
+			connection_t(const uint32 cluster_count, const uint32 working_halt_count) 
 				: connection_clusters(cluster_count), usage_level(0), halt_vector_size(working_halt_count)
 			{
 				// create connection clusters in advance
-				for ( uint16 i = 0; i < cluster_count; ++i )
+				for ( uint32 i = 0; i < cluster_count; ++i )
 				{
 					connection_clusters.append ( new connection_cluster_t(halt_vector_size) );
 				}
@@ -140,7 +147,7 @@ private:
 			{
 				// reset only clears the connected halt vectors of used connection clusters
 				// connection clusters are not deallocated so that they can be re-used later
-				for ( uint16 i = 0; i < usage_level; ++i )
+				for ( uint32 i = 0; i < usage_level; ++i )
 				{
 					connection_clusters[i]->connected_halts.clear();
 				}
@@ -150,7 +157,7 @@ private:
 			void register_connection(const uint32 transport_id, const uint16 halt_id)
 			{
 				// check against each existing cluster
-				for ( uint16 i = 0; i < usage_level; ++i )
+				for ( uint32 i = 0; i < usage_level; ++i )
 				{
 					if ( connection_clusters[i]->transport == transport_id )
 					{
@@ -174,9 +181,19 @@ private:
 				++usage_level;
 			};
 			
-			uint16 get_cluster_count() const { return usage_level; }
+			uint32 get_cluster_count() const { return usage_level; }
 
-			const connection_cluster_t& operator[](const uint16 element_id) const
+			uint32 get_total_member_count() const
+			{
+				uint32 total = 0;
+				for ( uint32 i = 0; i < usage_level; ++i )
+				{
+					total += connection_clusters[i]->connected_halts.get_count();
+				}
+				return total;
+			}
+
+			const connection_cluster_t& operator[](const uint32 element_id) const
 			{
 				if ( element_id < usage_level )
 				{
@@ -241,9 +258,9 @@ private:
 
 		// phase counters for path searching
 		uint16 via_index;
-		uint16 origin_cluster_index;
-		uint16 target_cluster_index;
-		uint16 origin_member_index;
+		uint32 origin_cluster_index;
+		uint32 target_cluster_index;
+		uint32 origin_member_index;
 
 		// variables for limiting search around transfers
 		connection_t *inbound_connections;		// relative to the current transfer
@@ -258,7 +275,7 @@ private:
 		static const char *const phase_name[];
 
 		// an array for keeping a list of connexion hash table
-		static quickstone_hashtable_tpl<haltestelle_t, haltestelle_t::connexion*> *connexion_list[65536];
+		static connexion_list_entry_t connexion_list[65536];
 
 		// iteration representative
 		static uint16 representative_halt_count;
@@ -286,8 +303,8 @@ private:
 		static const uint32 default_reroute_goods = 4096;
 
 		// maximum limit for full refresh
-		static const uint32 maximum_limit_32bit = 0xFFFFFFFF;
-		static const uint64 maximum_limit_64bit = 0xFFFFFFFFFFFFFFFF;
+		static const uint32 maximum_limit_32bit = UINT32_MAX_VALUE;
+		static const uint64 maximum_limit_64bit = UINT64_MAX_VALUE;
 
 		// phase indices
 		static const uint8 phase_check_flag = 0;
@@ -319,7 +336,7 @@ private:
 		~compartment_t();
 
 		static void initialise();
-		static void destroy();
+		static void finalise();
 		void step();
 		void reset(const bool reset_finished_set);
 
@@ -338,11 +355,11 @@ private:
 
 		static void initialise_connexion_list();
 
-		static void clear_connexion_table(const uint16 halt_id);
+		static void reset_connexion_entry(const uint16 halt_id);
 
-		static void clear_all_connexion_tables();
+		static void reset_connexion_list();
 
-		static void destroy_all_connexion_tables();
+		static void finalise_connexion_list();
 		
 		static void backup_limits()
 		{
@@ -395,7 +412,7 @@ private:
 public:
 
 	static void initialise(karte_t *welt);
-	static void destroy();
+	static void finalise();
 	static void step();
 
 	static void full_instant_refresh();

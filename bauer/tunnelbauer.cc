@@ -5,7 +5,6 @@
  * (see licence.txt)
  */
 
-#include <algorithm>
 #include <stdio.h>
 
 #include "../simdebug.h"
@@ -54,6 +53,13 @@ void tunnelbauer_t::register_besch(tunnel_besch_t *besch)
 	if(  tunnel_by_name.remove(besch->get_name())  ) {
 		dbg->warning( "tunnelbauer_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
 	}
+	// add the tool
+	wkz_tunnelbau_t *wkz = new wkz_tunnelbau_t();
+	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
+	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
+	wkz->set_default_param( besch->get_name() );
+	werkzeug_t::general_tool.append( wkz );
+	besch->set_builder( wkz );
 	tunnel_by_name.put(besch->get_name(), besch);
 }
 
@@ -64,8 +70,7 @@ stringhashtable_tpl <tunnel_besch_t *> * tunnelbauer_t::get_all_tunnels()
 
 
 // now we have to convert old tunnel to new ones ...
-bool
-tunnelbauer_t::laden_erfolgreich()
+bool tunnelbauer_t::laden_erfolgreich()
 {
 	stringhashtable_iterator_tpl<tunnel_besch_t *>iter(tunnel_by_name);
 	while(  iter.next()  ) {
@@ -96,8 +101,7 @@ tunnelbauer_t::laden_erfolgreich()
 
 
 
-const tunnel_besch_t *
-tunnelbauer_t::get_besch(const char *name)
+const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
 {
 	return tunnel_by_name.get(name);
 }
@@ -108,8 +112,7 @@ tunnelbauer_t::get_besch(const char *name)
  * Find a matchin tunnel
  * @author Hj. Malthaner
  */
-const tunnel_besch_t *
-tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
 {
 	const tunnel_besch_t *find_besch=NULL;
 
@@ -151,8 +154,6 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  */
 void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t* welt)
 {
-	static stringhashtable_tpl<wkz_tunnelbau_t *> tunnel_tool;
-
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
 
@@ -163,25 +164,12 @@ void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sin
 					time == 0 ||
 					(besch->get_intro_year_month() <= time && time < besch->get_retire_year_month())
 				)) {
-			matching.append(besch);
+			matching.insert_ordered(besch, compare_tunnels);
 		}
 	}
-	std::sort(matching.begin(), matching.end(), compare_tunnels);
-
 	// now sorted ...
 	for (vector_tpl<const tunnel_besch_t*>::const_iterator i = matching.begin(), end = matching.end(); i != end; ++i) {
-		const tunnel_besch_t* besch = *i;
-		wkz_tunnelbau_t *wkz = tunnel_tool.get(besch->get_name());
-		if(wkz==NULL) {
-			// not yet in hashtable
-			wkz = new wkz_tunnelbau_t();
-			wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
-			wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-			wkz->default_param = besch->get_name();
-			wkz->ok_sound = sound_ok;
-			tunnel_tool.put(besch->get_name(),wkz);
-		}
-		wzw->add_werkzeug( (werkzeug_t*)wkz );
+		wzw->add_werkzeug( (*i)->get_builder() );
 	}
 }
 
@@ -259,13 +247,14 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	const waytype_t wegtyp = besch->get_waytype();
 	const weg_t *weg = gr->get_weg(wegtyp);
 
-	if(!weg || gr->get_typ() != grund_t::boden) {
+	if(  gr->get_typ() != grund_t::boden  ) {
 		return "Tunnel must start on single way!";
 	}
 	if(!hang_t::ist_einfach(gr->get_grund_hang())) {
 		return "Tunnel muss an\neinfachem\nHang beginnen!\n";
 	}
-	if(weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->get_grund_hang()))) {
+	// If there is a way on this tile, it must have the right ribis.
+	if( weg  &&  (weg->get_ribi_unmasked() & ~ribi_t::rueckwaerts(ribi_typ(gr->get_grund_hang())))  ) {
 		return "Tunnel must start on single way!";
 	}
 	if(  gr->has_two_ways()  &&  wegtyp != road_wt  ) {
@@ -424,6 +413,28 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 	tunnel->set_flag(grund_t::dirty);
 
 	maint += besch->get_wartung() - weg->get_besch()->get_wartung();
+
+	// Auto-connect to a way outside the new tunnel mouth
+	grund_t *ground_outside = welt->lookup(end-zv);
+	if( !ground_outside ) {
+		ground_outside = welt->lookup(end-zv+koord3d(0,0,-1));
+		if(  ground_outside  &&  ground_outside->get_grund_hang() != tunnel->get_grund_hang()  ) {
+			// Not the correct slope.
+			ground_outside = NULL;
+		}
+	}
+	if( ground_outside ) {
+		weg_t *way_outside = ground_outside->get_weg( besch->get_waytype() );
+		if( way_outside ) {
+			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
+			wegbauer_t bauigel(welt, sp);
+			if(bauigel.check_owner( way_outside->get_besitzer(), sp )) {
+				tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
+				ground_outside->weg_erweitern(besch->get_waytype(), ribi_typ(zv));
+			}
+		}
+	}
+
 	cost += besch->get_preis();
 	return weg->get_besch();
 }
@@ -497,8 +508,9 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		gr->obj_loesche_alle(sp);
 		welt->access(pos.get_2d())->boden_entfernen(gr);
 		welt->access(pos.get_2d())->get_kartenboden()->set_flag(grund_t::dirty);
-		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
 		delete gr;
+
+		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
 	}
 
 	// Und die Tunnelenden am Schluﬂ
