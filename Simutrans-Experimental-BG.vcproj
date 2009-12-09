@@ -852,6 +852,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\obj_reader.cc"
 				>
 			</File>
@@ -1217,6 +1221,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\thing_info.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\trafficlight_info.cc"
 				>
 			</File>
 			<File
@@ -2030,6 +2038,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network.h"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\obj_besch.h"
 				>
 			</File>
@@ -2127,6 +2139,10 @@
 			</File>
 			<File
 				RelativePath=".\tpl\quickstone_tpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\replace_frame.h"
 				>
 			</File>
 			<File
@@ -2422,6 +2438,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\station_building_select.h"
+				>
+			</File>
+			<File
 				RelativePath=".\boden\wege\strasse.h"
 				>
 			</File>
@@ -2451,6 +2471,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\thing_info.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\trafficlight_info.h"
 				>
 			</File>
 			<File
