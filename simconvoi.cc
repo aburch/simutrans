@@ -1065,7 +1065,9 @@ end_loop:
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
-			wait_lock = 500;
+			//wait_lock = 500;
+			// Bernd Gabriel: simutrans experimental may have presets the wait_lock before. Don't overwrite it here, if it ought to wait longer.
+			wait_lock = max(wait_lock, 500);
 			break;
 
 		// waiting for free way, not too heavy, not to slow
