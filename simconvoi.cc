@@ -2377,7 +2377,7 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else if(  file->get_version()<102003  )
+	else if(file->get_version() < 102003 || (file->get_version() < 103000 && file->get_experimental_version() < 7))
 	{
 		// load statistics
 		for (int j = 0; j<CONVOI_DISTANCE; j++) 
