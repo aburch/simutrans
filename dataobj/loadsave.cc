@@ -592,7 +592,6 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		write( nr, len );
 	}
 	else {
-		uint32 test = get_version();
 		const int len = (int)strlen(typ);
 		assert(len<256);
 		// find start of tag

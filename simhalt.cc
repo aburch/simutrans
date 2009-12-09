@@ -3150,7 +3150,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	{
 		for (int j = 0; j < MAX_HALT_COST; j++) 
 		{
-			for (int k = MAX_MONTHS		- 1; k >= 0; k--) 
+			for (int k = MAX_MONTHS	- 1; k >= 0; k--) 
 			{
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}

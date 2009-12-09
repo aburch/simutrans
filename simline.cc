@@ -175,7 +175,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	//financial history
 
-	if(  file->get_version()<103000  ) 
+	if(  file->get_version()<102003  ) 
 	{
 		for (int j = 0; j<LINE_DISTANCE; j++) 
 		{
