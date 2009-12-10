@@ -1065,7 +1065,9 @@ end_loop:
 		case ROUTING_1:
 		case CAN_START:
 		case WAITING_FOR_CLEARANCE:
-			wait_lock = 500;
+			//wait_lock = 500;
+			// Bernd Gabriel: simutrans experimental may have presets the wait_lock before. Don't overwrite it here, if it ought to wait longer.
+			wait_lock = max(wait_lock, 500);
 			break;
 
 		// waiting for free way, not too heavy, not to slow
@@ -2061,6 +2063,19 @@ convoi_t::reverse_order(bool rev)
 				a += fahr[a]->get_besch()->get_nachfolger_count();
 			}
 		}
+
+		//Check whether this is a Garrett type vehicle
+		if(fahr[0]->get_besch()->get_leistung() == 0 && fahr[0]->get_besch()->get_zuladung() == 0)
+		{
+			// Possible Garrett
+			const uint8 count = fahr[0]->get_besch()->get_nachfolger_count();
+			if(count > 0 && fahr[1]->get_besch()->get_leistung() > 0 && fahr[1]->get_besch()->get_nachfolger_count() > 0)
+			{
+				// Garrett detected
+				a ++;
+			}
+		}
+
 		for(uint8 i = 1; i < anz_vehikel; i++)
 		{
 			if(fahr[i]->get_besch()->get_leistung() > 0)
@@ -2377,7 +2392,7 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else if(  file->get_version()<102003  )
+	else if(file->get_version() < 102003 || (file->get_version() < 103000 && file->get_experimental_version() < 7))
 	{
 		// load statistics
 		for (int j = 0; j<CONVOI_DISTANCE; j++) 
