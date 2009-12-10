@@ -12,6 +12,7 @@ const char *umgebung_t::user_dir = 0;
 bool umgebung_t::networkmode = false;
 bool umgebung_t::server = false;
 long umgebung_t::server_frames_ahead = 1;
+long umgebung_t::server_ms_ahead = 250;
 
 // this is explicitely and interactively set by user => we do not touch it in init
 const char *umgebung_t::language_iso = "en";
