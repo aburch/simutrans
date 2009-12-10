@@ -2063,6 +2063,19 @@ convoi_t::reverse_order(bool rev)
 				a += fahr[a]->get_besch()->get_nachfolger_count();
 			}
 		}
+
+		//Check whether this is a Garrett type vehicle
+		if(fahr[0]->get_besch()->get_leistung() == 0 && fahr[0]->get_besch()->get_zuladung() == 0)
+		{
+			// Possible Garrett
+			const uint8 count = fahr[0]->get_besch()->get_nachfolger_count();
+			if(count > 0 && fahr[1]->get_besch()->get_leistung() > 0 && fahr[1]->get_besch()->get_nachfolger_count() > 0)
+			{
+				// Garrett detected
+				a ++;
+			}
+		}
+
 		for(uint8 i = 1; i < anz_vehikel; i++)
 		{
 			if(fahr[i]->get_besch()->get_leistung() > 0)
