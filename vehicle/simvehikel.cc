@@ -1228,6 +1228,13 @@ void vehikel_t::hop()
 		cnv->add_running_cost(-base_costs);
 	}
 
+	if(ist_erstes)
+	{
+		// Only the first vehicle in a convoy does this,
+		// or else there is double counting.
+		cnv->increment_odometer();
+	}
+
 	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
 
 	pos_prev = get_pos();
@@ -2165,6 +2172,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	{
 		reversed = false;
 	}
+
 }
 
 

@@ -162,6 +162,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
+	tiles_since_last_odometer_increment = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -474,7 +475,8 @@ uint32 convoi_t::get_length() const
 
 
 /**
- * convoi add their running cost for traveling one tile
+ * convoi add their running cost for travelling one tile
+ * Also, increment the odometer.
  * @author Hj. Malthaner
  */
 void convoi_t::add_running_cost(sint64 cost)
@@ -485,10 +487,22 @@ void convoi_t::add_running_cost(sint64 cost)
 
 	book( cost, CONVOI_OPERATIONS );
 	book( cost, CONVOI_PROFIT );
-
-	total_distance_traveled ++;
-	book( 1, CONVOI_DISTANCE );
 }
+
+void convoi_t::increment_odometer()
+{
+	tiles_since_last_odometer_increment ++;
+	// Need to use clipping here when converting a float to a uint8 to round down.
+	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
+	const uint8 km = tiles_since_last_odometer_increment * distance_per_tile;
+	if(km >= 1)
+	{
+		book( km, CONVOI_DISTANCE );
+		total_distance_traveled += km;
+		tiles_since_last_odometer_increment -= (km / distance_per_tile);
+	}
+}
+
 
 
 /* Calculates (and sets) new akt_speed
@@ -2454,8 +2468,14 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// the convoi odometer
-	if(  file->get_version()>=103000  ){
+	if(  file->get_version()>=103000 || file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	{
 		file->rdwr_longlong( total_distance_traveled, "" );
+	}
+
+	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	{
+		file->rdwr_byte(tiles_since_last_odometer_increment, "");
 	}
 
 	// since it was saved as an signed int

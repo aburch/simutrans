@@ -111,7 +111,7 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
 		offset_y += LINESPACE;
 
 		char number[64];
-		number_to_string( number, cnv->get_total_distance_traveled(), 0 );
+		number_to_string( number, (cnv->get_total_distance_traveled()), 0 );
 		sprintf( tmp, translator::translate("Odometer: %s km"), number );
 		display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, MONEY_PLUS, true );
 		offset_y += LINESPACE;

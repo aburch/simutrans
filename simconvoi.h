@@ -292,7 +292,14 @@ private:
 	sint64 jahresgewinn;
 
 	/* the odometer */
+	// (In *km*).
 	sint64 total_distance_traveled;
+
+	// The number of tiles travelled since
+	// the odometer was last incremented.
+	// Used for converting tiles to km.
+	// @author: jamespetts
+	uint8 tiles_since_last_odometer_increment;
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
@@ -622,6 +629,10 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void add_running_cost(sint64 cost);
+
+	// Increment the odometer,
+	// adjusting for the distance scale.
+	void increment_odometer();
 
 	/**
 	 * moving the veicles of a convoi and acceleration/deacceleration
