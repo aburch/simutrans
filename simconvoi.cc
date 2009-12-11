@@ -547,6 +547,7 @@ bool convoi_t::sync_step(long delta_t)
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
+		case REVERSING:
 			// Hajo: this is an async task, see step()
 			break;
 
@@ -606,7 +607,7 @@ bool convoi_t::sync_step(long delta_t)
 			last_departure_time = welt->get_zeit_ms();
 
 			break;	// LEAVING_DEPOT
-
+			
 		case DRIVING:
 			{
 				calc_acceleration(delta_t);
@@ -900,6 +901,14 @@ end_loop:
 
 		case DUMMY4:
 		case DUMMY5:
+		break;
+
+		case REVERSING:
+			if(wait_lock == 0)
+			{
+				state = CAN_START;
+			}
+			
 			break;
 
 		case FAHRPLANEINGABE:
@@ -1908,6 +1917,7 @@ void convoi_t::vorfahren()
 						}
 
 						reverse_order(reversable);
+						state = REVERSING;
 				}
 			}
 
@@ -1997,7 +2007,11 @@ void convoi_t::vorfahren()
 			}
 			fahr[0]->set_erstes(true);
 		}
-		state = CAN_START;
+
+		if(state != REVERSING)
+		{
+			state = CAN_START;
+		}
 
 		// to advance more smoothly
 		int restart_speed=-1;
@@ -2006,7 +2020,10 @@ void convoi_t::vorfahren()
 			if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
 				fahr[0]->play_sound();
 			}
-			state = DRIVING;
+			if(state != REVERSING)
+			{
+				state = DRIVING;
+			}
 		}
 	}
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="Simutrans-Experimental"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -150,9 +150,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;; &quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="false"
 				SubSystem="2"
@@ -235,10 +235,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="SDL.lib SDLmain.lib"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-SDL.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;; &quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="false"
 				SubSystem="2"
@@ -322,10 +322,10 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="SDL.lib SDLmain.lib"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib $(NOINHERIT)"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-debug-SDL.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;G:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;;&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;G:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
@@ -2632,6 +2632,10 @@
 			</File>
 			<File
 				RelativePath=".\base_texts_experimental_7_0.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\base_texts_experimental_7_1.dat"
 				>
 			</File>
 			<File
