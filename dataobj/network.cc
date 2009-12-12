@@ -80,11 +80,18 @@ const char *network_open_address( const char *cp)
 	}
 
 	struct sockaddr_in server_name;
-#ifdef WIN32
+#ifdef  WIN32
 	server_name.sin_addr.s_addr = inet_addr(cp);
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
 #else
+#ifdef  __BEOS__
+    uint16 a,b,c,d;
+    sscanf( cp, "%hu,%hi,%hi,%hi", &a, &b, &c, &d );
+	server_name.sin_addr.s_addr = (a*0x1000000ul) + (b*0x10000ul) + (c*0x100ul) + d;
+	if((int)server_name.sin_addr.s_addr==0) {// Bad address
+#else
 	if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
+#endif
 #endif
 		sprintf( err_str, "Bad address %s", cp );
 		return err_str;
@@ -261,7 +268,11 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 		socklen_t size = sizeof(client_name);
 		SOCKET s = accept(my_socket, (struct sockaddr *)&client_name, &size);
 		if(  s!=INVALID_SOCKET  ) {
-			dbg->warning("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
+#ifdef  __BEOS__
+			dbg->message("check_activity()", "Accepted connection from: %lh.\n", client_name.sin_addr.s_addr );
+#else
+			dbg->message("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
+#endif
 			network_add_client(s);
 		}
 		// not a request

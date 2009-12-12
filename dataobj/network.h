@@ -11,7 +11,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
+#ifndef __BEOS__
 #include <arpa/inet.h>
+#else
+#define PF_INET AF_INET
+#define socklen_t int
+#endif
 
 // to keep compatibility to MS windows
 typedef int SOCKET;

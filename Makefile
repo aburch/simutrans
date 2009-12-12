@@ -25,7 +25,7 @@ endif
 
 
 ifeq ($(OSTYPE),beos)
-  STD_LIBS ?= -lz -lbz2
+  STD_LIBS ?= -lz -lnet -lbz2
 endif
 
 ifeq ($(OSTYPE),freebsd)
