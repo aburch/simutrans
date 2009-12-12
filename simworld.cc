@@ -718,6 +718,7 @@ void karte_t::init_felder()
 			finance_history_month[month][cost_type] = 0;
 		}
 	}
+	last_month_bev = 0;
 
 	tile_counter = 0;
 
