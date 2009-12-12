@@ -38,8 +38,7 @@
 
 
 
-void
-route_t::kopiere(const route_t *r)
+void route_t::kopiere(const route_t *r)
 {
 	assert(r != NULL);
 	const unsigned int hops = r->get_count()-1;
@@ -126,8 +125,7 @@ bool route_t::node_in_use=false;
 /* find the route to an unknow location
  * @author prissi
  */
-bool
-route_t::find_route(karte_t *welt,
+bool route_t::find_route(karte_t *welt,
                     const koord3d start,
                     fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 max_depth )
 {
@@ -275,8 +273,7 @@ route_t::find_route(karte_t *welt,
 
 
 
-ribi_t::ribi *
-get_next_dirs(const koord gr_pos, const koord ziel)
+ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
 {
 	static ribi_t::ribi next_ribi[4];
 	if( abs(gr_pos.x-ziel.x)>abs(gr_pos.y-ziel.y) ) {
