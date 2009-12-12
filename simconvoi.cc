@@ -513,7 +513,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	convoy.calc_move(delta_t, akt_speed_soll, akt_speed, sp_soll);
+	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), akt_speed_soll, akt_speed, sp_soll);
 }
 
 
