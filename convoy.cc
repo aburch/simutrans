@@ -148,7 +148,7 @@ uint32 convoy_t::calc_max_weight()
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
 
 
-void convoy_t::calc_move(long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 	double dx = 0;
 	if (environ.max_speed < INT_MAX)
@@ -172,62 +172,61 @@ void convoy_t::calc_move(long delta_t, const weight_summary_t &weight, sint32 ak
 		double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 		double vmax = speed_to_v(akt_speed_soll);
 		double fmax = double_min(environ.cf * vmax * vmax, get_force(vmax) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
-		static uint32 count1 = 0;
-		static uint32 count2 = 0;
-		static uint32 count3 = 0;
-		count1++;
-
+		//static uint32 count1 = 0;
+		//static uint32 count2 = 0;
+		//static uint32 count3 = 0;
+		//count1++;
 		// iterate the passed time.
 		while (delta_t > 0)
 		{
 			// the driver's part: select accelerating force:
 			double f;
 			bool is_breaking = false; // don't roll backwards, due to breaking
-			if (v < vmax)
+			if (v < 0.999 * vmax)
 			{
 				// below set speed: full acceleration
 				f = get_force(v) * 1000 - Frs;
 			}
-			else if (v < 1.05 * vmax)
+			else if (v < 1.001 * vmax)
 			{
 				// at or slightly above set speed: hold this speed
 				f = fmax;
 			}
-			else if (v > 1.1 * vmax)
-			{
-				is_breaking = true;
-				// running too fast, slam on the brakes! 
-				// assuming the brakes are up to 10x stronger than the start-up force.
-				// hill-down Frs might become negative and works against the brake.
-				if (v > 1.5 * vmax)
-				{
-					f = -5000.0 * get_force(0) - Frs;
-				}
-				else
-				{
-					f = -1000.0 * get_force(0) - Frs;
-				}
-			}
-			else 
+			else if (v < 1.1 * vmax)
 			{
 				// slightly above end speed: coasting 'til back to set speed.
-				f = 0;
+				f = - Frs;
+			}
+			else if (v < 1.5 * vmax)
+			{
+				is_breaking = true;
+				// running too fast, apply the breaks! 
+				// hill-down Frs might become negative and works against the brake.
+				f = -1000.0 * get_force(0) - Frs;
+			}
+			else
+			{
+				is_breaking = true;
+				// running much too fast, slam on the brakes! 
+				// assuming the brakes are up to 5x stronger than the start-up force.
+				// hill-down Frs might become negative and works against the brake.
+				f = -5000.0 * get_force(0) - Frs;
 			}
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			long dt;
-			double df = f - sgn(v) * environ.cf * v * v;
+			double df = simtime_factor * (f - sgn(v) * environ.cf * v * v);
 			if (delta_t >= DT_SLICE && (uint32)abs(df) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.
 				// When a small force produces small speed change, we can add it at once in the 'else' section.
-				count2++;
+				//count2++;
 				v += (DT_SLICE_SECONDS * df) / weight.weight; 
 				dt = DT_SLICE;
 			}
 			else
 			{
-				count3++;
+				//count3++;
 				v += (delta_t * df) / (DT_TIME_FACTOR * weight.weight); 
 				dt = delta_t;
 			}

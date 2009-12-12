@@ -276,7 +276,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 			physics_curves[--i][0] = akt_speed;
 			while (i > 0)
 			{
-				convoy.calc_move(15 * 64, akt_speed_soll, akt_speed, sp_soll);
+				convoy.calc_move(15 * 64, 1.0f, akt_speed_soll, akt_speed, sp_soll);
 				physics_curves[--i][0] = speed_to_kmh(akt_speed);
 			}
 		}
