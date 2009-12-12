@@ -162,6 +162,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
+	tiles_since_last_odometer_increment = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -474,7 +475,8 @@ uint32 convoi_t::get_length() const
 
 
 /**
- * convoi add their running cost for traveling one tile
+ * convoi add their running cost for travelling one tile
+ * Also, increment the odometer.
  * @author Hj. Malthaner
  */
 void convoi_t::add_running_cost(sint64 cost)
@@ -485,10 +487,22 @@ void convoi_t::add_running_cost(sint64 cost)
 
 	book( cost, CONVOI_OPERATIONS );
 	book( cost, CONVOI_PROFIT );
-
-	total_distance_traveled ++;
-	book( 1, CONVOI_DISTANCE );
 }
+
+void convoi_t::increment_odometer()
+{
+	tiles_since_last_odometer_increment ++;
+	// Need to use clipping here when converting a float to a uint8 to round down.
+	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
+	const uint8 km = tiles_since_last_odometer_increment * distance_per_tile;
+	if(km >= 1)
+	{
+		book( km, CONVOI_DISTANCE );
+		total_distance_traveled += km;
+		tiles_since_last_odometer_increment -= (km / distance_per_tile);
+	}
+}
+
 
 
 /* Calculates (and sets) new akt_speed
@@ -547,6 +561,7 @@ bool convoi_t::sync_step(long delta_t)
 		case CAN_START:
 		case CAN_START_ONE_MONTH:
 		case CAN_START_TWO_MONTHS:
+		case REVERSING:
 			// Hajo: this is an async task, see step()
 			break;
 
@@ -606,7 +621,7 @@ bool convoi_t::sync_step(long delta_t)
 			last_departure_time = welt->get_zeit_ms();
 
 			break;	// LEAVING_DEPOT
-
+			
 		case DRIVING:
 			{
 				calc_acceleration(delta_t);
@@ -900,6 +915,14 @@ end_loop:
 
 		case DUMMY4:
 		case DUMMY5:
+		break;
+
+		case REVERSING:
+			if(wait_lock == 0)
+			{
+				state = CAN_START;
+			}
+			
 			break;
 
 		case FAHRPLANEINGABE:
@@ -1908,6 +1931,7 @@ void convoi_t::vorfahren()
 						}
 
 						reverse_order(reversable);
+						state = REVERSING;
 				}
 			}
 
@@ -1997,7 +2021,11 @@ void convoi_t::vorfahren()
 			}
 			fahr[0]->set_erstes(true);
 		}
-		state = CAN_START;
+
+		if(state != REVERSING)
+		{
+			state = CAN_START;
+		}
 
 		// to advance more smoothly
 		int restart_speed=-1;
@@ -2006,7 +2034,10 @@ void convoi_t::vorfahren()
 			if(haltestelle_t::get_halt(welt,k0,besitzer_p).is_bound()) {
 				fahr[0]->play_sound();
 			}
-			state = DRIVING;
+			if(state != REVERSING)
+			{
+				state = DRIVING;
+			}
 		}
 	}
 
@@ -2437,8 +2468,14 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// the convoi odometer
-	if(  file->get_version()>=103000  ){
+	if(  file->get_version()>=103000 || file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	{
 		file->rdwr_longlong( total_distance_traveled, "" );
+	}
+
+	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	{
+		file->rdwr_byte(tiles_since_last_odometer_increment, "");
 	}
 
 	// since it was saved as an signed int

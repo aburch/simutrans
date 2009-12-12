@@ -5622,8 +5622,13 @@ bool karte_t::interactive(uint32 quit_month)
 							}
 							assert( steps == atol(network_buffer+8) );
 							step_mode = FIX_RATIO;
-							// lagging at least one farme
-							dr_sleep( (1000*umgebung_t::server_frames_ahead)/einstellungen->get_frames_per_second() );
+							/* make sure, the server is really that far ahead
+							 * Sleep() on windows often returns before!
+							 */
+							unsigned long ms = dr_time()+umgebung_t::server_ms_ahead;
+							while(  dr_time()<ms  ) {
+								dr_sleep ( 10 );
+							}
 							reset_timer();
 							network_frame_count = 0;
 						}
