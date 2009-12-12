@@ -2446,7 +2446,7 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else 
+	else
 	{
 		// load statistics
 		for (int j = 0; j < MAX_CONVOI_COST; j++) 
@@ -2462,15 +2462,31 @@ convoi_t::rdwr(loadsave_t *file)
 					financial_history[k][j] = 0;
 					continue;
 				}
+
+				else if(j == CONVOI_DISTANCE && file->get_experimental_version() < 7)
+				{
+					// Simutrans-Standard: distances in tiles, not km. Convert.
+					sint64 distance;
+					file->rdwr_longlong(distance, " ");
+					financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
+					continue;
+				}
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
 	}
 
 	// the convoi odometer
-	if(  file->get_version()>=103000 || file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
 	{
 		file->rdwr_longlong( total_distance_traveled, "" );
+	}
+	else if(file->get_version() >= 103000)
+	{
+		//Simutrans-Standard save - this value is in tiles, not km. Convert.
+		sint64 tile_distance;
+		file->rdwr_longlong( tile_distance, "" );
+		total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
 	}
 
 	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
