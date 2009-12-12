@@ -60,6 +60,7 @@ curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )
 {
 	rot_str[0] = 0;
+	rotation = 255;
 	besch = NULL;
 	haus_tool.set_default_param(NULL);
 	haus_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_HAUS]->cursor;
@@ -309,7 +310,9 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		}
 		tstrncpy( rot_str, translator::translate("random"), 16 );
 		uint8 rot = (rotation==255) ? 0 : rotation;
-		img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+		if (besch) {
+			img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );
+		}
 
 		besch = NULL;
 		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );

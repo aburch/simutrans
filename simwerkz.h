@@ -1034,7 +1034,9 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("factorybuilder"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_edit_factory); }
 	bool init( karte_t *welt, spieler_t *sp ) {
-		create_win( new factory_edit_frame_t(sp,welt), w_info, magic_edit_factory );
+		if (!is_selected(welt)) {
+			create_win( new factory_edit_frame_t(sp,welt), w_info, magic_edit_factory );
+		}
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
@@ -1048,7 +1050,9 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("curiosity builder"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_edit_attraction); }
 	bool init( karte_t *welt, spieler_t *sp ) {
-		create_win( new curiosity_edit_frame_t(sp,welt), w_info, magic_edit_attraction );
+		if (!is_selected(welt)) {
+			create_win( new curiosity_edit_frame_t(sp,welt), w_info, magic_edit_attraction );
+		}
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
@@ -1062,7 +1066,9 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("citybuilding builder"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_edit_house); }
 	bool init( karte_t *welt, spieler_t *sp ) {
-		create_win( new citybuilding_edit_frame_t(sp,welt), w_info, magic_edit_house );
+		if (!is_selected(welt)) {
+			create_win( new citybuilding_edit_frame_t(sp,welt), w_info, magic_edit_house );
+		}
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
@@ -1076,7 +1082,9 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("baum builder"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_edit_tree); }
 	bool init( karte_t *welt, spieler_t *sp ) {
-		create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );
+		if (!is_selected(welt)) {
+			create_win( new baum_edit_frame_t(sp,welt), w_info, magic_edit_tree );
+		}
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
