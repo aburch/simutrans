@@ -2328,7 +2328,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 	else {
 		// queue tool for network
 		static char commandstring[4096];
-		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%lli,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), (sint64)network_get_client_id(), w->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->get_default_param()==NULL ? "" : w->get_default_param() );
+		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), network_get_client_id(), w->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->get_default_param()==NULL ? "" : w->get_default_param() );
 		network_send_server( commandstring, len );
 	}
 }
@@ -5336,7 +5336,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 		else {
 			// queue tool for network
 			static char commandstring[4096];
-			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%lli,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), (sint64)network_get_client_id(), werkzeug[get_active_player_nr()]->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->get_default_param()==NULL ? "" : werkzeug[get_active_player_nr()]->get_default_param() );
+			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), network_get_client_id(), werkzeug[get_active_player_nr()]->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->get_default_param()==NULL ? "" : werkzeug[get_active_player_nr()]->get_default_param() );
 			network_send_server( commandstring, len );
 		}
 		werkzeug_last_pos = koord3d::invalid;
@@ -5380,10 +5380,10 @@ public:
 class tool_node_t {
 public:
 	werkzeug_t *wkz;
-	sint64 client_id;
+	uint32 client_id;
 	uint8 player_id;
 	const char* default_param;
-	tool_node_t() : wkz(NULL), client_id(-1), player_id(255), default_param(NULL) {}
+	tool_node_t() : wkz(NULL), client_id(0), player_id(255), default_param(NULL) {}
 	tool_node_t(werkzeug_t *_wkz, uint8 _player_id, sint64 _client_id) : wkz(_wkz), player_id(_player_id), client_id(_client_id), default_param(NULL) {}
 	// compares only the ids
 	inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
@@ -5496,7 +5496,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// did we recieved a new command?
 			len_last_command = sizeof(network_buffer);
 			SOCKET s = network_check_activity( min(5u,next_step_time-dr_time()), network_buffer, len_last_command );
-			if(  s!=INVALID_SOCKET  &&  !network_check_server_connection()  ) {
+			if(  s==INVALID_SOCKET  &&  !network_check_server_connection()  ) {
 				// pause for loosing of connection
 				network_core_shutdown();
 				umgebung_t::networkmode = false;
@@ -5694,13 +5694,13 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 				koord3d p = koord3d::invalid;
 				uint16 id=0xFFFF;
-				sint64 client_id=-1;
+				uint32 client_id=-1;
 				uint16 player_nr = PLAYER_UNOWNED;
 				uint16 z_pos = -256;
 				static char default_param[4096];
 				long steps_nr = 0;
 				uint32 random_counter;
-				sscanf( network_buffer+5, "%li,%lu,%lli,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &random_counter, &client_id,&id, &player_nr, &p.x, &p.y, &z_pos, default_param );
+				sscanf( network_buffer+5, "%li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &random_counter, &client_id,&id, &player_nr, &p.x, &p.y, &z_pos, default_param );
 				size_t len = strlen(default_param);
 				if(  len>0  &&  default_param[len-1]==';'  ) {
 					default_param[len-1] = 0;

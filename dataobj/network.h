@@ -23,6 +23,8 @@ typedef int SOCKET;
 #define INVALID_SOCKET -1
 #endif
 
+#include "../simtypes.h"
+
 // prefiexes
 #define NET_FROM_SERVER "do:"
 #define NET_TO_SERVER "ask:"
@@ -79,5 +81,5 @@ void network_send_server(char *msg, int len );
 void network_core_shutdown();
 
 // get our id on the server
-SOCKET network_get_client_id();
+uint32 network_get_client_id();
 #endif
