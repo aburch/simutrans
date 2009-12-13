@@ -423,6 +423,26 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 									if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c)->get_name() == vb->get_name())
 									{
 										cnv->get_vehikel(i)->set_besch(vb);
+										
+										if(cnv->get_vehikel(i)->get_besch()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_besch()->get_leistung() != 0)
+										{
+											//We need to upgrade tenders, too.
+							
+											cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i)->get_besch()->get_nachfolger(0));		
+
+											// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
+											// The below ought work more accurately, but does not work properly, for some reason.
+
+											/*if(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() >= c && cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() > 0)
+											{
+												cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades(c));
+											}	
+											else if(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() > 0)
+											{
+												cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades(0));
+											}*/
+											
+										}
 										update_convoy();
 										goto end;
 									}

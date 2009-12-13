@@ -610,7 +610,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					else
 					{
-						if(info->is_available_only_as_upgrade())
+						if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
 						{
 							append = false;
 						}
@@ -732,9 +732,11 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
 		
 		const vehikel_besch_t *start_info = info;
-		if(veh_action==va_insert  ||  veh_action==va_sell) {
+		if(veh_action==va_insert  ||  veh_action==va_sell)
+		{
 			// start of composition
-			while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) {
+			while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) 
+			{
 				info = info->get_vorgaenger(0);
 				new_vehicle_info.insert(info);
 			}
@@ -745,7 +747,9 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		{
 			new_vehicle_info.append( info );
 DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","appended %s",info->get_name() );
-			if(info->get_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) {
+			// Auto complete - not used for upgrading
+			if((info->get_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) || upgrade == u_upgrade) 
+			{
 				break;
 			}
 			info = info->get_nachfolger(0);
@@ -1006,7 +1010,7 @@ void gui_convoy_assembler_t::update_data()
 		}
 		else
 		{
-			if(info->is_available_only_as_upgrade())
+			if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
 			{
 				iter1.get_current_value()->lcolor = COL_PURPLE;
 				iter1.get_current_value()->rcolor = COL_PURPLE;
