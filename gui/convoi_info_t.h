@@ -23,7 +23,7 @@
 //Bernd Gabriel, Dec, 03 2009: acceleration curve. 
 // define ACCELERATION_BUTTON to show it and the graph.
 // do not define it and there are neither button nor graph.
-//#define ACCELERATION_BUTTON MAX_CONVOI_COST
+#define ACCELERATION_BUTTON MAX_CONVOI_COST
 #ifdef ACCELERATION_BUTTON
 #define BUTTON_COUNT (ACCELERATION_BUTTON + 1)
 #else
@@ -56,7 +56,8 @@ private:
 	button_t go_home_button;
 	button_t no_load_button;
 	button_t replace_button;
-	button_t filterButtons[MAX_CONVOI_COST];
+	button_t filterButtons[BUTTON_COUNT];
+	int statistics_height;
 
 	button_t sort_button;
 	button_t details_button;

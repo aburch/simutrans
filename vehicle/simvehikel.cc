@@ -1228,6 +1228,13 @@ void vehikel_t::hop()
 		cnv->add_running_cost(-base_costs);
 	}
 
+	if(ist_erstes)
+	{
+		// Only the first vehicle in a convoy does this,
+		// or else there is double counting.
+		cnv->increment_odometer();
+	}
+
 	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
 
 	pos_prev = get_pos();
@@ -2165,6 +2172,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	{
 		reversed = false;
 	}
+
 }
 
 
@@ -2292,6 +2300,14 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				if(  state>=2  ) {
 					sprintf( tooltip_text, translator::translate("Leaving depot!") );
 					color = COL_GREEN;
+				}
+				break;
+
+				case convoi_t::REVERSING:
+				if(  state>=2  ) 
+				{
+					sprintf( tooltip_text, translator::translate("Reversing") );
+					color = COL_YELLOW;
 				}
 				break;
 
@@ -3108,6 +3124,10 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	uint16 next_block=cnv->get_next_stop_index()-1;
 	if(next_block<=route_index+3) {
 		route_t *rt=cnv->get_route();
+		if(next_block >= rt->get_count())
+		{
+			next_block = rt->get_count() < 1;
+		}
 		koord3d block_pos=rt->position_bei(next_block);
 		signal_t *sig = ist_blockwechsel(block_pos);
 		if(sig) {
