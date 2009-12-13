@@ -2998,8 +2998,7 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int
-waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(get_waytype());
@@ -3027,8 +3026,7 @@ waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 
 
 
-signal_t *
-waggon_t::ist_blockwechsel(koord3d k2) const
+signal_t *waggon_t::ist_blockwechsel(koord3d k2) const
 {
 	const grund_t* gr = welt->lookup(k2);
 	if(gr == NULL)
@@ -3051,8 +3049,7 @@ waggon_t::ist_blockwechsel(koord3d k2) const
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool
-waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
+bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -3082,8 +3079,7 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 }
 
 
-bool
-waggon_t::ist_weg_frei(int & restart_speed)
+bool waggon_t::ist_weg_frei(int & restart_speed)
 {
 	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) {
 		// reserve first block at the start until the next signal
