@@ -3262,8 +3262,8 @@ void karte_t::update_history()
 	sint64 transported_year = 0;
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 		if(  spieler[i]!=NULL  ) {
-			transported += spieler[i]->get_finance_history_month( 0, COST_ALL_TRANSPORTED );
-			transported_year += spieler[i]->get_finance_history_year( 0, COST_ALL_TRANSPORTED );
+			transported += spieler[i]->get_finance_history_month( 0, COST_TRANSPORTED_GOOD );
+			transported_year += spieler[i]->get_finance_history_year( 0, COST_TRANSPORTED_GOOD );
 		}
 	}
 	finance_history_month[0][WORLD_TRANSPORTED_GOODS] = transported;
