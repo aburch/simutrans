@@ -111,17 +111,21 @@ private:
 
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
 	
-	uint16 tractive_effort; // Reserved for future physics upgrades.
+	uint16 tractive_effort; // tractive effort / force in kN
 
-	uint32 geared_power; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
-	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+	// these values are not stored and therefore calculated in loaded():
+	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
+	uint32 geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in kN
 	/**
-	 * Get the constant force threshold speed in km/h.
+	 * force threshold speed in km/h.
 	 * Below this threshold the engine works as constant force engine.
 	 * Above this threshold the engine works as constant power engine.
 	 * @author Bernd Gabriel, Nov 4, 2009
 	 */
-	uint16 calc_const_force_threshold() const;
+	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+
+	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
+	void loaded();
 public:
 	// since we have a second constructor
 	vehikel_besch_t() { }
@@ -422,8 +426,8 @@ public:
 	 * (method extracted from sint32 convoi_t::calc_adjusted_power())
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_power_index(uint16 current_speed /* in kmh */ ) const;
-	uint32 get_force(uint16 speed /* in m/s */ ) const;
+	//uint32 get_effective_power_index(uint16 speed /* in km/h */ ) const;
+	uint32 get_effective_force_index(uint16 speed /* in m/s */ ) const;
 };
 
 #endif
