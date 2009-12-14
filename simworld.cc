@@ -5141,7 +5141,7 @@ bool karte_t::interactive(uint32 quit_month)
 				step_mode = PAUSE_FLAG;
 				reset_timer();
 				// and tell the player
-				create_win( new news_img("Lost connection to server!"), w_info, magic_none );
+				create_win( new news_img("Lost connection\nto server!"), w_info, magic_none );
 				beenden(false);
 			}
 
