@@ -296,6 +296,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->can_lead_from_rear = false;
 		besch->comfort = 100;
 		besch->overcrowded_capacity = 0;
+		besch->tractive_effort = 0;
 
 		switch(besch->get_waytype())
 		{
