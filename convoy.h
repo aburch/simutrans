@@ -68,6 +68,8 @@ a = (F - cf * v^2 - Frs) / m
 #include "simworld.h"
 
 // CF_*: constants related to air resistance
+// TODO: Add a "streamline" value to road/rail
+// which reduces the CF value.
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
 //#define CF_TRACK 4.2
@@ -82,10 +84,18 @@ a = (F - cf * v^2 - Frs) / m
 
 //should be 0.0015, but for game balance it is higher 
 //#define FR_TRACK 0.0015
-#define FR_TRACK 0.0051
-#define FR_ROAD  0.015
-#define FR_WATER 0.015
-#define FR_AIR 0.001
+//#define FR_TRACK 0.0051
+//#define FR_ROAD  0.015
+//#define FR_WATER 0.015
+//#define FR_AIR 0.001
+
+// Adjusted values to balance, as vehicles seem to
+// overperform with default values.
+#define FR_TRACK 0.0060
+#define FR_MAGLEV 0.0015
+#define FR_ROAD  0.060
+#define FR_WATER 0.060
+#define FR_AIR 0.004
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -166,10 +176,14 @@ struct environ_summary_t
 			case track_wt:
 			case overheadlines_wt: 
 			case monorail_wt:      
-			case maglev_wt:
 			case tram_wt:
 			case narrowgauge_wt:
 				fr = FR_TRACK;
+				cf = CF_TRACK;
+				break;
+			
+			case maglev_wt:
+				fr = FR_MAGLEV;
 				cf = CF_TRACK;
 				break;
 		}
