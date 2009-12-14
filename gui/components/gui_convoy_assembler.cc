@@ -462,11 +462,16 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		char *speed_format = "%s %d km/h @ %d t";
 		if (min_speed < allowed_speed)
 		{
-			speed_format = "%s %d km/h @ %d t %s %d km/h @ %d t";
 			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, 0));
-			if (max_speed == allowed_speed)
-				// show max weight, that can be pulled with max allowed speed
-				min_weight = convoy.calc_max_weight() / 1000;
+			if (min_speed < max_speed)
+			{
+				speed_format = "%s %d km/h @ %d t %s %d km/h @ %d t";
+				if (max_speed == allowed_speed)
+				{
+					// show max weight, that can be pulled with max allowed speed
+					min_weight = convoy.calc_max_weight() / 1000;
+				}
+			}
 		}
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
