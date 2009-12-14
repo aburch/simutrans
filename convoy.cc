@@ -294,9 +294,9 @@ uint32 potential_convoy_t::get_force_summary(uint16 speed /* in m/s */)
 	uint32 force = 0;
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
-		force += vehicles[i]->get_force(speed);
+		force += vehicles[i]->get_effective_force_index(speed);
 	}
-	return (uint32)(force * world.get_einstellungen()->get_global_power_factor());
+	return (uint32)(force * world.get_einstellungen()->get_global_power_factor() * (1.0f/GEAR_FACTOR) + 0.5f);
 }
 
 /******************************************************************************/
@@ -347,8 +347,8 @@ uint32 existing_convoy_t::get_force_summary(uint16 speed /* in m/s */)
 	uint32 force = 0;
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
-		force += convoy.get_vehikel(i)->get_besch()->get_force(speed);
+		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(speed);
 	}
-	return (uint32)(force * convoy.get_welt()->get_einstellungen()->get_global_power_factor());
+	return (uint32)(force * convoy.get_welt()->get_einstellungen()->get_global_power_factor()  * (1.0f/GEAR_FACTOR) + 0.5f);
 }
 
