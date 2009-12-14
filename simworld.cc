@@ -2328,7 +2328,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 	else {
 		// queue tool for network
 		static char commandstring[4096];
-		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), network_get_client_id(), w->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->get_default_param()==NULL ? "" : w->get_default_param() );
+		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, network_get_client_id(), w->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->get_default_param()==NULL ? "" : w->get_default_param() );
 		network_send_server( commandstring, len );
 	}
 }
@@ -5336,7 +5336,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 		else {
 			// queue tool for network
 			static char commandstring[4096];
-			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, steps, get_random_seed(), network_get_client_id(), werkzeug[get_active_player_nr()]->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->get_default_param()==NULL ? "" : werkzeug[get_active_player_nr()]->get_default_param() );
+			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, network_get_client_id(), werkzeug[get_active_player_nr()]->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->get_default_param()==NULL ? "" : werkzeug[get_active_player_nr()]->get_default_param() );
 			network_send_server( commandstring, len );
 		}
 		werkzeug_last_pos = koord3d::invalid;
@@ -5358,11 +5358,13 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 	INT_CHECK("simworld 2117");
 }
 
+
 void karte_t::beenden(bool b)
 {
-	finish_loop=true;
+	finish_loop = true;
 	umgebung_t::quit_simutrans = b;
 }
+
 
 // command from network together with the step when they has to be executed
 class command_node_t {
@@ -5504,7 +5506,8 @@ bool karte_t::interactive(uint32 quit_month)
 				step_mode = PAUSE_FLAG;
 				reset_timer();
 				// and tell the player
-				create_win( new news_img("Lost connection to server!"), w_info, magic_none );
+				create_win( new news_img("Lost connection\nto server!"), w_info, magic_none );
+				beenden(false);
 			}
 
 			if(  s!=INVALID_SOCKET  ) {
@@ -5560,49 +5563,14 @@ bool karte_t::interactive(uint32 quit_month)
 						}
 						else if(  memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0  ||  memcmp( network_buffer+4, NET_WKZ_WORK, 4 )==0  ) {
 							const bool init = memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0;
-							size_t i=8;
-							long client_steps = atol( network_buffer+8 );
-							while(  network_buffer[i]!=','  &&  i<len_last_command  ) {
-								// skip ","
-								i++;
-							}
-							i++;
-							uint32 client_random = i<len_last_command ? atol( network_buffer+i ) : 0;
-							while(  network_buffer[i]!=','  &&  i<len_last_command  ) {
-								// skip ","
-								i++;
-							}
-							// check for similar random counter!
-							if(  steps>client_steps  &&  client_steps+16>steps  ) {
-								if(  last_randoms[client_steps&15]!=client_random  ) {
-									printf( "" );
-								}
-							}
-							if(  i<len_last_command  ) {
-								long new_command_step = steps+umgebung_t::server_frames_ahead; // do this next xxx frames
-								char command_string[4096];
-								int len = sprintf( command_string, NET_FROM_SERVER "%s %i,%i%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, new_command_step, get_random_seed(), network_buffer+i );
-								command_queue.insert(new command_node_t(strdup( command_string+3 )));
-								next_command_step = command_queue.front()->step;
-								dbg->warning("append command_queue", "next: %ld new: %ld steps: %ld %s", next_command_step, new_command_step, steps, command_string+3);
-
-								network_send_all( command_string, len, true );
-							}
+							long new_command_step = steps+umgebung_t::server_frames_ahead; // do this next xxx frames
+							char command_string[4096];
+							int len = sprintf( command_string, NET_FROM_SERVER "%s %lu,%lu,%lu,%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, new_command_step, umgebung_t::server_frames_ahead+1, last_randoms[(16+steps-1)&15], network_buffer+9 );
+							command_queue.insert(new command_node_t(strdup( command_string+3 )));
+							next_command_step = command_queue.front()->step;
+DBG_MESSAGE("append command_queue", "next: %ld new: %ld steps: %ld %s", next_command_step, new_command_step, steps, command_string+3);
+							network_send_all( command_string, len, true );
 						}
-#ifdef DEBUG
-						else if(  memcmp( network_buffer+4, NET_CHECK, 5 )==0  ) {
-							const bool init = memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0;
-							long client_steps = 0;
-							uint32 client_random = 0;
-							sscanf( network_buffer+10, "%li,%lu", &client_steps, &client_random );
-							// check for identical random counter!
-							if(  steps>=client_steps  &&  client_steps+16>steps  ) {
-								if(  last_randoms[client_steps&15]!=client_random  ) {
-									printf( "" );
-								}
-							}
-						}
-#endif
 					}
 				}
 				else {
@@ -5645,7 +5613,7 @@ bool karte_t::interactive(uint32 quit_month)
 							command_node_t *cmd = new command_node_t( strdup(network_buffer+3) );
 							command_queue.insert(cmd);
 							next_command_step = command_queue.front()->step;
-							dbg->warning("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, cmd->buf);
+DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, cmd->buf);
 						}
 					}
 				}
@@ -5700,7 +5668,23 @@ bool karte_t::interactive(uint32 quit_month)
 				static char default_param[4096];
 				long steps_nr = 0;
 				uint32 random_counter;
-				sscanf( network_buffer+5, "%li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &random_counter, &client_id,&id, &player_nr, &p.x, &p.y, &z_pos, default_param );
+				sint32 server_ahead=0;
+				sscanf( network_buffer+5, "%li,%li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &server_ahead, &random_counter, &client_id,&id, &player_nr, &p.x, &p.y, &z_pos, default_param );
+				// only check random counter before tool
+				if(  random_counter!=last_randoms[(16+steps-server_ahead)&15]  ) {
+					// force disconnect
+					network_core_shutdown();
+					umgebung_t::networkmode = false;
+					step_mode = NORMAL;
+					reset_timer();
+					while(  !command_queue.empty()  ) {
+						command_node_t *cmd = command_queue.pop();
+						delete cmd->buf;
+						delete cmd;
+					}
+					create_win(280, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
+					beenden(false);
+				}
 				size_t len = strlen(default_param);
 				if(  len>0  &&  default_param[len-1]==';'  ) {
 					default_param[len-1] = 0;
@@ -5839,10 +5823,6 @@ bool karte_t::interactive(uint32 quit_month)
 						step();
 						network_frame_count = 0;
 						last_randoms[steps&15] = get_random_seed();
-						if(  !umgebung_t::server  ) {
-							int n = sprintf( network_buffer, NET_TO_SERVER NET_CHECK " %li,%lu", steps, last_randoms[steps&15] );
-							network_send_server( network_buffer, n );
-						}
 					}
 				}
 				else {
