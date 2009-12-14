@@ -1129,6 +1129,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_base_running_costs()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0F,
 					veh_type->get_leistung(),
+					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht()
 					);
@@ -1143,6 +1144,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_base_running_costs()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0F,
 					veh_type->get_leistung(),
+					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht()
 					);
