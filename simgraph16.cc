@@ -708,7 +708,7 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 {
 	if (h > 0) {
 		do {
-			uint8 runlen = *target++ = *src++;
+			PIXVAL runlen = *target++ = *src++;
 
 			// eine Zeile dekodieren
 			do {
@@ -753,7 +753,7 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
 {
 	if (h > 0) {
 		do {
-			unsigned char runlen = *target++ = *src++;
+			PIXVAL runlen = *target++ = *src++;
 			// eine Zeile dekodieren
 
 			do {
@@ -900,7 +900,7 @@ static void rezoom_img(const unsigned int n)
 				free( baseimage2 );
 				size = x;
 				baseimage  = MALLOCN(uint8, size);
-				baseimage2 = (PIXVAL*)malloc(size); // XXX is this allocation correct? PIXVAL is 16bit
+				baseimage2 = (PIXVAL*)malloc(size);
 			}
 			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
 
@@ -910,7 +910,7 @@ static void rezoom_img(const unsigned int n)
 
 			// now: unpack the image
 			for(  y=0;  y<images[n].base_h;  y++  ) {
-				unsigned int runlen;
+				PIXVAL runlen;
 				uint8 *p = baseimage + baseoff + y*(basewidth*4);
 
 				// decode line
@@ -1006,16 +1006,13 @@ static void rezoom_img(const unsigned int n)
 					for(  sint16 y=0;  y<newzoomheight;  y++  ) {
 						uint8 *p1 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+0-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
 						uint8 *p2 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+1-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-						uint8 *p3 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+3-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
-//						uint8 *p1 = baseimage + ((y*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
-//						uint8 *p2 = baseimage + ((y*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
-//						uint8 *p3 = baseimage + ((y*zoom_den[zoom_factor]+2)/zoom_num[zoom_factor])*((uint32)orgzoomwidth*4);
+						uint8 *p3 = baseimage + baseoff + ((y*zoom_den[zoom_factor]+2-y_rem)/zoom_num[zoom_factor])*(basewidth*4);
 						for(  sint16 x=0;  x<newzoomwidth;  x++  ) {
 							uint8 valid=0;
 							uint16 r=0,g=0,b=0;
-							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0)/zoom_num[zoom_factor])*4;
-							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1)/zoom_num[zoom_factor])*4;
-							sint16 xreal3 = ((x*zoom_den[zoom_factor]+2)/zoom_num[zoom_factor])*4;
+							sint16 xreal1 = ((x*zoom_den[zoom_factor]+0-x_rem)/zoom_num[zoom_factor])*4;
+							sint16 xreal2 = ((x*zoom_den[zoom_factor]+1-x_rem)/zoom_num[zoom_factor])*4;
+							sint16 xreal3 = ((x*zoom_den[zoom_factor]+2-x_rem)/zoom_num[zoom_factor])*4;
 							SumSubpixel(p1+xreal1);
 							SumSubpixel(p1+xreal2);
 							SumSubpixel(p1+xreal3);
@@ -1703,7 +1700,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 			int xpos = xp;
 
 			// bild darstellen
-			int runlen = *sp++;
+			PIXVAL runlen = *sp++;
 
 			do {
 				// wir starten mit einem clear run
@@ -1739,7 +1736,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // zeilen dekodieren
-			uint32 runlen = *sp++;
+			PIXVAL runlen = *sp++;
 			PIXVAL *p = tp;
 
 			// eine Zeile dekodieren
@@ -2062,7 +2059,7 @@ static void display_color_img_aux(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KO
 
 			// bild darstellen
 
-			int runlen = *sp++;
+			PIXVAL runlen = *sp++;
 
 			do {
 				// wir starten mit einem clear run
@@ -2330,7 +2327,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 			int xpos = xp;
 
 			// bild darstellen
-			int runlen = *sp++;
+			PIXVAL runlen = *sp++;
 
 			do {
 				// wir starten mit einem clear run
