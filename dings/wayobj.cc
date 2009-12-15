@@ -43,7 +43,6 @@
 // the descriptions ...
 const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 
-vector_tpl<way_obj_besch_t *> wayobj_t::liste;
 stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
 

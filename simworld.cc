@@ -1688,10 +1688,10 @@ void karte_t::set_scale()
 
 	// Way objects
 
-	vector_tpl<way_obj_besch_t * > * way_objects = wayobj_t::get_all_wayobjects();
-	ITERATE_PTR(way_objects,j)
+	stringhashtable_iterator_tpl<way_obj_besch_t *> wayobj_iter(wayobj_t::get_all_wayobjects());
+	while(wayobj_iter.next()) 
 	{
-		way_objects->get_element(j)->set_scale(scale_factor);
+		wayobj_iter.access_current_value()->set_scale(scale_factor);
 	}
 
 	// Stations

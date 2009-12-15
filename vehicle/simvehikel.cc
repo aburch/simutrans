@@ -1286,14 +1286,14 @@ void vehikel_t::hop()
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
 		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1); 
 
-		if(alte_fahrtrichtung != fahrtrichtung)
-		{
+		//if(alte_fahrtrichtung != fahrtrichtung)
+		//{
 			pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
-		}
-		else
-		{
-			pre_corner_direction.add_to_tail(999);
-		}
+		//}
+		//else
+		//{
+			//pre_corner_direction.add_to_tail(999);
+		//}
 
 		speed_limit = calc_modified_speed_limit(&(cnv->get_route()->position_bei(route_index)), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
 		if(weg->is_crossing()) 
@@ -1375,12 +1375,12 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	}
 
 	// Cornering settings. Vehicles must slow to take corners.
-	static uint32 max_corner_limit = welt->get_einstellungen()->get_max_corner_limit(waytype);
-	static uint32 min_corner_limit = welt->get_einstellungen()->get_min_corner_limit(waytype);
-	static float max_corner_adjustment_factor = welt->get_einstellungen()->get_max_corner_adjustment_factor(waytype);
-	static float min_corner_adjustment_factor = welt->get_einstellungen()->get_min_corner_adjustment_factor(waytype);
-	static uint8 min_direction_steps = welt->get_einstellungen()->get_min_direction_steps(waytype);
-	static uint8 max_direction_steps = welt->get_einstellungen()->get_max_direction_steps(waytype);
+	const uint32 max_corner_limit = welt->get_einstellungen()->get_max_corner_limit(waytype);
+	const uint32 min_corner_limit = welt->get_einstellungen()->get_min_corner_limit(waytype);
+	const float max_corner_adjustment_factor = welt->get_einstellungen()->get_max_corner_adjustment_factor(waytype);
+	const float min_corner_adjustment_factor = welt->get_einstellungen()->get_min_corner_adjustment_factor(waytype);
+	const uint8 min_direction_steps = welt->get_einstellungen()->get_min_direction_steps(waytype);
+	const uint8 max_direction_steps = welt->get_einstellungen()->get_max_direction_steps(waytype);
 	
 #ifndef debug_corners	
 	if(is_corner)
@@ -1396,7 +1396,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
 		}
 	
-		float limit_adjustment_factor = 1;
+		float limit_adjustment_factor = 1.0;
 		
 		if(base_limit > max_corner_limit)
 		{
@@ -1420,8 +1420,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		
 		uint16 tmp;
 
-		for(int i = (pre_corner_direction.get_count() >= direction_steps) ? direction_steps - 1 : pre_corner_direction.get_count() - 1; i > 0; i --)
+		int counter = 0;
+		for(int i = pre_corner_direction.get_count() - 1; i >= 0 && counter <= direction_steps; i --)
+
 		{
+			counter ++;
 			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
 			if(tmp > direction_difference)
 			{
@@ -1439,9 +1442,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 
 		//Smoothing code: slightly smoothed corners benefit.		
+		uint32 max_speed_90 = kmh_to_speed(55);
 		if(direction_difference > compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) && limit_adjustment_factor < 0.8))
 		{
 			limit_adjustment_factor += 0.15;
+			max_speed_90 = kmh_to_speed(75);
 			if(limit_adjustment_factor >= 1)
 			{
 				//But there is a limit to the benefit of smoothness.
@@ -1450,7 +1455,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 
 		//Tilting only makes a difference on faster track and on smoothed corners.
-		if(is_tilting && base_limit > kmh_to_speed(160) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
+		if(is_tilting && base_limit > kmh_to_speed(120) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
 		{	
 			// Tilting trains can take corners faster
 			limit_adjustment_factor += 0.30;
@@ -1480,17 +1485,19 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				break;
 
 			case 90 :
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.5));
+				// Sharp corners have a hard limit for speed irrespective of the base
+				// speed limit of the underlying way.
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
 				break;
 					
 			case 135 :
 
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.35));
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.25));
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
 				break;
 				
 			default :
@@ -1552,27 +1559,6 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 
 	const waytype_t waytype = get_waytype();
 
-	// assume straight flat way
-	//switch(waytype)
-	//{
-	//case air_wt:
-	//case maglev_wt:
-	//case monorail_wt:
-	//case tram_wt:
-	//case narrowgauge_wt:
-	//case track_wt:
-	//default:
-	//	current_friction = 1;
-	//	break;
-
-	//case road_wt:
-	//	current_friction = 4;
-	//	break;
-
-	//case water_wt:
-	//	current_friction = 6;
-	//	break;
-	//};
 	current_friction = get_friction_of_waytype(waytype);
 
 	
