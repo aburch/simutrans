@@ -1375,12 +1375,12 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	}
 
 	// Cornering settings. Vehicles must slow to take corners.
-	const uint32 max_corner_limit = welt->get_einstellungen()->get_max_corner_limit(waytype);
-	const uint32 min_corner_limit = welt->get_einstellungen()->get_min_corner_limit(waytype);
-	const float max_corner_adjustment_factor = welt->get_einstellungen()->get_max_corner_adjustment_factor(waytype);
-	const float min_corner_adjustment_factor = welt->get_einstellungen()->get_min_corner_adjustment_factor(waytype);
-	const uint8 min_direction_steps = welt->get_einstellungen()->get_min_direction_steps(waytype);
-	const uint8 max_direction_steps = welt->get_einstellungen()->get_max_direction_steps(waytype);
+	static uint32 max_corner_limit = welt->get_einstellungen()->get_max_corner_limit(waytype);
+	static uint32 min_corner_limit = welt->get_einstellungen()->get_min_corner_limit(waytype);
+	static float max_corner_adjustment_factor = welt->get_einstellungen()->get_max_corner_adjustment_factor(waytype);
+	static float min_corner_adjustment_factor = welt->get_einstellungen()->get_min_corner_adjustment_factor(waytype);
+	static uint8 min_direction_steps = welt->get_einstellungen()->get_min_direction_steps(waytype);
+	static uint8 max_direction_steps = welt->get_einstellungen()->get_max_direction_steps(waytype);
 	
 #ifndef debug_corners	
 	if(is_corner)
