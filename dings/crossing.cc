@@ -163,3 +163,17 @@ void crossing_t::laden_abschliessen()
 		logic->recalc_state();
 	}
 }
+
+
+// returns NULL, if removal is allowed
+// players can remove public owned ways
+const char *crossing_t::ist_entfernbar(const spieler_t *sp)
+{
+	if (get_player_nr()==1) {
+		return NULL;
+	}
+	else {
+		return ding_t::ist_entfernbar(sp);
+	}
+}
+

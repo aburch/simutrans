@@ -502,7 +502,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint32 fixed_maintenance = obj.get_int("fixed_maintenance", 0);
 	node.write_uint32(fp, fixed_maintenance, 48);
 
-	// Tractive effort. Currently unused - reserved for future enhancements in physics.
+	// Tractive effort
 	// @author: jamespetts
 	uint16 tractive_effort = obj.get_int("tractive_effort", 0);
 	node.write_uint16(fp, tractive_effort, 52);

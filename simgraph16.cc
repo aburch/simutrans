@@ -708,7 +708,7 @@ static void recode_img_src_target(KOORD_VAL h, PIXVAL *src, PIXVAL *target)
 {
 	if (h > 0) {
 		do {
-			PIXVAL runlen = *target++ = *src++;
+			uint16 runlen = *target++ = *src++;
 
 			// eine Zeile dekodieren
 			do {
@@ -753,7 +753,7 @@ static void recode_img_src_target_color(KOORD_VAL h, PIXVAL *src, PIXVAL *target
 {
 	if (h > 0) {
 		do {
-			PIXVAL runlen = *target++ = *src++;
+			uint16 runlen = *target++ = *src++;
 			// eine Zeile dekodieren
 
 			do {
@@ -882,10 +882,10 @@ static void rezoom_img(const unsigned int n)
 			// ...       low-right corner is at (xr_margin, yr_margin)
 
 
-			uint32 orgzoomwidth = ((images[n].base_w + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
-			uint32 newzoomwidth = (orgzoomwidth*zoom_num[zoom_factor])/zoom_den[zoom_factor];
-			uint32 orgzoomheight = ((images[n].base_h + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
-			uint32 newzoomheight = (orgzoomheight*zoom_num[zoom_factor])/zoom_den[zoom_factor];
+			sint32 orgzoomwidth = ((images[n].base_w + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
+			sint32 newzoomwidth = (orgzoomwidth*zoom_num[zoom_factor])/zoom_den[zoom_factor];
+			sint32 orgzoomheight = ((images[n].base_h + zoom_den[zoom_factor] - 1 ) / zoom_den[zoom_factor]) * zoom_den[zoom_factor];
+			sint32 newzoomheight = (orgzoomheight*zoom_num[zoom_factor])/zoom_den[zoom_factor];
 
 			// we will upack, resample, pack it
 
@@ -910,7 +910,7 @@ static void rezoom_img(const unsigned int n)
 
 			// now: unpack the image
 			for(  y=0;  y<images[n].base_h;  y++  ) {
-				PIXVAL runlen;
+				uint16 runlen;
 				uint8 *p = baseimage + baseoff + y*(basewidth*4);
 
 				// decode line
@@ -1177,10 +1177,10 @@ static void rezoom_img(const unsigned int n)
 
 			// now encode the image again
 			dest = (PIXVAL*)baseimage;
-			for(  y=0;  y<newzoomheight;  y++  ) {
+			for(  sint16 y=0;  y<newzoomheight;  y++  ) {
 				PIXVAL *line = ((PIXVAL *)baseimage2) + (y*newzoomwidth);
 				PIXVAL i;
-				x = 0;
+				sint16 x = 0;
 
 				do {
 					// check length of transparent pixels
@@ -1457,7 +1457,7 @@ void register_image(struct bild_t* bild)
 		do {
 			src++; // offset of first start
 			do {
-				PIXVAL runlen;
+				uint16 runlen;
 
 				for (runlen = *src++; runlen != 0; runlen--) {
 					PIXVAL pix = *src++;
@@ -1700,7 +1700,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 			int xpos = xp;
 
 			// bild darstellen
-			PIXVAL runlen = *sp++;
+			uint16 runlen = *sp++;
 
 			do {
 				// wir starten mit einem clear run
@@ -1736,7 +1736,12 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 		PIXVAL *tp = textur + xp + yp * disp_width;
 
 		do { // zeilen dekodieren
-			PIXVAL runlen = *sp++;
+#ifdef USE_C
+			uint16 runlen = *sp++;
+#else
+			// assembler needs this size
+			uint32 runlen = *sp++;
+#endif
 			PIXVAL *p = tp;
 
 			// eine Zeile dekodieren
@@ -1746,7 +1751,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
-#if USE_C
+#ifdef USE_C
 #if 1
 				{
 					// "classic" C code (why is it faster!?!)
@@ -2059,7 +2064,7 @@ static void display_color_img_aux(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KO
 
 			// bild darstellen
 
-			PIXVAL runlen = *sp++;
+			uint16 runlen = *sp++;
 
 			do {
 				// wir starten mit einem clear run
@@ -2317,8 +2322,7 @@ static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 static blend_proc blend[3];
 static blend_proc outline[3];
 
-static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour,
-	blend_proc p )
+static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p )
 {
 	if (h > 0) {
 		PIXVAL *tp = textur + yp * disp_width;
@@ -2327,7 +2331,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
 			int xpos = xp;
 
 			// bild darstellen
-			PIXVAL runlen = *sp++;
+			uint16 runlen = *sp++;
 
 			do {
 				// wir starten mit einem clear run
@@ -2382,7 +2386,9 @@ void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYE
 
 		// must the height be reduced?
 		reduce_h = yp + h - clip_rect.yy;
-		if (reduce_h > 0) h -= reduce_h;
+		if (reduce_h > 0) {
+			h -= reduce_h;
+		}
 		// still something to draw
 		if (h <= 0) return;
 
@@ -2419,12 +2425,16 @@ void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYE
 			// use horzontal clipping or skip it?
 			if (xp >= clip_rect.x && xp + w  <= clip_rect.xx) {
 				// marking change?
-				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+				if (dirty) {
+					mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+				}
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
 			} else if (xp < clip_rect.xx && xp + w > clip_rect.x) {
 				display_img_blend_wc( h, xp, yp, sp, color, pix_blend );
 				// since height may be reduced, start marking here
-				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+				if (dirty) {
+					mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+				}
 			}
 		}
 	}
