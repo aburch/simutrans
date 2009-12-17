@@ -142,11 +142,15 @@ uint32 convoy_t::calc_max_weight()
 	return (uint32)((vehicle.power * 1000 - environ.cf * v * v * v) / (environ.fr * 9.81 * v));
 }
 
+double convoy_t::calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */)
+{
+	return double_min(environ.cf * speed * speed, get_force(speed) - Frs); /* in N */
+}
+
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
 #define DT_TIME_FACTOR 64
 #define DT_SLICE_SECONDS 2
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
-
 
 void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
@@ -169,9 +173,11 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 	else
 	{
 		const double Frs = 9.81 * (environ.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
-		double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 		const double vmax = speed_to_v(akt_speed_soll);
-		const double fmax = double_min(environ.cf * vmax * vmax, get_force(vmax) * 1000 - Frs); // cf * vmax * vmax is needed to keep running the set speed.
+		double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+		double fvmax = 0; // force needed to hold vmax. will be calculated as needed
+		double f0 = 0; // maximum force at speed 0. will be calculated as needed
+		double speed_ratio = 0; 
 		//static uint32 count1 = 0;
 		//static uint32 count2 = 0;
 		//static uint32 count3 = 0;
@@ -184,17 +190,38 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 			bool is_breaking = false; // don't roll backwards, due to breaking
 			if (v < 0.999 * vmax)
 			{
-				// below set speed: full acceleration
-				f = get_force(v) * 1000 - Frs;
+				// Below set speed: full acceleration
+				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
+				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
+				f = get_force(v) - Frs;
+				if (f > 1000000.0) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
+				{
+					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
+					{
+						speed_ratio = 3.6 * vmax / vehicle.max_speed;
+					}
+					if (speed_ratio < 0.1)
+					{
+						fvmax = calc_speed_holding_force(vmax, Frs);
+						if (f > fvmax)
+						{
+							f = (f - fvmax) * 0.1 + fvmax;
+						}
+					}
+				}
 			}
 			else if (v < 1.001 * vmax)
 			{
 				// at or slightly above set speed: hold this speed
-				f = fmax;
+				if (fvmax == 0) // fvmax is a constant within this function. So calculate it once only.
+				{
+					fvmax = calc_speed_holding_force(vmax, Frs);
+				}
+				f = fvmax;
 			}
 			else if (v < 1.1 * vmax)
 			{
-				// slightly above end speed: coasting 'til back to set speed.
+				// slightly above set speed: coasting 'til back to set speed.
 				f = - Frs;
 			}
 			else if (v < 1.5 * vmax)
@@ -202,15 +229,23 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 				is_breaking = true;
 				// running too fast, apply the breaks! 
 				// hill-down Frs might become negative and works against the brake.
-				f = -1000.0 * get_force(0) - Frs;
+				if (f0 == 0) // f0 is a constant within this function. So calculate it once only.
+				{
+					f0 = get_force(0);
+				}
+				f = - f0 - Frs;
 			}
 			else
 			{
 				is_breaking = true;
 				// running much too fast, slam on the brakes! 
-				// assuming the brakes are up to 5x stronger than the start-up force.
+				// assuming the brakes are up to 5 times stronger than the start-up force.
 				// hill-down Frs might become negative and works against the brake.
-				f = -5000.0 * get_force(0) - Frs;
+				if (f0 == 0) // f0 is a constant within this function. So calculate it once only.
+				{
+					f0 = get_force(0);
+				}
+				f = -5 * f0 - Frs;
 			}
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
