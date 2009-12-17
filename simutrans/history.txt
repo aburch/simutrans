@@ -6,6 +6,7 @@
 	ADD: lines will be listed numerically correct, if the contain a number
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
+	ADD: some more network related settings like server_frames_ahead, network_ms_ahead, server_frames_per_step to control timing on the network
 
 
 Release Candidate 102.2.1
