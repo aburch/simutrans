@@ -182,6 +182,7 @@ private:
 
 	uint32 random_counter;
 	uint32 frames_per_second;	// only used in network mode ...
+	uint32 frames_per_step;
 
 public:
 	/* the big cost section */
@@ -432,7 +433,7 @@ public:
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }
 	uint32 get_frames_per_second() const { return frames_per_second; }
-
+	uint32 get_frames_per_step() const { return frames_per_step; }
 };
 
 #endif

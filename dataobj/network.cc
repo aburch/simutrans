@@ -138,7 +138,7 @@ const char *network_connect(const char *cp, const char *filename)
 		len = 64;
 		char buf[64];
 		network_add_client( my_client_socket );
-		if(  network_check_activity( 1000, buf, len )!=INVALID_SOCKET  ) {
+		if(  network_check_activity( 60000, buf, len )!=INVALID_SOCKET  ) {
 			// wait for sync message to finish
 			if(  memcmp( NET_FROM_SERVER NET_GAME, buf, 7 )!=0  ) {
 				err = "Protocoll error (expecting " NET_GAME ")";
