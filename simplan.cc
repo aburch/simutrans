@@ -148,7 +148,7 @@ bool planquadrat_t::boden_entfernen(grund_t *bd)
 		for(uint8 i=0;  i<ground_size;  i++) {
 			if(data.some[i]==bd) {
 				// found
-				while(i<ground_size) {
+				while(i<ground_size-1) {
 					data.some[i] = data.some[i+1];
 					i++;
 				}
