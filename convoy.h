@@ -84,18 +84,19 @@ a = (F - cf * v^2 - Frs) / m
 
 //should be 0.0015, but for game balance it is higher 
 //#define FR_TRACK 0.0015
-//#define FR_TRACK 0.0051
+#define FR_MAGLEV 0.0015
+#define FR_TRACK 0.0051
 //#define FR_ROAD  0.015
 //#define FR_WATER 0.015
-//#define FR_AIR 0.001
+#define FR_AIR 0.001
 
 // Adjusted values to balance, as vehicles seem to
 // overperform with default values.
-#define FR_TRACK 0.0056
-#define FR_MAGLEV 0.0015
-#define FR_ROAD  0.052
-#define FR_WATER 0.052
-#define FR_AIR 0.002
+//#define FR_TRACK 0.0056
+//#define FR_MAGLEV 0.0015
+#define FR_ROAD  0.030
+#define FR_WATER 0.030
+//#define FR_AIR 0.002
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
