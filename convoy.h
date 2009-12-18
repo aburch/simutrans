@@ -262,12 +262,16 @@ private:
 	environ_summary_t environ;
 
 	/**
-	 * Get force in kN according to current speed in m/s
+	 * Get force in N according to current speed in m/s
 	 */
-	inline uint32 get_force(double speed)
+	inline uint32 get_force(double speed) 
 	{
-		return get_force_summary((uint16)abs(speed));
+		return get_force_summary((uint16)abs(speed)) * 1000;
 	}
+	/*
+	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
+	 */
+	double calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */); /* in N */
 protected:
 	/**
 	 * get force in kN according to current speed m/s in
