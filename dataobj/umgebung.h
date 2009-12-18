@@ -39,6 +39,7 @@ public:
 	static bool networkmode;
 	static long server_frames_ahead;
 	static long server_ms_ahead;
+	static long network_frames_per_step;
 
 	// true, if we are the server
 	static bool server;

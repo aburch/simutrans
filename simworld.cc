@@ -5399,6 +5399,7 @@ bool karte_t::interactive(uint32 quit_month)
 	finish_loop = false;
 	bool swallowed = false;
 	bool cursor_hidden = false;
+	uint32 sync_steps = 0;
 
 	char network_buffer[4096];
 	int len_last_command;
@@ -5541,10 +5542,12 @@ bool karte_t::interactive(uint32 quit_month)
 							// ok, now sending game
 							if(  network_send_file( s, "server-network.sve" )==NULL  ) {
 								char cmd[128];
+								network_frame_count = 0;
 								int n = sprintf( cmd, NET_FROM_SERVER NET_SYNC " %li" NET_END_CMD, steps );
 								network_send_all( cmd, n, true );
 								laden( "server-network.sve" );
 								steps = old_steps;
+								sync_steps = steps*einstellungen->get_frames_per_step();
 								for(  int clients_to_wait=network_get_clients();  clients_to_wait>0;  ) {
 									len_last_command = sizeof(network_buffer);
 									SOCKET s = network_check_activity( 5, network_buffer, len_last_command );
@@ -5563,9 +5566,9 @@ bool karte_t::interactive(uint32 quit_month)
 						}
 						else if(  memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0  ||  memcmp( network_buffer+4, NET_WKZ_WORK, 4 )==0  ) {
 							const bool init = memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0;
-							long new_command_step = steps+umgebung_t::server_frames_ahead; // do this next xxx frames
+							long new_command_step = sync_steps+umgebung_t::server_frames_ahead; // do this next xxx frames
 							char command_string[4096];
-							int len = sprintf( command_string, NET_FROM_SERVER "%s %lu,%lu,%lu,%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, new_command_step, umgebung_t::server_frames_ahead+1, last_randoms[(16+steps-1)&15], network_buffer+9 );
+							int len = sprintf( command_string, NET_FROM_SERVER "%s %lu,%lu,%lu,%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, new_command_step, umgebung_t::server_frames_ahead+1, last_randoms[(15+sync_steps)&15], network_buffer+9 );
 							command_queue.insert(new command_node_t(strdup( command_string+3 )));
 							next_command_step = command_queue.front()->step;
 DBG_MESSAGE("append command_queue", "next: %ld new: %ld steps: %ld %s", next_command_step, new_command_step, steps, command_string+3);
@@ -5600,6 +5603,7 @@ DBG_MESSAGE("append command_queue", "next: %ld new: %ld steps: %ld %s", next_com
 							}
 							reset_timer();
 							network_frame_count = 0;
+							sync_steps = steps*einstellungen->get_frames_per_step();
 						}
 						else if(  memcmp( network_buffer+3, NET_SYNC, 4 )==0  ) {
 							tool = false;
@@ -5636,7 +5640,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 			}
 		}
 
-		while(  !command_queue.empty()  &&  (next_command_step==steps  ||  step_mode&PAUSE_FLAG)  ) {
+		while(  !command_queue.empty()  &&  (next_command_step==sync_steps  ||  step_mode&PAUSE_FLAG)  ) {
 			command_node_t *cmd = command_queue.pop();
 			const char *network_buffer = cmd->buf;
 			dbg->warning("command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, network_buffer);
@@ -5649,6 +5653,8 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 					// ok, now sending game
 					laden( "client-network.sve" );
 					steps = old_steps;
+					network_frame_count = 0;
+					sync_steps = steps*einstellungen->get_frames_per_step();
 					reset_timer();
 					network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
 					step_mode = PAUSE_FLAG|FIX_RATIO;
@@ -5671,7 +5677,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 				sint32 server_ahead=0;
 				sscanf( network_buffer+5, "%li,%li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &server_ahead, &random_counter, &client_id,&id, &player_nr, &p.x, &p.y, &z_pos, default_param );
 				// only check random counter before tool
-				if(  random_counter!=last_randoms[(16+steps-server_ahead)&15]  ) {
+				if(  random_counter!=last_randoms[(16+sync_steps-server_ahead)&15]  ) {
 					// force disconnect
 					network_core_shutdown();
 					umgebung_t::networkmode = false;
@@ -5693,7 +5699,9 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 				if(  id==(SIMPLE_TOOL|WKZ_PAUSE)  ) {
 					steps = steps_nr;
 				}
-				assert(  steps_nr==steps );
+				else {
+					assert(  steps_nr==sync_steps );
+				}
 				werkzeug_t *wkz = NULL;
 				// our tool or from network?
 				if (client_id != network_get_client_id()) {
@@ -5818,12 +5826,13 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 					time_budget = next_step_time-time;
 					next_step_time += frame_time;
 					sync_step( frame_time, true, true );
-					if(  network_frame_count++==4  ) {
+					if(  network_frame_count++==einstellungen->get_frames_per_step()  ) {
 						// ever fourth frame
 						step();
 						network_frame_count = 0;
-						last_randoms[steps&15] = get_random_seed();
 					}
+					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
+					last_randoms[sync_steps&15] = get_random_seed();
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );
