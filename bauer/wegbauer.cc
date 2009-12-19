@@ -1357,7 +1357,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		return;
 	}
 	// we have to reach target height if no tunnel building or sliced mode or target ground exists.
-	const bool target_3d = (bautyp&tunnel_flag)==0  || grund_t::underground_mode==grund_t::ugm_level  ||  test_bd!=NULL;
+	const bool target_3d = (bautyp&tunnel_flag)==0  ||  grund_t::underground_mode==grund_t::ugm_level  ||  test_bd!=NULL;
 
 	koord3d pos=start;
 
