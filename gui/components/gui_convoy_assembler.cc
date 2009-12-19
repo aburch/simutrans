@@ -462,11 +462,16 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		char *speed_format = "%s %d km/h @ %d t";
 		if (min_speed < allowed_speed)
 		{
-			speed_format = "%s %d km/h @ %d t %s %d km/h @ %d t";
 			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, 0));
-			if (max_speed == allowed_speed)
-				// show max weight, that can be pulled with max allowed speed
-				min_weight = convoy.calc_max_weight() / 1000;
+			if (min_speed < max_speed)
+			{
+				speed_format = "%s %d km/h @ %d t %s %d km/h @ %d t";
+				if (max_speed == allowed_speed)
+				{
+					// show max weight, that can be pulled with max allowed speed
+					min_weight = convoy.calc_max_weight() / 1000;
+				}
+			}
 		}
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
@@ -610,7 +615,7 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					else
 					{
-						if(info->is_available_only_as_upgrade())
+						if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
 						{
 							append = false;
 						}
@@ -732,9 +737,11 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
 		
 		const vehikel_besch_t *start_info = info;
-		if(veh_action==va_insert  ||  veh_action==va_sell) {
+		if(veh_action==va_insert  ||  veh_action==va_sell)
+		{
 			// start of composition
-			while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) {
+			while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) 
+			{
 				info = info->get_vorgaenger(0);
 				new_vehicle_info.insert(info);
 			}
@@ -745,7 +752,9 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		{
 			new_vehicle_info.append( info );
 DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","appended %s",info->get_name() );
-			if(info->get_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) {
+			// Auto complete - not used for upgrading
+			if((info->get_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) || upgrade == u_upgrade) 
+			{
 				break;
 			}
 			info = info->get_nachfolger(0);
@@ -1006,7 +1015,7 @@ void gui_convoy_assembler_t::update_data()
 		}
 		else
 		{
-			if(info->is_available_only_as_upgrade())
+			if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
 			{
 				iter1.get_current_value()->lcolor = COL_PURPLE;
 				iter1.get_current_value()->rcolor = COL_PURPLE;
@@ -1125,6 +1134,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_base_running_costs()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0F,
 					veh_type->get_leistung(),
+					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht()
 					);
@@ -1139,6 +1149,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 					veh_type->get_base_running_costs()/100.0F,
 					veh_type->get_adjusted_monthly_fixed_maintenance(get_welt())/100.0F,
 					veh_type->get_leistung(),
+					veh_type->get_tractive_effort(),
 					veh_type->get_geschw(),
 					veh_type->get_gewicht()
 					);

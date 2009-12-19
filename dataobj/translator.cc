@@ -67,6 +67,21 @@ char *fgets_line(char *buffer, int max_len, FILE *file)
 	return result;
 }
 
+
+//// allow all kinds of line feeds
+//static char *fgets_line(char *buffer, int max_len, FILE *file)
+//{
+//	char *result = fgets(buffer, max_len, file);
+//	size_t len = strlen(buffer);
+//	// remove all trailing junk
+//	while(  len>1  &&  (buffer[len-1]==13  ||  buffer[len-1]==10)  ) {
+//		buffer[len-1] = 0;
+//		len--;
+//	}
+//	return result;
+//}
+
+
 const char *translator::lang_info::translate(const char* text) const
 {
 	if (text    == NULL) {

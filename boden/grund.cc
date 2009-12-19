@@ -434,26 +434,26 @@ void grund_t::take_obj_from(grund_t* other_gr)
 
 
 
-bool
-grund_t::zeige_info()
+bool grund_t::zeige_info()
 {
+	int old_count = win_get_open_count();
+	bool success = false;
 	if(get_halt().is_bound()) {
 		get_halt()->zeige_info();
-		return true;
-	}
-	else {
-		if(umgebung_t::ground_info  ||  hat_wege()) {
-			create_win(new grund_info_t(this), w_info, (long)this);
+		if(umgebung_t::single_info  &&  old_count!=win_get_open_count()  ) {
 			return true;
 		}
+		success = true;
 	}
-	return false;
+	if(umgebung_t::ground_info  ||  hat_wege()) {
+		create_win(new grund_info_t(this), w_info, (long)this);
+		return true;
+	}
+	return success;
 }
 
 
-
-void
-grund_t::info(cbuffer_t& buf) const
+void grund_t::info(cbuffer_t& buf) const
 {
 	if(flags&is_halt_flag) {
 		welt->lookup(pos.get_2d())->get_halt()->info( buf );

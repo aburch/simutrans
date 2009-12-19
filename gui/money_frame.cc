@@ -197,7 +197,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
 		// mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
 		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
-		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, true, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END

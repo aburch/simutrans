@@ -121,10 +121,10 @@ bool ai_t::is_connected( const koord start_pos, const koord dest_pos, const ware
 // prepares a general tool just like a player work do
 bool ai_t::init_general_tool( int tool, const char *param )
 {
-	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
-	werkzeug_t::general_tool[tool]->default_param = param;
+	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
+	werkzeug_t::general_tool[tool]->set_default_param(param);
 	bool ok = werkzeug_t::general_tool[tool]->init( welt, this );
-	werkzeug_t::general_tool[tool]->default_param = old_param;
+	werkzeug_t::general_tool[tool]->set_default_param(old_param);
 	return ok;
 }
 
@@ -135,8 +135,8 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 {
 	grund_t *gr = welt->lookup_kartenboden(k);
 	koord3d pos = gr ? gr->get_pos() : koord3d::invalid;
-	const char *old_param = werkzeug_t::general_tool[tool]->default_param;
-	werkzeug_t::general_tool[tool]->default_param = param;
+	const char *old_param = werkzeug_t::general_tool[tool]->get_default_param();
+	werkzeug_t::general_tool[tool]->set_default_param(param);
 	const char * err = werkzeug_t::general_tool[tool]->work( welt, this, pos );
 	if(err) {
 		if(*err) {
@@ -146,7 +146,7 @@ bool ai_t::call_general_tool( int tool, koord k, const char *param )
 			dbg->message("ai_t::call_general_tool()","not succesful for tool %i at (%s)", tool, pos.get_str() );
 		}
 	}
-	werkzeug_t::general_tool[tool]->default_param = old_param;
+	werkzeug_t::general_tool[tool]->set_default_param(old_param);
 	return err==0;
 }
 
@@ -513,4 +513,11 @@ DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d
 }
 
 
+void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local)
+{
+	// necessary to show error message if a human helps us poor AI
+	spieler_t::tell_tool_result(tool, pos, err, local);
+
+	// TODO: process the result...
+}
 

@@ -304,12 +304,15 @@ private:
 	uint16 min_longdistance_tolerance;
 	uint16 max_longdistance_tolerance;
 
-	// Used for larger maps.
-	// @author: jamespetts
-	/*uint8 scale_divider;*/
+	// The walking distance in tiles
+	// that people are prepared to 
+	// tolerate.
+	// @author: jamespetts, December 2009
+	uint16 max_walking_distance;
 
 	uint32 random_counter;
 	uint32 frames_per_second;	// only used in network mode ...
+	uint32 frames_per_step;
 
 public:
 	/* the big cost section */
@@ -649,7 +652,9 @@ public:
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }
 	uint32 get_frames_per_second() const { return frames_per_second; }
+	uint32 get_frames_per_step() const { return frames_per_step; }
 
+	uint16 get_max_walking_distance() const { return max_walking_distance; }
 };
 
 #endif

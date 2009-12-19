@@ -450,7 +450,6 @@ const char* allowed_chars_in_rule = "SsnHhTtUu";
  * @return true on match, false otherwise
  * @author Hj. Malthaner
  */
-//<<<<<<< HEAD:simcity.cc
 //bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, uint16 rotation)
 //{
 //	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
@@ -527,7 +526,6 @@ const char* allowed_chars_in_rule = "SsnHhTtUu";
 //						break;
 //				}
 //			}
-//=======
 bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 {
 	//printf("Test for (%s) in rotation %d\n", pos.get_str(), rotation);
@@ -588,7 +586,6 @@ bool stadt_t::bewerte_loc(const koord pos, rule_t &regel, int rotation)
 				break;
 			default: ;
 				// ignore
-//>>>>>>> Simutrans-base/master:simcity.cc
 		}
 	}
 	//printf("Success\n");
@@ -2181,6 +2178,8 @@ void stadt_t::step_passagiere()
 			route_status route_good = no_route;
 
 			bool can_walk_ziel = false;
+			
+			const uint16 max_walking_distance = welt->get_einstellungen()->get_max_walking_distance();
 
 			while(route_good != good && current_destination < destination_count)
 			{			
@@ -2188,17 +2187,28 @@ void stadt_t::step_passagiere()
 				const planquadrat_t* dest_plan = welt->lookup(destinations[current_destination].location);
 				const halthandle_t* dest_list = dest_plan->get_haltlist();
 
-				halthandle_t start_halt;
-			
 				// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
 				minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
+				
+				// Check whether the destination is within walking distance first.
+				// @author: jamespetts, December 2009
+				if(accurate_distance(destinations[current_destination].location, k) <= max_walking_distance)
+				{
+					// Passengers will always walk if they are close enough.
+					can_walk_ziel = true;
+					goto walk;
+				}
+
+				halthandle_t start_halt;
+			
 				for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 				{
 					halthandle_t halt = dest_list[h];
 					if (halt->is_enabled(wtyp)) 
 					{
 						destination_list.append(halt);
-						for(int i = start_halts.get_count() - 1; i >= 0; i--)
+						//for(int i = start_halts.get_count() - 1; i >= 0; i--)
+						ITERATE(start_halts, i)
 						{
 							if(halt == start_halts[i])
 							{
@@ -2217,8 +2227,18 @@ void stadt_t::step_passagiere()
 				{
 walk:
 					// so we have happy passengers
-					start_halt->add_pax_happy(pax_left_to_do);
+	
+					// Passengers who can walk to their destination may be happy about it,
+					// but they are not happy *because* the player has made them happy. 
+					// Therefore, they should not show on the station's happy graph.
+					// @author: jamespetts, December 2009
+					
+					//start_halt->add_pax_happy(pax_left_to_do);
+
 					merke_passagier_ziel(destinations[0].location, COL_YELLOW);
+					
+					// They should show that they have been transported, however, since
+					// these figures are used for city growth calculations.
 					city_history_year[0][history_type] += pax_left_to_do;
 					city_history_month[0][history_type] += pax_left_to_do;
 

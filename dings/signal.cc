@@ -58,7 +58,7 @@ void signal_t::calc_bild()
 	if(gr) {
 		set_flag(ding_t::dirty);
 
-		weg_t *sch = gr->get_weg(besch->get_wtyp());
+		weg_t *sch = gr->get_weg(besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
 		if(sch) {
 			uint16 offset=0;
 			ribi_t::ribi dir = sch->get_ribi();

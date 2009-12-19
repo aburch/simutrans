@@ -1371,9 +1371,6 @@ fabrik_t::neuer_monat()
 			const uint32 number_of_customers = lieferziele.get_count();
 			const uint32 number_of_suppliers = suppliers.get_count();
 			const uint16 jobs = besch->get_pax_level();
-			// This is repeated elsewhere.
-			//sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);
-			//welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, COL_DARK_RED, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}

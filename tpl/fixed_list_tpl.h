@@ -32,7 +32,7 @@ template<class T, int N> class fixed_list_tpl
 
 public:
 
-	fixed_list_tpl() : size(0), head(0), tail(0), placeholder(0), placeholder_set(false)   { }
+	fixed_list_tpl() : size(0), head(0), tail(0)/*, placeholder(0), placeholder_set(false)*/   { }
 	
 	T get_element(uint8 e)
 	{
@@ -74,8 +74,8 @@ public:
 		size = 0;
 		head = 0;
 		tail = 0;
-		placeholder = 0;
-		placeholder_set = false;
+		/*placeholder = 0;
+		placeholder_set = false;*/
 	}
 
 	void trim_from_head(uint8 trim_by)
@@ -96,12 +96,12 @@ public:
 			{
 				head = add_index(head, trim_by, N);
 				size -= trim_by;
-				if(!index_is_in_range(placeholder))
+				/*if(!index_is_in_range(placeholder))
 				{
 					//Placeholder has been trimmed
 					placeholder_set = false;
 					placeholder = 0;
-				}
+				}*/
 			}	
 			else
 			{
@@ -134,12 +134,12 @@ public:
 			{
 				tail = subtract_index(tail, trim_by, N);
 				size -= trim_by;
-				if(!index_is_in_range(placeholder))
+				/*if(!index_is_in_range(placeholder))
 				{
 					//Placeholder has been trimmed
 					placeholder_set = false;
 					placeholder = 0;
-				}
+				}*/
 			}
 			else
 			{
@@ -173,12 +173,12 @@ public:
 		{
 			size ++;
 		}
-		if(placeholder_set && placeholder == head)
+		/*if(placeholder_set && placeholder == head)
 		{
 			//Placeholder is overwritten		
 			placeholder_set = false;
 			placeholder = 0;
-		}
+		}*/
 	}
 
 	void add_to_tail(T datum)
@@ -195,12 +195,12 @@ public:
 		if(head == tail && size > 0)
 		{
 			head = add_index(tail, 1, N);
-			if(placeholder_set && placeholder == tail)
+			/*if(placeholder_set && placeholder == tail)
 			{
 				//Placeholder is overwritten		
 				placeholder_set = false;
 				placeholder = 0;
-			}
+			}*/
 		}
 		else
 		{
@@ -258,7 +258,7 @@ public:
 		}
 	}
 
-	bool set_placeholder(uint8 p)
+	/*bool set_placeholder(uint8 p)
 	{
 		if(p >= N)
 		{
@@ -284,9 +284,9 @@ public:
 		placeholder = position;
 		placeholder_set = true;
 		return true;
-	}
+	}*/
 
-	uint8 get_placeholder()
+	/*uint8 get_placeholder()
 	{
 		if(placeholder_set && index_is_in_range(placeholder))
 		{
@@ -306,9 +306,9 @@ public:
 		{
 			return NULL;
 		}
-	}
+	}*/
 
-	bool is_placeholder()
+	/*bool is_placeholder()
 	{
 		if(index_is_in_range(placeholder))
 		{
@@ -319,9 +319,9 @@ public:
 		{
 			return false;
 		}
-	}
+	}*/
 
-	void clear_placeholder()
+	/*void clear_placeholder()
 	{
 		placeholder_set = false;
 		placeholder = 0;
@@ -369,7 +369,7 @@ public:
 		{
 			return NULL;
 		}
-	}
+	}*/
 
 private:
 
@@ -381,9 +381,9 @@ private:
 
 	uint8 tail;
 
-	uint8 placeholder;
+	//uint8 placeholder;
 
-	bool placeholder_set;
+	//bool placeholder_set;
 
 	//These methods are used for automating looping arithmetic
 

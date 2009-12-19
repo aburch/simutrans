@@ -10,12 +10,20 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
+#ifndef __BEOS__
 #include <arpa/inet.h>
+#else
+#define PF_INET AF_INET
+#define socklen_t int
+#endif
 
 // to keep compatibility to MS windows
 typedef int SOCKET;
 #define INVALID_SOCKET -1
 #endif
+
+#include "../simtypes.h"
 
 // prefiexes
 #define NET_FROM_SERVER "do:"
@@ -35,8 +43,8 @@ typedef int SOCKET;
 
 bool network_initialize();
 
-// open a socket or give a decent error message
-const char *network_open_address( const char *cp, SOCKET &sock );
+// connects to server at (cp), receives game, saves it to (filename)
+const char* network_connect(const char *cp, const char *filename);
 
 void network_close_socket( SOCKET sock );
 
@@ -72,4 +80,6 @@ void network_send_server(char *msg, int len );
 
 void network_core_shutdown();
 
+// get our id on the server
+uint32 network_get_client_id();
 #endif

@@ -67,9 +67,9 @@ a = (F - cf * v^2 - Frs) / m
 #include "simconvoi.h"
 #include "simworld.h"
 
-#define SINT32_MAX_VALUE INT_MAX
-
 // CF_*: constants related to air resistance
+// TODO: Add a "streamline" value to road/rail
+// which reduces the CF value.
 
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
 //#define CF_TRACK 4.2
@@ -84,10 +84,19 @@ a = (F - cf * v^2 - Frs) / m
 
 //should be 0.0015, but for game balance it is higher 
 //#define FR_TRACK 0.0015
+#define FR_MAGLEV 0.0015
 #define FR_TRACK 0.0051
-#define FR_ROAD  0.015
-#define FR_WATER 0.015
+//#define FR_ROAD  0.015
+//#define FR_WATER 0.015
 #define FR_AIR 0.001
+
+// Adjusted values to balance, as vehicles seem to
+// overperform with default values.
+//#define FR_TRACK 0.0056
+//#define FR_MAGLEV 0.0015
+#define FR_ROAD  0.030
+#define FR_WATER 0.030
+//#define FR_AIR 0.002
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -132,7 +141,7 @@ struct vehicle_summary_t
 	inline void clear()
 	{
 		length = power = weight = 0;
-		max_speed = SINT32_MAX_VALUE; // if there is no vehicle, there is no speed limit!
+		max_speed = INT_MAX; // if there is no vehicle, there is no speed limit!
 	}
 
 	inline void add_vehicle(const vehikel_besch_t &b)
@@ -156,7 +165,7 @@ struct environ_summary_t
 	{
 		cf = CF_ROAD;
 		fr = FR_ROAD;
-		max_speed = SINT32_MAX_VALUE; 
+		max_speed = INT_MAX; 
 	}
 
 	inline void set_by_waytype(waytype_t waytype)
@@ -175,10 +184,14 @@ struct environ_summary_t
 			case track_wt:
 			case overheadlines_wt: 
 			case monorail_wt:      
-			case maglev_wt:
 			case tram_wt:
 			case narrowgauge_wt:
 				fr = FR_TRACK;
+				cf = CF_TRACK;
+				break;
+			
+			case maglev_wt:
+				fr = FR_MAGLEV;
 				cf = CF_TRACK;
 				break;
 		}
@@ -256,12 +269,16 @@ private:
 	environ_summary_t environ;
 
 	/**
-	 * Get force in kN according to current speed in m/s
+	 * Get force in N according to current speed in m/s
 	 */
-	inline uint32 get_force(double speed)
+	inline uint32 get_force(double speed) 
 	{
-		return get_force_summary((uint16)abs(speed));
+		return get_force_summary((uint16)abs(speed)) * 1000;
 	}
+	/*
+	 * Get force in N that holds the given speed v or maximum available force, what ever is lesser.
+	 */
+	double calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */); /* in N */
 protected:
 	/**
 	 * get force in kN according to current speed m/s in
@@ -295,7 +312,7 @@ public:
 	 * @param akt_speed is the current speed and returns the new speed after delta_t has gone in simutrans speed.
 	 * @param sp_soll is the number of simutrans steps still to go and returns the new number of steps to go.
 	 */
-	virtual void calc_move(long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
+	virtual void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
 };
 
 /******************************************************************************/
@@ -405,11 +422,11 @@ public:
 		return convoy_t::calc_max_speed(weight);
 	}
 
-	virtual void calc_move(long delta_t, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	virtual void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_vehicle_summary();
 		validate_environ_summary();
-		convoy_t::calc_move(delta_t, weight, akt_speed_soll, akt_speed, sp_soll);
+		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
 	}
 };
 
@@ -475,10 +492,10 @@ public:
 		return weight;
 	}
 
-	inline void calc_move(long delta_t, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	inline void calc_move(long delta_t, float simtime_factor, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_weight_summary();
-		convoy_t::calc_move(delta_t, weight, akt_speed_soll, akt_speed, sp_soll);
+		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
 	}
 
 };

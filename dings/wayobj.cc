@@ -43,7 +43,6 @@
 // the descriptions ...
 const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 
-vector_tpl<way_obj_besch_t *> wayobj_t::liste;
 stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
 
@@ -456,8 +455,7 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 		wkz_wayobj_t *wkz = new wkz_wayobj_t();
 		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 		wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-		wkz->default_param = besch->get_name();
-		wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+		wkz->set_default_param(besch->get_name());
 		werkzeug_t::general_tool.append( wkz );
 		besch->set_builder( wkz );
 	}

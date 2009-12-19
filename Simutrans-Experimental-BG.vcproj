@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="Simutrans-Experimental"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
@@ -18,8 +18,8 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries"
-			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\debug"
+			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			IntermediateDirectory="$(OutDir)\intermediates\debug"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -41,11 +41,15 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="0"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
 				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
 				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;SLIST_FREIGHT"
 				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
+				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				StructMemberAlignment="0"
 				BufferSecurityCheck="true"
@@ -69,9 +73,9 @@
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-debug.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"
-				IgnoreDefaultLibraryNames="libcmt.lib"
+				IgnoreDefaultLibraryNames="libcmt.lib; msvcrt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeForWindows98="0"
@@ -103,8 +107,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries"
-			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\release"
+			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			IntermediateDirectory="$(OutDir)\intermediates\release"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -126,16 +130,22 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="3"
 				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
+				WholeProgramOptimization="false"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;NDEBUG;SLIST_FREIGHT"
-				RuntimeLibrary="2"
-				FloatingPointModel="2"
+				StringPooling="false"
+				MinimalRebuild="true"
+				RuntimeLibrary="3"
+				BufferSecurityCheck="true"
+				EnableFunctionLevelLinking="false"
+				FloatingPointModel="0"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4200;4800;4311;4996"
 			/>
@@ -150,15 +160,18 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				LinkLibraryDependencies="false"
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;; &quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
-				IgnoreDefaultLibraryNames="libcmt.lib"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories=""
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames="libcmt.lib; msvcrt.lib"
 				GenerateDebugInformation="false"
 				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
+				OptimizeReferences="0"
+				EnableCOMDATFolding="0"
 				OptimizeForWindows98="0"
+				LinkTimeCodeGeneration="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -187,8 +200,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release (SDL)|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries"
-			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\release-SDL"
+			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			IntermediateDirectory="$(OutDir)\intermediates\release-SDL"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -238,8 +251,8 @@
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-SDL.exe"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;; &quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
-				IgnoreDefaultLibraryNames="libcmt.lib"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;c:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				IgnoreDefaultLibraryNames="libcmt.lib; msvcrt.lib"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -273,8 +286,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug (SDL)|Win32"
-			OutputDirectory="..\simutrans-experimental-binaries"
-			IntermediateDirectory="..\simutrans-experimental-binaries\intermediates\debug-SDL"
+			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			IntermediateDirectory="$(OutDir)\intermediates\debug-SDL"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -325,9 +338,9 @@
 				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
 				OutputFile="$(OutDir)\$(ProjectName)-debug-SDL.exe"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Bzlib&quot;;&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;G:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;G:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"
-				IgnoreDefaultLibraryNames="libcmt.lib"
+				IgnoreDefaultLibraryNames="libcmt.lib; msvcrt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeForWindows98="0"
@@ -1441,10 +1454,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\bzlib.h"
-				>
-			</File>
-			<File
 				RelativePath=".\utils\cbuffer_t.h"
 				>
 			</File>
@@ -1937,6 +1946,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dings\lagerhaus.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\leitung2.h"
 				>
 			</File>
@@ -2138,6 +2151,10 @@
 			</File>
 			<File
 				RelativePath=".\tpl\quickstone_tpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\replace_frame.h"
 				>
 			</File>
 			<File
@@ -2433,6 +2450,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\station_building_select.h"
+				>
+			</File>
+			<File
 				RelativePath=".\boden\wege\strasse.h"
 				>
 			</File>
@@ -2462,6 +2483,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\thing_info.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\trafficlight_info.h"
 				>
 			</File>
 			<File
@@ -2632,10 +2657,6 @@
 			</File>
 			<File
 				RelativePath=".\base_texts_experimental_7_0.dat"
-				>
-			</File>
-			<File
-				RelativePath=".\base_texts_experimental_7_1.dat"
 				>
 			</File>
 			<File

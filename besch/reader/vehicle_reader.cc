@@ -296,6 +296,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->can_lead_from_rear = false;
 		besch->comfort = 100;
 		besch->overcrowded_capacity = 0;
+		besch->tractive_effort = 0;
 
 		switch(besch->get_waytype())
 		{
@@ -327,10 +328,6 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 	}
 
-	// @author Bernd Gabriel, Nov 4, 2009
-	besch->geared_power = besch->leistung * besch->gear;
-	besch->force_threshold_speed = besch->calc_const_force_threshold();
-
 	if(besch->sound==LOAD_SOUND) {
 		uint8 len=decode_sint8(p);
 		char wavname[256];
@@ -346,6 +343,7 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","sound %s to %i",wavname,besch->s
 		besch->sound = (sint8)sound_besch_t::get_compatible_sound_id(old_id);
 DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch->sound);
 	}
+	besch->loaded();
 
 	DBG_DEBUG("vehicle_reader_t::read_node()",
 		"version=%d "

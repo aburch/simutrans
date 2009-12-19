@@ -170,6 +170,17 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	else if(  mode==binary  ) {
 		// no compression
 		fp = fopen(filename, "wb");
+		if(  is_bzip2()  ) {
+			// the additional magic for bzip2
+			bse = BZ_OK+1;
+			bzfp = NULL;
+			if(  fp  ) {
+				bzfp = BZ2_bzWriteOpen( &bse, fp, 9, 0, 30 /* default is 30 */ );
+				if(  bse!=BZ_OK  ) {
+					return false;
+				}
+			}
+		}
 	}
 	else if(  is_bzip2()  ) {
 		// XML or bzip ...
@@ -235,10 +246,10 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 		char str[4096];
 		size_t len;
 		if(  version<103000  ) {
-			len = sprintf( str, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension );
+			len = sprintf( str, "%s%s%s\n", savegame_version, "zip", this->pak_extension );
 		}
 		else {
-			len = sprintf( str, "%s-%s\n", SAVEGAME_VERSION, this->pak_extension );
+			len = sprintf( str, "%s-%s\n", savegame_version, this->pak_extension );
 		}
 		write( str, len );
 	}
@@ -365,12 +376,11 @@ long loadsave_t::write(const void *buf, size_t len)
 long loadsave_t::read(void *buf, size_t len)
 {
 	if(is_bzip2()) {
-		size_t l = 0;
 		if(  bse==BZ_OK  ) {
 			BZ2_bzRead( &bse, bzfp, const_cast<void *>(buf), len);
 		}
 		// little trick: zero if not ok ...
-		return (long)l&~(bse-BZ_OK);
+		return (long)len&~(bse-BZ_OK);
 	}
 	else {
 		return gzread(fp, buf, len);
@@ -582,7 +592,6 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		write( nr, len );
 	}
 	else {
-		uint32 test = get_version();
 		const int len = (int)strlen(typ);
 		assert(len<256);
 		// find start of tag
@@ -723,7 +732,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 			write(s, len);
 		}
 		else {
-			read(&len, sizeof(sint16));
+			long res = read(&len, sizeof(sint16));
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
@@ -881,7 +890,7 @@ sint16 loadsave_t::rd_obj_id()
 		if(!is_xml()) {
 			sint8 idc;
 			read(&idc, sizeof(sint8));
-			id = (sint8)idc;
+			id = (sint16)idc;
 		}
 		else {
 			sint64 ll;
@@ -951,7 +960,6 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 
 loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension_str)
 {	
-	uint32 version;
 	uint32 experimental_version = 0;
 
 	// major number (0..)
@@ -978,6 +986,8 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	// minor number (..08)
 	uint32 v2 = atoi(version_text);
+
+	// Experimental version
 	uint16 count = 0;
 	while(*version_text && *version_text++ != '.')
 	{
@@ -985,7 +995,6 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 	}
 	if(!*version_text) 
 	{
-		experimental_version = 0;
 		// Decrement the pointer if this is not an Experimental version.
 		//*version_text -= count;
 		while(count > 0)
@@ -1003,11 +1012,10 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 			count--;
 		}
 	}
-	
 
-	version = v0 * 1000000 + v1 * 1000 + v2;
+	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
 
-	while(  isdigit(*version_text)  ) {
+	while(  isdigit(*version_text) || *version_text == '.'  ) {
 		version_text++;
 	}
 
@@ -1028,9 +1036,15 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 			version = 999999999;
 		}
 	}
+	else {
+		// skip the minus sign
+		if (*version_text=='-') {
+			version_text++;
+		}
+	}
 
 	if(  pak_extension_str  ) {
-		if(  *version_text  &&  (version<103000  ||  *version_text=='-')  )  {
+		if(  *version_text  )  {
 			// also pak extension was saved
 			if(version>=99008) {
 				while(  *version_text>=32  ) {
@@ -1049,5 +1063,4 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 
 	return loadsave_version;
 }
-
 

@@ -1,0 +1,13 @@
+Simutrans is copyright (C) 1997-2004 by Hansjoerg Malthaner.
+(c) 2004-2007 Simutrans Team
+
+>>>>>>>>>>> NO WARRANTIES, EXPRESS OR IMPLIED. <<<<<<<<<<<
+
+Have lots of fun playing Simutrans!
+
+The following paks are not OpenSource but Freeware.
+- pak64.german
+- pak64.HAJO
+- pak96.comic
+- pak128
+Commercial distribution without written permission of the author(s) is not permitted.

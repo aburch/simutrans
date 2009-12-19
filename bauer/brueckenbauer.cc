@@ -63,8 +63,7 @@ void brueckenbauer_t::register_besch(bruecke_besch_t *besch)
 	wkz_brueckenbau_t *wkz = new wkz_brueckenbau_t();
 	wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 	wkz->cursor = besch->get_cursor()->get_bild_nr(0);
-	wkz->default_param = besch->get_name();
-	wkz->id = werkzeug_t::general_tool.get_count()|GENERAL_TOOL;
+	wkz->set_default_param(besch->get_name());
 	werkzeug_t::general_tool.append( wkz );
 	besch->set_builder( wkz );
 	bruecken_by_name.put(besch->get_name(), besch);

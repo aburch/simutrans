@@ -1228,6 +1228,13 @@ void vehikel_t::hop()
 		cnv->add_running_cost(-base_costs);
 	}
 
+	if(ist_erstes)
+	{
+		// Only the first vehicle in a convoy does this,
+		// or else there is double counting.
+		cnv->increment_odometer();
+	}
+
 	verlasse_feld(); //"Verlasse" = "leave" (Babelfish)
 
 	pos_prev = get_pos();
@@ -1279,14 +1286,14 @@ void vehikel_t::hop()
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
 		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1); 
 
-		if(alte_fahrtrichtung != fahrtrichtung)
-		{
+		//if(alte_fahrtrichtung != fahrtrichtung)
+		//{
 			pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
-		}
-		else
-		{
-			pre_corner_direction.add_to_tail(999);
-		}
+		//}
+		//else
+		//{
+			//pre_corner_direction.add_to_tail(999);
+		//}
 
 		speed_limit = calc_modified_speed_limit(&(cnv->get_route()->position_bei(route_index)), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
 		if(weg->is_crossing()) 
@@ -1389,7 +1396,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
 		}
 	
-		float limit_adjustment_factor = 1;
+		float limit_adjustment_factor = 1.0;
 		
 		if(base_limit > max_corner_limit)
 		{
@@ -1413,8 +1420,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		
 		uint16 tmp;
 
-		for(int i = (pre_corner_direction.get_count() >= direction_steps) ? direction_steps - 1 : pre_corner_direction.get_count() - 1; i > 0; i --)
+		int counter = 0;
+		for(int i = pre_corner_direction.get_count() - 1; i >= 0 && counter <= direction_steps; i --)
+
 		{
+			counter ++;
 			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
 			if(tmp > direction_difference)
 			{
@@ -1432,9 +1442,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 
 		//Smoothing code: slightly smoothed corners benefit.		
+		uint32 max_speed_90 = kmh_to_speed(55);
 		if(direction_difference > compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) && limit_adjustment_factor < 0.8))
 		{
 			limit_adjustment_factor += 0.15;
+			max_speed_90 = kmh_to_speed(75);
 			if(limit_adjustment_factor >= 1)
 			{
 				//But there is a limit to the benefit of smoothness.
@@ -1443,7 +1455,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 
 		//Tilting only makes a difference on faster track and on smoothed corners.
-		if(is_tilting && base_limit > kmh_to_speed(160) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
+		if(is_tilting && base_limit > kmh_to_speed(120) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
 		{	
 			// Tilting trains can take corners faster
 			limit_adjustment_factor += 0.30;
@@ -1473,17 +1485,19 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				break;
 
 			case 90 :
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.5));
+				// Sharp corners have a hard limit for speed irrespective of the base
+				// speed limit of the underlying way.
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
 				break;
 					
 			case 135 :
 
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.35));
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.25));
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
 				break;
 				
 			default :
@@ -1545,27 +1559,6 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 
 	const waytype_t waytype = get_waytype();
 
-	// assume straight flat way
-	//switch(waytype)
-	//{
-	//case air_wt:
-	//case maglev_wt:
-	//case monorail_wt:
-	//case tram_wt:
-	//case narrowgauge_wt:
-	//case track_wt:
-	//default:
-	//	current_friction = 1;
-	//	break;
-
-	//case road_wt:
-	//	current_friction = 4;
-	//	break;
-
-	//case water_wt:
-	//	current_friction = 6;
-	//	break;
-	//};
 	current_friction = get_friction_of_waytype(waytype);
 
 	
@@ -1587,7 +1580,8 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 		if(ribi_typ(hang) & fahrtrichtung)
 		{
 			//Uphill
-			current_friction += 45;
+			//current_friction += 45;
+			current_friction += 60;
 		}
 		else
 		{
@@ -2165,6 +2159,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	{
 		reversed = false;
 	}
+
 }
 
 
@@ -2292,6 +2287,14 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				if(  state>=2  ) {
 					sprintf( tooltip_text, translator::translate("Leaving depot!") );
 					color = COL_GREEN;
+				}
+				break;
+
+				case convoi_t::REVERSING:
+				if(  state>=2  ) 
+				{
+					sprintf( tooltip_text, translator::translate("Reversing") );
+					color = COL_YELLOW;
 				}
 				break;
 
@@ -2982,8 +2985,7 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int
-waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(get_waytype());
@@ -3011,8 +3013,7 @@ waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 
 
 
-signal_t *
-waggon_t::ist_blockwechsel(koord3d k2) const
+signal_t *waggon_t::ist_blockwechsel(koord3d k2) const
 {
 	const grund_t* gr = welt->lookup(k2);
 	if(gr == NULL)
@@ -3035,8 +3036,7 @@ waggon_t::ist_blockwechsel(koord3d k2) const
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool
-waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
+bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -3066,8 +3066,7 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 }
 
 
-bool
-waggon_t::ist_weg_frei(int & restart_speed)
+bool waggon_t::ist_weg_frei(int & restart_speed)
 {
 	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) {
 		// reserve first block at the start until the next signal
@@ -3108,6 +3107,10 @@ waggon_t::ist_weg_frei(int & restart_speed)
 	uint16 next_block=cnv->get_next_stop_index()-1;
 	if(next_block<=route_index+3) {
 		route_t *rt=cnv->get_route();
+		if(next_block >= rt->get_count())
+		{
+			next_block = rt->get_count() < 1;
+		}
 		koord3d block_pos=rt->position_bei(next_block);
 		signal_t *sig = ist_blockwechsel(block_pos);
 		if(sig) {

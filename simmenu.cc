@@ -56,115 +56,143 @@ vector_tpl<toolbar_t *>werkzeug_t::toolbar_tool(0);
 char werkzeug_t::toolstr[1088];
 
 
+
 werkzeug_t *create_general_tool(int toolnr)
 {
+	werkzeug_t* tool = NULL;
 	switch(toolnr) {
-		case WKZ_ABFRAGE:          return new wkz_abfrage_t();
-		case WKZ_REMOVER:          return new wkz_remover_t();
-		case WKZ_RAISE_LAND:       return new wkz_raise_t();
-		case WKZ_LOWER_LAND:       return new wkz_lower_t();
-		case WKZ_SETSLOPE:         return new wkz_setslope_t();
-		case WKZ_RESTORESLOPE:     return new wkz_restoreslope_t();
-		case WKZ_MARKER:           return new wkz_marker_t();
-		case WKZ_CLEAR_RESERVATION:return new wkz_clear_reservation_t();
-		case WKZ_TRANSFORMER:      return new wkz_transformer_t();
-		case WKZ_ADD_CITY:         return new wkz_add_city_t();
-		case WKZ_CHANGE_CITY_SIZE: return new wkz_change_city_size_t();
-		case WKZ_PLANT_TREE:       return new wkz_plant_tree_t();
-		case WKZ_FAHRPLAN_ADD:     return new wkz_fahrplan_add_t();
-		case WKZ_FAHRPLAN_INS:     return new wkz_fahrplan_ins_t();
-		case WKZ_WEGEBAU:          return new wkz_wegebau_t();
-		case WKZ_BRUECKENBAU:      return new wkz_brueckenbau_t();
-		case WKZ_TUNNELBAU:        return new wkz_tunnelbau_t();
-		case WKZ_WAYREMOVER:       return new wkz_wayremover_t();
-		case WKZ_WAYOBJ:           return new wkz_wayobj_t();
-		case WKZ_STATION:          return new wkz_station_t();
-		case WKZ_ROADSIGN:         return new wkz_roadsign_t();
-		case WKZ_DEPOT:            return new wkz_depot_t();
-		case WKZ_BUILD_HAUS:       return new wkz_build_haus_t();
-		case WKZ_LAND_CHAIN:       return new wkz_build_industries_land_t();
-		case WKZ_CITY_CHAIN:       return new wkz_build_industries_city_t();
-		case WKZ_BUILD_FACTORY:    return new wkz_build_factory_t();
-		case WKZ_LINK_FACTORY:     return new wkz_link_factory_t();
-		case WKZ_HEADQUARTER:      return new wkz_headquarter_t();
-		case WKZ_LOCK_GAME:        return new wkz_lock_game_t();
-		case WKZ_ADD_CITYCAR:      return new wkz_add_citycar_t();
-		case WKZ_FOREST:           return new wkz_forest_t();
-		case WKZ_STOP_MOVER:       return new wkz_stop_moving_t();
-		case WKZ_MAKE_STOP_PUBLIC: return new wkz_make_stop_public_t();
-		case WKZ_REMOVE_WAYOBJ:    return new wkz_wayobj_remover_t();
-		case WKZ_SLICED_AND_UNDERGROUND_VIEW: return new wkz_show_underground_t();
-		case WKZ_BUY_HOUSE:        return new wkz_buy_house_t();
+		case WKZ_ABFRAGE:          tool = new wkz_abfrage_t(); break;
+		case WKZ_REMOVER:          tool = new wkz_remover_t(); break;
+		case WKZ_RAISE_LAND:       tool = new wkz_raise_t(); break;
+		case WKZ_LOWER_LAND:       tool = new wkz_lower_t(); break;
+		case WKZ_SETSLOPE:         tool = new wkz_setslope_t(); break;
+		case WKZ_RESTORESLOPE:     tool = new wkz_restoreslope_t(); break;
+		case WKZ_MARKER:           tool = new wkz_marker_t(); break;
+		case WKZ_CLEAR_RESERVATION:tool = new wkz_clear_reservation_t(); break;
+		case WKZ_TRANSFORMER:      tool = new wkz_transformer_t(); break;
+		case WKZ_ADD_CITY:         tool = new wkz_add_city_t(); break;
+		case WKZ_CHANGE_CITY_SIZE: tool = new wkz_change_city_size_t(); break;
+		case WKZ_PLANT_TREE:       tool = new wkz_plant_tree_t(); break;
+		case WKZ_FAHRPLAN_ADD:     tool = new wkz_fahrplan_add_t(); break;
+		case WKZ_FAHRPLAN_INS:     tool = new wkz_fahrplan_ins_t(); break;
+		case WKZ_WEGEBAU:          tool = new wkz_wegebau_t(); break;
+		case WKZ_BRUECKENBAU:      tool = new wkz_brueckenbau_t(); break;
+		case WKZ_TUNNELBAU:        tool = new wkz_tunnelbau_t(); break;
+		case WKZ_WAYREMOVER:       tool = new wkz_wayremover_t(); break;
+		case WKZ_WAYOBJ:           tool = new wkz_wayobj_t(); break;
+		case WKZ_STATION:          tool = new wkz_station_t(); break;
+		case WKZ_ROADSIGN:         tool = new wkz_roadsign_t(); break;
+		case WKZ_DEPOT:            tool = new wkz_depot_t(); break;
+		case WKZ_BUILD_HAUS:       tool = new wkz_build_haus_t(); break;
+		case WKZ_LAND_CHAIN:       tool = new wkz_build_industries_land_t(); break;
+		case WKZ_CITY_CHAIN:       tool = new wkz_build_industries_city_t(); break;
+		case WKZ_BUILD_FACTORY:    tool = new wkz_build_factory_t(); break;
+		case WKZ_LINK_FACTORY:     tool = new wkz_link_factory_t(); break;
+		case WKZ_HEADQUARTER:      tool = new wkz_headquarter_t(); break;
+		case WKZ_LOCK_GAME:        tool = new wkz_lock_game_t(); break;
+		case WKZ_ADD_CITYCAR:      tool = new wkz_add_citycar_t(); break;
+		case WKZ_FOREST:           tool = new wkz_forest_t(); break;
+		case WKZ_STOP_MOVER:       tool = new wkz_stop_moving_t(); break;
+		case WKZ_MAKE_STOP_PUBLIC: tool = new wkz_make_stop_public_t(); break;
+		case WKZ_REMOVE_WAYOBJ:    tool = new wkz_wayobj_remover_t(); break;
+		case WKZ_SLICED_AND_UNDERGROUND_VIEW: tool = new wkz_show_underground_t(); break;
+		case WKZ_BUY_HOUSE:        tool = new wkz_buy_house_t(); break;
+		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
+		                           return NULL;
 	}
-	dbg->fatal("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
-	return NULL;
+	// check for right id (exception: WKZ_SLICED_AND_UNDERGROUND_VIEW)
+	assert(tool->get_id()  ==  (toolnr | GENERAL_TOOL)  ||  toolnr==WKZ_SLICED_AND_UNDERGROUND_VIEW);
+	return tool;
 }
 
 werkzeug_t *create_simple_tool(int toolnr)
 {
+	werkzeug_t* tool = NULL;
 	switch(toolnr) {
-		case WKZ_PAUSE:             return new wkz_pause_t();
-		case WKZ_FASTFORWARD:       return new wkz_fastforward_t();
-		case WKZ_SCREENSHOT:        return new wkz_screenshot_t();
-		case WKZ_INCREASE_INDUSTRY: return new wkz_increase_industry_t();
-		case WKZ_UNDO:              return new wkz_undo_t();
-		case WKZ_SWITCH_PLAYER:     return new wkz_switch_player_t();
-		case WKZ_STEP_YEAR:         return new wkz_step_year_t();
-		case WKZ_CHANGE_GAME_SPEED: return new wkz_change_game_speed_t();
-		case WKZ_ZOOM_IN:           return new wkz_zoom_in_t();
-		case WKZ_ZOOM_OUT:          return new wkz_zoom_out_t();
-		case WKZ_SHOW_COVERAGE:     return new wkz_show_coverage_t();
-		case WKZ_SHOW_NAMES:        return new wkz_show_name_t();
-		case WKZ_SHOW_GRID:         return new wkz_show_grid_t();
-		case WKZ_SHOW_TREES:        return new wkz_show_trees_t();
-		case WKZ_SHOW_HOUSES:       return new wkz_show_houses_t();
-		case WKZ_SHOW_UNDERGROUND:  return new wkz_show_underground_t();
-		case WKZ_ROTATE90:          return new wkz_rotate90_t();
-		case WKZ_QUIT:              return new wkz_quit_t();
-		case WKZ_FILL_TREES:        return new wkz_fill_trees_t();
-		case WKZ_DAYNIGHT_LEVEL:    return new wkz_daynight_level_t();
-		case WKZ_VEHICLE_TOOLTIPS:  return new wkz_vehicle_tooltips_t();
+		case WKZ_PAUSE:             tool = new wkz_pause_t(); break;
+		case WKZ_FASTFORWARD:       tool = new wkz_fastforward_t(); break;
+		case WKZ_SCREENSHOT:        tool = new wkz_screenshot_t(); break;
+		case WKZ_INCREASE_INDUSTRY: tool = new wkz_increase_industry_t(); break;
+		case WKZ_UNDO:              tool = new wkz_undo_t(); break;
+		case WKZ_SWITCH_PLAYER:     tool = new wkz_switch_player_t(); break;
+		case WKZ_STEP_YEAR:         tool = new wkz_step_year_t(); break;
+		case WKZ_CHANGE_GAME_SPEED: tool = new wkz_change_game_speed_t(); break;
+		case WKZ_ZOOM_IN:           tool = new wkz_zoom_in_t(); break;
+		case WKZ_ZOOM_OUT:          tool = new wkz_zoom_out_t(); break;
+		case WKZ_SHOW_COVERAGE:     tool = new wkz_show_coverage_t(); break;
+		case WKZ_SHOW_NAMES:        tool = new wkz_show_name_t(); break;
+		case WKZ_SHOW_GRID:         tool = new wkz_show_grid_t(); break;
+		case WKZ_SHOW_TREES:        tool = new wkz_show_trees_t(); break;
+		case WKZ_SHOW_HOUSES:       tool = new wkz_show_houses_t(); break;
+		case WKZ_SHOW_UNDERGROUND:  tool = new wkz_show_underground_t(); break;
+		case WKZ_ROTATE90:          tool = new wkz_rotate90_t(); break;
+		case WKZ_QUIT:              tool = new wkz_quit_t(); break;
+		case WKZ_FILL_TREES:        tool = new wkz_fill_trees_t(); break;
+		case WKZ_DAYNIGHT_LEVEL:    tool = new wkz_daynight_level_t(); break;
+		case WKZ_VEHICLE_TOOLTIPS:  tool = new wkz_vehicle_tooltips_t(); break;
+		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
+		                            return NULL;
 	}
-	dbg->fatal("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
-	return NULL;
+	assert(tool->get_id()  ==  (toolnr | SIMPLE_TOOL));
+	return tool;
 }
 
 
 werkzeug_t *create_dialog_tool(int toolnr)
 {
+	werkzeug_t* tool = NULL;
 	switch(toolnr) {
-		case WKZ_HELP:           return new wkz_help_t();
-		case WKZ_OPTIONEN:       return new wkz_optionen_t();
-		case WKZ_MINIMAP:        return new wkz_minimap_t();
-		case WKZ_LINEOVERVIEW:   return new wkz_lines_t();
-		case WKZ_MESSAGES:       return new wkz_messages_t();
-		case WKZ_FINANCES:       return new wkz_finances_t();
-		case WKZ_PLAYERS:        return new wkz_players_t();
-		case WKZ_DISPLAYOPTIONS: return new wkz_displayoptions_t();
-		case WKZ_SOUND:          return new wkz_sound_t();
-		case WKZ_LANGUAGE:       return new wkz_language_t();
-		case WKZ_PLAYERCOLOR:    return new wkz_playercolor_t();
-		case WKZ_JUMP:           return new wkz_jump_t();
-		case WKZ_LOAD:           return new wkz_load_t();
-		case WKZ_SAVE:           return new wkz_save_t();
-		case WKZ_LIST_HALT:      return new wkz_list_halt_t();
-		case WKZ_LIST_CONVOI:    return new wkz_list_convoi_t();
-		case WKZ_LIST_TOWN:      return new wkz_list_town_t();
-		case WKZ_LIST_GOODS:     return new wkz_list_goods_t();
-		case WKZ_LIST_FACTORY:   return new wkz_list_factory_t();
-		case WKZ_LIST_CURIOSITY: return new wkz_list_curiosity_t();
-		case WKZ_EDIT_FACTORY:   return new wkz_factorybuilder_t();
-		case WKZ_EDIT_ATTRACTION:return new wkz_attractionbuilder_t();
-		case WKZ_EDIT_HOUSE:     return new wkz_housebuilder_t();
-		case WKZ_EDIT_TREE:      return new wkz_treebuilder_t();
-		case WKZ_ENLARGE_MAP:    return new wkz_enlarge_map_t();
-		case WKZ_LIST_LABEL:     return new wkz_list_label_t();
-		case WKZ_CLIMATES:       return new wkz_climates_t();
+		case WKZ_HELP:           tool = new wkz_help_t(); break;
+		case WKZ_OPTIONEN:       tool = new wkz_optionen_t(); break;
+		case WKZ_MINIMAP:        tool = new wkz_minimap_t(); break;
+		case WKZ_LINEOVERVIEW:   tool = new wkz_lines_t(); break;
+		case WKZ_MESSAGES:       tool = new wkz_messages_t(); break;
+		case WKZ_FINANCES:       tool = new wkz_finances_t(); break;
+		case WKZ_PLAYERS:        tool = new wkz_players_t(); break;
+		case WKZ_DISPLAYOPTIONS: tool = new wkz_displayoptions_t(); break;
+		case WKZ_SOUND:          tool = new wkz_sound_t(); break;
+		case WKZ_LANGUAGE:       tool = new wkz_language_t(); break;
+		case WKZ_PLAYERCOLOR:    tool = new wkz_playercolor_t(); break;
+		case WKZ_JUMP:           tool = new wkz_jump_t(); break;
+		case WKZ_LOAD:           tool = new wkz_load_t(); break;
+		case WKZ_SAVE:           tool = new wkz_save_t(); break;
+		case WKZ_LIST_HALT:      tool = new wkz_list_halt_t(); break;
+		case WKZ_LIST_CONVOI:    tool = new wkz_list_convoi_t(); break;
+		case WKZ_LIST_TOWN:      tool = new wkz_list_town_t(); break;
+		case WKZ_LIST_GOODS:     tool = new wkz_list_goods_t(); break;
+		case WKZ_LIST_FACTORY:   tool = new wkz_list_factory_t(); break;
+		case WKZ_LIST_CURIOSITY: tool = new wkz_list_curiosity_t(); break;
+		case WKZ_EDIT_FACTORY:   tool = new wkz_factorybuilder_t(); break;
+		case WKZ_EDIT_ATTRACTION:tool = new wkz_attractionbuilder_t(); break;
+		case WKZ_EDIT_HOUSE:     tool = new wkz_housebuilder_t(); break;
+		case WKZ_EDIT_TREE:      tool = new wkz_treebuilder_t(); break;
+		case WKZ_ENLARGE_MAP:    tool = new wkz_enlarge_map_t(); break;
+		case WKZ_LIST_LABEL:     tool = new wkz_list_label_t(); break;
+		case WKZ_CLIMATES:       tool = new wkz_climates_t(); break;
+		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
+		                         return NULL;
 	}
-	dbg->fatal("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
-	return NULL;
+	assert(tool->get_id() == (toolnr | DIALOGE_TOOL));
+	return tool;
 }
 
+werkzeug_t *create_tool(int toolnr)
+{
+	werkzeug_t *wkz = NULL;
+	if(  toolnr & GENERAL_TOOL  ) {
+		wkz = create_general_tool(toolnr & 0xFFF);
+	}
+	else if(  toolnr & SIMPLE_TOOL  ) {
+		wkz = create_simple_tool(toolnr & 0xFFF);
+	}
+	else if(  toolnr & DIALOGE_TOOL  ) {
+		wkz = create_dialog_tool(toolnr & 0xFFF);
+	}
+	if (wkz == NULL) {
+		dbg->error("create_tool()","cannot satisfy request for tool with id %i!",toolnr);
+	}
+	return wkz;
+}
 
 
 static uint16 str_to_key( const char *str )
@@ -220,17 +248,14 @@ void werkzeug_t::init_menu()
 {
 	for(  uint16 i=0;  i<GENERAL_TOOL_COUNT;  i++  ) {
 		werkzeug_t *w = create_general_tool( i );
-		w->id = i | GENERAL_TOOL;
 		general_tool.append(w);
 	}
 	for(  uint16 i=0;  i<SIMPLE_TOOL_COUNT;  i++  ) {
 		werkzeug_t *w = create_simple_tool( i );
-		w->id = i | SIMPLE_TOOL;
 		simple_tool.append(w);
 	}
 	for(  uint16 i=0;  i<DIALOGE_TOOL_COUNT;  i++  ) {
 		werkzeug_t *w = create_dialog_tool( i );
-		w->id = i | DIALOGE_TOOL;
 		dialog_tool.append(w);
 	}
 }
@@ -544,7 +569,6 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						if(param_str!=NULL) {
 							addtool->default_param = strdup(param_str);
 						}
-						addtool->id = general_tool.get_count() | GENERAL_TOOL;
 						general_tool.append( addtool );
 					}
 					else {
@@ -571,7 +595,6 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						if(param_str!=NULL) {
 							addtool->default_param = strdup(param_str);
 						}
-						addtool->id = simple_tool.get_count() | SIMPLE_TOOL;
 						simple_tool.append( addtool );
 					}
 					else {
@@ -598,7 +621,6 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						if(param_str!=NULL) {
 							addtool->default_param = strdup(param_str);
 						}
-						addtool->id = dialog_tool.get_count() | DIALOGE_TOOL;
 						dialog_tool.append( addtool );
 					}
 					else {
@@ -728,9 +750,9 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		werkzeug_t *w = *iter;
 		// no way to call this tool? => then it is most likely a metatool
 		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_LEER) {
-			if(w->default_param!=NULL) {
-				if(strstr(w->default_param,"ways(")) {
-					const char *c = w->default_param+5;
+			if(w->get_default_param()!=NULL) {
+				if(strstr(w->get_default_param(),"ways(")) {
+					const char *c = w->get_default_param()+5;
 					waytype_t way = (waytype_t)atoi(c);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
@@ -738,32 +760,32 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 					weg_t::system_type subtype = (weg_t::system_type)(*c!=0 ? atoi(++c) : 0);
 					wegbauer_t::fill_menu( wzw, way, subtype, get_sound(c), welt );
 				}
-				else if(strstr(w->default_param,"bridges(")) {
-					waytype_t way = (waytype_t)atoi(w->default_param+8);
-					brueckenbauer_t::fill_menu( wzw, way, get_sound(w->default_param+5), welt );
+				else if(strstr(w->get_default_param(),"bridges(")) {
+					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
+					brueckenbauer_t::fill_menu( wzw, way, get_sound(w->get_default_param()+5), welt );
 				}
-				else if(strstr(w->default_param,"tunnels(")) {
-					waytype_t way = (waytype_t)atoi(w->default_param+8);
-					tunnelbauer_t::fill_menu( wzw, way, get_sound(w->default_param+8), welt );
+				else if(strstr(w->get_default_param(),"tunnels(")) {
+					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
+					tunnelbauer_t::fill_menu( wzw, way, get_sound(w->get_default_param()+8), welt );
 				}
-				else if(strstr(w->default_param,"signs(")) {
-					waytype_t way = (waytype_t)atoi(w->default_param+6);
-					roadsign_t::fill_menu( wzw, way, get_sound(w->default_param+6), welt );
+				else if(strstr(w->get_default_param(),"signs(")) {
+					waytype_t way = (waytype_t)atoi(w->get_default_param()+6);
+					roadsign_t::fill_menu( wzw, way, get_sound(w->get_default_param()+6), welt );
 				}
-				else if(strstr(w->default_param,"wayobjs(")) {
-					waytype_t way = (waytype_t)atoi(w->default_param+8);
-					wayobj_t::fill_menu( wzw, way, get_sound(w->default_param+8), welt );
+				else if(strstr(w->get_default_param(),"wayobjs(")) {
+					waytype_t way = (waytype_t)atoi(w->get_default_param()+8);
+					wayobj_t::fill_menu( wzw, way, get_sound(w->get_default_param()+8), welt );
 				}
-				else if(strstr(w->default_param,"buildings(")) {
-					const char *c = w->default_param+10;
-					haus_besch_t::utyp utype = (haus_besch_t::utyp)atoi(w->default_param+10);
+				else if(strstr(w->get_default_param(),"buildings(")) {
+					const char *c = w->get_default_param()+10;
+					haus_besch_t::utyp utype = (haus_besch_t::utyp)atoi(w->get_default_param()+10);
 					while(*c  &&  *c!=','  &&  *c!=')') {
 						c++;
 					}
 					waytype_t way = (waytype_t)(*c!=0 ? atoi(++c) : 0);
 					hausbauer_t::fill_menu( wzw, utype, way, get_sound(c), welt );
 				}
-				else if(w->default_param[0]=='-') {
+				else if(w->get_default_param()[0]=='-') {
 					// add dummy werkzeug as seperator
 					wzw->add_werkzeug( dummy );
 				}
@@ -805,6 +827,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 
 bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 {
+	dbg->warning("two_click_werkzeug_t::init", "" );
 	first_click_var[sp->get_player_nr()] = true;
 	welt->show_distance = start[sp->get_player_nr()] = koord3d::invalid;
 	cleanup( sp, true );
@@ -837,7 +860,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	if(  is_first_click(sp)  ) {
 		if( value & 1 ) {
 			// Work here directly.
-			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
+			dbg->warning("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( welt, sp, pos, koord3d::invalid );
 		}
 		else {
@@ -847,7 +870,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	}
 	else {
 		if( value & 2 ) {
-			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
+			dbg->warning("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
 			error = do_work( welt, sp, start[sp->get_player_nr()], pos );
 		}
 		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).

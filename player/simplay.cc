@@ -929,7 +929,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<102002  ) 
+	else if(  file->get_version()<102003  ) 
 	{
 		// saved everything
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++)
@@ -1273,5 +1273,26 @@ spieler_t::undo()
 	return cost!=0;
 }
 
-
+void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, bool local)
+{
+	/* tools can return three kinds of messages
+	 * NULL = success
+	 * "" = failure, but just do not try again
+	 * "bla" error message, which should be shown
+	 */
+	if (welt->get_active_player()==this  &&  local) {
+		if(err==NULL) {
+			if(tool->ok_sound!=NO_SOUND) {
+				struct sound_info info = {tool->ok_sound,255,0};
+				sound_play(info);
+			}
+		}
+		else if(*err!=0) {
+			// something went really wrong
+			struct sound_info info = {SFX_FAILURE,255,0};
+			sound_play(info);
+			create_win( new news_img(err), w_time_delete, magic_none);
+		}
+	}
+}
 
