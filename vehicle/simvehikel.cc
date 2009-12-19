@@ -1581,13 +1581,12 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 		{
 			//Uphill
 			//current_friction += 45;
-			current_friction += 70;
+			current_friction += 60;
 		}
 		else
 		{
 			//Downhill
-			//current_friction -= 45;
-			current_friction -= 70;
+			current_friction -= 45;
 		}
 	}
 

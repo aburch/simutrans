@@ -364,6 +364,8 @@ einstellungen_t::einstellungen_t() :
 	max_longdistance_tolerance = 330 * 10; // Five and a half hours
 	//max_longdistance_tolerance = 150;
 
+	max_walking_distance = 4;
+
 	// some network thing to keep client in sync
 	random_counter = 0;	// will be set when actually saving
 	frames_per_second = 20;
@@ -922,6 +924,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(max_longdistance_tolerance, "");
 		}
 	}
+	
+	if(file->get_experimental_version() >= 8)
+	{
+		file->rdwr_short(max_walking_distance, "");
+	}
 }
 
 
@@ -1332,7 +1339,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
 	max_longdistance_tolerance -= max_longdistance_tolerance > min_longdistance_tolerance ? min_longdistance_tolerance : 0;
-	
+
+	const float max_walking_distance_km = (contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * (distance_per_tile * 10))) / 10.0);
+	max_walking_distance = max_walking_distance_km / distance_per_tile;
 
 	/*
 	 * Selection of savegame format through inifile
