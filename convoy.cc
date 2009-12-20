@@ -58,7 +58,7 @@ static void get_possible_freight_weight(uint8 catg_index, uint32 &min_weight, ui
 
 /******************************************************************************/
 
-void environ_summary_t::add_vehicle(const vehikel_t &v)
+void adverse_summary_t::add_vehicle(const vehikel_t &v)
 {
 	const waytype_t waytype = v.get_waytype();
 	if (max_speed == INT_MAX)
@@ -127,8 +127,8 @@ void weight_summary_t::add_weight(uint32 tons, sint32 sin_alpha)
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	const double p3 = (environ.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * environ.cf);
-	const double q2 = vehicle.power / (0.002 * environ.cf);
+	const double p3 = (adverse.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * adverse.cf);
+	const double q2 = vehicle.power / (0.002 * adverse.cf);
 	const double sd = signed_power(q2 * q2 + p3 * p3 * p3, 1.0/2.0);
 	const double vmax = (signed_power(q2 + sd, 1.0/3.0) + signed_power(q2 - sd, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
 	return min(vehicle.max_speed, (sint32) vmax); 
@@ -139,12 +139,12 @@ uint32 convoy_t::calc_max_weight()
 	if (vehicle.max_speed == 0)
 		return 0;
 	const double v = vehicle.max_speed * (1.0/3.6); // from km/h to m/s
-	return (uint32)((vehicle.power * 1000 - environ.cf * v * v * v) / (environ.fr * 9.81 * v));
+	return (uint32)((vehicle.power * 1000 - adverse.cf * v * v * v) / (adverse.fr * 9.81 * v));
 }
 
 double convoy_t::calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */)
 {
-	return double_min(environ.cf * speed * speed, get_force(speed) - Frs); /* in N */
+	return double_min(adverse.cf * speed * speed, get_force(speed) - Frs); /* in N */
 }
 
 // The timeslice to calculate acceleration, speed and covered distance in reasonable small chuncks. 
@@ -155,9 +155,9 @@ double convoy_t::calc_speed_holding_force(double speed /* in m/s */, double Frs 
 void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 	double dx = 0;
-	if (environ.max_speed < INT_MAX)
+	if (adverse.max_speed < INT_MAX)
 	{
-		sint32 speed_limit = kmh_to_speed(environ.max_speed);
+		sint32 speed_limit = kmh_to_speed(adverse.max_speed);
 		if (akt_speed_soll > speed_limit)
 		{
 			akt_speed_soll = speed_limit;
@@ -172,7 +172,7 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 	}
 	else
 	{
-		const double Frs = 9.81 * (environ.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const double Frs = 9.81 * (adverse.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
 		const double vmax = speed_to_v(akt_speed_soll);
 		double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
 		double fvmax = 0; // force needed to hold vmax. will be calculated as needed
@@ -250,7 +250,7 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			long dt;
-			double df = simtime_factor * (f - sgn(v) * environ.cf * v * v);
+			double df = simtime_factor * (f - sgn(v) * adverse.cf * v * v);
 			if (delta_t >= DT_SLICE && (uint32)abs(df) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.
@@ -301,14 +301,14 @@ void potential_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 }
 
 
-void potential_convoy_t::update_environ_summary(environ_summary_t &environ)
+void potential_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 {
-	environ.clear();
+	adverse.clear();
 	uint32 i = vehicles.get_count();
 	if (i > 0)
 	{
 		const vehikel_besch_t &b = *vehicles[0];
-		environ.set_by_waytype(b.get_waytype());
+		adverse.set_by_waytype(b.get_waytype());
 	}		
 }
 
@@ -345,13 +345,13 @@ void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 }
 
 
-void existing_convoy_t::update_environ_summary(environ_summary_t &environ)
+void existing_convoy_t::update_adverse_summary(adverse_summary_t &adverse)
 {
-	environ.clear();
+	adverse.clear();
 	for (uint16 i = convoy.get_vehikel_anzahl(); i-- > 0; )
 	{
 		vehikel_t &v = *convoy.get_vehikel(i);
-		environ.add_vehicle(v);
+		adverse.add_vehicle(v);
 	}
 }
 

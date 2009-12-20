@@ -94,7 +94,7 @@ a = (F - cf * v^2 - Frs) / m
 // overperform with default values.
 //#define FR_TRACK 0.0056
 //#define FR_MAGLEV 0.0015
-#define FR_ROAD  0.030
+#define FR_ROAD  0.027
 #define FR_WATER 0.030
 //#define FR_AIR 0.002
 
@@ -155,7 +155,9 @@ struct vehicle_summary_t
 
 /******************************************************************************/
 
-struct environ_summary_t
+// should have been named: struct environ_summary_t
+// but "environ" is the name of a defined macro. 
+struct adverse_summary_t
 {
 	double cf;	// air resistance constant: cf = cw/2 * A * rho. Depends on rho, which depends on altitude.
 	double fr;	// roll resistance: depends on way
@@ -173,11 +175,12 @@ struct environ_summary_t
 		switch (waytype)
 		{
 			case air_wt:
-				fr = FR_AIR;
 				cf = CF_AIR;
+				fr = FR_AIR;
 				break;
 
 			case water_wt:
+				cf = CF_ROAD;
 				fr = FR_WATER;
 				break;
 		
@@ -186,13 +189,18 @@ struct environ_summary_t
 			case monorail_wt:      
 			case tram_wt:
 			case narrowgauge_wt:
-				fr = FR_TRACK;
 				cf = CF_TRACK;
+				fr = FR_TRACK;
 				break;
 			
 			case maglev_wt:
-				fr = FR_MAGLEV;
 				cf = CF_TRACK;
+				fr = FR_MAGLEV;
+				break;
+
+			default:
+				cf = CF_ROAD;
+				fr = FR_ROAD;
 				break;
 		}
 	}
@@ -221,8 +229,8 @@ struct freight_summary_t
 struct weight_summary_t
 {
 	uint32 weight;			// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
-	double weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on environ (way/inclination), vehicle and freight
-	double weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on environ (way/inclination), vehicle and freight
+	double weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
+	double weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
 
 	weight_summary_t()
 	{
@@ -262,11 +270,11 @@ struct weight_summary_t
 
 /******************************************************************************/
 
-class convoy_t abstract 
+class convoy_t /*abstract */
 {
-private:
+	private:
 	vehicle_summary_t vehicle;
-	environ_summary_t environ;
+	adverse_summary_t adverse;
 
 	/**
 	 * Get force in N according to current speed in m/s
@@ -289,19 +297,19 @@ protected:
 		return vehicle;
 	}
 
-	virtual const environ_summary_t &get_environ_summary() {
-		return environ;
+	virtual const adverse_summary_t &get_adverse_summary() {
+		return adverse;
 	}
 public:
 	/** 
 	 * Get maximum possible speed of convoy in km/h according to weight, power/force, inclination, etc.
-	 * Depends on vehicle, environ and given weight.
+	 * Depends on vehicle, adverse and given weight.
 	 */
 	sint32 calc_max_speed(const weight_summary_t &weight); 
 
 	/** 
 	 * Get maximum possible weight of convoy in kg according to allowed max speed and power.
-	 * Depends on vehicle and environ.
+	 * Depends on vehicle and adverse.
 	 */
 	uint32 calc_max_weight(); 
 
@@ -320,21 +328,21 @@ public:
 enum convoy_detail_e
 {
 	cd_vehicle_summary = 0x01,
-	cd_environ_summary = 0x02,
+	cd_adverse_summary = 0x02,
 	cd_freight_summary = 0x04,
 	cd_weight_summary  = 0x08
 };
 
-class lazy_convoy_t abstract : public convoy_t
+class lazy_convoy_t /*abstract*/ : public convoy_t
 {
 private:
 	freight_summary_t freight;
 protected:
 	int is_valid;
 	// decendents implement the update methods. 
-	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) = 0;
-	virtual void update_environ_summary(environ_summary_t &environ) = 0;
-	virtual void update_freight_summary(freight_summary_t &freight) = 0;
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) {} // = 0;
+	virtual void update_adverse_summary(adverse_summary_t &adverse) {} // = 0;
+	virtual void update_freight_summary(freight_summary_t &freight) {} // = 0;
 public:
 
 	//-----------------------------------------------------------------------------
@@ -342,7 +350,7 @@ public:
 	// vehicle_summary becomes invalid, when the vehicle list or any vehicle's vehicle_besch_t changes.
 	inline void invalidate_vehicle_summary()
 	{
-		is_valid &= ~(cd_vehicle_summary|cd_environ_summary|cd_weight_summary);
+		is_valid &= ~(cd_vehicle_summary|cd_adverse_summary|cd_weight_summary);
 	}
 
 	// vehicle_summary is valid if (is_valid & cd_vehicle_summary != 0)
@@ -362,26 +370,26 @@ public:
 
 	//-----------------------------------------------------------------------------
 	
-	// environ_summary becomes invalid, when vehicle_summary becomes invalid 
+	// adverse_summary becomes invalid, when vehicle_summary becomes invalid 
 	// or any vehicle's vehicle_besch_t or any vehicle's location/way changes.
-	inline void invalidate_environ_summary()
+	inline void invalidate_adverse_summary()
 	{
-		is_valid &= ~(cd_environ_summary|cd_weight_summary);
+		is_valid &= ~(cd_adverse_summary|cd_weight_summary);
 	}
 
-	// environ_summary is valid if (is_valid & cd_environ_summary != 0)
-	inline void validate_environ_summary() {
-		if (!(is_valid & cd_environ_summary)) 
+	// adverse_summary is valid if (is_valid & cd_adverse_summary != 0)
+	inline void validate_adverse_summary() {
+		if (!(is_valid & cd_adverse_summary)) 
 		{
-			is_valid |= cd_environ_summary;
-			update_environ_summary((environ_summary_t&)convoy_t::get_environ_summary());
+			is_valid |= cd_adverse_summary;
+			update_adverse_summary((adverse_summary_t&)convoy_t::get_adverse_summary());
 		}
 	}
 
-	// environ_summary needs recaching only, if it is going to be used. 
-	virtual const environ_summary_t &get_environ_summary() {
-		validate_environ_summary();
-		return convoy_t::get_environ_summary();
+	// adverse_summary needs recaching only, if it is going to be used. 
+	virtual const adverse_summary_t &get_adverse_summary() {
+		validate_adverse_summary();
+		return convoy_t::get_adverse_summary();
 	}
 
 	//-----------------------------------------------------------------------------
@@ -418,14 +426,14 @@ public:
 	virtual sint32 calc_max_speed(const weight_summary_t &weight)
 	{
 		validate_vehicle_summary();
-		validate_environ_summary();
+		validate_adverse_summary();
 		return convoy_t::calc_max_speed(weight);
 	}
 
 	virtual void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_vehicle_summary();
-		validate_environ_summary();
+		validate_adverse_summary();
 		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
 	}
 };
@@ -439,7 +447,7 @@ private:
 	vector_tpl<const vehikel_besch_t *> &vehicles;
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
-	virtual void update_environ_summary(environ_summary_t &environ);
+	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual uint32 get_force_summary(uint16 speed /* in m/s */);
 public:
@@ -457,7 +465,7 @@ private:
 	weight_summary_t weight;
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
-	virtual void update_environ_summary(environ_summary_t &environ);
+	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
 	virtual uint32 get_force_summary(uint16 speed /* in m/s */);
@@ -465,7 +473,7 @@ public:
 	existing_convoy_t(convoi_t &vehicles) : lazy_convoy_t(), convoy(vehicles)
 	{
 		validate_vehicle_summary();
-		validate_environ_summary();
+		validate_adverse_summary();
 	}
 
 	//-----------------------------------------------------------------------------
