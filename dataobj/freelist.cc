@@ -33,9 +33,9 @@ static nodelist_node_t *chunk_list = NULL;
 static nodelist_node_t *message_nodes = NULL;
 #define message_node_size (sizeof(struct message_t::node)+sizeof(void *))
 
-static nodelist_node_t *node1220 = NULL;
-static nodelist_node_t *node1624 = NULL;
-static nodelist_node_t *node2440 = NULL;
+// if additional fixed sizes are required, add them here
+// (the few request for larger ones are satisfied with xmalloc otherwise)
+
 
 // for 64 bit, set this to 128
 #define MAX_LIST_INDEX (128)
@@ -80,17 +80,8 @@ void *freelist_t::gimme_node(size_t size)
 			case message_node_size:
 				list = &message_nodes;
 				break;
-			case 1220:
-				list = &node1220;
-				break;
-			case 1624:
-				list = &node1624;
-				break;
-			case 2440:
-				list = &node2440;
-				break;
 			default:
-				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size, MAX_LIST_INDEX, message_node_size );
+				return xmalloc( size );
 		}
 	}
 	else {
@@ -162,17 +153,9 @@ void freelist_t::putback_node( size_t size, void *p )
 			case message_node_size:
 				list = &message_nodes;
 				break;
-			case 1220/4:
-				list = &node1220;
-				break;
-			case 1624/4:
-				list = &node1624;
-				break;
-			case 2440/4:
-				list = &node2440;
-				break;
 			default:
-				dbg->fatal("freelist_t::gimme_node()","No list with size %i! (only up to %i and %i, 1220, 1624, 2440)", size*4, MAX_LIST_INDEX, message_node_size );
+				free( p );
+				return;
 		}
 	}
 	else {
@@ -206,7 +189,4 @@ freelist_t::free_all_nodes()
 	}
 	printf("freelist_t::free_all_nodes(): ok\n");
 	message_nodes = NULL;
-	node1220 = NULL;
-	node1624 = NULL;
-	node2440 = NULL;
 }
