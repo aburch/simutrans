@@ -415,14 +415,34 @@ int simu_main(int argc, char** argv)
 	bool multiuser = (gimme_arg(argc, argv, "-singleuser", 0) == NULL);
 
 	tabfile_t simuconf;
-	if(simuconf.open("config/simuconf.tab")) {
+	if(simuconf.open("config/simuconf.tab")) 
+	{		
+		found_simuconf = true;
+	}
+	else
+	{
+		// Settings file not found. Try the Debian default instead, in which
+		// data files are in /usr/share/games/simutrans
+        const char [1024] backup_program_dir = umgebung_t::program_dir;
+		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans/" );
+        chdir( umgebung_t::program_dir );
+		if(simuconf.open("config/simuconf.tab")) 
 		{
-			tabfileobj_t contents;
-			simuconf.read(contents);
-			// use different save directories
-			multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
 			found_simuconf = true;
 		}
+		else
+		{
+			 umgebung_t::program_dir = backup_program_dir;
+			 chdir(umgebung_t::program_dir);
+		}
+	}
+
+	if(found_simuconf)
+	{
+		tabfileobj_t contents;
+		simuconf.read(contents);
+		// use different save directories
+		multiuser = !(contents.get_int("singleuser_install", !multiuser)==1  ||  !multiuser);
 		simuconf.close();
 	}
 
@@ -438,7 +458,22 @@ int simu_main(int argc, char** argv)
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
-	if(file.rd_open("settings-experimental.xml"))  
+	bool xml_settings_found = file.rd_open("settings-experimental.xml");
+	if(!xml_settings_found)
+	{
+		// Again, attempt to use the Debian directory.
+		const char [1024] backup_program_dir = umgebung_t::program_dir;
+		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans/" );
+        chdir( umgebung_t::program_dir );
+		xml_settings_found = file.rd_open("settings-experimental.xml")
+		if(!xml_settings_found)
+		{
+			 umgebung_t::program_dir = backup_program_dir;
+			 chdir(umgebung_t::program_dir);
+		}
+	}
+
+	if(xml_settings_found)  
 	{
 		if(  file.get_version() > loadsave_t::int_version(SAVEGAME_VER_NR, NULL, NULL).version || file.get_experimental_version() > loadsave_t::int_version(EXPERIMENTAL_SAVEGAME_VERSION, NULL, NULL).experimental_version) 
 		{
