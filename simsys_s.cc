@@ -16,7 +16,11 @@
 #include <windows.h>
 #else
 #include <sys/stat.h>
+#ifndef __HAIKU__
 #include <sys/errno.h>
+#else
+#include <posix/errno.h>
+#endif
 #endif
 
 #include <dirent.h>

@@ -4,7 +4,7 @@ CONFIG ?= config.default
 
 BACKENDS      = allegro gdi sdl mixer_sdl x11 posix
 COLOUR_DEPTHS = 0 8 16
-OSTYPES       = beos cygwin freebsd linux mingw mac
+OSTYPES       = beos cygwin freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -26,6 +26,10 @@ endif
 
 ifeq ($(OSTYPE),beos)
   STD_LIBS ?= -lz -lnet -lbz2
+endif
+
+ifeq ($(OSTYPE),haiku)
+  STD_LIBS ?= -lz -lnetwork -lbz2
 endif
 
 ifeq ($(OSTYPE),freebsd)
