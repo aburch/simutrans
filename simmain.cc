@@ -423,7 +423,8 @@ int simu_main(int argc, char** argv)
 	{
 		// Settings file not found. Try the Debian default instead, in which
 		// data files are in /usr/share/games/simutrans
-        const char [1024] backup_program_dir = umgebung_t::program_dir;
+        char backup_program_dir[1024];
+		strcpy(backup_program_dir, umgebung_t::program_dir);
 		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans/" );
         chdir( umgebung_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) 
@@ -432,7 +433,7 @@ int simu_main(int argc, char** argv)
 		}
 		else
 		{
-			 umgebung_t::program_dir = backup_program_dir;
+			 strcpy(umgebung_t::program_dir, backup_program_dir);
 			 chdir(umgebung_t::program_dir);
 		}
 	}
@@ -462,13 +463,14 @@ int simu_main(int argc, char** argv)
 	if(!xml_settings_found)
 	{
 		// Again, attempt to use the Debian directory.
-		const char [1024] backup_program_dir = umgebung_t::program_dir;
+		char backup_program_dir[1024];
+		strcpy(backup_program_dir, umgebung_t::program_dir);
 		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans/" );
         chdir( umgebung_t::program_dir );
-		xml_settings_found = file.rd_open("settings-experimental.xml")
+		xml_settings_found = file.rd_open("settings-experimental.xml");
 		if(!xml_settings_found)
 		{
-			 umgebung_t::program_dir = backup_program_dir;
+			 strcpy(umgebung_t::program_dir, backup_program_dir);
 			 chdir(umgebung_t::program_dir);
 		}
 	}
