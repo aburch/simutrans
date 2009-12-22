@@ -210,8 +210,10 @@ bool network_init_server( int port )
 void network_add_client( SOCKET sock )
 {
 	if(  !clients.is_contained(sock)  ) {
+#ifdef TCP_NODELAY
 		// do not wait to join small (command) packets when sending (may cause 200ms delay!)
 		setsockopt( sock, SOL_SOCKET, TCP_NODELAY, NULL, 0 );
+#endif
 		if (active_clients < clients.get_count()) {
 			for(uint32 i=0; i<clients.get_count(); i++) {
 				if (clients[i]==INVALID_SOCKET) {

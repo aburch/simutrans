@@ -9,13 +9,14 @@
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#ifndef __BEOS__
-#include <arpa/inet.h>
-#else
+#ifdef __BEOS__
+#include <net/socket.h>
 #define PF_INET AF_INET
 #define socklen_t int
+#else
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
 #endif
 
 // to keep compatibility to MS windows
