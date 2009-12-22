@@ -2207,7 +2207,6 @@ void stadt_t::step_passagiere()
 					if (halt->is_enabled(wtyp)) 
 					{
 						destination_list.append(halt);
-						//for(int i = start_halts.get_count() - 1; i >= 0; i--)
 						ITERATE(start_halts, i)
 						{
 							if(halt == start_halts[i])
