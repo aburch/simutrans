@@ -19,7 +19,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#ifndef  __BEOS__
+#ifndef  __HAIKU__
 #include <sys/errno.h>
 #else
 #include <posix/errno.h>

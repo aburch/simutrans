@@ -13,7 +13,7 @@
 
 #include "network.h"
 
-#ifdef __BEOS__
+#if defined(__BEOS__)
 #include <net/netdb.h>
 #endif
 
@@ -98,8 +98,8 @@ const char *network_open_address( const char *cp)
 	server_name.sin_addr.s_addr = inet_addr(cp);
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
 #else
-#ifdef  __BEOS__
-	struct hostent *theHOst;
+#if defined(__BEOS__)
+	struct hostent *theHost;
 	theHost = gethostbyname( cp );
 	if(theHost) {
 		server_name.sin_addr.s_addr = *(ulong *)theHost->h_addr_list[0];
