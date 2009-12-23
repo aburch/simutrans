@@ -37,13 +37,20 @@ simlinemgmt_t::simlinemgmt_t(karte_t* welt)
 	schedule_list_gui = NULL;
 }
 
+
 simlinemgmt_t::~simlinemgmt_t()
 {
 	destroy_win( (long)this );
+	// and delete all lines ...
+	while(  all_managed_lines.get_count()>0  ) {
+		linehandle_t line = all_managed_lines[all_managed_lines.get_count()-1];
+		all_managed_lines.remove_at( all_managed_lines.get_count()-1 );
+		delete line.get_rep();	// detaching handled by line itself
+	}
 }
 
-void
-simlinemgmt_t::zeige_info(spieler_t *sp)
+
+void simlinemgmt_t::zeige_info(spieler_t *sp)
 {
 	schedule_list_gui_t *slg;
 	if(  create_win( slg=new schedule_list_gui_t(sp), w_info, (long)this )>0  ) {
@@ -52,8 +59,7 @@ simlinemgmt_t::zeige_info(spieler_t *sp)
 	}
 }
 
-void
-simlinemgmt_t::add_line(linehandle_t new_line)
+void simlinemgmt_t::add_line(linehandle_t new_line)
 {
 	uint16 id = new_line->get_line_id();
 	if(  id==INVALID_LINE_ID  ) {
@@ -83,8 +89,7 @@ linehandle_t simlinemgmt_t::get_line_by_id(uint16 id)
 }
 
 
-bool
-simlinemgmt_t::delete_line(linehandle_t line)
+bool simlinemgmt_t::delete_line(linehandle_t line)
 {
 	if (line.is_bound()) {
 		all_managed_lines.remove(line);
@@ -98,8 +103,7 @@ simlinemgmt_t::delete_line(linehandle_t line)
 }
 
 
-void
-simlinemgmt_t::update_line(linehandle_t line)
+void simlinemgmt_t::update_line(linehandle_t line)
 {
 	// when a line is updated, all managed convoys must get the new fahrplan!
 	int count = line->count_convoys();
@@ -115,8 +119,7 @@ simlinemgmt_t::update_line(linehandle_t line)
 
 
 
-void
-simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
+void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
 {
 	xml_tag_t l( file, "simlinemgmt_t" );
 
@@ -192,8 +195,7 @@ void simlinemgmt_t::sort_lines()
 }
 
 
-void
-simlinemgmt_t::laden_abschliessen()
+void simlinemgmt_t::laden_abschliessen()
 {
 	sort_lines();
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
@@ -203,8 +205,7 @@ simlinemgmt_t::laden_abschliessen()
 }
 
 
-void
-simlinemgmt_t::rotate90( sint16 y_size )
+void simlinemgmt_t::rotate90( sint16 y_size )
 {
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
 		schedule_t *fpl = (*i)->get_schedule();
@@ -249,8 +250,7 @@ void simlinemgmt_t::new_month()
 }
 
 
-linehandle_t
-simlinemgmt_t::create_line(int ltype, spieler_t * sp)
+linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 {
 	simline_t * line = NULL;
 	switch (ltype) {
@@ -296,8 +296,7 @@ simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 
 
 
-linehandle_t
-simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * fpl)
+linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp, schedule_t * fpl)
 {
 	linehandle_t line = create_line( ltype, sp );
 	if(fpl) {
