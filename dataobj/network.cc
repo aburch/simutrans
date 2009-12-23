@@ -401,7 +401,11 @@ void network_send_server(char *msg, int len )
 	dbg->warning( "network_send_server()", msg );
 	if(  !umgebung_t::server  ) {
 		// I am client
-		send( clients[0], msg, len, 0 );
+		// Below condition temporary workaround for rare bug.
+		if(clients.get_count() > 0)
+		{
+			send( clients[0], msg, len, 0 );
+		}
 	}
 	else {
 		// I am the server
