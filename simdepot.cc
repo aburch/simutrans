@@ -262,7 +262,6 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 	if(cnv.is_bound()) {
 
 		if(  cnv->get_line().is_bound()  ) {
-			cnv->unset_line();
 			cnv->set_schedule( NULL );
 		}
 
@@ -293,13 +292,8 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 	// close schedule window if not yet closed
 	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL) {
 		if(!cnv->get_schedule()->ist_abgeschlossen()) {
+			// close the schedule window
 			destroy_win((long)cnv->get_schedule());
-			cnv->get_schedule()->cleanup();
-			cnv->get_schedule()->eingabe_abschliessen();
-			// just recheck if schedules match
-			if(  cnv->get_line().is_bound()  &&  !cnv->get_line()->get_schedule()->matches( welt, cnv->get_schedule() )  ) {
-				cnv->unset_line();
-			}
 		}
 	}
 

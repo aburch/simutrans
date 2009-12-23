@@ -130,6 +130,7 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_FILL_TREES:        tool = new wkz_fill_trees_t(); break;
 		case WKZ_DAYNIGHT_LEVEL:    tool = new wkz_daynight_level_t(); break;
 		case WKZ_VEHICLE_TOOLTIPS:  tool = new wkz_vehicle_tooltips_t(); break;
+		case WKZ_CONVOI_TOOL:       tool = new wkz_change_convoi_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
@@ -688,6 +689,11 @@ void werkzeug_t::draw_after( karte_t *welt, koord pos ) const
 	if(  id!=IMG_LEER  &&  is_selected(welt)  ) {
 		display_img_blend( id, pos.x, pos.y, TRANSPARENT50_FLAG|OUTLINE_FLAG|COL_BLACK, false, true );
 	}
+}
+
+bool werkzeug_t::is_selected(karte_t *welt) const
+{
+	return welt->get_werkzeug(welt->get_active_player_nr())==this;
 }
 
 // seperator in toolbars

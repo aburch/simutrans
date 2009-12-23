@@ -15,6 +15,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
+#include "../simmenu.h"
 #include "../simwin.h"
 
 #include "../dataobj/fahrplan.h"
@@ -315,6 +316,7 @@ enable_home:
 }
 
 
+
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
@@ -356,15 +358,12 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 
 		if(komp == &button) {
-			cnv->open_schedule_window();
+			cnv->call_convoi_tool( 'f', NULL );
 			return true;
 		}
 
 		if(komp == &no_load_button    &&    !route_search_in_progress) {
-			cnv->set_no_load(!cnv->get_no_load());
-			if(!cnv->get_no_load()) {
-				cnv->set_withdraw(false);
-			}
+			cnv->call_convoi_tool( 'n', NULL );
 			return true;
 		}
 

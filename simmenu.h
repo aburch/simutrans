@@ -16,11 +16,11 @@
 #include "simtypes.h"
 #include "simworld.h"
 
+
 template<class T> class vector_tpl;
 template<class T> class slist_tpl;
 
 class werkzeug_waehler_t;
-class karte_t;
 class spieler_t;
 class toolbar_t;
 
@@ -89,6 +89,7 @@ enum {
 	WKZ_FILL_TREES,
 	WKZ_DAYNIGHT_LEVEL,
 	WKZ_VEHICLE_TOOLTIPS,
+	WKZ_CONVOI_TOOL,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -188,7 +189,7 @@ public:
 	void set_default_param(const char* str) { default_param = str; }
 
 	// this will draw the tool with some indication, if active
-	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug(welt->get_active_player_nr())==this; }
+	virtual bool is_selected(karte_t *welt) const;
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }

@@ -400,8 +400,6 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 				}
 			}
 			else {
-				// no line is selected or line does not match => unset the line
-				cnv->unset_line();
 				// since matches does not check for depots, we need to do it this way ...
 				if(  fpl->get_count()!=old_fpl->get_count()  ||  !old_fpl->matches( sp->get_welt(), fpl )  ) {
 					sp->get_welt()->set_schedule_counter();

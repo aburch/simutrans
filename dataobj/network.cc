@@ -13,7 +13,7 @@
 
 #include "network.h"
 
-#if defined(__BEOS__)
+#ifdef __BEOS__
 #include <net/netdb.h>
 #endif
 

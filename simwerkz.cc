@@ -4336,15 +4336,16 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 
 /************************* internal tools, only need for networking ***************/
 
-/* Handles all action of convois in depots. Needs a default param,
- * [convoi_id] the internal id of the convoi to be changed. 0 will create a new convoi
- * then the acutal command will follow after ','
+/* Handles all action of convois in depots. Needs a default param:
+ * [function],[convoi_id],[homedepot x,y,z],addition stuff
  * following simple command exists:
  * 'x' : self destruct
  * 'b' : start the journey of a convoi
  * 'f' : open the schedule window
+ * 'n' : toggle 'no load'
+ * 'w' : toggle withdraw
  * 'd' : dissassemble convoi and store vehicle in this depot
- * The next commands need [namber] after the ',':
+ * The next commands need [number] after the ',':
  * 'c' : copy convoi with id [number]
  * 'r' : remove vehicle at [number] and put it into depot here
  * 's' : sell vehicle at [number]
@@ -4352,41 +4353,57 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  * 'a' : append this vehicle to the end of this convoi
  * 'i' : insert this vehicle at the front of this convoi
  */
-const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
+bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 {
-#if 0
-	grund_t *gr = welt->lookup(k);
+#if 1
+	char tool=0;
+	uint16 convoi_id = 0;
+	koord3d pos = koord3d::invalid;
+	sint16	z;
+
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p<=' '  ) {
+		p++;
+	}
+	sscanf( p, "%c,%hu,%hi,%hi,%hi", &tool, &convoi_id, &pos.x, &pos.y, &z );
+	pos.z = z;
+
+	// skip to the commands ...
+	z = 4;
+	while(  *p  &&  z>0  ) {
+		if(  *p==','  ) {
+			z--;
+		}
+		p++;
+	}
+
+	grund_t *gr = welt->lookup(pos);
 	depot_t *depot = gr ? gr->get_depot() : NULL;
 
 	convoi_t *cnv = NULL;
-	sint32 id = atol(default_param);
-	if(  id==0  ) {
+	if(  convoi_id==0  ) {
 		// create new convoi
 		convoi_t* new_cnv = new convoi_t(sp);
-		new_cnv->set_home_depot(k);
+		new_cnv->set_home_depot(pos);
 		cnv = new_cnv;
 	}
 	else {
 		// find the convoi with this ID
 		for( uint16 h=0;  h<welt->get_convoi_count();  h++  ) {
 			convoihandle_t test = welt->get_convoi( h );
-			if(  test.get_id()==id  ) {
+			if(  test.get_id()==convoi_id  ) {
 				cnv = test.get_rep();
 			}
 		}
 	}
-
-	// skip the rest of the command
-	const char *p = default_param;
-	while(  *p  &&  *p++!=','  ) { }
-
-	assert( cnv!=NULL &&  *p>=' '  );
+	assert(cnv);
 
 	// first letter is now the actual command
-	switch(  *p  ) {
+	switch(  tool  ) {
 		case 'x': // self destruction ...
 			cnv->self_destruct();
-			return "";
+			return false;
 
 		case 'b': // start convoi
 			if(  depot  ) {
@@ -4396,15 +4413,38 @@ const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				welt->sync_add( cnv );
 				cnv->start();
 			}
-			return "";
+			return false;
 
 		case 'f': // change schedule
+			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
+				// pop up error message here!
+				return false;
+			}
 			cnv->open_schedule_window();
+			break;
+
+		case 'n': // change no_load
+			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
+				// pop up error message here!
+				return false;
+			}
+			cnv->set_no_load( !cnv->get_no_load() );
+			if(  !cnv->get_no_load()  ) {
+				cnv->set_withdraw( false );
+			}
+			break;
+
+		case 'w': // change withdraw
+			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
+				// pop up error message here!
+				return false;
+			}
+			cnv->set_withdraw( !cnv->get_withdraw() );
+			cnv->set_no_load( cnv->get_withdraw() );
 			break;
 
 		case 'd': {	// disassemble (assumes a valid depot)!
 			if(  cnv->get_line().is_bound()  ) {
-				cnv->unset_line();
 				cnv->set_schedule( NULL );
 			}
 			// store vehicles in depot
@@ -4418,7 +4458,7 @@ const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				v->set_erstes(false);
 				v->set_letztes(false);
 				v->set_flag( ding_t::not_on_map );
-				depot->append_vehikel( v );
+//				depot->append_vehikel( v );
 			}
 			// and remove from welt
 			cnv->self_destruct();
@@ -4435,7 +4475,7 @@ const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			}
 			// create and append it
 			const vehikel_besch_t *vb = vehikelbauer_t::get_info( name );
-			vehikel_t* veh = vehikelbauer_t::baue( k, sp, NULL, vb );
+			vehikel_t* veh = vehikelbauer_t::baue( pos, sp, NULL, vb );
 			cnv->add_vehikel( veh, *p=='i' );
 			if(  cnv->get_vehikel_anzahl()==0  ) {
 				cnv->set_name(veh->get_name());
@@ -4461,9 +4501,9 @@ const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 						}
 						// we need to buy it
 						if(  oldest_vehicle==NULL  ) {
-							oldest_vehicle = vehikelbauer_t::baue( k, sp, NULL, info );
+							oldest_vehicle = vehikelbauer_t::baue( pos, sp, NULL, info );
 						}
-						oldest_vehicle->set_pos(k);
+						oldest_vehicle->set_pos(pos);
 						cnv->add_vehikel( oldest_vehicle, false );
 					}
 					if(old_cnv->get_line().is_bound()) {
@@ -4484,12 +4524,12 @@ const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		case 'r': {	// removes a vehicle (assumes a valid depot)
 			int nr = atoi(p+1);
 			if(  *p=='r'  ) {
-				depot->append_vehicle( cnv->remove_vehikel_bei( nr ) );
+//				depot->append_vehicle( cnv->remove_vehikel_bei( nr ) );
 			}
 			else {
 				// just sell ...
 				vehikel_t *v = cnv->remove_vehikel_bei( nr );
-				sp->buche( v->calc_restwert(), k.get_2d(), COST_NEW_VEHICLE );
+				sp->buche( v->calc_restwert(), pos.get_2d(), COST_NEW_VEHICLE );
 				delete v;
 			}
 			break;
@@ -4498,8 +4538,8 @@ const char *wkz_change_convoi_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 	// notify a depot of the change
 	if(  depot  ) {
-		depot->convoi_changed( cnv->self );
+//		depot->convoi_changed( cnv->self );
 	}
 #endif
-	return "";	// also nothing to do ...
+	return false;	// no related work tool ...
 }

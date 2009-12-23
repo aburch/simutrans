@@ -9,6 +9,7 @@
 #include "../simhalt.h"
 #include "../simimg.h"
 
+#include "../utils/cbuffer_t.h"
 #include "../gui/messagebox.h"
 #include "../bauer/hausbauer.h"
 #include "../besch/haus_besch.h"
@@ -189,8 +190,7 @@ void schedule_t::cleanup()
 
 
 
-bool
-schedule_t::remove()
+bool schedule_t::remove()
 {
 	bool ok = eintrag.remove_at(aktuell);
 	if(  aktuell>=eintrag.get_count()  ) {
@@ -201,8 +201,7 @@ schedule_t::remove()
 
 
 
-void
-schedule_t::rdwr(loadsave_t *file)
+void schedule_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fahrplan_t" );
 
@@ -284,8 +283,7 @@ void schedule_t::rotate90( sint16 y_size )
  * compare this fahrplan with another, passed in fahrplan
  * @author hsiegeln
  */
-bool
-schedule_t::matches(karte_t *welt, const schedule_t *fpl)
+bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 {
 	if(fpl == NULL) {
 		return false;
@@ -347,3 +345,63 @@ void schedule_t::add_return_way()
 		}
 	}
 }
+
+
+
+void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
+{
+	buf.append( aktuell );
+	buf.append( "|" );
+	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
+		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
+	}
+}
+
+
+bool schedule_t::sscanf_schedule( const char *ptr )
+{
+	const char *p = ptr;
+	//  first get aktuell pointer
+	aktuell = atoi( p );
+	while(  *p  &&  *p!='|'  ) {
+		p++;
+	}
+	if(  *p!='|'  ) {
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
+		return false;
+	}
+	p++;
+	// now scan the entries
+	while(  *p>0  ) {
+		sint16 values[5];
+		for(  sint8 i=0;  i<5;  i++  ) {
+			values[i] = atoi( p );
+			while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
+				p++;
+			}
+			if(  i<4  &&  *p!=','  ) {
+				dbg->error( "schedule_t::sscanf_schedule()","incomplete string!" );
+				return false;
+			}
+			if(  i==4  &&  *p!='|'  ) {
+				dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
+				return false;
+			}
+			p++;
+		}
+		// ok, now we have a complete entry
+#ifndef _MSC_VER
+		struct linieneintrag_t stop = { koord3d(values[0],values[1],values[2]), values[3], values[4] };
+#else
+		struct linieneintrag_t stop;
+		stop.pos = koord3d(values[0],values[1],values[2]);
+		stop.ladegrad = values[3];
+		stop.waiting_time_shift = values[4];
+#endif
+		eintrag.append( stop );
+	}
+	return true;
+}
+
+
+

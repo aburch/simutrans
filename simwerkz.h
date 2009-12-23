@@ -210,14 +210,6 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
-class wkz_change_convoi_t : public werkzeug_t {
-public:
-	wkz_change_convoi_t() : werkzeug_t() { id = -1; }	// not working yet
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
-	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return false; }
-};
-
 class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
@@ -544,6 +536,8 @@ public:
 		welt->switch_active_player( welt->get_active_player_nr()+1 );
 		return false;
 	}
+	// since it should be handled internally
+	virtual bool is_init_network_save() const { return true; }
 };
 
 // setp one year forward
@@ -580,7 +574,6 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_zoom_out_t : public werkzeug_t {
@@ -593,7 +586,6 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_coverage_t : public werkzeug_t {
@@ -730,7 +722,6 @@ public:
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return true; }
 };
 
 
@@ -744,7 +735,14 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
-	virtual bool is_work_network_save() const { return true; }
+};
+
+class wkz_change_convoi_t : public werkzeug_t {
+public:
+	wkz_change_convoi_t() : werkzeug_t() { id = WKZ_CONVOI_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+//	virtual bool is_work_network_save() const { return false; }
 };
 
 /********************** dialoge tools *****************************/

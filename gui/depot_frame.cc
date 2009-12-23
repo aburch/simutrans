@@ -1158,8 +1158,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 
 
 
-void
-depot_frame_t::zeichnen(koord pos, koord groesse)
+void depot_frame_t::zeichnen(koord pos, koord groesse)
 {
 	if (get_welt()->get_active_player() != depot->get_besitzer()) {
 		destroy_win(this);
@@ -1208,14 +1207,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 				translator::translate("Station tiles:"), cnv->get_tile_length() );
 			sprintf(txt_convoi_speed,  "%s %d(%d)km/h", translator::translate("Max. speed:"), min_speed, max_speed );
 			sprintf(txt_convoi_value, "%s %ld$", translator::translate("Restwert:"), (long)(cnv->calc_restwert()/100) );
-			// just recheck if schedules match
-			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
-				cnv->check_pending_updates();
-				if(  !cnv->get_line()->get_schedule()->matches( get_welt(), cnv->get_schedule() )  ) {
-					cnv->unset_line();
-				}
-			}
-			if(  cnv->get_line().is_bound()  ) {
+			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->matches( get_welt(),cnv->get_schedule() )  ) {
 				sprintf(txt_convoi_line, "%s %s", translator::translate("Serves Line:"), cnv->get_line()->get_name());
 
 			}
@@ -1278,7 +1270,11 @@ void depot_frame_t::apply_line()
 		else {
 			// sometimes the user might wish to remove convoy from line
 			// this happens here
-			cnv->unset_line();
+			schedule_t *fpl = cnv->create_schedule()->copy();
+			while(  fpl->get_count()>0  ) {
+				fpl->remove();
+			}
+			cnv->set_schedule( fpl );
 		}
 	}
 }

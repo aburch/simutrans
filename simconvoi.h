@@ -353,6 +353,14 @@ private:
 	*/
 	koord3d home_depot;
 
+	/**
+	* unset line -> remove cnv from line
+	* @author hsiegeln
+	*/
+	void unset_line();
+
+	void check_pending_updates();
+
 public:
 	route_t* get_route() { return &route; }
 
@@ -360,7 +368,7 @@ public:
 	* Checks if this convoi has a driveable route
 	* @author Hanjsörg Malthaner
 	*/
-	bool hat_keine_route() const;
+	bool hat_keine_route() const { return (state==NO_ROUTE); }
 
 	/**
 	* get line
@@ -384,11 +392,10 @@ public:
 	*/
 	void register_with_line(uint16 line_id);
 
-	/**
-	* unset line -> remove cnv from line
-	* @author hsiegeln
-	*/
-	void unset_line();
+	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
+	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
+	 */
+	void call_convoi_tool( const char function, const char *extra ) const;
 
 	/**
 	* get state
@@ -618,7 +625,7 @@ public:
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
 	*/
-	spieler_t * get_besitzer() { return besitzer_p; }
+	spieler_t * get_besitzer() const { return besitzer_p; }
 
 	/**
 	* Opens an information window
@@ -726,12 +733,6 @@ public:
 	void dump() const;
 
 	/**
-	* prepares the convoi to receive a new schedule
-	* @author hsiegeln
-	*/
-	void prepare_for_new_schedule(schedule_t *);
-
-	/**
 	* book a certain amount into the convois financial history
 	* is called from vehicle during un/load
 	* @author hsiegeln
@@ -763,8 +764,6 @@ public:
 	void neues_jahr();
 
 	void set_update_line(linehandle_t l) { line_update_pending = l; }
-
-	void check_pending_updates();
 
 	void set_home_depot(koord3d hd) { home_depot = hd; }
 

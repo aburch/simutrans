@@ -14,6 +14,7 @@
 #include "simhalt.h"
 #include "simdepot.h"
 #include "simwin.h"
+#include "simmenu.h"
 #include "simcolor.h"
 #include "simmesg.h"
 #include "simintr.h"
@@ -361,6 +362,25 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		}
 		fahr[0]->set_erstes(true);
 	}
+}
+
+
+
+// since now convoi states go via werkzeug_t
+void convoi_t::call_convoi_tool( const char function, const char *extra ) const
+{
+	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
+	char param[8192];
+	if(  extra  &&  *extra  ) {
+		sprintf( param, "%c,%lu,%i,%i,%i,%s", function, self.get_id(), home_depot.x, home_depot.y, home_depot.z, extra );
+	}
+	else {
+		sprintf( param, "%c,%lu,%i,%i,%i", function, self.get_id(), home_depot.x, home_depot.y, home_depot.z );
+	}
+	w->set_default_param(param);
+	welt->set_werkzeug( w, get_besitzer() );
+	// since init always returns false, it is save to delete immediately
+	delete w;
 }
 
 
@@ -1312,6 +1332,9 @@ bool convoi_t::set_schedule(schedule_t * f)
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
 
 	if(f == NULL) {
+		if(  line.is_bound()  ) {
+			unset_line();
+		}
 		if(  state==INITIAL  ) {
 			delete fpl;
 			fpl = NULL;
@@ -1322,6 +1345,10 @@ bool convoi_t::set_schedule(schedule_t * f)
 
 	// happens to be identical?
 	if(fpl!=f) {
+		// now check, we we have been bond to a line we are about to loose:
+		if(  line.is_bound()  &&  !f->matches( welt, line->get_schedule() )  ) {
+			unset_line();
+		}
 		// destroy a possibly open schedule window
 		if(fpl &&  !fpl->ist_abgeschlossen()) {
 			destroy_win((long)fpl);
@@ -2131,16 +2158,10 @@ void convoi_t::open_schedule_window()
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
 
-	// darf der spieler diesen convoi umplanen ?
-	if(get_besitzer() != NULL &&
-		get_besitzer() != welt->get_active_player()) {
-		return;
-	}
-
 	// manipulation of schedule not allowd while:
 	// - just starting
 	// - a line update is pending
-	if(  state==FAHRPLANEINGABE  ||  line_update_pending.is_bound()  ) {
+	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
 		create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		return;
 	}
@@ -2155,8 +2176,13 @@ void convoi_t::open_schedule_window()
 	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 
-	// Fahrplandialog oeffnen
-	create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
+	if(  welt->get_active_player()==get_besitzer()  ) {
+		// Fahrplandialog oeffnen
+		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
+	}
+	else {
+		fpl->eingabe_beginnen();
+	}
 }
 
 
@@ -2548,33 +2574,6 @@ void convoi_t::dump() const
 		(int)line_id,
 		(const void *)fpl );
 }
-
-
-
-/**
- * Checks if this convoi has a driveable route
- * @author Hanjsörg Malthaner
- */
-bool convoi_t::hat_keine_route() const
-{
-	return (state==NO_ROUTE);
-}
-
-
-
-void convoi_t::prepare_for_new_schedule(schedule_t *f)
-{
-	alte_richtung = fahr[0]->get_fahrtrichtung();
-
-	state = FAHRPLANEINGABE;
-	set_schedule(f);
-
-	// Hajo: set_fahrplan sets state to ROUTING_1
-	// need to undo that
-	state = FAHRPLANEINGABE;
-	wait_lock = 25000;
-}
-
 
 
 void convoi_t::book(sint64 amount, int cost_type)
