@@ -1092,13 +1092,14 @@ void convoi_t::ziel_erreicht()
 
 	if(dp) {
 		// ok, we are entering a depot
-		char buf[128];
+		cbuffer_t buf(256);
 
-		// we still book the money for the trip; however, the frieght will be lost
+		// we still book the money for the trip; however, the freight will be lost
 		calc_gewinn();
 
 		akt_speed = 0;
-		sprintf(buf, translator::translate("!1_DEPOT_REACHED"), get_name());
+		buf.append( translator::translate("!1_DEPOT_REACHED") );
+		buf.append( get_name() );
 		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 
 		betrete_depot(dp);

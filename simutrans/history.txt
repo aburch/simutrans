@@ -9,6 +9,7 @@
 	ADD: some more network related settings like server_frames_ahead, network_ms_ahead, server_frames_per_step to control timing on the network
 	FIX: connecting upslope to upper way works in sliced mode
 	FIX: lines were never freed upon deletion
+	FIX: longer convoi's name could cause crash when entering depot
 
 
 Release Candidate 102.2.1
