@@ -1098,8 +1098,7 @@ void convoi_t::ziel_erreicht()
 		calc_gewinn();
 
 		akt_speed = 0;
-		buf.append( translator::translate("!1_DEPOT_REACHED") );
-		buf.append( get_name() );
+		buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
 		welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 
 		betrete_depot(dp);
