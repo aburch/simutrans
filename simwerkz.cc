@@ -4342,11 +4342,13 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  * 'x' : self destruct
  * 'b' : start the journey of a convoi
  * 'f' : open the schedule window
+ * 'g' : apply a schedule
  * 'n' : toggle 'no load'
  * 'w' : toggle withdraw
  * 'd' : dissassemble convoi and store vehicle in this depot
  * The next commands need [number] after the ',':
  * 'c' : copy convoi with id [number]
+ * 'l' : apply new line [number]
  * 'r' : remove vehicle at [number] and put it into depot here
  * 's' : sell vehicle at [number]
  * The last tools needs a string with the name of a vehicle:
@@ -4370,7 +4372,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	pos.z = z;
 
 	// skip to the commands ...
-	z = 4;
+	z = 5;
 	while(  *p  &&  z>0  ) {
 		if(  *p==','  ) {
 			z--;
@@ -4389,12 +4391,10 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 		cnv = new_cnv;
 	}
 	else {
-		// find the convoi with this ID
-		for( uint16 h=0;  h<welt->get_convoi_count();  h++  ) {
-			convoihandle_t test = welt->get_convoi( h );
-			if(  test.get_id()==convoi_id  ) {
-				cnv = test.get_rep();
-			}
+		convoihandle_t new_cnv;
+		new_cnv.set_id( convoi_id );
+		if(  new_cnv.is_bound()  ) {
+			cnv = new_cnv.get_rep();
 		}
 	}
 	assert(cnv);
@@ -4415,12 +4415,30 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			}
 			return false;
 
-		case 'f': // change schedule
+		case 'f': // open schedule
 			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
 				// pop up error message here!
 				return false;
 			}
 			cnv->open_schedule_window();
+			break;
+
+		case 'g': // change schedule
+			{
+				schedule_t *fpl = cnv->create_schedule()->copy();
+				fpl->sscanf_schedule( p );
+				cnv->set_schedule( fpl );
+			}
+			break;
+
+		case 'l': // change line
+			{
+				linehandle_t l;
+				l.set_id( atoi(p) );
+				if(  l.is_bound()  ) {
+					cnv->set_line( l );
+				}
+			}
 			break;
 
 		case 'n': // change no_load

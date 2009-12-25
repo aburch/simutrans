@@ -361,6 +361,10 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 bool schedule_t::sscanf_schedule( const char *ptr )
 {
 	const char *p = ptr;
+	// first: clear current schedule
+	while(  eintrag.get_count()>0  ) {
+		remove();
+	}
 	//  first get aktuell pointer
 	aktuell = atoi( p );
 	while(  *p  &&  *p!='|'  ) {

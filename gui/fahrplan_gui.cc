@@ -391,12 +391,15 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 			if(  new_line.is_bound()  ) {
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
-					cnv->set_line( new_line );
+					char id[16];
+					sprintf( id, "%i", new_line.get_id() );
+					cnv->call_convoi_tool( 'l', id );
+//					cnv->set_line( new_line );
 				}
 				else {
-					old_fpl->copy_from( fpl );
-					old_fpl->set_aktuell( fpl->get_aktuell() );
-					cnv->set_schedule( old_fpl );
+					cbuffer_t buf(5120);
+					fpl->sprintf_schedule( buf );
+					cnv->call_convoi_tool( 'g', buf );
 				}
 			}
 			else {
@@ -404,8 +407,9 @@ fahrplan_gui_t::infowin_event(const event_t *ev)
 				if(  fpl->get_count()!=old_fpl->get_count()  ||  !old_fpl->matches( sp->get_welt(), fpl )  ) {
 					sp->get_welt()->set_schedule_counter();
 				}
-				old_fpl->copy_from( fpl );
-				cnv->set_schedule( old_fpl );
+				cbuffer_t buf(5120);
+				fpl->sprintf_schedule( buf );
+				cnv->call_convoi_tool( 'g', buf );
 			}
 		}
 		else {
