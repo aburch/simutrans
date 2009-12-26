@@ -10,6 +10,7 @@
 	FIX: connecting upslope to upper way works in sliced mode
 	FIX: lines were never freed upon deletion
 	FIX: longer convoi's name could cause crash when entering depot
+	FIX: deleting factories/cities/attractions while those lists were open resulted in CTD
 
 
 Release Candidate 102.2.1
