@@ -235,7 +235,7 @@ void gui_textinput_t::zeichnen(koord offset)
 		display_set_clip_wh( clip_x, old_clip.y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, old_clip.h);
 
 		// display text
-		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+2, text, align, textcol, true);
+		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+1+(groesse.y-large_font_height)/2, text, align, textcol, true);
 
 		// cursor must been shown, if textinput has focus!
 		if(has_focus(this)) {
