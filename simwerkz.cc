@@ -4357,7 +4357,6 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  */
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 {
-#if 1
 	char tool=0;
 	uint16 convoi_id = 0;
 	koord3d pos = koord3d::invalid;
@@ -4558,6 +4557,5 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	if(  depot  ) {
 //		depot->convoi_changed( cnv->self );
 	}
-#endif
 	return false;	// no related work tool ...
 }
