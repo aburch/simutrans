@@ -103,13 +103,6 @@ private:
 	fahrplan_gui_stats_t stats;
 	gui_scrollpane_t scrolly;
 
-	schedule_t *fpl;
-	schedule_t* old_fpl;
-	spieler_t *sp;
-	convoihandle_t cnv;
-
-	linehandle_t new_line, old_line;
-
 	void init_line_selector();
 
 	// set the correct tool now ...
@@ -117,6 +110,14 @@ private:
 
 	// changes the waiting/loading levels if allowed
 	void update_selection();
+
+protected:
+	schedule_t *fpl;
+	schedule_t* old_fpl;
+	spieler_t *sp;
+	convoihandle_t cnv;
+
+	linehandle_t new_line, old_line;
 
 public:
 	fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);

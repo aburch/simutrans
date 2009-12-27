@@ -4559,3 +4559,53 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	}
 	return false;	// no related work tool ...
 }
+
+
+
+/* Handles all action of convois in depots. Needs a default param:
+ * [function],[line_id],addition stuff
+ * following simple command exists:
+ * 'g' : apply new schedule to line [schedule follows]
+ */
+bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
+{
+	uint16 line_id = 0;
+
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p<=' '  ) {
+		p++;
+	}
+
+	char tool=*p++;
+	while(  *p  &&  *p!=','  ) {
+		p++;
+	}
+	if(  *p==0  ) {
+		dbg->error( "wkz_change_line_t::init()", "too short command \"%s\"", default_param );
+	}
+	p++;
+
+	line_id = atoi(p);
+	while(  *p  &&  *p!=','  ) {
+		p++;
+	}
+
+	linehandle_t line;
+	line.set_id( line_id );
+
+	assert(  line.is_bound()  &&  spieler_t::check_owner(line->get_besitzer(),sp)  );
+
+	// first letter is now the actual command
+	switch(  tool  ) {
+		case 'g': // change schedule
+			{
+				schedule_t *fpl = line->get_schedule()->copy();
+				fpl->sscanf_schedule( p );
+				line->set_schedule( fpl );
+				line->get_besitzer()->simlinemgmt.update_line(line);
+			}
+			break;
+	}
+	return false;
+}

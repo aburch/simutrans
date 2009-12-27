@@ -131,6 +131,7 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_DAYNIGHT_LEVEL:    tool = new wkz_daynight_level_t(); break;
 		case WKZ_VEHICLE_TOOLTIPS:  tool = new wkz_vehicle_tooltips_t(); break;
 		case WKZ_CONVOI_TOOL:       tool = new wkz_change_convoi_t(); break;
+		case WKZ_LINE_TOOL:         tool = new wkz_change_line_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
