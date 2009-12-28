@@ -356,6 +356,7 @@ static translator::lang_info* get_lang_by_iso(const char* iso)
 
 bool translator::load(const cstring_t& scenario_path)
 {
+	chdir( umgebung_t::program_dir );
 	tstrncpy(szenario_path, scenario_path, lengthof(szenario_path));
 
 	//initialize these values to 0(ie. nothing loaded)
@@ -418,6 +419,35 @@ bool translator::load(const cstring_t& scenario_path)
 		}
 	}
 
+	if(  umgebung_t::program_dir!=umgebung_t::user_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
+		chdir( umgebung_t::user_dir );
+		// now read the scenario specific text
+		// there can be more than one file per language, provided it is name like iso_xyz.tab
+		cstring_t folderName(scenario_path + "text/");
+		int num_pak_lang_dat = folder.search(folderName, "tab");
+		//read now the basic language infos
+		for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
+			cstring_t fileName(*i);
+			cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
+
+			lang_info* lang = get_lang_by_iso(iso);
+			if (lang != NULL) {
+				DBG_MESSAGE("translator::load()", "loading pak addon translations from %s for language %s", (const char*)fileName, lang->iso_base);
+				FILE* file = fopen(fileName, "rb");
+				if (file != NULL) {
+					bool file_is_utf = is_unicode_file(file);
+					load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
+					fclose(file);
+				} else {
+					dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
+				}
+			} else {
+				dbg->warning("translator::load()", "no addon texts for language '%s'", (const char*)iso);
+			}
+		}
+		chdir( umgebung_t::program_dir );
+	}
+
 	//if NO languages were loaded then game cannot continue
 	if (single_instance.lang_count < 1) {
 		return false;
@@ -429,10 +459,24 @@ bool translator::load(const cstring_t& scenario_path)
 		load_language_file_body(file, &compatibility, false, false);
 		DBG_MESSAGE("translator::load()", "scenario compatibilty texts loaded.");
 		fclose(file);
-//		dump_hashtable(&compatibility);
-	} else {
-		DBG_MESSAGE("translator::load()", "no scenario compatibilty texts");
 	}
+	else {
+		DBG_MESSAGE("translator::load()", "no scenario compatibility texts");
+	}
+
+	// also addon compatibility ...
+	if(  umgebung_t::program_dir!=umgebung_t::user_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
+		chdir( umgebung_t::user_dir );
+		FILE* file = fopen(scenario_path + "compat.tab", "rb");
+		if (file != NULL) {
+			load_language_file_body(file, &compatibility, false, false);
+			DBG_MESSAGE("translator::load()", "scenario addon compatibility texts loaded.");
+			fclose(file);
+		}
+		chdir( umgebung_t::program_dir );
+	}
+
+//	dump_hashtable(&compatibility);
 
 	// use english if available
 	current_langinfo = get_lang_by_iso("en");
