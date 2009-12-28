@@ -454,15 +454,16 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 	if (vehicles.get_count()>0) {
 		potential_convoy_t convoy(*welt, vehicles);
 		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
+		sint32 friction = convoy.get_current_friction();
 		uint32 allowed_speed = vsum.max_speed;
 		uint32 min_weight = vsum.weight / 1000;
 		uint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight / 1000;
-		uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, 0));
+		uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
 		uint32 max_speed = min_speed;
 		char *speed_format = "%s %d km/h @ %d t";
 		if (min_speed < allowed_speed)
 		{
-			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, 0));
+			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, friction));
 			if (min_speed < max_speed)
 			{
 				speed_format = "%s %d km/h @ %d t %s %d km/h @ %d t";

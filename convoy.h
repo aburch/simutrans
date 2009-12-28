@@ -62,7 +62,7 @@ a = (F - cf * v^2 - Frs) / m
 #include "tpl/vector_tpl.h"
 #include "besch/vehikel_besch.h"
 //#include "simconst.h"
-//#include "simtypes.h"
+#include "simtypes.h"
 #include "vehicle/simvehikel.h"
 #include "simconvoi.h"
 #include "simworld.h"
@@ -74,10 +74,10 @@ a = (F - cf * v^2 - Frs) / m
 //#define CF_TRACK 0.7 / 2 * 10 * 1.2
 //#define CF_TRACK 4.2
 #define CF_TRACK 13
-
+#define CF_MAGLEV 10
 //#define CF_ROAD 0.7 / 2 * 6 * 1.2
 #define CF_ROAD 2.52
-
+#define CF_WATER 25
 #define CF_AIR 1
 
 // FR_*: constants related to roll resistance
@@ -86,16 +86,16 @@ a = (F - cf * v^2 - Frs) / m
 //#define FR_TRACK 0.0015
 #define FR_MAGLEV 0.0015
 #define FR_TRACK 0.0051
-//#define FR_ROAD  0.015
-//#define FR_WATER 0.015
+#define FR_ROAD  0.015
+#define FR_WATER 0.015
 #define FR_AIR 0.001
 
 // Adjusted values to balance, as vehicles seem to
 // overperform with default values.
 //#define FR_TRACK 0.0056
 //#define FR_MAGLEV 0.0015
-#define FR_ROAD  0.027
-#define FR_WATER 0.030
+//#define FR_ROAD  0.03
+//#define FR_WATER 0.03
 //#define FR_AIR 0.002
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
@@ -143,14 +143,6 @@ struct vehicle_summary_t
 		length = power = weight = 0;
 		max_speed = INT_MAX; // if there is no vehicle, there is no speed limit!
 	}
-
-	inline void add_vehicle(const vehikel_besch_t &b)
-	{
-		length += b.get_length();
-		max_speed = min(max_speed, (uint32) b.get_geschw());
-		power += (uint32) (b.get_leistung() * b.get_gear()) / GEAR_FACTOR;
-		weight += b.get_gewicht() * 1000;
-	}
 };
 
 /******************************************************************************/
@@ -180,21 +172,21 @@ struct adverse_summary_t
 				break;
 
 			case water_wt:
-				cf = CF_ROAD;
+				cf = CF_WATER;
 				fr = FR_WATER;
 				break;
 		
 			case track_wt:
 			case overheadlines_wt: 
-			case monorail_wt:      
 			case tram_wt:
 			case narrowgauge_wt:
+			case monorail_wt:      
 				cf = CF_TRACK;
 				fr = FR_TRACK;
 				break;
 			
 			case maglev_wt:
-				cf = CF_TRACK;
+				cf = CF_MAGLEV;
 				fr = FR_MAGLEV;
 				break;
 
@@ -272,7 +264,7 @@ struct weight_summary_t
 
 class convoy_t /*abstract */
 {
-	private:
+private:
 	vehicle_summary_t vehicle;
 	adverse_summary_t adverse;
 
@@ -301,6 +293,11 @@ protected:
 		return adverse;
 	}
 public:
+	/**
+	 * For calculating max speed at an arbitrary weight apply this result to your weight_summary_t() constructor as param sin_alpha.
+	 */
+	virtual sint16 get_current_friction() = 0;
+
 	/** 
 	 * Get maximum possible speed of convoy in km/h according to weight, power/force, inclination, etc.
 	 * Depends on vehicle, adverse and given weight.
@@ -454,6 +451,7 @@ public:
 	potential_convoy_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch), world(world)
 	{
 	}
+	virtual sint16 get_current_friction();
 };
 
 /******************************************************************************/
@@ -477,6 +475,8 @@ public:
 	}
 
 	//-----------------------------------------------------------------------------
+
+	virtual sint16 get_current_friction();
 	
 	// weight_summary becomes invalid, when vehicle_summary or envirion_summary 
 	// becomes invalid.

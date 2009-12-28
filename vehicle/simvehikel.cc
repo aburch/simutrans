@@ -1540,7 +1540,6 @@ sint16 get_friction_of_waytype(waytype_t waytype)
 	switch(waytype)
 	{
 		case road_wt:	return 4;
-		case water_wt:	return 6;
 	}
 	return 1;
 }
@@ -3558,14 +3557,11 @@ schiff_t::ist_befahrbar(const grund_t *bd) const
 void
 schiff_t::calc_akt_speed(const grund_t *gr)
 {
-	// or a hill?
+	// flat water
+	current_friction = get_friction_of_waytype(water_wt);
 	if(gr->get_weg_hang()) {
 		// hill up or down => in lock => deccelarte
-		current_friction = 16;
-	}
-	else {
-		// flat track
-		current_friction = 1;
+		current_friction += 15;
 	}
 
 	if(alte_fahrtrichtung != fahrtrichtung) {

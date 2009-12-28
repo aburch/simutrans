@@ -127,11 +127,17 @@ void weight_summary_t::add_weight(uint32 tons, sint32 sin_alpha)
 
 sint32 convoy_t::calc_max_speed(const weight_summary_t &weight) 
 { 
-	const double p3 = (adverse.fr * weight.weight_cos + weight.weight_sin) / ((3/9.81) * adverse.cf);
+	const double Frs = 9.81 * (adverse.fr * weight.weight_cos + weight.weight_sin);
+	if (Frs > get_force(0)) 
+	{
+		// this convoy is too heavy to start.
+		return 0;
+	}
+	const double p3 =  Frs / (3.0 * adverse.cf);
 	const double q2 = vehicle.power / (0.002 * adverse.cf);
 	const double sd = signed_power(q2 * q2 + p3 * p3 * p3, 1.0/2.0);
-	const double vmax = (signed_power(q2 + sd, 1.0/3.0) + signed_power(q2 - sd, 1.0/3.0)) * 3.6; // 3.6 converts to km/h
-	return min(vehicle.max_speed, (sint32) vmax); 
+	const double vmax = (signed_power(q2 + sd, 1.0/3.0) + signed_power(q2 - sd, 1.0/3.0)); 
+	return min(vehicle.max_speed, (sint32)(vmax * 3.6 + 1.0)); // 1.0 to compensate inaccuracy of calculation and make sure this is at least what calc_move() evaluates.
 }
 
 uint32 convoy_t::calc_max_weight()
@@ -296,8 +302,13 @@ void potential_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 	for (uint32 i = vehicles.get_count(); i-- > 0; )
 	{
 		const vehikel_besch_t &b = *vehicles[i];
-		vehicle.add_vehicle(b);
+		vehicle.length += b.get_length();
+		vehicle.max_speed = min(vehicle.max_speed, (uint32) b.get_geschw());
+		vehicle.power += b.get_leistung() * b.get_gear();
+		vehicle.weight += b.get_gewicht();
 	}
+	vehicle.power = (uint32)(vehicle.power * world.get_einstellungen()->get_global_power_factor() + (GEAR_FACTOR/2)) / GEAR_FACTOR;
+	vehicle.weight *= 1000;
 }
 
 
@@ -334,13 +345,25 @@ uint32 potential_convoy_t::get_force_summary(uint16 speed /* in m/s */)
 	return (uint32)(force * world.get_einstellungen()->get_global_power_factor() * (1.0f/GEAR_FACTOR) + 0.5f);
 }
 
+// Bernd Gabriel, Dec, 25 2009
+sint16 potential_convoy_t::get_current_friction()
+{
+	return vehicles.get_count() > 0 ? get_friction_of_waytype(vehicles[0]->get_waytype()) : 0;
+}
+
 /******************************************************************************/
+
+// Bernd Gabriel, Dec, 25 2009
+sint16 existing_convoy_t::get_current_friction()
+{
+	return convoy.get_vehikel_anzahl() > 0 ? get_friction_of_waytype(convoy.get_vehikel(0)->get_waytype()) : 0;
+}
 
 void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 {
 	vehicle.length = convoy.get_length();
 	vehicle.max_speed = speed_to_kmh(convoy.get_min_top_speed());
-	vehicle.power = (convoy.get_power_index() + GEAR_FACTOR - 1) / GEAR_FACTOR;
+	vehicle.power = (convoy.get_power_index() + (GEAR_FACTOR/2)) / GEAR_FACTOR;
 	vehicle.weight = convoy.get_sum_gewicht() * 1000;
 }
 
