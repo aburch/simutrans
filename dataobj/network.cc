@@ -13,6 +13,15 @@
 
 #include "network.h"
 
+#ifdef __BEOS__
+#include <net/netdb.h>
+#endif
+
+// Haiku has select in an additional header
+#ifndef FD_SET
+#include <sys/select.h>
+#endif
+
 #include "../simconst.h"
 
 #include "../simdebug.h"
@@ -90,10 +99,12 @@ const char *network_open_address( const char *cp)
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
 #else
 #ifdef  __BEOS__
-    uint16 a,b,c,d;
-    sscanf( cp, "%hu,%hi,%hi,%hi", &a, &b, &c, &d );
-	server_name.sin_addr.s_addr = (a*0x1000000ul) + (b*0x10000ul) + (c*0x100ul) + d;
-	if((int)server_name.sin_addr.s_addr==0) {// Bad address
+	struct hostent *theHOst;
+	theHost = gethostbyname( cp );
+	if(theHost) {
+		server_name.sin_addr.s_addr = *(ulong *)theHost->h_addr_list[0];
+	}
+	else {// Bad address
 #else
 	if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
 #endif

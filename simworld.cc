@@ -5784,7 +5784,14 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 							// update cursor and lastpos
 							if(client_id == network_get_client_id()  &&  player_nr==active_player_nr  ) {
 								zeiger->set_bild( wkz->cursor );
+								zeiger->set_yoff( wkz->offset );
+								if(!zeiger->area_changed()) {
+									// reset to default 1,1 size
+									zeiger->set_area( koord(1,1), false );
+								}
+								zeiger->change_pos( p );
 								werkzeug_last_pos = koord3d::invalid;
+								werkzeug_last_button = 0;
 							}
 						}
 					}

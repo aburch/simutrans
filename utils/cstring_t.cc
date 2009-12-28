@@ -147,7 +147,7 @@ bool cstring_t::operator!= (const cstring_t &other) const
 
 bool cstring_t::operator== (const char *other) const
 {
-  return strcmp(buf, other) == 0;
+	return other == NULL ? buf==0 : strcmp(buf, other) == 0;
 }
 
 
