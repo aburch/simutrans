@@ -12,7 +12,8 @@
 	FIX: longer convoi's name could cause crash when entering depot
 	FIX: deleting factories/cities/attractions while those lists were open resulted in CTD
 	ADD: korean glyphs now in cyr.bdf
-	ADD: stop types in station frame sometime painted on top of each other
+	FIX: stop types in station frame sometime painted on top of each other
+	ADD: translations are also search in user dir/scenario/text
 
 
 Release Candidate 102.2.1
