@@ -4600,98 +4600,96 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 		case 'i':	// insert a vehicle in front
 		case 's':	// sells a vehikel
 		case 'r': 	// removes a vehicle (assumes a valid depot)
-			{
+			if(  tool=='r'  ) {
+				assert( cnv.is_bound() );
+
+				int start_nr = atoi(p);
+				int nr = start_nr;
+
+				// find end
+				while(nr<cnv->get_vehikel_anzahl()) {
+					const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
+					nr ++;
+					if(info->get_nachfolger_count()!=1) {
+						break;
+					}
+				}
+				// now remove the vehicles
+				if(cnv->get_vehikel_anzahl()==nr-start_nr) {
+					depot->disassemble_convoi(cnv, false);
+				}
+				else {
+					for( int i=start_nr;  i<nr;  i++  ) {
+						depot->remove_vehicle(cnv, start_nr);
+					}
+				}
+			}
+			else {
 				// create and append it
 				const vehikel_besch_t *info = vehikelbauer_t::get_info( p );
+				// we have a valid vehicle there => now check for details
 				if(  info  ) {
-					// we have a valid vehicle there => now check for details
-					if(  tool=='r'  ) {
-						assert( cnv.is_bound() );
+					// we buy/sell all vehicles together!
+					slist_tpl<const vehikel_besch_t *>new_vehicle_info;
+					const vehikel_besch_t *start_info = info;
 
-						int start_nr = atoi(p);
-						int nr = start_nr;
-
-						// find end
-						while(nr<cnv->get_vehikel_anzahl()) {
-							const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
-							nr ++;
-							if(info->get_nachfolger_count()!=1) {
-								break;
-							}
+					if(tool!='a') {
+						// start of composition
+						while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) {
+							info = info->get_vorgaenger(0);
+							new_vehicle_info.insert(info);
 						}
-						// now remove the vehicles
-						if(cnv->get_vehikel_anzahl()==nr-start_nr) {
-							depot->disassemble_convoi(cnv, false);
+						info = start_info;
+					}
+					while(info) {
+						new_vehicle_info.append( info );
+						if(info->get_nachfolger_count()!=1  ||  (tool=='i'  &&  info==start_info)) {
+							break;
 						}
-						else {
-							for( int i=start_nr;  i<nr;  i++  ) {
-								depot->remove_vehicle(cnv, start_nr);
+						info = info->get_nachfolger(0);
+					}
+					// now we have a valid composition together
+					if(  tool=='s'  ) {
+						while(new_vehicle_info.get_count()) {
+							// We sell the newest vehicle - gives most money back.
+							vehikel_t* veh = depot->find_oldest_newest(new_vehicle_info.remove_first(), false);
+							if(veh != NULL) {
+								depot->sell_vehicle(veh);
 							}
 						}
 					}
 					else {
-						// we buy/sell all vehicles together!
-						slist_tpl<const vehikel_besch_t *>new_vehicle_info;
-						const vehikel_besch_t *start_info = info;
-
-						if(tool!='a') {
-							// start of composition
-							while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) {
-								info = info->get_vorgaenger(0);
-								new_vehicle_info.insert(info);
+						// append/insert into convoi; create one if needed
+						if(!cnv.is_bound()) {
+							if(  convoihandle_t::is_exhausted()  ) {
+								create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
+								return false;
 							}
-							info = start_info;
+							// create a new convoi
+							cnv = depot->add_convoi();
+							cnv->set_name(new_vehicle_info.front()->get_name());
 						}
-						while(info) {
-							new_vehicle_info.append( info );
-							if(info->get_nachfolger_count()!=1  ||  (tool=='i'  &&  info==start_info)) {
-								break;
-							}
-							info = info->get_nachfolger(0);
-						}
-						// now we have a valid composition together
-						if(  tool=='s'  ) {
-							while(new_vehicle_info.get_count()) {
-								// We sell the newest vehicle - gives most money back.
-								vehikel_t* veh = depot->find_oldest_newest(new_vehicle_info.remove_first(), false);
-								if(veh != NULL) {
-									depot->sell_vehicle(veh);
-								}
-							}
-						}
-						else {
-							// append/insert into convoi; create one if needed
-							if(!cnv.is_bound()) {
-								if(  convoihandle_t::is_exhausted()  ) {
-									create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
-									return false;
-								}
-								// create a new convoi
-								cnv = depot->add_convoi();
-								cnv->set_name(new_vehicle_info.front()->get_name());
-							}
 
-							// now we have a valid cnv
-							if(cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()) {
+						// now we have a valid cnv
+						if(cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()) {
 
-								for(  unsigned i=0;  i<new_vehicle_info.get_count();  i++  ) {
-									// insert/append needs reverse order
-									unsigned nr = (tool='i') ? new_vehicle_info.get_count()-i-1 : i;
-									// We add the oldest vehicle - newer stay for selling
-									const vehikel_besch_t* vb = new_vehicle_info.at(nr);
-									vehikel_t* veh = depot->find_oldest_newest(vb, true);
-									if (veh == NULL) {
-										// nothing there => we buy it
-										veh = depot->buy_vehicle(vb);
-									}
-									depot->append_vehicle(cnv, veh, tool=='i');
+							for(  unsigned i=0;  i<new_vehicle_info.get_count();  i++  ) {
+								// insert/append needs reverse order
+								unsigned nr = (tool=='i') ? new_vehicle_info.get_count()-i-1 : i;
+								// We add the oldest vehicle - newer stay for selling
+								const vehikel_besch_t* vb = new_vehicle_info.at(nr);
+								vehikel_t* veh = depot->find_oldest_newest(vb, true);
+								if (veh == NULL) {
+									// nothing there => we buy it
+									veh = depot->buy_vehicle(vb);
 								}
+								depot->append_vehicle(cnv, veh, tool=='i');
 							}
 						}
 					}
-					depot->update_win();
 				}
 			}
+			depot->update_win();
 			break;
 	}
 	return false;
