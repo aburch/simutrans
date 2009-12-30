@@ -14,6 +14,7 @@
 	ADD: korean glyphs now in cyr.bdf
 	FIX: stop types in station frame sometime painted on top of each other
 	ADD: translations are also search in user dir/scenario/text
+	ADD: (gerw) auto-electrify depot added
 
 
 Release Candidate 102.2.1

@@ -34,7 +34,9 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+
 #include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
 
 #include "../bauer/warenbauer.h"
 
@@ -172,69 +174,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	/*
 	* [PANEL]
-	* to test for presence, we must fist switch on all vehicles,
-	* and switch off the timeline ...
-	* otherwise the tabs will not be present at all
 	*/
-	bool old_retired=show_retired_vehicles;
-	bool old_show_all=show_all;
-	show_retired_vehicles = true;
-	show_all = true;
-	einstellungen_t* e = get_welt()->get_einstellungen();
-	char timeline = e->get_use_timeline();
-	e->set_use_timeline(0);
-	build_vehicle_lists();
-	e->set_use_timeline(timeline);
-	show_retired_vehicles = old_retired;
-	show_all = old_show_all;
-
-	bool one = false;
-
-	cont_pas.add_komponente(&pas);
-	scrolly_pas.set_show_scroll_x(false);
-	scrolly_pas.set_size_corner(false);
-	scrolly_pas.set_read_only(false);
-	// add only if there are any
-	if(!pas_vec.empty()) {
-		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
-		one = true;
-	}
-
-	cont_electrics.add_komponente(&electrics);
-	scrolly_electrics.set_show_scroll_x(false);
-	scrolly_electrics.set_size_corner(false);
-	scrolly_electrics.set_read_only(false);
-	// add only if there are any trolleybuses
-	if(!electrics_vec.empty()) {
-		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
-		one = true;
-	}
-
-	cont_loks.add_komponente(&loks);
-	scrolly_loks.set_show_scroll_x(false);
-	scrolly_loks.set_size_corner(false);
-	scrolly_loks.set_read_only(false);
-	// add, if waggons are there ...
-	if (!loks_vec.empty() || !waggons_vec.empty()) {
-		tabs.add_tab(&scrolly_loks, translator::translate( depot->get_zieher_name() ) );
-		one = true;
-	}
-
-	cont_waggons.add_komponente(&waggons);
-	scrolly_waggons.set_show_scroll_x(false);
-	scrolly_waggons.set_size_corner(false);
-	scrolly_waggons.set_read_only(false);
-	// only add, if there are waggons
-	if (!waggons_vec.empty()) {
-		tabs.add_tab(&scrolly_waggons, translator::translate( depot->get_haenger_name() ) );
-		one = true;
-	}
-
-	if(!one) {
-		// add passenger as default
-		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
-	}
-
 	pas.set_player_nr(depot->get_player_nr());
 	pas.add_listener(this);
 
@@ -271,7 +211,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	koord gr = koord(0,0);
 	layout(&gr);
-	update_data();
+	build_vehicle_lists();
 	gui_frame_t::set_fenstergroesse(gr);
 
 	// text will be translated by ourselves (after update data)!
@@ -281,10 +221,12 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	lb_convoi_value.set_text_pointer(txt_convoi_value);
 	lb_convoi_line.set_text_pointer(txt_convoi_line);
 
+	// Bolt image for electrified depots:
+	add_komponente(&img_bolt);
+
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
 }
-
 
 
 
@@ -539,6 +481,9 @@ void depot_frame_t::layout(koord *gr)
 	bt_obsolete.set_pos(koord(TOTAL_WIDTH-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + PANEL_HEIGHT + 16));
 	bt_obsolete.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_obsolete.pressed = show_retired_vehicles;
+
+	const uint8 margin = 4;
+	img_bolt.set_pos(koord(get_fenstergroesse().x-skinverwaltung_t::electricity->get_bild(0)->get_pic()->w-margin,margin));
 }
 
 
@@ -551,6 +496,23 @@ void depot_frame_t::set_fenstergroesse( koord gr )
 	update_data();
 	gui_frame_t::set_fenstergroesse(gr);
 }
+
+
+
+void depot_frame_t::activate_convoi( convoihandle_t c )
+{
+	// deselect ...
+	icnv = -1;
+	for(  uint i=0;  i<depot->convoi_count();  i++  ) {
+		if(  c==depot->get_convoi(i)  ) {
+			icnv = i;
+			break;
+		}
+	}
+	build_vehicle_lists();
+}
+
+
 
 
 // true if already stored here
@@ -612,6 +574,11 @@ void depot_frame_t::build_vehicle_lists()
 
 	const int month_now = get_welt()->get_timeline_year_month();
 
+	/*
+	 * The next block calculates upper bounds for the sizes of the vectors.
+	 * If the vectors get resized, the vehicle_map becomes invalid, therefore
+	 * we need to resize them before filling them.
+	 */
 	if(electrics_vec.empty()  &&  pas_vec.empty()  &&  loks_vec.empty()  &&  waggons_vec.empty()) {
 		int loks = 0, waggons = 0, pax=0, electrics = 0;
 		slist_iterator_tpl<const vehikel_besch_t*> vehinfo(depot->get_vehicle_type());
@@ -646,6 +613,8 @@ void depot_frame_t::build_vehicle_lists()
 	const waytype_t wt = depot->get_wegtyp();
 	const weg_t *w = get_welt()->lookup(depot->get_pos())->get_weg(wt!=tram_wt ? wt : track_wt);
 	const bool weg_electrified = w ? w->is_electrified() : false;
+
+	img_bolt.set_image( weg_electrified ? skinverwaltung_t::electricity->get_bild_nr(0) : IMG_LEER );
 
 	// use this to show only sellable vehicles
 	if(!show_all  &&  veh_action==va_sell) {
@@ -689,6 +658,8 @@ void depot_frame_t::build_vehicle_lists()
 		}
 	}
 DBG_DEBUG("depot_frame_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
+	update_data();
+	update_tabs();
 }
 
 
@@ -816,6 +787,9 @@ void depot_frame_t::update_data()
 			} else if(!convoi_t::pruefe_nachfolger(info, NULL)) {
 				iter1.get_current_value()->rcolor = COL_YELLOW;
 			}
+		} else if( veh_action == va_sell ) {
+			iter1.get_current_value()->lcolor = COL_RED;
+			iter1.get_current_value()->rcolor = COL_RED;
 		}
 
 //DBG_DEBUG("depot_frame_t::update_data()","current %i = %s with color %i",info->get_name(),iter1.get_current_value()->lcolor);
@@ -868,99 +842,15 @@ sint32 depot_frame_t::calc_restwert(const vehikel_besch_t *veh_type)
 }
 
 
-// returns the indest of the old/newest vehicle in a list
-vehikel_t* depot_frame_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
-{
-	vehikel_t* found_veh = NULL;
-	slist_iterator_tpl<vehikel_t*> iter(depot->get_vehicle_list());
-	while (iter.next()) {
-		vehikel_t* veh = iter.get_current();
-		if (veh->get_besch() == besch) {
-			// joy of XOR, finally a line where I could use it!
-			if (found_veh == NULL ||
-					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())) {
-				found_veh = veh;
-			}
-		}
-	}
-	return found_veh;
-}
-
-
-
 void depot_frame_t::image_from_storage_list(gui_image_list_t::image_data_t *bild_data)
 {
-	if(bild_data->lcolor != COL_RED && bild_data->rcolor != COL_RED) {
-		// we buy/sell all vehicles together!
-		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
-		const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
-		const vehikel_besch_t *start_info = info;
-
-		if(veh_action==va_insert  ||  veh_action==va_sell) {
-			// start of composition
-			while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) {
-				info = info->get_vorgaenger(0);
-				new_vehicle_info.insert(info);
-			}
-			info = start_info;
-		}
-		// not get the end ...
-		while(info) {
-			new_vehicle_info.append( info );
-DBG_MESSAGE("depot_frame_t::image_from_storage_list()","appended %s",info->get_name() );
-			if(info->get_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) {
-				break;
-			}
-			info = info->get_nachfolger(0);
-		}
-
-		if(veh_action == va_sell) {
-			while(new_vehicle_info.get_count()) {
-				/*
-				*	We sell the newest vehicle - gives most money back.
-				*/
-				vehikel_t* veh = find_oldest_newest(new_vehicle_info.remove_first(), false);
-				if (veh != NULL) {
-					depot->sell_vehicle(veh);
-				}
-			}
+	if(  bild_data->lcolor != COL_RED  &&  bild_data->rcolor != COL_RED  ) {
+		if(  veh_action == va_sell  ) {
+			depot->call_depot_tool( 's', convoihandle_t(), bild_data->text );
 		}
 		else {
-
-			// append/insert into convoi
-			convoihandle_t cnv = depot->get_convoi(icnv);
-			if(!cnv.is_bound()) {
-				if(  convoihandle_t::is_exhausted()  ) {
-					create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
-					return;
-				}
-				// create a new convoi
-				cnv = depot->add_convoi();
-				icnv = depot->convoi_count() - 1;
-				cnv->set_name(new_vehicle_info.front()->get_name());
-			}
-
-			if(cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()) {
-
-				for( unsigned i=0;  i<new_vehicle_info.get_count();  i++ ) {
-					// insert/append needs reverse order
-					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.get_count()-i-1 : i;
-					// We add the oldest vehicle - newer stay for selling
-					const vehikel_besch_t* vb = new_vehicle_info.at(nr);
-					vehikel_t* veh = find_oldest_newest(vb, true);
-DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
-					if (veh == NULL) {
-						// nothing there => we buy it
-						veh = depot->buy_vehicle(vb);
-					}
-					depot->append_vehicle(cnv, veh, veh_action == va_insert);
-				}
-			}
+			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', depot->get_convoi(icnv), bild_data->text );
 		}
-
-		build_vehicle_lists();
-		update_data();
-		layout(NULL);
 	}
 }
 
@@ -969,8 +859,6 @@ DBG_MESSAGE("depot_frame_t::image_from_storage_list()","built nr %i", nr);
 void depot_frame_t::image_from_convoi_list(uint nr)
 {
 	const convoihandle_t cnv = depot->get_convoi(icnv);
-
-//DBG_DEBUG("depot_frame_t::bild_gewaehlt()","convoi index %i",nr);
 	if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
 
 		// we remove all connected vehicles together!
@@ -984,24 +872,11 @@ void depot_frame_t::image_from_convoi_list(uint nr)
 				break;
 			}
 		}
-		// find end
-		while(nr<cnv->get_vehikel_anzahl()) {
-			const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
-			nr ++;
-			if(info->get_nachfolger_count()!=1) {
-				break;
-			}
-		}
-		// now remove the vehicles
-		if(cnv->get_vehikel_anzahl()==nr-start_nr) {
-			depot->disassemble_convoi(cnv, false);
-			icnv--;
-		}
-		else {
-			for( unsigned i=start_nr;  i<nr;  i++  ) {
-				depot->remove_vehicle(cnv, start_nr);
-			}
-		}
+
+		cbuffer_t start(16);
+		start.append( start_nr );
+
+		depot->call_depot_tool( 'r', cnv, start );
 	}
 }
 
@@ -1016,20 +891,14 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 
 	if(komp != NULL) {	// message from outside!
 		if(komp == &bt_start) {
-			if (depot->start_convoi(cnv)) {
-				icnv--;
-			}
+			depot->call_depot_tool( 'b', cnv, NULL );
 		} else if(komp == &bt_schedule) {
 			fahrplaneingabe();
 			return true;
 		} else if(komp == &bt_destroy) {
-			if (depot->disassemble_convoi(cnv, false)) {
-				icnv--;
-			}
+			depot->call_depot_tool( 'd', cnv, NULL );
 		} else if(komp == &bt_sell) {
-			if (depot->disassemble_convoi(cnv, true)) {
-				icnv--;
-			}
+			depot->call_depot_tool( 'v', cnv, NULL );
 		} else if(komp == &bt_next) {
 			if(++icnv == (int)depot->convoi_count()) {
 				icnv = -1;
@@ -1051,8 +920,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			image_from_storage_list(&waggons_vec[p.i]);
 		} else if(komp == &bt_obsolete) {
 			show_retired_vehicles = (show_retired_vehicles==0);
+			depot_t::update_all_win();
 		} else if(komp == &bt_show_all) {
 			show_all = (show_all==0);
+			depot_t::update_all_win();
 		} else if(komp == &bt_veh_action) {
 			if(veh_action== va_sell) {
 				veh_action = va_append;
@@ -1061,22 +932,24 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 				veh_action = veh_action+1;
 			}
 		} else if(komp == &bt_new_line) {
-			new_line();
+			depot->call_depot_tool( 'l', convoihandle_t(), NULL );
 			return true;
 		} else if(komp == &bt_change_line) {
-			change_line();
+			if(selected_line.is_bound()) {
+				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
+			}
 			return true;
 		} else if(komp == &bt_copy_convoi) {
 			if(  convoihandle_t::is_exhausted()  ) {
 				create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
 			}
 			else {
-				depot->copy_convoi(cnv);
-				// automatically select newly created convoi
-				icnv = depot->convoi_count()-1;
+				depot->call_depot_tool( 'c', cnv, NULL);
 			}
+			return true;
 		} else if(komp == &bt_apply_line) {
 			apply_line();
+			return true;
 		} else if(komp == &line_selector) {
 			int selection = p.i;
 //DBG_MESSAGE("depot_frame_t::action_triggered()","line selection=%i",selection);
@@ -1097,7 +970,10 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		}
 		build_vehicle_lists();
 	}
-	update_data();
+	else {
+		update_data();
+		update_tabs();
+	}
 	layout(NULL);
 	return true;
 }
@@ -1143,10 +1019,6 @@ void depot_frame_t::infowin_event(const event_t *ev)
 	} else if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = get_fenstergroesse();
 		set_fenstergroesse(gr);
-	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
-		build_vehicle_lists();
-		update_data();
-		layout(NULL);
 	}
 	else {
 		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)) {
@@ -1241,18 +1113,6 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 }
 
 
-void depot_frame_t::new_line()
-{
-	selected_line = depot->create_line();
-	depot->set_selected_line(selected_line);
-DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
-	layout(NULL);
-	update_data();
-	create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
-DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
-}
-
-
 void depot_frame_t::apply_line()
 {
 	if(icnv > -1) {
@@ -1267,55 +1127,30 @@ void depot_frame_t::apply_line()
 			char id[16];
 			sprintf( id, "%i", selected_line.get_id() );
 			cnv->call_convoi_tool( 'l', id );
-//			cnv->set_line(selected_line);
-//			cnv->get_schedule()->set_aktuell( selected_line->get_schedule()->get_aktuell() );
 		}
 		else {
 			// sometimes the user might wish to remove convoy from line
-			// this happens here
-			schedule_t *fpl = cnv->create_schedule()->copy();
-			while(  fpl->get_count()>0  ) {
-				fpl->remove();
-			}
-			cnv->set_schedule( fpl );
+			// => we clear the schedule completely
+			cnv->call_convoi_tool( 'g', "0|" );
 		}
 	}
 }
 
-
-void depot_frame_t::change_line()
-{
-	if(selected_line.is_bound()) {
-		create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
-	}
-}
 
 
 void depot_frame_t::fahrplaneingabe()
 {
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0) {
-
+		// this can happen locally, since any update of the schedule is done during closing window
 		schedule_t *fpl = cnv->create_schedule();
-		if(fpl!=NULL) {
-			if(fpl->ist_abgeschlossen()) {
-
-				// Fahrplandialog oeffnen
-				create_win(new fahrplan_gui_t(fpl, cnv->get_besitzer(), convoihandle_t() ), w_info, (long)fpl);
-
-				// maybe convoi was deleted by a callback, so test again
-				if(cnv.is_bound()  &&  fpl != NULL) {
-					cnv->set_schedule(fpl);
-				}
-			}
-			else {
-				gui_fenster_t *fplwin = win_get_magic((long)fpl);
-				top_win( fplwin );
-//				create_win( new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_time_delete, magic_none);
-			}
+		assert(fpl!=NULL);
+		gui_fenster_t *fplwin = win_get_magic((long)fpl);
+		if(   fplwin==NULL  ) {
+			cnv->open_schedule_window();
 		}
 		else {
-			dbg->error( "depot_frame_t::fahrplaneingabe()", "cannot create schedule!" );
+			top_win( fplwin );
 		}
 	}
 	else {
@@ -1459,5 +1294,69 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 		}
 
 		display_multiline_text( pos.x + 200, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*2 + 4, buf, COL_BLACK);
+	}
+}
+
+
+
+void depot_frame_t::update_tabs()
+{
+	gui_komponente_t *old_tab = tabs.get_aktives_tab();
+	tabs.clear();
+
+	bool one = false;
+
+	cont_pas.add_komponente(&pas);
+	scrolly_pas.set_show_scroll_x(false);
+	scrolly_pas.set_size_corner(false);
+	scrolly_pas.set_read_only(false);
+	// add only if there are any
+	if(!pas_vec.empty()) {
+		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+		one = true;
+	}
+
+	cont_electrics.add_komponente(&electrics);
+	scrolly_electrics.set_show_scroll_x(false);
+	scrolly_electrics.set_size_corner(false);
+	scrolly_electrics.set_read_only(false);
+	// add only if there are any trolleybuses
+	if(!electrics_vec.empty()) {
+		tabs.add_tab(&scrolly_electrics, translator::translate( depot->get_electrics_name() ) );
+		one = true;
+	}
+
+	cont_loks.add_komponente(&loks);
+	scrolly_loks.set_show_scroll_x(false);
+	scrolly_loks.set_size_corner(false);
+	scrolly_loks.set_read_only(false);
+	// add, if waggons are there ...
+	if (!loks_vec.empty() || !waggons_vec.empty()) {
+		tabs.add_tab(&scrolly_loks, translator::translate( depot->get_zieher_name() ) );
+		one = true;
+	}
+
+	cont_waggons.add_komponente(&waggons);
+	scrolly_waggons.set_show_scroll_x(false);
+	scrolly_waggons.set_size_corner(false);
+	scrolly_waggons.set_read_only(false);
+	// only add, if there are waggons
+	if (!waggons_vec.empty()) {
+		tabs.add_tab(&scrolly_waggons, translator::translate( depot->get_haenger_name() ) );
+		one = true;
+	}
+
+	if(!one) {
+		// add passenger as default
+		tabs.add_tab(&scrolly_pas, translator::translate( depot->get_passenger_name() ) );
+	}
+
+	// Look, if there is our old tab present again (otherwise it will be 0 by tabs.clear()).
+	for( uint8 i = 0; i < tabs.get_count(); i++ ) {
+		if(  old_tab == tabs.get_tab(i)  ) {
+			// Found it!
+			tabs.set_active_tab_index(i);
+			break;
+		}
 	}
 }

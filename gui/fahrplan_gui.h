@@ -103,7 +103,9 @@ private:
 	fahrplan_gui_stats_t stats;
 	gui_scrollpane_t scrolly;
 
-	void init_line_selector();
+	// to add new lines automatically
+	uint32 old_line_count;
+	uint32 last_schedule_count;
 
 	// set the correct tool now ...
 	void update_werkzeug(bool set);
@@ -123,6 +125,9 @@ public:
 	fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);
 
 	~fahrplan_gui_t();
+
+	// for updating info ...
+	void init_line_selector();
 
 	/**
 	 * Mausklicks werden hiermit an die GUI-Komponenten

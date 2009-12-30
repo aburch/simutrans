@@ -404,23 +404,21 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 
 			// if route to a depot has been found, update the convoi's schedule
 			bool b_depot_found = false;
+			const char *txt;
 			if(!shortest_route->empty()) {
-				schedule_t *fpl = cnv->get_schedule();
+				schedule_t *fpl = cnv->get_schedule()->copy();
 				fpl->insert(cnv->get_welt()->lookup(home));
 				fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-				b_depot_found = cnv->set_schedule(fpl);
-			}
-			delete shortest_route;
-			route_search_in_progress = false;
-
-			// show result
-			const char* txt;
-			if (b_depot_found) {
+				cbuffer_t buf(5120);
+				fpl->sprintf_schedule( buf );
+				cnv->call_convoi_tool( 'g', buf );
 				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 			}
 			else {
 				txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 			}
+			delete shortest_route;
+			route_search_in_progress = false;
 			create_win( new news_img(txt), w_time_delete, magic_none);
 		} // end go home button
 	}

@@ -10,6 +10,7 @@
 
 #include "gui_frame.h"
 #include "components/gui_label.h"
+#include "components/gui_image.h"
 #include "components/gui_image_list.h"
 #include "components/gui_textinput.h"
 #include "components/gui_combobox.h"
@@ -119,6 +120,8 @@ private:
 	static char no_line_text[128];
 	gui_combobox_t line_selector;
 
+	gui_image_t img_bolt;
+
 	linehandle_t selected_line;
 
 	/**
@@ -149,13 +152,6 @@ private:
 	ptrhashtable_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> vehicle_map;
 
 	/**
-	 * Update texts, image lists and buttons according to the current state.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	void update_data();
-
-	/**
 	 * Draw the info text for the vehicle the mouse is over - if any.
 	 * @author Volker Meyer, Hj. Malthaner
 	 * @date  09.06.2003
@@ -170,13 +166,6 @@ private:
 	 * @date  09.06.2003
 	 */
 	sint32 calc_restwert(const vehikel_besch_t *veh_type);
-
-	/**
-	 * Do the dynamic dialog layout
-	 * @author Volker Meyer
-	 * @date  18.06.2003
-	 */
-	void layout(koord *);
 
 	/**
 	 * Does this window need a min size button in the title bar?
@@ -194,13 +183,29 @@ private:
 	// for convoi image
 	void image_from_convoi_list(uint nr);
 
-	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
-
 	void image_from_storage_list(gui_image_list_t::image_data_t *bild_data);
 
 	karte_t* get_welt() { return depot->get_welt(); }
 
 public:
+	// the next two are only needed for depot_t update notifications
+	void activate_convoi( convoihandle_t cnv );
+
+	/**
+	 * Do the dynamic dialog layout
+	 * @author Volker Meyer
+	 * @date  18.06.2003
+	 */
+	void layout(koord *);
+
+	/**
+	 * Update texts, image lists and buttons according to the current state.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	void update_data();
+
+	// more general functions ...
 	depot_frame_t(depot_t* depot);
 
 	/**
@@ -216,6 +221,13 @@ public:
 	 * @date  09.06.2003
 	 */
 	void build_vehicle_lists();
+
+	/*
+	 * Will update the tabs (don't show empty ones).
+	 * @author Gerd Wachsmuth
+	 * @date 08.05.2009
+	 */
+	void update_tabs();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -246,8 +258,6 @@ public:
 	void zeichnen(koord pos, koord gr);
 
 	// @author hsiegeln
-	void new_line();
-	void change_line();
 	void apply_line();
 
 	/**

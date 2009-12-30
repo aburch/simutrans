@@ -51,7 +51,9 @@ public:
 	 * Gibt die aktuell angezeigte Komponente zurück.
 	 * @author Hj. Malthaner
 	 */
-	gui_komponente_t* get_aktives_tab() const { return tabs.at(active_tab).component; }
+	gui_komponente_t* get_aktives_tab() const { return get_tab(active_tab); }
+
+	gui_komponente_t* get_tab( uint8 i ) const { return i < tabs.get_count() ? tabs.at(i).component : NULL; }
 
 	int get_active_tab_index() const { return min((int)tabs.get_count()-1,active_tab); }
 	void set_active_tab_index( int i ) { active_tab = min((int)tabs.get_count()-1,i); }
@@ -75,6 +77,20 @@ public:
 	 * @date  18.06.2003
 	 */
 	void set_groesse(koord groesse);
+
+	/*
+	 * Remove all tabs.
+	 * @author Gerd Wachsmuth
+	 * @date  08.05.2009
+	 */
+	void clear();
+
+	/*
+	 * How many tabs we have?
+	 * @author Gerd Wachsmuth
+	 * @date  08.05.2009
+	 */
+	uint32 get_count () const { return tabs.get_count(); }
 };
 
 #endif

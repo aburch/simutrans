@@ -60,17 +60,19 @@ public:
 	depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~depot_t();
 
+	void call_depot_tool( char tool, convoihandle_t cnv, const char *extra );
+
 	virtual simline_t::linetype get_line_type() const = 0;
 
 	void rdwr(loadsave_t *file);
-
-	virtual linehandle_t create_line();
 
 	// text for the tabs is defaulted to the train names
 	virtual const char * get_electrics_name() { return "Electrics_tab"; };
 	virtual const char * get_passenger_name() { return "Pas_tab"; }
 	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
 	virtual const char * get_haenger_name() { return "Waggon_tab"; }
+
+	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
 
 	/**
 	 * Access to convoi list.
@@ -200,6 +202,18 @@ public:
 	 */
 	void set_selected_line(const linehandle_t sel_line);
 	linehandle_t get_selected_line();
+
+
+	/*
+	 * Will update all depot_frame_t (new vehicles!)
+	 */
+	static void update_all_win();
+	static void neuer_monat();
+
+	/*
+	 * Update the depot_frame_t.
+	 */
+	void update_win();
 
 private:
 	linehandle_t selected_line;

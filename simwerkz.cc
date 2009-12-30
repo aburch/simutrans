@@ -50,9 +50,12 @@
 #include "vehicle/simverkehr.h"
 #include "vehicle/simpeople.h"
 
+#include "gui/line_management_gui.h"
 #include "gui/werkzeug_waehler.h"
 #include "gui/station_building_select.h"
 #include "gui/karte.h"	// to update map after construction of new industry
+#include "gui/depot_frame.h"
+#include "gui/fahrplan_gui.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -488,6 +491,10 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 		}
 		wo->entferne(sp);
 		delete wo;
+		depot_t *dep = gr->get_depot();
+		if( dep ) {
+			dep->update_win();
+		}
 		return true;
 	}
 
@@ -2344,6 +2351,16 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 			}
 		}
 	}
+
+	// Update depots (new electric tab?). Depots can only be on first and last tile.
+	for(  uint8 j = 0;  j < 2;  j++  ) {
+		uint8 i = j==0 ? 0 : verbindung.get_count()-1;
+		depot_t *dep = welt->lookup( verbindung.position_bei(i) )->get_depot();
+		if( dep ) {
+			dep->update_win();
+		}
+	}
+
 	return NULL;
 }
 
@@ -4337,23 +4354,15 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 /************************* internal tools, only need for networking ***************/
 
 /* Handles all action of convois in depots. Needs a default param:
- * [function],[convoi_id],[homedepot x,y,z],addition stuff
+ * [function],[convoi_id],addition stuff
  * following simple command exists:
  * 'x' : self destruct
- * 'b' : start the journey of a convoi
  * 'f' : open the schedule window
  * 'g' : apply a schedule
  * 'n' : toggle 'no load'
  * 'w' : toggle withdraw
  * 'd' : dissassemble convoi and store vehicle in this depot
- * The next commands need [number] after the ',':
- * 'c' : copy convoi with id [number]
  * 'l' : apply new line [number]
- * 'r' : remove vehicle at [number] and put it into depot here
- * 's' : sell vehicle at [number]
- * The last tools needs a string with the name of a vehicle:
- * 'a' : append this vehicle to the end of this convoi
- * 'i' : insert this vehicle at the front of this convoi
  */
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 {
@@ -4367,20 +4376,14 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hu,%hi,%hi,%hi", &tool, &convoi_id, &pos.x, &pos.y, &z );
-	pos.z = z;
+	sscanf( p, "%c,%hi", &tool, &convoi_id );
 
 	// skip to the commands ...
-	z = 5;
-	while(  *p  &&  z>0  ) {
+	for(  int z = 2;  *p  &&  z>0;  p++  ) {
 		if(  *p==','  ) {
 			z--;
 		}
-		p++;
 	}
-
-	grund_t *gr = welt->lookup(pos);
-	depot_t *depot = gr ? gr->get_depot() : NULL;
 
 	convoi_t *cnv = NULL;
 	if(  convoi_id==0  ) {
@@ -4404,16 +4407,6 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			cnv->self_destruct();
 			return false;
 
-		case 'b': // start convoi
-			if(  depot  ) {
-				depot->start_convoi( cnv->self );
-			}
-			else {
-				welt->sync_add( cnv );
-				cnv->start();
-			}
-			return false;
-
 		case 'f': // open schedule
 			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
 				// pop up error message here!
@@ -4425,6 +4418,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 		case 'g': // change schedule
 			{
 				schedule_t *fpl = cnv->create_schedule()->copy();
+				fpl->eingabe_abschliessen();
 				fpl->sscanf_schedule( p );
 				cnv->set_schedule( fpl );
 			}
@@ -4459,110 +4453,14 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			cnv->set_withdraw( !cnv->get_withdraw() );
 			cnv->set_no_load( cnv->get_withdraw() );
 			break;
-
-		case 'd': {	// disassemble (assumes a valid depot)!
-			if(  cnv->get_line().is_bound()  ) {
-				cnv->set_schedule( NULL );
-			}
-			// store vehicles in depot
-			vehikel_t *v;
-			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
-				gr = welt->lookup( v->get_pos() );
-				if(gr) {
-					gr->obj_remove( v );
-				}
-				v->loesche_fracht();
-				v->set_erstes(false);
-				v->set_letztes(false);
-				v->set_flag( ding_t::not_on_map );
-//				depot->append_vehikel( v );
-			}
-			// and remove from welt
-			cnv->self_destruct();
-			break;
-		}
-
-		case 'a':	// append a vehicle
-		case 'i': {	// insert a vehicle in front
-			// get the name
-			char name[1024];
-			for(  int i=0;  p[i+1]!=0  &&  p[i+1]!=','  &&  i<1024;  i++  ) {
-				name[i] = p[i+1];
-				name[i+1] = 0;
-			}
-			// create and append it
-			const vehikel_besch_t *vb = vehikelbauer_t::get_info( name );
-			vehikel_t* veh = vehikelbauer_t::baue( pos, sp, NULL, vb );
-			cnv->add_vehikel( veh, *p=='i' );
-			if(  cnv->get_vehikel_anzahl()==0  ) {
-				cnv->set_name(veh->get_name());
-			}
-			break;
-		}
-
-		case 'c': {	// copy a convoi
-			int copy_id = atoi(p+1);
-			// find the convoi with this ID
-			for( uint16 h=0;  h<welt->get_convoi_count();  h++  ) {
-				convoihandle_t old_cnv = welt->get_convoi( h );
-				// found one => then copy it
-				if(  old_cnv.get_id()==copy_id  ) {
-					cnv->set_name(old_cnv->get_internal_name());
-					int vehicle_count = old_cnv->get_vehikel_anzahl();
-					for( uint8 i = 0;  i<vehicle_count;  i++  ) {
-						const vehikel_besch_t *info = old_cnv->get_vehikel(i)->get_besch();
-						vehikel_t *oldest_vehicle = NULL;
-						// still in depot?
-						if(  depot  ) {
-							oldest_vehicle = depot->get_oldest_vehicle( info );
-						}
-						// we need to buy it
-						if(  oldest_vehicle==NULL  ) {
-							oldest_vehicle = vehikelbauer_t::baue( pos, sp, NULL, info );
-						}
-						oldest_vehicle->set_pos(pos);
-						cnv->add_vehikel( oldest_vehicle, false );
-					}
-					if(old_cnv->get_line().is_bound()) {
-						cnv->set_line(old_cnv->get_line());
-					}
-					else {
-						if (old_cnv->get_schedule() != NULL) {
-							cnv->set_schedule(old_cnv->get_schedule()->copy());
-						}
-					}
-				}
-				assert( h+1<=welt->get_convoi_count() );
-			}
-			break;
-		}
-
-		case 's':	// sells a vehikel
-		case 'r': {	// removes a vehicle (assumes a valid depot)
-			int nr = atoi(p+1);
-			if(  *p=='r'  ) {
-//				depot->append_vehicle( cnv->remove_vehikel_bei( nr ) );
-			}
-			else {
-				// just sell ...
-				vehikel_t *v = cnv->remove_vehikel_bei( nr );
-				sp->buche( v->calc_restwert(), pos.get_2d(), COST_NEW_VEHICLE );
-				delete v;
-			}
-			break;
-		}
 	}
 
-	// notify a depot of the change
-	if(  depot  ) {
-//		depot->convoi_changed( cnv->self );
-	}
 	return false;	// no related work tool ...
 }
 
 
 
-/* Handles all action of convois in depots. Needs a default param:
+/* Handles all action of ^lines. Needs a default param:
  * [function],[line_id],addition stuff
  * following simple command exists:
  * 'g' : apply new schedule to line [schedule follows]
@@ -4578,32 +4476,221 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 	}
 
 	char tool=*p++;
-	while(  *p  &&  *p!=','  ) {
-		p++;
+	while(  *p  &&  *p++!=','  ) {
 	}
 	if(  *p==0  ) {
 		dbg->error( "wkz_change_line_t::init()", "too short command \"%s\"", default_param );
 	}
-	p++;
 
 	line_id = atoi(p);
-	while(  *p  &&  *p!=','  ) {
-		p++;
+	while(  *p  &&  *p++!=','  ) {
 	}
 
 	linehandle_t line;
 	line.set_id( line_id );
 
-	assert(  line.is_bound()  &&  spieler_t::check_owner(line->get_besitzer(),sp)  );
-
 	// first letter is now the actual command
 	switch(  tool  ) {
+		case 'c': // create line, next paraemter line type and magic of schedule window (only right window gets updated)
+			{
+				line = sp->simlinemgmt.create_line( atoi(p), sp );
+				while(  *p  &&  *p++!=','  ) {
+				}
+				void *t;
+				sscanf( p, "%p", &t );
+				fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic( (long)t ));
+				while(  *p  &&  *p++!=','  ) {
+				}
+				line->get_schedule()->sscanf_schedule( p );
+				if(  fg  ) {
+					fg->init_line_selector();
+				}
+			}
+			break;
+
 		case 'g': // change schedule
 			{
 				schedule_t *fpl = line->get_schedule()->copy();
 				fpl->sscanf_schedule( p );
 				line->set_schedule( fpl );
 				line->get_besitzer()->simlinemgmt.update_line(line);
+			}
+			break;
+	}
+	return false;
+}
+
+
+
+/* Handles all action of convois in depots. Needs a default param:
+ * [function],[depot_pos_3d],[convoi_id],addition stuff
+ * following simple command exists:
+ * 'l' : creates a new line (convoi_id might be invalid)
+ * 'b' : starts the convoi
+ * 'c' : copy this convoi
+ */
+bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
+{
+	char tool=0;
+	koord3d pos = koord3d::invalid;
+	sint16	z;
+	uint16 convoi_id;
+
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p<=' '  ) {
+		p++;
+	}
+	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id );
+	pos.z = z;
+
+	// skip to the commands ...
+	z = 5;
+	while(  *p  &&  z>0  ) {
+		if(  *p==','  ) {
+			z--;
+		}
+		p++;
+	}
+
+	grund_t *gr = welt->lookup(pos);
+	assert(gr);
+	depot_t *depot = gr->get_depot();
+	assert(depot  &&  spieler_t::check_owner( depot->get_besitzer(), sp) );
+
+	convoihandle_t cnv;
+	cnv.set_id( convoi_id );
+
+	// ok now do our stuff
+	switch(  tool  ) {
+		case 'l':
+			// create line schedule window
+			{
+				linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
+				depot->set_selected_line(selected_line);
+				depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+				if(  welt->get_active_player()==sp  &&  depot_frame  ) {
+					create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
+				}
+				DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
+			}
+			break;
+
+		case 'b':
+			// start a convoi from the depot
+			if(  cnv.is_bound()  ) {
+				depot->start_convoi(cnv);
+			}
+			break;
+
+		case 'd':
+		case 'v':
+			// disassemble/sell convoi
+			depot->disassemble_convoi( cnv, tool=='v' );
+			break;
+
+		case 'c':
+			// copy this convoi
+			if(  cnv.is_bound()  ) {
+				depot->copy_convoi(cnv);
+			}
+			break;
+
+		case 'a':	// append a vehicle
+		case 'i':	// insert a vehicle in front
+		case 's':	// sells a vehikel
+		case 'r': 	// removes a vehicle (assumes a valid depot)
+			{
+				// create and append it
+				const vehikel_besch_t *info = vehikelbauer_t::get_info( p );
+				if(  info  ) {
+					// we have a valid vehicle there => now check for details
+					if(  tool=='r'  ) {
+						assert( cnv.is_bound() );
+
+						int start_nr = atoi(p);
+						int nr = start_nr;
+
+						// find end
+						while(nr<cnv->get_vehikel_anzahl()) {
+							const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
+							nr ++;
+							if(info->get_nachfolger_count()!=1) {
+								break;
+							}
+						}
+						// now remove the vehicles
+						if(cnv->get_vehikel_anzahl()==nr-start_nr) {
+							depot->disassemble_convoi(cnv, false);
+						}
+						else {
+							for( int i=start_nr;  i<nr;  i++  ) {
+								depot->remove_vehicle(cnv, start_nr);
+							}
+						}
+					}
+					else {
+						// we buy/sell all vehicles together!
+						slist_tpl<const vehikel_besch_t *>new_vehicle_info;
+						const vehikel_besch_t *start_info = info;
+
+						if(tool!='a') {
+							// start of composition
+							while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) {
+								info = info->get_vorgaenger(0);
+								new_vehicle_info.insert(info);
+							}
+							info = start_info;
+						}
+						while(info) {
+							new_vehicle_info.append( info );
+							if(info->get_nachfolger_count()!=1  ||  (tool=='i'  &&  info==start_info)) {
+								break;
+							}
+							info = info->get_nachfolger(0);
+						}
+						// now we have a valid composition together
+						if(  tool=='s'  ) {
+							while(new_vehicle_info.get_count()) {
+								// We sell the newest vehicle - gives most money back.
+								vehikel_t* veh = depot->find_oldest_newest(new_vehicle_info.remove_first(), false);
+								if(veh != NULL) {
+									depot->sell_vehicle(veh);
+								}
+							}
+						}
+						else {
+							// append/insert into convoi; create one if needed
+							if(!cnv.is_bound()) {
+								if(  convoihandle_t::is_exhausted()  ) {
+									create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
+									return false;
+								}
+								// create a new convoi
+								cnv = depot->add_convoi();
+								cnv->set_name(new_vehicle_info.front()->get_name());
+							}
+
+							// now we have a valid cnv
+							if(cnv->get_vehikel_anzahl()+new_vehicle_info.get_count() <= depot->get_max_convoi_length()) {
+
+								for(  unsigned i=0;  i<new_vehicle_info.get_count();  i++  ) {
+									// insert/append needs reverse order
+									unsigned nr = (tool='i') ? new_vehicle_info.get_count()-i-1 : i;
+									// We add the oldest vehicle - newer stay for selling
+									const vehikel_besch_t* vb = new_vehicle_info.at(nr);
+									vehikel_t* veh = depot->find_oldest_newest(vb, true);
+									if (veh == NULL) {
+										// nothing there => we buy it
+										veh = depot->buy_vehicle(vb);
+									}
+									depot->append_vehicle(cnv, veh, tool=='i');
+								}
+							}
+						}
+					}
+					depot->update_win();
+				}
 			}
 			break;
 	}

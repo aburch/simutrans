@@ -370,12 +370,13 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 void convoi_t::call_convoi_tool( const char function, const char *extra ) const
 {
 	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
-	char param[8192];
+	char cmd[3] = { function, ',', 0 };
+	cbuffer_t param(8192);
+	param.append( cmd );
+	param.append( self.get_id() );
 	if(  extra  &&  *extra  ) {
-		sprintf( param, "%c,%lu,%i,%i,%i,%s", function, self.get_id(), home_depot.x, home_depot.y, home_depot.z, extra );
-	}
-	else {
-		sprintf( param, "%c,%lu,%i,%i,%i", function, self.get_id(), home_depot.x, home_depot.y, home_depot.z );
+		param.append( "," );
+		param.append( extra );
 	}
 	w->set_default_param(param);
 	welt->set_werkzeug( w, get_besitzer() );
@@ -993,8 +994,7 @@ void convoi_t::new_month()
 
 
 
-void
-convoi_t::betrete_depot(depot_t *dep)
+void convoi_t::betrete_depot(depot_t *dep)
 {
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {

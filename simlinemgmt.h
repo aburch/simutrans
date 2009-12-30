@@ -100,6 +100,8 @@ public:
 	 */
 	void get_lines(int type, vector_tpl<linehandle_t>* lines) const;
 
+	uint32 get_line_count() const { return all_managed_lines.get_count(); }
+
 	karte_t* get_welt() const { return welt; }
 
 	/**

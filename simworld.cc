@@ -2737,6 +2737,9 @@ void karte_t::neuer_monat()
 		INT_CHECK("simworld 1877");
 	}
 
+	INT_CHECK("simworld 2522");
+	depot_t::neuer_monat();
+
 	// now switch year to get the right year for all timeline stuff ...
 	if(letzter_monat==0) {
 		neues_jahr();
