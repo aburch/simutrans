@@ -92,7 +92,7 @@ void gui_convoy_label_t::zeichnen(koord offset)
 		}
 		if (show_max_speed) {
 			const uint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(convoy.get_vehicle_summary().weight / 1000, 0));
+			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(convoy.get_vehicle_summary().weight, convoy.get_current_friction()));
 			sprintf(tmp,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h", 
 				translator::translate("Max. speed:"), min_speed, 
 				translator::translate("..."), max_speed );

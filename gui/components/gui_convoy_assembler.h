@@ -119,7 +119,7 @@ class gui_convoy_assembler_t :
 	gui_container_t cont_waggons;
 
 	char txt_convoi_count[80];
-	char txt_convoi_speed[80];
+	char txt_convoi_speed[120];
 
 	enum { va_append, va_insert, va_sell };
 	uint8 veh_action;
