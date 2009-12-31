@@ -31,7 +31,7 @@ static nodelist_node_t *chunk_list = NULL;
  * to be more efficient, all nodes with sizes smaller than 16 will be used at size 16 (one cacheline)
  */
 static nodelist_node_t *message_nodes = NULL;
-#define message_node_size (sizeof(struct message_t::node)+sizeof(void *))
+#define message_node_size ((((sizeof(struct message_t::node)+sizeof(void *))+3)>>2)<<2)
 
 // if additional fixed sizes are required, add them here
 // (the few request for larger ones are satisfied with xmalloc otherwise)
@@ -160,7 +160,7 @@ void freelist_t::putback_node( size_t size, void *p )
 		}
 	}
 	else {
-		list = &(all_lists[size]);
+		list = &(all_lists[size/4]);
 	}
 #ifdef DEBUG_MEM
 	putback_check_node(list,(nodelist_node_t *)p);

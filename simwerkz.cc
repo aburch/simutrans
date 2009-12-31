@@ -4412,6 +4412,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				// pop up error message here!
 				return false;
 			}
+			// we may actually open the window twice => need an idea to prevent this!
 			cnv->open_schedule_window();
 			break;
 
@@ -4509,6 +4510,7 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( (long)t ));
 				if(  sl  ) {
 					sl->show_lineinfo( line );
+					create_win( new line_management_gui_t(line, sp), w_info, (long)line.get_rep() );
 				}
 			}
 			break;
