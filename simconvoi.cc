@@ -2824,9 +2824,9 @@ void convoi_t::set_withdraw(bool new_withdraw)
 {
 	withdraw = new_withdraw;
 	if(  withdraw  &&  loading_level==0  ) {
-		// test if convoi in depot
+		// test if convoi in depot and not driving
 		grund_t *gr = welt->lookup( get_pos());
-		if (gr && gr->get_depot()) {
+		if (gr && gr->get_depot()  &&  state == INITIAL) {
 			gr->get_depot()->disassemble_convoi(self, true);
 		}
 		else {
