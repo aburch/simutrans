@@ -86,6 +86,7 @@ public:
 	wkz_remover_t() : werkzeug_t() { id = WKZ_REMOVER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Abriss"); }
 	const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 // alter land height tools
@@ -140,6 +141,7 @@ public:
 	wkz_marker_t() : werkzeug_t() { id = WKZ_MARKER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price("Marker", sp->get_welt()->get_einstellungen()->cst_buy_land); }
 	virtual const char *work( karte_t *welt, spieler_t *sp, koord3d k );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_clear_reservation_t : public werkzeug_t {
@@ -149,6 +151,7 @@ public:
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_transformer_t : public werkzeug_t {
@@ -156,6 +159,7 @@ public:
 	wkz_transformer_t() : werkzeug_t() { id = WKZ_TRANSFORMER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *);
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_add_city_t : public werkzeug_t {
@@ -163,6 +167,7 @@ public:
 	wkz_add_city_t() : werkzeug_t() { id = WKZ_ADD_CITY | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *sp) { return tooltip_with_price( "Found new city", sp->get_welt()->get_einstellungen()->cst_found_city ); }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 // buy a house to protext it from renovating
@@ -171,6 +176,7 @@ public:
 	wkz_buy_house_t() : werkzeug_t() { id = WKZ_BUY_HOUSE | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Haus kaufen"); }
 	const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 /************** the following tools need a valid default_param ************************/
 
@@ -181,6 +187,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate( atoi(default_param)>=0 ? "Grow city" : "Shrink city" ); }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_plant_tree_t : public werkzeug_t {
@@ -189,6 +196,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate( "Plant tree" ); }
 	virtual const char *move( karte_t *welt, spieler_t *sp, uint16 b, koord3d k ) { return b==1 ? work(welt,sp,k) : NULL; }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* only called directly from schedule => no tooltip!
@@ -309,6 +317,7 @@ public:
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_roadsign_t : public werkzeug_t {
@@ -316,6 +325,7 @@ public:
 	wkz_roadsign_t() : werkzeug_t() { id = WKZ_ROADSIGN | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *);
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_depot_t : public werkzeug_t {
@@ -328,6 +338,7 @@ public:
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* builds (random) tourist attraction (deafult_param==NULL) and maybe adds it to the next city
@@ -344,6 +355,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Built random attraction"); }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* builts a (if param=NULL random) industry chain starting here *
@@ -361,6 +373,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Build land consumer"); }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_build_industries_city_t : public werkzeug_t {
@@ -369,6 +382,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Build city market"); }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_build_factory_t : public werkzeug_t {
@@ -377,6 +391,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Build city market"); }
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_link_factory_t : public werkzeug_t {
@@ -389,6 +404,7 @@ public:
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_headquarter_t : public werkzeug_t {
@@ -399,6 +415,7 @@ public:
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* protects map from further change (here because two clicks to confirm it!) */
@@ -414,6 +431,7 @@ public:
 		welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
 		return NULL;
 	}
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* add random citycar if no default is set; else add a certain city car */
@@ -422,6 +440,7 @@ public:
 	wkz_add_citycar_t() : werkzeug_t() { id = WKZ_ADD_CITYCAR | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Add random citycar"); }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* make forest */
@@ -448,6 +467,7 @@ public:
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* make all tiles of this player a public stop
@@ -460,6 +480,7 @@ public:
 	const char *get_tooltip(spieler_t *);
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /********************* one click tools ****************************/
@@ -700,6 +721,7 @@ public:
 		welt->beenden( true );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
 };
 
 // step size by default_param
@@ -1131,7 +1153,7 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
-/* open the list of label */
+/* open climate settings */
 class wkz_climates_t : public werkzeug_t {
 public:
 	wkz_climates_t() : werkzeug_t() { id = WKZ_CLIMATES | DIALOGE_TOOL; }

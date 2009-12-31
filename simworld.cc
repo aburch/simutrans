@@ -5471,7 +5471,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 					time_budget = next_step_time-time;
 					next_step_time += frame_time;
 					sync_step( frame_time, true, true );
-					if(  network_frame_count++==einstellungen->get_frames_per_step()  ) {
+					if(  ++network_frame_count==einstellungen->get_frames_per_step()  ) {
 						// ever fourth frame
 						step();
 						network_frame_count = 0;
