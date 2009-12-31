@@ -3065,7 +3065,8 @@ void karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
-	for(unsigned i=0; i<convoi_array.get_count();  i++) {
+	// since convois will be deleted during stepping, we need to step backwards
+	for(sint32 i=convoi_array.get_count()-1;  i>=0;  i--  ) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
 		if((i&7)==0) {

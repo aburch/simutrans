@@ -883,7 +883,7 @@ void convoi_t::step()
 		case SELF_DESTRUCT:
 			welt->set_dirty();
 			destroy();
-			break;
+			return; // must not continue method after deleting this object
 
 		default:	/* keeps compiler silent*/
 			break;
@@ -2302,8 +2302,7 @@ void convoi_t::laden()
 
 		if(withdraw  &&  loading_level==0) {
 			// destroy when empty
-			welt->set_dirty();
-			destroy();
+			self_destruct();
 			return;
 		}
 
