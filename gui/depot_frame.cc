@@ -86,7 +86,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	scrolly_waggons(&cont_waggons)
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
-	selected_line = depot->get_selected_line(); //linehandle_t();
+	selected_line = depot->get_selected_line();
 	strcpy(no_line_text, translator::translate("<no line>"));
 
 	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_name()));
@@ -809,6 +809,7 @@ void depot_frame_t::update_data()
 	}
 
 	// update the line selector
+	selected_line = depot->get_selected_line();
 	line_selector.clear_elements();
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line_text, COL_BLACK ) );
 	if(!selected_line.is_bound()) {
@@ -962,6 +963,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			else {
 				// remove line
 				selected_line = linehandle_t();
+				depot->set_selected_line(selected_line);
 				line_selector.set_selection( 0 );
 			}
 		}

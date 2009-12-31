@@ -4568,7 +4568,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 			{
 				linehandle_t selected_line = depot->get_besitzer()->simlinemgmt.create_line(depot->get_line_type(),depot->get_besitzer());
 				depot->set_selected_line(selected_line);
-				depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+				depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)depot ));
 				if(  welt->get_active_player()==sp  &&  depot_frame  ) {
 					create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
 				}
