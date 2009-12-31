@@ -147,6 +147,7 @@ void freelist_t::putback_node( size_t size, void *p )
 	// all sizes should be dividable by 4
 	size = max( min_size, size );
 	size = ((size+3)>>2);
+	size <<= 2;
 
 	if(size>MAX_LIST_INDEX) {
 		switch(size) {
@@ -173,8 +174,7 @@ void freelist_t::putback_node( size_t size, void *p )
 
 
 // clears all list memories
-void
-freelist_t::free_all_nodes()
+void freelist_t::free_all_nodes()
 {
 	printf("freelist_t::free_all_nodes(): frees all list memory\n" );
 	while(chunk_list) {

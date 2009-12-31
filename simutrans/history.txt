@@ -16,6 +16,7 @@
 	ADD: translations are also search in user dir/scenario/text
 	ADD: (gerw) auto-electrify depot added
 	FIX: (dwachs) delete convoi only in next step if loading and return directly (and step reverse in karte_t)
+	FIX: freelist sometimes returned wrong elements to free
 
 
 Release Candidate 102.2.1
