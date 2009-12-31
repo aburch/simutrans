@@ -387,8 +387,16 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 {
+	if(  old_line_count!=sp->simlinemgmt.get_line_count()  ) {
+		update_lineinfo(line);
+	}
+
 	gui_frame_t::zeichnen(pos, gr);
-	if (line.is_bound()) {
+
+	if(  line.is_bound()  ) {
+		if(  last_schedule_count!=line->get_schedule()->get_count()  ||  last_vehicle_count!=line->count_convoys()  ) {
+			update_lineinfo(line);
+		}
 		display(pos);
 	}
 }
@@ -497,6 +505,13 @@ void schedule_list_gui_t::build_line_list(int filter)
 		scl.set_selection( sel );
 		scl.show_selection( sel );
 	}
+	else {
+		line = linehandle_t();
+	}
+
+	old_line_count = sp->simlinemgmt.get_line_count();
+	last_schedule_count = sel ? line->get_schedule()->get_count() : -1;
+	last_vehicle_count = sel ? line->count_convoys() : 0;
 }
 
 

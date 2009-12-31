@@ -4498,12 +4498,17 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 				}
 				void *t;
 				sscanf( p, "%p", &t );
-				fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic( (long)t ));
 				while(  *p  &&  *p++!=','  ) {
 				}
 				line->get_schedule()->sscanf_schedule( p );
+				fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic( (long)t ));
 				if(  fg  ) {
 					fg->init_line_selector();
+				}
+//				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( (long)&(sp->simlinemgmt) ));
+				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( (long)t ));
+				if(  sl  ) {
+					sl->show_lineinfo( line );
 				}
 			}
 			break;

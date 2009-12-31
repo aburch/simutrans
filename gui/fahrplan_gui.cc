@@ -528,6 +528,7 @@ void fahrplan_gui_t::init_line_selector()
 	line_selector.clear_elements();
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line, COL_BLACK ) );
 	int selection = -1;
+	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
 	new_line = linehandle_t();
 	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
