@@ -210,8 +210,8 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	add_komponente(&bt_show_all);
 
 	koord gr = koord(0,0);
-	layout(&gr);
 	build_vehicle_lists();
+	layout(&gr);
 	gui_frame_t::set_fenstergroesse(gr);
 
 	// text will be translated by ourselves (after update data)!
