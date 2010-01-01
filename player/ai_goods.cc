@@ -780,6 +780,13 @@ void ai_goods_t::step()
 		* last target also new target ...
 		*/
 		case NR_SAMMLE_ROUTEN:
+			// @author Bernd Gabriel: root may have been deleted and thus set to NULL.
+			if (root == NULL)
+			{
+				state = CHECK_CONVOI;
+				break;
+			}
+
 			if(get_factory_tree_lowest_missing(root)) {
 				if(  start->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser  ||  vehikelbauer_t::vehikel_search( water_wt, welt->get_timeline_year_month(), 0, 10, freight, false, false )!=NULL  ) {
 					DBG_MESSAGE("ai_goods_t::do_ki", "Consider route from %s (%i,%i) to %s (%i,%i)", start->get_name(), start->get_pos().x, start->get_pos().y, ziel->get_name(), ziel->get_pos().x, ziel->get_pos().y );
@@ -801,6 +808,13 @@ void ai_goods_t::step()
 		// now we need so select the cheapest mean to get maximum profit
 		case NR_BAUE_ROUTE1:
 		{
+			// @author Bernd Gabriel: start or ziel may have been deleted and thus set to NULL.
+			if (start == NULL || ziel == NULL)
+			{
+				state = CHECK_CONVOI;
+				break;
+			}
+
 			/* if we reached here, we decide to built a route;
 			 * the KI just chooses the way to run the operation at maximum profit (minimum loss).
 			 * The KI will built also a loosing route; this might be required by future versions to
@@ -981,6 +995,13 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 
 		// built a simple ship route
 		case NR_BAUE_WATER_ROUTE:
+			// @author Bernd Gabriel: start or ziel may have been deleted and thus set to NULL.
+			if (start == NULL || ziel == NULL)
+			{
+				state = CHECK_CONVOI;
+				break;
+			}
+
 			if(is_connected(start->get_pos().get_2d(), ziel->get_pos().get_2d(), freight)) {
 				state = CHECK_CONVOI;
 			}
@@ -1020,6 +1041,13 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 
 		// built a simple railroad
 		case NR_BAUE_SIMPLE_SCHIENEN_ROUTE:
+			// @author Bernd Gabriel: start or ziel may have been deleted and thus set to NULL.
+			if (start == NULL || ziel == NULL)
+			{
+				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
+				break;
+			}
+
 			if(is_connected(start->get_pos().get_2d(), ziel->get_pos().get_2d(), freight)) {
 				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
 			}
@@ -1076,6 +1104,13 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 		// built a simple road (no bridges, no tunnels)
 		case NR_BAUE_STRASSEN_ROUTE:
+			// @author Bernd Gabriel: start or ziel may have been deleted and thus set to NULL.
+			if (start == NULL || ziel == NULL)
+			{
+				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
+				break;
+			}
+
 			if(is_connected(start->get_pos().get_2d(), ziel->get_pos().get_2d(), freight)) {
 				state = ship_vehicle ? NR_BAUE_CLEAN_UP : CHECK_CONVOI;
 			}
@@ -1091,7 +1126,11 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove marker etc.
 		case NR_BAUE_CLEAN_UP:
 		{
-			forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
+			// @author Bernd Gabriel: start or ziel may have been deleted and thus set to NULL.
+			if (start != NULL && ziel != NULL)
+			{
+				forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
+			}
 			if(ship_vehicle) {
 				// only here, if we could built ships but no connection
 				halthandle_t start_halt;
@@ -1399,7 +1438,11 @@ void ai_goods_t::rdwr(loadsave_t *file)
 		while(  cnt-->0  ) {
 			fabconnection_t fc(0,0,0);
 			fc.rdwr(file);
-			forbidden_conections.append(fc);
+			// @author Bernd Gabriel, Jan 01, 2010: Don't add, if fab or ware no longer in the game.
+			if (fc.fab1 && fc.fab2 && fc.ware)
+			{
+				forbidden_conections.append(fc);
+			}
 		}
 	}
 }
@@ -1467,5 +1510,41 @@ DBG_MESSAGE("ai_goods_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->g
 
 		default:
 DBG_MESSAGE("ai_goods_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
+	}
+}
+
+/**
+ * Tells the player that a fabrik_t is going to be deleted.
+ * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
+ * @author Bernd Gabriel, Jan 01, 2010
+ */
+void ai_goods_t::notification(notification_t info, fabrik_t &fab)
+{
+	switch (info)
+	{
+		case notify_delete:
+			if (root == &fab)
+			{
+				root = NULL;
+			}
+			if (start == &fab)
+			{
+				start = NULL;
+			}
+			if (ziel == &fab)
+			{
+				ziel = NULL;
+			}
+			slist_iterator_tpl<fabconnection_t> iter(forbidden_conections);
+			bool has_next = iter.next();
+			while (has_next) {
+				const fabconnection_t &fc = iter.get_current();
+				has_next = iter.next(); // must fetch next before removing current.
+				if (fc.fab1 == &fab || fc.fab2 == &fab)
+				{
+					forbidden_conections.remove(fc);
+				}
+			}
+			break;
 	}
 }

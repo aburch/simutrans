@@ -7,6 +7,7 @@
 #ifndef simplay_h
 #define simplay_h
 
+#include "../utils/notification.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 
@@ -374,6 +375,13 @@ public:
 	 * @author Dwachs
 	 */
 	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
+
+	/**
+	 * Tells the player that a fabrik_t is going to be deleted.
+	 * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
+	 * @author Bernd Gabriel, Jan 01, 2010
+	 */
+	virtual void notification(notification_t info, fabrik_t &fab) {}
 
 private:
 	/* undo informations *
