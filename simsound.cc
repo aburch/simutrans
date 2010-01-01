@@ -268,7 +268,7 @@ void check_midi()
 	// ok, we are in playing mode => check for next sound
 	if(dr_midi_pos() < 0  ||  new_midi == 1) {
 		if(umgebung_t::shuffle_midi  &&  max_midi>1) {
-			// shuffle songs
+			// shuffle songs (must no use simrand()!)
 			int new_midi = (dr_time()/5)%(max_midi-1);
 			if(new_midi>=current_midi) {
 				new_midi ++;

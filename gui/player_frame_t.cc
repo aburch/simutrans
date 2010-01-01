@@ -131,7 +131,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 				}
 				player_get_finances[i].set_text( welt->get_spieler(i)->get_name() );
 				add_komponente( player_get_finances+i );
-				welt->get_spieler(i)->set_active( true );
+				welt->get_spieler(i)->set_active( true );	// call simrand indirectly
 			}
 			else {
 				welt->get_spieler(i)->set_active( !welt->get_spieler(i)->is_active() );

@@ -46,7 +46,7 @@ ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
 	ship_vehicle = NULL;
 	road_weg = NULL;
 
-	next_contruction_steps = welt->get_steps()+simrand(400);
+	next_contruction_steps = welt->get_steps()+ 50;
 
 	road_transport = nr<7;
 	rail_transport = nr>2;

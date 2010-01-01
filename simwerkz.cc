@@ -4366,8 +4366,6 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 {
 	char tool=0;
 	uint16 convoi_id = 0;
-	koord3d pos = koord3d::invalid;
-	sint16	z;
 
 	// skip the rest of the command
 	const char *p = default_param;
@@ -4383,21 +4381,9 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 		}
 	}
 
-	convoi_t *cnv = NULL;
-	if(  convoi_id==0  ) {
-		// create new convoi
-		convoi_t* new_cnv = new convoi_t(sp);
-		new_cnv->set_home_depot(pos);
-		cnv = new_cnv;
-	}
-	else {
-		convoihandle_t new_cnv;
-		new_cnv.set_id( convoi_id );
-		if(  new_cnv.is_bound()  ) {
-			cnv = new_cnv.get_rep();
-		}
-	}
-	assert(cnv);
+	convoihandle_t cnv;
+	cnv.set_id( convoi_id );
+	assert(cnv.is_bound());
 
 	// first letter is now the actual command
 	switch(  tool  ) {
@@ -4406,12 +4392,16 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			return false;
 
 		case 'f': // open schedule
-			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
-				// pop up error message here!
-				return false;
+			{
+				if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
+					// pop up error message here!
+					return false;
+				}
+				void *t;
+				sscanf( p, "%p", &t );
+				// we open the window only where the convoi ptr is exactly at the same address
+				cnv->open_schedule_window( t==cnv.get_rep() );
 			}
-			// we may actually open the window twice => need an idea to prevent this!
-			cnv->open_schedule_window();
 			break;
 
 		case 'g': // change schedule

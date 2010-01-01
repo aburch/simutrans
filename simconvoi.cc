@@ -2154,7 +2154,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 
 
-void convoi_t::open_schedule_window()
+void convoi_t::open_schedule_window( bool show )
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
 
@@ -2176,13 +2176,11 @@ void convoi_t::open_schedule_window()
 	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 
-	if(  welt->get_active_player()==get_besitzer()  ) {
+	if(  welt->get_active_player()==get_besitzer()  &&  show  ) {
 		// Fahrplandialog oeffnen
 		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
 	}
-	else {
-		fpl->eingabe_beginnen();
-	}
+	fpl->eingabe_beginnen();
 }
 
 

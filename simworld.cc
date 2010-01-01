@@ -1117,7 +1117,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 
 void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 {
-	set_random_allowed( true );
+	clear_random_mode( 7 );
 	mute_sound(true);
 
 	intr_disable();
@@ -2494,7 +2494,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  */
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
-	bool old_allowed = set_random_allowed( true );
+	set_random_mode( SYNC_STEP_RANDOM );
 	if(sync) {
 		// only omitted, when called to display a new frame during fast forward
 		sync_step_running = true;
@@ -2562,7 +2562,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		intr_refresh_display( false );
 		update_frame_sleep_time(delta_t);
 	}
-	set_random_allowed( old_allowed );
+	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
 
@@ -2984,9 +2984,7 @@ void karte_t::step()
 			last_step_ticks %= karte_t::ticks_per_tag;
 		}
 
-		set_random_allowed( true );
 		neuer_monat();
-		set_random_allowed( !umgebung_t::networkmode );
 	}
 
 	const long delta_t = (long)ticks-(long)last_step_ticks;
@@ -3044,7 +3042,6 @@ void karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
-	set_random_allowed( true );
 	// check for pending seasons change
 	if(pending_season_change>0) {
 		// process
@@ -3096,7 +3093,6 @@ void karte_t::step()
 			spieler[i]->step();
 		}
 	}
-	set_random_allowed( !umgebung_t::networkmode );
 
 	haltestelle_t::step_all();
 
@@ -5107,6 +5103,8 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
 
+			set_random_mode( INTERACTIVE_RANDOM );
+
 			swallowed = check_pos_win(&ev);
 
 			if(IS_RIGHTCLICK(&ev)) {
@@ -5132,6 +5130,8 @@ bool karte_t::interactive(uint32 quit_month)
 			if((!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON))  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
 				bewege_zeiger(&ev);
 			}
+
+			clear_random_mode( INTERACTIVE_RANDOM );
 		}
 
 		if(  umgebung_t::networkmode  ) {
@@ -5466,7 +5466,9 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 			else {
 				if(  step_mode==FAST_FORWARD  ) {
 					sync_step( 100, true, false );
+					set_random_mode( STEP_RANDOM );
 					step();
+					clear_random_mode( STEP_RANDOM );
 				}
 				else if(  step_mode==FIX_RATIO  ) {
 					time_budget = next_step_time-time;
@@ -5474,7 +5476,9 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 					sync_step( frame_time, true, true );
 					if(  ++network_frame_count==einstellungen->get_frames_per_step()  ) {
 						// ever fourth frame
+						set_random_mode( STEP_RANDOM );
 						step();
+						clear_random_mode( STEP_RANDOM );
 						network_frame_count = 0;
 					}
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
@@ -5482,7 +5486,9 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );
+					set_random_mode( STEP_RANDOM );
 					step();
+					clear_random_mode( STEP_RANDOM );
 					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;
 					INT_CHECK( "karte_t::interactive()" );
 				}

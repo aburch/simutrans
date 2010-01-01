@@ -36,7 +36,7 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 	road_weg = NULL;
 
 	construction_speed = 8000;
-	next_contruction_steps = welt->get_steps()+simrand(construction_speed);
+	next_contruction_steps = welt->get_steps() + 50;
 
 	air_transport = true;
 	ship_transport = false;
@@ -814,8 +814,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 
 // now we follow all adjacent streets recursively and mark them
 // if they below to this stop, then we continue
-void
-ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
+void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 {
 	//maximum number of stops reached?
 	if(line->get_schedule()->get_count()>=limit)  {
@@ -833,7 +832,7 @@ ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit 
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(this, to->obj_bei(0)->get_besitzer())) {
+		if(  start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
 
 			// ok, here is a valid street tile
 			welt->markiere(to);

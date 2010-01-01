@@ -1149,7 +1149,7 @@ void depot_frame_t::fahrplaneingabe()
 		assert(fpl!=NULL);
 		gui_fenster_t *fplwin = win_get_magic((long)fpl);
 		if(   fplwin==NULL  ) {
-			cnv->open_schedule_window();
+			cnv->open_schedule_window( true );
 		}
 		else {
 			top_win( fplwin );

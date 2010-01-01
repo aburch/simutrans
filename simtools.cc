@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <math.h>
 #include "simtools.h"
 
@@ -13,7 +14,7 @@
 static unsigned long mersenne_twister[MERSENNE_TWISTER_N]; // the array for the state vector
 static int mersenne_twister_index = MERSENNE_TWISTER_N + 1; // mersenne_twister_index==N+1 means mersenne_twister[N] is not initialized
 
-static bool allowed = false;
+static uint8 random_origin = 0;
 
 
 /* initializes mersenne_twister[N] with a seed */
@@ -88,22 +89,23 @@ uint32 simrand_plain(void)
 /* generates a random number on [0,max-1]-interval */
 uint32 simrand(const uint32 max)
 {
-	if(!allowed) {
-		return 0;
-	}
+	assert( random_origin!=1  );
+
 	if(max<=1) {	// may rather assert this?
 		return 0;
 	}
-
 	return simrand_plain() % max;
 }
 
 
-bool set_random_allowed( bool a )
+void set_random_mode( uint16 mode )
 {
-	bool old = allowed;
-	allowed = a;
-	return old;
+	random_origin |= mode;
+}
+
+void clear_random_mode( uint16 mode )
+{
+	random_origin &= ~mode;
 }
 
 
@@ -115,7 +117,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
-		allowed = true;
+		random_origin = 0;
 	}
 	if(noise_seed!=0xFFFFFFFF) {
 		noise_seed = ns*15731;

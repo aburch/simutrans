@@ -656,7 +656,7 @@ public:
 	* @author Hj. Malthaner
 	* @see simwin
 	*/
-	void open_schedule_window();
+	void open_schedule_window( bool show );
 
 	static bool pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
 	static bool pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);

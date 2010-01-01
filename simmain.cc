@@ -804,7 +804,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// reset random counter to true randomness
 	setsimrand(dr_time(), dr_time());
-	set_random_allowed( true );
+	clear_random_mode( 7 );	// allow all
 
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map
