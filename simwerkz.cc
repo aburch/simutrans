@@ -337,7 +337,7 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 			// show halt and labels first ...
 			if(  gr->get_halt().is_bound()  ) {
-				get_halt()->zeige_info();
+				gr->get_halt()->zeige_info();
 				if(  old_count!=win_get_open_count()  ) {
 					return NULL;
 				}
