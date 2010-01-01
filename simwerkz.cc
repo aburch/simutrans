@@ -2029,7 +2029,7 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 	if(  start == end  ) {
 		verbindung.clear();
 		grund_t *gr=welt->lookup(start);
-		if(  gr  &&  gr->get_weg(wt)  ) {
+		if(  gr  &&  (wt!=powerline_wt ? gr->get_weg(wt)!=NULL : gr->get_leitung()!=NULL) ) {
 			verbindung.append( start );
 		}
 	}
@@ -2048,7 +2048,7 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 	}
 	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_count());
 
-	bool can_delete = verbindung.get_count()>0;
+	bool can_delete = start == end  ||  verbindung.get_count()>1;
 	if(  can_delete  ) {
 		// found a route => check if I can delete anything on it
 		for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
@@ -2125,10 +2125,10 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 			}
 
 			// now the tricky part: delete just part of a way (or everything, if possible)
-			// calculated removing directions
-			ribi_t::ribi rem = ~( verbindung.get_route().get_ribi(i) );
+			// calculate remaining directions
+			ribi_t::ribi rem = 15 ^ ( verbindung.get_route().get_ribi(i) );
 			// if start=end tile then delete every direction
-			if(  verbindung.get_count() <= 2  ) {
+			if(  verbindung.get_count() <= 1  ) {
 				rem = 0;
 			}
 
