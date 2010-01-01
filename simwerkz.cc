@@ -337,7 +337,7 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 			// show halt and labels first ...
 			if(  gr->get_halt().is_bound()  ) {
-				gr->zeige_info();
+				get_halt()->zeige_info();
 				if(  old_count!=win_get_open_count()  ) {
 					return NULL;
 				}
@@ -363,6 +363,8 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					}
 				}
 			}
+			// no window zet opened> trz ground info
+			gr->zeige_info();
 		}
 		else {
 			// lowest (less interesting) first
@@ -382,10 +384,6 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			if(umgebung_t::single_info  &&  old_count!=win_get_open_count()) {
 				return NULL;
 			}
-		}
-
-		if(  umgebung_t::single_info  ) {
-			gr->zeige_info();
 		}
 	}
 	return NULL;
