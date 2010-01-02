@@ -701,6 +701,7 @@ bool werkzeug_t::is_selected(karte_t *welt) const
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
 	bool init( karte_t *, spieler_t * ) { return false; }
+	virtual bool is_init_network_save() const { return true; }
 };
 
 werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
