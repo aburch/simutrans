@@ -3969,6 +3969,7 @@ void karte_t::laden(loadsave_t *file)
 		// to have games synchronized, transfer random counter too
 		setsimrand( einstellungen->get_random_counter(), 0xFFFFFFFFu );
 	}
+	set_random_mode(LOAD_RANDOM);
 
 	if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
 		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()!=2) {
@@ -4391,7 +4392,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	if(file->get_version()>=99018) {
 		scenario->rdwr(file);
 	}
-
+	clear_random_mode(LOAD_RANDOM);
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 }
 
@@ -5385,9 +5386,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 						 (werkzeug[player_nr]->get_default_param()!=NULL ? strcmp(werkzeug[player_nr]->get_default_param(),default_param)!=0 : default_param[0]!=0))) {
 						// only exit, if it is not the same tool again ...
 						werkzeug[player_nr]->exit(this,spieler[player_nr]);
-						werkzeug[player_nr] = NULL;
-					}
-					if (werkzeug[player_nr] == NULL) {
+
 						// get the right tool
 						vector_tpl<werkzeug_t*> &wkz_list = id&GENERAL_TOOL ? werkzeug_t::general_tool : id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
 						for(uint32 i=0; i<wkz_list.get_count(); i++) {
@@ -5407,7 +5406,6 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 								wkz = werkzeug_t::dialog_tool[id&0xFFF];
 							}
 						}
-						werkzeug[player_nr] = wkz;
 					}
 					else {
 						wkz = werkzeug[player_nr];
@@ -5431,6 +5429,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 								zeiger->change_pos( p );
 								werkzeug_last_pos = koord3d::invalid;
 								werkzeug_last_button = 0;
+								werkzeug[player_nr] = wkz;
 							}
 						}
 					}

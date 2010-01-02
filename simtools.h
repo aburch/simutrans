@@ -17,7 +17,7 @@ uint32 simrand_plain(void);
 double perlin_noise_2D(const double x, const double y, const double persistence);
 
 // for netowrk debugging, i.e. finding hidden simrands in worng places
-enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4 };
+enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8 };
 void set_random_mode( uint16 );
 void clear_random_mode( uint16 );
 
