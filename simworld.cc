@@ -3885,7 +3885,7 @@ bool karte_t::laden(const char *filename)
 			// ok, needs better check, since we reload also during sync
 			char fn[256];
 			sprintf( fn, "client%i-network.sve", network_get_client_id() );
-			if(  strcmp(name,fn)!=0  ) {
+			if(  strcmp(filename,fn)!=0  ) {
 				// remain only in networkmode, if I am the server
 				umgebung_t::networkmode = false;
 				network_core_shutdown();
@@ -5298,9 +5298,10 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 					long old_steps = steps;
 					// saving and reloading game, sending notification when ready
 					chdir( umgebung_t::user_dir );
-					speichern( "client-network.sve", false );
-					// ok, now sending game
-					laden( "client-network.sve" );
+					char filename[256];
+					sprintf( filename, "client%i-network.sve", network_get_client_id() );
+					speichern( filename, false );
+					laden( filename );
 					steps = old_steps;
 					network_frame_count = 0;
 					sync_steps = steps*einstellungen->get_frames_per_step();
