@@ -137,8 +137,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	set_fenstergroesse(koord(TOTAL_WIDTH, 278));
 
 	// chart
-	chart.set_pos(koord(44,76+BUTTON_HEIGHT+8));
-	chart.set_groesse(koord(TOTAL_WIDTH-44-4, 100));
+	chart.set_pos(koord(88,76+BUTTON_HEIGHT+8));
+	chart.set_groesse(koord(TOTAL_WIDTH-88-4, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
