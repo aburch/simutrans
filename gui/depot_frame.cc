@@ -892,6 +892,9 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 
 	if(komp != NULL) {	// message from outside!
 		if(komp == &bt_start) {
+			//first: close schedule (will update schedule on clients)
+			destroy_win( (long)cnv->get_schedule() );
+			// only then call the tool to start
 			depot->call_depot_tool( 'b', cnv, NULL );
 		} else if(komp == &bt_schedule) {
 			fahrplaneingabe();

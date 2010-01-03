@@ -32,6 +32,7 @@
 
 #include "../utils/simstring.h"
 #include "../tpl/vector_tpl.h"
+#include "../tpl/slist_tpl.h"
 
 #ifdef WIN32
 #define socklen_t int
@@ -42,7 +43,7 @@ static bool network_active = false;
 static SOCKET my_socket = INVALID_SOCKET;
 // local client socket
 static SOCKET my_client_socket = INVALID_SOCKET;
-static char pending[4096];
+static slist_tpl<const char *>pending_list;
 
 // to query all open sockets, we maintain this list
 static vector_tpl<SOCKET> clients;
@@ -129,7 +130,6 @@ const char *network_open_address( const char *cp)
 		sprintf( err_str, "Cannot connect to %s", cp );
 		return err_str;
 	}
-	pending[0] = 0;
 	active_clients = 0;
 
 	return NULL;
@@ -208,7 +208,6 @@ bool network_init_server( int port )
 
 	active_clients = 0;
 	network_add_client( my_socket );
-	pending[0] = 0;
 	client_id = 0;
 
 	return true;
@@ -277,10 +276,11 @@ static int fill_set(fd_set *fds)
  */
 SOCKET network_check_activity(int timeout, char *buf, int &len )
 {
-	if(  pending[0]  ) {
+	if(  !pending_list.empty()  ) {
+		const char *pending = pending_list.remove_first();
 		len = strlen(pending);
 		tstrncpy( buf, pending, len+1 );
-		pending[0] = 0;
+		free( (void *)pending );
 		return 1;
 	}
 
@@ -397,7 +397,7 @@ void network_send_all(char *msg, int len, bool exclude_us )
 	}
 	if(  !exclude_us  &&  my_socket!=INVALID_SOCKET  ) {
 		// I am the server
-		tstrncpy( pending, msg, min(4096,len+1) );
+		pending_list.append( strdup(msg) );
 	}
 }
 
@@ -412,7 +412,7 @@ void network_send_server(char *msg, int len )
 	}
 	else {
 		// I am the server
-		tstrncpy( pending, msg, min(4096,len+1) );
+		pending_list.append( strdup(msg) );
 	}
 }
 
@@ -513,6 +513,9 @@ void network_core_shutdown()
 {
 	network_close_socket( my_socket );
 	network_close_socket( my_client_socket );
+	while(  !pending_list.empty()  ) {
+		free( (void *)pending_list.remove_first() );
+	}
 	if(network_active) {
 #if defined(WIN32)
 		WSACleanup();
