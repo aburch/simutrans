@@ -242,7 +242,8 @@ void weg_t::rdwr(loadsave_t *file)
  */
 void weg_t::info(cbuffer_t & buf) const
 {
-	buf.append("\n");
+	ding_t::info(buf);
+
 	buf.append(translator::translate("Max. speed:"));
 	buf.append(" ");
 	buf.append(max_speed);

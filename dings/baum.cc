@@ -622,7 +622,6 @@ void baum_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	buf.append("\n");
 	buf.append(translator::translate(get_besch()->get_name()));
 	buf.append("\n");
 	buf.append(welt->get_current_month() - geburt);
