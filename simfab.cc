@@ -1282,9 +1282,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 {
 	buf.clear();
 	buf.append( translator::translate("Durchsatz") );
-	buf.append( " " );
 	buf.append( get_current_production(), 0 );
-	buf.append( " " );
 	buf.append( translator::translate("units/day") );
 	buf.append( "\n" );
 
