@@ -611,6 +611,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 						// use file name
 						break;
 				}
+				buf.append("\n");
 				buf.append(trans_desc);
 			}
 			else {
@@ -635,6 +636,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 				}
 				*dest = 0;
 				trans_desc = text;
+				buf.append("\n");
 				buf.append(trans_desc);
 				delete [] text;
 			}
