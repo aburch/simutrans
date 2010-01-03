@@ -45,7 +45,7 @@ typedef int SOCKET;
 bool network_initialize();
 
 // connects to server at (cp), receives game, saves it to (filename)
-const char* network_connect(const char *cp, const char *filename);
+const char* network_connect(const char *cp);
 
 void network_close_socket( SOCKET sock );
 

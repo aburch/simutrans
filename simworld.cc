@@ -3855,7 +3855,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::laden(const char *filename)
 {
-	const char *name = filename;
+	cbuffer_t name(1024);
 	bool ok=false;
 	mute_sound(true);
 	display_show_load_pointer(true);
@@ -3866,8 +3866,8 @@ bool karte_t::laden(const char *filename)
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
 	if(  strstr(filename,"net:")==filename  ) {
-		name = "client-network.sve";
-		const char *err = network_connect(filename+4, name);
+		chdir( umgebung_t::user_dir );
+		const char *err = network_connect(filename+4);
 		if(err) {
 			create_win( new news_img(err), w_info, magic_none );
 			display_show_load_pointer(false);
@@ -3875,18 +3875,24 @@ bool karte_t::laden(const char *filename)
 			return false;
 		}
 		else {
-			chdir( umgebung_t::user_dir );
 			umgebung_t::networkmode = true;
+			name.printf( "client%i-network.sve", network_get_client_id() );
 		}
 	}
 	else {
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-			// remain only in networkmode, if I am the server
-			umgebung_t::networkmode = false;
-			network_core_shutdown();
-			// closing the socket will tell the server, I a away too
+			// ok, needs better check, since we reload also during sync
+			char fn[256];
+			sprintf( fn, "client%i-network.sve", network_get_client_id() );
+			if(  strcmp(name,fn)!=0  ) {
+				// remain only in networkmode, if I am the server
+				umgebung_t::networkmode = false;
+				network_core_shutdown();
+				// closing the socket will tell the server, I a away too
+			}
 		}
+		name.append(filename);
 	}
 
 	if(!file.rd_open(name)) {
@@ -5173,7 +5179,11 @@ bool karte_t::interactive(uint32 quit_month)
 //							network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
 						}
 						else if(  memcmp( network_buffer+4, NET_GAME, 4 )==0  ) {
+
 							// transfer game, all clients need to sync (save, reload, and pause)
+							char cmd[128];
+							int n = sprintf( cmd, NET_FROM_SERVER NET_SYNC " %li" NET_END_CMD, sync_steps );
+							network_send_all( cmd, n, true );
 
 							// now save and send
 							chdir( umgebung_t::user_dir );
@@ -5181,10 +5191,8 @@ bool karte_t::interactive(uint32 quit_month)
 							long old_steps = steps;
 							// ok, now sending game
 							if(  network_send_file( s, "server-network.sve" )==NULL  ) {
-								char cmd[128];
 								network_frame_count = 0;
-								int n = sprintf( cmd, NET_FROM_SERVER NET_SYNC " %li" NET_END_CMD, steps );
-								network_send_all( cmd, n, true );
+DBG_MESSAGE("client recieved file", "%li", s );
 								laden( "server-network.sve" );
 								steps = old_steps;
 								sync_steps = steps*einstellungen->get_frames_per_step();
@@ -5193,6 +5201,7 @@ bool karte_t::interactive(uint32 quit_month)
 									SOCKET s = network_check_activity( 5, network_buffer, len_last_command );
 									if(  s!=INVALID_SOCKET  &&  len_last_command>0  &&  memcmp( network_buffer, NET_TO_SERVER NET_READY NET_END_CMD, 9 )==0  ) {
 										clients_to_wait--;
+DBG_MESSAGE("client ready", "%li", s );
 									}
 								}
 								// we are now on time
@@ -5246,7 +5255,7 @@ DBG_MESSAGE("append command_queue", "next: %ld new: %ld steps: %ld %s", next_com
 							sync_steps = steps*einstellungen->get_frames_per_step();
 						}
 						else if(  memcmp( network_buffer+3, NET_SYNC, 4 )==0  ) {
-							tool = false;
+							tool = true;
 						}
 						else {
 							tool = false;
@@ -5285,7 +5294,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 			const char *network_buffer = cmd->buf;
 			dbg->warning("command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, network_buffer);
 			if(  memcmp( network_buffer, NET_SYNC, 4 )==0  ) {
-				if(  !umgebung_t::server  ) {
+				if(  !umgebung_t::server  &&  steps!=0  ) {
 					long old_steps = steps;
 					// saving and reloading game, sending notification when ready
 					chdir( umgebung_t::user_dir );

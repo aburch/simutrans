@@ -137,7 +137,7 @@ const char *network_open_address( const char *cp)
 
 
 // connect to address (cp), receive game, save to (filename)
-const char *network_connect(const char *cp, const char *filename)
+const char *network_connect(const char *cp)
 {
 	// open from network
 	const char *err = network_open_address( cp );
@@ -149,21 +149,28 @@ const char *network_connect(const char *cp, const char *filename)
 		len = 64;
 		char buf[64];
 		network_add_client( my_client_socket );
-		if(  network_check_activity( 60000, buf, len )!=INVALID_SOCKET  ) {
-			// wait for sync message to finish
-			if(  memcmp( NET_FROM_SERVER NET_GAME, buf, 7 )!=0  ) {
-				err = "Protocoll error (expecting " NET_GAME ")";
+		err = "Server did not respond!";
+		while(  network_check_activity( 60000, buf, len )!=INVALID_SOCKET  ) {
+			if(  memcmp( NET_FROM_SERVER NET_SYNC, buf, 7 )==0  ) {
+				len = 64;
+				continue;
 			}
-			else {
+			// wait for sync message to finish
+			if(  memcmp( NET_FROM_SERVER NET_GAME, buf, 7 )==0  ) {
 				int len = 0;
 				client_id = 0;
 				sscanf(buf+7, " %lu,%li" NET_END_CMD, &client_id, &len);
 				dbg->warning( "network_connect", "received: id=%li len=%li", client_id, len);
+				// garanteed individual file name ...
+				char filename[256];
+				sprintf( filename, "client%i-network.sve", client_id );
 				err = network_recieve_file( my_client_socket, filename, len );
+				break;
 			}
-		}
-		else {
-			err = "Server did not respond!";
+			else {
+				err = "Protocoll error (expecting " NET_GAME ")";
+				break;
+			}
 		}
 	}
 	if(err) {
