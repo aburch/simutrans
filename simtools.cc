@@ -103,6 +103,20 @@ void set_random_mode( uint16 mode )
 	random_origin |= mode;
 }
 
+
+static uint32 rand_seed = 12345678;
+
+// simpler simrand for anything not game critical (like UI)
+uint32 sim_async_rand( uint32 max )
+{
+   rand_seed *= 3141592621u;
+   rand_seed ++;
+
+   return (rand_seed >> 8) % max;
+}
+
+
+
 void clear_random_mode( uint16 mode )
 {
 	random_origin &= ~mode;
@@ -117,6 +131,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
+		rand_seed = seed;
 		random_origin = 0;
 	}
 	if(noise_seed!=0xFFFFFFFF) {

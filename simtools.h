@@ -8,6 +8,12 @@ uint32 get_random_seed();
 
 uint32 setsimrand(uint32 seed, uint32 noise_seed);
 
+/* generates a random number on [0,max-1]-interval
+ * without affecting the game state
+ * Use this for UI etc.
+ */
+uint32 sim_async_rand(const uint32 max);
+
 /* generates a random number on [0,max-1]-interval */
 uint32 simrand(const uint32 max);
 

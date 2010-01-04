@@ -71,7 +71,8 @@ void sound_set_mute(bool on)
 	umgebung_t::mute_sound = on;
 }
 
-bool sound_get_mute() {
+bool sound_get_mute()
+{
 	return umgebung_t::mute_sound  ||  SFX_CASH==NO_SOUND;
 }
 
@@ -215,7 +216,8 @@ void midi_play(const int no)
 {
 	if (no > max_midi) {
 		dbg->warning("midi_play()", "MIDI index %d too high (total loaded: %d)", no, max_midi);
-	} else if(!midi_get_mute()) {
+	}
+	else if(!midi_get_mute()) {
 		dr_play_midi(no);
 	}
 }
@@ -269,7 +271,7 @@ void check_midi()
 	if(dr_midi_pos() < 0  ||  new_midi == 1) {
 		if(umgebung_t::shuffle_midi  &&  max_midi>1) {
 			// shuffle songs (must no use simrand()!)
-			int new_midi = (dr_time()/5)%(max_midi-1);
+			int new_midi = sim_async_rand(max_midi);
 			if(new_midi>=current_midi) {
 				new_midi ++;
 			}

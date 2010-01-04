@@ -5110,7 +5110,9 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
 
-			set_random_mode( INTERACTIVE_RANDOM );
+			if(  umgebung_t::networkmode  ) {
+				set_random_mode( INTERACTIVE_RANDOM );
+			}
 
 			swallowed = check_pos_win(&ev);
 
@@ -5138,7 +5140,9 @@ bool karte_t::interactive(uint32 quit_month)
 				bewege_zeiger(&ev);
 			}
 
-			clear_random_mode( INTERACTIVE_RANDOM );
+			if(  umgebung_t::networkmode  ) {
+				clear_random_mode( INTERACTIVE_RANDOM );
+			}
 		}
 
 		if(  umgebung_t::networkmode  ) {
