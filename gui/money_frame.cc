@@ -138,7 +138,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	chart.set_seed(sp->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i <= COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, true, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0  );
+		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, true, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0  );
 	}
 	//CHART YEAR END
 
@@ -149,7 +149,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, true, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
+		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? MONEY: STANDARD, false, true, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
 	}
 	mchart.set_visible(false);
 	//CHART MONTH END
