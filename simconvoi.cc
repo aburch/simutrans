@@ -2751,17 +2751,10 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			}
 
 			// then add the actual load
-#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
 			while(iter_vehicle_ware.next()) 
 			{
 				ware_t ware = iter_vehicle_ware.get_current();
-#else
-			const vector_tpl<ware_t> &freight = v->get_fracht();
-			ITERATE(freight, j)
-			{
-				ware_t ware = freight[j];
-#endif
 				ITERATE(total_fracht, i)
 				{
 
@@ -2787,13 +2780,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		buf.clear();
 
 		// append info on total capacity
-#ifdef SLIST_FREIGHT
 		slist_tpl <ware_t>capacity;
-
-#else
-		vector_tpl <ware_t>capacity;
-#endif
-
 		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
@@ -2977,17 +2964,10 @@ void convoi_t::laden() //"load" (Babelfish)
 	for(uint8 i = 0; i < anz_vehikel; i++)
 	{
 		// Accumulate distance 
-#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter_cargo(fahr[i]->get_fracht());
 		while(iter_cargo.next())
 		{
 			iter_cargo.access_current().add_distance(journey_distance);
-#else
-		vector_tpl<ware_t> &freight = fahr[i]->get_freight_to_change();
-		ITERATE(freight,j)
-		{
-			freight[j].add_distance(journey_distance);
-#endif
 		}
 	}
 
