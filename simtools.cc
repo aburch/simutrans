@@ -109,10 +109,13 @@ static uint32 rand_seed = 12345678;
 // simpler simrand for anything not game critical (like UI)
 uint32 sim_async_rand( uint32 max )
 {
-   rand_seed *= 3141592621u;
-   rand_seed ++;
+	if(  max==0  ) {
+		return 0;
+	}
+	rand_seed *= 3141592621u;
+	rand_seed ++;
 
-   return (rand_seed >> 8) % max;
+	return (rand_seed >> 8) % max;
 }
 
 
