@@ -20,7 +20,7 @@ class karte_t;
 class spieler_t;
 
 #define COLUMN_WIDTH (int)(BUTTON_WIDTH*2.25)
-#define SCL_HEIGHT (176)
+#define SCL_HEIGHT (170)
 #define MARGIN (10)
 
 /**
