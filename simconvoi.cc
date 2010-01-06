@@ -2802,7 +2802,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					capacity.append( ware );
 				} else {
 					// append to category?
-					slist_tpl<ware_t>::iterator j   = capacity.begin();
+					slist_tpl<ware_t>::iterator j  = capacity.begin();
 					slist_tpl<ware_t>::iterator end = capacity.end();
 					while (j != end && j->get_catg() < ware.get_catg()) ++j;
 					if (j != end && j->get_catg() == ware.get_catg()) {
