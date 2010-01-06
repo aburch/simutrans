@@ -1487,15 +1487,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
 
 		set_dirty();
-		simloops = 60;
 		reset_timer();
-
-		// make timer loop invalid
-		for( int i=0;  i<32;  i++ ) {
-			last_frame_ms[i] = 0x7FFFFFFFu;
-			last_step_nr[i] = 0xFFFFFFFFu;
-		}
-		last_frame_idx = 0;
 	}
 }
 
@@ -4550,6 +4542,14 @@ void karte_t::reset_timer()
 		pending_season_change = 1;
 	}
 	else {
+		// make timer loop invalid
+		for( int i=0;  i<32;  i++ ) {
+			last_frame_ms[i] = 0x7FFFFFFFu;
+			last_step_nr[i] = 0xFFFFFFFFu;
+		}
+		last_frame_idx = 0;
+		simloops = 60;
+
 		set_frame_time( 1000/umgebung_t::fps );
 		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
