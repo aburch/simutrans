@@ -19,8 +19,9 @@
 class karte_t;
 class spieler_t;
 
-#define NAME_COLUMN_WIDTH (int)(BUTTON_WIDTH*2.25)
-#define SCL_HEIGHT (170)
+#define COLUMN_WIDTH (int)(BUTTON_WIDTH*2.25)
+#define SCL_HEIGHT (176)
+#define MARGIN (10)
 
 /**
  * Window.
@@ -37,6 +38,9 @@ class extend_edit_gui_t :
 	public gui_frame_t,
 	public action_listener_t
 {
+private:
+	sint16 tab_panel_width;
+
 protected:
 	spieler_t *sp;
 	karte_t* welt;
@@ -56,6 +60,8 @@ protected:
 	button_t bt_obsolete, bt_timeline, bt_climates;
 
 	sint16 offset_of_comp;
+
+	sint16 get_tab_panel_width() const { return tab_panel_width; }
 
 	bool is_show_trans_name;
 

@@ -19,7 +19,7 @@ news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	meldung(text),
 	color(title_color)
 {
-	sint16 height = max( meldung.get_groesse().y+16+10+4, get_tile_raster_width()+30 );
+	sint16 height = max( meldung.get_groesse().y+16+10+4, get_base_tile_raster_width()+30 );
 
 	set_fenstergroesse( koord(230, height) );
 

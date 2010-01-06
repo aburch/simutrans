@@ -19,6 +19,7 @@
 	FIX: freelist sometimes returned wrong elements to free
 	FIX: walk_city (for stop in towns with AI) was broken
 	ADD (VS): makeobj ignored alpha channel now really
+	CHANGE (Knightly): Not scaling images displayed by gui_image_t anymore
 
 
 Release Candidate 102.2.1

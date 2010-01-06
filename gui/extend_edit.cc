@@ -42,31 +42,34 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 
 	is_show_trans_name = true;
 
-	bt_climates.init( button_t::square_state, "ignore climates", koord(NAME_COLUMN_WIDTH+11, 10 ) );
+	const sint16 image_width = get_base_tile_raster_width()*2;
+	tab_panel_width = ( image_width>COLUMN_WIDTH ? image_width : COLUMN_WIDTH );
+
+	bt_climates.init( button_t::square_state, "ignore climates", koord(tab_panel_width+2*MARGIN, MARGIN) );
 	bt_climates.add_listener(this);
 	add_komponente(&bt_climates);
 
-	bt_timeline.init( button_t::square_state, "Use timeline start year", koord(NAME_COLUMN_WIDTH+11, 10+BUTTON_HEIGHT ) );
+	bt_timeline.init( button_t::square_state, "Use timeline start year", koord(tab_panel_width+2*MARGIN, BUTTON_HEIGHT+MARGIN) );
 	bt_timeline.pressed = welt->get_einstellungen()->get_use_timeline();
 	bt_timeline.add_listener(this);
 	add_komponente(&bt_timeline);
 
-	bt_obsolete.init( button_t::square_state, "Show obsolete", koord(NAME_COLUMN_WIDTH+11, 10+2*BUTTON_HEIGHT ) );
+	bt_obsolete.init( button_t::square_state, "Show obsolete", koord(tab_panel_width+2*MARGIN, 2*BUTTON_HEIGHT+MARGIN) );
 	bt_obsolete.add_listener(this);
 	add_komponente(&bt_obsolete);
 
-	offset_of_comp = 10+3*BUTTON_HEIGHT+4;
+	offset_of_comp = MARGIN+3*BUTTON_HEIGHT+4;
 
 	// init scrolled list
-	scl.set_groesse(koord(NAME_COLUMN_WIDTH, SCL_HEIGHT-14));
+	scl.set_groesse(koord(tab_panel_width, SCL_HEIGHT-14));
 	scl.set_pos(koord(0,1));
 	scl.set_highlight_color(sp->get_player_color1()+1);
 	scl.set_selection(-1);
 	scl.add_listener(this);
 
 	// tab panel
-	tabs.set_pos(koord(10,10));
-	tabs.set_groesse(koord(NAME_COLUMN_WIDTH, SCL_HEIGHT));
+	tabs.set_pos(koord(MARGIN, MARGIN));
+	tabs.set_groesse(koord(tab_panel_width, SCL_HEIGHT));
 	tabs.add_tab(&scl, translator::translate("Translation"));//land
 	tabs.add_tab(&scl, translator::translate("Object"));//city
 	tabs.add_listener(this);
@@ -87,7 +90,7 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	}
 
 	// resize button
-	set_min_windowsize(koord((short int)(BUTTON_WIDTH*4.5), 300));
+	set_min_windowsize(koord(tab_panel_width+COLUMN_WIDTH+3*MARGIN, SCL_HEIGHT+2*get_base_tile_raster_width()+4*MARGIN));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
@@ -156,16 +159,16 @@ void extend_edit_gui_t::resize(const koord delta)
 	gui_frame_t::resize(delta);
 
 	// test region
-	koord groesse = get_fenstergroesse()-koord(NAME_COLUMN_WIDTH+16,offset_of_comp+16);
+	koord groesse = get_fenstergroesse()-koord( tab_panel_width+2*MARGIN, offset_of_comp+16 );
 	scrolly.set_groesse(groesse);
-	scrolly.set_pos( koord( NAME_COLUMN_WIDTH+16, offset_of_comp ) );
+	scrolly.set_pos( koord( tab_panel_width+2*MARGIN, offset_of_comp ) );
 	cont.set_pos( koord( 0, 0 ) );
 
 	// image placeholders
-	sint16 rw = get_tile_raster_width()/4;
-	static const koord img_offsets[4]={ koord(2,-6), koord(0,-5), koord(4,-5), koord(2,-4) };
+	sint16 rw = get_base_tile_raster_width()/4;
+	static const koord img_offsets[4]={ koord(0,0), koord(-2,1), koord(2,1), koord(0,2) };
 	for(  sint16 i=0;  i<4;  i++  ) {
-		koord pos = koord(4,get_fenstergroesse().y-4-16) + img_offsets[i]*rw;
+		koord pos = koord(((tab_panel_width-get_base_tile_raster_width())/2)+MARGIN, SCL_HEIGHT+3*MARGIN) + img_offsets[i]*rw;
 		img[i].set_pos( pos );
 	}
 
