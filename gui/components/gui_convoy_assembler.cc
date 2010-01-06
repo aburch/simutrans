@@ -454,31 +454,44 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 	if (vehicles.get_count()>0) {
 		potential_convoy_t convoy(*welt, vehicles);
 		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
+		sint32 friction = convoy.get_current_friction();
 		uint32 allowed_speed = vsum.max_speed;
-		uint32 min_weight = vsum.weight / 1000;
-		uint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight / 1000;
-		uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, 0));
+		uint32 min_weight = vsum.weight;
+		uint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight;
+		uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
 		uint32 max_speed = min_speed;
-		char *speed_format = "%s %d km/h @ %d t";
-		if (min_speed < allowed_speed)
+		uint32 txt_convoi_speed_offs = sprintf(txt_convoi_speed, "%s", translator::translate("Max. speed:"));
+		int col_convoi_speed = COL_BLACK;
+		if (min_speed == 0)
 		{
-			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, 0));
+			txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs, " %d km/h @ %g t: ", min_speed, max_weight * 0.001f);
+			col_convoi_speed = COL_RED;
+			//
+			max_weight = convoy.calc_max_starting_weight(friction);
+			min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
+			// 
+			max_speed = allowed_speed;
+			min_weight = convoy.calc_max_weight(friction);
+		}
+		else if (min_speed < allowed_speed)
+		{
+			max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, friction));
 			if (min_speed < max_speed)
 			{
-				speed_format = "%s %d km/h @ %d t %s %d km/h @ %d t";
 				if (max_speed == allowed_speed)
 				{
 					// show max weight, that can be pulled with max allowed speed
-					min_weight = convoy.calc_max_weight() / 1000;
+					min_weight = convoy.calc_max_weight(friction);
 				}
 			}
 		}
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
 			translator::translate("Station tiles:"), (vsum.length + TILE_STEPS - 1) / TILE_STEPS);
-		sprintf(txt_convoi_speed,  speed_format, 
-			translator::translate("Max. speed:"), min_speed, max_weight,
-			translator::translate("..."), max_speed,min_weight );
+		sprintf(txt_convoi_speed + txt_convoi_speed_offs,  
+			min_speed == max_speed ? " %d km/h @ %g t" : " %d km/h @ %g t %s %d km/h @ %g t", 
+			min_speed, max_weight * 0.001f,	translator::translate("..."), max_speed, min_weight * 0.001f);
+		lb_convoi_speed.set_color(col_convoi_speed);
 	}
 
 	bt_obsolete.pressed = show_retired_vehicles;	// otherwise the button would not show depressed
@@ -1114,15 +1127,27 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			//lok
 			const sint32 zuladung = veh_type->get_zuladung(); //"Zuladung" = payload (Google)
 
-			char name[128];
+			char name[512];
 
-			sprintf(name,
-			"%s (%s)",
-			translator::translate(veh_type->get_name()),
-			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
+			sint32 n = sprintf(name, "%s (%s)",
+				translator::translate(veh_type->get_name()),
+				translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
-			sint32 n;
-
+			vehicle_as_potential_convoy_t convoy(*get_welt(), *veh_type);
+			sint32 friction = convoy.get_current_friction();
+			uint32 max_weight = convoy.calc_max_starting_weight(friction);
+			uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
+			uint32 min_weight = convoy.calc_max_weight(friction);
+			uint32 max_speed = convoy.get_vehicle_summary().max_speed;
+			if (min_weight < convoy.get_vehicle_summary().weight)
+			{
+				min_weight = convoy.get_vehicle_summary().weight;
+				max_speed = convoy.calc_max_speed(weight_summary_t(min_weight, friction));
+			}
+			n += sprintf(name + n, "\n%s:", translator::translate("Pulls")); 
+			n += sprintf(name + n,  
+				min_speed == max_speed ? " %g t @ %d km/h " : " %g t @ %d km/h %s %g t @ %d km/h", 
+				min_weight * 0.001f, max_speed, translator::translate("..."), max_weight * 0.001f, min_speed);
 			
 			if(upgrade == u_buy)
 			{
@@ -1363,7 +1388,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 
-		display_multiline_text( pos.x + 200, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*2 + 4, buf, COL_BLACK);
+		display_multiline_text( pos.x + 220, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*3 + 4, buf, COL_BLACK);
 	}
 }
 

@@ -147,14 +147,14 @@ void vehikel_besch_t::loaded()
 	{
 		if (geared_force == 0)
 		{
-			geared_force = (uint32)(geared_power / power_force_ratio + 0.5f);
+			geared_force = max(GEAR_FACTOR, (uint32)(geared_power / power_force_ratio + 0.5f));
 		}
 	}
 	else
 	{
 		if (geared_force != 0)
 		{
-			geared_power = (uint32)(geared_force * power_force_ratio + 0.5f);
+			geared_power = max(GEAR_FACTOR, (uint32)(geared_force * power_force_ratio + 0.5f));
 		}
 	}
 }
@@ -173,25 +173,16 @@ uint32 vehikel_besch_t::get_effective_force_index(uint16 speed /* in m/s */ ) co
 	return speed <= force_threshold_speed ? geared_force : geared_power / speed;
 }
 
-
-///**
-// * Get effective power index. 
-// * Steam engine power depends on its speed.
-// * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
-// * (method extracted from sint32 convoi_t::calc_adjusted_power())
-// * @author Bernd Gabriel
-// */
-//uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in km/h */ ) const
-//{
-//	/*
-//	 * Calculate power according to the force calculation of the overhauled physics model.
-//	 * In fact this is nearly the *same* calculation due to formula: power = force * speed.
-//	 * @author: Bernd Gabriel, Nov, 01 2009: steam train related calculations no longer needed with overhauled physics in calc_acceleration()
-//	 */
-//	if (geared_power == 0) 
-//	{
-//		// no power at all
-//		return 0;
-//	}
-//	return speed < force_threshold_speed ? geared_force * speed : geared_power;
-//}
+/**
+ * Get effective power in kW at given speed in m/s: effective_power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
+ * @author Bernd Gabriel, Dec 14, 2009
+ */
+uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in m/s */ ) const
+{
+	if (geared_power == 0) 
+	{
+		// no power at all
+		return 0;
+	}
+	return speed <= force_threshold_speed ? geared_force * speed : geared_power;
+}

@@ -905,14 +905,6 @@ end_loop:
 			}
 			break;
 
-		case LOADING:
-			laden();
-			if(get_depot_when_empty() && has_no_cargo())
-			{
-				go_to_depot(false);
-			}
-			break;
-
 		case DUMMY4:
 		case DUMMY5:
 		break;
@@ -1051,11 +1043,24 @@ end_loop:
 			}
 			break;
 
+		case LOADING:
+			laden();
+			if (state != SELF_DESTRUCT)
+			{
+				if(get_depot_when_empty() && has_no_cargo())
+				{
+					go_to_depot(false);
+				}
+				break;
+			}
+			// no break. continue with case SELF_DESTRUCT.
+
 		// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
 			welt->set_dirty();
 			destroy();
-			break;
+			return; // @auther Bernd Gabriel, Dec 31, 2009: This object is deleted now. It cannot continue.
+			//break;
 
 		default:	/* keeps compiler silent*/
 			break;
@@ -3004,9 +3009,10 @@ void convoi_t::laden() //"load" (Babelfish)
 		wait_lock = longest_loading_time;
 
 		if(withdraw  &&  loading_level==0) {
-			// destroy when empty
-			welt->set_dirty();
-			destroy();
+			//// destroy when empty
+			//welt->set_dirty();
+			//destroy();
+			self_destruct();
 			return;
 		}
 

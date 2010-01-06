@@ -84,6 +84,7 @@ private:
 
 	// KI helper class
 	class fabconnection_t{
+		friend ai_goods_t;
 		fabrik_t *fab1;
 		fabrik_t *fab2;	// koord1 must be always "smaller" than koord2
 		const ware_besch_t *ware;
@@ -145,4 +146,11 @@ public:
 	void neues_jahr();
 
 	virtual void rotate90( const sint16 y_size );
+
+	/**
+	 * Tells the player that a fabrik_t is going to be deleted.
+	 * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
+	 * @author Bernd Gabriel, Jan 01, 2010
+	 */
+	virtual void notification(notification_t info, fabrik_t &fab);
 };
