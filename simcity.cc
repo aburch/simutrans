@@ -2189,7 +2189,7 @@ void stadt_t::step_passagiere()
 
 				// Knightly : we can avoid duplicated efforts by building destination halt list here at the same time
 				minivec_tpl<halthandle_t> destination_list(dest_plan->get_haltlist_count());
-
+				
 				halthandle_t start_halt;
 				
 				// Check whether the destination is within walking distance first.
@@ -2200,7 +2200,6 @@ void stadt_t::step_passagiere()
 					can_walk_ziel = true;
 					goto walk;
 				}
-		
 				for (int h = dest_plan->get_haltlist_count() - 1; h >= 0; h--) 
 				{
 					halthandle_t halt = dest_list[h];
