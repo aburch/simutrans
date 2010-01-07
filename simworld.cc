@@ -5200,7 +5200,8 @@ DBG_MESSAGE("client recieved file", "%li", s );
 								laden( "server-network.sve" );
 								steps = old_steps;
 								sync_steps = steps*einstellungen->get_frames_per_step();
-								for(  int clients_to_wait=network_get_clients();  clients_to_wait>0;  ) {
+								unsigned long stop_time = dr_time() + 180000; // 3 minutes should be enough for local saving and reloading
+								for(  int clients_to_wait=network_get_clients();  clients_to_wait>0  &&  stop_time>dr_time();  ) {
 									len_last_command = sizeof(network_buffer);
 									SOCKET s = network_check_activity( 5, network_buffer, len_last_command );
 									if(  s!=INVALID_SOCKET  &&  len_last_command>0  &&  memcmp( network_buffer, NET_TO_SERVER NET_READY NET_END_CMD, 9 )==0  ) {

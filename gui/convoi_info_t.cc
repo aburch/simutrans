@@ -411,7 +411,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 				schedule_t *fpl = cnv->get_schedule()->copy();
 				fpl->insert(cnv->get_welt()->lookup(home));
 				fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
-				cbuffer_t buf(5120);
+				cbuffer_t buf(5500);
 				fpl->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
 				txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
