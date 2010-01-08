@@ -130,6 +130,9 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_FILL_TREES:        tool = new wkz_fill_trees_t(); break;
 		case WKZ_DAYNIGHT_LEVEL:    tool = new wkz_daynight_level_t(); break;
 		case WKZ_VEHICLE_TOOLTIPS:  tool = new wkz_vehicle_tooltips_t(); break;
+		case WKZ_TOOGLE_PAX:        tool = new wkz_toggle_pax_station_t(); break;
+		case WKZ_TOOGLE_PEDESTRIANS:tool = new wkz_toggle_pedestrians_t(); break;
+		case WKZ_TRAFFIC_LEVEL:     tool = new wkz_traffic_level_t(); break;
 		case WKZ_CONVOI_TOOL:       tool = new wkz_change_convoi_t(); break;
 		case WKZ_LINE_TOOL:         tool = new wkz_change_line_t(); break;
 		case WKZ_DEPOT_TOOL:        tool = new wkz_change_depot_t(); break;

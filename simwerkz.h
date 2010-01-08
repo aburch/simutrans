@@ -759,6 +759,44 @@ public:
 	virtual bool is_init_network_save() const { return true; }
 };
 
+class wkz_toggle_pax_station_t : public werkzeug_t {
+public:
+	wkz_toggle_pax_station_t() : werkzeug_t() { id = WKZ_TOOGLE_PAX | SIMPLE_TOOL; }
+	const char *get_tooltip(spieler_t *) { return translator::translate("5LIGHT_CHOOSE"); }
+	bool is_selected(karte_t *welt) const { return welt->get_einstellungen()->get_show_pax(); }
+	bool init( karte_t *welt, spieler_t * ) {
+		welt->get_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
+		return false;
+	}
+	virtual bool is_init_network_save() const { return false; }
+};
+
+class wkz_toggle_pedestrians_t : public werkzeug_t {
+public:
+	wkz_toggle_pedestrians_t() : werkzeug_t() { id = WKZ_TOOGLE_PEDESTRIANS | SIMPLE_TOOL; }
+	const char *get_tooltip(spieler_t *) { return translator::translate("6LIGHT_CHOOSE"); }
+	bool is_selected(karte_t *welt) const { return welt->get_einstellungen()->get_random_pedestrians(); }
+	bool init( karte_t *welt, spieler_t * ) {
+		welt->get_einstellungen()->set_random_pedestrians( !welt->get_einstellungen()->get_random_pedestrians() );
+		return false;
+	}
+	virtual bool is_init_network_save() const { return false; }
+};
+
+/* internal simple tools needed for networksynchronisation */
+class wkz_traffic_level_t : public werkzeug_t {
+public:
+	wkz_traffic_level_t() : werkzeug_t() { id = WKZ_TRAFFIC_LEVEL | SIMPLE_TOOL; }
+	const char *get_tooltip(spieler_t *) { return translator::translate("6WORLD_CHOOSE"); }
+	bool is_selected(karte_t *welt) const { return false; }
+	bool init( karte_t *welt, spieler_t * ) {
+		assert(  default_param  );
+		welt->get_einstellungen()->set_verkehr_level( atoi(default_param) );
+		return false;
+	}
+	virtual bool is_init_network_save() const { return false; }
+};
+
 class wkz_change_convoi_t : public werkzeug_t {
 public:
 	wkz_change_convoi_t() : werkzeug_t() { id = WKZ_CONVOI_TOOL | SIMPLE_TOOL; }

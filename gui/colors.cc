@@ -186,15 +186,20 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 
 
-bool
-color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
-	einstellungen_t * sets = welt->get_einstellungen();
-
 	if(&brightness==komp) {
 		umgebung_t::daynight_level = v.i;
 	} else if(&traffic_density==komp) {
-		sets->set_verkehr_level( v.i );
+		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+			static char level[16];
+			sprintf( level, "%i", v.i );
+			werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF]->set_default_param( level );
+			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
+		}
+		else {
+			traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
+		}
 	} else if(&scrollspeed==komp) {
 		umgebung_t::scroll_multi = buttons[6].pressed ? -v.i : v.i;
 	} else if((buttons+0)==komp) {
@@ -205,11 +210,13 @@ color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		buttons[6].pressed ^= 1;
 		umgebung_t::scroll_multi = -umgebung_t::scroll_multi;
 	} else if((buttons+7)==komp) {
-		welt->get_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
-		buttons[7].pressed ^= 1;
+		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PAX&0xFFF], welt->get_active_player() );
+		}
 	} else if((buttons+8)==komp) {
-		welt->get_einstellungen()->set_random_pedestrians( !welt->get_einstellungen()->get_random_pedestrians() );
-		buttons[8].pressed ^= 1;
+		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
+		}
 	} else if((buttons+9)==komp) {
 		umgebung_t::night_shift = !umgebung_t::night_shift;
 		buttons[9].pressed ^= 1;
@@ -267,10 +274,11 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 {
 	const int x = pos.x;
 	const int y = pos.y+16;	// compensate for title bar
-	const einstellungen_t * sets = welt->get_einstellungen();
 	char buf[128];
 
 	// can be changed also with keys ...
+	buttons[7].pressed = welt->get_einstellungen()->get_show_pax();
+	buttons[8].pressed = welt->get_einstellungen()->get_random_pedestrians();
 	buttons[11].pressed = umgebung_t::hide_trees;
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
