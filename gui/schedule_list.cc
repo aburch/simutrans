@@ -333,7 +333,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		if (line.is_bound()) {
 			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
 			cbuffer_t buf(128);
-			buf.printf( "d,%i,%p", line.get_id(), &(sp->simlinemgmt) );
+			buf.printf( "d,%i", line.get_id() );
 			w->set_default_param(buf);
 			sp->get_welt()->set_werkzeug( w, sp );
 			// since init always returns false, it is save to delete immediately
@@ -343,7 +343,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 	else if (komp == &bt_withdraw_line) {
 		bt_withdraw_line.pressed ^= 1;
 		if (line.is_bound()) {
-			line->set_withdraw( bt_withdraw_line.pressed );
+			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+			cbuffer_t buf(128);
+			buf.printf( "w,%i,%i", line.get_id(), bt_withdraw_line.pressed );
+			w->set_default_param(buf);
+			sp->get_welt()->set_werkzeug( w, sp );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 		}
 	}
 	else if (komp == &tabs) {

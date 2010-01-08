@@ -4514,13 +4514,18 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 			}
 			break;
 
-
 		case 'g': // change schedule
 			{
 				schedule_t *fpl = line->get_schedule()->copy();
 				fpl->sscanf_schedule( p );
 				line->set_schedule( fpl );
 				line->get_besitzer()->simlinemgmt.update_line(line);
+			}
+			break;
+
+		case 'w': // change widthdraw
+			{
+				line->set_withdraw( atoi(p) );
 			}
 			break;
 	}
