@@ -331,15 +331,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 	}
 	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
-			// close a schedule window, if stil active
-			gui_fenster_t *w = win_get_magic( (long)line.get_rep() );
-			if(w) {
-				destroy_win( w );
-			}
-			linehandle_t delete_line=line;
-			update_lineinfo( linehandle_t() );
-			sp->simlinemgmt.delete_line(delete_line);
-			build_line_list(tabs.get_active_tab_index());
+			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+			cbuffer_t buf(128);
+			buf.printf( "d,%i,%p", line.get_id(), &(sp->simlinemgmt) );
+			w->set_default_param(buf);
+			sp->get_welt()->set_werkzeug( w, sp );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 		}
 	}
 	else if (komp == &bt_withdraw_line) {
@@ -594,7 +592,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		last_schedule_count = new_line->get_schedule()->get_count();
 		last_vehicle_count = new_line->count_convoys();
 	}
-	else if(line.is_bound()) {
+	else if(  inp_name.is_visible()  ) {
 		// previously a line was visible
 		// thus the need to hide everything
 		cont.remove_all();
@@ -627,12 +625,15 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 void schedule_list_gui_t::show_lineinfo(linehandle_t line)
 {
 	update_lineinfo(line);
-	// rebuilding line list will also show selection
-	for(  uint8 i=0;  i<max_idx;  i++  ) {
-		if(  tabs_to_lineindex[i]==line->get_linetype()  ) {
-			tabs.set_active_tab_index( i );
-			build_line_list( i );
-			break;
+
+	if(  line.is_bound()  ) {
+		// rebuilding line list will also show selection
+		for(  uint8 i=0;  i<max_idx;  i++  ) {
+			if(  tabs_to_lineindex[i]==line->get_linetype()  ) {
+				tabs.set_active_tab_index( i );
+				build_line_list( i );
+				break;
+			}
 		}
 	}
 }

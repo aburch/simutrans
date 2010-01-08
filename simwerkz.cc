@@ -4503,6 +4503,18 @@ bool wkz_change_line_t::init( karte_t *welt, spieler_t *sp )
 			}
 			break;
 
+		case 'd':	// delete line
+			{
+				// close a schedule window, if stil active
+				gui_fenster_t *w = win_get_magic( (long)line.get_rep() );
+				if(w) {
+					destroy_win( w );
+				}
+				sp->simlinemgmt.delete_line(line);
+			}
+			break;
+
+
 		case 'g': // change schedule
 			{
 				schedule_t *fpl = line->get_schedule()->copy();
