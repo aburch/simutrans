@@ -61,6 +61,9 @@ static void MTgenerate(void)
 // returns current seed value
 uint32 get_random_seed()
 {
+	if (mersenne_twister_index >= MERSENNE_TWISTER_N) { /* generate N words at one time */
+		MTgenerate();
+	}
 	return mersenne_twister[mersenne_twister_index];
 }
 
