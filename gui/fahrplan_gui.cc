@@ -536,7 +536,7 @@ void fahrplan_gui_t::init_line_selector()
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  fpl->matches(sp->get_welt(),line->get_schedule() )  ) {
 			selection = line_selector.count_elements() - 1;
-			new_line == line;
+			new_line = line;
 		}
 	}
 	line_selector.set_selection( selection );
