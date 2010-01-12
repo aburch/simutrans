@@ -463,8 +463,12 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		}
 DBG_MESSAGE("wkz_remover()",  "removing roadsign at (%s)", pos.get_str());
 		weg_t *weg = gr->get_weg(rs->get_besch()->get_wtyp());
+		if(  weg==NULL  &&  rs->get_besch()->get_wtyp()==tram_wt  ) {
+			weg = gr->get_weg(track_wt);
+		}
 		rs->entferne(sp);
 		delete rs;
+		assert( weg );
 		weg->count_sign();
 		return true;
 	}
