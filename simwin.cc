@@ -303,7 +303,7 @@ void release_focus(gui_komponente_t *this_focus)
 		focus = NULL;
 	}
 	else {
-		dbg->warning("void release_focus()","Focus was already released");
+		dbg->message("void release_focus()","Focus was already released");
 	}
 }
 
@@ -454,7 +454,7 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 			// try to keep the toolbar below all other toolbars
 			y = 32;
 			if(wt & w_no_overlap) {
-				for( int i=0;  i<wins.get_count()-1;  i++  ) {
+				for( uint32 i=0;  i<wins.get_count()-1;  i++  ) {
 					if(wins[i].wt & w_no_overlap) {
 						if(wins[i].pos.y>=y) {
 							sint16 lower_y = wins[i].pos.y + wins[i].gui->get_fenstergroesse().y;
@@ -833,7 +833,7 @@ bool check_pos_win(event_t *ev)
 			swallowed = true;
 
 			// Top window first
-			if(wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
+			if((int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
 				i = top_win(i);
 			}
 

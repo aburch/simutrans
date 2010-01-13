@@ -4558,7 +4558,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 		p++;
 	}
 	sscanf( p, "%c,%hi,%hi,%hi,%hi", &tool, &pos.x, &pos.y, &z, &convoi_id );
-	pos.z = z;
+	pos.z = (sint8)z;
 
 	// skip to the commands ...
 	z = 5;

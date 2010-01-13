@@ -817,7 +817,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
 
 	if(  !pos->empty()  ) {
-		const uint32 old_anzahl_staedte = stadt.get_count();
+		const sint32 old_anzahl_staedte = stadt.get_count();
 		new_anzahl_staedte = pos->get_count();
 
 		// prissi if we could not generate enough positions ...
@@ -1020,7 +1020,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 					bool build = false;
 					// set appropriate max length for way builder
 					if(  connected  ) {
-						if(  2*verbindung.get_count() > city_dist.at(conn)  ) {
+						if(  2*verbindung.get_count() > (uint32)city_dist.at(conn)  ) {
 							bauigel.set_maximum(verbindung.get_count() / 2);
 							build = true;
 						}
@@ -1445,7 +1445,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
-	const sint8 cov = get_einstellungen()->get_station_coverage();
+	const uint16 cov = get_einstellungen()->get_station_coverage();
 	if(  old_y < new_groesse_y  ) {
 		for(  sint16 x=0;  x<old_x;  x++  ) {
 			for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
@@ -1557,7 +1557,7 @@ karte_t::~karte_t()
 }
 
 
-bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
+bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = lookup(koord(x,y));
 
@@ -1590,7 +1590,7 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 }
 
 
-bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint16 h) const
+bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = lookup(koord(x,y));
 	if(plan == 0 || !is_plan_height_changeable(x, y)) {
@@ -1799,7 +1799,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 }
 
 // raise height in the hgt-array
-int karte_t::raise_to(sint16 x, sint16 y, sint16 h, bool set_slopes /*always false*/)
+int karte_t::raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always false*/)
 {
 	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
@@ -2028,7 +2028,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 }
 
 
-int karte_t::lower_to(sint16 x, sint16 y, sint16 h, bool set_slopes /*always false*/)
+int karte_t::lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always false*/)
 {
 	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
@@ -2085,7 +2085,7 @@ int karte_t::lower(koord pos)
 
 static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 
-bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
+bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt)
 {
 	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
 		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
@@ -2098,7 +2098,7 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
 
 
 // make a flat leve at this position (only used for AI at the moment)
-bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
+bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 {
 	int n = 0;
 	bool ok = false;
@@ -2171,23 +2171,23 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 
 
 
-sint16 karte_t::min_hgt(const koord pos) const
+sint8 karte_t::min_hgt(const koord pos) const
 {
-	const int h1 = lookup_hgt(pos);
-	const int h2 = lookup_hgt(pos+koord(1, 0));
-	const int h3 = lookup_hgt(pos+koord(1, 1));
-	const int h4 = lookup_hgt(pos+koord(0, 1));
+	const sint8 h1 = lookup_hgt(pos);
+	const sint8 h2 = lookup_hgt(pos+koord(1, 0));
+	const sint8 h3 = lookup_hgt(pos+koord(1, 1));
+	const sint8 h4 = lookup_hgt(pos+koord(0, 1));
 
 	return min(min(h1,h2), min(h3,h4));
 }
 
 
-sint16 karte_t::max_hgt(const koord pos) const
+sint8 karte_t::max_hgt(const koord pos) const
 {
-	const int h1 = lookup_hgt(pos);
-	const int h2 = lookup_hgt(pos+koord(1, 0));
-	const int h3 = lookup_hgt(pos+koord(1, 1));
-	const int h4 = lookup_hgt(pos+koord(0, 1));
+	const sint8 h1 = lookup_hgt(pos);
+	const sint8 h2 = lookup_hgt(pos+koord(1, 0));
+	const sint8 h3 = lookup_hgt(pos+koord(1, 1));
+	const sint8 h4 = lookup_hgt(pos+koord(0, 1));
 
 	return max(max(h1,h2), max(h3,h4));
 }
@@ -5028,7 +5028,7 @@ public:
 	uint8 player_id;
 	const char* default_param;
 	tool_node_t() : wkz(NULL), client_id(0), player_id(255), default_param(NULL) {}
-	tool_node_t(werkzeug_t *_wkz, uint8 _player_id, sint64 _client_id) : wkz(_wkz), player_id(_player_id), client_id(_client_id), default_param(NULL) {}
+	tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : wkz(_wkz), player_id(_player_id), client_id(_client_id), default_param(NULL) {}
 	// compares only the ids
 	inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
 };
@@ -5325,7 +5325,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 				uint16 id=0xFFFF;
 				uint32 client_id=-1;
 				uint16 player_nr = PLAYER_UNOWNED;
-				uint16 z_pos = -256;
+				sint16 z_pos = -256;
 				static char default_param[4096];
 				long steps_nr = 0;
 				uint32 random_counter;
@@ -5350,7 +5350,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 				if(  len>0  &&  default_param[len-1]==';'  ) {
 					default_param[len-1] = 0;
 				}
-				p.z = z_pos;
+				p.z = (sint8)z_pos;
 				if(  id==(SIMPLE_TOOL|WKZ_PAUSE)  ) {
 					steps = steps_nr;
 				}
@@ -5361,7 +5361,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 				// our tool or from network?
 				if (client_id != network_get_client_id()) {
 					// do we have a tool for this client already?
-					tool_node_t new_tool_node(NULL, player_nr, client_id);
+					tool_node_t new_tool_node(NULL, (uint8)player_nr, client_id);
 					uint32 index;
 					if (tool_list.is_contained(new_tool_node)) {
 						index = tool_list.index_of(new_tool_node);

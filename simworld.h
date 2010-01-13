@@ -228,12 +228,6 @@ private:
 	karte_ansicht_t *view;
 
 	/**
-	 * Fraktale, rekursive Landschaftserzeugung
-	 * @author Hj. Malthaner
-	 */
-	void calc_hoehe(int x1, int y1, int x2, int y2);
-
-	/**
 	 * Raise tile (x,y): height of each corner is given
 	 */
 	bool can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
@@ -241,7 +235,7 @@ private:
 	/**
 	 * Raise grid point (x,y), used during map creation/enlargement
 	 */
-	int  raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
+	int  raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
 	 * Lower tile (x,y): height of each corner is given
@@ -251,7 +245,7 @@ private:
 	/**
 	 * Lwer grid point (x,y), used during map creation/enlargement
 	 */
-	int  lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
+	int  lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
 	 * Die fraktale Erzugung der Karte ist nicht perfekt.
@@ -754,14 +748,14 @@ public:
 	 * erniedrigt werden kann
 	 * @author V. Meyer
 	 */
-	bool can_lower_plan_to(sint16 x, sint16 y, sint16 h) const;
+	bool can_lower_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Prueft, ob das Planquadrat an Koordinate (x,y)
 	 * erhöht werden kann
 	 * @author V. Meyer
 	 */
-	bool can_raise_plan_to(sint16 x, sint16 y, sint16 h) const;
+	bool can_raise_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Prueft, ob das Planquadrat an Koordinate (x,y)
@@ -803,19 +797,8 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint16 hgt);
-	bool ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt);
-
-	/**
-	 * Erzeugt einen Berg oder ein Tal
-	 * @param x x-Koordinate
-	 * @param y y-Koordinate
-	 * @param w Breite
-	 * @param h Hoehe
-	 * @param t Hoehe des Berges/Tiefe des Tales
-	 * @author Hj. Malthaner
-	 */
-	void new_mountain(int x, int y, int w, int h, int t);
+	bool can_ebne_planquadrat(koord pos, sint8 hgt);
+	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
 
 	// the convois are also handled each steps => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
@@ -902,13 +885,13 @@ public:
 	 * @return Minimale Hoehe des Planquadrates i,j
 	 * @author Hj. Malthaner
 	 */
-	sint16 min_hgt(koord pos) const;
+	sint8 min_hgt(koord pos) const;
 
 	/**
 	 * @return Maximale Hoehe des Planquadrates i,j
 	 * @author Hj. Malthaner
 	 */
-	sint16 max_hgt(koord pos) const;
+	sint8 max_hgt(koord pos) const;
 
 	/**
 	 * @return true, wenn Platz an Stelle pos mit Groesse dim Wasser ist

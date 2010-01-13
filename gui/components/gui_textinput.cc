@@ -172,7 +172,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			}
 		}
 		else {
-			printf("Warning: gui_textinput_t::infowin_event() called but text is NULL\n");
+			DBG_MESSAGE("gui_textinput_t::infowin_event", "called but text is NULL");
 		}
 	} else if ( IS_LEFTCLICK(ev) ) 	{
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)

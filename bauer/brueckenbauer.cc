@@ -178,7 +178,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 	const grund_t *gr2; // the level under the bridge
 	waytype_t wegtyp = besch->get_waytype();
 	error_msg = NULL;
-	sint16 length = 0;
+	uint16 length = 0;
 	do {
 		length ++;
 		pos = pos + zv;

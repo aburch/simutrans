@@ -477,9 +477,9 @@ vehikel_basis_t::calc_richtung(koord start, koord ende) const
 
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
-sint16 vehikel_basis_t::calc_height()
+sint8 vehikel_basis_t::calc_height()
 {
-	sint16 hoff = 0;
+	sint8 hoff = 0;
 	use_calc_height = false;	// assume, we are only needed after next hop
 
 	grund_t *gr = welt->lookup(get_pos());
@@ -2438,7 +2438,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				}
 
 				bool exit_loop = false;
-				short fahrplan_index = cnv->get_schedule()->get_aktuell();
+				uint8 fahrplan_index = cnv->get_schedule()->get_aktuell();
 				int count = 0;
 				route_t target_rt;
 				koord3d cur_pos = rt->position_bei(next_block+1);

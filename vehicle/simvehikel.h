@@ -86,7 +86,7 @@ protected:
 	// cached image
 	image_id bild;
 
-	sint16 calc_height();		// Offset Bergauf/Bergab
+	sint8 calc_height();		// Offset Bergauf/Bergab
 
 	virtual bool hop_check() = 0;
 	virtual void hop() = 0;
@@ -114,7 +114,7 @@ public:
 	inline void set_bild( image_id b ) { bild = b; }
 	virtual image_id get_bild() const {return bild;}
 
-	sint16 get_hoff() const {return hoff;}
+	sint8 get_hoff() const {return hoff;}
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff ) const;

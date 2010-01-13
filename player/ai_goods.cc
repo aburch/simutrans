@@ -242,7 +242,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	if(qfab->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser) {
 		if( length == 0 ) {
 			vector_tpl<koord3d> tile_list[2];
-			const uint8 cov = welt->get_einstellungen()->get_station_coverage();
+			const uint16 cov = welt->get_einstellungen()->get_station_coverage();
 			koord test;
 			for( uint8 i = 0; i < 2; i++ ) {
 				fabrik_t *fab =  i==0 ? qfab : zfab;

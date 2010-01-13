@@ -688,7 +688,7 @@ public:
 	 * @author: Volker Meyer
 	 * @date: 21.05.2003
 	 */
-	sint16 get_vmove(koord dir) const;
+	sint8 get_vmove(koord dir) const;
 
 	/* removes everything from a tile, including a halt but i.e. leave a
 	 * powerline ond other stuff

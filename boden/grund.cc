@@ -1211,11 +1211,10 @@ bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
 
 
 // now we need a more sophisticated calculations ...
-sint16
-grund_t::get_vmove(koord dir) const
+sint8 grund_t::get_vmove(koord dir) const
 {
 	const sint8 slope=get_weg_hang();
-	sint16 h=get_hoehe();
+	sint8 h=get_hoehe();
 	if(ist_bruecke()  &&  get_grund_hang()!=0  &&  welt->lookup(pos)==this) {
 		h += Z_TILE_STEP;	// end or start of a bridge
 	}
@@ -1297,7 +1296,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				continue;
 			}
 
-			ding_t *d=obj_bei(i);
+			ding_t *d=obj_bei((uint8)i);
 			// do not delete ways
 			if(d->is_way()) {
 				continue;

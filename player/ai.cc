@@ -162,7 +162,7 @@ bool ai_t::suche_platz(koord pos, koord &size, koord *dirs) const
 		return false;
 	}
 
-	sint16 start_z = gr->get_hoehe();
+	sint8 start_z = gr->get_hoehe();
 	int max_dir = length==0 ? 1 : 2;
 	// two rotations
 	for(  int dir=0;  dir<max_dir;  dir++  ) {

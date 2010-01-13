@@ -58,7 +58,7 @@ public:
 		return static_cast<const bildliste2d_besch_t *>(get_child(2))->get_anzahl();
 	}
 
-	int get_seasons() const { return number_of_seasons; }
+	uint8 get_seasons() const { return number_of_seasons; }
 
 	uint32 get_speed() const { return speed; }
 
