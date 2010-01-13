@@ -4651,7 +4651,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 
 					if(tool!='a') {
 						// start of composition
-						while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) {
+						while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL  &&  !new_vehicle_info.is_contained(info)) {
 							info = info->get_vorgaenger(0);
 							new_vehicle_info.insert(info);
 						}
@@ -4659,7 +4659,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 					}
 					while(info) {
 						new_vehicle_info.append( info );
-						if(info->get_nachfolger_count()!=1  ||  (tool=='i'  &&  info==start_info)) {
+						if(info->get_nachfolger_count()!=1  ||  (tool=='i'  &&  info==start_info)  ||  new_vehicle_info.is_contained(info->get_nachfolger(0))) {
 							break;
 						}
 						info = info->get_nachfolger(0);
