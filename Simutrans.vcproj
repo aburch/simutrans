@@ -625,6 +625,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\utils\memory_rw.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\message_frame_t.cc"
 				>
 			</File>
@@ -662,6 +666,14 @@
 			</File>
 			<File
 				RelativePath=".\dataobj\network.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_cmd.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_packet.cc"
 				>
 			</File>
 			<File
