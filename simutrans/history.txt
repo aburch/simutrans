@@ -22,6 +22,7 @@
 	CHANGE (Knightly): Not scaling images displayed by gui_image_t anymore
 	FIX: deleting tram signals again
 	FIX: distribute goods also on factories with less than 10 output
+	FIX: latin2 characters with unicode>255 work again (via hack)
 
 
 Release Candidate 102.2.1
