@@ -530,7 +530,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
  * Fill menu with icons of given signals/roadsings from the list
  * @author Hj. Malthaner
  */
-void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
+void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 

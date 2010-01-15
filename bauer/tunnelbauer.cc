@@ -149,7 +149,7 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t* welt)
+void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t* welt)
 {
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());

@@ -124,7 +124,7 @@ bool loadsave_t::rd_open(const char *filename)
 				*s++ = c;
 			}
 			*s = 0;
-			while(  lsgetc()!='>'  );
+			while(  lsgetc()!='>'  )  ;
 		}
 	}
 	else {
@@ -302,7 +302,6 @@ void loadsave_t::lsputc(int c)
 int loadsave_t::lsgetc()
 {
 	if(is_bzip2()) {
-		size_t l = 0;
 		uint8 c[2];
 		if(  bse==BZ_OK  ) {
 			BZ2_bzRead( &bse, bzfp, c, 1);
@@ -559,7 +558,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		if(  strcmp(typ,buffer)!=0  ) {
 			dbg->fatal( "loadsave_t::rdwr_str()","expected \"<%s>\", got \"<%s>\"", typ, buffer );
 		}
-		while(  lsgetc()!='>'  );
+		while(  lsgetc()!='>'  )  ;
 		// read number;
 		s = 0;
 		bool minus = false;
@@ -602,7 +601,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		if(  strcmp(typ,buffer)!=0  ) {
 			dbg->fatal( "loadsave_t::rdwr_str()","expected \"</%s>\", got \"</%s>\"", typ, buffer );
 		}
-		while(  lsgetc()!='>'  );
+		while(  lsgetc()!='>'  )  ;
 	}
 }
 
@@ -688,7 +687,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 			write(s, len);
 		}
 		else {
-			long res = read(&len, sizeof(sint16));
+			read(&len, sizeof(sint16));
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
@@ -743,7 +742,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 				*s = 0;
 				// go until closing
 				if(  ptr==0  ||  *ptr!=0  ) {
-					while(  lsgetc()!='>'  );
+					while(  lsgetc()!='>'  )  ;
 				}
 			}
 			else {
@@ -798,7 +797,7 @@ void loadsave_t::start_tag(const char *tag)
 			if(  strncmp(buf,tag,len)!=0  ) {
 				dbg->fatal( "loadsave_t::start_tag()","expected \"%s\", got \"%s\"", tag, buf );
 			}
-			while(  lsgetc()!='>'  );
+			while(  lsgetc()!='>'  )  ;
 		}
 	}
 }
@@ -915,7 +914,7 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 
 
 
-uint32 loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension_str)
+uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
 {
 	// major number (0..)
 	uint32 v0 = atoi(version_text);

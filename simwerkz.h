@@ -788,7 +788,7 @@ class wkz_traffic_level_t : public werkzeug_t {
 public:
 	wkz_traffic_level_t() : werkzeug_t() { id = WKZ_TRAFFIC_LEVEL | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("6WORLD_CHOOSE"); }
-	bool is_selected(karte_t *welt) const { return false; }
+	bool is_selected(karte_t *) const { return false; }
 	bool init( karte_t *welt, spieler_t * ) {
 		assert(  default_param  );
 		welt->get_einstellungen()->set_verkehr_level( atoi(default_param) );

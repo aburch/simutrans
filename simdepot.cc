@@ -327,15 +327,13 @@ bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 
 		// remove from depot lists
 		sint32 icnv = (sint32)convois.index_of( cnv );
-		convois.remove(cnv);
-		if(  convois.get_count()>=icnv  ) {
-			icnv = convois.get_count()-1;
-		}
-
-		// make another the current selected convoi
-		depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
-		if(  win  ) {
-			win->activate_convoi( icnv>=0 ? convois.at(icnv) : convoihandle_t() );
+		if (convois.remove(cnv)) {
+			// actually removed cnv from depot, here icnv>=0
+			// make another the current selected convoi
+			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+			if(  win  ) {
+				win->activate_convoi( !convois.empty() ? convois.at( min((uint32)icnv, convois.get_count()-1) ) : convoihandle_t() );
+			}
 		}
 
 		// and remove from welt
@@ -378,18 +376,16 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 
 			// remove from depot lists
 			sint32 icnv = (sint32)convois.index_of( cnv );
-			convois.remove(cnv);
-			if(  convois.get_count()>=icnv  ) {
-				icnv = convois.get_count()-1;
+			printf("icnv %d \n",icnv);
+			if (convois.remove(cnv)) {
+				// actually removed cnv from depot, here icnv>=0
+				// make another the current selected convoi
+				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+				if(  win  ) {
+					win->activate_convoi( !convois.empty() ? convois.at( min((uint32)icnv, convois.get_count()-1) ) : convoihandle_t() );
+				}
 			}
 
-			// make another the current selected convoi
-			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
-			if(  win  ) {
-				win->activate_convoi( icnv>=0 ? convois.at(icnv) : convoihandle_t() );
-			}
-
-			convois.remove(cnv);
 			return true;
 		}
 		else {

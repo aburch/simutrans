@@ -144,7 +144,8 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
+
+void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
 	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
 

@@ -76,7 +76,7 @@ const translator::lang_info* translator::get_langs()
 }
 
 
-#ifdef DEBUG
+#ifdef need_dump_hashtable
 // diagnosis
 static void dump_hashtable(stringhashtable_tpl<const char*>* tbl)
 {
@@ -424,7 +424,7 @@ bool translator::load(const cstring_t& scenario_path)
 		// now read the scenario specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
 		cstring_t folderName(scenario_path + "text/");
-		int num_pak_lang_dat = folder.search(folderName, "tab");
+		folder.search(folderName, "tab");
 		//read now the basic language infos
 		for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
 			cstring_t fileName(*i);

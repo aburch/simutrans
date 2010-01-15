@@ -1897,7 +1897,7 @@ void stadt_t::check_bau_factory(bool new_town)
 {
 	if (!new_town && industry_increase_every[0] > 0 && bev % industry_increase_every[0] == 0) {
 		for (int i = 0; i < 8; i++) {
-			if (industry_increase_every[i] == bev) {
+			if (industry_increase_every[i] == (uint32)bev) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
 				fabrikbauer_t::increase_industry_density( welt, true );
 			}
@@ -2533,7 +2533,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 			const koord k2mcd = koord( k.x/minimum_city_distance, k.y/minimum_city_distance );
 			for(sint32 i=k2mcd.x-1; ok && i<=k2mcd.x+1; i++) {
 				for(sint32 j=k2mcd.y-1; ok && j<=k2mcd.y+1; j++) {
-					if (i>=0 && i<xmax2 && j>=0 && j<ymax2) {
+					if (i>=0 && i<(sint32)xmax2 && j>=0 && j<(sint32)ymax2) {
 						for(uint32 l=0; ok && l<result_places.at(i,j).get_count(); l++) {
 							its++;
 							if (koord_distance(k, result_places.at(i,j)[l]) < minimum_city_distance){

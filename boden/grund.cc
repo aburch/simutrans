@@ -933,7 +933,7 @@ void grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global
 	}
 	else { // must be karten_boden
 		// in undergroundmode: draw ground grid
-		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : hang_t::flach;
+		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : (hang_t::typ)hang_t::flach;
 		const uint8 back_hang = (hang&1) + ((hang>>1)&6);
 		display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, dirty);
 		// show marker for marked but invisible tiles

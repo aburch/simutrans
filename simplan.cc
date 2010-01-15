@@ -393,7 +393,7 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 }
 
 
-void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint8 hmin, const sint8 hmax) const
+void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const sint8 /*hmin*/, const sint8 /*hmax*/) const
 {
 	grund_t *gr=get_kartenboden();
 

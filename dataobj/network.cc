@@ -47,7 +47,6 @@ static slist_tpl<const char *>pending_list;
 
 // to query all open sockets, we maintain this list
 static vector_tpl<SOCKET> clients;
-static uint32 our_client_id;
 static uint32 active_clients;
 
 // global client id

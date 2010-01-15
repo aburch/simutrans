@@ -405,7 +405,6 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			DBG_MESSAGE("shortest route has ", "%i hops", shortest_route->get_count()-1);
 
 			// if route to a depot has been found, update the convoi's schedule
-			bool b_depot_found = false;
 			const char *txt;
 			if(!shortest_route->empty()) {
 				schedule_t *fpl = cnv->get_schedule()->copy();

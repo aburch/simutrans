@@ -517,7 +517,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// now try to connect one of the corners with a road
 	koord bushalt = koord::invalid, runwaystart, runwayend;
 	koord trypos[4] = { koord(0,0), koord(size.x,0), koord(0,size.y), koord(size.x,size.y) };
-	sint32 lenght=9999;
+	uint32 length=9999;
 	rotation=-1;
 
 	bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, 25, welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
@@ -530,9 +530,9 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		bushalt = pos+trypos[i];
 		bauigel.calc_route(welt->lookup_kartenboden(bushalt)->get_pos(),welt->lookup_kartenboden(town_road)->get_pos());
 		// no road => try next
-		if(  bauigel.get_count()-1>=1  &&   bauigel.get_count()-1<lenght  ) {
+		if(  bauigel.get_count() >= 2  &&   bauigel.get_count() < length+1  ) {
 			rotation = i;
-			lenght = bauigel.get_count()-1;
+			length = bauigel.get_count()-1;
 		}
 	}
 

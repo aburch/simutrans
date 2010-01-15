@@ -106,7 +106,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 
 
 
-void ware_t::laden_abschliessen(karte_t *welt,spieler_t *sp)
+void ware_t::laden_abschliessen(karte_t *welt,spieler_t * /*sp*/)
 {
 	// since some halt was referred by with several koordinates
 	// this routine will correct it

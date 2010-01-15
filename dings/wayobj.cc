@@ -469,7 +469,7 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
  * Fill menu with icons of given wayobjects from the list
  * @author Hj. Malthaner
  */
-void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
+void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
 	const uint16 time=welt->get_timeline_year_month();
 
