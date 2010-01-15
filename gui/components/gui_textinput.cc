@@ -127,14 +127,18 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 						const char *more_letter=translator::translate(letter);
 						// could not convert ...
 						if(letter==more_letter) {
-							if (ev->ev_code > 279 || (ev->ev_code <= 255 && translator::get_lang()->utf_encoded)) {
-								// assume unicode
+							if(translator::get_lang()->utf_encoded) {
 								char *out=letter;
 								out[ utf16_to_utf8(ev->ev_code, (utf8 *)out) ] = 0;
 							}
 							else {
-								// 0..255, but no translation => assume extended code page
-								letter[0] = ev->ev_code;
+								// guess some east european letter
+								uint8 new_char = unicode_to_latin2( ev->ev_code );
+								if(  new_char==0  ) {
+									// >128 but no translation => assume extended code page
+									new_char = (ev->ev_code & 0x7F) | 0x80;
+								}
+								letter[0] = new_char;
 								letter[1] = 0;
 							}
 						}
