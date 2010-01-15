@@ -50,6 +50,7 @@ class werkzeug_t;
 class scenario_t;
 class message_t;
 class weg_besch_t;
+class network_world_command_t;
 
 
 /**
@@ -300,6 +301,10 @@ private:
 
 	uint8 step_mode;
 
+	// Variables used in interactive()
+	uint32 sync_steps;
+	uint8  network_frame_count;
+
 	/**
 	 * fuer performancevergleiche
 	 * @author Hj. Malthaner
@@ -314,7 +319,7 @@ private:
 	uint32 last_interaction;	// ms, when the last time events were handled
 	uint32 last_step_time;	// ms, when the last step was done
 	uint32 next_step_time;	// ms, when the next steps is to be done
-	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
+//	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
 	uint32 idle_time;
 
 	sint32 current_month;  // monat+12*jahr
@@ -483,6 +488,9 @@ public:
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);
 
+	// (un)pause for network games
+	void network_game_set_pause(bool pause_, uint32 syncsteps_);
+
 	zeiger_t * get_zeiger() const { return zeiger; }
 
 	/**
@@ -612,7 +620,10 @@ public:
 		return (climate)height_to_climate[h];
 	}
 
+	// set a new tool as current: calls local_set_werkzeug or sends to server
 	void set_werkzeug( werkzeug_t *w, spieler_t * sp );
+	// set a new tool on our client, calls init
+	void local_set_werkzeug( werkzeug_t *w, spieler_t * sp );
 	werkzeug_t *get_werkzeug(uint8 nr) const { return werkzeug[nr]; }
 
 	// all stuf concerning map size
@@ -951,6 +962,12 @@ public:
 	 * @author Hansjörg Malthaner
 	 */
 	bool interactive(uint32 quit_month);
+
+	uint32 get_sync_steps() const { return sync_steps; }
+
+	void command_queue_append(network_world_command_t*);
+
+	void network_disconnect();
 };
 
 #endif

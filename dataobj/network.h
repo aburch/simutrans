@@ -25,31 +25,22 @@ typedef int SOCKET;
 #endif
 
 #include "../simtypes.h"
+// version of network protocol code
+#define NETWORK_VERSION (1)
 
-// prefiexes
-#define NET_FROM_SERVER "do:"
-#define NET_TO_SERVER "ask:"
-#define NET_END_CMD ";"
-
-// actual commands
-#define NET_SYNC "sync"	/* saving and reloading game */
-#define NET_INFO "info"
-#define NET_GAME "game"
-#define NET_READY "ready"	/* saving and reloading game */
-#define NET_WKZ_INIT "init"	/* call a tool init */
-#define NET_WKZ_WORK "work"	/* call a tool to work */
-#define NET_CHECK "check"   /* check random counter */
-
-
+class network_command_t;
 
 bool network_initialize();
 
-// connects to server at (cp), receives game, saves it to (filename)
+// connects to server at (cp), receives game, save to client%i-network.sve
 const char* network_connect(const char *cp);
 
 void network_close_socket( SOCKET sock );
 
 void network_add_client( SOCKET sock );
+void network_remove_client( SOCKET sock );
+uint32 network_get_client_id( SOCKET sock );
+SOCKET network_get_socket( uint32 client_id );
 
 // if sucessful, starts a server on this port
 bool network_init_server( int port );
@@ -57,12 +48,16 @@ bool network_init_server( int port );
 /* do appropriate action for network server:
  * - either connect to a new client
  * - recieve commands
- * returns len of recieved bytes, or when negative a negative socket number
+ * returns pointer to commmand or NULL
+ * timeout in milliseconds
  */
-SOCKET network_check_activity(int timeout, char *buf, int &len );
+network_command_t* network_check_activity(int timeout);
+
+// recieves x bytes from socket sender
+uint16 network_recieve_data( SOCKET sender, const void *dest, const uint16 length );
 
 // before calling this, the server should have saved the current game as "server-network.sve"
-const char *network_send_file( SOCKET s, const char *filename );
+const char *network_send_file( uint32 client_id, const char *filename );
 
 // this saves the game from network under "client-network.sve"
 const char *network_recieve_file( SOCKET s, const char *name, const long len );
@@ -74,13 +69,19 @@ int network_get_clients();
 bool network_check_server_connection();
 
 // send data to all clients (even us)
-void network_send_all(char *msg, int len, bool exclude_us );
+// nwc is invalid after the call
+void network_send_all(network_command_t* nwc, bool exclude_us );
 
 // send data to server only
-void network_send_server(char *msg, int len );
+// nwc is invalid after the call
+void network_send_server(network_command_t* nwc );
 
 void network_core_shutdown();
 
 // get our id on the server
 uint32 network_get_client_id();
+
+// get server socket
+SOCKET network_get_server();
+
 #endif

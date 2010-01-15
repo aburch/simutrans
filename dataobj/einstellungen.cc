@@ -511,7 +511,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			random_counter = get_random_seed();
 			file->rdwr_long( random_counter, "" );
 			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+				frames_per_second = clamp(umgebung_t::fps,5,100);	// update it on the server to the current setting
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
 			file->rdwr_long( frames_per_second, "" );
@@ -571,6 +571,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead);
 	umgebung_t::server_ms_ahead = contents.get_int("network_ms_ahead", umgebung_t::server_ms_ahead);
 	umgebung_t::network_frames_per_step = contents.get_int("server_frames_per_step", umgebung_t::network_frames_per_step);
+	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks);
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {
