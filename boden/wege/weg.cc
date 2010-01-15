@@ -300,11 +300,10 @@ void weg_t::rotate90()
 
 /**
  * counts signals on this tile;
- * It would be enough for the signals to register and unreigister themselves, but this is more secure ...
+ * It would be enough for the signals to register and unregister themselves, but this is more secure ...
  * @author prissi
  */
-void
-weg_t::count_sign()
+void weg_t::count_sign()
 {
 	// Either only sign or signal please ...
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);

@@ -119,8 +119,7 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 
 
 
-void
-fabrik_t::add_lieferziel(koord ziel)
+void fabrik_t::add_lieferziel(koord ziel)
 {
 	if(  !lieferziele.is_contained(ziel)  ) {
 		lieferziele.insert_ordered( ziel, RelativeDistanceOrdering(pos.get_2d()) );
@@ -133,8 +132,7 @@ fabrik_t::add_lieferziel(koord ziel)
 }
 
 
-void
-fabrik_t::rem_lieferziel(koord ziel)
+void fabrik_t::rem_lieferziel(koord ziel)
 {
 	lieferziele.remove(ziel);
 }
@@ -273,8 +271,7 @@ void fabrik_t::baue(sint32 rotate)
  * spawns a field for sure if probability==0 and zero for 1024
  * @author Kieron Green
  */
-bool
-fabrik_t::add_random_field(uint16 probability)
+bool fabrik_t::add_random_field(uint16 probability)
 {
 	// has fields, and not yet too many?
 	const field_besch_t *fb = besch->get_field();
@@ -343,8 +340,7 @@ fabrik_t::add_random_field(uint16 probability)
 
 
 
-void
-fabrik_t::remove_field_at(koord pos)
+void fabrik_t::remove_field_at(koord pos)
 {
 	assert(fields.is_contained(pos));
 	prodbase -= besch->get_field()->get_field_production();
@@ -353,9 +349,7 @@ fabrik_t::remove_field_at(koord pos)
 
 
 
-
-bool
-fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
+bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
 {
     if(pos.x > 0 && pos.y > 0 &&
        pos.x+groesse.x < welt->get_groesse_x() && pos.y+groesse.y < welt->get_groesse_y() &&
@@ -381,8 +375,7 @@ fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,clima
 
 
 
-vector_tpl<fabrik_t *> &
-fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
+vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 {
 	static vector_tpl <fabrik_t*> fablist(16);
 	fablist.clear();
@@ -402,8 +395,7 @@ fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 
 
 
-bool
-fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
+bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 {
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
 		for(int x=min_pos.x; x<=max_pos.x; x++) {
@@ -417,8 +409,7 @@ fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 
 
 
-void
-fabrik_t::rdwr(loadsave_t *file)
+void fabrik_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fabrik_t" );
 	sint32 i;
@@ -697,6 +688,7 @@ sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
 }
 
 
+
 sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
@@ -910,7 +902,8 @@ void fabrik_t::step(long delta_t)
 
 		// distribute, if there are more than 10 waiting ...
 		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
-			if(  ausgang[produkt].menge > (10 << precision_bits)  ) {
+			// either more than ten or nearly full (if there are less than ten output)
+			if(  ausgang[produkt].menge > (10 << precision_bits)  ||  ausgang[produkt].menge*2 > ausgang[produkt].max  ) {
 
 				verteile_waren(produkt);
 				INT_CHECK("simfab 636");
@@ -1115,8 +1108,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 
 
-void
-fabrik_t::neuer_monat()
+void fabrik_t::neuer_monat()
 {
 	for (uint32 index = 0; index < ausgang.get_count(); index++) {
 		ausgang[index].abgabe_letzt = ausgang[index].abgabe_sum;
@@ -1136,6 +1128,7 @@ unsigned fabrik_t::status_to_color[5] = {COL_RED, COL_ORANGE, COL_GREEN, COL_YEL
 #define FL_WARE_UEBER75        16
 #define FL_WARE_ALLEUEBER75    32
 #define FL_WARE_FEHLT_WAS      64
+
 
 /* returns the status of the current factory, as well as output */
 void fabrik_t::recalc_factory_status()
@@ -1469,27 +1462,22 @@ void fabrik_t::rotate90( const sint16 y_size )
 
 
 
-
-void
-fabrik_t::add_supplier(koord ziel)
+void fabrik_t::add_supplier(koord ziel)
 {
 	suppliers.insert_unique_ordered( ziel, RelativeDistanceOrdering(pos.get_2d()) );
 }
 
 
 
-void
-fabrik_t::rem_supplier(koord pos)
+void fabrik_t::rem_supplier(koord pos)
 {
 	suppliers.remove(pos);
 }
 
 
 
-/** crossconnect everything possible
- */
-void
-fabrik_t::add_all_suppliers()
+/** crossconnect everything possible */
+void fabrik_t::add_all_suppliers()
 {
 
 	for(int i=0; i < besch->get_lieferanten(); i++) {
@@ -1532,6 +1520,8 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 	}
 	return false;
 }
+
+
 
 void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const
 {
