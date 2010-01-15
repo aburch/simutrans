@@ -133,9 +133,9 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 							}
 							else {
 								// guess some east european letter
-								uint8 new_char = unicode_to_latin2( ev->ev_code );
+								uint8 new_char = ev->ev_code>255 ? unicode_to_latin2( ev->ev_code ) : ev->ev_code;
 								if(  new_char==0  ) {
-									// >128 but no translation => assume extended code page
+									// >255 but no translation => assume extended code page
 									new_char = (ev->ev_code & 0x7F) | 0x80;
 								}
 								letter[0] = new_char;
