@@ -245,8 +245,8 @@ void nwc_check_t::rdwr()
 }
 
 
-nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 steps_, bool init_)
-: network_world_command_t(NWC_TOOL, 0)
+nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync_steps, bool init_)
+: network_world_command_t(NWC_TOOL, sync_steps)
 {
 	pos = pos_;
 	player_nr = sp->get_player_nr();
@@ -288,7 +288,7 @@ void nwc_tool_t::rdwr()
 	packet->rdwr_byte(player_nr);
 	sint16 posx = pos.x; packet->rdwr_short(posx); pos.x = posx;
 	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
-	packet->rdwr_byte(pos.z);
+	sint8  posz = pos.z; packet->rdwr_byte(posz);  pos.z = posz;
 	packet->rdwr_short(wkz_id);
 	packet->rdwr_str(default_param);
 	packet->rdwr_bool(init);

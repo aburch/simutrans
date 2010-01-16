@@ -54,7 +54,7 @@ bool network_init_server( int port );
 network_command_t* network_check_activity(int timeout);
 
 // recieves x bytes from socket sender
-uint16 network_recieve_data( SOCKET sender, const void *dest, const uint16 length );
+uint16 network_recieve_data( SOCKET sender, void *dest, const uint16 length );
 
 // before calling this, the server should have saved the current game as "server-network.sve"
 const char *network_send_file( uint32 client_id, const char *filename );

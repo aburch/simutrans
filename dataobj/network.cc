@@ -468,7 +468,7 @@ void network_send_server(network_command_t* nwc )
 
 
 
-uint16 network_recieve_data( SOCKET sender, const void *dest, const uint16 length )
+uint16 network_recieve_data( SOCKET sender, void *dest, const uint16 length )
 {
 	fd_set fds;
 	uint16 bytes = 0;
