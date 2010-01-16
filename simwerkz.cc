@@ -4422,6 +4422,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				l.set_id( atoi(p) );
 				if(  l.is_bound()  ) {
 					cnv->set_line( l );
+					cnv->get_schedule()->eingabe_abschliessen();
 				}
 			}
 			break;
