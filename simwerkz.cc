@@ -4120,7 +4120,7 @@ const char *wkz_make_stop_public_t::move( karte_t *welt, spieler_t *sp, uint16, 
 	const planquadrat_t *pl = welt->lookup(p.get_2d());
 	if(pl!=NULL) {
 		halthandle_t halt = pl->get_halt();
-		if(  halt.is_bound()  &&  (spieler_t::check_owner(halt->get_besitzer(),sp)  ||  halt->get_besitzer()==welt->get_spieler(1))  ) {
+		if(  halt.is_bound()  &&  spieler_t::check_owner(halt->get_besitzer(),sp)  &&  halt->get_besitzer()!=welt->get_spieler(1) ) {
 			sint64 costs = halt->calc_maintenance();
 			// set only tooltip if it costs (us)
 			if(costs>0) {

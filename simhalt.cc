@@ -1888,6 +1888,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 				total_costs += costs;
 				spieler_t::add_maintenance( gb_sp, -costs );
 				gb->set_besitzer(public_owner);
+				gb->set_flag(ding_t::dirty);
 				spieler_t::add_maintenance(public_owner, costs );
 			}
 			// ok, valid start, now we can join them
@@ -1927,6 +1928,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 					spieler_t::add_maintenance( gb_sp, -costs );
 					spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_bits_per_tag-18)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
+					gb->set_flag(ding_t::dirty);
 					spieler_t::add_maintenance(public_owner, costs );
 				}
 			}
