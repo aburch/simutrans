@@ -24,6 +24,7 @@
 	FIX: distribute goods also on factories with less than 10 output
 	FIX: latin2 characters with unicode>255 work again (via hack)
 	ADD: click-and-drag also for network games (except for building elevated ways, bridges, tunnels)
+	FIX: (VS) do not buy same house twice
 
 
 Release Candidate 102.2.1

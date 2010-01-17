@@ -1293,6 +1293,11 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 		return "Das Feld gehoert\neinem anderen Spieler\n";
 	}
 
+	if(  gb->get_besitzer()==sp  ) {
+		// this I bought already ...
+		return "";
+	}
+
 	spieler_t *old_owner = gb->get_besitzer();
 	const haus_tile_besch_t *tile  = gb->get_tile();
 	const haus_besch_t * hb = tile->get_besch();
