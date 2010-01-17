@@ -579,7 +579,7 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	else {
 		if(capacity==1) {
 			ding_t *dt = obj.one;
-			if(dt->is_moving()) {
+			if(dt->is_moving()  &&  !(dt->get_typ()==ding_t::fussgaenger  ||  dt->get_typ()==ding_t::verkehr  ||  dt->get_typ()==ding_t::movingobj)) {
 				((vehikel_t *)dt)->verlasse_feld();
 			}
 			else {
