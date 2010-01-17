@@ -230,6 +230,7 @@ public:
 	virtual const char* get_default_param() const;
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  besch->get_styp()!=1); }
 
 private:
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
@@ -244,6 +245,7 @@ public:
 	wkz_brueckenbau_t() : two_click_werkzeug_t() { id = WKZ_BRUECKENBAU | GENERAL_TOOL; }
 	virtual image_id get_icon(spieler_t *) const { return grund_t::underground_mode==grund_t::ugm_all ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *);
+	virtual bool is_move_network_save(spieler_t *) const { return false;}
 private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
@@ -256,6 +258,7 @@ class wkz_tunnelbau_t : public two_click_werkzeug_t {
 public:
 	wkz_tunnelbau_t() : two_click_werkzeug_t() { id = WKZ_TUNNELBAU | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *);
+	virtual bool is_move_network_save(spieler_t *) const { return false;}
 private:
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d &, karte_t* );
 

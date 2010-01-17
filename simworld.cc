@@ -1508,8 +1508,6 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
-	werkzeug_last_pos = koord3d::invalid;
-	werkzeug_last_button = 0;
 
 	follow_convoi = convoihandle_t();
 	set_dirty();
@@ -2167,8 +2165,6 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 				zeiger->set_area( koord(1,1), false );
 			}
 			zeiger->change_pos( zpos );
-			werkzeug_last_pos = koord3d::invalid;
-			werkzeug_last_button = 0;
 		}
 		werkzeug[sp->get_player_nr()] = w;
 	}
@@ -4776,14 +4772,14 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mb_alt = ev->button_state;
 
 			zeiger->change_pos(pos);
-			if(  !umgebung_t::networkmode  ) {
+			if(  !umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_move_network_save(get_active_player())) {
 				if(  ev->button_state == 0  ) {
 					is_dragging = false;
-					if(  werkzeug_last_pos != pos  ) {
+					if(  ist_in_kartengrenzen(pos.get_2d())  ) {
 						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 0, pos );
 					}
 				}
-				else if(ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos) {
+				else if(ev->ev_class==EVENT_DRAG  &&  ist_in_kartengrenzen(pos.get_2d())) {
 					if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {
 						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 1, prev_pos );
 					}
@@ -4853,7 +4849,6 @@ void karte_t::switch_active_player(uint8 new_player)
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 		msg->add_message(buf, koord::invalid, message_t::warnings, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
-		werkzeug_last_pos = koord3d::invalid;
 		zeiger->set_area( koord(1,1), false );
 		zeiger->set_pos( old_zeiger_pos );
 	}
@@ -4970,7 +4965,7 @@ karte_t::interactive_event(event_t &ev)
 DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 		const char *err = NULL;
-		if(werkzeug_last_pos!=zeiger->get_pos()  &&  (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save())  ) {
+		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())  &&  (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save())  ) {
 			// do the work
 			err = werkzeug[get_active_player_nr()]->work( this, get_active_player(), zeiger->get_pos() );
 			// play sound / error message
@@ -4981,7 +4976,6 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 			nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), werkzeug[get_active_player_nr()], zeiger->get_pos(), steps, false);
 			network_send_server(nwc);
 		}
-		werkzeug_last_pos = koord3d::invalid;
 	}
 
 	// mouse wheel scrolled -> rezoom

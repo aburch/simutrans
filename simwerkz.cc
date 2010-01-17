@@ -583,6 +583,11 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	if(cr) {
 		gr->obj_remove(cr);
 	}
+	// do not delete pointers - they may come from players on other clients
+	zeiger_t *zeiger = gr->find<zeiger_t>();
+	if(zeiger) {
+		gr->obj_remove(zeiger);
+	}
 
 	// remove all other stuff (clouds ... )
 	bool return_ok = false;
@@ -599,6 +604,9 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 	}
 	if(cr) {
 		gr->obj_add(cr);
+	}
+	if(zeiger) {
+		gr->obj_add(zeiger);
 	}
 
 	// could not delete everything

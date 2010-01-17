@@ -847,7 +847,7 @@ bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 }
 
 
-bool two_click_werkzeug_t::is_first_click( spieler_t *sp )
+bool two_click_werkzeug_t::is_first_click( spieler_t *sp ) const
 {
 	return first_click_var[sp->get_player_nr()];
 }

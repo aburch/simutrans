@@ -109,8 +109,6 @@ private:
 	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
 	// see simwerkz.cc for practical examples of such functions
 	werkzeug_t *werkzeug[MAX_PLAYER_COUNT];
-	koord3d werkzeug_last_pos;	// last position a tool was called
-	uint8 werkzeug_last_button;
 
 	/**
 	 * redraw whole map

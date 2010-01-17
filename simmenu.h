@@ -199,6 +199,7 @@ public:
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }
 	virtual bool is_work_network_save() const { return false; }
+	virtual bool is_move_network_save(spieler_t *) const { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after( karte_t *w, koord pos ) const;
@@ -241,7 +242,9 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
-	bool is_first_click(spieler_t *sp);
+	virtual bool is_move_network_save(spieler_t *sp) const { return !is_first_click(sp); }
+
+	bool is_first_click(spieler_t *sp) const;
 	void cleanup( spieler_t *, bool delete_start_marker );
 
 private:
