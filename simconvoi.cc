@@ -2895,7 +2895,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			const roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(rs) {
 				const roadsign_besch_t *rb = rs->get_besch();
-				if(rb->is_free_route()  ||  rb->is_traffic_light()  ) {
+				if(rb->is_choose_sign()  ||  rb->is_traffic_light()  ) {
 					// because we need to stop here ...
 					return false;
 				}

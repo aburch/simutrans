@@ -439,10 +439,10 @@ static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_bes
 {
 	int diff = a->get_wtyp() - b->get_wtyp();
 	if (diff == 0) {
-		if(a->is_free_route()) {
+		if(a->is_choose_sign()) {
 			diff += 120;
 		}
-		if(b->is_free_route()) {
+		if(b->is_choose_sign()) {
 			diff -= 120;
 		}
 		diff += (int)(a->get_flags() & ~roadsign_besch_t::SIGN_SIGNAL) - (int)(b->get_flags()  & ~roadsign_besch_t::SIGN_SIGNAL);
@@ -512,7 +512,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 			display_set_base_image_offset( besch->get_bild_nr(3), +XOFF, -YOFF );
 			display_set_base_image_offset( besch->get_bild_nr(11), +XOFF, -YOFF );
 		}
-		else if(!besch->is_free_route()) {
+		else if(!besch->is_choose_sign()) {
 			const int XOFF=(30*get_tile_raster_width())/64;
 			const int YOFF=(14*get_tile_raster_width())/64;
 

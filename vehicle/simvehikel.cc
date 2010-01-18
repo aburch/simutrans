@@ -2501,7 +2501,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				restart_speed = -1;
 				return true;
 			}
-			else if(sig_besch->is_free_route()) {
+			else if(sig_besch->is_choose_sign()) {
 				grund_t *target=NULL;
 
 				// choose signal here
@@ -2513,7 +2513,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 			}
 			next_stop = block_reserver(cnv->get_route(),next_block+1,(target_halt.is_bound()?100000:sig_besch->is_pre_signal()),true);
 
-			if(next_stop==0  &&  target_halt.is_bound()  &&  sig_besch->is_free_route()) {
+			if(next_stop==0  &&  target_halt.is_bound()  &&  sig_besch->is_choose_sign()) {
 
 				// no free route to target!
 				// note: any old reservations should be invalid after the block reserver call.

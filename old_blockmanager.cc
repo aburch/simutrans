@@ -188,7 +188,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 				type = roadsign_besch_t::SIGN_PRE_SIGNAL;
 			}
 			else if(os2->get_typ()==ding_t::old_choosesignal) {
-				type |= roadsign_besch_t::FREE_ROUTE;
+				type |= roadsign_besch_t::CHOOSE_SIGN;
 			}
 			dir = os2->get_dir();
 			directions = 1;
@@ -200,7 +200,7 @@ old_blockmanager_t::laden_abschliessen(karte_t *welt)
 				type = roadsign_besch_t::SIGN_PRE_SIGNAL;
 			}
 			else if(os1->get_typ()==ding_t::old_choosesignal) {
-				type |= roadsign_besch_t::FREE_ROUTE;
+				type |= roadsign_besch_t::CHOOSE_SIGN;
 			}
 		}
 		// take care of one way
