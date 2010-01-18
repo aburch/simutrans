@@ -147,11 +147,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 const ware_besch_t *
 warenbauer_t::get_info(const char* name)
 {
-	const ware_besch_t* t = besch_names.get(name);
-	if(t == NULL) {
-		dbg->fatal("warenbauer_t::get_info()", "No info for good '%s' available", name);
-	}
-	return t;
+	return besch_names.get(name);
 }
 
 

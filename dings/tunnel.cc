@@ -70,6 +70,9 @@ void tunnel_t::rdwr(loadsave_t *file)
 		if(file->is_loading()) {
 			file->rdwr_str(buf,255);
 			besch = tunnelbauer_t::get_besch(buf);
+			if(besch==NULL) {
+				besch = tunnelbauer_t::get_besch(translator::compatibility_name(buf));
+			}
 		}
 		else {
 			strcpy( buf, besch->get_name() );
