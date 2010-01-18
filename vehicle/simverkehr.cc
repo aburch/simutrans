@@ -883,8 +883,7 @@ void stadtauto_t::calc_current_speed()
 }
 
 
-void
-stadtauto_t::info(cbuffer_t & buf) const
+void stadtauto_t::info(cbuffer_t & buf) const
 {
 	char str[256];
 	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), current_speed, besch->get_geschw(), dx, dy );

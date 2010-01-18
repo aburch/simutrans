@@ -31,6 +31,7 @@
 #include "boden/grund.h"
 #include "gui/thing_info.h"
 #include "utils/cbuffer_t.h"
+#include "utils/simstring.h"
 
 
 
@@ -153,17 +154,31 @@ spieler_t *ding_t::get_besitzer() const
 
 
 
+/* the only general info we can give is the name
+ * we want to format it nicely,
+ * with two linebreaks at the end => thus the little extra effort
+ */
 void ding_t::info(cbuffer_t & buf) const
 {
+	char translation[256];
+
 	if(besitzer_n==1) {
-		buf.append(translator::translate("Eigenbesitz\n"));
+		tstrncpy( translation, translator::translate("Eigenbesitz\n"), 256 );
 	}
 	else if(besitzer_n==PLAYER_UNOWNED) {
-		buf.append(translator::translate("Kein Besitzer\n"));
+		tstrncpy( translation, translator::translate("Kein Besitzer\n"), 256 );
 	}
 	else {
-		buf.append(get_besitzer()->get_name());
-		buf.append("\n");
+		tstrncpy( translation, get_besitzer()->get_name(), 256 );
+	}
+	// remove trailing linebreaks etc.
+	for(  int i=strlen(translation);  i>0  &&  translation[i-1]<' ';  i--  ) {
+		translation[i-1] = 0;
+	}
+	buf.append( translation );
+	// only append linebreaks if not empty
+	if(  buf.len()>0  ) {
+		buf.append( "\n\n" );
 	}
 }
 

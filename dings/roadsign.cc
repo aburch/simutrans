@@ -133,6 +133,8 @@ void roadsign_t::zeige_info()
  */
 void roadsign_t::info(cbuffer_t & buf) const
 {
+	ding_t::info( buf );
+
 	buf.append(translator::translate("Roadsign"));
 	buf.append("\n");
 	if(besch->is_single_way()) {
