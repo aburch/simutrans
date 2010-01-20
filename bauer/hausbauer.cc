@@ -280,6 +280,13 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 				}
 			}
 		}
+		// tell players of the deletion
+		for(uint8 i=0; i<MAX_PLAYER_COUNT; i++) {
+			spieler_t *sp = welt->get_spieler(i);
+			if (sp) {
+				sp->notify_factory(spieler_t::notify_delete, fab);
+			}
+		}
 		// remove all transformers
 		for(k.y = pos.y; k.y < pos.y+size.y;  k.y ++) {
 			k.x = pos.x-1;

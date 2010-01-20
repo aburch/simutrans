@@ -351,6 +351,16 @@ public:
 	 */
 	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
 
+	/**
+	 * Tells the player that the factory
+	 * is going to be deleted (flag==0)
+	 * Bernd Gabriel, Dwachs
+	 */
+	enum notification_factory_t {
+		notify_delete	// notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
+	};
+	virtual void notify_factory(notification_factory_t flag, const fabrik_t*) {}
+
 private:
 	/* undo informations *
 	 * @author prissi
