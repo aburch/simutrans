@@ -296,9 +296,21 @@ void button_t::infowin_event(const event_t *ev)
 		return;
 	}
 
-	if(type<=STATE_MASK) {
+	// Knightly : make sure that the button will take effect only when the mouse positions are within the component's boundary
+	bool click_release_within_boundary = true;
+	if(  ev->mx<0  ||  ev->mx>=get_groesse().x  ||  ev->my<0  ||  ev->my>=get_groesse().y  ||
+		 ev->cx<0  ||  ev->cx>=get_groesse().x  ||  ev->cy<0  ||  ev->cy>=get_groesse().y  ) {
+		click_release_within_boundary = false;
+	}
+
+	// Knightly : update the button pressed state only when mouse positions are within boundary or when it is mouse release
+	if(  type<=STATE_MASK  &&  (  click_release_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {
 		// Hajo: check button state, if we should look depressed
 		pressed = (ev->button_state==1);
+	}
+
+	if(  !click_release_within_boundary  ) {
+		return;
 	}
 
 	if(  type>AUTOMATIC_MASK  &&  IS_LEFTCLICK(ev)  ) {
