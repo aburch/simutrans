@@ -26,6 +26,7 @@
 	ADD: click-and-drag also for network games (except for building elevated ways, bridges, tunnels)
 	FIX: (VS) do not buy same house twice
 	FIX: (Knightly) only do action when mouse button relaese also on same button
+	FIX: (Knightly) prevent pending mouse events when resizing
 
 
 Release Candidate 102.2.1

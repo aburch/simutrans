@@ -797,7 +797,9 @@ bool check_pos_win(event_t *ev)
 	// we stop resizing once the user releases the button
 	if(is_resizing && IS_LEFTRELEASE(ev)) {
 		is_resizing = false;
-		// printf("Leave resizing mode\n");
+		// Knightly :	should not proceed, otherwise the left release event will be fed to other components;
+		//				return true (i.e. event swallowed) to prevent propagation back to the main view
+		return true;
 	}
 
 	// swallow all events in the infobar
