@@ -84,7 +84,7 @@ private:
 
 	// KI helper class
 	class fabconnection_t{
-		friend ai_goods_t;
+		friend class ai_goods_t;
 		fabrik_t *fab1;
 		fabrik_t *fab2;	// koord1 must be always "smaller" than koord2
 		const ware_besch_t *ware;

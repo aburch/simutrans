@@ -359,7 +359,7 @@ public:
 	enum notification_factory_t {
 		notify_delete	// notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
 	};
-	virtual void notify_factory(notification_factory_t flag, const fabrik_t*) {}
+	virtual void notify_factory(notification_factory_t, const fabrik_t*) {}
 
 private:
 	/* undo informations *
