@@ -464,14 +464,17 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		int col_convoi_speed = COL_BLACK;
 		if (min_speed == 0)
 		{
-			txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs, " %d km/h @ %g t: ", min_speed, max_weight * 0.001f);
 			col_convoi_speed = COL_RED;
-			//
-			max_weight = convoy.calc_max_starting_weight(friction);
-			min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
-			// 
-			max_speed = allowed_speed;
-			min_weight = convoy.calc_max_weight(friction);
+			if (convoy.get_starting_force() > 0)
+			{
+				txt_convoi_speed_offs += sprintf(txt_convoi_speed + txt_convoi_speed_offs, " %d km/h @ %g t: ", min_speed, max_weight * 0.001f);
+				//
+				max_weight = convoy.calc_max_starting_weight(friction);
+				min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
+				// 
+				max_speed = allowed_speed;
+				min_weight = convoy.calc_max_weight(friction);
+			}
 		}
 		else if (min_speed < allowed_speed)
 		{
