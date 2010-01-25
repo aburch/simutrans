@@ -486,42 +486,42 @@ class denkmal_platz_sucher_t : public platzsucher_t {
  */
 class rathausplatz_sucher_t : public platzsucher_t {
 	public:
-		rathausplatz_sucher_t(karte_t* welt) : platzsucher_t(welt) {}
+		rathausplatz_sucher_t(karte_t* welt, uint8 dir_) : platzsucher_t(welt), dir(dir_) {}
 
 		virtual bool ist_feld_ok(koord pos, koord d, climate_bits cl) const
 		{
 			const grund_t* gr = welt->lookup_kartenboden(pos + d);
-			if (gr == NULL) return false;
+			if (gr == NULL  ||  gr->get_grund_hang() != hang_t::flach) return false;
 
 			if (((1 << welt->get_climate(gr->get_hoehe())) & cl) == 0) {
 				return false;
 			}
 
 			if (d.x > 0 || d.y > 0) {
-				if (welt->max_hgt(pos) != welt->max_hgt(pos + d)) {
+				if (welt->lookup_kartenboden(pos)->get_hoehe() != gr->get_hoehe()) {
 					// height wrong!
 					return false;
 				}
 			}
 
-			if (d.y == h - 1) {
-				// Hier soll eine Strasse hin
+			if ( ((dir & ribi_t::sued)!=0  &&  d.y == h - 1) ||
+				((dir & ribi_t::west)!=0  &&  d.x == 0) ||
+				((dir & ribi_t::nord)!=0  &&  d.y == 0) ||
+				((dir & ribi_t::ost)!=0  &&  d.x == b - 1)) {
+				// we want to build a road here:
 				return
-					gr->get_grund_hang() == hang_t::flach &&
 					gr->get_typ() == grund_t::boden &&
-					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // Höchstens Strassen
+					(!gr->hat_wege() || (gr->hat_weg(road_wt) && !gr->has_two_ways())) && // build only on roads, no other ways
 					!gr->is_halt() &&
 					gr->kann_alle_obj_entfernen(NULL) == NULL;
 			} else {
-				// Hier soll das Haus hin - wir ersetzen auch andere Gebäude, aber keine Wege!
-				return
-					gr->get_grund_hang()==hang_t::flach && (
-						(gr->get_typ()==grund_t::boden  &&  gr->ist_natur()) ||
-						gr->get_typ()==grund_t::fundament
-					) &&
+				// we want to build the townhall here: maybe replace existing buildings
+				return ((gr->get_typ()==grund_t::boden  &&  gr->ist_natur()) ||	gr->get_typ()==grund_t::fundament) &&
 					gr->kann_alle_obj_entfernen(NULL) == NULL;
 			}
 		}
+private:
+	uint8 dir;
 };
 
 
@@ -963,6 +963,13 @@ void stadt_t::rdwr(loadsave_t* file)
 	else if(  file->is_loading()  ) {
 		allow_citygrowth = true;
 	}
+	// save townhall road position
+	if(file->get_version()>102002) {
+		townhall_road.rdwr(file);
+	}
+	else if(  file->is_loading()  ) {
+		townhall_road = koord::invalid;
+	}
 
 
 	if(file->is_loading()) {
@@ -1009,6 +1016,28 @@ void stadt_t::laden_abschliessen()
 		step_interval = 1;
 	}
 
+	if(townhall_road==koord::invalid) {
+		// guess road tile based on current orientation
+		const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(welt->lookup_kartenboden(pos)->first_obj());
+		if(  gb  &&  gb->ist_rathaus()  ) {
+			koord k(gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout()));
+			switch (gb->get_tile()->get_layout()) {
+				default:
+				case 0:
+					townhall_road = pos + koord(0, k.y);
+					break;
+				case 1:
+					townhall_road = pos + koord(k.x, 0);
+					break;
+				case 2:
+					townhall_road = pos + koord(0, -1);
+					break;
+				case 3:
+					townhall_road = pos + koord(-1, 0);
+					break;
+			}
+		}
+	}
 	recalc_city_size();
 
 	next_step = 0;
@@ -1021,6 +1050,7 @@ void stadt_t::rotate90( const sint16 y_size )
 {
 	// rotate town origin
 	pos.rotate90( y_size );
+	townhall_road.rotate90( y_size );
 	// rotate an rectangle
 	lo.rotate90( y_size );
 	ur.rotate90( y_size );
@@ -1792,6 +1822,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		koord alte_str(koord::invalid);
 		koord best_pos(pos);
 		koord k;
+		int old_layout(0);
 
 		DBG_MESSAGE("check_bau_rathaus()", "bev=%d, new=%d name=%s", bev, neugruendung, name);
 
@@ -1802,19 +1833,54 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				DBG_MESSAGE("check_bau_rathaus()", "town hall already ok.");
 				return; // Rathaus ist schon okay
 			}
-
+			old_layout = gb->get_tile()->get_layout();
 			koord pos_alt = best_pos = gr->get_pos().get_2d() - gb->get_tile()->get_offset();
-			koord groesse_alt = besch_alt->get_groesse(gb->get_tile()->get_layout());
+			// guess layout for broken townhall's
+			if(besch_alt->get_b() != besch_alt->get_h()  &&  besch_alt->get_all_layouts()==1) {
+				// test all layouts
+				koord corner_offset(besch_alt->get_b()-1, besch_alt->get_h()-1);
+				for(uint8 test_layout = 0; test_layout<4; test_layout++) {
+					// is there a part of our townhall in this corner
+					grund_t *gr0 = welt->lookup_kartenboden(pos + corner_offset);
+					gebaeude_t* gb0 = gr0 ? dynamic_cast<gebaeude_t*>(gr0->first_obj()) : NULL;
+					if (gb0  &&  gb0->ist_rathaus()  &&  gb0->get_tile()->get_besch()==besch_alt  &&  gb0->get_stadt()==this) {
+						old_layout = test_layout;
+						pos_alt = best_pos = gr->get_pos().get_2d() + koord(test_layout%3!=0 ? corner_offset.x : 0, test_layout&2 ? corner_offset.y : 0);
+						welt->lookup_kartenboden(pos_alt)->set_text("hier");
+						break;
+					}
+					corner_offset = koord(-corner_offset.y, corner_offset.x);
+				}
+			}
+			koord groesse_alt = besch_alt->get_groesse(old_layout);
 
 			// do we need to move
-			if (besch->get_b() <= groesse_alt.x && besch->get_h() <= groesse_alt.y) {
+			if (old_layout<=besch->get_all_layouts()  &&  besch->get_b(old_layout) <= groesse_alt.x  &&  besch->get_h(old_layout) <= groesse_alt.y) {
 				// no, the size is ok
+				// correct position if new townhall is smaller than old
+				if (old_layout == 0) {
+					best_pos.y -= besch->get_h(old_layout) - groesse_alt.y;
+				}
+				else if (old_layout == 1) {
+					best_pos.x -= besch->get_b(old_layout) - groesse_alt.x;
+				}
 				umziehen = false;
 			} else {
-				koord k = pos + koord(0, besch_alt->get_h());
-				if (welt->lookup(k)->get_kartenboden()->hat_weg(road_wt)) {
-					// we need to built a new road, thus we will use the old as a starting point (if found)
-					alte_str = k;
+				// we need to built a new road, thus we will use the old as a starting point (if found)
+				if (welt->lookup_kartenboden(townhall_road)  &&  welt->lookup_kartenboden(townhall_road)->hat_weg(road_wt)) {
+					alte_str = townhall_road;
+				}
+				else {
+					koord k = pos + (old_layout==0 ? koord(0, besch_alt->get_h()) : koord(besch_alt->get_b(),0) );
+					if (welt->lookup(k)->get_kartenboden()->hat_weg(road_wt)) {
+						alte_str = k;
+					}
+					else {
+						k = pos - (old_layout==0 ? koord(0, besch_alt->get_h()) : koord(besch_alt->get_b(),0) );
+						if (welt->lookup(k)->get_kartenboden()->hat_weg(road_wt)) {
+							alte_str = k;
+						}
+					}
 				}
 			}
 
@@ -1836,17 +1902,56 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			}
 		}
 
-		// Now built the new townhall
-		int layout = simrand(besch->get_all_layouts() - 1);
+		// Now built the new townhall (remember old orientation)
+		int layout = umziehen || neugruendung ? simrand(besch->get_all_layouts()) : old_layout % besch->get_all_layouts();
+		// on which side should we place the road?
+		uint8 dir;
+		// offset of bulding within searched place, start and end of road
+		koord offset(0,0), road0(0,0),road1(0,0);
+		dir = ribi_t::layout_to_ribi[layout & 3];
+		switch(dir) {
+			case ribi_t::ost:
+				road0.x = besch->get_b(layout);
+				road1.x = besch->get_b(layout);
+				road1.y = besch->get_h(layout)-1;
+				break;
+			case ribi_t::nord:
+				road1.x = besch->get_b(layout)-1;
+				if (neugruendung || umziehen) {
+					offset.y = 1;
+				}
+				else {
+					// offset already included in position of old townhall
+					road0.y=-1;
+					road1.y=-1;
+				}
+				break;
+			case ribi_t::west:
+				road1.y = besch->get_h(layout)-1;
+				if (neugruendung || umziehen) {
+					offset.x = 1;
+				}
+				else {
+					// offset already included in in position of old townhall
+					road0.x=-1;
+					road1.x=-1;
+				}
+				break;
+			case ribi_t::sued:
+			default:
+				road0.y = besch->get_h(layout);
+				road1.x = besch->get_b(layout)-1;
+				road1.y = besch->get_h(layout);
+		}
 		if (neugruendung || umziehen) {
-			best_pos = rathausplatz_sucher_t(welt).suche_platz(pos, besch->get_b(layout), besch->get_h(layout) + 1, besch->get_allowed_climate_bits());
+			best_pos = rathausplatz_sucher_t(welt, dir).suche_platz(pos, besch->get_b(layout) + (dir & ribi_t::ostwest ? 1 : 0), besch->get_h(layout) + (dir & ribi_t::nordsued ? 1 : 0), besch->get_allowed_climate_bits());
 		}
 		// check, if the was something found
 		if(best_pos==koord::invalid) {
 			dbg->error( "stadt_t::check_bau_rathaus", "no better postion found!" );
 			return;
 		}
-		gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos)->get_kartenboden()->get_pos(), layout, besch);
+		gb = hausbauer_t::baue(welt, besitzer_p, welt->lookup(best_pos+offset)->get_kartenboden()->get_pos(), layout, besch);
 		DBG_MESSAGE("new townhall", "use layout=%i", layout);
 		add_gebaeude_to_stadt(gb);
 		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "add townhall (bev=%i, ptr=%p)", buildings.get_sum_weight(),welt->lookup(best_pos)->get_kartenboden()->first_obj());
@@ -1859,30 +1964,27 @@ void stadt_t::check_bau_rathaus(bool new_town)
 			welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(layout, 0, 0)->get_hintergrund(0, 0, 0));
 		}
 
-		// Strasse davor verlegen
-		k = koord(0, besch->get_h(layout));
-		for (k.x = 0; k.x < besch->get_b(layout); k.x++) {
-			if (baue_strasse(best_pos + k, NULL, true)) {
-				;
-			} else if(k.x==0) {
-				// Hajo: Strassenbau nicht versuchen, eines der Felder
-				// ist schon belegt
-				alte_str == koord::invalid;
-			}
+		if (neugruendung || umziehen) {
+			// build the road in front of the townhall
+			wegbauer_t bauigel(welt, NULL);
+			bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
+			bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
+			bauigel.baue();
+			townhall_road = best_pos + road0;
 		}
 		if (umziehen  &&  alte_str != koord::invalid) {
 			// Strasse vom ehemaligen Rathaus zum neuen verlegen.
 			wegbauer_t bauer(welt, NULL);
 			bauer.route_fuer(wegbauer_t::strasse, welt->get_city_road());
-			bauer.calc_route(welt->lookup(alte_str)->get_kartenboden()->get_pos(), welt->lookup(best_pos + koord(0, besch->get_h(layout)))->get_kartenboden()->get_pos());
+			bauer.calc_route(welt->lookup_kartenboden(alte_str)->get_pos(), welt->lookup_kartenboden(townhall_road)->get_pos());
 			bauer.baue();
 		} else if (neugruendung) {
-			lo = best_pos - koord(2, 2);
-			ur = best_pos + koord(besch->get_b(layout), besch->get_h(layout)) + koord(2, 2);
+			lo = best_pos+offset - koord(2, 2);
+			ur = best_pos+offset + koord(besch->get_b(layout), besch->get_h(layout)) + koord(2, 2);
 		}
 		// update position (where the name is)
 		welt->lookup_kartenboden(pos)->set_text( NULL );
-		pos = best_pos;
+		pos = best_pos+offset;
 		welt->lookup_kartenboden(pos)->set_text( name );
 	}
 }

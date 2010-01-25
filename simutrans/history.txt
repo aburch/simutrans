@@ -27,6 +27,7 @@
 	FIX: (VS) do not buy same house twice
 	FIX: (Knightly) only do action when mouse button relaese also on same button
 	FIX: (Knightly) prevent pending mouse events when resizing
+	ADD: support for townhalls with four rotations
 
 
 Release Candidate 102.2.1

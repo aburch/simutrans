@@ -102,6 +102,7 @@ private:
 	unsigned long pax_destinations_new_change;
 
 	koord pos;			// Gruendungsplanquadrat der Stadt
+	koord townhall_road; // road in front of townhall
 	koord lo, ur;		// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
 
@@ -431,6 +432,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	inline koord get_pos() const {return pos;}
+	inline koord get_townhall_road() const {return townhall_road;}
 
 	inline koord get_linksoben() const { return lo;}
 	inline koord get_rechtsunten() const { return ur;}

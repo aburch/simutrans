@@ -894,14 +894,34 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 			// find townhall of city i and road in front of it
 			vector_tpl<koord3d> k;
 			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
-				koord k1 = stadt[i]->get_pos();
-				const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(k1)->first_obj());
-				if(  gb  &&  gb->ist_rathaus()  ) {
-					k1.y += gb->get_tile()->get_besch()->get_h(gb->get_tile()->get_layout());
-					k.append( lookup_kartenboden(k1)->get_pos() );
+				koord k1(stadt[i]->get_townhall_road());
+				if (lookup_kartenboden(k1)  &&  lookup_kartenboden(k1)->hat_weg(road_wt)) {
+					k.append(lookup_kartenboden(k1)->get_pos());
 				}
 				else {
-					k.append( koord3d::invalid );
+					// look for a road near the townhall
+					const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
+					bool ok = false;
+					if(  gb  &&  gb->ist_rathaus()  ) {
+						koord pos = stadt[i]->get_pos() + koord(-1,-1);
+						const koord size = gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout());
+						koord inc(1,0);
+						// scan all adjacent tiles, take the first that has a road
+						for(uint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
+							grund_t *gr = lookup_kartenboden(pos);
+							if (gr  &&  gr->hat_weg(road_wt)) {
+								k.append(gr->get_pos());
+								ok = true;
+							}
+							pos = pos + inc;
+							if (i==size.x+1) inc = koord(0,1);
+							else if (i==size.x+size.y+2) inc = koord(-1,0);
+							else if (i==2*size.x+size.y+3) inc = koord(0,-1);
+						}
+					}
+					if (!ok) {
+						k.append( koord3d::invalid );
+					}
 				}
 			}
 			// compute all distances
