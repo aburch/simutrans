@@ -1966,10 +1966,15 @@ void stadt_t::check_bau_rathaus(bool new_town)
 
 		if (neugruendung || umziehen) {
 			// build the road in front of the townhall
-			wegbauer_t bauigel(welt, NULL);
-			bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
-			bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
-			bauigel.baue();
+			if (road0!=road1) {
+				wegbauer_t bauigel(welt, NULL);
+				bauigel.route_fuer(wegbauer_t::strasse, welt->get_city_road(), NULL, NULL);
+				bauigel.calc_straight_route(welt->lookup_kartenboden(best_pos + road0)->get_pos(), welt->lookup_kartenboden(best_pos + road1)->get_pos());
+				bauigel.baue();
+			}
+			else {
+				baue_strasse(best_pos + road0, NULL, true);
+			}
 			townhall_road = best_pos + road0;
 		}
 		if (umziehen  &&  alte_str != koord::invalid) {
