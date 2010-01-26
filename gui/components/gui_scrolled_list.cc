@@ -157,16 +157,12 @@ void gui_scrolled_list_t::infowin_event(const event_t *ev)
 				break;
 			case select:
 				if(  IS_LEFTCLICK(ev)  &&  x>=(border/2) && x<(w-border/2) &&  y>=(border/2) && y<(h-border/2)) {
-					int new_selection = (y-(border/2)-2+offset);
-					if(new_selection>=0) {
-						new_selection/=LINESPACE;
-						if((unsigned)new_selection>=item_list.get_count()) {
-							new_selection = -1;
-						}
+					int new_selection = (y-(border/2)-2+offset) / LINESPACE;
+					if(0<=new_selection  &&  new_selection<item_list.get_count()) {
+						selection = new_selection;
+						call_listeners((long)new_selection);
 						DBG_MESSAGE("gui_scrolled_list_t::infowin_event()","selected %i",selection);
 					}
-					selection = new_selection;
-					call_listeners((long)new_selection);
 				}
 				break;
 		}
