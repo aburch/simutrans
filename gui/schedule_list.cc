@@ -355,10 +355,13 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		}
 	}
 	else if (komp == &scl) {
-		if(  (sint32)(v.i)<scl.get_count()  ) {
+		if(  (uint32)(v.i)<scl.get_count()  ) {
 			// get selected line
 			linehandle_t new_line = ((line_scrollitem_t *)scl.get_element(v.i))->get_line();
-			update_lineinfo(new_line);
+			update_lineinfo( new_line );
+		}
+		else {
+			update_lineinfo(linehandle_t());
 		}
 		// brute force: just recalculate whole list on each click to keep it current
 		build_line_list(tabs.get_active_tab_index());
