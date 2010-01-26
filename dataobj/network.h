@@ -9,19 +9,22 @@
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
-#ifndef __BEOS__
-#include <arpa/inet.h>
-#else
+#ifdef __BEOS__
+#include <net/socket.h>
 #define PF_INET AF_INET
 #define socklen_t int
+#else
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
 #endif
 
 // to keep compatibility to MS windows
 typedef int SOCKET;
 #define INVALID_SOCKET -1
 #endif
+
+#include "../simtypes.h"
 
 // prefiexes
 #define NET_FROM_SERVER "do:"
@@ -79,5 +82,5 @@ void network_send_server(char *msg, int len );
 void network_core_shutdown();
 
 // get our id on the server
-SOCKET network_get_client_id();
+uint32 network_get_client_id();
 #endif

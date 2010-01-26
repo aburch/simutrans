@@ -639,15 +639,9 @@ vehikel_t::rotate90()
 	pos_prev.rotate90( welt->get_groesse_y()-1 );
 	last_stop_pos.rotate90( welt->get_groesse_y()-1 );
 	// now rotate the freight
-#ifdef SLIST_FREIGHT
 	slist_iterator_tpl<ware_t> iter (fracht);
 	while(iter.next()) {
 		ware_t& tmp = iter.access_current();
-#else
-	ITERATE(fracht,i)
-	{
-		ware_t& tmp = fracht[i];
-#endif
 		koord k = tmp.get_zielpos();
 		k.rotate90( welt->get_groesse_y()-1 );
 		tmp.set_zielpos( k );
@@ -688,15 +682,9 @@ void vehikel_t::set_convoi(convoi_t *c)
 			pos_next = cnv->get_route()->position_bei(route_index+1u);
 		}
 		// just correct freight deistinations
-#ifdef SLIST_FREIGHT
 		slist_iterator_tpl <ware_t> iter (fracht);
 		while(iter.next()) {
 			iter.access_current().laden_abschliessen(welt,get_besitzer());
-#else
-		ITERATE(fracht,i)
-		{
-			fracht[i].laden_abschliessen(welt);
-#endif
 		}
 	}
 }
@@ -720,16 +708,10 @@ vehikel_t::unload_freight(halthandle_t halt)
 	{
 		if (!fracht.empty())
 		{
-#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter (fracht);
 			while(iter.next()) 
 			{
 				const ware_t& tmp = iter.get_current();
-#else
-			ITERATE(fracht,i)
-			{
-				const ware_t& tmp = fracht[i];
-#endif
 				if(&tmp == NULL)
 				{
 					continue;
@@ -778,11 +760,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 
 						// Calculates the revenue for each packet. 
 						// @author: jamespetts
-#ifdef SLIST_FREIGHT
 						current_revenue += cnv->calc_revenue(iter.access_current());
-#else
-						current_revenue += cnv->calc_revenue(fracht[i]);
-#endif
 						// book delivered goods to destination
 						if(end_halt == halt) 
 						{
@@ -791,8 +769,6 @@ vehikel_t::unload_freight(halthandle_t halt)
 							get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
 						}
 					}				
-
-					//kill_queue.insert(tmp);
 					kill_queue.append(tmp);
 
 					INT_CHECK("simvehikel 937");
@@ -801,19 +777,11 @@ vehikel_t::unload_freight(halthandle_t halt)
 		}
 	}
 
-	//slist_iterator_tpl<ware_t> iter (kill_queue);
-	//while( iter.next() ) 
 	ITERATE(kill_queue,i)
 	{
-		//total_freight -= iter.get_current().menge;
 		total_freight -= kill_queue[i].menge;
-		//bool ok = fracht.remove(iter.get_current());
-#ifdef SLIST_FREIGHT
 		bool ok = fracht.remove(kill_queue[i]);
 		assert(ok);
-#else
-		fracht.remove(kill_queue[i]);
-#endif
 	}
 
 	return sum_menge;
@@ -849,7 +817,6 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				// now empty, but usually, we can get it here ...
 				return ok;
 			}
-#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter (fracht);
 			uint16 count = 0;
 
@@ -861,11 +828,6 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 				// to make sure that this cannot happen.
 				count ++;
 				ware_t &tmp = iter.access_current();
-#else
-			ITERATE(fracht,i)
-			{
-				ware_t &tmp = fracht[i];
-#endif
 				
 				// New system: only merges if origins are alike.
 				// @author: jamespetts
@@ -882,11 +844,7 @@ bool vehikel_t::load_freight(halthandle_t halt, bool overcrowd)
 			// if != 0 we could not join it to existing => load it
 			if(ware.menge != 0) 
 			{
-#ifdef SLIST_FREIGHT
 				fracht.insert(ware);
-#else
-				fracht.append(ware);
-#endif
 				total_freight += ware.menge;
 			}
 
@@ -923,15 +881,9 @@ void vehikel_t::remove_stale_freight()
 	total_freight = 0;
 
 	if (!fracht.empty()) {
-#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter (fracht);
 		while(iter.next()) {
 			ware_t& tmp = iter.access_current();
-#else
-		ITERATE(fracht,i)
-		{
-			ware_t& tmp = fracht[i];
-#endif
 
 			schedule_t *fpl = cnv->get_schedule();
 			bool found = false;
@@ -1286,14 +1238,14 @@ void vehikel_t::hop()
 		// This is just used for the GUI display, so only set to true if the weight limit is set to enforce by speed restriction.
 		is_overweight = (cnv->get_heaviest_vehicle() > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1); 
 
-		if(alte_fahrtrichtung != fahrtrichtung)
-		{
+		//if(alte_fahrtrichtung != fahrtrichtung)
+		//{
 			pre_corner_direction.add_to_tail(get_direction_degrees(ribi_t::get_dir(alte_fahrtrichtung)));
-		}
-		else
-		{
-			pre_corner_direction.add_to_tail(999);
-		}
+		//}
+		//else
+		//{
+			//pre_corner_direction.add_to_tail(999);
+		//}
 
 		speed_limit = calc_modified_speed_limit(&(cnv->get_route()->position_bei(route_index)), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
 		if(weg->is_crossing()) 
@@ -1396,7 +1348,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
 		}
 	
-		float limit_adjustment_factor = 1;
+		float limit_adjustment_factor = 1.0;
 		
 		if(base_limit > max_corner_limit)
 		{
@@ -1420,8 +1372,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		
 		uint16 tmp;
 
-		for(int i = (pre_corner_direction.get_count() >= direction_steps) ? direction_steps - 1 : pre_corner_direction.get_count() - 1; i > 0; i --)
+		int counter = 0;
+		for(int i = pre_corner_direction.get_count() - 1; i >= 0 && counter <= direction_steps; i --)
+
 		{
+			counter ++;
 			tmp = vehikel_t::compare_directions(direction, pre_corner_direction.get_element(i));
 			if(tmp > direction_difference)
 			{
@@ -1439,9 +1394,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 
 		//Smoothing code: slightly smoothed corners benefit.		
+		uint32 max_speed_90 = kmh_to_speed(55);
 		if(direction_difference > compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) && limit_adjustment_factor < 0.8))
 		{
 			limit_adjustment_factor += 0.15;
+			max_speed_90 = kmh_to_speed(75);
 			if(limit_adjustment_factor >= 1)
 			{
 				//But there is a limit to the benefit of smoothness.
@@ -1450,7 +1407,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 
 		//Tilting only makes a difference on faster track and on smoothed corners.
-		if(is_tilting && base_limit > kmh_to_speed(160) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
+		if(is_tilting && base_limit > kmh_to_speed(120) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
 		{	
 			// Tilting trains can take corners faster
 			limit_adjustment_factor += 0.30;
@@ -1480,17 +1437,19 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				break;
 
 			case 90 :
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.5));
+				// Sharp corners have a hard limit for speed irrespective of the base
+				// speed limit of the underlying way.
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
 				break;
 					
 			case 135 :
 
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.35));
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = (base_limit * (limit_adjustment_factor * 0.25));
+				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
 				break;
 				
 			default :
@@ -1533,7 +1492,6 @@ sint16 get_friction_of_waytype(waytype_t waytype)
 	switch(waytype)
 	{
 		case road_wt:	return 4;
-		case water_wt:	return 6;
 	}
 	return 1;
 }
@@ -1552,27 +1510,6 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 
 	const waytype_t waytype = get_waytype();
 
-	// assume straight flat way
-	//switch(waytype)
-	//{
-	//case air_wt:
-	//case maglev_wt:
-	//case monorail_wt:
-	//case tram_wt:
-	//case narrowgauge_wt:
-	//case track_wt:
-	//default:
-	//	current_friction = 1;
-	//	break;
-
-	//case road_wt:
-	//	current_friction = 4;
-	//	break;
-
-	//case water_wt:
-	//	current_friction = 6;
-	//	break;
-	//};
 	current_friction = get_friction_of_waytype(waytype);
 
 	
@@ -1594,7 +1531,8 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 		if(ribi_typ(hang) & fahrtrichtung)
 		{
 			//Uphill
-			current_friction += 45;
+			//current_friction += 45;
+			current_friction += 60;
 		}
 		else
 		{
@@ -1705,7 +1643,6 @@ const char *vehikel_t::get_fracht_mass() const
 uint32 vehikel_t::get_fracht_gewicht() const
 {
 	uint32 weight = 0;
-#ifdef SLIST_FREIGHT
 	slist_iterator_tpl<ware_t> iter(fracht);
 	uint16 count = 0;
 	while(iter.next() && count < fracht.get_count()) 
@@ -1714,11 +1651,6 @@ uint32 vehikel_t::get_fracht_gewicht() const
 			iter.get_current().menge *
 			iter.get_current().get_besch()->get_weight_per_unit();
 		count ++;
-#else
-	ITERATE(fracht,i)
-	{
-		weight += fracht[i].menge * fracht[i].get_besch()->get_weight_per_unit();
-#endif
 	}
 	return weight;
 }
@@ -1737,17 +1669,10 @@ void vehikel_t::get_fracht_info(cbuffer_t & buf)
 		buf.append(translator::translate("leer"));
 		buf.append("\n");
 	} else {
-
-#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter (fracht);
 
 		while(iter.next()) {
 			const ware_t& ware = iter.get_current();
-#else
-		ITERATE(fracht,i)
-		{
-			const ware_t& ware = fracht[i];
-#endif
 			const char * name = "Error in Routing";
 
 			halthandle_t halt = ware.get_ziel();
@@ -1831,11 +1756,7 @@ vehikel_t::calc_bild() //"Bild" = "picture" (Google)
 	}
 	else 
 	{
-#ifdef SLIST_FREIGHT
 		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht.front().get_besch()));
-#else
-		set_bild(besch->get_bild_nr(ribi_t::get_dir(get_direction_of_travel()), fracht[0].get_besch()));
-#endif
 	}
 	if(old_bild!=get_bild()) {
 		set_flag(ding_t::dirty);
@@ -1916,16 +1837,10 @@ uint8 vehikel_t::get_comfort() const
 	// are very uncomfortable (no more than 10).
 	const uint8 standing_comfort = 10 < besch->get_comfort() - 5 ? 10 : besch->get_comfort() >> 1;
 	uint16 passenger_count = 0;
-#ifdef SLIST_FREIGHT
 	slist_iterator_tpl<ware_t> iter(fracht);
 	while(iter.next()) 
 	{
 		ware_t ware = iter.get_current();
-#else
-	ITERATE(fracht,i)
-	{
-		ware_t ware = fracht[i];
-#endif
 
 		if(ware.is_passenger())
 		{
@@ -2102,15 +2017,9 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			ware.rdwr(welt,file);
 		}
 		else {
-#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter(fracht);
 			while(iter.next()) {
 				ware_t ware = iter.get_current();
-#else
-			ITERATE(fracht,i)
-			{
-				ware_t ware = fracht[i];
-#endif
 				ware.rdwr(welt,file);
 			}
 		}
@@ -2119,11 +2028,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(welt,file);
 			if(besch==NULL  ||  ware.menge > 0 && welt->ist_in_kartengrenzen(ware.get_zielpos()) ) {	// also add, of the besch is unknown to find matching replacement
-#ifdef SLIST_FREIGHT
 				fracht.insert(ware);
-#else
-				fracht.append(ware);
-#endif
 			}
 			else if(  ware.menge>0  ) {
 				dbg->error( "vehikel_t::rdwr_from_convoi()", "%i of %s to %s ignored!", ware.menge, ware.get_name(), ware.get_zielpos().get_str() );
@@ -2152,15 +2057,9 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		}
 		// recalc total freight
 		total_freight = 0;
-#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter(fracht);
 		while(iter.next()) {
 			total_freight += iter.get_current().menge;
-#else
-		ITERATE(fracht,i)
-		{
-			total_freight += fracht[i].menge;
-#endif
 		}
 	}
 
@@ -2391,11 +2290,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 		}
 		// try to find a matching vehivle
 		if(besch==NULL) {
-#ifdef SLIST_FREIGHT
 			const ware_besch_t* w = (!fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere);
-#else
-			const ware_besch_t* w = (!fracht.empty() ? fracht[0].get_besch() : warenbauer_t::passagiere); 
-#endif
 			dbg->warning("automobil_t::automobil_t()","try to find a fitting vehicle for %s.",  w->get_name() );
 			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, false, true, last_besch, is_last );
 			if(besch) {
@@ -2403,15 +2298,9 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 				// still wrong load ...
 				calc_bild();
 			}
-#ifdef SLIST_FREIGHT
 			if(!fracht.empty()  &&  fracht.front().menge == 0) {
 				// this was only there to find a matching vehicle
 				fracht.remove_first();
-#else
-			if(!fracht.empty() && fracht[0].menge == 0)
-			{
-				fracht.remove_at(0);
-#endif
 			}
 		}
 		if(  besch  ) {
@@ -2809,13 +2698,8 @@ waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 		}
 		// try to find a matching vehicle
 		if(besch==NULL) {
-#ifdef SLIST_FREIGHT
 			int power = (is_first || fracht.empty() || fracht.front() == warenbauer_t::nichts) ? 500 : 0;
 			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht.front().get_besch();
-#else
-			int power = (is_first || fracht.empty() || fracht[0] == warenbauer_t::nichts) ? 500 : 0;
-			const ware_besch_t* w = fracht.empty() ? warenbauer_t::nichts : fracht[0].get_besch();
-#endif
 			dbg->warning("waggon_t::waggon_t()","try to find a fitting vehicle for %s.", power>0 ? "engine": w->get_name() );
 			if(last_besch!=NULL  &&  last_besch->can_follow(last_besch)  &&  last_besch->get_ware()==w  &&  (!is_last  ||  last_besch->get_nachfolger(0)==NULL)) {
 				// same as previously ...
@@ -2832,15 +2716,9 @@ DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->get_name());
 			else {
 				dbg->error("waggon_t::waggon_t()","no matching besch found for %s!",w->get_name());
 			}
-#ifdef SLIST_FREIGHT
 			if (!fracht.empty() && fracht.front().menge == 0) {
 				// this was only there to find a matchin vehicle
 				fracht.remove_first();
-#else
-			if(!fracht.empty() && fracht[0].menge == 0)
-			{
-				fracht.remove_at(0);
-#endif
 			}
 		}
 		// update last besch
@@ -2998,8 +2876,7 @@ waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int
-waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(get_waytype());
@@ -3027,8 +2904,7 @@ waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 
 
 
-signal_t *
-waggon_t::ist_blockwechsel(koord3d k2) const
+signal_t *waggon_t::ist_blockwechsel(koord3d k2) const
 {
 	const grund_t* gr = welt->lookup(k2);
 	if(gr == NULL)
@@ -3051,8 +2927,7 @@ waggon_t::ist_blockwechsel(koord3d k2) const
 
 
 // this routine is called by find_route, to determined if we reached a destination
-bool
-waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
+bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 {
 	const schiene_t * sch1 = (const schiene_t *) gr->get_weg(get_waytype());
 	// first check blocks, if we can go there
@@ -3082,8 +2957,7 @@ waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 }
 
 
-bool
-waggon_t::ist_weg_frei(int & restart_speed)
+bool waggon_t::ist_weg_frei(int & restart_speed)
 {
 	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) {
 		// reserve first block at the start until the next signal
@@ -3534,13 +3408,8 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 		}
 		// try to find a matching vehivle
 		if(besch==NULL) {
-#ifdef SLIST_FREIGHT
 			dbg->warning("schiff_t::schiff_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
 			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
-#else
-			dbg->warning("schiff_t::schiff_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht[0].get_name() : "passagiere");
-			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht[0].get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
-#endif
 			if(besch) {
 				calc_bild();
 			}
@@ -3575,14 +3444,11 @@ schiff_t::ist_befahrbar(const grund_t *bd) const
 void
 schiff_t::calc_akt_speed(const grund_t *gr)
 {
-	// or a hill?
+	// flat water
+	current_friction = get_friction_of_waytype(water_wt);
 	if(gr->get_weg_hang()) {
 		// hill up or down => in lock => deccelarte
-		current_friction = 16;
-	}
-	else {
-		// flat track
-		current_friction = 1;
+		current_friction += 15;
 	}
 
 	if(alte_fahrtrichtung != fahrtrichtung) {
@@ -4070,13 +3936,8 @@ aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_l
 		}
 		// try to find a matching vehivle
 		if(besch==NULL) {
-#ifdef SLIST_FREIGHT
 			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
 			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
-#else
-			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht[0].get_name() : "passagiere");
-			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht[0].get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
-#endif
 			if(besch) {
 				calc_bild();
 			}

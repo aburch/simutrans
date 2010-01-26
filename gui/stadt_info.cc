@@ -60,7 +60,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&name_input);
 	set_fenstergroesse(koord(410, 305 + (14*(1+((MAX_CITY_HISTORY - 1) / BUTTONS_PER_ROW)))));
 
-	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,104) );;
+	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,112) );;
 	allow_growth.pressed = stadt->get_citygrowth();
 	allow_growth.add_listener( this );
 	add_komponente(&allow_growth);
@@ -183,19 +183,22 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	buf.append( translator::translate("Homeless") );
 	buf.append( ": " );
 	buf.append( c->get_homeless(), 0 );
+	buf.append( "\n" );
+	buf.append(translator::translate("Power demand"));
+	buf.append( ": " );
 
 	if(c->get_power_demand() < 1000)
 	{
-		buf.append("%s: %i MW\n");
-		buf.append(translator::translate("Power demand"));
 		buf.append(c->get_power_demand());
+		buf.append(" MW");
 	}
 	else
 	{
-		buf.append("%s: %i GW\n");
-		buf.append(translator::translate("Power demand"));
 		buf.append(c->get_power_demand() / 1000);
+		buf.append(" GW");
 	}
+	
+	buf.append(" \n ");
 
 	display_multiline_text(pos.x+8, pos.y+48, (const char *)buf, COL_BLACK);
 

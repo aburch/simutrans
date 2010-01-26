@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 HansjÃ¶rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -242,7 +242,7 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 	button->set_no_translate(true);
 	button->set_text(name);	// to avoid translation
 
-	const cstring_t compare_to = umgebung_t::objfilename.len()>0  ?  umgebung_t::objfilename.left( umgebung_t::objfilename.len()-1 ) + " -"  :  "";
+	const cstring_t compare_to = umgebung_t::objfilename.len()>0  ?  umgebung_t::objfilename.left( umgebung_t::objfilename.len()-1 ) + " -"  :  cstring_t("");
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
 	slist_tpl<entry>::iterator end = entries.end();

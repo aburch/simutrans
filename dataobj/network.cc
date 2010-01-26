@@ -13,6 +13,15 @@
 
 #include "network.h"
 
+#if defined(__BEOS__)
+#include <net/netdb.h>
+#endif
+
+// Haiku has select in an additional header
+#ifndef FD_SET
+#include <sys/select.h>
+#endif
+
 #include "../simconst.h"
 
 #include "../simdebug.h"
@@ -22,7 +31,7 @@
 #include "../dataobj/umgebung.h"
 
 #include "../utils/simstring.h"
-#include "../tpl/slist_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 #ifdef WIN32
 #define socklen_t int
@@ -35,9 +44,14 @@ static SOCKET my_socket = INVALID_SOCKET;
 static SOCKET my_client_socket = INVALID_SOCKET;
 static char pending[4096];
 
+// to query all open sockets, we maintain this list
+static vector_tpl<SOCKET> clients;
+static uint32 our_client_id;
+static uint32 active_clients;
+
 // global client id
-static SOCKET client_id;
-SOCKET network_get_client_id()
+static uint32 client_id;
+uint32 network_get_client_id()
 {
 	return client_id;
 }
@@ -84,11 +98,13 @@ const char *network_open_address( const char *cp)
 	server_name.sin_addr.s_addr = inet_addr(cp);
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
 #else
-#ifdef  __BEOS__
-    uint16 a,b,c,d;
-    sscanf( cp, "%hu,%hi,%hi,%hi", &a, &b, &c, &d );
-	server_name.sin_addr.s_addr = (a*0x1000000ul) + (b*0x10000ul) + (c*0x100ul) + d;
-	if((int)server_name.sin_addr.s_addr==0) {// Bad address
+#if defined(__BEOS__)
+	struct hostent *theHost;
+	theHost = gethostbyname( cp );
+	if(theHost) {
+		server_name.sin_addr.s_addr = *(ulong *)theHost->h_addr_list[0];
+	}
+	else {// Bad address
 #else
 	if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
 #endif
@@ -114,6 +130,7 @@ const char *network_open_address( const char *cp)
 		return err_str;
 	}
 	pending[0] = 0;
+	active_clients = 0;
 
 	return NULL;
 }
@@ -132,16 +149,16 @@ const char *network_connect(const char *cp, const char *filename)
 		len = 64;
 		char buf[64];
 		network_add_client( my_client_socket );
-		if(  network_check_activity( 1000, buf, len )!=INVALID_SOCKET  ) {
+		if(  network_check_activity( 60000, buf, len )!=INVALID_SOCKET  ) {
 			// wait for sync message to finish
 			if(  memcmp( NET_FROM_SERVER NET_GAME, buf, 7 )!=0  ) {
 				err = "Protocoll error (expecting " NET_GAME ")";
 			}
 			else {
 				int len = 0;
-				client_id = INVALID_SOCKET;
-				sscanf(buf+7, " %lli,%li" NET_END_CMD, &client_id, &len);
-				dbg->warning( "network_connect", "received: id=%lli len=%li", client_id, len);
+				client_id = 0;
+				sscanf(buf+7, " %lu,%li" NET_END_CMD, &client_id, &len);
+				dbg->warning( "network_connect", "received: id=%li len=%li", client_id, len);
 				err = network_recieve_file( my_client_socket, filename, len );
 			}
 		}
@@ -182,6 +199,7 @@ bool network_init_server( int port )
 		return false;
 	}
 
+	active_clients = 0;
 	network_add_client( my_socket );
 	pending[0] = 0;
 	client_id = 0;
@@ -189,26 +207,37 @@ bool network_init_server( int port )
 	return true;
 }
 
-
-
-// to query all open sockets, we maintain this list
-static slist_tpl<SOCKET> clients;
-static uint32 our_client_id;
-
 void network_add_client( SOCKET sock )
 {
 	if(  !clients.is_contained(sock)  ) {
+#ifdef TCP_NODELAY
 		// do not wait to join small (command) packets when sending (may cause 200ms delay!)
 		setsockopt( sock, SOL_SOCKET, TCP_NODELAY, NULL, 0 );
-		clients.append( sock );
+#endif
+		if (active_clients < clients.get_count()) {
+			for(uint32 i=0; i<clients.get_count(); i++) {
+				if (clients[i]==INVALID_SOCKET) {
+					clients[i]=sock;
+					active_clients++;
+					break;
+				}
+			}
+		}
+		else {
+			clients.append( sock );
+			active_clients++;
+		}
 	}
 }
 
 
 static void network_remove_client( SOCKET sock )
 {
-	if(  clients.remove( sock )  ) {
-		network_close_socket( sock );
+	if(  clients.is_contained(sock)  &&  active_clients>0) {
+		uint32 ind = clients.index_of(sock);
+		clients[ind] = INVALID_SOCKET;
+		active_clients--;
+		network_close_socket(sock);
 	}
 }
 
@@ -216,18 +245,20 @@ static void network_remove_client( SOCKET sock )
 // number of currently active clients
 int network_get_clients()
 {
-	return clients.get_count()-1;
+	// all clients except ourselves
+	return active_clients - 1;
 }
 
 
 static int fill_set(fd_set *fds)
 {
 	int s_max = 0;
-	slist_iterator_tpl<SOCKET> iter(clients);
-	while( iter.next() ) {
-		SOCKET s = iter.get_current();
-		s_max = max( (int)s, (int)s_max );
-		FD_SET( s, fds );
+	for(uint32 i=0; i<clients.get_count(); i++) {
+		if (clients[i]!=INVALID_SOCKET) {
+			SOCKET s = clients[i];
+			s_max = max( (int)s, (int)s_max );
+			FD_SET( s, fds );
+		}
 	}
 	return s_max+1;
 }
@@ -263,7 +294,7 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 		return INVALID_SOCKET;
 	}
 
-	if(  FD_ISSET(my_socket, &fds)  ) {
+	if(  my_socket!=INVALID_SOCKET  &&  FD_ISSET(my_socket, &fds)  ) {
 		struct sockaddr_in client_name;
 		socklen_t size = sizeof(client_name);
 		SOCKET s = accept(my_socket, (struct sockaddr *)&client_name, &size);
@@ -280,11 +311,12 @@ SOCKET network_check_activity(int timeout, char *buf, int &len )
 	}
 	else {
 		SOCKET sender = INVALID_SOCKET;
-		slist_iterator_tpl<SOCKET> iter(clients);
-		while( iter.next() ) {
-			if(  FD_ISSET(iter.get_current(), &fds )  ) {
-				sender = iter.get_current();
-				break;
+		for(uint32 i=0; i<clients.get_count(); i++) {
+			if (clients[i]!=INVALID_SOCKET) {
+				if(  FD_ISSET(clients[i], &fds )  ) {
+					sender = clients[i];
+					break;
+				}
 			}
 		}
 		if(  sender==INVALID_SOCKET  ) {
@@ -330,9 +362,9 @@ bool network_check_server_connection()
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 		FD_ZERO(&fds);
-		FD_SET(clients.front(),&fds);
+		FD_SET(clients[0],&fds);
 
-		int action = select((int)clients.front()+1, NULL, &fds, NULL, &tv );
+		int action = select((int)clients[0]+1, NULL, &fds, NULL, &tv );
 		if(  action<=0  ) {
 			// timeout
 			return false;
@@ -346,14 +378,15 @@ bool network_check_server_connection()
 // send data to all clients
 void network_send_all(char *msg, int len, bool exclude_us )
 {
-	slist_iterator_tpl<SOCKET> iter(clients);
 	dbg->warning( "network_send_all()", msg );
-	while( iter.next() ) {
-		SOCKET s = iter.get_current();
-		if(exclude_us  &&  s==my_socket) {
-			continue;
+	for(uint32 i=0; i<clients.get_count(); i++) {
+		if (clients[i]!=INVALID_SOCKET) {
+			SOCKET s = clients[i];
+			if(exclude_us  &&  s==my_socket) {
+				continue;
+			}
+			send( s, msg, len, 0 );
 		}
-		send( s, msg, len, 0 );
 	}
 	if(  !exclude_us  &&  my_socket!=INVALID_SOCKET  ) {
 		// I am the server
@@ -368,7 +401,11 @@ void network_send_server(char *msg, int len )
 	dbg->warning( "network_send_server()", msg );
 	if(  !umgebung_t::server  ) {
 		// I am client
-		send( clients.front(), msg, len, 0 );
+		// Below condition temporary workaround for rare bug.
+		if(clients.get_count() > 0)
+		{
+			send( clients[0], msg, len, 0 );
+		}
 	}
 	else {
 		// I am the server
@@ -389,7 +426,7 @@ const char *network_send_file( SOCKET s, const char *filename )
 
 	// initial: size of file
 	char command[128];
-	int n = sprintf( command, NET_FROM_SERVER NET_GAME " %lli,%li" NET_END_CMD, (sint64)s, i );
+	int n = sprintf( command, NET_FROM_SERVER NET_GAME " %lu,%li" NET_END_CMD, clients.index_of(s), i );
 	dbg->warning( "network_send_file()", command );
 	if(  send(s,command,n,0)==-1  ) {
 		network_remove_client(s);

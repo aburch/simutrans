@@ -7,6 +7,8 @@
 
 #include <string.h>
 
+#include "../utils/notification.h"
+
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/spezial_obj_tpl.h"
@@ -294,6 +296,16 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 				}
 			}
 		}
+		// remove pointers from (ai) players
+		for (int i = MAX_PLAYER_COUNT; i-- > 0;)
+		{
+			spieler_t *player = welt->get_spieler(i);
+			if (player) 
+			{
+				player->notification(notify_delete, *fab);
+			}
+		}
+
 		// remove all transformers
 		for(k.y = pos.y; k.y < pos.y+size.y;  k.y ++) {
 			k.x = pos.x-1;

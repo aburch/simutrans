@@ -367,7 +367,7 @@
 #
 #bits_per_month = 20
 
-###################################system stuff##################################
+#################################system stuff#################################
 
 # compress savegames?
 # "binary" means uncompressed, "zipped" means compressed
@@ -395,4 +395,24 @@
 
 # How much faster should the game proceed with fast forward (limited by your computer and size of the map)
 #fast_forward = 50
+
+###################################network stuff##############################
+#
+# Synchronized networking is always a trade off between fast respone and safe
+# connections. A more relaxed timing will cuase delay of commands but is more
+# likely to compensate for clients running slightly faster than the rest.
+#
+
+# How much comands should be delayed before sending back to clients.
+# A larger number will catch even cleints running slightly ahead but cause delays
+#server_frames_ahead = 1
+
+# In network mode, there will be a fixed number of screen updates before a step.
+# Reasonable values should result in 2-5 steps per second.
+#server_frames_per_step = 4
+
+# Clients can decide to deliberately running a few ms behind to avoid running ahead
+# of the server; in later versions this value might be set by the roundtrip timer (like
+# simutrans PING). Larger values cause longer delay for commands.
+network_ms_ahead = 250
 

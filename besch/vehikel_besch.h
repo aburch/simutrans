@@ -111,17 +111,21 @@ private:
 
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
 	
-	uint16 tractive_effort; // Reserved for future physics upgrades.
+	uint16 tractive_effort; // tractive effort / force in kN
 
-	uint32 geared_power; // @author: Bernd Gabriel, Nov 4, 2009: == leistung * gear in kW
-	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+	// these values are not stored and therefore calculated in loaded():
+	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
+	uint32 geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in kN
 	/**
-	 * Get the constant force threshold speed in km/h.
+	 * force threshold speed in km/h.
 	 * Below this threshold the engine works as constant force engine.
 	 * Above this threshold the engine works as constant power engine.
 	 * @author Bernd Gabriel, Nov 4, 2009
 	 */
-	uint16 calc_const_force_threshold() const;
+	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
+
+	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
+	void loaded();
 public:
 	// since we have a second constructor
 	vehikel_besch_t() { }
@@ -301,7 +305,6 @@ public:
 	uint32 get_preis() const { return preis; }
 	uint16 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
-	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return scaled_running_costs; }
 	uint16 get_base_running_costs() const { return betriebskosten; }
 	uint16 get_base_running_costs(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
@@ -321,10 +324,22 @@ public:
 	uint16 get_loading_time() const { return zuladung > 0 ? loading_time : 0; }
 	uint32 get_upgrade_price() const { return upgrade_price; }
 	bool is_available_only_as_upgrade() const { return available_only_as_upgrade; }
-	uint16 get_tractive_effort() const { return tractive_effort; }
 
 	// BG, 15.06.2009: the formula for obsolescence formerly implemented twice in get_betriebskosten() and get_fixed_maintenance()
 	uint32 calc_running_cost(const karte_t *welt, uint32 base_cost) const;	
+	float get_power_force_ratio() const;
+	uint32 calc_max_force(const uint32 power) const { 
+		return power ? (uint32)(power / get_power_force_ratio() + 0.5f) : 0; 
+	}
+	uint32 calc_max_power(const uint32 force) const { 
+		return force ? (uint32)(force * get_power_force_ratio() + 0.5f) : 0; 
+	}
+	uint32 get_leistung() const { 
+		return leistung ? leistung : calc_max_power(tractive_effort); 
+	}
+	uint32 get_tractive_effort() const { 
+		return tractive_effort ? tractive_effort : calc_max_force(leistung);
+	}
 
 	/**
 	* @return introduction year
@@ -416,14 +431,20 @@ public:
 	bool can_follow_any() const { return nachfolger==0; }
 
 	/**
-	 * Get effective power index. 
-	 * Steam engine power depends on its speed.
-	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / 64
-	 * (method extracted from sint32 convoi_t::calc_adjusted_power())
+	 * Get effective force index. 
+	 * Steam engine's force depend on its speed.
+	 * Effective force in kN: force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_power_index(uint16 current_speed /* in kmh */ ) const;
-	uint32 get_force(uint16 speed /* in m/s */ ) const;
+	uint32 get_effective_force_index(uint16 speed /* in m/s */ ) const;
+
+	/**
+	 * Get effective power index. 
+	 * Steam engine's power depend on its speed.
+	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
+	 * @author Bernd Gabriel
+	 */
+	uint32 get_effective_power_index(uint16 speed /* in m/s */ ) const;
 };
 
 #endif

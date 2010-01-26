@@ -4,6 +4,13 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
+#include <stdio.h>
+#include <dirent.h>
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include <math.h>
+
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <sys/time.h>
@@ -12,16 +19,14 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <sys/stat.h>
+#ifndef  __HAIKU__
 #include <sys/errno.h>
+#else
+#include <posix/errno.h>
+#endif
+#include <sys/stat.h>
 #endif
 
-#include <dirent.h>
-#include <stdio.h>
-#include <stddef.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
 
 #ifndef PATH_MAX
 #define PATH_MAX (1024)

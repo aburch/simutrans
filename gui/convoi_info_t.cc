@@ -376,13 +376,13 @@ enable_home:
 
 		// Bernd Gabriel, Nov, 14 2009: no longer needed: //use median speed to avoid flickering
 		//existing_convoy_t convoy(*cnv.get_rep());
-		uint32 empty_weight = convoy.get_vehicle_summary().weight / 1000;
-		uint32 gross_weight = convoy.get_weight_summary().weight / 1000;
+		uint32 empty_weight = convoy.get_vehicle_summary().weight;
+		uint32 gross_weight = convoy.get_weight_summary().weight;
 		{
 			const int pos_y = pos_y0; // line 1
 			char tmp[256];
 			const uint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, 0));
+			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
 			sprintf(tmp, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
 				speed_to_kmh(cnv->get_akt_speed()), min_speed, translator::translate("..."), max_speed );
 			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );
@@ -402,19 +402,17 @@ enable_home:
 			if (fixed_monthly)
 			{
 				char tmp_2[64];
-				money_to_string( tmp_2+1, cnv->get_per_kilometre_running_cost()/100.0 );
-				strcat(tmp_2, translator::translate("/km)"));
 				tmp_2[0] = '(';
-				
+				money_to_string( tmp_2+1, cnv->get_per_kilometre_running_cost()/100.0 );
+				strcat(tmp_2, translator::translate("/km)"));				
 				sprintf(tmp, tmp_2, translator::translate(" %1.2f$/mon)"), fixed_monthly/100.0 );
-
 			}
 			else
 			{
 				//sprintf(tmp, translator::translate("(%1.2f$/km)"), cnv->get_per_kilometre_running_cost()/100.0 );
+				tmp[0] = '(';
 				money_to_string( tmp+1, cnv->get_per_kilometre_running_cost()/100.0 );
 				strcat( tmp, "/km)" );
-				tmp[0] = '(';
 			}
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, cnv->has_obsolete_vehicles() ? COL_DARK_BLUE : COL_BLACK, true );
 		}
@@ -427,7 +425,7 @@ enable_home:
 			sprintf(tmp, caption, translator::translate("Gewicht"));
 			int len = display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true ) + 5;
 			int freight_weight = gross_weight - empty_weight; // cnv->get_sum_gesamtgewicht() - cnv->get_sum_gewicht();
-			sprintf(tmp, translator::translate(freight_weight ? "%d (%d) t" : "%d t"), gross_weight, freight_weight);
+			sprintf(tmp, translator::translate(freight_weight ? "%g (%g) t" : "%g t"), gross_weight * 0.001f, freight_weight * 0.001f);
 			display_proportional(pos_x + len, pos_y, tmp, ALIGN_LEFT, 
 				cnv->get_overcrowded() > 0 ? COL_DARK_PURPLE : // overcrowded
 				!cnv->get_finance_history(0, CONVOI_TRANSPORTED_GOODS) && !cnv->get_finance_history(1, CONVOI_TRANSPORTED_GOODS) ? COL_YELLOW : // nothing moved in this and past month

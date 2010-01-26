@@ -335,10 +335,29 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(gr) {
 		DBG_MESSAGE("wkz_abfrage()","checking map square %s", pos.get_str());
 		if(  umgebung_t::single_info  ) {
+
 			int old_count = win_get_open_count();
+
+			// show halt and labels first ...
+			if(  gr->get_halt().is_bound()  ) {
+				gr->zeige_info();
+				if(  old_count!=win_get_open_count()  ) {
+					return NULL;
+				}
+			}
+			if(  gr->get_flag(grund_t::marked)  ) {
+				label_t *lb = gr->find<label_t>();
+				if(  lb  ) {
+					lb->zeige_info();
+					if(  old_count!=win_get_open_count()  ) {
+						return NULL;
+					}
+				}
+			}
+
 			for(int n=gr->get_top()-1;  n>=0;  n--  ) {
 				ding_t *dt = gr->obj_bei(n);
-				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar) {
+				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
 					DBG_MESSAGE("wkz_abfrage()", "index %d", n);
 					dt->zeige_info();
 					// did some new window open?
@@ -1914,7 +1933,8 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
 	bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
 	bauigel.set_keep_existing_faster_ways( event_get_last_control_shift()!=2 );
-	bauigel.calc_straight_route(start,koord3d(end.get_2d(),start.z));
+	const koord3d end_with_corrected_z = grund_t::underground_mode==grund_t::ugm_level ? end : koord3d(end.get_2d(),start.z);
+	bauigel.calc_straight_route(start,end_with_corrected_z);
 }
 
 const char *wkz_tunnelbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )

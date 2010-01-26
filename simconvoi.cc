@@ -905,14 +905,6 @@ end_loop:
 			}
 			break;
 
-		case LOADING:
-			laden();
-			if(get_depot_when_empty() && has_no_cargo())
-			{
-				go_to_depot(false);
-			}
-			break;
-
 		case DUMMY4:
 		case DUMMY5:
 		break;
@@ -1051,11 +1043,24 @@ end_loop:
 			}
 			break;
 
+		case LOADING:
+			laden();
+			if (state != SELF_DESTRUCT)
+			{
+				if(get_depot_when_empty() && has_no_cargo())
+				{
+					go_to_depot(false);
+				}
+				break;
+			}
+			// no break. continue with case SELF_DESTRUCT.
+
 		// must be here; may otherwise confuse window management
 		case SELF_DESTRUCT:
 			welt->set_dirty();
 			destroy();
-			break;
+			return; // @auther Bernd Gabriel, Dec 31, 2009: This object is deleted now. It cannot continue.
+			//break;
 
 		default:	/* keeps compiler silent*/
 			break;
@@ -2088,7 +2093,7 @@ convoi_t::reverse_order(bool rev)
 		{
 			// If this is a locomotive, check for tenders. 
 			a += fahr[0]->get_besch()->get_nachfolger_count();
-			if(fahr[a]->get_besch()->get_leistung() > 0)
+			if(anz_vehikel >= a && fahr[a]->get_besch()->get_leistung() > 0)
 			{
 				// Check for double-headed tender locomotives
 				a += fahr[a]->get_besch()->get_nachfolger_count();
@@ -2751,17 +2756,10 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 			}
 
 			// then add the actual load
-#ifdef SLIST_FREIGHT
 			slist_iterator_tpl<ware_t> iter_vehicle_ware(v->get_fracht());
 			while(iter_vehicle_ware.next()) 
 			{
 				ware_t ware = iter_vehicle_ware.get_current();
-#else
-			const vector_tpl<ware_t> &freight = v->get_fracht();
-			ITERATE(freight, j)
-			{
-				ware_t ware = freight[j];
-#endif
 				ITERATE(total_fracht, i)
 				{
 
@@ -2787,13 +2785,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		buf.clear();
 
 		// append info on total capacity
-#ifdef SLIST_FREIGHT
 		slist_tpl <ware_t>capacity;
-
-#else
-		vector_tpl <ware_t>capacity;
-#endif
-
 		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
@@ -2802,7 +2794,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 					capacity.append( ware );
 				} else {
 					// append to category?
-					slist_tpl<ware_t>::iterator j   = capacity.begin();
+					slist_tpl<ware_t>::iterator j  = capacity.begin();
 					slist_tpl<ware_t>::iterator end = capacity.end();
 					while (j != end && j->get_catg() < ware.get_catg()) ++j;
 					if (j != end && j->get_catg() == ware.get_catg()) {
@@ -2977,17 +2969,10 @@ void convoi_t::laden() //"load" (Babelfish)
 	for(uint8 i = 0; i < anz_vehikel; i++)
 	{
 		// Accumulate distance 
-#ifdef SLIST_FREIGHT
 		slist_iterator_tpl<ware_t> iter_cargo(fahr[i]->get_fracht());
 		while(iter_cargo.next())
 		{
 			iter_cargo.access_current().add_distance(journey_distance);
-#else
-		vector_tpl<ware_t> &freight = fahr[i]->get_freight_to_change();
-		ITERATE(freight,j)
-		{
-			freight[j].add_distance(journey_distance);
-#endif
 		}
 	}
 
@@ -3024,9 +3009,10 @@ void convoi_t::laden() //"load" (Babelfish)
 		wait_lock = longest_loading_time;
 
 		if(withdraw  &&  loading_level==0) {
-			// destroy when empty
-			welt->set_dirty();
-			destroy();
+			//// destroy when empty
+			//welt->set_dirty();
+			//destroy();
+			self_destruct();
 			return;
 		}
 

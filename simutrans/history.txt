@@ -7,9 +7,17 @@
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
 <<<<<<< HEAD:simutrans/history.txt
+<<<<<<< HEAD:simutrans/history.txt
 	CHANGE: ignore empty entries and lines starting with # in citylists
 	FIX: deleting line does not longer crash in halt_detail windows
 =======
+>>>>>>> Simutrans-base/master:simutrans/history.txt
+=======
+	ADD: some more network related settings like server_frames_ahead, network_ms_ahead, server_frames_per_step to control timing on the network
+<<<<<<< HEAD:simutrans/history.txt
+>>>>>>> Simutrans-base/master:simutrans/history.txt
+=======
+	FIX: connecting upslope to upper way works in sliced mode
 >>>>>>> Simutrans-base/master:simutrans/history.txt
 
 
