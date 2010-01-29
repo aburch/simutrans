@@ -2076,9 +2076,10 @@ class fluss_fahrer_t : fahrer_t
 // make a river
 void wegbauer_t::baue_fluss()
 {
-	/* since the contraits of the wayfinder ensures that a river flows always downwards
+	/* since the contraints of the wayfinder ensures that a river flows always downwards
 	 * we can assume that the first tiles are the ocean.
 	 * Usually the wayfinder would find either direction!
+	 * route[0] tile at the ocean, route[get_count()-1] the spring of the river
 	 */
 
 	// Do we join an other river?
@@ -2095,10 +2096,12 @@ void wegbauer_t::baue_fluss()
 
 	// first check then lower riverbed
 	const sint8 start_h = route[start_n].z;
+	uint32 end_n = get_count();
 	uint32 i = start_n;
 	while(i<get_count()) {
 		// first find all tiles that are on the same level as tile i
 		// and check whether we can lower all of them
+		// if lowering fails we do not continue river building
 		bool ok = true;
 		uint32 j;
 		for(j=i; j<get_count() &&  ok; j++) {
@@ -2108,20 +2111,22 @@ void wegbauer_t::baue_fluss()
 			ok = welt->can_ebne_planquadrat(route[j].get_2d(), max(route[j].z-1, start_h));
 		}
 		// now lower all tiles that have the same height as tile i
-		if (ok) {
-			for(uint32 k=i; k<j; k++) {
-				welt->ebne_planquadrat(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
-			}
+		for(uint32 k=i; k<j; k++) {
+			welt->ebne_planquadrat(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
 		}
-		i = ok ? j : j+1;
+		if (!ok) {
+			end_n = j;
+			break;
+		}
+		i = j;
 	}
 
 	// now build the river
-	for(  uint32 i=start_n;  i<get_count();  i++  ) {
+	for(  uint32 i=start_n;  i<end_n;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
 		if(  gr->get_typ()!=grund_t::wasser  ) {
 			// get direction
-			ribi_t::ribi ribi = route.get_short_ribi(i);
+			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_typ(route[i-1].get_2d()-route[i].get_2d());
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
 				weg_t *sch=weg_t::alloc(water_wt);
@@ -2132,7 +2137,7 @@ void wegbauer_t::baue_fluss()
 	}
 
 	// we will make rivers gradually larger by stepping up their width
-	if(  umgebung_t::river_types>1  ) {
+	if(  umgebung_t::river_types>1  &&  start_n<get_count()) {
 		/* since we will stop at the first crossing with an existent river,
 		 * we cannot make sure, we have the same destination;
 		 * thus we use the routefinder to find the sea
