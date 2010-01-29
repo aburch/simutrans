@@ -2054,6 +2054,9 @@ uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_ti
 /**
  * Found route and station uncrowded
  * @author Hj. Malthaner
+ * As of Simutrans-Experimental 7.2, 
+ * this method is called instead when
+ * passengers *arrive* at their destination.
  */
 void haltestelle_t::add_pax_happy(int n)
 {

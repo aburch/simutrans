@@ -2434,7 +2434,7 @@ public_transport:
 					
 					//This code should only be reached if the passengers do not use a private car.
 					start_halt->starte_mit_route(pax);
-					start_halt->add_pax_happy(pax.menge);
+					//start_halt->add_pax_happy(pax.menge); //As of 7.2, this is done on arrival at the destination.
 					// and show it
 					merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
 					city_history_year[0][history_type] += pax.menge;
@@ -2476,7 +2476,8 @@ public_transport:
 							{
 								return_pax.arrival_time = welt->get_zeit_ms();
 								ret_halt->starte_mit_route(return_pax);
-								ret_halt->add_pax_happy(pax_left_to_do);
+								//ret_halt->add_pax_happy(pax_left_to_do); 
+								// Experimental 7.2 and onwards does this when passengers reach their destination
 							}
 							else
 							{

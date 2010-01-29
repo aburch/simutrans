@@ -719,7 +719,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 
 				halthandle_t end_halt = tmp.get_ziel();
 				halthandle_t via_halt = tmp.get_zwischenziel();
-
+				
 				// probleme mit fehlerhafter ware
 				// vielleicht wurde zwischendurch die
 				// Zielhaltestelle entfernt ?
@@ -767,6 +767,18 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// pax is always index 1
 							const int categorie = tmp.get_index()>1 ? 2 : tmp.get_index();
 							get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
+							if(tmp.is_passenger())
+							{
+								// New for Experimental 7.2 - add happy passengers
+								// to the origin only *after* they arrive at their 
+								// destinations.
+								if(tmp.get_origin().is_bound())
+								{
+									// Check required because Simutrans-Standard saved games
+									// do not have origins.
+									tmp.get_origin()->add_pax_happy(menge);
+								}
+							}
 						}
 					}				
 					kill_queue.append(tmp);
