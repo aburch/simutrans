@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -17,7 +17,6 @@
 #include "simware.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/koord.h"
-#include "dataobj/translator.h"
 
 #include "besch/ware_besch.h"
 #include "bauer/warenbauer.h"
@@ -78,9 +77,6 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 		char typ[256];
 		file->rdwr_str(typ,256);
 		const ware_besch_t *type = warenbauer_t::get_info(typ);
-		if(type==NULL) {
-			type = warenbauer_t::get_info(translator::compatibility_name(typ));
-		}
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);
 			index = warenbauer_t::get_info_catg(catg)->get_index();

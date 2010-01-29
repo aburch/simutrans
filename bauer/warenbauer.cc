@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2002 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -11,6 +11,7 @@
 #include "../simware.h"
 #include "../simcolor.h"
 #include "warenbauer.h"
+#include "../dataobj/translator.h"
 
 
 stringhashtable_tpl<const ware_besch_t *> warenbauer_t::besch_names;
@@ -147,7 +148,11 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 const ware_besch_t *
 warenbauer_t::get_info(const char* name)
 {
-	return besch_names.get(name);
+	const ware_besch_t *ware = besch_names.get(name);
+	if (ware==NULL) {
+		ware = besch_names.get(translator::compatibility_name(name));
+	}
+	return ware;
 }
 
 
