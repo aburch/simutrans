@@ -746,6 +746,17 @@ vehikel_t::unload_freight(halthandle_t halt)
 					if(halt != end_halt && halt->is_overcrowded(tmp.get_besch()->get_catg_index()) && welt->get_einstellungen()->is_avoid_overcrowding())
 					{
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
+						// Experimetal 7.2 - also calculate a refund.
+
+						if(tmp.get_origin().is_bound())
+						{
+							// Cannot refund unless we know the origin.
+							const uint16 distance = accurate_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
+							// Refund is approximation: twice distance at standard rate with no adjustments.
+							const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
+							current_revenue -= refund_amount;
+						}
+
 						// Add passengers to unhappy passengers.
 						if(tmp.is_passenger())
 						{
