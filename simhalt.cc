@@ -1057,10 +1057,8 @@ void haltestelle_t::step(sint16 &units_remaining)
 						{
 							// Cannot refund unless we know the origin.
 							const uint16 distance = accurate_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
-							if(distance > 0)
+							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
-								// No point in calculating refund if passengers/goods are discarded from their origin stop.
-
 								// Refund is approximation: twice distance at standard rate with no adjustments.
 								const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
 								
