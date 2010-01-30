@@ -72,6 +72,8 @@
 #include "simvehikel.h"
 #include "simverkehr.h"
 
+#include "../simcity.h"
+
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
  * will go this distance per sync step.
@@ -781,15 +783,30 @@ vehikel_t::unload_freight(halthandle_t halt)
 							if(tmp.is_passenger())
 							{
 								// New for Experimental 7.2 - add happy passengers
-								// to the origin only *after* they arrive at their 
+								// to the origin station and transported passengers/mail
+								// to the origin city only *after* they arrive at their 
 								// destinations.
 								if(tmp.get_origin().is_bound())
 								{
 									// Check required because Simutrans-Standard saved games
 									// do not have origins.
 									tmp.get_origin()->add_pax_happy(menge);
+									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									if(origin_city)
+									{
+										origin_city->add_transported_passengers(menge);
+									}
 								}
 							}
+							else if(tmp.is_mail())
+							{
+								stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+								if(origin_city)
+								{
+									origin_city->add_transported_mail(menge);
+								}
+							}
+
 						}
 					}				
 					kill_queue.append(tmp);
