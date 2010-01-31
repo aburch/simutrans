@@ -740,6 +740,9 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
+	if(  file->get_version()>=103000  ) {
+		file->rdwr_longlong(starting_money, "");
+	}
 
 	// we have to pay maintenance at the beginning of a month
 	if(file->get_version()<99018  &&  file->is_loading()) {
