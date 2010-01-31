@@ -72,6 +72,8 @@
 #include "simvehikel.h"
 #include "simverkehr.h"
 
+#include "../simcity.h"
+
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
  * will go this distance per sync step.
@@ -719,7 +721,7 @@ vehikel_t::unload_freight(halthandle_t halt)
 
 				halthandle_t end_halt = tmp.get_ziel();
 				halthandle_t via_halt = tmp.get_zwischenziel();
-
+				
 				// probleme mit fehlerhafter ware
 				// vielleicht wurde zwischendurch die
 				// Zielhaltestelle entfernt ?
@@ -746,6 +748,17 @@ vehikel_t::unload_freight(halthandle_t halt)
 					if(halt != end_halt && halt->is_overcrowded(tmp.get_besch()->get_catg_index()) && welt->get_einstellungen()->is_avoid_overcrowding())
 					{
 						// Halt overcrowded - discard goods/passengers, and collect no revenue.
+						// Experimetal 7.2 - also calculate a refund.
+
+						if(tmp.get_origin().is_bound())
+						{
+							// Cannot refund unless we know the origin.
+							const uint16 distance = accurate_distance(halt->get_basis_pos(), tmp.get_origin()->get_basis_pos());
+							// Refund is approximation: twice distance at standard rate with no adjustments.
+							const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
+							current_revenue -= refund_amount;
+						}
+
 						// Add passengers to unhappy passengers.
 						if(tmp.is_passenger())
 						{
@@ -767,6 +780,33 @@ vehikel_t::unload_freight(halthandle_t halt)
 							// pax is always index 1
 							const int categorie = tmp.get_index()>1 ? 2 : tmp.get_index();
 							get_besitzer()->buche( menge, (player_cost)(COST_TRANSPORTED_PAS+categorie) );
+							if(tmp.is_passenger())
+							{
+								// New for Experimental 7.2 - add happy passengers
+								// to the origin station and transported passengers/mail
+								// to the origin city only *after* they arrive at their 
+								// destinations.
+								if(tmp.get_origin().is_bound())
+								{
+									// Check required because Simutrans-Standard saved games
+									// do not have origins.
+									tmp.get_origin()->add_pax_happy(menge);
+									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									if(origin_city)
+									{
+										origin_city->add_transported_passengers(menge);
+									}
+								}
+							}
+							else if(tmp.is_mail())
+							{
+								stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+								if(origin_city)
+								{
+									origin_city->add_transported_mail(menge);
+								}
+							}
+
 						}
 					}				
 					kill_queue.append(tmp);

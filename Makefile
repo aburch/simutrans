@@ -290,6 +290,7 @@ SOURCES += player/ai_passenger.cc
 SOURCES += player/simplay.cc
 SOURCES += old_blockmanager.cc
 SOURCES += simcity.cc
+SOURCES += convoy.cc
 SOURCES += simconvoi.cc
 SOURCES += simdebug.cc
 SOURCES += simdepot.cc

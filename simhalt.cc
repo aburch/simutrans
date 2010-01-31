@@ -1050,6 +1050,36 @@ void haltestelle_t::step(sint16 &units_remaining)
 							// Passengers - use unhappy graph.
 							add_pax_unhappy(tmp.menge);
 						}
+
+						// Experimental 7.2 - if they are discarded, a refund is due.
+
+						if(tmp.get_origin().is_bound())
+						{
+							// Cannot refund unless we know the origin.
+							const uint16 distance = accurate_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
+							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
+							{
+								// Refund is approximation: twice distance at standard rate with no adjustments.
+								const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
+								
+								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
+								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
+								if(account_line.is_bound())
+								{
+									account_line->book(-refund_amount, CONVOI_PROFIT);
+									account_line->book(-refund_amount, CONVOI_REVENUE);
+								}
+								else
+								{
+									convoihandle_t account_convoy = get_preferred_convoy(tmp.get_zwischenziel(), tmp.get_catg());
+									if(account_convoy.is_bound())
+									{
+										account_convoy->book(-refund_amount, CONVOI_PROFIT);
+										account_convoy->book(-refund_amount, CONVOI_REVENUE);
+									}
+								}
+							}
+						}
 						
 						// If goods/passengers leave, then they must register a waiting time, or else
 						// overcrowded stops would have excessively low waiting times. Because they leave
@@ -2054,6 +2084,9 @@ uint16 haltestelle_t::find_route (ware_t &ware, const uint16 previous_journey_ti
 /**
  * Found route and station uncrowded
  * @author Hj. Malthaner
+ * As of Simutrans-Experimental 7.2, 
+ * this method is called instead when
+ * passengers *arrive* at their destination.
  */
 void haltestelle_t::add_pax_happy(int n)
 {

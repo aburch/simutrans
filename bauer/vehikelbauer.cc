@@ -164,18 +164,20 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
+	sint64 price = 0;
+
 	if(upgrade)
 	{
-		sp->buche(-(sint32)vb->get_upgrade_price(), k.get_2d(), COST_NEW_VEHICLE );
+		price = vb->get_upgrade_price();
 	}
 	else
 	{
-		sp->buche(-(sint32)vb->get_preis(), k.get_2d(), COST_NEW_VEHICLE );
+		price = vb->get_preis();
 	}
 	// BG, 06.06.2009: fixed maintenance for created vehicles
 	sp->add_maintenance(vb->get_fixed_maintenance(sp->get_welt()), spieler_t::MAINT_VEHICLE);
-	sp->buche(-(sint64)vb->get_preis(), k.get_2d(), COST_NEW_VEHICLE );
-	sp->buche( (sint64)vb->get_preis(), COST_ASSETS );
+	sp->buche(-price, k.get_2d(), COST_NEW_VEHICLE );
+	sp->buche( price, COST_ASSETS );
 
 	return v;
 }

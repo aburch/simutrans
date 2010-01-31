@@ -220,6 +220,18 @@ public:
 		incoming_private_cars += number;
 	}
 
+	inline void add_transported_passengers(uint16 passengers)
+	{
+		city_history_year[0][HIST_PAS_TRANSPORTED] += passengers;
+		city_history_month[0][HIST_PAS_TRANSPORTED] += passengers;
+	}
+
+	inline void add_transported_mail(uint16 mail)
+	{
+		city_history_year[0][HIST_MAIL_TRANSPORTED] += mail;
+		city_history_month[0][HIST_MAIL_TRANSPORTED] += mail;
+	}
+
 	//@author: jamespetts
 	void add_power(uint32 p) { city_history_month[0][HIST_POWER_RECIEVED] += p; city_history_year[0][HIST_POWER_RECIEVED] += p; }
 
