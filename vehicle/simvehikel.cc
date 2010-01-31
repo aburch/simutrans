@@ -800,10 +800,15 @@ vehikel_t::unload_freight(halthandle_t halt)
 							}
 							else if(tmp.is_mail())
 							{
-								stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
-								if(origin_city)
+								if(tmp.get_origin().is_bound())
 								{
-									origin_city->add_transported_mail(menge);
+									// Check required because Simutrans-Standard saved games
+									// do not have origins.
+									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									if(origin_city)
+									{
+										origin_city->add_transported_mail(menge);
+									}
 								}
 							}
 
