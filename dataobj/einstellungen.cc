@@ -143,7 +143,6 @@ einstellungen_t::einstellungen_t() :
 			automaten[i] = false;
 			spieler_type[i] = spieler_t::EMPTY;
 		}
-		password[i][0] = 0;
 	}
 
 	/* the big cost section */
@@ -411,13 +410,16 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			for(  int i=0;  i<15;  i++  ) {
 				file->rdwr_bool( automaten[i], "" );
 				file->rdwr_byte( spieler_type[i], "" );
-				file->rdwr_str( password[i], 16 );
+				if(  file->get_version()<=102002  ) {
+					char dummy[2] = { 0, 0 };
+					file->rdwr_str( dummy, 2 );
+				}
 			}
 
 			// cost section ...
 			file->rdwr_bool( freeplay, "" );
 			file->rdwr_longlong( starting_money, "" );
-			if(  file->get_version()>=103000  ) {
+			if(  file->get_version()>102002  ) {
 				// these must be saved, since new player will get different amounts eventually
 				for(  int i=0;  i<10;  i++  ) {
 					file->rdwr_short( startingmoneyperyear[i].year, 0 );
@@ -484,7 +486,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					spieler_type[i] = spieler_t::EMPTY;
 				}
 				automaten[i] = false;
-				password[i][0] = 0;
 			}
 		}
 

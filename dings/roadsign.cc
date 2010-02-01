@@ -357,7 +357,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	ding_t::rdwr(file);
 
 	uint8 dummy=0;
-	if(  file->get_version()<103000  ) {
+	if(  file->get_version()<=102002  ) {
 		file->rdwr_byte(dummy, " ");
 		if(  file->is_loading()  ) {
 			ticks_ns = ticks_ow = 16;

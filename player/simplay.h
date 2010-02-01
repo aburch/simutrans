@@ -163,10 +163,26 @@ protected:
 	 */
 	bool automat;
 
+	/**
+	 * Are this player allowed to do any changes?
+	 * @author Hj. Malthaner
+	 */
+	bool locked;
+
+	// contains the password hash for local games
+	uint8 pwd_hash[20];
+
 public:
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
+
+	bool is_locked() const { return locked; }
+
+	bool set_unlock( uint8 *hash );
+
+	// some routine needs this for direct manipulation
+	uint8 *get_password_hash_ptr() { return pwd_hash; }
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() { return HUMAN; }

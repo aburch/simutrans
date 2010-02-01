@@ -693,6 +693,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\password_frame.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\pedestrian_reader.cc"
 				>
 			</File>
@@ -766,6 +770,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\settings_stats.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\utils\sha1.cc"
 				>
 			</File>
 			<File

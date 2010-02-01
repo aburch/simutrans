@@ -101,6 +101,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
+	locked = false;	/* allowe to change anything */
+	memset( pwd_hash, 0, 20 );	// empty password
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
@@ -156,6 +158,30 @@ spieler_t::~spieler_t()
 const char* spieler_t::get_name(void) const
 {
 	return translator::translate(spieler_name_buf);
+}
+
+
+/* returns FALSE when unlocking!
+ */
+bool spieler_t::set_unlock( uint8 *hash )
+{
+	if(  locked  ) {
+		bool pwd_empty = true;
+		for(  int i=0;  i<20;  i++  ) {
+			if(  pwd_hash[i] != 0  ) {
+				pwd_empty = false;
+				break;
+			}
+		}
+		if(  pwd_empty  ) {
+			locked = false;
+		}
+		else if(  hash!=NULL  ) {
+			// matches password?
+			locked = (memcmp( hash, pwd_hash, 20 )!=0);
+		}
+	}
+	return locked;
 }
 
 
@@ -710,7 +736,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<102003  ) {
+	else if(  file->get_version()<=102002  ) {
 		// saved everything
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
@@ -740,7 +766,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	if(  file->get_version()>=103000  ) {
+	if(  file->get_version()>102002  ) {
 		file->rdwr_longlong(starting_money, "");
 	}
 
@@ -837,6 +863,18 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	// linemanagement
 	if(file->get_version()>=88003) {
 		simlinemgmt.rdwr(welt,file,this);
+	}
+
+	if(file->get_version()>102002) {
+		// password hash
+		for(  int i=0;  i<20;  i++  ) {
+			file->rdwr_byte( pwd_hash[i], "" );
+		}
+		if(  file->is_loading()  ) {
+			locked = true;
+			// disallow all actions, if password set (might be unlocked by karte_t::set_werkzeug() )
+			set_unlock( NULL );
+		}
 	}
 }
 

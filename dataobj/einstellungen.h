@@ -225,8 +225,6 @@ public:
 	bool automaten[MAX_PLAYER_COUNT];
 	// 0 = emtpy, otherwise some vaule from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
-	// NULL if not password
-	char password[MAX_PLAYER_COUNT][16];
 
 public:
 	/**

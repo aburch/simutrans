@@ -275,6 +275,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	spieler_t *spieler[MAX_PLAYER_COUNT];   // Mensch ist spieler Nr. 0
+	uint8 player_password_hash[MAX_PLAYER_COUNT][20];
 	spieler_t *active_player;
 	uint8 active_player_nr;
 
@@ -504,6 +505,8 @@ public:
 	spieler_t * get_spieler(uint8 n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
+	void set_player_password_hash( uint8 player_nr, uint8 *hash ) { memcpy( player_password_hash[player_nr], hash, 20 ); }
+	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr);
 	void new_spieler( uint8 nr, uint8 type );
 

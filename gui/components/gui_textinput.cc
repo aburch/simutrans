@@ -259,3 +259,68 @@ void gui_textinput_t::set_text(char *text, size_t max)
 	this->max = max;
 	cursor_pos = strlen(text);
 }
+
+
+
+// needed to set the cursor on the right position
+void gui_hidden_textinput_t::infowin_event(const event_t *ev)
+{
+	if ( IS_LEFTCLICK(ev) ) 	{
+		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
+		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
+		if(!has_focus(this)) {
+			request_focus(this);
+		}
+		sint16 asterix_width = display_calc_proportional_string_len_width("*",1);
+		cursor_pos = 0;
+		if (text) {
+			cursor_pos = min( strlen(text), (pos.x-ev->cx)/asterix_width );;
+		}
+DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
+	}
+	else {
+		gui_textinput_t::infowin_event( ev );
+	}
+}
+
+
+
+void gui_hidden_textinput_t::zeichnen(koord offset)
+{
+	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
+	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
+
+	if(text) {
+		// the text will be all asterics, thus we draw them letter by letter
+
+		// set clipping to be within textinput button
+		const clip_dimension old_clip = display_get_clip_wh();
+
+		int text_clip_x = pos.x+offset.x + 1, text_clip_w = groesse.x - 2;
+		// something to draw?
+		if (text_clip_x >= old_clip.xx || text_clip_x+text_clip_w <= old_clip.x || text_clip_w<=0) {
+				return;
+		}
+		const int clip_x =  old_clip.x > text_clip_x ? old_clip.x : text_clip_x;
+		display_set_clip_wh( clip_x, old_clip.y, min(old_clip.xx, text_clip_x+text_clip_w)-clip_x, old_clip.h);
+
+		size_t text_pos=0;
+		sint16 xpos = pos.x+offset.x+2;
+		utf16  c = 0;
+		do {
+			size_t las_pos = text_pos;
+			// cursor?
+			if(  text_pos==cursor_pos  &&  has_focus(this)  ) {
+				display_fillbox_wh_clip( xpos, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
+			}
+			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
+			if(c) {
+				xpos += display_proportional_clip( xpos, pos.y+offset.y+1+(groesse.y-large_font_height)/2, "*", ALIGN_LEFT, textcol, true);
+			}
+		}
+		while(  text_pos<max  &&  c  );
+
+		// reset clipping
+		display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);
+	}
+}

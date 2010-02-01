@@ -1915,7 +1915,7 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else if(  file->get_version()<103000  ){
+	else if(  file->get_version()<=102002  ){
 		// load statistics
 		for (int j = 0; j<5; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -1936,7 +1936,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// the convoi odometer
-	if(  file->get_version()>=103000  ){
+	if(  file->get_version()>102002  ){
 		file->rdwr_longlong( total_distance_traveled, "" );
 	}
 

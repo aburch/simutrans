@@ -68,6 +68,7 @@
 #include "dings/groundobj.h"
 #include "dings/gebaeude.h"
 
+#include "gui/password_frame.h"
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
 #include "gui/karte.h"
@@ -1550,6 +1551,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
+		memset( player_password_hash[i], 0, 20 );
 	}
 
 	// no distance to show at first ...
@@ -2145,6 +2147,11 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
+	if(!w->is_init_network_save()  ||  !w->is_work_network_save()  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
+		// player is currently password protected => request unlock first
+		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
+		return;
+	}
 	if(!umgebung_t::networkmode  ||  w->is_init_network_save()  ) {
 		local_set_werkzeug(w, sp);
 	}
@@ -4264,7 +4271,6 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		}
 		else {
 			einstellungen->automaten[i] = false;
-			einstellungen->password[i][0] = 0;
 		}
 		display_progress(get_groesse_y()+24+stadt.get_count()+(i*3), get_groesse_y()+256+stadt.get_count());
 	}

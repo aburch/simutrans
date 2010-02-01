@@ -142,7 +142,7 @@ void simline_t::rdwr(loadsave_t *file)
 	fpl->rdwr(file);
 
 	//financial history
-	if(  file->get_version()<103000  ) {
+	if(  file->get_version()<=102002  ) {
 		for (int j = 0; j<6; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
 				file->rdwr_longlong(financial_history[k][j], " ");

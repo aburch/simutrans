@@ -4533,6 +4533,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 
 		case 'g': // change schedule
 			{
+				line->get_schedule()->eingabe_abschliessen();
 				schedule_t *fpl = line->get_schedule()->copy();
 				fpl->sscanf_schedule( p );
 				line->set_schedule( fpl );
