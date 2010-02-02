@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include <string.h>
 #include "../simdebug.h"
 #include "../simwin.h"
 #include "../simworld.h"

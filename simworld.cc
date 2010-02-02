@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -490,7 +490,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 		zeiger = NULL;
 	}
 
-	// alle convois aufräumen
+	// alle convois aufraeumen
 	while (!convoi_array.empty()) {
 		convoihandle_t cnv = convoi_array.back();
 		cnv->destroy();
@@ -498,7 +498,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	convoi_array.clear();
 DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
-	// alle haltestellen aufräumen
+	// alle haltestellen aufraeumen
 	haltestelle_t::destroy_all(this);
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
@@ -519,7 +519,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 	sync_list.clear();
 DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
-// dinge aufräumen
+// dinge aufraeumen
 	cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
 	cached_groesse_karte_x = cached_groesse_karte_y = 0;
 	if(plan) {
@@ -528,17 +528,17 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	}
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
-	// gitter aufräumen
+	// gitter aufraeumen
 	if(grid_hgts) {
 		delete [] grid_hgts;
 		grid_hgts = NULL;
 	}
 
-	// marker aufräumen
+	// marker aufraeumen
 	marker.init(0,0);
 DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 
-	// spieler aufräumen
+	// spieler aufraeumen
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(spieler[i]) {
 			delete spieler[i];
@@ -551,7 +551,7 @@ DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 	simlinemgmt_t::init_line_ids();
 DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 
-	// alle fabriken aufräumen
+	// alle fabriken aufraeumn
 	slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
 	while(fab_iter.next()) {
 		delete fab_iter.get_current();
@@ -559,7 +559,7 @@ DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 	fab_list.clear();
 DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
-	// hier nur entfernen, aber nicht löschen
+	// hier nur entfernen, aber nicht loeschen
 	ausflugsziele.clear();
 DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
@@ -592,7 +592,7 @@ void karte_t::rem_convoi(convoihandle_t& cnv)
 }
 
 /**
- * Zugriff auf das Städte Array.
+ * Zugriff auf das Staedte Array.
  * @author Hj. Malthaner
  */
 const stadt_t *karte_t::get_random_stadt() const
@@ -1617,7 +1617,7 @@ bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint8 h) const
 		return false;
 	}
 
-	// irgendwo eine Brücke im Weg?
+	// irgendwo eine Bruecke im Weg?
 	int hmin = plan->get_kartenboden()->get_hoehe();
 	while(h > hmin) {
 		if(plan->get_boden_in_hoehe(h)) {
@@ -2142,12 +2142,15 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 	return ok;
 }
 
-
+void karte_t::set_player_password_hash( uint8 player_nr, uint8 *hash )
+{
+	memcpy( player_password_hash[player_nr], hash, 20 );
+}
 
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
-	if(!w->is_init_network_save()  ||  !w->is_work_network_save()  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
+	if((!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
 		return;
@@ -3616,8 +3619,8 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_g
 				list->insert(start);
 			}
 			else {
-				// Optimiert für größere Felder, hehe!
-				// Die Idee: wenn bei 2x2 die untere Reihe nicht geht, können
+				// Optimiert fuer groessere Felder, hehe!
+				// Die Idee: wenn bei 2x2 die untere Reihe nicht geht, koennen
 				// wir gleich 2 tiefer weitermachen! V. Meyer
 				start.y = last_y;
 			}
@@ -4262,7 +4265,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
-	// jetzt können die spieler geladen werden
+	// jetzt koennen die spieler geladen werden
 	display_progress(get_groesse_y()+24+stadt.get_count(), get_groesse_y()+256+stadt.get_count());
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(  spieler[i]  ) {
@@ -4276,7 +4279,7 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
-	// nachdem die welt jetzt geladen ist können die Blockstrecken neu
+	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
 	old_blockmanager_t::laden_abschliessen(this);
 	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
@@ -4470,7 +4473,7 @@ uint8 karte_t::sp2num(spieler_t *sp)
 /**
  * Creates a map from a heightfield
  * @param sets game settings
- * @author Hansjörg Malthaner
+ * @author Hj. Malthaner
  */
 void karte_t::load_heightfield(einstellungen_t *sets)
 {
@@ -4639,7 +4642,7 @@ void karte_t::do_freeze()
 	display_ddd_box(display_get_width()/2-92, display_get_height()/2-42, 200-16,100-16, MN_GREY0, MN_GREY4);
 	display_proportional(display_get_width()/2, display_get_height()/2-5, translator::translate("GAME PAUSED"), ALIGN_MIDDLE, COL_BLACK, false);
 
-	// Pause: warten auf die nächste Taste
+	// Pause: warten auf die naechste Taste
 	event_t ev;
 	dr_flush();
 	warte_auf_mausklick_oder_taste(&ev);
@@ -4783,7 +4786,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		// mit den mauskoordinaten zu vergleichen
 		int neu_x = ((mi-i_off) - (mj-j_off))*rw2 + display_get_width()/2 + rw2;
 
-		// prüfe richtung d.h. welches nachbarfeld ist am naechsten
+		// pruefe richtung d.h. welches nachbarfeld ist am naechsten
 		if(ev->mx-x_off < neu_x) {
 			zeiger->set_richtung(ribi_t::west);
 		}

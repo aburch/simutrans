@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -99,7 +99,7 @@ private:
 	// aus performancegruenden werden einige Einstellungen local gecached
 	sint16 cached_groesse_gitter_x;
 	sint16 cached_groesse_gitter_y;
-	// diese Werte sind um ein kleiner als die Werte für das Gitter
+	// diese Werte sind um eins kleiner als die Werte fuer das Gitter
 	sint16 cached_groesse_karte_x;
 	sint16 cached_groesse_karte_y;
 	// maximum size for waitng bars etc.
@@ -505,7 +505,7 @@ public:
 	spieler_t * get_spieler(uint8 n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
-	void set_player_password_hash( uint8 player_nr, uint8 *hash ) { memcpy( player_password_hash[player_nr], hash, 20 ); }
+	void set_player_password_hash( uint8 player_nr, uint8 *hash );
 	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr);
 	void new_spieler( uint8 nr, uint8 type );
@@ -764,7 +764,7 @@ public:
 
 	/**
 	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * erhöht werden kann
+	 * erhoeht werden kann
 	 * @author V. Meyer
 	 */
 	bool can_raise_plan_to(sint16 x, sint16 y, sint8 h) const;
@@ -821,7 +821,7 @@ public:
 	vector_tpl<convoihandle_t>::const_iterator convois_end()   const { return convoi_array.end();   }
 
 	/**
-	 * Zugriff auf das Städte Array.
+	 * Zugriff auf das Staedte Array.
 	 * @author Hj. Malthaner
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
@@ -937,21 +937,21 @@ public:
 	/**
 	 * Saves the map to a file
 	 * @param filename name of the file to write
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 	void speichern(const char *filename,bool silent);
 
 	/**
 	 * Loads a map from a file
 	 * @param filename name of the file to read
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 	bool laden(const char *filename);
 
 	/**
 	 * Creates a map from a heightfield
 	 * @param sets game settings
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 	void load_heightfield(einstellungen_t *sets);
 
@@ -960,7 +960,7 @@ public:
 	/**
 	 * main loop with even handling;
 	 * returns false to exit
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 	bool interactive(uint32 quit_month);
 
