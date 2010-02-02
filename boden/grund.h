@@ -447,12 +447,12 @@ public:
 	* Zeichnet Bodenbild des Grundes
 	* @author Hj. Malthaner
 	*/
-	void display_boden(const sint16 xpos, sint16 ypos) const;
+	void display_boden(const sint16 xpos, const sint16 ypos) const;
 
 	/* displays everything that is on a tile;
 	 * @param is_global set to true, if this is called during the whole screen update
 	 */
-	void display_dinge(const sint16 xpos, sint16 ypos, const bool called_from_simview) const;
+	void display_dinge(const sint16 xpos, const sint16 ypos, const bool is_global) const;
 
 	/* overlayer with signs, good levels and station coverage
 	 * resets the dirty flag

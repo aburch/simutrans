@@ -110,7 +110,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		besch = baumlist[entry];
 
 		buf.append(translator::translate(besch->get_name()));
-		buf.append("\n");
+		buf.append("\n\n");
 
 		// climates
 		buf.append( translator::translate("allowed climates:\n") );
@@ -122,6 +122,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		else {
 			for(uint16 i=0;  i<=arctic_climate;  i++  ) {
 				if(cl &  (1<<i)) {
+					buf.append(" - ");
 					buf.append( translator::translate( grund_besch_t::get_climate_name_from_bit( (enum climate)i ) ) );
 					buf.append("\n");
 				}
@@ -138,7 +139,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 		}
 
 		info_text.recalc_size();
-		cont.set_groesse( info_text.get_groesse() );
+		cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
 
 		img[3].set_image( besch->get_bild_nr( 0, 3 ) );
 

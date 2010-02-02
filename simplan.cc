@@ -366,14 +366,14 @@ void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos) const
 
 
 void
-planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool called_by_simview, const sint8 hmin, const sint8 hmax) const
+planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
 {
 	grund_t *gr=get_kartenboden();
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
 	if(gr->get_flag(grund_t::draw_as_ding)) {
 		gr->display_boden(xpos, ypos);
 	}
-	gr->display_dinge(xpos, ypos, called_by_simview);
+	gr->display_dinge(xpos, ypos, is_global);
 
 	if(ground_size>1) {
 		const sint8 h0 = gr->get_disp_height();
@@ -385,8 +385,8 @@ planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 
 			// not too low?
 			if (h >= hmin) {
 				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
-				gr->display_boden(xpos, yypos );
-				gr->display_dinge(xpos, yypos, called_by_simview );
+				gr->display_boden(xpos, yypos);
+				gr->display_dinge(xpos, yypos, is_global);
 			}
 		}
 	}

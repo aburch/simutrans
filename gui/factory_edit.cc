@@ -231,6 +231,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append( translator::translate("Produktion") );
 				buf.append("\n");
 				for (uint i = 0; i < fab_besch->get_produkte(); i++) {
+					buf.append(" - ");
 					buf.append( translator::translate(fab_besch->get_produkt(i)->get_ware()->get_name()) );
 					buf.append( " (" );
 					buf.append( translator::translate(fab_besch->get_produkt(i)->get_ware()->get_catg_name()) );
@@ -244,6 +245,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append( translator::translate("Verbrauch") );
 				buf.append("\n");
 				for(  int i=0;  i<fab_besch->get_lieferanten();  i++  ) {
+					buf.append(" - ");
 					buf.append( translator::translate(fab_besch->get_lieferant(i)->get_ware()->get_name()) );
 					buf.append( " (" );
 					buf.append( translator::translate(fab_besch->get_lieferant(i)->get_ware()->get_catg_name()) );
@@ -269,6 +271,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			else {
 				for(uint16 i=0;  i<=arctic_climate;  i++  ) {
 					if(cl &  (1<<i)) {
+						buf.append(" - ");
 						buf.append( translator::translate( grund_besch_t::get_climate_name_from_bit( (enum climate)i ) ) );
 						buf.append("\n");
 					}
@@ -300,7 +303,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 			info_text.recalc_size();
-			cont.set_groesse( info_text.get_groesse() );
+			cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
 
 			// orientation (255=random)
 			if(besch->get_all_layouts()>1) {

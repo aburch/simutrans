@@ -10,7 +10,7 @@
 #include "components/gui_divider.h"
 #include "components/gui_button.h"
 #include "components/gui_image.h"
-#include "components/gui_textarea.h"
+#include "components/gui_fixedwidth_textarea.h"
 
 #include "gui_convoiinfo.h"
 #include "../utils/cbuffer_t.h"
@@ -46,7 +46,7 @@ protected:
 	karte_t* welt;
 
 	cbuffer_t buf;
-	gui_textarea_t info_text;
+	gui_fixedwidth_textarea_t info_text;
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;
 

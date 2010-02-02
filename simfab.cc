@@ -1284,13 +1284,13 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 			fabrik_t *fab = get_fab( welt, lieferziel );
 			if(fab) {
-				buf.append("     ");
+				buf.append("   ");
 				buf.append(translator::translate(fab->get_name()));
-				buf.append(" ");
+				buf.append(" (");
 				buf.append(lieferziel.x);
-				buf.append(",");
+				buf.append(", ");
 				buf.append(lieferziel.y);
-				buf.append("\n");
+				buf.append(")\n");
 			}
 		}
 	}
@@ -1305,13 +1305,13 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 			fabrik_t *fab = get_fab( welt, supplier );
 			if(fab) {
-				buf.append("     ");
+				buf.append("   ");
 				buf.append(translator::translate(fab->get_name()));
-				buf.append(" ");
+				buf.append(" (");
 				buf.append(supplier.x);
-				buf.append(",");
+				buf.append(", ");
 				buf.append(supplier.y);
-				buf.append("\n");
+				buf.append(")\n");
 			}
 		}
 	}
@@ -1326,7 +1326,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 		while(iter.next()) {
 			stadt_t *stadt = iter.get_current();
 
-			buf.append("     ");
+			buf.append("   ");
 			buf.append(stadt->get_name());
 			buf.append("\n");
 
@@ -1354,7 +1354,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 		for (uint32 index = 0; index < ausgang.get_count(); index++) {
 			const ware_besch_t * type = ausgang[index].get_typ();
 
-			buf.append(" -");
+			buf.append(" - ");
 			buf.append(translator::translate(type->get_name()));
 			buf.append(" ");
 			buf.append(ausgang[index].menge / (double)(1<<precision_bits), 0 );
@@ -1381,7 +1381,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 		for (uint32 index = 0; index < eingang.get_count(); index++) {
 
-			buf.append(" -");
+			buf.append(" - ");
 			buf.append(translator::translate(eingang[index].get_typ()->get_name()));
 			buf.append(" ");
 			buf.append(eingang[index].menge / (double)(1<<precision_bits), 0 );
@@ -1400,6 +1400,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 		buf.append(translator::translate("Connected stops"));
 		buf.append("\n");
 		for(  uint i=0;  i<plan->get_haltlist_count();  i++  ) {
+			buf.append(" - ");
 			buf.append(plan->get_haltlist()[i]->get_name());
 			buf.append("\n");
 		}

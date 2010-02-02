@@ -31,13 +31,15 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 {
 	about = lieferbuttons = supplierbuttons = stadtbuttons = NULL;
 
+	const sint16 width = max(290, 226+view.get_groesse().x);
+
 	// Hajo: "About" button only if translation is available
 	char key[256];
 	sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
 	const char * value = translator::translate(key);
 	if(value && *value != 'f') {
 		about = new button_t();
-		about->init(button_t::roundbox,translator::translate("About"),koord(266 - 64, 6+64+10),koord(64, 14));
+		about->init(button_t::roundbox,translator::translate("About"),koord(width - view.get_groesse().x - 20, view.get_groesse().y + 18), koord(view.get_groesse().x, 14));
 		about->add_listener(this);
 		add_komponente(about);
 	}
@@ -50,17 +52,16 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	fab->info(info_buf);
 
 	// check, if something changed ...
-	int  height = max(count_char(info_buf, '\n')*LINESPACE+30, get_tile_raster_width()+30 );
-	set_fenstergroesse(koord((short)290, min(height+10, 408)));
-	cont.set_groesse(koord((short)290, height-10));
+	const sint16 height = max(count_char(info_buf, '\n')*LINESPACE+36, view.get_groesse().y+8+14+36 );
+	set_fenstergroesse(koord(width, min(height+10, 408)));
+	cont.set_groesse(koord(width, height-10));
 
 	scrolly.set_show_scroll_x(false);
 	scrolly.set_size_corner(false);
 	scrolly.set_groesse(get_fenstergroesse()-koord(1,16));
 	add_komponente(&scrolly);
 
-	view.set_pos(koord(266 - 64, 8));	// view is actually borrowed from ding-info ...
-	view.set_groesse( koord(64,56) );
+	view.set_pos(koord(width - view.get_groesse().x - 20, 10));	// view is actually borrowed from ding-info ...
 	add_komponente(&view);
 
 	gui_frame_t::set_owner( fab->get_besitzer() );
@@ -87,23 +88,24 @@ fabrik_info_t::~fabrik_info_t()
  */
 void fabrik_info_t::zeichnen(koord pos, koord gr)
 {
+	buf.clear();	// clear the buffer of the base class
 	info_buf.clear();
 	fab->info( info_buf );
-	int  height = max(count_char(info_buf, '\n')*LINESPACE+30, get_tile_raster_width()+30 );
+	const sint16 height = max(count_char(info_buf, '\n')*LINESPACE+36, view.get_groesse().y+8+14+36 );
 	if((cont.get_groesse().y+10)!=height) {
 		update_info();
-		cont.set_groesse(koord((short)290, height-10));
-		set_fenstergroesse(koord((short)290, min(height+10, 408)));
+		cont.set_groesse(koord(cont.get_groesse().x, height-10));
+		set_fenstergroesse(koord(get_fenstergroesse().x, min(height+10, 408)));
 		scrolly.set_groesse(get_fenstergroesse()-koord(1,16));
 	}
 
 	gui_frame_t::zeichnen(pos,gr);
 
 	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
-	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + 75, 64, 8, MN_GREY0, MN_GREY4);
-	display_fillbox_wh_clip(pos.x + view.get_pos().x+1, pos.y + view.get_pos().y + 76, 62, 6, indikatorfarbe, true);
+	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_groesse().y + 16, view.get_groesse().x, 8, MN_GREY0, MN_GREY4);
+	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_groesse().y + 17, view.get_groesse().x - 2, 6, indikatorfarbe, true);
 	if (fab->get_prodfaktor() > 16) {
-		display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), pos.x + view.get_pos().x+4, pos.y + view.get_pos().y+18, 0, false, false);
+		display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), pos.x + view.get_pos().x + 4, pos.y + view.get_pos().y + 20, 0, false, false);
 	}
 }
 

@@ -1781,6 +1781,7 @@ void haltestelle_t::info(cbuffer_t & buf) const
 		pax_no_route
 		);
 	buf.append(tmp);
+	buf.append("\n\n");
 }
 
 

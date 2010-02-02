@@ -2572,7 +2572,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 				const sint16 rw = get_tile_raster_width();
 				int new_xoff = 0;
 				int new_yoff = 0;
-				follow_convoi->get_vehikel(0)->get_screen_offset( new_xoff, new_yoff );
+				follow_convoi->get_vehikel(0)->get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
 				new_xoff -= tile_raster_scale_x(-follow_convoi->get_vehikel(0)->get_xoff(),rw);
 				new_yoff -= tile_raster_scale_y(-follow_convoi->get_vehikel(0)->get_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
 				change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );

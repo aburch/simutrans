@@ -360,10 +360,10 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 
 
 // to make smaller steps than the tile granularity, we have to use this trick
-void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
+void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
 	// vehicles needs finer steps to appear smoother
-	sint32 display_steps = (uint32)steps*(uint16)get_tile_raster_width();
+	sint32 display_steps = (uint32)steps*(uint16)raster_width;
 	if(dx*dy) {
 		display_steps &= 0xFFFFFC00;
 	}
@@ -371,7 +371,7 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
 		display_steps = (display_steps*diagonal_multiplier)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
-	yoff += ((display_steps*dy) >> 10) + (hoff*(sint16)get_tile_raster_width())/(4*16);
+	yoff += ((display_steps*dy) >> 10) + (hoff*raster_width)/(4*16);
 }
 
 
@@ -1712,8 +1712,8 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 		// something to show?
 		if(  tooltip_text[0]  ) {
 			const int width = proportional_string_width(tooltip_text)+7;
-			const int raster_width = get_tile_raster_width();
-			get_screen_offset( xpos, ypos );
+			const int raster_width = get_current_tile_raster_width();
+			get_screen_offset( xpos, ypos, raster_width );
 			xpos += tile_raster_scale_x(get_xoff(), raster_width);
 			ypos += tile_raster_scale_y(get_yoff(), raster_width);
 			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
@@ -1878,13 +1878,12 @@ bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
 
 
 // to make smaller steps than the tile granularity, we have to use this trick
-void automobil_t::get_screen_offset( int &xoff, int &yoff ) const
+void automobil_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
-	vehikel_basis_t::get_screen_offset( xoff, yoff );
+	vehikel_basis_t::get_screen_offset( xoff, yoff, raster_width );
 
 	// eventually shift position to take care of overtaking
 	if(cnv) {
-		const int raster_width = get_tile_raster_width();
 		if(  cnv->is_overtaking()  ) {
 			xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][0], raster_width);
 			yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width);
@@ -3818,7 +3817,7 @@ aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) cons
 	if(bild != IMG_LEER) {
 		int xpos = xpos_org, ypos = ypos_org;
 
-		const int raster_width = get_tile_raster_width();
+		const int raster_width = get_current_tile_raster_width();
 		sint16 current_flughohe = flughoehe;
 		const sint16 target = target_height - ((sint16)get_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 		if(  current_flughohe < target  ) {
@@ -3830,10 +3829,10 @@ aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) cons
 
 		ypos += tile_raster_scale_y(get_yoff()-current_flughohe-hoff-2, raster_width);
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
-		get_screen_offset( xpos, ypos );
+		get_screen_offset( xpos, ypos, raster_width );
 
 		// will be dirty
-		display_color_img(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
+		display_color(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
 
 		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), true );
 	}

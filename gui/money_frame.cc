@@ -119,7 +119,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		maintenance_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
-		headquarter_view(sp->get_welt(), koord3d::invalid)
+		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64))
 {
 	if(sp->get_welt()->get_spieler(0)!=sp) {
 		sprintf(money_frame_title,translator::translate("Finances of %s"),translator::translate(sp->get_name()) );
@@ -263,7 +263,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
 		}
 		headquarter_view.set_pos( koord(582-12-120, BUTTONSPACE) );
-		headquarter_view.set_groesse( koord(120, 64) );
 		add_komponente(&headquarter_view);
 	}
 

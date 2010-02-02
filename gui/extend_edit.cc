@@ -34,7 +34,7 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	gui_frame_t("extend edit tool", sp_),
 	sp(sp_),
 	buf(2048),
-	info_text(buf),
+	info_text(buf, COLUMN_WIDTH),
 	scrolly(&cont),
 	scl(gui_scrolled_list_t::select)
 {
@@ -76,9 +76,9 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	add_komponente(&tabs);
 
 	// item list
-	info_text.set_text(buf);
-	info_text.set_pos(koord(0,0));
+	info_text.set_pos(koord(0, 10));
 	cont.add_komponente(&info_text);
+	cont.set_pos( koord( 0, 0 ) );
 
 	scrolly.set_visible(true);
 	add_komponente(&scrolly);
@@ -90,7 +90,7 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	}
 
 	// resize button
-	set_min_windowsize(koord(tab_panel_width+COLUMN_WIDTH+3*MARGIN, SCL_HEIGHT+2*get_base_tile_raster_width()+4*MARGIN));
+	set_min_windowsize(koord(tab_panel_width+COLUMN_WIDTH+3*MARGIN, 16+SCL_HEIGHT+(get_base_tile_raster_width()*3)/2+5*MARGIN));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
@@ -158,11 +158,13 @@ void extend_edit_gui_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	// test region
+	// text region
 	koord groesse = get_fenstergroesse()-koord( tab_panel_width+2*MARGIN, offset_of_comp+16 );
+	info_text.set_width(groesse.x - 20);
+	info_text.recalc_size();
+	cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
 	scrolly.set_groesse(groesse);
 	scrolly.set_pos( koord( tab_panel_width+2*MARGIN, offset_of_comp ) );
-	cont.set_pos( koord( 0, 0 ) );
 
 	// image placeholders
 	sint16 rw = get_base_tile_raster_width()/4;

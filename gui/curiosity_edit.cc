@@ -232,7 +232,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			buf.append("\n\n");
 			buf.append( translator::translate( besch->get_name() ) );
 
-			buf.printf("\n%s: %i\n",translator::translate("Passagierrate"),besch->get_level());
+			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"),besch->get_level());
 			buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
 
 			buf.append(translator::translate("\nBauzeit von"));
@@ -251,7 +251,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			}
 
 			info_text.recalc_size();
-			cont.set_groesse( info_text.get_groesse() );
+			cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
 
 			// orientation (255=random)
 			if(besch->get_all_layouts()>1) {

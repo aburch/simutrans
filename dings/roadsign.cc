@@ -335,15 +335,15 @@ void roadsign_t::rotate90()
 void roadsign_t::display_after(int xpos, int ypos, bool ) const
 {
 	if(after_bild!=IMG_LEER) {
-		const int raster_width = get_tile_raster_width();
+		const int raster_width = get_current_tile_raster_width();
 		ypos += tile_raster_scale_x(get_yoff()+after_offset, raster_width);
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		// draw with owner
 		if(get_player_nr()!=-1) {
-			display_color_img(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+			display_color(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
 		}
 		else {
-			display_img(after_bild, xpos, ypos, get_flag(ding_t::dirty) );
+			display_normal(after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty) );
 		}
 	}
 }

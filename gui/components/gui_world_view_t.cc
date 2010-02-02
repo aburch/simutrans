@@ -22,24 +22,24 @@
 
 
 
-world_view_t::world_view_t(karte_t* welt, koord3d location)
+world_view_t::world_view_t(karte_t* welt, koord3d location, koord size)
 {
     this->location = location;
     this->ding = NULL;
     this->welt = welt;
-    this->raster = 0;
+    this->raster = get_base_tile_raster_width();
 
-    set_groesse(koord(64,56));
+    set_groesse(size);
 }
 
 
-world_view_t::world_view_t(const ding_t* dt) :
+world_view_t::world_view_t(const ding_t* dt, koord size) :
 	location(koord3d::invalid),
 	ding(dt),
-	raster(0),
+	raster(get_base_tile_raster_width()),
 	welt(dt->get_welt())
 {
-	set_groesse(koord(64,56));
+	set_groesse(size);
 }
 
 
@@ -66,7 +66,7 @@ void world_view_t::infowin_event(const event_t* ev)
 void
 world_view_t::zeichnen(koord offset)
 {
-	const sint16 raster = get_tile_raster_width();
+	display_set_image_proc(false);
 
 //DBG_MESSAGE("world_view_t::zeichnen()","ding %p, location %d,%d,%d",ding,location.x,location.y,location.z );
 	koord here=ding!=NULL ? ding->get_pos().get_2d() : location.get_2d();
@@ -78,7 +78,7 @@ world_view_t::zeichnen(koord offset)
 		y_offset = (ding->get_yoff()/(32*TILE_STEPS/16));
 		if(ding->is_moving()) {
 			int x=0, y=0;
-			((const vehikel_basis_t*)ding)->get_screen_offset(x, y);
+			((const vehikel_basis_t*)ding)->get_screen_offset(x, y, raster);
 			fine_here -= koord( x, y );
 		}
 	}
@@ -119,7 +119,9 @@ world_view_t::zeichnen(koord offset)
 			display_fillbox_wh(pos.x, pos.y, gr.x, gr.y, COL_BLACK, true);
 		}
 
-		const koord display_off = koord( min( (gr.x-raster)/2, raster/2), hgt+gr.y-raster )+fine_here;	// we aling the bottom of the image with the small image
+		const koord display_off = ( ( ding  &&  ding->is_moving() ) ?
+										koord( (gr.x-raster)/2, hgt+gr.y/2-raster*3/4 )+fine_here :	// align 1/4 raster from the bottom of the image
+										koord( (gr.x-raster)/2, hgt+gr.y-raster )+fine_here );		// align the bottom of the image
 
 		// display grounds
 		for(uint32 i=0; i<offsets.get_count(); i++) {
@@ -196,7 +198,6 @@ void world_view_t::set_groesse(koord size)
 {
 	gui_komponente_t::set_groesse(size);
 
-	raster = get_tile_raster_width();
 	const sint16 max_dx=size.x/(raster/2) + 2;
 	const sint16 max_dy=(size.y/(raster/2) + 5)&0x0FFE;
 

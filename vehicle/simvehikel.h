@@ -117,7 +117,7 @@ public:
 	sint8 get_hoff() const {return hoff;}
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
-	virtual void get_screen_offset( int &xoff, int &yoff ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	virtual void rotate90();
 
@@ -465,7 +465,7 @@ public:
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	ding_t::typ get_typ() const { return automobil; }
 
