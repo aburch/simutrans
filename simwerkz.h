@@ -821,6 +821,13 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+class wkz_change_password_hash_t : public werkzeug_t {
+public:
+	wkz_change_password_hash_t() : werkzeug_t() { id = WKZ_PWDHASH_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
 /********************** dialoge tools *****************************/
 
 // general help

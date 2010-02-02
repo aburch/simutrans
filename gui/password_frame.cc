@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include "../simdebug.h"
+#include "../simwerkz.h"
 #include "../simwin.h"
 #include "../simworld.h"
 
@@ -35,6 +36,8 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
 	input.set_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
 	add_komponente(&input);
 
+	request_focus( &input );
+
 	set_fenstergroesse(koord(DIALOG_WIDTH, 40));
 }
 
@@ -55,12 +58,20 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 		uint8 hash[20];
 		sha1.Result( hash );
 		if(  !sp->set_unlock( hash )  ) {
+			// set this to world
 			sp->get_welt()->set_player_password_hash( sp->get_player_nr(), hash );
-			// make this the new password
-			memcpy( sp->get_password_hash_ptr(), hash, 20 );
-			// if yes: destroy window
-			destroy_win(this);
+			// and change player password
+			werkzeug_t *w = create_tool( WKZ_PWDHASH_TOOL | SIMPLE_TOOL );
+			cbuffer_t buf(512);
+			for(  int i=0;  i<20;  i++  ) {
+				buf.printf( "%X", hash[i] );
+			}
+			w->set_default_param(buf);
+			sp->get_welt()->set_werkzeug( w, sp );
+			delete w;
 		}
+		// always destroy window
+		destroy_win(this);
 	}
 	return true;
 }

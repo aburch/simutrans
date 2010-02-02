@@ -2142,15 +2142,17 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 	return ok;
 }
 
+
 void karte_t::set_player_password_hash( uint8 player_nr, uint8 *hash )
 {
 	memcpy( player_password_hash[player_nr], hash, 20 );
 }
 
+
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
-	if((!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
+	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
 		return;
@@ -2199,6 +2201,7 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 		werkzeug[sp->get_player_nr()] = w;
 	}
 }
+
 
 sint8 karte_t::min_hgt(const koord pos) const
 {
@@ -2416,21 +2419,20 @@ karte_t::get_random_fab() const
 /*----------------------------------------------------------------------------------------------------------------------*/
 /* same procedure for tourist attractions */
 
-void
-karte_t::add_ausflugsziel(gebaeude_t *gb)
+
+void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level(), 16 );
 //DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
 }
 
-void
-karte_t::remove_ausflugsziel(gebaeude_t *gb)
+
+void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.remove( gb );
 }
-
 
 
 /* select a random target for a tourist; targets are weighted by their importance */
@@ -2483,6 +2485,7 @@ bool karte_t::sync_add(sync_steppable *obj)
 	}
 	return true;
 }
+
 
 bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
@@ -5090,6 +5093,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 	uint32 last_randoms[16];
 	network_frame_count = 0;
+	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
 	// only needed for network
 	uint32 next_command_step=-1;

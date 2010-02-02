@@ -453,6 +453,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_fixedwidth_textarea.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_flowtext.cc"
 				>
 			</File>

@@ -4724,3 +4724,48 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 	}
 	return false;
 }
+
+
+// sets the password (hash) for a given player
+bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
+{
+	if(  default_param==NULL  ) {
+		return false;
+	}
+	uint8 new_hash[20];
+	const char *ptr = default_param;
+	for(  int i=0; i<40;  i++  ) {
+		uint8 nibble;
+		switch(*ptr) {
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9': nibble = *ptr-'0';
+				break;
+			case 'A':
+			case 'B':
+			case 'C':
+			case 'D':
+			case 'E':
+			case 'F': nibble = *ptr-'A'+10;
+				break;
+			default:
+				return false;
+		}
+		ptr ++;
+		if(  i&1 ) {
+			new_hash[i/2] |= (nibble<<4);
+		}
+		else {
+			new_hash[i/2] = nibble;
+		}
+	}
+	memcpy( sp->get_password_hash_ptr(), new_hash, 20 );
+	return false;
+}
