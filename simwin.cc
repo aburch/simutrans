@@ -915,8 +915,8 @@ bool check_pos_win(event_t *ev)
 
 					// resizer hit ?
 					const bool canresize = is_resizing ||
-														(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
-														ev->my > wins[i].pos.y + gr.y - dragger_size);
+														(ev->cx > wins[i].pos.x + gr.x - dragger_size &&
+														ev->cy > wins[i].pos.y + gr.y - dragger_size);
 
 					if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
 						// Hajo: go into resize mode
