@@ -418,13 +418,28 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 			// cost section ...
 			file->rdwr_bool( freeplay, "" );
-			file->rdwr_longlong( starting_money, "" );
 			if(  file->get_version()>102002  ) {
+				file->rdwr_longlong( starting_money, "" );
 				// these must be saved, since new player will get different amounts eventually
 				for(  int i=0;  i<10;  i++  ) {
 					file->rdwr_short( startingmoneyperyear[i].year, 0 );
 					file->rdwr_longlong( startingmoneyperyear[i].money, 0 );
 					file->rdwr_bool( startingmoneyperyear[i].interpol, 0 );
+				}
+			}
+			else {
+				// compatibility code
+				sint64 save_starting_money = starting_money;
+				if(file->is_saving()) {
+					if(save_starting_money==0) save_starting_money = get_starting_money(starting_year);
+					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year);
+					if(save_starting_money==0) save_starting_money = 20000000;
+				}
+				file->rdwr_longlong( save_starting_money, "" );
+				if(file->is_loading()) {
+					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year);
+					if(save_starting_money==0) save_starting_money = 20000000;
+					starting_money = save_starting_money;
 				}
 			}
 			file->rdwr_long( maint_building, "" );
@@ -783,20 +798,19 @@ sint64 einstellungen_t::get_starting_money(sint16 year) const
 		return starting_money;
 	}
 
-	// search entry with startingmoneyperyear[i].year >= year
+	// search entry with startingmoneyperyear[i].year > year
 	int i;
 	bool found = false;
 	for(  i=0;  i<10;  i++  ) {
 		if(startingmoneyperyear[i].year!=0) {
-			if (startingmoneyperyear[i].year>=year) {
+			if (startingmoneyperyear[i].year>year) {
 				found = true;
 				break;
 			}
 		}
 		else {
 			// year is behind the latest given date
-			assert(  i!=0  );
-			return startingmoneyperyear[i-1].money;
+			return startingmoneyperyear[i>0 ? i-1 : 0].money;
 		}
 	}
 	if (i==0) {
@@ -804,7 +818,7 @@ sint64 einstellungen_t::get_starting_money(sint16 year) const
 		return startingmoneyperyear[0].money;
 	}
 	else {
-		// now: startingmoneyperyear[i-1].year <= year <= startingmoneyperyear[i].year
+		// now: startingmoneyperyear[i-1].year <= year < startingmoneyperyear[i].year
 		if (startingmoneyperyear[i-1].interpol) {
 			// linear interpolation
 			return startingmoneyperyear[i-1].money +
