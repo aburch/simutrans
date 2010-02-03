@@ -702,6 +702,18 @@ bool werkzeug_t::is_selected(karte_t *welt) const
 	return welt->get_werkzeug(welt->get_active_player_nr())==this;
 }
 
+const char *werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+{
+	grund_t *gr = welt->lookup(pos);
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}
+
+const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+{
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}
+
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
 	bool init( karte_t *, spieler_t * ) { return false; }

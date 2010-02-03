@@ -220,10 +220,21 @@ public:
 	/* the return string can have different meanings:
 	 * NULL: ok
 	 * "": unspecified error
-	 * "balbal": errors message, will be handled and translated as appropriate
+	 * "blabla": errors message, will be handled and translated as appropriate
+	 * check: called before work (and move too?) koord3d already valid coordinate, checks visibility
+	 * work / move should depend on undergroundmode for not network safe tools
 	 */
+	virtual const char *check( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *, spieler_t *, koord3d ) { return NULL; }
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
+};
+
+/*
+ * Class for tools that work only on ground (kartenboden)
+ */
+class kartenboden_werkzeug_t : public werkzeug_t {
+public:
+	virtual const char *check( karte_t *, spieler_t *, koord3d );
 };
 
 /*

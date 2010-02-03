@@ -1360,8 +1360,9 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		// ... or to end
 		return;
 	}
-	// we have to reach target height if no tunnel building or sliced mode or target ground exists.
-	const bool target_3d = (bautyp&tunnel_flag)==0  ||  grund_t::underground_mode==grund_t::ugm_level  ||  test_bd!=NULL;
+	// we have to reach target height if no tunnel building or (target ground does not exists or is underground).
+	// in full underground mode if there is no tunnel under cursor, kartenboden gets selected
+	const bool target_3d = (bautyp&tunnel_flag)==0  ||  test_bd==NULL  ||  !test_bd->ist_karten_boden();
 
 	koord3d pos=start;
 

@@ -15,6 +15,7 @@ Trunk:
 	CHANGE (Knightly): Not scaling images displayed by gui_image_t anymore
 	FIX: deleting tram signals again
 	ADD: click-and-drag also for network games (except for building elevated ways, bridges, tunnels)
+	ADD: tools should work on all clients regardless of underground mode
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

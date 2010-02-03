@@ -266,7 +266,7 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 {
 	// check for valid ground
 	grund_t *gr=welt->lookup(pos);
-	if (gr==NULL || !gr->is_visible()) {
+	if (gr==NULL) {
 		return NULL;
 	}
 
@@ -309,25 +309,10 @@ static grund_t *wkz_intern_koord_to_weg_grund(spieler_t *sp, karte_t *welt, koor
 
 /****************************************** now the actual tools **************************************/
 
-// returns grund at pos if visible else NULL
-// if no grund at pos exists try kartenboden
-grund_t* get_grund(karte_t *welt, koord3d pos )
-{
-	grund_t *gr = welt->lookup(pos);
-	if (gr == NULL || !gr->is_visible()) {
-		gr = welt->lookup_kartenboden(pos.get_2d());
-		if (gr && !gr->is_visible()) {
-			gr = NULL;
-		}
-	}
-	return(gr);
-}
-
-
 // werkzeuge
 const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
-	grund_t *gr = get_grund(welt, pos);
+	grund_t *gr = welt->lookup(pos);
 	if(gr) {
 		DBG_MESSAGE("wkz_abfrage()","checking map square %s", pos.get_str());
 
@@ -398,7 +383,7 @@ bool wkz_remover_t::wkz_remover_intern(spieler_t *sp, karte_t *welt, koord3d pos
 DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 
 	grund_t *gr = welt->lookup(pos);
-	if (!gr || !gr->is_visible()) {
+	if (!gr) {
 		msg = "";
 		return false;
 	}
@@ -732,18 +717,21 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
+const char *wkz_raise_t::check( karte_t *welt, spieler_t *sp, koord3d k )
+{
+	// check for underground mode
+	if (grund_t::underground_mode == grund_t::ugm_all ||
+		(grund_t::underground_mode == grund_t::ugm_level && !welt->lookup_kartenboden(k.get_2d())->is_visible() )) {
+			return "Terraforming not possible\nhere in underground view";
+	}
+	return NULL;
+}
 
 const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 //DBG_MESSAGE("wkz_raise()","raising square (%d,%d) to %d",pos.x, pos.y, welt->lookup_hgt(pos)+Z_TILE_STEP);
 	bool ok = false;
 	koord pos = k.get_2d();
-
-	// check for underground mode
-	if (grund_t::underground_mode == grund_t::ugm_all ||
-		(grund_t::underground_mode == grund_t::ugm_level && !welt->lookup_kartenboden(pos)->is_visible() )) {
-			return "Terraforming not possible\nhere in underground view";
-	}
 
 	if(welt->ist_in_kartengrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
 		grund_t *gr = welt->lookup_kartenboden(pos);
@@ -810,6 +798,15 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
+const char *wkz_lower_t::check( karte_t *welt, spieler_t *sp, koord3d k )
+{
+	// check for underground mode
+	if (grund_t::underground_mode == grund_t::ugm_all ||
+		(grund_t::underground_mode == grund_t::ugm_level && welt->lookup_kartenboden(k.get_2d())->get_hoehe()>grund_t::underground_level+1 )) {
+			return "Terraforming not possible\nhere in underground view";
+	}
+	return NULL;
+}
 
 const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
@@ -817,11 +814,6 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	bool ok = false;
 	koord pos = k.get_2d();
 
-	// check for underground mode
-	if (grund_t::underground_mode == grund_t::ugm_all ||
-		(grund_t::underground_mode == grund_t::ugm_level && welt->lookup_kartenboden(pos)->get_hoehe()>grund_t::underground_level+1 )) {
-			return "Terraforming not possible\nhere in underground view";
-	}
 	if(welt->ist_in_kartengrenzen(pos)  &&  pos.x>0  &&  pos.y>0) {
 		grund_t *gr = welt->lookup_kartenboden(pos);
 		const sint8 hgt = gr->get_hoehe() + corner4(gr->get_grund_hang());
@@ -867,6 +859,29 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 }
 
 
+const char *wkz_setslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+{
+	grund_t *gr1 = welt->lookup(pos);
+	if(gr1) {
+		// check for underground mode
+		if(  grund_t::underground_mode == grund_t::ugm_all  &&  !gr1->ist_tunnel()  ) {
+			return "Terraforming not possible\nhere in underground view";
+		}
+	}
+	return NULL;
+}
+
+const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+{
+	grund_t *gr1 = welt->lookup(pos);
+	if(gr1) {
+		// check for underground mode
+		if(  grund_t::underground_mode == grund_t::ugm_all  &&  !gr1->ist_tunnel()  ) {
+			return "Terraforming not possible\nhere in underground view";
+		}
+	}
+	return NULL;
+}
 
 /**
  * Create an articial slope
@@ -880,10 +895,6 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
 
-		// check for underground mode
-		if(  grund_t::underground_mode == grund_t::ugm_all  &&  !gr1->ist_tunnel()  ) {
-			return "Terraforming not possible\nhere in underground view";
-		}
 
 		// at least a pixel away from the border?
 		if(  pos.z<welt->get_grundwasser() &&  !gr1->ist_tunnel() ) {
@@ -1115,12 +1126,6 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
 		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
 		if (gr) {
-			// check for underground mode
-			if(  grund_t::underground_mode == grund_t::ugm_all  ||
-				(grund_t::underground_mode == grund_t::ugm_level  &&  gr->get_hoehe()>grund_t::underground_level)
-			) {
-				return "";
-			}
 			if(!gr->get_text()) {
 				const ding_t* thing = gr->obj_bei(0);
 				if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) {
@@ -1153,7 +1158,7 @@ bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t * )
 
 const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k )
 {
-	grund_t *gr = get_grund(welt, k);
+	grund_t *gr = welt->lookup(k);
 	if(gr) {
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
@@ -1199,7 +1204,7 @@ const char *wkz_transformer_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
-	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
+	if(gr  &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
 		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
 		if(fab==NULL) {
 			return "Transformer only next to factory!";
@@ -1235,7 +1240,7 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-	if(gr && gr->is_visible()) {
+	if(gr) {
 		if(gr->ist_natur() &&
 			!gr->ist_wasser() &&
 			gr->get_grund_hang() == 0  &&
@@ -1283,7 +1288,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 		return "";
 	}
 	grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
-	if(!gr  ||  !gr->is_visible()  ||  gr->hat_wege()  ||  gr->get_halt().is_bound()) {
+	if(!gr  ||  gr->hat_wege()  ||  gr->get_halt().is_bound()) {
 		return "";
 	}
 
@@ -1346,7 +1351,7 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t *, koord3d po
 const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-	if(gr && gr->is_visible()) {
+	if(gr) {
 		const baum_besch_t *besch = NULL;
 		bool check_climates = true;
 		bool random_age = false;
@@ -1381,7 +1386,7 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 		return false;
 	}
 	grund_t *bd = welt->lookup(pos);
-	if (bd && bd->is_visible()) {
+	if (bd) {
 		// now just for error messages, we assuming a valid ground
 		// check for right way type
 		if(!fpl->ist_halt_erlaubt(bd)) {
@@ -1518,7 +1523,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error, const koord3d & )
 {
 	grund_t *gr=welt->lookup(pos);
-	if(gr  &&  gr->is_visible()  &&  hang_t::ist_wegbar(gr->get_weg_hang())) {
+	if(gr  &&  hang_t::ist_wegbar(gr->get_weg_hang())) {
 		// ignore tunnel tiles (except road tunnel for tram track building ..)
 		if(  gr->get_typ() == grund_t::tunnelboden  &&  !gr->ist_karten_boden()  && !(besch->get_wtyp()==track_wt  &&  besch->get_styp()==7  && gr->hat_weg(road_wt)) ) {
 			return 0;
@@ -1756,7 +1761,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 
 	error = NULL;
 	grund_t *gr = welt->lookup(pos);
-	if (gr==NULL  || !gr->is_visible() || !brueckenbauer_t::ist_ende_ok(sp,gr) || !hang_t::ist_wegbar(gr->get_grund_hang()) ) {
+	if (gr==NULL  || !brueckenbauer_t::ist_ende_ok(sp,gr) || !hang_t::ist_wegbar(gr->get_grund_hang()) ) {
 		return 0;
 	}
 	if (welt->lookup(pos + koord3d(0,0,1))) {
@@ -1849,6 +1854,16 @@ const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 	return toolstr;
 }
 
+const char *wkz_tunnelbau_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+{
+	if (grund_t::underground_mode == grund_t::ugm_all) {
+		return NULL;
+	}
+	else {
+		return two_click_werkzeug_t::check(welt, sp, pos);
+	}
+}
+
 void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const koord3d &end, karte_t *welt )
 {
 	const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
@@ -1856,8 +1871,8 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
 	bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
 	bauigel.set_keep_existing_faster_ways( event_get_last_control_shift()!=2 );
-	const koord3d end_with_corrected_z = grund_t::underground_mode==grund_t::ugm_level ? end : koord3d(end.get_2d(),start.z);
-	bauigel.calc_straight_route(start,end_with_corrected_z);
+	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden
+	bauigel.calc_straight_route(start,end);
 }
 
 const char *wkz_tunnelbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -1894,7 +1909,7 @@ uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d
 	// search for ground
 	// start needs valid tile!
 	grund_t *gr = welt->lookup(pos);
-	if(  gr  &&  gr->is_visible()  ) {
+	if(  gr  ) {
 		if( gr->hat_wege() ) {
 			const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
 			// use the check_owner routine of wegbauer_t (not spieler_t!), needs an instance
@@ -1916,12 +1931,7 @@ uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d
 	}
 	// if starting tile is tunnel .. build underground tracks
 	if(gr->ist_tunnel()) {
-		if( grund_t::underground_mode != grund_t::ugm_none ) {
-			return 2;
-		}
-		else {
-			return 0;
-		}
+		return 2;
 	}
 	// .. otherwise build tunnel mouths (and tunnel behind)
 	else {
@@ -2154,7 +2164,7 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 							gr->remove_everything_from_way(sp,gr->get_weg_nr(0)->get_waytype(),ribi_t::keine);
 						}
 						gr->obj_loesche_alle(sp);
-						if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) {
+						if (gr->is_visible() && gr->get_typ()==grund_t::tunnelboden && i>0) { // visibility test does not influence execution
 							grund_t *bd = welt->access(verbindung.position_bei(i-1).get_2d())->get_kartenboden();
 							bd->calc_bild();
 							bd->set_flag(grund_t::dirty);
@@ -3000,6 +3010,22 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 	return "Illegal description";
 }
 
+const char *wkz_station_t::check( karte_t *welt, spieler_t *sp, koord3d pos )
+{
+	const char *msg = werkzeug_t::check(welt,sp, pos);
+	if (msg==NULL) {
+		sint8 rotation;
+		const haus_besch_t *besch=get_besch(rotation);
+		if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > grund_t::underground_level) ) {
+			// in underground mode, buildings will be done invisible above ground => disallow such confusion
+			if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
+				msg = "Cannot built this station/building\nin underground mode here.";
+			}
+		}
+	}
+	return msg;
+}
+
 const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	const planquadrat_t *plan = welt->lookup(pos.get_2d());
@@ -3015,12 +3041,6 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 	sint8 rotation;
 	const haus_besch_t *besch=get_besch(rotation);
-	if(  grund_t::underground_mode==grund_t::ugm_all || (grund_t::underground_mode==grund_t::ugm_level && plan->get_kartenboden()->get_hoehe() > grund_t::underground_level) ) {
-		// in underground mode, buildings will be done invisible above ground => disallow such confusion
-		if(  besch->get_utyp()!=haus_besch_t::generic_stop  ||  besch->get_extra()==air_wt) {
-			return "Cannot built this station/building\nin underground mode here.";
-		}
-	}
 	const char *msg = NULL;
 	switch (besch->get_utyp()) {
 		case haus_besch_t::hafen:
@@ -3336,7 +3356,7 @@ bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	const grund_t* gr = welt->lookup_kartenboden(pos.get_2d());
-	if(gr==NULL || !gr->is_visible()) {
+	if(gr==NULL) {
 		return "";
 	}
 
@@ -3418,7 +3438,7 @@ bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k.get_2d());
-	if(gr==NULL || !gr->is_visible()) {
+	if(gr==NULL) {
 		return "";
 	}
 
@@ -3515,7 +3535,7 @@ bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k.get_2d());
-	if(gr==NULL|| !gr->is_visible()) {
+	if(gr==NULL) {
 		return "";
 	}
 
@@ -3588,7 +3608,7 @@ bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k.get_2d());
-	if(gr==NULL|| !gr->is_visible()) {
+	if(gr==NULL) {
 		return "";
 	}
 
@@ -3755,7 +3775,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
 		// check for underground ..
 		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-		if (!gr || !gr->is_visible()) {
+		if (!gr) {
 			return "";
 		}
 		// remove previous one
@@ -3878,10 +3898,6 @@ bool wkz_stop_moving_t::init( karte_t *, spieler_t * )
 }
 // checks if the given ground is suitable for stop moving
 bool wkz_stop_moving_check_grund(grund_t *bd, spieler_t *sp) {
-	// ignore invisible tiles
-	if(!bd->is_visible()) {
-		return(false);
-	}
 	// must be on a way or in the sea?
 	if(!bd->ist_wasser()) {
 		weg_t *w1 = bd->get_weg_nr(0);
@@ -3903,7 +3919,7 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	// now we can start
 	grund_t *bd = welt->lookup(pos);
-	if (bd==NULL || !bd->is_visible()) {
+	if (bd==NULL) {
 		return "";
 	}
 
@@ -4092,7 +4108,8 @@ const char *wkz_daynight_level_t::get_tooltip(spieler_t *) {
 }
 
 bool wkz_daynight_level_t::init( karte_t *, spieler_t * ) {
-	if(grund_t::underground_mode==grund_t::ugm_all  ||  umgebung_t::night_shift) {		return false;
+	if(grund_t::underground_mode==grund_t::ugm_all  ||  umgebung_t::night_shift) {
+		return false;
 	}
 	if(default_param  &&  strlen(default_param)>0) {
 		if(default_param[0]=='+'  &&  umgebung_t::daynight_level > 0) {

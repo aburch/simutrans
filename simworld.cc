@@ -4996,17 +4996,27 @@ karte_t::interactive_event(event_t &ev)
 	if(IS_LEFTRELEASE(&ev)) {
 DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
-		const char *err = NULL;
-		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())  &&  (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save())  ) {
-			// do the work
-			err = werkzeug[get_active_player_nr()]->work( this, get_active_player(), zeiger->get_pos() );
-			// play sound / error message
-			get_active_player()->tell_tool_result(werkzeug[get_active_player_nr()], zeiger->get_pos(), err, true);
-		}
-		else {
-			// queue tool for network
-			nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), werkzeug[get_active_player_nr()], zeiger->get_pos(), steps, false);
-			network_send_server(nwc);
+		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())) {
+			const char *err = NULL;
+			bool result = true;
+			// first check for visibility etc
+			err = werkzeug[get_active_player_nr()]->check( this, get_active_player(), zeiger->get_pos() );
+			if (err==NULL) {
+				if (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save()) {
+					// do the work
+					err = werkzeug[get_active_player_nr()]->work( this, get_active_player(), zeiger->get_pos() );
+				}
+				else {
+					// queue tool for network
+					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), werkzeug[get_active_player_nr()], zeiger->get_pos(), steps, false);
+					network_send_server(nwc);
+					result = false;
+				}
+			}
+			if (result) {
+				// play sound / error message
+				get_active_player()->tell_tool_result(werkzeug[get_active_player_nr()], zeiger->get_pos(), err, true);
+			}
 		}
 	}
 
@@ -5250,7 +5260,7 @@ bool karte_t::interactive(uint32 quit_month)
 			if (nwc) {
 				// want to execute something in the past?
 				if (nwc->get_sync_step() < sync_steps) {
-					dbg->warning("karte_t::interactive", "wanted to do_command in the past");
+					dbg->warning("karte_t::interactive", "wanted to do_command(%d) in the past", nwc->get_id());
 					network_disconnect();
 				}
 				// check random counter?
@@ -5259,7 +5269,7 @@ bool karte_t::interactive(uint32 quit_month)
 					// this was the random number at the previous sync step on the server
 					uint32 server_random = nwcheck->server_random_seed;
 					uint32 server_syncst = nwcheck->server_sync_step;
-					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: rand=%d", server_syncst, last_randoms[server_syncst&15], server_random);
+					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, last_randoms[server_syncst&15], server_syncst, server_random);
 					if (last_randoms[server_syncst&15]!=server_random) {
 						network_disconnect();
 					}
