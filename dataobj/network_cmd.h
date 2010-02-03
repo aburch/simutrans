@@ -193,12 +193,13 @@ public:
 	virtual void do_command(karte_t*);
 	virtual const char* get_name() { return "nwc_tool_t";}
 private:
+	char *default_param;
 	uint32 tool_client_id;
-	uint8 player_nr;
-	bool init;
 	uint16 wkz_id;
 	koord3d pos;
-	char *default_param;
+	uint8 flags;
+	uint8 player_nr;
+	bool init;
 	bool exec;
 
 	// contains tools of players at other clients

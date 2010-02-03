@@ -169,6 +169,17 @@ public:
 	sint16 failed_sound;
 	sint8 offset;
 
+	enum {
+		WFL_SHIFT = 1,
+		WFL_CTRL  = 2,
+		WFL_LOCAL = 4
+	};
+	uint8 flags; // flags are set before init/work/move is called
+
+	bool is_ctrl_pressed() { return flags & WFL_CTRL; }
+	bool is_shift_pressed() { return flags & WFL_SHIFT; }
+	bool is_local_execution() { return flags & WFL_LOCAL; }
+
 	uint16 command_key;// key to toggle action for this function
 
 	static vector_tpl<werkzeug_t *> general_tool;

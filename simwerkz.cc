@@ -1513,7 +1513,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
-	besch = get_besch(welt->get_timeline_year_month(), true);
+	besch = get_besch(welt->get_timeline_year_month(), is_local_execution());
 	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
 		cursor = besch->get_cursor()->get_bild_nr(0);
 	}
@@ -1557,7 +1557,7 @@ void wkz_wegebau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, const
 	}
 
 	bauigel.route_fuer(bautyp, besch);
-	if(event_get_last_control_shift()==2) {
+	if(is_ctrl_pressed()) {
 		DBG_MESSAGE("wkz_wegebau()", "try straight route");
 		bauigel.set_keep_existing_ways(false);
 		bauigel.calc_straight_route(start,end);
@@ -1870,7 +1870,7 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 	int bt = besch->get_waytype()|wegbauer_t::tunnel_flag;
 	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
 	bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
-	bauigel.set_keep_existing_faster_ways( event_get_last_control_shift()!=2 );
+	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
 	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden
 	bauigel.calc_straight_route(start,end);
 }
@@ -1881,7 +1881,7 @@ const char *wkz_tunnelbau_t::do_work( karte_t *welt, spieler_t *sp, const koord3
 		// Build tunnel mouths
 		if (welt->lookup_kartenboden(start.get_2d())->get_hoehe() == start.z) {
 			const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
-			return tunnelbauer_t::baue( welt, sp, start.get_2d(), besch );
+			return tunnelbauer_t::baue( welt, sp, start.get_2d(), besch, !is_ctrl_pressed() );
 		}
 		else {
 			return "";
@@ -2940,7 +2940,7 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 	}
 	cursor = hb->get_cursor()->get_bild_nr(0);
 	if(  hb->get_utyp()==haus_besch_t::generic_extension  &&  hb->get_all_layouts()>1  ) {
-		if(  event_get_last_control_shift()==2  &&  rotation==-1  ) {
+		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
 			// call station dialoge instead
 			destroy_win( magic_station_building_select );
 			create_win( new station_building_select_t(welt, hb), w_info, magic_station_building_select);

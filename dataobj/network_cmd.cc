@@ -297,6 +297,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	exec = false;
 	init = init_;
 	tool_client_id = 0;
+	flags = wkz->flags;
 }
 
 
@@ -309,6 +310,7 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	default_param = strdup(nwt.default_param);
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
+	flags = nwt.flags;
 }
 
 
@@ -330,8 +332,9 @@ void nwc_tool_t::rdwr()
 	packet->rdwr_bool(init);
 	packet->rdwr_bool(exec);
 	packet->rdwr_long(tool_client_id);
+	packet->rdwr_byte(flags);
 	//if (packet->is_loading()) {
-		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec);
+		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec, flags);
 	//}
 }
 
@@ -448,7 +451,8 @@ void nwc_tool_t::do_command(karte_t *welt)
 		if(  wkz  ) {
 			const char* old_default_param = wkz->get_default_param();
 			wkz->set_default_param(default_param);
-			dbg->warning("command","%d:%d:%s",wkz_id&0xFFF,init,wkz->get_tooltip(sp));
+			wkz->flags = flags | (local ? werkzeug_t::WFL_LOCAL : 0);
+			dbg->warning("command","%d:%d:%s:%d",wkz_id&0xFFF,init,wkz->get_tooltip(sp),wkz->flags);
 			if(  init  ) {
 				if(local) {
 					welt->local_set_werkzeug(wkz, sp);
@@ -465,6 +469,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 				}
 			}
 			wkz->set_default_param(old_default_param);
+			wkz->flags = 0;
 		}
 
 	}

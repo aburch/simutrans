@@ -2157,6 +2157,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
 		return;
 	}
+	w->flags = event_get_last_control_shift();
 	if(!umgebung_t::networkmode  ||  w->is_init_network_save()  ) {
 		local_set_werkzeug(w, sp);
 	}
@@ -2171,6 +2172,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 // set a new tool on our client, calls init
 void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 {
+	w->flags |= werkzeug_t::WFL_LOCAL;
 	if(w->init(this,sp)) {
 
 		set_dirty();
@@ -2200,6 +2202,7 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 		}
 		werkzeug[sp->get_player_nr()] = w;
 	}
+	w->flags = 0;
 }
 
 
@@ -4804,20 +4807,23 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mb_alt = ev->button_state;
 
 			zeiger->change_pos(pos);
-			if(  !umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_move_network_save(get_active_player())) {
+			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
+			if(  !umgebung_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
+				wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
 				if(  ev->button_state == 0  ) {
 					is_dragging = false;
 					if(  ist_in_kartengrenzen(pos.get_2d())  ) {
-						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 0, pos );
+						wkz->move( this, get_active_player(), 0, pos );
 					}
 				}
 				else if(ev->ev_class==EVENT_DRAG  &&  ist_in_kartengrenzen(pos.get_2d())) {
 					if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {
-						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 1, prev_pos );
+						wkz->move( this, get_active_player(), 1, prev_pos );
 					}
 					is_dragging = true;
-					werkzeug[get_active_player_nr()]->move( this, get_active_player(), 1, pos );
+					wkz->move( this, get_active_player(), 1, pos );
 				}
+				wkz->flags = 0;
 			}
 
 			if(  (ev->button_state&7)==0  ) {
@@ -4999,24 +5005,28 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())) {
 			const char *err = NULL;
 			bool result = true;
+			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
 			// first check for visibility etc
-			err = werkzeug[get_active_player_nr()]->check( this, get_active_player(), zeiger->get_pos() );
+			err = wkz->check( this, get_active_player(), zeiger->get_pos() );
 			if (err==NULL) {
-				if (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save()) {
+				wkz->flags = event_get_last_control_shift();
+				if (!umgebung_t::networkmode  ||  wkz->is_work_network_save()) {
 					// do the work
-					err = werkzeug[get_active_player_nr()]->work( this, get_active_player(), zeiger->get_pos() );
+					wkz->flags |= werkzeug_t::WFL_LOCAL;
+					err = wkz->work( this, get_active_player(), zeiger->get_pos() );
 				}
 				else {
 					// queue tool for network
-					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), werkzeug[get_active_player_nr()], zeiger->get_pos(), steps, false);
+					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), wkz, zeiger->get_pos(), steps, false);
 					network_send_server(nwc);
 					result = false;
 				}
 			}
 			if (result) {
 				// play sound / error message
-				get_active_player()->tell_tool_result(werkzeug[get_active_player_nr()], zeiger->get_pos(), err, true);
+				get_active_player()->tell_tool_result(wkz, zeiger->get_pos(), err, true);
 			}
+			wkz->flags = 0;
 		}
 	}
 

@@ -16,6 +16,7 @@ Trunk:
 	FIX: deleting tram signals again
 	ADD: click-and-drag also for network games (except for building elevated ways, bridges, tunnels)
 	ADD: tools should work on all clients regardless of underground mode
+	ADD: tools work now correct with ctrl keys in networkmode
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

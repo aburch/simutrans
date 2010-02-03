@@ -1655,7 +1655,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch );
+				tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch, true );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1688,7 +1688,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 						// make a short tunnel
 						wi->set_ribi(ribi_typ(hang_t::gegenueber(h)));
 						wi1->set_ribi(ribi_typ(h));
-						tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch );
+						tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch, true );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}

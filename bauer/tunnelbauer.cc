@@ -231,7 +231,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 
 
-const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch )
+const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel )
 {
 	assert( besch );
 
@@ -261,7 +261,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 
 	// Tunnelende suchen
 	koord3d end = koord3d::invalid;
-	if(event_get_last_control_shift()!=2) {
+	if(full_tunnel) {
 		end = finde_ende(welt, gr->get_pos(), zv, wegtyp);
 	}
 	else {
