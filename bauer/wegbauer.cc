@@ -57,6 +57,7 @@
 #include "../dings/crossing.h"
 #include "../dings/leitung2.h"
 #include "../dings/groundobj.h"
+#include "../dings/wayobj.h"
 
 #include "../vehicle/movingobj.h"
 
@@ -1848,6 +1849,11 @@ wegbauer_t::baue_tunnelboden()
 				weg_t *weg = gr->get_weg(tunnel_besch->get_waytype());
 				weg->set_besch(wb);
 				weg->set_max_speed(tunnel_besch->get_topspeed());
+				// respect max speed of catenary
+				wayobj_t *wo = gr->get_wayobj((waytype_t)tunnel_besch->get_waytype());
+				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+					weg->set_max_speed( wo->get_besch()->get_topspeed() );
+				}
 				gr->calc_bild();
 
 				cost -= tunnel_besch->get_preis();
@@ -1930,6 +1936,11 @@ void wegbauer_t::baue_strasse()
 				// cost is the more expensive one, so downgrading is between removing and new buidling
 				cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 				weg->set_besch(besch);
+				// respect max speed of catenary
+				wayobj_t *wo = gr->get_wayobj((waytype_t)besch->get_wtyp());
+				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+					weg->set_max_speed( wo->get_besch()->get_topspeed() );
+				}
 				spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 				weg->set_besitzer(sp);
 			}
@@ -1995,6 +2006,11 @@ void wegbauer_t::baue_schiene()
 					// cost is the more expensive one, so downgrading is between removing and new buidling
 					cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 					weg->set_besch(besch);
+					// respect max speed of catenary
+					wayobj_t *wo = gr->get_wayobj((waytype_t)besch->get_wtyp());
+					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+						weg->set_max_speed( wo->get_besch()->get_topspeed() );
+					}
 					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 					weg->set_besitzer(sp);
 				}
