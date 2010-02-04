@@ -4426,14 +4426,9 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 
 		case 'f': // open schedule
 			{
-				if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
-					// pop up error message here!
-					return false;
-				}
-				void *t;
-				sscanf( p, "%p", &t );
-				// we open the window only where the convoi ptr is exactly at the same address
-				cnv->open_schedule_window( t==cnv.get_rep() );
+				// we open the window only when executed on the same client that triggered the tool
+				// but the all clients must call the function anyway
+				cnv->open_schedule_window( is_local_execution() );
 			}
 			break;
 
@@ -4519,20 +4514,21 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 				line = sp->simlinemgmt.create_line( atoi(p), sp );
 				while(  *p  &&  *p++!=','  ) {
 				}
-				void *t;
-				sscanf( p, "%p", &t );
+				long t;
+				sscanf( p, "%ld", &t );
 				while(  *p  &&  *p++!=','  ) {
 				}
 				line->get_schedule()->sscanf_schedule( p );
-				fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic( (long)t ));
-				if(  fg  ) {
-					fg->init_line_selector();
-				}
-//				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( (long)&(sp->simlinemgmt) ));
-				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic( (long)t ));
-				if(  sl  ) {
-					sl->show_lineinfo( line );
-					create_win( new line_management_gui_t(line, sp), w_info, (long)line.get_rep() );
+				if (is_local_execution()) {
+					fahrplan_gui_t *fg = dynamic_cast<fahrplan_gui_t *>(win_get_magic(t));
+					if(  fg  ) {
+						fg->init_line_selector();
+					}
+					schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(t));
+					if(  sl  ) {
+						sl->show_lineinfo( line );
+						create_win( new line_management_gui_t(line, sp), w_info, (long)line.get_rep() );
+					}
 				}
 			}
 			break;

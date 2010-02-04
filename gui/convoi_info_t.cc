@@ -361,9 +361,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 
 		if(komp == &button) {
-			char ptr[32];
-			sprintf( ptr, "%p", cnv.get_rep() );
-			cnv->call_convoi_tool( 'f', ptr );
+			cnv->call_convoi_tool( 'f', NULL );
 			return true;
 		}
 

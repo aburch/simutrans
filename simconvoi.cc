@@ -2179,6 +2179,7 @@ void convoi_t::open_schedule_window( bool show )
 	if(  welt->get_active_player()==get_besitzer()  &&  show  ) {
 		// Fahrplandialog oeffnen
 		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
+		// TODO: what happens if no client opens the window??
 	}
 	fpl->eingabe_beginnen();
 }

@@ -315,7 +315,7 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
 		cbuffer_t buf(128);
-		buf.printf( "c,0,%i,%p,0|,", (int)tabs_to_lineindex[tabs.get_active_tab_index()], &(sp->simlinemgmt) );
+		buf.printf( "c,0,%i,%ld,0|,", (int)tabs_to_lineindex[tabs.get_active_tab_index()], (long)&(sp->simlinemgmt) );
 		w->set_default_param(buf);
 		sp->get_welt()->set_werkzeug( w, sp );
 		// since init always returns false, it is save to delete immediately

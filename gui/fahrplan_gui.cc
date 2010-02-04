@@ -499,7 +499,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
 		cbuffer_t buf(5500);
-		buf.printf( "c,0,%i,%p,", (int)fpl->get_type(), old_fpl );
+		buf.printf( "c,0,%i,%ld,", (int)fpl->get_type(), (long)old_fpl );
 		fpl->sprintf_schedule( buf );
 		w->set_default_param(buf);
 		sp->get_welt()->set_werkzeug( w, sp );
