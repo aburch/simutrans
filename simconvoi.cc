@@ -2176,7 +2176,7 @@ void convoi_t::open_schedule_window( bool show )
 	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 
-	if(  welt->get_active_player()==get_besitzer()  &&  show  ) {
+	if(  show  ) {
 		// Fahrplandialog oeffnen
 		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
 		// TODO: what happens if no client opens the window??
