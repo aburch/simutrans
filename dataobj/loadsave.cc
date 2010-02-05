@@ -543,7 +543,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 {
 	if(saving) {
 		static char nr[256];
-		size_t len = sprintf( nr, "%*s<%s>%.0lf</%s>\n", ident, "", typ, (double)s, typ );
+		size_t len = sprintf( nr, "%*s<%s>%.0f</%s>\n", ident, "", typ, (double)s, typ );
 		write( nr, len );
 	}
 	else {

@@ -1472,7 +1472,7 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
-	sprintf(toolstr, "%s, %ld$ (%.2lf$), %dkm/h",
+	sprintf(toolstr, "%s, %ld$ (%.2f$), %dkm/h",
 		translator::translate(besch->get_name()),
 		besch->get_preis()/100l,
 		(double)(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18))/100.0,
