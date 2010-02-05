@@ -1817,8 +1817,9 @@ wegbauer_t::baue_tunnelboden()
 
 		const weg_besch_t *wb = tunnel_besch->get_weg_besch();
 		if(wb==NULL) {
-			// now we seach a matchin wy for the tunnels top speed
-			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+			// now we search a matching way for the tunnels top speed
+			// ignore timeline to get consistent results
+			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), 0, weg_t::type_flat );
 		}
 
 		if(gr==NULL) {

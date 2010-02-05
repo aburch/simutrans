@@ -1945,7 +1945,12 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 	calc_route( bauigel, start, end, welt );
 
 	const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
-	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+	// now we search a matching way for the tunnels top speed
+	const weg_besch_t *wb = besch->get_weg_besch();
+	if(wb==NULL) {
+		// ignore timeline to get consistent results
+		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), 0, weg_t::type_flat );
+	}
 
 	welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
 

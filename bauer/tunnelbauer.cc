@@ -295,11 +295,11 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koo
 
 DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
-	// now we seach a matchin way for the tunnels top speed
+	// now we search a matching way for the tunnels top speed
 	const weg_besch_t *weg_besch = besch->get_weg_besch();
 	if(weg_besch==NULL) {
-		// now we seach a matchin wy for the tunnels top speed
-		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+		// ignore timeline to get consistent results
+		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), 0, weg_t::type_flat );
 	}
 
 	const weg_besch_t *einfahrt_weg_besch = baue_einfahrt(welt, sp, pos, zv, besch, NULL, cost);
