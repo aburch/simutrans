@@ -220,7 +220,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	no_load_button.add_listener(this);
 
 	replace_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	replace_button.set_pos(koord(BUTTON3_X,76+BUTTON_HEIGHT+1));
+	replace_button.set_pos(koord(BUTTON3_X,offset_below_viewport-(BUTTON_HEIGHT + 5)));
 	replace_button.set_text("Replace");
 	replace_button.set_typ(button_t::box);
 	replace_button.set_tooltip("Automatically replace this convoy.");
@@ -347,7 +347,8 @@ enable_home:
 		//indicator
 		{
 			const int pos_x = pos.x + view.get_pos().x;
-			const int pos_y = pos.y + view.get_pos().y + 64 + 10;
+			//const int pos_y = pos.y + view.get_pos().y + 64 + 10;
+			const int pos_y = pos.y + 21 + view.get_groesse().y + 8;
 
 			COLOR_VAL color = COL_BLACK;
 			switch (cnv->get_state())
@@ -365,7 +366,7 @@ enable_home:
 					color = COL_ORANGE;
 			}
 			display_ddd_box_clip(pos_x, pos_y, 64, 8, MN_GREY0, MN_GREY4);
-			display_fillbox_wh_clip(pos_x + 1, pos_y + 1, 62, 6, color, true);
+			display_fillbox_wh_clip(pos_x + 1, pos_y + 1, 126, 6, color, true);
 		}
 
 
