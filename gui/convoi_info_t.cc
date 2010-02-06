@@ -92,7 +92,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-	view(cnv->get_vehikel(0)),
+	view(cnv->get_vehikel(0), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	sort_label(translator::translate("loaded passenger/freight")),
 	freight_info(8192)
 {
@@ -100,7 +100,10 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
-	input.set_pos(koord(11,4));
+	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
+	const sint16 total_width = 3*(BUTTON_WIDTH+BUTTON_SPACER) + 30 + view.get_groesse().x + 10;
+
+	input.set_pos(koord(10,4));
 	input.set_text( cnv->access_internal_name(), 116);
 	add_komponente(&input);
 
@@ -128,7 +131,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	details_button.set_tooltip("Vehicle details");
 	add_komponente(&details_button);
 
-	scrolly.set_pos(koord(0, 122));
+	scrolly.set_pos(koord(0, offset_below_viewport+46));
 	add_komponente(&scrolly);
 
 	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
@@ -150,10 +153,10 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	line_button.add_listener( this );
 	line_bound = false;
 
-	set_fenstergroesse(koord(TOTAL_WIDTH, 278));
+	set_fenstergroesse(koord(total_width, view.get_groesse().y+222));
 
 	// chart
-	chart.set_pos(koord(88,76+BUTTON_HEIGHT+18));
+	chart.set_pos(koord(88,offset_below_viewport+BUTTON_HEIGHT+8));
 	chart.set_groesse(koord(TOTAL_WIDTH-88-4, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
@@ -197,11 +200,11 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	button.set_typ(button_t::roundbox);
 	button.set_tooltip("Alters a schedule.");
 	add_komponente(&button);
-	button.set_pos(koord(BUTTON1_X,76));
+	button.set_pos(koord(BUTTON1_X,offset_below_viewport));
 	button.add_listener(this);
 
 	go_home_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	go_home_button.set_pos(koord(BUTTON2_X,76));
+	go_home_button.set_pos(koord(BUTTON2_X,offset_below_viewport));
 	go_home_button.set_text("go home");
 	go_home_button.set_typ(button_t::roundbox_state);
 	go_home_button.set_tooltip("Sends the convoi to the last depot it departed from!");
@@ -209,7 +212,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	go_home_button.add_listener(this);
 
 	no_load_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	no_load_button.set_pos(koord(BUTTON3_X,76));
+	no_load_button.set_pos(koord(BUTTON3_X,offset_below_viewport));
 	no_load_button.set_text("no load");
 	no_load_button.set_typ(button_t::roundbox);
 	no_load_button.set_tooltip("No goods are loaded onto this convoi.");
@@ -224,7 +227,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	add_komponente(&replace_button);
 	replace_button.add_listener(this);
 
-	follow_button.set_groesse(koord(66, BUTTON_HEIGHT));
+	follow_button.set_groesse(koord(view.get_groesse().x, BUTTON_HEIGHT));
 	follow_button.set_text("follow me");
 	follow_button.set_typ(button_t::roundbox_state);
 	follow_button.set_tooltip("Follow the convoi on the map.");
@@ -233,7 +236,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	cnv->set_sortby( umgebung_t::default_sortmode );
 
-	set_min_windowsize(koord(TOTAL_WIDTH, 194));
+	set_min_windowsize(koord(total_width, view.get_groesse().y+138));
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
 }
@@ -508,9 +511,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 
 		if(komp == &button) {
-			char ptr[32];
-			sprintf( ptr, "%p", cnv.get_rep() );
-			cnv->call_convoi_tool( 'f', ptr );
+			cnv->call_convoi_tool( 'f', NULL );
 			return true;
 		}
 
@@ -552,8 +553,8 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	{
 		toggler.pressed = !toggler.pressed;
 		const koord offset = toggler.pressed ? koord(0, statistics_height) : koord(0, -statistics_height);
-		set_min_windowsize( koord(TOTAL_WIDTH, toggler.pressed ? 364: 194));
-		scrolly.set_pos( scrolly.get_pos()+koord(0,offset.y) );
+		set_min_windowsize(get_min_windowsize() + offset);
+		scrolly.set_pos(scrolly.get_pos() + offset);
 		// toggle visibility of components
 		chart.set_visible(toggler.pressed);
 		set_fenstergroesse(get_fenstergroesse() + offset); // "Window size"
@@ -590,14 +591,14 @@ void convoi_info_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	input.set_groesse(koord(get_fenstergroesse().x-22, 13));
+	input.set_groesse(koord(get_fenstergroesse().x - 20, 13));
 
-	view.set_pos(koord(get_fenstergroesse().x - 64 - 12 , 21));
-	follow_button.set_pos(koord(view.get_pos().x-1, 76+BUTTON_HEIGHT-1));
+	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
+	follow_button.set_pos(koord(view.get_pos().x, view.get_groesse().y + 21));
 
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 
-	const int yoff = scrolly.get_pos().y-BUTTON_HEIGHT-2;
+	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-2;
 	sort_button.set_pos(koord(BUTTON1_X,yoff));
 	toggler.set_pos(koord(BUTTON3_X,yoff));
 	details_button.set_pos(koord(BUTTON4_X,yoff));

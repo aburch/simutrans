@@ -135,7 +135,7 @@ bool loadsave_t::rd_open(const char *filename)
 				*s++ = c;
 			}
 			*s = 0;
-			while(  lsgetc()!='>'  );
+			while(  lsgetc()!='>'  )  ;
 		}
 	}
 	else {
@@ -245,7 +245,7 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	if(  !is_xml()  ) {
 		char str[4096];
 		size_t len;
-		if(  version<103000  ) {
+		if(  version<102002  ) {
 			len = sprintf( str, "%s%s%s\n", savegame_version, "zip", this->pak_extension );
 		}
 		else {
@@ -346,7 +346,6 @@ void loadsave_t::lsputc(int c)
 int loadsave_t::lsgetc()
 {
 	if(is_bzip2()) {
-		size_t l = 0;
 		uint8 c[2];
 		if(  bse==BZ_OK  ) {
 			BZ2_bzRead( &bse, bzfp, c, 1);
@@ -588,7 +587,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 {
 	if(saving) {
 		static char nr[256];
-		size_t len = sprintf( nr, "%*s<%s>%.0lf</%s>\n", ident, "", typ, (double)s, typ );
+		size_t len = sprintf( nr, "%*s<%s>%.0f</%s>\n", ident, "", typ, (double)s, typ );
 		write( nr, len );
 	}
 	else {
@@ -603,7 +602,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		if(  strcmp(typ,buffer)!=0  ) {
 			dbg->fatal( "loadsave_t::rdwr_str()","expected \"<%s>\", got \"<%s>\"", typ, buffer );
 		}
-		while(  lsgetc()!='>'  );
+		while(  lsgetc()!='>'  )  ;
 		// read number;
 		s = 0;
 		bool minus = false;
@@ -646,7 +645,7 @@ void loadsave_t::rdwr_xml_number(sint64 &s, const char *typ)
 		if(  strcmp(typ,buffer)!=0  ) {
 			dbg->fatal( "loadsave_t::rdwr_str()","expected \"</%s>\", got \"</%s>\"", typ, buffer );
 		}
-		while(  lsgetc()!='>'  );
+		while(  lsgetc()!='>'  )  ;
 	}
 }
 
@@ -732,7 +731,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 			write(s, len);
 		}
 		else {
-			long res = read(&len, sizeof(sint16));
+			read(&len, sizeof(sint16));
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
@@ -787,7 +786,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 				*s = 0;
 				// go until closing
 				if(  ptr==0  ||  *ptr!=0  ) {
-					while(  lsgetc()!='>'  );
+					while(  lsgetc()!='>'  )  ;
 				}
 			}
 			else {
@@ -842,7 +841,7 @@ void loadsave_t::start_tag(const char *tag)
 			if(  strncmp(buf,tag,len)!=0  ) {
 				dbg->fatal( "loadsave_t::start_tag()","expected \"%s\", got \"%s\"", tag, buf );
 			}
-			while(  lsgetc()!='>'  );
+			while(  lsgetc()!='>'  )  ;
 		}
 	}
 }
@@ -961,7 +960,6 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension_str)
 {	
 	uint32 experimental_version = 0;
-
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
 	while(*version_text && *version_text++ != '.');
@@ -1019,7 +1017,7 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		version_text++;
 	}
 
-	if(  version<103000  ) {
+	if(  version<=102002  ) {
 		/* the compression and the mode we determined already ourselves (otherwise we cannot read this
 		 * => leave the mode alone but for unknown modes!
 		 */

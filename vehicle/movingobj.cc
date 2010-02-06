@@ -121,7 +121,7 @@ void movingobj_t::calc_bild()
 {
 	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
-	const sint16 seasons = besch->get_seasons()-1;
+	const uint8 seasons = besch->get_seasons()-1;
 	season=0;
 
 	// two possibilities

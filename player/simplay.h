@@ -7,7 +7,6 @@
 #ifndef simplay_h
 #define simplay_h
 
-#include "../utils/notification.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 
@@ -161,10 +160,26 @@ protected:
 	 */
 	bool automat;
 
+	/**
+	 * Are this player allowed to do any changes?
+	 * @author Hj. Malthaner
+	 */
+	bool locked;
+
+	// contains the password hash for local games
+	uint8 pwd_hash[20];
+
 public:
 	virtual bool set_active( bool b ) { return automat = b; }
 
 	bool is_active() const { return automat; }
+
+	bool is_locked() const { return locked; }
+
+	bool set_unlock( uint8 *hash );
+
+	// some routine needs this for direct manipulation
+	uint8 *get_password_hash_ptr() { return pwd_hash; }
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() { return HUMAN; }
@@ -377,11 +392,14 @@ public:
 	virtual void tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool local);
 
 	/**
-	 * Tells the player that a fabrik_t is going to be deleted.
-	 * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
-	 * @author Bernd Gabriel, Jan 01, 2010
+	 * Tells the player that the factory
+	 * is going to be deleted (flag==0)
+	 * Bernd Gabriel, Dwachs
 	 */
-	virtual void notification(notification_t info, fabrik_t &fab) {}
+	enum notification_factory_t {
+		notify_delete	// notified immediately before object is deleted (and before nulled in the slist_tpl<>)!
+	};
+	virtual void notify_factory(notification_factory_t, const fabrik_t*) {}
 
 private:
 	/* undo informations *

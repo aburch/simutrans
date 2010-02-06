@@ -19,7 +19,7 @@ static cbuffer_t gr_info(1024);
 grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t(gr_->get_name(), NULL),
 	gr(gr_),
-	view(gr_->get_welt(), gr_->get_pos())
+	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
 	const ding_t* d = gr->obj_bei(0);
 	if (d != NULL) {
@@ -27,13 +27,12 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 	}
 	gr_info.clear();
 	gr->info(gr_info);
-	sint16 height = max( count_char(gr_info, '\n')*LINESPACE+36+10, get_tile_raster_width()+30 );
+	sint16 height = max( (count_char(gr_info, '\n')+1)*LINESPACE+36, view.get_groesse().y+36 );
 
 	view.set_pos( koord(165,10) );
-	view.set_groesse( koord( get_tile_raster_width(), (get_tile_raster_width()*5)/6)  );
 	add_komponente( &view );
 
-	set_fenstergroesse( koord(175+get_tile_raster_width(), height) );
+	set_fenstergroesse( koord(175+view.get_groesse().x, height) );
 }
 
 
@@ -48,7 +47,7 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 	gr_info.clear();
 	gr->info(gr_info);
 	gui_frame_t::zeichnen(pos,groesse);
-	display_multiline_text(pos.x+10, pos.y+16+8, gr_info, COL_BLACK);
+	display_multiline_text(pos.x+10, pos.y+16+10, gr_info, COL_BLACK);
 }
 
 

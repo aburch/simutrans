@@ -66,35 +66,35 @@ factory_edit_frame_t::factory_edit_frame_t(spieler_t* sp_,karte_t* welt) :
 	land_chain_tool.cursor = city_chain_tool.cursor = fab_tool.cursor = werkzeug_t::general_tool[WKZ_BUILD_FACTORY]->cursor;
 	fab_besch = NULL;
 
-	bt_city_chain.init( button_t::square_state, "Only city chains", koord(NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
+	bt_city_chain.init( button_t::square_state, "Only city chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_city_chain.add_listener(this);
 	add_komponente(&bt_city_chain);
 	offset_of_comp += BUTTON_HEIGHT;
 
-	bt_land_chain.init( button_t::square_state, "Only land chains", koord(NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
+	bt_land_chain.init( button_t::square_state, "Only land chains", koord(get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	bt_land_chain.add_listener(this);
 	add_komponente(&bt_land_chain);
 	offset_of_comp += BUTTON_HEIGHT;
 
-	lb_rotation_info.set_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
+	lb_rotation_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation_info);
 
-	bt_left_rotate.init( button_t::repeatarrowleft, NULL, koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
+	bt_left_rotate.init( button_t::repeatarrowleft, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ) );
 	bt_left_rotate.add_listener(this);
 	add_komponente(&bt_left_rotate);
 
-	bt_right_rotate.init( button_t::repeatarrowright, NULL, koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
+	bt_right_rotate.init( button_t::repeatarrowright, NULL, koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+50, offset_of_comp-4 ) );
 	bt_right_rotate.add_listener(this);
 	add_komponente(&bt_right_rotate);
 
-	lb_rotation.set_pos( koord( NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
+	lb_rotation.set_pos( koord( get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2+44, offset_of_comp-4 ) );
 	add_komponente(&lb_rotation);
 	offset_of_comp += BUTTON_HEIGHT;
 
-	lb_production_info.set_pos( koord( NAME_COLUMN_WIDTH+11, offset_of_comp-4 ) );
+	lb_production_info.set_pos( koord( get_tab_panel_width()+2*MARGIN, offset_of_comp-4 ) );
 	add_komponente(&lb_production_info);
 
-	inp_production.set_pos(koord(NAME_COLUMN_WIDTH+11+NAME_COLUMN_WIDTH/2-16,	offset_of_comp-4 ));
+	inp_production.set_pos(koord(get_tab_panel_width()+2*MARGIN+COLUMN_WIDTH/2-16,	offset_of_comp-4 ));
 	inp_production.set_groesse(koord( 76, 12 ));
 	inp_production.set_limits(0,9999);
 	inp_production.add_listener( this );
@@ -230,6 +230,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append( translator::translate("Produktion") );
 				buf.append("\n");
 				for (uint i = 0; i < fab_besch->get_produkte(); i++) {
+					buf.append(" - ");
 					buf.append( translator::translate(fab_besch->get_produkt(i)->get_ware()->get_name()) );
 					buf.append( " (" );
 					buf.append( translator::translate(fab_besch->get_produkt(i)->get_ware()->get_catg_name()) );
@@ -243,6 +244,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 				buf.append( translator::translate("Verbrauch") );
 				buf.append("\n");
 				for(  int i=0;  i<fab_besch->get_lieferanten();  i++  ) {
+					buf.append(" - ");
 					buf.append( translator::translate(fab_besch->get_lieferant(i)->get_ware()->get_name()) );
 					buf.append( " (" );
 					buf.append( translator::translate(fab_besch->get_lieferant(i)->get_ware()->get_catg_name()) );
@@ -268,6 +270,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			else {
 				for(uint16 i=0;  i<=arctic_climate;  i++  ) {
 					if(cl &  (1<<i)) {
+						buf.append(" - ");
 						buf.append( translator::translate( grund_besch_t::get_climate_name_from_bit( (enum climate)i ) ) );
 						buf.append("\n");
 					}
@@ -299,7 +302,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 			info_text.recalc_size();
-			cont.set_groesse( info_text.get_groesse() );
+			cont.set_groesse( info_text.get_groesse() + koord(0, 20) );
 
 			// orientation (255=random)
 			if(besch->get_all_layouts()>1) {

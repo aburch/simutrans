@@ -181,7 +181,7 @@ public:
 
 	void display_boden(const sint16 xpos, const sint16 ypos) const;
 
-	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 scale, const bool dirty, const sint8 hmin, const sint8 hmax) const;
+	void display_dinge(const sint16 xpos, const sint16 ypos, const sint16 scale, const bool is_global, const sint8 hmin, const sint8 hmax) const;
 
 	void display_overlay(sint16 xpos, sint16 ypos, const sint8 hmin, const sint8 hmax) const;
 };

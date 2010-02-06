@@ -643,6 +643,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_fixedwidth_textarea.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_flowtext.cc"
 				>
 			</File>
@@ -815,6 +819,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\utils\memory_rw.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\message_frame_t.cc"
 				>
 			</File>
@@ -855,6 +863,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmd.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_packet.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\obj_reader.cc"
 				>
 			</File>
@@ -868,6 +884,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\pakselector.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\password_frame.cc"
 				>
 			</File>
 			<File
@@ -952,6 +972,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\settings_stats.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\utils\sha1.cc"
 				>
 			</File>
 			<File

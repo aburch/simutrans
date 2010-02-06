@@ -796,8 +796,8 @@ PLAYER_COLOR_VAL grund_t::text_farbe() const
 
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 {
-	const bool dirty=get_flag(grund_t::dirty);
-	const sint16 rasterweite=get_tile_raster_width();
+	const bool dirty = get_flag(grund_t::dirty);
+	const sint16 raster_width = get_current_tile_raster_width();
 
 	// here: we are either ground(kartenboden) or visible
 	const bool visible = !ist_karten_boden()  ||  is_karten_boden_visible();
@@ -806,14 +806,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(back_bild_nr!=0) {
 		if(abs(back_bild_nr)>121) {
 			// fence before a drop
-			const sint16 offset = visible && corner4(get_grund_hang()) ? -tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, get_tile_raster_width()) : 0;
+			const sint16 offset = visible && corner4(get_grund_hang()) ? -tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, raster_width) : 0;
 			if(back_bild_nr<0) {
 				// behind a building
-				display_img(grund_besch_t::fences->get_bild(-back_bild_nr-122+3), xpos, ypos+offset, dirty);
+				display_normal(grund_besch_t::fences->get_bild(-back_bild_nr-122+3), xpos, ypos+offset, 0, true, dirty);
 			}
 			else {
 				// on a normal tile
-				display_img(grund_besch_t::fences->get_bild(back_bild_nr-122), xpos, ypos+offset, dirty);
+				display_normal(grund_besch_t::fences->get_bild(back_bild_nr-122), xpos, ypos+offset, 0, true, dirty);
 			}
 		}
 		else {
@@ -822,13 +822,13 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 			const sint8 back_bild1 = abs(back_bild_nr)%11;
 			if(back_bild_nr<0) {
 				// for a foundation
-				display_img(grund_besch_t::fundament->get_bild(back_bild1), xpos, ypos, dirty);
-				display_img(grund_besch_t::fundament->get_bild(back_bild2), xpos, ypos, dirty);
+				display_normal(grund_besch_t::fundament->get_bild(back_bild1), xpos, ypos, 0, true, dirty);
+				display_normal(grund_besch_t::fundament->get_bild(back_bild2), xpos, ypos, 0, true, dirty);
 			}
 			else {
 				// natural
-				display_img(grund_besch_t::slopes->get_bild(back_bild1), xpos, ypos, dirty);
-				display_img(grund_besch_t::slopes->get_bild(back_bild2), xpos, ypos, dirty);
+				display_normal(grund_besch_t::slopes->get_bild(back_bild1), xpos, ypos, 0, true, dirty);
+				display_normal(grund_besch_t::slopes->get_bild(back_bild2), xpos, ypos, 0, true, dirty);
 			}
 		}
 	}
@@ -838,49 +838,49 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 	if(bild==IMG_LEER) {
 		// only check for forced redraw (of marked ... )
 		if(dirty) {
-			mark_rect_dirty_wc( xpos, ypos+rasterweite/2, xpos+rasterweite-1, ypos+rasterweite-1 );
+			mark_rect_dirty_wc( xpos, ypos+raster_width/2, xpos+raster_width-1, ypos+raster_width-1 );
 		}
 	}
 	else {
 		if(get_typ()!=wasser) {
 			// show image if tile is visible
 			if (visible)  {
-				display_img(get_bild(), xpos, ypos, dirty);
+				display_normal(get_bild(), xpos, ypos, 0, true, dirty);
 				// we show additionally a grid
 				// for undergroundmode = ugm_all the grid is plotted in display_dinge
 				if(show_grid){
 					const uint8 hang = get_grund_hang();
 					const uint8 back_hang = (hang&1) + ((hang>>1)&6);
-					display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, dirty);
+					display_normal(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, 0, true, dirty);
 				}
 			}
 		}
 		else {
 			// take animation into account
-			display_img(get_bild()+wasser_t::stage, xpos, ypos, dirty|wasser_t::change_stage);
+			display_normal(get_bild()+wasser_t::stage, xpos, ypos, 0, true, dirty|wasser_t::change_stage);
 		}
 	}
 
 	// display ways
 	if(visible){
 		if(  flags&has_way1  ) {
-			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), rasterweite );
+			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), raster_width );
 			ding_t* d = obj_bei(0);
-			display_color_img( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
+			display_color( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
 			PLAYER_COLOR_VAL pc = d->get_outline_colour();
 			if(pc) {
-				display_img_blend( d->get_bild(), xpos, ynpos, pc, true, dirty|d->get_flag(ding_t::dirty) );
+				display_blend( d->get_bild(), xpos, ynpos, d->get_player_nr(), pc, true, dirty|d->get_flag(ding_t::dirty) );
 			}
 			d->clear_flag( ding_t::dirty );
 		}
 
 		if(  flags&has_way2  ){
-			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), rasterweite );
+			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), raster_width );
 			ding_t* d = obj_bei(1);
-			display_color_img( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
+			display_color( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
 			PLAYER_COLOR_VAL pc = d->get_outline_colour();
 			if(pc) {
-				display_img_blend( d->get_bild(), xpos, ynpos, pc, true, dirty|d->get_flag(ding_t::dirty) );
+				display_blend( d->get_bild(), xpos, ynpos, d->get_player_nr(), pc, true, dirty|d->get_flag(ding_t::dirty) );
 			}
 			d->clear_flag( ding_t::dirty );
 		}
@@ -889,7 +889,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos) const
 
 
 
-void grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global) const
+void grund_t::display_dinge(const sint16 xpos, const sint16 ypos, const bool is_global) const
 {
 	const bool dirty = get_flag(grund_t::dirty);
 	const uint8 start_offset=offsets[flags/has_way1];
@@ -901,31 +901,31 @@ void grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global
 		if(is_global  &&  get_flag(grund_t::marked)) {
 			const uint8 hang = get_grund_hang();
 			const uint8 back_hang = (hang&1) + ((hang>>1)&6)+8;
-			display_img(grund_besch_t::marker->get_bild(back_hang), xpos, ypos, dirty);
+			display_normal(grund_besch_t::marker->get_bild(back_hang), xpos, ypos, 0, true, dirty);
 			dinge.display_dinge( xpos, ypos, start_offset, is_global );
-			display_img(grund_besch_t::marker->get_bild(get_grund_hang()&7), xpos, ypos, dirty);
+			display_normal(grund_besch_t::marker->get_bild(get_grund_hang()&7), xpos, ypos, 0, true, dirty);
 			//display_img(grund_besch_t::marker->get_bild(get_weg_hang()&7), xpos, ypos, dirty);
 
 			if (!ist_karten_boden()) {
 				const grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-				const sint16 raster_tile_width = get_tile_raster_width();
+				const sint16 raster_tile_width = get_current_tile_raster_width();
 				if (pos.z > gr->get_hoehe()) {
 					//display front part of marker for grunds in between
 					for(sint8 z = pos.z-Z_TILE_STEP; z>gr->get_hoehe(); z-=Z_TILE_STEP) {
-						display_img(grund_besch_t::marker->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+						display_normal(grund_besch_t::marker->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, true, true);
 					}
 					//display front part of marker for ground
-					display_img(grund_besch_t::marker->get_bild(gr->get_grund_hang()&7), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+					display_normal(grund_besch_t::marker->get_bild(gr->get_grund_hang()&7), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, true, true);
 				}
 				else if (pos.z < gr->get_disp_height()) {
 					//display back part of marker for grunds in between
 					for(sint8 z = pos.z+Z_TILE_STEP; z<gr->get_disp_height(); z+=Z_TILE_STEP) {
-						display_img(grund_besch_t::borders->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+						display_normal(grund_besch_t::borders->get_bild(0), xpos, ypos - tile_raster_scale_y( (z-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, true, true);
 					}
 					//display back part of marker for ground
 					const uint8 hang = gr->get_grund_hang() | gr->get_weg_hang();
 					const uint8 back_hang = (hang&1) + ((hang>>1)&6);
-					display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), true);
+					display_normal(grund_besch_t::borders->get_bild(back_hang), xpos, ypos - tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), 0, true, true);
 				}
 			}
 		}
@@ -935,13 +935,13 @@ void grund_t::display_dinge(const sint16 xpos, sint16 ypos, const bool is_global
 	}
 	else { // must be karten_boden
 		// in undergroundmode: draw ground grid
-		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : hang_t::flach;
+		const uint8 hang = underground_mode==ugm_all ? get_grund_hang() : (hang_t::typ)hang_t::flach;
 		const uint8 back_hang = (hang&1) + ((hang>>1)&6);
-		display_img(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, dirty);
+		display_normal(grund_besch_t::borders->get_bild(back_hang), xpos, ypos, 0, true, dirty);
 		// show marker for marked but invisible tiles
 		if(is_global  &&  get_flag(grund_t::marked)) {
-			display_img(grund_besch_t::marker->get_bild(back_hang+8), xpos, ypos, dirty);
-			display_img(grund_besch_t::marker->get_bild(hang&7), xpos, ypos, dirty);
+			display_normal(grund_besch_t::marker->get_bild(back_hang+8), xpos, ypos, 0, true, dirty);
+			display_normal(grund_besch_t::marker->get_bild(hang&7), xpos, ypos, 0, true, dirty);
 		}
 	}
 
@@ -1213,11 +1213,10 @@ bool grund_t::is_connected(const grund_t *gr, waytype_t wegtyp, koord dv) const
 
 
 // now we need a more sophisticated calculations ...
-sint16
-grund_t::get_vmove(koord dir) const
+sint8 grund_t::get_vmove(koord dir) const
 {
 	const sint8 slope=get_weg_hang();
-	sint16 h=get_hoehe();
+	sint8 h=get_hoehe();
 	if(ist_bruecke()  &&  get_grund_hang()!=0  &&  welt->lookup(pos)==this) {
 		h += Z_TILE_STEP;	// end or start of a bridge
 	}
@@ -1299,7 +1298,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 				continue;
 			}
 
-			ding_t *d=obj_bei(i);
+			ding_t *d=obj_bei((uint8)i);
 			// do not delete ways
 			if(d->is_way()) {
 				continue;

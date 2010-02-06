@@ -247,7 +247,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 
 
 // create a logfile for log_debug=true
-log_t::log_t(const char *logfilename, bool force_flush, bool log_debug)
+log_t::log_t(const char *logfilename, bool force_flush, bool log_debug, bool log_console)
 {
 	log = NULL;
 	this->force_flush = force_flush;    /* wenn true wird jedesmal geflusht */
@@ -270,6 +270,9 @@ log_t::log_t(const char *logfilename, bool force_flush, bool log_debug)
 			fprintf(stderr,"log_t::log_t: can't open file '%s' for writing\n", logfilename);
 		}
 		tee = stderr;
+	}
+	if (!log_console) {
+	    tee = NULL;
 	}
 //	message("log_t::log_t","Starting logging to %s", logfilename);
 }

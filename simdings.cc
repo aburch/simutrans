@@ -31,6 +31,7 @@
 #include "boden/grund.h"
 #include "gui/thing_info.h"
 #include "utils/cbuffer_t.h"
+#include "utils/simstring.h"
 
 
 
@@ -154,17 +155,31 @@ spieler_t *ding_t::get_besitzer() const
 
 
 
+/* the only general info we can give is the name
+ * we want to format it nicely,
+ * with two linebreaks at the end => thus the little extra effort
+ */
 void ding_t::info(cbuffer_t & buf) const
 {
+	char translation[256];
+
 	if(besitzer_n==1) {
-		buf.append(translator::translate("Eigenbesitz\n"));
+		tstrncpy( translation, translator::translate("Eigenbesitz\n"), 256 );
 	}
 	else if(besitzer_n==PLAYER_UNOWNED) {
-		buf.append(translator::translate("Kein Besitzer\n"));
+		tstrncpy( translation, translator::translate("Kein Besitzer\n"), 256 );
 	}
 	else {
-		buf.append(get_besitzer()->get_name());
-		buf.append("\n");
+		tstrncpy( translation, get_besitzer()->get_name(), 256 );
+	}
+	// remove trailing linebreaks etc.
+	for(  int i=strlen(translation);  i>0  &&  translation[i-1]<' ';  i--  ) {
+		translation[i-1] = 0;
+	}
+	buf.append( translation );
+	// only append linebreaks if not empty
+	if(  buf.len()>0  ) {
+		buf.append( "\n\n" );
 	}
 }
 
@@ -218,12 +233,12 @@ ding_t::rdwr(loadsave_t *file)
 void
 ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 {
-	const int raster_width = get_tile_raster_width();
+	const int raster_width = get_current_tile_raster_width();
 
 	if(is_moving()) {
 		// vehicles needs finer steps to appear smoother
 		const vehikel_basis_t* const v = (const vehikel_basis_t*)this;
-		v->get_screen_offset( xpos, ypos );
+		v->get_screen_offset( xpos, ypos, raster_width );
 	}
 	xpos += tile_raster_scale_x(get_xoff(), raster_width);
 	ypos += tile_raster_scale_y(get_yoff(), raster_width);
@@ -237,10 +252,10 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 	while(bild!=IMG_LEER) {
 
 		if(besitzer_n!=PLAYER_UNOWNED) {
-			display_color_img(bild, xpos, ypos, besitzer_n, true, dirty);
+			display_color(bild, xpos, ypos, besitzer_n, true, dirty);
 		}
 		else {
-			display_img(bild, xpos, ypos, dirty);
+			display_normal(bild, xpos, ypos, 0, true, dirty);
 		}
 		// this ding has another image on top (e.g. skyscraper)
 		ypos -= raster_width;
@@ -251,7 +266,7 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 	const PLAYER_COLOR_VAL transparent = get_outline_colour();
 	if(TRANSPARENT_FLAGS&transparent) {
 		// only transparent outline
-		display_img_blend(get_outline_bild(), xpos, start_ypos, transparent, 0, dirty);
+		display_blend(get_outline_bild(), xpos, start_ypos, besitzer_n, transparent, 0, dirty);
 	}
 }
 
@@ -276,17 +291,17 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 {
 	image_id bild = get_after_bild();
 	if(bild != IMG_LEER) {
-		const int raster_width = get_tile_raster_width();
+		const int raster_width = get_current_tile_raster_width();
 		const bool dirty = get_flag(ding_t::dirty);
 
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		ypos += tile_raster_scale_y(get_yoff(), raster_width);
 
 		if(besitzer_n!=PLAYER_UNOWNED) {
-			display_color_img(bild, xpos, ypos, besitzer_n, true, dirty );
+			display_color(bild, xpos, ypos, besitzer_n, true, dirty );
 		}
 		else {
-			display_img(bild, xpos, ypos, dirty );
+			display_normal(bild, xpos, ypos, 0, true, dirty );
 		}
 	}
 }
@@ -306,7 +321,7 @@ ding_t::mark_image_dirty(image_id bild,sint8 yoff) const
 		if(is_moving()) {
 			// vehicles needs finer steps to appear smoother
 			const vehikel_basis_t* const v = (const vehikel_basis_t*)this;
-			v->get_screen_offset( xpos, ypos );
+			v->get_screen_offset( xpos, ypos, get_tile_raster_width() );
 		}
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();

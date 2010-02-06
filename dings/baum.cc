@@ -74,8 +74,7 @@ uint16 baum_t::no_tree_climates = 0;
  * Reads forest configuration data
  * @author prissi
  */
-bool
-baum_t::forestrules_init(cstring_t objfilename)
+bool baum_t::forestrules_init(cstring_t objfilename)
 {
 	tabfile_t forestconf;
 	// first take user data, then user global data
@@ -397,8 +396,7 @@ void baum_t::calc_off()
 
 
 
-void
-baum_t::calc_bild()
+void baum_t::calc_bild()
 {
 	// alter/2048 is the age of the tree
 	const baum_besch_t *besch=get_besch();
@@ -450,8 +448,7 @@ image_id baum_t::get_bild() const
 
 
 // image which transparent outline is used
-image_id
-baum_t::get_outline_bild() const
+image_id baum_t::get_outline_bild() const
 {
 	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
 	return get_besch()->get_bild_nr( season, baum_alter );
@@ -519,8 +516,7 @@ baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(w
 }
 
 
-void
-baum_t::saee_baum()
+void baum_t::saee_baum()
 {
 	// spawn a new tree in an area 5x5 tiles around
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
@@ -541,8 +537,7 @@ baum_t::saee_baum()
 
 
 /* we should be as fast as possible for this, because trees are nearly the most common object on a map */
-bool
-baum_t::check_season(long month)
+bool baum_t::check_season(long month)
 {
 	// take care of birth/death and seasons
 	const long alter = (month - geburt);
@@ -567,8 +562,7 @@ baum_t::check_season(long month)
 
 
 
-void
-baum_t::rdwr(loadsave_t *file)
+void baum_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "baum_t" );
 
@@ -622,17 +616,15 @@ void baum_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	buf.append(translator::translate(get_besch()->get_name()));
-	buf.append("\n");
-	buf.append(welt->get_current_month() - geburt);
-	buf.append(" ");
-	buf.append(translator::translate("Monate alt"));
+	buf.append( translator::translate(get_besch()->get_name()) );
+	buf.append( "\n" );
+	int age = welt->get_current_month() - geburt;
+	buf.printf( translator::translate("%i years %i months old"), age/12, (age%12) );
 }
 
 
 
-void
-baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
+void baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
 {
 	spieler_t::accounting(sp, welt->get_einstellungen()->cst_remove_tree, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( get_bild(), 0 );
@@ -640,16 +632,14 @@ baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
 
 
 
-void *
-baum_t::operator new(size_t /*s*/)
+void *baum_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(baum_t));
 }
 
 
 
-void
-baum_t::operator delete(void *p)
+void baum_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(baum_t),p);
 }

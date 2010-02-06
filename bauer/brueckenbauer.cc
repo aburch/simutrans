@@ -144,7 +144,8 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
+
+void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
 	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
 
@@ -178,7 +179,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 	const grund_t *gr2; // unter Brückenebene
 	waytype_t wegtyp = besch->get_waytype();
 	error_msg = NULL;
-	sint16 length = 0;
+	uint16 length = 0;
 	do {
 		length ++;
 		pos = pos + zv;

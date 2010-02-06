@@ -1,0 +1,13 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 7.0.
+#
+# Author: jamespetts
+# Created: September 2009
+#
+obj=program_text
+name=Reversing
+note=Convoy tooltip.
+-
+obj=program_text
+name=Acceleration
+note=Used for the "Acceleration" graph in the convoy information window

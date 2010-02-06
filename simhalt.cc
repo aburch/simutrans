@@ -2675,6 +2675,7 @@ void haltestelle_t::info(cbuffer_t & buf) const
 		pax_too_slow
 		);
 	buf.append(tmp);
+	buf.append("\n\n");
 }
 
 
@@ -2809,6 +2810,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				}
 				spieler_t::add_maintenance( gb_sp, -costs );
 				gb->set_besitzer(public_owner);
+				gb->set_flag(ding_t::dirty);
 				spieler_t::add_maintenance(public_owner, costs );
 			}
 			// ok, valid start, now we can join them
@@ -2860,6 +2862,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					spieler_t::add_maintenance( gb_sp, -costs );
 					spieler_t::accounting(gb_sp, -(welt->calc_adjusted_monthly_figure(costs*60)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
+					gb->set_flag(ding_t::dirty);
 					spieler_t::add_maintenance(public_owner, costs );
 				}
 			}

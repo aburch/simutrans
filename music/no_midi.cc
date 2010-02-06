@@ -14,7 +14,7 @@
  * sets midi playback volume
  * @author Hj. Malthaner
  */
-void dr_set_midi_volume(int vol)
+void dr_set_midi_volume(int)
 {
 }
 
@@ -23,7 +23,7 @@ void dr_set_midi_volume(int vol)
  * Loads a MIDI file
  * @author Hj. Malthaner
  */
-int dr_load_midi(const char * filename)
+int dr_load_midi(const char *)
 {
     return -1;
 }
@@ -33,7 +33,7 @@ int dr_load_midi(const char * filename)
  * Plays a MIDI file
  * @author Hj. Malthaner
  */
-void dr_play_midi(int key)
+void dr_play_midi(int)
 {
 }
 
@@ -70,7 +70,7 @@ void dr_destroy_midi(void)
  * Sets midi pos
  * @author Hj. Malthaner
  */
-void set_midi_pos(int pos)
+void set_midi_pos(int)
 {
 }
 

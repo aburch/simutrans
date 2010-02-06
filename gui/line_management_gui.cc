@@ -41,7 +41,7 @@ void line_management_gui_t::infowin_event(const event_t *ev)
 				// update all convoys of this line!
 				// update line schedule via tool!
 				werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
-				cbuffer_t buf(5120);
+				cbuffer_t buf(5500);
 				buf.printf( "g,%i,", line.get_id() );
 				fpl->sprintf_schedule( buf );
 				w->set_default_param(buf);

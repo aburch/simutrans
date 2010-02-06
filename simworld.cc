@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -71,6 +71,7 @@
 #include "dings/groundobj.h"
 #include "dings/gebaeude.h"
 
+#include "gui/password_frame.h"
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
 #include "gui/karte.h"
@@ -83,6 +84,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/powernet.h"
 #include "dataobj/network.h"
+#include "dataobj/network_cmd.h"
 
 #include "utils/simstring.h"
 
@@ -495,7 +497,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 		zeiger = NULL;
 	}
 
-	// alle convois aufräumen
+	// alle convois aufraeumen
 	while (!convoi_array.empty()) {
 		convoihandle_t cnv = convoi_array.back();
 		cnv->destroy();
@@ -503,7 +505,7 @@ DBG_MESSAGE("karte_t::destroy()", "label clear");
 	convoi_array.clear();
 DBG_MESSAGE("karte_t::destroy()", "convois destroyed");
 
-	// alle haltestellen aufräumen
+	// alle haltestellen aufraeumen
 	haltestelle_t::destroy_all(this);
 DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 
@@ -524,7 +526,7 @@ DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 	sync_list.clear();
 DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 
-// dinge aufräumen
+// dinge aufraeumen
 	cached_groesse_gitter_x = cached_groesse_gitter_y = 1;
 	cached_groesse_karte_x = cached_groesse_karte_y = 0;
 	if(plan) {
@@ -533,17 +535,17 @@ DBG_MESSAGE("karte_t::destroy()", "sync list cleared");
 	}
 	DBG_MESSAGE("karte_t::destroy()", "planquadrat destroyed");
 
-	// gitter aufräumen
+	// gitter aufraeumen
 	if(grid_hgts) {
 		delete [] grid_hgts;
 		grid_hgts = NULL;
 	}
 
-	// marker aufräumen
+	// marker aufraeumen
 	marker.init(0,0);
 DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 
-	// spieler aufräumen
+	// spieler aufraeumen
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(spieler[i]) {
 			delete spieler[i];
@@ -569,7 +571,7 @@ DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 	fab_list.clear();
 DBG_MESSAGE("karte_t::destroy()", "factories destroyed");
 
-	// hier nur entfernen, aber nicht löschen
+	// hier nur entfernen, aber nicht loeschen
 	ausflugsziele.clear();
 DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 
@@ -840,7 +842,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
 
 	if(  !pos->empty()  ) {
-		const uint32 old_anzahl_staedte = stadt.get_count();
+		const sint32 old_anzahl_staedte = stadt.get_count();
 		new_anzahl_staedte = pos->get_count();
 
 		// prissi if we could not generate enough positions ...
@@ -916,14 +918,34 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 			// find townhall of city i and road in front of it
 			vector_tpl<koord3d> k;
 			for(  int i = 0;  i < einstellungen->get_anzahl_staedte();  i++  ) {
-				koord k1 = stadt[i]->get_pos();
-				const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(k1)->first_obj());
-				if(  gb  &&  gb->ist_rathaus()  ) {
-					k1.y += gb->get_tile()->get_besch()->get_h(gb->get_tile()->get_layout());
-					k.append( lookup_kartenboden(k1)->get_pos() );
+				koord k1(stadt[i]->get_townhall_road());
+				if (lookup_kartenboden(k1)  &&  lookup_kartenboden(k1)->hat_weg(road_wt)) {
+					k.append(lookup_kartenboden(k1)->get_pos());
 				}
 				else {
-					k.append( koord3d::invalid );
+					// look for a road near the townhall
+					const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
+					bool ok = false;
+					if(  gb  &&  gb->ist_rathaus()  ) {
+						koord pos = stadt[i]->get_pos() + koord(-1,-1);
+						const koord size = gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout());
+						koord inc(1,0);
+						// scan all adjacent tiles, take the first that has a road
+						for(uint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
+							grund_t *gr = lookup_kartenboden(pos);
+							if (gr  &&  gr->hat_weg(road_wt)) {
+								k.append(gr->get_pos());
+								ok = true;
+							}
+							pos = pos + inc;
+							if (i==size.x+1) inc = koord(0,1);
+							else if (i==size.x+size.y+2) inc = koord(-1,0);
+							else if (i==2*size.x+size.y+3) inc = koord(0,-1);
+						}
+					}
+					if (!ok) {
+						k.append( koord3d::invalid );
+					}
 				}
 			}
 			// compute all distances
@@ -1043,7 +1065,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 					bool build = false;
 					// set appropriate max length for way builder
 					if(  connected  ) {
-						if(  2*verbindung.get_count() > city_dist.at(conn)  ) {
+						if(  2*verbindung.get_count() > (uint32)city_dist.at(conn)  ) {
 							bauigel.set_maximum(verbindung.get_count() / 2);
 							build = true;
 						}
@@ -1504,7 +1526,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	// Refresh the haltlist for the affected tiles / stations.
 	// It is enough to check the tile just at the border ...
-	const sint8 cov = get_einstellungen()->get_station_coverage();
+	const uint16 cov = get_einstellungen()->get_station_coverage();
 	if(  old_y < new_groesse_y  ) {
 		for(  sint16 x=0;  x<old_x;  x++  ) {
 			for(  sint16 y=old_y-cov;  y<old_y;  y++  ) {
@@ -1546,15 +1568,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		reliefkarte_t::get_karte()->set_mode( reliefkarte_t::get_karte()->get_mode() );
 
 		set_dirty();
-		simloops = 60;
 		reset_timer();
-
-		// make timer loop invalid
-		for( int i=0;  i<32;  i++ ) {
-			last_frame_ms[i] = 0x7FFFFFFFu;
-			last_step_nr[i] = 0xFFFFFFFFu;
-		}
-		last_frame_idx = 0;
 	}
 }
 
@@ -1576,13 +1590,10 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
 	next_step_time = last_step_time = 0;
-	time_budget = 0;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
-	werkzeug_last_pos = koord3d::invalid;
-	werkzeug_last_button = 0;
 
 	follow_convoi = convoihandle_t();
 	set_dirty();
@@ -1606,6 +1617,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
+		memset( player_password_hash[i], 0, 20 );
 	}
 
 	// no distance to show at first ...
@@ -1715,7 +1727,7 @@ void karte_t::set_scale()
 }
 
 
-bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
+bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = lookup(koord(x,y));
 
@@ -1748,14 +1760,14 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint16 h) const
 }
 
 
-bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint16 h) const
+bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = lookup(koord(x,y));
 	if(plan == 0 || !is_plan_height_changeable(x, y)) {
 		return false;
 	}
 
-	// irgendwo eine Brücke im Weg?
+	// irgendwo eine Bruecke im Weg?
 	int hmin = plan->get_kartenboden()->get_hoehe();
 	while(h > hmin) {
 		if(plan->get_boden_in_hoehe(h)) {
@@ -1957,7 +1969,7 @@ int karte_t::raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 }
 
 // raise height in the hgt-array
-int karte_t::raise_to(sint16 x, sint16 y, sint16 h, bool set_slopes /*always false*/)
+int karte_t::raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always false*/)
 {
 	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
@@ -2186,7 +2198,7 @@ int karte_t::lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8
 }
 
 
-int karte_t::lower_to(sint16 x, sint16 y, sint16 h, bool set_slopes /*always false*/)
+int karte_t::lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes /*always false*/)
 {
 	int n = 0;
 	if(ist_in_gittergrenzen(x,y)) {
@@ -2243,7 +2255,7 @@ int karte_t::lower(koord pos)
 
 static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 
-bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
+bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt)
 {
 	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
 		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
@@ -2256,7 +2268,7 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint16 hgt)
 
 
 // make a flat leve at this position (only used for AI at the moment)
-bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
+bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 {
 	int n = 0;
 	bool ok = false;
@@ -2281,77 +2293,87 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt)
 }
 
 
+void karte_t::set_player_password_hash( uint8 player_nr, uint8 *hash )
+{
+	memcpy( player_password_hash[player_nr], hash, 20 );
+}
+
 
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
+	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
+		// player is currently password protected => request unlock first
+		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
+		return;
+	}
+	w->flags = event_get_last_control_shift();
 	if(!umgebung_t::networkmode  ||  w->is_init_network_save()  ) {
-
-		if(w->init(this,sp)) {
-
-			set_dirty();
-			if(w!=werkzeug[sp->get_player_nr()]) {
-
-				// reinit same tool => do not play sound twice
-				struct sound_info info;
-				info.index = SFX_SELECT;
-				info.volume = 255;
-				info.pri = 0;
-				sound_play(info);
-
-				// only exit, if it is not the same tool again ...
-				werkzeug[sp->get_player_nr()]->exit(this,sp);
-			}
-
-			else {
-				// init again, to interrupt dragging
-				werkzeug[sp->get_player_nr()]->init(this,active_player);
-			}
-
-			if(  sp==active_player  ) {
-				// reset pointer
-				koord3d zpos = zeiger->get_pos();
-				zeiger->set_bild( w->cursor );
-				zeiger->set_yoff( w->offset );
-				if(!zeiger->area_changed()) {
-					// reset to default 1,1 size
-					zeiger->set_area( koord(1,1), false );
-				}
-				zeiger->change_pos( zpos );
-				werkzeug_last_pos = koord3d::invalid;
-				werkzeug_last_button = 0;
-			}
-			
-			werkzeug[sp->get_player_nr()] = w;
-		}
+		local_set_werkzeug(w, sp);
 	}
 	else {
 		// queue tool for network
-		static char commandstring[4096];
-		int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_INIT " %lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, network_get_client_id(), w->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, w->get_default_param()==NULL ? "" : w->get_default_param() );
-		network_send_server( commandstring, len );
+		nwc_tool_t *nwc = new nwc_tool_t(sp, w, zeiger->get_pos(), steps, true);
+		network_send_server(nwc);
 	}
 }
 
 
-
-sint16 karte_t::min_hgt(const koord pos) const
+// set a new tool on our client, calls init
+void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 {
-	const int h1 = lookup_hgt(pos);
-	const int h2 = lookup_hgt(pos+koord(1, 0));
-	const int h3 = lookup_hgt(pos+koord(1, 1));
-	const int h4 = lookup_hgt(pos+koord(0, 1));
+	if(w->init(this,sp)) {
+
+		set_dirty();
+		if(w!=werkzeug[sp->get_player_nr()]) {
+
+			// reinit same tool => do not play sound twice
+			struct sound_info info;
+			info.index = SFX_SELECT;
+			info.volume = 255;
+			info.pri = 0;
+			sound_play(info);
+
+			// only exit, if it is not the same tool again ...
+			werkzeug[sp->get_player_nr()]->exit(this,sp);
+		}
+		else {
+			// init again, to interrupt dragging
+			werkzeug[sp->get_player_nr()]->init(this,active_player);
+		}
+		
+		if(  sp==active_player  ) {
+			// reset pointer
+			koord3d zpos = zeiger->get_pos();
+			zeiger->set_bild( w->cursor );
+			zeiger->set_yoff( w->offset );
+			if(!zeiger->area_changed()) {
+				// reset to default 1,1 size
+				zeiger->set_area( koord(1,1), false );
+			}
+			zeiger->change_pos( zpos );
+		}
+		werkzeug[sp->get_player_nr()] = w;
+	}
+}
+
+sint8 karte_t::min_hgt(const koord pos) const
+{
+	const sint8 h1 = lookup_hgt(pos);
+	const sint8 h2 = lookup_hgt(pos+koord(1, 0));
+	const sint8 h3 = lookup_hgt(pos+koord(1, 1));
+	const sint8 h4 = lookup_hgt(pos+koord(0, 1));
 
 	return min(min(h1,h2), min(h3,h4));
 }
 
 
-sint16 karte_t::max_hgt(const koord pos) const
+sint8 karte_t::max_hgt(const koord pos) const
 {
-	const int h1 = lookup_hgt(pos);
-	const int h2 = lookup_hgt(pos+koord(1, 0));
-	const int h3 = lookup_hgt(pos+koord(1, 1));
-	const int h4 = lookup_hgt(pos+koord(0, 1));
+	const sint8 h1 = lookup_hgt(pos);
+	const sint8 h2 = lookup_hgt(pos+koord(1, 0));
+	const sint8 h3 = lookup_hgt(pos+koord(1, 1));
+	const sint8 h4 = lookup_hgt(pos+koord(0, 1));
 
 	return max(max(h1,h2), max(h3,h4));
 }
@@ -2560,21 +2582,20 @@ karte_t::get_random_fab() const
 /*----------------------------------------------------------------------------------------------------------------------*/
 /* same procedure for tourist attractions */
 
-void
-karte_t::add_ausflugsziel(gebaeude_t *gb)
+
+void karte_t::add_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.append( gb, gb->get_tile()->get_besch()->get_level(), 16 );
 //DBG_MESSAGE("karte_t::add_ausflugsziel()","appended ausflugsziel at %i",ausflugsziele.get_count() );
 }
 
-void
-karte_t::remove_ausflugsziel(gebaeude_t *gb)
+
+void karte_t::remove_ausflugsziel(gebaeude_t *gb)
 {
 	assert(gb != NULL);
 	ausflugsziele.remove( gb );
 }
-
 
 
 /* select a random target for a tourist; targets are weighted by their importance */
@@ -2650,6 +2671,7 @@ bool karte_t::sync_add(sync_steppable *obj)
 	}
 	return true;
 }
+
 
 bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus der Liste
 {
@@ -2739,7 +2761,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 				const sint16 rw = get_tile_raster_width();
 				int new_xoff = 0;
 				int new_yoff = 0;
-				follow_convoi->get_vehikel(0)->get_screen_offset( new_xoff, new_yoff );
+				follow_convoi->get_vehikel(0)->get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
 				new_xoff -= tile_raster_scale_x(-follow_convoi->get_vehikel(0)->get_xoff(),rw);
 				new_yoff -= tile_raster_scale_y(-follow_convoi->get_vehikel(0)->get_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
 				change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
@@ -3290,7 +3312,6 @@ void karte_t::step()
 		if(idle_time>=get_frame_time()-10) {
 			idle_time = get_frame_time()-10;
 		}
-		time_budget = 0;
 		next_step_time = time+idle_time;
 	}
 	else {
@@ -3868,8 +3889,8 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_g
 				list->insert(start);
 			}
 			else {
-				// Optimiert für größere Felder, hehe!
-				// Die Idee: wenn bei 2x2 die untere Reihe nicht geht, können
+				// Optimiert fuer groessere Felder, hehe!
+				// Die Idee: wenn bei 2x2 die untere Reihe nicht geht, koennen
 				// wir gleich 2 tiefer weitermachen! V. Meyer
 				start.y = last_y;
 			}
@@ -4176,9 +4197,10 @@ bool karte_t::laden(const char *filename)
 			sprintf( fn, "client%i-network.sve", network_get_client_id() );
 			if(  strcmp(filename,fn)!=0  ) {
 				// remain only in networkmode, if I am the server
+				dbg->warning("karte_t::laden","finished network mode");
 				umgebung_t::networkmode = false;
 				network_core_shutdown();
-				// closing the socket will tell the server, I a away too
+				// closing the socket will tell the server, I am away too
 			}
 		}
 		name.append(filename);
@@ -4211,7 +4233,6 @@ bool karte_t::laden(const char *filename)
 			step_mode = FIX_RATIO;
 		}
 		else if(  umgebung_t::networkmode  ) {
-			network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
 			step_mode = PAUSE_FLAG|FIX_RATIO;
 		}
 		else {
@@ -4576,7 +4597,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	}
 DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_count());
 
-	// jetzt können die spieler geladen werden
+	// jetzt koennen die spieler geladen werden
 	display_progress(get_groesse_y()+24+stadt.get_count(), get_groesse_y()+256+stadt.get_count());
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(  spieler[i]  ) {
@@ -4585,13 +4606,12 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		}
 		else {
 			einstellungen->automaten[i] = false;
-			einstellungen->password[i][0] = 0;
 		}
 		display_progress(get_groesse_y()+24+stadt.get_count()+(i*3), get_groesse_y()+256+stadt.get_count());
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
-	// nachdem die welt jetzt geladen ist können die Blockstrecken neu
+	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
 	old_blockmanager_t::laden_abschliessen(this);
 	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
@@ -4823,7 +4843,7 @@ uint8 karte_t::sp2num(spieler_t *sp)
 /**
  * Creates a map from a heightfield
  * @param sets game settings
- * @author Hansjörg Malthaner
+ * @author Hj. Malthaner
  */
 void karte_t::load_heightfield(einstellungen_t *sets)
 {
@@ -4893,7 +4913,6 @@ void karte_t::reset_timer()
 
 	last_step_time = last_interaction = last_tick_sync;
 	last_step_ticks = ticks;
-	time_budget = 0;
 
 	// reinit simloop counter
 	for(  int i=0;  i<32;  i++  ) {
@@ -4911,14 +4930,22 @@ void karte_t::reset_timer()
 	}
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
-		next_step_time = last_tick_sync+(1000/einstellungen->get_frames_per_second() );
-		set_frame_time( 1000/einstellungen->get_frames_per_second() );
+		next_step_time = last_tick_sync+( 1000/clamp(einstellungen->get_frames_per_second(),5,100) );
+		set_frame_time( 1000/clamp(einstellungen->get_frames_per_second(),5,100) );
 		intr_disable();
 		// other stuff needed to synchronize
 		tile_counter = 0;
 		pending_season_change = 1;
 	}
 	else {
+		// make timer loop invalid
+		for( int i=0;  i<32;  i++ ) {
+			last_frame_ms[i] = 0x7FFFFFFFu;
+			last_step_nr[i] = 0xFFFFFFFFu;
+		}
+		last_frame_idx = 0;
+		simloops = 60;
+
 		set_frame_time( 1000/umgebung_t::fps );
 		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
@@ -4985,7 +5012,7 @@ void karte_t::do_freeze()
 	display_ddd_box(display_get_width()/2-92, display_get_height()/2-42, 200-16,100-16, MN_GREY0, MN_GREY4);
 	display_proportional(display_get_width()/2, display_get_height()/2-5, translator::translate("GAME PAUSED"), ALIGN_MIDDLE, COL_BLACK, false);
 
-	// Pause: warten auf die nächste Taste
+	// Pause: warten auf die naechste Taste
 	event_t ev;
 	dr_flush();
 	warte_auf_mausklick_oder_taste(&ev);
@@ -5129,7 +5156,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		// mit den mauskoordinaten zu vergleichen
 		int neu_x = ((mi-i_off) - (mj-j_off))*rw2 + display_get_width()/2 + rw2;
 
-		// prüfe richtung d.h. welches nachbarfeld ist am naechsten
+		// pruefe richtung d.h. welches nachbarfeld ist am naechsten
 		if(ev->mx-x_off < neu_x) {
 			zeiger->set_richtung(ribi_t::west);
 		}
@@ -5144,20 +5171,23 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			mb_alt = ev->button_state;
 
 			zeiger->change_pos(pos);
-			if(  !umgebung_t::networkmode  ) {
+			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
+			if(  !umgebung_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
+				wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
 				if(  ev->button_state == 0  ) {
 					is_dragging = false;
-					if(  werkzeug_last_pos != pos  ) {
-						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 0, pos );
+					if(  ist_in_kartengrenzen(pos.get_2d())  ) {
+						wkz->move( this, get_active_player(), 0, pos );
 					}
 				}
-				else if(ev->ev_class==EVENT_DRAG  &&  werkzeug_last_pos!=pos) {
+				else if(ev->ev_class==EVENT_DRAG  &&  ist_in_kartengrenzen(pos.get_2d())) {
 					if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {
-						werkzeug[get_active_player_nr()]->move( this, get_active_player(), 1, prev_pos );
+						wkz->move( this, get_active_player(), 1, prev_pos );
 					}
 					is_dragging = true;
-					werkzeug[get_active_player_nr()]->move( this, get_active_player(), 1, pos );
+					wkz->move( this, get_active_player(), 1, pos );
 				}
+				wkz->flags = 0;
 			}
 
 			if(  (ev->button_state&7)==0  ) {
@@ -5221,7 +5251,6 @@ void karte_t::switch_active_player(uint8 new_player)
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
 		msg->add_message(buf, koord::invalid, message_t::warnings, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
-		werkzeug_last_pos = koord3d::invalid;
 		zeiger->set_area( koord(1,1), false );
 		zeiger->set_pos( old_zeiger_pos );
 	}
@@ -5337,20 +5366,32 @@ karte_t::interactive_event(event_t &ev)
 	if(IS_LEFTRELEASE(&ev)) {
 DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
-		const char *err = NULL;
-		if(werkzeug_last_pos!=zeiger->get_pos()  &&  (!umgebung_t::networkmode  ||  werkzeug[get_active_player_nr()]->is_work_network_save())  ) {
-			// do the work
-			err = werkzeug[get_active_player_nr()]->work( this, get_active_player(), zeiger->get_pos() );
-			// play sound / error message
-			get_active_player()->tell_tool_result(werkzeug[get_active_player_nr()], zeiger->get_pos(), err, true);
+		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())) {
+			const char *err = NULL;
+			bool result = true;
+			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
+			// first check for visibility etc
+			err = wkz->check( this, get_active_player(), zeiger->get_pos() );
+			if (err==NULL) {
+				wkz->flags = event_get_last_control_shift();
+				if (!umgebung_t::networkmode  ||  wkz->is_work_network_save()) {
+					// do the work
+					wkz->flags |= werkzeug_t::WFL_LOCAL;
+					err = wkz->work( this, get_active_player(), zeiger->get_pos() );
+				}
+				else {
+					// queue tool for network
+					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), wkz, zeiger->get_pos(), steps, false);
+					network_send_server(nwc);
+					result = false;
+				}
+			}
+			if (result) {
+				// play sound / error message
+				get_active_player()->tell_tool_result(wkz, zeiger->get_pos(), err, true);
+			}
+			wkz->flags = 0;
 		}
-		else {
-			// queue tool for network
-			static char commandstring[4096];
-			int len = sprintf( commandstring, NET_TO_SERVER NET_WKZ_WORK " %lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, network_get_client_id(), werkzeug[get_active_player_nr()]->get_id(), get_active_player_nr(), zeiger->get_pos().x, zeiger->get_pos().y, zeiger->get_pos().z, werkzeug[get_active_player_nr()]->get_default_param()==NULL ? "" : werkzeug[get_active_player_nr()]->get_default_param() );
-			network_send_server( commandstring, len );
-		}
-		werkzeug_last_pos = koord3d::invalid;
 	}
 
 	// mouse wheel scrolled -> rezoom
@@ -5377,32 +5418,54 @@ void karte_t::beenden(bool b)
 }
 
 
-// command from network together with the step when they has to be executed
-class command_node_t {
-public:
-	const char *buf;
-	long step;
-	command_node_t(const char *_buf) {
-		buf = _buf;
-		step = atol( _buf+5 );
+void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
+{
+	if (umgebung_t::networkmode) {
+		sync_steps = syncsteps_;
+		steps = sync_steps/einstellungen->get_frames_per_step();
+		network_frame_count = sync_steps % einstellungen->get_frames_per_step();
+		dbg->warning("karte_t::network_game_set_pause", "steps=%d sync_steps=%d pause=%d", steps, sync_steps, pause_);
+		if (pause_) {
+			if (!umgebung_t::server) {
+				reset_timer();
+				step_mode = PAUSE_FLAG|FIX_RATIO;
+			}
+			else {
+				// TODO
+			}
+		}
+		else {
+			step_mode = FIX_RATIO;
+			if (!umgebung_t::server) {
+				/* make sure, the server is really that far ahead
+				 * Sleep() on windows often returns before!
+				 */
+				unsigned long ms = dr_time()+umgebung_t::server_ms_ahead;
+				while(  dr_time()<ms  ) {
+					dr_sleep ( 10 );
+				}
+				reset_timer();
+			}
+		}
 	}
-	inline bool operator <= (const command_node_t c) const { return step <= c.step; }
-};
+	else {
+		set_pause(pause_);
+	}
+}
 
-// contains tools of players at other clients
-class tool_node_t {
-public:
-	werkzeug_t *wkz;
-	uint32 client_id;
-	uint8 player_id;
-	const char* default_param;
-	tool_node_t() : wkz(NULL), client_id(0), player_id(255), default_param(NULL) {}
-	tool_node_t(werkzeug_t *_wkz, uint8 _player_id, sint64 _client_id) : wkz(_wkz), player_id(_player_id), client_id(_client_id), default_param(NULL) {}
-	// compares only the ids
-	inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
-};
 
-static vector_tpl<tool_node_t> tool_list;
+static slist_tpl<network_world_command_t*> command_queue;
+
+void karte_t::command_queue_append(network_world_command_t* nwc)
+{
+	slist_tpl<network_world_command_t*>::iterator i = command_queue.begin();
+	slist_tpl<network_world_command_t*>::iterator end = command_queue.end();
+	while(i != end  &&  network_world_command_t::cmp(*i, nwc)) {
+		++i;
+	}
+	command_queue.insert(i, nwc);
+}
+
 
 bool karte_t::interactive(uint32 quit_month)
 {
@@ -5410,18 +5473,16 @@ bool karte_t::interactive(uint32 quit_month)
 	finish_loop = false;
 	bool swallowed = false;
 	bool cursor_hidden = false;
-	uint32 sync_steps = 0;
-
-	char network_buffer[4096];
-	int len_last_command;
+	sync_steps = 0;
 
 	uint32 last_randoms[16];
-	uint8  network_frame_count = 0;
+	network_frame_count = 0;
+	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
 	// only needed for network
-	binary_heap_tpl <command_node_t*>command_queue;
-	long next_command_step=-1;
-	const uint32 frame_time = 1000/max(20,einstellungen->get_frames_per_second());
+	uint32 next_command_step=-1;
+	const uint32 frame_time = 1000/clamp(einstellungen->get_frames_per_second(),5,100);
+	sint32 ms_difference = 0;
 	reset_timer();
 
 	if(  umgebung_t::server  ) {
@@ -5516,132 +5577,38 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(  umgebung_t::networkmode  ) {
 			// did we recieved a new command?
-			len_last_command = sizeof(network_buffer);
-			SOCKET s = network_check_activity( min(5u,next_step_time-dr_time()), network_buffer, len_last_command );
-			if(  s==INVALID_SOCKET  &&  !network_check_server_connection()  ) {
-				// pause for loosing of connection
-				network_core_shutdown();
-				umgebung_t::networkmode = false;
-				len_last_command = 0;
-				step_mode = PAUSE_FLAG;
-				reset_timer();
-				// and tell the player
-				create_win( new news_img("Lost connection\nto server!"), w_info, magic_none );
-				beenden(false);
+			network_command_t *nwc = network_check_activity( min(5u,next_step_time-dr_time()) );
+			if(  nwc==NULL  &&  !network_check_server_connection()  ) {
+				network_disconnect();
 			}
 
-			if(  s!=INVALID_SOCKET  ) {
-				assert( len_last_command>0 );
-
-				if(  memcmp( network_buffer, NET_TO_SERVER, 4 )==0  ) {
-					if(  !umgebung_t::server  ) {
-						dbg->fatal("NETWORK","Only server should recieve this: \"%s\"!", network_buffer );
+			if(  nwc  ) {
+				// check timing
+				if (nwc->get_id()==NWC_CHECK) {
+					// checking for synchronisation
+					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
+					// are we on time?
+					ms_difference = 0;
+					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*frame_time - umgebung_t::server_ms_ahead;
+					if(  difftime < 0) {
+						// running ahead
+						next_step_time -= difftime;
 					}
 					else {
-						if(  memcmp( network_buffer+4, NET_INFO, 4 )==0  ) {
-							// just transfer einstellungen_t
-							chdir( umgebung_t::user_dir );
-							loadsave_t file;
-							remove("tmp");
-							if(file.wr_open("tmp",loadsave_t::xml,umgebung_t::objfilename)) {
-								einstellungen->rdwr(&file);
-								file.close();
-								network_send_file( s, "tmp" );
-							}
-							set_pause( 1 );
-//							network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
-						}
-						else if(  memcmp( network_buffer+4, NET_GAME, 4 )==0  ) {
-
-							// transfer game, all clients need to sync (save, reload, and pause)
-							char cmd[128];
-							int n = sprintf( cmd, NET_FROM_SERVER NET_SYNC " %li" NET_END_CMD, sync_steps );
-							network_send_all( cmd, n, true );
-
-							// now save and send
-							chdir( umgebung_t::user_dir );
-							speichern( "server-network.sve", false );
-							long old_steps = steps;
-							// ok, now sending game
-							if(  network_send_file( s, "server-network.sve" )==NULL  ) {
-								network_frame_count = 0;
-DBG_MESSAGE("client recieved file", "%li", s );
-								laden( "server-network.sve" );
-								steps = old_steps;
-								sync_steps = steps*einstellungen->get_frames_per_step();
-								for(  int clients_to_wait=network_get_clients();  clients_to_wait>0;  ) {
-									len_last_command = sizeof(network_buffer);
-									SOCKET s = network_check_activity( 5, network_buffer, len_last_command );
-									if(  s!=INVALID_SOCKET  &&  len_last_command>0  &&  memcmp( network_buffer, NET_TO_SERVER NET_READY NET_END_CMD, 9 )==0  ) {
-										clients_to_wait--;
-DBG_MESSAGE("client ready", "%li", s );
-									}
-								}
-								// we are now on time
-								reset_timer();
-								network_frame_count = 0;
-								// unpause all clients
-								static char commandstring[4096];
-								int len = sprintf( commandstring, NET_FROM_SERVER NET_READY " %li" NET_END_CMD, steps );
-								network_send_all( commandstring, len, true );
-							}
-						}
-						else if(  memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0  ||  memcmp( network_buffer+4, NET_WKZ_WORK, 4 )==0  ) {
-							const bool init = memcmp( network_buffer+4, NET_WKZ_INIT, 4 )==0;
-							long new_command_step = sync_steps+umgebung_t::server_frames_ahead; // do this next xxx frames
-							char command_string[4096];
-							int len = sprintf( command_string, NET_FROM_SERVER "%s %lu,%lu,%lu,%s", init ? NET_WKZ_INIT : NET_WKZ_WORK, new_command_step, umgebung_t::server_frames_ahead+1, last_randoms[(15+sync_steps)&15], network_buffer+9 );
-							command_queue.insert(new command_node_t(strdup( command_string+3 )));
-							next_command_step = command_queue.front()->step;
-DBG_MESSAGE("append command_queue", "next: %ld new: %ld steps: %ld %s", next_command_step, new_command_step, steps, command_string+3);
-							network_send_all( command_string, len, true );
-						}
+						// more gentle catching up
+						ms_difference = (sint32 )difftime;
 					}
+					dbg->message("NWC_CHECK","time difference to server %lli",difftime);
+				}
+				if (nwc->execute(this)) {
+					delete nwc;
+				}
+				// when execute next command?
+				if(  !command_queue.empty()  ) {
+					next_command_step = command_queue.front()->get_sync_step();
 				}
 				else {
-					// from server
-					if(  strncmp( network_buffer, NET_FROM_SERVER, 3 )==0  ) {
-						bool tool = true;
-						bool work = false;
-						if(  memcmp( network_buffer+3, NET_WKZ_INIT, 4 )==0  ) {
-							work = false;
-						}
-						else if(  memcmp( network_buffer+3, NET_WKZ_WORK, 4 )==0  ) {
-							work = true;
-						}
-						else if(  memcmp( network_buffer+3, NET_READY, 5 )==0  ) {
-							tool = false;
-							if(  steps==0  ) {
-								sscanf( network_buffer+8, "%li", &steps );
-							}
-							assert( steps == atol(network_buffer+8) );
-							step_mode = FIX_RATIO;
-							/* make sure, the server is really that far ahead
-							 * Sleep() on windows often returns before!
-							 */
-							unsigned long ms = dr_time()+umgebung_t::server_ms_ahead;
-							while(  dr_time()<ms  ) {
-								dr_sleep ( 10 );
-							}
-							reset_timer();
-							network_frame_count = 0;
-							sync_steps = steps*einstellungen->get_frames_per_step();
-						}
-						else if(  memcmp( network_buffer+3, NET_SYNC, 4 )==0  ) {
-							tool = true;
-						}
-						else {
-							tool = false;
-							dbg->error("NETWORK","Unknow command \"%s\"", network_buffer );
-						}
-						// need to collect them first ...
-						if(  tool  ) {
-							command_node_t *cmd = new command_node_t( strdup(network_buffer+3) );
-							command_queue.insert(cmd);
-							next_command_step = command_queue.front()->step;
-DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, cmd->buf);
-						}
-					}
+					next_command_step = -1;
 				}
 			}
 		}
@@ -5662,176 +5629,33 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 			}
 		}
 
-		while(  !command_queue.empty()  &&  (next_command_step==sync_steps  ||  step_mode&PAUSE_FLAG)  ) {
-			command_node_t *cmd = command_queue.pop();
-			const char *network_buffer = cmd->buf;
-			dbg->warning("command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, network_buffer);
-			if(  memcmp( network_buffer, NET_SYNC, 4 )==0  ) {
-				if(  !umgebung_t::server  &&  steps!=0  ) {
-					long old_steps = steps;
-					// saving and reloading game, sending notification when ready
-					chdir( umgebung_t::user_dir );
-					char filename[256];
-					sprintf( filename, "client%i-network.sve", network_get_client_id() );
-					speichern( filename, false );
-					laden( filename );
-					steps = old_steps;
-					network_frame_count = 0;
-					sync_steps = steps*einstellungen->get_frames_per_step();
-					reset_timer();
-					network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
-					step_mode = PAUSE_FLAG|FIX_RATIO;
+		while(  !command_queue.empty()  &&  (next_command_step<=sync_steps/*  ||  step_mode&PAUSE_FLAG*/)  ) {
+			network_world_command_t *nwc = command_queue.remove_first();
+			if (nwc) {
+				// want to execute something in the past?
+				if (nwc->get_sync_step() < sync_steps) {
+					dbg->warning("karte_t::interactive", "wanted to do_command(%d) in the past", nwc->get_id());
+					network_disconnect();
 				}
-				// server needs to do nothing
-			}
-			else {
-				const bool init = memcmp( network_buffer, NET_WKZ_INIT, 4 )==0;
-				if(!umgebung_t::server) {
-					dbg->warning("command","%s",network_buffer);
-				}
-				koord3d p = koord3d::invalid;
-				uint16 id=0xFFFF;
-				uint32 client_id=-1;
-				uint16 player_nr = PLAYER_UNOWNED;
-				uint16 z_pos = -256;
-				static char default_param[4096];
-				long steps_nr = 0;
-				uint32 random_counter;
-				sint32 server_ahead=0;
-				sscanf( network_buffer+5, "%li,%li,%lu,%lu,%hi,%hi,%hi,%hi,%hi,%s" NET_END_CMD, &steps_nr, &server_ahead, &random_counter, &client_id,&id, &player_nr, &p.x, &p.y, &z_pos, default_param );
-				// only check random counter before tool
-				if(  random_counter!=last_randoms[(16+sync_steps-server_ahead)&15]  ) {
-					// force disconnect
-					network_core_shutdown();
-					umgebung_t::networkmode = false;
-					step_mode = NORMAL;
-					reset_timer();
-					while(  !command_queue.empty()  ) {
-						command_node_t *cmd = command_queue.pop();
-						delete cmd->buf;
-						delete cmd;
-					}
-					create_win(280, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
-					beenden(false);
-				}
-				size_t len = strlen(default_param);
-				if(  len>0  &&  default_param[len-1]==';'  ) {
-					default_param[len-1] = 0;
-				}
-				p.z = z_pos;
-				if(  id==(SIMPLE_TOOL|WKZ_PAUSE)  ) {
-					steps = steps_nr;
-				}
-				else {
-					assert(  steps_nr==sync_steps );
-				}
-				werkzeug_t *wkz = NULL;
-				// our tool or from network?
-				if (client_id != network_get_client_id()) {
-					// do we have a tool for this client already?
-					tool_node_t new_tool_node(NULL, player_nr, client_id);
-					uint32 index;
-					if (tool_list.is_contained(new_tool_node)) {
-						index = tool_list.index_of(new_tool_node);
-					}
-					else {
-						tool_list.append(new_tool_node);
-						index = tool_list.get_count()-1;
-					}
-					tool_node_t &tool_node = tool_list[index];
-
-					if (tool_node.wkz == NULL  ||  tool_node.wkz->get_id() != id) {
-						if (tool_node.wkz) {
-								// only exit, if it is not the same tool again ...
-								tool_node.wkz->exit(this,spieler[player_nr]);
-								if (tool_node.default_param) {
-									free((void*)tool_node.default_param);
-									tool_node.default_param = NULL;
-								}
-								delete tool_node.wkz;
-						}
-						tool_node.wkz = create_tool(id);
-					}
-					if (tool_node.wkz) {
-						if (tool_node.default_param) {
-							free((void*)tool_node.default_param);
-							tool_node.default_param = NULL;
-						}
-						tool_node.default_param = strdup(default_param);
-						tool_node.wkz->set_default_param( tool_node.default_param );
-						wkz = tool_node.wkz;
+				// check random counter?
+				else if (nwc->get_id()==NWC_CHECK) {
+					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
+					// this was the random number at the previous sync step on the server
+					uint32 server_random = nwcheck->server_random_seed;
+					uint32 server_syncst = nwcheck->server_sync_step;
+					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, last_randoms[server_syncst&15], server_syncst, server_random);
+					if (last_randoms[server_syncst&15]!=server_random) {
+						network_disconnect();
 					}
 				}
 				else {
-					// local player applied a tool
-					if (werkzeug[player_nr]  &&
-						(werkzeug[player_nr]->get_id() != id  ||
-						 (werkzeug[player_nr]->get_default_param()!=NULL ? strcmp(werkzeug[player_nr]->get_default_param(),default_param)!=0 : default_param[0]!=0))) {
-						// only exit, if it is not the same tool again ...
-						werkzeug[player_nr]->exit(this,spieler[player_nr]);
-
-						// get the right tool
-						vector_tpl<werkzeug_t*> &wkz_list = id&GENERAL_TOOL ? werkzeug_t::general_tool : id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
-						for(uint32 i=0; i<wkz_list.get_count(); i++) {
-							if (wkz_list[i]  &&  wkz_list[i]->get_id()==id &&  (wkz_list[i]->get_default_param()!=NULL ? strcmp(wkz_list[i]->get_default_param(),default_param)==0 : default_param[0]==0)) {
-								wkz = wkz_list[i];
-								break;
-							}
-						}
-						if (wkz==NULL) {
-							if(  id&GENERAL_TOOL  ) {
-								wkz = werkzeug_t::general_tool[id&0xFFF];
-							}
-							else if(  id&SIMPLE_TOOL  ) {
-								wkz = werkzeug_t::simple_tool[id&0xFFF];
-							}
-							else if(  id&DIALOGE_TOOL  ) {
-								wkz = werkzeug_t::dialog_tool[id&0xFFF];
-							}
-						}
-					}
-					else {
-						wkz = werkzeug[player_nr];
-					}
+					nwc->do_command(this);
 				}
-				if(  wkz  ) {
-					const char* old_default_param = wkz->get_default_param();
-					wkz->set_default_param(default_param);
-					dbg->warning("command","%d:%d:%s",id&0xFFF,init,wkz->get_tooltip(spieler[player_nr]));
-					if(  init  ) {
-						if(  wkz->init( this, spieler[player_nr] )  ) {
-							set_dirty();
-							// update cursor and lastpos
-							if(client_id == network_get_client_id()  &&  player_nr==active_player_nr  ) {
-								zeiger->set_bild( wkz->cursor );
-								zeiger->set_yoff( wkz->offset );
-								if(!zeiger->area_changed()) {
-									// reset to default 1,1 size
-									zeiger->set_area( koord(1,1), false );
-								}
-								zeiger->change_pos( p );
-								werkzeug_last_pos = koord3d::invalid;
-								werkzeug_last_button = 0;
-								werkzeug[player_nr] = wkz;
-							}
-						}
-					}
-					else {
-						const char *err = wkz->work( this, spieler[player_nr], p );
-						// only local players or KIs get the callback
-						if (client_id == network_get_client_id()  ||  spieler[player_nr]->get_ai_id()!=spieler_t::HUMAN) {
-							spieler[player_nr]->tell_tool_result(wkz, p, err, client_id == network_get_client_id());
-						}
-					}
-					wkz->set_default_param(old_default_param);
-				}
-
+				delete nwc;
 			}
-			delete cmd->buf;
-			delete cmd;
 			// when execute next command?
 			if(  !command_queue.empty()  ) {
-				next_command_step = command_queue.front()->step;
+				next_command_step = command_queue.front()->get_sync_step();
 			}
 			else {
 				next_command_step = -1;
@@ -5839,9 +5663,10 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 		}
 
 		// time for the next step?
-		uint32 time = dr_time();
+		uint32 time = dr_time(); // - (umgebung_t::server ? 0 : 5000);
 		if(  next_step_time<=time  ) {
 			if(  step_mode&PAUSE_FLAG  ) {
+				// only update display
 				sync_step( 0, false, true );
 				idle_time = 100;
 			}
@@ -5853,8 +5678,15 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 					clear_random_mode( STEP_RANDOM );
 				}
 				else if(  step_mode==FIX_RATIO  ) {
-					time_budget = next_step_time-time;
 					next_step_time += frame_time;
+					if(  ms_difference>5  ) {
+						next_step_time -= 5;
+						ms_difference -= 5;
+					}
+					else if(  ms_difference<-5  ) {
+						next_step_time += 5;
+						ms_difference += 5;
+					}
 					sync_step( frame_time, true, true );
 					if(  ++network_frame_count==einstellungen->get_frames_per_step()  ) {
 						// ever fourth frame
@@ -5865,6 +5697,14 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 					}
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
 					last_randoms[sync_steps&15] = get_random_seed();
+					// broadcast sync info
+					if(  umgebung_t::networkmode  &&  umgebung_t::server  &&  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0) {
+						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, last_randoms[sync_steps&15], sync_steps);
+						network_send_all(nwc, true);
+					}
+					if( umgebung_t::networkmode  &&  (sync_steps & 7)==0) {
+						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, last_randoms[sync_steps&15]);
+					}
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );
@@ -5882,6 +5722,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 			interactive_event(ev);
 		}
 
+		//dbg->warning("karte_t::interactive", "steps=%d sync_steps=%d", steps, sync_steps);
 	} while(!finish_loop  &&  get_current_month()<quit_month);
 
 	if(  get_current_month() >= quit_month  ) {
@@ -5890,3 +5731,21 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 
 	return finish_loop;
 }
+
+
+void karte_t::network_disconnect()
+{
+	// force disconnect
+	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server.");
+	network_core_shutdown();
+	umgebung_t::networkmode = false;
+	step_mode = NORMAL;
+	reset_timer();
+	while(  !command_queue.empty()  ) {
+		network_world_command_t *cmd = command_queue.remove_first();
+		delete cmd;
+	}
+	create_win(280, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
+	beenden(false);
+}
+

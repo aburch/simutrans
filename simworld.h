@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -51,6 +51,7 @@ class scenario_t;
 class message_t;
 class weg_besch_t;
 class tunnel_besch_t;
+class network_world_command_t;
 
 
 /**
@@ -109,7 +110,7 @@ private:
 	// aus performancegruenden werden einige Einstellungen local gecached
 	sint16 cached_groesse_gitter_x;
 	sint16 cached_groesse_gitter_y;
-	// diese Werte sind um ein kleiner als die Werte für das Gitter
+	// diese Werte sind um eins kleiner als die Werte fuer das Gitter
 	sint16 cached_groesse_karte_x;
 	sint16 cached_groesse_karte_y;
 	// maximum size for waitng bars etc.
@@ -119,8 +120,6 @@ private:
 	// it will call save_mouse_funk first with init, then with the position and with exit, when another tool is selected without click
 	// see simwerkz.cc for practical examples of such functions
 	werkzeug_t *werkzeug[MAX_PLAYER_COUNT];
-	koord3d werkzeug_last_pos;	// last position a tool was called
-	uint8 werkzeug_last_button;
 
 	// Whether the map is currently being destroyed. 
 	// Useful to prevent access violations if objects with
@@ -250,12 +249,6 @@ private:
 	karte_ansicht_t *view;
 
 	/**
-	 * Fraktale, rekursive Landschaftserzeugung
-	 * @author Hj. Malthaner
-	 */
-	void calc_hoehe(int x1, int y1, int x2, int y2);
-
-	/**
 	 * Raise tile (x,y): height of each corner is given
 	 */
 	bool can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
@@ -263,7 +256,7 @@ private:
 	/**
 	 * Raise grid point (x,y), used during map creation/enlargement
 	 */
-	int  raise_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
+	int  raise_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
 	 * Lower tile (x,y): height of each corner is given
@@ -273,7 +266,7 @@ private:
 	/**
 	 * Lwer grid point (x,y), used during map creation/enlargement
 	 */
-	int  lower_to(sint16 x, sint16 y, sint16 h,bool set_slopes);
+	int  lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
 	 * Die fraktale Erzugung der Karte ist nicht perfekt.
@@ -304,6 +297,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	spieler_t *spieler[MAX_PLAYER_COUNT];   // Mensch ist spieler Nr. 0 "Humans are player no. 0"
+	uint8 player_password_hash[MAX_PLAYER_COUNT][20];
 	spieler_t *active_player;
 	uint8 active_player_nr;
 
@@ -328,6 +322,10 @@ private:
 
 	uint8 step_mode;
 
+	// Variables used in interactive()
+	uint32 sync_steps;
+	uint8  network_frame_count;
+
 	/**
 	 * fuer performancevergleiche
 	 * @author Hj. Malthaner
@@ -342,7 +340,7 @@ private:
 	uint32 last_interaction;	// ms, when the last time events were handled
 	uint32 last_step_time;	// ms, when the last step was done
 	uint32 next_step_time;	// ms, when the next steps is to be done
-	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
+//	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
 	uint32 idle_time;
 
 	sint32 current_month;  // monat+12*jahr
@@ -524,6 +522,9 @@ public:
 	bool is_fast_forward() const { return step_mode == FAST_FORWARD; }
 	void set_fast_forward(bool ff);
 
+	// (un)pause for network games
+	void network_game_set_pause(bool pause_, uint32 syncsteps_);
+
 	zeiger_t * get_zeiger() const { return zeiger; }
 
 	/**
@@ -539,6 +540,8 @@ public:
 	spieler_t * get_spieler(uint8 n) const { return spieler[n&15]; }
 	spieler_t* get_active_player() const { return active_player; }
 	uint8 get_active_player_nr() const { return active_player_nr; }
+	void set_player_password_hash( uint8 player_nr, uint8 *hash );
+	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr);
 	void new_spieler( uint8 nr, uint8 type );
 
@@ -735,7 +738,10 @@ public:
 		return (climate)height_to_climate[h];
 	}
 
+	// set a new tool as current: calls local_set_werkzeug or sends to server
 	void set_werkzeug( werkzeug_t *w, spieler_t * sp );
+	// set a new tool on our client, calls init
+	void local_set_werkzeug( werkzeug_t *w, spieler_t * sp );
 	werkzeug_t *get_werkzeug(uint8 nr) const { return werkzeug[nr]; }
 
 	// all stuff concerning map size
@@ -881,14 +887,14 @@ public:
 	 * erniedrigt werden kann
 	 * @author V. Meyer
 	 */
-	bool can_lower_plan_to(sint16 x, sint16 y, sint16 h) const;
+	bool can_lower_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Prueft, ob das Planquadrat an Koordinate (x,y)
-	 * erhöht werden kann
+	 * erhoeht werden kann
 	 * @author V. Meyer
 	 */
-	bool can_raise_plan_to(sint16 x, sint16 y, sint16 h) const;
+	bool can_raise_plan_to(sint16 x, sint16 y, sint8 h) const;
 
 	/**
 	 * Prueft, ob das Planquadrat an Koordinate (x,y)
@@ -930,19 +936,8 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint16 hgt);
-	bool ebne_planquadrat(spieler_t *sp, koord pos, sint16 hgt);
-
-	/**
-	 * Erzeugt einen Berg oder ein Tal
-	 * @param x x-Koordinate
-	 * @param y y-Koordinate
-	 * @param w Breite
-	 * @param h Hoehe
-	 * @param t Hoehe des Berges/Tiefe des Tales
-	 * @author Hj. Malthaner
-	 */
-	void new_mountain(int x, int y, int w, int h, int t);
+	bool can_ebne_planquadrat(koord pos, sint8 hgt);
+	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
 
 	// the convois are also handled each steps => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
@@ -953,7 +948,7 @@ public:
 	vector_tpl<convoihandle_t>::const_iterator convois_end()   const { return convoi_array.end();   }
 
 	/**
-	 * Zugriff auf das Städte Array.
+	 * Zugriff auf das Staedte Array.
 	 * @author Hj. Malthaner
 	 */
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
@@ -1037,13 +1032,13 @@ public:
 	 * @return Minimale Hoehe des Planquadrates i,j
 	 * @author Hj. Malthaner
 	 */
-	sint16 min_hgt(koord pos) const;
+	sint8 min_hgt(koord pos) const;
 
 	/**
 	 * @return Maximale Hoehe des Planquadrates i,j
 	 * @author Hj. Malthaner
 	 */
-	sint16 max_hgt(koord pos) const;
+	sint8 max_hgt(koord pos) const;
 
 	/**
 	 * @return true, wenn Platz an Stelle pos mit Groesse dim Wasser ist
@@ -1077,21 +1072,21 @@ public:
 	/**
 	 * Saves the map to a file
 	 * @param filename name of the file to write
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 	void speichern(const char *filename,bool silent);
 
 	/**
 	 * Loads a map from a file
 	 * @param filename name of the file to read
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 	bool laden(const char *filename);
 
 	/**
 	 * Creates a map from a heightfield
 	 * @param sets game settings
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 	void load_heightfield(einstellungen_t *sets);
 
@@ -1100,13 +1095,18 @@ public:
 	/**
 	 * main loop with even handling;
 	 * returns false to exit
-	 * @author Hansjörg Malthaner
+	 * @author Hj. Malthaner
 	 */
 
 	uint16 get_base_pathing_counter() const { return base_pathing_counter; }
 
 	bool interactive(uint32 quit_month);
 
+	uint32 get_sync_steps() const { return sync_steps; }
+
+	void command_queue_append(network_world_command_t*);
+
+	void network_disconnect();
 };
 
 #endif

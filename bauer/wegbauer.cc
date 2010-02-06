@@ -220,7 +220,6 @@ const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 spe
 
 const weg_besch_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
 {
-	uint32 start_year_month = 0x7FFFFFFFul;
 	const weg_besch_t *besch = NULL;
 	for(  stringhashtable_iterator_tpl<	weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
 		const weg_besch_t* const test = iter.get_current_value();
@@ -295,7 +294,7 @@ static bool compare_ways(const weg_besch_t* a, const weg_besch_t* b)
  * Fill menu with icons of given waytype, return number of added entries
  * @author Hj. Malthaner/prissi/dariok
  */
-void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 ok_sound, karte_t *welt)
+void wegbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, const weg_t::system_type styp, sint16 /*ok_sound*/, karte_t *welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 
@@ -960,19 +959,24 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		// Try a bridge.
 		const long cost_difference=besch->get_wartung()>0 ? (bruecke_besch->get_wartung()*4l+3l)/besch->get_wartung() : 16;
 		const char *error;
-		// add long bridge (i==0) and shortest possible bridge (i==1)
+		// try eight possible lengths ..
 		koord3d end;
 		const grund_t* gr_end;
-		for( uint8 i = 0; i < 2; i++ ) {
-			end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, i!=0 );
+		sint16 min_length = 1;
+		for( uint8 i = 0; i < 8  &&  min_length <= welt->get_einstellungen()->way_max_bridge_len; i++ ) {
+			end = brueckenbauer_t::finde_ende( welt, from->get_pos(), zv, bruecke_besch, error, true, min_length );
 			gr_end = welt->lookup(end);
 			uint32 length = koord_distance(from->get_pos(), end);
-			if(  error == NULL  &&  !ziel.is_contained(end)  &&  brueckenbauer_t::ist_ende_ok(sp, gr_end) && length <= welt->get_einstellungen()->way_max_bridge_len) {
+			if(gr_end  &&  error == NULL  &&  !ziel.is_contained(end)  &&  brueckenbauer_t::ist_ende_ok(sp, gr_end) && length <= welt->get_einstellungen()->way_max_bridge_len) {
 				// If there is a slope on the starting tile, it's taken into account in is_allowed_step, but a bridge will be flat!
 				sint8 num_slopes = (from->get_grund_hang() == hang_t::flach) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
 				num_slopes += (gr_end->get_grund_hang() == hang_t::flach) ? 1 : 0;
 				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_einstellungen()->way_count_slope ));
+				min_length = length+1;
+			}
+			else {
+				break;
 			}
 		}
 		return;
@@ -1399,8 +1403,9 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		// ... or to end
 		return;
 	}
-	// we have to reach target height if no tunnel building or sliced mode or target ground exists.
-	const bool target_3d = (bautyp&tunnel_flag)==0  ||  grund_t::underground_mode==grund_t::ugm_level  ||  test_bd!=NULL;
+	// we have to reach target height if no tunnel building or (target ground does not exists or is underground).
+	// in full underground mode if there is no tunnel under cursor, kartenboden gets selected
+	const bool target_3d = (bautyp&tunnel_flag)==0  ||  test_bd==NULL  ||  !test_bd->ist_karten_boden();
 
 	koord3d pos=start;
 
@@ -1693,7 +1698,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 			}
 			else {
 				// tunnel
-				tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch );
+				tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch, true );
 			}
 			INT_CHECK( "wegbauer 1584" );
 		}
@@ -1726,7 +1731,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 						// make a short tunnel
 						wi->set_ribi(ribi_typ(hang_t::gegenueber(h)));
 						wi1->set_ribi(ribi_typ(h));
-						tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch );
+						tunnelbauer_t::baue( welt, sp, route[i].get_2d(), tunnel_besch, true );
 					}
 					INT_CHECK( "wegbauer 1584" );
 				}
@@ -1855,8 +1860,9 @@ wegbauer_t::baue_tunnelboden()
 
 		const weg_besch_t *wb = tunnel_besch->get_weg_besch();
 		if(wb==NULL) {
-			// now we seach a matchin wy for the tunnels top speed
-			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+			// now we search a matching way for the tunnels top speed
+			// ignore timeline to get consistent results
+			wb = wegbauer_t::weg_search( tunnel_besch->get_waytype(), tunnel_besch->get_topspeed(), 0, weg_t::type_flat );
 		}
 
 		if(gr==NULL) {
@@ -1889,6 +1895,11 @@ wegbauer_t::baue_tunnelboden()
 				weg->set_besch(wb);
 				weg->set_max_speed(tunnel_besch->get_topspeed());
 				weg->set_max_weight(tunnel_besch->get_max_weight());
+				// respect max speed of catenary
+				wayobj_t *wo = gr->get_wayobj((waytype_t)tunnel_besch->get_waytype());
+				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+					weg->set_max_speed( wo->get_besch()->get_topspeed() );
+				}
 				gr->calc_bild();
 
 				cost -= tunnel_besch->get_preis();
@@ -1971,6 +1982,11 @@ void wegbauer_t::baue_strasse()
 				// cost is the more expensive one, so downgrading is between removing and new buidling
 				cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 				weg->set_besch(besch);
+				// respect max speed of catenary
+				wayobj_t *wo = gr->get_wayobj((waytype_t)besch->get_wtyp());
+				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+					weg->set_max_speed( wo->get_besch()->get_topspeed() );
+				}
 				spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 				weg->set_besitzer(sp);
 			}
@@ -2036,11 +2052,16 @@ void wegbauer_t::baue_schiene()
 					// cost is the more expensive one, so downgrading is between removing and new buidling
 					cost -= max( weg->get_besch()->get_preis(), besch->get_preis() );
 					weg->set_besch(besch);
+					// respect max speed of catenary
+					wayobj_t *wo = gr->get_wayobj((waytype_t)besch->get_wtyp());
+					if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
+						weg->set_max_speed( wo->get_besch()->get_topspeed() );
+					}
 					const wayobj_t* wayobj = gr->get_wayobj(weg->get_waytype());
 					if(wayobj != NULL)
 					{
 						weg->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
-					}
+					}					
 					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 					weg->set_besitzer(sp);
 				}
@@ -2128,9 +2149,10 @@ class fluss_fahrer_t : fahrer_t
 // make a river
 void wegbauer_t::baue_fluss()
 {
-	/* since the contraits of the wayfinder ensures that a river flows always downwards
+	/* since the contraints of the wayfinder ensures that a river flows always downwards
 	 * we can assume that the first tiles are the ocean.
 	 * Usually the wayfinder would find either direction!
+	 * route[0] tile at the ocean, route[get_count()-1] the spring of the river
 	 */
 
 	// Do we join an other river?
@@ -2147,10 +2169,12 @@ void wegbauer_t::baue_fluss()
 
 	// first check then lower riverbed
 	const sint8 start_h = route[start_n].z;
+	uint32 end_n = get_count();
 	uint32 i = start_n;
 	while(i<get_count()) {
 		// first find all tiles that are on the same level as tile i
 		// and check whether we can lower all of them
+		// if lowering fails we do not continue river building
 		bool ok = true;
 		uint32 j;
 		for(j=i; j<get_count() &&  ok; j++) {
@@ -2160,20 +2184,22 @@ void wegbauer_t::baue_fluss()
 			ok = welt->can_ebne_planquadrat(route[j].get_2d(), max(route[j].z-1, start_h));
 		}
 		// now lower all tiles that have the same height as tile i
-		if (ok) {
-			for(uint32 k=i; k<j; k++) {
-				welt->ebne_planquadrat(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
-			}
+		for(uint32 k=i; k<j; k++) {
+			welt->ebne_planquadrat(NULL, route[k].get_2d(), max(route[k].z-1, start_h));
 		}
-		i = ok ? j : j+1;
+		if (!ok) {
+			end_n = j;
+			break;
+		}
+		i = j;
 	}
 
 	// now build the river
-	for(  uint32 i=start_n;  i<get_count();  i++  ) {
+	for(  uint32 i=start_n;  i<end_n;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
 		if(  gr->get_typ()!=grund_t::wasser  ) {
 			// get direction
-			ribi_t::ribi ribi = route.get_short_ribi(i);
+			ribi_t::ribi ribi = i<end_n-1 ? route.get_short_ribi(i) : ribi_typ(route[i-1].get_2d()-route[i].get_2d());
 			bool extend = gr->weg_erweitern(water_wt, ribi);
 			if(  !extend  ) {
 				weg_t *sch=weg_t::alloc(water_wt);
@@ -2184,7 +2210,7 @@ void wegbauer_t::baue_fluss()
 	}
 
 	// we will make rivers gradually larger by stepping up their width
-	if(  umgebung_t::river_types>1  ) {
+	if(  umgebung_t::river_types>1  &&  start_n<get_count()) {
 		/* since we will stop at the first crossing with an existent river,
 		 * we cannot make sure, we have the same destination;
 		 * thus we use the routefinder to find the sea

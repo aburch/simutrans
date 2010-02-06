@@ -86,7 +86,6 @@ void message_stats_t::zeichnen(koord offset)
 {
 	const image_id arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	struct clip_dimension cd = display_get_clip_wh();
-	const int offsets = (cd.y-offset.y)/14;
 	sint16 y = offset.y+1;
 
 	for(  slist_tpl<message_t::node>::const_iterator iter = msg->get_list().begin(), end = msg->get_list().end();  iter!=end; ++iter,  y += BUTTON_HEIGHT  ) {

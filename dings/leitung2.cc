@@ -382,6 +382,8 @@ void leitung_t::calc_neighbourhood()
  */
 void leitung_t::info(cbuffer_t & buf) const
 {
+	ding_t::info(buf);
+
 	buf.append(translator::translate("Power"));
 	buf.append(": ");
 	buf.append(get_net()->get_capacity() / 20);
@@ -636,9 +638,10 @@ senke_t::laden_abschliessen()
 
 
 
-void
-senke_t::info(cbuffer_t & buf) const
+void senke_t::info(cbuffer_t & buf) const
 {
+	ding_t::info( buf );
+
 	/* info in a drain */
 	buf.append(translator::translate("Power"));
 	buf.append(": ");

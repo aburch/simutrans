@@ -1,27 +1,41 @@
+Trunk:
 	CHANGE: default savegame now bzip2 (games 33% smaller)
 	ADD: Odometer and distance per month available for convois/lines
 	ADD: (gerw) built tunnel without ways
-	FIX: no longer possible for neagtive prices (cheat bus)
+	FIX: no longer possible for negative prices (cheat bus)
 	ADD: (Dwachs) starting money per year
 	ADD: lines will be listed numerically correct, if the contain a number
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
 	ADD: some more network related settings like server_frames_ahead, network_ms_ahead, server_frames_per_step to control timing on the network
-	FIX: connecting upslope to upper way works in sliced mode
-	FIX: lines were never freed upon deletion
-	FIX: longer convoi's name could cause crash when entering depot
-	FIX: deleting factories/cities/attractions while those lists were open resulted in CTD
-	ADD: korean glyphs now in cyr.bdf
-	FIX: stop types in station frame sometime painted on top of each other
 	ADD: translations are also search in user dir/scenario/text
 	ADD: (gerw) auto-electrify depot added
-	FIX: (dwachs) delete convoi only in next step if loading and return directly (and step reverse in karte_t)
 	FIX: freelist sometimes returned wrong elements to free
-	FIX: walk_city (for stop in towns with AI) was broken
 	ADD (VS): makeobj ignored alpha channel now really
+	CHANGE (Knightly): Not scaling images displayed by gui_image_t anymore
+	FIX: deleting tram signals again
+	ADD: click-and-drag also for network games (except for building elevated ways, bridges, tunnels)
+	ADD: tools should work on all clients regardless of underground mode
+	ADD: tools work now correct with ctrl keys in networkmode
 
+Release Candidate 102.2.2
+	FIX: connecting upslope to upper way works in sliced mode (r2949)
+	FIX: longer convoi's name could cause crash when entering depot
+	FIX: lines were never freed upon deletion
+	FIX: deleting factories/cities/attractions while those lists were open resulted in CTD
+	FIX: stop types in station frame sometime painted on top of each other
+	FIX: delete convoi only in next step if loading and return directly (and step reverse in karte_t)
+	FIX: walk_city (for stop in towns with AI) was broken (r2990)
+	FIX: distribute goods also on factories with less than 10 output
+	FIX: latin2 characters with unicode>255 work again (via hack)
+	FIX: (VS) do not buy same house twice
+	FIX: (Knightly) only do action when mouse button release also on same button
+	FIX: (Knightly) prevent pending mouse events when resizing
+	ADD: support for townhalls with four rotations
+	ADD: korean glyphs now in cyr.bdf (r2967/r3059)
+	ADD: reading of bzip2 savegames from trunk
 
-Release Candidate 102.2.1
+Release of 102.2.1 (r2928)
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly

@@ -396,7 +396,7 @@ void fahrplan_gui_t::infowin_event(const event_t *ev)
 					cnv->call_convoi_tool( 'l', id );
 				}
 				else {
-					cbuffer_t buf(5120);
+					cbuffer_t buf(5500);
 					fpl->sprintf_schedule( buf );
 					cnv->call_convoi_tool( 'g', buf );
 				}
@@ -406,7 +406,7 @@ void fahrplan_gui_t::infowin_event(const event_t *ev)
 				if(  fpl->get_count()!=old_fpl->get_count()  ||  !old_fpl->matches( sp->get_welt(), fpl )  ) {
 					sp->get_welt()->set_schedule_counter();
 				}
-				cbuffer_t buf(5120);
+				cbuffer_t buf(5500);
 				fpl->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
 			}
@@ -498,8 +498,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 	} else if (komp == &bt_promote_to_line) {
 		// update line schedule via tool!
 		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
-		cbuffer_t buf(5120);
-		buf.printf( "c,0,%i,%p,", (int)fpl->get_type(), old_fpl );
+		cbuffer_t buf(5500);
+		buf.printf( "c,0,%i,%ld,", (int)fpl->get_type(), (long)old_fpl );
 		fpl->sprintf_schedule( buf );
 		w->set_default_param(buf);
 		sp->get_welt()->set_werkzeug( w, sp );
@@ -536,7 +536,7 @@ void fahrplan_gui_t::init_line_selector()
 		line_selector.append_element( new line_scrollitem_t(line) );
 		if(  fpl->matches(sp->get_welt(),line->get_schedule() )  ) {
 			selection = line_selector.count_elements() - 1;
-			new_line == line;
+			new_line = line;
 		}
 	}
 	line_selector.set_selection( selection );

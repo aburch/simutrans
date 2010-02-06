@@ -90,7 +90,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 		),
 		sort_label(translator::translate("Hier warten/lagern:")),
-		view(welt, halt->get_basis_pos3d()),
+		view(welt, halt->get_basis_pos3d(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 		freight_info(4096),
 		info_buf(256)
 {
@@ -98,7 +98,10 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	this->welt = welt;
 	halt->set_sortby( umgebung_t::default_sortmode );
 
-	input.set_pos(koord(11,4));
+	const sint16 offset_below_viewport = 21 + view.get_groesse().y;
+	const sint16 total_width = 3*(BUTTON_WIDTH + BUTTON_SPACER) + max(BUTTON_WIDTH + 2*BUTTON_SPACER, view.get_groesse().x + 32);
+
+	input.set_pos(koord(10,4));
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
 	input.set_text(edit_name, lengthof(edit_name));
 
@@ -106,13 +109,13 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 
 	// hsiegeln: added sort_button
 	sort_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	sort_button.set_pos(koord(BUTTON1_X, 78));
+	sort_button.set_pos(koord(BUTTON1_X, offset_below_viewport));
 	sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
 	sort_button.set_typ(button_t::roundbox);
 	sort_button.set_tooltip("Sort waiting list by");
 
 	toggler.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	toggler.set_pos(koord(BUTTON3_X, 78));
+	toggler.set_pos(koord(BUTTON3_X, offset_below_viewport));
 	toggler.set_text("Chart");
 	toggler.set_typ(button_t::roundbox_state);
 	toggler.set_tooltip("Show/hide statistics");
@@ -121,18 +124,18 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	add_komponente(&toggler);
 
 	button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	button.set_pos(koord(BUTTON4_X, 78));
+	button.set_pos(koord(BUTTON4_X, offset_below_viewport));
 	button.set_text("Details");
 	button.set_typ(button_t::roundbox);
 
-	scrolly.set_pos(koord(1, 78+BUTTON_HEIGHT+4));
+	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+4));
 
 	add_komponente(&sort_button);
 	add_komponente(&button);
 	add_komponente(&input);
 
-	set_fenstergroesse(koord(BUTTON4_X+BUTTON_WIDTH+2, 264));
-	set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, 194));
+	set_fenstergroesse(koord(total_width, view.get_groesse().y+208));
+	set_min_windowsize(koord(total_width, view.get_groesse().y+138));
 	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
 	resize(koord(0,0));
 
@@ -141,7 +144,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	sort_button.add_listener(this);
 
 	// chart
-	chart.set_pos(koord(66,80));
+	chart.set_pos(koord(66,view.get_groesse().y+24));
 	chart.set_groesse(koord(BUTTON4_X+BUTTON_WIDTH-70, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
@@ -151,7 +154,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	for (int cost = 0; cost<MAX_HALT_COST; cost++) {
 		chart.add_curve(cost_type_color[cost], halt->get_finance_history(), MAX_HALT_COST, index_of_haltinfo[cost], MAX_MONTHS, 0, false, true, 0);
 		filterButtons[cost].init(button_t::box_state, cost_type[cost],
-			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), 198+(BUTTON_HEIGHT+2)*(cost/4) ),
+			koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), view.get_groesse().y+142+(BUTTON_HEIGHT+2)*(cost/4) ),
 			koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[cost].add_listener(this);
 		filterButtons[cost].background = cost_type_color[cost];
@@ -200,10 +203,10 @@ halt_info_t::zeichnen(koord pos, koord gr)
 
 		sint16 top = pos.y+36;
 		COLOR_VAL indikatorfarbe = halt->get_status_farbe();
-		display_fillbox_wh_clip(pos.x+11, top+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
+		display_fillbox_wh_clip(pos.x+10, top+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
 		// now what do we accept here?
-		int left = 11+INDICATOR_WIDTH+2;
+		int left = 10+INDICATOR_WIDTH+2;
 		if (halt->get_pax_enabled()) {
 			display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x+left, top, 0, false, false);
 			left += 10;
@@ -262,7 +265,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		info_buf.clear();
 		info_buf.append(translator::translate("Storage capacity"));
 		info_buf.append(": ");
-		left = pos.x+11;
+		left = pos.x+10;
 		// passagiere
 		info_buf.append(halt->get_capacity(0));
 		left += display_proportional(left, top, info_buf, ALIGN_LEFT, COL_BLACK, true);
@@ -290,7 +293,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		// information about the convoi itself
 		info_buf.clear();
 		halt->info(info_buf);
-		display_multiline_text(pos.x+11, pos.y+53+LINESPACE, info_buf, COL_BLACK);
+		display_multiline_text(pos.x+10, pos.y+53+LINESPACE, info_buf, COL_BLACK);
 	}
 }
 
@@ -309,9 +312,9 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
 	} else  if (comp == &toggler) {
 		toggler.pressed ^= 1;
-		const koord offset = toggler.pressed ? koord(0, 165) : koord(0, -165);
-		set_min_windowsize(koord(BUTTON4_X+BUTTON_WIDTH+2, toggler.pressed ?372:194));
-		scrolly.set_pos( scrolly.get_pos() + koord(0,offset.y) );
+		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
+		set_min_windowsize(get_min_windowsize() + offset);
+		scrolly.set_pos(scrolly.get_pos() + offset);
 		// toggle visibility of components
 		chart.set_visible(toggler.pressed);
 		set_fenstergroesse(get_fenstergroesse() + offset);
@@ -347,14 +350,13 @@ void halt_info_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
 
-	const sint16 button_offset_y = toggler.pressed?245:80;
-
-	input.set_groesse(koord(get_fenstergroesse().x-23, 13));
-	toggler.set_pos(koord(BUTTON3_X,button_offset_y));
-	button.set_pos(koord(BUTTON4_X,button_offset_y));
-	sort_button.set_pos(koord(BUTTON1_X,button_offset_y));
-	sort_label.set_pos(koord(BUTTON1_X,button_offset_y-LINESPACE));
-	view.set_pos(koord(get_fenstergroesse().x - 64 - 16 , 21));
+	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-2;
+	input.set_groesse(koord(get_fenstergroesse().x-20, 13));
+	toggler.set_pos(koord(BUTTON3_X,yoff));
+	button.set_pos(koord(BUTTON4_X,yoff));
+	sort_button.set_pos(koord(BUTTON1_X,yoff));
+	sort_label.set_pos(koord(BUTTON1_X,yoff-LINESPACE));
+	view.set_pos(koord(get_fenstergroesse().x - view.get_groesse().x - 10 , 21));
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 }
 

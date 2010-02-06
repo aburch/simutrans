@@ -244,6 +244,7 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 		case 4: // sort by catg_index
 			order = w[1]->get_catg()-w[0]->get_catg();
 			break;
+		default: ; // make compiler happy, order will be determined below anyway
 	}
 	if(  order==0  ) {
 		// sort by name if not sorted or not unique

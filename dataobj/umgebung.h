@@ -40,6 +40,8 @@ public:
 	static long server_frames_ahead;
 	static long server_ms_ahead;
 	static long network_frames_per_step;
+	// how often to synchronize
+	static uint32 server_sync_steps_between_checks;
 
 	// true, if we are the server
 	static bool server;

@@ -104,7 +104,7 @@ public:
 	virtual obj_type get_type() const = 0;
 	virtual const char *get_type_name() const = 0;
 
-	static bool init(const char *message);
+	static bool init();
 	static bool laden_abschliessen();
 	static bool load(const char *liste, const char *message);
 };

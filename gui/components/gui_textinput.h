@@ -85,13 +85,13 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t *);
+	virtual void infowin_event(const event_t *);
 
 	/**
 	 * Zeichnet die Komponente
 	 * @author Hj. Malthaner
 	 */
-	void zeichnen(koord offset);
+	virtual void zeichnen(koord offset);
 
 	// to allow for right-aligned text
 	void set_alignment(uint8 _align){ align = _align;}
@@ -99,5 +99,16 @@ public:
 	// to allow for right-aligned text
 	void set_color(COLOR_VAL col){ textcol = col;}
 };
+
+
+class gui_hidden_textinput_t : public gui_textinput_t
+{
+	// and set the cursor right when clicking with the mouse
+	virtual void infowin_event(const event_t *);
+
+	// just draw with stars ...
+	virtual void zeichnen(koord offset);
+};
+
 
 #endif

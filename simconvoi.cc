@@ -219,7 +219,6 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 convoi_t::~convoi_t()
 {
-	bool update_schedules = !line.is_bound()  &&  fpl  &&  fpl->get_count()>0;
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
 
@@ -1125,6 +1124,7 @@ end_loop:
 		case WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			wait_lock = 2500;
 			break;
+		default: ;
 	}
 }
 
@@ -1747,8 +1747,8 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// now get the actual length and the tile length
-	int convoi_length = 15;
-	int tile_length = 24;
+	uint16 convoi_length = 15;
+	uint16 tile_length = 24;
 	unsigned i;	// for visual C++
 	const vehikel_t* pred = NULL;
 	for(i=0; i<anz_vehikel; i++) {
@@ -1788,7 +1788,7 @@ bool convoi_t::can_go_alte_richtung()
 		return false;
 	}
 
-	int length = min((convoi_length/16)+4,route.get_count());	// maximum length in tiles to check
+	uint16 length = min((convoi_length/16u)+4u,route.get_count());	// maximum length in tiles to check
 
 	// we just check, wether we go back (i.e. route tiles other than zero have convoi vehicles on them)
 	for( int index=1;  index<length;  index++ ) {
@@ -1830,7 +1830,7 @@ bool convoi_t::can_go_alte_richtung()
 
 	// since we need the route for every vehicle of this convoi,
 	// we must set the current route index (instead assuming 1)
-	length = min((convoi_length/8),route.get_count()-1);	// maximum length in tiles to check
+	length = min((convoi_length/8u),route.get_count()-1);	// maximum length in tiles to check
 	bool ok=false;
 	for(i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
@@ -2453,7 +2453,7 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else if(file->get_version() < 102003 || (file->get_version() < 103000 && file->get_experimental_version() < 7))
+	else if(file->get_version() < 102003 || (file->get_version() < 102002 && file->get_experimental_version() < 7))
 	{
 		// load statistics
 		for (int j = 0; j<CONVOI_DISTANCE; j++) 
@@ -2511,7 +2511,7 @@ convoi_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_longlong( total_distance_traveled, "" );
 	}
-	else if(file->get_version() >= 103000)
+	else if(file->get_version() >= 102002)
 	{
 		//Simutrans-Standard save - this value is in tiles, not km. Convert.
 		sint64 tile_distance;
@@ -2867,9 +2867,10 @@ void convoi_t::open_schedule_window( bool show )
 		old_fpl = fpl->copy();
 	}
 
-	if(  welt->get_active_player()==get_besitzer()  &&  show  ) {
+	if(  show  ) {
 		// Fahrplandialog oeffnen
 		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
+		// TODO: what happens if no client opens the window??
 	}
 	fpl->eingabe_beginnen();
 }
@@ -4209,7 +4210,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 			const roadsign_t *rs = gr->find<roadsign_t>(1);
 			if(rs) {
 				const roadsign_besch_t *rb = rs->get_besch();
-				if(rb->is_free_route()  ||  rb->is_traffic_light()  ) {
+				if(rb->is_choose_sign()  ||  rb->is_traffic_light()  ) {
 					// because we need to stop here ...
 					return false;
 				}

@@ -22,15 +22,15 @@ private:
 	uint16 player_nr;
 
 public:
-    gui_image_t(image_id i=IMG_LEER, uint8 p=0 ) { id = i; player_nr = p; }
+	gui_image_t( const image_id i=IMG_LEER, const uint8 p=0 ) : id(i), player_nr(p) { }
 
-    void set_image(image_id i) { id = i; }
+    void set_image( const image_id i ) { id = i; }
 
     /**
      * Zeichnet die Komponente
      * @author Hj. Malthaner
      */
-    void zeichnen(koord offset) { display_color_img( id, pos.x+offset.x, pos.y+offset.y, (sint8)player_nr, false, true ); }
+    void zeichnen( koord offset ) { display_base_img( id, pos.x+offset.x, pos.y+offset.y, (sint8)player_nr, false, true ); }
 };
 
 #endif

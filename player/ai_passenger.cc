@@ -503,7 +503,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// ok, now we could built it => flatten the land
-	sint16 h = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(pos)->get_hoehe() );
+	sint8 h = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(pos)->get_hoehe() );
 	const koord dx( size.x/2, size.y/2 );
 	for(  sint16 i=0;  i!=size.y+dx.y;  i+=dx.y  ) {
 		for( sint16 j=0;  j!=size.x+dx.x;  j+=dx.x  ) {
@@ -527,7 +527,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// now try to connect one of the corners with a road
 	koord bushalt = koord::invalid, runwaystart, runwayend;
 	koord trypos[4] = { koord(0,0), koord(size.x,0), koord(0,size.y), koord(size.x,size.y) };
-	sint32 length=9999;
+	uint32 length=9999;
 	rotation=-1;
 
 	bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, road_vehicle->get_geschw(), road_vehicle->get_gewicht(), welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
@@ -540,7 +540,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		bushalt = pos+trypos[i];
 		bauigel.calc_route(welt->lookup_kartenboden(bushalt)->get_pos(),welt->lookup_kartenboden(town_road)->get_pos());
 		// no road => try next
-		if(  bauigel.get_count()-1>=1  &&   bauigel.get_count()-1<length  ) {
+		if(  bauigel.get_count() >= 2  &&   bauigel.get_count() < length+1  ) {
 			rotation = i;
 			length = bauigel.get_count()-1;
 		}

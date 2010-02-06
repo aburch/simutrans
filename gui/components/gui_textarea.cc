@@ -27,7 +27,7 @@ gui_textarea_t::set_text(const char *text)
 		this->text = text;
 	}
 	else {
-		text = "";
+		this->text = "";
 	}
 }
 

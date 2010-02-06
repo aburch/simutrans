@@ -45,6 +45,8 @@ static const sint8 hours2night[] =
 void
 karte_ansicht_t::display(bool force_dirty)
 {
+	display_set_image_proc(true);
+
 	uint32 rs = get_random_seed();
 	const sint16 disp_width = display_get_width();
 	const sint16 disp_real_height = display_get_height();

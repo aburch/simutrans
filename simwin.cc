@@ -303,7 +303,7 @@ void release_focus(gui_komponente_t *this_focus)
 		focus = NULL;
 	}
 	else {
-		dbg->warning("void release_focus()","Focus was already released");
+		dbg->message("void release_focus()","Focus was already released");
 	}
 }
 
@@ -454,7 +454,7 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 			// try to keep the toolbar below all other toolbars
 			y = 32;
 			if(wt & w_no_overlap) {
-				for( int i=0;  i<wins.get_count()-1;  i++  ) {
+				for( uint32 i=0;  i<wins.get_count()-1;  i++  ) {
 					if(wins[i].wt & w_no_overlap) {
 						if(wins[i].pos.y>=y) {
 							sint16 lower_y = wins[i].pos.y + wins[i].gui->get_fenstergroesse().y;
@@ -797,7 +797,9 @@ bool check_pos_win(event_t *ev)
 	// we stop resizing once the user releases the button
 	if(is_resizing && IS_LEFTRELEASE(ev)) {
 		is_resizing = false;
-		// printf("Leave resizing mode\n");
+		// Knightly :	should not proceed, otherwise the left release event will be fed to other components;
+		//				return true (i.e. event swallowed) to prevent propagation back to the main view
+		return true;
 	}
 
 	// swallow all events in the infobar
@@ -833,7 +835,7 @@ bool check_pos_win(event_t *ev)
 			swallowed = true;
 
 			// Top window first
-			if(wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
+			if((int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
 				i = top_win(i);
 			}
 
@@ -913,8 +915,8 @@ bool check_pos_win(event_t *ev)
 
 					// resizer hit ?
 					const bool canresize = is_resizing ||
-														(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
-														ev->my > wins[i].pos.y + gr.y - dragger_size);
+														(ev->cx > wins[i].pos.x + gr.x - dragger_size &&
+														ev->cy > wins[i].pos.y + gr.y - dragger_size);
 
 					if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
 						// Hajo: go into resize mode

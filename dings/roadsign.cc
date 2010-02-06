@@ -133,6 +133,8 @@ void roadsign_t::zeige_info()
  */
 void roadsign_t::info(cbuffer_t & buf) const
 {
+	ding_t::info( buf );
+
 	buf.append(translator::translate("Roadsign"));
 	buf.append("\n");
 	if(besch->is_single_way()) {
@@ -335,15 +337,15 @@ void roadsign_t::rotate90()
 void roadsign_t::display_after(int xpos, int ypos, bool ) const
 {
 	if(after_bild!=IMG_LEER) {
-		const int raster_width = get_tile_raster_width();
+		const int raster_width = get_current_tile_raster_width();
 		ypos += tile_raster_scale_x(get_yoff()+after_offset, raster_width);
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
 		// draw with owner
 		if(get_player_nr()!=-1) {
-			display_color_img(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
+			display_color(after_bild, xpos, ypos, get_player_nr(), true, get_flag(ding_t::dirty) );
 		}
 		else {
-			display_img(after_bild, xpos, ypos, get_flag(ding_t::dirty) );
+			display_normal(after_bild, xpos, ypos, 0, true, get_flag(ding_t::dirty) );
 		}
 	}
 }
@@ -357,7 +359,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	ding_t::rdwr(file);
 
 	uint8 dummy=0;
-	if(  file->get_version()<103000  ) {
+	if(  file->get_version()<=102002  ) {
 		file->rdwr_byte(dummy, " ");
 		if(  file->is_loading()  ) {
 			ticks_ns = ticks_ow = 16;
@@ -439,10 +441,10 @@ static bool compare_roadsign_besch(const roadsign_besch_t* a, const roadsign_bes
 {
 	int diff = a->get_wtyp() - b->get_wtyp();
 	if (diff == 0) {
-		if(a->is_free_route()) {
+		if(a->is_choose_sign()) {
 			diff += 120;
 		}
-		if(b->is_free_route()) {
+		if(b->is_choose_sign()) {
 			diff -= 120;
 		}
 		diff += (int)(a->get_flags() & ~roadsign_besch_t::SIGN_SIGNAL) - (int)(b->get_flags()  & ~roadsign_besch_t::SIGN_SIGNAL);
@@ -512,7 +514,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
 			display_set_base_image_offset( besch->get_bild_nr(3), +XOFF, -YOFF );
 			display_set_base_image_offset( besch->get_bild_nr(11), +XOFF, -YOFF );
 		}
-		else if(!besch->is_free_route()) {
+		else if(!besch->is_choose_sign()) {
 			const int XOFF=(30*get_tile_raster_width())/64;
 			const int YOFF=(14*get_tile_raster_width())/64;
 
@@ -532,7 +534,7 @@ bool roadsign_t::register_besch(roadsign_besch_t *besch)
  * Fill menu with icons of given signals/roadsings from the list
  * @author Hj. Malthaner
  */
-void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
+void roadsign_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
 	const uint16 time = welt->get_timeline_year_month();
 

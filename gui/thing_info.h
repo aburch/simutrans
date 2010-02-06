@@ -12,6 +12,7 @@
 #include "../simdings.h"
 #include "gui_frame.h"
 #include "components/gui_world_view_t.h"
+#include "components/gui_fixedwidth_textarea.h"
 #include "../utils/cbuffer_t.h"
 
 /**
@@ -27,14 +28,14 @@ protected:
 
 	static cbuffer_t buf;
 
+	gui_fixedwidth_textarea_t textarea;
+
 	/**
 	 * The thing we observe. The thing will delete this object
 	 * if self deleted.
 	 * @author Hj. Malthaner
 	 */
 	const ding_t* ding;
-
-	KOORD_VAL calc_draw_info( koord, bool ) const;
 
 public:
 	ding_infowin_t(const ding_t* ding);

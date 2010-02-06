@@ -568,7 +568,7 @@ int simu_main(int argc, char** argv)
 #endif
 
 	// prepare skins first
-	obj_reader_t::init( translator::translate("Loading skins ...") );
+	obj_reader_t::init();
 	chdir( umgebung_t::program_dir );
 
 	// likely only the programm without graphics was downloaded

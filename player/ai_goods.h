@@ -84,7 +84,7 @@ private:
 
 	// KI helper class
 	class fabconnection_t{
-		friend ai_goods_t;
+		friend class ai_goods_t;
 		fabrik_t *fab1;
 		fabrik_t *fab2;	// koord1 must be always "smaller" than koord2
 		const ware_besch_t *ware;
@@ -98,12 +98,10 @@ private:
 //		const bool operator < (const fabconnection_t & k) { return (abs(fab1.x)+abs(fab1.y)) - (abs(k.fab1.x)+abs(k.fab1.y)) < 0; }
 	};
 
-	slist_tpl<fabconnection_t> forbidden_conections;
+	slist_tpl<fabconnection_t*> forbidden_connections;
 
 	// return true, if this a route to avoid (i.e. we did a construction without sucess here ...)
-	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const {
-		return forbidden_conections.is_contained( fabconnection_t( fab1, fab2, w ) );
-	}
+	bool is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const;
 
 	/* recursive lookup of a factory tree:
 	 * sets start and ziel to the next needed supplier
@@ -152,5 +150,5 @@ public:
 	 * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
 	 * @author Bernd Gabriel, Jan 01, 2010
 	 */
-	virtual void notification(notification_t info, fabrik_t &fab);
+	virtual void notify_factory(notification_factory_t flag, const fabrik_t*);
 };

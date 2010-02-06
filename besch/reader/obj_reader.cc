@@ -54,7 +54,7 @@ void obj_reader_t::register_reader()
 }
 
 
-bool obj_reader_t::init(const char *message)
+bool obj_reader_t::init()
 {
 	// search for skins first
 	chdir( umgebung_t::program_dir );

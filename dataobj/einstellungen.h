@@ -355,8 +355,6 @@ public:
 	bool automaten[MAX_PLAYER_COUNT];
 	// 0 = emtpy, otherwise some vaule from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
-	// NULL if not password
-	char password[MAX_PLAYER_COUNT][16];
 
 public:
 	/**
@@ -413,19 +411,19 @@ public:
 	double get_map_roughness() const {return map_roughness;}
 
 	void set_station_coverage(unsigned short n) {station_coverage_size=n;}	// prissi, May-2005
-	unsigned short get_station_coverage() const {return station_coverage_size;}
+	uint16 get_station_coverage() const {return station_coverage_size;}
 
 	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
-	unsigned char get_allow_player_change() const {return allow_player_change;}
+	uint8 get_allow_player_change() const {return allow_player_change;}
 
 	void set_use_timeline(char n) {use_timeline=n;}	// prissi, Oct-2005
-	unsigned char get_use_timeline() const {return use_timeline;}
+	uint8 get_use_timeline() const {return use_timeline;}
 
 	void set_starting_year(short n) {starting_year=n;}	// prissi, Oct-2005
-	short get_starting_year() const {return starting_year;}
+	sint16 get_starting_year() const {return starting_year;}
 
 	void set_starting_month(short n) {starting_month=n;}
-	short get_starting_month() const {return starting_month;}
+	sint16 get_starting_month() const {return starting_month;}
 
 	void set_bits_per_month(short n) {bits_per_month=n;}	// prissi, Oct-2005
 	sint16 get_bits_per_month() const {return bits_per_month;}

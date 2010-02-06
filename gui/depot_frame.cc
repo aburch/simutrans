@@ -684,33 +684,22 @@ void depot_frame_t::fahrplaneingabe()
 {
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0) {
-
+		// this can happen locally, since any update of the schedule is done during closing window
 		schedule_t *fpl = cnv->create_schedule();
-		if(fpl!=NULL) {
-			if(fpl->ist_abgeschlossen()) {
-
-				// Fahrplandialog oeffnen
-				create_win(new fahrplan_gui_t(fpl, cnv->get_besitzer(), convoihandle_t() ), w_info, (long)fpl);
-
-				// maybe convoi was deleted by a callback, so test again
-				if(cnv.is_bound()  &&  fpl != NULL) {
-					cnv->set_schedule(fpl);
-				}
-			}
-			else {
-				gui_fenster_t *fplwin = win_get_magic((long)fpl);
-				top_win( fplwin );
-//				create_win( new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_time_delete, magic_none);
-			}
+		assert(fpl!=NULL);
+		gui_fenster_t *fplwin = win_get_magic((long)fpl);
+		if(   fplwin==NULL  ) {
+			cnv->open_schedule_window( get_welt()->get_active_player()==cnv->get_besitzer() );
 		}
 		else {
-			dbg->error( "depot_frame_t::fahrplaneingabe()", "cannot create schedule!" );
+			top_win( fplwin );
 		}
 	}
 	else {
 		create_win( new news_img("Please choose vehicles first\n"), w_time_delete, magic_none);
-	}	
+	}
 }
+
 
 bool depot_frame_t::check_way_electrified(bool init)
 {
