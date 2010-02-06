@@ -56,7 +56,7 @@ KOORD_VAL ding_infowin_t::calc_draw_info( koord pos, bool draw ) const
 	const utf8 *line_end  = p;
 
 	// also in unicode *c==0 is end
-	while(*p!=0) {
+	while(*p!=0  ||  p!=line_end) {
 
 		// force at end of text or newline
 		const KOORD_VAL max_width = (y<view_height) ? 155 : 155+view.get_groesse().x;

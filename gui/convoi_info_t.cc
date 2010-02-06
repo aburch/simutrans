@@ -16,6 +16,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
+#include "../simmenu.h"
 #include "../simwin.h"
 #include "../convoy.h"
 
@@ -152,11 +153,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	set_fenstergroesse(koord(TOTAL_WIDTH, 278));
 
 	// chart
-	chart.set_pos(koord(44,76+BUTTON_HEIGHT+18));
- 	chart.set_groesse(koord(TOTAL_WIDTH-44-4, 100));
- 	chart.set_dimension(12, 10000);
- 	chart.set_visible(false);
-	chart.set_groesse(koord(TOTAL_WIDTH-44-4, 100));
+	chart.set_pos(koord(88,76+BUTTON_HEIGHT+18));
+	chart.set_groesse(koord(TOTAL_WIDTH-88-4, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);
@@ -468,6 +466,7 @@ enable_home:
 }
 
 
+
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
@@ -509,17 +508,15 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {
 
 		if(komp == &button) {
-			cnv->open_schedule_window();
+			char ptr[32];
+			sprintf( ptr, "%p", cnv.get_rep() );
+			cnv->call_convoi_tool( 'f', ptr );
 			return true;
 		}
 
-		//if(komp == &no_load_button    &&    !route_search_in_progress) 
-		if(komp == &no_load_button)
-		{
-			cnv->set_no_load(!cnv->get_no_load());
-			if(!cnv->get_no_load()) {
-				cnv->set_withdraw(false);
-			}
+		//if(komp == &no_load_button    &&    !route_search_in_progress) {
+		if(komp == &no_load_button) {
+			cnv->call_convoi_tool( 'n', NULL );
 			return true;
 		}
 

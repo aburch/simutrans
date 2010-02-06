@@ -27,6 +27,8 @@
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehikel.h"
 
+#include "../../utils/cbuffer_t.h"
+
 
 static const char * engine_type_names [9] =
 {
@@ -686,47 +688,36 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 
 void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 {
-	if(nr < vehicles.get_count()) {
+	depot_t* depot;
+	if(depot_frame)
+	{
+		depot = depot_frame->get_depot();
+	}
+	else
+	{
+		grund_t* gr = welt->lookup(replace_frame->get_convoy()->get_home_depot());
+		depot = gr->get_depot();
+	}
+
+	const convoihandle_t cnv = depot_frame ? depot->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
+	if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
 
 		// we remove all connected vehicles together!
 		// find start
 		unsigned start_nr = nr;
 		while(start_nr>0) {
 			start_nr --;
-			const vehikel_besch_t *info = vehicles[start_nr];
+			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
 			if(info->get_nachfolger_count()!=1) {
 				start_nr ++;
 				break;
 			}
 		}
-		// find end
-		while(nr<vehicles.get_count()) {
-			const vehikel_besch_t *info = vehicles[nr];
-			nr ++;
-			if(info->get_nachfolger_count()!=1) {
-				break;
-			}
-		}
-		// now remove the vehicles
-		if(vehicles.get_count()==nr-start_nr) {
-			clear_convoy();
-			koord k=koord(clear_convoy_action,0);
-			value_t v;
-			v.p=&k;
-			last_changed_vehicle=NULL;
-			call_listeners(v);
-		}
-		else {
-			koord k=koord(remove_vehicle_action,0);
-			value_t v;
-			v.p=&k;
-			for( unsigned i=start_nr;  i<nr;  i++  ) {
-				last_changed_vehicle=vehicles[start_nr];
-				remove_vehicle_at(start_nr);
-				k.y=start_nr;
-				call_listeners(v);
-			}
-		}
+
+		cbuffer_t start(16);
+		start.append( start_nr );
+
+		depot->call_depot_tool( 'r', cnv, start );
 	}
 }
 
@@ -736,6 +727,19 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 {
 	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
 
+	depot_t* depot;
+	if(depot_frame)
+	{
+		depot = depot_frame->get_depot();
+	}
+	else
+	{
+		grund_t* gr = welt->lookup(replace_frame->get_convoy()->get_home_depot());
+		depot = gr->get_depot();
+	}
+
+	const convoihandle_t cnv = depot_frame ? depot->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
+
 	if(bild_data->lcolor != COL_RED &&
 		bild_data->rcolor != COL_RED &&
 		bild_data->rcolor != COL_DARK_PURPLE &&
@@ -744,11 +748,26 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		bild_data->lcolor != COL_PURPLE &&
 		!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
 		&& veh_action != va_sell
-		&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) {
-			
-			// Dark orange = too expensive
-			// Purple = available only as upgrade
+		&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
+	{
+		// Dark orange = too expensive
+		// Purple = available only as upgrade
 
+		if(veh_action == va_sell)
+		{
+			depot->call_depot_tool( 's', convoihandle_t(), bild_data->text );
+		}
+		else if(upgrade != u_upgrade)
+		{
+			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text );
+		}
+		else
+		{
+			depot->call_depot_tool( 'u', cnv, bild_data->text );
+		}
+
+		/*
+			
 		// we buy/sell all vehicles together!
 		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
 		
@@ -779,9 +798,9 @@ DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","appended %s",in
 		if(veh_action == va_sell) 
 		{
 			while(new_vehicle_info.get_count() && depot_frame) {
-				/*
-				*	We sell the newest vehicle - gives most money back.
-				*/
+				
+				//We sell the newest vehicle - gives most money back.
+				
 				vehikel_t* veh = depot_frame->get_depot()->find_oldest_newest(new_vehicle_info.remove_first(), false);
 				if (veh != NULL) {
 					depot_frame->get_depot()->sell_vehicle(veh);
@@ -810,7 +829,7 @@ DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","built nr %i", n
 				}
 			}
 		}
-
+	*/
 	}
 }
 

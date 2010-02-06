@@ -145,3 +145,8 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		}
 	}
 }
+
+void gui_tab_panel_t::clear() {
+	tabs.clear();
+	active_tab = 0;
+}

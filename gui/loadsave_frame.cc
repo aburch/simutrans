@@ -37,6 +37,7 @@ void loadsave_frame_t::action(const char *filename)
 	else {
 		welt->speichern(filename,false);
 		welt->set_dirty();
+		welt->reset_timer();
 	}
 }
 

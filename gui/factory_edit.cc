@@ -222,7 +222,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		if(new_fab_besch!=fab_besch) {
 
 			fab_besch = new_fab_besch;
-			production = (uint32) welt->calc_adjusted_monthly_figure( (sint32) (fab_besch->get_produktivitaet() + simrand(fab_besch->get_bereich())) );
+			production = (uint32) welt->calc_adjusted_monthly_figure( (sint32) (fab_besch->get_produktivitaet() + sim_async_rand(fab_besch->get_bereich())) );
 			inp_production.set_value( production);
 			// show produced goods
 			buf.clear();

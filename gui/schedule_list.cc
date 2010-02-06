@@ -26,6 +26,7 @@
 #include "../vehicle/simvehikel.h"
 #include "../simwin.h"
 #include "../simlinemgmt.h"
+#include "../simwerkz.h"
 #include "../utils/simstring.h"
 
 #include "../bauer/vehikelbauer.h"
@@ -319,13 +320,16 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		}
 	}
 	else if (komp == &bt_new_line) {
-		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
 		// create typed line
-		uint8 type=tabs_to_lineindex[tabs.get_active_tab_index()];
-		linehandle_t new_line = sp->simlinemgmt.create_line(type,sp);
-		create_win( new line_management_gui_t(new_line, sp), w_info, (long)new_line.get_rep());
-		update_lineinfo( new_line );
-		build_line_list( tabs.get_active_tab_index() );
+		assert(  tabs.get_active_tab_index() > 0  &&  tabs.get_active_tab_index()<max_idx  );
+		// update line schedule via tool!
+		werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+		cbuffer_t buf(128);
+		buf.printf( "c,0,%i,%p,0|,", (int)tabs_to_lineindex[tabs.get_active_tab_index()], &(sp->simlinemgmt) );
+		w->set_default_param(buf);
+		sp->get_welt()->set_werkzeug( w, sp );
+		// since init always returns false, it is save to delete immediately
+		delete w;
 	}
 	else if (komp == &bt_delete_line) {
 		if (line.is_bound()) {
@@ -389,8 +393,16 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
 {
+	if(  old_line_count!=sp->simlinemgmt.get_line_count()  ) {
+		show_lineinfo( line );
+	}
+
 	gui_frame_t::zeichnen(pos, gr);
-	if (line.is_bound()) {
+
+	if(  line.is_bound()  ) {
+		if(  last_schedule_count!=line->get_schedule()->get_count()  ||  last_vehicle_count!=line->count_convoys()  ) {
+			update_lineinfo(line);
+		}
 		display(pos);
 	}
 }
@@ -499,6 +511,8 @@ void schedule_list_gui_t::build_line_list(int filter)
 		scl.set_selection( sel );
 		scl.show_selection( sel );
 	}
+
+	old_line_count = sp->simlinemgmt.get_line_count();
 }
 
 
@@ -578,6 +592,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		// set this schedule as current to show on minimap if possible
 		reliefkarte_t::get_karte()->set_current_fpl(new_line->get_schedule(), sp->get_player_nr()); // (*fpl,player_nr)
+
+		last_schedule_count = new_line->get_schedule()->get_count();
+		last_vehicle_count = new_line->count_convoys();
 	}
 	else if(line.is_bound()) {
 		// previously a line was visible
@@ -601,6 +618,9 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 
 		// hide schedule on minimap (may not current, but for safe)
 		reliefkarte_t::get_karte()->set_current_fpl(NULL, 0); // (*fpl,player_nr)
+
+		last_schedule_count = -1;
+		last_vehicle_count = 0;
 	}
 	line = new_line;
 }

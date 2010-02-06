@@ -439,6 +439,7 @@ private:
 	 * @author: Bernd Gabriel
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
+
 public:
 	inline route_t* get_route() { return &route; }
 
@@ -446,7 +447,7 @@ public:
 	* Checks if this convoi has a driveable route
 	* @author Hanjsörg Malthaner
 	*/
-	bool hat_keine_route() const;
+	bool hat_keine_route() const { return (state==NO_ROUTE); }
 
 	/**
 	* get line
@@ -470,11 +471,10 @@ public:
 	*/
 	void register_with_line(uint16 line_id);
 
-	/**
-	* unset line -> remove cnv from line
-	* @author hsiegeln
-	*/
-	void unset_line();
+	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
+	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
+	 */
+	void call_convoi_tool( const char function, const char *extra );
 
 	/**
 	* get state
@@ -726,7 +726,8 @@ public:
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
 	*/
-	inline spieler_t * get_besitzer() { return besitzer_p; }
+
+	spieler_t * get_besitzer() { return besitzer_p; }
 
 	/**
 	* Opens an information window
@@ -734,6 +735,8 @@ public:
 	* @see simwin
 	*/
 	void zeige_info();
+
+	void check_pending_updates();
 
 #if 0
 private:
@@ -760,7 +763,7 @@ public:
 	* @author Hj. Malthaner
 	* @see simwin
 	*/
-	void open_schedule_window();
+	void open_schedule_window( bool show );
 
 	static bool pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
 	static bool pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
@@ -839,12 +842,6 @@ public:
 	void dump() const;
 
 	/**
-	* prepares the convoi to receive a new schedule
-	* @author hsiegeln
-	*/
-	void prepare_for_new_schedule(schedule_t *);
-
-	/**
 	* book a certain amount into the convois financial history
 	* is called from vehicle during un/load
 	* @author hsiegeln
@@ -877,9 +874,7 @@ public:
 
 	inline void set_update_line(linehandle_t l) { line_update_pending = l; }
 
-	void check_pending_updates();
-
-	inline void set_home_depot(koord3d hd) { home_depot = hd; }
+	void set_home_depot(koord3d hd) { home_depot = hd; }
 
 	inline koord3d get_home_depot() { return home_depot; }
 
@@ -908,6 +903,12 @@ public:
 	inline bool get_no_load() const { return no_load; }
 
 	inline void set_no_load(bool new_no_load) { no_load = new_no_load; }
+
+	/**
+	* unset line -> remove cnv from line
+	* @author hsiegeln
+	*/
+	void unset_line();
 
 	inline bool get_replace() const { return replace; }
 

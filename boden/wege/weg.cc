@@ -274,7 +274,8 @@ void weg_t::rdwr(loadsave_t *file)
  */
 void weg_t::info(cbuffer_t & buf) const
 {
-	buf.append("\n");
+	ding_t::info(buf);
+
 	buf.append(translator::translate("Max. speed:"));
 	buf.append(" ");
 	buf.append(max_speed);
@@ -440,11 +441,14 @@ bool weg_t::check_season( const long )
 		}
 	}
 	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
-		if(  bild==besch->get_bild_nr( ribi, old_snow )  ) {
-			set_bild( besch->get_bild_nr( ribi, snow ) );
+		if(  bild==besch->get_bild_nr_switch(ribi, old_snow, false)  ) {
+			set_bild( besch->get_bild_nr_switch(ribi, snow, false) );
+		}
+		else if(  bild==besch->get_bild_nr_switch(ribi, old_snow, true)  ) {
+			set_bild( besch->get_bild_nr_switch(ribi, snow, true) );
 		}
 		else {
-			set_bild( besch->get_bild_nr( ribi+16, snow ) );
+			set_bild( besch->get_bild_nr( ribi, snow ) );
 		}
 	}
 	else {

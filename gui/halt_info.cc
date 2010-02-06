@@ -141,8 +141,8 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	sort_button.add_listener(this);
 
 	// chart
-	chart.set_pos(koord(46,80));
-	chart.set_groesse(koord(BUTTON4_X+BUTTON_WIDTH-50, 100));
+	chart.set_pos(koord(66,80));
+	chart.set_groesse(koord(BUTTON4_X+BUTTON_WIDTH-70, 100));
 	chart.set_dimension(12, 10000);
 	chart.set_visible(false);
 	chart.set_background(MN_GREY1);

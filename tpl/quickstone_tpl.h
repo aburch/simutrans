@@ -194,6 +194,12 @@ public:
 	uint16 get_id() const { return entry; }
 
 	/**
+	 * Sets the current id: Needed to recreate stuff via network.
+	 * ATTENTION: This may be harmful. DO not use unless really really needed!
+	 */
+	void set_id(uint16 e) { entry=e; }
+
+	/**
 	 * Overloaded dereference operator. With this, quickstones can
 	 * be used as if they were pointers.
 	 *

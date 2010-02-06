@@ -19,5 +19,4 @@ public:
 
 private:
 	linehandle_t line;
-	spieler_t * sp;
 };

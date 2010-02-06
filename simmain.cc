@@ -533,9 +533,13 @@ int simu_main(int argc, char** argv)
 
 	if (gimme_arg(argc, argv, "-log", 0)) {
 		chdir( umgebung_t::user_dir );
-		init_logging("simu.log", true, gimme_arg(argc, argv, "-log", 0) != NULL);
+		const char *logname = "simu.log";
+		if(  gimme_arg(argc, argv, "-server", 0)  ) {
+			logname = "simu-server.log";
+		}
+		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL);
 	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging("stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
 	} else {
 		init_logging(NULL, false, false);
 	}
@@ -854,7 +858,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// reset random counter to true randomness
 	setsimrand(dr_time(), dr_time());
-	set_random_allowed( true );
+	clear_random_mode( 7 );	// allow all
 
 	if(loadgame==""  ||  !welt->laden(loadgame)) {
 		// create a default map

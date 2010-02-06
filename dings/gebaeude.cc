@@ -655,13 +655,18 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					src ++;
 					dest ++;
 				}
+				// remove double line breaks at the end
 				*dest = 0;
+				while( dest>text  &&  *--dest=='\n'  ) {
+					*dest = 0;
+				}
+
 				trans_desc = text;
 				buf.append(trans_desc);
 				delete [] text;
 			}
-			buf.append("\n\n");
 		}
+		buf.append( "\n\n" );
 
 		// belongs to which city?
 		if (!is_factory && ptr.stadt != NULL) {

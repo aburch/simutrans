@@ -50,7 +50,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) )
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
-	selected_line = depot->get_selected_line(); //linehandle_t();
+	selected_line = depot->get_selected_line();
 	strcpy(no_line_text, translator::translate("<no line>"));
 
 	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_name()));
@@ -308,14 +308,25 @@ void depot_frame_t::layout(koord *gr)
 }
 
 
-
-
 void depot_frame_t::set_fenstergroesse( koord gr )
 {
 	koord g=gr;
 	layout(&g);
 	update_data();
 	gui_frame_t::set_fenstergroesse(gr);
+}
+
+void depot_frame_t::activate_convoi( convoihandle_t c )
+{
+	// deselect ...
+	icnv = -1;
+	for(  uint i=0;  i<depot->convoi_count();  i++  ) {
+		if(  c==depot->get_convoi(i)  ) {
+			icnv = i;
+			break;
+		}
+	}
+	build_vehicle_lists();
 }
 
 static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
@@ -358,6 +369,7 @@ void depot_frame_t::update_data()
 	}
 
 	// update the line selector
+	selected_line = depot->get_selected_line();
 	line_selector.clear_elements();
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line_text, COL_BLACK ) );
 	if(!selected_line.is_bound()) {
@@ -465,23 +477,19 @@ end:
 					break;
 			}
 		} else if(komp == &bt_start) {
-			if (depot->start_convoi(cnv)) {
-				icnv--;
-				update_convoy();
+			if(  cnv.is_bound()  ) {
+				//first: close schedule (will update schedule on clients)
+				destroy_win( (long)cnv->get_schedule() );
+				// only then call the tool to start
+				depot->call_depot_tool( 'b', cnv, NULL );
 			}
 		} else if(komp == &bt_schedule) {
 			fahrplaneingabe();
 			return true;
 		} else if(komp == &bt_destroy) {
-			if (depot->disassemble_convoi(cnv, false)) {
-				icnv--;
-				update_convoy();
-			}
+			depot->call_depot_tool( 'd', cnv, NULL );
 		} else if(komp == &bt_sell) {
-			if (depot->disassemble_convoi(cnv, true)) {
-				icnv--;
-				update_convoy();
-			}
+			depot->call_depot_tool( 'v', cnv, NULL );
 		} else if(komp == &bt_next) {
 			if(++icnv == (int)depot->convoi_count()) {
 				icnv = -1;
@@ -493,32 +501,23 @@ end:
 			}
 			update_convoy();
 		} else if(komp == &bt_new_line) {
-			new_line();
+			depot->call_depot_tool( 'l', convoihandle_t(), NULL );
 			return true;
 		} else if(komp == &bt_change_line) {
-			change_line();
+			if(selected_line.is_bound()) {
+				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
+			}
 			return true;
-		} 
-		else if(komp == &bt_copy_convoi) 
-		{
-			if(  convoihandle_t::is_exhausted()  ) 
-			{
+		} else if(komp == &bt_copy_convoi) {
+			if(  convoihandle_t::is_exhausted()  ) {
 				create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
 			}
-			else 
-			{
-				convoihandle_t new_cnv = depot->copy_convoi(cnv);
-				if(new_cnv == convoihandle_t())
-				{
-					create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
-				}
-				else
-				{
-					// automatically select newly created convoi
-					icnv = depot->convoi_count()-1;
-				}
+			else {
+				depot->call_depot_tool( 'c', cnv, NULL);
 			}
-		} else if(komp == &bt_apply_line) {
+			return true;
+		}
+		else if(komp == &bt_apply_line) {
 			apply_line();
 		} else if(komp == &line_selector) {
 			int selection = p.i;
@@ -532,6 +531,7 @@ end:
 			else {
 				// remove line
 				selected_line = linehandle_t();
+				depot->set_selected_line(selected_line);
 				line_selector.set_selection( 0 );
 			}
 		}
@@ -656,18 +656,6 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 }
 
 
-void depot_frame_t::new_line()
-{
-	selected_line = depot->create_line();
-	depot->set_selected_line(selected_line);
-DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
-	layout(NULL);
-	update_data();
-	create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
-DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
-}
-
-
 void depot_frame_t::apply_line()
 {
 	if(icnv > -1) {
@@ -688,14 +676,6 @@ void depot_frame_t::apply_line()
 			// this happens here
 			cnv->unset_line();
 		}
-	}
-}
-
-
-void depot_frame_t::change_line()
-{
-	if(selected_line.is_bound()) {
-		create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
 	}
 }
 

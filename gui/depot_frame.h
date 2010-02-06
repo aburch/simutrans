@@ -94,20 +94,6 @@ private:
 	char txt_convoi_line[128];
 
 	/**
-	 * Update texts, image lists and buttons according to the current state.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	void update_data();
-
-	/**
-	 * Do the dynamic dialog layout
-	 * @author Volker Meyer
-	 * @date  18.06.2003
-	 */
-	void layout(koord *);
-
-	/**
 	 * Does this window need a min size button in the title bar?
 	 * @return true if such a button is needed
 	 * @author Hj. Malthaner
@@ -117,6 +103,24 @@ private:
 	karte_t* get_welt() { return depot->get_welt(); }
 
 public:
+	// the next two are only needed for depot_t update notifications
+	void activate_convoi( convoihandle_t cnv );
+
+	/**
+	 * Do the dynamic dialog layout
+	 * @author Volker Meyer
+	 * @date  18.06.2003
+	 */
+	void layout(koord *);
+
+	/**
+	 * Update texts, image lists and buttons according to the current state.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	void update_data();
+
+	// more general functions ...
 	depot_frame_t(depot_t* depot);
 
 	/**
@@ -155,8 +159,6 @@ public:
 	void zeichnen(koord pos, koord gr);
 
 	// @author hsiegeln
-	void new_line();
-	void change_line();
 	void apply_line();
 
 	/**
@@ -171,8 +173,10 @@ public:
 	inline depot_t *get_depot() const {return depot;}
 	inline convoihandle_t get_convoy() const {return depot->get_convoi(icnv);}
 	inline void update_convoy() {icnv<0?convoy_assembler.clear_convoy():convoy_assembler.set_vehicles(get_convoy());}
+	inline void build_vehicle_lists() { convoy_assembler.build_vehicle_lists(); }
 	// Check the electrification
 	bool check_way_electrified(bool init = false);
+	int get_icnv() const { return icnv; }
 };
 
 #endif

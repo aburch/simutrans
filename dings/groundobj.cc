@@ -236,7 +236,6 @@ void groundobj_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	buf.append("\n");
 	buf.append(translator::translate(get_besch()->get_name()));
 	const char *maker=get_besch()->get_copyright();
 	if(maker!=NULL  && maker[0]!=0) {
@@ -252,8 +251,7 @@ void groundobj_t::info(cbuffer_t & buf) const
 
 
 
-void
-groundobj_t::entferne(spieler_t *sp)
+void groundobj_t::entferne(spieler_t *sp)
 {
 	spieler_t::accounting(sp, -get_besch()->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( get_bild(), 0 );
@@ -261,16 +259,14 @@ groundobj_t::entferne(spieler_t *sp)
 
 
 
-void *
-groundobj_t::operator new(size_t /*s*/)
+void *groundobj_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(groundobj_t));
 }
 
 
 
-void
-groundobj_t::operator delete(void *p)
+void groundobj_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(groundobj_t),p);
 }

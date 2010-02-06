@@ -86,6 +86,11 @@ void factorylist_stats_t::zeichnen(koord offset)
 	int xoff = offset.x+16;
 	int yoff = offset.y;
 
+	if(  fab_list.get_count()!=welt->get_fab_list().get_count()  ) {
+		// some deleted/ added => resort
+		sort( sortby, sortreverse );
+	}
+
 	for (uint32 i=0; i<fab_list.get_count()  &&  yoff<end; i++) {
 
 		// skip invisible lines
@@ -206,8 +211,11 @@ class compare_factories
 };
 
 
-void factorylist_stats_t::sort(factorylist::sort_mode_t sortby, bool sortreverse)
+void factorylist_stats_t::sort(factorylist::sort_mode_t sb, bool sr)
 {
+	sortby = sb;
+	sortreverse = sr;
+
 	fab_list.clear();
 	fab_list.resize(welt->get_fab_list().get_count());
 	for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)

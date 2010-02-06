@@ -1141,7 +1141,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 
 void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 {
-	set_random_allowed( true );
+	clear_random_mode( 7 );
 	mute_sound(true);
 
 	intr_disable();
@@ -2682,7 +2682,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  */
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
-	bool old_allowed = set_random_allowed( true );
+	set_random_mode( SYNC_STEP_RANDOM );
 	if(sync) {
 		// only omitted, when called to display a new frame during fast forward
 		sync_step_running = true;
@@ -2750,7 +2750,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		intr_refresh_display( false );
 		update_frame_sleep_time(delta_t);
 	}
-	set_random_allowed( old_allowed );
+	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
 
@@ -2968,6 +2968,13 @@ void karte_t::neuer_monat()
 	while( halt_iter.next() ) {
 		halt_iter.get_current()->neuer_monat();
 		INT_CHECK("simworld 1877");
+	}
+
+	INT_CHECK("simworld 2522");
+	slist_iterator_tpl<depot_t*> iter = depot_t::get_depot_list();
+	while(iter.next())
+	{
+		iter.get_current()->neuer_monat();
 	}
 
 	// now switch year to get the right year for all timeline stuff ...
@@ -3238,9 +3245,7 @@ void karte_t::step()
 			last_step_ticks %= karte_t::ticks_per_tag;
 		}*/
 
-		set_random_allowed( true );
 		neuer_monat();
-		set_random_allowed( !umgebung_t::networkmode );
 	}
 
 	const long delta_t = ticks - last_step_ticks;
@@ -3298,7 +3303,6 @@ void karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
-	set_random_allowed( true );
 	// check for pending seasons change
 	if(pending_season_change>0) {
 		// process
@@ -3319,15 +3323,16 @@ void karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
+
 	// Knightly : calling global path explorer
 	if ( einstellungen->get_default_path_option() == 2 )
 	{
 		path_explorer_t::step();
 		INT_CHECK("karte_t::step");
 	}
-	
-	ITERATE(convoi_array,i)
-	{
+
+	// since convois will be deleted during stepping, we need to step backwards
+	for(sint32 i=convoi_array.get_count()-1;  i>=0;  i--  ) {
 		convoihandle_t cnv = convoi_array[i];
 		cnv->step();
 		if((i&7)==0) {
@@ -3357,7 +3362,6 @@ void karte_t::step()
 			spieler[i]->step();
 		}
 	}
-	set_random_allowed( !umgebung_t::networkmode );
 
 	haltestelle_t::step_all();
 
@@ -4140,7 +4144,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 // just the preliminaries, opens the file, checks the versions ...
 bool karte_t::laden(const char *filename)
 {
-	const char *name = filename;
+	cbuffer_t name(1024);
 	bool ok=false;
 	mute_sound(true);
 	display_show_load_pointer(true);
@@ -4151,8 +4155,8 @@ bool karte_t::laden(const char *filename)
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
 	if(  strstr(filename,"net:")==filename  ) {
-		name = "client-network.sve";
-		const char *err = network_connect(filename+4, name);
+		chdir( umgebung_t::user_dir );
+		const char *err = network_connect(filename+4);
 		if(err) {
 			create_win( new news_img(err), w_info, magic_none );
 			display_show_load_pointer(false);
@@ -4160,18 +4164,24 @@ bool karte_t::laden(const char *filename)
 			return false;
 		}
 		else {
-			chdir( umgebung_t::user_dir );
 			umgebung_t::networkmode = true;
+			name.printf( "client%i-network.sve", network_get_client_id() );
 		}
 	}
 	else {
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-			// remain only in networkmode, if I am the server
-			umgebung_t::networkmode = false;
-			network_core_shutdown();
-			// closing the socket will tell the server, I a away too
+			// ok, needs better check, since we reload also during sync
+			char fn[256];
+			sprintf( fn, "client%i-network.sve", network_get_client_id() );
+			if(  strcmp(filename,fn)!=0  ) {
+				// remain only in networkmode, if I am the server
+				umgebung_t::networkmode = false;
+				network_core_shutdown();
+				// closing the socket will tell the server, I a away too
+			}
 		}
+		name.append(filename);
 	}
 
 	if(!file.rd_open(name)) {
@@ -4273,6 +4283,7 @@ void karte_t::laden(loadsave_t *file)
 		// to have games synchronized, transfer random counter too
 		setsimrand( einstellungen->get_random_counter(), 0xFFFFFFFFu );
 	}
+	set_random_mode(LOAD_RANDOM);
 
 	if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
 		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()!=2) {
@@ -4717,7 +4728,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	if(file->get_version()>=99018) {
 		scenario->rdwr(file);
 	}
-
+	clear_random_mode(LOAD_RANDOM);
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
 
 	if(file->get_experimental_version() >= 2)
@@ -5468,6 +5479,10 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
 
+			if(  umgebung_t::networkmode  ) {
+				set_random_mode( INTERACTIVE_RANDOM );
+			}
+
 			swallowed = check_pos_win(&ev);
 
 			if(IS_RIGHTCLICK(&ev)) {
@@ -5492,6 +5507,10 @@ bool karte_t::interactive(uint32 quit_month)
 
 			if((!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON))  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
 				bewege_zeiger(&ev);
+			}
+
+			if(  umgebung_t::networkmode  ) {
+				clear_random_mode( INTERACTIVE_RANDOM );
 			}
 		}
 
@@ -5533,7 +5552,11 @@ bool karte_t::interactive(uint32 quit_month)
 //							network_send_server( NET_TO_SERVER NET_READY NET_END_CMD, 9 );
 						}
 						else if(  memcmp( network_buffer+4, NET_GAME, 4 )==0  ) {
+
 							// transfer game, all clients need to sync (save, reload, and pause)
+							char cmd[128];
+							int n = sprintf( cmd, NET_FROM_SERVER NET_SYNC " %li" NET_END_CMD, sync_steps );
+							network_send_all( cmd, n, true );
 
 							// now save and send
 							chdir( umgebung_t::user_dir );
@@ -5541,10 +5564,8 @@ bool karte_t::interactive(uint32 quit_month)
 							long old_steps = steps;
 							// ok, now sending game
 							if(  network_send_file( s, "server-network.sve" )==NULL  ) {
-								char cmd[128];
 								network_frame_count = 0;
-								int n = sprintf( cmd, NET_FROM_SERVER NET_SYNC " %li" NET_END_CMD, steps );
-								network_send_all( cmd, n, true );
+DBG_MESSAGE("client recieved file", "%li", s );
 								laden( "server-network.sve" );
 								steps = old_steps;
 								sync_steps = steps*einstellungen->get_frames_per_step();
@@ -5553,6 +5574,7 @@ bool karte_t::interactive(uint32 quit_month)
 									SOCKET s = network_check_activity( 5, network_buffer, len_last_command );
 									if(  s!=INVALID_SOCKET  &&  len_last_command>0  &&  memcmp( network_buffer, NET_TO_SERVER NET_READY NET_END_CMD, 9 )==0  ) {
 										clients_to_wait--;
+DBG_MESSAGE("client ready", "%li", s );
 									}
 								}
 								// we are now on time
@@ -5606,7 +5628,7 @@ DBG_MESSAGE("append command_queue", "next: %ld new: %ld steps: %ld %s", next_com
 							sync_steps = steps*einstellungen->get_frames_per_step();
 						}
 						else if(  memcmp( network_buffer+3, NET_SYNC, 4 )==0  ) {
-							tool = false;
+							tool = true;
 						}
 						else {
 							tool = false;
@@ -5645,13 +5667,14 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 			const char *network_buffer = cmd->buf;
 			dbg->warning("command_queue", "next: %ld cmd: %ld steps: %ld %s", next_command_step, cmd->step, steps, network_buffer);
 			if(  memcmp( network_buffer, NET_SYNC, 4 )==0  ) {
-				if(  !umgebung_t::server  ) {
+				if(  !umgebung_t::server  &&  steps!=0  ) {
 					long old_steps = steps;
 					// saving and reloading game, sending notification when ready
 					chdir( umgebung_t::user_dir );
-					speichern( "client-network.sve", false );
-					// ok, now sending game
-					laden( "client-network.sve" );
+					char filename[256];
+					sprintf( filename, "client%i-network.sve", network_get_client_id() );
+					speichern( filename, false );
+					laden( filename );
 					steps = old_steps;
 					network_frame_count = 0;
 					sync_steps = steps*einstellungen->get_frames_per_step();
@@ -5746,9 +5769,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 						 (werkzeug[player_nr]->get_default_param()!=NULL ? strcmp(werkzeug[player_nr]->get_default_param(),default_param)!=0 : default_param[0]!=0))) {
 						// only exit, if it is not the same tool again ...
 						werkzeug[player_nr]->exit(this,spieler[player_nr]);
-						werkzeug[player_nr] = NULL;
-					}
-					if (werkzeug[player_nr] == NULL) {
+
 						// get the right tool
 						vector_tpl<werkzeug_t*> &wkz_list = id&GENERAL_TOOL ? werkzeug_t::general_tool : id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
 						for(uint32 i=0; i<wkz_list.get_count(); i++) {
@@ -5768,7 +5789,6 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 								wkz = werkzeug_t::dialog_tool[id&0xFFF];
 							}
 						}
-						werkzeug[player_nr] = wkz;
 					}
 					else {
 						wkz = werkzeug[player_nr];
@@ -5792,6 +5812,7 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 								zeiger->change_pos( p );
 								werkzeug_last_pos = koord3d::invalid;
 								werkzeug_last_button = 0;
+								werkzeug[player_nr] = wkz;
 							}
 						}
 					}
@@ -5827,15 +5848,19 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 			else {
 				if(  step_mode==FAST_FORWARD  ) {
 					sync_step( 100, true, false );
+					set_random_mode( STEP_RANDOM );
 					step();
+					clear_random_mode( STEP_RANDOM );
 				}
 				else if(  step_mode==FIX_RATIO  ) {
 					time_budget = next_step_time-time;
 					next_step_time += frame_time;
 					sync_step( frame_time, true, true );
-					if(  network_frame_count++==einstellungen->get_frames_per_step()  ) {
+					if(  ++network_frame_count==einstellungen->get_frames_per_step()  ) {
 						// ever fourth frame
+						set_random_mode( STEP_RANDOM );
 						step();
+						clear_random_mode( STEP_RANDOM );
 						network_frame_count = 0;
 					}
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
@@ -5843,7 +5868,9 @@ DBG_MESSAGE("append command_queue", "next: %ld cmd: %ld steps: %ld %s", next_com
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );
+					set_random_mode( STEP_RANDOM );
 					step();
+					clear_random_mode( STEP_RANDOM );
 					idle_time = ((idle_time*7) + next_step_time - dr_time())/8;
 					INT_CHECK( "karte_t::interactive()" );
 				}

@@ -46,22 +46,13 @@ void simline_t::set_line_id(uint32 id)
 
 simline_t::~simline_t()
 {
-	sint32 count = count_convoys() - 1;
-	for(  sint32 i = count;  i>=0;  i--  ) 	{
-		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d' removed", i);
-		DBG_DEBUG("simline_t::~simline_t()", "convoi '%d'->fpl=%p", i, get_convoy(i)->get_schedule());
-
-		// Hajo: take care - this call will do "remove_convoi()"
-		// on our list!
-		get_convoy(i)->unset_line();
-	}
-	unregister_stops();
-
 	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p and old_fpl=%p", fpl, old_fpl);
+
+	assert(count_convoys()==0);
+	unregister_stops();
 
 	delete fpl;
 	delete old_fpl;
-
 	self.detach();
 
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", id, this);

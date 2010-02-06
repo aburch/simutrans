@@ -255,7 +255,7 @@ log_t::log_t(const char *logfilename, bool force_flush, bool log_debug)
 	this->log_debug = log_debug;
 
 	if(logfilename == NULL) {
-		log=NULL;                       /* kein log */
+		log = NULL;                       /* kein log */
 		tee = NULL;
 	} else if(strcmp(logfilename,"stdio") == 0) {
 		log = stdout;

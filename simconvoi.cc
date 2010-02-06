@@ -14,6 +14,7 @@
 #include "simhalt.h"
 #include "simdepot.h"
 #include "simwin.h"
+#include "simmenu.h"
 #include "simcolor.h"
 #include "simmesg.h"
 #include "simintr.h"
@@ -410,6 +411,26 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		}
 		fahr[0]->set_erstes(true);
 	}
+}
+
+
+
+// since now convoi states go via werkzeug_t
+void convoi_t::call_convoi_tool( const char function, const char *extra )
+{
+	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
+	char cmd[3] = { function, ',', 0 };
+	cbuffer_t param(8192);
+	param.append( cmd );
+	param.append( self.get_id() );
+	if(  extra  &&  *extra  ) {
+		param.append( "," );
+		param.append( extra );
+	}
+	w->set_default_param(param);
+	welt->set_werkzeug( w, get_besitzer() );
+	// since init always returns false, it is save to delete immediately
+	delete w;
 }
 
 
@@ -1059,8 +1080,7 @@ end_loop:
 		case SELF_DESTRUCT:
 			welt->set_dirty();
 			destroy();
-			return; // @auther Bernd Gabriel, Dec 31, 2009: This object is deleted now. It cannot continue.
-			//break;
+			return; // must not continue method after deleting this object
 
 		default:	/* keeps compiler silent*/
 			break;
@@ -1235,8 +1255,7 @@ void convoi_t::new_month()
 
 
 
-void
-convoi_t::betrete_depot(depot_t *dep)
+void convoi_t::betrete_depot(depot_t *dep)
 {
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
@@ -1341,7 +1360,7 @@ void convoi_t::ziel_erreicht()
 
 	if(dp) {
 		// ok, we are entering a depot
-		char buf[128];
+		cbuffer_t buf(256);
 		if(reversed)
 		{
 			//Always enter a depot facing forward
@@ -1354,7 +1373,7 @@ void convoi_t::ziel_erreicht()
 
 		akt_speed = 0;
 		if (!replace || !autostart) {
-			sprintf(buf, translator::translate("!1_DEPOT_REACHED"), get_name());
+			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
 			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 		}
 
@@ -1625,6 +1644,9 @@ bool convoi_t::set_schedule(schedule_t * f)
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
 
 	if(f == NULL) {
+		if(  line.is_bound()  ) {
+			unset_line();
+		}
 		if(  state==INITIAL  ) {
 			delete fpl;
 			fpl = NULL;
@@ -1657,8 +1679,11 @@ bool convoi_t::set_schedule(schedule_t * f)
 	}
 	
 	// happens to be identical?
-	if(fpl != f) 
-	{
+	if(fpl!=f) {
+		// now check, we we have been bond to a line we are about to loose:
+		if(  line.is_bound()  &&  !f->matches( welt, line->get_schedule() )  ) {
+			unset_line();
+		}
 		// destroy a possibly open schedule window
 		if(fpl &&  !fpl->ist_abgeschlossen()) 
 		{ 
@@ -2813,20 +2838,14 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 }
 
 
-void convoi_t::open_schedule_window()
+void convoi_t::open_schedule_window( bool show )
 {
 	DBG_MESSAGE("convoi_t::open_schedule_window()","Id = %ld, State = %d, Lock = %d",self.get_id(), state, wait_lock);
-
-	// darf der spieler diesen convoi umplanen ?
-	if(get_besitzer() != NULL &&
-		get_besitzer() != welt->get_active_player()) {
-		return;
-	}
 
 	// manipulation of schedule not allowd while:
 	// - just starting
 	// - a line update is pending
-	if(  state==FAHRPLANEINGABE  ||  line_update_pending.is_bound()  ) {
+	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
 		create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
 		return;
 	}
@@ -2848,8 +2867,11 @@ void convoi_t::open_schedule_window()
 		old_fpl = fpl->copy();
 	}
 
-	// Fahrplandialog oeffnen
-	create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
+	if(  welt->get_active_player()==get_besitzer()  &&  show  ) {
+		// Fahrplandialog oeffnen
+		create_win( new fahrplan_gui_t(fpl,get_besitzer(),self), w_info, (long)fpl );
+	}
+	fpl->eingabe_beginnen();
 }
 
 
@@ -3009,9 +3031,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		wait_lock = longest_loading_time;
 
 		if(withdraw  &&  loading_level==0) {
-			//// destroy when empty
-			//welt->set_dirty();
-			//destroy();
+			// destroy when empty
 			self_destruct();
 			return;
 		}
@@ -3623,33 +3643,6 @@ void convoi_t::dump() const
 }
 
 
-
-/**
- * Checks if this convoi has a driveable route
- * @author Hanjsörg Malthaner
- */
-bool convoi_t::hat_keine_route() const
-{
-	return (state==NO_ROUTE);
-}
-
-
-
-void convoi_t::prepare_for_new_schedule(schedule_t *f)
-{
-	alte_richtung = fahr[0]->get_fahrtrichtung();
-
-	state = FAHRPLANEINGABE;
-	set_schedule(f);
-
-	// Hajo: set_fahrplan sets state to ROUTING_1
-	// need to undo that
-	state = FAHRPLANEINGABE;
-	wait_lock = 25000;
-}
-
-
-
 void convoi_t::book(sint64 amount, int cost_type)
 {
 	assert(  cost_type<MAX_CONVOI_COST);
@@ -4142,9 +4135,9 @@ void convoi_t::set_withdraw(bool new_withdraw)
 {
 	withdraw = new_withdraw;
 	if(  withdraw  &&  loading_level==0  ) {
-		// test if convoi in depot
+		// test if convoi in depot and not driving
 		grund_t *gr = welt->lookup( get_pos());
-		if (gr && gr->get_depot()) {
+		if (gr && gr->get_depot()  &&  state == INITIAL) {
 			gr->get_depot()->disassemble_convoi(self, true);
 		}
 		else {

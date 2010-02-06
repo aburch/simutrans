@@ -29,8 +29,10 @@ namespace factorylist {
 class factorylist_stats_t : public gui_komponente_t
 {
 private:
+	factorylist::sort_mode_t sortby;
+	bool sortreverse;
 
-	karte_t * welt;
+	karte_t *welt;
 	vector_tpl<fabrik_t*> fab_list;
 	uint32 line_selected;
 

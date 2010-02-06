@@ -6,19 +6,19 @@
 	ADD: lines will be listed numerically correct, if the contain a number
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
-<<<<<<< HEAD:simutrans/history.txt
-<<<<<<< HEAD:simutrans/history.txt
-	CHANGE: ignore empty entries and lines starting with # in citylists
-	FIX: deleting line does not longer crash in halt_detail windows
-=======
->>>>>>> Simutrans-base/master:simutrans/history.txt
-=======
 	ADD: some more network related settings like server_frames_ahead, network_ms_ahead, server_frames_per_step to control timing on the network
-<<<<<<< HEAD:simutrans/history.txt
->>>>>>> Simutrans-base/master:simutrans/history.txt
-=======
 	FIX: connecting upslope to upper way works in sliced mode
->>>>>>> Simutrans-base/master:simutrans/history.txt
+	FIX: lines were never freed upon deletion
+	FIX: longer convoi's name could cause crash when entering depot
+	FIX: deleting factories/cities/attractions while those lists were open resulted in CTD
+	ADD: korean glyphs now in cyr.bdf
+	FIX: stop types in station frame sometime painted on top of each other
+	ADD: translations are also search in user dir/scenario/text
+	ADD: (gerw) auto-electrify depot added
+	FIX: (dwachs) delete convoi only in next step if loading and return directly (and step reverse in karte_t)
+	FIX: freelist sometimes returned wrong elements to free
+	FIX: walk_city (for stop in towns with AI) was broken
+	ADD (VS): makeobj ignored alpha channel now really
 
 
 Release Candidate 102.2.1
@@ -35,14 +35,11 @@ Release Candidate 102.2.1
 	FIX: also ask when a single pakset with addons is present what to load
 	FIX: game starts in normal mode (instead paused) again
 	FIX: downgrading ways were cheaper than destruction => now downgrading will be as expensive as removal
-<<<<<<< HEAD:simutrans/history.txt
-=======
 	CHANGE: ignore empty entries and lines starting with # in citylists
 	FIX: deleting line does not longer crash in halt_detail windows
 	FIX: withdraw all with convois in depot causes crash (and maybe also not withdraw all)
 	FIX: several issues with tram signals
 	CHANGE: info windows now open less important first resp. for single window topmost object first (usually most important)
->>>>>>> Simutrans-base/master:simutrans/history.txt
 
 
 

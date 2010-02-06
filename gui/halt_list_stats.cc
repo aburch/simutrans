@@ -90,15 +90,19 @@ void halt_list_stats_t::zeichnen(koord offset)
 		}
 		if (halttype & haltestelle_t::monorailstop) {
 			display_color_img(skinverwaltung_t::monorailhaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+			left += 23;
 		}
 		if (halttype & haltestelle_t::tramstop) {
 			display_color_img(skinverwaltung_t::tramhaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+			left += 23;
 		}
 		if (halttype & haltestelle_t::maglevstop) {
 			display_color_img(skinverwaltung_t::maglevhaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+			left += 23;
 		}
 		if (halttype & haltestelle_t::narrowgaugestop) {
 			display_color_img(skinverwaltung_t::narrowgaugehaltsymbol->get_bild_nr(0), pos.x+left, pos_y, 0, false, true);
+			left += 23;
 		}
 
 		// now what do we accept here?

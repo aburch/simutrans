@@ -223,7 +223,6 @@ public:
 	inline void set_convoy_tabs_skip(sint32 skip) {convoy_tabs_skip=skip;}
 
 	inline sint16 get_convoy_clist_width() const {return vehicles.get_count() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
-	//inline int get_convoy_clist_width() const {return depot_frame->get_depot()->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
 	
 	inline sint16 get_convoy_image_width() const {return get_convoy_clist_width() + placement_dx;}
 
