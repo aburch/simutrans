@@ -4810,18 +4810,17 @@ void karte_t::bewege_zeiger(const event_t *ev)
 			werkzeug_t *wkz = werkzeug[get_active_player_nr()];
 			if(  !umgebung_t::networkmode  ||  wkz->is_move_network_save(get_active_player())) {
 				wkz->flags = event_get_last_control_shift() | werkzeug_t::WFL_LOCAL;
-				if(  ev->button_state == 0  ) {
-					is_dragging = false;
-					if(  ist_in_kartengrenzen(pos.get_2d())  ) {
-						wkz->move( this, get_active_player(), 0, pos );
+				if(wkz->check( this, get_active_player(), zeiger->get_pos() )==NULL) {
+					if(  ev->button_state == 0  ) {
+						is_dragging = false;
 					}
-				}
-				else if(ev->ev_class==EVENT_DRAG  &&  ist_in_kartengrenzen(pos.get_2d())) {
-					if(!is_dragging  &&  ist_in_kartengrenzen(prev_pos.get_2d())) {
-						wkz->move( this, get_active_player(), 1, prev_pos );
+					else if(ev->ev_class==EVENT_DRAG) {
+						if(!is_dragging  &&  wkz->check( this, get_active_player(), prev_pos )==NULL) {
+							wkz->move( this, get_active_player(), 1, prev_pos );
+							is_dragging = true;
+						}
 					}
-					is_dragging = true;
-					wkz->move( this, get_active_player(), 1, pos );
+					wkz->move( this, get_active_player(), is_dragging, pos );
 				}
 				wkz->flags = 0;
 			}
