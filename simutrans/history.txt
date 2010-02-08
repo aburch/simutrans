@@ -24,6 +24,7 @@ Trunk:
 	FIX: window resizing is triggered even if initial click is not in dragger area
 	FIX: square button's clickable area not set according to accompanying text
 	FIX: help text link's clickable area not correctly set
+	FIX: pak file image data not trimmed according to x-offset and contains superfluous data
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)
