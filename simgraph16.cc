@@ -1181,6 +1181,7 @@ static void rezoom_img(const unsigned int n)
 				PIXVAL *line = ((PIXVAL *)baseimage2) + (y*newzoomwidth);
 				PIXVAL i;
 				sint16 x = 0;
+				uint16 clear_colored_run_pair_count = 0;
 
 				do {
 					// check length of transparent pixels
@@ -1192,8 +1193,20 @@ static void rezoom_img(const unsigned int n)
 					for (i = 0;  line[x] != 0x73FE  &&  x < newzoomwidth;  i++, x++) {
 						dest[i + 1] = line[x];
 					}
-					*dest++ = i;	// number of colred pixel
-					dest += i;	// skip them
+
+					/* Knightly:
+					 *		If it is not the first clear-colored-run pair and its colored run is empty
+					 *		--> it is superfluous and can be removed by rolling back the pointer
+					 */
+					if(  clear_colored_run_pair_count>0  &&  i==0  ) {
+						dest--;
+						// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
+					}
+					else {
+						*dest++ = i;	// number of colored pixel
+						dest += i;	// skip them
+						clear_colored_run_pair_count++;
+					}
 				} while(x<newzoomwidth);
 				*dest++ = 0; // mark line end
 			}

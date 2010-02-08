@@ -58,7 +58,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			}
 		}
 	}
-	else if(version==1) {
+	else if(version<=2) {
 		besch = new(node.size - 10) bild_besch_t();
 		besch->node_info = new obj_besch_t*[node.children];
 

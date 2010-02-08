@@ -78,7 +78,11 @@ factory_supplier_writer_t factory_supplier_writer_t::the_instance;
 factory_product_writer_t factory_product_writer_t::the_instance;
 factory_smoke_writer_t factory_smoke_writer_t::the_instance;
 factory_field_writer_t factory_field_writer_t::the_instance;
+<<<<<<< HEAD:besch/writer/sim_writer.cc
 factory_upgrade_writer_t factory_upgrade_writer_t::the_instance;
+=======
+factory_field_class_writer_t factory_field_class_writer_t::the_instance;
+>>>>>>> Simutrans-base/master:besch/writer/sim_writer.cc
 
 vehicle_writer_t vehicle_writer_t::the_instance;
 

@@ -14,10 +14,10 @@ class fabrik_t;
 class field_t : public ding_t
 {
 	fabrik_t *fab;
-	const field_besch_t *besch;
+	const field_class_besch_t *besch;
 
 public:
-	field_t(karte_t *welt, const koord3d pos, spieler_t *sp, const field_besch_t *besch, fabrik_t *fab);
+	field_t(karte_t *welt, const koord3d pos, spieler_t *sp, const field_class_besch_t *besch, fabrik_t *fab);
 	virtual ~field_t();
 
 	const char* get_name() const { return "Field"; }
@@ -42,12 +42,12 @@ public:
 
 	// static routines from here
 private:
-	static stringhashtable_tpl<const field_besch_t *> besch_table;
+	static stringhashtable_tpl<const field_class_besch_t *> besch_table;
 
 public:
-	static void register_besch(field_besch_t *besch, const char *name);
+	static void register_besch(field_class_besch_t *besch, const char *name);
 
-	static const field_besch_t *get_besch(const char *name);
+	static const field_class_besch_t *get_besch(const char *name);
 };
 
 #endif

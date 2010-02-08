@@ -5,6 +5,23 @@
 #include "../objversion.h"
 
 
+// Knightly : new writer class for field class besch
+class factory_field_class_writer_t : public obj_writer_t {
+	private:
+		static factory_field_class_writer_t the_instance;
+
+		factory_field_class_writer_t() { register_writer(false); }
+
+	public:
+		static factory_field_class_writer_t* instance() { return &the_instance; }
+
+		virtual obj_type get_type() const { return obj_ffldclass; }
+		virtual const char* get_type_name() const { return "factory field class"; }
+
+		void write_obj(FILE* fp, obj_node_t& parent, const char* field_name, int snow_image, int production, int capacity, int weight);
+};
+
+
 class factory_field_writer_t : public obj_writer_t {
 	private:
 		static factory_field_writer_t the_instance;
@@ -17,7 +34,7 @@ class factory_field_writer_t : public obj_writer_t {
 		virtual obj_type get_type() const { return obj_ffield; }
 		virtual const char* get_type_name() const { return "factory field"; }
 
-		void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj, const char *s);
+		void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);
 };
 
 

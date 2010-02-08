@@ -42,7 +42,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		player_change_to[i].add_listener(this);
 
 		if(i>=2) {
-			player_active[i-2].init(button_t::square_state, " ", koord(4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
+			player_active[i-2].init(button_t::square_state, "", koord(4,6+i*2*LINESPACE));
 			player_active[i-2].add_listener(this);
 			if(  welt->get_einstellungen()->get_player_type(i)!=spieler_t::EMPTY  ) {
 				add_komponente( player_active+i-2 );

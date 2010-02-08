@@ -388,11 +388,9 @@ void gui_convoy_assembler_t::layout()
 	upgrade_selector.set_highlight_color(1);
 
 	bt_show_all.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 4 ));
-	bt_show_all.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_show_all.pressed = show_all;
 
 	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 16));
-	bt_obsolete.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_obsolete.pressed = show_retired_vehicles;
 }
 
@@ -655,26 +653,17 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		}
 	}
 DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
-	convoihandle_t cnv_set;
-	if(depot_frame)
-	{
-		cnv_set = depot_frame->get_depot()->get_convoi(depot_frame->get_icnv());
-	}
-	else if(replace_frame)
-	{
-		cnv_set = replace_frame->get_convoy();
-	}
 
-	if(cnv_set.is_bound())
-	{
-		set_vehicles(cnv_set);
-	}
+
+
 	if(depot_frame)
 	{
+		depot_frame->get_icnv() < 0 ? clear_convoy() : set_vehicles(depot_frame->get_convoy());
 		depot_frame->update_data();
 	}
 	else if(replace_frame)
 	{
+		replace_frame->get_convoy().is_bound() ? clear_convoy() : set_vehicles(replace_frame->get_convoy());
 		replace_frame->update_data();
 	}
 	update_tabs();

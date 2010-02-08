@@ -213,6 +213,14 @@ void button_t::set_typ(enum type t)
 	type = t;
 	switch (type&STATE_MASK) {
 		case square:
+			if(  translated_text  &&  strlen(translated_text)>0  ) {
+				groesse.x = 16 + proportional_string_width( translated_text );
+			}
+			else {
+				groesse.x = 10;
+			}
+			groesse.y = 10;
+			break;
 		case arrowleft:
 		case repeatarrowleft:
 		case arrowright:
@@ -241,6 +249,10 @@ button_t::set_text(const char * text)
 {
 	this->text = text;
 	translated_text = b_no_translate ? text : translator::translate(text);
+
+	if(  (type&STATE_MASK)==square  &&  translated_text  &&  strlen(translated_text)>0  ) {
+		groesse.x = 16 + proportional_string_width( translated_text );
+	}
 }
 
 

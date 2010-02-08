@@ -303,6 +303,7 @@ void depot_frame_t::layout(koord *gr)
 	bt_copy_convoi.set_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
 	bt_copy_convoi.set_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
+
 	const uint8 margin = 4;
 	img_bolt.set_pos(koord(get_fenstergroesse().x-skinverwaltung_t::electricity->get_bild(0)->get_pic()->w-margin,margin));
 }

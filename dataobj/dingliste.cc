@@ -168,8 +168,7 @@ dingliste_t::~dingliste_t()
 }
 
 
-void
-dingliste_t::set_capacity(uint8 new_cap)
+void dingliste_t::set_capacity(uint8 new_cap)
 {
 	// DBG_MESSAGE("dingliste_t::set_capacity()", "old cap=%d, new cap=%d", capacity, new_cap);
 
@@ -250,8 +249,7 @@ bool dingliste_t::grow_capacity()
 
 
 
-void
-dingliste_t::shrink_capacity(uint8 o_top)
+void dingliste_t::shrink_capacity(uint8 o_top)
 {
 	// strategy: avoid free'ing mem if not neccesary. Only if we hold lots
 	// of memory then free it.
@@ -491,8 +489,7 @@ bool dingliste_t::add(ding_t* ding)
 // take the thing out from the list
 // use this only for temperary removing
 // since it does not shrink list or checks for ownership
-ding_t *
-dingliste_t::remove_last()
+ding_t *dingliste_t::remove_last()
 {
 	ding_t *d=NULL;
 	if(capacity==0) {
@@ -549,8 +546,7 @@ bool dingliste_t::remove(const ding_t* ding)
 
 
 
-bool
-dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
+bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
 	if(top<=offset) {
 		return false;
@@ -600,8 +596,7 @@ dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 
 
 /* returns the text of an error message, if obj could not be removed */
-const char *
-dingliste_t::kann_alle_entfernen(const spieler_t *sp, uint8 offset) const
+const char *dingliste_t::kann_alle_entfernen(const spieler_t *sp, uint8 offset) const
 {
 	if(top<=offset) {
 		return NULL;
@@ -627,8 +622,7 @@ dingliste_t::kann_alle_entfernen(const spieler_t *sp, uint8 offset) const
 
 /* recalculates all images
  */
-void
-dingliste_t::calc_bild()
+void dingliste_t::calc_bild()
 {
 	if(capacity==0) {
 		// nothing
@@ -663,8 +657,7 @@ bool dingliste_t::ist_da(const ding_t* ding) const
 
 
 
-ding_t *
-dingliste_t::suche(ding_t::typ typ,uint8 start) const
+ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 {
 	if(capacity==0) {
 		return NULL;
@@ -686,8 +679,7 @@ dingliste_t::suche(ding_t::typ typ,uint8 start) const
 
 
 
-ding_t *
-dingliste_t::get_leitung() const
+ding_t *dingliste_t::get_leitung() const
 {
 	if(capacity==0) 
 	{
@@ -717,8 +709,7 @@ dingliste_t::get_leitung() const
 
 
 
-ding_t *
-dingliste_t::get_convoi_vehicle() const
+ding_t *dingliste_t::get_convoi_vehicle() const
 {
 	if(capacity==0) {
 		return NULL;
@@ -744,8 +735,7 @@ dingliste_t::get_convoi_vehicle() const
 
 
 
-void
-dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
+void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 {
 	sint32 max_object_index;
 	if(file->is_saving()) {
@@ -1138,8 +1128,7 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 
 
 // start next month (good for toogling a seasons)
-void
-dingliste_t::check_season(const long month)
+void dingliste_t::check_season(const long month)
 {
 	slist_tpl<ding_t *>loeschen;
 
