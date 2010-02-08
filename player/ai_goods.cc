@@ -1158,7 +1158,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
 				const convoihandle_t cnv = welt->get_convoi(i);
-				if(cnv->get_besitzer()!=this) {
+				if(!cnv.is_bound()  ||  cnv->get_besitzer()!=this) {
 					continue;
 				}
 
@@ -1201,7 +1201,9 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					}
 
 					cnv->self_destruct();
-					cnv->step();	// to really get rid of it
+					if(cnv.is_bound()) {
+						cnv->step();	// to really get rid of it
+					}
 
 					// last vehicle on that connection (no line => railroad)
 					if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
@@ -1218,8 +1220,11 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
 									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
 									while(line->count_convoys()>0) {
-										line->get_convoy(0)->self_destruct();
-										line->get_convoy(0)->step();
+										convoihandle_t cnv = line->get_convoy(0);
+										cnv->self_destruct();
+										if(cnv.is_bound()) {
+											cnv->step();
+										}
 									}
 								}
 								simlinemgmt.delete_line( line );
