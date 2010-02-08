@@ -3836,7 +3836,7 @@ aircraft_t::hop()
 
 // this routine will display the shadow
 void
-aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) const
+aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 {
 	if(bild != IMG_LEER) {
 		int xpos = xpos_org, ypos = ypos_org;
@@ -3858,6 +3858,6 @@ aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) cons
 		// will be dirty
 		display_color(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
 
-		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), true );
+		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), is_global );
 	}
 }
