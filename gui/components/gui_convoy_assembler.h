@@ -195,6 +195,7 @@ public:
 	 * @date  09.06.2003
 	 */
 	void update_data();
+	void update_tabs();
 
 	/* The gui_komponente_t interface */
 	virtual void zeichnen(koord offset);

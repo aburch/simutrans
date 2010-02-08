@@ -71,13 +71,6 @@ private:
 	char txt_n_skip[8];
 
 	/**
-	 * Update texts, image lists and buttons according to the current state.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	void update_data();
-
-	/**
 	 * Do the dynamic dialog layout
 	 */
 	void layout(koord *);
@@ -96,6 +89,14 @@ private:
 	sint64 calc_total_cost();
 
 public:
+	
+	/**
+	 * Update texts, image lists and buttons according to the current state.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	void update_data();
+	
 	replace_frame_t(convoihandle_t cnv, const char *name);
 
 	/**

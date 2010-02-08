@@ -482,14 +482,17 @@ end:
 				destroy_win( (long)cnv->get_schedule() );
 				// only then call the tool to start
 				depot->call_depot_tool( 'b', cnv, NULL );
+				update_convoy();
 			}
 		} else if(komp == &bt_schedule) {
 			fahrplaneingabe();
 			return true;
 		} else if(komp == &bt_destroy) {
 			depot->call_depot_tool( 'd', cnv, NULL );
+			update_convoy();
 		} else if(komp == &bt_sell) {
 			depot->call_depot_tool( 'v', cnv, NULL );
+			update_convoy();
 		} else if(komp == &bt_next) {
 			if(++icnv == (int)depot->convoi_count()) {
 				icnv = -1;
@@ -514,6 +517,7 @@ end:
 			}
 			else {
 				depot->call_depot_tool( 'c', cnv, NULL);
+				update_convoy();
 			}
 			return true;
 		}

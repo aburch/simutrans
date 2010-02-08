@@ -45,7 +45,7 @@ static const char * engine_type_names [9] =
 
 gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed char player_nr, bool electrified) :
 	way_type(wt), welt(w), last_changed_vehicle(NULL),
-	depot_frame(NULL), placement(get_placement(wt)),
+	depot_frame(NULL), replace_frame(NULL), placement(get_placement(wt)),
 	placement_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 4),
 	grid(get_grid(wt)),
 	grid_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 2),
@@ -403,6 +403,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 			// image lsit selction here ...
 		if(komp == &convoi) {
 			image_from_convoi_list( p.i );
+			update_data();
 		} else if(komp == &pas) {
 			image_from_storage_list(&pas_vec[p.i]);
 		} else if (komp == &electrics) {
@@ -445,7 +446,14 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 		} else {
 			return false;
 		}
+		build_vehicle_lists();
 	}
+	else {
+		update_data();
+		update_tabs();
+
+	}
+	layout();
 	return true;
 }
 
@@ -647,6 +655,29 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		}
 	}
 DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
+	convoihandle_t cnv_set;
+	if(depot_frame)
+	{
+		cnv_set = depot_frame->get_depot()->get_convoi(depot_frame->get_icnv());
+	}
+	else if(replace_frame)
+	{
+		cnv_set = replace_frame->get_convoy();
+	}
+
+	if(cnv_set.is_bound())
+	{
+		set_vehicles(cnv_set);
+	}
+	if(depot_frame)
+	{
+		depot_frame->update_data();
+	}
+	else if(replace_frame)
+	{
+		replace_frame->update_data();
+	}
+	update_tabs();
 }
 
 
@@ -765,71 +796,6 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 		{
 			depot->call_depot_tool( 'u', cnv, bild_data->text );
 		}
-
-		/*
-			
-		// we buy/sell all vehicles together!
-		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
-		
-		const vehikel_besch_t *start_info = info;
-		if(veh_action==va_insert  ||  veh_action==va_sell)
-		{
-			// start of composition
-			while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) 
-			{
-				info = info->get_vorgaenger(0);
-				new_vehicle_info.insert(info);
-			}
-			info = start_info;
-		}
-		// not get the end ...
-		while(info) 
-		{
-			new_vehicle_info.append( info );
-DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","appended %s",info->get_name() );
-			// Auto complete - not used for upgrading
-			if((info->get_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) || upgrade == u_upgrade) 
-			{
-				break;
-			}
-			info = info->get_nachfolger(0);
-		}
-
-		if(veh_action == va_sell) 
-		{
-			while(new_vehicle_info.get_count() && depot_frame) {
-				
-				//We sell the newest vehicle - gives most money back.
-				
-				vehikel_t* veh = depot_frame->get_depot()->find_oldest_newest(new_vehicle_info.remove_first(), false);
-				if (veh != NULL) {
-					depot_frame->get_depot()->sell_vehicle(veh);
-					build_vehicle_lists();
-					update_data();
-				}
-			}
-		}
-		else 
-		{
-			// append/insert into convoy
-			if(vehicles.get_count()+new_vehicle_info.get_count() <= max_convoy_length) {
-
-				koord k=koord(veh_action==va_insert?insert_vehicle_in_front_action:append_vehicle_action,0);
-				value_t v;
-				v.p=&k;
-				for( unsigned i=0;  i<new_vehicle_info.get_count();  i++ ) {
-					// insert/append needs reverse order
-					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.get_count()-i-1 : i;
-					// We add the oldest vehicle - newer stay for selling
-					const vehikel_besch_t* vb = new_vehicle_info.at(nr);
-					append_vehicle(vb, veh_action == va_insert);
-					last_changed_vehicle=vb;
-					call_listeners(v);
-DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","built nr %i", nr);
-				}
-			}
-		}
-	*/
 	}
 }
 
@@ -951,6 +917,12 @@ void gui_convoy_assembler_t::update_data()
 					}
 				}
 			}
+		}
+		else
+		{
+			// If selling, one cannot buy - mark all purchasable vehicles red.
+			iter1.get_current_value()->lcolor = COL_RED;
+			iter1.get_current_value()->rcolor = COL_RED;
 		}
 
 		if(upgrade == u_upgrade)
@@ -1076,6 +1048,82 @@ DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i"
 	}
 }
 
+void gui_convoy_assembler_t::update_tabs()
+{
+	waytype_t wt;
+	if(depot_frame)
+	{
+		wt = depot_frame->get_depot()->get_wegtyp();
+	}
+	else if(replace_frame)
+	{
+		wt = replace_frame->get_convoy()->get_vehikel(0)->get_waytype();
+	}
+	else
+	{
+		wt = road_wt;
+	}
+
+	gui_komponente_t *old_tab = tabs.get_aktives_tab();
+	tabs.clear();
+
+	bool one = false;
+
+	cont_pas.add_komponente(&pas);
+	scrolly_pas.set_show_scroll_x(false);
+	scrolly_pas.set_size_corner(false);
+	scrolly_pas.set_read_only(false);
+	// add only if there are any
+	if(!pas_vec.empty()) {
+		tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
+		one = true;
+	}
+
+	cont_electrics.add_komponente(&electrics);
+	scrolly_electrics.set_show_scroll_x(false);
+	scrolly_electrics.set_size_corner(false);
+	scrolly_electrics.set_read_only(false);
+	// add only if there are any trolleybuses
+	if(!electrics_vec.empty()) {
+		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
+		one = true;
+	}
+
+	cont_loks.add_komponente(&loks);
+	scrolly_loks.set_show_scroll_x(false);
+	scrolly_loks.set_size_corner(false);
+	scrolly_loks.set_read_only(false);
+	// add, if waggons are there ...
+	if (!loks_vec.empty() || !waggons_vec.empty()) {
+		tabs.add_tab(&scrolly_loks, translator::translate( get_zieher_name(wt) ) );
+		one = true;
+	}
+
+	cont_waggons.add_komponente(&waggons);
+	scrolly_waggons.set_show_scroll_x(false);
+	scrolly_waggons.set_size_corner(false);
+	scrolly_waggons.set_read_only(false);
+	// only add, if there are waggons
+	if (!waggons_vec.empty()) {
+		tabs.add_tab(&scrolly_waggons, translator::translate( get_haenger_name(wt) ) );
+		one = true;
+	}
+
+	if(!one) {
+		// add passenger as default
+		tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
+	}
+
+	// Look, if there is our old tab present again (otherwise it will be 0 by tabs.clear()).
+	for( uint8 i = 0; i < tabs.get_count(); i++ ) {
+		if(  old_tab == tabs.get_tab(i)  ) {
+			// Found it!
+			tabs.set_active_tab_index(i);
+			break;
+		}
+	}
+}
+
 
 
 void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
@@ -1115,8 +1163,16 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		if(sel_index != -1) {
 			if (depot_frame) {
 				convoihandle_t cnv = depot_frame->get_convoy();
-				veh_type = cnv->get_vehikel(sel_index)->get_besch();
-				value = cnv->get_vehikel(sel_index)->calc_restwert()/100;
+				if(cnv.is_bound())
+				{
+					veh_type = cnv->get_vehikel(sel_index)->get_besch();
+					value = cnv->get_vehikel(sel_index)->calc_restwert()/100;
+				}
+				else
+				{
+					value = 0;
+					veh_type = NULL;
+				}
 			}
 		}
 	}
