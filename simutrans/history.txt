@@ -12,13 +12,17 @@ Trunk:
 	ADD: (gerw) auto-electrify depot added
 	FIX: freelist sometimes returned wrong elements to free
 	ADD (VS): makeobj ignored alpha channel now really
-	CHANGE (Knightly): Not scaling images displayed by gui_image_t anymore
+	CHANGE: (Knightly): Not scaling images displayed by gui_image_t anymore
 	FIX: deleting tram signals again
 	ADD: click-and-drag also for network games (except for building elevated ways, bridges, tunnels)
 	ADD: tools should work on all clients regardless of underground mode
 	ADD: tools work now correct with ctrl keys in networkmode
 	FIX: crash when changing schedule after no_route on halt
 	FIX: a double block (presignal) robbed the following signal of its (pres/longblock/choosing) function
+	CHANGE: no rezooming in viewport
+	FIX: text overflow in message boxes
+	FIX: window resizing is triggered even if initial click is not in dragger area
+	FIX: square button's clickable area not set according to accompanying text
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

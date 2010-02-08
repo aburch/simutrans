@@ -113,7 +113,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	snowline_winter.set_limits( 0, arctic );
 	intTopOfButton += 5;
 
-	no_tree.init( button_t::square, "no tree", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	no_tree.init( button_t::square, "no tree", koord(10,intTopOfButton) ); // right align
 	no_tree.pressed=umgebung_t::no_tree;
 	no_tree.add_listener( this );
 	add_komponente( &no_tree );
