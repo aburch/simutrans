@@ -2550,7 +2550,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				}
 				// reserved route to target (or not)
 			}
-			else if(next_stop!=0  &&  next_stop!=UNVALID_INDEX  &&  sig_besch->is_pre_signal()) {
+			else if(  next_stop!=0  &&  next_stop!=UNVALID_INDEX  &&  sig_besch->is_pre_signal()  &&  next_stop<cnv->get_route()->get_count()  ) {
 				// free route, but next signal might be again a double block signal
 				uint16 nextnext_stop = block_reserver(cnv->get_route(),next_stop,0,true);
 				if(  nextnext_stop==0  ) {
