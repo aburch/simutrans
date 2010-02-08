@@ -83,9 +83,20 @@ private:
 
 	/**
 	 * fields of this factory (only for farms etc.)
-	 * @author prissi
+	 * @author prissi/Knightly
 	 */
-	vector_tpl <koord> fields;
+	struct field_data_t
+	{
+		koord location;
+		uint16 field_class_index;
+
+		field_data_t() : field_class_index(0) {}
+		explicit field_data_t(const koord loc) : location(loc), field_class_index(0) {}
+		field_data_t(const koord loc, const uint16 class_index) : location(loc), field_class_index(class_index) {}
+
+		bool operator==(const field_data_t &other) const { return location==other.location; }
+	};
+	vector_tpl <field_data_t> fields;
 
 	/**
 	 * Die erzeugten waren auf die Haltestellen verteilen

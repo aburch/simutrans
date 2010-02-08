@@ -69,6 +69,8 @@ factory_supplier_reader_t factory_supplier_reader_t::the_instance;
 factory_product_reader_t factory_product_reader_t::the_instance;
 factory_smoke_reader_t factory_smoke_reader_t::the_instance;
 factory_field_reader_t factory_field_reader_t::the_instance;
+obj_besch_t *factory_field_reader_t::incomplete_field_class_besch = NULL;
+factory_field_class_reader_t factory_field_class_reader_t::the_instance;
 
 vehicle_reader_t vehicle_reader_t::the_instance;
 

@@ -25,6 +25,8 @@ Trunk:
 	FIX: square button's clickable area not set according to accompanying text
 	FIX: help text link's clickable area not correctly set
 	FIX: pak file image data not trimmed according to x-offset and contains superfluous data
+	ADD: factories now support multiple fields
+	FIX: factory builder does not consider minimum fields in randomising production
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

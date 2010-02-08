@@ -221,7 +221,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 fabrik_t::~fabrik_t()
 {
 	while(!fields.empty()) {
-		planquadrat_t *plan = welt->access( fields.back() );
+		planquadrat_t *plan = welt->access( fields.back().location );
 		assert(plan);
 		grund_t *gr = plan->get_kartenboden();
 		field_t* f = plan->get_kartenboden()->find<field_t>();
@@ -245,12 +245,12 @@ void fabrik_t::baue(sint32 rotate)
 			// if there are fields
 			if(!fields.empty()) {
 				for( uint16 i=0;  i<fields.get_count();  i++  ) {
-					const koord k = fields[i];
+					const koord k = fields[i].location;
 					grund_t *gr=welt->lookup_kartenboden(k);
 					// first make foundation below
 					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field(), this ) );
+					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field()->get_field_class( fields[i].field_class_index ), this ) );
 				}
 			}
 			else {
@@ -323,12 +323,28 @@ bool fabrik_t::add_random_field(uint16 probability)
 		gr->obj_loesche_alle(NULL);
 		// first make foundation below
 		const koord k = gr->get_pos().get_2d();
-		assert(!fields.is_contained(k));
-		fields.append(k);
+		field_data_t new_field(k);
+		assert(!fields.is_contained(new_field));
+		// Knightly : fetch a random field class besch based on spawn weights
+		const weighted_vector_tpl<uint16> &field_class_indices = fb->get_field_class_indices();
+		new_field.field_class_index = field_class_indices.at_weight( simrand( field_class_indices.get_sum_weight() ) );
+		const field_class_besch_t *const field_class = fb->get_field_class( new_field.field_class_index );
+		fields.append(new_field);
 		grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
 		welt->access(k)->boden_ersetzen(gr, gr2);
-		gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, fb, this ) );
-		prodbase += fb->get_field_production();
+		gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, field_class, this ) );
+		// Knightly : adjust production base and storage capacities
+		prodbase += field_class->get_field_production();
+		const uint32 ware_types = eingang.get_count() + ausgang.get_count();
+		if(  ware_types>0  &&  field_class->get_storage_capacity()>0  ) {
+			const sint32 share = ( (uint32)(field_class->get_storage_capacity()) << fabrik_t::precision_bits ) / ware_types;
+			for(  uint32 i=0  ;  i<eingang.get_count()  ;  ++i  ) {
+				eingang[i].max += share;
+			}
+			for(  uint32 i=0  ;  i<ausgang.get_count()  ;  ++i  ) {
+				ausgang[i].max += share;
+			}
+		}
 		if(lt) {
 			gr2->obj_add( lt );
 		}
@@ -342,9 +358,23 @@ bool fabrik_t::add_random_field(uint16 probability)
 
 void fabrik_t::remove_field_at(koord pos)
 {
-	assert(fields.is_contained(pos));
-	prodbase -= besch->get_field()->get_field_production();
-	fields.remove(pos);
+	field_data_t field(pos);
+	assert(fields.is_contained( field ));
+	field = fields[ fields.index_of(field) ];
+	const field_class_besch_t *const field_class = besch->get_field()->get_field_class( field.field_class_index );
+	// Knightly : revert the field's effect on production base and storage capacities
+	prodbase -= field_class->get_field_production();
+	const uint32 ware_types = eingang.get_count() + ausgang.get_count();
+	if(  ware_types>0  &&  field_class->get_storage_capacity()>0  ) {
+		const sint32 share = ( (uint32)(field_class->get_storage_capacity()) << fabrik_t::precision_bits ) / ware_types;
+		for(  uint32 i=0  ;  i<eingang.get_count()  ;  ++i  ) {
+			eingang[i].max -= share;
+		}
+		for(  uint32 i=0  ;  i<ausgang.get_count()  ;  ++i  ) {
+			ausgang[i].max -= share;
+		}
+	}
+	fields.remove(field);
 }
 
 
@@ -575,19 +605,47 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		if(file->is_saving()) {
 			uint16 nr=fields.get_count();
 			file->rdwr_short(nr,"f");
-			for(int i=0; i<nr; i++) {
-				koord k = fields[i];
-				k.rdwr(file);
+			if(  file->get_version()>102002  ) {
+				// each field stores location and a field class index
+				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
+					koord k = fields[i].location;
+					k.rdwr(file);
+					uint16 idx = fields[i].field_class_index;
+					file->rdwr_short(idx, NULL);
+				}
+			}
+			else {
+				// each field only stores location
+				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
+					koord k = fields[i].location;
+					k.rdwr(file);
+				}
 			}
 		}
 		else {
 			uint16 nr=0;
 			koord k;
+			uint16 idx;
 			file->rdwr_short(nr,"f");
 			fields.resize(nr);
-			for(int i=0; i<nr; i++) {
-				k.rdwr(file);
-				fields.append(k);
+			if(  file->get_version()>102002  ) {
+				// each field stores location and a field class index
+				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
+					k.rdwr(file);
+					file->rdwr_short(idx, NULL);
+					if(  idx>=besch->get_field()->get_field_class_count()  ) {
+						// set class index to 0 if it is out of range
+						idx = 0;
+					}
+					fields.append( field_data_t(k, idx) );
+				}
+			}
+			else {
+				// each field only stores location
+				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
+					k.rdwr(file);
+					fields.append( field_data_t(k, 0) );
+				}
 			}
 		}
 	}
@@ -1457,7 +1515,7 @@ void fabrik_t::rotate90( const sint16 y_size )
 		}
 	}
 	for( uint32 i=0;  i<fields.get_count();  i++  ) {
-		fields[i].rotate90( y_size );
+		fields[i].location.rotate90( y_size );
 	}
 }
 
