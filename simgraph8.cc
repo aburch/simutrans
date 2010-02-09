@@ -1787,7 +1787,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
  * draws the transparent outline of an image
  * @author kierongreen
  */
-void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, int, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
@@ -2004,7 +2004,7 @@ void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, cons
 
 
 // unicode save moving in strings
-int get_next_char(const char* text, int pos)
+long get_prev_char(const char* text, long pos)
 {
 	if (has_unicode) {
 		return utf8_get_next_char((const utf8*)text, pos);
@@ -2014,7 +2014,7 @@ int get_next_char(const char* text, int pos)
 }
 
 
-int get_prev_char(const char* text, int pos)
+size_t get_next_char(const char* text, size_t pos)
 {
 	if (pos <= 0) return 0;
 	if (has_unicode) {
@@ -2040,7 +2040,7 @@ KOORD_VAL display_get_char_width(utf16 c)
  * @author prissi
  * @date 29.11.04
  */
-int display_calc_proportional_string_len_width(const char* text, int len)
+int display_calc_proportional_string_len_width(const char* text, size_t len)
 {
 	const font_type* const fnt = &large_font;
 	unsigned int c, width = 0;
@@ -2048,13 +2048,15 @@ int display_calc_proportional_string_len_width(const char* text, int len)
 
 #ifdef UNICODE_SUPPORT
 	if (has_unicode) {
-		unsigned short iUnicode;
-		int	iLen = 0;
+		utf16 iUnicode;
+		size_t	iLen = 0;
 
 		// decode char; Unicode is always 8 pixel (so far)
 		while (iLen < len) {
 			iUnicode = utf8_to_utf16((utf8 const*)text + iLen, &iLen);
-			if (iUnicode == 0) return width;
+			if (iUnicode == 0) {
+				return width;
+			}
 			w = fnt->screen_width[iUnicode];
 			if (w == 0) {
 				// default width for missing characters
@@ -2113,12 +2115,12 @@ static unsigned char get_h_mask(const int xL, const int xR, const int cL, const 
  * @author Volker Meyer, prissi
  * @date  15.06.2003, 2.1.2005
  */
-int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, int len)
+int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt, int flags, const PLAYER_COLOR_VAL color_index, long len)
 {
 	const font_type* fnt = &large_font;
 	KOORD_VAL cL, cR, cT, cB;
 	unsigned c;
-	int	iTextPos = 0; // pointer on text position: prissi
+	size_t	iTextPos = 0; // pointer on text position: prissi
 	int char_width_1, char_width_2; // 1 is char only, 2 includes room
 	int screen_pos;
 	unsigned char *char_data;
@@ -2210,7 +2212,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// get the data from the font
 		char_data = fnt->char_data + CHARACTER_LEN * c;
 		char_width_1 = char_data[CHARACTER_LEN-1];
-		uint8 char_yoffset = char_data[CHARACTER_LEN-2];
+		uint8 char_yoffset = (sint8)char_data[CHARACTER_LEN-2];
 		char_width_2 = fnt->screen_width[c];
 		if (char_width_1>8) {
 			mask1 = get_h_mask(x, x + 8, cL, cR);
@@ -2224,10 +2226,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		}
 		// do the display
 
+		if(  y_offset>char_yoffset  ) {
+			char_yoffset = y_offset;
+		}
 		screen_pos = (y0+char_yoffset) * disp_width + x;
 
-		p = char_data + y_offset+char_yoffset;
-		for (h = y_offset+char_yoffset; h < char_height; h++) {
+		p = char_data + char_yoffset;
+		for (h = char_yoffset; h < char_height; h++) {
 			unsigned int dat = *p++ & mask1;
 			PIXVAL* dst = textur + screen_pos;
 
@@ -2246,9 +2251,9 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 
 		// extra four bits for overwidth characters (up to 12 pixel supported for unicode)
 		if (char_width_1 > 8 && mask2 != 0) {
-			p = char_data + y_offset/2+12;
+			p = char_data + char_yoffset/2+12;
 			screen_pos = y0 * disp_width + x + 8;
-			for (h = y_offset; h < char_height; h++) {
+			for (h = char_yoffset; h < char_height; h++) {
 				unsigned int char_dat = *p;
 				PIXVAL* dst = textur + screen_pos;
 				if(h&1) {
@@ -2715,3 +2720,11 @@ void display_progress(int part, int total)
 	}
 	dr_flush();
 }
+
+
+
+// Knightly : variables for storing currently used image procedure set and tile raster width
+display_image_proc display_normal = NULL;
+display_image_proc display_color = NULL;
+display_blend_proc display_blend = NULL;
+signed short current_tile_raster_width = 0;
