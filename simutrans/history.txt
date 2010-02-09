@@ -27,6 +27,8 @@ Trunk:
 	FIX: pak file image data not trimmed according to x-offset and contains superfluous data
 	ADD: factories now support multiple fields
 	FIX: factory builder does not consider minimum fields in randomising production
+	FIX: presignal before station failed
+	FIX: tooltip box hovering above viewport
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)
@@ -46,6 +48,7 @@ Release Candidate 102.2.2
 	ADD: reading of bzip2 savegames from trunk
 	ADD: (Dwachs) starting money per year
 	FIX: crash when changing schedule after no_route on halt
+	FIX: presignal before station failed
 
 Release of 102.2.1 (r2928)
 	FIX: minimap was not updated when a bridge was deleted

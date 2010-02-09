@@ -751,8 +751,16 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 const char *wkz_raise_t::check( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// check for underground mode
-	if (grund_t::underground_mode == grund_t::ugm_all ||
-		(grund_t::underground_mode == grund_t::ugm_level && !welt->lookup_kartenboden(k.get_2d())->is_visible() )) {
+	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
+		is_dragging = false;
+		return "";
+	}
+	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
+	if (gr==NULL) {
+		return "";
+	}
+	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang());
+	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
 	return NULL;
@@ -854,8 +862,16 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 const char *wkz_lower_t::check( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	// check for underground mode
-	if (grund_t::underground_mode == grund_t::ugm_all ||
-		(grund_t::underground_mode == grund_t::ugm_level && welt->lookup_kartenboden(k.get_2d())->get_hoehe()>grund_t::underground_level+1 )) {
+	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
+		is_dragging = false;
+		return "";
+	}
+	grund_t *gr = welt->lookup_kartenboden(k.get_2d());
+	if (gr==NULL) {
+		return "";
+	}
+	sint8 h = gr->get_hoehe() + corner4(gr->get_grund_hang()) - 1;
+	if (h > grund_t::underground_level) {
 			return "Terraforming not possible\nhere in underground view";
 	}
 	return NULL;
@@ -921,6 +937,9 @@ const char *wkz_setslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
 			return "Terraforming not possible\nhere in underground view";
 		}
 	}
+	else {
+		return "";
+	}
 	return NULL;
 }
 
@@ -932,6 +951,9 @@ const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos
 		if(  grund_t::underground_mode == grund_t::ugm_all  &&  !gr1->ist_tunnel()  ) {
 			return "Terraforming not possible\nhere in underground view";
 		}
+	}
+	else {
+		return "";
 	}
 	return NULL;
 }

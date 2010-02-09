@@ -173,7 +173,7 @@ void ding_t::info(cbuffer_t & buf) const
 		tstrncpy( translation, get_besitzer()->get_name(), 256 );
 	}
 	// remove trailing linebreaks etc.
-	for(  int i=strlen(translation);  i>0  &&  translation[i-1]<' ';  i--  ) {
+	for(  int i=strlen(translation);  i>0  &&  ' '>(uint8)translation[i-1];  i--  ) {
 		translation[i-1] = 0;
 	}
 	buf.append( translation );

@@ -3182,7 +3182,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				}
 				// reserved route to target (or not)
 			}
-			else if(next_stop!=0  &&  next_stop!=UNVALID_INDEX  &&  sig_besch->is_pre_signal()) {
+			else if(  next_stop!=0  &&  next_stop!=UNVALID_INDEX  &&  sig_besch->is_pre_signal()  &&  next_stop<cnv->get_route()->get_count()  ) {
 				// free route, but next signal might be again a double block signal
 				uint16 nextnext_stop = block_reserver(cnv->get_route(),next_stop,0,true);
 				if(  nextnext_stop==0  ) {
@@ -4469,7 +4469,7 @@ aircraft_t::hop()
 
 // this routine will display the shadow
 void
-aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) const
+aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 {
 	if(bild != IMG_LEER) {
 		int xpos = xpos_org, ypos = ypos_org;
@@ -4491,6 +4491,6 @@ aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) cons
 		// will be dirty
 		display_color(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
 
-		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), true );
+		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), is_global );
 	}
 }
