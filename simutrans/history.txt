@@ -30,6 +30,7 @@ Trunk:
 	FIX: presignal before station failed
 	FIX: tooltip box hovering above viewport
 	FIX: wrong clipping of text
+	ADD: (mostly Dwachs) nicer crossing infos
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

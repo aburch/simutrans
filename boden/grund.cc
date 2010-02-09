@@ -453,19 +453,19 @@ bool grund_t::zeige_info()
 
 void grund_t::info(cbuffer_t& buf) const
 {
-	if(flags&is_halt_flag) {
-		welt->lookup(pos.get_2d())->get_halt()->info( buf );
-	}
-
 	if(!ist_wasser()) {
 		if(flags&has_way1) {
+			buf.append(translator::translate(get_weg_nr(0)->get_name()));
+			buf.append("\n");
 			obj_bei(0)->info(buf);
-		}
-		if(flags&has_way2) {
-			obj_bei(1)->info(buf);
-		}
-		if(ist_uebergang()) {
-			find<crossing_t>(2)->get_logic()->info(buf);
+			if(flags&has_way2) {
+				buf.append(translator::translate(get_weg_nr(1)->get_name()));
+				buf.append("\n");
+				obj_bei(1)->info(buf);
+				if(ist_uebergang()) {
+					find<crossing_t>(2)->get_logic()->info(buf);
+				}
+			}
 		}
 	}
 
