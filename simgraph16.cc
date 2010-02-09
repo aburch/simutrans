@@ -2965,7 +2965,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// get the data from the font
 		char_data = fnt->char_data + CHARACTER_LEN * c;
 		char_width_1 = char_data[CHARACTER_LEN-1];
-		char_yoffset = char_data[CHARACTER_LEN-2];
+		char_yoffset = (sint8)char_data[CHARACTER_LEN-2];
 		char_width_2 = fnt->screen_width[c];
 		if (char_width_1>8) {
 			mask1 = get_h_mask(x, x + 8, cL, cR);
@@ -2979,10 +2979,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		}
 		// do the display
 
-		screen_pos = (y0+char_yoffset) * disp_width + x;
+		if(  y_offset>char_yoffset  ) {
+			char_yoffset = y_offset;
+		}
+		screen_pos = (y+char_yoffset) * disp_width + x;
 
-		p = char_data + y_offset+char_yoffset;
-		for (h = y_offset+char_yoffset; h < char_height; h++) {
+		p = char_data + char_yoffset;
+		for (h = char_yoffset; h < char_height; h++) {
 			unsigned int dat = *p++ & mask1;
 			PIXVAL* dst = textur + screen_pos;
 
@@ -3007,9 +3010,9 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 
 		// extra four bits for overwidth characters (up to 12 pixel supported for unicode)
 		if (char_width_1 > 8 && mask2 != 0) {
-			p = char_data + y_offset/2+12;
-			screen_pos = y0 * disp_width + x + 8;
-			for (h = y_offset; h < char_height; h++) {
+			p = char_data + char_yoffset/2+12;
+			screen_pos = (y+char_yoffset) * disp_width + x + 8;
+			for (h = char_yoffset; h < char_height; h++) {
 				unsigned int char_dat = *p;
 				PIXVAL* dst = textur + screen_pos;
 				if(h&1) {

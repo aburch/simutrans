@@ -29,6 +29,7 @@ Trunk:
 	FIX: factory builder does not consider minimum fields in randomising production
 	FIX: presignal before station failed
 	FIX: tooltip box hovering above viewport
+	FIX: wrong clipping of text
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)
