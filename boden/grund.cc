@@ -455,8 +455,11 @@ void grund_t::info(cbuffer_t& buf) const
 {
 	if(!ist_wasser()) {
 		if(flags&has_way1) {
-			buf.append(translator::translate(get_weg_nr(0)->get_name()));
-			buf.append("\n");
+			// bridges / tunnels only carry dummy ways
+			if(!ist_tunnel()  &&  !ist_bruecke()) {
+				buf.append(translator::translate(get_weg_nr(0)->get_name()));
+				buf.append("\n");
+			}
 			obj_bei(0)->info(buf);
 			if(flags&has_way2) {
 				buf.append(translator::translate(get_weg_nr(1)->get_name()));

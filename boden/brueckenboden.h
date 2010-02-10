@@ -24,14 +24,10 @@ public:
 
 	hang_t::typ get_weg_hang() const { return weg_hang; }
 
-	/**
-	* ground info, needed for stops
-	* @author prissi
-	*/
-	virtual bool zeige_info();
-
 	const char *get_name() const {return "Brueckenboden";}
 	enum grund_t::typ get_typ() const {return brueckenboden;}
+
+	void info(cbuffer_t & buf) const;
 };
 
 #endif
