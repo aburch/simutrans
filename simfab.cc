@@ -985,7 +985,7 @@ void fabrik_t::step(long delta_t)
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = (menge*vb) >> 8;
 
-				if ((uint32)eingang[index].menge > v) {
+				if ((uint32)eingang[index].menge > v+1) {
 					eingang[index].menge -= v;
 					currently_producing = true;
 					// to find out, if storage changed
@@ -1053,7 +1053,7 @@ void fabrik_t::step(long delta_t)
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = (consumed_menge*vb) >> 8;
 
-				if ((uint32)eingang[index].menge > v) {
+				if ((uint32)eingang[index].menge > v+1) {
 					eingang[index].menge -= v;
 				}
 				else {
