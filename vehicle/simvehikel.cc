@@ -2505,10 +2505,43 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				grund_t *target=NULL;
 
 				// choose signal here
-				target=welt->lookup(rt->position_bei(rt->get_count()-1));
+				target = welt->lookup(rt->position_bei(rt->get_count()-1));
 
 				if(target) {
-					target_halt = target->get_halt();
+					// first check, if there is another choose or an end_of choose before the target
+					route_t *rt = cnv->get_route();
+					bool choose_ok = target->get_halt().is_bound();	// only check for full way, if target is not a waypoint!
+					for(  uint32 idx=next_block+1;  choose_ok  &&  idx<rt->get_count();  idx++  ) {
+						grund_t *gr = welt->lookup(rt->position_bei(idx));
+						if(  gr==0  ) {
+							choose_ok = false;
+							break;
+						}
+						weg_t *way = gr->get_weg(get_waytype());
+						if(  way==0  ) {
+							choose_ok = false;
+							break;
+						}
+						if(  way->has_sign()  ) {
+							roadsign_t *rs = gr->find<roadsign_t>(1);
+							if(  rs  &&  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+								if(  (rs->get_besch()->get_flags()&&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
+									// end of choose on route => not choosing here
+									choose_ok = false;
+								}
+							}
+						}
+						if(  way->has_signal()  ) {
+							signal_t *sig = gr->find<signal_t>(1);
+							if(  sig  &&  sig->get_besch()->is_choose_sign()  ) {
+								// second chosse signal on route => not choosing here
+								choose_ok = false;
+							}
+						}
+					}
+					if(  choose_ok  ) {
+						target_halt = target->get_halt();
+					}
 				}
 			}
 			next_stop = block_reserver(cnv->get_route(),next_block+1,(target_halt.is_bound()?100000:0),true);
