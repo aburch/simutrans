@@ -2232,11 +2232,14 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
-			sprintf(toolstr, "%s, %ld$ (%ld$), %dkm/h",
+			int n = sprintf(toolstr, "%s, %ld$ (%ld$)",
 					translator::translate(besch->get_name()),
 					besch->get_preis()/100l,
-					(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18l))/100l,
-					besch->get_topspeed());
+					(besch->get_wartung()<<(sp->get_welt()->ticks_bits_per_tag-18l))/100l);
+			if (besch->get_own_wtyp()==overheadlines_wt) {
+				// only overheadlines impose topspeed
+				sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
+			}
 			return toolstr;
 		}
 		return NULL;
