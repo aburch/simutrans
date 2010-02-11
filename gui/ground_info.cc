@@ -8,31 +8,38 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simworld.h"
-#include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "ground_info.h"
 
 
-static cbuffer_t gr_info(1024);
+cbuffer_t grund_info_t::gr_info(1024);
 
 
 grund_info_t::grund_info_t(const grund_t* gr_) :
 	gui_frame_t(gr_->get_name(), NULL),
 	gr(gr_),
-	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
+	view(gr_->get_welt(), gr_->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
+	textarea(gr_info, 170 + view.get_groesse().x, view.get_groesse() + koord(10, 10))
 {
-	const ding_t* d = gr->obj_bei(0);
-	if (d != NULL) {
-		set_owner(d->get_besitzer());
+	const ding_t *const d = gr->obj_bei(0);
+	if (  d!=NULL  ) {
+		set_owner( d->get_besitzer() );
 	}
+
 	gr_info.clear();
 	gr->info(gr_info);
-	sint16 height = max( (count_char(gr_info, '\n')+1)*LINESPACE+36, view.get_groesse().y+36 );
+	textarea.recalc_size();
 
-	view.set_pos( koord(165,10) );
+	sint16 width  = textarea.get_groesse().x + 20;
+	sint16 height = max( textarea.get_groesse().y, view.get_groesse().y ) + 36;
+
+	view.set_pos( koord(width - view.get_groesse().x - 10, 10) );
 	add_komponente( &view );
 
-	set_fenstergroesse( koord(175+view.get_groesse().x, height) );
+	textarea.set_pos( koord(10, 10) );
+	add_komponente( &textarea );
+
+	set_fenstergroesse( koord(width, height) );
 }
 
 
@@ -44,10 +51,23 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
  */
 void grund_info_t::zeichnen(koord pos, koord groesse)
 {
+	set_dirty();
+	const ding_t *const d = gr->obj_bei(0);
+	if (  d!=NULL  ) {
+		set_owner( d->get_besitzer() );
+	}
+	gui_frame_t::set_name( gr->get_name() );
+
 	gr_info.clear();
 	gr->info(gr_info);
-	gui_frame_t::zeichnen(pos,groesse);
-	display_multiline_text(pos.x+10, pos.y+16+10, gr_info, COL_BLACK);
+
+	gui_frame_t::zeichnen(pos, groesse);
+
+	// Knightly : text may be changed and need more vertical space to display
+	const sint16 current_height = max( textarea.get_groesse().y, view.get_groesse().y ) + 36;
+	if(  current_height != get_fenstergroesse().y  ) {
+		set_fenstergroesse( koord(get_fenstergroesse().x, current_height) );
+	}
 }
 
 
