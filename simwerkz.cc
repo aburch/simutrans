@@ -4508,7 +4508,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 
 
 
-/* Handles all action of ^lines. Needs a default param:
+/* Handles all action of lines. Needs a default param:
  * [function],[line_id],addition stuff
  * following simple command exists:
  * 'g' : apply new schedule to line [schedule follows]
@@ -4554,9 +4554,12 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 					if(  fg  ) {
 						fg->init_line_selector();
 					}
-					schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(t));
+					schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>((long)&(sp->simlinemgmt));
 					if(  sl  ) {
 						sl->show_lineinfo( line );
+					}
+					// no schedule window open => then open one
+					if(  fg==NULL  ) {
 						create_win( new line_management_gui_t(line, sp), w_info, (long)line.get_rep() );
 					}
 				}
