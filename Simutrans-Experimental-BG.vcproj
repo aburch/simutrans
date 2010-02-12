@@ -656,6 +656,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_fixedwidth_textarea.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_flowtext.cc"
 				>
 			</File>
@@ -828,6 +832,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\utils\memory_rw.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\message_frame_t.cc"
 				>
 			</File>
@@ -868,6 +876,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmd.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_packet.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\obj_reader.cc"
 				>
 			</File>
@@ -881,6 +897,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\pakselector.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\password_frame.cc"
 				>
 			</File>
 			<File
@@ -965,6 +985,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\settings_stats.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\utils\sha1.cc"
 				>
 			</File>
 			<File
@@ -2006,6 +2030,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\utils\memory_rw.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\message_frame_t.h"
 				>
 			</File>
@@ -2051,6 +2079,14 @@
 			</File>
 			<File
 				RelativePath=".\dataobj\network.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_cmd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_packet.h"
 				>
 			</File>
 			<File
@@ -2107,6 +2143,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\pakselector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\password_frame.h"
 				>
 			</File>
 			<File
@@ -2231,6 +2271,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\settings_stats.h"
+				>
+			</File>
+			<File
+				RelativePath=".\utils\sha1.h"
 				>
 			</File>
 			<File
