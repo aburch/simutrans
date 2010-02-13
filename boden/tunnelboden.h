@@ -20,6 +20,8 @@ public:
 
 	const char *get_name() const {return "Tunnelboden";}
 	enum grund_t::typ get_typ() const {return tunnelboden;}
+
+	void info(cbuffer_t & buf) const;
 };
 
 #endif

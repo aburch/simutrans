@@ -54,6 +54,9 @@ ding_infowin_t::ding_infowin_t(const ding_t* ding_) :
 void ding_infowin_t::zeichnen(koord pos, koord gr)
 {
 	set_dirty();
+	if(  ding!=NULL  ) {
+		set_owner( ding->get_besitzer() );
+	}
 	gui_frame_t::set_name( get_name() );
 
 	buf.clear();

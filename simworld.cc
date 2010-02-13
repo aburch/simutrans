@@ -2322,6 +2322,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 // set a new tool on our client, calls init
 void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 {
+	w->flags |= werkzeug_t::WFL_LOCAL;
 	if(w->init(this,sp)) {
 
 		set_dirty();
@@ -2355,6 +2356,7 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 		}
 		werkzeug[sp->get_player_nr()] = w;
 	}
+	w->flags = 0;
 }
 
 sint8 karte_t::min_hgt(const koord pos) const
