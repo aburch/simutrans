@@ -16,6 +16,7 @@
 #include "../besch/skin_besch.h"
 #include "../besch/tunnel_besch.h"
 
+#include "../utils/cbuffer_t.h"
 
 
 tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos ) : boden_t(welt, koord3d(pos,0), 0)
@@ -104,4 +105,15 @@ tunnelboden_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
+}
+
+void tunnelboden_t::info(cbuffer_t & buf) const
+{
+	const tunnel_t *tunnel = find<tunnel_t>();
+	if(tunnel  &&  tunnel->get_besch()) {
+		const tunnel_besch_t *besch = tunnel->get_besch();
+		buf.append(translator::translate(besch->get_name()));
+		buf.append("\n");
+	}
+	boden_t::info(buf);
 }

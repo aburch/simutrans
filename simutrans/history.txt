@@ -29,6 +29,13 @@ Trunk:
 	FIX: factory builder does not consider minimum fields in randomising production
 	FIX: presignal before station failed
 	FIX: tooltip box hovering above viewport
+	FIX: wrong clipping of text
+	ADD: (mostly Dwachs) nicer crossing infos
+	FIX: (TurfIt) really empty factories input even in consumption factors not 100%
+	ADD: bridges/tunnel show their names in info window
+	ADD: (inspired by gerw) choose singals will not choose if on the route is another choose signal or and end_of_choose
+	FIX: text overflow in ground info
+	ADD: ground info and thing info title bar color will change according to ownership
 
 Release Candidate 102.2.2
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

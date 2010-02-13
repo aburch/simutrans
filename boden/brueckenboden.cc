@@ -12,9 +12,11 @@
 #include "../besch/bruecke_besch.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 
 #include "../gui/ground_info.h"
 #include "../tpl/ptrhashtable_tpl.h"
+#include "../utils/cbuffer_t.h"
 
 #include "brueckenboden.h"
 #include "wege/weg.h"
@@ -110,17 +112,13 @@ sint8 brueckenboden_t::get_weg_yoff() const
 	}
 }
 
-
-bool
-brueckenboden_t::zeige_info()
+void brueckenboden_t::info(cbuffer_t & buf) const
 {
-	if(get_halt().is_bound()) {
-		get_halt()->zeige_info();
-		return true;
+	const bruecke_t *bridge = find<bruecke_t>();
+	if(bridge  &&  bridge->get_besch()) {
+		const bruecke_besch_t *besch = bridge->get_besch();
+		buf.append(translator::translate(besch->get_name()));
+		buf.append("\n");
 	}
-	else {
-		create_win(new grund_info_t(this), w_info, (long)this);
-		return true;
-	}
-	return false;
+	grund_t::info(buf);
 }
