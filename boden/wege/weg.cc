@@ -211,8 +211,14 @@ weg_t::~weg_t()
 {
 	alle_wege.remove(this);
 	spieler_t *sp=get_besitzer();
-	if(sp) {
-		spieler_t::add_maintenance( sp,  -besch->get_wartung() );
+	if(sp  &&  besch) 
+	{
+		sint32 maint = besch->get_wartung();
+		if(is_diagonal())
+		{
+			maint /= 1.4;
+		}
+		spieler_t::add_maintenance( sp,  -maint );
 	}
 }
 
@@ -495,56 +501,10 @@ void weg_t::calc_bild()
 	const ribi_t::ribi ribi = get_ribi_unmasked();
 
 	if(ribi_t::ist_kurve(ribi)  &&  besch->has_diagonal_bild()) {
-		ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
+		
+		set_diagonal();
 
-		bool diagonal = false;
-		switch(ribi) {
-			case ribi_t::nordost:
-				if(from->get_neighbour(to, get_waytype(), koord::ost))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::nord))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
-					r1 != ribi_t::nordwest &&
-					r2 != ribi_t::suedost;
-			break;
-
-			case ribi_t::suedost:
-				if(from->get_neighbour(to, get_waytype(), koord::ost))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::sued))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
-					r1 != ribi_t::suedwest &&
-					r2 != ribi_t::nordost;
-			break;
-
-			case ribi_t::nordwest:
-				if(from->get_neighbour(to, get_waytype(), koord::west))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::nord))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
-					r1 != ribi_t::nordost &&
-					r2 != ribi_t::suedwest;
-			break;
-
-			case ribi_t::suedwest:
-				if(from->get_neighbour(to, get_waytype(), koord::west))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::sued))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
-					r1 != ribi_t::suedost &&
-					r2 != ribi_t::nordwest;
-				break;
-		}
-
-		if(diagonal) {
+		if(is_diagonal()) {
 			static int rekursion = 0;
 
 			if(rekursion == 0) {
@@ -568,6 +528,60 @@ void weg_t::calc_bild()
 	set_bild(besch->get_bild_nr(ribi, snow));
 }
 
+void weg_t::set_diagonal()
+{
+	diagonal = false;
+	const ribi_t::ribi ribi = get_ribi_unmasked();
+	grund_t *from = welt->lookup(get_pos());
+	grund_t *to;
+	ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
+	switch(ribi) {
+
+		case ribi_t::nordost:
+		if(from->get_neighbour(to, get_waytype(), koord::ost))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::nord))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
+			r1 != ribi_t::nordwest &&
+			r2 != ribi_t::suedost;
+	break;
+
+		case ribi_t::suedost:
+		if(from->get_neighbour(to, get_waytype(), koord::ost))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::sued))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
+			r1 != ribi_t::suedwest &&
+			r2 != ribi_t::nordost;
+	break;
+
+	case ribi_t::nordwest:
+		if(from->get_neighbour(to, get_waytype(), koord::west))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::nord))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
+			r1 != ribi_t::nordost &&
+			r2 != ribi_t::suedwest;
+	break;
+
+	case ribi_t::suedwest:
+		if(from->get_neighbour(to, get_waytype(), koord::west))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::sued))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
+			r1 != ribi_t::suedost &&
+			r2 != ribi_t::nordwest;
+		break;
+	}
+}
 
 
 /**
@@ -590,8 +604,14 @@ void weg_t::neuer_monat()
 void weg_t::laden_abschliessen()
 {
 	spieler_t *sp=get_besitzer();
-	if(sp  &&  besch) {
-		spieler_t::add_maintenance( sp,  besch->get_wartung() );
+	if(sp  &&  besch) 
+	{
+		sint32 maint = besch->get_wartung();
+		if(is_diagonal())
+		{
+			maint /= 1.4;
+		}
+		spieler_t::add_maintenance( sp,  maint );
 	}
 }
 
