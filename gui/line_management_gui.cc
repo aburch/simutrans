@@ -36,7 +36,11 @@ void line_management_gui_t::infowin_event(const event_t *ev)
 		if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 			// Added by : Knightly
 			// Check if the schedule is modified
-			if ( line->is_schedule_updated() )
+			// Bernd Gabriel, Feb 14, 2010: this->fpl is a copy of line->schedule now.
+			//  Thus line->is_schedule_updated() always returns false now, as changes to this->fpl aren't present there, yet.
+			//if ( line->is_schedule_updated() )
+			karte_t * world = line->get_besitzer()->get_welt();
+			if (!fpl->matches(world, line->get_schedule()))
 			{
 				// update all convoys of this line!
 				// update line schedule via tool!
@@ -45,7 +49,7 @@ void line_management_gui_t::infowin_event(const event_t *ev)
 				buf.printf( "g,%i,", line.get_id() );
 				fpl->sprintf_schedule( buf );
 				w->set_default_param(buf);
-				line->get_besitzer()->get_welt()->set_werkzeug( w, line->get_besitzer() );
+				world->set_werkzeug( w, line->get_besitzer() );
 				// since init always returns false, it is save to delete immediately
 				delete w;
 			}
