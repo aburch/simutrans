@@ -165,7 +165,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	int btn;
 	for (btn = 0; btn < MAX_CONVOI_COST; btn++) {
 		chart.add_curve( cost_type_color[btn], cnv->get_finance_history(), MAX_CONVOI_COST, btn, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2 );
-		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+BUTTON_SPACER)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), view.get_groesse().y+174+(BUTTON_HEIGHT+BUTTON_SPACER)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 		filterButtons[btn].add_listener(this);
 		filterButtons[btn].background = cost_type_color[btn];
 		filterButtons[btn].set_visible(false);
@@ -182,14 +182,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	}
 
 	chart.add_curve(cost_type_color[btn], (sint64*)physics_curves, 1,0, MAX_MONTHS, cost_type_money[btn], false, true, cost_type_money[btn]*2);
-	filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), 230+(BUTTON_HEIGHT+BUTTON_SPACER)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	filterButtons[btn].init(button_t::box_state, cost_type[btn], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(btn%4), view.get_groesse().y+174+(BUTTON_HEIGHT+BUTTON_SPACER)*(btn/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	filterButtons[btn].add_listener(this);
 	filterButtons[btn].background = cost_type_color[btn];
 	filterButtons[btn].set_visible(false);
 	filterButtons[btn].pressed = false;
 	add_komponente(filterButtons + btn);
 #endif
-	statistics_height = 16 + 230+(BUTTON_HEIGHT+2)*(btn/4 + 1) - chart.get_pos().y;
+	statistics_height = 16 + view.get_groesse().y+174+(BUTTON_HEIGHT+2)*(btn/4 + 1) - chart.get_pos().y;
 
 	add_komponente(&chart);
 	add_komponente(&view);
