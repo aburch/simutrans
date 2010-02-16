@@ -344,13 +344,11 @@ bool gebaeude_t::sync_step(long delta_t)
 
 
 
-void
-gebaeude_t::calc_bild()
+void gebaeude_t::calc_bild()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	// snow image?
-	snow = (get_pos().z + (!gr->ist_bruecke()  ||  gr->get_grund_hang()==hang_t::flach ? 0 : 1)>= welt->get_snowline())
-	         &&  (!gr->ist_tunnel()  ||  gr->ist_karten_boden());
+	snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z+(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
 	// need no ground?
 	if(!tile->get_besch()->ist_mit_boden()  ||  !tile->has_image()) {
 		grund_t *gr=welt->lookup(get_pos());
