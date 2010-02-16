@@ -423,7 +423,7 @@ void weg_t::calc_bild()
 	}
 
 	// use snow image if above snowline and above ground
-	bool snow = (get_pos().z >= welt->get_snowline());
+	bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
 	flags &= ~IS_SNOW;
 	if(  snow  ) {
 		flags |= IS_SNOW;

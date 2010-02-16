@@ -77,6 +77,10 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	uint8 is_factory:1;
+	/**
+	 * if true show snow image
+	 */
+	bool snow:1;
 
 	/**
 	 * Initializes all variables with save, usable values

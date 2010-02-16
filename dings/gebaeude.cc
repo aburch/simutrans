@@ -55,6 +55,7 @@ void gebaeude_t::init()
 	sync = false;
 	count = 0;
 	zeige_baugrube = false;
+	snow = false;
 }
 
 
@@ -308,7 +309,7 @@ bool gebaeude_t::sync_step(long delta_t)
 			if(!zeige_baugrube)  {
 
 				// old positions need redraw
-				if(  tile->is_hintergrund_phases( get_pos().z>=welt->get_snowline() )  ) {
+				if(  tile->is_hintergrund_phases( snow )  ) {
 					// the background is animated
 					set_flag(ding_t::dirty);
 					// we must take care of the tiles above
@@ -322,10 +323,10 @@ bool gebaeude_t::sync_step(long delta_t)
 				}
 				else {
 					// try foreground
-					image_id bild = tile->get_vordergrund(count, get_pos().z>=welt->get_snowline());
+					image_id bild = tile->get_vordergrund(count, snow);
 					mark_image_dirty(bild,0);
 					// next phase must be marked dirty too ...
-					bild = tile->get_vordergrund( count+1>=tile->get_phasen()?0:count+1, get_pos().z>=welt->get_snowline());
+					bild = tile->get_vordergrund( count+1>=tile->get_phasen()?0:count+1, snow);
 					mark_image_dirty(bild,0);
 				}
 
@@ -346,6 +347,10 @@ bool gebaeude_t::sync_step(long delta_t)
 void
 gebaeude_t::calc_bild()
 {
+	grund_t *gr=welt->lookup(get_pos());
+	// snow image?
+	snow = (get_pos().z + (!gr->ist_bruecke()  ||  gr->get_grund_hang()==hang_t::flach ? 0 : 1)>= welt->get_snowline())
+	         &&  (!gr->ist_tunnel()  ||  gr->ist_karten_boden());
 	// need no ground?
 	if(!tile->get_besch()->ist_mit_boden()  ||  !tile->has_image()) {
 		grund_t *gr=welt->lookup(get_pos());
@@ -385,7 +390,7 @@ gebaeude_t::get_bild() const
 		return skinverwaltung_t::construction_site->get_bild_nr(0);
 	}
 	else {
-		return tile->get_hintergrund(count, 0, get_pos().z>=welt->get_snowline());
+		return tile->get_hintergrund(count, 0, snow);
 	}
 }
 
@@ -396,7 +401,7 @@ gebaeude_t::get_outline_bild() const
 {
 	if(umgebung_t::hide_buildings!=0  &&  umgebung_t::hide_with_transparency  &&  !zeige_baugrube) {
 		// opaque houses
-		return tile->get_hintergrund(count, 0, get_pos().z>=welt->get_snowline());
+		return tile->get_hintergrund(count, 0, snow);
 	}
 	return IMG_LEER;
 }
@@ -430,7 +435,7 @@ gebaeude_t::get_bild(int nr) const
 	}
 	else {
 		// winter for buildings only above snowline
-		return tile->get_hintergrund(count, nr, get_pos().z>=welt->get_snowline());
+		return tile->get_hintergrund(count, nr, snow);
 	}
 }
 
@@ -447,7 +452,7 @@ gebaeude_t::get_after_bild() const
 	}
 	else {
 		// Show depots, station buildings etc.
-		return tile->get_vordergrund(count, get_pos().z>=welt->get_snowline());
+		return tile->get_vordergrund(count, snow);
 	}
 }
 
