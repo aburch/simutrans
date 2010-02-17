@@ -1224,11 +1224,21 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	fabrikbauer_t::neue_karte(this);
 	// new system ...
 	const int max_display_progress=16+einstellungen->get_anzahl_staedte()*4+einstellungen->get_land_industry_chains();
+	int chains=0;
 	for(  sint32 i=0;  i<einstellungen->get_land_industry_chains();  i++  ) {
-		fabrikbauer_t::increase_industry_density( this, false );
+		if (fabrikbauer_t::increase_industry_density( this, false )==0) {
+			// building industry chain should fail max 10 times
+			if (i-chains > 10) {
+				break;
+			}
+		}
+		else {
+			chains++;
+		}
 		int progress_count = 16 + einstellungen->get_anzahl_staedte()*4 + i;
 		display_progress(progress_count, max_display_progress );
 	}
+	einstellungen->set_land_industry_chains(chains);
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// tourist attractions
