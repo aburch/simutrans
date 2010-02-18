@@ -3434,6 +3434,7 @@ wkz_roadsign_t::wkz_roadsign_t() : werkzeug_t()
 	signal_spacing = 2;
 	remove_intermediate_signals = true;
 	replace_other_signals = true;
+	click_count = 0;
 }
 
 
@@ -3470,6 +3471,7 @@ bool wkz_roadsign_t::init( karte_t *welt, spieler_t * sp)
 	}
 
 	world->show_distance = start = end = koord3d::invalid;
+	click_count = 0;
 	cleanup();
 
 	return true;
@@ -3478,25 +3480,6 @@ bool wkz_roadsign_t::init( karte_t *welt, spieler_t * sp)
 const char *wkz_roadsign_t::move(karte_t *welt, spieler_t *sp, uint16 /*buttonstate*/, koord3d k )
 {
 	DBG_MESSAGE("wkz_roadsign::move()","called on %d,%d", k.x, k.y);
-	if( win_get_magic((long)this) ) {
-		init( welt, sp );
-	}
-
-	besch = roadsign_t::find_besch(default_param);
-	grund_t *gr = wkz_intern_koord_to_weg_grund(sp, welt, k, besch->get_wtyp());
-
-	if( gr ) {
-		if(  start == koord3d::invalid ) {
-			welt->show_distance = start = gr->get_pos();
-		}
-		else if(  !wkz_roadsign_bauer  )
-		{
-			// Show symbol if player points to an other tile:
-			wkz_roadsign_bauer = new zeiger_t(welt, start, sp);
-			wkz_roadsign_bauer->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
-			welt->lookup(start)->obj_add(wkz_roadsign_bauer);
-		}
-	}
 	return NULL;
 }
 
@@ -3504,37 +3487,48 @@ const char *wkz_roadsign_t::move(karte_t *welt, spieler_t *sp, uint16 /*buttonst
 const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	DBG_MESSAGE("wkz_roadsign::work()","called on %d,%d", k.x, k.y);
-	
+
 	const roadsign_besch_t * besch = roadsign_t::find_besch(default_param);
+	grund_t* gr = wkz_intern_koord_to_weg_grund(sp, welt, k, besch->get_wtyp());
 
-	if( win_get_magic((long)this) ) {
-		init( welt, sp );
-	}
-	else {
-		cleanup();
-	}
-
-	grund_t* gr_end = wkz_intern_koord_to_weg_grund(sp, welt, k, besch->get_wtyp());
-	if(  !gr_end  ) {
+	if(  !gr  ) {
 		init( welt, sp );
 		// Will produce the right error msg:
-		return place_sign_intern( welt, sp, gr_end, besch );
+		return place_sign_intern( welt, sp, gr, besch );
 	}
-	end = gr_end->get_pos();
 
-	if(  start == koord3d::invalid  &&  event_get_last_control_shift() == 2) {
-		// CTRL pressed and no start => set start.
-		start = end;
-		wkz_roadsign_bauer = new zeiger_t(welt, start, sp);
-		wkz_roadsign_bauer->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
-		welt->lookup(start)->obj_add(wkz_roadsign_bauer);
-		return NULL;
+	if (start == koord3d::invalid || event_get_last_control_shift() == 2)
+	{
+		// first click
+		start = gr->get_pos();
+		end = koord3d::invalid;
+		click_count = 1;
+	}
+	else
+	{
+		// second click
+		end = gr->get_pos();
+		click_count = 2;
 	}
 
 	if(  start == koord3d::invalid  ||  start == end  ||  !besch->is_signal()  ) {
 		// Simple click => just place a signal.
 		init(welt, sp);
-		return place_sign_intern( welt, sp, gr_end, besch );
+		return place_sign_intern( welt, sp, gr, besch );
+	}
+
+	if ( click_count == 1 )
+	{
+		wkz_roadsign_bauer = new zeiger_t(welt, start, sp);
+		wkz_roadsign_bauer->set_bild( skinverwaltung_t::bauigelsymbol->get_bild_nr(0) );
+		welt->lookup(start)->obj_add(wkz_roadsign_bauer);
+		return NULL;
+	}
+	if (click_count != 2 || end == koord3d::invalid)
+	{
+		init( welt, sp );
+		// Will produce the right error msg:
+		return place_sign_intern( welt, sp, gr, besch );
 	}
 
 	vehikel_besch_t vehikel_besch( besch->get_wtyp(), 500, vehikel_besch_t::diesel );
@@ -3543,11 +3537,9 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	if( sign_route.calc_route(world, start, end, test_driver, 0, 0) ) {
 		signal_spacing_frame_t* dialogue = new signal_spacing_frame_t( this );
 		create_win( dialogue, w_info, (long)this);
+		return NULL;
 	}
-	else {
-		return "Ways not connected";
-	}
-	return NULL;
+	return "Ways not connected";
 }
 
 /*
@@ -3558,7 +3550,7 @@ void wkz_roadsign_t::set_values( uint8 spacing, bool remove, bool replace )
 	signal_spacing = spacing;
 	remove_intermediate_signals = remove;
 	replace_other_signals = replace;
-	besch = roadsign_t::find_besch(default_param);
+	const roadsign_besch_t* besch = roadsign_t::find_besch(default_param);
 
 	for( uint32 i = 0; i < marked.get_count(); i++ ) {
 		marked[i]->mark_image_dirty( marked[i]->get_bild(), 0 );
@@ -3605,13 +3597,15 @@ const char *wkz_roadsign_t::place_signs()
 
 	uint32 next_signal_idx = 0;
 	koord3d next_signal_pos = marked[next_signal_idx]->get_pos();
+	const roadsign_besch_t * besch = roadsign_t::find_besch(default_param);
+
 	
 	for(  uint16 i = 0;  i <= sign_route.get_count()-1;  i++  ) {
 		grund_t* gr = world->lookup( sign_route.position_bei(i) );
 		weg_t *weg = gr->get_weg(besch->get_wtyp());
 
 		if(  sign_route.position_bei(i) == next_signal_pos  ) {
-			error_text =  place_sign_intern( world, player, gr );
+			error_text =  place_sign_intern( world, player, gr, besch );
 			if(  error_text  ) {
 				if(  replace_other_signals  ) {
 					roadsign_t* rs = gr->find<signal_t>();
@@ -3621,7 +3615,7 @@ const char *wkz_roadsign_t::place_signs()
 						delete rs;
 						weg->count_sign();
 					};
-					error_text =  place_sign_intern( world, player, gr );
+					error_text =  place_sign_intern( world, player, gr, besch );
 					if(  error_text  ) {
 						return error_text;
 					}
@@ -3665,10 +3659,10 @@ const char *wkz_roadsign_t::place_signs()
 
 const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, grund_t* gr, const roadsign_besch_t* b )
 {
-	if(b == NULL)
-	{
-		b = besch;
-	}
+	//if(b == NULL)
+	//{
+	//	b = besch;
+	//}
 	if(b == NULL) 
 	{
 		dbg->fatal("wkz_roadsign_t::work()","No roadsign \"%s\"", default_param );
@@ -3688,9 +3682,9 @@ const char *wkz_roadsign_t::place_sign_intern( karte_t *welt, spieler_t *sp, gru
 
 	if(gr) {
 		// get the sign dirction
-		weg_t *weg = gr->get_weg( besch->get_wtyp()!=tram_wt ? besch->get_wtyp() : track_wt);
+		weg_t *weg = gr->get_weg( b->get_wtyp()!=tram_wt ? b->get_wtyp() : track_wt);
 		signal_t *s = gr->find<signal_t>();
-		if(s  &&  s->get_besch()!=besch) {
+		if(s  &&  s->get_besch()!=b) {
 			// only one sign per tile
 			return error;
 		}
