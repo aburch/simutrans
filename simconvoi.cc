@@ -2453,10 +2453,11 @@ convoi_t::rdwr(loadsave_t *file)
 			financial_history[k][CONVOI_DISTANCE] = 0;
 		}
 	}
-	else if(file->get_version() < 102003 || (file->get_version() < 102002 && file->get_experimental_version() < 7))
+//BG: superfluous 102002 check:	else if(file->get_version() <= 102002 || (file->get_version() < 102002 && file->get_experimental_version() < 7))
+	else if(file->get_version() <= 102002 || file->get_experimental_version() < 7)
 	{
 		// load statistics
-		for (int j = 0; j<CONVOI_DISTANCE; j++) 
+		for (int j = 0; j<7; j++) 
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
@@ -2472,8 +2473,12 @@ convoi_t::rdwr(loadsave_t *file)
 				file->rdwr_longlong(financial_history[k][j], " ");
 			}
 		}
-		for (int k = MAX_MONTHS-1; k>=0; k--) {
-			financial_history[k][CONVOI_DISTANCE] = 0;
+		for (int j = 7; j<MAX_CONVOI_COST; j++) 
+		{
+			for (int k = MAX_MONTHS-1; k>=0; k--) 
+			{
+				financial_history[k][j] = 0;
+			}
 		}
 	}
 	else
@@ -2511,7 +2516,7 @@ convoi_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_longlong( total_distance_traveled, "" );
 	}
-	else if(file->get_version() >= 102002)
+	else if(file->get_version() > 102002)
 	{
 		//Simutrans-Standard save - this value is in tiles, not km. Convert.
 		sint64 tile_distance;
