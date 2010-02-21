@@ -20,6 +20,8 @@ loadsave_t::mode_t loadsave_t::save_mode = bzip2;	// default to use for saving
 
 loadsave_t::loadsave_t() : filename()
 {
+	mode = 0;
+	saving = false;
 	fp = NULL;
 	bzfp = NULL;
 	bse = BZ_OK+1;
@@ -63,7 +65,7 @@ bool loadsave_t::rd_open(const char *filename)
 				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
 					buf[i] = lsgetc();
 				}
-				ok = true;
+				ok = bse==BZ_OK;
 			}
 		}
 		// BZ-Header but wrong data ...
@@ -74,8 +76,7 @@ bool loadsave_t::rd_open(const char *filename)
 	}
 
 	if(  mode!=bzip2  ) {
-		BZ2_bzReadClose( &bse, bzfp );
-		fclose( fp );
+		fclose(fp);
 		// and now with zlib ...
 		fp = (FILE *)gzopen(filename, "rb");
 		if(fp==NULL) {
@@ -161,15 +162,13 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	else if(  is_bzip2()  ) {
 		// XML or bzip ...
 		fp = fopen(filename, "wb");
-		if(  is_bzip2()  ) {
-			// the additional magic for bzip2
-			bse = BZ_OK+1;
-			bzfp = NULL;
-			if(  fp  ) {
-				bzfp = BZ2_bzWriteOpen( &bse, fp, 9, 0, 30 /* default is 30 */ );
-				if(  bse!=BZ_OK  ) {
-					return false;
-				}
+		// the additional magic for bzip2
+		bse = BZ_OK+1;
+		bzfp = NULL;
+		if(  fp  ) {
+			bzfp = BZ2_bzWriteOpen( &bse, fp, 9, 0, 30 /* default is 30 */ );
+			if(  bse!=BZ_OK  ) {
+				return false;
 			}
 		}
 	}
@@ -231,7 +230,8 @@ const char *loadsave_t::close()
 {
 	const char *success = NULL;
 	if(fp != NULL) {
-		if(  is_xml()  ) {
+		if(  is_xml()  &&  saving  &&  fp!=NULL  &&  (!is_bzip2()  ||  bse==BZ_OK)  ) {
+			// only write when close and no error occurred
 			const char *end = "\n</Simutrans>\n";
 			write( end, strlen(end) );
 		}
