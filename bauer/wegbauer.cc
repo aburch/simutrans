@@ -1509,16 +1509,14 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 	}
 	// now try a straight line with no crossings and no curves at the end
 	const int dist=koord_distance( ziel, start );
+	grund_t *from = welt->lookup(start)->get_kartenboden();
 	for(  int i=0;  i<=dist;  i++  ) {
-		gr=welt->lookup(start+zv*i)->get_kartenboden();
-		// no slopes!
-		if(gr->get_grund_hang()!=0) {
+		grund_t *to = welt->lookup(start+zv*i)->get_kartenboden();
+		long dummy;
+		if (!is_allowed_step(from, to, &dummy)) {
 			return false;
 		}
-		if(gr->hat_wege()  &&  !gr->hat_weg(air_wt)) {
-			// cannot cross another way
-			return false;
-		}
+		from = to;
 	}
 	// now we can build here
 	route.clear();
