@@ -102,7 +102,9 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 			// read for height times
 			for (y = top; y < h; y++) {
 				fgets(str, sizeof(str), fin);
-				dsp_decode_bdf_data_row(data + char_nr*CHARACTER_LEN, y, xoff, g_width, str);
+				if(  y>=0  ) {
+					dsp_decode_bdf_data_row(data + char_nr*CHARACTER_LEN, y, xoff, g_width, str);
+				}
 			}
 			continue;
 		}
@@ -111,15 +113,6 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 		if (strncmp(str, "ENDCHAR", 7) == 0) {
 			uint8 start_h=0, i;
 
-			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-1] = g_width;
-			if (d_width == 0) {
-#ifdef DEBUG
-				// no screen width: should not happen, but we can recover
-				fprintf(stderr, "BDF warning: %i has no screen width assigned!\n", char_nr);
-#endif
-				d_width = g_width + 1;
-			}
-			screen_w[char_nr] = d_width;
 			// find the start offset
 			for( i=0;  i<6;  i++  ) {
 				if(data[CHARACTER_LEN*char_nr + i*2]==0  &&  (data[CHARACTER_LEN*char_nr + 12+i]&0xF0)==0) {
@@ -139,9 +132,17 @@ static int dsp_read_bdf_glyph(FILE *fin, uint8 *data, uint8 *screen_w, int char_
 				g_width = 0;
 			}
 			data[CHARACTER_LEN * char_nr + CHARACTER_LEN-2] = start_h;
+			data[CHARACTER_LEN*char_nr + CHARACTER_LEN-1] = g_width;
+			if (d_width == 0) {
+#ifdef DEBUG
+				// no screen width: should not happen, but we can recover
+				fprintf(stderr, "BDF warning: %i has no screen width assigned!\n", char_nr);
+#endif
+				d_width = g_width + 1;
+			}
+			screen_w[char_nr] = d_width;
 			// finished
 			return char_nr;
-			continue;
 		}
 	}
 	return 0;
@@ -204,7 +205,8 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		screen_widths[0] = 8;
 		data[0] = 0;
 		data[1] = 0x7E;
-		for (h = 2; h < f_height - 2; h++) {
+		const int real_font_height = (  f_height>12  ?  12  :  f_height  );
+		for (h = 2; h < real_font_height - 2; h++) {
 			data[h] = 0x42;
 		}
 		data[h++] = 0x7E;
