@@ -1696,6 +1696,7 @@ wegbauer_t::baue_tunnel_und_bruecken()
 	}
 }
 
+
 /*
  * returns the amount needed to built this way
  * author prissi
@@ -1787,12 +1788,12 @@ sint64 wegbauer_t::calc_costs()
 				}
 				if(start->get_grund_hang()==0  ||  start->get_grund_hang()==hang_typ(zv*(-1))) {
 					// bridge
-					costs += bruecke_besch->get_preis()*(koord_distance(route[i], route[i+1])+1);
+					costs += bruecke_besch->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
 					continue;
 				}
 				else {
 					// tunnel
-					costs += tunnel_besch->get_preis()*(koord_distance(route[i], route[i+1])+1);
+					costs += tunnel_besch->get_preis()*(sint64)(koord_distance(route[i], route[i+1])+1);
 					continue;
 				}
 			}
@@ -1803,10 +1804,8 @@ sint64 wegbauer_t::calc_costs()
 }
 
 
-
 // adds the ground before underground construction
-bool
-wegbauer_t::baue_tunnelboden()
+bool wegbauer_t::baue_tunnelboden()
 {
 	long cost = 0;
 	for(uint32 i=0; i<get_count(); i++) {
@@ -1865,8 +1864,7 @@ wegbauer_t::baue_tunnelboden()
 
 
 
-void
-wegbauer_t::baue_elevated()
+void wegbauer_t::baue_elevated()
 {
 	for(  uint32 i=0;  i<get_count();  i++  ) {
 
