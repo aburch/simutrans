@@ -2750,17 +2750,14 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	// underground is checked in work(); if underground only simple stations are allowed
 	// get valid ground
 	grund_t *bd = wkz_intern_koord_to_weg_grund( sp==welt->get_spieler(1)?NULL:sp,welt,k,wegtype);
-	if(!bd  &&  track_wt) {
-		bd = wkz_intern_koord_to_weg_grund(sp==welt->get_spieler(1)?NULL:sp,welt,k,monorail_wt);
-	}
 
 	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach) {
 		// only flat tiles, only one stop per map square
-		return p_error;
+		return "No suitable ground!";
 	}
 
 	if(bd->ist_tunnel()  &&  bd->ist_karten_boden()) {		// do not build on tunnel entries
-		return false;
+		return "No suitable ground!";
 	}
 
 	if(bd->get_depot()) {
