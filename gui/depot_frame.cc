@@ -566,7 +566,10 @@ void depot_frame_t::add_to_vehicle_list(const vehikel_besch_t *info)
 void depot_frame_t::build_vehicle_lists()
 {
 	if(depot->get_vehicle_type()==NULL) {
-		// there are tracks etc. but now vehicles => do nothing
+		// there are tracks etc. but no vehicles => do nothing
+		// at least initialize some data
+		update_data();
+		update_tabs();
 		return;
 	}
 
