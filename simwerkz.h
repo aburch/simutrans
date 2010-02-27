@@ -334,13 +334,14 @@ class wkz_roadsign_t : public werkzeug_t {
 private:
 	koord3d start, end;
 	zeiger_t *wkz_roadsign_bauer;
-	const roadsign_besch_t* besch;
+	//const roadsign_besch_t* besch;
 	karte_t* world;
 	spieler_t* player;
-	const char *place_sign_intern( karte_t *, spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
+	const char *place_sign_intern( karte_t *, spieler_t *, grund_t*, const roadsign_besch_t* b /*= NULL*/);
 	uint8 signal_spacing;
 	vector_tpl<zeiger_t*> marked;
 	route_t sign_route;
+	uint8 click_count;
 	 
 	bool remove_intermediate_signals, replace_other_signals;
 	void cleanup();
