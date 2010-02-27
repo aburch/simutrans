@@ -4128,10 +4128,14 @@ bool convoi_t::has_no_cargo() const
 uint16 convoi_t::get_tile_length() const
 {
 	uint16 tiles=0;
-	for(uint8 i=0;  i<anz_vehikel;  i++) {
+	// the last vehicle does not count!
+	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
 		tiles += fahr[i]->get_besch()->get_length();
 	}
-	return (tiles+16-1)/16;
+	// add 127/256 tile to account for the driving in stations in north/west direction
+	// see at the end of vehikel_t::hop()
+	return (tiles*16 + 256-1 + 127)/256;
+	// was originally (tiles+16-1)/16;
 }
 
 
