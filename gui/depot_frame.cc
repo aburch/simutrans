@@ -425,7 +425,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 					if (veh == NULL || upgrade_now) 
 					{
 						// nothing there => we buy it
-						veh = depot->buy_vehicle(vb, convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade);
+						veh = depot->buy_vehicle(vb/*, convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade*/);
 						if(upgrade_now)
 						{
 							//Upgrading, so vehicles must be *replaced*.

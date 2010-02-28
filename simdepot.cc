@@ -194,21 +194,70 @@ bool depot_t::can_convoi_start(convoihandle_t /*cnv*/) const
 }
 
 
-vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info, bool upgrade)
+vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 {
 	// Offen: prüfen ob noch platz im depot ist???
 	// "Hours: check whether there is space in the depot?" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
-	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, upgrade ); //"besitzer" = "owner" (Google)
+	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, false); //"besitzer" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
+	vehicles.append(veh);
+	DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
+	return veh;
+}
 
-	if(!upgrade)
+void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
+{
+	if(!cnv.is_bound())
 	{
-		vehicles.append(veh);
-		DBG_DEBUG("depot_t::buy_vehicle()", "appended %i vehicle", vehicles.get_count());
-		return veh;
+		return;
 	}
-	return NULL;
+
+	for(uint16 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+	{
+		for(uint8 c = 0; c < cnv->get_vehikel(i)->get_besch()->get_upgrades_count(); c ++)
+		{
+			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c)->get_name() == vb->get_name())
+			{
+				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, vb, true); 
+				cnv->upgrade_vehicle(i, new_veh);
+				if(cnv->get_vehikel(i)->get_besch()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_besch()->get_leistung() != 0)
+				{
+					//We need to upgrade tenders, too.	
+					vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+					cnv->upgrade_vehicle(i + 1, new_veh_2);
+					// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
+					// The below ought work more accurately, but does not work properly, for some reason.
+
+					/*if(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() >= c && cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() > 0)
+					{
+						cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades(c));
+					}	
+					else if(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() > 0)
+					{
+						cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades(0));
+					}*/					
+				}		
+				//Check whether this is a Garrett type vehicle (this is code for the exceptional case where a Garrett is upgraded to another Garrett)
+				if(cnv->get_vehikel(0)->get_besch()->get_leistung() == 0 && cnv->get_vehikel(0)->get_besch()->get_zuladung() == 0)
+				{
+					// Possible Garrett
+					const uint8 count = cnv->get_vehikel(0)->get_besch()->get_nachfolger_count();
+					if(count > 0 && cnv->get_vehikel(1)->get_besch()->get_leistung() > 0 && cnv->get_vehikel(1)->get_besch()->get_nachfolger_count() > 0)
+					{
+						// Garrett detected - need to upgrade all three vehicles.
+						vehikel_t* new_veh_2 = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+						cnv->upgrade_vehicle(i + 1, new_veh_2);
+						vehikel_t* new_veh_3 = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, new_veh->get_besch()->get_nachfolger(0), true); 
+						cnv->upgrade_vehicle(i + 2, new_veh_3);
+					}
+				}
+				// Only upgrade one at a time.
+				// Could add UI feature in future to allow upgrading all at once.
+				return;					
+			}		
+		}				
+	}
 }
 
 

@@ -686,6 +686,10 @@ public:
 	 */
 	inline vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
 
+	// Upgrades a vehicle in the convoy.
+	// @author: jamespetts, February 2010
+	void upgrade_vehicle(uint16 i, vehikel_t* v);
+
 	/**
 	* Adds a vehicel at the start or end of the convoi.
 	* @author Hj. Malthaner

@@ -138,7 +138,11 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehikel_t* buy_vehicle(const vehikel_besch_t* info, bool upgrade);
+	vehikel_t* buy_vehicle(const vehikel_besch_t* info);
+
+	// This upgrades a vehicle in the convoy to the type specified.
+	// @author: jamespetts, February 2010
+	void upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb);
 
 	/**
 	 * Sell a vehicle from the vehicle list.

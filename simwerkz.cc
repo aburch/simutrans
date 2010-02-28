@@ -5373,11 +5373,25 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 								// We add the oldest vehicle - newer stay for selling
 								const vehikel_besch_t* vb = new_vehicle_info.at(nr);
 								vehikel_t* veh = depot->find_oldest_newest(vb, true);
-								if (veh == NULL) {
-									// nothing there => we buy it
-									veh = depot->buy_vehicle(vb, tool == 'u');
+								if (veh == NULL && tool != 'u')
+								{
+									// If there are no matching vehicles in the depot,
+									// a new vehicle needs to be purchased.
+
+									// If upgrading, we assume that we want to upgrade
+									// rather than use vehicles already in the depot.
+
+									veh = depot->buy_vehicle(vb);
 								}
-								depot->append_vehicle(cnv, veh, tool=='i');
+
+								if(tool == 'u')
+								{
+									depot->upgrade_vehicle(cnv, vb);
+								}
+								else
+								{
+									depot->append_vehicle(cnv, veh, tool=='i');
+								}
 							}
 						}
 					}

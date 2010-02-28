@@ -826,7 +826,7 @@ void convoi_t::step()
 									{
 										veh = remove_vehikel_bei(j);
 										veh->set_besch(replacing_vehicles[i]);
-										dep->buy_vehicle(veh->get_besch(), true);
+										dep->buy_vehicle(veh->get_besch()/*, true*/);
 										goto end_loop;
 									}
 								}
@@ -835,7 +835,7 @@ end_loop:
 							if(veh == NULL)
 							{
 								// Fourth - if all else fails, buy from new (expensive).
-								veh = dep->buy_vehicle(replacing_vehicles[i], false);
+								veh = dep->buy_vehicle(replacing_vehicles[i]/*, false*/);
 							}
 						}
 						
@@ -1501,6 +1501,101 @@ DBG_MESSAGE("convoi_t::add_vehikel()","now %i of %i total vehikels.",anz_vehikel
 	return true;
 }
 
+void convoi_t::upgrade_vehicle(uint16 i, vehikel_t* v)
+{
+	// Adapted from the add/remove vehicle functions
+	// @author: jamespetts, February 2010
+
+DBG_MESSAGE("convoi_t::upgrade_vehicle()","at pos %i of %i totals.",i,max_vehicle);
+	
+	// now append
+	v->set_convoi(this);
+	vehikel_t* old_vehicle = fahr[i];
+	fahr[i] = v;
+
+	// Amend the name if the name is the default name and it is the first vehicle
+	// being replaced.
+
+	if(i == 0)
+	{
+		char buf[128];
+		name_offset = sprintf(buf,"(%i) ",self.get_id() );
+		tstrncpy(buf + name_offset, translator::translate(old_vehicle->get_besch()->get_name()), 116);
+		if(!strcmp(get_name(), buf))
+		{
+			set_name(v->get_besch()->get_name());
+		}
+	}
+
+	// Added by		: Knightly
+	// Adapted from : simline_t
+	// Purpose		: Try to update supported goods category of this convoy
+	if (v->get_fracht_max() > 0) 
+	{
+		const ware_besch_t *ware_type = v->get_fracht_typ();
+		if (ware_type != warenbauer_t::nichts)
+			goods_catg_index.append_unique(ware_type->get_catg_index(), 1);
+	}
+
+	const vehikel_besch_t *info = v->get_besch();
+	// still requires electrification?
+	if(is_electric) {
+		is_electric = false;
+		for(unsigned i=0; i<anz_vehikel; i++) {
+			if(fahr[i]->get_besch()->get_leistung()) {
+				is_electric |= fahr[i]->get_besch()->get_engine_type()==vehikel_besch_t::electric;
+			}
+		}
+	}
+
+	if(info->get_leistung()) {
+		is_electric |= info->get_engine_type()==vehikel_besch_t::electric;
+	}
+
+	min_top_speed = calc_min_top_speed(fahr, anz_vehikel);
+	
+	// Add power and weight of the new vehicle
+	sum_leistung += info->get_leistung();
+	//if(info->get_engine_type() == vehikel_besch_t::steam)
+	//{
+	//	power_from_steam += info->get_leistung();
+	//	power_from_steam_with_gear += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	//}
+	sum_gear_und_leistung += info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	sum_gewicht += info->get_gewicht();
+	sum_gesamtgewicht = sum_gewicht;
+
+	// Remove power and weight of the old vehicle
+	info = old_vehicle->get_besch();
+	sum_leistung -= info->get_leistung();
+	//if(info->get_engine_type() == vehikel_besch_t::steam)
+	//{
+	//	power_from_steam -= info->get_leistung();
+	//	power_from_steam_with_gear -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	//}
+	sum_gear_und_leistung -= info->get_leistung() * info->get_gear() * welt->get_einstellungen()->get_global_power_factor();
+	sum_gewicht -= info->get_gewicht();
+
+	calc_loading();
+	freight_info_resort = true;
+	recalc_catg_index();
+
+	// check for obsolete
+	if(has_obsolete) 
+	{
+		has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
+	}
+
+	// der convoi hat jetzt ein neues ende
+	set_erstes_letztes();
+
+	heaviest_vehicle = calc_heaviest_vehicle();
+	longest_loading_time = calc_longest_loading_time();
+	
+	delete old_vehicle;
+
+DBG_MESSAGE("convoi_t::upgrade_vehicle()","now %i of %i total vehikels.",i,max_vehicle);
+}
 
 vehikel_t *convoi_t::remove_vehikel_bei(uint16 i)
 {
@@ -3709,11 +3804,11 @@ sint32 convoi_t::get_per_kilometre_running_cost() const
 
 uint32 convoi_t::get_fixed_maintenance() const
 {
-	uint32 running_cost = 0;
+	uint32 maint = 0;
 	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) {
-		running_cost += fahr[i]->get_fixed_maintenance(welt); 
+		maint += fahr[i]->get_fixed_maintenance(welt); 
 	}
-	return running_cost;
+	return maint;
 }
 /**
 * set line
