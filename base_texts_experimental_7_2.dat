@@ -1,0 +1,10 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 7.2.
+#
+# Author: jamespetts
+# Created: February 2010
+#
+obj=program_text
+name=pulls
+note=Used for showing the speed at which a vehicle can pull a certain load in the depot window.
+-
