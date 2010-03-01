@@ -3266,14 +3266,14 @@ void stadt_t::baue_gebaeude(const koord k)
 		if (sum_gewerbe > sum_industrie  &&  sum_gewerbe > sum_wohnung) {
 			h = hausbauer_t::get_gewerbe(0, current_month, cl);
 			if (h != NULL) {
-				arb += 20;
+				arb += h->get_level() * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) {
 			h = hausbauer_t::get_industrie(0, current_month, cl);
 			if (h != NULL) {
-				arb += 20;
+				arb += h->get_level() * 20;
 			}
 		}
 
@@ -3281,7 +3281,7 @@ void stadt_t::baue_gebaeude(const koord k)
 			h = hausbauer_t::get_wohnhaus(0, current_month, cl);
 			if (h != NULL) {
 				// will be aligned next to a street
-				won += 10;
+				won += h->get_level() * 10;
 			}
 		}
 
