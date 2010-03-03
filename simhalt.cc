@@ -314,10 +314,10 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
-	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	non_identical_schedules = new uint8[ max_categories ];
 
-	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
@@ -410,10 +410,10 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
-	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	non_identical_schedules = new uint8[ max_categories ];
 
-	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
@@ -3111,11 +3111,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		k.rdwr( file );
 	}
 
-	short count;
+	short count = warenbauer_t::get_max_catg_index();
 	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) {
-		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+		for(unsigned i=0; i<count; i++) {
 			vector_tpl<ware_t> *warray = waren[i];
 			if(warray) {
 				s = "y";	// needs to be non-empty
@@ -3210,7 +3210,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+		for(short i = 0; i < count; i ++)
 		{
 			if(file->is_saving())
 			{
@@ -3281,7 +3281,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_short(old_paths_timestamp, "");
 			file->rdwr_short(old_connexions_timestamp, "");
 			file->rdwr_bool(old_reschedule, "");
-			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+			for(short i = 0; i < count; i ++)
 			{
 				paths_timestamp[i] = old_paths_timestamp;
 				connexions_timestamp[i] = old_connexions_timestamp;
@@ -3290,7 +3290,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 		else
 		{
-			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+			for(short i = 0; i < count; i ++)
 			{
 				file->rdwr_short(paths_timestamp[i], "");
 				file->rdwr_short(connexions_timestamp[i], "");

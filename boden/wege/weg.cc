@@ -502,7 +502,7 @@ void weg_t::calc_bild()
 
 	if(ribi_t::ist_kurve(ribi)  &&  besch->has_diagonal_bild()) {
 		
-		set_diagonal();
+//		set_diagonal();
 
 		if(is_diagonal()) {
 			static int rekursion = 0;
@@ -607,6 +607,7 @@ void weg_t::laden_abschliessen()
 	if(sp  &&  besch) 
 	{
 		sint32 maint = besch->get_wartung();
+		set_diagonal();
 		if(is_diagonal())
 		{
 			maint /= 1.4;
