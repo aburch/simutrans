@@ -63,7 +63,7 @@ loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame
 
 	set_min_windowsize(get_fenstergroesse());
 	set_resizemode(diagonal_resize);
-	set_fenstergroesse(koord(360+36, get_fenstergroesse().y));
+	set_fenstergroesse(koord(640+36, get_fenstergroesse().y));
 
 }
 
@@ -93,17 +93,35 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	date[0] = 0;
 	struct stat  sb;
 	if(stat(path, &sb)==0) {
-		// add pak extension
-		size_t n = sprintf( date, "%s - ", test.get_pak_extension() );
-
-		// add the time too
+		// time 
 		struct tm *tm = localtime(&sb.st_mtime);
 		if(tm) {
-			strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
+			strftime(date, 18, "%Y-%m-%d %H:%M", tm);
 		}
 		else {
-			tstrncpy(date, "??.??.???? ??:??", 15);
+			tstrncpy(date, "??.??.???? ??:??", 16);
 		}
+		size_t n = strlen(date);
+
+		// file version 
+		uint32 v2 = test.get_version();
+		uint32 v1 = v2 / 1000;
+		uint32 v0 = v1 / 1000;
+		v1 %= 1000;
+		v2 %= 1000;
+		n += sprintf( date + n, " - v %d.%d.%d", v0, v1, v2);
+		uint32 v3 = test.get_experimental_version();
+		if (v3)
+		{
+			n += sprintf( date + n, " e %d", v3);
+		}
+		else
+		{
+			n += sprintf( date + n, "     ", v3);
+		}
+
+		// pak extension
+		sprintf( date + n, " - %s", test.get_pak_extension() );
 	}
 	return date;
 }
