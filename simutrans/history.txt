@@ -1,4 +1,3 @@
-Trunk:
 	CHANGE: default savegame now bzip2 (games 33% smaller)
 	ADD: Odometer and distance per month available for convois/lines
 	ADD: (gerw) built tunnel without ways
@@ -31,9 +30,10 @@ Trunk:
 	ADD: bridges/tunnel show their names in info window
 	ADD: (inspired by gerw) choose singals will not choose if on the route is another choose signal or and end_of_choose
 	FIX: text overflow in ground info
-	ADD: ground info and thing info title bar color will change according to ownership
+	CHANGE: ground info and thing info title bar color will change according to ownership
+	ADD: allow_buying_obsolete_vehicles in simuconf.tab can disallow buying obsolete vehicles for better balancing
 
-Release Candidate 102.2.2
+Release of 102.2.2 (r3131 on 8-Mar-2010):
 	FIX: connecting upslope to upper way works in sliced mode (r2949)
 	FIX: longer convoi's name could cause crash when entering depot
 	FIX: lines were never freed upon deletion

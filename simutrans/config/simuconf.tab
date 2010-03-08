@@ -267,6 +267,9 @@ left_to_right_graphs  = 0
 # starting_money[0]=1930,20000000,1
 # starting_money[1]=2030,35000000,1
 
+# allow buying obsolete vehicles (=1) in depot
+allow_buying_obsolete_vehicles = 1
+
 # Maintenance costs of buildings
 #maintenance_building = 2000
 

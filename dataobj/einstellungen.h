@@ -180,6 +180,9 @@ private:
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
 
+	// if true, you can buy obsolete stuff
+	bool allow_buying_obsolete_vehicles;
+
 	uint32 random_counter;
 	uint32 frames_per_second;	// only used in network mode ...
 	uint32 frames_per_step;
@@ -427,6 +430,10 @@ public:
 	// radius within factories belog to towns (usually set to 77 but 1/8 of map size may be meaningful too)
 	sint32 get_factory_worker_radius() const { return factory_worker_radius; }
 	void set_factory_worker_radius(sint32 n) { factory_worker_radius = n; }
+
+	// disallow using obsolete vehicles in depot
+	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
+	void set_allow_buying_obsolete_vehicles(bool n) { allow_buying_obsolete_vehicles = n; }
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }
