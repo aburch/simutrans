@@ -55,6 +55,7 @@ Release Candidate 102.2.2
 	FIX: wrong clipping of text
 	FIX: (TurfIt) really empty factories input even in consumption factors not 100%
 	FIX: stop factory building if more than 10 attempts failed
+	FIX: (Dwachs) display correct length in depot
 
 Release of 102.2.1 (r2928)
 	FIX: minimap was not updated when a bridge was deleted

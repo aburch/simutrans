@@ -4014,7 +4014,7 @@ void karte_t::laden(loadsave_t *file)
 	set_random_mode(LOAD_RANDOM);
 
 	if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()!=2) {
+		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()<2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
 			einstellungen->set_use_timeline( umgebung_t::default_einstellungen.get_use_timeline() );
 			DBG_DEBUG("karte_t::laden", "timeline: reset to %i", umgebung_t::default_einstellungen.get_use_timeline() );
