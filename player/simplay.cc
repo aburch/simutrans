@@ -1025,7 +1025,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	if(  file->get_version()>102002  ) {
+	if(  file->get_version()>102002 && file->get_experimental_version() != 7 ) {
 		file->rdwr_longlong(starting_money, "");
 	}
 
@@ -1128,7 +1128,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		simlinemgmt.rdwr(welt,file,this);
 	}
 
-	if(file->get_version()>102002) {
+	if(file->get_version()>102002 && file->get_experimental_version() != 7) {
 		// password hash
 		for(  int i=0;  i<20;  i++  ) {
 			file->rdwr_byte( pwd_hash[i], "" );

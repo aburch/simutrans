@@ -1464,14 +1464,14 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// since 102.2 there are static cities
-	if(file->get_version()>102001) {
+	if(file->get_version()>102001 ) {
 		file->rdwr_bool(allow_citygrowth,"");
 	}
 	else if(  file->is_loading()  ) {
 		allow_citygrowth = true;
 	}
 	// save townhall road position
-	if(file->get_version()>102002) {
+	if(file->get_version()>102002 && file->get_experimental_version() != 7 ) {
 		townhall_road.rdwr(file);
 	}
 	else if(  file->is_loading()  ) {
