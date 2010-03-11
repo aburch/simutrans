@@ -1203,7 +1203,13 @@ void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
 				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
+				int i = sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
+				uint32 max_weight = cnv->get_route()->get_max_weight();
+				uint32 cnv_weight = cnv->get_heaviest_vehicle();
+				if (cnv_weight > max_weight) {
+					buf[i++] = ' ';
+					i += sprintf(buf+i, translator::translate("Vehicle weighs %dt, but max weight is %dt"), cnv_weight, max_weight); 
+				}
 				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
 			}
 			break;
