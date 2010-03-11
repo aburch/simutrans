@@ -197,10 +197,10 @@ SectionEnd
 
 
 
-Section /o "pak128 (Freeware) 102.2" pak128
-  AddSize 57540
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-0/"
-  StrCpy $archievename "pak128-1.4.5--102.0.zip"
+Section /o "pak128 (Freeware) 102.2.2" pak128
+  AddSize 63445
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-2-2/"
+  StrCpy $archievename "pak128-1.4.6--102.2.zip"
   StrCpy $downloadname "Pak128"
   Call DownloadInstall
 SectionEnd
