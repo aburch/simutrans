@@ -33,6 +33,8 @@
 	CHANGE: ground info and thing info title bar color will change according to ownership
 	ADD: allow_buying_obsolete_vehicles in simuconf.tab can disallow buying obsolete vehicles for better balancing
 	FIX: forest density/size nor again reasonable dependent on map size
+	ADD: fatory stops can now get different names from building stops (%s factory %s %s must be new tranlated)
+
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

@@ -22,7 +22,7 @@ InstallDir $PROGRAMFILES\Simutrans
 XPStyle on
 
 ; Request application privileges for Windows Vista
-RequestExecutionLevel user
+RequestExecutionLevel admin
 
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "simutranssmall.bmp"
