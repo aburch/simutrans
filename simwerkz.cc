@@ -2918,17 +2918,14 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	// underground is checked in work(); if underground only simple stations are allowed
 	// get valid ground
 	grund_t *bd = wkz_intern_koord_to_weg_grund( sp==welt->get_spieler(1)?NULL:sp,welt,k,wegtype);
-	if(!bd  &&  track_wt) {
-		bd = wkz_intern_koord_to_weg_grund(sp==welt->get_spieler(1)?NULL:sp,welt,k,monorail_wt);
-	}
 
 	if(!bd  ||  bd->get_weg_hang()!=hang_t::flach) {
 		// only flat tiles, only one stop per map square
-		return p_error;
+		return "No suitable ground!";
 	}
 
 	if(bd->ist_tunnel()  &&  bd->ist_karten_boden()) {		// do not build on tunnel entries
-		return false;
+		return "No suitable ground!";
 	}
 
 	sint64 adjusted_cost;
@@ -5376,11 +5373,25 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 								// We add the oldest vehicle - newer stay for selling
 								const vehikel_besch_t* vb = new_vehicle_info.at(nr);
 								vehikel_t* veh = depot->find_oldest_newest(vb, true);
-								if (veh == NULL) {
-									// nothing there => we buy it
-									veh = depot->buy_vehicle(vb, tool == 'u');
+								if (veh == NULL && tool != 'u')
+								{
+									// If there are no matching vehicles in the depot,
+									// a new vehicle needs to be purchased.
+
+									// If upgrading, we assume that we want to upgrade
+									// rather than use vehicles already in the depot.
+
+									veh = depot->buy_vehicle(vb);
 								}
-								depot->append_vehicle(cnv, veh, tool=='i');
+
+								if(tool == 'u')
+								{
+									depot->upgrade_vehicle(cnv, vb);
+								}
+								else
+								{
+									depot->append_vehicle(cnv, veh, tool=='i');
+								}
 							}
 						}
 					}

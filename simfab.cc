@@ -717,7 +717,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		if(file->is_saving()) {
 			uint16 nr=fields.get_count();
 			file->rdwr_short(nr,"f");
-			if(  file->get_version()>102002  ) {
+			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					koord k = fields[i].location;
@@ -740,7 +740,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			uint16 idx;
 			file->rdwr_short(nr,"f");
 			fields.resize(nr);
-			if(  file->get_version()>102002  ) {
+			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);

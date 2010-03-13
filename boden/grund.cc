@@ -1089,8 +1089,12 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 		// just add the cost
 		if(sp && !ist_wasser()) {
-			sp->add_maintenance( weg->get_besch()->get_wartung());
+			//sp->add_maintenance( weg->get_besch()->get_wartung());
 			weg->set_besitzer( sp );
+			// Must call this here to ensure that the diagonal cost is
+			// set as appropriate.
+			// @author: jamespetts, Februrary 2010
+			weg->laden_abschliessen();
 		}
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway

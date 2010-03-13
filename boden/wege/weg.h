@@ -133,10 +133,11 @@ private:
 	uint8 way_constraints_permissive;
 	uint8 way_constraints_prohibitive;
 
+	bool diagonal;
 
 public:
-	weg_t(karte_t* welt, loadsave_t*) : ding_t(welt) { init(); }
-	weg_t(karte_t *welt) : ding_t(welt) { init(); }
+	weg_t(karte_t* welt, loadsave_t*) : ding_t(welt) { diagonal = false; init(); }
+	weg_t(karte_t *welt) : ding_t(welt) { diagonal = false; init(); }
 
 	virtual ~weg_t();
 
@@ -320,6 +321,9 @@ public:
 
 	void set_electrify(bool janein) {janein ? flags |= IS_ELECTRIFIED : flags &= ~IS_ELECTRIFIED;}
 	inline bool is_electrified() const {return flags&IS_ELECTRIFIED; }
+
+	inline bool is_diagonal() const { return diagonal; }
+	void set_diagonal();
 
 	void count_sign();
 	inline bool has_sign() const {return flags&HAS_SIGN; }

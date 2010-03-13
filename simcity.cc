@@ -1464,14 +1464,14 @@ void stadt_t::rdwr(loadsave_t* file)
 	}
 
 	// since 102.2 there are static cities
-	if(file->get_version()>102001) {
+	if(file->get_version()>102001 ) {
 		file->rdwr_bool(allow_citygrowth,"");
 	}
 	else if(  file->is_loading()  ) {
 		allow_citygrowth = true;
 	}
 	// save townhall road position
-	if(file->get_version()>102002) {
+	if(file->get_version()>102002 && file->get_experimental_version() != 7 ) {
 		townhall_road.rdwr(file);
 	}
 	else if(  file->is_loading()  ) {
@@ -3266,14 +3266,14 @@ void stadt_t::baue_gebaeude(const koord k)
 		if (sum_gewerbe > sum_industrie  &&  sum_gewerbe > sum_wohnung) {
 			h = hausbauer_t::get_gewerbe(0, current_month, cl);
 			if (h != NULL) {
-				arb += 20;
+				arb += h->get_level() * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) {
 			h = hausbauer_t::get_industrie(0, current_month, cl);
 			if (h != NULL) {
-				arb += 20;
+				arb += h->get_level() * 20;
 			}
 		}
 
@@ -3281,7 +3281,7 @@ void stadt_t::baue_gebaeude(const koord k)
 			h = hausbauer_t::get_wohnhaus(0, current_month, cl);
 			if (h != NULL) {
 				// will be aligned next to a street
-				won += 10;
+				won += h->get_level() * 10;
 			}
 		}
 

@@ -572,3 +572,8 @@ void fahrplan_gui_t::resize(const koord delta)
 
 	line_selector.set_max_size(koord(BUTTON_WIDTH*3, groesse.y-line_selector.get_pos().y -2*16));
 }
+
+void fahrplan_gui_t::map_rotate90( sint16 y_size)
+{
+	fpl->rotate90(y_size);
+}
