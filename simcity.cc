@@ -1368,9 +1368,6 @@ void stadt_t::step_bau()
  */
 void stadt_t::step_passagiere()
 {
-//	DBG_MESSAGE("stadt_t::step_passagiere()", "%s step_passagiere called (%d,%d - %d,%d)\n", name, li, ob, re, un);
-//	long t0 = get_current_time_millis();
-
 	// post oder pax erzeugen ?
 	const ware_besch_t* wtyp;
 	if (simrand(400) < 300) {
