@@ -22,9 +22,9 @@
 #include "../simimg.h"
 
 #include "../dataobj/ribi.h"
+#include "../dataobj/way_constraints.h"
 
 class werkzeug_t;
-
 
 class bruecke_besch_t : public obj_besch_std_name_t {
     friend class bridge_writer_t;
@@ -59,8 +59,9 @@ private:
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
-	uint8 way_constraints_permissive;
-	uint8 way_constraints_prohibitive;
+	//uint8 way_constraints_permissive;
+	//uint8 way_constraints_prohibitive;
+	way_constraints_of_way_t way_constraints;
 
 	werkzeug_t *builder;
 
@@ -170,18 +171,20 @@ public:
 	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
 	 * @author: jamespetts
 	 * */
-	const bool permissive_way_constraint_set(uint8 i)
-	{
-		return ((way_constraints_permissive & 1)<<i != 0);
-	}
+	//const bool permissive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_permissive & 1)<<i != 0);
+	//}
 
-	const bool prohibitive_way_constraint_set(uint8 i)
-	{
-		return ((way_constraints_prohibitive & 1)<<i != 0);
-	}
+	//const bool prohibitive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_prohibitive & 1)<<i != 0);
+	//}
 
-	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
-	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	//uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
+	//uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
+	void set_way_constraints(const way_constraints_of_way_t& way_constraints) { this->way_constraints = way_constraints; }
 
 	// default tool for building
 	werkzeug_t *get_builder() const {

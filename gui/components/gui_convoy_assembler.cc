@@ -1393,12 +1393,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 		
+		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
+
 		// Permissive way constraints
 		// (If vehicle has, way must have)
 		// @author: jamespetts
-		for(uint8 i = 0; i < 8; i++)
+		for(uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(veh_type->permissive_way_constraint_set(i))
+			if(way_constraints.get_permissive(i))
 			{
 				k += sprintf(buf + k, translator::translate("\nMUST USE: "));
 				char tmpbuf[30];
@@ -1464,9 +1466,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		// (If way has, vehicle must have)
 		// @author: jamespetts
 		j += sprintf(buf + j, "\n");
-		for(uint8 i = 0; i < 8; i++)
+		for(uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(veh_type->prohibitive_way_constraint_set(i))
+			if(way_constraints.get_prohibitive(i))
 			{
 				j += sprintf(buf + j, translator::translate("\nMAY USE: "));
 				char tmpbuf[30];

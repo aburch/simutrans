@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\debug"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -108,7 +108,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\release"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -201,7 +201,7 @@
 		<Configuration
 			Name="Release (SDL)|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\release-SDL"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -287,7 +287,7 @@
 		<Configuration
 			Name="Debug (SDL)|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\debug-SDL"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -339,6 +339,95 @@
 				OutputFile="$(OutDir)\$(ProjectName)-debug-SDL.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Simutrans\SDL-1.2.13\include&quot;;&quot;G:\Program Files\PlatformSDK\Lib&quot;;&quot;F:\My Documents\Development\Zlib\include&quot;"
+				IgnoreAllDefaultLibraries="false"
+				IgnoreDefaultLibraryNames="libcmt.lib; msvcrt.lib"
+				GenerateDebugInformation="true"
+				SubSystem="2"
+				OptimizeForWindows98="0"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				TargetMachine="1"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Debug Optimized|Win32"
+			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
+			ConfigurationType="1"
+			CharacterSet="1"
+			WholeProgramOptimization="0"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="false"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				AdditionalIncludeDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3;SLIST_FREIGHT"
+				MinimalRebuild="true"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="3"
+				StructMemberAlignment="0"
+				BufferSecurityCheck="true"
+				UsePrecompiledHeader="0"
+				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+				DisableSpecificWarnings="4200;4800;4311;4996;4554"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winmm.lib zlibstat.lib advapi32.lib wsock32.lib libbz2.lib $(NOINHERIT)"
+				OutputFile="$(OutDir)\$(ProjectName) $(ConfigurationName).exe"
+				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;F:\My Documents\Development\Zlib\include&quot;"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="libcmt.lib; msvcrt.lib"
 				GenerateDebugInformation="true"
@@ -1062,6 +1151,15 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Optimized|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\simfab.cc"
@@ -1167,6 +1265,15 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Debug (SDL)|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug Optimized|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2615,6 +2722,10 @@
 			</File>
 			<File
 				RelativePath=".\boden\wasser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\way_constraints.h"
 				>
 			</File>
 			<File

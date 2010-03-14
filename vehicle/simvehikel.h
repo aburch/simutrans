@@ -284,7 +284,7 @@ protected:
 public:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
-	inline bool check_way_constraints(const weg_t *way) const;
+	inline bool check_way_constraints(const weg_t &way) const;
 
 	uint8 hop_count;
 

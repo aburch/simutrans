@@ -1872,7 +1872,8 @@ bool wegbauer_t::baue_tunnelboden()
 			tunnel->obj_add(new tunnel_t(welt, route[i], sp, tunnel_besch));
 			weg->set_max_speed(tunnel_besch->get_topspeed());
 			weg->set_max_weight(tunnel_besch->get_max_weight());
-			weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+			//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+			weg->add_way_constraints(besch->get_way_constraints());
 			tunnel->calc_bild();
 			cost -= tunnel_besch->get_preis();
 			spieler_t::add_maintenance( sp,  tunnel_besch->get_wartung() );
@@ -2056,7 +2057,8 @@ void wegbauer_t::baue_schiene()
 					const wayobj_t* wayobj = gr->get_wayobj(weg->get_waytype());
 					if(wayobj != NULL)
 					{
-						weg->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
+						//weg->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
+						weg->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 					}					
 					spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 					weg->set_besitzer(sp);
@@ -2068,7 +2070,8 @@ void wegbauer_t::baue_schiene()
 				const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());
 				if(wayobj != NULL)
 				{
-					sch->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
+					//sch->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
+					sch->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 				}
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
 					ribi = ribi_t::doppelt(ribi);

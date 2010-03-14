@@ -14,8 +14,10 @@
 #include "skin_besch.h"
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
+#include "../dataobj/way_constraints.h"
 #include "../simworld.h"
 #include "../simtypes.h"
+
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
@@ -97,8 +99,9 @@ private:
 
 	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
-	uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
-	uint8 way_constraints_prohibitive; //to uncompress this (but if value is 0, are no constraints).
+	//uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
+	//uint8 way_constraints_prohibitive; //to uncompress this (but if value is 0, are no constraints).
+	way_constraints_of_vehicle_t way_constraints;
 
 	uint8 catering_level; //The level of catering. 0 for no catering. Higher numbers for better catering.
 
@@ -144,8 +147,8 @@ public:
 		engine_type = (uint8)engine;
 		geschw = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
-		way_constraints_prohibitive = 255;
-		way_constraints_permissive = 0;
+		//way_constraints_prohibitive = 255;
+		//way_constraints_permissive = 0;
 		loading_time = 2000;
 		tractive_effort = 0;
 	}
@@ -385,23 +388,25 @@ public:
 	*@author: jamespetts*/
 	bool get_tilting() const { return (is_tilting);	}
 	
-	/*Bitwise encoded way constraints (permissive)
-	*@author: jamespetts*/
-	uint8 get_permissive_constraints() const { return way_constraints_permissive; }
-	
-	/*Bitwise encoded way constraints (prohibitive)
-	*@author: jamespetts*/
-	uint8 get_prohibitive_constraints() const { return way_constraints_prohibitive; }
+	///*Bitwise encoded way constraints (permissive)
+	//*@author: jamespetts*/
+	//uint8 get_permissive_constraints() const { return way_constraints_permissive; }
+	//
+	///*Bitwise encoded way constraints (prohibitive)
+	//*@author: jamespetts*/
+	//uint8 get_prohibitive_constraints() const { return way_constraints_prohibitive; }
 
-	bool permissive_way_constraint_set(uint8 i) const
-	{
-		return (((way_constraints_permissive >> i) & 1) != 0);
-	}
+	//bool permissive_way_constraint_set(uint8 i) const
+	//{
+	//	return (((way_constraints_permissive >> i) & 1) != 0);
+	//}
 
-	bool prohibitive_way_constraint_set(uint8 i) const
-	{
-		return (((way_constraints_prohibitive >> i) & 1) != 0);
-	}
+	//bool prohibitive_way_constraint_set(uint8 i) const
+	//{
+	//	return (((way_constraints_prohibitive >> i) & 1) != 0);
+	//}
+	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
+	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }
 	
 	/*The level of catering provided by this vehicle (0 if none)
 	*@author: jamespetts*/

@@ -46,7 +46,7 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		// Whether the read file is from Simutrans-Experimental
 		//@author: jamespetts
-
+		way_constraints_of_way_t way_constraints;
 		const bool experimental = version > 0 ? v & EXP_VER : false;
 		uint16 experimental_version = 0;
 		if(experimental)
@@ -76,8 +76,8 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(experimental_version == 0)
 				{
 					besch->max_weight =  decode_uint32(p);
-					besch->way_constraints_permissive = decode_uint8(p);
-					besch->way_constraints_prohibitive = decode_uint8(p);
+					way_constraints.set_permissive(decode_uint8(p));
+					way_constraints.set_prohibitive(decode_uint8(p));
 				}
 				else
 				{
@@ -100,8 +100,8 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				if(experimental_version == 0)
 				{
 					besch->max_weight =  decode_uint32(p);
-					besch->way_constraints_permissive = decode_uint8(p);
-					besch->way_constraints_prohibitive = decode_uint8(p);
+					way_constraints.set_permissive(decode_uint8(p));
+					way_constraints.set_prohibitive(decode_uint8(p));
 				}
 				else
 				{
@@ -120,8 +120,8 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->obsolete_date = decode_uint16(p);
 			besch->number_seasons = 0;
 			besch->max_weight = 999;
-			besch->way_constraints_permissive = 0;
-			besch->way_constraints_prohibitive = 0;
+			//besch->way_constraints_permissive = 0;
+			//besch->way_constraints_prohibitive = 0;
 			besch->has_way = 0;
 
 		} else {
@@ -131,10 +131,10 @@ obj_besch_t * tunnel_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		if(!experimental)
 		{
 			besch->max_weight = 999;
-			besch->way_constraints_permissive = 0;
-			besch->way_constraints_prohibitive = 0;
+			//besch->way_constraints_permissive = 0;
+			//besch->way_constraints_prohibitive = 0;
 		}
-
+		besch->set_way_constraints(way_constraints);
 		DBG_DEBUG("bridge_reader_t::read_node()",
 		     "version=%d waytype=%d price=%d topspeed=%d, intro_year=%d, max_weight%d",
 			 version, besch->wegtyp, besch->preis, besch->topspeed, besch->intro_date/12, besch->max_weight);
