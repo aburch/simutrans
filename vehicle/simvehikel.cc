@@ -1399,7 +1399,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
 		}
 	
-		float limit_adjustment_factor = 1.0;
+		double limit_adjustment_factor = 1.0;
 		
 		if(base_limit > max_corner_limit)
 		{
@@ -1414,11 +1414,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		else
 		{
 			//Smooth the difference
-			float tmp1 = base_limit - min_corner_limit;
-			float tmp2 = max_corner_limit - min_corner_limit;
-			float proportion = tmp1 / tmp2;
+			uint32 tmp1 = base_limit - min_corner_limit;
+			uint32 tmp2 = max_corner_limit - min_corner_limit;
+			double proportion = (double)tmp1 / (double)tmp2;
 			limit_adjustment_factor = ((max_corner_adjustment_factor - min_corner_adjustment_factor) * proportion) + min_corner_adjustment_factor;
-			direction_steps = ((max_direction_steps - min_direction_steps) * proportion) + min_direction_steps; 
+			direction_steps = (sint16)((max_direction_steps - min_direction_steps) * proportion) + min_direction_steps; 
 		}
 		
 		uint16 tmp;
@@ -1476,7 +1476,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				//If we are here, there *must* be a curve, since we have already checked that.
 				//If this is 0, this is an error, and we will assume a 45 degree bend.
 #ifndef debug_corners
-				corner_speed_limit = (base_limit * limit_adjustment_factor); 
+				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor); 
 #else
 				corner_speed_limit = base_limit;
 #endif
@@ -1484,29 +1484,29 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 			case 45 :
 				
-				corner_speed_limit = (base_limit * limit_adjustment_factor);
+				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor);
 				break;
 
 			case 90 :
 				// Sharp corners have a hard limit for speed irrespective of the base
 				// speed limit of the underlying way.
-				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
+				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
 				break;
 					
 			case 135 :
 
-				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
+				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
+				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
 				break;
 				
 			default :
 				//treat as 45 degree bend if something has gone wrong in the calculations.
 				//There *must* be a curve here, as the original bool flag was triggered.
-				corner_speed_limit = (base_limit * limit_adjustment_factor);
+				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor);
 		}
 #ifndef debug_corners
 	}
@@ -2160,7 +2160,7 @@ vehikel_t::ist_entfernbar(const spieler_t *)
 	return "Vehicles cannot be removed";
 }
 
-bool vehikel_t::check_way_constraints(const weg_t *way) const
+bool vehikel_t::check_way_constraints(const weg_t &way) const
 {
 	//// Permissive way constraints
 	//// If vehicle has it, way must have it.
@@ -2173,7 +2173,7 @@ bool vehikel_t::check_way_constraints(const weg_t *way) const
 	//const bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
 
 	//return (!permissive) && (!prohibitive);
-	return missing_way_constraints_t(besch->get_way_constraints(), way->get_way_constraints()).ist_befahrbar();
+	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).ist_befahrbar();
 }
 
 
@@ -2405,8 +2405,8 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 			}
 		}
 	}
-	const strasse_t* way = str;
-	return check_way_constraints(way);
+	//const strasse_t* way = str;
+	return check_way_constraints(*str);
 }
 
 
@@ -2891,7 +2891,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
-	const bool ok = (sch != NULL) && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(sch));
+	const bool ok = (sch != NULL) && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
 
 	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
 	{
@@ -3354,7 +3354,7 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 				count --;
 				next_signal_index = i;
 			}
-			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,i+1)) ) )  ) {
+			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,(uint32)(i+1))) ) )  ) {
 				success = false;
 			}
 			if(next_crossing_index==UNVALID_INDEX  &&  sch1->is_crossing()) {
@@ -3537,7 +3537,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 	}
 
 	const weg_t *w = bd->get_weg(water_wt);
-	return (w  &&  w->get_max_speed()>0 && check_way_constraints(w));
+	return (w  &&  w->get_max_speed()>0 && check_way_constraints(*w));
 }
 
 
