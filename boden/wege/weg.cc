@@ -138,17 +138,17 @@ void weg_t::set_max_weight(uint32 w)
 	max_weight = w;
 }
 
-void weg_t::add_way_constraints(const uint8 permissive, const uint8 prohibitive)
-{
-	way_constraints_permissive |= permissive;
-	way_constraints_prohibitive |= prohibitive;
-}
-
-void weg_t::reset_way_constraints()
-{
-	way_constraints_permissive = besch->get_way_constraints_permissive();
-	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
-}
+//void weg_t::add_way_constraints(const uint8 permissive, const uint8 prohibitive)
+//{
+//	way_constraints_permissive |= permissive;
+//	way_constraints_prohibitive |= prohibitive;
+//}
+//
+//void weg_t::reset_way_constraints()
+//{
+//	way_constraints_permissive = besch->get_way_constraints_permissive();
+//	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
+//}
 
 
 /**
@@ -170,8 +170,7 @@ void weg_t::set_besch(const weg_besch_t *b)
 	}
 
 	max_weight = besch->get_max_weight();
-	way_constraints_permissive = besch->get_way_constraints_permissive();
-	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
+	way_constraints = besch->get_way_constraints();
 }
 
 
@@ -292,17 +291,20 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(max_weight);
 	buf.append(translator::translate("tonnen"));
 	buf.append("\n");
-	for(sint8 i = -8; i < 8; i ++)
+	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
 	{
-		if(permissive_way_constraint_set(i + 8))
+		if(way_constraints.get_permissive(i))
 		{
 			buf.append("\n");
 			char tmpbuf[30];
-			sprintf(tmpbuf, "Permissive %i", i + 8);
+			sprintf(tmpbuf, "Permissive %i", i);
 			buf.append(translator::translate(tmpbuf));
 			buf.append("\n");
 		}
-		if(prohibitive_way_constraint_set(i))
+	}
+	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
+	{
+		if(way_constraints.get_prohibitive(i))
 		{
 			buf.append("\n");
 			char tmpbuf[30];

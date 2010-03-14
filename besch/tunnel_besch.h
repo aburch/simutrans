@@ -18,6 +18,7 @@
 
 #include "../simimg.h"
 #include "../simtypes.h"
+#include "../dataobj/way_constraints.h"
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "bildliste2d_besch.h"
@@ -49,8 +50,9 @@ private:
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
-	uint8 way_constraints_permissive;
-	uint8 way_constraints_prohibitive;
+	//uint8 way_constraints_permissive;
+	//uint8 way_constraints_prohibitive;
+	way_constraints_of_way_t way_constraints;
 
 	/* has underground way image ? (0 = no, 1 = yes)
 	*/
@@ -130,18 +132,20 @@ public:
 	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
 	 * @author: jamespetts
 	 * */
-	const bool permissive_way_constraint_set(uint8 i)
-	{
-		return ((way_constraints_permissive & 1)<<i != 0);
-	}
+	//const bool permissive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_permissive & 1)<<i != 0);
+	//}
 
-	const bool prohibitive_way_constraint_set(uint8 i)
-	{
-		return ((way_constraints_prohibitive & 1)<<i != 0);
-	}
+	//const bool prohibitive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_prohibitive & 1)<<i != 0);
+	//}
 
-	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
-	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	//uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
+	//uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
+	void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 
 	const weg_besch_t *get_weg_besch() const
 	{

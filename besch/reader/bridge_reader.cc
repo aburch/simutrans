@@ -69,8 +69,9 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->intro_date = DEFAULT_INTRO_DATE*12;
 	besch->obsolete_date = DEFAULT_RETIRE_DATE*12;
 	besch->number_seasons = 0;
-	besch->way_constraints_permissive = 0;
-	besch->way_constraints_prohibitive = 0;
+	//besch->way_constraints_permissive = 0;
+	//besch->way_constraints_prohibitive = 0;
+	way_constraints_of_way_t way_constraints;
 
 	if(version == 1) {
 		// Versioned node, version 1
@@ -162,8 +163,10 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			if(experimental_version == 0)
 			{
 				besch->max_weight = decode_uint32(p);
-				besch->way_constraints_permissive = decode_uint8(p);
-				besch->way_constraints_prohibitive = decode_uint8(p);
+				//besch->way_constraints_permissive = decode_uint8(p);
+				//besch->way_constraints_prohibitive = decode_uint8(p);
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
 			}
 			else
 			{
@@ -179,17 +182,19 @@ obj_besch_t * bridge_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		decode_uint16(p);                    // Menupos, no more used
 		besch->preis = decode_uint32(p);
 		besch->topspeed = 999;               // Safe default ...
-		besch->max_weight = 999;
-		besch->way_constraints_permissive = 0;
-		besch->way_constraints_prohibitive = 0;
+		//besch->max_weight = 999;
+		//besch->way_constraints_permissive = 0;
+		//besch->way_constraints_prohibitive = 0;
 	}
 
-	if(!experimental)
-	{
-		besch->max_weight = 999;
-		besch->way_constraints_permissive = 0;
-		besch->way_constraints_prohibitive = 0;
-	}
+	//if(!experimental)
+	//{
+	//	besch->max_weight = 999;
+	//	besch->way_constraints_permissive = 0;
+	//	besch->way_constraints_prohibitive = 0;
+	//}
+
+	besch->set_way_constraints(way_constraints);
 
 	// pillars cannot be heigher than this to avoid drawing errors
 	if(besch->pillars_every>0  &&  besch->max_height==0) {

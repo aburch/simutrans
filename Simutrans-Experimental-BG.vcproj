@@ -2725,6 +2725,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\way_constraints.h"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\way_obj_besch.h"
 				>
 			</File>

@@ -60,6 +60,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/way_constraints.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -2161,17 +2162,18 @@ vehikel_t::ist_entfernbar(const spieler_t *)
 
 bool vehikel_t::check_way_constraints(const weg_t *way) const
 {
-	// Permissive way constraints
-	// If vehicle has it, way must have it.
-	uint8 my_or = besch->get_permissive_constraints() | way->get_way_constraints_permissive();
-	const bool permissive = way->get_way_constraints_permissive() ^ my_or;
+	//// Permissive way constraints
+	//// If vehicle has it, way must have it.
+	//uint8 my_or = besch->get_permissive_constraints() | way->get_way_constraints_permissive();
+	//const bool permissive = way->get_way_constraints_permissive() ^ my_or;
 
-	// Prohibitive way constraints
-	// If way has it, vehicle must have it.
-	my_or = besch->get_prohibitive_constraints() | way->get_way_constraints_prohibitive();
-	const bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
+	//// Prohibitive way constraints
+	//// If way has it, vehicle must have it.
+	//my_or = besch->get_prohibitive_constraints() | way->get_way_constraints_prohibitive();
+	//const bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
 
-	return (!permissive) && (!prohibitive);
+	//return (!permissive) && (!prohibitive);
+	return missing_way_constraints_t(besch->get_way_constraints(), way->get_way_constraints()).ist_befahrbar();
 }
 
 
@@ -2302,7 +2304,7 @@ void vehikel_t::laden_abschliessen()
 	spieler_t *sp = get_besitzer();
 	if (sp) {
 		// BG, 06.06.2009: fixed maintenance for loaded vehicles, which are located on the map
-		sp->add_maintenance(get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
+		sp->add_maintenance((sint32)get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
 	}
 }
 
@@ -2312,7 +2314,7 @@ void vehikel_t::before_delete()
 	spieler_t *sp = get_besitzer();
 	if (sp) {
 		// BG, 06.06.2009: withdraw fixed maintenance for deleted vehicles
-		sp->add_maintenance(-get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
+		sp->add_maintenance(-(sint32)get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
 	}
 }
 
@@ -3531,7 +3533,7 @@ bool schiff_t::ist_befahrbar(const grund_t *bd) const
 	if(  bd->ist_wasser()  ) 
 	{
 		// If there are permissive constraints, this vehicle cannot use the open water.
-		return besch->get_permissive_constraints() == 0;
+		return besch->get_way_constraints().get_permissive() == 0;
 	}
 
 	const weg_t *w = bd->get_weg(water_wt);
