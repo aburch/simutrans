@@ -37,6 +37,7 @@
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
 #include "dataobj/loadsave.h"
+#include "dataobj/replace_data.h"
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
 
@@ -157,7 +158,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	anz_vehikel = 0;
 	steps_driven = -1;
-	autostart = true;
 	wait_lock = 0;
 	go_on_ticks = WAIT_INFINITE;
 
@@ -201,6 +201,8 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	old_fpl = NULL;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
+
+	replace = NULL;
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
@@ -247,6 +249,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			haltestelle_t::refresh_routing(fpl, goods_catg_index, besitzer_p, welt->get_einstellungen()->get_default_path_option());
 		}
 		delete fpl;
+	}
+
+	if(replace)
+	{
+		replace->decrement_convoys();
 	}
 
 	// @author hsiegeln - deregister from line (again) ...
@@ -775,7 +782,7 @@ void convoi_t::step()
 		case INITIAL:
 
 			// If there is a pending replacement, just do it
-			if (get_replace() && replacing_vehicles.get_count()>0) {
+			if (replace && replace->get_replacing_vehicles()->get_count()>0) {
 
 				// Knightly : before replacing, copy the existing set of goods category index
 				minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
@@ -791,14 +798,14 @@ void convoi_t::step()
 					vector_tpl<vehikel_t*> new_vehicles;
 
 					// Acquire the new one
-					ITERATE(replacing_vehicles,i)
+					ITERATE_PTR(replace->get_replacing_vehicles(),i)
 					{
 						vehikel_t* veh = NULL;
 						// First - check whether there are any of the required vehicles already
 						// in the convoy (free)
 						for(uint8 k = 0; k < anz_vehikel; k++)
 						{
-							if(fahr[k]->get_besch() == replacing_vehicles[i])
+							if(fahr[k]->get_besch() == replace->get_replacing_vehicle(i))
 							{
 								veh = remove_vehikel_bei(k);
 								break;
@@ -822,10 +829,11 @@ void convoi_t::step()
 								
 								for(uint8 c = 0; c < fahr[j]->get_besch()->get_upgrades_count(); c ++)
 								{
-									if(replacing_vehicles[i] == fahr[j]->get_besch()->get_upgrades(c))
+									if(replace->get_replacing_vehicle(i) == fahr[j]->get_besch()->get_upgrades(c))
 									{
 										veh = remove_vehikel_bei(j);
-										veh->set_besch(replacing_vehicles[i]);
+										//TODO: Use the new method of replacing here, creating a new vehicle rather than simply replacing the type.
+										veh->set_besch(replace->get_replacing_vehicle(i));
 										dep->buy_vehicle(veh->get_besch()/*, true*/);
 										goto end_loop;
 									}
@@ -835,7 +843,7 @@ end_loop:
 							if(veh == NULL)
 							{
 								// Fourth - if all else fails, buy from new (expensive).
-								veh = dep->buy_vehicle(replacing_vehicles[i]/*, false*/);
+								veh = dep->buy_vehicle(replace->get_replacing_vehicle(i)/*, false*/);
 							}
 						}
 						
@@ -868,8 +876,8 @@ end_loop:
 					if (!keep_name) {
 						set_name(fahr[0]->get_besch()->get_name());
 					}
-					set_replace(false);
-					replacing_vehicles.clear();
+					replace->decrement_convoys();
+					set_replace(NULL);
 					if (line.is_bound()) {
 						line->recalc_status();
 						if (line->get_replacing_convoys_count()==0) {
@@ -918,7 +926,7 @@ end_loop:
 					}
 
 
-					if (autostart) {
+					if (replace && replace->get_autostart()) {
 						dep->start_convoi(self);
 					}
 				}
@@ -1372,7 +1380,7 @@ void convoi_t::ziel_erreicht()
 		last_departure_time = welt->get_zeit_ms();
 
 		akt_speed = 0;
-		if (!replace || !autostart) {
+		if (!replace || !replace->get_autostart()) {
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
 			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 		}
@@ -2744,44 +2752,72 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(reversed, "");
 		
 		//Replacing settings
-		file->rdwr_bool(replace, "");
-		file->rdwr_bool(autostart, "");
-		file->rdwr_bool(depot_when_empty, "");
+		bool is_replacing = replace;
+		file->rdwr_bool(is_replacing, "");
 
-		uint16 replacing_vehicles_count;
-
-		if(file->is_saving())
+		if(file->get_experimental_version() >= 8)
 		{
-			replacing_vehicles_count = replacing_vehicles.get_count();
-			file->rdwr_short(replacing_vehicles_count, "");
-			ITERATE(replacing_vehicles, i)
+			if(is_replacing)
 			{
-				const char *s = replacing_vehicles[i]->get_name();
-				file->rdwr_str(s);
-			}
-		}
-		else
-		{
-			
-			file->rdwr_short(replacing_vehicles_count, "");
-			for(uint16 i = 0; i < replacing_vehicles_count; i ++)
-			{
-				char vehicle_name[256];
-				file->rdwr_str(vehicle_name, 256);
-				const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
-				if(besch == NULL) 
+				if(file->is_saving())
 				{
-					besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
-				}
-				if(besch == NULL)
-				{
-					dbg->warning("convoi_t::rdwr()","no vehicle pak for '%s' search for something similar", vehicle_name);
+					replace->rdwr(file);
 				}
 				else
 				{
-					replacing_vehicles.append(besch);
+					replace = new replace_data_t(file);
 				}
 			}
+			file->rdwr_bool(depot_when_empty, "");
+		}
+		else
+		{
+			// Original vehicle replacing settings - stored in convoi_t.
+			bool old_autostart;
+			file->rdwr_bool(old_autostart, "");
+			file->rdwr_bool(depot_when_empty, "");
+
+			uint16 replacing_vehicles_count;
+
+			vector_tpl<const vehikel_besch_t *> *replacing_vehicles;
+
+			if(file->is_saving())
+			{
+				/*replacing_vehicles = replace->get_replacing_vehicles();
+				replacing_vehicles_count = replacing_vehicles->get_count();
+				file->rdwr_short(replacing_vehicles_count, "");
+				ITERATE_PTR(replacing_vehicles, i)
+				{
+					const char *s = replacing_vehicles->get_element(i)->get_name();
+					file->rdwr_str(s);
+				}*/
+			}
+			else
+			{
+				replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+				file->rdwr_short(replacing_vehicles_count, "");
+				for(uint16 i = 0; i < replacing_vehicles_count; i ++)
+				{
+					char vehicle_name[256];
+					file->rdwr_str(vehicle_name, 256);
+					const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
+					if(besch == NULL) 
+					{
+						besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+					}
+					if(besch == NULL)
+					{
+						dbg->warning("convoi_t::rdwr()","no vehicle pak for '%s' search for something similar", vehicle_name);
+					}
+					else
+					{
+						replacing_vehicles->append(besch);
+					}
+				}
+			}
+			replace = new replace_data_t();
+			replace->set_autostart(old_autostart);
+			replace->set_replacing_vehicles(replacing_vehicles);
 		}
 	}
 	if(file->get_experimental_version() >= 2)
@@ -4035,14 +4071,14 @@ convoi_t::get_catering_level(uint8 type) const
 	return max_catering_level;
 }
 
-void convoi_t::set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv)
-{
-	replacing_vehicles.clear();
-	replacing_vehicles.resize(rv->get_count());  // To save some memory
-	for (unsigned int i=0; i<rv->get_count(); ++i) {
-		replacing_vehicles.append((*rv)[i]);
-	}
-}
+//void convoi_t::set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv)
+//{
+//	replacing_vehicles.clear();
+//	replacing_vehicles.resize(rv->get_count());  // To save some memory
+//	for (unsigned int i=0; i<rv->get_count(); ++i) {
+//		replacing_vehicles.append((*rv)[i]);
+//	}
+//}
  
 
  /**
@@ -4445,4 +4481,13 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 		}
 	}
 	return false;
+}
+
+void convoi_t::clear_replace()
+{
+	if(replace)
+	{
+		replace->decrement_convoys();
+		replace = NULL;
+	}
 }

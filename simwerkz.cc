@@ -5029,7 +5029,7 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 
 /************************* internal tools, only need for networking ***************/
 
-/* Handles all action of convois in depots. Needs a default param:
+/* Handles all action of convois outside depots. Needs a default param:
  * [function],[convoi_id],addition stuff
  * following simple command exists:
  * 'x' : self destruct
@@ -5038,6 +5038,7 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  * 'n' : toggle 'no load'
  * 'w' : toggle withdraw
  * 'd' : dissassemble convoi and store vehicle in this depot
+ * 't' : toggle 'retire'
  * 'l' : apply new line [number]
  */
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
@@ -5106,6 +5107,19 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			if(  !cnv->get_no_load()  ) {
 				cnv->set_withdraw( false );
 			}
+			break;
+
+		case 'r': // change replace
+			
+		
+
+		case 't': // change retire
+			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
+				// pop up error message here!
+				return false;
+			}
+			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
+			cnv->set_no_load(cnv->get_depot_when_empty());
 			break;
 
 		case 'w': // change withdraw

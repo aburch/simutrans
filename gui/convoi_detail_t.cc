@@ -202,8 +202,7 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 		else if(komp==&retire_button) {
-			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
-			cnv->set_no_load(cnv->get_depot_when_empty());
+			cnv->call_convoi_tool( 't', NULL );
 			return true;
 		}
 	}

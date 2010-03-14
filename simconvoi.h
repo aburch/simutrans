@@ -43,6 +43,7 @@ class vehikel_besch_t;
 class schedule_t;
 class cbuffer_t;
 class ware_t;
+class replace_data_t;
 
 /**
  * Basisklasse für alle Fahrzeugverbände. Convois könnnen über Zeiger
@@ -179,17 +180,13 @@ private:
 	*/
 	bool no_load;
 
-	/*
-	* the convoy is marked for automatic replacing
-	* @author isidoro
-	*/
-	bool replace;
-
 	/**
-	* if marked for replacing, once in depot, auto restar the vehicle
-	* @author isidoro
+	* If the convoy is marked for automatic replacing,
+	* this will point to the dataset for it; otherwise,
+	* it is NULL.
+	* @author: jamespetts, March 2010
 	*/
-	bool autostart;
+	replace_data_t *replace;
 
 	/**
 	* send to depot when empty
@@ -323,9 +320,6 @@ private:
 	enum states state;
 
 	ribi_t::ribi alte_richtung; //"Old direction" (Google)
-
-	// The replacing vehicles, if any
-	vector_tpl<const vehikel_besch_t *> replacing_vehicles;
 
 	/**
 	* Initialize all variables with default values.
@@ -914,11 +908,13 @@ public:
 	*/
 	void unset_line();
 
-	inline bool get_replace() const { return replace; }
+	replace_data_t* get_replace() const { return replace; }
 
-	inline void set_replace(bool new_replace) { replace = new_replace; }
+	void set_replace(replace_data_t *new_replace) { replace = new_replace; }
 
-	inline bool get_depot_when_empty() const { return depot_when_empty; }
+	void clear_replace();
+
+	bool get_depot_when_empty() const { return depot_when_empty; }
 
 	void set_depot_when_empty(bool new_dwe) 
 	{ 
@@ -931,13 +927,6 @@ public:
 			go_to_depot(true);
 		}
 	}
-
-	inline bool get_autostart() const { return autostart; }
-
-	inline void set_autostart(bool new_autostart) { autostart=new_autostart; }
-
-	inline const vector_tpl<const vehikel_besch_t *> *get_replacing_vehicles() const { return &replacing_vehicles; }
-	void set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv);
 
 	// True if the convoy has the same vehicles
 	bool has_same_vehicles(convoihandle_t other) const;
