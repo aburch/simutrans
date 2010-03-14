@@ -3619,14 +3619,11 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	if(  changed_loading_level  ) {
 		halt->recalc_status();
 	}
-	freight_info_resort |= changed_loading_level;
-	if(  changed_loading_level  ) {
-		halt->recalc_status();
-	}
 
 	// any loading went on?
 	calc_loading();
 	loading_limit = fpl->get_current_eintrag().ladegrad; //"charge degree" (??) (Babelfish)
+	heaviest_vehicle = calc_heaviest_vehicle(); // Bernd Gabriel, Mar 10, 2010: was missing.
 
 	if(gewinn) 
 	{

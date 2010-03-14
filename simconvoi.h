@@ -609,7 +609,7 @@ public:
 	//inline uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
 	inline sint32 get_min_top_speed() const {return min_top_speed;}
 	inline sint32 get_sum_gewicht() const {return sum_gewicht;}
-	inline sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	//inline sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 	/** Get power index in kW multiplied by gear.
 	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
 	 * @author Bernd Gabriel, Nov, 14 2009

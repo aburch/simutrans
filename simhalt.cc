@@ -3111,16 +3111,21 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		k.rdwr( file );
 	}
 
-	short count = warenbauer_t::get_max_catg_index();
+	// BG, 07-MAR-2010: the number of good categories should be read from in the savegame, 
+	//  but currently it is not stored although goods and categories can be added by the user 
+	//  and thus do not depend on file version and therefore not predicatable by simutrans.
+	unsigned max_catg_count_game = warenbauer_t::get_max_catg_index();
+	unsigned max_catg_count_file = max_catg_count_game; 
+
 	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) {
-		for(unsigned i=0; i<count; i++) {
+		for(unsigned i=0; i<max_catg_count_file; i++) {
 			vector_tpl<ware_t> *warray = waren[i];
 			if(warray) {
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
-				count = warray->get_count();
+				short count = warray->get_count();
 				file->rdwr_short(count, " ");
 				for(unsigned i=0;  i<warray->get_count();  i++ ) {
 					ware_t &ware = (*warray)[i];
@@ -3139,6 +3144,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s,256);
 		while(*s) 
 		{
+			short count;
 			file->rdwr_short(count, " ");
 			if(count > 0) 
 			{
@@ -3163,6 +3169,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// however, we have to rebuilt them anyway for the new format
 		if(file->get_version()<99013) 
 		{
+			short count;
 			file->rdwr_short(count, " ");
 
 			for(int i=0; i<count; i++) 
@@ -3184,7 +3191,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 5)
 	{
-		for (int j = 0; j < MAX_HALT_COST; j++) 
+		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++) 
 		{
 			for (int k = MAX_MONTHS	- 1; k >= 0; k--) 
 			{
@@ -3195,7 +3202,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	else
 	{
 		// Earlier versions did not have pax_too_slow
-		for (int j = 0; j < MAX_HALT_COST - 1; j++) 
+		for (int j = 0; j < 7 /*MAX_HALT_COST - 1*/; j++) 
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
 			{
@@ -3210,7 +3217,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		for(short i = 0; i < count; i ++)
+		for(short i = 0; i < max_catg_count_file; i ++)
 		{
 			if(file->is_saving())
 			{
@@ -3269,10 +3276,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-	}
 
-	if(file->get_experimental_version() >= 2)
-	{
 		if(file->get_experimental_version() < 3)
 		{
 			uint16 old_paths_timestamp = 0;
@@ -3281,7 +3285,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_short(old_paths_timestamp, "");
 			file->rdwr_short(old_connexions_timestamp, "");
 			file->rdwr_bool(old_reschedule, "");
-			for(short i = 0; i < count; i ++)
+			for(short i = 0; i < max_catg_count_file; i ++)
 			{
 				paths_timestamp[i] = old_paths_timestamp;
 				connexions_timestamp[i] = old_connexions_timestamp;
@@ -3290,7 +3294,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 		else
 		{
-			for(short i = 0; i < count; i ++)
+			for(short i = 0; i < max_catg_count_file; i ++)
 			{
 				file->rdwr_short(paths_timestamp[i], "");
 				file->rdwr_short(connexions_timestamp[i], "");

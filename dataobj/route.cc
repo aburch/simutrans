@@ -303,6 +303,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
+	max_weight = MAXUINT32;
 
 	// first tile is not valid?!?
 	if(!fahr->ist_befahrbar(gr)) {
@@ -357,6 +358,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	queue.insert(tmp);
 
 //DBG_MESSAGE("route_t::itern_calc_route()","calc route from %d,%d,%d to %d,%d,%d",ziel.x, ziel.y, ziel.z, start.x, start.y, start.z);
+	const uint8 enforce_weight_limits = welt->get_einstellungen()->get_enforce_weight_limits();
 	uint32 beat=1;
 	do {
 		// Hajo: this is too expensive to be called each step
@@ -386,8 +388,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 			ziel_erreicht = true; //"a goal reaches" (Babelfish).
 			break;
 		}
-
-		const bool enforce_weight_limits_strictly = welt->get_einstellungen()->get_enforce_weight_limits() == 2;
 
 		// testing all four possible directions
 		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
@@ -423,12 +423,18 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						continue;
 				}
 				
-				if(enforce_weight_limits_strictly && w != NULL && weight > w->get_max_weight())
+				if (enforce_weight_limits && w != NULL)
 				{
-					// Avoid routing over ways for which the convoy is overweight.
-					continue;
-				}
+					// Bernd Gabriel, Mar 10, 2010: way limit info
+					uint32 way_max_weight = w->get_max_weight();
+					max_weight = min(max_weight, way_max_weight);
 
+					if(enforce_weight_limits == 2 && weight > way_max_weight)
+					{
+						// Avoid routing over ways for which the convoy is overweight.
+						continue;
+					}
+				}
 
 				// new values for cost g
 				uint32 new_g = tmp->g + fahr->get_kosten(to,max_speed);

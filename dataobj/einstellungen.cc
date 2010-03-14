@@ -577,18 +577,21 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_str( language_code_names, 4 );
 
 			// restore AI state
+			char password[16];
 			for(  int i=0;  i<15;  i++  ) {
+
 				file->rdwr_bool( automaten[i], "" );
 				file->rdwr_byte( spieler_type[i], "" );
-				if(  file->get_version()<=102002  ) {
-					char dummy[2] = { 0, 0 };
-					file->rdwr_str( dummy, 2 );
+				if(  file->get_version()<=102002 || file->get_experimental_version() == 7) {
+					char dummy[17];
+					dummy[0] = 0;
+					file->rdwr_str( dummy, 16 );
 				}
 			}
 
 			// cost section ...
 			file->rdwr_bool( freeplay, "" );
-			if(  file->get_version()>102002  ) {
+			if(  file->get_version()>102002 && file->get_experimental_version() != 7 ) {
 				file->rdwr_longlong( starting_money, "" );
 				// these must be saved, since new player will get different amounts eventually
 				for(  int i=0;  i<10;  i++  ) {
