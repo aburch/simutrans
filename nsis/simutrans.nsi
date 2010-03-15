@@ -22,7 +22,7 @@ InstallDir $PROGRAMFILES\Simutrans
 XPStyle on
 
 ; Request application privileges for Windows Vista
-RequestExecutionLevel user
+RequestExecutionLevel admin
 
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "simutranssmall.bmp"
@@ -88,9 +88,9 @@ finishGDIexe:
 FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
-  AddSize 6008
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-1/"
-  StrCpy $archievename "simuwin-102-2-1.zip"
+  AddSize 7279
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-2/"
+  StrCpy $archievename "simuwin-102-2-2.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstall
   Call PostExeInstall
@@ -98,9 +98,9 @@ SectionEnd
 
 
 Section /o "Executable (SDL, better sound)" SDLexe
-  AddSize 7638
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-1/"
-  StrCpy $archievename "simuwin-sdl-102-2-1.zip"
+  AddSize 8227
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-2/"
+  StrCpy $archievename "simuwin-sdl-102-2-2.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstall
   Call PostExeInstall
@@ -121,15 +121,15 @@ SectionGroupEnd
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak64 (standard)" pak64
-  AddSize 10772
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-1/"
-  StrCpy $archievename "simupak64-102-2-1.zip"
+  AddSize 10882
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-2/"
+  StrCpy $archievename "simupak64-102-2-2.zip"
   StrCpy $downloadname "Pak64"
   Call DownloadInstall
 SectionEnd
 
 
-Section /o "pak64 Food addon"
+Section /o "pak64 Food addon 102.2.1"
   AddSize 272
   StrCmp $multiuserinstall "1" InstallInUserDir
 
@@ -166,10 +166,10 @@ SectionGroupEnd
 
 
 
-Section /o "pak64.german (Freeware)" pak64german
-  AddSize 19043
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak.german%20for%20102-2/"
-  StrCpy $archievename "pak.german_0-102-2_full.zip"
+Section /o "pak64.german (Freeware) 102.2.1" pak64german
+  AddSize 23040
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak.german_102-2-1/"
+  StrCpy $archievename "pak.german_0-102-2-1_full.zip"
   StrCpy $downloadname "Pak64.German"
   Call DownloadInstall
   RMdir /r "$INSTDIR\Simutrans\Maps"
@@ -177,7 +177,7 @@ SectionEnd
 
 
 
-Section /o "pak64 HAJO (Freeware)" pak64HAJO
+Section /o "pak64 HAJO (Freeware) 102.2" pak64HAJO
   AddSize 6237
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO%20for%20102-0/"
   StrCpy $archievename "pakHAJO_102-0.zip"
@@ -187,8 +187,9 @@ SectionEnd
 
 
 
-Section /o "pak96 Comic (beta, Freeware)" pak96comic
+Section /o "pak96 Comic (beta, Freeware) 102.2" pak96comic
   AddSize 16976
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO%20for%20102-0/"
   StrCpy $downloadlink "http://www.simutrans-forum.de/forum/attachment.php?attachmentid=8734"
   StrCpy $downloadname "Pak96.Comic"
   Call DownloadInstall
@@ -196,17 +197,17 @@ SectionEnd
 
 
 
-Section /o "pak128 (Freeware)" pak128
-  AddSize 57540
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-0/"
-  StrCpy $archievename "pak128-1.4.5--102.0.zip"
+Section /o "pak128 (Freeware) 102.2.2" pak128
+  AddSize 63445
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-2-2/"
+  StrCpy $archievename "pak128-1.4.6--102.2.zip"
   StrCpy $downloadname "Pak128"
   Call DownloadInstall
 SectionEnd
 
 
 
-Section /o "pak128 Japan" pak128japan
+Section /o "pak128 Japan 101.0" pak128japan
   AddSize 15605
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20101-0/"
   StrCpy $archievename "pak128.japan_0-101.zip"
@@ -216,10 +217,10 @@ SectionEnd
 
 
 
-Section /o "pak128 Britain (alpha)" pak128britain
-  AddSize 66604
+Section /o "pak128 Britain (0.7) 102.2.1" pak128britain
+  AddSize 94003
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.britain%20for%20102-0/"
-  StrCpy $archievename "pak128britain_1-0-5_0-102.zip"
+  StrCpy $archievename "pak128Britain_1-0-7_0-102.zip"
   StrCpy $downloadname "Pak128.Britain"
   Call DownloadInstall
 SectionEnd
@@ -353,7 +354,7 @@ Function .onSelChange
     !insertmacro RadioButton ${SDLexe}
   !insertmacro EndRadioButtons
 
-  ; make sure GDI is installed when cheines is selected
+  ; make sure GDI is installed when chinese is selected
   SectionGetFlags ${wenquanyi_font} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} +1 test_for_pak

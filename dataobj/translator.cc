@@ -573,6 +573,12 @@ const char* translator::translate(const char* str)
 }
 
 
+const char* translator::translate(const char* str, int lang)
+{
+	return langs[lang].translate(str);
+}
+
+
 const char* translator::get_month_name(uint16 month)
 {
 	static const char* const month_names[] = {

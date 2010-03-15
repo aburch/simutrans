@@ -2901,7 +2901,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 
 	if(neu) {
-		char* name = halt->create_name(pos, "Dock");
+		char* name = halt->create_name(pos, "Dock", translator::get_language() );
 		halt->set_name( name );
 		free(name);
 	}
@@ -3100,7 +3100,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	halt->recalc_station_type();
 
 	if(neu) {
-		char* name = halt->create_name(pos, type_name);
+		char* name = halt->create_name(pos, type_name, translator::get_language() );
 		halt->set_name( name );
 		free(name);
 	}
@@ -3915,7 +3915,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				const char *err = wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, monorail_wt, welt->get_einstellungen()->cst_depot_rail );
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(k.get_2d());
-					if(bd->ist_natur()) {
+					if(hausbauer_t::elevated_foundation_besch  &&  k.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
 						hausbauer_t::baue( welt, sp, bd->get_pos(), 0, hausbauer_t::elevated_foundation_besch );
 					}
 				}

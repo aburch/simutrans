@@ -105,14 +105,13 @@ bool baum_t::forestrules_init(cstring_t objfilename)
 
 
 // distributes trees on a map
-void
-baum_t::distribute_trees(karte_t *welt, int dichte)
+void baum_t::distribute_trees(karte_t *welt, int dichte)
 {
-	// now we can proceed to tree palnting routine itself
+	// now we can proceed to tree planting routine itself
 	// best forests results are produced if forest size is tied to map size -
 	// but there is some nonlinearity to ensure good forests on small maps
-	const unsigned t_forest_size = (unsigned)pow( welt->get_groesse_max()>>7 , 0.5)*forest_base_size + (welt->get_groesse_max()/forest_map_size_divisor);
-	const uint8 c_forest_count = welt->get_groesse_max()/forest_count_divisor;
+	const unsigned t_forest_size = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.25)*forest_base_size/11 + ((welt->get_groesse_x()+welt->get_groesse_y())/(2*forest_map_size_divisor));
+	const uint8 c_forest_count = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.5 )/forest_count_divisor;
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {

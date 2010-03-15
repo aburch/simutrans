@@ -686,8 +686,7 @@ const char* haltestelle_t::get_name() const
  * Sets the name. Creates a copy of name.
  * @author Hj. Malthaner
  */
-void
-haltestelle_t::set_name(const char *new_name)
+void haltestelle_t::set_name(const char *new_name)
 {
 	grund_t *gr = welt->lookup(get_basis_pos3d());
 	if(gr) {
@@ -708,7 +707,8 @@ haltestelle_t::set_name(const char *new_name)
 
 
 
-char *haltestelle_t::create_name(const koord k, const char *typ)
+// creates stops with unique! names
+char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 {
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
 	const char *stop = translator::translate(typ);
@@ -717,7 +717,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 	// this fails only, if there are no towns at all!
 	if(stadt==NULL) {
 		// get a default name
-		sprintf( buf, translator::translate("land stop %i %s"), get_besitzer()->get_haltcount(), stop );
+		sprintf( buf, translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
 		return strdup(buf);
 	}
 
@@ -790,11 +790,11 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 		}
 
 		// are there fabs?
-		const char *building_base = translator::translate("%s building %s %s");
+		const char *fab_base = translator::translate("%s factory %s %s",lang);
 		slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 		while (fab_iter.next()) {
 			// with factories
-			sprintf(buf, building_base, city_name, fab_iter.get_current()->get_name(), stop );
+			sprintf(buf, fab_base, city_name, fab_iter.get_current()->get_name(), stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
@@ -818,7 +818,8 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 			// now we have a building here
 			if (gb->is_monument()) {
 				building_name = translator::translate(gb->get_name());
-			} else if (gb->ist_rathaus() ||
+			}
+			else if (gb->ist_rathaus() ||
 				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_land || // land attraction
 				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_city) { // town attraction
 				building_name = make_single_line_string(translator::translate(gb->get_tile()->get_besch()->get_name()), 2);
@@ -828,7 +829,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				continue;
 			}
 			// now we have a name: try it
-			sprintf(buf, building_base, city_name, building_name, stop );
+			sprintf(buf, translator::translate("%s building %s %s",lang), city_name, building_name, stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
@@ -878,14 +879,14 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				dirname = direction_name[(5-welt->get_einstellungen()->get_rotation())%4];
 			}
 		}
-		dirname = translator::translate(dirname);
+		dirname = translator::translate(dirname,lang);
 
 		// Try everything to get a unique name
 		while(true) {
 			// well now try them all from "0..." over "9..." to "A..." to "Z..."
 			for(  int i=0;  i<10+26;  i++  ) {
 				numbername[0] = i<10 ? '0'+i : 'A'+i-10;
-				const char *base_name = translator::translate(numbername);
+				const char *base_name = translator::translate(numbername,lang);
 				if(base_name==numbername) {
 					// not translated ... try next
 					continue;
@@ -893,7 +894,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				// allow for names without direction
 				uint8 count_s = 0;
 				for(  uint i=0;  base_name[i]!=0;  i++  ) {
-					if(  base_name[i]=='%'  && base_name[i+1]=='s'  ) {
+					if(  base_name[i]=='%'  &&  base_name[i+1]=='s'  ) {
 						i++;
 						count_s++;
 					}
@@ -932,7 +933,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 	 */
 
 	// strings for intown / outside of town
-	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s" );
+	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s", 0 );
 
 	// finally: is there a stop with this name already?
 	for(  uint32 i=1;  i<65536;  i++  ) {

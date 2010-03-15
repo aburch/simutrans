@@ -336,6 +336,8 @@ einstellungen_t::einstellungen_t() :
 
 	speed_bonus_multiplier = 1.0F;
 
+	allow_buying_obsolete_vehicles = true;
+
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
@@ -705,7 +707,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( with_private_paks, "" );
 		}
 
-		if(file->get_version()>102002) {
+		if(file->get_version()>=102003) {
 			// network stuff
 			random_counter = get_random_seed();
 			file->rdwr_long( random_counter, "" );
@@ -719,6 +721,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
+			file->rdwr_bool( allow_buying_obsolete_vehicles, "" );
 		}
 
 		if(file->get_experimental_version() >= 1)
@@ -1051,6 +1054,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
 	verkehr_level = contents.get_int("citycar_level", verkehr_level);	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
+	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 
 	// starting money
 	starting_money = contents.get_int64("starting_money", starting_money );

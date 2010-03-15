@@ -198,9 +198,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	bt_obsolete.add_listener(this);
-	bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
-	add_komponente(&bt_obsolete);
+	if(  get_welt()->get_einstellungen()->get_allow_buying_obsolete_vehicles()  ) {
+		bt_obsolete.add_listener(this);
+		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
+		add_komponente(&bt_obsolete);
+	}
 
 	bt_show_all.set_typ(button_t::square);
 	bt_show_all.set_text("Show all");
