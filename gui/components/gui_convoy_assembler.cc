@@ -677,7 +677,8 @@ DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger 
 	}
 	else if(replace_frame)
 	{
-		replace_frame->get_convoy().is_bound() ? clear_convoy() : set_vehicles(replace_frame->get_convoy());
+		//replace_frame->get_convoy().is_bound() ? clear_convoy() : set_vehicles(replace_frame->get_convoy());
+		// We do not need to set the convoy here, as this will be done when the replacing takes place.
 		replace_frame->update_data();
 	}
 	update_tabs();
@@ -805,7 +806,16 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			&& veh_action != va_sell
 			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
 		{
-			replace_frame->replace.add_vehicle(info);
+			//replace_frame->replace.add_vehicle(info);
+			if(veh_action == va_insert)
+			{
+				vehicles.insert_at(0, info);
+			}
+			else if(veh_action == va_append);
+			{
+				vehicles.append(info);
+			}
+			// No action for sell - not available in the replacer window.
 		}
 	}
 }

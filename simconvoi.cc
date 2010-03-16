@@ -876,8 +876,11 @@ end_loop:
 					if (!keep_name) {
 						set_name(fahr[0]->get_besch()->get_name());
 					}
-					replace->decrement_convoys();
-					set_replace(NULL);
+					if(replace)
+					{
+						replace->decrement_convoys();
+						set_replace(NULL);
+					}
 					if (line.is_bound()) {
 						line->recalc_status();
 						if (line->get_replacing_convoys_count()==0) {
@@ -1826,8 +1829,6 @@ schedule_t *convoi_t::create_schedule()
 
 	return fpl;
 }
-
-
 
 /* checks, if we go in the same direction;
  * true: convoy prepared

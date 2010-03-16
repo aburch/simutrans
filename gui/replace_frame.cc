@@ -399,8 +399,6 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 		return;
 	}
 
-	replace_data_t *replace = NULL;
-
 	switch (state) {
 	case state_replace:
 		if(convoy_assembler.get_vehicles()->get_count()==0)
@@ -416,16 +414,18 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 			break;
 		}
 
-		replace = new replace_data_t;
+		cnv->call_convoi_tool('r', NULL);
+		cnv->get_replace()->set_autostart(autostart);
+		cnv->get_replace()->set_retain_in_depot(retain_in_depot);
+		cnv->get_replace()->set_use_home_depot(use_home_depot);
+		cnv->get_replace()->set_allow_using_existing_vehicles(allow_using_existing_vehicles);
+		ITERATE_PTR(convoy_assembler.get_vehicles(), i)
+		{
+			cnv->get_replace()->add_vehicle(convoy_assembler.get_vehicles()->get_element(i));
+		}
 
-		replace->set_replacing_vehicles(convoy_assembler.get_vehicles());
-		replace->set_autostart(autostart);
-	
-		//cnv->set_replacing_vehicles(convoy_assembler.get_vehicles());
 		cnv->set_depot_when_empty( (depot || autostart));
-		//cnv->set_autostart(autostart);
 		cnv->set_no_load( cnv->get_depot_when_empty());
-		cnv->set_replace(replace);
 		// If already empty, no need to be emptied
 		if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) {
 			cnv->set_depot_when_empty(false);

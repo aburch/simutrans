@@ -77,6 +77,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
+#include "dataobj/replace_data.h"
 
 #include "bauer/tunnelbauer.h"
 #include "bauer/brueckenbauer.h"
@@ -5110,8 +5111,13 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			break;
 
 		case 'r': // change replace
-			
-		
+			{
+			// This will reset any existing replace data.
+			replace_data_t rp;
+			replace_data_t* r = rp.copy();
+			cnv->set_replace(r);
+			}
+			break;		
 
 		case 't': // change retire
 			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {

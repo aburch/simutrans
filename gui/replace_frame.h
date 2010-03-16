@@ -97,8 +97,6 @@ private:
 
 public:
 	
-	replace_data_t replace;
-	
 	/**
 	 * Update texts, image lists and buttons according to the current state.
 	 * @author Volker Meyer
