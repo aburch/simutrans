@@ -196,7 +196,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 		gr = welt->lookup(pos);
 		if(gr) {
-			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ) {
+			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ||  gr->is_halt()) {
 				// must end on boden_t and correct slope
 				return koord3d::invalid;
 			}
@@ -244,7 +244,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	const waytype_t wegtyp = besch->get_waytype();
 	const weg_t *weg = gr->get_weg(wegtyp);
 
-	if(  gr->get_typ() != grund_t::boden  ) {
+	if(  gr->get_typ() != grund_t::boden  ||  gr->is_halt()) {
 		return "Tunnel must start on single way!";
 	}
 	if(!hang_t::ist_einfach(gr->get_grund_hang())) {

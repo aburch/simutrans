@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -11,7 +11,7 @@
 #include "grund.h"
 
 /**
- * Der Boden ist der 'Natur'-Untergrund in Simu. Er kann einen Besitzer haben.
+ * boden_t are nature tiles (maybe with ways, powerlines, trees and beware: harbor buildings)
  *
  * @author Hj. Malthaner
  */
@@ -27,7 +27,7 @@ public:
 	boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) ) { rdwr(file); }
 	boden_t(karte_t *welt, koord3d pos, hang_t::typ slope);
 
-	inline bool ist_natur() const { return !hat_wege(); }
+	inline bool ist_natur() const { return !hat_wege()  &&  !is_halt(); }
 
 	const char *get_name() const;
 
