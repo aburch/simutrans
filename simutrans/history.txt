@@ -35,6 +35,7 @@
 	FIX: forest density/size nor again reasonable dependent on map size
 	ADD: factory stops can now get different names from building stops (%s factory %s %s must be new tranlated)
 	FIX: build foundations only directly under elevated monorail depots
+	FIX: ist_natur() return als false on halt tiles (like harbour)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
