@@ -13,9 +13,7 @@
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	int pos, i;
-
-	obj_node_t node(this, 21, &parent);
+	obj_node_t node(this, 22, &parent);
 
 	uint32 topspeed    = obj.get_int("topspeed",     999);
 	uint32 preis       = obj.get_int("cost",           0);
@@ -30,8 +28,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	obsolete_date += obj.get_int("retire_month", 1) - 1;
 
 	// Version uses always high bit set as trigger
-	// version 2: snow images
-	uint16 version = 0x8003;
+	// version 4: snow images + underground way image + broad portals
+	uint16 version = 0x8004;
 	node.write_uint16(fp, version,        0);
 	node.write_uint32(fp, topspeed,       2);
 	node.write_uint32(fp, preis,          6);
@@ -41,8 +39,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(fp, obsolete_date, 17);
 
 	sint8 number_seasons = 0;
+	uint8 number_portals = 1;
 
 	static const char* const indices[] = { "n", "s", "e", "w" };
+	static const char* const add[] = { "", "l", "r", "m" };
 	slist_tpl<cstring_t> backkeys;
 	slist_tpl<cstring_t> frontkeys;
 
@@ -51,53 +51,52 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	cursorkeys.append(cstring_t(obj.get("icon")));
 
 	char buf[40];
-	sprintf(buf, "%simage[%s][0]", "back", indices[0]);
 
+	// Check for seasons
+	sprintf(buf, "%simage[%s][1]", "front", indices[0]);
 	cstring_t str = obj.get(buf);
-	if (strlen(str) == 0) {
-		node.write_sint8(fp, number_seasons, 19);
-		write_head(fp, node, obj);
+	if(  strlen(str) != 0  ) {
+		// Snow images are present.
+		number_seasons = 1;
+	}
+	node.write_sint8(fp, number_seasons, 19);
 
-		for (pos = 0; pos < 2; pos++) {
-			for (i = 0; i < 4; i++) {
-				sprintf(buf, "%simage[%s]", pos ? "back" : "front", indices[i]);
-				cstring_t str = obj.get(buf);
-				(pos ? &backkeys : &frontkeys)->append(str);
+	// Check for broad portals
+	sprintf(buf, "%simage[%s%s][0]", "front", indices[0], add[1]);
+	str = obj.get(buf);
+	if(  strlen(str) == 0  ) {
+		// Test short version
+		sprintf(buf, "%simage[%s%s]", "front", indices[0], add[1]);
+		str = obj.get(buf);
+	}
+	if(  strlen(str) != 0  ) {
+		number_portals = 4;
+	}
+	node.write_sint8(fp, (number_portals==4), 21);
+
+	write_head(fp, node, obj);
+
+	for(  uint8 season = 0;  season <= number_seasons;  season++  ) {
+		for(  uint8 pos = 0;  pos < 2;  pos++  ) {
+			for(  uint8 j = 0;  j < number_portals;  j++  ) {
+				for(  uint8 i = 0;  i < 4;  i++  ) {
+					sprintf(buf, "%simage[%s%s][%d]", pos ? "back" : "front", indices[i], add[j], season);
+					cstring_t str = obj.get(buf);
+					if(  strlen(str) == 0  &&  season == 0 ) {
+						// Test also the short version.
+						sprintf(buf, "%simage[%s%s]", pos ? "back" : "front", indices[i], add[j]);
+						str = obj.get(buf);
+					}
+					(pos ? &backkeys : &frontkeys)->append(str);
+				}
 			}
 		}
 		imagelist_writer_t::instance()->write_obj(fp, node, backkeys);
 		imagelist_writer_t::instance()->write_obj(fp, node, frontkeys);
 		backkeys.clear();
 		frontkeys.clear();
-		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
-	} else {
-		while(number_seasons < 2) {
-			sprintf(buf, "%simage[%s][%d]", "back", indices[0], number_seasons+1);
-			cstring_t str = obj.get(buf);
-			if(strlen(str) > 0) {
-				number_seasons++;
-			} else {
-				break;
-			}
-		}
-		node.write_sint8(fp, number_seasons, 19);
-		write_head(fp, node, obj);
-
-		for (uint8 season = 0; season <= number_seasons ; season++) {
-			for (pos = 0; pos < 2; pos++) {
-				for (i = 0; i < 4; i++) {
-					sprintf(buf, "%simage[%s][%d]", pos ? "back" : "front", indices[i], season);
-					cstring_t str = obj.get(buf);
-					(pos ? &backkeys : &frontkeys)->append(str);
-				}
-			}
-			imagelist_writer_t::instance()->write_obj(fp, node, backkeys);
-			imagelist_writer_t::instance()->write_obj(fp, node, frontkeys);
-			backkeys.clear();
-			frontkeys.clear();
-			if(season == 0) {
-				cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
-			}
+		if(season == 0) {
+			cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 		}
 	}
 

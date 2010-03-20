@@ -4,13 +4,14 @@
  * This file is part of the Simutrans project under the artistic licence.
  *
  *  node structure:
- *	0   Name
- *	1   Copyright
- *	2   Bildliste Hintergrund
- *	3   Bildliste Vordergrund
+ *  0   Name
+ *  1   Copyright
+ *  2   Bildliste Hintergrund
+ *  3   Bildliste Vordergrund
  *  4   cursor(image 0) and icon (image 1)
- *	5   Bildliste Hintergrund - snow
- *	6   Bildliste Vordergrund - snow
+ *[ 5   Bildliste Hintergrund - snow ] (if present)
+ *[ 6   Bildliste Vordergrund - snow ] (if present)
+ *[ 7 (or 5 if no snow image) underground way ] (if present)
  */
 
 #ifndef __TUNNEL_BESCH_H
@@ -36,54 +37,58 @@ private:
 	uint32 maintenance;	// monthly cost for bits_per_month=18
 	uint8 wegtyp;	// waytype for tunnel
 
-	// allowed eara
+	// allowed era
 	uint16 intro_date;
 	uint16 obsolete_date;
 
 	/* number of seasons (0 = none, 1 = no snow/snow
-	*/
+	 */
 	sint8 number_seasons;
 
 	/* has underground way image ? ( 0 = no, 1 = yes
-	*/
+	 */
 	uint8 has_way;
+
+ 	/* Has broad portals?
+ 	 */
+ 	uint8 broad_portals;
 
 	werkzeug_t *builder;
 
 public:
-	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season) const
+	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(5))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(5))->get_bild(hang_indices[hang] + 4*type);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(hang_indices[hang] + 4*type);
 		}
 		return bild;
 	}
 
-	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season) const
+	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *besch = get_hintergrund(hang, season);
+		const bild_besch_t *besch = get_hintergrund(hang, season, type );
 		return besch != NULL ? besch->get_nummer() : IMG_LEER;
 	}
 
-	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season) const
+	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(6))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(6))->get_bild(hang_indices[hang] + 4*type );
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(3))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(3))->get_bild(hang_indices[hang] + 4*type );
 		}
 		return bild;
 	}
 
-	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season) const
+	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season, uint8 type) const
 	{
-		const bild_besch_t *besch = get_vordergrund(hang, season);
+		const bild_besch_t *besch = get_vordergrund(hang, season, type );
 		return besch != NULL ? besch->get_nummer() :IMG_LEER;
 	}
 
@@ -118,6 +123,8 @@ public:
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
 	}
+
+	bool has_broad_portals() const { return (broad_portals != 0); };
 };
 
 #endif
