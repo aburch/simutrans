@@ -54,19 +54,36 @@ void goods_stats_t::zeichnen(koord offset)
 		const sint32 revenue = (min_price > base_bonus ? min_price : base_bonus) * distance;
 		sint32 price = revenue;
 
-		const uint16 journey_minutes = (((float)distance / (float)welt->get_average_speed(way_type)*bonus)/100) * welt->get_einstellungen()->get_distance_per_tile() * 60;
+		const uint16 journey_minutes = ((float)distance / (((float)welt->get_average_speed(way_type) * bonus) / 100)) * welt->get_einstellungen()->get_distance_per_tile() * 60;
 
 		if(wtyp->get_catg_index() < 1)
 		{
 			//Passengers care about their comfort
 			const uint8 tolerable_comfort = convoi_t::calc_tolerable_comfort(journey_minutes, welt);
 
+			float comfort_modifier;
+			if(journey_minutes <= welt->get_einstellungen()->get_tolerable_comfort_short_minutes())
+			{
+				comfort_modifier = 0.2F;
+			}
+			else if(journey_minutes >= welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes())
+			{
+				comfort_modifier = 1.0F;
+			}
+			else
+			{
+				const uint8 differential = journey_minutes - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
+				const uint8 max_differential = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes() - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
+				const float proportion = (float)differential / (float)max_differential;
+				comfort_modifier = (0.8F * proportion) + 0.2F;
+			}
+
 			if(comfort > tolerable_comfort)
 			{
 				// Apply luxury bonus
 				const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
 				const uint8 differential = comfort - tolerable_comfort;
-				const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus();
+				const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier;
 				if(differential >= max_differential)
 				{
 					price += (revenue * multiplier);
@@ -82,7 +99,8 @@ void goods_stats_t::zeichnen(koord offset)
 				// Apply discomfort penalty
 				const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 				const uint8 differential = tolerable_comfort - comfort;
-				const float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty();
+				float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty() * comfort_modifier;
+				multiplier = multiplier < 0.95F ? multiplier : 0.95F;
 				if(differential >= max_differential)
 				{
 					price -= (revenue * multiplier);

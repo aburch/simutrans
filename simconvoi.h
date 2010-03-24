@@ -468,7 +468,7 @@ public:
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
 	 */
-	void call_convoi_tool( const char function, const char *extra );
+	void call_convoi_tool( const char function, uint16 additional_id = 0, const char *extra = NULL );
 
 	/**
 	* get state
@@ -910,7 +910,7 @@ public:
 
 	replace_data_t* get_replace() const { return replace; }
 
-	void set_replace(replace_data_t *new_replace) { replace = new_replace; }
+	void set_replace(replace_data_t *new_replace);
 
 	void clear_replace();
 
@@ -982,6 +982,8 @@ public:
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
+
+	void propogate_replace(replace_data_t *rpl, char replace_type);
 };
 
 #endif

@@ -5044,15 +5044,18 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  */
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 {
-	char tool=0;
+	char tool = 0;
+	char extra = 0;
 	uint16 convoi_id = 0;
+	uint16 additional_convoi_id = 0;
 
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi", &tool, &convoi_id );
+	//sscanf( p, "%c,%hi", &tool, &convoi_id );
+	sscanf( p, "%c,%hi,%hi,%c", &tool, &convoi_id, &additional_convoi_id, &extra);
 
 	// skip to the commands ...
 	for(  int z = 2;  *p  &&  z>0;  p++  ) {
@@ -5112,10 +5115,22 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 
 		case 'r': // change replace
 			{
-			// This will reset any existing replace data.
-			replace_data_t rp;
-			replace_data_t* r = rp.copy();
-			cnv->set_replace(r);
+			if(extra == 'a')
+			{
+				// This will reset any existing replace data.
+				replace_data_t rp;
+				replace_data_t* r = rp.copy();
+				cnv->set_replace(r);
+			}
+			else if(extra == 'c')
+			{
+				convoihandle_t source_convoy;
+				source_convoy.set_id(additional_convoi_id);
+				if(source_convoy.is_bound())
+				{
+					cnv->set_replace(source_convoy->get_replace());
+				}
+			}
 			}
 			break;		
 

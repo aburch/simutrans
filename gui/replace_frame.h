@@ -95,6 +95,8 @@ private:
 
 	sint64 calc_total_cost();
 
+	char tool_extra;
+
 public:
 	
 	/**

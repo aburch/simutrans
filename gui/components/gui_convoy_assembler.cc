@@ -762,11 +762,10 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 {
 	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
 
-	depot_t* depot = NULL;
-	const convoihandle_t cnv = depot_frame ? depot->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
+	const convoihandle_t cnv = depot_frame ? depot_frame->get_depot()->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
 	if(depot_frame)
 	{
-		depot = depot_frame->get_depot();
+		depot_t *depot = depot_frame->get_depot();
 		if(bild_data->lcolor != COL_RED &&
 			bild_data->rcolor != COL_RED &&
 			bild_data->rcolor != COL_DARK_PURPLE &&

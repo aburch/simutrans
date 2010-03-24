@@ -145,6 +145,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	set_resizemode(diagonal_resize);
 
 	convoy_assembler.set_replace_frame(this);
+
+	tool_extra = 'a';
 }
 
 
@@ -392,10 +394,10 @@ uint8 replace_frame_t::get_present_state() {
 	}
 
 
-void replace_frame_t::replace_convoy(convoihandle_t cnv)
+void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 {
 	uint32 state=get_present_state();
-	if (!cnv.is_bound() || cnv->in_depot() || state==-1) {
+	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==-1) {
 		return;
 	}
 
@@ -406,7 +408,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 			break;
 		}
 
-		if(!cnv->get_welt()->get_active_player()->can_afford(0 - money))
+		if(!cnv_rpl->get_welt()->get_active_player()->can_afford(0 - money))
 		{
 			const char *err = "That would exceed\nyour credit limit.";
 			news_img *box = new news_img(err);
@@ -414,30 +416,38 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 			break;
 		}
 
-		cnv->call_convoi_tool('r', NULL);
-		cnv->get_replace()->set_autostart(autostart);
-		cnv->get_replace()->set_retain_in_depot(retain_in_depot);
-		cnv->get_replace()->set_use_home_depot(use_home_depot);
-		cnv->get_replace()->set_allow_using_existing_vehicles(allow_using_existing_vehicles);
-		ITERATE_PTR(convoy_assembler.get_vehicles(), i)
+		// Tool_extra:
+		// a = add
+		// c = copy
+
+		cnv_rpl->call_convoi_tool('r', cnv.get_id(), &tool_extra);
+		
+		if(tool_extra == 'a')
 		{
-			cnv->get_replace()->add_vehicle(convoy_assembler.get_vehicles()->get_element(i));
+			cnv_rpl->get_replace()->set_autostart(autostart);
+			cnv_rpl->get_replace()->set_retain_in_depot(retain_in_depot);
+			cnv_rpl->get_replace()->set_use_home_depot(use_home_depot);
+			cnv_rpl->get_replace()->set_allow_using_existing_vehicles(allow_using_existing_vehicles);
+			ITERATE_PTR(convoy_assembler.get_vehicles(), i)
+			{
+				cnv_rpl->get_replace()->add_vehicle(convoy_assembler.get_vehicles()->get_element(i));
+			}
 		}
 
-		cnv->set_depot_when_empty( (depot || autostart));
-		cnv->set_no_load( cnv->get_depot_when_empty());
+		cnv_rpl->set_depot_when_empty( (depot || autostart));
+		cnv_rpl->set_no_load( cnv_rpl->get_depot_when_empty());
 		// If already empty, no need to be emptied
-		if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) {
-			cnv->set_depot_when_empty(false);
-			cnv->set_no_load(false);
-			cnv->go_to_depot(false);
+		if(cnv_rpl->get_replace() && cnv_rpl->get_depot_when_empty() && cnv_rpl->has_no_cargo()) {
+			cnv_rpl->set_depot_when_empty(false);
+			cnv_rpl->set_no_load(false);
+			cnv_rpl->go_to_depot(false);
 		}
 		break;
 	
 	case state_sell:
-		cnv->set_replace(NULL);
-		cnv->set_withdraw(true);
-		cnv->set_no_load(true);
+		cnv_rpl->set_replace(NULL);
+		cnv_rpl->set_withdraw(true);
+		cnv_rpl->set_no_load(true);
 		break;
 	case state_skip:
 	break;
@@ -513,11 +523,15 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			else if (replace_line) 
 			{
 				linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
-				if (line.is_bound()) {
-					for (uint32 i=0; i<line->count_convoys(); i++) {
+				if (line.is_bound()) 
+				{
+					for (uint32 i=0; i<line->count_convoys(); i++) 
+					{
 						convoihandle_t cnv_aux=line->get_convoy(i);
-						if (cnv->has_same_vehicles(cnv_aux)) {
+						if (cnv->has_same_vehicles(cnv_aux))
+						{
 							replace_convoy(cnv_aux);
+							tool_extra = 'c';
 						}
 					}
 				}
@@ -531,16 +545,19 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 					{
 						replace_convoy(cnv_aux);
+						tool_extra = 'c';
 					}
 				}
 			}
 			destroy_win(this);
+			tool_extra = 'a';
 			return true;
 		}
 	}
 	convoy_assembler.build_vehicle_lists();
 	update_data();
 	layout(NULL);
+	tool_extra = 'a';
 	return true;
 }
 

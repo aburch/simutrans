@@ -422,7 +422,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 
 
 // since now convoi states go via werkzeug_t
-void convoi_t::call_convoi_tool( const char function, const char *extra )
+void convoi_t::call_convoi_tool( const char function, uint16 additional_id, const char *extra)
 {
 	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
 	char cmd[3] = { function, ',', 0 };
@@ -433,9 +433,14 @@ void convoi_t::call_convoi_tool( const char function, const char *extra )
 		param.append( "," );
 		param.append( extra );
 	}
+	if( additional_id != 0)
+	{
+		param.append( ",");
+		param.append(additional_id);
+	}
 	w->set_default_param(param);
 	welt->set_werkzeug( w, get_besitzer() );
-	// since init always returns false, it is save to delete immediately
+	// since init always returns false, it is safe to delete immediately
 	delete w;
 }
 
@@ -3253,10 +3258,30 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		final_revenue -= tmp;
 	}
 	
-	if(ware.is_passenger())
+	if(final_revenue && ware.is_passenger())
 	{
 		//Passengers care about their comfort
 		const uint8 tolerable_comfort = calc_tolerable_comfort(journey_minutes);
+		
+		// Comfort matters more the longer the journey.
+		// @author: jamespetts, March 2010
+		float comfort_modifier;
+		if(journey_minutes <= welt->get_einstellungen()->get_tolerable_comfort_short_minutes())
+		{
+			comfort_modifier = 0.2F;
+		}
+		else if(journey_minutes >= welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes())
+		{
+			comfort_modifier = 1.0F;
+		}
+		else
+		{
+			const uint8 differential = journey_minutes - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
+			const uint8 max_differential = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes() - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
+			const float proportion = (float)differential / (float)max_differential;
+			comfort_modifier = (0.8F * proportion) + 0.2F;
+		}
+
 		uint8 comfort = 100;
 		if(line.is_bound())
 		{
@@ -3287,7 +3312,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply luxury bonus
 			const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus();
+			const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier;
 			if(differential >= max_differential)
 			{
 				final_revenue += (revenue * multiplier);
@@ -3303,7 +3328,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply discomfort penalty
 			const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			const float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty();
+			float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty() * comfort_modifier;
+			multiplier = multiplier < 0.95F ? multiplier : 0.95F;
 			if(differential >= max_differential)
 			{
 				final_revenue -= (revenue * multiplier);
@@ -4489,3 +4515,20 @@ void convoi_t::clear_replace()
 		replace = NULL;
 	}
 }
+
+ void convoi_t::set_replace(replace_data_t *new_replace)
+ { 
+	 if(new_replace != NULL && replace != new_replace)
+	 {
+		 new_replace->increment_convoys();
+	 }
+	 replace = new_replace;
+ }
+
+ void convoi_t::propogate_replace(replace_data_t *rpl, char replace_type)
+ {
+	 if(replace)
+	 {
+
+	 }
+ }
