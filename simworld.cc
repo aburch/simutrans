@@ -1746,7 +1746,7 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint8 h) const
 	}
 
 	const sint8 hmax = plan->get_kartenboden()->get_hoehe();
-	if(  hmax==h  ) {
+	if(  hmax==h  &&  (plan->get_kartenboden()->get_grund_hang()==0 ||  is_plan_height_changeable(x, y))) {
 		return true;
 	}
 

@@ -12,6 +12,7 @@ private:
 	const tunnel_besch_t *besch;
 	image_id bild;
 	image_id after_bild;
+	uint8 broad_type; // Is this a broad tunnel mouth?
 
 public:
 	tunnel_t(karte_t *welt, loadsave_t *file);
@@ -40,6 +41,8 @@ public:
 	void entferne(spieler_t *sp);
 
 	bool check_season( const long ) { calc_bild(); return true; };
+
+	uint8 get_broad_type() const { return broad_type; };
 	/**
 	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner

@@ -199,7 +199,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 		gr = welt->lookup(pos);
 		if(gr) {
-			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ) {
+			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ||  gr->is_halt()) {
 				// must end on boden_t and correct slope
 				return koord3d::invalid;
 			}
@@ -247,7 +247,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	const waytype_t wegtyp = besch->get_waytype();
 	const weg_t *weg = gr->get_weg(wegtyp);
 
-	if(  gr->get_typ() != grund_t::boden  ) {
+	if(  gr->get_typ() != grund_t::boden  ||  gr->is_halt()) {
 		return "Tunnel must start on single way!";
 	}
 	if(!hang_t::ist_einfach(gr->get_grund_hang())) {
@@ -529,13 +529,35 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		}
 		// removes single signals, bridge head, pedestrians, stops, changes catenary etc
 		ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp) & mask;
+
+		tunnel_t *t = gr->find<tunnel_t>();
+		uint8 broad_type = t->get_broad_type();
 		gr->remove_everything_from_way(sp,wegtyp,ribi);	// removes stop and signals correctly
 
 		// remove tunnel portals
-		tunnel_t *t = gr->find<tunnel_t>();
+		t = gr->find<tunnel_t>();
 		if(t) {
 			t->entferne(sp);
 			delete t;
+		}
+
+		if( broad_type ) {
+			hang_t::typ hang = gr->get_grund_hang();
+			ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
+			if( broad_type & 1 ) {
+				const grund_t *gr_l = welt->lookup(pos + dir);
+				tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
+				if( tunnel_l ) {
+					tunnel_l->calc_bild();
+				}
+			}
+			if( broad_type & 2 ) {
+				const grund_t *gr_r = welt->lookup(pos - dir);
+				tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
+				if( tunnel_r ) {
+					tunnel_r->calc_bild();
+				}
+			}
 		}
 
 		// corrects the ways
