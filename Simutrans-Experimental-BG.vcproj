@@ -789,6 +789,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_table.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_textarea.cc"
 				>
 			</File>
@@ -1934,6 +1938,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\components\gui_tab_panel.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\components\gui_table.h"
 				>
 			</File>
 			<File
