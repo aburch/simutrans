@@ -883,7 +883,8 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	}
 
 	if(  is_first_click(sp)  ) {
-		if( value & 1 ) {
+		// work directly if possible and ctrl is NOT pressed
+		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
 			dbg->warning("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( welt, sp, pos, koord3d::invalid );

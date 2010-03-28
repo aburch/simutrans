@@ -23,16 +23,8 @@ class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 		gui_label_t signal_label;
 		button_t remove_button, replace_button;
 		static bool remove, replace;
-		button_t cancel_button, ok_button;
 	public:
 		signal_spacing_frame_t( wkz_roadsign_t * );
-
-	/**
-	 * Events werden hiermit an die GUI-Komponenten
-	 * gemeldet
-	 * @author Hj. Malthaner
-	 */
-	void infowin_event(const event_t *ev);
 
 	/**
 	 * This method is called if an action is triggered
