@@ -1021,6 +1021,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\replace_data.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\replace_frame.cc"
 				>
 			</File>
@@ -2310,6 +2314,10 @@
 			</File>
 			<File
 				RelativePath=".\tpl\quickstone_tpl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\replace_data.h"
 				>
 			</File>
 			<File
