@@ -2952,7 +2952,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		buf.clear();
 
 		// append info on total capacity
-		slist_tpl <ware_t>capacity;
+#ifdef SLIST_FREIGHT
+		slist_tpl<ware_t> capacity;
+#else
+		vector_tpl<ware_t> capacity;
+#endif
 		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
@@ -3501,7 +3505,7 @@ uint8 convoi_t::calc_tolerable_comfort(uint16 journey_minutes, karte_t* w)
 	return (proportion * (comfort_long - comfort_median_long)) + comfort_median_long;
 }
 
-const uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
+uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w)
 {
 	const uint32 min_distance = w != NULL ? w->get_einstellungen()->get_min_bonus_max_distance() : 10;
 	if(distance <= min_distance)

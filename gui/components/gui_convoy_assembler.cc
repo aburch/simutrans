@@ -810,7 +810,7 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			{
 				vehicles.insert_at(0, info);
 			}
-			else if(veh_action == va_append);
+			else if(veh_action == va_append)
 			{
 				vehicles.append(info);
 			}
@@ -1470,7 +1470,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			{
 				j += sprintf(buf + j, "\n");
 			}
-			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
+			sprintf(buf + strlen(buf), "%s %lld Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
 		}
 		
 		// Prohibitibve way constraints

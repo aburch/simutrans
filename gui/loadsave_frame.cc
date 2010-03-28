@@ -10,6 +10,8 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <dirent.h>
+#include <stdio.h>
+#include <string.h>
 #else
 #include <io.h>
 #include <direct.h>
@@ -117,7 +119,7 @@ const char *loadsave_frame_t::get_info(const char *fname)
 		}
 		else
 		{
-			n += sprintf( date + n, "     ", v3);
+			n += sprintf( date + n, "     ");
 		}
 
 		// pak extension

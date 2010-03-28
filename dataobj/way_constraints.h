@@ -54,7 +54,7 @@ class way_constraints_of_way_t : public way_constraints_t
 {
 public:
 	way_constraints_of_way_t() : way_constraints_t(0, 0) {}
-};
+} GCC_PACKED;
 
 class missing_way_constraints_t : public way_constraints_t
 {

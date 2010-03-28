@@ -448,7 +448,7 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		} else if(komp == &line_selector) {
 			int selection = p.i;
 //DBG_MESSAGE("depot_frame_t::action_triggered()","line selection=%i",selection);
-			if(  (unsigned)(selection-1)<line_selector.count_elements()  ) {
+			if(  (unsigned)(selection-1)<(unsigned)line_selector.count_elements()  ) {
 				vector_tpl<linehandle_t> lines;
 				get_line_list(depot, &lines);
 				selected_line = lines[selection - 1];
@@ -547,7 +547,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	if(cnv.is_bound()) {
 		if(cnv->get_vehikel_anzahl() > 0) {
-			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
+			sprintf(txt_convoi_value, "%s %lld$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
 			// just recheck if schedules match
 			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
 				cnv->check_pending_updates();
