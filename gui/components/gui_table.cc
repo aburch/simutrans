@@ -220,7 +220,9 @@ void gui_table_t::remove_column(coordinate_t x)
 
 	// change size of arrays
 	column_defs.remove(x);
-	gui_cells.remove_at(x);
+	if (x < gui_cells.get_count()) {
+		gui_cells.remove_at(x);
+	}
 }
 
 // BG, 27.03.2010
@@ -229,7 +231,9 @@ void gui_table_t::remove_row(coordinate_t y)
 	// remove cells and change size of arrays
 	for (coordinate_t x = get_size().get_x(); x > 0; ) {
 		remove_cell(--x, y);
-		gui_cells[x].remove(y);
+		if (x < gui_cells.get_count()) {
+			gui_cells[x].remove(y);
+		}
 	}
 	row_defs.remove(y);
 }
