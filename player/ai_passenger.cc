@@ -336,7 +336,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock");
+		char *name = halt->create_name(bushalt, "Dock", translator::get_language() );
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -365,7 +365,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock");
+		char *name = halt->create_name(bushalt, "Dock", translator::get_language());
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -573,7 +573,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	}
 	// and change name to airport ...
 	halthandle_t halt = welt->lookup(bushalt)->get_halt();
-	char *name = halt->create_name( bushalt, "Airport" );
+	char *name = halt->create_name( bushalt, "Airport", translator::get_language() );
 	halt->set_name( name );
 	free(name);
 	// built also runway now ...

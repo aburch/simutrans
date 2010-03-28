@@ -22,6 +22,7 @@
 #include "../../bauer/vehikelbauer.h"
 #include "../../besch/intro_dates.h"
 #include "../../besch/vehikel_besch.h"
+#include "../../dataobj/replace_data.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/umgebung.h"
 #include "../../utils/simstring.h"
@@ -197,9 +198,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	bt_obsolete.add_listener(this);
-	bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
-	add_komponente(&bt_obsolete);
+	if(  get_welt()->get_einstellungen()->get_allow_buying_obsolete_vehicles()  ) {
+		bt_obsolete.add_listener(this);
+		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
+		add_komponente(&bt_obsolete);
+	}
 
 	bt_show_all.set_typ(button_t::square);
 	bt_show_all.set_text("Show all");
@@ -674,7 +677,8 @@ DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger 
 	}
 	else if(replace_frame)
 	{
-		replace_frame->get_convoy().is_bound() ? clear_convoy() : set_vehicles(replace_frame->get_convoy());
+		//replace_frame->get_convoy().is_bound() ? clear_convoy() : set_vehicles(replace_frame->get_convoy());
+		// We do not need to set the convoy here, as this will be done when the replacing takes place.
 		replace_frame->update_data();
 	}
 	update_tabs();
@@ -758,43 +762,59 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 {
 	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
 
-	depot_t* depot;
+	const convoihandle_t cnv = depot_frame ? depot_frame->get_depot()->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
 	if(depot_frame)
 	{
-		depot = depot_frame->get_depot();
+		depot_t *depot = depot_frame->get_depot();
+		if(bild_data->lcolor != COL_RED &&
+			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_DARK_PURPLE &&
+			bild_data->lcolor != COL_DARK_PURPLE &&
+			bild_data->rcolor != COL_PURPLE &&
+			bild_data->lcolor != COL_PURPLE &&
+			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+			&& veh_action != va_sell
+			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
+		{
+			// Dark orange = too expensive
+			// Purple = available only as upgrade
+
+			if(veh_action == va_sell)
+			{
+				depot->call_depot_tool( 's', convoihandle_t(), bild_data->text );
+			}
+			else if(upgrade != u_upgrade)
+			{
+				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text );
+			}
+			else
+			{
+				depot->call_depot_tool( 'u', cnv, bild_data->text );
+			}
+		}	
 	}
 	else
 	{
-		grund_t* gr = welt->lookup(replace_frame->get_convoy()->get_home_depot());
-		depot = gr->get_depot();
-	}
-
-	const convoihandle_t cnv = depot_frame ? depot->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
-
-	if(bild_data->lcolor != COL_RED &&
-		bild_data->rcolor != COL_RED &&
-		bild_data->rcolor != COL_DARK_PURPLE &&
-		bild_data->lcolor != COL_DARK_PURPLE &&
-		bild_data->rcolor != COL_PURPLE &&
-		bild_data->lcolor != COL_PURPLE &&
-		!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
-		&& veh_action != va_sell
-		&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
-	{
-		// Dark orange = too expensive
-		// Purple = available only as upgrade
-
-		if(veh_action == va_sell)
+		if(bild_data->lcolor != COL_RED &&
+			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_DARK_PURPLE &&
+			bild_data->lcolor != COL_DARK_PURPLE &&
+			bild_data->rcolor != COL_PURPLE &&
+			bild_data->lcolor != COL_PURPLE &&
+			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+			&& veh_action != va_sell
+			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
 		{
-			depot->call_depot_tool( 's', convoihandle_t(), bild_data->text );
-		}
-		else if(upgrade != u_upgrade)
-		{
-			depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text );
-		}
-		else
-		{
-			depot->call_depot_tool( 'u', cnv, bild_data->text );
+			//replace_frame->replace.add_vehicle(info);
+			if(veh_action == va_insert)
+			{
+				vehicles.insert_at(0, info);
+			}
+			else if(veh_action == va_append);
+			{
+				vehicles.append(info);
+			}
+			// No action for sell - not available in the replacer window.
 		}
 	}
 }
@@ -1384,12 +1404,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 		
+		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
+
 		// Permissive way constraints
 		// (If vehicle has, way must have)
 		// @author: jamespetts
-		for(uint8 i = 0; i < 8; i++)
+		for(uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(veh_type->permissive_way_constraint_set(i))
+			if(way_constraints.get_permissive(i))
 			{
 				k += sprintf(buf + k, translator::translate("\nMUST USE: "));
 				char tmpbuf[30];
@@ -1455,9 +1477,9 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		// (If way has, vehicle must have)
 		// @author: jamespetts
 		j += sprintf(buf + j, "\n");
-		for(uint8 i = 0; i < 8; i++)
+		for(uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(veh_type->prohibitive_way_constraint_set(i))
+			if(way_constraints.get_prohibitive(i))
 			{
 				j += sprintf(buf + j, translator::translate("\nMAY USE: "));
 				char tmpbuf[30];

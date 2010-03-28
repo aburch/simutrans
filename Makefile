@@ -178,6 +178,7 @@ SOURCES += dataobj/network.cc
 SOURCES += dataobj/network_cmd.cc
 SOURCES += dataobj/network_packet.cc
 SOURCES += dataobj/powernet.cc
+SOURCES += dataobj/replace_data.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
 SOURCES += dataobj/scenario.cc

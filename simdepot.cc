@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -196,8 +196,6 @@ bool depot_t::can_convoi_start(convoihandle_t /*cnv*/) const
 
 vehikel_t* depot_t::buy_vehicle(const vehikel_besch_t* info)
 {
-	// Offen: prüfen ob noch platz im depot ist???
-	// "Hours: check whether there is space in the depot?" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", info->get_name());
 	vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info, false); //"besitzer" = "owner" (Google)
 	DBG_DEBUG("depot_t::buy_vehicle()", "vehiclebauer %p", veh);
@@ -458,13 +456,12 @@ bool depot_t::start_convoi(convoihandle_t cnv)
 			sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
 			create_win( new news_img(buf), w_time_delete, magic_none);
 		} else if (can_convoi_start(cnv)) {
-			// der Convoi kann losdüsen
+			// convoi can start now
 			welt->sync_add( cnv.get_rep() );
 			cnv->start();
 
 			// remove from depot lists
 			sint32 icnv = (sint32)convois.index_of( cnv );
-			printf("icnv %d \n",icnv);
 			if (convois.remove(cnv)) {
 				// actually removed cnv from depot, here icnv>=0
 				// make another the current selected convoi

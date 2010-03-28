@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\debug"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -108,7 +108,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\release"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -201,7 +201,7 @@
 		<Configuration
 			Name="Release (SDL)|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\release-SDL"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -287,7 +287,7 @@
 		<Configuration
 			Name="Debug (SDL)|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\debug-SDL"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -373,7 +373,7 @@
 		<Configuration
 			Name="Debug Optimized|Win32"
 			OutputDirectory="..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="$(OutDir)\intermediates\$(ConfigurationName)"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="0"
@@ -2730,6 +2730,10 @@
 			</File>
 			<File
 				RelativePath=".\boden\wasser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\way_constraints.h"
 				>
 			</File>
 			<File

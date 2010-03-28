@@ -4,13 +4,14 @@
  * This file is part of the Simutrans project under the artistic licence.
  *
  *  node structure:
- *	0   Name
- *	1   Copyright
- *	2   Bildliste Hintergrund
- *	3   Bildliste Vordergrund
+ *  0   Name
+ *  1   Copyright
+ *  2   Bildliste Hintergrund
+ *  3   Bildliste Vordergrund
  *  4   cursor(image 0) and icon (image 1)
- *	5   Bildliste Hintergrund - snow
- *	6   Bildliste Vordergrund - snow
+ *[ 5   Bildliste Hintergrund - snow ] (if present)
+ *[ 6   Bildliste Vordergrund - snow ] (if present)
+ *[ 7 (or 5 if no snow image) underground way ] (if present)
  */
 
 #ifndef __TUNNEL_BESCH_H
@@ -18,6 +19,7 @@
 
 #include "../simimg.h"
 #include "../simtypes.h"
+#include "../dataobj/way_constraints.h"
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "bildliste2d_besch.h"
@@ -49,49 +51,54 @@ private:
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
-	uint8 way_constraints_permissive;
-	uint8 way_constraints_prohibitive;
+	//uint8 way_constraints_permissive;
+	//uint8 way_constraints_prohibitive;
+	way_constraints_of_way_t way_constraints;
 
 	/* has underground way image ? (0 = no, 1 = yes)
 	*/
 	uint8 has_way;
 
+ 	/* Has broad portals?
+ 	 */
+ 	uint8 broad_portals;
+
 	werkzeug_t *builder;
 
 public:
-	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season) const
+	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(5))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(5))->get_bild(hang_indices[hang] + 4*type);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(hang_indices[hang] + 4*type);
 		}
 		return bild;
 	}
 
-	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season) const
+	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *besch = get_hintergrund(hang, season);
+		const bild_besch_t *besch = get_hintergrund(hang, season, type );
 		return besch != NULL ? besch->get_nummer() : IMG_LEER;
 	}
 
-	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season) const
+	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(6))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(6))->get_bild(hang_indices[hang] + 4*type );
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(3))->get_bild(hang_indices[hang]);
+			bild = static_cast<const bildliste_besch_t *>(get_child(3))->get_bild(hang_indices[hang] + 4*type );
 		}
 		return bild;
 	}
 
-	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season) const
+	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season, uint8 type) const
 	{
-		const bild_besch_t *besch = get_vordergrund(hang, season);
+		const bild_besch_t *besch = get_vordergrund(hang, season, type );
 		return besch != NULL ? besch->get_nummer() :IMG_LEER;
 	}
 
@@ -130,18 +137,20 @@ public:
 	 * http://www.cprogramming.com/tutorial/bitwise_operators.html
 	 * @author: jamespetts
 	 * */
-	const bool permissive_way_constraint_set(uint8 i)
-	{
-		return ((way_constraints_permissive & 1)<<i != 0);
-	}
+	//const bool permissive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_permissive & 1)<<i != 0);
+	//}
 
-	const bool prohibitive_way_constraint_set(uint8 i)
-	{
-		return ((way_constraints_prohibitive & 1)<<i != 0);
-	}
+	//const bool prohibitive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_prohibitive & 1)<<i != 0);
+	//}
 
-	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
-	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	//uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
+	//uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
+	void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 
 	const weg_besch_t *get_weg_besch() const
 	{
@@ -158,6 +167,8 @@ public:
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
 	}
+
+	bool has_broad_portals() const { return (broad_portals != 0); };
 };
 
 #endif

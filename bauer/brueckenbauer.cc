@@ -550,7 +550,8 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 		weg->set_max_weight( besch->get_max_weight() );
-		weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		weg->add_way_constraints(besch->get_way_constraints());
 	} else {
 
 		leitung_t *lt = bruecke->get_leitung();

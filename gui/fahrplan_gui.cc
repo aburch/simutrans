@@ -393,12 +393,12 @@ void fahrplan_gui_t::infowin_event(const event_t *ev)
 				if(new_line!=cnv->get_line()) {
 					char id[16];
 					sprintf( id, "%i", new_line.get_id() );
-					cnv->call_convoi_tool( 'l', id );
+					cnv->call_convoi_tool( 'l', 0, id );
 				}
 				else {
 					cbuffer_t buf(5500);
 					fpl->sprintf_schedule( buf );
-					cnv->call_convoi_tool( 'g', buf );
+					cnv->call_convoi_tool( 'g', 0, buf );
 				}
 			}
 			else {
@@ -408,7 +408,7 @@ void fahrplan_gui_t::infowin_event(const event_t *ev)
 				}
 				cbuffer_t buf(5500);
 				fpl->sprintf_schedule( buf );
-				cnv->call_convoi_tool( 'g', buf );
+				cnv->call_convoi_tool( 'g', 0, buf );
 			}
 		}
 		else {

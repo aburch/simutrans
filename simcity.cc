@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -825,7 +825,7 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
  * denkmal_platz_sucher_t:
  *
  * Sucht einen freien Bauplatz
- * Im Gegensatz zum bauplatz_sucher_t werden Strassen auf den Rändern
+ * Im Gegensatz zum bauplatz_sucher_t werden Strassen auf den Raendern
  * toleriert.
  *
  * 22-Dec-02: Hajo: added safety checks for gr != 0 and plan != 0
@@ -851,8 +851,8 @@ class denkmal_platz_sucher_t : public platzsucher_t {
 			if (ist_randfeld(d)) {
 				return
 					gr->get_grund_hang() == hang_t::flach &&     // Flach
-					gr->get_typ() == grund_t::boden &&           // Boden -> keine GEbäude
-					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // Höchstens Strassen
+					gr->get_typ() == grund_t::boden &&           // Boden -> no building
+					(!gr->hat_wege() || gr->hat_weg(road_wt)) && // only roads
 					gr->kann_alle_obj_entfernen(NULL) == NULL;   // Irgendwas verbaut den Platz?
 			} else {
 				return
@@ -1495,7 +1495,7 @@ void stadt_t::rdwr(loadsave_t* file)
 
 /**
  * Wird am Ende der Laderoutine aufgerufen, wenn die Welt geladen ist
- * und nur noch die Datenstrukturenneu verknüpft werden müssen.
+ * und nur noch die Datenstrukturenneu verknuepft werden muessen.
  * @author Hj. Malthaner
  */
 void stadt_t::laden_abschliessen()
@@ -1681,7 +1681,7 @@ void stadt_t::step(long delta_t)
 		delta_t = 1;
 	}
 
-	// Ist es Zeit für einen neuen step?
+	// is it time for the next step?
 	next_step += delta_t;
 	next_bau_step += delta_t;
 
@@ -2146,8 +2146,7 @@ void stadt_t::step_passagiere()
 
 			int pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
 
-			// Ziel für Passagier suchen
-			// "The aim for passenger search"
+			// search target for the passenger
 			pax_zieltyp will_return;
 
 			const uint8 destination_count = simrand(max_destinations) + 1;
@@ -2663,6 +2662,7 @@ public_transport:
 			// we do not show no route for destination stop!
 		}
 	}
+
 	//	long t1 = get_current_time_millis();
 	//	DBG_MESSAGE("stadt_t::step_passagiere()", "Zeit für Passagierstep: %ld ms\n", (long)(t1 - t0));
 }
@@ -2694,12 +2694,8 @@ stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 }
 
 
-/*
- * gibt einen zufällingen gleichverteilten Punkt innerhalb der
- * Stadtgrenzen zurück
- *
- * "gives an equally zufällingen point within the city borders" (Google)
- *
+/**
+ * returns a random and uniformly distributed point within city borders
  * @author Hj. Malthaner
  */
 koord stadt_t::get_zufallspunkt() const
@@ -2930,7 +2926,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 						welt->access(best_pos + koord(-1, i))->get_kartenboden()->hat_weg(road_wt);
 				}
 				if (ok) {
-					// Straßenkreis um das Denkmal legen
+					// build roads around the monument
 					sint16 h=welt->lookup_kartenboden(best_pos)->get_hoehe();
 					for (int i = 0; i < total_size.y; i++) {
 						// only build in same height and not on slopes...
@@ -3847,7 +3843,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 			// if we reached here, the city was not far enough => try again
 		}
 
-		printf("simcity::  placed city %d its= %d\n", i, its);
 		if (index_to_places.empty() && i < anzahl - 1) {
 			dbg->warning("stadt_t::random_place()", "Not enough places found!");
 			break;

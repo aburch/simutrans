@@ -222,10 +222,11 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	replace_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	replace_button.set_pos(koord(BUTTON3_X,offset_below_viewport-(BUTTON_HEIGHT + 5)));
 	replace_button.set_text("Replace");
-	replace_button.set_typ(button_t::box);
+	replace_button.set_typ(button_t::roundbox_state);
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_komponente(&replace_button);
-	replace_button.add_listener(this);
+	// TEMPORARY: Replacing currently not working, so disable.
+	//replace_button.add_listener(this);
 
 	follow_button.set_groesse(koord(view.get_groesse().x, BUTTON_HEIGHT));
 	follow_button.set_text("follow me");
@@ -526,7 +527,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		{
 			if (cnv->get_replace()) 
 			{
-				cnv->set_replace(false);
+				cnv->clear_replace();
 				return true;
 			}
 

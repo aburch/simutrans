@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="Makeobj"
+	Name="Makeobj-Experimental"
 	ProjectGUID="{24CE8A5F-8B92-40EE-9491-31E2DFF019F9}"
 	RootNamespace="Makeobj"
 	Keyword="Win32Proj"
@@ -19,7 +19,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="..\..\simutrans-experimental-BG-binaries\intermediates\makeobj"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -91,7 +91,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\simutrans-experimental-BG-binaries"
-			IntermediateDirectory="..\..\simutrans-experimental-binaries\intermediates\makeobj"
+			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"

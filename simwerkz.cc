@@ -77,6 +77,7 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
+#include "dataobj/replace_data.h"
 
 #include "bauer/tunnelbauer.h"
 #include "bauer/brueckenbauer.h"
@@ -2901,7 +2902,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 
 	if(neu) {
-		char* name = halt->create_name(pos, "Dock");
+		char* name = halt->create_name(pos, "Dock", translator::get_language() );
 		halt->set_name( name );
 		free(name);
 	}
@@ -3100,7 +3101,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	halt->recalc_station_type();
 
 	if(neu) {
-		char* name = halt->create_name(pos, type_name);
+		char* name = halt->create_name(pos, type_name, translator::get_language() );
 		halt->set_name( name );
 		free(name);
 	}
@@ -3915,7 +3916,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				const char *err = wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, monorail_wt, welt->get_einstellungen()->cst_depot_rail );
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(k.get_2d());
-					if(bd->ist_natur()) {
+					if(hausbauer_t::elevated_foundation_besch  &&  k.z-bd->get_pos().z==1  &&  bd->ist_natur()) {
 						hausbauer_t::baue( welt, sp, bd->get_pos(), 0, hausbauer_t::elevated_foundation_besch );
 					}
 				}
@@ -5029,7 +5030,7 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 
 /************************* internal tools, only need for networking ***************/
 
-/* Handles all action of convois in depots. Needs a default param:
+/* Handles all action of convois outside depots. Needs a default param:
  * [function],[convoi_id],addition stuff
  * following simple command exists:
  * 'x' : self destruct
@@ -5038,19 +5039,23 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  * 'n' : toggle 'no load'
  * 'w' : toggle withdraw
  * 'd' : dissassemble convoi and store vehicle in this depot
+ * 't' : toggle 'retire'
  * 'l' : apply new line [number]
  */
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 {
-	char tool=0;
+	char tool = 0;
+	char extra = 0;
 	uint16 convoi_id = 0;
+	uint16 additional_convoi_id = 0;
 
 	// skip the rest of the command
 	const char *p = default_param;
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	sscanf( p, "%c,%hi", &tool, &convoi_id );
+	//sscanf( p, "%c,%hi", &tool, &convoi_id );
+	sscanf( p, "%c,%hi,%hi,%c", &tool, &convoi_id, &additional_convoi_id, &extra);
 
 	// skip to the commands ...
 	for(  int z = 2;  *p  &&  z>0;  p++  ) {
@@ -5106,6 +5111,36 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			if(  !cnv->get_no_load()  ) {
 				cnv->set_withdraw( false );
 			}
+			break;
+
+		case 'r': // change replace
+			{
+			if(extra == 'a')
+			{
+				// This will reset any existing replace data.
+				replace_data_t rp;
+				replace_data_t* r = rp.copy();
+				cnv->set_replace(r);
+			}
+			else if(extra == 'c')
+			{
+				convoihandle_t source_convoy;
+				source_convoy.set_id(additional_convoi_id);
+				if(source_convoy.is_bound())
+				{
+					cnv->set_replace(source_convoy->get_replace());
+				}
+			}
+			}
+			break;		
+
+		case 't': // change retire
+			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
+				// pop up error message here!
+				return false;
+			}
+			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
+			cnv->set_no_load(cnv->get_depot_when_empty());
 			break;
 
 		case 'w': // change withdraw

@@ -63,6 +63,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		// Whether the read file is from Simutrans-Experimental
 		//@author: jamespetts
 
+		way_constraints_of_way_t way_constraints;
 		const bool experimental = version > 0 ? v & EXP_VER : false;
 		uint16 experimental_version = 0;
 		if(experimental)
@@ -75,11 +76,6 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				experimental_version ++;
 			}
 			experimental_version -=1;
-		}
-		else
-		{
-			besch->way_constraints_permissive = 0;
-			besch->way_constraints_prohibitive = 0;
 		}
 
 		if(version==4) {
@@ -98,8 +94,8 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			{
 				if(experimental_version == 0)
 				{
-					besch->way_constraints_permissive = decode_uint8(p);
-					besch->way_constraints_prohibitive = decode_uint8(p);
+					way_constraints.set_permissive(decode_uint8(p));
+					way_constraints.set_prohibitive(decode_uint8(p));
 				}
 				else
 				{
@@ -151,6 +147,7 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		else {
 			dbg->fatal("way_reader_t::read_node()","Invalid version %d", version);
 		}
+		besch->set_way_constraints(way_constraints);
 	}
 
 	// some internal corrections to pay for orevious confusion with two waytypes
@@ -171,20 +168,20 @@ obj_besch_t * way_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->styp = 1;
 	}
 
-  DBG_DEBUG("way_reader_t::read_node()",
-	     "version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "
-	     "wtype=%d styp=%d intro_year=%i way_constraints_permissive = %d "
-		 "way_constraints_prohibitive = %d",
-	     version,
-	     besch->price,
-	     besch->maintenance,
-	     besch->topspeed,
-	     besch->max_weight,
-	     besch->wtyp,
-	     besch->styp,
-	     besch->intro_date/12,
-		 besch->way_constraints_permissive,
-		 besch->way_constraints_prohibitive);
+	DBG_DEBUG("way_reader_t::read_node()",
+		"version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "
+		"wtype=%d styp=%d intro_year=%i way_constraints_permissive = %d "
+		"way_constraints_prohibitive = %d",
+		version,
+		besch->price,
+		besch->maintenance,
+		besch->topspeed,
+		besch->max_weight,
+		besch->wtyp,
+		besch->styp,
+		besch->intro_date/12,
+		besch->get_way_constraints().get_permissive(),
+		besch->get_way_constraints().get_prohibitive());
 
   return besch;
 }

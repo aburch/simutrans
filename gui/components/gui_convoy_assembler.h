@@ -216,7 +216,7 @@ public:
 	inline void set_depot_frame(depot_frame_t *df) {depot_frame=df;}
 	inline void set_replace_frame(replace_frame_t *rf) {replace_frame=rf;}
 
-	inline const vector_tpl<const vehikel_besch_t *>* get_vehicles() const {return &vehicles;}
+	inline vector_tpl<const vehikel_besch_t *>* get_vehicles() {return &vehicles;}
 	inline const vector_tpl<gui_image_list_t::image_data_t >* get_convoi_pics() const { return &convoi_pics; }
 	void set_vehicles(convoihandle_t cnv);
 	void set_vehicles(const vector_tpl<const vehikel_besch_t *>* vv);
