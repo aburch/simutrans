@@ -2266,7 +2266,7 @@ const way_obj_besch_t *wkz_wayobj_t::get_besch( const karte_t* welt ) const
 bool wkz_wayobj_t::is_selected( karte_t *welt ) const
 {
 	const wkz_wayobj_t *selected = dynamic_cast<const wkz_wayobj_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
-	return (selected  &&  selected->get_besch(welt) == get_besch(welt));
+	return (selected  &&  selected->build==build  &&  selected->get_besch(welt) == get_besch(welt));
 }
 
 bool wkz_wayobj_t::init( karte_t *welt, spieler_t *sp )
