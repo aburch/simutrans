@@ -15,10 +15,6 @@
 #include "../../simcolor.h"
 #include "../gui_frame.h"
 
-typedef KOORD_VAL koord_x;
-typedef KOORD_VAL koord_y;
-typedef KOORD_VAL coordinate_t;
-typedef PLAYER_COLOR_VAL color_t;
 
 /**
  * 
@@ -153,6 +149,11 @@ public:
 	}
 };
 
+typedef KOORD_VAL koord_x;
+typedef KOORD_VAL koord_y;
+typedef KOORD_VAL coordinate_t;
+typedef PLAYER_COLOR_VAL color_t;
+
 
 /**
  * 
@@ -177,23 +178,6 @@ public:
 	bool operator != (const coordinates_t &value) { return !equals(value); }
 };
 
-class gui_table_t;
-
-class gui_table_event_t
-{
-private:
-	gui_table_t *table;
-	const event_t *ev;
-public:
-	gui_table_event_t(gui_table_t *table, const event_t *ev) {
-		this->table = table;
-		this->ev = ev;
-	}
-	gui_table_t *get_table() const { return table; }
-	const event_t *get_event() const { return ev; }
-	bool is_cell_hit;
-	coordinates_t cell;
-};
 
 /**
  * 
@@ -209,6 +193,20 @@ public:
 	gui_table_column_t() { width = 99; }
 	coordinate_t get_width() const { return width; }
 	void set_width(coordinate_t value) { width = value; }
+};
+
+
+/**
+ * 
+ *
+ * @since 22-MAR-2010
+ * @author Bernd Gabriel
+ */
+class gui_table_column_list_t : public list_tpl<gui_table_column_t> {
+protected:
+	virtual gui_table_column_t *create_item() { 
+		return new gui_table_column_t();
+	}
 };
 
 
@@ -235,20 +233,6 @@ public:
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_column_list_t : public list_tpl<gui_table_column_t> {
-protected:
-	virtual gui_table_column_t *create_item() { 
-		return new gui_table_column_t();
-	}
-};
-
-
-/**
- * 
- *
- * @since 22-MAR-2010
- * @author Bernd Gabriel
- */
 class gui_table_row_list_t : public list_tpl<gui_table_row_t> {
 protected:
 	virtual gui_table_row_t *create_item() { 
@@ -257,22 +241,55 @@ protected:
 };
 
 
+class gui_table_t;
+
+
 /**
- * 
+ * gui_table_t::infowin_event() notifies each event to all listeners sending a pointer to an instance of this class.
  *
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_cell_list_t : public list_tpl<gui_komponente_t> {
-protected:
-	virtual gui_komponente_t *create_item() { 
-		// cannot create a default component, as gui_komponente_t is an abstract class.
-		return NULL;
+class gui_table_event_t
+{
+private:
+	gui_table_t *table;
+	const event_t *ev;
+public:
+	gui_table_event_t(gui_table_t *table, const event_t *ev) {
+		this->table = table;
+		this->ev = ev;
 	}
+
+	/**
+	 * the table that notifies.
+	 */
+	gui_table_t *get_table() const { return table; }
+
+	/**
+	 * the event that the notifying table received.
+	 */
+	const event_t *get_event() const { return ev; }
+
+	/**
+	 * Does the mouse (ev->mx, ev->my) point to a cell?
+	 * False, if mouse is outside table or mouse points to grid/space around cells.
+	 * True and the cell coordinates can be found in 'cell'.
+	 */
+	bool is_cell_hit;
+
+	/**
+	 * Contains the coordinates of the cell the mouse points to, if is_cell_hit is true.
+	 * If is_cell_hit is false cell is undefined.
+	 */
+	coordinates_t cell;
 };
 
+
 /**
- * a table component
+ * A table component. 
+ * - allows any number of columns and rows with individual widths and heights.
+ * - allows a grid of any width.
  *
  * @since 14-MAR-2010
  * @author Bernd Gabriel
@@ -284,41 +301,23 @@ private:
 	color_t grid_color;
 	bool grid_visible;
 	char tooltip[200];
-	// arrays controlled by change_size() via set_size() or add_column()/insert_column()/add_row()/insert_row()/
-	gui_table_column_list_t column_defs;
-	gui_table_row_list_t row_defs;
-	vector_tpl<gui_table_cell_list_t> gui_cells; // gui_cells[x][y]
+	// arrays controlled by change_size() via set_size() or add_column()/remove_column()/add_row()/remove_row()
+	gui_table_column_list_t columns;
+	gui_table_row_list_t rows;
 	//
-	void change_size(const coordinates_t &new_size);
 	bool get_column_at(koord_x x, coordinate_t *column);
 	bool get_row_at(koord_y y, coordinate_t *row);
 protected:
-	gui_komponente_t *get_cell_component(coordinate_t x, coordinate_t y) { 
-		if (x < (coordinate_t) gui_cells.get_count() &&	y < (coordinate_t) gui_cells[x].get_count())
-		{
-			return gui_cells[x][y]; 
-		}
-		return NULL;
-	}
-	void set_cell_component(coordinate_t x, coordinate_t y, gui_komponente_t *component) { gui_cells[x].set(y, component); }
+	/**
+	 * change_size() is called in set_size(), whenever the size actually changes.
+	 */
+	virtual void change_size(const coordinates_t &old_size, const coordinates_t &new_size);
 
 	virtual gui_table_column_t *init_column(coordinate_t x) { return new gui_table_column_t(); }
 	virtual gui_table_row_t *init_row(coordinate_t y) { return new gui_table_row_t(); }
 
 	/**
-	 * init_cell() is called in change_size(), whenever a cell is added, e.g. during set_size().
-	 *
-	 * It has to initialize the content of this cell. 
-	 * The default implementation does nothing for cell(x,y) held in gui_cells[x][y].
-	 * The position of a cell is relative to its position in the grid. 
-	 * Position (0,0) shows the cell starting in the upper left corner of the cell.
-	 * The cell must not be wider than get_column_width() and not higher than get_row_height().
-	 * There is no clipping. If you'd like to merge cells, you resign a grid or override paint_grid().
-	 */
-	virtual void init_cell(coordinate_t x, coordinate_t y);
-
-	/**
-	 * paint_cell() is called in zeichnen(), whenever a cell has to be painted.
+	 * paint_cell() is called in paint_cells(), whenever a cell has to be painted.
 	 *
 	 * It has to paint cell (x,y) at position offset. 
 	 * The default implementation calls zeichnen() of the component of cell (x,y), if there is one.
@@ -326,18 +325,19 @@ protected:
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y);
 
 	/**
-	 * paint_grid() is called in zeichnen() after painting the cells, whenever the table grid has to be painted.
+	 * paint_cells() is called in zeichnen() after painting the grid.
 	 *
-	 * The default implementation draws grid_color lines of grid_width.
+	 * It has to paint the cell content. 
+	 * The default implementation calls paint_cell() with the correct cell offset for each cell.
 	 */
-	virtual void paint_grid(const koord &offset);
+	virtual void paint_cells(const koord &offset);
 
 	/**
-	 * remove_cell() is called in change_size(), before a cell is removed, e.g. during set_size().
-	 * It has to finalize the content of this cell. 
-	 * The default implementation deletes the component of cell (x,y), if there is one.
+	 * paint_grid() is called in zeichnen() before painting the cells.
+	 *
+	 * The default implementation draws grid_color lines of grid_width, if the grid is set to be visible.
 	 */
-	virtual void remove_cell(coordinate_t x, coordinate_t y);
+	virtual void paint_grid(const koord &offset);
 public:
 	gui_table_t();
     ~gui_table_t();
@@ -349,23 +349,24 @@ public:
 	 * size.y is the number of cells vertically.
 	 */
 	const coordinates_t get_size() const {
-		return coordinates_t(column_defs.get_count(), row_defs.get_count()); 
+		return coordinates_t(columns.get_count(), rows.get_count()); 
 	}
 	void set_size(const coordinates_t &value) { 
-		if (!get_size().equals(value)) {
-			change_size(value);
+		const coordinates_t &old_size = get_size(); 
+		if (!old_size.equals(value)) {
+			change_size(old_size, value);
 		}
 	}
-	bool get_owns_columns() { return column_defs.get_owns_items(); }
-	bool get_owns_rows() { return row_defs.get_owns_items(); }
-	void set_owns_columns(bool value) { column_defs.set_owns_items(value); }
-	void set_owns_rows(bool value) { row_defs.set_owns_items(value); }
-	coordinate_t add_column(gui_table_column_t *column);
-	coordinate_t add_row(gui_table_row_t *row);
-	void remove_column(coordinate_t x);
-	void remove_row(coordinate_t y);
-	virtual gui_table_column_t *get_column(coordinate_t x) { return column_defs[x]; }
-	virtual gui_table_row_t *get_row(coordinate_t y) { return row_defs[y]; }
+	bool get_owns_columns() { return columns.get_owns_items(); }
+	bool get_owns_rows() { return rows.get_owns_items(); }
+	void set_owns_columns(bool value) { columns.set_owns_items(value); }
+	void set_owns_rows(bool value) { rows.set_owns_items(value); }
+	virtual coordinate_t add_column(gui_table_column_t *column);
+	virtual coordinate_t add_row(gui_table_row_t *row);
+	virtual void remove_column(coordinate_t x);
+	virtual void remove_row(coordinate_t y);
+	gui_table_column_t *get_column(coordinate_t x) { return columns[x]; }
+	gui_table_row_t *get_row(coordinate_t y) { return rows[y]; }
 
 	/**
 	 * Get/set grid width / space around cells.
@@ -392,9 +393,9 @@ public:
 	/**
 	 * Get/set width of columns and heights of rows.
 	 */
-	koord_x const get_column_width(coordinate_t x) { return column_defs[x]->get_width(); }
+	koord_x const get_column_width(coordinate_t x) { return columns[x]->get_width(); }
 	koord_x get_table_width();
-	koord_y const get_row_height(coordinate_t y) { return row_defs[y]->get_height(); }
+	koord_y const get_row_height(coordinate_t y) { return rows[y]->get_height(); }
 	koord_y get_table_height();
 	koord const get_cell_size(coordinate_t x, coordinate_t y) { return koord(get_column_width(x), get_row_height(y)); }
 	koord const get_table_size() { return koord(get_table_width(), get_table_height()); }
