@@ -3835,7 +3835,8 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			if(city) {
 				city->add_gebaeude_to_stadt( hq );
 			}
-			sp->add_headquarter( besch->get_extra()+1, pos.get_2d() );
+			// sometime those are not correct after rotation ...
+			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
