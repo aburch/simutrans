@@ -2577,6 +2577,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\way_constraints.h"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\way_obj_besch.h"
 				>
 			</File>
@@ -2680,6 +2684,10 @@
 			</File>
 			<File
 				RelativePath=".\base_texts_experimental_additional_5_1.dat"
+				>
+			</File>
+			<File
+				RelativePath=".\config.template"
 				>
 			</File>
 			<File

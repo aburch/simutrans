@@ -8,6 +8,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <limits.h>
+#ifdef UINT_MAX
+#define MAXUINT32 UINT_MAX
+#endif
+
 #include "../simworld.h"
 #include "../simintr.h"
 #include "../simhalt.h"

@@ -74,7 +74,7 @@ public:
 
 	const koord3d_vector_t &get_route() const { return route; }
 
-	const uint32 get_max_weight() const { return max_weight; }
+	uint32 get_max_weight() const { return max_weight; }
 
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 

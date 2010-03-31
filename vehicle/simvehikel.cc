@@ -1542,9 +1542,11 @@ sint16 get_friction_of_waytype(waytype_t waytype)
 {
 	switch(waytype)
 	{
-		case road_wt:	return 4;
+		case road_wt:	
+			return 4;
+		default:
+			return 1;
 	}
-	return 1;
 }
 
 
