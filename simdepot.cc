@@ -259,7 +259,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 }
 
 
-void depot_t::append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront)
+void depot_t::append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront)
 {
 	/* create  a new convoi, if necessary */
 	if (!cnv.is_bound()) {
@@ -311,56 +311,35 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 	{
 		convoihandle_t new_cnv;
 		int vehicle_count = old_cnv->get_vehikel_anzahl();
-		bool first_run = true;
 		for (int i = 0; i < vehicle_count; i++) 
 		{
 			const vehikel_besch_t * info = old_cnv->get_vehikel(i)->get_besch();
 			if (info != NULL) 
 			{
 				// search in depot for an existing vehicle of correct type
-				vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
-
-				//Dry run first to test affordability.
-				sint64 total_price = 0;
-					
-				if(oldest_vehicle == NULL)
+				vehikel_t* new_vehicle = get_oldest_vehicle(info);
+				if(new_vehicle == NULL)
 				{
-					total_price += info->get_preis();
-				}
-
-				if(!get_besitzer()->can_afford(total_price))
-				{
-					create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
-					return convoihandle_t();
-				}
-
-				if (oldest_vehicle != NULL) 
-				{
-					// append existing vehicle
-					append_vehicle(convois.back(), oldest_vehicle, false);
-				}
-				else 
-				{
-					// buy new vehicle
-					if(first_run)
+					// no vehicle of correct type in depot, must buy it:
+					//first test affordability.
+					sint64 total_price = info->get_preis();
+					if(!get_besitzer()->can_afford(total_price))
 					{
-						new_cnv = add_convoi();
-						new_cnv->set_name(old_cnv->get_internal_name());
-						first_run = false;
+						create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
+						break; // ... and what happens with the first few vehicles, if you: return convoihandle_t();
 					}
-					vehikel_t* veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
-					veh->set_pos(get_pos());
-					new_cnv->add_vehikel(veh, false);
+					// buy new vehicle
+					new_vehicle = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
 				}
+				// append new vehicle
+				append_vehicle(new_cnv, new_vehicle, false);
 			}
 		}
 		if (old_cnv->get_line().is_bound()) 
 		{
-			if(first_run)
+			if(!new_cnv.is_bound())
 			{
 				new_cnv = add_convoi();
-				new_cnv->set_name(old_cnv->get_internal_name());
-				first_run = false;
 			}
 			new_cnv->set_line(old_cnv->get_line());
 			new_cnv->get_schedule()->set_aktuell( old_cnv->get_schedule()->get_aktuell() );
@@ -369,22 +348,23 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 		{
 			if (old_cnv->get_schedule() != NULL) 
 			{
-				if(first_run)
+				if(!new_cnv.is_bound())
 				{
-					new_cnv = add_convoi();					
-					new_cnv->set_name(old_cnv->get_internal_name());
-					first_run = false;
+					new_cnv = add_convoi();
 				}
 				new_cnv->set_schedule(old_cnv->get_schedule()->copy());
 			}
 		}	
+		if (new_cnv.is_bound())
+		{
+			new_cnv->set_name(old_cnv->get_internal_name());
 
-		// make this the current selected convoi
-		depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
-		if(  win  ) {
-			win->activate_convoi( new_cnv );
+			// make this the current selected convoi
+			depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
+			if(  win  ) {
+				win->activate_convoi( new_cnv );
+			}
 		}
-
 		return new_cnv->self;
 	}
 	return convoihandle_t();
