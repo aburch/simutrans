@@ -532,9 +532,8 @@ void savegame_frame_t::release_file_table_button()
 	}
 }
 
-
 // BG, 26.03.2010
-void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	koord size = koord(get_width(), row.get_height());
 	btn.set_groesse(size);
@@ -551,22 +550,33 @@ void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_
 }
 
 // BG, 26.03.2010
-void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
 	lbl.set_pos(koord(2, 2));
 	lbl.set_groesse(koord(get_width() - 2, row.get_height() - 2));
 	lbl.zeichnen(offset);
 }
 
-void gui_file_table_action_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const 
+{ 
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
-	btn.set_text(file_row.text);
+	return file_row.text;
+}
+
+void gui_file_table_action_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+	btn.set_text(get_text(row));
 	gui_file_table_button_column_t::paint_cell(offset, x, y, row);
 }
 
-void gui_file_table_date_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+time_t gui_file_table_time_column_t::get_time(const gui_table_row_t &row) const 
+{ 
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	return file_row.info.st_mtime;
+}
+
+void gui_file_table_time_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+	time_t time = get_time(row);
+	struct tm *tm = localtime(&time);
 	char date[64];
-	struct tm *tm = localtime(&file_row.info.st_mtime);
 	if(tm) {
 		strftime(date, 18, "%Y-%m-%d %H:%M", tm);
 	}

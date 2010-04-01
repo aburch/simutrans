@@ -125,16 +125,21 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 	}
 }
 
-void gui_file_table_pak_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+void gui_file_table_pak_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
 	lbl.set_text(file_row.file.get_pak_extension());
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
 }
 
-void gui_file_table_std_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
- 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
+sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
+{
 	// file version 
-	uint32 v2 = file_row.file.get_version();
+ 	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
+	return (sint32) file_row.file.get_version();
+}
+
+void gui_file_table_std_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+	uint32 v2 = (uint32) get_int(row);
 	uint32 v1 = v2 / 1000;
 	uint32 v0 = v1 / 1000;
 	v1 %= 1000;
@@ -145,9 +150,15 @@ void gui_file_table_std_column_t::paint_cell(const koord &offset, coordinate_t x
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
 }
 
-void gui_file_table_exp_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
+{
+	// file version 
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	uint32 v3 = file_row.file.get_experimental_version();
+	return (sint32) file_row.file.get_experimental_version();
+}
+
+void gui_file_table_exp_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+	uint32 v3 = get_int(row);
 	char date[64];
 	if (v3)
 	{

@@ -19,25 +19,37 @@ public:
 	gui_file_table_pak_column_t() : gui_file_table_label_column_t() {
 		set_width(150);
 	}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row);
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
-class gui_file_table_std_column_t : public gui_file_table_label_column_t
+class gui_file_table_int_column_t : public gui_file_table_label_column_t
 {
+protected:
+	virtual sint32 get_int(const gui_table_row_t &row) const = 0;
 public:
-	gui_file_table_std_column_t() : gui_file_table_label_column_t() {
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return get_int(row1) - get_int(row2); }
+};
+
+class gui_file_table_std_column_t : public gui_file_table_int_column_t
+{
+protected:
+	virtual sint32 get_int(const gui_table_row_t &row) const;
+public:
+	gui_file_table_std_column_t() : gui_file_table_int_column_t() {
 		set_width(70);
 	}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row);
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
-class gui_file_table_exp_column_t : public gui_file_table_label_column_t
+class gui_file_table_exp_column_t : public gui_file_table_int_column_t
 {
+protected:
+	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
-	gui_file_table_exp_column_t() : gui_file_table_label_column_t() {
+	gui_file_table_exp_column_t() : gui_file_table_int_column_t() {
 		set_width(20);
 	}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row);
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
@@ -47,7 +59,7 @@ private:
 	karte_t *welt;
 	gui_file_table_delete_column_t delete_column;
 	gui_file_table_action_column_t action_column;
-	gui_file_table_date_column_t date_column;
+	gui_file_table_time_column_t date_column;
 	gui_file_table_pak_column_t pak_column;
 	gui_file_table_std_column_t std_column;
 	gui_file_table_exp_column_t exp_column;
