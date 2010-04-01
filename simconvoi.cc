@@ -2758,7 +2758,8 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(reversed, "");
 		
 		//Replacing settings
-		bool is_replacing = replace;
+		// BG, 31-MAR-2010: new replacing code starts with exp version 8:
+		bool is_replacing = replace && (file->get_experimental_version() >= 8);
 		file->rdwr_bool(is_replacing, "");
 
 		if(file->get_experimental_version() >= 8)
@@ -2783,47 +2784,58 @@ convoi_t::rdwr(loadsave_t *file)
 			file->rdwr_bool(old_autostart, "");
 			file->rdwr_bool(depot_when_empty, "");
 
-			uint16 replacing_vehicles_count;
+			uint16 replacing_vehicles_count = 0;
 
 			vector_tpl<const vehikel_besch_t *> *replacing_vehicles;
 
 			if(file->is_saving())
 			{
-				/*replacing_vehicles = replace->get_replacing_vehicles();
-				replacing_vehicles_count = replacing_vehicles->get_count();
+				// BG, 31-MAR-2010: new replacing code starts with exp version 8.
+				// BG, 31-MAR-2010: to keep compatibility with exp versions < 8 
+				//  at least the number of replacing vehicles (always 0) must be written. 
+				//replacing_vehicles = replace->get_replacing_vehicles();
+				//replacing_vehicles_count = replacing_vehicles->get_count();
 				file->rdwr_short(replacing_vehicles_count, "");
-				ITERATE_PTR(replacing_vehicles, i)
-				{
-					const char *s = replacing_vehicles->get_element(i)->get_name();
-					file->rdwr_str(s);
-				}*/
+				//ITERATE_PTR(replacing_vehicles, i)
+				//{
+				//	const char *s = replacing_vehicles->get_element(i)->get_name();
+				//	file->rdwr_str(s);
+				//}
 			}
 			else
 			{
-				replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
 				file->rdwr_short(replacing_vehicles_count, "");
-				for(uint16 i = 0; i < replacing_vehicles_count; i ++)
+				if (replacing_vehicles_count > 0)
 				{
-					char vehicle_name[256];
-					file->rdwr_str(vehicle_name, 256);
-					const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
-					if(besch == NULL) 
+					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
+					// BG, 31-MAR-2010: but we must read all related data from file.
+					replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+					for(uint16 i = 0; i < replacing_vehicles_count; i ++)
 					{
-						besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+						char vehicle_name[256];
+						file->rdwr_str(vehicle_name, 256);
+						const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
+						if(besch == NULL) 
+						{
+							besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+						}
+						if(besch == NULL)
+						{
+							dbg->warning("convoi_t::rdwr()","no vehicle pak for '%s' search for something similar", vehicle_name);
+						}
+						else
+						{
+							replacing_vehicles->append(besch);
+						}
 					}
-					if(besch == NULL)
-					{
-						dbg->warning("convoi_t::rdwr()","no vehicle pak for '%s' search for something similar", vehicle_name);
-					}
-					else
-					{
-						replacing_vehicles->append(besch);
-					}
+					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
+					// BG, 31-MAR-2010: we must not create 'replace'. I does not work correct. 
+					delete replacing_vehicles;
+					//replace = new replace_data_t();
+					//replace->set_autostart(old_autostart);
+					//replace->set_replacing_vehicles(replacing_vehicles);
 				}
 			}
-			replace = new replace_data_t();
-			replace->set_autostart(old_autostart);
-			replace->set_replacing_vehicles(replacing_vehicles);
 		}
 	}
 	if(file->get_experimental_version() >= 2)
