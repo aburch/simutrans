@@ -515,9 +515,9 @@ baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(w
 }
 
 
-void baum_t::saee_baum()
+bool baum_t::saee_baum()
 {
-	// spawn a new tree in an area 5x5 tiles around
+	// spawn a new tree in an area 3x3 tiles around
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
 	const koord k = get_pos().get_2d() + koord(simrand(5)-2, simrand(5)-2);
 	const planquadrat_t* p = welt->lookup(k);
@@ -529,8 +529,10 @@ void baum_t::saee_baum()
 			bd->get_top()<max_no_of_trees_on_square)
 		{
 			bd->obj_add( new baum_t(welt, bd->get_pos(), baumtype) );
+			return true;
 		}
 	}
+	return false;
 }
 
 
@@ -541,15 +543,19 @@ bool baum_t::check_season(long month)
 	// take care of birth/death and seasons
 	const long alter = (month - geburt);
 	calc_bild();
-	if(alter==512) {
+	if(alter>=512  &&  alter<=515  ) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
-		const uint8 c_plant_tree_max = 1+simrand(3);
-		for(uint8 c_temp=0 ;  c_temp<c_plant_tree_max;  c_temp++ ) {
-			saee_baum();
+		const uint8 c_plant_tree_max = 1+simrand(max_no_of_trees_on_square);
+		uint retrys = 0;
+		for(uint8 c_temp=0;  c_temp<c_plant_tree_max  &&  retrys<c_plant_tree_max;  c_temp++ ) {
+			if(  !saee_baum()  ) {
+				retrys++;
+				c_temp--;
+			}
 		}
-		// we make the tree a month older to avoid second spawning
-		geburt = geburt-1;
+		// we make the tree four months older to avoid second spawning
+		geburt = geburt-4;
 	}
 	// tree will die after 704 month (i.e. 58 years 8 month)
 	if(alter>=704) {
