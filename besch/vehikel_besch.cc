@@ -16,7 +16,7 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	}
 
 	// I am obsolete --> obsolescence cost increase.
-	sint32 max_cost = base_cost * (welt->get_einstellungen()->get_obsolete_running_cost_increase_percent() / 100);
+	uint32 max_cost = base_cost * (welt->get_einstellungen()->get_obsolete_running_cost_increase_percent() / 100);
 	if (max_cost == base_cost)
 	{
 		return max_cost;
@@ -87,7 +87,7 @@ float vehikel_besch_t::get_power_force_ratio() const
 				// Steamers are constant force machines unless about half of maximum speed, when steam runs short.
 				return geschw / (3.6f * 2.0f);
 			}
-			break;
+			/* else fall through */
 
 		//case water_wt:
 			// Ships are constant force machines at all speeds, but the pak sets are balanced for constant power. 
@@ -100,20 +100,22 @@ float vehikel_besch_t::get_power_force_ratio() const
 			{
 				return geschw / (3.6f * 2.0f);
 			}
-	}
+			/* else fall through */
 
-	/** Constant power characteristic, but we limit maximum force to a tenth of the power multiplied by gear.
-	*
-	* We consider a stronger gear factor producing additional force in the start-up process, where a greater gear factor allows a more forceful start.
-	* This will enforce the player to make more use of slower freight engines.
-	*
-	* Example: 
-	* The german series 230(130 DR) was a universal engine with 2200 kW, 250 kN starting tractive effort and 140 km/h allowed top speed.
-	* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN starting tractive effort and 100 km/h allowed top speed.
-	*
-	* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
-	*/
-	return 10.0f;
+		default:
+			/** Constant power characteristic, but we limit maximum force to a tenth of the power multiplied by gear.
+			*
+			* We consider a stronger gear factor producing additional force in the start-up process, where a greater gear factor allows a more forceful start.
+			* This will enforce the player to make more use of slower freight engines.
+			*
+			* Example: 
+			* The german series 230(130 DR) was a universal engine with 2200 kW, 250 kN starting tractive effort and 140 km/h allowed top speed.
+			* The same engine with a freight gear (series 231 / 131 DR) and 2200 kW had 340 kN starting tractive effort and 100 km/h allowed top speed.
+			*
+			* In simutrans these engines can be simulated by setting the power to 2200, max speed to 140 resp. 100 and the gear to 1.136 resp. 1.545.
+			*/
+			return 10.0f;
+	}
 }
 
 /**

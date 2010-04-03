@@ -670,7 +670,7 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	int get_yearsteps() { return (int) ((current_month % 12) * 8 + (ticks >> (ticks_bits_per_tag-3)) & 7); }
+	int get_yearsteps() { return (int) ((current_month % 12) * 8 + ((ticks >> (ticks_bits_per_tag-3)) & 7)); }
 
 	// prissi: current city road
 	// may change due to timeline
@@ -954,7 +954,7 @@ public:
 	const weighted_vector_tpl<stadt_t*>& get_staedte() const { return stadt; }
 	const stadt_t *get_random_stadt() const;
 	stadt_t *get_town_at(const uint32 weight) { return stadt.at_weight(weight); }
-	const uint32 get_town_list_weight() const { return stadt.get_sum_weight(); }
+	uint32 get_town_list_weight() const { return stadt.get_sum_weight(); }
 	void add_stadt(stadt_t *s);
 	bool rem_stadt(stadt_t *s);
 

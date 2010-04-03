@@ -1231,6 +1231,7 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		}
 	return "Cannot set marker here.\n";
 	}
+	return "Cannot set marker off the edge of the world.\n";
 }
 
 
