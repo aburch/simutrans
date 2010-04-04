@@ -12,8 +12,14 @@
 #include "../../simgraph.h"
 #include "../../simwin.h"
 
+
 // BG, 18.03.2010
-gui_table_t::gui_table_t() {
+gui_table_t::gui_table_t() 
+{
+	columns.set_owner(this);
+	rows.set_owner(this);
+	row_sort_column_order.set_owner(this);
+	column_sort_row_order.set_owner(this);
 	set_owns_columns(true);
 	set_owns_rows(true);
 	grid_width = 1;
@@ -21,17 +27,20 @@ gui_table_t::gui_table_t() {
 	tooltip[0] = 0;
 }
 
+
 // BG, 18.03.2010
 gui_table_t::~gui_table_t()
 {
 	set_size(coordinates_t(0, 0));
 }
 
+
 // BG, 22.03.2010
 coordinate_t gui_table_t::add_column(gui_table_column_t *column) {
 	coordinate_t x = columns.add(column);
 	return x;
 }
+
 
 // BG, 22.03.2010
 coordinate_t gui_table_t::add_row(gui_table_row_t *row) {
@@ -47,8 +56,9 @@ void gui_table_t::change_size(const coordinates_t &old_size, const coordinates_t
 	columns.resize(new_size.get_x());
 }
 
+
 // BG, 26.03.2010
-bool gui_table_t::get_column_at(koord_x x, coordinate_t *column)
+bool gui_table_t::get_column_at(koord_x x, coordinate_t *column) const
 {
 	coordinate_t n = columns.get_count();
 	koord_x ref = 0;
@@ -66,8 +76,9 @@ bool gui_table_t::get_column_at(koord_x x, coordinate_t *column)
 	return false;
 }
 
+
 // BG, 26.03.2010
-bool gui_table_t::get_row_at(koord_y y, coordinate_t *row)
+bool gui_table_t::get_row_at(koord_y y, coordinate_t *row) const
 {
 	coordinate_t n = rows.get_count();
 	koord_y ref = 0;
@@ -85,6 +96,7 @@ bool gui_table_t::get_row_at(koord_y y, coordinate_t *row)
 	return false;
 }
 
+
 // BG, 26.03.2010
 bool gui_table_t::get_cell_at(koord_x x, koord_y y, coordinates_t *cell)
 {
@@ -97,8 +109,9 @@ bool gui_table_t::get_cell_at(koord_x x, koord_y y, coordinates_t *cell)
 	return false;	
 }
 
+
 // BG, 18.03.2010
-koord_x gui_table_t::get_table_width() {
+koord_x gui_table_t::get_table_width() const {
 	coordinate_t i = columns.get_count();
 	koord_x width = (i + 1) * grid_width;
 	for (; i-- > 0;) {
@@ -107,8 +120,9 @@ koord_x gui_table_t::get_table_width() {
 	return width;
 }
 
+
 // BG, 18.03.2010
-koord_y gui_table_t::get_table_height() {
+koord_y gui_table_t::get_table_height() const {
 	coordinate_t i = rows.get_count();
 	koord_y height = (i + 1) * grid_width;
 	for (; i-- > 0;) {
@@ -116,6 +130,7 @@ koord_y gui_table_t::get_table_height() {
 	}
 	return height;
 }
+
 
 // BG, 26.03.2010
 void gui_table_t::infowin_event(const event_t *ev)
@@ -125,9 +140,11 @@ void gui_table_t::infowin_event(const event_t *ev)
 	call_listeners(value_t(&table_event));
 }
 
+
 // BG, 18.03.2010
 void gui_table_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y) {
 }
+
 
 // BG, 18.03.2010
 void gui_table_t::paint_cells(const koord &offset) {
@@ -146,6 +163,7 @@ void gui_table_t::paint_cells(const koord &offset) {
 		cell_pos.y += grid_width + get_row_height(y);
 	}
 }
+
 
 // BG, 18.03.2010
 void gui_table_t::paint_grid(const koord &offset) {
@@ -169,17 +187,86 @@ void gui_table_t::paint_grid(const koord &offset) {
 	display_fillbox_wh_clip(v.x, v.y, grid_width, s.y, grid_color, true);
 }
 
+
 // BG, 27.03.2010
 void gui_table_t::remove_column(coordinate_t x) 
 {
 	columns.remove(x);
 }
 
+
 // BG, 27.03.2010
 void gui_table_t::remove_row(coordinate_t y)
 {
 	rows.remove(y);
 }
+
+
+// BG, 04.04.2010
+void gui_table_t::set_row_sort_column_prio(coordinate_t x, int prio)
+{
+	assert(x >= 0 && (uint32) x < columns.get_count());
+	gui_table_column_t *column = columns.get(x);
+	int index = row_sort_column_order.index_of(column);
+	if (index >= 0) 
+	{
+		row_sort_column_order.move(index, prio);
+	}
+	else 
+	{
+		row_sort_column_order.insert(prio, column);
+	}
+}
+
+
+// BG, 04.04.2010
+void gui_table_t::sort_rows()
+{
+	rows.sort();
+}
+
+
+// BG, 04.04.2010
+int gui_table_column_list_t::compare_items(gui_table_column_t *item1, gui_table_column_t *item2) const
+{
+	gui_table_t *table = get_owner();
+	assert(table);
+	const gui_table_row_list_t &rows = table->column_sort_row_order;
+	int n = rows.get_count();
+	if (!n)
+		return -1;
+	int result = 0;
+	for (uint32 i = 0; !result && i < n; i++)
+	{
+		gui_table_row_t *row = rows.get(i);
+		result = row->compare_columns(*item1, *item2);
+		if (result && row->get_sort_descendingly())
+			result = -result;
+	}
+	return result;
+}
+
+
+// BG, 04.04.2010
+int gui_table_row_list_t::compare_items(gui_table_row_t *item1, gui_table_row_t *item2) const
+{
+	gui_table_t *table = get_owner();
+	assert(table);
+	const gui_table_column_list_t &columns = table->row_sort_column_order;
+	int n = columns.get_count();
+	if (!n)
+		return -1;
+	int result = 0;
+	for (uint32 i = 0; !result && i < n; i++)
+	{
+		gui_table_column_t *column = columns.get(i);
+		result = column->compare_rows(*item1, *item2);
+		if (result && column->get_sort_descendingly())
+			result = -result;
+	}
+	return result;
+}
+
 
 // BG, 18.03.2010
 void gui_table_t::zeichnen(koord offset) {

@@ -2125,6 +2125,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\tpl\list_tpl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\load_relief_frame.h"
 				>
 			</File>

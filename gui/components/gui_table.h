@@ -9,145 +9,12 @@
 #define gui_table_h
 
 #include "../../simtypes.h"
+#include "../../tpl/list_tpl.h"
 #include "../../tpl/vector_tpl.h"
 #include "../../ifc/gui_action_creator.h"
 #include "../../ifc/gui_komponente.h"
 #include "../../simcolor.h"
 #include "../gui_frame.h"
-
-
-/**
- * 
- *
- * @since 22-MAR-2010
- * @author Bernd Gabriel
- */
-template<class item_t> class list_tpl 
-{
-private:
-	item_t **data;
-	uint32 capacity;
-	uint32 count;
-	bool owns_items;
-
-	void set_capacity(uint32 value) {
-		assert(value <= (uint32)(UINT32_MAX_VALUE >> 1));
-		if (capacity > value) {
-			for (; capacity > value; ) {
-				if (data[--capacity]) {
-					delete_item(data[capacity]);
-					data[capacity] = NULL;
-				}
-			}
-			if (count > value)
-			{
-				count = value;
-			}
-		}
-		else if (capacity < value) {
-			data = (item_t**) realloc(data, sizeof(item_t*) * value);
-			for (; capacity < value; capacity++) {
-				data[capacity] = NULL;
-			}
-		}
-	}
-
-	void grow() {
-		// resulting capacities: 16, 24, 36, 54, 81, 121, 181, 271, 406, 609, 913, ...
-		set_capacity(capacity < 16 ? 16 : capacity + capacity / 2);
-	}
-protected:
-	virtual signed compare_item(item_t *item1, item_t *item2) {
-		return (signed) (item1 - item2);
-	}
-	virtual item_t *create_item() { 
-		return NULL;
-	}
-	virtual void delete_item(item_t *item) { 
-		if (item && owns_items) {
-			delete [] item; 
-		}
-	}
-public:
-	explicit list_tpl() { data = NULL; count = capacity = 0; this->owns_items = false; }
-	explicit list_tpl(uint32 capacity) { list_tpl(); set_capacity(capacity); }
-
-	uint32 get_capacity() const { return capacity; }
-	uint32 get_count() const { return count; }
-	void resize(uint32 new_count) {
-		set_capacity(new_count);
-		while (count < new_count) {
-			data[count++] = create_item();
-		}
-	}
-	bool get_owns_items() { return owns_items; }
-	void set_owns_items(bool value) { owns_items = value; }
-
-	item_t *get(uint32 index) {
-		assert(index < count);
-		return data[index];
-	}
-
-	item_t *set(uint32 index, item_t *item) {
-		assert(index < count);
-		item_t *old = data[index];
-		data[count] = item;
-		if (owns_items)
-		{
-			delete_item(old);
-			old = NULL;
-		}
-		return old;
-	}
-
-	sint32 add(item_t *item) {
-		if (count == capacity) {
-			grow();
-		}
-		data[count] = item;
-		return (sint32) count++;
-	}
-
-	void insert(uint32 index, item_t *item) {
-		assert(index <= count);
-		if (count == capacity) {
-			grow();
-		}
-		for (uint32 i = count++; i > index; i--) {
-			data[i] = data[i-1];
-		}
-		data[index] = item;
-	}
-
-	sint32 index_of(item_t *item) {
-		sint32 index = (sint32) count; 
-		while (--index >= 0){
-			if (!compare_item(data[index], item)){
-				break;
-			}
-		}
-		return index;
-	}
-
-	item_t *extract(uint32 index) {
-		assert(index < count);
-		item_t *item = data[index];
-		while (++index < count)
-		{
-			data[index-1] = data[index];
-		}
-		data[--count] = NULL;
-		return item;
-	}
-	void remove(uint32 index) {	delete_item(extract(index)); }
-	void remove(item_t *) {	delete_item(extract(index)); }
-	void sort() { qsort(data, count, sizeof(item_t*), compare_item); }
-
-	item_t* &operator [] (uint32 index) { 		
-		assert(index < count);
-		return data[index];
-	}
-};
 
 typedef KOORD_VAL koord_x;
 typedef KOORD_VAL koord_y;
@@ -179,6 +46,11 @@ public:
 };
 
 
+class gui_table_t;
+class gui_table_row_t;
+class gui_table_column_t;
+
+
 /**
  * 
  *
@@ -188,25 +60,18 @@ public:
 class gui_table_column_t
 {
 private:
+	char *name;
 	coordinate_t width;
+	bool sort_descendingly;
 public:
-	gui_table_column_t() { width = 99; }
+	gui_table_column_t() { width = 99; name = NULL; sort_descendingly = false; }
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return 0; }
+	const char *get_name() const { return name; }
+	void set_name(const char *value) { if (name) free(name); name = NULL; if (value) name = strdup(value); }
 	coordinate_t get_width() const { return width; }
 	void set_width(coordinate_t value) { width = value; }
-};
-
-
-/**
- * 
- *
- * @since 22-MAR-2010
- * @author Bernd Gabriel
- */
-class gui_table_column_list_t : public list_tpl<gui_table_column_t> {
-protected:
-	virtual gui_table_column_t *create_item() { 
-		return new gui_table_column_t();
-	}
+	bool get_sort_descendingly() { return sort_descendingly; }
+	void set_sort_descendingly(bool value) { sort_descendingly = value; }
 };
 
 
@@ -219,11 +84,29 @@ protected:
 class gui_table_row_t
 {
 private:
+	char *name;
 	coordinate_t height;
+	bool sort_descendingly;
 public:
-	gui_table_row_t() { height = 14; }
+	gui_table_row_t() { height = 14; name = NULL; sort_descendingly = false; }
+	virtual int compare_columns(const gui_table_column_t &row1, const gui_table_column_t &row2) const { return 0; }
+	const char *get_name() const { return name; }
+	void set_name(const char *value) { if (name) free(name); name = NULL; if (value) name = strdup(value); }
 	coordinate_t get_height() const { return height; }
 	void set_height(coordinate_t value) { height = value; }
+	bool get_sort_descendingly() { return sort_descendingly; }
+	void set_sort_descendingly(bool value) { sort_descendingly = value; }
+};
+
+
+class gui_table_property_t 
+{
+private:
+	gui_table_t *owner;
+public:
+	gui_table_property_t() { owner = NULL; }
+	gui_table_t *get_owner() const { return owner; }
+	void set_owner(gui_table_t *owner) {this->owner = owner; }
 };
 
 
@@ -233,15 +116,24 @@ public:
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_row_list_t : public list_tpl<gui_table_row_t> {
+class gui_table_column_list_t : public list_tpl<gui_table_column_t>, public gui_table_property_t {
 protected:
-	virtual gui_table_row_t *create_item() { 
-		return new gui_table_row_t();
-	}
+	virtual int compare_items(gui_table_column_t *item1, gui_table_column_t *item2) const;
+	virtual gui_table_column_t *create_item() { return new gui_table_column_t(); }
 };
 
 
-class gui_table_t;
+/**
+ * 
+ *
+ * @since 22-MAR-2010
+ * @author Bernd Gabriel
+ */
+class gui_table_row_list_t : public list_tpl<gui_table_row_t>, public gui_table_property_t {
+protected:
+	virtual int compare_items(gui_table_row_t *item1, gui_table_row_t *item2) const;
+	virtual gui_table_row_t *create_item() { return new gui_table_row_t(); }
+};
 
 
 /**
@@ -296,6 +188,8 @@ public:
  */
 class gui_table_t : public gui_komponente_t, public gui_action_creator_t
 {
+	friend gui_table_column_list_t;
+	friend gui_table_row_list_t;
 private:
 	uint16 grid_width;
 	color_t grid_color;
@@ -303,10 +197,12 @@ private:
 	char tooltip[200];
 	// arrays controlled by change_size() via set_size() or add_column()/remove_column()/add_row()/remove_row()
 	gui_table_column_list_t columns;
+	gui_table_column_list_t row_sort_column_order;
 	gui_table_row_list_t rows;
+	gui_table_row_list_t column_sort_row_order;
 	//
-	bool get_column_at(koord_x x, coordinate_t *column);
-	bool get_row_at(koord_y y, coordinate_t *row);
+	bool get_column_at(koord_x x, coordinate_t *column) const;
+	bool get_row_at(koord_y y, coordinate_t *row) const;
 protected:
 	/**
 	 * change_size() is called in set_size(), whenever the size actually changes.
@@ -357,8 +253,8 @@ public:
 			change_size(old_size, value);
 		}
 	}
-	bool get_owns_columns() { return columns.get_owns_items(); }
-	bool get_owns_rows() { return rows.get_owns_items(); }
+	bool get_owns_columns() const { return columns.get_owns_items(); }
+	bool get_owns_rows() const { return rows.get_owns_items(); }
 	void set_owns_columns(bool value) { columns.set_owns_items(value); }
 	void set_owns_rows(bool value) { rows.set_owns_items(value); }
 	virtual coordinate_t add_column(gui_table_column_t *column);
@@ -393,16 +289,32 @@ public:
 	/**
 	 * Get/set width of columns and heights of rows.
 	 */
-	koord_x const get_column_width(coordinate_t x) { return columns[x]->get_width(); }
-	koord_x get_table_width();
-	koord_y const get_row_height(coordinate_t y) { return rows[y]->get_height(); }
-	koord_y get_table_height();
-	koord const get_cell_size(coordinate_t x, coordinate_t y) { return koord(get_column_width(x), get_row_height(y)); }
-	koord const get_table_size() { return koord(get_table_width(), get_table_height()); }
+	koord_x get_column_width(coordinate_t x) const { return columns[x]->get_width(); }
+	koord_x get_table_width() const;
+	koord_y get_row_height(coordinate_t y) const { return rows[y]->get_height(); }
+	koord_y get_table_height() const;
+	koord get_cell_size(coordinate_t x, coordinate_t y) const { return koord(get_column_width(x), get_row_height(y)); }
+	koord get_table_size() const { return koord(get_table_width(), get_table_height()); }
 
 	bool get_cell_at(koord_x x, koord_y y, coordinates_t *cell);
 
 	void infowin_event(const event_t *ev);
+
+	/**
+	 * Set row sort order of a column. 
+	 * @param x index of column, whose position in the sort order is to be set.
+	 * @param prio 0: main sort column, prio > 0: sort column, if rows are the same in column prio - 1.
+	 */
+	void set_row_sort_column_prio(coordinate_t x, int prio = 0);
+	void sort_rows();
+
+	/**
+	 * Set column sort order of a row. 
+	 * @param y index of row, whose position in the sort order is to be set.
+	 * @param prio 0: main sort row, prio > 0: sort row, if columns are the same in row prio - 1.
+	 */
+	void set_column_sort_row_prio(coordinate_t y, int prio = 0);
+	void sort_columns();
 
 	/**
 	 * zeichnen() paints the table.

@@ -16,11 +16,13 @@
 #endif
 #include <sys/stat.h>
 #include <time.h>
+#include <math.h>
 
 #include "loadsave_frame.h"
 
 #include "../simworld.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/umgebung.h"
 #include "../pathes.h"
 #include "../utils/simstring.h"
 
@@ -83,6 +85,7 @@ const char * loadsave_frame_t::get_hilfe_datei() const
 	return do_load ? "load.txt" : "save.txt";
 }
 
+
 void loadsave_frame_t::init(const char *suffix, const char *path )
 {
 	file_table.set_owns_columns(false);
@@ -97,6 +100,7 @@ void loadsave_frame_t::init(const char *suffix, const char *path )
 	//set_fenstergroesse(koord(640+36, get_fenstergroesse().y));
 }
 
+
 void loadsave_frame_t::add_file(const char *filename, const bool not_cutting_suffix)
 {
 	char pathname[1024];
@@ -108,6 +112,15 @@ void loadsave_frame_t::add_file(const char *filename, const bool not_cutting_suf
 	}
 	file_table.add_row( new gui_loadsave_table_row_t( pathname, buttontext ));
 }
+
+
+void loadsave_frame_t::set_file_table_default_sort_order()
+{
+	savegame_frame_t::set_file_table_default_sort_order();
+	file_table.set_row_sort_column_prio(3, 0);
+	file_table.set_row_sort_column_prio(2, 1);
+}
+ 
 
 gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const char *buttontext) : gui_file_table_row_t(pathname, buttontext)
 {
@@ -125,11 +138,54 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 	}
 }
 
-void gui_file_table_pak_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+
+gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t() 
+{
+	set_width(150);
+	strcpy(pak, umgebung_t::objfilename);
+	pak[strlen(pak) - 1] = 0;
+	strlwr(pak);
+}
+
+
+float strsim(const char a[], const char b[]) 
+{	
+	int i = 0;
+	while (a[i] && b[i] && a[i] == b[i]) i++;
+	return sgn(a[i] - b[i]) / (float)(i+1);
+}
+
+
+int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const
+{
+	char s1[1024];
+	strcpy(s1, get_text(row1));
+	strlwr(s1);
+	float f1 = strsim(s1, pak);
+	char s2[1024];
+	strcpy(s2, get_text(row2));
+	strlwr(s2);
+	float f2 = strsim(s2, pak);
+	int result = sgn(fabs(f1) - fabs(f2));
+	if (!result)
+		result = strcmp(s1, s2);
+	return result;
+}
+
+
+const char *gui_file_table_pak_column_t::get_text(const gui_table_row_t &row) const
+{
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
-	lbl.set_text(file_row.file.get_pak_extension());
+	const char *pak = file_row.file.get_pak_extension();
+	return strlen(pak) > 3 && (!STRNICMP(pak, "zip", 3) || !STRNICMP(pak, "xml", 3)) ? pak + 3 : pak;
+}
+
+
+void gui_file_table_pak_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+	lbl.set_text(get_text(row));
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
 }
+
 
 sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
 {
@@ -137,6 +193,7 @@ sint32 gui_file_table_std_column_t::get_int(const gui_table_row_t &row) const
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
 	return (sint32) file_row.file.get_version();
 }
+
 
 void gui_file_table_std_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
 	uint32 v2 = (uint32) get_int(row);
@@ -150,12 +207,14 @@ void gui_file_table_std_column_t::paint_cell(const koord &offset, coordinate_t x
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
 }
 
+
 sint32 gui_file_table_exp_column_t::get_int(const gui_table_row_t &row) const
 {
 	// file version 
  	gui_loadsave_table_row_t &file_row = (gui_loadsave_table_row_t&)row;
 	return (sint32) file_row.file.get_experimental_version();
 }
+
 
 void gui_file_table_exp_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
 	uint32 v3 = get_int(row);

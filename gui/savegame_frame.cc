@@ -187,6 +187,8 @@ void savegame_frame_t::fill_list()
 	// The file entries
 	if (use_table)
 	{
+		set_file_table_default_sort_order();
+		file_table.sort_rows();
 		file_table.set_groesse(file_table.get_table_size());
 		set_fenstergroesse(file_table.get_groesse() + koord(25 + 14, 90));
 	}
@@ -223,6 +225,10 @@ void savegame_frame_t::fill_list()
 	}
 }
 
+
+void savegame_frame_t::set_file_table_default_sort_order()
+{
+}
 
 
 savegame_frame_t::~savegame_frame_t()

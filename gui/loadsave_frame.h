@@ -15,10 +15,12 @@ class karte_t;
 
 class gui_file_table_pak_column_t : public gui_file_table_label_column_t
 {
+	char pak[1024];
+protected:
+	virtual const char *get_text(const gui_table_row_t &row) const;
 public:
-	gui_file_table_pak_column_t() : gui_file_table_label_column_t() {
-		set_width(150);
-	}
+	gui_file_table_pak_column_t();
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const;
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
@@ -67,6 +69,7 @@ private:
 
 protected:
 	virtual void init(const char *suffix, const char *path);
+	virtual void set_file_table_default_sort_order();
 
 	/**
 	 * Aktion, die nach Knopfdruck gestartet wird.

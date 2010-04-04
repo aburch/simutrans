@@ -83,6 +83,7 @@ protected:
 public:
 	gui_file_table_time_column_t() : gui_file_table_label_column_t() {
 		set_width(120);
+		set_sort_descendingly(true);
 	}
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn(get_time(row1) - get_time(row2)); }
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
@@ -194,6 +195,11 @@ protected:
 	void set_filename( const char *fn );
 
 	virtual void init(const char *suffix, const char *path);
+
+	/**
+	 * called by fill_list():
+	 */
+	virtual void set_file_table_default_sort_order();
 public:
 	void fill_list();	// do the search ...
 
