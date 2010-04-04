@@ -58,9 +58,7 @@ planquadrat_t::~planquadrat_t()
 }
 
 
-
-grund_t *
-planquadrat_t::get_boden_von_obj(ding_t *obj) const
+grund_t *planquadrat_t::get_boden_von_obj(ding_t *obj) const
 {
 	if(ground_size==1) {
 		if(data.one  &&  data.one->obj_ist_da(obj)) {
@@ -76,7 +74,6 @@ planquadrat_t::get_boden_von_obj(ding_t *obj) const
 	}
 	return NULL;
 }
-
 
 
 void planquadrat_t::boden_hinzufuegen(grund_t *bd)
@@ -135,7 +132,6 @@ DBG_MESSAGE("planquadrat_t::boden_hinzufuegen()","addition ground %s at (%i,%i,%
 }
 
 
-
 bool planquadrat_t::boden_entfernen(grund_t *bd)
 {
 	assert(!bd->ist_karten_boden()  &&  ground_size>0);
@@ -168,7 +164,6 @@ bool planquadrat_t::boden_entfernen(grund_t *bd)
 }
 
 
-
 void planquadrat_t::kartenboden_setzen(grund_t *bd)
 {
 	assert(bd);
@@ -184,7 +179,6 @@ void planquadrat_t::kartenboden_setzen(grund_t *bd)
 	bd->calc_bild();
 	reliefkarte_t::get_karte()->calc_map_pixel(bd->get_pos().get_2d());
 }
-
 
 
 /**
@@ -226,9 +220,7 @@ void planquadrat_t::boden_ersetzen(grund_t *alt, grund_t *neu)
 }
 
 
-
-void
-planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
+void planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 {
 	xml_tag_t p( file, "planquadrat_t" );
 
@@ -300,7 +292,6 @@ planquadrat_t::rdwr(karte_t *welt, loadsave_t *file, koord pos )
 }
 
 
-
 // start a new month (an change seasons)
 void planquadrat_t::check_season(const long month)
 {
@@ -315,7 +306,6 @@ void planquadrat_t::check_season(const long month)
 		}
 	}
 }
-
 
 
 void planquadrat_t::abgesenkt(karte_t *welt)
@@ -336,6 +326,7 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 		gr->set_grund_hang( slope );
 	}
 }
+
 
 void planquadrat_t::angehoben(karte_t *welt)
 {
@@ -364,9 +355,7 @@ void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos) const
 }
 
 
-
-void
-planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
+void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
 {
 	grund_t *gr=get_kartenboden();
 	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
@@ -435,9 +424,10 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 			const sint16 x=xpos+raster_tile_width/2-r;
 			const sint16 y=ypos+(raster_tile_width*3)/4-r - (gr->get_grund_hang()? tile_raster_scale_y(8,raster_tile_width): 0);
 			const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
+			const sint16 off = (raster_tile_width>>5);
 			// suitable start search
 			for(sint16 h=halt_list_count-1;  h>=0;  h--  ) {
-				display_fillbox_wh_clip(x - h * 2, y + h * 2, r, r, PLAYER_FLAG | (halt_list[h]->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
+				display_fillbox_wh_clip(x - h * off, y + h * off, r, r, PLAYER_FLAG | (halt_list[h]->get_besitzer()->get_player_color1() + 4), kartenboden_dirty);
 			}
 		}
 	}
@@ -453,6 +443,7 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 		}
 	}
 }
+
 
 /**
  * Manche Böden können zu Haltestellen gehören.
@@ -471,7 +462,6 @@ void planquadrat_t::set_halt(halthandle_t halt)
 }
 
 
-
 // these functions are private helper functions for halt_list
 void planquadrat_t::halt_list_remove( halthandle_t halt )
 {
@@ -485,6 +475,7 @@ void planquadrat_t::halt_list_remove( halthandle_t halt )
 		}
 	}
 }
+
 
 void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 {
@@ -507,8 +498,6 @@ void planquadrat_t::halt_list_insert_at( halthandle_t halt, uint8 pos )
 	halt_list[pos] = halt;
 	halt_list_count ++;
 }
-
-
 
 
 /* The following functions takes at least 8 bytes of memory per tile but speed up passenger generation *
@@ -555,6 +544,7 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 	}
 }
 
+
 /**
  * removes the halt from a ground
  * however this funtion check, whether there is really no other part still reachable
@@ -580,7 +570,6 @@ void planquadrat_t::remove_from_haltlist(karte_t *welt, halthandle_t halt)
 	// if we reached here, we are not connected to this halt anymore
 	halt_list_remove(halt);
 }
-
 
 
 /**
