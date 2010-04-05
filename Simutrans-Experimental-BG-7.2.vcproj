@@ -18,7 +18,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			OutputDirectory="..\simutrans-experimental-BG-7.2-binaries"
 			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -107,7 +107,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			OutputDirectory="..\simutrans-experimental-BG-7.2-binaries"
 			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -200,7 +200,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release (SDL)|Win32"
-			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			OutputDirectory="..\simutrans-experimental-BG-7.2-binaries"
 			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -286,7 +286,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug (SDL)|Win32"
-			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			OutputDirectory="..\simutrans-experimental-BG-7.2-binaries"
 			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
@@ -372,7 +372,7 @@
 		</Configuration>
 		<Configuration
 			Name="Debug Optimized|Win32"
-			OutputDirectory="..\simutrans-experimental-BG-binaries"
+			OutputDirectory="..\simutrans-experimental-BG-7.2-binaries"
 			IntermediateDirectory="$(OutDir)\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"

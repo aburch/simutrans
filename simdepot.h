@@ -113,7 +113,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront);
+	void append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront);
 
 	/**
 	 * Remove the vehicle at given position from the convoi and put it in the
