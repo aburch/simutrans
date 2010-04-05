@@ -54,22 +54,22 @@ class gui_table_column_t;
 /**
  * 
  *
- * @since 22-MAR-2010
+ * @since 05-APR-2010
  * @author Bernd Gabriel
  */
-class gui_table_column_t
+class gui_table_intercept_t
 {
 private:
 	char *name;
-	coordinate_t width;
+	coordinate_t size; 
 	bool sort_descendingly;
+protected:
+	coordinate_t get_size() const { return size; }
+	void set_size(coordinate_t value) { size = value; }
 public:
-	gui_table_column_t() { width = 99; name = NULL; sort_descendingly = false; }
-	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return 0; }
+	gui_table_intercept_t(char *name_, coordinate_t size_, bool sort_descendingly_) : name(name_), size(size_), sort_descendingly(sort_descendingly_) {}
 	const char *get_name() const { return name; }
 	void set_name(const char *value) { if (name) free(name); name = NULL; if (value) name = strdup(value); }
-	coordinate_t get_width() const { return width; }
-	void set_width(coordinate_t value) { width = value; }
 	bool get_sort_descendingly() { return sort_descendingly; }
 	void set_sort_descendingly(bool value) { sort_descendingly = value; }
 };
@@ -81,21 +81,29 @@ public:
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_row_t
+class gui_table_column_t : public gui_table_intercept_t
 {
-private:
-	char *name;
-	coordinate_t height;
-	bool sort_descendingly;
 public:
-	gui_table_row_t() { height = 14; name = NULL; sort_descendingly = false; }
+	gui_table_column_t() : gui_table_intercept_t(NULL, 99, false) {}
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return 0; }
+	coordinate_t get_width() const { return get_size(); }
+	void set_width(coordinate_t value) { set_size(value); }
+};
+
+
+/**
+ * 
+ *
+ * @since 22-MAR-2010
+ * @author Bernd Gabriel
+ */
+class gui_table_row_t : public gui_table_intercept_t
+{
+public:
+	gui_table_row_t() : gui_table_intercept_t(NULL, 14, false) {}
 	virtual int compare_columns(const gui_table_column_t &row1, const gui_table_column_t &row2) const { return 0; }
-	const char *get_name() const { return name; }
-	void set_name(const char *value) { if (name) free(name); name = NULL; if (value) name = strdup(value); }
-	coordinate_t get_height() const { return height; }
-	void set_height(coordinate_t value) { height = value; }
-	bool get_sort_descendingly() { return sort_descendingly; }
-	void set_sort_descendingly(bool value) { sort_descendingly = value; }
+	coordinate_t get_height() const { return get_size(); }
+	void set_height(coordinate_t value) { set_size(value); }
 };
 
 
@@ -118,7 +126,7 @@ public:
  */
 class gui_table_column_list_t : public list_tpl<gui_table_column_t>, public gui_table_property_t {
 protected:
-	virtual int compare_items(gui_table_column_t *item1, gui_table_column_t *item2) const;
+	virtual int compare_items(const gui_table_column_t *item1, const gui_table_column_t *item2) const;
 	virtual gui_table_column_t *create_item() { return new gui_table_column_t(); }
 };
 
@@ -131,7 +139,7 @@ protected:
  */
 class gui_table_row_list_t : public list_tpl<gui_table_row_t>, public gui_table_property_t {
 protected:
-	virtual int compare_items(gui_table_row_t *item1, gui_table_row_t *item2) const;
+	virtual int compare_items(const gui_table_row_t *item1, const gui_table_row_t *item2) const;
 	virtual gui_table_row_t *create_item() { return new gui_table_row_t(); }
 };
 

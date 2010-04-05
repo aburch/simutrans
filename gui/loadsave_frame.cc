@@ -16,7 +16,6 @@
 #endif
 #include <sys/stat.h>
 #include <time.h>
-#include <math.h>
 
 #include "loadsave_frame.h"
 
@@ -147,12 +146,20 @@ gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_labe
 	strlwr(pak);
 }
 
-
+/**
+ * Get a rate for the similarity of strings.
+ *
+ * The similar the strings, the lesser the result.
+ * Identical strings result to 0.
+ * The result rates the number of identical characters.
+ */
 float strsim(const char a[], const char b[]) 
 {	
 	int i = 0;
 	while (a[i] && b[i] && a[i] == b[i]) i++;
-	return sgn(a[i] - b[i]) / (float)(i+1);
+	if (a[i] == b[i])
+		return 0;
+	return 1.0f / (float)(i+1);
 }
 
 
@@ -166,7 +173,7 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 	strcpy(s2, get_text(row2));
 	strlwr(s2);
 	float f2 = strsim(s2, pak);
-	int result = sgn(fabs(f1) - fabs(f2));
+	int result = sgn(f1 - f2);
 	if (!result)
 		result = strcmp(s1, s2);
 	return result;

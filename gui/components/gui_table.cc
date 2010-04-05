@@ -52,8 +52,8 @@ coordinate_t gui_table_t::add_row(gui_table_row_t *row) {
 // BG, 18.03.2010
 void gui_table_t::change_size(const coordinates_t &old_size, const coordinates_t &new_size) {
 	// change size of arrays
-	rows.resize(new_size.get_y());
-	columns.resize(new_size.get_x());
+	rows.set_count(new_size.get_y());
+	columns.set_count(new_size.get_x());
 }
 
 
@@ -227,7 +227,7 @@ void gui_table_t::sort_rows()
 
 
 // BG, 04.04.2010
-int gui_table_column_list_t::compare_items(gui_table_column_t *item1, gui_table_column_t *item2) const
+int gui_table_column_list_t::compare_items(const gui_table_column_t *item1, const gui_table_column_t *item2) const
 {
 	gui_table_t *table = get_owner();
 	assert(table);
@@ -248,7 +248,7 @@ int gui_table_column_list_t::compare_items(gui_table_column_t *item1, gui_table_
 
 
 // BG, 04.04.2010
-int gui_table_row_list_t::compare_items(gui_table_row_t *item1, gui_table_row_t *item2) const
+int gui_table_row_list_t::compare_items(const gui_table_row_t *item1, const gui_table_row_t *item2) const
 {
 	gui_table_t *table = get_owner();
 	assert(table);

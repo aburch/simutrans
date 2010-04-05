@@ -55,7 +55,7 @@ void gui_component_table_t::change_size(const coordinates_t &old_size, const coo
 	gui_table_t::change_size(old_size, new_size);
 	gui_cells.resize(new_size.get_x());
 	for (coordinate_t x = 0; x < new_size.get_x(); x++) {
-		gui_cells[x].resize(new_size.get_y());
+		gui_cells[x].set_count(new_size.get_y());
 	}
 
 	// initialize new cells
