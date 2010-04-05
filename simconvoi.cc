@@ -2964,11 +2964,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		buf.clear();
 
 		// append info on total capacity
-#ifdef SLIST_FREIGHT
 		slist_tpl<ware_t> capacity;
-#else
-		vector_tpl<ware_t> capacity;
-#endif
 		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
