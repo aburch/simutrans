@@ -1672,6 +1672,7 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 	else {
 		return 0;
 	}
+	error = NULL;
 	return 2;
 }
 
@@ -2073,6 +2074,7 @@ uint8 wkz_tunnelbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d
 		return 0;
 	}
 	// if starting tile is tunnel .. build underground tracks
+	error = NULL;
 	if(gr->ist_tunnel()) {
 		return 2;
 	}
@@ -2186,6 +2188,7 @@ uint8 wkz_wayremover_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3
 		error = "No suitable ground!";
 		return 0;
 	}
+	error = NULL;
 	return 2;
 }
 
@@ -2389,7 +2392,7 @@ const way_obj_besch_t *wkz_wayobj_t::get_besch( const karte_t* welt ) const
 bool wkz_wayobj_t::is_selected( karte_t *welt ) const
 {
 	const wkz_wayobj_t *selected = dynamic_cast<const wkz_wayobj_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
-	return (selected  &&  selected->get_besch(welt) == get_besch(welt));
+	return (selected  &&  selected->build==build  &&  selected->get_besch(welt) == get_besch(welt));
 }
 
 bool wkz_wayobj_t::init( karte_t *welt_, spieler_t *sp_ )
@@ -2439,7 +2442,7 @@ bool wkz_wayobj_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d
 	return can_built;
 }
 
-uint8 wkz_wayobj_t::is_valid_pos( karte_t * welt, spieler_t * sp, const koord3d& pos, const char *&/*error*/, const koord3d & )
+uint8 wkz_wayobj_t::is_valid_pos( karte_t * welt, spieler_t * sp, const koord3d& pos, const char *&error, const koord3d & )
 {
 	// search for starting ground
 	grund_t *gr=wkz_intern_koord_to_weg_grund(sp, welt, pos, wt );
@@ -2448,6 +2451,7 @@ uint8 wkz_wayobj_t::is_valid_pos( karte_t * welt, spieler_t * sp, const koord3d&
 		// wrong ground or not this way here => exit
 		return 0;
 	}
+	error = NULL;
 	return 2;
 }
 
@@ -4423,7 +4427,8 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			if(city) {
 				city->add_gebaeude_to_stadt( hq );
 			}
-			sp->add_headquarter( besch->get_extra()+1, pos.get_2d() );
+			// sometime those are not correct after rotation ...
+			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			if(sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );

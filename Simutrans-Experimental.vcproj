@@ -687,6 +687,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_table.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\components\gui_textarea.cc"
 				>
 			</File>
