@@ -3249,14 +3249,20 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 			case tram_wt:
 			case narrowgauge_wt:
 				price = sp->get_welt()->get_einstellungen()->cst_multiply_station * besch->get_level();
+				break;
 			case road_wt:
+			default:
 				price = sp->get_welt()->get_einstellungen()->cst_multiply_roadstop * besch->get_level();
+				break;
 			case water_wt:
 				price = sp->get_welt()->get_einstellungen()->cst_multiply_dock * besch->get_level();
+				break;
 			case air_wt:
 				price = sp->get_welt()->get_einstellungen()->cst_multiply_airterminal * besch->get_level();
+				break;
 			case 0:
-				price = sp->get_welt()->get_einstellungen()->cst_multiply_post*besch->get_level();
+				price = sp->get_welt()->get_einstellungen()->cst_multiply_post * besch->get_level();
+				break;
 			}
 		}
 	}
