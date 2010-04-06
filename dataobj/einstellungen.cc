@@ -1160,7 +1160,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
 	cst_remove_tree = (contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_haus = contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100;
+	cst_multiply_remove_haus = (contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile;
 	cst_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", cst_multiply_remove_field/(-100) ) * -100;
 	// powerlines
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
