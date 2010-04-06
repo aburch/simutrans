@@ -326,7 +326,12 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 					if(!get_besitzer()->can_afford(total_price))
 					{
 						create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
+						if(!new_cnv.is_bound() || new_cnv->get_vehikel_anzahl() == 0)
+						{
+							return new_cnv;
+						}
 						break; // ... and what happens with the first few vehicles, if you: return convoihandle_t();
+						
 					}
 					// buy new vehicle
 					new_vehicle = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, info );
