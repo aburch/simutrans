@@ -68,8 +68,8 @@ protected:
 		return NULL;
 	}
 	virtual void delete_item(item_t *item) { 
-		if (item && owns_items) {
-			delete item; 
+		if (owns_items) {
+			delete item; // Note, create_item *must* use "new", not "new[]".
 		}
 	}
 public:
@@ -144,7 +144,6 @@ public:
 		return item;
 	}
 	void remove(uint32 index) {	delete_item(extract(index)); }
-	void remove(item_t * item) {	assert(index_of(item) >= 0); delete_item(item); }
 	void sort() { qsort(data, count, sizeof(item_t*), compare_item); }
 
 	item_t* &operator [] (uint32 index) { 		
