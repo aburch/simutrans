@@ -203,6 +203,32 @@ void gui_table_t::remove_row(coordinate_t y)
 
 
 // BG, 04.04.2010
+void gui_table_t::set_column_sort_row_prio(coordinate_t y, int prio)
+{
+	assert(y >= 0 && (uint32) y < rows.get_count());
+	gui_table_row_t *row = rows.get(y);
+	int index = column_sort_row_order.index_of(row);
+	if (index >= 0) 
+	{
+		column_sort_row_order.move(index, prio);
+	}
+	else 
+	{
+		column_sort_row_order.insert(prio, row);
+	}
+}
+
+
+// BG, 04.04.2010
+void gui_table_t::sort_columns()
+{
+	if (column_sort_row_order.get_count() > 0) {
+		columns.sort();
+	}
+}
+
+
+// BG, 04.04.2010
 void gui_table_t::set_row_sort_column_prio(coordinate_t x, int prio)
 {
 	assert(x >= 0 && (uint32) x < columns.get_count());
@@ -222,7 +248,9 @@ void gui_table_t::set_row_sort_column_prio(coordinate_t x, int prio)
 // BG, 04.04.2010
 void gui_table_t::sort_rows()
 {
-	rows.sort();
+	if (row_sort_column_order.get_count() > 0) {
+		rows.sort();
+	}
 }
 
 

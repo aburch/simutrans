@@ -40,6 +40,8 @@ protected:
 	button_t btn;
 public:
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	void set_text(char *text) { btn.set_text(text); }
+	void set_tooltip(char *tooltip) { btn.set_tooltip(tooltip); }
 };
 
 
@@ -60,6 +62,7 @@ public:
 		btn.set_text("X");
 		btn.set_tooltip("Delete this file.");
 	}
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
@@ -101,13 +104,16 @@ protected:
 	cstring_t name;
 	cstring_t error;
 	bool pressed;
+	bool delete_enabled;
 	struct stat info;
 public:
-	gui_file_table_row_t();
-	gui_file_table_row_t(const char *pathname, const char *buttontext);
+	//gui_file_table_row_t();
+	gui_file_table_row_t(const char *pathname, const char *buttontext, bool delete_enabled = true);
 	const char *get_name() const { return name; }
 	void set_pressed(bool value) { pressed = value; }
 	bool get_pressed() { return pressed; }
+	void set_delete_enabled(bool value) { delete_enabled = value; }
+	bool get_delete_enabled() { return delete_enabled; }
 };
 
 
@@ -201,6 +207,7 @@ protected:
 	 */
 	virtual void set_file_table_default_sort_order();
 public:
+	const char *get_path() const { return fullpath; }
 	void fill_list();	// do the search ...
 
 	/**

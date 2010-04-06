@@ -32,7 +32,7 @@ class gui_loadsave_table_row_t : public gui_file_table_row_t
 public:
 	loadsave_t file;
 
-	gui_loadsave_table_row_t() : gui_file_table_row_t() {};
+	//gui_loadsave_table_row_t() : gui_file_table_row_t() {};
 	gui_loadsave_table_row_t(const char *pathname, const char *buttontext);
 };
 
@@ -103,7 +103,7 @@ void loadsave_frame_t::init(const char *suffix, const char *path )
 void loadsave_frame_t::add_file(const char *filename, const bool not_cutting_suffix)
 {
 	char pathname[1024];
-	sprintf( pathname, SAVE_PATH_X "%s", filename );
+	sprintf( pathname, "%s%s", get_path(), filename );
 	char buttontext[1024];
 	strcpy( buttontext, filename );
 	if ( !not_cutting_suffix ) {
