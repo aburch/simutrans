@@ -69,7 +69,7 @@ protected:
 	}
 	virtual void delete_item(item_t *item) { 
 		if (item && owns_items) {
-			delete [] item; 
+			delete item; 
 		}
 	}
 public:
