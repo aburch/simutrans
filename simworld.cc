@@ -1651,7 +1651,7 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 
 		for(  int i=0; ok  &&  i<gr->get_top(); i++  ) {
 			const ding_t *dt = gr->obj_bei(i);
-			if(dt != NULL) {
+			assert(dt != NULL);
 			ok =
 				dt->get_typ() == ding_t::baum  ||
 				dt->get_typ() == ding_t::zeiger  ||
@@ -1659,7 +1659,6 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 				dt->get_typ() == ding_t::sync_wolke  ||
 				dt->get_typ() == ding_t::async_wolke  ||
 				dt->get_typ() == ding_t::groundobj;
-			}
 		}
 	}
 

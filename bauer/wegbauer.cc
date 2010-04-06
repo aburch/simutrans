@@ -2136,7 +2136,7 @@ void wegbauer_t::baue_fluss()
 	}
 
 	// now build the river
-	for(  uint32 i=start_n;  i<end_n;  i++  ) {
+	for(  uint32 i=start_n;  i<end_n-1;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
 		if(  gr->get_typ()!=grund_t::wasser  ) {
 			// get direction
