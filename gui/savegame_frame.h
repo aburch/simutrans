@@ -8,6 +8,7 @@
 #ifndef gui_savegame_frame_h
 #define gui_savegame_frame_h
 
+#include <sys/stat.h>
 #include "../tpl/slist_tpl.h"
 #include "components/action_listener.h"
 #include "components/gui_table.h"
@@ -84,10 +85,10 @@ public:
 
 class gui_file_table_row_t : public gui_table_row_t
 {
-	friend gui_file_table_button_column_t;
-	friend gui_file_table_delete_column_t;
-	friend gui_file_table_action_column_t;
-	friend gui_file_table_date_column_t;
+	friend class gui_file_table_button_column_t;
+	friend class gui_file_table_delete_column_t;
+	friend class gui_file_table_action_column_t;
+	friend class gui_file_table_date_column_t;
 protected:
 	cstring_t text;
 	cstring_t name;
