@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #else
+#include <string.h>
 #include <io.h>
 #include <direct.h>
 #endif
