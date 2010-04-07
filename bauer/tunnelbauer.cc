@@ -152,7 +152,7 @@ static bool compare_tunnels(const tunnel_besch_t* a, const tunnel_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t* welt)
+void tunnelbauer_t::fill_menu(werkzeug_waehler_t* wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t* welt)
 {
 	const uint16 time=welt->get_timeline_year_month();
 	vector_tpl<const tunnel_besch_t*> matching(tunnel_by_name.get_count());
@@ -199,7 +199,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 		gr = welt->lookup(pos);
 		if(gr) {
-			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ) {
+			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ||  gr->is_halt()) {
 				// must end on boden_t and correct slope
 				return koord3d::invalid;
 			}
@@ -234,7 +234,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 
 
-const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch )
+const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel )
 {
 	assert( besch );
 
@@ -247,7 +247,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	const waytype_t wegtyp = besch->get_waytype();
 	const weg_t *weg = gr->get_weg(wegtyp);
 
-	if(  gr->get_typ() != grund_t::boden  ) {
+	if(  gr->get_typ() != grund_t::boden  ||  gr->is_halt()) {
 		return "Tunnel must start on single way!";
 	}
 	if(!hang_t::ist_einfach(gr->get_grund_hang())) {
@@ -264,7 +264,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 
 	// Tunnelende suchen
 	koord3d end = koord3d::invalid;
-	if(event_get_last_control_shift()!=2) {
+	if(full_tunnel) {
 		end = finde_ende(welt, gr->get_pos(), zv, wegtyp);
 	}
 	else {
@@ -306,11 +306,11 @@ bool tunnelbauer_t::baue_tunnel(karte_t *welt, spieler_t *sp, koord3d start, koo
 
 DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.x, pos.y, pos.z, end.x, end.y, end.z );
 
-	// now we seach a matchin way for the tunnels top speed
+	// now we search a matching way for the tunnels top speed
 	const weg_besch_t *weg_besch = besch->get_weg_besch();
 	if(weg_besch==NULL) {
-		// now we seach a matching way for the tunnels top speed
-		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_weight(), welt->get_timeline_year_month(), weg_t::type_flat );
+		// ignore timeline to get consistent results
+		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_weight(), 0, weg_t::type_flat );
 	}
 
 	const weg_besch_t *einfahrt_weg_besch = baue_einfahrt(welt, sp, pos, zv, besch, NULL, cost, maint);
@@ -336,7 +336,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg->set_max_speed(besch->get_topspeed());
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		weg->set_max_weight(besch->get_max_weight());
-		weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		weg->add_way_constraints(besch->get_way_constraints());
 		
 		tunnel->neuen_weg_bauen(weg, ribi_t::doppelt(ribi), sp);
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
@@ -366,7 +367,8 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		welt->access(pos.get_2d())->boden_hinzufuegen(tunnel);
 		weg->set_max_weight(besch->get_max_weight());
 		tunnel->neuen_weg_bauen(weg, ribi, sp);
-		weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		weg->add_way_constraints(besch->get_way_constraints());
 		tunnel->obj_add(new tunnel_t(welt, pos, sp, besch));
 		tunnel->calc_bild();
 		tunnel->set_flag(grund_t::dirty);
@@ -408,7 +410,8 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 	}
 	weg->set_max_speed( besch->get_topspeed() );
 	weg->set_max_weight( besch->get_max_weight() );
-	weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+	//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+	weg->add_way_constraints(besch->get_way_constraints());
 	tunnel->calc_bild();
 	tunnel->set_flag(grund_t::dirty);
 
@@ -526,13 +529,35 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		}
 		// removes single signals, bridge head, pedestrians, stops, changes catenary etc
 		ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp) & mask;
+
+		tunnel_t *t = gr->find<tunnel_t>();
+		uint8 broad_type = t->get_broad_type();
 		gr->remove_everything_from_way(sp,wegtyp,ribi);	// removes stop and signals correctly
 
 		// remove tunnel portals
-		tunnel_t *t = gr->find<tunnel_t>();
+		t = gr->find<tunnel_t>();
 		if(t) {
 			t->entferne(sp);
 			delete t;
+		}
+
+		if( broad_type ) {
+			hang_t::typ hang = gr->get_grund_hang();
+			ribi_t::ribi dir = ribi_t::rotate90( ribi_typ( hang ) );
+			if( broad_type & 1 ) {
+				const grund_t *gr_l = welt->lookup(pos + dir);
+				tunnel_t* tunnel_l = gr_l ? gr_l->find<tunnel_t>() : NULL;
+				if( tunnel_l ) {
+					tunnel_l->calc_bild();
+				}
+			}
+			if( broad_type & 2 ) {
+				const grund_t *gr_r = welt->lookup(pos - dir);
+				tunnel_t* tunnel_r = gr_r ? gr_r->find<tunnel_t>() : NULL;
+				if( tunnel_r ) {
+					tunnel_r->calc_bild();
+				}
+			}
 		}
 
 		// corrects the ways

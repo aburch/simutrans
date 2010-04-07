@@ -157,7 +157,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		operational_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
-		headquarter_view(sp->get_welt(), koord3d::invalid),
+		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64)),
 		credit_limit(NULL, COL_WHITE, gui_label_t::money),
 		interest(NULL, COL_WHITE, gui_label_t::money),
 		old_interest(NULL, COL_WHITE, gui_label_t::money)
@@ -181,7 +181,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	chart.set_background(MN_GREY1);
 	chart.set_ltr(umgebung_t::left_to_right_graphs);
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		//chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i <= COST_ALL_TRANSPORTED)) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
 		chart.add_curve(cost_type_color[i], sp->get_finance_history_year(), MAX_PLAYER_COST, i, 12, (i <= COST_ALL_TRANSPORTED) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0  );
 	}
 	//CHART YEAR END
@@ -195,7 +194,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	mchart.set_ltr(umgebung_t::left_to_right_graphs);
 
 	for (int i = 0; i<MAX_PLAYER_COST; i++) {
-		// mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false);
 		mchart.add_curve(cost_type_color[i], sp->get_finance_history_month(), MAX_PLAYER_COST, i, 12, (i <= 10) ||  i == COST_POWERLINES || i == COST_INTEREST || i == COST_CREDIT_LIMIT ? MONEY: STANDARD, false, false, (i < COST_ALL_TRANSPORTED) ||  i==COST_POWERLINES ? 2 : 0 );
 	}
 	mchart.set_visible(false);
@@ -329,7 +327,6 @@ money_frame_t::money_frame_t(spieler_t *sp)
 			headquarter_view.set_location( sp->get_welt()->lookup_kartenboden( sp->get_headquarter_pos() )->get_pos() );
 		}
 		headquarter_view.set_pos( koord(582-12-120, BUTTONSPACE) );
-		headquarter_view.set_groesse( koord(120, 64) );
 		add_komponente(&headquarter_view);
 	}
 

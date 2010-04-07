@@ -35,7 +35,7 @@ void help_frame_t::set_text(const char * buf)
 {
 	flow.set_text(buf);
 
-	flow.set_pos(koord(10, 6));
+	flow.set_pos(koord(10, 10));
 	flow.set_groesse(koord(220, 0));
 
 	// try to get the following sizes

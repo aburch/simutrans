@@ -62,6 +62,7 @@ schiene_t::entferne(spieler_t *)
 void schiene_t::info(cbuffer_t & buf) const
 {
 	weg_t::info(buf);
+
 	if(reserved.is_bound()) {
 		buf.append(translator::translate("\nis reserved by:"));
 		buf.append(reserved->get_name());

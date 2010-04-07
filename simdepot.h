@@ -62,11 +62,17 @@ public:
 	depot_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_tile_besch_t *t);
 	virtual ~depot_t();
 
+	void call_depot_tool( char tool, convoihandle_t cnv, const char *extra );
+
 	virtual simline_t::linetype get_line_type() const = 0;
 
 	void rdwr(loadsave_t *file);
 
-	virtual linehandle_t create_line();
+	// text for the tabs is defaulted to the train names
+	virtual const char * get_electrics_name() { return "Electrics_tab"; };
+	virtual const char * get_passenger_name() { return "Pas_tab"; }
+	virtual const char * get_zieher_name() { return "Lokomotive_tab"; }
+	virtual const char * get_haenger_name() { return "Waggon_tab"; }
 
 	/**
 	 * Access to convoi list.
@@ -107,7 +113,7 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	void append_vehicle(convoihandle_t cnv, vehikel_t* veh, bool infront);
+	void append_vehicle(convoihandle_t &cnv, vehikel_t* veh, bool infront);
 
 	/**
 	 * Remove the vehicle at given position from the convoi and put it in the
@@ -132,7 +138,11 @@ public:
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
-	vehikel_t* buy_vehicle(const vehikel_besch_t* info, bool upgrade);
+	vehikel_t* buy_vehicle(const vehikel_besch_t* info);
+
+	// This upgrades a vehicle in the convoy to the type specified.
+	// @author: jamespetts, February 2010
+	void upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb);
 
 	/**
 	 * Sell a vehicle from the vehicle list.
@@ -211,6 +221,16 @@ public:
 	* @date 26.06.2009
 	*/
 	void neuer_monat();
+
+	/*
+	 * Will update all depot_frame_t (new vehicles!)
+	 */
+	static void update_all_win();
+
+	/*
+	 * Update the depot_frame_t.
+	 */
+	void update_win();
 
 private:
 	linehandle_t selected_line;

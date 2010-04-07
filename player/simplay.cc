@@ -101,6 +101,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
+	locked = false;	/* allowe to change anything */
+	memset( pwd_hash, 0, 20 );	// empty password
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
@@ -160,6 +162,30 @@ spieler_t::~spieler_t()
 const char* spieler_t::get_name(void) const
 {
 	return translator::translate(spieler_name_buf);
+}
+
+
+/* returns FALSE when unlocking!
+ */
+bool spieler_t::set_unlock( uint8 *hash )
+{
+	if(  locked  ) {
+		bool pwd_empty = true;
+		for(  int i=0;  i<20;  i++  ) {
+			if(  pwd_hash[i] != 0  ) {
+				pwd_empty = false;
+				break;
+			}
+		}
+		if(  pwd_empty  ) {
+			locked = false;
+		}
+		else if(  hash!=NULL  ) {
+			// matches password?
+			locked = (memcmp( hash, pwd_hash, 20 )!=0);
+		}
+	}
+	return locked;
 }
 
 
@@ -929,7 +955,7 @@ void spieler_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else if(  file->get_version()<102003  ) 
+	else if(  file->get_version()<=102002  ) 
 	{
 		// saved everything
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++)
@@ -998,6 +1024,9 @@ void spieler_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
+	}
+	if(  file->get_version()>102002 && file->get_experimental_version() != 7 ) {
+		file->rdwr_longlong(starting_money, "");
 	}
 
 	// we have to pay maintenance at the beginning of a month
@@ -1099,6 +1128,18 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		simlinemgmt.rdwr(welt,file,this);
 	}
 
+	if(file->get_version()>102002 && file->get_experimental_version() != 7) {
+		// password hash
+		for(  int i=0;  i<20;  i++  ) {
+			file->rdwr_byte( pwd_hash[i], "" );
+		}
+		if(  file->is_loading()  ) {
+			locked = true;
+			// disallow all actions, if password set (might be unlocked by karte_t::set_werkzeug() )
+			set_unlock( NULL );
+		}
+	}
+
 	if(file->is_loading())
 	{
 		if(konto_ueberzogen > 3 && konto < 0)
@@ -1162,7 +1203,13 @@ void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
 				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
+				int i = sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
+				uint32 max_weight = cnv->get_route()->get_max_weight();
+				uint32 cnv_weight = cnv->get_heaviest_vehicle();
+				if (cnv_weight > max_weight) {
+					buf[i++] = ' ';
+					i += sprintf(buf+i, translator::translate("Vehicle weighs %dt, but max weight is %dt"), cnv_weight, max_weight); 
+				}
 				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
 			}
 			break;

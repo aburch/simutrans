@@ -74,8 +74,7 @@ uint16 baum_t::no_tree_climates = 0;
  * Reads forest configuration data
  * @author prissi
  */
-bool
-baum_t::forestrules_init(cstring_t objfilename)
+bool baum_t::forestrules_init(cstring_t objfilename)
 {
 	tabfile_t forestconf;
 	// first take user data, then user global data
@@ -106,14 +105,13 @@ baum_t::forestrules_init(cstring_t objfilename)
 
 
 // distributes trees on a map
-void
-baum_t::distribute_trees(karte_t *welt, int dichte)
+void baum_t::distribute_trees(karte_t *welt, int dichte)
 {
-	// now we can proceed to tree palnting routine itself
+	// now we can proceed to tree planting routine itself
 	// best forests results are produced if forest size is tied to map size -
 	// but there is some nonlinearity to ensure good forests on small maps
-	const unsigned t_forest_size = (unsigned)pow( welt->get_groesse_max()>>7 , 0.5)*forest_base_size + (welt->get_groesse_max()/forest_map_size_divisor);
-	const uint8 c_forest_count = welt->get_groesse_max()/forest_count_divisor;
+	const unsigned t_forest_size = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.25)*forest_base_size/11 + ((welt->get_groesse_x()+welt->get_groesse_y())/(2*forest_map_size_divisor));
+	const uint8 c_forest_count = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.5 )/forest_count_divisor;
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
@@ -397,8 +395,7 @@ void baum_t::calc_off()
 
 
 
-void
-baum_t::calc_bild()
+void baum_t::calc_bild()
 {
 	// alter/2048 is the age of the tree
 	const baum_besch_t *besch=get_besch();
@@ -450,8 +447,7 @@ image_id baum_t::get_bild() const
 
 
 // image which transparent outline is used
-image_id
-baum_t::get_outline_bild() const
+image_id baum_t::get_outline_bild() const
 {
 	uint8 baum_alter = baum_bild_alter[min((welt->get_current_month() - geburt)>>6, 11u)];
 	return get_besch()->get_bild_nr( season, baum_alter );
@@ -519,10 +515,9 @@ baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(w
 }
 
 
-void
-baum_t::saee_baum()
+bool baum_t::saee_baum()
 {
-	// spawn a new tree in an area 5x5 tiles around
+	// spawn a new tree in an area 3x3 tiles around
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
 	const koord k = get_pos().get_2d() + koord(simrand(5)-2, simrand(5)-2);
 	const planquadrat_t* p = welt->lookup(k);
@@ -534,28 +529,33 @@ baum_t::saee_baum()
 			bd->get_top()<max_no_of_trees_on_square)
 		{
 			bd->obj_add( new baum_t(welt, bd->get_pos(), baumtype) );
+			return true;
 		}
 	}
+	return false;
 }
 
 
 
 /* we should be as fast as possible for this, because trees are nearly the most common object on a map */
-bool
-baum_t::check_season(long month)
+bool baum_t::check_season(long month)
 {
 	// take care of birth/death and seasons
 	const long alter = (month - geburt);
 	calc_bild();
-	if(alter==512) {
+	if(alter>=512  &&  alter<=515  ) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
-		const uint8 c_plant_tree_max = 1+simrand(3);
-		for(uint8 c_temp=0 ;  c_temp<c_plant_tree_max;  c_temp++ ) {
-			saee_baum();
+		const uint8 c_plant_tree_max = 1+simrand(max_no_of_trees_on_square);
+		uint retrys = 0;
+		for(uint8 c_temp=0;  c_temp<c_plant_tree_max  &&  retrys<c_plant_tree_max;  c_temp++ ) {
+			if(  !saee_baum()  ) {
+				retrys++;
+				c_temp--;
+			}
 		}
-		// we make the tree a month older to avoid second spawning
-		geburt = geburt-1;
+		// we make the tree four months older to avoid second spawning
+		geburt = geburt-4;
 	}
 	// tree will die after 704 month (i.e. 58 years 8 month)
 	if(alter>=704) {
@@ -567,8 +567,7 @@ baum_t::check_season(long month)
 
 
 
-void
-baum_t::rdwr(loadsave_t *file)
+void baum_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t d( file, "baum_t" );
 
@@ -622,18 +621,15 @@ void baum_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	buf.append("\n");
-	buf.append(translator::translate(get_besch()->get_name()));
-	buf.append("\n");
-	buf.append(welt->get_current_month() - geburt);
-	buf.append(" ");
-	buf.append(translator::translate("Monate alt"));
+	buf.append( translator::translate(get_besch()->get_name()) );
+	buf.append( "\n" );
+	int age = welt->get_current_month() - geburt;
+	buf.printf( translator::translate("%i years %i months old"), age/12, (age%12) );
 }
 
 
 
-void
-baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
+void baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
 {
 	spieler_t::accounting(sp, welt->get_einstellungen()->cst_remove_tree, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( get_bild(), 0 );
@@ -641,16 +637,14 @@ baum_t::entferne(spieler_t *sp) //"remove" (Babelfish)
 
 
 
-void *
-baum_t::operator new(size_t /*s*/)
+void *baum_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(baum_t));
 }
 
 
 
-void
-baum_t::operator delete(void *p)
+void baum_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(baum_t),p);
 }

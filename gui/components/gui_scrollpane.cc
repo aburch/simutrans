@@ -40,17 +40,17 @@ void gui_scrollpane_t::recalc_sliders(koord groesse)
 {
 	scroll_x.set_pos(koord(0, groesse.y-11));
 	scroll_x.set_groesse(groesse-koord(12,12));
-	scroll_x.set_knob(groesse.x-12, komp->get_groesse().x);	// set client/komp area
+	scroll_x.set_knob(groesse.x-12, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
 
 	if(b_has_size_corner  ||  b_show_scroll_x) {
 		scroll_y.set_pos(koord(groesse.x-11, 0));
 		scroll_y.set_groesse(groesse-koord(12,12));
-		scroll_y.set_knob(groesse.y-12, komp->get_groesse().y);
+		scroll_y.set_knob(groesse.y-12, komp->get_groesse().y + komp->get_pos().y);
 	}
 	else {
 		scroll_y.set_pos(koord(groesse.x-11, 0));
 		scroll_y.set_groesse(groesse);
-		scroll_y.set_knob(groesse.y, komp->get_groesse().y);
+		scroll_y.set_knob(groesse.y, komp->get_groesse().y + komp->get_pos().y);
 	}
 	old_komp_groesse = komp->get_groesse();
 }
@@ -95,15 +95,14 @@ void gui_scrollpane_t::infowin_event(const event_t *ev)
 	else {
 		// translate according to scrolled position
 		event_t ev2 = *ev;
-		translate_event(&ev2, scroll_x.get_knob_offset(), scroll_y.get_knob_offset());
-		const koord gr = get_groesse();
+		translate_event(&ev2, scroll_x.get_knob_offset() - komp->get_pos().x, scroll_y.get_knob_offset() - komp->get_pos().y);
 
 		// hand event to component
 		komp->infowin_event(&ev2);
 
 		// Hajo: hack: component could have changed size
 		// this recalculates the scrollbars
-		if(gr!=get_groesse()) {
+		if(  old_komp_groesse!=komp->get_groesse()  ) {
 			recalc_sliders(get_groesse());
 		}
 	}
@@ -144,8 +143,6 @@ int gui_scrollpane_t::get_scroll_y() const
 void gui_scrollpane_t::zeichnen(koord pos)
 {
 	pos += this->pos;
-
-	koord gr=komp->get_groesse();
 
 	PUSH_CLIP(pos.x, pos.y, groesse.x-12*b_show_scroll_y, groesse.y-11*b_show_scroll_x );
 	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()));

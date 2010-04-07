@@ -314,10 +314,10 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
-	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	non_identical_schedules = new uint8[ max_categories ];
 
-	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
@@ -410,10 +410,10 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	const uint8 max_categories = warenbauer_t::get_max_catg_index();
 
-	waren = (vector_tpl<ware_t> **)calloc( warenbauer_t::get_max_catg_index(), sizeof(vector_tpl<ware_t> *) );
-	non_identical_schedules = new uint8[ warenbauer_t::get_max_catg_index() ];
+	waren = (vector_tpl<ware_t> **)calloc( max_categories, sizeof(vector_tpl<ware_t> *) );
+	non_identical_schedules = new uint8[ max_categories ];
 
-	for ( uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i++ ) {
+	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
 	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
@@ -686,8 +686,7 @@ const char* haltestelle_t::get_name() const
  * Sets the name. Creates a copy of name.
  * @author Hj. Malthaner
  */
-void
-haltestelle_t::set_name(const char *new_name)
+void haltestelle_t::set_name(const char *new_name)
 {
 	grund_t *gr = welt->lookup(get_basis_pos3d());
 	if(gr) {
@@ -708,7 +707,8 @@ haltestelle_t::set_name(const char *new_name)
 
 
 
-char *haltestelle_t::create_name(const koord k, const char *typ)
+// creates stops with unique! names
+char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 {
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
 	const char *stop = translator::translate(typ);
@@ -717,7 +717,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 	// this fails only, if there are no towns at all!
 	if(stadt==NULL) {
 		// get a default name
-		sprintf( buf, translator::translate("land stop %i %s"), get_besitzer()->get_haltcount(), stop );
+		sprintf( buf, translator::translate("land stop %i %s",lang), get_besitzer()->get_haltcount(), stop );
 		return strdup(buf);
 	}
 
@@ -790,11 +790,11 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 		}
 
 		// are there fabs?
-		const char *building_base = translator::translate("%s building %s %s");
+		const char *fab_base = translator::translate("%s factory %s %s",lang);
 		slist_iterator_tpl<fabrik_t*> fab_iter(fabs);
 		while (fab_iter.next()) {
 			// with factories
-			sprintf(buf, building_base, city_name, fab_iter.get_current()->get_name(), stop );
+			sprintf(buf, fab_base, city_name, fab_iter.get_current()->get_name(), stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
@@ -818,7 +818,8 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 			// now we have a building here
 			if (gb->is_monument()) {
 				building_name = translator::translate(gb->get_name());
-			} else if (gb->ist_rathaus() ||
+			}
+			else if (gb->ist_rathaus() ||
 				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_land || // land attraction
 				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_city) { // town attraction
 				building_name = make_single_line_string(translator::translate(gb->get_tile()->get_besch()->get_name()), 2);
@@ -828,7 +829,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				continue;
 			}
 			// now we have a name: try it
-			sprintf(buf, building_base, city_name, building_name, stop );
+			sprintf(buf, translator::translate("%s building %s %s",lang), city_name, building_name, stop );
 			if(  !all_names.get(buf).is_bound()  ) {
 				return strdup(buf);
 			}
@@ -878,14 +879,14 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				dirname = direction_name[(5-welt->get_einstellungen()->get_rotation())%4];
 			}
 		}
-		dirname = translator::translate(dirname);
+		dirname = translator::translate(dirname,lang);
 
 		// Try everything to get a unique name
 		while(true) {
 			// well now try them all from "0..." over "9..." to "A..." to "Z..."
 			for(  int i=0;  i<10+26;  i++  ) {
 				numbername[0] = i<10 ? '0'+i : 'A'+i-10;
-				const char *base_name = translator::translate(numbername);
+				const char *base_name = translator::translate(numbername,lang);
 				if(base_name==numbername) {
 					// not translated ... try next
 					continue;
@@ -893,7 +894,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 				// allow for names without direction
 				uint8 count_s = 0;
 				for(  uint i=0;  base_name[i]!=0;  i++  ) {
-					if(  base_name[i]=='%'  && base_name[i+1]=='s'  ) {
+					if(  base_name[i]=='%'  &&  base_name[i+1]=='s'  ) {
 						i++;
 						count_s++;
 					}
@@ -932,7 +933,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ)
 	 */
 
 	// strings for intown / outside of town
-	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s" );
+	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s", 0 );
 
 	// finally: is there a stop with this name already?
 	for(  uint32 i=1;  i<65536;  i++  ) {
@@ -2675,6 +2676,7 @@ void haltestelle_t::info(cbuffer_t & buf) const
 		pax_too_slow
 		);
 	buf.append(tmp);
+	buf.append("\n\n");
 }
 
 
@@ -2809,6 +2811,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				}
 				spieler_t::add_maintenance( gb_sp, -costs );
 				gb->set_besitzer(public_owner);
+				gb->set_flag(ding_t::dirty);
 				spieler_t::add_maintenance(public_owner, costs );
 			}
 			// ok, valid start, now we can join them
@@ -2860,6 +2863,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					spieler_t::add_maintenance( gb_sp, -costs );
 					spieler_t::accounting(gb_sp, -(welt->calc_adjusted_monthly_figure(costs*60)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
+					gb->set_flag(ding_t::dirty);
 					spieler_t::add_maintenance(public_owner, costs );
 				}
 			}
@@ -3108,16 +3112,21 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		k.rdwr( file );
 	}
 
-	short count;
+	// BG, 07-MAR-2010: the number of good categories should be read from in the savegame, 
+	//  but currently it is not stored although goods and categories can be added by the user 
+	//  and thus do not depend on file version and therefore not predicatable by simutrans.
+	unsigned max_catg_count_game = warenbauer_t::get_max_catg_index();
+	unsigned max_catg_count_file = max_catg_count_game; 
+
 	const char *s;
 	init_pos = tiles.empty() ? koord::invalid : tiles.front().grund->get_pos().get_2d();
 	if(file->is_saving()) {
-		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
+		for(unsigned i=0; i<max_catg_count_file; i++) {
 			vector_tpl<ware_t> *warray = waren[i];
 			if(warray) {
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
-				count = warray->get_count();
+				short count = warray->get_count();
 				file->rdwr_short(count, " ");
 				for(unsigned i=0;  i<warray->get_count();  i++ ) {
 					ware_t &ware = (*warray)[i];
@@ -3136,6 +3145,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		file->rdwr_str(s,256);
 		while(*s) 
 		{
+			short count;
 			file->rdwr_short(count, " ");
 			if(count > 0) 
 			{
@@ -3160,6 +3170,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// however, we have to rebuilt them anyway for the new format
 		if(file->get_version()<99013) 
 		{
+			short count;
 			file->rdwr_short(count, " ");
 
 			for(int i=0; i<count; i++) 
@@ -3181,7 +3192,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 5)
 	{
-		for (int j = 0; j < MAX_HALT_COST; j++) 
+		for (int j = 0; j < 8 /*MAX_HALT_COST*/; j++) 
 		{
 			for (int k = MAX_MONTHS	- 1; k >= 0; k--) 
 			{
@@ -3192,7 +3203,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	else
 	{
 		// Earlier versions did not have pax_too_slow
-		for (int j = 0; j < MAX_HALT_COST - 1; j++) 
+		for (int j = 0; j < 7 /*MAX_HALT_COST - 1*/; j++) 
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
 			{
@@ -3207,7 +3218,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 2)
 	{
-		for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+		for(short i = 0; i < max_catg_count_file; i ++)
 		{
 			if(file->is_saving())
 			{
@@ -3266,10 +3277,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				}
 			}
 		}
-	}
 
-	if(file->get_experimental_version() >= 2)
-	{
 		if(file->get_experimental_version() < 3)
 		{
 			uint16 old_paths_timestamp = 0;
@@ -3278,7 +3286,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			file->rdwr_short(old_paths_timestamp, "");
 			file->rdwr_short(old_connexions_timestamp, "");
 			file->rdwr_bool(old_reschedule, "");
-			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+			for(short i = 0; i < max_catg_count_file; i ++)
 			{
 				paths_timestamp[i] = old_paths_timestamp;
 				connexions_timestamp[i] = old_connexions_timestamp;
@@ -3287,7 +3295,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		}
 		else
 		{
-			for(uint8 i = 0; i < warenbauer_t::get_max_catg_index(); i ++)
+			for(short i = 0; i < max_catg_count_file; i ++)
 			{
 				file->rdwr_short(paths_timestamp[i], "");
 				file->rdwr_short(connexions_timestamp[i], "");

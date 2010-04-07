@@ -99,19 +99,19 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	add_komponente( &zoom_label );
 
 	// rotate map 45°
-	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
+	b_rotate45.init(button_t::square, "isometric map", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT+4));
 	b_rotate45.set_tooltip("Show the map in the same isometric orientation as the main game window");
 	b_rotate45.add_listener(this);
 	add_komponente(&b_rotate45);
 
 	// show/hide schedule
-	b_show_schedule.init(button_t::square, "Show schedules", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT*2+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	b_show_schedule.init(button_t::square, "Show schedules", koord(BUTTON_WIDTH+40,BUTTON_HEIGHT*2+4)); // right align
 	b_show_schedule.set_tooltip("Shows the currently selected schedule");
 	b_show_schedule.add_listener(this);
 	add_komponente( &b_show_schedule );
 
 	// show/hide schedule
-	b_show_fab_connections.init(button_t::square, "factory details", koord(2,BUTTON_HEIGHT*2+4), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	b_show_fab_connections.init(button_t::square, "factory details", koord(2,BUTTON_HEIGHT*2+4)); // right align
 	b_show_fab_connections.set_tooltip("Shows consumer/suppliers for factories");
 	b_show_fab_connections.add_listener(this);
 	add_komponente( &b_show_fab_connections );

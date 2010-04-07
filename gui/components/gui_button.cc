@@ -213,6 +213,14 @@ void button_t::set_typ(enum type t)
 	type = t;
 	switch (type&STATE_MASK) {
 		case square:
+			if(  translated_text  &&  strlen(translated_text)>0  ) {
+				groesse.x = 16 + proportional_string_width( translated_text );
+			}
+			else {
+				groesse.x = 10;
+			}
+			groesse.y = 10;
+			break;
 		case arrowleft:
 		case repeatarrowleft:
 		case arrowright:
@@ -241,6 +249,10 @@ button_t::set_text(const char * text)
 {
 	this->text = text;
 	translated_text = b_no_translate ? text : translator::translate(text);
+
+	if(  (type&STATE_MASK)==square  &&  translated_text  &&  strlen(translated_text)>0  ) {
+		groesse.x = 16 + proportional_string_width( translated_text );
+	}
 }
 
 
@@ -296,9 +308,19 @@ void button_t::infowin_event(const event_t *ev)
 		return;
 	}
 
-	if(type<=STATE_MASK) {
+	// Knightly : check if the initial click and the current mouse positions are within the button's boundary
+	const bool cxy_within_boundary = ( (ev->cx>=0 && ev->cx<get_groesse().x && ev->cy>=0 && ev->cy<get_groesse().y) ? true : false );
+	const bool mxy_within_boundary = ( (ev->mx>=0 && ev->mx<get_groesse().x && ev->my>=0 && ev->my<get_groesse().y) ? true : false );
+
+	// Knightly : update the button pressed state only when mouse positions are within boundary or when it is mouse release
+	if(  type<=STATE_MASK  &&  cxy_within_boundary  &&  (  mxy_within_boundary  ||  IS_LEFTRELEASE(ev)  )  ) {
 		// Hajo: check button state, if we should look depressed
 		pressed = (ev->button_state==1);
+	}
+
+	// Knightly : make sure that the button will take effect only when the mouse positions are within the component's boundary
+	if(  !cxy_within_boundary  ||  !mxy_within_boundary  ) {
+		return;
 	}
 
 	if(  type>AUTOMATIC_MASK  &&  IS_LEFTCLICK(ev)  ) {

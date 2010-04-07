@@ -50,7 +50,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) )
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
-	selected_line = depot->get_selected_line(); //linehandle_t();
+	selected_line = depot->get_selected_line();
 	strcpy(no_line_text, translator::translate("<no line>"));
 
 	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_name()));
@@ -303,11 +303,10 @@ void depot_frame_t::layout(koord *gr)
 	bt_copy_convoi.set_pos(koord(TOTAL_WIDTH*3/4, ACTIONS_VSTART+ABUTTON_HEIGHT));
 	bt_copy_convoi.set_groesse(koord(TOTAL_WIDTH-TOTAL_WIDTH*3/4, ABUTTON_HEIGHT));
 	bt_copy_convoi.set_text("Copy Convoi");
+
 	const uint8 margin = 4;
 	img_bolt.set_pos(koord(get_fenstergroesse().x-skinverwaltung_t::electricity->get_bild(0)->get_pic()->w-margin,margin));
 }
-
-
 
 
 void depot_frame_t::set_fenstergroesse( koord gr )
@@ -316,6 +315,19 @@ void depot_frame_t::set_fenstergroesse( koord gr )
 	layout(&g);
 	update_data();
 	gui_frame_t::set_fenstergroesse(gr);
+}
+
+void depot_frame_t::activate_convoi( convoihandle_t c )
+{
+	// deselect ...
+	icnv = -1;
+	for(  uint i=0;  i<depot->convoi_count();  i++  ) {
+		if(  c==depot->get_convoi(i)  ) {
+			icnv = i;
+			break;
+		}
+	}
+	build_vehicle_lists();
 }
 
 static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
@@ -358,6 +370,7 @@ void depot_frame_t::update_data()
 	}
 
 	// update the line selector
+	selected_line = depot->get_selected_line();
 	line_selector.clear_elements();
 	line_selector.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( no_line_text, COL_BLACK ) );
 	if(!selected_line.is_bound()) {
@@ -385,103 +398,23 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 	}
 
 	if(komp != NULL) {	// message from outside!
-		if(komp == &convoy_assembler) {
-			const koord k=*static_cast<const koord *>(p.p);
-			switch (k.x) {
-				case gui_convoy_assembler_t::clear_convoy_action:
-					if (cnv.is_bound()) {
-						depot->disassemble_convoi(cnv, false);
-						icnv--;
-						update_convoy();
-					}
-					break;
-				case gui_convoy_assembler_t::remove_vehicle_action:
-					if (cnv.is_bound()) {
-						depot->remove_vehicle(cnv, k.y);
-					}
-					break;
-				default: // append/insert_in_front
-					const vehikel_besch_t* vb;
-					if (k.x==gui_convoy_assembler_t::insert_vehicle_in_front_action) {
-						vb=(*convoy_assembler.get_vehicles())[0];
-					} else {
-						vb=(*convoy_assembler.get_vehicles())[convoy_assembler.get_vehicles()->get_count()-1];
-					}
-					vehikel_t* veh = depot->find_oldest_newest(vb, true);
-					const bool upgrade_now = convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade && cnv.is_bound();
-					if (veh == NULL || upgrade_now) 
-					{
-						// nothing there => we buy it
-						veh = depot->buy_vehicle(vb, convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_upgrade);
-						if(upgrade_now)
-						{
-							//Upgrading, so vehicles must be *replaced*.
-							for(uint16 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
-							{
-								for(uint8 c = 0; c < cnv->get_vehikel(i)->get_besch()->get_upgrades_count(); c ++)
-								{
-									if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c)->get_name() == vb->get_name())
-									{
-										cnv->get_vehikel(i)->set_besch(vb);
-										
-										if(cnv->get_vehikel(i)->get_besch()->get_nachfolger_count() == 1 && cnv->get_vehikel(i)->get_besch()->get_leistung() != 0)
-										{
-											//We need to upgrade tenders, too.
-							
-											cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i)->get_besch()->get_nachfolger(0));		
-
-											// The above assumes that tenders are free, which they are in Pak128.Britain, the cost being built into the locomotive.
-											// The below ought work more accurately, but does not work properly, for some reason.
-
-											/*if(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() >= c && cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() > 0)
-											{
-												cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades(c));
-											}	
-											else if(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades_count() > 0)
-											{
-												cnv->get_vehikel(i + 1)->set_besch(cnv->get_vehikel(i + 1)->get_besch()->get_upgrades(0));
-											}*/
-											
-										}
-										update_convoy();
-										goto end;
-									}
-								}
-							}
-						}			
-					}
-end:
-					if(!cnv.is_bound()) 
-					{
-						// create a new convoi
-						cnv = depot->add_convoi();
-						icnv = depot->convoi_count() - 1;
-						cnv->set_name((*convoy_assembler.get_vehicles())[0]->get_name());
-					}
-					if(convoy_assembler.get_upgrade() == gui_convoy_assembler_t::u_buy)
-					{
-						depot->append_vehicle(cnv, veh, k.x == gui_convoy_assembler_t::insert_vehicle_in_front_action);
-					}
-					break;
-			}
-		} else if(komp == &bt_start) {
-			if (depot->start_convoi(cnv)) {
-				icnv--;
+		if(komp == &bt_start) {
+			if(  cnv.is_bound()  ) {
+				//first: close schedule (will update schedule on clients)
+				destroy_win( (long)cnv->get_schedule() );
+				// only then call the tool to start
+				depot->call_depot_tool( 'b', cnv, NULL );
 				update_convoy();
 			}
 		} else if(komp == &bt_schedule) {
 			fahrplaneingabe();
 			return true;
 		} else if(komp == &bt_destroy) {
-			if (depot->disassemble_convoi(cnv, false)) {
-				icnv--;
-				update_convoy();
-			}
+			depot->call_depot_tool( 'd', cnv, NULL );
+			update_convoy();
 		} else if(komp == &bt_sell) {
-			if (depot->disassemble_convoi(cnv, true)) {
-				icnv--;
-				update_convoy();
-			}
+			depot->call_depot_tool( 'v', cnv, NULL );
+			update_convoy();
 		} else if(komp == &bt_next) {
 			if(++icnv == (int)depot->convoi_count()) {
 				icnv = -1;
@@ -493,37 +426,29 @@ end:
 			}
 			update_convoy();
 		} else if(komp == &bt_new_line) {
-			new_line();
+			depot->call_depot_tool( 'l', convoihandle_t(), NULL );
 			return true;
 		} else if(komp == &bt_change_line) {
-			change_line();
+			if(selected_line.is_bound()) {
+				create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
+			}
 			return true;
-		} 
-		else if(komp == &bt_copy_convoi) 
-		{
-			if(  convoihandle_t::is_exhausted()  ) 
-			{
+		} else if(komp == &bt_copy_convoi) {
+			if(  convoihandle_t::is_exhausted()  ) {
 				create_win( new news_img("Convoi handles exhausted!"), w_time_delete, magic_none);
 			}
-			else 
-			{
-				convoihandle_t new_cnv = depot->copy_convoi(cnv);
-				if(new_cnv == convoihandle_t())
-				{
-					create_win( new news_img(CREDIT_MESSAGE), w_time_delete, magic_none);
-				}
-				else
-				{
-					// automatically select newly created convoi
-					icnv = depot->convoi_count()-1;
-				}
+			else {
+				depot->call_depot_tool( 'c', cnv, NULL);
+				update_convoy();
 			}
-		} else if(komp == &bt_apply_line) {
+			return true;
+		}
+		else if(komp == &bt_apply_line) {
 			apply_line();
 		} else if(komp == &line_selector) {
 			int selection = p.i;
 //DBG_MESSAGE("depot_frame_t::action_triggered()","line selection=%i",selection);
-			if(  (unsigned)(selection-1)<line_selector.count_elements()  ) {
+			if(  (unsigned)(selection-1)<(unsigned)line_selector.count_elements()  ) {
 				vector_tpl<linehandle_t> lines;
 				get_line_list(depot, &lines);
 				selected_line = lines[selection - 1];
@@ -532,6 +457,7 @@ end:
 			else {
 				// remove line
 				selected_line = linehandle_t();
+				depot->set_selected_line(selected_line);
 				line_selector.set_selection( 0 );
 			}
 		}
@@ -621,7 +547,7 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 
 	if(cnv.is_bound()) {
 		if(cnv->get_vehikel_anzahl() > 0) {
-			sprintf(txt_convoi_value, "%s %d$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
+			sprintf(txt_convoi_value, "%s %lld$", translator::translate("Restwert:"), cnv->calc_restwert()/100);
 			// just recheck if schedules match
 			if(  cnv->get_line().is_bound()  &&  cnv->get_line()->get_schedule()->ist_abgeschlossen()  ) {
 				cnv->check_pending_updates();
@@ -656,18 +582,6 @@ depot_frame_t::zeichnen(koord pos, koord groesse)
 }
 
 
-void depot_frame_t::new_line()
-{
-	selected_line = depot->create_line();
-	depot->set_selected_line(selected_line);
-DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
-	layout(NULL);
-	update_data();
-	create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
-DBG_MESSAGE("depot_frame_t::new_line()","id=%d",selected_line.get_id() );
-}
-
-
 void depot_frame_t::apply_line()
 {
 	if(icnv > -1) {
@@ -692,45 +606,26 @@ void depot_frame_t::apply_line()
 }
 
 
-void depot_frame_t::change_line()
-{
-	if(selected_line.is_bound()) {
-		create_win(new line_management_gui_t(selected_line, depot->get_besitzer()), w_info, (long)selected_line.get_rep() );
-	}
-}
-
-
 void depot_frame_t::fahrplaneingabe()
 {
 	convoihandle_t cnv = depot->get_convoi(icnv);
 	if(cnv.is_bound()  &&  cnv->get_vehikel_anzahl() > 0) {
-
+		// this can happen locally, since any update of the schedule is done during closing window
 		schedule_t *fpl = cnv->create_schedule();
-		if(fpl!=NULL) {
-			if(fpl->ist_abgeschlossen()) {
-
-				// Fahrplandialog oeffnen
-				create_win(new fahrplan_gui_t(fpl, cnv->get_besitzer(), convoihandle_t() ), w_info, (long)fpl);
-
-				// maybe convoi was deleted by a callback, so test again
-				if(cnv.is_bound()  &&  fpl != NULL) {
-					cnv->set_schedule(fpl);
-				}
-			}
-			else {
-				gui_fenster_t *fplwin = win_get_magic((long)fpl);
-				top_win( fplwin );
-//				create_win( new news_img("Es wird bereits\nein Fahrplan\neingegeben\n"), w_time_delete, magic_none);
-			}
+		assert(fpl!=NULL);
+		gui_fenster_t *fplwin = win_get_magic((long)fpl);
+		if(   fplwin==NULL  ) {
+			cnv->open_schedule_window( get_welt()->get_active_player()==cnv->get_besitzer() );
 		}
 		else {
-			dbg->error( "depot_frame_t::fahrplaneingabe()", "cannot create schedule!" );
+			top_win( fplwin );
 		}
 	}
 	else {
 		create_win( new news_img("Please choose vehicles first\n"), w_time_delete, magic_none);
-	}	
+	}
 }
+
 
 bool depot_frame_t::check_way_electrified(bool init)
 {

@@ -152,7 +152,6 @@ einstellungen_t::einstellungen_t() :
 			automaten[i] = false;
 			spieler_type[i] = spieler_t::EMPTY;
 		}
-		password[i][0] = 0;
 	}
 
 	/* the big cost section */
@@ -336,6 +335,8 @@ einstellungen_t::einstellungen_t() :
 	enforce_weight_limits = 1;
 
 	speed_bonus_multiplier = 1.0F;
+
+	allow_buying_obsolete_vehicles = true;
 
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
@@ -578,21 +579,42 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_str( language_code_names, 4 );
 
 			// restore AI state
+			char password[16];
 			for(  int i=0;  i<15;  i++  ) {
+
 				file->rdwr_bool( automaten[i], "" );
 				file->rdwr_byte( spieler_type[i], "" );
-				file->rdwr_str( password[i], 16 );
+				if(  file->get_version()<=102002 || file->get_experimental_version() == 7) {
+					char dummy[17];
+					dummy[0] = 0;
+					file->rdwr_str( dummy, 16 );
+				}
 			}
 
 			// cost section ...
 			file->rdwr_bool( freeplay, "" );
-			file->rdwr_longlong( starting_money, "" );
-			if(  file->get_version()>=103000  ) {
+			if(  file->get_version()>102002 && file->get_experimental_version() != 7 ) {
+				file->rdwr_longlong( starting_money, "" );
 				// these must be saved, since new player will get different amounts eventually
 				for(  int i=0;  i<10;  i++  ) {
 					file->rdwr_short( startingmoneyperyear[i].year, 0 );
 					file->rdwr_longlong( startingmoneyperyear[i].money, 0 );
 					file->rdwr_bool( startingmoneyperyear[i].interpol, 0 );
+				}
+			}
+			else {
+				// compatibility code
+				sint64 save_starting_money = starting_money;
+				if(file->is_saving()) {
+					if(save_starting_money==0) save_starting_money = get_starting_money(starting_year);
+					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year);
+					if(save_starting_money==0) save_starting_money = 20000000;
+				}
+				file->rdwr_longlong( save_starting_money, "" );
+				if(file->is_loading()) {
+					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year);
+					if(save_starting_money==0) save_starting_money = 20000000;
+					starting_money = save_starting_money;
 				}
 			}
 			file->rdwr_long( maint_building, "" );
@@ -654,7 +676,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					spieler_type[i] = spieler_t::EMPTY;
 				}
 				automaten[i] = false;
-				password[i][0] = 0;
 			}
 		}
 
@@ -686,12 +707,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( with_private_paks, "" );
 		}
 
-		if(file->get_version()>102002) {
+		if(file->get_version()>=102003) {
 			// network stuff
 			random_counter = get_random_seed();
 			file->rdwr_long( random_counter, "" );
 			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
-				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
+				frames_per_second = clamp(umgebung_t::fps,5,100);	// update it on the server to the current setting
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
 			file->rdwr_long( frames_per_second, "" );
@@ -700,6 +721,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				frames_per_second = umgebung_t::fps;	// update it on the server to the current setting
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
+			file->rdwr_bool( allow_buying_obsolete_vehicles, "" );
 		}
 
 		if(file->get_experimental_version() >= 1)
@@ -984,6 +1006,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead);
 	umgebung_t::server_ms_ahead = contents.get_int("network_ms_ahead", umgebung_t::server_ms_ahead);
 	umgebung_t::network_frames_per_step = contents.get_int("server_frames_per_step", umgebung_t::network_frames_per_step);
+	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks);
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {
@@ -1031,6 +1054,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	show_pax = contents.get_int("stop_pedestrians", show_pax ) != 0;
 	verkehr_level = contents.get_int("citycar_level", verkehr_level);	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration);	// ten normal years
+	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
 
 	// starting money
 	starting_money = contents.get_int64("starting_money", starting_money );
@@ -1136,7 +1160,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
 	cst_remove_tree = (contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_haus = contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100;
+	cst_multiply_remove_haus = (contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile;
 	cst_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", cst_multiply_remove_field/(-100) ) * -100;
 	// powerlines
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
@@ -1386,20 +1410,19 @@ sint64 einstellungen_t::get_starting_money(sint16 year) const
 		return starting_money;
 	}
 
-	// search entry with startingmoneyperyear[i].year >= year
+	// search entry with startingmoneyperyear[i].year > year
 	int i;
 	bool found = false;
 	for(  i=0;  i<10;  i++  ) {
 		if(startingmoneyperyear[i].year!=0) {
-			if (startingmoneyperyear[i].year>=year) {
+			if (startingmoneyperyear[i].year>year) {
 				found = true;
 				break;
 			}
 		}
 		else {
 			// year is behind the latest given date
-			assert(  i!=0  );
-			return startingmoneyperyear[i-1].money;
+			return startingmoneyperyear[i>0 ? i-1 : 0].money;
 		}
 	}
 	if (i==0) {
@@ -1407,7 +1430,7 @@ sint64 einstellungen_t::get_starting_money(sint16 year) const
 		return startingmoneyperyear[0].money;
 	}
 	else {
-		// now: startingmoneyperyear[i-1].year <= year <= startingmoneyperyear[i].year
+		// now: startingmoneyperyear[i-1].year <= year < startingmoneyperyear[i].year
 		if (startingmoneyperyear[i-1].interpol) {
 			// linear interpolation
 			return startingmoneyperyear[i-1].money +

@@ -24,24 +24,26 @@ namespace citylist {
 /** City list stats display */
 class citylist_stats_t : public gui_komponente_t
 {
+private:
 	uint32 line_select;
+	citylist::sort_mode_t sortby;
+	bool sortreverse;
 
-	public:
-		static char total_bev_string[128];
+	karte_t *welt;
+	vector_tpl<stadt_t*> city_list;
 
-		citylist_stats_t(karte_t* welt, citylist::sort_mode_t sortby, bool sortreverse);
+public:
+	static char total_bev_string[128];
 
-		void sort(citylist::sort_mode_t sortby, bool sortreverse);
+	citylist_stats_t(karte_t* welt, citylist::sort_mode_t sortby, bool sortreverse);
 
-		/** Events werden hiermit an die GUI-Komponenten gemeldet */
-		void infowin_event(const event_t*);
+	void sort(citylist::sort_mode_t sortby, bool sortreverse);
 
-		/** Zeichnet die Komponente */
-		void zeichnen(koord offset);
+	/** Events werden hiermit an die GUI-Komponenten gemeldet */
+	void infowin_event(const event_t*);
 
-	private:
-		karte_t * welt;
-		vector_tpl<stadt_t*> city_list;
+	/** Zeichnet die Komponente */
+	void zeichnen(koord offset);
 };
 
 #endif

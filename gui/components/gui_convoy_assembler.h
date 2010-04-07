@@ -195,6 +195,7 @@ public:
 	 * @date  09.06.2003
 	 */
 	void update_data();
+	void update_tabs();
 
 	/* The gui_komponente_t interface */
 	virtual void zeichnen(koord offset);
@@ -215,7 +216,7 @@ public:
 	inline void set_depot_frame(depot_frame_t *df) {depot_frame=df;}
 	inline void set_replace_frame(replace_frame_t *rf) {replace_frame=rf;}
 
-	inline const vector_tpl<const vehikel_besch_t *>* get_vehicles() const {return &vehicles;}
+	inline vector_tpl<const vehikel_besch_t *>* get_vehicles() {return &vehicles;}
 	inline const vector_tpl<gui_image_list_t::image_data_t >* get_convoi_pics() const { return &convoi_pics; }
 	void set_vehicles(convoihandle_t cnv);
 	void set_vehicles(const vector_tpl<const vehikel_besch_t *>* vv);
@@ -223,7 +224,6 @@ public:
 	inline void set_convoy_tabs_skip(sint32 skip) {convoy_tabs_skip=skip;}
 
 	inline sint16 get_convoy_clist_width() const {return vehicles.get_count() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
-	//inline int get_convoy_clist_width() const {return depot_frame->get_depot()->get_max_convoi_length() * (grid.x - grid_dx) + 2 * gui_image_list_t::BORDER;}
 	
 	inline sint16 get_convoy_image_width() const {return get_convoy_clist_width() + placement_dx;}
 

@@ -61,13 +61,15 @@ class compare_cities
 };
 
 
-void citylist_stats_t::sort(citylist::sort_mode_t sortby, bool sortreverse)
+void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr)
 {
 	const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
 
+	sortby = sb;
+	sortreverse = sr;
+
 	city_list.clear();
 	city_list.resize(cities.get_count());
-
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i) {
 		city_list.insert_ordered(*i,compare_cities(sortby, sortreverse));
 	}
@@ -110,6 +112,11 @@ void citylist_stats_t::zeichnen(koord offset)
 	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	sint32 total_bev = 0;
 	sint32 total_growth = 0;
+
+	if(  welt->get_staedte().get_count()!=city_list.get_count()  ) {
+		// some deleted/ added => resort
+		sort( sortby, sortreverse );
+	}
 
 	for (uint32 i = 0; i < city_list.get_count(); i++) {
 		const stadt_t* stadt = city_list[i];

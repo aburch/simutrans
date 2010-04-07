@@ -62,7 +62,7 @@ private:
 	werkzeug_t *builder;
 
 public:
-	enum types {ONE_WAY=1, FREE_ROUTE=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32, SIGN_LONGBLOCK_SIGNAL=64, END_OF_CHOOSE_AREA=128 };
+	enum types {ONE_WAY=1, CHOOSE_SIGN=2, PRIVATE_ROAD=4, SIGN_SIGNAL=8, SIGN_PRE_SIGNAL=16, ONLY_BACKIMAGE=32, SIGN_LONGBLOCK_SIGNAL=64, END_OF_CHOOSE_AREA=128 };
 
 	int get_bild_nr(ribi_t::dir dir) const
 	{
@@ -92,7 +92,7 @@ public:
 	//  return true for a traffic light
 	bool is_traffic_light() const { return (get_bild_anzahl()>4); }
 
-	bool is_free_route() const { return flags&FREE_ROUTE; }
+	bool is_choose_sign() const { return flags&CHOOSE_SIGN; }
 
 	//  return true for signal
 	bool is_signal() const { return flags&SIGN_SIGNAL; }
@@ -103,7 +103,12 @@ public:
 	//  return true for single track section signal
 	bool is_longblock_signal() const { return flags&SIGN_LONGBLOCK_SIGNAL; }
 
-	bool is_signal_type() const { return (flags&(SIGN_SIGNAL|SIGN_PRE_SIGNAL|SIGN_LONGBLOCK_SIGNAL))!=0; }
+	bool is_end_choose_signal() const { return flags&END_OF_CHOOSE_AREA; }
+
+	bool is_signal_type() const
+	{
+		return (flags&(SIGN_SIGNAL|SIGN_PRE_SIGNAL|SIGN_LONGBLOCK_SIGNAL))!=0;
+	}
 
 	uint8 get_flags() const { return flags; }
 

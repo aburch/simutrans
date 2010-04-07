@@ -87,14 +87,14 @@ wayobj_t::~wayobj_t()
 					tunnel_t *t = gr->find<tunnel_t>(1);
 					if(t) {
 						max_speed = t->get_besch()->get_topspeed();
-						weg->add_way_constraints(t->get_besch()->get_way_constraints_permissive(), t->get_besch()->get_way_constraints_prohibitive());
+						weg->add_way_constraints(t->get_besch()->get_way_constraints());
 					}
 				}
 				if(gr->get_typ()==grund_t::brueckenboden) {
 					bruecke_t *b = gr->find<bruecke_t>(1);
 					if(b) {
 						max_speed = b->get_besch()->get_topspeed();
-						weg->add_way_constraints(b->get_besch()->get_way_constraints_permissive(), b->get_besch()->get_way_constraints_prohibitive());
+						weg->add_way_constraints(b->get_besch()->get_way_constraints());
 					}
 				}
 				weg->set_max_speed(max_speed);
@@ -217,7 +217,7 @@ wayobj_t::laden_abschliessen()
 	}
 
 	//Add the way constraints together.
-	weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+	weg->add_way_constraints(besch->get_way_constraints());
 
 	spieler_t *sp = get_besitzer();
 	if(sp) {
@@ -479,7 +479,7 @@ DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
  * Fill menu with icons of given wayobjects from the list
  * @author Hj. Malthaner
  */
-void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
+void wayobj_t::fill_menu(werkzeug_waehler_t *wzw, waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
 	const uint16 time=welt->get_timeline_year_month();
 

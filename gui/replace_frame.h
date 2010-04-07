@@ -20,6 +20,7 @@
 #include "components/gui_numberinput.h"
 #include "messagebox.h"
 
+#include "../dataobj/replace_data.h"
 
 /**
  * Replace frame, makes convoys be marked for replacing.
@@ -39,6 +40,9 @@ private:
 	bool replace_line;	// True if all convoys like this in its line are to be replaced
 	bool replace_all;	// True if all convoys like this are to be replaced
 	bool depot;		// True if convoy is to be sent to depot only
+	bool retain_in_depot;
+	bool use_home_depot;
+	bool allow_using_existing_vehicles;
 	bool autostart;		// True if convoy is to be sent to depot and restarted automatically
 	enum {state_replace=0, state_sell, state_skip, n_states};
 	uint8 state;
@@ -56,6 +60,9 @@ private:
 	button_t		bt_autostart;
 	button_t		bt_depot;
 	button_t		bt_mark;
+	button_t		bt_retain_in_depot;
+	button_t		bt_use_home_depot;
+	button_t		bt_allow_using_existing_vehicles;
 	gui_label_t		lb_replace_cycle;
 	gui_label_t		lb_replace;
 	gui_label_t		lb_sell;
@@ -69,13 +76,6 @@ private:
 	char txt_n_replace[8];
 	char txt_n_sell[8];
 	char txt_n_skip[8];
-
-	/**
-	 * Update texts, image lists and buttons according to the current state.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
-	 */
-	void update_data();
 
 	/**
 	 * Do the dynamic dialog layout
@@ -95,7 +95,17 @@ private:
 
 	sint64 calc_total_cost();
 
+	char tool_extra;
+
 public:
+	
+	/**
+	 * Update texts, image lists and buttons according to the current state.
+	 * @author Volker Meyer
+	 * @date  09.06.2003
+	 */
+	void update_data();
+	
 	replace_frame_t(convoihandle_t cnv, const char *name);
 
 	/**
@@ -131,7 +141,6 @@ public:
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
 	const convoihandle_t get_convoy() const { return cnv; }
-
 };
 
 #endif

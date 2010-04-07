@@ -10,7 +10,7 @@
 #include "components/gui_divider.h"
 #include "components/gui_button.h"
 #include "components/gui_image.h"
-#include "components/gui_textarea.h"
+#include "components/gui_fixedwidth_textarea.h"
 
 #include "gui_convoiinfo.h"
 #include "../utils/cbuffer_t.h"
@@ -19,8 +19,9 @@
 class karte_t;
 class spieler_t;
 
-#define NAME_COLUMN_WIDTH (int)(BUTTON_WIDTH*2.25)
+#define COLUMN_WIDTH (int)(BUTTON_WIDTH*2.25)
 #define SCL_HEIGHT (170)
+#define MARGIN (10)
 
 /**
  * Window.
@@ -37,12 +38,15 @@ class extend_edit_gui_t :
 	public gui_frame_t,
 	public action_listener_t
 {
+private:
+	sint16 tab_panel_width;
+
 protected:
 	spieler_t *sp;
 	karte_t* welt;
 
 	cbuffer_t buf;
-	gui_textarea_t info_text;
+	gui_fixedwidth_textarea_t info_text;
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;
 
@@ -56,6 +60,8 @@ protected:
 	button_t bt_obsolete, bt_timeline, bt_climates;
 
 	sint16 offset_of_comp;
+
+	sint16 get_tab_panel_width() const { return tab_panel_width; }
 
 	bool is_show_trans_name;
 

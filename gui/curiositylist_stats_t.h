@@ -30,6 +30,10 @@ private:
 	vector_tpl<gebaeude_t*> attractions;
 	uint32 line_selected;
 
+	uint32 last_world_curiosities;
+	curiositylist::sort_mode_t sortby;
+	bool sortreverse;
+
 public:
 	curiositylist_stats_t(karte_t* welt, curiositylist::sort_mode_t sortby, bool sortreverse);
 

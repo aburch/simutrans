@@ -93,7 +93,7 @@ void cbuffer_t::append(long n)
 void cbuffer_t::append(double n,int decimals)
 {
 	char tmp[32];
-	int len = number_to_string( tmp, n, decimals );
+	number_to_string( tmp, n, decimals );
 	append(tmp);
 }
 

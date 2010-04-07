@@ -49,8 +49,8 @@ private:
 
 
 public:
-    world_view_t(karte_t *welt, koord3d location);
-    world_view_t(const ding_t* dt);
+    world_view_t(karte_t *welt, koord3d location, koord size);
+    world_view_t(const ding_t* dt, koord size);
 
     /**
      * Sets the location to be displayed.

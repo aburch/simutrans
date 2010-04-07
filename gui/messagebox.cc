@@ -16,15 +16,32 @@
 news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	gui_frame_t("Meldung"),
 	text(strdup(translator::translate(t))),
-	meldung(text),
+	textarea(text, 160),
 	color(title_color)
 {
-	sint16 height = max( meldung.get_groesse().y+16+10+4, get_tile_raster_width()+30 );
+	textarea.set_pos( koord(10, 10) );
+	add_komponente( &textarea );
+}
 
-	set_fenstergroesse( koord(230, height) );
 
-	meldung.set_pos( koord(10, 10) );
-	add_komponente( &meldung );
+// Knightly :	set component boundary and windows size, position component and add it to the component list
+//				if component is NULL, the messsage box will contain only text
+void news_window::extend_window_with_component(gui_komponente_t *const component, const koord size, const koord offset)
+{
+	if(  component  ) {
+		textarea.set_reserved_area( size + koord(10, 10) );
+		textarea.set_width(textarea.get_groesse().x + 10 + size.x);
+		textarea.recalc_size();
+		const sint16 width = textarea.get_groesse().x + 20;
+		const sint16 height = max( textarea.get_groesse().y, size.y ) + 36;
+		set_fenstergroesse( koord(width, height) );
+		component->set_pos( koord(width - size.x - 10 + offset.x, 10 + offset.y) );
+		add_komponente(component);
+	}
+	else {
+		textarea.recalc_size();
+		set_fenstergroesse( koord(textarea.get_groesse().x + 20, textarea.get_groesse().y + 36) );
+	}
 }
 
 
@@ -35,28 +52,27 @@ news_window::~news_window()
 }
 
 
-
 news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
 	bild(id)
 {
-	KOORD_VAL xoff, yoff, xw, yw;
-	display_get_image_offset(id, &xoff, &yoff, &xw, &yw);
-	bild.set_pos(koord(220 - xw - xoff, 10 - yoff)); // aligned to upper right corner
-	add_komponente(&bild);
+	if(  id!=IMG_LEER  ) {
+		KOORD_VAL xoff, yoff, xw, yw;
+		display_get_base_image_offset(id, &xoff, &yoff, &xw, &yw);
+		extend_window_with_component(&bild, koord(xw, yw), koord(-xoff, -yoff));
+	}
+	else {
+		extend_window_with_component(NULL, koord(0, 0));
+	}
 }
 
 
 news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
-	view(welt, welt->lookup_kartenboden(k)->get_pos())
+	view(welt, welt->lookup_kartenboden(k)->get_pos(), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) ))
 {
-	view.set_pos(koord(230 - get_tile_raster_width() - 5, 10));
-	view.set_groesse(koord(get_tile_raster_width(), get_tile_raster_width() * 5 / 6));
-	add_komponente(&view);
+	extend_window_with_component(&view, view.get_groesse());
 }
-
-
 
 
 void news_loc::map_rotate90( sint16 new_ysize )

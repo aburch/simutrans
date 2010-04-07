@@ -35,6 +35,8 @@ private:
 
 	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute
 
+	// Bernd Gabriel, Mar 10, 2010: weight limit info
+	uint32 max_weight;
 public:
 	// this class save the nodes during route search
 	class ANode {
@@ -71,6 +73,8 @@ public:
 	}
 
 	const koord3d_vector_t &get_route() const { return route; }
+
+	uint32 get_max_weight() const { return max_weight; }
 
 	void rotate90( sint16 y_size ) { route.rotate90( y_size ); };
 

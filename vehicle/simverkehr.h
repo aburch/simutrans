@@ -155,7 +155,7 @@ public:
 	static bool alles_geladen();
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	virtual overtaker_t *get_overtaker() { return this; }
 

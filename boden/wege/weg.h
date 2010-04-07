@@ -130,13 +130,15 @@ private:
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
-	uint8 way_constraints_permissive;
-	uint8 way_constraints_prohibitive;
+	//uint8 way_constraints_permissive;
+	//uint8 way_constraints_prohibitive;
+	way_constraints_of_way_t way_constraints;
 
+	bool diagonal;
 
 public:
-	weg_t(karte_t* welt, loadsave_t*) : ding_t(welt) { init(); }
-	weg_t(karte_t *welt) : ding_t(welt) { init(); }
+	weg_t(karte_t* welt, loadsave_t*) : ding_t(welt) { diagonal = false; init(); }
+	weg_t(karte_t *welt) : ding_t(welt) { diagonal = false; init(); }
 
 	virtual ~weg_t();
 
@@ -154,14 +156,11 @@ public:
 
 	void set_max_weight(uint32 w);
 
-	//Adds the way constraints to the way. Note: does *not* replace them - they are added together.
-	void add_way_constraints(const uint8 permissive, const uint8 prohibitive);
-	
+	////Adds the way constraints to the way. Note: does *not* replace them - they are added together.
+	//void add_way_constraints(const uint8 permissive, const uint8 prohibitive);
+	//
 	//Resets constraints to their base values. Used when removing way objects.
-	void reset_way_constraints();
-
-	uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
-	uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	void reset_way_constraints() { way_constraints = besch->get_way_constraints(); }
 
 	/* Way constraints: determines whether vehicles
 	 * can travel on this way. This method decodes
@@ -171,15 +170,21 @@ public:
 	 * @author: jamespetts
 	 * */
 	
-	bool permissive_way_constraint_set(uint8 i) const
-	{
-		return (((way_constraints_permissive >> i) & 1) != 0);
-	}
+	//const bool permissive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_permissive & 1)<<i != 0);
+	//}
 
-	bool prohibitive_way_constraint_set(uint8 i) const
-	{
-		return (((way_constraints_prohibitive >> i) & 1) != 0);
-	}
+	//const bool prohibitive_way_constraint_set(uint8 i)
+	//{
+	//	return ((way_constraints_prohibitive & 1)<<i != 0);
+	//}
+
+	//uint8 get_way_constraints_permissive() const { return way_constraints_permissive; }
+	//uint8 get_way_constraints_prohibitive() const { return way_constraints_prohibitive; }
+	const way_constraints_of_way_t& get_way_constraints() const { return way_constraints; }
+	//void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
+	void add_way_constraints(const way_constraints_of_way_t& value) { way_constraints.add(value); }
 
 
 	/**
@@ -320,6 +325,9 @@ public:
 
 	void set_electrify(bool janein) {janein ? flags |= IS_ELECTRIFIED : flags &= ~IS_ELECTRIFIED;}
 	inline bool is_electrified() const {return flags&IS_ELECTRIFIED; }
+
+	inline bool is_diagonal() const { return diagonal; }
+	void set_diagonal();
 
 	void count_sign();
 	inline bool has_sign() const {return flags&HAS_SIGN; }

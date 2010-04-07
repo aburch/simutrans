@@ -4,7 +4,7 @@
 #include "gui_frame.h"
 #include "components/gui_world_view_t.h"
 #include "components/gui_image.h"
-#include "components/gui_textarea.h"
+#include "components/gui_fixedwidth_textarea.h"
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "../simcolor.h"
@@ -23,9 +23,12 @@ public:
 protected:
 	news_window(const char* text, PLAYER_COLOR_VAL color);
 
+	// Knightly : to extend the window with an extra component in the upper right corner
+	void extend_window_with_component(gui_komponente_t *const component, const koord size, const koord offset = koord(0,0));
+
 private:
 	char *text;
-	gui_textarea_t meldung;
+	gui_fixedwidth_textarea_t textarea;
 	PLAYER_COLOR_VAL color;
 };
 

@@ -118,20 +118,55 @@ void display_scroll_band( const KOORD_VAL start_y, const KOORD_VAL x_offset, con
 void display_set_player_color_scheme(const int player, const COLOR_VAL col1, const COLOR_VAL col2 );
 
 // display image with day and night change
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool player);
-#define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), (d), 0 )
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
+#define display_img( n, x, y, d ) display_img_aux( (n), (x), (y), 0, true, (d) )
 
 /**
  * draws the images with alpha, either blended or as outline
  * @author kierongreen
  */
-void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color, const int daynight, const int dirty);
+void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+#define display_img_blend( n, x, y, c, dn, d ) display_rezoomed_img_blend( (n), (x), (y), 0, (c), (dn), (d) )
 
 // display image with color (if there) and optinal day and nightchange
-void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const signed char color, const int daynight, const int dirty);
+void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
 
 // display unzoomed image
-void display_base_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const signed char color, const int daynight, const int dirty);
+void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
+
+// Knightly : display unzoomed image with alpha, either blended or as outline
+void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+
+// Knightly : pointer to image display procedures
+typedef void (*display_image_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const int daynight, const int dirty);
+typedef void (*display_blend_proc)(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty);
+
+// Knightly : variables for storing currently used image procedure set and tile raster width
+extern display_image_proc display_normal;
+extern display_image_proc display_color;
+extern display_blend_proc display_blend;
+extern signed short current_tile_raster_width;
+
+// Knightly : call this instead of referring to current_tile_raster_width directly
+#define get_current_tile_raster_width() (current_tile_raster_width)
+
+// Knightly : for switching between image procedure sets and setting current tile raster width
+#define display_set_image_proc( is_global ) \
+{ \
+	if(  is_global  ) { \
+		display_normal = display_img_aux; \
+		display_color = display_color_img; \
+		display_blend = display_rezoomed_img_blend; \
+		current_tile_raster_width = get_tile_raster_width(); \
+	} \
+	else { \
+		display_normal = display_base_img; \
+		display_color = display_base_img; \
+		display_blend = display_base_img_blend; \
+		current_tile_raster_width = get_base_tile_raster_width(); \
+	} \
+}
+
 
 void display_fillbox_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int dirty);
 void display_fillbox_wh_clip(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL color, int d);

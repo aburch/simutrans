@@ -153,37 +153,54 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 	int line;
 	PIXVAL* dest;
 	PIXVAL* dest_base = new PIXVAL[img_size * img_size * 2];
-	PIXVAL* run_counter;
+	PIXVAL* colored_run_counter;
 
-	y += dim->ymin;
 	dest = dest_base;
 
-	for (line = 0; line < dim->ymax-dim->ymin + 1; line++) {
-		int   row = 0;
+	x += dim->xmin;
+	y += dim->ymin;
+	const int width = dim->xmax - dim->xmin + 1;
+	const int height = dim->ymax - dim->ymin + 1;
+
+	for (line = 0; line < height; line++) {
+		int row_px_count = 0;
 		PIXRGB pix = block_getpix(x, y + line);
 		uint16 count = 0;
+		uint16 clear_colored_run_pair_count = 0;
 
 		do {
 			count = 0;
-			while (pix == TRANSPARENT && row < img_size) {
+			while (pix == TRANSPARENT && row_px_count < width) {
 				count++;
-				row++;
-				pix = block_getpix(x + row, y + line);
+				row_px_count++;
+				pix = block_getpix(x + row_px_count, y + line);
 			}
 
 			*dest++ = endian_uint16(&count);
 
-			run_counter = dest++;
+			colored_run_counter = dest++;
 			count = 0;
 
-			while (pix != TRANSPARENT && row < img_size) {
+			while (pix != TRANSPARENT && row_px_count < width) {
 				*dest++ = pixrgb_to_pixval(pix);
-				count ++;
-				row ++;
-				pix = block_getpix(x + row, y + line);
+				count++;
+				row_px_count++;
+				pix = block_getpix(x + row_px_count, y + line);
 			}
-			*run_counter = endian_uint16(&count);
-		} while (row < img_size);
+
+			/* Knightly:
+			 *		If it is not the first clear-colored-run pair and its colored run is empty
+			 *		--> it is superfluous and can be removed by rolling back the pointer
+			 */
+			if(  clear_colored_run_pair_count>0  &&  count==0  ) {
+				dest -= 2;
+				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
+			}
+			else {
+				*colored_run_counter = endian_uint16(&count);
+				clear_colored_run_pair_count++;
+			}
+		} while (row_px_count < width);
 
 		*dest++ = 0;
 	}
@@ -350,7 +367,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	node.write_uint16(outfp, bild.y,        2);
 	node.write_uint8 (outfp, bild.w,        4);
 	node.write_uint8 (outfp, bild.h,        5);
-	node.write_uint8 (outfp, 1,             6); // version
+	node.write_uint8 (outfp, 2,             6); // version
 	node.write_uint16(outfp, bild.len,      7);
 	node.write_uint8 (outfp, bild.zoomable, 9);
 

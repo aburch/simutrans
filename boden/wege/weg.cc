@@ -138,17 +138,17 @@ void weg_t::set_max_weight(uint32 w)
 	max_weight = w;
 }
 
-void weg_t::add_way_constraints(const uint8 permissive, const uint8 prohibitive)
-{
-	way_constraints_permissive |= permissive;
-	way_constraints_prohibitive |= prohibitive;
-}
-
-void weg_t::reset_way_constraints()
-{
-	way_constraints_permissive = besch->get_way_constraints_permissive();
-	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
-}
+//void weg_t::add_way_constraints(const uint8 permissive, const uint8 prohibitive)
+//{
+//	way_constraints_permissive |= permissive;
+//	way_constraints_prohibitive |= prohibitive;
+//}
+//
+//void weg_t::reset_way_constraints()
+//{
+//	way_constraints_permissive = besch->get_way_constraints_permissive();
+//	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
+//}
 
 
 /**
@@ -170,8 +170,7 @@ void weg_t::set_besch(const weg_besch_t *b)
 	}
 
 	max_weight = besch->get_max_weight();
-	way_constraints_permissive = besch->get_way_constraints_permissive();
-	way_constraints_prohibitive = besch->get_way_constraints_prohibitive();
+	way_constraints = besch->get_way_constraints();
 }
 
 
@@ -211,8 +210,14 @@ weg_t::~weg_t()
 {
 	alle_wege.remove(this);
 	spieler_t *sp=get_besitzer();
-	if(sp) {
-		spieler_t::add_maintenance( sp,  -besch->get_wartung() );
+	if(sp  &&  besch) 
+	{
+		sint32 maint = besch->get_wartung();
+		if(is_diagonal())
+		{
+			maint /= 1.4;
+		}
+		spieler_t::add_maintenance( sp,  -maint );
 	}
 }
 
@@ -274,7 +279,8 @@ void weg_t::rdwr(loadsave_t *file)
  */
 void weg_t::info(cbuffer_t & buf) const
 {
-	buf.append("\n");
+	ding_t::info(buf);
+
 	buf.append(translator::translate("Max. speed:"));
 	buf.append(" ");
 	buf.append(max_speed);
@@ -285,17 +291,20 @@ void weg_t::info(cbuffer_t & buf) const
 	buf.append(max_weight);
 	buf.append(translator::translate("tonnen"));
 	buf.append("\n");
-	for(sint8 i = -8; i < 8; i ++)
+	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
 	{
-		if(permissive_way_constraint_set(i + 8))
+		if(way_constraints.get_permissive(i))
 		{
 			buf.append("\n");
 			char tmpbuf[30];
-			sprintf(tmpbuf, "Permissive %i", i + 8);
+			sprintf(tmpbuf, "Permissive %i", i);
 			buf.append(translator::translate(tmpbuf));
 			buf.append("\n");
 		}
-		if(prohibitive_way_constraint_set(i))
+	}
+	for(sint8 i = 0; i < way_constraints.get_count(); i ++)
+	{
+		if(way_constraints.get_prohibitive(i))
 		{
 			buf.append("\n");
 			char tmpbuf[30];
@@ -356,11 +365,10 @@ void weg_t::rotate90()
 
 /**
  * counts signals on this tile;
- * It would be enough for the signals to register and unreigister themselves, but this is more secure ...
+ * It would be enough for the signals to register and unregister themselves, but this is more secure ...
  * @author prissi
  */
-void
-weg_t::count_sign()
+void weg_t::count_sign()
 {
 	// Either only sign or signal please ...
 	flags &= ~(HAS_SIGN|HAS_SIGNAL|HAS_CROSSING);
@@ -440,11 +448,14 @@ bool weg_t::check_season( const long )
 		}
 	}
 	else if(  ribi_t::is_threeway(ribi)  &&  besch->has_switch_bild()  ) {
-		if(  bild==besch->get_bild_nr( ribi, old_snow )  ) {
-			set_bild( besch->get_bild_nr( ribi, snow ) );
+		if(  bild==besch->get_bild_nr_switch(ribi, old_snow, false)  ) {
+			set_bild( besch->get_bild_nr_switch(ribi, snow, false) );
+		}
+		else if(  bild==besch->get_bild_nr_switch(ribi, old_snow, true)  ) {
+			set_bild( besch->get_bild_nr_switch(ribi, snow, true) );
 		}
 		else {
-			set_bild( besch->get_bild_nr( ribi+16, snow ) );
+			set_bild( besch->get_bild_nr( ribi, snow ) );
 		}
 	}
 	else {
@@ -477,7 +488,7 @@ void weg_t::calc_bild()
 	}
 
 	// use snow image if above snowline and above ground
-	bool snow = (get_pos().z >= welt->get_snowline());
+	bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
 	flags &= ~IS_SNOW;
 	if(  snow  ) {
 		flags |= IS_SNOW;
@@ -492,56 +503,10 @@ void weg_t::calc_bild()
 	const ribi_t::ribi ribi = get_ribi_unmasked();
 
 	if(ribi_t::ist_kurve(ribi)  &&  besch->has_diagonal_bild()) {
-		ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
+		
+//		set_diagonal();
 
-		bool diagonal = false;
-		switch(ribi) {
-			case ribi_t::nordost:
-				if(from->get_neighbour(to, get_waytype(), koord::ost))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::nord))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
-					r1 != ribi_t::nordwest &&
-					r2 != ribi_t::suedost;
-			break;
-
-			case ribi_t::suedost:
-				if(from->get_neighbour(to, get_waytype(), koord::ost))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::sued))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
-					r1 != ribi_t::suedwest &&
-					r2 != ribi_t::nordost;
-			break;
-
-			case ribi_t::nordwest:
-				if(from->get_neighbour(to, get_waytype(), koord::west))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::nord))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
-					r1 != ribi_t::nordost &&
-					r2 != ribi_t::suedwest;
-			break;
-
-			case ribi_t::suedwest:
-				if(from->get_neighbour(to, get_waytype(), koord::west))
-					r1 = to->get_weg_ribi_unmasked(get_waytype());
-				if(from->get_neighbour(to, get_waytype(), koord::sued))
-					r2 = to->get_weg_ribi_unmasked(get_waytype());
-				diagonal =
-					(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
-					r1 != ribi_t::suedost &&
-					r2 != ribi_t::nordwest;
-				break;
-		}
-
-		if(diagonal) {
+		if(is_diagonal()) {
 			static int rekursion = 0;
 
 			if(rekursion == 0) {
@@ -565,6 +530,60 @@ void weg_t::calc_bild()
 	set_bild(besch->get_bild_nr(ribi, snow));
 }
 
+void weg_t::set_diagonal()
+{
+	diagonal = false;
+	const ribi_t::ribi ribi = get_ribi_unmasked();
+	grund_t *from = welt->lookup(get_pos());
+	grund_t *to;
+	ribi_t::ribi r1 = ribi_t::keine, r2 = ribi_t::keine;
+	switch(ribi) {
+
+		case ribi_t::nordost:
+		if(from->get_neighbour(to, get_waytype(), koord::ost))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::nord))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::suedwest || r2 == ribi_t::suedwest) &&
+			r1 != ribi_t::nordwest &&
+			r2 != ribi_t::suedost;
+	break;
+
+		case ribi_t::suedost:
+		if(from->get_neighbour(to, get_waytype(), koord::ost))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::sued))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::nordwest || r2 == ribi_t::nordwest) &&
+			r1 != ribi_t::suedwest &&
+			r2 != ribi_t::nordost;
+	break;
+
+	case ribi_t::nordwest:
+		if(from->get_neighbour(to, get_waytype(), koord::west))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::nord))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::suedost || r2 == ribi_t::suedost) &&
+			r1 != ribi_t::nordost &&
+			r2 != ribi_t::suedwest;
+	break;
+
+	case ribi_t::suedwest:
+		if(from->get_neighbour(to, get_waytype(), koord::west))
+			r1 = to->get_weg_ribi_unmasked(get_waytype());
+		if(from->get_neighbour(to, get_waytype(), koord::sued))
+			r2 = to->get_weg_ribi_unmasked(get_waytype());
+		diagonal =
+			(r1 == ribi_t::nordost || r2 == ribi_t::nordost) &&
+			r1 != ribi_t::suedost &&
+			r2 != ribi_t::nordwest;
+		break;
+	}
+}
 
 
 /**
@@ -587,8 +606,15 @@ void weg_t::neuer_monat()
 void weg_t::laden_abschliessen()
 {
 	spieler_t *sp=get_besitzer();
-	if(sp  &&  besch) {
-		spieler_t::add_maintenance( sp,  besch->get_wartung() );
+	if(sp  &&  besch) 
+	{
+		sint32 maint = besch->get_wartung();
+		set_diagonal();
+		if(is_diagonal())
+		{
+			maint /= 1.4;
+		}
+		spieler_t::add_maintenance( sp,  maint );
 	}
 }
 

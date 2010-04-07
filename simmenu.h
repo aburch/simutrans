@@ -16,11 +16,11 @@
 #include "simtypes.h"
 #include "simworld.h"
 
+
 template<class T> class vector_tpl;
 template<class T> class slist_tpl;
 
 class werkzeug_waehler_t;
-class karte_t;
 class spieler_t;
 class toolbar_t;
 
@@ -89,6 +89,13 @@ enum {
 	WKZ_FILL_TREES,
 	WKZ_DAYNIGHT_LEVEL,
 	WKZ_VEHICLE_TOOLTIPS,
+	WKZ_TOOGLE_PAX,
+	WKZ_TOOGLE_PEDESTRIANS,
+	WKZ_TRAFFIC_LEVEL,
+	WKZ_CONVOI_TOOL,
+	WKZ_LINE_TOOL,
+	WKZ_DEPOT_TOOL,
+	WKZ_PWDHASH_TOOL,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -162,6 +169,17 @@ public:
 	sint16 failed_sound;
 	sint8 offset;
 
+	enum {
+		WFL_SHIFT = 1,
+		WFL_CTRL  = 2,
+		WFL_LOCAL = 4
+	};
+	uint8 flags; // flags are set before init/work/move is called
+
+	bool is_ctrl_pressed() { return flags & WFL_CTRL; }
+	bool is_shift_pressed() { return flags & WFL_SHIFT; }
+	bool is_local_execution() { return flags & WFL_LOCAL; }
+
 	uint16 command_key;// key to toggle action for this function
 
 	static vector_tpl<werkzeug_t *> general_tool;
@@ -188,11 +206,12 @@ public:
 	void set_default_param(const char* str) { default_param = str; }
 
 	// this will draw the tool with some indication, if active
-	virtual bool is_selected(karte_t *welt) const { return welt->get_werkzeug(welt->get_active_player_nr())==this; }
+	virtual bool is_selected(karte_t *welt) const;
 
 	// when true, local execution would do no harm
 	virtual bool is_init_network_save() const { return false; }
 	virtual bool is_work_network_save() const { return false; }
+	virtual bool is_move_network_save(spieler_t *) const { return false; }
 
 	// will draw a dark frame, if selected
 	virtual void draw_after( karte_t *w, koord pos ) const;
@@ -212,10 +231,21 @@ public:
 	/* the return string can have different meanings:
 	 * NULL: ok
 	 * "": unspecified error
-	 * "balbal": errors message, will be handled and translated as appropriate
+	 * "blabla": errors message, will be handled and translated as appropriate
+	 * check: called before work (and move too?) koord3d already valid coordinate, checks visibility
+	 * work / move should depend on undergroundmode for not network safe tools
 	 */
+	virtual const char *check( karte_t *, spieler_t *, koord3d );
 	virtual const char *work( karte_t *, spieler_t *, koord3d ) { return NULL; }
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d ) { return ""; }
+};
+
+/*
+ * Class for tools that work only on ground (kartenboden)
+ */
+class kartenboden_werkzeug_t : public werkzeug_t {
+public:
+	virtual const char *check( karte_t *, spieler_t *, koord3d );
 };
 
 /*
@@ -235,7 +265,9 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
-	bool is_first_click(spieler_t *sp);
+	virtual bool is_move_network_save(spieler_t *sp) const { return !is_first_click(sp); }
+
+	bool is_first_click(spieler_t *sp) const;
 	void cleanup( spieler_t *, bool delete_start_marker );
 
 private:

@@ -84,7 +84,7 @@ public:
 	virtual void calc_bild();
 
 	// true, if a free route choose point (these are always single way the avoid recalculation of long return routes)
-	bool is_free_route(uint8 check_dir) const { return besch->is_free_route() &&  check_dir == dir; }
+	bool is_free_route(uint8 check_dir) const { return besch->is_choose_sign() &&  check_dir == dir; }
 
 	// changes the state of a traffic light
 	bool sync_step(long);

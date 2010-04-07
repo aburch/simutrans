@@ -121,7 +121,7 @@ void movingobj_t::calc_bild()
 {
 	// alter/2048 is the age of the tree
 	const groundobj_besch_t *besch=get_besch();
-	const sint16 seasons = besch->get_seasons()-1;
+	const uint8 seasons = besch->get_seasons()-1;
 	season=0;
 
 	// two possibilities
@@ -252,7 +252,6 @@ void movingobj_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	buf.append("\n");
 	buf.append(translator::translate(get_besch()->get_name()));
 	const char *maker=get_besch()->get_copyright();
 	if(maker!=NULL  && maker[0]!=0) {
@@ -268,8 +267,7 @@ void movingobj_t::info(cbuffer_t & buf) const
 
 
 
-void
-movingobj_t::entferne(spieler_t *sp)
+void movingobj_t::entferne(spieler_t *sp)
 {
 	spieler_t::accounting(sp, -get_besch()->get_preis(), get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( get_bild(), 0 );
@@ -416,16 +414,14 @@ void movingobj_t::hop()
 
 
 
-void *
-movingobj_t::operator new(size_t /*s*/)
+void *movingobj_t::operator new(size_t /*s*/)
 {
 	return freelist_t::gimme_node(sizeof(movingobj_t));
 }
 
 
 
-void
-movingobj_t::operator delete(void *p)
+void movingobj_t::operator delete(void *p)
 {
 	freelist_t::putback_node(sizeof(movingobj_t),p);
 }

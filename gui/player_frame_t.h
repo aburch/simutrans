@@ -25,6 +25,7 @@ private:
 	button_t	player_active[MAX_PLAYER_COUNT-2-1];
 	button_t	player_get_finances[MAX_PLAYER_COUNT-1];
 	button_t	player_change_to[MAX_PLAYER_COUNT-1];
+	button_t	player_lock[MAX_PLAYER_COUNT-1];
 	gui_combobox_t player_select[MAX_PLAYER_COUNT-1];
 
 	button_t	freeplay;

@@ -12,32 +12,64 @@
 #include "skin_besch.h"
 #include "ware_besch.h"
 #include "../dataobj/koord.h"
+#include "../tpl/weighted_vector_tpl.h"
 
 
-/*
+/* Knightly : this besch will store data specific to each class of fields
  * Fields are xref'ed from skin_besch_t
  */
-class field_besch_t : public obj_besch_t {
-	friend class factory_field_writer_t;
-	friend class factory_field_reader_t;
+class field_class_besch_t : public obj_besch_t {
+	friend class factory_field_class_writer_t;
+	friend class factory_field_class_reader_t;
+	friend class factory_field_reader_t;		// Knightly : this is a special case due to besch restructuring
 
 private:
-	uint8	has_winter;	// 0 or 1 for snow
-	uint16 probability;	// between 0 ...10000
-	uint16 max_fields;	// maximum number of fields around a single factory
-	uint16 min_fields;	// number of fields to start with
+	uint8  snow_image;			// 0 or 1 for snow
 	uint16 production_per_field;
+	uint16 storage_capacity;
+	uint16 spawn_weight;
 
 public:
 	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_child(0)); }
 	const char *get_name() const { return get_bilder()->get_name(); }
 	const char *get_copyright() const { return get_bilder()->get_copyright(); }
 
-	uint8 has_snow_bild() const { return has_winter; }
+	uint8 has_snow_image() const { return snow_image; }
+	uint16 get_field_production() const { return production_per_field; }
+	uint16 get_storage_capacity() const { return storage_capacity; }
+	uint16 get_spawn_weight() const { return spawn_weight; }
+};
+
+
+// Knightly : this besch now only contains common, shared data regarding fields
+class field_besch_t : public obj_besch_t {
+	friend class factory_field_writer_t;
+	friend class factory_field_reader_t;
+
+private:
+	uint16 probability;		// between 0 ...10000
+	uint16 max_fields;		// maximum number of fields around a single factory
+	uint16 min_fields;		// number of fields to start with
+	uint16 field_classes;	// number of field classes
+
+	weighted_vector_tpl<uint16> field_class_indices;
+	void init_field_class_indices()
+	{
+		if(  field_classes>0  ) {
+			field_class_indices.resize( field_classes );
+			for(  uint16 i=0  ;  i<field_classes  ;  ++i  ) {
+				field_class_indices.append( i, get_field_class(i)->get_spawn_weight() );
+			}
+		}
+	}
+
+public:
 	uint16 get_probability() const { return probability; }
 	uint16 get_max_fields() const { return max_fields; }
 	uint16 get_min_fields() const { return min_fields; }
-	uint16 get_field_production() const { return production_per_field; }
+	uint16 get_field_class_count() const { return field_classes; }
+	const field_class_besch_t *get_field_class(const uint16 idx) const { return ( idx<field_classes ? static_cast<const field_class_besch_t *>(get_child(idx)) : NULL ); }
+	const weighted_vector_tpl<uint16> &get_field_class_indices() const { return field_class_indices; }
 };
 
 

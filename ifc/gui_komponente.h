@@ -135,7 +135,7 @@ public:
 	*/
 	virtual bool getroffen(int x, int y)
 	{
-		return (pos.x <= x && pos.y <= y && (pos.x+groesse.x) >= x && (pos.y+groesse.y) >= y);
+		return (pos.x <= x && pos.y <= y && (pos.x+groesse.x) > x && (pos.y+groesse.y) > y);
 	}
 
 	/**

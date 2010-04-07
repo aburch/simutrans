@@ -1,0 +1,34 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 7.2.
+#
+# Author: jamespetts
+# Created: February 2010
+#
+obj=program_text
+name=pulls
+note=Used for showing the speed at which a vehicle can pull a certain load in the depot window.
+-
+obj=program_text
+name=Retain in depot
+note=Button name in replace window
+-
+obj=program_text
+name=Keep replaced vehicles in the depot for future use rather than selling or upgrading them.
+note=Tooltip in replace window
+-
+obj=program_text
+name=Use home depot
+note=Button name in replace window
+-
+obj=program_text
+name=Send the convoy to its home depot for replacing rather than the nearest depot.
+note=Tooltip in replace window
+-
+obj=program_text
+name=Use existing vehicles
+note=Button name in replace window
+-
+obj=program_text
+name=Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.
+note=Tooltip in replace window
+-

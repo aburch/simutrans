@@ -12,8 +12,49 @@
 
 
 
-obj_besch_t *
-factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+obj_besch_t *factory_field_class_reader_t::read_node(FILE *fp, obj_node_info_t &node)
+{
+	ALLOCA(char, besch_buf, node.size);
+
+	field_class_besch_t *besch = new field_class_besch_t();
+	besch->node_info = new obj_besch_t*[node.children];
+
+	// Hajo: Read data
+	fread(besch_buf, node.size, 1, fp);
+	char * p = besch_buf;
+
+	uint16 v = decode_uint16(p);
+	if(  v==0x8001  ) {
+		// Knightly : field class specific data
+		besch->snow_image = decode_uint8(p);
+		besch->production_per_field = decode_uint16(p);
+		besch->storage_capacity = decode_uint16(p);
+		besch->spawn_weight = decode_uint16(p);
+
+		DBG_DEBUG("factory_field_class_reader_t::read_node()", "has_snow %i, production %i, capacity %i, spawn_weight %i", besch->snow_image, besch->production_per_field, besch->storage_capacity, besch->spawn_weight);
+	}
+	else {
+		dbg->fatal("factory_field_class_reader_t::read_node()","unknown version %i", v&0x00ff );
+	}
+
+	return besch;
+}
+
+
+
+void factory_field_class_reader_t::register_obj(obj_besch_t *&data)
+{
+	field_class_besch_t *const besch = static_cast<field_class_besch_t *>(data);
+
+	// xref has not yet been resolved
+	const char* name = static_cast<xref_besch_t*>( besch->get_child(0) )->get_name();
+	field_t::register_besch(besch, name);
+}
+
+
+
+
+obj_besch_t *factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 {
 	ALLOCA(char, besch_buf, node.size);
 
@@ -25,31 +66,68 @@ factory_field_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	char * p = besch_buf;
 
 	uint16 v = decode_uint16(p);
-	if(v==0x8001) {
-		besch->has_winter = decode_uint8(p);
+	if(  v==0x8002  ) {
+		// Knightly : this version only store shared, common data
 		besch->probability = decode_uint16(p);
-		besch->production_per_field = decode_uint16(p);
 		besch->max_fields = decode_uint16(p);
 		besch->min_fields = decode_uint16(p);
+		besch->field_classes = decode_uint16(p);
+
+		DBG_DEBUG("factory_field_reader_t::read_node()", "probability %i, fields: max %i, min %i, field classes: %i", besch->probability, besch->max_fields, besch->min_fields, besch->field_classes);
+	}
+	else if(  v==0x8001  ) {
+		/* Knightly :
+		 *   leave shared, common data in field besch
+		 *   field class specific data goes to field class besch
+		 */
+		field_class_besch_t *const field_class_besch = new field_class_besch_t();
+
+		field_class_besch->snow_image = decode_uint8(p);
+		besch->probability = decode_uint16(p);
+		field_class_besch->production_per_field = decode_uint16(p);
+		besch->max_fields = decode_uint16(p);
+		besch->min_fields = decode_uint16(p);
+		besch->field_classes = 1;
+		field_class_besch->storage_capacity = 0;
+		field_class_besch->spawn_weight = 1000;
+
+		/* Knightly :
+		 *   store it in a static variable for further processing
+		 *   later in factory_field_reader_t::register_obj()
+		 */
+		incomplete_field_class_besch = field_class_besch;
+
+		DBG_DEBUG("factory_field_reader_t::read_node()", "has_snow %i, probability %i, fields: max %i, min %i, production %i", field_class_besch->snow_image, besch->probability, besch->max_fields, besch->min_fields, field_class_besch->production_per_field);
 	}
 	else {
-		dbg->fatal("factory_field_reader_t::read_node()","unknown version %i",v&0x00ff );
+		dbg->fatal("factory_field_reader_t::read_node()","unknown version %i", v&0x00ff );
 	}
 
-	DBG_DEBUG("factory_field_reader_t::read_node()", "has_snow %i, probability %i, fields: max %i, min %i, production %i",besch->has_winter, besch->probability, besch->max_fields, besch->min_fields, besch->production_per_field );
 	besch->probability = 10000 - min(10000, besch->probability);
+
 	return besch;
 }
 
 
 
-void
-factory_field_reader_t::register_obj(obj_besch_t *&data)
+void factory_field_reader_t::register_obj(obj_besch_t *&data)
 {
-	field_besch_t *besch = static_cast<field_besch_t *>(data);
-	// Xref ist hier noch nicht aufgelöst!
-	const char* name = static_cast<xref_besch_t*>(besch->get_child(0))->get_name();
-	field_t::register_besch(besch, name);
+	field_besch_t *const besch = static_cast<field_besch_t *>(data);
+
+	// Knightly : check if we need to continue with the construction of field class besch
+	if(  incomplete_field_class_besch  ) {
+		field_class_besch_t *const field_class_besch = static_cast<field_class_besch_t *>(incomplete_field_class_besch);
+		// we *must* transfer the obj_besch_t array and not just the besch object itself
+		// as xref reader has already logged the address of the array element for xref resolution
+		field_class_besch->node_info = besch->node_info;
+		besch->node_info = new obj_besch_t*[1];
+		besch->node_info[0] = field_class_besch;
+		factory_field_class_reader_t::instance()->register_obj( besch->node_info[0] );
+		incomplete_field_class_besch = NULL;
+	}
+
+	// initialize weighted vector for the field class indices
+	besch->init_field_class_indices();
 }
 
 

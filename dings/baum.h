@@ -46,7 +46,7 @@ private:
 	static uint16 tree_climates;
 	static uint16 no_tree_climates;
 
-	void saee_baum();
+	bool saee_baum();
 
 	/**
 	 * Berechnet offsets für gepflanzte Bäume

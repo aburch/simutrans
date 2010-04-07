@@ -1181,6 +1181,7 @@ static void rezoom_img(const unsigned int n)
 				PIXVAL *line = ((PIXVAL *)baseimage2) + (y*newzoomwidth);
 				PIXVAL i;
 				sint16 x = 0;
+				uint16 clear_colored_run_pair_count = 0;
 
 				do {
 					// check length of transparent pixels
@@ -1192,8 +1193,20 @@ static void rezoom_img(const unsigned int n)
 					for (i = 0;  line[x] != 0x73FE  &&  x < newzoomwidth;  i++, x++) {
 						dest[i + 1] = line[x];
 					}
-					*dest++ = i;	// number of colred pixel
-					dest += i;	// skip them
+
+					/* Knightly:
+					 *		If it is not the first clear-colored-run pair and its colored run is empty
+					 *		--> it is superfluous and can be removed by rolling back the pointer
+					 */
+					if(  clear_colored_run_pair_count>0  &&  i==0  ) {
+						dest--;
+						// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
+					}
+					else {
+						*dest++ = i;	// number of colored pixel
+						dest += i;	// skip them
+						clear_colored_run_pair_count++;
+					}
 				} while(x<newzoomwidth);
 				*dest++ = 0; // mark line end
 			}
@@ -1948,7 +1961,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
  * Zeichnet Bild mit verticalem clipping (schnell) und horizontalem (langsam)
  * @author prissi
  */
-void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const int dirty, bool use_player)
+void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 use_player, const int /*daynight*/, const int dirty)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
@@ -2095,7 +2108,7 @@ static void display_color_img_aux(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KO
  * Zeichnet Bild, ersetzt Spielerfarben
  * @author Hj. Malthaner
  */
-void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
 {
 	if (n < anz_images) {
 
@@ -2109,7 +2122,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			// only use the expensive replacement routine for colored images
 			// of other players
 			if(  player_nr==0  ||  (images[n].recode_flags & FLAG_PLAYERCOLOR)==0  ) {
-				display_img_aux(n, xp, yp, dirty, false);
+				display_img_aux(n, xp, yp, false, true, dirty);
 				return;
 			}
 
@@ -2121,7 +2134,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			// ok, there is a cached version
 			if(  (images[n].player_flags&(~NEED_PLAYER_RECODE)) == player_nr  ) {
 				// ok, now we could use the same faster code as for the normal images
-				display_img_aux(n, xp, yp, dirty, true);
+				display_img_aux(n, xp, yp, true, true, dirty);
 				return;
 			}
 		}
@@ -2133,7 +2146,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
 			const KOORD_VAL w = images[n].w;
 			const KOORD_VAL h = images[n].h;
 
-			if (h == 0 || xp + x >= clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+			if (h == 0 || xp + x >= clip_rect.xx || yp + y >= clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
 				// not visible => we are done
 				// happens quite often ...
 				return;
@@ -2162,7 +2175,7 @@ void display_color_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp,
  * draw unscaled images, replaces base color
  * @author prissi
  */
-void display_base_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
+void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 player_nr, const int daynight, const int dirty)
 {
 	if(  base_tile_raster_width==tile_raster_width  ) {
 		// same size => use standard routine
@@ -2176,7 +2189,7 @@ void display_base_img(const unsigned n, const KOORD_VAL xp, const KOORD_VAL yp, 
 		const KOORD_VAL w = images[n].base_w;
 		const KOORD_VAL h = images[n].base_h;
 
-		if (h == 0 || xp + x >= clip_rect.xx || yp + y > clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+		if (h == 0 || xp + x >= clip_rect.xx || yp + y >= clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
 			// not visible => we are done
 			// happens quite often ...
 			return;
@@ -2267,6 +2280,64 @@ static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 	}
 }
 
+// Knightly : the following 6 functions are for display_base_img_blend()
+static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (3*(((rgbmap_current[*src])>>2) & TWO_OUT_15)) + (((*dest)>>2) & TWO_OUT_15);
+		dest++;
+		src++;
+	}
+}
+static void pix_blend_recode75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (3*(((rgbmap_current[*src])>>2) & TWO_OUT_16)) + (((*dest)>>2) & TWO_OUT_16);
+		dest++;
+		src++;
+	}
+}
+
+static void pix_blend_recode50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((rgbmap_current[*src])>>1) & ONE_OUT_15) + (((*dest)>>1) & ONE_OUT_15);
+		dest++;
+		src++;
+	}
+}
+static void pix_blend_recode50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((rgbmap_current[*src])>>1) & ONE_OUT_16) + (((*dest)>>1) & ONE_OUT_16);
+		dest++;
+		src++;
+	}
+}
+
+static void pix_blend_recode25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((rgbmap_current[*src])>>2) & TWO_OUT_15) + (3*(((*dest)>>2) & TWO_OUT_15));
+		dest++;
+		src++;
+	}
+}
+static void pix_blend_recode25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
+{
+	const PIXVAL *const end = dest + len;
+	while (dest < end) {
+		*dest = (((rgbmap_current[*src])>>2) & TWO_OUT_16) + (3*(((*dest)>>2) & TWO_OUT_16));
+		dest++;
+		src++;
+	}
+}
+
 static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2320,6 +2391,7 @@ static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 
 // will kept the actual values
 static blend_proc blend[3];
+static blend_proc blend_recode[3];
 static blend_proc outline[3];
 
 static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp, int colour, blend_proc p )
@@ -2360,7 +2432,7 @@ static void display_img_blend_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VA
  * draws the transparent outline of an image
  * @author kierongreen
  */
-void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
+void display_rezoomed_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char /*player_nr*/, const PLAYER_COLOR_VAL color_index, const int /*daynight*/, const int dirty)
 {
 	if (n < anz_images) {
 		// need to go to nightmode and or rezoomed?
@@ -2438,6 +2510,88 @@ void display_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const PLAYE
 			}
 		}
 	}
+}
+
+
+
+// Knightly : For blending or outlining unzoomed image. Adapted from display_base_img() and display_unzoomed_img_blend()
+void display_base_img_blend(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const signed char player_nr, const PLAYER_COLOR_VAL color_index, const int daynight, const int dirty)
+{
+	if(  base_tile_raster_width==tile_raster_width  ) {
+		// same size => use standard routine
+		display_rezoomed_img_blend( n, xp, yp, player_nr, color_index, daynight, dirty );
+	}
+	else if (n < anz_images) {
+
+		// prissi: now test if visible and clipping needed
+		KOORD_VAL x = images[n].base_x + xp;
+		KOORD_VAL y = images[n].base_y + yp;
+		KOORD_VAL w = images[n].base_w;
+		KOORD_VAL h = images[n].base_h;
+
+		if (h == 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
+			// not visible => we are done
+			// happens quite often ...
+			return;
+		}
+
+		PIXVAL *sp = images[n].base_data;
+
+		// must the height be reduced?
+		KOORD_VAL reduce_h = y + h - clip_rect.yy;
+		if (reduce_h > 0) {
+			h -= reduce_h;
+		}
+
+		// vertical lines to skip (only bottom is visible)
+		KOORD_VAL skip_lines = clip_rect.y - (int)y;
+		if (skip_lines > 0) {
+			h -= skip_lines;
+			y += skip_lines;
+			// now skip them
+			while (skip_lines--) {
+				do {
+					// clear run + colored run + next clear run
+					sp++;
+					sp += *sp + 1;
+				} while (*sp);
+				sp++;
+			}
+			// now sp is the new start of an image with height h
+		}
+
+		// new block for new variables
+		{
+			const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
+			blend_proc pix_blend = (color_index&OUTLINE_FLAG) ? outline[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ] : blend_recode[ (color_index&TRANSPARENT_FLAGS)/TRANSPARENT25_FLAG - 1 ];
+
+			// recode is needed only for blending
+			if(  !(color_index&OUTLINE_FLAG)  ) {
+				// colors for 2nd company color
+				if(player_nr>=0) {
+					activate_player_color( player_nr, daynight );
+				}
+				else {
+					// no player
+					activate_player_color( 0, daynight );
+				}
+			}
+
+			// use horizontal clipping or skip it?
+			if(  x>=clip_rect.x  &&  x+w<=clip_rect.xx  ) {
+				if (dirty) {
+					mark_rect_dirty_nc(x, y, x + w - 1, y + h - 1);
+				}
+				display_img_blend_wc( h, x, y, sp, color, pix_blend );
+			}
+			else {
+				if (dirty) {
+					mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
+				}
+				display_img_blend_wc( h, x, y, sp, color, pix_blend );
+			}
+		}
+	} // number ok
 }
 
 
@@ -2811,7 +2965,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		// get the data from the font
 		char_data = fnt->char_data + CHARACTER_LEN * c;
 		char_width_1 = char_data[CHARACTER_LEN-1];
-		char_yoffset = char_data[CHARACTER_LEN-2];
+		char_yoffset = (sint8)char_data[CHARACTER_LEN-2];
 		char_width_2 = fnt->screen_width[c];
 		if (char_width_1>8) {
 			mask1 = get_h_mask(x, x + 8, cL, cR);
@@ -2825,10 +2979,13 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		}
 		// do the display
 
-		screen_pos = (y0+char_yoffset) * disp_width + x;
+		if(  y_offset>char_yoffset  ) {
+			char_yoffset = y_offset;
+		}
+		screen_pos = (y+char_yoffset) * disp_width + x;
 
-		p = char_data + y_offset+char_yoffset;
-		for (h = y_offset+char_yoffset; h < char_height; h++) {
+		p = char_data + char_yoffset;
+		for (h = char_yoffset; h < char_height; h++) {
 			unsigned int dat = *p++ & mask1;
 			PIXVAL* dst = textur + screen_pos;
 
@@ -2853,9 +3010,9 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 
 		// extra four bits for overwidth characters (up to 12 pixel supported for unicode)
 		if (char_width_1 > 8 && mask2 != 0) {
-			p = char_data + y_offset/2+12;
-			screen_pos = y0 * disp_width + x + 8;
-			for (h = y_offset; h < char_height; h++) {
+			p = char_data + char_yoffset/2+12;
+			screen_pos = (y+char_yoffset) * disp_width + x + 8;
+			for (h = char_yoffset; h < char_height; h++) {
 				unsigned int char_dat = *p;
 				PIXVAL* dst = textur + screen_pos;
 				if(h&1) {
@@ -3169,6 +3326,9 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 			blend[0] = pix_blend25_15;
 			blend[1] = pix_blend50_15;
 			blend[2] = pix_blend75_15;
+			blend_recode[0] = pix_blend_recode25_15;
+			blend_recode[1] = pix_blend_recode50_15;
+			blend_recode[2] = pix_blend_recode75_15;
 			outline[0] = pix_outline25_15;
 			outline[1] = pix_outline50_15;
 			outline[2] = pix_outline75_15;
@@ -3177,6 +3337,9 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 			blend[0] = pix_blend25_16;
 			blend[1] = pix_blend50_16;
 			blend[2] = pix_blend75_16;
+			blend_recode[0] = pix_blend_recode25_16;
+			blend_recode[1] = pix_blend_recode50_16;
+			blend_recode[2] = pix_blend_recode75_16;
 			outline[0] = pix_outline25_16;
 			outline[1] = pix_outline50_16;
 			outline[2] = pix_outline75_16;
@@ -3365,3 +3528,11 @@ void display_progress(int part, int total)
 	}
 	dr_flush();
 }
+
+
+
+// Knightly : variables for storing currently used image procedure set and tile raster width
+display_image_proc display_normal = NULL;
+display_image_proc display_color = NULL;
+display_blend_proc display_blend = NULL;
+signed short current_tile_raster_width = 0;

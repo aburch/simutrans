@@ -71,9 +71,13 @@ class compare_curiosities
 };
 
 
-void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sortby, bool sortreverse)
+void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb, bool sr)
 {
 	const weighted_vector_tpl<gebaeude_t*>& ausflugsziele = welt->get_ausflugsziele();
+	last_world_curiosities = welt->get_ausflugsziele().get_count();
+	sortby = sb;
+	sortreverse = sr;
+
 	attractions.clear();
 	attractions.resize(welt->get_ausflugsziele().get_count());
 	for (weighted_vector_tpl<gebaeude_t*>::const_iterator i = ausflugsziele.begin(), end = ausflugsziele.end(); i != end; ++i) {
@@ -139,6 +143,11 @@ void curiositylist_stats_t::zeichnen(koord offset)
 
 	static cbuffer_t buf(256);
 	int yoff = offset.y;
+
+	if(  last_world_curiosities != welt->get_ausflugsziele().get_count()  ) {
+		// some deleted/ added => resort
+		get_unique_attractions( sortby, sortreverse );
+	}
 
 	for (uint32 i=0; i<attractions.get_count()  &&  yoff<end; i++) {
 		const gebaeude_t* geb = attractions[i];

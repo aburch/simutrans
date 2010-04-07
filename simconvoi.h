@@ -43,6 +43,7 @@ class vehikel_besch_t;
 class schedule_t;
 class cbuffer_t;
 class ware_t;
+class replace_data_t;
 
 /**
  * Basisklasse für alle Fahrzeugverbände. Convois könnnen über Zeiger
@@ -179,17 +180,13 @@ private:
 	*/
 	bool no_load;
 
-	/*
-	* the convoy is marked for automatic replacing
-	* @author isidoro
-	*/
-	bool replace;
-
 	/**
-	* if marked for replacing, once in depot, auto restar the vehicle
-	* @author isidoro
+	* If the convoy is marked for automatic replacing,
+	* this will point to the dataset for it; otherwise,
+	* it is NULL.
+	* @author: jamespetts, March 2010
 	*/
-	bool autostart;
+	replace_data_t *replace;
 
 	/**
 	* send to depot when empty
@@ -324,9 +321,6 @@ private:
 
 	ribi_t::ribi alte_richtung; //"Old direction" (Google)
 
-	// The replacing vehicles, if any
-	vector_tpl<const vehikel_besch_t *> replacing_vehicles;
-
 	/**
 	* Initialize all variables with default values.
 	* Each constructor must call this method first!
@@ -439,6 +433,7 @@ private:
 	 * @author: Bernd Gabriel
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
+
 public:
 	inline route_t* get_route() { return &route; }
 
@@ -446,7 +441,7 @@ public:
 	* Checks if this convoi has a driveable route
 	* @author Hanjsörg Malthaner
 	*/
-	bool hat_keine_route() const;
+	bool hat_keine_route() const { return (state==NO_ROUTE); }
 
 	/**
 	* get line
@@ -470,11 +465,10 @@ public:
 	*/
 	void register_with_line(uint16 line_id);
 
-	/**
-	* unset line -> remove cnv from line
-	* @author hsiegeln
-	*/
-	void unset_line();
+	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
+	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
+	 */
+	void call_convoi_tool( const char function, uint16 additional_id = 0, const char *extra = NULL );
 
 	/**
 	* get state
@@ -615,7 +609,7 @@ public:
 	//inline uint32 get_power_from_steam_with_gear() const {return power_from_steam_with_gear;}
 	inline sint32 get_min_top_speed() const {return min_top_speed;}
 	inline sint32 get_sum_gewicht() const {return sum_gewicht;}
-	inline sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
+	//inline sint32 get_sum_gesamtgewicht() const {return sum_gesamtgewicht;}
 	/** Get power index in kW multiplied by gear.
 	 * Get effective power in kW by dividing by GEAR_FACTOR, which is 64.
 	 * @author Bernd Gabriel, Nov, 14 2009
@@ -686,6 +680,10 @@ public:
 	 */
 	inline vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
 
+	// Upgrades a vehicle in the convoy.
+	// @author: jamespetts, February 2010
+	void upgrade_vehicle(uint16 i, vehikel_t* v);
+
 	/**
 	* Adds a vehicel at the start or end of the convoi.
 	* @author Hj. Malthaner
@@ -726,7 +724,8 @@ public:
 	* @return Owner of this convoi
 	* @author Hj. Malthaner
 	*/
-	inline spieler_t * get_besitzer() { return besitzer_p; }
+
+	spieler_t * get_besitzer() { return besitzer_p; }
 
 	/**
 	* Opens an information window
@@ -734,6 +733,8 @@ public:
 	* @see simwin
 	*/
 	void zeige_info();
+
+	void check_pending_updates();
 
 #if 0
 private:
@@ -760,7 +761,7 @@ public:
 	* @author Hj. Malthaner
 	* @see simwin
 	*/
-	void open_schedule_window();
+	void open_schedule_window( bool show );
 
 	static bool pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
 	static bool pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
@@ -839,12 +840,6 @@ public:
 	void dump() const;
 
 	/**
-	* prepares the convoi to receive a new schedule
-	* @author hsiegeln
-	*/
-	void prepare_for_new_schedule(schedule_t *);
-
-	/**
 	* book a certain amount into the convois financial history
 	* is called from vehicle during un/load
 	* @author hsiegeln
@@ -877,9 +872,7 @@ public:
 
 	inline void set_update_line(linehandle_t l) { line_update_pending = l; }
 
-	void check_pending_updates();
-
-	inline void set_home_depot(koord3d hd) { home_depot = hd; }
+	void set_home_depot(koord3d hd) { home_depot = hd; }
 
 	inline koord3d get_home_depot() { return home_depot; }
 
@@ -909,11 +902,19 @@ public:
 
 	inline void set_no_load(bool new_no_load) { no_load = new_no_load; }
 
-	inline bool get_replace() const { return replace; }
+	/**
+	* unset line -> remove cnv from line
+	* @author hsiegeln
+	*/
+	void unset_line();
 
-	inline void set_replace(bool new_replace) { replace = new_replace; }
+	replace_data_t* get_replace() const { return replace; }
 
-	inline bool get_depot_when_empty() const { return depot_when_empty; }
+	void set_replace(replace_data_t *new_replace);
+
+	void clear_replace();
+
+	bool get_depot_when_empty() const { return depot_when_empty; }
 
 	void set_depot_when_empty(bool new_dwe) 
 	{ 
@@ -926,13 +927,6 @@ public:
 			go_to_depot(true);
 		}
 	}
-
-	inline bool get_autostart() const { return autostart; }
-
-	inline void set_autostart(bool new_autostart) { autostart=new_autostart; }
-
-	inline const vector_tpl<const vehikel_besch_t *> *get_replacing_vehicles() const { return &replacing_vehicles; }
-	void set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv);
 
 	// True if the convoy has the same vehicles
 	bool has_same_vehicles(convoihandle_t other) const;
@@ -982,12 +976,14 @@ public:
 	sint64 calc_revenue(ware_t &ware);
 
 	// @author: jamespetts
-	static const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w);
-	inline const uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) { return calc_adjusted_speed_bonus(base_bonus, distance, welt); }
+	static uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, karte_t* w);
+	inline uint16 calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance) { return calc_adjusted_speed_bonus(base_bonus, distance, welt); }
 
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
+
+	void propogate_replace(replace_data_t *rpl, char replace_type);
 };
 
 #endif

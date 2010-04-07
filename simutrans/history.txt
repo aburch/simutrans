@@ -1,27 +1,71 @@
 	CHANGE: default savegame now bzip2 (games 33% smaller)
 	ADD: Odometer and distance per month available for convois/lines
 	ADD: (gerw) built tunnel without ways
-	FIX: no longer possible for neagtive prices (cheat bus)
+	FIX: no longer possible for negative prices (cheat bus)
 	ADD: (Dwachs) starting money per year
 	ADD: lines will be listed numerically correct, if the contain a number
 	ADD: bridge building with click-and-drag
 	ADD: traffic light can set their phases now manually (in seconds) (new help text: trafficlight_info.txt, new string: -\nSet phases:-)
-<<<<<<< HEAD:simutrans/history.txt
-<<<<<<< HEAD:simutrans/history.txt
-	CHANGE: ignore empty entries and lines starting with # in citylists
-	FIX: deleting line does not longer crash in halt_detail windows
-=======
->>>>>>> Simutrans-base/master:simutrans/history.txt
-=======
 	ADD: some more network related settings like server_frames_ahead, network_ms_ahead, server_frames_per_step to control timing on the network
-<<<<<<< HEAD:simutrans/history.txt
->>>>>>> Simutrans-base/master:simutrans/history.txt
-=======
-	FIX: connecting upslope to upper way works in sliced mode
->>>>>>> Simutrans-base/master:simutrans/history.txt
+	ADD: translations are also search in user dir/scenario/text
+	ADD: (gerw) auto-electrify depot added
+	FIX: freelist sometimes returned wrong elements to free
+	ADD (VS): makeobj ignored alpha channel now really
+	CHANGE: (Knightly): Not scaling images displayed by gui_image_t anymore
+	FIX: deleting tram signals again
+	ADD: click-and-drag also for network games (except for building elevated ways, bridges, tunnels)
+	ADD: tools should work on all clients regardless of underground mode
+	ADD: tools work now correct with ctrl keys in networkmode
+	FIX: a double block (presignal) robbed the following signal of its (pres/longblock/choosing) function
+	CHANGE: no rezooming in viewport
+	FIX: text overflow in message boxes
+	FIX: window resizing is triggered even if initial click is not in dragger area
+	FIX: square button's clickable area not set according to accompanying text
+	FIX: help text link's clickable area not correctly set
+	FIX: pak file image data not trimmed according to x-offset and contains superfluous data
+	ADD: factories now support multiple fields
+	FIX: factory builder does not consider minimum fields in randomising production
+	FIX: tooltip box hovering above viewport
+	ADD: (mostly Dwachs) nicer crossing infos
+	ADD: bridges/tunnel show their names in info window
+	ADD: (inspired by gerw) choose singals will not choose if on the route is another choose signal or and end_of_choose
+	FIX: text overflow in ground info
+	CHANGE: ground info and thing info title bar color will change according to ownership
+	ADD: allow_buying_obsolete_vehicles in simuconf.tab can disallow buying obsolete vehicles for better balancing
+	FIX: forest density/size nor again reasonable dependent on map size
+	ADD: factory stops can now get different names from building stops (%s factory %s %s must be new tranlated)
+	FIX: build foundations only directly under elevated monorail depots
+	FIX: ist_natur() return als false on halt tiles (like harbour)
+	ADD: (gerw) broad tunnel patch (see pak64 sources: adding images [Nl] [Nm] [Nr] and so on)
+	FIX: no longer no trees after 150 years
+	ADD: no decimal point for very large amounts
 
 
-Release Candidate 102.2.1
+Release of 102.2.2 (r3131 on 8-Mar-2010):
+	FIX: connecting upslope to upper way works in sliced mode (r2949)
+	FIX: longer convoi's name could cause crash when entering depot
+	FIX: lines were never freed upon deletion
+	FIX: deleting factories/cities/attractions while those lists were open resulted in CTD
+	FIX: stop types in station frame sometime painted on top of each other
+	FIX: delete convoi only in next step if loading and return directly (and step reverse in karte_t)
+	FIX: walk_city (for stop in towns with AI) was broken (r2990)
+	FIX: distribute goods also on factories with less than 10 output
+	FIX: latin2 characters with unicode>255 work again (via hack)
+	FIX: (VS) do not buy same house twice
+	FIX: (Knightly) only do action when mouse button release also on same button
+	FIX: (Knightly) prevent pending mouse events when resizing
+	ADD: support for townhalls with four rotations
+	ADD: korean glyphs now in cyr.bdf (r2967/r3059)
+	ADD: reading of bzip2 savegames from trunk
+	ADD: (Dwachs) starting money per year
+	FIX: crash when changing schedule after no_route on halt
+	FIX: presignal before station failed
+	FIX: wrong clipping of text
+	FIX: (TurfIt) really empty factories input even in consumption factors not 100%
+	FIX: stop factory building if more than 10 attempts failed
+	FIX: (Dwachs) display correct length in depot
+
+Release of 102.2.1 (r2928)
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly
@@ -35,14 +79,11 @@ Release Candidate 102.2.1
 	FIX: also ask when a single pakset with addons is present what to load
 	FIX: game starts in normal mode (instead paused) again
 	FIX: downgrading ways were cheaper than destruction => now downgrading will be as expensive as removal
-<<<<<<< HEAD:simutrans/history.txt
-=======
 	CHANGE: ignore empty entries and lines starting with # in citylists
 	FIX: deleting line does not longer crash in halt_detail windows
 	FIX: withdraw all with convois in depot causes crash (and maybe also not withdraw all)
 	FIX: several issues with tram signals
 	CHANGE: info windows now open less important first resp. for single window topmost object first (usually most important)
->>>>>>> Simutrans-base/master:simutrans/history.txt
 
 
 

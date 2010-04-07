@@ -41,14 +41,21 @@ void gui_label_t::set_text(const char *text)
  */
 void gui_label_t::zeichnen(koord offset)
 {
+	offset.y += (9-large_font_height)/2;
 	if(align == money) {
 		if(text) {
-			const char *separator = strrchr(text, get_fraction_sep());
-			if(separator) {
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, translator::translate(separator), ALIGN_LEFT, color, true);
-				*const_cast<char *>(separator) = '\0';
-				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, translator::translate(text), ALIGN_RIGHT, color, true);
-				*const_cast<char *>(separator) = ',';
+			const char *seperator = NULL;
+			if(  strrchr(text, '$')!=NULL  ) {
+				seperator = strrchr(text, get_fraction_sep());
+				if(seperator==NULL  &&  get_large_money_string()!=NULL) {
+					seperator = strrchr(text, *(get_large_money_string()) );
+				}
+			}
+			if(seperator) {
+				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, seperator, DT_DIRTY|ALIGN_LEFT, color, true);
+				if(  seperator!=text  ) {
+					display_text_proportional_len_clip(pos.x+offset.x, pos.y+offset.y, text, DT_DIRTY|ALIGN_RIGHT, color, seperator-text );
+				}
 			}
 			else {
 				display_proportional_clip(pos.x+offset.x, pos.y+offset.y, text, ALIGN_RIGHT, color, true);

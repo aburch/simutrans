@@ -49,7 +49,7 @@ public:
 
 	static void fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt);
 
-	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch );
+	static const char *baue( karte_t *welt, spieler_t *sp, koord pos, const tunnel_besch_t *besch, bool full_tunnel  );
 
 	static const char *remove(karte_t *welt, spieler_t *sp, koord3d pos, waytype_t wegtyp);
 };

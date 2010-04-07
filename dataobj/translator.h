@@ -104,6 +104,11 @@ class translator
 		 * or the string if the translation is not found
 		 */
 		static const char *translate(const char* str);
+		static const char *translate(const char* str, int lang);
+
+		/**
+		 * @return replacement info for almost any object within the game
+		 */
 		static const char *compatibility_name(const char* str);
 
 		// return the name of the month

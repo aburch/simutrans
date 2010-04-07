@@ -22,10 +22,13 @@
 #include "../../bauer/vehikelbauer.h"
 #include "../../besch/intro_dates.h"
 #include "../../besch/vehikel_besch.h"
+#include "../../dataobj/replace_data.h"
 #include "../../dataobj/translator.h"
 #include "../../dataobj/umgebung.h"
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehikel.h"
+
+#include "../../utils/cbuffer_t.h"
 
 
 static const char * engine_type_names [9] =
@@ -43,7 +46,7 @@ static const char * engine_type_names [9] =
 
 gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed char player_nr, bool electrified) :
 	way_type(wt), welt(w), last_changed_vehicle(NULL),
-	depot_frame(NULL), placement(get_placement(wt)),
+	depot_frame(NULL), replace_frame(NULL), placement(get_placement(wt)),
 	placement_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 4),
 	grid(get_grid(wt)),
 	grid_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 2),
@@ -195,9 +198,11 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 
 	bt_obsolete.set_typ(button_t::square);
 	bt_obsolete.set_text("Show obsolete");
-	bt_obsolete.add_listener(this);
-	bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
-	add_komponente(&bt_obsolete);
+	if(  get_welt()->get_einstellungen()->get_allow_buying_obsolete_vehicles()  ) {
+		bt_obsolete.add_listener(this);
+		bt_obsolete.set_tooltip("Show also vehicles no longer in production.");
+		add_komponente(&bt_obsolete);
+	}
 
 	bt_show_all.set_typ(button_t::square);
 	bt_show_all.set_text("Show all");
@@ -386,11 +391,9 @@ void gui_convoy_assembler_t::layout()
 	upgrade_selector.set_highlight_color(1);
 
 	bt_show_all.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 4 ));
-	bt_show_all.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_show_all.pressed = show_all;
 
 	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 16));
-	bt_obsolete.set_groesse(koord(ABUTTON_WIDTH, ABUTTON_HEIGHT));
 	bt_obsolete.pressed = show_retired_vehicles;
 }
 
@@ -401,6 +404,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 			// image lsit selction here ...
 		if(komp == &convoi) {
 			image_from_convoi_list( p.i );
+			update_data();
 		} else if(komp == &pas) {
 			image_from_storage_list(&pas_vec[p.i]);
 		} else if (komp == &electrics) {
@@ -443,7 +447,14 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 		} else {
 			return false;
 		}
+		build_vehicle_lists();
 	}
+	else {
+		update_data();
+		update_tabs();
+
+	}
+	layout();
 	return true;
 }
 
@@ -508,8 +519,19 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 // add all current vehicles
 void gui_convoy_assembler_t::build_vehicle_lists()
 {
-	if(vehikelbauer_t::get_info(way_type)==NULL) {
+	if(vehikelbauer_t::get_info(way_type)==NULL) 
+	{
 		// there are tracks etc. but now vehicles => do nothing
+		// at least initialize some data
+		if(depot_frame)
+		{
+			depot_frame->update_data();
+		}
+		else if(replace_frame)
+		{
+			replace_frame->update_data();
+		}
+		update_tabs();
 		return;
 	}
 
@@ -645,6 +667,21 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 		}
 	}
 DBG_DEBUG("gui_convoy_assembler_t::build_vehicle_lists()","finally %i passenger vehicle, %i  engines, %i good wagons",pas_vec.get_count(),loks_vec.get_count(),waggons_vec.get_count());
+
+
+
+	if(depot_frame)
+	{
+		depot_frame->get_icnv() < 0 ? clear_convoy() : set_vehicles(depot_frame->get_convoy());
+		depot_frame->update_data();
+	}
+	else if(replace_frame)
+	{
+		//replace_frame->get_convoy().is_bound() ? clear_convoy() : set_vehicles(replace_frame->get_convoy());
+		// We do not need to set the convoy here, as this will be done when the replacing takes place.
+		replace_frame->update_data();
+	}
+	update_tabs();
 }
 
 
@@ -686,47 +723,36 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 
 void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 {
-	if(nr < vehicles.get_count()) {
+	depot_t* depot;
+	if(depot_frame)
+	{
+		depot = depot_frame->get_depot();
+	}
+	else
+	{
+		grund_t* gr = welt->lookup(replace_frame->get_convoy()->get_home_depot());
+		depot = gr->get_depot();
+	}
+
+	const convoihandle_t cnv = depot_frame ? depot->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
+	if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
 
 		// we remove all connected vehicles together!
 		// find start
 		unsigned start_nr = nr;
 		while(start_nr>0) {
 			start_nr --;
-			const vehikel_besch_t *info = vehicles[start_nr];
+			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
 			if(info->get_nachfolger_count()!=1) {
 				start_nr ++;
 				break;
 			}
 		}
-		// find end
-		while(nr<vehicles.get_count()) {
-			const vehikel_besch_t *info = vehicles[nr];
-			nr ++;
-			if(info->get_nachfolger_count()!=1) {
-				break;
-			}
-		}
-		// now remove the vehicles
-		if(vehicles.get_count()==nr-start_nr) {
-			clear_convoy();
-			koord k=koord(clear_convoy_action,0);
-			value_t v;
-			v.p=&k;
-			last_changed_vehicle=NULL;
-			call_listeners(v);
-		}
-		else {
-			koord k=koord(remove_vehicle_action,0);
-			value_t v;
-			v.p=&k;
-			for( unsigned i=start_nr;  i<nr;  i++  ) {
-				last_changed_vehicle=vehicles[start_nr];
-				remove_vehicle_at(start_nr);
-				k.y=start_nr;
-				call_listeners(v);
-			}
-		}
+
+		cbuffer_t start(16);
+		start.append( start_nr );
+
+		depot->call_depot_tool( 'r', cnv, start );
 	}
 }
 
@@ -736,81 +762,60 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 {
 	const vehikel_besch_t *info = vehikelbauer_t::get_info(bild_data->text);
 
-	if(bild_data->lcolor != COL_RED &&
-		bild_data->rcolor != COL_RED &&
-		bild_data->rcolor != COL_DARK_PURPLE &&
-		bild_data->lcolor != COL_DARK_PURPLE &&
-		bild_data->rcolor != COL_PURPLE &&
-		bild_data->lcolor != COL_PURPLE &&
-		!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
-		&& veh_action != va_sell
-		&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) {
-			
+	const convoihandle_t cnv = depot_frame ? depot_frame->get_depot()->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
+	if(depot_frame)
+	{
+		depot_t *depot = depot_frame->get_depot();
+		if(bild_data->lcolor != COL_RED &&
+			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_DARK_PURPLE &&
+			bild_data->lcolor != COL_DARK_PURPLE &&
+			bild_data->rcolor != COL_PURPLE &&
+			bild_data->lcolor != COL_PURPLE &&
+			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+			&& veh_action != va_sell
+			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
+		{
 			// Dark orange = too expensive
 			// Purple = available only as upgrade
 
-		// we buy/sell all vehicles together!
-		slist_tpl<const vehikel_besch_t *>new_vehicle_info;
-		
-		const vehikel_besch_t *start_info = info;
-		if(veh_action==va_insert  ||  veh_action==va_sell)
-		{
-			// start of composition
-			while (info->get_vorgaenger_count() == 1 && info->get_vorgaenger(0) != NULL) 
+			if(veh_action == va_sell)
 			{
-				info = info->get_vorgaenger(0);
-				new_vehicle_info.insert(info);
+				depot->call_depot_tool( 's', convoihandle_t(), bild_data->text );
 			}
-			info = start_info;
-		}
-		// not get the end ...
-		while(info) 
-		{
-			new_vehicle_info.append( info );
-DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","appended %s",info->get_name() );
-			// Auto complete - not used for upgrading
-			if((info->get_nachfolger_count()!=1  ||  (veh_action==va_insert  &&  info==start_info)) || upgrade == u_upgrade) 
+			else if(upgrade != u_upgrade)
 			{
-				break;
+				depot->call_depot_tool( veh_action == va_insert ? 'i' : 'a', cnv, bild_data->text );
 			}
-			info = info->get_nachfolger(0);
-		}
-
-		if(veh_action == va_sell) 
+			else
+			{
+				depot->call_depot_tool( 'u', cnv, bild_data->text );
+			}
+		}	
+	}
+	else
+	{
+		if(bild_data->lcolor != COL_RED &&
+			bild_data->rcolor != COL_RED &&
+			bild_data->rcolor != COL_DARK_PURPLE &&
+			bild_data->lcolor != COL_DARK_PURPLE &&
+			bild_data->rcolor != COL_PURPLE &&
+			bild_data->lcolor != COL_PURPLE &&
+			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
+			&& veh_action != va_sell
+			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
 		{
-			while(new_vehicle_info.get_count() && depot_frame) {
-				/*
-				*	We sell the newest vehicle - gives most money back.
-				*/
-				vehikel_t* veh = depot_frame->get_depot()->find_oldest_newest(new_vehicle_info.remove_first(), false);
-				if (veh != NULL) {
-					depot_frame->get_depot()->sell_vehicle(veh);
-					build_vehicle_lists();
-					update_data();
-				}
+			//replace_frame->replace.add_vehicle(info);
+			if(veh_action == va_insert)
+			{
+				vehicles.insert_at(0, info);
 			}
-		}
-		else 
-		{
-			// append/insert into convoy
-			if(vehicles.get_count()+new_vehicle_info.get_count() <= max_convoy_length) {
-
-				koord k=koord(veh_action==va_insert?insert_vehicle_in_front_action:append_vehicle_action,0);
-				value_t v;
-				v.p=&k;
-				for( unsigned i=0;  i<new_vehicle_info.get_count();  i++ ) {
-					// insert/append needs reverse order
-					unsigned nr = (veh_action == va_insert) ? new_vehicle_info.get_count()-i-1 : i;
-					// We add the oldest vehicle - newer stay for selling
-					const vehikel_besch_t* vb = new_vehicle_info.at(nr);
-					append_vehicle(vb, veh_action == va_insert);
-					last_changed_vehicle=vb;
-					call_listeners(v);
-DBG_MESSAGE("gui_convoy_assembler_t::image_from_storage_list()","built nr %i", nr);
-				}
+			else if(veh_action == va_append)
+			{
+				vehicles.append(info);
 			}
+			// No action for sell - not available in the replacer window.
 		}
-
 	}
 }
 
@@ -932,6 +937,12 @@ void gui_convoy_assembler_t::update_data()
 					}
 				}
 			}
+		}
+		else
+		{
+			// If selling, one cannot buy - mark all purchasable vehicles red.
+			iter1.get_current_value()->lcolor = COL_RED;
+			iter1.get_current_value()->rcolor = COL_RED;
 		}
 
 		if(upgrade == u_upgrade)
@@ -1057,6 +1068,82 @@ DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i"
 	}
 }
 
+void gui_convoy_assembler_t::update_tabs()
+{
+	waytype_t wt;
+	if(depot_frame)
+	{
+		wt = depot_frame->get_depot()->get_wegtyp();
+	}
+	else if(replace_frame)
+	{
+		wt = replace_frame->get_convoy()->get_vehikel(0)->get_waytype();
+	}
+	else
+	{
+		wt = road_wt;
+	}
+
+	gui_komponente_t *old_tab = tabs.get_aktives_tab();
+	tabs.clear();
+
+	bool one = false;
+
+	cont_pas.add_komponente(&pas);
+	scrolly_pas.set_show_scroll_x(false);
+	scrolly_pas.set_size_corner(false);
+	scrolly_pas.set_read_only(false);
+	// add only if there are any
+	if(!pas_vec.empty()) {
+		tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
+		one = true;
+	}
+
+	cont_electrics.add_komponente(&electrics);
+	scrolly_electrics.set_show_scroll_x(false);
+	scrolly_electrics.set_size_corner(false);
+	scrolly_electrics.set_read_only(false);
+	// add only if there are any trolleybuses
+	if(!electrics_vec.empty()) {
+		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
+		one = true;
+	}
+
+	cont_loks.add_komponente(&loks);
+	scrolly_loks.set_show_scroll_x(false);
+	scrolly_loks.set_size_corner(false);
+	scrolly_loks.set_read_only(false);
+	// add, if waggons are there ...
+	if (!loks_vec.empty() || !waggons_vec.empty()) {
+		tabs.add_tab(&scrolly_loks, translator::translate( get_zieher_name(wt) ) );
+		one = true;
+	}
+
+	cont_waggons.add_komponente(&waggons);
+	scrolly_waggons.set_show_scroll_x(false);
+	scrolly_waggons.set_size_corner(false);
+	scrolly_waggons.set_read_only(false);
+	// only add, if there are waggons
+	if (!waggons_vec.empty()) {
+		tabs.add_tab(&scrolly_waggons, translator::translate( get_haenger_name(wt) ) );
+		one = true;
+	}
+
+	if(!one) {
+		// add passenger as default
+		tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
+	}
+
+	// Look, if there is our old tab present again (otherwise it will be 0 by tabs.clear()).
+	for( uint8 i = 0; i < tabs.get_count(); i++ ) {
+		if(  old_tab == tabs.get_tab(i)  ) {
+			// Found it!
+			tabs.set_active_tab_index(i);
+			break;
+		}
+	}
+}
+
 
 
 void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
@@ -1096,8 +1183,16 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		if(sel_index != -1) {
 			if (depot_frame) {
 				convoihandle_t cnv = depot_frame->get_convoy();
-				veh_type = cnv->get_vehikel(sel_index)->get_besch();
-				value = cnv->get_vehikel(sel_index)->calc_restwert()/100;
+				if(cnv.is_bound())
+				{
+					veh_type = cnv->get_vehikel(sel_index)->get_besch();
+					value = cnv->get_vehikel(sel_index)->calc_restwert()/100;
+				}
+				else
+				{
+					value = 0;
+					veh_type = NULL;
+				}
 			}
 		}
 	}
@@ -1309,12 +1404,14 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			}
 		}
 		
+		const way_constraints_t &way_constraints = veh_type->get_way_constraints();
+
 		// Permissive way constraints
 		// (If vehicle has, way must have)
 		// @author: jamespetts
-		for(uint8 i = 0; i < 8; i++)
+		for(uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(veh_type->permissive_way_constraint_set(i))
+			if(way_constraints.get_permissive(i))
 			{
 				k += sprintf(buf + k, translator::translate("\nMUST USE: "));
 				char tmpbuf[30];
@@ -1373,16 +1470,16 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			{
 				j += sprintf(buf + j, "\n");
 			}
-			sprintf(buf + strlen(buf), "%s %d Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
+			sprintf(buf + strlen(buf), "%s %lld Cr", translator::translate("Restwert: "), 	value); //"Restwert" = residual (Google)
 		}
 		
 		// Prohibitibve way constraints
 		// (If way has, vehicle must have)
 		// @author: jamespetts
 		j += sprintf(buf + j, "\n");
-		for(uint8 i = 0; i < 8; i++)
+		for(uint8 i = 0; i < way_constraints.get_count(); i++)
 		{
-			if(veh_type->prohibitive_way_constraint_set(i))
+			if(way_constraints.get_prohibitive(i))
 			{
 				j += sprintf(buf + j, translator::translate("\nMAY USE: "));
 				char tmpbuf[30];

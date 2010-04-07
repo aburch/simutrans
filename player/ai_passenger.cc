@@ -36,7 +36,7 @@ ai_passenger_t::ai_passenger_t(karte_t *wl, uint8 nr) : ai_t( wl, nr )
 	road_weg = NULL;
 
 	construction_speed = 8000;
-	next_contruction_steps = welt->get_steps()+simrand(construction_speed);
+	next_contruction_steps = welt->get_steps() + 50;
 
 	air_transport = true;
 	ship_transport = false;
@@ -336,7 +336,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock");
+		char *name = halt->create_name(bushalt, "Dock", translator::get_language() );
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -365,7 +365,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock");
+		char *name = halt->create_name(bushalt, "Dock", translator::get_language());
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -503,7 +503,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		return halthandle_t();
 	}
 	// ok, now we could built it => flatten the land
-	sint16 h = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(pos)->get_hoehe() );
+	sint8 h = max( welt->get_grundwasser()+Z_TILE_STEP, welt->lookup_kartenboden(pos)->get_hoehe() );
 	const koord dx( size.x/2, size.y/2 );
 	for(  sint16 i=0;  i!=size.y+dx.y;  i+=dx.y  ) {
 		for( sint16 j=0;  j!=size.x+dx.x;  j+=dx.x  ) {
@@ -527,7 +527,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	// now try to connect one of the corners with a road
 	koord bushalt = koord::invalid, runwaystart, runwayend;
 	koord trypos[4] = { koord(0,0), koord(size.x,0), koord(0,size.y), koord(size.x,size.y) };
-	sint32 length=9999;
+	uint32 length=9999;
 	rotation=-1;
 
 	bauigel.route_fuer( wegbauer_t::strasse, wegbauer_t::weg_search( road_wt, road_vehicle->get_geschw(), road_vehicle->get_gewicht(), welt->get_timeline_year_month(), weg_t::type_flat ), tunnelbauer_t::find_tunnel(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(road_wt,road_vehicle->get_geschw(),welt->get_timeline_year_month()) );
@@ -540,7 +540,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 		bushalt = pos+trypos[i];
 		bauigel.calc_route(welt->lookup_kartenboden(bushalt)->get_pos(),welt->lookup_kartenboden(town_road)->get_pos());
 		// no road => try next
-		if(  bauigel.get_count()-1>=1  &&   bauigel.get_count()-1<length  ) {
+		if(  bauigel.get_count() >= 2  &&   bauigel.get_count() < length+1  ) {
 			rotation = i;
 			length = bauigel.get_count()-1;
 		}
@@ -573,7 +573,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	}
 	// and change name to airport ...
 	halthandle_t halt = welt->lookup(bushalt)->get_halt();
-	char *name = halt->create_name( bushalt, "Airport" );
+	char *name = halt->create_name( bushalt, "Airport", translator::get_language() );
 	halt->set_name( name );
 	free(name);
 	// built also runway now ...
@@ -834,8 +834,7 @@ DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",st
 
 // now we follow all adjacent streets recursively and mark them
 // if they below to this stop, then we continue
-void
-ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
+void ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit )
 {
 	//maximum number of stops reached?
 	if(line->get_schedule()->get_count()>=limit)  {
@@ -853,7 +852,7 @@ ai_passenger_t::walk_city( linehandle_t &line, grund_t *&start, const int limit 
 
 		// ok, if connected, not marked, and not owner by somebody else
 		grund_t *to;
-		if(start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(this, to->obj_bei(0)->get_besitzer())) {
+		if(  start->get_neighbour(to, road_wt, koord::nsow[r] )  &&  !welt->ist_markiert(to)  &&  check_owner(to->obj_bei(0)->get_besitzer(),this)  ) {
 
 			// ok, here is a valid street tile
 			welt->markiere(to);

@@ -6,6 +6,7 @@
 #include "../tpl/minivec_tpl.h"
 
 
+class cbuffer_t;
 class grund_t;
 class karte_t;
 
@@ -141,6 +142,12 @@ public:
 
 	// copy all entries from schedule src to this and adjusts aktuell
 	void copy_from(const schedule_t *src);
+
+	// fills the given buffer with a schedule
+	void sprintf_schedule( cbuffer_t &buf ) const;
+
+	// converts this string into a schedule
+	bool sscanf_schedule( const char * );
 };
 
 

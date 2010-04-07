@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -60,6 +60,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/way_constraints.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -73,6 +74,9 @@
 #include "simverkehr.h"
 
 #include "../simcity.h"
+
+#define UNVALID_INDEX (65535u)
+
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
@@ -361,10 +365,10 @@ uint32 vehikel_basis_t::fahre_basis(uint32 distance)
 
 
 // to make smaller steps than the tile granularity, we have to use this trick
-void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
+void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
 	// vehicles needs finer steps to appear smoother
-	sint32 display_steps = (uint32)steps*(uint16)get_tile_raster_width();
+	sint32 display_steps = (uint32)steps*(uint16)raster_width;
 	if(dx*dy) {
 		display_steps &= 0xFFFFFC00;
 	}
@@ -372,7 +376,7 @@ void vehikel_basis_t::get_screen_offset( int &xoff, int &yoff ) const
 		display_steps = (display_steps*diagonal_multiplier)>>10;
 	}
 	xoff += (display_steps*dx) >> 10;
-	yoff += ((display_steps*dy) >> 10) + (hoff*(sint16)get_tile_raster_width())/(4*16);
+	yoff += ((display_steps*dy) >> 10) + (hoff*raster_width)/(4*16);
 }
 
 
@@ -505,9 +509,9 @@ vehikel_basis_t::calc_richtung(koord start, koord ende) const
 
 // this routine calculates the new height
 // beware of bridges, tunnels, slopes, ...
-sint16 vehikel_basis_t::calc_height()
+sint8 vehikel_basis_t::calc_height()
 {
-	sint16 hoff = 0;
+	sint8 hoff = 0;
 	use_calc_height = false;	// assume, we are only needed after next hop
 
 	grund_t *gr = welt->lookup(get_pos());
@@ -800,10 +804,15 @@ vehikel_t::unload_freight(halthandle_t halt)
 							}
 							else if(tmp.is_mail())
 							{
-								stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
-								if(origin_city)
+								if(tmp.get_origin().is_bound())
 								{
-									origin_city->add_transported_mail(menge);
+									// Check required because Simutrans-Standard saved games
+									// do not have origins.
+									stadt_t* origin_city = welt->get_city(tmp.get_origin()->get_basis_pos());
+									if(origin_city)
+									{
+										origin_city->add_transported_mail(menge);
+									}
 								}
 							}
 
@@ -1057,6 +1066,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
 	use_calc_height = true;
+
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 	target_halt = halthandle_t();
 
@@ -1093,6 +1103,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
 	use_calc_height = true;
+
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 
 	//@author: jamespetts 
@@ -1388,7 +1399,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
 		}
 	
-		float limit_adjustment_factor = 1.0;
+		double limit_adjustment_factor = 1.0;
 		
 		if(base_limit > max_corner_limit)
 		{
@@ -1403,11 +1414,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		else
 		{
 			//Smooth the difference
-			float tmp1 = base_limit - min_corner_limit;
-			float tmp2 = max_corner_limit - min_corner_limit;
-			float proportion = tmp1 / tmp2;
+			uint32 tmp1 = base_limit - min_corner_limit;
+			uint32 tmp2 = max_corner_limit - min_corner_limit;
+			double proportion = (double)tmp1 / (double)tmp2;
 			limit_adjustment_factor = ((max_corner_adjustment_factor - min_corner_adjustment_factor) * proportion) + min_corner_adjustment_factor;
-			direction_steps = ((max_direction_steps - min_direction_steps) * proportion) + min_direction_steps; 
+			direction_steps = (sint16)((max_direction_steps - min_direction_steps) * proportion) + min_direction_steps; 
 		}
 		
 		uint16 tmp;
@@ -1465,7 +1476,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				//If we are here, there *must* be a curve, since we have already checked that.
 				//If this is 0, this is an error, and we will assume a 45 degree bend.
 #ifndef debug_corners
-				corner_speed_limit = (base_limit * limit_adjustment_factor); 
+				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor); 
 #else
 				corner_speed_limit = base_limit;
 #endif
@@ -1473,29 +1484,29 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 			case 45 :
 				
-				corner_speed_limit = (base_limit * limit_adjustment_factor);
+				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor);
 				break;
 
 			case 90 :
 				// Sharp corners have a hard limit for speed irrespective of the base
 				// speed limit of the underlying way.
-				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
+				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
 				break;
 					
 			case 135 :
 
-				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
+				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = min((base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
+				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
 				break;
 				
 			default :
 				//treat as 45 degree bend if something has gone wrong in the calculations.
 				//There *must* be a curve here, as the original bool flag was triggered.
-				corner_speed_limit = (base_limit * limit_adjustment_factor);
+				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor);
 		}
 #ifndef debug_corners
 	}
@@ -1531,9 +1542,11 @@ sint16 get_friction_of_waytype(waytype_t waytype)
 {
 	switch(waytype)
 	{
-		case road_wt:	return 4;
+		case road_wt:	
+			return 4;
+		default:
+			return 1;
 	}
-	return 1;
 }
 
 
@@ -2149,19 +2162,20 @@ vehikel_t::ist_entfernbar(const spieler_t *)
 	return "Vehicles cannot be removed";
 }
 
-bool vehikel_t::check_way_constraints(const weg_t *way) const
+bool vehikel_t::check_way_constraints(const weg_t &way) const
 {
-	// Permissive way constraints
-	// If vehicle has it, way must have it.
-	uint8 my_or = besch->get_permissive_constraints() | way->get_way_constraints_permissive();
-	const bool permissive = way->get_way_constraints_permissive() ^ my_or;
+	//// Permissive way constraints
+	//// If vehicle has it, way must have it.
+	//uint8 my_or = besch->get_permissive_constraints() | way->get_way_constraints_permissive();
+	//const bool permissive = way->get_way_constraints_permissive() ^ my_or;
 
-	// Prohibitive way constraints
-	// If way has it, vehicle must have it.
-	my_or = besch->get_prohibitive_constraints() | way->get_way_constraints_prohibitive();
-	const bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
+	//// Prohibitive way constraints
+	//// If way has it, vehicle must have it.
+	//my_or = besch->get_prohibitive_constraints() | way->get_way_constraints_prohibitive();
+	//const bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
 
-	return (!permissive) && (!prohibitive);
+	//return (!permissive) && (!prohibitive);
+	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).ist_befahrbar();
 }
 
 
@@ -2275,8 +2289,8 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 		// something to show?
 		if(  tooltip_text[0]  ) {
 			const int width = proportional_string_width(tooltip_text)+7;
-			const int raster_width = get_tile_raster_width();
-			get_screen_offset( xpos, ypos );
+			const int raster_width = get_current_tile_raster_width();
+			get_screen_offset( xpos, ypos, raster_width );
 			xpos += tile_raster_scale_x(get_xoff(), raster_width);
 			ypos += tile_raster_scale_y(get_yoff(), raster_width);
 			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
@@ -2292,7 +2306,7 @@ void vehikel_t::laden_abschliessen()
 	spieler_t *sp = get_besitzer();
 	if (sp) {
 		// BG, 06.06.2009: fixed maintenance for loaded vehicles, which are located on the map
-		sp->add_maintenance(get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
+		sp->add_maintenance((sint32)get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
 	}
 }
 
@@ -2302,7 +2316,7 @@ void vehikel_t::before_delete()
 	spieler_t *sp = get_besitzer();
 	if (sp) {
 		// BG, 06.06.2009: withdraw fixed maintenance for deleted vehicles
-		sp->add_maintenance(-get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
+		sp->add_maintenance(-(sint32)get_besch()->get_fixed_maintenance(welt), spieler_t::MAINT_VEHICLE);
 	}
 }
 
@@ -2351,7 +2365,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 
 
 
-// ned to reset halt reservation (if there was one)
+// need to reset halt reservation (if there was one)
 bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
 	assert(cnv);
@@ -2373,7 +2387,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, rout
 bool automobil_t::ist_befahrbar(const grund_t *bd) const
 {
 	strasse_t *str=(strasse_t *)bd->get_weg(road_wt);
-	if(str==NULL) {
+	if(str==NULL  ||  str->get_max_speed()==0) {
 		return false;
 	}
 	bool electric = cnv!=NULL  ?  cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric;
@@ -2393,16 +2407,15 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 			}
 		}
 	}
-	const strasse_t* way = str;
-	return check_way_constraints(way);
+	//const strasse_t* way = str;
+	return check_way_constraints(*str);
 }
 
 
 
 // how expensive to go here (for way search)
 // author prissi
-int
-automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -2471,13 +2484,12 @@ bool automobil_t::ist_ziel(const grund_t *gr, const grund_t *prev_gr) const
 
 
 // to make smaller steps than the tile granularity, we have to use this trick
-void automobil_t::get_screen_offset( int &xoff, int &yoff ) const
+void automobil_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
-	vehikel_basis_t::get_screen_offset( xoff, yoff );
+	vehikel_basis_t::get_screen_offset( xoff, yoff, raster_width );
 
 	// eventually shift position to take care of overtaking
 	if(cnv) {
-		const int raster_width = get_tile_raster_width();
 		if(  cnv->is_overtaking()  ) {
 			xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][0], raster_width);
 			yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width);
@@ -2793,8 +2805,7 @@ waggon_t::~waggon_t()
 
 
 
-void
-waggon_t::set_convoi(convoi_t *c)
+void waggon_t::set_convoi(convoi_t *c)
 {
 	if(c!=cnv) {
 		DBG_MESSAGE("waggon_t::set_convoi()","new=%p old=%p",c,cnv);
@@ -2830,7 +2841,7 @@ waggon_t::set_convoi(convoi_t *c)
 				if(c->get_state()>=convoi_t::WAITING_FOR_CLEARANCE) {
 //	DBG_MESSAGE("waggon_t::set_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					// find about next signal after loading
-					uint16 next_signal_index=65535;	
+					uint16 next_signal_index=UNVALID_INDEX;
 					route_t *route=c->get_route();
 
 					if(route->empty()  ||  get_pos()==route->position_bei(route->get_count()-1)) {
@@ -2875,15 +2886,14 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 
 
 
-bool
-waggon_t::ist_befahrbar(const grund_t *bd) const
+bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
 	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->get_weg(get_waytype()));
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
-	const bool ok = (sch != NULL) && (needs_no_electric || sch->is_electrified()) && check_way_constraints(sch);
+	const bool ok = (sch != NULL) && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
 
 	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
 	{
@@ -3062,7 +3072,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				}
 
 				bool exit_loop = false;
-				short fahrplan_index = cnv->get_schedule()->get_aktuell();
+				uint8 fahrplan_index = cnv->get_schedule()->get_aktuell();
 				int count = 0;
 				route_t target_rt;
 				koord3d cur_pos = rt->position_bei(next_block+1);
@@ -3127,19 +3137,52 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				restart_speed = -1;
 				return true;
 			}
-			else if(sig_besch->is_free_route()) {
+			else if(sig_besch->is_choose_sign()) {
 				grund_t *target=NULL;
 
 				// choose signal here
-				target=welt->lookup(rt->position_bei(rt->get_count()-1));
+				target = welt->lookup(rt->position_bei(rt->get_count()-1));
 
 				if(target) {
-					target_halt = target->get_halt();
+					// first check, if there is another choose or an end_of choose before the target
+					route_t *rt = cnv->get_route();
+					bool choose_ok = target->get_halt().is_bound();	// only check for full way, if target is not a waypoint!
+					for(  uint32 idx=next_block+1;  choose_ok  &&  idx<rt->get_count();  idx++  ) {
+						grund_t *gr = welt->lookup(rt->position_bei(idx));
+						if(  gr==0  ) {
+							choose_ok = false;
+							break;
+						}
+						weg_t *way = gr->get_weg(get_waytype());
+						if(  way==0  ) {
+							choose_ok = false;
+							break;
+						}
+						if(  way->has_sign()  ) {
+							roadsign_t *rs = gr->find<roadsign_t>(1);
+							if(  rs  &&  rs->get_besch()->get_wtyp()==get_waytype()  ) {
+								if(  (rs->get_besch()->get_flags()&&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
+									// end of choose on route => not choosing here
+									choose_ok = false;
+								}
+							}
+						}
+						if(  way->has_signal()  ) {
+							signal_t *sig = gr->find<signal_t>(1);
+							if(  sig  &&  sig->get_besch()->is_choose_sign()  ) {
+								// second chosse signal on route => not choosing here
+								choose_ok = false;
+							}
+						}
+					}
+					if(  choose_ok  ) {
+						target_halt = target->get_halt();
+					}
 				}
 			}
-			next_stop = block_reserver(cnv->get_route(),next_block+1,(target_halt.is_bound()?100000:sig_besch->is_pre_signal()),true);
+			next_stop = block_reserver(cnv->get_route(),next_block+1,(target_halt.is_bound()?100000:0),true);
 
-			if(next_stop==0  &&  target_halt.is_bound()  &&  sig_besch->is_free_route()) {
+			if(next_stop==0  &&  target_halt.is_bound()  &&  sig_besch->is_choose_sign()) {
 
 				// no free route to target!
 				// note: any old reservations should be invalid after the block reserver call.
@@ -3175,6 +3218,33 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 					next_stop = block_reserver(rt,next_block,100000,true);
 				}
 				// reserved route to target (or not)
+			}
+			else if(  next_stop!=0  &&  next_stop!=UNVALID_INDEX  &&  sig_besch->is_pre_signal()  &&  next_stop<cnv->get_route()->get_count()  ) {
+				// free route, but next signal might be again a double block signal
+				uint16 nextnext_stop = block_reserver(cnv->get_route(),next_stop,0,true);
+				if(  nextnext_stop==0  ) {
+					// next one not free => wait ...
+					block_reserver(cnv->get_route(),next_block+1,1,false);
+					next_stop = 0;
+				}
+				else {
+					// if next signal is a pre_signal, it will have yellow state, else green
+					grund_t *gr = welt->lookup( cnv->get_route()->position_bei(next_stop-1) );
+					signal_t *sig = gr->find<signal_t>(1);
+					if(sig) {
+						const roadsign_besch_t *rs_besch = sig->get_besch();
+						if(  rs_besch->is_pre_signal()  ) {
+							sig->set_zustand( roadsign_t::naechste_rot );
+						}
+						else if(  !rs_besch->is_longblock_signal()  &&  !rs_besch->is_choose_sign()  ) {
+							// next is a simple signal => set it to green an go to nextnext
+							sig->set_zustand( roadsign_t::gruen );
+							next_stop = nextnext_stop;
+						}
+						// otherwise we will just keep them in the same state as previously
+					}
+				}
+				// now the next signal will be questioned anyway
 			}
 			// next signal can be passed
 			if(next_stop!=0) {
@@ -3240,8 +3310,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
  * return the last checked block
  * @author prissi
  */
-uint16
-waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bool reserve) const
+uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bool reserve ) const
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -3259,8 +3328,8 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 
 	// find next blocksegment enroute
 	uint16 i=start_index;
-	uint16 next_signal_index=65535, skip_index=65535;
-	uint16 next_crossing_index=65535;
+	uint16 next_signal_index=UNVALID_INDEX, skip_index=UNVALID_INDEX;
+	uint16 next_crossing_index=UNVALID_INDEX;
 	bool unreserve_now = false;
 	for ( ; success  &&  count>=0  &&  i<route->get_count(); i++) {
 
@@ -3287,10 +3356,10 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 				count --;
 				next_signal_index = i;
 			}
-			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,i+1)) ) )  ) {
+			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,(uint32)(i+1))) ) )  ) {
 				success = false;
 			}
-			if(next_crossing_index==65535  &&  sch1->is_crossing()) {
+			if(next_crossing_index==UNVALID_INDEX  &&  sch1->is_crossing()) {
 				next_crossing_index = i;
 			}
 		}
@@ -3298,7 +3367,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 			if(!sch1->unreserve(cnv->self)) {
 				if(unreserve_now) {
 					// reached an reserved or free track => finished
-					return 65535;
+					return UNVALID_INDEX;
 				}
 			}
 			else {
@@ -3318,7 +3387,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 	}
 
 	if(!reserve) {
-		return 65535;
+		return UNVALID_INDEX;
 	}
 	// here we go only with reserve
 
@@ -3350,10 +3419,10 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 		next_signal_index = next_crossing_index;
 	}
 	// stop at station or signals, not at waypoints
-	if(next_signal_index==65535) {
+	if(next_signal_index==UNVALID_INDEX) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
 		grund_t *gr=welt->lookup(route->position_bei(route->get_count()-1));
-		return (gr  &&  gr->is_halt()) ? route->get_count() : 65535;
+		return (gr  &&  gr->is_halt()) ? route->get_count() : UNVALID_INDEX;
 	}
 	return next_signal_index+1;
 }
@@ -3361,8 +3430,7 @@ waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bo
 
 
 /* beware: we must unreserve railblocks ... */
-void
-waggon_t::verlasse_feld()
+void waggon_t::verlasse_feld()
 {
 	vehikel_t::verlasse_feld();
 	// fix counters
@@ -3387,8 +3455,7 @@ waggon_t::verlasse_feld()
 
 
 
-void
-waggon_t::betrete_feld()
+void waggon_t::betrete_feld()
 {
 	vehikel_t::betrete_feld();
 
@@ -3463,17 +3530,16 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 
 
 
-bool
-schiff_t::ist_befahrbar(const grund_t *bd) const
+bool schiff_t::ist_befahrbar(const grund_t *bd) const
 {
 	if(  bd->ist_wasser()  ) 
 	{
 		// If there are permissive constraints, this vehicle cannot use the open water.
-		return besch->get_permissive_constraints() == 0;
+		return besch->get_way_constraints().get_permissive() == 0;
 	}
 
 	const weg_t *w = bd->get_weg(water_wt);
-	return (w  &&  w->get_max_speed()>0 && check_way_constraints(w));
+	return (w  &&  w->get_max_speed()>0 && check_way_constraints(*w));
 }
 
 
@@ -3660,7 +3726,7 @@ aircraft_t::ist_befahrbar(const grund_t *bd) const
 		case taxiing_to_halt:
 		case looking_for_parking:
 //DBG_MESSAGE("ist_befahrbar()","at %i,%i",bd->get_pos().x,bd->get_pos().y);
-			return bd->hat_weg(air_wt);
+			return (bd->hat_weg(air_wt)  &&  bd->get_weg(air_wt)->get_max_speed()>0);
 
 		case landing:
 		case departing:
@@ -4222,7 +4288,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 				dbg->error("aircraft_t::calc_route()","out of map!");
 				return false;
 			}
-			// need some extra step to avoid 180° turns
+			// need some extra step to avoid 180 deg turns
 			if( start_dir.x!=0  &&  sgn(start_dir.x)==sgn(search_end.x-search_start.x)  ) {
 				route->append( welt->lookup(gr->get_pos().get_2d()+koord(0,(search_end.y>search_start.y) ? 2 : -2 ) )->get_kartenboden()->get_pos() );
 				route->append( welt->lookup(gr->get_pos().get_2d()+koord(0,(search_end.y>search_start.y) ? 2 : -2 ) )->get_kartenboden()->get_pos() );
@@ -4440,12 +4506,12 @@ aircraft_t::hop()
 
 // this routine will display the shadow
 void
-aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) const
+aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 {
 	if(bild != IMG_LEER) {
 		int xpos = xpos_org, ypos = ypos_org;
 
-		const int raster_width = get_tile_raster_width();
+		const int raster_width = get_current_tile_raster_width();
 		sint16 current_flughohe = flughoehe;
 		const sint16 target = target_height - ((sint16)get_pos().z*TILE_HEIGHT_STEP)/Z_TILE_STEP;
 		if(  current_flughohe < target  ) {
@@ -4457,11 +4523,11 @@ aircraft_t::display_after(int xpos_org, int ypos_org, bool /*reset_dirty*/) cons
 
 		ypos += tile_raster_scale_y(get_yoff()-current_flughohe-hoff-2, raster_width);
 		xpos += tile_raster_scale_x(get_xoff(), raster_width);
-		get_screen_offset( xpos, ypos );
+		get_screen_offset( xpos, ypos, raster_width );
 
 		// will be dirty
-		display_color_img(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
+		display_color(bild, xpos, ypos, get_player_nr(), true, true/*get_flag(ding_t::dirty)*/ );
 
-		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), true );
+		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), is_global );
 	}
 }

@@ -103,14 +103,9 @@ private:
 	fahrplan_gui_stats_t stats;
 	gui_scrollpane_t scrolly;
 
-	schedule_t *fpl;
-	schedule_t* old_fpl;
-	spieler_t *sp;
-	convoihandle_t cnv;
-
-	linehandle_t new_line, old_line;
-
-	void init_line_selector();
+	// to add new lines automatically
+	uint32 old_line_count;
+	uint32 last_schedule_count;
 
 	// set the correct tool now ...
 	void update_werkzeug(bool set);
@@ -118,10 +113,21 @@ private:
 	// changes the waiting/loading levels if allowed
 	void update_selection();
 
+protected:
+	schedule_t *fpl;
+	schedule_t* old_fpl;
+	spieler_t *sp;
+	convoihandle_t cnv;
+
+	linehandle_t new_line, old_line;
+
 public:
 	fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);
 
 	~fahrplan_gui_t();
+
+	// for updating info ...
+	void init_line_selector();
 
 	/**
 	 * Mausklicks werden hiermit an die GUI-Komponenten
@@ -161,6 +167,11 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * Map rotated, rotate schedules too
+	 */
+	void map_rotate90( sint16 );
 };
 
 #endif

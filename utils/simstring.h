@@ -24,9 +24,8 @@ void set_thousand_sep(char c);
  */
 void set_fraction_sep(char c);
 
-
 char get_fraction_sep(void);
-
+const char *get_large_money_string(void);
 
 /**
  * Set abbrevitation and the amout by which large money amouts will be shortened

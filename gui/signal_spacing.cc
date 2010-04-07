@@ -12,7 +12,7 @@
 #include "signal_spacing.h"
 #include "../simwerkz.h"
 
-uint8 signal_spacing_frame_t::signal_spacing = 4;
+uint8 signal_spacing_frame_t::signal_spacing = 2;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
 
@@ -49,51 +49,23 @@ signal_spacing_frame_t::signal_spacing_frame_t(wkz_roadsign_t* tool_) :
 	add_komponente( &replace_button );
 	intTopOfButton += 12+4;
 
-	cancel_button.init(button_t::roundbox,"cancel", koord(10,intTopOfButton), koord(80,14));
-	cancel_button.add_listener(this);
-	add_komponente( &cancel_button );
-
-	ok_button.init(button_t::roundbox,"signale bauen", koord(110,intTopOfButton), koord(80,14));
-	ok_button.add_listener(this);
-	add_komponente( &ok_button );
-
 	set_fenstergroesse( koord(110+80+10, intTopOfButton+38) );
 	tool->set_values(signal_spacing, remove, replace);
-}
-
-void signal_spacing_frame_t::infowin_event( const event_t *ev )
-{
-	if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_CLOSE) {
-		tool->init(NULL, NULL);
-	}
-	gui_frame_t::infowin_event( ev );
 }
 
 bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	if( komp == &signal_spacing_inp ) {
 		signal_spacing = signal_spacing_inp.get_value();
-		tool->set_values(signal_spacing, remove, replace);
 	}
 	else if( komp == &remove_button ) {
 		remove = !remove;
 		remove_button.pressed = remove;
-		tool->set_values(signal_spacing, remove, replace);
 	}
 	else if( komp == &replace_button ) {
 		replace = !replace;
 		replace_button.pressed = replace;
-		tool->set_values(signal_spacing, remove, replace);
 	}
-	else if( komp == &cancel_button ) {
-		destroy_win(this);
-	}
-	else if( komp == &ok_button ) {
-		const char* err = tool->place_signs();
-		if(  err  &&  *err != 0  ) {
-			create_win( new news_img(err), w_time_delete, magic_none);
-		}
-		destroy_win(this);
-	}
+	tool->set_values(signal_spacing, remove, replace);
 	return true;
 }

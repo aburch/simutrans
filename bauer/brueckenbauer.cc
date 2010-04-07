@@ -144,7 +144,8 @@ static bool compare_bridges(const bruecke_besch_t* a, const bruecke_besch_t* b)
  * Fill menu with icons of given waytype
  * @author Hj. Malthaner
  */
-void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 sound_ok, const karte_t *welt)
+
+void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, sint16 /*sound_ok*/, const karte_t *welt)
 {
 	static stringhashtable_tpl<wkz_brueckenbau_t *> bruecken_tool;
 
@@ -172,13 +173,13 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 
 
 
-koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, sint16 min_length )
+koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
 {
 	const grund_t *gr1; // auf Brückenebene
 	const grund_t *gr2; // unter Brückenebene
 	waytype_t wegtyp = besch->get_waytype();
 	error_msg = NULL;
-	sint16 length = 0;
+	uint16 length = 0;
 	do {
 		length ++;
 		pos = pos + zv;
@@ -549,7 +550,8 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 		weg->set_max_weight( besch->get_max_weight() );
-		weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
+		weg->add_way_constraints(besch->get_way_constraints());
 	} else {
 
 		leitung_t *lt = bruecke->get_leitung();

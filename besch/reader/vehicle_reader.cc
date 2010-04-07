@@ -46,7 +46,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	
 	// Whether the read file is from Simutrans-Experimental
 	//@author: jamespetts
-
+	way_constraints_of_vehicle_t way_constraints;
 	const bool experimental = version > 0 ? v & EXP_VER : false;
 	uint16 experimental_version = 0;
 	if(experimental)
@@ -185,8 +185,10 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			if(experimental_version >= 0 && experimental_version <= 3)
 			{
 				besch->is_tilting = decode_uint8(p);
-				besch->way_constraints_permissive = decode_uint8(p);
-				besch->way_constraints_prohibitive = decode_uint8(p);
+				//besch->way_constraints_permissive = decode_uint8(p);
+				//besch->way_constraints_prohibitive = decode_uint8(p);
+				way_constraints.set_permissive(decode_uint8(p));
+				way_constraints.set_prohibitive(decode_uint8(p));
 				besch->catering_level = decode_uint8(p);
 				besch->bidirectional = decode_uint8(p);
 				besch->can_lead_from_rear = decode_uint8(p);
@@ -289,8 +291,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	{
 		// Default values for items not in the standard vehicle format.
 		besch->is_tilting = false;
-		besch->way_constraints_permissive = 0;
-		besch->way_constraints_prohibitive = 0;
+		//besch->way_constraints_permissive = 0;
+		//besch->way_constraints_prohibitive = 0;
 		besch->catering_level = 0;
 		besch->bidirectional = false;
 		besch->can_lead_from_rear = false;
@@ -327,6 +329,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->available_only_as_upgrade = false;
 		besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 	}
+	besch->set_way_constraints(way_constraints);
 
 	if(besch->sound==LOAD_SOUND) {
 		uint8 len=decode_sint8(p);
@@ -369,8 +372,8 @@ DBG_MESSAGE("vehicle_reader_t::register_obj()","old sound %i to %i",old_id,besch
 		besch->len,
 		besch->is_tilting,
 		besch->catering_level,
-		besch->way_constraints_permissive,
-		besch->way_constraints_prohibitive,
+		besch->get_way_constraints().get_permissive(),
+		besch->get_way_constraints().get_prohibitive(),
 		besch->bidirectional,
 		besch->can_lead_from_rear);
 

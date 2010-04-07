@@ -8,26 +8,67 @@
 #include "xref_writer.h"
 
 
-void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj, const char *s)
+void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* field_name, int snow_image, int production, int capacity, int weight)
+{
+	field_class_besch_t besch;
+	obj_node_t node(this, 9, &parent);
+
+	xref_writer_t::instance()->write_obj(outfp, node, obj_field, field_name, true);
+
+	// Knightly : data specific to each field class
+	besch.snow_image = snow_image;
+	besch.production_per_field = production;
+	besch.storage_capacity = capacity;
+	besch.spawn_weight = weight;
+
+	node.write_uint16(outfp, 0x8001,                        0); // version
+	node.write_uint8 (outfp, besch.snow_image,              2);
+	node.write_uint16(outfp, besch.production_per_field,    3);
+	node.write_uint16(outfp, besch.storage_capacity,        5);
+	node.write_uint16(outfp, besch.spawn_weight,            7);
+
+	node.write(outfp);
+}
+
+
+
+void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	field_besch_t besch;
-	memset(&besch, 0, sizeof(besch));
-	obj_node_t node(this, 11, &parent);
+	obj_node_t node(this, 10, &parent);
 
-	xref_writer_t::instance()->write_obj(outfp, node, obj_field, s, true);
+	// Knightly : for each field class, retrieve its data and write a field class node
+	for(  besch.field_classes=0  ;  ;  besch.field_classes++  ) {
+		char buf[64];
 
-	besch.has_winter   = obj.get_int("has_snow",   1);
-	besch.probability   = obj.get_int("probability_to_spawn",   10); // 0,1 %
-	besch.production_per_field = obj.get_int("production_per_field",  16 );
+		sprintf(buf, "fields[%d]", besch.field_classes);
+		const char *field_name = obj.get(buf);
+		if(  !field_name  ||  !*field_name  ) {
+			break;
+		}
+
+		sprintf(buf, "has_snow[%d]", besch.field_classes);
+		int snow_image = obj.get_int(buf, 1);
+		sprintf(buf, "production_per_field[%d]", besch.field_classes);
+		int production = obj.get_int(buf, 16);
+		sprintf(buf, "storage_capacity[%d]", besch.field_classes);
+		int capacity = obj.get_int(buf, 0);		// default is 0 to avoid breaking the balance of existing pakset objects
+		sprintf(buf, "spawn_weight[%d]", besch.field_classes);
+		int weight = obj.get_int(buf, 1000);
+
+		factory_field_class_writer_t::instance()->write_obj(outfp, node, field_name, snow_image, production, capacity, weight);
+	}
+
+	// common, shared field data
+	besch.probability = obj.get_int("probability_to_spawn", 10); // 0,1 %
 	besch.max_fields = obj.get_int("max_fields", 25);
 	besch.min_fields = obj.get_int("min_fields", 5);
 
-	node.write_uint16(outfp, 0x8001,                     0); // version
-	node.write_uint8 (outfp, besch.has_winter,           2);
-	node.write_uint16(outfp, besch.probability,          3);
-	node.write_uint16(outfp, besch.production_per_field, 5);
-	node.write_uint16(outfp, besch.max_fields,           7);
-	node.write_uint16(outfp, besch.min_fields,           9);
+	node.write_uint16(outfp, 0x8002,                     0); // version
+	node.write_uint16(outfp, besch.probability,          2);
+	node.write_uint16(outfp, besch.max_fields,           4);
+	node.write_uint16(outfp, besch.min_fields,           6);
+	node.write_uint16(outfp, besch.field_classes,        8);
 
 	node.write(outfp);
 }
@@ -175,9 +216,10 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	// fields (careful, are xref'ed)
 	besch.fields = 0;
-	if(*obj.get("fields")) {
+	if(  *obj.get("fields[0]")  ) {
+		// Knightly : at least one field class available
 		besch.fields = 1;
-		factory_field_writer_t::instance()->write_obj(fp, node, obj, obj.get("fields"));
+		factory_field_writer_t::instance()->write_obj(fp, node, obj);
 	}
 
 	uint16 electricity_percent = obj.get_int("electricity_percent", 17);

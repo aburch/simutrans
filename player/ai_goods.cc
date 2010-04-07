@@ -46,7 +46,7 @@ ai_goods_t::ai_goods_t(karte_t *wl, uint8 nr) : ai_t(wl,nr)
 	ship_vehicle = NULL;
 	road_weg = NULL;
 
-	next_contruction_steps = welt->get_steps()+simrand(400);
+	next_contruction_steps = welt->get_steps()+ 50;
 
 	road_transport = nr<7;
 	rail_transport = nr>2;
@@ -64,10 +64,10 @@ void ai_goods_t::neues_jahr()
 {
 	spieler_t::neues_jahr();
 
-	// AI will reconsider the oldes unbuiltable lines again
-	uint remove = (uint)max(0,(int)forbidden_conections.get_count()-3);
-	while(  remove < forbidden_conections.get_count()  ) {
-		forbidden_conections.remove_first();
+	// AI will reconsider the oldest unbuiltable lines again
+	uint remove = (uint)max(0,(int)forbidden_connections.get_count()-3);
+	while(  remove < forbidden_connections.get_count()  ) {
+		forbidden_connections.remove_first();
 	}
 }
 
@@ -242,7 +242,7 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 	if(qfab->get_besch()->get_platzierung()!=fabrik_besch_t::Wasser) {
 		if( length == 0 ) {
 			vector_tpl<koord3d> tile_list[2];
-			const uint8 cov = welt->get_einstellungen()->get_station_coverage();
+			const uint16 cov = welt->get_einstellungen()->get_station_coverage();
 			koord test;
 			for( uint8 i = 0; i < 2; i++ ) {
 				fabrik_t *fab =  i==0 ? qfab : zfab;
@@ -794,7 +794,7 @@ void ai_goods_t::step()
 				}
 				else {
 					// add to impossible connections
-					forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
+					forbidden_connections.append( new fabconnection_t( start, ziel, freight ) );
 					state = CHECK_CONVOI;
 				}
 			}
@@ -826,8 +826,7 @@ void ai_goods_t::step()
 			 * a suitable car (and engine)
 			 * a suitable weg
 			 */
-			koord zv = start->get_pos().get_2d() - ziel->get_pos().get_2d();
-			int dist = abs(zv.x) + abs(zv.y);
+			uint32 dist = koord_distance( start->get_pos(), ziel->get_pos() );
 
 			// guess the "optimum" speed (usually a little too low)
 			uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
@@ -871,8 +870,8 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 				start_ware++;
 			}
 			assert(  start_ware<ausgang.get_count()  );
-			const int prod = min(ziel->get_base_production(),
-			                 ( start->get_base_production() * start->get_besch()->get_produkt(start_ware)->get_faktor() )/256u - start->get_abgabe_letzt(start_ware) );
+			const int prod = min((uint32)ziel->get_base_production(),
+			                 ( start->get_base_production() * start->get_besch()->get_produkt(start_ware)->get_faktor() )/256u - (uint32)start->get_abgabe_letzt(start_ware) );
 
 DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for railroad */
@@ -956,7 +955,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			if(  count_road<255  ) {
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
-				count_road = CLIP( (dist*15)/best_road_speed, 2, count_road );
+				count_road = CLIP( (dist*15u)/best_road_speed, 2, count_road );
 				int freight_price = (freight->get_preis()*road_vehicle->get_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
 				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_betriebskosten(welt)*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);
@@ -986,7 +985,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			// no success at all?
 			if(state==NR_BAUE_ROUTE1) {
 				// maybe this route is not builtable ... add to forbidden connections
-				forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
+				forbidden_connections.append( new fabconnection_t( start, ziel, freight ) );
 				ziel = NULL;	// otherwise it may always try to built the same route!
 				state = CHECK_CONVOI;
 			}
@@ -1126,10 +1125,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove marker etc.
 		case NR_BAUE_CLEAN_UP:
 		{
-			// @author Bernd Gabriel: start or ziel may have been deleted and thus set to NULL.
-			if (start != NULL && ziel != NULL)
-			{
-				forbidden_conections.append( fabconnection_t( start, ziel, freight ) );
+			if(start!=NULL  &&  ziel!=NULL) {
+				forbidden_connections.append( new fabconnection_t( start, ziel, freight ) );
 			}
 			if(ship_vehicle) {
 				// only here, if we could built ships but no connection
@@ -1200,7 +1197,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
 				const convoihandle_t cnv = welt->get_convoi(i);
-				if(cnv->get_besitzer()!=this) {
+				if(!cnv.is_bound()  ||  cnv->get_besitzer()!=this) {
 					continue;
 				}
 
@@ -1243,7 +1240,9 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					}
 
 					cnv->self_destruct();
-					cnv->step();	// to really get rid of it
+					if(cnv.is_bound()) {
+						cnv->step();	// to really get rid of it
+					}
 
 					// last vehicle on that connection (no line => railroad)
 					if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
@@ -1260,8 +1259,11 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 								if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
 									water_stop = koord( (start_pos.x+fpl->eintrag[0].pos.x)/2, (start_pos.y+fpl->eintrag[0].pos.y)/2 );
 									while(line->count_convoys()>0) {
-										line->get_convoy(0)->self_destruct();
-										line->get_convoy(0)->step();
+										convoihandle_t cnv = line->get_convoy(0);
+										cnv->self_destruct();
+										if(cnv.is_bound()) {
+											cnv->step();
+										}
 									}
 								}
 								simlinemgmt.delete_line( line );
@@ -1424,31 +1426,44 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	}
 
 	// finally: forbidden connection list
-	sint32 cnt = forbidden_conections.get_count();
+	sint32 cnt = forbidden_connections.get_count();
 	file->rdwr_long(cnt,"Fc");
 	if(file->is_saving()) {
-		slist_iterator_tpl<fabconnection_t> iter(forbidden_conections);
+		slist_iterator_tpl<fabconnection_t*> iter(forbidden_connections);
 		while(  iter.next()  ) {
-			fabconnection_t fc = iter.get_current();
-			fc.rdwr(file);
+			fabconnection_t *fc = iter.get_current();
+			fc->rdwr(file);
 		}
 	}
 	else {
-		forbidden_conections.clear();
+		forbidden_connections.clear();
 		while(  cnt-->0  ) {
-			fabconnection_t fc(0,0,0);
-			fc.rdwr(file);
+			fabconnection_t *fc = new fabconnection_t(0,0,0);
+			fc->rdwr(file);
 			// @author Bernd Gabriel, Jan 01, 2010: Don't add, if fab or ware no longer in the game.
-			if (fc.fab1 && fc.fab2 && fc.ware)
+			if (fc->fab1  &&  fc->fab2  &&  fc->ware)
 			{
-				forbidden_conections.append(fc);
+				forbidden_connections.append(fc);
+			}
+			else {
+				delete fc;
 			}
 		}
 	}
 }
 
-
-
+bool ai_goods_t::is_forbidden( fabrik_t *fab1, fabrik_t *fab2, const ware_besch_t *w ) const
+{
+	fabconnection_t fc(fab1, fab2, w);
+	slist_iterator_tpl<fabconnection_t*> iter(forbidden_connections);
+	while(  iter.next()  ) {
+		fabconnection_t *test_fc = iter.get_current();
+		if (fc == (*test_fc)) {
+			return true;
+		}
+	}
+	return false;
+}
 
 void ai_goods_t::fabconnection_t::rdwr(loadsave_t *file)
 {
@@ -1513,38 +1528,44 @@ DBG_MESSAGE("ai_goods_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv-
 	}
 }
 
+
 /**
  * Tells the player that a fabrik_t is going to be deleted.
  * It could also tell, that a fab has been created, but by now the fabrikbauer_t does not.
  * @author Bernd Gabriel, Jan 01, 2010
  */
-void ai_goods_t::notification(notification_t info, fabrik_t &fab)
+void ai_goods_t::notify_factory(notification_factory_t flag, const fabrik_t* fab)
 {
-	switch (info)
-	{
+	switch(flag) {
+		// factory is going to be deleted
 		case notify_delete:
-			if (root == &fab)
-			{
+			if (start==fab  ||  ziel==fab  ||  root==fab) {
 				root = NULL;
-			}
-			if (start == &fab)
-			{
 				start = NULL;
-			}
-			if (ziel == &fab)
-			{
 				ziel = NULL;
-			}
-			slist_iterator_tpl<fabconnection_t> iter(forbidden_conections);
-			bool has_next = iter.next();
-			while (has_next) {
-				const fabconnection_t &fc = iter.get_current();
-				has_next = iter.next(); // must fetch next before removing current.
-				if (fc.fab1 == &fab || fc.fab2 == &fab)
-				{
-					forbidden_conections.remove(fc);
+				// set new state
+				if (state == NR_SAMMLE_ROUTEN  ||  state == NR_BAUE_ROUTE1) {
+					state = NR_INIT;
+				}
+				else if (state == NR_BAUE_SIMPLE_SCHIENEN_ROUTE  ||  state == NR_BAUE_STRASSEN_ROUTE  ||  state == NR_BAUE_WATER_ROUTE) {
+					state = NR_BAUE_CLEAN_UP;
+				}
+				else if (state == NR_RAIL_SUCCESS  ||  state == NR_ROAD_SUCCESS ||  state == NR_WATER_SUCCESS) {
+					state = CHECK_CONVOI;
+				}
+				for(  slist_tpl<fabconnection_t *>::iterator i=forbidden_connections.begin();  i!=forbidden_connections.end();  ) {
+					fabconnection_t *fc = *i;
+					if (fc->fab1 == fab || fc->fab2 == fab)
+					{
+						i = forbidden_connections.erase(i);
+						delete fc;
+					}
+					else {
+						++i;
+					}
 				}
 			}
 			break;
+		default: ;
 	}
 }

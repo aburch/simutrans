@@ -71,14 +71,7 @@ convoi_detail_t::convoi_detail_t(convoihandle_t cnv)
 
 
 
-/**
- * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- * @author Hj. Malthaner
- */
-void
-convoi_detail_t::zeichnen(koord pos, koord gr)
+void convoi_detail_t::zeichnen(koord pos, koord gr)
 {
 	if(!cnv.is_bound()) {
 		destroy_win(dynamic_cast <gui_fenster_t *>(this));
@@ -197,22 +190,19 @@ convoi_detail_t::zeichnen(koord pos, koord gr)
  * This method is called if an action is triggered
  * @author Markus Weber
  */
-bool
-convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
+bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)           // 28-Dec-01    Markus Weber    Added
 {
 	if(cnv.is_bound()) {
 		if(komp==&sale_button) {
-			cnv->self_destruct();
+			cnv->call_convoi_tool( 'x', NULL );
 			return true;
 		}
 		else if(komp==&withdraw_button) {
-			cnv->set_withdraw(!cnv->get_withdraw());
-			cnv->set_no_load(cnv->get_withdraw());
+			cnv->call_convoi_tool( 'w', NULL );
 			return true;
 		}
 		else if(komp==&retire_button) {
-			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
-			cnv->set_no_load(cnv->get_depot_when_empty());
+			cnv->call_convoi_tool( 't', NULL );
 			return true;
 		}
 	}
@@ -303,6 +293,11 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				extra_y += LINESPACE;
 			}
 
+			// weight
+			sprintf( buf, "%s %dt", translator::translate("Weight:"), v->get_sum_weight());
+			display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, MONEY_PLUS, true );
+			extra_y += LINESPACE;
+
 			//Catering
 			if(v->get_besch()->get_catering_level() > 0)
 			{
@@ -368,12 +363,15 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				extra_y += returns*LINESPACE;
 			}
 			
+			const way_constraints_t &way_constraints = v->get_besch()->get_way_constraints();
 			// Permissive way constraints
 			// (If vehicle has, way must have)
 			// @author: jamespetts
-			for(uint8 i = 0; i < 8; i++)
+			//for(uint8 i = 0; i < 8; i++)
+			for(uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
-				if(v->get_besch()->permissive_way_constraint_set(i))
+				//if(v->get_besch()->permissive_way_constraint_set(i))
+				if(way_constraints.get_permissive(i))
 				{
 					char tmpbuf1[13];
 					sprintf(tmpbuf1, "\nMUST USE: ");
@@ -388,9 +386,10 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			// Prohibitive way constraints
 			// (If way has, vehicle must have)
 			// @author: jamespetts
-			for(uint8 i = 0; i < 8; i++)
+			//for(uint8 i = 0; i < 8; i++)
+			for(uint8 i = 0; i < way_constraints.get_count(); i++)
 			{
-				if(v->get_besch()->prohibitive_way_constraint_set(i))
+				if(way_constraints.get_prohibitive(i))
 				{
 					char tmpbuf1[13];
 					sprintf(tmpbuf1, "\nMAY USE: ");

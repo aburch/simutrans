@@ -74,7 +74,7 @@ public:
 	void close();
 
 
-	log_t(const char *logname, bool force_flush, bool log_debug);
+	log_t(const char *logname, bool force_flush, bool log_debug, bool log_console=true);
 	~log_t();
 };
 

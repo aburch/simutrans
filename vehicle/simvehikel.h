@@ -89,7 +89,7 @@ protected:
 	// cached image
 	image_id bild;
 
-	sint16 calc_height();		// Offset Bergauf/Bergab
+	sint8 calc_height();		// Offset Bergauf/Bergab
 
 	virtual bool hop_check() = 0;
 	virtual void hop() = 0;
@@ -118,10 +118,10 @@ public:
 	inline void set_bild( image_id b ) { bild = b; }
 	virtual image_id get_bild() const {return bild;}
 
-	sint16 get_hoff() const {return hoff;}
+	sint8 get_hoff() const {return hoff;}
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
-	virtual void get_screen_offset( int &xoff, int &yoff ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	virtual void rotate90();
 
@@ -259,11 +259,7 @@ protected:
 	uint16 route_index;
 
 	uint16 total_freight;	// since the sum is needed quite often, it is chached
-#ifdef SLIST_FREIGHT
 	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter ("list of goods being transported" - Google)
-#else
-	vector_tpl<ware_t> fracht; // List of goods being treansported.
-#endif
 	const vehikel_besch_t *besch;
 
 	convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
@@ -284,7 +280,7 @@ protected:
 public:
 	virtual bool ist_befahrbar(const grund_t* ) const {return false;}
 
-	inline bool check_way_constraints(const weg_t *way) const;
+	inline bool check_way_constraints(const weg_t &way) const;
 
 	uint8 hop_count;
 
@@ -401,12 +397,7 @@ public:
 	* @author prissi
 	*/
 	inline int get_gesamtgewicht() const { return sum_weight; }
-#ifdef SLIST_FREIGHT
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
-#else
-	const vector_tpl<ware_t> & get_fracht() const { return fracht; } //List of all goods being transported.
-	vector_tpl<ware_t> & get_freight_to_change() { return fracht; } // Non-const version of above
-#endif
 
 	/**
 	* berechnet die gesamtmenge der beförderten waren
@@ -577,7 +568,7 @@ public:
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
 
 	// since we must consider overtaking, we use this for offset calculation
-	virtual void get_screen_offset( int &xoff, int &yoff ) const;
+	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
 
 	ding_t::typ get_typ() const { return automobil; }
 
@@ -622,7 +613,7 @@ public:
 	// reserves or unreserves all blocks and returns the handle to the next block (if there)
 	// if count is larger than 1, maximum 64 tiles will be checked (freeing or reserving a choose signal path)
 	// return the last checked block
-	uint16 block_reserver(const route_t *route,uint16 start_index,int count, bool reserve) const;
+	uint16 block_reserver(const route_t *route, uint16 start_index, int count, bool reserve ) const;
 
 	void verlasse_feld();
 

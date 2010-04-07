@@ -949,8 +949,7 @@ void stadtauto_t::calc_current_speed()
 }
 
 
-void
-stadtauto_t::info(cbuffer_t & buf) const
+void stadtauto_t::info(cbuffer_t & buf) const
 {
 	char str[256];
 	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), current_speed, besch->get_geschw(), dx, dy );
@@ -960,12 +959,11 @@ stadtauto_t::info(cbuffer_t & buf) const
 
 
 // to make smaller steps than the tile granularity, we have to use this trick
-void stadtauto_t::get_screen_offset( int &xoff, int &yoff ) const
+void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const
 {
-	vehikel_basis_t::get_screen_offset( xoff, yoff );
+	vehikel_basis_t::get_screen_offset( xoff, yoff, raster_width );
 
 	// eventually shift position to take care of overtaking
-	const int raster_width = get_tile_raster_width();
 	if(  is_overtaking()  ) {
 		xoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][0], raster_width);
 		yoff += tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width);

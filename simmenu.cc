@@ -130,6 +130,13 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_FILL_TREES:        tool = new wkz_fill_trees_t(); break;
 		case WKZ_DAYNIGHT_LEVEL:    tool = new wkz_daynight_level_t(); break;
 		case WKZ_VEHICLE_TOOLTIPS:  tool = new wkz_vehicle_tooltips_t(); break;
+		case WKZ_TOOGLE_PAX:        tool = new wkz_toggle_pax_station_t(); break;
+		case WKZ_TOOGLE_PEDESTRIANS:tool = new wkz_toggle_pedestrians_t(); break;
+		case WKZ_TRAFFIC_LEVEL:     tool = new wkz_traffic_level_t(); break;
+		case WKZ_CONVOI_TOOL:       tool = new wkz_change_convoi_t(); break;
+		case WKZ_LINE_TOOL:         tool = new wkz_change_line_t(); break;
+		case WKZ_DEPOT_TOOL:        tool = new wkz_change_depot_t(); break;
+		case WKZ_PWDHASH_TOOL:		tool = new wkz_change_password_hash_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
@@ -690,9 +697,27 @@ void werkzeug_t::draw_after( karte_t *welt, koord pos ) const
 	}
 }
 
+bool werkzeug_t::is_selected(karte_t *welt) const
+{
+	return welt->get_werkzeug(welt->get_active_player_nr())==this;
+}
+
+const char *werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+{
+	grund_t *gr = welt->lookup(pos);
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}
+
+const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d pos)
+{
+	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+	return (gr  &&  !gr->is_visible()) ? "" : NULL;
+}
+
 // seperator in toolbars
 class wkz_dummy_t : public werkzeug_t {
 	bool init( karte_t *, spieler_t * ) { return false; }
+	virtual bool is_init_network_save() const { return true; }
 };
 
 werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
@@ -835,7 +860,7 @@ bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 }
 
 
-bool two_click_werkzeug_t::is_first_click( spieler_t *sp )
+bool two_click_werkzeug_t::is_first_click( spieler_t *sp ) const
 {
 	return first_click_var[sp->get_player_nr()];
 }
@@ -858,7 +883,8 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	}
 
 	if(  is_first_click(sp)  ) {
-		if( value & 1 ) {
+		// work directly if possible and ctrl is NOT pressed
+		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
 			dbg->warning("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( welt, sp, pos, koord3d::invalid );

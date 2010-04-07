@@ -156,7 +156,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			const ware_besch_t *ware = warenbauer_t::get_info(i);
 			if(nimmt_an.is_contained(ware)) {
 
-				buf.append(" ");
+				buf.append(" - ");
 				buf.append(translator::translate(ware->get_name()));
 				buf.append("\n");
 				offset_y += LINESPACE;

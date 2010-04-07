@@ -12,6 +12,7 @@
 #include "../simworld.h"
 
 #include "../dataobj/translator.h"
+#include "../dataobj/replace_data.h"
 #include "../utils/simstring.h"
 #include "../vehicle/simvehikel.h"
 
@@ -84,7 +85,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	convoy_assembler.set_electrified( weg_electrified );
 	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
 	convoy_assembler.add_listener(this);
-	convoy_assembler.set_vehicles(cnv->get_replacing_vehicles());
+	convoy_assembler.set_vehicles(cnv->get_replace() ? cnv->get_replace()->get_replacing_vehicles() : new vector_tpl<const vehikel_besch_t*>);
 	add_komponente(&convoy_assembler);
 
 	bt_replace_line.set_typ(button_t::square);
@@ -92,6 +93,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_replace_line.set_tooltip("Replace all convoys like this belonging to this line");
 	bt_replace_line.add_listener(this);
 	add_komponente(&bt_replace_line);
+
 	bt_replace_all.set_typ(button_t::square);
 	bt_replace_all.set_text("replace all");
 	bt_replace_all.set_tooltip("Replace all convoys like this");
@@ -103,6 +105,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_autostart.set_tooltip("Send convoy to depot, replace and restart it automatically");
 	bt_autostart.add_listener(this);
 	add_komponente(&bt_autostart);
+
 	bt_depot.set_typ(button_t::roundbox);
 	bt_depot.set_text("Replace but stay");
 	bt_depot.set_tooltip("Send convoy to depot, replace it and stay there");
@@ -115,6 +118,24 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_mark.add_listener(this);
 	add_komponente(&bt_mark);
 
+	bt_retain_in_depot.set_typ(button_t::roundbox);
+	bt_retain_in_depot.set_text("Retain in depot");
+	bt_retain_in_depot.set_tooltip("Keep replaced vehicles in the depot for future use rather than selling or upgrading them.");
+	bt_retain_in_depot.add_listener(this);
+	add_komponente(&bt_retain_in_depot);
+
+	bt_use_home_depot.set_typ(button_t::roundbox);
+	bt_use_home_depot.set_text("Use home depot");
+	bt_use_home_depot.set_tooltip("Send the convoy to its home depot for replacing rather than the nearest depot.");
+	bt_use_home_depot.add_listener(this);
+	add_komponente(&bt_use_home_depot);
+
+	bt_allow_using_existing_vehicles.set_typ(button_t::roundbox);
+	bt_allow_using_existing_vehicles.set_text("Use existing vehicles");
+	bt_allow_using_existing_vehicles.set_tooltip("Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.");
+	bt_allow_using_existing_vehicles.add_listener(this);
+	add_komponente(&bt_allow_using_existing_vehicles);
+
 	koord gr = koord(0,0);
 	layout(&gr);
 	update_data();
@@ -124,6 +145,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	set_resizemode(diagonal_resize);
 
 	convoy_assembler.set_replace_frame(this);
+
+	tool_extra = 'a';
 }
 
 
@@ -216,7 +239,7 @@ void replace_frame_t::layout(koord *gr)
 	bt_autostart.set_pos(koord(margin,buttons_y));
 	bt_depot.set_pos(koord(margin+buttons_width,buttons_y));
 	bt_mark.set_pos(koord(margin+buttons_width+buttons_width,buttons_y));
-
+	
 	current_y=buttons_y+a_button_height+margin;
 	lb_money.set_pos(koord(110,current_y));
 	lb_replace_cycle.set_pos(koord(fgr.x-170,current_y));
@@ -239,6 +262,13 @@ void replace_frame_t::layout(koord *gr)
 	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_skip].set_groesse( koord( 50, a_button_height ) );
 	lb_n_skip.set_pos( koord( fgr.x-50, current_y ) );
+	current_y+=LINESPACE+2;
+
+	bt_retain_in_depot.set_pos(koord(margin,current_y));
+	current_y+=LINESPACE+2;
+	bt_use_home_depot.set_pos(koord(margin,current_y));
+	current_y+=LINESPACE+2;
+	bt_allow_using_existing_vehicles.set_pos(koord(margin,current_y));
 	current_y+=LINESPACE+margin;
 }
 
@@ -364,16 +394,21 @@ uint8 replace_frame_t::get_present_state() {
 	}
 
 
-void replace_frame_t::replace_convoy(convoihandle_t cnv)
+void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 {
 	uint32 state=get_present_state();
-	if (!cnv.is_bound() || cnv->in_depot() || state==-1) {
+	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==-1) {
 		return;
 	}
 
 	switch (state) {
 	case state_replace:
-		if(!cnv->get_welt()->get_active_player()->can_afford(0 - money))
+		if(convoy_assembler.get_vehicles()->get_count()==0)
+		{
+			break;
+		}
+
+		if(!cnv_rpl->get_welt()->get_active_player()->can_afford(0 - money))
 		{
 			const char *err = "That would exceed\nyour credit limit.";
 			news_img *box = new news_img(err);
@@ -381,23 +416,38 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 			break;
 		}
 
-		cnv->set_replacing_vehicles(convoy_assembler.get_vehicles());
-		cnv->set_depot_when_empty( (depot || autostart) && convoy_assembler.get_vehicles()->get_count()>0 );
-		cnv->set_autostart(autostart);
-		cnv->set_no_load( cnv->get_depot_when_empty() && convoy_assembler.get_vehicles()->get_count()>0 );
-		cnv->set_replace(convoy_assembler.get_vehicles()->get_count()>0);
+		// Tool_extra:
+		// a = add
+		// c = copy
+
+		cnv_rpl->call_convoi_tool('r', cnv.get_id(), &tool_extra);
+		
+		if(tool_extra == 'a')
+		{
+			cnv_rpl->get_replace()->set_autostart(autostart);
+			cnv_rpl->get_replace()->set_retain_in_depot(retain_in_depot);
+			cnv_rpl->get_replace()->set_use_home_depot(use_home_depot);
+			cnv_rpl->get_replace()->set_allow_using_existing_vehicles(allow_using_existing_vehicles);
+			ITERATE_PTR(convoy_assembler.get_vehicles(), i)
+			{
+				cnv_rpl->get_replace()->add_vehicle(convoy_assembler.get_vehicles()->get_element(i));
+			}
+		}
+
+		cnv_rpl->set_depot_when_empty( (depot || autostart));
+		cnv_rpl->set_no_load( cnv_rpl->get_depot_when_empty());
 		// If already empty, no need to be emptied
-		if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) {
-			cnv->set_depot_when_empty(false);
-			cnv->set_no_load(false);
-			cnv->go_to_depot(false);
+		if(cnv_rpl->get_replace() && cnv_rpl->get_depot_when_empty() && cnv_rpl->has_no_cargo()) {
+			cnv_rpl->set_depot_when_empty(false);
+			cnv_rpl->set_no_load(false);
+			cnv_rpl->go_to_depot(false);
 		}
 		break;
 	
 	case state_sell:
-		cnv->set_replace(false);
-		cnv->set_withdraw(true);
-		cnv->set_no_load(true);
+		cnv_rpl->set_replace(NULL);
+		cnv_rpl->set_withdraw(true);
+		cnv_rpl->set_no_load(true);
 		break;
 	case state_skip:
 	break;
@@ -409,7 +459,8 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv)
 bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
 	if(komp != NULL) {	// message from outside!
-		if(komp == &convoy_assembler) {
+		if(komp == &convoy_assembler) 
+		{
 			//const koord k=*static_cast<const koord *>(p.p);
 			//switch (k.x) {
 			//	case gui_convoy_assembler_t::clear_convoy_action:
@@ -423,49 +474,90 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			//		break;
 			//}
 
-		} else if(komp == &bt_replace_line) {
+		} 
+		else if(komp == &bt_replace_line) 
+		{
 			replace_line=!replace_line;
 			replace_all=false;
-		} else if(komp == &bt_replace_all) {
+		}
+		else if(komp == &bt_replace_all) 
+		{
 			replace_all=!replace_all;
 			replace_line=false;
+		}
+		
+		else if(komp == &bt_retain_in_depot) 
+		{
+			retain_in_depot=!retain_in_depot;
+		}
 
-		} else if(komp == numinp+state_replace) {
-		} else if(komp == numinp+state_sell) {
-		} else if(komp == numinp+state_skip) {
-		} else if(komp==&bt_autostart || komp== &bt_depot || komp == &bt_mark) {
+		else if(komp == &bt_use_home_depot) 
+		{
+			use_home_depot=!use_home_depot;
+		}
+
+		else if(komp == &bt_allow_using_existing_vehicles) 
+		{
+			allow_using_existing_vehicles=!allow_using_existing_vehicles;
+		}
+
+		else if(komp == numinp+state_replace) 
+		{
+		} 
+		else if(komp == numinp+state_sell) 
+		{
+		} 
+		else if(komp == numinp+state_skip) 
+		{
+		} 
+		else if(komp==&bt_autostart || komp== &bt_depot || komp == &bt_mark) 
+		{
 			depot=(komp==&bt_depot);
 			autostart=(komp==&bt_autostart);
 
 			start_replacing();
-			if (!replace_line && !replace_all) {
+			if (!replace_line && !replace_all) 
+			{
 				replace_convoy(cnv);
-			} else if (replace_line) {
+			} 
+			else if (replace_line) 
+			{
 				linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
-				if (line.is_bound()) {
-					for (uint32 i=0; i<line->count_convoys(); i++) {
+				if (line.is_bound()) 
+				{
+					for (uint32 i=0; i<line->count_convoys(); i++) 
+					{
 						convoihandle_t cnv_aux=line->get_convoy(i);
-						if (cnv->has_same_vehicles(cnv_aux)) {
+						if (cnv->has_same_vehicles(cnv_aux))
+						{
 							replace_convoy(cnv_aux);
+							tool_extra = 'c';
 						}
 					}
 				}
-			} else if (replace_all) {
+			} 
+			else if (replace_all) 
+			{
 				karte_t *welt=cnv->get_welt();
-				for (uint32 i=0; i<welt->get_convoi_count(); i++) {
+				for (uint32 i=0; i<welt->get_convoi_count(); i++) 
+				{
 					convoihandle_t cnv_aux=welt->get_convoi(i);
-					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) {
+					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
+					{
 						replace_convoy(cnv_aux);
+						tool_extra = 'c';
 					}
 				}
 			}
 			destroy_win(this);
+			tool_extra = 'a';
 			return true;
 		}
 	}
 	convoy_assembler.build_vehicle_lists();
 	update_data();
 	layout(NULL);
+	tool_extra = 'a';
 	return true;
 }
 
@@ -578,3 +670,4 @@ end_loop:
 	
 	return total_cost;
 }
+

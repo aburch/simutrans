@@ -159,19 +159,23 @@ static inline void colorpixcopy(PIXVAL *, const PIXVAL *, const PIXVAL * const)
 {
 }
 
-void display_img_aux(const unsigned, KOORD_VAL, KOORD_VAL, const int, bool)
+void display_img_aux(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
 {
 }
 
-void display_color_img(const unsigned, const KOORD_VAL, const KOORD_VAL, const sint8, const int, const int)
+void display_color_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
 {
 }
 
-void display_base_img(const unsigned, const KOORD_VAL, const KOORD_VAL, const sint8, const int, const int)
+void display_base_img(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const int, const int)
 {
 }
 
-void display_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const PLAYER_COLOR_VAL, const int, const int)
+void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
+{
+}
+
+void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 {
 }
 
