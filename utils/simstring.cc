@@ -60,6 +60,12 @@ char get_fraction_sep(void)
 	return fraction_sep;
 }
 
+const char *get_large_money_string(void)
+{
+	return large_number_string;
+}
+
+
 void set_large_amout(const char *s, const double v)
 {
 	large_number_string = s;
@@ -80,7 +86,7 @@ void money_to_string(char * p, double f)
 	int    i,l;
 
 	if(  f>1000.0*large_number_factor  ) {
-		sprintf( tp, "%.1f%s", f/large_number_factor, large_number_string );
+		sprintf( tp, "%.1f", f/large_number_factor );
 	}
 	else {
 		sprintf( tp, "%.2f", f );
@@ -109,12 +115,21 @@ void money_to_string(char * p, double f)
 		*p++ = thousand_sep;
 	}
 	--p;
-	i = l+1;
 
-	*p++ = fraction_sep;
-	// since it might be longer due to unicode characters
-	while(  tp[i]!=0  ) {
-		*p++ = tp[i++];
+	if(  f>1000.0*large_number_factor  ) {
+		// only decimals for smaller numbers; add large number string instead
+		for(  i=0;  large_number_string[i]!=0;  i++  ) {
+			*p++ = large_number_string[i];
+		}
+	}
+	else {
+		i = l+1;
+		// only decimals for smaller numbers
+		*p++ = fraction_sep;
+		// since it might be longer due to unicode characters
+		while(  tp[i]!=0  ) {
+			*p++ = tp[i++];
+		}
 	}
 	*p++ = '$';
 	*p = 0;
