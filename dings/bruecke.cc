@@ -57,6 +57,7 @@ void bruecke_t::calc_bild()
 			else {
 				gr->get_weg_nr(0)->set_bild(besch->get_hintergrund(img, get_pos().z >= welt->get_snowline()));
 			}
+			gr->get_weg_nr(0)->set_yoff(-gr->get_weg_yoff() );
 		}
 		set_yoff( -gr->get_weg_yoff() );
 	}

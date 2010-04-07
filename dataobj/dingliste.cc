@@ -1092,7 +1092,110 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 	}
 }
 
+// until the first moving thing
+// returns index of first moving object
+uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+{
+	if(capacity==0) {
+		return start_offset;
+	}
+	else if(capacity==1) {
+		if(start_offset==0  &&  !obj.one->is_moving()) {
+			obj.one->display(xpos, ypos, reset_dirty );
+			return 1;
+		}
+		return start_offset;
+	}
 
+	for(uint8 n=start_offset; n<top; n++) {
+		// ist dort ein objekt ?
+		if (!obj.some[n]->is_moving()) {
+			obj.some[n]->display(xpos, ypos, reset_dirty );
+		}
+		else {
+			return n;
+		}
+	}
+	return top;
+}
+// draws all vehicles driving in direction ribi
+// returns the index of the first non-moving thing
+// if (ontile) then vehicles are on the tile that defines the clipping
+// clips vehicle only along relevant edges (depends on ribi and vehicle direction)
+uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile ) const
+{
+	if(capacity==0) {
+		return 1;
+	}
+	else if(capacity==1) {
+		if(start_offset==0) {
+			if (obj.one->is_moving()) {
+				if (!ontile  &&  obj.one->get_typ()==ding_t::aircraft  &&  !((aircraft_t*)obj.one)->is_on_ground()) {
+					return 1;
+				}
+				vehikel_basis_t *v = dynamic_cast<vehikel_basis_t *>(obj.one);
+				if (v) {
+					const ribi_t::ribi veh_ribi = v->get_fahrtrichtung();
+					if (ontile  ||  (veh_ribi & ribi)==ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi)==ribi  ||  obj.one->get_typ()==ding_t::aircraft) {
+						activate_ribi_clip((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi);
+						obj.one->display(xpos, ypos, reset_dirty );
+						activate_ribi_clip();
+					}
+				}
+				return 1;
+			}
+		}
+		return start_offset;
+	}
+	uint8 nr_v = start_offset;
+	for(uint8 n=start_offset; n<top; n++) {
+		// ist dort ein objekt ?
+		if (obj.some[n]->is_moving()  &&  (ontile  ||  obj.some[n]->get_typ()!=ding_t::aircraft  ||  ((aircraft_t*)obj.some[n])->is_on_ground()))
+		{
+			vehikel_basis_t *v = dynamic_cast<vehikel_basis_t *>(obj.some[n]);
+			if (v) {
+				const ribi_t::ribi veh_ribi = v->get_fahrtrichtung();
+				if (ontile || (veh_ribi & ribi)==ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi)==ribi  ||  obj.some[n]->get_typ()==ding_t::aircraft) {
+					activate_ribi_clip((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi);
+					obj.some[n]->display(xpos, ypos, reset_dirty );
+				}
+			}
+			nr_v = n;
+		}
+		else {
+			if (ontile) break;
+		}
+	}
+	activate_ribi_clip();
+	return nr_v+1;
+}
+void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+{
+	if(capacity==0) {
+		return;
+	}
+	else if(capacity==1) {
+		if(start_offset==0) {
+			obj.one->display(xpos, ypos, reset_dirty );
+		}
+		obj.one->display_after(xpos, ypos, reset_dirty );
+		if(reset_dirty) {
+			obj.one->clear_flag(ding_t::dirty);
+		}
+		return;
+	}
+
+	for(uint8 n=start_offset; n<top; n++) {
+		// ist dort ein objekt ?
+		obj.some[n]->display(xpos, ypos, reset_dirty );
+	}
+	// foreground (needs to be done backwards!
+	for(int n=top-1; n>=0;  n--) {
+		obj.some[n]->display_after(xpos, ypos, reset_dirty );
+		obj.some[n]->clear_flag(ding_t::dirty);
+	}
+	return;
+}
 
 // start next month (good for toogling a seasons)
 void dingliste_t::check_season(const long month)

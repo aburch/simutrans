@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <limits.h>
 
 #include "simtypes.h"
 #include "font.h"
@@ -71,6 +72,222 @@ static int standard_pointer = -1;
 int old_my = -1;
 #endif
 
+/*
+ * struct to hold the information about visible area
+ * at screen line y
+ * associated to some clipline
+ */
+struct xrange {
+	int xmin,xmax,sx,sy,y;
+	bool non_convex_active;
+};
+
+class clip_line_t {
+private:
+	// line from (x0,y0) to (x1 y1)
+	// clip (do not draw) everything right from the ray (x0,y0)->(x1,y1)
+	// pixels on the ray are not drawn
+	// (not_convex) if y0>=y1 then clip along the path (x0,-inf)->(x0,y0)->(x1,y1)
+	// (not_convex) if y0<y1  then clip along the path (x0,y0)->(x1,y1)->(x1,+inf)
+	int x0,y0;
+	int dx,dy,sdy,sdx;
+	int inc;
+	bool non_convex;
+public:
+	void clip_from_to(int x0_,int y0_, int x1, int y1, bool non_convex_) {
+		x0 = x0_;
+		dx = x1-x0;
+		y0 = y0_;
+		dy = y1-y0;
+		non_convex = non_convex_;
+		int steps = (abs(dx) > abs(dy) ? abs(dx) : abs(dy));
+		if (steps == 0) {
+			return;
+		}
+		sdx = (dx << 16) / steps;
+		sdy = (dy << 16) / steps;
+		// to stay right from the line
+		// left border: xmin <= x
+		// right border: x < xmax
+		if (dy>0) {
+			if (dy > dx) {
+				inc = 1 << 16;
+			}
+			else {
+				inc = (dx << 16)/dy;
+			}
+		}
+		else if (dy<0) {
+			if (dy < dx) {
+				inc = 0; // (+1)-1 << 16;
+			}
+			else {
+				inc = (1 << 16) - (dx << 16) / dy;
+			}
+		}
+	}
+	// clip if
+	// ( x-x0) . (  y1-y0 )
+	// ( y-y0) . (-(x1-x0)) < 0
+	// -- initialize the clipping
+	//    has to be called before image will be drawn
+	//    return interval for x coordinate
+	inline void get_x_range(int y, xrange &r) const {
+		r.y = y;
+		r.non_convex_active = false;
+		if (non_convex  &&  y<y0  &&  y<(y0+dy)) {
+			r.non_convex_active = true;
+			const bool left = dy<0;
+			r.xmin = left ? INT_MIN : x0+1;
+			r.xmax = left ? x0+dx   : INT_MAX;
+		}
+		else if (dy != 0) {
+			const int t = ((y-y0) << 16) / sdy;
+			// sx >> 16 = x
+			// sy >> 16 = y
+			r.sx = t * sdx + inc + (x0 << 16);
+			r.sy = t * sdy + (y0 << 16);
+			if (dy > 0) {
+				r.xmin = r.sx >> 16;
+				r.xmax = INT_MAX;
+			}
+			else {
+				r.xmin = INT_MIN;
+				r.xmax = r.sx >> 16;
+			}
+		}
+		else {
+			const bool clip = dx*(y-y0)>0;
+			r.xmin = clip ? INT_MAX : INT_MIN;
+			r.xmax = clip ? INT_MIN : INT_MAX;
+		}
+	}
+	// -- step one line down, return interval for x coordinate
+	inline void inc_y(xrange &r) const {
+		r.y ++;
+		// switch between clip vertical and along ray
+		if (r.non_convex_active) {
+			if (r.y==min(y0,y0+dy)) {
+				r.non_convex_active = false;
+				if (dy != 0) {
+					const int t = ((r.y-y0) << 16) / sdy;
+					// sx >> 16 = x
+					// sy >> 16 = y
+					r.sx = t * sdx + inc + (x0 << 16);
+					r.sy = t * sdy + (y0 << 16);
+					if (dy > 0) {
+						r.xmin = r.sx >> 16;
+						r.xmax = INT_MAX;
+					}
+					else {
+						r.xmin = INT_MIN;
+						r.xmax = r.sx >> 16;
+					}
+				}
+				else {
+					r.xmin = INT_MIN;
+					r.xmax = INT_MAX;
+				}
+			}
+		}
+		// go along the ray, Bresenham
+		else if (dy!=0) {
+			if (dy > 0) {
+				do {
+					r.sx += sdx;
+					r.sy += sdy;
+				} while ((r.sy >> 16) < r.y);
+				r.xmin = r.sx >> 16;
+			}
+			else {
+				do {
+					r.sx -= sdx;
+					r.sy -= sdy;
+				} while ((r.sy >> 16) < r.y);
+				r.xmax = r.sx >> 16;
+			}
+		}
+		// horicontal clip
+		else {
+			const bool clip = dx*(r.y-y0)>0;
+			r.xmin = clip ? INT_MAX : INT_MIN;
+			r.xmax = clip ? INT_MIN : INT_MAX;
+		}
+	}
+};
+
+#define MAX_POLY_CLIPS 6
+static clip_line_t poly_clips[MAX_POLY_CLIPS];
+static xrange      xranges[MAX_POLY_CLIPS];
+static uint8       clip_ribi[MAX_POLY_CLIPS];
+static int number_of_clips =0;
+static uint8 active_ribi = 15; // set all to active
+
+/*
+ * Add clipping line through (x0,y0) and (x1,y1)
+ * with associated ribi
+ * if ribi & 16 then non-convex clipping.
+ */
+void add_poly_clip(int x0,int y0, int x1, int y1, int ribi)
+{
+	if (number_of_clips < MAX_POLY_CLIPS) {
+		poly_clips[number_of_clips].clip_from_to(x0,y0,x1,y1,ribi&16);
+		clip_ribi[number_of_clips] = ribi&15;
+		number_of_clips++;
+	}
+}
+/*
+ * Clears all clipping lines
+ */
+void clear_all_poly_clip()
+{
+	number_of_clips = 0;
+	active_ribi = 15; // set all to active
+}
+
+/*
+ * Activates clipping lines associated with ribi
+ * ie if clip_ribi[i] & active_ribi
+ */
+void activate_ribi_clip(int ribi)
+{
+	active_ribi = ribi;
+}
+
+/*
+ * Hajo: Current clipping rectangle
+ */
+static struct clip_dimension clip_rect;
+
+/*
+ * Initialize clipping region for image starting at screen line y
+ */
+inline void init_ranges(int y)
+{
+	for (uint8 i=0; i<number_of_clips; i++) {
+		if (clip_ribi[i] & active_ribi) {
+			poly_clips[i].get_x_range(y,xranges[i]);
+		}
+	}
+}
+
+/*
+ * Returns left/right border of visible area
+ * Computes l/r border for the next line (ie y+1)
+ * takes also clipping rectangle into account
+ */
+inline void get_xrange_and_step_y(int &xmin, int &xmax)
+{
+	xmin = clip_rect.x;
+	xmax = clip_rect.xx;
+	for (uint8 i=0; i<number_of_clips; i++) {
+		if (clip_ribi[i] & active_ribi) {
+			if (xmin < xranges[i].xmin) xmin = xranges[i].xmin;
+			if (xmax > xranges[i].xmax) xmax = xranges[i].xmax;
+			poly_clips[i].inc_y(xranges[i]);
+		}
+	}
+}
 
 /* Flag, if we have Unicode font => do unicode (UTF8) support! *
  * @author prissi
@@ -195,12 +412,6 @@ static image_id alloc_images = 0;
  * Output framebuffer
  */
 static PIXVAL* textur = NULL;
-
-
-/*
- * Hajo: Current clipping rectangle
- */
-static struct clip_dimension clip_rect;
 
 
 /*
@@ -1701,6 +1912,52 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
 
 
 /**
+ * draws image with clipping along arbitrary lines
+ * @author Dwachs
+ */
+static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
+{
+	if (h > 0) {
+		PIXVAL *tp = textur + yp * disp_width;
+
+		// initialize clipping
+		init_ranges(yp);
+
+		do { // zeilen dekodieren
+			int xpos = xp;
+
+			// bild darstellen
+			int runlen = *sp++;
+
+			// get left/right boundary, step
+			int xmin, xmax;
+			get_xrange_and_step_y(xmin, xmax);
+
+			do {
+				// wir starten mit einem clear run
+				xpos += runlen;
+
+				// jetzt kommen farbige pixel
+				runlen = *sp++;
+
+				// Hajo: something to display?
+				if (xmin < xmax  &&  xpos + runlen > xmin && xpos < xmax) {
+					const int left = (xpos >= xmin ? 0 : xmin - xpos);
+					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
+
+					pixcopy(tp + xpos + left, sp + left, len - left);
+				}
+
+				sp += runlen;
+				xpos += runlen;
+			} while ((runlen = *sp++));
+
+			tp += disp_width;
+		} while (--h);
+	}
+}
+
+/**
  * Zeichnet Bild mit horizontalem Clipping
  * @author Hj. Malthaner
  */
@@ -2032,15 +2289,23 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 			const KOORD_VAL w = images[n].w;
 			xp += images[n].x;
 
-			// use horzontal clipping or skip it?
-			if (xp >= clip_rect.x  &&  xp + w <= clip_rect.xx) {
-				// marking change?
-				if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
-				display_img_nc(h, xp, yp, sp);
-			} else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
-				display_img_wc(h, xp, yp, sp);
-				// since height may be reduced, start marking here
-				if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+			// clipping at poly lines?
+			if (number_of_clips>0) {
+					display_img_pc(h, xp, yp, sp);
+					// since height may be reduced, start marking here
+					if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+			}
+			else {
+				// use horizontal clipping or skip it?
+				if (xp >= clip_rect.x  &&  xp + w <= clip_rect.xx) {
+					// marking change?
+					if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+					display_img_nc(h, xp, yp, sp);
+				} else if (xp < clip_rect.xx  &&  xp + w > clip_rect.x) {
+					display_img_wc(h, xp, yp, sp);
+					// since height may be reduced, start marking here
+					if (dirty) mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
+				}
 			}
 		}
 	}

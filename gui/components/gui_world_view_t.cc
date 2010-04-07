@@ -140,7 +140,7 @@ world_view_t::zeichnen(koord offset)
 					break;
 				}
 				if(yypos+raster>=0) {
-					plan->display_boden(pos.x + off_x, pos.y + yypos);
+					plan->display_boden(pos.x + off_x, pos.y + yypos, raster);
 				}
 			}
 		}
@@ -178,7 +178,7 @@ world_view_t::zeichnen(koord offset)
 		// this should only happen for airplanes: out of image, so we need to extra display them
 		if(y_offset!=0) {
 			const sint16 yypos = display_off.y - tile_raster_scale_y((2*y_offset)*16,raster) - tile_raster_scale_y( welt->lookup(ding->get_pos())->get_hoehe()*TILE_HEIGHT_STEP/Z_TILE_STEP, raster);
-			welt->lookup(ding->get_pos())->display_dinge( pos.x+display_off.x, pos.y+yypos, false);
+			welt->lookup(ding->get_pos())->display_dinge_all( pos.x+display_off.x, pos.y+yypos, raster, false);
 		}
 
 		display_set_clip_wh(old_clip.x, old_clip.y, old_clip.w, old_clip.h);

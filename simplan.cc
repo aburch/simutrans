@@ -319,6 +319,15 @@ void planquadrat_t::abgesenkt(karte_t *welt)
 
 		if(max_hgt <= welt->get_grundwasser()  &&  gr->get_typ()!=grund_t::wasser) {
 			kartenboden_setzen(new wasser_t(welt, gr->get_pos()) );
+			// recalc water ribis
+			for(int y=-1; y<=1; y+=2) {
+				for(int x=-1; x<=1; x+=2) {
+					grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d()+koord(x,y));
+					if (gr2  &&  gr2->ist_wasser()) {
+						gr2->calc_bild();
+					}
+				}
+			}
 		}
 		else {
 			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
@@ -338,6 +347,15 @@ void planquadrat_t::angehoben(karte_t *welt)
 		sint8 max_hgt = gr->get_hoehe() + (slope != 0 ? 1 : 0);
 		if (max_hgt > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
 			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
+			// recalc water ribis
+			for(int y=-1; y<=1; y+=2) {
+				for(int x=-1; x<=1; x+=2) {
+					grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d()+koord(x,y));
+					if (gr2  &&  gr2->ist_wasser()) {
+						gr2->calc_bild();
+					}
+				}
+			}
 		}
 		else {
 			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
@@ -346,37 +364,51 @@ void planquadrat_t::angehoben(karte_t *welt)
 }
 
 
-void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos) const
+void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
 {
 	grund_t *gr=get_kartenboden();
-	if(!gr->get_flag(grund_t::draw_as_ding)) {
-		gr->display_boden(xpos, ypos);
+	if(!gr->get_flag(grund_t::draw_as_ding)  &&  gr->is_karten_boden_visible()) {
+		gr->display_boden(xpos, ypos, raster_tile_width);
 	}
 }
 
 
 void planquadrat_t::display_dinge(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width, bool is_global, const sint8 hmin, const sint8 hmax) const
 {
-	grund_t *gr=get_kartenboden();
-	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
-	if(gr->get_flag(grund_t::draw_as_ding)) {
-		gr->display_boden(xpos, ypos);
-	}
-	gr->display_dinge(xpos, ypos, is_global);
-
-	if(ground_size>1) {
-		const sint8 h0 = gr->get_disp_height();
-		for(uint8 i=1;  i<ground_size;  i++) {
+	grund_t *gr0=get_kartenboden();
+	const sint8 h0 = gr0->get_disp_height();
+	uint8 i=1;
+	// underground
+	if (hmin < h0) {
+		for(;  i<ground_size;  i++) {
 			const grund_t* gr=data.some[i];
 			const sint8 h = gr->get_hoehe();
-			// too high
-			if (h > hmax) break;
+			// above ground
+			if (h > h0) break;
 			// not too low?
 			if (h >= hmin) {
 				const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
-				gr->display_boden(xpos, yypos);
-				gr->display_dinge(xpos, yypos, is_global);
+				gr->display_boden(xpos, yypos, raster_tile_width);
+				gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
 			}
+		}
+	}
+	//const bool kartenboden_dirty = gr->get_flag(grund_t::dirty);
+	if(gr0->get_flag(grund_t::draw_as_ding)  ||  !gr0->is_karten_boden_visible()) {
+		gr0->display_boden(xpos, ypos, raster_tile_width);
+	}
+	gr0->display_dinge_all(xpos, ypos, raster_tile_width, is_global);
+	// above ground
+	for(;  i<ground_size;  i++) {
+		const grund_t* gr=data.some[i];
+		const sint8 h = gr->get_hoehe();
+		// too high?
+		if (h > hmax) break;
+		// not too low?
+		if (h >= hmin) {
+			const sint16 yypos = ypos - tile_raster_scale_y( (h-h0)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
+			gr->display_boden(xpos, yypos, raster_tile_width);
+			gr->display_dinge_all(xpos, yypos, raster_tile_width, is_global);
 		}
 	}
 }
