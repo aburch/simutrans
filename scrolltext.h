@@ -43,7 +43,7 @@
 " Hanczar","profiling, fixes",
 " Ansgar","Linux builds, patches",
 " Nathan Samson","patches",
-" Neroden","patches",
+" Nathanael Nerode","patches",
 " Colin","beta testing",
 " Tick Tock","beta testing",
 " Z9999","beta testing",
