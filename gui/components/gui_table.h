@@ -68,8 +68,8 @@ protected:
 		return NULL;
 	}
 	virtual void delete_item(item_t *item) { 
-		if (item && owns_items) {
-			delete [] item; 
+		if (owns_items) {
+			delete item; // Note, create_item *must* use "new", not "new[]".
 		}
 	}
 public:
@@ -144,7 +144,6 @@ public:
 		return item;
 	}
 	void remove(uint32 index) {	delete_item(extract(index)); }
-	void remove(item_t *) {	delete_item(extract(index)); }
 	void sort() { qsort(data, count, sizeof(item_t*), compare_item); }
 
 	item_t* &operator [] (uint32 index) { 		
@@ -175,24 +174,6 @@ public:
 	bool equals(const coordinates_t &value) const { return x == value.x && y == value.y; }
 	bool operator == (const coordinates_t &value) { return equals(value); }
 	bool operator != (const coordinates_t &value) { return !equals(value); }
-};
-
-class gui_table_t;
-
-class gui_table_event_t
-{
-private:
-	gui_table_t *table;
-	const event_t *ev;
-public:
-	gui_table_event_t(gui_table_t *table, const event_t *ev) {
-		this->table = table;
-		this->ev = ev;
-	}
-	gui_table_t *get_table() const { return table; }
-	const event_t *get_event() const { return ev; }
-	bool is_cell_hit;
-	coordinates_t cell;
 };
 
 /**
@@ -340,7 +321,7 @@ protected:
 	virtual void remove_cell(coordinate_t x, coordinate_t y);
 public:
 	gui_table_t();
-    ~gui_table_t();
+	~gui_table_t();
 
 	/**
 	 * Get/set grid size.
@@ -392,9 +373,9 @@ public:
 	/**
 	 * Get/set width of columns and heights of rows.
 	 */
-	koord_x const get_column_width(coordinate_t x) { return column_defs[x]->get_width(); }
+	koord_x get_column_width(coordinate_t x) { return column_defs[x]->get_width(); }
 	koord_x get_table_width();
-	koord_y const get_row_height(coordinate_t y) { return row_defs[y]->get_height(); }
+	koord_y get_row_height(coordinate_t y) { return row_defs[y]->get_height(); }
 	koord_y get_table_height();
 	koord const get_cell_size(coordinate_t x, coordinate_t y) { return koord(get_column_width(x), get_row_height(y)); }
 	koord const get_table_size() { return koord(get_table_width(), get_table_height()); }
@@ -407,6 +388,22 @@ public:
 	 * zeichnen() paints the table.
 	 */
 	virtual void zeichnen(koord offset);
+};
+
+class gui_table_event_t
+{
+private:
+	gui_table_t *table;
+	const event_t *ev;
+public:
+	gui_table_event_t(gui_table_t *table, const event_t *ev) {
+		this->table = table;
+		this->ev = ev;
+	}
+	gui_table_t *get_table() const { return table; }
+	const event_t *get_event() const { return ev; }
+	bool is_cell_hit;
+	coordinates_t cell;
 };
 
 #endif
