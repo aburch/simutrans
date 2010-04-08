@@ -37,6 +37,8 @@
 	FIX: build foundations only directly under elevated monorail depots
 	FIX: ist_natur() return als false on halt tiles (like harbour)
 	ADD: (gerw) broad tunnel patch (see pak64 sources: adding images [Nl] [Nm] [Nr] and so on)
+	FIX: no longer no trees after 150 years
+	ADD: no decimal point for very large amounts
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

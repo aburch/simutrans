@@ -826,8 +826,7 @@ void ai_goods_t::step()
 			 * a suitable car (and engine)
 			 * a suitable weg
 			 */
-			koord zv = start->get_pos().get_2d() - ziel->get_pos().get_2d();
-			int dist = abs(zv.x) + abs(zv.y);
+			uint32 dist = koord_distance( start->get_pos(), ziel->get_pos() );
 
 			// guess the "optimum" speed (usually a little too low)
 			uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
@@ -871,8 +870,8 @@ DBG_MESSAGE("do_ki()","road vehicle %p",road_vehicle);
 				start_ware++;
 			}
 			assert(  start_ware<ausgang.get_count()  );
-			const int prod = min(ziel->get_base_production(),
-			                 ( start->get_base_production() * start->get_besch()->get_produkt(start_ware)->get_faktor() )/256u - start->get_abgabe_letzt(start_ware) );
+			const int prod = min((uint32)ziel->get_base_production(),
+			                 ( start->get_base_production() * start->get_besch()->get_produkt(start_ware)->get_faktor() )/256u - (uint32)start->get_abgabe_letzt(start_ware) );
 
 DBG_MESSAGE("do_ki()","check railway");
 			/* calculate number of cars for railroad */
@@ -956,7 +955,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 			if(  count_road<255  ) {
 				// for short distance: reduce number of cars
 				// calculated here, since the above number was based on production
-				count_road = CLIP( (dist*15)/best_road_speed, 2, count_road );
+				count_road = CLIP( (dist*15u)/best_road_speed, 2, count_road );
 				int freight_price = (freight->get_preis()*road_vehicle->get_zuladung()*count_road)/24*((8000+(best_road_speed-80)*freight->get_speed_bonus())/1000);
 				cost_road = road_weg->get_wartung() + 300/dist + (count_road*road_vehicle->get_betriebskosten(welt)*best_road_speed)/(2*dist+5);
 				income_road = (freight_price*best_road_speed)/(2*dist+5);

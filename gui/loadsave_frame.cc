@@ -10,6 +10,7 @@
 #ifndef _MSC_VER
 #include <unistd.h>
 #include <dirent.h>
+#include <string.h>
 #else
 #include <io.h>
 #include <direct.h>

@@ -259,11 +259,7 @@ protected:
 	uint16 route_index;
 
 	uint16 total_freight;	// since the sum is needed quite often, it is chached
-#ifdef SLIST_FREIGHT
 	slist_tpl<ware_t> fracht;   // liste der gerade transportierten güter ("list of goods being transported" - Google)
-#else
-	vector_tpl<ware_t> fracht; // List of goods being treansported.
-#endif
 	const vehikel_besch_t *besch;
 
 	convoi_t *cnv;		// != NULL falls das vehikel zu einem Convoi gehoert
@@ -401,12 +397,7 @@ public:
 	* @author prissi
 	*/
 	inline int get_gesamtgewicht() const { return sum_weight; }
-#ifdef SLIST_FREIGHT
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
-#else
-	const vector_tpl<ware_t> & get_fracht() const { return fracht; } //List of all goods being transported.
-	vector_tpl<ware_t> & get_freight_to_change() { return fracht; } // Non-const version of above
-#endif
 
 	/**
 	* berechnet die gesamtmenge der beförderten waren

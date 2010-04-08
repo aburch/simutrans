@@ -287,6 +287,10 @@ fabrik_t::~fabrik_t()
 	while(!fields.empty()) {
 		planquadrat_t *plan = welt->access( fields.back().location );
 		assert(plan);
+		if(!plan)
+		{
+			break;
+		}
 		grund_t *gr = plan->get_kartenboden();
 		field_t* f = plan->get_kartenboden()->find<field_t>();
 		assert(f);
