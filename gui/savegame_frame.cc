@@ -484,12 +484,13 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	gui_frame_t::set_fenstergroesse(groesse);
 	input.set_groesse(koord(width-input.get_pos().x, 14));
 
+	sint16 y = 0;
 	if (use_table)
 	{
+		y = file_table.get_groesse().y;
 	}
 	else
 	{
-		sint16 y = 0;
 		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 			// resize all but delete button
 			button_t*    button1 = i->del;
@@ -504,6 +505,9 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 		button_frame.set_groesse( koord( groesse.x, y ) );
 	}
 	scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
+	if (y < scrolly.get_groesse().y) {
+		scrolly.set_show_scroll_y(false);
+	}
 
 	divider1.set_pos(koord(10,groesse.y-44));
 	divider1.set_groesse(koord(width-10,0));
