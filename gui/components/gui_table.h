@@ -145,48 +145,6 @@ protected:
 
 
 /**
- * gui_table_t::infowin_event() notifies each event to all listeners sending a pointer to an instance of this class.
- *
- * @since 22-MAR-2010
- * @author Bernd Gabriel
- */
-class gui_table_event_t
-{
-private:
-	gui_table_t *table;
-	const event_t *ev;
-public:
-	gui_table_event_t(gui_table_t *table, const event_t *ev) {
-		this->table = table;
-		this->ev = ev;
-	}
-
-	/**
-	 * the table that notifies.
-	 */
-	gui_table_t *get_table() const { return table; }
-
-	/**
-	 * the event that the notifying table received.
-	 */
-	const event_t *get_event() const { return ev; }
-
-	/**
-	 * Does the mouse (ev->mx, ev->my) point to a cell?
-	 * False, if mouse is outside table or mouse points to grid/space around cells.
-	 * True and the cell coordinates can be found in 'cell'.
-	 */
-	bool is_cell_hit;
-
-	/**
-	 * Contains the coordinates of the cell the mouse points to, if is_cell_hit is true.
-	 * If is_cell_hit is false cell is undefined.
-	 */
-	coordinates_t cell;
-};
-
-
-/**
  * A table component. 
  * - allows any number of columns and rows with individual widths and heights.
  * - allows a grid of any width.
@@ -328,6 +286,48 @@ public:
 	 * zeichnen() paints the table.
 	 */
 	virtual void zeichnen(koord offset);
+};
+
+
+/**
+ * gui_table_t::infowin_event() notifies each event to all listeners sending a pointer to an instance of this class.
+ *
+ * @since 22-MAR-2010
+ * @author Bernd Gabriel
+ */
+class gui_table_event_t
+{
+private:
+	gui_table_t *table;
+	const event_t *ev;
+public:
+	gui_table_event_t(gui_table_t *table, const event_t *ev) {
+		this->table = table;
+		this->ev = ev;
+	}
+
+	/**
+	 * the table that notifies.
+	 */
+	gui_table_t *get_table() const { return table; }
+
+	/**
+	 * the event that the notifying table received.
+	 */
+	const event_t *get_event() const { return ev; }
+
+	/**
+	 * Does the mouse (ev->mx, ev->my) point to a cell?
+	 * False, if mouse is outside table or mouse points to grid/space around cells.
+	 * True and the cell coordinates can be found in 'cell'.
+	 */
+	bool is_cell_hit;
+
+	/**
+	 * Contains the coordinates of the cell the mouse points to, if is_cell_hit is true.
+	 * If is_cell_hit is false cell is undefined.
+	 */
+	coordinates_t cell;
 };
 
 #endif
