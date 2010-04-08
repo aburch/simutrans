@@ -95,10 +95,10 @@ public:
 
 class gui_file_table_row_t : public gui_table_row_t
 {
-	friend gui_file_table_button_column_t;
-	friend gui_file_table_delete_column_t;
-	friend gui_file_table_action_column_t;
-	friend gui_file_table_time_column_t;
+	friend class gui_file_table_button_column_t;
+	friend class gui_file_table_delete_column_t;
+	friend class gui_file_table_action_column_t;
+	friend class gui_file_table_time_column_t;
 protected:
 	cstring_t text;
 	cstring_t name;

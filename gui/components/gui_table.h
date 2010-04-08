@@ -196,8 +196,8 @@ public:
  */
 class gui_table_t : public gui_komponente_t, public gui_action_creator_t
 {
-	friend gui_table_column_list_t;
-	friend gui_table_row_list_t;
+	friend class gui_table_column_list_t;
+	friend class gui_table_row_list_t;
 private:
 	uint16 grid_width;
 	color_t grid_color;

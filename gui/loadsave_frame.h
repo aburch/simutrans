@@ -38,7 +38,7 @@ protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
 	gui_file_table_std_column_t() : gui_file_table_int_column_t() {
-		set_width(70);
+		set_width(65);
 	}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
@@ -49,7 +49,7 @@ protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
 	gui_file_table_exp_column_t() : gui_file_table_int_column_t() {
-		set_width(20);
+		set_width(25);
 	}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };

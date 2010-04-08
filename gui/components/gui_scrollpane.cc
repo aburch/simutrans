@@ -162,3 +162,8 @@ void gui_scrollpane_t::zeichnen(koord pos)
 		scroll_y.zeichnen(pos);
 	}
 }
+
+koord gui_scrollpane_t::get_client_size()
+{
+	return koord(groesse.x-12*b_show_scroll_y, groesse.y-11*b_show_scroll_x);
+}

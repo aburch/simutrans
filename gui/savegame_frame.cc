@@ -487,7 +487,15 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	sint16 y = 0;
 	if (use_table)
 	{
-		y = file_table.get_groesse().y;
+		y = file_table.get_table_height();
+		scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
+		scrolly.set_show_scroll_y(y > scrolly.get_groesse().y);
+		sint32 c = file_table.get_size().get_x();
+		if (c > 0) {
+			c = c > 0 ? 1 : 0;
+			sint16 x = scrolly.get_client_size().x - (file_table.get_table_width() - file_table.get_column_width(c));
+			file_table.get_column(c)->set_width(x);
+		}
 	}
 	else
 	{
@@ -503,10 +511,8 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 			y += 14;
 		}
 		button_frame.set_groesse( koord( groesse.x, y ) );
-	}
-	scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
-	if (y < scrolly.get_groesse().y) {
-		scrolly.set_show_scroll_y(false);
+		scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
+		scrolly.set_show_scroll_y(y > scrolly.get_groesse().y);
 	}
 
 	divider1.set_pos(koord(10,groesse.y-44));
