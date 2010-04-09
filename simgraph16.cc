@@ -1877,7 +1877,7 @@ void display_get_base_image_offset(unsigned bild, KOORD_VAL *xoff, KOORD_VAL *yo
 }
 
 
-// prissi: canges the offset of an image
+// prissi: changes the offset of an image
 // we need it this complex, because the actual x-offset is coded into the image
 void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff)
 {
@@ -1975,6 +1975,7 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 		} while (--h);
 	}
 }
+
 
 /**
  * Zeichnet Bild mit horizontalem Clipping
@@ -2522,6 +2523,7 @@ static void pix_blend75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 static void pix_blend75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2541,6 +2543,7 @@ static void pix_blend50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 static void pix_blend50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2560,6 +2563,7 @@ static void pix_blend25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const
 		src++;
 	}
 }
+
 static void pix_blend25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2580,6 +2584,7 @@ static void pix_blend_recode75_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 		src++;
 	}
 }
+
 static void pix_blend_recode75_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2599,6 +2604,7 @@ static void pix_blend_recode50_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 		src++;
 	}
 }
+
 static void pix_blend_recode50_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2618,6 +2624,7 @@ static void pix_blend_recode25_15(PIXVAL *dest, const PIXVAL *src, const PIXVAL 
 		src++;
 	}
 }
+
 static void pix_blend_recode25_16(PIXVAL *dest, const PIXVAL *src, const PIXVAL , const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2636,6 +2643,7 @@ static void pix_outline75_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 static void pix_outline75_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2653,6 +2661,7 @@ static void pix_outline50_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 static void pix_outline50_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
@@ -2670,6 +2679,7 @@ static void pix_outline25_15(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, 
 		dest++;
 	}
 }
+
 static void pix_outline25_16(PIXVAL *dest, const PIXVAL *, const PIXVAL colour, const PIXVAL len)
 {
 	const PIXVAL *const end = dest + len;
