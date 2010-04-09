@@ -63,25 +63,6 @@
 #include "wasser.h"
 
 
-// klassenlose funktionen und daten
-
-
-/**
- * Table of ground texts
- * @author Hj. Malthaner
- */
-static inthashtable_tpl<uint32, char*> ground_texts;
-
-
-static inline uint32 get_ground_text_key(const koord3d& k)
-{
-	// text for all common heights
-	return (k.x << 19) + (k.y << 6) + ((48-(k.z/Z_TILE_STEP))&0x3F);
-// only kartenboden can have text!
-//		(k.x << 19) + (k.y <<  6) + ((k.z - welt->get_grundwasser()) / Z_TILE_STEP);
-}
-
-
 /**
  * Pointer to the world of this ground. Static to conserve space.
  * Change to instance variable once more than one world is available.
@@ -95,22 +76,24 @@ uint8 grund_t::offsets[4]={0,1,2/*illegal!*/,2};
 sint8 grund_t::underground_level = 127;
 uint8 grund_t::underground_mode = ugm_none;
 
-void grund_t::set_underground_mode(const uint8 ugm, const sint8 level)
+
+// ---------------------- text handling from here ----------------------
+
+
+/**
+ * Table of ground texts
+ * @author Hj. Malthaner
+ */
+static inthashtable_tpl<uint32, char*> ground_texts;
+
+static inline uint32 get_ground_text_key(const koord3d& k)
 {
-	underground_mode = ugm;
-	switch(ugm) {
-		case ugm_all:
-			underground_level = -128;
-			break;
-		case ugm_level:
-			underground_level = level;
-			break;
-		case ugm_none:
-		default:
-			underground_mode = ugm_none;
-			underground_level = 127;
-	}
+	// text for all common heights
+	return (k.x << 19) + (k.y << 6) + ((48-(k.z/Z_TILE_STEP))&0x3F);
+// only kartenboden can have text!
+//		(k.x << 19) + (k.y <<  6) + ((k.z - welt->get_grundwasser()) / Z_TILE_STEP);
 }
+
 
 void grund_t::set_text(const char *text)
 {
@@ -132,7 +115,6 @@ void grund_t::set_text(const char *text)
 }
 
 
-
 const char *grund_t::get_text() const
 {
 	const char *result = 0;
@@ -144,6 +126,49 @@ const char *grund_t::get_text() const
 		assert(result);
 	}
 	return result;
+}
+
+
+PLAYER_COLOR_VAL grund_t::text_farbe() const
+{
+	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
+	// Now, we use the color of label_t owner
+	if(is_halt()  &&  find<label_t>()==NULL) {
+		// only halt label
+		const halthandle_t halt = welt->lookup(pos.get_2d())->get_halt();
+		const spieler_t *sp=halt->get_besitzer();
+		if(sp) {
+			return PLAYER_FLAG|(sp->get_player_color1()+4);
+		}
+	}
+	// else color according to current owner
+	else if(obj_bei(0)) {
+		const spieler_t *sp = obj_bei(0)->get_besitzer(); // for cityhall
+		const label_t* l = find<label_t>();
+		if(l) {
+			sp = l->get_besitzer();
+		}
+		if(sp) {
+			return PLAYER_FLAG|(sp->get_player_color1()+4);
+		}
+	}
+
+	return COL_WHITE;
+}
+
+
+// ---------------- init, rdwr, and destruct from here ---------------------
+
+
+void* grund_t::operator new(size_t s)
+{
+	return freelist_t::gimme_node(s);
+}
+
+
+void grund_t::operator delete(void* p, size_t s)
+{
+	return freelist_t::putback_node(s, p);
 }
 
 
@@ -349,7 +374,6 @@ void grund_t::rdwr(loadsave_t *file)
 }
 
 
-
 grund_t::grund_t(karte_t *wl, koord3d pos)
 {
 	this->pos = pos;
@@ -358,7 +382,6 @@ grund_t::grund_t(karte_t *wl, koord3d pos)
 	set_bild(IMG_LEER);    // setzt   flags = dirty;
 	back_bild_nr = 0;
 }
-
 
 
 grund_t::~grund_t()
@@ -373,7 +396,6 @@ grund_t::~grund_t()
 		welt->lookup(pos.get_2d())->get_halt()->rem_grund(this);
 	}
 }
-
 
 
 
@@ -429,7 +451,6 @@ void grund_t::take_obj_from(grund_t* other_gr)
 		other_gr->clear_flag(has_way2);
 	}
 }
-
 
 
 bool grund_t::zeige_info()
@@ -504,7 +525,6 @@ void grund_t::info(cbuffer_t& buf) const
 }
 
 
-
 void grund_t::set_halt(halthandle_t halt) {
 	if(halt.is_bound()) {
 		flags |= is_halt_flag|dirty;
@@ -523,6 +543,8 @@ halthandle_t grund_t::get_halt() const
 }
 
 
+// ----------------------- image calculation stuff from here ------------------
+
 
 void grund_t::calc_bild()
 {
@@ -533,21 +555,22 @@ void grund_t::calc_bild()
 }
 
 
-
-ribi_t::ribi grund_t::get_weg_ribi(waytype_t typ) const
+void grund_t::set_underground_mode(const uint8 ugm, const sint8 level)
 {
-	weg_t *weg = get_weg(typ);
-	return (weg) ? weg->get_ribi() : (ribi_t::ribi)ribi_t::keine;
+	underground_mode = ugm;
+	switch(ugm) {
+		case ugm_all:
+			underground_level = -128;
+			break;
+		case ugm_level:
+			underground_level = level;
+			break;
+		case ugm_none:
+		default:
+			underground_mode = ugm_none;
+			underground_level = 127;
+	}
 }
-
-
-
-ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
-{
-	weg_t *weg = get_weg(typ);
-	return (weg) ? weg->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::keine;
-}
-
 
 
 image_id grund_t::get_back_bild(int leftback) const
@@ -566,7 +589,6 @@ image_id grund_t::get_back_bild(int leftback) const
 }
 
 
-
 // with double height ground tiles!
 // can also happen with single height tiles
 static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
@@ -583,7 +605,6 @@ static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
 		return (h1>0?h1:0)+(h2>0?h2:0)*3;
 	}
 }
-
 
 
 // artifical walls from here on ...
@@ -765,36 +786,6 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 }
 
 
-
-PLAYER_COLOR_VAL grund_t::text_farbe() const
-{
-	// if this gund belongs to a halt, the color should reflect the halt owner, not the grund owner!
-	// Now, we use the color of label_t owner
-	if(is_halt()  &&  find<label_t>()==NULL) {
-		// only halt label
-		const halthandle_t halt = welt->lookup(pos.get_2d())->get_halt();
-		const spieler_t *sp=halt->get_besitzer();
-		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color1()+4);
-		}
-	}
-	// else color according to current owner
-	else if(obj_bei(0)) {
-		const spieler_t *sp = obj_bei(0)->get_besitzer(); // for cityhall
-		const label_t* l = find<label_t>();
-		if(l) {
-			sp = l->get_besitzer();
-		}
-		if(sp) {
-			return PLAYER_FLAG|(sp->get_player_color1()+4);
-		}
-	}
-
-	return COL_WHITE;
-}
-
-
-
 void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
 {
 	const bool dirty = get_flag(grund_t::dirty);
@@ -868,6 +859,7 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	}
 }
 
+
 hang_t::typ grund_t::get_disp_way_slope() const
 {
 	if (is_visible()) {
@@ -930,7 +922,9 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	ribi_t::ribi ribi = ribi_t::keine;
 	if (flags & has_way1) {
 		ribi |= (static_cast<const weg_t*>(obj_bei(0)))->get_ribi_unmasked();
-		if (flags & has_way2) ribi |= (static_cast<const weg_t*>(obj_bei(1)))->get_ribi_unmasked();
+		if (flags & has_way2) {
+			ribi |= (static_cast<const weg_t*>(obj_bei(1)))->get_ribi_unmasked();
+		}
 	}
 	else if (ist_wasser()) {
 		ribi = get_weg_ribi(water_wt);
@@ -1035,6 +1029,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	display_dinge_fg(xpos, ypos, is_global, offset_fg);
 }
 
+
 uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool visible) const
 {
 	const bool dirty = get_flag(grund_t::dirty);
@@ -1077,10 +1072,13 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 		return 255;
 	}
 }
+
+
 uint8 grund_t::display_dinge_vh(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset, const ribi_t::ribi ribi, const bool ontile) const
 {
 	return dinge.display_dinge_vh(xpos, ypos, start_offset, is_global, ribi, ontile);
 }
+
 
 void grund_t::display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool is_global, const uint8 start_offset) const
 {
@@ -1108,7 +1106,6 @@ void grund_t::display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool 
 		}
 	}
 }
-
 
 
 void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
@@ -1142,6 +1139,22 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	clear_flag(grund_t::dirty);
 }
 
+
+// ---------------- way and wayobj handling -------------------------------
+
+
+ribi_t::ribi grund_t::get_weg_ribi(waytype_t typ) const
+{
+	weg_t *weg = get_weg(typ);
+	return (weg) ? weg->get_ribi() : (ribi_t::ribi)ribi_t::keine;
+}
+
+
+ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
+{
+	weg_t *weg = get_weg(typ);
+	return (weg) ? weg->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::keine;
+}
 
 
 bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
@@ -1395,7 +1408,6 @@ sint8 grund_t::get_vmove(koord dir) const
 }
 
 
-
 int grund_t::get_max_speed() const
 {
 	int max = 0;
@@ -1407,7 +1419,6 @@ int grund_t::get_max_speed() const
 	}
 	return max;
 }
-
 
 
 bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ribi rem)
@@ -1535,17 +1546,6 @@ DBG_MESSAGE("wkz_wayremover()","change remaining way to ribi %d",add);
 	return true;
 }
 
-
-void* grund_t::operator new(size_t s)
-{
-	return freelist_t::gimme_node(s);
-}
-
-
-void grund_t::operator delete(void* p, size_t s)
-{
-	return freelist_t::putback_node(s, p);
-}
 
 wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 {
