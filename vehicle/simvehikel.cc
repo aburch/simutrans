@@ -3867,9 +3867,8 @@ aircraft_t::hop()
 
 
 
-// this routine will display the shadow
-void
-aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
+// this routine will display the aircraft (if in flight)
+void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 {
 	if(bild != IMG_LEER  &&  !is_on_ground()) {
 		int xpos = xpos_org, ypos = ypos_org;

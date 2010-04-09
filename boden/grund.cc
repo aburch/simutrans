@@ -866,43 +866,6 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			return;
 		}
 	}
-
-	// display ways
-	if(visible  &&  (flags&has_way1)){
-		ribi_t::ribi ribi = ribi_t::keine;
-		const bool clip = (flags&draw_as_ding)  ||  !ist_karten_boden();
-		for (uint8 i=0; i< offsets[flags/has_way1]; i++) {
-			sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), raster_tile_width );
-			ding_t* d = obj_bei(i);
-			const ribi_t::ribi way_ribi = (static_cast<const weg_t*>(d))->get_ribi_unmasked();
-			// clip
-			// .. nonconvex n/w if not both n/w are active
-			if (clip) {
-				clear_all_poly_clip();
-				const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
-				const uint8 non_convex = (way_ribi & ribi_t::nordwest) == ribi_t::nordwest ? 0 : 16;
-				if (way_ribi & ribi_t::west) {
-					const int dh = corner4(get_disp_way_slope()) * hgt_step;
-					add_poly_clip(xpos+raster_tile_width/2-1, ypos+raster_tile_width/2-dh, xpos-1, ypos+3*raster_tile_width/4-dh, ribi_t::west | non_convex);
-				}
-				if (way_ribi & ribi_t::nord) {
-					const int dh = corner4(get_disp_way_slope()) * hgt_step;
-					add_poly_clip(xpos+raster_tile_width-1, ypos+3*raster_tile_width/4-1-dh, xpos+raster_tile_width/2-1, ypos+raster_tile_width/2-1-dh, ribi_t::nord | non_convex);
-				}
-				activate_ribi_clip(way_ribi & ribi_t::nordwest);
-			}
-			display_color( d->get_bild(), xpos, ynpos, d->get_player_nr(), true, dirty|d->get_flag(ding_t::dirty) );
-			PLAYER_COLOR_VAL pc = d->get_outline_colour();
-			if(pc) {
-				display_blend( d->get_bild(), xpos, ynpos, d->get_player_nr(), pc, true, dirty|d->get_flag(ding_t::dirty) );
-			}
-			d->clear_flag( ding_t::dirty );
-		}
-		// end of clipping
-		if (clip) {
-			clear_all_poly_clip();
-		}
-	}
 }
 
 hang_t::typ grund_t::get_disp_way_slope() const
@@ -982,7 +945,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 	if (ribi & ribi_t::nord) {
 		const int dh = corner4(slope) * hgt_step;
-		add_poly_clip(xpos+raster_tile_width-1, ypos+3*raster_tile_width/4-1-dh, xpos+raster_tile_width/2-1, ypos+raster_tile_width/2-1-dh, ribi_t::nord | non_convex);
+		add_poly_clip(xpos+raster_tile_width-1, ypos+3*raster_tile_width/4-1-dh, xpos+raster_tile_width/2+1, ypos+raster_tile_width/2-dh, ribi_t::nord | non_convex);
 	}
 	if (ribi & ribi_t::ost) {
 		const int dh = corner2(slope) * hgt_step;
@@ -995,7 +958,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	// display background
 	// get offset of first vehicle
 	activate_ribi_clip(ribi_t::nordwest & ribi);
-	const uint8 offset_vh = display_dinge_bg(xpos, ypos, is_global, false, visible);
+	const uint8 offset_vh = display_dinge_bg(xpos, ypos, is_global, visible);
 	if (!visible) {
 		// end of clipping
 		clear_all_poly_clip();
@@ -1026,17 +989,15 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::ost) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(1,0))) {
-			const bool draw_other_ways = (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::ost);
-			gr->display_dinge_bg(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
+			gr->display_dinge_bg(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, true);
 		}
 	}
 	if (ribi & ribi_t::sued) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(0,1))) {
-			const bool draw_other_ways = (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::sued);
-			gr->display_dinge_bg(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
+			gr->display_dinge_bg(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, true);
 		}
 	}
 	// display our vehicles
@@ -1074,10 +1035,9 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	display_dinge_fg(xpos, ypos, is_global, offset_fg);
 }
 
-uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible) const
+uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool visible) const
 {
 	const bool dirty = get_flag(grund_t::dirty);
-	const uint8 start_offset=draw_ways ? 0 : offsets[flags/has_way1];
 
 	if(visible) {
 		// display back part of markers
@@ -1102,7 +1062,7 @@ uint8 grund_t::display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool
 			}
 		}
 		// display background images of everything but vehicles
-		return dinge.display_dinge_bg( xpos, ypos, start_offset, is_global );
+		return dinge.display_dinge_bg( xpos, ypos, is_global );
 	}
 	else { // must be karten_boden
 		// in undergroundmode: draw ground grid

@@ -88,9 +88,9 @@ public:
 	/* display all things, called by the routines in grund_t
 	*  @author prissi,dwachs
 	*/
-	uint8 display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const;
-	uint8 display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile ) const;
-	void display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const;
+	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const;
+	uint8 display_dinge_vh(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile ) const;
+	void display_dinge_fg(const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const;
 
 	// start next month (good for toogling a seasons)
 	void check_season(const long month);
