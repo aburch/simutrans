@@ -2728,3 +2728,16 @@ display_image_proc display_normal = NULL;
 display_image_proc display_color = NULL;
 display_blend_proc display_blend = NULL;
 signed short current_tile_raster_width = 0;
+
+// clipping along tile borders not implemented for 8bit graphics
+void add_poly_clip(int, int, int, int, int)
+{
+}
+
+void clear_all_poly_clip()
+{
+}
+
+void activate_ribi_clip(int)
+{
+}

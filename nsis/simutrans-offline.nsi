@@ -13,8 +13,15 @@ var archievename
 var group1
 var multiuserinstall
 
+;******** This script assumes, you have installed all the paks and GDI exe to this directory *******
+;******** There should be also a folder SDL containing the SDL exe and DLL                   *******
+;******** There should be also a folder pak64addon containing the food chain addon           *******
+;******** There should be also a folder pak64addon/font with the chinese font                *******
+!define SP_PATH "C:\Programme\simutrans"
+
+
 Name "Simutrans Transport Simulator"
-OutFile "simutrans-online-install.exe"
+OutFile "simutrans-offline-install.exe"
 
 ; The default installation directory
 InstallDir $PROGRAMFILES\Simutrans
@@ -88,30 +95,30 @@ finishGDIexe:
 FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
-  AddSize 7279
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-2/"
-  StrCpy $archievename "simuwin-102-2-2.zip"
-  StrCpy $downloadname "Simutrans Executable (GDI)"
-  Call DownloadInstall
-  Call PostExeInstall
+  SetOutPath $INSTDIR
+  File "${SP_PATH}\simutrans.exe"
+  File "${SP_PATH}\*.txt"
+  File /r "${SP_PATH}\text"
+  File /r "${SP_PATH}\font"
+  File /r "${SP_PATH}\skin"
+  File /r "${SP_PATH}\music"
+  File /r "${SP_PATH}\config\simuconf.tab"
 SectionEnd
 
-
 Section /o "Executable (SDL, better sound)" SDLexe
-  AddSize 8227
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-2/"
-  StrCpy $archievename "simuwin-sdl-102-2-2.zip"
-  StrCpy $downloadname "Simutrans Executable (SDL)"
-  Call DownloadInstall
-  Call PostExeInstall
+  SetOutPath $INSTDIR
+  File "${SP_PATH}\SDL\*.*"
+  File "${SP_PATH}\*.txt"
+  File /r "${SP_PATH}\text"
+  File /r "${SP_PATH}\font"
+  File /r "${SP_PATH}\skin"
+  File /r "${SP_PATH}\music"
+  File /r "${SP_PATH}\config\simuconf.tab"
 SectionEnd
 
 Section /o "Chinese Font" wenquanyi_font
-  AddSize 3245
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/"
-  StrCpy $archievename "wenquanyi_9pt-font-bdf.zip"
-  StrCpy $downloadname "wenquanyi_9pt"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak64addon\font"
 SectionEnd
 
 SectionGroupEnd
@@ -121,130 +128,81 @@ SectionGroupEnd
 SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak64 (standard)" pak64
-  AddSize 10882
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-2/"
-  StrCpy $archievename "simupak64-102-2-2.zip"
-  StrCpy $downloadname "pak64"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak"
 SectionEnd
 
 
 Section /o "pak64 Food addon 102.2.1"
-  AddSize 272
   StrCmp $multiuserinstall "1" InstallInUserDir
 
   ; no multiuser => install in normal directory
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-1/"
-  StrCpy $archievename "simupak64-addon-food-102-2-1.zip"
-  StrCpy $downloadname "pak64"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
   goto FinishFood64
 
 InstallInUserDir:
-  ; else install in User directory
-  Call ConnectInternet
-  RMdir /r "$TEMP\simutrans"
-  NSISdl::download "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-1/simupak64-addon-food-102-2-1.zip" "$Temp\simupak64-addon-food-102-2-1.zip"
-  Pop $R0 ;Get the return value
-  StrCmp $R0 "success" +3
-     MessageBox MB_OK "Download of food addon pak64 failed: $R0"
-     Abort
-
-  ZipDLL::extractall "$TEMP\simupak64-addon-food-102-2-1.zip" "$TEMP"
-  Pop $0
-  StrCmp $0 "success" +4
-    DetailPrint "$0" ;print error message to log
-    RMdir /r "$TEMP\simutrans"
-    Abort
-
-  CopyFiles "$TEMP\Simutrans" "$DOCUMENTS"
-  RMdir /r "$TEMP\simutrans"
+  SetOutPath $DOCUMENTS\simutrans
 FinishFood64:
+  File /r "${SP_PATH}\pak64addon\pak"
 SectionEnd
 
 SectionGroupEnd
 
 
 
-Section /o "pak64.german (Freeware) 102.2.2" pak64german
-  AddSize 18740
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak.german_102-2-2/"
-  StrCpy $archievename "pak.german_0-102-2-2_full.zip"
-  StrCpy $downloadname "pak64.German"
-  Call DownloadInstall
-  RMdir /r "$INSTDIR\Simutrans\Maps"
+Section /o "pak64.german (Freeware)" pak64german
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak"
 SectionEnd
 
 
 
-Section /o "pak64 HAJO (Freeware) 102.2.2" pak64HAJO
-  AddSize 6376
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/"
-  StrCpy $archievename "pakHAJO_0-102-2-2.zip"
-  StrCpy $downloadname "pak64.HAJO"
-  Call DownloadInstall
+Section /o "pak64 HAJO (Freeware) 102.2" pak64HAJO
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak.german"
 SectionEnd
 
 
 
 Section /o "pak96 Comic (beta, Freeware) 102.2" pak96comic
-  AddSize 16976
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO%20for%20102-0/"
-  StrCpy $downloadlink "http://www.simutrans-forum.de/forum/attachment.php?attachmentid=8734"
-  StrCpy $downloadname "pak96.Comic"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak96.comic"
 SectionEnd
 
 
 
 Section /o "pak128 (Freeware) 102.2.2" pak128
-  AddSize 63445
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-2-2/"
-  StrCpy $archievename "pak128-1.4.6--102.2.zip"
-  StrCpy $downloadname "pak128"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak128"
 SectionEnd
 
 
 
 Section /o "pak128 Japan 101.0" pak128japan
-  AddSize 15605
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.japan/for%20Simutrans%20101-0/"
-  StrCpy $archievename "pak128.japan_0-101.zip"
-  StrCpy $downloadname "pak128.Japan"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak128.japan"
 SectionEnd
 
 
 
 Section /o "pak128 Britain (0.7) 102.2.1" pak128britain
-  AddSize 94003
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128.britain/pak128.britain%20for%20102-0/"
-  StrCpy $archievename "pak128Britain_1-0-7_0-102.zip"
-  StrCpy $downloadname "pak128.Britain"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak128.britain"
 SectionEnd
 
 
 
 Section /o "pak192 Comic (Freeware) 102.2.1" pak192comic
-  AddSize 23893
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak192.comic/pak192.comic_102-2-1/"
-  StrCpy $archievename "pak192.comic_0-1-9-1_102-2-1.zip"
-  StrCpy $downloadname "pak192.Comic"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak192.comic"
 SectionEnd
 
 
 
 Section /o "pak32 Comic (alpha) 102.2.1" pak32comic
-  AddSize 2108
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak32.comic/pak32.comic%20for%20102-0/"
-  StrCpy $archievename "pak32.comic_102-0.zip"
-  StrCpy $downloadname "pak32.Comic"
-  Call DownloadInstall
+  SetOutPath $INSTDIR
+  File /r "${SP_PATH}\pak32.comic"
 SectionEnd
-
 
 
 # create a section to define what the uninstaller does.

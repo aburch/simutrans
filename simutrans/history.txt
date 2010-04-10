@@ -39,6 +39,7 @@
 	ADD: (gerw) broad tunnel patch (see pak64 sources: adding images [Nl] [Nm] [Nr] and so on)
 	FIX: no longer no trees after 150 years
 	ADD: no decimal point for very large amounts
+	CHANGE: better displaying algorithm, should give much less clipping errors/graphics glitches with lang vehicles/bridges/stations etc.
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

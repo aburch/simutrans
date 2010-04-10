@@ -43,6 +43,13 @@ display_set_clip_wh(x, y, w, h);
 display_set_clip_wh(p_cr.x, p_cr.y, p_cr.w, p_cr.h); \
 }
 
+/**
+ * helper functions for clipping along tile borders
+ * @author Dwachs
+ */
+void add_poly_clip(int x0_,int y0_, int x1, int y1, int ribi=15);
+void clear_all_poly_clip();
+void activate_ribi_clip(int ribi=15);
 
 /* Do no access directly, use the get_tile_raster_width()
  * macro instead.
