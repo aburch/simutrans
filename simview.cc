@@ -103,7 +103,7 @@ karte_ansicht_t::display(bool force_dirty)
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
 	if(grund_t::underground_mode) {
-		display_fillbox_wh(0, 32, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
+		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
 	}
 	// to save calls to grund_t::get_disp_height
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
@@ -126,7 +126,7 @@ karte_ansicht_t::display(bool force_dirty)
 				if(plan  &&  plan->get_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( min(plan->get_kartenboden()->get_hoehe(), hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						plan->display_boden(xpos, yypos);
+						plan->display_boden(xpos, yypos, IMG_SIZE);
 					}
 				}
 				else {
@@ -155,9 +155,7 @@ karte_ansicht_t::display(bool force_dirty)
 					const grund_t *gr = plan->get_kartenboden();
 					// minimum height: ground height for overground,
 					// for the definition of underground_level see grund_t::set_underground_mode
-					const sint8 hmin = grund_t::underground_mode!=grund_t::ugm_all ?
-						min(gr->get_hoehe(), grund_t::underground_level) :
-						(gr->ist_wasser() ? gr->get_hoehe() : grund_t::underground_level);
+					const sint8 hmin = min(gr->get_hoehe(), grund_t::underground_level);
 
 					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
 					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
@@ -165,7 +163,7 @@ karte_ansicht_t::display(bool force_dirty)
 					/* long version
 					switch(grund_t::underground_mode) {
 						case ugm_all:
-							hmin = gr->ist_wasser() ? gr->get_hoehe() : -128;
+							hmin = -128;
 							hmax = gr->get_hoehe()-(!gr->ist_tunnel());
 							underground_level = -128;
 							break;
