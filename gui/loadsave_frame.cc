@@ -144,7 +144,7 @@ gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_labe
 	set_width(150);
 	strcpy(pak, umgebung_t::objfilename);
 	pak[strlen(pak) - 1] = 0;
-	strlwr(pak);
+	/* strlwr(pak); */
 }
 
 /**
@@ -168,11 +168,11 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 {
 	char s1[1024];
 	strcpy(s1, get_text(row1));
-	strlwr(s1);
+	/* strlwr(s1); */
 	float f1 = strsim(s1, pak);
 	char s2[1024];
 	strcpy(s2, get_text(row2));
-	strlwr(s2);
+	/* strlwr(s2); */
 	float f2 = strsim(s2, pak);
 	int result = sgn(f1 - f2);
 	if (!result)
