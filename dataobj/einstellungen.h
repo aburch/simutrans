@@ -507,8 +507,14 @@ public:
 	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
 
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
-	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
+	void   set_min_bonus_max_distance(uint16 value) { min_bonus_max_distance = value; }
 	uint16 get_median_bonus_distance() const { return median_bonus_distance; }
+	void   set_median_bonus_distance(uint16 value) { median_bonus_distance = value; }
+	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
+	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; }
+	uint16 get_max_bonus_multiplier_percent() { return max_bonus_multiplier_percent; }
+	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
+
 	float get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
 	float get_distance_per_tile() const { return distance_per_tile; }
 	uint8 get_tolerable_comfort_short() const { return tolerable_comfort_short; }

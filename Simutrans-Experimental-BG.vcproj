@@ -729,6 +729,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_component_table.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\gui_container.cc"
 				>
 			</File>
@@ -1873,6 +1877,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\components\gui_component_table.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\gui_container.h"
 				>
 			</File>
@@ -2114,6 +2122,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\components\list_button.h"
+				>
+			</File>
+			<File
+				RelativePath=".\tpl\list_tpl.h"
 				>
 			</File>
 			<File

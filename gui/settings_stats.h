@@ -158,6 +158,13 @@ public:
 	void read( einstellungen_t *sets );
 };
 
+class settings_experimental_revenue_stats_t : protected settings_stats_t, public gui_container_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
 class settings_costs_stats_t : protected settings_stats_t, public gui_container_t
 {
 public:

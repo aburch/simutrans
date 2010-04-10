@@ -187,6 +187,8 @@ void savegame_frame_t::fill_list()
 	// The file entries
 	if (use_table)
 	{
+		set_file_table_default_sort_order();
+		file_table.sort_rows();
 		file_table.set_groesse(file_table.get_table_size());
 		set_fenstergroesse(file_table.get_groesse() + koord(25 + 14, 90));
 	}
@@ -200,13 +202,13 @@ void savegame_frame_t::fill_list()
 
 			button1->set_groesse(koord(14, 14));
 			button1->set_text("X");
-			button1->set_pos(koord(5, y));
+			button1->set_pos(koord(0, y));
 			button1->set_tooltip("Delete this file.");
 
-			button2->set_pos(koord(25, y));
-			button2->set_groesse(koord(140, 14));
+			button2->set_pos(koord(20, y));
+			button2->set_groesse(koord(150, 14));
 
-			label->set_pos(koord(170, y+3));
+			label->set_pos(koord(176, y+3));
 
 			button1->add_listener(this);
 			button2->add_listener(this);
@@ -218,11 +220,15 @@ void savegame_frame_t::fill_list()
 			y += 14;
 		}
 		// since width was maybe increased, we only set the heigth.
-		button_frame.set_groesse( koord( get_fenstergroesse().x-1, y ) );
+		button_frame.set_groesse( koord( get_fenstergroesse().x-14, y ) );
 		set_fenstergroesse(koord(get_fenstergroesse().x, y + 90));
 	}
 }
 
+
+void savegame_frame_t::set_file_table_default_sort_order()
+{
+}
 
 
 savegame_frame_t::~savegame_frame_t()
@@ -261,56 +267,69 @@ void savegame_frame_t::add_file(const char *filename, const bool not_cutting_suf
 
 void savegame_frame_t::add_file(const char *filename, const char *pak, const bool no_cutting_suffix )
 {
-	char * name = new char[strlen(filename)+10];
-	char * date = new char[strlen(pak)+1];
-
-	strcpy( date, pak );
-	strcpy( name, filename );
-	if(!no_cutting_suffix) {
-		name[strlen(name)-4] = '\0';
-	}
-	button_t * button = new button_t();
-	button->set_no_translate(true);
-	button->set_text(name);	// to avoid translation
-
-	const cstring_t compare_to = umgebung_t::objfilename.len()>0  ?  umgebung_t::objfilename.left( umgebung_t::objfilename.len()-1 ) + " -"  :  cstring_t("");
-	// sort by date descending:
-	slist_tpl<entry>::iterator i = entries.begin();
-	slist_tpl<entry>::iterator end = entries.end();
-	if(  strncmp( compare_to, pak, compare_to.len() )!=0  ) {
-		// skip current ones
-		while(  i != end  ) {
-			// extract palname in same format than in savegames ...
-			if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
-				break;
-			}
-			++i;
+	if (use_table) {
+		char pathname[1024];
+		const char *path = get_path();
+		sprintf( pathname, "%s%s", path ? path : "", filename );
+		char buttontext[1024];
+		strcpy( buttontext, filename );
+		if ( !no_cutting_suffix ) {
+			buttontext[strlen(buttontext)-4] = '\0';
 		}
-		// now just sort according time
-		while(  i != end  ) {
-			if(  strcmp(i->label->get_text_pointer(), date) < 0  ) {
-				break;
-			}
-			++i;
-		}
+		file_table.add_row( new gui_file_table_row_t( pathname, buttontext ));
 	}
 	else {
-		// Insert to our games (or in front if none)
-		while(  i != end  ) {
-			if(  strcmp(i->label->get_text_pointer(), date) < 0  ) {
-				break;
-			}
-			// not our savegame any more => insert
-			if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
-				break;
-			}
-			++i;
-		}
-	}
+		char * name = new char[strlen(filename)+10];
+		char * date = new char[strlen(pak)+1];
 
-	gui_label_t* l = new gui_label_t(NULL);
-	l->set_text_pointer(date);
-	entries.insert(i, entry(button, new button_t, l));
+		strcpy( date, pak );
+		strcpy( name, filename );
+		if(!no_cutting_suffix) {
+			name[strlen(name)-4] = '\0';
+		}
+		button_t * button = new button_t();
+		button->set_no_translate(true);
+		button->set_text(name);	// to avoid translation
+
+		const cstring_t compare_to = umgebung_t::objfilename.len()>0  ?  umgebung_t::objfilename.left( umgebung_t::objfilename.len()-1 ) + " -"  :  cstring_t("");
+		// sort by date descending:
+		slist_tpl<entry>::iterator i = entries.begin();
+		slist_tpl<entry>::iterator end = entries.end();
+		if(  strncmp( compare_to, pak, compare_to.len() )!=0  ) {
+			// skip current ones
+			while(  i != end  ) {
+				// extract palname in same format than in savegames ...
+				if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+					break;
+				}
+				++i;
+			}
+			// now just sort according time
+			while(  i != end  ) {
+				if(  strcmp(i->label->get_text_pointer(), date) < 0  ) {
+					break;
+				}
+				++i;
+			}
+		}
+		else {
+			// Insert to our games (or in front if none)
+			while(  i != end  ) {
+				if(  strcmp(i->label->get_text_pointer(), date) < 0  ) {
+					break;
+				}
+				// not our savegame any more => insert
+				if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+					break;
+				}
+				++i;
+			}
+		}
+
+		gui_label_t* l = new gui_label_t(NULL);
+		l->set_text_pointer(date);
+		entries.insert(i, entry(button, new button_t, l));
+	}
 }
 
 
@@ -465,12 +484,21 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	gui_frame_t::set_fenstergroesse(groesse);
 	input.set_groesse(koord(width-input.get_pos().x, 14));
 
+	sint16 y = 0;
 	if (use_table)
 	{
+		y = file_table.get_table_height();
+		scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
+		scrolly.set_show_scroll_y(y > scrolly.get_groesse().y);
+		sint32 c = file_table.get_size().get_x();
+		if (c > 0) {
+			c = c > 0 ? 1 : 0;
+			sint16 x = scrolly.get_client_size().x - (file_table.get_table_width() - file_table.get_column_width(c));
+			file_table.get_column(c)->set_width(x);
+		}
 	}
 	else
 	{
-		sint16 y = 0;
 		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 			// resize all but delete button
 			button_t*    button1 = i->del;
@@ -483,8 +511,9 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 			y += 14;
 		}
 		button_frame.set_groesse( koord( groesse.x, y ) );
+		scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
+		scrolly.set_show_scroll_y(y > scrolly.get_groesse().y);
 	}
-	scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
 
 	divider1.set_pos(koord(10,groesse.y-44));
 	divider1.set_groesse(koord(width-10,0));
@@ -534,7 +563,8 @@ void savegame_frame_t::release_file_table_button()
 
 
 // BG, 26.03.2010
-void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) 
+{
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	koord size = koord(get_width(), row.get_height());
 	btn.set_groesse(size);
@@ -550,23 +580,55 @@ void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_
 	btn.zeichnen(offset);
 }
 
+
+// BG, 06.04.2010
+void gui_file_table_delete_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row)
+{
+ 	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	if (file_row.delete_enabled) {
+		gui_file_table_button_column_t::paint_cell(offset, x, y, row);
+	}
+
+}
+
+
 // BG, 26.03.2010
-void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) 
+{
 	lbl.set_pos(koord(2, 2));
 	lbl.set_groesse(koord(get_width() - 2, row.get_height() - 2));
 	lbl.zeichnen(offset);
 }
 
-void gui_file_table_action_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+
+// BG, 26.03.2010
+const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const 
+{ 
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
-	btn.set_text(file_row.text);
+	return file_row.text;
+}
+
+
+// BG, 26.03.2010
+void gui_file_table_action_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+	btn.set_text(get_text(row));
 	gui_file_table_button_column_t::paint_cell(offset, x, y, row);
 }
 
-void gui_file_table_date_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) {
+
+// BG, 26.03.2010
+time_t gui_file_table_time_column_t::get_time(const gui_table_row_t &row) const 
+{ 
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
+	return file_row.info.st_mtime;
+}
+
+
+// BG, 26.03.2010
+void gui_file_table_time_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) {
+	time_t time = get_time(row);
+	struct tm *tm = localtime(&time);
 	char date[64];
-	struct tm *tm = localtime(&file_row.info.st_mtime);
 	if(tm) {
 		strftime(date, 18, "%Y-%m-%d %H:%M", tm);
 	}
@@ -577,22 +639,21 @@ void gui_file_table_date_column_t::paint_cell(const koord &offset, coordinate_t 
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
 }
 
-gui_file_table_row_t::gui_file_table_row_t()
-{
-	pressed = false;
-}
 
-gui_file_table_row_t::gui_file_table_row_t(const char *pathname, const char *buttontext)
+// BG, 26.03.2010
+gui_file_table_row_t::gui_file_table_row_t(const char *pathname, const char *buttontext, bool delete_enabled)
 {
-	pressed = false;
-	name = pathname;
-	text = buttontext;
+	this->pressed = false;
+	this->delete_enabled = delete_enabled;
+	this->name = pathname;
+	this->text = buttontext;
 
 	// first get pak name
 	if (stat(name, &info)) {
-		error = "failed opening file";
+		this->error = "failed opening file";
 	}
 }
+
 
 // BG, 26.03.2010
 void gui_file_table_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y)

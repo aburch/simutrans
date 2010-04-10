@@ -248,6 +248,31 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 
 
 
+void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
+{
+	INIT_INIT
+	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 10000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_bonus_multiplier_percent", sets->get_max_bonus_multiplier_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+
+	clear_dirty();
+	set_groesse( settings_stats_t::get_groesse() );
+}
+
+
+void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
+{
+	EXIT_INIT
+	EXIT_NUM( sets->set_min_bonus_max_distance );
+	EXIT_NUM( sets->set_median_bonus_distance );
+	EXIT_NUM( sets->set_max_bonus_min_distance );
+	EXIT_NUM( sets->set_max_bonus_multiplier_percent );
+}
+
+
+
+
 void settings_costs_stats_t::init(einstellungen_t *sets)
 {
 	INIT_INIT
