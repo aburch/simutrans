@@ -309,3 +309,15 @@ void display_set_progress_text(const char *)
 void display_progress(int, int)
 {
 }
+
+void add_poly_clip(int, int, int, int, int)
+{
+}
+
+void clear_all_poly_clip()
+{
+}
+
+void activate_ribi_clip(int)
+{
+}

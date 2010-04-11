@@ -8,6 +8,8 @@
 #ifndef gui_savegame_frame_h
 #define gui_savegame_frame_h
 
+#include <sys/stat.h>
+
 #include "../tpl/slist_tpl.h"
 #include "components/action_listener.h"
 #include "components/gui_table.h"

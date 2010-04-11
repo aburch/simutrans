@@ -966,9 +966,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 				case ding_t::gebaeude:
 				{
-					// Wenn es ein Gebäude nicht mehr gibt, geänderte Tabfiles
-					// lassen wir es einfach weg. Das gibt zwar Fundamente ohne
-					// Aufbau, stürzt aber nicht ab.
 					gebaeude_t *gb = new gebaeude_t (welt, file);
 					if(gb->get_tile()==NULL) {
 						// do not remove from this position, since there will be nothing
@@ -1093,12 +1090,113 @@ void dingliste_t::dump() const
 }
 
 
-
-/* display all things, much faster to do it here ...
- * reset_dirty will be only true for the main display; all miniworld windows should still reset main window ...
- *  @author prissi
+/**
+ * Routine to display background images of non-moving and non-powerline things
+ * powerlines have to be drawn after vehicles (and thus are in the obj-array inserted after vehicles)
+ * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
+ * @return the index of the first moving thing (or powerline)
+ *
+ * dingliste_t::display_dinge_bg() .. called by the methods in grund_t
+ * local_display_dinge_bg()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
+ * @author Dwachs
  */
-void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
+inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const sint16 ypos, const bool reset_dirty )
+{
+	const bool display_ding = !ding->is_moving()  &&  ding->get_typ()!=ding_t::leitung/*powerline*/;
+	if (display_ding) {
+		ding->display(xpos, ypos, reset_dirty );
+	}
+	return display_ding;
+}
+uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const
+{
+	if(top==0) {
+		return 0;
+	}
+
+	if(capacity==1) {
+		if(local_display_dinge_bg(obj.one, xpos, ypos, reset_dirty)) {
+			return 1;
+		}
+		return 0;
+	}
+
+	for(uint8 n=0; n<top; n++) {
+		if (!local_display_dinge_bg(obj.some[n], xpos, ypos, reset_dirty)) {
+			return n;
+		}
+	}
+	return top;
+}
+
+/**
+ * Routine to draw vehicles (and powerlines)
+ * .. vehicles are draws if driving in direction ribi (with special treatment of flying aircrafts)
+ * .. clips vehicle only along relevant edges (depends on ribi and vehicle direction)
+ * @param ontile if true then vehicles are on the tile that defines the clipping
+ * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
+ * @return the index of the first non-moving thing
+ *
+ * dingliste_t::display_dinge_vh() .. called by the methods in grund_t
+ * local_display_dinge_vh()        .. local function to avoid code duplication, returns false if the first non-valid obj is reached
+ * @author Dwachs
+ */
+inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const sint16 ypos, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile)
+{
+	if (ding->is_moving()  &&  (ontile  ||  ding->get_typ()!=ding_t::aircraft  ||  ((const aircraft_t*)ding)->is_on_ground()))
+	{
+		const vehikel_basis_t *v = (const vehikel_basis_t *)ding;
+
+		const ribi_t::ribi veh_ribi = v->get_fahrtrichtung();
+		if (ontile || (veh_ribi & ribi)==ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi)==ribi  ||  ding->get_typ()==ding_t::aircraft) {
+			activate_ribi_clip((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi);
+			ding->display(xpos, ypos, reset_dirty );
+		}
+		return true;
+	}
+	else if (ding->get_typ()==ding_t::leitung/*powerline*/) {
+		activate_ribi_clip(ribi_t::keine);
+		ding->display(xpos, ypos, reset_dirty );
+		return true;
+	}
+	else {
+		return !ontile;
+	}
+}
+uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile ) const
+{
+	if(start_offset>=top) {
+		return start_offset;
+	}
+
+	if(capacity==1) {
+		if(local_display_dinge_vh(obj.one, xpos, ypos, reset_dirty, ribi, ontile)) {
+			return 1;
+		}
+		else {
+			return 0;
+		}
+	}
+
+	uint8 nr_v = start_offset;
+	for(uint8 n=start_offset; n<top; n++) {
+		if (local_display_dinge_vh(obj.some[n], xpos, ypos, reset_dirty, ribi, ontile)) {
+			nr_v = n;
+		}
+		else {
+			break;
+		}
+	}
+	activate_ribi_clip();
+	return nr_v+1;
+}
+
+/**
+ * Routine to draw foreground images of everything on the tile (no clipping)
+ * @param start_offset .. draws also background images of all objects with index>=start_offset
+ * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
+ */
+void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
 {
 	if(capacity==0) {
 		return;
@@ -1106,10 +1204,10 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 	else if(capacity==1) {
 		if(start_offset==0) {
 			obj.one->display(xpos, ypos, reset_dirty );
-			obj.one->display_after(xpos, ypos, reset_dirty );
-			if(reset_dirty) {
-				obj.one->clear_flag(ding_t::dirty);
-			}
+		}
+		obj.one->display_after(xpos, ypos, reset_dirty );
+		if(reset_dirty) {
+			obj.one->clear_flag(ding_t::dirty);
 		}
 		return;
 	}
@@ -1121,11 +1219,12 @@ void dingliste_t::display_dinge( const sint16 xpos, const sint16 ypos, const uin
 	// foreground (needs to be done backwards!
 	for(int n=top-1; n>=0;  n--) {
 		obj.some[n]->display_after(xpos, ypos, reset_dirty );
-		obj.some[n]->clear_flag(ding_t::dirty);
+		if(reset_dirty) {
+			obj.some[n]->clear_flag(ding_t::dirty);
+		}
 	}
+	return;
 }
-
-
 
 // start next month (good for toogling a seasons)
 void dingliste_t::check_season(const long month)

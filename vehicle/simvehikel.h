@@ -806,22 +806,25 @@ public:
 
 	int get_flyingheight() const {return flughoehe-hoff-2;}
 
-	// since our image is the shadow ...
-	virtual image_id get_bild() const {return IMG_LEER;}
+	// image: when flying empty, on ground the plane
+	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
 
-	// outline is the planes shadow
-	virtual PLAYER_COLOR_VAL get_outline_bild() const {return bild;}
+	// image: when flying the shadow, on ground empty
+	virtual PLAYER_COLOR_VAL get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
 
-	// shadow has black color
-	virtual PLAYER_COLOR_VAL get_outline_colour() const {return TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK;}
+	// shadow has black color (when flying)
+	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
 
-	// this draws the "real" aircrafts!
+	// this draws the "real" aircrafts (when flying)
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 
 	// the speed calculation happens it calc_height
 	void calc_akt_speed(const grund_t*) {}
 
 	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
+
+	bool is_on_ground() const { return flughoehe==0  &&  state!=flying; }
+
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);

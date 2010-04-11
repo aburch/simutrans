@@ -225,8 +225,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	replace_button.set_typ(button_t::roundbox_state);
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_komponente(&replace_button);
-	// TEMPORARY: Replacing currently not working, so disable.
-	//replace_button.add_listener(this);
+	replace_button.add_listener(this);
 
 	follow_button.set_groesse(koord(view.get_groesse().x, BUTTON_HEIGHT));
 	follow_button.set_text("follow me");
