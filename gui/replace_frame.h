@@ -40,10 +40,7 @@ private:
 	bool replace_line;	// True if all convoys like this in its line are to be replaced
 	bool replace_all;	// True if all convoys like this are to be replaced
 	bool depot;		// True if convoy is to be sent to depot only
-	bool retain_in_depot;
-	bool use_home_depot;
-	bool allow_using_existing_vehicles;
-	bool autostart;		// True if convoy is to be sent to depot and restarted automatically
+	replace_data_t* rpl;
 	enum {state_replace=0, state_sell, state_skip, n_states};
 	uint8 state;
 	uint16 replaced_so_far;
@@ -94,8 +91,6 @@ private:
 	karte_t* get_welt() { return cnv->get_welt(); }
 
 	sint64 calc_total_cost();
-
-	char tool_extra;
 
 public:
 	

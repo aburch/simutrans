@@ -468,7 +468,7 @@ public:
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
 	 */
-	void call_convoi_tool( const char function, uint16 additional_id = 0, const char *extra = NULL );
+	void call_convoi_tool( const char function, const char *extra = NULL );
 
 	/**
 	* get state

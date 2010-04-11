@@ -125,7 +125,7 @@ void convoi_t::reset()
 	withdraw = false;
 	has_obsolete = false;
 	no_load = false;
-	replace = false;
+	replace = NULL;
 	depot_when_empty = false;
 
 	jahresgewinn = 0;
@@ -422,7 +422,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 
 
 // since now convoi states go via werkzeug_t
-void convoi_t::call_convoi_tool( const char function, uint16 additional_id, const char *extra)
+void convoi_t::call_convoi_tool( const char function, const char *extra)
 {
 	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
 	char cmd[3] = { function, ',', 0 };
@@ -432,11 +432,6 @@ void convoi_t::call_convoi_tool( const char function, uint16 additional_id, cons
 	if(  extra  &&  *extra  ) {
 		param.append( "," );
 		param.append( extra );
-	}
-	if( additional_id != 0)
-	{
-		param.append( ",");
-		param.append(additional_id);
 	}
 	w->set_default_param(param);
 	welt->set_werkzeug( w, get_besitzer() );
@@ -782,12 +777,15 @@ void convoi_t::step()
 		return;
 	}
 
+	bool autostart = false;
+
 	switch(state) {
 
 		case INITIAL:
-
 			// If there is a pending replacement, just do it
 			if (replace && replace->get_replacing_vehicles()->get_count()>0) {
+
+				autostart = replace->get_autostart();
 
 				// Knightly : before replacing, copy the existing set of goods category index
 				minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
@@ -934,7 +932,7 @@ end_loop:
 					}
 
 
-					if (replace && replace->get_autostart()) {
+					if (autostart) {
 						dep->start_convoi(self);
 					}
 				}

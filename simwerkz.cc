@@ -5057,8 +5057,8 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	while(  *p  &&  *p<=' '  ) {
 		p++;
 	}
-	//sscanf( p, "%c,%hi", &tool, &convoi_id );
-	sscanf( p, "%c,%hi,%hi,%c", &tool, &convoi_id, &additional_convoi_id, &extra);
+	sscanf( p, "%c,%hi", &tool, &convoi_id );
+	//sscanf( p, "%c,%hi,%hi,%c", &tool, &convoi_id, &additional_convoi_id, &extra);
 
 	// skip to the commands ...
 	for(  int z = 2;  *p  &&  z>0;  p++  ) {
@@ -5116,25 +5116,45 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			}
 			break;
 
-		case 'r': // change replace
+		case 'R': // Add new replace
 			{
-			if(extra == 'a')
-			{
-				// This will reset any existing replace data.
-				replace_data_t rp;
-				replace_data_t* r = rp.copy();
-				cnv->set_replace(r);
-			}
-			else if(extra == 'c')
-			{
-				convoihandle_t source_convoy;
-				source_convoy.set_id(additional_convoi_id);
-				if(source_convoy.is_bound())
+				replace_data_t* rpl = new replace_data_t();
+				rpl->sscanf_replace(p);
+				cnv->set_replace(rpl);
+				cnv->set_depot_when_empty(rpl->get_autostart());
+				cnv->set_no_load(cnv->get_depot_when_empty());
+				// If already empty, no need to be emptied
+				if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
 				{
-					cnv->set_replace(source_convoy->get_replace());
+					cnv->set_depot_when_empty(false);
+					cnv->set_no_load(false);
+					cnv->go_to_depot(false);
 				}
 			}
+
+		case 'D': // Used for when "depot" is set in the replace frame
+			{
+				cnv->set_depot_when_empty(true);
+				cnv->set_no_load(true);
 			}
+	
+			
+			//if(extra == 'a')
+			//{
+			//	// This will reset any existing replace data.
+			//	replace_data_t *rp;
+			//	replace_data_t* r = rp.copy();
+			//	cnv->set_replace(r);
+			//}
+			//else if(extra == 'c')
+			//{
+			//	convoihandle_t source_convoy;
+			//	source_convoy.set_id(additional_convoi_id);
+			//	if(source_convoy.is_bound())
+			//	{
+			//		cnv->set_replace(source_convoy->get_replace());
+			//	}
+			//}
 			break;		
 
 		case 't': // change retire
@@ -5144,6 +5164,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			}
 			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
 			cnv->set_no_load(cnv->get_depot_when_empty());
+			cnv->set_replace(NULL);
 			break;
 
 		case 'w': // change withdraw
@@ -5153,6 +5174,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			}
 			cnv->set_withdraw( !cnv->get_withdraw() );
 			cnv->set_no_load( cnv->get_withdraw() );
+			cnv->set_replace(NULL);
 			break;
 	}
 

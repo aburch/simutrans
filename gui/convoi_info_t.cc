@@ -315,7 +315,8 @@ enable_home:
 			}
 			no_load_button.pressed = cnv->get_no_load();
 			no_load_button.enable();
-			replace_button.background= cnv->get_replace()?COL_LIGHT_RED:MN_GREY3;
+			//replace_button.background= cnv->get_replace()?COL_LIGHT_RED:MN_GREY3;
+			replace_button.pressed = cnv->get_replace();
 			replace_button.set_text(cnv->get_replace()?"Replacing":"Replace");
 			replace_button.enable();
 		}

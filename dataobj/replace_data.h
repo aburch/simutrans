@@ -10,6 +10,7 @@
 
 class vehikel_t;
 class vehikel_besch_t;
+class cbuffer_t;
 
 class replace_data_t
 {
@@ -80,6 +81,12 @@ public:
 
 	void increment_convoys() { number_of_convoys ++; }
 	void decrement_convoys();
+
+	// fills the given buffer with replace data
+	void sprintf_replace( cbuffer_t &buf ) const;
+
+	// converts this string into replace data
+	bool sscanf_replace( const char * );
 
 	void rdwr(loadsave_t *file);
 
