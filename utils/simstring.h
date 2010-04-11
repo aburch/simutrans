@@ -28,6 +28,13 @@ char get_fraction_sep(void);
 const char *get_large_money_string(void);
 
 /**
+ * Set thousand exponent (3=1000, 4=10000), used in money_to_string and
+ * number_to_string
+ * @author prissi
+ */
+void set_thousand_sep_exponent(int new_thousand_sep_exponent);
+
+/**
  * Set abbrevitation and the amout by which large money amouts will be shortened
  * @author prissi
  */

@@ -930,6 +930,9 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 		ribi = get_weg_ribi(water_wt);
 	}
 
+#ifdef DOUBLE_GROUNDS
+#error "Clipping routines not suitable for double hieghts!"
+#endif
 	// clip
 	// .. nonconvex n/w if not both n/w are active
 	const uint8 non_convex = (ribi & ribi_t::nordwest) == ribi_t::nordwest ? 0 : 16;
