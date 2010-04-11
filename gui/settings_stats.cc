@@ -20,6 +20,138 @@ INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
 
+gui_component_table_t& settings_stats_t::new_table(koord &pos, coordinate_t columns, coordinate_t rows)
+{
+	gui_component_table_t& tbl = * new gui_component_table_t();
+	tbl.set_default_cell_size(koord(BUTTON_HEIGHT, BUTTON_HEIGHT));
+	tbl.set_owns_cell_components(false);
+	tbl.set_grid_width(0);
+	tbl.set_size(coordinates_t(columns, rows));
+	tbl.set_pos(pos);
+	table.append(&tbl);
+	add_komponente(&tbl);
+	return tbl;
+}
+
+
+gui_label_t& settings_stats_t::new_label(koord &pos, const char *text)
+{
+	gui_label_t& lb = * new gui_label_t();
+	lb.set_text_pointer(text);
+	lb.set_pos(pos);
+	lb.set_groesse(koord(proportional_string_width(text), 10));
+	label.append(&lb);
+	return lb;
+}
+
+
+gui_textarea_t& settings_stats_t::new_textarea(koord &pos, const char *text)
+{
+	gui_textarea_t& ta = * new gui_textarea_t(text);
+	ta.set_pos(pos);
+	others.append(&ta);
+	return ta;
+}
+
+
+gui_numberinput_t& settings_stats_t::new_numinp(koord &pos, sint32 value, sint32 min_value, sint32 max_value, sint32 mode, bool wrap)
+{
+	gui_numberinput_t& ni = * new gui_numberinput_t();
+	ni.init(value, min_value, max_value, mode, wrap);
+	ni.set_pos(pos);
+	ni.set_groesse(koord(37+proportional_string_width("0")*max(1,(sint16)(log10((double)(max_value)+1.0)+0.5)), BUTTON_HEIGHT ));
+	numinp.append(&ni);
+	return ni;
+}
+
+
+button_t& settings_stats_t::new_button(koord &pos, const char *text, bool pressed)
+{
+	button_t& bt = * new button_t();
+	bt.init(button_t::square_automatic, text, pos);
+	bt.set_groesse(koord(16 + proportional_string_width(text), BUTTON_HEIGHT));
+	bt.pressed = pressed;
+	return bt;
+}
+
+
+void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_komponente_t &c, coordinate_t x, coordinate_t y)
+{
+	tbl.set_cell_component(x, y, &c);
+	tbl.set_column_width(x, max(tbl.get_column_width(x), c.get_pos().x + c.get_groesse().x));
+	tbl.set_row_height(y, max(tbl.get_row_height(y), c.get_pos().y + c.get_groesse().y));
+}
+
+
+#define INIT_TABLE_END(tbl) \
+	ypos += (tbl).get_table_height();\
+	width = max(width, (tbl).get_pos().x * 2 + (tbl).get_table_width());\
+	tbl.set_groesse(tbl.get_table_size());
+
+
+void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
+{
+	INIT_INIT;
+	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 10000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_bonus_multiplier_percent", sets->get_max_bonus_multiplier_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	{
+		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 6);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "comfort expectance\nfor travelling"), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "duration\nin minutes"), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "min comfort\nrating"), 2, 0);
+		int row = 0;
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "short time"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short_minutes(), 0, 120), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short(), 0, 255), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "median short time"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_median_short_minutes(), 0, 720), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_median_short(), 0, 255), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "median median time"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_median_median_minutes(), 0, 1440), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_median_median(), 0, 255), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "median long time"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_median_long_minutes(), 0, 1440*7), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_median_long(), 0, 255), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "long time"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_long_minutes(), 0, 1440*30), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_long(), 0, 255), 2, row);
+		INIT_TABLE_END(tbl);
+	}
+	SEPERATOR;
+	INIT_NUM( "distance_per_tile_percent", sets->get_distance_per_tile_percent(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	clear_dirty();
+	set_groesse( koord(width, ypos) );
+}
+
+
+void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
+{
+	EXIT_INIT
+	EXIT_NUM( sets->set_min_bonus_max_distance );
+	EXIT_NUM( sets->set_median_bonus_distance );
+	EXIT_NUM( sets->set_max_bonus_min_distance );
+	EXIT_NUM( sets->set_max_bonus_multiplier_percent );
+	EXIT_NUM( sets->set_tolerable_comfort_short_minutes );
+	EXIT_NUM( sets->set_tolerable_comfort_short );
+	EXIT_NUM( sets->set_tolerable_comfort_median_short_minutes );
+	EXIT_NUM( sets->set_tolerable_comfort_median_short );
+	EXIT_NUM( sets->set_tolerable_comfort_median_median_minutes );
+	EXIT_NUM( sets->set_tolerable_comfort_median_median );
+	EXIT_NUM( sets->set_tolerable_comfort_median_long_minutes );
+	EXIT_NUM( sets->set_tolerable_comfort_median_long );
+	EXIT_NUM( sets->set_tolerable_comfort_long_minutes );
+	EXIT_NUM( sets->set_tolerable_comfort_long );
+}
+
+
+
 // just free memory
 void settings_stats_t::free_all()
 {
@@ -32,6 +164,10 @@ void settings_stats_t::free_all()
 	while(  !button.empty()  ) {
 		delete button.remove_first();
 	}
+	while(  !table.empty()  ) {
+		delete table.remove_first();
+	}
+	others.set_count(0);
 }
 
 
@@ -245,31 +381,6 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	EXIT_NUM( sets->set_verkehr_level );
 	EXIT_NUM( sets->set_stadtauto_duration );
 }
-
-
-
-void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
-{
-	INIT_INIT
-	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 10000, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_bonus_multiplier_percent", sets->get_max_bonus_multiplier_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
-
-	clear_dirty();
-	set_groesse( settings_stats_t::get_groesse() );
-}
-
-
-void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
-{
-	EXIT_INIT
-	EXIT_NUM( sets->set_min_bonus_max_distance );
-	EXIT_NUM( sets->set_median_bonus_distance );
-	EXIT_NUM( sets->set_max_bonus_min_distance );
-	EXIT_NUM( sets->set_max_bonus_multiplier_percent );
-}
-
 
 
 

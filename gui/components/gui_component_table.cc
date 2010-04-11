@@ -12,6 +12,20 @@
 #include "../../simgraph.h"
 #include "../../simwin.h"
 
+
+//// BG, 11.04.2010
+//gui_component_table_t::gui_component_table_t()
+//{
+//
+//}
+//
+//
+//// BG, 11.04.2010
+//gui_component_table_t::~gui_component_table_t()
+//{
+//}
+
+
 // BG, 22.03.2010
 coordinate_t gui_component_table_t::add_column(gui_table_column_t *column) {
 	coordinate_t x = gui_table_t::add_column(column);
@@ -53,7 +67,7 @@ void gui_component_table_t::change_size(const coordinates_t &old_size, const coo
 
 	// change size of arrays
 	gui_table_t::change_size(old_size, new_size);
-	gui_cells.resize(new_size.get_x());
+	gui_cells.set_count(new_size.get_x());
 	for (coordinate_t x = 0; x < new_size.get_x(); x++) {
 		gui_cells[x].set_count(new_size.get_y());
 	}
@@ -71,9 +85,46 @@ void gui_component_table_t::change_size(const coordinates_t &old_size, const coo
 	}
 }
 
+
+// BG, 11.04.2010
+gui_komponente_t *gui_component_table_t::get_cell_component(coordinate_t x, coordinate_t y) 
+{ 
+
+	if (x < (coordinate_t) gui_cells.get_count() &&	y < (coordinate_t) gui_cells[x].get_count())
+	{
+		return gui_cells[x][y]; 
+	}
+	return NULL;
+}
+
+
+// BG, 11.04.2010
+void gui_component_table_t::set_cell_component(coordinate_t x, coordinate_t y, gui_komponente_t *component) 
+{ 
+	gui_cells[x].set(y, component); 
+}
+
+// BG, 11.04.2010
+void gui_component_table_t::infowin_event(const event_t *ev)
+{
+	gui_table_event_t table_event(this, ev);
+	table_event.is_cell_hit = get_cell_at(ev->mx, ev->my, table_event.cell, table_event.offset);
+	if (table_event.is_cell_hit) {
+		gui_komponente_t *c = get_cell_component(table_event.cell.get_x(), table_event.cell.get_y());
+		if (c) {
+			event_t ev2 = *ev;
+			koord offset = c->get_pos() + table_event.offset;
+			translate_event(&ev2, -offset.x, -offset.y);
+			c->infowin_event(&ev2);
+		}
+	}
+}
+
+
 // BG, 18.03.2010
 void gui_component_table_t::init_cell(coordinate_t x, coordinate_t y) {
 }
+
 
 // BG, 18.03.2010
 void gui_component_table_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y) {
@@ -107,7 +158,7 @@ void gui_component_table_t::remove_column(coordinate_t x)
 	// change size of arrays
 	gui_table_t::remove_column(x);
 	if ((uint32) x < gui_cells.get_count()) {
-		gui_cells.remove_at(x);
+		gui_cells.remove(x);
 	}
 }
 

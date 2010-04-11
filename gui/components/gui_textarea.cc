@@ -57,7 +57,7 @@ void gui_textarea_t::recalc_size()
 		} while (next != NULL);
 	}
 DBG_MESSAGE("gui_textarea_t::recalc_size()","reset size to %i,%i",x_size+10,new_lines);
-	set_groesse(koord(x_size+10,new_lines));
+	set_groesse(koord(x_size+10,new_lines+10));
 }
 
 
