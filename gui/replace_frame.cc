@@ -673,3 +673,9 @@ end_loop:
 	return total_cost;
 }
 
+replace_frame_t::~replace_frame_t()
+{
+	// TODO: Find why this causes crashes. Without it, there is a small memory leak.
+	//delete rpl;
+}
+
