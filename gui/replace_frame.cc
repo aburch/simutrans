@@ -148,6 +148,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	convoy_assembler.set_replace_frame(this);
 
 	rpl = new replace_data_t();
+	copy = false;
 }
 
 
@@ -418,13 +419,23 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 			break;
 		}
 
-		rpl->set_replacing_vehicles(convoy_assembler.get_vehicles());
+		if(!copy)
+		{
+			rpl->set_replacing_vehicles(convoy_assembler.get_vehicles());
 
-		cbuffer_t buf(10000);
-		rpl->sprintf_replace(buf);
-		
-		cnv_rpl->call_convoi_tool('R', buf);
-		
+			cbuffer_t buf(10000);
+			rpl->sprintf_replace(buf);
+			
+			cnv_rpl->call_convoi_tool('R', buf);
+		}
+
+		else
+		{
+			cbuffer_t buf(5);
+			buf.append((long)master_convoy.get_id());
+			cnv_rpl->call_convoi_tool('C', buf);
+		}
+
 		if(depot && !rpl->get_autostart())
 		{
 			cnv_rpl->call_convoi_tool('D', NULL);
@@ -488,7 +499,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			rpl->set_allow_using_existing_vehicles(!rpl->get_allow_using_existing_vehicles());
 		}
 
-		else if(komp == numinp+state_replace) 
+		/*else if(komp == numinp+state_replace) 
 		{
 		} 
 		else if(komp == numinp+state_sell) 
@@ -496,7 +507,7 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		} 
 		else if(komp == numinp+state_skip) 
 		{
-		} 
+		} */
 		else if(komp==&bt_autostart || komp== &bt_depot || komp == &bt_mark) 
 		{
 			depot=(komp==&bt_depot);
@@ -518,7 +529,11 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 						if (cnv->has_same_vehicles(cnv_aux))
 						{
 							replace_convoy(cnv_aux);
-							//tool_extra = 'c';
+							if(copy == false)
+							{
+								master_convoy = cnv_aux;
+							}
+							copy = true;
 						}
 					}
 				}
@@ -532,19 +547,19 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 					if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 					{
 						replace_convoy(cnv_aux);
-						//tool_extra = 'c';
+						copy = true;
 					}
 				}
 			}
 			destroy_win(this);
-			//tool_extra = 'a';
+			copy = false;
 			return true;
 		}
 	}
 	convoy_assembler.build_vehicle_lists();
 	update_data();
 	layout(NULL);
-	//tool_extra = 'a';
+	copy = false;
 	return true;
 }
 

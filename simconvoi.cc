@@ -1162,15 +1162,25 @@ uint16 convoi_t::get_overcrowded() const
 uint8 convoi_t::get_comfort() const
 {
 	uint16 base_comfort = 0;
+	uint8 passenger_vehicles = 0;
 	
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		base_comfort += fahr[i]->get_comfort();
+		if(fahr[i]->get_fracht_typ()->get_catg_index() == 0)
+		{
+			passenger_vehicles ++;
+			base_comfort += fahr[i]->get_comfort();
+		}
 	}
-	if(anz_vehikel > 1)
+	if(passenger_vehicles < 1)
+	{
+		return 0;
+	}
+	
+	else if(passenger_vehicles > 1)
 	{
 		// Avoid division if possible
-		base_comfort /= anz_vehikel;
+		base_comfort /= passenger_vehicles;
 	}
 	
 	const uint8 catering_level = get_catering_level(0);

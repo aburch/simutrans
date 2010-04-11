@@ -5058,7 +5058,6 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 		p++;
 	}
 	sscanf( p, "%c,%hi", &tool, &convoi_id );
-	//sscanf( p, "%c,%hi,%hi,%c", &tool, &convoi_id, &additional_convoi_id, &extra);
 
 	// skip to the commands ...
 	for(  int z = 2;  *p  &&  z>0;  p++  ) {
@@ -5131,30 +5130,35 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 					cnv->go_to_depot(false);
 				}
 			}
+			break;
 
 		case 'D': // Used for when "depot" is set in the replace frame
 			{
 				cnv->set_depot_when_empty(true);
 				cnv->set_no_load(true);
 			}
-	
-			
-			//if(extra == 'a')
-			//{
-			//	// This will reset any existing replace data.
-			//	replace_data_t *rp;
-			//	replace_data_t* r = rp.copy();
-			//	cnv->set_replace(r);
-			//}
-			//else if(extra == 'c')
-			//{
-			//	convoihandle_t source_convoy;
-			//	source_convoy.set_id(additional_convoi_id);
-			//	if(source_convoy.is_bound())
-			//	{
-			//		cnv->set_replace(source_convoy->get_replace());
-			//	}
-			//}
+			break;
+
+		case 'C': // Copy a replace datum
+			{
+				uint16 cnv_rpl_id;
+				sscanf(p, "%hi", &cnv_rpl_id);
+				convoihandle_t cnv_rpl;
+				cnv_rpl.set_id( cnv_rpl_id );
+				assert(cnv_rpl.is_bound());
+				cnv->set_replace(cnv_rpl->get_replace());
+				replace_data_t* TEST = cnv->get_replace();
+				uint8 TEST_2 = cnv->get_comfort();
+				cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());
+				cnv->set_no_load(cnv->get_depot_when_empty());
+				// If already empty, no need to be emptied
+				if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
+				{
+					cnv->set_depot_when_empty(false);
+					cnv->set_no_load(false);
+					cnv->go_to_depot(false);
+				}
+			}
 			break;		
 
 		case 't': // change retire

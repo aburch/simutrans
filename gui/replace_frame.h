@@ -46,6 +46,9 @@ private:
 	uint16 replaced_so_far;
 	sint64 money;
 
+	bool copy;
+	convoihandle_t master_convoy;
+
 	/**
 	 * Gui elements
 	 */
