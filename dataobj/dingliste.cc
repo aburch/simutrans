@@ -1075,10 +1075,10 @@ inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const 
 	}
 	return display_ding;
 }
-uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const bool reset_dirty ) const
+uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
 {
-	if(top==0) {
-		return 0;
+	if(start_offset>=top) {
+		return start_offset;
 	}
 
 	if(capacity==1) {
@@ -1088,7 +1088,7 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
 		return 0;
 	}
 
-	for(uint8 n=0; n<top; n++) {
+	for(uint8 n=start_offset; n<top; n++) {
 		if (!local_display_dinge_bg(obj.some[n], xpos, ypos, reset_dirty)) {
 			return n;
 		}
