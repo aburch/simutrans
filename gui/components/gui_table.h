@@ -10,7 +10,6 @@
 
 #include "../../simtypes.h"
 #include "../../tpl/list_tpl.h"
-#include "../../tpl/vector_tpl.h"
 #include "../../ifc/gui_action_creator.h"
 #include "../../ifc/gui_komponente.h"
 #include "../../simcolor.h"
@@ -85,6 +84,7 @@ class gui_table_column_t : public gui_table_intercept_t
 {
 public:
 	gui_table_column_t() : gui_table_intercept_t(NULL, 99, false) {}
+	gui_table_column_t(coordinate_t width) : gui_table_intercept_t(NULL, width, false) {}
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return 0; }
 	coordinate_t get_width() const { return get_size(); }
 	void set_width(coordinate_t value) { set_size(value); }
@@ -101,6 +101,7 @@ class gui_table_row_t : public gui_table_intercept_t
 {
 public:
 	gui_table_row_t() : gui_table_intercept_t(NULL, 14, false) {}
+	gui_table_row_t(coordinate_t height) : gui_table_intercept_t(NULL, height, false) {}
 	virtual int compare_columns(const gui_table_column_t &row1, const gui_table_column_t &row2) const { return 0; }
 	coordinate_t get_height() const { return get_size(); }
 	void set_height(coordinate_t value) { set_size(value); }
@@ -127,7 +128,7 @@ public:
 class gui_table_column_list_t : public list_tpl<gui_table_column_t>, public gui_table_property_t {
 protected:
 	virtual int compare_items(const gui_table_column_t *item1, const gui_table_column_t *item2) const;
-	virtual gui_table_column_t *create_item() { return new gui_table_column_t(); }
+	virtual gui_table_column_t *create_item() const;
 };
 
 
@@ -140,7 +141,7 @@ protected:
 class gui_table_row_list_t : public list_tpl<gui_table_row_t>, public gui_table_property_t {
 protected:
 	virtual int compare_items(const gui_table_row_t *item1, const gui_table_row_t *item2) const;
-	virtual gui_table_row_t *create_item() { return new gui_table_row_t(); }
+	virtual gui_table_row_t *create_item() const;
 };
 
 
@@ -161,22 +162,23 @@ private:
 	color_t grid_color;
 	bool grid_visible;
 	char tooltip[200];
+	koord default_cell_size;
 	// arrays controlled by change_size() via set_size() or add_column()/remove_column()/add_row()/remove_row()
 	gui_table_column_list_t columns;
 	gui_table_column_list_t row_sort_column_order;
 	gui_table_row_list_t rows;
 	gui_table_row_list_t column_sort_row_order;
 	//
-	bool get_column_at(koord_x x, coordinate_t *column) const;
-	bool get_row_at(koord_y y, coordinate_t *row) const;
+	bool get_column_at(koord_x x, coordinate_t &column, koord_x &offset) const;
+	bool get_row_at(koord_y y, coordinate_t &row, koord_y &offset) const;
 protected:
 	/**
 	 * change_size() is called in set_size(), whenever the size actually changes.
 	 */
 	virtual void change_size(const coordinates_t &old_size, const coordinates_t &new_size);
 
-	virtual gui_table_column_t *init_column(coordinate_t x) { return new gui_table_column_t(); }
-	virtual gui_table_row_t *init_row(coordinate_t y) { return new gui_table_row_t(); }
+	virtual gui_table_column_t *init_column(coordinate_t x) { return new gui_table_column_t(get_default_column_width()); }
+	virtual gui_table_row_t *init_row(coordinate_t y) { return new gui_table_row_t(get_default_row_height()); }
 
 	/**
 	 * paint_cell() is called in paint_cells(), whenever a cell has to be painted.
@@ -255,16 +257,21 @@ public:
 	/**
 	 * Get/set width of columns and heights of rows.
 	 */
+	koord_x get_default_column_width() { return default_cell_size.x; }
+	koord_y get_default_row_height() { return default_cell_size.y; }
+	void set_default_cell_size(koord &value) { default_cell_size = value; }
 	koord_x get_column_width(coordinate_t x) const { return columns[x]->get_width(); }
+	void    set_column_width(coordinate_t x, koord_x w) { columns[x]->set_width(w); }
 	koord_x get_table_width() const;
 	koord_y get_row_height(coordinate_t y) const { return rows[y]->get_height(); }
+	void    set_row_height(coordinate_t y, koord_y h) { rows[y]->set_height(h); }
 	koord_y get_table_height() const;
 	koord get_cell_size(coordinate_t x, coordinate_t y) const { return koord(get_column_width(x), get_row_height(y)); }
 	koord get_table_size() const { return koord(get_table_width(), get_table_height()); }
 
-	bool get_cell_at(koord_x x, koord_y y, coordinates_t *cell);
+	bool get_cell_at(koord_x x, koord_y y, coordinates_t &cell, koord &offset);
 
-	void infowin_event(const event_t *ev);
+	virtual void infowin_event(const event_t *ev);
 
 	/**
 	 * Set row sort order of a column. 
@@ -328,6 +335,12 @@ public:
 	 * If is_cell_hit is false cell is undefined.
 	 */
 	coordinates_t cell;
+
+	/**
+	 * Contains the pixel offset of the cell within the table.
+	 * If is_cell_hit is false cell is undefined.
+	 */
+	koord offset;
 };
 
 #endif

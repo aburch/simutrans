@@ -29,6 +29,7 @@ class gui_file_table_int_column_t : public gui_file_table_label_column_t
 protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const = 0;
 public:
+	gui_file_table_int_column_t(coordinate_t size_) : gui_file_table_label_column_t(size_) {}
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return get_int(row1) - get_int(row2); }
 };
 
@@ -37,9 +38,7 @@ class gui_file_table_std_column_t : public gui_file_table_int_column_t
 protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
-	gui_file_table_std_column_t() : gui_file_table_int_column_t() {
-		set_width(65);
-	}
+	gui_file_table_std_column_t() : gui_file_table_int_column_t(65) {}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
@@ -48,9 +47,7 @@ class gui_file_table_exp_column_t : public gui_file_table_int_column_t
 protected:
 	virtual sint32 get_int(const gui_table_row_t &row) const;
 public:
-	gui_file_table_exp_column_t() : gui_file_table_int_column_t() {
-		set_width(25);
-	}
+	gui_file_table_exp_column_t() : gui_file_table_int_column_t(25) {}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 

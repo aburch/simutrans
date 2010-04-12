@@ -49,6 +49,7 @@ private:
 	 * is_item_in_sort_order() returns true, if list is sorted and item is >= item at index - 1 and <= item at index + 1
 	 */
 	bool is_item_in_sort_order(uint32 index, const item_t *item);
+	void assert_index_in_bounds(uint32 index, const char *what = NULL);
 protected:
 	/**
 	 * compare_items() is used for sorting.
@@ -251,6 +252,20 @@ template<class item_t> uint32 list_tpl<item_t>::append(item_t *item)
 }
 
 
+// BG, 11.04.2010
+template<class item_t> void list_tpl<item_t>::assert_index_in_bounds(uint32 index, const char *what)
+{
+	if (index < count) return;
+	if (!what) what = "index";
+	if (count > 0) {
+		dbg->fatal("list_tpl<item_t>::[]", "%s: %s out of bounds: %u not in 0..%u", typeid(*this).name(), what, index, count - 1);
+	}
+	else {
+		dbg->fatal("list_tpl<item_t>::[]", "%s: %s out of bounds: %u not in empty list", typeid(*this).name(), what, index);
+	}
+}
+
+
 // BG, 05.04.2010
 template<class item_t> uint32 list_tpl<item_t>::bsearch(const item_t *item) const
 {
@@ -272,7 +287,7 @@ template<class item_t> uint32 list_tpl<item_t>::bsearch(const item_t *item) cons
 // BG, 04.04.2010
 template<class item_t> item_t *list_tpl<item_t>::extract(uint32 index) 
 {
-	assert(index < count);
+	assert_index_in_bounds(index);
 	item_t *item = data[index];
 	while (++index < count)
 	{
@@ -280,23 +295,6 @@ template<class item_t> item_t *list_tpl<item_t>::extract(uint32 index)
 	}
 	data[--count] = NULL;
 	return item;
-}
-
-
-// BG, 04.04.2010
-template<class item_t> void list_tpl<item_t>::insert(uint32 index, item_t *item) 
-{
-	assert(index <= count);
-	if (count == capacity) {
-		grow();
-	}
-	for (uint32 i = count++; i > index; i--) {
-		data[i] = data[i-1];
-	}
-	if (!is_item_in_sort_order(index, item)) {
-		set_is_sorted(false);
-	}
-	data[index] = item;
 }
 
 
@@ -313,6 +311,23 @@ template<class item_t> sint32 list_tpl<item_t>::index_of(const item_t *item) con
 }
 
 
+// BG, 04.04.2010
+template<class item_t> void list_tpl<item_t>::insert(uint32 index, item_t *item) 
+{
+	assert_index_in_bounds(index);
+	if (count == capacity) {
+		grow();
+	}
+	for (uint32 i = count++; i > index; i--) {
+		data[i] = data[i-1];
+	}
+	if (!is_item_in_sort_order(index, item)) {
+		set_is_sorted(false);
+	}
+	data[index] = item;
+}
+
+
 // BG, 05.04.2010
 template<class item_t> bool list_tpl<item_t>::is_item_in_sort_order(uint32 index, const item_t *item)
 {
@@ -325,8 +340,8 @@ template<class item_t> bool list_tpl<item_t>::is_item_in_sort_order(uint32 index
 // BG, 04.04.2010
 template<class item_t> void list_tpl<item_t>::move(uint32 from, uint32 to) 
 {
-	assert(from < count);
-	assert(to < count);
+	assert_index_in_bounds(from, "index 'from'");
+	assert_index_in_bounds(to, "index 'to'");
 	item_t *item = data[from];
 	if (from < to) {
 		while (++from <= to)
@@ -382,7 +397,7 @@ template<class item_t> void list_tpl<item_t>::qsort(sint32 l, sint32 r)
 // BG, 04.04.2010
 template<class item_t> item_t *list_tpl<item_t>::set(uint32 index, item_t *item) 
 {
-	//assert(index < count);
+	assert_index_in_bounds(index);
 	item_t *old = data[index];
 	if (!is_item_in_sort_order(index, item)) {
 		set_is_sorted(false);
@@ -399,7 +414,9 @@ template<class item_t> item_t *list_tpl<item_t>::set(uint32 index, item_t *item)
 
 // BG, 04.04.2010
 template<class item_t> void list_tpl<item_t>::set_capacity(uint32 value) {
-	assert(value <= (uint32)(UINT32_MAX_VALUE >> 1));
+	if (value > (uint32)(UINT32_MAX_VALUE >> 1)) {
+		dbg->fatal("list_tpl<%s>::[]", "capacity out of bounds: %u, maximum is %u", typeid(item_t).name(), value, (uint32)(UINT32_MAX_VALUE >> 1));
+	}
 	if (capacity > value) {
 		for (; capacity > value; ) {
 			if (data[--capacity]) {
@@ -448,8 +465,8 @@ template<class item_t> void list_tpl<item_t>::sort()
 // BG, 04.04.2010
 template<class item_t> void list_tpl<item_t>::swap(uint32 from, uint32 to) 
 {
-	assert(from < count);
-	assert(to < count);
+	assert_index_in_bounds(from, "index 'from'");
+	assert_index_in_bounds(to, "index 'to'");
 	item_t *item = data[from];
 	data[from] = data[to];
 	data[to] = item;
