@@ -92,16 +92,17 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_kompon
 void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 {
 	INIT_INIT;
+	INIT_NUM( "distance_per_tile_percent", sets->get_distance_per_tile_percent(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_bonus_multiplier_percent", sets->get_max_bonus_multiplier_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 6);
+		int row = 0;
 		set_cell_component(tbl, new_textarea(koord(2, 0), "comfort expectance\nfor travelling"), 0, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), "duration\nin minutes"), 1, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), "min comfort\nrating"), 2, 0);
-		int row = 0;
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "short time"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short_minutes(), 0, 120), 1, row);
@@ -124,8 +125,56 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_long(), 0, 255), 2, row);
 		INIT_TABLE_END(tbl);
 	}
-	SEPERATOR;
-	INIT_NUM( "distance_per_tile_percent", sets->get_distance_per_tile_percent(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	{
+		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 3);
+		int row = 0;
+		set_cell_component(tbl, new_textarea(koord(2, 0), "comfort impact\nlimitations"), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "differential"), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "percent"), 2, 0);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "max luxury bonus"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_luxury_bonus_differential(), 0, 250), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_luxury_bonus_percent(), 0, 1000), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "max discomfort penalty"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_discomfort_penalty_differential(), 0, 250), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_discomfort_penalty_percent(), 0, 1000), 2, row);
+		INIT_TABLE_END(tbl);
+	}
+	{
+		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 8);
+		int row = 0;
+		set_cell_component(tbl, new_textarea(koord(2, 0), "catering bonus\nfor travelling"), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "duration\nin minutes"), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "max catering\nrevenue"), 2, 0);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "min traveltime"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_min_minutes(), 0, 14400), 1, row);
+		gui_numberinput_t &numinp = new_numinp(koord(0, 3), 0, 0, 14400);
+		numinp.set_read_only(true);
+		set_cell_component(tbl, numinp, 2, row); 
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "catering level 1"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level1_minutes(), 0, 14400), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level1_max_revenue(), 0, 10000), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "catering level 2"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level2_minutes(), 0, 14400), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level2_max_revenue(), 0, 10000), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "catering level 3"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level3_minutes(), 0, 14400), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level3_max_revenue(), 0, 10000), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "catering level 4"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level4_minutes(), 0, 14400), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level4_max_revenue(), 0, 10000), 2, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "catering level 5"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level5_minutes(), 0, 14400), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level5_max_revenue(), 0, 10000), 2, row);
+		INIT_TABLE_END(tbl);
+	}
 	clear_dirty();
 	set_groesse( koord(width, ypos) );
 }
@@ -134,10 +183,12 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 {
 	EXIT_INIT
+	EXIT_NUM( sets->set_distance_per_tile_percent );
 	EXIT_NUM( sets->set_min_bonus_max_distance );
 	EXIT_NUM( sets->set_median_bonus_distance );
 	EXIT_NUM( sets->set_max_bonus_min_distance );
 	EXIT_NUM( sets->set_max_bonus_multiplier_percent );
+
 	EXIT_NUM( sets->set_tolerable_comfort_short_minutes );
 	EXIT_NUM( sets->set_tolerable_comfort_short );
 	EXIT_NUM( sets->set_tolerable_comfort_median_short_minutes );
@@ -148,6 +199,23 @@ void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 	EXIT_NUM( sets->set_tolerable_comfort_median_long );
 	EXIT_NUM( sets->set_tolerable_comfort_long_minutes );
 	EXIT_NUM( sets->set_tolerable_comfort_long );
+
+	EXIT_NUM( sets->set_max_luxury_bonus_differential );
+	EXIT_NUM( sets->set_max_luxury_bonus_percent );
+	EXIT_NUM( sets->set_max_discomfort_penalty_differential );
+	EXIT_NUM( sets->set_max_discomfort_penalty_percent );
+
+	EXIT_NUM( sets->set_catering_min_minutes );
+	EXIT_NUM( sets->set_catering_level1_minutes );
+	EXIT_NUM( sets->set_catering_level1_max_revenue );
+	EXIT_NUM( sets->set_catering_level2_minutes );
+	EXIT_NUM( sets->set_catering_level2_max_revenue );
+	EXIT_NUM( sets->set_catering_level3_minutes );
+	EXIT_NUM( sets->set_catering_level3_max_revenue );
+	EXIT_NUM( sets->set_catering_level4_minutes );
+	EXIT_NUM( sets->set_catering_level4_max_revenue );
+	EXIT_NUM( sets->set_catering_level5_minutes );
+	EXIT_NUM( sets->set_catering_level5_max_revenue );
 }
 
 
