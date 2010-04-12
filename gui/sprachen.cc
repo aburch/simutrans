@@ -60,6 +60,7 @@ void sprachengui_t::init_font_from_lang()
 		c = *p;
 	}
 	set_thousand_sep(c);
+	set_thousand_sep_exponent(atoi(translator::translate("SEP_THOUSAND_EXPONENT")));
 
 	p = translator::translate("SEP_FRACTION");
 	c = '.';
