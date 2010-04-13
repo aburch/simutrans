@@ -143,7 +143,8 @@ inline uint16 endian_uint16(const uint16 *d)
 	return  *d;
 #else
 	const uint8 *data = (const uint8 *)d;
-	return ((uint16)data[0]) | ( ((uint16)data[1]) << 8 );
+	/* according to C standard uint8 will be anyway extended to unsigned */
+	return (uint16)(data[0] | ( data[1] << 8 ));
 #endif
 }
 
