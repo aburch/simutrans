@@ -3812,7 +3812,13 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
 	if (disp_width != w || disp_height != h) {
 		disp_width = (w + 15) & 0x7FF0;
+		if(  disp_width<=0  ) {
+			disp_width = 16;
+		}
 		disp_height = h;
+		if(  disp_height<=0  ) {
+			disp_height = 64;
+		}
 
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
