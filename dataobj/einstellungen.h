@@ -587,22 +587,34 @@ public:
 	void   set_catering_level5_max_revenue(uint16 value) { catering_level5_max_revenue = value; }
 	
 	uint16 get_tpo_min_minutes() const { return tpo_min_minutes; }
+	void   set_tpo_min_minutes(uint16 value) { tpo_min_minutes = value; }
 	uint16 get_tpo_revenue() const { return tpo_revenue; }
+	void   set_tpo_revenue(uint16 value) { tpo_revenue = value; }
 
 	uint16 get_obsolete_running_cost_increase_percent() const { return obsolete_running_cost_increase_percent; }
+	void   set_obsolete_running_cost_increase_percent(uint16 value) { obsolete_running_cost_increase_percent = value; }
 	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }
+	void   set_obsolete_running_cost_increase_phase_years(uint16 value) { obsolete_running_cost_increase_phase_years = value; }
 
 	uint16 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
 	uint16 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
+	void   set_local_passengers_max_distance(uint16 value) { local_passengers_max_distance = value; }
 	uint16 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
+	void   set_midrange_passengers_min_distance(uint16 value) { midrange_passengers_min_distance = value; }
 	uint16 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
+	void   set_midrange_passengers_max_distance(uint16 value) { midrange_passengers_max_distance = value; }
 	uint16 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
+	void   set_longdistance_passengers_min_distance(uint16 value) { longdistance_passengers_min_distance = value; }
 	uint16 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
 
 	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
+	void  set_passenger_routing_packet_size(uint8 value) { passenger_routing_packet_size = value; }
 	uint8 get_max_alternative_destinations() const { return max_alternative_destinations; }
+	void  set_max_alternative_destinations(uint8 value) { max_alternative_destinations = value; }
 	uint8 get_passenger_routing_local_chance() const { return passenger_routing_local_chance; }
+	void  set_passenger_routing_local_chance(uint8 value) { passenger_routing_local_chance = value; }
 	uint8 get_passenger_routing_midrange_chance() const { return passenger_routing_midrange_chance; }
+	void  set_passenger_routing_midrange_chance(uint8 value) { passenger_routing_midrange_chance = value; }
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
 	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }

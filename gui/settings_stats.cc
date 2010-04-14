@@ -92,11 +92,35 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_kompon
 void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 {
 	INIT_INIT;
-	INIT_NUM( "distance_per_tile_percent", sets->get_distance_per_tile_percent(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_bonus_min_distance", sets->get_max_bonus_min_distance(), 100, 10000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_bonus_multiplier_percent", sets->get_max_bonus_multiplier_percent(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR;
+	INIT_NUM( "distance_per_tile_percent", sets->get_distance_per_tile_percent(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	{
+		gui_component_table_t &tbl = new_table(koord(0, ypos), 4, 4);
+		int row = 0;
+		set_cell_component(tbl, new_textarea(koord(2, 0), "passenger\ndistribution"), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "min dist.\nkm"), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "max dist.\nkm"), 2, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "chance\npercent"), 3, 0);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "local"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 1000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_local_chance(), 0, 100), 3, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "mid range"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_midrange_passengers_min_distance(), 0, 1000), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_midrange_passengers_max_distance(), 0, 10000), 2, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_midrange_chance(), 0, 100), 3, row);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "long dist."), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_longdistance_passengers_min_distance(), 0, 1000), 1, row);
+		INIT_TABLE_END(tbl);
+	}
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 6);
 		int row = 0;
@@ -146,13 +170,10 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 		int row = 0;
 		set_cell_component(tbl, new_textarea(koord(2, 0), "catering bonus\nfor travelling"), 0, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), "duration\nin minutes"), 1, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "max catering\nrevenue"), 2, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "max catering\nrevenue $"), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "min traveltime"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_min_minutes(), 0, 14400), 1, row);
-		gui_numberinput_t &numinp = new_numinp(koord(0, 3), 0, 0, 14400);
-		numinp.set_read_only(true);
-		set_cell_component(tbl, numinp, 2, row); 
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "catering level 1"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level1_minutes(), 0, 14400), 1, row);
@@ -175,6 +196,18 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_level5_max_revenue(), 0, 10000), 2, row);
 		INIT_TABLE_END(tbl);
 	}
+	{
+		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 2);
+		int row = 0;
+		set_cell_component(tbl, new_textarea(koord(2, 0), "travelling"), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "above\nminutes"), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "get\nrevenue $"), 2, 0);
+		row++;
+		set_cell_component(tbl, new_label(koord(2, 3), "post office"), 0, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_min_minutes(), 0, 14400), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_revenue(), 0, 10000), 2, row);
+		INIT_TABLE_END(tbl);
+	}
 	clear_dirty();
 	set_groesse( koord(width, ypos) );
 }
@@ -183,11 +216,21 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 {
 	EXIT_INIT
-	EXIT_NUM( sets->set_distance_per_tile_percent );
 	EXIT_NUM( sets->set_min_bonus_max_distance );
 	EXIT_NUM( sets->set_median_bonus_distance );
 	EXIT_NUM( sets->set_max_bonus_min_distance );
 	EXIT_NUM( sets->set_max_bonus_multiplier_percent );
+
+	EXIT_NUM( sets->set_distance_per_tile_percent );
+	EXIT_NUM( sets->set_passenger_routing_packet_size );
+	EXIT_NUM( sets->set_max_alternative_destinations );
+
+	EXIT_NUM( sets->set_local_passengers_max_distance );
+	EXIT_NUM( sets->set_passenger_routing_local_chance );
+	EXIT_NUM( sets->set_midrange_passengers_min_distance );
+	EXIT_NUM( sets->set_midrange_passengers_max_distance );
+	EXIT_NUM( sets->set_passenger_routing_midrange_chance );
+	EXIT_NUM( sets->set_longdistance_passengers_min_distance );
 
 	EXIT_NUM( sets->set_tolerable_comfort_short_minutes );
 	EXIT_NUM( sets->set_tolerable_comfort_short );
@@ -216,6 +259,9 @@ void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 	EXIT_NUM( sets->set_catering_level4_max_revenue );
 	EXIT_NUM( sets->set_catering_level5_minutes );
 	EXIT_NUM( sets->set_catering_level5_max_revenue );
+
+	EXIT_NUM( sets->set_tpo_min_minutes );
+	EXIT_NUM( sets->set_tpo_revenue );
 }
 
 
