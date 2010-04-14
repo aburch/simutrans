@@ -5127,7 +5127,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				{
 					cnv->set_depot_when_empty(false);
 					cnv->set_no_load(false);
-					cnv->go_to_depot(false);
+					cnv->go_to_depot(false, rpl->get_use_home_depot());
 				}
 			}
 			break;
