@@ -1058,7 +1058,7 @@ void dingliste_t::dump() const
 
 
 /**
- * Routine to display background images of non-moving and non-powerline things
+ * Routine to display background images of non-moving things
  * powerlines have to be drawn after vehicles (and thus are in the obj-array inserted after vehicles)
  * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
  * @return the index of the first moving thing (or powerline)
@@ -1069,7 +1069,7 @@ void dingliste_t::dump() const
  */
 inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const sint16 ypos, const bool reset_dirty )
 {
-	const bool display_ding = !ding->is_moving()  &&  ding->get_typ()!=ding_t::leitung/*powerline*/;
+	const bool display_ding = !ding->is_moving();
 	if (display_ding) {
 		ding->display(xpos, ypos, reset_dirty );
 	}
@@ -1097,7 +1097,7 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
 }
 
 /**
- * Routine to draw vehicles (and powerlines)
+ * Routine to draw vehicles
  * .. vehicles are draws if driving in direction ribi (with special treatment of flying aircrafts)
  * .. clips vehicle only along relevant edges (depends on ribi and vehicle direction)
  * @param ontile if true then vehicles are on the tile that defines the clipping
@@ -1121,12 +1121,8 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 		}
 		return true;
 	}
-	else if (ding->get_typ()==ding_t::leitung/*powerline*/) {
-		activate_ribi_clip(ribi_t::keine);
-		ding->display(xpos, ypos, reset_dirty );
-		return true;
-	}
 	else {
+		// if !ontile starting_offset is not correct, hence continue searching till the end
 		return !ontile;
 	}
 }
@@ -1159,7 +1155,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 }
 
 /**
- * Routine to draw foreground images of everything on the tile (no clipping)
+ * Routine to draw foreground images of everything on the tile (no clipping) and powerlines
  * @param start_offset .. draws also background images of all objects with index>=start_offset
  * @param reset_dirty will be only true for the main display; all miniworld windows should still reset main window
  */

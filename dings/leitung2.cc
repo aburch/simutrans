@@ -298,6 +298,7 @@ void leitung_t::verbinde()
 /* extended by prissi */
 void leitung_t::recalc_bild()
 {
+	is_crossing = false;
 	const koord pos = get_pos().get_2d();
 
 	grund_t *gr = welt->lookup(get_pos());
@@ -325,6 +326,7 @@ void leitung_t::recalc_bild()
 			else {
 				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0));
 			}
+			is_crossing = true;
 		}
 		else {
 			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {

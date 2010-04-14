@@ -859,8 +859,8 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 	}
 	// display ways
 	if(visible  &&  (flags&has_way1)){
-		ribi_t::ribi ribi = ribi_t::keine;
 		const bool clip = (flags&draw_as_ding)  ||  !ist_karten_boden();
+		const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
 		for (uint8 i=0; i< offsets[flags/has_way1]; i++) {
 			ding_t* d = obj_bei(i);
 			// clip
@@ -868,7 +868,6 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 			if (clip) {
 				const ribi_t::ribi way_ribi = (static_cast<const weg_t*>(d))->get_ribi_unmasked();
 				clear_all_poly_clip();
-				const int hgt_step = tile_raster_scale_y( TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width);
 				const uint8 non_convex = (way_ribi & ribi_t::nordwest) == ribi_t::nordwest ? 0 : 16;
 				if (way_ribi & ribi_t::west) {
 					const int dh = corner4(get_disp_way_slope()) * hgt_step;
@@ -880,7 +879,6 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 				}
 				activate_ribi_clip(way_ribi & ribi_t::nordwest);
 			}
-			const sint16 ynpos = ypos-tile_raster_scale_y( get_weg_yoff(), raster_tile_width );
 			d->display(xpos, ypos, dirty);
 		}
 		// end of clipping
