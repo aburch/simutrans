@@ -58,6 +58,9 @@ void bruecke_t::calc_bild()
 				gr->get_weg_nr(0)->set_bild(besch->get_hintergrund(img, get_pos().z >= welt->get_snowline()));
 			}
 			gr->get_weg_nr(0)->set_yoff(-gr->get_weg_yoff() );
+			if (gr->get_weg_nr(1)) {
+				gr->get_weg_nr(1)->set_yoff(-gr->get_weg_yoff() );
+			}
 		}
 		set_yoff( -gr->get_weg_yoff() );
 	}
@@ -142,9 +145,13 @@ void bruecke_t::entferne( spieler_t *sp2 )
 			if(weg) {
 				weg->set_max_speed( weg->get_besch()->get_topspeed() );
 				weg->set_max_weight(weg->get_besch()->get_max_weight());
-				//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 				weg->add_way_constraints(besch->get_way_constraints());
 				sp->add_maintenance(weg->get_besch()->get_wartung());
+				// reset offsets
+				weg->set_yoff(0);
+				if (gr->get_weg_nr(1)) {
+					gr->get_weg_nr(1)->set_yoff(0);
+				}
 			}
 		}
 		sp->add_maintenance( -besch->get_wartung() );
