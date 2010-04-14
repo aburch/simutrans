@@ -287,7 +287,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	pos = pos_;
 	player_nr = sp->get_player_nr();
 	wkz_id = wkz->get_id();
-	const char *dfp = wkz->get_default_param();
+	const char *dfp = wkz->get_default_param(sp);
 	if (dfp) {
 		default_param = strdup(dfp);
 	}
@@ -392,9 +392,11 @@ void nwc_tool_t::do_command(karte_t *welt)
 			}
 			tool_node_t &tool_node = tool_list[index];
 
+			bool needs_init = false;
 			if (tool_node.wkz == NULL  ||  tool_node.wkz->get_id() != wkz_id) {
 				if (tool_node.wkz) {
 						// only exit, if it is not the same tool again ...
+						tool_node.wkz->flags = 0;
 						tool_node.wkz->exit(welt,sp);
 						if (tool_node.default_param) {
 							free((void*)tool_node.default_param);
@@ -403,6 +405,8 @@ void nwc_tool_t::do_command(karte_t *welt)
 						delete tool_node.wkz;
 				}
 				tool_node.wkz = create_tool(wkz_id);
+				// call init before work
+				needs_init = !init;
 			}
 			if (tool_node.wkz) {
 				if (tool_node.default_param) {
@@ -412,6 +416,10 @@ void nwc_tool_t::do_command(karte_t *welt)
 				tool_node.default_param = strdup(default_param);
 				tool_node.wkz->set_default_param( tool_node.default_param );
 				wkz = tool_node.wkz;
+				// call init before work
+				if (needs_init) {
+					tool_node.wkz->init(welt,sp);
+				}
 			}
 		}
 		else {
@@ -419,16 +427,16 @@ void nwc_tool_t::do_command(karte_t *welt)
 			wkz = welt->get_werkzeug(player_nr);
 			if (wkz  &&
 				(wkz->get_id() != wkz_id  ||
-				 (wkz->get_default_param()==NULL  &&  default_param!=NULL) ||
-				 (wkz->get_default_param()!=NULL  &&  default_param==NULL) ||
-				 (default_param!=NULL  &&  strcmp(wkz->get_default_param(),default_param)!=0))) {
+				 (wkz->get_default_param(sp)==NULL  &&  default_param!=NULL) ||
+				 (wkz->get_default_param(sp)!=NULL  &&  default_param==NULL) ||
+				 (default_param!=NULL  &&  strcmp(wkz->get_default_param(sp),default_param)!=0))) {
 				wkz = NULL;
 			}
 			if (wkz == NULL) {
 				// get the right tool
 				vector_tpl<werkzeug_t*> &wkz_list = wkz_id&GENERAL_TOOL ? werkzeug_t::general_tool : wkz_id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
 				for(uint32 i=0; i<wkz_list.get_count(); i++) {
-					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id &&  (wkz_list[i]->get_default_param()!=NULL ? strcmp(wkz_list[i]->get_default_param(),default_param)==0 : default_param==NULL)) {
+					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id &&  (wkz_list[i]->get_default_param(sp)!=NULL ? strcmp(wkz_list[i]->get_default_param(sp),default_param)==0 : default_param==NULL)) {
 						wkz = wkz_list[i];
 						break;
 					}
@@ -449,7 +457,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 			}
 		}
 		if(  wkz  ) {
-			const char* old_default_param = wkz->get_default_param();
+			const char* old_default_param = wkz->get_default_param(sp);
 			wkz->set_default_param(default_param);
 			wkz->flags = flags | (local ? werkzeug_t::WFL_LOCAL : 0);
 			dbg->warning("command","%d:%d:%s:%d",wkz_id&0xFFF,init,wkz->get_tooltip(sp),wkz->flags);

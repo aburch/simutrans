@@ -2195,7 +2195,9 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 			sound_play(info);
 
 			// only exit, if it is not the same tool again ...
+			werkzeug[sp->get_player_nr()]->flags |= werkzeug_t::WFL_LOCAL;
 			werkzeug[sp->get_player_nr()]->exit(this,sp);
+			werkzeug[sp->get_player_nr()]->flags =0;
 		}
 
 		if(  sp==active_player  ) {

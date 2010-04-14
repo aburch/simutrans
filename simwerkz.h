@@ -59,6 +59,7 @@ class koord;
 class toolbar_t;
 class werkzeug_waehler_t;
 class wegbauer_t;
+class roadsign_besch_t;
 class weg_besch_t;
 
 /****************************** helper functions: *****************************/
@@ -231,7 +232,7 @@ public:
 	wkz_wegebau_t() : two_click_werkzeug_t(), besch(NULL) { id = WKZ_WEGEBAU | GENERAL_TOOL; }
 	virtual image_id get_icon(spieler_t *) const;
 	virtual const char *get_tooltip(spieler_t *);
-	virtual const char* get_default_param() const;
+	virtual const char* get_default_param(spieler_t *) const;
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  besch->get_styp()!=1); }
@@ -329,12 +330,35 @@ public:
 	virtual bool is_init_network_save() const { return true; }
 };
 
-class wkz_roadsign_t : public werkzeug_t {
+class wkz_roadsign_t : public two_click_werkzeug_t {
 public:
-	wkz_roadsign_t() : werkzeug_t() { id = WKZ_ROADSIGN | GENERAL_TOOL; }
+	wkz_roadsign_t();
 	const char *get_tooltip(spieler_t *);
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
-	virtual bool is_init_network_save() const { return true; }
+	bool init( karte_t *, spieler_t * );
+	bool exit( karte_t *welt, spieler_t *sp );
+
+	void set_values(spieler_t *sp, uint8 spacing, bool remove, bool replace );
+	void get_values(spieler_t *sp, uint8 &spacing, bool &remove, bool &replace );
+	bool is_init_network_save() const { return true; }
+	void draw_after( karte_t *welt, koord pos ) const;
+	const char* get_default_param(spieler_t *sp) const;
+private:
+	const roadsign_besch_t* besch;
+	const char *place_sign_intern( karte_t *, spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
+	// place signals every n tiles:
+	uint8 signal_spacing[MAX_PLAYER_COUNT];
+	bool remove_intermediate_signals[MAX_PLAYER_COUNT];
+	bool replace_other_signals[MAX_PLAYER_COUNT];
+	static char toolstring[256];
+	// read the variables from the default_param
+	void read_default_param(spieler_t *sp);
+
+	const char* check_pos_intern(karte_t *, spieler_t *, koord3d);
+	bool calc_route( route_t &, spieler_t *, const koord3d& start, const koord3d &to );
+
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
 };
 
 class wkz_depot_t : public werkzeug_t {
