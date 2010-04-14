@@ -282,6 +282,7 @@ SOURCES += gui/schedule_list.cc
 SOURCES += gui/signal_spacing.cc
 SOURCES += gui/settings_frame.cc
 SOURCES += gui/settings_stats.cc
+SOURCES += gui/signal_spacing.cc
 SOURCES += gui/sound_frame.cc
 SOURCES += gui/sprachen.cc
 SOURCES += gui/stadt_info.cc

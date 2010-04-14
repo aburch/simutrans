@@ -16,11 +16,13 @@ uint8 signal_spacing_frame_t::signal_spacing = 2;
 bool signal_spacing_frame_t::remove = true;
 bool signal_spacing_frame_t::replace = true;
 
-signal_spacing_frame_t::signal_spacing_frame_t(wkz_roadsign_t* tool_) :
+signal_spacing_frame_t::signal_spacing_frame_t(spieler_t *sp_, wkz_roadsign_t* tool_) :
 	gui_frame_t("set signal spacing"),
 	signal_label("signal spacing")
 {
+	sp = sp_;
 	tool = tool_;
+	tool->get_values(sp, signal_spacing, remove, replace);
 
 	int intTopOfButton = 12;
 
@@ -50,7 +52,6 @@ signal_spacing_frame_t::signal_spacing_frame_t(wkz_roadsign_t* tool_) :
 	intTopOfButton += 12+4;
 
 	set_fenstergroesse( koord(110+80+10, intTopOfButton+38) );
-	tool->set_values(signal_spacing, remove, replace);
 }
 
 bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *komp, value_t)
@@ -66,6 +67,6 @@ bool signal_spacing_frame_t::action_triggered( gui_action_creator_t *komp, value
 		replace = !replace;
 		replace_button.pressed = replace;
 	}
-	tool->set_values(signal_spacing, remove, replace);
+	tool->set_values(sp, signal_spacing, remove, replace);
 	return true;
 }
