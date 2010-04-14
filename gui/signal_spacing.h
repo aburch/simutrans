@@ -13,6 +13,7 @@ class gui_numberinput_t;
 class button_t;
 class gui_label_t;
 class wkz_roadsign_t;
+class spieler_t;
 
 class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 {
@@ -23,8 +24,9 @@ class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 		gui_label_t signal_label;
 		button_t remove_button, replace_button;
 		static bool remove, replace;
+		spieler_t *sp;
 	public:
-		signal_spacing_frame_t( wkz_roadsign_t * );
+		signal_spacing_frame_t( spieler_t *, wkz_roadsign_t * );
 
 	/**
 	 * This method is called if an action is triggered

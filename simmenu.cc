@@ -775,7 +775,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		werkzeug_t *w = *iter;
 		// no way to call this tool? => then it is most likely a metatool
 		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_LEER) {
-			if(w->get_default_param()!=NULL) {
+			if(w->get_default_param(sp)!=NULL) {
 				if(strstr(w->get_default_param(),"ways(")) {
 					const char *c = w->get_default_param()+5;
 					waytype_t way = (waytype_t)atoi(c);
@@ -876,8 +876,10 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	cleanup( sp, true );
 
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( welt, sp, pos, error, start[sp->get_player_nr()] );
+	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click(sp) ? start[sp->get_player_nr()] : koord3d::invalid );
+	dbg->warning("two_click_werkzeug_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
+		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( welt, sp );
 		return error;
 	}
@@ -891,6 +893,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		}
 		else {
 			// set starting position.
+			dbg->warning("two_click_werkzeug_t::work", "Setting start to %s", pos.get_str() );
 			start_at( welt, sp, pos );
 		}
 	}
@@ -899,6 +902,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 			dbg->warning("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
 			error = do_work( welt, sp, start[sp->get_player_nr()], pos );
 		}
+		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
 	}
 	return error;

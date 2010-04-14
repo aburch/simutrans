@@ -202,7 +202,7 @@ public:
 	virtual image_id get_icon(spieler_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
 
-	virtual const char* get_default_param() const { return default_param; }
+	virtual const char* get_default_param(spieler_t *sp=NULL) const { return default_param; }
 	void set_default_param(const char* str) { default_param = str; }
 
 	// this will draw the tool with some indication, if active
@@ -289,7 +289,7 @@ private:
 	 * 0 = no
 	 * 1 = This tool can work on this tile (with single click)
 	 * 2 = On this tile can dragging start/end
-	 * 3 = Both (1 and 2). Not used by any tool yet.
+	 * 3 = Both (1 and 2)
 	 * error will contain an error message (if this is != NULL, return value should be 0).
 	 */
 	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &pos, const char *&error, const koord3d &start ) = 0;
