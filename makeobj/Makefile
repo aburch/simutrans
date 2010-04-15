@@ -1,9 +1,11 @@
+CONFIG ?= ../config.default
+-include $(CONFIG)
 
 #OSTYPE = beos
 #OSTYPE = cygwin
 #OSTYPE = freebsd
 #OSTYPE = linux
-OSTYPE = mingw
+#OSTYPE = mingw
 
 LN= $(CC)
 
