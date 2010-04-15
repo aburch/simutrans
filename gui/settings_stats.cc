@@ -20,7 +20,7 @@ INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
 
-gui_component_table_t& settings_stats_t::new_table(koord &pos, coordinate_t columns, coordinate_t rows)
+gui_component_table_t& settings_stats_t::new_table(koord pos, coordinate_t columns, coordinate_t rows)
 {
 	gui_component_table_t& tbl = * new gui_component_table_t();
 	tbl.set_default_cell_size(koord(BUTTON_HEIGHT, BUTTON_HEIGHT));
@@ -34,7 +34,7 @@ gui_component_table_t& settings_stats_t::new_table(koord &pos, coordinate_t colu
 }
 
 
-gui_label_t& settings_stats_t::new_label(koord &pos, const char *text)
+gui_label_t& settings_stats_t::new_label(koord pos, const char *text)
 {
 	gui_label_t& lb = * new gui_label_t();
 	lb.set_text_pointer(text);
@@ -45,7 +45,7 @@ gui_label_t& settings_stats_t::new_label(koord &pos, const char *text)
 }
 
 
-gui_textarea_t& settings_stats_t::new_textarea(koord &pos, const char *text)
+gui_textarea_t& settings_stats_t::new_textarea(koord pos, const char *text)
 {
 	gui_textarea_t& ta = * new gui_textarea_t(text);
 	ta.set_pos(pos);
@@ -54,7 +54,7 @@ gui_textarea_t& settings_stats_t::new_textarea(koord &pos, const char *text)
 }
 
 
-gui_numberinput_t& settings_stats_t::new_numinp(koord &pos, sint32 value, sint32 min_value, sint32 max_value, sint32 mode, bool wrap)
+gui_numberinput_t& settings_stats_t::new_numinp(koord pos, sint32 value, sint32 min_value, sint32 max_value, sint32 mode, bool wrap)
 {
 	gui_numberinput_t& ni = * new gui_numberinput_t();
 	ni.init(value, min_value, max_value, mode, wrap);
@@ -65,7 +65,7 @@ gui_numberinput_t& settings_stats_t::new_numinp(koord &pos, sint32 value, sint32
 }
 
 
-button_t& settings_stats_t::new_button(koord &pos, const char *text, bool pressed)
+button_t& settings_stats_t::new_button(koord pos, const char *text, bool pressed)
 {
 	button_t& bt = * new button_t();
 	bt.init(button_t::square_automatic, text, pos);
