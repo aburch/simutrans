@@ -1905,7 +1905,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 			}
 		}
 		// transfer ownership
-		spieler_t::accounting( sp, -((total_costs*60)<<(welt->ticks_bits_per_tag-18)), get_basis_pos(), COST_CONSTRUCTION);
+		spieler_t::accounting( sp, -((total_costs*60)<<(welt->ticks_per_world_month_shift-18)), get_basis_pos(), COST_CONSTRUCTION);
 		besitzer_p->halt_remove(self);
 		besitzer_p = public_owner;
 		public_owner->halt_add(self);
@@ -1928,7 +1928,7 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 					spieler_t *gb_sp=gb->get_besitzer();
 					sint64 costs = welt->get_einstellungen()->maint_building*gb->get_tile()->get_besch()->get_level();
 					spieler_t::add_maintenance( gb_sp, -costs );
-					spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_bits_per_tag-18)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
+					spieler_t::accounting(gb_sp, -((costs*60)<<(welt->ticks_per_world_month_shift-18)), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 					gb->set_besitzer(public_owner);
 					gb->set_flag(ding_t::dirty);
 					spieler_t::add_maintenance(public_owner, costs );

@@ -234,7 +234,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 					production += field_besch->get_field_class(field_class_index)->get_field_production();
 				}
 			}
-			production <<= (welt->ticks_bits_per_tag-18);
+			production <<= (welt->ticks_per_world_month_shift-18);
 			inp_production.set_value( production);
 			// show produced goods
 			buf.clear();

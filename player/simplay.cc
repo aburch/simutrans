@@ -331,7 +331,7 @@ void spieler_t::neuer_monat()
 	simlinemgmt.new_month();
 
 	// subtract maintenance
-	buche( -((sint64)maintenance) <<((sint64)welt->ticks_bits_per_tag-18ll), COST_MAINTENANCE);
+	buche( -((sint64)maintenance) <<((sint64)welt->ticks_per_world_month_shift-18ll), COST_MAINTENANCE);
 
 	// enough money and scenario finished?
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {

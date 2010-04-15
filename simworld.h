@@ -531,18 +531,18 @@ public:
 
 	/**
 	* anzahl ticks pro tag in bits
-	* @see ticks_per_tag
+	* @see ticks_per_world_month
 	* @author Hj. Malthaner
 	*/
-	uint32 ticks_bits_per_tag;
+	uint32 ticks_per_world_month_shift;
 
 	/**
 	* anzahl ticks pro MONTH!
 	* @author Hj. Malthaner
 	*/
-	uint32 ticks_per_tag;
+	uint32 ticks_per_world_month;
 
-	void set_ticks_bits_per_tag(uint32 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1 << ticks_bits_per_tag); }
+	void set_ticks_per_world_month_shift(uint32 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1 << ticks_per_world_month_shift); }
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
