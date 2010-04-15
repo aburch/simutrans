@@ -8,6 +8,7 @@
 #ifndef gui_savegame_frame_h
 #define gui_savegame_frame_h
 
+#include <string.h>
 #include <sys/stat.h>
 
 #include "../tpl/slist_tpl.h"

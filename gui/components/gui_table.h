@@ -8,6 +8,8 @@
 #ifndef gui_table_h
 #define gui_table_h
 
+#include <string.h>
+
 #include "../../simtypes.h"
 #include "../../tpl/list_tpl.h"
 #include "../../ifc/gui_action_creator.h"
@@ -259,7 +261,7 @@ public:
 	 */
 	koord_x get_default_column_width() { return default_cell_size.x; }
 	koord_y get_default_row_height() { return default_cell_size.y; }
-	void set_default_cell_size(koord &value) { default_cell_size = value; }
+	void set_default_cell_size(koord value) { default_cell_size = value; }
 	koord_x get_column_width(coordinate_t x) const { return columns[x]->get_width(); }
 	void    set_column_width(coordinate_t x, koord_x w) { columns[x]->set_width(w); }
 	koord_x get_table_width() const;

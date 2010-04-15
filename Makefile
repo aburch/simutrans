@@ -213,6 +213,7 @@ SOURCES += gui/colors.cc
 SOURCES += gui/components/gui_button.cc
 SOURCES += gui/components/gui_chart.cc
 SOURCES += gui/components/gui_combobox.cc
+SOURCES += gui/components/gui_component_table.cc
 SOURCES += gui/components/gui_convoy_assembler.cc
 SOURCES += gui/components/gui_convoy_label.cc
 SOURCES += gui/components/gui_flowtext.cc
