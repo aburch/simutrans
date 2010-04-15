@@ -10,6 +10,9 @@
 #ifndef list_tpl_h
 #define list_tpl_h
 
+/* <typeinfo> is needed for typeid... which is only used for debugging */
+#include <typeinfo>
+
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simmem.h"
