@@ -447,8 +447,7 @@ public:
 	 */
 	hang_t::typ get_disp_way_slope() const;
 	/**
-	* displays the ground images (including foundations, fences)
-	* as of revision 3155 ways are drawn in display_dinge_all
+	* displays the ground images (including foundations, fences and ways)
 	* @author Hj. Malthaner
 	*/
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
@@ -463,11 +462,12 @@ public:
 	/**
 	 * displays background images of all non-moving objects on the tile
 	 * @param is_global set to true, if this is called during the whole screen update
+	 * @param draw_ways if true then draw images of ways
 	 * @param visible if false then draw only grids and markers
 	 * @returns index of first vehicle on the tile
 	 * @author dwachs
 	 */
-	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool visible) const;
+	uint8 display_dinge_bg(const sint16 xpos, const sint16 ypos, const bool is_global, const bool draw_ways, const bool visible) const;
 
 	/**
 	 * displays vehicle (background) images
@@ -489,6 +489,7 @@ public:
 	 * resets the dirty flag
 	 * @author kierongreen
 	 */
+
 	void display_overlay(sint16 xpos, sint16 ypos);
 
 	inline ding_t *first_obj() const { return dinge.bei(offsets[flags/has_way1]); }

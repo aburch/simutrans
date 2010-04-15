@@ -29,7 +29,7 @@ protected:
 	bool pressed;
 	virtual const char *get_text(const gui_table_row_t &row) const { return ""; }
 public:
-	gui_file_table_column_t() { pressed = false; }
+	gui_file_table_column_t(coordinate_t size_) : gui_table_column_t(size_) { pressed = false; }
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return STRICMP(get_text(row1), get_text(row2)); }
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) = 0;
 	bool get_pressed() const { return pressed; }
@@ -42,6 +42,7 @@ class gui_file_table_button_column_t : public gui_file_table_column_t
 protected:
 	button_t btn;
 public:
+	gui_file_table_button_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 	void set_text(char *text) { btn.set_text(text); }
 	void set_tooltip(char *tooltip) { btn.set_tooltip(tooltip); }
@@ -53,6 +54,7 @@ class gui_file_table_label_column_t : public gui_file_table_column_t
 protected:
 	gui_label_t lbl;
 public:
+	gui_file_table_label_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
@@ -60,8 +62,7 @@ public:
 class gui_file_table_delete_column_t : public gui_file_table_button_column_t
 {
 public:
-	gui_file_table_delete_column_t() : gui_file_table_button_column_t() {
-		set_width(14);
+	gui_file_table_delete_column_t() : gui_file_table_button_column_t(14) {
 		btn.set_text("X");
 		btn.set_tooltip("Delete this file.");
 	}
@@ -74,8 +75,7 @@ class gui_file_table_action_column_t : public gui_file_table_button_column_t
 protected:
 	virtual const char *get_text(const gui_table_row_t &row) const;
 public:
-	gui_file_table_action_column_t() : gui_file_table_button_column_t() {
-		set_width(300);
+	gui_file_table_action_column_t() : gui_file_table_button_column_t(300) {
 		btn.set_no_translate(true);
 	}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
@@ -87,8 +87,7 @@ class gui_file_table_time_column_t : public gui_file_table_label_column_t
 protected:
 	virtual time_t get_time(const gui_table_row_t &row) const;
 public:
-	gui_file_table_time_column_t() : gui_file_table_label_column_t() {
-		set_width(120);
+	gui_file_table_time_column_t() : gui_file_table_label_column_t(120) {
 		set_sort_descendingly(true);
 	}
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn(get_time(row1) - get_time(row2)); }

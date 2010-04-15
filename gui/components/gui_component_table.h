@@ -19,11 +19,28 @@
  */
 class gui_table_cell_list_t : public list_tpl<gui_komponente_t> {
 protected:
-	virtual gui_komponente_t *create_item() { 
+	virtual gui_komponente_t *create_item() const { 
 		// cannot create a default component, as gui_komponente_t is an abstract class.
 		return NULL;
 	}
 };
+
+/**
+ * 
+ *
+ * @since 22-MAR-2010
+ * @author Bernd Gabriel
+ */
+class gui_table_cell_matrix_t : public list_tpl<gui_table_cell_list_t> {
+protected:
+	virtual gui_table_cell_list_t *create_item() const { return new gui_table_cell_list_t(); }
+public:
+	/**
+	 * operator[] gets a reference to the item at position 'index'.
+	 */
+	gui_table_cell_list_t& operator [] (uint32 index) const { return *get(index); }
+};
+
 
 /**
  * a table component
@@ -35,16 +52,8 @@ class gui_component_table_t : public gui_table_t
 {
 private:
 	bool owns_cell_components;
-	vector_tpl<gui_table_cell_list_t> gui_cells; // gui_cells[x][y]
+	gui_table_cell_matrix_t gui_cells; // gui_cells[x][y]
 protected:
-	gui_komponente_t *get_cell_component(coordinate_t x, coordinate_t y) { 
-		if (x < (coordinate_t) gui_cells.get_count() &&	y < (coordinate_t) gui_cells[x].get_count())
-		{
-			return gui_cells[x][y]; 
-		}
-		return NULL;
-	}
-	void set_cell_component(coordinate_t x, coordinate_t y, gui_komponente_t *component) { gui_cells[x].set(y, component); }
 
 	/**
 	 * init_cell() is called in change_size(), whenever a cell is added, e.g. during set_size().
@@ -67,13 +76,6 @@ protected:
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y);
 
 	/**
-	 * paint_grid() is called in zeichnen() after painting the cells, whenever the table grid has to be painted.
-	 *
-	 * The default implementation draws grid_color lines of grid_width.
-	 */
-	virtual void paint_grid(const koord &offset);
-
-	/**
 	 * remove_cell() is called in change_size(), before a cell is removed, e.g. during set_size().
 	 * It has to finalize the content of this cell. 
 	 * The default implementation deletes the component of cell (x,y), if there is one.
@@ -83,21 +85,21 @@ protected:
 	/* overridden inherited methods */
 	virtual void change_size(const coordinates_t &old_size, const coordinates_t &new_size);
 public:
-	gui_component_table_t();
-    ~gui_component_table_t();
+	//gui_component_table_t();
+	//~gui_component_table_t();
 
 	bool get_owns_cell_components() { return owns_cell_components; }
 	void set_owns_cell_components(bool value) { owns_cell_components = value; }
+
+	gui_komponente_t *get_cell_component(coordinate_t x, coordinate_t y);
+	void set_cell_component(coordinate_t x, coordinate_t y, gui_komponente_t *component);
 
 	virtual coordinate_t add_column(gui_table_column_t *column);
 	virtual coordinate_t add_row(gui_table_row_t *row);
 	virtual void remove_column(coordinate_t x);
 	virtual void remove_row(coordinate_t y);
 
-	/**
-	 * zeichnen() paints the table.
-	 */
-	virtual void zeichnen(koord offset);
+	virtual void infowin_event(const event_t *ev);
 };
 
 #endif

@@ -932,7 +932,7 @@ public:
 	bool has_same_vehicles(convoihandle_t other) const;
 
 	// Go to depot, if possible
-	bool go_to_depot(bool show_success);
+	bool go_to_depot(bool show_success, bool use_home_depot = false);
 
 	// True if convoy has no cargo
 	//@author: isidoro
@@ -982,8 +982,6 @@ public:
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
-
-	void propogate_replace(replace_data_t *rpl, char replace_type);
 };
 
 #endif

@@ -512,55 +512,109 @@ public:
 	void   set_median_bonus_distance(uint16 value) { median_bonus_distance = value; }
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; }
+
+	float  get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
 	uint16 get_max_bonus_multiplier_percent() { return max_bonus_multiplier_percent; }
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
-	float get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
-	float get_distance_per_tile() const { return distance_per_tile; }
-	uint8 get_tolerable_comfort_short() const { return tolerable_comfort_short; }
-	uint8 get_tolerable_comfort_median_short() const { return tolerable_comfort_median_short; }
-	uint8 get_tolerable_comfort_median_median() const { return tolerable_comfort_median_median; }
-	uint8 get_tolerable_comfort_median_long() const { return tolerable_comfort_median_long; }
-	uint8 get_tolerable_comfort_long() const { return tolerable_comfort_long; }
+	float  get_distance_per_tile() const { return distance_per_tile; }
+	uint16 get_distance_per_tile_percent() const { return (uint16)(distance_per_tile * 100); }
+	void   set_distance_per_tile_percent(uint16 value) { distance_per_tile = value / 100.0f; }
+
+	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
+	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }
 	uint16 get_tolerable_comfort_short_minutes() const { return tolerable_comfort_short_minutes; }
+	void   set_tolerable_comfort_short_minutes(uint16 value) { tolerable_comfort_short_minutes = value; }
+
+	uint8  get_tolerable_comfort_median_short() const { return tolerable_comfort_median_short; }
+	void   set_tolerable_comfort_median_short(uint8 value) { tolerable_comfort_median_short = value; }
 	uint16 get_tolerable_comfort_median_short_minutes() const { return tolerable_comfort_median_short_minutes; }
+	void   set_tolerable_comfort_median_short_minutes(uint16 value) { tolerable_comfort_median_short_minutes = value; }
+
+	uint8  get_tolerable_comfort_median_median() const { return tolerable_comfort_median_median; }
+	void   set_tolerable_comfort_median_median(uint8 value) { tolerable_comfort_median_median = value; }
 	uint16 get_tolerable_comfort_median_median_minutes() const { return tolerable_comfort_median_median_minutes; }
+	void   set_tolerable_comfort_median_median_minutes(uint16 value) { tolerable_comfort_median_median_minutes = value; }
+
+	uint8  get_tolerable_comfort_median_long() const { return tolerable_comfort_median_long; }
+	void   set_tolerable_comfort_median_long(uint8 value) { tolerable_comfort_median_long = value; }
 	uint16 get_tolerable_comfort_median_long_minutes() const { return tolerable_comfort_median_long_minutes; }
+	void   set_tolerable_comfort_median_long_minutes(uint16 value) { tolerable_comfort_median_long_minutes = value; }
+
+	uint8  get_tolerable_comfort_long() const { return tolerable_comfort_long; }
+	void   set_tolerable_comfort_long(uint8 value) { tolerable_comfort_long = value; }
 	uint16 get_tolerable_comfort_long_minutes() const { return tolerable_comfort_long_minutes; }
-	uint8 get_max_luxury_bonus_differential() const { return max_luxury_bonus_differential; }
-	uint8 get_max_discomfort_penalty_differential() const { return max_discomfort_penalty_differential; }
-	float get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01F; }
-	float get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01F; }
+	void   set_tolerable_comfort_long_minutes(uint16 value) { tolerable_comfort_long_minutes = value; }
+
+	float  get_max_luxury_bonus() const { return (float)max_luxury_bonus_percent * 0.01F; }
+	uint16 get_max_luxury_bonus_percent() const { return max_luxury_bonus_percent; }
+	void   set_max_luxury_bonus_percent(uint16 value) { max_luxury_bonus_percent = value; }
+	uint8  get_max_luxury_bonus_differential() const { return max_luxury_bonus_differential; }
+	void   set_max_luxury_bonus_differential(uint8 value) { max_luxury_bonus_differential = value; }
+
+	float  get_max_discomfort_penalty() const { return (float) max_discomfort_penalty_percent * 0.01F; }
+	uint16 get_max_discomfort_penalty_percent() const { return max_discomfort_penalty_percent; }
+	void   set_max_discomfort_penalty_percent(uint16 value) { max_discomfort_penalty_percent = value; }
+	uint8  get_max_discomfort_penalty_differential() const { return max_discomfort_penalty_differential; }
+	void   set_max_discomfort_penalty_differential(uint8 value) { max_discomfort_penalty_differential = value; }
 
 	uint16 get_catering_min_minutes() const { return catering_min_minutes; }
+	void   set_catering_min_minutes(uint16 value) { catering_min_minutes = value; }
+
 	uint16 get_catering_level1_minutes() const { return catering_level1_minutes; }
+	void   set_catering_level1_minutes(uint16 value) { catering_level1_minutes = value; }
 	uint16 get_catering_level1_max_revenue() const { return catering_level1_max_revenue; }
+	void   set_catering_level1_max_revenue(uint16 value) { catering_level1_max_revenue = value; }
+
 	uint16 get_catering_level2_minutes() const { return catering_level2_minutes; }
+	void   set_catering_level2_minutes(uint16 value) { catering_level2_minutes = value; }
 	uint16 get_catering_level2_max_revenue() const { return catering_level2_max_revenue; }
+	void   set_catering_level2_max_revenue(uint16 value) { catering_level2_max_revenue = value; }
+
 	uint16 get_catering_level3_minutes() const { return catering_level3_minutes; }
+	void   set_catering_level3_minutes(uint16 value) { catering_level3_minutes = value; }
 	uint16 get_catering_level3_max_revenue() const { return catering_level3_max_revenue; }
+	void   set_catering_level3_max_revenue(uint16 value) { catering_level3_max_revenue = value; }
+
 	uint16 get_catering_level4_minutes() const { return catering_level4_minutes; }
+	void   set_catering_level4_minutes(uint16 value) { catering_level4_minutes = value; }
 	uint16 get_catering_level4_max_revenue() const { return catering_level4_max_revenue; }
+	void   set_catering_level4_max_revenue(uint16 value) { catering_level4_max_revenue = value; }
+
 	uint16 get_catering_level5_minutes() const { return catering_level5_minutes; }
+	void   set_catering_level5_minutes(uint16 value) { catering_level5_minutes = value; }
 	uint16 get_catering_level5_max_revenue() const { return catering_level5_max_revenue; }
+	void   set_catering_level5_max_revenue(uint16 value) { catering_level5_max_revenue = value; }
 	
 	uint16 get_tpo_min_minutes() const { return tpo_min_minutes; }
+	void   set_tpo_min_minutes(uint16 value) { tpo_min_minutes = value; }
 	uint16 get_tpo_revenue() const { return tpo_revenue; }
+	void   set_tpo_revenue(uint16 value) { tpo_revenue = value; }
 
 	uint16 get_obsolete_running_cost_increase_percent() const { return obsolete_running_cost_increase_percent; }
+	void   set_obsolete_running_cost_increase_percent(uint16 value) { obsolete_running_cost_increase_percent = value; }
 	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }
+	void   set_obsolete_running_cost_increase_phase_years(uint16 value) { obsolete_running_cost_increase_phase_years = value; }
 
 	uint16 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
 	uint16 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
+	void   set_local_passengers_max_distance(uint16 value) { local_passengers_max_distance = value; }
 	uint16 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
+	void   set_midrange_passengers_min_distance(uint16 value) { midrange_passengers_min_distance = value; }
 	uint16 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
+	void   set_midrange_passengers_max_distance(uint16 value) { midrange_passengers_max_distance = value; }
 	uint16 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
+	void   set_longdistance_passengers_min_distance(uint16 value) { longdistance_passengers_min_distance = value; }
 	uint16 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
 
 	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
+	void  set_passenger_routing_packet_size(uint8 value) { passenger_routing_packet_size = value; }
 	uint8 get_max_alternative_destinations() const { return max_alternative_destinations; }
+	void  set_max_alternative_destinations(uint8 value) { max_alternative_destinations = value; }
 	uint8 get_passenger_routing_local_chance() const { return passenger_routing_local_chance; }
+	void  set_passenger_routing_local_chance(uint8 value) { passenger_routing_local_chance = value; }
 	uint8 get_passenger_routing_midrange_chance() const { return passenger_routing_midrange_chance; }
+	void  set_passenger_routing_midrange_chance(uint8 value) { passenger_routing_midrange_chance = value; }
 
 	uint8 get_always_prefer_car_percent() const { return always_prefer_car_percent; }
 	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }

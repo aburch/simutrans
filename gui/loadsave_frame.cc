@@ -17,6 +17,7 @@
 #endif
 #include <sys/stat.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "loadsave_frame.h"
 
@@ -139,12 +140,10 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 }
 
 
-gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t() 
+gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150) 
 {
-	set_width(150);
 	strcpy(pak, umgebung_t::objfilename);
 	pak[strlen(pak) - 1] = 0;
-	/* strlwr(pak); */
 }
 
 /**
@@ -157,8 +156,8 @@ gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_labe
 float strsim(const char a[], const char b[]) 
 {	
 	int i = 0;
-	while (a[i] && b[i] && a[i] == b[i]) i++;
-	if (a[i] == b[i])
+	while (a[i] && b[i] && tolower(a[i]) == tolower(b[i])) i++;
+	if (tolower(a[i]) == tolower(b[i]))
 		return 0;
 	return 1.0f / (float)(i+1);
 }
@@ -168,11 +167,9 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 {
 	char s1[1024];
 	strcpy(s1, get_text(row1));
-	/* strlwr(s1); */
 	float f1 = strsim(s1, pak);
 	char s2[1024];
 	strcpy(s2, get_text(row2));
-	/* strlwr(s2); */
 	float f2 = strsim(s2, pak);
 	int result = sgn(f1 - f2);
 	if (!result)

@@ -641,7 +641,7 @@ void gui_file_table_time_column_t::paint_cell(const koord &offset, coordinate_t 
 
 
 // BG, 26.03.2010
-gui_file_table_row_t::gui_file_table_row_t(const char *pathname, const char *buttontext, bool delete_enabled)
+gui_file_table_row_t::gui_file_table_row_t(const char *pathname, const char *buttontext, bool delete_enabled) : gui_table_row_t()
 {
 	this->pressed = false;
 	this->delete_enabled = delete_enabled;

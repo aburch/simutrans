@@ -1083,7 +1083,7 @@ end_loop:
 			{
 				if(get_depot_when_empty() && has_no_cargo())
 				{
-					go_to_depot(false);
+					go_to_depot(false, (replace && replace->get_use_home_depot()));
 				}
 				break;
 			}
@@ -4115,15 +4115,6 @@ convoi_t::get_catering_level(uint8 type) const
 	return max_catering_level;
 }
 
-//void convoi_t::set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv)
-//{
-//	replacing_vehicles.clear();
-//	replacing_vehicles.resize(rv->get_count());  // To save some memory
-//	for (unsigned int i=0; i<rv->get_count(); ++i) {
-//		replacing_vehicles.append((*rv)[i]);
-//	}
-//}
- 
 
  /**
  * True if this convoy has the same vehicles as the other
@@ -4184,7 +4175,7 @@ public:
 /**
  * Convoy is sent to depot.  Return value, success or not.
  */
-bool convoi_t::go_to_depot(bool show_success)
+bool convoi_t::go_to_depot(bool show_success, bool use_home_depot)
 {
 	/*if (convoi_info_t::route_search_in_progress) 
 	{
@@ -4198,22 +4189,33 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 	//convoi_info_t::route_search_in_progress = true;
 
-	route_t route;
-	depot_finder_t finder( self );
-	route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
+	if(!use_home_depot)
+	{
+		route_t route;
+		depot_finder_t finder( self );
+		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
+	}
 
 	// if route to a depot has been found, update the convoy's schedule
 	bool b_depot_found = false;
 	
-	if(!route.empty())
+	if(!route.empty() || use_home_depot)
 	{
-		koord3d depot_pos = route.position_bei(route.get_count()-1);
 		schedule_t *fpl = get_schedule();
-		fpl->insert(get_welt()->lookup(depot_pos));
+		koord3d depot_pos;
+		if(use_home_depot)
+		{
+			depot_pos = home_depot;
+		}
+		else
+		{
+			depot_pos = route.position_bei(route.get_count()-1);
+		}		
+		fpl->insert(welt->lookup(depot_pos));
 		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		b_depot_found = set_schedule(fpl);
 	}
-	if(!b_depot_found)
+	if(!b_depot_found && !use_home_depot)
 	{
 		// Second try - if the new system does not work, try the old system instead.
 		// iterate over all depots and try to find shortest route
@@ -4262,11 +4264,15 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 
 	// show result
 	const char* txt;
-	if (b_depot_found) 
+	if (b_depot_found && !use_home_depot) 
 	{
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 	} 
-	else
+	else if(b_depot_found && use_home_depot)
+	{
+		txt = "The convoy has been sent\nto its home depot.\n";
+	}
+	else if(!b_depot_found && !use_home_depot)
 	{
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
@@ -4543,12 +4549,4 @@ void convoi_t::clear_replace()
 		 new_replace->increment_convoys();
 	 }
 	 replace = new_replace;
- }
-
- void convoi_t::propogate_replace(replace_data_t *rpl, char replace_type)
- {
-	 if(replace)
-	 {
-
-	 }
  }
