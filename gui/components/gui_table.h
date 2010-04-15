@@ -8,6 +8,8 @@
 #ifndef gui_table_h
 #define gui_table_h
 
+#include <string.h>
+
 #include "../../simtypes.h"
 #include "../../tpl/list_tpl.h"
 #include "../../tpl/vector_tpl.h"
