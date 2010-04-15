@@ -38,12 +38,13 @@
 # broken filesystems
 # NO_DEPS = 1
 
-# Following flags exists
+# The following conditional compilation flags exist
 # DOUBLE_GROUNDS: Enables two height tiles
 # HALF_HEIGHT: Enables half height tiles (8 pixel instead 16)
-# OTTD_LIKE: Enables half height tiles and crossconnected industries; defaul folder pak.ttd/
+# OTTD_LIKE: Enables half height tiles and crossconnects all industries
 # DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
 # USE_C: no assembler for copying (when not using x86 and GCC>=3.x)
 # BIG_ENDIAN: MUST by set for PPC/Motorola byte order! (old mac, amiga)
-# STEPS16: 16 steps per tile - nicer on pak64
-FLAGS =  -DSTEPS16
+#
+# In order to use the flags, add a line like this:
+# FLAGS = -DUSE_C -DBIG_ENDIAN
