@@ -127,8 +127,8 @@ bool karte_t::recalc_snowline()
 
 	// calculate snowline with day precicion
 	// use linear interpolation
-	const long ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_tag-1);
-	const long faktor = mfactor[letzter_monat] + (  ( (mfactor[(letzter_monat+1)%12]-mfactor[letzter_monat])*(ticks_this_month>>12) ) >> (karte_t::ticks_bits_per_tag-12) );
+	const long ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_world_month-1);
+	const long faktor = mfactor[letzter_monat] + (  ( (mfactor[(letzter_monat+1)%12]-mfactor[letzter_monat])*(ticks_this_month>>12) ) >> (karte_t::ticks_per_world_month_shift-12) );
 
 	// just remember them
 	const sint16 old_snowline = snowline;
@@ -1197,8 +1197,8 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	letzter_monat = 0;
 	letztes_jahr = einstellungen->get_starting_year();//umgebung_t::starting_year;
 	current_month = letzter_monat + (letztes_jahr*12);
-	set_ticks_bits_per_tag(einstellungen->get_bits_per_month());
-	next_month_ticks =  karte_t::ticks_per_tag;
+	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
+	next_month_ticks =  karte_t::ticks_per_world_month;
 	season=(2+letzter_monat/3)&3; // summer always zero
 	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 	is_dragging = false;
@@ -1589,11 +1589,11 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	is_shutting_down = false;
 
 	// length of day and other time stuff
-	ticks_bits_per_tag = 20;
+	ticks_per_world_month_shift = 20;
 #ifdef _MSC_VER
-	ticks_per_tag = (1i64 << ticks_bits_per_tag);
+	ticks_per_world_month = (1i64 << ticks_per_world_month_shift);
 #else
-	ticks_per_tag = (1ll << ticks_bits_per_tag);
+	ticks_per_world_month = (1ll << ticks_per_world_month_shift);
 #endif
 	last_step_ticks = 0;
 	last_interaction = dr_time();
@@ -3268,17 +3268,19 @@ void karte_t::step()
 	// first: check for new month
 	if(ticks > next_month_ticks) {
 
-		next_month_ticks += karte_t::ticks_per_tag;
+		next_month_ticks += karte_t::ticks_per_world_month;
 
 		// avoid overflow here ...
 		// Should not overflow: now usint 64-bit values.
-		//@jamespetts
-		/*if(ticks>next_month_ticks) {
-			ticks %= karte_t::ticks_per_tag;
-			ticks += karte_t::ticks_per_tag;
-			next_month_ticks = ticks+karte_t::ticks_per_tag;
-			last_step_ticks %= karte_t::ticks_per_tag;
-		}*/
+		// @author: jamespetts
+/*
+		if(ticks>next_month_ticks) {
+			ticks %= karte_t::ticks_per_world_month;
+			ticks += karte_t::ticks_per_world_month;
+			next_month_ticks = ticks+karte_t::ticks_per_world_month;
+			last_step_ticks %= karte_t::ticks_per_world_month;
+		}
+*/
 
 		neuer_monat();
 	}
@@ -4391,10 +4393,10 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 	// old game might have wrong month
 	letzter_monat %= 12;
  	// set the current month count
-	set_ticks_bits_per_tag(einstellungen->get_bits_per_month());
+	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero
-	next_month_ticks = 	( (ticks >> karte_t::ticks_bits_per_tag) + 1 ) << karte_t::ticks_bits_per_tag;
+	next_month_ticks = 	( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
 	last_step_ticks = ticks;
 	steps = 0;
 	step_mode = PAUSE_FLAG;
@@ -4752,8 +4754,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 #if 0
 	// preserve tick counter ...
-	ticks = ticks % karte_t::ticks_per_tag;
-	next_month_ticks = karte_t::ticks_per_tag;
+	ticks = ticks % karte_t::ticks_per_world_month;
+	next_month_ticks = karte_t::ticks_per_world_month;
 	letzter_monat %= 12;
 #endif
 
@@ -4762,7 +4764,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		scenario->rdwr(file);
 	}
 	clear_random_mode(LOAD_RANDOM);
-	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
+
+	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
+
 
 	if(file->get_experimental_version() >= 2)
 	{
@@ -4979,8 +4983,8 @@ void karte_t::reset_interaction()
 void karte_t::step_year()
 {
 	DBG_MESSAGE("karte_t::step_year()","called");
-//	ticks += 12*karte_t::ticks_per_tag;
-//	next_month_ticks += 12*karte_t::ticks_per_tag;
+//	ticks += 12*karte_t::ticks_per_world_month;
+//	next_month_ticks += 12*karte_t::ticks_per_world_month;
 	current_month += 12;
 	letztes_jahr ++;
 	reset_timer();

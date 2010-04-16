@@ -1055,19 +1055,19 @@ void win_display_flush(double konto)
 	ticks = wl->get_zeit_ms();
 
 	// calculate also days if desired
-	const sint64 ticks_this_month = ticks % wl->ticks_per_tag;
+	const sint64 ticks_this_month = ticks % wl->ticks_per_world_month;
 	uint32 tage, stunden, minuten;
 	if(umgebung_t::show_month>1) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-		tage = ((ticks_this_month*tage_per_month[month]) >> wl->ticks_bits_per_tag) + 1;
-		stunden = ((ticks_this_month*tage_per_month[month]) >> (wl->ticks_bits_per_tag-16));
+		tage = ((ticks_this_month*tage_per_month[month]) >> wl->ticks_per_world_month_shift) + 1;
+		stunden = ((ticks_this_month*tage_per_month[month]) >> (wl->ticks_per_world_month_shift-16));
 		minuten = (((stunden*3) % 8192)*60)/8192;
 		stunden = ((stunden*3) / 8192)%24;
 	}
 	else {
 		tage = 0;
-		stunden = (ticks_this_month * 24) >> wl->ticks_bits_per_tag;
-		minuten = ((ticks_this_month * 24 * 60) >> wl->ticks_bits_per_tag)%60;
+		stunden = (ticks_this_month * 24) >> wl->ticks_per_world_month_shift;
+		minuten = ((ticks_this_month * 24 * 60) >> wl->ticks_per_world_month_shift)%60;
 	}
 
 	char time [128];

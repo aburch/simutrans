@@ -566,12 +566,14 @@ public:
 
 	/**
 	* anzahl ticks pro tag in bits
-	* @see ticks_per_tag
+	* @see ticks_per_world_month
 	* @author Hj. Malthaner
 	*
 	* number ticks per day in bits (Babelfish)
 	*/
-	sint64 ticks_bits_per_tag;
+
+	sint64 ticks_per_world_month_shift;
+
 
 	/**
 	* anzahl ticks pro MONTH!
@@ -579,13 +581,15 @@ public:
 	*
 	* number ticks per MONTH! (Babelfish)
 	*/
-	sint64 ticks_per_tag;
+
+	sint64 ticks_per_world_month;
 #ifdef _MSC_VER
-	void set_ticks_bits_per_tag(sint64 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1i64 << ticks_bits_per_tag); }
+	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1i64 << ticks_per_world_month_shift); }
 #else
 	// GCC complains about the i64 - it requires its own 64-bit denotation.
-	void set_ticks_bits_per_tag(sint64 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1ll << ticks_bits_per_tag); }
+	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1ll << ticks_per_world_month_shift); }
 #endif
+
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
 
@@ -635,9 +639,9 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((sint32)ticks_bits_per_tag-18); }
-	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << (ticks_bits_per_tag-18ll); }
-	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((uint32)ticks_bits_per_tag-18); }
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((sint32)ticks_per_world_month_shift -18); }
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << (ticks_per_world_month_shift -18ll); }
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((uint32)ticks_per_world_month_shift -18); }
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
@@ -670,7 +674,7 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	int get_yearsteps() { return (int) ((current_month % 12) * 8 + ((ticks >> (ticks_bits_per_tag-3)) & 7)); }
+	int get_yearsteps() { return (int) ((current_month % 12) * 8 + ((ticks >> (ticks_per_world_month_shift-3)) & 7)); }
 
 	// prissi: current city road
 	// may change due to timeline

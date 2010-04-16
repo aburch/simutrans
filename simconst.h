@@ -145,12 +145,4 @@
 #define Z_GRID (0)
 
 
-
-
-#ifdef OTTD_LIKE
-#define DEFAULT_OBJPATH "pak.ttd/"
-#else
-#define DEFAULT_OBJPATH "pak/"
-#endif
-
 #endif

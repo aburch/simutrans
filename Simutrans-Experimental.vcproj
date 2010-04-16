@@ -2707,6 +2707,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\config.default"
+				>
+			</File>
+			<File
 				RelativePath=".\config.template"
 				>
 			</File>
