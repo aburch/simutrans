@@ -4188,9 +4188,10 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	}
 	//convoi_info_t::route_search_in_progress = true;
 
+	route_t route;
+
 	if(!use_home_depot)
 	{
-		route_t route;
 		depot_finder_t finder( self );
 		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
 	}
