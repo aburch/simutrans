@@ -414,7 +414,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 		} else if(komp == &waggons) {
 			image_from_storage_list(&waggons_vec[p.i]);
 		} else if(komp == &bt_obsolete) {
-			show_retired_vehicles = (show_retired_vehicles==0);
+			show_retired_vehicles = (show_retired_vehicles == false);
 			build_vehicle_lists();
 			update_data();
 		} else if(komp == &bt_show_all) {
@@ -734,25 +734,32 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 		depot = gr->get_depot();
 	}
 
-	const convoihandle_t cnv = depot_frame ? depot->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
-	if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
+	if(depot_frame)
+	{
+		const convoihandle_t cnv = depot->get_convoi(depot_frame->get_icnv());
+		if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
 
-		// we remove all connected vehicles together!
-		// find start
-		unsigned start_nr = nr;
-		while(start_nr>0) {
-			start_nr --;
-			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
-			if(info->get_nachfolger_count()!=1) {
-				start_nr ++;
-				break;
+			// we remove all connected vehicles together!
+			// find start
+			unsigned start_nr = nr;
+			while(start_nr>0) {
+				start_nr --;
+				const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
+				if(info->get_nachfolger_count()!=1) {
+					start_nr ++;
+					break;
+				}
 			}
+
+			cbuffer_t start(16);
+			start.append( start_nr );
+
+			depot->call_depot_tool( 'r', cnv, start );
 		}
-
-		cbuffer_t start(16);
-		start.append( start_nr );
-
-		depot->call_depot_tool( 'r', cnv, start );
+	}
+	else
+	{
+		vehicles.remove_at(nr);
 	}
 }
 

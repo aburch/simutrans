@@ -232,3 +232,4 @@ void replace_data_t::add_vehicle(const vehikel_besch_t* vehicle, bool add_at_fro
 		replacing_vehicles->append(vehicle);
 	}
 }
+
