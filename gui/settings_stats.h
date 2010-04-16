@@ -124,11 +124,11 @@ protected:
 	slist_tpl<gui_component_table_t *> table;
 	list_tpl<gui_komponente_t> others;
 
-	gui_label_t& new_label(koord &pos, const char *text);
-	gui_textarea_t& new_textarea(koord &pos, const char *text);
-	gui_numberinput_t& new_numinp(koord &pos, sint32 value, sint32 min, sint32 max, sint32 mode = gui_numberinput_t::AUTOLINEAR, bool wrap = false);
+	gui_label_t& new_label(koord pos, const char *text);
+	gui_textarea_t& new_textarea(koord pos, const char *text);
+	gui_numberinput_t& new_numinp(koord pos, sint32 value, sint32 min, sint32 max, sint32 mode = gui_numberinput_t::AUTOLINEAR, bool wrap = false);
 	button_t& new_button(koord &pos, const char *text, bool pressed);
-	gui_component_table_t& new_table(koord &pos, coordinate_t columns, coordinate_t rows);
+	gui_component_table_t& new_table(koord pos, coordinate_t columns, coordinate_t rows);
 	void set_cell_component(gui_component_table_t &tbl, gui_komponente_t &c, coordinate_t x, coordinate_t y);
 
 	void free_all();

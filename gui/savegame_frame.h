@@ -9,6 +9,7 @@
 #define gui_savegame_frame_h
 
 #include <sys/stat.h>
+#include <string.h>
 
 #include "../tpl/slist_tpl.h"
 #include "components/action_listener.h"

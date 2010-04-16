@@ -10,6 +10,8 @@
 #ifndef list_tpl_h
 #define list_tpl_h
 
+#include <typeinfo>
+
 #include "../macros.h"
 #include "../simtypes.h"
 #include "../simmem.h"
