@@ -280,7 +280,6 @@ SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/schedule_list.cc
-SOURCES += gui/signal_spacing.cc
 SOURCES += gui/settings_frame.cc
 SOURCES += gui/settings_stats.cc
 SOURCES += gui/signal_spacing.cc

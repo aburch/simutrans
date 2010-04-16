@@ -6,6 +6,7 @@
  */
 
 #include <string.h>
+
 #include "gui_component_table.h"
 #include "gui_label.h"
 #include "gui_button.h"
