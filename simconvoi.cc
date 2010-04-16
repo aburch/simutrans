@@ -815,57 +815,71 @@ void convoi_t::step()
 							}
 						}
 
-						// This part of the code is abandoned, as it causes problems: vehicles that have already been bought
-						// are added twice to the convoy, causing bizarre corruption issues.
-						/*if( veh == NULL)
+						if(veh == NULL && replace->get_allow_using_existing_vehicles())
 						{
-							 //Second - check whether there are any of the required vehicles already
-							 //in the depot (more or less free).
-							veh = dep->find_oldest_newest(replacing_vehicles[i], true);
-						}*/
+							 // Second - check whether there are any of the required vehicles already
+							 // in the depot (more or less free).
+							veh = dep->find_oldest_newest(replace->get_replacing_vehicle(i), true);
+						}
 
-						if (veh == NULL) 
+						if (veh == NULL && !replace->get_retain_in_depot()) 
 						{
 							// Third - check whether the vehicle can be upgraded (cheap)
+							// Note: if "retain in depot" is selected, do not upgrade, as
+							// the old vehicles will be needed (e.g., for a cascade).
 							for(uint16 j = 0; j < anz_vehikel; j ++)
-							{
-								
+							{	
 								for(uint8 c = 0; c < fahr[j]->get_besch()->get_upgrades_count(); c ++)
 								{
 									if(replace->get_replacing_vehicle(i) == fahr[j]->get_besch()->get_upgrades(c))
 									{
-										veh = remove_vehikel_bei(j);
-										//TODO: Use the new method of replacing here, creating a new vehicle rather than simply replacing the type.
-										veh->set_besch(replace->get_replacing_vehicle(i));
-										dep->buy_vehicle(veh->get_besch()/*, true*/);
+										veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, replace->get_replacing_vehicle(i), true); 
+										upgrade_vehicle(j, veh);
+										remove_vehikel_bei(j);
 										goto end_loop;
 									}
 								}
 							}
+						}
 end_loop:	
-							if(veh == NULL)
-							{
-								// Fourth - if all else fails, buy from new (expensive).
-								veh = dep->buy_vehicle(replace->get_replacing_vehicle(i)/*, false*/);
-							}
+
+						if(veh == NULL)
+						{
+							// Fourth - if all else fails, buy from new (expensive).
+							veh = dep->buy_vehicle(replace->get_replacing_vehicle(i));
 						}
 						
 						// This new method is needed to enable this method to iterate over
 						// the existing vehicles in the convoy while it is adding new vehicles.
 						// They must be added to temporary storage, and appended to the existing
 						// convoy at the end, after the existing convoy has been deleted.
-						new_vehicles.append(veh);
+						assert(veh);
+						if(veh)
+						{
+							new_vehicles.append(veh);
+						}
 						
 					}
 
 					//First, delete the existing convoy
 					for(sint8 a = anz_vehikel-1;  a >= 0; a--) 
 					{
-						//Sell any vehicles not upgraded or kept.
-						sint64 value = fahr[a]->calc_restwert();
-						besitzer_p->buche( value, dep->get_pos().get_2d(), COST_NEW_VEHICLE );
-						besitzer_p->buche( -value, COST_ASSETS );	
-						delete fahr[a];
+						if(!replace->get_retain_in_depot())
+						{
+							//Sell any vehicles not upgraded or kept.
+							sint64 value = fahr[a]->calc_restwert();
+							besitzer_p->buche( value, dep->get_pos().get_2d(), COST_NEW_VEHICLE );
+							besitzer_p->buche( -value, COST_ASSETS );	
+							delete fahr[a];
+						}
+						else
+						{
+							vehikel_t* old_veh = remove_vehikel_bei(a);
+							old_veh->loesche_fracht();
+							old_veh->set_erstes(false);
+							old_veh->set_letztes(false);
+							dep->get_vehicle_list()->append(old_veh);
+						}
 					}
 					anz_vehikel = 0;
 					reset();
@@ -3777,7 +3791,10 @@ void convoi_t::destroy()
 			fahr[i]->set_flag( ding_t::not_on_map );
 
 		}
-		fahr[i]->entferne(besitzer_p);
+		if(fahr[i])
+		{
+			fahr[i]->entferne(besitzer_p);
+		}
 		delete fahr[i];
 	}
 	anz_vehikel = 0;

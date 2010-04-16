@@ -215,7 +215,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 	{
 		for(uint8 c = 0; c < cnv->get_vehikel(i)->get_besch()->get_upgrades_count(); c ++)
 		{
-			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c)->get_name() == vb->get_name())
+			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c) == vb)
 			{
 				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, vb, true); 
 				cnv->upgrade_vehicle(i, new_veh);

@@ -130,7 +130,7 @@ public:
 	 * @date  30.05.2003
 	 */
 	unsigned vehicle_count() const { return vehicles.get_count(); }
-	const slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
+	slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
 
 	/**
 	 * A new vehicle is bought and added to the vehicle list.
