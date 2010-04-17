@@ -70,11 +70,11 @@ SDL_CONFIG     ?= sdl-config
 
 ifneq ($(OPTIMISE),)
   ifneq ($(PROFILE),)
-    CFLAGS   += -O3 -minline-all-stringops
-    CXXFLAGS += -O3
+    CFLAGS   += -O3 -minline-all-stringops -fno-schedule-insns
+    CXXFLAGS += -O3 -fno-schedule-insns
   else
-    CFLAGS   += -O3 -fomit-frame-pointer
-    CXXFLAGS += -O3 -fomit-frame-pointer
+    CFLAGS   += -O3 -fomit-frame-pointer -fno-schedule-insns
+    CXXFLAGS += -O3 -fomit-frame-pointer -fno-schedule-insns
   endif
   ifneq ($(OSTYPE),mac)
     CFLAGS   += -minline-all-stringops
@@ -101,8 +101,8 @@ ifdef DEBUG
 endif
 
 ifneq ($(PROFILE),)
-  CFLAGS   += -pg -DPROFILE -fno-inline
-  CXXFLAGS += -pg -DPROFILE -fno-inline
+  CFLAGS   += -pg -DPROFILE -fno-inline -fno-schedule-insns
+  CXXFLAGS += -pg -DPROFILE -fno-inline -fno-schedule-insns
   LDFLAGS += -pg
 endif
 
