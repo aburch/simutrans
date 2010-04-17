@@ -73,12 +73,11 @@ ifneq ($(OPTIMISE),)
     CFLAGS   += -O3 -minline-all-stringops
     CXXFLAGS += -O3
   else
-    CFLAGS   += -O3 -fomit-frame-pointer
-    CXXFLAGS += -O3 -fomit-frame-pointer
+    CFLAGS   += -O3 -fno-schedule-insns -fomit-frame-pointer
+    CXXFLAGS += -O3 -fno-schedule-insns -fomit-frame-pointer
   endif
   ifneq ($(OSTYPE),mac)
-    CFLAGS   += -minline-all-stringops
-    LDFLAGS += -ffunctions-sections
+    CFLAGS  += -minline-all-stringops
   endif
 else
   CFLAGS   += -O
@@ -98,6 +97,9 @@ ifdef DEBUG
     CFLAGS   += -O0
     CXXFLAGS += -O0
   endif
+else
+  CFLAGS += -DNDEBUG
+  CXXFLAGS += -DNDEBUG
 endif
 
 ifneq ($(PROFILE),)
