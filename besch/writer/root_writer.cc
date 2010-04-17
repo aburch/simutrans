@@ -360,8 +360,31 @@ void root_writer_t::uncopy(const char* name)
 				node_name = name_from_next_node(infp);
 				fseek( infp, pos, SEEK_SET );
 			}
+			else if(  writer=="bridge"  ) {
+				// we need to take name from thrid children, the cursor node ...
+				obj_node_info_t node;
+				size_t pos = ftell(infp);
+				// quick and dirty: since there are a variable number, we just skip all image nodes
+				do {
+					fread(&node, sizeof(node), 1, infp);
+					fseek(infp, node.size, SEEK_CUR );
+				} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
+				// then we try the next node (shoudl be cursor node then!
+				if(  node.type==obj_cursor  ) {
+					node_name = name_from_next_node(infp);
+				}
+				fseek( infp, pos, SEEK_SET );
+			}
 			else {
 				node_name = name_from_next_node(infp);
+			}
+			// use a clever default name, if no name there
+			if(  node_name.len()==0  ) {
+				char random_name[16];
+				// we use the file position as unique name
+				sprintf( random_name, "p%li", ftell(infp) );
+				printf("  ERROR: %s has no name! (using %s) as default\n", (const char *)writer, (const char *)random_name );
+				node_name = random_name;
 			}
 			cstring_t outfile = writer + "." + node_name + ".pak";
 			FILE* outfp = fopen(outfile, "wb");
