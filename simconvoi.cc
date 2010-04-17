@@ -796,8 +796,11 @@ void convoi_t::step()
 
 				const grund_t *gr = welt->lookup(home_depot);
 				depot_t *dep;
-				if ( gr && (dep=gr->get_depot()) ) {
-					bool keep_name=(anz_vehikel>0 && strcmp(get_name(),fahr[0]->get_besch()->get_name())!=0);						
+				if ( gr && (dep = gr->get_depot()) ) {
+					char buf[128];
+					name_offset = sprintf(buf,"(%i) ",self.get_id() );
+					tstrncpy(buf + name_offset, translator::translate(fahr[0]->get_besch()->get_name()), 116);
+					bool keep_name = strcmp(get_name(), buf);	
 					vector_tpl<vehikel_t*> new_vehicles;
 
 					// Acquire the new one

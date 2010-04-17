@@ -119,23 +119,25 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_mark.add_listener(this);
 	add_komponente(&bt_mark);
 
-	bt_retain_in_depot.set_typ(button_t::roundbox);
+	bt_retain_in_depot.set_typ(button_t::square);
 	bt_retain_in_depot.set_text("Retain in depot");
 	bt_retain_in_depot.set_tooltip("Keep replaced vehicles in the depot for future use rather than selling or upgrading them.");
 	bt_retain_in_depot.add_listener(this);
 	add_komponente(&bt_retain_in_depot);
 
-	bt_use_home_depot.set_typ(button_t::roundbox);
+	bt_use_home_depot.set_typ(button_t::square);
 	bt_use_home_depot.set_text("Use home depot");
 	bt_use_home_depot.set_tooltip("Send the convoy to its home depot for replacing rather than the nearest depot.");
 	bt_use_home_depot.add_listener(this);
 	add_komponente(&bt_use_home_depot);
 
-	bt_allow_using_existing_vehicles.set_typ(button_t::roundbox);
+	bt_allow_using_existing_vehicles.set_typ(button_t::square);
 	bt_allow_using_existing_vehicles.set_text("Use existing vehicles");
 	bt_allow_using_existing_vehicles.set_tooltip("Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.");
 	bt_allow_using_existing_vehicles.add_listener(this);
 	add_komponente(&bt_allow_using_existing_vehicles);
+
+	rpl = new replace_data_t();
 
 	koord gr = koord(0,0);
 	layout(&gr);
@@ -147,7 +149,6 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 
 	convoy_assembler.set_replace_frame(this);
 
-	rpl = new replace_data_t();
 	copy = false;
 }
 
@@ -253,6 +254,8 @@ void replace_frame_t::layout(koord *gr)
 	current_y+=LINESPACE+2;
 
 	bt_replace_line.set_pos(koord(margin,current_y));
+	bt_retain_in_depot.set_pos(koord(margin + 128,current_y));
+	bt_allow_using_existing_vehicles.set_pos(koord(margin + (128 *2),current_y));
 	lb_sell.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_sell].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_sell].set_groesse( koord( 50, a_button_height ) );
@@ -260,17 +263,12 @@ void replace_frame_t::layout(koord *gr)
 	current_y+=LINESPACE+2;
 
 	bt_replace_all.set_pos(koord(margin,current_y));
+	bt_use_home_depot.set_pos(koord(margin + 128,current_y));
 	lb_skip.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_skip].set_groesse( koord( 50, a_button_height ) );
 	lb_n_skip.set_pos( koord( fgr.x-50, current_y ) );
-	current_y+=LINESPACE+2;
 
-	bt_retain_in_depot.set_pos(koord(margin,current_y));
-	current_y+=LINESPACE+2;
-	bt_use_home_depot.set_pos(koord(margin,current_y));
-	current_y+=LINESPACE+2;
-	bt_allow_using_existing_vehicles.set_pos(koord(margin,current_y));
 	current_y+=LINESPACE+margin;
 }
 
@@ -475,13 +473,13 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		} 
 		else if(komp == &bt_replace_line) 
 		{
-			replace_line=!replace_line;
-			replace_all=false;
+			replace_line =! replace_line;
+			replace_all = false;
 		}
 		else if(komp == &bt_replace_all) 
 		{
-			replace_all=!replace_all;
-			replace_line=false;
+			replace_all =! replace_all;
+			replace_line = false;
 		}
 		
 		else if(komp == &bt_retain_in_depot) 
@@ -594,6 +592,9 @@ void replace_frame_t::zeichnen(koord pos, koord groesse)
 		replace_line=false;
 	}
 	bt_replace_all.pressed=replace_all;
+	bt_retain_in_depot.pressed = rpl->get_retain_in_depot();
+	bt_use_home_depot.pressed = rpl->get_use_home_depot();
+	bt_allow_using_existing_vehicles.pressed = rpl->get_allow_using_existing_vehicles();
 	
 	// Make replace cycle grey if not in use
 	uint32 color=(replace_line||replace_all?COL_BLACK:COL_GREY4);
