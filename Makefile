@@ -68,17 +68,10 @@ ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
 
 
-ifneq ($(OPTIMISE),)
-  ifneq ($(PROFILE),)
-    CFLAGS   += -O3 -minline-all-stringops
-    CXXFLAGS += -O3
-  else
-    CFLAGS   += -O3 -fomit-frame-pointer
-    CXXFLAGS += -O3 -fomit-frame-pointer
-  endif
+CFLAGS   += -O3 -fno-schedule-insns -fomit-frame-pointer
+CXXFLAGS += -O3 -fno-schedule-insns -fomit-frame-pointer
   ifneq ($(OSTYPE),mac)
-    CFLAGS   += -minline-all-stringops
-    LDFLAGS += -ffunctions-sections
+    CFLAGS  += -minline-all-stringops
   endif
 else
   CFLAGS   += -O
@@ -98,6 +91,9 @@ ifdef DEBUG
     CFLAGS   += -O0
     CXXFLAGS += -O0
   endif
+  else
+  CFLAGS += -DNDEBUG
+  CXXFLAGS += -DNDEBUG
 endif
 
 ifneq ($(PROFILE),)
