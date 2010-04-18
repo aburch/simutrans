@@ -1,6 +1,7 @@
 #include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../haus_besch.h"
+#include "../vehikel_besch.h"
 #include "obj_pak_exception.h"
 #include "obj_node.h"
 #include "text_writer.h"
@@ -10,6 +11,38 @@
 #include "building_writer.h"
 #include "skin_writer.h"
 
+
+/**
+ * Calculate numeric engine type from engine type string
+ */
+static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
+{
+	uint8 uv8 = vehikel_besch_t::diesel;
+
+	if (!STRICMP(engine_type, "diesel")) {
+		uv8 = vehikel_besch_t::diesel;
+	} else if (!STRICMP(engine_type, "electric")) {
+		uv8 = vehikel_besch_t::electric;
+	} else if (!STRICMP(engine_type, "steam")) {
+		uv8 = vehikel_besch_t::steam;
+	} else if (!STRICMP(engine_type, "bio")) {
+		uv8 = vehikel_besch_t::bio;
+	} else if (!STRICMP(engine_type, "sail")) {
+		uv8 = vehikel_besch_t::sail;
+	} else if (!STRICMP(engine_type, "fuel_cell")) {
+		uv8 = vehikel_besch_t::fuel_cell;
+	} else if (!STRICMP(engine_type, "hydrogene")) {
+		uv8 = vehikel_besch_t::hydrogene;
+	} else if (!STRICMP(engine_type, "battery")) {
+		uv8 = vehikel_besch_t::battery;
+	} else if (!STRICMP(engine_type, "unknown")) {
+		uv8 = vehikel_besch_t::unknown;
+	}
+
+	// printf("Engine type %s -> %d\n", engine_type, uv8);
+
+	return uv8;
+}
 
 void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seasons,
 	slist_tpl<slist_tpl<slist_tpl<cstring_t> > >& backkeys,
@@ -208,6 +241,39 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	besch.station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
 	besch.station_price = obj.get_int("station_price", 2147483647);
 
+	// Encode the depot traction types.
+	if(besch.utype == haus_besch_t::depot)
+	{
+		// HACK: Use "enables" (only used for a stop type) to encode traction types
+		besch.enables = 255; // Default - all types enabled.
+		
+		uint8 traction_type_count = 0;
+		uint8 traction_type = 1;
+		bool engaged = false;
+		cstring_t engine_type;
+		do {
+			char buf[256];
+
+			sprintf(buf, "traction_type[%d]", traction_type_count);
+
+			engine_type = obj.get(buf);
+			if (engine_type.len() > 0) 
+			{
+				if(!engaged)
+				{
+					// If the user specifies anything, the
+					// default of 255 must be cleared.
+					engaged = true;
+					besch.enables = 0;
+				}
+				traction_type = get_engine_type(engine_type, obj);
+				const uint8 shifter = 1 << traction_type;
+				besch.enables |= shifter;
+				traction_type_count++;
+			}
+		} while (engine_type.len() > 0);			
+	}
+
 	// scan for most number of seasons
 	int seasons = 1;
 	for (int l = 0; l < besch.layouts; l++) { // each layout
@@ -294,10 +360,11 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x100;
+	// 0x200 - Depot traction types.
+	version += 0x200;
 	
 	// Hajo: write version data
-	node.write_uint16(fp, version,                           0);
+	node.write_uint16(fp, version,                          0);
 
 	// Hajo: write besch data
 	node.write_uint8 (fp, (uint8) besch.gtyp,               2);

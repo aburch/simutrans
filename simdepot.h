@@ -31,7 +31,7 @@ protected:
 	/** 
 	 * Reworked depot data!
 	 *
-	 * It can now contain any number of vehicles bough by the user (as before).
+	 * It can now contain any number of vehicles bought by the user (as before).
 	 * And it can held any number of convois (before only one).
 	 * It is possible to have 0 convois in a depot, but an empty one shall be
 	 * automatically created, when necessary.
