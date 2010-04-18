@@ -205,7 +205,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Stands in place of the "level" setting, but uses "level" data by default.
 
 	besch.station_capacity = obj.get_int("station_capacity", besch.level * 32);
-	besch.station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Set default in the *reader*.
+	besch.station_maintenance = obj.get_int("station_maintenance", 2147483647); //NOTE: Default cannot be set because it depends on a world factor. Must detect this number and put in default if it is found.
 	besch.station_price = obj.get_int("station_price", 2147483647);
 
 	// scan for most number of seasons
