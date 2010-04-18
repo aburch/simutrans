@@ -69,10 +69,16 @@ SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
-  CFLAGS   += -O3 -fno-schedule-insns -fomit-frame-pointer
-  CXXFLAGS += -O3 -fno-schedule-insns -fomit-frame-pointer
+  ifneq ($(PROFILE),)
+    CFLAGS   += -O3 -minline-all-stringops -fno-schedule-insns
+    CXXFLAGS += -O3 -fno-schedule-insns
+  else
+    CFLAGS   += -O3 -fomit-frame-pointer -fno-schedule-insns
+    CXXFLAGS += -O3 -fomit-frame-pointer -fno-schedule-insns
+  endif
   ifneq ($(OSTYPE),mac)
-    CFLAGS  += -minline-all-stringops
+    CFLAGS   += -minline-all-stringops
+    LDFLAGS += -ffunctions-sections
   endif
 else
   CFLAGS   += -O
@@ -92,14 +98,11 @@ ifdef DEBUG
     CFLAGS   += -O0
     CXXFLAGS += -O0
   endif
-else
-  CFLAGS += -DNDEBUG
-  CXXFLAGS += -DNDEBUG
 endif
 
 ifneq ($(PROFILE),)
-  CFLAGS   += -pg -DPROFILE -fno-inline
-  CXXFLAGS += -pg -DPROFILE -fno-inline
+  CFLAGS   += -pg -DPROFILE -fno-inline -fno-schedule-insns
+  CXXFLAGS += -pg -DPROFILE -fno-inline -fno-schedule-insns
   LDFLAGS += -pg
 endif
 
@@ -145,7 +148,6 @@ SOURCES += besch/reader/way_reader.cc
 SOURCES += besch/reader/xref_reader.cc
 SOURCES += besch/sound_besch.cc
 SOURCES += besch/tunnel_besch.cc
-SOURCES += besch/vehikel_besch.cc
 SOURCES += besch/ware_besch.cc
 SOURCES += boden/boden.cc
 SOURCES += boden/brueckenboden.cc
@@ -175,7 +177,6 @@ SOURCES += dataobj/network.cc
 SOURCES += dataobj/network_cmd.cc
 SOURCES += dataobj/network_packet.cc
 SOURCES += dataobj/powernet.cc
-SOURCES += dataobj/replace_data.cc
 SOURCES += dataobj/ribi.cc
 SOURCES += dataobj/route.cc
 SOURCES += dataobj/scenario.cc
@@ -210,9 +211,6 @@ SOURCES += gui/colors.cc
 SOURCES += gui/components/gui_button.cc
 SOURCES += gui/components/gui_chart.cc
 SOURCES += gui/components/gui_combobox.cc
-SOURCES += gui/components/gui_component_table.cc
-SOURCES += gui/components/gui_convoy_assembler.cc
-SOURCES += gui/components/gui_convoy_label.cc
 SOURCES += gui/components/gui_flowtext.cc
 SOURCES += gui/components/gui_image_list.cc
 SOURCES += gui/components/gui_label.cc
@@ -222,7 +220,6 @@ SOURCES += gui/components/gui_scrolled_list.cc
 SOURCES += gui/components/gui_scrollpane.cc
 SOURCES += gui/components/gui_speedbar.cc
 SOURCES += gui/components/gui_tab_panel.cc
-SOURCES += gui/components/gui_table.cc
 SOURCES += gui/components/gui_textarea.cc
 SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_textinput.cc
@@ -273,13 +270,11 @@ SOURCES += gui/optionen.cc
 SOURCES += gui/pakselector.cc
 SOURCES += gui/password_frame.cc
 SOURCES += gui/player_frame_t.cc
-SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/schedule_list.cc
 SOURCES += gui/settings_frame.cc
 SOURCES += gui/settings_stats.cc
-SOURCES += gui/signal_spacing.cc
 SOURCES += gui/sound_frame.cc
 SOURCES += gui/sprachen.cc
 SOURCES += gui/stadt_info.cc
@@ -294,7 +289,6 @@ SOURCES += player/ai_passenger.cc
 SOURCES += player/simplay.cc
 SOURCES += old_blockmanager.cc
 SOURCES += simcity.cc
-SOURCES += convoy.cc
 SOURCES += simconvoi.cc
 SOURCES += simdebug.cc
 SOURCES += simdepot.cc
@@ -320,7 +314,6 @@ SOURCES += simware.cc
 SOURCES += simwerkz.cc
 SOURCES += simwin.cc
 SOURCES += simworld.cc
-SOURCES += path_explorer.cc
 SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.cc
 SOURCES += unicode.cc
@@ -369,14 +362,12 @@ ifeq ($(BACKEND),sdl)
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
-#    # Core Audio (Quicktime) base sound system routines
-#    SOURCES += sound/core-audio_sound.mm
-#    SOURCES += music/core-audio_midi.mm
-    SOURCES  += sound/sdl_sound.cc
-    SOURCES += music/no_midi.cc
+    # Core Audio (Quicktime) base sound system routines
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw mac),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
 	    SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
