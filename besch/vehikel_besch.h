@@ -147,8 +147,10 @@ public:
 		engine_type = (uint8)engine;
 		geschw = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
-		//way_constraints_prohibitive = 255;
-		//way_constraints_permissive = 0;
+		// These two lines are necessary for the building of way objects, so that they
+		// do not get stuck with constraints. 
+		way_constraints.set_permissive(0);
+		way_constraints.set_prohibitive(255);
 		loading_time = 2000;
 		tractive_effort = 0;
 	}

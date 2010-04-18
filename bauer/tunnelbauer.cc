@@ -274,7 +274,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		}
 	}
 
-	if(!sp->can_afford(besch->get_preis()))
+	if(sp && !sp->can_afford(besch->get_preis()))
 	{
 		return "That would exceed\nyour credit limit.";
 	}

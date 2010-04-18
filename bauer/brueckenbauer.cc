@@ -404,7 +404,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 		return "Tile not empty.";
 	}
 
-	if(!sp->can_afford(besch->get_preis()))
+	if(sp && !sp->can_afford(besch->get_preis()))
 	{
 		return "That would exceed\nyour credit limit.";
 	}
