@@ -11,13 +11,7 @@ endif
 CFLAGS += -DMAKEOBJ
 CXXFLAGS += -DMAKEOBJ
 
-# Seems like practically everyone needs these
 STD_LIBS += -lz -lbz2 -lpng -lm
-
-ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
-  CXXFLAGS   += -DUSE_HW -DUSE_C
-endif
 
 ifeq ($(OSTYPE),cygwin)
   OS_INC   ?= -I/usr/include/mingw
@@ -28,7 +22,13 @@ endif
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  STD_LIBS += -lmingw32 -lwinmm -lwsock32
+  # we need the libraries EXACTLY in this order to link
+  STD_LIBS = -lmingw32 -lpng -lz -lstdc++
+endif
+
+ifeq ($(OSTYPE),mac)
+  CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
+  CXXFLAGS   += -DUSE_HW -DUSE_C
 endif
 
 ifneq ($(OPTIMISE),)
@@ -104,15 +104,15 @@ SOLO_SOURCES += ../besch/writer/way_obj_writer.cc
 SOLO_SOURCES += ../besch/writer/xref_writer.cc
 SOLO_SOURCES += ../utils/dr_rdpng.cc
 SHARED_SOURCES += ../dataobj/freelist.cc
-SHARED_SOURCES += ../dataobj/tabfile.cc 
+SHARED_SOURCES += ../dataobj/tabfile.cc
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
 SHARED_SOURCES += ../tpl/debug_helper.cc
-SHARED_SOURCES += ../utils/cstring_t.cc 
-SHARED_SOURCES += ../utils/simstring.cc 
+SHARED_SOURCES += ../utils/cstring_t.cc
+SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/searchfolder.cc
 VARIANT_SOURCES += ../simtools.cc
-VARIANT_SOURCES += ../utils/log.cc 
+VARIANT_SOURCES += ../utils/log.cc
 
 SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 
