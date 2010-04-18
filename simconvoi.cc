@@ -800,7 +800,7 @@ void convoi_t::step()
 					char buf[128];
 					name_offset = sprintf(buf,"(%i) ",self.get_id() );
 					tstrncpy(buf + name_offset, translator::translate(fahr[0]->get_besch()->get_name()), 116);
-					bool keep_name = strcmp(get_name(), buf);	
+					const bool keep_name = strcmp(get_name(), buf);	
 					vector_tpl<vehikel_t*> new_vehicles;
 
 					// Acquire the new one
