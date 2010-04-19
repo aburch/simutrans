@@ -1352,17 +1352,14 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	min_local_tolerance = min_local_tolerance_minutes * 10;
 	const uint16 max_local_tolerance_minutes = contents.get_int("max_local_tolerance", (max_local_tolerance / 10));
 	max_local_tolerance = max_local_tolerance_minutes * 10;
-	max_local_tolerance -= max_local_tolerance > min_local_tolerance ? min_local_tolerance : 0;
 	const uint16 min_midrange_tolerance_minutes = contents.get_int("min_midrange_tolerance", (min_midrange_tolerance/ 10));
 	min_midrange_tolerance = min_midrange_tolerance_minutes * 10;
 	const uint16 max_midrange_tolerance_minutes = contents.get_int("max_midrange_tolerance", (max_midrange_tolerance / 10));
 	max_midrange_tolerance = max_midrange_tolerance_minutes * 10;
-	max_midrange_tolerance -= max_midrange_tolerance  > min_midrange_tolerance ? min_midrange_tolerance : 0;
 	const uint16 min_longdistance_tolerance_minutes = contents.get_int("min_longdistance_tolerance", (min_longdistance_tolerance / 10));
 	min_longdistance_tolerance = min_longdistance_tolerance_minutes * 10;
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
-	max_longdistance_tolerance -= max_longdistance_tolerance > min_longdistance_tolerance ? min_longdistance_tolerance : 0;
 
 	const float max_walking_distance_km = (contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * (distance_per_tile * 10))) / 10.0);
 	max_walking_distance = max_walking_distance_km / distance_per_tile;

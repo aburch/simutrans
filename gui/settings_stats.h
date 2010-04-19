@@ -102,6 +102,7 @@ class einstellungen_t;
 	uint32 read_button = 0;\
 
 #define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
+#define EXIT_NUM(t,expr) (t)( numinp.at(read_numinp++)->get_value() expr)
 #define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
 #define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
 #define EXIT_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
@@ -162,6 +163,13 @@ public:
 };
 
 class settings_economy_stats_t : public settings_stats_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
+class settings_experimental_general_stats_t : public settings_stats_t
 {
 public:
 	void init( einstellungen_t *sets );
