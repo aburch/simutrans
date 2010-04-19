@@ -168,6 +168,13 @@ public:
 	void read( einstellungen_t *sets );
 };
 
+class settings_experimental_general_stats_t : public settings_stats_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
 class settings_experimental_revenue_stats_t : public settings_stats_t
 {
 public:
