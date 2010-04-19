@@ -2045,12 +2045,12 @@ void stadt_t::step_passagiere()
 	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
 	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
-	const uint16 max_local_tolerance = welt->get_einstellungen()->get_max_local_tolerance();
 	const uint16 min_local_tolerance = welt->get_einstellungen()->get_min_local_tolerance();
-	const uint16 max_midrange_tolerance = welt->get_einstellungen()->get_max_midrange_tolerance();
+	const uint16 max_local_tolerance = max(0, welt->get_einstellungen()->get_max_local_tolerance() - min_local_tolerance);
 	const uint16 min_midrange_tolerance = welt->get_einstellungen()->get_min_midrange_tolerance();
-	const uint16 max_longdistance_tolerance = welt->get_einstellungen()->get_max_longdistance_tolerance();
+	const uint16 max_midrange_tolerance = max( 0, welt->get_einstellungen()->get_max_midrange_tolerance() - min_midrange_tolerance);
 	const uint16 min_longdistance_tolerance = welt->get_einstellungen()->get_min_longdistance_tolerance();
+	const uint16 max_longdistance_tolerance = max(0, welt->get_einstellungen()->get_max_longdistance_tolerance() - min_longdistance_tolerance);
 
 	const uint8 passenger_packet_size = welt->get_einstellungen()->get_passenger_routing_packet_size();
 	const uint8 passenger_routing_local_chance = welt->get_einstellungen()->get_passenger_routing_local_chance();

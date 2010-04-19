@@ -136,24 +136,32 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	{
-		gui_component_table_t &tbl = new_table(koord(0, ypos), 4, 4);
+		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;
 		set_cell_component(tbl, new_textarea(koord(2, 0), "passenger\ndistribution"), 0, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), "min dist.\nkm"), 1, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), "max dist.\nkm"), 2, 0);
 		set_cell_component(tbl, new_textarea(koord(2, 0), "chance\npercent"), 3, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "waiting\ntolerance\nmin. min"), 4, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), "waiting\ntolerance\nmax. min"), 5, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "local"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 1000), 2, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_local_chance(), 0, 100), 3, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_local_tolerance() / 10, 30, 600), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_local_tolerance() / 10, 30, 600), 5, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "mid range"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_midrange_passengers_min_distance(), 0, 1000), 1, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_midrange_passengers_max_distance(), 0, 10000), 2, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_passenger_routing_midrange_chance(), 0, 100), 3, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_midrange_tolerance() / 10, 60, 1200), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_midrange_tolerance() / 10, 60, 1200), 5, row);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "long dist."), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_longdistance_passengers_min_distance(), 0, 1000), 1, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_min_longdistance_tolerance() / 10, 120, 4800), 4, row);
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_longdistance_tolerance() / 10, 120, 4800), 5, row);
 		INIT_TABLE_END(tbl);
 	}
 	{
@@ -244,10 +252,16 @@ void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 
 	EXIT_NUM( sets->set_local_passengers_max_distance );
 	EXIT_NUM( sets->set_passenger_routing_local_chance );
+	EXIT_NUM( sets->set_min_local_tolerance, * 10 );
+	EXIT_NUM( sets->set_max_local_tolerance, * 10 );
 	EXIT_NUM( sets->set_midrange_passengers_min_distance );
 	EXIT_NUM( sets->set_midrange_passengers_max_distance );
+	EXIT_NUM( sets->set_min_midrange_tolerance, * 10 );
+	EXIT_NUM( sets->set_max_midrange_tolerance, * 10 );
 	EXIT_NUM( sets->set_passenger_routing_midrange_chance );
 	EXIT_NUM( sets->set_longdistance_passengers_min_distance );
+	EXIT_NUM( sets->set_min_longdistance_tolerance, * 10 );
+	EXIT_NUM( sets->set_max_longdistance_tolerance, * 10 );
 
 	EXIT_NUM( sets->set_tolerable_comfort_short_minutes );
 	EXIT_NUM( sets->set_tolerable_comfort_short );

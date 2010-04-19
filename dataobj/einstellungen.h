@@ -673,11 +673,17 @@ public:
 
 	// @author: jamespetts
 	uint16 get_min_local_tolerance() const { return min_local_tolerance; }
+	void set_min_local_tolerance(uint16 value) { min_local_tolerance = value; }
 	uint16 get_max_local_tolerance() const { return max_local_tolerance; }
+	void set_max_local_tolerance(uint16 value) { max_local_tolerance = value; }
 	uint16 get_min_midrange_tolerance() const { return min_midrange_tolerance; }
+	void set_min_midrange_tolerance(uint16 value) { min_midrange_tolerance = value; }
 	uint16 get_max_midrange_tolerance() const { return max_midrange_tolerance; }
+	void set_max_midrange_tolerance(uint16 value) { max_midrange_tolerance = value; }
 	uint16 get_min_longdistance_tolerance() const { return min_longdistance_tolerance; }
+	void set_min_longdistance_tolerance(uint16 value){ min_longdistance_tolerance = value; }
 	uint16 get_max_longdistance_tolerance() const { return max_longdistance_tolerance; }
+	void set_max_longdistance_tolerance(uint16 value) { max_longdistance_tolerance = value; }
 
 	sint32 get_passenger_factor() const { return passenger_factor; }
 	void set_passenger_factor(sint32 n) { passenger_factor = n; }
