@@ -340,7 +340,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	}
 
 #ifdef IMG_VERSION0
-	// ok, need to be changed to hand mode ...
+	// version 0
 	obj_node_t node(this, 12 + (bild.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write manually the data
@@ -358,8 +358,8 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		node.write_data_at(outfp, pixdata, 12, bild.len * sizeof(PIXVAL));
 		free(pixdata);
 	}
-#else
-	// ok, need to be changed to hand mode ...
+#elif IMG_VERSION2
+	// version 1 or 2
 	obj_node_t node(this, 10 + (bild.len * sizeof(uint16)), &parent);
 
 	// to avoid any problems due to structure changes, we write manually the data
@@ -374,6 +374,24 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	if (bild.len) {
 		// only called, if there is something to store
 		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(PIXVAL));
+		free(pixdata);
+	}
+#else
+	// version 3
+	obj_node_t node(this, 14 + (bild.len * sizeof(uint16)), &parent);
+
+	// to avoid any problems due to structure changes, we write manually the data
+	node.write_uint16(outfp, bild.x,        0);
+	node.write_uint16(outfp, bild.y,        2);
+	node.write_uint16 (outfp, bild.w,        4);
+	node.write_uint8 (outfp, 3,             6); // version, always at position 6!
+	node.write_uint16 (outfp, bild.h,        7);
+	node.write_uint32(outfp, bild.len,      9);
+	node.write_uint8 (outfp, bild.zoomable, 13);
+
+	if (bild.len) {
+		// only called, if there is something to store
+		node.write_data_at(outfp, pixdata, 14, bild.len * sizeof(PIXVAL));
 		free(pixdata);
 	}
 #endif

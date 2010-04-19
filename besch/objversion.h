@@ -3,8 +3,9 @@
 
 #include "../simtypes.h"
 
-#define COMPILER_VERSION      "0.1.2exp"
-#define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 1)
+#define COMPILER_VERSION      "0.1.3exp"
+#define COMPILER_VERSION_CODE_11 (0 * 1000000 + 1 * 1000 + 1)
+#define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 3)
 
 //The experimental subversion
 #define EXP_VER 0x4000

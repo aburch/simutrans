@@ -42,6 +42,8 @@
 	CHANGE: better displaying algorithm, should give much less clipping errors/graphics glitches with lang vehicles/bridges/stations etc.
 	ADD: configurable thousand exponent (like 10^4 for japanese) by SEP_THOUSAND_EXPONENT
 	FIX: Makeobj could not extract bridges (and possibly even more objects) under XP
+	ADD: zooming in also for pak192
+	ADD: preparation for images larger than 64k resp 255*255
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

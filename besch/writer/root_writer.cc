@@ -115,10 +115,11 @@ void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &ro
 {
         uint32 type     = endian_uint32(&root.type);
         uint16 children = endian_uint16(&root.children);
-        uint16 size     = endian_uint16(&root.size);
+        uint32 size     = endian_uint32(&root.size);
         fwrite(&type,     4, 1, outfp);
         fwrite(&children, 2, 1, outfp);
-        fwrite(&size,     2, 1, outfp);
+        fwrite(&size,     4, 1, outfp);
+        assert( sizeof(obj_node_info_t)==10 );
 }
 
 bool root_writer_t::do_dump(const char* open_file_name)
@@ -221,6 +222,7 @@ void root_writer_t::list(int argc, char* argv[])
 
 bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open_file_name)
 {
+printf("XXX");exit(1);
 	bool any = false;
 	FILE* infp = fopen(open_file_name, "rb");
 	if (infp) {
@@ -254,6 +256,7 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 //
 void root_writer_t::copy(const char* name, int argc, char* argv[])
 {
+printf("XXX");exit(1);
 	searchfolder_t find;
 
 	FILE* outfp = NULL;
