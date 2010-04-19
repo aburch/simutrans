@@ -249,7 +249,7 @@ void obj_reader_t::read_file(const char *name)
 
 		if(version <= COMPILER_VERSION_CODE) {
 			obj_besch_t *data = NULL;
-			read_nodes(fp, data, 0 );
+			read_nodes(fp, data, 0, version );
 		}
 		else {
 			DBG_DEBUG("obj_reader_t::read_file()","version of '%s' is too old, %d instead of %d", version, COMPILER_VERSION_CODE, name);
@@ -263,16 +263,24 @@ void obj_reader_t::read_file(const char *name)
 }
 
 
-void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes)
+void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes, uint32 version )
 {
 	obj_node_info_t node;
-	char load_dummy[8], *p;
+	char load_dummy[10], *p;
 
 	p = load_dummy;
-	fread(p, 8, 1, fp);
-	node.type = decode_uint32(p);
-	node.children = decode_uint16(p);
-	node.size = decode_uint16(p);
+	if(  version==COMPILER_VERSION_CODE_11  ) {
+		fread(p, 8, 1, fp);
+		node.type = decode_uint32(p);
+		node.children = decode_uint16(p);
+		node.size = decode_uint16(p);
+	}
+	else {
+		fread(p, 10, 1, fp);
+		node.type = decode_uint32(p);
+		node.children = decode_uint16(p);
+		node.size = decode_uint32(p);
+	}
 
 	obj_reader_t *reader = obj_reader->get(static_cast<obj_type>(node.type));
 	if(reader) {
@@ -280,7 +288,7 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes)
 //DBG_DEBUG("obj_reader_t::read_nodes()","Reading %.4s-node of length %d with '%s'",	reinterpret_cast<const char *>(&node.type),	node.size,	reader->get_type_name());
 		data = reader->read_node(fp, node);
 		for(int i = 0; i < node.children; i++) {
-			read_nodes(fp, data->node_info[i], register_nodes+1);
+			read_nodes(fp, data->node_info[i], register_nodes+1, version);
 		}
 
 //DBG_DEBUG("obj_reader_t","registering with '%s'", reader->get_type_name());
@@ -294,7 +302,7 @@ void obj_reader_t::read_nodes(FILE* fp, obj_besch_t*& data, int register_nodes)
 		dbg->warning("obj_reader_t::read_nodes()","skipping unknown %.4s-node\n",reinterpret_cast<const char *>(&node.type));
 		fseek(fp, node.size, SEEK_CUR);
 		for(int i = 0; i < node.children; i++) {
-			skip_nodes(fp);
+			skip_nodes(fp,version);
 		}
 		data = NULL;
 	}
@@ -316,21 +324,29 @@ obj_besch_t *obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 }
 
 
-void obj_reader_t::skip_nodes(FILE *fp)
+void obj_reader_t::skip_nodes(FILE *fp,uint32 version)
 {
 	obj_node_info_t node;
-	char load_dummy[8], *p;
+	char load_dummy[10], *p;
 
 	p = load_dummy;
-	fread(p, 8, 1, fp);
-	node.type = decode_uint32(p);
-	node.children = decode_uint16(p);
-	node.size = decode_uint16(p);
+	if(  version==COMPILER_VERSION_CODE_11  ) {
+		fread(p, 8, 1, fp);
+		node.type = decode_uint32(p);
+		node.children = decode_uint16(p);
+		node.size = decode_uint16(p);
+	}
+	else {
+		fread(p, 10, 1, fp);
+		node.type = decode_uint32(p);
+		node.children = decode_uint16(p);
+		node.size = decode_uint32(p);
+	}
 //DBG_DEBUG("obj_reader_t::skip_nodes", "type %.4s (size %d)",reinterpret_cast<const char *>(&node.type),node.size);
 
 	fseek(fp, node.size, SEEK_CUR);
 	for(int i = 0; i < node.children; i++) {
-		skip_nodes(fp);
+		skip_nodes(fp,version);
 	}
 }
 

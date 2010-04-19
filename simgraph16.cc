@@ -1807,7 +1807,7 @@ void register_image(struct bild_t* bild)
 	image->player_data = NULL;	// chaches data for one AI
 
 	// since we do not recode them, we can work with the original data
-	image->base_data = (PIXVAL*)(bild + 1);
+	image->base_data = (PIXVAL*)(bild->data);
 
 	// does this image have color?
 	if(  bild->h > 0  ) {
