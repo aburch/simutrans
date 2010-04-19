@@ -41,6 +41,7 @@
 	ADD: no decimal point for very large amounts
 	CHANGE: better displaying algorithm, should give much less clipping errors/graphics glitches with lang vehicles/bridges/stations etc.
 	ADD: configurable thousand exponent (like 10^4 for japanese) by SEP_THOUSAND_EXPONENT
+	FIX: Makeobj could not extract bridges (and possibly even more objects) under XP
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

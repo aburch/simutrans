@@ -929,16 +929,27 @@ void gebaeude_t::entferne(spieler_t *sp)
 {
 //	DBG_MESSAGE("gebaeude_t::entferne()","gb %i");
 	// remove costs
-	if(tile->get_besch()->get_utyp()<haus_besch_t::bahnhof) {
-		spieler_t::accounting(sp, welt->get_einstellungen()->cst_multiply_remove_haus*(tile->get_besch()->get_level()+1), get_pos().get_2d(), COST_CONSTRUCTION);
+
+	const haus_besch_t* besch = tile->get_besch();
+
+	if(besch->get_utyp()<haus_besch_t::bahnhof) {
+		spieler_t::accounting(sp, welt->get_einstellungen()->cst_multiply_remove_haus*(besch->get_level()+1), get_pos().get_2d(), COST_CONSTRUCTION);
 	}
 	else {
 		// tearing down halts is always single costs only
-		spieler_t::accounting(sp, welt->get_einstellungen()->cst_multiply_remove_haus, get_pos().get_2d(), COST_CONSTRUCTION);
+		sint64 price = besch->get_station_price();
+		// This check is necessary because the number of 2147483647 is used if no price is specified. 
+		if(price == 2147483647)
+		{
+			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
+			price = welt->get_einstellungen()->cst_multiply_station * besch->get_level();
+		}
+		// Should be cheaper to bulldoze than build. 
+		spieler_t::accounting(sp, -(price / 1.5F), get_pos().get_2d(), COST_CONSTRUCTION);
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings
-	if(tile->get_besch()->get_all_layouts()>1  &&  get_haustyp()==unbekannt) {
+	if(besch->get_all_layouts()>1  &&  get_haustyp()==unbekannt) {
 
 		// realign surrounding buildings...
 		uint32 layout = tile->get_layout();

@@ -175,7 +175,6 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 			}
 			if (len)
 			{
-				offset_y += LINESPACE;
 				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
 				offset_y += LINESPACE;
 			}
