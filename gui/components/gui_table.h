@@ -69,6 +69,7 @@ protected:
 	void set_size(coordinate_t value) { size = value; }
 public:
 	gui_table_intercept_t(char *name_, coordinate_t size_, bool sort_descendingly_) : name(name_), size(size_), sort_descendingly(sort_descendingly_) {}
+	virtual ~gui_table_intercept_t() {}
 	const char *get_name() const { return name; }
 	void set_name(const char *value) { if (name) free(name); name = NULL; if (value) name = strdup(value); }
 	bool get_sort_descendingly() { return sort_descendingly; }
@@ -87,7 +88,7 @@ class gui_table_column_t : public gui_table_intercept_t
 public:
 	gui_table_column_t() : gui_table_intercept_t(NULL, 99, false) {}
 	gui_table_column_t(coordinate_t width) : gui_table_intercept_t(NULL, width, false) {}
-	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return 0; }
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn((long)&row1 - (long)&row2);  }
 	coordinate_t get_width() const { return get_size(); }
 	void set_width(coordinate_t value) { set_size(value); }
 };
@@ -104,7 +105,7 @@ class gui_table_row_t : public gui_table_intercept_t
 public:
 	gui_table_row_t() : gui_table_intercept_t(NULL, 14, false) {}
 	gui_table_row_t(coordinate_t height) : gui_table_intercept_t(NULL, height, false) {}
-	virtual int compare_columns(const gui_table_column_t &row1, const gui_table_column_t &row2) const { return 0; }
+	virtual int compare_columns(const gui_table_column_t &column1, const gui_table_column_t &column2) const { return sgn((long)&column1 - (long)&column2); }
 	coordinate_t get_height() const { return get_size(); }
 	void set_height(coordinate_t value) { set_size(value); }
 };
@@ -206,7 +207,7 @@ protected:
 	virtual void paint_grid(const koord &offset);
 public:
 	gui_table_t();
-    ~gui_table_t();
+    virtual ~gui_table_t();
 
 	/**
 	 * Get/set grid size.
