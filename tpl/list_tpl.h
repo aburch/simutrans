@@ -90,11 +90,11 @@ public:
 
 // construction / destruction
 
-	explicit list_tpl() : data(NULL), count(0), capacity(0), owns_items(false) {} 
-	explicit list_tpl(bool owns_its_items) : data(NULL), count(0), capacity(0), owns_items(owns_its_items) {} 
-	explicit list_tpl(bool owns_its_items, uint32 initial_capacity) : data(NULL), count(0), capacity(0), owns_items(owns_its_items) { set_capacity(initial_capacity); }
-	explicit list_tpl(uint32 initial_capacity) : data(NULL), count(0), capacity(0), owns_items(false) { set_capacity(initial_capacity); }
-	~list_tpl() { set_capacity(0); }
+	explicit list_tpl() : data(NULL), capacity(0), count(0), owns_items(false) {} 
+	explicit list_tpl(bool owns_its_items) : data(NULL), capacity(0), count(0), owns_items(owns_its_items) {} 
+	explicit list_tpl(bool owns_its_items, uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(owns_its_items) { set_capacity(initial_capacity); }
+	explicit list_tpl(uint32 initial_capacity) : data(NULL), capacity(0), count(0), owns_items(false) { set_capacity(initial_capacity); }
+	virtual ~list_tpl() { set_capacity(0); }
 
 // administration
 
@@ -231,7 +231,12 @@ template<class item_t> uint32 list_tpl<item_t>::add(item_t *item)
 	uint32 index;
 	if (is_sorted) {
 		index = search(item);
-		insert(index, item);
+		if (index < count) {
+			insert(index, item);
+		}
+		else {
+			index = append(item);
+		}
 	}
 	else {
 		index = append(item);
@@ -290,7 +295,7 @@ template<class item_t> uint32 list_tpl<item_t>::bsearch(const item_t *item) cons
 // BG, 04.04.2010
 template<class item_t> item_t *list_tpl<item_t>::extract(uint32 index) 
 {
-	assert_index_in_bounds(index);
+	assert_index_in_bounds(index, "index to extract");
 	item_t *item = data[index];
 	while (++index < count)
 	{
@@ -317,7 +322,7 @@ template<class item_t> sint32 list_tpl<item_t>::index_of(const item_t *item) con
 // BG, 04.04.2010
 template<class item_t> void list_tpl<item_t>::insert(uint32 index, item_t *item) 
 {
-	assert_index_in_bounds(index);
+	assert_index_in_bounds(index, "index to insert into");
 	if (count == capacity) {
 		grow();
 	}
@@ -400,7 +405,7 @@ template<class item_t> void list_tpl<item_t>::qsort(sint32 l, sint32 r)
 // BG, 04.04.2010
 template<class item_t> item_t *list_tpl<item_t>::set(uint32 index, item_t *item) 
 {
-	assert_index_in_bounds(index);
+	assert_index_in_bounds(index, "index to set value of");
 	item_t *old = data[index];
 	if (!is_item_in_sort_order(index, item)) {
 		set_is_sorted(false);
