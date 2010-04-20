@@ -102,7 +102,7 @@ class einstellungen_t;
 	uint32 read_button = 0;\
 
 #define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
-#define EXIT_NUM(t,expr) (t)( numinp.at(read_numinp++)->get_value() expr)
+#define EXIT_NUM_2(t,expr) (t)( numinp.at(read_numinp++)->get_value() expr)
 #define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
 #define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
 #define EXIT_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
