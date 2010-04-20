@@ -262,7 +262,6 @@ void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 	EXIT_NUM( sets->set_longdistance_passengers_min_distance );
 	EXIT_NUM2( sets->set_min_longdistance_tolerance, * 10 );
 	EXIT_NUM2( sets->set_max_longdistance_tolerance, * 10 );
-
 	EXIT_NUM( sets->set_tolerable_comfort_short_minutes );
 	EXIT_NUM( sets->set_tolerable_comfort_short );
 	EXIT_NUM( sets->set_tolerable_comfort_median_short_minutes );
