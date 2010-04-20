@@ -7,6 +7,7 @@
 
 uint32 obj_node_t::free_offset;	    // next free offset in file
 
+#define OBJ_NODE_INFO_SIZE (10)
 
 obj_node_t::obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent)
 {
@@ -15,21 +16,20 @@ obj_node_t::obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent)
 	desc.type = writer->get_type();
 	desc.children = 0;
 	desc.size = size;
-	write_offset = free_offset + sizeof(desc);
+	write_offset = free_offset + OBJ_NODE_INFO_SIZE;	// put size of dis here!
 	free_offset = write_offset + desc.size;
 }
 
 
 void obj_node_t::write(FILE* fp)
 {
-	fseek(fp, write_offset - sizeof(desc), SEEK_SET);
-
+	fseek(fp, write_offset - OBJ_NODE_INFO_SIZE, SEEK_SET);
 	uint32 type = endian_uint32(&desc.type);
 	uint16 children = endian_uint16(&desc.children);
-	uint16 size = endian_uint16(&desc.size);
+	uint32 size = endian_uint32(&desc.size);
 	fwrite(&type, 4, 1, fp);
 	fwrite(&children, 2, 1, fp);
-	fwrite(&size, 2, 1, fp);
+	fwrite(&size, 4, 1, fp);
 	if (parent) {
 		parent->desc.children++;
 	}
