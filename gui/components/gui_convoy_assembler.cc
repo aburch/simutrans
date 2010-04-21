@@ -946,11 +946,11 @@ void gui_convoy_assembler_t::update_data()
 				}
 				if(depot_frame && iter1.get_current_key()->get_leistung() > 0)
 				{
-					uint8 traction_type = iter1.get_current_key()->get_engine_type();
+					const uint8 traction_type = iter1.get_current_key()->get_engine_type();
 					const uint8 shifter = 1 << traction_type;
 					if(!(shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled()))
 					{
-						// Do not allow purchasing of vehicle if depot is of wrong type.
+						// Do not allow purchasing of vehicle if depot is of the wrong type.
 						iter1.get_current_value()->lcolor = COL_RED;
 						iter1.get_current_value()->rcolor = COL_RED;
 					}

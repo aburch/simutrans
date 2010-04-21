@@ -8,3 +8,10 @@ obj=program_text
 name=The convoy has been sent\nto its home depot.\n
 note=Used for when the home depot is specified when sending a vehicle to a depot.
 -
+obj=program_text
+name=Unpowered vehicles only
+note=Used in the depot frame to indicate that no traction types are enabled.
+-
+obj=program_text
+name=All traction types
+note=Used in the depot frame to indicate that all traction types are enabled.

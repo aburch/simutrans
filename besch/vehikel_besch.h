@@ -68,6 +68,32 @@ public:
 		battery
 	};
 
+	static const char* get_engine_type(engine_t e) 
+	{
+		switch(e)
+		{
+		case unknown:
+		default:
+			return "unknown";
+		case steam:
+			return "steam";
+		case diesel:
+			return "diesel";
+		case electric:
+			return "electric";
+		case bio:
+			return "bio";
+		case sail:
+			return "sail";
+		case fuel_cell:
+			return "fuel_cell";
+		case hydrogene:
+			return "hydrogene";
+		case battery:
+			return "battery";
+		}
+	}
+
 
 private:
 	uint32 preis;  //Price
