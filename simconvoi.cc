@@ -125,7 +125,6 @@ void convoi_t::reset()
 	withdraw = false;
 	has_obsolete = false;
 	no_load = false;
-	replace = NULL;
 	depot_when_empty = false;
 
 	jahresgewinn = 0;
@@ -153,6 +152,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	reset();
 
 	fpl = NULL;
+	replace = NULL;
 	line = linehandle_t();
 	line_id = INVALID_LINE_ID;
 
@@ -251,10 +251,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		delete fpl;
 	}
 
-	if(replace)
-	{
-		replace->decrement_convoys();
-	}
+	clear_replace();
 
 	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
@@ -885,7 +882,7 @@ end_loop:
 						}
 					}
 					anz_vehikel = 0;
-					reset();
+					//reset();
 
 					//Next, add all the new vehicles to the convoy in order.
 					ITERATE(new_vehicles,b)
@@ -893,14 +890,13 @@ end_loop:
 						dep->append_vehicle(self, new_vehicles[b], false);
 					}
 					
-					if (!keep_name) {
+					if (!keep_name) 
+					{
 						set_name(fahr[0]->get_besch()->get_name());
 					}
-					if(replace)
-					{
-						replace->decrement_convoys();
-						set_replace(NULL);
-					}
+
+					clear_replace();
+
 					if (line.is_bound()) {
 						line->recalc_status();
 						if (line->get_replacing_convoys_count()==0) {
