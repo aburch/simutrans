@@ -233,16 +233,9 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		if(experimental)
 		{
-			if(experimental_version > 0)
-			{
-				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
-			}
-			else
-			{
-				besch->station_capacity = decode_uint16(p);
-				besch->station_maintenance = decode_sint32(p);
-				besch->station_price = decode_sint32(p);
-			}
+			besch->station_capacity = decode_uint16(p);
+			besch->station_maintenance = decode_sint32(p);
+			besch->station_price = decode_sint32(p);
 		}
 	}
 
