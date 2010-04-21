@@ -638,18 +638,23 @@ sint64 replace_frame_t::calc_total_cost()
 
 		if (veh == NULL) 
 		{
-			// Second - check whether the vehicle can be upgraded (cheap)
-			ITERATE(current_vehicles,l)
-			{	
-				for(uint8 c = 0; c < current_vehicles[l]->get_besch()->get_upgrades_count(); c ++)
-				{
-					const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c);
-					if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
+			// Second - check whether the vehicle can be upgraded (cheap).
+			// But only if the user does not want to keep the vehicles for
+			// something else.
+			if(!rpl->get_retain_in_depot())
+			{
+				ITERATE(current_vehicles,l)
+				{	
+					for(uint8 c = 0; c < current_vehicles[l]->get_besch()->get_upgrades_count(); c ++)
 					{
-						veh = current_vehicles[l]->get_besch();
-						keep_vehicles.append_unique(l);
-						total_cost += veh->get_upgrades(c)->get_upgrade_price();
-						goto end_loop;
+						const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c);
+						if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
+						{
+							veh = current_vehicles[l]->get_besch();
+							keep_vehicles.append_unique(l);
+							total_cost += veh->get_upgrades(c)->get_upgrade_price();
+							goto end_loop;
+						}
 					}
 				}
 			}
@@ -678,5 +683,6 @@ replace_frame_t::~replace_frame_t()
 {
 	// TODO: Find why this causes crashes. Without it, there is a small memory leak.
 	//delete rpl;
+	//rpl->decrement_convoys();
 }
 

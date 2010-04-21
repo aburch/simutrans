@@ -781,7 +781,7 @@ void convoi_t::step()
 		case INITIAL:
 			// If there is a pending replacement, just do it
 			if (replace && replace->get_replacing_vehicles()->get_count()>0) {
-
+				
 				autostart = replace->get_autostart();
 
 				// Knightly : before replacing, copy the existing set of goods category index
@@ -799,11 +799,11 @@ void convoi_t::step()
 					tstrncpy(buf + name_offset, translator::translate(fahr[0]->get_besch()->get_name()), 116);
 					const bool keep_name = strcmp(get_name(), buf);	
 					vector_tpl<vehikel_t*> new_vehicles;
-
+					vehikel_t* veh = NULL;
 					// Acquire the new one
 					ITERATE_PTR(replace->get_replacing_vehicles(),i)
 					{
-						vehikel_t* veh = NULL;
+						veh = NULL;
 						// First - check whether there are any of the required vehicles already
 						// in the convoy (free)
 						for(uint8 k = 0; k < anz_vehikel; k++)
@@ -820,6 +820,12 @@ void convoi_t::step()
 							 // Second - check whether there are any of the required vehicles already
 							 // in the depot (more or less free).
 							veh = dep->find_oldest_newest(replace->get_replacing_vehicle(i), true);
+							if(new_vehicles.is_contained(veh))
+							{
+								// Stops the same vehicle from being added to the convoy twice,
+								// causing corruption and bizarre errors.
+								veh = NULL;
+							}
 						}
 
 						if (veh == NULL && !replace->get_retain_in_depot()) 
@@ -871,6 +877,7 @@ end_loop:
 							besitzer_p->buche( value, dep->get_pos().get_2d(), COST_NEW_VEHICLE );
 							besitzer_p->buche( -value, COST_ASSETS );	
 							delete fahr[a];
+							anz_vehikel--;
 						}
 						else
 						{
@@ -882,7 +889,7 @@ end_loop:
 						}
 					}
 					anz_vehikel = 0;
-					//reset();
+					reset();
 
 					//Next, add all the new vehicles to the convoy in order.
 					ITERATE(new_vehicles,b)

@@ -103,12 +103,15 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 	const char *p = ptr;
 	// Firstly, get the general settings.
 	autostart = atoi(p++);
-	retain_in_depot = atoi(p++);
-	use_home_depot = atoi(p++);
-	allow_using_existing_vehicles = atoi(p++);
+	const char rid = *p++;
+	retain_in_depot = atoi(&rid);
+	const char uhd = *p++;
+	use_home_depot = atoi(&uhd);
+	const char auev = *p++;
+	allow_using_existing_vehicles = atoi(&auev);
 
 	//Secondly, get the number of replacing vehicles
-	char rv[256];
+	char rv[5];
 	for(uint8 i = 0; i ++; i < 5)
 	{
 		rv[i] = *p++;

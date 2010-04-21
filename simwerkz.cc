@@ -5218,8 +5218,6 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				cnv_rpl.set_id( cnv_rpl_id );
 				assert(cnv_rpl.is_bound());
 				cnv->set_replace(cnv_rpl->get_replace());
-				replace_data_t* TEST = cnv->get_replace();
-				uint8 TEST_2 = cnv->get_comfort();
 				cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());
 				cnv->set_no_load(cnv->get_depot_when_empty());
 				// If already empty, no need to be emptied
