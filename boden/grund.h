@@ -234,8 +234,6 @@ public:
 	inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
 	inline bool get_flag(enum flag_values flag) const {return (flags & flag) != 0;}
 
-	void entferne_grund_info() const;
-
 	/**
 	* start a new month (and toggle the seasons)
 	* @author prissi
@@ -639,6 +637,13 @@ public:
 	* Interface zur Bauen der Wege
 	* =============================
 	*/
+
+	/**
+	 * remove trees and groundobjs on this tile
+	 * called before building way or powerline
+	 * @returns costs
+	 */
+	sint64 remove_trees();
 
 	/**
 	 * Bauhilfsfunktion - ein neuer weg wird mit den vorgegebenen ribis
