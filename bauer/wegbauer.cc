@@ -2112,7 +2112,8 @@ void wegbauer_t::baue_leitung()
 		if(lt==NULL) {
 			if(gr->ist_natur()) {
 				// remove trees etc.
-				gr->obj_loesche_alle(sp);
+				sint64 cost = gr->remove_trees();
+				spieler_t::accounting(sp, -cost, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 			}
 			lt = new leitung_t( welt, route[i], sp );
 			spieler_t::accounting(sp, -leitung_besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);

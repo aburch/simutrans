@@ -1663,10 +1663,15 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		if( besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser ) {
 			return 0;
 		}
-		// check for ownership
-		if(sp!=NULL  && gr->kann_alle_obj_entfernen(sp)!=NULL  &&  gr->get_weg((waytype_t)besch->get_wtyp())==NULL) {
-			error =  "Das Feld gehoert\neinem anderen Spieler\n";
-			return 0;
+		// check for ownership but ignore moving things
+		if(sp!=NULL) {
+			for(uint8 i=0; i<gr->obj_count(); i++) {
+				ding_t* dt = gr->obj_bei(i);
+				if (!dt->is_moving()  &&  dt->ist_entfernbar(sp)!=NULL) {
+					error =  dt->ist_entfernbar(sp); // "Das Feld gehoert\neinem anderen Spieler\n";
+					return 0;
+				}
+			}
 		}
 	}
 	else {
