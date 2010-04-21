@@ -1030,7 +1030,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::ost) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(1,0))) {
-			const bool draw_other_ways = (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
+			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::ost);
 			gr->display_dinge_bg(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
 		}
@@ -1038,7 +1038,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::sued) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(0,1))) {
-			const bool draw_other_ways = (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
+			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::sued);
 			gr->display_dinge_bg(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
 		}
