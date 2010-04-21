@@ -489,8 +489,7 @@ sint8 vehikel_basis_t::calc_height()
 		// slope changed below a moving thing?!?
 		return 0;
 	}
-	else if(  gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
-		hoff = 0;
+	else if(gr->ist_tunnel()  &&  gr->ist_karten_boden()  ) {
 		use_calc_height = true; // to avoid errors if undergroundmode is switched
 		if(grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && gr->get_hoehe()<grund_t::underground_level)) {
 			// need hiding? One of the few uses of XOR: not half driven XOR exiting => not hide!
@@ -502,6 +501,9 @@ sint8 vehikel_basis_t::calc_height()
 				calc_bild();
 			}
 		}
+	}
+	else if (!gr->is_visible()) {
+		set_bild(IMG_LEER);
 	}
 	else {
 		// will not work great with ways, but is very short!
