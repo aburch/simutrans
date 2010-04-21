@@ -233,7 +233,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		if(experimental)
 		{
-			if(experimental_version > 0)
+			if(experimental_version > 1)
 			{
 				dbg->fatal( "building_reader_t::read_node()","Incompatible pak file version for Simutrans-Ex, number %i", experimental_version );
 			}
