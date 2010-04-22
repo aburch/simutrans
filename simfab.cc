@@ -280,11 +280,10 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	}
 }
 
-
-
-fabrik_t::~fabrik_t()
+void fabrik_t::delete_all_fields()
 {
-	while(!fields.empty()) {
+	while(!fields.empty()) 
+	{
 		planquadrat_t *plan = welt->access( fields.back().location );
 		assert(plan);
 		if(!plan)
@@ -298,6 +297,11 @@ fabrik_t::~fabrik_t()
 		plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
 		plan->get_kartenboden()->calc_bild();
 	}
+}
+
+fabrik_t::~fabrik_t()
+{
+	delete_all_fields();
 
 	fabrik_t* tmp = this;
 
@@ -1408,12 +1412,20 @@ void fabrik_t::neuer_monat()
 					{
 						// All the conditions are met: upgrade.
 						const fabrik_besch_t* new_type = upgrade_list[chance];
+						float proportion = new_type->get_field() ? (float)new_type->get_field()->get_max_fields() / (float)besch->get_field()->get_max_fields() : 0.0;
+						const uint16 adjusted_number_of_fields = proportion ? fields.get_count() * proportion : 0;
+						delete_all_fields();
 						const char* old_name = get_name();
 						besch = new_type;
 						const char* new_name = get_name();
 						gb->calc_bild();
 						// Base production is randomised, so is an instance value. Must re-set from the type.
 						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+						// Re-add the fields
+						for(uint16 i = 0; i < adjusted_number_of_fields; i ++)
+						{
+							add_random_field(0);
+						}
 						sprintf(buf, translator::translate("Industry:\n%s\nhas been upgraded\nto industry:\n%s."), translator::translate(old_name), translator::translate(new_name));
 						welt->get_message()->add_message(buf, pos.get_2d(), message_t::industry, CITY_KI, skinverwaltung_t::neujahrsymbol->get_bild_nr(0));
 						return;

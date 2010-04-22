@@ -182,6 +182,10 @@ private:
 	// @author: jamespetts
 	stadt_t* city;
 
+protected:
+
+	void delete_all_fields();
+
 public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
 	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch);
