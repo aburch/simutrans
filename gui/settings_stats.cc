@@ -8,6 +8,7 @@
 #include "../simcity.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/translator.h"
 #include "settings_stats.h"
 
 
@@ -101,9 +102,9 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 2);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(koord(2, 0), "travelling"), 0, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "above\nminutes"), 1, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "get\nrevenue $"), 2, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("travelling")), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("above\nminutes")), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("get\nrevenue $")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "post office"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_min_minutes(), 0, 14400), 1, row);
@@ -138,12 +139,12 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(koord(2, 0), "passenger\ndistribution"), 0, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "min dist.\nkm"), 1, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "max dist.\nkm"), 2, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "chance\npercent"), 3, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "waiting\ntolerance\nmin. min"), 4, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "waiting\ntolerance\nmax. min"), 5, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("passenger\ndistribution")), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("min dist.\nkm")), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("max dist.\nkm")), 2, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("chance\npercent")), 3, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("waiting\ntolerance\nmin. min")), 4, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("waiting\ntolerance\nmax. min")), 5, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "local"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_local_passengers_max_distance(), 0, 1000), 2, row);
@@ -167,9 +168,9 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 6);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(koord(2, 0), "comfort expectance\nfor travelling"), 0, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "duration\nin minutes"), 1, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "min comfort\nrating"), 2, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("comfort expectance\nfor travelling")), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("duration\nin minutes")), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("min comfort\nrating")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "short time"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tolerable_comfort_short_minutes(), 0, 120), 1, row);
@@ -195,9 +196,9 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 3);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(koord(2, 0), "comfort impact\nlimitations"), 0, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "differential"), 1, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "percent"), 2, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("comfort impact\nlimitations")), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("differential")), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("percent")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "max luxury bonus"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_max_luxury_bonus_differential(), 0, 250), 1, row);
@@ -211,9 +212,9 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 3, 8);
 		int row = 0;
-		set_cell_component(tbl, new_textarea(koord(2, 0), "catering bonus\nfor travelling"), 0, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "duration\nin minutes"), 1, 0);
-		set_cell_component(tbl, new_textarea(koord(2, 0), "max catering\nrevenue $"), 2, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("catering bonus\nfor travelling")), 0, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("duration\nin minutes")), 1, 0);
+		set_cell_component(tbl, new_textarea(koord(2, 0), translator::translate("max catering\nrevenue $")), 2, 0);
 		row++;
 		set_cell_component(tbl, new_label(koord(2, 3), "min traveltime"), 0, row);
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_catering_min_minutes(), 0, 14400), 1, row);

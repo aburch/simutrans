@@ -58,7 +58,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
 	add_komponente(&tabs);
 
-	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("Experimental"));
+	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("General Exp."));
 	tabs_experimental.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
 	//add_komponente(&tabs_experimental);
 
