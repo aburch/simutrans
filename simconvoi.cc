@@ -819,13 +819,7 @@ void convoi_t::step()
 						{
 							 // Second - check whether there are any of the required vehicles already
 							 // in the depot (more or less free).
-							veh = dep->find_oldest_newest(replace->get_replacing_vehicle(i), true);
-							if(new_vehicles.is_contained(veh))
-							{
-								// Stops the same vehicle from being added to the convoy twice,
-								// causing corruption and bizarre errors.
-								veh = NULL;
-							}
+							veh = dep->find_oldest_newest(replace->get_replacing_vehicle(i), true, &new_vehicles);
 						}
 
 						if (veh == NULL && !replace->get_retain_in_depot()) 

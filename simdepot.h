@@ -207,7 +207,7 @@ public:
 	/*
 	 * Find the oldest/newest vehicle in the depot
 	 */
-	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
+	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehikel_t*> *avoid = NULL);
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);
