@@ -33,6 +33,7 @@
 
 #include "besch/vehikel_besch.h"
 #include "besch/roadsign_besch.h"
+#include "besch/haus_besch.h"
 
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
@@ -4159,11 +4160,13 @@ class depot_finder_t : public fahrer_t
 {
 private:
 	vehikel_t *master;
+	uint8 traction_type;
 public:
-	depot_finder_t( convoihandle_t cnv ) 
+	depot_finder_t( convoihandle_t cnv, uint8 tt ) 
 	{ 
 		master = cnv->get_vehikel(0); 
 		assert(master!=NULL); 
+		traction_type = tt;
 	};
 	virtual waytype_t get_waytype() const 
 	{ 
@@ -4175,7 +4178,7 @@ public:
 	};
 	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
 	{ 
-		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer(); 
+		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type; 
 	};
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
 	{ 
@@ -4206,10 +4209,36 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	//convoi_info_t::route_search_in_progress = true;
 
 	route_t route;
+	uint8 traction_type = 0;
 
 	if(!use_home_depot)
 	{
-		depot_finder_t finder( self );
+		uint8 shifter;
+		if(replace)
+		{
+			ITERATE_PTR(replace->get_replacing_vehicles(), i)
+			{
+				if(replace->get_replacing_vehicle(i)->get_leistung() == 0)
+				{
+					continue;
+				}
+				shifter = 1 << replace->get_replacing_vehicle(i)->get_engine_type();
+				traction_type |= shifter;
+			}
+		}
+		else
+		{
+			for(uint8 i = 0; i < anz_vehikel; i ++)
+			{
+				if(fahr[i]->get_besch()->get_leistung() == 0)
+				{
+					continue;
+				}
+				shifter = 1 << fahr[i]->get_besch()->get_engine_type();
+				traction_type |= shifter;
+			}
+		}
+		depot_finder_t finder( self, traction_type );
 		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
 	}
 
@@ -4243,7 +4272,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		while (depot_iter.next()) 
 		{
 			depot_t *depot = depot_iter.get_current();
-			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer()) 
+			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer() || !depot->get_tile()->get_besch()->get_enabled() & traction_type) 
 			{
 				continue;
 			}

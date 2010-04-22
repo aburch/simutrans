@@ -5118,7 +5118,7 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  * 'n' : toggle 'no load'
  * 'w' : toggle withdraw
  * 'd' : dissassemble convoi and store vehicle in this depot
- * 't' : toggle 'retire'
+ * 'T' : toggle 'retire'
  * 'l' : apply new line [number]
  */
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
@@ -5191,51 +5191,54 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			}
 			break;
 
-		case 'R': // Add new replace
+			case 'C': // Copy a replace datum
 			{
-				replace_data_t* rpl = new replace_data_t();
-				rpl->sscanf_replace(p);
-				cnv->set_replace(rpl);
-				cnv->set_depot_when_empty(rpl->get_autostart());
-				cnv->set_no_load(cnv->get_depot_when_empty());
-				// If already empty, no need to be emptied
-				if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
+				uint16 cnv_rpl_id;
+				sscanf(p, "%hi", &cnv_rpl_id);
+				convoihandle_t cnv_rpl;
+				cnv_rpl.set_id( cnv_rpl_id );
+				if(cnv_rpl.is_bound())
 				{
-					cnv->set_depot_when_empty(false);
-					cnv->set_no_load(false);
-					cnv->go_to_depot(false, rpl->get_use_home_depot());
+					cnv->set_replace(cnv_rpl->get_replace());
+					cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());
+					cnv->set_no_load(cnv->get_depot_when_empty());
+					// If already empty, no need to be emptied
+					if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
+					{
+						cnv->set_depot_when_empty(false);
+						cnv->set_no_load(false);
+						cnv->go_to_depot(false);
+					}
+					break;	
 				}
+				// Else fallthrough
+			}
+
+		case 'R': // Add new replace
+		{
+			replace_data_t* rpl = new replace_data_t();
+			rpl->sscanf_replace(p);
+			cnv->set_replace(rpl);
+			cnv->set_depot_when_empty(rpl->get_autostart());
+			cnv->set_no_load(cnv->get_depot_when_empty());
+			// If already empty, no need to be emptied
+			if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
+			{
+				cnv->set_depot_when_empty(false);
+				cnv->set_no_load(false);
+				cnv->go_to_depot(false, rpl->get_use_home_depot());
 			}
 			break;
+		}
 
 		case 'D': // Used for when "depot" is set in the replace frame
 			{
 				cnv->set_depot_when_empty(true);
 				cnv->set_no_load(true);
 			}
-			break;
+			break;	
 
-		case 'C': // Copy a replace datum
-			{
-				uint16 cnv_rpl_id;
-				sscanf(p, "%hi", &cnv_rpl_id);
-				convoihandle_t cnv_rpl;
-				cnv_rpl.set_id( cnv_rpl_id );
-				assert(cnv_rpl.is_bound());
-				cnv->set_replace(cnv_rpl->get_replace());
-				cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());
-				cnv->set_no_load(cnv->get_depot_when_empty());
-				// If already empty, no need to be emptied
-				if(cnv->get_replace() && cnv->get_depot_when_empty() && cnv->has_no_cargo()) 
-				{
-					cnv->set_depot_when_empty(false);
-					cnv->set_no_load(false);
-					cnv->go_to_depot(false);
-				}
-			}
-			break;		
-
-		case 't': // change retire
+		case 'T': // change retire
 			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
 				// pop up error message here!
 				return false;

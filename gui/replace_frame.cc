@@ -443,7 +443,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 		break;
 	
 	case state_sell:
-		cnv_rpl->call_convoi_tool('t');
+		cnv_rpl->call_convoi_tool('T');
 		break;
 	case state_skip:
 	break;

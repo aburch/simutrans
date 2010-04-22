@@ -201,7 +201,7 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 		else if(komp==&retire_button) {
-			cnv->call_convoi_tool( 't', NULL );
+			cnv->call_convoi_tool( 'T', NULL );
 			return true;
 		}
 	}
