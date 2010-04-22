@@ -2553,12 +2553,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2569,12 +2570,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2593,12 +2595,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2620,12 +2623,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2819,11 +2823,6 @@ convoi_t::rdwr(loadsave_t *file)
 				//replacing_vehicles = replace->get_replacing_vehicles();
 				//replacing_vehicles_count = replacing_vehicles->get_count();
 				file->rdwr_short(replacing_vehicles_count, "");
-				//ITERATE_PTR(replacing_vehicles, i)
-				//{
-				//	const char *s = replacing_vehicles->get_element(i)->get_name();
-				//	file->rdwr_str(s);
-				//}
 			}
 			else
 			{
@@ -2854,9 +2853,6 @@ convoi_t::rdwr(loadsave_t *file)
 					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
 					// BG, 31-MAR-2010: we must not create 'replace'. I does not work correct. 
 					delete replacing_vehicles;
-					//replace = new replace_data_t();
-					//replace->set_autostart(old_autostart);
-					//replace->set_replacing_vehicles(replacing_vehicles);
 				}
 			}
 		}

@@ -1068,7 +1068,7 @@ void haltestelle_t::step(sint16 &units_remaining)
 								if(account_line.is_bound())
 								{
 									account_line->book(-refund_amount, CONVOI_PROFIT);
-									account_line->book(-refund_amount, CONVOI_REVENUE);
+									account_line->book(-refund_amount, CONVOI_REFUNDS);
 								}
 								else
 								{
@@ -1076,7 +1076,7 @@ void haltestelle_t::step(sint16 &units_remaining)
 									if(account_convoy.is_bound())
 									{
 										account_convoy->book(-refund_amount, CONVOI_PROFIT);
-										account_convoy->book(-refund_amount, CONVOI_REVENUE);
+										account_convoy->book(-refund_amount, CONVOI_REFUNDS);
 									}
 								}
 							}

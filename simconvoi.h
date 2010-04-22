@@ -21,7 +21,7 @@
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 
-#define MAX_CONVOI_COST				8 // Total number of cost items
+#define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
 #define MAX_CONVOI_NON_MONEY_TYPES	4 // number of non money types in convoi's financial statistic
 
@@ -33,6 +33,7 @@
 #define CONVOI_OPERATIONS			5 // the cost of operations this CONVOI generated
 #define CONVOI_PROFIT				6 // total profit of this convoi
 #define CONVOI_DISTANCE				7 // total distance traveld this month
+#define CONVOI_REFUNDS				8 // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
 
 class depot_t;
 class karte_t;

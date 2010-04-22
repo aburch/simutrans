@@ -16,7 +16,7 @@
 #include "tpl/minivec_tpl.h"
 #include "tpl/vector_tpl.h"
 
-#define MAX_LINE_COST			9 // Total number of cost items
+#define MAX_LINE_COST			10 // Total number of cost items
 #define MAX_MONTHS				12 // Max history
 #define MAX_NON_MONEY_TYPES		4 // number of non money types in line's financial statistic
 
@@ -29,6 +29,7 @@
 #define LINE_PROFIT             6 // total profit of line
 #define LINE_CONVOIS			7 // number of convois for this line
 #define LINE_DISTANCE		    8 // distance converd by all convois
+#define LINE_REFUNDS			9 // Total refunds paid to passengers/goods owners desiring to use this line but kept waiting too long to do so.
 
 class karte_t;
 class loadsave_t;
