@@ -16,7 +16,7 @@ else
 		cp $2/sim.exe $1
 	fi
 	cd $1
-	sim -screensize 1280x1024 -fps 12 -freeplay -objects pak/ -nomidi -nosound
+	sim -screensize 1280x1024 -fps 12 -freeplay -nomidi -nosound
 	cd $2
 fi
 exit
