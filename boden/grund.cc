@@ -1030,7 +1030,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::ost) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(1,0))) {
-			const bool draw_other_ways = (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
+			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::ost);
 			gr->display_dinge_bg(xpos+raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
 		}
@@ -1038,7 +1038,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	if (ribi & ribi_t::sued) {
 		grund_t *gr;
 		if (get_neighbour(gr, invalid_wt, koord(0,1))) {
-			const bool draw_other_ways = (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
+			const bool draw_other_ways = (flags&draw_as_ding)  ||  (gr->flags&draw_as_ding)  ||  !gr->ist_karten_boden();
 			activate_ribi_clip(ribi_t::sued);
 			gr->display_dinge_bg(xpos-raster_tile_width/2, ypos+raster_tile_width/4-tile_raster_scale_y( (gr->get_hoehe()-pos.z)*TILE_HEIGHT_STEP/Z_TILE_STEP, raster_tile_width), is_global, draw_other_ways, true);
 		}
@@ -1239,6 +1239,37 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 	return false;
 }
 
+/**
+ * remove trees and groundobjs on this tile
+ * called before building way or powerline
+ * @returns costs
+ */
+sint64 grund_t::remove_trees()
+{
+	sint64 cost=0;
+	// remove all trees ...
+	while(1) {
+		baum_t *d=find<baum_t>(0);
+		if(d==NULL) {
+			break;
+		}
+		// we must mark it by hand, sinc ewe want to join costs
+		d->mark_image_dirty( get_bild(), 0 );
+		delete d;
+		cost -= welt->get_einstellungen()->cst_remove_tree;
+	}
+	// remove all groundobjs ...
+	while(1) {
+		groundobj_t *d=find<groundobj_t>(0);
+		if(d==NULL) {
+			break;
+		}
+		cost += d->get_besch()->get_preis();
+		delete d;
+	}
+	return cost;
+}
+
 
 sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
@@ -1250,29 +1281,8 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 		// ok, we are unique
 
 		if((flags&has_way1)==0) {
-			// new first way here
-
-			// remove all trees ...
-			while(1) {
-				baum_t *d=find<baum_t>(0);
-				if(d==NULL) {
-					break;
-				}
-				// we must mark it by hand, sinc ewe want to join costs
-				d->mark_image_dirty( get_bild(), 0 );
-				delete d;
-				cost -= welt->get_einstellungen()->cst_remove_tree;
-			}
-			// remove all groundobjs ...
-			while(1) {
-				groundobj_t *d=find<groundobj_t>(0);
-				if(d==NULL) {
-					break;
-				}
-				cost += d->get_besch()->get_preis();
-				delete d;
-			}
-
+			// new first way here, clear trees
+			remove_trees();
 
 			// add
 			weg->set_ribi(ribi);
