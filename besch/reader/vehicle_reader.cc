@@ -218,6 +218,39 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					besch->tractive_effort = 0;
 				}
+
+				if(experimental_version >=4)
+				{
+					uint16 air_resistance_hundreds = decode_uint16(p);
+					besch->air_resistance = (float)air_resistance_hundreds / 100.0F;
+				}
+				else
+				{
+					uint16 air_default;
+					switch(besch->get_waytype())
+					{
+						case default:
+						case road_wt:
+							air_default = 252; //2.52 when read
+							break;
+						case track_wt:
+						case tram_wt:
+						case monorail_wt:
+						case narrowgauge_wt:
+							air_default = 1300; //13 when read
+							break;
+						case water_wt:
+							air_default = 2500; //25 when read
+							break;
+						case maglev_wt:		
+							air_default = 1000; //10 when read
+							break;
+						case air_wt:
+							air_default = 100; //1 when read
+					};
+					besch->air_resistance = (float) air_default / 100.0F;
+				}
+				
 			}
 			else
 			{
@@ -323,7 +356,30 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			besch->loading_time = 30000;
 			break;
 		}
-		
+		uint16 air_default;
+
+		switch(besch->get_waytype())
+		{
+			case default:
+			case road_wt:
+				air_default = 252; //2.52 when read
+				break;
+			case track_wt:
+			case tram_wt:
+			case monorail_wt:
+			case narrowgauge_wt:
+				air_default = 1300; //13 when read
+				break;
+			case water_wt:
+				air_default = 2500; //25 when read
+				break;
+			case maglev_wt:		
+				air_default = 1000; //10 when read
+				break;
+			case air_wt:
+				air_default = 100; //1 when read
+		};
+		besch->air_resistance = (float) air_default / 100.0F;
 		besch->upgrades = 0;
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;

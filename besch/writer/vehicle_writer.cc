@@ -76,7 +76,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 54;
+	int total_len = 56;
 
 	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -114,7 +114,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x400;
+	version += 0x500;
 
 	node.write_uint16(fp, version, 0);
 
@@ -507,10 +507,38 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 tractive_effort = obj.get_int("tractive_effort", 0);
 	node.write_uint16(fp, tractive_effort, 52);
 
+	// Air resistance
+	// @author: jamespetts & Bernd Gabriel
+	uint16 air_default;
+	switch(waytype_uint)
+	{
+		case default:
+		case road_wt:
+			air_default = 252; //2.52 when read
+			break;
+		case track_wt:
+		case tram_wt:
+		case monorail_wt:
+		case narrowgauge_wt:
+			air_default = 1300; //13 when read
+			break;
+		case water_wt:
+			air_default = 2500; //25 when read
+			break;
+		case maglev_wt:		
+			air_default = 1000; //10 when read
+			break;
+		case air_wt:
+			air_default = 100; //1 when read
+	};
+
+	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
+	node.write_uint16(fp, air_resistance_hundreds, 54);
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 54);
-		node.write_data_at(fp, sound_str,     55, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 56);
+		node.write_data_at(fp, sound_str,     57, sound_str_len);
 	}
 
 	node.write(fp);

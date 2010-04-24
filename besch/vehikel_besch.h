@@ -142,6 +142,8 @@ private:
 	
 	uint16 tractive_effort; // tractive effort / force in kN
 
+	float air_resistance; // The "cf" value in physics calculations.
+
 	// these values are not stored and therefore calculated in loaded():
 	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
 	uint32 geared_force; // @author: Bernd Gabriel, Dec 12, 2009: == tractive_effort * gear in kN
