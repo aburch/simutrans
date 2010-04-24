@@ -12,7 +12,7 @@ else
 	if test $2/sim.exe -nt $1/sim.exe
 	then
 		echo copy $2/sim.exe to $1/sim.exe
-		mv $1/sim.exe sim.exe.bak 
+		mv $1/sim.exe $1/sim.exe.bak
 		cp $2/sim.exe $1
 	fi
 	cd $1
