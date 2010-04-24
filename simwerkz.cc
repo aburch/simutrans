@@ -3859,22 +3859,22 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 	case narrowgauge_wt:
 	case tram_wt:	
 	case track_wt: 
-		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_rail))
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_rail * besch->get_level()))
 		{
 			return CREDIT_MESSAGE;
 		}
 	case water_wt:
-		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_ship))
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_ship * besch->get_level()))
 		{
 			return CREDIT_MESSAGE;
 		}
 	case air_wt:
-		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_air))
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_air * besch->get_level()))
 		{
 			return CREDIT_MESSAGE;
 		}
 	case road_wt:
-		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_road))
+		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_road * besch->get_level()))
 		{
 			return CREDIT_MESSAGE;
 		}
@@ -3963,14 +3963,14 @@ const char *wkz_depot_t::get_tooltip(spieler_t *sp)
 {
 	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
 	switch(besch->get_extra()) {
-		case road_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build road depot", sp->get_welt()->get_einstellungen()->cst_depot_road, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case track_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build train depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case monorail_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build monorail depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case maglev_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build maglev depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case narrowgauge_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build narrowgauge depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case tram_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build tram depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case water_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build ship depot", sp->get_welt()->get_einstellungen()->cst_depot_ship, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case air_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build air depot", sp->get_welt()->get_einstellungen()->cst_depot_air, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case road_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build road depot", sp->get_welt()->get_einstellungen()->cst_depot_road * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case track_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build train depot", sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case monorail_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build monorail depot", sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case maglev_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build maglev depot", sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case narrowgauge_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build narrowgauge depot", sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case tram_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build tram depot", sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case water_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build ship depot", sp->get_welt()->get_einstellungen()->cst_depot_ship * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+		case air_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build air depot", sp->get_welt()->get_einstellungen()->cst_depot_air * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
 	}
 	return NULL;
 }
@@ -3985,9 +3985,9 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
 	switch(besch->get_extra()) {
 		case road_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, road_wt, welt->get_einstellungen()->cst_depot_road );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, road_wt, welt->get_einstellungen()->cst_depot_road * besch->get_level() );
 		case track_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, track_wt, welt->get_einstellungen()->cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, track_wt, welt->get_einstellungen()->cst_depot_rail  * besch->get_level());
 		case monorail_wt:
 			{
 				// since it need also a foundations, this is slightly more complex ...
@@ -4001,15 +4001,15 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				return err;
 			}
 		case tram_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, track_wt, welt->get_einstellungen()->cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, track_wt, welt->get_einstellungen()->cst_depot_rail * besch->get_level() );
 		case water_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, water_wt, welt->get_einstellungen()->cst_depot_ship );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, water_wt, welt->get_einstellungen()->cst_depot_ship * besch->get_level() );
 		case air_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, air_wt, welt->get_einstellungen()->cst_depot_air );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, air_wt, welt->get_einstellungen()->cst_depot_air * besch->get_level() );
 		case maglev_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, maglev_wt, welt->get_einstellungen()->cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, maglev_wt, welt->get_einstellungen()->cst_depot_rail * besch->get_level() );
 		case narrowgauge_wt:
-			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, narrowgauge_wt, welt->get_einstellungen()->cst_depot_rail );
+			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, narrowgauge_wt, welt->get_einstellungen()->cst_depot_rail * besch->get_level() );
 		default:
 			dbg->fatal("wkz_depot()","called with unknown besch %s",besch->get_name() );
 			return "";
