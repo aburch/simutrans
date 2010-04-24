@@ -80,7 +80,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		}
 	}
 	else if(version==3) {
-		besch = new(node.size-14) bild_besch_t();
+		besch = new(node.size-10) bild_besch_t();
 		besch->node_info = new obj_besch_t*[node.children];
 
 		besch->pic.x = decode_sint16(p);
@@ -88,7 +88,7 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pic.w = decode_sint16(p);
 		p++; // skip version information
 		besch->pic.h = decode_sint16(p);
-		besch->pic.len = decode_uint32(p);
+		besch->pic.len = (node.size-10)/2;
 		besch->pic.zoomable = decode_uint8(p);
 		besch->pic.bild_nr = IMG_LEER;
 
