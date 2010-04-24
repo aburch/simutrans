@@ -2020,7 +2020,11 @@ void stadt_t::step_bau()
 		bev++; // Hajo: bevoelkerung wachsen lassen
 
 		for (int i = 0; i < 30 && bev * 2 > won + arb + 100; i++) {
-			baue();
+			// For some reason, this does not work: it only builds one
+			// type of old building rather than all types. TODO: Either
+			// fix this, or wait for Prissi to do it properly. 
+			//baue(new_town);
+			baue(false);
 		}
 
 		check_bau_spezial(new_town);
@@ -3052,7 +3056,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 						DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall tile %i,%i (gb=%p)", k.x, k.y, gb);
 						welt->access(pos)->boden_ersetzen( gr, new boden_t(welt,gr->get_pos(),hang_t::flach) );
 						// replace old space by normal houses level 0 (must be 1x1!)
-						baue_gebaeude(pos);
+						baue_gebaeude(pos, new_town);
 					}
 				}
 			}
@@ -3231,7 +3235,7 @@ static koord neighbours[] = {
 static int gebaeude_layout[] = {0,0,1,4,2,0,5,1,3,7,1,0,6,3,2,0};
 
 
-void stadt_t::baue_gebaeude(const koord k)
+void stadt_t::baue_gebaeude(const koord k, bool new_town)
 {
 	grund_t* gr = welt->lookup_kartenboden(k);
 	const koord3d pos(gr->get_pos());
@@ -3260,21 +3264,21 @@ void stadt_t::baue_gebaeude(const koord k)
 		const climate cl = welt->get_climate(welt->max_hgt(k));
 
 		if (sum_gewerbe > sum_industrie  &&  sum_gewerbe > sum_wohnung) {
-			h = hausbauer_t::get_gewerbe(0, current_month, cl);
+			h = hausbauer_t::get_gewerbe(0, current_month, cl, new_town);
 			if (h != NULL) {
 				arb += h->get_level() * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_industrie > sum_gewerbe  &&  sum_industrie > sum_wohnung) {
-			h = hausbauer_t::get_industrie(0, current_month, cl);
+			h = hausbauer_t::get_industrie(0, current_month, cl, new_town);
 			if (h != NULL) {
 				arb += h->get_level() * 20;
 			}
 		}
 
 		if (h == NULL  &&  sum_wohnung > sum_industrie  &&  sum_wohnung > sum_gewerbe) {
-			h = hausbauer_t::get_wohnhaus(0, current_month, cl);
+			h = hausbauer_t::get_wohnhaus(0, current_month, cl, new_town);
 			if (h != NULL) {
 				// will be aligned next to a street
 				won += h->get_level() * 10;
@@ -3672,7 +3676,7 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 }
 
 
-void stadt_t::baue()
+void stadt_t::baue(bool new_town)
 {
 	// will check a single random pos in the city, then baue will be called
 	const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
@@ -3717,7 +3721,7 @@ void stadt_t::baue()
 		}
 		// one rule applied?
 		if (best_haus.found()) {
-			baue_gebaeude(best_haus.get_pos());
+			baue_gebaeude(best_haus.get_pos(), new_town);
 			INT_CHECK("simcity 1163");
 			return;
 		}

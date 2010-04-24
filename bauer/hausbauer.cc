@@ -704,7 +704,7 @@ const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, 
  * it will skip and jump, and will never return zero, if there is at least a single valid entry in the list
  * @author Hj. Malthaner
  */
-static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl)
+static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& liste, int level, uint16 time, climate cl, bool allow_earlier)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
 
@@ -712,9 +712,10 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 	const haus_besch_t *besch_at_least=NULL;
 	for (vector_tpl<const haus_besch_t*>::const_iterator i = liste.begin(), end = liste.end(); i != end; ++i) {
 		const haus_besch_t* besch = *i;
+		const uint16 random = simrand(100);
 		if(	besch->is_allowed_climate(cl)  &&
 			besch->get_chance()>0  &&
-			(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time))) {
+			(time==0  ||  (besch->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month()>time)))) {
 			besch_at_least = besch;
 		}
 
@@ -732,7 +733,7 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 
 		if(thislevel==level  &&  besch->get_chance()>0) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
-				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  besch->get_retire_year_month()>time)) {
+				if(time==0  ||  (besch->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month()>time))) {
 //				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
 					auswahl.append(besch,besch->get_chance(),4);
 				}
@@ -752,21 +753,21 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 }
 
 
-const haus_besch_t* hausbauer_t::get_gewerbe(int level, uint16 time, climate cl)
+const haus_besch_t* hausbauer_t::get_gewerbe(int level, uint16 time, climate cl, bool allow_earlier)
 {
-	return get_aus_liste(gewerbehaeuser, level, time, cl);
+	return get_aus_liste(gewerbehaeuser, level, time, cl, allow_earlier);
 }
 
 
-const haus_besch_t* hausbauer_t::get_industrie(int level, uint16 time, climate cl)
+const haus_besch_t* hausbauer_t::get_industrie(int level, uint16 time, climate cl, bool allow_earlier)
 {
-	return get_aus_liste(industriehaeuser, level, time, cl);
+	return get_aus_liste(industriehaeuser, level, time, cl, allow_earlier);
 }
 
 
-const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl)
+const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl, bool allow_earlier)
 {
-	return get_aus_liste(wohnhaeuser, level, time, cl);
+	return get_aus_liste(wohnhaeuser, level, time, cl, allow_earlier);
 }
 
 

@@ -315,7 +315,7 @@ private:
 	/**
 	 * baut ein Gebaeude auf Planquadrat x,y
 	 */
-	void baue_gebaeude(koord pos);
+	void baue_gebaeude(koord pos, bool new_town);
 	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
 	void renoviere_gebaeude(gebaeude_t *gb);
 
@@ -328,7 +328,7 @@ private:
 	 */
 	bool baue_strasse(const koord k, spieler_t *sp, bool forced);
 
-	void baue();
+	void baue(bool new_town);
 
 	/**
 	 * @param pos position to check
