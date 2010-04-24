@@ -76,7 +76,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 56;
+	int total_len = 57;
 
 	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -297,6 +297,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	} while (str.len() > 0);
 
 	uint8 besch_nachfolger = 0;
+	bool can_be_at_rear = true;
 	do {
 		char buf[40];
 
@@ -305,12 +306,23 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
 
 		str = obj.get(buf);
-		if (str.len() > 0) {
-			if (besch_nachfolger == 0 && !STRICMP(str, "none")) {
+		if (str.len() > 0) 
+		{
+			if (besch_nachfolger == 0 && !STRICMP(str, "none")) 
+			{
 				str = "";
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
-			besch_nachfolger++;
+			if(!STRICMP(str, "any"))
+			{
+				// "Any" should not be specified with anything else.
+				can_be_at_rear = false;
+				break;
+			}
+			else
+			{
+				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
+				besch_nachfolger++;
+			}
 		}
 	} while (str.len() > 0);
 
@@ -512,7 +524,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 air_default;
 	switch(waytype_uint)
 	{
-		case default:
+		default:
 		case road_wt:
 			air_default = 252; //2.52 when read
 			break;
@@ -535,10 +547,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint16 air_resistance_hundreds = obj.get_int("air_resistance", air_default);
 	node.write_uint16(fp, air_resistance_hundreds, 54);
 
+	node.write_uint8(fp, (uint8)can_be_at_rear, 56);
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 56);
-		node.write_data_at(fp, sound_str,     57, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 57);
+		node.write_data_at(fp, sound_str,     58, sound_str_len);
 	}
 
 	node.write(fp);

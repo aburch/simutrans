@@ -90,14 +90,6 @@ a = (F - cf * v^2 - Frs) / m
 #define FR_WATER 0.015
 #define FR_AIR 0.001
 
-// Adjusted values to balance, as vehicles seem to
-// overperform with default values.
-//#define FR_TRACK 0.0056
-//#define FR_MAGLEV 0.0015
-//#define FR_ROAD  0.03
-//#define FR_WATER 0.03
-//#define FR_AIR 0.002
-
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
 
@@ -108,16 +100,6 @@ inline double speed_to_v(sint32 speed)
 {
 	return (speed * VEHICLE_SPEED_FACTOR) * (1.0 / (3.6 * 1024.0));
 }
-
-/**
- * Convert m/s to simutrans speed
- * Redundant given math.h.
- 
-inline double get_min(double a, double b)
-{
-	return a < b ? a : b;
-}
-*/
 
 inline sint32 v_to_speed(double v)
 {

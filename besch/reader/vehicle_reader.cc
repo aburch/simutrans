@@ -182,7 +182,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version >= 0 && experimental_version <= 3)
+			if(experimental_version >= 0 && experimental_version <= 4)
 			{
 				besch->is_tilting = decode_uint8(p);
 				//besch->way_constraints_permissive = decode_uint8(p);
@@ -223,13 +223,14 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 				{
 					uint16 air_resistance_hundreds = decode_uint16(p);
 					besch->air_resistance = (float)air_resistance_hundreds / 100.0F;
+					besch->can_be_at_rear = (bool)decode_uint8(p);
 				}
 				else
 				{
 					uint16 air_default;
 					switch(besch->get_waytype())
 					{
-						case default:
+						default:
 						case road_wt:
 							air_default = 252; //2.52 when read
 							break;
@@ -249,8 +250,8 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 							air_default = 100; //1 when read
 					};
 					besch->air_resistance = (float) air_default / 100.0F;
+					besch->can_be_at_rear = true;
 				}
-				
 			}
 			else
 			{
@@ -360,7 +361,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 
 		switch(besch->get_waytype())
 		{
-			case default:
+			default:
 			case road_wt:
 				air_default = 252; //2.52 when read
 				break;
@@ -384,6 +385,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->upgrade_price = besch->preis;
 		besch->available_only_as_upgrade = false;
 		besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
+		besch->can_be_at_rear = true;
 	}
 	besch->set_way_constraints(way_constraints);
 
