@@ -33,6 +33,7 @@
 
 #include "besch/vehikel_besch.h"
 #include "besch/roadsign_besch.h"
+#include "besch/haus_besch.h"
 
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
@@ -819,13 +820,7 @@ void convoi_t::step()
 						{
 							 // Second - check whether there are any of the required vehicles already
 							 // in the depot (more or less free).
-							veh = dep->find_oldest_newest(replace->get_replacing_vehicle(i), true);
-							if(new_vehicles.is_contained(veh))
-							{
-								// Stops the same vehicle from being added to the convoy twice,
-								// causing corruption and bizarre errors.
-								veh = NULL;
-							}
+							veh = dep->find_oldest_newest(replace->get_replacing_vehicle(i), true, &new_vehicles);
 						}
 
 						if (veh == NULL && !replace->get_retain_in_depot()) 
@@ -2558,12 +2553,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2574,12 +2570,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2598,12 +2595,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2625,12 +2623,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2824,11 +2823,6 @@ convoi_t::rdwr(loadsave_t *file)
 				//replacing_vehicles = replace->get_replacing_vehicles();
 				//replacing_vehicles_count = replacing_vehicles->get_count();
 				file->rdwr_short(replacing_vehicles_count, "");
-				//ITERATE_PTR(replacing_vehicles, i)
-				//{
-				//	const char *s = replacing_vehicles->get_element(i)->get_name();
-				//	file->rdwr_str(s);
-				//}
 			}
 			else
 			{
@@ -2859,9 +2853,6 @@ convoi_t::rdwr(loadsave_t *file)
 					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
 					// BG, 31-MAR-2010: we must not create 'replace'. I does not work correct. 
 					delete replacing_vehicles;
-					//replace = new replace_data_t();
-					//replace->set_autostart(old_autostart);
-					//replace->set_replacing_vehicles(replacing_vehicles);
 				}
 			}
 		}
@@ -4165,11 +4156,13 @@ class depot_finder_t : public fahrer_t
 {
 private:
 	vehikel_t *master;
+	uint8 traction_type;
 public:
-	depot_finder_t( convoihandle_t cnv ) 
+	depot_finder_t( convoihandle_t cnv, uint8 tt ) 
 	{ 
 		master = cnv->get_vehikel(0); 
 		assert(master!=NULL); 
+		traction_type = tt;
 	};
 	virtual waytype_t get_waytype() const 
 	{ 
@@ -4181,7 +4174,7 @@ public:
 	};
 	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
 	{ 
-		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer(); 
+		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type; 
 	};
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
 	{ 
@@ -4212,10 +4205,36 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	//convoi_info_t::route_search_in_progress = true;
 
 	route_t route;
+	uint8 traction_type = 0;
 
 	if(!use_home_depot)
 	{
-		depot_finder_t finder( self );
+		uint8 shifter;
+		if(replace)
+		{
+			ITERATE_PTR(replace->get_replacing_vehicles(), i)
+			{
+				if(replace->get_replacing_vehicle(i)->get_leistung() == 0)
+				{
+					continue;
+				}
+				shifter = 1 << replace->get_replacing_vehicle(i)->get_engine_type();
+				traction_type |= shifter;
+			}
+		}
+		else
+		{
+			for(uint8 i = 0; i < anz_vehikel; i ++)
+			{
+				if(fahr[i]->get_besch()->get_leistung() == 0)
+				{
+					continue;
+				}
+				shifter = 1 << fahr[i]->get_besch()->get_engine_type();
+				traction_type |= shifter;
+			}
+		}
+		depot_finder_t finder( self, traction_type );
 		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
 	}
 
@@ -4249,7 +4268,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		while (depot_iter.next()) 
 		{
 			depot_t *depot = depot_iter.get_current();
-			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer()) 
+			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer() || !depot->get_tile()->get_besch()->get_enabled() & traction_type) 
 			{
 				continue;
 			}

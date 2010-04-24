@@ -41,8 +41,6 @@
 
 char depot_frame_t::no_line_text[128];	// contains the current translation of "<no line>"
 
-class haus_tile_besch_t;
-
 
 depot_frame_t::depot_frame_t(depot_t* depot) :
 	gui_frame_t(txt_title, depot->get_besitzer()),
