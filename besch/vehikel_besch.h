@@ -133,6 +133,7 @@ private:
 
 	bool bidirectional; //Whether must always travel in one direction
 	bool can_lead_from_rear; //Whether vehicle can lead a convoy when it is at the rear.
+	bool can_be_at_rear; //Whether the vehicle may be at the rear of a convoy (default = true).
 
 	uint8 comfort; // How comfortable that a vehicle is for passengers.
 
@@ -141,6 +142,8 @@ private:
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
 	
 	uint16 tractive_effort; // tractive effort / force in kN
+
+	float air_resistance; // The "cf" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
 	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
@@ -414,7 +417,11 @@ public:
 	
 	/*Whether this is a tilting train (and can take coerners faster
 	*@author: jamespetts*/
-	bool get_tilting() const { return (is_tilting);	}
+	bool get_tilting() const { return is_tilting;	}
+
+	bool get_can_be_at_rear() const { return can_be_at_rear; }
+
+	float get_air_resistance() const { return air_resistance; }
 	
 	///*Bitwise encoded way constraints (permissive)
 	//*@author: jamespetts*/

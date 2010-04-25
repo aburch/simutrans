@@ -76,28 +76,28 @@ public:
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* get_gewerbe(int level, uint16 time, climate cl);
+	static const haus_besch_t* get_gewerbe(int level, uint16 time, climate cl, bool allow_earlier = false);
 
 	/**
 	 * Industriegebäude passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* get_industrie(int level, uint16 time, climate cl);
+	static const haus_besch_t* get_industrie(int level, uint16 time, climate cl, bool allow_earlier = false);
 
 	/**
 	 * Wohnhaus passend zum Level liefern. Zur Zeit sind die Einträge
 	 * eindeutig aufsteigend.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* get_wohnhaus(int level, uint16 time, climate cl);
+	static const haus_besch_t* get_wohnhaus(int level, uint16 time, climate cl, bool allow_earlier = false);
 
 	/**
 	 * Liefert per Zufall die Beschreibung eines Sehenswuerdigkeit,
 	 * die bei Kartenerstellung gebaut werden kann.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl)
+	static const haus_besch_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl, bool allow_earlier = false)
 	{
 		return waehle_aus_liste(sehenswuerdigkeiten_land, time, ignore_retire, cl);
 	}

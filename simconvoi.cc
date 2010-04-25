@@ -2084,7 +2084,16 @@ void convoi_t::vorfahren()
 						else if(fahr[0]->get_besch()->is_bidirectional())
 						{
 							//Loco hauled, no turntable.
-							reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time();
+							if(fahr[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
+								&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
+							{
+								// Goods train with brake van - longer reverse time.
+								reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time() * 1.4F;
+							}
+							else
+							{
+								reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time();
+							}
 						}
 						else
 						{
@@ -2267,6 +2276,13 @@ convoi_t::reverse_order(bool rev)
 				// Garrett detected
 				a ++;
 			}
+		}
+
+		//Check for a goods train with a brake van
+		if((fahr[anz_vehikel - 2]->get_besch()->get_ware()->get_catg_index() > 1)
+			&& 	fahr[anz_vehikel - 2]->get_besch()->get_can_be_at_rear() == false)
+		{
+			b--;
 		}
 
 		for(uint8 i = 1; i < anz_vehikel; i++)
@@ -3061,9 +3077,19 @@ bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch
 {
 	const vehikel_besch_t *soll;
 
-	if(!vor->get_nachfolger_count()) {
-		// Alle Nachfolger erlaubt
-		return true;
+	if(!vor->get_nachfolger_count()) 
+	{
+		if(vor->get_can_be_at_rear())
+		{
+			return true;
+		}
+		else
+		{
+			if(hinter != NULL)
+			{
+				return true;
+			}
+		}
 	}
 	for(int i=0; i < vor->get_nachfolger_count(); i++) {
 		soll = vor->get_nachfolger(i);
@@ -3075,7 +3101,7 @@ bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch
 		if(hinter == soll) {
 			// Diese Beschränkung erlaubt unseren Nachfolger
 			// This restriction allows our successors (Google translations)
-			return true;
+			return hinter || vor->get_can_be_at_rear();
 		}
 	}
 	//DBG_MESSAGE("convoi_t::pruefe_an_index()",

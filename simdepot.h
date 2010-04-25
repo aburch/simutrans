@@ -258,7 +258,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual enum ding_t::typ get_typ() const {return bahndepot;}
-	virtual const char *get_name() const {return "Bahndepot"; }
+	//virtual const char *get_name() const {return "Bahndepot"; }
 };
 
 
@@ -272,7 +272,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return tram_wt;}
 	virtual enum ding_t::typ get_typ() const { return tramdepot; }
-	virtual const char *get_name() const {return "Tramdepot"; }
+	//virtual const char *get_name() const {return "Tramdepot"; }
 };
 
 class monoraildepot_t : public bahndepot_t
@@ -285,7 +285,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return monorail_wt;}
 	virtual enum ding_t::typ get_typ() const { return monoraildepot; }
-	virtual const char *get_name() const {return "Monoraildepot"; }
+	//virtual const char *get_name() const {return "Monoraildepot"; }
 };
 
 class maglevdepot_t : public bahndepot_t
@@ -298,7 +298,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return maglev_wt;}
 	virtual enum ding_t::typ get_typ() const { return maglevdepot; }
-	virtual const char *get_name() const {return "Maglevdepot"; }
+	//virtual const char *get_name() const {return "Maglevdepot"; }
 };
 
 class narrowgaugedepot_t : public bahndepot_t
@@ -311,7 +311,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
 	virtual enum ding_t::typ get_typ() const { return narrowgaugedepot; }
-	virtual const char *get_name() const {return "Narrowgaugedepot"; }
+	//virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
 
 /**
@@ -330,7 +330,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return road_wt; }
 	enum ding_t::typ get_typ() const {return strassendepot;}
-	const char *get_name() const {return "Strassendepot";}
+	//const char *get_name() const {return "Strassendepot";}
 };
 
 
@@ -350,7 +350,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return water_wt; }
 	enum ding_t::typ get_typ() const {return schiffdepot;}
-	const char *get_name() const {return "Schiffdepot";}
+	//const char *get_name() const {return "Schiffdepot";}
 };
 
 class airdepot_t : public depot_t
@@ -363,7 +363,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const { return air_wt; }
 	enum ding_t::typ get_typ() const { return airdepot; }
-	const char *get_name() const {return "Hangar";}
+	//const char *get_name() const {return "Hangar";}
 };
 
 #endif

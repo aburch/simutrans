@@ -55,8 +55,7 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = depot->get_selected_line();
 	strcpy(no_line_text, translator::translate("<no line>"));
-
-	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_name()));
+	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_tile()->get_besch()->get_name()));
 
 	/*
 	 * [CONVOY ASSEMBLER]

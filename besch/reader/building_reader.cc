@@ -374,7 +374,11 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->scaled_station_price = besch->station_price;
 
 	// correct old station buildings ...
-	if (besch->level <= 0 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) {
+	if(besch->level <= 0 && besch->utype == haus_besch_t::depot)
+	{
+		besch->level = experimental_version > 0 ? 1 : 4;
+	}
+	else if (besch->level <= 0 && (besch->utype >= haus_besch_t::bahnhof || besch->utype == haus_besch_t::fabrik)) {
 		DBG_DEBUG("building_reader_t::read_node()","old station building -> set level to 4");
 		besch->level = 4;
 	}
