@@ -371,6 +371,8 @@ einstellungen_t::einstellungen_t() :
 	random_counter = 0;	// will be set when actually saving
 	frames_per_second = 20;
 	frames_per_step = 4;
+
+	quick_city_growth = false;
 }
 
 
@@ -950,6 +952,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 8)
 	{
 		file->rdwr_short(max_walking_distance, "");
+		file->rdwr_bool(quick_city_growth, "");
 	}
 }
 
@@ -1363,6 +1366,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	const float max_walking_distance_km = (contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * (distance_per_tile * 10))) / 10.0);
 	max_walking_distance = max_walking_distance_km / distance_per_tile;
+
+	quick_city_growth = (bool)(contents.get_int("quick_city_growth", 0));
 
 	/*
 	 * Selection of savegame format through inifile

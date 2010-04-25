@@ -3678,57 +3678,61 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 
 void stadt_t::baue(bool new_town)
 {
-	// will check a single random pos in the city, then baue will be called
-	const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
+	if(welt->get_einstellungen()->get_quick_city_growth())
+	{
+		// Old system (from Standard) - faster but less accurate.
 
-	// do not build on any border tile
-	if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
-		return;
-	}
+		// will check a single random pos in the city, then baue will be called
+		const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
 
-	grund_t *gr = welt->lookup_kartenboden(k);
-	if(gr==NULL) {
-		return;
-	}
-
-	// checks only make sense on empty ground
-	if(gr->ist_natur()) {
-
-		// since only a single location is checked, we can stop after we have found a positive rule
-		best_strasse.reset(k);
-		const uint32 num_road_rules = road_rules.get_count();
-		uint32 offset = simrand(num_road_rules);	// start with random rule
-		for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
-			uint32 rule = ( i+offset ) % num_road_rules;
-			bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
-		}
-		// ok => then built road
-		if (best_strasse.found()) {
-			baue_strasse(best_strasse.get_pos(), NULL, false);
-			INT_CHECK("simcity 1156");
+		// do not build on any border tile
+		if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
 			return;
 		}
 
-		// not good for road => test for house
-
-		// since only a single location is checked, we can stop after we have found a positive rule
-		best_haus.reset(k);
-		const uint32 num_house_rules = house_rules.get_count();
-		offset = simrand(num_house_rules);	// start with random rule
-		for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
-			uint32 rule = ( i+offset ) % num_house_rules;
-			bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
-		}
-		// one rule applied?
-		if (best_haus.found()) {
-			baue_gebaeude(best_haus.get_pos(), new_town);
-			INT_CHECK("simcity 1163");
+		grund_t *gr = welt->lookup_kartenboden(k);
+		if(gr==NULL) {
 			return;
 		}
 
+		// checks only make sense on empty ground
+		if(gr->ist_natur()) {
+
+			// since only a single location is checked, we can stop after we have found a positive rule
+			best_strasse.reset(k);
+			const uint32 num_road_rules = road_rules.get_count();
+			uint32 offset = simrand(num_road_rules);	// start with random rule
+			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+				uint32 rule = ( i+offset ) % num_road_rules;
+				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
+			}
+			// ok => then built road
+			if (best_strasse.found()) {
+				baue_strasse(best_strasse.get_pos(), NULL, false);
+				INT_CHECK("simcity 1156");
+				return;
+			}
+
+			// not good for road => test for house
+
+			// since only a single location is checked, we can stop after we have found a positive rule
+			best_haus.reset(k);
+			const uint32 num_house_rules = house_rules.get_count();
+			offset = simrand(num_house_rules);	// start with random rule
+			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
+				uint32 rule = ( i+offset ) % num_house_rules;
+				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+			}
+			// one rule applied?
+			if (best_haus.found()) {
+				baue_gebaeude(best_haus.get_pos(), new_town);
+				INT_CHECK("simcity 1163");
+				return;
+			}
+		}
 	}
 
-	// renovation (only done when nothing matches a certain location
+	// renovation (only done when nothing matches a certain location)
 	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
 		gebaeude_t* gb;
 		// try to find a public owned building
@@ -3739,7 +3743,70 @@ void stadt_t::baue(bool new_town)
 				break;
 			}
 		}
-		INT_CHECK("simcity 876");
+		INT_CHECK("simcity 3746");
+	}
+	else if(!welt->get_einstellungen()->get_quick_city_growth())
+	{
+		// firstly, determine all potential candidate coordinates
+		vector_tpl<koord> candidates( (ur.x - lo.x + 1) * (ur.y - lo.y + 1) );
+		for(  sint16 j=lo.y;  j<=ur.y;  ++j  ) {
+			for(  sint16 i=lo.x;  i<=ur.x;  ++i  ) {
+				const koord k(i, j);
+				// do not build on any border tile
+				if(  !welt->ist_in_kartengrenzen( k+koord(1,1) )  ||  k.x<=0  ||  k.y<=0  ) {
+					continue;
+				}
+
+				// checks only make sense on empty ground
+				const grund_t *const gr = welt->lookup_kartenboden(k);
+				if(  gr==NULL  ||  !gr->ist_natur()  ) {
+					continue;
+				}
+
+				// a potential candidate coordinate
+				candidates.append(k);
+			}
+		}
+
+		// loop until all candidates are exhausted or until we find a suitable location to build road or city building
+		while(  candidates.get_count()>0  ) {
+			const uint32 idx = simrand( candidates.get_count() );
+			const koord k = candidates[idx];
+
+			// we can stop after we have found a positive rule
+			best_strasse.reset(k);
+			const uint32 num_road_rules = road_rules.get_count();
+			uint32 offset = simrand(num_road_rules);	// start with random rule
+			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+				uint32 rule = ( i+offset ) % num_road_rules;
+				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
+			}
+			// ok => then built road
+			if (best_strasse.found()) {
+				baue_strasse(best_strasse.get_pos(), NULL, false);
+				INT_CHECK("simcity 3787");
+				return;
+			}
+
+			// not good for road => test for house
+
+			// we can stop after we have found a positive rule
+			best_haus.reset(k);
+			const uint32 num_house_rules = house_rules.get_count();
+			offset = simrand(num_house_rules);	// start with random rule
+			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
+				uint32 rule = ( i+offset ) % num_house_rules;
+				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+			}
+			// one rule applied?
+			if (best_haus.found()) {
+				baue_gebaeude(best_haus.get_pos(), new_town);
+				INT_CHECK("simcity 3804");
+				return;
+			}
+
+			candidates.remove_at(idx, false);
+		}
 	}
 }
 

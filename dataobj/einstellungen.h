@@ -359,6 +359,12 @@ public:
 	// 0 = emtpy, otherwise some vaule from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
 
+	// If true, the old (faster) method of
+	// city growth is used. If false (default),
+	// the new, more accurate, method of city
+	// growth is used.
+	bool quick_city_growth;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -726,6 +732,7 @@ public:
 	uint32 get_frames_per_step() const { return frames_per_step; }
 
 	uint16 get_max_walking_distance() const { return max_walking_distance; }
+	bool get_quick_city_growth() const { return quick_city_growth; }
 };
 
 #endif
