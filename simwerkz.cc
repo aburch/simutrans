@@ -1600,7 +1600,7 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
-	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name, -besch->get_base_price, besch->get_base_maintenance() );
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance() );
 	size_t n= strlen(toolstr);
 	sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		besch->get_topspeed(),
