@@ -4442,6 +4442,7 @@ aircraft_t::hop()
 					state = flying;
 					new_friction = 16;
 					block_reserver( takeoff, takeoff+100, false );
+					flughoehe = h_cur - h_next;
 					target_height = h_cur+TILE_HEIGHT_STEP*3;
 				}
 			}
