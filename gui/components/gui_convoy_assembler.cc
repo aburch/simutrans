@@ -600,7 +600,8 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			// current vehicle
 			if( (depot_frame && depot_frame->get_depot()->is_contained(info))  ||
 				((way_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
-					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) {
+					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) 
+			{
 				// check, if allowed
 				bool append = true;
 				bool upgradeable = true;
@@ -658,6 +659,12 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						{
 							append = false;
 						}
+					}
+					const uint8 shifter = 1 << info->get_engine_type();
+					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
+					if(!correct_traction_type && info->get_leistung() > 0)
+					{
+						append = false;
 					}
 				}
 				if(append && (upgrade == u_buy || upgradeable)) 
