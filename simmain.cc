@@ -313,7 +313,7 @@ int sim_new_handler(unsigned int)
 void sim_new_handler()
 #endif
 {
-	dbg->fatal("sim_new_handler()", "Error allocating new object");
+	dbg->fatal("sim_new_handler()", "OUT OF MEMORY or other error allocating new object");
 #ifdef _MSC_VER
 	return 0;
 #endif
