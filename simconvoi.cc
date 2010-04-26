@@ -131,7 +131,6 @@ void convoi_t::reset()
 	jahresgewinn = 0;
 
 	max_record_speed = 0;
-	akt_speed_soll = 0;     // Sollgeschwindigkeit / set speed
 	akt_speed = 0;          // momentane Geschwindigkeit / current speed
 	sp_soll = 0;
 
@@ -188,6 +187,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	reversable = false;
 	reversed = false;
+
+	recalc_data = true;
 }
 
 
@@ -529,16 +530,24 @@ void convoi_t::increment_odometer()
 }
 
 
-
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
 void convoi_t::calc_acceleration(long delta_t)
 {
+	// Dwachs: only compute this if a vehicle in the convoi hopped
+	if (recalc_data) {
+		// neroden: Speed limits based on the track etc. are handled by
+		// convoy.calc_move, in the 'adverse' class.
+		// When there is a permanent convoy_t for each convoi_t,
+		// replace the recalc_data calls with invalidate_* calls.
+		// In the meantime, this does nothing interesting.
+		recalc_data = false;
+	}
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), akt_speed_soll, akt_speed, sp_soll);
+	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), min_top_speed, akt_speed, sp_soll);
 }
 
 
@@ -596,7 +605,6 @@ bool convoi_t::sync_step(long delta_t)
 		case LEAVING_DEPOT:
 			{
 				// ok, so we will accelerate
-				akt_speed_soll = max( akt_speed_soll, kmh_to_speed(30) );
 				calc_acceleration(delta_t);
 				//moved to inside calc_acceleration(): sp_soll += (akt_speed*delta_t);
 				// Make sure that the last_stop_pos is set here so as not
@@ -2008,7 +2016,7 @@ void convoi_t::vorfahren()
 
 	uint16 reverse_delay = 0;
 
-	set_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
+	recalc_data = true;
 
 	koord3d k0 = route.position_bei(0);
 	grund_t *gr = welt->lookup(k0);
@@ -2376,6 +2384,7 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_bool(dummy_bool, " ");
 	file->rdwr_long(besitzer_n, "\n");
 	file->rdwr_long(akt_speed, " ");
+	sint32 akt_speed_soll = 0; // Former variable now unused
 	file->rdwr_long(akt_speed_soll, " ");
 	file->rdwr_long(sp_soll, " ");
 	file->rdwr_enum(state, " ");
@@ -3745,6 +3754,9 @@ void convoi_t::calc_loading()
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 	loading_limit = 0;	// will be set correctly from hat_gehalten() routine
+
+	// since weight has changed
+	recalc_data=true;
 }
 
 
@@ -3838,7 +3850,6 @@ void convoi_t::dump() const
 		"wait_lock = %d\n"
 		"besitzer_n = %d\n"
 		"akt_speed = %d\n"
-		"akt_speed_soll = %d\n"
 		"sp_soll = %d\n"
 		"state = %d\n"
 		"statename = %s\n"
@@ -3851,7 +3862,6 @@ void convoi_t::dump() const
 		(int)wait_lock,
 		(int)welt->sp2num(besitzer_p),
 		(int)akt_speed,
-		(int)akt_speed_soll,
 		(int)sp_soll,
 		(int)state,
 		(const char *)(state_names[state]),

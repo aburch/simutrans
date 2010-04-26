@@ -31,6 +31,7 @@
 #include "gui/stadt_info.h"
 
 #include "besch/haus_besch.h"
+#include "besch/stadtauto_besch.h"
 
 #include "simintr.h"
 #include "simdebug.h"
@@ -43,6 +44,8 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/umgebung.h"
 
+#include "dings/roadsign.h"
+
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/warenbauer.h"
 #include "bauer/wegbauer.h"
@@ -51,7 +54,6 @@
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
 
-#include "tpl/ptrhashtable_tpl.h"
 #include "tpl/minivec_tpl.h"
 
 
@@ -264,7 +266,7 @@ static uint32 minimum_city_distance = 16;
  * chance to do renovation instead new building (in percent)
  * @author prissi
  */
-static uint32 renovation_percentage = 12;
+static uint32 renovation_percentage = 25;
 
 /*
  * minimum ratio of city area to building area to allow expansion
@@ -676,7 +678,8 @@ bool stadt_t::cityrules_init(cstring_t objfilename)
 	char buf[128];
 
 	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
-	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
+	renovation_percentage = (uint32)contents.get_int("renovation_percentage", renovation_percentage);
+	
 	// to keep compatible with the typo, here both are ok
 	min_building_density = (uint32)contents.get_int("minimum_building_desity", 25);
 	min_building_density = (uint32)contents.get_int("minimum_building_density", min_building_density);
@@ -1161,6 +1164,13 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 	welt = sp->get_welt();
 	assert(welt->ist_in_kartengrenzen(pos));
 
+	if(welt->get_einstellungen()->get_quick_city_growth())
+	{
+		// If "quick_city_growth" is enabled, the renovation percentage
+		// needs to be lower to make up for it.
+		renovation_percentage /= 3;
+	}
+
 	step_count = 0;
 	pax_destinations_new_change = 0;
 	next_step = 0;
@@ -1279,6 +1289,14 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	pax_destinations_new(koord(PAX_DESTINATIONS_SIZE, PAX_DESTINATIONS_SIZE))
 {
 	welt = wl;
+	
+	if(welt->get_einstellungen()->get_quick_city_growth())
+	{
+		// If "quick_city_growth" is enabled, the renovation percentage
+		// needs to be lower to make up for it.
+		renovation_percentage /= 3;
+	}
+
 	step_count = 0;
 	next_step = 0;
 	step_interval = 1;
@@ -1803,6 +1821,10 @@ void stadt_t::neuer_monat() //"New month" (Google)
 	}
 	city_history_year[0][HIST_CAR_OWNERSHIP] = car_ownership_sum / MAX_CITY_HISTORY_MONTHS;
 
+	// Clearing these will force recalculation as necessary.
+	connected_cities.clear();
+	connected_industries.clear();
+	connected_attractions.clear();
 
 	if (!stadtauto_t::list_empty()) 
 	{
@@ -1993,7 +2015,7 @@ void stadt_t::calc_growth()
 	}
 
 	// now give the growth for this step
-	sint32 growth_factor = weight_factor > 0? (pas+mail+electricity+goods) / weight_factor : 0;
+	sint32 growth_factor = weight_factor > 0 ? (pas+mail+electricity+goods) / weight_factor : 0;
 	
 	//Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
 	if(city_history_month[0][HIST_CONGESTION] > 0)
@@ -2030,8 +2052,220 @@ void stadt_t::step_bau()
 		check_bau_spezial(new_town);
 		check_bau_rathaus(new_town);
 		check_bau_factory(new_town); // add industry? (not during creation)
-		INT_CHECK("simcity 275");
+		INT_CHECK("simcity 2048");
 	}
+}
+
+/*
+ * Will find a depot for the vehicle "master".
+ */
+class road_destination_finder_t : public fahrer_t
+{
+private:
+	automobil_t *master;
+	karte_t* welt;
+	koord3d dest;
+public:
+	road_destination_finder_t(karte_t *w, const koord3d d) 
+	{ 
+		welt = w;
+		dest = d;
+		master = new automobil_t(welt);
+	};
+	~road_destination_finder_t()
+	{
+		delete master;
+	}
+	virtual waytype_t get_waytype() const 
+	{ 
+		return road_wt; 
+	};
+	virtual bool ist_befahrbar( const grund_t* gr ) const 
+	{ 
+		// Check to see whether the road prohibits private cars
+		if(welt->lookup(gr->get_pos())->get_weg(road_wt) && welt->lookup(gr->get_pos())->get_weg(road_wt)->has_sign())
+		{
+			const roadsign_besch_t* rs_besch = gr->find<roadsign_t>()->get_besch();
+			if(rs_besch->is_private_way())
+			{
+				return false;
+			}
+		}
+		return master->ist_befahrbar(gr);
+	};
+	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
+	{ 
+		return gr->get_pos() == dest;
+	};
+	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
+	{ 
+		return master->get_ribi(gr); 
+	};
+	virtual int get_kosten( const grund_t*, uint32) const 
+	{ 
+		return 1; 
+	};
+};
+
+uint16 stadt_t::check_road_connexion_to(stadt_t* city)
+{
+	if(connected_cities.is_contained(city))
+	{
+		return connected_cities.get(city);
+	}
+	else if(city == this)
+	{
+		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
+		const uint16 road_speed_limit = welt->lookup(pos3d)->get_weg(road_wt) ? welt->lookup(pos3d)->get_weg(road_wt)->get_max_speed() : welt->get_city_road()->get_topspeed();
+		const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
+		const uint16 speed_average = (float)min(road_speed_limit, vehicle_speed_average) / 1.3F;
+		const float tile_distance_km = 1.0F * welt->get_einstellungen()->get_distance_per_tile();
+		const uint16 journey_time_per_tile = 600 * (tile_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
+		connected_cities.put(this, journey_time_per_tile);
+		return journey_time_per_tile;
+	}
+	else
+	{
+		const koord destination_road = city->get_townhall_road();
+		const koord3d desintation_koord(destination_road.x, destination_road.y, welt->lookup_hgt(destination_road));
+		const uint16 journey_time_per_tile = check_road_connexion(desintation_koord);
+		connected_cities.put(city, journey_time_per_tile);
+		city->add_road_connexion(journey_time_per_tile, this);
+		return journey_time_per_tile;
+	}
+}
+
+uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
+{
+	if(connected_industries.is_contained(industry))
+	{
+		return connected_industries.get(industry);
+	}
+	if(industry->get_city())
+	{
+		// If an industry is in a city, presume that it is connected
+		// if the city is connected. Do not presume the converse.
+		const uint16 time_to_city = check_road_connexion_to(industry->get_city());
+		if(time_to_city < 65335)
+		{
+			return time_to_city;
+		}
+	}
+
+	vector_tpl<koord> industry_tiles;
+	industry->get_tile_list(industry_tiles);
+	weg_t* road = NULL;
+	ITERATE(industry_tiles, n)
+	{
+		const koord pos = industry_tiles.get_element(n);
+		grund_t *gr;
+		for(uint8 i = 0; i < 8; i ++)
+		{
+			const koord TEST = pos + pos.neighbours[i];
+			const koord TEST_2 = industry_tiles[n];
+			const char* TEST_NAME = industry->get_name();
+			koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
+			gr = welt->lookup(pos3d);
+			if(!gr)
+			{
+				pos3d.z ++;
+				gr = welt->lookup(pos3d);
+				if(!gr)
+				{
+					continue;
+				}
+			}
+			road = gr->get_weg(road_wt);
+			if(road != NULL)
+			{
+				goto found_road;
+			}
+		}
+	}
+
+	// No road connecting to industry - no connexion at all.
+	connected_industries.put(industry, 65535);
+	return 65335;
+
+found_road:
+	const koord3d destination = road->get_pos();
+	const uint16 journey_time_per_tile = check_road_connexion(destination);
+	connected_industries.put(industry, journey_time_per_tile);
+	return journey_time_per_tile;
+}
+
+uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
+{
+	// TODO: Refine this: currently, searches a 2x2 field around the base "pos"
+	// which may miss a road if it is not within that area. Find a way of searching
+	// the area around the whole attraction.
+	if(connected_attractions.is_contained(attraction))
+	{
+		return connected_attractions.get(attraction);
+	}
+	const koord pos = attraction->get_pos().get_2d();
+	grund_t *gr;
+	weg_t* road = NULL;
+	for(uint8 i = 0; i < 16; i ++)
+	{
+		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
+		gr = welt->lookup(pos3d);
+		if(!gr)
+		{
+			pos3d.z ++;
+			gr = welt->lookup(pos3d);
+			if(!gr)
+			{
+				continue;
+			}
+		}
+		road = gr->get_weg(road_wt);
+		if(road != NULL)
+		{
+			break;
+		}
+	}
+	if(road == NULL)
+	{
+		// No road connecting to attraction - no connexion at all.
+		connected_attractions.put(attraction, 65535);
+		return 65535;
+	}
+	const koord3d destination = road->get_pos();
+	const uint16 journey_time_per_tile = check_road_connexion(destination);
+	connected_attractions.put(attraction, journey_time_per_tile);
+	return journey_time_per_tile;
+}
+
+uint16 stadt_t::check_road_connexion(koord3d dest)
+{
+	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
+	route_t route;
+	road_destination_finder_t finder( welt, dest );
+	if(!route.find_route(welt, origin, &finder, 0, ribi_t::alle, 0x7FFFFFFF))
+	{
+		return 65535;
+	}
+	koord3d pos;
+	const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
+	uint16 top_speed;
+	uint32 speed_sum = 0;
+	ITERATE(route,i)
+	{
+		pos = route.position_bei(i);
+		top_speed = welt->lookup(pos)->get_weg(road_wt)->get_max_speed();
+		speed_sum += min(top_speed, vehicle_speed_average);
+	}
+	const uint16 speed_average = (float)(speed_sum / route.get_count())  / 1.3F;
+	const float journey_distance_km = (float)route.get_count() * welt->get_einstellungen()->get_distance_per_tile();
+	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
+	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
+	return (float)journey_time / straight_line_distance_tiles;
+}
+
+void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
+{
+	connected_cities.put(origin_city, journey_time_per_tile);
 }
 
 
@@ -2104,7 +2338,6 @@ void stadt_t::step_passagiere()
 	const planquadrat_t* plan = welt->lookup(k);
 	const halthandle_t* halt_list = plan->get_haltlist();
 
-	// suitable start search
 	minivec_tpl<halthandle_t> start_halts(plan->get_haltlist_count());
 	for (int h = plan->get_haltlist_count() - 1; h >= 0; h--) 
 	{
@@ -2115,7 +2348,7 @@ void stadt_t::step_passagiere()
 		}
 	}
 
-	INT_CHECK( "simcity 2459" );
+	INT_CHECK( "simcity 2282" );
 
 	// Hajo: track number of generated passengers.
 	city_history_year[0][history_type+1] += num_pax;
@@ -2204,7 +2437,7 @@ void stadt_t::step_passagiere()
 				}
 			}
 			
-			INT_CHECK( "simcity 1952" );
+			INT_CHECK( "simcity 2371" );
 
 			uint8 current_destination = 0;
 
@@ -2213,6 +2446,7 @@ void stadt_t::step_passagiere()
 			bool can_walk_ziel = false;
 			
 			const uint16 max_walking_distance = welt->get_einstellungen()->get_max_walking_distance();
+			uint16 car_minutes = 65535;
 
 			while(route_good != good && current_destination < destination_count)
 			{			
@@ -2312,6 +2546,28 @@ walk:
 				{
 					route_good = too_slow;
 				}
+
+				if(has_private_car)
+				{
+					const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
+
+					switch(destinations[current_destination].type)
+					{
+					case 1:
+						//Town
+						car_minutes = check_road_connexion_to(destinations[current_destination].object.town) * straight_line_distance; // *Tenths* of minutes used here.
+						break;
+					case FACTORY_PAX:
+						car_minutes = check_road_connexion_to(destinations[current_destination].object.industry) * straight_line_distance; // *Tenths* of minutes used here.
+						break;
+					case TOURIST_PAX:
+						car_minutes = check_road_connexion_to(destinations[current_destination].object.attraction) * straight_line_distance; // *Tenths* of minutes used here.
+						break;
+					default:
+						//Some error - this should not be reached.
+						car_minutes = 65535;
+					};
+				}		
 				
 				if(route_good == good)
 				{
@@ -2325,8 +2581,18 @@ walk:
 					// Now, decide whether passengers would prefer to use their private cars,
 					// even though they can travel by public transport.
 					const uint16 distance = accurate_distance(destinations[current_destination].location, k);
-					if(has_private_car)
+					if(car_minutes < 65535)
 					{
+						// Check first that the destination is reachable by car, and that the journey
+						// time to get there by private transport is within tolerance.
+
+						if(car_minutes > tolerance)
+						{
+							goto public_transport;
+							// If the journey is too long to go by car,
+							// do not use the car.
+						}
+						
 						//Weighted random.
 						uint8 private_car_chance = simrand(100);
 						if(private_car_chance < 1)
@@ -2334,23 +2600,6 @@ walk:
 							// If the chances are zero, skip all the rest of this code. This 
 							// will speed up processing, and enable reversion to older behaviour.
 							goto public_transport;
-						}
-
-						//Check first that car journey is within time tolerance.
-				
-						// As the crow flies distance. This is very much an approximation - *but*
-						// we use the standard speedbonus speed (for 'buses), which are generally
-						// slower than cars, so, very approximately, it should balance correctly. 
-						// TODO: (Long-term) get the accurate road distance between each town
-						// and have a speedbonus.tab entry for private cars.
-						const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-						const uint16 car_minutes = (((float)distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
-
-						if(car_minutes > tolerance)
-						{
-							goto public_transport;
-							// If the journey is too long to go by car,
-							// do not use the car.
 						}
 
 						// The basic preference for using a private car if available.
@@ -2378,9 +2627,9 @@ walk:
 
 						//Average congestion of origin and destination towns, and, at the same time, reduce factor.
 						uint8 congestion_total;
-						if(destinations[current_destination].town != NULL)
+						if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
 						{
-							congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].town->get_congestion()) / 4;
+							congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 4;
 						}
 						else
 						{
@@ -2390,9 +2639,16 @@ walk:
 
 						// Thirdly adjust for service quality of the public transport.
 						// Compare the average speed, including waiting times, with the speed bonus speed for
-						// *road* transport.
+						// private transport.
 
-						INT_CHECK( "simcity 2461" );
+						INT_CHECK( "simcity 2606" );
+
+						const float proportion = ((float)best_journey_time / (float)car_minutes) * car_minutes > best_journey_time ? 1.25F : 0.75F;
+						car_preference *= proportion;
+						
+						// If identical, no adjustment.
+
+						/* DEPRACATED - USE COMPARATIVE JOURNEY TIMES INSTEAD
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
@@ -2432,6 +2688,7 @@ walk:
 							}
 						}
 						// Do nothing if base_bonus == 0.
+						*/
 
 						//Secondly, the number of unhappy passengers at the start station compared with the number of happy passengers.
 						float unhappy_factor = start_halt->get_unhappy_proportion(0);
@@ -2454,7 +2711,7 @@ walk:
 						//Finally, determine whether the private car is used.
 						if(private_car_chance <= car_preference)
 						{
-							set_private_car_trip(num_pax, destinations[current_destination].town);
+							set_private_car_trip(num_pax, destinations[current_destination].object.town);
 #ifdef DESTINATION_CITYCARS
 							//citycars with destination
 							erzeuge_verkehrsteilnehmer(k, step_count, destinations[current_destination].location);
@@ -2520,10 +2777,10 @@ public_transport:
 						else 
 						{
 							// no route back
-							if(has_private_car)
+							if(car_minutes < 65535)
 							{
 								//Must use private car, since there is no route back.
-								set_private_car_trip(num_pax, destinations[current_destination].town);
+								set_private_car_trip(num_pax, destinations[current_destination].object.town);
 #ifdef DESTINATION_CITYCARS
 								erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 #endif
@@ -2540,12 +2797,12 @@ public_transport:
 						// return halt crowded
 						ret_halt->add_pax_unhappy(pax_left_to_do);
 				
-						if(has_private_car)
+						if(car_minutes < 65535)
 						{
 							// Must use private car, since the halt is crowded.
 							// Do not check tolerance, as they must come back!
 							
-							set_private_car_trip(num_pax, destinations[0].town);
+							set_private_car_trip(num_pax, destinations[0].object.town);
 #ifdef DESTINATION_CITYCARS
 							//citycars with destination
 							erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
@@ -2579,23 +2836,14 @@ public_transport:
 						merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
 					}
 				}
-				if(has_private_car)
+				if(car_minutes < 65535)
 				{
 					// Must use private car, since there is no suitable route.
 					// However, check first that car journey is within time tolerance.
-				
-					// As the crow flies distance. This is very much an approximation - *but*
-					// we use the standard speedbonus speed (for 'buses), which are generally
-					// slower than cars, so, very approximately, it should balance correctly. 
-					// TODO: (Long-term) get the accurate road distance between each town
-					// and have a speedbonus.tab entry for private cars.
-					const uint16 car_distance = accurate_distance(k, destinations[current_destination].location);
-					const sint32 car_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-					const uint16 car_minutes = (((float)car_distance / car_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
-
+			
 					if(car_minutes <= tolerance)
 					{
-						set_private_car_trip(num_pax, destinations[0].town);
+						set_private_car_trip(num_pax, destinations[0].object.town);
 #ifdef DESTINATION_CITYCARS
 						//citycars with destination
 						erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
@@ -2730,7 +2978,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 {
 	const int rand = simrand(100);
 	destination current_destination;
-	current_destination.town = NULL;
+	current_destination.object.town = NULL;
 	current_destination.type = 1;
 
 	// about 1/3 are workers
@@ -2740,6 +2988,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		*will_return = factoy_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		current_destination.location = fab->get_pos().get_2d();
+		current_destination.object.industry = fab;
 		return current_destination;
 	} 
 	
@@ -2749,6 +2998,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
 		current_destination.type = TOURIST_PAX ;
 		current_destination.location = gb->get_pos().get_2d();
+		current_destination.object.attraction = gb;
 		return current_destination;
 	}
 
@@ -2793,7 +3043,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		// Testing having all passengers making only return trips.
 		//*will_return = town_return;
 		current_destination.location = zielstadt->get_zufallspunkt(); //"random dot"
-		current_destination.town = zielstadt;
+		current_destination.object.town = zielstadt;
 		return current_destination;
 	}
 }
@@ -3678,57 +3928,61 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 
 void stadt_t::baue(bool new_town)
 {
-	// will check a single random pos in the city, then baue will be called
-	const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
+	if(welt->get_einstellungen()->get_quick_city_growth())
+	{
+		// Old system (from Standard) - faster but less accurate.
 
-	// do not build on any border tile
-	if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
-		return;
-	}
+		// will check a single random pos in the city, then baue will be called
+		const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
 
-	grund_t *gr = welt->lookup_kartenboden(k);
-	if(gr==NULL) {
-		return;
-	}
-
-	// checks only make sense on empty ground
-	if(gr->ist_natur()) {
-
-		// since only a single location is checked, we can stop after we have found a positive rule
-		best_strasse.reset(k);
-		const uint32 num_road_rules = road_rules.get_count();
-		uint32 offset = simrand(num_road_rules);	// start with random rule
-		for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
-			uint32 rule = ( i+offset ) % num_road_rules;
-			bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
-		}
-		// ok => then built road
-		if (best_strasse.found()) {
-			baue_strasse(best_strasse.get_pos(), NULL, false);
-			INT_CHECK("simcity 1156");
+		// do not build on any border tile
+		if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {
 			return;
 		}
 
-		// not good for road => test for house
-
-		// since only a single location is checked, we can stop after we have found a positive rule
-		best_haus.reset(k);
-		const uint32 num_house_rules = house_rules.get_count();
-		offset = simrand(num_house_rules);	// start with random rule
-		for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
-			uint32 rule = ( i+offset ) % num_house_rules;
-			bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
-		}
-		// one rule applied?
-		if (best_haus.found()) {
-			baue_gebaeude(best_haus.get_pos(), new_town);
-			INT_CHECK("simcity 1163");
+		grund_t *gr = welt->lookup_kartenboden(k);
+		if(gr==NULL) {
 			return;
 		}
 
+		// checks only make sense on empty ground
+		if(gr->ist_natur()) {
+
+			// since only a single location is checked, we can stop after we have found a positive rule
+			best_strasse.reset(k);
+			const uint32 num_road_rules = road_rules.get_count();
+			uint32 offset = simrand(num_road_rules);	// start with random rule
+			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+				uint32 rule = ( i+offset ) % num_road_rules;
+				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
+			}
+			// ok => then built road
+			if (best_strasse.found()) {
+				baue_strasse(best_strasse.get_pos(), NULL, false);
+				INT_CHECK("simcity 1156");
+				return;
+			}
+
+			// not good for road => test for house
+
+			// since only a single location is checked, we can stop after we have found a positive rule
+			best_haus.reset(k);
+			const uint32 num_house_rules = house_rules.get_count();
+			offset = simrand(num_house_rules);	// start with random rule
+			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
+				uint32 rule = ( i+offset ) % num_house_rules;
+				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+			}
+			// one rule applied?
+			if (best_haus.found()) {
+				baue_gebaeude(best_haus.get_pos(), new_town);
+				INT_CHECK("simcity 1163");
+				return;
+			}
+		}
 	}
 
-	// renovation (only done when nothing matches a certain location
+	// renovation (only done when nothing matches a certain location)
 	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
 		gebaeude_t* gb;
 		// try to find a public owned building
@@ -3739,7 +3993,70 @@ void stadt_t::baue(bool new_town)
 				break;
 			}
 		}
-		INT_CHECK("simcity 876");
+		INT_CHECK("simcity 3746");
+	}
+	else if(!welt->get_einstellungen()->get_quick_city_growth())
+	{
+		// firstly, determine all potential candidate coordinates
+		vector_tpl<koord> candidates( (ur.x - lo.x + 1) * (ur.y - lo.y + 1) );
+		for(  sint16 j=lo.y;  j<=ur.y;  ++j  ) {
+			for(  sint16 i=lo.x;  i<=ur.x;  ++i  ) {
+				const koord k(i, j);
+				// do not build on any border tile
+				if(  !welt->ist_in_kartengrenzen( k+koord(1,1) )  ||  k.x<=0  ||  k.y<=0  ) {
+					continue;
+				}
+
+				// checks only make sense on empty ground
+				const grund_t *const gr = welt->lookup_kartenboden(k);
+				if(  gr==NULL  ||  !gr->ist_natur()  ) {
+					continue;
+				}
+
+				// a potential candidate coordinate
+				candidates.append(k);
+			}
+		}
+
+		// loop until all candidates are exhausted or until we find a suitable location to build road or city building
+		while(  candidates.get_count()>0  ) {
+			const uint32 idx = simrand( candidates.get_count() );
+			const koord k = candidates[idx];
+
+			// we can stop after we have found a positive rule
+			best_strasse.reset(k);
+			const uint32 num_road_rules = road_rules.get_count();
+			uint32 offset = simrand(num_road_rules);	// start with random rule
+			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
+				uint32 rule = ( i+offset ) % num_road_rules;
+				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
+			}
+			// ok => then built road
+			if (best_strasse.found()) {
+				baue_strasse(best_strasse.get_pos(), NULL, false);
+				INT_CHECK("simcity 3787");
+				return;
+			}
+
+			// not good for road => test for house
+
+			// we can stop after we have found a positive rule
+			best_haus.reset(k);
+			const uint32 num_house_rules = house_rules.get_count();
+			offset = simrand(num_house_rules);	// start with random rule
+			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
+				uint32 rule = ( i+offset ) % num_house_rules;
+				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
+			}
+			// one rule applied?
+			if (best_haus.found()) {
+				baue_gebaeude(best_haus.get_pos(), new_town);
+				INT_CHECK("simcity 3804");
+				return;
+			}
+
+			candidates.remove_at(idx, false);
+		}
 	}
 }
 

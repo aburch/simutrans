@@ -412,6 +412,10 @@ private:
 	// @author: jamespetts
 	void set_scale();
 
+	uint16 citycar_speed_average;
+
+	void set_citycar_speed_average();
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -543,7 +547,7 @@ public:
 	void set_player_password_hash( uint8 player_nr, uint8 *hash );
 	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr);
-	void new_spieler( uint8 nr, uint8 type );
+	char *new_spieler( uint8 nr, uint8 type );
 
 	// if a schedule is changed, it will increment the schedule counter
 	// every step the haltstelle will check and reroute the goods if needed
@@ -639,9 +643,27 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((sint32)ticks_per_world_month_shift -18); }
-	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << (ticks_per_world_month_shift -18ll); }
-	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((uint32)ticks_per_world_month_shift -18); }
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - 18l)); 
+		} else {
+			return (sint32)(nominal_monthly_figure >> (18l - ticks_per_world_month_shift)); 
+		}
+	}
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return nominal_monthly_figure << (ticks_per_world_month_shift - 18ll); 
+		} else {
+			return nominal_monthly_figure >> (18ll - ticks_per_world_month_shift); 
+		}
+	}
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return (uint32)(nominal_monthly_figure << ((uint32)ticks_per_world_month_shift - 18u)); 
+		} else {
+			return (uint32)(nominal_monthly_figure >> (18u - (uint32)ticks_per_world_month_shift)); 
+		}
+	}
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
@@ -1111,6 +1133,8 @@ public:
 	void command_queue_append(network_world_command_t*);
 
 	void network_disconnect();
+
+	uint16 get_citycar_speed_average() const { return citycar_speed_average; }
 };
 
 #endif

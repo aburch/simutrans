@@ -397,6 +397,13 @@ public:
 	* @author prissi
 	*/
 	inline int get_gesamtgewicht() const { return sum_weight; }
+
+	// returns speedlimit of ways (and if convoi enters station etc)
+	// the convoi takes care of the max_speed of the vehicle
+	// In Experimental this is mostly for entering stations etc.,
+	// as the new physics engine handles ways
+	uint32 get_speed_limit() const { return speed_limit; }
+
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
 	/**
@@ -544,15 +551,17 @@ public:
  */
 class automobil_t : public vehikel_t
 {
-protected:
+public:
 	bool ist_befahrbar(const grund_t *bd) const;
 
-public:
+	bool is_checker;
+
 	virtual void betrete_feld();
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
 	automobil_t(karte_t *welt, loadsave_t *file, bool first, bool last);
+	automobil_t(karte_t *welt);
 	automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	virtual void set_convoi(convoi_t *c);

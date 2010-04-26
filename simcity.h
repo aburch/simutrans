@@ -15,6 +15,7 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/array2d_tpl.h"
 #include "tpl/slist_tpl.h"
+#include "tpl/ptrhashtable_tpl.h"
 
 #include "vehicle/simverkehr.h"
 #include "tpl/sparse_tpl.h"
@@ -23,6 +24,7 @@ class karte_t;
 class spieler_t;
 class cbuffer_t;
 class cstring_t;
+class fabrik_t;
 
 class rule_t;
 
@@ -199,6 +201,15 @@ private:
 
 	enum journey_distance_type { local, midrange, longdistance };
 
+	// Hashtable of all cities/attractions/industries connected by road from this city.
+	// Key: city pointer.
+	// Value: journey time per tile (equiv. straight line distance)
+	// (in 10ths of minutes); 65535 = unreachable.
+	// @author: jamespetts, April 2010
+	ptrhashtable_tpl<const stadt_t*, uint16> connected_cities;
+	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
+	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
+
 public:
 	/**
 	 * Returns pointer to history for city
@@ -361,6 +372,17 @@ private:
 
 	uint16 adjusted_passenger_routing_local_chance;
 
+	// Checks to see whether this town is connected
+	// by road to each other town.
+	// @author: jamespetts, April 2010
+	uint16 check_road_connexion_to(stadt_t* city);
+	uint16 check_road_connexion_to(const fabrik_t* industry);
+	uint16 check_road_connexion_to(const gebaeude_t* attraction);
+	uint16 check_road_connexion(koord3d destination);
+
+	// Adds a connexion back from a city when a route has been calculated.
+	void add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city);
+
 public:
 	/**
 	 * sucht arbeitsplätze für die Einwohner
@@ -500,11 +522,18 @@ public:
 	void neuer_monat();
 
 	//@author: jamespetts
+	union destination_object
+	{
+		stadt_t* town;
+		const fabrik_t* industry;
+		const gebaeude_t* attraction;
+	};
+
 	struct destination
 	{
 		koord location;
 		uint16 type; //1 = town; others as #define above.
-		stadt_t* town; //NULL if the type is not a town.
+		destination_object object; 
 	};
 
 

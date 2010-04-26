@@ -98,6 +98,7 @@
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
 #include "besch/tunnel_besch.h"
+#include "besch/stadtauto_besch.h"
 
 #include "player/simplay.h"
 #include "player/ai_passenger.h"
@@ -1640,6 +1641,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	outstanding_cars = 0;
 
+	citycar_speed_average = 50;
+
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
@@ -3036,6 +3039,8 @@ void karte_t::neuer_monat()
 	{
 		path_explorer_t::refresh_all_categories(true);
 	}
+
+	set_citycar_speed_average();
 }
 
 
@@ -4415,7 +4420,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		else if(i<8) {
 			// get the old player ...
 			if(  spieler[i]==NULL  ) {
-				spieler[i] = (i==3) ? (spieler_t*)(new ai_passenger_t(this, i)) : (spieler_t*)(new ai_goods_t(this, i));
+				new_spieler( i, (i==3) ? spieler_t::AI_PASSENGER : spieler_t::AI_GOODS );
 			}
 			einstellungen->spieler_type[i] = spieler[i]->get_ai_id();
 		}
@@ -5218,16 +5223,20 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 /* creates a new player with this type */
-void karte_t::new_spieler(uint8 new_player, uint8 type)
+char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
-	assert(  spieler[new_player]==NULL  );
+	if(  new_player<0  ||  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
+		return "Id invalid/already in use!";
+	}
 	switch( type ) {
 		case spieler_t::EMPTY: break;
 		case spieler_t::HUMAN: spieler[new_player] = new spieler_t(this,new_player); break;
 		case spieler_t::AI_GOODS: spieler[new_player] = new ai_goods_t(this,new_player); break;
 		case spieler_t::AI_PASSENGER: spieler[new_player] = new ai_passenger_t(this,new_player); break;
-		default: dbg->fatal( "karte_t::new_spieler()","Unknow AI type %i!",type );
+		default: return "Unknow AI type!";
 	}
+	get_einstellungen()->set_player_type( new_player, type );
+	return NULL;
 }
 
 
@@ -5765,3 +5774,23 @@ void karte_t::network_disconnect()
 	beenden(false);
 }
 
+void karte_t::set_citycar_speed_average()
+{
+	uint32 speed_sum = 0;
+	if(stadtauto_t::table.empty())
+	{
+		// No city cars - use default speed.
+		citycar_speed_average = 50;
+		return;
+	}
+	stringhashtable_iterator_tpl<const stadtauto_besch_t*> iter(&stadtauto_t::table);
+	int vehicle_speed_sum = 0;
+	uint16 count = 0;
+	while(iter.next())
+	{
+		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
+		vehicle_speed_sum += (speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
+		count += iter.get_current_value()->get_gewichtung();
+	}
+	citycar_speed_average = vehicle_speed_sum / count;
+}

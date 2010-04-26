@@ -182,7 +182,7 @@ private:
 	// The longest time that a passenger is
 	// prepared to wait for transport.
 	// @author: jamespetts
-	uint16 passenger_max_wait;
+	uint32 passenger_max_wait;
 
 	uint8 max_rerouting_interval_months;
 
@@ -358,6 +358,12 @@ public:
 	bool automaten[MAX_PLAYER_COUNT];
 	// 0 = emtpy, otherwise some vaule from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
+
+	// If true, the old (faster) method of
+	// city growth is used. If false (default),
+	// the new, more accurate, method of city
+	// growth is used.
+	bool quick_city_growth;
 
 public:
 	/**
@@ -726,6 +732,7 @@ public:
 	uint32 get_frames_per_step() const { return frames_per_step; }
 
 	uint16 get_max_walking_distance() const { return max_walking_distance; }
+	bool get_quick_city_growth() const { return quick_city_growth; }
 };
 
 #endif
