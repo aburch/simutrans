@@ -418,6 +418,10 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	{
 		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, weg->get_besch() );
 	}
+	if(besch->get_waytype() == road_wt)
+	{
+		welt->set_recheck_road_connexions();
+	}
 	return NULL;
 }
 

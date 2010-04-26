@@ -416,6 +416,8 @@ private:
 
 	void set_citycar_speed_average();
 
+	bool recheck_road_connexions;
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -1135,6 +1137,8 @@ public:
 	void network_disconnect();
 
 	uint16 get_citycar_speed_average() const { return citycar_speed_average; }
+
+	void set_recheck_road_connexions() { recheck_road_connexions = true; }
 };
 
 #endif

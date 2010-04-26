@@ -1118,6 +1118,9 @@ stadt_t::~stadt_t()
 		city_factories[i]->clear_city();
 	}
 
+	delete finder;
+	delete private_car_route;
+
 	if(  reliefkarte_t::get_karte()->get_city() == this  ) {
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
@@ -1220,6 +1223,88 @@ next_name:;
 
 	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", list_name);
 
+	const char* n = get_name();
+	// Sort towns by the letters of the alphabet to which they belong.
+	switch(n[0])
+	{
+	case 'a':
+	case 'A':
+	case 'b':
+	case 'B':
+		road_recalc_modulator = 0;
+		break;
+	case 'c':
+	case 'C':
+	case 'd':
+	case 'D':
+		road_recalc_modulator = 1;
+		break;
+	case 'e':
+	case 'E':
+		road_recalc_modulator = 2;
+		break;
+	case 'f':
+	case 'F':
+	case 'g':
+	case 'G':
+		road_recalc_modulator = 3;
+		break;
+	case 'h':
+	case 'H':
+	case 'i':
+	case 'I':
+		road_recalc_modulator = 4;
+		break;
+	case 'J':
+	case 'j':
+	case 'K':
+	case 'k':
+	case 'L':
+	case 'l':
+		road_recalc_modulator = 5;
+		break;
+	case 'm':
+	case 'M':
+	case 'n':
+	case 'N':
+		road_recalc_modulator = 6;
+		break;
+	case 'o':
+	case 'O':
+	case 'p':
+	case 'P':
+		road_recalc_modulator = 7;
+		break;
+	case 'q':
+	case 'Q':
+	case 'r':
+	case 'R':
+	case 's':
+	case 'S':
+		road_recalc_modulator = 8;
+		break;
+	case 't':
+	case 'T':
+	case 'u':
+	case 'U':
+		road_recalc_modulator = 9;
+		break;
+	case 'V':
+	case 'v':
+	case 'w':
+	case 'W':
+		road_recalc_modulator = 10;
+		break;
+	case 'x':
+	case 'X':
+	case 'Y':
+	case 'y':
+	case 'z':
+	case 'Z':
+	default:
+		road_recalc_modulator = 11;
+	};
+
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
 
@@ -1257,6 +1342,11 @@ next_name:;
 	city_history_year[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
 
 	calc_internal_passengers();
+
+	finder = new road_destination_finder_t(welt, new automobil_t(welt));
+	private_car_route = new route_t();
+	check_road_connexions = false;
+
 }
 
 
@@ -1318,6 +1408,92 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	verbinde_fabriken();
 
 	calc_internal_passengers();
+
+	const char* n = get_name();
+	// Sort towns by the letters of the alphabet to which they belong.
+	switch(n[0])
+	{
+	case 'a':
+	case 'A':
+	case 'b':
+	case 'B':
+		road_recalc_modulator = 0;
+		break;
+	case 'c':
+	case 'C':
+	case 'd':
+	case 'D':
+		road_recalc_modulator = 1;
+		break;
+	case 'e':
+	case 'E':
+		road_recalc_modulator = 2;
+		break;
+	case 'f':
+	case 'F':
+	case 'g':
+	case 'G':
+		road_recalc_modulator = 3;
+		break;
+	case 'h':
+	case 'H':
+	case 'i':
+	case 'I':
+		road_recalc_modulator = 4;
+		break;
+	case 'J':
+	case 'j':
+	case 'K':
+	case 'k':
+	case 'L':
+	case 'l':
+		road_recalc_modulator = 5;
+		break;
+	case 'm':
+	case 'M':
+	case 'n':
+	case 'N':
+		road_recalc_modulator = 6;
+		break;
+	case 'o':
+	case 'O':
+	case 'p':
+	case 'P':
+		road_recalc_modulator = 7;
+		break;
+	case 'q':
+	case 'Q':
+	case 'r':
+	case 'R':
+	case 's':
+	case 'S':
+		road_recalc_modulator = 8;
+		break;
+	case 't':
+	case 'T':
+	case 'u':
+	case 'U':
+		road_recalc_modulator = 9;
+		break;
+	case 'V':
+	case 'v':
+	case 'w':
+	case 'W':
+		road_recalc_modulator = 10;
+		break;
+	case 'x':
+	case 'X':
+	case 'Y':
+	case 'y':
+	case 'z':
+	case 'Z':
+	default:
+		road_recalc_modulator = 11;
+	};
+
+	finder = new road_destination_finder_t(welt, new automobil_t(welt));
+	private_car_route = new route_t();
+	check_road_connexions = false;
 }
 
 
@@ -1783,7 +1959,7 @@ void stadt_t::roll_history()
 }
 
 
-void stadt_t::neuer_monat() //"New month" (Google)
+void stadt_t::neuer_monat(bool check) //"New month" (Google)
 {
 	swap<uint8>( pax_destinations_old, pax_destinations_new );
 	pax_destinations_new.clear();
@@ -1822,10 +1998,20 @@ void stadt_t::neuer_monat() //"New month" (Google)
 	city_history_year[0][HIST_CAR_OWNERSHIP] = car_ownership_sum / MAX_CITY_HISTORY_MONTHS;
 
 	// Clearing these will force recalculation as necessary.
-	connected_cities.clear();
-	connected_industries.clear();
-	connected_attractions.clear();
+	// Cannot do this too often, as it severely impacts on performance.
+	if(check)
+	{
+		check_road_connexions = true;
+	}
 
+	if(check_road_connexions && welt->get_current_month() % 12 == road_recalc_modulator)
+	{
+		connected_cities.clear();
+		connected_industries.clear();
+		connected_attractions.clear();
+		check_road_connexions = false;
+	}
+	
 	if (!stadtauto_t::list_empty()) 
 	{
 		// Spawn citycars
@@ -2056,57 +2242,6 @@ void stadt_t::step_bau()
 	}
 }
 
-/*
- * Will find a depot for the vehicle "master".
- */
-class road_destination_finder_t : public fahrer_t
-{
-private:
-	automobil_t *master;
-	karte_t* welt;
-	koord3d dest;
-public:
-	road_destination_finder_t(karte_t *w, const koord3d d) 
-	{ 
-		welt = w;
-		dest = d;
-		master = new automobil_t(welt);
-	};
-	~road_destination_finder_t()
-	{
-		delete master;
-	}
-	virtual waytype_t get_waytype() const 
-	{ 
-		return road_wt; 
-	};
-	virtual bool ist_befahrbar( const grund_t* gr ) const 
-	{ 
-		// Check to see whether the road prohibits private cars
-		if(welt->lookup(gr->get_pos())->get_weg(road_wt) && welt->lookup(gr->get_pos())->get_weg(road_wt)->has_sign())
-		{
-			const roadsign_besch_t* rs_besch = gr->find<roadsign_t>()->get_besch();
-			if(rs_besch->is_private_way())
-			{
-				return false;
-			}
-		}
-		return master->ist_befahrbar(gr);
-	};
-	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
-	{ 
-		return gr->get_pos() == dest;
-	};
-	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
-	{ 
-		return master->get_ribi(gr); 
-	};
-	virtual int get_kosten( const grund_t*, uint32) const 
-	{ 
-		return 1; 
-	};
-};
-
 uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 {
 	if(connected_cities.is_contained(city))
@@ -2116,11 +2251,11 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	else if(city == this)
 	{
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
-		const uint16 road_speed_limit = welt->lookup(pos3d)->get_weg(road_wt) ? welt->lookup(pos3d)->get_weg(road_wt)->get_max_speed() : welt->get_city_road()->get_topspeed();
+		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
+		const uint16 road_speed_limit = road ? road->get_max_speed() : welt->get_city_road()->get_topspeed();
 		const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
 		const uint16 speed_average = (float)min(road_speed_limit, vehicle_speed_average) / 1.3F;
-		const float tile_distance_km = 1.0F * welt->get_einstellungen()->get_distance_per_tile();
-		const uint16 journey_time_per_tile = 600 * (tile_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
+		const uint16 journey_time_per_tile = 600 * (welt->get_einstellungen()->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
 		connected_cities.put(this, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
@@ -2161,9 +2296,6 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 		grund_t *gr;
 		for(uint8 i = 0; i < 8; i ++)
 		{
-			const koord TEST = pos + pos.neighbours[i];
-			const koord TEST_2 = industry_tiles[n];
-			const char* TEST_NAME = industry->get_name();
 			koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
 			gr = welt->lookup(pos3d);
 			if(!gr)
@@ -2196,9 +2328,6 @@ found_road:
 
 uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 {
-	// TODO: Refine this: currently, searches a 2x2 field around the base "pos"
-	// which may miss a road if it is not within that area. Find a way of searching
-	// the area around the whole attraction.
 	if(connected_attractions.is_contained(attraction))
 	{
 		return connected_attractions.get(attraction);
@@ -2240,9 +2369,9 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 uint16 stadt_t::check_road_connexion(koord3d dest)
 {
 	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
-	route_t route;
-	road_destination_finder_t finder( welt, dest );
-	if(!route.find_route(welt, origin, &finder, 0, ribi_t::alle, 0x7FFFFFFF))
+	private_car_route->clear();
+	finder->set_destination(dest);
+	if(!private_car_route->find_route(welt, origin, finder, 0, ribi_t::alle, 0x7FFFFFFF))
 	{
 		return 65535;
 	}
@@ -2250,17 +2379,17 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
 	uint16 top_speed;
 	uint32 speed_sum = 0;
-	ITERATE(route,i)
+	ITERATE_PTR(private_car_route,i)
 	{
-		pos = route.position_bei(i);
+		pos = private_car_route->position_bei(i);
 		top_speed = welt->lookup(pos)->get_weg(road_wt)->get_max_speed();
 		speed_sum += min(top_speed, vehicle_speed_average);
 	}
-	const uint16 speed_average = (float)(speed_sum / route.get_count())  / 1.3F;
-	const float journey_distance_km = (float)route.get_count() * welt->get_einstellungen()->get_distance_per_tile();
+	const uint16 speed_average = (float)(speed_sum / private_car_route->get_count())  / 1.3F;
+	const float journey_distance_km = (float)private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile();
 	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
-	return (float)journey_time / straight_line_distance_tiles;
+	return journey_time / straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles;
 }
 
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
@@ -2547,6 +2676,8 @@ walk:
 					route_good = too_slow;
 				}
 
+				INT_CHECK("simcity.cc 2547");
+
 				if(has_private_car)
 				{
 					const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
@@ -2711,7 +2842,8 @@ walk:
 						//Finally, determine whether the private car is used.
 						if(private_car_chance <= car_preference)
 						{
-							set_private_car_trip(num_pax, destinations[current_destination].object.town);
+							stadt_t* const destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
+							set_private_car_trip(num_pax, destination_town);
 #ifdef DESTINATION_CITYCARS
 							//citycars with destination
 							erzeuge_verkehrsteilnehmer(k, step_count, destinations[current_destination].location);
@@ -2780,7 +2912,8 @@ public_transport:
 							if(car_minutes < 65535)
 							{
 								//Must use private car, since there is no route back.
-								set_private_car_trip(num_pax, destinations[current_destination].object.town);
+								stadt_t* const destination_town = destinations[current_destination].type == 1 ? destinations[current_destination].object.town : NULL;
+								set_private_car_trip(num_pax, destination_town);
 #ifdef DESTINATION_CITYCARS
 								erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 #endif
@@ -2802,7 +2935,8 @@ public_transport:
 							// Must use private car, since the halt is crowded.
 							// Do not check tolerance, as they must come back!
 							
-							set_private_car_trip(num_pax, destinations[0].object.town);
+							stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+							set_private_car_trip(num_pax, destination_town);
 #ifdef DESTINATION_CITYCARS
 							//citycars with destination
 							erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
@@ -2843,7 +2977,8 @@ public_transport:
 			
 					if(car_minutes <= tolerance)
 					{
-						set_private_car_trip(num_pax, destinations[0].object.town);
+						stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+						set_private_car_trip(num_pax, destination_town);
 #ifdef DESTINATION_CITYCARS
 						//citycars with destination
 						erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
@@ -4180,3 +4315,27 @@ uint32 stadt_t::get_power_demand() const
  { 
 	return (city_history_month[0][HIST_CITICENS] * get_electricity_consumption(welt->get_timeline_year_month())) * 0.02F; 
  }
+
+bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
+{ 
+	// Check to see whether the road prohibits private cars
+	if(welt->lookup(gr->get_pos())->get_weg(road_wt) && welt->lookup(gr->get_pos())->get_weg(road_wt)->has_sign())
+	{
+		const roadsign_besch_t* rs_besch = gr->find<roadsign_t>()->get_besch();
+		if(rs_besch->is_private_way())
+		{
+			return false;
+		}
+	}
+	return master->ist_befahrbar(gr);
+}
+
+bool road_destination_finder_t::ist_ziel( const grund_t* gr, const grund_t* ) const 
+{ 
+	return gr->get_pos() == dest;
+}
+
+ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
+{ 
+	return master->get_ribi(gr); 
+}

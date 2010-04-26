@@ -1624,6 +1624,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	einstellungen = sets;
 	schedule_counter = 0;
 	nosave_warning = nosave = false;
+	recheck_road_connexions = true;
 	actual_industry_density = industry_density_proportion = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
@@ -2970,7 +2971,8 @@ void karte_t::neuer_monat()
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
-		s->neuer_monat();
+		s->neuer_monat(recheck_road_connexions);
+		recheck_road_connexions = false;
 		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
