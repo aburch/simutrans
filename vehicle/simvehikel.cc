@@ -1311,13 +1311,15 @@ void vehikel_t::hop()
 		speed_limit = SPEED_UNLIMITED;
 	}
 
-	if(check_for_finish & ist_erstes) 
-	{
+	if(  check_for_finish  &  ist_erstes  ) {
 		if(  fahrtrichtung==ribi_t::nord  || fahrtrichtung==ribi_t::west ) 
 		{
 			steps_next = (steps_next/2)+1;
 		}
 	}
+
+	// speedlimit may have changed
+	cnv->must_recalc_data();
 	
 	if(gr != NULL)
 	{
@@ -1554,7 +1556,7 @@ sint16 get_friction_of_waytype(waytype_t waytype)
 
 /* calculates the current friction coefficient based on the curent track
  * flat, slope, (curve)...
- * @author prissi, HJ
+ * @author prissi, HJ, Dwachs
  */
 void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int h_neu)
 {
@@ -1597,16 +1599,14 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 	}
 
 	if(ist_erstes) { //"Is the first" (Google)
-		uint32 akt_speed = speed_limit;
-
 		uint32 tiles_left = cnv->get_next_stop_index()+1-route_index;
 		if(tiles_left<4) {
 			// break at the end of stations/in front of signals
-			uint32 brake_speed_soll = akt_speed;
+			uint32 brake_speed_soll = speed_limit;
 
 			if(check_for_finish) {
 				// for the half last tile to stop in stations only
-				akt_speed = kmh_to_speed(25);
+				brake_speed_soll = kmh_to_speed(25);
 			}
 			else {
 				switch(tiles_left) {
@@ -1617,12 +1617,8 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 					default: break;
 				}
 			}
-			if(brake_speed_soll<(uint32)akt_speed) {
-				akt_speed = brake_speed_soll;
-			}
+			speed_limit = min (speed_limit, brake_speed_soll);
 		}
-		// speed is limited anyway in the convoi
-		cnv->set_akt_speed_soll( akt_speed );
 	}
 }
 
@@ -1650,8 +1646,7 @@ vehikel_t::direction_degrees vehikel_t::get_direction_degrees(ribi_t::dir direct
 	return vehikel_t::North;
 }
 
-void
-vehikel_t::rauche()
+void vehikel_t::rauche()
 {
 	// raucht ueberhaupt ?
 	if(rauchen  &&  besch->get_rauch()) {
@@ -3563,17 +3558,10 @@ schiff_t::calc_akt_speed(const grund_t *gr)
 		// curve: higher friction
 		current_friction *= 2;
 	}
-
-	if(ist_erstes) {
-		// just to accelerate: The actual speed takes care of all vehicles in the convoi
-		cnv->set_akt_speed_soll( speed_limit );
-	}
 }
 
 
-
-bool
-schiff_t::ist_weg_frei(int &restart_speed)
+bool schiff_t::ist_weg_frei(int &restart_speed)
 {
 	restart_speed = -1;
 
@@ -3950,7 +3938,8 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 	if(route_index==(touchdown-3)) {
 		if(state!=flying2  &&  !block_reserver( touchdown-1, suchen, true )) {
 			// circle slowly next round
-			cnv->set_akt_speed_soll( kmh_to_speed(besch->get_geschw())/2 );
+			cnv->must_recalc_data();
+			speed_limit = kmh_to_speed(besch->get_geschw())/2;
 			state = flying;
 			route_index -= 16;
 		}
@@ -4313,7 +4302,6 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 		route->clear();
 		route->append( get_pos() );
 		state = flying;
-		cnv->set_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
 		if(flughoehe==0) {
 			flughoehe = 3*TILE_HEIGHT_STEP;
 		}
@@ -4499,11 +4487,9 @@ aircraft_t::hop()
 	// hop to next tile
 	vehikel_t::hop();
 
-	// and change flight height
-	cnv->set_akt_speed_soll( new_speed_limit );
+	speed_limit = new_speed_limit;
 	current_friction = new_friction;
 }
-
 
 
 // this routine will display the aircraft (if in flight)

@@ -255,6 +255,12 @@ private:
 	sint32 sum_gewicht;
 	sint32 sum_gesamtgewicht;
 
+	// cached values
+	// will be recalculated if
+	// recalc_data is true
+	bool recalc_data;
+	uint32 speed_limit;
+
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
 	* from the vehicles data
@@ -311,7 +317,6 @@ private:
 	koord record_pos;
 
 	// needed for speed control/calculation
-	sint32 akt_speed_soll;    // target speed
 	sint32 akt_speed;	        // current speed
 	sint32 sp_soll;           // steps to go
 	sint32 previous_delta_v;  // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
@@ -586,13 +591,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	koord3d get_pos() const;
-
-	/**
-	 * sets the current target speed
-	 * set from the first vehicle, and takes into account all speed limits, brakes at stations etc.
-	 * @author Hj. Malthaner
-	 */
-	void set_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
 
 	/**
 	 * @return current speed, this might be different from topspeed
@@ -938,6 +936,8 @@ public:
 	// True if convoy has no cargo
 	//@author: isidoro
 	bool has_no_cargo() const;
+
+	void must_recalc_data() { recalc_data = true; }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);

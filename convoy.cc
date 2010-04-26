@@ -82,6 +82,15 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 			}
 		}
 	}
+	// The vehicle may be limited by braking approaching a station
+	// Or airplane circling for landing, or airplane height,
+	// Or cornering, or other odd cases
+	// These are carried in vehikel_t unlike other speed limits 
+	sint32 limit = v->get_speed_limit();
+	if (max_speed > limit)
+	{
+		max_speed = limit;
+	}
 }
 
 /******************************************************************************/
