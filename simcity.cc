@@ -2072,7 +2072,7 @@ public:
 		dest = d;
 		master = new automobil_t(welt);
 	};
-	road_destination_finder_t::~road_destination_finder_t()
+	~road_destination_finder_t()
 	{
 		delete master;
 	}
