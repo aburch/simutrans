@@ -198,12 +198,19 @@ template<class T> class vector_tpl
 		}
 
 		/** removes element at position */
-		void remove_at(const uint32 pos)
+		void remove_at(const uint32 pos, const bool preserve_order = true)
 		{
 			assert(pos<count);
 			count--;
-			for (uint i = pos; i < count; i++) {
-				data[i] = data[i + 1];
+			if(preserve_order)
+			{
+				for (uint i = pos; i < count; i++) {
+					data[i] = data[i + 1];
+				}
+			}
+			else if(  pos!=(count-1)  ) 
+				{
+				data[pos] = data[count-1];				
 			}
 		}
 

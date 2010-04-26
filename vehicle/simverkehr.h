@@ -80,8 +80,6 @@ class stadtauto_t : public verkehrsteilnehmer_t, public overtaker_t
 private:
 	
 	slist_tpl<stadtauto_t*> * current_list;
-	
-	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
 	const stadtauto_besch_t *besch;
 
@@ -116,6 +114,8 @@ public:
 	stadtauto_t(karte_t *welt, koord3d pos, koord target, slist_tpl<stadtauto_t*>* car_list);
 
 	virtual ~stadtauto_t();
+
+	static stringhashtable_tpl<const stadtauto_besch_t *> table;
 
 	const stadtauto_besch_t *get_besch() const { return besch; }
 
