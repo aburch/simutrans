@@ -9,6 +9,12 @@
 
 #include "../simtypes.h"
 
+// these are the sizes of the divers heades on the disk
+// if the uint16 size is LARGE_RECORD_SIZE the actual length is in a following uint32
+#define OBJ_NODE_INFO_SIZE (8)
+#define EXT_OBJ_NODE_INFO_SIZE (12)
+#define LARGE_RECORD_SIZE (0xFFFFu)
+
 /*
  *  Autor:
  *      Volker Meyer
