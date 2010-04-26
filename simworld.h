@@ -639,9 +639,27 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((sint32)ticks_per_world_month_shift -18); }
-	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << (ticks_per_world_month_shift -18ll); }
-	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((uint32)ticks_per_world_month_shift -18); }
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - 18l)); 
+		} else {
+			return (sint32)(nominal_monthly_figure >> (18l - ticks_per_world_month_shift)); 
+		}
+	}
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return nominal_monthly_figure << (ticks_per_world_month_shift - 18ll); 
+		} else {
+			return nominal_monthly_figure >> (18ll - ticks_per_world_month_shift)); 
+		}
+	}
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return (uint32)(nominal_monthly_figure << ((uint32)ticks_per_world_month_shift - 18u)); 
+		} else {
+			return (uint32)(nominal_monthly_figure >> (18u - (uint32)ticks_per_world_month_shift)); 
+		}
+	}
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
