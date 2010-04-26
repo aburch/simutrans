@@ -5359,7 +5359,13 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
  * following simple command exists:
  * 'l' : creates a new line (convoi_id might be invalid)
  * 'b' : starts the convoi
- * 'c' : copy this convoi
+ * 'c' : copies this convoi
+ * 'd' : dissassembles convoi
+ * 's' : sells convoi
+ * 'a' : appends a vehicle (+vehikel_name) uses the oldest
+ * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
+ * 's' : sells a vehikel (+vehikel_name) uses the newest
+ * 'r' : removes a vehikel (+number in convoi)
  */
 bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 {
@@ -5586,5 +5592,62 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 		}
 	}
 	memcpy( sp->get_password_hash_ptr(), new_hash, 20 );
+	return false;
+}
+
+
+/* Handles all player stuff default_param:
+ * [function],[player_id],[state]
+ * following command exists:
+ * 'a' : activate/deactivate player (depends on state)
+ * 'n' : create player at id of type state
+ * 'f' : activates/deactivates freeplay
+ */
+bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
+{
+	if(  default_param==NULL  ) {
+		dbg->error( "wkz_change_player_t::init()", "noting to do!" );
+		return false;
+	}
+
+	char tool=0;
+	int id=0;
+	int state=0;
+
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p<=' '  ) {
+		p++;
+	}
+	sscanf( p, "%c,%i,%i", &tool, &id, &state );
+
+	// ok now do our stuff
+	switch(  tool  ) {
+		case 'n': // new player with type state
+			if(  state==spieler_t::HUMAN  ||  sp==welt->get_spieler(1)  ||  !welt->get_spieler(1)->is_locked()  ) {
+				const char *msg = welt->new_spieler( id, state );
+				if(  msg  ) {
+					dbg->error( "wkz_change_player_t::init()", msg );
+				}
+			}
+			else {
+				dbg->error( "wkz_change_player_t::init()", "Only public player can enable AIs!" );
+			}
+			break;
+		case 'a': // activate/deactivate AI
+			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN) {
+				sp->set_active(state);
+				welt->get_einstellungen()->set_player_active( id, welt->get_spieler(id)->is_active() );
+			}
+			break;
+		case 'f': // activate/deactivate freeplay
+			if(  (welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change())  &&  welt->get_active_player_nr()!=1  ) {
+				dbg->error( "wkz_change_player_t::init()", "Only public player can enable freeplay!" );
+			}
+			else {
+				welt->get_einstellungen()->set_freeplay( !welt->get_einstellungen()->is_freeplay() );
+			}
+			break;
+	}
 	return false;
 }

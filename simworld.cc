@@ -4415,7 +4415,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		else if(i<8) {
 			// get the old player ...
 			if(  spieler[i]==NULL  ) {
-				spieler[i] = (i==3) ? (spieler_t*)(new ai_passenger_t(this, i)) : (spieler_t*)(new ai_goods_t(this, i));
+				new_spieler( i, (i==3) ? spieler_t::AI_PASSENGER : spieler_t::AI_GOODS );
 			}
 			einstellungen->spieler_type[i] = spieler[i]->get_ai_id();
 		}
@@ -5218,16 +5218,20 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 /* creates a new player with this type */
-void karte_t::new_spieler(uint8 new_player, uint8 type)
+char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
-	assert(  spieler[new_player]==NULL  );
+	if(  new_player<0  ||  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
+		return "Id invalid/already in use!";
+	}
 	switch( type ) {
 		case spieler_t::EMPTY: break;
 		case spieler_t::HUMAN: spieler[new_player] = new spieler_t(this,new_player); break;
 		case spieler_t::AI_GOODS: spieler[new_player] = new ai_goods_t(this,new_player); break;
 		case spieler_t::AI_PASSENGER: spieler[new_player] = new ai_passenger_t(this,new_player); break;
-		default: dbg->fatal( "karte_t::new_spieler()","Unknow AI type %i!",type );
+		default: return "Unknow AI type!";
 	}
+	get_einstellungen()->set_player_type( new_player, type );
+	return NULL;
 }
 
 

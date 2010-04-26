@@ -858,6 +858,14 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+// adds a new player of certain type to the map
+class wkz_change_player_t : public werkzeug_t {
+public:
+	wkz_change_player_t() : werkzeug_t() { id = WKZ_SET_PLAYER_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
 /********************** dialoge tools *****************************/
 
 // general help
