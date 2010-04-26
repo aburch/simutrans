@@ -1599,13 +1599,9 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
-	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
-	const sint64 base_maintenance = besch->get_base_maintenance();
-	const sint64 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
-	sprintf(toolstr, "%s, %ld$ (%.2f$) / km, %dkm/h, %dt",
-		translator::translate(besch->get_name()),
-		besch->get_base_price()/100l,
-		adjusted_maintenance/100.0F,
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name, -besch->get_base_price, besch->get_base_maintenance() );
+	size_t n= strlen(toolstr);
+	sprintf(toolstr+n, " / km, %dkm/h, %dt",
 		besch->get_topspeed(),
 		besch->get_max_weight());
 	return toolstr;
@@ -1770,13 +1766,8 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 /* bridge construction */
 const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 {
-	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
-	const sint32 base_maintenance = besch->get_wartung();
-	const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
-	int n = sprintf(toolstr, "%s, %d$ (%d$)",
-		  translator::translate(besch->get_name()),
-		  besch->get_preis()/100,
-		  adjusted_maintenance/100);
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
+	size_t n= strlen(toolstr);
 
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -1987,13 +1978,9 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 /* more difficult, since this builts also underground ways */
 const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 {
-	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
-	const sint32 base_maintenance = besch->get_base_maintenance();
-	const sint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
-	int n = sprintf(toolstr, "%s, %d$ (%d$) / km",
-		  translator::translate(besch->get_name()),
-		  besch->get_base_price()/100,
-		  adjusted_maintenance/100);
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance() );
+	strcat(toolstr, " / km");
+	size_t n= strlen(toolstr);
 
 	if(besch->get_waytype()!=powerline_wt) {
 				n += sprintf(toolstr+n, ", %dkm/h, %dt", 
@@ -2361,12 +2348,9 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
-			const uint32 base_maintenance = besch->get_base_maintenance();
-			const uint32 adjusted_maintenance = sp->get_welt()->calc_adjusted_monthly_figure(base_maintenance);
-			int n = sprintf(toolstr, "%s, %ld$ (%ld$) / km",
-					translator::translate(besch->get_name()),
-					besch->get_base_price()/100l,
-					adjusted_maintenance/100l);
+			tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(),  besch->get_base_maintenance() );
+			strcat(toolstr, " / km");
+			size_t n = strlen(toolstr);
 			int topspeed = besch->get_topspeed();
 			if (topspeed > 0) {
 				sprintf(toolstr+n, ", %dkm/h", topspeed);
@@ -5635,8 +5619,8 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 			}
 			break;
 		case 'a': // activate/deactivate AI
-			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN) {
-				sp->set_active(state);
+			if (welt->get_spieler(id)  &&  welt->get_spieler(id)->get_ai_id()!=spieler_t::HUMAN) {
+				welt->get_spieler(id)->set_active(state);
 				welt->get_einstellungen()->set_player_active( id, welt->get_spieler(id)->is_active() );
 			}
 			break;
