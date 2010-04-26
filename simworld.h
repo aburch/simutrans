@@ -650,7 +650,7 @@ public:
 		if (ticks_per_world_month_shift >= 18) {
 			return nominal_monthly_figure << (ticks_per_world_month_shift - 18ll); 
 		} else {
-			return nominal_monthly_figure >> (18ll - ticks_per_world_month_shift)); 
+			return nominal_monthly_figure >> (18ll - ticks_per_world_month_shift); 
 		}
 	}
 	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) {
