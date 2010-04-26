@@ -2083,7 +2083,7 @@ public:
 	virtual bool ist_befahrbar( const grund_t* gr ) const 
 	{ 
 		// Check to see whether the road prohibits private cars
-		if(welt->lookup(gr->get_pos())->get_weg(road_wt)->has_sign())
+		if(welt->lookup(gr->get_pos())->get_weg(road_wt) && welt->lookup(gr->get_pos())->get_weg(road_wt)->has_sign())
 		{
 			const roadsign_besch_t* rs_besch = gr->find<roadsign_t>()->get_besch();
 			if(rs_besch->is_private_way())
@@ -2116,7 +2116,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	else if(city == this)
 	{
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
-		const uint16 road_speed_limit = welt->lookup(pos3d)->get_weg(road_wt)->get_max_speed();
+		const uint16 road_speed_limit = welt->lookup(pos3d)->get_weg(road_wt) ? welt->lookup(pos3d)->get_weg(road_wt)->get_max_speed() : welt->get_city_road()->get_topspeed();
 		const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
 		const uint16 speed_average = (float)min(road_speed_limit, vehicle_speed_average) / 1.3F;
 		const float tile_distance_km = 1.0F * welt->get_einstellungen()->get_distance_per_tile();
@@ -2137,31 +2137,57 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 {
-	// This method assumes that the destination is not
-	// already in the hashtable. 
-	const koord *pos = industry->get_pos().get_2d().neighbours;
-	grund_t *gr;
+	if(connected_industries.is_contained(industry))
+	{
+		return connected_industries.get(industry);
+	}
+	if(industry->get_city())
+	{
+		// If an industry is in a city, presume that it is connected
+		// if the city is connected. Do not presume the converse.
+		const uint16 time_to_city = check_road_connexion_to(industry->get_city());
+		if(time_to_city < 65335)
+		{
+			return time_to_city;
+		}
+	}
+
+	vector_tpl<koord> industry_tiles;
+	industry->get_tile_list(industry_tiles);
 	weg_t* road = NULL;
-	for(uint8 i = 0; i < 8; i ++)
+	ITERATE(industry_tiles, n)
 	{
-		const koord3d pos3d(pos[i], welt->lookup_hgt(pos[i]));
-		gr = welt->lookup(pos3d);
-		if(!gr)
+		const koord pos = industry_tiles.get_element(n);
+		grund_t *gr;
+		for(uint8 i = 0; i < 8; i ++)
 		{
-			continue;
-		}
-		road = gr->get_weg(road_wt);
-		if(road != NULL)
-		{
-			break;
+			const koord TEST = pos + pos.neighbours[i];
+			const koord TEST_2 = industry_tiles[n];
+			const char* TEST_NAME = industry->get_name();
+			koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
+			gr = welt->lookup(pos3d);
+			if(!gr)
+			{
+				pos3d.z ++;
+				gr = welt->lookup(pos3d);
+				if(!gr)
+				{
+					continue;
+				}
+			}
+			road = gr->get_weg(road_wt);
+			if(road != NULL)
+			{
+				goto found_road;
+			}
 		}
 	}
-	if(road == NULL)
-	{
-		// No road connecting to industry - no connexion at all.
-		connected_industries.put(industry, 65535);
-		return 65335;
-	}
+
+	// No road connecting to industry - no connexion at all.
+	connected_industries.put(industry, 65535);
+	return 65335;
+
+found_road:
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
 	connected_industries.put(industry, journey_time_per_tile);
@@ -2170,16 +2196,28 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 
 uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 {
-	const koord *pos = attraction->get_pos().get_2d().neighbours;
+	// TODO: Refine this: currently, searches a 2x2 field around the base "pos"
+	// which may miss a road if it is not within that area. Find a way of searching
+	// the area around the whole attraction.
+	if(connected_attractions.is_contained(attraction))
+	{
+		return connected_attractions.get(attraction);
+	}
+	const koord pos = attraction->get_pos().get_2d();
 	grund_t *gr;
 	weg_t* road = NULL;
-	for(uint8 i = 0; i < 8; i ++)
+	for(uint8 i = 0; i < 16; i ++)
 	{
-		const koord3d pos3d(pos[i], welt->lookup_hgt(pos[i]));
+		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
 		gr = welt->lookup(pos3d);
 		if(!gr)
 		{
-			continue;
+			pos3d.z ++;
+			gr = welt->lookup(pos3d);
+			if(!gr)
+			{
+				continue;
+			}
 		}
 		road = gr->get_weg(road_wt);
 		if(road != NULL)
