@@ -174,6 +174,7 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 	int result = sgn(f1 - f2);
 	if (!result)
 		result = strcmp(s1, s2);
+	dbg->debug("gui_file_table_pak_column_t::compare_rows()", "\"%s\" %s \"%s\"", s1, result < 0 ? "<" : result == 0 ? "==" : ">", s2);
 	return result;
 }
 
