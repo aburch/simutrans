@@ -2330,9 +2330,15 @@ automobil_t::automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* s
 	vehikel_t(pos, besch, sp)
 {
 	cnv = cn;
+	is_checker = false;
 }
 
-
+automobil_t::automobil_t(karte_t *welt) : vehikel_t(welt)
+{
+	// This is blank - just used for the automatic road finder.
+	cnv = NULL;
+	is_checker = true;
+}
 
 automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : vehikel_t(welt)
 {
@@ -2363,6 +2369,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 			last_besch = besch;
 		}
 	}
+	is_checker = false;
 }
 
 
@@ -2392,9 +2399,12 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	if(str==NULL  ||  str->get_max_speed()==0) {
 		return false;
 	}
-	bool electric = cnv!=NULL  ?  cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric;
-	if(electric  &&  !str->is_electrified()) {
-		return false;
+	if(!is_checker)
+	{
+		bool electric = cnv!=NULL  ?  cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric;
+		if(electric  &&  !str->is_electrified()) {
+			return false;
+		}
 	}
 	// check for signs
 	if(str->has_sign()) {
@@ -2410,7 +2420,11 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 		}
 	}
 	//const strasse_t* way = str;
-	return check_way_constraints(*str);
+	if(!is_checker)
+	{
+		return check_way_constraints(*str);
+	}
+	return true;
 }
 
 

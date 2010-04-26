@@ -98,6 +98,7 @@
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
 #include "besch/tunnel_besch.h"
+#include "besch/stadtauto_besch.h"
 
 #include "player/simplay.h"
 #include "player/ai_passenger.h"
@@ -1640,6 +1641,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	outstanding_cars = 0;
 
+	citycar_speed_average = 50;
+
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
@@ -3036,6 +3039,8 @@ void karte_t::neuer_monat()
 	{
 		path_explorer_t::refresh_all_categories(true);
 	}
+
+	set_citycar_speed_average();
 }
 
 
@@ -5765,3 +5770,22 @@ void karte_t::network_disconnect()
 	beenden(false);
 }
 
+void karte_t::set_citycar_speed_average()
+{
+	uint32 speed_sum = 0;
+	if(stadtauto_t::table.empty())
+	{
+		// No city cars - use default speed.
+		citycar_speed_average = 50;
+		return;
+	}
+	stringhashtable_iterator_tpl<const stadtauto_besch_t*> iter(&stadtauto_t::table);
+	int vehicle_speed_sum = 0;
+	uint16 count = 0;
+	while(iter.next())
+	{
+		vehicle_speed_sum += speed_to_kmh(iter.get_current_value()->get_geschw());
+		count++;
+	}
+	citycar_speed_average = vehicle_speed_sum / count;
+}

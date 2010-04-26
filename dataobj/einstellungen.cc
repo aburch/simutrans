@@ -118,8 +118,13 @@ einstellungen_t::einstellungen_t() :
 	max_transfers = 7;
 	max_hops = 300;
 
-	//Two and a half hours (9 * 18 = 162; 162 approx 2:30h)
-	passenger_max_wait = 2700;
+	// Eighteen hours - the control of real journey times
+	// should be the journey time tolerance feature, not
+	// the maximum waiting: discarding should be a last
+	// resort, not an integral part of the journey time
+	// measurement mechanics.
+	// 19440 / 18 = 1080 (or 18 hours).
+	passenger_max_wait = 19440;
 
 	// 4 is faster; 2 is more accurate.
 	// Not recommended to use anything other than 2 or 4
@@ -906,7 +911,16 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			uint16 global_power_factor_percent = global_power_factor * 100;
 			file->rdwr_short(global_power_factor_percent, "");
 			global_power_factor = (float)global_power_factor_percent / 100;
-			file->rdwr_short(passenger_max_wait, "");
+			if(file->get_experimental_version() <= 7)
+			{
+				uint16 old_passenger_max_wait;
+				file->rdwr_short(old_passenger_max_wait, "");
+				passenger_max_wait = (uint32)(old_passenger_max_wait, "");
+			}
+			else
+			{
+				file->rdwr_long(passenger_max_wait, "");
+			}
 			file->rdwr_byte(max_rerouting_interval_months, "");
 		}
 
@@ -1367,7 +1381,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const float max_walking_distance_km = (contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * (distance_per_tile * 10))) / 10.0);
 	max_walking_distance = max_walking_distance_km / distance_per_tile;
 
-	quick_city_growth = (bool)(contents.get_int("quick_city_growth", 0));
+	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 
 	/*
 	 * Selection of savegame format through inifile

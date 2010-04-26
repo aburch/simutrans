@@ -182,7 +182,7 @@ private:
 	// The longest time that a passenger is
 	// prepared to wait for transport.
 	// @author: jamespetts
-	uint16 passenger_max_wait;
+	uint32 passenger_max_wait;
 
 	uint8 max_rerouting_interval_months;
 

@@ -412,6 +412,10 @@ private:
 	// @author: jamespetts
 	void set_scale();
 
+	uint16 citycar_speed_average;
+
+	void set_citycar_speed_average();
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -1111,6 +1115,8 @@ public:
 	void command_queue_append(network_world_command_t*);
 
 	void network_disconnect();
+
+	uint16 get_citycar_speed_average() const { return citycar_speed_average; }
 };
 
 #endif
