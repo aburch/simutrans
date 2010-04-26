@@ -1599,6 +1599,7 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
+	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
 	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name, -besch->get_base_price, besch->get_base_maintenance() );
 	size_t n= strlen(toolstr);
 	sprintf(toolstr+n, " / km, %dkm/h, %dt",
@@ -1766,9 +1767,9 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 /* bridge construction */
 const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 {
+	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
 	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
 	size_t n= strlen(toolstr);
-
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h, %dt", 
 			besch->get_topspeed(),
@@ -1978,6 +1979,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 /* more difficult, since this builts also underground ways */
 const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 {
+	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
 	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_base_price(), besch->get_base_maintenance() );
 	strcat(toolstr, " / km");
 	size_t n= strlen(toolstr);
@@ -5619,7 +5621,7 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 			}
 			break;
 		case 'a': // activate/deactivate AI
-			if (welt->get_spieler(id)  &&  welt->get_spieler(id)->get_ai_id()!=spieler_t::HUMAN) {
+			if(welt->get_spieler(id)  &&  welt->get_spieler(id)->get_ai_id()!=spieler_t::HUMAN) {
 				welt->get_spieler(id)->set_active(state);
 				welt->get_einstellungen()->set_player_active( id, welt->get_spieler(id)->is_active() );
 			}
