@@ -2118,7 +2118,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const uint16 road_speed_limit = welt->lookup(pos3d)->get_weg(road_wt)->get_max_speed();
 		const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
-		const uint16 speed_average = (float)min(road_speed_limit, vehicle_speed_average) / 1.6F;
+		const uint16 speed_average = (float)min(road_speed_limit, vehicle_speed_average) / 1.3F;
 		const float tile_distance_km = 1.0F * welt->get_einstellungen()->get_distance_per_tile();
 		const uint16 journey_time_per_tile = 600 * (tile_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 		connected_cities.put(this, journey_time_per_tile);
@@ -2218,7 +2218,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 		top_speed = welt->lookup(pos)->get_weg(road_wt)->get_max_speed();
 		speed_sum += min(top_speed, vehicle_speed_average);
 	}
-	const uint16 speed_average = (float)(speed_sum / route.get_count())  / 1.6F;
+	const uint16 speed_average = (float)(speed_sum / route.get_count())  / 1.3F;
 	const float journey_distance_km = (float)route.get_count() * welt->get_einstellungen()->get_distance_per_tile();
 	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
@@ -2601,9 +2601,16 @@ walk:
 
 						// Thirdly adjust for service quality of the public transport.
 						// Compare the average speed, including waiting times, with the speed bonus speed for
-						// *road* transport.
+						// private transport.
 
-						INT_CHECK( "simcity 2401" );
+						INT_CHECK( "simcity 2606" );
+
+						const float proportion = ((float)best_journey_time / (float)car_minutes) * car_minutes > best_journey_time ? 1.25F : 0.75F;
+						car_preference *= proportion;
+						
+						// If identical, no adjustment.
+
+						/* DEPRACATED - USE COMPARATIVE JOURNEY TIMES INSTEAD
 
 						// This is the speed bonus calculation, without reference to price.
 						const ware_besch_t* passengers = pax.get_besch();
@@ -2643,6 +2650,7 @@ walk:
 							}
 						}
 						// Do nothing if base_bonus == 0.
+						*/
 
 						//Secondly, the number of unhappy passengers at the start station compared with the number of happy passengers.
 						float unhappy_factor = start_halt->get_unhappy_proportion(0);

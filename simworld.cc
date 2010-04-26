@@ -5788,8 +5788,9 @@ void karte_t::set_citycar_speed_average()
 	uint16 count = 0;
 	while(iter.next())
 	{
-		vehicle_speed_sum += speed_to_kmh(iter.get_current_value()->get_geschw());
-		count++;
+		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
+		vehicle_speed_sum += (speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
+		count += iter.get_current_value()->get_gewichtung();
 	}
 	citycar_speed_average = vehicle_speed_sum / count;
 }
