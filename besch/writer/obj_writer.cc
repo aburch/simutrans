@@ -52,7 +52,7 @@ void obj_writer_t::dump_nodes(FILE* infp, int level)
 {
 	obj_node_info_t node;
 
-	fread(&node, sizeof(node), 1, infp);
+	obj_node_t::read_node( infp, node );
 	long next_pos = ftell(infp) + node.size;
 
 	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
@@ -72,7 +72,7 @@ void obj_writer_t::list_nodes(FILE* infp)
 {
 	obj_node_info_t node;
 
-	fread(&node, sizeof(node), 1, infp);
+	obj_node_t::read_node( infp, node );
 	long next_pos = ftell(infp) + node.size;
 
 	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
@@ -115,7 +115,7 @@ cstring_t obj_writer_t::name_from_next_node(FILE* fp) const
 	char* buf;
 	obj_node_info_t node;
 
-	fread(&node, sizeof(node), 1, fp);
+	obj_node_t::read_node( fp, node );
 	buf = new char[node.size];
 	fread(buf, node.size, 1, fp);
 	ret = buf;
@@ -129,8 +129,7 @@ void obj_writer_t::skip_nodes(FILE* fp)
 {
 	obj_node_info_t node;
 
-	fread(&node, sizeof(node), 1, fp);
-
+	obj_node_t::read_node( fp, node );
 	fseek(fp, node.size, SEEK_CUR);
 	for (int i = 0; i < node.children; i++) {
 		skip_nodes(fp);
@@ -147,7 +146,7 @@ void obj_writer_t::dump_node(FILE* /*infp*/, const obj_node_info_t& node)
 const char* obj_writer_t::node_writer_name(FILE* infp) const
 {
 	obj_node_info_t node;
-	fread(&node, sizeof(node), 1, infp);
+	obj_node_t::read_node( infp, node );
 	fseek(infp, node.size, SEEK_CUR);
 	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
 	if (writer) {
