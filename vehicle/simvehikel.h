@@ -335,6 +335,10 @@ public:
 	*/
 	inline int get_gesamtgewicht() const { return sum_weight; }
 
+	// returns speedlimit of ways (and if convoi enters station etc)
+	// the convoi takes care of the max_speed of the vehicle
+	uint32 get_speed_limit() const { return speed_limit; }
+
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
 	/**

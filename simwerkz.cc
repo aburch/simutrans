@@ -118,7 +118,11 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
 
-	money_to_string(werkzeug_t::toolstr+n, (double)(maitenance<<(welt->ticks_per_world_month_shift-18))/100.0 );
+	money_to_string(werkzeug_t::toolstr+n,
+		welt->ticks_per_world_month_shift>=18 ?
+		(double)(maitenance<<(welt->ticks_per_world_month_shift-18))/100.0 :
+		(double)(maitenance>>(18-welt->ticks_per_world_month_shift))/100.0
+	);
 	strcat( werkzeug_t::toolstr, ")" );
 	return werkzeug_t::toolstr;
 }
@@ -135,7 +139,11 @@ char *tooltip_with_price_maintenance_level(karte_t *welt, const char *tip, sint6
 	strcat( werkzeug_t::toolstr, " (" );
 	n = strlen(werkzeug_t::toolstr);
 
-	money_to_string(werkzeug_t::toolstr+n, (double)(maitenance<<(welt->ticks_per_world_month_shift-18))/100.0 );
+	money_to_string(werkzeug_t::toolstr+n,
+		welt->ticks_per_world_month_shift>=18 ?
+		(double)(maitenance<<(welt->ticks_per_world_month_shift-18))/100.0 :
+		(double)(maitenance>>(18-welt->ticks_per_world_month_shift))/100.0
+			);
 	strcat( werkzeug_t::toolstr, ")" );
 	n = strlen(werkzeug_t::toolstr);
 
@@ -1494,11 +1502,9 @@ image_id wkz_wegebau_t::get_icon(spieler_t *) const
 const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 {
 	const weg_besch_t *besch = get_besch(sp->get_welt()->get_timeline_year_month(),false);
-	sprintf(toolstr, "%s, %ld$ (%.2f$), %dkm/h",
-		translator::translate(besch->get_name()),
-		besch->get_preis()/100l,
-		(double)(besch->get_wartung()<<(sp->get_welt()->ticks_per_world_month_shift-18))/100.0,
-		besch->get_topspeed());
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
+	size_t n= strlen(toolstr);
+	sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed() );
 	return toolstr;
 }
 
@@ -1659,11 +1665,8 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 {
 	const bruecke_besch_t * besch = brueckenbauer_t::get_besch(default_param);
-	int n = sprintf(toolstr, "%s, %d$ (%d$)",
-		  translator::translate(besch->get_name()),
-		  besch->get_preis()/100,
-		  (besch->get_wartung()<<(sp->get_welt()->ticks_per_world_month_shift-18))/100);
-
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
+	size_t n= strlen(toolstr);
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
 	}
@@ -1871,11 +1874,8 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
-	int n = sprintf(toolstr, "%s, %d$ (%d$)",
-		  translator::translate(besch->get_name()),
-		  besch->get_preis()/100,
-		  (besch->get_wartung()<<(sp->get_welt()->ticks_per_world_month_shift-18))/100);
-
+	tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
+	size_t n= strlen(toolstr);
 	if(besch->get_waytype()!=powerline_wt) {
 		n += sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
 	}
@@ -2240,10 +2240,8 @@ const char *wkz_wayobj_t::get_tooltip(spieler_t *sp)
 	if(  build  ) {
 		const way_obj_besch_t *besch = get_besch(sp->get_welt());
 		if(besch) {
-			int n = sprintf(toolstr, "%s, %ld$ (%ld$)",
-					translator::translate(besch->get_name()),
-					besch->get_preis()/100l,
-					(besch->get_wartung()<<(sp->get_welt()->ticks_per_world_month_shift-18l))/100l);
+			tooltip_with_price_maintenance( sp->get_welt(), besch->get_name(), -besch->get_preis(), besch->get_wartung() );
+			size_t n= strlen(toolstr);
 			if (besch->get_own_wtyp()==overheadlines_wt) {
 				// only overheadlines impose topspeed
 				sprintf(toolstr+n, ", %dkm/h", besch->get_topspeed());
@@ -4610,7 +4608,13 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
  * following simple command exists:
  * 'l' : creates a new line (convoi_id might be invalid)
  * 'b' : starts the convoi
- * 'c' : copy this convoi
+ * 'c' : copies this convoi
+ * 'd' : dissassembles convoi
+ * 's' : sells convoi
+ * 'a' : appends a vehicle (+vehikel_name) uses the oldest
+ * 'i' : inserts a vehicle in front (+vehikel_name) uses the oldest
+ * 's' : sells a vehikel (+vehikel_name) uses the newest
+ * 'r' : removes a vehikel (+number in convoi)
  */
 bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 {
@@ -4820,5 +4824,62 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 		}
 	}
 	memcpy( sp->get_password_hash_ptr(), new_hash, 20 );
+	return false;
+}
+
+
+/* Handles all player stuff default_param:
+ * [function],[player_id],[state]
+ * following command exists:
+ * 'a' : activate/deactivate player (depends on state)
+ * 'n' : create player at id of type state
+ * 'f' : activates/deactivates freeplay
+ */
+bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
+{
+	if(  default_param==NULL  ) {
+		dbg->error( "wkz_change_player_t::init()", "noting to do!" );
+		return false;
+	}
+
+	char tool=0;
+	int id=0;
+	int state=0;
+
+	// skip the rest of the command
+	const char *p = default_param;
+	while(  *p  &&  *p<=' '  ) {
+		p++;
+	}
+	sscanf( p, "%c,%i,%i", &tool, &id, &state );
+
+	// ok now do our stuff
+	switch(  tool  ) {
+		case 'n': // new player with type state
+			if(  state==spieler_t::HUMAN  ||  sp==welt->get_spieler(1)  ||  !welt->get_spieler(1)->is_locked()  ) {
+				const char *msg = welt->new_spieler( id, state );
+				if(  msg  ) {
+					dbg->error( "wkz_change_player_t::init()", msg );
+				}
+			}
+			else {
+				dbg->error( "wkz_change_player_t::init()", "Only public player can enable AIs!" );
+			}
+			break;
+		case 'a': // activate/deactivate AI
+			if(welt->get_spieler(id)  &&  welt->get_spieler(id)->get_ai_id()!=spieler_t::HUMAN) {
+				welt->get_spieler(id)->set_active(state);
+				welt->get_einstellungen()->set_player_active( id, welt->get_spieler(id)->is_active() );
+			}
+			break;
+		case 'f': // activate/deactivate freeplay
+			if(  (welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change())  &&  welt->get_active_player_nr()!=1  ) {
+				dbg->error( "wkz_change_player_t::init()", "Only public player can enable freeplay!" );
+			}
+			else {
+				welt->get_einstellungen()->set_freeplay( !welt->get_einstellungen()->is_freeplay() );
+			}
+			break;
+	}
 	return false;
 }

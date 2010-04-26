@@ -17,6 +17,7 @@
 
 #include "../simcolor.h"
 #include "../simworld.h"
+#include "../simwerkz.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
@@ -122,9 +123,12 @@ ki_kontroll_t::~ki_kontroll_t()
  */
 bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 {
+	static char param[16];
+
 	if(  komp==&freeplay  ) {
-		welt->get_einstellungen()->set_freeplay( !welt->get_einstellungen()->is_freeplay() );
-		freeplay.pressed = welt->get_einstellungen()->is_freeplay();
+		sprintf( param, "f,0,%i", !welt->get_einstellungen()->is_freeplay() );
+		werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
+		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
 		return true;
 	}
 
@@ -132,21 +136,25 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		if(i>=2  &&  komp==(player_active+i-2)) {
 			// switch AI on/off
 			if(  welt->get_spieler(i)==NULL  ) {
-				welt->new_spieler( i, player_select[i].get_selection() );
-				welt->get_einstellungen()->set_player_type( i, welt->get_spieler(i)->get_ai_id() );
+				// create
+				sprintf( param, "n,%i,%i", i, player_select[i].get_selection() );
+				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
+				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
 				remove_komponente( player_select+i );
 				add_komponente( player_change_to+i );
-				if(  welt->get_spieler(i)->get_ai_id()==spieler_t::HUMAN  ) {
-					remove_komponente( player_active+i-2 );
-				}
-				player_get_finances[i].set_text( welt->get_spieler(i)->get_name() );
+				player_get_finances[i].set_text( player_select[i].get_element(player_select[i].get_selection())->get_text() );
 				add_komponente( player_get_finances+i );
-				welt->get_spieler(i)->set_active( true );	// call simrand indirectly
+				// activate
+				sprintf( param, "a,%i,1", i );
+				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
+				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
 			}
 			else {
-				welt->get_spieler(i)->set_active( !welt->get_spieler(i)->is_active() );
+				// activate
+				sprintf( param, "a,%i,%i", i, !welt->get_spieler(i)->is_active() );
+				werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL]->set_default_param( param );
+				welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_SET_PLAYER_TOOL], welt->get_active_player() );
 			}
-			welt->get_einstellungen()->set_player_active( i, welt->get_spieler(i)->is_active() );
 			break;
 		}
 		if(komp==(player_get_finances+i)) {
@@ -188,9 +196,16 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
  * Zeichnet die Komponente
  * @author Hj. Malthaner
  */
-void
-ki_kontroll_t::zeichnen(koord pos, koord gr)
+void ki_kontroll_t::zeichnen(koord pos, koord gr)
 {
+	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
+	if(  (welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change())  &&  welt->get_active_player_nr()!=1  ) {
+		freeplay.disable();
+	}
+	else {
+		freeplay.enable();
+	}
+
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
 
 		player_change_to[i].pressed = false;

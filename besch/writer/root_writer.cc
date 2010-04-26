@@ -20,7 +20,7 @@ void root_writer_t::write_header(FILE* fp)
 	);
 
 	l = COMPILER_VERSION_CODE;
-        l = endian_uint32(&l);
+	l = endian_uint32(&l);
 	fwrite(&l, 1, sizeof(uint32), fp); // Compiler Version zum Checken
 
 	obj_node_t::set_start_offset(ftell(fp));
@@ -109,16 +109,26 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	}
 }
 
+
 void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &root)
 {
-        uint32 type     = endian_uint32(&root.type);
-        uint16 children = endian_uint16(&root.children);
-        uint32 size     = endian_uint32(&root.size);
-        fwrite(&type,     4, 1, outfp);
-        fwrite(&children, 2, 1, outfp);
-        fwrite(&size,     4, 1, outfp);
-        assert( sizeof(obj_node_info_t)==10 );
+	uint32 type     = endian_uint32(&root.type);
+	uint16 children = endian_uint16(&root.children);
+	uint16 root_size = root.size;
+	root_size        = endian_uint16(&root_size);
+	fwrite(&type,     4, 1, outfp);
+	fwrite(&children, 2, 1, outfp);
+	if(  root.size>=LARGE_RECORD_SIZE  ) {
+		root_size = LARGE_RECORD_SIZE;
+		fwrite(&root_size,     2, 1, outfp);
+		uint32 size = endian_uint32(&root.size);
+		fwrite(&size,     4, 1, outfp);
+	}
+	else {
+		fwrite(&root_size,     2, 1, outfp);
+	}
 }
+
 
 bool root_writer_t::do_dump(const char* open_file_name)
 {
@@ -132,7 +142,7 @@ bool root_writer_t::do_dump(const char* open_file_name)
 		// Compiled Verison
 		uint32 version;
 		fread(&version, sizeof(version), 1, infp);
-		printf("File %s (version %d):\n", open_file_name, version);
+		printf("File %s (version %d):\n", open_file_name, endian_uint32(&version) );
 
 		dump_nodes(infp, 1);
 		fclose(infp);
@@ -178,13 +188,14 @@ bool root_writer_t::do_list(const char* open_file_name)
 		uint32 version;
 
 		fread(&version, sizeof(version), 1, infp);
-		printf("Contents of file %s (pak version %d):\n", open_file_name, version);
+		printf("Contents of file %s (pak version %d):\n", open_file_name, endian_uint32(&version));
 		printf("type             name\n"
 		"---------------- ------------------------------\n");
 
 		obj_node_info_t node;
-		fread(&node, sizeof(node), 1, infp);
+		obj_node_t::read_node( infp, node );
 		fseek(infp, node.size, SEEK_CUR);
+
 		for(  int i=0;  i<node.children;  i++  ) {
 			list_nodes(infp);
 		}
@@ -203,7 +214,8 @@ void root_writer_t::list(int argc, char* argv[])
 		// this is neccessary to avoid the hassle with "./*.pak" otherwise
 		if (strchr(argv[i],'*') == NULL) {
 			do_list(argv[i]);
-		} else {
+		}
+		else {
 			searchfolder_t find;
 			find.search(argv[i], "pak");
 			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
@@ -220,7 +232,6 @@ void root_writer_t::list(int argc, char* argv[])
 
 bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open_file_name)
 {
-printf("XXX");exit(1);
 	bool any = false;
 	FILE* infp = fopen(open_file_name, "rb");
 	if (infp) {
@@ -232,16 +243,17 @@ printf("XXX");exit(1);
 		// Compiled Version check (since the ancient ending was also pak)
 		uint32 version;
 		fread(&version, sizeof(version), 1, infp);
-		if (version == COMPILER_VERSION_CODE) {
+		if (endian_uint32(&version) <= COMPILER_VERSION_CODE) {
 			printf("   copying file %s\n", open_file_name);
 
 			obj_node_info_t info;
+			obj_node_t::read_node( infp, info );
 
-			fread(&info, sizeof(info), 1, infp);
 			root.children += info.children;
 			copy_nodes(outfp, infp, info);
 			any = true;
-		} else {
+		}
+		else {
 			fprintf(stderr, "   WARNING: skipping file %s - version mismatch\n", open_file_name);
 		}
 		fclose(infp);
@@ -254,7 +266,6 @@ printf("XXX");exit(1);
 //
 void root_writer_t::copy(const char* name, int argc, char* argv[])
 {
-printf("XXX");exit(1);
 	searchfolder_t find;
 
 	FILE* outfp = NULL;
@@ -334,10 +345,10 @@ void root_writer_t::uncopy(const char* name)
 	// check version of pak format
 	uint32 version;
 	fread(&version, sizeof(version), 1, infp);
-	if (version == COMPILER_VERSION_CODE) {
+	if(endian_uint32(&version) <= COMPILER_VERSION_CODE) {
 		// read root node
 		obj_node_info_t root;
-		fread(&root, sizeof(root), 1, infp);
+		obj_node_t::read_node( infp, root );
 		if (root.children == 1) {
 			printf("  ERROR: %s is not an archieve (aborting)\n", name);
 			fclose(infp);
@@ -358,7 +369,7 @@ void root_writer_t::uncopy(const char* name)
 				// we need to take name from following building node ...
 				obj_node_info_t node;
 				size_t pos = ftell(infp);
-				fread(&node, sizeof(node), 1, infp);
+				obj_node_t::read_node( infp, node );
 				fseek(infp, node.size, SEEK_CUR );
 				node_name = name_from_next_node(infp);
 				fseek( infp, pos, SEEK_SET );
@@ -369,7 +380,7 @@ void root_writer_t::uncopy(const char* name)
 				size_t pos = ftell(infp);
 				// quick and dirty: since there are a variable number, we just skip all image nodes
 				do {
-					fread(&node, sizeof(node), 1, infp);
+					obj_node_t::read_node( infp, node );
 					fseek(infp, node.size, SEEK_CUR );
 				} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
 				// then we try the next node (shoudl be cursor node then!
@@ -407,7 +418,7 @@ void root_writer_t::uncopy(const char* name)
 			root.children = 1;
 			root.size = 0;
 			root.type = obj_root;
-			fwrite(&root, sizeof(root), 1, outfp);
+			write_obj_node_info_t( outfp, root );
 			copy_nodes(outfp, infp, root); // this advances also the input to the next position
 			fclose(outfp);
 		}
@@ -421,10 +432,11 @@ void root_writer_t::uncopy(const char* name)
 void root_writer_t::copy_nodes(FILE* outfp, FILE* infp, obj_node_info_t& start)
 {
 	for(  int i=0;  i<start.children;  i++  ) {
+		// copy header
 		obj_node_info_t info;
-
-		fread(&info, sizeof(info), 1, infp);
-		fwrite(&info, sizeof(info), 1, outfp);
+		obj_node_t::read_node( infp, info );
+		write_obj_node_info_t( outfp, info );
+		// copy data
 		char* buf = new char[info.size];
 		fread(buf, info.size, 1, infp);
 		fwrite(buf, info.size, 1, outfp);

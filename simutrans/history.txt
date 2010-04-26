@@ -44,6 +44,7 @@
 	FIX: Makeobj could not extract bridges (and possibly even more objects) under XP
 	ADD: zooming in also for pak192
 	ADD: preparation for images larger than 64k resp 255*255
+	FIX: maintenance for ticks_per_month smaller 18
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

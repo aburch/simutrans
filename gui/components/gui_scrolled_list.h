@@ -100,8 +100,8 @@ public:
 	void show_selection(int s);
 
 	void set_selection(int s) { selection = s; }
-	sint32 get_selection() { return selection; }
-	sint32 get_count() { return item_list.get_count(); }
+	sint32 get_selection() const { return selection; }
+	sint32 get_count() const { return item_list.get_count(); }
 
 	/*  when rebuilding a list, be sure to call recalculate the slider
 	 *  with recalculate_slider() to update the scrollbar properly. */
