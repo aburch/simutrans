@@ -12,11 +12,11 @@ else
 	if test $2/sim.exe -nt $1/sim.exe
 	then
 		echo copy $2/sim.exe to $1/sim.exe
-		mv $1/sim.exe sim.exe.bak 
+		mv $1/sim.exe $1/sim.exe.bak
 		cp $2/sim.exe $1
 	fi
 	cd $1
-	sim -screensize 1280x1024 -fps 12 -freeplay -objects pak/ -nomidi -nosound
+	sim -screensize 1280x1024 -fps 12 -freeplay -nomidi -nosound
 	cd $2
 fi
 exit

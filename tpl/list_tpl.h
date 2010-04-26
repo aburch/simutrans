@@ -377,28 +377,43 @@ template<class item_t> void list_tpl<item_t>::move(uint32 from, uint32 to)
 // BG, 04.04.2010
 template<class item_t> void list_tpl<item_t>::qsort(sint32 l, sint32 r)
 {
+	sint32 ll = l, rr = r;
+	char name[256];
+	sprintf(name, "%s.qsort(%d, %d)", typeid(*this).name(), ll, rr);
+	dbg->debug(name, "enter");
 	sint32 i = l;
-	while (i < r)	{
+	while (i < r) {
 		sint32 j = r;
 		sint32 p = (l + r) / 2;
 		item_t *pivot = data[p];
-		while (true)	{
-			while (compare_items(data[i], pivot) < 0) 
+		dbg->debug(name, "i = %d, pivot = data[p = %d], j = %d", i, p, j);
+		while (true) {
+			while (compare_items(data[i], pivot) < 0) {
+				dbg->debug(name, "data[i = %d] < pivot", i);
 				i++;
-			while (compare_items(data[j], pivot) > 0)
+			}
+			dbg->debug(name, "data[i = %d] >= pivot", i);
+			while (compare_items(data[j], pivot) > 0) {
+				dbg->debug(name, "data[j = %d] > pivot", j);
 				j--;
+			}
+			dbg->debug(name, "data[j = %d] <= pivot", j);
 			if (i <= j)	{
 				swap(i++, j--);
+				dbg->debug(name, "swapped data[i++] and data[j--]: now i = %d, j = %d", i, j);
 			};
 			if (i > j) {
+				dbg->debug(name, "i = %d > j = %d", i, j);
 				break;
 			}
+			dbg->debug(name, "i = %d <= j = %d", i, j);
 		}
 		if (l < j) {
 			qsort(l, j);
 		}
 		l = i;
 	}
+	dbg->debug(name, "leave");
 }
 
 

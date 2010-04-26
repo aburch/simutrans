@@ -486,10 +486,10 @@ public:
 
 	// sets or querey begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)
-	bool is_first() {return ist_erstes;}
+	bool is_first() const {return ist_erstes;}
 
 	void set_letztes(bool janein) {ist_letztes = janein;}
-	bool is_last() {return ist_letztes;}
+	bool is_last() const {return ist_letztes;}
 
 	virtual void set_convoi(convoi_t *c);
 

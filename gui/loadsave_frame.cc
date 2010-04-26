@@ -153,13 +153,13 @@ gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_labe
  * Identical strings result to 0.
  * The result rates the number of identical characters.
  */
-float strsim(const char a[], const char b[]) 
+sint32 strsim(const char a[], const char b[]) 
 {	
 	int i = 0;
 	while (a[i] && b[i] && tolower(a[i]) == tolower(b[i])) i++;
 	if (tolower(a[i]) == tolower(b[i]))
 		return 0;
-	return 1.0f / (float)(i+1);
+	return MAXINT / (i+1);
 }
 
 
@@ -167,13 +167,14 @@ int gui_file_table_pak_column_t::compare_rows(const gui_table_row_t &row1, const
 {
 	char s1[1024];
 	strcpy(s1, get_text(row1));
-	float f1 = strsim(s1, pak);
+	sint32 f1 = strsim(s1, pak);
 	char s2[1024];
 	strcpy(s2, get_text(row2));
-	float f2 = strsim(s2, pak);
+	sint32 f2 = strsim(s2, pak);
 	int result = sgn(f1 - f2);
 	if (!result)
 		result = strcmp(s1, s2);
+	dbg->debug("gui_file_table_pak_column_t::compare_rows()", "\"%s\" %s \"%s\"", s1, result < 0 ? "<" : result == 0 ? "==" : ">", s2);
 	return result;
 }
 
