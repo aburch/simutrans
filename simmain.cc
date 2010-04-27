@@ -457,6 +457,20 @@ int simu_main(int argc, char** argv)
 	}
 	chdir( umgebung_t::user_dir );
 
+	if (gimme_arg(argc, argv, "-log", 0)) {
+		chdir( umgebung_t::user_dir );
+		const char *logname = "simu.log";
+		if(  gimme_arg(argc, argv, "-server", 0)  ) {
+			logname = "simu-server.log";
+		}
+		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL);
+	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
+		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+	} else {
+		init_logging(NULL, false, false);
+	}
+
+
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
 	bool xml_settings_found = file.rd_open("settings-experimental.xml");
@@ -529,19 +543,6 @@ int simu_main(int argc, char** argv)
 	// now set the desired objectfilename (overide all previous settings)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
-	}
-
-	if (gimme_arg(argc, argv, "-log", 0)) {
-		chdir( umgebung_t::user_dir );
-		const char *logname = "simu.log";
-		if(  gimme_arg(argc, argv, "-server", 0)  ) {
-			logname = "simu-server.log";
-		}
-		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL);
-	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
-	} else {
-		init_logging(NULL, false, false);
 	}
 
 	// starting a server?
