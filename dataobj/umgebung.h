@@ -173,13 +173,6 @@ public:
 	static sint32 intercity_road_length;
 
 	/**
-	* Typ (Name) initiale Stadtverbindungen
-	*
-	* @author Hj. Malthaner
-	*/
-	static const char *intercity_road_type;
-
-	/**
 	 * Name of rivers; first the river with the lowest number
 	 * @author prissi
 	 */

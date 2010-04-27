@@ -378,6 +378,7 @@ einstellungen_t::einstellungen_t() :
 	frames_per_step = 4;
 
 	quick_city_growth = false;
+	assume_everywhere_connected_by_road=false;
 }
 
 
@@ -967,6 +968,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_short(max_walking_distance, "");
 		file->rdwr_bool(quick_city_growth, "");
+		file->rdwr_bool(assume_everywhere_connected_by_road, "");
+		file->rdwr_str(intercity_road_type);
 	}
 }
 
@@ -1014,9 +1017,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
 	const char *test = ltrim(contents.get("intercity_road_type"));
 	if(*test) {
-		free( (void *)umgebung_t::intercity_road_type );
-		umgebung_t::intercity_road_type = NULL;
-		umgebung_t::intercity_road_type = strdup(test);
+		free( (void *)intercity_road_type );
+		intercity_road_type = NULL;
+		intercity_road_type = strdup(test);
 	}
 
 	// network stuff
@@ -1382,6 +1385,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	max_walking_distance = max_walking_distance_km / distance_per_tile;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
+
+	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
+
 
 	/*
 	 * Selection of savegame format through inifile

@@ -1682,6 +1682,11 @@ void stadt_t::rdwr(loadsave_t* file)
 
 		// recalculate borders
 		recalc_city_size();
+
+		connected_cities.clear();
+		connected_industries.clear();
+		connected_attractions.clear();
+		check_road_connexions = false;
 	}
 }
 
@@ -2244,6 +2249,11 @@ void stadt_t::step_bau()
 
 uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 {
+	if(welt->get_einstellungen()->get_assume_everywhere_connected_by_road())
+	{
+		return city == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
+	}
+
 	if(connected_cities.is_contained(city))
 	{
 		return connected_cities.get(city);
@@ -2252,10 +2262,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	{
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
-		const uint16 road_speed_limit = road ? road->get_max_speed() : welt->get_city_road()->get_topspeed();
-		const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
-		const uint16 speed_average = (float)min(road_speed_limit, vehicle_speed_average) / 1.3F;
-		const uint16 journey_time_per_tile = 600 * (welt->get_einstellungen()->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
+		const uint16 journey_time_per_tile = road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch());
 		connected_cities.put(this, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
@@ -2283,6 +2290,11 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 {
+	if(welt->get_einstellungen()->get_assume_everywhere_connected_by_road())
+	{
+		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
+	}
+	
 	if(connected_industries.is_contained(industry))
 	{
 		return connected_industries.get(industry);
@@ -2357,6 +2369,11 @@ found_road:
 
 uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 {
+	if(welt->get_einstellungen()->get_assume_everywhere_connected_by_road())
+	{
+		return welt->get_generic_road_speed_intercity();
+	}
+	
 	if(connected_attractions.is_contained(attraction))
 	{
 		return connected_attractions.get(attraction);
@@ -2364,7 +2381,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	const koord pos = attraction->get_pos().get_2d();
 	grund_t *gr;
 	weg_t* road = NULL;
-	for(uint8 i = 0; i < 16; i ++)
+	for(uint8 i = 0; i < 8; i ++)
 	{
 		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
 		gr = welt->lookup(pos3d);
@@ -2418,7 +2435,8 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 	private_car_route->clear();
 	finder->set_destination(dest);
-	if(!private_car_route->find_route(welt, origin, finder, 0, ribi_t::alle, 0x7FFFFFFF))
+	const uint32 depth = welt->get_max_road_check_depth();
+	if(!private_car_route->find_route(welt, origin, finder, 0, ribi_t::alle, depth))
 	{
 		return 65535;
 	}

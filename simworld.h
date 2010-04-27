@@ -418,6 +418,16 @@ private:
 
 	bool recheck_road_connexions;
 
+	/**
+	 * Speed per tile in *tenths* of
+	 * minutes.
+	 * @author: jamespetts, April 2010
+	 */
+	uint16 generic_road_speed_city;
+	uint16 generic_road_speed_intercity;
+
+	uint32 max_road_check_depth;
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -1139,6 +1149,27 @@ public:
 	uint16 get_citycar_speed_average() const { return citycar_speed_average; }
 
 	void set_recheck_road_connexions() { recheck_road_connexions = true; }
+
+	/**
+	 * These methods return an estimated
+	 * road speed based on the average 
+	 * speed of road traffic and the 
+	 * speed limit of the appropriate type
+	 * of road.
+	 */
+	uint16 get_generic_road_speed_city() const { return generic_road_speed_city; }
+	uint16 get_generic_road_speed_intercity() const { return generic_road_speed_intercity; };
+
+	uint16 calc_generic_road_speed(const weg_besch_t* besch);
+
+	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
+
+private:
+		
+	void calc_generic_road_speed_city() { generic_road_speed_city = calc_generic_road_speed(city_road); }
+	void calc_generic_road_speed_intercity();
+	void calc_max_road_check_depth();
+
 };
 
 #endif
