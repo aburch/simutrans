@@ -242,9 +242,6 @@ struct weight_summary_t
 class convoy_t /*abstract */
 {
 private:
-	vehicle_summary_t vehicle;
-	adverse_summary_t adverse;
-
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
@@ -258,6 +255,9 @@ private:
 	 */
 	double calc_speed_holding_force(double speed /* in m/s */, double Frs /* in N */); /* in N */
 protected:
+	vehicle_summary_t vehicle;
+	adverse_summary_t adverse;
+
 	/**
 	 * get force in kN according to current speed m/s in
 	 */
@@ -349,7 +349,7 @@ public:
 		if (!(is_valid & cd_vehicle_summary)) 
 		{
 			is_valid |= cd_vehicle_summary;
-			update_vehicle_summary((vehicle_summary_t&)convoy_t::get_vehicle_summary());
+			update_vehicle_summary(vehicle);
 		}
 	}
 
@@ -373,7 +373,7 @@ public:
 		if (!(is_valid & cd_adverse_summary)) 
 		{
 			is_valid |= cd_adverse_summary;
-			update_adverse_summary((adverse_summary_t&)convoy_t::get_adverse_summary());
+			update_adverse_summary(adverse);
 		}
 	}
 
