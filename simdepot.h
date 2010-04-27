@@ -94,10 +94,11 @@ public:
 	/**
 	 * Let convoi leave the depot.
 	 * If not possible, a message is displayed and the function returns false.
-	 * @author Volker Meyer
-	 * @date  09.06.2003
+	 * @param if local_execution is true, this methods creates pop-ups in case of errors
+	 * @author Volker Meyer, Dwachs
+	 * @date  09.06.2003 / 27.04.2010
 	 */
-	bool start_convoi(convoihandle_t cnv);
+	bool start_convoi(convoihandle_t cnv, bool local_execution);
 
 	/**
 	 * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
