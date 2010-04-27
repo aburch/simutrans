@@ -397,6 +397,13 @@ public:
 	* @author prissi
 	*/
 	inline int get_gesamtgewicht() const { return sum_weight; }
+
+	// returns speedlimit of ways (and if convoi enters station etc)
+	// the convoi takes care of the max_speed of the vehicle
+	// In Experimental this is mostly for entering stations etc.,
+	// as the new physics engine handles ways
+	uint32 get_speed_limit() const { return speed_limit; }
+
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
 	/**
@@ -479,10 +486,10 @@ public:
 
 	// sets or querey begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;} //janein = "yesno" (Google)
-	bool is_first() {return ist_erstes;}
+	bool is_first() const {return ist_erstes;}
 
 	void set_letztes(bool janein) {ist_letztes = janein;}
-	bool is_last() {return ist_letztes;}
+	bool is_last() const {return ist_letztes;}
 
 	virtual void set_convoi(convoi_t *c);
 
@@ -544,15 +551,17 @@ public:
  */
 class automobil_t : public vehikel_t
 {
-protected:
+public:
 	bool ist_befahrbar(const grund_t *bd) const;
 
-public:
+	bool is_checker;
+
 	virtual void betrete_feld();
 
 	virtual waytype_t get_waytype() const { return road_wt; }
 
 	automobil_t(karte_t *welt, loadsave_t *file, bool first, bool last);
+	automobil_t(karte_t *welt);
 	automobil_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv); // start und fahrplan
 
 	virtual void set_convoi(convoi_t *c);
@@ -806,22 +815,25 @@ public:
 
 	int get_flyingheight() const {return flughoehe-hoff-2;}
 
-	// since our image is the shadow ...
-	virtual image_id get_bild() const {return IMG_LEER;}
+	// image: when flying empty, on ground the plane
+	virtual image_id get_bild() const {return !is_on_ground() ? IMG_LEER : bild;}
 
-	// outline is the planes shadow
-	virtual PLAYER_COLOR_VAL get_outline_bild() const {return bild;}
+	// image: when flying the shadow, on ground empty
+	virtual PLAYER_COLOR_VAL get_outline_bild() const {return !is_on_ground() ? bild : IMG_LEER;}
 
-	// shadow has black color
-	virtual PLAYER_COLOR_VAL get_outline_colour() const {return TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK;}
+	// shadow has black color (when flying)
+	virtual PLAYER_COLOR_VAL get_outline_colour() const {return !is_on_ground() ? TRANSPARENT75_FLAG | OUTLINE_FLAG | COL_BLACK : 0;}
 
-	// this draws the "real" aircrafts!
+	// this draws the "real" aircrafts (when flying)
 	virtual void display_after(int xpos, int ypos, bool dirty) const;
 
 	// the speed calculation happens it calc_height
 	void calc_akt_speed(const grund_t*) {}
 
 	//uint32 calc_modified_speed_limit(const weg_t *w, uint32 base_limit, uint8 s, ribi_t::ribi current_direction) { return base_limit; } 
+
+	bool is_on_ground() const { return flughoehe==0  &&  state!=flying; }
+
 };
 
 sint16 get_friction_of_waytype(waytype_t waytype);

@@ -82,6 +82,10 @@ private:
 	static sint32 max_passed;
 	static sint32 max_tourist_ziele;
 
+	uint16 citycar_speed_average;
+
+	void set_citycar_speed_average();
+
 public:
 	void karte_to_screen(koord &) const;
 

@@ -10,6 +10,7 @@ static char thousand_sep = ',';
 static char fraction_sep = '.';
 static const char *large_number_string = "M";
 static double large_number_factor = 1e99;	// off
+static int thousand_sep_exponent = 3;
 
 
 
@@ -45,6 +46,17 @@ void set_thousand_sep(char c)
 
 
 /**
+ * Set thousand exponent (3=1000, 4=10000), used in money_to_string and
+ * number_to_string
+ * @author prissi
+ */
+void set_thousand_sep_exponent(int new_thousand_sep_exponent)
+{
+	thousand_sep_exponent = new_thousand_sep_exponent>0 ? thousand_sep_exponent : 3;
+}
+
+
+/**
  * Set fraction seperator, used in money_to_string and
  * number_to_string
  * @author Hj. Malthaner
@@ -66,6 +78,11 @@ const char *get_large_money_string(void)
 }
 
 
+/**
+ * Set large money abreviator, used in money_to_string and
+ * number_to_string
+ * @author prissi
+ */
 void set_large_amout(const char *s, const double v)
 {
 	large_number_string = s;
@@ -100,7 +117,7 @@ void money_to_string(char * p, double f)
 	// Hajo: format string
 	l = (long)(size_t)(strchr(tp,'.') - tp);
 
-	i = l % 3;
+	i = l % thousand_sep_exponent;
 
 	if(i != 0) {
 		memcpy(p, tp, i);
@@ -109,9 +126,9 @@ void money_to_string(char * p, double f)
 	}
 
 	while(i < l) {
-		*p++ = tp[i++];
-		*p++ = tp[i++];
-		*p++ = tp[i++];
+		for(  int j=0;  j<thousand_sep_exponent;  j++  ) {
+			*p++ = tp[i++];
+		}
 		*p++ = thousand_sep;
 	}
 	--p;
@@ -161,7 +178,7 @@ int number_to_string(char * p, double f, int decimals  )
 	// Hajo: format string
 	l = has_decimals ? (long)(size_t)(strchr(tp,'.') - tp) : strlen(tp);
 
-	i = l % 3;
+	i = l % thousand_sep_exponent;
 
 	if(i != 0) {
 		memcpy(p, tp, i);
@@ -170,9 +187,9 @@ int number_to_string(char * p, double f, int decimals  )
 	}
 
 	while(i < l) {
-		*p++ = tp[i++];
-		*p++ = tp[i++];
-		*p++ = tp[i++];
+		for(  int j=0;  j<thousand_sep_exponent;  j++  ) {
+			*p++ = tp[i++];
+		}
 		*p++ = thousand_sep;
 	}
 	p--;

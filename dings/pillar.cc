@@ -38,19 +38,11 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 	this->dir = (uint8)img;
 	set_yoff(-hoehe);
 	set_besitzer( sp );
-	hide = false;
-	if(hoehe==0  &&  besch->has_pillar_asymmetric()) {
-		hang_t::typ h = welt->lookup(pos)->get_grund_hang();
-		if(h==hang_t::nord  ||  h==hang_t::west) {
-			hide = true;
-		}
-	}
+	calc_bild();
 }
 
 
-
-// check for asymmetric pillars
-void pillar_t::laden_abschliessen()
+void pillar_t::calc_bild()
 {
 	hide = false;
 	if(get_yoff()==0  &&  besch->has_pillar_asymmetric()) {
@@ -61,10 +53,8 @@ void pillar_t::laden_abschliessen()
 	}
 }
 
-
-
 /**
- * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
+ * @return Einen Beschreibungsstring fuer das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
  * @author Hj. Malthaner
  */
@@ -120,16 +110,10 @@ void pillar_t::rotate90()
 {
 	ding_t::rotate90();
 	// may need to hide/show asymmetric pillars
-	if(get_yoff()==0  &&  besch->has_pillar_asymmetric()) {
-		// we must hide, if prevous NS and visible
-		// we must show, if preivous NS and hidden
-		if(hide) {
-			hide = (dir==bruecke_besch_t::OW_Pillar);
-		}
-		else {
-			hide = (dir==bruecke_besch_t::NS_Pillar);
-		}
-	}
+	// this is done now in calc_bild, which is called after karte_t::rotate anyway
+	// we cannot decide this here, since welt->lookup(get_pos())->get_grund_hang() cannot be called
+	// since we are in the middle of the rotation process
+
 	// the rotated image parameter is just one in front/back
 	dir = (dir == bruecke_besch_t::NS_Pillar) ? bruecke_besch_t::OW_Pillar : bruecke_besch_t::NS_Pillar;
 }

@@ -77,6 +77,8 @@ public:
 	void set_show_scroll_y(bool yesno) { b_show_scroll_y = yesno; }
 
 	void set_size_corner(bool yesno) { b_has_size_corner = yesno; }
+
+	koord get_client_size();
 };
 
 #endif

@@ -10,7 +10,7 @@
 #include "simworld.h"
 #include "simlinemgmt.h"
 
-uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE };
+uint8 simline_t::convoi_to_line_catgory[MAX_CONVOI_COST]={LINE_CAPACITY, LINE_TRANSPORTED_GOODS, LINE_AVERAGE_SPEED, LINE_COMFORT, LINE_REVENUE, LINE_OPERATIONS, LINE_PROFIT, LINE_DISTANCE, LINE_REFUNDS };
 
 karte_t *simline_t::welt=NULL;
 
@@ -172,12 +172,13 @@ void simline_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
-				if((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1) || (j == LINE_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -195,12 +196,13 @@ void simline_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--)
 			{
-				if((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == LINE_AVERAGE_SPEED || j == LINE_COMFORT) && file->get_experimental_version() <= 1) || (j == LINE_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}

@@ -22,11 +22,14 @@ class obj_node_t {
 		// ONLY CALL BEFORE ANY NODES ARE CREATED !!!
 		static void set_start_offset(uint32 offset) { free_offset = offset; }
 
+		// reads a node into a given obj_node_info_t
+		static void read_node(FILE* fp, obj_node_info_t &node );
+
 		// construct a new node, parameters:
 		//	    writer  object, that writes the node to the file
 		//	    size    space needed for node data
 		//	    parent  parent node
-		obj_node_t(obj_writer_t* writer, int size, obj_node_t* parent);
+		obj_node_t(obj_writer_t* writer, uint32 size, obj_node_t* parent);
 
 		// Write the complete node data to the file
 		void write_data(FILE* fp, const void* data);

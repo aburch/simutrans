@@ -1,0 +1,189 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 8.0
+#
+# Author: jamespetts
+# Created: April 2010
+#
+obj=program_text
+name=The convoy has been sent\nto its home depot.\n
+note=Used for when the home depot is specified when sending a vehicle to a depot.
+-
+obj=program_text
+name=Unpowered vehicles only
+note=Used in the depot frame to indicate that no traction types are enabled.
+-
+obj=program_text
+name=All traction types
+note=Used in the depot frame to indicate that all traction types are enabled.
+-
+obj=program_text
+name=General Exp.
+note=Name of tab in settings frame for general settings of simutrans experimental.
+-
+obj=program_text
+name=distance_per_tile_percent
+note=Label for distance per tile in percent setting.
+-
+obj=program_text
+name=min_bonus_max_distance
+note=Label for minimum speed bonus/penalty distance setting. Distance of 0% speed bonus/penalty. No speed bonus/penalty below that distance. 
+-
+obj=program_text
+name=median_bonus_distance
+note=Label for median speed bonus/penalty distance setting. Distance of 100% speed bonus/penalty.
+-
+obj=program_text
+name=max_bonus_min_distance
+note=Label for maximum speed bonus/penalty distance setting. Distance of max_bonus_multiplier_percent % speed bonus/penalty. No more speed bonus/penalty growth above that distance.
+-
+obj=program_text
+name=max_bonus_multiplier_percent
+note=Label for maximum bonus multiplier in percent setting.
+-
+obj=program_text
+name=travelling
+note=Label for table of travelling post office revenue settings.
+-
+obj=program_text
+name=above\nminutes
+note=Label for duration setting of travelling post office revenue.
+-
+obj=program_text
+name=get\nrevenue $
+note=Label for revenue in $ setting of travelling post office revenue.
+-
+obj=program_text
+name=passenger_routing_packet_size
+note=Label for number of passengers generated for a calculated route.
+-
+obj=program_text
+name=max_alternative_destinations
+note=Label for number of alternative destinations, if calculating route failed.
+-
+obj=program_text
+name=passenger\ndistribution
+note=Label for table of passenger distribution settings
+-
+obj=program_text
+name=min dist.\nkm
+note=Label for minimum distance column of passenger distribution settings
+-
+obj=program_text
+name=max dist.\nkm
+note=Label for maximum distance column of passenger distribution settings
+-
+obj=program_text
+name=chance\npercent
+note=Label for chance to calculate a route of this distance category column of passenger distribution settings
+-
+obj=program_text
+name=waiting\ntolerance\nmin. min
+note=Label for minimum waiting tolerance in minutes column of passenger distribution settings
+- 
+obj=program_text
+name=waiting\ntolerance\nmax. min
+note=Label for maximum waiting tolerance in minutes column of passenger distribution settings
+-
+obj=program_text
+name=local
+note=Label for distance category "local range" row of passenger distribution settings
+-
+obj=program_text
+name=mid range
+note=Label for distance category "median range" row of passenger distribution settings
+-
+obj=program_text
+name=long dist.
+note=Label for distance category "long distance range" row of passenger distribution settings
+-
+obj=program_text
+name=comfort expectance\nfor travelling
+note=Label for table of comfort expectance for travelling settings
+-
+obj=program_text
+name=duration\nin minutes
+note=Label for duration in minutes column of comfort expectance for travelling settings
+-
+obj=program_text
+name=min comfort\nrating
+note=Label for minimum comfort rating column of comfort expectance for travelling settings
+-
+obj=program_text
+name=short time
+note=Label for duration category "short time" row of comfort expectance for travelling settings
+-
+obj=program_text
+name=median short time
+note=Label for duration category "median short time" row of comfort expectance for travelling settings
+-
+obj=program_text
+name=median median time
+note=Label for duration category "median median time" row of comfort expectance for travelling settings
+-
+obj=program_text
+name=median long time
+note=Label for duration category "median long time" row of comfort expectance for travelling settings
+-
+obj=program_text
+name=long time
+note=Label for duration category "long time" row of comfort expectance for travelling settings
+-
+obj=program_text
+name=comfort impact\nlimitations
+note=Label for table of comfort expectance impact limitation settings
+-
+obj=program_text
+name=differential
+note=Label for differential column of comfort expectance impact limitation settings
+-
+obj=program_text
+name=percent
+note=Label for percent column of comfort expectance impact limitation settings
+-
+obj=program_text
+name=max luxury bonus
+note=Label for maximum luxury bonus row of comfort expectance impact limitation settings
+-
+obj=program_text
+name=max discomfort penalty
+note=Label for maximum discomfort penalty row of comfort expectance impact limitation settings
+-
+obj=program_text
+name=catering bonus\nfor travelling
+note=Label for table of catering bonus for travelling settings
+-
+obj=program_text
+name=duration\nin minutes
+note=Label for duration in minutes column of catering bonus for travelling settings
+-
+obj=program_text
+name=max catering\nrevenue $
+note=Label for renevue in $ column of catering bonus for travelling settings
+-
+obj=program_text
+name=min traveltime
+note=Label for minimum traveltime column of catering bonus for travelling settings
+-
+obj=program_text
+name=catering level 1
+note=Label for catering level 1 row of catering bonus for travelling settings
+-
+obj=program_text
+name=catering level 2
+note=Label for catering level 2 row of catering bonus for travelling settings
+-
+obj=program_text
+name=catering level 3
+note=Label for catering level 3 row of catering bonus for travelling settings
+-
+obj=program_text
+name=catering level 4
+note=Label for catering level 4 row of catering bonus for travelling settings
+-
+obj=program_text
+name=catering level 5
+note=Label for catering level 5 row of catering bonus for travelling settings
+-
+obj=program_text
+name=Refunds
+note=Label for the "refunds" line/convoy graph

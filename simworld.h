@@ -412,6 +412,12 @@ private:
 	// @author: jamespetts
 	void set_scale();
 
+	uint16 citycar_speed_average;
+
+	void set_citycar_speed_average();
+
+	bool recheck_road_connexions;
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -543,7 +549,7 @@ public:
 	void set_player_password_hash( uint8 player_nr, uint8 *hash );
 	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr);
-	void new_spieler( uint8 nr, uint8 type );
+	char *new_spieler( uint8 nr, uint8 type );
 
 	// if a schedule is changed, it will increment the schedule counter
 	// every step the haltstelle will check and reroute the goods if needed
@@ -566,12 +572,14 @@ public:
 
 	/**
 	* anzahl ticks pro tag in bits
-	* @see ticks_per_tag
+	* @see ticks_per_world_month
 	* @author Hj. Malthaner
 	*
 	* number ticks per day in bits (Babelfish)
 	*/
-	sint64 ticks_bits_per_tag;
+
+	sint64 ticks_per_world_month_shift;
+
 
 	/**
 	* anzahl ticks pro MONTH!
@@ -579,13 +587,15 @@ public:
 	*
 	* number ticks per MONTH! (Babelfish)
 	*/
-	sint64 ticks_per_tag;
+
+	sint64 ticks_per_world_month;
 #ifdef _MSC_VER
-	void set_ticks_bits_per_tag(sint64 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1i64 << ticks_bits_per_tag); }
+	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1i64 << ticks_per_world_month_shift); }
 #else
 	// GCC complains about the i64 - it requires its own 64-bit denotation.
-	void set_ticks_bits_per_tag(sint64 bits) {ticks_bits_per_tag = bits; ticks_per_tag = (1ll << ticks_bits_per_tag); }
+	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1ll << ticks_per_world_month_shift); }
 #endif
+
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
 
@@ -635,9 +645,27 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) { return nominal_monthly_figure << ((sint32)ticks_bits_per_tag-18); }
-	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) { return nominal_monthly_figure << (ticks_bits_per_tag-18ll); }
-	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) { return nominal_monthly_figure << ((uint32)ticks_bits_per_tag-18); }
+	sint32 calc_adjusted_monthly_figure(sint32 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return (sint32)(nominal_monthly_figure << (ticks_per_world_month_shift - 18l)); 
+		} else {
+			return (sint32)(nominal_monthly_figure >> (18l - ticks_per_world_month_shift)); 
+		}
+	}
+	sint64 calc_adjusted_monthly_figure(sint64 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return nominal_monthly_figure << (ticks_per_world_month_shift - 18ll); 
+		} else {
+			return nominal_monthly_figure >> (18ll - ticks_per_world_month_shift); 
+		}
+	}
+	uint32 calc_adjusted_monthly_figure(uint32 nominal_monthly_figure) {
+		if (ticks_per_world_month_shift >= 18) {
+			return (uint32)(nominal_monthly_figure << ((uint32)ticks_per_world_month_shift - 18u)); 
+		} else {
+			return (uint32)(nominal_monthly_figure >> (18u - (uint32)ticks_per_world_month_shift)); 
+		}
+	}
 
 	/**
 	 * 0=winter, 1=spring, 2=summer, 3=autumn
@@ -670,7 +698,7 @@ public:
 	 *
 	 * @author: Bernd Gabriel, 14.06.2009
 	 */
-	int get_yearsteps() { return (int) ((current_month % 12) * 8 + ((ticks >> (ticks_bits_per_tag-3)) & 7)); }
+	int get_yearsteps() { return (int) ((current_month % 12) * 8 + ((ticks >> (ticks_per_world_month_shift-3)) & 7)); }
 
 	// prissi: current city road
 	// may change due to timeline
@@ -1107,6 +1135,10 @@ public:
 	void command_queue_append(network_world_command_t*);
 
 	void network_disconnect();
+
+	uint16 get_citycar_speed_average() const { return citycar_speed_average; }
+
+	void set_recheck_road_connexions() { recheck_road_connexions = true; }
 };
 
 #endif

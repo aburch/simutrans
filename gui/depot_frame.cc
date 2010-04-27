@@ -20,6 +20,8 @@
 #include "../simlinemgmt.h"
 #include "../vehicle/simvehikel.h"
 
+#include "../besch/haus_besch.h"
+
 #include "../simworld.h"
 #include "../simwin.h"
 
@@ -47,13 +49,13 @@ depot_frame_t::depot_frame_t(depot_t* depot) :
 	lb_convois(NULL, COL_BLACK, gui_label_t::left),
 	lb_convoi_value(NULL, COL_BLACK, gui_label_t::right),
 	lb_convoi_line(NULL, COL_BLACK, gui_label_t::left),
+	lb_traction_types(NULL, COL_BLACK, gui_label_t::left),
 	convoy_assembler(get_welt(), depot->get_wegtyp(), depot->get_player_nr(), check_way_electrified(true) )
 {
 DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->get_max_convoi_length());
 	selected_line = depot->get_selected_line();
 	strcpy(no_line_text, translator::translate("<no line>"));
-
-	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_name()));
+	sprintf(txt_title, "(%d,%d) %s", depot->get_pos().x, depot->get_pos().y, translator::translate(depot->get_tile()->get_besch()->get_name()));
 
 	/*
 	 * [CONVOY ASSEMBLER]
@@ -87,6 +89,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	add_komponente(&lb_convoi_value);
 	add_komponente(&lb_convoi_line);
+	add_komponente(&lb_traction_types);
 
 	/*
 	* [ACTIONS]
@@ -143,11 +146,43 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	lb_convois.set_text_pointer(txt_convois);
 	lb_convoi_value.set_text_pointer(txt_convoi_value);
 	lb_convoi_line.set_text_pointer(txt_convoi_line);
+	lb_traction_types.set_text_pointer(txt_traction_types);
 
 	check_way_electrified();
 	add_komponente(&img_bolt);
 
 	add_komponente(&convoy_assembler);
+
+	if(depot->get_tile()->get_besch()->get_enabled() == 0)
+	{
+		sprintf(txt_traction_types, translator::translate("Unpowered vehicles only"));
+	}
+	else if(depot->get_tile()->get_besch()->get_enabled() == 255)
+	{
+		sprintf(txt_traction_types, translator::translate("All traction types"));
+	}
+	else
+	{
+		uint8 shifter;
+		bool first = true;
+		uint8 n = 0;
+		for(uint8 i = 0; i < 8; i ++)
+		{
+			shifter = 1 << i;
+			if((shifter & depot->get_tile()->get_besch()->get_enabled()))
+			{
+				if(first)
+				{
+					first = false;
+				}
+				else
+				{
+					n += sprintf(txt_traction_types + n, ", ");
+				}
+				n += sprintf(txt_traction_types + n, translator::translate(vehikel_besch_t::get_engine_type((vehikel_besch_t::engine_t)i)));
+			}
+		}
+	}
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
@@ -263,6 +298,7 @@ void depot_frame_t::layout(koord *gr)
 
 	lb_convoi_value.set_pos(koord(TOTAL_WIDTH-10, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height()));
 	lb_convoi_line.set_pos(koord(4, ASSEMBLER_VSTART + convoy_assembler.get_convoy_image_height() + LINESPACE * 2));
+	lb_traction_types.set_pos(koord(4, ACTIONS_VSTART + (ABUTTON_HEIGHT * 2)));
  
 
 	/*

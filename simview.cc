@@ -87,15 +87,15 @@ karte_ansicht_t::display(bool force_dirty)
 	else {
 		// calculate also days if desired
 		uint32 month = welt->get_last_month();
-		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_tag;
+		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_world_month;
 		uint32 stunden2;
 		if(umgebung_t::show_month>1) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
-			stunden2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_bits_per_tag-17));
+			stunden2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_per_world_month_shift-17));
 			stunden2 = ((stunden2*3) / 8192) % 48;
 		}
 		else {
-			stunden2 = ( (ticks_this_month * 3) >> (welt->ticks_bits_per_tag-4) )%48;
+			stunden2 = ( (ticks_this_month * 3) >> (welt->ticks_per_world_month_shift-4) )%48;
 		}
 		display_day_night_shift(hours2night[stunden2]+umgebung_t::daynight_level);
 	}
@@ -103,7 +103,7 @@ karte_ansicht_t::display(bool force_dirty)
 	// not very elegant, but works:
 	// fill everything with black for Underground mode ...
 	if(grund_t::underground_mode) {
-		display_fillbox_wh(0, 32, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
+		display_fillbox_wh(0, menu_height, disp_width, disp_height-menu_height, COL_BLACK, force_dirty);
 	}
 	// to save calls to grund_t::get_disp_height
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
@@ -126,7 +126,7 @@ karte_ansicht_t::display(bool force_dirty)
 				if(plan  &&  plan->get_kartenboden()) {
 					sint16 yypos = ypos - tile_raster_scale_y( min(plan->get_kartenboden()->get_hoehe(), hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						plan->display_boden(xpos, yypos);
+						plan->display_boden(xpos, yypos, IMG_SIZE);
 					}
 				}
 				else {
@@ -155,9 +155,7 @@ karte_ansicht_t::display(bool force_dirty)
 					const grund_t *gr = plan->get_kartenboden();
 					// minimum height: ground height for overground,
 					// for the definition of underground_level see grund_t::set_underground_mode
-					const sint8 hmin = grund_t::underground_mode!=grund_t::ugm_all ?
-						min(gr->get_hoehe(), grund_t::underground_level) :
-						(gr->ist_wasser() ? gr->get_hoehe() : grund_t::underground_level);
+					const sint8 hmin = min(gr->get_hoehe(), grund_t::underground_level);
 
 					// maximum height: 127 for overground, undergroundlevel for sliced, ground height-1 for complete underground view
 					const sint8 hmax = grund_t::underground_mode==grund_t::ugm_all ? gr->get_hoehe()-(!gr->ist_tunnel()) : grund_t::underground_level;
@@ -165,7 +163,7 @@ karte_ansicht_t::display(bool force_dirty)
 					/* long version
 					switch(grund_t::underground_mode) {
 						case ugm_all:
-							hmin = gr->ist_wasser() ? gr->get_hoehe() : -128;
+							hmin = -128;
 							hmax = gr->get_hoehe()-(!gr->ist_tunnel());
 							underground_level = -128;
 							break;

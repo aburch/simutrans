@@ -24,8 +24,11 @@ class leitung_t : public ding_t
 protected:
 	image_id bild;
 
+	// powerline over ways
+	bool is_crossing:1;
+
 	// direction of the next pylon
-	ribi_t::ribi ribi;
+	ribi_t::ribi ribi:4;
 
 	/**
 	* We are part of this network
@@ -81,7 +84,8 @@ public:
 	ribi_t::ribi get_ribi(void) const { return ribi; }
 
 	inline void set_bild( image_id b ) { bild = b; }
-	image_id get_bild() const {return bild;}
+	image_id get_bild() const {return is_crossing ? IMG_LEER : bild;}
+	image_id get_after_bild() const {return is_crossing ? bild : IMG_LEER;}
 
 	/**
 	* Recalculates the images of all neighbouring

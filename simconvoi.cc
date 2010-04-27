@@ -33,6 +33,7 @@
 
 #include "besch/vehikel_besch.h"
 #include "besch/roadsign_besch.h"
+#include "besch/haus_besch.h"
 
 #include "dataobj/fahrplan.h"
 #include "dataobj/route.h"
@@ -125,13 +126,11 @@ void convoi_t::reset()
 	withdraw = false;
 	has_obsolete = false;
 	no_load = false;
-	replace = false;
 	depot_when_empty = false;
 
 	jahresgewinn = 0;
 
 	max_record_speed = 0;
-	akt_speed_soll = 0;     // Sollgeschwindigkeit / set speed
 	akt_speed = 0;          // momentane Geschwindigkeit / current speed
 	sp_soll = 0;
 
@@ -153,6 +152,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	reset();
 
 	fpl = NULL;
+	replace = NULL;
 	line = linehandle_t();
 	line_id = INVALID_LINE_ID;
 
@@ -187,6 +187,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	reversable = false;
 	reversed = false;
+
+	recalc_data = true;
 }
 
 
@@ -251,10 +253,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		delete fpl;
 	}
 
-	if(replace)
-	{
-		replace->decrement_convoys();
-	}
+	clear_replace();
 
 	// @author hsiegeln - deregister from line (again) ...
 	unset_line();
@@ -422,7 +421,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 
 
 // since now convoi states go via werkzeug_t
-void convoi_t::call_convoi_tool( const char function, uint16 additional_id, const char *extra)
+void convoi_t::call_convoi_tool( const char function, const char *extra)
 {
 	werkzeug_t *w = create_tool( WKZ_CONVOI_TOOL | SIMPLE_TOOL );
 	char cmd[3] = { function, ',', 0 };
@@ -432,11 +431,6 @@ void convoi_t::call_convoi_tool( const char function, uint16 additional_id, cons
 	if(  extra  &&  *extra  ) {
 		param.append( "," );
 		param.append( extra );
-	}
-	if( additional_id != 0)
-	{
-		param.append( ",");
-		param.append(additional_id);
 	}
 	w->set_default_param(param);
 	welt->set_werkzeug( w, get_besitzer() );
@@ -536,16 +530,24 @@ void convoi_t::increment_odometer()
 }
 
 
-
 /* Calculates (and sets) new akt_speed
  * needed for driving, entering and leaving a depot)
  */
 void convoi_t::calc_acceleration(long delta_t)
 {
+	// Dwachs: only compute this if a vehicle in the convoi hopped
+	if (recalc_data) {
+		// neroden: Speed limits based on the track etc. are handled by
+		// convoy.calc_move, in the 'adverse' class.
+		// When there is a permanent convoy_t for each convoi_t,
+		// replace the recalc_data calls with invalidate_* calls.
+		// In the meantime, this does nothing interesting.
+		recalc_data = false;
+	}
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), akt_speed_soll, akt_speed, sp_soll);
+	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), min_top_speed, akt_speed, sp_soll);
 }
 
 
@@ -603,7 +605,6 @@ bool convoi_t::sync_step(long delta_t)
 		case LEAVING_DEPOT:
 			{
 				// ok, so we will accelerate
-				akt_speed_soll = max( akt_speed_soll, kmh_to_speed(30) );
 				calc_acceleration(delta_t);
 				//moved to inside calc_acceleration(): sp_soll += (akt_speed*delta_t);
 				// Make sure that the last_stop_pos is set here so as not
@@ -782,12 +783,15 @@ void convoi_t::step()
 		return;
 	}
 
+	bool autostart = false;
+
 	switch(state) {
 
 		case INITIAL:
-
 			// If there is a pending replacement, just do it
 			if (replace && replace->get_replacing_vehicles()->get_count()>0) {
+				
+				autostart = replace->get_autostart();
 
 				// Knightly : before replacing, copy the existing set of goods category index
 				minivec_tpl<uint8> old_goods_catg_index(goods_catg_index.get_count());
@@ -798,14 +802,17 @@ void convoi_t::step()
 
 				const grund_t *gr = welt->lookup(home_depot);
 				depot_t *dep;
-				if ( gr && (dep=gr->get_depot()) ) {
-					bool keep_name=(anz_vehikel>0 && strcmp(get_name(),fahr[0]->get_besch()->get_name())!=0);						
+				if ( gr && (dep = gr->get_depot()) ) {
+					char buf[128];
+					name_offset = sprintf(buf,"(%i) ",self.get_id() );
+					tstrncpy(buf + name_offset, translator::translate(fahr[0]->get_besch()->get_name()), 116);
+					const bool keep_name = strcmp(get_name(), buf);	
 					vector_tpl<vehikel_t*> new_vehicles;
-
+					vehikel_t* veh = NULL;
 					// Acquire the new one
 					ITERATE_PTR(replace->get_replacing_vehicles(),i)
 					{
-						vehikel_t* veh = NULL;
+						veh = NULL;
 						// First - check whether there are any of the required vehicles already
 						// in the convoy (free)
 						for(uint8 k = 0; k < anz_vehikel; k++)
@@ -817,57 +824,72 @@ void convoi_t::step()
 							}
 						}
 
-						// This part of the code is abandoned, as it causes problems: vehicles that have already been bought
-						// are added twice to the convoy, causing bizarre corruption issues.
-						/*if( veh == NULL)
+						if(veh == NULL && replace->get_allow_using_existing_vehicles())
 						{
-							 //Second - check whether there are any of the required vehicles already
-							 //in the depot (more or less free).
-							veh = dep->find_oldest_newest(replacing_vehicles[i], true);
-						}*/
+							 // Second - check whether there are any of the required vehicles already
+							 // in the depot (more or less free).
+							veh = dep->find_oldest_newest(replace->get_replacing_vehicle(i), true, &new_vehicles);
+						}
 
-						if (veh == NULL) 
+						if (veh == NULL && !replace->get_retain_in_depot()) 
 						{
 							// Third - check whether the vehicle can be upgraded (cheap)
+							// Note: if "retain in depot" is selected, do not upgrade, as
+							// the old vehicles will be needed (e.g., for a cascade).
 							for(uint16 j = 0; j < anz_vehikel; j ++)
-							{
-								
+							{	
 								for(uint8 c = 0; c < fahr[j]->get_besch()->get_upgrades_count(); c ++)
 								{
 									if(replace->get_replacing_vehicle(i) == fahr[j]->get_besch()->get_upgrades(c))
 									{
-										veh = remove_vehikel_bei(j);
-										//TODO: Use the new method of replacing here, creating a new vehicle rather than simply replacing the type.
-										veh->set_besch(replace->get_replacing_vehicle(i));
-										dep->buy_vehicle(veh->get_besch()/*, true*/);
+										veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, replace->get_replacing_vehicle(i), true); 
+										upgrade_vehicle(j, veh);
+										remove_vehikel_bei(j);
 										goto end_loop;
 									}
 								}
 							}
+						}
 end_loop:	
-							if(veh == NULL)
-							{
-								// Fourth - if all else fails, buy from new (expensive).
-								veh = dep->buy_vehicle(replace->get_replacing_vehicle(i)/*, false*/);
-							}
+
+						if(veh == NULL)
+						{
+							// Fourth - if all else fails, buy from new (expensive).
+							veh = dep->buy_vehicle(replace->get_replacing_vehicle(i));
 						}
 						
 						// This new method is needed to enable this method to iterate over
 						// the existing vehicles in the convoy while it is adding new vehicles.
 						// They must be added to temporary storage, and appended to the existing
 						// convoy at the end, after the existing convoy has been deleted.
-						new_vehicles.append(veh);
+						assert(veh);
+						if(veh)
+						{
+							new_vehicles.append(veh);
+						}
 						
 					}
 
 					//First, delete the existing convoy
 					for(sint8 a = anz_vehikel-1;  a >= 0; a--) 
 					{
-						//Sell any vehicles not upgraded or kept.
-						sint64 value = fahr[a]->calc_restwert();
-						besitzer_p->buche( value, dep->get_pos().get_2d(), COST_NEW_VEHICLE );
-						besitzer_p->buche( -value, COST_ASSETS );	
-						delete fahr[a];
+						if(!replace->get_retain_in_depot())
+						{
+							//Sell any vehicles not upgraded or kept.
+							sint64 value = fahr[a]->calc_restwert();
+							besitzer_p->buche( value, dep->get_pos().get_2d(), COST_NEW_VEHICLE );
+							besitzer_p->buche( -value, COST_ASSETS );	
+							delete fahr[a];
+							anz_vehikel--;
+						}
+						else
+						{
+							vehikel_t* old_veh = remove_vehikel_bei(a);
+							old_veh->loesche_fracht();
+							old_veh->set_erstes(false);
+							old_veh->set_letztes(false);
+							dep->get_vehicle_list()->append(old_veh);
+						}
 					}
 					anz_vehikel = 0;
 					reset();
@@ -878,14 +900,13 @@ end_loop:
 						dep->append_vehicle(self, new_vehicles[b], false);
 					}
 					
-					if (!keep_name) {
+					if (!keep_name) 
+					{
 						set_name(fahr[0]->get_besch()->get_name());
 					}
-					if(replace)
-					{
-						replace->decrement_convoys();
-						set_replace(NULL);
-					}
+
+					clear_replace();
+
 					if (line.is_bound()) {
 						line->recalc_status();
 						if (line->get_replacing_convoys_count()==0) {
@@ -934,7 +955,7 @@ end_loop:
 					}
 
 
-					if (replace && replace->get_autostart()) {
+					if (autostart) {
 						dep->start_convoi(self);
 					}
 				}
@@ -1085,7 +1106,7 @@ end_loop:
 			{
 				if(get_depot_when_empty() && has_no_cargo())
 				{
-					go_to_depot(false);
+					go_to_depot(false, (replace && replace->get_use_home_depot()));
 				}
 				break;
 			}
@@ -1164,15 +1185,25 @@ uint16 convoi_t::get_overcrowded() const
 uint8 convoi_t::get_comfort() const
 {
 	uint16 base_comfort = 0;
+	uint8 passenger_vehicles = 0;
 	
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
-		base_comfort += fahr[i]->get_comfort();
+		if(fahr[i]->get_fracht_typ()->get_catg_index() == 0)
+		{
+			passenger_vehicles ++;
+			base_comfort += fahr[i]->get_comfort();
+		}
 	}
-	if(anz_vehikel > 1)
+	if(passenger_vehicles < 1)
+	{
+		return 0;
+	}
+	
+	else if(passenger_vehicles > 1)
 	{
 		// Avoid division if possible
-		base_comfort /= anz_vehikel;
+		base_comfort /= passenger_vehicles;
 	}
 	
 	const uint8 catering_level = get_catering_level(0);
@@ -1985,7 +2016,7 @@ void convoi_t::vorfahren()
 
 	uint16 reverse_delay = 0;
 
-	set_akt_speed_soll( vehikel_t::SPEED_UNLIMITED );
+	recalc_data = true;
 
 	koord3d k0 = route.position_bei(0);
 	grund_t *gr = welt->lookup(k0);
@@ -2061,7 +2092,16 @@ void convoi_t::vorfahren()
 						else if(fahr[0]->get_besch()->is_bidirectional())
 						{
 							//Loco hauled, no turntable.
-							reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time();
+							if(fahr[anz_vehikel-2]->get_besch()->get_can_be_at_rear() == false
+								&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
+							{
+								// Goods train with brake van - longer reverse time.
+								reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time() * 1.4F;
+							}
+							else
+							{
+								reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time();
+							}
 						}
 						else
 						{
@@ -2246,6 +2286,13 @@ convoi_t::reverse_order(bool rev)
 			}
 		}
 
+		//Check for a goods train with a brake van
+		if((fahr[anz_vehikel - 2]->get_besch()->get_ware()->get_catg_index() > 1)
+			&& 	fahr[anz_vehikel - 2]->get_besch()->get_can_be_at_rear() == false)
+		{
+			b--;
+		}
+
 		for(uint8 i = 1; i < anz_vehikel; i++)
 		{
 			if(fahr[i]->get_besch()->get_leistung() > 0)
@@ -2337,6 +2384,7 @@ convoi_t::rdwr(loadsave_t *file)
 	file->rdwr_bool(dummy_bool, " ");
 	file->rdwr_long(besitzer_n, "\n");
 	file->rdwr_long(akt_speed, " ");
+	sint32 akt_speed_soll = 0; // Former variable now unused
 	file->rdwr_long(akt_speed_soll, " ");
 	file->rdwr_long(sp_soll, " ");
 	file->rdwr_enum(state, " ");
@@ -2530,12 +2578,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2546,12 +2595,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2570,12 +2620,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k>=0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2597,12 +2648,13 @@ convoi_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS-1; k >= 0; k--) 
 			{
-				if((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1)
+				if(((j == CONVOI_AVERAGE_SPEED || j == CONVOI_COMFORT) && file->get_experimental_version() <= 1) || (j == CONVOI_REFUNDS && file->get_experimental_version() < 8))
 				{
 					// Versions of Experimental saves with 1 and below
 					// did not have settings for average speed or comfort.
 					// Thus, this value must be skipped properly to
-					// assign the values.
+					// assign the values. Likewise, versions of Experimental < 8
+					// did not store refund information.
 					financial_history[k][j] = 0;
 					continue;
 				}
@@ -2796,11 +2848,6 @@ convoi_t::rdwr(loadsave_t *file)
 				//replacing_vehicles = replace->get_replacing_vehicles();
 				//replacing_vehicles_count = replacing_vehicles->get_count();
 				file->rdwr_short(replacing_vehicles_count, "");
-				//ITERATE_PTR(replacing_vehicles, i)
-				//{
-				//	const char *s = replacing_vehicles->get_element(i)->get_name();
-				//	file->rdwr_str(s);
-				//}
 			}
 			else
 			{
@@ -2831,9 +2878,6 @@ convoi_t::rdwr(loadsave_t *file)
 					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
 					// BG, 31-MAR-2010: we must not create 'replace'. I does not work correct. 
 					delete replacing_vehicles;
-					//replace = new replace_data_t();
-					//replace->set_autostart(old_autostart);
-					//replace->set_replacing_vehicles(replacing_vehicles);
 				}
 			}
 		}
@@ -3042,9 +3086,19 @@ bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch
 {
 	const vehikel_besch_t *soll;
 
-	if(!vor->get_nachfolger_count()) {
-		// Alle Nachfolger erlaubt
-		return true;
+	if(!vor->get_nachfolger_count()) 
+	{
+		if(vor->get_can_be_at_rear())
+		{
+			return true;
+		}
+		else
+		{
+			if(hinter != NULL)
+			{
+				return true;
+			}
+		}
 	}
 	for(int i=0; i < vor->get_nachfolger_count(); i++) {
 		soll = vor->get_nachfolger(i);
@@ -3056,7 +3110,7 @@ bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch
 		if(hinter == soll) {
 			// Diese Beschränkung erlaubt unseren Nachfolger
 			// This restriction allows our successors (Google translations)
-			return true;
+			return hinter || vor->get_can_be_at_rear();
 		}
 	}
 	//DBG_MESSAGE("convoi_t::pruefe_an_index()",
@@ -3172,9 +3226,8 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 	}
 
-	if(go_on_ticks == WAIT_INFINITE && fpl->get_current_eintrag().waiting_time_shift > 0) 
-	{
-		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_tag >> (16-fpl->get_current_eintrag().waiting_time_shift));
+	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
+		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
 	}
 
 	// Nun wurde ein/ausgeladen werden
@@ -3701,6 +3754,9 @@ void convoi_t::calc_loading()
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 	loading_limit = 0;	// will be set correctly from hat_gehalten() routine
+
+	// since weight has changed
+	recalc_data=true;
 }
 
 
@@ -3770,7 +3826,10 @@ void convoi_t::destroy()
 			fahr[i]->set_flag( ding_t::not_on_map );
 
 		}
-		fahr[i]->entferne(besitzer_p);
+		if(fahr[i])
+		{
+			fahr[i]->entferne(besitzer_p);
+		}
 		delete fahr[i];
 	}
 	anz_vehikel = 0;
@@ -3791,7 +3850,6 @@ void convoi_t::dump() const
 		"wait_lock = %d\n"
 		"besitzer_n = %d\n"
 		"akt_speed = %d\n"
-		"akt_speed_soll = %d\n"
 		"sp_soll = %d\n"
 		"state = %d\n"
 		"statename = %s\n"
@@ -3804,7 +3862,6 @@ void convoi_t::dump() const
 		(int)wait_lock,
 		(int)welt->sp2num(besitzer_p),
 		(int)akt_speed,
-		(int)akt_speed_soll,
 		(int)sp_soll,
 		(int)state,
 		(const char *)(state_names[state]),
@@ -4107,15 +4164,6 @@ convoi_t::get_catering_level(uint8 type) const
 	return max_catering_level;
 }
 
-//void convoi_t::set_replacing_vehicles(const vector_tpl<const vehikel_besch_t *> *rv)
-//{
-//	replacing_vehicles.clear();
-//	replacing_vehicles.resize(rv->get_count());  // To save some memory
-//	for (unsigned int i=0; i<rv->get_count(); ++i) {
-//		replacing_vehicles.append((*rv)[i]);
-//	}
-//}
- 
 
  /**
  * True if this convoy has the same vehicles as the other
@@ -4144,11 +4192,13 @@ class depot_finder_t : public fahrer_t
 {
 private:
 	vehikel_t *master;
+	uint8 traction_type;
 public:
-	depot_finder_t( convoihandle_t cnv ) 
+	depot_finder_t( convoihandle_t cnv, uint8 tt ) 
 	{ 
 		master = cnv->get_vehikel(0); 
 		assert(master!=NULL); 
+		traction_type = tt;
 	};
 	virtual waytype_t get_waytype() const 
 	{ 
@@ -4160,7 +4210,7 @@ public:
 	};
 	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const 
 	{ 
-		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer(); 
+		return gr->get_depot() && gr->get_depot()->get_besitzer() == master->get_besitzer() && gr->get_depot()->get_tile()->get_besch()->get_enabled() & traction_type; 
 	};
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const
 	{ 
@@ -4176,7 +4226,7 @@ public:
 /**
  * Convoy is sent to depot.  Return value, success or not.
  */
-bool convoi_t::go_to_depot(bool show_success)
+bool convoi_t::go_to_depot(bool show_success, bool use_home_depot)
 {
 	/*if (convoi_info_t::route_search_in_progress) 
 	{
@@ -4191,21 +4241,59 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 	//convoi_info_t::route_search_in_progress = true;
 
 	route_t route;
-	depot_finder_t finder( self );
-	route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
+	uint8 traction_type = 0;
+
+	if(!use_home_depot)
+	{
+		uint8 shifter;
+		if(replace)
+		{
+			ITERATE_PTR(replace->get_replacing_vehicles(), i)
+			{
+				if(replace->get_replacing_vehicle(i)->get_leistung() == 0)
+				{
+					continue;
+				}
+				shifter = 1 << replace->get_replacing_vehicle(i)->get_engine_type();
+				traction_type |= shifter;
+			}
+		}
+		else
+		{
+			for(uint8 i = 0; i < anz_vehikel; i ++)
+			{
+				if(fahr[i]->get_besch()->get_leistung() == 0)
+				{
+					continue;
+				}
+				shifter = 1 << fahr[i]->get_besch()->get_engine_type();
+				traction_type |= shifter;
+			}
+		}
+		depot_finder_t finder( self, traction_type );
+		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
+	}
 
 	// if route to a depot has been found, update the convoy's schedule
 	bool b_depot_found = false;
 	
-	if(!route.empty())
+	if(!route.empty() || use_home_depot)
 	{
-		koord3d depot_pos = route.position_bei(route.get_count()-1);
 		schedule_t *fpl = get_schedule();
-		fpl->insert(get_welt()->lookup(depot_pos));
+		koord3d depot_pos;
+		if(use_home_depot)
+		{
+			depot_pos = home_depot;
+		}
+		else
+		{
+			depot_pos = route.position_bei(route.get_count()-1);
+		}		
+		fpl->insert(welt->lookup(depot_pos));
 		fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		b_depot_found = set_schedule(fpl);
 	}
-	if(!b_depot_found)
+	if(!b_depot_found && !use_home_depot)
 	{
 		// Second try - if the new system does not work, try the old system instead.
 		// iterate over all depots and try to find shortest route
@@ -4216,7 +4304,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 		while (depot_iter.next()) 
 		{
 			depot_t *depot = depot_iter.get_current();
-			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer()) 
+			if(depot->get_wegtyp()!=get_vehikel(0)->get_besch()->get_waytype() || depot->get_besitzer() != get_besitzer() || !depot->get_tile()->get_besch()->get_enabled() & traction_type) 
 			{
 				continue;
 			}
@@ -4254,11 +4342,15 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 
 	// show result
 	const char* txt;
-	if (b_depot_found) 
+	if (b_depot_found && !use_home_depot) 
 	{
 		txt = "Convoi has been sent\nto the nearest depot\nof appropriate type.\n";
 	} 
-	else
+	else if(b_depot_found && use_home_depot)
+	{
+		txt = "The convoy has been sent\nto its home depot.\n";
+	}
+	else if(!b_depot_found && !use_home_depot)
 	{
 		txt = "Home depot not found!\nYou need to send the\nconvoi to the depot\nmanually.";
 	}
@@ -4535,12 +4627,4 @@ void convoi_t::clear_replace()
 		 new_replace->increment_convoys();
 	 }
 	 replace = new_replace;
- }
-
- void convoi_t::propogate_replace(replace_data_t *rpl, char replace_type)
- {
-	 if(replace)
-	 {
-
-	 }
  }

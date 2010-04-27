@@ -27,6 +27,7 @@
 #include "../../dataobj/umgebung.h"
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehikel.h"
+#include "../../besch/haus_besch.h"
 
 #include "../../utils/cbuffer_t.h"
 
@@ -414,7 +415,7 @@ bool gui_convoy_assembler_t::action_triggered( gui_action_creator_t *komp,value_
 		} else if(komp == &waggons) {
 			image_from_storage_list(&waggons_vec[p.i]);
 		} else if(komp == &bt_obsolete) {
-			show_retired_vehicles = (show_retired_vehicles==0);
+			show_retired_vehicles = (show_retired_vehicles == false);
 			build_vehicle_lists();
 			update_data();
 		} else if(komp == &bt_show_all) {
@@ -599,7 +600,8 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 			// current vehicle
 			if( (depot_frame && depot_frame->get_depot()->is_contained(info))  ||
 				((way_electrified  ||  info->get_engine_type()!=vehikel_besch_t::electric)  &&
-					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) {
+					 ((!info->is_future(month_now))  &&  (show_retired_vehicles  ||  (!info->is_retired(month_now)) )  ) )) 
+			{
 				// check, if allowed
 				bool append = true;
 				bool upgradeable = true;
@@ -657,6 +659,12 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 						{
 							append = false;
 						}
+					}
+					const uint8 shifter = 1 << info->get_engine_type();
+					const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
+					if(!correct_traction_type && info->get_leistung() > 0)
+					{
+						append = false;
 					}
 				}
 				if(append && (upgrade == u_buy || upgradeable)) 
@@ -734,25 +742,32 @@ void gui_convoy_assembler_t::image_from_convoi_list(uint nr)
 		depot = gr->get_depot();
 	}
 
-	const convoihandle_t cnv = depot_frame ? depot->get_convoi(depot_frame->get_icnv()) : replace_frame->get_convoy();
-	if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
+	if(depot_frame)
+	{
+		const convoihandle_t cnv = depot->get_convoi(depot_frame->get_icnv());
+		if(cnv.is_bound() &&  nr<cnv->get_vehikel_anzahl() ) {
 
-		// we remove all connected vehicles together!
-		// find start
-		unsigned start_nr = nr;
-		while(start_nr>0) {
-			start_nr --;
-			const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
-			if(info->get_nachfolger_count()!=1) {
-				start_nr ++;
-				break;
+			// we remove all connected vehicles together!
+			// find start
+			unsigned start_nr = nr;
+			while(start_nr>0) {
+				start_nr --;
+				const vehikel_besch_t *info = cnv->get_vehikel(start_nr)->get_besch();
+				if(info->get_nachfolger_count()!=1) {
+					start_nr ++;
+					break;
+				}
 			}
+
+			cbuffer_t start(16);
+			start.append( start_nr );
+
+			depot->call_depot_tool( 'r', cnv, start );
 		}
-
-		cbuffer_t start(16);
-		start.append( start_nr );
-
-		depot->call_depot_tool( 'r', cnv, start );
+	}
+	else
+	{
+		vehicles.remove_at(nr);
 	}
 }
 
@@ -934,6 +949,17 @@ void gui_convoy_assembler_t::update_data()
 					{
 						iter1.get_current_value()->lcolor = COL_DARK_ORANGE;
 						iter1.get_current_value()->rcolor = COL_DARK_ORANGE;
+					}
+				}
+				if(depot_frame && iter1.get_current_key()->get_leistung() > 0)
+				{
+					const uint8 traction_type = iter1.get_current_key()->get_engine_type();
+					const uint8 shifter = 1 << traction_type;
+					if(!(shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled()))
+					{
+						// Do not allow purchasing of vehicle if depot is of the wrong type.
+						iter1.get_current_value()->lcolor = COL_RED;
+						iter1.get_current_value()->rcolor = COL_RED;
 					}
 				}
 			}

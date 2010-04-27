@@ -21,7 +21,7 @@
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 
-#define MAX_CONVOI_COST				8 // Total number of cost items
+#define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
 #define MAX_CONVOI_NON_MONEY_TYPES	4 // number of non money types in convoi's financial statistic
 
@@ -33,6 +33,7 @@
 #define CONVOI_OPERATIONS			5 // the cost of operations this CONVOI generated
 #define CONVOI_PROFIT				6 // total profit of this convoi
 #define CONVOI_DISTANCE				7 // total distance traveld this month
+#define CONVOI_REFUNDS				8 // The refunds passengers waiting for this convoy (only when not attached to a line) have received.
 
 class depot_t;
 class karte_t;
@@ -254,6 +255,12 @@ private:
 	sint32 sum_gewicht;
 	sint32 sum_gesamtgewicht;
 
+	// cached values
+	// will be recalculated if
+	// recalc_data is true
+	bool recalc_data;
+	uint32 speed_limit;
+
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
 	* from the vehicles data
@@ -310,10 +317,9 @@ private:
 	koord record_pos;
 
 	// needed for speed control/calculation
-	sint32 akt_speed_soll;	// should go this
-	sint32 akt_speed;			// goes this at the moment
-	sint32 sp_soll;					// steps to go
-	sint32 previous_delta_v;		// Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
+	sint32 akt_speed;	        // current speed
+	sint32 sp_soll;           // steps to go
+	sint32 previous_delta_v;  // Stores the previous delta_v value; otherwise these digits are lost during calculation and vehicle do not accelrate
 
 	uint32 next_wolke;	// time to next smoke
 
@@ -468,7 +474,7 @@ public:
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
 	 */
-	void call_convoi_tool( const char function, uint16 additional_id = 0, const char *extra = NULL );
+	void call_convoi_tool( const char function, const char *extra = NULL );
 
 	/**
 	* get state
@@ -585,13 +591,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	koord3d get_pos() const;
-
-	/**
-	 * sets the current target speed
-	 * set from the first vehicle, and takes into account all speed limits, brakes at stations etc.
-	 * @author Hj. Malthaner
-	 */
-	void set_akt_speed_soll(sint32 set_akt_speed) { akt_speed_soll = min( set_akt_speed, min_top_speed ); }
 
 	/**
 	 * @return current speed, this might be different from topspeed
@@ -932,11 +931,13 @@ public:
 	bool has_same_vehicles(convoihandle_t other) const;
 
 	// Go to depot, if possible
-	bool go_to_depot(bool show_success);
+	bool go_to_depot(bool show_success, bool use_home_depot = false);
 
 	// True if convoy has no cargo
 	//@author: isidoro
 	bool has_no_cargo() const;
+
+	void must_recalc_data() { recalc_data = true; }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
@@ -982,8 +983,6 @@ public:
 	// @author: jamespetts
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
-
-	void propogate_replace(replace_data_t *rpl, char replace_type);
 };
 
 #endif

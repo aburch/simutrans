@@ -232,7 +232,7 @@ public:
 	wkz_wegebau_t() : two_click_werkzeug_t(), besch(NULL) { id = WKZ_WEGEBAU | GENERAL_TOOL; }
 	virtual image_id get_icon(spieler_t *) const;
 	virtual const char *get_tooltip(spieler_t *);
-	virtual const char* get_default_param() const;
+	virtual const char* get_default_param(spieler_t *) const;
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  besch->get_styp()!=1); }
@@ -337,16 +337,21 @@ public:
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *welt, spieler_t *sp );
 
-	void set_values( uint8 spacing, bool remove, bool replace );
+	void set_values(spieler_t *sp, uint8 spacing, bool remove, bool replace );
+	void get_values(spieler_t *sp, uint8 &spacing, bool &remove, bool &replace );
 	bool is_init_network_save() const { return true; }
 	void draw_after( karte_t *welt, koord pos ) const;
+	const char* get_default_param(spieler_t *sp) const;
 private:
 	const roadsign_besch_t* besch;
 	const char *place_sign_intern( karte_t *, spieler_t *, grund_t*, const roadsign_besch_t* b = NULL);
-	// TODO: set values per player
-	uint8 signal_spacing;
-	bool remove_intermediate_signals;
-	bool replace_other_signals;
+	// place signals every n tiles:
+	uint8 signal_spacing[MAX_PLAYER_COUNT];
+	bool remove_intermediate_signals[MAX_PLAYER_COUNT];
+	bool replace_other_signals[MAX_PLAYER_COUNT];
+	static char toolstring[256];
+	// read the variables from the default_param
+	void read_default_param(spieler_t *sp);
 
 	const char* check_pos_intern(karte_t *, spieler_t *, koord3d);
 	bool calc_route( route_t &, spieler_t *, const koord3d& start, const koord3d &to );
@@ -849,6 +854,14 @@ public:
 class wkz_change_password_hash_t : public werkzeug_t {
 public:
 	wkz_change_password_hash_t() : werkzeug_t() { id = WKZ_PWDHASH_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
+// adds a new player of certain type to the map
+class wkz_change_player_t : public werkzeug_t {
+public:
+	wkz_change_player_t() : werkzeug_t() { id = WKZ_SET_PLAYER_TOOL | SIMPLE_TOOL; }
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool is_init_network_save() const { return false; }
 };

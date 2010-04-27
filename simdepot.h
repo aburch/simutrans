@@ -31,7 +31,7 @@ protected:
 	/** 
 	 * Reworked depot data!
 	 *
-	 * It can now contain any number of vehicles bough by the user (as before).
+	 * It can now contain any number of vehicles bought by the user (as before).
 	 * And it can held any number of convois (before only one).
 	 * It is possible to have 0 convois in a depot, but an empty one shall be
 	 * automatically created, when necessary.
@@ -130,7 +130,7 @@ public:
 	 * @date  30.05.2003
 	 */
 	unsigned vehicle_count() const { return vehicles.get_count(); }
-	const slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
+	slist_tpl<vehikel_t *> *get_vehicle_list() { return &vehicles; }
 
 	/**
 	 * A new vehicle is bought and added to the vehicle list.
@@ -207,7 +207,7 @@ public:
 	/*
 	 * Find the oldest/newest vehicle in the depot
 	 */
-	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old);
+	vehikel_t* find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehikel_t*> *avoid = NULL);
 
 	// true if already stored here
 	bool is_contained(const vehikel_besch_t *info);
@@ -258,7 +258,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
 	virtual enum ding_t::typ get_typ() const {return bahndepot;}
-	virtual const char *get_name() const {return "Bahndepot"; }
+	//virtual const char *get_name() const {return "Bahndepot"; }
 };
 
 
@@ -272,7 +272,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return tram_wt;}
 	virtual enum ding_t::typ get_typ() const { return tramdepot; }
-	virtual const char *get_name() const {return "Tramdepot"; }
+	//virtual const char *get_name() const {return "Tramdepot"; }
 };
 
 class monoraildepot_t : public bahndepot_t
@@ -285,7 +285,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return monorail_wt;}
 	virtual enum ding_t::typ get_typ() const { return monoraildepot; }
-	virtual const char *get_name() const {return "Monoraildepot"; }
+	//virtual const char *get_name() const {return "Monoraildepot"; }
 };
 
 class maglevdepot_t : public bahndepot_t
@@ -298,7 +298,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return maglev_wt;}
 	virtual enum ding_t::typ get_typ() const { return maglevdepot; }
-	virtual const char *get_name() const {return "Maglevdepot"; }
+	//virtual const char *get_name() const {return "Maglevdepot"; }
 };
 
 class narrowgaugedepot_t : public bahndepot_t
@@ -311,7 +311,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
 	virtual enum ding_t::typ get_typ() const { return narrowgaugedepot; }
-	virtual const char *get_name() const {return "Narrowgaugedepot"; }
+	//virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
 
 /**
@@ -330,7 +330,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return road_wt; }
 	enum ding_t::typ get_typ() const {return strassendepot;}
-	const char *get_name() const {return "Strassendepot";}
+	//const char *get_name() const {return "Strassendepot";}
 };
 
 
@@ -350,7 +350,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const {return water_wt; }
 	enum ding_t::typ get_typ() const {return schiffdepot;}
-	const char *get_name() const {return "Schiffdepot";}
+	//const char *get_name() const {return "Schiffdepot";}
 };
 
 class airdepot_t : public depot_t
@@ -363,7 +363,7 @@ public:
 
 	virtual waytype_t get_wegtyp() const { return air_wt; }
 	enum ding_t::typ get_typ() const { return airdepot; }
-	const char *get_name() const {return "Hangar";}
+	//const char *get_name() const {return "Hangar";}
 };
 
 #endif

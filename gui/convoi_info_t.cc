@@ -38,7 +38,7 @@
 
 static const char cost_type[BUTTON_COUNT][64] =
 {
-	"Free Capacity", "Transported", "Average speed", "Comfort", "Revenue", "Operation", "Profit", "Distance"
+	"Free Capacity", "Transported", "Average speed", "Comfort", "Revenue", "Operation", "Profit", "Distance", "Refunds"
 #ifdef ACCELERATION_BUTTON
 	, "Acceleration"
 #endif
@@ -46,7 +46,7 @@ static const char cost_type[BUTTON_COUNT][64] =
 
 static const int cost_type_color[BUTTON_COUNT] =
 {
-	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_DISTANCE
+	COL_FREE_CAPACITY, COL_TRANSPORTED, COL_AVERAGE_SPEED, COL_COMFORT, COL_REVENUE, COL_OPERATION, COL_PROFIT, COL_DISTANCE, COL_LIGHT_RED
 #ifdef ACCELERATION_BUTTON
 	, COL_YELLOW
 #endif
@@ -225,8 +225,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	replace_button.set_typ(button_t::roundbox_state);
 	replace_button.set_tooltip("Automatically replace this convoy.");
 	add_komponente(&replace_button);
-	// TEMPORARY: Replacing currently not working, so disable.
-	//replace_button.add_listener(this);
+	replace_button.add_listener(this);
 
 	follow_button.set_groesse(koord(view.get_groesse().x, BUTTON_HEIGHT));
 	follow_button.set_text("follow me");
@@ -316,7 +315,8 @@ enable_home:
 			}
 			no_load_button.pressed = cnv->get_no_load();
 			no_load_button.enable();
-			replace_button.background= cnv->get_replace()?COL_LIGHT_RED:MN_GREY3;
+			//replace_button.background= cnv->get_replace()?COL_LIGHT_RED:MN_GREY3;
+			replace_button.pressed = cnv->get_replace();
 			replace_button.set_text(cnv->get_replace()?"Replacing":"Replace");
 			replace_button.enable();
 		}
@@ -561,7 +561,24 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		chart.set_visible(toggler.pressed);
 		set_fenstergroesse(get_fenstergroesse() + offset); // "Window size"
 		resize(koord(0,0));
-		for (int i=0;i<BUTTON_COUNT;i++) {
+		bool show_refunds = true;
+		if(cnv->get_line().is_bound())
+		{
+			show_refunds = false;
+			for(uint8 x = 0; x < MAX_MONTHS; x ++)
+			{
+				if(cnv->get_finance_history(x, CONVOI_REFUNDS) > 0)
+				{
+					show_refunds = true;
+				}
+			}
+		}
+		for (int i=0;i<BUTTON_COUNT;i++) 
+		{
+			if(!show_refunds && i == CONVOI_REFUNDS)
+			{
+				continue;
+			}
 			filterButtons[i].set_visible(toggler.pressed);
 		}
 		return true;

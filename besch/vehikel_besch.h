@@ -68,6 +68,32 @@ public:
 		battery
 	};
 
+	static const char* get_engine_type(engine_t e) 
+	{
+		switch(e)
+		{
+		case unknown:
+		default:
+			return "unknown";
+		case steam:
+			return "steam";
+		case diesel:
+			return "diesel";
+		case electric:
+			return "electric";
+		case bio:
+			return "bio";
+		case sail:
+			return "sail";
+		case fuel_cell:
+			return "fuel_cell";
+		case hydrogene:
+			return "hydrogene";
+		case battery:
+			return "battery";
+		}
+	}
+
 
 private:
 	uint32 preis;  //Price
@@ -107,6 +133,7 @@ private:
 
 	bool bidirectional; //Whether must always travel in one direction
 	bool can_lead_from_rear; //Whether vehicle can lead a convoy when it is at the rear.
+	bool can_be_at_rear; //Whether the vehicle may be at the rear of a convoy (default = true).
 
 	uint8 comfort; // How comfortable that a vehicle is for passengers.
 
@@ -115,6 +142,8 @@ private:
 	bool available_only_as_upgrade; //If yes, can not be bought as new: only upgraded.
 	
 	uint16 tractive_effort; // tractive effort / force in kN
+
+	float air_resistance; // The "cf" value in physics calculations.
 
 	// these values are not stored and therefore calculated in loaded():
 	uint32 geared_power; // @author: Bernd Gabriel, Nov  4, 2009: == leistung * gear in kW
@@ -147,8 +176,10 @@ public:
 		engine_type = (uint8)engine;
 		geschw = speed;
 		is_tilting = bidirectional = can_lead_from_rear = available_only_as_upgrade = false;
-		//way_constraints_prohibitive = 255;
-		//way_constraints_permissive = 0;
+		// These two lines are necessary for the building of way objects, so that they
+		// do not get stuck with constraints. 
+		way_constraints.set_permissive(0);
+		way_constraints.set_prohibitive(255);
 		loading_time = 2000;
 		tractive_effort = 0;
 	}
@@ -386,7 +417,11 @@ public:
 	
 	/*Whether this is a tilting train (and can take coerners faster
 	*@author: jamespetts*/
-	bool get_tilting() const { return (is_tilting);	}
+	bool get_tilting() const { return is_tilting;	}
+
+	bool get_can_be_at_rear() const { return can_be_at_rear; }
+
+	float get_air_resistance() const { return air_resistance; }
 	
 	///*Bitwise encoded way constraints (permissive)
 	//*@author: jamespetts*/

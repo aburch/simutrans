@@ -1060,15 +1060,16 @@ void haltestelle_t::step(sint16 &units_remaining)
 							const uint16 distance = accurate_distance(get_basis_pos(), tmp.get_origin()->get_basis_pos());
 							if(distance > 0) // No point in calculating refund if passengers/goods are discarded from their origin stop.
 							{
-								// Refund is approximation: twice distance at standard rate with no adjustments.
-								const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 2;
+								// Refund is approximation: 1.5x distance at standard rate with no adjustments. 
+								// (Previous versions had 2x, but this was probably too harsh). 
+								const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 1.5;
 								
 								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
 								if(account_line.is_bound())
 								{
 									account_line->book(-refund_amount, CONVOI_PROFIT);
-									account_line->book(-refund_amount, CONVOI_REVENUE);
+									account_line->book(-refund_amount, CONVOI_REFUNDS);
 								}
 								else
 								{
@@ -1076,7 +1077,7 @@ void haltestelle_t::step(sint16 &units_remaining)
 									if(account_convoy.is_bound())
 									{
 										account_convoy->book(-refund_amount, CONVOI_PROFIT);
-										account_convoy->book(-refund_amount, CONVOI_REVENUE);
+										account_convoy->book(-refund_amount, CONVOI_REFUNDS);
 									}
 								}
 							}

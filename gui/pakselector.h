@@ -10,8 +10,10 @@
 class pakselector_t : public savegame_frame_t
 {
 private:
-	button_t load_addons;
-	bool at_least_one_add;
+	// unused button_t load_addons;
+	//bool at_least_one_add;
+	gui_file_table_action_column_t action_column;
+	gui_file_table_delete_column_t addon_column;
 
 protected:
 	/**
@@ -32,10 +34,13 @@ protected:
 	// true, if valid
 	virtual bool check_file( const char *filename, const char *suffix );
 
+	virtual void init(const char *suffix, const char *path);
+	virtual void add_file(const char *filename, const bool not_cutting_suffix);
+	
 public:
 	void fill_list();	// do the search ...
 
-	bool has_pak() const { return !entries.empty(); }
+	bool has_pak() const { return use_table ? file_table.get_size().get_y() > 0 : !entries.empty(); }
 
 	const char * get_hilfe_datei() const { return ""; }
 

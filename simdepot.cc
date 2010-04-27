@@ -215,7 +215,7 @@ void depot_t::upgrade_vehicle(convoihandle_t cnv, const vehikel_besch_t* vb)
 	{
 		for(uint8 c = 0; c < cnv->get_vehikel(i)->get_besch()->get_upgrades_count(); c ++)
 		{
-			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c)->get_name() == vb->get_name())
+			if(cnv->get_vehikel(i)->get_besch()->get_upgrades(c) == vb)
 			{
 				vehikel_t* new_veh = vehikelbauer_t::baue(get_pos(), get_besitzer(), NULL, vb, true); 
 				cnv->upgrade_vehicle(i, new_veh);
@@ -579,16 +579,19 @@ const char * depot_t::ist_entfernbar(const spieler_t *sp)
 
 // returns the indest of the old/newest vehicle in a list
 //@author: isidoro
-vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
+vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, vector_tpl<vehikel_t*> *avoid)
 {
 	vehikel_t* found_veh = NULL;
 	slist_iterator_tpl<vehikel_t*> iter(get_vehicle_list());
-	while (iter.next()) {
+	while (iter.next()) 
+	{
 		vehikel_t* veh = iter.get_current();
-		if (veh != NULL && veh->get_besch() == besch) {
+		if (veh != NULL && veh->get_besch() == besch) 
+		{
 			// joy of XOR, finally a line where I could use it!
-			if (found_veh == NULL ||
-					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())) {
+			if (avoid == NULL || !avoid->is_contained(veh) && (found_veh == NULL ||
+					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit()))) // Used when replacing to avoid specifying the same vehicle twice
+			{
 				found_veh = veh;
 			}
 		}

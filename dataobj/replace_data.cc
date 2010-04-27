@@ -3,9 +3,12 @@
 #include "loadsave.h"
 #include "translator.h"
 
+#include "../utils/cbuffer_t.h"
+
 #include "../bauer/vehikelbauer.h"
 
 #include "../vehicle/simvehikel.h"
+#include "../besch/vehikel_besch.h"
 
 
 replace_data_t::replace_data_t()
@@ -43,6 +46,118 @@ replace_data_t::replace_data_t(loadsave_t *file)
 	// each, rather than being pooled as is the case when replacing is
 	// first set without a save/load cycle.
 	number_of_convoys = 1;
+}
+
+
+void replace_data_t::sprintf_replace( cbuffer_t &buf) const
+{
+	// First of all, general information
+	buf.append(autostart ? "1" : "0");
+	buf.append(retain_in_depot ? "1" : "0");
+	buf.append(use_home_depot ? "1" : "0");
+	buf.append(allow_using_existing_vehicles ? "1" : "0");
+		
+	// Secondly, the number of convoys. Use leading zeros
+	// to keep a constant number of characters. 
+	sint8 zeros = 0;
+	if(number_of_convoys < 10)
+	{
+		zeros = 4;
+	}
+	else if(number_of_convoys < 100)
+	{
+		zeros = 3;
+	}
+	else if(number_of_convoys < 1000)
+	{
+		zeros = 2;
+	}
+	else if(number_of_convoys < 10000)
+	{
+		zeros = 1;
+	}
+	if(zeros > 0)
+	{
+	for(zeros; zeros --; zeros > 0)
+		{
+			buf.append("0");
+		}
+	}
+	buf.append((int)number_of_convoys);
+
+	// Finally, the replacing vehicles.
+	// Separate each name with the "|" character.
+	buf.append("|");
+	ITERATE_PTR(replacing_vehicles, n)
+	{
+		buf.append(replacing_vehicles->get_element(n)->get_name());
+		buf.append("|");
+	}
+	// Terminating character	
+	buf.append("~");
+}
+
+
+bool replace_data_t::sscanf_replace(const char *ptr)
+{
+	const char *p = ptr;
+	// Firstly, get the general settings.
+	autostart = atoi(p++);
+	const char rid = *p++;
+	retain_in_depot = atoi(&rid);
+	const char uhd = *p++;
+	use_home_depot = atoi(&uhd);
+	const char auev = *p++;
+	allow_using_existing_vehicles = atoi(&auev);
+
+	//Secondly, get the number of replacing vehicles
+	char rv[5];
+	for(uint8 i = 0; i ++; i < 5)
+	{
+		rv[i] = *p++;
+	}
+	number_of_convoys = atoi(rv);
+
+	// Thirdly, get the replacing vehicles.
+	replacing_vehicles->clear();
+
+	while(  *p  &&  *p!='|'  ) 
+	{
+		p++;
+	}
+	if(  *p!='|'  ) 
+	{
+		dbg->error( "replace_data_t::sscanf_replace()","incomplete entry termination!" );
+		return false;
+	}
+	p++;
+	// now scan the entries
+	while(*p!='~') 
+	{
+		char vehicle_name[256];
+		uint8 n = 0;
+		while(*p!='|')
+		{
+			vehicle_name[n++] = *p++;
+		}
+		vehicle_name[n] = '\0';
+		
+		const vehikel_besch_t* besch = vehikelbauer_t::get_info(vehicle_name);
+		if(besch == NULL) 
+		{
+			besch = vehikelbauer_t::get_info(translator::compatibility_name(vehicle_name));
+		}
+		if(besch == NULL)
+		{
+			dbg->warning("replace_data_t::sscanf_replace()","no vehicle pak for '%s' search for something similar", vehicle_name);
+		}
+		else
+		{
+			replacing_vehicles->append(besch);
+		}
+		p++;
+	}
+	return true;
 }
 
 replace_data_t::~replace_data_t()
@@ -120,3 +235,4 @@ void replace_data_t::add_vehicle(const vehikel_besch_t* vehicle, bool add_at_fro
 		replacing_vehicles->append(vehicle);
 	}
 }
+

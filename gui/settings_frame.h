@@ -30,14 +30,20 @@ private:
 	einstellungen_t	*sets;
 	gui_tab_panel_t	tabs;
 
-	settings_general_stats_t	general;
+	settings_general_stats_t general;
 	gui_scrollpane_t scrolly_general;
-	settings_economy_stats_t	economy;
+	settings_economy_stats_t economy;
 	gui_scrollpane_t scrolly_economy;
-	settings_routing_stats_t	routing;
+	settings_routing_stats_t routing;
 	gui_scrollpane_t scrolly_routing;
-	settings_costs_stats_t	costs;
+	settings_costs_stats_t   costs;
 	gui_scrollpane_t scrolly_costs;
+
+	gui_tab_panel_t	 tabs_experimental;
+	settings_experimental_general_stats_t exp_general;
+	gui_scrollpane_t scrolly_exp_general;
+	settings_experimental_revenue_stats_t exp_revenue;
+	gui_scrollpane_t scrolly_exp_revenue;
 
 	button_t revert_to_default, revert_to_last_save;
 

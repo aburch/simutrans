@@ -98,6 +98,7 @@
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
 #include "besch/tunnel_besch.h"
+#include "besch/stadtauto_besch.h"
 
 #include "player/simplay.h"
 #include "player/ai_passenger.h"
@@ -127,8 +128,8 @@ bool karte_t::recalc_snowline()
 
 	// calculate snowline with day precicion
 	// use linear interpolation
-	const long ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_tag-1);
-	const long faktor = mfactor[letzter_monat] + (  ( (mfactor[(letzter_monat+1)%12]-mfactor[letzter_monat])*(ticks_this_month>>12) ) >> (karte_t::ticks_bits_per_tag-12) );
+	const long ticks_this_month = get_zeit_ms() & (karte_t::ticks_per_world_month-1);
+	const long faktor = mfactor[letzter_monat] + (  ( (mfactor[(letzter_monat+1)%12]-mfactor[letzter_monat])*(ticks_this_month>>12) ) >> (karte_t::ticks_per_world_month_shift-12) );
 
 	// just remember them
 	const sint16 old_snowline = snowline;
@@ -1197,8 +1198,8 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	letzter_monat = 0;
 	letztes_jahr = einstellungen->get_starting_year();//umgebung_t::starting_year;
 	current_month = letzter_monat + (letztes_jahr*12);
-	set_ticks_bits_per_tag(einstellungen->get_bits_per_month());
-	next_month_ticks =  karte_t::ticks_per_tag;
+	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
+	next_month_ticks =  karte_t::ticks_per_world_month;
 	season=(2+letzter_monat/3)&3; // summer always zero
 	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 	is_dragging = false;
@@ -1589,11 +1590,11 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	is_shutting_down = false;
 
 	// length of day and other time stuff
-	ticks_bits_per_tag = 20;
+	ticks_per_world_month_shift = 20;
 #ifdef _MSC_VER
-	ticks_per_tag = (1i64 << ticks_bits_per_tag);
+	ticks_per_world_month = (1i64 << ticks_per_world_month_shift);
 #else
-	ticks_per_tag = (1ll << ticks_bits_per_tag);
+	ticks_per_world_month = (1ll << ticks_per_world_month_shift);
 #endif
 	last_step_ticks = 0;
 	last_interaction = dr_time();
@@ -1623,6 +1624,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	einstellungen = sets;
 	schedule_counter = 0;
 	nosave_warning = nosave = false;
+	recheck_road_connexions = true;
 	actual_industry_density = industry_density_proportion = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
@@ -1639,6 +1641,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	base_pathing_counter = 0;
 
 	outstanding_cars = 0;
+
+	citycar_speed_average = 50;
 
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
@@ -2345,7 +2349,9 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 			sound_play(info);
 
 			// only exit, if it is not the same tool again ...
+			werkzeug[sp->get_player_nr()]->flags |= werkzeug_t::WFL_LOCAL;
 			werkzeug[sp->get_player_nr()]->exit(this,sp);
+			werkzeug[sp->get_player_nr()]->flags =0;
 		}
 		else {
 			// init again, to interrupt dragging
@@ -2965,7 +2971,8 @@ void karte_t::neuer_monat()
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
-		s->neuer_monat();
+		s->neuer_monat(recheck_road_connexions);
+		recheck_road_connexions = false;
 		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
@@ -3034,6 +3041,8 @@ void karte_t::neuer_monat()
 	{
 		path_explorer_t::refresh_all_categories(true);
 	}
+
+	set_citycar_speed_average();
 }
 
 
@@ -3266,17 +3275,19 @@ void karte_t::step()
 	// first: check for new month
 	if(ticks > next_month_ticks) {
 
-		next_month_ticks += karte_t::ticks_per_tag;
+		next_month_ticks += karte_t::ticks_per_world_month;
 
 		// avoid overflow here ...
 		// Should not overflow: now usint 64-bit values.
-		//@jamespetts
-		/*if(ticks>next_month_ticks) {
-			ticks %= karte_t::ticks_per_tag;
-			ticks += karte_t::ticks_per_tag;
-			next_month_ticks = ticks+karte_t::ticks_per_tag;
-			last_step_ticks %= karte_t::ticks_per_tag;
-		}*/
+		// @author: jamespetts
+/*
+		if(ticks>next_month_ticks) {
+			ticks %= karte_t::ticks_per_world_month;
+			ticks += karte_t::ticks_per_world_month;
+			next_month_ticks = ticks+karte_t::ticks_per_world_month;
+			last_step_ticks %= karte_t::ticks_per_world_month;
+		}
+*/
 
 		neuer_monat();
 	}
@@ -4389,10 +4400,10 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 	// old game might have wrong month
 	letzter_monat %= 12;
  	// set the current month count
-	set_ticks_bits_per_tag(einstellungen->get_bits_per_month());
+	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero
-	next_month_ticks = 	( (ticks >> karte_t::ticks_bits_per_tag) + 1 ) << karte_t::ticks_bits_per_tag;
+	next_month_ticks = 	( (ticks >> karte_t::ticks_per_world_month_shift) + 1 ) << karte_t::ticks_per_world_month_shift;
 	last_step_ticks = ticks;
 	steps = 0;
 	step_mode = PAUSE_FLAG;
@@ -4411,7 +4422,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 		else if(i<8) {
 			// get the old player ...
 			if(  spieler[i]==NULL  ) {
-				spieler[i] = (i==3) ? (spieler_t*)(new ai_passenger_t(this, i)) : (spieler_t*)(new ai_goods_t(this, i));
+				new_spieler( i, (i==3) ? spieler_t::AI_PASSENGER : spieler_t::AI_GOODS );
 			}
 			einstellungen->spieler_type[i] = spieler[i]->get_ai_id();
 		}
@@ -4750,8 +4761,8 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 #if 0
 	// preserve tick counter ...
-	ticks = ticks % karte_t::ticks_per_tag;
-	next_month_ticks = karte_t::ticks_per_tag;
+	ticks = ticks % karte_t::ticks_per_world_month;
+	next_month_ticks = karte_t::ticks_per_world_month;
 	letzter_monat %= 12;
 #endif
 
@@ -4760,7 +4771,9 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		scenario->rdwr(file);
 	}
 	clear_random_mode(LOAD_RANDOM);
-	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_bits_per_tag);
+
+	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
+
 
 	if(file->get_experimental_version() >= 2)
 	{
@@ -4977,8 +4990,8 @@ void karte_t::reset_interaction()
 void karte_t::step_year()
 {
 	DBG_MESSAGE("karte_t::step_year()","called");
-//	ticks += 12*karte_t::ticks_per_tag;
-//	next_month_ticks += 12*karte_t::ticks_per_tag;
+//	ticks += 12*karte_t::ticks_per_world_month;
+//	next_month_ticks += 12*karte_t::ticks_per_world_month;
 	current_month += 12;
 	letztes_jahr ++;
 	reset_timer();
@@ -5212,16 +5225,20 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 /* creates a new player with this type */
-void karte_t::new_spieler(uint8 new_player, uint8 type)
+char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
-	assert(  spieler[new_player]==NULL  );
+	if(  new_player<0  ||  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
+		return "Id invalid/already in use!";
+	}
 	switch( type ) {
 		case spieler_t::EMPTY: break;
 		case spieler_t::HUMAN: spieler[new_player] = new spieler_t(this,new_player); break;
 		case spieler_t::AI_GOODS: spieler[new_player] = new ai_goods_t(this,new_player); break;
 		case spieler_t::AI_PASSENGER: spieler[new_player] = new ai_passenger_t(this,new_player); break;
-		default: dbg->fatal( "karte_t::new_spieler()","Unknow AI type %i!",type );
+		default: return "Unknow AI type!";
 	}
+	get_einstellungen()->set_player_type( new_player, type );
+	return NULL;
 }
 
 
@@ -5759,3 +5776,23 @@ void karte_t::network_disconnect()
 	beenden(false);
 }
 
+void karte_t::set_citycar_speed_average()
+{
+	uint32 speed_sum = 0;
+	if(stadtauto_t::table.empty())
+	{
+		// No city cars - use default speed.
+		citycar_speed_average = 50;
+		return;
+	}
+	stringhashtable_iterator_tpl<const stadtauto_besch_t*> iter(&stadtauto_t::table);
+	int vehicle_speed_sum = 0;
+	uint16 count = 0;
+	while(iter.next())
+	{
+		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
+		vehicle_speed_sum += (speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
+		count += iter.get_current_value()->get_gewichtung();
+	}
+	citycar_speed_average = vehicle_speed_sum / count;
+}

@@ -16,7 +16,9 @@
 #include "../ifc/gui_komponente.h"
 #include "gui_container.h"
 #include "components/gui_numberinput.h"
+#include "components/gui_component_table.h"
 #include "components/gui_label.h"
+#include "components/gui_textarea.h"
 #include "components/list_button.h"
 
 class einstellungen_t;
@@ -100,6 +102,7 @@ class einstellungen_t;
 	uint32 read_button = 0;\
 
 #define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
+#define EXIT_NUM2(t,expr) (t)( numinp.at(read_numinp++)->get_value() expr)
 #define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
 #define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
 #define EXIT_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
@@ -111,7 +114,7 @@ class einstellungen_t;
  * Settings for property lists ...
  * @author Hj. Malthaner
  */
-class settings_stats_t
+class settings_stats_t : public gui_container_t
 {
 protected:
 	sint16 width, seperator;
@@ -119,10 +122,15 @@ protected:
 	slist_tpl<gui_label_t *> label;
 	slist_tpl<gui_numberinput_t *> numinp;
 	slist_tpl<button_t *> button;
+	slist_tpl<gui_component_table_t *> table;
+	list_tpl<gui_komponente_t> others;
 
-public:
-	settings_stats_t() { width = 16; }
-	~settings_stats_t() { free_all(); }
+	gui_label_t& new_label(koord pos, const char *text);
+	gui_textarea_t& new_textarea(koord pos, const char *text);
+	gui_numberinput_t& new_numinp(koord pos, sint32 value, sint32 min, sint32 max, sint32 mode = gui_numberinput_t::AUTOLINEAR, bool wrap = false);
+	button_t& new_button(koord pos, const char *text, bool pressed);
+	gui_component_table_t& new_table(koord pos, coordinate_t columns, coordinate_t rows);
+	void set_cell_component(gui_component_table_t &tbl, gui_komponente_t &c, coordinate_t x, coordinate_t y);
 
 	void free_all();
 
@@ -130,35 +138,52 @@ public:
 	void read( einstellungen_t *sets );
 
 	koord get_groesse() const {
-		return koord(width,(button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
+		return koord(width,(numinp.get_count()+button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
 	}
+public:
+	settings_stats_t() { width = 16; }
+	~settings_stats_t() { free_all(); }
 };
 
 
 
 // the only task left are the respective init/reading routines
-class settings_general_stats_t : protected settings_stats_t, public gui_container_t
+class settings_general_stats_t : public settings_stats_t
 {
 public:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 };
 
-class settings_routing_stats_t : protected settings_stats_t, public gui_container_t
+class settings_routing_stats_t : public settings_stats_t
 {
 public:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 };
 
-class settings_economy_stats_t : protected settings_stats_t, public gui_container_t
+class settings_economy_stats_t : public settings_stats_t
 {
 public:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 };
 
-class settings_costs_stats_t : protected settings_stats_t, public gui_container_t
+class settings_experimental_general_stats_t : public settings_stats_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
+class settings_experimental_revenue_stats_t : public settings_stats_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
+class settings_costs_stats_t : public settings_stats_t
 {
 public:
 	void init( einstellungen_t *sets );

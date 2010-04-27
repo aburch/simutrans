@@ -452,7 +452,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 {
 	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
 	pos_next_next = koord3d::invalid;
-	time_to_life = welt->get_einstellungen()->get_stadtauto_duration() << welt->ticks_bits_per_tag;
+	time_to_life = welt->get_einstellungen()->get_stadtauto_duration() << welt->ticks_per_world_month_shift;
 	current_speed = 48;
 	ms_traffic_jam = 0;
 #ifdef DESTINATION_CITYCARS
@@ -484,7 +484,7 @@ bool stadtauto_t::sync_step(long delta_t)
 				current_speed = 48;
 			}
 			else {
-				if(ms_traffic_jam>welt->ticks_per_tag  &&  old_ms_traffic_jam<=welt->ticks_per_tag) {
+				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month) {
 					// message after two month, reset waiting timer
 					welt->get_message()->add_message( translator::translate("Excess traffic \nresults in traffic jams.\n"), get_pos().get_2d(), message_t::warnings, COL_ORANGE );
 				}

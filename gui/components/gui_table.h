@@ -8,8 +8,10 @@
 #ifndef gui_table_h
 #define gui_table_h
 
+#include <string.h>
+
 #include "../../simtypes.h"
-#include "../../tpl/vector_tpl.h"
+#include "../../tpl/list_tpl.h"
 #include "../../ifc/gui_action_creator.h"
 #include "../../ifc/gui_komponente.h"
 #include "../../simcolor.h"
@@ -19,138 +21,6 @@ typedef KOORD_VAL koord_x;
 typedef KOORD_VAL koord_y;
 typedef KOORD_VAL coordinate_t;
 typedef PLAYER_COLOR_VAL color_t;
-
-/**
- * 
- *
- * @since 22-MAR-2010
- * @author Bernd Gabriel
- */
-template<class item_t> class list_tpl 
-{
-private:
-	item_t **data;
-	uint32 capacity;
-	uint32 count;
-	bool owns_items;
-
-	void set_capacity(uint32 value) {
-		assert(value <= (uint32)(UINT32_MAX_VALUE >> 1));
-		if (capacity > value) {
-			for (; capacity > value; ) {
-				if (data[--capacity]) {
-					delete_item(data[capacity]);
-					data[capacity] = NULL;
-				}
-			}
-			if (count > value)
-			{
-				count = value;
-			}
-		}
-		else if (capacity < value) {
-			data = (item_t**) realloc(data, sizeof(item_t*) * value);
-			for (; capacity < value; capacity++) {
-				data[capacity] = NULL;
-			}
-		}
-	}
-
-	void grow() {
-		// resulting capacities: 16, 24, 36, 54, 81, 121, 181, 271, 406, 609, 913, ...
-		set_capacity(capacity < 16 ? 16 : capacity + capacity / 2);
-	}
-protected:
-	virtual signed compare_item(item_t *item1, item_t *item2) {
-		return (signed) (item1 - item2);
-	}
-	virtual item_t *create_item() { 
-		return NULL;
-	}
-	virtual void delete_item(item_t *item) { 
-		if (owns_items) {
-			delete item; // Note, create_item *must* use "new", not "new[]".
-		}
-	}
-public:
-	explicit list_tpl() { data = NULL; count = capacity = 0; this->owns_items = false; }
-	explicit list_tpl(uint32 capacity) { list_tpl(); set_capacity(capacity); }
-
-	uint32 get_capacity() const { return capacity; }
-	uint32 get_count() const { return count; }
-	void resize(uint32 new_count) {
-		set_capacity(new_count);
-		while (count < new_count) {
-			data[count++] = create_item();
-		}
-	}
-	bool get_owns_items() { return owns_items; }
-	void set_owns_items(bool value) { owns_items = value; }
-
-	item_t *get(uint32 index) {
-		assert(index < count);
-		return data[index];
-	}
-
-	item_t *set(uint32 index, item_t *item) {
-		assert(index < count);
-		item_t *old = data[index];
-		data[count] = item;
-		if (owns_items)
-		{
-			delete_item(old);
-			old = NULL;
-		}
-		return old;
-	}
-
-	sint32 add(item_t *item) {
-		if (count == capacity) {
-			grow();
-		}
-		data[count] = item;
-		return (sint32) count++;
-	}
-
-	void insert(uint32 index, item_t *item) {
-		assert(index <= count);
-		if (count == capacity) {
-			grow();
-		}
-		for (uint32 i = count++; i > index; i--) {
-			data[i] = data[i-1];
-		}
-		data[index] = item;
-	}
-
-	sint32 index_of(item_t *item) {
-		sint32 index = (sint32) count; 
-		while (--index >= 0){
-			if (!compare_item(data[index], item)){
-				break;
-			}
-		}
-		return index;
-	}
-
-	item_t *extract(uint32 index) {
-		assert(index < count);
-		item_t *item = data[index];
-		while (++index < count)
-		{
-			data[index-1] = data[index];
-		}
-		data[--count] = NULL;
-		return item;
-	}
-	void remove(uint32 index) {	delete_item(extract(index)); }
-	void sort() { qsort(data, count, sizeof(item_t*), compare_item); }
-
-	item_t* &operator [] (uint32 index) { 		
-		assert(index < count);
-		return data[index];
-	}
-};
 
 
 /**
@@ -176,20 +46,34 @@ public:
 	bool operator != (const coordinates_t &value) { return !equals(value); }
 };
 
+
+class gui_table_t;
+class gui_table_row_t;
+class gui_table_column_t;
+
+
 /**
  * 
  *
- * @since 22-MAR-2010
+ * @since 05-APR-2010
  * @author Bernd Gabriel
  */
-class gui_table_column_t
+class gui_table_intercept_t
 {
 private:
-	coordinate_t width;
+	char *name;
+	coordinate_t size; 
+	bool sort_descendingly;
+protected:
+	coordinate_t get_size() const { return size; }
+	void set_size(coordinate_t value) { size = value; }
 public:
-	gui_table_column_t() { width = 99; }
-	coordinate_t get_width() const { return width; }
-	void set_width(coordinate_t value) { width = value; }
+	gui_table_intercept_t(char *name_, coordinate_t size_, bool sort_descendingly_) : name(name_), size(size_), sort_descendingly(sort_descendingly_) {}
+	virtual ~gui_table_intercept_t() {}
+	const char *get_name() const { return name; }
+	void set_name(const char *value) { if (name) free(name); name = NULL; if (value) name = strdup(value); }
+	bool get_sort_descendingly() { return sort_descendingly; }
+	void set_sort_descendingly(bool value) { sort_descendingly = value; }
 };
 
 
@@ -199,14 +83,42 @@ public:
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_row_t
+class gui_table_column_t : public gui_table_intercept_t
+{
+public:
+	gui_table_column_t() : gui_table_intercept_t(NULL, 99, false) {}
+	gui_table_column_t(coordinate_t width) : gui_table_intercept_t(NULL, width, false) {}
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn((long)&row1 - (long)&row2);  }
+	coordinate_t get_width() const { return get_size(); }
+	void set_width(coordinate_t value) { set_size(value); }
+};
+
+
+/**
+ * 
+ *
+ * @since 22-MAR-2010
+ * @author Bernd Gabriel
+ */
+class gui_table_row_t : public gui_table_intercept_t
+{
+public:
+	gui_table_row_t() : gui_table_intercept_t(NULL, 14, false) {}
+	gui_table_row_t(coordinate_t height) : gui_table_intercept_t(NULL, height, false) {}
+	virtual int compare_columns(const gui_table_column_t &column1, const gui_table_column_t &column2) const { return sgn((long)&column1 - (long)&column2); }
+	coordinate_t get_height() const { return get_size(); }
+	void set_height(coordinate_t value) { set_size(value); }
+};
+
+
+class gui_table_property_t 
 {
 private:
-	coordinate_t height;
+	gui_table_t *owner;
 public:
-	gui_table_row_t() { height = 14; }
-	coordinate_t get_height() const { return height; }
-	void set_height(coordinate_t value) { height = value; }
+	gui_table_property_t() { owner = NULL; }
+	gui_table_t *get_owner() const { return owner; }
+	void set_owner(gui_table_t *owner) {this->owner = owner; }
 };
 
 
@@ -216,11 +128,10 @@ public:
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_column_list_t : public list_tpl<gui_table_column_t> {
+class gui_table_column_list_t : public list_tpl<gui_table_column_t>, public gui_table_property_t {
 protected:
-	virtual gui_table_column_t *create_item() { 
-		return new gui_table_column_t();
-	}
+	virtual int compare_items(const gui_table_column_t *item1, const gui_table_column_t *item2) const;
+	virtual gui_table_column_t *create_item() const;
 };
 
 
@@ -230,76 +141,50 @@ protected:
  * @since 22-MAR-2010
  * @author Bernd Gabriel
  */
-class gui_table_row_list_t : public list_tpl<gui_table_row_t> {
+class gui_table_row_list_t : public list_tpl<gui_table_row_t>, public gui_table_property_t {
 protected:
-	virtual gui_table_row_t *create_item() { 
-		return new gui_table_row_t();
-	}
+	virtual int compare_items(const gui_table_row_t *item1, const gui_table_row_t *item2) const;
+	virtual gui_table_row_t *create_item() const;
 };
 
 
 /**
- * 
- *
- * @since 22-MAR-2010
- * @author Bernd Gabriel
- */
-class gui_table_cell_list_t : public list_tpl<gui_komponente_t> {
-protected:
-	virtual gui_komponente_t *create_item() { 
-		// cannot create a default component, as gui_komponente_t is an abstract class.
-		return NULL;
-	}
-};
-
-/**
- * a table component
+ * A table component. 
+ * - allows any number of columns and rows with individual widths and heights.
+ * - allows a grid of any width.
  *
  * @since 14-MAR-2010
  * @author Bernd Gabriel
  */
 class gui_table_t : public gui_komponente_t, public gui_action_creator_t
 {
+	friend class gui_table_column_list_t;
+	friend class gui_table_row_list_t;
 private:
 	uint16 grid_width;
 	color_t grid_color;
 	bool grid_visible;
 	char tooltip[200];
-	// arrays controlled by change_size() via set_size() or add_column()/insert_column()/add_row()/insert_row()/
-	gui_table_column_list_t column_defs;
-	gui_table_row_list_t row_defs;
-	vector_tpl<gui_table_cell_list_t> gui_cells; // gui_cells[x][y]
+	koord default_cell_size;
+	// arrays controlled by change_size() via set_size() or add_column()/remove_column()/add_row()/remove_row()
+	gui_table_column_list_t columns;
+	gui_table_column_list_t row_sort_column_order;
+	gui_table_row_list_t rows;
+	gui_table_row_list_t column_sort_row_order;
 	//
-	void change_size(const coordinates_t &new_size);
-	bool get_column_at(koord_x x, coordinate_t *column);
-	bool get_row_at(koord_y y, coordinate_t *row);
+	bool get_column_at(koord_x x, coordinate_t &column, koord_x &offset) const;
+	bool get_row_at(koord_y y, coordinate_t &row, koord_y &offset) const;
 protected:
-	gui_komponente_t *get_cell_component(coordinate_t x, coordinate_t y) { 
-		if (x < (coordinate_t) gui_cells.get_count() &&	y < (coordinate_t) gui_cells[x].get_count())
-		{
-			return gui_cells[x][y]; 
-		}
-		return NULL;
-	}
-	void set_cell_component(coordinate_t x, coordinate_t y, gui_komponente_t *component) { gui_cells[x].set(y, component); }
-
-	virtual gui_table_column_t *init_column(coordinate_t x) { return new gui_table_column_t(); }
-	virtual gui_table_row_t *init_row(coordinate_t y) { return new gui_table_row_t(); }
-
 	/**
-	 * init_cell() is called in change_size(), whenever a cell is added, e.g. during set_size().
-	 *
-	 * It has to initialize the content of this cell. 
-	 * The default implementation does nothing for cell(x,y) held in gui_cells[x][y].
-	 * The position of a cell is relative to its position in the grid. 
-	 * Position (0,0) shows the cell starting in the upper left corner of the cell.
-	 * The cell must not be wider than get_column_width() and not higher than get_row_height().
-	 * There is no clipping. If you'd like to merge cells, you resign a grid or override paint_grid().
+	 * change_size() is called in set_size(), whenever the size actually changes.
 	 */
-	virtual void init_cell(coordinate_t x, coordinate_t y);
+	virtual void change_size(const coordinates_t &old_size, const coordinates_t &new_size);
+
+	virtual gui_table_column_t *init_column(coordinate_t x) { return new gui_table_column_t(get_default_column_width()); }
+	virtual gui_table_row_t *init_row(coordinate_t y) { return new gui_table_row_t(get_default_row_height()); }
 
 	/**
-	 * paint_cell() is called in zeichnen(), whenever a cell has to be painted.
+	 * paint_cell() is called in paint_cells(), whenever a cell has to be painted.
 	 *
 	 * It has to paint cell (x,y) at position offset. 
 	 * The default implementation calls zeichnen() of the component of cell (x,y), if there is one.
@@ -307,21 +192,22 @@ protected:
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y);
 
 	/**
-	 * paint_grid() is called in zeichnen() after painting the cells, whenever the table grid has to be painted.
+	 * paint_cells() is called in zeichnen() after painting the grid.
 	 *
-	 * The default implementation draws grid_color lines of grid_width.
+	 * It has to paint the cell content. 
+	 * The default implementation calls paint_cell() with the correct cell offset for each cell.
 	 */
-	virtual void paint_grid(const koord &offset);
+	virtual void paint_cells(const koord &offset);
 
 	/**
-	 * remove_cell() is called in change_size(), before a cell is removed, e.g. during set_size().
-	 * It has to finalize the content of this cell. 
-	 * The default implementation deletes the component of cell (x,y), if there is one.
+	 * paint_grid() is called in zeichnen() before painting the cells.
+	 *
+	 * The default implementation draws grid_color lines of grid_width, if the grid is set to be visible.
 	 */
-	virtual void remove_cell(coordinate_t x, coordinate_t y);
+	virtual void paint_grid(const koord &offset);
 public:
 	gui_table_t();
-	~gui_table_t();
+    virtual ~gui_table_t();
 
 	/**
 	 * Get/set grid size.
@@ -330,23 +216,24 @@ public:
 	 * size.y is the number of cells vertically.
 	 */
 	const coordinates_t get_size() const {
-		return coordinates_t(column_defs.get_count(), row_defs.get_count()); 
+		return coordinates_t(columns.get_count(), rows.get_count()); 
 	}
 	void set_size(const coordinates_t &value) { 
-		if (!get_size().equals(value)) {
-			change_size(value);
+		const coordinates_t &old_size = get_size(); 
+		if (!old_size.equals(value)) {
+			change_size(old_size, value);
 		}
 	}
-	bool get_owns_columns() { return column_defs.get_owns_items(); }
-	bool get_owns_rows() { return row_defs.get_owns_items(); }
-	void set_owns_columns(bool value) { column_defs.set_owns_items(value); }
-	void set_owns_rows(bool value) { row_defs.set_owns_items(value); }
-	coordinate_t add_column(gui_table_column_t *column);
-	coordinate_t add_row(gui_table_row_t *row);
-	void remove_column(coordinate_t x);
-	void remove_row(coordinate_t y);
-	virtual gui_table_column_t *get_column(coordinate_t x) { return column_defs[x]; }
-	virtual gui_table_row_t *get_row(coordinate_t y) { return row_defs[y]; }
+	bool get_owns_columns() const { return columns.get_owns_items(); }
+	bool get_owns_rows() const { return rows.get_owns_items(); }
+	void set_owns_columns(bool value) { columns.set_owns_items(value); }
+	void set_owns_rows(bool value) { rows.set_owns_items(value); }
+	virtual coordinate_t add_column(gui_table_column_t *column);
+	virtual coordinate_t add_row(gui_table_row_t *row);
+	virtual void remove_column(coordinate_t x);
+	virtual void remove_row(coordinate_t y);
+	gui_table_column_t *get_column(coordinate_t x) { return columns[x]; }
+	gui_table_row_t *get_row(coordinate_t y) { return rows[y]; }
 
 	/**
 	 * Get/set grid width / space around cells.
@@ -373,16 +260,37 @@ public:
 	/**
 	 * Get/set width of columns and heights of rows.
 	 */
-	koord_x get_column_width(coordinate_t x) { return column_defs[x]->get_width(); }
-	koord_x get_table_width();
-	koord_y get_row_height(coordinate_t y) { return row_defs[y]->get_height(); }
-	koord_y get_table_height();
-	koord const get_cell_size(coordinate_t x, coordinate_t y) { return koord(get_column_width(x), get_row_height(y)); }
-	koord const get_table_size() { return koord(get_table_width(), get_table_height()); }
+	koord_x get_default_column_width() { return default_cell_size.x; }
+	koord_y get_default_row_height() { return default_cell_size.y; }
+	void set_default_cell_size(koord value) { default_cell_size = value; }
+	koord_x get_column_width(coordinate_t x) const { return columns[x]->get_width(); }
+	void    set_column_width(coordinate_t x, koord_x w) { columns[x]->set_width(w); }
+	koord_x get_table_width() const;
+	koord_y get_row_height(coordinate_t y) const { return rows[y]->get_height(); }
+	void    set_row_height(coordinate_t y, koord_y h) { rows[y]->set_height(h); }
+	koord_y get_table_height() const;
+	koord get_cell_size(coordinate_t x, coordinate_t y) const { return koord(get_column_width(x), get_row_height(y)); }
+	koord get_table_size() const { return koord(get_table_width(), get_table_height()); }
 
-	bool get_cell_at(koord_x x, koord_y y, coordinates_t *cell);
+	bool get_cell_at(koord_x x, koord_y y, coordinates_t &cell, koord &offset);
 
-	void infowin_event(const event_t *ev);
+	virtual void infowin_event(const event_t *ev);
+
+	/**
+	 * Set row sort order of a column. 
+	 * @param x index of column, whose position in the sort order is to be set.
+	 * @param prio 0: main sort column, prio > 0: sort column, if rows are the same in column prio - 1.
+	 */
+	void set_row_sort_column_prio(coordinate_t x, int prio = 0);
+	void sort_rows();
+
+	/**
+	 * Set column sort order of a row. 
+	 * @param y index of row, whose position in the sort order is to be set.
+	 * @param prio 0: main sort row, prio > 0: sort row, if columns are the same in row prio - 1.
+	 */
+	void set_column_sort_row_prio(coordinate_t y, int prio = 0);
+	void sort_columns();
 
 	/**
 	 * zeichnen() paints the table.
@@ -390,6 +298,13 @@ public:
 	virtual void zeichnen(koord offset);
 };
 
+
+/**
+ * gui_table_t::infowin_event() notifies each event to all listeners sending a pointer to an instance of this class.
+ *
+ * @since 22-MAR-2010
+ * @author Bernd Gabriel
+ */
 class gui_table_event_t
 {
 private:
@@ -400,10 +315,35 @@ public:
 		this->table = table;
 		this->ev = ev;
 	}
+
+	/**
+	 * the table that notifies.
+	 */
 	gui_table_t *get_table() const { return table; }
+
+	/**
+	 * the event that the notifying table received.
+	 */
 	const event_t *get_event() const { return ev; }
+
+	/**
+	 * Does the mouse (ev->mx, ev->my) point to a cell?
+	 * False, if mouse is outside table or mouse points to grid/space around cells.
+	 * True and the cell coordinates can be found in 'cell'.
+	 */
 	bool is_cell_hit;
+
+	/**
+	 * Contains the coordinates of the cell the mouse points to, if is_cell_hit is true.
+	 * If is_cell_hit is false cell is undefined.
+	 */
 	coordinates_t cell;
+
+	/**
+	 * Contains the pixel offset of the cell within the table.
+	 * If is_cell_hit is false cell is undefined.
+	 */
+	koord offset;
 };
 
 #endif

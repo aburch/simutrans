@@ -469,6 +469,10 @@ bool weg_t::check_season( const long )
 void weg_t::calc_bild()
 {
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
+	if(!welt)
+	{
+		return;
+	}
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
 

@@ -1,9 +1,11 @@
 #ifndef __OBJVERSION_H
 #define __OBJVERSION_H
 
+#include "../simtypes.h"
 
-#define COMPILER_VERSION      "0.1.2exp"
-#define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 1)
+#define COMPILER_VERSION      "0.1.3exp"
+#define COMPILER_VERSION_CODE_11 (0 * 1000000 + 1 * 1000 + 1)
+#define COMPILER_VERSION_CODE (0 * 1000000 + 1 * 1000 + 3)
 
 //The experimental subversion
 #define EXP_VER 0x4000
@@ -16,7 +18,7 @@
  * obj as 1 byte: 3058022 bytes total
  * saves 4 to 1:  15072 bytes = 0,5% not worth it
  */
-#define	C4ID(a, b ,c ,d) ((a) | (b) << 8 | (c) << 16 | (d) << 24)
+#define	C4ID(a, b ,c ,d) (((uint32)a) | ((uint32)b) << 8 | ((uint32)c) << 16 | ((uint32)d) << 24)
 
 
 enum obj_type

@@ -30,6 +30,8 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	scrolly_general(&general),
 	scrolly_economy(&economy),
 	scrolly_routing(&routing),
+	scrolly_exp_general(&exp_general),
+	scrolly_exp_revenue(&exp_revenue),
 	scrolly_costs(&costs)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( 0, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
@@ -42,6 +44,8 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	general.init( sets );
 	economy.init( sets );
 	routing.init( sets );
+	exp_general.init( sets );
+	exp_revenue.init( sets );
 	costs.init( sets );
 
 	// tab panel
@@ -50,13 +54,17 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	tabs.add_tab(&scrolly_general, translator::translate("General"));
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
+	tabs.add_tab(&tabs_experimental, translator::translate("Experimental"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
 	add_komponente(&tabs);
 
+	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("General Exp."));
+	tabs_experimental.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
+	//add_komponente(&tabs_experimental);
 
-	set_fenstergroesse(koord(320, 240));
+	set_fenstergroesse(koord(400, 480));
 	// a min-size for the window
-	set_min_windowsize(koord(320, 80));
+	set_min_windowsize(koord(400, 200));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));
@@ -113,6 +121,8 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		general.init( sets );
 		economy.init( sets );
 		routing.init( sets );
+		exp_general.init( sets );
+		exp_revenue.init( sets );
 		costs.init( sets );
 	}
 	else if(  komp==&revert_to_last_save  ) {
@@ -128,6 +138,8 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		general.init( sets );
 		economy.init( sets );
 		routing.init( sets );
+		exp_general.init( sets );
+		exp_revenue.init( sets );
 		costs.init( sets );
 	}
 	return true;
@@ -141,6 +153,7 @@ void settings_frame_t::infowin_event(const event_t *ev)
 		general.read( sets );
 		routing.read( sets );
 		economy.read( sets );
+		exp_revenue.read( sets );
 		costs.read( sets );
 	}
 	gui_frame_t::infowin_event(ev);

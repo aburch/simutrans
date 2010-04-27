@@ -70,15 +70,16 @@ SDL_CONFIG     ?= sdl-config
 
 ifneq ($(OPTIMISE),)
   ifneq ($(PROFILE),)
-    CFLAGS   += -O3 -minline-all-stringops
-    CXXFLAGS += -O3
+    CFLAGS   += -O3 -minline-all-stringops -fno-schedule-insns
+    CXXFLAGS += -O3 -fno-schedule-insns
   else
-    CFLAGS   += -O3 -fomit-frame-pointer
-    CXXFLAGS += -O3 -fomit-frame-pointer
+    CFLAGS   += -O3 -fomit-frame-pointer -fno-schedule-insns
+    CXXFLAGS += -O3 -fomit-frame-pointer -fno-schedule-insns
   endif
   ifneq ($(OSTYPE),mac)
-    CFLAGS   += -minline-all-stringops
-    LDFLAGS += -ffunctions-sections
+    CFLAGS   += -minline-all-stringops -ffunction-sections
+    CXXFLAGS   += -minline-all-stringops -ffunction-sections
+    LDFLAGS += -ffunction-sections
   endif
 else
   CFLAGS   += -O
@@ -101,8 +102,8 @@ ifdef DEBUG
 endif
 
 ifneq ($(PROFILE),)
-  CFLAGS   += -pg -DPROFILE -fno-inline
-  CXXFLAGS += -pg -DPROFILE -fno-inline
+  CFLAGS   += -pg -DPROFILE -fno-inline -fno-schedule-insns
+  CXXFLAGS += -pg -DPROFILE -fno-inline -fno-schedule-insns
   LDFLAGS += -pg
 endif
 
@@ -213,6 +214,7 @@ SOURCES += gui/colors.cc
 SOURCES += gui/components/gui_button.cc
 SOURCES += gui/components/gui_chart.cc
 SOURCES += gui/components/gui_combobox.cc
+SOURCES += gui/components/gui_component_table.cc
 SOURCES += gui/components/gui_convoy_assembler.cc
 SOURCES += gui/components/gui_convoy_label.cc
 SOURCES += gui/components/gui_flowtext.cc
@@ -279,9 +281,9 @@ SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/schedule_list.cc
-SOURCES += gui/signal_spacing.cc
 SOURCES += gui/settings_frame.cc
 SOURCES += gui/settings_stats.cc
+SOURCES += gui/signal_spacing.cc
 SOURCES += gui/sound_frame.cc
 SOURCES += gui/sprachen.cc
 SOURCES += gui/stadt_info.cc

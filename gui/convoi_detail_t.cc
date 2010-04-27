@@ -175,7 +175,6 @@ void convoi_detail_t::zeichnen(koord pos, koord gr)
 			}
 			if (len)
 			{
-				offset_y += LINESPACE;
 				display_proportional_clip( pos.x+10, offset_y, tmp, ALIGN_LEFT, COL_DARK_BLUE, true );
 				offset_y += LINESPACE;
 			}
@@ -202,7 +201,7 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)
 			return true;
 		}
 		else if(komp==&retire_button) {
-			cnv->call_convoi_tool( 't', NULL );
+			cnv->call_convoi_tool( 'T', NULL );
 			return true;
 		}
 	}

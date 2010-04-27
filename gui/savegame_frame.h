@@ -8,7 +8,9 @@
 #ifndef gui_savegame_frame_h
 #define gui_savegame_frame_h
 
+#include <string.h>
 #include <sys/stat.h>
+
 #include "../tpl/slist_tpl.h"
 #include "components/action_listener.h"
 #include "components/gui_table.h"
@@ -25,10 +27,12 @@ class gui_file_table_column_t : public gui_table_column_t
 {
 protected:
 	bool pressed;
+	virtual const char *get_text(const gui_table_row_t &row) const { return ""; }
 public:
-	gui_file_table_column_t() { pressed = false; }
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row) = 0;
-	bool get_pressed() { return pressed; }
+	gui_file_table_column_t(coordinate_t size_) : gui_table_column_t(size_) { pressed = false; }
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return STRICMP(get_text(row1), get_text(row2)); }
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) = 0;
+	bool get_pressed() const { return pressed; }
 	void set_pressed(bool value) { pressed = value; }
 };
 
@@ -38,7 +42,10 @@ class gui_file_table_button_column_t : public gui_file_table_column_t
 protected:
 	button_t btn;
 public:
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row);
+	gui_file_table_button_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
+	void set_text(char *text) { btn.set_text(text); }
+	void set_tooltip(char *tooltip) { btn.set_tooltip(tooltip); }
 };
 
 
@@ -47,39 +54,44 @@ class gui_file_table_label_column_t : public gui_file_table_column_t
 protected:
 	gui_label_t lbl;
 public:
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row);
+	gui_file_table_label_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
 class gui_file_table_delete_column_t : public gui_file_table_button_column_t
 {
 public:
-	gui_file_table_delete_column_t() : gui_file_table_button_column_t() {
-		set_width(14);
+	gui_file_table_delete_column_t() : gui_file_table_button_column_t(14) {
 		btn.set_text("X");
 		btn.set_tooltip("Delete this file.");
 	}
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
 class gui_file_table_action_column_t : public gui_file_table_button_column_t
 {
+protected:
+	virtual const char *get_text(const gui_table_row_t &row) const;
 public:
-	gui_file_table_action_column_t() : gui_file_table_button_column_t() {
-		set_width(300);
+	gui_file_table_action_column_t() : gui_file_table_button_column_t(300) {
 		btn.set_no_translate(true);
 	}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row);
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
-class gui_file_table_date_column_t : public gui_file_table_label_column_t
+class gui_file_table_time_column_t : public gui_file_table_label_column_t
 {
+protected:
+	virtual time_t get_time(const gui_table_row_t &row) const;
 public:
-	gui_file_table_date_column_t() : gui_file_table_label_column_t() {
-		set_width(120);
+	gui_file_table_time_column_t() : gui_file_table_label_column_t(120) {
+		set_sort_descendingly(true);
 	}
-	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, gui_table_row_t &row);
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return sgn(get_time(row1) - get_time(row2)); }
+	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
 };
 
 
@@ -88,19 +100,22 @@ class gui_file_table_row_t : public gui_table_row_t
 	friend class gui_file_table_button_column_t;
 	friend class gui_file_table_delete_column_t;
 	friend class gui_file_table_action_column_t;
-	friend class gui_file_table_date_column_t;
+	friend class gui_file_table_time_column_t;
 protected:
 	cstring_t text;
 	cstring_t name;
 	cstring_t error;
 	bool pressed;
+	bool delete_enabled;
 	struct stat info;
 public:
-	gui_file_table_row_t();
-	gui_file_table_row_t(const char *pathname, const char *buttontext);
+	//gui_file_table_row_t();
+	gui_file_table_row_t(const char *pathname, const char *buttontext, bool delete_enabled = true);
 	const char *get_name() const { return name; }
 	void set_pressed(bool value) { pressed = value; }
 	bool get_pressed() { return pressed; }
+	void set_delete_enabled(bool value) { delete_enabled = value; }
+	bool get_delete_enabled() { return delete_enabled; }
 };
 
 
@@ -188,7 +203,13 @@ protected:
 	void set_filename( const char *fn );
 
 	virtual void init(const char *suffix, const char *path);
+
+	/**
+	 * called by fill_list():
+	 */
+	virtual void set_file_table_default_sort_order();
 public:
+	const char *get_path() const { return fullpath; }
 	void fill_list();	// do the search ...
 
 	/**

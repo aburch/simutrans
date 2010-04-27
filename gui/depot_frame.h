@@ -70,6 +70,11 @@ private:
 	button_t bt_copy_convoi;
 	button_t bt_apply_line;
 
+	// Specifies the traction types handled by
+	// this depot.
+	// @author: jamespetts, April 2010
+	gui_label_t lb_traction_types;
+
 	static char no_line_text[128];
 	gui_combobox_t line_selector;
 
@@ -92,6 +97,8 @@ private:
 
 	char txt_convoi_value[40];
 	char txt_convoi_line[128];
+
+	char txt_traction_types[256];
 
 	/**
 	 * Does this window need a min size button in the title bar?

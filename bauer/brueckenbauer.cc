@@ -172,7 +172,6 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 
 
 
-
 koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const bruecke_besch_t *besch, const char *&error_msg, bool ai_bridge, uint32 min_length )
 {
 	const grund_t *gr1; // auf Brückenebene
@@ -404,7 +403,7 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 		return "Tile not empty.";
 	}
 
-	if(!sp->can_afford(besch->get_preis()))
+	if(sp && !sp->can_afford(besch->get_preis()))
 	{
 		return "That would exceed\nyour credit limit.";
 	}
@@ -419,8 +418,13 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	{
 		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, weg->get_besch() );
 	}
+	if(besch->get_waytype() == road_wt)
+	{
+		welt->set_recheck_road_connexions();
+	}
 	return NULL;
 }
+
 
 void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch)
 {

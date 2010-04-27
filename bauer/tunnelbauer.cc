@@ -274,7 +274,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		}
 	}
 
-	if(!sp->can_afford(besch->get_preis()))
+	if(sp && !sp->can_afford(besch->get_preis()))
 	{
 		return "That would exceed\nyour credit limit.";
 	}
@@ -291,6 +291,10 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 		return "Ways not connected";
 	}
 
+	if(besch->get_waytype() == road_wt)
+	{
+		welt->set_recheck_road_connexions();
+	}
 	return NULL;
 }
 
