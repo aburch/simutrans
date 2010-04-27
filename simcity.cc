@@ -2238,7 +2238,7 @@ void stadt_t::step_bau()
 		check_bau_spezial(new_town);
 		check_bau_rathaus(new_town);
 		check_bau_factory(new_town); // add industry? (not during creation)
-		INT_CHECK("simcity 2048");
+		INT_CHECK("simcity 2241");
 	}
 }
 
@@ -2266,6 +2266,17 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 		const uint16 journey_time_per_tile = check_road_connexion(desintation_koord);
 		connected_cities.put(city, journey_time_per_tile);
 		city->add_road_connexion(journey_time_per_tile, this);
+		if(journey_time_per_tile == 65535)
+		{
+			// We know that, if this city is not connected to any given city, then every city
+			// to which this city is connected must likewise not be connected. So, avoid
+			// unnecessary recalculation by propogating this now.
+			ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+			while(iter.next())
+			{
+				iter.get_current_key()->add_road_connexion(65535, city);
+			}
+		}
 		return journey_time_per_tile;
 	}
 }
@@ -2316,13 +2327,31 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 	}
 
 	// No road connecting to industry - no connexion at all.
-	connected_industries.put(industry, 65535);
+	// We should therefore set *every* city to register this
+	// industry as unconnected.
+	
+	const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+	for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
+	{
+		(*j)->set_no_connexion_to_industry(industry);
+	}
 	return 65335;
 
 found_road:
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
 	connected_industries.put(industry, journey_time_per_tile);
+	if(journey_time_per_tile == 65535)
+	{
+		// We know that, if this city is not connected to any given industry, then every city
+		// to which this city is connected must likewise not be connected. So, avoid
+		// unnecessary recalculation by propogating this now.
+		ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+		while(iter.next())
+		{
+			iter.get_current_key()->set_no_connexion_to_industry(industry);
+		}
+	}
 	return journey_time_per_tile;
 }
 
@@ -2356,13 +2385,31 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 	if(road == NULL)
 	{
-		// No road connecting to attraction - no connexion at all.
-		connected_attractions.put(attraction, 65535);
+		// No road connecting to industry - no connexion at all.
+		// We should therefore set *every* city to register this
+		// industry as unconnected.
+		
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
+		{
+			(*j)->set_no_connexion_to_attraction(attraction);
+		}
 		return 65535;
 	}
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
 	connected_attractions.put(attraction, journey_time_per_tile);
+	if(journey_time_per_tile == 65535)
+	{
+		// We know that, if this city is not connected to any given industry, then every city
+		// to which this city is connected must likewise not be connected. So, avoid
+		// unnecessary recalculation by propogating this now.
+		ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+		while(iter.next())
+		{
+			iter.get_current_key()->set_no_connexion_to_attraction(attraction);
+		}
+	}
 	return journey_time_per_tile;
 }
 
@@ -2395,6 +2442,16 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
 {
 	connected_cities.put(origin_city, journey_time_per_tile);
+}
+
+void stadt_t::set_no_connexion_to_industry(const fabrik_t* unconnected_industry)
+{
+	connected_industries.put(unconnected_industry, 65535);
+}
+
+void stadt_t::set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction)
+{
+	connected_attractions.put(unconnected_attraction, 65535);
 }
 
 
@@ -2681,23 +2738,29 @@ walk:
 				if(has_private_car)
 				{
 					const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
-
+					uint16 time_per_tile = 65535;
 					switch(destinations[current_destination].type)
 					{
 					case 1:
 						//Town
-						car_minutes = check_road_connexion_to(destinations[current_destination].object.town) * straight_line_distance; // *Tenths* of minutes used here.
+						time_per_tile = check_road_connexion_to(destinations[current_destination].object.town);
 						break;
 					case FACTORY_PAX:
-						car_minutes = check_road_connexion_to(destinations[current_destination].object.industry) * straight_line_distance; // *Tenths* of minutes used here.
+						time_per_tile = check_road_connexion_to(destinations[current_destination].object.industry);
 						break;
 					case TOURIST_PAX:
-						car_minutes = check_road_connexion_to(destinations[current_destination].object.attraction) * straight_line_distance; // *Tenths* of minutes used here.
+						time_per_tile = check_road_connexion_to(destinations[current_destination].object.attraction);
 						break;
 					default:
 						//Some error - this should not be reached.
-						car_minutes = 65535;
+						dbg->error("simcity.cc", "Incorrect destination type detected");
 					};
+					
+					if(time_per_tile < 65535)
+					{
+						// *Tenths* of minutes used here.
+						car_minutes =  time_per_tile * straight_line_distance;
+					}
 				}		
 				
 				if(route_good == good)

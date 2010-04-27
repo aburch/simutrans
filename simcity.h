@@ -238,7 +238,7 @@ private:
 	// Value: journey time per tile (equiv. straight line distance)
 	// (in 10ths of minutes); 65535 = unreachable.
 	// @author: jamespetts, April 2010
-	ptrhashtable_tpl<const stadt_t*, uint16> connected_cities;
+	ptrhashtable_tpl<stadt_t*, uint16> connected_cities;
 	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
 	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
 
@@ -421,6 +421,8 @@ private:
 
 	// Adds a connexion back from a city when a route has been calculated.
 	void add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city);
+	void set_no_connexion_to_industry(const fabrik_t* unconnected_industry);
+	void set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction);
 
 	bool check_road_connexions;
 
