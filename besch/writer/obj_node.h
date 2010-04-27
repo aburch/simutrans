@@ -23,7 +23,7 @@ class obj_node_t {
 		static void set_start_offset(uint32 offset) { free_offset = offset; }
 
 		// reads a node into a given obj_node_info_t
-		static void obj_node_t::read_node(FILE* fp, obj_node_info_t &node );
+		static void read_node(FILE* fp, obj_node_info_t &node );
 
 		// construct a new node, parameters:
 		//	    writer  object, that writes the node to the file
