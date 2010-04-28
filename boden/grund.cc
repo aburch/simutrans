@@ -1140,8 +1140,6 @@ void grund_t::display_dinge_fg(const sint16 xpos, const sint16 ypos, const bool 
 	dinge.display_dinge_fg(xpos, ypos, start_offset, is_global);
 	// display front part of markers
 	if(is_global  &&  get_flag(grund_t::marked)) {
-		const uint8 hang = get_grund_hang();
-
 		display_normal(grund_besch_t::marker->get_bild(get_grund_hang()&7), xpos, ypos, 0, true, dirty);
 
 		if (!ist_karten_boden()) {
