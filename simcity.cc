@@ -1225,85 +1225,92 @@ next_name:;
 
 	const char* n = get_name();
 	// Sort towns by the letters of the alphabet to which they belong.
-	switch(n[0])
+	if(n == NULL)
 	{
-	case 'a':
-	case 'A':
-	case 'b':
-	case 'B':
 		road_recalc_modulator = 0;
-		break;
-	case 'c':
-	case 'C':
-	case 'd':
-	case 'D':
-		road_recalc_modulator = 1;
-		break;
-	case 'e':
-	case 'E':
-		road_recalc_modulator = 2;
-		break;
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-		road_recalc_modulator = 3;
-		break;
-	case 'h':
-	case 'H':
-	case 'i':
-	case 'I':
-		road_recalc_modulator = 4;
-		break;
-	case 'J':
-	case 'j':
-	case 'K':
-	case 'k':
-	case 'L':
-	case 'l':
-		road_recalc_modulator = 5;
-		break;
-	case 'm':
-	case 'M':
-	case 'n':
-	case 'N':
-		road_recalc_modulator = 6;
-		break;
-	case 'o':
-	case 'O':
-	case 'p':
-	case 'P':
-		road_recalc_modulator = 7;
-		break;
-	case 'q':
-	case 'Q':
-	case 'r':
-	case 'R':
-	case 's':
-	case 'S':
-		road_recalc_modulator = 8;
-		break;
-	case 't':
-	case 'T':
-	case 'u':
-	case 'U':
-		road_recalc_modulator = 9;
-		break;
-	case 'V':
-	case 'v':
-	case 'w':
-	case 'W':
-		road_recalc_modulator = 10;
-		break;
-	case 'x':
-	case 'X':
-	case 'Y':
-	case 'y':
-	case 'z':
-	case 'Z':
-	default:
-		road_recalc_modulator = 11;
-	};
+	}
+	else
+	{
+		switch(n[0])
+		{
+		case 'a':
+		case 'A':
+		case 'b':
+		case 'B':
+			road_recalc_modulator = 0;
+			break;
+		case 'c':
+		case 'C':
+		case 'd':
+		case 'D':
+			road_recalc_modulator = 1;
+			break;
+		case 'e':
+		case 'E':
+			road_recalc_modulator = 2;
+			break;
+		case 'f':
+		case 'F':
+		case 'g':
+		case 'G':
+			road_recalc_modulator = 3;
+			break;
+		case 'h':
+		case 'H':
+		case 'i':
+		case 'I':
+			road_recalc_modulator = 4;
+			break;
+		case 'J':
+		case 'j':
+		case 'K':
+		case 'k':
+		case 'L':
+		case 'l':
+			road_recalc_modulator = 5;
+			break;
+		case 'm':
+		case 'M':
+		case 'n':
+		case 'N':
+			road_recalc_modulator = 6;
+			break;
+		case 'o':
+		case 'O':
+		case 'p':
+		case 'P':
+			road_recalc_modulator = 7;
+			break;
+		case 'q':
+		case 'Q':
+		case 'r':
+		case 'R':
+		case 's':
+		case 'S':
+			road_recalc_modulator = 8;
+			break;
+		case 't':
+		case 'T':
+		case 'u':
+		case 'U':
+			road_recalc_modulator = 9;
+			break;
+		case 'V':
+		case 'v':
+		case 'w':
+		case 'W':
+			road_recalc_modulator = 10;
+			break;
+		case 'x':
+		case 'X':
+		case 'Y':
+		case 'y':
+		case 'z':
+		case 'Z':
+		default:
+			road_recalc_modulator = 11;
+		};
+	}
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
@@ -1411,85 +1418,92 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 	const char* n = get_name();
 	// Sort towns by the letters of the alphabet to which they belong.
-	switch(n[0])
+	if(n == NULL)
 	{
-	case 'a':
-	case 'A':
-	case 'b':
-	case 'B':
 		road_recalc_modulator = 0;
-		break;
-	case 'c':
-	case 'C':
-	case 'd':
-	case 'D':
-		road_recalc_modulator = 1;
-		break;
-	case 'e':
-	case 'E':
-		road_recalc_modulator = 2;
-		break;
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-		road_recalc_modulator = 3;
-		break;
-	case 'h':
-	case 'H':
-	case 'i':
-	case 'I':
-		road_recalc_modulator = 4;
-		break;
-	case 'J':
-	case 'j':
-	case 'K':
-	case 'k':
-	case 'L':
-	case 'l':
-		road_recalc_modulator = 5;
-		break;
-	case 'm':
-	case 'M':
-	case 'n':
-	case 'N':
-		road_recalc_modulator = 6;
-		break;
-	case 'o':
-	case 'O':
-	case 'p':
-	case 'P':
-		road_recalc_modulator = 7;
-		break;
-	case 'q':
-	case 'Q':
-	case 'r':
-	case 'R':
-	case 's':
-	case 'S':
-		road_recalc_modulator = 8;
-		break;
-	case 't':
-	case 'T':
-	case 'u':
-	case 'U':
-		road_recalc_modulator = 9;
-		break;
-	case 'V':
-	case 'v':
-	case 'w':
-	case 'W':
-		road_recalc_modulator = 10;
-		break;
-	case 'x':
-	case 'X':
-	case 'Y':
-	case 'y':
-	case 'z':
-	case 'Z':
-	default:
-		road_recalc_modulator = 11;
-	};
+	}
+	else
+	{
+		switch(n[0])
+		{
+		case 'a':
+		case 'A':
+		case 'b':
+		case 'B':
+			road_recalc_modulator = 0;
+			break;
+		case 'c':
+		case 'C':
+		case 'd':
+		case 'D':
+			road_recalc_modulator = 1;
+			break;
+		case 'e':
+		case 'E':
+			road_recalc_modulator = 2;
+			break;
+		case 'f':
+		case 'F':
+		case 'g':
+		case 'G':
+			road_recalc_modulator = 3;
+			break;
+		case 'h':
+		case 'H':
+		case 'i':
+		case 'I':
+			road_recalc_modulator = 4;
+			break;
+		case 'J':
+		case 'j':
+		case 'K':
+		case 'k':
+		case 'L':
+		case 'l':
+			road_recalc_modulator = 5;
+			break;
+		case 'm':
+		case 'M':
+		case 'n':
+		case 'N':
+			road_recalc_modulator = 6;
+			break;
+		case 'o':
+		case 'O':
+		case 'p':
+		case 'P':
+			road_recalc_modulator = 7;
+			break;
+		case 'q':
+		case 'Q':
+		case 'r':
+		case 'R':
+		case 's':
+		case 'S':
+			road_recalc_modulator = 8;
+			break;
+		case 't':
+		case 'T':
+		case 'u':
+		case 'U':
+			road_recalc_modulator = 9;
+			break;
+		case 'V':
+		case 'v':
+		case 'w':
+		case 'W':
+			road_recalc_modulator = 10;
+			break;
+		case 'x':
+		case 'X':
+		case 'Y':
+		case 'y':
+		case 'z':
+		case 'Z':
+		default:
+			road_recalc_modulator = 11;
+		};
+	}
 
 	finder = new road_destination_finder_t(welt, new automobil_t(welt));
 	private_car_route = new route_t();
