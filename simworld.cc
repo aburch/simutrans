@@ -5237,7 +5237,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 /* creates a new player with this type */
-char *karte_t::new_spieler(uint8 new_player, uint8 type)
+const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
 	if(  new_player<0  ||  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
 		return "Id invalid/already in use!";
