@@ -2458,13 +2458,17 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
 	uint16 top_speed;
 	uint32 speed_sum = 0;
+	uint32 count = 0;
+	weg_t* road;
 	ITERATE_PTR(private_car_route,i)
 	{
 		pos = private_car_route->position_bei(i);
-		top_speed = welt->lookup(pos)->get_weg(road_wt)->get_max_speed();
+		road = welt->lookup(pos)->get_weg(road_wt);
+		top_speed = road->get_max_speed();
 		speed_sum += min(top_speed, vehicle_speed_average);
+		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
-	const uint16 speed_average = (float)(speed_sum / private_car_route->get_count())  / 1.3F;
+	const uint16 speed_average = (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const float journey_distance_km = (float)private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile();
 	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());

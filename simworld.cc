@@ -5827,7 +5827,7 @@ void karte_t::calc_generic_road_speed_intercity()
 uint16 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 {
 	const uint16 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
-	const uint16 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.3F;
+	const uint16 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
 	const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	return journey_time_per_tile;
 }
