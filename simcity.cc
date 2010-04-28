@@ -4403,6 +4403,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	printf("simcity::  number of iterations %d\n", its);
 
 	return result;
+	
 }
 
 uint32 stadt_t::get_power_demand() const
@@ -4432,4 +4433,73 @@ bool road_destination_finder_t::ist_ziel( const grund_t* gr, const grund_t* ) co
 ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
 { 
 	return master->get_ribi(gr); 
+}
+
+int road_destination_finder_t::get_kosten( const grund_t* gr, uint32) const
+{
+	const weg_t* const weg = gr->get_weg(road_wt);
+	const uint32 speed_limit = weg->get_max_speed();
+	// Precalculate values to avoid divisions in expensive method.
+	if(!weg->is_diagonal())
+	{
+		if(speed_limit <= 30)
+		{
+			return 233;
+		}
+		else if(speed_limit <= 50)
+		{
+			return 140;
+		}
+		else if(speed_limit <= 70)
+		{
+			return 100;
+		}
+		else if(speed_limit <= 85)
+		{
+			return 82;
+		}
+		else if(speed_limit <= 100)
+		{
+			return 50;
+		}
+		else
+		{
+			return 40;
+		}
+	}
+	else
+	{
+		if(speed_limit <= 30)
+		{
+			return 166;
+		}
+		else if(speed_limit <= 50)
+		{
+			return 100;
+		}
+		else if(speed_limit <= 70)
+		{
+			return 71;
+		}
+		else if(speed_limit <= 85)
+		{
+			return 58;
+		}
+		else if(speed_limit <= 100)
+		{
+			return 36;
+		}
+		else
+		{
+			return 28;
+		}
+	}
+	// NOTE: This does not take account of the maximum speed of 
+	// the *car*. For player vehicles, the calculation is:
+	// int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
+	// However, this is expensive, as it involves two multiplications and a division.
+	// It might be argued that a faster road still benefits slower vehicles, as *other*
+	// vehicles on the road are faster.
+
+	return 100;
 }

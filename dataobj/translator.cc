@@ -437,7 +437,6 @@ bool translator::load(const cstring_t& scenario_path)
 	// there can be more than one file per language, provided it is name like iso_xyz.tab
 	cstring_t folderName(scenario_path + "text/");
 	folder.search(folderName, "tab");
-	DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", (const char*)folderName, num_pak_lang_dat);
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
 		cstring_t fileName(*i);
