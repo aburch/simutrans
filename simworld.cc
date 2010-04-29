@@ -932,7 +932,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 						const koord size = gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout());
 						koord inc(1,0);
 						// scan all adjacent tiles, take the first that has a road
-						for(uint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
+						for(sint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
 							grund_t *gr = lookup_kartenboden(pos);
 							if (gr  &&  gr->hat_weg(road_wt)) {
 								k.append(gr->get_pos());
@@ -5237,9 +5237,9 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 /* creates a new player with this type */
-char *karte_t::new_spieler(uint8 new_player, uint8 type)
+const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
-	if(  new_player<0  ||  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
+	if(  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
 		return "Id invalid/already in use!";
 	}
 	switch( type ) {
@@ -5827,7 +5827,7 @@ void karte_t::calc_generic_road_speed_intercity()
 uint16 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 {
 	const uint16 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
-	const uint16 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.3F;
+	const uint16 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
 	const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	return journey_time_per_tile;
 }

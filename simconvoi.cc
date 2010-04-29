@@ -954,9 +954,8 @@ end_loop:
 						}
 					}
 
-
 					if (autostart) {
-						dep->start_convoi(self);
+						dep->start_convoi(self, false);
 					}
 				}
 			}

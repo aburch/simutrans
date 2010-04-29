@@ -1225,85 +1225,92 @@ next_name:;
 
 	const char* n = get_name();
 	// Sort towns by the letters of the alphabet to which they belong.
-	switch(n[0])
+	if(n == NULL)
 	{
-	case 'a':
-	case 'A':
-	case 'b':
-	case 'B':
 		road_recalc_modulator = 0;
-		break;
-	case 'c':
-	case 'C':
-	case 'd':
-	case 'D':
-		road_recalc_modulator = 1;
-		break;
-	case 'e':
-	case 'E':
-		road_recalc_modulator = 2;
-		break;
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-		road_recalc_modulator = 3;
-		break;
-	case 'h':
-	case 'H':
-	case 'i':
-	case 'I':
-		road_recalc_modulator = 4;
-		break;
-	case 'J':
-	case 'j':
-	case 'K':
-	case 'k':
-	case 'L':
-	case 'l':
-		road_recalc_modulator = 5;
-		break;
-	case 'm':
-	case 'M':
-	case 'n':
-	case 'N':
-		road_recalc_modulator = 6;
-		break;
-	case 'o':
-	case 'O':
-	case 'p':
-	case 'P':
-		road_recalc_modulator = 7;
-		break;
-	case 'q':
-	case 'Q':
-	case 'r':
-	case 'R':
-	case 's':
-	case 'S':
-		road_recalc_modulator = 8;
-		break;
-	case 't':
-	case 'T':
-	case 'u':
-	case 'U':
-		road_recalc_modulator = 9;
-		break;
-	case 'V':
-	case 'v':
-	case 'w':
-	case 'W':
-		road_recalc_modulator = 10;
-		break;
-	case 'x':
-	case 'X':
-	case 'Y':
-	case 'y':
-	case 'z':
-	case 'Z':
-	default:
-		road_recalc_modulator = 11;
-	};
+	}
+	else
+	{
+		switch(n[0])
+		{
+		case 'a':
+		case 'A':
+		case 'b':
+		case 'B':
+			road_recalc_modulator = 0;
+			break;
+		case 'c':
+		case 'C':
+		case 'd':
+		case 'D':
+			road_recalc_modulator = 1;
+			break;
+		case 'e':
+		case 'E':
+			road_recalc_modulator = 2;
+			break;
+		case 'f':
+		case 'F':
+		case 'g':
+		case 'G':
+			road_recalc_modulator = 3;
+			break;
+		case 'h':
+		case 'H':
+		case 'i':
+		case 'I':
+			road_recalc_modulator = 4;
+			break;
+		case 'J':
+		case 'j':
+		case 'K':
+		case 'k':
+		case 'L':
+		case 'l':
+			road_recalc_modulator = 5;
+			break;
+		case 'm':
+		case 'M':
+		case 'n':
+		case 'N':
+			road_recalc_modulator = 6;
+			break;
+		case 'o':
+		case 'O':
+		case 'p':
+		case 'P':
+			road_recalc_modulator = 7;
+			break;
+		case 'q':
+		case 'Q':
+		case 'r':
+		case 'R':
+		case 's':
+		case 'S':
+			road_recalc_modulator = 8;
+			break;
+		case 't':
+		case 'T':
+		case 'u':
+		case 'U':
+			road_recalc_modulator = 9;
+			break;
+		case 'V':
+		case 'v':
+		case 'w':
+		case 'W':
+			road_recalc_modulator = 10;
+			break;
+		case 'x':
+		case 'X':
+		case 'Y':
+		case 'y':
+		case 'z':
+		case 'Z':
+		default:
+			road_recalc_modulator = 11;
+		};
+	}
 
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
@@ -1411,85 +1418,92 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 
 	const char* n = get_name();
 	// Sort towns by the letters of the alphabet to which they belong.
-	switch(n[0])
+	if(n == NULL)
 	{
-	case 'a':
-	case 'A':
-	case 'b':
-	case 'B':
 		road_recalc_modulator = 0;
-		break;
-	case 'c':
-	case 'C':
-	case 'd':
-	case 'D':
-		road_recalc_modulator = 1;
-		break;
-	case 'e':
-	case 'E':
-		road_recalc_modulator = 2;
-		break;
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-		road_recalc_modulator = 3;
-		break;
-	case 'h':
-	case 'H':
-	case 'i':
-	case 'I':
-		road_recalc_modulator = 4;
-		break;
-	case 'J':
-	case 'j':
-	case 'K':
-	case 'k':
-	case 'L':
-	case 'l':
-		road_recalc_modulator = 5;
-		break;
-	case 'm':
-	case 'M':
-	case 'n':
-	case 'N':
-		road_recalc_modulator = 6;
-		break;
-	case 'o':
-	case 'O':
-	case 'p':
-	case 'P':
-		road_recalc_modulator = 7;
-		break;
-	case 'q':
-	case 'Q':
-	case 'r':
-	case 'R':
-	case 's':
-	case 'S':
-		road_recalc_modulator = 8;
-		break;
-	case 't':
-	case 'T':
-	case 'u':
-	case 'U':
-		road_recalc_modulator = 9;
-		break;
-	case 'V':
-	case 'v':
-	case 'w':
-	case 'W':
-		road_recalc_modulator = 10;
-		break;
-	case 'x':
-	case 'X':
-	case 'Y':
-	case 'y':
-	case 'z':
-	case 'Z':
-	default:
-		road_recalc_modulator = 11;
-	};
+	}
+	else
+	{
+		switch(n[0])
+		{
+		case 'a':
+		case 'A':
+		case 'b':
+		case 'B':
+			road_recalc_modulator = 0;
+			break;
+		case 'c':
+		case 'C':
+		case 'd':
+		case 'D':
+			road_recalc_modulator = 1;
+			break;
+		case 'e':
+		case 'E':
+			road_recalc_modulator = 2;
+			break;
+		case 'f':
+		case 'F':
+		case 'g':
+		case 'G':
+			road_recalc_modulator = 3;
+			break;
+		case 'h':
+		case 'H':
+		case 'i':
+		case 'I':
+			road_recalc_modulator = 4;
+			break;
+		case 'J':
+		case 'j':
+		case 'K':
+		case 'k':
+		case 'L':
+		case 'l':
+			road_recalc_modulator = 5;
+			break;
+		case 'm':
+		case 'M':
+		case 'n':
+		case 'N':
+			road_recalc_modulator = 6;
+			break;
+		case 'o':
+		case 'O':
+		case 'p':
+		case 'P':
+			road_recalc_modulator = 7;
+			break;
+		case 'q':
+		case 'Q':
+		case 'r':
+		case 'R':
+		case 's':
+		case 'S':
+			road_recalc_modulator = 8;
+			break;
+		case 't':
+		case 'T':
+		case 'u':
+		case 'U':
+			road_recalc_modulator = 9;
+			break;
+		case 'V':
+		case 'v':
+		case 'w':
+		case 'W':
+			road_recalc_modulator = 10;
+			break;
+		case 'x':
+		case 'X':
+		case 'Y':
+		case 'y':
+		case 'z':
+		case 'Z':
+		default:
+			road_recalc_modulator = 11;
+		};
+	}
 
 	finder = new road_destination_finder_t(welt, new automobil_t(welt));
 	private_car_route = new route_t();
@@ -2444,13 +2458,17 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
 	uint16 top_speed;
 	uint32 speed_sum = 0;
+	uint32 count = 0;
+	weg_t* road;
 	ITERATE_PTR(private_car_route,i)
 	{
 		pos = private_car_route->position_bei(i);
-		top_speed = welt->lookup(pos)->get_weg(road_wt)->get_max_speed();
+		road = welt->lookup(pos)->get_weg(road_wt);
+		top_speed = road->get_max_speed();
 		speed_sum += min(top_speed, vehicle_speed_average);
+		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
-	const uint16 speed_average = (float)(speed_sum / private_car_route->get_count())  / 1.3F;
+	const uint16 speed_average = (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const float journey_distance_km = (float)private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile();
 	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
@@ -2965,7 +2983,6 @@ public_transport:
 					}
 
 					// now try to add them to the target halt
-					uint32 max_ware = ret_halt->get_capacity(wtyp->get_catg_index());
 					if(!ret_halt->is_overcrowded(wtyp->get_catg_index())) 
 					{
 						// prissi: not overcrowded and can recieve => add them
@@ -4390,6 +4407,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	printf("simcity::  number of iterations %d\n", its);
 
 	return result;
+	
 }
 
 uint32 stadt_t::get_power_demand() const
@@ -4419,4 +4437,73 @@ bool road_destination_finder_t::ist_ziel( const grund_t* gr, const grund_t* ) co
 ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
 { 
 	return master->get_ribi(gr); 
+}
+
+int road_destination_finder_t::get_kosten( const grund_t* gr, uint32) const
+{
+	const weg_t* const weg = gr->get_weg(road_wt);
+	const uint32 speed_limit = weg->get_max_speed();
+	// Precalculate values to avoid divisions in expensive method.
+	if(!weg->is_diagonal())
+	{
+		if(speed_limit <= 30)
+		{
+			return 233;
+		}
+		else if(speed_limit <= 50)
+		{
+			return 140;
+		}
+		else if(speed_limit <= 70)
+		{
+			return 100;
+		}
+		else if(speed_limit <= 85)
+		{
+			return 82;
+		}
+		else if(speed_limit <= 100)
+		{
+			return 50;
+		}
+		else
+		{
+			return 40;
+		}
+	}
+	else
+	{
+		if(speed_limit <= 30)
+		{
+			return 166;
+		}
+		else if(speed_limit <= 50)
+		{
+			return 100;
+		}
+		else if(speed_limit <= 70)
+		{
+			return 71;
+		}
+		else if(speed_limit <= 85)
+		{
+			return 58;
+		}
+		else if(speed_limit <= 100)
+		{
+			return 36;
+		}
+		else
+		{
+			return 28;
+		}
+	}
+	// NOTE: This does not take account of the maximum speed of 
+	// the *car*. For player vehicles, the calculation is:
+	// int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
+	// However, this is expensive, as it involves two multiplications and a division.
+	// It might be argued that a faster road still benefits slower vehicles, as *other*
+	// vehicles on the road are faster.
+
+	return 100;
 }

@@ -2458,6 +2458,12 @@ int automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 		costs += 40;
 	}
 
+	if(w->is_diagonal())
+	{
+		// Diagonals are a *shorter* distance.
+		costs /= 1.4;
+	}
+
 	return costs;
 }
 
@@ -2943,7 +2949,7 @@ int waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 	const weg_t *w=gr->get_weg(get_waytype());
 	uint32 max_tile_speed = w ? w->get_max_speed() : 999;
 	// add cost for going (with maximum speed, cost is 1)
-	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
+	int costs = (max_speed <= max_tile_speed) ? 1 : (max_speed*4)/(max_tile_speed*4);
 
 	// effect of hang ...
 	if(gr->get_weg_hang()!=0) {
@@ -2958,6 +2964,12 @@ int waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 	if(vehikel_t::get_gesamtgewicht() > weight_limit && welt->get_einstellungen()->get_enforce_weight_limits() == 1)
 	{
 		costs += 40;
+	}
+
+	if(w->is_diagonal())
+	{
+		// Diagonals are a *shorter* distance.
+		costs /= 1.4;
 	}
 
 	return costs;

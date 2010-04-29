@@ -431,7 +431,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				if (enforce_weight_limits && w != NULL)
 				{
 					// Bernd Gabriel, Mar 10, 2010: way limit info
-					uint32 way_max_weight = w->get_max_weight();
+					const uint32 way_max_weight = w->get_max_weight();
 					max_weight = min(max_weight, way_max_weight);
 
 					if(enforce_weight_limits == 2 && weight > way_max_weight)

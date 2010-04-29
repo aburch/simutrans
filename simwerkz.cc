@@ -593,8 +593,22 @@ DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, 
 					return false;
 				}
 			}
-			else {
+			else 
+			{
 				// townhall is also removed during town removal
+				
+				if(sp != gb->get_besitzer())
+				{
+					// Only check affordability if bulldozing somebody else's buildings.
+					// Experimental 8.0 and later - the bulldoze cost is *added* to the
+					// building cost, as we have to pay to buy it *then* pay to demolish it.
+					const sint64 cost = (welt->get_einstellungen()->cst_multiply_remove_haus * (tile->get_besch()->get_level()+1)) + (welt->get_einstellungen()->cst_buy_land * tile->get_besch()->get_level() * 5);
+					if(!sp->can_afford(cost))
+					{
+						msg = CREDIT_MESSAGE;
+						return false;
+					}
+				}
 				hausbauer_t::remove( welt, sp, gb );
 			}
 		}
@@ -775,7 +789,7 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_raise_t::check( karte_t *welt, spieler_t *sp, koord3d k )
+const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
@@ -886,7 +900,7 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_lower_t::check( karte_t *welt, spieler_t *sp, koord3d k )
+const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
@@ -955,7 +969,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 }
 
 
-const char *wkz_setslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+const char *wkz_setslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -970,7 +984,7 @@ const char *wkz_setslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
 	return NULL;
 }
 
-const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -1463,11 +1477,17 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes
-				if(  gb_part  &&  gb_part->get_tile()->get_besch()==hb  &&  spieler_t::check_owner(gb_part->get_besitzer(),sp)  ) {
+				if(  gb_part  &&  gb_part->get_tile()->get_besch()==hb  &&  spieler_t::check_owner(gb_part->get_besitzer(),sp)  ) 
+				{
+					const sint64 cost = welt->get_einstellungen()->cst_buy_land * hb->get_level() * 5; // Developed land is more valuable than undeveloped land.
+					if(!sp->can_afford(-cost))
+					{
+						return CREDIT_MESSAGE;
+					}
 					spieler_t::add_maintenance( old_owner, -welt->get_einstellungen()->maint_building*hb->get_level() );
 					spieler_t::add_maintenance( sp, +welt->get_einstellungen()->maint_building*hb->get_level() );
 					gb->set_besitzer(sp);
-					sp->buche( -welt->get_einstellungen()->maint_building*hb->get_level(), k+pos.get_2d(), COST_CONSTRUCTION);
+					sp->buche( cost, k+pos.get_2d(), COST_CONSTRUCTION);
 				}
 			}
 		}
@@ -5432,7 +5452,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 		case 'b':
 			// start a convoi from the depot
 			if(  cnv.is_bound()  ) {
-				depot->start_convoi(cnv);
+				depot->start_convoi(cnv, is_local_execution());
 			}
 			break;
 
