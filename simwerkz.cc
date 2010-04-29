@@ -725,7 +725,7 @@ const char *wkz_raise_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_raise_t::check( karte_t *welt, spieler_t *sp, koord3d k )
+const char *wkz_raise_t::check( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height-1 > grund_t::underground_level) {
@@ -814,7 +814,7 @@ const char *wkz_lower_t::move( karte_t *welt, spieler_t *sp, uint16 buttonstate,
 }
 
 
-const char *wkz_lower_t::check( karte_t *welt, spieler_t *sp, koord3d k )
+const char *wkz_lower_t::check( karte_t *welt, spieler_t *, koord3d k )
 {
 	// check for underground mode
 	if (is_dragging  &&  drag_height+1 > grund_t::underground_level) {
@@ -883,7 +883,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 }
 
 
-const char *wkz_setslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+const char *wkz_setslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -898,7 +898,7 @@ const char *wkz_setslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
 	return NULL;
 }
 
-const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *sp, koord3d pos)
+const char *wkz_restoreslope_t::check( karte_t *welt, spieler_t *, koord3d pos)
 {
 	grund_t *gr1 = welt->lookup(pos);
 	if(gr1) {
@@ -4666,7 +4666,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 		case 'b':
 			// start a convoi from the depot
 			if(  cnv.is_bound()  ) {
-				depot->start_convoi(cnv);
+				depot->start_convoi(cnv, is_local_execution());
 			}
 			break;
 

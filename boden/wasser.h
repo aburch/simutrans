@@ -22,8 +22,8 @@ public:
 	inline bool ist_wasser() const { return true; }
 
 	// returns correct directions for water and none for the rest ...
-	ribi_t::ribi get_weg_ribi(waytype_t typ) const { return (typ==water_wt) ? ribi : ribi_t::keine; }
-	ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const  { return (typ==water_wt) ? ribi : ribi_t::keine; }
+	ribi_t::ribi get_weg_ribi(waytype_t typ) const { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::keine; }
+	ribi_t::ribi get_weg_ribi_unmasked(waytype_t typ) const  { return (typ==water_wt) ? ribi : (ribi_t::ribi)ribi_t::keine; }
 
 	/**
 	 * Öffnet ein Info-Fenster für diesen Boden

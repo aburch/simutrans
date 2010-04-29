@@ -14,7 +14,7 @@
 #endif
 
 
-#ifdef DO_NOT_SEND HASHES
+#ifdef DO_NOT_SEND_HASHES
 static vector_tpl<uint16>hashes_ok;	// bit set, if this player on that client is not protected
 #endif
 
@@ -224,7 +224,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		network_send_server(nwc);
 	}
 	else {
-#ifdef DO_NOT_SEND HASHES
+#ifdef DO_NOT_SEND_HASHES
 		// remove passwords before transfer on the server and set default client mask
 		uint8 player_hashes[PLAYER_UNOWNED][20];
 		uint16 default_hashes = 0;
@@ -253,7 +253,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		long old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
 
-#ifdef DO_NOT_SEND HASHES
+#ifdef DO_NOT_SEND_HASHES
 		// restore password info
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			spieler_t *sp = welt->get_spieler(i);
