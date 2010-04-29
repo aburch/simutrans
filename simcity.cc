@@ -2334,6 +2334,22 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 			if(road != NULL)
 			{
 				goto found_road;
+				found_road:
+				const koord3d destination = road->get_pos();
+				const uint16 journey_time_per_tile = check_road_connexion(destination);
+				connected_industries.put(industry, journey_time_per_tile);
+				if(journey_time_per_tile == 65535)
+				{
+					// We know that, if this city is not connected to any given industry, then every city
+					// to which this city is connected must likewise not be connected. So, avoid
+					// unnecessary recalculation by propogating this now.
+					ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+					while(iter.next())
+					{
+						iter.get_current_key()->set_no_connexion_to_industry(industry);
+					}
+				}
+				return journey_time_per_tile;
 			}
 		}
 	}
@@ -2349,22 +2365,6 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 	}
 	return 65335;
 
-found_road:
-	const koord3d destination = road->get_pos();
-	const uint16 journey_time_per_tile = check_road_connexion(destination);
-	connected_industries.put(industry, journey_time_per_tile);
-	if(journey_time_per_tile == 65535)
-	{
-		// We know that, if this city is not connected to any given industry, then every city
-		// to which this city is connected must likewise not be connected. So, avoid
-		// unnecessary recalculation by propogating this now.
-		ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
-		while(iter.next())
-		{
-			iter.get_current_key()->set_no_connexion_to_industry(industry);
-		}
-	}
-	return journey_time_per_tile;
 }
 
 uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
