@@ -141,6 +141,13 @@ private:
 	 */
 	char city_road_type[256];
 
+	/**
+	* Typ (Name) initiale Stadtverbindungen
+	*
+	* @author Hj. Malthaner
+	*/
+	const char *intercity_road_type;
+
 	/* prissi: maximum number of steps for breath search */
 	sint32 max_route_steps;
 
@@ -365,6 +372,12 @@ public:
 	// growth is used.
 	bool quick_city_growth;
 
+	// The new (8.0) system for private cars checking
+	// whether their destination is reachable can have
+	// an adverse effect on performance. Allow it to 
+	// be disabled. 
+	bool assume_everywhere_connected_by_road;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -493,6 +506,7 @@ public:
 	void set_beginner_price_factor(sint32 s) { beginner_price_factor = s; }
 
 	const char *get_city_road_type() const { return city_road_type; }
+	const char *get_intercity_road_type() const { return intercity_road_type; }
 
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
 	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
@@ -733,6 +747,7 @@ public:
 
 	uint16 get_max_walking_distance() const { return max_walking_distance; }
 	bool get_quick_city_growth() const { return quick_city_growth; }
+	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
 };
 
 #endif

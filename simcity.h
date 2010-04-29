@@ -62,6 +62,38 @@ enum route_status
 	good = 2
 };
 
+class road_destination_finder_t : public fahrer_t
+{
+private:
+	automobil_t *master;
+	karte_t* welt;
+	koord3d dest;
+
+public:
+	road_destination_finder_t(karte_t *w, automobil_t* m) 
+	{ 
+		welt = w;
+		dest = koord3d::invalid;
+		master = m;
+	};
+
+	virtual void set_destination(koord3d d) { dest = d; }
+	
+	virtual waytype_t get_waytype() const { return road_wt; };
+	virtual bool ist_befahrbar( const grund_t* gr ) const;
+
+	virtual bool ist_ziel( const grund_t* gr, const grund_t* ) const;
+
+	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
+
+	virtual int get_kosten( const grund_t*, uint32) const { return 1; };
+
+	~road_destination_finder_t()
+	{
+		delete master;
+	}
+};
+
 /**
  * Die Objecte der Klasse stadt_t bilden die Staedte in Simu. Sie
  * wachsen automatisch.
@@ -206,9 +238,16 @@ private:
 	// Value: journey time per tile (equiv. straight line distance)
 	// (in 10ths of minutes); 65535 = unreachable.
 	// @author: jamespetts, April 2010
-	ptrhashtable_tpl<const stadt_t*, uint16> connected_cities;
+	ptrhashtable_tpl<stadt_t*, uint16> connected_cities;
 	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
 	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
+
+	// Used to cascade the recalculation of road connexions: doing them
+	// every month for every city reduces performance too much.
+	uint8 road_recalc_modulator;
+
+	road_destination_finder_t *finder;
+	route_t *private_car_route;
 
 public:
 	/**
@@ -382,6 +421,10 @@ private:
 
 	// Adds a connexion back from a city when a route has been calculated.
 	void add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city);
+	void set_no_connexion_to_industry(const fabrik_t* unconnected_industry);
+	void set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction);
+
+	bool check_road_connexions;
 
 public:
 	/**
@@ -519,7 +562,7 @@ public:
 
 	void step(long delta_t);
 
-	void neuer_monat();
+	void neuer_monat(bool check);
 
 	//@author: jamespetts
 	union destination_object
@@ -582,6 +625,7 @@ public:
 	const vector_tpl<fabrik_t*>& get_city_factories() const { return city_factories; }
 
 	uint32 get_power_demand() const;
+
 };
 
 #endif

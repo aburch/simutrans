@@ -504,6 +504,10 @@ DBG_MESSAGE("wkz_remover()",  "removing roadsign at (%s)", pos.get_str());
 		delete rs;
 		assert( weg );
 		weg->count_sign();
+		if(weg->get_waytype() == road_wt)
+		{
+			welt->set_recheck_road_connexions();
+		}
 		return true;
 	}
 
@@ -525,6 +529,10 @@ DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		bruecke_t* br = gr->find<bruecke_t>();
 		msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), br->get_besch()->get_waytype());
+		if(br->get_besch()->get_waytype() == road_wt)
+		{
+			welt->set_recheck_road_connexions();
+		}
 		return msg == NULL;
 	}
 
@@ -532,6 +540,10 @@ DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, g
 	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		msg = tunnelbauer_t::remove(welt, sp, gr->get_pos(), gr->get_weg_nr(0)->get_waytype());
+		if(gr->get_weg_nr(0)->get_waytype() == road_wt)
+		{
+			welt->set_recheck_road_connexions();
+		}
 		return msg == NULL;
 	}
 
@@ -665,16 +677,29 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 				return false;
 			}
 		}
+		if(w->get_waytype() == road_wt)
+		{
+			welt->set_recheck_road_connexions();
+		}
+
 		cost_sum = gr->weg_entfernen(w->get_waytype(), true);
 	}
 	else {
 		// remove upper ways ...
 		if(gr->get_weg_nr(1)) {
+			if(gr->get_weg_nr(1)->get_waytype() == road_wt)
+			{
+				welt->set_recheck_road_connexions();
+			}
 			cost_sum = gr->weg_entfernen(gr->get_weg_nr(1)->get_waytype(), true);
 		}
 		else {
 			// delete tunnel here ...
 			const tunnel_besch_t* besch = gr->find<tunnel_t>()->get_besch();
+			if(besch->get_waytype() == road_wt)
+			{
+				welt->set_recheck_road_connexions();
+			}
 			gr->obj_loesche_alle(sp);
 			cost_sum += gr->weg_entfernen(besch->get_waytype(), true);
 			cost_sum += besch->get_preis();
@@ -3826,6 +3851,10 @@ built_sign:
 					weg->count_sign();
 					spieler_t::accounting(sp, -besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 				}
+			}
+			if(besch->get_wtyp() == road_wt)
+			{
+				welt->set_recheck_road_connexions();
 			}
 			error = NULL;
 		}

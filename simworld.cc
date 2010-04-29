@@ -895,9 +895,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		const weg_besch_t* besch = umgebung_t::intercity_road_type ? wegbauer_t::get_besch(umgebung_t::intercity_road_type) : NULL;
+		const weg_besch_t* besch = einstellungen->get_intercity_road_type() ? wegbauer_t::get_besch(einstellungen->get_intercity_road_type()) : NULL;
 		if(besch == 0) {
-			dbg->warning("karte_t::init()", "road type '%s' not found", umgebung_t::intercity_road_type);
+			dbg->warning("karte_t::init()", "road type '%s' not found", einstellungen->get_intercity_road_type());
 			// Hajo: try some default (might happen with timeline ... )
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
@@ -1284,6 +1284,11 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	recalc_average_speed();
 
+	// @author: jamespetts
+	calc_generic_road_speed_city();
+	calc_generic_road_speed_intercity();
+	calc_max_road_check_depth();
+
 #ifndef DEMO
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
 		if(  spieler[i]  ) {
@@ -1624,6 +1629,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	einstellungen = sets;
 	schedule_counter = 0;
 	nosave_warning = nosave = false;
+	recheck_road_connexions = true;
 	actual_industry_density = industry_density_proportion = 0;
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
@@ -1646,7 +1652,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
-	//@author: jamespetts
+	// @author: jamespetts
 	set_scale();
 }
 
@@ -2970,7 +2976,8 @@ void karte_t::neuer_monat()
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
-		s->neuer_monat();
+		s->neuer_monat(recheck_road_connexions);
+		recheck_road_connexions = false;
 		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
@@ -3041,6 +3048,9 @@ void karte_t::neuer_monat()
 	}
 
 	set_citycar_speed_average();
+	calc_generic_road_speed_city();
+	calc_generic_road_speed_intercity();
+	calc_max_road_check_depth();
 }
 
 
@@ -4280,6 +4290,10 @@ bool karte_t::laden(const char *filename)
 		stadt_t* s = *i;
 		outstanding_cars += s->get_outstanding_cars();
 	}
+
+	calc_generic_road_speed_city();
+	calc_generic_road_speed_intercity();
+	calc_max_road_check_depth();
 
 	return ok;
 }
@@ -5793,4 +5807,60 @@ void karte_t::set_citycar_speed_average()
 		count += iter.get_current_value()->get_gewichtung();
 	}
 	citycar_speed_average = vehicle_speed_sum / count;
+}
+
+void karte_t::calc_generic_road_speed_intercity()
+{
+	// This method is used only when private car connexion
+	// checking is turned off.
+	
+	// Adapted from the method used to build city roads in the first place, written by Hajo.
+	const weg_besch_t* besch = einstellungen->get_intercity_road_type() ? wegbauer_t::get_besch(einstellungen->get_intercity_road_type()) : NULL;
+	if(besch == NULL) 
+	{
+		// Hajo: try some default (might happen with timeline ... )
+		besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
+	}
+	generic_road_speed_intercity = calc_generic_road_speed(besch);
+}
+
+uint16 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
+{
+	const uint16 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
+	const uint16 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.3F;
+	const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
+	return journey_time_per_tile;
+}
+
+void karte_t::calc_max_road_check_depth()
+{
+	uint16 max_road_speed = 0;
+	stringhashtable_tpl <weg_besch_t *> * ways = wegbauer_t::get_all_ways();
+
+	if(ways != NULL)
+	{
+		stringhashtable_iterator_tpl <weg_besch_t *> iter(ways);
+		while(iter.next())
+		{
+			if(iter.get_current_value()->get_wtyp() != road_wt || iter.get_current_value()->get_intro_year_month() > current_month || iter.get_current_value()->get_retire_year_month() > current_month)
+			{
+				continue;
+			}
+			if(iter.get_current_value()->get_topspeed() > max_road_speed)
+			{
+				max_road_speed = iter.get_current_value()->get_topspeed();
+			}
+		}
+	}
+	else
+	{
+		max_road_speed = citycar_speed_average;
+	}
+	if(max_road_speed == 0)
+	{
+		max_road_speed = citycar_speed_average;
+	}
+
+	max_road_check_depth = (((float)einstellungen->get_max_longdistance_tolerance() / einstellungen->get_distance_per_tile()) / 60.0F) * min(citycar_speed_average, max_road_speed);
+	//max_road_check_depth = (min(citycar_speed_average, max_road_speed) * einstellungen->get_max_longdistance_tolerance() * 60) / einstellungen->get_distance_per_tile();
 }
