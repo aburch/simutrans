@@ -89,7 +89,7 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 	// Or airplane circling for landing, or airplane height,
 	// Or cornering, or other odd cases
 	// These are carried in vehikel_t unlike other speed limits 
-	sint32 limit = v.get_speed_limit();
+	sint32 limit = speed_to_kmh(v.get_speed_limit());
 	if (max_speed > limit)
 	{
 		max_speed = limit;
