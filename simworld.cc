@@ -2902,7 +2902,7 @@ void karte_t::recalc_average_speed()
 		}
 
 		// city road check
-		const weg_besch_t* city_road_test = wegbauer_t::get_besch(get_einstellungen()->get_city_road_type(), get_timeline_year_month());
+		const weg_besch_t* city_road_test = get_einstellungen()->get_city_road_type(get_timeline_year_month());
 		if(city_road_test) {
 			city_road = city_road_test;
 		}
@@ -2914,7 +2914,7 @@ void karte_t::recalc_average_speed()
 	}
 	else {
 		// defaults
-		city_road = wegbauer_t::get_besch(get_einstellungen()->get_city_road_type(), 0);
+		city_road = get_einstellungen()->get_city_road_type(0);
 		if(city_road==NULL) {
 			city_road = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
 		}

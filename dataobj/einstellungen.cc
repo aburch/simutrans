@@ -12,6 +12,8 @@
 #include "../simtools.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
+#include "../bauer/wegbauer.h"
+#include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
@@ -110,7 +112,7 @@ einstellungen_t::einstellungen_t() :
 	// to keep names consistent
 	numbered_stations = false;
 
-	strcpy( city_road_type, "city_road" );
+	num_city_roads = 0;
 
 	max_route_steps = 1000000;
 	max_transfers = 9;
@@ -398,7 +400,26 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( stadtauto_duration , "" );
 
 			file->rdwr_bool( numbered_stations, "" );
-			file->rdwr_str( city_road_type, 256 );
+			if(  file->get_version()<=102002  ) {
+				if(  file->is_loading()  ) {
+					num_city_roads = 1;
+					city_roads[0].intro = 0;
+					city_roads[0].retire = 0;
+				}
+				file->rdwr_str( city_roads[0].name, 64 );
+			}
+			else {
+				// several roads ...
+				file->rdwr_short( num_city_roads, "" );
+				if(  num_city_roads>=10  ) {
+					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) city roads!", num_city_roads );
+				}
+				for(  int i=0;  i<num_city_roads;  i++  ) {
+					file->rdwr_str( city_roads[i].name, 64 );
+					file->rdwr_short( city_roads[i].intro, "" );
+					file->rdwr_short( city_roads[i].retire, "" );
+				}
+			}
 			file->rdwr_long( max_route_steps , "" );
 			file->rdwr_long( max_transfers , "" );
 			file->rdwr_long( max_hops , "" );
@@ -578,14 +599,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::show_month = contents.get_int("show_month", umgebung_t::show_month);
 	umgebung_t::max_acceleration = contents.get_int("fast_forward", umgebung_t::max_acceleration);
 
-	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
-	const char *test = ltrim(contents.get("intercity_road_type"));
-	if(*test) {
-		free( (void *)umgebung_t::intercity_road_type );
-		umgebung_t::intercity_road_type = NULL;
-		umgebung_t::intercity_road_type = strdup(test);
-	}
-
 	// network stuff
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead);
 	umgebung_t::server_ms_ahead = contents.get_int("network_ms_ahead", umgebung_t::server_ms_ahead);
@@ -606,6 +619,58 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 				umgebung_t::river_types++;
 			}
 		}
+	}
+
+	// old syntax for single city road
+	const char *str = ltrim(contents.get("city_road_type"));
+	if(str[0]>0) {
+		num_city_roads = 1;
+		tstrncpy( city_roads[0].name, str, 64 );
+		rtrim( city_roads[0].name );
+		city_roads[0].intro = 0;
+		city_roads[0].retire = 0;
+	}
+
+	// new: up to ten city_roads are possible
+	if(  *contents.get("city_road[0]")  ) {
+		// renew them always when a table is encoutered ...
+		num_city_roads = 0;
+		for(  int i = 0;  i<10;  i++  ) {
+			char name[256];
+			sprintf( name, "city_road[%i]", i );
+			// format is "city_road[%i]=name_of_road,using from (year), using to (year)"
+			const char *test = ltrim(contents.get(name));
+			if(*test) {
+				unsigned intro=0, retire=0;
+				const char *p = test;
+				while(*p  &&  *p!=','  ) {
+					p++;
+				}
+				tstrncpy( city_roads[num_city_roads].name, test, (unsigned)(p-test)+1 );
+				city_roads[num_city_roads].intro = 0;
+				city_roads[num_city_roads].retire = 0;
+				if(  *p==','  ) {
+					*p++;
+					city_roads[num_city_roads].intro = atoi(p)*12;
+					while(*p  &&  *p!=','  ) {
+						p++;
+					}
+				}
+				if(  *p==','  ) {
+					city_roads[num_city_roads].retire = atoi(p+1)*12;
+				}
+				num_city_roads ++;
+			}
+		}
+	}
+
+	// intercity road
+	umgebung_t::intercity_road_length = contents.get_int("intercity_road_length", umgebung_t::intercity_road_length);
+	const char *test = ltrim(contents.get("intercity_road_type"));
+	if(*test) {
+		free( (void *)umgebung_t::intercity_road_type );
+		umgebung_t::intercity_road_type = NULL;
+		umgebung_t::intercity_road_type = strdup(test);
 	}
 
 	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave));
@@ -702,12 +767,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	use_timeline = contents.get_int("use_timeline", use_timeline);
 	starting_year = contents.get_int("starting_year", starting_year);
 	starting_month = contents.get_int("starting_month", starting_month+1)-1;
-
-	const char *str = ltrim(contents.get("city_road_type"));
-	if(str[0]>0) {
-		strncpy( city_road_type, str, 256 );
-		city_road_type[255] = 0;
-	}
 
 	river_number = contents.get_int("river_number", river_number );
 	min_river_length = contents.get_int("river_min_length", min_river_length );
@@ -835,4 +894,36 @@ sint64 einstellungen_t::get_starting_money(sint16 year) const
 		}
 
 	}
+}
+
+
+const weg_besch_t *einstellungen_t::get_city_road_type( uint16 year )
+{
+	const weg_besch_t *besch = NULL;
+	const weg_besch_t *test;
+	for(  int i=0;  i<num_city_roads;  i++  ) {
+		test = wegbauer_t::get_besch( city_roads[i].name, 0 );
+		if(  test  ) {
+			// return first available for no timeline
+			if(  year==0  ) {
+				return test;
+			}
+			// else find newest available ...
+			if(  city_roads[i].intro==0  ) {
+				city_roads[i].intro = test->get_intro_year_month();
+			}
+			if(  city_roads[i].retire==0  ) {
+				city_roads[i].retire = test->get_retire_year_month();
+				if(  city_roads[i].retire==0  ) {
+					city_roads[i].retire = 0xFFFFu;
+				}
+			}
+			if(  year>=city_roads[i].intro  &&  year<city_roads[i].retire  ) {
+				if(  besch==0  ||  besch->get_intro_year_month()<test->get_intro_year_month()  ) {
+					besch = test;
+				}
+			}
+		}
+	}
+	return besch;
 }
