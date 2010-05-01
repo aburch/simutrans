@@ -1317,22 +1317,21 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	}
 
 	// Set the actual industry density and industry density proportion
-	if(actual_industry_density <= 0)
+	actual_industry_density = 0;
+	double weight;
+	ITERATE(fab_list, i)
 	{
-		double weight;
-		ITERATE(fab_list, i)
+		const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+		if(!factory_type->is_electricity_producer())
 		{
-			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
-			if(!factory_type->is_electricity_producer())
-			{
-				// Power stations are excluded from the target weight:
-				// a different system is used for them.
-				weight = factory_type->get_gewichtung();
-				actual_industry_density += (1.0 / weight);
-			}
+			// Power stations are excluded from the target weight:
+			// a different system is used for them.
+			weight = factory_type->get_gewichtung();
+			actual_industry_density += (1.0 / weight);
 		}
-		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 	}
+	// The population is not counted at this point, so cannot set this here.
+	industry_density_proportion = 0.0;
 }
 
 
@@ -2956,6 +2955,11 @@ void karte_t::neuer_monat()
 	// to replace ones that have closed.
 	// @author: jamespetts
 
+	if(industry_density_proportion == 0)
+	{
+		// Set the industry density proportion for the first time when the number of citizens is populated.
+		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
+	}
 	const double target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
 	{
@@ -4792,34 +4796,30 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		file->rdwr_short(base_pathing_counter, "");
 	}
 	
-	// Reconstruct the actual industry density.
-	// @author: jamespetts
-	
-	if(actual_industry_density <= 0)
-	{
-		// Make sure that this is not double counted
-		double weight;
-		ITERATE(fab_list, i)
-		{
-			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
-			if(!factory_type->is_electricity_producer())
-			{
-				// Power stations are excluded from the target weight:
-				// a different system is used for them.
-				weight = factory_type->get_gewichtung();
-				actual_industry_density += (1.0 / weight);
-			}
-		}
-
 		if(file->get_experimental_version() >= 7)
 		{
 			file->rdwr_double(industry_density_proportion);
 		}
 		else
 		{
+			// Reconstruct the actual industry density.
+			// @author: jamespetts			
+			// Loading a game - must set this to zero here and recalculate.
+			actual_industry_density = 0;
+			double weight;
+			ITERATE(fab_list, i)
+			{
+				const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+				if(!factory_type->is_electricity_producer())
+				{
+					// Power stations are excluded from the target weight:
+					// a different system is used for them.
+					weight = factory_type->get_gewichtung();
+					actual_industry_density += (1.0 / weight);
+				}
+			}
 			industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 		}
-	}
 
 	// Added by : Knightly
 	if ( einstellungen->get_default_path_option() == 2 )

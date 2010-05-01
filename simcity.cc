@@ -2472,7 +2472,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const float journey_distance_km = (float)private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile();
 	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
-	return journey_time / straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles;
+	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
 
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
