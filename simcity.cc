@@ -2460,9 +2460,11 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	uint32 speed_sum = 0;
 	uint32 count = 0;
 	weg_t* road;
+	//for(uint8 i = 0; i < 150; i ++)
 	ITERATE_PTR(private_car_route,i)
 	{
 		pos = private_car_route->position_bei(i);
+		/*pos = origin;*/
 		road = welt->lookup(pos)->get_weg(road_wt);
 		top_speed = road->get_max_speed();
 		speed_sum += min(top_speed, vehicle_speed_average);
