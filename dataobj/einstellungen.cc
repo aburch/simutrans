@@ -565,6 +565,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles, "" );
 			file->rdwr_long( factory_worker_minimum_towns, "" );
+			file->rdwr_long( factory_worker_maximum_towns, "" );
 		}
 	}
 }
