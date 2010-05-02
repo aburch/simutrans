@@ -242,10 +242,6 @@ private:
 	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
 	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
 
-	// Used to cascade the recalculation of road connexions: doing them
-	// every month for every city reduces performance too much.
-	uint8 road_recalc_modulator;
-
 	road_destination_finder_t *finder;
 	route_t *private_car_route;
 

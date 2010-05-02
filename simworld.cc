@@ -5864,5 +5864,4 @@ void karte_t::calc_max_road_check_depth()
 	}
 
 	max_road_check_depth = (((float)einstellungen->get_max_longdistance_tolerance() / einstellungen->get_distance_per_tile()) / 60.0F) * min(citycar_speed_average, max_road_speed);
-	//max_road_check_depth = (min(citycar_speed_average, max_road_speed) * einstellungen->get_max_longdistance_tolerance() * 60) / einstellungen->get_distance_per_tile();
 }
