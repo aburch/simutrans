@@ -189,6 +189,8 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "minimum_city_distance", stadt_t::get_minimum_city_distance(), 1, 20000, 10, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
@@ -235,6 +237,8 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	EXIT_NUM( sets->set_passenger_factor );
 	EXIT_NUM( stadt_t::set_minimum_city_distance );
 	EXIT_NUM( sets->set_factory_worker_radius );
+	EXIT_NUM( sets->set_factory_worker_minimum_towns );
+	EXIT_NUM( sets->set_factory_worker_maximum_towns );
 	EXIT_NUM( sets->set_factory_worker_percentage );
 	EXIT_NUM( sets->set_tourist_percentage );
 	EXIT_NUM( sets->set_passenger_multiplier );

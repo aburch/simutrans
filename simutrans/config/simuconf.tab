@@ -119,6 +119,16 @@ passenger_factor=16
 factory_worker_percentage = 33
 tourist_percentage = 16
 
+# A factory will be added as worker's destination to a town, if it has either
+# is within factory_worker_radius
+# or has less than factory_worker_minimum_towns next cities added
+# and has not more than factory_worker_maximum_towns added
+# The default settings connect to maximum four cities with 77 tiles radius; or at least to the closest one
+# Setting factory_worker_maximum_towns to zero will not connect factories to towns
+factory_worker_radius = 77
+factory_worker_minimum_towns = 1
+factory_worker_maximum_towns = 4
+
 # if enabled (default = 0 off) stops may have different capacities for passengers, mail, and  freight
 seperate_halt_capacities = 0
 

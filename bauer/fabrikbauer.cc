@@ -437,8 +437,33 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	// add passenger to pax>0, (so no sucide diver at the fish swarm)
 	if(info->get_pax_level()>0) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
+
+		class RelativeDistanceOrdering
+		{
+		private:
+			const koord m_origin;
+		public:
+			RelativeDistanceOrdering(const koord& origin)
+				: m_origin(origin)
+			{ /* nothing */ }
+
+			/**
+			 * Returns true if `a' is closer to the origin than `b', otherwise false.
+			 */
+			bool operator()(const stadt_t *a, const stadt_t *b) const
+			{
+				return koord_distance(m_origin, a->get_pos()) < koord_distance(m_origin, b->get_pos());
+			}
+		};
+
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
-			(*i)->add_factory_arbeiterziel(fab);
+			distance_stadt.insert_ordered( *i, RelativeDistanceOrdering(fab->get_pos().get_2d()) );
+		}
+		for(  int i = 0;  i<distance_stadt.get_count()  &&  fab->get_arbeiterziele().get_count()<welt->get_einstellungen()->get_factory_worker_maximum_towns();  i++  ) {
+			if(  fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_minimum_towns()  ||  koord_distance( fab->get_pos(), distance_stadt[i]->get_pos() ) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
+				distance_stadt[i]->add_factory_arbeiterziel(fab);
+			}
 		}
 	}
 	return fab;

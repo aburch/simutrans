@@ -87,7 +87,6 @@ public:
 };
 
 
-
 fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord pos)
 {
 	const grund_t *gr = welt->lookup_kartenboden(pos);
@@ -101,12 +100,10 @@ fabrik_t *fabrik_t::get_fab(const karte_t *welt, const koord pos)
 }
 
 
-
 void fabrik_t::link_halt(halthandle_t halt)
 {
 	welt->access(pos.get_2d())->add_to_haltlist(halt);
 }
-
 
 
 void fabrik_t::unlink_halt(halthandle_t halt)
@@ -116,7 +113,6 @@ void fabrik_t::unlink_halt(halthandle_t halt)
 		plan->remove_from_haltlist(welt,halt);
 	}
 }
-
 
 
 void fabrik_t::add_lieferziel(koord ziel)
@@ -217,7 +213,6 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 }
 
 
-
 fabrik_t::~fabrik_t()
 {
 	while(!fields.empty()) {
@@ -231,7 +226,6 @@ fabrik_t::~fabrik_t()
 		plan->get_kartenboden()->calc_bild();
 	}
 }
-
 
 
 void fabrik_t::baue(sint32 rotate)
@@ -264,7 +258,6 @@ void fabrik_t::baue(sint32 rotate)
 		dbg->error("fabrik_t::baue()", "Bulding description not available!");
 	}
 }
-
 
 
 /* field generation code
@@ -355,7 +348,6 @@ bool fabrik_t::add_random_field(uint16 probability)
 }
 
 
-
 void fabrik_t::remove_field_at(koord pos)
 {
 	field_data_t field(pos);
@@ -376,7 +368,6 @@ void fabrik_t::remove_field_at(koord pos)
 	}
 	fields.remove(field);
 }
-
 
 
 bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
@@ -404,7 +395,6 @@ bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,
 }
 
 
-
 vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, koord max_pos)
 {
 	static vector_tpl <fabrik_t*> fablist(16);
@@ -424,7 +414,6 @@ vector_tpl<fabrik_t *> &fabrik_t::sind_da_welche(karte_t *welt, koord min_pos, k
 }
 
 
-
 bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 {
 	for(int y=min_pos.y; y<=max_pos.y; y++) {
@@ -436,7 +425,6 @@ bool fabrik_t::ist_da_eine(karte_t *welt, koord min_pos, koord max_pos )
 	}
 	return false;
 }
-
 
 
 void fabrik_t::rdwr(loadsave_t *file)
@@ -673,7 +661,6 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 }
 
 
-
 /*
  * let the chimney smoke, if there is something to produce
  * @author Hj. Malthaner
@@ -691,7 +678,6 @@ void fabrik_t::smoke() const
 		welt->sync_add( smoke );
 	}
 }
-
 
 
 /*
@@ -730,7 +716,6 @@ uint32 fabrik_t::produktion(const uint32 produkt) const
 }
 
 
-
 sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
@@ -746,7 +731,6 @@ sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
 }
 
 
-
 sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
@@ -760,7 +744,6 @@ sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 
 	return menge;
 }
-
 
 
 sint32 fabrik_t::hole_ab(const ware_besch_t *typ, sint32 menge)
@@ -785,7 +768,6 @@ sint32 fabrik_t::hole_ab(const ware_besch_t *typ, sint32 menge)
 }
 
 
-
 sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 {
 	for (uint32 index = 0; index < eingang.get_count(); index++) {
@@ -805,7 +787,6 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 }
 
 
-
 sint32 fabrik_t::verbraucht(const ware_besch_t *typ)
 {
 	for(uint32 index = 0; index < eingang.get_count(); index ++) {
@@ -816,7 +797,6 @@ sint32 fabrik_t::verbraucht(const ware_besch_t *typ)
 	}
 	return -1;  // wird hier nicht verbraucht
 }
-
 
 
 void fabrik_t::step(long delta_t)
@@ -1007,7 +987,6 @@ public:
 };
 
 
-
 /**
  * Die erzeugten waren auf die Haltestellen verteilen
  * @author Hj. Malthaner
@@ -1165,7 +1144,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 }
 
 
-
 void fabrik_t::neuer_monat()
 {
 	for (uint32 index = 0; index < ausgang.get_count(); index++) {
@@ -1173,7 +1151,6 @@ void fabrik_t::neuer_monat()
 		ausgang[index].abgabe_sum = 0;
 	}
 }
-
 
 
 // static !
@@ -1466,7 +1443,6 @@ void fabrik_t::info(cbuffer_t& buf) const
 }
 
 
-
 void fabrik_t::laden_abschliessen()
 {
 	if(welt->get_einstellungen()->is_crossconnect_factories()) {
@@ -1487,7 +1463,6 @@ void fabrik_t::laden_abschliessen()
 		}
 	}
 }
-
 
 
 void fabrik_t::rotate90( const sint16 y_size )
@@ -1520,19 +1495,16 @@ void fabrik_t::rotate90( const sint16 y_size )
 }
 
 
-
 void fabrik_t::add_supplier(koord ziel)
 {
 	suppliers.insert_unique_ordered( ziel, RelativeDistanceOrdering(pos.get_2d()) );
 }
 
 
-
 void fabrik_t::rem_supplier(koord pos)
 {
 	suppliers.remove(pos);
 }
-
 
 
 /** crossconnect everything possible */
@@ -1560,7 +1532,6 @@ void fabrik_t::add_all_suppliers()
 }
 
 
-
 /* adds a new supplier to this factory
  * fails if no matching goods are there
  */
@@ -1579,7 +1550,6 @@ bool fabrik_t::add_supplier(fabrik_t* fab)
 	}
 	return false;
 }
-
 
 
 void fabrik_t::get_tile_list( vector_tpl<koord> &tile_list ) const

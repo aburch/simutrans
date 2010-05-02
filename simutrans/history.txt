@@ -48,6 +48,7 @@
 	ADD: timeline for cityroads using 'city_road[0]=name[,intro][,retire]' in simuconf.tab
 	ADD: winter image for PowerSource/ PowerDest: Image[2] and [3] as snowy versions of [0] and [1]
 	ADD: winter image for sidewalk: Image[1],[4],[7],[10],[13] as snowy versions, Image [5][8][11][14] transition images
+	ADD: minimum and maximum numbers of next towns to connect to a factory can be set too in simuconf.tab with factory_worker_minimum_towns/factory_worker_maximum_towns
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

@@ -87,6 +87,10 @@ einstellungen_t::einstellungen_t() :
 	factory_worker_percentage = 33;
 	tourist_percentage = 16;
 	factory_worker_radius = 77;
+	// try to have at least a single town connected to a factory
+	factory_worker_minimum_towns = 1;
+	// not more than four towns should supply to a factory
+	factory_worker_maximum_towns = 4;
 
 	electric_promille = 330;
 
@@ -560,6 +564,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles, "" );
+			file->rdwr_long( factory_worker_minimum_towns, "" );
 		}
 	}
 }
@@ -683,6 +688,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	passenger_factor = contents.get_int("passenger_factor", passenger_factor ); /* this can manipulate the passenger generation */
 	factory_worker_percentage = contents.get_int("factory_worker_percentage", factory_worker_percentage );
 	factory_worker_radius = contents.get_int("factory_worker_radius", factory_worker_radius );
+	factory_worker_minimum_towns = contents.get_int("factory_worker_minimum_towns", factory_worker_minimum_towns );
+	factory_worker_maximum_towns = contents.get_int("factory_worker_maximum_towns", factory_worker_maximum_towns );
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
 	pay_for_total_distance = contents.get_int("pay_for_total_distance", pay_for_total_distance );
