@@ -16,6 +16,16 @@
 
 class loadsave_t;
 class tabfile_t;
+class weg_besch_t;
+
+
+typedef struct
+{
+	char name[64];
+	uint16 intro;
+	uint16 retire;
+} cite_road_timeline_t;
+
 
 class einstellungen_t
 {
@@ -127,26 +137,18 @@ private:
 
 	yearmoney startingmoneyperyear[10];
 
+	uint16	num_city_roads;
+	cite_road_timeline_t city_roads[10];
+
+	uint16	num_intercity_roads;
+	cite_road_timeline_t intercity_roads[10];
+
 	/**
 	 * Use numbering for stations?
 	 *
 	 * @author Hj. Malthaner
 	 */
 	bool numbered_stations;
-
-	/**
-	 * Typ (Name) initiale Stadtstrassen
-	 *
-	 * @author Hj. Malthaner
-	 */
-	char city_road_type[256];
-
-	/**
-	* Typ (Name) initiale Stadtverbindungen
-	*
-	* @author Hj. Malthaner
-	*/
-	const char *intercity_road_type;
 
 	/* prissi: maximum number of steps for breath search */
 	sint32 max_route_steps;
@@ -505,8 +507,8 @@ public:
 	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
 	void set_beginner_price_factor(sint32 s) { beginner_price_factor = s; }
 
-	const char *get_city_road_type() const { return city_road_type; }
-	const char *get_intercity_road_type() const { return intercity_road_type; }
+	const weg_besch_t *get_city_road_type( uint16 year );
+	const weg_besch_t *get_intercity_road_type(uint16 year);
 
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
 	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }

@@ -45,6 +45,7 @@
 	ADD: zooming in also for pak192
 	ADD: preparation for images larger than 64k resp 255*255
 	FIX: maintenance for ticks_per_month smaller 18
+	ADD: timeline for cityroads using 'city_road[0]=name[,intro][,retire]' in simuconf.tab
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

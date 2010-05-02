@@ -1,4 +1,5 @@
 To be done:
+- limit number of worker towns for industry to a setting like four or so
 - connection weighted by their intermediate stops => A* for goods routing [A* did not worked out, but intermediate stops may be considered]
 - when import translation: ignore entries which are identical (saving runtime)
 - limit construction costs
