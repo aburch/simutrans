@@ -46,6 +46,7 @@
 	ADD: preparation for images larger than 64k resp 255*255
 	FIX: maintenance for ticks_per_month smaller 18
 	ADD: timeline for cityroads using 'city_road[0]=name[,intro][,retire]' in simuconf.tab
+	ADD: winter image for PowerSource/ PowerDest: Image[2] and [3] as snowy versions of [0] and [1]
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
