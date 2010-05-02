@@ -579,7 +579,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( stadtauto_duration , "" );
 
 			file->rdwr_bool( numbered_stations, "" );
-			if(  file->get_version()<=102002 && file->get_experimental_version() < 8 )
+			if(  file->get_version()<=102002 || (file->get_experimental_version() > 0 && file->get_experimental_version() < 8))
 			{
 				if(  file->is_loading()  ) 
 				{

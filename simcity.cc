@@ -2450,7 +2450,8 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	private_car_route->clear();
 	finder->set_destination(dest);
 	const uint32 depth = welt->get_max_road_check_depth();
-	if(!private_car_route->find_route(welt, origin, finder, 0, ribi_t::alle, depth))
+	// Must use calc_route rather than find_route, or else this will be *far* too slow: only calc_route uses A*.
+	if(!private_car_route->calc_route(welt, origin, dest, finder, welt->get_citycar_speed_average(), 0, depth))
 	{
 		return 65535;
 	}
@@ -2460,11 +2461,9 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	uint32 speed_sum = 0;
 	uint32 count = 0;
 	weg_t* road;
-	//for(uint8 i = 0; i < 150; i ++)
 	ITERATE_PTR(private_car_route,i)
 	{
 		pos = private_car_route->position_bei(i);
-		/*pos = origin;*/
 		road = welt->lookup(pos)->get_weg(road_wt);
 		top_speed = road->get_max_speed();
 		speed_sum += min(top_speed, vehicle_speed_average);
