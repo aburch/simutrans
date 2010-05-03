@@ -23,7 +23,7 @@ typedef struct
 	char name[64];
 	uint16 intro;
 	uint16 retire;
-} cite_road_timeline_t;
+} road_timeline_t;
 
 
 class einstellungen_t
@@ -138,8 +138,10 @@ private:
 
 	yearmoney startingmoneyperyear[10];
 
-	uint16	num_city_roads;
-	cite_road_timeline_t city_roads[10];
+	uint16 num_city_roads;
+	road_timeline_t city_roads[10];
+	uint16 num_intercity_roads;
+	road_timeline_t intercity_roads[10];
 
 	/**
 	 * Use numbering for stations?
@@ -365,6 +367,7 @@ public:
 	void set_beginner_price_factor(sint32 s) { beginner_price_factor = s; }
 
 	const weg_besch_t *get_city_road_type( uint16 year );
+	const weg_besch_t *get_intercity_road_type( uint16 year );
 
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
 	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
