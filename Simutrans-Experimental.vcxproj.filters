@@ -1,0 +1,1742 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="player\ai.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\ai_goods.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\ai_passenger.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\banner.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\baum.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\baum_edit.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\bild_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\boden.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\bridge_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\bruecke.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\bruecke_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bauer\brueckenbauer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\brueckenboden.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\building_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\cbuffer_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\citybuilding_edit.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\citycar_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\citylist_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\citylist_stats_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\climates.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\colors.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\convoi_detail_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\convoi_filter_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\convoi_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\convoi_info_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="convoy.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\crossing.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\crossing_logic.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\crossing_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\cstring_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\curiosity_edit.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\curiositylist_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\curiositylist_stats_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tpl\debug_helper.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\depot_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\dingliste.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\einstellungen.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\enlarge_map_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\extend_edit.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\fabrik_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bauer\fabrikbauer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\factory_edit.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\factory_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\factorylist_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\factorylist_stats_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\fahrplan.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\fahrplan_gui.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\field.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="font.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\freelist.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="freight_list_sorter.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\fundament.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\gebaeude.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\good_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\goods_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\goods_stats_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\ground_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\ground_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\groundobj.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\groundobj_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\grund.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\grund_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_button.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_chart.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_combobox.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_component_table.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\gui_container.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\gui_convoiinfo.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_convoy_assembler.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_convoy_label.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_fixedwidth_textarea.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_flowtext.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\gui_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_image_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_label.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_numberinput.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_scrollbar.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_scrolled_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_scrollpane.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_speedbar.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_tab_panel.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_table.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_textarea.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_textinput.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\components\gui_world_view_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\halt_detail.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\halt_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\halt_list_filter_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\halt_list_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\halt_list_stats.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\haus_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bauer\hausbauer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\help_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\image_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\imagelist2d_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\imagelist_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\jump_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\kanal.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\karte.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\kennfarbe.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\koord.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\koord3d.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\label.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\label_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\labellist_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\labellist_stats_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\leitung2.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\line_management_gui.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\load_relief_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\loadsave.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\loadsave_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\log.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\maglev.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\map_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\marker.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\memory_rw.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\message_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\message_option_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\message_stats_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\messagebox.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\money_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\monorail.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\monorailboden.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vehicle\movingobj.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\narrowgauge.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_cmd.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_packet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\obj_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="old_blockmanager.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\optionen.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\pakselector.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\password_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="path_explorer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\pedestrian_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\pillar.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sucher\platzsucher.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\player_frame_t.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\powernet.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\replace_data.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\replace_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\ribi.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\roadsign.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\roadsign_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\root_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\route.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\runway.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\savegame_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\scenario.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\scenario_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\schedule_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\schiene.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\searchfolder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\settings_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\settings_stats.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\sha1.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\signal.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\signal_spacing.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\sim_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simcity.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simconvoi.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simdebug.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simdepot.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simdings.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simevent.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simfab.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simgraph16.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simhalt.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simintr.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simio.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simline.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simlinemgmt.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simmain.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simmem.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simmenu.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simmesg.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vehicle\simpeople.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simplan.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="player\simplay.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simskin.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simsound.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\simstring.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simsys_s.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simsys_w16.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simsys_w32_png.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simticker.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simtools.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vehicle\simvehikel.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="vehicle\simverkehr.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simview.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simware.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simwerkz.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simwin.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simworld.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\skin_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\sound_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\sound_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\sound_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\sprachen.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\stadt_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\station_building_select.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\strasse.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\tabfile.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\text_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\thing_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\trafficlight_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\translator.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\tree_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\tunnel.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\tunnel_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\tunnel_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bauer\tunnelbauer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\tunnelboden.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\umgebung.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="unicode.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\vehicle_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\vehikel_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bauer\vehikelbauer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="music\w32_midi.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\ware_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bauer\warenbauer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\warenziel.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wasser.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\way_obj_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\way_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\wayobj.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="boden\wege\weg.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bauer\wegbauer.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\welt.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\werkzeug_waehler.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sound\win32_sound.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\wolke.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\reader\xref_reader.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dings\zeiger.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="gui\components\action_listener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\ai.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\ai_goods.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\ai_passenger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\array2d_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\array_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\banner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\baum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\baum_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\baum_edit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sucher\bauplatz_sucher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\bild_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\bildliste2d_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\bildliste_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\binary_heap_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\boden.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\bridge_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\bridge_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\bruecke.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\bruecke_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bauer\brueckenbauer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\brueckenboden.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\building_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\building_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bzlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\cbuffer_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\citybuilding_edit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\citycar_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\citycar_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\citylist_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\citylist_stats_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\climates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\colors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\convoi_detail_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\convoi_filter_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\convoi_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\convoi_info_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="convoihandle_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="convoy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\crossing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\crossing_logic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\crossing_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\crossing_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\cstring_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\curiosity_edit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\curiositylist_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\curiositylist_stats_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\debug_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\depot_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\dingliste.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dr_rdgif.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dr_rdpng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dr_rdppm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\dummy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\einstellungen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\enlarge_map_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\extend_edit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\fabrik_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\fabrik_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bauer\fabrikbauer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\factory_edit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\factory_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\factory_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\factorylist_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\factorylist_stats_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\fahrer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\fahrplan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\fahrplan_gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\field.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\fixed_list_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="font.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\freelist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="freight_list_sorter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\fundament.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\fussgaenger_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\gebaeude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\get_climate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\get_waytype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\good_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\good_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\goods_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\goods_stats_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\ground_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\ground_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\ground_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\groundobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\groundobj_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\groundobj_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\groundobj_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\grund.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\grund_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\gui_action_creator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_chart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_combobox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_component_table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\gui_container.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\gui_convoiinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_convoy_assembler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_convoy_label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_divider.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\gui_fenster.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_flowtext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\gui_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_image_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\gui_komponente.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_numberinput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_scrollbar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_scrolled_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_scrollpane.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_speedbar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_tab_panel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_textarea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_textinput.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\gui_world_view_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\halt_detail.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\halt_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\halt_list_filter_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\halt_list_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\halt_list_stats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="halthandle_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\hashtable_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\haus_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bauer\hausbauer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\help_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\HOT_queue2_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\HOT_queue_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\image_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\image_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\imagelist2d_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\imagelist2d_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\imagelist_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\imagelist_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\inthashtable_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\intro_dates.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\jump_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\kanal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\karte.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\kennfarbe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\koord.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\koord3d.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\koordhashtable_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\kreuzung_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\label.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\label_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\labellist_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\labellist_stats_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\leitung2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\line_item.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\line_management_gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="linehandle_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\linieneintrag.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\components\list_button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\load_relief_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\loadsave.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\loadsave_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="macros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\maglev.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\map_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\marker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\message_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\message_option_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\message_stats_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\messagebox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\minivec_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\money_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\monorail.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\monorailboden.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle\movingobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="music\music.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\narrowgauge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\obj_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\obj_besch_std_name.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\obj_node.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\obj_node_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\obj_pak_exception.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\obj_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\obj_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\objversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="old_blockmanager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\optionen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\ordered_vector_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle\overtaker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\pakselector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="path_explorer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pathes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\pedestrian_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\pedestrian_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\pillar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sucher\platzsucher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\player_frame_t.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\powernet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\prioqueue_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\ptrhashtable_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\quickstone_hashtable_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\quickstone_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\replace_data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\ribi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\roadsign.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\roadsign_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\roadsign_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\roadsign_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\root_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\root_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\route.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\runway.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\savegame_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\scenario.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\scenario_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\schedule_list.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\schiene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scrolltext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\searchfolder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\settings_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\settings_stats.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\signal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\signal_spacing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simcity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simcolor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simconst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simconvoi.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simdebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simdepot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simdings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simevent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simfab.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simgraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simhalt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simimg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simintr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simlinemgmt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simmain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simmem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simmenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simmesg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle\simpeople.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simplan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="player\simplay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simskin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simsound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\simstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simsys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simticker.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simtools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simtypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle\simvehikel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vehicle\simverkehr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simview.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simware.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simwerkz.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simwin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simworld.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\skin_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\skin_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\skin_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\slist_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\sorted_heap_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sound\sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\sound_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\sound_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\sound_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\sound_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\sparse_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\spezial_obj_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\sprachen.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\stadt_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\stadtauto_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\strasse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\stringhashtable_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ifc\sync_steppable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\tabfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\text_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\text_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\text_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\thing_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\translator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\tree_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\tree_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\tunnel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\tunnel_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\tunnel_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\tunnel_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bauer\tunnelbauer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\tunnelboden.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\umgebung.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="unicode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\vector_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\vehicle_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\vehicle_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\vehikel_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bauer\vehikelbauer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\ware_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bauer\warenbauer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\warenziel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wasser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\way_constraints.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\way_obj_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\way_obj_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\way_obj_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\way_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\way_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\wayobj.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boden\wege\weg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\weg_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bauer\wegbauer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tpl\weighted_vector_tpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\welt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\werkzeug_waehler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\wolke.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\xref_besch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\reader\xref_reader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="besch\writer\xref_writer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dings\zeiger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="base_texts_experimental.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_6_2.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_6_3.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_7_0.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_7_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_7_2.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_8.0.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_additional_5_0.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_additional_5_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="config.default">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="config.template">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\simutrans-experimental-binaries\config\electricity.tab">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\simutrans-experimental-binaries\text\en.tab">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Makefile">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\simutrans-experimental-binaries\config\privatecar.tab">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\simutrans-experimental-binaries\config\simuconf.tab">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="makeobj\Makefile" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="simres.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
