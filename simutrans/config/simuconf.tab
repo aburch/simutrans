@@ -328,13 +328,19 @@ allow_buying_obsolete_vehicles = 1
 #
 #intercity_road_length = 200
 
-# Type of initial intercity roads - must be available
-# as PAK file. Fallback (if PAK is not found) is "asphalt_road"
-#intercity_road_type = cobblestone_road
+# Type of intercity roads - must be available as PAK file.
+# Intercityroad with timeline: intercity_road[number]=name,intro-year,retire-year
+# .. number = 0..9 - up to ten different intercity_roads possible
+# .. name = name of an existing pak file
+#intercity_road[0] = asphalt_road,0,1990
+# (old, 102.2.2 and before) intercity_road_type = asphalt_road
 
 # Type of city roads - must be available as PAK file.
-# Fallback (and default) is "city_road"
-#city_road_type = city_road
+# Cityroad with timeline: city_road[number]=name,intro-year,retire-year
+# .. number = 0..9 - up to ten different city_roads possible
+# .. name = name of an existing pak file
+#city_road[0] = dirt_road,1920,1940
+# (old, 102.2.2 and before) city_road_type = city_road
 
 # now river stuff
 # first river type (should be defined in pak dependent file)
