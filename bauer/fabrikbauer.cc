@@ -371,7 +371,23 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 	reliefkarte_t::get_karte()->calc_map_groesse();
 }
 
+class RelativeDistanceOrdering
+{
+private:
+	const koord m_origin;
+public:
+	RelativeDistanceOrdering(const koord& origin)
+		: m_origin(origin)
+	{ /* nothing */ }
 
+	/**
+		* Returns true if `a' is closer to the origin than `b', otherwise false.
+		*/
+	bool operator()(const stadt_t *a, const stadt_t *b) const
+	{
+		return koord_distance(m_origin, a->get_pos()) < koord_distance(m_origin, b->get_pos());
+	}
+};
 
 /**
  * baue fabrik nach Angaben in info
@@ -438,24 +454,6 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	if(info->get_pax_level()>0) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
-
-		class RelativeDistanceOrdering
-		{
-		private:
-			const koord m_origin;
-		public:
-			RelativeDistanceOrdering(const koord& origin)
-				: m_origin(origin)
-			{ /* nothing */ }
-
-			/**
-			 * Returns true if `a' is closer to the origin than `b', otherwise false.
-			 */
-			bool operator()(const stadt_t *a, const stadt_t *b) const
-			{
-				return koord_distance(m_origin, a->get_pos()) < koord_distance(m_origin, b->get_pos());
-			}
-		};
 
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
 			distance_stadt.insert_ordered( *i, RelativeDistanceOrdering(fab->get_pos().get_2d()) );
