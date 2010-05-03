@@ -24,7 +24,7 @@ typedef struct
 	char name[64];
 	uint16 intro;
 	uint16 retire;
-} cite_road_timeline_t;
+} road_timeline_t;
 
 
 class einstellungen_t
@@ -59,6 +59,8 @@ private:
 	sint16 factory_worker_percentage;
 	sint16 tourist_percentage;
 	sint16 factory_worker_radius;
+	sint32 factory_worker_minimum_towns;
+	sint32 factory_worker_maximum_towns;
 
 	uint16 station_coverage_size;
 
@@ -137,11 +139,10 @@ private:
 
 	yearmoney startingmoneyperyear[10];
 
-	uint16	num_city_roads;
-	cite_road_timeline_t city_roads[10];
-
-	uint16	num_intercity_roads;
-	cite_road_timeline_t intercity_roads[10];
+	uint16 num_city_roads;
+	road_timeline_t city_roads[10];
+	uint16 num_intercity_roads;
+	road_timeline_t intercity_roads[10];
 
 	/**
 	 * Use numbering for stations?
@@ -508,7 +509,7 @@ public:
 	void set_beginner_price_factor(sint32 s) { beginner_price_factor = s; }
 
 	const weg_besch_t *get_city_road_type( uint16 year );
-	const weg_besch_t *get_intercity_road_type(uint16 year);
+	const weg_besch_t *get_intercity_road_type( uint16 year );
 
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
 	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
@@ -737,6 +738,14 @@ public:
 	// radius within factories belog to towns (usually set to 77 but 1/8 of map size may be meaningful too)
 	sint32 get_factory_worker_radius() const { return factory_worker_radius; }
 	void set_factory_worker_radius(sint32 n) { factory_worker_radius = n; }
+
+	// any factory will be connected to at least this number of next cities
+	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
+	void set_factory_worker_minimum_towns(sint32 n) { factory_worker_minimum_towns = n; }
+
+	// any factory will be connected to not more than this number of next cities
+	sint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
+	void set_factory_worker_maximum_towns(sint32 n) { factory_worker_maximum_towns = n; }
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }

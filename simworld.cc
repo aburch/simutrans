@@ -895,11 +895,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		const uint16 TEST = get_timeline_year_month();
 		const weg_besch_t* besch = einstellungen->get_intercity_road_type(get_timeline_year_month());
-		if(besch == NULL) 
-		{
-			dbg->warning("karte_t::init()", "road type '%s' not found", einstellungen->get_intercity_road_type(get_timeline_year_month()));
+		if(besch == NULL) {
 			// Hajo: try some default (might happen with timeline ... )
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
