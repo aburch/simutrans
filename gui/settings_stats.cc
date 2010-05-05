@@ -111,6 +111,9 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_tpo_revenue(), 0, 10000), 2, row);
 		INIT_TABLE_END(tbl);
 	}
+	SEPERATOR;
+	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
+	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
 	clear_dirty();
 	set_groesse( koord(width, ypos) );
 }
@@ -128,6 +131,9 @@ void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 
 	EXIT_NUM( sets->set_tpo_min_minutes );
 	EXIT_NUM( sets->set_tpo_revenue );
+
+	EXIT_BOOL( sets->set_quick_city_growth );
+	EXIT_BOOL( sets->set_assume_everywhere_connected_by_road );
 }
 
 
