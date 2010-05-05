@@ -187,3 +187,11 @@ note=Label for catering level 5 row of catering bonus for travelling settings
 obj=program_text
 name=Refunds
 note=Label for the "refunds" line/convoy graph
+-
+obj=program_text
+name=quick_city_growth
+note=Label for "quick city growth" setting
+-
+obj=program_text
+name=assume_everywhere_connected_by_road
+note=Label for "assume everywhere connected by road" setting
