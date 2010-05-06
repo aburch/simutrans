@@ -1110,21 +1110,12 @@ void stadt_t::zeige_info(void)
 /* add workers to factory list */
 void stadt_t::add_factory_arbeiterziel(fabrik_t* fab)
 {
-	const koord k = fab->get_pos().get_2d() - pos;
-	// worker do not travel more than 50 tiles
-	if(  koord_distance( fab->get_pos(), pos ) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
-		// no fish swarms ...
-		if (strcmp("fish_swarm", fab->get_besch()->get_name()) != 0) {
-//			DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()", "found %s with level %i", fab->get_name(), fab->get_besch()->get_pax_level());
-			fab->add_arbeiterziel(this);
-			arbeiterziele.append_unique(fab, fab->get_besch()->get_pax_level(), 4);
-		}
-	}
+	fab->add_arbeiterziel(this);
+	arbeiterziele.append_unique(fab, fab->get_besch()->get_pax_level(), 4);
 }
 
 
 /* calculates the factories which belongs to certain cities */
-/* we connect all factories, which are closer than 50 tiles radius */
 void stadt_t::verbinde_fabriken()
 {
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "search factories near %s (center at %i,%i)", get_name(), pos.x, pos.y);
