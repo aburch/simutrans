@@ -171,6 +171,10 @@ movingobj_t::movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *b 
 	welt->sync_add( this );
 }
 
+movingobj_t::~movingobj_t()
+{
+	welt->sync_remove( this );
+}
 
 
 bool movingobj_t::check_season(long /*month*/)
