@@ -187,3 +187,7 @@ note=Label for catering level 5 row of catering bonus for travelling settings
 obj=program_text
 name=Refunds
 note=Label for the "refunds" line/convoy graph
+-
+obj=program_text
+name=The following %s has become obsolete:\n%s\n
+note=Indicator of obsolescence at the beginning of a month

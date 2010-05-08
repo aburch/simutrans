@@ -156,6 +156,12 @@ private:
 	 */
 	uint16 force_threshold_speed; // @author: Bernd Gabriel, Nov 4, 2009: in m/s
 
+	// Obsolescence settings
+	// @author: jamespetts
+	uint16 increase_maintenance_after_years;
+	uint16 increase_maintenance_by_percent;
+	uint8 years_before_maintenance_max_reached;
+
 	// @author: Bernd Gabriel, Dec 12, 2009: called as last action in read_node()
 	void loaded();
 public:
@@ -379,10 +385,16 @@ public:
 	uint16 get_intro_year_month() const { return intro_date; }
 
 	/**
-	* @return time when obsolete
+	* @return time when no longer in production
 	* @author prissi
 	*/
 	uint16 get_retire_year_month() const { return obsolete_date; }
+
+	/**
+	* @return time when the vehicle is obsolete
+	* @author: jamespetts
+	*/
+	uint16 get_obsolete_year_month() const;
 
 	// true if future
 	bool is_future (const uint16 month_now) const
@@ -390,10 +402,22 @@ public:
 		return month_now  &&  (intro_date > month_now);
 	}
 
-	// true if obsolete
+	/**
+	* @ Returns true if the vehicle is no longer in production
+	* @author: prissi
+	*/
 	bool is_retired (const uint16 month_now) const
 	{
 		return month_now  &&  (obsolete_date <= month_now);
+	}
+
+	/**
+	* @ Returns true if the vehicle is obsolete
+	* @author: 
+	*/
+	bool is_obsolete (const uint16 month_now) const
+	{
+		return month_now  &&  (get_obsolete_year_month() <= month_now);
 	}
 
 	/**
@@ -490,6 +514,7 @@ public:
 	 * @author Bernd Gabriel
 	 */
 	uint32 get_effective_power_index(uint16 speed /* in m/s */ ) const;
+
 };
 
 #endif

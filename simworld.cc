@@ -3173,6 +3173,16 @@ void karte_t::recalc_average_speed()
 							translator::translate(info->get_name()));
 							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
 					}
+
+					const uint16 obsolete_month = info->get_obsolete_year_month();
+					if(retire_month == current_month) 
+					{
+						sprintf(buf,
+							translator::translate("The following %s has become obsolete:\n%s\n"),
+							vehicle_type,
+							translator::translate(info->get_name()));
+							msg->add_message(buf,koord::invalid,message_t::new_vehicle,COL_DARK_BLUE,info->get_basis_bild());
+					}
 				}
 			}
 		}

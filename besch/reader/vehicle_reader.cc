@@ -224,6 +224,9 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					uint16 air_resistance_hundreds = decode_uint16(p);
 					besch->air_resistance = (float)air_resistance_hundreds / 100.0F;
 					besch->can_be_at_rear = (bool)decode_uint8(p);
+					besch->increase_maintenance_after_years = decode_uint16(p);
+					besch->increase_maintenance_by_percent = decode_uint16(p);
+					besch->years_before_maintenance_max_reached = decode_uint8(p);
 				}
 				else
 				{
@@ -251,6 +254,9 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 					};
 					besch->air_resistance = (float) air_default / 100.0F;
 					besch->can_be_at_rear = true;
+					besch->increase_maintenance_after_years = 0;
+					besch->increase_maintenance_by_percent = 0;
+					besch->years_before_maintenance_max_reached = 0;
 				}
 			}
 			else
@@ -386,6 +392,9 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->available_only_as_upgrade = false;
 		besch->fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		besch->can_be_at_rear = true;
+		besch->increase_maintenance_after_years = 0;
+		besch->increase_maintenance_by_percent = 0;
+		besch->years_before_maintenance_max_reached = 0;
 	}
 	besch->set_way_constraints(way_constraints);
 

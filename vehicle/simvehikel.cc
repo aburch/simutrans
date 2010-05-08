@@ -1600,7 +1600,8 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 
 	if(ist_erstes) { //"Is the first" (Google)
 		uint32 tiles_left = cnv->get_next_stop_index()+1-route_index;
-		if(tiles_left<4) {
+		if(tiles_left < welt->get_einstellungen()->get_max_direction_steps(get_waytype()))
+		{
 			// break at the end of stations/in front of signals
 			uint32 brake_speed_soll = speed_limit;
 

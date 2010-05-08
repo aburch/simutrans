@@ -76,7 +76,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	int i;
 	uint8  uv8;
 
-	int total_len = 57;
+	int total_len = 61;
 
 	// prissi: must be done here, since it may affect the length of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -549,10 +549,21 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	node.write_uint8(fp, (uint8)can_be_at_rear, 56);
 
+	// Obsolescence. Zeros indicate that simuconf.tab values should be used.
+	// @author: jamespetts
+	uint16 increase_maintenance_after_years = obj.get_int("increase_maintenance_after_years", 0);
+	node.write_uint16(fp, increase_maintenance_after_years, 57);
+
+	uint16 increase_maintenance_by_percent = obj.get_int("increase_maintenance_by_percent", 0);
+	node.write_uint16(fp, increase_maintenance_by_percent, 59);
+
+	uint8 years_before_maintenance_max_reached = obj.get_int("years_before_maintenance_max_reached", 0);
+	node.write_uint16(fp, years_before_maintenance_max_reached, 61);
+
 	sint8 sound_str_len = sound_str.len();
 	if (sound_str_len > 0) {
-		node.write_sint8  (fp, sound_str_len, 57);
-		node.write_data_at(fp, sound_str,     58, sound_str_len);
+		node.write_sint8  (fp, sound_str_len, 62);
+		node.write_data_at(fp, sound_str,     63, sound_str_len);
 	}
 
 	node.write(fp);
