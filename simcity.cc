@@ -2089,7 +2089,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	{
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
-		const uint16 journey_time_per_tile = road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch());
+		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch()) : welt->get_generic_road_speed_city();
 		connected_cities.put(this, journey_time_per_tile);
 		return journey_time_per_tile;
 	}

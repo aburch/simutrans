@@ -197,7 +197,7 @@ uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in m/s */ ) co
 	return speed <= force_threshold_speed ? geared_force * speed : geared_power;
 }
 
-uint16 get_obsolete_year_month() const
+uint16 vehikel_besch_t::get_obsolete_year_month() const
 { 
 	if(increase_maintenance_after_years)
 	{
