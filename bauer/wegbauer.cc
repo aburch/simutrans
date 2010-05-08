@@ -1890,7 +1890,8 @@ void wegbauer_t::baue_strasse()
 {
 	// construct city road?
 	const weg_besch_t *cityroad = get_besch("city_road");
-	bool add_sidewalk = besch==cityroad;
+	// only public player or cities (sp==NULL) can build cityroads with sidewalk
+	bool add_sidewalk = besch==cityroad  &&  (sp==NULL  ||  sp->get_player_nr()==1);
 
 	if(add_sidewalk) {
 		sp = NULL;
