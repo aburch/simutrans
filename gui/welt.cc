@@ -557,9 +557,15 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	) / (1024 * 1024);
 	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
-	y += 12;	// x size
+	y += 12;
+
+	y += 12;
+
+	sprintf(buf, "%.2g km/%s", sets->get_distance_per_tile(), translator::translate("tile"));
+	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
 	y += 12+5;	// y size
-	y += BUTTON_HEIGHT+12+5;	// buttons
+
+	y += BUTTON_HEIGHT+5;	// buttons
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;

@@ -758,7 +758,9 @@ public:
 
 	uint16 get_max_walking_distance() const { return max_walking_distance; }
 	bool get_quick_city_growth() const { return quick_city_growth; }
+	void set_quick_city_growth(bool value) { quick_city_growth = value; }
 	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
+	void set_assume_everywhere_connected_by_road(bool value) { assume_everywhere_connected_by_road = value; }
 };
 
 #endif
