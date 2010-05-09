@@ -311,4 +311,3 @@ void settings_costs_stats_t::read(einstellungen_t *sets)
 	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
-

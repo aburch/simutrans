@@ -238,4 +238,3 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( left_to_right_graphs, "" );
 	}
 }
-

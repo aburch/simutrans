@@ -514,4 +514,3 @@ const way_obj_besch_t* wayobj_t::find_besch(const char *str)
 {
 	return wayobj_t::table.get(str);
 }
-

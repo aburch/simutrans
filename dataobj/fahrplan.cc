@@ -406,6 +406,3 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	return true;
 }
-
-
-

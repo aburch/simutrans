@@ -446,4 +446,3 @@ include common.mk
 
 makeobj_prog:
 	$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
-

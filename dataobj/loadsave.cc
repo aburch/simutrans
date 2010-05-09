@@ -982,6 +982,3 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 
 	return version;
 }
-
-
-

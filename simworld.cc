@@ -5395,4 +5395,3 @@ void karte_t::network_disconnect()
 	create_win(280, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
 	beenden(false);
 }
-

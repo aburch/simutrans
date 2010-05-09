@@ -75,4 +75,3 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 	}
 	return true;
 }
-

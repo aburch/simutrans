@@ -107,7 +107,3 @@ const char *loadsave_frame_t::get_info(const char *fname)
 	}
 	return date;
 }
-
-
-
-
