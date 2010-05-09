@@ -528,22 +528,22 @@ DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
 	if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing bridge from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
 		bruecke_t* br = gr->find<bruecke_t>();
-		msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), br->get_besch()->get_waytype());
 		if(br->get_besch()->get_waytype() == road_wt)
 		{
 			welt->set_recheck_road_connexions();
 		}
+		msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), br->get_besch()->get_waytype());
 		return msg == NULL;
 	}
 
 	// beginning/end of tunnel
 	if(gr->ist_tunnel()  &&  gr->ist_karten_boden()) {
 DBG_MESSAGE("wkz_remover()",  "removing tunnel  from %d,%d,%d",gr->get_pos().x, gr->get_pos().y, gr->get_pos().z);
-		msg = tunnelbauer_t::remove(welt, sp, gr->get_pos(), gr->get_weg_nr(0)->get_waytype());
 		if(gr->get_weg_nr(0)->get_waytype() == road_wt)
 		{
 			welt->set_recheck_road_connexions();
-		}
+		}		
+		msg = tunnelbauer_t::remove(welt, sp, gr->get_pos(), gr->get_weg_nr(0)->get_waytype());
 		return msg == NULL;
 	}
 
