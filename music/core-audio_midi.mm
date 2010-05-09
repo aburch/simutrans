@@ -49,15 +49,19 @@ int dr_load_midi(const char * filename)
 
 	static int cntr = 0;
 
-	// load filename into the array of such things, in case we need it
-	[files addObject: [[NSString alloc] initWithUTF8String:filename]];
+	NSString* const name  = [[NSString alloc] initWithUTF8String:filename];
+	QTMovie*  const movie = [[QTMovie alloc] initWithFile:name error:nil];
+	if (movie) {
+		// load filename into the array of such things, in case we need it
+		[files addObject:name];
 
-	// preload the file into memory
-	[movies addObject: [[QTMovie alloc] initWithFile: [[NSString alloc] initWithUTF8String:filename] error:nil] ];
+		// preload the file into memory
+		[movies addObject:movie];
 
-	cntr++;
+		cntr++;
 
-	printf("Load MIDI (%d): %s", cntr-1, filename);
+		printf("Load MIDI (%d): %s", cntr-1, filename);
+	}
 	return (cntr-1);	// allow for zero based array
 }
 
