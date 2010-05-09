@@ -185,8 +185,6 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 			if(experimental_version >= 0 && experimental_version <= 4)
 			{
 				besch->is_tilting = decode_uint8(p);
-				//besch->way_constraints_permissive = decode_uint8(p);
-				//besch->way_constraints_prohibitive = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));
 				way_constraints.set_prohibitive(decode_uint8(p));
 				besch->catering_level = decode_uint8(p);

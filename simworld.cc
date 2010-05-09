@@ -3175,7 +3175,7 @@ void karte_t::recalc_average_speed()
 					}
 
 					const uint16 obsolete_month = info->get_obsolete_year_month();
-					if(retire_month == current_month) 
+					if(obsolete_month == current_month) 
 					{
 						sprintf(buf,
 							translator::translate("The following %s has become obsolete:\n%s\n"),
