@@ -765,6 +765,7 @@ public:
 	void set_assume_everywhere_connected_by_road(bool value) { assume_everywhere_connected_by_road = value; }
 
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
+	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 };
 
 #endif

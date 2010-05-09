@@ -1524,7 +1524,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
-	for(uint8 i = road_wt; i < air_wt; i ++)
+	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{
 		char* buf;
 		switch(i)
