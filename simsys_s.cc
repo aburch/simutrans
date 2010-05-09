@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -12,7 +12,7 @@
 #endif
 
 #ifdef _WIN32
-#include <SDL/SDL_syswm.h>
+#include <SDL_syswm.h>
 #include <windows.h>
 #else
 #include <sys/stat.h>
