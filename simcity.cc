@@ -2602,8 +2602,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	const uint32 ymax2 = wl->get_groesse_y()/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
-	uint64 its = 0;
-
 	for (int i = 0; i < anzahl; i++) {
 		// check distances of all cities to their respective neightbours
 		while (!index_to_places.empty()) {
@@ -2625,7 +2623,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 				for(sint32 j=k2mcd.y-1; ok && j<=k2mcd.y+1; j++) {
 					if (i>=0 && i<(sint32)xmax2 && j>=0 && j<(sint32)ymax2) {
 						for(uint32 l=0; ok && l<result_places.at(i,j).get_count(); l++) {
-							its++;
 							if (koord_distance(k, result_places.at(i,j)[l]) < minimum_city_distance){
 								ok = false;
 							}
@@ -2658,8 +2655,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	}
 	list->clear();
 	delete list;
-
-	printf("simcity::  number of iterations %d\n", its);
 
 	return result;
 }
