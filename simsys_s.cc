@@ -608,7 +608,7 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			break;
 
-		case 1:
+		case SDL_WINDOWEVENT:
 		case SDL_KEYUP:
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
