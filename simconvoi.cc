@@ -196,6 +196,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
 	init(wl, 0);
+	replace = NULL;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -203,8 +204,6 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	old_fpl = NULL;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
-
-	replace = NULL;
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
