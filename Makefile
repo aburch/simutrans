@@ -363,8 +363,9 @@ ifeq ($(BACKEND),sdl)
   CXXFLAGS += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
     # Core Audio (Quicktime) base sound system routines
-    SOURCES += sound/core-audio_sound.mm
-    SOURCES += music/core-audio_midi.mm
+    SOURCES  += sound/core-audio_sound.mm
+    SOURCES  += music/core-audio_midi.mm
+    STD_LIBS += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw),)
