@@ -73,9 +73,8 @@ ifneq ($(OPTIMISE),)
     CXXFLAGS += -O3 -fno-schedule-insns
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
-      CFLAGS   += -minline-all-stringops -ffunction-sections
-      CXXFLAGS   += -minline-all-stringops -ffunction-sections
-      LDFLAGS += -ffunction-sections
+      CFLAGS   += -minline-all-stringops
+      CXXFLAGS   += -minline-all-stringops
     endif
   endif
 else

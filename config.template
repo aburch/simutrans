@@ -38,13 +38,29 @@
 # broken filesystems
 # NO_DEPS = 1
 
-# The following conditional compilation flags exist
-# DOUBLE_GROUNDS: Enables two height tiles
-# HALF_HEIGHT: Enables half height tiles (8 pixel instead 16)
-# OTTD_LIKE: Enables half height tiles and crossconnects all industries
-# DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
-# USE_C: no assembler for copying (when not using x86 and GCC>=3.x)
-# BIG_ENDIAN: MUST by set for PPC/Motorola byte order! (old mac, amiga)
+# The following useful conditional compilation flags exist
 #
-# In order to use the flags, add a line like this:
+# Needed to compile:
+# USE_C: no assembler for copying (required for not using GCC on x86)
+# BIG_ENDIAN: MUST be set for PPC/Motorola byte order! (old mac, amiga)
+#
+# Changing appearance:
+# USE_SOFTPOINTER: emulate mouse pointer (set automatically in Makefile)
+# HALF_HEIGHT: Enables half height tiles (8 pixel instead 16)
+#
+# Useful for debugging:
+# DEBUG_ROUTES: show routing calculation information in minimap
+# SHOW_FORE_GRUND: show which objects are drawn as foreground
+# DEBUG_FLUSH_BUFFER: show the dirty areas on the screen
+#
+# Following flags alter game engine (and are off for standard builds)
+# OTTD_LIKE: Enables half height tiles and crossconnects all industries
+# AUTOMATIC_BRIDGES and AUTOMATIC_TUNNELS: will be built also for player
+# AUTOJOIN_PUBLIC: stations next to a public stop will be joined to it
+# MAX_CHOOSE_BLOCK_TILES=xxx: maximum distance between choose signal and a
+#    target (undefined means no limit)
+# USE_DIFFERENT_WIND: different airplane approach directions over the map
+# DESTINATION_CITYCARS: Citycars can have a destination (not recommended)
+#
+# In order to use the flags, add a line like this: (-Dxxx)
 # FLAGS = -DUSE_C -DBIG_ENDIAN
