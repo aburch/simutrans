@@ -199,3 +199,24 @@ note=Label for "quick city growth" setting
 obj=program_text
 name=assume_everywhere_connected_by_road
 note=Label for "assume everywhere connected by road" setting
+-
+obj=program_text
+name=West To East
+note=Label for number of x tiles setting
+-
+obj=program_text
+name=North To South
+note=Label for number of y tiles setting
+-
+obj=program_text
+name=Size
+note=Label for "number of tiles" settings section
+-
+obj=program_text
+name=tile
+note=unit for "number of tiles"
+
+
+
+
+
