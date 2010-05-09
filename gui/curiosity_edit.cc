@@ -264,7 +264,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 
 		// change lable numbers
 		if(rotation == 255) {
-			tstrncpy( rot_str, translator::translate("random"), 16 );
+			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}
 		else {
 			sprintf( rot_str, "%i", rotation );
@@ -308,7 +308,7 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 		for(int i=0;  i<4;  i++  ) {
 			img[i].set_image( IMG_LEER );
 		}
-		tstrncpy( rot_str, translator::translate("random"), 16 );
+		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		uint8 rot = (rotation==255) ? 0 : rotation;
 		if (besch) {
 			img[3].set_image( besch->get_tile(rot,0,0)->get_hintergrund(0,0,0) );

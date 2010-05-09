@@ -330,7 +330,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 		// change lable numbers
 		if(rotation == 255) {
-			tstrncpy( rot_str, translator::translate("random"), 16 );
+			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}
 		else {
 			sprintf( rot_str, "%i", rotation );
@@ -384,7 +384,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 		}
 		buf.clear();
 		prod_str[0] = 0;
-		tstrncpy( rot_str, translator::translate("random"), 16 );
+		tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		fab_besch = NULL;
 		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 	}

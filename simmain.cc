@@ -381,7 +381,7 @@ int simu_main(int argc, char** argv)
 	if (gimme_arg(argc, argv, "-use_workdir",0)) {
 #endif
 		// save the current directories
-		getcwd( umgebung_t::program_dir, 1024 );
+		getcwd(umgebung_t::program_dir, lengthof(umgebung_t::program_dir));
 #ifdef _WIN32
 		strcat( umgebung_t::program_dir, "\\" );
 #else
