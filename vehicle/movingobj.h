@@ -57,6 +57,7 @@ public:
 	// otherwise I suggest use the plant tree function (see below)
 	movingobj_t(karte_t *welt, loadsave_t *file);
 	movingobj_t(karte_t *welt, koord3d pos, const groundobj_besch_t *);
+	~movingobj_t();
 
 	bool sync_step(long delta_t);
 

@@ -113,7 +113,7 @@ gebaeude_t::~gebaeude_t()
 		ptr.stadt->remove_gebaeude_from_stadt(this);
 	}
 
-	if((tile  &&  tile->get_phasen()>1)  ||  zeige_baugrube) {
+	if(sync) {
 		sync = false;
 		welt->sync_remove(this);
 	}
@@ -269,7 +269,7 @@ gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 		}
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
-		// needs now anymation
+		// needs now animation
 		count = simrand(new_tile->get_phasen());
 		anim_time = 0;
 		welt->sync_add(this);
