@@ -1530,7 +1530,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		}
 		// check for obsolete
 		if(!has_obsolete  &&  welt->use_timeline()) {
-			has_obsolete = v->get_besch()->is_obsolete( welt->get_timeline_year_month() );
+			has_obsolete = v->get_besch()->is_obsolete( welt->get_timeline_year_month(), welt );
 		}
 	}
 	else {
@@ -4603,7 +4603,7 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 {
 	// convoi has obsolete vehicles?
 	for(int j = get_vehikel_anzahl(); --j >= 0; ) {
-		if (fahr[j]->get_besch()->is_obsolete(timeline_year_month)) {
+		if (fahr[j]->get_besch()->is_obsolete(timeline_year_month, welt)) {
 			return true;
 		}
 	}

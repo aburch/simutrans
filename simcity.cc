@@ -2025,10 +2025,10 @@ void stadt_t::calc_growth()
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = welt->get_einstellungen()->get_growthfactor_large();
-	if(bev<1000) {
+	if(bev<2500) {
 		weight_factor = welt->get_einstellungen()->get_growthfactor_small();
 	}
-	else if(bev<10000) {
+	else if(bev<25000) {
 		weight_factor = welt->get_einstellungen()->get_growthfactor_medium();
 	}
 
@@ -2772,8 +2772,12 @@ public_transport:
 					//start_halt->add_pax_happy(pax.menge); //As of 7.2, this is done on arrival at the destination.
 					// and show it
 					merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
+					
+					/* This is no longer needed here, as the passengers are added on *arrival* if they are transported
+					 * by a player.
 					city_history_year[0][history_type] += pax.menge;
 					city_history_month[0][history_type] += pax.menge;
+					*/
 				}
 
 				// send them also back
@@ -2936,10 +2940,10 @@ public_transport:
 		// they do not have a start halt does not mean that they cannot
 		// walk to their destination!
 		const double tile_distance = accurate_distance(k, destination_now.location);
-		const double total_distance = tile_distance * welt->get_einstellungen()->get_distance_per_tile();
-		if(total_distance < 1.5)
+		if(tile_distance < welt->get_einstellungen()->get_max_walking_distance())
 		{
-			// Passengers will walk to their destination if it is less than 1.5km away.
+			// Passengers will walk to their destination if it is within the specified range.
+			// (Default: 1.5km)
 			merke_passagier_ziel(destination_now.location, COL_YELLOW);
 			city_history_year[0][history_type] += num_pax;
 			city_history_month[0][history_type] += num_pax;

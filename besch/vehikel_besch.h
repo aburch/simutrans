@@ -394,7 +394,7 @@ public:
 	* @return time when the vehicle is obsolete
 	* @author: jamespetts
 	*/
-	uint16 get_obsolete_year_month() const;
+	uint16 get_obsolete_year_month(const karte_t *welt) const;
 
 	// true if future
 	bool is_future (const uint16 month_now) const
@@ -415,9 +415,9 @@ public:
 	* @ Returns true if the vehicle is obsolete
 	* @author: 
 	*/
-	bool is_obsolete (const uint16 month_now) const
+	bool is_obsolete (const uint16 month_now, const karte_t* welt) const
 	{
-		return month_now  &&  (get_obsolete_year_month() <= month_now);
+		return month_now  &&  (get_obsolete_year_month(welt) <= month_now);
 	}
 
 	/**

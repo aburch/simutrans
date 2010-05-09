@@ -381,6 +381,8 @@ public:
 	// be disabled. 
 	bool assume_everywhere_connected_by_road;
 
+	uint16 default_increase_maintenance_after_years[17];
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -761,6 +763,8 @@ public:
 	void set_quick_city_growth(bool value) { quick_city_growth = value; }
 	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
 	void set_assume_everywhere_connected_by_road(bool value) { assume_everywhere_connected_by_road = value; }
+
+	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 };
 
 #endif

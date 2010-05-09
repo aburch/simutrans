@@ -473,7 +473,13 @@ int simu_main(int argc, char** argv)
 
 	// now read last setting (might be overwritten by the tab-files)
 	loadsave_t file;
-	bool xml_settings_found = file.rd_open("settings-experimental.xml");
+	
+#ifdef DEBUG
+	const char xml_filename[32] = "settings-experimental-debug.xml";
+#else
+	const char xml_filename[25] = "settings-experimental.xml";
+#endif
+	bool xml_settings_found = file.rd_open(xml_filename);
 	if(!xml_settings_found)
 	{
 		// Again, attempt to use the Debian directory.
@@ -481,7 +487,7 @@ int simu_main(int argc, char** argv)
 		strcpy(backup_program_dir, umgebung_t::program_dir);
 		strcpy( umgebung_t::program_dir, "/usr/share/games/simutrans/" );
         chdir( umgebung_t::program_dir );
-		xml_settings_found = file.rd_open("settings-experimental.xml");
+		xml_settings_found = file.rd_open(xml_filename);
 		if(!xml_settings_found)
 		{
 			 strcpy(umgebung_t::program_dir, backup_program_dir);
@@ -495,7 +501,7 @@ int simu_main(int argc, char** argv)
 		{
 			// too new => remove it
 			file.close();
-			remove( "settings-experimental.xml" );
+			remove(xml_filename);
 		}
 		else 
 		{
@@ -1079,7 +1085,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// save setting ...
 	chdir( umgebung_t::user_dir );
-	if(file.wr_open("settings-experimental.xml",loadsave_t::xml,"settings only/")) 
+	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/")) 
 	{
 		umgebung_t::rdwr(&file);
 		umgebung_t::default_einstellungen.rdwr(&file);
