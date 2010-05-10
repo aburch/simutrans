@@ -161,17 +161,12 @@ spieler_t *ding_t::get_besitzer() const
  */
 void ding_t::info(cbuffer_t & buf) const
 {
-	char translation[256];
-
-	if(besitzer_n==1) {
-		tstrncpy( translation, translator::translate("Eigenbesitz\n"), 256 );
-	}
-	else if(besitzer_n==PLAYER_UNOWNED) {
-		tstrncpy( translation, translator::translate("Kein Besitzer\n"), 256 );
-	}
-	else {
-		tstrncpy( translation, get_besitzer()->get_name(), 256 );
-	}
+	char              translation[256];
+	char const* const owner =
+		besitzer_n == 1              ? translator::translate("Eigenbesitz\n")   :
+		besitzer_n == PLAYER_UNOWNED ? translator::translate("Kein Besitzer\n") :
+		get_besitzer()->get_name();
+	tstrncpy(translation, owner, lengthof(translation));
 	// remove trailing linebreaks etc.
 	for(  int i=strlen(translation);  i>0  &&  ' '>(uint8)translation[i-1];  i--  ) {
 		translation[i-1] = 0;

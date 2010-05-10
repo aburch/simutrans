@@ -10,7 +10,7 @@
 
 #ifdef SDL
 #ifndef WIN32
-#include <SDL/SDL.h>
+#include <SDL.h>
 #else
 #include "../SDL-1.2.13/include/SDL.h"
 #endif
@@ -21,7 +21,7 @@
 #endif
 
 #ifdef _WIN32
-//#include <SDL/SDL_syswm.h>
+//#include <SDL_syswm.h>
 #include "../SDL-1.2.13/include/SDL_syswm.h"
 #include <windows.h>
 #else
@@ -626,7 +626,7 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			break;
 
-		case 1:
+		case SDL_WINDOWEVENT:
 		case SDL_KEYUP:
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;

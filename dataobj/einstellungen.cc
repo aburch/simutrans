@@ -1103,7 +1103,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const char *str = ltrim(contents.get("city_road_type"));
 	if(str[0]>0) {
 		num_city_roads = 1;
-		tstrncpy( city_roads[0].name, str, 64 );
+		tstrncpy(city_roads[0].name, str, lengthof(city_roads[0].name));
 		rtrim( city_roads[0].name );
 		city_roads[0].intro = 0;
 		city_roads[0].retire = 0;
@@ -1146,7 +1146,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	str = ltrim(contents.get("intercity_road_type"));
 	if(str[0]>0) {
 		num_intercity_roads = 1;
-		tstrncpy( intercity_roads[0].name, str, 64 );
+		tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name));
 		rtrim( intercity_roads[0].name );
 		intercity_roads[0].intro = 0;
 		intercity_roads[0].retire = 0;

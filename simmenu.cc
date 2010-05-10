@@ -1006,4 +1006,3 @@ image_id two_click_werkzeug_t::get_marker_image()
 {
 	return skinverwaltung_t::bauigelsymbol->get_bild_nr(0);
 }
-

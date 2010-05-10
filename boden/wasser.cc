@@ -92,4 +92,3 @@ void wasser_t::rotate90()
 	grund_t::rotate90();
 	ribi = ribi_t::rotate90(ribi);
 }
-

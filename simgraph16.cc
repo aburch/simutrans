@@ -57,6 +57,11 @@
  */
 typedef uint16 PIXVAL;
 
+// sanity check: USE_C if not GCC and not intel 32bit
+#if !defined(__GNUC__)  ||  !defined(_X86_)
+#define USE_C
+#endif
+
 
 #ifdef USE_SOFTPOINTER
 static int softpointer = -1;

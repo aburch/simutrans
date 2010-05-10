@@ -52,7 +52,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	gui_frame_t("Stadtinformation"),
 	stadt(stadt_)
 {
-	tstrncpy( name, stadt->get_name(), 256 );
+	tstrncpy(name, stadt->get_name(), lengthof(name));
 	name_input.set_text(name, 30);
 	name_input.set_groesse(koord(124, 14));
 	name_input.set_pos(koord(8, 8));

@@ -1342,4 +1342,3 @@ void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, boo
 		}
 	}
 }
-

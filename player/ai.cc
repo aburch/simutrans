@@ -527,4 +527,3 @@ void ai_t::tell_tool_result(werkzeug_t *tool, koord3d pos, const char *err, bool
 
 	// TODO: process the result...
 }
-

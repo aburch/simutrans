@@ -71,5 +71,3 @@ bool load_relief_frame_t::check_file( const char *filename, const char * )
 	}
 	return false;
 }
-
-

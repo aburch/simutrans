@@ -269,7 +269,7 @@ void citybuilding_edit_frame_t::change_item_info(sint32 entry)
 
 		// change lable numbers
 		if(rotation == 255) {
-			tstrncpy( rot_str, translator::translate("random"), 16 );
+			tstrncpy(rot_str, translator::translate("random"), lengthof(rot_str));
 		}
 		else {
 			sprintf( rot_str, "%i", rotation );

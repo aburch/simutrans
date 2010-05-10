@@ -616,4 +616,3 @@ void network_core_shutdown()
 	}
 	network_active = false;
 }
-
