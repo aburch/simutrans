@@ -3052,6 +3052,7 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
 #else
 	amount /= 4;
 	asm volatile (
+		"cld\n\t"
 		"rep\n\t"
 		"movsl\n\t"
 		: "+D" (dst), "+S" (src), "+c" (amount)
