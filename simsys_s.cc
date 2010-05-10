@@ -55,6 +55,11 @@
 #include "simgraph.h"
 #include "./dataobj/umgebung.h"
 
+// older SDL versions aparently do not have this definition
+#ifndef SDL_WINDOWEVENT
+#define SDL_WINDOWEVENT (1)
+#endif
+
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
 //#define USE_HW
