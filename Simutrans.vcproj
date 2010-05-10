@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="8,00"
 	Name="Simutrans"
 	ProjectGUID="{0621B295-BEB7-4767-82F1-F27995610323}"
 	RootNamespace="Simutrans"
 	Keyword="Win32Proj"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -43,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32;DEBUG=3"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32;DEBUG=3"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -73,8 +72,6 @@
 				IgnoreDefaultLibraryNames="libcmt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -94,6 +91,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;USE_C;WIN32"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;STEPS16;USE_C;WIN32"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -152,8 +152,6 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -173,6 +171,9 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
