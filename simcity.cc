@@ -2025,10 +2025,10 @@ void stadt_t::calc_growth()
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = welt->get_einstellungen()->get_growthfactor_large();
-	if(bev<2500) {
+	if(bev < welt->get_einstellungen()->get_city_threshold_size()) {
 		weight_factor = welt->get_einstellungen()->get_growthfactor_small();
 	}
-	else if(bev<25000) {
+	else if(bev < welt->get_einstellungen()->get_capital_threshold_size()) {
 		weight_factor = welt->get_einstellungen()->get_growthfactor_medium();
 	}
 

@@ -386,6 +386,9 @@ einstellungen_t::einstellungen_t() :
 
 	quick_city_growth = false;
 	assume_everywhere_connected_by_road=false;
+
+	city_threshold_size = 1000;
+	capital_threshold_size = 10000;
 	
 	for(uint8 i = 0; i < 17; i ++)
 	{
@@ -1033,6 +1036,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		{
 			file->rdwr_short(default_increase_maintenance_after_years[i], "");
 		}
+		file->rdwr_long(capital_threshold_size, "");
+		file->rdwr_long(city_threshold_size, "");
 	}
 }
 
@@ -1558,6 +1563,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		}
 		default_increase_maintenance_after_years[i] = contents.get_int(buf, default_increase_maintenance_after_years[i]);
 	}
+
+	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
+	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
 
 	/*
 	 * Selection of savegame format through inifile

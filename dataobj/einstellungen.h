@@ -383,6 +383,9 @@ public:
 
 	uint16 default_increase_maintenance_after_years[17];
 
+	uint32 city_threshold_size;
+	uint32 capital_threshold_size;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -763,6 +766,11 @@ public:
 	void set_quick_city_growth(bool value) { quick_city_growth = value; }
 	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
 	void set_assume_everywhere_connected_by_road(bool value) { assume_everywhere_connected_by_road = value; }
+
+	uint32 get_city_threshold_size() const { return city_threshold_size; }
+	void set_city_threshold_size(uint32 value) { city_threshold_size = value; }
+	uint32 get_capital_threshold_size() const { return capital_threshold_size; }
+	void set_capital_threshold_size(uint32 value) { capital_threshold_size = value; }
 
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
