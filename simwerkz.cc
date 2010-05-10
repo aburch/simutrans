@@ -1253,7 +1253,7 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			if(gr && !gr->get_text()) 
 			{
 				const ding_t* thing = gr->obj_bei(0);
-				const label_t* l = gr->find<label_t>();
+				//const label_t* l = gr->find<label_t>();
 
 				if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) 
 				{
@@ -1754,6 +1754,7 @@ const char *wkz_wegebau_t::do_work( karte_t *welt, spieler_t *sp, const koord3d 
 	calc_route( bauigel, start, end );
 	if(  bauigel.get_route().get_count()>1  ) {
 		long cost = bauigel.calc_costs();
+		
 		if(!sp->can_afford(cost))
 		{
 			return CREDIT_MESSAGE;
