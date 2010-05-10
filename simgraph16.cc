@@ -2074,7 +2074,6 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 #else
 				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cache alignment?)
 				asm volatile (
-					"cld\n\t"
 					// rep movsw and we would be finished, but we unroll
 					// uneven number of words to copy
 					"shrl %2\n\t"
@@ -3103,7 +3102,6 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 			p = (PIXVAL *)lp;
 #else
 			asm volatile (
-				"cld\n\t"
 				// uneven words to copy?
 				// if(w&1)
 				"testb $1,%%cl\n\t"
