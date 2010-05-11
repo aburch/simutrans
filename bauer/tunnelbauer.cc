@@ -302,7 +302,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), 0, weg_t::type_flat );
 	}
 
-	const weg_besch_t *einfahrt_weg_besch = baue_einfahrt(welt, sp, pos, zv, besch, NULL, cost);
+	baue_einfahrt(welt, sp, pos, zv, besch, weg_besch, cost);
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
@@ -337,7 +337,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	// if end is above ground construct an exit
 	if(welt->lookup(end.get_2d())->get_kartenboden()->get_pos().z==end.z) {
-		baue_einfahrt(welt, sp, pos, -zv, besch, einfahrt_weg_besch, cost);
+		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
 		// calc new back image for the ground
 		if (end!=start && grund_t::underground_mode) {
 			grund_t *gr = welt->lookup(pos.get_2d()-zv)->get_kartenboden();
