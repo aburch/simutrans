@@ -979,7 +979,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			{
 				uint16 old_passenger_max_wait;
 				file->rdwr_short(old_passenger_max_wait, "");
-				passenger_max_wait = (uint32)(old_passenger_max_wait, "");
+				passenger_max_wait = (uint32)old_passenger_max_wait;
 			}
 			else
 			{
