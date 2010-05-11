@@ -688,7 +688,11 @@ bool dr_fatal_notify(const char* msg, int choices)
 
 #ifdef _WIN32
 BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lpCmdLine, int /*nShowCmd*/)
+#else
+int main(int argc, char **argv)
+#endif
 {
+#ifdef _WIN32
 	char *argv[32], *p;
 	int argc;
 	char pathname[PATH_MAX];
@@ -703,10 +707,7 @@ BOOL APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR lp
 		p = strtok(NULL, " ");
 	}
 	argv[argc] = NULL;
-#else
-int main(int argc, char **argv)
-{
-#ifndef __BEOS__
+#elif !defined __BEOS__
 #	if defined __GLIBC__
 	/* glibc has a non-standard extension */
 	char* buffer2 = NULL;
@@ -722,7 +723,6 @@ int main(int argc, char **argv)
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
 	argv[0] = realpath(argv[0], buffer2);
-#	endif
 #endif
 	return simu_main(argc, argv);
 }
