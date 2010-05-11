@@ -142,7 +142,6 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 	}
 }
 
-
 gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150) 
 {
 	strcpy(pak, umgebung_t::objfilename);

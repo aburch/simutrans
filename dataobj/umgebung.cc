@@ -246,4 +246,3 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	}
 }
-

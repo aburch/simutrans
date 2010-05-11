@@ -1054,11 +1054,9 @@ loadsave_t::combined_version loadsave_t::int_version(const char *version_text, i
 		}
 		*pak_extension_str = 0;
 	}
-
 	combined_version loadsave_version;
 	loadsave_version.version = version;
 	loadsave_version.experimental_version = experimental_version;
 
 	return loadsave_version;
 }
-

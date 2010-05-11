@@ -386,6 +386,21 @@ einstellungen_t::einstellungen_t() :
 
 	quick_city_growth = false;
 	assume_everywhere_connected_by_road=false;
+
+	city_threshold_size = 1000;
+	capital_threshold_size = 10000;
+	
+	for(uint8 i = 0; i < 17; i ++)
+	{
+		if(i != road_wt)
+		{
+			default_increase_maintenance_after_years[i] = 30;
+		}
+		else
+		{
+			default_increase_maintenance_after_years[i] = 15;
+		}
+	}
 }
 
 
@@ -1017,6 +1032,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		file->rdwr_short(max_walking_distance, "");
 		file->rdwr_bool(quick_city_growth, "");
 		file->rdwr_bool(assume_everywhere_connected_by_road, "");
+		for(uint8 i = 0; i < 17; i ++)
+		{
+			file->rdwr_short(default_increase_maintenance_after_years[i], "");
+		}
+		file->rdwr_long(capital_threshold_size, "");
+		file->rdwr_long(city_threshold_size, "");
 	}
 }
 
@@ -1087,7 +1108,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const char *str = ltrim(contents.get("city_road_type"));
 	if(str[0]>0) {
 		num_city_roads = 1;
-		tstrncpy( city_roads[0].name, str, 64 );
+		tstrncpy(city_roads[0].name, str, lengthof(city_roads[0].name));
 		rtrim( city_roads[0].name );
 		city_roads[0].intro = 0;
 		city_roads[0].retire = 0;
@@ -1130,7 +1151,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	str = ltrim(contents.get("intercity_road_type"));
 	if(str[0]>0) {
 		num_intercity_roads = 1;
-		tstrncpy( intercity_roads[0].name, str, 64 );
+		tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name));
 		rtrim( intercity_roads[0].name );
 		intercity_roads[0].intro = 0;
 		intercity_roads[0].retire = 0;
@@ -1508,6 +1529,43 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	assume_everywhere_connected_by_road = (bool)(contents.get_int("assume_everywhere_connected_by_road", assume_everywhere_connected_by_road));
 
+	for(uint8 i = road_wt; i <= air_wt; i ++)
+	{
+		char* buf;
+		switch(i)
+		{
+		case road_wt:
+			buf = "default_increase_maintenance_after_years_road";
+			break;
+		case track_wt:
+			buf = "default_increase_maintenance_after_years_rail";
+			break;
+		case water_wt:
+			buf = "default_increase_maintenance_after_years_water";
+			break;
+		case monorail_wt:
+			buf = "default_increase_maintenance_after_years_monorail";
+			break;
+		case maglev_wt:
+			buf = "default_increase_maintenance_after_years_maglev";
+			break;
+		case tram_wt:
+			buf = "default_increase_maintenance_after_years_tram";
+			break;
+		case narrowgauge_wt:
+			buf = "default_increase_maintenance_after_years_narrowgauge";
+			break;
+		case air_wt:
+			buf = "default_increase_maintenance_after_years_air";
+			break;
+		default:
+			buf = "default_increase_maintenance_after_years_other";
+		}
+		default_increase_maintenance_after_years[i] = contents.get_int(buf, default_increase_maintenance_after_years[i]);
+	}
+
+	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
+	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
 
 	/*
 	 * Selection of savegame format through inifile

@@ -44,7 +44,7 @@ int dr_load_sample(const char *filename)
 	// return a reference number, which will be used to 'call' this file for later playback
 	// we store the filename and preload the file into memory ready to play
 
-	char *realFile = strstr(filename, "//")+1;
+	char const* const realFile = strrchr(filename, '/') + 1;
 
 	static int cntr = 0;
 

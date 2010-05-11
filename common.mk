@@ -21,49 +21,27 @@ clean:
 	@echo "===> Cleaning up"
 	$(Q)rm -f $(PROG) $(OBJECTS) $(DEPS)
 
-ifndef NO_DEPS
-depend: $(DEPS)
-
-ifeq ($(findstring $(MAKECMDGOALS), clean depend),)
 -include $(DEPS)
-endif
-endif
 
 # Silence stale header dependency errors
 %.h:
 	@true
 
-%.d: %.mm
-	@echo "===> DEP OSX $<"
-	$(Q)$(CXX) $(OBJCFLAGS) -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
-%.d: %.m
-	@echo "===> DEP OSX $<"
-	$(Q)$(CXX) $(OBJCFLAGS) -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
-%.d: %.c
-	@echo "===> DEP $<"
-	$(Q)$(CC) $(CFLAGS) -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
-%.d: %.cc
-	@echo "===> DEP $<"
-	$(Q)$(CXX) $(CXXFLAGS) -MM $< | sed 's#^$(@F:%.d=%.o):#$@ $(@:%.d=%.o):#' > $@
-
 %.o: %.mm
 	@echo "===> Obj-c OSX $<"
-	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS)  -o $@ -c $<
+	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
 %.o: %.m
 	@echo "===> Obj-c OSX $<"
-	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS)  -o $@ -c $<
+	$(Q)$(CXX) $(CXXFLAGS) $(OBJCFLAGS) -c -MMD -o $@ $<
 
 %.o: %.c
 	@echo "===> CC  $<"
-	$(Q)$(CC) $(CFLAGS) -o $@ -c $<
+	$(Q)$(CC) $(CFLAGS) -c -MMD -o $@ $<
 
 %.o: %.cc
 	@echo "===> CXX $<"
-	$(Q)$(CXX) $(CXXFLAGS) -o $@ -c $<
+	$(Q)$(CXX) $(CXXFLAGS) -c -MMD -o $@ $<
 
 %.o: %.rc
 	@echo "===> RES $<"

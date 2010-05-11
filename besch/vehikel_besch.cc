@@ -197,7 +197,7 @@ uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in m/s */ ) co
 	return speed <= force_threshold_speed ? geared_force * speed : geared_power;
 }
 
-uint16 vehikel_besch_t::get_obsolete_year_month() const
+uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 { 
 	if(increase_maintenance_after_years)
 	{
@@ -205,7 +205,6 @@ uint16 vehikel_besch_t::get_obsolete_year_month() const
 	}
 	else
 	{
-		//TODO: Set simuconf.tab values for this.
-		return obsolete_date + 360;
+		return obsolete_date + (welt->get_einstellungen()->get_default_increase_maintenance_after_years((waytype_t)typ) * 12);
 	}
 }

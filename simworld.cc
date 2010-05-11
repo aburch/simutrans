@@ -3174,7 +3174,7 @@ void karte_t::recalc_average_speed()
 							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
 					}
 
-					const uint16 obsolete_month = info->get_obsolete_year_month();
+					const uint16 obsolete_month = info->get_obsolete_year_month(this);
 					if(obsolete_month == current_month) 
 					{
 						sprintf(buf,

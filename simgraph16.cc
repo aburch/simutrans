@@ -57,6 +57,11 @@
  */
 typedef uint16 PIXVAL;
 
+// sanity check: USE_C if not GCC and not intel 32bit
+#if !defined(__GNUC__)  ||  !defined(_X86_)
+#define USE_C
+#endif
+
 
 #ifdef USE_SOFTPOINTER
 static int softpointer = -1;
@@ -2069,7 +2074,6 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 #else
 				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cache alignment?)
 				asm volatile (
-					"cld\n\t"
 					// rep movsw and we would be finished, but we unroll
 					// uneven number of words to copy
 					"shrl %2\n\t"
@@ -3048,6 +3052,7 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
 #else
 	amount /= 4;
 	asm volatile (
+		"cld\n\t"
 		"rep\n\t"
 		"movsl\n\t"
 		: "+D" (dst), "+S" (src), "+c" (amount)
@@ -3098,7 +3103,6 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 			p = (PIXVAL *)lp;
 #else
 			asm volatile (
-				"cld\n\t"
 				// uneven words to copy?
 				// if(w&1)
 				"testb $1,%%cl\n\t"

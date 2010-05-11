@@ -114,6 +114,38 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 	SEPERATOR;
 	INIT_BOOL( "quick_city_growth", sets->get_quick_city_growth());
 	INIT_BOOL( "assume_everywhere_connected_by_road", sets->get_assume_everywhere_connected_by_road());
+	SEPERATOR;
+	{
+		gui_component_table_t &tbl = new_table(koord(0, ypos), 2, 9);
+		int row = 8;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(overheadlines_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_other"), 1, row);
+		row = 0;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(road_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_road"), 1, row);
+		row++;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(track_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_rail"), 1, row);
+		row++;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(water_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_water"), 1, row);
+		row++;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(monorail_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_monorail"), 1, row);
+		row++;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(maglev_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_maglev"), 1, row);
+		row++;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(tram_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_tram"), 1, row);
+		row++;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(narrowgauge_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_narrowgauge"), 1, row);
+		row++;
+		set_cell_component(tbl, new_numinp(koord(0, 3), sets->get_default_increase_maintenance_after_years(air_wt), 0, 1000), 0, row);
+		set_cell_component(tbl, new_label(koord(2, 3), "default_increase_maintenance_after_years_air"), 1, row);
+		INIT_TABLE_END(tbl);
+	}	
 	clear_dirty();
 	set_groesse( koord(width, ypos) );
 }
@@ -134,6 +166,27 @@ void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 
 	EXIT_BOOL( sets->set_quick_city_growth );
 	EXIT_BOOL( sets->set_assume_everywhere_connected_by_road );
+
+	uint16 default_increase_maintenance_after_years_other;
+	EXIT_NUM_VALUE( default_increase_maintenance_after_years_other );
+	for(uint8 i = road_wt; i <= air_wt; i ++)
+	{
+		switch(i)
+		{
+		case road_wt:
+		case track_wt:
+		case water_wt:
+		case monorail_wt:
+		case maglev_wt:
+		case tram_wt:
+		case narrowgauge_wt:
+		case air_wt:
+			EXIT_NUM_ARRAY(sets->set_default_increase_maintenance_after_years, (waytype_t)i);
+			break;
+		default:
+			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
+		}
+	}
 }
 
 
@@ -592,4 +645,3 @@ void settings_costs_stats_t::read(einstellungen_t *sets)
 	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
-

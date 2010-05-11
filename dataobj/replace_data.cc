@@ -39,8 +39,8 @@ replace_data_t::replace_data_t(replace_data_t* copy_from)
 
 replace_data_t::replace_data_t(loadsave_t *file)
 {
-	rdwr(file);
 	replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+	rdwr(file);
 	// When replace data are loaded, there is no easy way of checking
 	// to see which are identical, so they are assigned to convoys one
 	// each, rather than being pooled as is the case when replacing is

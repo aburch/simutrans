@@ -78,9 +78,9 @@ ifneq ($(OPTIMISE),)
   endif
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
-      CFLAGS   += -minline-all-stringops -ffunction-sections
-      CXXFLAGS   += -minline-all-stringops -ffunction-sections
-      LDFLAGS += -ffunction-sections
+    CFLAGS   += -minline-all-stringops -ffunction-sections
+    CXXFLAGS   += -minline-all-stringops -ffunction-sections
+    LDFLAGS += -ffunction-sections
     endif
   endif
 else
@@ -375,11 +375,10 @@ ifeq ($(BACKEND),sdl)
   CFLAGS   += -DUSE_16BIT_DIB
   CXXFLAGS += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
-#    # Core Audio (Quicktime) base sound system routines
-#    SOURCES += sound/core-audio_sound.mm
-#    SOURCES += music/core-audio_midi.mm
-    SOURCES  += sound/sdl_sound.cc
-    SOURCES += music/no_midi.cc
+    # Core Audio (Quicktime) base sound system routines
+    SOURCES  += sound/core-audio_sound.mm
+    SOURCES  += music/core-audio_midi.mm
+    STD_LIBS += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw mac),)
@@ -460,4 +459,3 @@ include common.mk
 
 makeobj_prog:
 	$(MAKE) -e -C makeobj FLAGS="$(FLAGS)"
-

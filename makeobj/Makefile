@@ -119,4 +119,3 @@ SOURCES ?= $(SOLO_SOURCES) $(SHARED_SOURCES) $(VARIANT_SOURCES)
 PROG ?= makeobj
 
 include uncommon.mk
-
