@@ -577,13 +577,26 @@ static void internal_GetEvents(int wait)
 					}
 #endif
 				}
-			} else if (event.key.keysym.sym >= SDLK_F1 && event.key.keysym.sym <= SDLK_F15) {
-				sys_event.code = event.key.keysym.sym - SDLK_F1 + SIM_KEY_F1;
 			} else if (event.key.keysym.sym > 0 && event.key.keysym.sym < 127) {
 				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
 			}
 			else {
 				switch (event.key.keysym.sym) {
+					case SDLK_F1:       sys_event.code = SIM_KEY_F1;    break;
+					case SDLK_F2:       sys_event.code = SIM_KEY_F2;    break;
+					case SDLK_F3:       sys_event.code = SIM_KEY_F3;    break;
+					case SDLK_F4:       sys_event.code = SIM_KEY_F4;    break;
+					case SDLK_F5:       sys_event.code = SIM_KEY_F5;    break;
+					case SDLK_F6:       sys_event.code = SIM_KEY_F6;    break;
+					case SDLK_F7:       sys_event.code = SIM_KEY_F7;    break;
+					case SDLK_F8:       sys_event.code = SIM_KEY_F8;    break;
+					case SDLK_F9:       sys_event.code = SIM_KEY_F9;    break;
+					case SDLK_F10:      sys_event.code = SIM_KEY_F10;   break;
+					case SDLK_F11:      sys_event.code = SIM_KEY_F11;   break;
+					case SDLK_F12:      sys_event.code = SIM_KEY_F12;   break;
+					case SDLK_F13:      sys_event.code = SIM_KEY_F13;   break;
+					case SDLK_F14:      sys_event.code = SIM_KEY_F14;   break;
+					case SDLK_F15:      sys_event.code = SIM_KEY_F15;   break;
 					case SDLK_PAGEUP:   sys_event.code = '>';           break;
 					case SDLK_PAGEDOWN: sys_event.code = '<';           break;
 					case SDLK_HOME:     sys_event.code = SIM_KEY_HOME;  break;
