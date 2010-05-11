@@ -501,113 +501,100 @@ static void internal_GetEvents(int wait)
 			break;
 
 		case SDL_KEYDOWN:
-			sys_event.type    = SIM_KEYBOARD;
-			sys_event.key_mod = ModifierKeys();
+			unsigned long code;
+			bool   const  numlock = SDL_GetModState() & KMOD_NUM;
+			SDLKey const  sym     = event.key.keysym.sym;
+			switch (sym) {
+				case SDLK_DELETE:   code = 127;                           break;
+				case SDLK_DOWN:     code = SIM_KEY_DOWN;                  break;
+				case SDLK_END:      code = SIM_KEY_END;                   break;
+				case SDLK_HOME:     code = SIM_KEY_HOME;                  break;
+				case SDLK_F1:       code = SIM_KEY_F1;                    break;
+				case SDLK_F2:       code = SIM_KEY_F2;                    break;
+				case SDLK_F3:       code = SIM_KEY_F3;                    break;
+				case SDLK_F4:       code = SIM_KEY_F4;                    break;
+				case SDLK_F5:       code = SIM_KEY_F5;                    break;
+				case SDLK_F6:       code = SIM_KEY_F6;                    break;
+				case SDLK_F7:       code = SIM_KEY_F7;                    break;
+				case SDLK_F8:       code = SIM_KEY_F8;                    break;
+				case SDLK_F9:       code = SIM_KEY_F9;                    break;
+				case SDLK_F10:      code = SIM_KEY_F10;                   break;
+				case SDLK_F11:      code = SIM_KEY_F11;                   break;
+				case SDLK_F12:      code = SIM_KEY_F12;                   break;
+				case SDLK_F13:      code = SIM_KEY_F13;                   break;
+				case SDLK_F14:      code = SIM_KEY_F14;                   break;
+				case SDLK_F15:      code = SIM_KEY_F15;                   break;
+				case SDLK_KP0:      code =           '0';                 break;
+				case SDLK_KP1:      code =           '1';                 break;
+				case SDLK_KP2:      code = numlock ? '2' : SIM_KEY_DOWN;  break;
+				case SDLK_KP3:      code =           '3';                 break;
+				case SDLK_KP4:      code = numlock ? '4' : SIM_KEY_LEFT;  break;
+				case SDLK_KP5:      code =           '5';                 break;
+				case SDLK_KP6:      code = numlock ? '6' : SIM_KEY_RIGHT; break;
+				case SDLK_KP7:      code =           '7';                 break;
+				case SDLK_KP8:      code = numlock ? '8' : SIM_KEY_UP;    break;
+				case SDLK_KP9:      code =           '9';                 break;
+				case SDLK_LEFT:     code = SIM_KEY_LEFT;                  break;
+				case SDLK_PAGEDOWN: code = '<';                           break;
+				case SDLK_PAGEUP:   code = '>';                           break;
+				case SDLK_RIGHT:    code = SIM_KEY_RIGHT;                 break;
+				case SDLK_UP:       code = SIM_KEY_UP;                    break;
 
-			if (event.key.keysym.sym >= SDLK_KP0 && event.key.keysym.sym <= SDLK_KP9) {
-				const int numlock = (SDL_GetModState() & KMOD_NUM) != 0;
-
-				switch (event.key.keysym.sym) {
-					case SDLK_KP0: sys_event.code = '0';                           break;
-					case SDLK_KP1: sys_event.code = '1';                           break;
-					case SDLK_KP2: sys_event.code = numlock ? '2' : SIM_KEY_DOWN;  break;
-					case SDLK_KP3: sys_event.code = '3';                           break;
-					case SDLK_KP4: sys_event.code = numlock ? '4' : SIM_KEY_LEFT;  break;
-					case SDLK_KP5: sys_event.code = '5';                           break;
-					case SDLK_KP6: sys_event.code = numlock ? '6' : SIM_KEY_RIGHT; break;
-					case SDLK_KP7: sys_event.code = '7';                           break;
-					case SDLK_KP8: sys_event.code = numlock ? '8' : SIM_KEY_UP;    break;
-					case SDLK_KP9: sys_event.code = '9';                           break;
-					default: break;
-				}
-			} else if (event.key.keysym.sym == SDLK_DELETE) {
-				sys_event.code = 127;
-			} else if (event.key.keysym.unicode > 0) {
-				sys_event.code = event.key.keysym.unicode;
-				if(  event.key.keysym.unicode==22  /*^V*/  ) {
+				default:
+					if (event.key.keysym.unicode != 0) {
+						code = event.key.keysym.unicode;
+						if (event.key.keysym.unicode == 22 /* ^V */) {
 #ifdef _WIN32
-					// paste
-					if(  OpenClipboard(NULL)  ) {
-						HANDLE hText = GetClipboardData( CF_UNICODETEXT );
-						SDL_Event new_event;
-						new_event.type =SDL_KEYDOWN;
-						new_event.key.keysym.sym = (SDLKey)0;
-						if(  hText  ) {
-							WCHAR *chr = (WCHAR *)hText;
-							while(  *chr!=0  ) {
-								if(  *chr!=10  ) {
-									new_event.key.keysym.unicode = (SDLKey)*chr;
-									SDL_PushEvent( &new_event );
+							// paste
+							if (OpenClipboard(NULL)) {
+								if (HANDLE const hText = GetClipboardData(CF_UNICODETEXT)) {
+									SDL_Event new_event;
+									new_event.type           = SDL_KEYDOWN;
+									new_event.key.keysym.sym = SDLK_UNKNOWN;
+									for (WCHAR const* chr = (WCHAR const*)hText; *chr != '\0'; ++chr) {
+										if (*chr == '\n') continue;
+										new_event.key.keysym.unicode = *chr;
+										SDL_PushEvent(&new_event);
+									}
 								}
-								chr ++;
+								CloseClipboard();
 							}
-						}
-						CloseClipboard();
-					}
 #elif 0
-					// X11 magic ... not tested yet!
-					SDL_SysWMinfo si;
-					if(  SDL_GetWMInfo( &si )  &&  si.subsystem==SDL_SYSWM_X11  ) {
-						// clipboard under X11 ...
-						unsigned long sel_len = 0;	/* length of sel_buf */
-						unsigned char *sel_buf = 0;
-						Atom sseln = XA_CLIPBOARD(si.x11.display);
-						XEvent evt;			/* X Event Structures */
-						Atom target = XA_STRING;
-						unsigned int context = XCLIB_XCOUT_NONE;
-						xcout(si.x11.display, si.x11.window, evt, sseln, target, &sel_buf, &sel_len, &context);
-						/* fallback is needed. set XA_STRING to target and restart the loop. */
-						if (context == XCLIB_XCOUT_FALLBACK) {
-							// not sucessful?!?
-							sel_len = 0;
-						}
-						else {
-							// something in clipboard
-							SDL_Event new_event;
-							new_event.type =SDL_KEYDOWN;
-							new_event.key.keysym.sym = 0;
-							unsigned char *chr = sel_buf;
-							while(  sel_len-->=0  ) {
-								new_event.key.keysym.sym = (*chr==10 ? 13 : *chr);
-								SDL_PushEvent( &new_event );
-								chr ++;
+							// X11 magic ... not tested yet!
+							SDL_SysWMinfo si;
+							if (SDL_GetWMInfo(&si) && si.subsystem == SDL_SYSWM_X11) {
+								// clipboard under X11
+								XEvent         evt;
+								Atom           sseln   = XA_CLIPBOARD(si.x11.display);
+								Atom           target  = XA_STRING;
+								unsigned char* sel_buf = 0;
+								unsigned long  sel_len = 0;	/* length of sel_buf */
+								unsigned int   context = XCLIB_XCOUT_NONE;
+								xcout(si.x11.display, si.x11.window, evt, sseln, target, &sel_buf, &sel_len, &context);
+								/* fallback is needed. set XA_STRING to target and restart the loop. */
+								if (context != XCLIB_XCOUT_FALLBACK) {
+									// something in clipboard
+									SDL_Event new_event;
+									new_event.type           = SDL_KEYDOWN;
+									new_event.key.keysym.sym = SDLK_UNKNOWN;
+									for (unsigned char const* chr = sel_buf; sel_len-- >= 0; ++chr) {
+										new_event.key.keysym.sym = *chr == '\n' ? '\r' : *chr;
+										SDL_PushEvent(&new_event);
+									}
+									free(sel_buf);
+								}
 							}
-							free( sel_buf );
-						}
-					}
 #endif
-				}
-			} else if (event.key.keysym.sym > 0 && event.key.keysym.sym < 127) {
-				sys_event.code = event.key.keysym.sym;	// try with the ASCII code ...
+						}
+					} else if (0 < sym && sym < 127) {
+						code = event.key.keysym.sym; // try with the ASCII code
+					} else {
+						code = 0;
+					}
 			}
-			else {
-				switch (event.key.keysym.sym) {
-					case SDLK_F1:       sys_event.code = SIM_KEY_F1;    break;
-					case SDLK_F2:       sys_event.code = SIM_KEY_F2;    break;
-					case SDLK_F3:       sys_event.code = SIM_KEY_F3;    break;
-					case SDLK_F4:       sys_event.code = SIM_KEY_F4;    break;
-					case SDLK_F5:       sys_event.code = SIM_KEY_F5;    break;
-					case SDLK_F6:       sys_event.code = SIM_KEY_F6;    break;
-					case SDLK_F7:       sys_event.code = SIM_KEY_F7;    break;
-					case SDLK_F8:       sys_event.code = SIM_KEY_F8;    break;
-					case SDLK_F9:       sys_event.code = SIM_KEY_F9;    break;
-					case SDLK_F10:      sys_event.code = SIM_KEY_F10;   break;
-					case SDLK_F11:      sys_event.code = SIM_KEY_F11;   break;
-					case SDLK_F12:      sys_event.code = SIM_KEY_F12;   break;
-					case SDLK_F13:      sys_event.code = SIM_KEY_F13;   break;
-					case SDLK_F14:      sys_event.code = SIM_KEY_F14;   break;
-					case SDLK_F15:      sys_event.code = SIM_KEY_F15;   break;
-					case SDLK_PAGEUP:   sys_event.code = '>';           break;
-					case SDLK_PAGEDOWN: sys_event.code = '<';           break;
-					case SDLK_HOME:     sys_event.code = SIM_KEY_HOME;  break;
-					case SDLK_END:      sys_event.code = SIM_KEY_END;   break;
-					case SDLK_DOWN:     sys_event.code = SIM_KEY_DOWN;  break;
-					case SDLK_LEFT:     sys_event.code = SIM_KEY_LEFT;  break;
-					case SDLK_RIGHT:    sys_event.code = SIM_KEY_RIGHT; break;
-					case SDLK_UP:       sys_event.code = SIM_KEY_UP;    break;
-					default:            sys_event.code = 0;             break;
-				}
-			}
+			sys_event.type    = SIM_KEYBOARD;
+			sys_event.code    = code;
+			sys_event.key_mod = ModifierKeys();
 			break;
 
 		case SDL_MOUSEMOTION:
