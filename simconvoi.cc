@@ -196,6 +196,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
 	init(wl, 0);
+	replace = NULL;
 	rdwr(file);
 	current_stop = fpl == NULL ? 255 : fpl->get_aktuell() - 1;
 
@@ -203,8 +204,6 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 	old_fpl = NULL;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
-
-	replace = NULL;
 }
 
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
@@ -954,9 +953,8 @@ end_loop:
 						}
 					}
 
-
 					if (autostart) {
-						dep->start_convoi(self);
+						dep->start_convoi(self, false);
 					}
 				}
 			}
@@ -1531,7 +1529,7 @@ DBG_MESSAGE("convoi_t::add_vehikel()","extend array_tpl to %i totals.",max_rail_
 		}
 		// check for obsolete
 		if(!has_obsolete  &&  welt->use_timeline()) {
-			has_obsolete = v->get_besch()->is_retired( welt->get_timeline_year_month() );
+			has_obsolete = v->get_besch()->is_obsolete( welt->get_timeline_year_month(), welt );
 		}
 	}
 	else {
@@ -4604,7 +4602,7 @@ bool convoi_t::calc_obsolescence(uint16 timeline_year_month)
 {
 	// convoi has obsolete vehicles?
 	for(int j = get_vehikel_anzahl(); --j >= 0; ) {
-		if (fahr[j]->get_besch()->is_retired(timeline_year_month)) {
+		if (fahr[j]->get_besch()->is_obsolete(timeline_year_month, welt)) {
 			return true;
 		}
 	}

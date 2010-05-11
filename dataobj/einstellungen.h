@@ -16,6 +16,16 @@
 
 class loadsave_t;
 class tabfile_t;
+class weg_besch_t;
+
+
+typedef struct
+{
+	char name[64];
+	uint16 intro;
+	uint16 retire;
+} road_timeline_t;
+
 
 class einstellungen_t
 {
@@ -49,6 +59,8 @@ private:
 	sint16 factory_worker_percentage;
 	sint16 tourist_percentage;
 	sint16 factory_worker_radius;
+	sint32 factory_worker_minimum_towns;
+	sint32 factory_worker_maximum_towns;
 
 	uint16 station_coverage_size;
 
@@ -127,19 +139,17 @@ private:
 
 	yearmoney startingmoneyperyear[10];
 
+	uint16 num_city_roads;
+	road_timeline_t city_roads[10];
+	uint16 num_intercity_roads;
+	road_timeline_t intercity_roads[10];
+
 	/**
 	 * Use numbering for stations?
 	 *
 	 * @author Hj. Malthaner
 	 */
 	bool numbered_stations;
-
-	/**
-	 * Typ (Name) initiale Stadtstrassen
-	 *
-	 * @author Hj. Malthaner
-	 */
-	char city_road_type[256];
 
 	/* prissi: maximum number of steps for breath search */
 	sint32 max_route_steps;
@@ -365,6 +375,17 @@ public:
 	// growth is used.
 	bool quick_city_growth;
 
+	// The new (8.0) system for private cars checking
+	// whether their destination is reachable can have
+	// an adverse effect on performance. Allow it to 
+	// be disabled. 
+	bool assume_everywhere_connected_by_road;
+
+	uint16 default_increase_maintenance_after_years[17];
+
+	uint32 city_threshold_size;
+	uint32 capital_threshold_size;
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -492,7 +513,8 @@ public:
 	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
 	void set_beginner_price_factor(sint32 s) { beginner_price_factor = s; }
 
-	const char *get_city_road_type() const { return city_road_type; }
+	const weg_besch_t *get_city_road_type( uint16 year );
+	const weg_besch_t *get_intercity_road_type( uint16 year );
 
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
 	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
@@ -722,6 +744,14 @@ public:
 	sint32 get_factory_worker_radius() const { return factory_worker_radius; }
 	void set_factory_worker_radius(sint32 n) { factory_worker_radius = n; }
 
+	// any factory will be connected to at least this number of next cities
+	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
+	void set_factory_worker_minimum_towns(sint32 n) { factory_worker_minimum_towns = n; }
+
+	// any factory will be connected to not more than this number of next cities
+	sint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
+	void set_factory_worker_maximum_towns(sint32 n) { factory_worker_maximum_towns = n; }
+
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
 	void set_allow_buying_obsolete_vehicles(bool n) { allow_buying_obsolete_vehicles = n; }
@@ -733,6 +763,17 @@ public:
 
 	uint16 get_max_walking_distance() const { return max_walking_distance; }
 	bool get_quick_city_growth() const { return quick_city_growth; }
+	void set_quick_city_growth(bool value) { quick_city_growth = value; }
+	bool get_assume_everywhere_connected_by_road() const { return assume_everywhere_connected_by_road; }
+	void set_assume_everywhere_connected_by_road(bool value) { assume_everywhere_connected_by_road = value; }
+
+	uint32 get_city_threshold_size() const { return city_threshold_size; }
+	void set_city_threshold_size(uint32 value) { city_threshold_size = value; }
+	uint32 get_capital_threshold_size() const { return capital_threshold_size; }
+	void set_capital_threshold_size(uint32 value) { capital_threshold_size = value; }
+
+	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
+	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 };
 
 #endif

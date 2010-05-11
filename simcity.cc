@@ -1223,88 +1223,6 @@ next_name:;
 
 	DBG_MESSAGE("stadt_t::stadt_t()", "founding new city named '%s'", list_name);
 
-	const char* n = get_name();
-	// Sort towns by the letters of the alphabet to which they belong.
-	switch(n[0])
-	{
-	case 'a':
-	case 'A':
-	case 'b':
-	case 'B':
-		road_recalc_modulator = 0;
-		break;
-	case 'c':
-	case 'C':
-	case 'd':
-	case 'D':
-		road_recalc_modulator = 1;
-		break;
-	case 'e':
-	case 'E':
-		road_recalc_modulator = 2;
-		break;
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-		road_recalc_modulator = 3;
-		break;
-	case 'h':
-	case 'H':
-	case 'i':
-	case 'I':
-		road_recalc_modulator = 4;
-		break;
-	case 'J':
-	case 'j':
-	case 'K':
-	case 'k':
-	case 'L':
-	case 'l':
-		road_recalc_modulator = 5;
-		break;
-	case 'm':
-	case 'M':
-	case 'n':
-	case 'N':
-		road_recalc_modulator = 6;
-		break;
-	case 'o':
-	case 'O':
-	case 'p':
-	case 'P':
-		road_recalc_modulator = 7;
-		break;
-	case 'q':
-	case 'Q':
-	case 'r':
-	case 'R':
-	case 's':
-	case 'S':
-		road_recalc_modulator = 8;
-		break;
-	case 't':
-	case 'T':
-	case 'u':
-	case 'U':
-		road_recalc_modulator = 9;
-		break;
-	case 'V':
-	case 'v':
-	case 'w':
-	case 'W':
-		road_recalc_modulator = 10;
-		break;
-	case 'x':
-	case 'X':
-	case 'Y':
-	case 'y':
-	case 'z':
-	case 'Z':
-	default:
-		road_recalc_modulator = 11;
-	};
-
 	// 1. Rathaus bei 0 Leuten bauen
 	check_bau_rathaus(true);
 
@@ -1408,88 +1326,6 @@ stadt_t::stadt_t(karte_t* wl, loadsave_t* file) :
 	verbinde_fabriken();
 
 	calc_internal_passengers();
-
-	const char* n = get_name();
-	// Sort towns by the letters of the alphabet to which they belong.
-	switch(n[0])
-	{
-	case 'a':
-	case 'A':
-	case 'b':
-	case 'B':
-		road_recalc_modulator = 0;
-		break;
-	case 'c':
-	case 'C':
-	case 'd':
-	case 'D':
-		road_recalc_modulator = 1;
-		break;
-	case 'e':
-	case 'E':
-		road_recalc_modulator = 2;
-		break;
-	case 'f':
-	case 'F':
-	case 'g':
-	case 'G':
-		road_recalc_modulator = 3;
-		break;
-	case 'h':
-	case 'H':
-	case 'i':
-	case 'I':
-		road_recalc_modulator = 4;
-		break;
-	case 'J':
-	case 'j':
-	case 'K':
-	case 'k':
-	case 'L':
-	case 'l':
-		road_recalc_modulator = 5;
-		break;
-	case 'm':
-	case 'M':
-	case 'n':
-	case 'N':
-		road_recalc_modulator = 6;
-		break;
-	case 'o':
-	case 'O':
-	case 'p':
-	case 'P':
-		road_recalc_modulator = 7;
-		break;
-	case 'q':
-	case 'Q':
-	case 'r':
-	case 'R':
-	case 's':
-	case 'S':
-		road_recalc_modulator = 8;
-		break;
-	case 't':
-	case 'T':
-	case 'u':
-	case 'U':
-		road_recalc_modulator = 9;
-		break;
-	case 'V':
-	case 'v':
-	case 'w':
-	case 'W':
-		road_recalc_modulator = 10;
-		break;
-	case 'x':
-	case 'X':
-	case 'Y':
-	case 'y':
-	case 'z':
-	case 'Z':
-	default:
-		road_recalc_modulator = 11;
-	};
 
 	finder = new road_destination_finder_t(welt, new automobil_t(welt));
 	private_car_route = new route_t();
@@ -1682,6 +1518,11 @@ void stadt_t::rdwr(loadsave_t* file)
 
 		// recalculate borders
 		recalc_city_size();
+
+		connected_cities.clear();
+		connected_industries.clear();
+		connected_attractions.clear();
+		check_road_connexions = false;
 	}
 }
 
@@ -1811,21 +1652,12 @@ void stadt_t::zeige_info(void)
 /* add workers to factory list */
 void stadt_t::add_factory_arbeiterziel(fabrik_t* fab)
 {
-	const koord k = fab->get_pos().get_2d() - pos;
-	// worker do not travel more than 50 tiles
-	if(  koord_distance( fab->get_pos(), pos ) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
-		// no fish swarms ...
-		if (strcmp("fish_swarm", fab->get_besch()->get_name()) != 0) {
-//			DBG_MESSAGE("stadt_t::add_factory_arbeiterziel()", "found %s with level %i", fab->get_name(), fab->get_besch()->get_pax_level());
-			fab->add_arbeiterziel(this);
-			arbeiterziele.append_unique(fab, fab->get_besch()->get_pax_level(), 4);
-		}
-	}
+	fab->add_arbeiterziel(this);
+	arbeiterziele.append_unique(fab, fab->get_besch()->get_pax_level(), 4);
 }
 
 
 /* calculates the factories which belongs to certain cities */
-/* we connect all factories, which are closer than 50 tiles radius */
 void stadt_t::verbinde_fabriken()
 {
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "search factories near %s (center at %i,%i)", get_name(), pos.x, pos.y);
@@ -2004,7 +1836,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		check_road_connexions = true;
 	}
 
-	if(check_road_connexions && welt->get_current_month() % 12 == road_recalc_modulator)
+	if(check_road_connexions)
 	{
 		connected_cities.clear();
 		connected_industries.clear();
@@ -2193,10 +2025,10 @@ void stadt_t::calc_growth()
 
 	// smaller towns should growth slower to have villages for a longer time
 	sint32 weight_factor = welt->get_einstellungen()->get_growthfactor_large();
-	if(bev<1000) {
+	if(bev < welt->get_einstellungen()->get_city_threshold_size()) {
 		weight_factor = welt->get_einstellungen()->get_growthfactor_small();
 	}
-	else if(bev<10000) {
+	else if(bev < welt->get_einstellungen()->get_capital_threshold_size()) {
 		weight_factor = welt->get_einstellungen()->get_growthfactor_medium();
 	}
 
@@ -2244,6 +2076,11 @@ void stadt_t::step_bau()
 
 uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 {
+	if(welt->get_einstellungen()->get_assume_everywhere_connected_by_road())
+	{
+		return city == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
+	}
+
 	if(connected_cities.is_contained(city))
 	{
 		return connected_cities.get(city);
@@ -2252,10 +2089,7 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 	{
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
-		const uint16 road_speed_limit = road ? road->get_max_speed() : welt->get_city_road()->get_topspeed();
-		const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
-		const uint16 speed_average = (float)min(road_speed_limit, vehicle_speed_average) / 1.3F;
-		const uint16 journey_time_per_tile = 600 * (welt->get_einstellungen()->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
+		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch()) : welt->get_generic_road_speed_city();
 		connected_cities.put(this, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
@@ -2283,6 +2117,11 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 
 uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 {
+	if(welt->get_einstellungen()->get_assume_everywhere_connected_by_road())
+	{
+		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
+	}
+	
 	if(connected_industries.is_contained(industry))
 	{
 		return connected_industries.get(industry);
@@ -2322,6 +2161,22 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 			if(road != NULL)
 			{
 				goto found_road;
+				found_road:
+				const koord3d destination = road->get_pos();
+				const uint16 journey_time_per_tile = check_road_connexion(destination);
+				connected_industries.put(industry, journey_time_per_tile);
+				if(journey_time_per_tile == 65535)
+				{
+					// We know that, if this city is not connected to any given industry, then every city
+					// to which this city is connected must likewise not be connected. So, avoid
+					// unnecessary recalculation by propogating this now.
+					ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+					while(iter.next())
+					{
+						iter.get_current_key()->set_no_connexion_to_industry(industry);
+					}
+				}
+				return journey_time_per_tile;
 			}
 		}
 	}
@@ -2337,26 +2192,15 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 	}
 	return 65335;
 
-found_road:
-	const koord3d destination = road->get_pos();
-	const uint16 journey_time_per_tile = check_road_connexion(destination);
-	connected_industries.put(industry, journey_time_per_tile);
-	if(journey_time_per_tile == 65535)
-	{
-		// We know that, if this city is not connected to any given industry, then every city
-		// to which this city is connected must likewise not be connected. So, avoid
-		// unnecessary recalculation by propogating this now.
-		ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
-		while(iter.next())
-		{
-			iter.get_current_key()->set_no_connexion_to_industry(industry);
-		}
-	}
-	return journey_time_per_tile;
 }
 
 uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 {
+	if(welt->get_einstellungen()->get_assume_everywhere_connected_by_road())
+	{
+		return welt->get_generic_road_speed_intercity();
+	}
+	
 	if(connected_attractions.is_contained(attraction))
 	{
 		return connected_attractions.get(attraction);
@@ -2364,7 +2208,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	const koord pos = attraction->get_pos().get_2d();
 	grund_t *gr;
 	weg_t* road = NULL;
-	for(uint8 i = 0; i < 16; i ++)
+	for(uint8 i = 0; i < 8; i ++)
 	{
 		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
 		gr = welt->lookup(pos3d);
@@ -2418,7 +2262,9 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const koord3d origin(townhall_road.x, townhall_road.y, welt->lookup_hgt(townhall_road));
 	private_car_route->clear();
 	finder->set_destination(dest);
-	if(!private_car_route->find_route(welt, origin, finder, 0, ribi_t::alle, 0x7FFFFFFF))
+	const uint32 depth = welt->get_max_road_check_depth();
+	// Must use calc_route rather than find_route, or else this will be *far* too slow: only calc_route uses A*.
+	if(!private_car_route->calc_route(welt, origin, dest, finder, welt->get_citycar_speed_average(), 0, depth))
 	{
 		return 65535;
 	}
@@ -2426,17 +2272,21 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
 	uint16 top_speed;
 	uint32 speed_sum = 0;
+	uint32 count = 0;
+	weg_t* road;
 	ITERATE_PTR(private_car_route,i)
 	{
 		pos = private_car_route->position_bei(i);
-		top_speed = welt->lookup(pos)->get_weg(road_wt)->get_max_speed();
+		road = welt->lookup(pos)->get_weg(road_wt);
+		top_speed = road->get_max_speed();
 		speed_sum += min(top_speed, vehicle_speed_average);
+		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
-	const uint16 speed_average = (float)(speed_sum / private_car_route->get_count())  / 1.3F;
+	const uint16 speed_average = (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const float journey_distance_km = (float)private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile();
 	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
-	return journey_time / straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles;
+	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
 
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
@@ -2922,8 +2772,12 @@ public_transport:
 					//start_halt->add_pax_happy(pax.menge); //As of 7.2, this is done on arrival at the destination.
 					// and show it
 					merke_passagier_ziel(destinations[current_destination].location, COL_YELLOW);
+					
+					/* This is no longer needed here, as the passengers are added on *arrival* if they are transported
+					 * by a player.
 					city_history_year[0][history_type] += pax.menge;
 					city_history_month[0][history_type] += pax.menge;
+					*/
 				}
 
 				// send them also back
@@ -2947,7 +2801,6 @@ public_transport:
 					}
 
 					// now try to add them to the target halt
-					uint32 max_ware = ret_halt->get_capacity(wtyp->get_catg_index());
 					if(!ret_halt->is_overcrowded(wtyp->get_catg_index())) 
 					{
 						// prissi: not overcrowded and can recieve => add them
@@ -3087,10 +2940,10 @@ public_transport:
 		// they do not have a start halt does not mean that they cannot
 		// walk to their destination!
 		const double tile_distance = accurate_distance(k, destination_now.location);
-		const double total_distance = tile_distance * welt->get_einstellungen()->get_distance_per_tile();
-		if(total_distance < 1.5)
+		if(tile_distance < welt->get_einstellungen()->get_max_walking_distance())
 		{
-			// Passengers will walk to their destination if it is less than 1.5km away.
+			// Passengers will walk to their destination if it is within the specified range.
+			// (Default: 1.5km)
 			merke_passagier_ziel(destination_now.location, COL_YELLOW);
 			city_history_year[0][history_type] += num_pax;
 			city_history_month[0][history_type] += num_pax;
@@ -4312,8 +4165,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	const uint32 ymax2 = wl->get_groesse_y()/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
-	uint64 its = 0;
-
 	for (int i = 0; i < anzahl; i++) {
 		// check distances of all cities to their respective neightbours
 		while (!index_to_places.empty()) {
@@ -4336,7 +4187,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 				for(sint32 j=k2mcd.y-1; ok && j<=k2mcd.y+1; j++) {
 					if (i>=0 && i<(sint32)xmax2 && j>=0 && j<(sint32)ymax2) {
 						for(uint32 l=0; ok && l<result_places.at(i,j).get_count(); l++) {
-							its++;
 							if (koord_distance(k, result_places.at(i,j)[l]) < minimum_city_distance){
 								ok = false;
 							}
@@ -4369,8 +4219,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	}
 	list->clear();
 	delete list;
-	printf("simcity::  number of iterations %d\n", its);
-
 	return result;
 }
 
@@ -4401,4 +4249,27 @@ bool road_destination_finder_t::ist_ziel( const grund_t* gr, const grund_t* ) co
 ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
 { 
 	return master->get_ribi(gr); 
+}
+
+int road_destination_finder_t::get_kosten( const grund_t* gr, uint32 max_speed) const
+{
+	// first favor faster ways
+	const weg_t *w=gr->get_weg(road_wt);
+	if(!w) {
+		return 0xFFFF;
+	}
+
+	// max_speed?
+	uint32 max_tile_speed = w->get_max_speed();
+
+	// add cost for going (with maximum speed, cost is 1)
+	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
+
+	if(w->is_diagonal())
+	{
+		// Diagonals are a *shorter* distance.
+		costs /= 1.4;
+	}
+
+	return costs;
 }

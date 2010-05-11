@@ -9,6 +9,7 @@
 
 #ifdef __BEOS__
 #include <net/netdb.h>
+#include <net/sockets.h>
 #endif
 
 // Haiku has select in an additional header
@@ -580,7 +581,9 @@ const char *network_recieve_file( SOCKET s, const char *save_as, const long leng
 void network_close_socket( SOCKET sock )
 {
 	if(  sock != INVALID_SOCKET  ) {
-#ifdef WIN32
+#if defined(__HAIKU__)
+		// no closesocket() ?!?
+#elif defined(WIN32)  ||  defined(__BEOS__)
 		closesocket( sock );
 #else
 		close( sock );
@@ -613,4 +616,3 @@ void network_core_shutdown()
 	}
 	network_active = false;
 }
-

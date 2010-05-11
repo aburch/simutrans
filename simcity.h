@@ -86,7 +86,7 @@ public:
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten( const grund_t*, uint32) const { return 1; };
+	virtual int get_kosten( const grund_t* gr, uint32 max_speed) const;
 
 	~road_destination_finder_t()
 	{
@@ -241,10 +241,6 @@ private:
 	ptrhashtable_tpl<stadt_t*, uint16> connected_cities;
 	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
 	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
-
-	// Used to cascade the recalculation of road connexions: doing them
-	// every month for every city reduces performance too much.
-	uint8 road_recalc_modulator;
 
 	road_destination_finder_t *finder;
 	route_t *private_car_route;

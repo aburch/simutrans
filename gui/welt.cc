@@ -95,12 +95,29 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_map_number.set_value(abs(sets->get_karte_nummer())%9999);
 	inp_map_number.add_listener( this );
 	add_komponente( &inp_map_number );
-
-	intTopOfButton += 12;
 	intTopOfButton += 12;
 
-	inp_x_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_x_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	// maps etc.
+	intTopOfButton += 2;
+	random_map.set_pos( koord(10, intTopOfButton) );
+	random_map.set_groesse( koord(RIGHT_ARROW, BUTTON_HEIGHT) );
+	random_map.set_typ(button_t::roundbox);
+	random_map.add_listener( this );
+	add_komponente( &random_map );
+	intTopOfButton += BUTTON_HEIGHT;
+
+	intTopOfButton += 5;
+	load_map.set_pos( koord(10, intTopOfButton) );
+	load_map.set_groesse( koord(RIGHT_ARROW, BUTTON_HEIGHT) );
+	load_map.set_typ(button_t::roundbox);
+	load_map.add_listener( this );
+	add_komponente( &load_map );
+	intTopOfButton += BUTTON_HEIGHT;
+
+	intTopOfButton += 12 + 8;
+
+	inp_x_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_x_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_x_size.add_listener(this);
 	inp_x_size.set_value( sets->get_groesse_x() );
 	inp_x_size.set_limits( 8, min(32000,4194304/sets->get_groesse_y()) );
@@ -109,8 +126,8 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_x_size );
 	intTopOfButton += 12;
 
-	inp_y_size.set_pos(koord(LEFT_ARROW,intTopOfButton) );
-	inp_y_size.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	inp_y_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_y_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_y_size.add_listener(this);
 	inp_y_size.set_limits( 8, min(32000,4194304/sets->get_groesse_x()) );
 	inp_y_size.set_value( sets->get_groesse_y() );
@@ -118,20 +135,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_y_size.wrap_mode( false );
 	add_komponente( &inp_y_size );
 	intTopOfButton += 12;
-
-	// maps etc.
-	intTopOfButton += 5;
-	random_map.set_pos( koord(10, intTopOfButton) );
-	random_map.set_groesse( koord(104, BUTTON_HEIGHT) );
-	random_map.set_typ(button_t::roundbox);
-	random_map.add_listener( this );
-	add_komponente( &random_map );
-	load_map.set_pos( koord(104+11+30, intTopOfButton) );
-	load_map.set_groesse( koord(104, BUTTON_HEIGHT) );
-	load_map.set_typ(button_t::roundbox);
-	load_map.add_listener( this );
-	add_komponente( &load_map );
-	intTopOfButton += BUTTON_HEIGHT;
 
 	// city stuff
 	intTopOfButton += 5;
@@ -170,7 +173,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	intTopOfButton += 12;
 
 	// industry stuff
-	intTopOfButton += 5;
+//	intTopOfButton += 5;
 	inp_other_industries.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_other_industries.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_other_industries.add_listener(this);
@@ -196,7 +199,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	intTopOfButton += 12;
 
 	// other settings
-	intTopOfButton += 5;
+//	intTopOfButton += 5;
 	use_intro_dates.set_pos( koord(10,intTopOfButton) );
 	use_intro_dates.set_typ( button_t::square_state );
 	use_intro_dates.pressed = sets->get_use_timeline()&1;
@@ -219,7 +222,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &allow_player_change );
 	intTopOfButton += 12;
 
-	intTopOfButton += 10;
+	intTopOfButton += 8;
 	open_setting_gui.set_pos( koord(10,intTopOfButton) );
 	open_setting_gui.set_groesse( koord(80, 14) );
 	open_setting_gui.set_typ( button_t::roundbox );
@@ -538,7 +541,9 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	display_proportional_clip(x, y, translator::translate("2WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	// since the display is done via a textfiled, we have nothing to do
-	y += 12;
+	y += 12+5;
+	y += BUTTON_HEIGHT+5;	// button
+	y += BUTTON_HEIGHT+5;	// button
 
 	const uint sx = sets->get_groesse_x();
 	const uint sy = sets->get_groesse_y();
@@ -555,11 +560,24 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 			sizeof(void*) * 4
 		) * sx * sy
 	) / (1024 * 1024);
-	sprintf(buf, translator::translate("3WORLD_CHOOSE"), memory);
+	const float tile_km = sets->get_distance_per_tile();
+	
+	sprintf(buf, "%s (%d MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
-	y += 12;	// x size
-	y += 12+5;	// y size
-	y += BUTTON_HEIGHT+12+5;	// buttons
+//	display_proportional_clip(x + LEFT_ARROW - 10, y, translator::translate("Tiles"), ALIGN_LEFT, COL_BLACK, true);
+//	sprintf(buf, "%.2f km/%s", tile_km, translator::translate("tile"));
+//	display_text_proportional_len_clip(x + RIGHT_COLUMN_WIDTH + RIGHT_COLUMN - 10, y, buf, ALIGN_RIGHT | DT_DIRTY | DT_CLIP, COL_BLACK, -1);
+	y += 12;
+
+	display_proportional_clip(x, y, translator::translate("West To East"), ALIGN_LEFT, COL_BLACK, true);
+	sprintf(buf, "%.2f km", tile_km * inp_x_size.get_value());
+	display_text_proportional_len_clip(x + RIGHT_COLUMN - 20, y, buf, ALIGN_RIGHT | DT_DIRTY | DT_CLIP, COL_BLACK, -1);
+	y += 12;
+
+	display_proportional_clip(x, y, translator::translate("North To South"), ALIGN_LEFT, COL_BLACK, true);
+	sprintf(buf, "%.2f km", tile_km * inp_y_size.get_value());
+	display_text_proportional_len_clip(x + RIGHT_COLUMN - 20, y, buf, ALIGN_RIGHT | DT_DIRTY | DT_CLIP, COL_BLACK, -1);
+	y += 12+5;
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
@@ -568,20 +586,19 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("6WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12+5;
+	y += 12;
 
 	display_proportional_clip(x, y, translator::translate("Land industries"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Percent Electricity"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12+5;
+	y += 12;
 
-	y += 12+5;
-	y += 12+5;
-	y += 12+5;
-
-	display_ddd_box_clip(x, y-22, 240, 0, MN_GREY0, MN_GREY4);
+	y += 12;
+	y += 12 + 3;
 
 	display_ddd_box_clip(x, y, 240, 0, MN_GREY0, MN_GREY4);
+
+	display_ddd_box_clip(x, y + 22, 240, 0, MN_GREY0, MN_GREY4);
 }

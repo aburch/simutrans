@@ -895,9 +895,8 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		const weg_besch_t* besch = umgebung_t::intercity_road_type ? wegbauer_t::get_besch(umgebung_t::intercity_road_type) : NULL;
-		if(besch == 0) {
-			dbg->warning("karte_t::init()", "road type '%s' not found", umgebung_t::intercity_road_type);
+		const weg_besch_t* besch = einstellungen->get_intercity_road_type(get_timeline_year_month());
+		if(besch == NULL) {
 			// Hajo: try some default (might happen with timeline ... )
 			besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 		}
@@ -932,7 +931,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 						const koord size = gb->get_tile()->get_besch()->get_groesse(gb->get_tile()->get_layout());
 						koord inc(1,0);
 						// scan all adjacent tiles, take the first that has a road
-						for(uint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
+						for(sint32 i=0; i<2*size.x+2*size.y+4  &&  !ok; i++) {
 							grund_t *gr = lookup_kartenboden(pos);
 							if (gr  &&  gr->hat_weg(road_wt)) {
 								k.append(gr->get_pos());
@@ -1284,6 +1283,11 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	recalc_average_speed();
 
+	// @author: jamespetts
+	calc_generic_road_speed_city();
+	calc_generic_road_speed_intercity();
+	calc_max_road_check_depth();
+
 #ifndef DEMO
 	for (int i = 0; i < MAX_PLAYER_COUNT; i++) {
 		if(  spieler[i]  ) {
@@ -1312,22 +1316,21 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	}
 
 	// Set the actual industry density and industry density proportion
-	if(actual_industry_density <= 0)
+	actual_industry_density = 0;
+	double weight;
+	ITERATE(fab_list, i)
 	{
-		double weight;
-		ITERATE(fab_list, i)
+		const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+		if(!factory_type->is_electricity_producer())
 		{
-			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
-			if(!factory_type->is_electricity_producer())
-			{
-				// Power stations are excluded from the target weight:
-				// a different system is used for them.
-				weight = factory_type->get_gewichtung();
-				actual_industry_density += (1.0 / weight);
-			}
+			// Power stations are excluded from the target weight:
+			// a different system is used for them.
+			weight = factory_type->get_gewichtung();
+			actual_industry_density += (1.0 / weight);
 		}
-		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 	}
+	// The population is not counted at this point, so cannot set this here.
+	industry_density_proportion = 0.0;
 }
 
 
@@ -1647,7 +1650,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
-	//@author: jamespetts
+	// @author: jamespetts
 	set_scale();
 }
 
@@ -2951,6 +2954,11 @@ void karte_t::neuer_monat()
 	// to replace ones that have closed.
 	// @author: jamespetts
 
+	if(industry_density_proportion == 0)
+	{
+		// Set the industry density proportion for the first time when the number of citizens is populated.
+		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
+	}
 	const double target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
 	{
@@ -3043,6 +3051,9 @@ void karte_t::neuer_monat()
 	}
 
 	set_citycar_speed_average();
+	calc_generic_road_speed_city();
+	calc_generic_road_speed_intercity();
+	calc_max_road_check_depth();
 }
 
 
@@ -3162,12 +3173,22 @@ void karte_t::recalc_average_speed()
 							translator::translate(info->get_name()));
 							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
 					}
+
+					const uint16 obsolete_month = info->get_obsolete_year_month(this);
+					if(obsolete_month == current_month) 
+					{
+						sprintf(buf,
+							translator::translate("The following %s has become obsolete:\n%s\n"),
+							vehicle_type,
+							translator::translate(info->get_name()));
+							msg->add_message(buf,koord::invalid,message_t::new_vehicle,COL_DARK_BLUE,info->get_basis_bild());
+					}
 				}
 			}
 		}
 
 		// city road check
-		const weg_besch_t* city_road_test = wegbauer_t::get_besch(get_einstellungen()->get_city_road_type(), get_timeline_year_month());
+		const weg_besch_t* city_road_test = get_einstellungen()->get_city_road_type(get_timeline_year_month());
 		if(city_road_test) {
 			city_road = city_road_test;
 		}
@@ -3179,7 +3200,7 @@ void karte_t::recalc_average_speed()
 	}
 	else {
 		// defaults
-		city_road = wegbauer_t::get_besch(get_einstellungen()->get_city_road_type(), 0);
+		city_road = get_einstellungen()->get_city_road_type(0);
 		if(city_road==NULL) {
 			city_road = wegbauer_t::weg_search(road_wt,50,0,weg_t::type_flat);
 		}
@@ -4283,6 +4304,10 @@ bool karte_t::laden(const char *filename)
 		outstanding_cars += s->get_outstanding_cars();
 	}
 
+	calc_generic_road_speed_city();
+	calc_generic_road_speed_intercity();
+	calc_max_road_check_depth();
+
 	return ok;
 }
 
@@ -4780,34 +4805,30 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		file->rdwr_short(base_pathing_counter, "");
 	}
 	
-	// Reconstruct the actual industry density.
-	// @author: jamespetts
-	
-	if(actual_industry_density <= 0)
-	{
-		// Make sure that this is not double counted
-		double weight;
-		ITERATE(fab_list, i)
-		{
-			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
-			if(!factory_type->is_electricity_producer())
-			{
-				// Power stations are excluded from the target weight:
-				// a different system is used for them.
-				weight = factory_type->get_gewichtung();
-				actual_industry_density += (1.0 / weight);
-			}
-		}
-
 		if(file->get_experimental_version() >= 7)
 		{
 			file->rdwr_double(industry_density_proportion);
 		}
 		else
 		{
+			// Reconstruct the actual industry density.
+			// @author: jamespetts			
+			// Loading a game - must set this to zero here and recalculate.
+			actual_industry_density = 0;
+			double weight;
+			ITERATE(fab_list, i)
+			{
+				const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+				if(!factory_type->is_electricity_producer())
+				{
+					// Power stations are excluded from the target weight:
+					// a different system is used for them.
+					weight = factory_type->get_gewichtung();
+					actual_industry_density += (1.0 / weight);
+				}
+			}
 			industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 		}
-	}
 
 	// Added by : Knightly
 	if ( einstellungen->get_default_path_option() == 2 )
@@ -5225,9 +5246,9 @@ void karte_t::bewege_zeiger(const event_t *ev)
 
 
 /* creates a new player with this type */
-char *karte_t::new_spieler(uint8 new_player, uint8 type)
+const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
-	if(  new_player<0  ||  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
+	if(  new_player>=PLAYER_UNOWNED  ||  get_spieler(new_player)!=NULL  ) {
 		return "Id invalid/already in use!";
 	}
 	switch( type ) {
@@ -5795,4 +5816,59 @@ void karte_t::set_citycar_speed_average()
 		count += iter.get_current_value()->get_gewichtung();
 	}
 	citycar_speed_average = vehicle_speed_sum / count;
+}
+
+void karte_t::calc_generic_road_speed_intercity()
+{
+	// This method is used only when private car connexion
+	// checking is turned off.
+	
+	// Adapted from the method used to build city roads in the first place, written by Hajo.
+	const weg_besch_t* besch = einstellungen->get_intercity_road_type(get_timeline_year_month());
+	if(besch == NULL) 
+	{
+		// Hajo: try some default (might happen with timeline ... )
+		besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
+	}
+	generic_road_speed_intercity = calc_generic_road_speed(besch);
+}
+
+uint16 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
+{
+	const uint16 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
+	const uint16 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
+	const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
+	return journey_time_per_tile;
+}
+
+void karte_t::calc_max_road_check_depth()
+{
+	uint16 max_road_speed = 0;
+	stringhashtable_tpl <weg_besch_t *> * ways = wegbauer_t::get_all_ways();
+
+	if(ways != NULL)
+	{
+		stringhashtable_iterator_tpl <weg_besch_t *> iter(ways);
+		while(iter.next())
+		{
+			if(iter.get_current_value()->get_wtyp() != road_wt || iter.get_current_value()->get_intro_year_month() > current_month || iter.get_current_value()->get_retire_year_month() > current_month)
+			{
+				continue;
+			}
+			if(iter.get_current_value()->get_topspeed() > max_road_speed)
+			{
+				max_road_speed = iter.get_current_value()->get_topspeed();
+			}
+		}
+	}
+	else
+	{
+		max_road_speed = citycar_speed_average;
+	}
+	if(max_road_speed == 0)
+	{
+		max_road_speed = citycar_speed_average;
+	}
+
+	max_road_check_depth = (((float)einstellungen->get_max_longdistance_tolerance() / einstellungen->get_distance_per_tile()) / 60.0F) * min(citycar_speed_average, max_road_speed);
 }

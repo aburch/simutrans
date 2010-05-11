@@ -1841,7 +1841,15 @@ sint64 wegbauer_t::calc_costs()
 				}
 			}
 		}
+		const ding_t* thing = gr->obj_bei(0);
+		if(thing != NULL  &&  thing->get_besitzer() == sp) 
+		{
+			// We own this land. Ergo, building a way on it should be cheaper.
+			costs += welt->get_einstellungen()->cst_buy_land;
+		}
+			
 	}
+			
 	DBG_MESSAGE("wegbauer_t::calc_costs()","construction estimate: %f",costs/100.0);
 	return costs;
 }
@@ -1936,7 +1944,8 @@ void wegbauer_t::baue_strasse()
 {
 	// construct city road?
 	const weg_besch_t *cityroad = get_besch("city_road");
-	bool add_sidewalk = besch==cityroad;
+	// only public player or cities (sp==NULL) can build cityroads with sidewalk
+	bool add_sidewalk = besch==cityroad  &&  (sp==NULL  ||  sp->get_player_nr()==1);
 
 	if(add_sidewalk) {
 		sp = NULL;
@@ -1990,6 +1999,12 @@ void wegbauer_t::baue_strasse()
 		}
 		else {
 			// make new way
+			const ding_t* thing = gr->obj_bei(0);
+			if(thing != NULL  &&  thing->get_besitzer() == sp) 
+			{
+				// We own this land. Ergo, building a way on it should be cheaper.
+				cost -= welt->get_einstellungen()->cst_buy_land;
+			}
 			strasse_t * str = new strasse_t(welt);
 
 			str->set_besch(besch);
@@ -2066,6 +2081,12 @@ void wegbauer_t::baue_schiene()
 				}
 			}
 			else {
+				const ding_t* thing = gr->obj_bei(0);
+				if(thing != NULL  &&  thing->get_besitzer() == sp) 
+				{
+					// We own this land. Ergo, building a way on it should be cheaper.
+					cost -= welt->get_einstellungen()->cst_buy_land;
+				}
 				weg_t *sch=weg_t::alloc((waytype_t)besch->get_wtyp());
 				sch->set_besch(besch);
 				const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());

@@ -490,12 +490,22 @@ pumpe_t::sync_step(long /*delta_t*/)
 	}
 	image_id new_bild;
 	if (!fab->is_currently_producing()) {
-		new_bild = skinverwaltung_t::pumpe->get_bild_nr(0);
+		if (skinverwaltung_t::pumpe->get_bild_anzahl() > 2  &&  get_pos().z >= welt->get_snowline()) {
+			new_bild = skinverwaltung_t::pumpe->get_bild_nr(2);
+		}
+		else {
+			new_bild = skinverwaltung_t::pumpe->get_bild_nr(0);
+		}
 	}
 	else {
 		// no input needed or has something to consume
 		get_net()->add_power(fab->get_power());
-		new_bild = skinverwaltung_t::pumpe->get_bild_nr(1);
+		if (skinverwaltung_t::pumpe->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+			new_bild = skinverwaltung_t::pumpe->get_bild_nr(3);
+		}
+		else {
+			new_bild = skinverwaltung_t::pumpe->get_bild_nr(1);
+		}
 	}
 	if(bild!=new_bild) {
 		set_flag(ding_t::dirty);
@@ -601,10 +611,20 @@ senke_t::sync_step(long time)
 	}
 	image_id new_bild;
 	if(get_power>want_power/2) {
-		new_bild = skinverwaltung_t::senke->get_bild_nr(1);
+		if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+			new_bild = skinverwaltung_t::senke->get_bild_nr(3);
+		}
+		else {
+			new_bild = skinverwaltung_t::senke->get_bild_nr(1);
+		}
 	}
 	else {
-		new_bild = skinverwaltung_t::senke->get_bild_nr(0);
+		if (skinverwaltung_t::senke->get_bild_anzahl() > 2  &&  get_pos().z >= welt->get_snowline()) {
+			new_bild = skinverwaltung_t::senke->get_bild_nr(2);
+		}
+		else {
+			new_bild = skinverwaltung_t::senke->get_bild_nr(0);
+		}
 	}
 	if(bild!=new_bild) {
 		set_flag(ding_t::dirty);

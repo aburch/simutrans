@@ -9,21 +9,29 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	}
 
 	// I am not obsolete --> no obsolescence cost increase.
-	sint32 months_of_obsolescence = welt->get_current_month() - get_retire_year_month();
+	uint16 months_after_retire = increase_maintenance_after_years * 12;
+	if(months_after_retire == 0)
+	{
+		// TODO: Add simuconf.tab settings here.
+		months_after_retire = 360; // 30 years.
+	}
+	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
 	if (months_of_obsolescence <= 0)	
 	{
 		return base_cost;
 	}
 
 	// I am obsolete --> obsolescence cost increase.
-	uint32 max_cost = base_cost * (welt->get_einstellungen()->get_obsolete_running_cost_increase_percent() / 100);
+	uint16 running_cost_increase_percent = increase_maintenance_by_percent ? increase_maintenance_by_percent : welt->get_einstellungen()->get_obsolete_running_cost_increase_percent();
+	uint32 max_cost = base_cost * (running_cost_increase_percent / 100);
 	if (max_cost == base_cost)
 	{
 		return max_cost;
 	}
 
 	// Current month is beyond the months_of_increasing_costs --> maximum increased obsolescence cost.
-	sint32 months_of_increasing_costs = welt->get_einstellungen()->get_obsolete_running_cost_increase_phase_years() * 12;
+	uint16 phase_years = years_before_maintenance_max_reached ? years_before_maintenance_max_reached : welt->get_einstellungen()->get_obsolete_running_cost_increase_phase_years();
+	sint32 months_of_increasing_costs = phase_years * 12;
 	if (months_of_obsolescence >= months_of_increasing_costs)
 	{
 		return max_cost;
@@ -187,4 +195,16 @@ uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in m/s */ ) co
 		return 0;
 	}
 	return speed <= force_threshold_speed ? geared_force * speed : geared_power;
+}
+
+uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
+{ 
+	if(increase_maintenance_after_years)
+	{
+		return obsolete_date + (12 * increase_maintenance_after_years); 
+	}
+	else
+	{
+		return obsolete_date + (welt->get_einstellungen()->get_default_increase_maintenance_after_years((waytype_t)typ) * 12);
+	}
 }

@@ -187,3 +187,67 @@ note=Label for catering level 5 row of catering bonus for travelling settings
 obj=program_text
 name=Refunds
 note=Label for the "refunds" line/convoy graph
+-
+obj=program_text
+name=The following %s has become obsolete:\n%s\n
+note=Indicator of obsolescence at the beginning of a month
+-
+obj=program_text
+name=quick_city_growth
+note=Label for "quick city growth" setting
+-
+obj=program_text
+name=assume_everywhere_connected_by_road
+note=Label for "assume everywhere connected by road" setting
+-
+obj=program_text
+name=West To East
+note=Label for number of x tiles setting
+-
+obj=program_text
+name=North To South
+note=Label for number of y tiles setting
+-
+obj=program_text
+name=Size
+note=Label for "number of tiles" settings section
+-
+obj=program_text
+name=tile
+note=unit for "number of tiles"
+-
+obj=program_text
+name=default_increase_maintenance_after_years_road
+note=Label for default start of increase of maintenance (in years) for road vehicles
+-
+obj=program_text
+name=default_increase_maintenance_after_years_rail
+note=Label for default start of increase of maintenance (in years) for rail vehicles
+-
+obj=program_text
+name=default_increase_maintenance_after_years_water
+note=Label for default start of increase of maintenance (in years) for water vehicles
+-
+obj=program_text
+name=default_increase_maintenance_after_years_monorail
+note=Label for default start of increase of maintenance (in years) for monorail vehicles
+-
+obj=program_text
+name=default_increase_maintenance_after_years_maglev
+note=Label for default start of increase of maintenance (in years) for maglev vehicles
+-
+obj=program_text
+name=default_increase_maintenance_after_years_tram
+note=Label for default start of increase of maintenance (in years) for trams
+-
+obj=program_text
+name=default_increase_maintenance_after_years_narrowgauge
+note=Label for default start of increase of maintenance (in years) for narrowgauge vehicles
+-
+obj=program_text
+name=default_increase_maintenance_after_years_air
+note=Label for default start of increase of maintenance (in years) for air vehicles
+-
+obj=program_text
+name=default_increase_maintenance_after_years_other
+note=Label for default start of increase of maintenance (in years) for other kinds of vehicles

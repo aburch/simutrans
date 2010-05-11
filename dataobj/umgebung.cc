@@ -58,7 +58,6 @@ uint8 umgebung_t::default_sortmode;
 sint8 umgebung_t::default_mapmode;
 uint8 umgebung_t::show_month;
 sint32 umgebung_t::intercity_road_length;
-const char *umgebung_t::intercity_road_type;
 const char *umgebung_t::river_type[10] = {
 	0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0,
@@ -131,12 +130,6 @@ void umgebung_t::init()
 	 * @author Hj. Malthaner
 	 */
 	intercity_road_length = 200;
-
-	/**
-	 * Typ (Name) initiale Stadtverbindungen
-	 * @author Hj. Malthaner
-	 */
-	intercity_road_type = NULL;
 
 	river_types = 0;
 
@@ -253,4 +246,3 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	}
 }
-

@@ -89,7 +89,7 @@ void adverse_summary_t::add_vehicle(const vehikel_t &v)
 	// Or airplane circling for landing, or airplane height,
 	// Or cornering, or other odd cases
 	// These are carried in vehikel_t unlike other speed limits 
-	sint32 limit = v.get_speed_limit();
+	sint32 limit = speed_to_kmh(v.get_speed_limit());
 	if (max_speed > limit)
 	{
 		max_speed = limit;
@@ -185,7 +185,7 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 	double dx = 0;
 	if (adverse.max_speed < INT_MAX)
 	{
-		sint32 speed_limit = kmh_to_speed(adverse.max_speed);
+		const uint32 speed_limit = kmh_to_speed(adverse.max_speed);
 		if (akt_speed_soll > speed_limit)
 		{
 			akt_speed_soll = speed_limit;

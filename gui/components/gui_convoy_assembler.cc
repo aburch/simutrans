@@ -131,7 +131,10 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	scrolly_electrics.set_size_corner(false);
 	scrolly_electrics.set_read_only(false);
 	// add only if there are any trolleybuses
-	if(!electrics_vec.empty()) {
+	const uint8 shifter = 1 << vehikel_besch_t::electric;
+	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
+	if(!electrics_vec.empty() && correct_traction_type) 
+	{
 		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
 		one = true;
 	}
@@ -1078,19 +1081,24 @@ void gui_convoy_assembler_t::update_data()
 DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i",info->get_name(),iter1.get_current_value()->lcolor,iter1.get_current_value()->rcolor);
 	}
 
-	if (depot_frame) {
+	if (depot_frame) 
+	{
 		slist_iterator_tpl<vehikel_t *> iter2(depot_frame->get_depot()->get_vehicle_list());
-		while(iter2.next()) {
+		while(iter2.next()) 
+		{
 			gui_image_list_t::image_data_t *imgdat=vehicle_map.get(iter2.get_current()->get_besch());
 			// can fail, if currently not visible
-			if(imgdat) {
+			if(imgdat) 
+			{
 				imgdat->count++;
-				if(veh_action == va_sell) {
+				if(veh_action == va_sell) 
+				{
 					imgdat->lcolor = COL_DARK_GREEN;
 					imgdat->rcolor = COL_DARK_GREEN;
 				}
 			}
 		}
+		depot_frame->layout(NULL);
 	}
 }
 
@@ -1130,7 +1138,10 @@ void gui_convoy_assembler_t::update_tabs()
 	scrolly_electrics.set_size_corner(false);
 	scrolly_electrics.set_read_only(false);
 	// add only if there are any trolleybuses
-	if(!electrics_vec.empty()) {
+	const uint8 shifter = 1 << vehikel_besch_t::electric;
+	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
+	if(!electrics_vec.empty() && correct_traction_type) 
+	{
 		tabs.add_tab(&scrolly_electrics, translator::translate( get_electrics_name(wt) ) );
 		one = true;
 	}

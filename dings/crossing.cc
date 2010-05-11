@@ -176,4 +176,3 @@ const char *crossing_t::ist_entfernbar(const spieler_t *sp)
 		return ding_t::ist_entfernbar(sp);
 	}
 }
-

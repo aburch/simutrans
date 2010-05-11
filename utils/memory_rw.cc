@@ -146,5 +146,3 @@ void memory_rw_t::rdwr_str(char *&s)
 		}
 	}
 }
-
-

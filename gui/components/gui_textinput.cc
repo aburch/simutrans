@@ -308,7 +308,6 @@ void gui_hidden_textinput_t::zeichnen(koord offset)
 		sint16 xpos = pos.x+offset.x+2;
 		utf16  c = 0;
 		do {
-			size_t las_pos = text_pos;
 			// cursor?
 			if(  text_pos==cursor_pos  &&  has_focus(this)  ) {
 				display_fillbox_wh_clip( xpos, pos.y+offset.y+1, 1, 11, COL_WHITE, true);

@@ -640,4 +640,3 @@ void schedule_list_gui_t::show_lineinfo(linehandle_t line)
 		}
 	}
 }
-

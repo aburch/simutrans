@@ -56,8 +56,8 @@
 /* will highlite marked areas and convoi will leave traces */
 //#define DEBUG_ROUTES
 
-/* shows which tiles are grown as dings (used in boden/grund.cc) */
-//#define SHOW_FORE_GRUND 1
+/* shows which tiles are drawn as dings (used in boden/grund.cc) */
+//#define SHOW_FORE_GRUND
 
 /* shows with block needed update and which not */
 //#define DEBUG_FLUSH_BUFFER

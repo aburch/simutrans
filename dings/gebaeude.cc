@@ -124,7 +124,7 @@ gebaeude_t::~gebaeude_t()
 		city->remove_gebaeude_from_stadt(this);
 	}
 
-	if((tile  &&  tile->get_phasen()>1)  ||  zeige_baugrube) {
+	if(sync) {
 		sync = false;
 		welt->sync_remove(this);
 	}
@@ -291,7 +291,7 @@ gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 		}
 	}
 	else if(new_tile->get_phasen()>1  ||  zeige_baugrube) {
-		// needs now anymation
+		// needs now animation
 		count = simrand(new_tile->get_phasen());
 		anim_time = 0;
 		welt->sync_add(this);
@@ -702,7 +702,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 			buf.append("\n");
 			buf.append(translator::translate("Wert"));
 			buf.append(": ");
-			buf.append(-welt->get_einstellungen()->cst_multiply_remove_haus*(tile->get_besch()->get_level()+1)/100);
+			buf.append(-(welt->get_einstellungen()->cst_buy_land*(tile->get_besch()->get_level()+1)/100) * 5);
 			buf.append("$\n");
 		}
 
@@ -932,8 +932,12 @@ void gebaeude_t::entferne(spieler_t *sp)
 
 	const haus_besch_t* besch = tile->get_besch();
 
-	if(besch->get_utyp()<haus_besch_t::bahnhof) {
-		spieler_t::accounting(sp, welt->get_einstellungen()->cst_multiply_remove_haus*(besch->get_level()+1), get_pos().get_2d(), COST_CONSTRUCTION);
+	if(besch->get_utyp()<haus_besch_t::bahnhof) 
+	{
+		const sint64 bulldoze_cost = welt->get_einstellungen()->cst_multiply_remove_haus * (besch->get_level()+1);
+		const sint64 purchase_cost = welt->get_einstellungen()->cst_buy_land * besch->get_level() * 5;
+		const sint64 cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
+		spieler_t::accounting(sp, cost, get_pos().get_2d(), COST_CONSTRUCTION);
 	}
 	else {
 		// tearing down halts is always single costs only

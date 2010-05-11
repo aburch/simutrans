@@ -153,6 +153,7 @@ void settings_frame_t::infowin_event(const event_t *ev)
 		general.read( sets );
 		routing.read( sets );
 		economy.read( sets );
+		exp_general.read( sets );
 		exp_revenue.read( sets );
 		costs.read( sets );
 	}
