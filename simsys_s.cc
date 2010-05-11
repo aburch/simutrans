@@ -548,13 +548,16 @@ static void internal_GetEvents(int wait)
 							// paste
 							if (OpenClipboard(NULL)) {
 								if (HANDLE const hText = GetClipboardData(CF_UNICODETEXT)) {
-									SDL_Event new_event;
-									new_event.type           = SDL_KEYDOWN;
-									new_event.key.keysym.sym = SDLK_UNKNOWN;
-									for (WCHAR const* chr = (WCHAR const*)hText; *chr != '\0'; ++chr) {
-										if (*chr == '\n') continue;
-										new_event.key.keysym.unicode = *chr;
-										SDL_PushEvent(&new_event);
+									if (WCHAR const* chr = static_cast<WCHAR const*>(GlobalLock(hText))) {
+										SDL_Event new_event;
+										new_event.type           = SDL_KEYDOWN;
+										new_event.key.keysym.sym = SDLK_UNKNOWN;
+										for (; *chr != '\0'; ++chr) {
+											if (*chr == '\n') continue;
+											new_event.key.keysym.unicode = *chr;
+											SDL_PushEvent(&new_event);
+										}
+										GlobalUnlock(hText);
 									}
 								}
 								CloseClipboard();
