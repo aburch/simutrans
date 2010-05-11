@@ -102,12 +102,8 @@ const char *loadsave_frame_t::get_info(const char *fname)
 			strftime(date+n, 18, "%Y-%m-%d %H:%M", tm);
 		}
 		else {
-			tstrncpy(date, "??.??.???? ??:??", 15);
+			tstrncpy(date, "??.??.???? ??:??", lengthof(date));
 		}
 	}
 	return date;
 }
-
-
-
-

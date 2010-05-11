@@ -7,6 +7,7 @@
 
 #include <string.h>
 
+#include "../../macros.h"
 #include "../../simdebug.h"
 #include "gui_combobox.h"
 #include "../../simevent.h"
@@ -175,7 +176,7 @@ void gui_combobox_t::zeichnen(koord offset)
 	gui_scrolled_list_t::scrollitem_t *item = droplist.get_element( droplist.get_selection() );
 	if(  item  &&  item->is_valid()  &&  strncmp(item->get_text(),editstr,127)!=0  ) {
 		item->set_text( editstr );
-		tstrncpy( editstr, item->get_text(), 128 );
+		tstrncpy(editstr, item->get_text(), lengthof(editstr));
 	}
 
 	textinp.zeichnen(offset);
@@ -215,7 +216,7 @@ gui_combobox_t::set_selection(int s)
 		droplist.set_selection(-1);
 	}
 	else if(  item->is_valid()  &&  strncmp(editstr,item->get_text(),127)!=0  ) {
-		tstrncpy( editstr, item->get_text(), 128 );
+		tstrncpy(editstr, item->get_text(), lengthof(editstr));
 		textinp.set_text( editstr, 128 );
 	}
 }

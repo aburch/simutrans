@@ -128,4 +128,3 @@ void cbuffer_t::extent(const unsigned int by_amount)
 		capacity = new_capacity;
 	}
 }
-

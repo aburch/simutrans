@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -12,7 +12,7 @@
 #endif
 
 #ifdef _WIN32
-#include <SDL/SDL_syswm.h>
+#include <SDL_syswm.h>
 #include <windows.h>
 #else
 #include <sys/stat.h>
@@ -43,6 +43,11 @@
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
+
+// older SDL versions aparently do not have this definition
+#ifndef SDL_WINDOWEVENT
+#define SDL_WINDOWEVENT (1)
+#endif
 
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
@@ -608,7 +613,7 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			break;
 
-		case 1:
+		case SDL_WINDOWEVENT:
 		case SDL_KEYUP:
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;

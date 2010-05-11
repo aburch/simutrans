@@ -1114,6 +1114,3 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 
 	return true;
 }
-
-
-

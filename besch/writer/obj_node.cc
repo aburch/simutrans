@@ -111,4 +111,3 @@ void obj_node_t::write_uint32(FILE* fp, uint32 data, int offset)
 	uint32 data2 = endian_uint32(&data);
 	this->write_data_at(fp, &data2, offset, 4);
 }
-

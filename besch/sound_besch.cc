@@ -150,5 +150,3 @@ bool sound_besch_t::alles_geladen()
 	DBG_MESSAGE("sound_besch_t::alles_geladen()","sounds");
 	return true;	// no mandatory objects here
 }
-
-

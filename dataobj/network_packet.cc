@@ -81,4 +81,3 @@ void packet_t::send(SOCKET s)
 		dbg->error("packet_t::send", "error in creation!");
 	}
 }
-
