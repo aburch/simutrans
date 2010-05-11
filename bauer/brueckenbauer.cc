@@ -282,6 +282,11 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				if(length < min_length) {
 					return koord3d::invalid;
 				}
+				if((wegtyp != powerline_wt) == (gr2->get_leitung() != NULL)) {
+					// end would be on slope with powerline if building way bridge (and vice versa)
+					error_msg =  "Tile not empty.";
+					return koord3d::invalid;
+				}
 				if(ribi_t::ist_einfach(ribi)  &&  koord(ribi) == zv) {
 					// end on slope with way
 					return pos;
