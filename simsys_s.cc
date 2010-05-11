@@ -605,7 +605,6 @@ static void internal_GetEvents(int wait)
 			sys_event.mb = event.motion.state;
 			sys_event.mb = (sys_event.mb &1) + ((sys_event.mb>>1) & 2) + ((sys_event.mb<<1) & 4);
 			sys_event.key_mod = ModifierKeys();
-			sys_event.key_mod = ModifierKeys();
 			break;
 
 		case SDL_ACTIVEEVENT:
