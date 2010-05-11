@@ -508,6 +508,7 @@ static void internal_GetEvents(int wait)
 			break;
 
 		case SDL_KEYDOWN:
+		{
 			unsigned long code;
 			bool   const  numlock = SDL_GetModState() & KMOD_NUM;
 			SDLKey const  sym     = event.key.keysym.sym;
@@ -606,6 +607,7 @@ static void internal_GetEvents(int wait)
 			sys_event.code    = code;
 			sys_event.key_mod = ModifierKeys();
 			break;
+		}
 
 		case SDL_MOUSEMOTION:
 			sys_event.type = SIM_MOUSE_MOVE;
