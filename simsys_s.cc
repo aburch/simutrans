@@ -419,6 +419,15 @@ static inline unsigned int ModifierKeys(void)
 }
 
 
+static int conv_mouse_buttons(Uint8 const state)
+{
+	return
+		(state & SDL_BUTTON_LMASK ? MOUSE_LEFTBUTTON  : 0) |
+		(state & SDL_BUTTON_MMASK ? MOUSE_MIDBUTTON   : 0) |
+		(state & SDL_BUTTON_RMASK ? MOUSE_RIGHTBUTTON : 0);
+}
+
+
 static void internal_GetEvents(int wait)
 {
 	SDL_Event event;
@@ -447,8 +456,7 @@ static void internal_GetEvents(int wait)
 					sys_event.code = SIM_MOUSE_MOVED;
 					sys_event.mx   = event.motion.x;
 					sys_event.my   = event.motion.y;
-					sys_event.mb = event.motion.state;
-					sys_event.mb = (sys_event.mb &1) + ((sys_event.mb>>1) & 2) + ((sys_event.mb<<1) & 4);
+					sys_event.mb   = conv_mouse_buttons(event.motion.state);
 				}
 			}
 		} while (n != 0 && event.type == SDL_MOUSEMOTION);
@@ -476,7 +484,7 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			sys_event.mx      = event.button.x;
 			sys_event.my      = event.button.y;
-			sys_event.mb = SDL_GetMouseState( 0, 0 );
+			sys_event.mb      = conv_mouse_buttons(SDL_GetMouseState(0, 0));
 			switch (event.button.button) {
 				case 1: sys_event.code = SIM_MOUSE_LEFTBUTTON;  break;
 				case 2: sys_event.code = SIM_MOUSE_MIDBUTTON;   break;
@@ -491,8 +499,7 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			sys_event.mx      = event.button.x;
 			sys_event.my      = event.button.y;
-			sys_event.mb = SDL_GetMouseState( 0, 0 );
-			sys_event.mb = (sys_event.mb &1) + ((sys_event.mb>>1) & 2) + ((sys_event.mb<<1) & 4);
+			sys_event.mb      = conv_mouse_buttons(SDL_GetMouseState(0, 0));
 			switch (event.button.button) {
 				case 1: sys_event.code = SIM_MOUSE_LEFTUP;  break;
 				case 2: sys_event.code = SIM_MOUSE_MIDUP;   break;
@@ -605,8 +612,7 @@ static void internal_GetEvents(int wait)
 			sys_event.code = SIM_MOUSE_MOVED;
 			sys_event.mx   = event.motion.x;
 			sys_event.my   = event.motion.y;
-			sys_event.mb = event.motion.state;
-			sys_event.mb = (sys_event.mb &1) + ((sys_event.mb>>1) & 2) + ((sys_event.mb<<1) & 4);
+			sys_event.mb   = conv_mouse_buttons(event.motion.state);
 			sys_event.key_mod = ModifierKeys();
 			break;
 
