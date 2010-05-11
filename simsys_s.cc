@@ -44,11 +44,6 @@
 #include "simevent.h"
 #include "simgraph.h"
 
-// older SDL versions aparently do not have this definition
-#ifndef SDL_WINDOWEVENT
-#define SDL_WINDOWEVENT (1)
-#endif
-
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
 //#define USE_HW
@@ -613,7 +608,7 @@ static void internal_GetEvents(int wait)
 			sys_event.key_mod = ModifierKeys();
 			break;
 
-		case SDL_WINDOWEVENT:
+		case SDL_ACTIVEEVENT:
 		case SDL_KEYUP:
 			sys_event.type = SIM_KEYBOARD;
 			sys_event.code = 0;
