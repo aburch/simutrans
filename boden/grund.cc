@@ -1182,6 +1182,7 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 
 #ifdef SHOW_FORE_GRUND
 	if(get_flag(grund_t::draw_as_ding)) {
+		const sint16 raster_tile_width = get_tile_raster_width();
 		display_fillbox_wh_clip( xpos+raster_tile_width/2, ypos+(raster_tile_width*3)/4, 16, 16, 0, dirty);
 	}
 #endif
