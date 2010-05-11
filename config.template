@@ -49,4 +49,4 @@
 # In order to use the flags, add a line like this:
 # FLAGS = -DUSE_C -DBIG_ENDIAN
 
-FLAGS = -NDEBUG -DSLIST_FREIGHT
+FLAGS = -DNDEBUG
