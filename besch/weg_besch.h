@@ -9,10 +9,10 @@
 
 #include "bildliste_besch.h"
 #include "obj_besch_std_name.h"
+#include "skin_besch.h"
 #include "../dataobj/ribi.h"
 
 
-class skin_besch_t;
 class werkzeug_t;
 
 /**
@@ -120,16 +120,14 @@ public:
 
 	image_id get_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
-		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(get_child(6))->get_bild_nr(ribi);
-		}
-		return static_cast<const bildliste_besch_t *>(get_child(2))->get_bild_nr(ribi);
+		int const n = season && number_seasons == 1 ? 6 : 2;
+		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi);
 	}
 
 	image_id get_bild_nr_switch(ribi_t::ribi ribi, uint8 season, bool nw) const
 	{
 		uint8 listen_nr = (season && number_seasons == 1) ? 6 : 2;
-		const bildliste_besch_t *bl = static_cast<const bildliste_besch_t *>(get_child(listen_nr));
+		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(listen_nr);
 		// only do this if extended switches are there
 		if(  bl->get_anzahl()>16  ) {
 			static uint8 ribi_to_extra[16] = {
@@ -148,10 +146,8 @@ public:
 		if(!hang_t::ist_einfach(hang)) {
 			return IMG_LEER;
 		}
-		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(get_child(7))->get_bild_nr(hang / 3 - 1);
-		}
-		return static_cast<const bildliste_besch_t *>(get_child(3))->get_bild_nr(hang / 3 - 1);
+		int const n = season && number_seasons == 1 ? 7 : 3;
+		return get_child<bildliste_besch_t>(n)->get_bild_nr(hang / 3 - 1);
 #else
 		int nr;
 		switch(hang) {
@@ -170,27 +166,23 @@ public:
 			default:
 				return IMG_LEER;
 		}
-		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(get_child(7))->get_bild_nr(nr);
-		}
-		return static_cast<const bildliste_besch_t *>(get_child(3))->get_bild_nr(nr);
+		int const n = season && number_seasons == 1 ? 7 : 3;
+		return get_child<bildliste_besch_t>(n)->get_bild_nr(nr);
 #endif
 	}
 
 	image_id get_diagonal_bild_nr(ribi_t::ribi ribi, uint8 season) const
 	{
-		if(season && number_seasons == 1) {
-			return static_cast<const bildliste_besch_t *>(get_child(8))->get_bild_nr(ribi / 3 - 1);
-		}
-		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(ribi / 3 - 1);
+		int const n = season && number_seasons == 1 ? 8 : 4;
+		return get_child<bildliste_besch_t>(n)->get_bild_nr(ribi / 3 - 1);
 	}
 
 	bool has_diagonal_bild() const {
-		return static_cast<const bildliste_besch_t *>(get_child(4))->get_bild_nr(0)!=IMG_LEER;
+		return get_child<bildliste_besch_t>(4)->get_bild_nr(0) != IMG_LEER;
 	}
 
 	bool has_switch_bild() const {
-		return static_cast<const bildliste_besch_t *>(get_child(2))->get_anzahl()>16;
+		return get_child<bildliste_besch_t>(2)->get_anzahl() > 16;
 	}
 
 	/**
@@ -214,7 +206,7 @@ public:
 	*/
 	const skin_besch_t * get_cursor() const
 	{
-		return (const skin_besch_t *)(get_child(5));
+		return get_child<skin_besch_t>(5);
 	}
 
 	// default tool for building

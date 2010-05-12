@@ -61,9 +61,9 @@ public:
 	// returns the pointer to an image structure
 	const bild_besch_t *get_bild_ptr(int typ, int stage=0) const
 	{
-		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(get_child(2))->get_liste(typ);
+		bildliste_besch_t const* const liste = get_child<bildliste2d_besch_t>(2)->get_liste(typ);
 		if(liste && liste->get_anzahl() > 0) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(2))->get_bild(typ,stage);
+			bild_besch_t const* const bild = get_child<bildliste2d_besch_t>(2)->get_bild(typ,stage);
 			return bild;
 		}
 		return NULL;
@@ -72,9 +72,9 @@ public:
 	// image for all non-climate stuff like foundations ...
 	image_id get_bild(int typ, int stage=0) const
 	{
-		const bildliste_besch_t *liste = static_cast<const bildliste2d_besch_t *>(get_child(2))->get_liste(typ);
+		bildliste_besch_t const* const liste = get_child<bildliste2d_besch_t>(2)->get_liste(typ);
 		if(liste && liste->get_anzahl() > 0) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(2))->get_bild(typ,stage);
+			bild_besch_t const* const bild = get_child<bildliste2d_besch_t>(2)->get_bild(typ,stage);
 			if (bild != NULL) return bild->get_nummer();
 		}
 		return IMG_LEER;

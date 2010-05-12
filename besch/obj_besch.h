@@ -23,7 +23,7 @@
 class obj_besch_t {
 
 protected:
-	obj_besch_t *get_child(int i) const { return node_info[i]; }
+	template<typename T> T const* get_child(int i) const { return static_cast<T const*>(node_info[i]); }
 
 	/*
 	 * Internal Node information - the derived class knows,
