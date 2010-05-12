@@ -148,9 +148,6 @@ public:
 		if(freight_image_type==0  &&  ware!=NULL) {
 			liste = get_child<bildliste_besch_t>(5);
 		}
-		else {
-			liste = get_child<bildliste_besch_t>(4);
-		}
 
 		if(!liste) {
 			liste = get_child<bildliste_besch_t>(4);

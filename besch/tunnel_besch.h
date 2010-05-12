@@ -58,14 +58,8 @@ private:
 public:
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *bild = NULL;
-		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(5)->get_bild(hang_indices[hang] + 4 * type);
-		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(2)->get_bild(hang_indices[hang] + 4 * type);
-		}
-		return bild;
+		int const n = season && number_seasons == 1 ? 5 : 2;
+		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
 	}
 
 	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season, uint8 type ) const
@@ -76,14 +70,8 @@ public:
 
 	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *bild = NULL;
-		if(season && number_seasons == 1) {
-			bild = get_child<bildliste_besch_t>(6)->get_bild(hang_indices[hang] + 4 * type);
-		}
-		if(bild == NULL) {
-			bild = get_child<bildliste_besch_t>(3)->get_bild(hang_indices[hang] + 4 * type);
-		}
-		return bild;
+		int const n = season && number_seasons == 1 ? 6 : 3;
+		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
 	}
 
 	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season, uint8 type) const

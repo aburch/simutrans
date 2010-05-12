@@ -61,14 +61,9 @@ public:
 
 	const bild_besch_t *get_bild_after(int ns, bool open, int phase) const
 	{
-		if(open) {
-			bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(4 + ns);
-			return bl ? bl->get_bild(phase) : NULL;
-		}
-		else {
-			bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(8 + ns);
-			return bl ? bl->get_bild(phase) : NULL;
-		}
+		int const n = ns + (open ? 4 : 8);
+		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
+		return bl ? bl->get_bild(phase) : 0;
 	}
 
 	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }

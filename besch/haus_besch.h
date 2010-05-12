@@ -60,13 +60,14 @@ public:
 	image_id get_hintergrund(int phase, int hoehe,int season) const
 	{
 		season &= (seasons-1);
+		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			if (bild_besch_t const* const bild = get_child<bildliste2d_besch_t>(0 + 2 * season)->get_bild(hoehe, phase)) {
+			if (bild_besch_t const* const bild = bl->get_bild(hoehe, phase)) {
 				return bild->get_nummer();
 			}
 		}
 		// here if this phase does not exists ...
-		bild_besch_t const* const bild = get_child<bildliste2d_besch_t>(0 + 2 * season)->get_bild(hoehe, 0);
+		bild_besch_t const* const bild = bl->get_bild(hoehe, 0);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
@@ -85,13 +86,14 @@ public:
 	image_id get_vordergrund(int phase,int season) const
 	{
 		season &= (seasons-1);
+		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(1 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			if (bild_besch_t const* const bild = get_child<bildliste2d_besch_t>(1 + 2 * season)->get_bild(0, phase)) {
+			if (bild_besch_t const* const bild = bl->get_bild(0, phase)) {
 				return bild->get_nummer();
 			}
 		}
 		// here if this phase does not exists ...
-		bild_besch_t const* const bild = get_child<bildliste2d_besch_t>(1 + 2 * season)->get_bild(0, 0);
+		bild_besch_t const* const bild = bl->get_bild(0, 0);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
