@@ -859,12 +859,12 @@ int fabrikbauer_t::increase_industry_density( karte_t *welt, bool tell_me )
 		// ok, found consumer
 		if(  last_built_consumer  ) {
 			for(  int i=0;  i < last_built_consumer->get_besch()->get_lieferanten();  i++  ) {
-				uint8 w_idx = last_built_consumer->get_besch()->get_lieferant(i)->get_ware()->get_index();
+				ware_besch_t const* const w = last_built_consumer->get_besch()->get_lieferant(i)->get_ware();
 				for(  uint32 j=0;  j<last_built_consumer->get_suppliers().get_count();  j++  ) {
 					fabrik_t *sup = fabrik_t::get_fab( welt, last_built_consumer->get_suppliers()[j] );
 					const fabrik_besch_t* const fb = sup->get_besch();
 					for (uint32 k = 0; k < fb->get_produkte(); k++) {
-						if (fb->get_produkt(k)->get_ware()->get_index() == w_idx) {
+						if (fb->get_produkt(k)->get_ware() == w) {
 							last_built_consumer_ware = i+1;
 							goto next_ware_check;
 						}

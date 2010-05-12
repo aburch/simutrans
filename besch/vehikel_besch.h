@@ -127,7 +127,7 @@ public:
 			sint8 ware_index=0; // freight images: if not found use first freight
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) {
-				if(ware->get_index()==static_cast<const ware_besch_t *>(get_child(6 + nachfolger + vorgaenger + i))->get_index()) {
+				if (ware == static_cast<ware_besch_t const*>(get_child(6 + nachfolger + vorgaenger + i))) {
 					ware_index = i;
 					break;
 				}
