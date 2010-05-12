@@ -513,7 +513,7 @@ void pumpe_t::step(long delta_t )
 
 	image_id new_bild;
 	if ( supply > 0 ) {
-		get_net->add_supply( supply );
+		get_net()->add_supply( supply );
 		if (skinverwaltung_t::pumpe->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
 			new_bild = skinverwaltung_t::pumpe->get_bild_nr(3);
 		}
@@ -641,6 +641,8 @@ void senke_t::step(long delta_t)
 
 	uint32 power_demand = fab->get_power_demand();
 	get_net()->add_demand(power_demand);
+
+	uint32 net_demand = get_net()->get_demand();
 	if(  net_demand > 0  ) {
 		power_load = (
 				last_power_demand 
