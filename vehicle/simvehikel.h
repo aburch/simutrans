@@ -475,7 +475,7 @@ public:
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
-	virtual overtaker_t *get_overtaker() { return cnv ? static_cast<overtaker_t *>(cnv) : NULL; }
+	virtual overtaker_t* get_overtaker() { return cnv; }
 };
 
 
