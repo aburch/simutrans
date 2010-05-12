@@ -515,9 +515,11 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 		// find power lines
 		case MAP_POWERLINES:
-			const leitung_t* lt = gr->find<leitung_t>();
-			if(lt!=NULL) {
-				set_relief_farbe(k, calc_severity_color(lt->get_net()->get_demand(),lt->get_net()->get_supply()) );
+			{
+				const leitung_t* lt = gr->find<leitung_t>();
+				if(lt!=NULL) {
+					set_relief_farbe(k, calc_severity_color(lt->get_net()->get_demand(),lt->get_net()->get_supply()) );
+				}
 			}
 			break;
 
