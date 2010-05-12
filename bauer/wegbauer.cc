@@ -498,10 +498,7 @@ static bool check_building( const grund_t *to, const koord dir )
 	gebaeude_t *gb = to->find<gebaeude_t>();
 	if(gb==NULL) {
 		// but depots might be overlooked ...
-		depot_t *dp = to->get_depot();
-		if(dp!=NULL) {
-			gb = dynamic_cast<gebaeude_t *>(dp);
-		}
+		gb = to->get_depot();
 	}
 	// check, if we may enter
 	if(gb) {
