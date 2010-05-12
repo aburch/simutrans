@@ -77,7 +77,7 @@ void boden_t::calc_bild_internal()
 			set_bild(IMG_LEER);
 		}
 #else
-		if(weg && dynamic_cast<strasse_t *>(weg)->hat_gehweg()) {
+		if (weg && weg->hat_gehweg()) {
 			set_bild(skinverwaltung_t::fussweg->get_bild_nr(grund_besch_t::slopetable[slope_this]));
 		}
 		else {
