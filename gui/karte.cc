@@ -20,7 +20,6 @@
 #include "../simgraph.h"
 
 
-sint32 reliefkarte_t::max_capacity=0;
 sint32 reliefkarte_t::max_departed=0;
 sint32 reliefkarte_t::max_arrived=0;
 sint32 reliefkarte_t::max_cargo=0;
@@ -516,20 +515,9 @@ reliefkarte_t::calc_map_pixel(const koord k)
 
 		// find power lines
 		case MAP_POWERLINES:
-			// need to init the maximum?
-			if(max_capacity==0) {
-				max_capacity = 1;
-				calc_map();
-			}
-			else {
-				const leitung_t* lt = gr->find<leitung_t>();
-				if(lt!=NULL) {
-					sint32 capacity=lt->get_net()->get_capacity();
-					if(capacity>max_capacity) {
-						max_capacity = capacity;
-					}
-					set_relief_farbe(k, calc_severity_color(capacity,max_capacity) );
-				}
+			const leitung_t* lt = gr->find<leitung_t>();
+			if(lt!=NULL) {
+				set_relief_farbe(k, calc_severity_color(lt->get_net()->get_demand(),lt->get_net()->get_supply()) );
 			}
 			break;
 
@@ -714,7 +702,7 @@ void reliefkarte_t::set_welt(karte_t *welt)
 
 	if(welt) {
 		calc_map_groesse();
-		max_capacity = max_departed = max_arrived = max_cargo = max_convoi_arrived = max_passed = max_tourist_ziele = 0;
+		max_departed = max_arrived = max_cargo = max_convoi_arrived = max_passed = max_tourist_ziele = 0;
 	}
 }
 
