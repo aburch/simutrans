@@ -460,7 +460,7 @@ int simu_main(int argc, char** argv)
 	// retrieve everything (but we must do this again once more ... )
 	if(multiuser) {
 		cstring_t obj_conf = cstring_t(umgebung_t::user_dir) + cstring_t("simuconf.tab");
-		if(simuconf.open((const char *)obj_conf)) {
+		if (simuconf.open(obj_conf)) {
 			printf("parse_simuconf() at %s: ", (const char *)obj_conf );
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
@@ -608,7 +608,7 @@ int simu_main(int argc, char** argv)
 	// now find the pak specific tab file ...
 	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
 	cstring_t dummy("");
-	if(simuconf.open((const char *)obj_conf)) {
+	if (simuconf.open(obj_conf)) {
 		sint16 idummy;
 		printf("parse_simuconf() at %s: ", (const char *)obj_conf);
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
@@ -618,7 +618,7 @@ int simu_main(int argc, char** argv)
 	// and parse again parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
 		cstring_t obj_conf = cstring_t(umgebung_t::user_dir) + "simuconf.tab";
-		if(simuconf.open((const char *)obj_conf)) {
+		if (simuconf.open(obj_conf)) {
 			sint16 idummy;
 			printf("parse_simuconf() at %s: ", (const char *)obj_conf);
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );

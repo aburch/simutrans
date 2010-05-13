@@ -102,7 +102,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
 					const ding_t* thing = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
-					if(  thing == NULL  ||  thing->get_besitzer()==NULL  ||  thing->get_besitzer()==(spieler_t *)this  ) {
+					if (!thing || !thing->get_besitzer() || thing->get_besitzer() == this) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
@@ -1194,7 +1194,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 						cover_city_with_bus_route(platz1, 6);
 						cover_city_with_bus_route(platz2, 6);
 					}
-					welt->get_message()->add_message((const char *)buf,platz1,message_t::ai,PLAYER_FLAG|player_nr,road_vehicle->get_basis_bild());
+					welt->get_message()->add_message(buf, platz1, message_t::ai, PLAYER_FLAG|player_nr, road_vehicle->get_basis_bild());
 				}
 			}
 		}
@@ -1214,7 +1214,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				}
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Ferry service by\n%s\nnow between\n%s \nand %s.\n"), get_name(), start_stadt->get_name(), end_stadt->get_name() );
-				welt->get_message()->add_message((const char *)buf,end_stadt->get_pos(),message_t::ai,PLAYER_FLAG|player_nr,road_vehicle->get_basis_bild());
+				welt->get_message()->add_message(buf, end_stadt->get_pos(), message_t::ai, PLAYER_FLAG | player_nr, road_vehicle->get_basis_bild());
 				state = NR_SUCCESS;
 			}
 			else {
@@ -1239,7 +1239,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				cover_city_with_bus_route( get_our_hub(end_stadt)->get_basis_pos(), 6);
 				cbuffer_t buf(1024);
 				buf.printf( translator::translate("Airline service by\n%s\nnow between\n%s \nand %s.\n"), get_name(), start_stadt->get_name(), end_stadt->get_name() );
-				welt->get_message()->add_message((const char *)buf,end_stadt->get_pos(),message_t::ai,PLAYER_FLAG|player_nr,road_vehicle->get_basis_bild());
+				welt->get_message()->add_message(buf, end_stadt->get_pos(), message_t::ai, PLAYER_FLAG | player_nr, road_vehicle->get_basis_bild());
 				state = NR_SUCCESS;
 			}
 		break;
