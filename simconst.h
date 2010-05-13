@@ -145,4 +145,9 @@
 #define Z_GRID (0)
 
 
+// sanity check: USE_C if not GCC and not intel 32bit
+#if !defined USE_C && (!defined __GNUC__ || !defined __i386__)
+#	define USE_C
+#endif
+
 #endif

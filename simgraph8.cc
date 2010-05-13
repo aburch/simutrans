@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "simconst.h"
 #include "simtypes.h"
 #include "macros.h"
 #include "font.h"
