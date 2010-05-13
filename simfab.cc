@@ -1600,7 +1600,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 	}
 
 	const float electricity_proportion = get_besch()->is_electricity_producer() ? 1 : get_besch()->get_electricity_proportion();
-	const uint32 p = (prodbase * 4 * PRODUCTION_DELTA_T) * electricity_proportion;
+	const uint32 p = (prodbase * PRODUCTION_DELTA_T) * electricity_proportion;
 	buf.append(p>>POWER_TO_MW);
 	buf.append(" MW");
 
