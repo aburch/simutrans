@@ -71,9 +71,9 @@ fabrik_t *
 leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
-		fabrik_t *fab = fabrik_t::get_fab( welt, pos+koord::nsow[k] );
-		if(fab) {
-			return fab;
+		fabrik_t *new_fab = fabrik_t::get_fab( welt, pos+koord::nsow[k] );
+		if(new_fab) {
+			return new_fab;
 		}
 	}
 	return NULL;
@@ -771,7 +771,7 @@ void senke_t::step(long delta_t)
 bool
 senke_t::sync_step(long delta_t)
 {
-	if(fab==NULL) {
+	if( fab == NULL && city == NULL) {
 		return false;
 	}
 	bool snow = (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline());
