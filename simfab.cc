@@ -1596,19 +1596,12 @@ void fabrik_t::info(cbuffer_t& buf) const
 	}
 	else
 	{
-		buf.append(translator::translate("Electrical consumption: "));
+		buf.append(translator::translate("Electrical demand: "));
 	}
 
-	uint32 n_intervall = 1;
-	sint32 ds = delta_sum;
-	while(ds > PRODUCTION_DELTA_T) 
-	{
-		ds -= PRODUCTION_DELTA_T;
-		n_intervall ++;
-	}
 	const float electricity_proportion = get_besch()->is_electricity_producer() ? 1 : get_besch()->get_electricity_proportion();
-	const uint32 p = (prodbase * n_intervall * PRODUCTION_DELTA_T * 4) * electricity_proportion;
-	buf.append(p / 5120);
+	const uint32 p = (prodbase * 4 * PRODUCTION_DELTA_T) * electricity_proportion;
+	buf.append(p>>POWER_TO_MW);
 	buf.append(" MW");
 
 	if(city != NULL)
