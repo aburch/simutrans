@@ -41,8 +41,12 @@ name=max_bonus_multiplier_percent
 note=Label for maximum bonus multiplier in percent setting.
 -
 obj=program_text
-name=travelling
+name=revenue of
 note=Label for table of travelling post office revenue settings.
+-
+obj=program_text
+name=travelling post office
+note=Label for travelling post office revenue settings.
 -
 obj=program_text
 name=above\nminutes
@@ -51,6 +55,14 @@ note=Label for duration setting of travelling post office revenue.
 obj=program_text
 name=get\nrevenue $
 note=Label for revenue in $ setting of travelling post office revenue.
+-
+obj=program_text
+name=city_threshold_size
+note=Label for city threshold size.
+-
+obj=program_text
+name=capital_threshold_size
+note=Label for capital threshold size.
 -
 obj=program_text
 name=passenger_routing_packet_size
