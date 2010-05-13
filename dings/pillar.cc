@@ -46,9 +46,11 @@ void pillar_t::calc_bild()
 {
 	hide = false;
 	if(get_yoff()==0  &&  besch->has_pillar_asymmetric()) {
-		hang_t::typ h = welt->lookup(get_pos())->get_grund_hang();
-		if(h==hang_t::nord  ||  h==hang_t::west) {
-			hide = true;
+		if(  grund_t *gr = welt->lookup(get_pos())  ) {
+			hang_t::typ h = gr->get_grund_hang();
+			if(h==hang_t::nord  ||  h==hang_t::west) {
+				hide = true;
+			}
 		}
 	}
 }
