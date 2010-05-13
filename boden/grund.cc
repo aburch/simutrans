@@ -1277,10 +1277,8 @@ sint64 grund_t::remove_trees()
 }
 
 
-sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
+void grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 {
-	sint64 cost=0;
-
 	// not already there?
 	const weg_t * alter_weg = get_weg(weg->get_waytype());
 	if(alter_weg==NULL) {
@@ -1300,7 +1298,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 			// another way will be added
 			if(flags&has_way2) {
 				dbg->fatal("grund_t::neuen_weg_bauen()","cannot built more than two ways on %i,%i,%i!",pos.x,pos.y,pos.z);
-				return 0;
+				return;
 			}
 			// add the way
 			dinge.add( weg );
@@ -1328,11 +1326,7 @@ sint64 grund_t::neuen_weg_bauen(weg_t *weg, ribi_t::ribi ribi, spieler_t *sp)
 
 		// may result in a crossing, but the wegebauer will recalc all images anyway
 		weg->calc_bild();
-//		dinge.dump();
-
-		return cost;
 	}
-	return 0;
 }
 
 

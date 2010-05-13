@@ -440,7 +440,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	weg_t *weg=NULL;	// =NULL to keep compiler happy
 
 	DBG_MESSAGE("brueckenbauer_t::baue()", "build from %s", pos.get_str() );
-	baue_auffahrt(welt, sp, pos, zv, besch, weg_besch );
+	baue_auffahrt(welt, sp, pos, zv, besch);
 	if(besch->get_waytype() != powerline_wt) {
 		ribi = welt->lookup(pos)->get_weg_ribi_unmasked(besch->get_waytype());
 	} else {
@@ -496,7 +496,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 
 	if(need_auffahrt) {
 		// not ending at a bridge
-		baue_auffahrt(welt, sp, pos, -zv, besch, weg_besch);
+		baue_auffahrt(welt, sp, pos, -zv, besch);
 	}
 	else {
 		// ending on a slope/elevated way
@@ -508,7 +508,8 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				// builds new way
 				weg = weg_t::alloc( besch->get_waytype() );
 				weg->set_besch( weg_besch );
-				spieler_t::accounting( sp, -gr->neuen_weg_bauen( weg, ribi, sp ) - weg->get_besch()->get_preis(), end.get_2d(), COST_CONSTRUCTION);
+				gr->neuen_weg_bauen( weg, ribi, sp );
+				spieler_t::accounting( sp, -weg->get_besch()->get_preis(), end.get_2d(), COST_CONSTRUCTION);
 				weg->laden_abschliessen();
 			}
 			gr->calc_bild();
@@ -525,7 +526,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 	}
 }
 
-void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, koord zv, const bruecke_besch_t* besch, const weg_besch_t*)
+void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, koord zv, const bruecke_besch_t* besch)
 {
 	grund_t *alter_boden = welt->lookup(end);
 	ribi_t::ribi ribi_neu;
@@ -559,7 +560,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		if(  !bruecke->weg_erweitern( besch->get_waytype(), ribi_neu)  ) {
 			// needs still one
 			weg = weg_t::alloc( besch->get_waytype() );
-			spieler_t::accounting(sp, -bruecke->neuen_weg_bauen( weg, ribi_neu, sp ), end.get_2d(), COST_CONSTRUCTION);
+			bruecke->neuen_weg_bauen( weg, ribi_neu, sp );
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 	}
