@@ -34,10 +34,10 @@
 /*
 static const char * measures[] =
 {
-    "fail",
-    "weak",
-    "good",
-    "strong",
+	"fail",
+	"weak",
+	"good",
+	"strong",
 };
 */
 
@@ -111,7 +111,6 @@ leitung_t::~leitung_t()
 					if(!first) {
 						// replace both nets
 						new_net = new powernet_t();
-						welt->sync_add(new_net);
 						conn[i]->replace(new_net);
 					}
 					first = false;
@@ -128,14 +127,14 @@ leitung_t::~leitung_t()
 
 		if(neighbours==0) {
 			// delete in last or crossing
-			if(welt->sync_remove( net )) {
+//			if(welt->rem_powernet( net)) {
 				// but there is still something wrong with the logic here ...
 				// so we only delete, if still present in the world
 				delete net;
-			}
-			else {
-				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->get_pos().x,gr->get_pos().y);
-			}
+//			}
+//			else {
+//				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->get_pos().x,gr->get_pos().y);
+//			}
 		}
 		spieler_t::add_maintenance(get_besitzer(), -wegbauer_t::leitung_besch->get_wartung());
 	}
@@ -216,7 +215,6 @@ void leitung_t::verbinde()
 		else {
 			// then we start a new net
 			set_net(new powernet_t());
-			welt->sync_add(get_net());
 //DBG_MESSAGE("leitung_t::verbinde()","Creating new net %p",new_net);
 		}
 	}
@@ -228,7 +226,6 @@ void leitung_t::verbinde()
 			}
 		}
 		if(my_net && my_net!=new_net) {
-			welt->sync_remove(my_net);
 			delete my_net;
 		}
 	}
@@ -323,11 +320,27 @@ void leitung_t::info(cbuffer_t & buf) const
 {
 	ding_t::info(buf);
 
-	buf.append(translator::translate("Power"));
-	buf.append(": ");
-	buf.append(get_net()->get_capacity());
-	buf.append("\nNet: ");
+	uint32 supply = get_net()->get_supply();
+	uint32 demand = get_net()->get_demand();
+	uint32 load = demand>supply?supply:demand;
+
+	buf.append(translator::translate("Net ID: "));
 	buf.append((unsigned long)get_net());
+	buf.append(translator::translate("\nCapacity: "));
+	buf.append(get_net()->get_max_capacity()>>POWER_TO_MW);
+	buf.append(translator::translate(" MW"));
+	buf.append(translator::translate("\nDemand: "));
+	buf.append(demand>>POWER_TO_MW);
+	buf.append(translator::translate(" MW"));
+	buf.append(translator::translate("\nGeneration: "));
+	buf.append(supply>>POWER_TO_MW);
+	buf.append(translator::translate(" MW"));
+	buf.append(translator::translate("\nAct. Load: "));
+	buf.append(load>>POWER_TO_MW);
+	buf.append(translator::translate(" MW"));
+	buf.append(translator::translate("\nGen. Usage: "));
+	buf.append((100*load)/(supply>0?supply:1));
+	buf.append("%");
 }
 
 
@@ -375,10 +388,33 @@ void leitung_t::rdwr(loadsave_t *file)
 
 
 
-/* from here on pump (source) stuff */
+/************************************ from here on pump (source) stuff ********************************************/
+
+slist_tpl<pumpe_t *> pumpe_t::pumpe_list;
+
+
+
+void pumpe_t::neue_karte()
+{
+	pumpe_list.clear();
+}
+
+
+
+void pumpe_t::step_all(long delta_t)
+{
+	slist_iterator_tpl<pumpe_t *> pumpe_iter( pumpe_list );
+	while(  pumpe_iter.next()  ) {
+		pumpe_iter.get_current()->step( delta_t );
+	}
+}
+
+
+
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
 	fab = NULL;
+	supply = 0;
 }
 
 
@@ -386,6 +422,7 @@ pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
+	supply = 0;
 	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
@@ -395,7 +432,8 @@ pumpe_t::~pumpe_t()
 {
 	if(fab) {
 		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
-		welt->sync_remove(this);
+		fab->set_transformer_connected( false );
+		pumpe_list.remove( this );
 		fab = NULL;
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
@@ -403,69 +441,110 @@ pumpe_t::~pumpe_t()
 
 
 
-bool
-pumpe_t::sync_step(long /*delta_t*/)
+void pumpe_t::step(long delta_t)
 {
 	if(fab==NULL) {
-		return false;
+		return;
 	}
+
+	if(  delta_t==0  ) {
+		return;
+	}
+
+	supply = fab->get_power();
+
 	image_id new_bild;
-	if (!fab->is_currently_producing()) {
-		if (skinverwaltung_t::pumpe->get_bild_anzahl() > 2  &&  get_pos().z >= welt->get_snowline()) {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(2);
-		}
-		else {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(0);
-		}
+	int winter_offset = 0;
+	if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+		winter_offset = 2;
+	}
+	if(  supply > 0  ) {
+		get_net()->add_supply( supply );
+		new_bild = skinverwaltung_t::pumpe->get_bild_nr(1+winter_offset);
 	}
 	else {
-		// no input needed or has something to consume
-		get_net()->add_power(fab->get_power());
-		if (skinverwaltung_t::pumpe->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(3);
-		}
-		else {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(1);
-		}
+		new_bild = skinverwaltung_t::pumpe->get_bild_nr(0+winter_offset);
 	}
 	if(bild!=new_bild) {
 		set_flag(ding_t::dirty);
 		set_bild( new_bild );
 	}
-	return true;
 }
 
 
 
-void
-pumpe_t::laden_abschliessen()
+void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		fab->set_transformer_connected( true );
 	}
-	welt->sync_add(this);
+	pumpe_list.insert( this );
+}
+
+
+
+void pumpe_t::info(cbuffer_t & buf) const
+{
+	ding_t::info( buf );
+
+	buf.append(translator::translate("Net ID: "));
+	buf.append((unsigned long)get_net());
+	buf.append(translator::translate("\nGeneration: "));
+	buf.append(supply>>POWER_TO_MW);
+	buf.append(translator::translate(" MW"));
 }
 
 
 
 /************************************ From here on drain stuff ********************************************/
 
+slist_tpl<senke_t *> senke_t::senke_list;
+
+
+
+void senke_t::neue_karte()
+{
+	senke_list.clear();
+}
+
+
+
+void senke_t::step_all(long delta_t)
+{
+	slist_iterator_tpl<senke_t *> senke_iter( senke_list );
+	while(  senke_iter.next()  ) {
+		senke_iter.get_current()->step( delta_t );
+	}
+
+}
+
+
+
 senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
 	fab = NULL;
-	einkommen = 1;
+	einkommen = 0;
 	max_einkommen = 1;
+	next_t = 0;
+	delta_sum = 0;
+	last_power_demand = 0;
+	power_load = 0;
 }
 
 
 senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
 {
 	fab = NULL;
-	einkommen = 1;
+	einkommen = 0;
 	max_einkommen = 1;
+	next_t = 0;
+	delta_sum = 0;
+	last_power_demand = 0;
+	power_load = 0;
 	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
 
@@ -475,7 +554,9 @@ senke_t::~senke_t()
 {
 	if(fab!=NULL) {
 		fab->set_prodfaktor( 16 );
-		welt->sync_remove(this);
+		fab->set_transformer_connected( false );
+		senke_list.remove( this );
+		welt->sync_remove( this );
 		fab = NULL;
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
@@ -483,42 +564,34 @@ senke_t::~senke_t()
 
 
 
-bool
-senke_t::sync_step(long time)
+void senke_t::step(long delta_t)
 {
 	if(fab==NULL) {
-		return false;
+		return;
 	}
 
-	uint32 want_power = time*fab->get_base_production();
-	uint32 get_power = 0;
-	if(fab->is_currently_producing()) {
-		get_power = get_net()->withdraw_power(want_power);
-		fab->add_power( get_power );
+	if(delta_t==0) {
+		return;
 	}
-	image_id new_bild;
-	if(get_power>want_power/2) {
-		if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
-			new_bild = skinverwaltung_t::senke->get_bild_nr(3);
+
+	uint32 power_demand = fab->get_power_demand();
+	get_net()->add_demand( power_demand );
+
+	uint32 net_demand = get_net()->get_demand();
+	if(  net_demand > 0  ) {
+		power_load = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity
+		if(  power_load > last_power_demand  ) {
+			power_load = last_power_demand;
 		}
-		else {
-			new_bild = skinverwaltung_t::senke->get_bild_nr(1);
-		}
+		fab->add_power( power_load );
 	}
 	else {
-		if (skinverwaltung_t::senke->get_bild_anzahl() > 2  &&  get_pos().z >= welt->get_snowline()) {
-			new_bild = skinverwaltung_t::senke->get_bild_nr(2);
-		}
-		else {
-			new_bild = skinverwaltung_t::senke->get_bild_nr(0);
-		}
+		power_load = 0;
 	}
-	if(bild!=new_bild) {
-		set_flag(ding_t::dirty);
-		set_bild( new_bild );
-	}
-	max_einkommen += want_power;
-	einkommen += get_power;
+	fab->add_power_demand( power_demand-power_load ); // allows subsequently stepped senke to supply demand this senke couldn't
+
+	max_einkommen += last_power_demand;
+	einkommen += power_load;
 
 	if(max_einkommen>(2000<<11)) {
 		get_besitzer()->buche(einkommen >> 11, get_pos().get_2d(), COST_POWERLINES);
@@ -527,20 +600,77 @@ senke_t::sync_step(long time)
 		max_einkommen = 1;
 	}
 
+	last_power_demand = power_demand;
+}
+
+
+
+bool senke_t::sync_step(long delta_t)
+{
+	if(fab==NULL) {
+		return false;
+	}
+
+	delta_sum += delta_t;
+	if(  delta_sum > PRODUCTION_DELTA_T  ) {
+		// sawtooth waveform resetting at PRODUCTION_DELTA_T => time period for image changing
+		delta_sum -= delta_sum - delta_sum % PRODUCTION_DELTA_T;
+	}
+
+	next_t += delta_t;
+	if(  next_t > PRODUCTION_DELTA_T / 16  ) {
+		// sawtooth waveform resetting at PRODUCTION_DELTA_T / 16 => image changes at most this fast
+		next_t -= next_t - next_t % (PRODUCTION_DELTA_T / 16);
+
+		image_id new_bild;
+		int winter_offset = 0;
+		if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+			winter_offset = 2;
+		}
+		if(  last_power_demand > 0 ) {
+			uint32 load_factor = power_load * PRODUCTION_DELTA_T / last_power_demand;
+
+			// allow load factor to be 0, 1/8 to 7/8, 1
+			// ensures power on image shows for low loads and ensures power off image shows for high loads
+			if(  load_factor > 0  &&  load_factor < PRODUCTION_DELTA_T / 8  ) {
+				load_factor = PRODUCTION_DELTA_T / 8;
+			}
+			else {
+				if(  load_factor > 7 * PRODUCTION_DELTA_T / 8  &&  load_factor < PRODUCTION_DELTA_T  ) {
+					load_factor = 7 * PRODUCTION_DELTA_T / 8;
+				}
+			}
+
+			if(  delta_sum <= (sint32)load_factor  ) {
+				new_bild = skinverwaltung_t::senke->get_bild_nr(1+winter_offset);
+			}
+			else {
+				new_bild = skinverwaltung_t::senke->get_bild_nr(0+winter_offset);
+			}
+		}
+		else {
+			new_bild = skinverwaltung_t::senke->get_bild_nr(0+winter_offset);
+		}
+		if(  bild != new_bild  ) {
+			set_flag(ding_t::dirty);
+			set_bild( new_bild );
+		}
+	}
 	return true;
 }
 
 
 
-void
-senke_t::laden_abschliessen()
+void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		fab->set_transformer_connected( true );
 	}
+	senke_list.insert( this );
 	welt->sync_add(this);
 }
 
@@ -550,14 +680,15 @@ void senke_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	/* info in a drain */
-	buf.append(translator::translate("Power"));
-	buf.append(": ");
-	buf.append(get_net()->get_capacity());
-	buf.append("\n");
-	buf.append(translator::translate("Available"));
-	buf.append(": ");
-	buf.append((200*einkommen+1)/(2*max_einkommen));
-	buf.append("\nNet: ");
+	buf.append(translator::translate("Net ID: "));
 	buf.append((unsigned long)get_net());
+	buf.append(translator::translate("\nDemand: "));
+	buf.append(last_power_demand>>POWER_TO_MW);
+	buf.append(translator::translate(" MW"));
+	buf.append(translator::translate("\nAct. Load: "));
+	buf.append(power_load>>POWER_TO_MW);
+	buf.append(translator::translate(" MW"));
+	buf.append(translator::translate("\nSupplied: "));
+	buf.append((100*power_load)/(last_power_demand>0?last_power_demand:1));
+	buf.append("%");
 }

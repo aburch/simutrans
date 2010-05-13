@@ -95,7 +95,6 @@ private:
 
 	void draw_schedule(const koord pos) const;
 
-	static sint32 max_capacity;
 	static sint32 max_departed;
 	static sint32 max_arrived;
 	static sint32 max_cargo;

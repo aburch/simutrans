@@ -8,8 +8,9 @@
 #ifndef powernet_t_h
 #define powernet_t_h
 
-#include "../ifc/sync_steppable.h"
 #include "../simtypes.h"
+#include "../tpl/ptrhashtable_tpl.h"
+#include "../tpl/slist_tpl.h"
 
 
 /**
@@ -17,7 +18,7 @@
  * and hand out power.
  * @author Hj. Malthaner
  */
-class powernet_t : public sync_steppable
+class powernet_t
 {
 public:
 	/**
@@ -32,45 +33,38 @@ public:
 	*/
 	static powernet_t * load_net(powernet_t *key);
 
+	// Steps all powernets
+	static void step_all(long delta_t);
 
 private:
-	long next_t;
-	uint32 capacity[8];
-	uint8 current_capacity;
+	static ptrhashtable_tpl<powernet_t *, powernet_t *> loading_table;
+	static slist_tpl<powernet_t *> powernet_list;
 
-	uint32 last_capacity;
 	uint32 max_capacity;
 
-	uint32 power_last;
-	uint32 power_this;
+	uint32 next_supply;
+	uint32 this_supply;
+	uint32 next_demand;
+	uint32 this_demand;
 
+	void step(long delta_t);
 
 public:
 	powernet_t();
+	~powernet_t();
 
-	uint32 get_capacity() const;
 	uint32 set_max_capacity(uint32 max) { uint32 m=max_capacity;  if(max>0){max_capacity=max;} return m; }
+	uint32 get_max_capacity() { return max_capacity; }
 
-	/**
-	* Adds some power to the net
-	* @author Hj. Malthaner
-	*/
-	void add_power(uint32 amount);
+	// adds to power supply for next step
+	void add_supply(uint32 p) {	next_supply += p;  if(  next_supply > max_capacity  ) { next_supply = max_capacity;	} }
 
-	/**
-	* Tries toget a certain amount of power from the net.
-	* @return granted amount of power
-	* @author Hj. Malthaner
-	*/
-	uint32 withdraw_power(uint32 want);
+	uint32 get_supply()	{ return this_supply; }
 
-	/**
-	* Methode für Echtzeitfunktionen eines Objekts.
-	* @return false wenn Objekt aus der Liste der synchronen
-	* Objekte entfernt werden sol
-	* @author Hj. Malthaner
-	*/
-	virtual bool sync_step(long delta_t);
+	// add to power demand for next step
+	void add_demand(uint32 p) { next_demand += p;  if(  next_demand>max_capacity  ) { next_demand = max_capacity; } }
+
+	uint32 get_demand()	{ return this_demand; }
 };
 
 #endif

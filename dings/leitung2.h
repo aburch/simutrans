@@ -13,6 +13,9 @@
 #include "../dataobj/koord3d.h"
 #include "../dataobj/ribi.h"
 #include "../simdings.h"
+#include "../tpl/slist_tpl.h"
+
+#define POWER_TO_MW (12)  // bitshift for converting internal power values to MW for display
 
 class powernet_t;
 class spieler_t;
@@ -114,11 +117,19 @@ public:
 
 
 
-class pumpe_t : public leitung_t, public sync_steppable
+class pumpe_t : public leitung_t
 {
-private:
-	fabrik_t *fab;
+public:
+	static void neue_karte();
+	static void step_all(long delta_t);
 
+private:
+	static slist_tpl<pumpe_t *> pumpe_list;
+
+	fabrik_t *fab;
+	uint32 supply;
+
+	void step(long delta_t);
 
 public:
 	pumpe_t(karte_t *welt, loadsave_t *file);
@@ -127,9 +138,9 @@ public:
 
 	typ get_typ() const { return pumpe; }
 
-	bool sync_step(long delta_t);
+	const char *get_name() const {return "Aufspanntransformator";}
 
-	const char *name() const {return "Pumpe";}
+	void info(cbuffer_t & buf) const;
 
 	void laden_abschliessen();
 
@@ -140,10 +151,22 @@ public:
 
 class senke_t : public leitung_t, public sync_steppable
 {
+public:
+	static void neue_karte();
+	static void step_all(long delta_t);
+
 private:
+	static slist_tpl<senke_t *> senke_list;
+
 	sint32 einkommen;
 	sint32 max_einkommen;
 	fabrik_t *fab;
+	sint32 delta_sum;
+	sint32 next_t;
+	uint32 last_power_demand;
+	uint32 power_load;
+
+	void step(long delta_t);
 
 public:
 	senke_t(karte_t *welt, loadsave_t *file);
@@ -152,9 +175,11 @@ public:
 
 	typ get_typ() const { return senke; }
 
+	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
+	// gives players a visual indication of a power network with insufficient generation
 	bool sync_step(long delta_t);
 
-	const char *name() const {return "Senke";}
+	const char *get_name() const {return "Abspanntransformator";}
 
 	void info(cbuffer_t & buf) const;
 

@@ -67,6 +67,7 @@
 #include "dings/wayobj.h"
 #include "dings/groundobj.h"
 #include "dings/gebaeude.h"
+#include "dings/leitung2.h"
 
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
@@ -551,7 +552,7 @@ DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 	simlinemgmt_t::init_line_ids();
 DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 
-	// alle fabriken aufraeumn
+	// alle fabriken aufraeumen
 	slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
 	while(fab_iter.next()) {
 		delete fab_iter.get_current();
@@ -3121,6 +3122,11 @@ void karte_t::step()
 	}
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
+	// step powerlines - required order: pumpe, senke, then powernet
+	pumpe_t::step_all( delta_t );
+	senke_t::step_all( delta_t );
+	powernet_t::step_all( delta_t );
+
 	// then step all players
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  spieler[i] != NULL  ) {
@@ -3998,8 +4004,10 @@ void karte_t::laden(loadsave_t *file)
 	tile_counter = 0;
 	simloops = 60;
 
-	// powernets zum laden vorbereiten -> tabelle loeschen
+	// zum laden vorbereiten -> tabelle loeschen
 	powernet_t::neue_karte();
+	pumpe_t::neue_karte();
+	senke_t::neue_karte();
 
 	// jetzt geht das laden los
 	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
@@ -4067,7 +4075,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	}
 	// old game might have wrong month
 	letzter_monat %= 12;
- 	// set the current month count
+	// set the current month count
 	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero

@@ -139,12 +139,19 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	sint32 delta_sum;
+	uint32 delta_menge;
 
-	// true, if the factory did produce something in the last step
+	// true if the factory has a transformer adjacent
+	bool transformer_connected;
+
+	// true, if the factory did produce enough in the last step to require power
 	bool currently_producing;
 
 	// power that can be currently drawn from this station (or the amount delivered)
 	uint32 power;
+
+	// power requested for next step
+	uint32 power_demand;
 
 	uint32 total_input, total_output;
 	uint8 status;
@@ -161,10 +168,10 @@ private:
 	void smoke() const;
 
 	/**
-	 * increase the amount for a fixed time PRODUCTION_DELTA_T
-	 * @author Hj. Malthaner
+	 * increase the amount for a time delta_t scaled to a fixed time PRODUCTION_DELTA_T
+	 * @author Hj. Malthaner - original
 	 */
-	uint32 produktion(uint32 produkt) const;
+	uint32 produktion(uint32 produkt, long delta_t) const;
 
 public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
@@ -221,14 +228,25 @@ public:
 	sint32 input_vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 	sint32 vorrat_an(const ware_besch_t *ware);        // Vorrat von Warentyp
 
-	// returns all power and consume it
+	// returns all power and consume it to prevent multiple pumpes
 	uint32 get_power() { uint32 p=power; power=0; return p; }
+
+	// returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
+	uint32 get_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
 
 	// give power to the factory to consume ...
 	void add_power(uint32 p) { power += p; }
 
-	// true, if there was production in the last step
+	// senkes give back wanted power they can't supply such that a senke on a different powernet can try suppling
+	// WARNING: senke stepping order can vary between ingame construction and savegame loading => different results after saveing/loading the game
+	void add_power_demand(uint32 p) { power_demand +=p; }
+
+	// true, if there was production requiring power in the last step
 	bool is_currently_producing() const { return currently_producing; }
+
+	// used to limit transformers to 1 per factory
+	bool is_transformer_connected() const { return transformer_connected; }
+	void set_transformer_connected(bool connected) { transformer_connected = connected; }
 
 	/**
 	 * @return 1 wenn verbrauch,

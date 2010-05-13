@@ -51,6 +51,7 @@
 	ADD: minimum and maximum numbers of next towns to connect to a factory can be set too in simuconf.tab with factory_worker_minimum_towns/factory_worker_maximum_towns
 	ADD: timeline for intercityroads using 'intercity_road[number]=name[,intro][,retire]' in simuconf.tab
 	ADD: winter image and timeline for crossings: winter images of [image][0] are [image][1]
+	ADD: powerline stabilisation pak which enforces a single transformer next to factories/power stations
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
