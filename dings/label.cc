@@ -79,7 +79,7 @@ void label_t::laden_abschliessen()
 image_id label_t::get_bild() const
 {
 	grund_t *gr=welt->lookup(get_pos());
-	return (gr  &&  gr->obj_bei(0)==(ding_t *)this) ? skinverwaltung_t::belegtzeiger->get_bild_nr(0) : IMG_LEER;
+	return gr && gr->obj_bei(0) == this ? skinverwaltung_t::belegtzeiger->get_bild_nr(0) : IMG_LEER;
 }
 
 
