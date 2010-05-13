@@ -3103,14 +3103,12 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 #else
 			asm volatile (
 				// uneven words to copy?
-				// if(w&1)
-				"testb $1,%%cl\n\t"
-				"je 0f\n\t"
+				"shrl %1\n\t"
+				"jnc 0f\n\t"
 				// set first word
 				"stosw\n\t"
 				"0:\n\t"
 				// now we set long words ...
-				"shrl %%ecx\n\t"
 				"rep\n\t"
 				"stosl"
 				: "+D" (p), "+c" (count)
