@@ -1384,7 +1384,9 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 			gr->obj_add(s);
 			s->laden_abschliessen();
 		}
-		fab->set_transformer_connected( true );
+		if (fab != NULL) {
+			fab->set_transformer_connected( true );
+		}
 		return NULL;	// ok
 	}
 	return "Transformer only next to factory or in city!";
