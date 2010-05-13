@@ -2076,7 +2076,7 @@ void wegbauer_t::baue_leitung()
 
 
 // this can drive any river, even a river that has max_speed=0
-class fluss_fahrer_t : fahrer_t
+class fluss_fahrer_t : public fahrer_t
 {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
@@ -2157,7 +2157,7 @@ void wegbauer_t::baue_fluss()
 		 */
 		route_t to_the_sea;
 		fluss_fahrer_t ff;
-		if(  to_the_sea.find_route( welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), (fahrer_t *)&ff, 0, ribi_t::alle, 0x7FFFFFFF )  ) {
+		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &ff, 0, ribi_t::alle, 0x7FFFFFFF)) {
 			for(  uint32 idx=0;  idx<to_the_sea.get_count();  idx++  ) {
 				weg_t* w = welt->lookup(to_the_sea.get_route()[idx])->get_weg(water_wt);
 				if(w) {
