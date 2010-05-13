@@ -351,7 +351,7 @@ const char *brueckenbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, cons
 	koord zv;
 	ribi_t::ribi ribi = ribi_t::keine;
 	const weg_t *weg = gr->get_weg(besch->get_waytype());
-	leitung_t *lt = gr->find<leitung_t>();;
+	leitung_t *lt = gr->find<leitung_t>();
 
 	if(besch->get_waytype()==powerline_wt) {
 		if (gr->hat_wege()) {
@@ -559,7 +559,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		if(  !bruecke->weg_erweitern( besch->get_waytype(), ribi_neu)  ) {
 			// needs still one
 			weg = weg_t::alloc( besch->get_waytype() );
-			spieler_t::accounting(sp, -bruecke->neuen_weg_bauen( weg, ribi_neu, sp ), end.get_2d(), COST_CONSTRUCTION);;
+			spieler_t::accounting(sp, -bruecke->neuen_weg_bauen( weg, ribi_neu, sp ), end.get_2d(), COST_CONSTRUCTION);
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 	}

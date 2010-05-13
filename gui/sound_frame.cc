@@ -62,7 +62,7 @@ sound_frame_t::sound_frame_t()
 	midi.add_listener( this );
 	add_komponente(&midi);
 
-	midi_mute.init( button_t::square_state, "disable midi", koord(10,84) );;
+	midi_mute.init( button_t::square_state, "disable midi", koord(10,84) );
 	midi_mute.pressed = midi_get_mute();
 	midi_mute.add_listener( this );
 	add_komponente(&midi_mute);

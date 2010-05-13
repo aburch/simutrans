@@ -617,7 +617,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				uint8 toolnr = atoi(toolname+12);
 				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
-						addtool = create_dialog_tool( toolnr );;
+						addtool = create_dialog_tool( toolnr );
 						*addtool = *(dialog_tool[toolnr]);
 						if(icon!=IMG_LEER) {
 							addtool->icon = icon;

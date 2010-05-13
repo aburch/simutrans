@@ -3400,10 +3400,10 @@ static sint8 median( sint8 a, sint8 b, sint8 c )
 	}
 #elif 0
 	if(  a<=b  ) {
-		return b<=c ? b : max(a,c);;
+		return b<=c ? b : max(a,c);
 	}
 	else {
-		return b>c ? b : min(a,c);;
+		return b>c ? b : min(a,c);
 	}
 #else
 		return (6*128+3 + a+a+b+b+c+c)/6-128;
