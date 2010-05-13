@@ -320,7 +320,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				w->icon = skinverwaltung_t::werkzeuge_general->get_bild_nr(icon);
 			}
 			do {
-				*str++;
+				str++;
 			} while(*str  &&  *str!=',');
 		}
 		if(*str==',') {
@@ -332,9 +332,9 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong cursor (%i) given for general_tool[%i]", cursor, i );
 				}
 				w->cursor = skinverwaltung_t::cursor_general->get_bild_nr(cursor);
-				do
-					*str++;
-				while(*str  &&  *str!=',');
+				do {
+					str++;
+				} while(*str  &&  *str!=',');
 			}
 		}
 		if(*str==',') {
@@ -345,9 +345,9 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				if(  sound>0  ) {
 					w->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
 				}
-				do
-					*str++;
-				while(*str  &&  *str!=',');
+				do {
+					str++;
+				} while(*str  &&  *str!=',');
 			}
 		}
 		if(*str==',') {
@@ -398,7 +398,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				w->icon = skinverwaltung_t::werkzeuge_simple->get_bild_nr(icon);
 			}
 			do {
-				*str++;
+				str++;
 			} while(*str  &&  *str!=',');
 		}
 		if(*str==',') {
@@ -449,7 +449,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				w->icon = skinverwaltung_t::werkzeuge_dialoge->get_bild_nr(icon);
 			}
 			do {
-				*str++;
+				str++;
 			} while(*str  &&  *str!=',');
 		}
 		if(*str==',') {
@@ -534,7 +534,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						icon = skinverwaltung_t::werkzeuge_toolbars->get_bild_nr(icon);
 					}
 					while(*str  &&  *str!=',') {
-						*str++;
+						str++;
 					}
 				}
 			}
