@@ -143,6 +143,18 @@ public:
 };
 
 
+template<> static inline vehikel_basis_t* ding_cast<vehikel_basis_t>(ding_t* const d)
+{
+	return d->is_moving() ? static_cast<vehikel_basis_t*>(d) : 0;
+}
+
+
+template<> static inline vehikel_basis_t const* ding_cast<vehikel_basis_t>(ding_t const* const d)
+{
+	return d->is_moving() ? static_cast<vehikel_basis_t const*>(d) : 0;
+}
+
+
 /**
  * Klasse für alle Fahrzeuge mit Route
  *

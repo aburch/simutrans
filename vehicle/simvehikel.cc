@@ -526,8 +526,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 	// suche vehikel
 	const uint8 top = gr->get_top();
 	for(  uint8 pos=1;  pos<top;  pos++ ) {
-		vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(pos);
-		if(v->is_moving()) {
+		if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))) {
 			uint8 other_fahrtrichtung=255;
 
 			// check for car

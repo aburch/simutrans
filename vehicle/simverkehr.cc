@@ -1024,8 +1024,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 		// Check for other vehicles on the next tile
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
-			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
-			if(v->is_moving()) {
+			if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))) {
 				// check for other traffic on the road
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
@@ -1092,8 +1091,8 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->get_pos().get_2d() ));
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
-			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
-			if(v->is_moving()  &&  v->get_fahrtrichtung()==their_direction) {
+			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j));
+			if (v && v->get_fahrtrichtung() == their_direction) {
 				// check for car
 				if(v->get_overtaker()) {
 					return false;
