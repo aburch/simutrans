@@ -1931,5 +1931,5 @@ asm volatile (
 	"stosl\n\t"
 ".DCende:\n\t"
 	: "+D" (dst)
-	: "a" (color2), "b" (dat)
+	: "a" (color2), "r" (dat)
 );
