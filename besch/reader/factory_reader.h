@@ -4,6 +4,8 @@
 #include "obj_reader.h"
 
 
+class field_class_besch_t;
+
 // Knightly : new reader for field class besch
 class factory_field_class_reader_t : public obj_reader_t {
 	friend class factory_field_reader_t;	// Knightly : this is a special case due to besch restructuring
@@ -29,7 +31,7 @@ class factory_field_reader_t : public obj_reader_t {
     factory_field_reader_t() { register_reader(); }
 
 	// hold a field class besch under construction
-	static obj_besch_t *incomplete_field_class_besch;
+	static field_class_besch_t* incomplete_field_class_besch;
 
 protected:
     virtual void register_obj(obj_besch_t *&data);

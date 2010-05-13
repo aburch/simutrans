@@ -350,13 +350,13 @@ void grund_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// saving all ways ...
-		if(flags&has_way1) {
-			file->wr_obj_id( ((weg_t *)obj_bei(0))->get_waytype() );
-			obj_bei(0)->rdwr(file);
+		if (weg_t* const w = get_weg_nr(0)) {
+			file->wr_obj_id(w->get_waytype());
+			w->rdwr(file);
 		}
-		if(flags&has_way2) {
-			file->wr_obj_id( ((weg_t *)obj_bei(1))->get_waytype() );
-			obj_bei(1)->rdwr(file);
+		if (weg_t* const w = get_weg_nr(1)) {
+			file->wr_obj_id(w->get_waytype());
+			w->rdwr(file);
 		}
 		file->wr_obj_id(-1);   // Ende der Wege
 	}
@@ -624,7 +624,9 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	const koord k = get_pos().get_2d();
 
 	clear_flag(grund_t::draw_as_ding);
-	if(((flags&has_way1)  &&  ((weg_t *)obj_bei(0))->get_besch()->is_draw_as_ding())  ||  ((flags&has_way2)  &&  ((weg_t *)obj_bei(1))->get_besch()->is_draw_as_ding())) {
+	weg_t const* w;
+	if ((w = get_weg_nr(0)) && w->get_besch()->is_draw_as_ding() ||
+			(w = get_weg_nr(1)) && w->get_besch()->is_draw_as_ding()) {
 		set_flag(grund_t::draw_as_ding);
 	}
 	bool left_back_is_building = false;
@@ -685,9 +687,11 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 				set_flag(grund_t::draw_as_ding);
 				if(  corner1(slope_this)==corner4(slope_this)  ) {
 					// ok, we need a fence here, if there is not a vertical bridgehead
-					fence_west = (flags&has_way1)==0  ||
-								 ( ((static_cast<weg_t *>(obj_bei(0)))->get_ribi_unmasked()&ribi_t::west)==0 &&
-									( (flags&has_way2)==0  ||  ((static_cast<weg_t *>(obj_bei(1)))->get_ribi_unmasked()&ribi_t::west)==0) );
+					weg_t const* w;
+					fence_west = !(w = get_weg_nr(0)) || (
+						!(w->get_ribi_unmasked() & ribi_t::west) &&
+						(!(w = get_weg_nr(1)) || !(w->get_ribi_unmasked() & ribi_t::west))
+					);
 				}
 			}
 			// no fences between water tiles or between invisible tiles
@@ -745,9 +749,11 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 				set_flag(grund_t::draw_as_ding);
 				if(  corner3(slope_this)==corner4(slope_this)  ) {
 					// ok, we need a fence here, if there is not a vertical bridgehead
-					fence_north = (flags&has_way1)==0  ||
-								 ( ((static_cast<weg_t *>(obj_bei(0)))->get_ribi_unmasked()&ribi_t::nord)==0 &&
-									( (flags&has_way2)==0  ||  ((static_cast<weg_t *>(obj_bei(1)))->get_ribi_unmasked()&ribi_t::nord)==0) );
+					weg_t const* w;
+					fence_north = !(w = get_weg_nr(0)) || (
+						!(w->get_ribi_unmasked() & ribi_t::nord) &&
+						(!(w = get_weg_nr(1)) || !(w->get_ribi_unmasked() & ribi_t::nord))
+					);
 				}
 			}
 			// no fences between water tiles or between invisible tiles
@@ -949,10 +955,10 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	const bool visible = !ist_karten_boden()  ||  is_karten_boden_visible();
 
 	ribi_t::ribi ribi = ribi_t::keine;
-	if (flags & has_way1) {
-		ribi |= (static_cast<const weg_t*>(obj_bei(0)))->get_ribi_unmasked();
-		if (flags & has_way2) {
-			ribi |= (static_cast<const weg_t*>(obj_bei(1)))->get_ribi_unmasked();
+	if (weg_t const* const w1 = get_weg_nr(0)) {
+		ribi |= w1->get_ribi_unmasked();
+		if (weg_t const* const w2 = get_weg_nr(1)) {
+			ribi |= w2->get_ribi_unmasked();
 		}
 	}
 	else if (ist_wasser()) {
@@ -1476,11 +1482,11 @@ sint8 grund_t::get_vmove(koord dir) const
 int grund_t::get_max_speed() const
 {
 	int max = 0;
-	if(flags&has_way1) {
-		max = ((weg_t *)obj_bei(0))->get_max_speed();
+	if (weg_t const* const w = get_weg_nr(0)) {
+		max = w->get_max_speed();
 	}
-	if(flags&has_way2) {
-		max = min( max, ((weg_t *)obj_bei(1))->get_max_speed() );
+	if (weg_t const* const w = get_weg_nr(0)) {
+		max = min(max, w->get_max_speed());
 	}
 	return max;
 }

@@ -68,14 +68,8 @@ private:
 public:
 	const bild_besch_t *get_hintergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *bild = NULL;
-		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(5))->get_bild(hang_indices[hang] + 4*type);
-		}
-		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(hang_indices[hang] + 4*type);
-		}
-		return bild;
+		int const n = season && number_seasons == 1 ? 5 : 2;
+		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
 	}
 
 	image_id get_hintergrund_nr(hang_t::typ hang, uint8 season, uint8 type ) const
@@ -86,14 +80,8 @@ public:
 
 	const bild_besch_t *get_vordergrund(hang_t::typ hang, uint8 season, uint8 type ) const
 	{
-		const bild_besch_t *bild = NULL;
-		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(6))->get_bild(hang_indices[hang] + 4*type );
-		}
-		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(3))->get_bild(hang_indices[hang] + 4*type );
-		}
-		return bild;
+		int const n = season && number_seasons == 1 ? 6 : 3;
+		return get_child<bildliste_besch_t>(n)->get_bild(hang_indices[hang] + 4 * type);
 	}
 
 	image_id get_vordergrund_nr(hang_t::typ hang, uint8 season, uint8 type) const
@@ -102,7 +90,7 @@ public:
 		return besch != NULL ? besch->get_nummer() :IMG_LEER;
 	}
 
-	const skin_besch_t *get_cursor() const { return static_cast<const skin_besch_t *>(get_child(4)); }
+	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(4); }
 
 
 	// get costs etc.
@@ -155,7 +143,7 @@ public:
 	const weg_besch_t *get_weg_besch() const
 	{
 		if(has_way) {
-			return static_cast<const weg_besch_t *>(get_child(5 + number_seasons * 2));
+			return get_child<weg_besch_t>(5 + number_seasons * 2);
 		}
 		return NULL;
 	}

@@ -1188,19 +1188,12 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 	char buf[1024];
 	const char *c;
 
-	gui_image_list_t *lst;
-	if(  tabs.get_aktives_tab()==&scrolly_pas  ) {
-		lst = dynamic_cast<gui_image_list_t *>(&pas);
-	}
-	else if(  tabs.get_aktives_tab()==&scrolly_electrics  ) {
-		lst = dynamic_cast<gui_image_list_t *>(&electrics);
-	}
-	else if(  tabs.get_aktives_tab()==&scrolly_loks  ) {
-		lst = dynamic_cast<gui_image_list_t *>(&loks);
-	}
-	else {
-		lst = dynamic_cast<gui_image_list_t *>(&waggons);
-	}
+	gui_komponente_t const* const tab = tabs.get_aktives_tab();
+	gui_image_list_t const* const lst =
+		tab == &scrolly_pas       ? &pas       :
+		tab == &scrolly_electrics ? &electrics :
+		tab == &scrolly_loks      ? &loks      :
+		&waggons;
 	int x = get_maus_x();
 	int y = get_maus_y();
 	sint64 value = -1;

@@ -543,14 +543,12 @@ public:
 	* @author Hj. Malthaner
 	*/
 	weg_t *get_weg(waytype_t typ) const {
-		if(flags&has_way1) {
-			weg_t *w=(weg_t *)obj_bei(0);
+		if (weg_t* const w = get_weg_nr(0)) {
 			if(w->get_waytype()==typ) {
 				return w;
 			}
 		}
-		if(flags&has_way2) {
-			weg_t *w=(weg_t *)obj_bei(1);
+		if (weg_t* const w = get_weg_nr(1)) {
 			if(w->get_waytype()==typ) {
 				return w;
 			}
