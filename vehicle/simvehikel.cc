@@ -531,8 +531,7 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 			uint8 other_fahrtrichtung=255;
 
 			// check for car
-			if(v->get_typ()==ding_t::automobil) {
-				automobil_t *at = (automobil_t *)v;
+			if (automobil_t const* const at = ding_cast<automobil_t>(v)) {
 				// ignore ourself
 				if(cnv==at->get_convoi()) {
 					continue;
@@ -2003,14 +2002,12 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 						return true;
 					}
 					// not overtaking/being overtake: we need to make a more thourough test!
-					if(  dt->get_typ()==ding_t::automobil  ) {
-						convoi_t *ocnv = static_cast<automobil_t *>(dt)->get_convoi();
+					if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+						convoi_t* const ocnv = car->get_convoi();
 						if(  cnv->can_overtake( ocnv, ocnv->get_min_top_speed(), ocnv->get_length()*16, diagonal_length)  ) {
 							return true;
 						}
-					}
-					else if(  dt->get_typ()==ding_t::verkehr  ) {
-						stadtauto_t *caut = static_cast<stadtauto_t *>(dt);
+					} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
 						if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length)  ) {
 							return true;
 						}

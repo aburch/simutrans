@@ -587,14 +587,12 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 						if(over) {
 							if(!over->is_overtaking()) {
 								// otherwise the overtaken car would stop for us ...
-								if(  dt->get_typ()==ding_t::automobil  ) {
-									convoi_t *cnv=static_cast<automobil_t *>(dt)->get_convoi();
+								if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+									convoi_t* const cnv = car->get_convoi();
 									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length()*16, diagonal_length)  ) {
 										frei = false;
 									}
-								}
-								else if(  dt->get_typ()==ding_t::verkehr  ) {
-									stadtauto_t *caut = static_cast<stadtauto_t *>(dt);
+								} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
 									if ( !can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length) ) {
 										frei = false;
 									}

@@ -445,12 +445,9 @@ bool dingliste_t::add(ding_t* ding)
 	// roads must be first!
 	if(pri==0) {
 		// check for other ways to keep order! (maximum is two ways per tile at the moment)
-		if( obj.some[0]->get_typ()==ding_t::way  &&  ((weg_t *)ding)->get_waytype()>((weg_t *)obj.some[0])->get_waytype()) {
-			intern_insert_at(ding, 1);
-		}
-		else {
-			intern_insert_at(ding, 0);
-		}
+		weg_t const* const w   = ding_cast<weg_t>(obj.some[0]);
+		uint8        const pos = w && w->get_waytype() ? 1 : 0;
+		intern_insert_at(ding, pos);
 		return true;
 	}
 
@@ -470,7 +467,8 @@ bool dingliste_t::add(ding_t* ding)
 			const sint8 offset = ding->get_yoff() + ding->get_xoff();
 
 			for(  ;  i<top;  i++) {
-				if(obj.some[i]->get_typ()!=ding_t::baum  ||  obj.some[i]->get_yoff()+obj.some[i]->get_xoff()>offset) {
+				baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
+				if (!tree || tree->get_yoff() + tree->get_xoff() > offset) {
 					break;
 				}
 			}

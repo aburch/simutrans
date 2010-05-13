@@ -92,8 +92,7 @@ world_view_t::zeichnen(koord offset)
 		}
 		else {
 			hgt = tile_raster_scale_y( ding->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
-			if(ding->get_typ() == ding_t::aircraft) {
-				const aircraft_t *plane =  dynamic_cast <const aircraft_t *>(ding);
+			if (aircraft_t const* const plane = ding_cast<aircraft_t>(ding)) {
 				hgt += tile_raster_scale_y( plane->get_flyingheight(), raster );
 			}
 		}
