@@ -193,6 +193,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 
 	besitzer_p = NULL;
 	power = 0;
+	power_demand = 0;
 
 	rdwr(file);
 
@@ -217,12 +218,14 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	{
 		city->add_city_factory(this);
 	}
-	
+
 	delta_sum = 0;
+	delta_menge = 0;
 	last_lieferziel_start = 0;
 	total_input = total_output = 0;
 	status = nothing;
 	currently_producing = false;
+	transformer_connected = false;
 }
 
 
@@ -239,8 +242,11 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	prodbase = prodbase > 0 ? prodbase : 1;
 
 	delta_sum = 0;
+	delta_menge = 0;
 	currently_producing = false;
+	transformer_connected = false;
 	power = 0;
+	power_demand = 0;
 	last_lieferziel_start = 0;
 	total_input = total_output = 0;
 	status = nothing;
@@ -493,10 +499,10 @@ void fabrik_t::remove_field_at(koord pos)
 
 bool fabrik_t::ist_bauplatz(karte_t *welt, koord pos, koord groesse,bool wasser,climate_bits cl)
 {
-    if(pos.x > 0 && pos.y > 0 &&
-       pos.x+groesse.x < welt->get_groesse_x() && pos.y+groesse.y < welt->get_groesse_y() &&
-       ( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y, NULL, cl) )&&
-       !ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
+	if(pos.x > 0 && pos.y > 0 &&
+		pos.x+groesse.x < welt->get_groesse_x() && pos.y+groesse.y < welt->get_groesse_y() &&
+		( wasser  ||  welt->ist_platz_frei(pos, groesse.x, groesse.y, NULL, cl) )&&
+		!ist_da_eine(welt,pos-koord(5,5),pos+groesse+koord(3,3))) {
 
 		// check for water (no shore in sight!)
 		if(wasser) {
@@ -802,14 +808,14 @@ void fabrik_t::smoke() const
 
 
 /*
- * calculates the produktion per delta_t; this is now PRODUCTION_DELTA_T
- * @author Hj. Malthaner
+ * calculates the produktion per delta_t; scaled to PRODUCTION_DELTA_T
+ * @author Hj. Malthaner - original
  */
-uint32 fabrik_t::produktion(const uint32 produkt) const
+uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
 	const uint32 max = prodbase * prodfaktor;
-	uint32 menge = max >> (18-10+4-fabrik_t::precision_bits);
+	uint32 menge = (max >> (18-10+4-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T;
 
 	if (ausgang.get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -922,65 +928,65 @@ sint32 fabrik_t::verbraucht(const ware_besch_t *typ)
 
 void fabrik_t::step(long delta_t)
 {
-	delta_sum += delta_t;
+	if(delta_t==0) {
+		return;
+	}
 
-	if(delta_sum > PRODUCTION_DELTA_T) {
-
-		// Zeituhr zurücksetzen
-		uint32 n_intervall = 0;
-		while(  delta_sum>PRODUCTION_DELTA_T  ) {
-			delta_sum -= PRODUCTION_DELTA_T;
-			n_intervall ++;
+	// produce nothing/consumes nothing ...
+	if(  eingang.empty()  &&  ausgang.empty()  ) {
+		// power station? => produce power
+		if(  besch->is_electricity_producer()  ) {
+			currently_producing = true;
+			power = prodbase * PRODUCTION_DELTA_T * 4;
 		}
 
-		// produce nothing/consumes nothing ...
-		if (eingang.empty() && ausgang.empty()) {
-			// power station? => store power
-			if(besch->is_electricity_producer()) {
-				currently_producing = true;
-				power = prodbase*n_intervall*PRODUCTION_DELTA_T*4;
-			}
-			// do smoking?
-			smoke();
-			// otherwise nothing to do ...
-			return;
-		}
-
+		// produced => trigger smoke
+		delta_menge = 1 << fabrik_t::precision_bits;
+	}
+	else {
 		// not a producer => then consume electricity ...
-		if(!besch->is_electricity_producer()) {
+		if(  !besch->is_electricity_producer()  ) {
 			// one may be thinking of linking this to actual production only
-			prodfaktor = 16 + (16*power)/(n_intervall*prodbase*PRODUCTION_DELTA_T);
+			prodfaktor = 16 + (  16 * power * besch->get_inverse_electricity_proportion() / (prodbase * PRODUCTION_DELTA_T)  );
 		}
 
 		const uint32 ecount = eingang.get_count();
 		uint32 index = 0;
-		uint32 produkt=0;
+		uint32 produkt = 0;
 
 		currently_producing = false;	// needed for electricity
-		uint32 delta_menge = 0;			// needed for smoke, field growth, ...
+		power_demand = 0;
 
-		if (ausgang.empty()) {
+		if(  ausgang.empty()  ) {
 			// consumer only ...
-			uint32 menge = produktion(produkt) * n_intervall;
+			uint32 menge = produktion(produkt, delta_t);
 
-			// power stattion => store power
-			if(besch->is_electricity_producer()) {
-				power = prodbase*n_intervall*PRODUCTION_DELTA_T*4;
+			if(  besch->is_electricity_producer()  ) {
+				// power station => start with no production
+				power = 0;
 			}
 
 			// finally consume stock
-			for(index = 0; index<ecount; index ++) {
+			for(  index = 0;  index < ecount;  index++  ) {
 
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
 				const uint32 v = (menge*vb) >> 8;
 
-				if ((uint32)eingang[index].menge > v+1) {
+				if(  (uint32)eingang[index].menge > v + 1  ) {
 					eingang[index].menge -= v;
 					currently_producing = true;
+					if(  besch->is_electricity_producer()  ) {
+						// power station => produce power
+						power += prodbase * PRODUCTION_DELTA_T * 4;
+					}
 					// to find out, if storage changed
 					delta_menge += (eingang[index].menge & fabrik_t::precision_mask) + v;
 				}
 				else {
+					if(  besch->is_electricity_producer()  ) {
+						// power station => produce power
+						power += prodbase*  PRODUCTION_DELTA_T * 4 * eingang[index].menge / (v + 1);
+					}
 					delta_menge += eingang[index].menge;
 					eingang[index].menge = 0;
 				}
@@ -1006,18 +1012,16 @@ void fabrik_t::step(long delta_t)
 				uint32 menge;
 
 				if(ecount>0) {
-
 					// calculate production
-					const uint32 p_menge = produktion(produkt)*n_intervall;
+					const uint32 p_menge = produktion(produkt, delta_t);
 					menge = p_menge < min_menge ? p_menge : min_menge;  // production smaller than possible due to consumption
 					if(menge>consumed_menge) {
 						consumed_menge = menge;
 					}
-
 				}
 				else {
 					// source producer
-					menge = produktion(produkt)*n_intervall;
+					menge = produktion(produkt, delta_t);
 				}
 
 				const uint32 pb = besch->get_produkt(produkt)->get_faktor();
@@ -1052,12 +1056,20 @@ void fabrik_t::step(long delta_t)
 
 		}
 
+		if(  currently_producing  ) {
+			// requires full power even if runs out of raw material next cycle
+			power_demand = PRODUCTION_DELTA_T * (uint32)( (float)prodbase * besch->get_electricity_proportion() );
+		}
+
 		// not a power station => then consume all electricity ...
-		if(!besch->is_electricity_producer()) {
-			// one may think of linking this to actual production
-			// IMPORTANT: reset this to zero *before* any INT_CHECK!
+		if(  !besch->is_electricity_producer()  ) {
 			power = 0;
 		}
+	}
+
+	delta_sum += delta_t;
+	if(  delta_sum > PRODUCTION_DELTA_T  ) {
+		delta_sum -= delta_sum - delta_sum % PRODUCTION_DELTA_T;
 
 		// distribute, if there are more than 10 waiting ...
 		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
@@ -1084,10 +1096,12 @@ void fabrik_t::step(long delta_t)
 			INT_CHECK("simfab 558");
 		}
 
-	}
+		// reset for next cycle
+		delta_menge = 0;
 
-	// to distribute to all target equally, we use this counter, for the factory, to try first
-	last_lieferziel_start ++;
+		// to distribute to all target equally, we use this counter, for the factory, to try first
+		last_lieferziel_start ++;
+	}
 
 }
 

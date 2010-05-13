@@ -7,15 +7,18 @@
 
 #include "../simdebug.h"
 
-#include "../tpl/ptrhashtable_tpl.h"
 #include "powernet.h"
 
-static ptrhashtable_tpl <powernet_t *, powernet_t *> loading_table;
+ptrhashtable_tpl<powernet_t *, powernet_t *> powernet_t::loading_table;
+slist_tpl<powernet_t *> powernet_t::powernet_list;
+
 
 
 void powernet_t::neue_karte()
 {
 	loading_table.clear();
+	powernet_list.clear();
+
 }
 
 
@@ -37,79 +40,46 @@ powernet_t::load_net(powernet_t *key)
 
 
 
-/**
- * Adds some power to the net
- * @author Hj. Malthaner
- */
-void powernet_t::add_power(uint32 amount)
+void powernet_t::step_all(long delta_t)
 {
-	power_this += amount;
-	if(power_this>max_capacity) {
-		power_this = max_capacity;
+	slist_iterator_tpl<powernet_t *> powernet_iter( powernet_list );
+	while(  powernet_iter.next()  ) {
+		powernet_iter.get_current()->step( delta_t );
 	}
-}
-
-
-
-/**
- * Tries toget a certain amount of power from the net.
- * @return granted amount of power
- * @author Hj. Malthaner
- */
-uint32
-powernet_t::withdraw_power(uint32 want)
-{
-	const int result = power_last > want ? want : power_last;
-	power_last -= result;
-	return result;
 }
 
 
 
 powernet_t::powernet_t()
 {
-	current_capacity = 0;
-	next_t = 0;
-	max_capacity = 380000*256;
-	for( int i=0;  i<8;  i++ ) {
-		capacity[i] = 0;
-	}
-	power_this = 0;
-	power_last = 0;
+	powernet_list.insert( this );
+
+	//max_capacity = 524288*256-1; //max allowing dings/leitung2.cc senke_t::sync() power_load calculation in uint32
+	max_capacity = 480000*256; // nicer number for human display
+
+	this_supply = 0;
+	next_supply = 0;
+	this_demand = 0;
+	next_demand = 0;
 }
 
 
 
-/* calculates the last amout of power draw (a little smoothed)
- * @author prissi
- */
-uint32
-powernet_t::get_capacity() const
+powernet_t::~powernet_t()
 {
-	uint32 medium_capacity=0;
-	for( uint32 i=0;  i<8;  i++  ) {
-		medium_capacity += capacity[i];
-	}
-	return medium_capacity>>(3+8);
+	powernet_list.remove( this );
 }
 
 
 
-/**
- * Methode für Echtzeitfunktionen eines Objekts.
- * @return false wenn Objekt aus der Liste der synchronen
- * Objekte entfernt werden sol
- * @author Hj. Malthaner
- */
-bool powernet_t::sync_step(long delta_t)
+void powernet_t::step(long delta_t)
 {
-	next_t += delta_t;
-	if(next_t>1000) {
-		next_t -= 1000;
-		power_last = power_this;
-		power_this = 0;
-		current_capacity &= 7;
-		capacity[current_capacity++] = power_last;
+	if(  delta_t==0  ) {
+		return;
 	}
-	return true;
+
+	this_supply = next_supply;
+	next_supply = 0;
+	this_demand = next_demand;
+	next_demand = 0;
 }

@@ -70,6 +70,7 @@
 #include "dings/wayobj.h"
 #include "dings/groundobj.h"
 #include "dings/gebaeude.h"
+#include "dings/leitung2.h"
 
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
@@ -3420,6 +3421,11 @@ void karte_t::step()
 	}
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
+	// step powerlines - required order: pumpe, senke, then powernet
+	pumpe_t::step_all( delta_t );
+	senke_t::step_all( delta_t );
+	powernet_t::step_all( delta_t );
+
 	// then step all players
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  spieler[i] != NULL  ) {
@@ -4338,8 +4344,10 @@ void karte_t::laden(loadsave_t *file)
 
 	simloops = 60;
 
-	// powernets zum laden vorbereiten -> tabelle loeschen
+	// zum laden vorbereiten -> tabelle loeschen
 	powernet_t::neue_karte();
+	pumpe_t::neue_karte();
+	senke_t::neue_karte();
 
 	const float old_scale_factor = get_einstellungen()->get_distance_per_tile();
 

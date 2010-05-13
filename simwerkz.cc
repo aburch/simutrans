@@ -1364,6 +1364,10 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 				return "Transformer only next to factory!";
 			}
 		}
+		if(  fab->is_transformer_connected()  ) {
+			return "Only one transformer per factory!";
+		}
+
 		// remove everything on that spot
 		const char *fail = gr->kann_alle_obj_entfernen(sp);
 		if(fail) 
@@ -1384,6 +1388,7 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 			gr->obj_add(s);
 			s->laden_abschliessen();
 		}
+		fab->set_transformer_connected( true );
 		return NULL;	// ok
 	}
 	return "Transformer only next to factory!";
