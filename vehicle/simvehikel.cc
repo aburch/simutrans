@@ -2430,8 +2430,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 						}
 						count++;
 					}
-
-				} while(count < cnv->get_schedule()->get_count()  &&  exit_loop == false); // stop after we've looped round schedule...
+				} while (count < cnv->get_schedule()->get_count() && !exit_loop); // stop after we've looped round schedule
 				// we can't go
 				sig->set_zustand(roadsign_t::rot);
 				if(route_index==next_block+1) {
