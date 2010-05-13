@@ -193,7 +193,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 	if((tracks[0]&1)==1) 
 	{
 		dbg->message("stadt_t::electricity_consumption_init()", "Ill formed line in config/electricity.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!" );
-		car_ownership->clear();
+		electricity_consumption->clear();
 		return;
 	}
 	electricity_consumption[0].resize( tracks[0]/2 );
