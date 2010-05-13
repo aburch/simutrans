@@ -153,8 +153,9 @@ sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 	}
 }
 
-// Private car ownership information.
+// Electricity consumption information.
 // @author: jamespetts
+// @author: neroden
 // (But much of this code is adapted from the speed bonus code,
 // written by Prissi). 
 

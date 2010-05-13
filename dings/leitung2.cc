@@ -748,8 +748,8 @@ void senke_t::step(long delta_t)
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories
-		city->add_power(municipal_power_load / 5120);
-		city->add_power_demand(municipal_power_demand / 5120);
+		city->add_power(municipal_power_load>>POWER_TO_MW);
+		city->add_power_demand(municipal_power_demand>>POWER_TO_MW);
 	}
 
 	// Income
