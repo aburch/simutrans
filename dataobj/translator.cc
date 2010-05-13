@@ -551,7 +551,8 @@ const char* translator::get_month_name(uint16 month)
 		"November",
 		"December"
 	};
-	assert(month < lengthof(month_names));
+//	assert(month < lengthof(month_names)); // does not work on Haiku!
+	assert( month<12 );
 	return translate(month_names[month]);
 }
 

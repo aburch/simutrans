@@ -102,7 +102,7 @@ koord ai_passenger_t::find_area_for_hub( const koord lo, const koord ru, const k
 				if(  gr->get_typ()==grund_t::boden  &&  gr->get_grund_hang()==hang_t::flach  ) {
 					const ding_t* thing = gr->obj_bei(0);
 					int test_dist = koord_distance( trypos, basis );
-					if (!thing || !thing->get_besitzer() || thing->get_besitzer() == this) {
+					if (!thing || !thing->get_besitzer() || thing->get_besitzer() == (spieler_t *)this) {
 						if(  gr->is_halt()  &&  check_owner( gr->get_halt()->get_besitzer(), this )  &&  gr->hat_weg(road_wt)  ) {
 							// ok, one halt belongs already to us ... (should not really happen!) but might be a public stop
 							return trypos;
