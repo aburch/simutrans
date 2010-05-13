@@ -35,7 +35,7 @@ public:
 	void change_pos(koord3d k);
 
 	const char *get_name() const {return "Zeiger";}
-	enum ding_t::typ get_typ() const {return zeiger;}
+	typ get_typ() const { return zeiger; }
 
 	void set_area( koord area, uint8 center );
 	bool area_changed();

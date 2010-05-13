@@ -93,7 +93,7 @@ private:
 	 * Type of building operation
 	 * @author Hj. Malthaner
 	 */
-	enum bautyp_t bautyp;
+	bautyp_t bautyp;
 
 	/**
 	 * Type of way to build
@@ -188,7 +188,7 @@ public:
 	 */
 	void set_keep_city_roads(bool yesno) { keep_existing_city_roads = yesno; }
 
-	void route_fuer(enum bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
+	void route_fuer(bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
 

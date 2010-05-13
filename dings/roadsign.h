@@ -51,10 +51,10 @@ public:
 	ribi_t::ribi get_dir() const 	{ return dir; }
 	void set_dir(ribi_t::ribi dir);
 
-	void set_zustand(enum signalzustand z) {zustand = z; calc_bild();}
-	enum signalzustand get_zustand() {return (enum signalzustand)zustand;}
+	void set_zustand(signalzustand z) {zustand = z; calc_bild();}
+	signalzustand get_zustand() { return (signalzustand)zustand; }
 
-	virtual enum ding_t::typ get_typ() const { return roadsign; }
+	typ get_typ() const { return roadsign; }
 	const char* get_name() const { return "Roadsign"; }
 
 	roadsign_t(karte_t *welt, loadsave_t *file);

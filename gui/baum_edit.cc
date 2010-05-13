@@ -123,7 +123,7 @@ void baum_edit_frame_t::change_item_info(sint32 entry)
 			for(uint16 i=0;  i<=arctic_climate;  i++  ) {
 				if(cl &  (1<<i)) {
 					buf.append(" - ");
-					buf.append( translator::translate( grund_besch_t::get_climate_name_from_bit( (enum climate)i ) ) );
+					buf.append(translator::translate(grund_besch_t::get_climate_name_from_bit((climate)i)));
 					buf.append("\n");
 				}
 			}

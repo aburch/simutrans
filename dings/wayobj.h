@@ -75,7 +75,7 @@ public:
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	enum ding_t::typ get_typ() const {return wayobj;}
+	typ get_typ() const { return wayobj; }
 
 	/**
 	* no infowin

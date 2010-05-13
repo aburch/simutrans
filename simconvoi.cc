@@ -1333,7 +1333,7 @@ bool convoi_t::set_schedule(schedule_t * f)
 		return false;
 	}
 
-	enum states old_state = state;
+	states old_state = state;
 	state = INITIAL;	// because during a sync-step we might be called twice ...
 
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);

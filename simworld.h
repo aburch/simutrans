@@ -406,7 +406,7 @@ public:
 	bool ist_dirty() const {return dirty;}
 
 	// do the internal accounting
-	void buche(sint64 betrag, enum player_cost type);
+	void buche(sint64 betrag, player_cost type);
 
 	// calculates the various entries
 	void update_history();

@@ -55,7 +55,7 @@ public:
 	void calc_bild();
 
 	const char *get_name() const {return "Groundobj";}
-	enum ding_t::typ get_typ() const {return groundobj;}
+	typ get_typ() const { return groundobj; }
 
 	bool check_season(const long delta_t);
 

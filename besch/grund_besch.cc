@@ -366,8 +366,7 @@ grund_besch_t::alles_geladen()
 
 /* returns the untranslated name of the matching climate
  */
-const char *
-grund_besch_t::get_climate_name_from_bit( enum climate n )
+char const* grund_besch_t::get_climate_name_from_bit(climate n)
 {
 	return n<MAX_CLIMATES ? climate_names[n] : NULL;
 }

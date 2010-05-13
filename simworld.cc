@@ -2682,7 +2682,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 
 
 // add an amout to a subcategory
-void karte_t::buche(const sint64 betrag, enum player_cost type)
+void karte_t::buche(sint64 const betrag, player_cost const type)
 {
 	assert(type < MAX_WORLD_COST);
 	finance_history_year[0][type] += betrag;

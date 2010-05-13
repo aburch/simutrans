@@ -19,7 +19,7 @@ public:
 	tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch);
 
 	const char *get_name() const {return "Tunnelmuendung";}
-	enum ding_t::typ get_typ() const {return tunnel;}
+	typ get_typ() const { return tunnel; }
 
 	void calc_bild();
 

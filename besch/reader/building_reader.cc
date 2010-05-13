@@ -180,7 +180,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	if(version == 5) {
 		// Versioned node, version 5
 		// animation intergvall in ms added
-		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
@@ -189,7 +189,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
-		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -198,7 +198,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	else if(version == 4) {
 		// Versioned node, version 4
 		// climates and seasons added
-		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
@@ -207,7 +207,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates = (climate_bits)decode_uint16(p);
 		besch->enables   = decode_uint8(p);
-		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -215,7 +215,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 3) {
 		// Versioned node, version 3
-		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
@@ -224,7 +224,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = decode_uint8(p);
-		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -232,7 +232,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 2) {
 		// Versioned node, version 2
-		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
@@ -241,7 +241,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = 0x80;
-		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
 		besch->intro_date    = decode_uint16(p);
 		besch->obsolete_date = decode_uint16(p);
@@ -249,7 +249,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else if(version == 1) {
 		// Versioned node, version 1
-		besch->gtyp      = (enum gebaeude_t::typ)decode_uint8(p);
+		besch->gtyp      = (gebaeude_t::typ)decode_uint8(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint8(p);
 		besch->level     = decode_uint16(p);
 		besch->extra_data= decode_uint32(p);
@@ -258,7 +258,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint8(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = 0x80;
-		besch->flags     = (enum haus_besch_t::flag_t)decode_uint8(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint8(p);
 		besch->chance    = decode_uint8(p);
 
 		besch->intro_date    = DEFAULT_INTRO_DATE*12;
@@ -267,7 +267,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	}
 	else {
 		// old node, version 0
-		besch->gtyp      = (enum gebaeude_t::typ)v;
+		besch->gtyp      = (gebaeude_t::typ)v;
 		decode_uint16(p);
 		besch->utype     = (haus_besch_t::utyp)decode_uint32(p);
 		besch->level     = decode_uint32(p);
@@ -277,7 +277,7 @@ obj_besch_t * building_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->layouts   = decode_uint32(p);
 		besch->allowed_climates   =  (climate_bits)0xFFFE; // all but water
 		besch->enables   = 0x80;
-		besch->flags     = (enum haus_besch_t::flag_t)decode_uint32(p);
+		besch->flags     = (haus_besch_t::flag_t)decode_uint32(p);
 		besch->chance    = 100;
 
 		besch->intro_date    = DEFAULT_INTRO_DATE*12;

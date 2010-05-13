@@ -985,7 +985,7 @@ void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
 
 
 void
-wegbauer_t::route_fuer(enum bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
+wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
 {
 	bautyp = wt;
 	besch = b;

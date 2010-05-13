@@ -69,7 +69,7 @@ public:
 	// for map rotation
 	void rotate90();
 
-	enum ding_t::typ get_typ() const {return leitung;}
+	typ get_typ() const { return leitung; }
 
 	const char *get_name() const {return "Leitung"; }
 
@@ -125,7 +125,7 @@ public:
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~pumpe_t();
 
-	enum ding_t::typ get_typ() const {return pumpe;}
+	typ get_typ() const { return pumpe; }
 
 	bool sync_step(long delta_t);
 
@@ -150,7 +150,7 @@ public:
 	senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~senke_t();
 
-	enum ding_t::typ get_typ() const {return senke;}
+	typ get_typ() const { return senke; }
 
 	bool sync_step(long delta_t);
 

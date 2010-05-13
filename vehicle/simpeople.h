@@ -33,7 +33,7 @@ public:
 	const fussgaenger_besch_t *get_besch() const { return besch; }
 
 	const char *get_name() const {return "Fussgaenger";}
-	enum ding_t::typ get_typ() const {return fussgaenger;}
+	typ get_typ() const { return fussgaenger; }
 
 	bool sync_step(long delta_t);
 
