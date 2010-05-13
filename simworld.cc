@@ -318,7 +318,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 				// usually, after P6 there comes a comment with the maker
 				// but comments can be anywhere
 				if(*c==0) {
-					read_line(buf, 255, file);
+					read_line(buf, sizeof(buf), file);
 					c = buf;
 					continue;
 				}
