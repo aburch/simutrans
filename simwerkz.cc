@@ -1351,21 +1351,17 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
 
 		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
-		stadt_t* city = NULL;
-		if(fab == NULL) 
-		{
-			// Check whether the transformer (substation) is within city limits.
-			// @author: jamespetts
-			
-			city = welt->get_city(k.get_2d());
-
-			if(fab == NULL && city == NULL)
-			{
-				return "Transformer only next to factory!";
-			}
-		}
-		if(  fab->is_transformer_connected()  ) {
+		if( fab != NULL && fab->is_transformer_connected()  ) {
 			return "Only one transformer per factory!";
+		}
+		stadt_t* city = NULL;
+		// Check whether the transformer (substation) is within city limits.
+		// @author: jamespetts
+		
+		city = welt->get_city(k.get_2d());
+		if(fab == NULL && city == NULL)
+		{
+			return "Transformer only next to factory or in city!";
 		}
 
 		// remove everything on that spot
@@ -1391,7 +1387,7 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 		fab->set_transformer_connected( true );
 		return NULL;	// ok
 	}
-	return "Transformer only next to factory!";
+	return "Transformer only next to factory or in city!";
 }
 
 
