@@ -15,7 +15,6 @@
 scrollbar_t::scrollbar_t(enum type type)
 {
 	this->type = type;
-	pos = koord(0,0);
 	knob_offset = 0;
 	knob_size = 10;
 	knob_area = 20;
