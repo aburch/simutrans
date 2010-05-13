@@ -80,15 +80,15 @@ public:
 	const char *get_name() const { return get_cursor()->get_name(); }
 	const char *get_copyright() const { return get_cursor()->get_copyright(); }
 
-	const skin_besch_t *get_cursor() const { return static_cast<const skin_besch_t *>(get_child(2+offset)); }
+	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(2 + offset); }
 
 	image_id get_hintergrund(img_t img, uint8 season) const 	{
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(3+offset))->get_bild(img);
+			bild = get_child<bildliste_besch_t>(3 + offset)->get_bild(img);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(0+offset))->get_bild(img);
+			bild = get_child<bildliste_besch_t>(0 + offset)->get_bild(img);
 		}
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
@@ -96,10 +96,10 @@ public:
 	image_id get_vordergrund(img_t img, uint8 season) const {
 		const bild_besch_t *bild = NULL;
 		if(season && number_seasons == 1) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(4+offset))->get_bild(img);
+			bild = get_child<bildliste_besch_t>(4 + offset)->get_bild(img);
 		}
 		if(bild == NULL) {
-			bild = static_cast<const bildliste_besch_t *>(get_child(1+offset))->get_bild(img);
+			bild = get_child<bildliste_besch_t>(1 + offset)->get_bild(img);
 		}
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}

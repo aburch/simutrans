@@ -260,7 +260,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 {
 	if(!cnv.is_bound() || cnv->in_depot() || cnv->get_vehikel_anzahl() == 0) 
 	{
-		destroy_win(dynamic_cast <gui_fenster_t *> (this));
+		destroy_win(this);
 	}
 	else {
 		//Bernd Gabriel, Dec, 02 2009: common existing_convoy_t for acceleration curve and weight/speed info.

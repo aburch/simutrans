@@ -30,7 +30,7 @@ private:
 	uint16 spawn_weight;
 
 public:
-	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_child(0)); }
+	skin_besch_t const* get_bilder() const { return get_child<skin_besch_t>(0); }
 	const char *get_name() const { return get_bilder()->get_name(); }
 	const char *get_copyright() const { return get_bilder()->get_copyright(); }
 
@@ -68,7 +68,7 @@ public:
 	uint16 get_max_fields() const { return max_fields; }
 	uint16 get_min_fields() const { return min_fields; }
 	uint16 get_field_class_count() const { return field_classes; }
-	const field_class_besch_t *get_field_class(const uint16 idx) const { return ( idx<field_classes ? static_cast<const field_class_besch_t *>(get_child(idx)) : NULL ); }
+	field_class_besch_t const* get_field_class(uint16 const idx) const { return idx < field_classes ? get_child<field_class_besch_t>(idx) : 0; }
 	const weighted_vector_tpl<uint16> &get_field_class_indices() const { return field_class_indices; }
 };
 
@@ -97,7 +97,7 @@ private:
 public:
 	const char *get_name() const { return get_bilder()->get_name(); }
 	const char *get_copyright() const { return get_bilder()->get_copyright(); }
-	const skin_besch_t *get_bilder() const { return static_cast<const skin_besch_t *>(get_child(0)); }
+	skin_besch_t const* get_bilder() const { return get_child<skin_besch_t>(0); }
 
 	// get the tile with the smoke
 	koord get_pos_off( koord size, uint8 rotation) const {
@@ -143,7 +143,7 @@ private:
 	uint16  verbrauch;
 
 public:
-	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(0)); }
+	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
 	int get_kapazitaet() const { return kapazitaet; } //"capacity" (Babelfish)
 	int get_anzahl() const { return anzahl; } //"number" (Babelfish)
 	int get_verbrauch() const { return verbrauch; } //"consumption" (Babelfish)
@@ -175,7 +175,7 @@ private:
     uint16 faktor;
 
 public:
-	const ware_besch_t *get_ware() const { return static_cast<const ware_besch_t *>(get_child(0)); }
+	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
 	uint32 get_kapazitaet() const { return kapazitaet; }
 	uint32 get_faktor() const { return faktor; }
 };
@@ -227,21 +227,21 @@ public:
 	*/
 	const char *get_name() const { return get_haus()->get_name(); }
 	const char *get_copyright() const { return get_haus()->get_copyright(); }
-	const haus_besch_t *get_haus() const { return static_cast<const haus_besch_t *>(get_child(0)); }
-	const rauch_besch_t *get_rauch() const { return static_cast<const rauch_besch_t *>(get_child(1)); }
+	haus_besch_t  const* get_haus()  const { return get_child<haus_besch_t>(0); }
+	rauch_besch_t const* get_rauch() const { return get_child<rauch_besch_t>(1); }
 
 	// we must take care, for the case of no producer/consumer
 	const fabrik_lieferant_besch_t *get_lieferant(int i) const //"supplier" (Babelfish)
 	{
-		return (i >= 0 && i < lieferanten) ? static_cast<const fabrik_lieferant_besch_t *>(get_child(2 + i)) : NULL;
+		return 0 <= i && i < lieferanten ? get_child<fabrik_lieferant_besch_t>(2 + i) : 0;
 	}
 	const fabrik_produkt_besch_t *get_produkt(int i) const
 	{
-		return (i >= 0 && i < produkte) ? static_cast<const fabrik_produkt_besch_t *>(get_child(2 + lieferanten + i)) : NULL;
+		return 0 <= i && i < produkte ? get_child<fabrik_produkt_besch_t>(2 + lieferanten + i) : 0;
 	}
 	const field_besch_t *get_field() const {
 		if(!fields) return NULL;
-		return static_cast<const field_besch_t *>(get_child(2 + lieferanten + produkte));
+		return get_child<field_besch_t>(2 + lieferanten + produkte);
 	}
 
 	int get_lieferanten() const { return lieferanten; } //"supplier" (Babelfish)
@@ -265,7 +265,7 @@ public:
 
 	int is_electricity_producer() const { return electricity_producer; }
 
-	const fabrik_besch_t * get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? static_cast<const fabrik_besch_t *>(get_child((2 + lieferanten + produkte + fields + i))) : NULL; }
+	const fabrik_besch_t *get_upgrades(int i) const { return (i >= 0 && i < upgrades) ? get_child<fabrik_besch_t>(2 + lieferanten + produkte + fields + i) : NULL; }
 
 	int get_upgrades_count() const { return upgrades; }
 };

@@ -32,9 +32,8 @@ public:
 
 	uint16 get_anzahl() const { return anzahl; }
 
-	const bildliste_besch_t *get_liste(uint16 i) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(get_child(i)) : 0; }
-
-	const bild_besch_t *get_bild(uint16 i, uint16 j) const { return (i < anzahl) ? static_cast<const bildliste_besch_t *>(get_child(i))->get_bild(j) : 0; }
+	bildliste_besch_t const* get_liste(uint16 i)          const { return i < anzahl ? get_child<bildliste_besch_t>(i)              : 0; }
+	bild_besch_t      const* get_bild(uint16 i, uint16 j) const { return i < anzahl ? get_child<bildliste_besch_t>(i)->get_bild(j) : 0; }
 };
 
 #endif
