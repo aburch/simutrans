@@ -153,8 +153,9 @@ sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 	}
 }
 
-// Private car ownership information.
+// Electricity consumption information.
 // @author: jamespetts
+// @author: neroden
 // (But much of this code is adapted from the speed bonus code,
 // written by Prissi). 
 
@@ -192,7 +193,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 	if((tracks[0]&1)==1) 
 	{
 		dbg->message("stadt_t::electricity_consumption_init()", "Ill formed line in config/electricity.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!" );
-		car_ownership->clear();
+		electricity_consumption->clear();
 		return;
 	}
 	electricity_consumption[0].resize( tracks[0]/2 );
