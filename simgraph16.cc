@@ -85,10 +85,10 @@ static struct clip_dimension clip_rect;
  * at screen line y
  * associated to some clipline
  */
-typedef struct {
+struct xrange {
 	int xmin,xmax,sx,sy,y;
 	bool non_convex_active;
-} xrange;
+};
 
 #define MAX_POLY_CLIPS 6
 static xrange      xranges[MAX_POLY_CLIPS];
