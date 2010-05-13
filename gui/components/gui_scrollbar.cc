@@ -12,14 +12,13 @@
 #include "../../simgraph.h"
 
 
-scrollbar_t::scrollbar_t(enum type type)
+scrollbar_t::scrollbar_t(enum type type) :
+	type(type),
+	knob_offset(0),
+	knob_size(10),
+	knob_area(20),
+	knob_scroll_amount(11) // equals one line
 {
-	this->type = type;
-	knob_offset = 0;
-	knob_size = 10;
-	knob_area = 20;
-	knob_scroll_amount = 11; // equals one line
-
 	if (type == vertical) {
 		groesse = koord(10,40);
 		button_def[0].set_typ(button_t::arrowup);
