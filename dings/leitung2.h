@@ -50,7 +50,7 @@ protected:
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner
 	*/
-	void recalc_bild();
+	void calc_bild();
 
 public:
 	powernet_t* get_net() const { return net; }

@@ -154,71 +154,12 @@ leitung_t::entferne(spieler_t *sp)
 
 /**
  * called during map rotation
- * @author priss
+ * @author prissi
  */
 void leitung_t::rotate90()
 {
 	ding_t::rotate90();
-	ribi_t::ribi old_ribi = ribi;
 	ribi = ribi_t::rotate90( ribi );
-
-	// determine new image
-	// a little complex, since we cannot access the ground right now
-
-	if(bild==IMG_LEER) {
-		// most likely on a bridge
-		return;
-	}
-
-	// first: test for slope
-	if(old_ribi==ribi_t::nordsued) {
-		if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::nord, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::ost, 0);
-			return;
-		}
-		else if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::sued, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::west, 0);
-			return;
-		}
-	}
-	else {
-		if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::west, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::nord, 0);
-			return;
-		}
-		else if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::ost, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::sued, 0);
-			return;
-		}
-	}
-
-	if(bild != wegbauer_t::leitung_besch->get_bild_nr(old_ribi,0)) {
-		// missing mast or crossing graphics are saved here
-		if(ribi_t::ist_gerade_ns(old_ribi)) {
-			if(bild==wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0)) {
-				// crossing
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0);
-			}
-			else {
-				// missing mast
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0);
-			}
-		}
-		else {
-			if(bild==wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0)) {
-				// crossing
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0);
-			}
-			else {
-				// missing mast
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0);
-			}
-		}
-	}
-	else {
-		// or just a normal tile ...
-		bild = wegbauer_t::leitung_besch->get_bild_nr(ribi,0);
-	}
 }
 
 
@@ -296,10 +237,11 @@ void leitung_t::verbinde()
 
 
 /* extended by prissi */
-void leitung_t::recalc_bild()
+void leitung_t::calc_bild()
 {
 	is_crossing = false;
 	const koord pos = get_pos().get_2d();
+	bool snow = get_pos().z >= welt->get_snowline();
 
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr==NULL) {
@@ -314,17 +256,17 @@ void leitung_t::recalc_bild()
 
 	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
-		set_bild( wegbauer_t::leitung_besch->get_hang_bild_nr(hang, 0));
+		set_bild( wegbauer_t::leitung_besch->get_hang_bild_nr(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
 			if(ribi_t::ist_gerade_ow(way->get_ribi())) {
-				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0));
+				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost, snow));
 			}
 			else {
-				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0));
+				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost, snow));
 			}
 			is_crossing = true;
 		}
@@ -332,14 +274,14 @@ void leitung_t::recalc_bild()
 			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::ist_gerade_ns(ribi)) {
-					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0));
+					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west, snow));
 				}
 				else {
-					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0));
+					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west, snow));
 				}
 			}
 			else {
-				set_bild( wegbauer_t::leitung_besch->get_bild_nr(ribi,0));
+				set_bild( wegbauer_t::leitung_besch->get_bild_nr(ribi, snow));
 			}
 		}
 	}
@@ -362,12 +304,12 @@ void leitung_t::calc_neighbourhood()
 			if(conn[i]  &&  conn[i]->get_net()==get_net()) {
 				ribi |= ribi_t::nsow[i];
 				conn[i]->add_ribi(ribi_t::rueckwaerts(ribi_t::nsow[i]));
-				conn[i]->recalc_bild();
+				conn[i]->calc_bild();
 			}
 		}
 	}
 	set_flag( ding_t::dirty );
-	recalc_bild();
+	calc_bild();
 }
 
 
