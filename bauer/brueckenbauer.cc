@@ -219,7 +219,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 					// no or one way
 					const weg_t* weg = gr1->get_weg_nr(0);
 					if(  weg==NULL  ||  weg->get_waytype()==wegtyp
-						|| (crossing_logic_t::get_crossing(wegtyp, weg->get_waytype())  &&  (ribi_typ(zv)&weg->get_ribi_unmasked())==0)
+						|| (crossing_logic_t::get_crossing(wegtyp, weg->get_waytype(), welt->get_timeline_year_month())  &&  (ribi_typ(zv)&weg->get_ribi_unmasked())==0)
 					) {
 						return gr1->get_pos();
 					}
