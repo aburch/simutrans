@@ -1932,4 +1932,5 @@ asm volatile (
 ".DCende:\n\t"
 	: "+D" (dst)
 	: "a" (color2), "r" (dat)
+	: "cc", "memory"
 );

@@ -2358,7 +2358,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 					: "+D" (p), "+S" (sp), "+r" (runlen)
 					:
-					: "cc"
+					: "cc", "memory"
 				);
 #endif
 				runlen = *sp++;
@@ -3108,7 +3108,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 				"stosl"
 				: "+D" (p), "+c" (count)
 				: "a" (longcolval)
-				: "cc"
+				: "cc", "memory"
 			);
 #endif
 
