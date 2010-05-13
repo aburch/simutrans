@@ -510,7 +510,6 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				weg->set_besch( weg_besch );
 				gr->neuen_weg_bauen( weg, ribi, sp );
 				spieler_t::accounting( sp, -weg->get_besch()->get_preis(), end.get_2d(), COST_CONSTRUCTION);
-				weg->laden_abschliessen();
 			}
 			gr->calc_bild();
 		}
