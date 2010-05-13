@@ -586,8 +586,7 @@ senke_t::sync_step(long time)
 	if(city != NULL)
 	{
 		uint32 factory_power_demand = 0;
-		uint32 city_power_demand = time * ((float)(city->get_finance_history_month(0, HIST_CITICENS) * city->get_electricity_consumption(welt->get_timeline_year_month())) * 0.02);
-		//uint32 city_power_demand = city->get_power_demand();
+		uint32 city_power_demand = time * city->get_power_demand();
 		uint32 accumulated_power = 0;
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		uint32 current_factory_demand = 0;
