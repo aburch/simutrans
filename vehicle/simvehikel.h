@@ -143,6 +143,18 @@ public:
 };
 
 
+template<> static inline vehikel_basis_t* ding_cast<vehikel_basis_t>(ding_t* const d)
+{
+	return d->is_moving() ? static_cast<vehikel_basis_t*>(d) : 0;
+}
+
+
+template<> static inline vehikel_basis_t const* ding_cast<vehikel_basis_t>(ding_t const* const d)
+{
+	return d->is_moving() ? static_cast<vehikel_basis_t const*>(d) : 0;
+}
+
+
 /**
  * Klasse für alle Fahrzeuge mit Route
  *
@@ -475,7 +487,7 @@ public:
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 
-	virtual overtaker_t *get_overtaker() { return cnv ? static_cast<overtaker_t *>(cnv) : NULL; }
+	virtual overtaker_t* get_overtaker() { return cnv; }
 };
 
 
@@ -518,7 +530,7 @@ public:
 
 	void verlasse_feld();
 
-	enum ding_t::typ get_typ() const { return waggon; }
+	typ get_typ() const { return waggon; }
 
 	waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last);
 	waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t *cnv); // start und fahrplan
@@ -545,7 +557,7 @@ public:
 	monorail_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file,is_first, is_last) {}
 	monorail_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
-	enum ding_t::typ get_typ() const { return monorailwaggon; }
+	typ get_typ() const { return monorailwaggon; }
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -566,7 +578,7 @@ public:
 	maglev_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	maglev_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
-	enum ding_t::typ get_typ() const { return maglevwaggon; }
+	typ get_typ() const { return maglevwaggon; }
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -587,7 +599,7 @@ public:
 	narrowgauge_waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last) : waggon_t(welt, file, is_first, is_last) {}
 	narrowgauge_waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, convoi_t* cnv) : waggon_t(pos, besch, sp, cnv) {}
 
-	enum ding_t::typ get_typ() const { return narrowgaugewaggon; }
+	typ get_typ() const { return narrowgaugewaggon; }
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 };
@@ -653,7 +665,7 @@ private:
 
 	enum flight_state { taxiing=0, departing=1, flying=2, landing=3, looking_for_parking=4, flying2=5, taxiing_to_halt=6  };
 
-	enum flight_state state;	// functions needed for the search without destination from find_route
+	flight_state state;	// functions needed for the search without destination from find_route
 
 	sint16 flughoehe;
 	sint16 target_height;
@@ -696,7 +708,7 @@ public:
 
 	bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route);
 
-	enum ding_t::typ get_typ() const { return aircraft; }
+	typ get_typ() const { return aircraft; }
 
 	schedule_t * erzeuge_neuen_fahrplan() const;
 

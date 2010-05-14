@@ -53,7 +53,7 @@ protected:
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner
 	*/
-	void recalc_bild();
+	void calc_bild();
 
 public:
 	powernet_t* get_net() const { return net; }
@@ -72,7 +72,7 @@ public:
 	// for map rotation
 	void rotate90();
 
-	enum ding_t::typ get_typ() const {return leitung;}
+	typ get_typ() const { return leitung; }
 
 	const char *get_name() const {return "Leitung"; }
 
@@ -136,7 +136,7 @@ public:
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~pumpe_t();
 
-	enum ding_t::typ get_typ() const {return pumpe;}
+	typ get_typ() const { return pumpe; }
 
 	const char *get_name() const {return "Aufspanntransformator";}
 
@@ -173,7 +173,7 @@ public:
 	senke_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~senke_t();
 
-	enum ding_t::typ get_typ() const {return senke;}
+	typ get_typ() const { return senke; }
 
 	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
 	// gives players a visual indication of a power network with insufficient generation

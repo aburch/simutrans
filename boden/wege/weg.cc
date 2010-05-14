@@ -324,15 +324,19 @@ void weg_t::count_sign()
 		for( ;  i<gr->get_top();  i++  ) {
 			ding_t *d=gr->obj_bei(i);
 			// sign for us?
-			if(d->get_typ()==ding_t::roadsign  &&  ((roadsign_t*)d)->get_besch()->get_wtyp()==get_besch()->get_wtyp()) {
-				// here is a sign ...
-				flags |= HAS_SIGN;
-				return;
+			if (roadsign_t const* const sign = ding_cast<roadsign_t>(d)) {
+				if (sign->get_besch()->get_wtyp() == get_besch()->get_wtyp()) {
+					// here is a sign ...
+					flags |= HAS_SIGN;
+					return;
+				}
 			}
-			if(d->get_typ()==ding_t::signal  &&  ((signal_t*)d)->get_besch()->get_wtyp()==get_besch()->get_wtyp()) {
-				// here is a signal ...
-				flags |= HAS_SIGNAL;
-				return;
+			if (signal_t const* const signal = ding_cast<signal_t>(d)) {
+				if (signal->get_besch()->get_wtyp() == get_besch()->get_wtyp()) {
+					// here is a signal ...
+					flags |= HAS_SIGNAL;
+					return;
+				}
 			}
 		}
 	}

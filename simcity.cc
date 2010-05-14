@@ -721,7 +721,7 @@ stadt_t::~stadt_t()
 		// remove city info and houses
 		while (!buildings.empty()) {
 			// old buildings are not where they think they are, so we ask for map floor
-			gebaeude_t* gb = (gebaeude_t *)buildings.front();
+			gebaeude_t* const gb = buildings.front();
 			buildings.remove(gb);
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz) {

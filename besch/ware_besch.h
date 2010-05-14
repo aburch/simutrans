@@ -66,7 +66,7 @@ public:
 	// the measure for that good (crates, people, bags ... )
 	const char *get_mass() const
 	{
-		return static_cast<const text_besch_t *>(get_child(2))->get_text();
+		return get_child<text_besch_t>(2)->get_text();
 	}
 
 	uint16 get_preis() const { return value; }

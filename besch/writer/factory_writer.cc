@@ -37,26 +37,39 @@ void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 	field_besch_t besch;
 	obj_node_t node(this, 10, &parent);
 
-	// Knightly : for each field class, retrieve its data and write a field class node
-	for(  besch.field_classes=0  ;  ;  besch.field_classes++  ) {
-		char buf[64];
-
-		sprintf(buf, "fields[%d]", besch.field_classes);
-		const char *field_name = obj.get(buf);
-		if(  !field_name  ||  !*field_name  ) {
-			break;
-		}
-
-		sprintf(buf, "has_snow[%d]", besch.field_classes);
-		int snow_image = obj.get_int(buf, 1);
-		sprintf(buf, "production_per_field[%d]", besch.field_classes);
-		int production = obj.get_int(buf, 16);
-		sprintf(buf, "storage_capacity[%d]", besch.field_classes);
-		int capacity = obj.get_int(buf, 0);		// default is 0 to avoid breaking the balance of existing pakset objects
-		sprintf(buf, "spawn_weight[%d]", besch.field_classes);
-		int weight = obj.get_int(buf, 1000);
+	if(  *obj.get("fields")  ) {
+		// old format with no square-bracketed subscripts
+		besch.field_classes = 1;
+		const char *field_name = obj.get("fields");
+		int snow_image = obj.get_int("has_snow", 1);
+		int production = obj.get_int("production_per_field", 16);
+		int capacity = obj.get_int("storage_capacity", 0);		// default is 0 to avoid breaking the balance of existing pakset objects
+		int weight = obj.get_int("spawn_weight", 1000);
 
 		factory_field_class_writer_t::instance()->write_obj(outfp, node, field_name, snow_image, production, capacity, weight);
+	}
+	else {
+		// Knightly : for each field class, retrieve its data and write a field class node
+		for(  besch.field_classes=0  ;  ;  besch.field_classes++  ) {
+			char buf[64];
+
+			sprintf(buf, "fields[%d]", besch.field_classes);
+			const char *field_name = obj.get(buf);
+			if(  !field_name  ||  !*field_name  ) {
+				break;
+			}
+
+			sprintf(buf, "has_snow[%d]", besch.field_classes);
+			int snow_image = obj.get_int(buf, 1);
+			sprintf(buf, "production_per_field[%d]", besch.field_classes);
+			int production = obj.get_int(buf, 16);
+			sprintf(buf, "storage_capacity[%d]", besch.field_classes);
+			int capacity = obj.get_int(buf, 0);		// default is 0 to avoid breaking the balance of existing pakset objects
+			sprintf(buf, "spawn_weight[%d]", besch.field_classes);
+			int weight = obj.get_int(buf, 1000);
+
+			factory_field_class_writer_t::instance()->write_obj(outfp, node, field_name, snow_image, production, capacity, weight);
+		}
 	}
 
 	// common, shared field data
@@ -206,7 +219,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	// fields (careful, are xref'ed)
 	besch.fields = 0;
-	if(  *obj.get("fields[0]")  ) {
+	if(  *obj.get("fields")  ||  *obj.get("fields[0]")  ) {
 		// Knightly : at least one field class available
 		besch.fields = 1;
 		factory_field_writer_t::instance()->write_obj(fp, node, obj);

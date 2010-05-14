@@ -38,6 +38,12 @@ private:
 	uint32 topspeed1;	// the topspeed depeds strongly on the crossing ...
 	uint32 topspeed2;
 
+	/**
+	 * Introduction/Retire date
+	 */
+	uint16 intro_date;
+	uint16 obsolete_date;
+
 public:
 	/* the imagelists are:
 	 * open_ns
@@ -51,32 +57,45 @@ public:
 	const bild_besch_t *get_bild(int ns, bool open, int phase) const
 	{
 		if(open) {
-			return (static_cast<const bildliste_besch_t *>(get_child(2+ns)))->get_bild(phase);
+			return get_child<bildliste_besch_t>(2 + ns)->get_bild(phase);
 		}
 		else {
-			const bildliste_besch_t *bl = (static_cast<const bildliste_besch_t *>(get_child(6+ns)));
+			bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(6 + ns);
 			return bl ? bl->get_bild(phase) : NULL;
 		}
 	}
 
 	const bild_besch_t *get_bild_after(int ns, bool open, int phase) const
 	{
-		if(open) {
-			const bildliste_besch_t *bl = (static_cast<const bildliste_besch_t *>(get_child(4+ns)));
-			return bl ? bl->get_bild(phase) : NULL;
-		}
-		else {
-			const bildliste_besch_t *bl = (static_cast<const bildliste_besch_t *>(get_child(8+ns)));
-			return bl ? bl->get_bild(phase) : NULL;
-		}
+		int const n = ns + (open ? 4 : 8);
+		bildliste_besch_t const* const bl = get_child<bildliste_besch_t>(n);
+		return bl ? bl->get_bild(phase) : 0;
 	}
 
 	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }
 	uint32 get_maxspeed(int i) const { return i==0 ? topspeed1 : topspeed2; }
-	uint16 get_phases(bool open,bool front) const { return static_cast<const bildliste_besch_t *>(get_child(6-(4*open)+2*front))->get_anzahl(); }
+	uint16 get_phases(bool open, bool front) const { return get_child<bildliste_besch_t>(6 - 4 * open + 2 * front)->get_anzahl(); }
 	uint32 get_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 
 	sint8 get_sound() const { return sound; }
+
+	/**
+	* @return introduction year
+	*/
+	uint16 get_intro_year_month() const { return intro_date; }
+
+	/**
+	* @return time when obsolete
+	*/
+	uint16 get_retire_year_month() const { return obsolete_date; }
+
+	/**
+	* @return true if the crossing is available
+	*/
+	bool is_available(const uint16 month_now) const
+	{
+		return month_now==0  ||  (intro_date <= month_now  &&  month_now <= obsolete_date);
+	}
 };
 
 #endif

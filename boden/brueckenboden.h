@@ -25,7 +25,7 @@ public:
 	hang_t::typ get_weg_hang() const { return weg_hang; }
 
 	const char *get_name() const {return "Brueckenboden";}
-	enum grund_t::typ get_typ() const {return brueckenboden;}
+	typ get_typ() const { return brueckenboden; }
 
 	void info(cbuffer_t & buf) const;
 };

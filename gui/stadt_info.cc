@@ -53,7 +53,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&name_input);
 	set_fenstergroesse(koord(410, 305+20+20));
 
-	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,104) );;
+	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,104) );
 	allow_growth.pressed = stadt->get_citygrowth();
 	allow_growth.add_listener( this );
 	add_komponente(&allow_growth);
@@ -175,7 +175,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	buf.append( ": " );
 	buf.append( c->get_homeless(), 0 );
 
-	display_multiline_text(pos.x+8, pos.y+48, (const char *)buf, COL_BLACK);
+	display_multiline_text(pos.x + 8, pos.y + 48, buf, COL_BLACK);
 
 	const unsigned long current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {

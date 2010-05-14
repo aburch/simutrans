@@ -29,7 +29,7 @@ private:
 	};
 
 	// vars für die KI
-	enum zustand state;
+	zustand state;
 
 	/*
 	 * if this is false, this AI won't use roads

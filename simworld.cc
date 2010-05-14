@@ -319,7 +319,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 				// usually, after P6 there comes a comment with the maker
 				// but comments can be anywhere
 				if(*c==0) {
-					read_line(buf, 255, file);
+					read_line(buf, sizeof(buf), file);
 					c = buf;
 					continue;
 				}
@@ -2683,7 +2683,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 
 
 // add an amout to a subcategory
-void karte_t::buche(const sint64 betrag, enum player_cost type)
+void karte_t::buche(sint64 const betrag, player_cost const type)
 {
 	assert(type < MAX_WORLD_COST);
 	finance_history_year[0][type] += betrag;
@@ -3406,10 +3406,10 @@ static sint8 median( sint8 a, sint8 b, sint8 c )
 	}
 #elif 0
 	if(  a<=b  ) {
-		return b<=c ? b : max(a,c);;
+		return b<=c ? b : max(a,c);
 	}
 	else {
-		return b>c ? b : min(a,c);;
+		return b>c ? b : min(a,c);
 	}
 #else
 		return (6*128+3 + a+a+b+b+c+c)/6-128;
@@ -4075,7 +4075,7 @@ DBG_DEBUG("karte_t::laden", "init felder ok");
 	}
 	// old game might have wrong month
 	letzter_monat %= 12;
- 	// set the current month count
+	// set the current month count
 	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero
@@ -4897,8 +4897,8 @@ void karte_t::switch_active_player(uint8 new_player)
 		koord3d old_zeiger_pos = zeiger->get_pos();
 		zeiger->set_bild( IMG_LEER );	// unmarks also area
 		zeiger->set_pos( koord3d::invalid );
-		if(  dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])  ) {
-			dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])->cleanup( active_player, false );
+		if (two_click_werkzeug_t* const tool = dynamic_cast<two_click_werkzeug_t*>(werkzeug[active_player_nr])) {
+			tool->cleanup(active_player, false);
 		}
 		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;

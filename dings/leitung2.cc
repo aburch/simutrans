@@ -153,71 +153,12 @@ leitung_t::entferne(spieler_t *sp)
 
 /**
  * called during map rotation
- * @author priss
+ * @author prissi
  */
 void leitung_t::rotate90()
 {
 	ding_t::rotate90();
-	ribi_t::ribi old_ribi = ribi;
 	ribi = ribi_t::rotate90( ribi );
-
-	// determine new image
-	// a little complex, since we cannot access the ground right now
-
-	if(bild==IMG_LEER) {
-		// most likely on a bridge
-		return;
-	}
-
-	// first: test for slope
-	if(old_ribi==ribi_t::nordsued) {
-		if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::nord, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::ost, 0);
-			return;
-		}
-		else if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::sued, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::west, 0);
-			return;
-		}
-	}
-	else {
-		if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::west, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::nord, 0);
-			return;
-		}
-		else if(bild==wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::ost, 0)) {
-			bild = wegbauer_t::leitung_besch->get_hang_bild_nr(hang_t::sued, 0);
-			return;
-		}
-	}
-
-	if(bild != wegbauer_t::leitung_besch->get_bild_nr(old_ribi,0)) {
-		// missing mast or crossing graphics are saved here
-		if(ribi_t::ist_gerade_ns(old_ribi)) {
-			if(bild==wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0)) {
-				// crossing
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0);
-			}
-			else {
-				// missing mast
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0);
-			}
-		}
-		else {
-			if(bild==wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0)) {
-				// crossing
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0);
-			}
-			else {
-				// missing mast
-				bild = wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0);
-			}
-		}
-	}
-	else {
-		// or just a normal tile ...
-		bild = wegbauer_t::leitung_besch->get_bild_nr(ribi,0);
-	}
 }
 
 
@@ -293,10 +234,11 @@ void leitung_t::verbinde()
 
 
 /* extended by prissi */
-void leitung_t::recalc_bild()
+void leitung_t::calc_bild()
 {
 	is_crossing = false;
 	const koord pos = get_pos().get_2d();
+	bool snow = get_pos().z >= welt->get_snowline();
 
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr==NULL) {
@@ -311,17 +253,17 @@ void leitung_t::recalc_bild()
 
 	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
-		set_bild( wegbauer_t::leitung_besch->get_hang_bild_nr(hang, 0));
+		set_bild( wegbauer_t::leitung_besch->get_hang_bild_nr(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
 			if(ribi_t::ist_gerade_ow(way->get_ribi())) {
-				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost,0));
+				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost, snow));
 			}
 			else {
-				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost,0));
+				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost, snow));
 			}
 			is_crossing = true;
 		}
@@ -329,14 +271,14 @@ void leitung_t::recalc_bild()
 			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::ist_gerade_ns(ribi)) {
-					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west,0));
+					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west, snow));
 				}
 				else {
-					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west,0));
+					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west, snow));
 				}
 			}
 			else {
-				set_bild( wegbauer_t::leitung_besch->get_bild_nr(ribi,0));
+				set_bild( wegbauer_t::leitung_besch->get_bild_nr(ribi, snow));
 			}
 		}
 	}
@@ -359,12 +301,12 @@ void leitung_t::calc_neighbourhood()
 			if(conn[i]  &&  conn[i]->get_net()==get_net()) {
 				ribi |= ribi_t::nsow[i];
 				conn[i]->add_ribi(ribi_t::rueckwaerts(ribi_t::nsow[i]));
-				conn[i]->recalc_bild();
+				conn[i]->calc_bild();
 			}
 		}
 	}
 	set_flag( ding_t::dirty );
-	recalc_bild();
+	calc_bild();
 }
 
 
@@ -499,35 +441,29 @@ pumpe_t::~pumpe_t()
 
 
 
-void pumpe_t::step(long delta_t )
+void pumpe_t::step(long delta_t)
 {
 	if(fab==NULL) {
 		return;
 	}
 
-	if ( delta_t == 0 ) {
+	if(  delta_t==0  ) {
 		return;
 	}
 
 	supply = fab->get_power();
 
 	image_id new_bild;
-	if ( supply > 0 ) {
+	int winter_offset = 0;
+	if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+		winter_offset = 2;
+	}
+	if(  supply > 0  ) {
 		get_net()->add_supply( supply );
-		if (skinverwaltung_t::pumpe->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(3);
-		}
-		else {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(1);
-		}
+		new_bild = skinverwaltung_t::pumpe->get_bild_nr(1+winter_offset);
 	}
 	else {
-		if (skinverwaltung_t::pumpe->get_bild_anzahl() > 2  &&  get_pos().z >= welt->get_snowline()) {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(2);
-		}
-		else {
-			new_bild = skinverwaltung_t::pumpe->get_bild_nr(0);
-		}
+		new_bild = skinverwaltung_t::pumpe->get_bild_nr(0+winter_offset);
 	}
 	if(bild!=new_bild) {
 		set_flag(ding_t::dirty);
@@ -537,8 +473,7 @@ void pumpe_t::step(long delta_t )
 
 
 
-void
-pumpe_t::laden_abschliessen()
+void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
@@ -635,23 +570,16 @@ void senke_t::step(long delta_t)
 		return;
 	}
 
-	if ( delta_t == 0 ) {
+	if(delta_t==0) {
 		return;
 	}
 
 	uint32 power_demand = fab->get_power_demand();
-	get_net()->add_demand(power_demand);
+	get_net()->add_demand( power_demand );
 
 	uint32 net_demand = get_net()->get_demand();
 	if(  net_demand > 0  ) {
-		power_load = (
-				last_power_demand 
-				* ((get_net()->get_supply() << 5) / net_demand)
-			) >> 5;
-			// <<5 for max calculation precision fitting withing
-			// uint32 with max supply capacity capped in
-			// dataobj/powernet.cc max_capacity.
-			// This should be fixed to be cleaner.  FIXME.
+		power_load = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity
 		if(  power_load > last_power_demand  ) {
 			power_load = last_power_demand;
 		}
@@ -660,10 +588,7 @@ void senke_t::step(long delta_t)
 	else {
 		power_load = 0;
 	}
-
-	// this allows subsequently stepped senke to supply demand 
-	// which this senke couldn't
-	fab->add_power_demand( power_demand-power_load ); 
+	fab->add_power_demand( power_demand-power_load ); // allows subsequently stepped senke to supply demand this senke couldn't
 
 	max_einkommen += last_power_demand;
 	einkommen += power_load;
@@ -679,13 +604,12 @@ void senke_t::step(long delta_t)
 }
 
 
-bool
-senke_t::sync_step(long delta_t)
+
+bool senke_t::sync_step(long delta_t)
 {
 	if(fab==NULL) {
 		return false;
 	}
-	bool snow = (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline());
 
 	delta_sum += delta_t;
 	if(  delta_sum > PRODUCTION_DELTA_T  ) {
@@ -699,6 +623,10 @@ senke_t::sync_step(long delta_t)
 		next_t -= next_t - next_t % (PRODUCTION_DELTA_T / 16);
 
 		image_id new_bild;
+		int winter_offset = 0;
+		if (skinverwaltung_t::senke->get_bild_anzahl() > 3  &&  get_pos().z >= welt->get_snowline()) {
+			winter_offset = 2;
+		}
 		if(  last_power_demand > 0 ) {
 			uint32 load_factor = power_load * PRODUCTION_DELTA_T / last_power_demand;
 
@@ -714,29 +642,14 @@ senke_t::sync_step(long delta_t)
 			}
 
 			if(  delta_sum <= (sint32)load_factor  ) {
-				if (snow) {
-					new_bild = skinverwaltung_t::senke->get_bild_nr(3);
-				}
-				else {
-					new_bild = skinverwaltung_t::senke->get_bild_nr(1);
-				}
+				new_bild = skinverwaltung_t::senke->get_bild_nr(1+winter_offset);
 			}
 			else {
-				if (snow) {
-					new_bild = skinverwaltung_t::senke->get_bild_nr(2);
-				}
-				else {
-					new_bild = skinverwaltung_t::senke->get_bild_nr(0);
-				}
+				new_bild = skinverwaltung_t::senke->get_bild_nr(0+winter_offset);
 			}
 		}
 		else {
-			if (snow) {
-				new_bild = skinverwaltung_t::senke->get_bild_nr(2);
-			}
-			else {
-				new_bild = skinverwaltung_t::senke->get_bild_nr(0);
-			}
+			new_bild = skinverwaltung_t::senke->get_bild_nr(0+winter_offset);
 		}
 		if(  bild != new_bild  ) {
 			set_flag(ding_t::dirty);
@@ -748,8 +661,7 @@ senke_t::sync_step(long delta_t)
 
 
 
-void
-senke_t::laden_abschliessen()
+void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);

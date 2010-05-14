@@ -69,7 +69,7 @@ public:
 	virtual waytype_t get_waytype() const { return get_besch()->get_waytype(); }
 
 	const char *get_name() const {return "Movingobj";}
-	enum ding_t::typ get_typ() const {return movingobj;}
+	typ get_typ() const { return movingobj; }
 
 	bool check_season(const long delta_t);
 

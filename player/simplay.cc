@@ -450,7 +450,7 @@ void spieler_t::calc_finance_history()
 
 
 // add and amount, including the display of the message and some other things ...
-void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost type)
+void spieler_t::buche(sint64 const betrag, koord const pos, player_cost const type)
 {
 	buche(betrag, type);
 
@@ -476,7 +476,7 @@ void spieler_t::buche(const sint64 betrag, const koord pos, enum player_cost typ
 
 
 // add an amout to a subcategory
-void spieler_t::buche(const sint64 betrag, enum player_cost type)
+void spieler_t::buche(sint64 const betrag, player_cost const type)
 {
 	assert(type < MAX_PLAYER_COST);
 
@@ -498,7 +498,7 @@ void spieler_t::buche(const sint64 betrag, enum player_cost type)
 
 
 
-void spieler_t::accounting( spieler_t *sp, const sint64 amount, koord k, enum player_cost pc )
+void spieler_t::accounting(spieler_t* const sp, sint64 const amount, koord const k, player_cost const pc)
 {
 	if(sp!=NULL  &&  sp!=welt->get_spieler(1)) {
 		sp->buche( amount, k, pc );

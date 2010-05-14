@@ -29,7 +29,7 @@ protected:
 	const kreuzung_besch_t *besch;
 
 public:
-	enum ding_t::typ get_typ() const { return crossing; }
+	typ get_typ() const { return crossing; }
 	const char* get_name() const { return "Kreuzung"; }
 
 	crossing_t(karte_t *welt, loadsave_t *file);

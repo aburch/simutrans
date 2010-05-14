@@ -274,7 +274,7 @@ void gui_hidden_textinput_t::infowin_event(const event_t *ev)
 		sint16 asterix_width = display_calc_proportional_string_len_width("*",1);
 		cursor_pos = 0;
 		if (text) {
-			cursor_pos = min( strlen(text), (pos.x-ev->cx)/asterix_width );;
+			cursor_pos = min( strlen(text), (pos.x-ev->cx)/asterix_width );
 		}
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
 	}

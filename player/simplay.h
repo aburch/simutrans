@@ -236,13 +236,13 @@ public:
 	}
 
 	// Owen Rudge, finances
-	void buche(sint64 betrag, koord k, enum player_cost type);
+	void buche(sint64 betrag, koord k, player_cost type);
 
 	// do the internal accounting (currently only used externally for running costs of convois)
-	void buche(sint64 betrag, enum player_cost type);
+	void buche(sint64 betrag, player_cost type);
 
 	// this is also save to be called with sp==NULL, which may happen for unowned objects like bridges, ways, trees, ...
-	static void accounting( spieler_t *sp, const sint64 betrag, koord k, enum player_cost pc );
+	static void accounting(spieler_t* sp, sint64 betrag, koord k, player_cost pc);
 
 	/**
 	 * @return Kontostand als double (Gleitkomma) Wert

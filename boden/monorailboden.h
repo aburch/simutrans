@@ -15,7 +15,7 @@ public:
 	virtual void rdwr(loadsave_t *file);
 
 	const char *get_name() const {return "Monorailboden";}
-	enum grund_t::typ get_typ() const {return monorailboden;}
+	typ get_typ() const { return monorailboden; }
 };
 
 #endif

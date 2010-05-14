@@ -209,7 +209,7 @@ void
 convoi_info_t::zeichnen(koord pos, koord gr)
 {
 	if(!cnv.is_bound()) {
-		destroy_win(dynamic_cast <gui_fenster_t *> (this));
+		destroy_win(this);
 	}
 	else {
 		if(cnv->get_besitzer()==cnv->get_welt()->get_active_player()) {

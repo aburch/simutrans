@@ -366,11 +366,11 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb )
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(ground_recalc) {
-							if(pos.x<welt->get_groesse_x()-1) {
-								welt->lookup_kartenboden(newk+koord::ost)->calc_bild();
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::ost)) {
+								gr->calc_bild();
 							}
-							if(pos.y<welt->get_groesse_y()-1) {
-								welt->lookup_kartenboden(newk+koord::sued)->calc_bild();
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::sued)) {
+								gr->calc_bild();
 							}
 						}
 					}
