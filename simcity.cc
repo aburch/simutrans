@@ -169,7 +169,7 @@ public:
 	};
 };
 
-static float default_electricity_consumption = 100.0F;
+static float default_electricity_consumption = 1.0F;
 
 static vector_tpl<electric_consumption_record_t> electricity_consumption[1];
 
@@ -206,7 +206,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 }
 
 
-// Returns a *float* which represents a percentage -- so, 100.0F means "100%".
+// Returns a *float* which represents a fraction -- so, 1.0F means "100%".
 float stadt_t::get_electricity_consumption(sint32 monthyear) const
 {
 
@@ -226,19 +226,19 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 		if(  i==electricity_consumption->get_count()  ) 
 		{
 			// past final year
-			return electricity_consumption[0][i-1].consumption_percent;
+			return electricity_consumption[0][i-1].consumption_percent / 100.0F;
 		}
 		else if(i==0) 
 		{
 			// before first year
-			return electricity_consumption[0][0].consumption_percent;
+			return electricity_consumption[0][0].consumption_percent / 100.0F;
 		}
 		else 
 		{
 			// interpolate linear
 			const sint32 delta_consumption_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
 			const sint32 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
-			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent);
+			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
 		}
 	}
 	else
@@ -2016,7 +2016,9 @@ void stadt_t::calc_growth()
 	 * (@author: jamespetts)
 	 */
 
-	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * 20;
+	const uint8 electricity_multiplier = 20;
+	// const uint8 electricity_multiplier = welt->get_einstellungen()->get_electricity_multiplier();
+	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier;
 	const uint8 mail_proportion = 100 - (welt->get_einstellungen()->get_passenger_multiplier() + electricity_proportion + welt->get_einstellungen()->get_goods_multiplier());
 
 	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (welt->get_einstellungen()->get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
@@ -4224,9 +4226,12 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 }
 
 uint32 stadt_t::get_power_demand() const
- { 
-	return (city_history_month[0][HIST_CITICENS] * get_electricity_consumption(welt->get_timeline_year_month())) * 0.02F; 
- }
+{
+	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
+	// The 5120 is a conversion factor from MW to internal numbers.
+	float electricity_per_citizen = 5120 * 0.2F * get_electricity_consumption(welt->get_timeline_year_month()); 
+	return city_history_month[0][HIST_CITICENS] * electricity_per_citizen;
+}
 
 bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 { 
