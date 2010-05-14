@@ -605,8 +605,8 @@ senke_t::sync_step(long time)
 		want_power = factory_power_demand + city_power_demand;
 		get_power = get_net()->withdraw_power(city_power_demand);
 		accumulated_power += get_power;
-		city->add_power(accumulated_power / 5120);
-		city->add_power_demand(want_power / 5120);
+		city->add_power(accumulated_power);
+		city->add_power_demand(want_power);
 	}
 	image_id new_bild;
 	if(get_power>want_power/2) {
