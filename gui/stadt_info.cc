@@ -11,6 +11,7 @@
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../dings/leitung2.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
