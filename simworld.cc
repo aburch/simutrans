@@ -5298,8 +5298,8 @@ void karte_t::switch_active_player(uint8 new_player)
 		koord3d old_zeiger_pos = zeiger->get_pos();
 		zeiger->set_bild( IMG_LEER );	// unmarks also area
 		zeiger->set_pos( koord3d::invalid );
-		if(  dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])  ) {
-			dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])->cleanup( active_player, false );
+		if (two_click_werkzeug_t* const tool = dynamic_cast<two_click_werkzeug_t*>(werkzeug[active_player_nr])) {
+			tool->cleanup(active_player, false);
 		}
 		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;

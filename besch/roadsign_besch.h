@@ -12,11 +12,11 @@
 
 #include "obj_besch_std_name.h"
 #include "bildliste_besch.h"
+#include "skin_besch.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
 
 
-class skin_besch_t;
 class werkzeug_t;
 
 /*
@@ -66,13 +66,13 @@ public:
 
 	int get_bild_nr(ribi_t::dir dir) const
 	{
-		const bild_besch_t *bild = static_cast<const bildliste_besch_t *>(get_child(2))->get_bild(dir);
+		bild_besch_t const* const bild = get_child<bildliste_besch_t>(2)->get_bild(dir);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
-	int get_bild_anzahl() const { return static_cast<const bildliste_besch_t *>(get_child(2))->get_anzahl(); }
+	int get_bild_anzahl() const { return get_child<bildliste_besch_t>(2)->get_anzahl(); }
 
-	const skin_besch_t *get_cursor() const { return (const skin_besch_t *)get_child(3); }
+	skin_besch_t const* get_cursor() const { return get_child<skin_besch_t>(3); }
 
 	/**
 	 * get way type
