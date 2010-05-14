@@ -153,8 +153,9 @@ sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 	}
 }
 
-// Private car ownership information.
+// Electricity demand information.
 // @author: jamespetts
+// @author: neroden
 // (But much of this code is adapted from the speed bonus code,
 // written by Prissi). 
 
@@ -168,7 +169,7 @@ public:
 	};
 };
 
-static float default_electricity_consumption = 1.0F;
+static float default_electricity_consumption = 100.0F;
 
 static vector_tpl<electric_consumption_record_t> electricity_consumption[1];
 
@@ -192,7 +193,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 	if((tracks[0]&1)==1) 
 	{
 		dbg->message("stadt_t::electricity_consumption_init()", "Ill formed line in config/electricity.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!" );
-		car_ownership->clear();
+		electricity_consumption->clear();
 		return;
 	}
 	electricity_consumption[0].resize( tracks[0]/2 );
@@ -205,7 +206,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 }
 
 
-
+// Returns a *float* which represents a percentage -- so, 100.0F means "100%".
 float stadt_t::get_electricity_consumption(sint32 monthyear) const
 {
 
@@ -224,20 +225,20 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 		}
 		if(  i==electricity_consumption->get_count()  ) 
 		{
-			// maxspeed already?
+			// past final year
 			return electricity_consumption[0][i-1].consumption_percent;
 		}
 		else if(i==0) 
 		{
-			// minspeed below
+			// before first year
 			return electricity_consumption[0][0].consumption_percent;
 		}
 		else 
 		{
 			// interpolate linear
-			const sint32 delta_ownership_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
+			const sint32 delta_consumption_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
 			const sint32 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
-			return (((float)(delta_ownership_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
+			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent);
 		}
 	}
 	else
