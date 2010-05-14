@@ -404,20 +404,31 @@ void leitung_t::rdwr(loadsave_t *file)
 			city = welt->get_city(city_pos);
 		}
 	}
-	if(get_typ()==leitung) {
-		if(file->get_version() > 102002) {
-			if(file->is_saving()) {
+	if(get_typ()==leitung) 
+	{
+		if(file->get_version() > 102002 && file->get_experimental_version() >= 8)
+		{
+			if(file->is_saving()) 
+			{
 				const char *s = besch->get_name();
 				file->rdwr_str(s);
 			}
-			else {
+			else 
+			{
 				char bname[128];
 				file->rdwr_str(bname, 128);
+				if(bname[0] == '~')
+				{
+					set_besch(wegbauer_t::leitung_besch);					
+					return;
+				}
 
 				const weg_besch_t *besch = wegbauer_t::get_besch(bname);
-				if(besch==NULL) {
+				if(besch==NULL) 
+				{
 					besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
-					if(besch==NULL) {
+					if(besch==NULL) 
+					{
 						besch = wegbauer_t::leitung_besch;
 					}
 					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
@@ -425,11 +436,21 @@ void leitung_t::rdwr(loadsave_t *file)
 				set_besch(besch);
 			}
 		}
-		else {
-			if (file->is_loading()) {
+		else 
+		{
+			if (file->is_loading()) 
+			{
 				set_besch(wegbauer_t::leitung_besch);
 			}
 		}
+	}
+	else if(get_typ() == pumpe || get_typ() == senke)
+	{
+		// Must add dummy string here, or else the loading/saving will fail, 
+		// since we do not know whether a leitung is a plain leitung, or a pumpe
+		// or a senke on *loading*, whereas we do on saving.
+		char* dummy = "~";
+		file->rdwr_str(dummy, 2);
 	}
 }
 
