@@ -210,9 +210,7 @@ public:
 	* @return introduction year
 	* @author Hj. Malthaner
 	*/
-
 	uint16 get_intro_year_month() const { return intro_date; }
-
 
 	/**
 	* @return introduction month
