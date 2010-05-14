@@ -4229,7 +4229,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 uint32 stadt_t::get_power_demand() const
 {
 	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
-	float electricity_per_citizen = 0.2F * get_electricity_consumption(welt->get_timeline_year_month()); 
+	float electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month()); 
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
 	return (city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen;
