@@ -187,7 +187,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	buf.append(translator::translate("Power demand"));
 	buf.append( ": " );
 
-	uint32 power_demand = (c->get_power_demand)/5120;
+	uint32 power_demand = (c->get_power_demand())/5120;
 
 	if(power_demand < 1000)
 	{
