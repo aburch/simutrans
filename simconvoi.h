@@ -323,7 +323,7 @@ private:
 
 	uint32 next_wolke;	// time to next smoke
 
-	enum states state;
+	states state;
 
 	ribi_t::ribi alte_richtung; //"Old direction" (Google)
 

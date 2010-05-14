@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "simconst.h"
 #include "simtypes.h"
 #include "macros.h"
 #include "font.h"
@@ -1361,6 +1362,7 @@ void display_scroll_band(const KOORD_VAL start_y, const KOORD_VAL x_offset, cons
 		"rep\n\t"
 		"movsl\n\t"
 		: "+D" (dst), "+S" (src), "+c" (amount)
+		: "memory"
 	);
 #endif
 }

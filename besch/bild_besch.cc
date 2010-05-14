@@ -29,9 +29,9 @@ bild_besch_t *bild_besch_t::copy_rotate(const sint16 angle) const
 	// first data will have an offset of two PIXVAL
 	// now you should understand below arithmetics ...
 
-	const sint16 x_y = pic.w;
-	const PIXVAL *src=(const PIXVAL *)get_daten();
-	PIXVAL *target = (PIXVAL *)target_besch->get_daten();
+	sint16        const x_y    = pic.w;
+	PIXVAL const* const src    = get_daten();
+	PIXVAL*       const target = target_besch->get_daten();
 
 	switch(angle) {
 		case 90:

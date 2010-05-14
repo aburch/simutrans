@@ -114,7 +114,7 @@ void gui_fixedwidth_textarea_t::calc_display_text(const koord offset, const bool
 			else {
 				// normal char: retrieve and calculate width
 				size_t len = 0;
-				int ch_width = display_get_char_width( unicode ? utf8_to_utf16((const utf8 *)p, &len) : *p++ );
+				int ch_width = display_get_char_width( unicode ? utf8_to_utf16(p, &len) : *p++ );
 				p += len;
 				x += ch_width;
 				word_x += ch_width;

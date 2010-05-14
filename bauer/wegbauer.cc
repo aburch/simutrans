@@ -371,7 +371,7 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 		return false;
 	}
 	// crossing available and ribis ok
-	if(crossing_logic_t::get_crossing(wtyp,w->get_waytype())!=NULL) {
+	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), welt->get_timeline_year_month())!=NULL) {
 		ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 		// it is our way we want to cross: can we built a crossing here?
 		// both ways must be straight and no ends
@@ -1027,7 +1027,7 @@ void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
 
 
 void
-wegbauer_t::route_fuer(enum bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
+wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
 {
 	bautyp = wt;
 	besch = b;
@@ -2007,7 +2007,8 @@ void wegbauer_t::baue_strasse()
 
 			str->set_besch(besch);
 			str->set_gehweg(add_sidewalk);
-			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp)-besch->get_preis();
+			gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp);
+			cost = -besch->get_preis();
 
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
@@ -2097,7 +2098,8 @@ void wegbauer_t::baue_schiene()
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
 					ribi = ribi_t::doppelt(ribi);
 				}
-				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
+				gr->neuen_weg_bauen(sch, ribi, sp);
+				cost = -besch->get_preis();
 
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
@@ -2157,7 +2159,7 @@ void wegbauer_t::baue_leitung()
 
 
 // this can drive any river, even a river that has max_speed=0
-class fluss_fahrer_t : fahrer_t
+class fluss_fahrer_t : public fahrer_t
 {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
@@ -2238,7 +2240,7 @@ void wegbauer_t::baue_fluss()
 		 */
 		route_t to_the_sea;
 		fluss_fahrer_t ff;
-		if(  to_the_sea.find_route( welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), (fahrer_t *)&ff, 0, ribi_t::alle, 0x7FFFFFFF )  ) {
+		if (to_the_sea.find_route(welt, welt->lookup_kartenboden(route[start_n].get_2d())->get_pos(), &ff, 0, ribi_t::alle, 0x7FFFFFFF)) {
 			for(  uint32 idx=0;  idx<to_the_sea.get_count();  idx++  ) {
 				weg_t* w = welt->lookup(to_the_sea.get_route()[idx])->get_weg(water_wt);
 				if(w) {

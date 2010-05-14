@@ -75,16 +75,14 @@ public:
 	// static routines from here
 private:
 	static slist_tpl<const kreuzung_besch_t *> liste;
-	static kreuzung_besch_t *can_cross_array[9][9];
+	// save all besch' only for waytype0 < waytype1
+	static minivec_tpl<const kreuzung_besch_t *> can_cross_array[36];
 
 public:
-	static bool register_besch(kreuzung_besch_t *besch);
+	static void register_besch(kreuzung_besch_t *besch);
 	static bool alles_geladen() {return true; }
 
-	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow) {
-		if(ns>8  ||  ow>8) return NULL;
-		return can_cross_array[(int)ns][(int)ow];
-	}
+	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow, uint16 timeline_year_month);
 
 	// returns a new or an existing crossing_logic_t object
 	// new, of no matching crossings are next to it

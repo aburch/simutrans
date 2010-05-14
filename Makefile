@@ -37,8 +37,8 @@ ifeq ($(OSTYPE),freebsd)
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
-  CXXFLAGS   += -DUSE_HW -DUSE_C
+  CFLAGS   += -DUSE_HW -Os -fast
+  CXXFLAGS += -DUSE_HW
   STD_LIBS ?= -lz -lbz2
 endif
 
