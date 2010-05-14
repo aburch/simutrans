@@ -1946,8 +1946,7 @@ void wegbauer_t::baue_strasse()
 
 			str->set_besch(besch);
 			str->set_gehweg(add_sidewalk);
-			gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp);
-			cost = -besch->get_preis();
+			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp)-besch->get_preis();
 
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
@@ -2017,8 +2016,7 @@ void wegbauer_t::baue_schiene()
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
 					ribi = ribi_t::doppelt(ribi);
 				}
-				gr->neuen_weg_bauen(sch, ribi, sp);
-				cost = -besch->get_preis();
+				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
 
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
