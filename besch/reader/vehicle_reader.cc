@@ -10,6 +10,8 @@
 #include "vehicle_reader.h"
 #include "../obj_node_info.h"
 
+
+
 void
 vehicle_reader_t::register_obj(obj_besch_t *&data)
 {
@@ -17,6 +19,7 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 	vehikelbauer_t::register_besch(besch);
 	obj_for_xref(get_type(), besch->get_name(), data);
 }
+
 
 
 bool

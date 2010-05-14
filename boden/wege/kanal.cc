@@ -66,6 +66,5 @@ kanal_t::rdwr(loadsave_t *file)
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-
 	}
 }
