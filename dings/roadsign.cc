@@ -170,7 +170,7 @@ void roadsign_t::calc_bild()
 	}
 
 	hang_t::typ hang = gr->get_weg_hang();
-	if(hang==hang_t::flach) {
+	if(  hang==hang_t::flach  ) {
 		set_yoff( -gr->get_weg_yoff() );
 		after_offset = 0;
 	}
@@ -195,12 +195,25 @@ void roadsign_t::calc_bild()
 
 		image_id tmp_bild=IMG_LEER;
 		after_bild = IMG_LEER;
+		ribi_t::ribi temp_dir = dir;
 
-		if(dir&ribi_t::ost) {
+		if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
+			(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
+			// entering tunnel here: hide the image further in if not undergroud/sliced
+			hang = gr->get_grund_hang();
+			if(  hang==hang_t::ost  ||  hang==hang_t::nord  ) {
+				temp_dir &= ~ribi_t::suedwest;
+			}
+			else {
+				temp_dir &= ~ribi_t::nordost;
+			}
+		}
+
+		if(temp_dir&ribi_t::ost) {
 			after_bild = besch->get_bild_nr(3+zustand*4);
 		}
 
-		if(dir&ribi_t::nord) {
+		if(temp_dir&ribi_t::nord) {
 			if(after_bild!=IMG_LEER) {
 				tmp_bild = besch->get_bild_nr(0+zustand*4);
 			}
@@ -209,11 +222,11 @@ void roadsign_t::calc_bild()
 			}
 		}
 
-		if(dir&ribi_t::west) {
+		if(temp_dir&ribi_t::west) {
 			tmp_bild = besch->get_bild_nr(2+zustand*4);
 		}
 
-		if(dir&ribi_t::sued) {
+		if(temp_dir&ribi_t::sued) {
 			if(tmp_bild!=IMG_LEER) {
 				after_bild = besch->get_bild_nr(1+zustand*4);
 			}
