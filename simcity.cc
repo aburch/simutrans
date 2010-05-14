@@ -45,6 +45,7 @@
 #include "dataobj/umgebung.h"
 
 #include "dings/roadsign.h"
+#include "dings/leitung2.h"
 
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/warenbauer.h"
