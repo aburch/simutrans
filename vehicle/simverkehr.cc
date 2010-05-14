@@ -532,7 +532,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 	if(file->get_version() <= 86001) {
 		time_to_life = simrand(1000000)+10000;
-
 	}
 	else if(file->get_version() <= 89004) {
 		file->rdwr_long(time_to_life, "\n");
@@ -569,7 +568,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 	// do not start with zero speed!
 	current_speed ++;
-
 }
 
 
@@ -716,16 +714,16 @@ stadtauto_t::betrete_feld()
 		//"fussgaenger" = pedestrian (Babelfish)
 		int number = 2;
 		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos_next, number);
-		/*fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
+#if 0
+		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
 		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
-		
-		
 		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
 			fg->sync_step(64*24);
 		}
-		welt->sync_add( fg );*/
+		welt->sync_add( fg );
+#endif /* 0 */
 	}
-#endif
+#endif /* DESTINATION_CITYCARS */
 	vehikel_basis_t::betrete_feld();
 	welt->lookup( get_pos() )->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
 }
@@ -740,7 +738,6 @@ stadtauto_t::kill()
 
 bool stadtauto_t::hop_check()
 {
-
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 	if(from==NULL) {
@@ -831,7 +828,6 @@ bool stadtauto_t::hop_check()
 						}
 						return true;
 					}
-
 					else {
 						pos_next_next = koord3d::invalid;
 					}
@@ -969,6 +965,8 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
 		yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width)/5;
 	}
 }
+
+
 
 /**
  * conditions for a city car to overtake another overtaker.

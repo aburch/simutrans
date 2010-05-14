@@ -71,7 +71,6 @@ public:
 
 	// we allow to remove all cars etc.
 	const char *ist_entfernbar(const spieler_t *) { return NULL; }
-
 };
 
 
