@@ -964,7 +964,7 @@ next_ware_check:
 	last_built_consumer_ware = 0;
 
 	// first decide, whether a new powerplant is needed or not
-	uint32 total_produktivity = 1;
+	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 
 	ITERATE(welt->get_fab_list(), i)
@@ -976,7 +976,7 @@ next_ware_check:
 		}
 		else 
 		{
-			total_produktivity += fab->get_base_production();
+			total_electric_demand += fab->get_base_production() * fab->get_besch()->get_electricity_proportion();
 		}
 	}
 
@@ -984,13 +984,13 @@ next_ware_check:
 	
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i)
 	{
-		total_produktivity += ((float)((*i)->get_finance_history_month(0, HIST_CITICENS) * (*i)->get_electricity_consumption(welt->get_timeline_year_month())) * 0.02);
+		total_electric_demand += (*i)->get_power_demand();
 	}
 
 	// now decide producer of electricity or normal ...
-	sint32 promille = (electric_productivity*4000l)/total_produktivity;
+	sint32 promille = (electric_productivity*4000l)/total_electric_demand;
 	int no_electric = promille > welt->get_einstellungen()->get_electric_promille();
-	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total production is %i/%i (%i o/oo)", electric_productivity, total_produktivity, promille );
+	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	bool not_yet_too_desperate_to_ignore_climates = false;
 	while(  no_electric<2  ) {
