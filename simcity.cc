@@ -2016,7 +2016,9 @@ void stadt_t::calc_growth()
 	 * (@author: jamespetts)
 	 */
 
-	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * 20;
+	const uint8 electricity_multiplier = 20;
+	// const uint8 electricity_multiplier = welt->get_einstellungen()->get_electricity_multiplier();
+	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier;
 	const uint8 mail_proportion = 100 - (welt->get_einstellungen()->get_passenger_multiplier() + electricity_proportion + welt->get_einstellungen()->get_goods_multiplier());
 
 	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (welt->get_einstellungen()->get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
