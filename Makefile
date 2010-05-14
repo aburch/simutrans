@@ -378,7 +378,7 @@ ifeq ($(BACKEND),sdl)
     STD_LIBS += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw mac),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
 	    SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
