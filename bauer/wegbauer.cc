@@ -1774,8 +1774,8 @@ sint64 wegbauer_t::calc_costs()
 			}
 			else {
 				if(  besch->get_wtyp() == powerline_wt  ) {
-					if( gr->get_leitung() != NULL ) {
-						continue; // Allready a powerline on this tile.
+					if( leitung_t *lt=gr->get_leitung() ) {
+						old_speedlimit = lt->get_besch()->get_topspeed();
 					}
 				}
 				else {
@@ -2007,8 +2007,7 @@ void wegbauer_t::baue_strasse()
 
 			str->set_besch(besch);
 			str->set_gehweg(add_sidewalk);
-			gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp);
-			cost = -besch->get_preis();
+			cost = -gr->neuen_weg_bauen(str, route.get_short_ribi(i), sp)-besch->get_preis();
 
 			// prissi: into UNDO-list, so wie can remove it later
 			if(sp!=NULL) {
@@ -2098,8 +2097,7 @@ void wegbauer_t::baue_schiene()
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
 					ribi = ribi_t::doppelt(ribi);
 				}
-				gr->neuen_weg_bauen(sch, ribi, sp);
-				cost = -besch->get_preis();
+				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
 
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
@@ -2131,6 +2129,7 @@ void wegbauer_t::baue_leitung()
 		grund_t* gr = welt->lookup(route[i]);
 
 		leitung_t* lt = gr->get_leitung();
+		bool build_powerline = false;
 		// ok, really no lt here ...
 		if(lt==NULL) {
 			if(gr->ist_natur()) {
@@ -2139,16 +2138,25 @@ void wegbauer_t::baue_leitung()
 				spieler_t::accounting(sp, -cost, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 			}
 			lt = new leitung_t( welt, route[i], sp );
-			spieler_t::accounting(sp, -leitung_besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 			gr->obj_add(lt);
 
 			// prissi: into UNDO-list, so wie can remove it later
 			sp->add_undo( route[i] );
+			build_powerline = true;
 		}
 		else {
-			spieler_t::add_maintenance( lt->get_besitzer(),  -wegbauer_t::leitung_besch->get_wartung() );
+			// modernize the network
+			if( !keep_existing_faster_ways  ||  lt->get_besch()->get_topspeed() < besch->get_topspeed()  ) {
+				build_powerline = true;
+				spieler_t::add_maintenance( lt->get_besitzer(),  -lt->get_besch()->get_wartung() );
+			}
 		}
-		lt->leitung_t::laden_abschliessen();
+		if (build_powerline) {
+			lt->set_besch(besch);
+			spieler_t::accounting(sp, -besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
+			// this adds maintenance
+			lt->leitung_t::laden_abschliessen();
+		}
 
 		if((i&3)==0) {
 			INT_CHECK( "wegbauer 1584" );
@@ -2216,9 +2224,13 @@ void wegbauer_t::baue_fluss()
 		}
 		i = j;
 	}
+	// nothing to built ?
+	if (start_n >= end_n-1) {
+		return;
+	}
 
 	// now build the river
-	for(  uint32 i=start_n;  i<end_n-1;  i++  ) {
+	for(  uint32 i=start_n;  i<end_n;  i++  ) {
 		grund_t* gr = welt->lookup_kartenboden(route[i].get_2d());
 		if(  gr->get_typ()!=grund_t::wasser  ) {
 			// get direction

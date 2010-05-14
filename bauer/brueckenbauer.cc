@@ -431,11 +431,9 @@ DBG_MESSAGE("brueckenbauer_t::baue()", "end not ok");
 	// Anfang und ende sind geprueft, wir konnen endlich bauen
 	// "Beginning and end are approved, we can finally build" (Google)
 	if(besch->get_waytype()==powerline_wt) {
-		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, wegbauer_t::leitung_besch );
-	} 
-	
-	else 
-	{
+		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, lt->get_besch() );
+	}
+	else {
 		baue_bruecke(welt, sp, gr->get_pos(), end, zv, besch, weg->get_besch() );
 	}
 	if(besch->get_waytype() == road_wt)
@@ -520,8 +518,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 				// builds new way
 				weg = weg_t::alloc( besch->get_waytype() );
 				weg->set_besch( weg_besch );
-				gr->neuen_weg_bauen( weg, ribi, sp );
-				spieler_t::accounting( sp, -weg->get_besch()->get_preis(), end.get_2d(), COST_CONSTRUCTION);
+				spieler_t::accounting( sp, -gr->neuen_weg_bauen( weg, ribi, sp ) -weg->get_besch()->get_preis(), end.get_2d(), COST_CONSTRUCTION);
 			}
 			gr->calc_bild();
 		}
@@ -529,8 +526,10 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 			leitung_t *lt = gr->get_leitung();
 			if(  lt==NULL  ) {
 				lt = new leitung_t( welt, end, sp );
-				spieler_t::accounting(sp, -wegbauer_t::leitung_besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
+				spieler_t::accounting(sp, -weg_besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 				gr->obj_add(lt);
+				lt->set_besch(weg_besch);
+				lt->laden_abschliessen();
 			}
 			lt->calc_neighbourhood();
 		}
@@ -571,7 +570,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		if(  !bruecke->weg_erweitern( besch->get_waytype(), ribi_neu)  ) {
 			// needs still one
 			weg = weg_t::alloc( besch->get_waytype() );
-			bruecke->neuen_weg_bauen( weg, ribi_neu, sp );
+			spieler_t::accounting(sp, -bruecke->neuen_weg_bauen( weg, ribi_neu, sp ), end.get_2d(), COST_CONSTRUCTION);
 		}
 		weg->set_max_speed( besch->get_topspeed() );
 		weg->set_max_weight( besch->get_max_weight() );
@@ -583,12 +582,11 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		if(!lt) {
 			lt = new leitung_t(welt, bruecke->get_pos(), sp); //"leading" (Google)
 			bruecke->obj_add( lt );
+			lt->laden_abschliessen();
 		}
 		else {
-			// remove maintainance
-			spieler_t::add_maintenance( sp, -wegbauer_t::leitung_besch->get_wartung());
+			lt->calc_neighbourhood();
 		}
-		lt->laden_abschliessen();
 	}
 	bruecke_t *br = new bruecke_t(welt, end, sp, besch, img);
 	bruecke->obj_add( br );

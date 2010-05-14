@@ -52,7 +52,7 @@
 	ADD: timeline for intercityroads using 'intercity_road[number]=name[,intro][,retire]' in simuconf.tab
 	ADD: winter image and timeline for crossings: winter images of [image][0] are [image][1]
 	ADD: powerline stabilisation pak which enforces a single transformer next to factories/power stations
-
+	ADD: enable to use more than one powerline object
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

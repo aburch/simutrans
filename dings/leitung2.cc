@@ -94,6 +94,7 @@ leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, p
 	city = NULL;
 	set_net(NULL);
 	set_besitzer( sp );
+	set_besch(wegbauer_t::leitung_besch);
 }
 
 
@@ -141,7 +142,7 @@ leitung_t::~leitung_t()
 //				dbg->warning("~leitung()","net %p already deleted at (%i,%i)!",net,gr->get_pos().x,gr->get_pos().y);
 //			}
 		}
-		spieler_t::add_maintenance(get_besitzer(), -wegbauer_t::leitung_besch->get_wartung());
+		spieler_t::add_maintenance(get_besitzer(), -besch->get_wartung());
 	}
 }
 
@@ -150,7 +151,7 @@ leitung_t::~leitung_t()
 void
 leitung_t::entferne(spieler_t *sp) //"remove".
 {
-	spieler_t::accounting(sp, -wegbauer_t::leitung_besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
+	spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( bild, 0 );
 }
 
@@ -258,17 +259,17 @@ void leitung_t::calc_bild()
 
 	hang_t::typ hang = gr->get_weg_hang();
 	if(hang != hang_t::flach) {
-		set_bild( wegbauer_t::leitung_besch->get_hang_bild_nr(hang, snow));
+		set_bild( besch->get_hang_bild_nr(hang, snow));
 	}
 	else {
 		if(gr->hat_wege()) {
 			// crossing with road or rail
 			weg_t* way = gr->get_weg_nr(0);
 			if(ribi_t::ist_gerade_ow(way->get_ribi())) {
-				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost, snow));
+				set_bild( besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::ost, snow));
 			}
 			else {
-				set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost, snow));
+				set_bild( besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::ost, snow));
 			}
 			is_crossing = true;
 		}
@@ -276,14 +277,14 @@ void leitung_t::calc_bild()
 			if(ribi_t::ist_gerade(ribi)  &&  !ribi_t::ist_einfach(ribi)  &&  (pos.x+pos.y)&1) {
 				// every second skip mast
 				if(ribi_t::ist_gerade_ns(ribi)) {
-					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west, snow));
+					set_bild( besch->get_diagonal_bild_nr(ribi_t::nord|ribi_t::west, snow));
 				}
 				else {
-					set_bild( wegbauer_t::leitung_besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west, snow));
+					set_bild( besch->get_diagonal_bild_nr(ribi_t::sued|ribi_t::west, snow));
 				}
 			}
 			else {
-				set_bild( wegbauer_t::leitung_besch->get_bild_nr(ribi, snow));
+				set_bild( besch->get_bild_nr(ribi, snow));
 			}
 		}
 	}
@@ -361,7 +362,7 @@ void leitung_t::laden_abschliessen()
 	calc_neighbourhood();
 	grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
-	spieler_t::add_maintenance(get_besitzer(), wegbauer_t::leitung_besch->get_wartung());
+	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 }
 
 
@@ -401,6 +402,33 @@ void leitung_t::rdwr(loadsave_t *file)
 			koord city_pos = koord::invalid;
 			city_pos.rdwr(file);
 			city = welt->get_city(city_pos);
+		}
+	}
+	if(get_typ()==leitung) {
+		if(file->get_version() > 102002) {
+			if(file->is_saving()) {
+				const char *s = besch->get_name();
+				file->rdwr_str(s);
+			}
+			else {
+				char bname[128];
+				file->rdwr_str(bname, 128);
+
+				const weg_besch_t *besch = wegbauer_t::get_besch(bname);
+				if(besch==NULL) {
+					besch = wegbauer_t::get_besch(translator::compatibility_name(bname));
+					if(besch==NULL) {
+						besch = wegbauer_t::leitung_besch;
+					}
+					dbg->warning("strasse_t::rdwr()", "Unknown powerline %s replaced by %s", bname, besch->get_name() );
+				}
+				set_besch(besch);
+			}
+		}
+		else {
+			if (file->is_loading()) {
+				set_besch(wegbauer_t::leitung_besch);
+			}
 		}
 	}
 }
