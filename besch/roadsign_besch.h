@@ -3,7 +3,7 @@
  *
  * This file is part of the Simutrans project under the artistic licence.
  *
- *  Modulbeschreibung:
+ *  Module description:
  *      signs on roads and other ways
  */
 
@@ -23,13 +23,13 @@ class werkzeug_t;
  *  Autor:
  *      prissi
  *
- *  Beschreibung:
- *	Straﬂenschildere
+ *  Description:
+ *	Road signs
  *
- *  Kindknoten:
+ *  Child nodes:
  *	0   Name
  *	1   Copyright
- *	2   Bildliste
+ *	2   Image list (Bildliste)
  */
 class roadsign_besch_t : public obj_besch_std_name_t {
 	friend class roadsign_writer_t;

@@ -8,6 +8,7 @@ class vehicle_reader_t : public obj_reader_t {
     static vehicle_reader_t the_instance;
 
     vehicle_reader_t() { register_reader(); }
+
 protected:
     virtual void register_obj(obj_besch_t *&data);
     virtual bool successfully_loaded() const;
