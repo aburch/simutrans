@@ -336,10 +336,13 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 				if((fahrtrichtung&(~ribi_t::suedost))==0) {
 					// if we are going south or southeast we must be drawn as the first in east direction (after nord and nordeast)
 					for(uint8 i=start;  i<end;  i++  ) {
-						const ding_t *dt = obj.some[i];
-						if(dt  &&  dt->is_moving()  &&  (((const vehikel_t*)dt)->get_fahrtrichtung()&ribi_t::suedwest)!=0) {
-							intern_insert_at(ding, i);
-							return true;
+						if (ding_t const* const dt = obj.some[i]) {
+							if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(dt)) {
+								if ((v->get_fahrtrichtung() & ribi_t::suedwest) != 0) {
+									intern_insert_at(ding, i);
+									return true;
+								}
+							}
 						}
 					}
 				}
@@ -445,12 +448,9 @@ bool dingliste_t::add(ding_t* ding)
 	// roads must be first!
 	if(pri==0) {
 		// check for other ways to keep order! (maximum is two ways per tile at the moment)
-		if( obj.some[0]->get_typ()==ding_t::way  &&  ((weg_t *)ding)->get_waytype()>((weg_t *)obj.some[0])->get_waytype()) {
-			intern_insert_at(ding, 1);
-		}
-		else {
-			intern_insert_at(ding, 0);
-		}
+		weg_t const* const w   = ding_cast<weg_t>(obj.some[0]);
+		uint8        const pos = w && w->get_waytype() ? 1 : 0;
+		intern_insert_at(ding, pos);
 		return true;
 	}
 
@@ -470,7 +470,8 @@ bool dingliste_t::add(ding_t* ding)
 			const sint8 offset = ding->get_yoff() + ding->get_xoff();
 
 			for(  ;  i<top;  i++) {
-				if(obj.some[i]->get_typ()!=ding_t::baum  ||  obj.some[i]->get_yoff()+obj.some[i]->get_xoff()>offset) {
+				baum_t const* const tree = ding_cast<baum_t>(obj.some[i]);
+				if (!tree || tree->get_yoff() + tree->get_xoff() > offset) {
 					break;
 				}
 			}
@@ -559,8 +560,9 @@ bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 		while(  top>offset  ) {
 			top --;
 			ding_t *dt = obj.some[top];
-			if(dt->is_moving()  &&  !(dt->get_typ()==ding_t::fussgaenger  ||  dt->get_typ()==ding_t::verkehr  ||  dt->get_typ()==ding_t::movingobj)) {
-				((vehikel_t *)dt)->verlasse_feld();
+			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(dt);
+			if (v && dt->get_typ() != ding_t::fussgaenger && dt->get_typ() != ding_t::verkehr && dt->get_typ() != ding_t::movingobj) {
+				v->verlasse_feld();
 				assert(0);
 			}
 			else {
@@ -575,8 +577,9 @@ bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	else {
 		if(capacity==1) {
 			ding_t *dt = obj.one;
-			if(dt->is_moving()  &&  !(dt->get_typ()==ding_t::fussgaenger  ||  dt->get_typ()==ding_t::verkehr  ||  dt->get_typ()==ding_t::movingobj)) {
-				((vehikel_t *)dt)->verlasse_feld();
+			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(dt);
+			if (v && dt->get_typ() != ding_t::fussgaenger && dt->get_typ() != ding_t::verkehr && dt->get_typ() != ding_t::movingobj) {
+				v->verlasse_feld();
 			}
 			else {
 				dt->entferne(sp);
@@ -855,17 +858,17 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					gb->set_flag(ding_t::not_on_map);
 /*
 					if(gb->get_tile()->get_besch()->get_extra()==monorail_wt) {
-						monoraildepot_t *md = new monoraildepot_t(welt,gb->get_pos(),(spieler_t *)NULL,gb->get_tile());
+						monoraildepot_t* const md = new monoraildepot_t(welt, gb->get_pos(), 0, gb->get_tile());
 						md->rdwr_vehicles(file);
 						d = md;
 					}
 					else if(gb->get_tile()->get_besch()->get_extra()==tram_wt) {
-						tramdepot_t *td = new tramdepot_t(welt,gb->get_pos(),(spieler_t *)NULL,gb->get_tile());
+						tramdepot_t* const td = new tramdepot_t(welt, gb->get_pos(), 0, gb->get_tile());
 						td->rdwr_vehicles(file);
 						d = td;
 					}
 					else {
-						bahndepot_t *bd = new bahndepot_t(welt,gb->get_pos(),(spieler_t *)NULL,gb->get_tile());
+						bahndepot_t* const bd = new bahndepot_t(welt, gb->get_pos(), 0, gb->get_tile());
 						bd->rdwr_vehicles(file);
 						d = bd;
 					}
@@ -1143,10 +1146,9 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
  */
 inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const sint16 ypos, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile)
 {
-	if (ding->is_moving()  &&  (ontile  ||  ding->get_typ()!=ding_t::aircraft  ||  ((const aircraft_t*)ding)->is_on_ground()))
-	{
-		const vehikel_basis_t *v = (const vehikel_basis_t *)ding;
-
+	vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(ding);
+	aircraft_t      const*       a;
+	if (v && (ontile || !(a = ding_cast<aircraft_t>(v)) || a->is_on_ground())) {
 		const ribi_t::ribi veh_ribi = v->get_fahrtrichtung();
 		if (ontile || (veh_ribi & ribi)==ribi  ||  (ribi_t::rueckwaerts(veh_ribi) & ribi)==ribi  ||  ding->get_typ()==ding_t::aircraft) {
 			activate_ribi_clip((veh_ribi|ribi_t::rueckwaerts(veh_ribi))&ribi);

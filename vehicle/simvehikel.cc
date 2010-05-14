@@ -570,13 +570,11 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 	// suche vehikel
 	const uint8 top = gr->get_top();
 	for(  uint8 pos=1;  pos<top;  pos++ ) {
-		vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(pos);
-		if(v->is_moving()) {
+		if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))) {
 			uint8 other_fahrtrichtung=255;
 
 			// check for car
-			if(v->get_typ()==ding_t::automobil) {
-				automobil_t *at = (automobil_t *)v;
+			if (automobil_t const* const at = ding_cast<automobil_t>(v)) {
 				// ignore ourself
 				if(cnv==at->get_convoi()) {
 					continue;
@@ -2673,14 +2671,12 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 						return true;
 					}
 					// not overtaking/being overtake: we need to make a more thourough test!
-					if(  dt->get_typ()==ding_t::automobil  ) {
-						convoi_t *ocnv = static_cast<automobil_t *>(dt)->get_convoi();
+					if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+						convoi_t* const ocnv = car->get_convoi();
 						if(  cnv->can_overtake( ocnv, ocnv->get_min_top_speed(), ocnv->get_length()*16, diagonal_length)  ) {
 							return true;
 						}
-					}
-					else if(  dt->get_typ()==ding_t::verkehr  ) {
-						stadtauto_t *caut = static_cast<stadtauto_t *>(dt);
+					} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
 						if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length)  ) {
 							return true;
 						}
@@ -3150,8 +3146,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 						}
 						count++;
 					}
-
-				} while(count < cnv->get_schedule()->get_count()  &&  exit_loop == false); // stop after we've looped round schedule...
+				} while (count < cnv->get_schedule()->get_count() && !exit_loop); // stop after we've looped round schedule
 				// we can't go
 				sig->set_zustand(roadsign_t::rot);
 				if(route_index==next_block+1) {

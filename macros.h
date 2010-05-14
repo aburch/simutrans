@@ -1,7 +1,9 @@
 #ifndef MACROS_H
 #define MACROS_H
 
-#ifdef __cplusplus
+// XXX Workaround: Old GCCs choke on type check.
+#if defined __cplusplus && (!defined __GNUC__ || __GNUC__ >= 3)
+// Ensures that the argument has array type.
 template <typename T, unsigned N> static inline void lengthof_check(T (&)[N]) {}
 #	define lengthof(x) (1 ? sizeof(x) / sizeof(*(x)) : (lengthof_check((x)), 0))
 #else

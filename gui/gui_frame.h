@@ -41,7 +41,7 @@ private:
 	 */
 	koord min_windowsize;
 
-	enum resize_modes resize_mode ;      //25-may-02	markus weber added
+	resize_modes resize_mode; // 25-may-02  markus weber added
 	const spieler_t *owner;
 
 	bool opaque:1;
@@ -160,14 +160,14 @@ public:
 	 * @author Markus Weber
 	 * @date   11-May-2002
 	 */
-	void set_resizemode(enum resize_modes mode) {resize_mode = mode;}
+	void set_resizemode(resize_modes mode) { resize_mode = mode; }
 
 	/**
 	 * Get resize mode
 	 * @author Markus Weber
 	 * @date   25-May-2002
 	 */
-	enum resize_modes get_resizemode(void) {return resize_mode;}
+	resize_modes get_resizemode(void) { return resize_mode; }
 
 
 	void set_focus( gui_komponente_t *k ) { container.set_focus(k); }

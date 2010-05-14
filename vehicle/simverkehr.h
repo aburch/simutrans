@@ -56,7 +56,7 @@ public:
 	virtual ~verkehrsteilnehmer_t();
 
 	const char *get_name() const = 0;
-	enum ding_t::typ get_typ() const  = 0;
+	typ get_typ() const  = 0;
 
 	/**
 	 * Öffnet ein neues Beobachtungsfenster für das Objekt.
@@ -131,7 +131,7 @@ public:
 	void calc_current_speed();
 
 	const char *get_name() const {return "Verkehrsteilnehmer";}
-	enum ding_t::typ get_typ() const {return verkehr;}
+	typ get_typ() const { return verkehr; }
 
 	/**
 	 * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem

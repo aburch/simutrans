@@ -36,7 +36,10 @@ class bild_besch_t : public obj_besch_t
 {
 public:
 	const bild_t* get_pic() const { return &pic; }
-	const void* get_daten() const { return pic.data; }
+
+	uint16 const* get_daten() const { return pic.data; }
+	uint16*       get_daten()       { return pic.data; }
+
 	image_id get_nummer() const { return pic.bild_nr; }
 
 	/* rotate_image_data - produces a (rotated) bild_besch

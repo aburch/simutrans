@@ -21,6 +21,7 @@
 class powernet_t;
 class spieler_t;
 class fabrik_t;
+class weg_besch_t;
 
 class leitung_t : public ding_t
 {
@@ -39,6 +40,8 @@ protected:
 	*/
 	powernet_t * net;
 
+	const weg_besch_t *besch;
+
 	/**
 	* Connect this piece of powerline to its neighbours
 	* -> this can merge power networks
@@ -54,11 +57,14 @@ protected:
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner
 	*/
-	void recalc_bild();
+	void calc_bild();
 
 public:
 	powernet_t* get_net() const { return net; }
 	void set_net(powernet_t* p) { net = p; }
+
+	const weg_besch_t * get_besch() { return besch; }
+	void set_besch(const weg_besch_t *new_besch) { besch = new_besch; }
 
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(const koord pos);
@@ -73,7 +79,7 @@ public:
 	// for map rotation
 	void rotate90();
 
-	enum ding_t::typ get_typ() const {return leitung;}
+	typ get_typ() const { return leitung; }
 
 	const char *get_name() const {return "Leitung"; }
 
@@ -139,7 +145,7 @@ public:
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~pumpe_t();
 
-	enum ding_t::typ get_typ() const {return pumpe;}
+	typ get_typ() const { return pumpe; }
 
 	const char *get_name() const {return "Aufspanntransformator";}
 
@@ -176,7 +182,7 @@ public:
 	senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t *c);
 	~senke_t();
 
-	enum ding_t::typ get_typ() const {return senke;}
+	typ get_typ() const { return senke; }
 
 	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
 	// gives players a visual indication of a power network with insufficient generation

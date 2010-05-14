@@ -29,7 +29,7 @@ public:
 	*/
 	const char *get_name() const {return "Fundament";}
 
-	enum grund_t::typ get_typ() const {return fundament;}
+	typ get_typ() const { return fundament; }
 
 	/**
 	* Auffforderung, ein Infofenster zu öffnen.

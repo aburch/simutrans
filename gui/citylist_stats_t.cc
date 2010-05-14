@@ -129,7 +129,7 @@ void citylist_stats_t::zeichnen(koord offset)
 		buf.append( " (" );
 		buf.append( growth/10.0, 1 );
 		buf.append( ")" );
-		display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), (const char *)buf, ALIGN_LEFT, COL_BLACK, true);
+		display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
 		if(i!=line_select) {
 			// goto information

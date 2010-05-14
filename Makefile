@@ -37,8 +37,8 @@ ifeq ($(OSTYPE),freebsd)
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW -DUSE_C  -Os -fast
-  CXXFLAGS   += -DUSE_HW -DUSE_C
+  CFLAGS   += -DUSE_HW -Os -fast
+  CXXFLAGS += -DUSE_HW
   STD_LIBS ?= -lz -lbz2
 endif
 
@@ -69,18 +69,12 @@ SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
-  ifneq ($(PROFILE),)
-    CFLAGS   += -O3 -minline-all-stringops -fno-schedule-insns
+    CFLAGS   += -O3 -fno-schedule-insns
     CXXFLAGS += -O3 -fno-schedule-insns
-  else
-    CFLAGS   += -O3 -fomit-frame-pointer -fno-schedule-insns
-    CXXFLAGS += -O3 -fomit-frame-pointer -fno-schedule-insns
-  endif
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
-    CFLAGS   += -minline-all-stringops -ffunction-sections
-    CXXFLAGS   += -minline-all-stringops -ffunction-sections
-    LDFLAGS += -ffunction-sections
+      CFLAGS   += -minline-all-stringops
+      CXXFLAGS   += -minline-all-stringops
     endif
   endif
 else
@@ -101,6 +95,9 @@ ifdef DEBUG
     CFLAGS   += -O0
     CXXFLAGS += -O0
   endif
+else
+  CFLAGS += -DNDEBUG
+  CXXFLAGS += -DNDEBUG
 endif
 
 ifneq ($(PROFILE),)
@@ -381,7 +378,7 @@ ifeq ($(BACKEND),sdl)
     STD_LIBS += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
-    ifeq ($(findstring $(OSTYPE), cygwin mingw mac),)
+    ifeq ($(findstring $(OSTYPE), cygwin mingw),)
 	    SOURCES += music/no_midi.cc
     else
       SOURCES += music/w32_midi.cc
