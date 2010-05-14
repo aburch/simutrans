@@ -4226,9 +4226,12 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 }
 
 uint32 stadt_t::get_power_demand() const
- { 
-	return (city_history_month[0][HIST_CITICENS] * get_electricity_consumption(welt->get_timeline_year_month())) * 0.02F; 
- }
+{
+	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
+	// The 5120 is a conversion factor from MW to internal numbers.
+	float electricity_per_citizen = 5120 * 0.2F * get_electricity_consumption(welt->get_timeline_year_month()); 
+	return city_history_month[0][HIST_CITICENS] * electricity_per_citizen;
+}
 
 bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 { 
