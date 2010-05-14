@@ -169,7 +169,7 @@ public:
 	};
 };
 
-static float default_electricity_consumption = 100.0F;
+static float default_electricity_consumption = 1.0F;
 
 static vector_tpl<electric_consumption_record_t> electricity_consumption[1];
 
@@ -206,7 +206,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 }
 
 
-// Returns a *float* which represents a percentage -- so, 100.0F means "100%".
+// Returns a *float* which represents a fraction -- so, 1.0F means "100%".
 float stadt_t::get_electricity_consumption(sint32 monthyear) const
 {
 
@@ -226,19 +226,19 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 		if(  i==electricity_consumption->get_count()  ) 
 		{
 			// past final year
-			return electricity_consumption[0][i-1].consumption_percent;
+			return electricity_consumption[0][i-1].consumption_percent / 100.0F;
 		}
 		else if(i==0) 
 		{
 			// before first year
-			return electricity_consumption[0][0].consumption_percent;
+			return electricity_consumption[0][0].consumption_percent / 100.0F;
 		}
 		else 
 		{
 			// interpolate linear
 			const sint32 delta_consumption_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
 			const sint32 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
-			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent);
+			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
 		}
 	}
 	else
