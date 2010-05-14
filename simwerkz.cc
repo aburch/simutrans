@@ -1476,13 +1476,8 @@ const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool re
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
-			if(wt<=air_wt) {
-				// search fastest way.
-				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
-			}
-			else {
-				besch = wegbauer_t::leitung_besch;
-			}
+			// search fastest way.
+			besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 		}
 	}
 	assert(besch);
@@ -1761,16 +1756,9 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 		costs += besch->get_preis();
 	}
 	else {
-		if (besch->get_waytype() == powerline_wt) {
-			if (!gr->find<leitung_t>()) {
-				costs += wegbauer_t::leitung_besch->get_preis();
-			}
-		}
-		else {
-			if (!gr->hat_weg(besch->get_waytype())) {
-				const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
-				costs += weg_besch->get_preis();
-			}
+		if (besch->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(besch->get_waytype())) {
+			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
+			costs += weg_besch->get_preis();
 		}
 	}
 	// eventually we have to remove trees on end tile
