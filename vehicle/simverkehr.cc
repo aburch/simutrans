@@ -359,7 +359,7 @@ void stadtauto_t::built_timeline_liste(karte_t *welt)
 //DBG_DEBUG("stadtauto_t::built_timeline_liste()","year=%i, month=%i", month_now/12, month_now%12+1);
 
 		// check for every citycar, if still ok ...
-		stringhashtable_iterator_tpl<const stadtauto_besch_t *>iter(table);
+		stringhashtable_iterator_tpl<const stadtauto_besch_t *> iter(table);
 		while(   iter.next()  ) {
 			const stadtauto_besch_t* info = iter.get_current_value();
 			const int intro_month = info->get_intro_year_month();
@@ -775,7 +775,7 @@ bool stadtauto_t::hop_check()
 						return true;
 					}
 					else {
-						pos_next_next == koord3d::invalid;
+						pos_next_next = koord3d::invalid;
 					}
 #endif
 				}
@@ -883,9 +883,7 @@ void stadtauto_t::calc_current_speed()
 
 void stadtauto_t::info(cbuffer_t & buf) const
 {
-	char str[256];
-	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), current_speed, besch->get_geschw(), dx, dy );
-	buf.append(str);
+	buf.printf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), speed_to_kmh(current_speed), speed_to_kmh(besch->get_geschw()), dx, dy );
 }
 
 
