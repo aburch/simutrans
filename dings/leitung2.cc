@@ -621,12 +621,15 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 
 senke_t::~senke_t()
 {
-	if(fab!=NULL) {
-		fab->set_prodfaktor( 16 );
-		fab->set_transformer_connected( false );
+	if(fab || city)
+	{
 		senke_list.remove( this );
 		welt->sync_remove( this );
-		fab = NULL;
+		if(fab)
+		{
+			fab->set_prodfaktor( 16 );
+			fab->set_transformer_connected( false );
+		}
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
 }
