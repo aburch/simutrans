@@ -33,6 +33,9 @@ template<class T> inline void swap(T& a, T& b)
 	b = t;
 }
 
+// XXX Workaround for GCC 2.95
+template<typename T> static inline T up_cast(T x) { return x; }
+
 }
 #endif
 
