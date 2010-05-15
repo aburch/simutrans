@@ -477,7 +477,7 @@ int simu_main(int argc, char** argv)
 #ifdef DEBUG
 	const char xml_filename[32] = "settings-experimental-debug.xml";
 #else
-	const char xml_filename[25] = "settings-experimental.xml";
+	const char xml_filename[26] = "settings-experimental.xml";
 #endif
 	bool xml_settings_found = file.rd_open(xml_filename);
 	if(!xml_settings_found)
