@@ -220,17 +220,19 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 fabrik_t::~fabrik_t()
 {
-	for(uint32 i=0; i<fields.get_count(); i++) {
-		planquadrat_t *plan = welt->access( fields[i].location );
+	while(!fields.empty()) {
+		planquadrat_t *plan = welt->access( fields.back().location );
 		// if destructor is called when world is destroyed, plan is already invalid
 		if (plan) {
 			grund_t *gr = plan->get_kartenboden();
 			if (field_t* f = gr->find<field_t>()) {
-				delete f;
+				delete f; // implicitly removes the field from fields
 				plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
 				plan->get_kartenboden()->calc_bild();
+				continue;
 			}
 		}
+		fields.remove_at(fields.get_count()-1);
 	}
 }
 
