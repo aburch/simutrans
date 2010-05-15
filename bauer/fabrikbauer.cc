@@ -395,8 +395,7 @@ public:
 };
 
 /**
- * baue fabrik nach Angaben in info
- * "build the factory, according to info" (Google)
+ * Build factory according to instructions in 'info'
  * @author Hj.Malthaner
  */
 fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d pos, spieler_t* spieler)
@@ -513,8 +512,8 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
 
 
 /**
- * vorbedingung: pos ist für fabrikbau geeignet
- * "precondition: pos is suited for factory construction" (Google)
+ * Build a full chain of factories
+ * Precondition before calling this function: pos is suitable for factory construction
  */
 int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains)
 {
@@ -552,46 +551,35 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 
 		// built consumer (factory) intown
 		sf.stadt = welt->suche_naechste_stadt(k);
-
-		//
-		// Drei Varianten:
-		// A:
-		// Ein Bauplatz, möglichst nah am Rathaus mit einer Strasse daneben.
-		// Das könnte ein Zeitproblem geben, wenn eine Stadt keine solchen Bauplatz
-		// hat und die Suche bis zur nächsten Stadt weiterläuft
-		// Ansonsten erscheint mir das am realistischtsten..
-
 		/* Three variants:
 		 * A:
 		 * A building site, preferably close to the town hall with a street next to it.
-		 * This could be a temporary problem, if a city has no such site and the search until 
-		 * the next city continues Otherwise seems to me the most realistic Google)*/
-
+		 * This could be a temporary problem, if a city has no such site and the search
+		 * continues to the next city.
+		 * Otherwise seems to me the most realistic.
+		 */
 		bool	is_rotate=info->get_haus()->get_all_layouts()>1;
 		k = factory_bauplatz_mit_strasse_sucher_t(welt).suche_platz(sf.stadt->get_pos(), size.x, size.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
 		rotate = is_rotate?1:0;
 
 		INT_CHECK( "fabrikbauer 588" );
 
-		// B:
-		// Gefällt mir auch. Die Endfabriken stehen eventuell etwas außerhalb der Stadt
-		// aber nicht weit weg.
+		/* B:
+		 * Also good.  The final factories stand possibly somewhat outside of the city however not far away.
+		 * (does not obey climates though!)
+		 */
+#if 0
+		k = finde_zufallsbauplatz(welt, welt->lookup(sf.stadt->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
+#endif /* 0 */
 
-		// Pleases me also. The final factories stand possibly somewhat outside of the city however not far away. (Babelfish)
-		// (does not obey climates though!)
-
-		// k = finde_zufallsbauplatz(welt, welt->lookup(sf.stadt->get_pos())->get_boden()->get_pos(), 3, land_bau.dim).get_2d();
-
-		// C:
-		// Ein Bauplatz, möglichst nah am Rathaus.
-		// Wenn mehrere Endfabriken bei einer Stadt landen, sind die oft hinter
-		// einer Reihe Häuser "versteckt", von Strassen abgeschnitten.
-
-		// A building site, as near as possible at the city hall. 
-		// If several final factories land with a city, often behind
-		// a row the houses are hidden, of roads cut off.(Babelfish)
-
-		//k = bauplatz_sucher_t(welt).suche_platz(sf.stadt->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
+		/* C:
+		 * A building site, as near as possible to the city hall.
+		 *  If several final factories land in one city, they are often
+		 * often hidden behind a row of houses, cut off from roads.
+		 */
+#if 0
+		k = bauplatz_sucher_t(welt).suche_platz(sf.stadt->get_pos(), land_bau.dim.x, land_bau.dim.y, info->get_haus()->get_allowed_climate_bits(), &is_rotate);
+#endif /* 0 */
 
 		if(k != koord::invalid) {
 			*pos = welt->lookup(k)->get_kartenboden()->get_pos();
@@ -601,7 +589,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 		}
 	}
 
-DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
+	DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","Construction of %s at (%i,%i).",info->get_name(),pos->x,pos->y);
 	INT_CHECK("fabrikbauer 594");
 
 	const fabrik_t *our_fab=baue_fabrik(welt, parent, info, rotate, *pos, sp);
