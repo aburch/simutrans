@@ -47,7 +47,7 @@ tunnelboden_t::calc_bild_internal()
 				boden_t::calc_bild_internal();
 			}
 			// default tunnel ground images
-			set_bild(skinverwaltung_t::fussweg->get_bild_nr(0));
+			set_bild(skinverwaltung_t::tunnel_texture->get_bild_nr(0));
 			clear_flag(draw_as_ding);
 		}
 		else {
@@ -70,7 +70,7 @@ tunnelboden_t::calc_bild_internal()
 		clear_back_bild();
 		if (is_visible()) {
 			// default tunnel ground images
-			set_bild(skinverwaltung_t::fussweg->get_bild_nr(get_disp_slope()));
+			set_bild(skinverwaltung_t::tunnel_texture->get_bild_nr(get_disp_slope()));
 		}
 		else {
 			set_bild(IMG_LEER);

@@ -67,6 +67,7 @@ public:
 	static const skin_besch_t *fussweg;
 	static const skin_besch_t *pumpe;	// since those are no buildings => change to buildings soon
 	static const skin_besch_t *senke;
+	static const skin_besch_t *tunnel_texture;
 
 	static slist_tpl<const skin_besch_t *>extra_obj;
 
