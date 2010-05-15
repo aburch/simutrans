@@ -2941,6 +2941,8 @@ void karte_t::neuer_monat()
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
 	sint16 number_of_factories = fab_list.get_count();
 	fabrik_t * fab;
+	uint32 total_electric_demand = 1;
+	uint32 electric_productivity = 0;
 	for(sint16 i = number_of_factories - 1; i >= 0; i--)
 	{
 		fab = fab_list[i];
@@ -2949,6 +2951,14 @@ void karte_t::neuer_monat()
 		// so must adjust i to prevent out of bounds errors.
 		sint16 difference = number_of_factories - fab_list.get_count();
 		i -= difference;
+		if(fab->get_besch()->is_electricity_producer()) 
+		{
+			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
+		}
+		else 
+		{
+			total_electric_demand += fab->get_base_production() * fab->get_besch()->get_electricity_proportion();
+		}
 	}
 
 	// Check to see whether more factories need to be added
@@ -2985,8 +2995,15 @@ void karte_t::neuer_monat()
 		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
+		total_electric_demand += (*i)->get_power_demand();
 	}
 	swap(stadt, new_weighted_stadt);
+
+	if(((electric_productivity*4000l)/total_electric_demand) > get_einstellungen()->get_electric_promille())
+	{
+		// Add industries if there is a shortage of electricity - power stations will be built.
+		fabrikbauer_t::increase_industry_density(this, true, true);
+	}
 
 	INT_CHECK("simworld 1282");
 

@@ -960,7 +960,7 @@ next_ware_check:
 		fabrik_t * fab = welt->get_fab_list()[i];
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
-			electric_productivity += fab->get_base_production();
+			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
 		}
 		else 
 		{
@@ -976,7 +976,7 @@ next_ware_check:
 	}
 
 	// now decide producer of electricity or normal ...
-	sint32 promille = (electric_productivity*4000l)/total_electric_demand;
+	const sint32 promille = (electric_productivity*4000l)/total_electric_demand;
 	int no_electric = promille > welt->get_einstellungen()->get_electric_promille();
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
