@@ -86,8 +86,7 @@ obj_besch_t * way_obj_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	besch->set_way_constraints(way_constraints);
 
   DBG_DEBUG("way_obj_reader_t::read_node()",
-	     "version=%d price=%d maintenance=%d topspeed=%d max_weight=%d "
-	     "wtype=%d styp=%d intro_year=%i",
+	     "version=%d price=%d maintenance=%d topspeed=%d wtype=%d styp=%d intro_year=%i",
 	     version,
 	     besch->price,
 	     besch->maintenance,
