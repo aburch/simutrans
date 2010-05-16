@@ -933,7 +933,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 	 */
 
 	// strings for intown / outside of town
-	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s", 0 );
+	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s", lang);
 
 	// finally: is there a stop with this name already?
 	for(  uint32 i=1;  i<65536;  i++  ) {
