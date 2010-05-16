@@ -424,6 +424,18 @@ bool wayobj_t::alles_geladen()
 	if(table.empty()) {
 		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
 	}
+
+	way_obj_besch_t const* def = 0;
+	stringhashtable_iterator_tpl<way_obj_besch_t const*> i(table);
+	while (i.next()) {
+		way_obj_besch_t const& b = *i.get_current_value();
+		if (b.get_own_wtyp() != overheadlines_wt)           continue;
+		if (b.get_wtyp()     != track_wt)                   continue;
+		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
+		def = &b;
+	}
+	default_oberleitung = def;
+
 	return true;
 }
 
@@ -454,10 +466,6 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 	}
 
 	table.put(besch->get_name(), besch);
-	if(besch->get_own_wtyp()==overheadlines_wt  &&  besch->get_wtyp()==track_wt  &&
-		(default_oberleitung==NULL  ||  default_oberleitung->get_topspeed()<besch->get_topspeed())) {
-		default_oberleitung = besch;
-	}
 DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
 	return true;
 }
