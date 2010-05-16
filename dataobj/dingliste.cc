@@ -876,8 +876,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					d = depot;
 					typ = d->get_typ();
 
-					// BG, 07.076.2009: has been done in creator: spieler_t::add_maintenance( d->get_besitzer(), welt->get_einstellungen()->maint_building);
-
 					delete gb;
 				}
 				break;
