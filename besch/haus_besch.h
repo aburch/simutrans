@@ -339,11 +339,11 @@ public:
 
 	sint32 get_station_maintenance() const { return scaled_station_maintenance; }
 
-	sint32 get_base_staiton_maintenance() const { return  station_maintenance; }
+	sint32 get_base_station_maintenance() const { return  station_maintenance; }
 
 	sint32 get_station_price() const { return scaled_station_price; }
 
-	sint32 get_base_staiton_price() const { return  station_price; }
+	sint32 get_base_station_price() const { return  station_price; }
 
 	uint16 get_station_capacity() const { return station_capacity; }
 	

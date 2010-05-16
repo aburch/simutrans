@@ -2760,7 +2760,7 @@ sint64 haltestelle_t::calc_maintenance()
 		if(gb) 
 		{
 			const haus_besch_t* besch = gb->get_tile()->get_besch();
-			if(besch->get_base_staiton_maintenance() == 2147483647)
+			if(besch->get_base_station_maintenance() == 2147483647)
 			{
 				// Default value - no specific maintenance set. Use the old method
 				maintenance += welt->get_einstellungen()->maint_building * besch->get_level();
@@ -2794,7 +2794,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				const haus_besch_t* besch = gb->get_tile()->get_besch();
 				sint32 costs;
-				if(besch->get_base_staiton_maintenance() == 2147483647)
+				if(besch->get_base_station_maintenance() == 2147483647)
 				{
 					// Default value - no specific maintenance set. Use the old method
 					costs = welt->get_einstellungen()->maint_building * besch->get_level();
@@ -2850,7 +2850,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					spieler_t *gb_sp=gb->get_besitzer();
 					sint32 costs;
 
-					if(gb->get_tile()->get_besch()->get_base_staiton_maintenance() == 2147483647)
+					if(gb->get_tile()->get_besch()->get_base_station_maintenance() == 2147483647)
 					{
 						// Default value - no specific maintenance set. Use the old method
 						costs = welt->get_einstellungen()->maint_building * gb->get_tile()->get_besch()->get_level();
