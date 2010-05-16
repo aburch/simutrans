@@ -15,7 +15,6 @@ class stringhash_t {
 public:
 	static uint32 hash(const char *key)
 	{
-		// a little longer but much better in balancing (since many words start with same two letters)
 		uint32 hash = 0;
 		for(  sint8 i=16;  i*key[0]!=0;  i--  ) {
 			hash += (uint8)(*key++);
@@ -73,8 +72,7 @@ public:
 
 
 /*
- * Ready to use class for hashing strings. Hashkey is calculated from first and
- * second char.
+ * Ready to use class for hashing strings.
  */
 template <class value_t>
 class stringhashtable_tpl : public hashtable_tpl<const char *, value_t, stringhash_t>
