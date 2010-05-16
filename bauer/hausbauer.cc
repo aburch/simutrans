@@ -268,10 +268,10 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
 		// first remove fabrik_t pointers
-		grund_t *gr = NULL;
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
-				gr = welt->lookup(koord3d(k,0)+pos);
+				const grund_t const *gr = welt->lookup(koord3d(k,0)+pos);
+				assert(gr);
 				// for buildings with holes the hole could be on a different height ->gr==NULL
 				if (gr) {
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();

@@ -684,25 +684,19 @@ ding_t *dingliste_t::suche(ding_t::typ typ,uint8 start) const
 
 ding_t *dingliste_t::get_leitung() const
 {
-	if(capacity==0) 
-	{
+	if(capacity==0) {
 		return NULL;
 	}
-	else if(capacity==1) 
-	{
-		if(obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke) 
-		{
+	else if(capacity==1) {
+		if(obj.one->get_typ()>=ding_t::leitung  &&  obj.one->get_typ()<=ding_t::senke) {
 			return obj.one;
 		}
 	}
-	else if(top>0) 
-	{
+	else if(top>0) {
 		// else we have to search the list
-		for(uint8 i=0; i<top; i++) 
-		{
+		for(uint8 i=0; i<top; i++) {
 			uint8 typ = obj.some[i]->get_typ();
-			if(typ>=ding_t::leitung  &&  typ<=ding_t::senke) 
-			{
+			if(typ>=ding_t::leitung  &&  typ<=ding_t::senke) {
 				return obj.some[i];
 			}
 		}
@@ -856,24 +850,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 					// do not remove from this position, since there will be nothing
 					gb->set_flag(ding_t::not_on_map);
-/*
-					if(gb->get_tile()->get_besch()->get_extra()==monorail_wt) {
-						monoraildepot_t* const md = new monoraildepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						md->rdwr_vehicles(file);
-						d = md;
-					}
-					else if(gb->get_tile()->get_besch()->get_extra()==tram_wt) {
-						tramdepot_t* const td = new tramdepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						td->rdwr_vehicles(file);
-						d = td;
-					}
-					else {
-						bahndepot_t* const bd = new bahndepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						bd->rdwr_vehicles(file);
-						d = bd;
-					}
-					d->set_besitzer( gb->get_besitzer() );
-*/
+
 					bahndepot_t *depot;
 					switch (gb->get_tile()->get_besch()->get_extra())
 					{
@@ -898,8 +875,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					depot->rdwr_vehicles(file);
 					d = depot;
 					typ = d->get_typ();
-
-					// BG, 07.076.2009: has been done in creator: spieler_t::add_maintenance( d->get_besitzer(), welt->get_einstellungen()->maint_building);
 
 					delete gb;
 				}
