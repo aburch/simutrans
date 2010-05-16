@@ -144,10 +144,18 @@ obj_besch_t *image_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		adler = adler32(adler, (const Bytef *)(besch->pic.data), besch->pic.len*2 );
 		static inthashtable_tpl<uint32, bild_besch_t *> images_adlers;
 		bild_besch_t *same = images_adlers.get(adler);
-		if(  same  &&  same->pic.len==besch->pic.len  ) {
+		if (same) {
 			// same checksum => if same then skip!
-			besch->pic.bild_nr = same->pic.bild_nr;
-			do_register_image = memcmp( besch->get_pic(), same->get_pic(), sizeof(bild_t)+(besch->pic.len*2) )!=0;
+			bild_t const& a = *besch->get_pic();
+			bild_t const& b = *same->get_pic();
+			do_register_image =
+				a.x        != b.x        ||
+				a.y        != b.y        ||
+				a.w        != b.w        ||
+				a.h        != b.h        ||
+				a.zoomable != b.zoomable ||
+				a.len      != b.len      ||
+				memcmp(a.data, b.data, sizeof(*a.data) * a.len) != 0;
 		}
 		// unique image here
 		if(  do_register_image  ) {
