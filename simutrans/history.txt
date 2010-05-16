@@ -53,6 +53,7 @@
 	ADD: winter image and timeline for crossings: winter images of [image][0] are [image][1]
 	ADD: powerline stabilisation pak which enforces a single transformer next to factories/power stations
 	ADD: enable to use more than one powerline object
+	ADD: texture for tunnel grounds (Obj=misc, Name=TunnelTexture, Image with numbers 0,3,6,9)
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
 	FIX: connecting upslope to upper way works in sliced mode (r2949)

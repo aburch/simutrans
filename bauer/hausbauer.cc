@@ -268,23 +268,19 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
 		// first remove fabrik_t pointers
-		grund_t *gr = NULL;
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
-				gr = welt->lookup(koord3d(k,0)+pos);
+				grund_t *gr = welt->lookup(koord3d(k,0)+pos);
 				assert(gr);
-				if(gr != NULL)
-				{
+				// for buildings with holes the hole could be on a different height ->gr==NULL
+				if (gr) {
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
-					if(gb_part) 
-					{
+					if(gb_part) {
 						// there may be buildings with holes, so we only remove our or the hole!
-						if(gb_part->get_tile()->get_besch()==hb) 
-						{
+						if(gb_part->get_tile()->get_besch()==hb) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) 
-							{
+							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) {
 								halthandle_t halt = plan->get_haltlist()[i];
 								halt->remove_fabriken( fab );
 								plan->remove_from_haltlist( welt, halt );

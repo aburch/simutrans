@@ -287,17 +287,17 @@ void fabrik_t::delete_all_fields()
 	while(!fields.empty()) 
 	{
 		planquadrat_t *plan = welt->access( fields.back().location );
-		assert(plan);
-		if(!plan)
-		{
-			break;
+		// if destructor is called when world is destroyed, plan is already invalid
+		if (plan) {
+			grund_t *gr = plan->get_kartenboden();
+			if (field_t* f = gr->find<field_t>()) {
+				delete f; // implicitly removes the field from fields
+				plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
+				plan->get_kartenboden()->calc_bild();
+				continue;
+			}
 		}
-		grund_t *gr = plan->get_kartenboden();
-		field_t* f = plan->get_kartenboden()->find<field_t>();
-		assert(f);
-		delete f;
-		plan->boden_ersetzen( gr, new boden_t( welt, gr->get_pos(), hang_t::flach ) );
-		plan->get_kartenboden()->calc_bild();
+		fields.remove_at(fields.get_count()-1);
 	}
 }
 
