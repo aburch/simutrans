@@ -1476,7 +1476,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 	koord k;
 	for(k.y = 0; k.y < size.y; k.y ++) {
 		for(k.x = 0; k.x < size.x; k.x ++) {
-			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+			const grund_t *gr = welt->lookup(koord3d(k,0)+pos);
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes

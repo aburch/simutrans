@@ -95,6 +95,7 @@
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/vehikelbauer.h"
+#include "bauer/hausbauer.h"
 
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
@@ -1726,13 +1727,9 @@ void karte_t::set_scale()
 
 	// Stations
 
-	slist_iterator_tpl <halthandle_t> halt_pre_iter (haltestelle_t::get_alle_haltestellen());
-	while( halt_pre_iter.next() ) 
+	ITERATE(hausbauer_t::modifiable_station_buildings, n)
 	{
-		koord3d t = halt_pre_iter.get_current()->get_basis_pos3d();
-		grund_t *gr = lookup(t);
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		gb->get_tile()->get_modifiable_besch()->set_scale(scale_factor); 
+		hausbauer_t::modifiable_station_buildings[n]->set_scale(scale_factor); 
 	}
 
 	// Goods
@@ -2953,7 +2950,7 @@ void karte_t::neuer_monat()
 		i -= difference;
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
-			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
+			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T;
 		}
 		else 
 		{
