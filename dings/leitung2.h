@@ -195,6 +195,8 @@ public:
 	void laden_abschliessen();
 
 	void calc_bild() {}	// otherwise it will change to leitung
+
+	uint32 get_power_load() const;
 };
 
 

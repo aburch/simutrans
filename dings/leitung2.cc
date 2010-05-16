@@ -686,6 +686,7 @@ void senke_t::step(long delta_t)
 	uint32 shared_power_demand = power_demand;
 	double load_proportion = 1.0;
 
+	bool supply_max = false;
 	if(city)
 	{
 		// Check to see whether there are any *other* substations in the city that supply it with electricity,
@@ -700,13 +701,17 @@ void senke_t::step(long delta_t)
 			// Must use two passes here: first, check all those that don't have enough to supply 
 			// an equal share, then check those that do.
 
-			supply = city_substations->get_element(i)->get_net()->get_supply();
+			supply = city_substations->get_element(i)->get_power_load();
 
 			if(supply < (shared_power_demand / (city_substations_number - checked_substations.get_count())))
 			{
 				if(city_substations->get_element(i) != this)
 				{
 					shared_power_demand -= supply;
+				}
+				else
+				{
+					supply_max = true;
 				}
 				checked_substations.append(city_substations->get_element(i));
 			}
@@ -724,7 +729,7 @@ void senke_t::step(long delta_t)
 				continue;
 			}
 
-			supply = city_substations->get_element(n)->get_net()->get_supply();
+			supply = city_substations->get_element(n)->get_power_load();
 			demand_distribution = shared_power_demand / (city_substations_number - count);
 			if(supply < demand_distribution)
 			{
@@ -741,24 +746,20 @@ void senke_t::step(long delta_t)
 		}
 	}
 
+	if(supply_max)
+	{
+		shared_power_demand = get_power_load() ? get_power_load() : get_net()->get_supply();
+	}
+
 	// Add only this substation's share of the power. 
 	get_net()->add_demand(shared_power_demand);
+	
 	if(city && city->get_substations()->get_count() > 1)
 	{
 		load_proportion = (double)shared_power_demand / (double)power_demand;
 	}
 
-	/* Next work out the load and how much this sink gets out of the net. */
-	uint32 net_demand = get_net()->get_demand();
-	if(  net_demand > 0  ) {
-		power_load = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity
-		if(  power_load > last_power_demand  ) {
-			power_load = last_power_demand;
-		}
-	}
-	else {
-		power_load = 0;
-	}
+	power_load = get_power_load();
 
 	/* Now actually feed the power through to the factories and city */
 	if (fab != NULL) {
@@ -821,7 +822,24 @@ void senke_t::step(long delta_t)
 	last_power_demand = shared_power_demand;
 }
 
-
+uint32 senke_t::get_power_load() const
+{
+	uint32 pl = power_load;
+	uint32 net_demand = get_net()->get_demand();
+	if(  net_demand > 0  ) 
+	{
+		pl = (last_power_demand * ((get_net()->get_supply() << 5) / net_demand)) >>5 ; //  <<5 for max calculation precision fitting within uint32 with max supply capped in dataobj/powernet.cc max_capacity
+		if(  pl > last_power_demand  ) 
+		{
+			pl = last_power_demand;
+		}
+	}
+	else 
+	{
+		pl = 0;
+	}
+	return pl;
+}
 
 bool senke_t::sync_step(long delta_t)
 {
