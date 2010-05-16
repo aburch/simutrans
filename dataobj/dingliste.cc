@@ -850,24 +850,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 
 					// do not remove from this position, since there will be nothing
 					gb->set_flag(ding_t::not_on_map);
-/*
-					if(gb->get_tile()->get_besch()->get_extra()==monorail_wt) {
-						monoraildepot_t* const md = new monoraildepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						md->rdwr_vehicles(file);
-						d = md;
-					}
-					else if(gb->get_tile()->get_besch()->get_extra()==tram_wt) {
-						tramdepot_t* const td = new tramdepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						td->rdwr_vehicles(file);
-						d = td;
-					}
-					else {
-						bahndepot_t* const bd = new bahndepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						bd->rdwr_vehicles(file);
-						d = bd;
-					}
-					d->set_besitzer( gb->get_besitzer() );
-*/
+
 					bahndepot_t *depot;
 					switch (gb->get_tile()->get_besch()->get_extra())
 					{
