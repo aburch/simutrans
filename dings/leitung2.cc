@@ -31,7 +31,6 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
 
-
 #define PROD 1000
 
 /*
@@ -402,6 +401,10 @@ void leitung_t::rdwr(loadsave_t *file)
 			koord city_pos = koord::invalid;
 			city_pos.rdwr(file);
 			city = welt->get_city(city_pos);
+			if(city)
+			{
+				city->add_substation((senke_t*)this);
+			}
 		}
 	}
 	if(get_typ()==leitung) 
@@ -610,6 +613,10 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 	einkommen = 0;
 	max_einkommen = 1;
 	city = c;
+	if(city)
+	{
+		city->add_substation(this);
+	}
 	next_t = 0;
 	delta_sum = 0;
 	last_power_demand = 0;
@@ -629,6 +636,10 @@ senke_t::~senke_t()
 		{
 			fab->set_prodfaktor( 16 );
 			fab->set_transformer_connected( false );
+		}
+		if(city)
+		{
+			city->remove_substation(this);
 		}
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
@@ -670,8 +681,72 @@ void senke_t::step(long delta_t)
 		// Add the demand for the population
 		municipal_power_demand += city->get_power_demand();
 	}
+
 	power_demand = fab_power_demand + municipal_power_demand;
-	get_net()->add_demand(power_demand);
+	uint32 shared_power_demand = power_demand;
+	double load_proportion = 1.0;
+
+	if(city)
+	{
+		// Check to see whether there are any *other* substations in the city that supply it with electricity,
+		// and divide the demand between them.
+		vector_tpl<senke_t*>* city_substations = city->get_substations();
+		uint16 city_substations_number = city_substations->get_count();
+
+		uint32 supply;
+		vector_tpl<senke_t*> checked_substations;
+		ITERATE_PTR(city_substations, i)
+		{
+			// Must use two passes here: first, check all those that don't have enough to supply 
+			// an equal share, then check those that do.
+
+			supply = city_substations->get_element(i)->get_net()->get_supply();
+
+			if(supply < (shared_power_demand / (city_substations_number - checked_substations.get_count())))
+			{
+				if(city_substations->get_element(i) != this)
+				{
+					shared_power_demand -= supply;
+				}
+				checked_substations.append(city_substations->get_element(i));
+			}
+		}
+		city_substations_number -= checked_substations.get_count();
+
+		uint32 demand_distribution;
+		uint8 count = 0;
+		for(sint16 n = 0; n < city_substations->get_count(); n ++)
+		{
+			// Now check those that have more than enough power.
+
+			if(city_substations->get_element(n) == this || checked_substations.is_contained(city_substations->get_element(n)))
+			{
+				continue;
+			}
+
+			supply = city_substations->get_element(n)->get_net()->get_supply();
+			demand_distribution = shared_power_demand / (city_substations_number - count);
+			if(supply < demand_distribution)
+			{
+				// Just in case the lack of power of the others means that this
+				// one does not have enough power.
+				shared_power_demand -= supply;
+				count ++;
+			}
+			else
+			{
+				shared_power_demand -= demand_distribution;
+				count ++;
+			}
+		}
+	}
+
+	// Add only this substation's share of the power. 
+	get_net()->add_demand(shared_power_demand);
+	if(city && city->get_substations()->get_count() > 1)
+	{
+		load_proportion = (double)shared_power_demand / (double)power_demand;
+	}
 
 	/* Next work out the load and how much this sink gets out of the net. */
 	uint32 net_demand = get_net()->get_demand();
@@ -712,8 +787,8 @@ void senke_t::step(long delta_t)
 		ITERATE(city_factories, i)
 		{
 			if (city_factories[i] != fab) { //don't produce twice for the factory supplied above
-				uint32 current_factory_demand = city_factories[i]->get_power_demand();
-				uint32 current_factory_load = (
+				const uint32 current_factory_demand = city_factories[i]->get_power_demand() * load_proportion;
+				const uint32 current_factory_load = (
 						current_factory_demand
 						* (municipal_power_load << 5)
 						/ municipal_power_demand
@@ -728,13 +803,12 @@ void senke_t::step(long delta_t)
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories
-		city->add_power(municipal_power_load>>POWER_TO_MW);
-		city->add_power_demand(municipal_power_demand>>POWER_TO_MW);
+		city->add_power((municipal_power_load>>POWER_TO_MW) * load_proportion);
+		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion));
 	}
-
 	// Income
 	max_einkommen += last_power_demand;
-	einkommen += power_load;
+	einkommen += (power_load * load_proportion);
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
@@ -744,7 +818,7 @@ void senke_t::step(long delta_t)
 		max_einkommen = 1;
 	}
 
-	last_power_demand = power_demand;
+	last_power_demand = shared_power_demand;
 }
 
 
@@ -836,4 +910,9 @@ void senke_t::info(cbuffer_t & buf) const
 	buf.append(translator::translate("\nSupplied: "));
 	buf.append((100*power_load)/(last_power_demand>0?last_power_demand:1));
 	buf.append("%");
+	if(city)
+	{
+		buf.append(translator::translate("\nCity: "));
+		buf.append(city->get_name());
+	}
 }

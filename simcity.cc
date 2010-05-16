@@ -1127,7 +1127,7 @@ stadt_t::~stadt_t()
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
 
-	// olny if there is still a world left to delete from
+	// only if there is still a world left to delete from
 	if(welt->get_groesse_x()>1) 
 	{
 
@@ -1154,6 +1154,11 @@ stadt_t::~stadt_t()
 				gb->set_stadt( NULL );
 				hausbauer_t::remove(welt,welt->get_spieler(1),gb);
 			}
+		}
+		// Remove substations
+		ITERATE(substations, i)
+		{
+			substations[i]->city = NULL;
 		}
 	}
 	free( (void *)name );
@@ -4233,6 +4238,16 @@ uint32 stadt_t::get_power_demand() const
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
 	return (city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen;
+}
+
+void stadt_t::add_substation(senke_t* substation)
+{ 
+	substations.append(substation); 
+}
+
+void stadt_t::remove_substation(senke_t* substation)
+{ 
+	substations.remove(substation); 
 }
 
 bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
