@@ -1277,19 +1277,24 @@ next_name:;
 
 void stadt_t::calc_internal_passengers()
 {
-	const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
+	//const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
+	const uint32 capital_threshold = welt->get_einstellungen()->get_capital_threshold_size();
+	const uint32 city_threshold = welt->get_einstellungen()->get_city_threshold_size();
 	float internal_passenger_multiplier;
-	if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
+	//if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
+	if(city_history_month[0][HIST_CITICENS] >= capital_threshold)
 	{
 		internal_passenger_multiplier = 0.85F;
 	}
-	else if((city_history_month[0][HIST_CITICENS] <= median_town_size >> 1))
+	//else if(city_history_month[0][HIST_CITICENS] <= median_town_size >> 1)
+	else if(city_history_month[0][HIST_CITICENS] <= city_threshold)
 	{
 		internal_passenger_multiplier = 0.33F;
 	}
 	else
 	{
-		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
+		//float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
+		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)city_threshold) / (float)capital_threshold;
 		internal_passenger_multiplier = (proportion * 0.52F) + 0.33F;
 	}
 
@@ -2454,7 +2459,6 @@ void stadt_t::step_passagiere()
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
 			{				
-				//if(pax_routed < (number_packets / 3))
 				if(range == local)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
@@ -2468,7 +2472,6 @@ void stadt_t::step_passagiere()
 						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
 					}
 				}
-				//else if(pax_routed < ((number_packets / 3) * 2))
 				else if(range == midrange)
 				{
 					//Medium
