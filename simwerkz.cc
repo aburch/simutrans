@@ -3774,10 +3774,16 @@ const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
 	return NULL;
 }
 
-bool wkz_headquarter_t::init( karte_t *, spieler_t *sp )
+bool wkz_headquarter_t::init( karte_t *welt, spieler_t *sp )
 {
 	// do no use this, if there is no next level to built ...
-	return next_level(sp)!=NULL;
+	const haus_besch_t *besch = next_level(sp);
+	if (besch) {
+		const int rotation = 0;
+		welt->get_zeiger()->set_area( besch->get_groesse(rotation), false );
+		return true;
+	}
+	return false;
 }
 
 
@@ -3812,6 +3818,8 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			gebaeude_t *prev_hq = gr->find<gebaeude_t>();
 			sp->add_headquarter( prev_hq->get_tile()->get_besch()->get_extra(), koord::invalid );
 			hausbauer_t::remove( welt, sp, prev_hq );
+			// resize cursor
+			init(welt, sp);
 		}
 
 		int rotate = 0;
@@ -3834,7 +3842,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			// sometime those are not correct after rotation ...
 			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
-			if(sp == welt->get_active_player()) {
+			if(is_local_execution()  &&  sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}
 			return NULL;
