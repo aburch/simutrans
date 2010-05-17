@@ -436,7 +436,7 @@ bool wayobj_t::alles_geladen()
 	}
 
 	way_obj_besch_t const* def = 0;
-	stringhashtable_iterator_tpl<way_obj_besch_t const*> i(table);
+	stringhashtable_iterator_tpl<way_obj_besch_t*> i(table);
 	while (i.next()) {
 		way_obj_besch_t const& b = *i.get_current_value();
 		if (b.get_own_wtyp() != overheadlines_wt)           continue;
