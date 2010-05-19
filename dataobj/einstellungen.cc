@@ -668,7 +668,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 				city_roads[num_city_roads].intro = 0;
 				city_roads[num_city_roads].retire = 0;
 				if(  *p==','  ) {
-					*p++;
+					++p;
 					city_roads[num_city_roads].intro = atoi(p)*12;
 					while(*p  &&  *p!=','  ) {
 						p++;
@@ -711,7 +711,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 				intercity_roads[num_intercity_roads].intro = 0;
 				intercity_roads[num_intercity_roads].retire = 0;
 				if(  *p==','  ) {
-					*p++;
+					++p;
 					intercity_roads[num_intercity_roads].intro = atoi(p)*12;
 					while(*p  &&  *p!=','  ) {
 						p++;
