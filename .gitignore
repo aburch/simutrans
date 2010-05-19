@@ -1,0 +1,12 @@
+*.d
+*.ncb
+*.o
+*.suo
+*.vcproj.*
+/Debug
+/Release
+/config.*
+/makeobj/makeobj
+/makeobj/makeobj.exe
+/sim
+/sim.exe
