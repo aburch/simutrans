@@ -281,8 +281,7 @@ void haltestelle_t::destroy(halthandle_t &halt)
 {
 	// jsut play save: restart iterator at zero ...
 	halt_iterator_start = 0;
-	haltestelle_t *p = halt.get_rep();
-	delete p;
+	delete halt.get_rep();
 }
 
 

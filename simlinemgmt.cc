@@ -94,8 +94,7 @@ void simlinemgmt_t::delete_line(linehandle_t line)
 	if (line.is_bound()) {
 		all_managed_lines.remove(line);
 		//destroy line object
-		simline_t *line_ptr=line.get_rep();
-		delete line_ptr;
+		delete line.get_rep();
 	}
 }
 
