@@ -25,61 +25,62 @@ struct travel_details
 };
 
 
-/** hsiegeln
- *  @param td1, td2: pointer to travel_details
- *  @return sortorder of the two passed elements; used in qsort
+/**
+ *  @param td1p, td2p: pointer to travel_details
+ *  @return sort order of the two passed elements; used in qsort
  *  @author hsiegeln
  *  @date 2003-11-02
  */
-int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
+int freight_list_sorter_t::compare_ware(void const* const td1p, void const* const td2p)
 {
-	const travel_details * const td1p = (const travel_details*)td1;
-	const travel_details * const td2p = (const travel_details*)td2;
-
-	halthandle_t halt1 = td1p->destination;
-	halthandle_t halt2 = td2p->destination;
-	halthandle_t via_halt1 = td1p->via_destination;
-	halthandle_t via_halt2 = td2p->via_destination;
-
-	if(!halt1.is_bound()  ||  !via_halt1.is_bound()) {
-		return -1;
-	}
-
-	if( !halt2.is_bound()  ||    !via_halt2.is_bound() ) {
-		return -2;
-	}
-
-	const ware_t& ware1 = td1p->ware;
-	const ware_t& ware2 = td2p->ware;
+	travel_details const& td1 = *static_cast<travel_details const*>(td1p);
+	travel_details const& td2 = *static_cast<travel_details const*>(td2p);
 
 	// sort according to freight
-	int index = ware1.get_besch()->get_index()-ware2.get_besch()->get_index();
-	if(index!=0) {
-		return index;
+	int const idx = td1.ware.get_besch()->get_index() - td2.ware.get_besch()->get_index();
+	if (idx != 0) {
+		return idx;
 	}
 
-	int order;
 	switch (sortby) {
 		default:
-dbg->error("freight_list_sorter::compare_ware()","illegal sort mode!");
+			dbg->error("freight_list_sorter::compare_ware()", "illegal sort mode!");
 
 		case by_via_sum:
-		case by_amount: // sort by ware amount
-			order = ware2.menge - ware1.menge;
-			if (order != 0) break;
+		case by_amount: { // sort by ware amount
+			int const order = td2.ware.menge - td1.ware.menge;
+			if (order != 0) return order;
 			/* FALLTHROUGH */
+		}
 
-		case by_via: // sort by via_destination name
-			order = strcmp(via_halt1->get_name(), via_halt2->get_name());
-			if (order != 0) break;
+		case by_via: { // sort by via_destination name
+			halthandle_t const v1 = td1.via_destination;
+			halthandle_t const v2 = td2.via_destination;
+			if (v1.is_bound() && v2.is_bound()) {
+				int const order = strcmp(v1->get_name(), v2->get_name());
+				if (order != 0) return order;
+			} else if (v1.is_bound()) {
+				return 1;
+			} else if (v2.is_bound()) {
+				return -1;
+			}
 			/* FALLTHROUGH */
+		}
 
-		case by_name: // sort by destination name
-			order = strcmp(halt1->get_name(), halt2->get_name());
-			break;
+		case by_name: { // sort by destination name
+			halthandle_t const d1 = td1.destination;
+			halthandle_t const d2 = td2.destination;
+			if (d1.is_bound() && d2.is_bound()) {
+				return strcmp(d1->get_name(), d2->get_name());
+			} else if (d1.is_bound()) {
+				return 1;
+			} else if (d2.is_bound()) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
 	}
-
-	return order;
 }
 
 
