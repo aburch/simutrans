@@ -89,17 +89,14 @@ linehandle_t simlinemgmt_t::get_line_by_id(uint16 id)
 }
 
 
-bool simlinemgmt_t::delete_line(linehandle_t line)
+void simlinemgmt_t::delete_line(linehandle_t line)
 {
 	if (line.is_bound()) {
 		all_managed_lines.remove(line);
 		//destroy line object
 		simline_t *line_ptr=line.get_rep();
 		delete line_ptr;
-		return true;
 	}
-	return false;
-	//DBG_MESSAGE("simlinemgt_t::delete_line()", "line at index %d (%p) deleted", iroute, line);
 }
 
 
