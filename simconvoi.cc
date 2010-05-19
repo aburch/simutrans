@@ -2051,19 +2051,11 @@ void convoi_t::info(cbuffer_t & buf) const
 	if (v != NULL) {
 		char tmp[128];
 
-		sprintf(tmp, "\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost() / 100.0);
-		buf.append(tmp);
-
-		sprintf(tmp," %s: %ikW\n", translator::translate("Leistung"), sum_leistung );
-		buf.append(tmp);
-
-		sprintf(tmp," %s: %i (%i) t\n", translator::translate("Gewicht"), sum_gewicht, sum_gesamtgewicht-sum_gewicht );
-		buf.append(tmp);
-
-		sprintf(tmp," %s: ", translator::translate("Gewinn")  );
-		buf.append(tmp);
-
-		money_to_string( tmp, (double)jahresgewinn );
+		buf.printf("\n %d/%dkm/h (%1.2f$/km)\n", speed_to_kmh(min_top_speed), v->get_besch()->get_geschw(), get_running_cost() / 100.0);
+		buf.printf(" %s: %ikW\n", translator::translate("Leistung"), sum_leistung);
+		buf.printf(" %s: %i (%i) t\n", translator::translate("Gewicht"), sum_gewicht, sum_gesamtgewicht - sum_gewicht);
+		buf.printf(" %s: ", translator::translate("Gewinn"));
+		money_to_string(tmp, (double)jahresgewinn);
 		buf.append(tmp);
 		buf.append("\n");
 	}

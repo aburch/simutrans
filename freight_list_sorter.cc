@@ -225,9 +225,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 
 			if(via_halt != halt) {
-				char tmp [512];
-				sprintf(tmp, translator::translate("via %s\n"), via_name);
-				buf.append(tmp);
+				buf.printf(translator::translate("via %s\n"), via_name);
 			}
 			else {
 				buf.append("\n");

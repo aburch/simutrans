@@ -250,9 +250,7 @@ void weg_t::info(cbuffer_t & buf) const
 	}
 
 #if 1
-	char buffer[256];
-	sprintf(buffer,translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
-	buf.append(buffer);
+	buf.printf(translator::translate("convoi passed last\nmonth %i\n"), statistics[1][1]);
 #else
 	// Debug - output stats
 	buf.append("\n");

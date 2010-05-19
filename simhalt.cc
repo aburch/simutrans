@@ -1771,17 +1771,7 @@ haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
 
 void haltestelle_t::info(cbuffer_t & buf) const
 {
-	char tmp [512];
-
-	sprintf(tmp,
-		translator::translate("Passengers %d %c, %d %c, %d no route"),
-		pax_happy,
-		30,
-		pax_unhappy,
-		31,
-		pax_no_route
-		);
-	buf.append(tmp);
+	buf.printf(translator::translate("Passengers %d %c, %d %c, %d no route"), pax_happy, 30, pax_unhappy, 31, pax_no_route);
 	buf.append("\n\n");
 }
 
