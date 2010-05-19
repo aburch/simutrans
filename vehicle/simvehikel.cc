@@ -1145,7 +1145,6 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 	const sint32 speed_base = (100*speed_to_kmh(cnv->get_min_top_speed()))/ref_speed-100;
 
 	sint64 value = 0;
-	slist_tpl<ware_t> kill_queue;
 	slist_iterator_tpl <ware_t> iter (fracht);
 
 	if(  welt->get_einstellungen()->get_pay_for_total_distance_mode()==einstellungen_t::TO_DESTINATION  ) {
