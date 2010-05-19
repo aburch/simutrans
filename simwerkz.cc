@@ -5232,7 +5232,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				sscanf(p, "%hi", &cnv_rpl_id);
 				convoihandle_t cnv_rpl;
 				cnv_rpl.set_id( cnv_rpl_id );
-				if(cnv_rpl.is_bound())
+				if(cnv_rpl.is_bound() && cnv_rpl->get_replace())
 				{
 					cnv->set_replace(cnv_rpl->get_replace());
 					cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());

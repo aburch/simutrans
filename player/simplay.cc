@@ -1312,7 +1312,10 @@ spieler_t::undo()
 		else {
 			cost = 1;
 			leitung_t* lt = gr->get_leitung();
-			lt->entferne(NULL);
+			if(lt)
+			{
+				lt->entferne(NULL);
+			}
 			delete lt;
 		}
 	}
