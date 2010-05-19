@@ -20,8 +20,6 @@ freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 struct travel_details
 {
 	ware_t ware;
-	halthandle_t destination;
-	halthandle_t via_destination;
 };
 
 
@@ -33,11 +31,11 @@ struct travel_details
  */
 int freight_list_sorter_t::compare_ware(void const* const td1p, void const* const td2p)
 {
-	travel_details const& td1 = *static_cast<travel_details const*>(td1p);
-	travel_details const& td2 = *static_cast<travel_details const*>(td2p);
+	ware_t const& w1 = static_cast<travel_details const*>(td1p)->ware;
+	ware_t const& w2 = static_cast<travel_details const*>(td2p)->ware;
 
 	// sort according to freight
-	int const idx = td1.ware.get_besch()->get_index() - td2.ware.get_besch()->get_index();
+	int const idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
 	if (idx != 0) {
 		return idx;
 	}
@@ -48,14 +46,14 @@ int freight_list_sorter_t::compare_ware(void const* const td1p, void const* cons
 
 		case by_via_sum:
 		case by_amount: { // sort by ware amount
-			int const order = td2.ware.menge - td1.ware.menge;
+			int const order = w2.menge - w1.menge;
 			if (order != 0) return order;
 			/* FALLTHROUGH */
 		}
 
 		case by_via: { // sort by via_destination name
-			halthandle_t const v1 = td1.via_destination;
-			halthandle_t const v2 = td2.via_destination;
+			halthandle_t const v1 = w1.get_zwischenziel();
+			halthandle_t const v2 = w2.get_zwischenziel();
 			if (v1.is_bound() && v2.is_bound()) {
 				int const order = strcmp(v1->get_name(), v2->get_name());
 				if (order != 0) return order;
@@ -68,8 +66,8 @@ int freight_list_sorter_t::compare_ware(void const* const td1p, void const* cons
 		}
 
 		case by_name: { // sort by destination name
-			halthandle_t const d1 = td1.destination;
-			halthandle_t const d2 = td2.destination;
+			halthandle_t const d1 = w1.get_ziel();
+			halthandle_t const d2 = w2.get_ziel();
 			if (d1.is_bound() && d2.is_bound()) {
 				return strcmp(d1->get_name(), d2->get_name());
 			} else if (d1.is_bound()) {
@@ -134,15 +132,17 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
 		tdlist[pos].ware = ware;
-		tdlist[pos].destination = ware.get_ziel();
-		tdlist[pos].via_destination = ware.get_zwischenziel();
 		// for the sorting via the number for the next stop we unify entries
 		if (sort_mode == by_via_sum) {
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for( int i=0;  i<pos;  i++ ) {
-				if(tdlist[i].ware.get_index()==tdlist[pos].ware.get_index()  &&  tdlist[i].via_destination==tdlist[pos].via_destination  &&  tdlist[i].destination!=tdlist[i].via_destination) {
-					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+				ware_t& wi = tdlist[i].ware;
+				if (wi.get_index()        == ware.get_index()        &&
+						wi.get_zwischenziel() == ware.get_zwischenziel() &&
+						wi.get_ziel()         != wi.get_zwischenziel()) {
+					wi.menge += ware.menge;
+					--pos;
 					break;
 				}
 			}
@@ -162,8 +162,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		int last_ware_catg = -1;
 
 		for (int j = 0; j<pos; j++) {
-			halthandle_t halt = tdlist[j].destination;
-			halthandle_t via_halt = tdlist[j].via_destination;
+			halthandle_t const halt     = tdlist[j].ware.get_ziel();
+			halthandle_t const via_halt = tdlist[j].ware.get_zwischenziel();
 
 			const char * name = "Error in Routing";
 			if(halt.is_bound()) {
