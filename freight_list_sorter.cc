@@ -136,7 +136,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		tdlist[pos].destination = ware.get_ziel();
 		tdlist[pos].via_destination = ware.get_zwischenziel();
 		// for the sorting via the number for the next stop we unify entries
-		if(sort_mode==by_via_sum  &&  pos>0) {
+		if (sort_mode == by_via_sum) {
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for( int i=0;  i<pos;  i++ ) {
