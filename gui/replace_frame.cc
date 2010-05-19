@@ -86,7 +86,20 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	convoy_assembler.set_electrified( weg_electrified );
 	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
 	convoy_assembler.add_listener(this);
-	convoy_assembler.set_vehicles(cnv->get_replace() ? cnv->get_replace()->get_replacing_vehicles() : new vector_tpl<const vehikel_besch_t*>);
+	if(cnv->get_replace())
+	{
+		convoy_assembler.set_vehicles(cnv->get_replace()->get_replacing_vehicles());
+	}
+	else
+	{
+		vector_tpl<const vehikel_besch_t*> *existing_vehicles = new vector_tpl<const vehikel_besch_t*>();
+		uint8 count = cnv->get_vehikel_anzahl();
+		for(uint8 i = 0; i < count; i ++)
+		{
+			existing_vehicles->append(cnv->get_vehikel(i)->get_besch());
+		}
+		convoy_assembler.set_vehicles(existing_vehicles);
+	}
 	add_komponente(&convoy_assembler);
 
 	bt_replace_line.set_typ(button_t::square);
