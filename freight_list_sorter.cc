@@ -13,26 +13,17 @@
 
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
-/*
- * struct hold travel details for wares that travel
- * @author hsiegeln
- */
-struct travel_details
-{
-	ware_t ware;
-};
-
 
 /**
- *  @param td1p, td2p: pointer to travel_details
+ *  @param w1p, w2p: pointer to ware_t
  *  @return sort order of the two passed elements; used in qsort
  *  @author hsiegeln
  *  @date 2003-11-02
  */
-int freight_list_sorter_t::compare_ware(void const* const td1p, void const* const td2p)
+int freight_list_sorter_t::compare_ware(void const* const w1p, void const* const w2p)
 {
-	ware_t const& w1 = static_cast<travel_details const*>(td1p)->ware;
-	ware_t const& w2 = static_cast<travel_details const*>(td2p)->ware;
+	ware_t const& w1 = *static_cast<ware_t const*>(w1p);
+	ware_t const& w2 = *static_cast<ware_t const*>(w2p);
 
 	// sort according to freight
 	int const idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
@@ -123,7 +114,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	// hsiegeln
 	// added sorting to ware's destination list
 	int pos = 0;
-	ALLOCA(travel_details, tdlist, warray->get_count());
+	ALLOCA(ware_t, wlist, warray->get_count());
 
 	for(unsigned i=0;  i<warray->get_count();  i++  ) {
 		const ware_t &ware = (*warray)[i];
@@ -131,13 +122,13 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			continue;
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
-		tdlist[pos].ware = ware;
+		wlist[pos] = ware;
 		// for the sorting via the number for the next stop we unify entries
 		if (sort_mode == by_via_sum) {
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i check connection",pos);
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for( int i=0;  i<pos;  i++ ) {
-				ware_t& wi = tdlist[i].ware;
+				ware_t& wi = wlist[i];
 				if (wi.get_index()        == ware.get_index()        &&
 						wi.get_zwischenziel() == ware.get_zwischenziel() &&
 						wi.get_ziel()         != wi.get_zwischenziel()) {
@@ -155,28 +146,28 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	if(pos!=0) {
 
 		// sort the ware's list
-		qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
+		qsort(wlist, pos, sizeof(*wlist), compare_ware);
 
 		// print the ware's list to buffer - it should be in sortorder by now!
 		int last_ware_index = -1;
 		int last_ware_catg = -1;
 
 		for (int j = 0; j<pos; j++) {
-			halthandle_t const halt     = tdlist[j].ware.get_ziel();
-			halthandle_t const via_halt = tdlist[j].ware.get_zwischenziel();
+			halthandle_t const halt     = wlist[j].get_ziel();
+			halthandle_t const via_halt = wlist[j].get_zwischenziel();
 
 			const char * name = "Error in Routing";
 			if(halt.is_bound()) {
 				name = halt->get_name();
 			}
 
-			const ware_t& ware = tdlist[j].ware;
+			ware_t const& ware = wlist[j];
 			if(last_ware_index!=ware.get_index()  &&  last_ware_catg!=ware.get_catg()) {
 				sint32 sum = 0;
 				last_ware_index = ware.get_index();
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 				for(int i=j;  i<pos;  i++  ) {
-					const ware_t& sumware = tdlist[i].ware;
+					ware_t const& sumware = wlist[i];
 					if(last_ware_index!=sumware.get_index()) {
 						if(last_ware_catg!=sumware.get_catg()) {
 							break;	// next category reached ...
