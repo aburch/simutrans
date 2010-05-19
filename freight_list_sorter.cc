@@ -85,20 +85,17 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 	if(buf.len()>0) {
 		buf.append("\n");
 	}
-	buf.append(" ");
-	buf.append(sum);
-	if(max) {
+	buf.printf(" %u", sum);
+	if (max != 0) {
 		// convois
-		buf.append("/");
-		buf.append(max);
+		buf.printf("/%u", max);
 	}
-	buf.append(translator::translate(ware->get_besch()->get_mass()));
-	buf.append(" ");
-	// special freight (catg==0) need own name
-	buf.append( translator::translate( ware->get_catg()!=0 ? ware->get_besch()->get_catg_name() : ware->get_besch()->get_name() ));
-	buf.append(" ");
-	buf.append(translator::translate(what_doing));
-	buf.append("\n");
+	ware_besch_t const& desc = *ware->get_besch();
+	char const*  const  unit = translator::translate(desc.get_mass());
+	// special freight (catg == 0) needs own name
+	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
+	char const*  const  what = translator::translate(what_doing);
+	buf.printf("%s %s %s\n", unit, name, what);
 }
 
 
@@ -199,12 +196,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				}
 			}
 			// detail amount
-			buf.append("   ");
-			buf.append(ware.menge);
-			buf.append(translator::translate(ware.get_besch()->get_mass()));
-			buf.append(" ");
-			buf.append(translator::translate(ware.get_besch()->get_name()));
-			buf.append(" > ");
+			ware_besch_t const& desc = *ware.get_besch();
+			buf.printf("   %u%s %s > ", ware.menge, desc.get_mass(), desc.get_name());
 			// the target name is not correct for the via sort
 			if(sortby!=by_via_sum  ||  via_halt==halt  ) {
 				buf.append(name);
