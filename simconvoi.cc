@@ -3236,7 +3236,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		// This is the minimum time it takes for loading
 		wait_lock = longest_loading_time;
 
-		if(withdraw  &&  loading_level==0) {
+		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
 			// destroy when empty
 			self_destruct();
 			return;
@@ -4401,7 +4401,7 @@ uint16 convoi_t::get_tile_length() const
 void convoi_t::set_withdraw(bool new_withdraw)
 {
 	withdraw = new_withdraw;
-	if(  withdraw  &&  loading_level==0  ) {
+	if(  withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
 		// test if convoi in depot and not driving
 		grund_t *gr = welt->lookup( get_pos());
 		if (gr && gr->get_depot()  &&  state == INITIAL) {
