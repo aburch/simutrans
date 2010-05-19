@@ -642,8 +642,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					*dest = 0;
 				}
 
-				trans_desc = text;
-				buf.append(trans_desc);
+				buf.append(text);
 				delete [] text;
 			}
 		}
