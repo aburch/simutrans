@@ -48,15 +48,14 @@ endif
 
 
 ifeq ($(OSTYPE),cygwin)
-  OS_INC   ?= -I/usr/include/mingw
-  OS_OPT   ?= -mwin32
+  CFLAGS   += -I/usr/include/mingw -mwin32
   STD_LIBS ?= -lgdi32 -lwinmm -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
-  OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  CFLAGS   += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
   STD_LIBS ?= -lz -lbz2
   ifeq ($(BACKEND),gdi)
     STD_LIBS +=  -lunicows
@@ -98,7 +97,7 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
-CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
+CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -Wstrict-prototypes
 
 
