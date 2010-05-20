@@ -15,7 +15,7 @@ all: $(PROG)
 
 $(PROG): $(OBJECTS)
 	@echo "===> LD  $@"
-	$(Q)$(CXX) $(OBJECTS) $(LDFLAGS) $(STD_LIBS) $(LIBS) -o $@
+	$(Q)$(CXX) $(OBJECTS) $(LDFLAGS) $(LIBS) -o $@
 
 clean:
 	@echo "===> Cleaning up"

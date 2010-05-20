@@ -25,42 +25,41 @@ endif
 
 
 ifeq ($(OSTYPE),beos)
-  STD_LIBS ?= -lz -lnet -lbz2
+  LIBS += -lz -lnet -lbz2
 endif
 
 ifeq ($(OSTYPE),haiku)
-  STD_LIBS ?= -lz -lnetwork -lbz2
+  LIBS += -lz -lnetwork -lbz2
 endif
 
 ifeq ($(OSTYPE),freebsd)
-  STD_LIBS ?= -lz -lbz2
+  LIBS += -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW
-  CCFLAGS  += -Os -fast
-  STD_LIBS ?= -lz -lbz2
+  CFLAGS  += -DUSE_HW
+  CCFLAGS += -Os -fast
+  LIBS    += -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),linux)
-  STD_LIBS ?= -lz -lbz2
+  LIBS += -lz -lbz2
 endif
 
 
 ifeq ($(OSTYPE),cygwin)
-  CFLAGS   += -I/usr/include/mingw -mwin32
-  STD_LIBS ?= -lgdi32 -lwinmm -lz -lbz2
+  CFLAGS += -I/usr/include/mingw -mwin32
+  LIBS   += -lgdi32 -lwinmm -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
-  CFLAGS   += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  STD_LIBS ?= -lz -lbz2
+  CFLAGS  += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
   ifeq ($(BACKEND),gdi)
-    STD_LIBS +=  -lunicows
+    LIBS += -lunicows
   endif
-  STD_LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32
+  LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -351,9 +350,9 @@ ifeq ($(BACKEND),sdl)
   CFLAGS  += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
     # Core Audio (Quicktime) base sound system routines
-    SOURCES  += sound/core-audio_sound.mm
-    SOURCES  += music/core-audio_midi.mm
-    STD_LIBS += -framework Foundation -framework QTKit
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
+    LIBS    += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw),)
@@ -393,8 +392,7 @@ ifeq ($(BACKEND),mixer_sdl)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
   CFLAGS += $(SDL_CFLAGS)
-  LIBS   += $(SDL_LDFLAGS)
-  LIBS   += -lSDL_mixer
+  LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
 endif
 
 ifeq ($(BACKEND),x11)
@@ -402,7 +400,7 @@ ifeq ($(BACKEND),x11)
   SOURCES += sound/no_sound.cc
   SOURCES += music/no_midi.cc
   CFLAGS  += -I/usr/X11R6/include
-  LIBS     += -L/usr/X11R6/lib/ -lX11 -lXext
+  LIBS    += -L/usr/X11R6/lib/ -lX11 -lXext
 endif
 
 ifeq ($(BACKEND),posix)
