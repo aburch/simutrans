@@ -25,43 +25,41 @@ endif
 
 
 ifeq ($(OSTYPE),beos)
-  STD_LIBS ?= -lz -lnet -lbz2
+  LIBS += -lz -lnet -lbz2
 endif
 
 ifeq ($(OSTYPE),haiku)
-  STD_LIBS ?= -lz -lnetwork -lbz2
+  LIBS += -lz -lnetwork -lbz2
 endif
 
 ifeq ($(OSTYPE),freebsd)
-  STD_LIBS ?= -lz -lbz2
+  LIBS += -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mac)
-  CFLAGS   += -DUSE_HW -Os -fast
-  CXXFLAGS += -DUSE_HW
-  STD_LIBS ?= -lz -lbz2
+  CFLAGS  += -DUSE_HW
+  CCFLAGS += -Os -fast
+  LIBS    += -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),linux)
-  STD_LIBS ?= -lz -lbz2
+  LIBS += -lz -lbz2
 endif
 
 
 ifeq ($(OSTYPE),cygwin)
-  OS_INC   ?= -I/usr/include/mingw
-  OS_OPT   ?= -mwin32
-  STD_LIBS ?= -lgdi32 -lwinmm -lz -lbz2
+  CFLAGS += -I/usr/include/mingw -mwin32
+  LIBS   += -lgdi32 -lwinmm -lz -lbz2
 endif
 
 ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
-  OS_OPT   ?= -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  STD_LIBS ?= -lz -lbz2
+  CFLAGS  += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
   ifeq ($(BACKEND),gdi)
-    STD_LIBS +=  -lunicows
+    LIBS += -lunicows
   endif
-  STD_LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32
+  LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
 ALLEGRO_CONFIG ?= allegro-config
@@ -69,45 +67,37 @@ SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
-    CFLAGS   += -O3 -fno-schedule-insns
-    CXXFLAGS += -O3 -fno-schedule-insns
+    CFLAGS += -O3 -fno-schedule-insns
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
-      CFLAGS   += -minline-all-stringops
-      CXXFLAGS   += -minline-all-stringops
+      CFLAGS += -minline-all-stringops
     endif
   endif
 else
-  CFLAGS   += -O
-  CXXFLAGS += -O
+  CFLAGS += -O
 endif
 
 ifdef DEBUG
   ifeq ($(shell expr $(DEBUG) \>= 1), 1)
-    CFLAGS   += -g -DDEBUG
-    CXXFLAGS += -g -DDEBUG
+    CFLAGS += -g -DDEBUG
   endif
   ifeq ($(shell expr $(DEBUG) \>= 2), 1)
-    CFLAGS   += -fno-inline
-    CXXFLAGS += -fno-inline
+    CFLAGS += -fno-inline
   endif
   ifeq ($(shell expr $(DEBUG) \>= 3), 1)
-    CFLAGS   += -O0
-    CXXFLAGS += -O0
+    CFLAGS += -O0
   endif
 else
   CFLAGS += -DNDEBUG
-  CXXFLAGS += -DNDEBUG
 endif
 
 ifneq ($(PROFILE),)
-  CFLAGS   += -pg -DPROFILE -fno-inline -fno-schedule-insns
-  CXXFLAGS += -pg -DPROFILE -fno-inline -fno-schedule-insns
+  CFLAGS  += -pg -DPROFILE -fno-inline -fno-schedule-insns
   LDFLAGS += -pg
 endif
 
-CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align -Wstrict-prototypes $(OS_INC) $(OS_OPT) $(FLAGS)
-CXXFLAGS += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(OS_INC) $(OS_OPT) $(FLAGS)
+CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
+CCFLAGS  += -Wstrict-prototypes
 
 
 SOURCES += bauer/brueckenbauer.cc
@@ -353,10 +343,8 @@ ifeq ($(BACKEND),allegro)
     ALLEGRO_CFLAGS  := $(shell $(ALLEGRO_CONFIG) --cflags)
     ALLEGRO_LDFLAGS := $(shell $(ALLEGRO_CONFIG) --libs)
   endif
-  ALLEGRO_CFLAGS    += -DUSE_SOFTPOINTER
-  CFLAGS   += $(ALLEGRO_CFLAGS)
-  CXXFLAGS += $(ALLEGRO_CFLAGS)
-  LIBS     += $(ALLEGRO_LDFLAGS)
+  CFLAGS += $(ALLEGRO_CFLAGS) -DUSE_SOFTPOINTER
+  LIBS   += $(ALLEGRO_LDFLAGS)
 endif
 
 
@@ -368,14 +356,13 @@ endif
 
 
 ifeq ($(BACKEND),sdl)
-  SOURCES  += simsys_s.cc
-  CFLAGS   += -DUSE_16BIT_DIB
-  CXXFLAGS += -DUSE_16BIT_DIB
+  SOURCES += simsys_s.cc
+  CFLAGS  += -DUSE_16BIT_DIB
   ifeq ($(OSTYPE),mac)
     # Core Audio (Quicktime) base sound system routines
-    SOURCES  += sound/core-audio_sound.mm
-    SOURCES  += music/core-audio_midi.mm
-    STD_LIBS += -framework Foundation -framework QTKit
+    SOURCES += sound/core-audio_sound.mm
+    SOURCES += music/core-audio_midi.mm
+    LIBS    += -framework Foundation -framework QTKit
   else
     SOURCES  += sound/sdl_sound.cc
     ifeq ($(findstring $(OSTYPE), cygwin mingw),)
@@ -397,18 +384,16 @@ ifeq ($(BACKEND),sdl)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
 
-  CFLAGS   += $(SDL_CFLAGS)
-  CXXFLAGS += $(SDL_CFLAGS)
-  LIBS     += $(SDL_LDFLAGS)
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS)
 endif
 
 
 ifeq ($(BACKEND),mixer_sdl)
-  SOURCES  += simsys_s.cc
+  SOURCES += simsys_s.cc
   SOURCES += sound/sdl_mixer_sound.cc
   SOURCES += music/sdl_midi.cc
-  CFLAGS   += -DUSE_16BIT_DIB
-  CXXFLAGS   += -DUSE_16BIT_DIB
+  CFLAGS  += -DUSE_16BIT_DIB
   ifeq ($(SDL_CONFIG),)
     SDL_CFLAGS  := -I$(MINGDIR)/include/SDL -Dmain=SDL_main
     SDL_LDFLAGS := -lmingw32 -lSDLmain -lSDL -mwindows
@@ -416,19 +401,16 @@ ifeq ($(BACKEND),mixer_sdl)
     SDL_CFLAGS  := $(shell $(SDL_CONFIG) --cflags)
     SDL_LDFLAGS := $(shell $(SDL_CONFIG) --libs)
   endif
-  CFLAGS   += $(SDL_CFLAGS)
-  CXXFLAGS += $(SDL_CFLAGS)
-  LIBS     += $(SDL_LDFLAGS)
-  LIBS     += -lSDL_mixer
+  CFLAGS += $(SDL_CFLAGS)
+  LIBS   += $(SDL_LDFLAGS) -lSDL_mixer
 endif
 
 ifeq ($(BACKEND),x11)
   SOURCES  += simsys_x$(COLOUR_DEPTH).c
   SOURCES += sound/no_sound.cc
   SOURCES += music/no_midi.cc
-  CFLAGS   += -I/usr/X11R6/include
-  CXXFLAGS += -I/usr/X11R6/include
-  LIBS     += -L/usr/X11R6/lib/ -lX11 -lXext
+  CFLAGS  += -I/usr/X11R6/include
+  LIBS    += -L/usr/X11R6/lib/ -lX11 -lXext
 endif
 
 ifeq ($(BACKEND),posix)
@@ -438,8 +420,7 @@ ifeq ($(BACKEND),posix)
 endif
 
 ifeq ($(COLOUR_DEPTH),0)
-  CFLAGS   += -DNO_GRAPHIC
-  CXXFLAGS += -DNO_GRAPHIC
+  CFLAGS += -DNO_GRAPHIC
 endif
 
 ifneq ($(findstring $(OSTYPE), cygwin mingw),)
@@ -447,6 +428,8 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   WINDRES ?= windres
 endif
 
+CCFLAGS  += $(CFLAGS)
+CXXFLAGS += $(CFLAGS)
 
 PROG ?= sim
 

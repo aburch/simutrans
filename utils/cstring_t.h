@@ -116,8 +116,6 @@ public:
 			return substr(start, start + newlen);
 	}
 
-	int replace_character( char old_ch, char new_ch);
-
 	void set_at(int idx, char) const;
 
 	long find(const char *) const;

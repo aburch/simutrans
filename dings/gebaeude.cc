@@ -664,8 +664,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					*dest = 0;
 				}
 
-				trans_desc = text;
-				buf.append(trans_desc);
+				buf.append(text);
 				delete [] text;
 			}
 		}
@@ -673,9 +672,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 		// belongs to which city?
 		if (!is_factory && ptr.stadt != NULL) {
-			char buffer[256];
-			sprintf(buffer,translator::translate("Town: %s\n"),ptr.stadt->get_name());
-			buf.append(buffer);
+			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
 		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {

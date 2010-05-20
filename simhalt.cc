@@ -281,8 +281,7 @@ void haltestelle_t::destroy(halthandle_t &halt)
 {
 	// jsut play save: restart iterator at zero ...
 	halt_iterator_start = 0;
-	haltestelle_t *p = halt.get_rep();
-	delete p;
+	delete halt.get_rep();
 }
 
 
@@ -2667,7 +2666,7 @@ void haltestelle_t::info(cbuffer_t & buf) const
 {
 	char tmp [512];
 
-	sprintf(tmp,
+	buf.printf(
 		translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"),
 		pax_happy,
 		30,
@@ -2676,7 +2675,6 @@ void haltestelle_t::info(cbuffer_t & buf) const
 		pax_no_route,
 		pax_too_slow
 		);
-	buf.append(tmp);
 	buf.append("\n\n");
 }
 

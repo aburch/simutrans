@@ -13,36 +13,23 @@
 
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
-/*
- * struct hold travel details for wares that travel
- * @author hsiegeln
- */
-struct travel_details
-{
-	ware_t ware;
-	halthandle_t destination;
-	halthandle_t via_destination;
-	halthandle_t origin;
-};
-
-
-/** hsiegeln
- *  @param td1, td2: pointer to travel_details
- *  @return sortorder of the two passed elements; used in qsort
+/**
+ *  @param w1p, w2p: pointer to ware_t
+ *  @return sort order of the two passed elements; used in qsort
  *  @author hsiegeln
  *  @date 2003-11-02
  */
-int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
+int freight_list_sorter_t::compare_ware(void const* const w1p, void const* const w2p)
 {
-	const travel_details * const td1p = (const travel_details*)td1;
-	const travel_details * const td2p = (const travel_details*)td2;
+	ware_t const& w1 = *static_cast<ware_t const*>(w1p);
+	ware_t const& w2 = *static_cast<ware_t const*>(w2p);
 
-	halthandle_t halt1 = td1p->destination;
-	halthandle_t halt2 = td2p->destination;
-	halthandle_t via_halt1 = td1p->via_destination;
-	halthandle_t via_halt2 = td2p->via_destination;
-	halthandle_t origin_halt1 = td1p->origin;
-	halthandle_t origin_halt2 = td2p->origin;
+	halthandle_t halt1 = w1.get_ziel();
+	halthandle_t halt2 = w2.get_ziel();
+	halthandle_t via_halt1 = w1.get_zwischenziel();
+	halthandle_t via_halt2 = w2.get_zwischenziel();
+	halthandle_t origin_halt1 = w1.get_origin();
+	halthandle_t origin_halt2 = w2.get_origin();
 
 	if(!halt1.is_bound()  ||  !via_halt1.is_bound() || !origin_halt1.is_bound()) 
 	{
@@ -54,44 +41,70 @@ int freight_list_sorter_t::compare_ware(const void *td1, const void *td2)
 		return -2;
 	}
 
-	const ware_t& ware1 = td1p->ware;
-	const ware_t& ware2 = td2p->ware;
-
 	// sort according to freight
-	int index = ware1.get_besch()->get_index()-ware2.get_besch()->get_index();
-	if(index!=0) {
-		return index;
+	int const idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
+	if (idx != 0) {
+		return idx;
 	}
 
-	int order;
+
 	switch (sortby) 
 	{
 		default:
-dbg->error("freight_list_sorter::compare_ware()","illegal sort mode!");
+			dbg->error("freight_list_sorter::compare_ware()", "illegal sort mode!");
 
 		case by_via_sum:
-		case by_amount: // sort by ware amount
-			order = ware2.menge - ware1.menge;
-			if (order != 0) break;
+		case by_amount: { // sort by ware amount
+			int const order = w2.menge - w1.menge;
+			if (order != 0) return order;
 			/* FALLTHROUGH */
+		}
 
-		case by_via: // sort by via_destination name
-			order = strcmp(via_halt1->get_name(), via_halt2->get_name());
-			if (order != 0) break;
+		case by_via: { // sort by via_destination name
+			halthandle_t const v1 = w1.get_zwischenziel();
+			halthandle_t const v2 = w2.get_zwischenziel();
+			if (v1.is_bound() && v2.is_bound()) {
+				int const order = strcmp(v1->get_name(), v2->get_name());
+				if (order != 0) return order;
+			} else if (v1.is_bound()) {
+				return 1;
+			} else if (v2.is_bound()) {
+				return -1;
+			}
 			/* FALLTHROUGH */
+		}
 
 		case by_origin: // Sort by origin name
-		case by_origin_amount: 
-			order = strcmp(origin_halt1->get_name(), origin_halt2->get_name());
-			if (order != 0) break;
+		case by_origin_amount: {
+			halthandle_t const o1 = w1.get_origin();
+			halthandle_t const o2 = w2.get_origin();
+			if (o1.is_bound() && o2.is_bound()) {
+				return strcmp(o1->get_name(), o2->get_name());
+			} else if (o1.is_bound()) {
+				return 1;
+			} else if (o2.is_bound()) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
+		
 			/* FALLTHROUGH */
 
-		case by_name: // sort by destination name
-			order = strcmp(halt1->get_name(), halt2->get_name());
-			break;
+		case by_name: { // sort by destination name
+			halthandle_t const d1 = w1.get_ziel();
+			halthandle_t const d2 = w2.get_ziel();
+			if (d1.is_bound() && d2.is_bound()) {
+				return strcmp(d1->get_name(), d2->get_name());
+			} else if (d1.is_bound()) {
+				return 1;
+			} else if (d2.is_bound()) {
+				return -1;
+			} else {
+				return 0;
+			}
+		}
 	}
-
-	return order;
 }
 
 
@@ -107,20 +120,17 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 	if(buf.len()>0) {
 		buf.append("\n");
 	}
-	buf.append(" ");
-	buf.append(sum);
-	if(max) {
+	buf.printf(" %u", sum);
+	if (max != 0) {
 		// convois
-		buf.append("/");
-		buf.append(max);
+		buf.printf("/%u", max);
 	}
-	buf.append(translator::translate(ware->get_besch()->get_mass()));
-	buf.append(" ");
-	// special freight (catg==0) need own name
-	buf.append( translator::translate( ware->get_catg()!=0 ? ware->get_besch()->get_catg_name() : ware->get_besch()->get_name() ));
-	buf.append(" ");
-	buf.append(translator::translate(what_doing));
-	buf.append("\n");
+	ware_besch_t const& desc = *ware->get_besch();
+	char const*  const  unit = translator::translate(desc.get_mass());
+	// special freight (catg == 0) needs own name
+	char const*  const  name = translator::translate(ware->get_catg() != 0 ? desc.get_catg_name() : desc.get_name());
+	char const*  const  what = translator::translate(what_doing);
+	buf.printf("%s %s %s\n", unit, name, what);
 }
 
 
@@ -143,7 +153,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	// hsiegeln
 	// added sorting to ware's destination list
 	int pos = 0;
-	ALLOCA(travel_details, tdlist, warray->get_count());
+	ALLOCA(ware_t, wlist, warray->get_count());
 
 	for(unsigned i = 0; i < warray->get_count(); i++) 
 	{
@@ -153,10 +163,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			continue;
 		}
 //DBG_MESSAGE("freight_list_sorter_t::get_freight_info()","for halt %i",pos);
-		tdlist[pos].ware = ware;
-		tdlist[pos].destination = ware.get_ziel();
-		tdlist[pos].via_destination = ware.get_zwischenziel();
-		tdlist[pos].origin = ware.get_origin();
+		wlist[pos] = ware;
 		// for the sorting via the number for the next stop we unify entries
 		if(sort_mode == by_via_sum && pos > 0) 
 		{
@@ -164,18 +171,18 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for(int i = 0; i < pos; i++) 
 			{
-				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && 
-					tdlist[i].via_destination == tdlist[pos].via_destination  &&  
-					tdlist[i].destination != tdlist[i].via_destination) 
+				if(wlist[i].get_index() == wlist[pos].get_index() && 
+					wlist[i].get_zwischenziel() == wlist[pos].get_zwischenziel()  &&  
+					wlist[i].get_ziel() != wlist[i].get_ziel())
 				{
-					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+					wlist[i].menge += wlist[pos--].menge;
 					break;
 				}
-				else if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && 
-					tdlist[i].destination == tdlist[pos].destination &&  
-					tdlist[i].destination == tdlist[i].via_destination) 
+				else if(wlist[i].get_index() == wlist[pos].get_index() && 
+					wlist[i].get_ziel() == wlist[pos].get_ziel() &&  
+					wlist[i].get_ziel() == wlist[i].get_zwischenziel()) 
 				{
-					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+					wlist[i].menge += wlist[pos--].menge;
 					break;
 				}
 			}
@@ -184,9 +191,9 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		{
 			for(int i = 0; i < pos; i++) 
 			{
-				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && tdlist[i].origin == tdlist[pos].origin) 
+				if(wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_origin() == wlist[pos].get_origin()) 
 				{
-					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+					wlist[i].menge += wlist[pos--].menge;
 					break;
 				}
 			}
@@ -196,9 +203,9 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 		{
 			for(int i = 0; i < pos; i++) 
 			{
-				if(tdlist[i].ware.get_index() == tdlist[pos].ware.get_index() && tdlist[i].destination == tdlist[pos].destination) 
+				if(wlist[i].get_index() == wlist[pos].get_index() && wlist[i].get_ziel() == wlist[pos].get_ziel()) 
 				{
-					tdlist[i].ware.menge += tdlist[pos--].ware.menge;
+					wlist[i].menge += wlist[pos--].menge;
 					break;
 				}
 			}
@@ -212,7 +219,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	{
 
 		// sort the ware's list
-		qsort((void *)tdlist, pos, sizeof (travel_details), compare_ware);
+		qsort(wlist, pos, sizeof(*wlist), compare_ware);
 
 		// print the ware's list to buffer - it should be in sortorder by now!
 		int last_ware_index = -1;
@@ -221,9 +228,9 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 
 		for (int j = 0; j < pos; j++)
 		{
-			halthandle_t halt = tdlist[j].destination;
-			halthandle_t via_halt = tdlist[j].via_destination;
-			halthandle_t origin_halt = tdlist[j].origin;
+			halthandle_t const halt     = wlist[j].get_ziel();
+			halthandle_t const via_halt = wlist[j].get_zwischenziel();
+			halthandle_t const origin_halt	= wlist[j].get_origin();
 
 			const char * name = "unknown";
 			if(halt.is_bound()) 
@@ -231,7 +238,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				name = halt->get_name();
 			}
 
-			const ware_t& ware = tdlist[j].ware;
+			ware_t const& ware = wlist[j];
 			if(last_ware_index != ware.get_index() && last_ware_catg != ware.get_catg()) 
 			{
 				sint32 sum = 0;
@@ -239,7 +246,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				last_ware_catg = (ware.get_catg()!=0) ? ware.get_catg() : -1;
 				for(int i=j;  i<pos;  i++  ) 
 				{
-					const ware_t& sumware = tdlist[i].ware;
+					ware_t const& sumware = wlist[i];
 					if(last_ware_index!=sumware.get_index()) 
 					{
 						if(last_ware_catg!=sumware.get_catg()) 
@@ -304,10 +311,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				{
 					destination_name = halt->get_name();
 				}
-
-				char tmp [512];
-				sprintf(tmp, destination_name);
-				buf.append(tmp);
+				buf.printf(destination_name);
 			}
 
 			if(sortby == by_origin_amount)
@@ -317,10 +321,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				{
 					origin_name = origin_halt->get_name();
 				}
-
-				char tmp [512];
-				sprintf(tmp, origin_name);
-				buf.append(tmp);
+				buf.printf(origin_name);
 			}
 			
 			if(via_halt != halt && (sortby == by_via || sortby == by_via_sum))
@@ -330,9 +331,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				{
 					via_name = via_halt->get_name();
 				}
-				char tmp [512];
-				sprintf(tmp, translator::translate(" via %s"), via_name);
-				buf.append(tmp);
+				buf.printf(translator::translate(" via %s"), via_name);
 			}
 			
 			if(sortby == by_origin)
@@ -343,9 +342,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 					origin_name = origin_halt->get_name();
 				}
 
-				char tmp [512];
-				sprintf(tmp, translator::translate(" from %s"), origin_name);
-				buf.append(tmp);
+				buf.printf(translator::translate(" from %s"), origin_name);
 			}
 
 			buf.append("\n");

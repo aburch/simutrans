@@ -627,8 +627,8 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	clear_flag(grund_t::draw_as_ding);
 	weg_t const* w;
-	if ((w = get_weg_nr(0)) && w->get_besch()->is_draw_as_ding() ||
-			(w = get_weg_nr(1)) && w->get_besch()->is_draw_as_ding()) {
+	if (((w = get_weg_nr(0)) && w->get_besch()->is_draw_as_ding()) ||
+			((w = get_weg_nr(1)) && w->get_besch()->is_draw_as_ding())) {
 		set_flag(grund_t::draw_as_ding);
 	}
 	bool left_back_is_building = false;
@@ -1624,18 +1624,16 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 {
 	waytype_t wt1 = ( wt == tram_wt ) ? track_wt : wt;
 
-	if(  find<wayobj_t>()  ) {
-		// since there might be more than one, we have to iterate through all of them
-		for(  uint8 i = 0;  i < get_top();  i++  ) {
-			ding_t *d = obj_bei(i);
-			if (wayobj_t* const wayobj = ding_cast<wayobj_t>(d)) {
-				waytype_t wt2 = wayobj->get_besch()->get_wtyp();
-				if(  wt2 == tram_wt  ) {
-					wt2 = track_wt;
-				}
-				if(  wt1 == wt2  ) {
-					return wayobj;
-				}
+	// since there might be more than one, we have to iterate through all of them
+	for(  uint8 i = 0;  i < get_top();  i++  ) {
+		ding_t *d = obj_bei(i);
+		if (wayobj_t* const wayobj = ding_cast<wayobj_t>(d)) {
+			waytype_t wt2 = wayobj->get_besch()->get_wtyp();
+			if(  wt2 == tram_wt  ) {
+				wt2 = track_wt;
+			}
+			if(  wt1 == wt2  ) {
+				return wayobj;
 			}
 		}
 	}

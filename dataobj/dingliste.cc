@@ -847,7 +847,6 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				{
 					// for compatibilty reasons we may have to convert them to tram and monorail depots
 					gebaeude_t *gb = new gebaeude_t(welt, file);
-
 					// do not remove from this position, since there will be nothing
 					gb->set_flag(ding_t::not_on_map);
 
@@ -1027,17 +1026,17 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				// on old versions
 				if(d->get_pos()==current_pos) {
 					file->wr_obj_id(d->get_typ());
-					bei(i)->rdwr(file);
+					d->rdwr(file);
 				}
-				else if(bei(i)->get_pos().get_2d()==current_pos.get_2d()) {
+				else if (d->get_pos().get_2d() == current_pos.get_2d()) {
 					// ok, just error in z direction => we will correct it
-					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->get_pos().x,bei(i)->get_pos().y,bei(i)->get_pos().z,current_pos.z);
+					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i", d->get_pos().x, d->get_pos().y, d->get_pos().z, current_pos.z);
 					file->wr_obj_id(d->get_typ());
-					bei(i)->set_pos( current_pos );
-					bei(i)->rdwr(file);
+					d->set_pos(current_pos);
+					d->rdwr(file);
 				}
 				else {
-					dbg->error( "dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", bei(i)->get_pos().x, bei(i)->get_pos().y, current_pos.x, current_pos.y, bei(i)->get_typ() );
+					dbg->error("dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", d->get_pos().x, d->get_pos().y, current_pos.x, current_pos.y, d->get_typ());
 					file->wr_obj_id(-1);
 				}
 			}
@@ -1086,6 +1085,8 @@ inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const 
 	}
 	return display_ding;
 }
+
+
 uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
 {
 	if(start_offset>=top) {
@@ -1106,6 +1107,7 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
 	}
 	return top;
 }
+
 
 /**
  * Routine to draw vehicles
@@ -1136,6 +1138,8 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 		return !ontile;
 	}
 }
+
+
 uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile ) const
 {
 	if(start_offset>=top) {
@@ -1163,6 +1167,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 	activate_ribi_clip();
 	return nr_v+1;
 }
+
 
 /**
  * Routine to draw foreground images of everything on the tile (no clipping) and powerlines
@@ -1198,6 +1203,7 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 	}
 	return;
 }
+
 
 // start next month (good for toogling a seasons)
 void dingliste_t::check_season(const long month)

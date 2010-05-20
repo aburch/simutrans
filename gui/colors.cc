@@ -271,7 +271,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if(&traffic_density==komp) {
 		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
 			static char level[16];
-			sprintf( level, "%i", v.i );
+			sprintf(level, "%li", v.i);
 			werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF]->set_default_param( level );
 			welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TOOGLE_PEDESTRIANS&0xFFF], welt->get_active_player() );
 		}
