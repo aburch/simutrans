@@ -67,8 +67,7 @@ void crossing_logic_t::recalc_state()
 			grund_t *gr = welt->lookup(crossings[i]->get_pos());
 			if(gr) {
 				for( uint8 i=3;  i<gr->get_top();  i++  ) {
-					vehikel_basis_t *v = dynamic_cast<vehikel_basis_t *>(gr->obj_bei(i));
-					if(v) {
+					if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(i))) {
 						add_to_crossing( v );
 					}
 				}
