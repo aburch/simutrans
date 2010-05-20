@@ -848,24 +848,16 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					// for compatibilty reasons we may have to convert them to tram and monorail depots
 					gebaeude_t *gb = new gebaeude_t(welt, file);
 					if(gb->get_tile()->get_besch()->get_extra()==monorail_wt) {
-						monoraildepot_t* const md = new monoraildepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						md->rdwr_vehicles(file);
-						d = md;
+						d = new monoraildepot_t(welt, gb->get_pos(), gb->get_besitzer(), gb->get_tile());
 					}
 					else if(gb->get_tile()->get_besch()->get_extra()==tram_wt) {
-						tramdepot_t* const td = new tramdepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						td->rdwr_vehicles(file);
-						d = td;
+						d = new tramdepot_t(welt, gb->get_pos(), gb->get_besitzer(), gb->get_tile());
 					}
 					else {
-						bahndepot_t* const bd = new bahndepot_t(welt, gb->get_pos(), 0, gb->get_tile());
-						bd->rdwr_vehicles(file);
-						d = bd;
+						d = new bahndepot_t(welt, gb->get_pos(), gb->get_besitzer(), gb->get_tile());
 					}
-					d->set_besitzer( gb->get_besitzer() );
-					spieler_t::add_maintenance( gb->get_besitzer(), welt->get_einstellungen()->maint_building );
+					((bahndepot_t *)d)->rdwr_vehicles( file );
 					typ = d->get_typ();
-
 					// do not remove from this position, since there will be nothing
 					gb->set_flag(ding_t::not_on_map);
 					delete gb;
@@ -1078,6 +1070,8 @@ inline bool local_display_dinge_bg(const ding_t *ding, const sint16 xpos, const 
 	}
 	return display_ding;
 }
+
+
 uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty ) const
 {
 	if(start_offset>=top) {
@@ -1098,6 +1092,7 @@ uint8 dingliste_t::display_dinge_bg( const sint16 xpos, const sint16 ypos, const
 	}
 	return top;
 }
+
 
 /**
  * Routine to draw vehicles
@@ -1128,6 +1123,8 @@ inline bool local_display_dinge_vh(const ding_t *ding, const sint16 xpos, const 
 		return !ontile;
 	}
 }
+
+
 uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const uint8 start_offset, const bool reset_dirty, const ribi_t::ribi ribi, const bool ontile ) const
 {
 	if(start_offset>=top) {
@@ -1155,6 +1152,7 @@ uint8 dingliste_t::display_dinge_vh( const sint16 xpos, const sint16 ypos, const
 	activate_ribi_clip();
 	return nr_v+1;
 }
+
 
 /**
  * Routine to draw foreground images of everything on the tile (no clipping) and powerlines
@@ -1190,6 +1188,7 @@ void dingliste_t::display_dinge_fg( const sint16 xpos, const sint16 ypos, const 
 	}
 	return;
 }
+
 
 // start next month (good for toogling a seasons)
 void dingliste_t::check_season(const long month)
