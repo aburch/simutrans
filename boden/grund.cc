@@ -624,8 +624,8 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	clear_flag(grund_t::draw_as_ding);
 	weg_t const* w;
-	if ((w = get_weg_nr(0)) && w->get_besch()->is_draw_as_ding() ||
-			(w = get_weg_nr(1)) && w->get_besch()->is_draw_as_ding()) {
+	if (((w = get_weg_nr(0)) && w->get_besch()->is_draw_as_ding()) ||
+			((w = get_weg_nr(1)) && w->get_besch()->is_draw_as_ding())) {
 		set_flag(grund_t::draw_as_ding);
 	}
 	bool left_back_is_building = false;
