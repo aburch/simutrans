@@ -37,7 +37,7 @@ clean:
 
 %.o: %.c
 	@echo "===> CC  $<"
-	$(Q)$(CC) $(CFLAGS) -c -MMD -o $@ $<
+	$(Q)$(CC) $(CCFLAGS) -c -MMD -o $@ $<
 
 %.o: %.cc
 	@echo "===> CXX $<"
