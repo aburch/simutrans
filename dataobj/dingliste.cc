@@ -1019,17 +1019,17 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				// on old versions
 				if(d->get_pos()==current_pos) {
 					file->wr_obj_id(d->get_typ());
-					bei(i)->rdwr(file);
+					d->rdwr(file);
 				}
-				else if(bei(i)->get_pos().get_2d()==current_pos.get_2d()) {
+				else if (d->get_pos().get_2d() == current_pos.get_2d()) {
 					// ok, just error in z direction => we will correct it
-					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i",bei(i)->get_pos().x,bei(i)->get_pos().y,bei(i)->get_pos().z,current_pos.z);
+					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i", d->get_pos().x, d->get_pos().y, d->get_pos().z, current_pos.z);
 					file->wr_obj_id(d->get_typ());
-					bei(i)->set_pos( current_pos );
-					bei(i)->rdwr(file);
+					d->set_pos(current_pos);
+					d->rdwr(file);
 				}
 				else {
-					dbg->error( "dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", bei(i)->get_pos().x, bei(i)->get_pos().y, current_pos.x, current_pos.y, bei(i)->get_typ() );
+					dbg->error("dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", d->get_pos().x, d->get_pos().y, current_pos.x, current_pos.y, d->get_typ());
 					file->wr_obj_id(-1);
 				}
 			}
