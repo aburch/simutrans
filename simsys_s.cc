@@ -9,11 +9,7 @@
 #endif
 
 #ifdef SDL
-#ifndef WIN32
 #include <SDL.h>
-#else
-#include "../SDL-1.2.13/include/SDL.h"
-#endif
 
 #ifndef _MSC_VER
 #include <unistd.h>
@@ -21,8 +17,7 @@
 #endif
 
 #ifdef _WIN32
-//#include <SDL_syswm.h>
-#include "../SDL-1.2.13/include/SDL_syswm.h"
+#include <SDL_syswm.h>
 #include <windows.h>
 #else
 #include <sys/stat.h>
