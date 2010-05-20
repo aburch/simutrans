@@ -1617,18 +1617,16 @@ wayobj_t *grund_t::get_wayobj( waytype_t wt ) const
 {
 	waytype_t wt1 = ( wt == tram_wt ) ? track_wt : wt;
 
-	if(  find<wayobj_t>()  ) {
-		// since there might be more than one, we have to iterate through all of them
-		for(  uint8 i = 0;  i < get_top();  i++  ) {
-			ding_t *d = obj_bei(i);
-			if (wayobj_t* const wayobj = ding_cast<wayobj_t>(d)) {
-				waytype_t wt2 = wayobj->get_besch()->get_wtyp();
-				if(  wt2 == tram_wt  ) {
-					wt2 = track_wt;
-				}
-				if(  wt1 == wt2  ) {
-					return wayobj;
-				}
+	// since there might be more than one, we have to iterate through all of them
+	for(  uint8 i = 0;  i < get_top();  i++  ) {
+		ding_t *d = obj_bei(i);
+		if (wayobj_t* const wayobj = ding_cast<wayobj_t>(d)) {
+			waytype_t wt2 = wayobj->get_besch()->get_wtyp();
+			if(  wt2 == tram_wt  ) {
+				wt2 = track_wt;
+			}
+			if(  wt1 == wt2  ) {
+				return wayobj;
 			}
 		}
 	}
