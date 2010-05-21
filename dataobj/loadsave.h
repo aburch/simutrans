@@ -102,7 +102,7 @@ public:
 	void rdwr_str(const char *&s);
 
 	// s is a buf of size given
-	void rdwr_str(char *s, int size);
+	void rdwr_str(char* s, size_t size);
 
 	// only meaningful for XML
 	void start_tag( const char *tag );
