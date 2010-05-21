@@ -103,7 +103,7 @@ void fussgaenger_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char s[256];
-		file->rdwr_str(s,256);
+		file->rdwr_str(s, lengthof(s));
 		besch = table.get(s);
 		// unknow pedestrian => create random new one
 		if(besch == NULL  &&  !liste.empty()  ) {

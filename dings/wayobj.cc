@@ -140,7 +140,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 		}
 		else {
 			char bname[128];
-			file->rdwr_str(bname, 128);
+			file->rdwr_str(bname, lengthof(bname));
 
 			besch = wayobj_t::table.get(bname);
 			if(besch==NULL) {

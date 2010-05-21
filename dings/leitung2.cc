@@ -393,7 +393,7 @@ void leitung_t::rdwr(loadsave_t *file)
 			}
 			else {
 				char bname[128];
-				file->rdwr_str(bname, 128);
+				file->rdwr_str(bname, lengthof(bname));
 
 				const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 				if(besch==NULL) {

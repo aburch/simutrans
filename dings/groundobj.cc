@@ -196,7 +196,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char bname[128];
-		file->rdwr_str(bname,128);
+		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
 		if(  besch_names.empty()  ||  besch==NULL  ) {
 			groundobjtype = simrand(groundobj_typen.get_count());

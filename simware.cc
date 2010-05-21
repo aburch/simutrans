@@ -75,7 +75,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	}
 	else {
 		char typ[256];
-		file->rdwr_str(typ,256);
+		file->rdwr_str(typ, lengthof(typ));
 		const ware_besch_t *type = warenbauer_t::get_info(typ);
 		if(type==NULL) {
 			dbg->warning("ware_t::rdwr()","unknown ware of catg %d!",catg);

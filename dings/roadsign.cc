@@ -396,7 +396,7 @@ void roadsign_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char bname[128];
-		file->rdwr_str(bname, 128);
+		file->rdwr_str(bname, lengthof(bname));
 
 		besch = roadsign_t::table.get(bname);
 		if(besch==NULL) {

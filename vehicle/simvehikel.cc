@@ -1479,7 +1479,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	}
 	else {
 		char s[256];
-		file->rdwr_str(s,256);
+		file->rdwr_str(s, lengthof(s));
 		besch = vehikelbauer_t::get_info(s);
 		if(besch==NULL) {
 			besch = vehikelbauer_t::get_info(translator::compatibility_name(s));

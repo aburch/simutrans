@@ -708,7 +708,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		idx = tile->get_index();
 	}
 	else {
-		file->rdwr_str(buf, 128 );
+		file->rdwr_str(buf, lengthof(buf));
 	}
 	file->rdwr_short(idx, "\n");
 	file->rdwr_long(insta_zeit, " ");

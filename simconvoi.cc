@@ -1750,7 +1750,7 @@ convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	file->rdwr_str(name_and_id+name_offset,116);
+	file->rdwr_str(name_and_id + name_offset, lengthof(name_and_id) - name_offset);
 	if(file->is_loading()) {
 		set_name(name_and_id+name_offset);	// will add id automatically
 	}

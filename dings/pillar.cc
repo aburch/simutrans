@@ -89,7 +89,7 @@ void pillar_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char s[256];
-		file->rdwr_str(s,256);
+		file->rdwr_str(s, lengthof(s));
 		file->rdwr_byte(dir,"\n");
 
 		besch = brueckenbauer_t::get_besch(s);

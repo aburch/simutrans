@@ -36,7 +36,7 @@ warenziel_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char tn[256];
-		file->rdwr_str(tn,256);
+		file->rdwr_str(tn, lengthof(tn));
 		halt = halthandle_t();
 		catg_index = warenbauer_t::get_info(tn)->get_catg_index();
 	}
