@@ -22,6 +22,7 @@ enum wintype {
 	w_no_overlap   = 4, // try to place it below a previous window with the same flag
 	w_time_delete  = 8	// deletion after MESG_WAIT has elapsed
 };
+ENUM_BITSET(wintype)
 
 
 enum magic_numbers {
@@ -111,8 +112,8 @@ bool has_focus(const gui_komponente_t *);
 void release_focus(gui_komponente_t *);
 
 
-int create_win(gui_fenster_t *ig, uint8 wt, long magic);
-int create_win(int x, int y, gui_fenster_t *ig, uint8 wt, long magic);
+int create_win(gui_fenster_t*, wintype, long magic);
+int create_win(int x, int y, gui_fenster_t*, wintype, long magic);
 
 bool check_pos_win(struct event_t *ev);
 
