@@ -388,13 +388,6 @@ public:
 	*/
 	void set_line(linehandle_t );
 
-	/**
-	* registers the convoy with a line, but does not apply the line's fahrplan!
-	* used only during convoi restoration from savegame!
-	* @author hsiegeln
-	*/
-	void register_with_line(uint16 line_id);
-
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t
 	 */

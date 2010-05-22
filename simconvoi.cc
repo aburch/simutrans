@@ -314,7 +314,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				line = new_line;
 				line_id = new_line->get_line_id();
 				line->add_convoy(self);
-				DBG_DEBUG("convoi_t::register_with_line()","%s registers for %d", name_and_id, line_id);
+				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line_id);
 			}
 			else {
 				line_id = INVALID_LINE_ID;
