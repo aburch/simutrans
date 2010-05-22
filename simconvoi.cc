@@ -48,9 +48,6 @@
 #include "utils/cbuffer_t.h"
 
 
-// zeige debugging info in infofenster wenn definiert
-// #define DEBUG 1
-
 /*
  * Waiting time for loading (ms)
  * @author Hj- Malthaner
