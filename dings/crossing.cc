@@ -103,7 +103,7 @@ crossing_t::calc_bild()
 	const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
-		b = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+		b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	bild = b ? b->get_nummer() : IMG_LEER;
 }
