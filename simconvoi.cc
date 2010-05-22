@@ -1010,7 +1010,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 		}
 	}
 
-	dep->convoi_arrived(self, self->get_schedule()!=0);
+	dep->convoi_arrived(self, get_schedule());
 
 	destroy_win( magic_convoi_info+self.get_id() );
 	destroy_win( magic_convoi_detail+self.get_id() );
