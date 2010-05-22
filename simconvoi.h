@@ -369,6 +369,8 @@ private:
 
 	void check_pending_updates();
 
+	uint32 move_to(karte_t const&, koord3d const& k, uint16 start_index);
+
 public:
 	route_t* get_route() { return &route; }
 
