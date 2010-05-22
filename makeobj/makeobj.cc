@@ -15,7 +15,7 @@
 extern "C" {
 
 // dummy definition, since we print to screen anyway
-bool dr_fatal_notify(const char* msg, int choices)
+bool dr_fatal_notify(char const*, int)
 {
 	return false;
 }
