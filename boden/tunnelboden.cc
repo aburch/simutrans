@@ -97,7 +97,7 @@ tunnelboden_t::rdwr(loadsave_t *file)
 	if(file->get_version()==99003) {
 		char  buf[256];
 		const tunnel_besch_t *besch = NULL;
-		file->rdwr_str(buf,255);
+		file->rdwr_str(buf, lengthof(buf));
 		if (find<tunnel_t>() == NULL) {
 			besch = tunnelbauer_t::get_besch(buf);
 			if(besch) {

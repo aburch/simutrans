@@ -846,36 +846,19 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				case ding_t::bahndepot:
 				{
 					// for compatibilty reasons we may have to convert them to tram and monorail depots
-					gebaeude_t *gb = new gebaeude_t(welt, file);
-					// do not remove from this position, since there will be nothing
-					gb->set_flag(ding_t::not_on_map);
-
-					bahndepot_t *depot;
-					switch (gb->get_tile()->get_besch()->get_extra())
-					{
-						case monorail_wt:
-						{
-							depot = new monoraildepot_t(welt,gb->get_pos(),gb->get_besitzer(),gb->get_tile());
-							break;
-						}
-
-						case tram_wt:
-						{
-							depot = new tramdepot_t(welt,gb->get_pos(),gb->get_besitzer(),gb->get_tile());
-							break;
-						}
-
-						default:
-						{
-							depot = new bahndepot_t(welt,gb->get_pos(),gb->get_besitzer(),gb->get_tile());
-							break;
-						}
+					bahndepot_t*                   bd;
+					gebaeude_t                     gb(welt, file);
+					haus_tile_besch_t const* const tile = gb.get_tile();
+					switch (tile->get_besch()->get_extra()) {
+						case monorail_wt: bd = new monoraildepot_t(welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+						case tram_wt:     bd = new tramdepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+						default:          bd = new bahndepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
 					}
-					depot->rdwr_vehicles(file);
-					d = depot;
+					bd->rdwr_vehicles(file);
+					d   = bd;
 					typ = d->get_typ();
-
-					delete gb;
+					// do not remove from this position, since there will be nothing
+					gb.set_flag(ding_t::not_on_map);
 				}
 				break;
 

@@ -333,6 +333,7 @@ allow_buying_obsolete_vehicles = 1
 # .. number = 0..9 - up to ten different intercity_roads possible
 # .. name = name of an existing pak file
 #intercity_road[0] = asphalt_road,0,1990
+# default: city_road
 # (old, 102.2.2 and before) intercity_road_type = asphalt_road
 
 # Type of city roads - must be available as PAK file.
@@ -340,6 +341,7 @@ allow_buying_obsolete_vehicles = 1
 # .. number = 0..9 - up to ten different city_roads possible
 # .. name = name of an existing pak file
 #city_road[0] = dirt_road,1920,1940
+# default: asphalt_road
 # (old, 102.2.2 and before) city_road_type = city_road
 
 # now river stuff

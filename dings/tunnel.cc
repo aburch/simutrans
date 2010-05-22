@@ -92,7 +92,7 @@ void tunnel_t::rdwr(loadsave_t *file)
 	if(file->get_version()>=99001) {
 		char  buf[256];
 		if(file->is_loading()) {
-			file->rdwr_str(buf,255);
+			file->rdwr_str(buf, lengthof(buf));
 			besch = tunnelbauer_t::get_besch(buf);
 			if(besch==NULL) {
 				besch = tunnelbauer_t::get_besch(translator::compatibility_name(buf));

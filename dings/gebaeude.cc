@@ -730,7 +730,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		idx = tile->get_index();
 	}
 	else {
-		file->rdwr_str(buf, 128 );
+		file->rdwr_str(buf, lengthof(buf));
 	}
 	file->rdwr_short(idx, "\n");
 	if(file->get_experimental_version() <= 1)

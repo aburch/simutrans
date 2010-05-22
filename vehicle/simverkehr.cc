@@ -514,7 +514,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char s[256];
-		file->rdwr_str(s, 256);
+		file->rdwr_str(s, lengthof(s));
 		besch = table.get(s);
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {

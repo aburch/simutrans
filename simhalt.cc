@@ -3141,7 +3141,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	{
 		// restoring all goods in the station
 		char s[256];
-		file->rdwr_str(s,256);
+		file->rdwr_str(s, lengthof(s));
 		while(*s) 
 		{
 			short count;
@@ -3162,7 +3162,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
-			file->rdwr_str(s,256);
+			file->rdwr_str(s, lengthof(s));
 		}
 
 		// old games save the list with stations

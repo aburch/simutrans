@@ -714,7 +714,7 @@ void loadsave_t::rdwr_str(const char *&s)
 
 
 // read a string into a preallocated buffer
-void loadsave_t::rdwr_str(char *s, int size)
+void loadsave_t::rdwr_str(char* s, size_t const size)
 {
 	if(!is_xml()) {
 		sint16 len;
@@ -735,7 +735,7 @@ void loadsave_t::rdwr_str(char *s, int size)
 #ifdef BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
-			if(len>size) {
+			if (len >= size) {
 				dbg->fatal( "loadsave_t::rdwr_str()","string longer (%i) than allowed size (%i)", len, size );
 			}
 			read(s, len);

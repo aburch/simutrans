@@ -419,7 +419,7 @@ void leitung_t::rdwr(loadsave_t *file)
 			else 
 			{
 				char bname[128];
-				file->rdwr_str(bname, 128);
+				file->rdwr_str(bname, lengthof(bname));
 				if(bname[0] == '~')
 				{
 					set_besch(wegbauer_t::leitung_besch);					

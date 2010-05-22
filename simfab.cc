@@ -572,7 +572,7 @@ void fabrik_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char s[256];
-		file->rdwr_str(s,256);
+		file->rdwr_str(s, lengthof(s));
 DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::get_fabesch(s);
 		if(besch==NULL) {

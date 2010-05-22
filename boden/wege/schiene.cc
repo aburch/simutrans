@@ -172,7 +172,7 @@ schiene_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char bname[128];
-		file->rdwr_str(bname, 128 );
+		file->rdwr_str(bname, lengthof(bname));
 
 		int old_max_speed=get_max_speed();
 		int old_max_weight = get_max_weight();
