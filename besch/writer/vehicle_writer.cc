@@ -17,7 +17,7 @@
 /**
  * Calculate numeric engine type from engine type string
  */
-static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
+static uint8 get_engine_type(char const* const engine_type)
 {
 	uint8 uv8 = vehikel_besch_t::diesel;
 
@@ -316,7 +316,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		uv8 = vehikel_besch_t::electric;
 	} else {
 		const char* engine_type = obj.get("engine_type");
-		uv8 = get_engine_type(engine_type, obj);
+		uv8 = get_engine_type(engine_type);
 	}
 	node.write_uint8(fp, uv8, 26);
 
