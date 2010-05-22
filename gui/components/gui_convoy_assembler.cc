@@ -399,6 +399,10 @@ void gui_convoy_assembler_t::layout()
 
 	bt_obsolete.set_pos(koord(groesse.x-(ABUTTON_WIDTH*5)/2, PANEL_VSTART + get_panel_height() + 16));
 	bt_obsolete.pressed = show_retired_vehicles;
+	/*if(replace_frame)
+	{
+		replace_frame->layout(NULL);
+	}*/
 }
 
 
@@ -1099,6 +1103,10 @@ DBG_DEBUG("gui_convoy_assembler_t::update_data()","current %s with colors %i,%i"
 			}
 		}
 		depot_frame->layout(NULL);
+	}
+	else if(replace_frame)
+	{
+		replace_frame->layout(NULL);
 	}
 }
 
