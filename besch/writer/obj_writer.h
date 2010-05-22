@@ -38,6 +38,8 @@ class obj_writer_t {
 		void write_head(FILE* fp, obj_node_t& node, tabfileobj_t& obj);
 
 	public:
+		virtual ~obj_writer_t() {}
+
 		virtual obj_type get_type() const = 0;
 		virtual const char* get_type_name() const = 0;
 
