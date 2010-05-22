@@ -17,9 +17,9 @@
 /**
  * Calculate numeric engine type from engine type string
  */
-static uint8 get_engine_type(char const* const engine_type)
+static vehikel_besch_t::engine_t get_engine_type(char const* const engine_type)
 {
-	uint8 uv8 = vehikel_besch_t::diesel;
+	vehikel_besch_t::engine_t uv8 = vehikel_besch_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
 		uv8 = vehikel_besch_t::diesel;
