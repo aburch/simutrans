@@ -13,7 +13,7 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 	png_bytep* row_pointers;
 	unsigned row, x, y;
 	int rowbytes;
-	char* dst;
+	unsigned char* dst;
 
 	//png_uint_32 is 64 bit on some architectures!
 	png_uint_32 widthpu32,heightpu32;
