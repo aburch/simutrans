@@ -32,7 +32,6 @@
 class depot_t;
 class karte_t;
 class spieler_t;
-class convoi_info_t;
 class vehikel_t;
 class vehikel_besch_t;
 class schedule_t;
@@ -102,12 +101,6 @@ private:
 	*/
 	uint8 name_offset;
 	char name_and_id[128];
-
-	/**
-	* Information window for ourselves.
-	* @author Hj. Malthaner
-	*/
-	convoi_info_t *convoi_info;
 
 	/**
 	* Alle vehikel-fahrplanzeiger zeigen hierauf
