@@ -46,14 +46,14 @@ stringhashtable_tpl<const way_obj_besch_t *> wayobj_t::table;
 
 
 
-wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
+wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	rdwr(file);
 }
 
 
 
-wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi d, const way_obj_besch_t *b) :  ding_t(welt, pos)
+wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : ding_no_info_t(welt, pos)
 {
 	besch = b;
 	dir = d;

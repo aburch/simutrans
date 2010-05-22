@@ -13,7 +13,7 @@ class rauch_besch_t;
  * smoke clouds (formerly sync_wolke_t)
  * @author Hj. Malthaner
  */
-class wolke_t : public ding_t, public sync_steppable
+class wolke_t : public ding_no_info_t, public sync_steppable
 {
 private:
 	// maximum 16 types of clouds for now ...
@@ -37,8 +37,6 @@ public:
 
 	const char* get_name() const { return "Wolke"; }
 	typ get_typ() const { return sync_wolke; }
-
-	void zeige_info() {} // show no info
 
 	image_id get_bild() const { return all_clouds[cloud_nr]->get_bild_nr(insta_zeit/divisor); }
 

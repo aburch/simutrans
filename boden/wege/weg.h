@@ -47,7 +47,7 @@ enum way_statistics {
  *
  * @author Hj. Malthaner
  */
-class weg_t : public ding_t
+class weg_t : public ding_no_info_t
 {
 public:
 	/**
@@ -124,8 +124,8 @@ private:
 	void init_statistics();
 
 public:
-	weg_t(karte_t* welt, loadsave_t*) : ding_t(welt) { init(); }
-	weg_t(karte_t *welt) : ding_t(welt) { init(); }
+	weg_t(karte_t* const welt, loadsave_t*) : ding_no_info_t(welt) { init(); }
+	weg_t(karte_t* const welt) : ding_no_info_t(welt) { init(); }
 
 	virtual ~weg_t();
 
@@ -168,8 +168,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void info(cbuffer_t & buf) const;
-
-	void zeige_info() {} // show no info
 
 	/**
 	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
