@@ -271,5 +271,11 @@ note=Error message when placing a substation in an inappropriate location.
 obj=program_text
 name=\nCity: 
 note=The label for the city in which a downstream substation is located.
-
-
+--
+obj=program_text
+name=Reset this replacing operation
+note=The tooltip for "clear" in the convoy replacer window.
+--
+obj=program_text
+name=Clear
+note=The button to cancel convoy replacing in the convoy replacer window.

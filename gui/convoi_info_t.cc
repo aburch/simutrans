@@ -315,7 +315,6 @@ enable_home:
 			}
 			no_load_button.pressed = cnv->get_no_load();
 			no_load_button.enable();
-			//replace_button.background= cnv->get_replace()?COL_LIGHT_RED:MN_GREY3;
 			replace_button.pressed = cnv->get_replace();
 			replace_button.set_text(cnv->get_replace()?"Replacing":"Replace");
 			replace_button.enable();
@@ -525,12 +524,6 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 		if(komp == &replace_button) 
 		{
-			if (cnv->get_replace()) 
-			{
-				cnv->clear_replace();
-				return true;
-			}
-
 			create_win(20, 20, new replace_frame_t(cnv, get_name()), w_info, magic_replace + cnv.get_id() );
 			return true;
 		}

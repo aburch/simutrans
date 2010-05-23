@@ -5283,6 +5283,13 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			cnv->set_replace(NULL);
 			break;
 
+		case 'X': // Clear replace
+			if(cnv->get_replace())
+			{
+				cnv->get_replace()->clear_all();
+			}
+			break;
+
 		case 'w': // change withdraw
 			if(  sp!=welt->get_active_player()  &&  !umgebung_t::networkmode  ) {
 				// pop up error message here!

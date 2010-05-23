@@ -4130,13 +4130,32 @@ convoi_t::get_catering_level(uint8 type) const
  */
 bool convoi_t::has_same_vehicles(convoihandle_t other) const
 {
-	if (other.is_bound()) {
-		if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) {
+	if (other.is_bound()) 
+	{
+		if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) 
+		{
 			return false;
 		}
-		for (int i=0; i<get_vehikel_anzahl(); i++) {
-			if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()) {
-				return false;
+		if(reversed == other->reversed)
+		{
+			for (int i=0; i<get_vehikel_anzahl(); i++) 
+			{
+				if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()) 
+				{
+					return false;
+				}
+			}
+		}
+		else
+		{
+			int reverse_count = get_vehikel_anzahl() - 1;
+			for (int i=0; i<get_vehikel_anzahl(); i++) 
+			{
+				if (get_vehikel(reverse_count)->get_besch()!=other->get_vehikel(i)->get_besch()) 
+				{
+					return false;
+				}
+				reverse_count --;
 			}
 		}
 		return true;
@@ -4573,7 +4592,7 @@ void convoi_t::clear_replace()
 {
 	if(replace)
 	{
-		replace->decrement_convoys();
+		replace->decrement_convoys(self);
 		replace = NULL;
 	}
 }
@@ -4582,7 +4601,7 @@ void convoi_t::clear_replace()
  { 
 	 if(new_replace != NULL && replace != new_replace)
 	 {
-		 new_replace->increment_convoys();
+		 new_replace->increment_convoys(self);
 	 }
 	 replace = new_replace;
  }

@@ -57,6 +57,7 @@ private:
 	gui_label_t		lb_money;
 	button_t		bt_replace_line;
 	button_t		bt_replace_all;
+	button_t		bt_clear;
 	button_t		bt_autostart;
 	button_t		bt_depot;
 	button_t		bt_mark;
