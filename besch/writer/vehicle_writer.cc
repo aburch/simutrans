@@ -468,7 +468,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	uint16 default_loading_time;
 
-	switch(waytype_uint)
+	switch(waytype)
 	{
 		default:	
 		case tram_wt:
@@ -522,7 +522,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Air resistance
 	// @author: jamespetts & Bernd Gabriel
 	uint16 air_default;
-	switch(waytype_uint)
+	switch(waytype)
 	{
 		default:
 		case road_wt:
