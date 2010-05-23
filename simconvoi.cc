@@ -4603,5 +4603,9 @@ void convoi_t::clear_replace()
 	 {
 		 new_replace->increment_convoys(self);
 	 }
+	 if(replace != NULL)
+	 {
+		 replace->decrement_convoys(self);
+	 }
 	 replace = new_replace;
  }
