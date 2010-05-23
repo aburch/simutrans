@@ -222,8 +222,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 
 		for (int j = 0; j < pos; j++)
 		{
-			halthandle_t const halt     = wlist[j].get_ziel();
-			halthandle_t const via_halt = wlist[j].get_zwischenziel();
+			halthandle_t const halt			= wlist[j].get_ziel();
+			halthandle_t const via_halt		= wlist[j].get_zwischenziel();
 			halthandle_t const origin_halt	= wlist[j].get_origin();
 
 			const char * name = "unknown";
