@@ -155,13 +155,6 @@ public:
 
 	static werkzeug_t *dummy;
 
-	// for sorting: compare tool key
-	static bool compare_werkzeug( const werkzeug_t *a, const werkzeug_t *b) {
-		uint16 ac = a->command_key & ~32;
-		uint16 bc = b->command_key & ~32;
-		return ac==bc ? a->command_key < b->command_key : ac < bc;
-	}
-
 	// for key loockup
 	static vector_tpl<werkzeug_t *>char_to_tool;
 
