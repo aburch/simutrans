@@ -27,7 +27,7 @@ class werkzeug_waehler_t;
  *
  * @author Hj. Malthaner
  */
-class wayobj_t : public ding_t
+class wayobj_t : public ding_no_info_t
 {
 private:
 	const way_obj_besch_t *besch;
@@ -76,12 +76,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	typ get_typ() const { return wayobj; }
-
-	/**
-	* no infowin
-	* @author Hj. Malthaner
-	*/
-	void zeige_info() {}
 
 	void calc_bild();
 

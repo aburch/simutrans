@@ -10,7 +10,7 @@
  * Hj. Malthaner
  */
 
-class bruecke_t : public ding_t
+class bruecke_t : public ding_no_info_t
 {
 private:
 	const bruecke_besch_t *besch;
@@ -40,8 +40,6 @@ public:
 	void laden_abschliessen();
 
 	void entferne(spieler_t *sp);
-
-	void zeige_info() {} // show no info
 
 	void rotate90();
 	/**

@@ -53,9 +53,6 @@
 
 #include "convoy.h"
 
-// zeige debugging info in infofenster wenn definiert
-// #define DEBUG 1
-
 /*
  * Waiting time for loading (ms)
  * @author Hj- Malthaner
@@ -268,6 +265,37 @@ void convoi_t::close_windows()
 	destroy_win( magic_replace+self.get_id() );
 }
 
+uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const start_index)
+{
+	uint32 train_length = 0;
+	for (unsigned i = 0; i != anz_vehikel; ++i) {
+		vehikel_t& v = *fahr[i];
+
+		steps_driven = -1;
+
+		if (grund_t const* const gr = welt.lookup(v.get_pos())) {
+			v.mark_image_dirty(v.get_bild(), v.get_hoff());
+			v.verlasse_feld();
+			// maybe unreserve this
+			if (schiene_t* const rails = dynamic_cast<schiene_t*>(gr->get_weg(v.get_waytype()))) {
+				rails->unreserve(&v);
+			}
+		}
+
+		/* Set pos_prev to the starting point this way.  Otherwise it may be
+		 * elsewhere, especially on curves and with already broken convois. */
+		v.set_pos(k);
+		v.neue_fahrt(start_index, true);
+		if (welt.lookup(v.get_pos())) {
+			v.set_pos(k);
+			v.betrete_feld();
+		}
+
+		if (i != anz_vehikel - 1U) train_length += v.get_besch()->get_length();
+	}
+	return train_length;
+}
+
 
 void convoi_t::laden_abschliessen()
 {
@@ -338,7 +366,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 				line = new_line;
 				line_id = new_line->get_line_id();
 				line->add_convoy(self);
-				DBG_DEBUG("convoi_t::register_with_line()","%s registers for %d", name_and_id, line_id);
+				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line_id);
 			}
 			else {
 				line_id = INVALID_LINE_ID;
@@ -359,41 +387,8 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		// since start may have been changed
 		uint16 start_index = max(2,fahr[anz_vehikel-1]->get_route_index())-2;
 		koord3d k0 = fahr[anz_vehikel-1]->get_pos();
-		uint32 train_length = 1;	// length in 1/16 of tile
 
-		for(unsigned i=0; i<anz_vehikel; i++) {
-
-			vehikel_t *v = fahr[i];
-			steps_driven = -1;
-			grund_t* gr = welt->lookup(v->get_pos());
-			if(gr) {
-				v->mark_image_dirty( v->get_bild(), v->get_hoff() );
-				v->verlasse_feld();
-				// eventually unreserve this
-				schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
-				if(sch0) {
-					sch0->unreserve(v);
-				}
-			}
-
-			// steps to advance afterwards ...
-			if(  i < (anz_vehikel-1u)  ) {
-				train_length += fahr[i]->get_besch()->get_length();
-			}
-
-			/* we will set by this method the pos_prev to the starting point;
-			 * otherwise it may be elsewhere, especially on curves and with already
-			 * broken convois.
-			 */
-			v->set_pos(k0);
-			v->neue_fahrt(start_index, true);
-			gr=welt->lookup(v->get_pos());
-			if(gr) {
-				v->set_pos(k0);
-				v->betrete_feld();
-			}
-		}
-		train_length = max(1,train_length);
+		uint32 train_length = move_to(*welt, k0, start_index) + 1;
 
 		// now advance all convoi until it is completely on the track
 		fahr[0]->set_erstes(false); // switches off signal checks ...
@@ -1314,7 +1309,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 		}
 	}
 
-	dep->convoi_arrived(self, self->get_schedule()!=0);
+	dep->convoi_arrived(self, get_schedule());
 
 	close_windows();
 
@@ -2115,39 +2110,9 @@ void convoi_t::vorfahren()
 			// since start may have been changed
 			k0 = route.position_bei(0);
 
-			for(unsigned i=0; i<anz_vehikel; i++) {
-
-				vehikel_t *v = fahr[i];
-				steps_driven = -1;
-				grund_t* gr = welt->lookup(v->get_pos());
-				if(gr) {
-					v->mark_image_dirty( v->get_bild(), v->get_hoff() );
-					v->verlasse_feld(); //"leave field" (Google)
-					// eventually unreserve this
-					schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
-					if(sch0) {
-						sch0->unreserve(v);
-					}
-				}
-				/* we will set by this method the pos_prev to the starting point;
-				 * otherwise it may be elsewhere, especially on curves and with already
-				 * broken convois.
-				 */
-				v->set_pos(k0);
-				v->neue_fahrt(0, true);
-				gr=welt->lookup(v->get_pos());
-				if(gr) {
-					v->set_pos(k0);
-					v->betrete_feld(); //"enter field" (Google)
-				}
-			}
+			uint32 train_length = move_to(*welt, k0, 0);
 
 			// move one train length to the start position ...
-			int train_length = 0;
-			for(unsigned i=0; i<anz_vehikel-1u; i++) 
-			{
-				train_length += fahr[i]->get_besch()->get_length(); // this give the length in 1/TILE_STEPS of a full tile
-			}
 			// in north/west direction, we leave the vehicle away to start as much back as possible
 			ribi_t::ribi neue_richtung = fahr[0]->get_direction_of_travel();
 			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost)

@@ -3592,7 +3592,7 @@ bool wkz_roadsign_t::init( karte_t *welt, spieler_t * sp)
 	read_default_param(sp);
 
 	if (is_ctrl_pressed()  &&  is_local_execution()) {
-		create_win(new signal_spacing_frame_t(sp, this), 0, (long)this);
+		create_win(new signal_spacing_frame_t(sp, this), w_info, (long)this);
 	}
 	return two_click_werkzeug_t::init(welt, sp);
 }

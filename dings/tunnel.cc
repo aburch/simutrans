@@ -25,7 +25,7 @@
 
 
 
-tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+tunnel_t::tunnel_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	besch = 0;
 	rdwr(file);
@@ -35,7 +35,7 @@ tunnel_t::tunnel_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 
 tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch) :
-	ding_t(welt, pos)
+	ding_no_info_t(welt, pos)
 {
 	assert(besch);
 	this->besch = besch;

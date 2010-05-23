@@ -19,7 +19,7 @@ class vehikel_basis_t;
  * road sign for traffic (one way minimum speed, traffic lights)
  * @author Hj. Malthaner
  */
-class crossing_t : public ding_t
+class crossing_t : public ding_no_info_t
 {
 protected:
 	image_id after_bild, bild;
@@ -46,9 +46,6 @@ public:
 	 * @author prissi
 	 */
 	void info(cbuffer_t & buf) const { logic->info(buf); }
-
-	// no info
-	void zeige_info() {}
 
 	/**
 	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung

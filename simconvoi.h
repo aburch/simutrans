@@ -38,7 +38,6 @@
 class depot_t;
 class karte_t;
 class spieler_t;
-class convoi_info_t;
 class vehikel_t;
 class vehikel_besch_t;
 class schedule_t;
@@ -111,12 +110,6 @@ private:
 	*/
 	uint8 name_offset;
 	char name_and_id[128];
-
-	/**
-	* Information window for ourselves.
-	* @author Hj. Malthaner
-	*/
-	convoi_info_t *convoi_info;
 
 	/**
 	* Alle vehikel-fahrplanzeiger zeigen hierauf
@@ -440,6 +433,8 @@ private:
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
 
+	uint32 move_to(karte_t const&, koord3d const& k, uint16 start_index);
+
 public:
 	inline route_t* get_route() { return &route; }
 
@@ -463,13 +458,6 @@ public:
 	* @author hsiegeln
 	*/
 	void set_line(linehandle_t );
-
-	/**
-	* registers the convoy with a line, but does not apply the line's fahrplan!
-	* used only during convoi restoration from savegame!
-	* @author hsiegeln
-	*/
-	void register_with_line(uint16 line_id);
 
 	/* changes the state of a convoi via werkzeug_t; mandatory for networkmode! *
 	 * for list of commands and parameter see werkzeug_t::wkz_change_convoi_t

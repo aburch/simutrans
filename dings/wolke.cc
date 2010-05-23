@@ -38,7 +38,7 @@ bool wolke_t::register_besch(const skin_besch_t* besch)
 
 
 wolke_t::wolke_t(karte_t *welt, koord3d pos, sint8 x_off, sint8 y_off, const skin_besch_t* besch ) :
-	ding_t(welt, pos)
+	ding_no_info_t(welt, pos)
 {
 	cloud_nr = all_clouds.index_of(besch);
 	base_y_off = clamp( (((sint16)y_off-8)*TILE_STEPS)/16, -128, 127 );
@@ -57,7 +57,7 @@ wolke_t::~wolke_t()
 
 
 
-wolke_t::wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+wolke_t::wolke_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	rdwr(file);
 }

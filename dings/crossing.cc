@@ -28,7 +28,7 @@
 
 
 
-crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
+crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	bild = after_bild = IMG_LEER;
 	logic = NULL;
@@ -37,7 +37,7 @@ crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 
 
 
-crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns ) :  ding_t(welt, pos)
+crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : ding_no_info_t(welt, pos)
 {
 	this->ns = ns;
 	this->besch = besch;
@@ -103,7 +103,7 @@ crossing_t::calc_bild()
 	const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
 	if (b==NULL  &&  snow_image) {
 		// no snow image? take normal one
-		b = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+		b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
 	bild = b ? b->get_nummer() : IMG_LEER;
 }

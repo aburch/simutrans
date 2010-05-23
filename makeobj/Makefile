@@ -7,6 +7,16 @@ ifeq ($(findstring $(OSTYPE), $(OSTYPES)),)
   $(error Unkown OSTYPE "$(OSTYPE)", must be one of "$(OSTYPES)")
 endif
 
+PNG_CONFIG ?= pkg-config libpng
+
+ifneq ($(PNG_CONFIG),)
+	PNG_CFLAGS  := $(shell $(PNG_CONFIG) --cflags)
+	PNG_LDFLAGS := $(shell $(PNG_CONFIG) --libs)
+endif
+
+CFLAGS  += $(PNG_CFLAGS)
+LDFLAGS += $(PNG_LDFLAGS)
+
 # Absolutely essential
 CFLAGS += -DMAKEOBJ
 CXXFLAGS += -DMAKEOBJ

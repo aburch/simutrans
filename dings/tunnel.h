@@ -6,7 +6,7 @@
 
 class tunnel_besch_t;
 
-class tunnel_t : public ding_t
+class tunnel_t : public ding_no_info_t
 {
 private:
 	const tunnel_besch_t *besch;
@@ -31,8 +31,6 @@ public:
 	const tunnel_besch_t *get_besch() const { return besch; }
 
 	void set_besch( const tunnel_besch_t *_besch ) { besch = _besch; }
-
-	void zeige_info() {} // show no info
 
 	void rdwr(loadsave_t *file);
 

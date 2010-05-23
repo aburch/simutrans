@@ -458,22 +458,18 @@ void grund_t::take_obj_from(grund_t* other_gr)
 }
 
 
-bool grund_t::zeige_info()
+void grund_t::zeige_info()
 {
 	int old_count = win_get_open_count();
-	bool success = false;
 	if(get_halt().is_bound()) {
 		get_halt()->zeige_info();
 		if(umgebung_t::single_info  &&  old_count!=win_get_open_count()  ) {
-			return true;
+			return;
 		}
-		success = true;
 	}
 	if(umgebung_t::ground_info  ||  hat_wege()) {
 		create_win(new grund_info_t(this), w_info, (long)this);
-		return true;
 	}
-	return success;
 }
 
 
