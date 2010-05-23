@@ -67,8 +67,7 @@ void crossing_logic_t::recalc_state()
 			grund_t *gr = welt->lookup(crossings[i]->get_pos());
 			if(gr) {
 				for( uint8 i=3;  i<gr->get_top();  i++  ) {
-					vehikel_basis_t *v = dynamic_cast<vehikel_basis_t *>(gr->obj_bei(i));
-					if(v) {
+					if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(i))) {
 						add_to_crossing( v );
 					}
 				}
@@ -190,34 +189,55 @@ crossing_logic_t::set_state( crossing_state_t new_state )
 /* static stuff from here on ... */
 
 
-// nothing can cross airways, so waytype 0..7 is enough
-kreuzung_besch_t* crossing_logic_t::can_cross_array[9][9] =
-{
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-	{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
-};
+/**
+ * nothing can cross airways, so waytype 0..7 is enough
+ * only save this entries:
+ * way0 way1
+ *  0 .. 1 2 3 4 5 6 7 8
+ *  1 ..   2 3 4 5 6 7 8
+ *  2 ..     3 4 5 6 7 8
+ * ..          ...
+ */
+minivec_tpl<const kreuzung_besch_t *> crossing_logic_t::can_cross_array[36];
 
-
-
-bool crossing_logic_t::register_besch(kreuzung_besch_t *besch)
+void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 {
 	// mark if crossing possible
-	if(besch->get_waytype(0)<8  &&  besch->get_waytype(1)<9) {
-		can_cross_array[besch->get_waytype(0)][besch->get_waytype(1)] = besch;
-		can_cross_array[besch->get_waytype(1)][besch->get_waytype(0)] = besch;
+	const waytype_t way0 = (const waytype_t)min(besch->get_waytype(0), besch->get_waytype(1));
+	const waytype_t way1 = (const waytype_t)max(besch->get_waytype(0), besch->get_waytype(1));
+	if(way0<8  &&  way1<9  &&  way0<way1) {
+		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
+		// max index = 7*9 + 8 - 9*4 = 71-36 = 35
+		// .. overwrite double entries
+		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
+		for(uint8 i=0; i<vec.get_count(); i++) {
+			if (strcmp(vec[i]->get_name(), besch->get_name())==0) {
+				vec[i] = besch;
+				dbg->warning( "crossing_logic_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+				return;
+			}
+		}
+		vec.append(besch);
 	}
 DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
-	return true;
 }
 
-
+const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, uint16 timeline_year_month)
+{
+	// mark if crossing possible
+	const waytype_t way0 = ns <  ow ? ns : ow;
+	const waytype_t way1 = ns >= ow ? ns : ow;
+	if(way0<8  &&  way1<9  &&  way0!=way1) {
+		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
+		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
+		for(uint8 i=0; i<vec.get_count(); i++) {
+			if (vec[i]->is_available(timeline_year_month)) {
+				return vec[i];
+			}
+		}
+	}
+	return NULL;
+}
 
 // returns a new or an existing crossing_logic_t object
 // new, of no matching crossings are next to it

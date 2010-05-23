@@ -62,6 +62,7 @@ const haus_besch_t *hausbauer_t::elevated_foundation_besch = NULL;
 
 // all buildings with rails or connected to stops
 vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
+vector_tpl<haus_besch_t*> hausbauer_t::modifiable_station_buildings;
 
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
@@ -189,6 +190,7 @@ bool hausbauer_t::register_besch(haus_besch_t *besch)
 		}
 		else {
 			wkz = new wkz_station_t();
+			modifiable_station_buildings.append(besch);
 		}
 		wkz->set_icon( besch->get_cursor()->get_bild_nr(1) );
 		wkz->cursor = besch->get_cursor()->get_bild_nr(0),
@@ -268,23 +270,20 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 	fabrik_t *fab = gb->get_fabrik();
 	if(fab) {
 		// first remove fabrik_t pointers
-		grund_t *gr = NULL;
 		for(k.y = 0; k.y < size.y; k.y ++) {
 			for(k.x = 0; k.x < size.x; k.x ++) {
-				gr = welt->lookup(koord3d(k,0)+pos);
+				const grund_t *gr = welt->lookup(koord3d(k,0)+pos);
 				assert(gr);
-				if(gr != NULL)
-				{
+
+				// for buildings with holes the hole could be on a different height ->gr==NULL
+				if (gr) {
 					gebaeude_t *gb_part = gr->find<gebaeude_t>();
-					if(gb_part) 
-					{
+					if(gb_part) {
 						// there may be buildings with holes, so we only remove our or the hole!
-						if(gb_part->get_tile()->get_besch()==hb) 
-						{
+						if(gb_part->get_tile()->get_besch()==hb) {
 							gb_part->set_fab( NULL );
 							planquadrat_t *plan = welt->access( k+pos.get_2d() );
-							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) 
-							{
+							for( int i=plan->get_haltlist_count()-1;  i>=0;  i--  ) {
 								halthandle_t halt = plan->get_haltlist()[i];
 								halt->remove_fabriken( fab );
 								plan->remove_from_haltlist( welt, halt );
@@ -380,11 +379,11 @@ void hausbauer_t::remove( karte_t *welt, spieler_t *sp, gebaeude_t *gb ) //gebae
 						}
 						// there might be walls from foundations left => thus some tiles may needs to be redraw
 						if(ground_recalc) {
-							if(pos.x<welt->get_groesse_x()-1) {
-								welt->lookup_kartenboden(newk+koord::ost)->calc_bild();
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::ost)) {
+								gr->calc_bild();
 							}
-							if(pos.y<welt->get_groesse_y()-1) {
-								welt->lookup_kartenboden(newk+koord::sued)->calc_bild();
+							if(grund_t *gr = welt->lookup_kartenboden(newk+koord::sued)) {
+								gr->calc_bild();
 							}
 						}
 					}

@@ -18,7 +18,9 @@ replace_data_t::replace_data_t()
 	use_home_depot = false;
 	allow_using_existing_vehicles = true;
 	replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+	replacing_convoys = new vector_tpl<convoihandle_t>();
 	number_of_convoys = 0;
+	clearing = false;
 }
 
 replace_data_t::replace_data_t(replace_data_t* copy_from)
@@ -29,6 +31,7 @@ replace_data_t::replace_data_t(replace_data_t* copy_from)
 	allow_using_existing_vehicles = copy_from->get_allow_using_existing_vehicles();
 	const uint16 replace_count = copy_from->get_replacing_vehicles()->get_count();
 	replacing_vehicles = new vector_tpl<const vehikel_besch_t*>(replace_count);
+	replacing_convoys = new vector_tpl<convoihandle_t>();
 	for(uint16 i = 0; i < replace_count; i ++)
 	{
 		replacing_vehicles->append(copy_from->get_replacing_vehicle(i));
@@ -40,6 +43,7 @@ replace_data_t::replace_data_t(replace_data_t* copy_from)
 replace_data_t::replace_data_t(loadsave_t *file)
 {
 	replacing_vehicles = new vector_tpl<const vehikel_besch_t *>;
+	replacing_convoys = new vector_tpl<convoihandle_t>();
 	rdwr(file);
 	// When replace data are loaded, there is no easy way of checking
 	// to see which are identical, so they are assigned to convoys one
@@ -163,6 +167,7 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 replace_data_t::~replace_data_t()
 {
 	delete replacing_vehicles;
+	delete replacing_convoys;
 }
 
 void replace_data_t::rdwr(loadsave_t *file)
@@ -214,9 +219,14 @@ const vehikel_besch_t*  replace_data_t::get_replacing_vehicle(uint16 number) con
 	
 }
 
-void replace_data_t::decrement_convoys()
+void replace_data_t::decrement_convoys(convoihandle_t cnv)
 {
-	if(--number_of_convoys <= 0)
+	if(!clearing)
+	{
+		replacing_convoys->remove(cnv);
+	}
+
+	if(--number_of_convoys <= 0 && !clearing)
 	{
 		// See http://www.parashift.com/c++-faq-lite/freestore-mgmt.html#faq-16.15
 		// When maintaining this code, ensure that the above criteria remain satisfied.
@@ -236,3 +246,23 @@ void replace_data_t::add_vehicle(const vehikel_besch_t* vehicle, bool add_at_fro
 	}
 }
 
+void replace_data_t::increment_convoys(convoihandle_t cnv)
+{
+	replacing_convoys->append(cnv); 
+	number_of_convoys ++; 
+}
+
+void replace_data_t::clear_all()
+{
+	clearing = true;
+	ITERATE_PTR(replacing_convoys, i)
+	{
+		if(replacing_convoys->get_element(i).is_bound())
+		{
+			replacing_convoys->get_element(i)->clear_replace();
+			replacing_convoys->get_element(i)->set_depot_when_empty(false);
+			replacing_convoys->get_element(i)->set_no_load(false);
+		}
+	}
+	delete this;
+}

@@ -45,6 +45,7 @@ public:
 
 	// to allow for an arbitary number, we use lists
 	static vector_tpl<const haus_besch_t*> station_building;
+	static vector_tpl<haus_besch_t*> modifiable_station_buildings;
 	static vector_tpl<const haus_besch_t*> headquarter;
 
 private:

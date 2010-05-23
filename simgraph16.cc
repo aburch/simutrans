@@ -57,11 +57,6 @@
  */
 typedef uint16 PIXVAL;
 
-// sanity check: USE_C if not GCC and not intel 32bit
-#if !defined(__GNUC__)  ||  !defined(_X86_)
-#define USE_C
-#endif
-
 
 #ifdef USE_SOFTPOINTER
 static int softpointer = -1;
@@ -90,10 +85,10 @@ static struct clip_dimension clip_rect;
  * at screen line y
  * associated to some clipline
  */
-typedef struct {
+struct xrange {
 	int xmin,xmax,sx,sy,y;
 	bool non_convex_active;
-} xrange;
+};
 
 #define MAX_POLY_CLIPS 6
 static xrange      xranges[MAX_POLY_CLIPS];
@@ -1812,7 +1807,7 @@ void register_image(struct bild_t* bild)
 	image->player_data = NULL;	// chaches data for one AI
 
 	// since we do not recode them, we can work with the original data
-	image->base_data = (PIXVAL*)(bild->data);
+	image->base_data = bild->data;
 
 	// does this image have color?
 	if(  bild->h > 0  ) {
@@ -2363,7 +2358,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 
 					: "+D" (p), "+S" (sp), "+r" (runlen)
 					:
-					: "cc"
+					: "cc", "memory"
 				);
 #endif
 				runlen = *sp++;
@@ -3103,19 +3098,17 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 #else
 			asm volatile (
 				// uneven words to copy?
-				// if(w&1)
-				"testb $1,%%cl\n\t"
-				"je 0f\n\t"
+				"shrl %1\n\t"
+				"jnc 0f\n\t"
 				// set first word
 				"stosw\n\t"
 				"0:\n\t"
 				// now we set long words ...
-				"shrl %%ecx\n\t"
 				"rep\n\t"
 				"stosl"
 				: "+D" (p), "+c" (count)
 				: "a" (longcolval)
-				: "cc"
+				: "cc", "memory"
 			);
 #endif
 

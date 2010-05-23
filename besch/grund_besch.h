@@ -48,7 +48,7 @@ public:
 	static const grund_besch_t *border;
 	static const grund_besch_t *ausserhalb;
 
-	static const char *get_climate_name_from_bit( enum climate n );
+	static char const* get_climate_name_from_bit(climate n);
 
 #ifdef DOUBLE_GROUNDS
     static const uint8 slopetable[80];

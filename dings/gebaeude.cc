@@ -98,7 +98,7 @@ gebaeude_t::gebaeude_t(karte_t *welt, koord3d pos, spieler_t *sp, const haus_til
 	}
 
 	sint64 maint;
-	if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+	if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
 	{
 		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
 	}
@@ -140,7 +140,7 @@ gebaeude_t::~gebaeude_t()
 	if(tile) 
 	{
 		sint64 maint;
-		if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+		if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
 		{
 			maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
 		}
@@ -664,8 +664,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 					*dest = 0;
 				}
 
-				trans_desc = text;
-				buf.append(trans_desc);
+				buf.append(text);
 				delete [] text;
 			}
 		}
@@ -673,9 +672,7 @@ void gebaeude_t::info(cbuffer_t & buf) const
 
 		// belongs to which city?
 		if (!is_factory && ptr.stadt != NULL) {
-			char buffer[256];
-			sprintf(buffer,translator::translate("Town: %s\n"),ptr.stadt->get_name());
-			buf.append(buffer);
+			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
 		}
 
 		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {
@@ -733,7 +730,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		idx = tile->get_index();
 	}
 	else {
-		file->rdwr_str(buf, 128 );
+		file->rdwr_str(buf, lengthof(buf));
 	}
 	file->rdwr_short(idx, "\n");
 	if(file->get_experimental_version() <= 1)
@@ -899,7 +896,7 @@ void gebaeude_t::laden_abschliessen()
 	calc_bild();
 
 	sint64 maint;
-	if(tile->get_besch()->get_base_staiton_maintenance() == 2147483647)
+	if(tile->get_besch()->get_base_station_maintenance() == 2147483647)
 	{
 		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
 	}

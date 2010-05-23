@@ -69,7 +69,19 @@ template<> struct map_ding<stadtauto_t>   { static const ding_t::typ code = ding
 template<> struct map_ding<automobil_t>   { static const ding_t::typ code = ding_t::automobil;   };
 template<> struct map_ding<tunnel_t>      { static const ding_t::typ code = ding_t::tunnel;      };
 template<> struct map_ding<wayobj_t>      { static const ding_t::typ code = ding_t::wayobj;      };
+template<> struct map_ding<weg_t>         { static const ding_t::typ code = ding_t::way;         };
 template<> struct map_ding<zeiger_t>      { static const ding_t::typ code = ding_t::zeiger;      };
+
+
+template<typename T> static inline T const* ding_cast(ding_t const* const d)
+{
+	return d->get_typ() == map_ding<T>::code ? static_cast<T const*>(d) : 0;
+}
+
+template<typename T> static inline T* ding_cast(ding_t* const d)
+{
+	return d->get_typ() == map_ding<T>::code ? static_cast<T*>(d) : 0;
+}
 
 
 
@@ -229,10 +241,10 @@ public:
 	* Setzt Flags für das neuzeichnen geänderter Untergründe
 	* @author Hj. Malthaner
 	*/
-	inline void set_flag(enum flag_values flag) {flags |= flag;}
+	inline void set_flag(flag_values flag) {flags |= flag;}
 
-	inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
-	inline bool get_flag(enum flag_values flag) const {return (flags & flag) != 0;}
+	inline void clear_flag(flag_values flag) {flags &= ~flag;}
+	inline bool get_flag(flag_values flag) const {return (flags & flag) != 0;}
 
 	/**
 	* start a new month (and toggle the seasons)
@@ -273,7 +285,7 @@ public:
 	* @return Der Typ des Untergrundes.
 	* @author Hj. Malthaner
 	*/
-	virtual enum grund_t::typ get_typ() const {return grund;}
+	virtual typ get_typ() const { return grund; }
 
 	/**
 	* Gibt eine Beschreibung des Untergrundes (informell) zurueck.
@@ -293,7 +305,7 @@ public:
 	* Oeffnet standardmaessig kein Infofenster.
 	* @author Hj. Malthaner
 	*/
-	bool zeige_info();
+	void zeige_info();
 
 	/**
 	* Gibt die Farbe des Beschreibungstexthintergrundes zuurck

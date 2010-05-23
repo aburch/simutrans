@@ -86,7 +86,20 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	convoy_assembler.set_electrified( weg_electrified );
 	convoy_assembler.set_convoy_tabs_skip(-2*LINESPACE+3*LINESPACE+2*margin+a_button_height);
 	convoy_assembler.add_listener(this);
-	convoy_assembler.set_vehicles(cnv->get_replace() ? cnv->get_replace()->get_replacing_vehicles() : new vector_tpl<const vehikel_besch_t*>);
+	if(cnv->get_replace())
+	{
+		convoy_assembler.set_vehicles(cnv->get_replace()->get_replacing_vehicles());
+	}
+	else
+	{
+		vector_tpl<const vehikel_besch_t*> *existing_vehicles = new vector_tpl<const vehikel_besch_t*>();
+		uint8 count = cnv->get_vehikel_anzahl();
+		for(uint8 i = 0; i < count; i ++)
+		{
+			existing_vehicles->append(cnv->get_vehikel(i)->get_besch());
+		}
+		convoy_assembler.set_vehicles(existing_vehicles);
+	}
 	add_komponente(&convoy_assembler);
 
 	bt_replace_line.set_typ(button_t::square);
@@ -106,6 +119,12 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_autostart.set_tooltip("Send convoy to depot, replace and restart it automatically");
 	bt_autostart.add_listener(this);
 	add_komponente(&bt_autostart);
+
+	bt_clear.set_typ(button_t::roundbox);
+	bt_clear.set_text("Clear");
+	bt_clear.set_tooltip("Reset this replacing operation");
+	bt_clear.add_listener(this);
+	add_komponente(&bt_clear);
 
 	bt_depot.set_typ(button_t::roundbox);
 	bt_depot.set_text("Replace but stay");
@@ -137,7 +156,7 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_allow_using_existing_vehicles.add_listener(this);
 	add_komponente(&bt_allow_using_existing_vehicles);
 
-	rpl = new replace_data_t();
+	rpl = cnv->get_replace() ? new replace_data_t(cnv->get_replace()) : new replace_data_t();
 
 	koord gr = koord(0,0);
 	layout(&gr);
@@ -235,13 +254,15 @@ void replace_frame_t::layout(koord *gr)
 	convoy_assembler.layout();
 
 	uint32 buttons_y=current_y+convoy_assembler.get_convoy_height()-2*LINESPACE+8;
-	uint32 buttons_width=(fgr.x-2*margin)/3;
+	uint32 buttons_width=(fgr.x-2*margin)/4;
 	bt_autostart.set_groesse(koord(buttons_width, a_button_height));
 	bt_depot.set_groesse(koord(buttons_width, a_button_height));
 	bt_mark.set_groesse(koord(buttons_width, a_button_height));
+	bt_clear.set_groesse(koord(buttons_width, a_button_height));
 	bt_autostart.set_pos(koord(margin,buttons_y));
 	bt_depot.set_pos(koord(margin+buttons_width,buttons_y));
-	bt_mark.set_pos(koord(margin+buttons_width+buttons_width,buttons_y));
+	bt_mark.set_pos(koord(margin+(buttons_width*2),buttons_y));
+	bt_clear.set_pos(koord(margin+(buttons_width*3),buttons_y));
 	
 	current_y=buttons_y+a_button_height+margin;
 	lb_money.set_pos(koord(110,current_y));
@@ -454,24 +475,9 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 
 bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
-	if(komp != NULL) {	// message from outside!
-		if(komp == &convoy_assembler) 
-		{
-			//const koord k=*static_cast<const koord *>(p.p);
-			//switch (k.x) {
-			//	case gui_convoy_assembler_t::clear_convoy_action:
-			//		new_convoy_cost=0;
-			//		break;
-			//	case gui_convoy_assembler_t::remove_vehicle_action:
-			//		new_convoy_cost-=convoy_assembler.get_last_changed_vehicle()->get_preis();
-			//		break;
-			//	default: // append/insert_in_front
-			//		new_convoy_cost+=convoy_assembler.get_last_changed_vehicle()->get_preis();
-			//		break;
-			//}
-
-		} 
-		else if(komp == &bt_replace_line) 
+	if(komp != NULL) 
+	{	// message from outside!
+		if(komp == &bt_replace_line) 
 		{
 			replace_line =! replace_line;
 			replace_all = false;
@@ -497,15 +503,14 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			rpl->set_allow_using_existing_vehicles(!rpl->get_allow_using_existing_vehicles());
 		}
 
-		/*else if(komp == numinp+state_replace) 
+		else if(komp == &bt_clear) 
 		{
-		} 
-		else if(komp == numinp+state_sell) 
-		{
-		} 
-		else if(komp == numinp+state_skip) 
-		{
-		} */
+			cnv->call_convoi_tool('X', NULL);
+			rpl->clear_all();
+			rpl = new replace_data_t();
+			convoy_assembler.clear_convoy();
+		}
+
 		else if(komp==&bt_autostart || komp== &bt_depot || komp == &bt_mark) 
 		{
 			depot=(komp==&bt_depot);
@@ -687,6 +692,5 @@ replace_frame_t::~replace_frame_t()
 {
 	// TODO: Find why this causes crashes. Without it, there is a small memory leak.
 	//delete rpl;
-	//rpl->decrement_convoys();
 }
 

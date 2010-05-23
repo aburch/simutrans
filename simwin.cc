@@ -379,13 +379,13 @@ bool win_is_top(const gui_fenster_t *ig)
 
 // window functions
 
-int create_win(gui_fenster_t *gui, uint8 wt, long magic)
+int create_win(gui_fenster_t* const gui, wintype const wt, long const magic)
 {
 	return create_win( -1, -1, gui, wt, magic);
 }
 
 
-int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
+int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long const magic)
 {
 	assert(gui!=NULL  &&  magic!=0);
 
@@ -424,7 +424,7 @@ int create_win(int x, int y, gui_fenster_t *gui, uint8 wt, long magic)
 		win.gui = gui;
 
 		// take care of time delete windows ...
-		win.wt = (wt&w_time_delete) ? (uint8)w_info : wt;
+		win.wt    = wt & w_time_delete ? w_info : wt;
 		win.dauer = (wt&w_time_delete) ? MESG_WAIT : -1;
 		win.magic_number = magic;
 		win.closing = false;

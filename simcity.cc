@@ -45,6 +45,7 @@
 #include "dataobj/umgebung.h"
 
 #include "dings/roadsign.h"
+#include "dings/leitung2.h"
 
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/warenbauer.h"
@@ -1126,7 +1127,7 @@ stadt_t::~stadt_t()
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
 
-	// olny if there is still a world left to delete from
+	// only if there is still a world left to delete from
 	if(welt->get_groesse_x()>1) 
 	{
 
@@ -1136,7 +1137,7 @@ stadt_t::~stadt_t()
 		while (!buildings.empty()) 
 		{
 			// old buildings are not where they think they are, so we ask for map floor
-			gebaeude_t* gb = (gebaeude_t *)buildings.front();
+			gebaeude_t* const gb = buildings.front();
 			buildings.remove(gb);
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz)
@@ -1153,6 +1154,11 @@ stadt_t::~stadt_t()
 				gb->set_stadt( NULL );
 				hausbauer_t::remove(welt,welt->get_spieler(1),gb);
 			}
+		}
+		// Remove substations
+		ITERATE(substations, i)
+		{
+			substations[i]->city = NULL;
 		}
 	}
 	free( (void *)name );
@@ -1271,19 +1277,24 @@ next_name:;
 
 void stadt_t::calc_internal_passengers()
 {
-	const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
+	//const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
+	const uint32 capital_threshold = welt->get_einstellungen()->get_capital_threshold_size();
+	const uint32 city_threshold = welt->get_einstellungen()->get_city_threshold_size();
 	float internal_passenger_multiplier;
-	if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
+	//if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
+	if(city_history_month[0][HIST_CITICENS] >= capital_threshold)
 	{
 		internal_passenger_multiplier = 0.85F;
 	}
-	else if((city_history_month[0][HIST_CITICENS] <= median_town_size >> 1))
+	//else if(city_history_month[0][HIST_CITICENS] <= median_town_size >> 1)
+	else if(city_history_month[0][HIST_CITICENS] <= city_threshold)
 	{
 		internal_passenger_multiplier = 0.33F;
 	}
 	else
 	{
-		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
+		//float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
+		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)city_threshold) / (float)capital_threshold;
 		internal_passenger_multiplier = (proportion * 0.52F) + 0.33F;
 	}
 
@@ -2448,7 +2459,6 @@ void stadt_t::step_passagiere()
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
 			{				
-				//if(pax_routed < (number_packets / 3))
 				if(range == local)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
@@ -2462,7 +2472,6 @@ void stadt_t::step_passagiere()
 						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
 					}
 				}
-				//else if(pax_routed < ((number_packets / 3) * 2))
 				else if(range == midrange)
 				{
 					//Medium
@@ -4228,9 +4237,20 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 uint32 stadt_t::get_power_demand() const
 {
 	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
-	// The 5120 is a conversion factor from MW to internal numbers.
-	float electricity_per_citizen = 5120 * 0.2F * get_electricity_consumption(welt->get_timeline_year_month()); 
-	return city_history_month[0][HIST_CITICENS] * electricity_per_citizen;
+	float electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month()); 
+	// The weird order of operations is designed for greater precision.
+	// Really, POWER_TO_MW should come last.
+	return (city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen;
+}
+
+void stadt_t::add_substation(senke_t* substation)
+{ 
+	substations.append(substation); 
+}
+
+void stadt_t::remove_substation(senke_t* substation)
+{ 
+	substations.remove(substation); 
 }
 
 bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const

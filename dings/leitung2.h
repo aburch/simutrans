@@ -14,10 +14,14 @@
 #include "../dataobj/ribi.h"
 #include "../simdings.h"
 #include "../simcity.h"
+#include "../tpl/slist_tpl.h"
+
+#define POWER_TO_MW (12)  // bitshift for converting internal power values to MW for display
 
 class powernet_t;
 class spieler_t;
 class fabrik_t;
+class weg_besch_t;
 
 class leitung_t : public ding_t
 {
@@ -36,6 +40,8 @@ protected:
 	*/
 	powernet_t * net;
 
+	const weg_besch_t *besch;
+
 	/**
 	* Connect this piece of powerline to its neighbours
 	* -> this can merge power networks
@@ -51,11 +57,14 @@ protected:
 	* Dient zur Neuberechnung des Bildes
 	* @author Hj. Malthaner
 	*/
-	void recalc_bild();
+	void calc_bild();
 
 public:
 	powernet_t* get_net() const { return net; }
 	void set_net(powernet_t* p) { net = p; }
+
+	const weg_besch_t * get_besch() { return besch; }
+	void set_besch(const weg_besch_t *new_besch) { besch = new_besch; }
 
 	int gimme_neighbours(leitung_t **conn);
 	static fabrik_t * suche_fab_4(const koord pos);
@@ -70,7 +79,7 @@ public:
 	// for map rotation
 	void rotate90();
 
-	enum ding_t::typ get_typ() const {return leitung;}
+	typ get_typ() const { return leitung; }
 
 	const char *get_name() const {return "Leitung"; }
 
@@ -117,22 +126,30 @@ public:
 
 
 
-class pumpe_t : public leitung_t, public sync_steppable
+class pumpe_t : public leitung_t
 {
-private:
-	fabrik_t *fab;
+public:
+	static void neue_karte();
+	static void step_all(long delta_t);
 
+private:
+	static slist_tpl<pumpe_t *> pumpe_list;
+
+	fabrik_t *fab;
+	uint32 supply;
+
+	void step(long delta_t);
 
 public:
 	pumpe_t(karte_t *welt, loadsave_t *file);
 	pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp);
 	~pumpe_t();
 
-	enum ding_t::typ get_typ() const {return pumpe;}
+	typ get_typ() const { return pumpe; }
 
-	bool sync_step(long delta_t);
+	const char *get_name() const {return "Aufspanntransformator";}
 
-	const char *name() const {return "Pumpe";}
+	void info(cbuffer_t & buf) const;
 
 	void laden_abschliessen();
 
@@ -143,27 +160,43 @@ public:
 
 class senke_t : public leitung_t, public sync_steppable
 {
+public:
+	static void neue_karte();
+	static void step_all(long delta_t);
+
 private:
+	static slist_tpl<senke_t *> senke_list;
+
 	sint32 einkommen;
 	sint32 max_einkommen;
 	fabrik_t *fab;
+	sint32 delta_sum;
+	sint32 next_t;
+	uint32 last_power_demand;
+	uint32 power_load;
+
+	void step(long delta_t);
 
 public:
 	senke_t(karte_t *welt, loadsave_t *file);
 	senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t *c);
 	~senke_t();
 
-	enum ding_t::typ get_typ() const {return senke;}
+	typ get_typ() const { return senke; }
 
+	// used to alternate between displaying power on and power off images at a frequency determined by the percentage of power supplied
+	// gives players a visual indication of a power network with insufficient generation
 	bool sync_step(long delta_t);
 
-	const char *name() const {return "Senke";}
+	const char *get_name() const {return "Abspanntransformator";}
 
 	void info(cbuffer_t & buf) const;
 
 	void laden_abschliessen();
 
 	void calc_bild() {}	// otherwise it will change to leitung
+
+	uint32 get_power_load() const;
 };
 
 

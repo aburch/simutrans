@@ -18,9 +18,9 @@
 /**
  * Calculate numeric engine type from engine type string
  */
-static uint8 get_engine_type(const char* engine_type, tabfileobj_t& obj)
+static vehikel_besch_t::engine_t get_engine_type(char const* const engine_type)
 {
-	uint8 uv8 = vehikel_besch_t::diesel;
+	vehikel_besch_t::engine_t uv8 = vehikel_besch_t::diesel;
 
 	if (!STRICMP(engine_type, "diesel")) {
 		uv8 = vehikel_besch_t::diesel;
@@ -174,10 +174,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	// Hajodoc: Type of way this vehicle drives on
 	// Hajoval: road, track, electrified_track, monorail_track, maglev_track, water
-	const char* waytype = obj.get("waytype");
-	const char waytype_uint = get_waytype(waytype);
-	uv8 = (waytype_uint == overheadlines_wt ? track_wt : waytype_uint);
-	node.write_uint8 (fp, uv8, 24);
+	char const* const waytype_name = obj.get("waytype");
+	waytype_t   const waytype      = get_waytype(waytype_name);
+	uv8 = waytype != overheadlines_wt ? waytype : track_wt;
+	node.write_uint8(fp, uv8, 24);
 
 	// Hajodoc: The freight type
 	// Hajoval: string
@@ -373,12 +373,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	node.write_sint8(fp, sound_id, 25);
 
-	if (waytype_uint == overheadlines_wt) {
+	if (waytype == overheadlines_wt) {
 		// Hajo: compatibility for old style DAT files
 		uv8 = vehikel_besch_t::electric;
 	} else {
 		const char* engine_type = obj.get("engine_type");
-		uv8 = get_engine_type(engine_type, obj);
+		uv8 = get_engine_type(engine_type);
 	}
 	node.write_uint8(fp, uv8, 26);
 

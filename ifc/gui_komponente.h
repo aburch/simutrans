@@ -54,11 +54,7 @@ public:
 	* Basic contructor, initialises member variables
 	* @author Hj. Malthaner
 	*/
-	gui_komponente_t() {
-		visible = true;
-		focus_gained = false;
-		read_only = true;
-	}
+	gui_komponente_t() : visible(true), focus_gained(false), read_only(true) {}
 
 	/**
 	* Virtueller Destruktor, damit Klassen sauber abgeleitet werden können

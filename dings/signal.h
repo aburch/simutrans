@@ -33,7 +33,7 @@ public:
 	*/
 	virtual void info(cbuffer_t & buf) const;
 
-	enum ding_t::typ get_typ() const {return ding_t::signal;}
+	typ get_typ() const { return ding_t::signal; }
 	const char *get_name() const {return "Signal";}
 
 	/**

@@ -263,3 +263,19 @@ note=Label for default start of increase of maintenance (in years) for air vehic
 obj=program_text
 name=default_increase_maintenance_after_years_other
 note=Label for default start of increase of maintenance (in years) for other kinds of vehicles
+--
+obj=program_text
+name=Transformer only next to factory or in city!
+note=Error message when placing a substation in an inappropriate location.
+--
+obj=program_text
+name=\nCity: 
+note=The label for the city in which a downstream substation is located.
+--
+obj=program_text
+name=Reset this replacing operation
+note=The tooltip for "clear" in the convoy replacer window.
+--
+obj=program_text
+name=Clear
+note=The button to cancel convoy replacing in the convoy replacer window.

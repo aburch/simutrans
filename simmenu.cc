@@ -269,6 +269,13 @@ void werkzeug_t::init_menu()
 }
 
 
+// for sorting: compare tool key
+static bool compare_werkzeug(werkzeug_t const* const a, werkzeug_t const* const b)
+{
+	uint16 const ac = a->command_key & ~32;
+	uint16 const bc = b->command_key & ~32;
+	return ac != bc ? ac < bc : a->command_key < b->command_key;
+}
 
 
 // read a tab file to add images, cursors and sound to the tools
@@ -320,7 +327,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				w->icon = skinverwaltung_t::werkzeuge_general->get_bild_nr(icon);
 			}
 			do {
-				*str++;
+				str++;
 			} while(*str  &&  *str!=',');
 		}
 		if(*str==',') {
@@ -332,9 +339,9 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong cursor (%i) given for general_tool[%i]", cursor, i );
 				}
 				w->cursor = skinverwaltung_t::cursor_general->get_bild_nr(cursor);
-				do
-					*str++;
-				while(*str  &&  *str!=',');
+				do {
+					str++;
+				} while(*str  &&  *str!=',');
 			}
 		}
 		if(*str==',') {
@@ -345,9 +352,9 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				if(  sound>0  ) {
 					w->ok_sound = sound_besch_t::get_compatible_sound_id(sound);
 				}
-				do
-					*str++;
-				while(*str  &&  *str!=',');
+				do {
+					str++;
+				} while(*str  &&  *str!=',');
 			}
 		}
 		if(*str==',') {
@@ -398,7 +405,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				w->icon = skinverwaltung_t::werkzeuge_simple->get_bild_nr(icon);
 			}
 			do {
-				*str++;
+				str++;
 			} while(*str  &&  *str!=',');
 		}
 		if(*str==',') {
@@ -449,7 +456,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				w->icon = skinverwaltung_t::werkzeuge_dialoge->get_bild_nr(icon);
 			}
 			do {
-				*str++;
+				str++;
 			} while(*str  &&  *str!=',');
 		}
 		if(*str==',') {
@@ -534,7 +541,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 						icon = skinverwaltung_t::werkzeuge_toolbars->get_bild_nr(icon);
 					}
 					while(*str  &&  *str!=',') {
-						*str++;
+						str++;
 					}
 				}
 			}
@@ -617,7 +624,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				uint8 toolnr = atoi(toolname+12);
 				if(  toolnr<DIALOGE_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
-						addtool = create_dialog_tool( toolnr );;
+						addtool = create_dialog_tool( toolnr );
 						*addtool = *(dialog_tool[toolnr]);
 						if(icon!=IMG_LEER) {
 							addtool->icon = icon;

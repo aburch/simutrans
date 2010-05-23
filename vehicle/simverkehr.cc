@@ -514,7 +514,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char s[256];
-		file->rdwr_str(s, 256);
+		file->rdwr_str(s, lengthof(s));
 		besch = table.get(s);
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {
@@ -532,7 +532,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 	if(file->get_version() <= 86001) {
 		time_to_life = simrand(1000000)+10000;
-
 	}
 	else if(file->get_version() <= 89004) {
 		file->rdwr_long(time_to_life, "\n");
@@ -569,7 +568,6 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 	// do not start with zero speed!
 	current_speed ++;
-
 }
 
 
@@ -630,14 +628,12 @@ bool stadtauto_t::ist_weg_frei(const grund_t *gr) //Frie = "freely" (Babelfish)
 						if(over) {
 							if(!over->is_overtaking()) {
 								// otherwise the overtaken car would stop for us ...
-								if(  dt->get_typ()==ding_t::automobil  ) {
-									convoi_t *cnv=static_cast<automobil_t *>(dt)->get_convoi();
+								if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+									convoi_t* const cnv = car->get_convoi();
 									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length()*16, diagonal_length)  ) {
 										frei = false;
 									}
-								}
-								else if(  dt->get_typ()==ding_t::verkehr  ) {
-									stadtauto_t *caut = static_cast<stadtauto_t *>(dt);
+								} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
 									if ( !can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length) ) {
 										frei = false;
 									}
@@ -718,16 +714,16 @@ stadtauto_t::betrete_feld()
 		//"fussgaenger" = pedestrian (Babelfish)
 		int number = 2;
 		fussgaenger_t::erzeuge_fussgaenger_an(welt, pos_next, number);
-		/*fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
+#if 0
+		fussgaenger_t *fg = new fussgaenger_t(welt, pos_next);
 		bool ok = welt->lookup(pos_next)->obj_add(fg) != 0;
-		
-		
 		for(int i=0; i<(fussgaenger_t::count & 3); i++) {
 			fg->sync_step(64*24);
 		}
-		welt->sync_add( fg );*/
+		welt->sync_add( fg );
+#endif /* 0 */
 	}
-#endif
+#endif /* DESTINATION_CITYCARS */
 	vehikel_basis_t::betrete_feld();
 	welt->lookup( get_pos() )->get_weg(road_wt)->book(1, WAY_STAT_CONVOIS);
 }
@@ -742,7 +738,6 @@ stadtauto_t::kill()
 
 bool stadtauto_t::hop_check()
 {
-
 	// V.Meyer: weg_position_t changed to grund_t::get_neighbour()
 	grund_t *from = welt->lookup(pos_next);
 	if(from==NULL) {
@@ -833,7 +828,6 @@ bool stadtauto_t::hop_check()
 						}
 						return true;
 					}
-
 					else {
 						pos_next_next = koord3d::invalid;
 					}
@@ -951,9 +945,7 @@ void stadtauto_t::calc_current_speed()
 
 void stadtauto_t::info(cbuffer_t & buf) const
 {
-	char str[256];
-	sprintf(str, translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), speed_to_kmh(current_speed), speed_to_kmh(besch->get_geschw()), dx, dy );
-	buf.append(str);
+	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), speed_to_kmh(current_speed), speed_to_kmh(besch->get_geschw()), dx, dy);
 }
 
 
@@ -973,6 +965,8 @@ void stadtauto_t::get_screen_offset( int &xoff, int &yoff, const sint16 raster_w
 		yoff -= tile_raster_scale_x(overtaking_base_offsets[ribi_t::get_dir(get_fahrtrichtung())][1], raster_width)/5;
 	}
 }
+
+
 
 /**
  * conditions for a city car to overtake another overtaker.
@@ -1090,8 +1084,7 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 		// Check for other vehicles on the next tile
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
-			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
-			if(v->is_moving()) {
+			if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j))) {
 				// check for other traffic on the road
 				const overtaker_t *ov = v->get_overtaker();
 				if(ov) {
@@ -1158,8 +1151,8 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 		ribi_t::ribi their_direction = ribi_t::rueckwaerts(calc_richtung( pos_prev_prev, to->get_pos().get_2d() ));
 		const uint8 top = gr->get_top();
 		for(  uint8 j=1;  j<top;  j++ ) {
-			vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(j);
-			if(v->is_moving()  &&  v->get_fahrtrichtung()==their_direction) {
+			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(j));
+			if (v && v->get_fahrtrichtung() == their_direction) {
 				// check for car
 				if(v->get_overtaker()) {
 					return false;

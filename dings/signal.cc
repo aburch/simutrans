@@ -83,12 +83,26 @@ void signal_t::calc_bild()
 				}
 			}
 
-			// and now calculate the images
-			if(dir&ribi_t::ost) {
+			// and now calculate the images:
+			// we need to hide the "second" image on tunnel entries
+			ribi_t::ribi temp_dir = dir;
+			if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->ist_karten_boden()  &&
+				(grund_t::underground_mode==grund_t::ugm_none  ||  (grund_t::underground_mode==grund_t::ugm_level  &&  gr->get_hoehe()<grund_t::underground_level))   ) {
+				// entering tunnel here: hide the image further in if not undergroud/sliced
+				hang = gr->get_grund_hang();
+				if(  hang==hang_t::ost  ||  hang==hang_t::nord  ) {
+					temp_dir &= ~ribi_t::suedwest;
+				}
+				else {
+					temp_dir &= ~ribi_t::nordost;
+				}
+			}
+
+			if(temp_dir&ribi_t::ost) {
 				after_bild = besch->get_bild_nr(3+zustand*4+offset);
 			}
 
-			if(dir&ribi_t::nord) {
+			if(temp_dir&ribi_t::nord) {
 				if(after_bild==IMG_LEER) {
 					after_bild = besch->get_bild_nr(0+zustand*4+offset);
 				}
@@ -97,11 +111,11 @@ void signal_t::calc_bild()
 				}
 			}
 
-			if(dir&ribi_t::west) {
+			if(temp_dir&ribi_t::west) {
 				bild = besch->get_bild_nr(2+zustand*4+offset);
 			}
 
-			if(dir&ribi_t::sued) {
+			if(temp_dir&ribi_t::sued) {
 				if(bild==IMG_LEER) {
 					bild = besch->get_bild_nr(1+zustand*4+offset);
 				}

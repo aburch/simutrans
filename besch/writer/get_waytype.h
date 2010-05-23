@@ -2,12 +2,13 @@
 #define GET_WAYTYPE_H
 
 #include "../../boden/wege/weg.h"
+#include "../../simtypes.h"
 
 
 /**
  * Convert waytype string to enum wegtyp
  * @author Hj. Malthaner
  */
-uint8 get_waytype(const char* waytype);
+waytype_t get_waytype(char const* waytype);
 
 #endif

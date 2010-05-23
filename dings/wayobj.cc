@@ -46,14 +46,14 @@ const way_obj_besch_t *wayobj_t::default_oberleitung=NULL;
 stringhashtable_tpl<way_obj_besch_t *> wayobj_t::table;
 
 
-wayobj_t::wayobj_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
+wayobj_t::wayobj_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	rdwr(file);
 }
 
 
 
-wayobj_t::wayobj_t(karte_t *welt, koord3d pos, spieler_t *besitzer, ribi_t::ribi d, const way_obj_besch_t *b) :  ding_t(welt, pos)
+wayobj_t::wayobj_t(karte_t* const welt, koord3d const pos, spieler_t* const besitzer, ribi_t::ribi const d, way_obj_besch_t const* const b) : ding_no_info_t(welt, pos)
 {
 	besch = b;
 	dir = d;
@@ -144,7 +144,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 		}
 		else {
 			char bname[128];
-			file->rdwr_str(bname, 128);
+			file->rdwr_str(bname, lengthof(bname));
 
 			besch = wayobj_t::table.get(bname);
 			if(besch==NULL) {
@@ -434,6 +434,18 @@ bool wayobj_t::alles_geladen()
 	if(table.empty()) {
 		dbg->warning("wayobj_t::alles_geladen()", "No obj found - may crash when loading catenary.");
 	}
+
+	way_obj_besch_t const* def = 0;
+	stringhashtable_iterator_tpl<way_obj_besch_t*> i(table);
+	while (i.next()) {
+		way_obj_besch_t const& b = *i.get_current_value();
+		if (b.get_own_wtyp() != overheadlines_wt)           continue;
+		if (b.get_wtyp()     != track_wt)                   continue;
+		if (def && def->get_topspeed() >= b.get_topspeed()) continue;
+		def = &b;
+	}
+	default_oberleitung = def;
+
 	return true;
 }
 
@@ -464,10 +476,6 @@ bool wayobj_t::register_besch(way_obj_besch_t *besch)
 	}
 
 	table.put(besch->get_name(), besch);
-	if(besch->get_own_wtyp()==overheadlines_wt  &&  besch->get_wtyp()==track_wt  &&
-		(default_oberleitung==NULL  ||  default_oberleitung->get_topspeed()<besch->get_topspeed())) {
-		default_oberleitung = besch;
-	}
 DBG_DEBUG( "wayobj_t::register_besch()","%s", besch->get_name() );
 	return true;
 }

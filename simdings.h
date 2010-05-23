@@ -111,9 +111,9 @@ public:
 	* setzt ein flag im flag-set des dings. Siehe auch flag_values
 	* @author Hj. Malthaner
 	*/
-	inline void set_flag(enum flag_values flag) {flags |= flag;}
-	inline void clear_flag(enum flag_values flag) {flags &= ~flag;}
-	inline bool get_flag(enum flag_values flag) const {return ((flags & flag) != 0);}
+	inline void set_flag(flag_values flag) {flags |= flag;}
+	inline void clear_flag(flag_values flag) {flags &= ~flag;}
+	inline bool get_flag(flag_values flag) const {return ((flags & flag) != 0);}
 	enum typ {
 		undefined=-1, ding=0, baum=1, zeiger=2,
 		wolke=3, sync_wolke=4, async_wolke=5,
@@ -231,7 +231,7 @@ public:
 	 * @return Gibt den typ des Objekts zurück.
 	 * @author Hj. Malthaner
 	 */
-	virtual enum ding_t::typ get_typ() const = 0;
+	virtual typ get_typ() const = 0;
 
 	/*
 	* called whenever the snowline height changes
@@ -352,5 +352,19 @@ public:
 	 */
 	virtual void calc_bild() {}
 } GCC_PACKED;
+
+
+class ding_no_info_t : public ding_t
+{
+public:
+	ding_no_info_t(karte_t* welt, loadsave_t* file) : ding_t(welt, file) {}
+
+	ding_no_info_t(karte_t* welt, koord3d pos) : ding_t(welt, pos) {}
+
+	void zeige_info() {}
+
+protected:
+	ding_no_info_t(karte_t* welt) : ding_t(welt) {}
+};
 
 #endif

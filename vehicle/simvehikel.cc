@@ -570,13 +570,11 @@ vehikel_basis_t *vehikel_basis_t::no_cars_blocking( const grund_t *gr, const con
 	// suche vehikel
 	const uint8 top = gr->get_top();
 	for(  uint8 pos=1;  pos<top;  pos++ ) {
-		vehikel_basis_t *v = (vehikel_basis_t *)gr->obj_bei(pos);
-		if(v->is_moving()) {
+		if (vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(gr->obj_bei(pos))) {
 			uint8 other_fahrtrichtung=255;
 
 			// check for car
-			if(v->get_typ()==ding_t::automobil) {
-				automobil_t *at = (automobil_t *)v;
+			if (automobil_t const* const at = ding_cast<automobil_t>(v)) {
 				// ignore ourself
 				if(cnv==at->get_convoi()) {
 					continue;
@@ -2047,7 +2045,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	}
 	else {
 		char s[256];
-		file->rdwr_str(s,256);
+		file->rdwr_str(s, lengthof(s));
 		besch = vehikelbauer_t::get_info(s);
 		if(besch==NULL) {
 			besch = vehikelbauer_t::get_info(translator::compatibility_name(s));
@@ -2350,7 +2348,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 		if(besch==NULL) {
 			const ware_besch_t* w = (!fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere);
 			dbg->warning("automobil_t::automobil_t()","try to find a fitting vehicle for %s.",  w->get_name() );
-			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, false, true, last_besch, is_last );
+			besch = vehikelbauer_t::get_best_matching(road_wt, 0, (fracht.empty() ? 0 : 50), is_first?50:0, speed_to_kmh(speed_limit), w, true, last_besch, is_last );
 			if(besch) {
 				DBG_MESSAGE("automobil_t::automobil_t()","replaced by %s",besch->get_name());
 				// still wrong load ...
@@ -2673,14 +2671,12 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 						return true;
 					}
 					// not overtaking/being overtake: we need to make a more thourough test!
-					if(  dt->get_typ()==ding_t::automobil  ) {
-						convoi_t *ocnv = static_cast<automobil_t *>(dt)->get_convoi();
+					if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+						convoi_t* const ocnv = car->get_convoi();
 						if(  cnv->can_overtake( ocnv, ocnv->get_min_top_speed(), ocnv->get_length()*16, diagonal_length)  ) {
 							return true;
 						}
-					}
-					else if(  dt->get_typ()==ding_t::verkehr  ) {
-						stadtauto_t *caut = static_cast<stadtauto_t *>(dt);
+					} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
 						if(  cnv->can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length)  ) {
 							return true;
 						}
@@ -2777,7 +2773,7 @@ waggon_t::waggon_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 			}
 			else {
 				// we have to search
-				besch = vehikelbauer_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, false, last_besch, is_last );
+				besch = vehikelbauer_t::get_best_matching(get_waytype(), 0, w!=warenbauer_t::nichts?5000:0, power, speed_to_kmh(speed_limit), w, false, last_besch, is_last );
 			}
 			if(besch) {
 DBG_MESSAGE("waggon_t::waggon_t()","replaced by %s",besch->get_name());
@@ -3150,8 +3146,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 						}
 						count++;
 					}
-
-				} while(count < cnv->get_schedule()->get_count()  &&  exit_loop == false); // stop after we've looped round schedule...
+				} while (count < cnv->get_schedule()->get_count() && !exit_loop); // stop after we've looped round schedule
 				// we can't go
 				sig->set_zustand(roadsign_t::rot);
 				if(route_index==next_block+1) {
@@ -3540,7 +3535,7 @@ schiff_t::schiff_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_last)
 		// try to find a matching vehivle
 		if(besch==NULL) {
 			dbg->warning("schiff_t::schiff_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+			besch = vehikelbauer_t::get_best_matching(water_wt, 0, fracht.empty() ? 0 : 30, 100, 40, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, true, last_besch, is_last );
 			if(besch) {
 				calc_bild();
 			}
@@ -4061,7 +4056,7 @@ aircraft_t::aircraft_t(karte_t *welt, loadsave_t *file, bool is_first, bool is_l
 		// try to find a matching vehivle
 		if(besch==NULL) {
 			dbg->warning("aircraft_t::aircraft_t()", "try to find a fitting vehicle for %s.", !fracht.empty() ? fracht.front().get_name() : "passagiere");
-			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, false, true, last_besch, is_last );
+			besch = vehikelbauer_t::get_best_matching(air_wt, 0, 101, 1000, 800, !fracht.empty() ? fracht.front().get_besch() : warenbauer_t::passagiere, true, last_besch, is_last );
 			if(besch) {
 				calc_bild();
 			}

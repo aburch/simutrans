@@ -8,7 +8,8 @@
 
 #define UNICODE 1
 #include <windows.h>
-#include <mmsystem.h>
+/*#include <dsound.h>
+#include <Amaudio.h>*/
 
 #include "../tpl/debug_helper.h"
 #include "sound.h"
@@ -75,6 +76,15 @@ int dr_load_sample(char const* filename)
 void dr_play_sample(int sample_number, int volume)
 {
 	if(use_sound!=0  &&  sample_number>=0  &&  sample_number<64  &&  volume>1) {
+
+		/* TODO: Use DirectSound to render the sound in Windows 32-bit
+		 * so as to enable better quality sound playback without 
+		 * interfering with system volume levels.
+		HWND this_window = NULL;
+		bool mixing = true;
+		GetFocusWindow(this_window, &mixing);
+
+		SetCooperativeLevel(this_window, DSSCL_NORMAL);*/
 
 		static int last_sample_nr = -1;
 		if(  last_sample_nr==-1) {

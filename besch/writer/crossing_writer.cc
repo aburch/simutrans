@@ -16,7 +16,7 @@
 
 void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	int total_len = 17;
+	int total_len = 21;
 
 	// prissi: must be done here, since it may affect the len of the header!
 	cstring_t sound_str = ltrim( obj.get("sound") );
@@ -44,8 +44,8 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	// Hajo: version number
 	// Hajo: Version needs high bit set as trigger -> this is required
 	//       as marker because formerly nodes were unversionend
-	uint16 uv16 = 0x8001;
-	node.write_uint16(fp, 0x8001, 0);
+	uint16 uv16 = 0x8002;
+	node.write_uint16(fp, uv16, 0);
 
 	// waytypes, waytype 2 will be on top
 	uint8 wegtyp1 = get_waytype(obj.get("waytype[0]"));
@@ -78,12 +78,25 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint32(fp, uv32, 12);
 
 	node.write_uint8(fp, sound_id, 16);
+	uint8 index = 17;
 
 	if(sound_str.len() > 0) {
 		sint8 sv8 = sound_str.len();
 		node.write_data_at(fp, &sv8, 17, sizeof(sint8));
 		node.write_data_at(fp, sound_str, 18, sound_str.len());
+		index += 1 + sound_str.len();
 	}
+
+	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
+	intro += obj.get_int("intro_month", 1) - 1;
+
+	uint16 retire  = obj.get_int("retire_year", DEFAULT_RETIRE_DATE) * 12;
+	retire += obj.get_int("retire_month", 1) - 1;
+
+	node.write_uint16(fp, intro, index);
+	index += 2;
+	node.write_uint16(fp, retire, index);
+	index += 2;
 
 	// now the image stuff
 	slist_tpl<cstring_t> openkeys_ns;

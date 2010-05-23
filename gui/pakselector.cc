@@ -98,8 +98,9 @@ bool pakselector_t::check_file( const char *filename, const char * )
 	FILE *f=fopen( buf, "r" );
 	if(f) {
 		fclose(f);
+		return true;
 	}
-	return f!=NULL;
+	return false;
 }
 
 

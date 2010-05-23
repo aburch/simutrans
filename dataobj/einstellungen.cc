@@ -608,7 +608,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					// intercity roads were not saved in old savegames
 					num_intercity_roads = 0;
 				}
-				file->rdwr_str( city_roads[0].name, 64 );
+				file->rdwr_str(city_roads[0].name, lengthof(city_roads[0].name));
 			}
 			else 
 			{
@@ -618,9 +618,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				{
 					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) city roads!", num_city_roads );
 				}
-				for(  int i=0;  i<num_city_roads;  i++  ) 
-				{
-					file->rdwr_str( city_roads[i].name, 64 );
+				for(  int i=0;  i<num_city_roads;  i++  ) {
+					file->rdwr_str(city_roads[i].name, lengthof(city_roads[i].name));
 					file->rdwr_short( city_roads[i].intro, "" );
 					file->rdwr_short( city_roads[i].retire, "" );
 				}
@@ -630,7 +629,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) intercity roads!", num_intercity_roads );
 				}
 				for(  int i=0;  i<num_intercity_roads;  i++  ) {
-					file->rdwr_str( intercity_roads[i].name, 64 );
+					file->rdwr_str(intercity_roads[i].name, lengthof(intercity_roads[i].name));
 					file->rdwr_short( intercity_roads[i].intro, "" );
 					file->rdwr_short( intercity_roads[i].retire, "" );
 				}
@@ -642,7 +641,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( beginner_price_factor , "" );
 
 			// name of stops
-			file->rdwr_str( language_code_names, 4 );
+			file->rdwr_str(language_code_names, lengthof(language_code_names));
 
 			// restore AI state
 			char password[16];
@@ -653,7 +652,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				if(  file->get_version()<=102002 || file->get_experimental_version() == 7) {
 					char dummy[17];
 					dummy[0] = 0;
-					file->rdwr_str( dummy, 16 );
+					file->rdwr_str(dummy, lengthof(dummy));
 				}
 			}
 
@@ -1106,13 +1105,16 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// old syntax for single city road
 	const char *str = ltrim(contents.get("city_road_type"));
-	if(str[0]>0) {
-		num_city_roads = 1;
-		tstrncpy(city_roads[0].name, str, lengthof(city_roads[0].name));
-		rtrim( city_roads[0].name );
-		city_roads[0].intro = 0;
-		city_roads[0].retire = 0;
+	if(str[0]==0) {
+		// old fallback value
+		str = "city_road";
 	}
+	num_city_roads = 1;
+	tstrncpy(city_roads[0].name, str, lengthof(city_roads[0].name));
+	rtrim( city_roads[0].name );
+	// default her: always available
+	city_roads[0].intro = 1;
+	city_roads[0].retire = 0xFFFFu;
 
 	// new: up to ten city_roads are possible
 	if(  *contents.get("city_road[0]")  ) {
@@ -1129,10 +1131,11 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 					p++;
 				}
 				tstrncpy( city_roads[num_city_roads].name, test, (unsigned)(p-test)+1 );
+				// default her: intro/retire=0 -> set later to intro/retire of way-besch
 				city_roads[num_city_roads].intro = 0;
 				city_roads[num_city_roads].retire = 0;
 				if(  *p==','  ) {
-					*p++;
+					++p;
 					city_roads[num_city_roads].intro = atoi(p)*12;
 					while(*p  &&  *p!=','  ) {
 						p++;
@@ -1145,17 +1148,28 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 			}
 		}
 	}
+	if (num_city_roads == 0) {
+		// take fallback value: "city_road"
+		tstrncpy(city_roads[0].name, "city_road", lengthof(city_roads[0].name));
+		rtrim( city_roads[0].name );
+		// default her: always available
+		city_roads[0].intro = 1;
+		city_roads[0].retire = 0xFFFFu;
+		num_city_roads = 1;
+	}
 
 	// intercity road
 	// old syntax for single intercity road
 	str = ltrim(contents.get("intercity_road_type"));
-	if(str[0]>0) {
-		num_intercity_roads = 1;
-		tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name));
-		rtrim( intercity_roads[0].name );
-		intercity_roads[0].intro = 0;
-		intercity_roads[0].retire = 0;
+	if(str[0]==0) {
+		str = "asphalt_road";
 	}
+	num_intercity_roads = 1;
+	tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name));
+	rtrim( intercity_roads[0].name );
+	// default her: always available
+	intercity_roads[0].intro = 0;
+	intercity_roads[0].retire = 0xFFFFu;
 
 	// new: up to ten intercity_roads are possible
 	if(  *contents.get("intercity_road[0]")  ) {
@@ -1172,10 +1186,11 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 					p++;
 				}
 				tstrncpy( intercity_roads[num_intercity_roads].name, test, (unsigned)(p-test)+1 );
+				// default her: intro/retire=0 -> set later to intro/retire of way-besch
 				intercity_roads[num_intercity_roads].intro = 0;
 				intercity_roads[num_intercity_roads].retire = 0;
 				if(  *p==','  ) {
-					*p++;
+					++p;
 					intercity_roads[num_intercity_roads].intro = atoi(p)*12;
 					while(*p  &&  *p!=','  ) {
 						p++;

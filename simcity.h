@@ -245,6 +245,8 @@ private:
 	road_destination_finder_t *finder;
 	route_t *private_car_route;
 
+	vector_tpl<senke_t*> substations;
+
 public:
 	/**
 	 * Returns pointer to history for city
@@ -621,6 +623,10 @@ public:
 	const vector_tpl<fabrik_t*>& get_city_factories() const { return city_factories; }
 
 	uint32 get_power_demand() const;
+
+	void add_substation(senke_t* substation);
+	void remove_substation(senke_t* substation);
+	vector_tpl<senke_t*>* get_substations() { return &substations; }
 
 };
 

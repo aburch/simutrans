@@ -50,7 +50,7 @@ public:
 	static bool ist_ende_ok(spieler_t *sp, const grund_t *gr);
 
 	// built a ramp to change level
-	static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);
+	static void baue_auffahrt(karte_t *welt, spieler_t *sp, koord3d pos, koord zv, const bruecke_besch_t *besch);
 
 	// builds the bridge => checks should be done before
 	static void baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, koord3d end, koord zv, const bruecke_besch_t *besch, const weg_besch_t *weg_besch);

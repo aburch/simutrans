@@ -281,8 +281,7 @@ void haltestelle_t::destroy(halthandle_t &halt)
 {
 	// jsut play save: restart iterator at zero ...
 	halt_iterator_start = 0;
-	haltestelle_t *p = halt.get_rep();
-	delete p;
+	delete halt.get_rep();
 }
 
 
@@ -933,7 +932,7 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 	 */
 
 	// strings for intown / outside of town
-	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s", 0 );
+	const char *base_name = translator::translate( inside ? "%s city %d %s" : "%s land %d %s", lang);
 
 	// finally: is there a stop with this name already?
 	for(  uint32 i=1;  i<65536;  i++  ) {
@@ -2667,7 +2666,7 @@ void haltestelle_t::info(cbuffer_t & buf) const
 {
 	char tmp [512];
 
-	sprintf(tmp,
+	buf.printf(
 		translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"),
 		pax_happy,
 		30,
@@ -2676,7 +2675,6 @@ void haltestelle_t::info(cbuffer_t & buf) const
 		pax_no_route,
 		pax_too_slow
 		);
-	buf.append(tmp);
 	buf.append("\n\n");
 }
 
@@ -2760,7 +2758,7 @@ sint64 haltestelle_t::calc_maintenance()
 		if(gb) 
 		{
 			const haus_besch_t* besch = gb->get_tile()->get_besch();
-			if(besch->get_base_staiton_maintenance() == 2147483647)
+			if(besch->get_base_station_maintenance() == 2147483647)
 			{
 				// Default value - no specific maintenance set. Use the old method
 				maintenance += welt->get_einstellungen()->maint_building * besch->get_level();
@@ -2794,7 +2792,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				spieler_t *gb_sp=gb->get_besitzer();
 				const haus_besch_t* besch = gb->get_tile()->get_besch();
 				sint32 costs;
-				if(besch->get_base_staiton_maintenance() == 2147483647)
+				if(besch->get_base_station_maintenance() == 2147483647)
 				{
 					// Default value - no specific maintenance set. Use the old method
 					costs = welt->get_einstellungen()->maint_building * besch->get_level();
@@ -2850,7 +2848,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 					spieler_t *gb_sp=gb->get_besitzer();
 					sint32 costs;
 
-					if(gb->get_tile()->get_besch()->get_base_staiton_maintenance() == 2147483647)
+					if(gb->get_tile()->get_besch()->get_base_station_maintenance() == 2147483647)
 					{
 						// Default value - no specific maintenance set. Use the old method
 						costs = welt->get_einstellungen()->maint_building * gb->get_tile()->get_besch()->get_level();
@@ -3143,7 +3141,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	{
 		// restoring all goods in the station
 		char s[256];
-		file->rdwr_str(s,256);
+		file->rdwr_str(s, lengthof(s));
 		while(*s) 
 		{
 			short count;
@@ -3164,7 +3162,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					}
 				}
 			}
-			file->rdwr_str(s,256);
+			file->rdwr_str(s, lengthof(s));
 		}
 
 		// old games save the list with stations

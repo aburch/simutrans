@@ -114,7 +114,7 @@ schiene_t::unreserve(convoihandle_t c)
 	if(reserved.is_bound()  &&  reserved==c) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );;
+			set_flag( ding_t::dirty );
 		}
 		return true;
 	}
@@ -138,7 +138,7 @@ schiene_t::unreserve(vehikel_t *)
 //	if(!welt->lookup(get_pos())->suche_obj(v->get_typ())) {
 		reserved = convoihandle_t();
 		if(schiene_t::show_reservations) {
-			set_flag( ding_t::dirty );;
+			set_flag( ding_t::dirty );
 		}
 		return true;
 //	}
@@ -172,7 +172,7 @@ schiene_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char bname[128];
-		file->rdwr_str(bname, 128 );
+		file->rdwr_str(bname, lengthof(bname));
 
 		int old_max_speed=get_max_speed();
 		int old_max_weight = get_max_weight();

@@ -11,6 +11,7 @@
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../dings/leitung2.h"
 #include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 #include "components/list_button.h"
@@ -60,7 +61,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&name_input);
 	set_fenstergroesse(koord(410, 305 + (14*(1+((MAX_CITY_HISTORY - 1) / BUTTONS_PER_ROW)))));
 
-	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,112) );;
+	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,114) );
 	allow_growth.pressed = stadt->get_citygrowth();
 	allow_growth.add_listener( this );
 	add_komponente(&allow_growth);
@@ -187,7 +188,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	buf.append(translator::translate("Power demand"));
 	buf.append( ": " );
 
-	uint32 power_demand = (c->get_power_demand())/5120;
+	uint32 power_demand = (c->get_power_demand())>>POWER_TO_MW;
 
 	if(power_demand < 1000)
 	{
@@ -202,7 +203,7 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 	
 	buf.append(" \n ");
 
-	display_multiline_text(pos.x+8, pos.y+48, (const char *)buf, COL_BLACK);
+	display_multiline_text(pos.x + 8, pos.y + 48, buf, COL_BLACK);
 
 	const unsigned long current_pax_destinations = c->get_pax_destinations_new_change();
 	if(  pax_destinations_last_change > current_pax_destinations  ) {

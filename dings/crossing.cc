@@ -28,7 +28,7 @@
 
 
 
-crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
+crossing_t::crossing_t(karte_t* const welt, loadsave_t* const file) : ding_no_info_t(welt)
 {
 	bild = after_bild = IMG_LEER;
 	logic = NULL;
@@ -37,7 +37,7 @@ crossing_t::crossing_t(karte_t *welt, loadsave_t *file) : ding_t (welt)
 
 
 
-crossing_t::crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns ) :  ding_t(welt, pos)
+crossing_t::crossing_t(karte_t* const welt, spieler_t* const sp, koord3d const pos, kreuzung_besch_t const* const besch, uint8 const ns) : ding_no_info_t(welt, pos)
 {
 	this->ns = ns;
 	this->besch = besch;
@@ -92,10 +92,19 @@ crossing_t::calc_bild()
 	if(logic) {
 		zustand = logic->get_state();
 	}
+	const bool snow_image = get_pos().z >= welt->get_snowline();
 	// recalc bild each step ...
-	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	if (a==NULL  &&  snow_image) {
+		// no snow image? take normal one
+		a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+	}
 	after_bild = a ? a->get_nummer() : IMG_LEER;
-	const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0 );
+	const bild_besch_t *b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
+	if (b==NULL  &&  snow_image) {
+		// no snow image? take normal one
+		b = besch->get_bild( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
+	}
 	bild = b ? b->get_nummer() : IMG_LEER;
 }
 
@@ -129,7 +138,7 @@ crossing_t::rdwr(loadsave_t *file)
 		uint8 w1, w2;
 		file->rdwr_byte(w1,"w");
 		file->rdwr_byte(w2,"w");
-		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2 );
+		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, 0);
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}

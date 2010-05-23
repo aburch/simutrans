@@ -234,12 +234,6 @@ public:
 		current_bag = 0;
 	}
 
-	void begin()
-	{
-		bag_iter = slist_iterator_tpl < typename hashtable_tpl<key_t, value_t, hash_t >::node_t>(bags);
-		current_bag = 0;
-	}
-
 	bool next()
 	{
 		while(!bag_iter.next()) {
