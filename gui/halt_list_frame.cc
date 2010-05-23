@@ -7,6 +7,7 @@
  * (see licence.txt)
  */
 
+#include <algorithm>
 #include <string.h>
 
 #include "halt_list_frame.h"
@@ -64,19 +65,12 @@ const char *halt_list_frame_t::sort_text[SORT_MODES] = {
 
 
 /**
-* This function is called by the quick-sort function which is used
-* to sort the station list. This function compares two stations
+* This function compares two stations
 *
-* @param *p1 and *p2; see manpage of qsort
-* @return  1 if station p1 > p2
-*         -1 if station p1 < p2
-*          0 if station p1 = p2
-* @author Markus Weber
+* @return halt1 < halt2
 */
-int halt_list_frame_t::compare_halts(const void *p1, const void *p2)
+bool halt_list_frame_t::compare_halts(halthandle_t const halt1, halthandle_t const halt2)
 {
-    halthandle_t halt1 =*(const halthandle_t *)p1;
-    halthandle_t halt2 =*(const halthandle_t *)p2;
     int order;
 
     /***********************************
@@ -104,7 +98,7 @@ int halt_list_frame_t::compare_halts(const void *p1, const void *p2)
 	 * Beruecksichtige die
 	 * Sortierreihenfolge
 	 ***********************************/
-	return sortreverse ? -order : order;
+	return sortreverse ? order > 0 : order < 0;
 }
 
 
@@ -319,8 +313,7 @@ void halt_list_frame_t::display_list(void)
 
 		}
 	}
-	// sort the station list
-	qsort((void *)a, n, sizeof (halthandle_t ), compare_halts);
+	std::sort(a, a + n, compare_halts);
 
 	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text(get_reverse() ? "hl_btn_sort_desc" : "hl_btn_sort_asc");
