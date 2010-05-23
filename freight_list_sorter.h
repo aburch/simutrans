@@ -20,7 +20,7 @@ public:
 private:
 	static sort_mode_t sortby;
 
-	static int compare_ware(const void *td1, const void *td2);
+	static bool compare_ware(ware_t const& w1, ware_t const& w2);
 
 	static void add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max, const ware_t *ware, const char *what_doing );
 };

@@ -76,7 +76,7 @@ private:
 
 	static slist_tpl<const ware_besch_t *> waren_filter;
 
-	static int compare_convois(const void *a, const void *b);
+	static bool compare_convois(convoihandle_t, convoihandle_t);
 
 	/**
 	 * Check all filters for one convoi.
