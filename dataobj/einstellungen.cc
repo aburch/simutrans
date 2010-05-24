@@ -20,6 +20,10 @@
 #include "loadsave.h"
 #include "tabfile.h"
 
+
+#define NEVER 0xFFFFU
+
+
 einstellungen_t::einstellungen_t() :
 	filename(""),
 	heightfield("")
@@ -651,7 +655,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	rtrim( city_roads[0].name );
 	// default her: always available
 	city_roads[0].intro = 1;
-	city_roads[0].retire = 0xFFFFu;
+	city_roads[0].retire = NEVER;
 
 	// new: up to ten city_roads are possible
 	if(  *contents.get("city_road[0]")  ) {
@@ -691,7 +695,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		rtrim( city_roads[0].name );
 		// default her: always available
 		city_roads[0].intro = 1;
-		city_roads[0].retire = 0xFFFFu;
+		city_roads[0].retire = NEVER;
 		num_city_roads = 1;
 	}
 
@@ -706,7 +710,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	rtrim( intercity_roads[0].name );
 	// default her: always available
 	intercity_roads[0].intro = 0;
-	intercity_roads[0].retire = 0xFFFFu;
+	intercity_roads[0].retire = NEVER;
 
 	// new: up to ten intercity_roads are possible
 	if(  *contents.get("intercity_road[0]")  ) {
@@ -990,7 +994,7 @@ static const weg_besch_t *get_timeline_road_type( uint16 year, uint16 num_roads,
 				// fill in real retire date
 				roads[i].retire = test->get_retire_year_month();
 				if(  roads[i].retire==0  ) {
-					roads[i].retire = 0xFFFFu;
+					roads[i].retire = NEVER;
 				}
 			}
 			// find newest available ...
