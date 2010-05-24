@@ -11,7 +11,6 @@
 #include "../boden/wege/weg.h"
 #include "../tpl/vector_tpl.h"
 #include "../simtypes.h"
-#include "../simwerkz.h"
 
 
 class weg_besch_t;
@@ -21,8 +20,7 @@ class tunnel_besch_t;
 class karte_t;
 class spieler_t;
 class grund_t;
-
-class werkzeug_parameter_waehler_t;
+class werkzeug_waehler_t;
 
 
 /**

@@ -5,8 +5,6 @@
 
 #include "components/gui_label.h"
 
-#include "../simwerkz.h"
-
 
 class baum_besch_t;
 class wkz_plant_tree_t;

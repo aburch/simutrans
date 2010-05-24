@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "../bauer/hausbauer.h"
+#include "../gui/money_frame.h"
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simfab.h"

@@ -1,7 +1,10 @@
 
 /* standard good AI code */
 
+#include "../simfab.h"
+#include "../simmenu.h"
 #include "../simtypes.h"
+#include "../simwerkz.h"
 
 #include "simplay.h"
 

@@ -8,6 +8,7 @@
 #include "../simimg.h"
 
 
+class field_class_besch_t;
 class loadsave_t;
 class fabrik_t;
 

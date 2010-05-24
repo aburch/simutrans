@@ -1,5 +1,6 @@
 #include <string.h>
 
+#include "../dataobj/translator.h"
 #include "tunnelboden.h"
 
 #include "../simimg.h"

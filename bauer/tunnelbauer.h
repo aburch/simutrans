@@ -11,7 +11,6 @@
 #include "../simtypes.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
-#include "../simwerkz.h"
 
 class karte_t;                 // Hajo: 22-Nov-01: Added forward declaration
 class spieler_t;               // Hajo: 22-Nov-01: Added forward declaration

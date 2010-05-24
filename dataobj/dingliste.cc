@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
+#include "../simgraph.h"
 #include "dingliste.h"
 #include "../bauer/hausbauer.h"
 #include "../dings/dummy.h"

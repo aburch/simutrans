@@ -5,8 +5,6 @@
 
 #include "components/gui_label.h"
 
-#include "../simwerkz.h"
-
 
 class wkz_build_haus_t;
 class haus_besch_t;
