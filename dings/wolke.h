@@ -7,7 +7,6 @@
 #include "../simimg.h"
 
 class karte_t;
-class rauch_besch_t;
 
 /**
  * smoke clouds (formerly sync_wolke_t)
