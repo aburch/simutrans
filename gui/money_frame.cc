@@ -63,7 +63,6 @@ const uint8 button_order[MAX_PLAYER_COST] =
 	6, 5, 10, 7
 };
 
-char money_frame_t::digit[4];
 
 /**
  * fills buffer (char array) with finance info
