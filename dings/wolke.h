@@ -26,8 +26,6 @@ private:
 public:
 	static bool register_besch(const skin_besch_t *besch);
 
-	inline sint32 get_insta_zeit() const { return insta_zeit; }
-
 	wolke_t(karte_t *welt, loadsave_t *file);
 	wolke_t(karte_t *welt, koord3d pos, sint8 xoff, sint8 yoff, const skin_besch_t *cloud );
 	~wolke_t();
