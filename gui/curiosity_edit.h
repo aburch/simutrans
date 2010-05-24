@@ -7,7 +7,6 @@
 
 #include "../simwerkz.h"
 
-#define MAX_BUILD_TYPE (6)
 
 class wkz_build_haus_t;
 class haus_besch_t;

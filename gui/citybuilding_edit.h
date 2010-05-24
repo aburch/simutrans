@@ -10,8 +10,6 @@
 class haus_besch_t;
 class fabrik_besch_t;
 
-#define MAX_BUILD_TYPE (6)
-
 
 class citybuilding_edit_frame_t : public extend_edit_gui_t
 {
