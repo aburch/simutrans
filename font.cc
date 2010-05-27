@@ -374,5 +374,6 @@ bool load_font(font_type* fnt, const char* fname)
 		fclose(f);
 		return true;
 	}
+	fclose(f);
 	return false;
 }
