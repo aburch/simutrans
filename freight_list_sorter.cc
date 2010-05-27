@@ -192,7 +192,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			}
 			// detail amount
 			ware_besch_t const& desc = *ware.get_besch();
-			buf.printf("   %u%s %s > ", ware.menge, desc.get_mass(), desc.get_name());
+			buf.printf("   %u%s %s > ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
 			// the target name is not correct for the via sort
 			if(sortby!=by_via_sum  ||  via_halt==halt  ) {
 				buf.append(name);
