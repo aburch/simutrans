@@ -54,8 +54,6 @@
 
 #define dragger_size 12
 
-static gui_komponente_t * focus=NULL;
-
 // (Mathew Hounsell)
 // I added a button to the map window to fix it's size to the best one.
 // This struct is the flow back to the object of the refactoring.
@@ -275,50 +273,6 @@ static void win_draw_window_dragger(koord pos, koord gr)
 
 //=========================================================================
 
-/**
- * redirect keyboard input into UI windows
- *
- * @return true if focus granted
- * @author Hj. Malthaner
- */
-bool request_focus(gui_komponente_t *req_focus)
-{
-	if(focus  &&  req_focus!=focus) {
-		// someone has already requested the focus
-		dbg->warning("bool request_focus()","Focus was already granted");
-	}
-	focus = req_focus;
-	return true;
-}
-
-
-/**
- * redirect keyboard input into game engine
- *
- * @author Hj. Malthaner
- */
-void release_focus(gui_komponente_t *this_focus)
-{
-	if(focus  &&  focus==this_focus) {
-		focus = NULL;
-	}
-	else {
-		dbg->message("void release_focus()","Focus was already released");
-	}
-}
-
-
-
-/**
- * our?
- *
- * @author Hj. Malthaner
- */
-bool has_focus(const gui_komponente_t *req_focus)
-{
-	return focus==req_focus;
-}
-
 
 
 // returns the window (if open) otherwise zero
@@ -390,7 +344,6 @@ int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long co
 	assert(gui!=NULL  &&  magic!=0);
 
 	if(  magic!=magic_none  &&  win_get_magic(magic)  ) {
-		focus = NULL;
 		top_win( win_get_magic(magic) );
 		return -1;
 	}
@@ -432,7 +385,6 @@ int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long co
 
 		// Hajo: Notify window to be shown
 		assert(gui);
-		focus = NULL;	// free focus
 		event_t ev;
 
 		ev.ev_class = INFOWIN;
@@ -823,11 +775,26 @@ bool check_pos_win(event_t *ev)
 		return true;
 	}
 
+	// cursor event only go to top window
+	if(  ev->ev_class==EVENT_KEYBOARD  &&  wins.get_count()>0  ) {
+		gui_komponente_t *komp = wins[wins.get_count()-1].gui->get_focus();
+		if(  komp  &&  komp->get_allow_focus()  ) {
+			inside_event_handling = wins[wins.get_count()-1].gui;
+			wins[wins.get_count()-1].gui->infowin_event( ev );
+			inside_event_handling = NULL;
+			// swallow event
+			swallowed = true;
+		}
+		process_kill_list();
+		// either handled or not => keyboard events are not processed further
+		return swallowed;
+	}
 
+	// handle all the other events
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
 
 		// check click inside window
-		if(  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )  ) {
+		if(  wins[i].gui->getroffen( ev->mx-wins[i].pos.x, ev->my-wins[i].pos.y )  ) {
 
 			inside_event_handling = wins[i].gui;
 
@@ -835,18 +802,18 @@ bool check_pos_win(event_t *ev)
 			swallowed = true;
 
 			// Top window first
-			if((int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
+			if((int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->my < wins[i].pos.y+16 ))) {
 				i = top_win(i);
 			}
 
 			// Hajo: if within title bar && window needs decoration
-			if( ev->cy < wins[i].pos.y+16 ) {
+			if( ev->my < wins[i].pos.y+16 ) {
 
 				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
 				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
 
 				// Where Was It ?
-				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), ev->cx );
+				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), ev->mx );
 
 				switch( code ) {
 					case GADGET_CLOSE :
@@ -915,8 +882,8 @@ bool check_pos_win(event_t *ev)
 
 					// resizer hit ?
 					const bool canresize = is_resizing ||
-														(ev->cx > wins[i].pos.x + gr.x - dragger_size &&
-														ev->cy > wins[i].pos.y + gr.y - dragger_size);
+														(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
+														ev->my > wins[i].pos.y + gr.y - dragger_size);
 
 					if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
 						// Hajo: go into resize mode
@@ -944,11 +911,6 @@ bool check_pos_win(event_t *ev)
 			}
 			inside_event_handling = NULL;
 		}
-	}
-
-	// if no focused, we do not deliver keyboard input
-	if(focus==NULL  &&  ev->ev_class == EVENT_KEYBOARD) {
-		swallowed = false;
 	}
 
 	inside_event_handling = NULL;

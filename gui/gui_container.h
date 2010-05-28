@@ -29,7 +29,8 @@ private:
 	// holds the GUI Komponent that has the focus in this window
 	gui_komponente_t *komp_focus;
 
-	bool list_dirty;
+	bool list_dirty:1;
+	bool has_focus:1;
 
 public:
 	gui_container_t();
@@ -70,6 +71,8 @@ public:
 
 	// activates this element
 	void set_focus( gui_komponente_t *komp_focus );
+
+	gui_komponente_t *get_focus() const { return komp_focus; }
 };
 
 #endif

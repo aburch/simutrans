@@ -6,6 +6,7 @@
  */
 
 #include "gui_numberinput.h"
+#include "../../ifc/gui_fenster.h"
 #include "../../simwin.h"
 #include "../../simgraph.h"
 #include "../../macros.h"
@@ -24,6 +25,7 @@ gui_numberinput_t::gui_numberinput_t()
 
 	textinp.set_alignment( ALIGN_RIGHT );
 	textinp.set_color( COL_WHITE );
+	textinp.set_read_only(true);
 	textinp.add_listener( this );
 
 	bt_right.set_typ(button_t::repeatarrowright );
@@ -35,6 +37,7 @@ gui_numberinput_t::gui_numberinput_t()
 	textinp.set_text(textbuffer, 20);
 	set_increment_mode( 1 );
 	wrap_mode( true );
+	set_read_only(false);
 }
 
 
@@ -56,7 +59,8 @@ void gui_numberinput_t::set_groesse(koord groesse)
 void gui_numberinput_t::set_value(sint32 new_value)
 {	// range check
 	value = clamp( new_value, min_value, max_value );
-	if(  !has_focus(&textinp)  ) {
+	const gui_fenster_t *win = win_get_top();
+	if(  win  &&  win->get_focus()!=this  ) {
 		// final value should be correct, but during editing wrng values are allowed
 		new_value = value;
 	}
@@ -224,13 +228,11 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_left.get_pos().x, -bt_left.get_pos().y);
 		bt_left.infowin_event(&ev2);
-		request_focus( &textinp );
 	}
 	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_right.get_pos().x, -bt_right.get_pos().y);
 		bt_right.infowin_event(&ev2);
-		request_focus( &textinp );
 	}
 	else {
 		// since button have different callback ...
@@ -238,11 +240,9 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 		// mouse wheel -> fast increase / decrease
 		if(IS_WHEELUP(ev)){
 			new_value = get_next_value();
-			request_focus( &textinp );
 		}
 		else if(IS_WHEELDOWN(ev)){
 			new_value = get_prev_value();
-			request_focus( &textinp );
 		}
 
 		// catch non-number keys
@@ -303,7 +303,9 @@ void gui_numberinput_t::zeichnen(koord offset)
 {
 	koord new_offset = pos+offset;
 	bt_left.zeichnen(new_offset);
-	textinp.zeichnen(new_offset);
+
+	const gui_fenster_t *win = win_get_top();
+	textinp.zeichnen_mit_cursor( new_offset, (win  &&  win->get_focus()==this) );
 	bt_right.zeichnen(new_offset);
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {

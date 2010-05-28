@@ -20,7 +20,7 @@
 gui_combobox_t::gui_combobox_t() :
 	droplist(gui_scrolled_list_t::select)
 {
-//	textinp.add_listener(this);
+	textinp.set_read_only(false);
 
 	bt_prev.set_typ(button_t::arrowleft);
 	bt_prev.set_pos( koord(0,2) );
@@ -38,15 +38,8 @@ gui_combobox_t::gui_combobox_t() :
 	set_groesse(get_groesse());
 	max_size = koord(0,100);
 	set_highlight_color(0);
-	set_read_only(false);
+	set_read_only(true);
 }
-
-
-gui_combobox_t::~gui_combobox_t()
-{
-	release_focus(this);
-}
-
 
 
 /**
@@ -226,8 +219,7 @@ gui_combobox_t::set_selection(int s)
 /**
 * Release the focus if we had it
 */
-void
-gui_combobox_t::close_box()
+void gui_combobox_t::close_box()
 {
 	if(finish) {
 //DBG_MESSAGE("gui_combobox_t::infowin_event()","prepare selected %i for %d listerners",get_selection(),listeners.get_count());
@@ -236,8 +228,6 @@ gui_combobox_t::close_box()
 		call_listeners(p);
 		finish = false;
 	}
-	release_focus(this);
-	release_focus(&textinp);
 	droplist.set_visible(false);
 	set_groesse(koord(groesse.x, 14));
 	first_call = true;

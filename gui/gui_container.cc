@@ -15,6 +15,7 @@
 gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 {
 	list_dirty = false;
+	has_focus = false;
 }
 
 
@@ -38,6 +39,10 @@ void gui_container_t::add_komponente(gui_komponente_t *komp)
  */
 void gui_container_t::remove_komponente(gui_komponente_t *komp)
 {
+	if(  komp_focus == komp  ) {
+		komp_focus = NULL;
+		has_focus = false;
+	}
 	komponenten.remove(komp);
 	list_dirty = true;
 }
@@ -49,9 +54,10 @@ void gui_container_t::remove_komponente(gui_komponente_t *komp)
  */
 void gui_container_t::remove_all()
 {
-	komponenten.clear();
-	komp_focus = NULL;
-	list_dirty = true;
+	// clear also focus
+	while(  !komponenten.empty()  ) {
+		remove_komponente( komponenten.remove_first() );
+	}
 }
 
 
@@ -69,6 +75,11 @@ void gui_container_t::infowin_event(const event_t *ev)
 			event_t ev2 = *ev;
 			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
 			komp_focus->infowin_event(&ev2);
+			if(  ev->ev_code==13  ||  ev->ev_code==27  ) {
+				// release focus
+				// TAB for next field would be possible too ...
+				komp_focus = NULL;
+			}
 			return;
 		}
 	}
@@ -131,8 +142,5 @@ void gui_container_t::set_focus( gui_komponente_t *k )
 {
 	if(  komponenten.is_contained(k)  ||  k==NULL  ) {
 		komp_focus = k;
-		if(  k!=NULL  ) {
-			request_focus( k );
-		}
 	}
 }

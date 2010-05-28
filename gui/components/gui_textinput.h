@@ -93,6 +93,8 @@ public:
 	 */
 	virtual void zeichnen(koord offset);
 
+	void zeichnen_mit_cursor( koord offset, bool show_cursor );
+
 	// to allow for right-aligned text
 	void set_alignment(uint8 _align){ align = _align;}
 

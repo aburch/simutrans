@@ -25,13 +25,13 @@ private:
 	* allow component to show/hide itself
 	* @author hsiegeln
 	*/
-	bool visible;
+	bool visible:1;
 
 	/**
 	* Does this component have the input focus?
 	* @author hsiegeln
 	*/
-	bool focus_gained;
+	bool focus_gained:1;
 
 	/**
 	* some components might not be allowed to gain focus
@@ -39,7 +39,7 @@ private:
 	* this flag can be set to true to deny focus requesst for a gui_component always
 	* @author hsiegeln
 	*/
-	bool read_only;
+	bool read_only:1;
 
 protected:
 	/**
