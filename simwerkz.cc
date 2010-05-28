@@ -3006,36 +3006,43 @@ image_id wkz_station_t::get_icon( spieler_t * ) const
 
 
 
-const char *wkz_station_t::get_tooltip(spieler_t *sp)
+char const* wkz_station_t::get_tooltip(spieler_t* const sp)
 {
-	sint8 dummy;
-	const haus_besch_t *besch=get_besch(dummy);
-	if(  besch->get_utyp()==haus_besch_t::generic_stop  ) {
-		switch (besch->get_extra()) {
-			case track_wt:
-			case monorail_wt:
-			case maglev_wt:
-			case tram_wt:
-			case narrowgauge_wt:
-				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_station*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
-			case road_wt:
-				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_roadstop*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
-			case water_wt:
-				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_dock*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
-			case air_wt:
-				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_airterminal*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
-			case 0:
-				return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_post*besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level(), besch->get_level(), besch->get_enabled() );
-		}
+	sint8                  dummy;
+	karte_t&               welt     = *sp->get_welt();
+	einstellungen_t const& settings = *welt.get_einstellungen();
+	haus_besch_t    const& besch    = *get_besch(dummy);
+	uint32                 level    = besch.get_level();
+	sint64                 price;
+	switch (besch.get_utyp()) {
+		case haus_besch_t::generic_stop:
+			switch (besch.get_extra()) {
+				case track_wt:
+				case monorail_wt:
+				case maglev_wt:
+				case tram_wt:
+				case narrowgauge_wt: price = settings.cst_multiply_station;     break;
+				case road_wt:        price = settings.cst_multiply_roadstop;    break;
+				case water_wt:       price = settings.cst_multiply_dock;        break;
+				case air_wt:         price = settings.cst_multiply_airterminal; break;
+				case ignore_wt:      price = settings.cst_multiply_post;        break;
+				default:             goto invalid;
+			}
+			break;
+
+		case haus_besch_t::generic_extension: price = settings.cst_multiply_post; goto scale_by_size;
+		case haus_besch_t::hafen:             price = settings.cst_multiply_dock; goto scale_by_size;
+scale_by_size:
+			level = level * besch.get_groesse().x * besch.get_groesse().y;
+			break;
+
+		default:
+invalid:
+			return "Illegal description";
 	}
-	else if(  besch->get_utyp()==haus_besch_t::generic_extension  ) {
-		return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_enabled() );
-	}
-	else if(  besch->get_utyp()==haus_besch_t::hafen  ) {
-		return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), sp->get_welt()->get_einstellungen()->cst_multiply_dock*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_level()*besch->get_groesse().x*besch->get_groesse().y, besch->get_enabled() );
-	}
-	return "Illegal description";
+	return tooltip_with_price_maintenance_level(&welt, besch.get_name(), price * level, settings.maint_building * level, level, besch.get_enabled());
 }
+
 
 const char *wkz_station_t::check( karte_t *welt, spieler_t *sp, koord3d pos )
 {
