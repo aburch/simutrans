@@ -210,12 +210,6 @@ public:
 	// will draw a dark frame, if selected
 	virtual void draw_after( karte_t *w, koord pos ) const;
 
-	/* could be used for player dependent images
-	 * will be called, when a toolbar is opened/updated
-	 * return false to avoid inclusion
-	 */
-	virtual bool update_image(spieler_t *) { return true; }
-
 	virtual const char *get_tooltip(spieler_t *) { return NULL; }
 
 	// returning false on init will automatically invoke previous tool
