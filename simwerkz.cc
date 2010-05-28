@@ -111,7 +111,7 @@ char *tooltip_with_price(const char * tip, sint64 price)
  * Creates a tooltip from tip text and money value
  * @author Hj. Malthaner
  */
-char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maitenance)
+char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 price, sint64 maintenance)
 {
 	int n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
@@ -120,8 +120,8 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 
 	money_to_string(werkzeug_t::toolstr+n,
 		welt->ticks_per_world_month_shift>=18 ?
-		(double)(maitenance<<(welt->ticks_per_world_month_shift-18))/100.0 :
-		(double)(maitenance>>(18-welt->ticks_per_world_month_shift))/100.0
+		(double)(maintenance << (welt->ticks_per_world_month_shift - 18)) / 100.0 :
+		(double)(maintenance >> (18 - welt->ticks_per_world_month_shift)) / 100.0
 	);
 	strcat( werkzeug_t::toolstr, ")" );
 	return werkzeug_t::toolstr;
@@ -132,7 +132,7 @@ char *tooltip_with_price_maintenance(karte_t *welt, const char *tip, sint64 pric
 /**
  * Creates a tooltip from tip text and money value
  */
-static char const* tooltip_with_price_maintenance_level(karte_t* const welt, char const* const tip, sint64 const price, sint64 const maitenance, uint32 const level, uint8 const enables)
+static char const* tooltip_with_price_maintenance_level(karte_t* const welt, char const* const tip, sint64 const price, sint64 const maintenance, uint32 const level, uint8 const enables)
 {
 	int n = sprintf(werkzeug_t::toolstr, "%s, ", translator::translate(tip) );
 	money_to_string(werkzeug_t::toolstr+n, (double)price/-100.0);
@@ -141,8 +141,8 @@ static char const* tooltip_with_price_maintenance_level(karte_t* const welt, cha
 
 	money_to_string(werkzeug_t::toolstr+n,
 		welt->ticks_per_world_month_shift>=18 ?
-		(double)(maitenance<<(welt->ticks_per_world_month_shift-18))/100.0 :
-		(double)(maitenance>>(18-welt->ticks_per_world_month_shift))/100.0
+		(double)(maintenance << (welt->ticks_per_world_month_shift - 18)) / 100.0 :
+		(double)(maintenance >> (18 - welt->ticks_per_world_month_shift)) / 100.0
 			);
 	strcat( werkzeug_t::toolstr, ")" );
 	n = strlen(werkzeug_t::toolstr);

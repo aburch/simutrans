@@ -937,7 +937,7 @@ Release of 99.01
 	FIX: pause at waypoints
 	CHANGE: automatically loading pak/demo.sve (or whatever the pak folder is) on startup
 	CHANGE: symbol.BigLogo.pak with maximum for image loaded during intial startup
-	CHANGE: more complex tunnels, with cost=,maitenance=, topspeed=, waytype=, intro- and retiredates
+	CHANGE: more complex tunnels, with cost=, maintenance=, topspeed=, waytype=, intro- and retiredates
 	CHANGE: allowed tunnels for all but air, also removal or tunnel with tramrails should work
 	FIX: city roads no longer destroy runways and the like
 	FIX: more even house distribution with rotation

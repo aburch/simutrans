@@ -327,7 +327,7 @@ void grund_t::rdwr(loadsave_t *file)
 					if(get_typ()==fundament) {
 						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
 						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
-						// we do not delete them, to keep maitenance costs correct
+						// we do not delete them, to keep maintenance costs correct
 					}
 					else {
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
