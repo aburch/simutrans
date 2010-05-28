@@ -160,7 +160,6 @@ public:
 
 	image_id cursor;
 	sint16 ok_sound;
-	sint16 failed_sound;
 	sint8 offset;
 
 	enum {
@@ -190,7 +189,7 @@ public:
 
 	static void read_menu(cstring_t objfilename);
 
-	werkzeug_t() : id(0xFFFFu) { cursor = icon = IMG_LEER; ok_sound = failed_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
+	werkzeug_t() : id(0xFFFFu) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}
 
 	virtual image_id get_icon(spieler_t *) const { return icon; }
