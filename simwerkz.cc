@@ -3306,21 +3306,28 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 	return false;
 }
 
-const char *wkz_depot_t::get_tooltip(spieler_t *sp)
+
+char const* wkz_depot_t::get_tooltip(spieler_t* const sp)
 {
-	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
-	switch(besch->get_extra()) {
-		case road_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build road depot", sp->get_welt()->get_einstellungen()->cst_depot_road, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case track_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build train depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case monorail_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build monorail depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case maglev_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build maglev depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case narrowgauge_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build narrowgauge depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case tram_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build tram depot", sp->get_welt()->get_einstellungen()->cst_depot_rail, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case water_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build ship depot", sp->get_welt()->get_einstellungen()->cst_depot_ship, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case air_wt: return tooltip_with_price_maintenance( sp->get_welt(), "Build air depot", sp->get_welt()->get_einstellungen()->cst_depot_air, sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+	karte_t&               welt     = *sp->get_welt();
+	einstellungen_t const& settings = *welt.get_einstellungen();
+	haus_besch_t    const& besch    = *hausbauer_t::find_tile(default_param, 0)->get_besch();
+	char            const* tip;
+	sint64                 price;
+	switch (besch.get_extra()) {
+		case road_wt:        tip = "Build road depot";        price = settings.cst_depot_road; break;
+		case track_wt:       tip = "Build train depot";       price = settings.cst_depot_rail; break;
+		case monorail_wt:    tip = "Build monorail depot";    price = settings.cst_depot_rail; break;
+		case maglev_wt:      tip = "Build maglev depot";      price = settings.cst_depot_rail; break;
+		case narrowgauge_wt: tip = "Build narrowgauge depot"; price = settings.cst_depot_rail; break;
+		case tram_wt:        tip = "Build tram depot";        price = settings.cst_depot_rail; break;
+		case water_wt:       tip = "Build ship depot";        price = settings.cst_depot_ship; break;
+		case air_wt:         tip = "Build air depot";         price = settings.cst_depot_air;  break;
+		default:             return 0;
 	}
-	return NULL;
+	return tooltip_with_price_maintenance(&welt, tip, price, settings.maint_building * besch.get_level());
 }
+
 
 const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
