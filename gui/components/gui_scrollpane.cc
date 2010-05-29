@@ -28,6 +28,8 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
 	b_has_size_corner = true;
 
 	old_komp_groesse = koord::invalid;
+	// we may have elements that want to get focus
+	set_read_only(!komp->get_allow_focus());
 }
 
 

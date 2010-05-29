@@ -15,7 +15,6 @@
 gui_container_t::gui_container_t() : gui_komponente_t(), komp_focus(NULL)
 {
 	list_dirty = false;
-	has_focus = false;
 }
 
 
@@ -41,7 +40,6 @@ void gui_container_t::remove_komponente(gui_komponente_t *komp)
 {
 	if(  komp_focus == komp  ) {
 		komp_focus = NULL;
-		has_focus = false;
 	}
 	komponenten.remove(komp);
 	list_dirty = true;
@@ -143,4 +141,21 @@ void gui_container_t::set_focus( gui_komponente_t *k )
 	if(  komponenten.is_contained(k)  ||  k==NULL  ) {
 		komp_focus = k;
 	}
+}
+
+/**
+ * returns element that has the focus
+ * that is: go down the hierarchy as much as possible
+ */
+gui_komponente_t *gui_container_t::get_focus() const
+{
+	if(komp_focus) {
+		// if the komp_focus-element has another focused element
+		// .. return this element instead
+		gui_komponente_t *focus = komp_focus->get_focus();
+		if (focus) {
+			return focus;
+		}
+	}
+	return komp_focus;
 }

@@ -21,6 +21,8 @@
 gui_tab_panel_t::gui_tab_panel_t()
 {
 	active_tab = 0;
+	// we may have elements that want to get focus
+	set_read_only(false);
 }
 
 

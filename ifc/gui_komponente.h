@@ -28,12 +28,6 @@ private:
 	bool visible:1;
 
 	/**
-	* Does this component have the input focus?
-	* @author hsiegeln
-	*/
-	bool focus_gained:1;
-
-	/**
 	* some components might not be allowed to gain focus
 	* for example: gui_textarea_t
 	* this flag can be set to true to deny focus requesst for a gui_component always
@@ -54,7 +48,7 @@ public:
 	* Basic contructor, initialises member variables
 	* @author Hj. Malthaner
 	*/
-	gui_komponente_t() : visible(true), focus_gained(false), read_only(true) {}
+	gui_komponente_t() : visible(true), read_only(true) {}
 
 	/**
 	* Virtueller Destruktor, damit Klassen sauber abgeleitet werden können
@@ -147,6 +141,13 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void zeichnen(koord offset) = 0;
+
+
+	/**
+	 * returns element that has the focus
+	 * that is: go down the hierarchy as much as possible
+	 */
+	virtual gui_komponente_t *get_focus() const { return NULL; }
 };
 
 #endif
