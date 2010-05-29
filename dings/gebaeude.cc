@@ -349,7 +349,7 @@ void gebaeude_t::calc_bild()
 {
 	grund_t *gr=welt->lookup(get_pos());
 	// snow image?
-	snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z+(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
+	snow = (!gr->ist_tunnel()  ||  gr->ist_karten_boden())  &&  (get_pos().z-(get_yoff()/TILE_HEIGHT_STEP)>= welt->get_snowline());
 	// need no ground?
 	if(!tile->get_besch()->ist_mit_boden()  ||  !tile->has_image()) {
 		grund_t *gr=welt->lookup(get_pos());
