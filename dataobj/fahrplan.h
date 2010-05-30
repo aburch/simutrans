@@ -23,11 +23,6 @@ public:
 		fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3, airfahrplan = 4, monorailfahrplan = 5, tramfahrplan = 6, maglevfahrplan = 7, narrowgaugefahrplan = 8,
 	};
 
-private:
-	bool abgeschlossen;
-
-	static struct linieneintrag_t dummy_eintrag;
-
 protected:
 	schedule_t(schedule_type const type, waytype_t const waytype) :
 		abgeschlossen(false),
@@ -35,11 +30,6 @@ protected:
 		my_waytype(waytype),
 		type(type)
 	{}
-
-	uint8 aktuell;
-
-	waytype_t     const my_waytype;
-	schedule_type const type;
 
 public:
 	minivec_tpl<struct linieneintrag_t> eintrag;
@@ -148,6 +138,15 @@ public:
 
 	// converts this string into a schedule
 	bool sscanf_schedule( const char * );
+
+private:
+	bool  abgeschlossen;
+	uint8 aktuell;
+
+	waytype_t     const my_waytype;
+	schedule_type const type;
+
+	static struct linieneintrag_t dummy_eintrag;
 };
 
 
