@@ -29,19 +29,16 @@ private:
 	static struct linieneintrag_t dummy_eintrag;
 
 protected:
-	schedule_t() {}
+	schedule_t() :
+		abgeschlossen(false),
+		aktuell(0),
+		type(fahrplan)
+	{}
 
 	uint8 aktuell;
 
 	waytype_t my_waytype;
 	schedule_type type;
-
-	/*
-	 * initializes the fahrplan object
-	 * is shared by fahrplan_t constructors
-	 * @author hsiegeln
-	 */
-	void init();
 
 public:
 	minivec_tpl<struct linieneintrag_t> eintrag;
@@ -162,7 +159,7 @@ public:
 class zugfahrplan_t : public schedule_t
 {
 public:
-	zugfahrplan_t() { init(); type = zugfahrplan; my_waytype=track_wt; }
+	zugfahrplan_t() { type = zugfahrplan; my_waytype = track_wt; }
 	zugfahrplan_t(loadsave_t* file) : schedule_t(file) { type = zugfahrplan; my_waytype=track_wt; }
 	schedule_t* copy() { schedule_t *s = new zugfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Zughalt muss auf\nSchiene liegen!\n"; }
@@ -174,7 +171,7 @@ public:
 class tramfahrplan_t : public zugfahrplan_t
 {
 public:
-	tramfahrplan_t() { init(); type = tramfahrplan; my_waytype=tram_wt; }
+	tramfahrplan_t() { type = tramfahrplan; my_waytype=tram_wt; }
 	tramfahrplan_t(loadsave_t* file) : zugfahrplan_t(file) { type = tramfahrplan; my_waytype=track_wt; }
 	schedule_t* copy() { schedule_t *s = new tramfahrplan_t(); s->copy_from(this); return s; }
 };
@@ -189,7 +186,7 @@ public:
 class autofahrplan_t : public schedule_t
 {
 public:
-	autofahrplan_t() { init(); type = autofahrplan; my_waytype=road_wt; }
+	autofahrplan_t() { type = autofahrplan; my_waytype = road_wt; }
 	autofahrplan_t(loadsave_t* file) : schedule_t(file) { type = autofahrplan; my_waytype=road_wt; }
 	schedule_t* copy() { schedule_t *s = new autofahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Autohalt muss auf\nStrasse liegen!\n"; }
@@ -205,7 +202,7 @@ public:
 class schifffahrplan_t : public schedule_t
 {
 public:
-	schifffahrplan_t() { init(); type = schifffahrplan; my_waytype=water_wt; }
+	schifffahrplan_t() { type = schifffahrplan; my_waytype = water_wt; }
 	schifffahrplan_t(loadsave_t* file) : schedule_t(file) { type = schifffahrplan; my_waytype=water_wt; }
 	schedule_t* copy() { schedule_t *s = new schifffahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
@@ -218,7 +215,7 @@ public:
 class airfahrplan_t : public schedule_t
 {
 public:
-	airfahrplan_t() { init(); type = airfahrplan; my_waytype=air_wt; }
+	airfahrplan_t() { type = airfahrplan; my_waytype = air_wt; }
 	airfahrplan_t(loadsave_t* file) : schedule_t(file) { type = airfahrplan; my_waytype=air_wt; }
 	schedule_t* copy() { schedule_t *s = new airfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
@@ -230,7 +227,7 @@ public:
 class monorailfahrplan_t : public schedule_t
 {
 public:
-	monorailfahrplan_t() { init(); type = monorailfahrplan; my_waytype=monorail_wt; }
+	monorailfahrplan_t() { type = monorailfahrplan; my_waytype = monorail_wt; }
 	monorailfahrplan_t(loadsave_t* file) : schedule_t(file) { type = monorailfahrplan; my_waytype=monorail_wt; }
 	schedule_t* copy() { schedule_t *s = new monorailfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
@@ -242,7 +239,7 @@ public:
 class maglevfahrplan_t : public schedule_t
 {
 public:
-	maglevfahrplan_t() { init(); type = maglevfahrplan; my_waytype=maglev_wt; }
+	maglevfahrplan_t() { type = maglevfahrplan; my_waytype = maglev_wt; }
 	maglevfahrplan_t(loadsave_t* file) : schedule_t(file) { type = maglevfahrplan; my_waytype=maglev_wt; }
 	schedule_t* copy() { schedule_t *s = new maglevfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
@@ -254,7 +251,7 @@ public:
 class narrowgaugefahrplan_t : public schedule_t
 {
 public:
-	narrowgaugefahrplan_t() { init(); type = narrowgaugefahrplan; my_waytype=narrowgauge_wt; }
+	narrowgaugefahrplan_t() { type = narrowgaugefahrplan; my_waytype = narrowgauge_wt; }
 	narrowgaugefahrplan_t(loadsave_t* file) : schedule_t(file) { type = narrowgaugefahrplan; my_waytype=narrowgauge_wt; }
 	schedule_t* copy() { schedule_t *s = new narrowgaugefahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "On narrowgauge track only!\n"; }

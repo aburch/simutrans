@@ -26,13 +26,6 @@
 
 struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
 
-void schedule_t::init()
-{
-	aktuell = 0;
-	abgeschlossen = false;
-	type = schedule_t::fahrplan;
-}
-
 
 
 schedule_t::schedule_t(loadsave_t *file)
