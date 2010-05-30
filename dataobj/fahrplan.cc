@@ -28,9 +28,9 @@ struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
 
 
 
-schedule_t::schedule_t(loadsave_t *file)
+schedule_t::schedule_t(schedule_type const type, loadsave_t* const file) :
+	type(type)
 {
-	type = schedule_t::fahrplan;
 	rdwr(file);
 	if(file->is_loading()) {
 		cleanup();
