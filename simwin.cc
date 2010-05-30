@@ -1013,7 +1013,7 @@ void win_display_flush(double konto)
 	// calculate also days if desired
 	const uint32 ticks_this_month = ticks % wl->ticks_per_world_month;
 	uint32 tage, stunden, minuten;
-	if(umgebung_t::show_month>1) {
+	if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 		tage = (((sint64)ticks_this_month*tage_per_month[month]) >> wl->ticks_per_world_month_shift) + 1;
 		stunden = (((sint64)ticks_this_month*tage_per_month[month]) >> (wl->ticks_per_world_month_shift-16));
@@ -1038,24 +1038,24 @@ void win_display_flush(double konto)
 	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
 	char const* const season = translator::translate(seasons[wl->get_jahreszeit()]);
 	char const* const month_ = translator::get_month_name(month % 12);
-	switch(umgebung_t::show_month) {
-		case 4: // german style
+	switch (umgebung_t::show_month) {
+		case umgebung_t::DATE_FMT_GERMAN:
 			sprintf(time, "%s, %d. %s %d %d:%02dh", season, tage, month_, year, stunden, minuten);
 			break;
 
-		case 3: // us style
+		case umgebung_t::DATE_FMT_US:
 			sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, stunden % 12, minuten, stunden < 12 ? "am" : "pm");
 			break;
 
-		case 2: // japanese style
+		case umgebung_t::DATE_FMT_JAPANESE:
 			sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
 			break;
 
-		case 1: // just month
+		case umgebung_t::DATE_FMT_MONTH:
 			sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, stunden, minuten);
 			break;
 
-		default: // just season
+		case umgebung_t::DATE_FMT_SEASON:
 			sprintf(time, "%s %d", season, year);
 			break;
 	}

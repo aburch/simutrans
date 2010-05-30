@@ -89,7 +89,7 @@ karte_ansicht_t::display(bool force_dirty)
 		uint32 month = welt->get_last_month();
 		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_world_month;
 		uint32 stunden2;
-		if(umgebung_t::show_month>1) {
+		if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 			stunden2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_per_world_month_shift-17));
 			stunden2 = ((stunden2*3) / 8192) % 48;

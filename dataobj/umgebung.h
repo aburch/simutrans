@@ -179,6 +179,14 @@ public:
 	static const char *river_type[10];
 	static uint8 river_types;
 
+	enum date_fmt {
+		DATE_FMT_SEASON   = 0,
+		DATE_FMT_MONTH    = 1,
+		DATE_FMT_JAPANESE = 2,
+		DATE_FMT_US       = 3,
+		DATE_FMT_GERMAN   = 4
+	};
+
 	/**
 	* show month in date?
 	*
