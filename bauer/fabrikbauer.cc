@@ -42,16 +42,16 @@ static sint32 fab_map_w=0;
 
 
 // marks factories with exclusion region in the position map
-static void add_factory_to_fab_map(karte_t const& welt, fabrik_t const& fab)
+static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* const fab)
 {
-	koord3d      const& pos     = fab.get_pos();
-	sint16       const  spacing = welt.get_einstellungen()->get_factory_spacing();
-	haus_besch_t const& hbesch  = *fab.get_besch()->get_haus();
-	sint16       const  rotate  = fab.get_rotate();
+	koord3d      const& pos     = fab->get_pos();
+	sint16       const  spacing = welt->get_einstellungen()->get_factory_spacing();
+	haus_besch_t const& hbesch  = *fab->get_besch()->get_haus();
+	sint16       const  rotate  = fab->get_rotate();
 	sint16       const  start_y = max(0, pos.y - spacing);
 	sint16       const  start_x = max(0, pos.x - spacing);
-	sint16       const  end_y   = min(welt.get_groesse_y() - 1, pos.y + hbesch.get_h(rotate) + spacing);
-	sint16       const  end_x   = min(welt.get_groesse_x() - 1, pos.x + hbesch.get_b(rotate) + spacing);
+	sint16       const  end_y   = min(welt->get_groesse_y() - 1, pos.y + hbesch.get_h(rotate) + spacing);
+	sint16       const  end_x   = min(welt->get_groesse_x() - 1, pos.x + hbesch.get_b(rotate) + spacing);
 	for (sint16 y = start_y; y < end_y; ++y) {
 		for (sint16 x = start_x; x < end_x; ++x) {
 			fab_map[fab_map_w * start_y + x / 8] |= 1 << (x % 8);
@@ -71,7 +71,7 @@ void init_fab_map( karte_t *welt )
 	}
 	slist_iterator_tpl <fabrik_t *> iter(welt->get_fab_list());
 	while(iter.next()) {
-		add_factory_to_fab_map(*welt, *iter.get_current());
+		add_factory_to_fab_map(welt, iter.get_current());
 	}
 }
 
@@ -407,7 +407,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	// now build factory
 	fab->baue(rotate);
 	welt->add_fab(fab);
-	add_factory_to_fab_map(*welt, *fab);
+	add_factory_to_fab_map(welt, fab);
 
 	// make all water station
 	if(info->get_platzierung() == fabrik_besch_t::Wasser) {
