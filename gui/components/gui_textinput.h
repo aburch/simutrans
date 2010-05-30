@@ -64,8 +64,6 @@ protected:
 public:
 	gui_textinput_t();
 
-	~gui_textinput_t();
-
 	/**
 	 * Setzt den Textpuffer
 	 *

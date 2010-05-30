@@ -31,12 +31,6 @@ gui_textinput_t::gui_textinput_t()
 }
 
 
-gui_textinput_t::~gui_textinput_t()
-{
-	text = NULL;
-}
-
-
 /**
  * Events werden hiermit an die GUI-Komponenten
  * gemeldet
