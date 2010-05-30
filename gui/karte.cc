@@ -785,7 +785,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 // draw current schedule
 void reliefkarte_t::draw_schedule(const koord pos) const
 {
-	assert(fpl!=NULL  ||  fpl->get_count()>0);
+	assert(fpl && fpl->get_count() != 0);
 
 	koord first_koord;
 	koord last_koord;
