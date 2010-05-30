@@ -25,7 +25,6 @@ gui_numberinput_t::gui_numberinput_t()
 
 	textinp.set_alignment( ALIGN_RIGHT );
 	textinp.set_color( COL_WHITE );
-	textinp.set_read_only(true);
 	textinp.add_listener( this );
 
 	bt_right.set_typ(button_t::repeatarrowright );
@@ -37,7 +36,6 @@ gui_numberinput_t::gui_numberinput_t()
 	textinp.set_text(textbuffer, 20);
 	set_increment_mode( 1 );
 	wrap_mode( true );
-	set_read_only(false);
 }
 
 
@@ -255,6 +253,7 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 					call_textinp = min_value <0;
 					break;
 				case 8:
+				case 9:
 				case 13:
 				case 27:
 				case 127:

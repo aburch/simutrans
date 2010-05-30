@@ -7,6 +7,7 @@
 
 #include <string.h>
 
+#include "../../ifc/gui_fenster.h"
 #include "../../macros.h"
 #include "../../simdebug.h"
 #include "gui_combobox.h"
@@ -20,8 +21,6 @@
 gui_combobox_t::gui_combobox_t() :
 	droplist(gui_scrolled_list_t::select)
 {
-	textinp.set_read_only(false);
-
 	bt_prev.set_typ(button_t::arrowleft);
 	bt_prev.set_pos( koord(0,2) );
 	bt_prev.set_groesse( koord(10,10) );
@@ -38,7 +37,6 @@ gui_combobox_t::gui_combobox_t() :
 	set_groesse(get_groesse());
 	max_size = koord(0,100);
 	set_highlight_color(0);
-	set_read_only(true);
 }
 
 
@@ -49,8 +47,6 @@ gui_combobox_t::gui_combobox_t() :
  */
 void gui_combobox_t::infowin_event(const event_t *ev)
 {
-	textinp.infowin_event(ev);
-
 	if (!droplist.is_visible()) {
 DBG_MESSAGE("event","%d,%d",ev->cx, ev->cy);
 		if(bt_prev.getroffen(ev->cx, ev->cy)) {
@@ -128,20 +124,19 @@ DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
 				}
 			}
 		}
-	} else if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_CLOSE) {
+	} else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_UNTOP)  ) {
 DBG_MESSAGE("gui_combobox_t::infowin_event()","close");
+		droplist.set_visible(false);
 		close_box();
-	} else if (ev->ev_class == EVENT_KEYBOARD) {
-		if(ev->ev_code==13) {
-			//return key
-			droplist.set_visible(false);
-			close_box();
-			// update "mouse-click-catch-area"
-			set_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
-		}
+		// update "mouse-click-catch-area"
+		set_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
 	}
-	// update "mouse-click-catch-area"
-//	set_groesse(koord(groesse.x, droplist.is_visible() ? max_size.y : 14));
+	else {
+		// finally handle textinput
+		event_t ev2 = *ev;
+		translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
+		textinp.infowin_event(ev);
+	}
 }
 
 
@@ -172,7 +167,8 @@ void gui_combobox_t::zeichnen(koord offset)
 		tstrncpy(editstr, item->get_text(), lengthof(editstr));
 	}
 
-	textinp.zeichnen(offset);
+	const gui_fenster_t *win = win_get_top();
+	textinp.zeichnen_mit_cursor( offset,(win  &&  win->get_focus()==this) );
 
 	if (droplist.is_visible()) {
 		droplist.zeichnen(offset);

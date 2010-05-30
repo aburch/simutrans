@@ -4708,7 +4708,6 @@ void karte_t::set_fast_forward(bool ff)
 }
 
 
-
 void karte_t::bewege_zeiger(const event_t *ev)
 {
 	static int mb_alt=0;
@@ -4851,7 +4850,6 @@ void karte_t::bewege_zeiger(const event_t *ev)
 }
 
 
-
 /* creates a new player with this type */
 const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
@@ -4868,8 +4866,6 @@ const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 	get_einstellungen()->set_player_type( new_player, type );
 	return NULL;
 }
-
-
 
 
 /* goes to next active player */
@@ -4919,8 +4915,8 @@ void karte_t::switch_active_player(uint8 new_player)
 	zeiger->set_bild( werkzeug[active_player_nr]->cursor );
 }
 
-void
-karte_t::interactive_event(event_t &ev)
+
+void karte_t::interactive_event(event_t &ev)
 {
 	struct sound_info click_sound;
 	click_sound.index = SFX_SELECT;

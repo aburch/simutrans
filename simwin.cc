@@ -690,6 +690,20 @@ void move_win(int win, event_t *ev)
 }
 
 
+void resize_win(int i, event_t *ev)
+{
+	event_t wev = *ev;
+	wev.ev_class = WINDOW_RESIZE;
+	wev.ev_code = 0;
+
+	// since we may be smaller afterwards
+	koord gr = wins[i].gui->get_fenstergroesse();
+	mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
+	translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
+	wins[i].gui->infowin_event( &wev );
+}
+
+
 int win_get_posx(gui_fenster_t *gui)
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
@@ -732,7 +746,8 @@ void win_set_pos(gui_fenster_t *gui, int x, int y)
  */
 bool check_pos_win(event_t *ev)
 {
-	static bool is_resizing = false;
+	static int is_resizing = -1;
+	static int is_moving = -1;
 
 	bool swallowed = false;
 
@@ -747,11 +762,14 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// we stop resizing once the user releases the button
-	if(is_resizing && IS_LEFTRELEASE(ev)) {
-		is_resizing = false;
-		// Knightly :	should not proceed, otherwise the left release event will be fed to other components;
-		//				return true (i.e. event swallowed) to prevent propagation back to the main view
-		return true;
+	if(  (is_resizing>=0  ||  is_moving>=0)  &&  (IS_LEFTRELEASE(ev)  ||  (ev->button_state&1)==0)  ) {
+		is_resizing = -1;
+		is_moving = -1;
+		if(  IS_LEFTRELEASE(ev)  ) {
+			// Knightly :	should not proceed, otherwise the left release event will be fed to other components;
+			//				return true (i.e. event swallowed) to prevent propagation back to the main view
+			return true;
+		}
 	}
 
 	// swallow all events in the infobar
@@ -776,10 +794,10 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// cursor event only go to top window
-	if (ev->ev_class == EVENT_KEYBOARD && !wins.empty()) {
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  !wins.empty()  ) {
 		simwin_t&               win  = wins.back();
-		gui_komponente_t* const komp = win.gui->get_focus();
-		if(  komp  &&  komp->get_allow_focus()  ) {
+		const gui_komponente_t* const komp = win.gui->get_focus();
+		if(  komp  ) {
 			inside_event_handling = win.gui;
 			win.gui->infowin_event(ev);
 			inside_event_handling = NULL;
@@ -787,20 +805,33 @@ bool check_pos_win(event_t *ev)
 			swallowed = true;
 		}
 		process_kill_list();
-		// either handled or not => keyboard events are not processed further
-		return swallowed;
+		if(  ev->ev_code!=9  &&  ev->ev_code!=13  &&  ev->ev_code!=27  ) {
+			// either handled or not => keyboard events are not processed further
+			return swallowed;
+		}
+		// only the keyboard events for TAB, ENTER and ESC survive until here and can be passed down to windows
+	}
+
+	// just move top window until button release
+	if(  is_moving>=0  &&  is_moving<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+		move_win( is_moving, ev );
+		return true;
+	}
+
+	// just resize window until button release
+	if(  is_resizing>=0  &&  is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+		resize_win( is_resizing, ev );
+		return true;
 	}
 
 	// handle all the other events
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
 
-		// check click inside window
 		if(  wins[i].gui->getroffen( ev->mx-wins[i].pos.x, ev->my-wins[i].pos.y )  ) {
-
-			inside_event_handling = wins[i].gui;
-
 			// all events in window are swallowed
 			swallowed = true;
+
+			inside_event_handling = wins[i].gui;
 
 			// Top window first
 			if((int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->my < wins[i].pos.y+16 ))) {
@@ -808,7 +839,9 @@ bool check_pos_win(event_t *ev)
 			}
 
 			// Hajo: if within title bar && window needs decoration
-			if( ev->my < wins[i].pos.y+16 ) {
+			if(  ev->my < wins[i].pos.y+16  ) {
+				// no more moving
+				is_moving = -1;
 
 				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
 				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
@@ -859,6 +892,7 @@ bool check_pos_win(event_t *ev)
 						if (IS_LEFTDRAG(ev)) {
 							i = top_win(i);
 							move_win(i, ev);
+							is_moving = i;
 						}
 						if(IS_RIGHTCLICK(ev)) {
 							wins[i].rollup ^= 1;
@@ -878,28 +912,19 @@ bool check_pos_win(event_t *ev)
 					// click in Window / Resize?
 					//11-May-02   markus weber added
 
-					gui_fenster_t *gui = wins[i].gui;
-					koord gr = gui->get_fenstergroesse();
+					koord gr = wins[i].gui->get_fenstergroesse();
 
 					// resizer hit ?
 					const bool canresize = is_resizing ||
 														(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
 														ev->my > wins[i].pos.y + gr.y - dragger_size);
 
-					if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
-						// Hajo: go into resize mode
-						is_resizing = true;
-
-						// printf("Enter resizing mode\n");
-						ev->ev_class = WINDOW_RESIZE;
-						ev->ev_code = 0;
-						event_t wev = *ev;
-						// since we may be smaller afterwards
-						mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
-						translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-						gui->infowin_event( &wev );
+					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_fenster_t::no_resize) {
+						resize_win( i, ev );
+						is_resizing = i;
 					}
 					else {
+						is_resizing = -1;
 						// click in Window
 						event_t wev = *ev;
 						translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);

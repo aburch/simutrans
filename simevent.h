@@ -44,6 +44,7 @@
 #define WIN_OPEN    1
 #define WIN_CLOSE   2
 #define WIN_TOP    3
+#define WIN_UNTOP  4 // loosing focus
 
 #define NEXT_WINDOW 1
 #define PREV_WINDOW 2

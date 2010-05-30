@@ -98,6 +98,8 @@ public:
 
 	// to allow for right-aligned text
 	void set_color(COLOR_VAL col){ textcol = col;}
+
+	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
 };
 
 

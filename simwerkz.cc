@@ -4836,7 +4836,8 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 			case 'F': nibble = *ptr-'A'+10;
 				break;
 			default:
-				return "Password hash too short!";
+				dbg->error( "wkz_change_password_hash_t::init()", "Password hash too short!" );
+				return false;
 		}
 		ptr ++;
 		if(  i&1 ) {

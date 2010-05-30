@@ -164,7 +164,6 @@ public:
 
 	void set_focus( gui_komponente_t *k ) { container.set_focus(k); }
 	gui_komponente_t *get_focus() const { return container.get_focus(); }
-
 };
 
 #endif

@@ -118,7 +118,7 @@ public:
 	// called, when the map is rotated
 	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }
 
-	virtual gui_komponente_t *get_focus() const { return NULL; }
+	virtual const gui_komponente_t *get_focus() const { return NULL; }
 };
 
 #endif

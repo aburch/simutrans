@@ -27,7 +27,7 @@ gui_textinput_t::gui_textinput_t()
 	cursor_pos = 0;
 	align = ALIGN_LEFT;
 	textcol = COL_BLACK;
-	set_read_only(false);
+	set_allow_focus(true);
 }
 
 
@@ -93,6 +93,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 							}
 					}
 					break;
+				case 9:
 				case 13:
 					call_listeners((long)0);
 					break;
