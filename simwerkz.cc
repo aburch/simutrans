@@ -1116,12 +1116,20 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			if(  gr1->ist_karten_boden()  ) {
-				// no lakes on slopes ...
 				if(  new_slope!=hang_t::flach  ) {
+					// no lakes on slopes ...
 					groundobj_t *d = gr1->find<groundobj_t>();
 					if(  d  &&  d->get_besch()->get_phases()!=16  ) {
 						d->entferne(sp);
 						delete d;
+					}
+					// connect canals to sea
+					if (gr1->get_hoehe()==welt->get_grundwasser()  &&  gr1->hat_weg(water_wt)) {
+						grund_t *sea = welt->lookup_kartenboden(new_pos.get_2d() - koord( ribi_typ(new_slope ) ));
+						if (sea  &&  sea->ist_wasser()) {
+							gr1->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi_typ(new_slope)));
+							sea->calc_bild();
+						}
 					}
 				}
 				// recalc slope walls on neightbours

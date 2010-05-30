@@ -1485,7 +1485,7 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 	// check, if the way must be totally removed?
 	weg_t *weg = get_weg(wt);
 	if(weg) {
-		koord here = pos.get_2d();
+		const koord here = pos.get_2d();
 
 		// stopps
 		if(flags&is_halt_flag  &&  (get_halt()->get_besitzer()==sp  || sp==welt->get_spieler(1))) {
@@ -1514,6 +1514,10 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					return false;
 				}
 			}
+		}
+		// remove ribi from canals to sea level
+		if (wt==water_wt  &&  pos.z==welt->get_grundwasser()  &&  slope!=hang_t::flach) {
+			rem &= ~ribi_t::doppelt(ribi_typ(slope));
 		}
 
 		ribi_t::ribi add=(weg->get_ribi_unmasked()&rem);
@@ -1586,12 +1590,22 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 		// remove all ways or just some?
 		if(add==ribi_t::keine) {
 			costs -= weg_entfernen(wt, true);
-			// make tunnel portals to normal ground
-			if((flags&is_kartenboden)  &&  get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
-				// remove remaining dings
-				obj_loesche_alle( sp );
-				// set to normal ground
-				welt->access(pos.get_2d())->kartenboden_setzen( new boden_t( welt, pos, slope ) );
+			if(flags&is_kartenboden) {
+				// remove ribis from sea tiles
+				if (wt==water_wt  &&  pos.z==welt->get_grundwasser()  &&  slope!=hang_t::flach) {
+					grund_t *gr = welt->lookup_kartenboden(here - ribi_typ(slope));
+					if (gr  &&  gr->ist_wasser()) {
+						gr->calc_bild(); // to recalculate ribis
+					}
+				}
+				// make tunnel portals to normal ground
+				if (get_typ()==tunnelboden  &&  (flags&has_way1)==0) {
+					// remove remaining dings
+					obj_loesche_alle( sp );
+					// set to normal ground
+					welt->access(pos.get_2d())->kartenboden_setzen( new boden_t( welt, pos, slope ) );
+					// now this is already deleted !
+				}
 			}
 		}
 		else {

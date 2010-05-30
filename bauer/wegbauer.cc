@@ -2013,10 +2013,17 @@ void wegbauer_t::baue_schiene()
 			else {
 				weg_t *sch=weg_t::alloc((waytype_t)besch->get_wtyp());
 				sch->set_besch(besch);
-				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
-					ribi = ribi_t::doppelt(ribi);
-				}
+
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
+
+				// connect canals to sea
+				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
+					grund_t *sea = welt->lookup_kartenboden(gr->get_pos().get_2d() - koord( ribi_typ(gr->get_grund_hang() ) ));
+					if (sea  &&  sea->ist_wasser()) {
+						gr->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi));
+						sea->calc_bild();
+					}
+				}
 
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
