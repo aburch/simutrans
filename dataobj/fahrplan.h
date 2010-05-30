@@ -50,7 +50,7 @@ public:
 	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
 	* @author Hj. Malthaner
 	*/
-	virtual const char *fehlermeldung() const { return ""; }
+	virtual char const* fehlermeldung() const = 0;
 
 	/**
 	* der allgemeine Fahrplan erlaubt haltestellen überall.
