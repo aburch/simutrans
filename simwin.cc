@@ -940,13 +940,6 @@ void win_poll_event(struct event_t *ev)
 }
 
 
-// since seaons 0 is always summer for backward compatibility
-static const char * seasons[] =
-{
-    "q2", "q3", "q4", "q1"
-};
-
-
 // finally updates the display
 void win_display_flush(double konto)
 {
@@ -1041,52 +1034,30 @@ void win_display_flush(double konto)
 //DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
 	// @author hsiegeln - updated to show month
 	// @author prissi - also show date if desired
+	// since seaons 0 is always summer for backward compatibility
+	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
+	char const* const season = translator::translate(seasons[wl->get_jahreszeit()]);
+	char const* const month_ = translator::get_month_name(month % 12);
 	switch(umgebung_t::show_month) {
-		// german style
-		case 4:	sprintf(time, "%s, %d. %s %d %d:%02dh",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						tage,
-						translator::get_month_name(month%12),
-						year,
-						stunden,
-						minuten
-						);
-					break;
-		// us style
-		case 3:	sprintf(time, "%s, %s %d %d %2d:%02d%s",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						translator::get_month_name(month%12),
-						tage,
-						year,
-						stunden%12,
-						minuten,
-						stunden<12 ? "am":"pm"
-						);
-					break;
-		// japanese style
-		case 2:	sprintf(time, "%s, %d/%s/%d %2d:%02dh",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						year,
-						translator::get_month_name(month%12),
-						tage,
-						stunden,
-						minuten
-						);
-					break;
-		// just month
-		case 1:	sprintf(time, "%s, %s %d %2d:%02dh",
-						translator::get_month_name(month%12),
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						year,
-						stunden,
-						minuten
-						);
-					break;
-		// just only season
-		default:	sprintf(time, "%s %d",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						year);
-					break;
+		case 4: // german style
+			sprintf(time, "%s, %d. %s %d %d:%02dh", season, tage, month_, year, stunden, minuten);
+			break;
+
+		case 3: // us style
+			sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, stunden % 12, minuten, stunden < 12 ? "am" : "pm");
+			break;
+
+		case 2: // japanese style
+			sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
+			break;
+
+		case 1: // just month
+			sprintf(time, "%s, %s %d %2d:%02dh", month_, season, year, stunden, minuten);
+			break;
+
+		default: // just season
+			sprintf(time, "%s %d", season, year);
+			break;
 	}
 
 	// time multiplier text
