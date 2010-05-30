@@ -28,9 +28,8 @@ struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
 
 
 
-schedule_t::schedule_t(schedule_type const type, waytype_t const waytype, loadsave_t* const file) :
-	my_waytype(waytype),
-	type(type)
+schedule_t::schedule_t(waytype_t const waytype, loadsave_t* const file) :
+	my_waytype(waytype)
 {
 	rdwr(file);
 	if(file->is_loading()) {
