@@ -224,7 +224,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 			button.enable();
 			go_home_button.pressed = route_search_in_progress;
 			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
-			if(  cnv->get_schedule()->get_count() > 0  ) {
+			if (!cnv->get_schedule()->empty()) {
 				const grund_t* g = cnv->get_welt()->lookup(cnv->get_schedule()->get_current_eintrag().pos);
 				if (g != NULL && g->get_depot()) {
 					go_home_button.disable();

@@ -201,7 +201,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 		if(!fpl->ist_abgeschlossen()) {
 			destroy_win((long)fpl);
 		}
-		if(fpl->get_count()>0  &&  !line.is_bound()  ) {
+		if (!fpl->empty() && !line.is_bound()) {
 			welt->set_schedule_counter();
 		}
 		delete fpl;
@@ -762,7 +762,7 @@ void convoi_t::step()
 
 				set_schedule(fpl);
 
-				if(fpl->get_count()==0) {
+				if (fpl->empty()) {
 					// no entry => no route ...
 					state = NO_ROUTE;
 				}
@@ -805,7 +805,7 @@ void convoi_t::step()
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->get_count()==0) {
+				if (fpl->empty()) {
 					state = NO_ROUTE;
 				}
 				else {
@@ -829,7 +829,7 @@ void convoi_t::step()
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->get_count()==0) {
+				if (fpl->empty()) {
 					// no entries => no route ...
 					get_besitzer()->bescheid_vehikel_problem(self, v->get_pos());
 				}
@@ -2628,7 +2628,7 @@ void convoi_t::check_pending_updates()
 		bool is_depot = false;
 		koord3d current = koord3d::invalid, depot = koord3d::invalid;
 
-		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
+		if (fpl->empty() || new_fpl->empty()) {
 			// was no entry or is no entry => goto  1st stop
 			aktuell = 0;
 		}

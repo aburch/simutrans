@@ -323,7 +323,7 @@ void fahrplan_gui_t::update_selection()
 	// update load
 	lb_load.set_color( COL_GREY3 );
 	lb_wait.set_color( COL_GREY3 );
-	if(  fpl->get_count()>0  ) {
+	if (!fpl->empty()) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
 		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
@@ -451,12 +451,12 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		update_werkzeug( false );
 
 	} else if(komp == &numimp_load) {
-		if(fpl->get_count() > 0) {
+		if (!fpl->empty()) {
 			fpl->eintrag[fpl->get_aktuell()].ladegrad = p.i;
 			update_selection();
 		}
 	} else if(komp == &bt_wait_prev) {
-		if(fpl->get_count() > 0) {
+		if (!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait>7) {
 				wait --;
@@ -470,7 +470,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			update_selection();
 		}
 	} else if(komp == &bt_wait_next) {
-		if(fpl->get_count() > 0) {
+		if (!fpl->empty()) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait==0) {
 				wait = 7;

@@ -59,6 +59,8 @@ public:
 	*/
 	virtual bool ist_halt_erlaubt(const grund_t *gr) const;
 
+	bool empty() const { return eintrag.empty(); }
+
 	uint8 get_count() const { return eintrag.get_count(); }
 
 	schedule_type get_type() const {return type;}

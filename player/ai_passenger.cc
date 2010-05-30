@@ -1285,7 +1285,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				}
 
 				// avoid empty schedule ?!?
-				assert(line->get_schedule()->get_count()>0);
+				assert(!line->get_schedule()->empty());
 
 				// made loss with this line
 				if(line->get_finance_history(0,LINE_PROFIT)<0) {
