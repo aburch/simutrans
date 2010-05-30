@@ -28,8 +28,7 @@ struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
 
 
 
-schedule_t::schedule_t(waytype_t const waytype, loadsave_t* const file) :
-	my_waytype(waytype)
+schedule_t::schedule_t(loadsave_t* const file)
 {
 	rdwr(file);
 	if(file->is_loading()) {
@@ -61,6 +60,7 @@ void schedule_t::copy_from(const schedule_t *src)
 bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 	// first: check, if we can go here
+	waytype_t const my_waytype = get_waytype();
 	bool ok = gr->hat_weg(my_waytype);
 	if(  !ok  ) {
 		if(  my_waytype==air_wt  ) {
