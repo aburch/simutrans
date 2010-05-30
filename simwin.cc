@@ -776,11 +776,12 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// cursor event only go to top window
-	if(  ev->ev_class==EVENT_KEYBOARD  &&  wins.get_count()>0  ) {
-		gui_komponente_t *komp = wins[wins.get_count()-1].gui->get_focus();
+	if (ev->ev_class == EVENT_KEYBOARD && !wins.empty()) {
+		simwin_t&               win  = wins.back();
+		gui_komponente_t* const komp = win.gui->get_focus();
 		if(  komp  &&  komp->get_allow_focus()  ) {
-			inside_event_handling = wins[wins.get_count()-1].gui;
-			wins[wins.get_count()-1].gui->infowin_event( ev );
+			inside_event_handling = win.gui;
+			win.gui->infowin_event(ev);
 			inside_event_handling = NULL;
 			// swallow event
 			swallowed = true;
