@@ -1043,9 +1043,12 @@ void win_display_flush(double konto)
 			sprintf(time, "%s, %d. %s %d %d:%02dh", season, tage, month_, year, stunden, minuten);
 			break;
 
-		case umgebung_t::DATE_FMT_US:
-			sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, stunden % 12, minuten, stunden < 12 ? "am" : "pm");
+		case umgebung_t::DATE_FMT_US: {
+			uint32 hours_ = stunden % 12;
+			if (hours_ == 0) hours_ = 12;
+			sprintf(time, "%s, %s %d %d %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
 			break;
+		}
 
 		case umgebung_t::DATE_FMT_JAPANESE:
 			sprintf(time, "%s, %d/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
