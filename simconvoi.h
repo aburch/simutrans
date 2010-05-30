@@ -21,7 +21,6 @@
 
 #define MAX_CONVOI_COST   6 // Total number of cost items
 #define MAX_MONTHS     12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES 2 // number of non money types in convoi's financial statistic
 #define CONVOI_CAPACITY   0 // the amount of ware that could be transported, theoretically
 #define CONVOI_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
 #define CONVOI_REVENUE		2 // the income this CONVOI generated
