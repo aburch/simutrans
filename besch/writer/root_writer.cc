@@ -440,7 +440,7 @@ void root_writer_t::copy_nodes(FILE* outfp, FILE* infp, obj_node_info_t& start)
 		char* buf = new char[info.size];
 		fread(buf, info.size, 1, infp);
 		fwrite(buf, info.size, 1, outfp);
-		delete buf;
+		delete []  buf;
 		copy_nodes(outfp, infp, info);
 	}
 }
