@@ -751,8 +751,8 @@ bool check_pos_win(event_t *ev)
 
 	bool swallowed = false;
 
-	const int x = ev->mx;
-	const int y = ev->my;
+	const int x = ev->ev_class==EVENT_MOVE ? ev->mx : ev->cx;
+	const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
 
 
 	// for the moment, no none events
@@ -773,9 +773,9 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// swallow all events in the infobar
-	if(y>display_get_height()-32) {
+	if(  y>display_get_height()-32  ) {
 		// goto infowin koordinate, if ticker is active
-		if(show_ticker  &&    y<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
+		if(  show_ticker  &&  y<=display_get_height()-16  &&  IS_LEFTCLICK(ev)  ) {
 			koord p = ticker::get_welt_pos();
 			if(wl->ist_in_kartengrenzen(p)) {
 				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
@@ -783,7 +783,7 @@ bool check_pos_win(event_t *ev)
 			return true;
 		}
 	}
-	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD) {
+	else if(  werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD  ) {
 		// click in main menu
 		event_t wev = *ev;
 		inside_event_handling = werkzeug_t::toolbar_tool[0];
@@ -827,19 +827,19 @@ bool check_pos_win(event_t *ev)
 	// handle all the other events
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
 
-		if(  wins[i].gui->getroffen( ev->mx-wins[i].pos.x, ev->my-wins[i].pos.y )  ) {
+		if(  wins[i].gui->getroffen( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
 			// all events in window are swallowed
 			swallowed = true;
 
 			inside_event_handling = wins[i].gui;
 
 			// Top window first
-			if((int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->my < wins[i].pos.y+16 ))) {
+			if(  (int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ev->cy<wins[i].pos.y+16)  ) {
 				i = top_win(i);
 			}
 
 			// Hajo: if within title bar && window needs decoration
-			if(  ev->my < wins[i].pos.y+16  ) {
+			if(  y<wins[i].pos.y+16  ) {
 				// no more moving
 				is_moving = -1;
 
@@ -847,14 +847,14 @@ bool check_pos_win(event_t *ev)
 				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
 
 				// Where Was It ?
-				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), ev->mx );
+				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), x );
 
 				switch( code ) {
 					case GADGET_CLOSE :
 						if (IS_LEFTCLICK(ev)) {
 							wins[i].closing = true;
 						} else if  (IS_LEFTRELEASE(ev)) {
-							if (y>=wins[i].pos.y  &&  y<wins[i].pos.y+16  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), x )==GADGET_CLOSE) {
+							if (  ev->my>=wins[i].pos.y  &&  ev->my<wins[i].pos.y+16  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), ev->mx )==GADGET_CLOSE) {
 								destroy_win(wins[i].gui);
 							} else {
 								wins[i].closing = false;
@@ -915,9 +915,9 @@ bool check_pos_win(event_t *ev)
 					koord gr = wins[i].gui->get_fenstergroesse();
 
 					// resizer hit ?
-					const bool canresize = is_resizing>=0 ||
-														(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
-														ev->my > wins[i].pos.y + gr.y - dragger_size);
+					const bool canresize = is_resizing>=0  ||
+												(ev->cx > wins[i].pos.x + gr.x - dragger_size  &&
+												 ev->cy > wins[i].pos.y + gr.y - dragger_size);
 
 					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_fenster_t::no_resize) {
 						resize_win( i, ev );

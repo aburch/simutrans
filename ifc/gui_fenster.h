@@ -98,7 +98,7 @@ public:
 	virtual bool getroffen(int x, int y)
 	{
 		koord groesse = get_fenstergroesse();
-		return (x>=0 && y>=0 && groesse.x >= x && groesse.y >= y);
+		return (  x>=0  &&  y>=0  &&  x<groesse.x  &&  y<groesse.y  );
 	}
 
 	/**
