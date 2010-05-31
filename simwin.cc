@@ -915,7 +915,7 @@ bool check_pos_win(event_t *ev)
 					koord gr = wins[i].gui->get_fenstergroesse();
 
 					// resizer hit ?
-					const bool canresize = is_resizing ||
+					const bool canresize = is_resizing>=0 ||
 														(ev->mx > wins[i].pos.x + gr.x - dragger_size &&
 														ev->my > wins[i].pos.y + gr.y - dragger_size);
 
