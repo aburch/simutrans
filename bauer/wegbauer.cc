@@ -1838,13 +1838,15 @@ sint64 wegbauer_t::calc_costs()
 				}
 			}
 		}
-		const ding_t* thing = gr->obj_bei(0);
-		if(thing != NULL  &&  thing->get_besitzer() == sp) 
-		{
-			// We own this land. Ergo, building a way on it should be cheaper.
-			costs += welt->get_einstellungen()->cst_buy_land;
+		
+		if (gr) {
+			const ding_t* thing = gr->obj_bei(0);
+			if(thing != NULL  &&  thing->get_besitzer() == sp) 
+			{
+				// We own this land. Ergo, building a way on it should be cheaper.
+				costs += welt->get_einstellungen()->cst_buy_land;
+			}
 		}
-			
 	}
 			
 	DBG_MESSAGE("wegbauer_t::calc_costs()","construction estimate: %f",costs/100.0);
