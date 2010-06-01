@@ -219,6 +219,13 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
+
+	bt_circular.init(button_t::square_automatic, "circular schedule", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_circular.set_tooltip("Vehicles have a 25% chance of changing direction each time they complete the schedule.");
+	bt_circular.pressed = fpl->is_circular();
+	bt_circular.add_listener(this);
+	add_komponente(&bt_circular);
+
 	ypos += BUTTON_HEIGHT;
 
 	// waiting in parts per month
@@ -245,10 +252,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
 
-	bt_return.init(button_t::roundbox, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_return.set_tooltip("Add stops for backward travel");
-	bt_return.add_listener(this);
-	add_komponente(&bt_return);
+	bt_mirror.init(button_t::square_automatic, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints.");
+	bt_mirror.pressed = fpl->is_mirrored();
+	bt_mirror.add_listener(this);
+	add_komponente(&bt_mirror);
 
 	ypos += BUTTON_HEIGHT;
 
@@ -480,8 +488,12 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			}
 			update_selection();
 		}
-	} else if (komp == &bt_return) {
-		fpl->add_return_way();
+	/*} else if (komp == &bt_return) {
+		fpl->add_return_way();*/
+	} else if (komp == &bt_mirror) {
+		fpl->set_mirrored(bt_mirror.pressed);
+	} else if (komp == &bt_circular) {
+		fpl->set_circular(bt_circular.pressed);
 	} else if (komp == &line_selector) {
 		int selection = p.i;
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);

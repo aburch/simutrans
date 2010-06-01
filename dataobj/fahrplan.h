@@ -25,6 +25,8 @@ public:
 
 private:
 	bool abgeschlossen;
+	bool circular;
+	bool mirrored;
 
 	static struct linieneintrag_t dummy_eintrag;
 
@@ -92,6 +94,12 @@ public:
 			aktuell = (aktuell+1)%eintrag.get_count();
 		}
 	}
+	// decrement entry by one
+	void advance_reverse() {
+		if(  !eintrag.empty()  ) {
+			aktuell = aktuell ? aktuell-1 : eintrag.get_count()-1;
+		}
+	}
 
 	inline bool ist_abgeschlossen() const { return abgeschlossen; }
 	void eingabe_abschliessen() { abgeschlossen = true; }
@@ -137,6 +145,11 @@ public:
 	 * @author hsiegeln
 	 */
 	void add_return_way();
+
+	inline bool is_circular() const { return circular; }
+	inline bool is_mirrored() const { return mirrored; }
+	void set_circular(bool circ = true ) { circular = circ; }
+	void set_mirrored(bool mir = true ) { mirrored = mir; }
 
 	virtual schedule_t* copy() = 0;//{ return new schedule_t(this); }
 
