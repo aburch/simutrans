@@ -800,6 +800,7 @@
     <None Include="base_texts_experimental_8.0.dat" />
     <None Include="base_texts_experimental_additional_5_0.dat" />
     <None Include="base_texts_experimental_additional_5_1.dat" />
+    <None Include="base_texts_experimental_forgotten_items_1.dat" />
     <None Include="config.default" />
     <None Include="config.template" />
     <None Include="..\simutrans-experimental-binaries\config\electricity.tab" />
