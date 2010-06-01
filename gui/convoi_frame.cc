@@ -7,7 +7,6 @@
  */
 
 #include <string.h>
-#include <algorithm>
 
 #include "gui_container.h"
 #include "gui_convoiinfo.h"
@@ -139,9 +138,12 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 
 
 
-bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t const cnv2)
+int convoi_frame_t::compare_convois(const void *a, const void *b)
 {
 	long result=0;
+
+	convoihandle_t cnv1 = *(const convoihandle_t *)a;
+	convoihandle_t cnv2 = *(const convoihandle_t *)b;
 
 	switch (sortby) {
 		default:
@@ -169,7 +171,7 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			result = cnv1.get_id()-cnv2.get_id();
 			break;
 	}
-	return sortreverse ? result > 0 : result < 0;
+	return sortreverse ? -result : result;
 }
 
 
@@ -187,7 +189,7 @@ void convoi_frame_t::sort_list()
 			convois.append(cnv);
 		}
 	}
-	std::sort(convois.begin(), convois.end(), compare_convois);
+	qsort(convois.begin(), convois.get_count(), sizeof(convoihandle_t), compare_convois);
 
 	sortedby.set_text(sort_text[get_sortierung()]);
 	sorteddir.set_text( get_reverse() ? "cl_btn_sort_desc" : "cl_btn_sort_asc");

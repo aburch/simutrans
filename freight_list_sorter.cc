@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "freight_list_sorter.h"
 #include "simhalt.h"
 #include "simtypes.h"
@@ -16,11 +14,17 @@
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
 /**
- *  @return whether w1 is less than w2
+ *   @param w1p, w2p: pointer to ware_t
+ *  @return sort order of the two passed elements; used in qsort
+ *  @author hsiegeln
+ *  @date 2003-11-02
  */
-bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
+int freight_list_sorter_t::compare_ware(void const* const w1p, void const* const w2p)
 {
 
+	ware_t const& w1 = *static_cast<ware_t const*>(w1p);
+	ware_t const& w2 = *static_cast<ware_t const*>(w2p);
+	
 	halthandle_t halt1 = w1.get_ziel();
 	halthandle_t halt2 = w2.get_ziel();
 	halthandle_t via_halt1 = w1.get_zwischenziel();
@@ -40,7 +44,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 	// sort according to freight
 	int const idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
 	if (idx != 0) {
-		return idx < 0;
+		return idx;
 	}
 
 
@@ -52,7 +56,7 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 		case by_via_sum:
 		case by_amount: { // sort by ware amount
 			int const order = w2.menge - w1.menge;
-			if (order != 0) return order < 0;
+			if (order != 0) return order;
 			/* FALLTHROUGH */
 		}
 
@@ -61,11 +65,11 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			halthandle_t const v2 = w2.get_zwischenziel();
 			if (v1.is_bound() && v2.is_bound()) {
 				int const order = strcmp(v1->get_name(), v2->get_name());
-				if (order != 0) return order < 0;
+				if (order != 0) return order;
 			} else if (v1.is_bound()) {
-				return false;
+				return 1;
 			} else if (v2.is_bound()) {
-				return true;
+				return -1;
 			}
 			/* FALLTHROUGH */
 		}
@@ -91,13 +95,13 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			halthandle_t const d1 = w1.get_ziel();
 			halthandle_t const d2 = w2.get_ziel();
 			if (d1.is_bound() && d2.is_bound()) {
-				return strcmp(d1->get_name(), d2->get_name()) < 0;
+				return strcmp(d1->get_name(), d2->get_name());
 			} else if (d1.is_bound()) {
-				return false;
+				return 1;
 			} else if (d2.is_bound()) {
-				return true;
+				return -1;
 			} else {
-				return false;
+				return 0;
 			}
 		}
 	}
@@ -213,7 +217,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	// at least some capacity added?
 	if(pos!=0) {
 		// sort the ware's list
-		std::sort(wlist, wlist + pos, compare_ware);
+		qsort(wlist, pos, sizeof(*wlist), compare_ware);
 
 		// print the ware's list to buffer - it should be in sortorder by now!
 		int last_ware_index = -1;
