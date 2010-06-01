@@ -2,7 +2,11 @@
 *.ncb
 *.o
 *.suo
+*.old
+*.user
+*.sdf
 *.vcproj.*
+ipch
 /Debug
 /Release
 /config.*
@@ -10,3 +14,4 @@
 /makeobj/makeobj.exe
 /sim
 /sim.exe
+
