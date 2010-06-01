@@ -2091,13 +2091,18 @@ void wegbauer_t::baue_schiene()
 				const wayobj_t* wayobj = gr->get_wayobj(sch->get_waytype());
 				if(wayobj != NULL)
 				{
-					//sch->add_way_constraints(wayobj->get_besch()->get_way_constraints_permissive(), wayobj->get_besch()->get_way_constraints_prohibitive());
 					sch->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 				}
-				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
-					ribi = ribi_t::doppelt(ribi);
-				}
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
+
+				// connect canals to sea
+				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
+					grund_t *sea = welt->lookup_kartenboden(gr->get_pos().get_2d() - koord( ribi_typ(gr->get_grund_hang() ) ));
+					if (sea  &&  sea->ist_wasser()) {
+						gr->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi));
+						sea->calc_bild();
+					}
+				}
 
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
