@@ -673,7 +673,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	* Sonst laesst sich danach die Richtung der Haltestelle verdrehen und die Bilder
 	* gehen kaputt.
 	*/
-	long cost_sum = 0;
+	sint64 cost_sum = 0;
 	if(gr->get_typ()!=grund_t::tunnelboden  ||  gr->has_two_ways()) {
 		weg_t *w=gr->get_weg_nr(1);
 		if(gr->get_typ()==grund_t::brueckenboden  &&  w==NULL) {

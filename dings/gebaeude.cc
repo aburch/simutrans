@@ -928,25 +928,27 @@ void gebaeude_t::entferne(spieler_t *sp)
 	// remove costs
 
 	const haus_besch_t* besch = tile->get_besch();
+	sint64 cost = 0;
 
 	if(besch->get_utyp()<haus_besch_t::bahnhof) 
 	{
 		const sint64 bulldoze_cost = welt->get_einstellungen()->cst_multiply_remove_haus * (besch->get_level()+1);
 		const sint64 purchase_cost = welt->get_einstellungen()->cst_buy_land * besch->get_level() * 5;
-		const sint64 cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
+		cost = sp != get_besitzer() ? bulldoze_cost + purchase_cost : bulldoze_cost;
 		spieler_t::accounting(sp, cost, get_pos().get_2d(), COST_CONSTRUCTION);
 	}
-	else {
+	else 
+	{
 		// tearing down halts is always single costs only
-		sint64 price = besch->get_station_price();
+		cost = besch->get_station_price();
 		// This check is necessary because the number of 2147483647 is used if no price is specified. 
-		if(price == 2147483647)
+		if(besch->get_base_station_price() == 2147483647)
 		{
 			// TODO: find a way of checking what *kind* of stop that this is. This assumes railway.
-			price = welt->get_einstellungen()->cst_multiply_station * besch->get_level();
+			cost = welt->get_einstellungen()->cst_multiply_station * besch->get_level();
 		}
 		// Should be cheaper to bulldoze than build. 
-		spieler_t::accounting(sp, -(price / 1.5F), get_pos().get_2d(), COST_CONSTRUCTION);
+		spieler_t::accounting(sp, -(cost / 1.5F), get_pos().get_2d(), COST_CONSTRUCTION);
 	}
 
 	// may need to update next buildings, in the case of start, middle, end buildings
