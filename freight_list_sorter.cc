@@ -155,9 +155,9 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 	int pos = 0;
 	ALLOCA(ware_t, wlist, warray->get_count());
 
-	for(unsigned i = 0; i < warray->get_count(); i++) 
+	for(unsigned n = 0; n < warray->get_count(); n++)
 	{
-		const ware_t &ware = (*warray)[i];
+		const ware_t &ware = (*warray)[n];
 		if(ware.get_besch() == warenbauer_t::nichts || ware.menge == 0)
 		{
 			continue;
@@ -173,7 +173,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			{
 				if(wlist[i].get_index() == wlist[pos].get_index() && 
 					wlist[i].get_zwischenziel() == wlist[pos].get_zwischenziel()  &&  
-					wlist[i].get_ziel() != wlist[i].get_ziel())
+					wlist[i].get_ziel() != wlist[pos].get_ziel())
 				{
 					wlist[i].menge += wlist[pos--].menge;
 					break;
