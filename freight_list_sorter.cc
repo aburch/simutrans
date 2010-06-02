@@ -20,32 +20,13 @@ freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
  */
 bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 {
-
-	halthandle_t halt1 = w1.get_ziel();
-	halthandle_t halt2 = w2.get_ziel();
-	halthandle_t via_halt1 = w1.get_zwischenziel();
-	halthandle_t via_halt2 = w2.get_zwischenziel();
-	halthandle_t origin_halt1 = w1.get_origin();
-	halthandle_t origin_halt2 = w2.get_origin();
-
-	if(!halt1.is_bound()  ||  !via_halt1.is_bound() || !origin_halt1.is_bound()) 
-	{
-		return -1;
-	}
-
-	if( !halt2.is_bound()  ||    !via_halt2.is_bound() || !origin_halt2.is_bound())
-	{
-		return -2;
-	}
 	// sort according to freight
 	int const idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
 	if (idx != 0) {
 		return idx < 0;
 	}
 
-
-	switch (sortby) 
-	{
+	switch (sortby) {
 		default:
 			dbg->error("freight_list_sorter::compare_ware()", "illegal sort mode!");
 
@@ -75,17 +56,15 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			halthandle_t const o1 = w1.get_origin();
 			halthandle_t const o2 = w2.get_origin();
 			if (o1.is_bound() && o2.is_bound()) {
-				return strcmp(o1->get_name(), o2->get_name());
+				int const order = strcmp(o1->get_name(), o2->get_name()) < 0;
+				if (order != 0) return order < 0;
 			} else if (o1.is_bound()) {
-				return 1;
+				return false;
 			} else if (o2.is_bound()) {
-				return -1;
-			} else {
-				return 0;
+				return true;
 			}
-		}
-		
 			/* FALLTHROUGH */
+		}
 
 		case by_name: { // sort by destination name
 			halthandle_t const d1 = w1.get_ziel();
