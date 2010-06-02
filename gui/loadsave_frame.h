@@ -81,7 +81,7 @@ protected:
 	virtual bool del_action(const char *filename);
 
 	// returns extra file info
-	virtual const char *get_info(const char *fname) { return ""; };
+	virtual const char *get_info(const char *fname) { (void) fname; return ""; };
 	virtual void add_file(const char *filename, const bool not_cutting_suffix);
 
 public:
