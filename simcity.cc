@@ -2222,9 +2222,9 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	const koord pos = attraction->get_pos().get_2d();
 	grund_t *gr;
 	weg_t* road = NULL;
-	for(uint8 i = 0; i < 8; i ++)
+	for(uint8 i = 0; i < 16; i ++)
 	{
-		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
+		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.second_neighbours[i]));
 		gr = welt->lookup(pos3d);
 		if(!gr)
 		{
