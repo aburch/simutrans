@@ -305,8 +305,6 @@ fabrik_t::~fabrik_t()
 {
 	delete_all_fields();
 
-	fabrik_t* tmp = this;
-
 	if(city != NULL)
 	{
 		city->remove_city_factory(this);
@@ -321,6 +319,12 @@ fabrik_t::~fabrik_t()
 
 	if (!welt->get_is_shutting_down())
 	{
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
+		{
+			(*j)->remove_connected_industry(this);
+		}
+		
 		char buf[192];
 		uint16 jobs =  besch->get_pax_level();
 		sprintf(buf, translator::translate("Industry:\n%s\nhas closed,\nwith the loss\nof %d jobs.\n%d upstream\nsuppliers and\n%d downstream\ncustomers\nare affected."), translator::translate(get_name()), jobs, number_of_suppliers, number_of_customers);

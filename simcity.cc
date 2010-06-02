@@ -1160,6 +1160,19 @@ stadt_t::~stadt_t()
 		{
 			substations[i]->city = NULL;
 		}
+		
+		if(!welt->get_is_shutting_down())
+		{
+			ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+			while(iter.next())
+			{
+				if(iter.get_current_key() == this)
+				{
+					continue;
+				}
+				iter.get_current_key()->remove_connected_city(this);
+			}
+		}
 	}
 	free( (void *)name );
 }
@@ -4298,4 +4311,20 @@ int road_destination_finder_t::get_kosten( const grund_t* gr, uint32 max_speed) 
 	}
 
 	return costs;
+}
+
+void stadt_t::remove_connected_city(stadt_t* city)
+{
+	connected_cities.remove(city);
+}
+
+
+void stadt_t::remove_connected_industry(fabrik_t* fab)
+{
+	connected_industries.remove(fab);
+}
+
+void stadt_t::remove_connected_attraction(gebaeude_t* attraction)
+{
+	connected_attractions.remove(attraction);
 }
