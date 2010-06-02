@@ -104,11 +104,9 @@ bool obj_reader_t::load(const char *liste, const char *message)
 			while(!feof(listfp)) {
 				char buf[256];
 
-				if(fgets(buf, 255, listfp) == 0) {
+				if (fgets(buf, sizeof(buf), listfp) == 0) {
 					continue;
 				}
-
-				buf[255] = '\0';
 
 				if(*buf == '#') {
 					continue;

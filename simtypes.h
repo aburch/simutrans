@@ -30,6 +30,17 @@
 #	define NOT_REACHED
 #endif
 
+#ifdef __cplusplus
+#	define ENUM_BITSET(T) \
+		static inline T operator ~  (T  a)      { return     (T)~(unsigned)a;                } \
+		static inline T operator &  (T  a, T b) { return     (T)((unsigned)a & (unsigned)b); } \
+		static inline T operator &= (T& a, T b) { return a = (T)((unsigned)a & (unsigned)b); } \
+		static inline T operator |  (T  a, T b) { return     (T)((unsigned)a | (unsigned)b); } \
+		static inline T operator |= (T& a, T b) { return a = (T)((unsigned)a | (unsigned)b); }
+#else
+#	define ENUM_BITSET(T)
+#endif
+
 /* divers enums:
  * better defined here than scattered in thousand files ...
  */

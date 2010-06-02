@@ -21,7 +21,7 @@ public:
 	virtual ~field_t();
 
 	const char* get_name() const { return "Field"; }
-	enum ding_t::typ get_typ() const { return ding_t::field; }
+	typ get_typ() const { return ding_t::field; }
 
 	image_id get_bild() const;
 

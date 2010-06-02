@@ -10,11 +10,11 @@
 #include <assert.h>
 #include "bildliste2d_besch.h"
 #include "obj_besch_std_name.h"
+#include "skin_besch.h"
 #include "../dings/gebaeude.h"
 
 
 class haus_besch_t;
-class skin_besch_t;
 class werkzeug_t;
 
 /*
@@ -63,14 +63,14 @@ public:
 	image_id get_hintergrund(int phase, int hoehe,int season) const
 	{
 		season &= (seasons-1);
+		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(hoehe, phase);
-			if (bild != NULL) {
+			if (bild_besch_t const* const bild = bl->get_bild(hoehe, phase)) {
 				return bild->get_nummer();
 			}
 		}
 		// here if this phase does not exists ...
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(hoehe, 0);
+		bild_besch_t const* const bild = bl->get_bild(hoehe, 0);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
@@ -79,7 +79,7 @@ public:
 	{
 		season &= (seasons-1);
 		for(  uint8 phase=1;  phase<phasen;  phase++  ) {
-			if(  static_cast<const bildliste2d_besch_t *>(get_child(0+2*season))->get_bild(0, phase)  ) {
+			if (get_child<bildliste2d_besch_t>(0+2*season)->get_bild(0, phase)) {
 				return true;
 			}
 		}
@@ -89,14 +89,14 @@ public:
 	image_id get_vordergrund(int phase,int season) const
 	{
 		season &= (seasons-1);
+		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(1 + 2 * season);
 		if(phase>0 && phase<phasen) {
-			const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(1+2*season))->get_bild(0, phase);
-			if (bild != NULL) {
+			if (bild_besch_t const* const bild = bl->get_bild(0, phase)) {
 				return bild->get_nummer();
 			}
 		}
 		// here if this phase does not exists ...
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(get_child(1+2*season))->get_bild(0, 0);
+		bild_besch_t const* const bild = bl->get_bild(0, 0);
 		return bild != NULL ? bild->get_nummer() : IMG_LEER;
 	}
 
@@ -262,7 +262,7 @@ public:
 
 	const haus_tile_besch_t *get_tile(int index) const {
 		assert(0<=index  &&  index < layouts * groesse.x * groesse.y);
-		return static_cast<const haus_tile_besch_t*>(get_child(index + 2));
+		return get_child<haus_tile_besch_t>(index + 2);
 	}
 
 	const haus_tile_besch_t *get_tile(int layout, int x, int y) const;
@@ -291,7 +291,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	const skin_besch_t * get_cursor() const {
-		return flags&FLAG_HAS_CURSOR ? (const skin_besch_t *)(get_child(2+groesse.x*groesse.y*layouts)) : NULL;
+		return flags & FLAG_HAS_CURSOR ? get_child<skin_besch_t>(2 + groesse.x * groesse.y * layouts) : 0;
 	}
 
 	/**
@@ -339,11 +339,11 @@ public:
 
 	sint32 get_station_maintenance() const { return scaled_station_maintenance; }
 
-	sint32 get_base_staiton_maintenance() const { return  station_maintenance; }
+	sint32 get_base_station_maintenance() const { return  station_maintenance; }
 
 	sint32 get_station_price() const { return scaled_station_price; }
 
-	sint32 get_base_staiton_price() const { return  station_price; }
+	sint32 get_base_station_price() const { return  station_price; }
 
 	uint16 get_station_capacity() const { return station_capacity; }
 	

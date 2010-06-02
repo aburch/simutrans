@@ -85,11 +85,13 @@ private:
 
     static slist_tpl<const ware_besch_t *> waren_filter_ab;
     static slist_tpl<const ware_besch_t *> waren_filter_an;
+
     /**
-     * Compare function using current sort settings for use by
-     * qsort().
-     * @author V. Meyer
-     */
+    * Compare function using current sort settings for use by
+    * qsort().
+    * @author V. Meyer
+    */ 	
+
     static int compare_halts(const void *p1, const void *p2);
 
     /**

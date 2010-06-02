@@ -47,7 +47,7 @@ void factory_field_class_reader_t::register_obj(obj_besch_t *&data)
 	field_class_besch_t *const besch = static_cast<field_class_besch_t *>(data);
 
 	// xref has not yet been resolved
-	const char* name = static_cast<xref_besch_t*>( besch->get_child(0) )->get_name();
+	char const* const name = besch->get_child<xref_besch_t>(0)->get_name();
 	field_t::register_besch(besch, name);
 }
 
@@ -115,8 +115,7 @@ void factory_field_reader_t::register_obj(obj_besch_t *&data)
 	field_besch_t *const besch = static_cast<field_besch_t *>(data);
 
 	// Knightly : check if we need to continue with the construction of field class besch
-	if(  incomplete_field_class_besch  ) {
-		field_class_besch_t *const field_class_besch = static_cast<field_class_besch_t *>(incomplete_field_class_besch);
+	if (field_class_besch_t *const field_class_besch = incomplete_field_class_besch) {
 		// we *must* transfer the obj_besch_t array and not just the besch object itself
 		// as xref reader has already logged the address of the array element for xref resolution
 		field_class_besch->node_info = besch->node_info;
@@ -293,7 +292,7 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		{
 			if(experimental_version >= 0)
 			{
-				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F);
+				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F); 
 				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
 			}
 			if(experimental_version >= 1)

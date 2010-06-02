@@ -29,7 +29,28 @@ class stadt_t;
 class reliefkarte_t : public gui_komponente_t
 {
 public:
-	typedef enum { PLAIN=-1, MAP_TOWN=0, MAP_PASSENGER, MAP_MAIL, MAP_FREIGHT, MAP_STATUS, MAP_SERVICE, MAP_TRAFFIC, MAP_ORIGIN, MAP_DESTINATION, MAP_WAITING, MAP_TRACKS, MAX_SPEEDLIMIT, MAP_POWERLINES, MAP_TOURIST, MAP_FACTORIES, MAP_DEPOT, MAP_FOREST, MAP_CITYLIMIT, MAP_PAX_DEST } MAP_MODES;
+	enum MAP_MODES {
+		PLAIN    = -1,
+		MAP_TOWN =  0,
+		MAP_PASSENGER,
+		MAP_MAIL,
+		MAP_FREIGHT,
+		MAP_STATUS,
+		MAP_SERVICE,
+		MAP_TRAFFIC,
+		MAP_ORIGIN,
+		MAP_DESTINATION,
+		MAP_WAITING,
+		MAP_TRACKS,
+		MAX_SPEEDLIMIT,
+		MAP_POWERLINES,
+		MAP_TOURIST,
+		MAP_FACTORIES,
+		MAP_DEPOT,
+		MAP_FOREST,
+		MAP_CITYLIMIT,
+		MAP_PAX_DEST
+	};
 
 private:
 	static karte_t *welt;
@@ -74,7 +95,6 @@ private:
 
 	void draw_schedule(const koord pos) const;
 
-	static sint32 max_capacity;
 	static sint32 max_departed;
 	static sint32 max_arrived;
 	static sint32 max_cargo;

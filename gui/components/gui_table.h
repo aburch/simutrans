@@ -161,7 +161,7 @@ class gui_table_t : public gui_komponente_t, public gui_action_creator_t
 	friend class gui_table_column_list_t;
 	friend class gui_table_row_list_t;
 private:
-	uint16 grid_width;
+	koord grid_width;
 	color_t grid_color;
 	bool grid_visible;
 	char tooltip[200];
@@ -241,8 +241,8 @@ public:
 	 * 0: draws no grid,
 	 * 1: a 1 pixel wide line, ...
 	 */
-	uint16 get_grid_width() { return grid_width; }
-	void set_grid_width(uint16 value) {	grid_width = value;	}
+	koord get_grid_width() { return grid_width; }
+	void set_grid_width(koord value) {	grid_width = value;	}
 
 	/**
 	 * Get/set grid color.

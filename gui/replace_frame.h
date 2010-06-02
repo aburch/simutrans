@@ -57,6 +57,7 @@ private:
 	gui_label_t		lb_money;
 	button_t		bt_replace_line;
 	button_t		bt_replace_all;
+	button_t		bt_clear;
 	button_t		bt_autostart;
 	button_t		bt_depot;
 	button_t		bt_mark;
@@ -77,11 +78,6 @@ private:
 	char txt_n_sell[8];
 	char txt_n_skip[8];
 
-	/**
-	 * Do the dynamic dialog layout
-	 */
-	void layout(koord *);
-
 	uint32 total_width, min_total_width, total_height, min_total_height;
 
 	// Some helper functions
@@ -96,6 +92,11 @@ private:
 	sint64 calc_total_cost();
 
 public:
+
+	/**
+	 * Do the dynamic dialog layout
+	 */
+	void layout(koord *);
 	
 	/**
 	 * Update texts, image lists and buttons according to the current state.

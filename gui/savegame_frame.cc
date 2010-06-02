@@ -83,7 +83,7 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	int y = 0;
 	release_file_table_button();
 	file_table.set_groesse( koord( DIALOG_WIDTH-1, y ) );
-	file_table.set_grid_width(0);
+	file_table.set_grid_width(koord(0,0));
 	file_table.add_listener(this);
 	button_frame.set_groesse( koord( DIALOG_WIDTH-1, y ) );
 

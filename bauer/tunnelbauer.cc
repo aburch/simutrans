@@ -199,8 +199,8 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 		gr = welt->lookup(pos);
 		if(gr) {
-			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ||  gr->is_halt()) {
-				// must end on boden_t and correct slope
+			if(  gr->get_typ() != grund_t::boden  ||  gr->get_grund_hang() != hang_typ(-zv)  ||  gr->is_halt()  ||  gr->get_leitung()) {
+				// must end on boden_t and correct slope, not on halts and powerlines
 				return koord3d::invalid;
 			}
 			if(  gr->has_two_ways()  &&  wegtyp != road_wt  ) {
@@ -247,7 +247,7 @@ const char *tunnelbauer_t::baue( karte_t *welt, spieler_t *sp, koord pos, const 
 	const waytype_t wegtyp = besch->get_waytype();
 	const weg_t *weg = gr->get_weg(wegtyp);
 
-	if(  gr->get_typ() != grund_t::boden  ||  gr->is_halt()) {
+	if(  gr->get_typ() != grund_t::boden  ||  gr->is_halt()  ||  gr->get_leitung()) {
 		return "Tunnel must start on single way!";
 	}
 	if(!hang_t::ist_einfach(gr->get_grund_hang())) {
@@ -317,7 +317,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 		weg_besch = wegbauer_t::weg_search( wegtyp, besch->get_topspeed(), besch->get_max_weight(), 0, weg_t::type_flat );
 	}
 
-	const weg_besch_t *einfahrt_weg_besch = baue_einfahrt(welt, sp, pos, zv, besch, NULL, cost, maint);
+	baue_einfahrt(welt, sp, pos, zv, besch, NULL, cost, maint);
 
 	ribi = ribi_typ(-zv);
 	// don't move on to next tile if only one tile long
@@ -355,7 +355,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 
 	// if end is above ground construct an exit
 	if(welt->lookup(end.get_2d())->get_kartenboden()->get_pos().z==end.z) {
-		baue_einfahrt(welt, sp, pos, -zv, besch, einfahrt_weg_besch, cost, maint);
+		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost, maint);
 		// calc new back image for the ground
 		if (end!=start && grund_t::underground_mode) {
 			grund_t *gr = welt->lookup(pos.get_2d()-zv)->get_kartenboden();
@@ -439,6 +439,11 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 				tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
 				ground_outside->weg_erweitern(besch->get_waytype(), ribi_typ(zv));
 			}
+		}
+		if (besch->get_waytype()==water_wt  &&  ground_outside->ist_wasser()) {
+			// connect to the sea
+			tunnel->weg_erweitern(besch->get_waytype(), ribi_typ(-zv));
+			ground_outside->calc_bild(); // to recalculate ribis
 		}
 	}
 

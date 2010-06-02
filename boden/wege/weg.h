@@ -47,7 +47,7 @@ enum way_statistics {
  *
  * @author Hj. Malthaner
  */
-class weg_t : public ding_t
+class weg_t : public ding_no_info_t
 {
 public:
 	/**
@@ -63,6 +63,7 @@ public:
 		HAS_SIGNAL     = 0x08,
 		HAS_WAYOBJ     = 0x10,
 		HAS_CROSSING   = 0x20,
+		IS_DIAGONAL    = 0x40, // marker for diagonal image
 		IS_SNOW = 0x80	// marker, if above snowline currently
 	};
 
@@ -130,15 +131,11 @@ private:
 
 	/*Way constraints for, e.g., loading gauges, types of electrification, etc.
 	* @author: jamespetts*/
-	//uint8 way_constraints_permissive;
-	//uint8 way_constraints_prohibitive;
 	way_constraints_of_way_t way_constraints;
 
-	bool diagonal;
-
 public:
-	weg_t(karte_t* welt, loadsave_t*) : ding_t(welt) { diagonal = false; init(); }
-	weg_t(karte_t *welt) : ding_t(welt) { diagonal = false; init(); }
+	weg_t(karte_t* const welt, loadsave_t*) : ding_no_info_t(welt) { init(); }
+	weg_t(karte_t* const welt) : ding_no_info_t(welt) { init(); }
 
 	virtual ~weg_t();
 
@@ -152,7 +149,7 @@ public:
 	* Setzt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	void set_max_speed(unsigned int s);
+	void set_max_speed(uint16 s) { max_speed = s; }
 
 	void set_max_weight(uint32 w);
 
@@ -191,7 +188,7 @@ public:
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	uint16 get_max_speed() const {return max_speed;}
+	uint16 get_max_speed() const { return max_speed; }
 
 	uint32 get_max_weight() const { return max_weight; }
 
@@ -204,10 +201,10 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void set_besch(const weg_besch_t *b);
-	const weg_besch_t * get_besch() const {return besch;}
+	const weg_besch_t *get_besch() const { return besch; }
 
 	// returns a way with the matching type
-	static weg_t* alloc(waytype_t wt);
+	static weg_t *alloc(waytype_t wt);
 
 	// returns a string with the "official name of the waytype"
 	static const char *waytype_to_string(waytype_t wt);
@@ -219,8 +216,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	virtual void info(cbuffer_t & buf) const;
-
-	void zeige_info() {} // show no info
 
 	/**
 	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
@@ -238,7 +233,7 @@ public:
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	ding_t::typ get_typ() const { return ding_t::way; }
+	typ get_typ() const { return ding_t::way; }
 
 	/**
 	* Die Bezeichnung des Wegs
@@ -319,6 +314,10 @@ public:
 	*/
 	void neuer_monat();
 
+	void check_diagonal();
+
+	void count_sign();
+
 	/* flag query routines */
 	void set_gehweg(const bool yesno) { flags = (yesno ? flags | HAS_SIDEWALK : flags & ~HAS_SIDEWALK); }
 	inline bool hat_gehweg() const { return flags & HAS_SIDEWALK; }
@@ -326,20 +325,17 @@ public:
 	void set_electrify(bool janein) {janein ? flags |= IS_ELECTRIFIED : flags &= ~IS_ELECTRIFIED;}
 	inline bool is_electrified() const {return flags&IS_ELECTRIFIED; }
 
-	inline bool is_diagonal() const { return diagonal; }
-	void set_diagonal();
-
-	void count_sign();
 	inline bool has_sign() const {return flags&HAS_SIGN; }
 	inline bool has_signal() const {return flags&HAS_SIGNAL; }
 	inline bool has_wayobj() const {return flags&HAS_WAYOBJ; }
 	inline bool is_crossing() const {return flags&HAS_CROSSING; }
+	inline bool is_diagonal() const {return flags&IS_DIAGONAL; }
 	inline bool is_snow() const {return flags&IS_SNOW; }
 
 	inline void set_bild( image_id b ) { bild = b; }
 	image_id get_bild() const {return bild;}
 
-	// correct maitainace
+	// correct maintainace
 	void laden_abschliessen();
 } GCC_PACKED;
 

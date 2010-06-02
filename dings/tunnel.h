@@ -6,7 +6,7 @@
 
 class tunnel_besch_t;
 
-class tunnel_t : public ding_t
+class tunnel_t : public ding_no_info_t
 {
 private:
 	const tunnel_besch_t *besch;
@@ -19,7 +19,7 @@ public:
 	tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch_t *besch);
 
 	const char *get_name() const {return "Tunnelmuendung";}
-	enum ding_t::typ get_typ() const {return tunnel;}
+	typ get_typ() const { return tunnel; }
 
 	void calc_bild();
 
@@ -31,8 +31,6 @@ public:
 	const tunnel_besch_t *get_besch() const { return besch; }
 
 	void set_besch( const tunnel_besch_t *_besch ) { besch = _besch; }
-
-	void zeige_info() {} // show no info
 
 	void rdwr(loadsave_t *file);
 

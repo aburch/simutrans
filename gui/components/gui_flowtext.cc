@@ -207,8 +207,11 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 
 			case ATT_A_START:
 				color = COL_BLUE;
-				link->tl.x = xpos;
-				link->tl.y = ypos;
+				// link == links.end() if there is an endtag </a> is missing
+				if (link!=links.end()) {
+					link->tl.x = xpos;
+					link->tl.y = ypos;
+				}
 				break;
 
 			case ATT_A_END:

@@ -138,9 +138,9 @@ protected:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 
-	koord get_groesse() const {
-		return koord(width,(numinp.get_count()+button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
-	}
+	//koord get_groesse() const {
+	//	return koord(width,(numinp.get_count()+button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
+	//}
 public:
 	settings_stats_t() { width = 16; }
 	~settings_stats_t() { free_all(); }

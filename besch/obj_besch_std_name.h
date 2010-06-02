@@ -12,13 +12,13 @@ class obj_besch_std_name_t : public obj_besch_t {
 	public:
 		const char* get_name() const
 		{
-			return static_cast<const text_besch_t*>(get_child(0))->get_text();
+			return get_child<text_besch_t>(0)->get_text();
 		}
 
 		const char* get_copyright() const
 		{
-			const obj_besch_t* os = get_child(1);
-			return os != 0 ? static_cast<const text_besch_t*>(os)->get_text() : 0;
+			text_besch_t const* const ts = get_child<text_besch_t>(1);
+			return ts ? ts->get_text() : 0;
 		}
 };
 

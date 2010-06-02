@@ -45,6 +45,7 @@
 #include "dataobj/umgebung.h"
 
 #include "dings/roadsign.h"
+#include "dings/leitung2.h"
 
 #include "sucher/bauplatz_sucher.h"
 #include "bauer/warenbauer.h"
@@ -153,8 +154,9 @@ sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 	}
 }
 
-// Private car ownership information.
+// Electricity demand information.
 // @author: jamespetts
+// @author: neroden
 // (But much of this code is adapted from the speed bonus code,
 // written by Prissi). 
 
@@ -192,7 +194,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 	if((tracks[0]&1)==1) 
 	{
 		dbg->message("stadt_t::electricity_consumption_init()", "Ill formed line in config/electricity.tab.\nWill use default value. Format is year,ownership percentage[ year,ownership percentage]!" );
-		car_ownership->clear();
+		electricity_consumption->clear();
 		return;
 	}
 	electricity_consumption[0].resize( tracks[0]/2 );
@@ -205,7 +207,7 @@ void stadt_t::electricity_consumption_init(cstring_t objfilename)
 }
 
 
-
+// Returns a *float* which represents a fraction -- so, 1.0F means "100%".
 float stadt_t::get_electricity_consumption(sint32 monthyear) const
 {
 
@@ -224,20 +226,20 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 		}
 		if(  i==electricity_consumption->get_count()  ) 
 		{
-			// maxspeed already?
-			return electricity_consumption[0][i-1].consumption_percent;
+			// past final year
+			return electricity_consumption[0][i-1].consumption_percent / 100.0F;
 		}
 		else if(i==0) 
 		{
-			// minspeed below
-			return electricity_consumption[0][0].consumption_percent;
+			// before first year
+			return electricity_consumption[0][0].consumption_percent / 100.0F;
 		}
 		else 
 		{
 			// interpolate linear
-			const sint32 delta_ownership_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
+			const sint32 delta_consumption_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
 			const sint32 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
-			return (((float)(delta_ownership_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
+			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
 		}
 	}
 	else
@@ -1125,7 +1127,7 @@ stadt_t::~stadt_t()
 		reliefkarte_t::get_karte()->set_city(NULL);
 	}
 
-	// olny if there is still a world left to delete from
+	// only if there is still a world left to delete from
 	if(welt->get_groesse_x()>1) 
 	{
 
@@ -1135,7 +1137,7 @@ stadt_t::~stadt_t()
 		while (!buildings.empty()) 
 		{
 			// old buildings are not where they think they are, so we ask for map floor
-			gebaeude_t* gb = (gebaeude_t *)buildings.front();
+			gebaeude_t* const gb = buildings.front();
 			buildings.remove(gb);
 			assert(  gb!=NULL  &&  !buildings.is_contained(gb)  );
 			if(gb->get_tile()->get_besch()->get_utyp()==haus_besch_t::firmensitz)
@@ -1152,6 +1154,11 @@ stadt_t::~stadt_t()
 				gb->set_stadt( NULL );
 				hausbauer_t::remove(welt,welt->get_spieler(1),gb);
 			}
+		}
+		// Remove substations
+		ITERATE(substations, i)
+		{
+			substations[i]->city = NULL;
 		}
 	}
 	free( (void *)name );
@@ -1270,19 +1277,24 @@ next_name:;
 
 void stadt_t::calc_internal_passengers()
 {
-	const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
+	//const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
+	const uint32 capital_threshold = welt->get_einstellungen()->get_capital_threshold_size();
+	const uint32 city_threshold = welt->get_einstellungen()->get_city_threshold_size();
 	float internal_passenger_multiplier;
-	if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
+	//if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
+	if(city_history_month[0][HIST_CITICENS] >= capital_threshold)
 	{
 		internal_passenger_multiplier = 0.85F;
 	}
-	else if((city_history_month[0][HIST_CITICENS] <= median_town_size >> 1))
+	//else if(city_history_month[0][HIST_CITICENS] <= median_town_size >> 1)
+	else if(city_history_month[0][HIST_CITICENS] <= city_threshold)
 	{
 		internal_passenger_multiplier = 0.33F;
 	}
 	else
 	{
-		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
+		//float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
+		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)city_threshold) / (float)capital_threshold;
 		internal_passenger_multiplier = (proportion * 0.52F) + 0.33F;
 	}
 
@@ -2015,7 +2027,9 @@ void stadt_t::calc_growth()
 	 * (@author: jamespetts)
 	 */
 
-	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * 20;
+	const uint8 electricity_multiplier = 20;
+	// const uint8 electricity_multiplier = welt->get_einstellungen()->get_electricity_multiplier();
+	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier;
 	const uint8 mail_proportion = 100 - (welt->get_einstellungen()->get_passenger_multiplier() + electricity_proportion + welt->get_einstellungen()->get_goods_multiplier());
 
 	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (welt->get_einstellungen()->get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
@@ -2208,9 +2222,9 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	const koord pos = attraction->get_pos().get_2d();
 	grund_t *gr;
 	weg_t* road = NULL;
-	for(uint8 i = 0; i < 8; i ++)
+	for(uint8 i = 0; i < 16; i ++)
 	{
-		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
+		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.second_neighbours[i]));
 		gr = welt->lookup(pos3d);
 		if(!gr)
 		{
@@ -2445,7 +2459,6 @@ void stadt_t::step_passagiere()
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
 			{				
-				//if(pax_routed < (number_packets / 3))
 				if(range == local)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
@@ -2459,7 +2472,6 @@ void stadt_t::step_passagiere()
 						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
 					}
 				}
-				//else if(pax_routed < ((number_packets / 3) * 2))
 				else if(range == midrange)
 				{
 					//Medium
@@ -4223,9 +4235,23 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 }
 
 uint32 stadt_t::get_power_demand() const
- { 
-	return (city_history_month[0][HIST_CITICENS] * get_electricity_consumption(welt->get_timeline_year_month())) * 0.02F; 
- }
+{
+	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
+	float electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month()); 
+	// The weird order of operations is designed for greater precision.
+	// Really, POWER_TO_MW should come last.
+	return (city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen;
+}
+
+void stadt_t::add_substation(senke_t* substation)
+{ 
+	substations.append(substation); 
+}
+
+void stadt_t::remove_substation(senke_t* substation)
+{ 
+	substations.remove(substation); 
+}
 
 bool road_destination_finder_t::ist_befahrbar( const grund_t* gr ) const
 { 

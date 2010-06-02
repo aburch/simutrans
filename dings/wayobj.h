@@ -27,7 +27,7 @@ class werkzeug_waehler_t;
  *
  * @author Hj. Malthaner
  */
-class wayobj_t : public ding_t
+class wayobj_t : public ding_no_info_t
 {
 private:
 	const way_obj_besch_t *besch;
@@ -75,13 +75,7 @@ public:
 	* @return Gibt den typ des Objekts zurück.
 	* @author Hj. Malthaner
 	*/
-	enum ding_t::typ get_typ() const {return wayobj;}
-
-	/**
-	* no infowin
-	* @author Hj. Malthaner
-	*/
-	void zeige_info() {}
+	typ get_typ() const { return wayobj; }
 
 	void calc_bild();
 

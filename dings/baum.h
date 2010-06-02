@@ -79,7 +79,7 @@ public:
 	void calc_bild();
 
 	const char *get_name() const {return "Baum";}
-	enum ding_t::typ get_typ() const {return baum;}
+	typ get_typ() const { return baum; }
 
 	bool check_season(const long delta_t);
 

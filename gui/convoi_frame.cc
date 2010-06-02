@@ -7,7 +7,6 @@
  */
 
 #include <string.h>
-#include <algorithm>
 
 #include "gui_container.h"
 #include "gui_convoiinfo.h"

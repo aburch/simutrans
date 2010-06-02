@@ -153,7 +153,7 @@ void simline_t::rdwr(loadsave_t *file)
 
 	assert(fpl);
 
-	file->rdwr_str(name, sizeof(name));
+	file->rdwr_str(name, lengthof(name));
 	if(file->get_version()<88003) {
 		sint32 dummy=id;
 		file->rdwr_long(dummy, " ");

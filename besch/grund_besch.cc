@@ -64,10 +64,10 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
-	PIXVAL *dest = (PIXVAL *)bild_dest->get_daten();
+	PIXVAL* dest = bild_dest->get_daten();
 
-	const PIXVAL *texture = (const PIXVAL *)bild_texture->get_daten();
-	const sint16 x_y = bild_texture->get_pic()->w;
+	PIXVAL const* const texture = bild_texture->get_daten();
+	sint16        const x_y     = bild_texture->get_pic()->w;
 	// now mix the images
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
 		sint16 x = *dest++;
@@ -96,7 +96,7 @@ static bild_besch_t* create_textured_tile(const bild_besch_t* bild_lightmap, con
 			x += *dest;
 		} while(  (*dest++)!=0 );
 	}
-	assert(dest - (const PIXVAL*)bild_dest->get_daten() == (ptrdiff_t)bild_dest->get_pic()->len);
+	assert(dest - bild_dest->get_daten() == (ptrdiff_t)bild_dest->get_pic()->len);
 	return bild_dest;
 }
 
@@ -111,12 +111,12 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 {
 	bild_besch_t *bild_dest = bild_lightmap->copy_rotate(0);
 
-	const PIXVAL *mixmap = (const PIXVAL *)bild_mixmap->get_daten();
-	const PIXVAL *src1 = (const PIXVAL *)bild_src1->get_daten() - bild_src1->get_pic()->y*(bild_src1->get_pic()->w+3l);
-	const PIXVAL *src2 = (const PIXVAL *)bild_src2->get_daten() - bild_src2->get_pic()->y*(bild_src2->get_pic()->w+3l);
-	const PIXVAL *src3 = (const PIXVAL *)bild_src3->get_daten() - bild_src3->get_pic()->y*(bild_src3->get_pic()->w+3l);
-	const sint32 x_y = bild_src1->get_pic()->w;
-	const sint32 mix_x_y = bild_mixmap->get_pic()->w;
+	PIXVAL const* const mixmap  = bild_mixmap->get_daten();
+	PIXVAL const* const src1    = bild_src1->get_daten() - bild_src1->get_pic()->y * (bild_src1->get_pic()->w + 3L);
+	PIXVAL const* const src2    = bild_src2->get_daten() - bild_src2->get_pic()->y * (bild_src2->get_pic()->w + 3L);
+	PIXVAL const* const src3    = bild_src3->get_daten() - bild_src3->get_pic()->y * (bild_src3->get_pic()->w + 3L);
+	sint32        const x_y     = bild_src1->get_pic()->w;
+	sint32        const mix_x_y = bild_mixmap->get_pic()->w;
 	sint16 tile_x, tile_y;
 
 	/*
@@ -144,7 +144,7 @@ static bild_besch_t* create_textured_tile_mix(const bild_besch_t* bild_lightmap,
 	const sint16 middle_y = (corner2_y+corner4_y)/2;
 
 	// now mix the images
-	PIXVAL *dest = (PIXVAL *)bild_dest->get_daten();
+	PIXVAL* dest = bild_dest->get_daten();
 	for (int j = 0; j < bild_dest->get_pic()->h; j++) {
 		tile_y = bild_dest->get_pic()->y + j;
 		tile_x = *dest++;
@@ -329,7 +329,7 @@ static slist_tpl<bild_besch_t *>ground_bild_list;
 bool grund_besch_t::register_besch(const grund_besch_t *besch)
 {
 	if(strcmp("Outside", besch->get_name())==0) {
-		const bild_besch_t *bild = static_cast<const bildliste2d_besch_t *>(besch->get_child(2))->get_bild(0,0);
+		bild_besch_t const* const bild = besch->get_child<bildliste2d_besch_t>(2)->get_bild(0,0);
 		dbg->message("grund_besch_t::register_besch()", "setting raster width to %i", bild->pic.w);
 		display_set_base_raster_width(bild->pic.w);
 	}
@@ -366,8 +366,7 @@ grund_besch_t::alles_geladen()
 
 /* returns the untranslated name of the matching climate
  */
-const char *
-grund_besch_t::get_climate_name_from_bit( enum climate n )
+char const* grund_besch_t::get_climate_name_from_bit(climate n)
 {
 	return n<MAX_CLIMATES ? climate_names[n] : NULL;
 }
@@ -606,7 +605,7 @@ grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 #endif
 	if(h<0  ||  (h==0  &&  slope==hang_t::flach)) {
 		// deep water
-		const bildliste2d_besch_t *liste = static_cast<const bildliste2d_besch_t *>(sea->get_child(2));
+		bildliste2d_besch_t const* const liste = sea->get_child<bildliste2d_besch_t>(2);
 		int nr = min( -h, liste->get_anzahl()-2 );
 		return liste->get_bild(nr,0)->get_nummer();
 	}

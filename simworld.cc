@@ -70,6 +70,7 @@
 #include "dings/wayobj.h"
 #include "dings/groundobj.h"
 #include "dings/gebaeude.h"
+#include "dings/leitung2.h"
 
 #include "gui/password_frame.h"
 #include "gui/messagebox.h"
@@ -94,6 +95,7 @@
 #include "bauer/wegbauer.h"
 #include "bauer/hausbauer.h"
 #include "bauer/vehikelbauer.h"
+#include "bauer/hausbauer.h"
 
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
@@ -324,7 +326,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 				// usually, after P6 there comes a comment with the maker
 				// but comments can be anywhere
 				if(*c==0) {
-					read_line(buf, 255, file);
+					read_line(buf, sizeof(buf), file);
 					c = buf;
 					continue;
 				}
@@ -1725,13 +1727,9 @@ void karte_t::set_scale()
 
 	// Stations
 
-	slist_iterator_tpl <halthandle_t> halt_pre_iter (haltestelle_t::get_alle_haltestellen());
-	while( halt_pre_iter.next() ) 
+	ITERATE(hausbauer_t::modifiable_station_buildings, n)
 	{
-		koord3d t = halt_pre_iter.get_current()->get_basis_pos3d();
-		grund_t *gr = lookup(t);
-		gebaeude_t* gb = gr->find<gebaeude_t>();
-		gb->get_tile()->get_modifiable_besch()->set_scale(scale_factor); 
+		hausbauer_t::modifiable_station_buildings[n]->set_scale(scale_factor); 
 	}
 
 	// Goods
@@ -2877,7 +2875,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 
 
 // add an amout to a subcategory
-void karte_t::buche(const sint64 betrag, enum player_cost type)
+void karte_t::buche(sint64 const betrag, player_cost const type)
 {
 	assert(type < MAX_WORLD_COST);
 	finance_history_year[0][type] += betrag;
@@ -2940,6 +2938,8 @@ void karte_t::neuer_monat()
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
 	sint16 number_of_factories = fab_list.get_count();
 	fabrik_t * fab;
+	uint32 total_electric_demand = 1;
+	uint32 electric_productivity = 0;
 	for(sint16 i = number_of_factories - 1; i >= 0; i--)
 	{
 		fab = fab_list[i];
@@ -2948,6 +2948,14 @@ void karte_t::neuer_monat()
 		// so must adjust i to prevent out of bounds errors.
 		sint16 difference = number_of_factories - fab_list.get_count();
 		i -= difference;
+		if(fab->get_besch()->is_electricity_producer()) 
+		{
+			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T;
+		}
+		else 
+		{
+			total_electric_demand += fab->get_base_production() * fab->get_besch()->get_electricity_proportion();
+		}
 	}
 
 	// Check to see whether more factories need to be added
@@ -2984,8 +2992,15 @@ void karte_t::neuer_monat()
 		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 1278");
+		total_electric_demand += (*i)->get_power_demand();
 	}
 	swap(stadt, new_weighted_stadt);
+
+	if(((electric_productivity*4000l)/total_electric_demand) > get_einstellungen()->get_electric_promille())
+	{
+		// Add industries if there is a shortage of electricity - power stations will be built.
+		fabrikbauer_t::increase_industry_density(this, true, true);
+	}
 
 	INT_CHECK("simworld 1282");
 
@@ -3420,6 +3435,11 @@ void karte_t::step()
 	}
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
+	// step powerlines - required order: pumpe, senke, then powernet
+	pumpe_t::step_all( delta_t );
+	senke_t::step_all( delta_t );
+	powernet_t::step_all( delta_t );
+
 	// then step all players
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  spieler[i] != NULL  ) {
@@ -3699,10 +3719,10 @@ static sint8 median( sint8 a, sint8 b, sint8 c )
 	}
 #elif 0
 	if(  a<=b  ) {
-		return b<=c ? b : max(a,c);;
+		return b<=c ? b : max(a,c);
 	}
 	else {
-		return b>c ? b : min(a,c);;
+		return b>c ? b : min(a,c);
 	}
 #else
 		return (6*128+3 + a+a+b+b+c+c)/6-128;
@@ -4338,8 +4358,10 @@ void karte_t::laden(loadsave_t *file)
 
 	simloops = 60;
 
-	// powernets zum laden vorbereiten -> tabelle loeschen
+	// zum laden vorbereiten -> tabelle loeschen
 	powernet_t::neue_karte();
+	pumpe_t::neue_karte();
+	senke_t::neue_karte();
 
 	const float old_scale_factor = get_einstellungen()->get_distance_per_tile();
 
@@ -4424,7 +4446,7 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 	}
 	// old game might have wrong month
 	letzter_monat %= 12;
- 	// set the current month count
+	// set the current month count
 	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
 	current_month = letzter_monat + (letztes_jahr*12);
 	season = (2+letzter_monat/3)&3; // summer always zero
@@ -5290,8 +5312,8 @@ void karte_t::switch_active_player(uint8 new_player)
 		koord3d old_zeiger_pos = zeiger->get_pos();
 		zeiger->set_bild( IMG_LEER );	// unmarks also area
 		zeiger->set_pos( koord3d::invalid );
-		if(  dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])  ) {
-			dynamic_cast<two_click_werkzeug_t *>(werkzeug[active_player_nr])->cleanup( active_player, false );
+		if (two_click_werkzeug_t* const tool = dynamic_cast<two_click_werkzeug_t*>(werkzeug[active_player_nr])) {
+			tool->cleanup(active_player, false);
 		}
 		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;

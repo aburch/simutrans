@@ -10,7 +10,7 @@
  * Hj. Malthaner
  */
 
-class bruecke_t : public ding_t
+class bruecke_t : public ding_no_info_t
 {
 private:
 	const bruecke_besch_t *besch;
@@ -26,7 +26,7 @@ public:
 	image_id get_after_bild() const {return besch->get_vordergrund(img, get_pos().z+Z_TILE_STEP*(img>=bruecke_besch_t::N_Start  &&  img<=bruecke_besch_t::W_Start) >= welt->get_snowline()); }
 
 	const char *get_name() const {return "Bruecke";}
-	enum ding_t::typ get_typ() const {return bruecke;}
+	typ get_typ() const { return bruecke; }
 
 	const bruecke_besch_t *get_besch() const { return besch; }
 
@@ -40,8 +40,6 @@ public:
 	void laden_abschliessen();
 
 	void entferne(spieler_t *sp);
-
-	void zeige_info() {} // show no info
 
 	void rotate90();
 	/**

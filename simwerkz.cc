@@ -673,7 +673,7 @@ DBG_MESSAGE("wkz_remover()", "removing way");
 	* Sonst laesst sich danach die Richtung der Haltestelle verdrehen und die Bilder
 	* gehen kaputt.
 	*/
-	long cost_sum = 0;
+	sint64 cost_sum = 0;
 	if(gr->get_typ()!=grund_t::tunnelboden  ||  gr->has_two_ways()) {
 		weg_t *w=gr->get_weg_nr(1);
 		if(gr->get_typ()==grund_t::brueckenboden  &&  w==NULL) {
@@ -1202,12 +1202,20 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			if(  gr1->ist_karten_boden()  ) {
-				// no lakes on slopes ...
 				if(  new_slope!=hang_t::flach  ) {
+					// no lakes on slopes ...
 					groundobj_t *d = gr1->find<groundobj_t>();
 					if(  d  &&  d->get_besch()->get_phases()!=16  ) {
 						d->entferne(sp);
 						delete d;
+					}
+					// connect canals to sea
+					if (gr1->get_hoehe()==welt->get_grundwasser()  &&  gr1->hat_weg(water_wt)) {
+						grund_t *sea = welt->lookup_kartenboden(new_pos.get_2d() - koord( ribi_typ(new_slope ) ));
+						if (sea  &&  sea->ist_wasser()) {
+							gr1->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi_typ(new_slope)));
+							sea->calc_bild();
+						}
 					}
 				}
 				// recalc slope walls on neightbours
@@ -1351,19 +1359,19 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
 
 		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
-		stadt_t* city = NULL;
-		if(fab == NULL) 
-		{
-			// Check whether the transformer (substation) is within city limits.
-			// @author: jamespetts
-			
-			city = welt->get_city(k.get_2d());
-
-			if(fab == NULL && city == NULL)
-			{
-				return "Transformer only next to factory!";
-			}
+		if( fab != NULL && fab->is_transformer_connected()  ) {
+			return "Only one transformer per factory!";
 		}
+		stadt_t* city = NULL;
+		// Check whether the transformer (substation) is within city limits.
+		// @author: jamespetts
+		
+		city = welt->get_city(k.get_2d());
+		if(fab == NULL && city == NULL)
+		{
+			return "Transformer only next to factory or in city!";
+		}
+
 		// remove everything on that spot
 		const char *fail = gr->kann_alle_obj_entfernen(sp);
 		if(fail) 
@@ -1384,9 +1392,12 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 			gr->obj_add(s);
 			s->laden_abschliessen();
 		}
+		if (fab != NULL) {
+			fab->set_transformer_connected( true );
+		}
 		return NULL;	// ok
 	}
-	return "Transformer only next to factory!";
+	return "Transformer only next to factory or in city!";
 }
 
 
@@ -1473,7 +1484,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 	koord k;
 	for(k.y = 0; k.y < size.y; k.y ++) {
 		for(k.x = 0; k.x < size.x; k.x ++) {
-			grund_t *gr = welt->lookup(koord3d(k,0)+pos);
+			const grund_t *gr = welt->lookup(koord3d(k,0)+pos);
 			if(gr) {
 				gebaeude_t *gb_part = gr->find<gebaeude_t>();
 				// there may be buildings with holes
@@ -1614,13 +1625,8 @@ const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool re
 		waytype_t wt = (waytype_t)atoi(default_param);
 		besch = defaults[wt&63];
 		if(besch==NULL) {
-			if(wt<=air_wt) {
-				// search fastest way.
-				besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
-			}
-			else {
-				besch = wegbauer_t::leitung_besch;
-			}
+			// search fastest way.
+			besch = wegbauer_t::weg_search(wt, 0xffffffff, timeline_year_month, weg_t::type_flat);
 		}
 	}
 	assert(besch);
@@ -1907,16 +1913,9 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 		costs += besch->get_preis();
 	}
 	else {
-		if (besch->get_waytype() == powerline_wt) {
-			if (!gr->find<leitung_t>()) {
-				costs += wegbauer_t::leitung_besch->get_preis();
-			}
-		}
-		else {
-			if (!gr->hat_weg(besch->get_waytype())) {
-				const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
-				costs += weg_besch->get_preis();
-			}
+		if (besch->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(besch->get_waytype())) {
+			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
+			costs += weg_besch->get_preis();
 		}
 	}
 	// eventually we have to remove trees on end tile
@@ -2752,7 +2751,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	}
 
 	sint64 cost;
-	if(besch->get_base_staiton_price() == 2147483647)
+	if(besch->get_base_station_price() == 2147483647)
 	{
 		cost = welt->get_einstellungen()->cst_multiply_post * besch->get_level() * besch->get_b() * besch->get_h();
 	}
@@ -2788,7 +2787,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	koord last_pos = pos - dx*len;
 
 	sint64 costs;
-	if(besch->get_base_staiton_price() == 2147483647)
+	if(besch->get_base_station_price() == 2147483647)
 	{
 		costs = welt->get_einstellungen()->cst_multiply_dock * besch->get_level();
 	}
@@ -2923,7 +2922,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	{
 		// public stops are expensive!
 		sint64 maint;
-		if(besch->get_base_staiton_maintenance() == 2147483647)
+		if(besch->get_base_station_maintenance() == 2147483647)
 		{
 			maint = welt->get_einstellungen()->maint_building * besch->get_level();
 		}
@@ -2974,7 +2973,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 
 	sint64 adjusted_cost;
 
-	if(besch->get_base_staiton_maintenance() == 2147483647 || besch->get_base_staiton_price() == 2147483647)
+	if(besch->get_base_station_maintenance() == 2147483647 || besch->get_base_station_price() == 2147483647)
 	{
 		adjusted_cost = cost + welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
 	}
@@ -3153,7 +3152,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	
 	// @author: jamespetts
 	// Now check for whether there is a Simutrans-Experimental individually set price
-	if(besch->get_base_staiton_price() != 2147483647)
+	if(besch->get_base_station_price() != 2147483647)
 	{
 		cost = besch->get_station_price() * besch->get_b() * besch->get_h();
 	}
@@ -3166,7 +3165,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	if(sp!=halt->get_besitzer()) 
 	{
 		// public stops are expensive!
-		if(besch->get_base_staiton_price() != 2147483647)
+		if(besch->get_base_station_price() != 2147483647)
 		{
 			cost += welt->calc_adjusted_monthly_figure(cost * 60);
 		}
@@ -3264,7 +3263,7 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 	uint32 cap = besch->get_station_capacity(); // This is always correct in the besch object.
 	if(  besch->get_utyp()==haus_besch_t::generic_stop  ) 
 	{
-		if(besch->get_base_staiton_maintenance() != 2147483647)
+		if(besch->get_base_station_maintenance() != 2147483647)
 		{
 			maint = besch->get_station_maintenance();
 		}
@@ -3272,7 +3271,7 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 		{
 			maint = sp->get_welt()->get_einstellungen()->maint_building*besch->get_level();
 		}
-		if(besch->get_base_staiton_price() != 2147483647)
+		if(besch->get_base_station_price() != 2147483647)
 		{
 			price = besch->get_station_price();
 		}
@@ -3305,7 +3304,7 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 	}
 	else if(besch->get_utyp()==haus_besch_t::generic_extension || besch->get_utyp()==haus_besch_t::hafen) 
 	{
-		if(besch->get_base_staiton_maintenance() != 2147483647)
+		if(besch->get_base_station_maintenance() != 2147483647)
 		{
 			maint = besch->get_station_maintenance();
 		}
@@ -3314,7 +3313,7 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 			maint = sp->get_welt()->get_einstellungen()->maint_building * besch->get_level();
 		}
 
-		if(besch->get_base_staiton_price() != 2147483647)
+		if(besch->get_base_station_price() != 2147483647)
 		{
 			price = besch->get_station_price();
 		}
@@ -3378,7 +3377,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	sint64 cost;
 	switch (besch->get_utyp()) {
 		case haus_besch_t::hafen:
-			if(besch->get_base_staiton_price() == 2147483647)
+			if(besch->get_base_station_price() == 2147483647)
 			{
 				cost = welt->get_einstellungen()->cst_multiply_dock * besch->get_level();
 			}
@@ -3399,7 +3398,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		case haus_besch_t::generic_stop:
 			switch(besch->get_extra()) {
 				case road_wt:
-					if(besch->get_base_staiton_price() == 2147483647)
+					if(besch->get_base_station_price() == 2147483647)
 					{
 						cost = welt->get_einstellungen()->cst_multiply_roadstop * besch->get_level();
 					}
@@ -3418,7 +3417,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				case maglev_wt:
 				case narrowgauge_wt:
 				case tram_wt:
-					if(besch->get_base_staiton_price() == 2147483647)
+					if(besch->get_base_station_price() == 2147483647)
 					{
 						cost = welt->get_einstellungen()->cst_multiply_station * besch->get_level();
 					}
@@ -3433,7 +3432,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, (waytype_t)besch->get_extra(), welt->get_einstellungen()->cst_multiply_station, "BF");
 					break;
 				case water_wt:
-					if(besch->get_base_staiton_price() == 2147483647)
+					if(besch->get_base_station_price() == 2147483647)
 					{
 						cost = welt->get_einstellungen()->cst_multiply_dock * besch->get_level();
 					}
@@ -3448,7 +3447,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					msg = wkz_station_t::wkz_station_aux(welt, sp, pos, besch, water_wt, welt->get_einstellungen()->cst_multiply_dock, "Dock");
 					break;
 				case air_wt:
-					if(besch->get_base_staiton_price() == 2147483647)
+					if(besch->get_base_station_price() == 2147483647)
 					{
 						cost = welt->get_einstellungen()->cst_multiply_airterminal * besch->get_level();
 					}
@@ -3601,7 +3600,7 @@ bool wkz_roadsign_t::init( karte_t *welt, spieler_t * sp)
 	read_default_param(sp);
 
 	if (is_ctrl_pressed()  &&  is_local_execution()) {
-		create_win(new signal_spacing_frame_t(sp, this), 0, (long)this);
+		create_win(new signal_spacing_frame_t(sp, this), w_info, (long)this);
 	}
 	return two_click_werkzeug_t::init(welt, sp);
 }
@@ -4485,10 +4484,16 @@ const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
 	return NULL;
 }
 
-bool wkz_headquarter_t::init( karte_t *, spieler_t *sp )
+bool wkz_headquarter_t::init( karte_t *welt, spieler_t *sp )
 {
 	// do no use this, if there is no next level to built ...
-	return next_level(sp)!=NULL;
+	const haus_besch_t *besch = next_level(sp);
+	if (besch) {
+		const int rotation = 0;
+		welt->get_zeiger()->set_area( besch->get_groesse(rotation), false );
+		return true;
+	}
+	return false;
 }
 
 
@@ -4525,6 +4530,8 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			gebaeude_t *prev_hq = gr->find<gebaeude_t>();
 			sp->add_headquarter( prev_hq->get_tile()->get_besch()->get_extra(), koord::invalid );
 			hausbauer_t::remove( welt, sp, prev_hq );
+			// resize cursor
+			init(welt, sp);
 		}
 
 		int rotate = 0;
@@ -4548,7 +4555,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			// sometime those are not correct after rotation ...
 			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
-			if(sp == welt->get_active_player()) {
+			if(is_local_execution()  &&  sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}
 			return NULL;
@@ -5233,7 +5240,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				sscanf(p, "%hi", &cnv_rpl_id);
 				convoihandle_t cnv_rpl;
 				cnv_rpl.set_id( cnv_rpl_id );
-				if(cnv_rpl.is_bound())
+				if(cnv_rpl.is_bound() && cnv_rpl->get_replace())
 				{
 					cnv->set_replace(cnv_rpl->get_replace());
 					cnv->set_depot_when_empty(cnv->get_replace()->get_autostart());
@@ -5282,6 +5289,13 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			cnv->set_depot_when_empty(!cnv->get_depot_when_empty());
 			cnv->set_no_load(cnv->get_depot_when_empty());
 			cnv->set_replace(NULL);
+			break;
+
+		case 'X': // Clear replace
+			if(cnv->get_replace())
+			{
+				cnv->get_replace()->clear_all();
+			}
 			break;
 
 		case 'w': // change withdraw

@@ -47,7 +47,7 @@ tunnelboden_t::calc_bild_internal()
 				boden_t::calc_bild_internal();
 			}
 			// default tunnel ground images
-			set_bild(skinverwaltung_t::fussweg->get_bild_nr(0));
+			set_bild(skinverwaltung_t::tunnel_texture->get_bild_nr(0));
 			clear_flag(draw_as_ding);
 		}
 		else {
@@ -70,7 +70,7 @@ tunnelboden_t::calc_bild_internal()
 		clear_back_bild();
 		if (is_visible()) {
 			// default tunnel ground images
-			set_bild(skinverwaltung_t::fussweg->get_bild_nr(get_disp_slope()));
+			set_bild(skinverwaltung_t::tunnel_texture->get_bild_nr(get_disp_slope()));
 		}
 		else {
 			set_bild(IMG_LEER);
@@ -97,7 +97,7 @@ tunnelboden_t::rdwr(loadsave_t *file)
 	if(file->get_version()==99003) {
 		char  buf[256];
 		const tunnel_besch_t *besch = NULL;
-		file->rdwr_str(buf,255);
+		file->rdwr_str(buf, lengthof(buf));
 		if (find<tunnel_t>() == NULL) {
 			besch = tunnelbauer_t::get_besch(buf);
 			if(besch) {

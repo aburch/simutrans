@@ -45,11 +45,11 @@ load_block(unsigned char *block, char *filename)
 
 	fgetc( file );             /* return schlucken */
 	do {
-	    fgets(dummy,250,file);
+		fgets(dummy, sizeof(dummy), file);
 	} while(dummy[0] == '#');
 
 	sscanf(dummy, "%d %d", &breite, &hoehe);
-        fgets(dummy, 250,file);
+	fgets(dummy, sizeof(dummy),file);
         sscanf(dummy , "%d\n",&tiefe);
 
 	printf("%dx%dx%d\n", breite, hoehe, tiefe);

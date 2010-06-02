@@ -22,7 +22,7 @@ gui_table_t::gui_table_t() : default_cell_size(99,14)
 	column_sort_row_order.set_owner(this);
 	set_owns_columns(true);
 	set_owns_rows(true);
-	grid_width = 1;
+	grid_width = koord(1,1);
 	grid_color = COL_BLACK;
 	tooltip[0] = 0;
 }
@@ -65,7 +65,7 @@ bool gui_table_t::get_column_at(koord_x x, coordinate_t &column, koord_x &offset
 	coordinate_t n = columns.get_count();
 	koord_x ref = 0;
 	for (coordinate_t i = 0; i < n; i++) {
-		ref += grid_width;
+		ref += grid_width.x;
 		if (x < ref) {
 			return false;
 		}
@@ -87,7 +87,7 @@ bool gui_table_t::get_row_at(koord_y y, coordinate_t &row, koord_y &offset) cons
 	coordinate_t n = rows.get_count();
 	koord_y ref = 0;
 	for (coordinate_t i = 0; i < n; i++) {
-		ref += grid_width;
+		ref += grid_width.y;
 		if (y < ref) {
 			return false;
 		}
@@ -119,7 +119,7 @@ bool gui_table_t::get_cell_at(koord_x x, koord_y y, coordinates_t &cell, koord &
 // BG, 18.03.2010
 koord_x gui_table_t::get_table_width() const {
 	coordinate_t i = columns.get_count();
-	koord_x width = (i + 1) * grid_width;
+	koord_x width = (i + 1) * grid_width.x;
 	for (; i-- > 0;) {
 		width += get_column_width(i);
 	}
@@ -130,7 +130,7 @@ koord_x gui_table_t::get_table_width() const {
 // BG, 18.03.2010
 koord_y gui_table_t::get_table_height() const {
 	coordinate_t i = rows.get_count();
-	koord_y height = (i + 1) * grid_width;
+	koord_y height = (i + 1) * grid_width.y;
 	for (; i-- > 0;) {
 		height += get_row_height(i);
 	}
@@ -159,14 +159,14 @@ void gui_table_t::paint_cells(const koord &offset) {
 
 	// paint cells
 	koord cell_pos;
-	cell_pos.y = pos.y + grid_width;
+	cell_pos.y = pos.y + grid_width.y;
 	for (coordinate_t y = 0; y < size.get_y(); y++) {
-		cell_pos.x = pos.x + grid_width;
+		cell_pos.x = pos.x + grid_width.x;
 		for (coordinate_t x = 0; x < size.get_x(); x++) {
 			paint_cell(cell_pos, x, y);
-			cell_pos.x += grid_width + get_column_width(x);
+			cell_pos.x += grid_width.x + get_column_width(x);
 		}
-		cell_pos.y += grid_width + get_row_height(y);
+		cell_pos.y += grid_width.y + get_row_height(y);
 	}
 }
 
@@ -179,18 +179,24 @@ void gui_table_t::paint_grid(const koord &offset) {
 	koord v = h;
 
 	// paint horizontal grid lines
-	for (coordinate_t y = 0; y < size.get_y(); y++) {
-		display_fillbox_wh_clip(h.x, h.y, s.x, grid_width, grid_color, true);
-		h.y += grid_width + get_row_height(y);
+	if (grid_width.y > 0)
+	{
+		for (coordinate_t y = 0; y < size.get_y(); y++) {
+			display_fillbox_wh_clip(h.x, h.y, s.x, grid_width.y, grid_color, true);
+			h.y += grid_width.y + get_row_height(y);
+		}
+		display_fillbox_wh_clip(h.x, h.y, s.x, grid_width.y, grid_color, true);
 	}
-	display_fillbox_wh_clip(h.x, h.y, s.x, grid_width, grid_color, true);
 
 	// paint vertical grid lines
-	for (coordinate_t x = 0; x < size.get_x(); x++) {
-		display_fillbox_wh_clip(v.x, v.y, grid_width, s.y, grid_color, true);
-		v.x += grid_width + get_column_width(x);
+	if (grid_width.x > 0)
+	{
+		for (coordinate_t x = 0; x < size.get_x(); x++) {
+			display_fillbox_wh_clip(v.x, v.y, grid_width.x, s.y, grid_color, true);
+			v.x += grid_width.x + get_column_width(x);
+		}
+		display_fillbox_wh_clip(v.x, v.y, grid_width.x, s.y, grid_color, true);
 	}
-	display_fillbox_wh_clip(v.x, v.y, grid_width, s.y, grid_color, true);
 }
 
 

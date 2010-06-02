@@ -13,7 +13,7 @@ class rauch_besch_t;
  * smoke clouds (formerly sync_wolke_t)
  * @author Hj. Malthaner
  */
-class wolke_t : public ding_t, public sync_steppable
+class wolke_t : public ding_no_info_t, public sync_steppable
 {
 private:
 	// maximum 16 types of clouds for now ...
@@ -36,9 +36,7 @@ public:
 	bool sync_step(long delta_t);
 
 	const char* get_name() const { return "Wolke"; }
-	enum ding_t::typ get_typ() const { return sync_wolke; }
-
-	void zeige_info() {} // show no info
+	typ get_typ() const { return sync_wolke; }
 
 	image_id get_bild() const { return all_clouds[cloud_nr]->get_bild_nr(insta_zeit/divisor); }
 
@@ -57,7 +55,7 @@ class async_wolke_t : public ding_t
 {
 public:
 	async_wolke_t(karte_t *welt, loadsave_t *file);
-	enum ding_t::typ get_typ() const { return async_wolke; }
+	typ get_typ() const { return async_wolke; }
 	image_id get_bild() const { return IMG_LEER; }
 };
 
@@ -65,7 +63,7 @@ class raucher_t : public ding_t
 {
 public:
 	raucher_t(karte_t *welt, loadsave_t *file);
-	enum ding_t::typ get_typ() const { return raucher; }
+	typ get_typ() const { return raucher; }
 	image_id get_bild() const { return IMG_LEER; }
 };
 

@@ -51,7 +51,7 @@ kanal_t::rdwr(loadsave_t *file)
 	}
 	else {
 		char bname[128];
-		file->rdwr_str(bname, 128);
+		file->rdwr_str(bname, lengthof(bname));
 
 		const weg_besch_t *besch = wegbauer_t::get_besch(bname);
 		int old_max_speed = get_max_speed();
@@ -66,6 +66,5 @@ kanal_t::rdwr(loadsave_t *file)
 		if(old_max_speed>0) {
 			set_max_speed(old_max_speed);
 		}
-
 	}
 }

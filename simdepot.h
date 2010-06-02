@@ -258,7 +258,7 @@ public:
 	void rdwr_vehicles(loadsave_t *file) { depot_t::rdwr_vehikel(vehicles,file); }
 
 	virtual waytype_t get_wegtyp() const {return track_wt;}
-	virtual enum ding_t::typ get_typ() const {return bahndepot;}
+	virtual ding_t::typ get_typ() const {return bahndepot;}
 	//virtual const char *get_name() const {return "Bahndepot"; }
 };
 
@@ -272,7 +272,7 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::tramline; }
 
 	virtual waytype_t get_wegtyp() const {return tram_wt;}
-	virtual enum ding_t::typ get_typ() const { return tramdepot; }
+	virtual ding_t::typ get_typ() const { return tramdepot; }
 	//virtual const char *get_name() const {return "Tramdepot"; }
 };
 
@@ -285,7 +285,7 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::monorailline; }
 
 	virtual waytype_t get_wegtyp() const {return monorail_wt;}
-	virtual enum ding_t::typ get_typ() const { return monoraildepot; }
+	virtual ding_t::typ get_typ() const { return monoraildepot; }
 	//virtual const char *get_name() const {return "Monoraildepot"; }
 };
 
@@ -298,7 +298,7 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::maglevline; }
 
 	virtual waytype_t get_wegtyp() const {return maglev_wt;}
-	virtual enum ding_t::typ get_typ() const { return maglevdepot; }
+	virtual ding_t::typ get_typ() const { return maglevdepot; }
 	//virtual const char *get_name() const {return "Maglevdepot"; }
 };
 
@@ -311,7 +311,7 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::narrowgaugeline; }
 
 	virtual waytype_t get_wegtyp() const {return narrowgauge_wt;}
-	virtual enum ding_t::typ get_typ() const { return narrowgaugedepot; }
+	virtual ding_t::typ get_typ() const { return narrowgaugedepot; }
 	//virtual const char *get_name() const {return "Narrowgaugedepot"; }
 };
 
@@ -330,7 +330,7 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::truckline; }
 
 	virtual waytype_t get_wegtyp() const {return road_wt; }
-	enum ding_t::typ get_typ() const {return strassendepot;}
+	ding_t::typ get_typ() const {return strassendepot;}
 	//const char *get_name() const {return "Strassendepot";}
 };
 
@@ -350,7 +350,7 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::shipline; }
 
 	virtual waytype_t get_wegtyp() const {return water_wt; }
-	enum ding_t::typ get_typ() const {return schiffdepot;}
+	ding_t::typ get_typ() const {return schiffdepot;}
 	//const char *get_name() const {return "Schiffdepot";}
 };
 
@@ -363,7 +363,7 @@ public:
 	virtual simline_t::linetype get_line_type() const { return simline_t::airline; }
 
 	virtual waytype_t get_wegtyp() const { return air_wt; }
-	enum ding_t::typ get_typ() const { return airdepot; }
+	ding_t::typ get_typ() const { return airdepot; }
 	//const char *get_name() const {return "Hangar";}
 };
 

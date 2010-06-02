@@ -208,9 +208,9 @@ template<class T> class vector_tpl
 					data[i] = data[i + 1];
 				}
 			}
-			else if(  pos!=(count-1)  ) 
+			else if(  pos!=(count)  )
 				{
-				data[pos] = data[count-1];				
+				data[pos] = data[count];
 			}
 		}
 

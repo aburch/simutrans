@@ -41,12 +41,19 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	revert_to_last_save.add_listener( this );
 	add_komponente( &revert_to_last_save );
 
+	sint16 height = 0;
 	general.init( sets );
+	height = general.get_groesse().y;
 	economy.init( sets );
+	height = max(height, economy.get_groesse().y);
 	routing.init( sets );
-	exp_general.init( sets );
-	exp_revenue.init( sets );
+	height = max(height, routing.get_groesse().y);
 	costs.init( sets );
+	height = max(height, costs.get_groesse().y);
+	exp_general.init( sets );
+	height = max(height, exp_general.get_groesse().y + tabs_experimental.HEADER_VSIZE);
+	exp_revenue.init( sets );
+	height = max(height, exp_revenue.get_groesse().y + tabs_experimental.HEADER_VSIZE);
 
 	// tab panel
 	tabs.set_pos(koord(0,BUTTON_HEIGHT));
@@ -60,11 +67,11 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 
 	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("General Exp."));
 	tabs_experimental.add_tab(&scrolly_exp_revenue, translator::translate("Passengers"));
-	//add_komponente(&tabs_experimental);
 
-	set_fenstergroesse(koord(400, 480));
+	height += tabs.get_pos().y + tabs.HEADER_VSIZE + 20;
+	set_fenstergroesse(koord(420, height));
 	// a min-size for the window
-	set_min_windowsize(koord(400, 200));
+	set_min_windowsize(koord(420, 200));
 
 	set_resizemode(diagonal_resize);
 	resize(koord(0,0));

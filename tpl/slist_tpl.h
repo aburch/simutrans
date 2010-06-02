@@ -381,22 +381,6 @@ public:
 	}
 
 	/**
-	 * start iteration
-	 * @author Hj. Malthaner
-	 */
-	void begin()
-	{
-		current_node = &lead;
-	}
-
-
-	void begin(const slist_tpl<T> *list)
-	{
-		current_node = &lead;
-		lead.next = list->head;
-	}
-
-	/**
 	 * iterate next element
 	 * @return false, if no more elements
 	 * @author Hj. Malthaner

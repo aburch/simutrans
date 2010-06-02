@@ -15,8 +15,15 @@ class cbuffer_t;
 class replace_data_t
 {
 private:
-	// The replacing vehicles, if any
+	/**
+	* The replacing vehicles, if any
+	*/
 	vector_tpl<const vehikel_besch_t *> *replacing_vehicles;
+	
+	/**
+	* The convoys currently being replaced
+	*/
+	vector_tpl<convoihandle_t> *replacing_convoys;
 
 	/**
 	 * if marked for replacing, once in depot, auto restart the vehicle
@@ -55,6 +62,8 @@ private:
 	 */
 	sint16 number_of_convoys;
 
+	bool clearing;
+
 public:
 	sint16 get_number_of_convoys() const { return number_of_convoys; }
 	
@@ -79,16 +88,27 @@ public:
 	void set_replacing_vehicles(vector_tpl<const vehikel_besch_t *> *rv) { replacing_vehicles = rv; }
 	void add_vehicle(const vehikel_besch_t* vehicle, bool add_at_front = false);
 
-	void increment_convoys() { number_of_convoys ++; }
-	void decrement_convoys();
+	void increment_convoys(convoihandle_t cnv);
+	void decrement_convoys(convoihandle_t cnv);
 
-	// fills the given buffer with replace data
+	/**
+	 * fills the given buffer with replace data
+	 */
 	void sprintf_replace( cbuffer_t &buf ) const;
 
-	// converts this string into replace data
+	/**
+	 * converts this string into replace data
+	 */
 	bool sscanf_replace( const char * );
 
 	void rdwr(loadsave_t *file);
+
+	/**
+	 * Will clear the replace data of all convoys currently
+	 * being replaced with this dataset. 
+	 * WARNING: This is equivalent to *deleting* this object.
+	 */
+	void clear_all();
 
 	replace_data_t* copy() { replace_data_t *r = new replace_data_t(this); return r; }
 

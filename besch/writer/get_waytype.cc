@@ -1,4 +1,3 @@
-#include "../../simtypes.h"
 #include "../../simdebug.h"
 #include "../../utils/cstring_t.h"	// for STRICMP
 #include "../../dataobj/tabfile.h"
@@ -8,12 +7,12 @@
  * Convert waytype string to enum wegtyp
  * @author Hj. Malthaner
  */
-uint8 get_waytype(const char* waytype)
+waytype_t get_waytype(const char* waytype)
 {
-	uint8 uv8 = road_wt;
+	waytype_t uv8 = road_wt;
 
 	if (!STRICMP(waytype, "none")) {
-		uv8 = 0;
+		uv8 = ignore_wt;
 	} else if (!STRICMP(waytype, "road")) {
 		uv8 = road_wt;
 	} else if (!STRICMP(waytype, "track")) {

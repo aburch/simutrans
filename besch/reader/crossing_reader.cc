@@ -78,5 +78,13 @@ DBG_MESSAGE("crossing_reader_t::register_obj()","old sound %i to %i",old_id,besc
 
 DBG_DEBUG("crossing_reader_t::read_node()","version=%i, w1=%d, speed1=%i, w2=%d, speed2=%d",v,besch->wegtyp1,besch->topspeed1,besch->wegtyp2,besch->topspeed2);
 	}
+	if (version >= 2 ) {
+		besch->intro_date = decode_uint16(p);
+		besch->obsolete_date = decode_uint16(p);
+	}
+	else {
+		besch->intro_date = 0;
+		besch->obsolete_date = 65535;
+	}
 	return besch;
 }

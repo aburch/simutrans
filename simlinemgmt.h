@@ -37,7 +37,7 @@ public:
 	 * delete a line
 	 * @author hsiegeln
 	 */
-	bool delete_line(linehandle_t line);
+	void delete_line(linehandle_t line);
 
 	/*
 	 * update a line -> apply updated fahrplan to all convoys

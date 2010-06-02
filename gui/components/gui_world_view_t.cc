@@ -75,9 +75,9 @@ void world_view_t::zeichnen(koord offset) //"Draw" (Babelfish)
 	if(ding) {
 		fine_here = koord( 	tile_raster_scale_x(-ding->get_xoff(),raster), tile_raster_scale_x(-ding->get_yoff()%(TILE_STEPS*2),raster) );
 		y_offset = (ding->get_yoff()/(32*TILE_STEPS/16));
-		if(ding->is_moving()) {
+		if (vehikel_basis_t const* const v = ding_cast<vehikel_basis_t>(ding)) {
 			int x=0, y=0;
-			((const vehikel_basis_t*)ding)->get_screen_offset(x, y, raster);
+			v->get_screen_offset(x, y, raster);
 			fine_here -= koord( x, y );
 		}
 	}
@@ -91,8 +91,7 @@ void world_view_t::zeichnen(koord offset) //"Draw" (Babelfish)
 		}
 		else {
 			hgt = tile_raster_scale_y( ding->get_pos().z*TILE_HEIGHT_STEP/Z_TILE_STEP, raster );
-			if(ding->get_typ() == ding_t::aircraft) {
-				const aircraft_t *plane =  dynamic_cast <const aircraft_t *>(ding);
+			if (aircraft_t const* const plane = ding_cast<aircraft_t>(ding)) {
 				hgt += tile_raster_scale_y( plane->get_flyingheight(), raster );
 			}
 		}
