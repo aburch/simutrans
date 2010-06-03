@@ -3422,7 +3422,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		}
 #endif
 		// print unknown character?
-		if(c > fnt->num_chars || fnt->screen_width[c] == 0) {
+		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
 			c = 0;
 		}
 
