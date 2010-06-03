@@ -150,6 +150,14 @@ gebaeude_t::~gebaeude_t()
 		}
 		spieler_t::add_maintenance(get_besitzer(), -maint);
 	}
+	if(!welt->get_is_shutting_down())
+	{
+		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
+		for(weighted_vector_tpl<stadt_t*>::const_iterator j = staedte.begin(), end = staedte.end(); j != end; ++j) 
+		{
+			(*j)->remove_connected_attraction(this);
+		}
+	}
 }
 
 

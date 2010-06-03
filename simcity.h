@@ -628,6 +628,15 @@ public:
 	void remove_substation(senke_t* substation);
 	vector_tpl<senke_t*>* get_substations() { return &substations; }
 
+	/**
+	* These methods are used for removing a connected city (etc.)
+	* from the list when these objects are deleted, to prevent 
+	* acces violations.
+	*/
+	void remove_connected_city(stadt_t* city);
+	void remove_connected_industry(fabrik_t* fab);
+	void remove_connected_attraction(gebaeude_t* attraction);
+
 };
 
 #endif
