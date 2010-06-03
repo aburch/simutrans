@@ -630,7 +630,6 @@ static void internal_GetEvents(int wait)
 			break;
 
 		default:
-			printf("Unbekanntes Ereignis # %d!\n", event.type);
 			sys_event.type = SIM_IGNORE_EVENT;
 			sys_event.code = 0;
 			break;
