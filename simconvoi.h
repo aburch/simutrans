@@ -736,6 +736,18 @@ public:
 
 	void check_pending_updates();
 
+	/**
+	* Get whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	inline bool get_reverse_schedule() const { return reverse_schedule; }
+
+	/**
+	* Set whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	void set_reverse_schedule(bool reverse = true) { reverse_schedule = reverse; }
+
 #if 0
 private:
 	/**

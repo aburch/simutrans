@@ -131,6 +131,14 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	details_button.set_tooltip("Vehicle details");
 	add_komponente(&details_button);
 
+	reverse_button.set_groesse(koord(BUTTON_WIDTH*2, BUTTON_HEIGHT));
+	reverse_button.set_text("reverse route");
+	reverse_button.set_typ(button_t::square_automatic);
+	reverse_button.add_listener(this);
+	reverse_button.set_tooltip("When this is set, the vehicle will visit stops in reverse order.");
+	reverse_button.pressed = cnv->get_reverse_schedule();
+	add_komponente(&reverse_button);
+
 	scrolly.set_pos(koord(0, offset_below_viewport+46));
 	add_komponente(&scrolly);
 
@@ -318,6 +326,8 @@ enable_home:
 			replace_button.pressed = cnv->get_replace();
 			replace_button.set_text(cnv->get_replace()?"Replacing":"Replace");
 			replace_button.enable();
+			reverse_button.pressed = cnv->get_reverse_schedule();
+			reverse_button.enable();
 		}
 		else {
 			if(  line_bound  ) {
@@ -329,6 +339,7 @@ enable_home:
 			go_home_button.disable();
 			no_load_button.disable();
 			replace_button.disable();
+			reverse_button.disable();
 		}
 		follow_button.pressed = (cnv->get_welt()->get_follow_convoi()==cnv);
 
@@ -542,6 +553,11 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			go_home_button.pressed = false;
 			return true;
 		} // end go home button
+
+		if(komp == &reverse_button)
+		{
+			cnv->set_reverse_schedule( reverse_button.pressed );
+		}
 	}
 
 	if (komp == &toggler) 
@@ -615,6 +631,7 @@ void convoi_info_t::resize(const koord delta)
 	toggler.set_pos(koord(BUTTON3_X,yoff));
 	details_button.set_pos(koord(BUTTON4_X,yoff));
 	sort_label.set_pos(koord(BUTTON1_X,yoff-LINESPACE));
+	reverse_button.set_pos(koord(BUTTON3_X,yoff-BUTTON_HEIGHT));
 
 	// convoi speed indicator
 	speed_bar.set_pos(koord(BUTTON3_X,22+0*LINESPACE));
