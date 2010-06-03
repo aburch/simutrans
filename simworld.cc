@@ -168,20 +168,20 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 			uint32 l;
 			uint16 s;
 			fread( &l, 4, 1, file );
-			data_offset = endian_uint32(&l);
+			data_offset = endian(l);
 			fseek( file, 18, SEEK_SET );
 			fread( &l, 4, 1, file );
-			w = (sint32)endian_uint32(&l);
+			w = endian(l);
 			fread( &l, 4, 1, file );
-			h = (sint32)endian_uint32(&l);
+			h = endian(l);
 			fseek( file, 28, SEEK_SET );
 			fread( &s, 2, 1, file );
-			bit_depth = (sint16)endian_uint16(&s);
+			bit_depth = endian(s);
 			fread( &l, 4, 1, file );
-			format = (sint32)endian_uint32(&l);
+			format = endian(l);
 			fseek( file, 46, SEEK_SET );
 			fread( &l, 4, 1, file );
-			table = (sint32)endian_uint32(&l);
+			table = endian(l);
 #else
 			fread( &data_offset, 4, 1, file );
 			fseek( file, 18, SEEK_SET );

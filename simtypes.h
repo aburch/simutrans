@@ -143,41 +143,36 @@ static inline int max(const int a, const int b)
 
 // endian coversion routines
 
-inline uint8 endian_uint8(const char * data)
+static inline uint16 endian(uint16 v)
 {
-	return (uint8)*data;
+#ifdef SIM_BIG_ENDIAN
+	v = v << 8 | v >> 8; // 0x0011
+#endif
+	return v;
 }
 
-inline uint16 endian_uint16(const uint16 *d)
+static inline uint32 endian(uint32 v)
 {
-#ifndef SIM_BIG_ENDIAN
-	return  *d;
-#else
-	const uint8 *data = (const uint8 *)d;
-	/* according to C standard uint8 will be anyway extended to unsigned */
-	return (uint16)(data[0] | ( data[1] << 8 ));
+#ifdef SIM_BIG_ENDIAN
+	v = v << 16              | v >> 16;              // 0x22330011
+	v = v <<  8 & 0xFF00FF00 | v >>  8 & 0x00FF00FF; // 0x33221100
 #endif
+	return v;
 }
 
-inline uint32 endian_uint32(const uint32 *d)
+static inline uint64 endian(uint64 v)
 {
-#ifndef SIM_BIG_ENDIAN
-	return *d;
-#else
-	const uint8 *data = (const uint8 *)d;
-	return  ((uint32)data[0])  | ( ((uint32)data[1]) << 8 )  | ( ((uint32)data[2]) << 16 )  | ( ((uint32)data[3]) << 24 );
+#ifdef SIM_BIG_ENDIAN
+	v = v << 32                         | v >> 32;                         // 0x4455667700112233
+	v = v << 16 & 0xFFFF0000FFFF0000ULL | v >> 16 & 0x0000FFFF0000FFFFULL; // 0x6677445522330011
+	v = v <<  8 & 0xFF00FF00FF00FF00ULL | v >>  8 & 0x00FF00FF00FF00FFULL; // 0x7766554433221100
 #endif
+	return v;
 }
 
-inline uint64 endian_uint64(const uint64 * d)
-{
-#ifndef SIM_BIG_ENDIAN
-	return *d;
-#else
-	const uint8 *data = (const uint8 *)d;
-	return  ((uint64)data[0])  | ( ((uint64)data[1]) << 8 )  | ( ((uint64)data[2]) << 16 )  | ( ((uint64)data[3]) << 24 ) | (((uint64)data[4]) << 32 ) | ( ((uint64)data[5]) << 40 )  | ( ((uint64)data[6]) << 48 )  | ( ((uint64)data[7]) << 56 );
-#endif
-}
+static inline sint16 endian(sint16 const v) { return sint16(endian(uint16(v))); }
+static inline sint32 endian(sint32 const v) { return sint32(endian(uint32(v))); }
+static inline sint64 endian(sint64 const v) { return sint64(endian(uint64(v))); }
 
 
 /**

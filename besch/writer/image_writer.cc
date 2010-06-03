@@ -100,7 +100,7 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 	for (int i = 0; i < SPECIAL; i++) {
 		if (rgbtab[i] == (PIXRGB)rgb) {
 			pix = 0x8000 + i;
-			return endian_uint16(&pix);
+			return endian(pix);
 		}
 	}
 
@@ -110,7 +110,7 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 
 	// RGB 555
 	pix = ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
-	return endian_uint16(&pix);
+	return endian(pix);
 }
 
 
@@ -176,7 +176,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				pix = block_getpix(x + row_px_count, y + line);
 			}
 
-			*dest++ = endian_uint16(&count);
+			*dest++ = endian(count);
 
 			colored_run_counter = dest++;
 			count = 0;
@@ -197,7 +197,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 			}
 			else {
-				*colored_run_counter = endian_uint16(&count);
+				*colored_run_counter = endian(count);
 				clear_colored_run_pair_count++;
 			}
 		} while (row_px_count < width);
