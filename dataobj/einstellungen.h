@@ -172,6 +172,10 @@ private:
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
 
+	// If true, vehicles may randomly change direction when
+	// completing circular routes. Helps alleviate congestion.
+	bool randomise_circular_routes;
+
 	//Cornering settings
 	//@author: jamespetts
 	
@@ -533,6 +537,9 @@ public:
 
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
 	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
+
+	bool get_randomise_circular_routes() const { return randomise_circular_routes; }
+	void set_randomise_circular_routes(bool value) { randomise_circular_routes = value;}
 
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
 	void   set_min_bonus_max_distance(uint16 value) { min_bonus_max_distance = value; }

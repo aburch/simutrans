@@ -133,7 +133,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	reverse_button.set_groesse(koord(BUTTON_WIDTH*2, BUTTON_HEIGHT));
 	reverse_button.set_text("reverse route");
-	reverse_button.set_typ(button_t::square_automatic);
+	reverse_button.set_typ(button_t::square_state);
 	reverse_button.add_listener(this);
 	reverse_button.set_tooltip("When this is set, the vehicle will visit stops in reverse order.");
 	reverse_button.pressed = cnv->get_reverse_schedule();
@@ -556,6 +556,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 		if(komp == &reverse_button)
 		{
+			reverse_button.pressed = !reverse_button.pressed;
 			cnv->set_reverse_schedule( reverse_button.pressed );
 		}
 	}

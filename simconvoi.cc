@@ -1168,7 +1168,8 @@ void convoi_t::advance_schedule() {
 	else if( fpl->is_mirrored() && fpl->get_aktuell()==0  ) {
 		reverse_schedule = false;
 	}
-	else if( fpl->is_circular() && fpl->get_aktuell()==0 && !simrand(4) ) {
+	else if( welt->get_einstellungen()->get_randomise_circular_routes() &&
+			fpl->is_circular() && fpl->get_aktuell()==0 && !simrand(4) ) {
 		reverse_schedule = !reverse_schedule;
 	}
 	// advance the schedule cursor
@@ -1366,6 +1367,29 @@ void convoi_t::start()
 		alte_richtung = ribi_t::keine;
 		no_load = false;
 		depot_when_empty = false;
+
+		// if convoi is on a circular schedule, choose which direction to run in.
+		if( line->get_schedule()->is_circular() ) {
+			float fwdcount = 0;
+			float revcount = 0;
+			for (unsigned i=0; i<line->count_convoys(); i++) {
+				if( line->get_convoy(i)->in_depot() || line->get_convoy(i)->self==self ) {
+					continue;
+				}
+				if( line->get_convoy(i)->get_reverse_schedule() ) {
+					revcount += 1;
+				} else {
+					fwdcount += 1;
+				}
+			}
+			if( fwdcount + revcount < 1 ) {
+				reverse_schedule = false;
+			} else if( (fwdcount / (fwdcount+revcount)) > 0.5 ) {
+				reverse_schedule = true;
+			} else {
+				reverse_schedule = false;
+			}
+		}
 
 		state = ROUTING_1;
 
