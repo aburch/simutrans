@@ -297,7 +297,12 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		} else {
 			find.search(argv[i], "pak");
 			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
-				any |= do_copy(outfp, root, *i);
+				if (strcmp(*i, name) != 0) {
+					any |= do_copy(outfp, root, *i);
+				}
+				else {
+					printf("WARNING: skipping reading from output file\n");
+				}
 			}
 		}
 
