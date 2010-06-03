@@ -150,7 +150,7 @@ inline uint8 endian_uint8(const char * data)
 
 inline uint16 endian_uint16(const uint16 *d)
 {
-#ifndef BIG_ENDIAN
+#ifndef SIM_BIG_ENDIAN
 	return  *d;
 #else
 	const uint8 *data = (const uint8 *)d;
@@ -161,7 +161,7 @@ inline uint16 endian_uint16(const uint16 *d)
 
 inline uint32 endian_uint32(const uint32 *d)
 {
-#ifndef BIG_ENDIAN
+#ifndef SIM_BIG_ENDIAN
 	return *d;
 #else
 	const uint8 *data = (const uint8 *)d;
@@ -171,7 +171,7 @@ inline uint32 endian_uint32(const uint32 *d)
 
 inline uint64 endian_uint64(const uint64 * d)
 {
-#ifndef BIG_ENDIAN
+#ifndef SIM_BIG_ENDIAN
 	return *d;
 #else
 	const uint8 *data = (const uint8 *)d;

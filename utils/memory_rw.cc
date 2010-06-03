@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "../simdebug.h"
 
-#undef BIG_ENDIAN
+#undef SIM_BIG_ENDIAN
 
 void memory_rw_t::init( void *start, uint32 max, bool rw )
 {
@@ -55,7 +55,7 @@ void memory_rw_t::rdwr_bool(bool &i)
 
 void memory_rw_t::rdwr_short(sint16 &i)
 {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 	sint16 ii;
 	if(is_saving()) {
 		ii = (sint16)endian_uint16((uint16 *)&i);
@@ -80,7 +80,7 @@ void memory_rw_t::rdwr_short(uint16 &i)
 
 void memory_rw_t::rdwr_long(sint32 &l)
 {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 	uint32 ii;
 	if(is_saving()) {
 		ii = endian_uint32((uint32 *)&l);
@@ -105,7 +105,7 @@ void memory_rw_t::rdwr_long(uint32 &l)
 
 void memory_rw_t::rdwr_longlong(sint64 &ll)
 {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 	sint64  ii;
 	if(is_saving()) {
 		ii = (sint64)endian_uint64((uint64 *)&ll);

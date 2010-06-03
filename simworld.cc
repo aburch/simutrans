@@ -164,7 +164,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 			uint32 data_offset;
 			sint32 w, h, format, table;
 			sint16 bit_depth;
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 			uint32 l;
 			uint16 s;
 			fread( &l, 4, 1, file );

@@ -377,7 +377,7 @@ void loadsave_t::rdwr_byte(uint8 &c, const char *)
 void loadsave_t::rdwr_short(sint16 &i, const char *)
 {
 	if(!is_xml()) {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 		if(saving) {
 			sint16 ii = (sint16)endian_uint16((uint16 *)&i);
 			write(&ii, sizeof(sint16));
@@ -414,7 +414,7 @@ void loadsave_t::rdwr_short(uint16 &i, const char *)
 void loadsave_t::rdwr_long(sint32 &l, const char *)
 {
 	if(!is_xml()) {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 		if(saving) {
 			uint32 ii = (sint32)endian_uint32((uint32 *)&l);
 			write(&ii, sizeof(uint32));
@@ -451,7 +451,7 @@ void loadsave_t::rdwr_long(uint32 &l, const char *)
 void loadsave_t::rdwr_longlong(sint64 &ll, const char *)
 {
 	if(!is_xml()) {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 		if(saving) {
 			sint64 ii = (sint64)endian_uint64((uint64 *)&ll);
 			write(&ii, sizeof(sint64));
@@ -613,7 +613,7 @@ void loadsave_t::rdwr_str(const char *&s)
 		sint16 size;
 		if(saving) {
 			size = s ? (sint16)min(32767,strlen(s)) : 0;
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 			{
 				uint16 ii = endian_uint16((uint16 *)&size);
 				write(&ii, sizeof(sint16));
@@ -626,7 +626,7 @@ void loadsave_t::rdwr_str(const char *&s)
 			}
 		}
 		else {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 			{
 				uint16 ii;
 				read(&ii, sizeof(uint16));
@@ -676,7 +676,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 		sint16 len;
 		if(saving) {
 			len = (sint16)min(32767,strlen(s));
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 			{
 				sint16 ii = (sint16)endian_uint16((uint16 *)&len);
 				write(&ii, sizeof(sint16));
@@ -688,7 +688,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 		}
 		else {
 			read(&len, sizeof(sint16));
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 			len = (sint16)endian_uint16((uint16 *)&len);
 #endif
 			if (len >= size) {
