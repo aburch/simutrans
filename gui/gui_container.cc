@@ -70,7 +70,7 @@ void gui_container_t::remove_all()
 void gui_container_t::infowin_event(const event_t *ev)
 {
 	// deliver keyboard event only to gui komponente which has focus
-	if(  ev->ev_class==EVENT_KEYBOARD  ) {
+	if(  !DOES_WINDOW_CHILDREN_NEED( ev )  &&  (ev->ev_class==EVENT_KEYBOARD  ||  (komp_focus != NULL  &&  (komp_focus->getroffen(ev->mx, ev->my)  ||  komp_focus->getroffen(ev->cx, ev->cy)  )  )  )  ) {
 		if(komp_focus != NULL) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
@@ -78,7 +78,7 @@ void gui_container_t::infowin_event(const event_t *ev)
 		}
 
 		// handle unfocus/next focus stuff
-		if(  ev->ev_code==13  ||  ev->ev_code==27  ||  ev->ev_code==9  ) {
+		if(  ev->ev_class==EVENT_KEYBOARD  &&  (ev->ev_code==13  ||  ev->ev_code==27  ||  ev->ev_code==9)  ) {
 			if(  komp_focus  ) {
 				// release focus
 				event_t ev2 = *ev;
@@ -153,8 +153,9 @@ void gui_container_t::infowin_event(const event_t *ev)
 						komp_focus->infowin_event(&unfocus_ev2);
 					}
 					komp_focus = komp;
-					break;
 				}
+				break;
+
 			} else if( DOES_WINDOW_CHILDREN_NEED( ev ) ) { // (Mathew Hounsell)
 				// Hajo: no need to translate the event, it has no valid coordinates either
 				komp->infowin_event(ev);

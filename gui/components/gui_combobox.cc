@@ -111,7 +111,7 @@ DBG_MESSAGE("event","HOWDY!");
 				if(droplist.getroffen(ev->cx + pos.x, ev->cy + pos.y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 					droplist.infowin_event(&ev2);
 					// we selected something?
-					if(finish  && IS_LEFTRELEASE(ev)) {
+					if(finish  &&  IS_LEFTRELEASE(ev)) {
 						close_box();
 					}
 				}

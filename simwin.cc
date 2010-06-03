@@ -828,6 +828,7 @@ bool check_pos_win(event_t *ev)
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
 
 		if(  wins[i].gui->getroffen( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
+
 			// all events in window are swallowed
 			swallowed = true;
 
@@ -948,7 +949,7 @@ bool check_pos_win(event_t *ev)
 
 void win_get_event(struct event_t *ev)
 {
-  display_get_event(ev);
+	display_get_event(ev);
 }
 
 
