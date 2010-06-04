@@ -4812,7 +4812,7 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 	if(  default_param==NULL  ) {
 		return false;
 	}
-	uint8 new_hash[20];
+	pwd_hash_t new_hash;
 	const char *ptr = default_param;
 	for(  int i=0; i<40;  i++  ) {
 		uint8 nibble;
@@ -4847,7 +4847,7 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 			new_hash[i/2] = (nibble<<4);
 		}
 	}
-	memcpy( sp->get_password_hash_ptr(), new_hash, 20 );
+	sp->get_password_hash() = new_hash;
 	return false;
 }
 

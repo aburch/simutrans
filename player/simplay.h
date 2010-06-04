@@ -7,6 +7,7 @@
 #ifndef simplay_h
 #define simplay_h
 
+#include "../dataobj/pwd_hash.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 
@@ -170,7 +171,7 @@ protected:
 	bool locked;
 
 	// contains the password hash for local games
-	uint8 pwd_hash[20];
+	pwd_hash_t pwd_hash;
 
 public:
 	virtual bool set_active( bool b ) { return automat = b; }
@@ -182,7 +183,7 @@ public:
 	bool set_unlock( uint8 *hash );
 
 	// some routine needs this for direct manipulation
-	uint8 *get_password_hash_ptr() { return pwd_hash; }
+	pwd_hash_t& get_password_hash() { return pwd_hash; }
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() { return HUMAN; }
