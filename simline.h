@@ -93,6 +93,13 @@ private:
 
 	void init_financial_history();
 
+	/*
+	 * whether the next convoy applied to this line should have its
+	 * reverse_schedule flag set. Only applies to circular schedules.
+	 * @author yobbobandana
+	 */
+	bool start_reversed;
+
 public:
 	~simline_t();
 
