@@ -1220,6 +1220,10 @@ void vehikel_t::hop()
 			// Recalculate base costs only if necessary
 			base_costs = costs;
 			diagonal_costs = (costs * diagonal_length) / 255;
+			if(diagonal_costs == 0 && base_costs != 0)
+			{
+				diagonal_costs = 1;
+			}
 		}
 	}
 	if(steps_next != 255)

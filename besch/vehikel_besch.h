@@ -488,12 +488,12 @@ public:
 
 	bool can_follow_any() const { return nachfolger==0; }
 
-	void set_scale(float scale_factor) 
+	void set_scale(float scale_factor)
 	{ 
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		scaled_running_costs = (uint16)(betriebskosten == 0 ? 0 : (betriebskosten * scale_factor > 0 ? betriebskosten * scale_factor : 1)); 
-		preis = (uint32)(preis == 0 ? 0 : (preis * scale_factor > 0 ? preis * scale_factor : 1));
-		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 : (fixed_maintenance * scale_factor > 0 ? fixed_maintenance * scale_factor : 1));
+		scaled_running_costs = (uint16)(betriebskosten == 0 ? 0 : (betriebskosten * scale_factor >= 1 ? betriebskosten * scale_factor : 1)); 
+		preis = (uint32)(preis == 0 ? 0 : (preis * scale_factor >= 1 ? preis * scale_factor : 1));
+		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 : (fixed_maintenance * scale_factor >= 1 ? fixed_maintenance * scale_factor : 1));
 	}
 
 	/**

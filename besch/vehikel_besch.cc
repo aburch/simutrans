@@ -12,8 +12,7 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	uint16 months_after_retire = increase_maintenance_after_years * 12;
 	if(months_after_retire == 0)
 	{
-		// TODO: Add simuconf.tab settings here.
-		months_after_retire = 360; // 30 years.
+		months_after_retire = welt->get_einstellungen()->get_obsolete_running_cost_increase_phase_years() * 12;
 	}
 	sint32 months_of_obsolescence = welt->get_current_month() - (get_retire_year_month() + months_after_retire);
 	if (months_of_obsolescence <= 0)	
