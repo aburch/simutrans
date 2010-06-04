@@ -1298,13 +1298,15 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							convoihandle_t cnv = line->get_convoy(i);
 							if(cnv->has_obsolete_vehicles()) {
 								obsolete.append(cnv);
-								capacity += cnv->get_vehikel(0)->get_besch()->get_zuladung();
+								capacity += cnv->front()->get_besch()->get_zuladung();
 							}
 						}
 						if(capacity>0) {
 							// now try to finde new vehicle
-							const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search( line->get_convoy(0)->get_vehikel(0)->get_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->get_vehikel(0)->get_waytype()), warenbauer_t::passagiere, false, false );
-							if(  !v_besch->is_retired(welt->get_current_month())  &&  v_besch!=line->get_convoy(0)->get_vehikel(0)->get_besch()) {
+							vehikel_t              const& v       = *line->get_convoy(0)->front();
+							waytype_t              const  wt      = v.get_waytype();
+							vehikel_besch_t const* const  v_besch = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, false);
+							if (!v_besch->is_retired(welt->get_current_month()) && v_besch != v.get_besch()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_besch->get_zuladung()) {
 									if(  convoihandle_t::is_exhausted()  ) {
@@ -1342,7 +1344,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  &&  !convoihandle_t::is_exhausted()  ) {
 					// else add the first convoi again
-					vehikel_t* v = vehikelbauer_t::baue( line->get_schedule()->eintrag[0].pos, this, NULL, line->get_convoy(0)->get_vehikel(0)->get_besch()  );
+					vehikel_t* const v = vehikelbauer_t::baue(line->get_schedule()->eintrag[0].pos, this, NULL, line->get_convoy(0)->front()->get_besch());
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->set_name( v->get_besch()->get_name() );
 					new_cnv->add_vehikel( v );
@@ -1455,7 +1457,7 @@ DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a 
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			else {
 				cnv->self_destruct();
@@ -1468,7 +1470,7 @@ DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s stucked!", cn
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			break;
 

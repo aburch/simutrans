@@ -369,7 +369,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
-		} else if (!cnv->get_vehikel(0)->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->get_route())) {
+		} else if (!cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->get_route())) {
 			// no route to go ...
 			if (local_execution) {
 				static char buf[256];
@@ -563,7 +563,7 @@ linehandle_t depot_t::get_selected_line()
 
 bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
-	waytype_t wt=cnv->get_vehikel(0)->get_waytype();
+	waytype_t const wt = cnv->front()->get_waytype();
 	schiene_t* sch0 = (schiene_t *)welt->lookup(get_pos())->get_weg(wt);
 	if(sch0==NULL) {
 		// no rail here???

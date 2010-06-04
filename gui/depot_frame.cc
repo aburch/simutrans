@@ -638,7 +638,7 @@ void depot_frame_t::build_vehicle_lists()
 			const vehikel_besch_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehikel_anzahl()>0) {
-				veh = (veh_action == va_insert ? cnv->get_vehikel(0) : cnv->back())->get_besch();
+				veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_besch();
 			}
 
 			// current vehicle
@@ -733,7 +733,7 @@ void depot_frame_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics[0].lcolor = convoi_t::pruefe_vorgaenger(NULL, cnv->get_vehikel(0)->get_besch()) ? COL_GREEN : COL_YELLOW;
+		convoi_pics[0].lcolor = convoi_t::pruefe_vorgaenger(NULL, cnv->front()->get_besch()) ? COL_GREEN : COL_YELLOW;
 		for(  i=1;  i<cnv->get_vehikel_anzahl(); i++) {
 			convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(cnv->get_vehikel(i - 1)->get_besch(), cnv->get_vehikel(i)->get_besch()) ? COL_GREEN : COL_RED;
 			convoi_pics[i].lcolor     = convoi_t::pruefe_vorgaenger(cnv->get_vehikel(i - 1)->get_besch(), cnv->get_vehikel(i)->get_besch()) ? COL_GREEN : COL_RED;
@@ -752,11 +752,7 @@ void depot_frame_t::update_data()
 			}
 		}
 
-		if(veh_action == va_insert) {
-			veh = cnv->get_vehikel(0)->get_besch();
-		} else if(veh_action == va_append) {
-			veh = cnv->back()->get_besch();
-		}
+		veh = (veh_action == va_insert ? cnv->front() : cnv->back())->get_besch();
 	}
 
 	ptrhashtable_iterator_tpl<const vehikel_besch_t *, gui_image_list_t::image_data_t *> iter1(vehicle_map);

@@ -538,7 +538,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		cnv->add_vehikel( v );
 	}
 
-	fpl = cnv->get_vehikel(0)->erzeuge_neuen_fahrplan();
+	fpl = cnv->front()->erzeuge_neuen_fahrplan();
 
 	fpl->set_aktuell( 0 );
 	fpl->append(welt->lookup(pos1), ladegrad);
@@ -1164,7 +1164,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					continue;
 				}
 
-				if(cnv->get_vehikel(0)->get_waytype()==water_wt) {
+				if (cnv->front()->get_waytype() == water_wt) {
 					// ships will be only deleted together with the connecting convoi
 					continue;
 				}
@@ -1180,7 +1180,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 				// take care, that the vehicle is old enough ...
-				if(!delete_this  &&  (welt->get_current_month()-cnv->get_vehikel(0)->get_insta_zeit())>6  &&  gewinn<=0  ){
+				if (!delete_this && (welt->get_current_month() - cnv->front()->get_insta_zeit()) > 6 && gewinn <= 0) {
 					sint64 goods=0;
 					// no goods for six months?
 					for( int i=0;  i<6;  i ++) {
@@ -1191,7 +1191,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				// well, then delete this (likely stucked somewhere) or insanely unneeded
 				if(delete_this) {
-					waytype_t wt = cnv->get_vehikel(0)->get_besch()->get_waytype();
+					waytype_t const wt = cnv->front()->get_besch()->get_waytype();
 					linehandle_t line = cnv->get_line();
 					DBG_MESSAGE("ai_goods_t::do_ki()","%s retires convoi %s!", get_name(), cnv->get_name());
 
@@ -1469,7 +1469,7 @@ DBG_MESSAGE("ai_goods_t::bescheid_vehikel_problem","Vehicle %s can't find a rout
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			else {
 				cnv->self_destruct();
@@ -1482,7 +1482,7 @@ DBG_MESSAGE("ai_goods_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->g
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			break;
 

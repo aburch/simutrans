@@ -76,7 +76,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-	view(cnv->get_vehikel(0), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
+	view(cnv->front(), koord(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
 	sort_label(translator::translate("loaded passenger/freight")),
 	freight_info(8192)
 {
@@ -257,7 +257,7 @@ enable_home:
 		text.set_text(freight_info);
 
 		route_bar.set_base(cnv->get_route()->get_count()-1);
-		cnv_route_index = cnv->get_vehikel(0)->get_route_index()-1;
+		cnv_route_index = cnv->front()->get_route_index() - 1;
 
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
@@ -386,7 +386,9 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 			koord3d home = koord3d(0,0,0);
 			while (depot_iter.next()) {
 				depot_t *depot = depot_iter.get_current();
-				if(depot->get_wegtyp()!=cnv->get_vehikel(0)->get_besch()->get_waytype()    ||    depot->get_besitzer()!=cnv->get_besitzer()) {
+				vehikel_t& v = *cnv->front();
+				if (depot->get_wegtyp()   != v.get_besch()->get_waytype() ||
+						depot->get_besitzer() != cnv->get_besitzer()) {
 					continue;
 				}
 				koord3d pos = depot->get_pos();
@@ -394,8 +396,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 					// the current route is already shorter, no need to search further
 					continue;
 				}
-				bool found = cnv->get_vehikel(0)->calc_route(cnv->get_pos(), pos,    50, route); // do not care about speed
-				if (found) {
+				if (v.calc_route(cnv->get_pos(), pos, 50, route)) { // do not care about speed
 					if(  route->get_count() < shortest_route->get_count()    ||    shortest_route->empty()  ) {
 						shortest_route->kopiere(route);
 						home = pos;

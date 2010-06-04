@@ -1217,9 +1217,12 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 				while(iter.next()) {
 					if(iter.get_current()->get_waytype()==waytype) {
 						schiene_t *sch = dynamic_cast<schiene_t *>(iter.access_current());
-						if(sch->get_reserved_convoi()==cnv  &&  !gr->suche_obj(cnv->get_vehikel(0)->get_typ())) {
-							// force free
-							sch->unreserve( cnv->get_vehikel(0) );
+						if (sch->get_reserved_convoi() == cnv) {
+							vehikel_t& v = *cnv->front();
+							if (!gr->suche_obj(v.get_typ())) {
+								// force free
+								sch->unreserve(&v);
+							}
 						}
 					}
 				}

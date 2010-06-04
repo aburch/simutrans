@@ -573,6 +573,8 @@ public:
 	 */
 	vehikel_t* get_vehikel(uint16 i) const { return fahr[i]; }
 
+	vehikel_t* front() const { return fahr[0]; }
+
 	vehikel_t* back() const { return fahr[anz_vehikel - 1]; }
 
 	/**

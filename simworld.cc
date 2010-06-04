@@ -2583,14 +2583,15 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 
 		// change view due to following a convoi?
 		if(follow_convoi.is_bound()  &&  follow_convoi->get_vehikel_anzahl()>0) {
-			const koord3d new_pos=follow_convoi->get_vehikel(0)->get_pos();
+			vehikel_t const& v       = *follow_convoi->front();
+			koord3d   const  new_pos = v.get_pos();
 			if(new_pos!=koord3d::invalid) {
 				const sint16 rw = get_tile_raster_width();
 				int new_xoff = 0;
 				int new_yoff = 0;
-				follow_convoi->get_vehikel(0)->get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
-				new_xoff -= tile_raster_scale_x(-follow_convoi->get_vehikel(0)->get_xoff(),rw);
-				new_yoff -= tile_raster_scale_y(-follow_convoi->get_vehikel(0)->get_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
+				v.get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
+				new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
+				new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP / Z_TILE_STEP, rw);
 				change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
 			}
 		}
@@ -2946,7 +2947,7 @@ sint32 karte_t::get_record_speed( waytype_t w ) const
 void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 {
 	speed_record_t *sr = NULL;
-	switch(cnv->get_vehikel(0)->get_waytype()) {
+	switch (cnv->front()->get_waytype()) {
 		case road_wt: sr = &max_road_speed; break;
 		case track_wt:
 		case tram_wt: sr = &max_rail_speed; break;
@@ -2983,7 +2984,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 			sr->speed = max_speed-1;
 			sr->besitzer = cnv->get_besitzer();
 			const char* msg;
-			switch(cnv->get_vehikel(0)->get_waytype()) {
+			switch (cnv->front()->get_waytype()) {
 				default: NOT_REACHED
 				case road_wt:     msg = "New world record for motorcars: %.1f km/h by %s."; break;
 				case track_wt:

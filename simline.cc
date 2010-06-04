@@ -68,16 +68,14 @@ void simline_t::add_convoy(convoihandle_t cnv)
 
 	// first convoi may change line type
 	if (type == trainline  &&  line_managed_convoys.empty() &&  cnv.is_bound()) {
-		if(cnv->get_vehikel(0)) {
-			// check, if needed to convert to tram line?
-			if(cnv->get_vehikel(0)->get_besch()->get_waytype()==tram_wt) {
-				type = simline_t::tramline;
-			}
-			// check, if needed to convert to monorail line?
-			if(cnv->get_vehikel(0)->get_besch()->get_waytype()==monorail_wt) {
-				type = simline_t::monorailline;
+		// check, if needed to convert to tram/monorail line
+		if (vehikel_t const* const v = cnv->front()) {
+			switch (v->get_besch()->get_waytype()) {
+				case tram_wt:     type = simline_t::tramline;     break;
 				// elevated monorail were saved with wrong coordinates for some versions.
 				// We try to recover here
+				case monorail_wt: type = simline_t::monorailline; break;
+				default:          break;
 			}
 		}
 	}
