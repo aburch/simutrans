@@ -70,7 +70,7 @@
 #include "simvehikel.h"
 #include "simverkehr.h"
 
-#define UNVALID_INDEX (65535u)
+#define INVALID_INDEX (65535u)
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
@@ -2186,7 +2186,7 @@ void waggon_t::set_convoi(convoi_t *c)
 				if(c->get_state()>=convoi_t::WAITING_FOR_CLEARANCE) {
 //	DBG_MESSAGE("waggon_t::set_convoi()","new route %p, route_index %i",c->get_route(),route_index);
 					// find about next signal after loading
-					uint16 next_signal_index=UNVALID_INDEX;
+					uint16 next_signal_index=INVALID_INDEX;
 					route_t *route=c->get_route();
 
 					if (route->empty() || get_pos() == route->back()) {
@@ -2526,7 +2526,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				}
 				// reserved route to target (or not)
 			}
-			else if(  next_stop!=0  &&  next_stop!=UNVALID_INDEX  &&  sig_besch->is_pre_signal()  &&  next_stop<cnv->get_route()->get_count()  ) {
+			else if(  next_stop!=0  &&  next_stop!=INVALID_INDEX  &&  sig_besch->is_pre_signal()  &&  next_stop<cnv->get_route()->get_count()  ) {
 				// free route, but next signal might be again a double block signal
 				uint16 nextnext_stop = block_reserver(cnv->get_route(),next_stop,0,true);
 				if(  nextnext_stop==0  ) {
@@ -2634,8 +2634,8 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 
 	// find next blocksegment enroute
 	uint16 i=start_index;
-	uint16 next_signal_index=UNVALID_INDEX, skip_index=UNVALID_INDEX;
-	uint16 next_crossing_index=UNVALID_INDEX;
+	uint16 next_signal_index=INVALID_INDEX, skip_index=INVALID_INDEX;
+	uint16 next_crossing_index=INVALID_INDEX;
 	bool unreserve_now = false;
 	for ( ; success  &&  count>=0  &&  i<route->get_count(); i++) {
 
@@ -2665,7 +2665,7 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,i+1)) ) )  ) {
 				success = false;
 			}
-			if(next_crossing_index==UNVALID_INDEX  &&  sch1->is_crossing()) {
+			if(next_crossing_index==INVALID_INDEX  &&  sch1->is_crossing()) {
 				next_crossing_index = i;
 			}
 		}
@@ -2673,7 +2673,7 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 			if(!sch1->unreserve(cnv->self)) {
 				if(unreserve_now) {
 					// reached an reserved or free track => finished
-					return UNVALID_INDEX;
+					return INVALID_INDEX;
 				}
 			}
 			else {
@@ -2693,7 +2693,7 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 	}
 
 	if(!reserve) {
-		return UNVALID_INDEX;
+		return INVALID_INDEX;
 	}
 	// here we go only with reserve
 
@@ -2725,10 +2725,10 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 		next_signal_index = next_crossing_index;
 	}
 	// stop at station or signals, not at waypoints
-	if(next_signal_index==UNVALID_INDEX) {
+	if(next_signal_index==INVALID_INDEX) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
 		grund_t const* const gr = welt->lookup(route->back());
-		return (gr  &&  gr->is_halt()) ? route->get_count() : UNVALID_INDEX;
+		return (gr  &&  gr->is_halt()) ? route->get_count() : INVALID_INDEX;
 	}
 	return next_signal_index+1;
 }
