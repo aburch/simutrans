@@ -1368,29 +1368,6 @@ void convoi_t::start()
 		no_load = false;
 		depot_when_empty = false;
 
-		// if convoi is on a circular schedule, choose which direction to run in.
-		if( line->get_schedule()->is_circular() ) {
-			float fwdcount = 0;
-			float revcount = 0;
-			for (unsigned i=0; i<line->count_convoys(); i++) {
-				if( line->get_convoy(i)->in_depot() || line->get_convoy(i)->self==self ) {
-					continue;
-				}
-				if( line->get_convoy(i)->get_reverse_schedule() ) {
-					revcount += 1;
-				} else {
-					fwdcount += 1;
-				}
-			}
-			if( fwdcount + revcount < 1 ) {
-				reverse_schedule = false;
-			} else if( (fwdcount / (fwdcount+revcount)) > 0.5 ) {
-				reverse_schedule = true;
-			} else {
-				reverse_schedule = false;
-			}
-		}
-
 		state = ROUTING_1;
 
 		// recalc weight and image
