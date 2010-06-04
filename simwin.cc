@@ -805,11 +805,11 @@ bool check_pos_win(event_t *ev)
 			swallowed = true;
 		}
 		process_kill_list();
-		if(  ev->ev_code!=9  &&  ev->ev_code!=13  &&  ev->ev_code!=27  ) {
+		if(  ev->ev_code!=9  &&  ev->ev_code!=13) {
 			// either handled or not => keyboard events are not processed further
 			return swallowed;
 		}
-		// only the keyboard events for TAB, ENTER and ESC survive until here and can be passed down to windows
+		// only the keyboard events for TAB and ENTER survive until here and can be passed down to windows
 	}
 
 	// just move top window until button release
