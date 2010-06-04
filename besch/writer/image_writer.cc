@@ -239,7 +239,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	PIXVAL* pixdata = NULL;
 	cstring_t imagekey;
 
-	memset(&bild, 0, sizeof(bild));
+	MEMZERO(bild);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
 	if (an_imagekey.len() > 2 && an_imagekey[0] == '>') {

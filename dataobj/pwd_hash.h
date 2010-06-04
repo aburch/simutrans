@@ -11,7 +11,7 @@ class pwd_hash_t
 	public:
 		pwd_hash_t() { clear(); }
 
-		void clear() { memset(hash, 0, sizeof(hash)); }
+		void clear() { MEMZERO(hash); }
 
 		bool empty() const
 		{

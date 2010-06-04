@@ -243,7 +243,7 @@ public:
 class two_click_werkzeug_t : public werkzeug_t {
 public:
 	two_click_werkzeug_t() : werkzeug_t() {
-		memset( start_marker, 0, sizeof(void *)*MAX_PLAYER_COUNT );
+		MEMZERO(start_marker);
 	}
 
 	virtual bool init( karte_t *, spieler_t * );

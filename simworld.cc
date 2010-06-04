@@ -1561,7 +1561,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
-		memset( player_password_hash[i], 0, 20 );
+		MEMZERO(player_password_hash[i]);
 	}
 
 	// no distance to show at first ...

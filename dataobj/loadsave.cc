@@ -59,7 +59,7 @@ bool loadsave_t::rd_open(const char *filename)
 		bool ok = false;
 		if(  bse==BZ_OK  ) {
 			// else: use zlib
-			memset( buf, 0, 80 );
+			MEMZERO(buf);
 			if(  BZ2_bzRead( &bse, bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  bse==BZ_OK  ) {
 				// get the rest of the string
 				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {

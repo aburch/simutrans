@@ -154,7 +154,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		// try to force display mode and size
 		DEVMODE settings;
 
-		memset(&settings, 0, sizeof(settings));
+		MEMZERO(settings);
 		settings.dmSize = sizeof(settings);
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		settings.dmBitsPerPel = 8;
@@ -400,7 +400,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					// try to force display mode and size
 					DEVMODE settings;
 
-					memset(&settings, 0, sizeof(settings));
+					MEMZERO(settings);
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 					settings.dmBitsPerPel = 8;

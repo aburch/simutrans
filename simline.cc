@@ -253,7 +253,7 @@ void simline_t::prepare_for_update()
 
 void simline_t::init_financial_history()
 {
-	memset( financial_history, 0, sizeof(financial_history) );
+	MEMZERO(financial_history);
 }
 
 

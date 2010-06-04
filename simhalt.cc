@@ -2312,7 +2312,7 @@ void haltestelle_t::recalc_status()
 	// since the status is ordered ...
 	uint8 status_bits = 0;
 
-	memset( overcrowded, 0, 8 );
+	MEMZERO(overcrowded);
 
 	long total_sum = 0;
 	if(get_pax_enabled()) {
