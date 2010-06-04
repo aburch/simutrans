@@ -48,6 +48,7 @@
 #include "simsys.h"
 #include "simevent.h"
 #include "simdebug.h"
+#include "macros.h"
 
 static HWND hwnd;
 static bool is_fullscreen = false;
