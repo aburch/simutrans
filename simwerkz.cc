@@ -2401,13 +2401,13 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 	}
 
 	// built wayobj ...
+	koord3d_vector_t const& r = verbindung.get_route();
 	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
 		if( build ) {
-			wayobj_t::extend_wayobj_t( welt, verbindung.get_route()[i], sp, verbindung.get_route().get_ribi(i), besch );
+			wayobj_t::extend_wayobj_t(welt, r[i], sp, r.get_ribi(i), besch);
 		}
 		else {
-			wayobj_t* wo = welt->lookup(verbindung.get_route()[i])->find<wayobj_t>();
-			if( wo ) {
+			if (wayobj_t* const wo = welt->lookup(r[i])->find<wayobj_t>()) {
 				const char *err = wo->ist_entfernbar( sp );
 				if( !err ) {
 					wo->entferne( sp );

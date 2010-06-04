@@ -295,14 +295,10 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			bauigel.calc_route(tile_list[0], tile_list[1]);
 			if(  bauigel.get_count() > 2  ) {
 				// Sometimes reverse route is the best, so we have to change the koords.
-				if( tile_list[0].is_contained( bauigel.get_route()[0]) ) {
-					start = bauigel.get_route()[0].get_2d();
-					ziel = bauigel.get_route()[bauigel.get_count()-1].get_2d();
-				}
-				else {
-					start = bauigel.get_route()[bauigel.get_count()-1].get_2d();
-					ziel = bauigel.get_route()[0].get_2d();
-				}
+				koord3d_vector_t const& r = bauigel.get_route();
+				start = r.front().get_2d();
+				ziel  = r.back().get_2d();
+				if (!tile_list[0].is_contained(r.front())) sim::swap(start, ziel);
 				ok = true;
 				has_ziel = true;
 			}
@@ -677,15 +673,10 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		bauigel.baue();
 		// connect to track
 
-		koord3d tile1, tile2;
-		if( starttiles.is_contained( bauigel.get_route()[0] ) ) {
-			tile1 = bauigel.get_route()[0];
-			tile2 = bauigel.get_route()[bauigel.get_count()-1];
-		}
-		else {
-			tile1 = bauigel.get_route()[bauigel.get_count()-1];
-			tile2 = bauigel.get_route()[0];
-		}
+		koord3d_vector_t const& r     = bauigel.get_route();
+		koord3d                 tile1 = r.front();
+		koord3d                 tile2 = r.back();
+		if (!starttiles.is_contained(tile1)) sim::swap(tile1, tile2);
 		// No botflag, since we want to connect with the station.
 		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 		bauigel.calc_straight_route( koord3d(platz1,z1), tile1);
