@@ -86,6 +86,8 @@ public:
 	 */
 	const koord3d& position_bei(const uint16 n) const { return route[n]; }
 
+	koord3d const& front() const { return route.front(); }
+
 	koord3d const& back() const { return route.back(); }
 
 	uint32 get_count() const { return route.get_count(); }

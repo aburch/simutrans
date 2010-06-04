@@ -1036,7 +1036,7 @@ void convoi_t::start()
 			home_depot = fahr[0]->get_pos();
 		}
 		else {
-			home_depot = route.position_bei(0);
+			home_depot = route.front();
 			fahr[0]->set_pos( home_depot );
 		}
 		// put the convoi on the depot ground, to get automatical rotation
@@ -1406,7 +1406,7 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).get_2d(), route.position_bei(min(2,route.get_count()-1)).get_2d()));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;
@@ -1475,7 +1475,7 @@ bool convoi_t::can_go_alte_richtung()
 	// we continue our journey; however later cars need also a correct route entry
 	// eventually we need to add their positions to the convois route
 	koord3d pos = fahr[0]->get_pos();
-	assert(pos==route.position_bei(0));
+	assert(pos == route.front());
 	if(welt->lookup(pos)->get_depot()) {
 		return false;
 	}
@@ -1483,12 +1483,12 @@ bool convoi_t::can_go_alte_richtung()
 		for(i=0; i<anz_vehikel; i++) {
 			vehikel_t* v = fahr[i];
 			// eventually add current position to the route
-			if(route.position_bei(0)!=v->get_pos()  &&  route.position_bei(1)!=v->get_pos()) {
+			if (route.front() != v->get_pos() && route.position_bei(1) != v->get_pos()) {
 				route.insert(v->get_pos());
 			}
 			// eventually we need to add also a previous position to this path
 			if(v->get_besch()->get_length()>8  &&  i+1<anz_vehikel) {
-				if(route.position_bei(0)!=v->get_pos_prev()  &&  route.position_bei(1)!=v->get_pos_prev()) {
+				if (route.front() != v->get_pos_prev() && route.position_bei(1) != v->get_pos_prev()) {
 					route.insert(v->get_pos_prev());
 				}
 			}
@@ -1543,7 +1543,7 @@ void convoi_t::vorfahren()
 	set_tiles_overtaking( 0 );
 	recalc_data = true;
 
-	koord3d k0 = route.position_bei(0);
+	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
 	if(gr  &&  gr->get_depot()) {
 		// start in depot
@@ -1587,7 +1587,7 @@ void convoi_t::vorfahren()
 		if(  steps_driven>0  ||  !can_go_alte_richtung()  ) {
 
 			// since start may have been changed
-			k0 = route.position_bei(0);
+			k0 = route.front();
 
 			uint32 train_length = move_to(*welt, k0, 0);
 
@@ -1940,7 +1940,10 @@ convoi_t::rdwr(loadsave_t *file)
 		last_stop_pos.rdwr(file);
 	}
 	else {
-		last_stop_pos = !route.empty() ? route.position_bei(0) : (anz_vehikel > 0 ? fahr[0]->get_pos() : koord3d(0, 0, 0));
+		last_stop_pos =
+			!route.empty()   ? route.front()      :
+			anz_vehikel != 0 ? fahr[0]->get_pos() :
+			koord3d(0, 0, 0);
 	}
 
 	// for leaving the depot routine

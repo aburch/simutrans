@@ -55,7 +55,7 @@ void route_t::append(const route_t *r)
 	const uint32 hops = r->get_count()-1;
 	route.resize(hops+1+route.get_count());
 
-	while (get_count() != 0 && back() == r->position_bei(0)) {
+	while (get_count() != 0 && back() == r->front()) {
 		// skip identical end tiles
 		route.remove_at(get_count()-1);
 	}
