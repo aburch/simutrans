@@ -261,9 +261,10 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 
 unsigned short *dr_textur_init()
 {
-	AllDibData = MALLOCN(unsigned short, MaxSize.right * MaxSize.bottom );
+	size_t const n = MaxSize.right * MaxSize.bottom;
+	AllDibData = MALLOCN(unsigned short, n);
 	// start with black
-	memset( AllDibData, 0, MaxSize.right * MaxSize.bottom * sizeof(unsigned short) );
+	MEMZERON(AllDibData, n);
 	return AllDibData;
 }
 

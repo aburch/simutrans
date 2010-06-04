@@ -26,6 +26,7 @@
 #include <math.h>
 #include <limits.h>
 
+#include "macros.h"
 #include "simtypes.h"
 #include "font.h"
 #include "pathes.h"
@@ -3749,7 +3750,7 @@ void display_flush_buffer(void)
 	tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
 	tile_dirty = tmp;
-	memset(tile_dirty, 0, tile_buffer_length);
+	MEMZERON(tile_dirty, tile_buffer_length);
 }
 
 

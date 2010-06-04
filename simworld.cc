@@ -645,12 +645,13 @@ void karte_t::init_felder()
 {
 	assert(plan==0);
 
-	plan = new planquadrat_t[get_groesse_x()*get_groesse_y()];
-	grid_hgts = new sint8[(get_groesse_x()+1)*(get_groesse_y()+1)];
+	uint32 const x = get_groesse_x();
+	uint32 const y = get_groesse_y();
+	plan      = new planquadrat_t[x * y];
+	grid_hgts = new sint8[(x + 1) * (y + 1)];
+	MEMZERON(grid_hgts, (x + 1) * (y + 1));
 
-	memset(grid_hgts, 0, sizeof(sint8)*(get_groesse_x()+1)*(get_groesse_y()+1));
-
-	marker.init(get_groesse_x(),get_groesse_y());
+	marker.init(x, y);
 
 	simlinemgmt_t::init_line_ids();
 

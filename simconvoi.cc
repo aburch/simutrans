@@ -2046,11 +2046,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		ALLOCA(uint32, max_loaded_waren, warenbauer_t::get_waren_anzahl());
-		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::get_waren_anzahl() );
+		size_t const n = warenbauer_t::get_waren_anzahl();
+		ALLOCA(uint32, max_loaded_waren, n);
+		MEMZERON(max_loaded_waren, n);
 
-		unsigned i;
-		for(i=0; i<anz_vehikel; i++) {
+		for (size_t i = 0; i != anz_vehikel; ++i) {
 			const vehikel_t* v = fahr[i];
 
 			// first add to capacity indicator
@@ -2090,7 +2090,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 
 		// apend info on total capacity
 		slist_tpl <ware_t>capacity;
-		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
+		for (size_t i = 0; i != n; ++i) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
 				ware.menge = max_loaded_waren[i];
