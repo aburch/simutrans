@@ -223,7 +223,7 @@ void simline_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version()>=102003) {
-		file->rdwr_bool( start_reversed, "" );
+		//file->rdwr_bool( start_reversed, "" );
 	}
 
 	// otherwise inintialized to zero if loading ...
