@@ -5,7 +5,6 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 	// No cost or no time line --> no obsolescence cost increase.
 	if (base_cost == 0 || !welt->use_timeline())
 	{
-		const uint32 TEST_1 = (uint16)(betriebskosten == 0 ? 0 : (betriebskosten * welt->get_einstellungen()->get_distance_per_tile() >= 1 ? betriebskosten * welt->get_einstellungen()->get_distance_per_tile() : 1));
 		return base_cost;
 	}
 
