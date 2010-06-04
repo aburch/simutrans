@@ -1368,6 +1368,12 @@ void convoi_t::start()
 		no_load = false;
 		depot_when_empty = false;
 
+		// if the schedule is mirrored, convoys starting
+		// reversed should go directly to the end.
+		if( fpl->is_mirrored() && reverse_schedule ) {
+			fpl->advance_reverse();
+		}
+
 		state = ROUTING_1;
 
 		// recalc weight and image
