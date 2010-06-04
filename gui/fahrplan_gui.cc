@@ -221,7 +221,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&numimp_load);
 
 	bt_circular.init(button_t::square_automatic, "circular schedule", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_circular.set_tooltip("Vehicles have a 25% chance of changing direction each time they complete the schedule.");
+	bt_circular.set_tooltip("When adding vehicles to the line, one in every two vehicles will follow it in the reverse direction.");
 	bt_circular.pressed = fpl->is_circular();
 	bt_circular.add_listener(this);
 	add_komponente(&bt_circular);
