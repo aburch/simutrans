@@ -638,7 +638,7 @@ void depot_frame_t::build_vehicle_lists()
 			const vehikel_besch_t *veh = NULL;
 			convoihandle_t cnv = depot->get_convoi(icnv);
 			if(cnv.is_bound() && cnv->get_vehikel_anzahl()>0) {
-				veh = (veh_action == va_insert) ? cnv->get_vehikel(0)->get_besch() : cnv->get_vehikel(cnv->get_vehikel_anzahl() - 1)->get_besch();
+				veh = (veh_action == va_insert ? cnv->get_vehikel(0) : cnv->back())->get_besch();
 			}
 
 			// current vehicle
@@ -755,7 +755,7 @@ void depot_frame_t::update_data()
 		if(veh_action == va_insert) {
 			veh = cnv->get_vehikel(0)->get_besch();
 		} else if(veh_action == va_append) {
-			veh = cnv->get_vehikel(cnv->get_vehikel_anzahl() - 1)->get_besch();
+			veh = cnv->back()->get_besch();
 		}
 	}
 

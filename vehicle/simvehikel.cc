@@ -2121,7 +2121,7 @@ waggon_t::~waggon_t()
 {
 	if(cnv  &&  ist_erstes  &&  !cnv->get_route()->empty()  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
-		block_reserver( cnv->get_route(), cnv->get_vehikel(cnv->get_vehikel_anzahl()-1)->get_route_index(), target_halt.is_bound()?100000:1, false );
+		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), target_halt.is_bound() ? 100000 : 1, false);
 	}
 	grund_t *gr = welt->lookup(get_pos());
 	if(gr) {
@@ -2141,7 +2141,7 @@ void waggon_t::set_convoi(convoi_t *c)
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
 				if(!cnv->get_route()->empty()  &&  route_index+1u<cnv->get_route()->get_count()-1) {
-					block_reserver( cnv->get_route(), cnv->get_vehikel(cnv->get_vehikel_anzahl()-1)->get_route_index(), 100000, false );
+					block_reserver(cnv->get_route(), cnv->back()->get_route_index(), 100000, false);
 					target_halt = halthandle_t();
 				}
 			}
@@ -2206,7 +2206,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
-		block_reserver( cnv->get_route(), cnv->get_vehikel(cnv->get_vehikel_anzahl()-1)->get_route_index(), target_halt.is_bound()?100000:1, false );
+		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), target_halt.is_bound() ? 100000 : 1, false);
 	}
 	target_halt = halthandle_t();	// no block reserved
 	return route->calc_route(welt, start, ziel, this, max_speed );
