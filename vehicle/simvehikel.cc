@@ -1637,7 +1637,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::DRIVING:
 				if(  state>=1  ) {
-					grund_t *gr = welt->lookup( cnv->get_route()->position_bei( cnv->get_route()->get_count()-1 ) );
+					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 					if(  gr  &&  gr->get_depot()  ) {
 						sprintf( tooltip_text, translator::translate("go home") );
 						color = COL_GREEN;
@@ -1731,9 +1731,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, rout
 	assert(cnv);
 	// free target reservation
 	if(ist_erstes  &&  alte_fahrtrichtung!=ribi_t::keine  &&  cnv  &&  target_halt.is_bound() ) {
-		route_t *rt=cnv->get_route();
-		grund_t *target=welt->lookup(rt->position_bei(rt->get_count()-1));
-		if(target) {
+		if (grund_t* const target = welt->lookup(cnv->get_route()->back())) {
 			target_halt->unreserve_position(target,cnv->self);
 		}
 	}
@@ -1883,10 +1881,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 				// check, if we reached a choose point
 				else if(rs->is_free_route(richtung)) {
 					route_t *rt=cnv->get_route();
-					grund_t *target=welt->lookup(rt->position_bei(rt->get_count()-1));
-
 					// is our target occupied?
-					if(target) {
+					if (grund_t* const target = welt->lookup(rt->back())) {
 						target_halt = target->get_halt();
 						if (target_halt.is_bound() && !target_halt->reserve_position(target, cnv->self)) {
 
@@ -1915,8 +1911,8 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 								return false;
 							}
 							// now reserve our choice ...
-							target_halt->reserve_position(welt->lookup(target_rt.position_bei(target_rt.get_count()-1)),cnv->self);
-	//DBG_MESSAGE("automobil_t::ist_weg_frei()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.get_count()-1).x,target_rt.position_bei(target_rt.get_count()-1).y, target_rt.position_bei(target_rt.get_count()-1).z );
+							target_halt->reserve_position(welt->lookup(target_rt.back()), cnv->self);
+							//DBG_MESSAGE("automobil_t::ist_weg_frei()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
 							rt->remove_koord_from(route_index);
 							rt->append( &target_rt );
 						}
@@ -2053,7 +2049,7 @@ void automobil_t::set_convoi(convoi_t *c)
 		if(target  &&  ist_erstes  &&  c->get_route()->empty()) {
 			// reintitialize the target halt
 			route_t *rt=cnv->get_route();
-			grund_t *target=welt->lookup(rt->position_bei(rt->get_count()-1));
+			grund_t* const target = welt->lookup(rt->back());
 			target_halt = target->get_halt();
 			if(target_halt.is_bound()) {
 				target_halt->reserve_position(target,cnv->self);
@@ -2062,7 +2058,7 @@ void automobil_t::set_convoi(convoi_t *c)
 	}
 	else {
 		if(cnv  &&  ist_erstes  &&  target_halt.is_bound()) {
-			target_halt->unreserve_position(welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->get_count()-1)),cnv->self);
+			target_halt->unreserve_position(welt->lookup(cnv->get_route()->back()), cnv->self);
 			target_halt = halthandle_t();
 		}
 		cnv = NULL;
@@ -2176,7 +2172,7 @@ void waggon_t::set_convoi(convoi_t *c)
 					uint16 next_signal_index=UNVALID_INDEX;
 					route_t *route=c->get_route();
 
-					if(route->empty()  ||  get_pos()==route->position_bei(route->get_count()-1)) {
+					if (route->empty() || get_pos() == route->back()) {
 						// we are there, were we should go? Usually this is an error during autosave
 						c->suche_neue_route();
 					}
@@ -2436,12 +2432,8 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				return true;
 			}
 			else if(sig_besch->is_choose_sign()) {
-				grund_t *target=NULL;
-
 				// choose signal here
-				target = welt->lookup(rt->position_bei(rt->get_count()-1));
-
-				if(target) {
+				if (grund_t const* const target = welt->lookup(rt->back())) {
 					// first check, if there is another choose or an end_of choose before the target
 					route_t *rt = cnv->get_route();
 					bool choose_ok = target->get_halt().is_bound();	// only check for full way, if target is not a waypoint!
@@ -2718,7 +2710,7 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 	// stop at station or signals, not at waypoints
 	if(next_signal_index==UNVALID_INDEX) {
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
-		grund_t *gr=welt->lookup(route->position_bei(route->get_count()-1));
+		grund_t const* const gr = welt->lookup(route->back());
 		return (gr  &&  gr->is_halt()) ? route->get_count() : UNVALID_INDEX;
 	}
 	return next_signal_index+1;
@@ -3031,17 +3023,17 @@ bool aircraft_t::find_route_to_stop_position()
 
 	// check for skipping circle
 	route_t *rt=cnv->get_route();
-	grund_t *target=welt->lookup(rt->position_bei(rt->get_count()-1));
 
 //DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","can approach? (cnv %i)",cnv->self.get_id());
 
-	target_halt = target ? target->get_halt() : halthandle_t();
+	grund_t const* const last = welt->lookup(rt->back());
+	target_halt = last ? last->get_halt() : halthandle_t();
 	if(!target_halt.is_bound()) {
 		return true;	// no halt to search
 	}
 
 	// then: check if the search point is still on a runway (otherwise just proceed)
-	target = welt->lookup(rt->position_bei(suchen));
+	grund_t const* const target = welt->lookup(rt->position_bei(suchen));
 	if(target==NULL  ||  !target->hat_weg(air_wt)) {
 		target_halt = halthandle_t();
 		DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","no runway found at %i,%i,%i",rt->position_bei(suchen).x,rt->position_bei(suchen).y,rt->position_bei(suchen).z);
@@ -3080,8 +3072,8 @@ DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free 
 		state = prev_state;
 
 		// now reserve our choice ...
-		target_halt->reserve_position(welt->lookup(target_rt.position_bei(target_rt.get_count()-1)),cnv->self);
-//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found free stop near %i,%i,%i",target_rt.position_bei(target_rt.get_count()-1).x,target_rt.position_bei(target_rt.get_count()-1).y, target_rt.position_bei(target_rt.get_count()-1).z );
+		target_halt->reserve_position(welt->lookup(target_rt.back()), cnv->self);
+		//DBG_MESSAGE("aircraft_t::find_route_to_stop_position()", "found free stop near %i,%i,%i", target_rt.back().x, target_rt.back().y, target_rt.back().z);
 		rt->remove_koord_from(suchen);
 		rt->append( &target_rt );
 		return true;
@@ -3352,7 +3344,7 @@ void aircraft_t::set_convoi(convoi_t *c)
 	if(ist_erstes  &&  (unsigned long)cnv > 1) {
 		// free stop reservation
 		if(target_halt.is_bound()) {
-			target_halt->unreserve_position(welt->lookup(cnv->get_route()->position_bei(cnv->get_route()->get_count()-1)),cnv->self);
+			target_halt->unreserve_position(welt->lookup(cnv->get_route()->back()), cnv->self);
 			target_halt = halthandle_t();
 		}
 		if(!cnv->get_route()->empty()) {
@@ -3372,8 +3364,7 @@ void aircraft_t::set_convoi(convoi_t *c)
 		if(ist_erstes) {
 			if(target) {
 				// reintitialize the target halt
-				route_t *rt=cnv->get_route();
-				grund_t *target=welt->lookup(rt->position_bei(rt->get_count()-1));
+				grund_t* const target=welt->lookup(cnv->get_route()->back());
 				target_halt = target->get_halt();
 				if(target_halt.is_bound()) {
 					target_halt->reserve_position(target,cnv->self);
@@ -3442,9 +3433,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 	if(ist_erstes  &&  cnv) {
 		// free target reservation
 		if(  target_halt.is_bound() ) {
-			route_t *rt=cnv->get_route();
-			grund_t *target=welt->lookup(rt->position_bei(rt->get_count()-1));
-			if(target) {
+			if (grund_t* const target = welt->lookup(cnv->get_route()->back())) {
 				target_halt->unreserve_position(target,cnv->self);
 			}
 		}
@@ -3497,7 +3486,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 			return false;
 		}
 		// save the route
-		search_start = route->position_bei( route->get_count()-1 );
+		search_start = route->back();
 //DBG_MESSAGE("aircraft_t::calc_route()","start at ground at %i,%i,%i",search_start.x,search_start.y,search_start.z);
 	}
 
@@ -3519,7 +3508,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route
 	}
 	else {
 		// save target route
-		search_end = end_route.position_bei( end_route.get_count()-1 );
+		search_end = end_route.back();
 	}
 //DBG_MESSAGE("aircraft_t::calc_route()","ziel now %i,%i,%i",search_end.x,search_end.y,search_end.z);
 
