@@ -396,7 +396,7 @@ public:
 	* get state
 	* @author hsiegeln
 	*/
-	int get_state() { return state; }
+	int get_state() const { return state; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
