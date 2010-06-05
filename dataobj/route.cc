@@ -298,7 +298,7 @@ ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
 
 bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 		fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost, const uint32 weight,
-		bool any_platform)
+		int any_platform)
 {
 	bool ok = false;
 
@@ -399,12 +399,36 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		}
 
 		// if this is part of the same station, maybe we can stop here
-		if(  any_platform && ziel_halt.is_bound() &&
+		if( (any_platform != 0) && ziel_halt.is_bound() &&
 			(calc_distance(gr->get_pos(), ziel) < 8) &&
-			gr->is_halt() && (gr->get_halt() == ziel_halt)  )
+			gr->is_halt() && (gr->get_halt() == ziel_halt) )
 		{
-			ziel_erreicht = true;
-			break;
+			if( any_platform<0 || any_platform==1 ) {
+				ziel_erreicht = true;
+				break;
+			} else if( tmp->parent!=NULL ) {
+				// check if the platform is long enough.
+				// code adapted from that used to move to the end of the station.
+				koord zv = gr->get_pos().get_2d() - tmp->parent->gr->get_pos().get_2d();
+				const waytype_t wegtyp = fahr->get_waytype();
+				int i = 0;
+				to = NULL;
+				gr->get_neighbour(to, wegtyp, zv);
+				while( to  &&  to->get_halt()==ziel_halt  &&  fahr->ist_befahrbar(to)  &&  (fahr->get_ribi(to)&&tmp->dir)!=0) {
+					// Do not go on a tile, where a oneway sign forbids going.
+					ribi_t::ribi go_dir = to->get_weg(wegtyp)->get_ribi_maske();
+					if((tmp->dir&go_dir)!=0) {
+						break;
+					}
+					if( i++ >= any_platform ) {
+						ziel_erreicht = true;
+						break;
+					}
+				}
+				if( ziel_erreicht == true ) {
+					break;
+				}
+			}
 		}
 
 		// testing all four possible directions
@@ -540,7 +564,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  */
 bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 	fahrer_t *fahr, const uint32 max_khm, const uint32 weight, const uint32 max_cost,
-	bool any_platform)
+	int any_platform)
 {
 	route.clear();
 

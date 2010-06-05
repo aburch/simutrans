@@ -326,7 +326,7 @@ public:
 
 	void darf_rauchen(bool yesno ) { rauchen = yesno;}
 
-	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, bool any_platform = false);
+	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform=0);
 	uint16 get_route_index() const {return route_index;}
 	const koord3d get_pos_prev() const {return pos_prev;}
 
@@ -581,7 +581,7 @@ public:
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *,const uint32 ) const;
 
-	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, bool any_platform = false);
+	virtual bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform=0);
 
 	virtual bool ist_weg_frei(int &restart_speed);
 
@@ -620,7 +620,7 @@ public:
 	virtual waytype_t get_waytype() const { return track_wt; }
 
 	// since we might need to unreserve previously used blocks, we must do this before calculation a new route
-	bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, bool any_platform = false);
+	bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform=0);
 
 	// how expensive to go here (for way search)
 	virtual int get_kosten(const grund_t *,const uint32 ) const;
@@ -817,7 +817,7 @@ public:
 
 	virtual void set_convoi(convoi_t *c);
 
-	bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, bool any_platform = false);
+	bool calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform=0);
 
 	typ get_typ() const { return aircraft; }
 
