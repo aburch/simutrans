@@ -461,6 +461,8 @@ public:
 	*/
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
 
+	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width) const;
+
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles
 	 * @param is_global set to true, if this is called during the whole screen update

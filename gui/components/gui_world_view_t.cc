@@ -125,16 +125,14 @@ void world_view_t::zeichnen(koord const offset)
 
 		if (off_x + raster < 0 || gr.x < off_x) continue;
 
-		planquadrat_t const* const plan = welt->lookup(k);
-		if (!plan) continue;
-		grund_t const* const kb = plan->get_kartenboden();
-		if (!kb) continue;
+		grund_t const* const kb = welt->lookup_kartenboden(k);
+		if (!kb) return;
 
 		sint16 const yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
 		if (gr.y < yypos + raster / 4) {
 			break; // enough with grounds
 		} else if (0 <= yypos + raster) {
-			plan->display_boden(pos.x + off_x, pos.y + yypos, raster);
+			kb->display_if_visible(pos.x + off_x, pos.y + yypos, raster);
 		}
 	}
 

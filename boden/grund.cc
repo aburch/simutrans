@@ -893,6 +893,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 }
 
 
+void grund_t::display_if_visible(sint16 const xpos, sint16 const ypos, sint16 const raster_tile_width) const
+{
+	if (!get_flag(grund_t::draw_as_ding) && is_karten_boden_visible()) {
+		display_boden(xpos, ypos, raster_tile_width);
+	}
+}
+
+
 hang_t::typ grund_t::get_disp_way_slope() const
 {
 	if (is_visible()) {

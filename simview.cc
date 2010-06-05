@@ -122,11 +122,10 @@ karte_ansicht_t::display(bool force_dirty)
 			const sint16 xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
-				const planquadrat_t *plan=welt->lookup(koord(i,j));
-				if(plan  &&  plan->get_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( min(plan->get_kartenboden()->get_hoehe(), hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+				if (grund_t const* const kb = welt->lookup_kartenboden(koord(i, j))) {
+					sint16 const yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP / Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						plan->display_boden(xpos, yypos, IMG_SIZE);
+						kb->display_if_visible(xpos, yypos, IMG_SIZE);
 					}
 				}
 				else {
