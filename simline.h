@@ -30,7 +30,6 @@
 
 class karte_t;
 class loadsave_t;
-class simlinemgmt_t;
 class spieler_t;
 
 class simline_t {

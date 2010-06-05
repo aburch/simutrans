@@ -48,10 +48,7 @@ enum player_cost {
 
 class karte_t;
 class fabrik_t;
-class stadt_t;
-class gebaeude_t;
 class koord3d;
-class ware_production_t;
 class werkzeug_t;
 
 /**

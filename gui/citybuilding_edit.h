@@ -6,7 +6,6 @@
 #include "components/gui_label.h"
 
 class haus_besch_t;
-class fabrik_besch_t;
 class wkz_build_haus_t;
 
 

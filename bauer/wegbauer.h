@@ -14,7 +14,6 @@
 
 
 class weg_besch_t;
-class kreuzung_besch_t;
 class bruecke_besch_t;
 class tunnel_besch_t;
 class karte_t;

@@ -21,7 +21,6 @@
 class spieler_t;
 class depot_t;
 class karte_t;
-class grund_info_t;
 class cbuffer_t;
 
 

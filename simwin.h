@@ -12,7 +12,6 @@
 
 class karte_t;
 class gui_fenster_t;
-class gui_komponente_t;
 struct event_t;
 
 /* Typen fuer die Fenster */

@@ -17,7 +17,6 @@
 #include "components/gui_textinput.h"
 
 class einstellungen_t;
-class welt_gui_t;
 
 
 /**

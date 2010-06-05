@@ -11,7 +11,6 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 
-class loadsave_t;
 class cstring_t;
 
 
