@@ -321,8 +321,6 @@ welt_gui_t::update_from_heightfield(const char *filename)
 			}
 		}
 
-		strcpy(map_number_s,translator::translate("file"));
-
 		return true;
 	}
 	return false;
