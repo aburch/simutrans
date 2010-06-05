@@ -1042,3 +1042,24 @@ next_ware_check:
 	dbg->warning( "fabrikbauer_t::increase_industry_density()", "No suitable city industry found => pak missing something?" );
 	return 0;
 }
+
+bool fabrikbauer_t::power_stations_available(karte_t* welt)
+{
+	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
+	weighted_vector_tpl<const fabrik_besch_t*> power_stations;
+
+	while(iter.next()) 
+	{
+		const fabrik_besch_t* current = iter.get_current_value();
+		if(!current->is_electricity_producer()
+			|| (welt->use_timeline() 
+				&& current->get_haus()->get_intro_year_month() > welt->get_timeline_year_month()
+				|| current->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
+			)
+		{
+			continue;
+		}
+		return true;
+	}
+	return false;
+}
