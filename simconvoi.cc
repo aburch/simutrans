@@ -21,6 +21,7 @@
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "freight_list_sorter.h"
+#include "simtools.h"
 
 #include "gui/karte.h"
 #include "gui/convoi_info_t.h"
@@ -124,6 +125,7 @@ void convoi_t::reset()
 	has_obsolete = false;
 	no_load = false;
 	depot_when_empty = false;
+	reverse_schedule = false;
 
 	jahresgewinn = 0;
 
@@ -729,7 +731,12 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
+		// use the first available platform in most cases
+		int use_any_platform = 0;
+		if(  fpl->get_current_eintrag().ladegrad == 0  ) {
+			use_any_platform = (get_length() + 15) / 16 ;
+		}
+		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route, use_any_platform)  ) {
 			state = NO_ROUTE;
 			get_besitzer()->bescheid_vehikel_problem(self,ziel);
 			// wait 10s before next attempt
@@ -1023,7 +1030,7 @@ end_loop:
 					// check first, if we are already there:
 					assert( fpl->get_aktuell()<fpl->get_count()  );
 					if(  v->get_pos()==fpl->get_current_eintrag().pos  ) {
-						fpl->advance();
+						advance_schedule();
 					}
 					// Hajo: now calculate a new route
 
@@ -1158,6 +1165,25 @@ end_loop:
 	}
 }
 
+void convoi_t::advance_schedule() {
+	// check if the convoi should switch direction
+	if(  fpl->is_mirrored() && fpl->get_aktuell()==fpl->get_count()-1  ) {
+		reverse_schedule = true;
+	}
+	else if( fpl->is_mirrored() && fpl->get_aktuell()==0  ) {
+		reverse_schedule = false;
+	}
+	else if( welt->get_einstellungen()->get_randomise_circular_routes() &&
+			fpl->is_circular() && fpl->get_aktuell()==0 && !simrand(4) ) {
+		reverse_schedule = !reverse_schedule;
+	}
+	// advance the schedule cursor
+	if (reverse_schedule) {
+		fpl->advance_reverse();
+	} else {
+		fpl->advance();
+	}
+}
 
 void convoi_t::neues_jahr()
 {
@@ -1347,6 +1373,12 @@ void convoi_t::start()
 		no_load = false;
 		depot_when_empty = false;
 
+		// if the schedule is mirrored, convoys starting
+		// reversed should go directly to the end.
+		if( fpl->is_mirrored() && reverse_schedule ) {
+			fpl->advance_reverse();
+		}
+
 		state = ROUTING_1;
 
 		// recalc weight and image
@@ -1432,7 +1464,7 @@ void convoi_t::ziel_erreicht()
 		}
 		else {
 			// Neither depot nor station: waypoint
-			fpl->advance();
+			advance_schedule();
 			state = ROUTING_1;
 			if(replace && depot_when_empty &&  has_no_cargo()) {
 				depot_when_empty=false;
@@ -2761,7 +2793,15 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( no_load, "" );
 		file->rdwr_bool( withdraw, "" );
 	}
-	
+
+	// reverse_schedule
+	if(file->get_version()<102003 || file->get_experimental_version() < 8.1) {
+		reverse_schedule = false;
+	}
+	else {
+		file->rdwr_bool( reverse_schedule, "" );
+	}
+
 	// Simutrans-Experimental specific parameters. 
 	// Must *always* go after standard parameters.
 
@@ -3209,8 +3249,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
 		}
 
-		// Advance schedule
-		fpl->advance();
+		advance_schedule();
 		state = ROUTING_1;
 	}
 

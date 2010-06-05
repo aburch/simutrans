@@ -62,6 +62,7 @@ private:
 	button_t sort_button;
 	button_t details_button;
 	button_t toggler;
+	button_t reverse_button;
 
 	button_t line_button;	// got to line ...
 	bool line_bound;

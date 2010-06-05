@@ -296,7 +296,9 @@ ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost, const uint32 weight)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
+		fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost, const uint32 weight,
+		int any_platform)
 {
 	bool ok = false;
 
@@ -355,6 +357,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	tmp->dir = 0;
 	tmp->count = 0;
 
+	halthandle_t ziel_halt = welt->lookup(ziel)->get_halt();
+
 	// nothing in lists
 	welt->unmarkiere_alle();
 
@@ -392,6 +396,39 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		{
 			ziel_erreicht = true; //"a goal reaches" (Babelfish).
 			break;
+		}
+
+		// if this is part of the same station, maybe we can stop here
+		if( (any_platform != 0) && ziel_halt.is_bound() &&
+			(calc_distance(gr->get_pos(), ziel) < 8) &&
+			gr->is_halt() && (gr->get_halt() == ziel_halt) )
+		{
+			if( any_platform<0 || any_platform==1 ) {
+				ziel_erreicht = true;
+				break;
+			} else if( tmp->parent!=NULL ) {
+				// check if the platform is long enough.
+				// code adapted from that used to move to the end of the station.
+				koord zv = gr->get_pos().get_2d() - tmp->parent->gr->get_pos().get_2d();
+				const waytype_t wegtyp = fahr->get_waytype();
+				int i = 0;
+				to = NULL;
+				gr->get_neighbour(to, wegtyp, zv);
+				while( to  &&  to->get_halt()==ziel_halt  &&  fahr->ist_befahrbar(to)  &&  (fahr->get_ribi(to)&&tmp->dir)!=0) {
+					// Do not go on a tile, where a oneway sign forbids going.
+					ribi_t::ribi go_dir = to->get_weg(wegtyp)->get_ribi_maske();
+					if((tmp->dir&go_dir)!=0) {
+						break;
+					}
+					if( i++ >= any_platform ) {
+						ziel_erreicht = true;
+						break;
+					}
+				}
+				if( ziel_erreicht == true ) {
+					break;
+				}
+			}
 		}
 
 		// testing all four possible directions
@@ -525,7 +562,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_khm, const uint32 weight, const uint32 max_cost)
+bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
+	fahrer_t *fahr, const uint32 max_khm, const uint32 weight, const uint32 max_cost,
+	int any_platform)
 {
 	route.clear();
 
@@ -535,7 +574,7 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, weight);
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, weight, any_platform);
 #ifdef DEBUG_ROUTES
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
@@ -551,7 +590,8 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 	}
 	else {
 		// drive to the end in a station
-		halthandle_t halt = welt->lookup(start)->get_halt();
+		int max_n = route.get_count()-1;
+		halthandle_t halt = welt->lookup(route[max_n])->get_halt();
 
 		// only needed for stations: go to the very end
 		if(halt.is_bound()) {
@@ -559,13 +599,11 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 			// does only make sence for trains
 			if(fahr->get_waytype()==track_wt  ||  fahr->get_waytype()==monorail_wt  ||  fahr->get_waytype()==tram_wt  ||  fahr->get_waytype()==maglev_wt  ||  fahr->get_waytype()==narrowgauge_wt) {
 
-				int max_n = route.get_count()-1;
-
 				const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
 //DBG_DEBUG("route_t::calc_route()","zv=%i,%i",zv.x,zv.y);
 
 				const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
-				grund_t *gr=welt->lookup(start);
+				grund_t *gr=welt->lookup(route[max_n]);
 				const waytype_t wegtyp=fahr->get_waytype();
 
 				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->get_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0) {

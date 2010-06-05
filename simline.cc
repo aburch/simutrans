@@ -32,6 +32,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 		rolling_average[i] = 0;
 		rolling_average_count[i] = 0;
 	}
+	start_reversed = false;
 }
 
 
@@ -128,6 +129,12 @@ void simline_t::add_convoy(convoihandle_t cnv)
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 	}
+
+	// if the schedule is flagged as circular, set the initial convoy direction
+	if( fpl->is_circular() ) {
+		cnv->set_reverse_schedule(start_reversed);
+		start_reversed = !start_reversed;
+	}
 }
 
 
@@ -213,6 +220,10 @@ void simline_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()>=102002) {
 		file->rdwr_bool( withdraw, "" );
+	}
+
+	if(file->get_version()>=102003 && file->get_experimental_version() >= 8.1) {
+		file->rdwr_bool( start_reversed, "" );
 	}
 
 	// otherwise inintialized to zero if loading ...

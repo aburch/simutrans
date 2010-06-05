@@ -189,6 +189,12 @@ private:
 	bool depot_when_empty;
 
 	/**
+	* the convoi traverses its schedule in reverse order
+	* @author yobbobandana
+	*/
+	bool reverse_schedule;
+
+	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
 	* @author prissi
 	*/
@@ -434,6 +440,13 @@ private:
 	bool calc_obsolescence(uint16 timeline_year_month);
 
 	uint32 move_to(karte_t const&, koord3d const& k, uint16 start_index);
+
+	/**
+	* Advance the schedule cursor.
+	* Also toggles the reverse_schedule flag if necessary.
+	* @author yobbobandana
+	*/
+	void advance_schedule();
 
 public:
 	inline route_t* get_route() { return &route; }
@@ -722,6 +735,18 @@ public:
 	void zeige_info();
 
 	void check_pending_updates();
+
+	/**
+	* Get whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	inline bool get_reverse_schedule() const { return reverse_schedule; }
+
+	/**
+	* Set whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	void set_reverse_schedule(bool reverse = true) { reverse_schedule = reverse; }
 
 #if 0
 private:

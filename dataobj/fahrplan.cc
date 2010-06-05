@@ -30,6 +30,8 @@ void schedule_t::init()
 {
 	aktuell = 0;
 	abgeschlossen = false;
+	circular = false;
+	mirrored = false;
 	type = schedule_t::fahrplan;
 }
 
@@ -61,6 +63,8 @@ void schedule_t::copy_from(const schedule_t *src)
 	set_aktuell( src->get_aktuell() );
 
 	abgeschlossen = src->ist_abgeschlossen();
+	circular = src->is_circular();
+	mirrored = src->is_mirrored();
 }
 
 
@@ -227,6 +231,10 @@ void schedule_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(aktuell, " ");
 		file->rdwr_byte(size, " ");
+		if( file->get_version()>=102003 && file->get_experimental_version()>=8.1 ) {
+			file->rdwr_bool(circular, " ");
+			file->rdwr_bool(mirrored, " ");
+		}
 	}
 	eintrag.resize(size);
 
@@ -292,6 +300,10 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	if(this==fpl) {
 		return true;
 	}
+	// different circular or mirrored settings => not equal
+	if ((this->circular != fpl->circular) || (this->mirrored != fpl->mirrored)) {
+		return false;
+	}
 	// unequal count => not equal
 	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
 	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
@@ -351,6 +363,7 @@ void schedule_t::add_return_way()
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.append( aktuell );
+	buf.printf( ",%i,%i", circular, mirrored );
 	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
@@ -367,9 +380,20 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	//  first get aktuell pointer
 	aktuell = atoi( p );
-	while(  *p  &&  *p!='|'  ) {
+	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
 		p++;
 	}
+	if( *p==',' ) { p++; }
+	if( *p && (*p!=','  &&  *p!='|') ) { circular = bool(atoi(p)); }
+	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
+		p++;
+	}
+	if( *p==',' ) { p++; }
+	if( *p && (*p!=','  &&  *p!='|') ) { mirrored = bool(atoi(p)); }
+	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
+		p++;
+	}
+
 	if(  *p!='|'  ) {
 		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 		return false;

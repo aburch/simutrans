@@ -1123,9 +1123,9 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 
 
-bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0xFFFFFFFF, any_platform);
 }
 
 
@@ -2373,7 +2373,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 
 
 // need to reset halt reservation (if there was one)
-bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
 {
 	assert(cnv);
 	// free target reservation
@@ -2386,7 +2386,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, rout
 	}
 	target_halt = halthandle_t();	// no block reserved
 	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
-	return route->calc_route(welt, start, ziel, this, max_speed, routing_weight);
+	return route->calc_route(welt, start, ziel, this, max_speed, routing_weight, 0xFFFFFFFF, any_platform);
 }
 
 
@@ -2892,14 +2892,14 @@ void waggon_t::set_convoi(convoi_t *c)
 
 
 // need to reset halt reservation (if there was one)
-bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
 		block_reserver( cnv->get_route(), cnv->get_vehikel(cnv->get_vehikel_anzahl()-1)->get_route_index(), target_halt.is_bound()?100000:1, false );
 	}
 	target_halt = halthandle_t();	// no block reserved
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0xFFFFFFFF, any_platform);
 }
 
 
@@ -4188,7 +4188,7 @@ aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
