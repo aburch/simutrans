@@ -5,6 +5,8 @@
  * (see licence.txt)
  */
 
+#include <algorithm>
+
 #include "goods_frame_t.h"
 #include "components/gui_scrollpane.h"
 #include "components/list_button.h"
@@ -154,21 +156,19 @@ goods_frame_t::goods_frame_t(karte_t *wl) :
 }
 
 
-/**
-* @author Markus Weber
-*/
-int goods_frame_t::compare_goods(const void *p1, const void *p2)
+
+bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 {
 	const ware_besch_t* w[2];
-	const ware_besch_t * w1 = warenbauer_t::get_info(*(const unsigned short *)p1);
-	const ware_besch_t * w2 = warenbauer_t::get_info(*(const unsigned short *)p2);
+	w[0] = warenbauer_t::get_info(a);
+	w[1] = warenbauer_t::get_info(b);
 
 	int order = 0;
 
 	switch (sortby) 
 	{
 		case 0: // sort by number
-			order =  *(const unsigned short *)p1 - *(const unsigned short *)p2;
+			order = a - b;
 			break;
 		case 2: // sort by revenue
 			{			
@@ -259,7 +259,7 @@ int goods_frame_t::compare_goods(const void *p1, const void *p2)
 		// sort by name if not sorted or not unique
 		order = strcmp(translator::translate(w[0]->get_name()), translator::translate(w[1]->get_name()));
 	}
-	return sortreverse ? -order : order;
+	return sortreverse ? order > 0 : order < 0;
 }
 
 
@@ -280,8 +280,7 @@ void goods_frame_t::sort_list()
 		}
 	}
 
-  // now sort
-	qsort((void *)good_list, n, sizeof(unsigned short), compare_goods);
+	std::sort(good_list, good_list + n, compare_goods);
 
 	goods_stats.update_goodslist(good_list, relative_speed_change, goods_frame_t::tile_distance, goods_frame_t::comfort, goods_frame_t::welt, wtype);
 }
