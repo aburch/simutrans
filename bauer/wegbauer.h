@@ -82,9 +82,6 @@ private:
 	};
 	vector_tpl<next_gr_t> next_gr;
 
-	enum { unseen = 9999999 };
-	enum { max_route_laenge = 1024 };
-
 	spieler_t *sp;
 
 	/**
