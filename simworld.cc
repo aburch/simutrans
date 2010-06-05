@@ -2147,6 +2147,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 	}
 	// was changed => pay for it
 	if(n>0) {
+		n = (n+3) >> 2;
 		spieler_t::accounting(sp, n*get_einstellungen()->cst_alter_land, pos, COST_CONSTRUCTION );
 	}
 	return ok;
