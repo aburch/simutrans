@@ -2795,7 +2795,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// reverse_schedule
-	if(file->get_version()<102003) {
+	if(file->get_version()<102003 || file->get_experimental_version() < 8.1) {
 		reverse_schedule = false;
 	}
 	else {
