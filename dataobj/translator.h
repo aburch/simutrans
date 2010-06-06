@@ -28,7 +28,6 @@ class translator
 	private:
 		//cannot be instantiated outside translator
 		translator() { current_lang = -1; }
-		~translator() {}
 
 		int current_lang;
 		int lang_count;
