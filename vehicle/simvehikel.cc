@@ -3412,12 +3412,12 @@ uint16 waggon_t::block_reserver(route_t *route, uint16 start_index, int count, b
 				} else {
 					platform_size_found = 0;
 				}
-			} else if( ribi_last==ribi ) {
+			} else if( ribi_last==ribi && gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
 				// a platform was found, but it continues so go on to its end
 				early_platform_index = i;
 			} else {
 				// a platform was found, and has ended, thus the last index was fine.
-				// Reservation already failed for this tile so we don't need to unreserve.
+				sch1->unreserve(cnv->self);
 				success = true;
 				break;
 			}
