@@ -69,92 +69,74 @@ void gui_container_t::remove_all()
  */
 void gui_container_t::infowin_event(const event_t *ev)
 {
-	// deliver keyboard event only to gui komponente which has focus
-	if(  !DOES_WINDOW_CHILDREN_NEED( ev )  &&  (ev->ev_class==EVENT_KEYBOARD  ||  (komp_focus != NULL  &&  (komp_focus->getroffen(ev->mx, ev->my)  ||  komp_focus->getroffen(ev->cx, ev->cy)  )  )  )  ) {
-		if(komp_focus != NULL) {
-			event_t ev2 = *ev;
-			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
-			komp_focus->infowin_event(&ev2);
-		}
+	gui_komponente_t *new_focus = komp_focus;
 
-		// handle unfocus/next focus stuff
-		if(  ev->ev_class==EVENT_KEYBOARD  &&  (ev->ev_code==13  ||  ev->ev_code==27  ||  ev->ev_code==9)  ) {
-			if(  komp_focus  ) {
-				// release focus
-				event_t ev2 = *ev;
-				translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
-				ev2.ev_class = INFOWIN;
-				ev2.ev_code = WIN_UNTOP;
-				komp_focus->infowin_event(&ev2);
-			}
-
-			if(  ev->ev_code==9  ) {
-				// TAB: find new focus
-				slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
-				gui_komponente_t *new_focus = NULL;
-				if(  (ev->ev_key_mod&1)==0  ) {
-					// find next textinput field
-					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()->get_focus()!=komp_focus)  ) {
-						if(  iter.get_current()->get_focus()  ) {
-							new_focus = iter.get_current();
-						}
+	// need to change focus?
+	if(  ev->ev_class==EVENT_KEYBOARD  &&  (  ev->ev_code==13  ||  ev->ev_code==27  ||  ev->ev_code==9  )  ) {
+		if(  ev->ev_code==9  ) {
+			// TAB: find new focus
+			slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
+			new_focus = NULL;
+			if(  (ev->ev_key_mod&1)==0  ) {
+				// find next textinput field
+				while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()->get_focus()!=komp_focus)  ) {
+					if(  iter.get_current()->get_focus()  ) {
+						new_focus = iter.get_current();
 					}
 				}
-				else {
-					// or previous input field
-					bool valid = komp_focus==NULL;
-					while(  iter.next()  ) {
-						if(  valid  &&  iter.get_current()->get_focus()  ) {
-							new_focus = iter.get_current();
-							break;
-						}
-						if(  iter.get_current()->get_focus()==komp_focus  ) {
-							valid = true;
-						}
-					}
-				}
-				komp_focus = new_focus;
 			}
 			else {
-				// Enter or ESC: no new focus
-				komp_focus = NULL;
+				// or previous input field
+				bool valid = komp_focus==NULL;
+				while(  iter.next()  ) {
+					if(  valid  &&  iter.get_current()->get_focus()  ) {
+						new_focus = iter.get_current();
+						break;
+					}
+					if(  iter.get_current()->get_focus()==komp_focus  ) {
+						valid = true;
+					}
+				}
 			}
+			komp_focus = new_focus;
 		}
-		return;
+	}
+
+	if(  komp_focus != NULL  &&  ev->ev_class==EVENT_KEYBOARD  ) {
+		event_t ev2 = *ev;
+		translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
+		komp_focus->infowin_event(&ev2);
 	}
 
 	slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
-	while(!list_dirty && iter.next()) {
+	while(  ev->ev_class!=EVENT_KEYBOARD  &&  !list_dirty  &&  iter.next()  ) {
 		gui_komponente_t *komp = iter.get_current();
 
 		// Hajo: deliver events if
 		// a) The mouse or click coordinates are inside the component
 		// b) The event affects all components, this are WINDOW events
-		if(komp) {
-			if(komp->getroffen(ev->mx, ev->my) || komp->getroffen(ev->cx, ev->cy)) {
+		if(komp  &&  komp->is_visible()) {
+			const bool is_now_getroffen = komp->getroffen(ev->mx, ev->my);
+			if(  is_now_getroffen  ||  komp->getroffen(ev->cx, ev->cy)  ) {
 
 				// Hajo: if componet hit, translate coordinates and deliver event
 				event_t ev2 = *ev;
 				translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
 
-				// Hajo: infowon_event() can delete the component
+				// Hajo: infowin_event() can delete the component
 				// -> thus we need to ask first
-				const gui_komponente_t *focus = komp->get_focus();
+				gui_komponente_t *focus = komp->get_focus();
 
 				komp->infowin_event(&ev2);
 
 				// set focus for komponente, if komponente allows focus
-				if(komp_focus!=focus  &&  focus  &&  IS_LEFTRELEASE(ev)) {
-					if(  komp_focus  ) {
-						event_t unfocus_ev2 = *ev;
-						translate_event(&unfocus_ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
-						unfocus_ev2.ev_class = INFOWIN;
-						unfocus_ev2.ev_code = WIN_UNTOP;
-						komp_focus->infowin_event(&unfocus_ev2);
-					}
-					komp_focus = komp;
+				if(  focus  &&  IS_LEFTRELEASE(ev)  ) {
+					/* the focus swallow all following events;
+					 * due to the activation action
+					 */
+					new_focus = focus;
+					break;
 				}
-				break;
 
 			} else if( DOES_WINDOW_CHILDREN_NEED( ev ) ) { // (Mathew Hounsell)
 				// Hajo: no need to translate the event, it has no valid coordinates either
@@ -164,6 +146,18 @@ void gui_container_t::infowin_event(const event_t *ev)
 	}
 
 	list_dirty = false;
+
+	// handle unfocus/next focus stuff
+	if(  new_focus!=komp_focus  ) {
+		if(  komp_focus  ) {
+			// release focus
+			event_t ev2 = *ev;
+			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
+			ev2.ev_class = INFOWIN;
+			ev2.ev_code = WIN_UNTOP;
+			komp_focus->infowin_event(&ev2);
+		}
+	}
 }
 
 
