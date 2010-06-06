@@ -53,13 +53,11 @@ DBG_MESSAGE("event","%d,%d",ev->cx, ev->cy);
 DBG_MESSAGE("event","HOWDY!");
 			bt_prev.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
+				value_t p;
 				bt_prev.pressed = false;
-				if (droplist.get_selection() >= -1) {
-					value_t p;
-					p.i = droplist.get_selection() - 1;
-					set_selection( p.i );
-					call_listeners( p );
-				}
+				set_selection( droplist.get_selection() - 1 );
+				p.i = droplist.get_selection();
+				call_listeners( p );
 			}
 			return;
 		}
@@ -67,12 +65,10 @@ DBG_MESSAGE("event","HOWDY!");
 			bt_next.pressed = IS_LEFT_BUTTON_PRESSED(ev);
 			if(IS_LEFTRELEASE(ev)) {
 				bt_next.pressed = false;
-				if (droplist.get_selection() < droplist.get_count() - 1) {
-					value_t p;
-					p.i = droplist.get_selection() + 1;
-					set_selection( p.i );
-					call_listeners(p);
-				}
+				value_t p;
+				set_selection( droplist.get_selection() + 1 );
+				p.i = droplist.get_selection();
+				call_listeners(p);
 			}
 			return;
 		}
@@ -80,6 +76,15 @@ DBG_MESSAGE("event","HOWDY!");
 	else if(  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)  ) {
 		// scroll the list
 		droplist.infowin_event(ev);
+		return;
+	}
+
+	// got to next/previous choice
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code==SIM_KEY_UP  ||  ev->ev_code==SIM_KEY_DOWN)  ) {
+		value_t p;
+		set_selection( droplist.get_selection() + (ev->ev_code==SIM_KEY_UP ? -1 : +1 ) );
+		p.i = droplist.get_selection();
+		call_listeners( p );
 		return;
 	}
 
@@ -186,8 +191,7 @@ void gui_combobox_t::zeichnen(koord offset)
  * sets the selection
  * @author hsiegeln
  */
-void
-gui_combobox_t::set_selection(int s)
+void gui_combobox_t::set_selection(int s)
 {
 	if (droplist.is_visible()) {
 		// visible? change also offset of scrollbar
