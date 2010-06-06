@@ -731,12 +731,7 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		// use the first available platform in most cases
-		int use_any_platform = 0;
-		if(  fpl->get_current_eintrag().ladegrad == 0  ) {
-			use_any_platform = (get_length() + 15) / 16 ;
-		}
-		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route, use_any_platform)  ) {
+		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
 			state = NO_ROUTE;
 			get_besitzer()->bescheid_vehikel_problem(self,ziel);
 			// wait 10s before next attempt

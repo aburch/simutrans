@@ -1131,9 +1131,9 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 
 
-bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
+bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0xFFFFFFFF, any_platform);
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
 }
 
 
@@ -2381,7 +2381,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 
 
 // need to reset halt reservation (if there was one)
-bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
+bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
 	assert(cnv);
 	// free target reservation
@@ -2392,7 +2392,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, rout
 	}
 	target_halt = halthandle_t();	// no block reserved
 	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
-	return route->calc_route(welt, start, ziel, this, max_speed, routing_weight, 0xFFFFFFFF, any_platform);
+	return route->calc_route(welt, start, ziel, this, max_speed, routing_weight);
 }
 
 
@@ -2905,14 +2905,14 @@ void waggon_t::set_convoi(convoi_t *c)
 
 
 // need to reset halt reservation (if there was one)
-bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
+bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
 		block_reserver(cnv->get_route(), cnv->back()->get_route_index(), target_halt.is_bound() ? 100000 : 1, false);
 	}
 	target_halt = halthandle_t();	// no block reserved
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0xFFFFFFFF, any_platform);
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
 }
 
 
@@ -3342,7 +3342,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
  * return the last checked block
  * @author prissi
  */
-uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bool reserve ) const
+uint16 waggon_t::block_reserver(route_t *route, uint16 start_index, int count, bool reserve ) const
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -3356,6 +3356,18 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 
 	if(route->position_bei(start_index)==get_pos()  &&  reserve) {
 		start_index++;
+	}
+
+	// perhaps find an early platform to stop at
+	uint8 platform_size_needed = 0;
+	uint8 platform_size_found = 0;
+	ribi_t::ribi ribi_last = ribi_t::keine;
+	ribi_t::ribi ribi = ribi_t::keine;
+	halthandle_t dest_halt = halthandle_t();
+	uint16 early_platform_index = UNVALID_INDEX;
+	if( cnv && cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().ladegrad == 0 ) {
+		platform_size_needed = (cnv->get_length() + 15) / 16;
+		dest_halt = haltestelle_t::get_halt(welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer());
 	}
 
 	// find next blocksegment enroute
@@ -3388,12 +3400,37 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 				count --;
 				next_signal_index = i;
 			}
-			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,(uint32)(i+1))) ) )  ) {
+			ribi = ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,(uint32)(i+1))) );
+			if( !sch1->reserve(cnv->self,ribi) ) {
 				success = false;
 			}
 			if(next_crossing_index==INVALID_INDEX  &&  sch1->is_crossing()) {
 				next_crossing_index = i;
 			}
+			// check if there is an early platform available to stop at
+			if( early_platform_index==UNVALID_INDEX ) {
+				if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
+					if( ribi==ribi_last ) {
+						platform_size_found++;
+					} else {
+						platform_size_found = 1;
+					}
+					if( platform_size_found>=platform_size_needed ) {
+						early_platform_index = i;
+					}
+				} else {
+					platform_size_found = 0;
+				}
+			} else if( ribi_last==ribi && gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
+				// a platform was found, but it continues so go on to its end
+				early_platform_index = i;
+			} else {
+				// a platform was found, and has ended, thus the last index was fine.
+				sch1->unreserve(cnv->self);
+				success = true;
+				break;
+			}
+			ribi_last = ribi;
 		}
 		else if(sch1) {
 			if(!sch1->unreserve(cnv->self)) {
@@ -3446,6 +3483,12 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 		}
 	}
 
+	// if an early platform was found, stop there
+	if(early_platform_index!=UNVALID_INDEX) {
+		next_signal_index = early_platform_index;
+		// directly modify the route
+		route->truncate_from(early_platform_index);
+	}
 	// if next stop is further away then next crossing, return next crossing
 	if(next_signal_index>next_crossing_index) {
 		next_signal_index = next_crossing_index;
@@ -4197,7 +4240,7 @@ aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, int any_platform)
+bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
