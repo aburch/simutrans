@@ -29,7 +29,6 @@
 #include "boden/grund.h"
 #include "boden/wege/strasse.h"
 
-#include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
 

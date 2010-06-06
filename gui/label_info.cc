@@ -12,7 +12,6 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/translator.h"
 #include "../dings/label.h"
 #include "../utils/simstring.h"
 

@@ -7,7 +7,6 @@
 
 #include "../../simdebug.h"
 #include "gui_tab_panel.h"
-#include "../../dataobj/translator.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
