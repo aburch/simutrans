@@ -12,7 +12,7 @@ class ding_view_t : public world_view_t
 
 		ding_t const* const get_ding() const { return ding; }
 
-		void zeichnen(koord const offset) { internal_draw(offset, ding); }
+		void zeichnen(koord offset) { internal_draw(offset, ding); }
 
 	protected:
 		koord3d ding_view_t::get_location() { return ding->get_pos(); }

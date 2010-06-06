@@ -14,7 +14,7 @@ class location_view_t : public world_view_t
 
 		void map_rotate90(sint16 const new_ysize) { location.rotate90(new_ysize); }
 
-		void zeichnen(koord const offset) { internal_draw(offset, 0); }
+		void zeichnen(koord offset) { internal_draw(offset, 0); }
 
 	protected:
 		koord3d get_location() { return location; }
