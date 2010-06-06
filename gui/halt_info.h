@@ -14,7 +14,7 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
-#include "components/gui_world_view_t.h"
+#include "components/location_view_t.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
 
@@ -38,7 +38,7 @@ private:
 	gui_textinput_t input;
 	gui_chart_t chart;
 	gui_label_t sort_label;
-	world_view_t view;
+	location_view_t view;
 	button_t button;
 	button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[7];

@@ -23,62 +23,32 @@ class karte_t;
  */
 class world_view_t : public gui_komponente_t
 {
-private:
-	/**
-	* The location to display.
-	* @autor Hj. Malthaner
-	*/
-	koord3d location;
+	public:
+		world_view_t(karte_t*, koord size);
 
-	/**
-	* The object to display
-	* @autor Hj. Malthaner
-	*/
-	const ding_t *ding;
+		/**
+		 * Events werden hiermit an die GUI-Komponenten
+		 * gemeldet
+		 * @author Hj. Malthaner
+		 */
+		void infowin_event(const event_t *);
 
-	// offsets are stored
-	vector_tpl<koord>offsets;
-	sint16 raster;	// for this rastersize
+		/**
+		 * resize window in response to a resize event
+		 * need to recalculate the list of offsets
+		 * @author prissi
+		 */
+		virtual void set_groesse(koord groesse);
 
-	/**
-	* The world to display.
-	* @autor Hj. Malthaner
-	*/
-	karte_t *welt;
+	protected:
+		virtual koord3d get_location() = 0;
 
+		void internal_draw(koord offset, ding_t const*);
 
-
-public:
-    world_view_t(karte_t *welt, koord3d location, koord size);
-    world_view_t(const ding_t* dt, koord size);
-
-    /**
-     * Sets the location to be displayed.
-     * @author Hj. Malthaner
-     */
-    void set_location(koord3d l) {location=l; ding = 0;}
-
-    void map_rotate90(sint16 const new_ysize) { location.rotate90(new_ysize); }
-
-    /**
-     * Events werden hiermit an die GUI-Komponenten
-     * gemeldet
-     * @author Hj. Malthaner
-     */
-    void infowin_event(const event_t *);
-
-    /**
-     * resize window in response to a resize event
-     * need to recalculate the list of offsets
-     * @author prissi
-     */
-    virtual void set_groesse(koord groesse);
-
-    /**
-     * Zeichnet die Komponente
-     * @author Hj. Malthaner
-     */
-    virtual void zeichnen(koord offset);
+	private:
+		vector_tpl<koord> offsets; /**< Offsets are stored. */
+		sint16            raster;  /**< For this rastersize. */
+		karte_t*          welt;    /**< The world to display. */
 };
 
 #endif

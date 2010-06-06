@@ -11,7 +11,7 @@
 #include "../simdebug.h"
 #include "../simdings.h"
 #include "gui_frame.h"
-#include "components/gui_world_view_t.h"
+#include "components/ding_view_t.h"
 #include "components/gui_fixedwidth_textarea.h"
 #include "../utils/cbuffer_t.h"
 
@@ -24,7 +24,7 @@
 class ding_infowin_t : public gui_frame_t
 {
 protected:
-	world_view_t view;
+	ding_view_t view;
 
 	static cbuffer_t buf;
 

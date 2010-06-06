@@ -13,7 +13,7 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_label.h"
-#include "components/gui_world_view_t.h"
+#include "components/location_view_t.h"
 #include "components/action_listener.h"
 
 class label_t;
@@ -34,7 +34,7 @@ private:
 
 	gui_label_t player_name;
 	gui_textinput_t input;
-	world_view_t view;
+	location_view_t view;
 	char edit_name[64];
 
 public:

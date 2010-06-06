@@ -22,22 +22,9 @@
 
 
 
-world_view_t::world_view_t(karte_t* welt, koord3d location, koord size)
-{
-    this->location = location;
-    this->ding = NULL;
-    this->welt = welt;
-    this->raster = get_base_tile_raster_width();
-
-    set_groesse(size);
-}
-
-
-world_view_t::world_view_t(const ding_t* dt, koord size) :
-	location(koord3d::invalid),
-	ding(dt),
+world_view_t::world_view_t(karte_t* const welt, koord const size) :
 	raster(get_base_tile_raster_width()),
-	welt(dt->get_welt())
+	welt(welt)
 {
 	set_groesse(size);
 }
@@ -51,7 +38,7 @@ world_view_t::world_view_t(const ding_t* dt, koord size) :
 void world_view_t::infowin_event(const event_t* ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
-		const koord3d& pos = (ding != NULL ? ding->get_pos() : location);
+		koord3d const& pos = get_location();
 		if (welt->ist_in_kartengrenzen(pos.get_2d())) {
 			welt->change_world_position(pos);
 		}
@@ -59,11 +46,11 @@ void world_view_t::infowin_event(const event_t* ev)
 }
 
 
-void world_view_t::zeichnen(koord const offset)
+void world_view_t::internal_draw(koord const offset, ding_t const* const ding)
 {
 	display_set_image_proc(false);
 
-	koord3d const here3d    = (ding ? ding->get_pos() : location);
+	koord3d const here3d    = get_location();
 	koord   const here      = here3d.get_2d();
 	koord         fine_here = koord(0, 0);
 	sint16        y_offset  = 0;

@@ -14,7 +14,7 @@
 #include "components/gui_label.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
-#include "components/gui_world_view_t.h"
+#include "components/location_view_t.h"
 
 class spieler_t;
 
@@ -92,7 +92,7 @@ private:
 
 	button_t headquarter, goto_headquarter;
 	char headquarter_tooltip[1024];
-	world_view_t headquarter_view;
+	location_view_t headquarter_view;
 
 	// last remembered HQ pos
 	sint16 old_level;
