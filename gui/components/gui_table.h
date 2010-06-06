@@ -180,8 +180,8 @@ protected:
 	 */
 	virtual void change_size(const coordinates_t &old_size, const coordinates_t &new_size);
 
-	virtual gui_table_column_t *init_column(coordinate_t x) { return new gui_table_column_t(get_default_column_width()); }
-	virtual gui_table_row_t *init_row(coordinate_t y) { return new gui_table_row_t(get_default_row_height()); }
+	virtual gui_table_column_t *init_column(coordinate_t x) { (void) x; return new gui_table_column_t(get_default_column_width()); }
+	virtual gui_table_row_t *init_row(coordinate_t y) { (void) y; return new gui_table_row_t(get_default_row_height()); }
 
 	/**
 	 * paint_cell() is called in paint_cells(), whenever a cell has to be painted.

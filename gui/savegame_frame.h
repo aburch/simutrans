@@ -27,7 +27,7 @@ class gui_file_table_column_t : public gui_table_column_t
 {
 protected:
 	bool pressed;
-	virtual const char *get_text(const gui_table_row_t &row) const { return ""; }
+	virtual const char *get_text(const gui_table_row_t &row) const { (void) row; return ""; }
 public:
 	gui_file_table_column_t(coordinate_t size_) : gui_table_column_t(size_) { pressed = false; }
 	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return STRICMP(get_text(row1), get_text(row2)); }

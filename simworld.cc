@@ -2996,9 +2996,11 @@ void karte_t::neuer_monat()
 	}
 	swap(stadt, new_weighted_stadt);
 
-	if(((electric_productivity*4000l)/total_electric_demand) > get_einstellungen()->get_electric_promille())
+	if(fabrikbauer_t::power_stations_available(this) && ((electric_productivity*4000l)/total_electric_demand) > get_einstellungen()->get_electric_promille())
 	{
 		// Add industries if there is a shortage of electricity - power stations will be built.
+		// Also (8.1 and onwards) - check whether power stations are available, or else large quantities of other industries will
+		// be built instead every month.
 		fabrikbauer_t::increase_industry_density(this, true, true);
 	}
 
