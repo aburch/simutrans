@@ -98,7 +98,6 @@ void gui_container_t::infowin_event(const event_t *ev)
 					}
 				}
 			}
-			komp_focus = new_focus;
 		}
 	}
 
@@ -108,41 +107,48 @@ void gui_container_t::infowin_event(const event_t *ev)
 		komp_focus->infowin_event(&ev2);
 	}
 
-	slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
-	while(  ev->ev_class!=EVENT_KEYBOARD  &&  !list_dirty  &&  iter.next()  ) {
-		gui_komponente_t *komp = iter.get_current();
+	if(  ev->ev_class!=EVENT_KEYBOARD  ) {
+		slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
+		while(  !list_dirty  &&  iter.next()  ) {
+			gui_komponente_t *komp = iter.get_current();
 
-		// Hajo: deliver events if
-		// a) The mouse or click coordinates are inside the component
-		// b) The event affects all components, this are WINDOW events
-		if(komp  &&  komp->is_visible()) {
-			const bool is_now_getroffen = komp->getroffen(ev->mx, ev->my);
-			if(  is_now_getroffen  ||  komp->getroffen(ev->cx, ev->cy)  ) {
+			// Hajo: deliver events if
+			// a) The mouse or click coordinates are inside the component
+			// b) The event affects all components, this are WINDOW events
+			if(  komp  ) {
+				if( DOES_WINDOW_CHILDREN_NEED( ev ) ) { // (Mathew Hounsell)
+					// Hajo: no need to translate the event, it has no valid coordinates either
+					komp->infowin_event(ev);
+				}
+				else if(  komp->is_visible()  ) {
+					const bool is_now_getroffen = komp->getroffen(ev->mx, ev->my);
+					if(  is_now_getroffen  ||  komp->getroffen(ev->cx, ev->cy)  ) {
 
-				// Hajo: if componet hit, translate coordinates and deliver event
-				event_t ev2 = *ev;
-				translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
+						// Hajo: if componet hit, translate coordinates and deliver event
+						event_t ev2 = *ev;
+						translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
 
-				// Hajo: infowin_event() can delete the component
-				// -> thus we need to ask first
-				gui_komponente_t *focus = komp->get_focus();
+						// Hajo: infowin_event() can delete the component
+						// -> thus we need to ask first
+						gui_komponente_t *focus = komp->get_focus();
 
-				komp->infowin_event(&ev2);
+						komp->infowin_event(&ev2);
 
-				// set focus for komponente, if komponente allows focus
-				if(  focus  &&  IS_LEFTRELEASE(ev)  ) {
-					/* the focus swallow all following events;
-					 * due to the activation action
-					 */
-					new_focus = focus;
-					break;
+						// set focus for komponente, if komponente allows focus
+						if(  focus  &&  is_now_getroffen  &&  IS_LEFTRELEASE(ev)  ) {
+							/* the focus swallow all following events;
+							 * due to the activation action
+							 */
+							new_focus = focus;
+							if(  komp==focus  ) {
+								break;
+							}
+						}
+					}
 				}
 
-			} else if( DOES_WINDOW_CHILDREN_NEED( ev ) ) { // (Mathew Hounsell)
-				// Hajo: no need to translate the event, it has no valid coordinates either
-				komp->infowin_event(ev);
-			}
-		} // if(komp)
+			} // if(komp)
+		} // while()
 	}
 
 	list_dirty = false;
@@ -157,6 +163,7 @@ void gui_container_t::infowin_event(const event_t *ev)
 			ev2.ev_code = WIN_UNTOP;
 			komp_focus->infowin_event(&ev2);
 		}
+		komp_focus = new_focus;
 	}
 }
 
