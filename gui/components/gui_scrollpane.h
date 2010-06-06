@@ -79,6 +79,10 @@ public:
 	void set_size_corner(bool yesno) { b_has_size_corner = yesno; }
 
 	koord get_client_size();
+	/**
+	 * returns element that has the focus
+	 */
+	gui_komponente_t *get_focus() const { return komp->get_focus(); }
 };
 
 #endif

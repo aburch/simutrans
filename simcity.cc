@@ -15,6 +15,7 @@
 #include "boden/wege/strasse.h"
 #include "boden/grund.h"
 #include "boden/boden.h"
+#include "simwin.h"
 #include "simworld.h"
 #include "simware.h"
 #include "player/simplay.h"

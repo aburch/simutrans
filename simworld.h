@@ -37,7 +37,6 @@
 struct event_t;
 struct sound_info;
 class stadt_t;
-class ding_t;
 class fabrik_t;
 class gebaeude_t;
 class zeiger_t;
@@ -45,7 +44,6 @@ class grund_t;
 class planquadrat_t;
 class karte_ansicht_t;
 class sync_steppable;
-class cstring_t;
 class werkzeug_t;
 class scenario_t;
 class message_t;

@@ -55,8 +55,11 @@
 	ADD: enable to use more than one powerline object
 	ADD: texture for tunnel grounds (Obj=misc, Name=TunnelTexture, Image with numbers 0,3,6,9)
 	ADD: simuconf.tab: add default values for cityroad ("city_road") and intercity road ("asphalt_road")
+	CHANGE: TAB goes to next/Shift+TAB to previous edit box, moving and resizing now even when other windows open
+
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
+
 	FIX: connecting upslope to upper way works in sliced mode (r2949)
 	FIX: longer convoi's name could cause crash when entering depot
 	FIX: lines were never freed upon deletion
@@ -80,7 +83,10 @@ Release of 102.2.2 (r3131 on 8-Mar-2010):
 	FIX: stop factory building if more than 10 attempts failed
 	FIX: (Dwachs) display correct length in depot
 
+
+
 Release of 102.2.1 (r2928)
+
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly
@@ -937,7 +943,7 @@ Release of 99.01
 	FIX: pause at waypoints
 	CHANGE: automatically loading pak/demo.sve (or whatever the pak folder is) on startup
 	CHANGE: symbol.BigLogo.pak with maximum for image loaded during intial startup
-	CHANGE: more complex tunnels, with cost=,maitenance=, topspeed=, waytype=, intro- and retiredates
+	CHANGE: more complex tunnels, with cost=, maintenance=, topspeed=, waytype=, intro- and retiredates
 	CHANGE: allowed tunnels for all but air, also removal or tunnel with tramrails should work
 	FIX: city roads no longer destroy runways and the like
 	FIX: more even house distribution with rotation

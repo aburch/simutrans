@@ -21,6 +21,7 @@
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "freight_list_sorter.h"
+#include "simtools.h"
 
 #include "gui/karte.h"
 #include "gui/convoi_info_t.h"
@@ -124,6 +125,7 @@ void convoi_t::reset()
 	has_obsolete = false;
 	no_load = false;
 	depot_when_empty = false;
+	reverse_schedule = false;
 
 	jahresgewinn = 0;
 
@@ -239,7 +241,7 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 			destroy_win((long)fpl);
 		}
 	
-		if(fpl->get_count()>0  &&  !line.is_bound()  ) 
+		if (!fpl->empty() && !line.is_bound()) 
 		{
 			// New method - recalculate as necessary
 			
@@ -729,7 +731,12 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
+		// use the first available platform in most cases
+		int use_any_platform = 0;
+		if(  fpl->get_current_eintrag().ladegrad == 0  ) {
+			use_any_platform = (get_length() + 15) / 16 ;
+		}
+		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route, use_any_platform)  ) {
 			state = NO_ROUTE;
 			get_besitzer()->bescheid_vehikel_problem(self,ziel);
 			// wait 10s before next attempt
@@ -973,7 +980,7 @@ end_loop:
 
 				set_schedule(fpl);
 
-				if(fpl->get_count()==0) {
+				if (fpl->empty()) {
 					// no entry => no route ...
 					state = NO_ROUTE;
 				}
@@ -982,9 +989,12 @@ end_loop:
 					// this station? then complete loading task else drive on
 					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
 					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() )  ) {
-						if(  route.get_count()>0  &&  h==haltestelle_t::get_halt( welt, route.position_bei(route.get_count()-1), get_besitzer() )  ){
-							state = get_pos()==route.position_bei(route.get_count()-1) ? LOADING : DRIVING;
-							break;
+						if (route.get_count() > 0) {
+							koord3d const& pos = route.back();
+							if (h == haltestelle_t::get_halt(welt, pos, get_besitzer())) {
+								state = get_pos() == pos ? LOADING : DRIVING;
+								break;
+							}
 						}
 						else {
 							if(  drive_to()  ) {
@@ -1016,14 +1026,14 @@ end_loop:
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->get_count()==0) {
+				if (fpl->empty()) {
 					state = NO_ROUTE;
 				}
 				else {
 					// check first, if we are already there:
 					assert( fpl->get_aktuell()<fpl->get_count()  );
 					if(  v->get_pos()==fpl->get_current_eintrag().pos  ) {
-						fpl->advance();
+						advance_schedule();
 					}
 					// Hajo: now calculate a new route
 
@@ -1042,7 +1052,7 @@ end_loop:
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->get_count()==0) {
+				if (fpl->empty()) {
 					// no entries => no route ...
 					get_besitzer()->bescheid_vehikel_problem(self, v->get_pos());
 				}
@@ -1158,6 +1168,25 @@ end_loop:
 	}
 }
 
+void convoi_t::advance_schedule() {
+	// check if the convoi should switch direction
+	if(  fpl->is_mirrored() && fpl->get_aktuell()==fpl->get_count()-1  ) {
+		reverse_schedule = true;
+	}
+	else if( fpl->is_mirrored() && fpl->get_aktuell()==0  ) {
+		reverse_schedule = false;
+	}
+	else if( welt->get_einstellungen()->get_randomise_circular_routes() &&
+			fpl->is_circular() && fpl->get_aktuell()==0 && !simrand(4) ) {
+		reverse_schedule = !reverse_schedule;
+	}
+	// advance the schedule cursor
+	if (reverse_schedule) {
+		fpl->advance_reverse();
+	} else {
+		fpl->advance();
+	}
+}
 
 void convoi_t::neues_jahr()
 {
@@ -1334,7 +1363,7 @@ void convoi_t::start()
 		}
 		else 
 		{
-			home_depot = route.position_bei(0);
+			home_depot = route.front();
 			fahr[0]->set_pos( home_depot );
 		}
 		// put the convoi on the depot ground, to get automatical rotation
@@ -1346,6 +1375,12 @@ void convoi_t::start()
 		alte_richtung = ribi_t::keine;
 		no_load = false;
 		depot_when_empty = false;
+
+		// if the schedule is mirrored, convoys starting
+		// reversed should go directly to the end.
+		if( fpl->is_mirrored() && reverse_schedule ) {
+			fpl->advance_reverse();
+		}
 
 		state = ROUTING_1;
 
@@ -1432,7 +1467,7 @@ void convoi_t::ziel_erreicht()
 		}
 		else {
 			// Neither depot nor station: waypoint
-			fpl->advance();
+			advance_schedule();
 			state = ROUTING_1;
 			if(replace && depot_when_empty &&  has_no_cargo()) {
 				depot_when_empty=false;
@@ -1872,7 +1907,7 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).get_2d(), route.position_bei(min(2,route.get_count()-1)).get_2d()));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;
@@ -1941,7 +1976,7 @@ bool convoi_t::can_go_alte_richtung()
 	// we continue our journey; however later cars need also a correct route entry
 	// eventually we need to add their positions to the convoi's route
 	koord3d pos = fahr[0]->get_pos();
-	assert(pos==route.position_bei(0));
+	assert(pos == route.front());
 	if(welt->lookup(pos)->get_depot()) {
 		return false;
 	}
@@ -1949,12 +1984,12 @@ bool convoi_t::can_go_alte_richtung()
 		for(i=0; i<anz_vehikel; i++) {
 			vehikel_t* v = fahr[i];
 			// eventually add current position to the route
-			if(route.position_bei(0)!=v->get_pos()  &&  route.position_bei(1)!=v->get_pos()) {
+			if (route.front() != v->get_pos() && route.position_bei(1) != v->get_pos()) {
 				route.insert(v->get_pos());
 			}
 			// eventually we need to add also a previous position to this path
 			if(v->get_besch()->get_length()>8  &&  i+1<anz_vehikel) {
-				if(route.position_bei(0)!=v->get_pos_prev()  &&  route.position_bei(1)!=v->get_pos_prev()) {
+				if (route.front() != v->get_pos_prev() && route.position_bei(1) != v->get_pos_prev()) {
 					route.insert(v->get_pos_prev());
 				}
 			}
@@ -2011,7 +2046,7 @@ void convoi_t::vorfahren()
 
 	recalc_data = true;
 
-	koord3d k0 = route.position_bei(0);
+	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
 	if(gr  &&  gr->get_depot()) {
 		// start in depot
@@ -2108,7 +2143,7 @@ void convoi_t::vorfahren()
 			}
 
 			// since start may have been changed
-			k0 = route.position_bei(0);
+			k0 = route.front();
 
 			uint32 train_length = move_to(*welt, k0, 0);
 
@@ -2680,7 +2715,10 @@ convoi_t::rdwr(loadsave_t *file)
 		last_stop_pos.rdwr(file);
 	}
 	else {
-		last_stop_pos = !route.empty() ? route.position_bei(0) : (anz_vehikel > 0 ? fahr[0]->get_pos() : koord3d(0, 0, 0));
+		last_stop_pos =
+			!route.empty()   ? route.front()      :
+			anz_vehikel != 0 ? fahr[0]->get_pos() :
+			koord3d(0, 0, 0);
 	}
 
 	// for leaving the depot routine
@@ -2761,7 +2799,15 @@ convoi_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( no_load, "" );
 		file->rdwr_bool( withdraw, "" );
 	}
-	
+
+	// reverse_schedule
+	if(file->get_version()<102003 || file->get_experimental_version() < 9) {
+		reverse_schedule = false;
+	}
+	else {
+		file->rdwr_bool( reverse_schedule, "" );
+	}
+
 	// Simutrans-Experimental specific parameters. 
 	// Must *always* go after standard parameters.
 
@@ -2923,11 +2969,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		ALLOCA(uint32, max_loaded_waren, warenbauer_t::get_waren_anzahl());
-		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::get_waren_anzahl() );
+		size_t const n = warenbauer_t::get_waren_anzahl();
+		ALLOCA(uint32, max_loaded_waren, n);
+		MEMZERON(max_loaded_waren, n);
 
-		unsigned i;
-		for(i=0; i<anz_vehikel; i++) {
+		for (size_t i = 0; i != anz_vehikel; ++i) {
 			const vehikel_t* v = fahr[i];
 
 			// first add to capacity indicator
@@ -2966,9 +3012,9 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		}
 		buf.clear();
 
-		// append info on total capacity
-		slist_tpl<ware_t> capacity;
-		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
+		// apend info on total capacity
+		slist_tpl <ware_t>capacity;
+		for (size_t i = 0; i != n; ++i) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
 				ware.menge = max_loaded_waren[i];
@@ -3209,8 +3255,7 @@ void convoi_t::laden() //"load" (Babelfish)
 			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
 		}
 
-		// Advance schedule
-		fpl->advance();
+		advance_schedule();
 		state = ROUTING_1;
 	}
 
@@ -3948,7 +3993,7 @@ void convoi_t::check_pending_updates()
 		bool is_depot = false;
 		koord3d current = koord3d::invalid, depot = koord3d::invalid;
 
-		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
+		if (fpl->empty() || new_fpl->empty()) {
 			// was no entry or is no entry => goto  1st stop
 			aktuell = 0;
 		}

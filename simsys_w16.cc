@@ -51,6 +51,7 @@
 #include "simevent.h"
 #include "simdebug.h"
 #include "./dataobj/umgebung.h"
+#include "macros.h"
 
 static HWND hwnd;
 static bool is_fullscreen = false;
@@ -175,7 +176,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		// try to force display mode and size
 		DEVMODE settings;
 
-		memset(&settings, 0, sizeof(settings));
+		MEMZERO(settings);
 		settings.dmSize = sizeof(settings);
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 #ifdef USE_16BIT_DIB
@@ -290,9 +291,10 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 
 unsigned short *dr_textur_init()
 {
-	AllDibData = MALLOCN(unsigned short, MaxSize.right * MaxSize.bottom );
+	size_t const n = MaxSize.right * MaxSize.bottom;
+	AllDibData = MALLOCN(unsigned short, n);
 	// start with black
-	memset( AllDibData, 0, MaxSize.right * MaxSize.bottom * sizeof(unsigned short) );
+	MEMZERON(AllDibData, n);
 	return AllDibData;
 }
 
@@ -465,7 +467,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					// try to force display mode and size
 					DEVMODE settings;
 
-					memset(&settings, 0, sizeof(settings));
+					MEMZERO(settings);
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 #ifdef USE_16BIT_DIB

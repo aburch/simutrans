@@ -54,8 +54,6 @@
 
 #define dragger_size 12
 
-static gui_komponente_t * focus=NULL;
-
 // (Mathew Hounsell)
 // I added a button to the map window to fix it's size to the best one.
 // This struct is the flow back to the object of the refactoring.
@@ -275,50 +273,6 @@ static void win_draw_window_dragger(koord pos, koord gr)
 
 //=========================================================================
 
-/**
- * redirect keyboard input into UI windows
- *
- * @return true if focus granted
- * @author Hj. Malthaner
- */
-bool request_focus(gui_komponente_t *req_focus)
-{
-	if(focus  &&  req_focus!=focus) {
-		// someone has already requested the focus
-		dbg->warning("bool request_focus()","Focus was already granted");
-	}
-	focus = req_focus;
-	return true;
-}
-
-
-/**
- * redirect keyboard input into game engine
- *
- * @author Hj. Malthaner
- */
-void release_focus(gui_komponente_t *this_focus)
-{
-	if(focus  &&  focus==this_focus) {
-		focus = NULL;
-	}
-	else {
-		dbg->message("void release_focus()","Focus was already released");
-	}
-}
-
-
-
-/**
- * our?
- *
- * @author Hj. Malthaner
- */
-bool has_focus(const gui_komponente_t *req_focus)
-{
-	return focus==req_focus;
-}
-
 
 
 // returns the window (if open) otherwise zero
@@ -390,7 +344,6 @@ int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long co
 	assert(gui!=NULL  &&  magic!=0);
 
 	if(  magic!=magic_none  &&  win_get_magic(magic)  ) {
-		focus = NULL;
 		top_win( win_get_magic(magic) );
 		return -1;
 	}
@@ -432,7 +385,6 @@ int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long co
 
 		// Hajo: Notify window to be shown
 		assert(gui);
-		focus = NULL;	// free focus
 		event_t ev;
 
 		ev.ev_class = INFOWIN;
@@ -738,6 +690,20 @@ void move_win(int win, event_t *ev)
 }
 
 
+void resize_win(int i, event_t *ev)
+{
+	event_t wev = *ev;
+	wev.ev_class = WINDOW_RESIZE;
+	wev.ev_code = 0;
+
+	// since we may be smaller afterwards
+	koord gr = wins[i].gui->get_fenstergroesse();
+	mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
+	translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
+	wins[i].gui->infowin_event( &wev );
+}
+
+
 int win_get_posx(gui_fenster_t *gui)
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
@@ -780,12 +746,13 @@ void win_set_pos(gui_fenster_t *gui, int x, int y)
  */
 bool check_pos_win(event_t *ev)
 {
-	static bool is_resizing = false;
+	static int is_resizing = -1;
+	static int is_moving = -1;
 
 	bool swallowed = false;
 
-	const int x = ev->mx;
-	const int y = ev->my;
+	const int x = ev->ev_class==EVENT_MOVE ? ev->mx : ev->cx;
+	const int y = ev->ev_class==EVENT_MOVE ? ev->my : ev->cy;
 
 
 	// for the moment, no none events
@@ -795,17 +762,20 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// we stop resizing once the user releases the button
-	if(is_resizing && IS_LEFTRELEASE(ev)) {
-		is_resizing = false;
-		// Knightly :	should not proceed, otherwise the left release event will be fed to other components;
-		//				return true (i.e. event swallowed) to prevent propagation back to the main view
-		return true;
+	if(  (is_resizing>=0  ||  is_moving>=0)  &&  (IS_LEFTRELEASE(ev)  ||  (ev->button_state&1)==0)  ) {
+		is_resizing = -1;
+		is_moving = -1;
+		if(  IS_LEFTRELEASE(ev)  ) {
+			// Knightly :	should not proceed, otherwise the left release event will be fed to other components;
+			//				return true (i.e. event swallowed) to prevent propagation back to the main view
+			return true;
+		}
 	}
 
 	// swallow all events in the infobar
-	if(y>display_get_height()-32) {
+	if(  y>display_get_height()-32  ) {
 		// goto infowin koordinate, if ticker is active
-		if(show_ticker  &&    y<=display_get_height()-16  &&   IS_LEFTRELEASE(ev)) {
+		if(  show_ticker  &&  y<=display_get_height()-16  &&  IS_LEFTCLICK(ev)  ) {
 			koord p = ticker::get_welt_pos();
 			if(wl->ist_in_kartengrenzen(p)) {
 				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
@@ -813,7 +783,7 @@ bool check_pos_win(event_t *ev)
 			return true;
 		}
 	}
-	else if(werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD) {
+	else if(  werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD  ) {
 		// click in main menu
 		event_t wev = *ev;
 		inside_event_handling = werkzeug_t::toolbar_tool[0];
@@ -823,37 +793,69 @@ bool check_pos_win(event_t *ev)
 		return true;
 	}
 
+	// cursor event only go to top window
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  !wins.empty()  ) {
+		simwin_t&               win  = wins.back();
+		const gui_komponente_t* const komp = win.gui->get_focus();
+		if(  komp  ) {
+			inside_event_handling = win.gui;
+			win.gui->infowin_event(ev);
+			inside_event_handling = NULL;
+			// swallow event
+			swallowed = true;
+		}
+		process_kill_list();
+		if(  ev->ev_code!=9  &&  ev->ev_code!=13) {
+			// either handled or not => keyboard events are not processed further
+			return swallowed;
+		}
+		// only the keyboard events for TAB and ENTER survive until here and can be passed down to windows
+	}
 
+	// just move top window until button release
+	if(  is_moving>=0  &&  is_moving<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+		move_win( is_moving, ev );
+		return true;
+	}
+
+	// just resize window until button release
+	if(  is_resizing>=0  &&  is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+		resize_win( is_resizing, ev );
+		return true;
+	}
+
+	// handle all the other events
 	for(  int i=wins.get_count()-1;  i>=0  &&  !swallowed;  i=min(i,wins.get_count())-1  ) {
 
-		// check click inside window
-		if(  wins[i].gui->getroffen( ev->cx-wins[i].pos.x, ev->cy-wins[i].pos.y )  ) {
-
-			inside_event_handling = wins[i].gui;
+		if(  wins[i].gui->getroffen( x-wins[i].pos.x, y-wins[i].pos.y )  ) {
 
 			// all events in window are swallowed
 			swallowed = true;
 
+			inside_event_handling = wins[i].gui;
+
 			// Top window first
-			if((int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ( ev->cy < wins[i].pos.y+16 ))) {
+			if(  (int)wins.get_count()-1>i  &&  IS_LEFTCLICK(ev)  &&  (!wins[i].rollup  ||  ev->cy<wins[i].pos.y+16)  ) {
 				i = top_win(i);
 			}
 
 			// Hajo: if within title bar && window needs decoration
-			if( ev->cy < wins[i].pos.y+16 ) {
+			if(  y<wins[i].pos.y+16  ) {
+				// no more moving
+				is_moving = -1;
 
 				// %HACK (Mathew Hounsell) So decode will know if gadget is needed.
 				wins[i].flags.help = ( wins[i].gui->get_hilfe_datei() != NULL );
 
 				// Where Was It ?
-				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), ev->cx );
+				simwin_gadget_et code = decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), x );
 
 				switch( code ) {
 					case GADGET_CLOSE :
 						if (IS_LEFTCLICK(ev)) {
 							wins[i].closing = true;
 						} else if  (IS_LEFTRELEASE(ev)) {
-							if (y>=wins[i].pos.y  &&  y<wins[i].pos.y+16  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), x )==GADGET_CLOSE) {
+							if (  ev->my>=wins[i].pos.y  &&  ev->my<wins[i].pos.y+16  &&  decode_gadget_boxes( ( & wins[i].flags ), wins[i].pos.x + (REVERSE_GADGETS?0:wins[i].gui->get_fenstergroesse().x-20), ev->mx )==GADGET_CLOSE) {
 								destroy_win(wins[i].gui);
 							} else {
 								wins[i].closing = false;
@@ -891,6 +893,7 @@ bool check_pos_win(event_t *ev)
 						if (IS_LEFTDRAG(ev)) {
 							i = top_win(i);
 							move_win(i, ev);
+							is_moving = i;
 						}
 						if(IS_RIGHTCLICK(ev)) {
 							wins[i].rollup ^= 1;
@@ -910,28 +913,19 @@ bool check_pos_win(event_t *ev)
 					// click in Window / Resize?
 					//11-May-02   markus weber added
 
-					gui_fenster_t *gui = wins[i].gui;
-					koord gr = gui->get_fenstergroesse();
+					koord gr = wins[i].gui->get_fenstergroesse();
 
 					// resizer hit ?
-					const bool canresize = is_resizing ||
-														(ev->cx > wins[i].pos.x + gr.x - dragger_size &&
-														ev->cy > wins[i].pos.y + gr.y - dragger_size);
+					const bool canresize = is_resizing>=0  ||
+												(ev->cx > wins[i].pos.x + gr.x - dragger_size  &&
+												 ev->cy > wins[i].pos.y + gr.y - dragger_size);
 
-					if((IS_LEFTCLICK(ev) || IS_LEFTDRAG(ev)) && canresize && gui->get_resizemode() != gui_fenster_t::no_resize) {
-						// Hajo: go into resize mode
-						is_resizing = true;
-
-						// printf("Enter resizing mode\n");
-						ev->ev_class = WINDOW_RESIZE;
-						ev->ev_code = 0;
-						event_t wev = *ev;
-						// since we may be smaller afterwards
-						mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
-						translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-						gui->infowin_event( &wev );
+					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_fenster_t::no_resize) {
+						resize_win( i, ev );
+						is_resizing = i;
 					}
 					else {
+						is_resizing = -1;
 						// click in Window
 						event_t wev = *ev;
 						translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
@@ -946,11 +940,6 @@ bool check_pos_win(event_t *ev)
 		}
 	}
 
-	// if no focused, we do not deliver keyboard input
-	if(focus==NULL  &&  ev->ev_class == EVENT_KEYBOARD) {
-		swallowed = false;
-	}
-
 	inside_event_handling = NULL;
 	process_kill_list();
 
@@ -960,7 +949,7 @@ bool check_pos_win(event_t *ev)
 
 void win_get_event(struct event_t *ev)
 {
-  display_get_event(ev);
+	display_get_event(ev);
 }
 
 
@@ -975,13 +964,6 @@ void win_poll_event(struct event_t *ev)
 		ev->ev_class = EVENT_NONE;
 	}
 }
-
-
-// since seaons 0 is always summer for backward compatibility
-static const char * seasons[] =
-{
-    "q2", "q3", "q4", "q1"
-};
 
 
 // finally updates the display
@@ -1057,7 +1039,7 @@ void win_display_flush(double konto)
 	// calculate also days if desired
 	const sint64 ticks_this_month = ticks % wl->ticks_per_world_month;
 	uint32 tage, stunden, minuten;
-	if(umgebung_t::show_month>1) {
+	if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
 		static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 		tage = ((ticks_this_month*tage_per_month[month]) >> wl->ticks_per_world_month_shift) + 1;
 		stunden = ((ticks_this_month*tage_per_month[month]) >> (wl->ticks_per_world_month_shift-16));
@@ -1078,61 +1060,33 @@ void win_display_flush(double konto)
 //DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
 	// @author hsiegeln - updated to show month
 	// @author prissi - also show date if desired
-	switch(umgebung_t::show_month) {
-		// german style
-//#ifdef DEBUG		
-//		case 4:	sprintf(time, "%s, %d %s %d %d:%02dh TICKS: %li",
-//#else
-		case 4:	sprintf(time, "%s, %d %s %lld %u:%02uh",
-//#endif
-						translator::translate(seasons[wl->get_jahreszeit()]), //Season
-						tage, //Day
-						translator::get_month_name(month%12), //Month
-						year,
-						stunden, //"Hours" (Google)
-//#ifdef DEBUG
-//						minuten, //Minutes
-//						ticks
-//#else
-						minuten //Minutes
-//#endif
-						);
-					break;
-		// us style
-		case 3:	sprintf(time, "%s, %s %d %lld %2d:%02d%s",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						translator::get_month_name(month%12),
-						tage,
-						year,
-						stunden%12,
-						minuten,
-						stunden<12 ? "am":"pm"
-						);
-					break;
-		// japanese style
-		case 2:	sprintf(time, "%s, %lld/%s/%d %2d:%02dh",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						year,
-						translator::get_month_name(month%12),
-						tage,
-						stunden,
-						minuten
-						);
-					break;
-		// just month
-		case 1:	sprintf(time, "%s, %s %lld %2d:%02dh",
-						translator::get_month_name(month%12),
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						year,
-						stunden,
-						minuten
-						);
-					break;
-		// just only season
-		default:	sprintf(time, "%s %lld",
-						translator::translate(seasons[wl->get_jahreszeit()]),
-						year);
-					break;
+	// since seaons 0 is always summer for backward compatibility
+	static char const* const seasons[] = { "q2", "q3", "q4", "q1" };
+	char const* const season = translator::translate(seasons[wl->get_jahreszeit()]);
+	char const* const month_ = translator::get_month_name(month % 12);
+	switch (umgebung_t::show_month) {
+		case umgebung_t::DATE_FMT_GERMAN:
+			sprintf(time, "%s, %d. %s %lld %d:%02dh", season, tage, month_, year, stunden, minuten);
+			break;
+
+		case umgebung_t::DATE_FMT_US: {
+			uint32 hours_ = stunden % 12;
+			if (hours_ == 0) hours_ = 12;
+			sprintf(time, "%s, %s %d %lld %2d:%02d%s", season, month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+			break;
+		}
+
+		case umgebung_t::DATE_FMT_JAPANESE:
+			sprintf(time, "%s, %lld/%s/%d %2d:%02dh", season, year, month_, tage, stunden, minuten);
+			break;
+
+		case umgebung_t::DATE_FMT_MONTH:
+			sprintf(time, "%s, %s %lld %2d:%02dh", month_, season, year, stunden, minuten);
+			break;
+
+		case umgebung_t::DATE_FMT_SEASON:
+			sprintf(time, "%s %lld", season, year);
+			break;
 	}
 
 	// time multiplier text

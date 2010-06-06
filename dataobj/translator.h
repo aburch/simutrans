@@ -11,7 +11,6 @@
 #include "../tpl/stringhashtable_tpl.h"
 
 
-class loadsave_t;
 class cstring_t;
 
 // Bernd Gabriel: like fgets, but removes \n from end of line and for windows style line ends \r, if present.

@@ -37,7 +37,6 @@ private:
 	*/
 	unsigned char karte[preview_size*preview_size];
 
-	char map_number_s[16];
 	bool load_heightfield, loaded_heightfield;
 	bool load;
 	bool start;
