@@ -362,8 +362,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	tmp->dir = 0;
 	tmp->count = 0;
 
-	halthandle_t ziel_halt = welt->lookup(ziel)->get_halt();
-
 	// nothing in lists
 	welt->unmarkiere_alle();
 
@@ -400,15 +398,6 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		if(ziel==gr->get_pos())
 		{
 			ziel_erreicht = true; //"a goal reaches" (Babelfish).
-			break;
-		}
-
-		// if this is part of the same station, maybe we can stop here
-		// TODO: probably shouldn't stop early if the convoy is set to wait at this stop
-		if(  ziel_halt.is_bound() && (calc_distance(gr->get_pos(), ziel) < 8) &&
-			gr->is_halt() && (gr->get_halt() == ziel_halt)  )
-		{
-			ziel_erreicht = true;
 			break;
 		}
 
@@ -569,8 +558,7 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 	}
 	else {
 		// drive to the end in a station
-		int max_n = route.get_count()-1;
-		halthandle_t halt = welt->lookup(route[max_n])->get_halt();
+		halthandle_t halt = welt->lookup(start)->get_halt();
 
 		// only needed for stations: go to the very end
 		if(halt.is_bound()) {
@@ -578,11 +566,13 @@ DBG_MESSAGE("route_t::calc_route()","No route from %d,%d to %d,%d found",start.x
 			// does only make sence for trains
 			if(fahr->get_waytype()==track_wt  ||  fahr->get_waytype()==monorail_wt  ||  fahr->get_waytype()==tram_wt  ||  fahr->get_waytype()==maglev_wt  ||  fahr->get_waytype()==narrowgauge_wt) {
 
+				int max_n = route.get_count()-1;
+
 				const koord zv = route[max_n].get_2d() - route[max_n - 1].get_2d();
 //DBG_DEBUG("route_t::calc_route()","zv=%i,%i",zv.x,zv.y);
 
 				const int ribi = ribi_typ(zv);//fahr->get_ribi(welt->lookup(start));
-				grund_t *gr=welt->lookup(route[max_n]);
+				grund_t *gr=welt->lookup(start);
 				const waytype_t wegtyp=fahr->get_waytype();
 
 				while(gr->get_neighbour(gr,wegtyp,zv)  &&  gr->get_halt() == halt  &&   fahr->ist_befahrbar(gr)   &&  (fahr->get_ribi(gr)&&ribi)!=0) {
