@@ -303,9 +303,7 @@ ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
-		fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost, const uint32 weight,
-		bool any_platform)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost, const uint32 weight)
 {
 	bool ok = false;
 
@@ -406,8 +404,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 		}
 
 		// if this is part of the same station, maybe we can stop here
-		if(  any_platform && ziel_halt.is_bound() &&
-			(calc_distance(gr->get_pos(), ziel) < 8) &&
+		// TODO: probably shouldn't stop early if the convoy is set to wait at this stop
+		if(  ziel_halt.is_bound() && (calc_distance(gr->get_pos(), ziel) < 8) &&
 			gr->is_halt() && (gr->get_halt() == ziel_halt)  )
 		{
 			ziel_erreicht = true;
@@ -545,9 +543,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
-	fahrer_t *fahr, const uint32 max_khm, const uint32 weight, const uint32 max_cost,
-	bool any_platform)
+bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_khm, const uint32 weight, const uint32 max_cost)
 {
 	route.clear();
 
@@ -557,7 +553,7 @@ bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start,
 	// profiling for routes ...
 	long ms=dr_time();
 #endif
-	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, weight, any_platform);
+	bool ok = intern_calc_route(welt, start, ziel, fahr, max_khm, max_cost, weight);
 #ifdef DEBUG_ROUTES
 	if(fahr->get_waytype()==water_wt) {DBG_DEBUG("route_t::calc_route()","route from %d,%d to %d,%d with %i steps in %u ms found.",start.x, start.y, ziel.x, ziel.y, route.get_count()-1, dr_time()-ms );}
 #endif
