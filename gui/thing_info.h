@@ -57,13 +57,6 @@ public:
 	virtual void info(cbuffer_t & buf) const { ding->info(buf); }
 
 	/**
-	 * @return a pointer to the player who owns this thing
-	 *
-	 * @author Hj. Malthaner
-	 */
-	virtual spieler_t* get_besitzer() const { return ding->get_besitzer(); }
-
-	/**
 	 * @return the current map position
 	 *
 	 * @author Hj. Malthaner
