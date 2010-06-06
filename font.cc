@@ -171,7 +171,8 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		}
 
 		if (strncmp(str, "CHARS", 5) == 0  &&  str[5]<=' ') {
-			f_chars = atoi(str + 5) <= 256 ? 256 : 65536;
+			// the characters 0xFFFF and 0xFFFE are guranteed to be non-unicode characters
+			f_chars = atoi(str + 5) <= 256 ? 256 : 65534;
 
 			data = (uint8*)calloc(f_chars, CHARACTER_LEN);
 			if (data == NULL) {
@@ -265,7 +266,7 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		fnt->screen_width = MALLOCN(uint8, 256);
 		fnt->char_data    = MALLOCN(uint8, CHARACTER_LEN * 256);
-		fnt->num_chars    = 255;
+		fnt->num_chars    = 256;
 		fnt->height       = 10;
 		fnt->descent      = -1;
 
@@ -347,7 +348,7 @@ bool load_font(font_type* fnt, const char* fname)
 		// convert to new standard font
 		fnt->screen_width = MALLOCN(uint8, 256);
 		fnt->char_data    = MALLOCN(uint8, CHARACTER_LEN * 256);
-		fnt->num_chars    = 255;
+		fnt->num_chars    = 256;
 		fnt->height       = 7;
 		fnt->descent      = -1;
 
