@@ -66,7 +66,7 @@ private:
 	gui_scrollpane_t scrolly;
 
 	// creates the list and pass it to the child finction good_stats, which does the display stuff ...
-	static int compare_goods(const void *p1, const void *p2);
+	static bool compare_goods(uint16, uint16);
 	void sort_list();
 
 public:

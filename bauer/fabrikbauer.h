@@ -118,6 +118,8 @@ public:
 	 */
 	static int increase_industry_density( karte_t *welt, bool tell_me, bool do_not_add_beyond_target_density = false );
 
+	static bool power_stations_available(karte_t* welt);
+
 
 private:
 	// bauhilfen
