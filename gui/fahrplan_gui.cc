@@ -220,8 +220,8 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
 
-	bt_circular.init(button_t::square_automatic, "circular schedule", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_circular.set_tooltip("When adding vehicles to the line, one in every two vehicles will follow it in the reverse direction.");
+	bt_circular.init(button_t::square_automatic, "also reverse", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_circular.set_tooltip("When adding vehicles to the line, every second vehicle will follow it in the reverse direction.");
 	bt_circular.pressed = fpl->is_circular();
 	bt_circular.add_listener(this);
 	add_komponente(&bt_circular);
@@ -253,7 +253,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	add_komponente(&bt_wait_next);
 
 	bt_mirror.init(button_t::square_automatic, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints.");
+	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.");
 	bt_mirror.pressed = fpl->is_mirrored();
 	bt_mirror.add_listener(this);
 	add_komponente(&bt_mirror);
