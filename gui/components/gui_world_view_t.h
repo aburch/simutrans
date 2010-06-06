@@ -65,12 +65,6 @@ public:
 	koord3d get_location() { return ding==NULL ? location : koord3d::invalid; }
 
     /**
-     * Sets the location to be displayed.
-     * @author Hj. Malthaner
-     */
-    void set_location(ding_t *dt) {location==koord3d::invalid; ding = dt;}
-
-    /**
      * Events werden hiermit an die GUI-Komponenten
      * gemeldet
      * @author Hj. Malthaner
