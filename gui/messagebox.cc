@@ -77,7 +77,5 @@ news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL co
 
 void news_loc::map_rotate90( sint16 new_ysize )
 {
-	koord3d l = view.get_location();
-	l.rotate90( new_ysize );
-	view.set_location( l );
+	view.map_rotate90(new_ysize);
 }

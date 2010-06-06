@@ -58,11 +58,7 @@ public:
      */
     void set_location(koord3d l) {location=l; ding = 0;}
 
-    /**
-     * Sets the location to be displayed.
-     * @author Hj. Malthaner
-     */
-	koord3d get_location() { return ding==NULL ? location : koord3d::invalid; }
+    void map_rotate90(sint16 const new_ysize) { location.rotate90(new_ysize); }
 
     /**
      * Events werden hiermit an die GUI-Komponenten
