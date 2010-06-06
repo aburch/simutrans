@@ -634,7 +634,7 @@ public:
 	// reserves or unreserves all blocks and returns the handle to the next block (if there)
 	// if count is larger than 1, maximum 64 tiles will be checked (freeing or reserving a choose signal path)
 	// return the last checked block
-	uint16 block_reserver(const route_t *route, uint16 start_index, int count, bool reserve ) const;
+	uint16 block_reserver(route_t *route, uint16 start_index, int count, bool reserve ) const;
 
 	void verlasse_feld();
 

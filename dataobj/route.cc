@@ -84,6 +84,13 @@ void route_t::remove_koord_from(uint32 i) {
 }
 
 
+void route_t::truncate_from(uint16 index) {
+	for( uint16 i=get_count()-1; i>index; i-- ) {
+		route.remove_at(i);
+	}
+}
+
+
 
 /**
  * Appends a straight line from the last koord3d in route to the desired target.

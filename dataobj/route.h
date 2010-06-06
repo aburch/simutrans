@@ -122,6 +122,11 @@ public:
 		route.append(k);
 	}
 
+	/**
+	 * truncate the route, discarding all tiles beyond the given index
+	 * @author yobbobandana
+	 */
+	void truncate_from(uint16 index);
 
 
 	/**

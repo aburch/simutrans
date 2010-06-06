@@ -3333,7 +3333,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
  * return the last checked block
  * @author prissi
  */
-uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int count, bool reserve ) const
+uint16 waggon_t::block_reserver(route_t *route, uint16 start_index, int count, bool reserve ) const
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -3347,6 +3347,18 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 
 	if(route->position_bei(start_index)==get_pos()  &&  reserve) {
 		start_index++;
+	}
+
+	// perhaps find an early platform to stop at
+	uint8 platform_size_needed = 0;
+	uint8 platform_size_found = 0;
+	ribi_t::ribi ribi_last = ribi_t::keine;
+	ribi_t::ribi ribi = ribi_t::keine;
+	halthandle_t dest_halt = halthandle_t();
+	uint16 early_platform_index = UNVALID_INDEX;
+	if( cnv && cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().ladegrad == 0 ) {
+		platform_size_needed = (cnv->get_length() + 15) / 16;
+		dest_halt = haltestelle_t::get_halt(welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer());
 	}
 
 	// find next blocksegment enroute
@@ -3379,12 +3391,37 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 				count --;
 				next_signal_index = i;
 			}
-			if(  !sch1->reserve( cnv->self, ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,(uint32)(i+1))) ) )  ) {
+			ribi = ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,(uint32)(i+1))) );
+			if( !sch1->reserve(cnv->self,ribi) ) {
 				success = false;
 			}
 			if(next_crossing_index==UNVALID_INDEX  &&  sch1->is_crossing()) {
 				next_crossing_index = i;
 			}
+			// check if there is an early platform available to stop at
+			if( early_platform_index==UNVALID_INDEX ) {
+				if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
+					if( ribi==ribi_last ) {
+						platform_size_found++;
+					} else {
+						platform_size_found = 1;
+					}
+					if( platform_size_found>=platform_size_needed ) {
+						early_platform_index = i;
+					}
+				} else {
+					platform_size_found = 0;
+				}
+			} else if( ribi_last==ribi ) {
+				// a platform was found, but it continues so go on to its end
+				early_platform_index = i;
+			} else {
+				// a platform was found, and has ended, thus the last index was fine.
+				// Reservation already failed for this tile so we don't need to unreserve.
+				success = true;
+				break;
+			}
+			ribi_last = ribi;
 		}
 		else if(sch1) {
 			if(!sch1->unreserve(cnv->self)) {
@@ -3437,6 +3474,12 @@ uint16 waggon_t::block_reserver(const route_t *route, uint16 start_index, int co
 		}
 	}
 
+	// if an early platform was found, stop there
+	if(early_platform_index!=UNVALID_INDEX) {
+		next_signal_index = early_platform_index;
+		// directly modify the route
+		route->truncate_from(early_platform_index);
+	}
 	// if next stop is further away then next crossing, return next crossing
 	if(next_signal_index>next_crossing_index) {
 		next_signal_index = next_crossing_index;
