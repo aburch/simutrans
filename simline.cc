@@ -222,7 +222,7 @@ void simline_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( withdraw, "" );
 	}
 
-	if(file->get_version()>=102003 && file->get_experimental_version() >= 8.1) {
+	if(file->get_version()>=102003 && file->get_experimental_version() >= 9) {
 		file->rdwr_bool( start_reversed, "" );
 	}
 

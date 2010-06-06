@@ -231,7 +231,7 @@ void schedule_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(aktuell, " ");
 		file->rdwr_byte(size, " ");
-		if( file->get_version()>=102003 && file->get_experimental_version()>=8.1 ) {
+		if( file->get_version()>=102003 && file->get_experimental_version()>=9 ) {
 			file->rdwr_bool(circular, " ");
 			file->rdwr_bool(mirrored, " ");
 		}

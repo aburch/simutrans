@@ -795,7 +795,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_long( factory_worker_minimum_towns, "" );
 				file->rdwr_long( factory_worker_maximum_towns, "" );
 			}
-			if(file->get_experimental_version() >= 8.1) {
+			if(file->get_experimental_version() >= 9) {
 				file->rdwr_bool( randomise_circular_routes, "" );
 			}
 		}
