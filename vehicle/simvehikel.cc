@@ -1125,7 +1125,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 
 bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route, bool any_platform)
 {
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0xFFFFFFFF, any_platform);
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), any_platform);
 }
 
 
@@ -2386,7 +2386,7 @@ bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, rout
 	}
 	target_halt = halthandle_t();	// no block reserved
 	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
-	return route->calc_route(welt, start, ziel, this, max_speed, routing_weight, 0xFFFFFFFF, any_platform);
+	return route->calc_route(welt, start, ziel, this, max_speed, routing_weight);
 }
 
 
@@ -2899,7 +2899,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 		block_reserver( cnv->get_route(), cnv->get_vehikel(cnv->get_vehikel_anzahl()-1)->get_route_index(), target_halt.is_bound()?100000:1, false );
 	}
 	target_halt = halthandle_t();	// no block reserved
-	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight(), 0xFFFFFFFF, any_platform);
+	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
 }
 
 
