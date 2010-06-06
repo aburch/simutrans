@@ -732,9 +732,9 @@ bool convoi_t::drive_to()
 		}
 
 		// use the first available platform in most cases
-		int use_any_platform = 0;
+		bool use_any_platform = false;
 		if(  fpl->get_current_eintrag().ladegrad == 0  ) {
-			use_any_platform = (get_length() + 15) / 16 ;
+			use_any_platform = true;
 		}
 		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route, use_any_platform)  ) {
 			state = NO_ROUTE;

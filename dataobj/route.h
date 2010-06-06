@@ -32,7 +32,7 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	bool intern_calc_route(karte_t *w, koord3d start, koord3d ziel, fahrer_t *fahr,
-		const uint32 max_kmh, const uint32 max_cost, const uint32 max_weight, int any_platform=0);
+		const uint32 max_kmh, const uint32 max_cost, const uint32 max_weight, bool any_platform = false);
 
 	koord3d_vector_t route;           // Die Koordinaten fuer die Fahrtroute
 
@@ -160,7 +160,7 @@ public:
 	 */
 	bool calc_route(karte_t *welt, koord3d start, koord3d ziel, fahrer_t *fahr,
 		const uint32 max_speed_kmh, const uint32 weight, const uint32 max_cost=0xFFFFFFFF,
-		int any_platform=0);
+		bool any_platform = false);
 
 	/**
 	 * Lädt/speichert eine Route
