@@ -24,7 +24,7 @@
 
 
 halt_detail_t::halt_detail_t(halthandle_t halt_) :
-	gui_frame_t(translator::translate("Details"), halt_->get_besitzer()),
+	gui_frame_t("Details", halt_->get_besitzer()),
 	halt(halt_),
 	scrolly(&cont),
 	txt_info(" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"

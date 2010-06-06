@@ -56,8 +56,6 @@
 class spieler_t;
 class koord3d;
 class koord;
-class toolbar_t;
-class werkzeug_waehler_t;
 class wegbauer_t;
 class roadsign_besch_t;
 class weg_besch_t;

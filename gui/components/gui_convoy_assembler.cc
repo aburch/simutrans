@@ -118,7 +118,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	cont_pas.add_komponente(&pas);
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
-	scrolly_pas.set_read_only(false);
 
 	// add only if there are any
 	if(!pas_vec.empty()) {
@@ -129,7 +128,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	cont_electrics.add_komponente(&electrics);
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
-	scrolly_electrics.set_read_only(false);
 	// add only if there are any trolleybuses
 	const uint8 shifter = 1 << vehikel_besch_t::electric;
 	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
@@ -142,7 +140,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	cont_loks.add_komponente(&loks);
 	scrolly_loks.set_show_scroll_x(false);
 	scrolly_loks.set_size_corner(false);
-	scrolly_loks.set_read_only(false);
 	// add, if waggons are there ...
 	if (!loks_vec.empty() || !waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_loks, translator::translate( get_zieher_name(wt) ) );
@@ -152,7 +149,6 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	cont_waggons.add_komponente(&waggons);
 	scrolly_waggons.set_show_scroll_x(false);
 	scrolly_waggons.set_size_corner(false);
-	scrolly_waggons.set_read_only(false);
 	// only add, if there are waggons
 	if (!waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_waggons, translator::translate( get_haenger_name(wt) ) );
@@ -1134,7 +1130,6 @@ void gui_convoy_assembler_t::update_tabs()
 	cont_pas.add_komponente(&pas);
 	scrolly_pas.set_show_scroll_x(false);
 	scrolly_pas.set_size_corner(false);
-	scrolly_pas.set_read_only(false);
 	// add only if there are any
 	if(!pas_vec.empty()) {
 		tabs.add_tab(&scrolly_pas, translator::translate( get_passenger_name(wt) ) );
@@ -1144,7 +1139,6 @@ void gui_convoy_assembler_t::update_tabs()
 	cont_electrics.add_komponente(&electrics);
 	scrolly_electrics.set_show_scroll_x(false);
 	scrolly_electrics.set_size_corner(false);
-	scrolly_electrics.set_read_only(false);
 	// add only if there are any trolleybuses
 	const uint8 shifter = 1 << vehikel_besch_t::electric;
 	const bool correct_traction_type = !depot_frame || (shifter & depot_frame->get_depot()->get_tile()->get_besch()->get_enabled());
@@ -1157,7 +1151,6 @@ void gui_convoy_assembler_t::update_tabs()
 	cont_loks.add_komponente(&loks);
 	scrolly_loks.set_show_scroll_x(false);
 	scrolly_loks.set_size_corner(false);
-	scrolly_loks.set_read_only(false);
 	// add, if waggons are there ...
 	if (!loks_vec.empty() || !waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_loks, translator::translate( get_zieher_name(wt) ) );
@@ -1167,7 +1160,6 @@ void gui_convoy_assembler_t::update_tabs()
 	cont_waggons.add_komponente(&waggons);
 	scrolly_waggons.set_show_scroll_x(false);
 	scrolly_waggons.set_size_corner(false);
-	scrolly_waggons.set_read_only(false);
 	// only add, if there are waggons
 	if (!waggons_vec.empty()) {
 		tabs.add_tab(&scrolly_waggons, translator::translate( get_haenger_name(wt) ) );

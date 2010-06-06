@@ -36,7 +36,7 @@ const char *curiositylist_frame_t::sort_text[curiositylist::SORT_MODES] = {
 };
 
 curiositylist_frame_t::curiositylist_frame_t(karte_t * welt) :
-    gui_frame_t(translator::translate("curlist_title")),
+    gui_frame_t("curlist_title"),
     sort_label(translator::translate("hl_txt_sort")),
 	stats(welt,sortby,sortreverse),
 	scrolly(&stats)

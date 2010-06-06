@@ -1321,9 +1321,12 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 				while(iter.next()) {
 					if(iter.get_current()->get_waytype()==waytype) {
 						schiene_t *sch = dynamic_cast<schiene_t *>(iter.access_current());
-						if(sch->get_reserved_convoi()==cnv  &&  !gr->suche_obj(cnv->get_vehikel(0)->get_typ())) {
-							// force free
-							sch->unreserve( cnv->get_vehikel(0) );
+						if (sch->get_reserved_convoi() == cnv) {
+							vehikel_t& v = *cnv->front();
+							if (!gr->suche_obj(v.get_typ())) {
+								// force free
+								sch->unreserve(&v);
+							}
 						}
 					}
 				}
@@ -2561,13 +2564,13 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 	}
 
 	// built wayobj ...
+	koord3d_vector_t const& r = verbindung.get_route();
 	for(uint32 i=0;  i<verbindung.get_count();  i++  ) {
 		if( build ) {
-			wayobj_t::extend_wayobj_t( welt, verbindung.get_route()[i], sp, verbindung.get_route().get_ribi(i), besch );
+			wayobj_t::extend_wayobj_t(welt, r[i], sp, r.get_ribi(i), besch);
 		}
 		else {
-			wayobj_t* wo = welt->lookup(verbindung.get_route()[i])->find<wayobj_t>();
-			if( wo ) {
+			if (wayobj_t* const wo = welt->lookup(r[i])->find<wayobj_t>()) {
 				const char *err = wo->ist_entfernbar( sp );
 				if( !err ) {
 					wo->entferne( sp );
@@ -3254,7 +3257,7 @@ image_id wkz_station_t::get_icon( spieler_t * ) const
 
 
 
-const char *wkz_station_t::get_tooltip(spieler_t *sp)
+char const* wkz_station_t::get_tooltip(spieler_t* const sp)
 {
 	sint8 dummy;
 	const haus_besch_t *besch=get_besch(dummy);
@@ -3287,7 +3290,6 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 				price = sp->get_welt()->get_einstellungen()->cst_multiply_station * besch->get_level();
 				break;
 			case road_wt:
-			default:
 				price = sp->get_welt()->get_einstellungen()->cst_multiply_roadstop * besch->get_level();
 				break;
 			case water_wt:
@@ -3299,6 +3301,8 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 			case 0:
 				price = sp->get_welt()->get_einstellungen()->cst_multiply_post * besch->get_level();
 				break;
+			default:
+				return "Illegal description";
 			}
 		}
 	}
@@ -3341,6 +3345,7 @@ const char *wkz_station_t::get_tooltip(spieler_t *sp)
 
 	return tooltip_with_price_maintenance_level( sp->get_welt(), besch->get_name(), price, maint, cap, besch->get_enabled() );
 }
+
 
 const char *wkz_station_t::check( karte_t *welt, spieler_t *sp, koord3d pos )
 {
@@ -3994,21 +3999,29 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 	return false;
 }
 
-const char *wkz_depot_t::get_tooltip(spieler_t *sp)
+
+char const* wkz_depot_t::get_tooltip(spieler_t* const sp)
 {
-	const haus_besch_t *besch = hausbauer_t::find_tile(default_param,0)->get_besch();
-	switch(besch->get_extra()) {
-		case road_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_road * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case track_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case monorail_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case maglev_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case narrowgauge_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case tram_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_rail * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case water_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_ship * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
-		case air_wt: return tooltip_with_price_maintenance( sp->get_welt(), translator::translate(besch->get_name()), sp->get_welt()->get_einstellungen()->cst_depot_air * besch->get_level(), sp->get_welt()->get_einstellungen()->maint_building*besch->get_level() );
+	karte_t&               welt			= *sp->get_welt();
+	einstellungen_t    const& settings  = *welt.get_einstellungen();
+	const haus_besch_t const& besch     = *hausbauer_t::find_tile(default_param, 0)->get_besch();
+	const char         const* tip		= translator::translate(besch.get_name());
+	const uint16		   level		=  besch.get_level();
+	sint64                 price;
+	switch (besch.get_extra()) {
+	case road_wt:            price = settings.cst_depot_road * level; break;
+		case track_wt:       price = settings.cst_depot_rail * level; break;
+		case monorail_wt:    price = settings.cst_depot_rail * level; break;
+		case maglev_wt:      price = settings.cst_depot_rail * level; break;
+		case narrowgauge_wt: price = settings.cst_depot_rail * level; break;
+		case tram_wt:        price = settings.cst_depot_rail * level; break;
+		case water_wt:       price = settings.cst_depot_ship * level; break;
+		case air_wt:         price = settings.cst_depot_air  * level; break;
+		default:             return 0;
 	}
-	return NULL;
+	return tooltip_with_price_maintenance(&welt, tip, price, settings.maint_building * level);
 }
+
 
 const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
@@ -5607,7 +5620,7 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 	if(  default_param==NULL  ) {
 		return false;
 	}
-	uint8 new_hash[20];
+	pwd_hash_t new_hash;
 	const char *ptr = default_param;
 	for(  int i=0; i<40;  i++  ) {
 		uint8 nibble;
@@ -5631,17 +5644,18 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 			case 'F': nibble = *ptr-'A'+10;
 				break;
 			default:
+				dbg->error( "wkz_change_password_hash_t::init()", "Password hash too short!" );
 				return false;
 		}
 		ptr ++;
 		if(  i&1 ) {
-			new_hash[i/2] |= (nibble<<4);
+			new_hash[i/2] |= nibble;
 		}
 		else {
-			new_hash[i/2] = nibble;
+			new_hash[i/2] = (nibble<<4);
 		}
 	}
-	memcpy( sp->get_password_hash_ptr(), new_hash, 20 );
+	sp->get_password_hash() = new_hash;
 	return false;
 }
 

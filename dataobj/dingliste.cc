@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
+#include "../simgraph.h"
 #include "dingliste.h"
 #include "../bauer/hausbauer.h"
 #include "../dings/dummy.h"
@@ -202,7 +203,7 @@ void dingliste_t::set_capacity(uint8 new_cap)
 	else if(capacity<=1  &&  new_cap>1) {
 		ding_t *tmp=obj.one;
 		obj.some = dl_alloc(new_cap);
-		memset( obj.some, 0, sizeof(ding_t*)*new_cap );
+		MEMZERON(obj.some, new_cap);
 		obj.some[0] = tmp;
 		capacity = new_cap;
 		assert(top<=1);

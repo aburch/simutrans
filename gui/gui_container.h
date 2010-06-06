@@ -29,7 +29,7 @@ private:
 	// holds the GUI Komponent that has the focus in this window
 	gui_komponente_t *komp_focus;
 
-	bool list_dirty;
+	bool list_dirty:1;
 
 public:
 	gui_container_t();
@@ -70,6 +70,12 @@ public:
 
 	// activates this element
 	void set_focus( gui_komponente_t *komp_focus );
+
+	/**
+	 * returns element that has the focus
+	 * that is: go down the hierarchy as much as possible
+	 */
+	gui_komponente_t *get_focus() const;
 };
 
 #endif

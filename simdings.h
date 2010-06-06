@@ -15,7 +15,6 @@
 
 
 class cbuffer_t;
-class fabrik_t;
 class karte_t;
 class spieler_t;
 
