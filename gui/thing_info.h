@@ -57,13 +57,6 @@ public:
 	virtual void info(cbuffer_t & buf) const { ding->info(buf); }
 
 	/**
-	 * @return the current map position
-	 *
-	 * @author Hj. Malthaner
-	 */
-	virtual koord3d get_pos() const { return ding->get_pos(); }
-
-	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
 	* das Fenster, d.h. es sind die Bildschirmkoordinaten des Fensters
 	* in dem die Komponente dargestellt wird.
