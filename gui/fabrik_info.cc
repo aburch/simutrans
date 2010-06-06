@@ -120,8 +120,6 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
    */
 bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
-	karte_t* welt = ding->get_welt();
-
 	if(komp == about) {
 		help_frame_t * frame = new help_frame_t();
 		char key[256];
@@ -131,6 +129,7 @@ bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else if(v.i&~1) {
 		koord k = *(const koord *)v.p;
+		karte_t* const welt = get_ding()->get_welt();
 		welt->change_world_position( koord3d(k,welt->max_hgt(k)) );
 	}
 

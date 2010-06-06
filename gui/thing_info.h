@@ -30,15 +30,10 @@ protected:
 
 	gui_fixedwidth_textarea_t textarea;
 
-	/**
-	 * The thing we observe. The thing will delete this object
-	 * if self deleted.
-	 * @author Hj. Malthaner
-	 */
-	const ding_t* ding;
-
 public:
 	ding_infowin_t(const ding_t* ding);
+
+	ding_t const* get_ding() const { return view.get_ding(); }
 
 	/**
 	 * @return window title
@@ -46,7 +41,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual const char *get_name() const { return ding->get_name(); }
+	virtual char const* get_name() const { return get_ding()->get_name(); }
 
 	/**
 	 * @return the text to display in the info window
@@ -54,7 +49,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual void info(cbuffer_t & buf) const { ding->info(buf); }
+	virtual void info(cbuffer_t& buf) const { get_ding()->info(buf); }
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
