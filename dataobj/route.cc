@@ -418,21 +418,19 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				// code adapted from that used to move to the end of the station.
 				koord zv = gr->get_pos().get_2d() - tmp->parent->gr->get_pos().get_2d();
 				const waytype_t wegtyp = fahr->get_waytype();
+				int i = 0;
 				to = NULL;
 				gr->get_neighbour(to, wegtyp, zv);
-				int i = 2;
 				while( to  &&  to->get_halt()==ziel_halt  &&  fahr->ist_befahrbar(to)  &&  (fahr->get_ribi(to)&&tmp->dir)!=0) {
 					// Do not go on a tile, where a oneway sign forbids going.
 					ribi_t::ribi go_dir = to->get_weg(wegtyp)->get_ribi_maske();
 					if((tmp->dir&go_dir)!=0) {
 						break;
 					}
-					if( i >= any_platform ) {
+					if( i++ >= any_platform ) {
 						ziel_erreicht = true;
 						break;
 					}
-					if( !(to->get_neighbour(to, wegtyp, zv)) ) { break; }
-					i++;
 				}
 				if( ziel_erreicht == true ) {
 					break;
