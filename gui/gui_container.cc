@@ -109,6 +109,7 @@ void gui_container_t::infowin_event(const event_t *ev)
 
 	if(  ev->ev_class!=EVENT_KEYBOARD  ) {
 		slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
+		slist_tpl<gui_komponente_t *>handle_mouseover;
 		while(  !list_dirty  &&  iter.next()  ) {
 			gui_komponente_t *komp = iter.get_current();
 
@@ -121,34 +122,43 @@ void gui_container_t::infowin_event(const event_t *ev)
 					komp->infowin_event(ev);
 				}
 				else if(  komp->is_visible()  ) {
-					const bool is_now_getroffen = komp->getroffen(ev->mx, ev->my);
-					if(  is_now_getroffen  ||  komp->getroffen(ev->cx, ev->cy)  ) {
-
-						// Hajo: if componet hit, translate coordinates and deliver event
-						event_t ev2 = *ev;
-						translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
-
-						// Hajo: infowin_event() can delete the component
-						// -> thus we need to ask first
-						gui_komponente_t *focus = komp->get_focus();
-
-						komp->infowin_event(&ev2);
-
-						// set focus for komponente, if komponente allows focus
-						if(  focus  &&  is_now_getroffen  &&  IS_LEFTRELEASE(ev)  ) {
-							/* the focus swallow all following events;
-							 * due to the activation action
-							 */
-							new_focus = focus;
-							if(  komp==focus  ) {
-								break;
-							}
-						}
+					if(  komp->getroffen(ev->mx, ev->my)  ||  komp->getroffen(ev->cx, ev->cy)  ) {
+						handle_mouseover.insert( komp );
 					}
 				}
 
 			} // if(komp)
 		} // while()
+
+		/* since the last drawn are overlaid over all others
+		 * the event-handling must go reverse too
+		 */
+		slist_iterator_tpl<gui_komponente_t *> iter_mouseover (handle_mouseover);
+		while(  !list_dirty  &&  iter_mouseover.next()  ) {
+			gui_komponente_t *komp = iter_mouseover.get_current();
+
+			// Hajo: if componet hit, translate coordinates and deliver event
+			event_t ev2 = *ev;
+			translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
+
+			// Hajo: infowin_event() can delete the component
+			// -> thus we need to ask first
+			gui_komponente_t *focus = komp->get_focus();
+
+			komp->infowin_event(&ev2);
+
+			// set focus for komponente, if komponente allows focus
+			if(  focus  &&  IS_LEFTRELEASE(ev)  &&  komp->getroffen(ev->mx, ev->my)  ) {
+				/* the focus swallow all following events;
+				 * due to the activation action
+				 */
+				new_focus = focus;
+			}
+			// stop here, the focus should handle this
+			if(  komp==new_focus  ) {
+				break;
+			}
+		}
 	}
 
 	list_dirty = false;
