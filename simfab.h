@@ -262,8 +262,8 @@ public:
 	void step(long delta_t);                  // fabrik muss auch arbeiten
 	void neuer_monat();
 
-	const char *get_name() const { return besch ? translator::translate(besch->get_name()) : "unnamed"; }
-	sint32 get_kennfarbe() const { return besch ? besch->get_kennfarbe() : 0; }
+	char const* get_name() const { return translator::translate(besch->get_name()); }
+	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
 	spieler_t *get_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->first_obj()->get_besitzer() : NULL; }
 
 	void zeige_info() const;
