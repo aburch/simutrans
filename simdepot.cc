@@ -30,6 +30,10 @@
 #include "dataobj/fahrplan.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
+
+#include "bauer/hausbauer.h"
+#include "dings/gebaeude.h"
+
 #include "bauer/vehikelbauer.h"
 
 #include "boden/wege/schiene.h"
@@ -528,6 +532,13 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 	file->rdwr_long(count, "\n");
 
 	if(file->is_loading()) {
+
+		// no house definition for this => use a normal hut ...
+		if(  this->get_tile()==NULL  ) {
+			dbg->error( "depot_t::rdwr()", "tile for depot not found!" );
+			set_tile( (*hausbauer_t::get_citybuilding_list( gebaeude_t::wohnung ))[0]->get_tile(0) );
+		}
+
 		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);
 		for(int i=0; i<count; i++) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();

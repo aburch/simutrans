@@ -24,8 +24,6 @@
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
 
-#include "../dataobj/translator.h"
-
 #include "../utils/simstring.h"
 
 #include "../vehicle/simvehikel.h"

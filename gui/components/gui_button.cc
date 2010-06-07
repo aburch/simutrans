@@ -21,6 +21,8 @@
 #include "../../besch/skin_besch.h"
 #include "../../utils/cstring_t.h"
 
+#include "../../ifc/gui_fenster.h"
+
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)
 static const char *empty="";
@@ -244,8 +246,7 @@ void button_t::set_typ(enum type t)
  * Setzt den im Button angezeigten Text
  * @author Hj. Malthaner
  */
-void
-button_t::set_text(const char * text)
+void button_t::set_text(const char * text)
 {
 	this->text = text;
 	translated_text = b_no_translate ? text : translator::translate(text);
@@ -274,8 +275,7 @@ void button_t::set_tooltip(const char * t)
 
 
 
-bool
-button_t::getroffen(int x,int y) {
+bool button_t::getroffen(int x,int y) {
 	bool hit=gui_komponente_t::getroffen(x, y);
 	if(pressed  &&  !hit  &&  type<=STATE_MASK) {
 		// moved away
@@ -300,6 +300,11 @@ void button_t::infowin_event(const event_t *ev)
 		if(tooltip) {
 			translated_tooltip = b_no_translate ? tooltip : translator::translate(tooltip);
 		}
+	}
+
+	if(  ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==32  &&  get_focus()  ) {
+		// space toggles button
+		call_listeners( (long)0 );
 	}
 
 	// Hajo: we ignore resize events, they shouldn't make us
@@ -358,28 +363,53 @@ void button_t::zeichnen(koord offset)
 	switch (type&STATE_MASK) {
 
 		case box: // old, 4-line box
-		{
-			if (pressed) {
-				display_ddd_box_clip(bx, by, bw, bh, MN_GREY0, MN_GREY4);
-				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
+			{
+				const gui_fenster_t *win = win_get_top();
+				if(  win  &&  win->get_focus()==this  ) {
+					// white box around
+					display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
+				}
+				if (pressed) {
+					display_ddd_box_clip(bx, by, bw, bh, MN_GREY0, MN_GREY4);
+					display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
+				}
+				else {
+					display_ddd_box_clip(bx, by, bw, bh, COL_GREY6, COL_GREY3);
+					display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
+				}
+				int len = proportional_string_width(translated_text);
+				display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 			}
-			else {
-				display_ddd_box_clip(bx, by, bw, bh, COL_GREY6, COL_GREY3);
-				display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
-			}
-			int len = proportional_string_width(translated_text);
-			display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
-		}
-		break;
+			break;
 
 		case roundbox: // new box with round corners
-			draw_roundbutton( bx, by, bw, bh, pressed );
-			display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, translated_text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
+			{
+				const gui_fenster_t *win = win_get_top();
+				if(  win  &&  win->get_focus()==this  ) {
+					// white box around
+					display_fillbox_wh_clip(bx-1, by-1, bw+2, 1, COL_WHITE, false);
+					if(b_cap_left!=IMG_LEER  &&  bh==14) {
+						display_fillbox_wh_clip(bx-1, by+skinverwaltung_t::window_skin->get_bild(13)->get_pic()->h, bw+2, 1, COL_WHITE, false);
+					}
+					else {
+						display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
+					}
+				}
+				draw_roundbutton( bx, by, bw, bh, pressed );
+				display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, translated_text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
+			}
 			break;
 
 		case square: // little square in front of text
-			display_button_image(bx, by, SQUARE_BUTTON, pressed);
-			display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+			{
+				const gui_fenster_t *win = win_get_top();
+				if(  win  &&  win->get_focus()==this  ) {
+					// white box around
+					display_fillbox_wh_clip(bx+16, by+(12+large_font_height)/2-2, bw-14, 1, COL_WHITE, false);
+				}
+				display_button_image(bx, by, SQUARE_BUTTON, pressed);
+				display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+			}
 			break;
 
 		case arrowleft:
@@ -441,4 +471,28 @@ void button_t::zeichnen(koord offset)
 	if(translated_tooltip &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
 		win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, translated_tooltip );
 	}
+}
+
+
+gui_komponente_t *button_t::get_focus() const
+{
+	switch (type&STATE_MASK) {
+
+		case box: // old, 4-line box
+		case roundbox: // new box with round corners
+		case square: // little square in front of text
+			return (gui_komponente_t *)this;
+
+		// those cannot recieve focus ...
+		case arrowleft:
+		case repeatarrowleft:
+		case arrowright:
+		case repeatarrowright:
+		case posbutton:
+		case arrowup:
+		case arrowdown:
+		case scrollbar:
+			break;
+	}
+	return NULL;
 }

@@ -2,7 +2,7 @@
 #define gui_messagebox_h
 
 #include "gui_frame.h"
-#include "components/gui_world_view_t.h"
+#include "components/location_view_t.h"
 #include "components/gui_image.h"
 #include "components/gui_fixedwidth_textarea.h"
 #include "../simskin.h"
@@ -53,7 +53,7 @@ public:
 	void map_rotate90( sint16 new_ysize );
 
 private:
-	world_view_t view;
+	location_view_t view;
 };
 
 #endif

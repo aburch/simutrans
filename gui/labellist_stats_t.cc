@@ -21,8 +21,6 @@
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
 
-#include "../dataobj/translator.h"
-
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
