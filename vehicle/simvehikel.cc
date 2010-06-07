@@ -2817,7 +2817,7 @@ waggon_t::waggon_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp, con
 waggon_t::~waggon_t()
 {
 	if (cnv && ist_erstes) {
-		route_t const& r = *cnv->get_route();
+		route_t & r = *cnv->get_route();
 		if (!r.empty() && route_index < r.get_count()) {
 			// free all reserved blocks
 			block_reserver(&r, cnv->back()->get_route_index(), target_halt.is_bound() ? 100000 : 1, false);
@@ -2841,7 +2841,7 @@ void waggon_t::set_convoi(convoi_t *c)
 		if(ist_erstes) {
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
-				route_t const& r = *cnv->get_route();
+				route_t & r = *cnv->get_route();
 				if (!r.empty() && route_index + 1U < r.get_count() - 1) {
 					block_reserver(&r, cnv->back()->get_route_index(), 100000, false);
 					target_halt = halthandle_t();
@@ -2851,7 +2851,7 @@ void waggon_t::set_convoi(convoi_t *c)
 				assert(c!=NULL);
 				// eventually reserve new route
 				if(  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
-					route_t const& r = *c->get_route();
+					route_t & r = *c->get_route();
 					if (route_index >= r.get_count()) {
 						c->suche_neue_route();
 						dbg->warning("waggon_t::set_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, r.get_count() - 1);
@@ -3390,7 +3390,7 @@ uint16 waggon_t::block_reserver(route_t *route, uint16 start_index, int count, b
 	ribi_t::ribi ribi_last = ribi_t::keine;
 	ribi_t::ribi ribi = ribi_t::keine;
 	halthandle_t dest_halt = halthandle_t();
-	uint16 early_platform_index = UNVALID_INDEX;
+	uint16 early_platform_index = INVALID_INDEX;
 	if( cnv && cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().ladegrad == 0 ) {
 		platform_size_needed = (cnv->get_length() + 15) / 16;
 		dest_halt = haltestelle_t::get_halt(welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer());
@@ -3434,7 +3434,7 @@ uint16 waggon_t::block_reserver(route_t *route, uint16 start_index, int count, b
 				next_crossing_index = i;
 			}
 			// check if there is an early platform available to stop at
-			if( early_platform_index==UNVALID_INDEX ) {
+			if( early_platform_index==INVALID_INDEX ) {
 				if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
 					if( ribi==ribi_last ) {
 						platform_size_found++;
@@ -3510,7 +3510,7 @@ uint16 waggon_t::block_reserver(route_t *route, uint16 start_index, int count, b
 	}
 
 	// if an early platform was found, stop there
-	if(early_platform_index!=UNVALID_INDEX) {
+	if(early_platform_index!=INVALID_INDEX) {
 		next_signal_index = early_platform_index;
 		// directly modify the route
 		route->truncate_from(early_platform_index);
