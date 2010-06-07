@@ -3044,6 +3044,36 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 }
 
 
+/*
+ * Helper function to calculate the next schedule index in a certain
+ * direction. Also switches the direction if necessary.
+ * @author yobbobandana
+ */
+void waggon_t::increment_fahrplan_index(uint8 *fahrplan_index, bool *fahrplan_reversed) {
+	if( *fahrplan_reversed ) {
+		if (*fahrplan_index == 0) {
+			*fahrplan_index = min(1, cnv->get_schedule()->get_count()-1);
+			if( cnv->get_schedule()->is_mirrored() ) {
+				*fahrplan_reversed = false;
+			}
+		} else {
+			*fahrplan_index = *fahrplan_index - 1;
+		}
+	} else {
+		if(*fahrplan_index >= cnv->get_schedule()->get_count()-1) {
+			if( cnv->get_schedule()->is_mirrored() && cnv->get_schedule()->get_count()>1 ) {
+				*fahrplan_index = cnv->get_schedule()->get_count()-2;
+				*fahrplan_reversed = true;
+			} else {
+				*fahrplan_index = 0;
+			}
+		} else {
+			*fahrplan_index = *fahrplan_index + 1;
+		}
+	}
+}
+
+
 bool waggon_t::ist_weg_frei(int & restart_speed)
 {
 	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) {
@@ -3082,6 +3112,8 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
+	bool fahrplan_reversed = cnv->get_reverse_schedule();
+
 	uint16 next_block=cnv->get_next_stop_index()-1;
 	if(next_block<=route_index+3) {
 		route_t *rt=cnv->get_route();
@@ -3114,11 +3146,8 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				route_t target_rt;
 				koord3d cur_pos = rt->position_bei(next_block+1);
 				// next tile is end of schedule => must start with next leg of schedule
-				if(count==0  &&  next_block+1u>=rt->get_count()-1) {
-					fahrplan_index ++;
-					if(fahrplan_index >= cnv->get_schedule()->get_count()) {
-						fahrplan_index = 0;
-					}
+				if(next_block+1u>=rt->get_count()-1) {
+					increment_fahrplan_index(&fahrplan_index, &fahrplan_reversed);
 					count++;
 				}
 				// now search
@@ -3157,10 +3186,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 					if(!exit_loop) {
 						target_rt.clear();
 						cur_pos = cnv->get_schedule()->eintrag[fahrplan_index].pos;
-						fahrplan_index ++;
-						if(fahrplan_index >= cnv->get_schedule()->get_count()) {
-							fahrplan_index = 0;
-						}
+						increment_fahrplan_index(&fahrplan_index, &fahrplan_reversed);
 						count++;
 					}
 				} while (count < cnv->get_schedule()->get_count() && !exit_loop); // stop after we've looped round schedule
