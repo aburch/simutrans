@@ -152,7 +152,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	river_max.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_max.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_max.set_limits(sets->get_min_river_length()+16,1024);
+	river_max.set_limits(sets->get_min_river_length()+16,4096);
 	river_max.set_value( sets->get_max_river_length() );
 	river_max.wrap_mode( false );
 	river_max.add_listener(this);
