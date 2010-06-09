@@ -99,6 +99,9 @@ void gui_container_t::infowin_event(const event_t *ev)
 				}
 			}
 		}
+		else {
+			new_focus = NULL;
+		}
 	}
 
 	if(  komp_focus != NULL  &&  ev->ev_class==EVENT_KEYBOARD  ) {
