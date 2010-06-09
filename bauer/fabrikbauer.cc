@@ -55,7 +55,7 @@ static void add_factory_to_fab_map(karte_t const* const welt, fabrik_t const* co
 	sint16       const  end_x   = min(welt->get_groesse_x() - 1, pos.x + hbesch.get_b(rotate) + spacing);
 	for (sint16 y = start_y; y < end_y; ++y) {
 		for (sint16 x = start_x; x < end_x; ++x) {
-			fab_map[fab_map_w * start_y + x / 8] |= 1 << (x % 8);
+			fab_map[fab_map_w * y + x / 8] |= 1 << (x % 8);
 		}
 	}
 }
