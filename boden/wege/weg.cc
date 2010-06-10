@@ -384,61 +384,66 @@ void weg_t::calc_bild()
 {
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
+	image_id old_bild = bild;
 
 	if(  from==NULL  ||  besch==NULL  ||  !from->is_visible()  ) {
 		// no ground, in tunnel
 		set_bild(IMG_LEER);
-		return;
 	}
-	if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
+	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
 		set_bild(IMG_LEER);
-		return;
 	}
-	if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
+	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
 		return;
 	}
+	else {
+		// use snow image if above snowline and above ground
+		bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
+		flags &= ~IS_SNOW;
+		if(  snow  ) {
+			flags |= IS_SNOW;
+		}
 
-	// use snow image if above snowline and above ground
-	bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
-	flags &= ~IS_SNOW;
-	if(  snow  ) {
-		flags |= IS_SNOW;
-	}
+		hang_t::typ hang = from->get_weg_hang();
+		if(hang != hang_t::flach) {
+			// on slope
+			set_bild(besch->get_hang_bild_nr(hang, snow));
+		}
+		else {
+			// flat way
+			set_bild(besch->get_bild_nr(ribi, snow));
 
-	hang_t::typ hang = from->get_weg_hang();
-	if(hang != hang_t::flach) {
-		set_bild(besch->get_hang_bild_nr(hang, snow));
-		return;
-	}
+			// try diagonal image
+			if(  besch->has_diagonal_bild()  ) {
 
-	if(  besch->has_diagonal_bild()  ) {
+				check_diagonal();
 
-		check_diagonal();
+				if(is_diagonal()) {
+					static int recursion = 0; /* Communicate among different instances of this method */
 
-		if(is_diagonal()) {
-			static int recursion = 0; /* Communicate among different instances of this method */
+					if(recursion == 0) {
+						recursion++;
+						for(int r = 0; r < 4; r++) {
+							if(from->get_neighbour(to, get_waytype(), koord::nsow[r])) {
+								to->get_weg(get_waytype())->calc_bild();
+							}
+						}
+						recursion--;
+					}
 
-			if(recursion == 0) {
-				recursion++;
-				for(int r = 0; r < 4; r++) {
-					if(from->get_neighbour(to, get_waytype(), koord::nsow[r])) {
-						to->get_weg(get_waytype())->calc_bild();
+					image_id diag_bild = besch->get_diagonal_bild_nr(ribi, snow);
+					if(diag_bild != IMG_LEER) {
+						set_bild(diag_bild);
 					}
 				}
-				recursion--;
-			}
-
-			image_id bild = besch->get_diagonal_bild_nr(ribi, snow);
-			if(bild != IMG_LEER) {
-				set_bild(bild);
-				return;
 			}
 		}
 	}
-
-	set_bild(besch->get_bild_nr(ribi, snow));
+	if (bild!=old_bild) {
+		mark_image_dirty(old_bild, from->get_weg_yoff());
+	}
 }
 
 
