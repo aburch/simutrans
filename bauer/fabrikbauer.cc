@@ -297,22 +297,31 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 	climate_bits climates = !ignore_climates ? besch->get_allowed_climate_bits() : ALL_CLIMATES;
 
 	// check no factory but otherwise good place
-	for(k.y=pos.y-radius; k.y<=pos.y+radius; k.y++) {
-		if(k.y<0) continue;
-		if(k.y>=welt->get_groesse_y()) break;
+	for(  k.y=pos.y-radius;  k.y <= pos.y+radius;  k.y++  ) {
+		if(  k.y < 0  ) {
+			continue;
+		}
+		if(  k.y >= welt->get_groesse_y()  ) {
+			break;
+		}
 
-		for(k.x=pos.x-radius; k.x<=pos.x+radius; k.x++) {
-			if(k.x<0) continue;
-			if(k.x>=welt->get_groesse_x()) break;
-			// climate check
-			if(is_fabrik  &&  is_factory_at(k.x,k.y)) {
+		for(  k.x=pos.x-radius;  k.x <= pos.x+radius;  k.x++  ) {
+			if(  k.x < 0  ) {
 				continue;
 			}
-			if(fabrik_t::ist_bauplatz(welt, k, groesse,wasser,climates)) {
-				list.append(welt->lookup(k)->get_kartenboden()->get_pos());
+			if(  k.x >= welt->get_groesse_x()  ) {
+				break;
+			}
+			// to close to existing factory
+			if(  is_fabrik  &&  is_factory_at(k.x,k.y)  ) {
+				continue;
+			}
+			// climate check
+			if(  fabrik_t::ist_bauplatz(welt, k, groesse,wasser,climates)  ) {
+				list.append( welt->lookup(k)->get_kartenboden()->get_pos() );
 				// nicht gleich daneben nochmal suchen
 				k.x += 4;
-				if(list.get_count()>=10000) {
+				if(  list.get_count() >= 10000  ) {
 					goto finish;
 				}
 			}
@@ -442,11 +451,11 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		koord dim = info->get_haus()->get_groesse(rotate);
 		koord k;
 
-		for(k.x=pos.x; k.x<=pos.x+dim.x; k.x++) {
-			for(k.y=pos.y; k.y<=pos.y+dim.y; k.y++) {
+		for(  k.x=pos.x;  k.x<=pos.x+dim.x;  k.x++  ) {
+			for(  k.y=pos.y;  k.y<=pos.y+dim.y;  k.y++  ) {
 				const planquadrat_t *plan = welt->lookup(k);
 				const halthandle_t *halt_list = plan->get_haltlist();
-				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++ ) {
+				for(  unsigned h=0;  h<plan->get_haltlist_count();  h++  ) {
 					halt_list[h]->verbinde_fabriken();
 				}
 			}
@@ -458,10 +467,10 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
 
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = staedte.begin(), end = staedte.end(); i != end; ++i) {
-			distance_stadt.insert_ordered( *i, RelativeDistanceOrdering(fab->get_pos().get_2d()) );
+		for(  weighted_vector_tpl<stadt_t*>::const_iterator iter = staedte.begin(), end = staedte.end();  iter != end;  ++iter  ) {
+			distance_stadt.insert_ordered( *iter, RelativeDistanceOrdering(fab->get_pos().get_2d()) );
 		}
-		for(  int i = 0;  i<distance_stadt.get_count()  &&  fab->get_arbeiterziele().get_count()<welt->get_einstellungen()->get_factory_worker_maximum_towns();  i++  ) {
+		for(  unsigned i = 0;  i<distance_stadt.get_count()  &&  fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_maximum_towns();  i++   ) {
 			if(  fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_minimum_towns()  ||  koord_distance( fab->get_pos(), distance_stadt[i]->get_pos() ) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
 				distance_stadt[i]->add_factory_arbeiterziel(fab);
 			}
@@ -480,7 +489,7 @@ bool fabrikbauer_t::can_factory_tree_rotate( const fabrik_besch_t *besch )
 	}
 
 	// now check for all products (should be changed later for the root)
-	for( int i=0;  i<besch->get_lieferanten();  i++  ) {
+	for(  int i=0;  i<besch->get_lieferanten();  i++   ) {
 
 		const ware_besch_t *ware = besch->get_lieferant(i)->get_ware();
 		stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);

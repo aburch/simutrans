@@ -1288,7 +1288,7 @@ static void rezoom_img(const image_id n)
 			if(y>x) {
 				x = y;
 			}
-			if(size < x) {
+			if(size < (uint32)x) {
 				free( baseimage );
 				free( baseimage2 );
 				size = x;

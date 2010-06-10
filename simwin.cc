@@ -538,7 +538,7 @@ void destroy_all_win()
 
 int top_win(int win)
 {
-	if(win==wins.get_count()-1) {
+	if((unsigned)win==wins.get_count()-1) {
 		return win;
 	} // already topped
 
@@ -587,7 +587,7 @@ void display_win(int win)
 			wins[win].closing,
 			( & wins[win].flags ) );
 	// mark top window, if requested
-	if(umgebung_t::window_frame_active  &&  win==wins.get_count()-1) {
+	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
 		if(!wins[win].rollup) {
 			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , titel_farbe, titel_farbe+1 );
 		}
@@ -813,13 +813,13 @@ bool check_pos_win(event_t *ev)
 	}
 
 	// just move top window until button release
-	if(  is_moving>=0  &&  is_moving<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+	if(  is_moving>=0  &&  (unsigned)is_moving<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
 		move_win( is_moving, ev );
 		return true;
 	}
 
 	// just resize window until button release
-	if(  is_resizing>=0  &&  is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
+	if(  is_resizing>=0  &&  (unsigned)is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
 		resize_win( is_resizing, ev );
 		return true;
 	}

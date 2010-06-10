@@ -1623,7 +1623,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::CAN_START:
 			case convoi_t::CAN_START_ONE_MONTH:
 				if(  state>=2  ) {
-					sprintf( tooltip_text, translator::translate("Waiting for clearance!") );
+					tstrncpy( tooltip_text, translator::translate("Waiting for clearance!"), lengthof(tooltip_text) );
 					color = COL_YELLOW;
 				}
 				break;
@@ -1638,7 +1638,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			case convoi_t::FAHRPLANEINGABE:
 //			case convoi_t::ROUTING_1:
 				if(  state>=2  ) {
-					sprintf( tooltip_text, translator::translate("Schedule changing!") );
+					tstrncpy( tooltip_text, translator::translate("Schedule changing!"), lengthof(tooltip_text) );
 					color = COL_YELLOW;
 				}
 				break;
@@ -1647,11 +1647,11 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				if(  state>=1  ) {
 					grund_t const* const gr = welt->lookup(cnv->get_route()->back());
 					if(  gr  &&  gr->get_depot()  ) {
-						sprintf( tooltip_text, translator::translate("go home") );
+						tstrncpy( tooltip_text, translator::translate("go home"), lengthof(tooltip_text) );
 						color = COL_GREEN;
 					}
 					else if(  cnv->get_no_load()  ) {
-						sprintf( tooltip_text, translator::translate("no load") );
+						tstrncpy( tooltip_text, translator::translate("no load"), lengthof(tooltip_text) );
 						color = COL_GREEN;
 					}
 				}
@@ -1659,19 +1659,19 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::LEAVING_DEPOT:
 				if(  state>=2  ) {
-					sprintf( tooltip_text, translator::translate("Leaving depot!") );
+					tstrncpy( tooltip_text, translator::translate("Leaving depot!"), lengthof(tooltip_text) );
 					color = COL_GREEN;
 				}
 				break;
 
 			case convoi_t::WAITING_FOR_CLEARANCE_TWO_MONTHS:
 			case convoi_t::CAN_START_TWO_MONTHS:
-				sprintf( tooltip_text, translator::translate("clf_chk_stucked") );
+				tstrncpy( tooltip_text, translator::translate("clf_chk_stucked"), lengthof(tooltip_text) );
 				color = COL_ORANGE;
 				break;
 
 			case convoi_t::NO_ROUTE:
-				sprintf( tooltip_text, translator::translate("clf_chk_noroute") );
+				tstrncpy( tooltip_text, translator::translate("clf_chk_noroute"), lengthof(tooltip_text) );
 				color = COL_RED;
 				break;
 		}
