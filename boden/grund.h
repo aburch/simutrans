@@ -273,6 +273,11 @@ public:
 	virtual void clear_back_bild() {back_bild_nr=0;}
 
 	/**
+	* if ground is deleted mark the old spot as dirty
+	*/
+	void mark_image_dirty();
+
+	/**
 	* Gibt den Namen des Untergrundes zurueck.
 	* @return Den Namen des Untergrundes.
 	* @author Hj. Malthaner

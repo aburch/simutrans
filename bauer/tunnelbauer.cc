@@ -496,8 +496,8 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
 		// remove everything else
 		gr->obj_loesche_alle(sp);
+		gr->mark_image_dirty();
 		welt->access(pos.get_2d())->boden_entfernen(gr);
-		welt->access(pos.get_2d())->get_kartenboden()->set_flag(grund_t::dirty);
 		delete gr;
 
 		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );
