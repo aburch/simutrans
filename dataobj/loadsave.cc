@@ -711,23 +711,23 @@ void loadsave_t::rdwr_str(const char *&s)
 void loadsave_t::rdwr_str(char* s, size_t const size)
 {
 	if(!is_xml()) {
-		sint16 len;
+		uint16 len;
 		if(saving) {
-			len = (sint16)min(32767,strlen(s));
+			len = (uint16)min(32767,strlen(s));
 #ifdef SIM_BIG_ENDIAN
 			{
 				sint16 ii = endian(len);
 				write(&ii, sizeof(sint16));
 			}
 #else
-			write(&len, sizeof(sint16));
+			write(&len, sizeof(uint16));
 #endif
 			write(s, len);
 		}
 		else {
-			read(&len, sizeof(sint16));
+			read(&len, sizeof(uint16));
 			len = endian(len);
-			if (len >= size) {
+			if(  len >= size) {
 				dbg->fatal( "loadsave_t::rdwr_str()","string longer (%i) than allowed size (%i)", len, size );
 			}
 			read(s, len);
@@ -761,7 +761,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 			// now parse input
 			if(string) {
 				const char *ptr = NULL;
-				for(  int i=0;  i<size;  i++  ) {
+				for(  size_t i=0;  i<size;  i++  ) {
 					char c = lsgetc();
 					if(  c=='<'  ) {
 						ptr = s;
@@ -784,7 +784,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 			else {
 				char last_three_chars[4];
 				sint8 len = 0;	// maximum is three
-				for(  int i=0;  i<size;  ) {
+				for(  size_t i=0;  i<size;  ) {
 					char c = lsgetc();
 					if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
 						last_three_chars[len++] = c;

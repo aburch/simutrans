@@ -249,7 +249,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	total_input = total_output = 0;
 	status = nothing;
 
-	// create producer information
+	// create input information
 	for(int i=0; i < fabesch->get_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = fabesch->get_lieferant(i);
 		ware_production_t ware;
@@ -260,15 +260,18 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		eingang.append(ware);
 	}
 
-	// create consumer information
+	// create output information
 	for (uint i = 0; i < fabesch->get_produkte(); i++) {
 		const fabrik_produkt_besch_t *produkt = fabesch->get_produkt(i);
 		ware_production_t ware;
 		ware.set_typ( produkt->get_ware() );
 		ware.abgabe_letzt = ware.abgabe_sum = 0;
 		ware.max = produkt->get_kapazitaet() << fabrik_t::precision_bits;
-		// if source then start with full storage (thus AI will built immeadiately lines)
-		ware.menge = (fabesch->get_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
+		ware.menge = 0;
+		if(  ware.max>0  &&  fabesch->get_lieferanten()==0  ) {
+			// if source then start with full storage (thus AI will built immeadiately lines)
+			ware.menge = ware.max-1;
+		}
 		ausgang.append(ware);
 	}
 
@@ -1020,7 +1023,8 @@ void fabrik_t::step(long delta_t)
 					ausgang[produkt].menge += p;
 					// if less than 3/4 filled we neary always consume power
 					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3)  &&  (p > 0);
-				} else {
+				}
+				else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
 			}
