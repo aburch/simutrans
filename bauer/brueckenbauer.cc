@@ -669,6 +669,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// we may have a second way/powerline here ...
 		gr->obj_loesche_alle(sp);
+		gr->mark_image_dirty();
 
 		welt->access(pos.get_2d())->boden_entfernen(gr);
 		delete gr;

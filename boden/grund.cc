@@ -607,6 +607,22 @@ static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
 	}
 }
 
+/**
+* if ground is deleted mark the old spot as dirty
+*/
+void grund_t::mark_image_dirty()
+{
+	// see ding_t::mark_image_dirty
+	if(bild_nr!=IMG_LEER) {
+		// better not try to twist your brain to follow the retransformation ...
+		const sint16 rasterweite=get_tile_raster_width();
+		const koord diff = pos.get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const sint16 x = (diff.x-diff.y)*(rasterweite/2);
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( -get_disp_height()*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
+		// mark the region after the image as dirty
+		display_mark_img_dirty( bild_nr, x+welt->get_x_off(), y+welt->get_y_off() );
+	}
+}
 
 // artifical walls from here on ...
 void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
