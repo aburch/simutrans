@@ -4003,11 +4003,11 @@ bool wkz_depot_t::init( karte_t *welt, spieler_t *sp )
 
 char const* wkz_depot_t::get_tooltip(spieler_t* const sp)
 {
-	karte_t&               welt			= *sp->get_welt();
-	einstellungen_t    const& settings  = *welt.get_einstellungen();
-	const haus_besch_t const& besch     = *hausbauer_t::find_tile(default_param, 0)->get_besch();
-	const char         const* tip		= translator::translate(besch.get_name());
-	const uint16		   level		=  besch.get_level();
+	karte_t&               welt      = *sp->get_welt();
+	einstellungen_t const& settings  = *welt.get_einstellungen();
+	haus_besch_t    const& besch     = *hausbauer_t::find_tile(default_param, 0)->get_besch();
+	char            const* tip       = translator::translate(besch.get_name());
+	const uint16           level     =  besch.get_level();
 	sint64                 price;
 	switch (besch.get_extra()) {
 	case road_wt:            price = settings.cst_depot_road * level; break;
