@@ -386,7 +386,7 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
  * @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
  * @author Hj. Malthaner
  */
-sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
+sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size, const sint32 map_size )
 {
 	// Hajo: to Markus: replace the fixed values with your
 	// settings. Amplitude is the top highness of the
@@ -405,7 +405,7 @@ sint32 karte_t::perlin_hoehe( einstellungen_t *sets, koord k, koord size )
 //    double perlin_noise_2D(double x, double y, double persistence);
 //    return ((int)(perlin_noise_2D(x, y, 0.6)*160.0)) & 0xFFFFFFF0;
 	k = k + koord(sets->get_origin_x(), sets->get_origin_y());
-	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness())*(double)sets->get_max_mountain_height())) / 16;
+	return ((int)(perlin_noise_2D(k.x, k.y, sets->get_map_roughness(), map_size)*(double)sets->get_max_mountain_height())) / 16;
 }
 
 void karte_t::cleanup_karte( int xoff, int yoff )
@@ -1341,6 +1341,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 {
 	sint16 new_groesse_x = sets->get_groesse_x();
 	sint16 new_groesse_y = sets->get_groesse_y();
+	const sint32 map_size = max (new_groesse_x, new_groesse_y);
 	planquadrat_t *new_plan = new planquadrat_t[new_groesse_x*new_groesse_y];
 	sint8 *new_grid_hgts = new sint8[(new_groesse_x+1)*(new_groesse_y+1)];
 
@@ -1427,7 +1428,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		for(  sint16 x = 0;  x<=new_groesse_x;  x++  ) {
 			for(  sint16 y = (x>=old_x)?0:old_y;  y<=new_groesse_y;  y++  ) {
 				koord pos(x,y);
-				const sint16 h = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) );
+				const sint16 h = perlin_hoehe( einstellungen, pos, koord(old_x,old_y), map_size );
 				set_grid_hgt( pos, h*Z_TILE_STEP);
 			}
 			next_progress = (x*16)/new_groesse_x;
@@ -1474,22 +1475,22 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 	// smoothing the seam (if possible)
 	for (sint16 x=1; x<old_x; x++) {
 		koord k(x,old_y);
-		const sint16 height = perlin_hoehe( einstellungen, k, koord(old_x,old_y) )*Z_TILE_STEP;
+		const sint16 height = perlin_hoehe( einstellungen, k, koord(old_x,old_y), map_size )*Z_TILE_STEP;
 		// need to raise/lower more
 		for(  sint16 dy=-abs(grundwasser-height);  dy<abs(grundwasser-height);  dy++  ) {
 			koord pos(x,old_y+dy);
-			const sint16 height = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )*Z_TILE_STEP;
+			const sint16 height = perlin_hoehe( einstellungen, pos, koord(old_x,old_y), map_size  )*Z_TILE_STEP;
 			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
 			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
 		}
 	}
 	for (sint16 y=1; y<old_y; y++) {
 		koord k(old_x,y);
-		const sint16 height = perlin_hoehe( einstellungen, k, koord(old_x,old_y) )*Z_TILE_STEP;
+		const sint16 height = perlin_hoehe( einstellungen, k, koord(old_x,old_y), map_size  )*Z_TILE_STEP;
 		// need to raise/lower more
 		for(  sint16 dx=-abs(grundwasser-height);  dx<abs(grundwasser-height);  dx++  ) {
 			koord pos(old_x+dx,y);
-			const sint16 height = perlin_hoehe( einstellungen, pos, koord(old_x,old_y) )*Z_TILE_STEP;
+			const sint16 height = perlin_hoehe( einstellungen, pos, koord(old_x,old_y), map_size  )*Z_TILE_STEP;
 			while(lookup_hgt(pos)<height  &&  raise(pos)) ;
 			while(lookup_hgt(pos)>height  &&  lower(pos)) ;
 		}

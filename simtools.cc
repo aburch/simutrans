@@ -292,17 +292,43 @@ static double interpolated_noise(const double x, const double y)
 
 
 /**
- * x,y Koordinaten des Punktes
- * p   Persistenz
+ * x,y  Point coordinates
+ * p    Persistence (was: Persistenz)
+ * m    Map size (longer side)
  */
-double perlin_noise_2D(const double x, const double y, const double p)
+double perlin_noise_2D(const double x, const double y, const double p, const sint32 m)
 {
+/**
+* Hoehe eines Punktes der Karte mit "perlin noise"
+*
+* @param frequency in 0..1.0 roughness, the higher the rougher
+* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
+*/
     double total = 0.0;
-    for(  int  i=0;  i<6;  i++  ) {
-		const double frequency = (double)(1 << i);
-		const double amplitude = pow(p, (double)i);
-		total += interpolated_noise( (x * frequency) / 64.0, (y * frequency) / 64.0) * amplitude;
-    }
+	int i;
+
+    static const double frequency_0[6] = {1,  2,  4,  8, 16, 32};
+	static const double amplitude_0[6] = {0,  1,  2,  3,  4,  5};
+	static const double frequency_1[8] = {0.25, 0.5,  1,  2,  4,  8, 16, 32};
+	static const double amplitude_1[8] = {-0.5,   0,  1,  2,  2,  3,  4,  7};
+
+	if (m<768) {
+		for(i=0; i<6; i++) {
+		const double frequency = frequency_0[i];
+		const double amplitude = pow(p, amplitude_0[i]);
+			total += interpolated_noise((x * frequency) / 64.0,
+			                            (y * frequency) / 64.0) * amplitude;
+		}
+		return total;
+	} else {
+		for(i=0; i<8; i++) {
+			const double frequency = frequency_1[i];
+			const double amplitude = pow(p, amplitude_1[i]);
+			total += interpolated_noise((x * frequency) / 64.0,
+										(y * frequency) / 64.0) * amplitude;
+		}
+		return total;
+	}
 
     return total;
 }

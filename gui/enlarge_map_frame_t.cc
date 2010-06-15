@@ -210,6 +210,7 @@ void enlarge_map_frame_t::update_preview()
 
 	const int mx = sets->get_groesse_x()/pre_x;
 	const int my = sets->get_groesse_y()/pre_y;
+	const sint32 map_size = max(sets->get_groesse_y(), sets->get_groesse_x());
 
 
 	for(  int j=0;  j<pre_y;  j++  ) {
@@ -229,7 +230,7 @@ void enlarge_map_frame_t::update_preview()
 			}
 			else {
 				// new part
-				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y) );
+				const sint16 height = karte_t::perlin_hoehe(sets, pos, koord(old_x,old_y), map_size );
 				color = reliefkarte_t::calc_hoehe_farbe(height*Z_TILE_STEP, sets->get_grundwasser()/Z_TILE_STEP);
 			}
 			karte[j*preview_size+i] = color;
