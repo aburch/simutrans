@@ -2212,9 +2212,20 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 		halthandle_t previous_halt = self;
 		const uint16 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
 
+		bool reverse = cnv->get_reverse_schedule();
+		// if the schedule is mirrored and this is an endpoint, need to switch direction
+		if( fpl->is_mirrored() && (fpl->get_aktuell()==0 || fpl->get_aktuell()==(count-1)) ) {
+			reverse = !reverse;
+		}
+
 		for(uint8 i = 1; i < count; i++) 
 		{
-			const uint8 wrap_i = (i + fpl->get_aktuell()) % count; //aktuell = "current" (Google)
+			uint8 wrap_i;
+			if( reverse ) {
+				wrap_i = (fpl->get_aktuell() + count - i) % count;
+			} else {
+				wrap_i = (i + fpl->get_aktuell()) % count; //aktuell = "current" (Google)
+			}
 
 			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[wrap_i].pos, sp); //eintrag = "entry" (Google)
 			if(plan_halt == self) 
@@ -2336,6 +2347,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 					}
 				}			
 				// nothing there to load
+			}
+
+			// if the schedule is mirrored and has reached its end, break
+			// as the convoi will be returning this way later.
+			if( fpl->is_mirrored() && (wrap_i==0 || wrap_i==(count-1)) ) {
+				break;
 			}
 		}
 	}
