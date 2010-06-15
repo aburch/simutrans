@@ -7,6 +7,7 @@
 #include "root_writer.h"
 #include "obj_pak_exception.h"
 #include "image_writer.h"
+#include "../../macros.h"
 
 //#define TRANSPARENT 0x808088
 #define TRANSPARENT 0xE7FFFF
