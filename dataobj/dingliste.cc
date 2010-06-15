@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
+#include "../simgraph.h"
 #include "dingliste.h"
 #include "../bauer/hausbauer.h"
 #include "../dings/dummy.h"
@@ -202,7 +203,7 @@ void dingliste_t::set_capacity(uint8 new_cap)
 	else if(capacity<=1  &&  new_cap>1) {
 		ding_t *tmp=obj.one;
 		obj.some = dl_alloc(new_cap);
-		memset( obj.some, 0, sizeof(ding_t*)*new_cap );
+		MEMZERON(obj.some, new_cap);
 		obj.some[0] = tmp;
 		capacity = new_cap;
 		assert(top<=1);
@@ -849,10 +850,15 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					bahndepot_t*                   bd;
 					gebaeude_t                     gb(welt, file);
 					haus_tile_besch_t const* const tile = gb.get_tile();
-					switch (tile->get_besch()->get_extra()) {
-						case monorail_wt: bd = new monoraildepot_t(welt, gb.get_pos(), gb.get_besitzer(), tile); break;
-						case tram_wt:     bd = new tramdepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
-						default:          bd = new bahndepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+					if(  tile  ) {
+						switch (tile->get_besch()->get_extra()) {
+							case monorail_wt: bd = new monoraildepot_t(welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+							case tram_wt:     bd = new tramdepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+							default:          bd = new bahndepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+						}
+					}
+					else {
+						bd = new bahndepot_t( welt, gb.get_pos(), gb.get_besitzer(), NULL );
 					}
 					bd->rdwr_vehicles(file);
 					d   = bd;

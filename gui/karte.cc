@@ -116,15 +116,15 @@ reliefkarte_t::set_relief_farbe(koord k, const int color)
 	if(rotate45) {
 		// since isometric is distorted
 		const sint32 xw = zoom_in>=2 ? 1 : 2*zoom_out;
-		for(  sint32 x = max(0,k.x);  x < xw+k.x  &&  x < (sint32)relief->get_width();  x++  ) {
-			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  y<(sint32)relief->get_height();  y++  ) {
+		for(  sint32 x = max(0,k.x);  x < xw+k.x  &&  (uint32)x < relief->get_width();  x++  ) {
+			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  (uint32)y<relief->get_height();  y++  ) {
 				relief->at(x, y) = color;
 			}
 		}
 	}
 	else {
-		for(  sint32 x = max(0,k.x);  x < zoom_out+k.x  &&  x<(sint32)relief->get_width();  x++  ) {
-			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  y<(sint32)relief->get_height();  y++ ) {
+		for(  sint32 x = max(0,k.x);  x < zoom_out+k.x  &&  (uint32)x < relief->get_width();  x++  ) {
+			for(  sint32 y = max(0,k.y);  y < zoom_out+k.y  &&  (uint32)y < relief->get_height();  y++  ) {
 				relief->at(x, y) = color;
 			}
 		}
@@ -144,10 +144,10 @@ reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 		k.x = clamp( k.x, areasize/2, get_groesse().x-areasize/2-1 );
 		k.y = clamp( k.y, 0, get_groesse().y-areasize-1 );
 		k -= cur_off;
-		for (p.x = 0; p.x<areasize; p.x++) {
-			for (p.y = 0; p.y<areasize; p.y++) {
+		for(  p.x = 0;  p.x<areasize;  p.x++  ) {
+			for(  p.y = 0;  p.y<areasize;  p.y++  ) {
 				koord pos = koord( k.x+(p.x-p.y)/2, k.y+(p.x+p.y)/2 );
-				if(  (pos.x|pos.y)>=0  &&  pos.x<(sint16)relief->get_width()  &&  pos.y<(sint16)relief->get_height()  ) {
+				if(  (pos.x|pos.y)>=0  &&  (uint16)pos.x<relief->get_width()  &&  (uint16)pos.y<relief->get_height()  ) {
 					relief->at(pos.x, pos.y) = color;
 				}
 			}
@@ -158,8 +158,8 @@ reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 		k.x = clamp( k.x, 0, get_groesse().x-areasize-1 );
 		k.y = clamp( k.y, 0, get_groesse().y-areasize-1 );
 		k -= cur_off;
-		for(  p.x = max(0,k.x); p.x<areasize+k.x  &&  p.x<(sint16)relief->get_width();  p.x++  ) {
-			for(  p.y = max(0,k.y);  p.y<areasize+k.y  &&  p.y<(sint16)relief->get_height();  p.y++  ) {
+		for(  p.x = max(0,k.x);  (uint16)p.x < areasize+k.x  &&  (uint16)p.x < relief->get_width();  p.x++  ) {
+			for(  p.y = max(0,k.y);  (uint16)p.y < areasize+k.y  &&  (uint16)p.y < relief->get_height();  p.y++  ) {
 				relief->at(p.x, p.y) = color;
 			}
 		}
@@ -789,7 +789,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 // draw current schedule
 void reliefkarte_t::draw_schedule(const koord pos) const
 {
-	assert(fpl!=NULL  ||  fpl->get_count()>0);
+	assert(fpl && !fpl->empty());
 
 	koord first_koord;
 	koord last_koord;
@@ -875,10 +875,10 @@ void reliefkarte_t::zeichnen(koord pos)
 		pax_destinations_last_change = city->get_pax_destinations_new_change();
 	}
 
-	if(  cur_size.x>(sint16)relief->get_width()  ) {
+	if(  (uint16)cur_size.x > relief->get_width()  ) {
 		display_fillbox_wh_clip( pos.x+cur_off.x+relief->get_width(), cur_off.y+pos.y, 32767, relief->get_height(), COL_BLACK, true);
 	}
-	if(  cur_size.y>(sint16)relief->get_height()  ) {
+	if(  (uint16)cur_size.y > relief->get_height()  ) {
 		display_fillbox_wh_clip( pos.x+cur_off.x, pos.y+cur_off.y+relief->get_height(), 32767, 32767, COL_BLACK, true);
 	}
 	display_array_wh( cur_off.x+pos.x, cur_off.y+pos.y, relief->get_width(), relief->get_height(), relief->to_array());
@@ -990,7 +990,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	// draw a halt name, if it is under the cursor of a schedule
 	if(is_show_schedule  &&  fpl) {
-		if(fpl->get_count()<=0) {
+		if (fpl->empty()) {
 			fpl = NULL;
 		}
 		else {

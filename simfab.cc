@@ -189,8 +189,6 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 {
 	welt = wl;
 
-	besch = NULL;
-
 	besitzer_p = NULL;
 	power = 0;
 	power_demand = 0;
@@ -251,7 +249,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	total_input = total_output = 0;
 	status = nothing;
 
-	// create producer information
+	// create input information
 	for(int i=0; i < fabesch->get_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = fabesch->get_lieferant(i);
 		ware_production_t ware;
@@ -262,15 +260,18 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		eingang.append(ware);
 	}
 
-	// create consumer information
+	// create output information
 	for (uint i = 0; i < fabesch->get_produkte(); i++) {
 		const fabrik_produkt_besch_t *produkt = fabesch->get_produkt(i);
 		ware_production_t ware;
 		ware.set_typ( produkt->get_ware() );
 		ware.abgabe_letzt = ware.abgabe_sum = 0;
 		ware.max = produkt->get_kapazitaet() << fabrik_t::precision_bits;
-		// if source then start with full storage (thus AI will built immeadiately lines)
-		ware.menge = (fabesch->get_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
+		ware.menge = 0;
+		if(  ware.max>0  &&  fabesch->get_lieferanten()==0  ) {
+			// if source then start with full storage (thus AI will built immeadiately lines)
+			ware.menge = ware.max-1;
+		}
 		ausgang.append(ware);
 	}
 
@@ -360,32 +361,27 @@ fabrik_t::~fabrik_t()
 
 void fabrik_t::baue(sint32 rotate)
 {
-	if(besch) {
-		this->rotate = rotate;
-		pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
-		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->get_haus(), this);
-		pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
-		if(besch->get_field()) {
-			// if there are fields
-			if(!fields.empty()) {
-				for( uint16 i=0;  i<fields.get_count();  i++  ) {
-					const koord k = fields[i].location;
-					grund_t *gr=welt->lookup_kartenboden(k);
-					// first make foundation below
-					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
-					welt->access(k)->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field()->get_field_class( fields[i].field_class_index ), this ) );
-				}
-			}
-			else {
-				// we will start with a certain minimum number
-				while(fields.get_count()<besch->get_field()->get_min_fields()  &&  add_random_field(0))
-					;
+	this->rotate = rotate;
+	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
+	hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->get_haus(), this);
+	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
+	if(besch->get_field()) {
+		// if there are fields
+		if(!fields.empty()) {
+			for( uint16 i=0;  i<fields.get_count();  i++  ) {
+				const koord k = fields[i].location;
+				grund_t *gr=welt->lookup_kartenboden(k);
+				// first make foundation below
+				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+				welt->access(k)->boden_ersetzen(gr, gr2);
+				gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field()->get_field_class( fields[i].field_class_index ), this ) );
 			}
 		}
-	}
-	else {
-		dbg->error("fabrik_t::baue()", "Bulding description not available!");
+		else {
+			// we will start with a certain minimum number
+			while(fields.get_count()<besch->get_field()->get_min_fields()  &&  add_random_field(0))
+				;
+		}
 	}
 }
 
@@ -581,24 +577,15 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::get_fabesch(s);
 		if(besch==NULL) {
 			besch = fabrikbauer_t::get_fabesch(translator::compatibility_name(s));
-		}
-		if(besch==NULL) {
-			dbg->fatal( "fabrik_t::rdwr()","no besch for %s", s );
+			if (!besch) {
+				dbg->fatal("fabrik_t::rdwr()", "no besch for %s", s);
+			}
 		}
 		// set ware arrays ...
-		if(besch) {
-			eingang.clear();
-			eingang.resize(besch->get_lieferanten());
-			ausgang.clear();
-			ausgang.resize(besch->get_produkte());
-		}
-		else {
-			// save defaults for loading only, factory will be ignored!
-			eingang.clear();
-			eingang.resize(16);
-			ausgang.clear();
-			ausgang.resize(10);
-		}
+		eingang.clear();
+		eingang.resize(besch->get_lieferanten());
+		ausgang.clear();
+		ausgang.resize(besch->get_produkte());
 	}
 	pos.rdwr(file);
 
@@ -681,12 +668,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			prodfaktor = 16;
 		}
 		if(file->get_version() < 86001) {
-			if(besch) {
-				koord k=besch->get_haus()->get_groesse();
-DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
-				// since we step from 86.01 per factory, not per tile!
-				prodbase *= k.x*k.y*2;
-			}
+			koord k=besch->get_haus()->get_groesse();
+			DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
+			// since we step from 86.01 per factory, not per tile!
+			prodbase *= k.x*k.y*2;
 		}
 		// Hajo: restore factory owner
 		// Due to a omission in Volkers changes, there might be savegames
@@ -1038,7 +1023,8 @@ void fabrik_t::step(long delta_t)
 					ausgang[produkt].menge += p;
 					// if less than 3/4 filled we neary always consume power
 					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3)  &&  (p > 0);
-				} else {
+				}
+				else {
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
 			}

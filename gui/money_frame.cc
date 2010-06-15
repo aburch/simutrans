@@ -91,7 +91,6 @@ const uint8 button_order[MAX_PLAYER_COST] =
 	6, 5, 10, 7, 19
 };
 
-char money_frame_t::digit[4];
 
 /**
  * fills buffer (char array) with finance info
@@ -463,7 +462,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		warn.set_color( COL_RED );
 		if(sp->get_finance_history_year(0, COST_NETWEALTH) < 0 && sp->get_welt()->get_einstellungen()->bankruptsy_allowed()) 
 		{
-			sprintf(str_buf[25], translator::translate("Company bankrupt") );
+			tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
 		}
 		else 
 		{

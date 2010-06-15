@@ -74,7 +74,5 @@ void grund_info_t::zeichnen(koord pos, koord groesse)
 
 void grund_info_t::map_rotate90( sint16 new_ysize )
 {
-	koord3d l = view.get_location();
-	l.rotate90( new_ysize );
-	view.set_location( l );
+	view.map_rotate90(new_ysize);
 }

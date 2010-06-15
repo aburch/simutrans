@@ -3,13 +3,14 @@
 
 #include "simtypes.h"
 
-typedef struct font_type {
+struct font_type
+{
 	sint16	height;
 	sint16	descent;
 	uint16 num_chars;
 	uint8 *screen_width;
 	uint8 *char_data;
-} font_type;
+};
 
 /*
  * characters are stored dense in a array

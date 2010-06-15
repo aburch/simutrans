@@ -67,7 +67,7 @@ bool loadsave_t::rd_open(const char *filename)
 		bool ok = false;
 		if(  bse==BZ_OK  ) {
 			// else: use zlib
-			memset( buf, 0, 80 );
+			MEMZERO(buf);
 			if(  BZ2_bzRead( &bse, bzfp, buf, sizeof(SAVEGAME_PREFIX) )==sizeof(SAVEGAME_PREFIX)  &&  bse==BZ_OK  ) {
 				// get the rest of the string
 				for(  int i=sizeof(SAVEGAME_PREFIX);  buf[i-1]>=32  &&  i<79;  i++  ) {
@@ -421,24 +421,22 @@ void loadsave_t::rdwr_byte(uint8 &c, const char *)
 void loadsave_t::rdwr_short(sint16 &i, const char *)
 {
 	if(!is_xml()) {
-#ifdef BIG_ENDIAN
-		if(saving) {
-			sint16 ii = (sint16)endian_uint16((uint16 *)&i);
+		if (saving) {
+#ifdef SIM_BIG_ENDIAN
+			sint16 ii = endian(i);
 			write(&ii, sizeof(sint16));
-		}
-		else {
+#else
+			write(&i, sizeof(sint16));
+#endif
+		} else {
+#ifdef SIM_BIG_ENDIAN
 			uint16 ii;
 			read(&ii, sizeof(sint16));
-			i = (sint16)endian_uint16(&ii);
-		}
+			i = endian(ii);
 #else
-		if(saving) {
-			write(&i, sizeof(sint16));
-		}
-		else {
 			read(&i, sizeof(sint16));
-		}
 #endif
+		}
 	}
 	else {
 		sint64 ll = i;
@@ -458,24 +456,22 @@ void loadsave_t::rdwr_short(uint16 &i, const char *)
 void loadsave_t::rdwr_long(sint32 &l, const char *)
 {
 	if(!is_xml()) {
-#ifdef BIG_ENDIAN
-		if(saving) {
-			uint32 ii = (sint32)endian_uint32((uint32 *)&l);
+		if (saving) {
+#ifdef SIM_BIG_ENDIAN
+			uint32 ii = endian(l);
 			write(&ii, sizeof(uint32));
-		}
-		else {
+#else
+			write(&l, sizeof(sint32));
+#endif
+		} else {
+#ifdef SIM_BIG_ENDIAN
 			uint32 ii;
 			read(&ii, sizeof(uint32));
-			l = (sint32)endian_uint32(&ii);
-		}
+			l = endian(ii);
 #else
-		if(saving) {
-			write(&l, sizeof(sint32));
-		}
-		else {
 			read(&l, sizeof(sint32));
-		}
 #endif
+		}
 	}
 	else {
 		sint64 ll = l;
@@ -495,24 +491,22 @@ void loadsave_t::rdwr_long(uint32 &l, const char *)
 void loadsave_t::rdwr_longlong(sint64 &ll, const char *)
 {
 	if(!is_xml()) {
-#ifdef BIG_ENDIAN
-		if(saving) {
-			sint64 ii = (sint64)endian_uint64((uint64 *)&ll);
+		if (saving) {
+#ifdef SIM_BIG_ENDIAN
+			sint64 ii = endian(ll);
 			write(&ii, sizeof(sint64));
-		}
-		else {
+#else
+			write(&ll, sizeof(sint64));
+#endif
+		} else {
+#ifdef SIM_BIG_ENDIAN
 			uint64 ii;
 			read(&ii, sizeof(sint64));
-			ll = (sint64)endian_uint64(&ii);
-		}
+			ll = endian(ii);
 #else
-		if(saving) {
-			write(&ll, sizeof(sint64));
-		}
-		else {
 			read(&ll, sizeof(sint64));
-		}
 #endif
+		}
 	}
 	else {
 		rdwr_xml_number( ll, "i64" );
@@ -657,9 +651,9 @@ void loadsave_t::rdwr_str(const char *&s)
 		sint16 size;
 		if(saving) {
 			size = s ? (sint16)min(32767,strlen(s)) : 0;
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 			{
-				uint16 ii = endian_uint16((uint16 *)&size);
+				uint16 ii = endian(size);
 				write(&ii, sizeof(sint16));
 			}
 #else
@@ -670,11 +664,11 @@ void loadsave_t::rdwr_str(const char *&s)
 			}
 		}
 		else {
-#ifdef BIG_ENDIAN
+#ifdef SIM_BIG_ENDIAN
 			{
 				uint16 ii;
 				read(&ii, sizeof(uint16));
-				size = (sint16)endian_uint16(&ii);
+				size = endian(ii);
 			}
 #else
 			read(&size, sizeof(sint16));
@@ -717,25 +711,23 @@ void loadsave_t::rdwr_str(const char *&s)
 void loadsave_t::rdwr_str(char* s, size_t const size)
 {
 	if(!is_xml()) {
-		sint16 len;
+		uint16 len;
 		if(saving) {
-			len = (sint16)min(32767,strlen(s));
-#ifdef BIG_ENDIAN
+			len = (uint16)min(32767,strlen(s));
+#ifdef SIM_BIG_ENDIAN
 			{
-				sint16 ii = (sint16)endian_uint16((uint16 *)&len);
+				sint16 ii = endian(len);
 				write(&ii, sizeof(sint16));
 			}
 #else
-			write(&len, sizeof(sint16));
+			write(&len, sizeof(uint16));
 #endif
 			write(s, len);
 		}
 		else {
-			read(&len, sizeof(sint16));
-#ifdef BIG_ENDIAN
-			len = (sint16)endian_uint16((uint16 *)&len);
-#endif
-			if (len >= size) {
+			read(&len, sizeof(uint16));
+			len = endian(len);
+			if(  len >= size) {
 				dbg->fatal( "loadsave_t::rdwr_str()","string longer (%i) than allowed size (%i)", len, size );
 			}
 			read(s, len);
@@ -769,7 +761,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 			// now parse input
 			if(string) {
 				const char *ptr = NULL;
-				for(  int i=0;  i<size;  i++  ) {
+				for(  size_t i=0;  i<size;  i++  ) {
 					char c = lsgetc();
 					if(  c=='<'  ) {
 						ptr = s;
@@ -792,7 +784,7 @@ void loadsave_t::rdwr_str(char* s, size_t const size)
 			else {
 				char last_three_chars[4];
 				sint8 len = 0;	// maximum is three
-				for(  int i=0;  i<size;  ) {
+				for(  size_t i=0;  i<size;  ) {
 					char c = lsgetc();
 					if(  c==']'  &&  (  len==0  ||  (len==1  &&  last_three_chars[0] == ']') )  ) {
 						last_three_chars[len++] = c;

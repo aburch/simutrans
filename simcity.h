@@ -22,7 +22,6 @@
 
 class karte_t;
 class spieler_t;
-class cbuffer_t;
 class cstring_t;
 class fabrik_t;
 

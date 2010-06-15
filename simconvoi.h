@@ -23,7 +23,6 @@
 
 #define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES	4 // number of non money types in convoi's financial statistic
 
 #define CONVOI_CAPACITY				0 // the amount of ware that could be transported, theoretically
 #define CONVOI_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
@@ -481,7 +480,7 @@ public:
 	* get state
 	* @author hsiegeln
 	*/
-	inline int get_state() { return state; }
+	int get_state() const { return state; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
@@ -683,6 +682,10 @@ public:
 	// Upgrades a vehicle in the convoy.
 	// @author: jamespetts, February 2010
 	void upgrade_vehicle(uint16 i, vehikel_t* v);
+
+	vehikel_t* front() const { return fahr[0]; }
+
+	vehikel_t* back() const { return fahr[anz_vehikel - 1]; }
 
 	/**
 	* Adds a vehicel at the start or end of the convoi.

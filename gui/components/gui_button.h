@@ -141,6 +141,8 @@ public:
 
 	bool enabled() { return b_enabled; }
 
+	gui_komponente_t *get_focus() const;
+
 private:
 	button_t(const button_t&);        // forbidden
 	void operator =(const button_t&); // forbidden

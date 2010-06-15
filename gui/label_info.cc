@@ -12,7 +12,6 @@
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/umgebung.h"
-#include "../dataobj/translator.h"
 #include "../dings/label.h"
 #include "../utils/simstring.h"
 
@@ -83,7 +82,5 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 void label_info_t::map_rotate90( sint16 new_ysize )
 {
-	koord3d l = view.get_location();
-	l.rotate90( new_ysize );
-	view.set_location( l );
+	view.map_rotate90(new_ysize);
 }

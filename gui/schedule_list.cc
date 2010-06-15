@@ -357,12 +357,11 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		}
 	}
 	else if (komp == &scl) {
-		if(  (uint32)(v.i)<scl.get_count()  ) {
-			// get selected line
-			linehandle_t new_line = ((line_scrollitem_t *)scl.get_element(v.i))->get_line();
-			update_lineinfo( new_line );
+		if(  line_scrollitem_t *li=(line_scrollitem_t *)scl.get_element(v.i)  ) {
+			update_lineinfo( li->get_line() );
 		}
 		else {
+			// no valid line
 			update_lineinfo(linehandle_t());
 		}
 		// brute force: just recalculate whole list on each click to keep it current
@@ -420,7 +419,7 @@ void schedule_list_gui_t::display(koord pos)
 	sint64 profit = line->get_finance_history(0,LINE_PROFIT);
 
 	for (int i = 0; i<icnv; i++) {
-		convoihandle_t cnv = line->get_convoy(i)->self;
+		convoihandle_t const cnv = line->get_convoy(i);
 		// we do not want to count the capacity of depot convois
 		if (!cnv->in_depot()) {
 			for (unsigned j = 0; j<cnv->get_vehikel_anzahl(); j++) {
@@ -537,7 +536,7 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		cont.remove_all();
 		int ypos = 5;
 		for(i = 0;  i<icnv;  i++  ) {
-			gui_convoiinfo_t *cinfo = new gui_convoiinfo_t(new_line->get_convoy(i)->self, i + 1);
+			gui_convoiinfo_t* const cinfo = new gui_convoiinfo_t(new_line->get_convoy(i), i + 1);
 			cinfo->set_pos(koord(0, ypos));
 			cinfo->set_groesse(koord(400, 40));
 			cont.add_komponente(cinfo);

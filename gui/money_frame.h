@@ -14,7 +14,7 @@
 #include "components/gui_label.h"
 #include "components/gui_tab_panel.h"
 #include "components/gui_chart.h"
-#include "components/gui_world_view_t.h"
+#include "components/location_view_t.h"
 
 class spieler_t;
 
@@ -102,12 +102,11 @@ private:
 	static const char cost_type[MAX_PLAYER_COST][64];
 	static const char cost_tooltip[MAX_PLAYER_COST][256];
 	static const int cost_type_color[MAX_PLAYER_COST];
-	static char digit[4];
 	gui_tab_panel_t year_month_tabs;
 
 	button_t headquarter, goto_headquarter;
 	char headquarter_tooltip[1024];
-	world_view_t headquarter_view;
+	location_view_t headquarter_view;
 
 	// last remembered HQ pos
 	sint16 old_level;

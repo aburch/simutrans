@@ -13,7 +13,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/gui_chart.h"
-#include "components/gui_world_view_t.h"
+#include "components/ding_view_t.h"
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
@@ -44,7 +44,7 @@ public:
 private:
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
-	world_view_t view;
+	ding_view_t view;
 	gui_label_t sort_label;
 	gui_textinput_t input;
 	gui_speedbar_t filled_bar;

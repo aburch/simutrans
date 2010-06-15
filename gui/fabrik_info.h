@@ -9,7 +9,6 @@
 #define fabrikinfo_t_h
 
 #include "thing_info.h"
-#include "components/gui_world_view_t.h"
 #include "components/action_listener.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_textarea.h"

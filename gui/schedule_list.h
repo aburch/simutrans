@@ -39,9 +39,9 @@ private:
 
 	sint32 selection, capacity, load, loadfactor;
 
-	sint32 old_line_count;
+	uint32 old_line_count;
 	sint32 last_schedule_count;
-	sint32 last_vehicle_count;
+	uint32 last_vehicle_count;
 
 	void display(koord pos);
 

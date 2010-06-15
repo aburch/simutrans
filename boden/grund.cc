@@ -330,7 +330,7 @@ void grund_t::rdwr(loadsave_t *file)
 					if(get_typ()==fundament) {
 						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
 						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
-						// we do not delete them, to keep maitenance costs correct
+						// we do not delete them, to keep maintenance costs correct
 					}
 					else {
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
@@ -892,6 +892,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		if (clip) {
 			clear_all_poly_clip();
 		}
+	}
+}
+
+
+void grund_t::display_if_visible(sint16 const xpos, sint16 const ypos, sint16 const raster_tile_width) const
+{
+	if (!get_flag(grund_t::draw_as_ding) && is_karten_boden_visible()) {
+		display_boden(xpos, ypos, raster_tile_width);
 	}
 }
 
@@ -1521,6 +1529,10 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					return false;
 				}
 			}
+		}
+		// remove ribi from canals to sea level
+		if (wt==water_wt  &&  pos.z==welt->get_grundwasser()  &&  slope!=hang_t::flach) {
+			rem &= ~ribi_t::doppelt(ribi_typ(slope));
 		}
 
 		// remove ribi from canals to sea level

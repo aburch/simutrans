@@ -15,8 +15,6 @@
 #include "../boden/wasser.h"
 #include "../boden/fundament.h"
 
-#include "../dataobj/translator.h"
-
 #include "../dings/leitung2.h"
 #include "../dings/zeiger.h"
 

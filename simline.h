@@ -33,7 +33,6 @@
 
 class karte_t;
 class loadsave_t;
-class simlinemgmt_t;
 class spieler_t;
 
 class simline_t {
@@ -252,7 +251,7 @@ class truckline_t : public simline_t
 	public:
 		truckline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::truckline;
+			type = truckline;
 			set_schedule(new autofahrplan_t());
 		}
 };
@@ -262,7 +261,7 @@ class trainline_t : public simline_t
 	public:
 		trainline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::trainline;
+			type = trainline;
 			set_schedule(new zugfahrplan_t());
 		}
 };
@@ -272,7 +271,7 @@ class shipline_t : public simline_t
 	public:
 		shipline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::shipline;
+			type = shipline;
 			set_schedule(new schifffahrplan_t());
 		}
 };
@@ -282,7 +281,7 @@ class airline_t : public simline_t
 	public:
 		airline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::airline;
+			type = airline;
 			set_schedule(new airfahrplan_t());
 		}
 };
@@ -292,7 +291,7 @@ class monorailline_t : public simline_t
 	public:
 		monorailline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::monorailline;
+			type = monorailline;
 			set_schedule(new monorailfahrplan_t());
 		}
 };
@@ -302,7 +301,7 @@ class tramline_t : public simline_t
 	public:
 		tramline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::tramline;
+			type = tramline;
 			set_schedule(new tramfahrplan_t());
 		}
 };
@@ -312,7 +311,7 @@ class narrowgaugeline_t : public simline_t
 	public:
 		narrowgaugeline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::narrowgaugeline;
+			type = narrowgaugeline;
 			set_schedule(new narrowgaugefahrplan_t());
 		}
 };
@@ -322,7 +321,7 @@ class maglevline_t : public simline_t
 	public:
 		maglevline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = simline_t::maglevline;
+			type = maglevline;
 			set_schedule(new maglevfahrplan_t());
 		}
 };

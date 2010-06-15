@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "../../simdebug.h"
+#include "../../ifc/gui_fenster.h"
 #include "gui_textinput.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
@@ -26,14 +27,7 @@ gui_textinput_t::gui_textinput_t()
 	cursor_pos = 0;
 	align = ALIGN_LEFT;
 	textcol = COL_BLACK;
-	set_read_only(false);
-}
-
-
-gui_textinput_t::~gui_textinput_t()
-{
-	release_focus(this);
-	text = NULL;
+	set_allow_focus(true);
 }
 
 
@@ -45,7 +39,7 @@ gui_textinput_t::~gui_textinput_t()
 void gui_textinput_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == EVENT_KEYBOARD) {
-		if((text != NULL) && has_focus(this)) {
+		if(  text  ) {
 			const size_t len = strlen(text);
 
 			switch(ev->ev_code) {
@@ -99,17 +93,12 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 							}
 					}
 					break;
+				case 9:
 				case 13:
-					if(has_focus(this)) {
-						release_focus(this);
-						call_listeners((long)0);
-					}
+					call_listeners((long)0);
 					break;
 				case 27:
 					// escape - release focus so that event gets passed to window which will then close
-					if(has_focus(this)) {
-						release_focus(this);
-					}
 					break;
 				default:
 					if(ev->ev_code < 32) {
@@ -181,9 +170,6 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 	} else if ( IS_LEFTCLICK(ev) ) 	{
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
-		if(!has_focus(this)) {
-			request_focus(this);
-		}
 		cursor_pos = 0;
 		if (text) {
 			for( size_t i=strlen(text); i>0;  i-- ) {
@@ -194,8 +180,6 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			}
 		}
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
-	} else if(  ev->ev_class == INFOWIN && ev->ev_code == WIN_CLOSE  &&  has_focus(this)  ) {
-		release_focus(this);
 	}
 }
 
@@ -205,6 +189,14 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
  * @author Hj. Malthaner
  */
 void gui_textinput_t::zeichnen(koord offset)
+{
+	const gui_fenster_t *win = win_get_top();
+	zeichnen_mit_cursor( offset, (win  &&  win->get_focus()==this) );
+}
+
+
+
+void gui_textinput_t::zeichnen_mit_cursor(koord offset,bool show_cursor)
 {
 	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
 	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
@@ -241,8 +233,8 @@ void gui_textinput_t::zeichnen(koord offset)
 		// display text
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+1+(groesse.y-large_font_height)/2, text, align, textcol, true);
 
-		// cursor must been shown, if textinput has focus!
-		if(has_focus(this)) {
+		if(  show_cursor  ) {
+			// cursor must been shown, if textinput has focus!
 			display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 		}
 
@@ -268,13 +260,10 @@ void gui_hidden_textinput_t::infowin_event(const event_t *ev)
 	if ( IS_LEFTCLICK(ev) ) 	{
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
-		if(!has_focus(this)) {
-			request_focus(this);
-		}
 		sint16 asterix_width = display_calc_proportional_string_len_width("*",1);
 		cursor_pos = 0;
 		if (text) {
-			cursor_pos = min( strlen(text), (pos.x-ev->cx)/asterix_width );
+			cursor_pos = min( strlen(text), ev->cx/asterix_width );
 		}
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
 	}
@@ -309,7 +298,7 @@ void gui_hidden_textinput_t::zeichnen(koord offset)
 		utf16  c = 0;
 		do {
 			// cursor?
-			if(  text_pos==cursor_pos  &&  has_focus(this)  ) {
+			if(  text_pos==cursor_pos  ) {
 				display_fillbox_wh_clip( xpos, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 			}
 			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);

@@ -20,7 +20,6 @@ class convoi_t;
 class vehikel_besch_t;
 class ware_besch_t;
 template <class T> class slist_tpl;
-template <class T> class vector_tpl;
 
 
 /**

@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "../simdebug.h"
+#include "../simwerkz.h"
 #include "brueckenbauer.h"
 #include "wegbauer.h"
 
@@ -40,7 +41,6 @@
 #include "../dings/pillar.h"
 #include "../dings/signal.h"
 
-#include "../dataobj/translator.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
