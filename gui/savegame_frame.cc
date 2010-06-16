@@ -348,14 +348,15 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 						destroy_win(this);
 					}
 					else {
-						// remove only file from list
-						button_frame.remove_komponente( i->button );
-						delete i->button;
-						button_frame.remove_komponente( i->del );
-						delete i->del;
-						button_frame.remove_komponente( i->label );
-						delete i->label;
+						set_focus(NULL);
+						// do not delete components
+						// simply hide them
+						i->button->set_visible(false);
+						i->del->set_visible(false);
+						i->label->set_visible(false);
+						// .. and remove entry from list
 						entries.erase( i );
+
 						resize( koord(0,0) );
 						in_action = false;
 					}
