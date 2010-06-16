@@ -171,7 +171,7 @@ public:
 	void neuer_monat();
 
 	// these are the gui_container needed functions ...
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	void zeichnen(koord pos);
 

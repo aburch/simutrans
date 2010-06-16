@@ -83,7 +83,7 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	virtual void infowin_event(const event_t *);
+	virtual bool infowin_event(const event_t *);
 
 	/**
 	 * Zeichnet die Komponente
@@ -106,7 +106,7 @@ public:
 class gui_hidden_textinput_t : public gui_textinput_t
 {
 	// and set the cursor right when clicking with the mouse
-	virtual void infowin_event(const event_t *);
+	virtual bool infowin_event(const event_t *);
 
 	// just draw with stars ...
 	virtual void zeichnen(koord offset);

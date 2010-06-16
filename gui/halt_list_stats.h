@@ -26,7 +26,7 @@ public:
 	halt_list_stats_t() : halt() {}
 	halt_list_stats_t(halthandle_t halt_) : halt(halt_) { groesse.y = 28; }
 
-	void infowin_event(const event_t*);
+	bool infowin_event(const event_t*);
 	void zeichnen(koord offset);
 };
 

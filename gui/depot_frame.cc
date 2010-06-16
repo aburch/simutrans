@@ -985,11 +985,11 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 }
 
 
-void depot_frame_t::infowin_event(const event_t *ev)
+bool depot_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_code!=WIN_CLOSE  &&  get_welt()->get_active_player() != depot->get_besitzer()) {
 		destroy_win(this);
-		return;
+		return true;
 	}
 
 	gui_frame_t::infowin_event(ev);
@@ -1022,6 +1022,9 @@ void depot_frame_t::infowin_event(const event_t *ev)
 			win_set_pos( win_get_magic((long)next_dep), x, y );
 			get_welt()->change_world_position(next_dep->get_pos());
 		}
+
+		return true;
+
 	} else if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = get_fenstergroesse();
 		set_fenstergroesse(gr);
@@ -1032,6 +1035,7 @@ void depot_frame_t::infowin_event(const event_t *ev)
 			line_selector.close_box();
 		}
 	}
+	return false;
 }
 
 

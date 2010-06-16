@@ -125,7 +125,8 @@ public:
 
 	void set_groesse(koord groesse);
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
+
 	void zeichnen(koord pos);
 
 	/**

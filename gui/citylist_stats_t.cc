@@ -76,13 +76,13 @@ void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr)
 }
 
 
-void citylist_stats_t::infowin_event(const event_t * ev)
+bool citylist_stats_t::infowin_event(const event_t * ev)
 {
 	const uint line = ev->cy / (LINESPACE + 1);
 
 	line_select = 0xFFFFFFFFu;
 	if (line >= city_list.get_count()) {
-		return;
+		return false;
 	}
 
 	stadt_t* stadt = city_list[line];
@@ -102,6 +102,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 		const koord pos = stadt->get_pos();
 		welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 	}
+	return false;
 }
 
 

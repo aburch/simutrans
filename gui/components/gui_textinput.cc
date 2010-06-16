@@ -36,13 +36,19 @@ gui_textinput_t::gui_textinput_t()
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_textinput_t::infowin_event(const event_t *ev)
+bool gui_textinput_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == EVENT_KEYBOARD) {
 		if(  text  ) {
 			const size_t len = strlen(text);
 
 			switch(ev->ev_code) {
+					// handled by container
+				case 9:
+				case 13:
+				case 27:
+					return false;
+
 				case SIM_KEY_DOWN: // down arrow
 					// not used currently
 					break;
@@ -92,13 +98,6 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 								text[pos] = text[pos+(next_pos-cursor_pos)];
 							}
 					}
-					break;
-				case 9:
-				case 13:
-					call_listeners((long)0);
-					break;
-				case 27:
-					// escape - release focus so that event gets passed to window which will then close
 					break;
 				default:
 					if(ev->ev_code < 32) {
@@ -167,6 +166,7 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 		else {
 			DBG_MESSAGE("gui_textinput_t::infowin_event", "called but text is NULL");
 		}
+		return true;
 	} else if ( IS_LEFTCLICK(ev) ) 	{
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
 		// moreover, only (click) or (release) event happened inside textinput, the other one could lie outside
@@ -180,7 +180,13 @@ void gui_textinput_t::infowin_event(const event_t *ev)
 			}
 		}
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
+		return true;
 	}
+	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
+		call_listeners((long)0);
+		return true;
+	}
+	return false;
 }
 
 
@@ -255,7 +261,7 @@ void gui_textinput_t::set_text(char *text, size_t max)
 
 
 // needed to set the cursor on the right position
-void gui_hidden_textinput_t::infowin_event(const event_t *ev)
+bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 {
 	if ( IS_LEFTCLICK(ev) ) 	{
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
@@ -265,11 +271,13 @@ void gui_hidden_textinput_t::infowin_event(const event_t *ev)
 		if (text) {
 			cursor_pos = min( strlen(text), ev->cx/asterix_width );
 		}
+		return true;
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
 	}
 	else {
-		gui_textinput_t::infowin_event( ev );
+		return gui_textinput_t::infowin_event( ev );
 	}
+	return false;
 }
 
 

@@ -249,7 +249,7 @@ public:
 	 */
 	void fahrplaneingabe();
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	/**
 	 * Zeichnet das Frame

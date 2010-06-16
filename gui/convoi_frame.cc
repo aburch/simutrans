@@ -245,7 +245,7 @@ convoi_frame_t::~convoi_frame_t()
 
 
 
-void convoi_frame_t::infowin_event(const event_t *ev)
+bool convoi_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
@@ -256,6 +256,7 @@ void convoi_frame_t::infowin_event(const event_t *ev)
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
 		vscroll.infowin_event(ev);
+		return true;
 	}
 	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
 		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
@@ -263,9 +264,10 @@ void convoi_frame_t::infowin_event(const event_t *ev)
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
 			gui_convoiinfo_t ci(convois[y], 0);
 			ci.infowin_event( ev );
+			return true;
 		}
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }
 
 

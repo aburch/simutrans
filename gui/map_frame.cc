@@ -311,7 +311,7 @@ void map_frame_t::zoom(bool zoom_out)
  * gemeldet
  * @author Hj. Malthaner
  */
-void map_frame_t::infowin_event(const event_t *ev)
+bool map_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_OPEN) {
@@ -325,11 +325,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 	if(  (IS_WHEELUP(ev) || IS_WHEELDOWN(ev))  &&  reliefkarte_t::get_karte()->getroffen(ev->mx-scrolly.get_pos().x,ev->my-scrolly.get_pos().y-16)) {
 		// otherwise these would go to the vertical scroll bar
 		zoom(IS_WHEELUP(ev));
-		return;
-	}
-
-	if(!is_dragging) {
-		gui_frame_t::infowin_event(ev);
+		return true;
 	}
 
 	// Hajo: hack: relief map can resize upon right click
@@ -337,6 +333,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 	if(IS_RIGHTCLICK(ev)) {
 		is_dragging = false;
 		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
+		return true;
 	}
 
 	if(IS_RIGHTRELEASE(ev)) {
@@ -345,6 +342,7 @@ void map_frame_t::infowin_event(const event_t *ev)
 		}
 		is_dragging = false;
 		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
+		return true;
 	}
 
 	if(reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)  &&  IS_RIGHTDRAG(ev)) {
@@ -362,7 +360,10 @@ void map_frame_t::infowin_event(const event_t *ev)
 
 		// Hajo: re-center mouse pointer
 		display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);
+		return true;
 	}
+
+	return gui_frame_t::infowin_event(ev);
 }
 
 

@@ -75,37 +75,40 @@ void gui_scrollpane_t::set_groesse(koord groesse)
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_scrollpane_t::infowin_event(const event_t *ev)
+bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
 	if(b_show_scroll_y  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_y.get_pos().x, -scroll_y.get_pos().y);
-		scroll_y.infowin_event(&ev2);
+		return scroll_y.infowin_event(&ev2);
 	}
 	else if(b_show_scroll_x  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_x.get_pos().x, -scroll_x.get_pos().y);
-		scroll_x.infowin_event(&ev2);
+		return scroll_x.infowin_event(&ev2);
 	}
 	else if(b_show_scroll_y  &&  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))) {
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
-		scroll_y.infowin_event(ev);
+		return scroll_y.infowin_event(ev);
 	}
 	else {
 		// translate according to scrolled position
+		bool swallow;
 		event_t ev2 = *ev;
 		translate_event(&ev2, scroll_x.get_knob_offset() - komp->get_pos().x, scroll_y.get_knob_offset() - komp->get_pos().y);
 
 		// hand event to component
-		komp->infowin_event(&ev2);
+		swallow = komp->infowin_event(&ev2);
 
 		// Hajo: hack: component could have changed size
 		// this recalculates the scrollbars
 		if(  old_komp_groesse!=komp->get_groesse()  ) {
 			recalc_sliders(get_groesse());
 		}
+		return swallow;
 	}
+	return false;
 }
 
 

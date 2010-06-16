@@ -18,7 +18,7 @@
 public:
 	line_management_gui_t(linehandle_t line, spieler_t* sp);
 	const char * get_name() const;
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 private:
 	linehandle_t line;

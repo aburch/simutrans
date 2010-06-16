@@ -67,47 +67,56 @@ void gui_container_t::remove_all()
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_container_t::infowin_event(const event_t *ev)
+bool gui_container_t::infowin_event(const event_t *ev)
 {
+	bool swallow = false;
 	gui_komponente_t *new_focus = komp_focus;
 
 	// need to change focus?
-	if(  ev->ev_class==EVENT_KEYBOARD  &&  (  ev->ev_code==13  ||  ev->ev_code==27  ||  ev->ev_code==9  )  ) {
-		if(  ev->ev_code==9  ) {
-			// TAB: find new focus
-			slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
-			new_focus = NULL;
-			if(  (ev->ev_key_mod&1)==0  ) {
-				// find next textinput field
-				while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()->get_focus()!=komp_focus)  ) {
-					if(  iter.get_current()->get_focus()  ) {
-						new_focus = iter.get_current();
-					}
-				}
-			}
-			else {
-				// or previous input field
-				bool valid = komp_focus==NULL;
-				while(  iter.next()  ) {
-					if(  valid  &&  iter.get_current()->get_focus()  ) {
-						new_focus = iter.get_current();
-						break;
-					}
-					if(  iter.get_current()->get_focus()==komp_focus  ) {
-						valid = true;
-					}
-				}
-			}
-		}
-		else {
-			new_focus = NULL;
-		}
-	}
+	if(  ev->ev_class==EVENT_KEYBOARD  ) {
 
-	if(  komp_focus != NULL  &&  ev->ev_class==EVENT_KEYBOARD  ) {
-		event_t ev2 = *ev;
-		translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
-		komp_focus->infowin_event(&ev2);
+		if(  komp_focus  ) {
+			event_t ev2 = *ev;
+			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
+			swallow = komp_focus->infowin_event(&ev2);
+		}
+		if(  !swallow  ) {
+			if(  ev->ev_code==9  ) {
+				// TAB: find new focus
+				slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
+				new_focus = NULL;
+				if(  (ev->ev_key_mod&1)==0  ) {
+					// find next textinput field
+					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()->get_focus()!=komp_focus)  ) {
+						if(  iter.get_current()->get_focus()  ) {
+							new_focus = iter.get_current();
+						}
+					}
+				}
+				else {
+					// or previous input field
+					bool valid = komp_focus==NULL;
+					while(  iter.next()  ) {
+						if(  valid  &&  iter.get_current()->get_focus()  ) {
+							new_focus = iter.get_current();
+							break;
+						}
+						if(  iter.get_current()->get_focus()==komp_focus  ) {
+							valid = true;
+						}
+					}
+				}
+				swallow = komp_focus!=new_focus;
+			}
+			else if(  ev->ev_code==13  ||  ev->ev_code==27  ) {
+				new_focus = NULL;
+				if(  ev->ev_code==27  ) {
+					// no untop message even!
+					komp_focus = NULL;
+				}
+				swallow = komp_focus!=new_focus;
+			}
+		}
 	}
 
 	if(  ev->ev_class!=EVENT_KEYBOARD  ) {
@@ -168,16 +177,19 @@ void gui_container_t::infowin_event(const event_t *ev)
 
 	// handle unfocus/next focus stuff
 	if(  new_focus!=komp_focus  ) {
-		if(  komp_focus  ) {
+		gui_komponente_t *old_focus = komp_focus;
+		komp_focus = new_focus;
+		if(  old_focus  ) {
 			// release focus
 			event_t ev2 = *ev;
-			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
+			translate_event(&ev2, -old_focus->get_pos().x, -old_focus->get_pos().y);
 			ev2.ev_class = INFOWIN;
 			ev2.ev_code = WIN_UNTOP;
-			komp_focus->infowin_event(&ev2);
+			old_focus->infowin_event(&ev2);
 		}
-		komp_focus = new_focus;
 	}
+
+	return swallow;
 }
 
 

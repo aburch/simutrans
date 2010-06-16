@@ -133,7 +133,7 @@ public:
 	 * Mausklicks werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 */
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	const char *get_hilfe_datei() const {return "schedule.txt";}
 

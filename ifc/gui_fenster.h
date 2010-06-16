@@ -106,7 +106,7 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	virtual void infowin_event(const event_t *ev) = 0;
+	virtual bool infowin_event(const event_t *ev) = 0;
 
 	/**
 	 * Fenster neu zeichnen.

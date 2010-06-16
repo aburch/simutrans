@@ -234,7 +234,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_chart_t::infowin_event(const event_t *ev)
+bool gui_chart_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTREPEAT(ev)  ||  IS_LEFTCLICK(ev)) {
 		// tooptip to show?
@@ -244,4 +244,5 @@ void gui_chart_t::infowin_event(const event_t *ev)
 		tooltipkoord = koord::invalid;
 		tooltip[0] = 0;
 	}
+	return true;
 }

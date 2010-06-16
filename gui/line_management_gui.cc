@@ -26,7 +26,8 @@ const char *line_management_gui_t::get_name() const
 	return translator::translate("Line Management");
 }
 
-void line_management_gui_t::infowin_event(const event_t *ev)
+
+bool line_management_gui_t::infowin_event(const event_t *ev)
 {
 	if(!line.is_bound()) {
 		destroy_win( this );
@@ -45,4 +46,5 @@ void line_management_gui_t::infowin_event(const event_t *ev)
 			delete w;
 		}
 	}
+	return false;
 }

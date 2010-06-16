@@ -54,7 +54,7 @@ public:
 	* gemeldet
 	* @author Hj. Malthaner
 	*/
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

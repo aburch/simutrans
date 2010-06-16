@@ -71,7 +71,7 @@ public:
 
 	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	void zeichnen(koord pos);
 };

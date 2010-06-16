@@ -116,8 +116,8 @@ public:
 	 */
 	virtual bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
-	// must catch open messgae to uptade list, since I am using virtual functions
-	virtual void infowin_event(const event_t *ev);
+	// must catch open message to update list, since I am using virtual functions
+	virtual bool infowin_event(const event_t *ev);
 };
 
 #endif

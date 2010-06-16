@@ -352,7 +352,7 @@ void fahrplan_gui_t::update_selection()
  * Mausklicks werden hiermit an die GUI-Komponenten
  * gemeldet
  */
-void fahrplan_gui_t::infowin_event(const event_t *ev)
+bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {
 	if ( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.getroffen(ev->cx, ev->cy-16))  {//  &&  !scrolly.getroffen(ev->cx, ev->cy+16)) {
 
@@ -421,7 +421,8 @@ void fahrplan_gui_t::infowin_event(const event_t *ev)
 		// just to be sure, renew the tools ...
 		update_werkzeug( true );
 	}
-	gui_frame_t::infowin_event(ev);
+
+	return gui_frame_t::infowin_event(ev);
 }
 
 

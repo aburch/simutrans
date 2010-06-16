@@ -177,7 +177,7 @@ void scrollbar_t::space_press(sint32 updown) // 0: scroll up/left, 1: scroll dow
 
 
 
-void scrollbar_t::infowin_event(const event_t *ev)
+bool scrollbar_t::infowin_event(const event_t *ev)
 {
 	const int x = ev->cx;
 	const int y = ev->cy;
@@ -258,6 +258,7 @@ void scrollbar_t::infowin_event(const event_t *ev)
 			}
 		}
 	}
+	return false;
 }
 
 

@@ -477,13 +477,15 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 
 
 
-void welt_gui_t::infowin_event(const event_t *ev)
+bool  welt_gui_t::infowin_event(const event_t *ev)
 {
 	gui_frame_t::infowin_event(ev);
 
 	if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_CLOSE) {
 		close = true;
 	}
+
+	return true;
 }
 
 

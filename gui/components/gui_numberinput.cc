@@ -219,22 +219,24 @@ void gui_numberinput_t::init( sint32 value, sint32 min, sint32 max, sint32 mode,
 
 
 
-void gui_numberinput_t::infowin_event(const event_t *ev)
+bool gui_numberinput_t::infowin_event(const event_t *ev)
 {
 	// buttons pressed
 	if(  bt_left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_left.get_pos().x, -bt_left.get_pos().y);
-		bt_left.infowin_event(&ev2);
+		return bt_left.infowin_event(&ev2);
 	}
 	else if(  bt_right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -bt_right.get_pos().x, -bt_right.get_pos().y);
-		bt_right.infowin_event(&ev2);
+		return bt_right.infowin_event(&ev2);
 	}
 	else {
 		// since button have different callback ...
+		bool result = false;
 		sint32 new_value = value;
+
 		// mouse wheel -> fast increase / decrease
 		if(IS_WHEELUP(ev)){
 			new_value = get_next_value();
@@ -253,9 +255,6 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 					call_textinp = min_value <0;
 					break;
 				case 8:
-				case 9:
-				case 13:
-				case 27:
 				case 127:
 				case '0':
 				case '1':
@@ -281,7 +280,7 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 			if(  call_textinp  ) {
 				event_t ev2 = *ev;
 				translate_event(&ev2, -textinp.get_pos().x, -textinp.get_pos().y);
-				textinp.infowin_event(&ev2);
+				result = textinp.infowin_event(&ev2);
 				new_value = get_text_value();
 			}
 		}
@@ -292,9 +291,21 @@ void gui_numberinput_t::infowin_event(const event_t *ev)
 			if(check_value(new_value)) {
 				// check for valid change - call listeners
 				call_listeners(value_t(value));
+				result = true;
 			}
 		}
+
+		return result;
 	}
+
+	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
+		// loosing focus ...
+		set_value( get_text_value() );
+		// just to be sure: call listenern (value may be same)
+		call_listeners(value_t(value));
+	}
+
+	return false;
 }
 
 

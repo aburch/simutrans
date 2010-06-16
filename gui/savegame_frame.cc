@@ -411,12 +411,12 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 
 
 
-void savegame_frame_t::infowin_event(const event_t *ev)
+bool savegame_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
 		set_focus( &input );
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }

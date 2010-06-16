@@ -335,7 +335,7 @@ void halt_list_frame_t::display_list(void)
 
 
 
-void halt_list_frame_t::infowin_event(const event_t *ev)
+bool halt_list_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
@@ -345,16 +345,16 @@ void halt_list_frame_t::infowin_event(const event_t *ev)
 	else if(IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
-		vscroll.infowin_event(ev);
+		return vscroll.infowin_event(ev);
 	}
 	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
 		int y = (ev->my-47)/28 + vscroll.get_knob_offset();
 		if(y<(sint32)stops.get_count()) {
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
-			stops[y].infowin_event( ev );
+			return stops[y].infowin_event( ev );
 		}
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }
 
 

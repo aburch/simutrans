@@ -143,7 +143,7 @@ void gui_scrolled_list_t::adjust_scrollbar()
 }
 
 
-void gui_scrolled_list_t::infowin_event(const event_t *ev)
+bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 {
 	const int x = ev->cx;
 	const int y = ev->cy;
@@ -175,8 +175,10 @@ void gui_scrolled_list_t::infowin_event(const event_t *ev)
 	if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
-		sb.infowin_event(&ev2);
+		return sb.infowin_event(&ev2);
 	}
+
+	return false;
 }
 
 
