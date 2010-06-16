@@ -1201,26 +1201,31 @@ uint16 convoi_t::get_overcrowded() const
 
 uint8 convoi_t::get_comfort() const
 {
-	uint16 base_comfort = 0;
+	uint32 base_comfort = 0;
 	uint8 passenger_vehicles = 0;
+	uint16 passenger_seating = 0;
+
+	uint16 capacity;
 	
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
 		if(fahr[i]->get_fracht_typ()->get_catg_index() == 0)
 		{
 			passenger_vehicles ++;
-			base_comfort += fahr[i]->get_comfort();
+			capacity = fahr[i]->get_besch()->get_zuladung();
+			base_comfort += fahr[i]->get_comfort() * capacity;
+			passenger_seating += capacity;
 		}
 	}
-	if(passenger_vehicles < 1)
+	if(passenger_vehicles < 1 || passenger_seating < 1)
 	{
+		// Avoid division if possible
 		return 0;
 	}
 	
 	else if(passenger_vehicles > 1)
 	{
-		// Avoid division if possible
-		base_comfort /= passenger_vehicles;
+		base_comfort /= passenger_seating;
 	}
 	
 	const uint8 catering_level = get_catering_level(0);
@@ -1228,28 +1233,22 @@ uint8 convoi_t::get_comfort() const
 	{
 	case 0:
 		return base_comfort;
-		break;
 
 	case 1:
 		return base_comfort + 5;
-		break;
 
 	case 2:
 		return base_comfort + 10;
-		break;
 
 	case 3:
 		return base_comfort + 16;
-		break;
 
 	case 4:
 		return base_comfort + 20;
-		break;
 
 	default:
 	case 5:
 		return base_comfort + 25;
-		break;
 	};
 }
 
