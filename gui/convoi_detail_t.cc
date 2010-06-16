@@ -331,6 +331,13 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				extra_y += LINESPACE;
 			}
 
+			if(v->get_besch()->get_zuladung() > 0)
+			{
+				sprintf( buf, "%s %i", translator::translate("Loading time:"), v->get_besch()->get_loading_time() );
+				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
+				extra_y += LINESPACE;
+			}
+			
 			if(v->get_fracht_typ()->get_catg_index() == 0)
 			{
 				sprintf( buf, "%s %i", translator::translate("Comfort:"), v->get_comfort() );
