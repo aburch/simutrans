@@ -992,7 +992,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 		return true;
 	}
 
-	gui_frame_t::infowin_event(ev);
+	const bool swallowed = gui_frame_t::infowin_event(ev);
 
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 
@@ -1035,7 +1035,8 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			line_selector.close_box();
 		}
 	}
-	return false;
+
+	return swallowed;
 }
 
 
