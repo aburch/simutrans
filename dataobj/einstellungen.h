@@ -285,8 +285,8 @@ public:
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
 
-	void set_grundwasser(sint32 n) {grundwasser=n;}
-	sint32 get_grundwasser() const {return grundwasser;}
+	void set_grundwasser(sint16 n) {grundwasser=n;}
+	sint16 get_grundwasser() const {return grundwasser;}
 
 	void set_max_mountain_height(double n) {max_mountain_height=n;}          //01-Dec-01        Markus Weber    Added
 	double get_max_mountain_height() const {return max_mountain_height;}
@@ -433,15 +433,15 @@ public:
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 	void set_growthfactor_large(sint32 n) { growthfactor_large = n; }
 
-	// amount of different destinations
-	sint32 get_factory_worker_percentage() const { return factory_worker_percentage; }
-	void set_factory_worker_percentage(sint32 n) { factory_worker_percentage = n; }
-	sint32 get_tourist_percentage() const { return tourist_percentage; }
-	void set_tourist_percentage(sint32 n) { tourist_percentage = n; }
+	// percentage of passengers wanting different sorts of trips
+	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
+	void set_factory_worker_percentage(sint16 n) { factory_worker_percentage = n; }
+	sint16 get_tourist_percentage() const { return tourist_percentage; }
+	void set_tourist_percentage(sint16 n) { tourist_percentage = n; }
 
-	// radius within factories belog to towns (usually set to 77 but 1/8 of map size may be meaningful too)
-	sint32 get_factory_worker_radius() const { return factory_worker_radius; }
-	void set_factory_worker_radius(sint32 n) { factory_worker_radius = n; }
+	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
+	sint16 get_factory_worker_radius() const { return factory_worker_radius; }
+	void set_factory_worker_radius(sint16 n) { factory_worker_radius = n; }
 
 	// any factory will be connected to at least this number of next cities
 	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
