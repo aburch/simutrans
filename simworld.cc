@@ -4555,7 +4555,6 @@ void karte_t::mark_area( const koord3d pos, const koord size, const bool mark )
 
 void karte_t::reset_timer()
 {
-	DBG_MESSAGE("karte_t::reset_timer()","called");
 	// Reset timers
 	long last_tick_sync = dr_time();
 	mouse_rest_time = last_tick_sync;
@@ -4605,6 +4604,7 @@ void karte_t::reset_timer()
 		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
 	}
+	DBG_MESSAGE("karte_t::reset_timer()","called, mode=$%X");
 }
 
 
@@ -5134,7 +5134,7 @@ bool karte_t::interactive(uint32 quit_month)
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
 	// only needed for network
-	uint32 next_command_step=-1;
+	uint32 next_command_step = 0xFFFFFFFFu;
 	const uint32 frame_time = 1000/clamp(einstellungen->get_frames_per_second(),5,100);
 	sint32 ms_difference = 0;
 	reset_timer();
@@ -5262,7 +5262,7 @@ bool karte_t::interactive(uint32 quit_month)
 					next_command_step = command_queue.front()->get_sync_step();
 				}
 				else {
-					next_command_step = -1;
+					next_command_step = 0xFFFFFFFFu;
 				}
 			}
 		}
@@ -5312,7 +5312,7 @@ bool karte_t::interactive(uint32 quit_month)
 				next_command_step = command_queue.front()->get_sync_step();
 			}
 			else {
-				next_command_step = -1;
+				next_command_step = 0xFFFFFFFFu;
 			}
 		}
 
