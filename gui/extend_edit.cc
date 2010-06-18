@@ -101,14 +101,12 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
  * Mausklicks werden hiermit an die GUI-Komponenten
  * gemeldet
  */
-void extend_edit_gui_t::infowin_event(const event_t *ev)
+bool extend_edit_gui_t::infowin_event(const event_t *ev)
 {
-	if(ev->ev_class == INFOWIN) {
-		if(ev->ev_code == WIN_CLOSE) {
-			change_item_info(-1);
-		}
+	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
+		change_item_info(-1);
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }
 
 

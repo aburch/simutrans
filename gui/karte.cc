@@ -736,8 +736,7 @@ reliefkarte_t::neuer_monat()
 
 
 // handle event
-void
-reliefkarte_t::infowin_event(const event_t *ev)
+bool reliefkarte_t::infowin_event(const event_t *ev)
 {
 	koord k( ev->mx, ev->my );
 	screen_to_karte( k );
@@ -753,7 +752,10 @@ reliefkarte_t::infowin_event(const event_t *ev)
 			z = welt->min_hgt(k);
 		}
 		welt->change_world_position(koord3d(k,z));
+		return true;
 	}
+
+	return false;
 }
 
 

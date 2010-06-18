@@ -78,7 +78,7 @@ public:
 	 * gemeldet
 	 * @author V. Meyer
 	 */
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 };
 
 #endif

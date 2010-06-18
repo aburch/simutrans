@@ -40,7 +40,7 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t *);
+	bool infowin_event(const event_t *);
 
 	/*
 	 * set dimension

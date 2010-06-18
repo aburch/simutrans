@@ -37,7 +37,7 @@ message_stats_t::message_stats_t(karte_t *w)
  * Click on message => go to position
  * @author Hj. Malthaner
  */
-void message_stats_t::infowin_event(const event_t * ev)
+bool message_stats_t::infowin_event(const event_t * ev)
 {
 	message_selected = -1;
 	if(  ev->button_state>0  &&  ev->cx>=2  &&  ev->cx<=12  ) {
@@ -74,6 +74,7 @@ void message_stats_t::infowin_event(const event_t * ev)
 			}
 		}
 	}
+	return false;
 }
 
 

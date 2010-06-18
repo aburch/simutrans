@@ -93,7 +93,7 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	virtual void infowin_event(const event_t *ev);
+	virtual bool infowin_event(const event_t *ev);
 
 	/**
 	 * Zeichnet die Bilder

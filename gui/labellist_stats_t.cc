@@ -114,18 +114,18 @@ void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sortby, bool so
  * gemeldet
  * @author Hj. Malthaner
  */
-void labellist_stats_t::infowin_event(const event_t * ev)
+bool labellist_stats_t::infowin_event(const event_t * ev)
 {
 	const unsigned int line = (ev->cy) / (LINESPACE+1);
 
 	line_selected = 0xFFFFFFFFu;
 	if (line>=labels.get_count()) {
-		return;
+		return false;
 	}
 
 	koord pos = labels[line];
 	if (pos==koord::invalid) {
-		return;
+		return false;
 	}
 
 	// deperess goto button
@@ -145,6 +145,7 @@ void labellist_stats_t::infowin_event(const event_t * ev)
 	else if (IS_RIGHTRELEASE(ev)) {
 		welt->change_world_position(pos);
 	}
+	return false;
 } // end of function labellist_stats_t::infowin_event(const event_t * ev)
 
 

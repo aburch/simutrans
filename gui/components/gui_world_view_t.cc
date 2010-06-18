@@ -35,7 +35,7 @@ world_view_t::world_view_t(karte_t* const welt, koord const size) :
  * gemeldet
  * @author Hj. Malthaner
  */
-void world_view_t::infowin_event(const event_t* ev)
+bool world_view_t::infowin_event(const event_t* ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
 		koord3d const& pos = get_location();
@@ -43,6 +43,7 @@ void world_view_t::infowin_event(const event_t* ev)
 			welt->change_world_position(pos);
 		}
 	}
+	return true;
 }
 
 

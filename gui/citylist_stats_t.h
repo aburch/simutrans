@@ -40,7 +40,7 @@ public:
 	void sort(citylist::sort_mode_t sortby, bool sortreverse);
 
 	/** Events werden hiermit an die GUI-Komponenten gemeldet */
-	void infowin_event(const event_t*);
+	bool infowin_event(const event_t*);
 
 	/** Zeichnet die Komponente */
 	void zeichnen(koord offset);

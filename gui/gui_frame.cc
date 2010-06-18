@@ -67,17 +67,17 @@ void gui_frame_t::set_fenstergroesse(koord groesse)
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_frame_t::infowin_event(const event_t *ev)
+bool gui_frame_t::infowin_event(const event_t *ev)
 {
 	// %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
 	if(IS_WINDOW_RESIZE(ev)) {
 		koord delta (ev->mx - ev->cx, ev->my - ev->cy);
 		resize(delta);
-		return;	// not pass to childs!
+		return true;	// not pass to childs!
 	} else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {
 		set_fenstergroesse( get_min_windowsize() ) ;
 		resize( koord(0,0) ) ;
-		return;	// not pass to childs!
+		return true;	// not pass to childs!
 	}
 	else if(ev->ev_class==INFOWIN  &&  (ev->ev_code==WIN_CLOSE  ||  ev->ev_code==WIN_OPEN  ||  ev->ev_code==WIN_TOP)) {
 		dirty = true;
@@ -85,7 +85,7 @@ void gui_frame_t::infowin_event(const event_t *ev)
 	}
 	event_t ev2 = *ev;
 	translate_event(&ev2, 0, -16);
-	container.infowin_event(&ev2);
+	return container.infowin_event(&ev2);
 }
 
 

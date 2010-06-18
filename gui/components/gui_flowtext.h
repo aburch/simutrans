@@ -39,7 +39,7 @@ public:
 	 * Events werden hiermit an die GUI-Komponenten gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t*);
+	bool infowin_event(const event_t*);
 
 	bool dirty;
 	koord last_offset;

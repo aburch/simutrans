@@ -154,7 +154,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 
 
 
-void settings_frame_t::infowin_event(const event_t *ev)
+bool settings_frame_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 		general.read( sets );
@@ -164,5 +164,5 @@ void settings_frame_t::infowin_event(const event_t *ev)
 		exp_revenue.read( sets );
 		costs.read( sets );
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }

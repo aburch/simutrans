@@ -285,11 +285,8 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 }
 
 
-void gui_flowtext_t::infowin_event(const event_t* ev)
+bool gui_flowtext_t::infowin_event(const event_t* ev)
 {
-	if (IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {
-	}
-
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
 		for (slist_tpl<hyperlink_t>::const_iterator i = links.begin(), end = links.end(); i != end; ++i) {
@@ -299,4 +296,5 @@ void gui_flowtext_t::infowin_event(const event_t* ev)
 			}
 		}
 	}
+	return true;
 }

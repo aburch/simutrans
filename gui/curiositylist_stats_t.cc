@@ -96,18 +96,18 @@ void curiositylist_stats_t::get_unique_attractions(curiositylist::sort_mode_t sb
  * gemeldet
  * @author Hj. Malthaner
  */
-void curiositylist_stats_t::infowin_event(const event_t * ev)
+bool curiositylist_stats_t::infowin_event(const event_t * ev)
 {
 	const unsigned int line = (ev->cy) / (LINESPACE+1);
 
 	line_selected = 0xFFFFFFFFu;
 	if (line>=attractions.get_count()) {
-		return;
+		return false;
 	}
 
 	gebaeude_t* geb = attractions[line];
 	if (geb==NULL) {
-		return;
+		return false;
 	}
 
 	// deperess goto button
@@ -126,6 +126,7 @@ void curiositylist_stats_t::infowin_event(const event_t * ev)
 	else if (IS_RIGHTRELEASE(ev)) {
 		welt->change_world_position(geb->get_pos());
 	}
+	return false;
 } // end of function curiositylist_stats_t::infowin_event(const event_t * ev)
 
 

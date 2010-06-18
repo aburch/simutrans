@@ -83,7 +83,7 @@ public:
 	void map_rotate90( sint16 );
 
 	// since we need to update the city pointer when topped
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 };
 
 #endif

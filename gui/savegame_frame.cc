@@ -447,14 +447,15 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 						destroy_win(this);
 					}
 					else {
-						// remove only file from list
-						button_frame.remove_komponente( i->button );
-						delete i->button;
-						button_frame.remove_komponente( i->del );
-						delete i->del;
-						button_frame.remove_komponente( i->label );
-						delete i->label;
+						set_focus(NULL);
+						// do not delete components
+						// simply hide them
+						i->button->set_visible(false);
+						i->del->set_visible(false);
+						i->label->set_visible(false);
+						// .. and remove entry from list
 						entries.erase( i );
+
 						resize( koord(0,0) );
 						in_action = false;
 					}
@@ -525,14 +526,14 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 
 
 
-void savegame_frame_t::infowin_event(const event_t *ev)
+bool savegame_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
 		set_focus( &input );
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }
 
 void savegame_frame_t::press_file_table_button(coordinates_t &cell)

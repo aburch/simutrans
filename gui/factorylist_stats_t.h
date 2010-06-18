@@ -44,7 +44,7 @@ public:
 	* gemeldet
 	* @author Hj. Malthaner
 	*/
-	void infowin_event(const event_t *);
+	bool infowin_event(const event_t *);
 
 	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
 

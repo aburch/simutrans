@@ -128,12 +128,15 @@ public:
 	}
 
 	/**
-	* Events werden hiermit an die GUI-Komponenten
-	* gemeldet
+	* deliver event to a component if
+	* - component has focus
+	* - mouse is over this component
+	* - event for all components
+	* @return: true for swalloing this event
 	* @author Hj. Malthaner
 	* prissi: default -> do nothing
 	*/
-	virtual void infowin_event(const event_t *) { }
+	virtual bool infowin_event(const event_t *) { return true; }
 
 	/**
 	* Zeichnet die Komponente

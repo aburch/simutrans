@@ -85,7 +85,7 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 }
 
 
-void werkzeug_waehler_t::infowin_event(const event_t *ev)
+bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTRELEASE(ev)) {
 		// tooltips?
@@ -99,12 +99,14 @@ void werkzeug_waehler_t::infowin_event(const event_t *ev)
 				welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
 			}
 			dirty = true;
+			return true;
 		}
 	}
 	/* this resets to query-tool, when closing toolsbar ... */
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
 		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 	}
+	return false;
 }
 
 

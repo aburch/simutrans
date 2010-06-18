@@ -42,36 +42,34 @@ void gui_tab_panel_t::set_groesse(koord groesse)
 }
 
 
-void gui_tab_panel_t::infowin_event(const event_t *ev)
+bool gui_tab_panel_t::infowin_event(const event_t *ev)
 {
-	if(ev->my >= HEADER_VSIZE || ev->cy >= HEADER_VSIZE) {
+	if(IS_LEFTRELEASE(ev)  &&  (ev->my > 0  &&  ev->my < HEADER_VSIZE-1))  {
+		// Reiter getroffen
+		int text_x = 4;
+		int k = 0;
+		for(  slist_tpl<tab>::const_iterator i = tabs.begin(), end = tabs.end();  i != end;  ++i, ++k  ) {
+			const char* text = i->title;
+			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
+
+			if(  text_x < ev->mx  &&  text_x+width+8 > ev->mx  ) {
+				// either tooltip or change
+				active_tab = k;
+				call_listeners((long)active_tab);
+				return true;
+			}
+
+			text_x += width + 8;
+		}
+		return true;
+	}
+	if(  ev->ev_code == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
 		// Komponente getroffen
 		event_t ev2 = *ev;
 		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y-HEADER_VSIZE);
-		get_aktives_tab()->infowin_event(&ev2);
+		return get_aktives_tab()->infowin_event(&ev2);
 	}
-	else {
-		if(IS_LEFTCLICK(ev)) {
-			if(ev->my > 0 && ev->my < HEADER_VSIZE-1) {
-				// Reiter getroffen
-				int text_x = 4;
-				int k = 0;
-				for (slist_tpl<tab>::const_iterator i = tabs.begin(), end = tabs.end(); i != end; ++i, ++k) {
-					const char* text = i->title;
-					const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
-
-					if(text_x < ev->mx && text_x+width+8 > ev->mx) {
-						// either tooltip or change
-						active_tab = k;
-						call_listeners((long)active_tab);
-						break;
-					}
-
-					text_x += width + 8;
-				}
-			}
-		}
-	}
+	return false;
 }
 
 

@@ -36,17 +36,17 @@ factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t so
  * gemeldet
  * @author Hj. Malthaner
  */
-void factorylist_stats_t::infowin_event(const event_t * ev)
+bool factorylist_stats_t::infowin_event(const event_t * ev)
 {
 	const unsigned int line = (ev->cy) / (LINESPACE+1);
 	line_selected = 0xFFFFFFFFu;
 	if (line >= fab_list.get_count()) {
-		return;
+		return false;
 	}
 
 	fabrik_t* fab = fab_list[line];
 	if (!fab) {
-		return;
+		return false;
 	}
 
 	// deperess goto button
@@ -67,6 +67,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 		const koord3d pos = fab->get_pos();
 		welt->change_world_position(pos);
 	}
+	return false;
 } // end of function factorylist_stats_t::infowin_event(const event_t * ev)
 
 

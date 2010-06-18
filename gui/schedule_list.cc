@@ -287,7 +287,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
  * Mausklicks werden hiermit an die GUI-Komponenten
  * gemeldet
  */
-void schedule_list_gui_t::infowin_event(const event_t *ev)
+bool schedule_list_gui_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN) {
 		if(ev->ev_code == WIN_CLOSE) {
@@ -299,7 +299,7 @@ void schedule_list_gui_t::infowin_event(const event_t *ev)
 			reliefkarte_t::get_karte()->set_current_fpl(line->get_schedule(), sp->get_player_nr()); // (*fpl,player_nr)
 		}
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }
 
 

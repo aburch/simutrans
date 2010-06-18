@@ -291,7 +291,7 @@ bool button_t::getroffen(int x,int y) {
  * gemeldet
  * @author Hj. Malthaner
  */
-void button_t::infowin_event(const event_t *ev)
+bool button_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_OPEN) {
 		if(text) {
@@ -302,15 +302,19 @@ void button_t::infowin_event(const event_t *ev)
 		}
 	}
 
-	if(  ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==32  &&  get_focus()  ) {
-		// space toggles button
-		call_listeners( (long)0 );
+	if(  ev->ev_class==EVENT_KEYBOARD  ) {
+		if(  ev->ev_code==32  &&  get_focus()  ) {
+			// space toggles button
+			call_listeners( (long)0 );
+			return true;
+		}
+		return false;
 	}
 
 	// Hajo: we ignore resize events, they shouldn't make us
 	// pressed or upressed
 	if(!b_enabled  ||  IS_WINDOW_RESIZE(ev)) {
-		return;
+		return false;
 	}
 
 	// Knightly : check if the initial click and the current mouse positions are within the button's boundary
@@ -325,7 +329,7 @@ void button_t::infowin_event(const event_t *ev)
 
 	// Knightly : make sure that the button will take effect only when the mouse positions are within the component's boundary
 	if(  !cxy_within_boundary  ||  !mxy_within_boundary  ) {
-		return;
+		return false;
 	}
 
 	if(  type>AUTOMATIC_MASK  &&  IS_LEFTCLICK(ev)  ) {
@@ -347,6 +351,8 @@ void button_t::infowin_event(const event_t *ev)
 			call_listeners( (long)1 );
 		}
 	}
+	// swallow all not handled non-keyboard events
+	return (ev->ev_class != EVENT_KEYBOARD);
 }
 
 

@@ -799,17 +799,11 @@ bool check_pos_win(event_t *ev)
 		const gui_komponente_t* const komp = win.gui->get_focus();
 		if(  komp  ) {
 			inside_event_handling = win.gui;
-			win.gui->infowin_event(ev);
+			swallowed = win.gui->infowin_event(ev);
 			inside_event_handling = NULL;
-			// swallow event
-			swallowed = true;
+			process_kill_list();
 		}
-		process_kill_list();
-		if(  ev->ev_code!=9  &&  ev->ev_code!=13) {
-			// either handled or not => keyboard events are not processed further
-			return swallowed;
-		}
-		// only the keyboard events for TAB and ENTER survive until here and can be passed down to windows
+		return swallowed;
 	}
 
 	// just move top window until button release
