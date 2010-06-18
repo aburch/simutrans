@@ -1545,19 +1545,22 @@ void gui_convoy_assembler_t::set_vehicles(const vector_tpl<const vehikel_besch_t
 }
 
 
-void gui_convoy_assembler_t::infowin_event(const event_t *ev)
+bool gui_convoy_assembler_t::infowin_event(const event_t *ev)
 {
 	gui_container_t::infowin_event(ev);
 
 	if(IS_LEFTCLICK(ev) &&  !action_selector.getroffen(ev->cx, ev->cy-16)) {
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		action_selector.close_box();
+		return true;
 	}
 
 	if(IS_LEFTCLICK(ev) &&  !upgrade_selector.getroffen(ev->cx, ev->cy-16)) {
 		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
 		upgrade_selector.close_box();
+		return true;
 	}
+	return false;
 }
 
 void gui_convoy_assembler_t::set_panel_rows(int dy)

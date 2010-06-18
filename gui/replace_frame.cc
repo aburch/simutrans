@@ -571,17 +571,20 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 }
 
 
-void replace_frame_t::infowin_event(const event_t *ev)
+bool replace_frame_t::infowin_event(const event_t *ev)
 {
 	gui_frame_t::infowin_event(ev);
 	if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = get_fenstergroesse();
 		set_fenstergroesse(gr);
+		return true;
 	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
 		convoy_assembler.build_vehicle_lists();
 		update_data();
 		layout(NULL);
+		return true;
 	}
+	return false;
 }
 
 

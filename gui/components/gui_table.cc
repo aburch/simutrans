@@ -139,11 +139,12 @@ koord_y gui_table_t::get_table_height() const {
 
 
 // BG, 26.03.2010
-void gui_table_t::infowin_event(const event_t *ev)
+bool gui_table_t::infowin_event(const event_t *ev)
 {
 	gui_table_event_t table_event(this, ev);
 	table_event.is_cell_hit = get_cell_at(ev->mx, ev->my, table_event.cell, table_event.offset);
 	call_listeners(value_t(&table_event));
+	return true;
 }
 
 

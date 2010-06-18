@@ -200,7 +200,7 @@ public:
 	/* The gui_komponente_t interface */
 	virtual void zeichnen(koord offset);
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	inline void clear_convoy() {vehicles.clear();}
 
