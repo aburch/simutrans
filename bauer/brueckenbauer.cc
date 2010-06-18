@@ -195,7 +195,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 		// check for height
 		sint16 height = pos.z -welt->lookup_kartenboden(pos.get_2d())->get_hoehe();
-		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()  ) {
+		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()) {
 			error_msg = "bridge is too high for its type!";
 			return koord3d::invalid;
 		}
@@ -605,8 +605,6 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 	slist_tpl<koord3d> tmp_list;
 	const char    *msg;
 
-	// Erstmal das ganze Außmaß der Brücke bestimmen und sehen,
-	// ob uns was im Weg ist.
 	tmp_list.insert(pos);
 	marker.markiere(welt->lookup(pos));
 	waytype_t delete_wegtyp = wegtyp==powerline_wt ? invalid_wt : wegtyp;

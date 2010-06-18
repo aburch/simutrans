@@ -102,7 +102,7 @@ public:
 	 * @return: Anzahl gebauter Fabriken
 	 * @author Hj.Malthaner
 	 */
-	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains);
+	static int baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, int rotate, koord3d* pos, spieler_t* sp, int number_of_chains );
 
 	/**
 	 * Helper function for baue_hierachie(): builts the connections (chain) for one single product)
