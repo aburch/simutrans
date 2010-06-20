@@ -72,6 +72,13 @@ public:
 	virtual bool has_prev() const {return has_next();}
 
 	/**
+	 * Does this window need a sticky button?
+	 * @return true if such a button is needed
+	 * @author prissi
+	 */
+	virtual bool has_sticky() const = 0;
+
+	/**
 	 * in top-level fenstern wird der Name in der Titelzeile dargestellt
 	 * @return den nicht uebersetzten Namen der Komponente
 	 * @author Hj. Malthaner

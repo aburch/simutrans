@@ -27,33 +27,43 @@
 #define AUTOMATIC_MASK (255)
 static const char *empty="";
 
-/*
- * Hajo: image numbers of button skins
- */
-static image_id square_button_pushed = IMG_LEER;
-static image_id square_button_normal = IMG_LEER;
-static image_id arrow_left_pushed = IMG_LEER;
-static image_id arrow_left_normal = IMG_LEER;
-static image_id arrow_right_pushed = IMG_LEER;
-static image_id arrow_right_normal = IMG_LEER;
-static image_id arrow_up_pushed = IMG_LEER;
-static image_id arrow_up_normal = IMG_LEER;
-static image_id arrow_down_pushed = IMG_LEER;
-static image_id arrow_down_normal = IMG_LEER;
+// default button codes
+#define SQUARE_BUTTON 0
+#define ARROW_LEFT 1
+#define ARROW_RIGHT 2
+#define ARROW_UP 3
+#define ARROW_DOWN 4
+#define SCROLL_BAR 5
 
-// these are optional: buttons made out of graphics
-static image_id b_cap_left = IMG_LEER;
-static image_id b_body = IMG_LEER;
-static image_id b_cap_right = IMG_LEER;
-
-static image_id b_cap_left_p = IMG_LEER;
-static image_id b_body_p = IMG_LEER;
-static image_id b_cap_right_p = IMG_LEER;
-
-
+// colors
 #define RB_LEFT_BUTTON (201)
 #define RB_BODY_BUTTON (202)
 #define RB_RIGHT_BUTTON (203)
+
+
+/*
+ * Hajo: image numbers of button skins
+ */
+image_id button_t::square_button_pushed = IMG_LEER;
+image_id button_t::square_button_normal = IMG_LEER;
+image_id button_t::arrow_left_pushed = IMG_LEER;
+image_id button_t::arrow_left_normal = IMG_LEER;
+image_id button_t::arrow_right_pushed = IMG_LEER;
+image_id button_t::arrow_right_normal = IMG_LEER;
+image_id button_t::arrow_up_pushed = IMG_LEER;
+image_id button_t::arrow_up_normal = IMG_LEER;
+image_id button_t::arrow_down_pushed = IMG_LEER;
+image_id button_t::arrow_down_normal = IMG_LEER;
+
+// these are optional: buttons made out of graphics
+image_id button_t::b_cap_left = IMG_LEER;
+image_id button_t::b_body = IMG_LEER;
+image_id button_t::b_cap_right = IMG_LEER;
+
+image_id button_t::b_cap_left_p = IMG_LEER;
+image_id button_t::b_body_p = IMG_LEER;
+image_id button_t::b_cap_right_p = IMG_LEER;
+
 
 /**
  * Lazy button image number init
@@ -93,7 +103,7 @@ void button_t::init_button_images()
  * Displays the different button types
  * @author Hj. Malthaner
  */
-static void display_button_image(sint16 x, sint16 y, int number, bool pushed)
+void button_t::display_button_image(sint16 x, sint16 y, int number, bool pushed) const
 {
 	image_id button = IMG_LEER;
 
@@ -130,7 +140,7 @@ static void display_button_image(sint16 x, sint16 y, int number, bool pushed)
 
 
 // draw a rectangular button
-static void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed)
+void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed)
 {
 	if(b_cap_left!=IMG_LEER  &&  h==14) {
 		const sint16 lw = skinverwaltung_t::window_skin->get_bild(12)->get_pic()->w;

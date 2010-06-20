@@ -111,7 +111,7 @@ bool win_is_top(const gui_fenster_t *ig);
 
 void destroy_win(const gui_fenster_t *ig);
 void destroy_win(const long magic);
-void destroy_all_win();
+void destroy_all_win(bool destroy_sticky);
 
 bool top_win(const gui_fenster_t *ig);
 int top_win(int win);

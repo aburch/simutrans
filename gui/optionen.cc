@@ -138,7 +138,7 @@ bool optionen_gui_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		create_win(new loadsave_frame_t(welt, false), w_info, magic_save_t);
 	}
 	else if(comp==&bt_new) {
-		destroy_all_win();
+		destroy_all_win( true );
 		welt->beenden(false);
 	}
 	else if(comp==&bt_quit) {

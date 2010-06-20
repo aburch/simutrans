@@ -3998,7 +3998,7 @@ void karte_t::laden(loadsave_t *file)
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
-	destroy_all_win();
+	destroy_all_win(true);
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
@@ -4992,7 +4992,7 @@ void karte_t::interactive_event(event_t &ev)
 					if(  ev.ev_code == 8  ) {
 						// Backspace
 						sound_play(click_sound);
-						destroy_all_win();
+						destroy_all_win(false);
 					}
 					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
 					break;
@@ -5187,7 +5187,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
 			// Beenden des Programms wenn das Fenster geschlossen wird.
-			destroy_all_win();
+			destroy_all_win(true);
 			umgebung_t::quit_simutrans = true;
 			return false;
 		}

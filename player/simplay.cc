@@ -332,7 +332,7 @@ void spieler_t::neuer_monat()
 
 	// enough money and scenario finished?
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
-		destroy_all_win();
+		destroy_all_win(true);
 		sint32 time = welt->get_current_month()-(welt->get_einstellungen()->get_starting_year()*12);
 		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
 		create_win(280, 40, new news_img(buf), w_info, magic_none);
@@ -347,7 +347,7 @@ void spieler_t::neuer_monat()
 		if(!welt->get_einstellungen()->is_freeplay()) {
 			if(this == welt->get_spieler(0)) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
-					destroy_all_win();
+					destroy_all_win(true);
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
 					welt->beenden(false);
 				}

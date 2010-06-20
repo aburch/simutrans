@@ -80,6 +80,8 @@ public:
 
 	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
 
+	bool has_sticky() const { return true; }
+
 	/* returns true, if inside window area ...
 	 * @author Hj. Malthaner
 	 */

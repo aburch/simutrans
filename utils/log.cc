@@ -200,7 +200,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	umgebung_t::verbose_debug = 0;	// no more window concerning messages
 	if(is_display_init()) {
 		// show notification
-		destroy_all_win();
+		destroy_all_win( true );
 
 		strcpy( buffer+n+1, "PRESS ANY KEY\n" );
 		news_img* sel = new news_img(buffer,IMG_LEER);

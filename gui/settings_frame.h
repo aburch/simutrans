@@ -67,6 +67,9 @@ public:
      */
     bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
+	// does not work during new world dialoge
+	virtual bool has_sticky() const { return false; }
+
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet

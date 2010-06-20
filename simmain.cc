@@ -184,7 +184,7 @@ static void zeige_banner(karte_t *welt)
 	banner_t* b = new banner_t();
 	event_t ev;
 
-	destroy_all_win();	// since eventually the successful load message is still there ....
+	destroy_all_win(true);	// since eventually the successful load message is still there ....
 
 	create_win(0, -48, b, w_info, magic_none );
 
@@ -237,7 +237,7 @@ static void ask_objfilename()
 	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
 	event_t ev;
 
-	destroy_all_win();	// since eventually the successful load message is still there ....
+	destroy_all_win(true);	// since eventually the successful load message is still there ....
 
 	create_win( xy.x, xy.y, sel, w_info, magic_none );
 
@@ -274,7 +274,7 @@ static void ask_language()
 	koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
 	event_t ev;
 
-	destroy_all_win();	// since eventually the successful load message is still there ....
+	destroy_all_win(true);	// since eventually the successful load message is still there ....
 	create_win( xy.x, xy.y, sel, w_info, magic_none );
 
 	while(  translator::get_language()==-1  ) {
@@ -958,7 +958,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				} while (!IS_LEFTRELEASE(&ev));
 			}
 
-			destroy_all_win();
+			destroy_all_win(true);
 			// scenario?
 			if(wg->get_scenario()) {
 				char path[1024];
@@ -986,7 +986,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					umgebung_t::default_einstellungen.rdwr(&file);
 					file.close();
 				}
-				destroy_all_win();
+				destroy_all_win(true);
 				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
 				welt->set_pause(false);
 			}
