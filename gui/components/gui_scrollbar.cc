@@ -6,11 +6,14 @@
 #include "../../simdebug.h"
 
 #include "gui_scrollbar.h"
+#include "list_button.h"
 #include "action_listener.h"
 
 #include "../../simcolor.h"
 #include "../../simgraph.h"
 
+
+#define BAR_WIDTH (12)
 
 scrollbar_t::scrollbar_t(enum type type) :
 	type(type),
@@ -32,7 +35,10 @@ scrollbar_t::scrollbar_t(enum type type) :
 
 	button_def[0].set_pos(koord(0,0));
 	button_def[1].set_pos(koord(0,0));
+//	button_def[2].set_typ(button_t::roundbox);
+//	button_def[3].set_typ(button_t::roundbox);
 	button_def[2].set_typ(button_t::scrollbar);
+	button_def[3].set_typ(button_t::scrollbar);
 	reposition_buttons();
 }
 
@@ -82,14 +88,18 @@ void scrollbar_t::reposition_buttons()
 	//if (knob_area < knob_size) { offset = 0; }
 
 	if (type == vertical) {
-		button_def[1].set_pos( koord(0,groesse.y-10) );
+		button_def[1].set_pos( koord(0,groesse.y-12) );
 		button_def[2].set_pos( koord(0,12+offset) );
-		button_def[2].set_groesse( koord(10,size) );
+		button_def[2].set_groesse( koord(BUTTON_HEIGHT,size) );
+		button_def[3].set_pos( koord(0,12) );
+		button_def[3].set_groesse( koord(BUTTON_HEIGHT,groesse.y-24) );
 	}
 	else { // horizontal
 		button_def[1].set_pos( koord(groesse.x-10,0) );
 		button_def[2].set_pos( koord(12+offset,0) );
-		button_def[2].set_groesse( koord(size,10) );
+		button_def[2].set_groesse( koord(size,BUTTON_HEIGHT) );
+		button_def[3].set_pos( koord(12,0) );
+		button_def[3].set_groesse( koord(groesse.x-24,BUTTON_HEIGHT) );
 	}
 }
 
@@ -266,16 +276,19 @@ bool scrollbar_t::infowin_event(const event_t *ev)
 void scrollbar_t::zeichnen(koord pos)
 {
 	pos += this->pos;
-
+/*
 	// if opaque style, display GREY sliding bar backgrounds
 	if (type == vertical) {
-		display_fillbox_wh(pos.x, pos.y+12, 10, groesse.y-24, MN_GREY1, true);
+		display_fillbox_wh(pos.x, pos.y+12, BAR_WIDTH, groesse.y-24, MN_GREY1, true);
 	}
 	else {
-		display_fillbox_wh(pos.x+12, pos.y, groesse.x-24, 10, MN_GREY1, true);
+		display_fillbox_wh(pos.x+12, pos.y, groesse.x-24, BAR_WIDTH, MN_GREY1, true);
 	}
-
+*/
 	button_def[0].zeichnen(pos);
 	button_def[1].zeichnen(pos);
+	button_def[3].pressed = true;
+	button_def[3].zeichnen(pos);
+	button_def[2].pressed = false;
 	button_def[2].zeichnen(pos);
 }

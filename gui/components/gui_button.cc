@@ -73,28 +73,28 @@ void button_t::init_button_images()
 {
 	if(skinverwaltung_t::window_skin!=NULL) {
 
-		square_button_normal = skinverwaltung_t::window_skin->get_bild(6)->get_nummer();
-		square_button_pushed = skinverwaltung_t::window_skin->get_bild(7)->get_nummer();
+		square_button_normal = skinverwaltung_t::window_skin->get_bild_nr(6);
+		square_button_pushed = skinverwaltung_t::window_skin->get_bild_nr(7);
 
-		arrow_left_normal = skinverwaltung_t::window_skin->get_bild(8)->get_nummer();
-		arrow_left_pushed = skinverwaltung_t::window_skin->get_bild(9)->get_nummer();
+		arrow_left_normal = skinverwaltung_t::window_skin->get_bild_nr(8);
+		arrow_left_pushed = skinverwaltung_t::window_skin->get_bild_nr(9);
 
-		arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
-		arrow_right_pushed = skinverwaltung_t::window_skin->get_bild(11)->get_nummer();
+		arrow_right_normal = skinverwaltung_t::window_skin->get_bild_nr(10);
+		arrow_right_pushed = skinverwaltung_t::window_skin->get_bild_nr(11);
 
-		b_cap_left = skinverwaltung_t::window_skin->get_bild(12)->get_nummer();
-		b_cap_right = skinverwaltung_t::window_skin->get_bild(13)->get_nummer();
-		b_body = skinverwaltung_t::window_skin->get_bild(14)->get_nummer();
+		b_cap_left = skinverwaltung_t::window_skin->get_bild_nr(12);
+		b_cap_right = skinverwaltung_t::window_skin->get_bild_nr(13);
+		b_body = skinverwaltung_t::window_skin->get_bild_nr(14);
 
-		b_cap_left_p = skinverwaltung_t::window_skin->get_bild(15)->get_nummer();
-		b_cap_right_p = skinverwaltung_t::window_skin->get_bild(16)->get_nummer();
-		b_body_p = skinverwaltung_t::window_skin->get_bild(17)->get_nummer();
+		b_cap_left_p = skinverwaltung_t::window_skin->get_bild_nr(15);
+		b_cap_right_p = skinverwaltung_t::window_skin->get_bild_nr(16);
+		b_body_p = skinverwaltung_t::window_skin->get_bild_nr(17);
 
-		arrow_up_normal = skinverwaltung_t::window_skin->get_bild(18)->get_nummer();
-		arrow_up_pushed = skinverwaltung_t::window_skin->get_bild(19)->get_nummer();
+		arrow_up_normal = skinverwaltung_t::window_skin->get_bild_nr(18);
+		arrow_up_pushed = skinverwaltung_t::window_skin->get_bild_nr(19);
 
-		arrow_down_normal = skinverwaltung_t::window_skin->get_bild(20)->get_nummer();
-		arrow_down_pushed = skinverwaltung_t::window_skin->get_bild(21)->get_nummer();
+		arrow_down_normal = skinverwaltung_t::window_skin->get_bild_nr(20);
+		arrow_down_pushed = skinverwaltung_t::window_skin->get_bild_nr(21);
 	}
 }
 
@@ -148,7 +148,7 @@ void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pre
 		// first the center (may need extra clipping)
 		if(w-lw-rw<64) {
 			struct clip_dimension cl=display_get_clip_wh();
-			display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw-cl.x,cl.w)), cl.h );
+			display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw-cl.x,cl.xx)-x), cl.h );
 			display_button_image(x+lw, y, RB_BODY_BUTTON, pressed);
 			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
