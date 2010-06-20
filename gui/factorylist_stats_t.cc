@@ -78,7 +78,6 @@ bool factorylist_stats_t::infowin_event(const event_t * ev)
  */
 void factorylist_stats_t::zeichnen(koord offset)
 {
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	const struct clip_dimension cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE-1;
 	const int end = cd.yy+LINESPACE+1;
@@ -141,15 +140,8 @@ void factorylist_stats_t::zeichnen(koord offset)
 			// show text
 			display_proportional_clip(xoff+INDICATOR_WIDTH+6+10,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
-			if(i!=line_selected) {
-				// goto information
-				display_color_img(arrow_right_normal, xoff-14, yoff, 0, false, true);
-			}
-			else {
-				// select goto button
-				display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
-					xoff-14, yoff, 0, false, true);
-			}
+			// goto button
+			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
 
 		}
 		yoff += LINESPACE+1;

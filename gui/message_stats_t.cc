@@ -85,7 +85,6 @@ bool message_stats_t::infowin_event(const event_t * ev)
  */
 void message_stats_t::zeichnen(koord offset)
 {
-	const image_id arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	struct clip_dimension cd = display_get_clip_wh();
 	sint16 y = offset.y+1;
 
@@ -102,13 +101,9 @@ void message_stats_t::zeichnen(koord offset)
 
 		// goto information
 		if(n.pos!=koord::invalid) {
-			if(  message_selected!=((y-offset.y)/BUTTON_HEIGHT)  ) {
-				display_color_img(arrow_right_normal, offset.x + 2, y, 0, false, true);
-			}
-			else {
-				// select goto button
-				display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(), offset.x + 2, y, 0, false, true);
-			}
+			// goto button
+			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
+					offset.x + 2, y, 0, false, true);
 		}
 
 		char buf[256];

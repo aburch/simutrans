@@ -110,7 +110,6 @@ void citylist_stats_t::zeichnen(koord offset)
 {
 	cbuffer_t buf(256);
 
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	sint32 total_bev = 0;
 	sint32 total_growth = 0;
 
@@ -132,15 +131,9 @@ void citylist_stats_t::zeichnen(koord offset)
 		buf.append( ")" );
 		display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
-		if(i!=line_select) {
-			// goto information
-			display_color_img(arrow_right_normal, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
-		}
-		else {
-			// select goto button
-			display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
-				offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
-		}
+		// goto button
+		display_color_img( i!=line_select ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
+			offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 		total_bev    += bev;
 		total_growth += growth;
