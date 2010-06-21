@@ -48,6 +48,24 @@ public:
 	static image_id b_body_p;
 	static image_id b_cap_right_p;
 
+	// these are optional: scrollbars horizontal ...
+	static image_id scrollbar_left;
+	static image_id scrollbar_right;
+	static image_id scrollbar_middle;
+
+	static image_id scrollbar_slider_left;
+	static image_id scrollbar_slider_right;
+	static image_id scrollbar_slider_middle;
+
+	// these are optional: ... and scrollbars vertical
+	static image_id scrollbar_top;
+	static image_id scrollbar_bottom;
+	static image_id scrollbar_center;
+
+	static image_id scrollbar_slider_top;
+	static image_id scrollbar_slider_bottom;
+	static image_id scrollbar_slider_center;
+
 	/* the button with the postfix state do not automatically change their state like the normal button do
 	 * the _state buttons must be changed by the caller!
 	 * _automatic buttons do eveything themselves, i.e. depress/release alternately
@@ -60,8 +78,8 @@ public:
 	 * scrollbar: well you guess it. Not used by gui_frame_t things ...
 	 */
 	enum type {
-		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar, repeatarrowleft, repeatarrowright, posbutton,
-		square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_state, repeatarrowleft_state, repeatarrowright_state,
+		square=1, box, roundbox, arrowleft, arrowright, arrowup, arrowdown, scrollbar_horizontal, scrollbar_vertical, repeatarrowleft, repeatarrowright, posbutton,
+		square_state=129, box_state, roundbox_state, arrowleft_state, arrowright_state, arrowup_state, arrowdown_state, scrollbar_horizontal_state, scrollbar_vertical_state, repeatarrowleft_state, repeatarrowright_state,
 		square_automatic=257
 	};
 
@@ -97,6 +115,9 @@ private:
 
 	// draw a rectangular button
 	void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed);
+
+	// scrollbar either skinned or simple
+	void draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horizontal, bool slider);
 
 public:
 	static void init_button_images();	// must be called at least once after loading skins

@@ -12,6 +12,9 @@
 #include "../../simcolor.h"
 #include "../../simgraph.h"
 
+#include "../../simskin.h"
+#include "../../besch/skin_besch.h"
+
 
 #define BAR_WIDTH (12)
 
@@ -26,19 +29,19 @@ scrollbar_t::scrollbar_t(enum type type) :
 		groesse = koord(10,40);
 		button_def[0].set_typ(button_t::arrowup);
 		button_def[1].set_typ(button_t::arrowdown);
+		button_def[2].set_typ(button_t::scrollbar_vertical);
+		button_def[3].set_typ(button_t::scrollbar_vertical);
 	}
 	else { // horizontal
 		groesse = koord(40,10);
 		button_def[0].set_typ(button_t::arrowleft);
 		button_def[1].set_typ(button_t::arrowright);
+		button_def[2].set_typ(button_t::scrollbar_horizontal);
+		button_def[3].set_typ(button_t::scrollbar_horizontal);
 	}
 
 	button_def[0].set_pos(koord(0,0));
 	button_def[1].set_pos(koord(0,0));
-//	button_def[2].set_typ(button_t::roundbox);
-//	button_def[3].set_typ(button_t::roundbox);
-	button_def[2].set_typ(button_t::scrollbar);
-	button_def[3].set_typ(button_t::scrollbar);
 	reposition_buttons();
 }
 
@@ -85,11 +88,13 @@ void scrollbar_t::reposition_buttons()
 
 	sint32 offset = (sint32)( (float)knob_offset * ratio +.5 );
 	sint32 size   = (sint32)( (float)knob_size   * ratio +.5 );
-	//if (knob_area < knob_size) { offset = 0; }
 
 	if (type == vertical) {
 		button_def[1].set_pos( koord(0,groesse.y-12) );
 		button_def[2].set_pos( koord(0,12+offset) );
+		if(  button_t::scrollbar_left!=IMG_LEER  ) {
+			size = max( size, skinverwaltung_t::window_skin->get_bild(33)->get_pic()->h+skinverwaltung_t::window_skin->get_bild(34)->get_pic()->h );
+		}
 		button_def[2].set_groesse( koord(BUTTON_HEIGHT,size) );
 		button_def[3].set_pos( koord(0,12) );
 		button_def[3].set_groesse( koord(BUTTON_HEIGHT,groesse.y-24) );
@@ -97,6 +102,9 @@ void scrollbar_t::reposition_buttons()
 	else { // horizontal
 		button_def[1].set_pos( koord(groesse.x-10,0) );
 		button_def[2].set_pos( koord(12+offset,0) );
+		if(  button_t::scrollbar_left!=IMG_LEER  ) {
+			size = max( size, skinverwaltung_t::window_skin->get_bild(27)->get_pic()->w+skinverwaltung_t::window_skin->get_bild(28)->get_pic()->w );
+		}
 		button_def[2].set_groesse( koord(size,BUTTON_HEIGHT) );
 		button_def[3].set_pos( koord(12,0) );
 		button_def[3].set_groesse( koord(groesse.x-24,BUTTON_HEIGHT) );
