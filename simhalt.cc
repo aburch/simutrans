@@ -1490,17 +1490,49 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 			welt = sched_owner->get_welt();
 		}
 
-		for (uint8 i = 0; i < entry_count; i++)
+		uint8 index = 0;
+		bool reverse = false;
+		bool first_self = true;
+		for (uint8 i = 0; i < 3*entry_count; i++)
 		{
-			tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[i].pos, sched_owner);
+			tmp_halt = haltestelle_t::get_halt(welt, sched->eintrag[index].pos, sched_owner);
 			
 			if ( tmp_halt == self && self_halt_idx == -1 )
 			{
-				self_halt_idx = i;
+				self_halt_idx = index;
 			}
 
 			// Assign to halt list in the same order as schedule, even if no halt is found (i.e. tmp_halt is unbound)
 			halt_list.append(tmp_halt, 8);
+
+			sched->increment_index(&index, &reverse);
+
+			// check if we have traversed the whole schedule, both ways if appropriate
+			if ( index == 0 && (!sched->is_circular() || self_halt_idx == -1) )
+			{
+				break;
+			}
+			else if ( (sint16)index == self_halt_idx && sched->is_circular() )
+			{
+				// This will give just under 3*sched->get_count() entries in a worst-case scenario
+				// (i.e. if this halt is the last stop in the scedule).
+				// This is necessary to represent both directions using a single halt_list.
+				if ( first_self == true )
+				{
+					// first match -> continue on
+					first_self = false;
+				}
+				else if ( reverse == false )
+				{
+					// second match -> also visit all stops in reverse direction
+					reverse = true;
+				}
+				else
+				{
+					// visited everywhere both forwards and backwards.
+					break;
+				}
+			}
 		}
 	}
 
