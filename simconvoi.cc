@@ -4014,33 +4014,36 @@ void convoi_t::check_pending_updates()
 				 * we try first same sequence as in old schedule;
 				 * if not found, we try for same nextnext station
 				 */
-				const koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
-				const koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
-				const koord3d nextnextnext = fpl->eintrag[(aktuell+3)%fpl->get_count()].pos;
+				uint8 index = aktuell;
+				bool reverse = reverse_schedule;
+				koord3d next[4];
+				for( uint8 i=0; i<4; i++ ) {
+					next[i] = fpl->eintrag[index].pos;
+					fpl->increment_index(&index, &reverse);
+				}
+				const int weights[4] = {3, 4, 2, 1};
 				int how_good_matching = 0;
 				const uint8 new_count = new_fpl->get_count();
 
 				for(  uint8 i=0;  i<new_count;  i++  ) {
-					int quality =
-						(new_fpl->eintrag[i].pos==current)*3 +
-						(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
-						(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
-						(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
+					index = i;
+					reverse = reverse_schedule;
+					int quality = 0;
+					for( uint8 j=0; j<4; j++ ) {
+						quality += (new_fpl->eintrag[index].pos==next[j])*weights[j];
+						new_fpl->increment_index(&index, &reverse);
+					}
 					if(  quality>how_good_matching  ) {
 						// better match than previous: but depending of distance, the next number will be different
-						if(new_fpl->eintrag[i].pos==current) {
-							aktuell = i;
+						index = i;
+						reverse = reverse_schedule;
+						for( uint8 j=0; j<4; j++ ) {
+							if( new_fpl->eintrag[index].pos==next[j] ) {
+								aktuell = index;
+								break;
+							}
+							new_fpl->increment_index(&index, &reverse);
 						}
-						else if(new_fpl->eintrag[(i+1)%new_count].pos==next) {
-							aktuell = i+1;
-						}
-						else if(new_fpl->eintrag[(i+2)%new_count].pos==nextnext) {
-							aktuell = i+2;
-						}
-						else if(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext) {
-							aktuell = i+3;
-						}
-						aktuell %= new_count;
 						how_good_matching = quality;
 					}
 				}
