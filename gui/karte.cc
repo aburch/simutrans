@@ -823,8 +823,10 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 		display_fillbox_wh_clip(new_koord.x, new_koord.y, 4, 4, color, true);
 		last_koord = new_koord;
 	}
-	// draw line back to first stop
-	display_direct_line(last_koord.x, last_koord.y, first_koord.x, first_koord.y, 127);
+	// draw line back to first stop if not mirrored
+	if( !fpl->is_mirrored() ) {
+		display_direct_line(last_koord.x, last_koord.y, first_koord.x, first_koord.y, 127);
+	}
 }
 
 
