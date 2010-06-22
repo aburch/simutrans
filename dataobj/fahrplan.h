@@ -84,6 +84,13 @@ public:
 		}
 	}
 
+	/**
+	 * Increment or decrement the given index according to the given direction.
+	 * Also switches the direction if necessary.
+	 * @author yobbobandana
+	 */
+	void increment_index(uint8 *index, bool *reversed) const;
+
 	inline bool ist_abgeschlossen() const { return abgeschlossen; }
 	void eingabe_abschliessen() { abgeschlossen = true; }
 	void eingabe_beginnen() { abgeschlossen = false; }

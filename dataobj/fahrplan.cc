@@ -349,6 +349,34 @@ void schedule_t::add_return_way()
 }
 
 
+/*
+ * Increment or decrement the given index according to the given direction.
+ * Also switches the direction if necessary.
+ * @author yobbobandana
+ */
+void schedule_t::increment_index(uint8 *index, bool *reversed) const {
+	if( !get_count() ) { return; }
+	if( *reversed ) {
+		if( *index != 0 ) {
+			*index = *index - 1;
+		} else if( mirrored ) {
+			*reversed = false;
+			*index = get_count()>1 ? 1 : 0;
+		} else {
+			*index = get_count()-1;
+		}
+	} else {
+		if( *index < get_count()-1 ) {
+			*index = *index + 1;
+		} else if( mirrored && get_count()>1 ) {
+			*reversed = true;
+			*index = get_count()-2;
+		} else {
+			*index = 0;
+		}
+	}
+}
+
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {

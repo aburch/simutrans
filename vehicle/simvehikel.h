@@ -615,7 +615,6 @@ protected:
 	bool ist_befahrbar(const grund_t *bd) const;
 
 	void betrete_feld();
-	void increment_fahrplan_index(uint8 *fahrplan_index, bool *fahrplan_reversed);
 
 public:
 	virtual waytype_t get_waytype() const { return track_wt; }

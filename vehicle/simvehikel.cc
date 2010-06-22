@@ -3044,35 +3044,6 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 }
 
 
-/*
- * Helper function to calculate the next schedule index in a certain
- * direction. Also switches the direction if necessary.
- * @author yobbobandana
- */
-void waggon_t::increment_fahrplan_index(uint8 *fahrplan_index, bool *fahrplan_reversed) {
-	if( *fahrplan_reversed ) {
-		if (*fahrplan_index == 0) {
-			*fahrplan_index = min(1, cnv->get_schedule()->get_count()-1);
-			if( cnv->get_schedule()->is_mirrored() ) {
-				*fahrplan_reversed = false;
-			}
-		} else {
-			*fahrplan_index = *fahrplan_index - 1;
-		}
-	} else {
-		if(*fahrplan_index >= cnv->get_schedule()->get_count()-1) {
-			if( cnv->get_schedule()->is_mirrored() && cnv->get_schedule()->get_count()>1 ) {
-				*fahrplan_index = cnv->get_schedule()->get_count()-2;
-				*fahrplan_reversed = true;
-			} else {
-				*fahrplan_index = 0;
-			}
-		} else {
-			*fahrplan_index = *fahrplan_index + 1;
-		}
-	}
-}
-
 
 bool waggon_t::ist_weg_frei(int & restart_speed)
 {
@@ -3112,8 +3083,6 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	bool fahrplan_reversed = cnv->get_reverse_schedule();
-
 	uint16 next_block=cnv->get_next_stop_index()-1;
 	if(next_block<=route_index+3) {
 		route_t *rt=cnv->get_route();
@@ -3141,19 +3110,21 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				}
 
 				bool exit_loop = false;
-				uint8 fahrplan_index = cnv->get_schedule()->get_aktuell();
+				schedule_t *fpl = cnv->get_schedule();
+				uint8 fahrplan_index = fpl->get_aktuell();
+				bool fahrplan_reversed = cnv->get_reverse_schedule();
 				int count = 0;
 				route_t target_rt;
 				koord3d cur_pos = rt->position_bei(next_block+1);
 				// next tile is end of schedule => must start with next leg of schedule
 				if(next_block+1u>=rt->get_count()-1) {
-					increment_fahrplan_index(&fahrplan_index, &fahrplan_reversed);
+					fpl->increment_index(&fahrplan_index, &fahrplan_reversed);
 					count++;
 				}
 				// now search
 				do {
 					// search for route
-					if(!target_rt.calc_route( welt, cur_pos, cnv->get_schedule()->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight())) 
+					if(!target_rt.calc_route( welt, cur_pos, fpl->eintrag[fahrplan_index].pos, this, speed_to_kmh(cnv->get_min_top_speed()), cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight())) 
 					{
 						exit_loop = true;
 					}
@@ -3185,11 +3156,11 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 
 					if(!exit_loop) {
 						target_rt.clear();
-						cur_pos = cnv->get_schedule()->eintrag[fahrplan_index].pos;
-						increment_fahrplan_index(&fahrplan_index, &fahrplan_reversed);
+						cur_pos = fpl->eintrag[fahrplan_index].pos;
+						fpl->increment_index(&fahrplan_index, &fahrplan_reversed);
 						count++;
 					}
-				} while (count < cnv->get_schedule()->get_count() && !exit_loop); // stop after we've looped round schedule
+				} while (count < fpl->get_count() && !exit_loop); // stop after we've looped round schedule
 				// we can't go
 				sig->set_zustand(roadsign_t::rot);
 				if(route_index==next_block+1) {
