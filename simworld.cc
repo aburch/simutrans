@@ -5200,23 +5200,25 @@ bool karte_t::interactive(uint32 quit_month)
 
 			swallowed = check_pos_win(&ev);
 
-			if(IS_RIGHTCLICK(&ev)) {
-				display_show_pointer(false);
-				cursor_hidden = true;
-			} else if(IS_RIGHTRELEASE(&ev)) {
-				display_show_pointer(true);
-				cursor_hidden = false;
-			} else if(!swallowed  &&  IS_RIGHTDRAG(&ev)) {
-				// unset following
-				if(follow_convoi.is_bound()) {
-					follow_convoi = convoihandle_t();
-				}
-				blick_aendern(&ev);
-			}
-			else {
-				if(cursor_hidden) {
+			if(  !swallowed  ) {
+				if(IS_RIGHTCLICK(&ev)) {
+					display_show_pointer(false);
+					cursor_hidden = true;
+				} else if(IS_RIGHTRELEASE(&ev)) {
 					display_show_pointer(true);
 					cursor_hidden = false;
+				} else if(IS_RIGHTDRAG(&ev)) {
+					// unset following
+					if(follow_convoi.is_bound()) {
+						follow_convoi = convoihandle_t();
+					}
+					blick_aendern(&ev);
+				}
+				else {
+					if(cursor_hidden) {
+						display_show_pointer(true);
+						cursor_hidden = false;
+					}
 				}
 			}
 
