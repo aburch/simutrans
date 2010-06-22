@@ -153,10 +153,10 @@ public:
 	bool sscanf_schedule( const char * );
 
 private:
-	bool  abgeschlossen;
-	uint8 aktuell;
+	bool abgeschlossen;
 	bool circular;
 	bool mirrored;
+	uint8 aktuell;
 
 	static struct linieneintrag_t dummy_eintrag;
 };
