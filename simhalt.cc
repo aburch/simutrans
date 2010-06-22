@@ -2202,32 +2202,18 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 	if(warray != NULL) 
 	{
 
-		// da wir schon an der aktuellem haltestelle halten
-		// startet die schleife ab 1, d.h. dem naechsten halt
-
-		// because we have to keep the current haltestelle
-		// loop starts from 1, i.e. the next stop (Google)
-
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
 		const uint16 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
 
+		// uses fpl->increment_index to iterate over stops
+		uint8 index = fpl->get_aktuell();
 		bool reverse = cnv->get_reverse_schedule();
-		// if the schedule is mirrored and this is an endpoint, need to switch direction
-		if( fpl->is_mirrored() && (fpl->get_aktuell()==0 || fpl->get_aktuell()==(count-1)) ) {
-			reverse = !reverse;
-		}
+		fpl->increment_index(&index, &reverse);
 
-		for(uint8 i = 1; i < count; i++) 
-		{
-			uint8 wrap_i;
-			if( reverse ) {
-				wrap_i = (fpl->get_aktuell() + count - i) % count;
-			} else {
-				wrap_i = (i + fpl->get_aktuell()) % count; //aktuell = "current" (Google)
-			}
+		while (index != fpl->get_aktuell()) {
 
-			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[wrap_i].pos, sp); //eintrag = "entry" (Google)
+			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[index].pos, sp);
 			if(plan_halt == self) 
 			{
 				// we will come later here again ...
@@ -2351,9 +2337,11 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 			// if the schedule is mirrored and has reached its end, break
 			// as the convoi will be returning this way later.
-			if( fpl->is_mirrored() && (wrap_i==0 || wrap_i==(count-1)) ) {
+			if( fpl->is_mirrored() && (index==0 || index==(count-1)) ) {
 				break;
 			}
+
+			fpl->increment_index(&index, &reverse);
 		}
 	}
 
