@@ -34,6 +34,7 @@ koord map_frame_t::size=koord(0,0);
 uint8 map_frame_t::legend_visible=false;
 uint8 map_frame_t::scale_visible=false;
 uint8 map_frame_t::directory_visible=false;
+bool map_frame_t::is_cursor_hidden=false;
 
 // Hajo: we track our position onscreen
 koord map_frame_t::screenpos;
@@ -330,22 +331,24 @@ bool map_frame_t::infowin_event(const event_t *ev)
 
 	// Hajo: hack: relief map can resize upon right click
 	// we track this here, and adjust size.
-	if(IS_RIGHTCLICK(ev)) {
+	if(  IS_RIGHTCLICK(ev)  ) {
 		is_dragging = false;
+		display_show_pointer(false);
+		is_cursor_hidden = true;
 		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
 		return true;
 	}
-
-	if(IS_RIGHTRELEASE(ev)) {
+	else if(  IS_RIGHTRELEASE(ev)  ) {
 		if(!is_dragging) {
 			resize( koord(0,0) );
 		}
 		is_dragging = false;
+		display_show_pointer(true);
+		is_cursor_hidden = false;
 		reliefkarte_t::get_karte()->get_welt()->set_scroll_lock(false);
 		return true;
 	}
-
-	if(reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)  &&  IS_RIGHTDRAG(ev)) {
+	else if(  IS_RIGHTDRAG(ev)  &&  reliefkarte_t::get_karte()->getroffen(ev->mx,ev->my)  ) {
 		int x = scrolly.get_scroll_x();
 		int y = scrolly.get_scroll_y();
 		const int scroll_direction = ( umgebung_t::scroll_multi>0 ? 1 : -1 );
@@ -361,6 +364,11 @@ bool map_frame_t::infowin_event(const event_t *ev)
 		// Hajo: re-center mouse pointer
 		display_move_pointer(screenpos.x+ev->cx, screenpos.y+ev->cy);
 		return true;
+	}
+	else if(  is_cursor_hidden  )
+	{
+		display_show_pointer(true);
+		is_cursor_hidden = false;
 	}
 
 	return gui_frame_t::infowin_event(ev);
