@@ -24,7 +24,7 @@ public:
 	};
 
 protected:
-	schedule_t() : abgeschlossen(false), circular(false), mirrored(false), aktuell(0) {}
+	schedule_t() : abgeschlossen(false), bidirectional(false), mirrored(false), aktuell(0) {}
 
 public:
 	minivec_tpl<struct linieneintrag_t> eintrag;
@@ -136,9 +136,9 @@ public:
 	 */
 	void add_return_way();
 
-	inline bool is_circular() const { return circular; }
+	inline bool is_bidirectional() const { return bidirectional; }
 	inline bool is_mirrored() const { return mirrored; }
-	void set_circular(bool circ = true ) { circular = circ; }
+	void set_bidirectional(bool bidirec = true ) { bidirectional = bidirec; }
 	void set_mirrored(bool mir = true ) { mirrored = mir; }
 
 	virtual schedule_t* copy() = 0;//{ return new schedule_t(this); }
@@ -154,7 +154,7 @@ public:
 
 private:
 	bool abgeschlossen;
-	bool circular;
+	bool bidirectional;
 	bool mirrored;
 	uint8 aktuell;
 

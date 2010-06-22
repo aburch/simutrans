@@ -1172,7 +1172,7 @@ void convoi_t::advance_schedule() {
 		reverse_schedule = false;
 	}
 	else if( welt->get_einstellungen()->get_randomise_circular_routes() &&
-			fpl->is_circular() && fpl->get_aktuell()==0 && !simrand(4) ) {
+			fpl->is_bidirectional() && fpl->get_aktuell()==0 && !simrand(4) ) {
 		reverse_schedule = !reverse_schedule;
 	}
 	// advance the schedule cursor

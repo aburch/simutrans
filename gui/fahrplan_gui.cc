@@ -220,11 +220,11 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
 
-	bt_circular.init(button_t::square_automatic, "also reverse", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_circular.set_tooltip("When adding vehicles to the line, every second vehicle will follow it in the reverse direction.");
-	bt_circular.pressed = fpl->is_circular();
-	bt_circular.add_listener(this);
-	add_komponente(&bt_circular);
+	bt_bidirectional.init(button_t::square_automatic, "also reverse", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_bidirectional.set_tooltip("When adding vehicles to the line, every second vehicle will follow it in the reverse direction.");
+	bt_bidirectional.pressed = fpl->is_bidirectional();
+	bt_bidirectional.add_listener(this);
+	add_komponente(&bt_bidirectional);
 
 	ypos += BUTTON_HEIGHT;
 
@@ -493,8 +493,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		fpl->add_return_way();*/
 	} else if (komp == &bt_mirror) {
 		fpl->set_mirrored(bt_mirror.pressed);
-	} else if (komp == &bt_circular) {
-		fpl->set_circular(bt_circular.pressed);
+	} else if (komp == &bt_bidirectional) {
+		fpl->set_bidirectional(bt_bidirectional.pressed);
 	} else if (komp == &line_selector) {
 		int selection = p.i;
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);

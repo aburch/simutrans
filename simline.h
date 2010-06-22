@@ -94,7 +94,7 @@ private:
 
 	/*
 	 * whether the next convoy applied to this line should have its
-	 * reverse_schedule flag set. Only applies to circular schedules.
+	 * reverse_schedule flag set. Only applies to bidirectional schedules.
 	 * @author yobbobandana
 	 */
 	bool start_reversed;

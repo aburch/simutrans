@@ -1508,11 +1508,11 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 			sched->increment_index(&index, &reverse);
 
 			// check if we have traversed the whole schedule, both ways if appropriate
-			if ( index == 0 && (!sched->is_circular() || self_halt_idx == -1) )
+			if ( index == 0 && (!sched->is_bidirectional() || self_halt_idx == -1) )
 			{
 				break;
 			}
-			else if ( (sint16)index == self_halt_idx && sched->is_circular() )
+			else if ( (sint16)index == self_halt_idx && sched->is_bidirectional() )
 			{
 				// This will give just under 3*sched->get_count() entries in a worst-case scenario
 				// (i.e. if this halt is the last stop in the scedule).

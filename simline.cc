@@ -128,8 +128,8 @@ void simline_t::add_convoy(convoihandle_t cnv)
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 	}
 
-	// if the schedule is flagged as circular, set the initial convoy direction
-	if( fpl->is_circular() ) {
+	// if the schedule is flagged as bidirectional, set the initial convoy direction
+	if( fpl->is_bidirectional() ) {
 		cnv->set_reverse_schedule(start_reversed);
 		start_reversed = !start_reversed;
 	}
