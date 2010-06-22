@@ -1171,10 +1171,6 @@ void convoi_t::advance_schedule() {
 	else if( fpl->is_mirrored() && fpl->get_aktuell()==0  ) {
 		reverse_schedule = false;
 	}
-	else if( welt->get_einstellungen()->get_randomise_circular_routes() &&
-			fpl->is_bidirectional() && fpl->get_aktuell()==0 && !simrand(4) ) {
-		reverse_schedule = !reverse_schedule;
-	}
 	// advance the schedule cursor
 	if (reverse_schedule) {
 		fpl->advance_reverse();

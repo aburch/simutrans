@@ -469,7 +469,6 @@ void settings_routing_stats_t::init(einstellungen_t *sets)
 {
 	INIT_INIT
 	INIT_BOOL( "seperate_halt_capacities", sets->is_seperate_halt_capacities() );
-	INIT_BOOL( "randomise_circular_routes", sets->get_randomise_circular_routes() );
 	INIT_BOOL( "avoid_overcrowding", sets->is_avoid_overcrowding() );
 	INIT_NUM( "station_coverage", sets->get_station_coverage(), 1, 8, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
@@ -494,7 +493,6 @@ void settings_routing_stats_t::read(einstellungen_t *sets)
 {
 	EXIT_INIT
 	EXIT_BOOL( sets->set_seperate_halt_capacities );
-	EXIT_BOOL( sets->set_randomise_circular_routes );
 	EXIT_BOOL( sets->set_avoid_overcrowding );
 	EXIT_NUM( sets->set_station_coverage );
 	EXIT_NUM( sets->set_max_route_steps );

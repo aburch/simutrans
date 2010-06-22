@@ -212,9 +212,6 @@ einstellungen_t::einstellungen_t() :
 	// defualt: joined capacities
 	seperate_halt_capacities = false;
 
-	// vehicles on circular routes may randomly change direction.
-	randomise_circular_routes = false;
-
 	// Cornering settings
 	// @author: jamespetts
 	max_corner_limit[waytype_t(road_wt)] = 200;
@@ -799,9 +796,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_long( factory_worker_minimum_towns, "" );
 				file->rdwr_long( factory_worker_maximum_towns, "" );
 			}
-			if(file->get_experimental_version() >= 9) {
-				file->rdwr_bool( randomise_circular_routes, "" );
-			}
 		}
 
 		if(file->get_experimental_version() >= 1)
@@ -1228,7 +1222,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	factory_worker_maximum_towns = contents.get_int("factory_worker_maximum_towns", factory_worker_maximum_towns );
 	tourist_percentage = contents.get_int("tourist_percentage", tourist_percentage );
 	seperate_halt_capacities = contents.get_int("seperate_halt_capacities", seperate_halt_capacities ) != 0;
-	randomise_circular_routes = contents.get_int("randomise_circular_routes", randomise_circular_routes ) != 0;
 	avoid_overcrowding = contents.get_int("avoid_overcrowding", avoid_overcrowding )!=0;
 	passenger_max_wait = contents.get_int("passenger_max_wait", passenger_max_wait); 
 	max_rerouting_interval_months = contents.get_int("max_rerouting_interval_months", max_rerouting_interval_months);
