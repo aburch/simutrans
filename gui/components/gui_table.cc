@@ -283,7 +283,7 @@ int gui_table_column_list_t::compare_items(const gui_table_column_t *item1, cons
 	gui_table_t *table = get_owner();
 	assert(table);
 	const gui_table_row_list_t &rows = table->column_sort_row_order;
-	int n = rows.get_count();
+	unsigned n = rows.get_count();
 	if (!n) {
 		return -1;
 	}
@@ -316,7 +316,7 @@ int gui_table_row_list_t::compare_items(const gui_table_row_t *item1, const gui_
 	gui_table_t *table = get_owner();
 	assert(table);
 	const gui_table_column_list_t &columns = table->row_sort_column_order;
-	int n = columns.get_count();
+	unsigned n = columns.get_count();
 	if (!n) {
 		return -1;
 	}
