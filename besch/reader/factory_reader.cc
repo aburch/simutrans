@@ -290,11 +290,9 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = decode_uint16(p);
 		if(experimental)
 		{
-			if(experimental_version >= 0)
-			{
-				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F); 
-				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
-			}
+			besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F); 
+			besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
+
 			if(experimental_version >= 1)
 			{
 				besch->upgrades = decode_uint8(p);
