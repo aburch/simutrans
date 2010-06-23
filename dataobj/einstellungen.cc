@@ -648,7 +648,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_str(language_code_names, lengthof(language_code_names));
 
 			// restore AI state
-			char password[16];
+			//char password[16]; // unused
 			for(  int i=0;  i<15;  i++  ) {
 
 				file->rdwr_bool( automaten[i], "" );
