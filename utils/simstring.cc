@@ -24,7 +24,7 @@ char *ntos(long number, const char *format)
 		r = sprintf(tempstring, format, number);
 	}
 	else {
-		r = sprintf(tempstring, "%d", number);
+		r = sprintf(tempstring, "%ld", number);
 	}
 	assert(r<16);
 
