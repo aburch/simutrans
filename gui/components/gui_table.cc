@@ -51,6 +51,7 @@ coordinate_t gui_table_t::add_row(gui_table_row_t *row) {
 
 // BG, 18.03.2010
 void gui_table_t::change_size(const coordinates_t &old_size, const coordinates_t &new_size) {
+	(void) old_size; // unused
 	// change size of arrays
 	rows.set_count(new_size.get_y());
 	row_sort_column_order.set_count(new_size.get_x());
@@ -150,6 +151,10 @@ bool gui_table_t::infowin_event(const event_t *ev)
 
 // BG, 18.03.2010
 void gui_table_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y) {
+	// explicitly do nothing
+	(void) offset;
+	(void) x;
+	(void) y;
 }
 
 
