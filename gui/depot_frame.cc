@@ -155,11 +155,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	if(depot->get_tile()->get_besch()->get_enabled() == 0)
 	{
-		sprintf(txt_traction_types, translator::translate("Unpowered vehicles only"));
+		sprintf(txt_traction_types, "%s", translator::translate("Unpowered vehicles only"));
 	}
 	else if(depot->get_tile()->get_besch()->get_enabled() == 255)
 	{
-		sprintf(txt_traction_types, translator::translate("All traction types"));
+		sprintf(txt_traction_types, "%s", translator::translate("All traction types"));
 	}
 	else
 	{
@@ -179,7 +179,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 				{
 					n += sprintf(txt_traction_types + n, ", ");
 				}
-				n += sprintf(txt_traction_types + n, translator::translate(vehikel_besch_t::get_engine_type((vehikel_besch_t::engine_t)i)));
+				n += sprintf(txt_traction_types + n, "%s", translator::translate(vehikel_besch_t::get_engine_type((vehikel_besch_t::engine_t)i)));
 			}
 		}
 	}

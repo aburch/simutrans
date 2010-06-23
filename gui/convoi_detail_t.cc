@@ -303,7 +303,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 				if(v->get_besch()->get_ware()->get_catg_index() == 1)
 				{
 					//Catering vehicles that carry mail are treated as TPOs.
-					sprintf(buf , translator::translate("This is a travelling post office\n"));
+					sprintf(buf , "%s", translator::translate("This is a travelling post office\n"));
 					display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 					extra_y += LINESPACE;
 				}
@@ -318,7 +318,7 @@ void gui_vehicleinfo_t::zeichnen(koord offset)
 			//Tilting
 			if(v->get_besch()->get_tilting())
 			{
-				sprintf(buf, translator::translate("This is a tilting vehicle\n"));
+				sprintf(buf, "%s", translator::translate("This is a tilting vehicle\n"));
 				display_proportional_clip( pos.x+w+offset.x, pos.y+offset.y+total_height+extra_y, buf, ALIGN_LEFT, COL_BLACK, true );
 				extra_y += LINESPACE;
 			}
