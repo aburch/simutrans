@@ -1425,7 +1425,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 			if(veh_type->get_ware()->get_catg_index() == 1) 
 			{
 				//Catering vehicles that carry mail are treated as TPOs.
-				k +=  sprintf(buf + k, translator::translate("This is a travelling post office"));
+				k +=  sprintf(buf + k, "%s", translator::translate("This is a travelling post office"));
 			}
 			else
 			{
@@ -1442,10 +1442,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		{
 			if(way_constraints.get_permissive(i))
 			{
-				k += sprintf(buf + k, translator::translate("\nMUST USE: "));
+				k += sprintf(buf + k, "%s", translator::translate("\nMUST USE: "));
 				char tmpbuf[30];
 				sprintf(tmpbuf, "Permissive %i", i);
-				k += sprintf(buf + k, translator::translate(tmpbuf));
+				k += sprintf(buf + k, "%s", translator::translate(tmpbuf));
 			}
 		}
 
@@ -1485,7 +1485,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		if(veh_type->get_tilting())
 		{
-			j += sprintf(buf + j, translator::translate("This is a tilting vehicle\n"));
+			j += sprintf(buf + j, "%s", translator::translate("This is a tilting vehicle\n"));
 		}
 
 		if(veh_type->get_copyright()!=NULL  &&  veh_type->get_copyright()[0]!=0) 
@@ -1510,10 +1510,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 		{
 			if(way_constraints.get_prohibitive(i))
 			{
-				j += sprintf(buf + j, translator::translate("\nMAY USE: "));
+				j += sprintf(buf + j, "%s", translator::translate("\nMAY USE: "));
 				char tmpbuf[30];
 				sprintf(tmpbuf, "Prohibitive %i", i);
-				j += sprintf(buf + j, translator::translate(tmpbuf));
+				j += sprintf(buf + j, "%s", translator::translate(tmpbuf));
 			}
 		}
 
