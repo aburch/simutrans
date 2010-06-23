@@ -2427,9 +2427,7 @@ void stadt_t::step_passagiere()
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
 	{		
-		const uint8 passenger_routing_longdistance_chance = 100 - (passenger_routing_local_chance + passenger_routing_midrange_chance);
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
-		
 		uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
 		// Passengers with a private car will not tolerate second best destinations,
 		// and will use their private car to get to their first choice destination

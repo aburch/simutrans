@@ -630,12 +630,12 @@ sint64 replace_frame_t::calc_total_cost()
 	ITERATE((*convoy_assembler.get_vehicles()),j)
 	{
 		const vehikel_besch_t* veh = NULL;
-		const vehikel_besch_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j];
+		//const vehikel_besch_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j]; // unused
 		// First - check whether there are any of the required vehicles already
 		// in the convoy (free)
 		ITERATE(current_vehicles,k)
 		{
-			const vehikel_besch_t* test_old_vehicle = current_vehicles[k]->get_besch();
+			//const vehikel_besch_t* test_old_vehicle = current_vehicles[k]->get_besch(); // unused
 			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_besch() == (*convoy_assembler.get_vehicles())[j])
 			{
 				veh = current_vehicles[k]->get_besch();
@@ -659,7 +659,7 @@ sint64 replace_frame_t::calc_total_cost()
 				{	
 					for(uint8 c = 0; c < current_vehicles[l]->get_besch()->get_upgrades_count(); c ++)
 					{
-						const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c);
+						//const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c); // unused
 						if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
 						{
 							veh = current_vehicles[l]->get_besch();

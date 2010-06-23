@@ -3730,7 +3730,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	}
 	// mark tiles to calculate positions of signals
 	mark_tiles(welt, sp, start, end);
-	bool can_built = !marked[sp->get_player_nr()].empty();
+	//bool can_built = !marked[sp->get_player_nr()].empty(); // unused
 	// only search the marked tiles
 	for(  slist_tpl<zeiger_t*>::const_iterator i=marked[sp->get_player_nr()].begin(); i!=marked[sp->get_player_nr()].end();  ++i  ) {
 		koord3d pos = (*i)->get_pos();
@@ -5181,9 +5181,7 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 {
 	char tool = 0;
-	char extra = 0;
 	uint16 convoi_id = 0;
-	uint16 additional_convoi_id = 0;
 
 	// skip the rest of the command
 	const char *p = default_param;

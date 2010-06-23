@@ -786,7 +786,6 @@ bool stadtauto_t::hop_check()
 #ifdef DESTINATION_CITYCARS
 		static weighted_vector_tpl<koord3d> posliste(4);
 		posliste.clear();
-		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
 		for(uint8 r = 0; r < 4; r++) {
 			if(  get_pos().get_2d()==koord::nsow[r]+pos_next.get_2d()  ) {
 				continue;
