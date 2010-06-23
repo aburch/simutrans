@@ -1062,8 +1062,8 @@ bool fabrikbauer_t::power_stations_available(karte_t* welt)
 		const fabrik_besch_t* current = iter.get_current_value();
 		if(!current->is_electricity_producer()
 			|| (welt->use_timeline() 
-				&& current->get_haus()->get_intro_year_month() > welt->get_timeline_year_month()
-				|| current->get_haus()->get_retire_year_month() < welt->get_timeline_year_month())
+				&& (current->get_haus()->get_intro_year_month() > welt->get_timeline_year_month()
+					|| current->get_haus()->get_retire_year_month() < welt->get_timeline_year_month()))
 			)
 		{
 			continue;
