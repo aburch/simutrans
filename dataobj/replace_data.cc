@@ -114,7 +114,7 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 
 	//Secondly, get the number of replacing vehicles
 	char rv[5];
-	for(uint8 i = 0; i ++; i < 5)
+	for(uint8 i = 0; i < 5; i ++)
 	{
 		rv[i] = *p++;
 	}
