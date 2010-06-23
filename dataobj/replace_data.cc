@@ -80,12 +80,10 @@ void replace_data_t::sprintf_replace( cbuffer_t &buf) const
 	{
 		zeros = 1;
 	}
-	if(zeros > 0)
+	while(zeros > 0)
 	{
-	for(zeros; zeros --; zeros > 0)
-		{
-			buf.append("0");
-		}
+		buf.append("0");
+		zeros--;
 	}
 	buf.append((int)number_of_convoys);
 
