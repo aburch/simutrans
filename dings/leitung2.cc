@@ -720,7 +720,7 @@ void senke_t::step(long delta_t)
 
 		uint32 demand_distribution;
 		uint8 count = 0;
-		for(sint16 n = 0; n < city_substations->get_count(); n ++)
+		for(uint16 n = 0; n < city_substations->get_count(); n ++)
 		{
 			// Now check those that have more than enough power.
 
