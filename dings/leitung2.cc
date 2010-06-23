@@ -452,7 +452,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		// Must add dummy string here, or else the loading/saving will fail, 
 		// since we do not know whether a leitung is a plain leitung, or a pumpe
 		// or a senke on *loading*, whereas we do on saving.
-		char* dummy = "~";
+		char dummy[2] = "~";
 		file->rdwr_str(dummy, 2);
 	}
 }
