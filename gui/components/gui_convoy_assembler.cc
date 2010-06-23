@@ -46,7 +46,7 @@ static const char * engine_type_names [9] =
 };
 
 gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed char player_nr, bool electrified) :
-	way_type(wt), welt(w), last_changed_vehicle(NULL),
+	way_type(wt), way_electrified(electrified), welt(w), last_changed_vehicle(NULL),
 	depot_frame(NULL), replace_frame(NULL), placement(get_placement(wt)),
 	placement_dx(get_grid(wt).x * get_base_tile_raster_width() / 64 / 4),
 	grid(get_grid(wt)),
@@ -64,8 +64,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	scrolly_pas(&cont_pas),
 	scrolly_electrics(&cont_electrics),
 	scrolly_loks(&cont_loks),
-	scrolly_waggons(&cont_waggons),
-	way_electrified(electrified)
+	scrolly_waggons(&cont_waggons)
 
 {
 

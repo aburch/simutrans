@@ -486,8 +486,8 @@ public:
 class potential_convoy_t : public lazy_convoy_t
 {
 private:
-	karte_t &world;
 	vector_tpl<const vehikel_besch_t *> &vehicles;
+	karte_t &world;
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
