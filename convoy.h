@@ -331,9 +331,9 @@ private:
 protected:
 	int is_valid;
 	// decendents implement the update methods. 
-	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) {} // = 0;
-	virtual void update_adverse_summary(adverse_summary_t &adverse) {} // = 0;
-	virtual void update_freight_summary(freight_summary_t &freight) {} // = 0;
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) { (void)vehicle; } // = 0;
+	virtual void update_adverse_summary(adverse_summary_t &adverse) { (void)adverse; } // = 0;
+	virtual void update_freight_summary(freight_summary_t &freight) { (void)freight; } // = 0;
 public:
 
 	//-----------------------------------------------------------------------------
