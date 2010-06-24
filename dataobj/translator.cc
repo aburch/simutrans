@@ -21,12 +21,12 @@
 #include "loadsave.h"
 #include "umgebung.h"
 #include "../simmem.h"
-#include "../utils/cstring_t.h"
 #include "../utils/searchfolder.h"
 #include "../utils/simstring.h"
 #include "../unicode.h"
 #include "../tpl/vector_tpl.h"
 
+using std::string;
 
 // allow all kinds of line feeds
 static char *fgets_line(char *buffer, int max_len, FILE *file)
@@ -224,24 +224,24 @@ static void init_city_names(bool is_utf_language)
 
 	// @author prissi: first try in scenario
 	// not found => try user location
-	cstring_t local_file_name(umgebung_t::user_dir);
+	string local_file_name(umgebung_t::user_dir);
 	local_file_name = local_file_name + "citylist_" + translator::get_lang()->iso + ".txt";
-	file = fopen(local_file_name, "rb");
-	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+	file = fopen(local_file_name.c_str(), "rb");
+	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 	if (file==NULL) {
-		cstring_t local_file_name(umgebung_t::program_dir);
+		string local_file_name(umgebung_t::program_dir);
 		local_file_name = local_file_name + szenario_path + "text/citylist_" + translator::get_lang()->iso + ".txt";
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
-		file = fopen(local_file_name, "rb");
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		file = fopen(local_file_name.c_str(), "rb");
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 	}
 	// not found => try old location
 	if (file==NULL) {
-		cstring_t local_file_name(umgebung_t::program_dir);
+		string local_file_name(umgebung_t::program_dir);
 		local_file_name = local_file_name + "text/citylist_" + translator::get_lang()->iso + ".txt";
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
-		file = fopen(local_file_name, "rb");
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		file = fopen(local_file_name.c_str(), "rb");
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 	}
 	fflush(NULL);
 	DBG_DEBUG("translator::init_city_names()","file %p",file);
@@ -350,10 +350,10 @@ static translator::lang_info* get_lang_by_iso(const char* iso)
 }
 
 
-bool translator::load(const cstring_t& scenario_path)
+bool translator::load(const string &scenario_path)
 {
 	chdir( umgebung_t::program_dir );
-	tstrncpy(szenario_path, scenario_path, lengthof(szenario_path));
+	tstrncpy(szenario_path, scenario_path.c_str(), lengthof(szenario_path));
 
 	//initialize these values to 0(ie. nothing loaded)
 	single_instance.current_lang = -1;
@@ -365,13 +365,14 @@ bool translator::load(const cstring_t& scenario_path)
 
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-		cstring_t fileName(*i);
-		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
+		const string fileName(*i);
+		size_t pstart = fileName.rfind('/') + 1;
+		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 
 		FILE* file = NULL;
-		file = fopen(fileName, "rb");
+		file = fopen(fileName.c_str(), "rb");
 		if (file != NULL) {
-			DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", (const char*)fileName, (const char*)iso);
+			DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", fileName.c_str(), iso.c_str());
 			load_language_iso(iso);
 			load_language_file(file);
 			fclose(file);
@@ -391,27 +392,28 @@ bool translator::load(const cstring_t& scenario_path)
 
 	// now read the scenario specific text
 	// there can be more than one file per language, provided it is name like iso_xyz.tab
-	cstring_t folderName(scenario_path + "text/");
+	const string folderName(scenario_path + "text/");
 	int num_pak_lang_dat = folder.search(folderName, "tab");
-	DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", (const char*)folderName, num_pak_lang_dat);
+	DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", folderName.c_str(), num_pak_lang_dat);
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-		cstring_t fileName(*i);
-		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
+		const string fileName(*i);
+		size_t pstart = fileName.rfind('/') + 1;
+		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 
-		lang_info* lang = get_lang_by_iso(iso);
+		lang_info* lang = get_lang_by_iso(iso.c_str());
 		if (lang != NULL) {
-			DBG_MESSAGE("translator::load()", "loading pak translations from %s for language %s", (const char*)fileName, lang->iso_base);
-			FILE* file = fopen(fileName, "rb");
+			DBG_MESSAGE("translator::load()", "loading pak translations from %s for language %s", fileName.c_str(), lang->iso_base);
+			FILE* file = fopen(fileName.c_str(), "rb");
 			if (file != NULL) {
 				bool file_is_utf = is_unicode_file(file);
 				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 				fclose(file);
 			} else {
-				dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
+				dbg->warning("translator::load()", "cannot open '%s'", fileName.c_str());
 			}
 		} else {
-			dbg->warning("translator::load()", "no basic texts for language '%s'", (const char*)iso);
+			dbg->warning("translator::load()", "no basic texts for language '%s'", iso.c_str());
 		}
 	}
 
@@ -419,26 +421,27 @@ bool translator::load(const cstring_t& scenario_path)
 		chdir( umgebung_t::user_dir );
 		// now read the scenario specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
-		cstring_t folderName(scenario_path + "text/");
+		const string folderName(scenario_path + "text/");
 		folder.search(folderName, "tab");
 		//read now the basic language infos
 		for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-			cstring_t fileName(*i);
-			cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
+			const string fileName(*i);
+			size_t pstart = fileName.rfind('/') + 1;
+			const string iso = fileName.substr(pstart, fileName.size()  - pstart - 4);
 
-			lang_info* lang = get_lang_by_iso(iso);
+			lang_info* lang = get_lang_by_iso(iso.c_str());
 			if (lang != NULL) {
-				DBG_MESSAGE("translator::load()", "loading pak addon translations from %s for language %s", (const char*)fileName, lang->iso_base);
-				FILE* file = fopen(fileName, "rb");
+				DBG_MESSAGE("translator::load()", "loading pak addon translations from %s for language %s", fileName.c_str(), lang->iso_base);
+				FILE* file = fopen(fileName.c_str(), "rb");
 				if (file != NULL) {
 					bool file_is_utf = is_unicode_file(file);
 					load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 					fclose(file);
 				} else {
-					dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
+					dbg->warning("translator::load()", "cannot open '%s'", fileName.c_str());
 				}
 			} else {
-				dbg->warning("translator::load()", "no addon texts for language '%s'", (const char*)iso);
+				dbg->warning("translator::load()", "no addon texts for language '%s'", iso.c_str());
 			}
 		}
 		chdir( umgebung_t::program_dir );
@@ -450,7 +453,7 @@ bool translator::load(const cstring_t& scenario_path)
 	}
 
 	// now we try to read the compatibility stuff
-	FILE* file = fopen(scenario_path + "compat.tab", "rb");
+	FILE* file = fopen((scenario_path + "compat.tab").c_str(), "rb");
 	if (file != NULL) {
 		load_language_file_body(file, &compatibility, false, false);
 		DBG_MESSAGE("translator::load()", "scenario compatibilty texts loaded.");
@@ -463,7 +466,7 @@ bool translator::load(const cstring_t& scenario_path)
 	// also addon compatibility ...
 	if(  umgebung_t::program_dir!=umgebung_t::user_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		chdir( umgebung_t::user_dir );
-		FILE* file = fopen(scenario_path + "compat.tab", "rb");
+		FILE* file = fopen((scenario_path + "compat.tab").c_str(), "rb");
 		if (file != NULL) {
 			load_language_file_body(file, &compatibility, false, false);
 			DBG_MESSAGE("translator::load()", "scenario addon compatibility texts loaded.");
@@ -482,15 +485,15 @@ bool translator::load(const cstring_t& scenario_path)
 }
 
 
-void translator::load_language_iso(cstring_t& iso)
+void translator::load_language_iso(const string &iso)
 {
-	cstring_t base(iso);
-	langs[single_instance.lang_count].iso = strdup(iso);
+	string base(iso);
+	langs[single_instance.lang_count].iso = strdup(iso.c_str());
 	int loc = iso.find('_');
 	if (loc != -1) {
-		base = iso.left(loc);
+		base = iso.substr(loc);
 	}
-	langs[single_instance.lang_count].iso_base = strdup(base);
+	langs[single_instance.lang_count].iso_base = strdup(base.c_str());
 }
 
 

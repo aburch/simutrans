@@ -8,10 +8,8 @@
 #define TRANSLATOR_H
 
 #include <stdio.h>
+#include <string>
 #include "../tpl/stringhashtable_tpl.h"
-
-
-class cstring_t;
 
 
 /**
@@ -39,7 +37,7 @@ class translator
 
 		/* Methods related to loading a language file into memory */
 		static void load_language_file(FILE* file);
-		static void load_language_iso(cstring_t& iso);
+		static void load_language_iso(const std::string &iso);
 
 	public:
 		struct lang_info {
@@ -61,7 +59,7 @@ class translator
 		 * behaviour may follow if calls to translate message or similar are
 		 * called before load has been called
 		 */
-		static bool load(const cstring_t& scenario_path);
+		static bool load(const std::string &scenario_path);
 
 		/**
 		 * Get/Set the currently selected language, based on the

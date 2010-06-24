@@ -1,4 +1,3 @@
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../roadsign_besch.h"
 #include "obj_node.h"
@@ -8,6 +7,7 @@
 #include "get_waytype.h"
 #include "skin_writer.h"
 
+using std::string;
 
 void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -48,8 +48,8 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	write_head(fp, node, obj);
 
 	// add the images
-	slist_tpl<cstring_t> keys;
-	cstring_t str;
+	slist_tpl<string> keys;
+	string str;
 
 	for (int i = 0; i < 24; i++) {
 		char buf[40];
@@ -57,7 +57,7 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 		sprintf(buf, "image[%i]", i);
 		str = obj.get(buf);
 		// make sure, there are always 4, 8, 12, ... images (for all directions)
-		if (str.len() == 0 && i % 4 == 0) {
+		if (str.size() == 0 && i % 4 == 0) {
 			break;
 		}
 		keys.append(str);
@@ -65,12 +65,12 @@ void roadsign_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	imagelist_writer_t::instance()->write_obj(fp, node, keys);
 
 	// probably add some icons, if defined
-	slist_tpl<cstring_t> cursorkeys;
+	slist_tpl<string> cursorkeys;
 
-	cstring_t c = cstring_t(obj.get("cursor")), i=cstring_t(obj.get("icon"));
+	string c = string(obj.get("cursor")), i=string(obj.get("icon"));
 	cursorkeys.append(c);
 	cursorkeys.append(i);
-	if (c.len() > 0 || i.len() > 0) {
+	if (c.size() > 0 || i.size() > 0) {
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
 

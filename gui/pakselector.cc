@@ -1,5 +1,4 @@
-
-#include <string.h>
+#include <string>
 #include <stdio.h>
 
 #ifndef _MSC_VER
@@ -23,7 +22,7 @@
  */
 void pakselector_t::action(const char *filename)
 {
-	umgebung_t::objfilename = (cstring_t)filename + "/";
+	umgebung_t::objfilename = (std::string)filename + "/";
 	umgebung_t::default_einstellungen.set_with_private_paks( false );
 }
 
@@ -31,7 +30,7 @@ void pakselector_t::action(const char *filename)
 bool pakselector_t::del_action(const char *filename)
 {
 	// cannot delete set => use this for selection
-	umgebung_t::objfilename = (cstring_t)filename + "/";
+	umgebung_t::objfilename = (std::string)filename + "/";
 	umgebung_t::default_einstellungen.set_with_private_paks( true );
 	return true;
 }
@@ -116,7 +115,7 @@ void pakselector_t::fill_list()
 			iter->del->disable();
 			if(entries.get_count()==1) {
 				// only single entry and no addons => no need to question further ...
-				umgebung_t::objfilename = (cstring_t)iter->button->get_text() + "/";
+				umgebung_t::objfilename = (std::string)iter->button->get_text() + "/";
 			}
 		}
 	}

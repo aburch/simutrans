@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string>
 #include <new>
 #include <time.h>
 
@@ -55,7 +56,6 @@
 #include "dings/baum.h"
 
 #include "utils/simstring.h"
-#include "utils/cstring_t.h"
 #include "utils/searchfolder.h"
 
 #include "dataobj/loadsave.h"
@@ -75,6 +75,7 @@
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
 
+using std::string;
 
 /* diagnostic routine:
  * show the size of several internal structures
@@ -459,9 +460,9 @@ int simu_main(int argc, char** argv)
 	// if set for multiuser, then parses the users config (if there)
 	// retrieve everything (but we must do this again once more ... )
 	if(multiuser) {
-		cstring_t obj_conf = cstring_t(umgebung_t::user_dir) + cstring_t("simuconf.tab");
-		if (simuconf.open(obj_conf)) {
-			printf("parse_simuconf() at %s: ", (const char *)obj_conf );
+		const string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
+		if (simuconf.open(obj_conf.c_str())) {
+			printf("parse_simuconf() at %s: ", obj_conf.c_str() );
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
@@ -606,21 +607,21 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now find the pak specific tab file ...
-	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
-	cstring_t dummy("");
-	if (simuconf.open(obj_conf)) {
+	const string obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
+	string dummy("");
+	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
-		printf("parse_simuconf() at %s: ", (const char *)obj_conf);
+		printf("parse_simuconf() at %s: ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		simuconf.close();
 	}
 	// and parse again parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
-		cstring_t obj_conf = cstring_t(umgebung_t::user_dir) + "simuconf.tab";
-		if (simuconf.open(obj_conf)) {
+		const string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
+		if (simuconf.open(obj_conf.c_str())) {
 			sint16 idummy;
-			printf("parse_simuconf() at %s: ", (const char *)obj_conf);
+			printf("parse_simuconf() at %s: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
@@ -685,12 +686,12 @@ int simu_main(int argc, char** argv)
 	werkzeug_t::init_menu();
 
 	// loading all paks
-	printf("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
-	obj_reader_t::load(umgebung_t::objfilename, translator::translate("Loading paks ...") );
+	printf("Reading object data from %s...\n", umgebung_t::objfilename.c_str());
+	obj_reader_t::load(umgebung_t::objfilename.c_str(), translator::translate("Loading paks ...") );
 	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		// try to read addons from private directory
 		chdir( umgebung_t::user_dir );
-		if(!obj_reader_t::load(umgebung_t::objfilename,translator::translate("Loading addon paks ..."))) {
+		if(!obj_reader_t::load(umgebung_t::objfilename.c_str(), translator::translate("Loading addon paks ..."))) {
 			fprintf(stderr, "reading addon object data failed (disabling).\n");
 			umgebung_t::default_einstellungen.set_with_private_paks( false );
 		}
@@ -709,7 +710,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	bool new_world = true;
-	cstring_t loadgame = "";
+	string loadgame;
 
 	if (gimme_arg(argc, argv, "-load", 0) != NULL) {
 		char buf[256];
@@ -722,7 +723,7 @@ int simu_main(int argc, char** argv)
 			strcpy( buf, name );
 		}
 		else {
-			sprintf(buf, SAVE_PATH_X "%s", (const char*)searchfolder_t::complete(name, "sve"));
+			sprintf(buf, SAVE_PATH_X "%s", searchfolder_t::complete(name, "sve").c_str());
 		}
 		loadgame = buf;
 		new_world = false;
@@ -730,7 +731,7 @@ int simu_main(int argc, char** argv)
 	else {
 		chdir( umgebung_t::program_dir );
 		char buffer[256];
-		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, (const char*)umgebung_t::objfilename);
+		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, umgebung_t::objfilename.c_str());
 		// access did not work!
 		FILE *f=fopen(buffer,"rb");
 		if(f) {
@@ -806,7 +807,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	setsimrand(dr_time(), dr_time());
 	clear_random_mode( 7 );	// allow all
 
-	if(loadgame==""  ||  !welt->laden(loadgame)) {
+	if(loadgame==""  ||  !welt->laden(loadgame.c_str())) {
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
 		// no autosave on initial map during the first six month ...
@@ -962,7 +963,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			// scenario?
 			if(wg->get_scenario()) {
 				char path[1024];
-				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, (const char *)umgebung_t::objfilename );
+				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
 				chdir( path );
 				delete wg;
 				create_win( new scenario_frame_t(welt), w_info, magic_load_t );

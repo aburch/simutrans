@@ -10,77 +10,72 @@
 
 #include "../simdebug.h"
 #include "../simmem.h"
+#include "simstring.h"
 #include "searchfolder.h"
 
-#ifdef _MSC_VER
-#define STRICMP stricmp
-#else
-#define STRICMP strcasecmp
-#endif
-
- /*
- *  Autor:
+/*
+ *  Author:
  *      Volker Meyer
  *
- *  Beschreibung:
- *      Endet filepath mit einem slash so werden alle Files im diesem
- *	Verzeichnis mit der angegebene Extension gesucht.
- *      Endet filepath nicht mit einem slash und enthält keinen Punkt
- *	nach dem letzten Slash. So wird er um die Extension erweitert
- *	und gesucht.
- *	Ansonsten wird direkt nach filepath gesucht.
+ *  Description:
+ *      If filepath ends with a slash, search for all files in the
+ *      directory having the given extension.
+ *      If filepath does not end with a slash and it also doesn't contain
+ *      a dot after the last slash, then append extension to filepath and
+ *      search for it.
+ *	Otherwise searches directly for filepath.
  *
- *	Keine Wildcards, bitte!
+ *	No wildcards please!
  *
  *  Return type:
- *      int	    Anzahl gefundener Dateien.
- */
-int searchfolder_t::search(const char *filepath, const char *extension)
+ *      int			number of matching files.
+*/
+int searchfolder_t::search(const std::string &filepath, const std::string &extension)
 {
-    cstring_t path(filepath);
-    cstring_t name;
-    cstring_t lookfor;
-    cstring_t ext;
+	std::string path(filepath);
+	std::string name;
+	std::string lookfor;
+	std::string ext;
 
-	for (vector_tpl<char*>::const_iterator i = files.begin(), end = files.end(); i != end; ++i) {
+	for(  vector_tpl<char *>::const_iterator i = files.begin(), end = files.end();  i != end;  ++i  ) {
 		guarded_free(*i);
 	}
 	files.clear();
 
-	if(path.right(1) == "/") {
+	if(path[path.size() - 1] == '/') {
 		// Look for a directory
 		name = "*";
-		ext = cstring_t(".") + extension;
+		ext = std::string(".") + extension;
 	}
 	else {
-		int slash = path.find_back('/');
-		int dot = path.find_back('.');
+		int slash = path.rfind('/');
+		int dot = path.rfind('.');
 
 		if(dot == -1 || dot < slash) {
 			// Look for a file with default extension
-			name = path.mid(slash + 1);
-			path = path.left(slash + 1);
-			ext = cstring_t(".") + extension;
+			name = path.substr(slash + 1, std::string::npos);
+			path = path.substr(slash + 1);
+			ext = std::string(".") + extension;
 		}
 		else {
 			// Look for a file with own extension
-			ext = path.mid(dot);
-			name = path.mid(slash + 1, dot - slash - 1);
-			path = path.left(slash + 1);
+ 			ext = path.substr(dot, std::string::npos);
+			name = path.substr(slash + 1, dot - slash - 1);
+			path = path.substr(slash + 1);
 		}
 	}
 #ifdef _MSC_VER
 	lookfor = path + name + ext;
 	struct _finddata_t entry;
-	intptr_t hfind = _findfirst(lookfor, &entry);
+	intptr_t hfind = _findfirst(lookfor.c_str(), &entry);
 
 	if(hfind != -1) {
 		lookfor = ext;
 		do {
 			size_t entry_len = strlen(entry.name);
-			if(stricmp(entry.name + entry_len - lookfor.len(), lookfor) == 0) {
-				char* const c = MALLOCN(char, path.len() + entry_len + 1);
-				sprintf(c,"%s%s",(const char*)path,entry.name);
+			if(  stricmp( entry.name + entry_len - lookfor.length(), lookfor.c_str() ) == 0  ) {
+				char* const c = MALLOCN(char, path.length() + entry_len + 1);
+				sprintf(c,"%s%s",path.c_str(),entry.name);
 				files.append(c);
 			}
 		} while(_findnext(hfind, &entry) == 0 );
@@ -88,7 +83,7 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 #else
 	lookfor = path + ".";
 
-	DIR* dir = opendir(lookfor);
+	DIR* dir = opendir(lookfor.c_str());
 	struct  dirent  *entry;
 
 	if(dir != NULL) {
@@ -97,9 +92,9 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 		while((entry = readdir(dir)) != NULL) {
 			if(entry->d_name[0]!='.' || (entry->d_name[1]!='.' && entry->d_name[1]!=0)) {
 				int entry_len = strlen(entry->d_name);
-				if (strcasecmp(entry->d_name + entry_len - lookfor.len(), lookfor) == 0) {
-					char* const c = MALLOCN(char, path.len() + entry_len + 1);
-					sprintf(c,"%s%s", (const char*)path, entry->d_name);
+				if (strcasecmp(entry->d_name + entry_len - lookfor.size(), lookfor.c_str()) == 0) {
+					char* const c = MALLOCN(char, path.size() + entry_len + 1);
+					sprintf(c,"%s%s", path.c_str(), entry->d_name);
 					files.append(c);
 				}
 			}
@@ -110,19 +105,17 @@ int searchfolder_t::search(const char *filepath, const char *extension)
 	return files.get_count();
 }
 
-cstring_t searchfolder_t::complete(const char *filepath, const char *extension)
+std::string searchfolder_t::complete(const std::string &filepath, const std::string &extension)
 {
-	cstring_t path = filepath;
-
-	if(path.right(1) != "/") {
-		int slash = path.find_back('/');
-		int dot = path.find_back('.');
+	if(filepath[filepath.size() - 1] != '/') {
+		int slash = filepath.rfind('/');
+		int dot = filepath.rfind('.');
 
 		if(dot == -1 || dot < slash) {
-			return path + "." + extension;
+			return filepath + "." + extension;
 		}
 	}
-	return path;
+	return filepath;
 }
 
 

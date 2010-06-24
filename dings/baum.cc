@@ -74,13 +74,13 @@ uint16 baum_t::no_tree_climates = 0;
  * Reads forest configuration data
  * @author prissi
  */
-bool baum_t::forestrules_init(cstring_t objfilename)
+bool baum_t::forestrules_init(const std::string &objfilename)
 {
 	tabfile_t forestconf;
 	// first take user data, then user global data
-	cstring_t user_dir=umgebung_t::user_dir;
-	if (!forestconf.open(user_dir+"forestrules.tab")) {
-		if (!forestconf.open(objfilename+"config/forestrules.tab")) {
+	const std::string user_dir=umgebung_t::user_dir;
+	if (!forestconf.open((user_dir+"forestrules.tab").c_str())) {
+		if (!forestconf.open((objfilename+"config/forestrules.tab").c_str())) {
 			dbg->warning("baum_t::forestrules_init()", "Can't read forestrules.tab" );
 			return false;
 		}

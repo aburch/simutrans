@@ -1,3 +1,4 @@
+#include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "../skin_besch.h"
@@ -242,7 +243,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 }
 
 
-cstring_t factory_writer_t::get_node_name(FILE* fp) const
+std::string factory_writer_t::get_node_name(FILE* fp) const
 {
 	obj_node_info_t node; // Gebäude - wehe nicht
 

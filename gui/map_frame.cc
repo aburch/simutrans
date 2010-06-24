@@ -21,7 +21,6 @@
 #include "../simgraph.h"
 #include "../simcolor.h"
 #include "../bauer/fabrikbauer.h"
-#include "../utils/cstring_t.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
@@ -43,9 +42,9 @@ koord map_frame_t::screenpos;
 struct legend_entry
 {
 	legend_entry() {}
-	legend_entry(const cstring_t& text_, int colour_) : text(text_), colour(colour_) {}
+	legend_entry(const std::string &text_, int colour_) : text(text_), colour(colour_) {}
 
-	cstring_t text;
+	std::string text;
 	int       colour;
 };
 
@@ -135,15 +134,14 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	// add factory names; shorten too long names
 	while(iter.next()) {
 		if(iter.get_current_value()->get_gewichtung()>0) {
-			int i;
+			size_t i;
 
-			cstring_t label (translator::translate(iter.get_current_value()->get_name()));
-			for(  i=12;  i<label.len()  &&  display_calc_proportional_string_len_width(label,i)<100;  i++  )
+			std::string label (translator::translate(iter.get_current_value()->get_name()));
+			for(  i=12;  i<label.size()  &&  display_calc_proportional_string_len_width(label.c_str(),i)<100;  i++  )
 				;
-			if(  i<label.len()  ) {
-				label.set_at(i++, '.');
-				label.set_at(i++, '.');
-				label.set_at(i++, '\0');
+			if(  i<label.size()  ) {
+				label = label.substr(0, i);
+				label.append("..");
 			}
 
 			legend.append(legend_entry(label, iter.get_current_value()->get_kennfarbe()));
@@ -538,7 +536,7 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 				break;
 			}
 			display_fillbox_wh(xpos, ypos+ 1 , 7, 7, i->colour, false);
-			display_proportional(xpos + 8, ypos, i->text, ALIGN_LEFT, COL_BLACK, false);
+			display_proportional(xpos + 8, ypos, i->text.c_str(), ALIGN_LEFT, COL_BLACK, false);
 		}
 	}
 }

@@ -14,7 +14,6 @@
 #include "../macros.h"
 #include "../sound/sound.h"
 
-#include "../utils/cstring_t.h"
 #include "../utils/simstring.h"
 
 #include "../tpl/stringhashtable_tpl.h"
@@ -29,7 +28,7 @@
 
 class sound_ids {
 public:
-	cstring_t filename;
+	std::string filename;
 	sint16 id;
 	sound_ids() { id=NO_SOUND; }
 	sound_ids(sint16 i) { id=i;  }
@@ -39,7 +38,7 @@ public:
 
 static stringhashtable_tpl<sound_ids *> name_sound;
 static bool sound_on=false;
-static cstring_t sound_path;
+static std::string sound_path;
 
 sint16 sound_besch_t::compatible_sound_id[MAX_OLD_SOUNDS]=
 {
@@ -65,7 +64,7 @@ void sound_besch_t::init()
 	sound_path= sound_path + umgebung_t::objfilename + "sound/";
 	// process sound.tab
 	tabfile_t soundconf;
-	if (soundconf.open(sound_path + "sound.tab")) {
+	if (soundconf.open((sound_path + "sound.tab").c_str())) {
 DBG_MESSAGE("sound_besch_t::init()","successfully opened sound/sound.tab"  );
 		tabfileobj_t contents;
 		soundconf.read(contents);
@@ -103,17 +102,17 @@ sint16 sound_besch_t::get_sound_id(const char *name)
 	sound_ids *s = name_sound.get(name);
 	if((s==NULL  ||  s->id==NO_SOUND)  &&  *name!=0) {
 		// ty to load it ...
-		sint16 id  = dr_load_sample(sound_path + name);
+		sint16 id  = dr_load_sample((sound_path + name).c_str());
 		if(id!=NO_SOUND) {
 			s = new sound_ids(id,name);
-			name_sound.put(s->filename, s );
-DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully loaded sound %s internal id %i", (const char *)s->filename, s->id );
+			name_sound.put(s->filename.c_str(), s );
+DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully loaded sound %s internal id %i", s->filename.c_str(), s->id );
 			return s->id;
 		}
 		dbg->warning("sound_besch_t::get_sound_id()","sound \"%s\" not found", name );
 		return NO_SOUND;
 	}
-DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s internal id %i", (const char *)s->filename, s->id );
+DBG_MESSAGE("sound_besch_t::get_sound_id()","successfully retrieved sound %s internal id %i", s->filename.c_str(), s->id );
 	return s->id;
 }
 

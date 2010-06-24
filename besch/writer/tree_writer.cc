@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../baum_besch.h"
 #include "obj_node.h"
@@ -8,6 +7,7 @@
 #include "get_climate.h"
 #include "tree_writer.h"
 
+using std::string;
 
 void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -31,9 +31,9 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	besch.number_of_seasons = obj.get_int("seasons", 1);
 	besch.distribution_weight = obj.get_int("distributionweight", 3);
 
-	slist_tpl<slist_tpl<cstring_t> > keys;
+	slist_tpl<slist_tpl<string> > keys;
 	for (unsigned int age = 0; age < 5; age++) {
-		keys.append(slist_tpl<cstring_t>());
+		keys.append(slist_tpl<string>());
 
 		for (int seasons = 0; seasons < besch.number_of_seasons; seasons++) {
 			char buf[40];
@@ -42,8 +42,8 @@ void tree_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			// age is 1..5 (usually five stages, seasons is the seaons
 			sprintf(buf, "image[%d][%d]", age, seasons);
 
-			cstring_t str = obj.get(buf);
-			if (str.len() == 0) {
+			string str = obj.get(buf);
+			if (str.size() == 0) {
 				// else missing image
 				printf("*** FATAL ***:\nMissing %s!\n", buf); fflush(NULL);
 				exit(0);

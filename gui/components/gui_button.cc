@@ -19,7 +19,6 @@
 
 #include "../../simskin.h"
 #include "../../besch/skin_besch.h"
-#include "../../utils/cstring_t.h"
 
 #include "../../ifc/gui_fenster.h"
 

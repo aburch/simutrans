@@ -243,15 +243,15 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 	button->set_no_translate(true);
 	button->set_text(name);	// to avoid translation
 
-	const cstring_t compare_to = umgebung_t::objfilename.len()>0  ?  umgebung_t::objfilename.left( umgebung_t::objfilename.len()-1 ) + " -"  :  cstring_t("");
+	const std::string compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr( umgebung_t::objfilename.size()-1 ) + " -"  :  std::string();
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
 	slist_tpl<entry>::iterator end = entries.end();
-	if(  strncmp( compare_to, pak, compare_to.len() )!=0  ) {
+	if(  strncmp( compare_to.c_str(), pak, compare_to.size() )!=0  ) {
 		// skip current ones
 		while(  i != end  ) {
 			// extract palname in same format than in savegames ...
-			if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+			if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
 				break;
 			}
 			++i;
@@ -271,7 +271,7 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 				break;
 			}
 			// not our savegame any more => insert
-			if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+			if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
 				break;
 			}
 			++i;

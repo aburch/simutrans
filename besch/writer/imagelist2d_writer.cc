@@ -1,4 +1,3 @@
-#include "../../utils/cstring_t.h"
 #include "../../tpl/slist_tpl.h"
 #include "../bildliste2d_besch.h"
 #include "obj_node.h"
@@ -6,13 +5,13 @@
 #include "imagelist2d_writer.h"
 
 
-void imagelist2d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<cstring_t> >& keys)
+void imagelist2d_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<std::string> >& keys)
 {
 	bildliste2d_besch_t besch;
 
 	obj_node_t node(this, 4, &parent);
 
-	slist_iterator_tpl<slist_tpl<cstring_t> > iter(keys);
+	slist_iterator_tpl<slist_tpl<std::string> > iter(keys);
 
 	besch.anzahl = keys.get_count();
 

@@ -280,13 +280,13 @@ void stadt_t::set_minimum_city_distance(uint32 s)
  * Reads city configuration data
  * @author Hj. Malthaner
  */
-bool stadt_t::cityrules_init(cstring_t objfilename)
+bool stadt_t::cityrules_init(const std::string &objfilename)
 {
 	tabfile_t cityconf;
 	// first take user data, then user global data
-	cstring_t user_dir=umgebung_t::user_dir;
-	if (!cityconf.open(user_dir+"cityrules.tab")) {
-		if (!cityconf.open(objfilename+"config/cityrules.tab")) {
+	const std::string user_dir=umgebung_t::user_dir;
+	if (!cityconf.open((user_dir+"cityrules.tab").c_str())) {
+		if (!cityconf.open((objfilename+"config/cityrules.tab").c_str())) {
 			dbg->fatal("stadt_t::init()", "Can't read cityrules.tab" );
 			return false;
 		}

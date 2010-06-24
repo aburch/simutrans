@@ -3,7 +3,6 @@
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simcolor.h"
-#include "../utils/cstring_t.h"
 
 // since this is used at load time and not to be changed afterwards => extra init!
 bool umgebung_t::drive_on_left = false;
@@ -33,7 +32,7 @@ einstellungen_t umgebung_t::default_einstellungen;
 
 
 // the following initialisation is not important; set values in init()!
-cstring_t umgebung_t::objfilename;
+std::string umgebung_t::objfilename;
 bool umgebung_t::night_shift;
 bool umgebung_t::hide_with_transparency;
 bool umgebung_t::hide_trees;

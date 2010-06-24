@@ -24,6 +24,7 @@
 #include "components/list_button.h"
 #include "components/action_listener.h"
 
+using std::string;
 
 settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	sets(s),
@@ -90,21 +91,21 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		chdir( umgebung_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
-			cstring_t dummy_str;
+			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
 		stadt_t::cityrules_init(umgebung_t::objfilename);
 		chdir( umgebung_t::program_dir );
-		chdir( umgebung_t::objfilename );
+		chdir( umgebung_t::objfilename.c_str() );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
-			cstring_t dummy_str;
+			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
 		chdir(  umgebung_t::user_dir  );
 		if(simuconf.open("simuconf.tab")) {
 			sint16 dummy16;
-			cstring_t dummy_str;
+			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
 		simuconf.close();

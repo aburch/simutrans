@@ -12,7 +12,7 @@ class bridge_writer_t : public obj_writer_t {
 		bridge_writer_t() { register_writer(true); }
 
 	protected:
-		virtual cstring_t get_node_name(FILE* fp) const { return name_from_next_node(fp); }
+		virtual std::string get_node_name(FILE* fp) const { return name_from_next_node(fp); }
 
 	public:
 		/**

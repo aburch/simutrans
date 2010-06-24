@@ -15,9 +15,10 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/sparse_tpl.h"
 
+#include <string>
+
 class karte_t;
 class spieler_t;
-class cstring_t;
 class rule_t;
 
 
@@ -79,7 +80,7 @@ public:
 	 * Reads city configuration data
 	 * @author Hj. Malthaner
 	 */
-	static bool cityrules_init(cstring_t objpathname);
+	static bool cityrules_init(const std::string &objpathname);
 
 	static uint32 get_industry_increase();
 	static void set_industry_increase(uint32 ind_increase);

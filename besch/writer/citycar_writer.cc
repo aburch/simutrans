@@ -1,4 +1,3 @@
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../stadtauto_besch.h"
 #include "obj_node.h"
@@ -36,8 +35,8 @@ void citycar_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
 	};
-	slist_tpl<cstring_t> keys;
-	cstring_t str;
+	slist_tpl<std::string> keys;
+	std::string str;
 
 	for (i = 0; i < 8; i++) {
 		char buf[40];

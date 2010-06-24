@@ -12,9 +12,9 @@
 #include "../dataobj/koord3d.h"
 #include "../simimg.h"
 #include "../simtypes.h"
+#include <string>
 
 class vehikel_t;
-class cstring_t;
 class spieler_t;
 class convoi_t;
 class vehikel_besch_t;
@@ -31,7 +31,7 @@ template <class T> class slist_tpl;
 class vehikelbauer_t
 {
 public:
-	static bool speedbonus_init(cstring_t objfilename);
+	static bool speedbonus_init(const std::string &objfilename);
 	static sint32 get_speedbonus( sint32 monthyear, waytype_t wt );
 
 	static bool register_besch(const vehikel_besch_t *besch);

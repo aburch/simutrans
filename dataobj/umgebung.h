@@ -12,8 +12,8 @@
 #include "../simconst.h"
 #include "../simcolor.h"
 #include "einstellungen.h"
+#include <string>
 
-class cstring_t;
 
 /**
  * Diese Klasse bildet eine Abstraktion der Kommandozeilenparameter.
@@ -33,7 +33,7 @@ public:
 	//points to the current directory user for loading and saving
 	static const char *user_dir;
 
-	static cstring_t objfilename;
+	static std::string objfilename;
 
 	// true, if we are in networkmode
 	static bool networkmode;

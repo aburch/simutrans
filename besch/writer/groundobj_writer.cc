@@ -1,4 +1,3 @@
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../groundobj_besch.h"
 #include "obj_node.h"
@@ -8,6 +7,7 @@
 #include "get_waytype.h"
 #include "groundobj_writer.h"
 
+using std::string;
 
 void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -46,11 +46,11 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 	besch.waytype = (waytype==0  ||  waytype[0]==0) ? ignore_wt : (waytype_t)get_waytype(waytype);
 
 	// now for the images
-	slist_tpl<slist_tpl<cstring_t> > keys;
+	slist_tpl<slist_tpl<string> > keys;
 	if(besch.speed==0) {
 		// fixed stuff
 		for (unsigned int phase = 0; 1; phase++) {
-			keys.append(slist_tpl<cstring_t>());
+			keys.append(slist_tpl<string>());
 
 			for (int seasons = 0; seasons < besch.number_of_seasons; seasons++) {
 				char buf[40];
@@ -58,8 +58,8 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 				// Images of the tree
 				// age is 1..5 (usually five stages, seasons is the seaons
 				sprintf(buf, "image[%d][%d]", phase, seasons);
-				cstring_t str = obj.get(buf);
-				if (str.len() == 0) {
+				string str = obj.get(buf);
+				if (str.size() == 0) {
 					if(seasons==0) {
 						goto finish_images;
 					}
@@ -77,7 +77,7 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 			"s", "w", "sw", "se", "n", "e", "ne", "nw"
 		};
 		for (unsigned int dir = 0; dir<8; dir++) {
-			keys.append(slist_tpl<cstring_t>());
+			keys.append(slist_tpl<string>());
 
 			for (int seasons = 0; seasons < besch.number_of_seasons; seasons++) {
 				char buf[40];
@@ -85,8 +85,8 @@ void groundobj_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& o
 				// Images of the tree
 				// age is 1..5 (usually five stages, seasons is the seaons
 				sprintf(buf, "image[%s][%d]", dir_codes[dir], seasons);
-				cstring_t str = obj.get(buf);
-				if (str.len() == 0) {
+				string str = obj.get(buf);
+				if (str.size() == 0) {
 					printf("Missing images in moving groundobj (expected %s)!\n", buf );
 					dbg->fatal("groundobj_writer_t","Season image for season %i missing (%s)!",seasons);
 				}

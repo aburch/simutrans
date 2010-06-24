@@ -1,9 +1,10 @@
 #ifndef dataobj_einstellungen_h
 #define dataobj_einstellungen_h
 
-#include "../utils/cstring_t.h"
 #include "../simtypes.h"
 #include "../simconst.h"
+
+#include <string>
 
 /**
  * Spieleinstellungen
@@ -95,7 +96,7 @@ private:
 	sint16 starting_month;
 	sint16 bits_per_month;
 
-	cstring_t filename;
+	std::string filename;
 
 	bool beginner_mode;
 	sint32 beginner_price_factor;
@@ -246,14 +247,14 @@ public:
 	 * Set to empty string in order to avoid loading.
 	 * @author Hj. Malthaner
 	 */
-	cstring_t heightfield;
+	std::string heightfield;
 
 	einstellungen_t();
 
 	void rdwr(loadsave_t *file);
 
 	// init form this file ...
-	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename );
+	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
 	void set_groesse_x(sint32 g) {groesse_x=g;}
 	void set_groesse_y(sint32 g) {groesse_y=g;}
@@ -313,7 +314,7 @@ public:
 	sint16 get_bits_per_month() const {return bits_per_month;}
 
 	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
-	const char* get_filename() const { return filename; }
+	const char* get_filename() const { return filename.c_str(); }
 
 	void set_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
 	bool get_beginner_mode() const {return beginner_mode;}

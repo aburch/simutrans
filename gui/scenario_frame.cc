@@ -23,9 +23,9 @@ void scenario_frame_t::action(const char *filename)
 {
 	scenario_t scn(welt);
 	char path[1024], path2[1024];
-	sprintf( path, "%s%sscenario/%s.tab", umgebung_t::program_dir, (const char *)umgebung_t::objfilename, filename );
+	sprintf( path, "%s%sscenario/%s.tab", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
 	scn.init( path, welt );
-	sprintf( path2, "%s%sscenario/%s", umgebung_t::program_dir, (const char *)umgebung_t::objfilename, scn.get_filename() );
+	sprintf( path2, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), scn.get_filename() );
 	welt->laden( path2 );
 	welt->get_scenario()->init( path, welt );
 	// finally set game name to scenario name ...
@@ -45,7 +45,7 @@ const char *scenario_frame_t::get_info(const char *filename)
 {
 	scenario_t scn(NULL);
 	char path[1024];
-	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, (const char *)umgebung_t::objfilename, filename );
+	sprintf( path, "%s%sscenario/%s", umgebung_t::program_dir, umgebung_t::objfilename.c_str(), filename );
 	scn.init( path, NULL );
 	return scn.get_description();
 }

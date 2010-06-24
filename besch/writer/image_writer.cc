@@ -1,6 +1,5 @@
 #include <string.h>
 #include <stdlib.h>
-#include "../../utils/cstring_t.h"
 #include "../../utils/dr_rdpng.h"
 #include "../bild_besch.h"
 #include "obj_node.h"
@@ -14,6 +13,8 @@
 
 // Made IMG_SIZE changeable - set in static member image_writer_t::img_size
 //#define IMG_SIZE 64
+
+using std::string;
 
 struct dimension
 {
@@ -72,7 +73,7 @@ static const PIXRGB rgbtab[SPECIAL] = {
 static int special_hist[SPECIAL];
 
 
-cstring_t image_writer_t::last_img_file("");
+string image_writer_t::last_img_file("");
 
 unsigned image_writer_t::width;
 unsigned image_writer_t::height;
@@ -233,18 +234,18 @@ bool image_writer_t::block_laden(const char* fname)
  *  leading "> " maen an unzoomable image
  *  after the dots also spaces are allowed
  */
-void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_imagekey)
+void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagekey)
 {
 	bild_t bild;
 	dimension dim;
 	PIXVAL* pixdata = NULL;
-	cstring_t imagekey;
+	string imagekey;
 
 	MEMZERO(bild);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
-	if (an_imagekey.len() > 2 && an_imagekey[0] == '>') {
-		imagekey = an_imagekey.substr(2, an_imagekey.len());
+	if (an_imagekey.size() > 2 && an_imagekey[0] == '>') {
+		imagekey = an_imagekey.substr(2, std::string::npos);
 		bild.zoomable = false;
 	} else {
 		imagekey = an_imagekey;
@@ -254,50 +255,50 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 	if (imagekey != "-" && imagekey != "") {
 		// divide key in filename and image number
 		int row = -1, col = -1;
-		cstring_t numkey;
+		string numkey;
 
-		int j = imagekey.find_back('/');
+		int j = imagekey.rfind('/');
 		if (j == -1) {
 			numkey = imagekey;
 		} else {
-			numkey = imagekey.substr(j + 1, imagekey.len());
+			numkey = imagekey.substr(j + 1, std::string::npos);
 		}
 
 		int i = numkey.find('.');
 		if (i == -1) {
 			char reason[1024];
-			sprintf(reason, "no image number in %s", (const char*)imagekey );
+			sprintf(reason, "no image number in %s", imagekey.c_str() );
 			throw obj_pak_exception_t("image_writer_t", reason);
 		}
-		numkey = numkey.substr(i + 1, numkey.len());
+		numkey = numkey.substr(i + 1, std::string::npos);
 
-		imagekey = root_writer_t::get_inpath() + imagekey.substr(0, imagekey.len() - numkey.len() - 1) +  ".png";
+		imagekey = root_writer_t::get_inpath() + imagekey.substr(imagekey.size() - numkey.size() - 1) +  ".png";
 
 
 		i = numkey.find('.');
 		if (i == -1) {
-			row = atoi(numkey);
+			row = atoi(numkey.c_str());
 		} else {
-			row = atoi(numkey.substr(0, i));
-			col = atoi(numkey.substr(i + 1, numkey.len()));
+			row = atoi(numkey.substr(i).c_str());
+			col = atoi(numkey.substr(i + 1, std::string::npos).c_str());
 
 			// add image offsets
-			numkey = numkey.substr(i + 1, numkey.len());
+			numkey = numkey.substr(i + 1, std::string::npos);
 			i = numkey.find(',');
 			if (i != -1) {
-				bild.x = atoi(numkey.substr(i+1, numkey.len()));
-				numkey = numkey.substr(i + 1, numkey.len());
+				bild.x = atoi(numkey.substr(i+1, std::string::npos).c_str());
+				numkey = numkey.substr(i + 1, std::string::npos);
 				i = numkey.find(',');
 				if(i!=-1) {
-					bild.y = atoi(numkey.substr(i + 1, numkey.len()));
+					bild.y = atoi(numkey.substr(i + 1, std::string::npos).c_str());
 				}
 			}
 		}
 
 		// Load complete file
-		if (!block_laden(imagekey)) {
+		if (!block_laden(imagekey.c_str())) {
 			char reason[1024];
-			sprintf(reason, "cannot open %s", (const char*)imagekey );
+			sprintf(reason, "cannot open %s", imagekey .c_str());
 			throw obj_pak_exception_t("image_writer_t", reason);
 		}
 
@@ -307,7 +308,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		}
 		if (col >= (int)(width / img_size) || row >= (int)(height / img_size)) {
 			char reason[1024];
-			sprintf(reason, "invalid image number in %s.%s", (const char*)imagekey, (const char*)numkey);
+			sprintf(reason, "invalid image number in %s.%s", imagekey.c_str(), numkey.c_str());
 			throw obj_pak_exception_t("image_writer_t", reason);
 		}
 		row *= img_size;

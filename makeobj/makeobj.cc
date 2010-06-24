@@ -5,7 +5,7 @@
 #include "../dataobj/tabfile.h"
 #include "../simtypes.h"
 #include "../simversion.h"
-#include "../utils/cstring_t.h"
+#include "../utils/simstring.h"
 #include "../besch/writer/obj_pak_exception.h"
 #include "../besch/writer/root_writer.h"
 #include "../besch/writer/image_writer.h"

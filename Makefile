@@ -308,7 +308,6 @@ SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
-SOURCES += utils/cstring_t.cc
 SOURCES += utils/log.cc
 SOURCES += utils/memory_rw.cc
 SOURCES += utils/sha1.cc

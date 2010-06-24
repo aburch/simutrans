@@ -1347,7 +1347,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	display_progress(0,max_display_progress);
 	setsimrand( 0xFFFFFFFF, einstellungen->get_karte_nummer() );
-	if(  old_x==0  &&  einstellungen->heightfield.len() > 0  ){
+	if(  old_x==0  &&  einstellungen->heightfield.size() > 0  ){
 		// init from file
 		const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
 
@@ -3690,7 +3690,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
 
 	display_show_load_pointer( true );
-	if(!file.wr_open(filename,loadsave_t::save_mode,umgebung_t::objfilename)) {
+	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str())) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
@@ -4504,14 +4504,14 @@ void karte_t::load_heightfield(einstellungen_t *sets)
 {
 	sint16 w, h;
 	sint8 *h_field;
-	if(karte_t::get_height_data_from_file(sets->heightfield, sets->get_grundwasser(), h_field, w, h, false )) {
+	if(karte_t::get_height_data_from_file(sets->heightfield.c_str(), sets->get_grundwasser(), h_field, w, h, false )) {
 		sets->set_groesse(w,h);
 		// create map
 		init(sets,h_field);
 		delete [] h_field;
 	}
 	else {
-		dbg->error("karte_t::load_heightfield()","Cant open file '%s'", (const char*)sets->heightfield);
+		dbg->error("karte_t::load_heightfield()","Cant open file '%s'", sets->heightfield.c_str());
 		create_win( new news_img("\nCan't open heightfield file.\n"), w_info, magic_none );
 	}
 }

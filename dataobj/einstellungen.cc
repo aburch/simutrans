@@ -591,7 +591,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 
 // read the settings from this file
-void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename )
+void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename )
 {
 	tabfileobj_t contents;
 

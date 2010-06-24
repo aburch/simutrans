@@ -1,4 +1,4 @@
-#include "../../utils/cstring_t.h"
+#include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "../haus_besch.h"
 #include "obj_pak_exception.h"
@@ -10,10 +10,11 @@
 #include "building_writer.h"
 #include "skin_writer.h"
 
+using std::string;
 
 void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seasons,
-	slist_tpl<slist_tpl<slist_tpl<cstring_t> > >& backkeys,
-	slist_tpl<slist_tpl<slist_tpl<cstring_t> > >& frontkeys
+	slist_tpl<slist_tpl<slist_tpl<string> > >& backkeys,
+	slist_tpl<slist_tpl<slist_tpl<string> > >& frontkeys
 )
 {
 	haus_tile_besch_t besch;
@@ -22,13 +23,13 @@ void tile_writer_t::write_obj(FILE* fp, obj_node_t& parent, int index, int seaso
 
 	besch.phasen = 0;
 	for (int i = 0; i < seasons; i++) {
-		slist_iterator_tpl<slist_tpl<cstring_t> > iter(backkeys.at(i));
+		slist_iterator_tpl<slist_tpl<string> > iter(backkeys.at(i));
 		while (iter.next()) {
 			if (iter.get_current().get_count() > besch.phasen) {
 				besch.phasen = iter.get_current().get_count();
 			}
 		}
-		iter = slist_iterator_tpl<slist_tpl<cstring_t> >(frontkeys.at(i));
+		iter = slist_iterator_tpl<slist_tpl<string> >(frontkeys.at(i));
 		while (iter.next()) {
 			if (iter.get_current().get_count() > besch.phasen) {
 				besch.phasen = iter.get_current().get_count();
@@ -207,8 +208,8 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 					for (int season = seasons; season < 12; season++) {
 						char buf[40];
 						sprintf(buf, "%simage[%d][%d][%d][%d][%d][%d]", pos ? "back" : "front", l, y, x, 0, 0, season);
-						cstring_t str = obj.get(buf);
-						if (str.len() != 0) {
+						string str = obj.get(buf);
+						if (str.size() != 0) {
 							seasons = season + 1;
 						} else {
 							break;
@@ -223,29 +224,29 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	for (int l = 0; l < besch.layouts; l++) { // each layout
 		for (int y = 0; y < besch.get_h(l); y++) {
 			for (int x = 0; x < besch.get_b(l); x++) { // each tile
-				slist_tpl<slist_tpl<slist_tpl<cstring_t> > > backkeys;
-				slist_tpl<slist_tpl<slist_tpl<cstring_t> > > frontkeys;
+				slist_tpl<slist_tpl<slist_tpl<string> > > backkeys;
+				slist_tpl<slist_tpl<slist_tpl<string> > > frontkeys;
 
 				for (int season = 0; season < seasons; season++) {
-					backkeys.append(slist_tpl<slist_tpl<cstring_t> >());
-					frontkeys.append(slist_tpl<slist_tpl<cstring_t> >());
+					backkeys.append(slist_tpl<slist_tpl<string> >());
+					frontkeys.append(slist_tpl<slist_tpl<string> >());
 
 					for (int pos = 0; pos < 2; pos++) {
-						slist_tpl<slist_tpl<slist_tpl<cstring_t> > >& keys = pos ? backkeys : frontkeys;
+						slist_tpl<slist_tpl<slist_tpl<string> > >& keys = pos ? backkeys : frontkeys;
 
 						for (unsigned int h = 0; ; h++) { // each height
 							for (int phase = 0; ; phase++) { // each animation
 								char buf[40];
 
 								sprintf(buf, "%simage[%d][%d][%d][%d][%d][%d]", pos ? "back" : "front", l, y, x, h, phase, season);
-								cstring_t str = obj.get(buf);
+								string str = obj.get(buf);
 
 								// if no string check to see whether using format without seasons parameter
-								if (str.len() == 0 && seasons == 1) {
+								if (str.size() == 0 && seasons == 1) {
 									sprintf(buf, "%simage[%d][%d][%d][%d][%d]", pos ? "back" : "front", l, y, x, h, phase);
 									str = obj.get(buf);
 								}
-								if (str.len() == 0) {
+								if (str.size() == 0) {
 #if 0
 									printf("Not found: %s\n", buf);
 									fflush(NULL);
@@ -260,7 +261,7 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 									}
 								}
 								if (phase == 0) {
-									keys.at(season).append(slist_tpl<cstring_t>());
+									keys.at(season).append(slist_tpl<string>());
 								}
 								keys.at(season).at(h).append(str);
 							}
@@ -295,13 +296,13 @@ void building_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint16(fp, besch.animation_time,            24);
 
 	// probably add some icons, if defined
-	slist_tpl<cstring_t> cursorkeys;
+	slist_tpl<string> cursorkeys;
 
-	cstring_t c = cstring_t(obj.get("cursor"));
-	cstring_t i = cstring_t(obj.get("icon"));
+	string c = string(obj.get("cursor"));
+	string i = string(obj.get("icon"));
 	cursorkeys.append(c);
 	cursorkeys.append(i);
-	if (c.len() > 0 || i.len() > 0) {
+	if (c.size() > 0 || i.size() > 0) {
 		cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 	}
 	node.write(fp);

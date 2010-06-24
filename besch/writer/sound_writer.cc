@@ -8,8 +8,8 @@
 void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	// eventuall direct name input
-	cstring_t str = obj.get("sound_name");
-	uint16 len = str.len();
+	std::string str = obj.get("sound_name");
+	uint16 len = str.size();
 
 	obj_node_t	node(this, 6+len+1, &parent);
 
@@ -26,7 +26,7 @@ void sound_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	node.write_uint16(fp, len, 4);
 	if(  len > 0  ) {
-		node.write_data_at(fp, (const char *)str, 6, len );
+		node.write_data_at(fp, str.c_str(), 6, len );
 	}
 	node.write_data_at(fp, (const char *)"", 6+len, 1 );
 

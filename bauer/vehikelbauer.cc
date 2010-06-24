@@ -6,6 +6,7 @@
  */
 
 #include <algorithm>
+#include <string>
 #include "../simgraph.h"
 #include "../vehicle/simvehikel.h"
 #include "../player/simplay.h"
@@ -22,8 +23,6 @@
 
 #include "../bauer/warenbauer.h"
 #include "../bauer/vehikelbauer.h"
-
-#include "../utils/cstring_t.h"
 
 #include "../tpl/inthashtable_tpl.h"
 #include "../tpl/stringhashtable_tpl.h"
@@ -59,11 +58,11 @@ static sint32 default_speedbonus[8] =
 	60	// narrowgauge
 };
 
-bool vehikelbauer_t::speedbonus_init(cstring_t objfilename)
+bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 {
 	tabfile_t bonusconf;
 	// first take user data, then user global data
-	if (!bonusconf.open(objfilename+"config/speedbonus.tab")) {
+	if (!bonusconf.open((objfilename+"config/speedbonus.tab").c_str())) {
 		dbg->error("vehikelbauer_t::speedbonus_init()", "Can't read speedbonus.tab" );
 		return false;
 	}
