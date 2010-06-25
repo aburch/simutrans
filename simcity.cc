@@ -2937,7 +2937,10 @@ public_transport:
 							case too_slow:
 								start_halts[0]->add_pax_too_slow(pax_left_to_do);
 								break;
-							};
+
+							default: ;
+								// ok
+							}
 						}
 					}
 				}

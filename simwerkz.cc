@@ -3919,6 +3919,8 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 		{
 			return CREDIT_MESSAGE;
 		}
+	default:
+		return "";
 	};
 
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) 
