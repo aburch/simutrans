@@ -635,7 +635,7 @@ void gui_file_table_time_column_t::paint_cell(const koord &offset, coordinate_t 
 		strftime(date, 18, "%Y-%m-%d %H:%M", tm);
 	}
 	else {
-		tstrncpy(date, "????-??-?? ??:??", 16);
+		tstrncpy(date, "???\?-?\?-?? ??:??", 16); // note: ??- is the trigraph for a tilde, so one ? is escaped.
 	}
 	lbl.set_text(date);
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
