@@ -2422,7 +2422,7 @@ void stadt_t::step_passagiere()
 	// Check run in batches to save computational effort.
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(welt->get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
-	bool has_private_car = private_car_percent > 0 ? simrand(100) <= private_car_percent : false;
+	bool has_private_car = private_car_percent > 0 ? simrand(100) <= (uint16)private_car_percent : false;
 
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
