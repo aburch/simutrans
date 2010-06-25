@@ -30,9 +30,9 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	scrolly_general(&general),
 	scrolly_economy(&economy),
 	scrolly_routing(&routing),
+	scrolly_costs(&costs),
 	scrolly_exp_general(&exp_general),
-	scrolly_exp_revenue(&exp_revenue),
-	scrolly_costs(&costs)
+	scrolly_exp_revenue(&exp_revenue)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( 0, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	revert_to_default.add_listener( this );
