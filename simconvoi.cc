@@ -2291,13 +2291,13 @@ convoi_t::reverse_order(bool rev)
 	}
 
 	fahr[anz_vehikel - 1]->set_letztes(false);
-    
-    for(a; a<--b; a++) //increment a and decrement b until they meet each other
-    {
-		reverse = fahr[a];		//put what's in a into swap space
-        fahr[a] = fahr[b];		//put what's in b into a
-        fahr[b] = reverse;		//put what's in the swap (a) into b
-    }
+
+	for( ; a<--b; a++) //increment a and decrement b until they meet each other
+	{
+		reverse = fahr[a]; //put what's in a into swap space
+		fahr[a] = fahr[b]; //put what's in b into a
+		fahr[b] = reverse; //put what's in the swap (a) into b
+	}
 
 	if(!rev)
 	{
