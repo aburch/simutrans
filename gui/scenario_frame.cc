@@ -38,6 +38,7 @@ scenario_frame_t::scenario_frame_t(karte_t *welt) : savegame_frame_t(".tab","./"
 {
 	this->welt = welt;
 	set_name("Load scenario");
+	set_focus(NULL);
 }
 
 

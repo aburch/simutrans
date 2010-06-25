@@ -243,7 +243,7 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 	button->set_no_translate(true);
 	button->set_text(name);	// to avoid translation
 
-	const std::string compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr( umgebung_t::objfilename.size()-1 ) + " -"  :  std::string();
+	const std::string compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr( 0, umgebung_t::objfilename.size()-1 ) + " -"  :  std::string();
 	// sort by date descending:
 	slist_tpl<entry>::iterator i = entries.begin();
 	slist_tpl<entry>::iterator end = entries.end();
@@ -311,9 +311,8 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 			strcat(buf, ibuf);
 			strcat(buf, suffix);
 		}
-
+		set_focus( NULL );
 		action(buf);
-
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
 
 	}
@@ -340,11 +339,13 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 				}
 
 				if(action_btn) {
+					set_focus( NULL );
 					action(buf);
 					destroy_win(this);
 				}
 				else {
 					if(  del_action(buf)  ) {
+						set_focus( NULL );
 						destroy_win(this);
 					}
 					else {
@@ -354,8 +355,8 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 						i->button->set_visible(false);
 						i->del->set_visible(false);
 						i->label->set_visible(false);
-						// .. and remove entry from list
-						entries.erase( i );
+						i->button->set_groesse( koord( 0, 0 ) );
+						i->del->set_groesse( koord( 0, 0 ) );
 
 						resize( koord(0,0) );
 						in_action = false;
@@ -389,14 +390,16 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	sint16 y = 0;
 	for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 		// resize all but delete button
-		button_t*    button1 = i->del;
-		button1->set_pos( koord( button1->get_pos().x, y ) );
-		button_t*    button2 = i->button;
-		gui_label_t* label   = i->label;
-		button2->set_pos( koord( button2->get_pos().x, y ) );
-		button2->set_groesse(koord( groesse.x/2-40, 14));
-		label->set_pos(koord(groesse.x/2-40+30, y));
-		y += 14;
+		if(  i->button->is_visible()  ) {
+			button_t*    button1 = i->del;
+			button1->set_pos( koord( button1->get_pos().x, y ) );
+			button_t*    button2 = i->button;
+			gui_label_t* label   = i->label;
+			button2->set_pos( koord( button2->get_pos().x, y ) );
+			button2->set_groesse(koord( groesse.x/2-40, 14));
+			label->set_pos(koord(groesse.x/2-40+30, y));
+			y += 14;
+		}
 	}
 
 	button_frame.set_groesse( koord( groesse.x, y ) );
