@@ -90,7 +90,7 @@ const char * loadsave_frame_t::get_hilfe_datei() const
 }
 
 
-void loadsave_frame_t::init(const char *suffix, const char *path )
+void loadsave_frame_t::init(const char * /*suffix*/, const char * /*path*/ )
 {
 	file_table.set_owns_columns(false);
 	file_table.add_column(&delete_column);

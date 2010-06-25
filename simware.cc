@@ -175,7 +175,7 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	}
 }
 
-void ware_t::laden_abschliessen(karte_t *welt, spieler_t *sp)  //"Invite finish" (Google); "load lock" (Babelfish).
+void ware_t::laden_abschliessen(karte_t *welt, spieler_t * /*sp*/)  //"Invite finish" (Google); "load lock" (Babelfish).
 {
 	// since some halt was referred by with several koordinates
 	// this routine will correct it

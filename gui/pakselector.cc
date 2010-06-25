@@ -18,7 +18,7 @@
 #include "../dataobj/umgebung.h"
 
 
-void pakselector_t::init(const char *suffix, const char *path)
+void pakselector_t::init(const char * /*suffix*/, const char * /*path*/)
 {
 	file_table.set_owns_columns(false);
 	addon_column.set_width(150);

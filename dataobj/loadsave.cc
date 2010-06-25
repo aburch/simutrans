@@ -950,9 +950,8 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 }
 
 
-loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension_str)
-{	
-	(void) mode; //unused
+loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
+{
 	uint32 experimental_version = 0;
 	// major number (0..)
 	uint32 v0 = atoi(version_text);

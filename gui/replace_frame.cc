@@ -473,7 +473,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 	replaced_so_far++;
 }
 
-bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
+bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/)
 {
 	if(komp != NULL) 
 	{	// message from outside!

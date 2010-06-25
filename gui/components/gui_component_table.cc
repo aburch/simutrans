@@ -125,10 +125,7 @@ bool gui_component_table_t::infowin_event(const event_t *ev)
 
 
 // BG, 18.03.2010
-void gui_component_table_t::init_cell(coordinate_t x, coordinate_t y) {
-	// explicitly doing nothing
-	(void) x;
-	(void) y;
+void gui_component_table_t::init_cell(coordinate_t /*x*/, coordinate_t /*y*/) {
 }
 
 
