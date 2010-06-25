@@ -327,8 +327,8 @@ void replace_frame_t::update_data()
 			for (uint32 i=0; i<line->count_convoys(); i++) {
 				convoihandle_t cnv_aux=line->get_convoy(i);
 				if (cnv->has_same_vehicles(cnv_aux)) {
-					uint32 present_state=get_present_state();
-					if (present_state==-1) {
+					uint8 present_state=get_present_state();
+					if (present_state==(uint8)(-1)) {
 						continue;
 					}
 					switch(convoy_assembler.get_action())
@@ -357,8 +357,8 @@ void replace_frame_t::update_data()
 			convoihandle_t cnv_aux=welt->get_convoi(i);
 			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 			{
-				uint32 present_state=get_present_state();
-				if (present_state==-1) 
+				uint8 present_state=get_present_state();
+				if (present_state==(uint8)(-1))
 				{
 					continue;
 				}
@@ -400,9 +400,9 @@ void replace_frame_t::update_data()
 
 uint8 replace_frame_t::get_present_state() {
 	if (numinp[state_replace].get_value()==0 && numinp[state_sell].get_value()==0 && numinp[state_skip].get_value()==0) {
-		return -1;
+		return (uint8)(-1);
 	}
-	for (uint32 i=0; i<n_states; ++i) {
+	for (uint8 i=0; i<n_states; ++i) {
 		if (replaced_so_far>=numinp[state].get_value()) {
 			replaced_so_far=0;
 			state=(state+1)%n_states;
@@ -417,8 +417,8 @@ uint8 replace_frame_t::get_present_state() {
 
 void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 {
-	uint32 state=get_present_state();
-	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==-1) {
+	uint8 state=get_present_state();
+	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==(uint8)(-1)) {
 		return;
 	}
 
