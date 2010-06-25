@@ -191,11 +191,10 @@ private:
 	 */
 	uint32 next_bau_step;
 
-	// attribute fuer die Bevoelkerung
-	// "attribute for the population" (Google)
-	sint32 bev;	// Bevoelkerung gesamt
-	sint32 arb;	// davon mit Arbeit
-	sint32 won;	// davon mit Wohnung
+	// population statistics
+	sint32 bev; // total population
+	sint32 arb; // amount with jobs
+	sint32 won; // amount with homes
 
 	/**
 	 * Modifier for city growth
