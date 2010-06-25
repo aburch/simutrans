@@ -223,7 +223,7 @@ void replace_frame_t::layout(koord *gr)
 	min_total_height+=convoy_assembler.get_min_height();
 
 	set_min_windowsize(koord(min_total_width, min_total_height));
-	if(fgr.x<total_width) {
+	if(fgr.x<0 || (uint32)fgr.x<total_width) {
 		gui_frame_t::set_fenstergroesse(koord(min_total_width, max(fgr.y,min_total_height) ));
 	}
 	if(gr  &&  gr->x==0) {
