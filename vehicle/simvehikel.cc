@@ -2267,7 +2267,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				case convoi_t::REVERSING:
 				if(  state>=2  ) 
 				{
-					sprintf( tooltip_text, translator::translate("Reversing") );
+					tstrncpy( tooltip_text, translator::translate("Reversing"), lengthof(tooltip_text) );
 					color = COL_YELLOW;
 				}
 				break;
