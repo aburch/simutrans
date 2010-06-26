@@ -7,7 +7,6 @@
 #ifndef simplay_h
 #define simplay_h
 
-#include "../dataobj/pwd_hash.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 
@@ -51,7 +50,10 @@ enum player_cost {
 
 
 class fabrik_t;
+class stadt_t;
+class gebaeude_t;
 class koord3d;
+class ware_production_t;
 class werkzeug_t;
 
 /**
@@ -165,7 +167,7 @@ protected:
 	bool locked;
 
 	// contains the password hash for local games
-	pwd_hash_t pwd_hash;
+	uint8 pwd_hash[20];
 
 public:
 	virtual bool set_active( bool b ) { return automat = b; }
@@ -177,7 +179,7 @@ public:
 	bool set_unlock( uint8 *hash );
 
 	// some routine needs this for direct manipulation
-	pwd_hash_t& get_password_hash() { return pwd_hash; }
+	uint8 *get_password_hash_ptr() { return pwd_hash; }
 
 	// this type of AIs identifier
 	virtual uint8 get_ai_id() { return HUMAN; }

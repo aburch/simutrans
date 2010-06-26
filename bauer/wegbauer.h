@@ -11,17 +11,20 @@
 #include "../boden/wege/weg.h"
 #include "../tpl/vector_tpl.h"
 #include "../simtypes.h"
+#include "../simwerkz.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
 
 class weg_besch_t;
+class kreuzung_besch_t;
 class bruecke_besch_t;
 class tunnel_besch_t;
 class karte_t;
 class spieler_t;
 class grund_t;
-class werkzeug_waehler_t;
+
+class werkzeug_parameter_waehler_t;
 
 
 /**
@@ -86,6 +89,9 @@ private:
 		long		cost;
 	};
 	vector_tpl<next_gr_t> next_gr;
+
+	enum { unseen = 9999999 };
+	enum { max_route_laenge = 1024 };
 
 	spieler_t *sp;
 

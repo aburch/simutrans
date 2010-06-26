@@ -55,7 +55,9 @@ private:
 public:
 	gui_combobox_t();
 
-	/**
+	~gui_combobox_t();
+
+	  /**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 * @author Hj. Malthaner
@@ -135,8 +137,6 @@ public:
 	 * @author hsiegeln
 	 */
 	void close_box();
-
-	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
 };
 
 #endif

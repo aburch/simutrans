@@ -27,6 +27,8 @@ private:
 	*/
 	unsigned char karte[preview_size*preview_size];
 
+	char map_number_s[16];
+
 	bool changed_number_of_towns;
 	int old_lang;
 

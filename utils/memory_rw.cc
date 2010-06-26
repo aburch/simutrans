@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include "../simdebug.h"
 
-#undef SIM_BIG_ENDIAN
+#undef BIG_ENDIAN
 
 void memory_rw_t::init( void *start, uint32 max, bool rw )
 {
@@ -55,14 +55,14 @@ void memory_rw_t::rdwr_bool(bool &i)
 
 void memory_rw_t::rdwr_short(sint16 &i)
 {
-#ifdef SIM_BIG_ENDIAN
+#ifdef BIG_ENDIAN
 	sint16 ii;
 	if(is_saving()) {
-		ii = endian(i);
+		ii = (sint16)endian_uint16((uint16 *)&i);
 	}
 	rdwr(&ii, sizeof(sint16));
 	if(is_loading()) {
-		i = endian(ii);
+		i = (sint16)endian_uint16(&ii);
 	}
 #else
 	rdwr(&i, sizeof(sint16));
@@ -80,14 +80,14 @@ void memory_rw_t::rdwr_short(uint16 &i)
 
 void memory_rw_t::rdwr_long(sint32 &l)
 {
-#ifdef SIM_BIG_ENDIAN
+#ifdef BIG_ENDIAN
 	uint32 ii;
 	if(is_saving()) {
-		ii = endian(l);
+		ii = endian_uint32((uint32 *)&l);
 	}
 	rdwr(&ii, sizeof(uint32));
 	if(is_loading()) {
-		l = endian(ii);
+		l = (sint32)endian_uint32(&ii);
 	}
 #else
 	rdwr(&l, sizeof(sint32));
@@ -105,14 +105,14 @@ void memory_rw_t::rdwr_long(uint32 &l)
 
 void memory_rw_t::rdwr_longlong(sint64 &ll)
 {
-#ifdef SIM_BIG_ENDIAN
+#ifdef BIG_ENDIAN
 	sint64  ii;
 	if(is_saving()) {
-		ii = endian(ii);
+		ii = (sint64)endian_uint64((uint64 *)&ll);
 	}
 	rdwr(&ii, sizeof(sint64));
 	if(is_loading()) {
-		ll = endian(ii);
+		ll = (sint64)endian_uint64(&ii);
 	}
 #else
 	rdwr(&ll, sizeof(sint64));

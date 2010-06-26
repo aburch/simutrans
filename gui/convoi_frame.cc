@@ -61,7 +61,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		return false;
 	}
 
-	vehikel_t const* const fahr = cnv->front();
+	vehikel_t *fahr = cnv->get_vehikel(0);
 	if(get_filter(typ_filter)) {
 		switch(fahr->get_typ()) {
 			case ding_t::automobil:
@@ -153,8 +153,8 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			break;
 		case nach_typ:
 			if(cnv1->get_vehikel_anzahl()*cnv2->get_vehikel_anzahl()>0) {
-				vehikel_t const* const fahr1 = cnv1->front();
-				vehikel_t const* const fahr2 = cnv2->front();
+				vehikel_t *fahr1 = cnv1->get_vehikel(0);
+				vehikel_t *fahr2 = cnv2->get_vehikel(0);
 
 				result = fahr1->get_typ() - fahr2->get_typ();
 				if(result == 0) {

@@ -8,7 +8,6 @@
 #include <string.h>
 
 #include "../simdebug.h"
-#include "../simwerkz.h"
 #include "brueckenbauer.h"
 #include "wegbauer.h"
 

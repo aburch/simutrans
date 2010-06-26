@@ -91,8 +91,6 @@ public:
 	 * @date  08.05.2009
 	 */
 	uint32 get_count () const { return tabs.get_count(); }
-
-	gui_komponente_t *get_focus() const { return get_aktives_tab()->get_focus(); }
 };
 
 #endif

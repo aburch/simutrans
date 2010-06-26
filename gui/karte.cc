@@ -789,7 +789,7 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 // draw current schedule
 void reliefkarte_t::draw_schedule(const koord pos) const
 {
-	assert(fpl && !fpl->empty());
+	assert(fpl!=NULL  ||  fpl->get_count()>0);
 
 	koord first_koord;
 	koord last_koord;
@@ -990,7 +990,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	// draw a halt name, if it is under the cursor of a schedule
 	if(is_show_schedule  &&  fpl) {
-		if (fpl->empty()) {
+		if(fpl->get_count()<=0) {
 			fpl = NULL;
 		}
 		else {

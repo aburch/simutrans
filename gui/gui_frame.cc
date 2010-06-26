@@ -22,7 +22,8 @@
 #include "../besch/skin_besch.h"
 
 
-gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
+gui_frame_t::gui_frame_t(const char* name, const spieler_t* sp) :
+	opaque(true)
 {
 	this->name = name;
 	groesse = koord(200, 100);
@@ -134,31 +135,33 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 		dirty = false;
 	}
 
-	// Hajo: skinned windows code
-	if(skinverwaltung_t::window_skin!=NULL) {
-		// draw background
-		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
-		const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
+	if(opaque) {
+		// Hajo: skinned windows code
+		if(skinverwaltung_t::window_skin!=NULL) {
+			// draw background
+			PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
+			const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
 
-		for(int j=0; j<gr.y; j+=64) {
-			for(int i=0; i<gr.x; i+=64) {
-				// the background will not trigger a redraw!
-				display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, false);
+			for(int j=0; j<gr.y; j+=64) {
+				for(int i=0; i<gr.x; i+=64) {
+					// the background will not trigger a redraw!
+					display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, false);
+				}
 			}
+			POP_CLIP();
 		}
-		POP_CLIP();
-	}
-	else {
-		// empty box
-		display_fillbox_wh(pos.x+1, pos.y+16, gr.x-2, gr.y-16, MN_GREY1, false);
-	}
+		else {
+			// empty box
+			display_fillbox_wh(pos.x+1, pos.y+16, gr.x-2, gr.y-16, MN_GREY1, false);
+		}
 
-	// Hajo: left, right
-	display_vline_wh(pos.x, pos.y+16, gr.y-16, MN_GREY4, false);
-	display_vline_wh(pos.x+gr.x-1, pos.y+16, gr.y-16, MN_GREY0, false);
+		// Hajo: left, right
+		display_vline_wh(pos.x, pos.y+16, gr.y-16, MN_GREY4, false);
+		display_vline_wh(pos.x+gr.x-1, pos.y+16, gr.y-16, MN_GREY0, false);
 
-	// Hajo: bottom line
-	display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false);
+		// Hajo: bottom line
+		display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false);
+	}
 
 	container.zeichnen(pos);
 }

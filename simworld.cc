@@ -171,24 +171,24 @@ bool karte_t::get_height_data_from_file( const char *filename, sint8 grundwasser
 			uint32 data_offset;
 			sint32 w, h, format, table;
 			sint16 bit_depth;
-#ifdef SIM_BIG_ENDIAN
+#ifdef BIG_ENDIAN
 			uint32 l;
 			uint16 s;
 			fread( &l, 4, 1, file );
-			data_offset = endian(l);
+			data_offset = endian_uint32(&l);
 			fseek( file, 18, SEEK_SET );
 			fread( &l, 4, 1, file );
-			w = endian(l);
+			w = (sint32)endian_uint32(&l);
 			fread( &l, 4, 1, file );
-			h = endian(l);
+			h = (sint32)endian_uint32(&l);
 			fseek( file, 28, SEEK_SET );
 			fread( &s, 2, 1, file );
-			bit_depth = endian(s);
+			bit_depth = (sint16)endian_uint16(&s);
 			fread( &l, 4, 1, file );
-			format = endian(l);
+			format = (sint32)endian_uint32(&l);
 			fseek( file, 46, SEEK_SET );
 			fread( &l, 4, 1, file );
-			table = endian(l);
+			table = (sint32)endian_uint32(&l);
 #else
 			fread( &data_offset, 4, 1, file );
 			fseek( file, 18, SEEK_SET );
@@ -670,13 +670,12 @@ void karte_t::init_felder()
 {
 	assert(plan==0);
 
-	uint32 const x = get_groesse_x();
-	uint32 const y = get_groesse_y();
-	plan      = new planquadrat_t[x * y];
-	grid_hgts = new sint8[(x + 1) * (y + 1)];
-	MEMZERON(grid_hgts, (x + 1) * (y + 1));
+	plan = new planquadrat_t[get_groesse_x()*get_groesse_y()];
+	grid_hgts = new sint8[(get_groesse_x()+1)*(get_groesse_y()+1)];
 
-	marker.init(x, y);
+	memset(grid_hgts, 0, sizeof(sint8)*(get_groesse_x()+1)*(get_groesse_y()+1));
+
+	marker.init(get_groesse_x(),get_groesse_y());
 
 	simlinemgmt_t::init_line_ids();
 
@@ -1635,7 +1634,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
 		spieler[i] = NULL;
-		MEMZERO(player_password_hash[i]);
+		memset( player_password_hash[i], 0, 20 );
 	}
 
 	// no distance to show at first ...
@@ -2302,7 +2301,6 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 	}
 	// was changed => pay for it
 	if(n>0) {
-		n = (n+3) >> 2;
 		spieler_t::accounting(sp, n*get_einstellungen()->cst_alter_land, pos, COST_CONSTRUCTION );
 	}
 	return ok;
@@ -2776,15 +2774,14 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 
 		// change view due to following a convoi?
 		if(follow_convoi.is_bound()  &&  follow_convoi->get_vehikel_anzahl()>0) {
-			vehikel_t const& v       = *follow_convoi->front();
-			koord3d   const  new_pos = v.get_pos();
+			const koord3d new_pos=follow_convoi->get_vehikel(0)->get_pos();
 			if(new_pos!=koord3d::invalid) {
 				const sint16 rw = get_tile_raster_width();
 				int new_xoff = 0;
 				int new_yoff = 0;
-				v.get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
-				new_xoff -= tile_raster_scale_x(-v.get_xoff(), rw);
-				new_yoff -= tile_raster_scale_y(-v.get_yoff(), rw) + tile_raster_scale_y(new_pos.z * TILE_HEIGHT_STEP / Z_TILE_STEP, rw);
+				follow_convoi->get_vehikel(0)->get_screen_offset( new_xoff, new_yoff, get_tile_raster_width() );
+				new_xoff -= tile_raster_scale_x(-follow_convoi->get_vehikel(0)->get_xoff(),rw);
+				new_yoff -= tile_raster_scale_y(-follow_convoi->get_vehikel(0)->get_yoff(),rw) + tile_raster_scale_y(new_pos.z*TILE_HEIGHT_STEP/Z_TILE_STEP,rw);
 				change_world_position( new_pos.get_2d(), -new_xoff, -new_yoff );
 			}
 		}
@@ -3251,7 +3248,7 @@ sint32 karte_t::get_record_speed( waytype_t w ) const
 void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 {
 	speed_record_t *sr = NULL;
-	switch (cnv->front()->get_waytype()) {
+	switch(cnv->get_vehikel(0)->get_waytype()) {
 		case road_wt: sr = &max_road_speed; break;
 		case track_wt:
 		case tram_wt: sr = &max_rail_speed; break;
@@ -3288,7 +3285,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 			sr->speed = max_speed-1;
 			sr->besitzer = cnv->get_besitzer();
 			const char* msg;
-			switch (cnv->front()->get_waytype()) {
+			switch(cnv->get_vehikel(0)->get_waytype()) {
 				default: NOT_REACHED
 				case road_wt:     msg = "New world record for motorcars: %.1f km/h by %s."; break;
 				case track_wt:
@@ -5128,6 +5125,7 @@ void karte_t::set_fast_forward(bool ff)
 }
 
 
+
 void karte_t::bewege_zeiger(const event_t *ev)
 {
 	static int mb_alt=0;
@@ -5270,6 +5268,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 }
 
 
+
 /* creates a new player with this type */
 const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 {
@@ -5286,6 +5285,8 @@ const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 	get_einstellungen()->set_player_type( new_player, type );
 	return NULL;
 }
+
+
 
 
 /* goes to next active player */
@@ -5335,8 +5336,8 @@ void karte_t::switch_active_player(uint8 new_player)
 	zeiger->set_bild( werkzeug[active_player_nr]->cursor );
 }
 
-
-void karte_t::interactive_event(event_t &ev)
+void
+karte_t::interactive_event(event_t &ev)
 {
 	struct sound_info click_sound;
 	click_sound.index = SFX_SELECT;

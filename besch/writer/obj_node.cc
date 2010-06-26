@@ -33,14 +33,14 @@ void obj_node_t::read_node(FILE* fp, obj_node_info_t &node )
 	uint16 u16;
 
 	fread(&u32, 4, 1, fp);
-	node.type = endian(u32);
+	node.type = endian_uint32(&u32);
 	fread(&u16, 2, 1, fp);
-	node.children = endian(u16);
+	node.children = endian_uint16(&u16);
 	fread(&u16, 2, 1, fp);
-	node.size = endian(u16);
+	node.size = endian_uint16(&u16);
 	if(  node.size==LARGE_RECORD_SIZE  ) {
 		fread(&u32, 4, 1, fp);
-		node.size = endian(u32);
+		node.size = endian_uint32(&u32);
 	}
 }
 
@@ -49,9 +49,10 @@ void obj_node_t::write(FILE* fp)
 {
 	if(  desc.size<LARGE_RECORD_SIZE  ) {
 		fseek(fp, write_offset - OBJ_NODE_INFO_SIZE, SEEK_SET);
-		uint32 type     = endian(desc.type);
-		uint16 children = endian(desc.children);
-		uint16 size16   = endian(desc.size);
+		uint32 type = endian_uint32(&desc.type);
+		uint16 children = endian_uint16(&desc.children);
+		uint16 size16 = desc.size;
+		size16 = endian_uint16(&size16);
 		fwrite(&type, 4, 1, fp);
 		fwrite(&children, 2, 1, fp);
 		fwrite(&size16, 2, 1, fp);
@@ -59,10 +60,10 @@ void obj_node_t::write(FILE* fp)
 	else {
 		// extended length record
 		fseek(fp, write_offset - EXT_OBJ_NODE_INFO_SIZE, SEEK_SET);
-		uint32 type     = endian(desc.type);
-		uint16 children = endian(desc.children);
-		uint16 size16   = endian(LARGE_RECORD_SIZE);
-		uint32 size     = endian(desc.size);
+		uint32 type = endian_uint32(&desc.type);
+		uint16 children = endian_uint16(&desc.children);
+		uint16 size16 = LARGE_RECORD_SIZE;
+		uint32 size = endian_uint32(&desc.size);
 		fwrite(&type, 4, 1, fp);
 		fwrite(&children, 2, 1, fp);
 		fwrite(&size16, 2, 1, fp);	// 0xFFFF
@@ -100,13 +101,13 @@ void obj_node_t::write_uint8(FILE* fp, uint8 data, int offset)
 
 void obj_node_t::write_uint16(FILE* fp, uint16 data, int offset)
 {
-	uint16 data2 = endian(data);
+	uint16 data2 = endian_uint16(&data);
 	this->write_data_at(fp, &data2, offset, 2);
 }
 
 
 void obj_node_t::write_uint32(FILE* fp, uint32 data, int offset)
 {
-	uint32 data2 = endian(data);
+	uint32 data2 = endian_uint32(&data);
 	this->write_data_at(fp, &data2, offset, 4);
 }

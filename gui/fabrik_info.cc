@@ -64,6 +64,7 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 	view.set_pos(koord(width - view.get_groesse().x - 20, 10));	// view is actually borrowed from ding-info ...
 	add_komponente(&view);
 
+	gui_frame_t::set_owner( fab->get_besitzer() );
 	set_name( fab->get_name() );
 }
 

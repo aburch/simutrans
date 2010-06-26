@@ -102,6 +102,7 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
 	locked = false;	/* allowe to change anything */
+	memset( pwd_hash, 0, 20 );	// empty password
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
@@ -169,12 +170,19 @@ const char* spieler_t::get_name(void) const
 bool spieler_t::set_unlock( uint8 *hash )
 {
 	if(  locked  ) {
-		if (pwd_hash.empty()) {
+		bool pwd_empty = true;
+		for(  int i=0;  i<20;  i++  ) {
+			if(  pwd_hash[i] != 0  ) {
+				pwd_empty = false;
+				break;
+			}
+		}
+		if(  pwd_empty  ) {
 			locked = false;
 		}
 		else if(  hash!=NULL  ) {
 			// matches password?
-			locked = pwd_hash != hash;
+			locked = (memcmp( hash, pwd_hash, 20 )!=0);
 		}
 	}
 	return locked;
@@ -1202,7 +1210,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 					buf[i++] = ' ';
 					i += sprintf(buf+i, translator::translate("Vehicle weighs %dt, but max weight is %dt"), cnv_weight, max_weight); 
 				}
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
 			}
 			break;
 
@@ -1212,7 +1220,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->ge
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
 			}
 			break;
 

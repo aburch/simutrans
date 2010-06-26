@@ -18,6 +18,7 @@
 #include "../utils/cbuffer_t.h"
 
 class spieler_t;
+class karte_t;
 
 
 /**

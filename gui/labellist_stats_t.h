@@ -13,6 +13,7 @@
 #include "components/gui_button.h"
 
 class karte_t;
+class gebaeude_t;
 
 namespace labellist {
     enum sort_mode_t { by_name=0, by_koord, by_player, SORT_MODES };

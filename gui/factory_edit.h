@@ -11,6 +11,7 @@ class wkz_build_industries_land_t;
 class wkz_build_industries_city_t;
 class wkz_build_factory_t;
 
+#define MAX_BUILD_TYPE (6)
 
 class factory_edit_frame_t : public extend_edit_gui_t
 {

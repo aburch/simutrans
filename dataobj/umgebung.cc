@@ -123,7 +123,7 @@ void umgebung_t::init()
 	 * show month in date?
 	 * @author hsiegeln
 	 */
-	show_month = DATE_FMT_US;
+	show_month = 3;
 
 	/**
 	 * Max. Länge für initiale Stadtverbindungen

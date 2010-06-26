@@ -5,8 +5,12 @@
 
 #include "components/gui_label.h"
 
+#include "../simwerkz.h"
+
 class haus_besch_t;
-class wkz_build_haus_t;
+class fabrik_besch_t;
+
+#define MAX_BUILD_TYPE (6)
 
 
 class citybuilding_edit_frame_t : public extend_edit_gui_t

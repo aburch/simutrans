@@ -3412,7 +3412,7 @@ void haltestelle_t::recalc_status()
 	// since the status is ordered ...
 	uint8 status_bits = 0;
 
-	MEMZERO(overcrowded);
+	memset( overcrowded, 0, 8 );
 
 	uint32 total_sum = 0;
 	if(get_pax_enabled()) {
@@ -3815,8 +3815,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			grund_t* gr = i->grund;
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
-				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
+				if(gr->hat_weg(cnv->get_vehikel(0)->get_waytype())  &&  gr->suche_obj(cnv->get_vehikel(0)->get_typ())==NULL) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 					i->reservation = cnv;
@@ -3863,8 +3862,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 			// not reseved
 			if (!i->reservation.is_bound()) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
-				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
+				if(gr->hat_weg(cnv->get_vehikel(0)->get_waytype())  &&  gr->suche_obj(cnv->get_vehikel(0)->get_typ())==NULL) {
 					// not occipied
 					return true;
 				}

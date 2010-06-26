@@ -36,7 +36,7 @@
 #
 # Needed to compile:
 # USE_C: no assembler for copying (required for not using GCC on x86)
-# SIM_BIG_ENDIAN: MUST be set for PPC/Motorola byte order! (old mac, amiga)
+# BIG_ENDIAN: MUST be set for PPC/Motorola byte order! (old mac, amiga)
 #
 # Changing appearance:
 # USE_SOFTPOINTER: emulate mouse pointer (set automatically in Makefile)

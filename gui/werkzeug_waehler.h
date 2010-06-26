@@ -13,6 +13,7 @@
 #include "../tpl/vector_tpl.h"
 //#include "../simmenu.h"
 
+class spieler_t;
 class karte_t;
 class werkzeug_t;
 

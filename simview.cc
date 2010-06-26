@@ -89,7 +89,7 @@ karte_ansicht_t::display(bool force_dirty)
 		uint32 month = welt->get_last_month();
 		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_world_month;
 		uint32 stunden2;
-		if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
+		if(umgebung_t::show_month>1) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 			stunden2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_per_world_month_shift-17));
 			stunden2 = ((stunden2*3) / 8192) % 48;
@@ -122,10 +122,11 @@ karte_ansicht_t::display(bool force_dirty)
 			const sint16 xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
-				if (grund_t const* const kb = welt->lookup_kartenboden(koord(i, j))) {
-					sint16 const yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP / Z_TILE_STEP, IMG_SIZE);
+				const planquadrat_t *plan=welt->lookup(koord(i,j));
+				if(plan  &&  plan->get_kartenboden()) {
+					sint16 yypos = ypos - tile_raster_scale_y( min(plan->get_kartenboden()->get_hoehe(), hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						kb->display_if_visible(xpos, yypos, IMG_SIZE);
+						plan->display_boden(xpos, yypos, IMG_SIZE);
 					}
 				}
 				else {

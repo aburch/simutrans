@@ -33,6 +33,7 @@
 
 class karte_t;
 class loadsave_t;
+class simlinemgmt_t;
 class spieler_t;
 
 class simline_t {
@@ -91,13 +92,6 @@ private:
 	sint64 financial_history[MAX_MONTHS][MAX_LINE_COST];
 
 	void init_financial_history();
-
-	/*
-	 * whether the next convoy applied to this line should have its
-	 * reverse_schedule flag set. Only applies to circular schedules.
-	 * @author yobbobandana
-	 */
-	bool start_reversed;
 
 public:
 	~simline_t();
@@ -251,7 +245,7 @@ class truckline_t : public simline_t
 	public:
 		truckline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = truckline;
+			type = simline_t::truckline;
 			set_schedule(new autofahrplan_t());
 		}
 };
@@ -261,7 +255,7 @@ class trainline_t : public simline_t
 	public:
 		trainline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = trainline;
+			type = simline_t::trainline;
 			set_schedule(new zugfahrplan_t());
 		}
 };
@@ -271,7 +265,7 @@ class shipline_t : public simline_t
 	public:
 		shipline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = shipline;
+			type = simline_t::shipline;
 			set_schedule(new schifffahrplan_t());
 		}
 };
@@ -281,7 +275,7 @@ class airline_t : public simline_t
 	public:
 		airline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = airline;
+			type = simline_t::airline;
 			set_schedule(new airfahrplan_t());
 		}
 };
@@ -291,7 +285,7 @@ class monorailline_t : public simline_t
 	public:
 		monorailline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = monorailline;
+			type = simline_t::monorailline;
 			set_schedule(new monorailfahrplan_t());
 		}
 };
@@ -301,7 +295,7 @@ class tramline_t : public simline_t
 	public:
 		tramline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = tramline;
+			type = simline_t::tramline;
 			set_schedule(new tramfahrplan_t());
 		}
 };
@@ -311,7 +305,7 @@ class narrowgaugeline_t : public simline_t
 	public:
 		narrowgaugeline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = narrowgaugeline;
+			type = simline_t::narrowgaugeline;
 			set_schedule(new narrowgaugefahrplan_t());
 		}
 };
@@ -321,7 +315,7 @@ class maglevline_t : public simline_t
 	public:
 		maglevline_t(karte_t* welt, spieler_t* sp) : simline_t(welt, sp)
 		{
-			type = maglevline;
+			type = simline_t::maglevline;
 			set_schedule(new maglevfahrplan_t());
 		}
 };

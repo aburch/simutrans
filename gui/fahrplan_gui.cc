@@ -219,13 +219,6 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	numimp_load.set_increment_mode( gui_numberinput_t::PROGRESS );
 	numimp_load.add_listener(this);
 	add_komponente(&numimp_load);
-
-	bt_circular.init(button_t::square_automatic, "also reverse", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_circular.set_tooltip("When adding vehicles to the line, every second vehicle will follow it in the reverse direction.");
-	bt_circular.pressed = fpl->is_circular();
-	bt_circular.add_listener(this);
-	add_komponente(&bt_circular);
-
 	ypos += BUTTON_HEIGHT;
 
 	// waiting in parts per month
@@ -252,11 +245,10 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
 
-	bt_mirror.init(button_t::square_automatic, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.");
-	bt_mirror.pressed = fpl->is_mirrored();
-	bt_mirror.add_listener(this);
-	add_komponente(&bt_mirror);
+	bt_return.init(button_t::roundbox, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_return.set_tooltip("Add stops for backward travel");
+	bt_return.add_listener(this);
+	add_komponente(&bt_return);
 
 	ypos += BUTTON_HEIGHT;
 
@@ -331,7 +323,7 @@ void fahrplan_gui_t::update_selection()
 	// update load
 	lb_load.set_color( COL_GREY3 );
 	lb_wait.set_color( COL_GREY3 );
-	if (!fpl->empty()) {
+	if(  fpl->get_count()>0  ) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
 		if(  haltestelle_t::get_halt(sp->get_welt(), fpl->eintrag[aktuell].pos, sp).is_bound()  ) {
@@ -459,12 +451,12 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		update_werkzeug( false );
 
 	} else if(komp == &numimp_load) {
-		if (!fpl->empty()) {
+		if(fpl->get_count() > 0) {
 			fpl->eintrag[fpl->get_aktuell()].ladegrad = p.i;
 			update_selection();
 		}
 	} else if(komp == &bt_wait_prev) {
-		if (!fpl->empty()) {
+		if(fpl->get_count() > 0) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait>7) {
 				wait --;
@@ -478,7 +470,7 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			update_selection();
 		}
 	} else if(komp == &bt_wait_next) {
-		if (!fpl->empty()) {
+		if(fpl->get_count() > 0) {
 			sint8& wait = fpl->eintrag[fpl->get_aktuell()].waiting_time_shift;
 			if(wait==0) {
 				wait = 7;
@@ -488,12 +480,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			}
 			update_selection();
 		}
-	/*} else if (komp == &bt_return) {
-		fpl->add_return_way();*/
-	} else if (komp == &bt_mirror) {
-		fpl->set_mirrored(bt_mirror.pressed);
-	} else if (komp == &bt_circular) {
-		fpl->set_circular(bt_circular.pressed);
+	} else if (komp == &bt_return) {
+		fpl->add_return_way();
 	} else if (komp == &line_selector) {
 		int selection = p.i;
 //DBG_MESSAGE("fahrplan_gui_t::action_triggered()","line selection=%i",selection);

@@ -14,12 +14,15 @@ cstring_t root_writer_t::inpath;
 
 void root_writer_t::write_header(FILE* fp)
 {
+	uint32 l;
+
 	fprintf(fp,
 		"Simutrans object file\n"
 		"Compiled with SimObjects " COMPILER_VERSION "\n\x1A"
 	);
 
-	uint32 l = endian(uint32(COMPILER_VERSION_CODE));
+	l = COMPILER_VERSION_CODE;
+	l = endian_uint32(&l);
 	fwrite(&l, 1, sizeof(uint32), fp); // Compiler Version zum Checken
 
 	obj_node_t::set_start_offset(ftell(fp));
@@ -111,15 +114,16 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 
 void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &root)
 {
-	uint32 type      = endian(root.type);
-	uint16 children  = endian(root.children);
-	uint16 root_size = endian(uint16(root.size));
+	uint32 type     = endian_uint32(&root.type);
+	uint16 children = endian_uint16(&root.children);
+	uint16 root_size = root.size;
+	root_size        = endian_uint16(&root_size);
 	fwrite(&type,     4, 1, outfp);
 	fwrite(&children, 2, 1, outfp);
 	if(  root.size>=LARGE_RECORD_SIZE  ) {
 		root_size = LARGE_RECORD_SIZE;
 		fwrite(&root_size,     2, 1, outfp);
-		uint32 size = endian(root.size);
+		uint32 size = endian_uint32(&root.size);
 		fwrite(&size,     4, 1, outfp);
 	}
 	else {
@@ -140,7 +144,7 @@ bool root_writer_t::do_dump(const char* open_file_name)
 		// Compiled Verison
 		uint32 version;
 		fread(&version, sizeof(version), 1, infp);
-		printf("File %s (version %d):\n", open_file_name, endian(version));
+		printf("File %s (version %d):\n", open_file_name, endian_uint32(&version) );
 
 		dump_nodes(infp, 1);
 		fclose(infp);
@@ -186,7 +190,7 @@ bool root_writer_t::do_list(const char* open_file_name)
 		uint32 version;
 
 		fread(&version, sizeof(version), 1, infp);
-		printf("Contents of file %s (pak version %d):\n", open_file_name, endian(version));
+		printf("Contents of file %s (pak version %d):\n", open_file_name, endian_uint32(&version));
 		printf("type             name\n"
 		"---------------- ------------------------------\n");
 
@@ -241,7 +245,7 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 		// Compiled Version check (since the ancient ending was also pak)
 		uint32 version;
 		fread(&version, sizeof(version), 1, infp);
-		if (endian(version) <= COMPILER_VERSION_CODE) {
+		if (endian_uint32(&version) <= COMPILER_VERSION_CODE) {
 			printf("   copying file %s\n", open_file_name);
 
 			obj_node_info_t info;
@@ -299,12 +303,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		} else {
 			find.search(argv[i], "pak");
 			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
-				if (strcmp(*i, name) != 0) {
-					any |= do_copy(outfp, root, *i);
-				}
-				else {
-					printf("WARNING: skipping reading from output file\n");
-				}
+				any |= do_copy(outfp, root, *i);
 			}
 		}
 
@@ -348,7 +347,7 @@ void root_writer_t::uncopy(const char* name)
 	// check version of pak format
 	uint32 version;
 	fread(&version, sizeof(version), 1, infp);
-	if (endian(version) <= COMPILER_VERSION_CODE) {
+	if(endian_uint32(&version) <= COMPILER_VERSION_CODE) {
 		// read root node
 		obj_node_info_t root;
 		obj_node_t::read_node( infp, root );
@@ -443,7 +442,7 @@ void root_writer_t::copy_nodes(FILE* outfp, FILE* infp, obj_node_info_t& start)
 		char* buf = new char[info.size];
 		fread(buf, info.size, 1, infp);
 		fwrite(buf, info.size, 1, outfp);
-		delete []  buf;
+		delete [] buf;
 		copy_nodes(outfp, infp, info);
 	}
 }

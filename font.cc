@@ -171,7 +171,7 @@ static bool dsp_read_bdf_font(FILE* fin, font_type* font)
 		}
 
 		if (strncmp(str, "CHARS", 5) == 0  &&  str[5]<=' ') {
-			f_chars = atoi(str + 5) <= 256 ? 256 : 65536;
+			f_chars = (atoi(str + 5) > 255) ? 65535 : 255;
 
 			data = (uint8*)calloc(f_chars, CHARACTER_LEN);
 			if (data == NULL) {
@@ -374,6 +374,5 @@ bool load_font(font_type* fnt, const char* fname)
 		fclose(f);
 		return true;
 	}
-	fclose(f);
 	return false;
 }

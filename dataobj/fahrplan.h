@@ -23,8 +23,25 @@ public:
 		fahrplan = 0, autofahrplan = 1, zugfahrplan = 2, schifffahrplan = 3, airfahrplan = 4, monorailfahrplan = 5, tramfahrplan = 6, maglevfahrplan = 7, narrowgaugefahrplan = 8,
 	};
 
+private:
+	bool abgeschlossen;
+
+	static struct linieneintrag_t dummy_eintrag;
+
 protected:
-	schedule_t() : abgeschlossen(false), circular(false), mirrored(false), aktuell(0) {}
+	schedule_t() {}
+
+	uint8 aktuell;
+
+	waytype_t my_waytype;
+	schedule_type type;
+
+	/*
+	 * initializes the fahrplan object
+	 * is shared by fahrplan_t constructors
+	 * @author hsiegeln
+	 */
+	void init();
 
 public:
 	minivec_tpl<struct linieneintrag_t> eintrag;
@@ -33,7 +50,7 @@ public:
 	* sollte eine Fehlermeldung ausgeben, wenn halt nicht erlaubt ist
 	* @author Hj. Malthaner
 	*/
-	virtual char const* fehlermeldung() const = 0;
+	virtual const char *fehlermeldung() const { return ""; }
 
 	/**
 	* der allgemeine Fahrplan erlaubt haltestellen überall.
@@ -42,13 +59,11 @@ public:
 	*/
 	virtual bool ist_halt_erlaubt(const grund_t *gr) const;
 
-	bool empty() const { return eintrag.empty(); }
-
 	uint8 get_count() const { return eintrag.get_count(); }
 
-	virtual schedule_type get_type() const = 0;
+	schedule_type get_type() const {return type;}
 
-	virtual waytype_t get_waytype() const = 0;
+	waytype_t get_waytype() const {return my_waytype;}
 
 	/**
 	* get current stop of fahrplan
@@ -77,12 +92,6 @@ public:
 			aktuell = (aktuell+1)%eintrag.get_count();
 		}
 	}
-	// decrement entry by one
-	void advance_reverse() {
-		if(  !eintrag.empty()  ) {
-			aktuell = aktuell ? aktuell-1 : eintrag.get_count()-1;
-		}
-	}
 
 	inline bool ist_abgeschlossen() const { return abgeschlossen; }
 	void eingabe_abschliessen() { abgeschlossen = true; }
@@ -90,7 +99,7 @@ public:
 
 	virtual ~schedule_t() {}
 
-	schedule_t(loadsave_t*);
+	schedule_t(loadsave_t *file);
 
 	/**
 	 * fügt eine koordinate an stelle aktuell in den Fahrplan ein
@@ -129,11 +138,6 @@ public:
 	 */
 	void add_return_way();
 
-	inline bool is_circular() const { return circular; }
-	inline bool is_mirrored() const { return mirrored; }
-	void set_circular(bool circ = true ) { circular = circ; }
-	void set_mirrored(bool mir = true ) { mirrored = mir; }
-
 	virtual schedule_t* copy() = 0;//{ return new schedule_t(this); }
 
 	// copy all entries from schedule src to this and adjusts aktuell
@@ -144,14 +148,6 @@ public:
 
 	// converts this string into a schedule
 	bool sscanf_schedule( const char * );
-
-private:
-	bool  abgeschlossen;
-	uint8 aktuell;
-	bool circular;
-	bool mirrored;
-
-	static struct linieneintrag_t dummy_eintrag;
 };
 
 
@@ -164,14 +160,10 @@ private:
 class zugfahrplan_t : public schedule_t
 {
 public:
-	zugfahrplan_t() {}
-	zugfahrplan_t(loadsave_t* const file) : schedule_t(file) {}
+	zugfahrplan_t() { init(); type = zugfahrplan; my_waytype=track_wt; }
+	zugfahrplan_t(loadsave_t* file) : schedule_t(file) { type = zugfahrplan; my_waytype=track_wt; }
 	schedule_t* copy() { schedule_t *s = new zugfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Zughalt muss auf\nSchiene liegen!\n"; }
-
-	schedule_type get_type() const { return zugfahrplan; }
-
-	waytype_t get_waytype() const { return track_wt; }
 };
 
 /* the schedule for monorail ...
@@ -180,13 +172,9 @@ public:
 class tramfahrplan_t : public zugfahrplan_t
 {
 public:
-	tramfahrplan_t() {}
-	tramfahrplan_t(loadsave_t* const file) : zugfahrplan_t(file) {}
+	tramfahrplan_t() { init(); type = tramfahrplan; my_waytype=tram_wt; }
+	tramfahrplan_t(loadsave_t* file) : zugfahrplan_t(file) { type = tramfahrplan; my_waytype=track_wt; }
 	schedule_t* copy() { schedule_t *s = new tramfahrplan_t(); s->copy_from(this); return s; }
-
-	schedule_type get_type() const { return tramfahrplan; }
-
-	waytype_t get_waytype() const { return tram_wt; }
 };
 
 
@@ -199,14 +187,10 @@ public:
 class autofahrplan_t : public schedule_t
 {
 public:
-	autofahrplan_t() {}
-	autofahrplan_t(loadsave_t* const file) : schedule_t(file) {}
+	autofahrplan_t() { init(); type = autofahrplan; my_waytype=road_wt; }
+	autofahrplan_t(loadsave_t* file) : schedule_t(file) { type = autofahrplan; my_waytype=road_wt; }
 	schedule_t* copy() { schedule_t *s = new autofahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Autohalt muss auf\nStrasse liegen!\n"; }
-
-	schedule_type get_type() const { return autofahrplan; }
-
-	waytype_t get_waytype() const { return road_wt; }
 };
 
 
@@ -219,14 +203,10 @@ public:
 class schifffahrplan_t : public schedule_t
 {
 public:
-	schifffahrplan_t() {}
-	schifffahrplan_t(loadsave_t* const file) : schedule_t(file) {}
+	schifffahrplan_t() { init(); type = schifffahrplan; my_waytype=water_wt; }
+	schifffahrplan_t(loadsave_t* file) : schedule_t(file) { type = schifffahrplan; my_waytype=water_wt; }
 	schedule_t* copy() { schedule_t *s = new schifffahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Schiffhalt muss im\nWasser liegen!\n"; }
-
-	schedule_type get_type() const { return schifffahrplan; }
-
-	waytype_t get_waytype() const { return water_wt; }
 };
 
 
@@ -236,14 +216,10 @@ public:
 class airfahrplan_t : public schedule_t
 {
 public:
-	airfahrplan_t() {}
-	airfahrplan_t(loadsave_t* const file) : schedule_t(file) {}
+	airfahrplan_t() { init(); type = airfahrplan; my_waytype=air_wt; }
+	airfahrplan_t(loadsave_t* file) : schedule_t(file) { type = airfahrplan; my_waytype=air_wt; }
 	schedule_t* copy() { schedule_t *s = new airfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Flugzeughalt muss auf\nRunway liegen!\n"; }
-
-	schedule_type get_type() const { return airfahrplan; }
-
-	waytype_t get_waytype() const { return air_wt; }
 };
 
 /* the schedule for monorail ...
@@ -252,14 +228,10 @@ public:
 class monorailfahrplan_t : public schedule_t
 {
 public:
-	monorailfahrplan_t() {}
-	monorailfahrplan_t(loadsave_t* const file) : schedule_t(file) {}
+	monorailfahrplan_t() { init(); type = monorailfahrplan; my_waytype=monorail_wt; }
+	monorailfahrplan_t(loadsave_t* file) : schedule_t(file) { type = monorailfahrplan; my_waytype=monorail_wt; }
 	schedule_t* copy() { schedule_t *s = new monorailfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Monorailhalt muss auf\nMonorail liegen!\n"; }
-
-	schedule_type get_type() const { return monorailfahrplan; }
-
-	waytype_t get_waytype() const { return monorail_wt; }
 };
 
 /* the schedule for maglev ...
@@ -268,14 +240,10 @@ public:
 class maglevfahrplan_t : public schedule_t
 {
 public:
-	maglevfahrplan_t() {}
-	maglevfahrplan_t(loadsave_t* const file) : schedule_t(file) {}
+	maglevfahrplan_t() { init(); type = maglevfahrplan; my_waytype=maglev_wt; }
+	maglevfahrplan_t(loadsave_t* file) : schedule_t(file) { type = maglevfahrplan; my_waytype=maglev_wt; }
 	schedule_t* copy() { schedule_t *s = new maglevfahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "Maglevhalt muss auf\nMaglevschiene liegen!\n"; }
-
-	schedule_type get_type() const { return maglevfahrplan; }
-
-	waytype_t get_waytype() const { return maglev_wt; }
 };
 
 /* and narrow guage ...
@@ -284,14 +252,10 @@ public:
 class narrowgaugefahrplan_t : public schedule_t
 {
 public:
-	narrowgaugefahrplan_t() {}
-	narrowgaugefahrplan_t(loadsave_t* const file) : schedule_t(file) {}
+	narrowgaugefahrplan_t() { init(); type = narrowgaugefahrplan; my_waytype=narrowgauge_wt; }
+	narrowgaugefahrplan_t(loadsave_t* file) : schedule_t(file) { type = narrowgaugefahrplan; my_waytype=narrowgauge_wt; }
 	schedule_t* copy() { schedule_t *s = new narrowgaugefahrplan_t(); s->copy_from(this); return s; }
 	const char *fehlermeldung() const { return "On narrowgauge track only!\n"; }
-
-	schedule_type get_type() const { return narrowgaugefahrplan; }
-
-	waytype_t get_waytype() const { return narrowgauge_wt; }
 };
 
 
