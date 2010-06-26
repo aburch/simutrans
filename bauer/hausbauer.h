@@ -97,7 +97,7 @@ public:
 	 * die bei Kartenerstellung gebaut werden kann.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl, bool allow_earlier = false)
+	static const haus_besch_t* waehle_sehenswuerdigkeit(uint16 time, bool ignore_retire, climate cl)
 	{
 		return waehle_aus_liste(sehenswuerdigkeiten_land, time, ignore_retire, cl);
 	}

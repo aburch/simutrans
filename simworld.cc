@@ -5825,7 +5825,6 @@ void karte_t::network_disconnect()
 
 void karte_t::set_citycar_speed_average()
 {
-	uint32 speed_sum = 0;
 	if(stadtauto_t::table.empty())
 	{
 		// No city cars - use default speed.

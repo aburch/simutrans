@@ -618,8 +618,8 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, v
 		if (veh != NULL && veh->get_besch() == besch) 
 		{
 			// joy of XOR, finally a line where I could use it!
-			if (avoid == NULL || !avoid->is_contained(veh) && (found_veh == NULL ||
-					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit()))) // Used when replacing to avoid specifying the same vehicle twice
+			if (avoid == NULL || (!avoid->is_contained(veh) && (found_veh == NULL ||
+					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())))) // Used when replacing to avoid specifying the same vehicle twice
 			{
 				found_veh = veh;
 			}

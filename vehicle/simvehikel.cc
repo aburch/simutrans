@@ -1405,7 +1405,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 #endif
  		sint16 direction_difference = 0;
 		sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
-		const koord3d *current_tile = position;
+		//const koord3d *current_tile = position; // unused
 		const koord3d *previous_tile = &cnv->get_route()->position_bei(route_index - 1);
 		ribi_t::ribi old_direction = current_direction;
 		if(previous_tile != NULL)
@@ -2088,7 +2088,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	else {
 		for(int i=0; i<fracht_count; i++) {
 			ware_t ware(welt,file);
-			if(besch==NULL  ||  ware.menge > 0 && welt->ist_in_kartengrenzen(ware.get_zielpos()) ) {	// also add, of the besch is unknown to find matching replacement
+			if(  (besch==NULL  ||  ware.menge>0)  &&  welt->ist_in_kartengrenzen(ware.get_zielpos())  ) {	// also add, of the besch is unknown to find matching replacement
 				fracht.insert(ware);
 			}
 			else if(  ware.menge>0  ) {
@@ -2267,7 +2267,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 				case convoi_t::REVERSING:
 				if(  state>=2  ) 
 				{
-					sprintf( tooltip_text, translator::translate("Reversing") );
+					tstrncpy( tooltip_text, translator::translate("Reversing"), lengthof(tooltip_text) );
 					color = COL_YELLOW;
 				}
 				break;

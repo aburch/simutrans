@@ -452,7 +452,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		// Must add dummy string here, or else the loading/saving will fail, 
 		// since we do not know whether a leitung is a plain leitung, or a pumpe
 		// or a senke on *loading*, whereas we do on saving.
-		char* dummy = "~";
+		char dummy[2] = "~";
 		file->rdwr_str(dummy, 2);
 	}
 }
@@ -720,7 +720,7 @@ void senke_t::step(long delta_t)
 
 		uint32 demand_distribution;
 		uint8 count = 0;
-		for(sint16 n = 0; n < city_substations->get_count(); n ++)
+		for(uint16 n = 0; n < city_substations->get_count(); n ++)
 		{
 			// Now check those that have more than enough power.
 

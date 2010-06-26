@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <ctype.h>
 #include <assert.h>
 #include <errno.h>
@@ -213,8 +214,8 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	const char *c = pak_extension;
 	
 	// Use Experimental version numbering if appropriate.
-	char *savegame_version;
-	char *savegame_ver_nr;
+	std::string savegame_version;
+	std::string savegame_ver_nr;
 	if(save_experimental)
 	{
 		savegame_version = EXPERIMENTAL_SAVEGAME_VERSION;
@@ -245,21 +246,21 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 		char str[4096];
 		size_t len;
 		if(  version<102002  ) {
-			len = sprintf( str, "%s%s%s\n", savegame_version, "zip", this->pak_extension );
+			len = sprintf( str, "%s%s%s\n", savegame_version.c_str(), "zip", this->pak_extension );
 		}
 		else {
-			len = sprintf( str, "%s-%s\n", savegame_version, this->pak_extension );
+			len = sprintf( str, "%s-%s\n", savegame_version.c_str(), this->pak_extension );
 		}
 		write( str, len );
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver_nr, this->pak_extension );
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver_nr.c_str(), this->pak_extension );
 		write( str, n );
 		ident = 1;
 	}
 
-	loadsave_t::combined_version versions = int_version(savegame_ver_nr, NULL, NULL );
+	loadsave_t::combined_version versions = int_version(savegame_ver_nr.c_str(), NULL, NULL );
 	version = versions.version;
 	experimental_version = versions.experimental_version;
 
@@ -949,8 +950,8 @@ void loadsave_t::rd_obj_id(char *id_buf, int size)
 }
 
 
-loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int *mode, char *pak_extension_str)
-{	
+loadsave_t::combined_version loadsave_t::int_version(const char *version_text, int * /*mode*/, char *pak_extension_str)
+{
 	uint32 experimental_version = 0;
 	// major number (0..)
 	uint32 v0 = atoi(version_text);

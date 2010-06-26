@@ -407,12 +407,12 @@ void spieler_t::neuer_monat()
 						n += sprintf(buf, translator::translate("You have been overdrawn\nfor %i months"), konto_ueberzogen );
 						if(konto_ueberzogen > 3)
 						{
-							n += sprintf(buf + n, translator::translate("\n\nYour credit rating is being affected."));
+							n += sprintf(buf + n, "%s", translator::translate("\n\nYour credit rating is being affected."));
 						}
 					}
 					else
 					{
-						n += sprintf(buf, translator::translate("You have been overdrawn\nfor one month"));
+						n += sprintf(buf, "%s", translator::translate("You have been overdrawn\nfor one month"));
 					}
 					if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
 					{

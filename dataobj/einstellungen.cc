@@ -6,6 +6,8 @@
  * April 2000
  */
 
+#include <string>
+
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simconst.h"
@@ -648,7 +650,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_str(language_code_names, lengthof(language_code_names));
 
 			// restore AI state
-			char password[16];
+			//char password[16]; // unused
 			for(  int i=0;  i<15;  i++  ) {
 
 				file->rdwr_bool( automaten[i], "" );
@@ -1550,7 +1552,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{
-		char* buf;
+		std::string buf;
 		switch(i)
 		{
 		case road_wt:
@@ -1580,7 +1582,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		default:
 			buf = "default_increase_maintenance_after_years_other";
 		}
-		default_increase_maintenance_after_years[i] = contents.get_int(buf, default_increase_maintenance_after_years[i]);
+		default_increase_maintenance_after_years[i] = contents.get_int(buf.c_str(), default_increase_maintenance_after_years[i]);
 	}
 
 	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);

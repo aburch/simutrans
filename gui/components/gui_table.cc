@@ -50,7 +50,7 @@ coordinate_t gui_table_t::add_row(gui_table_row_t *row) {
 
 
 // BG, 18.03.2010
-void gui_table_t::change_size(const coordinates_t &old_size, const coordinates_t &new_size) {
+void gui_table_t::change_size(const coordinates_t & /*old_size*/, const coordinates_t &new_size) {
 	// change size of arrays
 	rows.set_count(new_size.get_y());
 	row_sort_column_order.set_count(new_size.get_x());
@@ -149,7 +149,7 @@ bool gui_table_t::infowin_event(const event_t *ev)
 
 
 // BG, 18.03.2010
-void gui_table_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y) {
+void gui_table_t::paint_cell(const koord & /*offset*/, coordinate_t /*x*/, coordinate_t /*y*/) {
 }
 
 
@@ -278,7 +278,7 @@ int gui_table_column_list_t::compare_items(const gui_table_column_t *item1, cons
 	gui_table_t *table = get_owner();
 	assert(table);
 	const gui_table_row_list_t &rows = table->column_sort_row_order;
-	int n = rows.get_count();
+	unsigned n = rows.get_count();
 	if (!n) {
 		return -1;
 	}
@@ -311,7 +311,7 @@ int gui_table_row_list_t::compare_items(const gui_table_row_t *item1, const gui_
 	gui_table_t *table = get_owner();
 	assert(table);
 	const gui_table_column_list_t &columns = table->row_sort_column_order;
-	int n = columns.get_count();
+	unsigned n = columns.get_count();
 	if (!n) {
 		return -1;
 	}

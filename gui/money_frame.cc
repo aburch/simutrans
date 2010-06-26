@@ -141,6 +141,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_tmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_mmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_omoney(NULL, COL_WHITE, gui_label_t::money),
+		credit_limit(NULL, COL_WHITE, gui_label_t::money),
+		interest(NULL, COL_WHITE, gui_label_t::money),
+		old_interest(NULL, COL_WHITE, gui_label_t::money),
 		tylabel2("This Year", COL_WHITE, gui_label_t::right),
 		gtmoney(NULL, COL_WHITE, gui_label_t::money),
 		vtmoney(NULL, COL_WHITE, gui_label_t::money),
@@ -156,10 +159,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		operational_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
-		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64)),
-		credit_limit(NULL, COL_WHITE, gui_label_t::money),
-		interest(NULL, COL_WHITE, gui_label_t::money),
-		old_interest(NULL, COL_WHITE, gui_label_t::money)
+		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64))
 {
 	if(sp->get_welt()->get_spieler(0)!=sp) 
 	{

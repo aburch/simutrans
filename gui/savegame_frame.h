@@ -48,8 +48,8 @@ protected:
 public:
 	gui_file_table_button_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
-	void set_text(char *text) { btn.set_text(text); }
-	void set_tooltip(char *tooltip) { btn.set_tooltip(tooltip); }
+	void set_text(const char *text) { btn.set_text(text); }
+	void set_tooltip(const char *tooltip) { btn.set_tooltip(tooltip); }
 };
 
 

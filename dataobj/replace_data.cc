@@ -80,12 +80,10 @@ void replace_data_t::sprintf_replace( cbuffer_t &buf) const
 	{
 		zeros = 1;
 	}
-	if(zeros > 0)
+	while(zeros > 0)
 	{
-	for(zeros; zeros --; zeros > 0)
-		{
-			buf.append("0");
-		}
+		buf.append("0");
+		zeros--;
 	}
 	buf.append((int)number_of_convoys);
 
@@ -116,7 +114,7 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 
 	//Secondly, get the number of replacing vehicles
 	char rv[5];
-	for(uint8 i = 0; i ++; i < 5)
+	for(uint8 i = 0; i < 5; i ++)
 	{
 		rv[i] = *p++;
 	}

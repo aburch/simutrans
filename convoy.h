@@ -331,9 +331,9 @@ private:
 protected:
 	int is_valid;
 	// decendents implement the update methods. 
-	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) {} // = 0;
-	virtual void update_adverse_summary(adverse_summary_t &adverse) {} // = 0;
-	virtual void update_freight_summary(freight_summary_t &freight) {} // = 0;
+	virtual void update_vehicle_summary(vehicle_summary_t &vehicle) { (void)vehicle; } // = 0;
+	virtual void update_adverse_summary(adverse_summary_t &adverse) { (void)adverse; } // = 0;
+	virtual void update_freight_summary(freight_summary_t &freight) { (void)freight; } // = 0;
 public:
 
 	//-----------------------------------------------------------------------------
@@ -486,8 +486,8 @@ public:
 class potential_convoy_t : public lazy_convoy_t
 {
 private:
-	karte_t &world;
 	vector_tpl<const vehikel_besch_t *> &vehicles;
+	karte_t &world;
 protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);

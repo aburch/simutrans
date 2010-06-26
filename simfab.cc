@@ -1416,9 +1416,6 @@ void fabrik_t::neuer_monat()
 				}
 			}
 
-			const uint32 number_of_customers = lieferziele.get_count();
-			const uint32 number_of_suppliers = suppliers.get_count();
-			const uint16 jobs = besch->get_pax_level();
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}

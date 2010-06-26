@@ -1321,7 +1321,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 	{
 		const uint8 entry_count = halt_list.get_count();
 
-		const bool i_am_public = besitzer_p == welt->get_spieler(1);
+		//const bool i_am_public = besitzer_p == welt->get_spieler(1); // unused
 
 		// Check the average speed.
 		uint16 average_speed = 0;
@@ -1572,7 +1572,6 @@ void haltestelle_t::rebuild_connexions(const uint8 category)
 	if (!is_enabled(ware_type))
 		return;
 	minivec_tpl<halthandle_t> tmp_halt_list(64);  // Initial size is set to 64 to avoid resizing. Should be enough for most schedules.
-	uint8 entry_count;
 	sint16 self_halt_idx;
 
 	// first all single convois without lines
@@ -2701,8 +2700,6 @@ haltestelle_t::quote_bezeichnung(int quote, convoihandle_t cnv) const
 
 void haltestelle_t::info(cbuffer_t & buf) const
 {
-	char tmp [512];
-
 	buf.printf(
 		translator::translate("Passengers %d %c, %d %c, %d no route, %d too slow"),
 		pax_happy,

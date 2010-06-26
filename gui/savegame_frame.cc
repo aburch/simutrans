@@ -566,7 +566,7 @@ void savegame_frame_t::release_file_table_button()
 
 
 // BG, 26.03.2010
-void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) 
+void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
 {
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	koord size = koord(get_width(), row.get_height());
@@ -596,7 +596,7 @@ void gui_file_table_delete_column_t::paint_cell(const koord &offset, coordinate_
 
 
 // BG, 26.03.2010
-void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) 
+void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
 {
 	lbl.set_pos(koord(2, 2));
 	lbl.set_groesse(koord(get_width() - 2, row.get_height() - 2));
@@ -636,7 +636,7 @@ void gui_file_table_time_column_t::paint_cell(const koord &offset, coordinate_t 
 		strftime(date, 18, "%Y-%m-%d %H:%M", tm);
 	}
 	else {
-		tstrncpy(date, "????-??-?? ??:??", 16);
+		tstrncpy(date, "???\?-?\?-?? ??:??", 16); // note: ??- is the trigraph for a tilde, so one ? is escaped.
 	}
 	lbl.set_text(date);
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
