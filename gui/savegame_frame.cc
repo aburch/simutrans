@@ -37,7 +37,7 @@
 // this functions returns true for files to be added.
 savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
 	gui_frame_t("Load/Save"),
-	input(false),
+	input(),
 	fnlabel("Filename"),
 	scrolly(&button_frame)
 {
@@ -417,10 +417,13 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 
 bool savegame_frame_t::infowin_event(const event_t *ev)
 {
-	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN  &&  entries.empty()) {
+	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
 		set_focus( &input );
 	}
-	return gui_frame_t::infowin_event(ev);
+	if(  ev->ev_class != EVENT_KEYBOARD  ||  !(ev->ev_code == 9  ||  ev->ev_code == 27)  ) {
+		return gui_frame_t::infowin_event(ev);
+	}
+	return false;
 }

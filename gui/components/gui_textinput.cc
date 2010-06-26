@@ -20,12 +20,11 @@
 
 #include "../../simgraph.h"
 
-gui_textinput_t::gui_textinput_t(const bool _notify_unfocus) :
+gui_textinput_t::gui_textinput_t() :
 	text(NULL),
 	max(0),
 	cursor_pos(0),
 	align(ALIGN_LEFT),
-	notify_unfocus(_notify_unfocus),
 	textcol(COL_BLACK)
 {
 	set_allow_focus(true);
@@ -184,9 +183,7 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
 		return true;
 	}
 	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
-		if(  notify_unfocus  ) {
-			call_listeners((long)0);
-		}
+		call_listeners((long)0);
 		return true;
 	}
 	return false;
