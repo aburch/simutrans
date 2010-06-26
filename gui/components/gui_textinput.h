@@ -59,10 +59,16 @@ protected:
 	 */
 	uint8 align;
 
+	/**
+	 * indicates whether listeners will be called when unfocused
+	 * @author Knightly
+	*/
+	bool notify_unfocus;
+
 	COLOR_VAL textcol;
 
 public:
-	gui_textinput_t();
+	gui_textinput_t(const bool _notify_unfocus = true);
 
 	/**
 	 * Setzt den Textpuffer
