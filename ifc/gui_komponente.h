@@ -136,7 +136,7 @@ public:
 	* @author Hj. Malthaner
 	* prissi: default -> do nothing
 	*/
-	virtual bool infowin_event(const event_t *) { return true; }
+	virtual bool infowin_event(const event_t *) { return false; }
 
 	/**
 	* Zeichnet die Komponente

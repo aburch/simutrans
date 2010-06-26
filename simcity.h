@@ -20,9 +20,10 @@
 #include "vehicle/simverkehr.h"
 #include "tpl/sparse_tpl.h"
 
+#include <string>
+
 class karte_t;
 class spieler_t;
-class cstring_t;
 class fabrik_t;
 
 class rule_t;
@@ -133,11 +134,11 @@ public:
 	 * Reads city configuration data
 	 * @author Hj. Malthaner
 	 */
-	static bool cityrules_init(cstring_t objpathname);
-	static void privatecar_init(cstring_t objfilename);
+	static bool cityrules_init(const std::string &objpathname);
+	static void privatecar_init(const std::string &objfilename);
 	sint16 get_private_car_ownership(sint32 monthyear);
 	float get_electricity_consumption(sint32 monthyear) const;
-	static void electricity_consumption_init(cstring_t objfilename);
+	static void electricity_consumption_init(const std::string &objfilename);
 
 	static uint32 get_industry_increase();
 	static void set_industry_increase(uint32 ind_increase);

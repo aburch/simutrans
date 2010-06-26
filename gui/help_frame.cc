@@ -6,6 +6,7 @@
  */
 
 #include <stdio.h>
+#include <string>
 
 #include "../simmem.h"
 #include "../simwin.h"
@@ -13,7 +14,6 @@
 #include "../simworld.h"
 
 #include "../utils/cbuffer_t.h"
-#include "../utils/cstring_t.h"
 #include "../utils/simstring.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
@@ -72,7 +72,7 @@ help_frame_t::help_frame_t() :
 }
 
 
-help_frame_t::help_frame_t(cstring_t filename) :
+help_frame_t::help_frame_t(const std::string &filename) :
 	gui_frame_t("Help"),
 	scrolly(&flow)
 {
@@ -113,19 +113,19 @@ help_frame_t::help_frame_t(cstring_t filename) :
 		set_text(buf);
 	}
 	else {
-		cstring_t file_prefix("text/");
-		cstring_t fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-		chdir( umgebung_t::program_dir );
+ 		std::string file_prefix("text/");
+ 		std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
+  		chdir( umgebung_t::program_dir );
 
-		FILE * file = fopen(fullname, "rb");
-		if(!file) {
-			//Check for the 'base' language(ie en from en_gb)
-			file = fopen(file_prefix + translator::get_lang()->iso_base + "/" + filename, "rb");
-	  }
-		if(!file) {
-			// Hajo: check fallback english
-			file = fopen(file_prefix+"/en/"+filename,"rb");
-		}
+ 		FILE * file = fopen(fullname.c_str(), "rb");
+  		if(!file) {
+  			//Check for the 'base' language(ie en from en_gb)
+ 			file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
+  		}
+  		if(!file) {
+  			// Hajo: check fallback english
+ 			file = fopen((file_prefix+"/en/"+filename).c_str(), "rb");
+  		}
 		// go back to load/save dir
 		chdir( umgebung_t::user_dir );
 

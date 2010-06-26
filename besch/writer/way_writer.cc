@@ -1,5 +1,4 @@
 #include <cmath>
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"
@@ -10,6 +9,7 @@
 #include "get_waytype.h"
 #include "way_writer.h"
 
+using std::string;
 
 /**
  * Write a waytype description node
@@ -111,24 +111,24 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint8(outfp, permissive_way_constraints,	26);
 	node.write_uint8(outfp, prohibitive_way_constraints,27);
 
-	slist_tpl<cstring_t> keys;
+	slist_tpl<string> keys;
 	char buf[40];
 	sprintf(buf, "image[%s][0]", ribi_codes[0]);
-	cstring_t str = obj.get(buf);
-	if (strlen(str) == 0) {
+	string str = obj.get(buf);
+	if (str.size() == 0) {
 		node.write_data_at(outfp, &number_seasons, 25, 1);
 		write_head(outfp, node, obj);
 
 		sprintf(buf, "image[%s]", ribi_codes[0]);
-		cstring_t str = obj.get(buf);
-		if(strlen(str) > 0) {
+		string str = obj.get(buf);
+		if(str.size() > 0) {
 			// way images defined without seasons
 			const uint8 ribinr = *(obj.get("image[new2][0]"))==0 ? 16 : 26;
 			for (ribi = 0; ribi < ribinr; ribi++) {
 				char buf[40];
 
 				sprintf(buf, "image[%s]", ribi_codes[ribi]);
-				cstring_t str = obj.get(buf);
+				string str = obj.get(buf);
 				keys.append(str);
 			}
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
@@ -138,7 +138,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 				char buf[40];
 
 				sprintf(buf, "imageup[%d]", hang);
-				cstring_t str = obj.get(buf);
+				string str = obj.get(buf);
 				keys.append(str);
 			}
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
@@ -148,17 +148,17 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 				char buf[40];
 
 				sprintf(buf, "diagonal[%s]", ribi_codes[ribi]);
-				cstring_t str = obj.get(buf);
+				string str = obj.get(buf);
 				keys.append(str);
 			}
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 			keys.clear();
 
 
-			slist_tpl<cstring_t> cursorkeys;
+			slist_tpl<string> cursorkeys;
 
-			cursorkeys.append(cstring_t(obj.get("cursor")));
-			cursorkeys.append(cstring_t(obj.get("icon")));
+			cursorkeys.append(string(obj.get("cursor")));
+			cursorkeys.append(string(obj.get("icon")));
 
 			cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 
@@ -170,8 +170,8 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	} else {
 		while(number_seasons < 2) {
 			sprintf(buf, "image[%s][%d]", ribi_codes[0], number_seasons+1);
-			cstring_t str = obj.get(buf);
-			if(str.len() > 0) {
+			string str = obj.get(buf);
+			if(str.size() > 0) {
 				number_seasons++;
 			} else {
 				break;
@@ -188,7 +188,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 				char buf[40];
 
 				sprintf(buf, "image[%s][%d]", ribi_codes[ribi], season);
-				cstring_t str = obj.get(buf);
+				string str = obj.get(buf);
 				keys.append(str);
 			}
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
@@ -198,7 +198,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 				char buf[40];
 
 				sprintf(buf, "imageup[%d][%d]", hang, season);
-				cstring_t str = obj.get(buf);
+				string str = obj.get(buf);
 				keys.append(str);
 			}
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
@@ -208,17 +208,17 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 				char buf[40];
 
 				sprintf(buf, "diagonal[%s][%d]", ribi_codes[ribi], season);
-				cstring_t str = obj.get(buf);
+				string str = obj.get(buf);
 				keys.append(str);
 			}
 			imagelist_writer_t::instance()->write_obj(outfp, node, keys);
 
 			keys.clear();
 			if(season == 0) {
-				slist_tpl<cstring_t> cursorkeys;
+				slist_tpl<string> cursorkeys;
 
-				cursorkeys.append(cstring_t(obj.get("cursor")));
-				cursorkeys.append(cstring_t(obj.get("icon")));
+				cursorkeys.append(string(obj.get("cursor")));
+				cursorkeys.append(string(obj.get("icon")));
 
 				cursorskin_writer_t::instance()->write_obj(outfp, node, obj, cursorkeys);
 			}

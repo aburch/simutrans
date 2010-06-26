@@ -1,7 +1,6 @@
 #include <stdio.h>
 
 #include "../../utils/simstring.h"
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../sound_besch.h"
 #include "obj_node.h"
@@ -13,17 +12,18 @@
 #include "crossing_writer.h"
 #include "xref_writer.h"
 
+using std::string;
 
 void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int total_len = 21;
 
 	// prissi: must be done here, since it may affect the len of the header!
-	cstring_t sound_str = ltrim( obj.get("sound") );
+	string sound_str = ltrim( obj.get("sound") );
 	sint8 sound_id=NO_SOUND;
-	if (sound_str.len() > 0) {
+	if (sound_str.size() > 0) {
 		// ok, there is some sound
-		sound_id = atoi(sound_str);
+		sound_id = atoi(sound_str.c_str());
 		if (sound_id == 0 && sound_str[0] == '0') {
 			sound_id = 0;
 			sound_str = "";
@@ -31,9 +31,9 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 			// old style id
 			sound_str = "";
 		}
-		if (sound_str.len() > 0) {
+		if (sound_str.size() > 0) {
 			sound_id = LOAD_SOUND;
-			total_len += sound_str.len() + 1;
+			total_len += sound_str.size() + 1;
 		}
 	}
 
@@ -80,11 +80,11 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	node.write_uint8(fp, sound_id, 16);
 	uint8 index = 17;
 
-	if(sound_str.len() > 0) {
-		sint8 sv8 = sound_str.len();
+	if(sound_str.size() > 0) {
+		sint8 sv8 = sound_str.size();
 		node.write_data_at(fp, &sv8, 17, sizeof(sint8));
-		node.write_data_at(fp, sound_str, 18, sound_str.len());
-		index += 1 + sound_str.len();
+		node.write_data_at(fp, sound_str.c_str(), 18, sound_str.size());
+		index += 1 + sound_str.size();
 	}
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -99,16 +99,16 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 	index += 2;
 
 	// now the image stuff
-	slist_tpl<cstring_t> openkeys_ns;
-	slist_tpl<cstring_t> openkeys_ew;
-	slist_tpl<cstring_t> front_openkeys_ns;
-	slist_tpl<cstring_t> front_openkeys_ew;
-	slist_tpl<cstring_t> closekeys_ns;
-	slist_tpl<cstring_t> closekeys_ew;
-	slist_tpl<cstring_t> front_closekeys_ns;
-	slist_tpl<cstring_t> front_closekeys_ew;
+	slist_tpl<string> openkeys_ns;
+	slist_tpl<string> openkeys_ew;
+	slist_tpl<string> front_openkeys_ns;
+	slist_tpl<string> front_openkeys_ew;
+	slist_tpl<string> closekeys_ns;
+	slist_tpl<string> closekeys_ew;
+	slist_tpl<string> front_closekeys_ns;
+	slist_tpl<string> front_closekeys_ew;
 
-	cstring_t str;
+	string str;
 
 	// open crossings ...
 	for(int i=0;  1;  i++  ) {
@@ -116,7 +116,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "openimage[ns][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction
@@ -127,7 +127,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "openimage[ew][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction
@@ -147,7 +147,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "front_openimage[ns][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction
@@ -158,7 +158,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "front_openimage[ew][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction
@@ -186,7 +186,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "closedimage[ns][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction
@@ -197,7 +197,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "closedimage[ew][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction
@@ -224,7 +224,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "front_closedimage[ns][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction
@@ -235,7 +235,7 @@ void crossing_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& ob
 
 		sprintf(buf, "front_closedimage[ew][%i]", i);
 		str = obj.get(buf);
-		if (str.len() <= 0) {
+		if (str.size() <= 0) {
 			break;
 		}
 		// ok, we have this direction

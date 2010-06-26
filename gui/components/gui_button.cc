@@ -19,7 +19,6 @@
 
 #include "../../simskin.h"
 #include "../../besch/skin_besch.h"
-#include "../../utils/cstring_t.h"
 
 #include "../../ifc/gui_fenster.h"
 
@@ -27,33 +26,61 @@
 #define AUTOMATIC_MASK (255)
 static const char *empty="";
 
-/*
- * Hajo: image numbers of button skins
- */
-static image_id square_button_pushed = IMG_LEER;
-static image_id square_button_normal = IMG_LEER;
-static image_id arrow_left_pushed = IMG_LEER;
-static image_id arrow_left_normal = IMG_LEER;
-static image_id arrow_right_pushed = IMG_LEER;
-static image_id arrow_right_normal = IMG_LEER;
-static image_id arrow_up_pushed = IMG_LEER;
-static image_id arrow_up_normal = IMG_LEER;
-static image_id arrow_down_pushed = IMG_LEER;
-static image_id arrow_down_normal = IMG_LEER;
+// default button codes
+#define SQUARE_BUTTON 0
+#define ARROW_LEFT 1
+#define ARROW_RIGHT 2
+#define ARROW_UP 3
+#define ARROW_DOWN 4
+#define SCROLL_BAR 5
 
-// these are optional: buttons made out of graphics
-static image_id b_cap_left = IMG_LEER;
-static image_id b_body = IMG_LEER;
-static image_id b_cap_right = IMG_LEER;
-
-static image_id b_cap_left_p = IMG_LEER;
-static image_id b_body_p = IMG_LEER;
-static image_id b_cap_right_p = IMG_LEER;
-
-
+// colors
 #define RB_LEFT_BUTTON (201)
 #define RB_BODY_BUTTON (202)
 #define RB_RIGHT_BUTTON (203)
+
+
+/*
+ * Hajo: image numbers of button skins
+ */
+image_id button_t::square_button_pushed = IMG_LEER;
+image_id button_t::square_button_normal = IMG_LEER;
+image_id button_t::arrow_left_pushed = IMG_LEER;
+image_id button_t::arrow_left_normal = IMG_LEER;
+image_id button_t::arrow_right_pushed = IMG_LEER;
+image_id button_t::arrow_right_normal = IMG_LEER;
+image_id button_t::arrow_up_pushed = IMG_LEER;
+image_id button_t::arrow_up_normal = IMG_LEER;
+image_id button_t::arrow_down_pushed = IMG_LEER;
+image_id button_t::arrow_down_normal = IMG_LEER;
+
+// these are optional: buttons made out of graphics
+image_id button_t::b_cap_left = IMG_LEER;
+image_id button_t::b_body = IMG_LEER;
+image_id button_t::b_cap_right = IMG_LEER;
+
+image_id button_t::b_cap_left_p = IMG_LEER;
+image_id button_t::b_body_p = IMG_LEER;
+image_id button_t::b_cap_right_p = IMG_LEER;
+
+// these are optional: scrollbar ids
+image_id button_t::scrollbar_left = IMG_LEER;
+image_id button_t::scrollbar_right = IMG_LEER;
+image_id button_t::scrollbar_middle = IMG_LEER;
+
+image_id button_t::scrollbar_slider_left = IMG_LEER;
+image_id button_t::scrollbar_slider_right = IMG_LEER;
+image_id button_t::scrollbar_slider_middle = IMG_LEER;
+
+// these are optional: ... and scrollbars vertical
+image_id button_t::scrollbar_top = IMG_LEER;
+image_id button_t::scrollbar_bottom = IMG_LEER;
+image_id button_t::scrollbar_center = IMG_LEER;
+
+image_id button_t::scrollbar_slider_top = IMG_LEER;
+image_id button_t::scrollbar_slider_bottom = IMG_LEER;
+image_id button_t::scrollbar_slider_center = IMG_LEER;
+
 
 /**
  * Lazy button image number init
@@ -63,28 +90,45 @@ void button_t::init_button_images()
 {
 	if(skinverwaltung_t::window_skin!=NULL) {
 
-		square_button_normal = skinverwaltung_t::window_skin->get_bild(6)->get_nummer();
-		square_button_pushed = skinverwaltung_t::window_skin->get_bild(7)->get_nummer();
+		square_button_normal = skinverwaltung_t::window_skin->get_bild_nr(6);
+		square_button_pushed = skinverwaltung_t::window_skin->get_bild_nr(7);
 
-		arrow_left_normal = skinverwaltung_t::window_skin->get_bild(8)->get_nummer();
-		arrow_left_pushed = skinverwaltung_t::window_skin->get_bild(9)->get_nummer();
+		arrow_left_normal = skinverwaltung_t::window_skin->get_bild_nr(8);
+		arrow_left_pushed = skinverwaltung_t::window_skin->get_bild_nr(9);
 
-		arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
-		arrow_right_pushed = skinverwaltung_t::window_skin->get_bild(11)->get_nummer();
+		arrow_right_normal = skinverwaltung_t::window_skin->get_bild_nr(10);
+		arrow_right_pushed = skinverwaltung_t::window_skin->get_bild_nr(11);
 
-		b_cap_left = skinverwaltung_t::window_skin->get_bild(12)->get_nummer();
-		b_cap_right = skinverwaltung_t::window_skin->get_bild(13)->get_nummer();
-		b_body = skinverwaltung_t::window_skin->get_bild(14)->get_nummer();
+		b_cap_left = skinverwaltung_t::window_skin->get_bild_nr(12);
+		b_cap_right = skinverwaltung_t::window_skin->get_bild_nr(13);
+		b_body = skinverwaltung_t::window_skin->get_bild_nr(14);
 
-		b_cap_left_p = skinverwaltung_t::window_skin->get_bild(15)->get_nummer();
-		b_cap_right_p = skinverwaltung_t::window_skin->get_bild(16)->get_nummer();
-		b_body_p = skinverwaltung_t::window_skin->get_bild(17)->get_nummer();
+		b_cap_left_p = skinverwaltung_t::window_skin->get_bild_nr(15);
+		b_cap_right_p = skinverwaltung_t::window_skin->get_bild_nr(16);
+		b_body_p = skinverwaltung_t::window_skin->get_bild_nr(17);
 
-		arrow_up_normal = skinverwaltung_t::window_skin->get_bild(18)->get_nummer();
-		arrow_up_pushed = skinverwaltung_t::window_skin->get_bild(19)->get_nummer();
+		arrow_up_normal = skinverwaltung_t::window_skin->get_bild_nr(18);
+		arrow_up_pushed = skinverwaltung_t::window_skin->get_bild_nr(19);
 
-		arrow_down_normal = skinverwaltung_t::window_skin->get_bild(20)->get_nummer();
-		arrow_down_pushed = skinverwaltung_t::window_skin->get_bild(21)->get_nummer();
+		arrow_down_normal = skinverwaltung_t::window_skin->get_bild_nr(20);
+		arrow_down_pushed = skinverwaltung_t::window_skin->get_bild_nr(21);
+
+		// scrollbars
+		scrollbar_left = skinverwaltung_t::window_skin->get_bild_nr(24);
+		scrollbar_right = skinverwaltung_t::window_skin->get_bild_nr(25);
+		scrollbar_middle = skinverwaltung_t::window_skin->get_bild_nr(26);
+
+		scrollbar_slider_left = skinverwaltung_t::window_skin->get_bild_nr(27);
+		scrollbar_slider_right = skinverwaltung_t::window_skin->get_bild_nr(28);
+		scrollbar_slider_middle = skinverwaltung_t::window_skin->get_bild_nr(29);
+
+		scrollbar_top = skinverwaltung_t::window_skin->get_bild_nr(30);
+		scrollbar_bottom = skinverwaltung_t::window_skin->get_bild_nr(31);
+		scrollbar_center = skinverwaltung_t::window_skin->get_bild_nr(32);
+
+		scrollbar_slider_top = skinverwaltung_t::window_skin->get_bild_nr(33);
+		scrollbar_slider_bottom = skinverwaltung_t::window_skin->get_bild_nr(34);
+		scrollbar_slider_center = skinverwaltung_t::window_skin->get_bild_nr(35);
 	}
 }
 
@@ -93,7 +137,7 @@ void button_t::init_button_images()
  * Displays the different button types
  * @author Hj. Malthaner
  */
-static void display_button_image(sint16 x, sint16 y, int number, bool pushed)
+void button_t::display_button_image(sint16 x, sint16 y, int number, bool pushed) const
 {
 	image_id button = IMG_LEER;
 
@@ -130,7 +174,7 @@ static void display_button_image(sint16 x, sint16 y, int number, bool pushed)
 
 
 // draw a rectangular button
-static void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed)
+void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pressed)
 {
 	if(b_cap_left!=IMG_LEER  &&  h==14) {
 		const sint16 lw = skinverwaltung_t::window_skin->get_bild(12)->get_pic()->w;
@@ -138,7 +182,7 @@ static void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool presse
 		// first the center (may need extra clipping)
 		if(w-lw-rw<64) {
 			struct clip_dimension cl=display_get_clip_wh();
-			display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw-cl.x,cl.w)), cl.h );
+			display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw,cl.xx)-cl.x), cl.h );
 			display_button_image(x+lw, y, RB_BODY_BUTTON, pressed);
 			display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
 		}
@@ -182,6 +226,57 @@ static void draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool presse
 }
 
 
+
+void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horizontal, bool slider)
+{
+	if(  scrollbar_left!=IMG_LEER  ) {
+		if(  horizontal  ) {
+			const int image_offset = 24 + (slider ? 3 : 0);
+			const sint16 lw = skinverwaltung_t::window_skin->get_bild(image_offset)->get_pic()->w;
+			const sint16 rw = skinverwaltung_t::window_skin->get_bild(image_offset+1)->get_pic()->w;
+			// first the center (may need extra clipping)
+			if(w-lw-rw<64) {
+				struct clip_dimension cl=display_get_clip_wh();
+				display_set_clip_wh(cl.x, cl.y, max(0,min(x+w-rw,cl.xx)-cl.x), cl.h );
+				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+lw, y, 0, false, true);
+				display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
+			}
+			else {
+				// wider buttons
+				for( sint16 j=0;  j+64<w-rw-lw;  j+=64) {
+					display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+j+lw, y, 0, false, true);
+				}
+				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+w-rw-64, y, 0, false, true);
+			}
+			// now the begin and end ...
+			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
+			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x+w-rw, y, 0, false, true);
+		}
+		else {
+			// vertical bar ...
+			const int image_offset = 30 + (slider ? 3 : 0);
+			const sint16 lh = skinverwaltung_t::window_skin->get_bild(image_offset)->get_pic()->h;
+			const sint16 rh = skinverwaltung_t::window_skin->get_bild(image_offset+1)->get_pic()->h;
+			// first the center (may need extra clipping)
+			if(h-lh-rh<64) {
+				struct clip_dimension cl=display_get_clip_wh();
+				display_set_clip_wh(cl.x, cl.y, cl.xx, max(0,min(y+h-rh,cl.yy)-cl.y) );
+				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+lh, 0, false, true);
+				display_set_clip_wh(cl.x, cl.y, cl.w, cl.h );
+			}
+			else {
+				// wider buttons
+				for( sint16 j=0;  j+64<h-rh-lh;  j+=64) {
+					display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+lh+j, 0, false, true);
+				}
+				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x, y+h-rh-64, 0, false, true);
+			}
+			// now the begin and end ...
+			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
+			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x, y+h-rh, 0, false, true);
+		}
+	}
+}
 
 button_t::button_t()
 {
@@ -437,40 +532,44 @@ void button_t::zeichnen(koord offset)
 			display_button_image(bx, by, ARROW_DOWN, pressed);
 			break;
 
-		case scrollbar:
+		case scrollbar_horizontal:
+		case scrollbar_vertical:
 			// new 3d-look scrollbar knob
-			mark_rect_dirty_wc(bx, by, bx+bw-1, by+bh-1);
-#if 1
-			// use own 3D like routines
-			if (pressed) {
-				display_fillbox_wh_clip(bx+2, by+2, bw-3, bh-3, MN_GREY1, false);
-				display_vline_wh_clip  (bx+2, by+3, 2,   MN_GREY0, false);
-				display_fillbox_wh_clip(bx+2, by+2, 3,1, MN_GREY0, false);
-				display_vline_wh_clip  (bx+1, by+2, bh-3,   COL_BLACK, false);
-				display_fillbox_wh_clip(bx+1, by+1, bw-2,1, COL_BLACK, false);
-				display_vline_wh_clip  (bx+bw-2, by+3, bh-5,   MN_GREY2, false);
-				display_fillbox_wh_clip(bx+3, by+bh-2, bw-4,1, MN_GREY2, false);
-				display_vline_wh_clip  (bx, by+1, bh-2, MN_GREY0, false);
-				display_fillbox_wh_clip(bx, by, bw-1,1, MN_GREY0, false);
-				display_vline_wh_clip  (bx+bw-1, by, bh,   COL_WHITE, false);
-				display_fillbox_wh_clip(bx, by+bh-1, bw,1, COL_WHITE, false);
+			// pressed: background
+			if(  scrollbar_left==IMG_LEER  ) {
+				mark_rect_dirty_wc(bx, by, bx+bw-1, by+bh-1);
+				// use own 3D like routines
+				if (pressed) {
+					// slider is pressed button ...
+					display_fillbox_wh_clip(bx+2, by+2, bw-3, bh-3, MN_GREY1, false);
+					display_vline_wh_clip  (bx+2, by+3, 2,   MN_GREY0, false);
+					display_fillbox_wh_clip(bx+2, by+2, 3,1, MN_GREY0, false);
+					display_vline_wh_clip  (bx+1, by+2, bh-3,   COL_BLACK, false);
+					display_fillbox_wh_clip(bx+1, by+1, bw-2,1, COL_BLACK, false);
+					display_vline_wh_clip  (bx+bw-2, by+3, bh-5,   MN_GREY2, false);
+					display_fillbox_wh_clip(bx+3, by+bh-2, bw-4,1, MN_GREY2, false);
+					display_vline_wh_clip  (bx, by+1, bh-2, MN_GREY0, false);
+					display_fillbox_wh_clip(bx, by, bw-1,1, MN_GREY0, false);
+					display_vline_wh_clip  (bx+bw-1, by, bh,   COL_WHITE, false);
+					display_fillbox_wh_clip(bx, by+bh-1, bw,1, COL_WHITE, false);
+				}
+				else {
+					display_fillbox_wh_clip(bx+1, by+1, bw-3, bh-3, MN_GREY3, false);
+					display_vline_wh_clip  (bx+bw-3, by+bh-5, 2,   MN_GREY1, false);
+					display_fillbox_wh_clip(bx+bw-5, by+bh-3, 3,1, MN_GREY1, false);
+					display_vline_wh_clip  (bx+1, by+2, bh-5,   MN_GREY4, false);
+					display_fillbox_wh_clip(bx+1, by+1, bw-4,1, MN_GREY4, false);
+					display_vline_wh_clip  (bx+bw-2, by+1, bh-3,   MN_GREY0, false);
+					display_fillbox_wh_clip(bx+1, by+bh-2, bw-2,1, MN_GREY0, false);
+					display_vline_wh_clip  (bx, by+1, bh-2, COL_WHITE, false);
+					display_fillbox_wh_clip(bx, by, bw-1,1, COL_WHITE, false);
+					display_vline_wh_clip  (bx+bw-1, by, bh,   COL_BLACK, false);
+					display_fillbox_wh_clip(bx, by+bh-1, bw,1, COL_BLACK, false);
+				}
 			}
 			else {
-				display_fillbox_wh_clip(bx+1, by+1, bw-3, bh-3, MN_GREY3, false);
-				display_vline_wh_clip  (bx+bw-3, by+bh-5, 2,   MN_GREY1, false);
-				display_fillbox_wh_clip(bx+bw-5, by+bh-3, 3,1, MN_GREY1, false);
-				display_vline_wh_clip  (bx+1, by+2, bh-5,   MN_GREY4, false);
-				display_fillbox_wh_clip(bx+1, by+1, bw-4,1, MN_GREY4, false);
-				display_vline_wh_clip  (bx+bw-2, by+1, bh-3,   MN_GREY0, false);
-				display_fillbox_wh_clip(bx+1, by+bh-2, bw-2,1, MN_GREY0, false);
-				display_vline_wh_clip  (bx, by+1, bh-2, COL_WHITE, false);
-				display_fillbox_wh_clip(bx, by, bw-1,1, COL_WHITE, false);
-				display_vline_wh_clip  (bx+bw-1, by, bh,   COL_BLACK, false);
-				display_fillbox_wh_clip(bx, by+bh-1, bw,1, COL_BLACK, false);
+				draw_scrollbar( bx, by, bw, bh, (type&STATE_MASK)==scrollbar_horizontal, !pressed );
 			}
-#else
-			draw_roundbutton( bx, by, bw, bh, pressed );
-#endif
 		break;
 	}
 
@@ -497,7 +596,8 @@ gui_komponente_t *button_t::get_focus() const
 		case posbutton:
 		case arrowup:
 		case arrowdown:
-		case scrollbar:
+		case scrollbar_horizontal:
+		case scrollbar_vertical:
 			break;
 	}
 	return NULL;

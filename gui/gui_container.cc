@@ -156,11 +156,10 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			event_t ev2 = *ev;
 			translate_event(&ev2, -komp->get_pos().x, -komp->get_pos().y);
 
-			// Hajo: infowin_event() can delete the component
-			// -> thus we need to ask first
-			gui_komponente_t *focus = komp->get_focus();
-
+			// CAUTION : call to infowin_event() should not delete the component itself!
 			swallowed = komp->infowin_event(&ev2);
+
+			gui_komponente_t *focus = komp->get_focus();
 
 			// set focus for komponente, if komponente allows focus
 			if(  focus  &&  IS_LEFTRELEASE(ev)  &&  komp->getroffen(ev->cx, ev->cy)  ) {

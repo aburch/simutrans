@@ -1,6 +1,5 @@
 #include <cmath>
 #include "../../utils/simstring.h"
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../vehikel_besch.h"
 #include "../sound_besch.h"
@@ -14,6 +13,7 @@
 #include "get_waytype.h"
 #include "vehicle_writer.h"
 
+using std::string;
 
 /**
  * Calculate numeric engine type from engine type string
@@ -78,12 +78,12 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 	int total_len = 62;
 
-	// prissi: must be done here, since it may affect the length of the header!
-	cstring_t sound_str = ltrim( obj.get("sound") );
+	// prissi: must be done here, since it may affect the len of the header!
+	string sound_str = ltrim( obj.get("sound") );
 	sint8 sound_id=NO_SOUND;
-	if (sound_str.len() > 0) {
+	if (sound_str.size() > 0) {
 		// ok, there is some sound
-		sound_id = atoi(sound_str);
+		sound_id = atoi(sound_str.c_str());
 		if (sound_id == 0 && sound_str[0] == '0') {
 			sound_id = 0;
 			sound_str = "";
@@ -91,9 +91,9 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			// old style id
 			sound_str = "";
 		}
-		if (sound_str.len() > 0) {
+		if (sound_str.size() > 0) {
 			sound_id = LOAD_SOUND;
-			total_len += sound_str.len() + 1;
+			total_len += sound_str.size() + 1;
 		}
 	}
 
@@ -193,10 +193,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	static const char* const dir_codes[] = {
 		"s", "w", "sw", "se", "n", "e", "ne", "nw"
 	};
-	slist_tpl<cstring_t> emptykeys;
-	slist_tpl<slist_tpl<cstring_t> > freightkeys;
-	slist_tpl<cstring_t> freightkeys_old;
-	cstring_t str;
+	slist_tpl<string> emptykeys;
+	slist_tpl<slist_tpl<string> > freightkeys;
+	slist_tpl<string> freightkeys_old;
+	string str;
 
 	int  freight_max  = 0;
 	bool has_8_images = false;
@@ -206,7 +206,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		char buf[40];
 		sprintf(buf, "freightimage[%d][%s]", i, dir_codes[0]);
 		str = obj.get(buf);
-		if (str.len() == 0) {
+		if (str.size() == 0) {
 			freight_max = i;
 			break;
 		}
@@ -219,7 +219,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		// Hajodoc: Empty vehicle image for direction, direction in "s", "w", "sw", "se", asymmetric vehicles need also "n", "e", "ne", "nw"
 		sprintf(buf, "emptyimage[%s]", dir_codes[i]);
 		str = obj.get(buf);
-		if (str.len() > 0) {
+		if (str.size() > 0) {
 			emptykeys.append(str);
 			if (i >= 4) {
 				has_8_images = true;
@@ -234,15 +234,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			// old style definition - just [direction]
 			sprintf(buf, "freightimage[%s]", dir_codes[i]);
 			str = obj.get(buf);
-			if (str.len() > 0) {
+			if (str.size() > 0) {
 				freightkeys_old.append(str);
 			}
 		} else {
-			freightkeys.append(slist_tpl<cstring_t>());
+			freightkeys.append(slist_tpl<string>());
 			for(int freight = 0; freight < freight_max; freight++) {
 				sprintf(buf, "freightimage[%d][%s]", freight, dir_codes[i]);
 				str = obj.get(buf);
-				if (str.len() == 0) {
+				if (str.size() == 0) {
 					printf("*** FATAL ***:\nMissing freightimage[%d][%s]!\n", freight, dir_codes[i]);
 					fflush(NULL);
 					exit(0);
@@ -287,14 +287,14 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
 
 		str = obj.get(buf);
-		if (str.len() > 0) {
-			if (besch_vorgaenger == 0 && !STRICMP(str, "none")) {
+		if (str.size() > 0) {
+			if (besch_vorgaenger == 0 && !STRICMP(str.c_str(), "none")) {
 				str = "";
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
+			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
 			besch_vorgaenger++;
 		}
-	} while (str.len() > 0);
+	} while (str.size() > 0);
 
 	uint8 besch_nachfolger = 0;
 	bool can_be_at_rear = true;
@@ -306,13 +306,14 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
 
 		str = obj.get(buf);
-		if (str.len() > 0) 
+
+		if (str.size() > 0) 
 		{
-			if (besch_nachfolger == 0 && !STRICMP(str, "none")) 
+			if (besch_nachfolger == 0 && !STRICMP(str.c_str(), "none")) 
 			{
 				str = "";
 			}
-			if(!STRICMP(str, "any"))
+			if(!STRICMP(str.c_str(), "any"))
 			{
 				// "Any" should not be specified with anything else.
 				can_be_at_rear = false;
@@ -320,11 +321,11 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 			}
 			else
 			{
-				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
+				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
 				besch_nachfolger++;
 			}
 		}
-	} while (str.len() > 0);
+	} while (str.size() > 0);
 
 	// Upgrades: these are the vehicle types to which this vehicle
 	// can be upgraded. "None" means that it cannot be upgraded. 
@@ -334,15 +335,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		char buf[40];
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
-		if (str.len() > 0) {
-			if (upgrades == 0 && !STRICMP(str, "none")) 
+		if (str.size() > 0) {
+			if (upgrades == 0 && !STRICMP(str.c_str(), "none")) 
 			{
 				str = "";
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str, false);
+			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
 			upgrades++;
 		}
-	} while (str.len() > 0);
+	} while (str.size() > 0);
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
@@ -352,17 +353,17 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		str = obj.get(buf);
 		if (i == freight_max) {
 			// check for supoerflous definitions
-			if (str.len() > 0) {
+			if (str.size() > 0) {
 				printf("WARNING: More freightimagetype (%i) than freight_images (%i)!\n", i, freight_max);
 				fflush(NULL);
 			}
 			break;
 		}
-		if (str.len() == 0) {
+		if (str.size() == 0) {
 			printf("*** FATAL ***:\nMissing freightimagetype[%i] for %i freight_images!\n", i, freight_max + 1);
 			exit(0);
 		}
-		xref_writer_t::instance()->write_obj(fp, node, obj_good, str, false);
+		xref_writer_t::instance()->write_obj(fp, node, obj_good, str.c_str(), false);
 	}
 
 	// if no index defined then add default as vehicle good
@@ -560,10 +561,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	uint8 years_before_maintenance_max_reached = obj.get_int("years_before_maintenance_max_reached", 0);
 	node.write_uint8(fp, years_before_maintenance_max_reached, 61);
 
-	sint8 sound_str_len = sound_str.len();
+	sint8 sound_str_len = sound_str.size();
 	if (sound_str_len > 0) {
 		node.write_sint8  (fp, sound_str_len, 62);
-		node.write_data_at(fp, sound_str,     63, sound_str_len);
+		node.write_data_at(fp, sound_str.c_str(),     63, sound_str_len);
 	}
 
 	node.write(fp);

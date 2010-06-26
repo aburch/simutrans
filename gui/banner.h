@@ -25,7 +25,9 @@ private:
 	sint16 xoff, yoff;
 
 public:
-		banner_t();
+	banner_t();
+
+	bool has_sticky() const { return false; }
 
 	/**
 	* Fenstertitel

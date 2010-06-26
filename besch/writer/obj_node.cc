@@ -1,4 +1,3 @@
-#include "../../utils/cstring_t.h"
 #include "obj_pak_exception.h"
 #include "obj_writer.h"
 #include "obj_node.h"

@@ -48,6 +48,8 @@ private:
 	static uint8 scale_visible;
 	static uint8 directory_visible;
 
+	static bool is_cursor_hidden;
+
 	  /**
 	   * We need to keep track of trag/click events
 	   * @author Hj. Malthaner

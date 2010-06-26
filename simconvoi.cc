@@ -2963,7 +2963,7 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		ALLOCA(uint32, max_loaded_waren, n);
 		MEMZERON(max_loaded_waren, n);
 
-		for (size_t i = 0; i != anz_vehikel; ++i) {
+		for(  uint32 i = 0;  i != anz_vehikel;  ++i  ) {
 			const vehikel_t* v = fahr[i];
 
 			// first add to capacity indicator

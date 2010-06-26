@@ -97,7 +97,7 @@ public:
 	// static functions to handle trees
 
 	// reads configuration data
-	static bool forestrules_init(cstring_t objpathname);
+	static bool forestrules_init(const std::string &objpathname);
 
 	// distributes trees on a map
 	static void distribute_trees(karte_t *welt, int dichte);

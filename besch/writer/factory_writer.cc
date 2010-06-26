@@ -1,3 +1,4 @@
+#include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "../skin_besch.h"
@@ -6,6 +7,8 @@
 #include "building_writer.h"
 #include "factory_writer.h"
 #include "xref_writer.h"
+
+using std::string;
 
 
 void factory_field_class_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const char* field_name, int snow_image, int production, int capacity, int weight)
@@ -160,7 +163,7 @@ void factory_upgrade_writer_t::write_obj(FILE* outfp, obj_node_t& parent, const 
 void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	fabrik_besch_t besch;
-	cstring_t str;
+	string str;
 
 	const char* placing = obj.get("location");
 
@@ -246,13 +249,12 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		char buf[40];
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
-		if (str.len() > 0) 
+		if (str.size() > 0) 
 		{
-			//factory_upgrade_writer_t::instance()->write_obj(fp, node, str);
-			xref_writer_t::instance()->write_obj(fp, node, obj_factory, str, false);
+			xref_writer_t::instance()->write_obj(fp, node, obj_factory, str.c_str(), false);
 			upgrades++;
 		}
-	} while (str.len() > 0);
+	} while (str.size() > 0);
 
 	// new version with pax_level
 	uint16 version = 0x8002;
@@ -286,7 +288,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 }
 
 
-cstring_t factory_writer_t::get_node_name(FILE* fp) const
+std::string factory_writer_t::get_node_name(FILE* fp) const
 {
 	obj_node_info_t node; // Gebäude - wehe nicht
 

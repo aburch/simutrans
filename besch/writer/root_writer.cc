@@ -1,6 +1,3 @@
-#include <stdlib.h>
-
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../../utils/searchfolder.h"
 #include "../obj_besch.h"
@@ -9,8 +6,9 @@
 #include "root_writer.h"
 #include <stdlib.h>
 
+using std::string;
 
-cstring_t root_writer_t::inpath;
+string root_writer_t::inpath;
 
 void root_writer_t::write_header(FILE* fp)
 {
@@ -33,13 +31,13 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	FILE* outfp = NULL;
 	obj_node_t* node = NULL;
 	bool separate = false;
-	cstring_t file = find.complete(filename, "pak");
+	string file = find.complete(filename, "pak");
 
-	if (file.right(1) == "/") {
+	if (file[file.size()-1] == '/') {
 		printf("writing invidual files to %s\n", filename);
 		separate = true;
 	} else {
-		outfp = fopen(file, "wb");
+		outfp = fopen(file.c_str(), "wb");
 
 		if (!outfp) {
 			printf("ERROR: cannot create destination file %s\n", filename);
@@ -64,26 +62,26 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 				printf("   reading file %s\n", *i);
 
 				inpath = arg;
-				int n = inpath.find_back('/');
+				int n = inpath.rfind('/');
 
 				if(n) {
-					inpath = inpath.substr(0, n + 1);
+					inpath = inpath.substr(n + 1);
 				} else {
 					inpath = "";
 				}
 
 				while(infile.read(obj)) {
 					if(separate) {
-						cstring_t name(filename);
+						string name(filename);
 
 						name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
 
-						outfp = fopen(name, "wb");
+						outfp = fopen(name.c_str(), "wb");
 						if (!outfp) {
 							printf("ERROR: cannot create destination file %s\n", filename);
 							exit(3);
 						}
-						printf("   writing file %s\n", (const char*)name);
+						printf("   writing file %s\n", name.c_str());
 						write_header(outfp);
 
 						node = new obj_node_t(this, 0, NULL);
@@ -272,7 +270,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		outfp = fopen(name, "wb");
 	}
 	if (outfp == NULL) {
-		name = find.complete(name, "pak");
+		name = find.complete(name, "pak").c_str();
 		outfp = fopen(name, "wb");
 	}
 
@@ -330,7 +328,7 @@ void root_writer_t::uncopy(const char* name)
 	}
 	if (infp == NULL) {
 		searchfolder_t find;
-		name = find.complete(name, "pak");
+		name = find.complete(name, "pak").c_str();
 		infp = fopen(name, "rb");
 	}
 
@@ -366,8 +364,8 @@ void root_writer_t::uncopy(const char* name)
 			long start_pos=ftell(infp);
 
 			// now make a name
-			cstring_t writer = node_writer_name(infp);
-			cstring_t node_name;
+			string writer = node_writer_name(infp);
+			string node_name;
 			if(  writer=="factory"  ) {
 				// we need to take name from following building node ...
 				obj_node_info_t node;
@@ -396,21 +394,21 @@ void root_writer_t::uncopy(const char* name)
 				node_name = name_from_next_node(infp);
 			}
 			// use a clever default name, if no name there
-			if(  node_name.len()==0  ) {
+			if(  node_name.size() == 0  ) {
 				char random_name[16];
 				// we use the file position as unique name
 				sprintf( random_name, "p%li", ftell(infp) );
-				printf("  ERROR: %s has no name! (using %s) as default\n", (const char *)writer, (const char *)random_name );
+				printf("  ERROR: %s has no name! (using %s) as default\n", writer.c_str(), (const char *)random_name );
 				node_name = random_name;
 			}
-			cstring_t outfile = writer + "." + node_name + ".pak";
-			FILE* outfp = fopen(outfile, "wb");
+			string outfile = writer + "." + node_name + ".pak";
+			FILE* outfp = fopen(outfile.c_str(), "wb");
 			if (!outfp) {
-				printf("  ERROR: could not open %s for writing (aborting)\n", (const char*)outfile);
+				printf("  ERROR: could not open %s for writing (aborting)\n", outfile.c_str());
 				fclose(infp);
 				exit(3);
 			}
-			printf("  writing '%s' ... \n", (const char*)outfile);
+			printf("  writing '%s' ... \n", outfile.c_str());
 
 			// now copy the nodes
 			fseek(infp, start_pos, SEEK_SET);

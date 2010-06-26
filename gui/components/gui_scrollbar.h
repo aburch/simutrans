@@ -31,7 +31,7 @@ private:
 	 * number of pixels to scroll with arrow button press. default: 11 pixels
 	 */
 	sint32 knob_scroll_amount;
-	button_t button_def[3];
+	button_t button_def[4];
 
 	void reposition_buttons();
 	void button_press(sint32 number); // arrow button

@@ -58,6 +58,9 @@ public:
 	 */
 	const char * get_hilfe_datei() const {return "climates.txt";}
 
+	// does not work during new world dialoge
+	virtual bool has_sticky() const { return false; }
+
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
 	 * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters

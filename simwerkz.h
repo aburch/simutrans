@@ -457,7 +457,7 @@ public:
 	bool init( karte_t *welt, spieler_t * ) { return welt->get_einstellungen()->get_allow_player_change(); }
 	const char *work( karte_t *welt, spieler_t *, koord3d ) {
 		welt->get_einstellungen()->set_allow_player_change( false );
-		destroy_all_win();
+		destroy_all_win( true );
 		welt->switch_active_player( 0 );
 		welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
 		return NULL;
@@ -748,7 +748,7 @@ public:
 	wkz_quit_t() : werkzeug_t() { id = WKZ_QUIT | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Beenden"); }
 	bool init( karte_t *welt, spieler_t * ) {
-		destroy_all_win();
+		destroy_all_win( true );
 		welt->beenden( true );
 		return false;
 	}
@@ -1045,7 +1045,7 @@ public:
 	bool is_selected(karte_t *) const { return win_get_magic(magic_load_t); }
 	bool is_init_network_save() const { return true; }
 	bool init( karte_t *welt, spieler_t * ) {
-		destroy_all_win();
+		destroy_all_win( true );
 		create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
 		return false;
 	}
@@ -1219,7 +1219,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("enlarge map"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_bigger_map); }
 	bool init( karte_t *welt, spieler_t *sp ) {
-		destroy_all_win();
+		destroy_all_win( true );
 		create_win( new enlarge_map_frame_t(sp,welt), w_info, magic_bigger_map );
 		return false;
 	}

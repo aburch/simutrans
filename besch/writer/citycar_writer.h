@@ -25,7 +25,7 @@ class citycar_writer_t : public obj_writer_t {
 		citycar_writer_t() { register_writer(true); }
 
 	protected:
-		virtual cstring_t get_node_name(FILE* fp) const { return name_from_next_node(fp); }
+		virtual std::string get_node_name(FILE* fp) const { return name_from_next_node(fp); }
 
 	public:
 		virtual void write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj);

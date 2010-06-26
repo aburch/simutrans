@@ -1,5 +1,4 @@
 #include <cmath>
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../../dataobj/ribi.h"
 #include "../tunnel_besch.h"
@@ -11,6 +10,7 @@
 #include "get_waytype.h"
 #include "tunnel_writer.h"
 
+using std::string;
 
 void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
@@ -89,10 +89,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint32(fp, max_weight,					20);
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
-	cstring_t strng = obj.get("way");
-	if (strng.len() > 0) 
+	string strng = obj.get("way");
+	if (strng.length() > 0) 
 	{
-		xref_writer_t::instance()->write_obj(fp, node, obj_way, strng, true);
+		xref_writer_t::instance()->write_obj(fp, node, obj_way, strng.c_str(), true);
 		node.write_sint8(fp, 1, 26);
 	}
 	else 
@@ -105,19 +105,19 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 
 	static const char* const indices[] = { "n", "s", "e", "w" };
 	static const char* const add[] = { "", "l", "r", "m" };
-	slist_tpl<cstring_t> backkeys;
-	slist_tpl<cstring_t> frontkeys;
+	slist_tpl<string> backkeys;
+	slist_tpl<string> frontkeys;
 
-	slist_tpl<cstring_t> cursorkeys;
-	cursorkeys.append(cstring_t(obj.get("cursor")));
-	cursorkeys.append(cstring_t(obj.get("icon")));
+	slist_tpl<string> cursorkeys;
+	cursorkeys.append(string(obj.get("cursor")));
+	cursorkeys.append(string(obj.get("icon")));
 
 	char buf[40];
 
 	// Check for seasons
 	sprintf(buf, "%simage[%s][1]", "front", indices[0]);
-	cstring_t str = obj.get(buf);
-	if(  strlen(str) != 0  ) {
+	string str = obj.get(buf);
+	if(  str.size() != 0  ) {
 		// Snow images are present.
 		number_seasons = 1;
 	}
@@ -126,12 +126,12 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Check for broad portals
 	sprintf(buf, "%simage[%s%s][0]", "front", indices[0], add[1]);
 	str = obj.get(buf);
-	if(  strlen(str) == 0  ) {
+	if(  str.size() == 0  ) {
 		// Test short version
 		sprintf(buf, "%simage[%s%s]", "front", indices[0], add[1]);
 		str = obj.get(buf);
 	}
-	if(  strlen(str) != 0  ) {
+	if(  str.size() != 0  ) {
 		number_portals = 4;
 	}
 	node.write_sint8(fp, (number_portals==4), 27);
@@ -143,8 +143,8 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 			for(  uint8 j = 0;  j < number_portals;  j++  ) {
 				for(  uint8 i = 0;  i < 4;  i++  ) {
 					sprintf(buf, "%simage[%s%s][%d]", pos ? "back" : "front", indices[i], add[j], season);
-					cstring_t str = obj.get(buf);
-					if(  strlen(str) == 0  &&  season == 0 ) {
+					string str = obj.get(buf);
+					if(  str.size() == 0  &&  season == 0 ) {
 						// Test also the short version.
 						sprintf(buf, "%simage[%s%s]", pos ? "back" : "front", indices[i], add[j]);
 						str = obj.get(buf);
@@ -160,6 +160,15 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 		if(season == 0) {
 			cursorskin_writer_t::instance()->write_obj(fp, node, obj, cursorkeys);
 		}
+	}
+
+	str = obj.get("way");
+	if (str.size() > 0) {
+		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), true);
+		node.write_sint8(fp, 1, 20);
+	}
+	else {
+		node.write_sint8(fp, 0, 20);
 	}
 
 	cursorkeys.clear();

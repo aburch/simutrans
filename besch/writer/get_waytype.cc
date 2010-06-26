@@ -1,5 +1,5 @@
 #include "../../simdebug.h"
-#include "../../utils/cstring_t.h"	// for STRICMP
+#include "../../utils/simstring.h"	// for STRICMP
 #include "../../dataobj/tabfile.h"
 #include "../../boden/wege/weg.h"
 

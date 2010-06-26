@@ -84,7 +84,7 @@ public:
 	 * @return den nicht uebersetzten Namen der Komponente
 	 * @author Hj. Malthaner
 	 */
-	const char * get_name() const { return name; }
+	const char *get_name() const { return name; }
 
 	/**
 	 * setzt den Namen (Fenstertitel)
@@ -131,6 +131,8 @@ public:
 	 * @date   11-May-2002
 	*/
 	koord get_client_windowsize() const {return groesse-koord(0,16); }
+
+	virtual bool has_sticky() const { return true; }
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

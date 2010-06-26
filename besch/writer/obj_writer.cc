@@ -1,5 +1,5 @@
+#include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
-#include "../../utils/cstring_t.h"
 #include "../../tpl/stringhashtable_tpl.h"
 #include "../../tpl/inthashtable_tpl.h"
 #include "obj_node.h"
@@ -7,6 +7,7 @@
 #include "text_writer.h"
 #include "xref_writer.h"
 
+using std::string;
 
 void obj_writer_t::register_writer(bool main_obj)
 {
@@ -25,15 +26,15 @@ void obj_writer_t::register_writer(bool main_obj)
 
 void obj_writer_t::write(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
-	cstring_t type = obj.get("obj");
-	cstring_t name = obj.get("name");
+	string type = obj.get("obj");
+	string name = obj.get("name");
 
-	obj_writer_t *writer = writer_by_name->get(type);
+	obj_writer_t *writer = writer_by_name->get(type.c_str());
 	if (!writer) {
-		printf("skipping unknown %s object %s\n", (const char*)type, (const char*)name);
+		printf("skipping unknown %s object %s\n", type.c_str(), name.c_str());
 		return;
 	}
-	printf("      packing %s.%s\n", (const char*)type, (const char*)name);
+	printf("      packing %s.%s\n", type.c_str(), name.c_str());
 	writer->write_obj(fp, parent, obj);
 }
 
@@ -78,7 +79,7 @@ void obj_writer_t::list_nodes(FILE* infp)
 	obj_writer_t* writer = writer_by_type->get((obj_type)node.type);
 	if (writer) {
 		fseek(infp, node.size, SEEK_CUR);
-		printf("%-16s %s\n", writer->get_type_name(), (const char*)(writer->get_node_name(infp)));
+		printf("%-16s %s\n", writer->get_type_name(), (writer->get_node_name(infp)).c_str());
 	} else {
 		printf("(unknown %4.4s)\n", (const char*)&node.type);
 	}
@@ -92,26 +93,26 @@ void obj_writer_t::list_nodes(FILE* infp)
 void obj_writer_t::show_capabilites()
 {
 	slist_tpl<obj_writer_t*> liste;
-	cstring_t min_s = "";
+	string min_s = "";
 
 	while (true) {
 		stringhashtable_iterator_tpl<obj_writer_t *> iter(writer_by_name);
-		cstring_t max_s = "zzz";
+		string max_s = "zzz";
 		while (iter.next()) {
-			if (STRICMP(iter.get_current_key(), min_s) > 0 && STRICMP(iter.get_current_key(), max_s) < 0) {
+			if (STRICMP(iter.get_current_key(), min_s.c_str()) > 0 && STRICMP(iter.get_current_key(), max_s.c_str()) < 0) {
 				max_s = iter.get_current_key();
 			}
 		}
 		if (max_s == "zzz") break;
-		printf("   %s\n", (const char*)max_s);
+		printf("   %s\n", max_s.c_str());
 		min_s = max_s;
 	}
 }
 
 
-cstring_t obj_writer_t::name_from_next_node(FILE* fp) const
+string obj_writer_t::name_from_next_node(FILE* fp) const
 {
-	cstring_t ret;
+	string ret;
 	char* buf;
 	obj_node_info_t node;
 

@@ -82,11 +82,11 @@ static sint16 default_car_ownership_percent = 25;
 
 static vector_tpl<car_ownership_record_t> car_ownership[1];
 
-void stadt_t::privatecar_init(cstring_t objfilename)
+void stadt_t::privatecar_init(const std::string &objfilename)
 {
 	tabfile_t ownership_file;
 	// first take user data, then user global data
-	if (!ownership_file.open(objfilename+"config/privatecar.tab")) 
+	if (ownership_file.open((objfilename+"config/privatecar.tab").c_str()))
 	{
 		dbg->message("stadt_t::privatecar_init()", "Error opening config/privatecar.tab.\nWill use default value." );
 		return;
@@ -175,11 +175,11 @@ static float default_electricity_consumption = 1.0F;
 
 static vector_tpl<electric_consumption_record_t> electricity_consumption[1];
 
-void stadt_t::electricity_consumption_init(cstring_t objfilename)
+void stadt_t::electricity_consumption_init(const std::string &objfilename)
 {
 	tabfile_t consumption_file;
 	// first take user data, then user global data
-	if (!consumption_file.open(objfilename+"config/electricity.tab")) 
+	if (consumption_file.open((objfilename+"config/electricity.tab").c_str()))
 	{
 		dbg->message("stadt_t::electricity_consumption_init()", "Error opening config/electricity.tab.\nWill use default value." );
 		return;
@@ -663,13 +663,13 @@ void stadt_t::set_minimum_city_distance(uint32 s)
  * Reads city configuration data
  * @author Hj. Malthaner
  */
-bool stadt_t::cityrules_init(cstring_t objfilename)
+bool stadt_t::cityrules_init(const std::string &objfilename)
 {
 	tabfile_t cityconf;
 	// first take user data, then user global data
-	cstring_t user_dir=umgebung_t::user_dir;
-	if (!cityconf.open(user_dir+"cityrules.tab")) {
-		if (!cityconf.open(objfilename+"config/cityrules.tab")) {
+	const std::string user_dir=umgebung_t::user_dir;
+	if (!cityconf.open((user_dir+"cityrules.tab").c_str())) {
+		if (!cityconf.open((objfilename+"config/cityrules.tab").c_str())) {
 			dbg->fatal("stadt_t::init()", "Can't read cityrules.tab" );
 			return false;
 		}

@@ -9,10 +9,10 @@
 #define loadsave_h
 
 #include <stdio.h>
-//#include <bzlib.h>
 #include "../bzlib.h"
+//#include <bzlib.h>
+#include <string>
 
-#include "../utils/cstring_t.h"
 #include "../simtypes.h"
 
 /**
@@ -43,7 +43,7 @@ private:
 	int ident;		// only for XML formatting
 	char pak_extension[64];	// name of the pak folder during savetime
 
-	cstring_t filename;	// the current name ...
+	std::string filename;	// the current name ...
 
 	FILE *fp;
 	BZFILE *bzfp;

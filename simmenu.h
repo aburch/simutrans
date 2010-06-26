@@ -187,7 +187,7 @@ public:
 
 	static void init_menu();
 
-	static void read_menu(cstring_t objfilename);
+	static void read_menu(const std::string &objfilename);
 
 	werkzeug_t() : id(0xFFFFu) { cursor = icon = IMG_LEER; ok_sound = NO_SOUND; offset = Z_PLAN; default_param = NULL; command_key = 0; }
 	virtual ~werkzeug_t() {}

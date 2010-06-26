@@ -8,15 +8,9 @@
 #define TRANSLATOR_H
 
 #include <stdio.h>
+#include <string>
 #include "../tpl/stringhashtable_tpl.h"
 
-
-class cstring_t;
-
-// Bernd Gabriel: like fgets, but removes \n from end of line and for windows style line ends \r, if present.
-// Example: Where fgets() returns "Hello World\n" or "Hello World\r\n", fgets_line() returns "Hello World".
-// Notice: include both \n and \r in your buffer length calculation.
-char *fgets_line(char *buffer, int max_len, FILE *file);
 
 /**
  * Central location for loading and translating language text for the
@@ -43,7 +37,7 @@ class translator
 
 		/* Methods related to loading a language file into memory */
 		static void load_language_file(FILE* file);
-		static void load_language_iso(cstring_t& iso);
+		static void load_language_iso(const std::string &iso);
 
 	public:
 		struct lang_info {
@@ -65,7 +59,7 @@ class translator
 		 * behaviour may follow if calls to translate message or similar are
 		 * called before load has been called
 		 */
-		static bool load(const cstring_t& scenario_path);
+		static bool load(const std::string &scenario_path);
 
 		/**
 		 * Get/Set the currently selected language, based on the

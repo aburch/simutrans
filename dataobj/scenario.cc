@@ -45,10 +45,8 @@ void scenario_t::init( const char *filename, karte_t *w )
 
 	tabfile_t scenario;
 
-	char path[1024];
-	sprintf( path, "%s.tab", filename );
 	if (!scenario.open(filename)) {
-		dbg->error("scenario_t::scenario_t()", "Can't read %s", path );
+		dbg->error("scenario_t::scenario_t()", "Can't read %s", filename );
 		return;
 	}
 

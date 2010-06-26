@@ -278,14 +278,14 @@ static bool compare_werkzeug(werkzeug_t const* const a, werkzeug_t const* const 
 
 
 // read a tab file to add images, cursors and sound to the tools
-void werkzeug_t::read_menu(cstring_t objfilename)
+void werkzeug_t::read_menu(const std::string &objfilename)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
 	// only use pak sepcific menues, since otherwise images may missing
-	cstring_t user_dir=umgebung_t::user_dir;
-	if (!menuconf.open(objfilename+"config/menuconf.tab")) {
-		dbg->fatal("werkzeug_t::init_menu()", "Can't read %sconfig/menuconf.tab", (const char *)objfilename );
+	const std::string user_dir=umgebung_t::user_dir;
+	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
+		dbg->fatal("werkzeug_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
 	}
 
 	tabfileobj_t contents;

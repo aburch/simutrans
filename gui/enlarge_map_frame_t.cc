@@ -155,7 +155,7 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 		win_set_pos( this, display_get_width()+2, display_get_height()+2 );
 		intr_refresh_display( true );
 		welt->enlarge_map(sets, NULL);
-		destroy_all_win();
+		destroy_all_win( true );
 	}
 	else {
 		return false;

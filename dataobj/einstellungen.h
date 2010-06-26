@@ -1,9 +1,10 @@
 #ifndef dataobj_einstellungen_h
 #define dataobj_einstellungen_h
 
-#include "../utils/cstring_t.h"
 #include "../simtypes.h"
 #include "../simconst.h"
+
+#include <string>
 
 /**
  * Spieleinstellungen
@@ -96,7 +97,7 @@ private:
 	sint16 starting_month;
 	sint16 bits_per_month;
 
-	cstring_t filename;
+	std::string filename;
 
 	bool beginner_mode;
 	sint32 beginner_price_factor;
@@ -393,14 +394,14 @@ public:
 	 * Set to empty string in order to avoid loading.
 	 * @author Hj. Malthaner
 	 */
-	cstring_t heightfield;
+	std::string heightfield;
 
 	einstellungen_t();
 
 	void rdwr(loadsave_t *file);
 
 	// init form this file ...
-	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename );
+	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
 	void set_groesse_x(sint32 g) {groesse_x=g;}
 	void set_groesse_y(sint32 g) {groesse_y=g;}
@@ -432,8 +433,8 @@ public:
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
 
-	void set_grundwasser(sint32 n) {grundwasser=n;}
-	sint32 get_grundwasser() const {return grundwasser;}
+	void set_grundwasser(sint16 n) {grundwasser=n;}
+	sint16 get_grundwasser() const {return grundwasser;}
 
 	void set_max_mountain_height(double n) {max_mountain_height=n;}          //01-Dec-01        Markus Weber    Added
 	double get_max_mountain_height() const {return max_mountain_height;}
@@ -460,7 +461,7 @@ public:
 	sint16 get_bits_per_month() const {return bits_per_month;}
 
 	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
-	const char* get_filename() const { return filename; }
+	const char* get_filename() const { return filename.c_str(); }
 
 	void set_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
 	bool get_beginner_mode() const {return beginner_mode;}
@@ -735,15 +736,15 @@ public:
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
 	void set_growthfactor_large(sint32 n) { growthfactor_large = n; }
 
-	// amount of different destinations
-	sint32 get_factory_worker_percentage() const { return factory_worker_percentage; }
-	void set_factory_worker_percentage(sint32 n) { factory_worker_percentage = n; }
-	sint32 get_tourist_percentage() const { return tourist_percentage; }
-	void set_tourist_percentage(sint32 n) { tourist_percentage = n; }
+	// percentage of passengers wanting different sorts of trips
+	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
+	void set_factory_worker_percentage(sint16 n) { factory_worker_percentage = n; }
+	sint16 get_tourist_percentage() const { return tourist_percentage; }
+	void set_tourist_percentage(sint16 n) { tourist_percentage = n; }
 
-	// radius within factories belog to towns (usually set to 77 but 1/8 of map size may be meaningful too)
-	sint32 get_factory_worker_radius() const { return factory_worker_radius; }
-	void set_factory_worker_radius(sint32 n) { factory_worker_radius = n; }
+	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
+	sint16 get_factory_worker_radius() const { return factory_worker_radius; }
+	void set_factory_worker_radius(sint16 n) { factory_worker_radius = n; }
 
 	// any factory will be connected to at least this number of next cities
 	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }

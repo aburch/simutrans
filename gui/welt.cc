@@ -343,7 +343,7 @@ welt_gui_t::update_preview()
 	const sint32 map_size = max(sets->get_groesse_y(), sets->get_groesse_x());
 
 	if(loaded_heightfield) {
-		update_from_heightfield(sets->heightfield);
+		update_from_heightfield(sets->heightfield.c_str());
 	}
 	else {
 		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
@@ -496,8 +496,8 @@ bool  welt_gui_t::infowin_event(const event_t *ev)
 
 void welt_gui_t::zeichnen(koord pos, koord gr)
 {
-	if(!loaded_heightfield  && sets->heightfield.len()!=0) {
-		if(update_from_heightfield(sets->heightfield)) {
+	if(!loaded_heightfield  && sets->heightfield.size()!=0) {
+		if(update_from_heightfield(sets->heightfield.c_str())) {
 			loaded_heightfield = true;
 		}
 		else {

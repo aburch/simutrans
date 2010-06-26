@@ -32,7 +32,6 @@
 #include "../../tpl/ptrhashtable_tpl.h"
 #include "../../tpl/stringhashtable_tpl.h"
 #include "../../simdebug.h"
-#include "../../utils/cstring_t.h"
 
 #include "../obj_besch.h"
 #include "../obj_node_info.h"
@@ -92,14 +91,14 @@ DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...",iter.g
 bool obj_reader_t::load(const char *liste, const char *message)
 {
 	searchfolder_t find;
-	cstring_t name = find.complete(liste, "dat");
+	std::string name = find.complete(liste, "dat");
 	size_t i;
 	const bool drawing=is_display_init();
 
-	if(name.right(1) != "/") {
+	if(name.at(name.size() - 1) != '/') {
 		// very old style ... (I think unused by now)
 
-		FILE *listfp = fopen(name,"rt");
+		FILE *listfp = fopen(name.c_str(), "rt");
 		if(listfp) {
 			while(!feof(listfp)) {
 				char buf[256];
@@ -148,7 +147,7 @@ bool obj_reader_t::load(const char *liste, const char *message)
 
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
-			read_file(name+"symbol.BigLogo.pak");
+			read_file((name+"symbol.BigLogo.pak").c_str());
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}
 		if(skinverwaltung_t::biglogosymbol) {
@@ -170,13 +169,13 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 
 		if(  grund_besch_t::ausserhalb==NULL  ) {
 			// defining the pak tile witdh ....
-			read_file(name+"ground.Outside.pak");
+			read_file((name+"ground.Outside.pak").c_str());
 			if(grund_besch_t::ausserhalb==NULL) {
 				dbg->error("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
 		}
 
-DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", (const char*)name);
+DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 		uint n = 0;
 		for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i, n++) {
 			read_file(*i);

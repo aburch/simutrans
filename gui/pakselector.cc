@@ -1,5 +1,4 @@
-
-#include <string.h>
+#include <string>
 #include <stdio.h>
 
 #ifndef _MSC_VER
@@ -44,7 +43,7 @@ void pakselector_t::init(const char *suffix, const char *path)
  */
 void pakselector_t::action(const char *filename)
 {
-	umgebung_t::objfilename = (cstring_t)filename + "/";
+	umgebung_t::objfilename = (std::string)filename + "/";
 	umgebung_t::default_einstellungen.set_with_private_paks( false );
 }
 
@@ -52,7 +51,7 @@ void pakselector_t::action(const char *filename)
 bool pakselector_t::del_action(const char *filename)
 {
 	// cannot delete set => use this for selection
-	umgebung_t::objfilename = (cstring_t)filename + "/";
+	umgebung_t::objfilename = (std::string)filename + "/";
 	umgebung_t::default_einstellungen.set_with_private_paks( true );
 	return true;
 }
@@ -120,7 +119,7 @@ void pakselector_t::fill_list()
 			gui_file_table_row_t *file_row = (gui_file_table_row_t *) file_table.get_row(0);
 			if (!file_row->get_delete_enabled()) {
 				// only single entry and no addons => no need to question further ...
-				umgebung_t::objfilename = (cstring_t)file_row->get_name() + "/";
+				umgebung_t::objfilename = (std::string)file_row->get_name() + "/";
 			}
 		}
 	}
@@ -139,7 +138,7 @@ void pakselector_t::fill_list()
 				iter->del->disable();
 				if(entries.get_count()==1) {
 					// only single entry and no addons => no need to question further ...
-					umgebung_t::objfilename = (cstring_t)iter->button->get_text() + "/";
+					umgebung_t::objfilename = (string)iter->button->get_text() + "/";
 				}
 			}
 		}

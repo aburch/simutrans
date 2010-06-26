@@ -60,13 +60,14 @@
 class simwin_gadget_flags_t
 {
 public:
-	simwin_gadget_flags_t( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ) { }
+	simwin_gadget_flags_t( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ), sticky( false ) { }
 
-	bool close;
-	bool help;
-	bool prev;
-	bool size;
-	bool next;
+	bool close:1;
+	bool help:1;
+	bool prev:1;
+	bool size:1;
+	bool next:1;
+	bool sticky:1;
 };
 
 class simwin_t
@@ -78,6 +79,7 @@ public:
 	long magic_number;	// either magic number or this pointer (which is unique too)
 	gui_fenster_t *gui;
 	bool closing;
+	bool sticky;	// true if window is sticky
 	bool rollup;
 
 	simwin_gadget_flags_t flags; // (Mathew Hounsell) See Above.
@@ -121,7 +123,7 @@ static void destroy_framed_win(simwin_t *win);
 
 #define REVERSE_GADGETS (!umgebung_t::window_buttons_right)
 // (Mathew Hounsell) A "Gadget Box" is a windows control button.
-enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, COUNT_GADGET };
+enum simwin_gadget_et { GADGET_CLOSE, GADGET_HELP, GADGET_SIZE, GADGET_PREV, GADGET_NEXT, GADGET_STICKY=21, GADGET_STICKY_PUSHED, COUNT_GADGET=255 };
 
 
 /**
@@ -142,7 +144,7 @@ static int display_gadget_box(simwin_gadget_et const  code,
 	}
 
 	// "x", "?", "=", "«", "»"
-	const int img = skinverwaltung_t::window_skin->get_bild(code+1)->get_nummer();
+	const int img = skinverwaltung_t::window_skin->get_bild_nr(code+1);
 
 	// to prevent day and nightchange
 	display_color_img(img, x, y, 0, false, false);
@@ -155,38 +157,45 @@ static int display_gadget_box(simwin_gadget_et const  code,
 //-------------------------------------------------------------------------
 // (Mathew Hounsell) Created
 static int display_gadget_boxes(
-               simwin_gadget_flags_t const * const flags,
-               int const x, int const y,
-               int const color,
-               bool const pushed
+	simwin_gadget_flags_t const * const flags,
+	int const x, int const y,
+	int const color,
+	bool const close_pushed,
+	bool const sticky_pushed
 ) {
     int width = 0;
     const int w=(REVERSE_GADGETS?16:-16);
 
-	// Only the close gadget can be pushed.
-	if( flags->close ) {
-	    display_gadget_box( GADGET_CLOSE, x +w*width, y, color, pushed );
+	// Only the close and sticky gadget can be pushed.
+	if(  flags->close  ) {
+	    display_gadget_box( GADGET_CLOSE, x +w*width, y, color, close_pushed );
 	    width ++;
 	}
-	if( flags->size ) {
+	if(  flags->size  ) {
 	    display_gadget_box( GADGET_SIZE, x + w*width, y, color, false );
 	    width++;
 	}
-	if( flags->help ) {
+	if(  flags->help  ) {
 	    display_gadget_box( GADGET_HELP, x + w*width, y, color, false );
 	    width++;
 	}
-	if( flags->prev) {
+	if(  flags->prev  ) {
 	    display_gadget_box( GADGET_PREV, x + w*width, y, color, false );
 	    width++;
 	}
-	if( flags->next) {
+	if(  flags->next  ) {
 	    display_gadget_box( GADGET_NEXT, x + w*width, y, color, false );
 	    width++;
 	}
+	if(  flags->sticky  ) {
+		display_gadget_box( sticky_pushed ? GADGET_STICKY_PUSHED : GADGET_STICKY, x + w*width, y, color, sticky_pushed );
+	    width++;
+	}
+
 
     return abs( w*width );
 }
+
 
 static simwin_gadget_et decode_gadget_boxes(
                simwin_gadget_flags_t const * const flags,
@@ -209,26 +218,32 @@ static simwin_gadget_et decode_gadget_boxes(
 	if( flags->size ) {
 		if( offset >= 0  &&  offset<16  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","size" );
-			return GADGET_SIZE ;
+			return GADGET_SIZE;
 		}
 		offset += w;
 	}
 	if( flags->help ) {
 		if( offset >= 0  &&  offset<16  ) {
 //DBG_MESSAGE("simwin_gadget_et decode_gadget_boxes()","help" );
-			return GADGET_HELP ;
+			return GADGET_HELP;
 		}
 		offset += w;
 	}
 	if( flags->prev ) {
 		if( offset >= 0  &&  offset<16  ) {
-			return GADGET_PREV ;
+			return GADGET_PREV;
 		}
 		offset += w;
 	}
 	if( flags->next ) {
 		if( offset >= 0  &&  offset<16  ) {
-			return GADGET_NEXT ;
+			return GADGET_NEXT;
+		}
+		offset += w;
+	}
+	if( flags->sticky ) {
+		if( offset >= 0  &&  offset<16  ) {
+			return GADGET_STICKY;
 		}
 		offset += w;
 	}
@@ -241,6 +256,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 		const PLAYER_COLOR_VAL titel_farbe,
 		const char * const text,
 		const bool closing,
+		const bool sticky,
 		const simwin_gadget_flags_t * const flags )
 {
 	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
@@ -250,7 +266,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 	display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, false);
 
 	// Draw the gadgets and then move left and draw text.
-	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing );
+	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
 	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, false );
 	POP_CLIP();
 }
@@ -374,6 +390,7 @@ int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long co
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();
 		win.flags.size = gui->has_min_sizer();
+		win.flags.sticky = gui->has_sticky();
 		win.gui = gui;
 
 		// take care of time delete windows ...
@@ -382,6 +399,7 @@ int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long co
 		win.magic_number = magic;
 		win.closing = false;
 		win.rollup = false;
+		win.sticky = false;
 
 		// Hajo: Notify window to be shown
 		assert(gui);
@@ -520,25 +538,28 @@ void destroy_win(const gui_fenster_t *gui)
 
 
 
-void destroy_all_win()
+void destroy_all_win(bool destroy_sticky)
 {
-	while(  !wins.empty()  ) {
-		if(inside_event_handling==wins[0].gui) {
-			// only add this, if not already added
-			kill_list.append_unique(wins[0]);
+	for ( int curWin=0 ; curWin < (int)wins.get_count() ; curWin++ ) {
+		if(  destroy_sticky  || !wins[curWin].sticky  ) {
+			if(  inside_event_handling==wins[curWin].gui  ) {
+				// only add this, if not already added
+				kill_list.append_unique(wins[curWin]);
+			}
+			else {
+				destroy_framed_win(&wins[curWin]);
+			}
+			// compact the window list
+			wins.remove_at(curWin);
+			curWin--;
 		}
-		else {
-			destroy_framed_win(&wins[0]);
-		}
-		// compact the window list
-		wins.remove_at(0);
 	}
 }
 
 
 int top_win(int win)
 {
-	if((unsigned)win==wins.get_count()-1) {
+	if(  (uint32)win==wins.get_count()-1  ) {
 		return win;
 	} // already topped
 
@@ -585,6 +606,7 @@ void display_win(int win)
 			titel_farbe,
 			translator::translate(komp->get_name()),
 			wins[win].closing,
+			wins[win].sticky,
 			( & wins[win].flags ) );
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
@@ -883,6 +905,12 @@ bool check_pos_win(event_t *ev)
 							wins[i].gui->infowin_event( ev );
 						}
 						break;
+					case GADGET_STICKY:
+						if (IS_LEFTCLICK(ev)) {
+							wins[i].sticky = !wins[i].sticky;
+							// mark title bar dirty
+							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+wins[i].gui->get_fenstergroesse().x, wins[i].pos.y+16 );
+						}
 					default : // Title
 						if (IS_LEFTDRAG(ev)) {
 							i = top_win(i);

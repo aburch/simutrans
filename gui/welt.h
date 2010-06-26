@@ -108,6 +108,9 @@ public:
 
 	einstellungen_t* get_sets() const { return sets; }
 
+	// does not work during new world dialoge
+	virtual bool has_sticky() const { return false; }
+
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet

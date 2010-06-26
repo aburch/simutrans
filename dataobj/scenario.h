@@ -1,7 +1,6 @@
 #ifndef scenario_h
 #define scenario_h
 
-#include "../utils/cstring_t.h"
 #include "../simtypes.h"
 
 class loadsave_t;

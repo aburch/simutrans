@@ -22,6 +22,10 @@
 #include "gui_frame.h"
 #include "gui_container.h"
 
+#include <string>
+
+using std::string;
+
 
 class gui_file_table_column_t : public gui_table_column_t
 {
@@ -30,7 +34,7 @@ protected:
 	virtual const char *get_text(const gui_table_row_t &row) const { (void) row; return ""; }
 public:
 	gui_file_table_column_t(coordinate_t size_) : gui_table_column_t(size_) { pressed = false; }
-	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return STRICMP(get_text(row1), get_text(row2)); }
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return strcmp(get_text(row1), get_text(row2)); }
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) = 0;
 	bool get_pressed() const { return pressed; }
 	void set_pressed(bool value) { pressed = value; }
@@ -102,16 +106,16 @@ class gui_file_table_row_t : public gui_table_row_t
 	friend class gui_file_table_action_column_t;
 	friend class gui_file_table_time_column_t;
 protected:
-	cstring_t text;
-	cstring_t name;
-	cstring_t error;
+	string text;
+	string name;
+	string error;
 	bool pressed;
 	bool delete_enabled;
 	struct stat info;
 public:
 	//gui_file_table_row_t();
 	gui_file_table_row_t(const char *pathname, const char *buttontext, bool delete_enabled = true);
-	const char *get_name() const { return name; }
+	const char *get_name() const { return name.c_str(); }
 	void set_pressed(bool value) { pressed = value; }
 	bool get_pressed() { return pressed; }
 	void set_delete_enabled(bool value) { delete_enabled = value; }

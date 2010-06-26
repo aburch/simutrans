@@ -1404,7 +1404,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	display_progress(0,max_display_progress);
 	setsimrand( 0xFFFFFFFF, einstellungen->get_karte_nummer() );
-	if(  old_x==0  &&  einstellungen->heightfield.len() > 0  ){
+	if(  old_x==0  &&  einstellungen->heightfield.size() > 0  ){
 		// init from file
 		const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
 
@@ -4006,7 +4006,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
 
 	display_show_load_pointer( true );
-	if(!file.wr_open(filename,loadsave_t::save_mode,umgebung_t::objfilename)) {
+	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str())) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
@@ -4347,7 +4347,7 @@ void karte_t::laden(loadsave_t *file)
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
-	destroy_all_win();
+	destroy_all_win(true);
 
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
@@ -4922,14 +4922,14 @@ void karte_t::load_heightfield(einstellungen_t *sets)
 {
 	sint16 w, h;
 	sint8 *h_field;
-	if(karte_t::get_height_data_from_file(sets->heightfield, sets->get_grundwasser(), h_field, w, h, false )) {
+	if(karte_t::get_height_data_from_file(sets->heightfield.c_str(), sets->get_grundwasser(), h_field, w, h, false )) {
 		sets->set_groesse(w,h);
 		// create map
 		init(sets,h_field);
 		delete [] h_field;
 	}
 	else {
-		dbg->error("karte_t::load_heightfield()","Cant open file '%s'", (const char*)sets->heightfield);
+		dbg->error("karte_t::load_heightfield()","Cant open file '%s'", sets->heightfield.c_str());
 		create_win( new news_img("\nCan't open heightfield file.\n"), w_info, magic_none );
 	}
 }
@@ -4973,7 +4973,6 @@ void karte_t::mark_area( const koord3d pos, const koord size, const bool mark )
 
 void karte_t::reset_timer()
 {
-	DBG_MESSAGE("karte_t::reset_timer()","called");
 	// Reset timers
 	long last_tick_sync = dr_time();
 	mouse_rest_time = last_tick_sync;
@@ -5023,6 +5022,7 @@ void karte_t::reset_timer()
 		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
 	}
+	DBG_MESSAGE("karte_t::reset_timer()","called, mode=$%X");
 }
 
 
@@ -5410,7 +5410,7 @@ void karte_t::interactive_event(event_t &ev)
 					if(  ev.ev_code == 8  ) {
 						// Backspace
 						sound_play(click_sound);
-						destroy_all_win();
+						destroy_all_win(false);
 					}
 					// Ignore Enter and Backspace but not Ctrl-H and Ctrl-M
 					break;
@@ -5552,7 +5552,7 @@ bool karte_t::interactive(uint32 quit_month)
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
 	// only needed for network
-	uint32 next_command_step=-1;
+	uint32 next_command_step = 0xFFFFFFFFu;
 	const uint32 frame_time = 1000/clamp(einstellungen->get_frames_per_second(),5,100);
 	sint32 ms_difference = 0;
 	reset_timer();
@@ -5605,7 +5605,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
 			// Beenden des Programms wenn das Fenster geschlossen wird.
-			destroy_all_win();
+			destroy_all_win(true);
 			umgebung_t::quit_simutrans = true;
 			return false;
 		}
@@ -5618,23 +5618,25 @@ bool karte_t::interactive(uint32 quit_month)
 
 			swallowed = check_pos_win(&ev);
 
-			if(IS_RIGHTCLICK(&ev)) {
-				display_show_pointer(false);
-				cursor_hidden = true;
-			} else if(IS_RIGHTRELEASE(&ev)) {
-				display_show_pointer(true);
-				cursor_hidden = false;
-			} else if(!swallowed  &&  IS_RIGHTDRAG(&ev)) {
-				// unset following
-				if(follow_convoi.is_bound()) {
-					follow_convoi = convoihandle_t();
-				}
-				blick_aendern(&ev);
-			}
-			else {
-				if(cursor_hidden) {
+			if(  !swallowed  ) {
+				if(IS_RIGHTCLICK(&ev)) {
+					display_show_pointer(false);
+					cursor_hidden = true;
+				} else if(IS_RIGHTRELEASE(&ev)) {
 					display_show_pointer(true);
 					cursor_hidden = false;
+				} else if(IS_RIGHTDRAG(&ev)) {
+					// unset following
+					if(follow_convoi.is_bound()) {
+						follow_convoi = convoihandle_t();
+					}
+					blick_aendern(&ev);
+				}
+				else {
+					if(cursor_hidden) {
+						display_show_pointer(true);
+						cursor_hidden = false;
+					}
 				}
 			}
 
@@ -5680,7 +5682,7 @@ bool karte_t::interactive(uint32 quit_month)
 					next_command_step = command_queue.front()->get_sync_step();
 				}
 				else {
-					next_command_step = -1;
+					next_command_step = 0xFFFFFFFFu;
 				}
 			}
 		}
@@ -5730,7 +5732,7 @@ bool karte_t::interactive(uint32 quit_month)
 				next_command_step = command_queue.front()->get_sync_step();
 			}
 			else {
-				next_command_step = -1;
+				next_command_step = 0xFFFFFFFFu;
 			}
 		}
 
