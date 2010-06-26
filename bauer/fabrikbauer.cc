@@ -466,8 +466,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 	}
 
 	// add passenger to pax>0, (so no sucide diver at the fish swarm)
-	if(info->get_pax_level()>0) 
-	{
+	if(info->get_pax_level()>0) {
 		const weighted_vector_tpl<stadt_t*>& staedte = welt->get_staedte();
 		vector_tpl<stadt_t *>distance_stadt( staedte.get_count() );
 
@@ -560,6 +559,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 
 		// built consumer (factory) intown
 		sf.stadt = welt->suche_naechste_stadt(k);
+
 		/* Three variants:
 		 * A:
 		 * A building site, preferably close to the town hall with a street next to it.
@@ -910,8 +910,7 @@ next_ware_check:
 		}
 	}
 
-	// first: do we have to continue unfinished buissness?
-
+	// first: do we have to continue unfinished business?
 	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()) {
 		int org_rotation = -1;
 		// rotate until we can save it, if one of the factory is non-rotateable ...
@@ -923,13 +922,11 @@ next_ware_check:
 			assert( !welt->cannot_save() );
 		}
 
-
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
 		do {
 			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_spieler(1) );
 			last_built_consumer_ware ++;
-		} 
-		while(last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
+		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
 		// must rotate back?
 		if(org_rotation>=0) {
@@ -943,8 +940,7 @@ next_ware_check:
 		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
 			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player
-			if(tell_me) 
-			{
+			if(tell_me) {
 				stadt_t *s = welt->suche_naechste_stadt( last_built_consumer->get_pos().get_2d() );
 				const char *stadt_name = s ? s->get_name() : "simcity";
 				char buf[256];
@@ -1017,7 +1013,7 @@ next_ware_check:
 				}
 				if(welt->lookup(pos)) {
 					// Platz gefunden ...
-					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1);
+					nr += baue_hierarchie(NULL, fab, rotation, &pos, welt->get_spieler(1), 1 );
 					if(nr>0) {
 						fabrik_t *our_fab = fabrik_t::get_fab( welt, pos.get_2d() );
 						if(in_city) {
