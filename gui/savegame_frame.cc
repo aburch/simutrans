@@ -36,7 +36,8 @@
 // in derived classes (since the object in question is not full initialized yet)
 // this functions returns true for files to be added.
 savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
-	gui_frame_t("Load/Save") ,
+	gui_frame_t("Load/Save"),
+	input(false),
 	fnlabel("Filename"),
 	scrolly(&button_frame)
 {
