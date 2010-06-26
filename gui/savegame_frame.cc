@@ -55,7 +55,6 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
 	// Input box for game name
 	tstrncpy(ibuf, "", lengthof(ibuf));
 	input.set_text(ibuf, 128);
-	input.add_listener(this);
 	input.set_pos(koord(75,8));
 	input.set_groesse(koord(DIALOG_WIDTH-75-10-10, 14));
 	add_komponente(&input);
@@ -297,7 +296,7 @@ bool savegame_frame_t::check_file( const char *filename, const char *suffix )
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t /* */)
 {
 	char buf[1024];
 
@@ -307,7 +306,8 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 
 		if (strstr(ibuf,"net:")==ibuf) {
 			tstrncpy(buf,ibuf,lengthof(buf));
-		} else {
+		}
+		else {
 			tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
 			strcat(buf, ibuf);
 			strcat(buf, suffix);
@@ -422,8 +422,9 @@ bool savegame_frame_t::infowin_event(const event_t *ev)
 		fill_list();
 		set_focus( &input );
 	}
-	if(  ev->ev_class != EVENT_KEYBOARD  ||  !(ev->ev_code == 9  ||  ev->ev_code == 27)  ) {
-		return gui_frame_t::infowin_event(ev);
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == 13  ) {
+		action_triggered( &input, (long)0 );
+		return true;	// swallowed
 	}
-	return false;
+	return gui_frame_t::infowin_event(ev);
 }
