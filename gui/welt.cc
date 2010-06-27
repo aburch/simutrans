@@ -342,6 +342,7 @@ welt_gui_t::update_preview()
 {
 	const int mx = sets->get_groesse_x()/preview_size;
 	const int my = sets->get_groesse_y()/preview_size;
+	const sint32 map_size = max(sets->get_groesse_y(), sets->get_groesse_x());
 
 	if(loaded_heightfield) {
 		update_from_heightfield(sets->heightfield);
@@ -350,7 +351,7 @@ welt_gui_t::update_preview()
 		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
 		for(int j=0; j<preview_size; j++) {
 			for(int i=0; i<preview_size; i++) {
-				karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(i*mx,j*my), koord::invalid ), sets->get_grundwasser()/Z_TILE_STEP);
+				 karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(i*mx,j*my), koord::invalid, map_size  ), sets->get_grundwasser()/Z_TILE_STEP);
 			}
 		}
 		sets->heightfield = "";

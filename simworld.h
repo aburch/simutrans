@@ -70,7 +70,7 @@ public:
 	* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
 	* @author Hj. Malthaner
 	*/
-	static sint32 perlin_hoehe( einstellungen_t *, koord pos, koord size );
+	static sint32 perlin_hoehe( einstellungen_t *, koord pos, koord size, const sint32 map_size );
 
 	enum player_cost {
 		WORLD_CITICENS=0,// total people
