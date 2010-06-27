@@ -4190,7 +4190,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	const uint32 ymax2 = wl->get_groesse_y()/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
-	for (int i = 0; i < anzahl; i++) {
+	for (int i = 0; i < multiplied_number; i++) {
 		// check distances of all cities to their respective neightbours
 		while (!index_to_places.empty()) {
 			// find a random cell

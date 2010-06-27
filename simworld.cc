@@ -1340,6 +1340,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 {
 	sint16 new_groesse_x = sets->get_groesse_x();
 	sint16 new_groesse_y = sets->get_groesse_y();
+	const sint32 map_size = max (new_groesse_x, new_groesse_y);
 	planquadrat_t *new_plan = new planquadrat_t[new_groesse_x*new_groesse_y];
 	sint8 *new_grid_hgts = new sint8[(new_groesse_x+1)*(new_groesse_y+1)];
 
