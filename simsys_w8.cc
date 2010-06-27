@@ -154,7 +154,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		// try to force display mode and size
 		DEVMODE settings;
 
-		MEMZERO(settings);
+		memset(&settings, 0, sizeof(settings));
 		settings.dmSize = sizeof(settings);
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		settings.dmBitsPerPel = 8;
@@ -247,10 +247,9 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 
 unsigned short *dr_textur_init()
 {
-	size_t const n = MaxSize.right * MaxSize.bottom;
-	AllDibData = MALLOCN(unsigned char, n);
+	AllDibData = MALLOCN(unsigned char, MaxSize.right * MaxSize.bottom );
 	// start with black
-	MEMZERON(AllDibData, n);
+	memset( AllDibData, 0, MaxSize.right * MaxSize.bottom * sizeof(unsigned char) );
 	return (unsigned short *)AllDibData;
 }
 
@@ -401,7 +400,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					// try to force display mode and size
 					DEVMODE settings;
 
-					MEMZERO(settings);
+					memset(&settings, 0, sizeof(settings));
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 					settings.dmBitsPerPel = 8;

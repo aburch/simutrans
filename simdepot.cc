@@ -433,7 +433,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		return false;
 	}
 
-	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
+	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL  &&  cnv->get_schedule()->get_count() > 0) {
 		// if next schedule entry is this depot => advance to next entry
 		const koord3d& cur_pos = cnv->get_schedule()->get_current_eintrag().pos;
 		if (cur_pos == get_pos()) {
@@ -445,7 +445,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
-		} else if (!cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->get_route())) {
+		} else if (!cnv->get_vehikel(0)->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->get_route())) {
 			// no route to go ...
 			if (local_execution) {
 				static char buf[256];
@@ -687,7 +687,7 @@ sint32 depot_t::calc_restwert(const vehikel_besch_t *veh_type)
 
 bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
-	waytype_t const wt = cnv->front()->get_waytype();
+	waytype_t wt=cnv->get_vehikel(0)->get_waytype();
 	schiene_t* sch0 = (schiene_t *)welt->lookup(get_pos())->get_weg(wt);
 	if(sch0==NULL) {
 		// no rail here???

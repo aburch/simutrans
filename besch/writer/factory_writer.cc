@@ -94,7 +94,7 @@ void factory_field_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileo
 void factory_smoke_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	rauch_besch_t besch;
-	MEMZERO(besch);
+	memset(&besch, 0, sizeof(besch));
 	obj_node_t node(this, 10, &parent);
 
 	xref_writer_t::instance()->write_obj(outfp, node, obj_smoke, obj.get("smoke"), true);

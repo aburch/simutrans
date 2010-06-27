@@ -2441,7 +2441,7 @@ void display_flush_buffer(void)
 	tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
 	tile_dirty = tmp;
-	MEMZERON(tile_dirty, tile_buffer_length);
+	memset(tile_dirty, 0, tile_buffer_length);
 }
 
 

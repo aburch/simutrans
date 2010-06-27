@@ -21,6 +21,7 @@
 class spieler_t;
 class depot_t;
 class karte_t;
+class grund_info_t;
 class cbuffer_t;
 
 
@@ -465,8 +466,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
-
-	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width) const;
 
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles

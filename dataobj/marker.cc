@@ -37,7 +37,7 @@ marker_t::~marker_t()
 void marker_t::unmarkiere_alle()
 {
 	if(bits) {
-		MEMZERON(bits, bits_groesse);
+		memset(bits, 0, bits_groesse);
 	}
 	more.clear();
 }

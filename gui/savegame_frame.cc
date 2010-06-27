@@ -109,7 +109,6 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	cancelbutton.add_listener(this);
 	add_komponente(&cancelbutton);
 
-	set_focus( &input );
 	set_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
 }
 

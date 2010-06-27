@@ -2081,8 +2081,7 @@ void wegbauer_t::baue_schiene()
 					weg->set_besitzer(sp);
 				}
 			}
-			else 
-			{
+			else {
 				const ding_t* thing = gr->obj_bei(0);
 				if(thing != NULL  &&  thing->get_besitzer() == sp) 
 				{
@@ -2097,30 +2096,26 @@ void wegbauer_t::baue_schiene()
 				{
 					sch->add_way_constraints(wayobj->get_besch()->get_way_constraints());
 				}
-
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
 
 				// connect canals to sea
-				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) 
-				{
+				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) {
 					grund_t *sea = welt->lookup_kartenboden(gr->get_pos().get_2d() - koord( ribi_typ(gr->get_grund_hang() ) ));
-					if (sea  &&  sea->ist_wasser()) 
-					{
+					if (sea  &&  sea->ist_wasser()) {
 						gr->weg_erweitern(water_wt, ribi_t::rueckwaerts(ribi));
 						sea->calc_bild();
 					}
+				}
 
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
-				}
 			}
 
 			gr->calc_bild();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 			spieler_t::accounting(sp, cost, gr->get_pos().get_2d(), COST_CONSTRUCTION);
 
-			if((i&3)==0) 
-			{
+			if((i&3)==0) {
 				INT_CHECK( "wegbauer 1584" );
 			}
 		}

@@ -20,12 +20,12 @@ class tabfile_t;
 class weg_besch_t;
 
 
-struct road_timeline_t
+typedef struct
 {
 	char name[64];
 	uint16 intro;
 	uint16 retire;
-};
+} road_timeline_t;
 
 
 class einstellungen_t
@@ -132,12 +132,11 @@ private:
 
 	sint64 starting_money;
 
-	struct yearmoney
-	{
+	typedef struct {
 		sint16 year;
 		sint64 money;
 		bool interpol;
-	};
+	} yearmoney;
 
 	yearmoney startingmoneyperyear[10];
 

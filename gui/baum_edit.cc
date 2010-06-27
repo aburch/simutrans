@@ -38,7 +38,7 @@
 
 
 // new tool definition
-wkz_plant_tree_t baum_edit_frame_t::baum_tool;
+wkz_plant_tree_t baum_edit_frame_t::baum_tool=wkz_plant_tree_t();
 char baum_edit_frame_t::param_str[256];
 
 

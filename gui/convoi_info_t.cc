@@ -92,7 +92,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
 			 " \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"),
-	view(cnv->front(), koord(max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width() * 7) / 8))),
+	view(cnv->get_vehikel(0), koord( max(64, get_base_tile_raster_width()), max(56, (get_base_tile_raster_width()*7)/8) )),
 	sort_label(translator::translate("loaded passenger/freight")),
 	freight_info(8192)
 {
@@ -130,14 +130,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	details_button.add_listener(this);
 	details_button.set_tooltip("Vehicle details");
 	add_komponente(&details_button);
-
-	reverse_button.set_groesse(koord(BUTTON_WIDTH*2, BUTTON_HEIGHT));
-	reverse_button.set_text("reverse route");
-	reverse_button.set_typ(button_t::square_state);
-	reverse_button.add_listener(this);
-	reverse_button.set_tooltip("When this is set, the vehicle will visit stops in reverse order.");
-	reverse_button.pressed = cnv->get_reverse_schedule();
-	add_komponente(&reverse_button);
 
 	scrolly.set_pos(koord(0, offset_below_viewport+46));
 	add_komponente(&scrolly);
@@ -307,7 +299,7 @@ convoi_info_t::zeichnen(koord pos, koord gr)
 			//go_home_button.pressed = route_search_in_progress;
 			details_button.pressed = win_get_magic( magic_convoi_detail+cnv.get_id() );
 			go_home_button.enable(); // Will be disabled, if convoy goes to a depot.
-			if (!cnv->get_schedule()->empty()) {
+			if(  cnv->get_schedule()->get_count() > 0  ) {
 				const grund_t* g = cnv->get_welt()->lookup(cnv->get_schedule()->get_current_eintrag().pos);
 				if (g != NULL && g->get_depot()) {
 					go_home_button.disable();
@@ -326,8 +318,6 @@ enable_home:
 			replace_button.pressed = cnv->get_replace();
 			replace_button.set_text(cnv->get_replace()?"Replacing":"Replace");
 			replace_button.enable();
-			reverse_button.pressed = cnv->get_reverse_schedule();
-			reverse_button.enable();
 		}
 		else {
 			if(  line_bound  ) {
@@ -339,7 +329,6 @@ enable_home:
 			go_home_button.disable();
 			no_load_button.disable();
 			replace_button.disable();
-			reverse_button.disable();
 		}
 		follow_button.pressed = (cnv->get_welt()->get_follow_convoi()==cnv);
 
@@ -348,7 +337,7 @@ enable_home:
 		text.set_text(freight_info);
 
 		route_bar.set_base(cnv->get_route()->get_count()-1);
-		cnv_route_index = cnv->front()->get_route_index() - 1;
+		cnv_route_index = cnv->get_vehikel(0)->get_route_index()-1;
 
 		// all gui stuff set => display it
 		gui_frame_t::zeichnen(pos, gr);
@@ -553,12 +542,6 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			go_home_button.pressed = false;
 			return true;
 		} // end go home button
-
-		if(komp == &reverse_button)
-		{
-			reverse_button.pressed = !reverse_button.pressed;
-			cnv->set_reverse_schedule( reverse_button.pressed );
-		}
 	}
 
 	if (komp == &toggler) 
@@ -632,7 +615,6 @@ void convoi_info_t::resize(const koord delta)
 	toggler.set_pos(koord(BUTTON3_X,yoff));
 	details_button.set_pos(koord(BUTTON4_X,yoff));
 	sort_label.set_pos(koord(BUTTON1_X,yoff-LINESPACE));
-	reverse_button.set_pos(koord(BUTTON3_X,yoff-BUTTON_HEIGHT));
 
 	// convoi speed indicator
 	speed_bar.set_pos(koord(BUTTON3_X,22+0*LINESPACE));

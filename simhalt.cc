@@ -2167,10 +2167,10 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware) //"deliver to the fact
 	while(fab_iter.next()) {
 		fabrik_t * fab = fab_iter.get_current();
 
-		const vector_tpl<ware_production_t>& eingang = fab->get_eingang();
+		const vector_tpl<ware_production_t>& eingang = fab->get_eingang(); // eingang = "input" (Google)
 		if(eingang.get_size() == 0)
 		{
-			return;
+			continue;
 		}
 		for (uint32 i = 0; i < eingang.get_count(); i++) {
 			if (eingang[i].get_typ() == ware.get_besch() && ware.get_zielpos() == fab->get_pos().get_2d()) {
@@ -3446,7 +3446,7 @@ void haltestelle_t::recalc_status()
 	// since the status is ordered ...
 	uint8 status_bits = 0;
 
-	MEMZERO(overcrowded);
+	memset( overcrowded, 0, 8 );
 
 	uint32 total_sum = 0;
 	if(get_pax_enabled()) {
@@ -3849,8 +3849,7 @@ bool haltestelle_t::reserve_position(grund_t *gr,convoihandle_t cnv)
 			grund_t* gr = i->grund;
 			if(gr) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
-				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
+				if(gr->hat_weg(cnv->get_vehikel(0)->get_waytype())  &&  gr->suche_obj(cnv->get_vehikel(0)->get_typ())==NULL) {
 					// not occipied
 //DBG_MESSAGE("haltestelle_t::reserve_position()","sucess for gr=%i,%i cnv=%d",gr->get_pos().x,gr->get_pos().y,cnv.get_id());
 					i->reservation = cnv;
@@ -3897,8 +3896,7 @@ DBG_MESSAGE("haltestelle_t::is_reservable()","gr=%d,%d already reserved by cnv=%
 			// not reseved
 			if (!i->reservation.is_bound()) {
 				// found a stop for this waytype but without object d ...
-				vehikel_t const& v = *cnv->front();
-				if (gr->hat_weg(v.get_waytype()) && !gr->suche_obj(v.get_typ())) {
+				if(gr->hat_weg(cnv->get_vehikel(0)->get_waytype())  &&  gr->suche_obj(cnv->get_vehikel(0)->get_typ())==NULL) {
 					// not occipied
 					return true;
 				}

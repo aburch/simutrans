@@ -226,17 +226,17 @@ void nwc_sync_t::do_command(karte_t *welt)
 	else {
 #ifdef DO_NOT_SEND_HASHES
 		// remove passwords before transfer on the server and set default client mask
-		pwd_hash_t player_hashes[PLAYER_UNOWNED];
+		uint8 player_hashes[PLAYER_UNOWNED][20];
 		uint16 default_hashes = 0;
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			spieler_t *sp = welt->get_spieler(i);
 			if(  sp==NULL  ||  !sp->set_unlock(NULL)  ) {
+				memset( player_hashes[i], 0, 20 );
 				default_hashes |= (1<<i);
 			}
 			else {
-				pwd_hash_t& p = sp->get_password_hash();
-				player_hashes[i] = p;
-				p.clear();
+				memcpy( player_hashes[i], sp->get_password_hash_ptr(), 20 );
+				memset( sp->get_password_hash_ptr(), 0, 20 );
 			}
 		}
 #endif
@@ -258,7 +258,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		for(  int i=0;  i<PLAYER_UNOWNED; i++  ) {
 			spieler_t *sp = welt->get_spieler(i);
 			if(  sp  ) {
-				sp->get_password_hash() = player_hashes[i];
+				memcpy( sp->get_password_hash_ptr(), player_hashes[i], 20 );
 			}
 		}
 		hashes_ok.insert_at(client_id,default_hashes);

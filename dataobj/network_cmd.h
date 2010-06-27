@@ -7,10 +7,7 @@
 #include "network.h"
 
 class packet_t;
-class karte_t;
-class spieler_t;
-class werkzeug_t;
-
+class karte_t; class spieler_t; class werkzeug_t;
 // actual commands
 enum {
 	NWC_INVALID   = 0,

@@ -44,6 +44,8 @@ private:
 	resize_modes resize_mode; // 25-may-02  markus weber added
 	const spieler_t *owner;
 
+	bool opaque:1;
+
 	// set true for total redraw
 	bool dirty:1;
 
@@ -91,6 +93,12 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void set_name(const char *name) { this->name=name; }
+
+	/**
+	 * setzt die Transparenz
+	 * @author Hj. Malthaner
+	 */
+	void set_opaque(bool janein) { opaque = janein; }
 
 	/**
 	 * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
@@ -165,7 +173,6 @@ public:
 
 
 	void set_focus( gui_komponente_t *k ) { container.set_focus(k); }
-	gui_komponente_t *get_focus() const { return container.get_focus(); }
 };
 
 #endif

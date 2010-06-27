@@ -26,7 +26,6 @@
 #include <math.h>
 #include <limits.h>
 
-#include "macros.h"
 #include "simtypes.h"
 #include "font.h"
 #include "pathes.h"
@@ -3423,7 +3422,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		}
 #endif
 		// print unknown character?
-		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
+		if(c > fnt->num_chars || fnt->screen_width[c] == 0) {
 			c = 0;
 		}
 
@@ -3750,7 +3749,7 @@ void display_flush_buffer(void)
 	tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
 	tile_dirty = tmp;
-	MEMZERON(tile_dirty, tile_buffer_length);
+	memset(tile_dirty, 0, tile_buffer_length);
 }
 
 

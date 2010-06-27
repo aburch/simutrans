@@ -60,7 +60,7 @@ void route_t::append(const route_t *r)
 	const uint32 hops = r->get_count()-1;
 	route.resize(hops+1+route.get_count());
 
-	while (get_count() != 0 && back() == r->front()) {
+	while(get_count()>0  &&  route[get_count()-1] == r->position_bei(0)) {
 		// skip identical end tiles
 		route.remove_at(get_count()-1);
 	}
@@ -104,7 +104,7 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 	}
 
 	// then try to calculate direct route
-	koord pos = back().get_2d();
+	koord pos = route[get_count()-1].get_2d();
 	const koord ziel=dest.get_2d();
 	route.resize( route.get_count()+koord_distance(pos,ziel)+2 );
 DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);

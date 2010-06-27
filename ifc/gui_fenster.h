@@ -12,7 +12,6 @@
 #include "../simgraph.h"
 
 struct event_t;
-class gui_komponente_t;
 
 /**
  * Nachdem sich der info_geber_t als zu beschränkt erwiesen hat,
@@ -105,7 +104,7 @@ public:
 	virtual bool getroffen(int x, int y)
 	{
 		koord groesse = get_fenstergroesse();
-		return (  x>=0  &&  y>=0  &&  x<groesse.x  &&  y<groesse.y  );
+		return (x>=0 && y>=0 && groesse.x >= x && groesse.y >= y);
 	}
 
 	/**
@@ -124,8 +123,6 @@ public:
 
 	// called, when the map is rotated
 	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }
-
-	virtual const gui_komponente_t *get_focus() const { return NULL; }
 };
 
 #endif

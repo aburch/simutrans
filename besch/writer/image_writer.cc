@@ -102,7 +102,7 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 	for (int i = 0; i < SPECIAL; i++) {
 		if (rgbtab[i] == (PIXRGB)rgb) {
 			pix = 0x8000 + i;
-			return endian(pix);
+			return endian_uint16(&pix);
 		}
 	}
 
@@ -112,7 +112,7 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 
 	// RGB 555
 	pix = ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
-	return endian(pix);
+	return endian_uint16(&pix);
 }
 
 
@@ -178,7 +178,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				pix = block_getpix(x + row_px_count, y + line);
 			}
 
-			*dest++ = endian(count);
+			*dest++ = endian_uint16(&count);
 
 			colored_run_counter = dest++;
 			count = 0;
@@ -199,7 +199,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 			}
 			else {
-				*colored_run_counter = endian(count);
+				*colored_run_counter = endian_uint16(&count);
 				clear_colored_run_pair_count++;
 			}
 		} while (row_px_count < width);
@@ -241,7 +241,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	PIXVAL* pixdata = NULL;
 	string imagekey;
 
-	MEMZERO(bild);
+	memset(&bild, 0, sizeof(bild));
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
 	if (an_imagekey.size() > 2 && an_imagekey[0] == '>') {
