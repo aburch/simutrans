@@ -1,7 +1,10 @@
 
 /* standard good AI code */
 
+#include "../simfab.h"
+#include "../simmenu.h"
 #include "../simtypes.h"
+#include "../simwerkz.h"
 
 #include "simplay.h"
 
@@ -292,14 +295,10 @@ bool ai_goods_t::suche_platz1_platz2(fabrik_t *qfab, fabrik_t *zfab, int length 
 			bauigel.calc_route(tile_list[0], tile_list[1]);
 			if(  bauigel.get_count() > 2  ) {
 				// Sometimes reverse route is the best, so we have to change the koords.
-				if( tile_list[0].is_contained( bauigel.get_route()[0]) ) {
-					start = bauigel.get_route()[0].get_2d();
-					ziel = bauigel.get_route()[bauigel.get_count()-1].get_2d();
-				}
-				else {
-					start = bauigel.get_route()[bauigel.get_count()-1].get_2d();
-					ziel = bauigel.get_route()[0].get_2d();
-				}
+				koord3d_vector_t const& r = bauigel.get_route();
+				start = r.front().get_2d();
+				ziel  = r.back().get_2d();
+				if (!tile_list[0].is_contained(r.front())) sim::swap(start, ziel);
 				ok = true;
 				has_ziel = true;
 			}
@@ -535,7 +534,7 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		cnv->add_vehikel( v );
 	}
 
-	fpl = cnv->get_vehikel(0)->erzeuge_neuen_fahrplan();
+	fpl = cnv->front()->erzeuge_neuen_fahrplan();
 
 	fpl->set_aktuell( 0 );
 	fpl->append(welt->lookup(pos1), ladegrad);
@@ -674,15 +673,10 @@ DBG_MESSAGE("ai_goods_t::create_simple_rail_transport()","building simple track 
 		bauigel.baue();
 		// connect to track
 
-		koord3d tile1, tile2;
-		if( starttiles.is_contained( bauigel.get_route()[0] ) ) {
-			tile1 = bauigel.get_route()[0];
-			tile2 = bauigel.get_route()[bauigel.get_count()-1];
-		}
-		else {
-			tile1 = bauigel.get_route()[bauigel.get_count()-1];
-			tile2 = bauigel.get_route()[0];
-		}
+		koord3d_vector_t const& r     = bauigel.get_route();
+		koord3d                 tile1 = r.front();
+		koord3d                 tile2 = r.back();
+		if (!starttiles.is_contained(tile1)) sim::swap(tile1, tile2);
 		// No botflag, since we want to connect with the station.
 		bauigel.route_fuer( wegbauer_t::schiene, rail_weg, tunnelbauer_t::find_tunnel(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()), brueckenbauer_t::find_bridge(track_wt,rail_engine->get_geschw(),welt->get_timeline_year_month()) );
 		bauigel.calc_straight_route( koord3d(platz1,z1), tile1);
@@ -1201,7 +1195,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 					continue;
 				}
 
-				if(cnv->get_vehikel(0)->get_waytype()==water_wt) {
+				if (cnv->front()->get_waytype() == water_wt) {
 					// ships will be only deleted together with the connecting convoi
 					continue;
 				}
@@ -1217,7 +1211,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				// check for empty vehicles (likely stucked) that are making no plus and remove them ...
 				// take care, that the vehicle is old enough ...
-				if(!delete_this  &&  (welt->get_current_month()-cnv->get_vehikel(0)->get_insta_zeit())>6  &&  gewinn<=0  ){
+				if (!delete_this && (welt->get_current_month() - cnv->front()->get_insta_zeit()) > 6 && gewinn <= 0) {
 					sint64 goods=0;
 					// no goods for six months?
 					for( int i=0;  i<6;  i ++) {
@@ -1228,7 +1222,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 
 				// well, then delete this (likely stucked somewhere) or insanely unneeded
 				if(delete_this) {
-					waytype_t wt = cnv->get_vehikel(0)->get_besch()->get_waytype();
+					waytype_t const wt = cnv->front()->get_besch()->get_waytype();
 					linehandle_t line = cnv->get_line();
 					DBG_MESSAGE("ai_goods_t::do_ki()","%s retires convoi %s!", get_name(), cnv->get_name());
 
@@ -1506,7 +1500,7 @@ DBG_MESSAGE("ai_goods_t::bescheid_vehikel_problem","Vehicle %s can't find a rout
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			else {
 				cnv->self_destruct();
@@ -1519,7 +1513,7 @@ DBG_MESSAGE("ai_goods_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->g
 			if(this==welt->get_active_player()) {
 				char buf[256];
 				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			break;
 

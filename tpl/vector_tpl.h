@@ -235,6 +235,8 @@ template<class T> class vector_tpl
 			return data[i];
 		}
 
+		T& front() const { return data[0]; }
+
 		T& back() const { return data[count - 1]; }
 
 		iterator begin() { return data; }

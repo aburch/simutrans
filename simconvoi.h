@@ -23,7 +23,6 @@
 
 #define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES	4 // number of non money types in convoi's financial statistic
 
 #define CONVOI_CAPACITY				0 // the amount of ware that could be transported, theoretically
 #define CONVOI_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
@@ -187,6 +186,12 @@ private:
 	* @author isidoro
 	*/
 	bool depot_when_empty;
+
+	/**
+	* the convoi traverses its schedule in reverse order
+	* @author yobbobandana
+	*/
+	bool reverse_schedule;
 
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -435,6 +440,13 @@ private:
 
 	uint32 move_to(karte_t const&, koord3d const& k, uint16 start_index);
 
+	/**
+	* Advance the schedule cursor.
+	* Also toggles the reverse_schedule flag if necessary.
+	* @author yobbobandana
+	*/
+	void advance_schedule();
+
 public:
 	inline route_t* get_route() { return &route; }
 
@@ -468,7 +480,7 @@ public:
 	* get state
 	* @author hsiegeln
 	*/
-	inline int get_state() { return state; }
+	int get_state() const { return state; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
@@ -671,6 +683,10 @@ public:
 	// @author: jamespetts, February 2010
 	void upgrade_vehicle(uint16 i, vehikel_t* v);
 
+	vehikel_t* front() const { return fahr[0]; }
+
+	vehikel_t* back() const { return fahr[anz_vehikel - 1]; }
+
 	/**
 	* Adds a vehicel at the start or end of the convoi.
 	* @author Hj. Malthaner
@@ -722,6 +738,18 @@ public:
 	void zeige_info();
 
 	void check_pending_updates();
+
+	/**
+	* Get whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	inline bool get_reverse_schedule() const { return reverse_schedule; }
+
+	/**
+	* Set whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	void set_reverse_schedule(bool reverse = true) { reverse_schedule = reverse; }
 
 #if 0
 private:

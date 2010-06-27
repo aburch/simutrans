@@ -13,7 +13,6 @@
 #include "../simtypes.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
-#include "../simwerkz.h"
 
 class gebaeude_t;
 class karte_t;
