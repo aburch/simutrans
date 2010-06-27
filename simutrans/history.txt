@@ -56,6 +56,8 @@
 	ADD: texture for tunnel grounds (Obj=misc, Name=TunnelTexture, Image with numbers 0,3,6,9)
 	ADD: simuconf.tab: add default values for cityroad ("city_road") and intercity road ("asphalt_road")
 	CHANGE: TAB goes to next/Shift+TAB to previous edit box, moving and resizing now even when other windows open
+	ADD: skinnable scrollbars
+	ADD: setting dialoge tool (handle with care, should not be visible by defualt for pak sets!)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
