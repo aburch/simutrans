@@ -1010,6 +1010,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 			// remove from blockstrecke
 			v->set_letztes(true);
 			v->verlasse_feld();
+			v->set_flag( ding_t::not_on_map );
 		}
 	}
 
@@ -1055,6 +1056,7 @@ void convoi_t::start()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->set_erstes( false );
 			fahr[i]->set_letztes( false );
+			fahr[i]->clear_flag( ding_t::not_on_map );
 			fahr[i]->beladen( home_depot.get_2d(), halthandle_t() );
 		}
 		fahr[0]->set_erstes( true );
@@ -2483,6 +2485,12 @@ void convoi_t::destroy()
 
 	if(  state != INITIAL  ) {
 		state = SELF_DESTRUCT;
+	}
+	else {
+		// in depot => not on map
+		for(int i=anz_vehikel-1;  i>=0; i--) {
+			fahr[i]->set_flag( ding_t::not_on_map );
+		}
 	}
 
 	// pay the current value
