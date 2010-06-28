@@ -2172,17 +2172,6 @@ vehikel_t::ist_entfernbar(const spieler_t *)
 
 bool vehikel_t::check_way_constraints(const weg_t &way) const
 {
-	//// Permissive way constraints
-	//// If vehicle has it, way must have it.
-	//uint8 my_or = besch->get_permissive_constraints() | way->get_way_constraints_permissive();
-	//const bool permissive = way->get_way_constraints_permissive() ^ my_or;
-
-	//// Prohibitive way constraints
-	//// If way has it, vehicle must have it.
-	//my_or = besch->get_prohibitive_constraints() | way->get_way_constraints_prohibitive();
-	//const bool prohibitive = besch->get_prohibitive_constraints() ^ my_or;
-
-	//return (!permissive) && (!prohibitive);
 	return missing_way_constraints_t(besch->get_way_constraints(), way.get_way_constraints()).ist_befahrbar();
 }
 
