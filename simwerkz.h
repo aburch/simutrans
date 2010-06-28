@@ -50,6 +50,7 @@
 #include "gui/enlarge_map_frame_t.h"
 #include "gui/labellist_frame_t.h"
 #include "gui/climates.h"
+#include "gui/settings_frame.h"
 
 #include "tpl/slist_tpl.h"
 
@@ -1247,6 +1248,18 @@ public:
 	bool is_selected(karte_t *) const { return win_get_magic(magic_climate); }
 	bool init( karte_t *welt, spieler_t * ) {
 		create_win( new climate_gui_t(welt->get_einstellungen()), w_info, magic_climate );
+		return false;
+	}
+};
+
+/* open climate settings */
+class wkz_settings_t : public werkzeug_t {
+public:
+	wkz_settings_t() : werkzeug_t() { id = WKZ_SETTINGS | DIALOGE_TOOL; }
+	const char *get_tooltip(spieler_t *) { return translator::translate("Setting"); }
+	bool is_selected(karte_t *) const { return win_get_magic(magic_settings_frame_t); }
+	bool init( karte_t *welt, spieler_t * ) {
+		create_win( new settings_frame_t(welt->get_einstellungen()), w_info, magic_settings_frame_t );
 		return false;
 	}
 };

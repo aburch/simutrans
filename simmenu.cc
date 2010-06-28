@@ -176,6 +176,7 @@ werkzeug_t *create_dialog_tool(int toolnr)
 		case WKZ_ENLARGE_MAP:    tool = new wkz_enlarge_map_t(); break;
 		case WKZ_LIST_LABEL:     tool = new wkz_list_label_t(); break;
 		case WKZ_CLIMATES:       tool = new wkz_climates_t(); break;
+		case WKZ_SETTINGS:       tool = new wkz_settings_t(); break;
 		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 		                         return NULL;
 	}

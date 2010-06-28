@@ -38,7 +38,7 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
  */
 void gui_scrollpane_t::recalc_sliders(koord groesse)
 {
-	scroll_x.set_pos(koord(0, groesse.y-13));
+	scroll_x.set_pos(koord(0, groesse.y-14));
 	scroll_x.set_groesse(groesse-koord(14,14));
 	scroll_x.set_knob(groesse.x-14, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
 
@@ -147,7 +147,7 @@ void gui_scrollpane_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 
-	PUSH_CLIP(pos.x, pos.y, groesse.x-14*b_show_scroll_y, groesse.y-13*b_show_scroll_x );
+	PUSH_CLIP(pos.x, pos.y, groesse.x-14*b_show_scroll_y, groesse.y-14*b_show_scroll_x );
 	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()));
 	POP_CLIP();
 
