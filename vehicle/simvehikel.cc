@@ -2392,11 +2392,17 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	if(str==NULL  ||  str->get_max_speed()==0) {
 		return false;
 	}
+	bool weight = true;
 	if(!is_checker)
 	{
 		bool electric = cnv!=NULL  ?  cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric;
 		if(electric  &&  !str->is_electrified()) {
 			return false;
+		}
+		const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
+		if(routing_weight > str->get_max_weight())
+		{
+			weight = false;
 		}
 	}
 	// check for signs
@@ -2412,12 +2418,11 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 			}
 		}
 	}
-	//const strasse_t* way = str;
 	if(!is_checker)
 	{
-		return check_way_constraints(*str);
+		return check_way_constraints(*str) && weight;
 	}
-	return true;
+	return weight;
 }
 
 
@@ -2914,6 +2919,13 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
 	const bool ok = (sch != NULL) && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
+	
+	bool weight = true;
+	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
+	if(routing_weight > sch->get_max_weight())
+	{
+		weight = false;
+	}
 
 	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
 	{
@@ -2938,10 +2950,9 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
-		return sch->can_reserve(cnv->self);
+		return sch->can_reserve(cnv->self) && weight;
 	}
 }
-
 
 
 // how expensive to go here (for way search)
