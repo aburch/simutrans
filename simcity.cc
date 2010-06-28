@@ -86,7 +86,7 @@ void stadt_t::privatecar_init(const std::string &objfilename)
 {
 	tabfile_t ownership_file;
 	// first take user data, then user global data
-	if (ownership_file.open((objfilename+"config/privatecar.tab").c_str()))
+	if (!ownership_file.open((objfilename+"config/privatecar.tab").c_str()))
 	{
 		dbg->message("stadt_t::privatecar_init()", "Error opening config/privatecar.tab.\nWill use default value." );
 		return;
@@ -179,7 +179,7 @@ void stadt_t::electricity_consumption_init(const std::string &objfilename)
 {
 	tabfile_t consumption_file;
 	// first take user data, then user global data
-	if (consumption_file.open((objfilename+"config/electricity.tab").c_str()))
+	if (!consumption_file.open((objfilename+"config/electricity.tab").c_str()))
 	{
 		dbg->message("stadt_t::electricity_consumption_init()", "Error opening config/electricity.tab.\nWill use default value." );
 		return;
