@@ -240,7 +240,7 @@ void gui_textinput_t::zeichnen_mit_cursor(koord offset,bool show_cursor)
 		// display text
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+1+(groesse.y-large_font_height)/2, text, align, textcol, true);
 
-		if(  show_cursor  &&  ((dr_time()>>9)&1ul)  ) {
+		if(  show_cursor  &&  (dr_time()&512ul)  ) {
 			// cursor must been shown, if textinput has focus!
 			display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 		}
@@ -307,7 +307,7 @@ void gui_hidden_textinput_t::zeichnen(koord offset)
 		utf16  c = 0;
 		do {
 			// cursor?
-			if(  text_pos==cursor_pos  &&  ((dr_time()>>9)&1ul)  ) {
+			if(  text_pos==cursor_pos  &&  (dr_time()&512ul)  ) {
 				display_fillbox_wh_clip( xpos, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 			}
 			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);
