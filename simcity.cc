@@ -4192,7 +4192,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	const uint32 ymax2 = wl->get_groesse_y()/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
 
-	for (int i = 0; i < anzahl; i++) {
+	for (int i = 0; i < multiplied_number; i++) {
 		// check distances of all cities to their respective neightbours
 		while (!index_to_places.empty()) {
 			// find a random cell
@@ -4224,7 +4224,66 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 
 			if (ok){ //minimum_dist > minimum_city_distance) {
 				// all citys are far enough => ok, find next place
-				result->append(k);
+				// all cities are far enough => ok, find next place
+				if(welt != NULL && !umgebung_t::cities_ignore_height)
+ 				{
+					const sint16 height_above_water = welt->lookup_hgt(k) - welt->get_grundwasser();
+					uint32 weight;
+					switch(height_above_water)
+					{
+					case 1:
+						weight = 24;
+						break;
+					case 2:
+						weight = 22;
+						break;
+					case 3:
+						weight = 16;
+						break;
+					case 4:
+						weight = 12;
+						break;
+					case 5:
+						weight = 10;
+						break;
+					case 6:
+						weight = 9;
+						break;
+					case 7:
+						weight = 8;
+						break;
+					case 8:
+						weight = 7;
+						break;
+					case 9:
+						weight = 6;
+						break;
+					case 10:
+						weight = 5;
+						break;
+					case 11:
+						weight = 4;
+						break;
+					case 12:
+					case 13:
+						weight = 3;
+						break;
+					case 14:
+					case 15:
+						weight = 2;
+						break;
+					default:
+						weight = 1;
+					};
+					pre_result->append(k, weight); 
+ 					break;
+				}
+				else
+				{
+					result->append(k);
+ 					break;
+				}
+
 				result_places.at(k2mcd).append(k);
 				break;
 			}
@@ -4246,6 +4305,24 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	}
 	list->clear();
 	delete list;
+	if(welt != NULL && !umgebung_t::cities_ignore_height)
+ 	{
+		uint16 weight = 0;
+		const uint16 total_weight = pre_result->get_sum_weight();
+		for (int i = 0; i < anzahl; i++) 
+ 		{
+			// Now produce the real results from the pre-list.
+			weight = simrand(total_weight);
+			if(!result->append_unique(pre_result->at_weight(weight)))
+			{
+				i--;
+			}
+ 		}
+
+		pre_result->clear();
+		delete pre_result;
+	}
+
 	return result;
 }
 
