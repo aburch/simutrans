@@ -67,6 +67,7 @@ static spezial_obj_tpl<skin_besch_t> misc_objekte[] = {
 
 static spezial_obj_tpl<skin_besch_t> menu_objekte[] = {
 	// new menu system
+	{ &skinverwaltung_t::window_skin,       "WindowSkin"   },
 	{ &skinverwaltung_t::werkzeuge_general, "GeneralTools" },
 	{ &skinverwaltung_t::werkzeuge_simple,  "SimpleTools"  },
 	{ &skinverwaltung_t::werkzeuge_dialoge, "DialogeTools" },
@@ -94,7 +95,6 @@ static spezial_obj_tpl<skin_besch_t> symbol_objekte[] = {
 // simutrans will work without those
 static spezial_obj_tpl<skin_besch_t> fakultative_objekte[] = {
 	{ &skinverwaltung_t::biglogosymbol,      "BigLogo"        },
-	{ &skinverwaltung_t::window_skin,       "WindowSkin"      },
 	{ &skinverwaltung_t::mouse_cursor,       "Mouse"          },
 	{ &skinverwaltung_t::zughaltsymbol,      "TrainStop"      },
 	{ &skinverwaltung_t::autohaltsymbol,     "CarStop"        },
@@ -121,7 +121,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 {
 	spezial_obj_tpl<skin_besch_t>* sb;
 	switch (type) {
-		case menu:    sb = menu_objekte;       break;
+		case menu:    sb = menu_objekte+1;       break;
 		case cursor:  sb = cursor_objekte;     break;
 		case symbol:  sb = symbol_objekte;     break;
 		case misc:
