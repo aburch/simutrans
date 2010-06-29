@@ -244,36 +244,37 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 	MEMZERO(bild);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
-	if (an_imagekey.size() > 2 && an_imagekey[0] == '>') {
+	if(  an_imagekey.size() > 2  &&  an_imagekey[0] == '>'  ) {
 		imagekey = an_imagekey.substr(2, std::string::npos);
 		bild.zoomable = false;
-	} else {
+	}
+	else {
 		imagekey = an_imagekey;
 		bild.zoomable = true;
 	}
 
-	if (imagekey != "-" && imagekey != "") {
+	if(  imagekey != "-"  &&  imagekey != ""  ) {
 		// divide key in filename and image number
 		int row = -1, col = -1;
 		string numkey;
 
 		int j = imagekey.rfind('/');
-		if (j == -1) {
+		if(  j == -1  ) {
 			numkey = imagekey;
-		} else {
+		}
+		else {
 			numkey = imagekey.substr(j + 1, std::string::npos);
 		}
 
 		int i = numkey.find('.');
-		if (i == -1) {
+		if(  i == -1  ) {
 			char reason[1024];
 			sprintf(reason, "no image number in %s", imagekey.c_str() );
 			throw obj_pak_exception_t("image_writer_t", reason);
 		}
-		numkey = numkey.substr(i + 1, std::string::npos);
+		numkey = numkey.substr( i+1, std::string::npos );
 
-		imagekey = root_writer_t::get_inpath() + imagekey.substr(imagekey.size() - numkey.size() - 1) +  ".png";
-
+		imagekey = root_writer_t::get_inpath() + imagekey.substr( 0, imagekey.size()-numkey.size() - 1 ) +  ".png";
 
 		i = numkey.find('.');
 		if (i == -1) {
