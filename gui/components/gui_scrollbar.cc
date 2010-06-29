@@ -25,17 +25,15 @@ scrollbar_t::scrollbar_t(enum type type) :
 	knob_area(20),
 	knob_scroll_amount(11) // equals one line
 {
-	// init size of scroll bars
-	if(  BAR_SIZE==0  ) {
-		if(  button_t::scrollbar_slider_center != IMG_LEER  ) {
-			BAR_SIZE = skinverwaltung_t::window_skin->get_bild(35)->get_pic()->w;
-		}
-		else if(  button_t::arrow_up_pushed != IMG_LEER  ) {
-			BAR_SIZE = skinverwaltung_t::window_skin->get_bild(19)->get_pic()->w;
-		}
-		else {
-			BAR_SIZE = 10;
-		}
+	// init size of scroll bars (might be changed in between due to loading of new paks ...
+	if(  button_t::scrollbar_slider_center != IMG_LEER  ) {
+		BAR_SIZE = skinverwaltung_t::window_skin->get_bild(35)->get_pic()->w;
+	}
+	else if(  button_t::arrow_up_pushed != IMG_LEER  ) {
+		BAR_SIZE = skinverwaltung_t::window_skin->get_bild(19)->get_pic()->w;
+	}
+	else {
+		BAR_SIZE = 10;
 	}
 
 	if (type == vertical) {
