@@ -217,10 +217,11 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 bool image_writer_t::block_laden(const char* fname)
 {
 	// The last png-file is cached
-	if (last_img_file == fname || load_block(&block, &width, &height, fname, img_size)) {
+	if(  last_img_file == fname  ||  load_block(&block, &width, &height, fname, img_size)  ) {
 		last_img_file = fname;
 		return true;
-	} else {
+	}
+	else {
 		last_img_file = "";
 		return false;
 	}
@@ -276,21 +277,19 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 
 		imagekey = root_writer_t::get_inpath() + imagekey.substr( 0, imagekey.size()-numkey.size() - 1 ) +  ".png";
 
+		row = atoi(numkey.c_str());
+
 		i = numkey.find('.');
-		if (i == -1) {
-			row = atoi(numkey.c_str());
-		} else {
-			row = atoi(numkey.substr(i).c_str());
-			col = atoi(numkey.substr(i + 1, std::string::npos).c_str());
+		if(i != -1) {
+			col = atoi( numkey.c_str()+i+1 );
 
 			// add image offsets
-			numkey = numkey.substr(i + 1, std::string::npos);
-			i = numkey.find(',');
-			if (i != -1) {
-				bild.x = atoi(numkey.substr(i+1, std::string::npos).c_str());
-				numkey = numkey.substr(i + 1, std::string::npos);
-				i = numkey.find(',');
-				if(i!=-1) {
+			int comma_pos = numkey.find(',');
+			if(comma_pos != -1) {
+				numkey = numkey.substr( comma_pos+1, std::string::npos);
+				bild.x = atoi( numkey.c_str() );
+				comma_pos = numkey.find(',');
+				if(comma_pos != -1) {
 					bild.y = atoi(numkey.substr(i + 1, std::string::npos).c_str());
 				}
 			}
