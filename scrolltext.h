@@ -77,6 +77,8 @@
 " Turfit","beta testing",
 " Steffen","beta testing",
 " Sdog","beta testing",
+" AEO","beta testing",
+" Dutchman on Rails","beta testing",
 "","",
 "","",
 "Game Design Assistance:","",
