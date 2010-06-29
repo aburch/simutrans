@@ -229,7 +229,7 @@ void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pre
 
 void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horizontal, bool slider)
 {
-	if(  scrollbar_left!=IMG_LEER  ) {
+	if(  scrollbar_middle!=IMG_LEER  ) {
 		if(  horizontal  ) {
 			const int image_offset = 24 + (slider ? 3 : 0);
 			const sint16 lw = skinverwaltung_t::window_skin->get_bild(image_offset)->get_pic()->w;
@@ -249,8 +249,8 @@ void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horiz
 				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+w-rw-64, y, 0, false, true);
 			}
 			// now the begin and end ...
-			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
-			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x+w-rw, y, 0, false, true);
+			display_color_img( skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
+			display_color_img( skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x+w-rw, y, 0, false, true);
 		}
 		else {
 			// vertical bar ...
@@ -455,6 +455,10 @@ bool button_t::infowin_event(const event_t *ev)
 // draw button. x,y is top left of window.
 void button_t::zeichnen(koord offset)
 {
+	if(  !is_visible()  ) {
+		return;
+	}
+
 	int bx = offset.x + pos.x;
 	int by = offset.y + pos.y;
 
@@ -508,35 +512,61 @@ void button_t::zeichnen(koord offset)
 					// white box around
 					display_fillbox_wh_clip(bx+16, by+(12+large_font_height)/2-2, bw-14, 1, COL_WHITE, false);
 				}
-				display_button_image(bx, by, SQUARE_BUTTON, pressed);
+				if(  square_button_pushed!=IMG_LEER  ) {
+					display_button_image(bx, by, SQUARE_BUTTON, pressed);
+				}
+				else {
+					display_fillbox_wh_clip( bx, by, 11, 11, COL_BLACK, true );
+					display_fillbox_wh_clip( bx+1, by+1, 9, 9, pressed ? MN_GREY3 : MN_GREY1, true );
+				}
 				display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 			}
 			break;
 
 		case arrowleft:
 		case repeatarrowleft:
-			display_button_image(bx, by, ARROW_LEFT, pressed);
+			if(  arrow_left_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_LEFT, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, "<", true );
+			}
 			break;
 
 		case posbutton:
 		case arrowright:
 		case repeatarrowright:
-			display_button_image(bx, by, ARROW_RIGHT, pressed);
+			if(  arrow_right_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_RIGHT, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, ">", true );
+			}
 			break;
 
 		case arrowup:
-			display_button_image(bx, by, ARROW_UP, pressed);
+			if(  arrow_up_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_UP, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, "+", true );
+			}
 			break;
 
 		case arrowdown:
-			display_button_image(bx, by, ARROW_DOWN, pressed);
+			if(  arrow_down_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_DOWN, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, "+", true );
+			}
 			break;
 
 		case scrollbar_horizontal:
 		case scrollbar_vertical:
 			// new 3d-look scrollbar knob
 			// pressed: background
-			if(  scrollbar_left==IMG_LEER  ) {
+			if(  scrollbar_center==IMG_LEER  ) {
 				mark_rect_dirty_wc(bx, by, bx+bw-1, by+bh-1);
 				// use own 3D like routines
 				if (pressed) {

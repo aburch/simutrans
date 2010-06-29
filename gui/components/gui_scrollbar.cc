@@ -16,7 +16,7 @@
 #include "../../besch/skin_besch.h"
 
 
-#define BAR_WIDTH (12)
+sint16 scrollbar_t::BAR_SIZE = 0;
 
 scrollbar_t::scrollbar_t(enum type type) :
 	type(type),
@@ -25,15 +25,36 @@ scrollbar_t::scrollbar_t(enum type type) :
 	knob_area(20),
 	knob_scroll_amount(11) // equals one line
 {
+	// init size of scroll bars
+	if(  BAR_SIZE==0  ) {
+		if(  button_t::scrollbar_slider_center != IMG_LEER  ) {
+			BAR_SIZE = skinverwaltung_t::window_skin->get_bild(35)->get_pic()->w;
+		}
+		else if(  button_t::arrow_up_pushed != IMG_LEER  ) {
+			BAR_SIZE = skinverwaltung_t::window_skin->get_bild(19)->get_pic()->w;
+		}
+		else {
+			BAR_SIZE = 10;
+		}
+	}
+
 	if (type == vertical) {
-		groesse = koord(14,40);
+		groesse = koord(BAR_SIZE,40);
+		if(  button_t::arrow_up_pushed==IMG_LEER  ) {
+			button_def[0].set_visible( false );
+			button_def[1].set_visible( false );
+		}
 		button_def[0].set_typ(button_t::arrowup);
 		button_def[1].set_typ(button_t::arrowdown);
 		button_def[2].set_typ(button_t::scrollbar_vertical);
 		button_def[3].set_typ(button_t::scrollbar_vertical);
 	}
 	else { // horizontal
-		groesse = koord(40,14);
+		if(  button_t::arrow_left_pushed==IMG_LEER  ) {
+			button_def[0].set_visible( false );
+			button_def[1].set_visible( false );
+		}
+		groesse = koord(40,BAR_SIZE);
 		button_def[0].set_typ(button_t::arrowleft);
 		button_def[1].set_typ(button_t::arrowright);
 		button_def[2].set_typ(button_t::scrollbar_horizontal);
@@ -97,26 +118,26 @@ void scrollbar_t::reposition_buttons()
 	sint32 size   = (sint32)( (float)knob_size   * ratio +.5 );
 
 	if(type == vertical) {
-		button_def[0].set_pos( koord( (14-arrowsize.x)/2, 0) );
-		button_def[1].set_pos( koord( (14-arrowsize.x)/2, groesse.y-arrowsize.y+1) );
+		button_def[0].set_pos( koord( (BAR_SIZE-arrowsize.x)/2, 0) );
+		button_def[1].set_pos( koord( (BAR_SIZE-arrowsize.x)/2, groesse.y-arrowsize.y+1) );
 		button_def[2].set_pos( koord( 0, arrowsize.y+offset ) );
 		if(  button_t::scrollbar_left!=IMG_LEER  ) {
 			size = max( size, skinverwaltung_t::window_skin->get_bild(33)->get_pic()->h+skinverwaltung_t::window_skin->get_bild(34)->get_pic()->h );
 		}
-		button_def[2].set_groesse( koord(14,size) );
+		button_def[2].set_groesse( koord(BAR_SIZE,size) );
 		button_def[3].set_pos( koord(0,arrowsize.y) );
-		button_def[3].set_groesse( koord(14,groesse.y-2*arrowsize.y) );
+		button_def[3].set_groesse( koord(BAR_SIZE,groesse.y-2*arrowsize.y) );
 	}
 	else { // horizontal
-		button_def[0].set_pos( koord(0,(14-arrowsize.y)/2) );
-		button_def[1].set_pos( koord(groesse.x-arrowsize.x+1,(14-arrowsize.y)/2) );
+		button_def[0].set_pos( koord(0,(BAR_SIZE-arrowsize.y)/2) );
+		button_def[1].set_pos( koord(groesse.x-arrowsize.x+1,(BAR_SIZE-arrowsize.y)/2) );
 		button_def[2].set_pos( koord(arrowsize.x+offset,0) );
 		if(  button_t::scrollbar_left!=IMG_LEER  ) {
 			size = max( size, skinverwaltung_t::window_skin->get_bild(27)->get_pic()->w+skinverwaltung_t::window_skin->get_bild(28)->get_pic()->w );
 		}
-		button_def[2].set_groesse( koord(size,14) );
+		button_def[2].set_groesse( koord(size,BAR_SIZE) );
 		button_def[3].set_pos( koord(arrowsize.x,0) );
-		button_def[3].set_groesse( koord(groesse.x-2*arrowsize.x,14) );
+		button_def[3].set_groesse( koord(groesse.x-2*arrowsize.x,BAR_SIZE) );
 	}
 }
 

@@ -19,6 +19,9 @@ class scrollbar_t :
 public:
 	enum type { vertical, horizontal };
 
+	// width/height of bar part
+	static sint16 BAR_SIZE;
+
 private:
 	enum type type;
 

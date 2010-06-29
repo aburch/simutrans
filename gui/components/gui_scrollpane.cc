@@ -38,17 +38,17 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
  */
 void gui_scrollpane_t::recalc_sliders(koord groesse)
 {
-	scroll_x.set_pos(koord(0, groesse.y-14));
-	scroll_x.set_groesse(groesse-koord(14,14));
-	scroll_x.set_knob(groesse.x-14, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
+	scroll_x.set_pos(koord(0, groesse.y-scrollbar_t::BAR_SIZE));
+	scroll_x.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+	scroll_x.set_knob(groesse.x-scrollbar_t::BAR_SIZE, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
 
 	if(b_has_size_corner  ||  b_show_scroll_x) {
-		scroll_y.set_pos(koord(groesse.x-14, 0));
-		scroll_y.set_groesse(groesse-koord(14,14));
-		scroll_y.set_knob(groesse.y-14, komp->get_groesse().y + komp->get_pos().y);
+		scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
+		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+		scroll_y.set_knob(groesse.y-scrollbar_t::BAR_SIZE, komp->get_groesse().y + komp->get_pos().y);
 	}
 	else {
-		scroll_y.set_pos(koord(groesse.x-14, 0));
+		scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
 		scroll_y.set_groesse(groesse);
 		scroll_y.set_knob(groesse.y, komp->get_groesse().y + komp->get_pos().y);
 	}
@@ -147,7 +147,7 @@ void gui_scrollpane_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 
-	PUSH_CLIP(pos.x, pos.y, groesse.x-14*b_show_scroll_y, groesse.y-14*b_show_scroll_x );
+	PUSH_CLIP(pos.x, pos.y, groesse.x-scrollbar_t::BAR_SIZE*b_show_scroll_y, groesse.y-scrollbar_t::BAR_SIZE*b_show_scroll_x );
 	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()));
 	POP_CLIP();
 

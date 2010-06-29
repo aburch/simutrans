@@ -143,11 +143,17 @@ static int display_gadget_box(simwin_gadget_et const  code,
 		display_fillbox_wh(x+1, y+1, 14, 14, color+1, false);
 	}
 
-	// "x", "?", "=", "«", "»"
-	const int img = skinverwaltung_t::window_skin->get_bild_nr(code+1);
+	if(  skinverwaltung_t::window_skin  ) {
+		// "x", "?", "=", "«", "»"
+		const int img = skinverwaltung_t::window_skin->get_bild_nr(code+1);
 
-	// to prevent day and nightchange
-	display_color_img(img, x, y, 0, false, false);
+		// to prevent day and nightchange
+		display_color_img(img, x, y, 0, false, false);
+	}
+	else {
+		static const char *gadget_text[6]={ "X", "?", "=", "<", ">", "S" };
+		display_proportional( x+4, y+4, code<lengthof(gadget_text) ? gadget_text[code] :  "#", ALIGN_LEFT, COL_BLACK, false );
+	}
 
 	// Hajo: return width of gadget
 	return 16;
@@ -281,8 +287,14 @@ static void win_draw_window_title(const koord pos, const koord gr,
 static void win_draw_window_dragger(koord pos, koord gr)
 {
 	pos += gr;
-	for(  int x=0;  x<dragger_size;  x++  ) {
-		display_fillbox_wh( pos.x-x, pos.y-dragger_size+x, x, 1, (x & 1) ? COL_BLACK : MN_GREY4, true);
+	if(  skinverwaltung_t::window_skin  &&  skinverwaltung_t::window_skin->get_bild_nr(36)!=IMG_LEER  ) {
+		const bild_besch_t *dragger = skinverwaltung_t::window_skin->get_bild(36);
+		display_color_img( dragger->get_nummer(), pos.x-dragger->get_pic()->w, pos.y-dragger->get_pic()->h, 0, false, false);
+	}
+	else {
+		for(  int x=0;  x<dragger_size;  x++  ) {
+			display_fillbox_wh( pos.x-x, pos.y-dragger_size+x, x, 1, (x & 1) ? COL_BLACK : MN_GREY4, true);
+		}
 	}
 }
 
