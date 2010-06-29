@@ -172,7 +172,7 @@ void gui_combobox_t::zeichnen(koord offset)
 	}
 
 	const gui_fenster_t *win = win_get_top();
-	textinp.zeichnen_mit_cursor( offset,(win  &&  win->get_focus()==this) );
+	textinp.display_with_focus( offset,(win  &&  win->get_focus()==this) );
 
 	if (droplist.is_visible()) {
 		droplist.zeichnen(offset);

@@ -26,7 +26,9 @@ gui_textinput_t::gui_textinput_t() :
 	max(0),
 	cursor_pos(0),
 	align(ALIGN_LEFT),
-	textcol(COL_BLACK)
+	textcol(COL_BLACK),
+	cursor_reference_time(0),
+	focus_recieved(false)
 {
 	set_allow_focus(true);
 }
@@ -167,6 +169,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 		else {
 			DBG_MESSAGE("gui_textinput_t::infowin_event", "called but text is NULL");
 		}
+		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 	} else if ( IS_LEFTCLICK(ev) ) 	{
 		// acting on release causes unwanted recalculations of cursor position for long strings and (cursor_offset>0)
@@ -181,6 +184,7 @@ bool gui_textinput_t::infowin_event(const event_t *ev)
 			}
 		}
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
+		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 	}
 	else if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_UNTOP  ) {
@@ -197,13 +201,32 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
  */
 void gui_textinput_t::zeichnen(koord offset)
 {
-	const gui_fenster_t *win = win_get_top();
-	zeichnen_mit_cursor( offset, (win  &&  win->get_focus()==this) );
+	const gui_fenster_t *const win = win_get_top();
+	display_with_focus( offset, (win  &&  win->get_focus()==this) );
 }
 
 
+/**
+ * Detect change of focus state and determine whether cursor should be displayed,
+ * and call the function that performs the actual display
+ * @author Knightly
+ */
+void gui_textinput_t::display_with_focus(koord offset, bool has_focus)
+{
+	// check if focus state has changed
+	if(  focus_recieved!=has_focus  ) {
+		if(  has_focus  ) {
+			// update reference time for cursor blinking if focus has just been received
+			cursor_reference_time = dr_time();
+		}
+		focus_recieved = has_focus;
+	}
 
-void gui_textinput_t::zeichnen_mit_cursor(koord offset,bool show_cursor)
+	display_with_cursor( offset, (has_focus  &&  ((dr_time()-cursor_reference_time)&512ul)==0) );
+}
+
+
+void gui_textinput_t::display_with_cursor(koord offset, bool show_cursor)
 {
 	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
 	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
@@ -240,7 +263,7 @@ void gui_textinput_t::zeichnen_mit_cursor(koord offset,bool show_cursor)
 		// display text
 		display_proportional_clip(pos.x+offset.x+2-cursor_offset+align_offset, pos.y+offset.y+1+(groesse.y-large_font_height)/2, text, align, textcol, true);
 
-		if(  show_cursor  &&  (dr_time()&512ul)  ) {
+		if(  show_cursor  ) {
 			// cursor must been shown, if textinput has focus!
 			display_fillbox_wh_clip(pos.x+offset.x+1+proportional_string_len_width(text, cursor_pos)-cursor_offset, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 		}
@@ -272,6 +295,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 		if (text) {
 			cursor_pos = min( strlen(text), ev->cx/asterix_width );
 		}
+		cursor_reference_time = dr_time();	// update reference time for cursor blinking
 		return true;
 DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos,ev->cx);
 	}
@@ -283,7 +307,7 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
 
 
 
-void gui_hidden_textinput_t::zeichnen(koord offset)
+void gui_hidden_textinput_t::display_with_cursor(koord offset, bool show_cursor)
 {
 	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
 	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);
@@ -307,7 +331,7 @@ void gui_hidden_textinput_t::zeichnen(koord offset)
 		utf16  c = 0;
 		do {
 			// cursor?
-			if(  text_pos==cursor_pos  &&  (dr_time()&512ul)  ) {
+			if(  show_cursor  &&  text_pos==cursor_pos  ) {
 				display_fillbox_wh_clip( xpos, pos.y+offset.y+1, 1, 11, COL_WHITE, true);
 			}
 			c = utf8_to_utf16((utf8 const*)text + text_pos, &text_pos);

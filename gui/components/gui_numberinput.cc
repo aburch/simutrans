@@ -319,7 +319,7 @@ void gui_numberinput_t::zeichnen(koord offset)
 	bt_left.zeichnen(new_offset);
 
 	const gui_fenster_t *win = win_get_top();
-	textinp.zeichnen_mit_cursor( new_offset, (win  &&  win->get_focus()==this) );
+	textinp.display_with_focus( new_offset, (win  &&  win->get_focus()==this) );
 	bt_right.zeichnen(new_offset);
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
