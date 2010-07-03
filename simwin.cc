@@ -43,7 +43,7 @@
 #include "gui/messagebox.h"
 #include "gui/werkzeug_waehler.h"
 
-#include "ifc/gui_fenster.h"
+#include "gui/gui_frame.h"
 
 #include "player/simplay.h"
 
@@ -77,7 +77,7 @@ public:
 	uint32 dauer;        // Wie lange soll das Fenster angezeigt werden ?
 	uint8 wt;	// the flags for the window type
 	long magic_number;	// either magic number or this pointer (which is unique too)
-	gui_fenster_t *gui;
+	gui_frame_t *gui;
 	bool closing;
 	bool sticky;	// true if window is sticky
 	bool rollup;
@@ -304,7 +304,7 @@ static void win_draw_window_dragger(koord pos, koord gr)
 
 
 // returns the window (if open) otherwise zero
-gui_fenster_t *win_get_magic(long magic)
+gui_frame_t *win_get_magic(long magic)
 {
 	if(magic!=-1  &&  magic!=0) {
 		// es kann nur ein fenster fuer jede pos. magic number geben
@@ -324,7 +324,7 @@ gui_fenster_t *win_get_magic(long magic)
  * Returns top window
  * @author prissi
  */
-gui_fenster_t *win_get_top()
+gui_frame_t *win_get_top()
 {
 	return wins.get_count()>0 ? wins[wins.get_count()-1].gui : NULL;
 }
@@ -337,7 +337,7 @@ int win_get_open_count()
 
 
 // brings a window to front, if open
-bool top_win(const gui_fenster_t *gui)
+bool top_win(const gui_frame_t *gui)
 {
 	for(  uint i=0;  i<wins.get_count()-1;  i++  ) {
 		if(wins[i].gui==gui) {
@@ -353,7 +353,7 @@ bool top_win(const gui_fenster_t *gui)
  * Checks if a window is a top level window
  * @author Hj. Malthaner
  */
-bool win_is_top(const gui_fenster_t *ig)
+bool win_is_top(const gui_frame_t *ig)
 {
 	return wins.get_count()>0 ? wins[wins.get_count()-1].gui == ig : false;
 }
@@ -361,13 +361,13 @@ bool win_is_top(const gui_fenster_t *ig)
 
 // window functions
 
-int create_win(gui_fenster_t* const gui, wintype const wt, long const magic)
+int create_win(gui_frame_t* const gui, wintype const wt, long const magic)
 {
 	return create_win( -1, -1, gui, wt, magic);
 }
 
 
-int create_win(int x, int y, gui_fenster_t* const gui, wintype const wt, long const magic)
+int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long const magic)
 {
 	assert(gui!=NULL  &&  magic!=0);
 
@@ -524,7 +524,7 @@ static void destroy_framed_win(simwin_t *wins)
 
 void destroy_win(const long magic)
 {
-	const gui_fenster_t *gui = win_get_magic(magic);
+	const gui_frame_t *gui = win_get_magic(magic);
 	if(gui) {
 		destroy_win( gui );
 	}
@@ -532,7 +532,7 @@ void destroy_win(const long magic)
 
 
 
-void destroy_win(const gui_fenster_t *gui)
+void destroy_win(const gui_frame_t *gui)
 {
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		if(wins[i].gui == gui) {
@@ -605,11 +605,11 @@ int top_win(int win)
 void display_win(int win)
 {
 	// ok, now process it
-	gui_fenster_t *komp = wins[win].gui;
+	gui_frame_t *komp = wins[win].gui;
 	koord gr = komp->get_fenstergroesse();
 	koord pos = wins[win].pos;
 	int titel_farbe = komp->get_titelcolor();
-	bool need_dragger = komp->get_resizemode() != gui_fenster_t::no_resize;
+	bool need_dragger = komp->get_resizemode() != gui_frame_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
 	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
@@ -738,7 +738,7 @@ void resize_win(int i, event_t *ev)
 }
 
 
-int win_get_posx(gui_fenster_t *gui)
+int win_get_posx(gui_frame_t *gui)
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
 		if(wins[i].gui == gui) {
@@ -749,7 +749,7 @@ int win_get_posx(gui_fenster_t *gui)
 }
 
 
-int win_get_posy(gui_fenster_t *gui)
+int win_get_posy(gui_frame_t *gui)
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
 		if(wins[i].gui == gui) {
@@ -760,7 +760,7 @@ int win_get_posy(gui_fenster_t *gui)
 }
 
 
-void win_set_pos(gui_fenster_t *gui, int x, int y)
+void win_set_pos(gui_frame_t *gui, int x, int y)
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {
 		if(wins[i].gui == gui) {
@@ -928,7 +928,7 @@ bool check_pos_win(event_t *ev)
 						}
 						if(IS_RIGHTCLICK(ev)) {
 							wins[i].rollup ^= 1;
-							gui_fenster_t *gui = wins[i].gui;
+							gui_frame_t *gui = wins[i].gui;
 							koord gr = gui->get_fenstergroesse();
 							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
 						}
@@ -951,7 +951,7 @@ bool check_pos_win(event_t *ev)
 												(ev->cx > wins[i].pos.x + gr.x - dragger_size  &&
 												 ev->cy > wins[i].pos.y + gr.y - dragger_size);
 
-					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_fenster_t::no_resize) {
+					if((IS_LEFTCLICK(ev)  ||  IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  &&  canresize  &&  wins[i].gui->get_resizemode()!=gui_frame_t::no_resize) {
 						resize_win( i, ev );
 						is_resizing = i;
 					}

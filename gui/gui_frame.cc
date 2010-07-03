@@ -28,7 +28,7 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 	groesse = koord(200, 100);
 	owner = sp;
 	container.set_pos(koord(0,16));
-	set_resizemode (no_resize); //25-may-02	markus weber	added
+	set_resizemode(no_resize); //25-may-02	markus weber	added
 	dirty = true;
 }
 

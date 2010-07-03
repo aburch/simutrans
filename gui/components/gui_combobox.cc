@@ -7,9 +7,9 @@
 
 #include <string.h>
 
-#include "../../ifc/gui_fenster.h"
 #include "../../macros.h"
 #include "../../simdebug.h"
+#include "../gui_frame.h"
 #include "gui_combobox.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
@@ -171,7 +171,7 @@ void gui_combobox_t::zeichnen(koord offset)
 		tstrncpy(editstr, item->get_text(), lengthof(editstr));
 	}
 
-	gui_fenster_t *win = win_get_top();
+	gui_frame_t *win = win_get_top();
 	textinp.display_with_focus( offset,(win  &&  win->get_focus()==this) );
 
 	if (droplist.is_visible()) {

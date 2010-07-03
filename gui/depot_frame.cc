@@ -1156,7 +1156,7 @@ void depot_frame_t::fahrplaneingabe()
 		// this can happen locally, since any update of the schedule is done during closing window
 		schedule_t *fpl = cnv->create_schedule();
 		assert(fpl!=NULL);
-		gui_fenster_t *fplwin = win_get_magic((long)fpl);
+		gui_frame_t *fplwin = win_get_magic((long)fpl);
 		if(   fplwin==NULL  ) {
 			cnv->open_schedule_window( get_welt()->get_active_player()==cnv->get_besitzer() );
 		}

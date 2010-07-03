@@ -11,7 +11,7 @@
 #include "simtypes.h"
 
 class karte_t;
-class gui_fenster_t;
+class gui_frame_t;
 struct event_t;
 
 /* Typen fuer die Fenster */
@@ -85,35 +85,35 @@ enum magic_numbers {
 void init_map_win();
 
 
-int create_win(gui_fenster_t*, wintype, long magic);
-int create_win(int x, int y, gui_fenster_t*, wintype, long magic);
+int create_win(gui_frame_t*, wintype, long magic);
+int create_win(int x, int y, gui_frame_t*, wintype, long magic);
 
 bool check_pos_win(struct event_t *ev);
 
-int win_get_posx(gui_fenster_t *ig);
-int win_get_posy(gui_fenster_t *ig);
-void win_set_pos(gui_fenster_t *ig, int x, int y);
+int win_get_posx(gui_frame_t *ig);
+int win_get_posy(gui_frame_t *ig);
+void win_set_pos(gui_frame_t *ig, int x, int y);
 
-gui_fenster_t *win_get_top();
+gui_frame_t *win_get_top();
 
 int win_get_open_count();
 
 // returns the window (if open) otherwise zero
-gui_fenster_t *win_get_magic(long magic);
+gui_frame_t *win_get_magic(long magic);
 
 /**
  * Checks ifa window is a top level window
  *
  * @author Hj. Malthaner
  */
-bool win_is_top(const gui_fenster_t *ig);
+bool win_is_top(const gui_frame_t *ig);
 
 
-void destroy_win(const gui_fenster_t *ig);
+void destroy_win(const gui_frame_t *ig);
 void destroy_win(const long magic);
 void destroy_all_win(bool destroy_sticky);
 
-bool top_win(const gui_fenster_t *ig);
+bool top_win(const gui_frame_t *ig);
 int top_win(int win);
 void display_win(int win);
 void display_all_win();

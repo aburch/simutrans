@@ -19,13 +19,13 @@
 
 
 werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, koord icon, bool allow_break) :
-	tools(0), groesse(icon)
+	tools(0), gui_frame_t(titel)
 {
 	this->allow_break = allow_break;
     this->welt = welt;
-    this->titel  = titel;
     this->hilfe_datei = helpfile;
 	this->icon = icon;
+	set_fenstergroesse( icon );
     dirty = true;
 }
 
@@ -55,7 +55,7 @@ DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
 	}
 	dirty = true;
-	groesse = koord( tool_icon_width*icon.x, ((tools.get_count()-1)/tool_icon_width) * icon.y + 16 + icon.y );
+	gui_frame_t::set_fenstergroesse( koord( tool_icon_width*icon.x, ((tools.get_count()-1)/tool_icon_width) * icon.y + TITLEBAR_HEIGHT + icon.y ) );
 
 DBG_DEBUG("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
@@ -69,7 +69,7 @@ void werkzeug_waehler_t::reset_tools()
 		i--;
 		tools.remove_at(i);
 	}
-	groesse = koord( icon.x, 16 );
+	gui_frame_t::set_fenstergroesse( koord( icon.x, TITLEBAR_HEIGHT ) );
 	tool_icon_width = 0;
 }
 
@@ -78,8 +78,8 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 {
 	int dx = x/icon.x;
 	int	dy = (y-16)/icon.y;
-	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<16  ||  dy<tool_icon_width)) {
-		return y < 16 || dx + tool_icon_width * dy < (int)tools.get_count();
+	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<TITLEBAR_HEIGHT  ||  dy<tool_icon_width)) {
+		return y < TITLEBAR_HEIGHT || dx + tool_icon_width * dy < (int)tools.get_count();
 	}
 	return false;
 }

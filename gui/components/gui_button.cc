@@ -6,6 +6,7 @@
  */
 
 #include "gui_button.h"
+#include "../gui_frame.h"
 
 #include "../../simdebug.h"
 #include "../../simcolor.h"
@@ -19,8 +20,6 @@
 
 #include "../../simskin.h"
 #include "../../besch/skin_besch.h"
-
-#include "../../ifc/gui_fenster.h"
 
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)
@@ -469,7 +468,7 @@ void button_t::zeichnen(koord offset)
 
 		case box: // old, 4-line box
 			{
-				gui_fenster_t *win = win_get_top();
+				gui_frame_t *win = win_get_top();
 				if(  win  &&  win->get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
@@ -489,7 +488,7 @@ void button_t::zeichnen(koord offset)
 
 		case roundbox: // new box with round corners
 			{
-				gui_fenster_t *win = win_get_top();
+				gui_frame_t *win = win_get_top();
 				if(  win  &&  win->get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by-1, bw+2, 1, COL_WHITE, false);
@@ -507,7 +506,7 @@ void button_t::zeichnen(koord offset)
 
 		case square: // little square in front of text
 			{
-				gui_fenster_t *win = win_get_top();
+				gui_frame_t *win = win_get_top();
 				if(  win  &&  win->get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx+16, by+(12+large_font_height)/2-2, bw-14, 1, COL_WHITE, false);

@@ -4601,7 +4601,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 		case 'd':	// delete line
 			{
 				// close a schedule window, if stil active
-				gui_fenster_t *w = win_get_magic( (long)line.get_rep() );
+				gui_frame_t *w = win_get_magic( (long)line.get_rep() );
 				if(w) {
 					destroy_win( w );
 				}
