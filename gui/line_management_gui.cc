@@ -33,7 +33,9 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 		destroy_win( this );
 	}
 	else {
-		fahrplan_gui_t::infowin_event(ev);
+		if(  fahrplan_gui_t::infowin_event(ev)  ) {
+			return true;
+		}
 		if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 			// update line schedule via tool!
 			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
