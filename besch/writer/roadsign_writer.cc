@@ -1,3 +1,4 @@
+#include <string>
 #include "../../dataobj/tabfile.h"
 #include "../roadsign_besch.h"
 #include "obj_node.h"

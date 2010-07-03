@@ -1,6 +1,7 @@
 #ifndef VEHICLE_WRITER_H
 #define VEHICLE_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

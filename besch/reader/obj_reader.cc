@@ -1,3 +1,4 @@
+#include <string>
 #include <string.h>
 
 #ifndef _MSC_VER

@@ -9,6 +9,7 @@
 #ifndef simmenu_h
 #define simmenu_h
 
+#include <string>
 #include "besch/sound_besch.h"
 
 #include "dataobj/translator.h"

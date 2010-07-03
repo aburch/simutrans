@@ -1,3 +1,4 @@
+#include <string>
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "../sound_besch.h"

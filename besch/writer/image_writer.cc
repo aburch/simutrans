@@ -1,3 +1,4 @@
+#include <string>
 #include <string.h>
 #include <stdlib.h>
 #include "../../utils/dr_rdpng.h"

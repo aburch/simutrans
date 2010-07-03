@@ -6,6 +6,7 @@
  * New configurable OOP tool system
  */
 
+#include <string>
 #include <algorithm>
 
 #include "unicode.h"
