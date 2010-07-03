@@ -1,10 +1,10 @@
 #ifndef dataobj_einstellungen_h
 #define dataobj_einstellungen_h
 
+#include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
 
-#include <string>
 
 /**
  * Spieleinstellungen

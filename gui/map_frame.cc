@@ -9,6 +9,7 @@
  * [Mathew Hounsell] Min Size Button On Map Window 20030313
  */
 
+#include <string>
 #include <stdio.h>
 #include <cmath>
 

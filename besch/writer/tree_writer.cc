@@ -1,3 +1,4 @@
+#include <string>
 #include <stdlib.h>
 #include "../../dataobj/tabfile.h"
 #include "../baum_besch.h"

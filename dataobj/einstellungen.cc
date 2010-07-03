@@ -6,6 +6,7 @@
  * April 2000
  */
 
+#include <string>
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simconst.h"

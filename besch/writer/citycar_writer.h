@@ -7,6 +7,7 @@
 #ifndef CITYCAR_WRITER_H
 #define CITYCAR_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

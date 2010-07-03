@@ -1,3 +1,4 @@
+#include <string>
 #include <string.h>
 #include "../../simcolor.h"
 #include "../../simevent.h"

@@ -12,6 +12,9 @@
 #include <io.h>
 #include <direct.h>
 #endif
+
+#include <string>
+
 #include <sys/stat.h>
 #include <string.h>
 #include <time.h>

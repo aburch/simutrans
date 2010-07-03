@@ -8,6 +8,7 @@
 #ifndef gui_help_frame_h
 #define gui_help_frame_h
 
+#include <string>
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_flowtext.h"

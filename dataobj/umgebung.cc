@@ -1,3 +1,4 @@
+#include <string>
 #include "umgebung.h"
 #include "loadsave.h"
 #include "../simconst.h"

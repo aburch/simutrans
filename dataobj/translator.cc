@@ -4,6 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
+#include <string>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

@@ -1,6 +1,7 @@
 #ifndef FACTORY_WRITER_H
 #define FACTORY_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

@@ -1,3 +1,4 @@
+#include <string>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "../../tpl/stringhashtable_tpl.h"

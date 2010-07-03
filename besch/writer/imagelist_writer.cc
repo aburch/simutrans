@@ -1,3 +1,4 @@
+#include <string>
 #include "../../tpl/slist_tpl.h"
 #include "../bildliste_besch.h"
 #include "obj_node.h"

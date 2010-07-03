@@ -12,6 +12,7 @@
 #include <unistd.h>
 #endif
 
+#include <string>
 #include "../simcity.h"
 #include "../simwin.h"
 
