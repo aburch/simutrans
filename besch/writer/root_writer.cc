@@ -65,8 +65,8 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 				inpath = arg;
 				int n = inpath.rfind('/');
 
-				if(n) {
-					inpath = inpath.substr(n + 1);
+				if(n != string::npos) {
+					inpath = inpath.substr(0, n + 1);
 				} else {
 					inpath = "";
 				}
