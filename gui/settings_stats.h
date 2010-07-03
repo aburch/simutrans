@@ -13,7 +13,7 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
 
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "gui_container.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_label.h"

@@ -11,7 +11,7 @@
 #define gui_scrollpane_h
 
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "gui_scrollbar.h"
 
 class gui_scrollpane_t : public gui_komponente_t

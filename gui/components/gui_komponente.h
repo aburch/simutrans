@@ -8,8 +8,8 @@
 #ifndef ifc_gui_komponente_h
 #define ifc_gui_komponente_h
 
-#include "../dataobj/koord.h"
-#include "../simevent.h"
+#include "../../dataobj/koord.h"
+#include "../../simevent.h"
 
 struct event_t;
 

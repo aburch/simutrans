@@ -9,7 +9,7 @@
 #define gui_button_h
 
 #include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../../simimg.h"
 

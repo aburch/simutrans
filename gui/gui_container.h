@@ -12,7 +12,7 @@
 #include "../simdebug.h"
 #include "../simevent.h"
 #include "../tpl/slist_tpl.h"
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 
 /**
  * Ein Behälter für andere gui_komponenten. Ist selbst eine
