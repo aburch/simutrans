@@ -1,6 +1,7 @@
 #ifndef WAY_WRITER_H
 #define WAY_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

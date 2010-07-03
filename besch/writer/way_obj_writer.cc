@@ -1,4 +1,5 @@
 #include <cmath>
+#include <string>
 #include "../../dataobj/tabfile.h"
 #include "obj_node.h"
 #include "obj_pak_exception.h"

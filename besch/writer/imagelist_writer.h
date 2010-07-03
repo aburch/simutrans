@@ -1,6 +1,7 @@
 #ifndef IMAGELIST_WRITER_H
 #define IMAGELIST_WRITER_H
 
+#include <string>
 #include <stdio.h>
 #include "obj_writer.h"
 #include "../objversion.h"

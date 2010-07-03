@@ -4,8 +4,8 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
+#include <string>
 #include <stdio.h>
-
 #include "../simdebug.h"
 
 #include "../dataobj/tabfile.h"

@@ -121,7 +121,7 @@ bool skinverwaltung_t::alles_geladen(skintyp_t type)
 {
 	spezial_obj_tpl<skin_besch_t>* sb;
 	switch (type) {
-		case menu:    sb = menu_objekte;       break;
+		case menu:    sb = menu_objekte+1;       break;
 		case cursor:  sb = cursor_objekte;     break;
 		case symbol:  sb = symbol_objekte;     break;
 		case misc:

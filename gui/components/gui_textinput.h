@@ -61,6 +61,18 @@ protected:
 
 	COLOR_VAL textcol;
 
+	/**
+	 * reference time for regulating cursor blinking
+	 * @author Knightly
+	 */
+	unsigned long cursor_reference_time;
+
+	/**
+	 * whether focus has been received
+	 * @author Knightly
+	 */
+	bool focus_recieved;
+
 public:
 	gui_textinput_t();
 
@@ -91,7 +103,15 @@ public:
 	 */
 	virtual void zeichnen(koord offset);
 
-	void zeichnen_mit_cursor( koord offset, bool show_cursor );
+	/**
+	 * Detect change of focus state and determine whether cursor should be displayed,
+	 * and call the function that performs the actual display
+	 * @author Knightly
+	 */
+	void display_with_focus(koord offset, bool has_focus);
+
+	// function that performs the actual display
+	virtual void display_with_cursor(koord offset, bool show_cursor);
 
 	// to allow for right-aligned text
 	void set_alignment(uint8 _align){ align = _align;}
@@ -108,8 +128,8 @@ class gui_hidden_textinput_t : public gui_textinput_t
 	// and set the cursor right when clicking with the mouse
 	virtual bool infowin_event(const event_t *);
 
-	// just draw with stars ...
-	virtual void zeichnen(koord offset);
+	// function that performs the actual display; just draw with stars ...
+	virtual void display_with_cursor(koord offset, bool show_cursor);
 };
 
 

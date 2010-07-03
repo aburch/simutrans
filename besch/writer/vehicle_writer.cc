@@ -1,4 +1,5 @@
 #include <cmath>
+#include <string>
 #include "../../utils/simstring.h"
 #include "../../dataobj/tabfile.h"
 #include "../vehikel_besch.h"

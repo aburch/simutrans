@@ -1,6 +1,7 @@
 #ifndef GROUND_WRITER_H
 #define GROUND_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 
