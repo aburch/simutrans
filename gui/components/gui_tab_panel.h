@@ -5,7 +5,7 @@
 
 #include "../../besch/skin_besch.h"
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "gui_komponente.h"
 
 class bild_besch_t;

@@ -8,7 +8,7 @@
 #ifndef gui_components_gui_textinput_h
 #define gui_components_gui_textinput_h
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../../simgraph.h"

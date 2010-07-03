@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
 #include "action_listener.h"

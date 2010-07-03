@@ -19,7 +19,7 @@
 
 
 werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, koord icon, bool allow_break) :
-	tools(0), gui_frame_t(titel)
+	gui_frame_t(titel), tools(0)
 {
 	this->allow_break = allow_break;
     this->welt = welt;

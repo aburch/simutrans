@@ -5,7 +5,7 @@
 
 #include "gui_scrollbar.h"
 #include "action_listener.h"
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "../../simcolor.h"
 
 /**

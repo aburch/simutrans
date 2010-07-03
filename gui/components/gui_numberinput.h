@@ -10,7 +10,7 @@
 #ifndef gui_components_gui_numberinput_h
 #define gui_components_gui_numberinput_h
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "gui_textinput.h"
 #include "gui_button.h"
 #include "../../simtypes.h"

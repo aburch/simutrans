@@ -1,7 +1,7 @@
 #ifndef gui_image_list_h
 #define gui_image_list_h
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "gui_komponente.h"
 #include "../../tpl/vector_tpl.h"
 #include "../../simimg.h"
