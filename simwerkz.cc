@@ -3904,23 +3904,26 @@ const char *wkz_depot_t::wkz_depot_aux(karte_t *welt, spieler_t *sp, koord3d pos
 		{
 			return CREDIT_MESSAGE;
 		}
+		break;
 	case water_wt:
 		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_ship * besch->get_level()))
 		{
 			return CREDIT_MESSAGE;
 		}
+		break;
 	case air_wt:
 		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_air * besch->get_level()))
 		{
 			return CREDIT_MESSAGE;
 		}
+		break;
+	default:
 	case road_wt:
 		if(!sp->can_afford(welt->get_einstellungen()->cst_depot_road * besch->get_level()))
 		{
 			return CREDIT_MESSAGE;
 		}
-	default:
-		return "";
+		break;
 	};
 
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) 

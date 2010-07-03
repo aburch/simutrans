@@ -2167,10 +2167,10 @@ void haltestelle_t::liefere_an_fabrik(const ware_t& ware) //"deliver to the fact
 	while(fab_iter.next()) {
 		fabrik_t * fab = fab_iter.get_current();
 
-		const vector_tpl<ware_production_t>& eingang = fab->get_eingang();
+		const vector_tpl<ware_production_t>& eingang = fab->get_eingang(); // eingang = "input" (Google)
 		if(eingang.get_size() == 0)
 		{
-			return;
+			continue;
 		}
 		for (uint32 i = 0; i < eingang.get_count(); i++) {
 			if (eingang[i].get_typ() == ware.get_besch() && ware.get_zielpos() == fab->get_pos().get_2d()) {

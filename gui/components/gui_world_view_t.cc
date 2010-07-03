@@ -125,7 +125,7 @@ void world_view_t::internal_draw(const koord offset, ding_t const* const ding)
 
 		const grund_t * const kb = welt->lookup_kartenboden(k);
 		if(  !kb  ) {
-			return;
+			continue;
 		}
 
 		const sint16 yypos = display_off.y + (off.y + off.x) * 16 * raster / 64 - tile_raster_scale_y(kb->get_hoehe() * TILE_HEIGHT_STEP / Z_TILE_STEP, raster);
@@ -198,16 +198,15 @@ void world_view_t::set_groesse(koord size)
 	for( sint16 dy =- max_dy;  dy <= 2;  ) {
 		{
 			for(  sint16 dx =- 2;  dx < max_dx;  dx += 2  ) {
-				offsets.append(koord((dy + dx)/2, (dy - dx) / 2));
-	//			DBG_MESSAGE("world_view_t::set_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
+				const koord check( (dy + dx)/2, (dy - dx) / 2);
+				offsets.append(check);
 			}
 		}
 		dy++;
 		for(  sint16 dx = -1;  dx < max_dx;  dx += 2  ) {
-			offsets.append(koord((dy + dx) / 2, (dy - dx) / 2));
-//			DBG_MESSAGE("world_view_t::set_groesse()","offset %d,%d added",offsets.get(offsets.get_count()-1).x,offsets.get(offsets.get_count()-1).y );
+			const koord check( (dy + dx) / 2, (dy - dx) / 2);
+			offsets.append(check);
 		}
 		dy++;
 	}
-//	DBG_MESSAGE("world_view_t::set_groesse()","%d tiles added",offsets.get_count() );
 }
