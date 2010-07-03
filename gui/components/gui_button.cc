@@ -469,7 +469,7 @@ void button_t::zeichnen(koord offset)
 
 		case box: // old, 4-line box
 			{
-				const gui_fenster_t *win = win_get_top();
+				gui_fenster_t *win = win_get_top();
 				if(  win  &&  win->get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
@@ -489,7 +489,7 @@ void button_t::zeichnen(koord offset)
 
 		case roundbox: // new box with round corners
 			{
-				const gui_fenster_t *win = win_get_top();
+				gui_fenster_t *win = win_get_top();
 				if(  win  &&  win->get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by-1, bw+2, 1, COL_WHITE, false);
@@ -507,7 +507,7 @@ void button_t::zeichnen(koord offset)
 
 		case square: // little square in front of text
 			{
-				const gui_fenster_t *win = win_get_top();
+				gui_fenster_t *win = win_get_top();
 				if(  win  &&  win->get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx+16, by+(12+large_font_height)/2-2, bw-14, 1, COL_WHITE, false);
@@ -609,7 +609,7 @@ void button_t::zeichnen(koord offset)
 }
 
 
-gui_komponente_t *button_t::get_focus() const
+gui_komponente_t *button_t::get_focus()
 {
 	switch (type&STATE_MASK) {
 

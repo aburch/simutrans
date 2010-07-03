@@ -286,6 +286,7 @@ void settings_costs_stats_t::init(einstellungen_t *sets)
 void settings_costs_stats_t::read(einstellungen_t *sets)
 {
 	EXIT_INIT
+	read_button = 0; // silence warning: safe to remove if EXIT_BOOL is used
 	EXIT_NUM_VALUE( sets->maint_building )*100;
 	EXIT_COST_VALUE( sets->cst_multiply_dock )*(-1);
 	EXIT_COST_VALUE( sets->cst_multiply_station )*(-1);

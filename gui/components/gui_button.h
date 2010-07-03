@@ -185,7 +185,7 @@ public:
 
 	bool enabled() { return b_enabled; }
 
-	gui_komponente_t *get_focus() const;
+	gui_komponente_t *get_focus();
 
 private:
 	button_t(const button_t&);        // forbidden

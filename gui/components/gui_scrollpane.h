@@ -81,7 +81,7 @@ public:
 	/**
 	 * returns element that has the focus
 	 */
-	gui_komponente_t *get_focus() const { return komp->get_focus(); }
+	gui_komponente_t *get_focus() { return komp->get_focus(); }
 };
 
 #endif

@@ -75,7 +75,7 @@ public:
 	 * returns element that has the focus
 	 * that is: go down the hierarchy as much as possible
 	 */
-	gui_komponente_t *get_focus() const;
+	virtual gui_komponente_t *get_focus();
 };
 
 #endif

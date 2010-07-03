@@ -57,7 +57,7 @@ void gui_numberinput_t::set_groesse(koord groesse)
 void gui_numberinput_t::set_value(sint32 new_value)
 {	// range check
 	value = clamp( new_value, min_value, max_value );
-	const gui_fenster_t *win = win_get_top();
+	gui_fenster_t *win = win_get_top();
 	if(  win  &&  win->get_focus()!=this  ) {
 		// final value should be correct, but during editing wrng values are allowed
 		new_value = value;
@@ -318,7 +318,7 @@ void gui_numberinput_t::zeichnen(koord offset)
 	koord new_offset = pos+offset;
 	bt_left.zeichnen(new_offset);
 
-	const gui_fenster_t *win = win_get_top();
+	gui_fenster_t *win = win_get_top();
 	textinp.display_with_focus( new_offset, (win  &&  win->get_focus()==this) );
 	bt_right.zeichnen(new_offset);
 

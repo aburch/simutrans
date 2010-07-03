@@ -92,7 +92,7 @@ public:
 	 */
 	uint32 get_count () const { return tabs.get_count(); }
 
-	gui_komponente_t *get_focus() const { return get_aktives_tab()->get_focus(); }
+	gui_komponente_t *get_focus() { return get_aktives_tab()->get_focus(); }
 };
 
 #endif

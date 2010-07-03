@@ -94,7 +94,7 @@ int win_get_posx(gui_fenster_t *ig);
 int win_get_posy(gui_fenster_t *ig);
 void win_set_pos(gui_fenster_t *ig, int x, int y);
 
-const gui_fenster_t *win_get_top();
+gui_fenster_t *win_get_top();
 
 int win_get_open_count();
 

@@ -324,7 +324,7 @@ gui_fenster_t *win_get_magic(long magic)
  * Returns top window
  * @author prissi
  */
-const gui_fenster_t *win_get_top()
+gui_fenster_t *win_get_top()
 {
 	return wins.get_count()>0 ? wins[wins.get_count()-1].gui : NULL;
 }

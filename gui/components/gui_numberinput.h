@@ -116,7 +116,7 @@ public:
 	 * returns element that has the focus
 	 * that is: go down the hierarchy as much as possible
 	 */
-	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
+	gui_komponente_t *get_focus() { return (gui_komponente_t *)this; }
 };
 
 #endif
