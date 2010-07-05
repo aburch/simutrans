@@ -3156,7 +3156,13 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			// only one sign per tile
 			return error;
 		}
+
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
+
+		// no signals on switches
+		if(  besch->is_signal_type()  ) {
+			return error;
+		}
 
 		const bool two_way = besch->is_single_way()  ||  besch->is_signal() ||  besch->is_pre_signal();
 
