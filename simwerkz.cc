@@ -2101,10 +2101,12 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		fahrer_t* test_driver;
 		if(  wt!=powerline_wt  ) {
 			vehikel_besch_t remover_besch(wt, 500, vehikel_besch_t::diesel );
-			test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+			vehikel_t *driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+			driver->set_flag( ding_t::not_on_map );
+			test_driver = driver;
 		}
 		else {
-			test_driver = (fahrer_t * )new electron_t();
+			test_driver = (fahrer_t *)new electron_t();
 		}
 		verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0);
 		delete test_driver;
@@ -2305,6 +2307,7 @@ bool wkz_wayobj_t::calc_route( route_t &verbindung, spieler_t *sp, const koord3d
 	// get a default vehikel
 	vehikel_besch_t remover_besch( wt, 500, vehikel_besch_t::diesel );
 	vehikel_t* test_driver = vehikelbauer_t::baue(start, sp, NULL, &remover_besch);
+	test_driver->set_flag( ding_t::not_on_map );
 	bool can_built;
 	if( start != to ) {
 		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0);
