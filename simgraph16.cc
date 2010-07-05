@@ -3944,15 +3944,18 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
+	// some cards need those alignments
+	w = (w + 15) & 0x7FF0;
+	if(  w<=0  ) {
+		w = 16;
+	}
+	if(  h<=0  ) {
+		h = 64;
+	}
+	// only resize, if internal values are different
 	if (disp_width != w || disp_height != h) {
-		disp_width = (w + 15) & 0x7FF0;
-		if(  disp_width<=0  ) {
-			disp_width = 16;
-		}
+		disp_width = w;
 		disp_height = h;
-		if(  disp_height<=0  ) {
-			disp_height = 64;
-		}
 
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
