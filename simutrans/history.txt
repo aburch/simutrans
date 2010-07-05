@@ -60,6 +60,7 @@
 	ADD: setting dialoge tool (handle with care, should not be visible by defualt for pak sets!)
 	ADD: resizer also part of skin
 	CHANGE: also starts without any skin
+	FIX: no signals to be built on switches, since they will not display correctly
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
