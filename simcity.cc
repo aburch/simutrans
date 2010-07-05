@@ -2565,7 +2565,7 @@ void stadt_t::baue()
 }
 
 
-// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
+// find suitable places for cities
 vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
@@ -2575,7 +2575,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 		}
 	}
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
-	slist_tpl<koord>* list = wl->finde_plaetze(2, 3, (climate_bits)cl, old_x, old_y);
+	// search at least places which are 5x5 squares large
+	slist_tpl<koord>* list = wl->finde_plaetze( 5, 5, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
 
