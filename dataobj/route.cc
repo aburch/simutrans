@@ -253,7 +253,9 @@ bool route_t::find_route(karte_t *welt,
 //DBG_DEBUG("reached","");
 	// target reached?
 	if(!fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)  ||  step >= MAX_STEP) {
-		dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		if(  step >= MAX_STEP  ) {
+			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		}
 	}
 	else {
 		// reached => construct route

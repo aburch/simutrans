@@ -115,6 +115,7 @@ public:
 	virtual image_id get_bild() const {return bild;}
 
 	sint8 get_hoff() const {return hoff;}
+	uint8 get_steps() const {return steps;}
 
 	// to make smaller steps than the tile granularity, we have to calculate our offsets ourselves!
 	virtual void get_screen_offset( int &xoff, int &yoff, const sint16 raster_width ) const;
