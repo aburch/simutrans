@@ -1527,9 +1527,14 @@ void stadt_t::step_passagiere()
 					if (found) {
 						ware_t return_pax (wtyp);
 
-						// always use normal amount for return pas/mail
-						// (for mail pax.menge might have been smaller!)
-						return_pax.menge = pax_left_to_do;
+						if(  will_return != town_return  &&  wtyp==warenbauer_t::post  ) {
+							// attractions/factory generate more mail than they recieve
+							return_pax.menge = pax_left_to_do*3;
+						}
+						else {
+							// use normal amount for return pas/mail
+							return_pax.menge = pax_left_to_do*3;
+						}
 						return_pax.set_zielpos(k);
 						return_pax.set_ziel(start_halt);
 						return_pax.set_zwischenziel(welt->lookup(return_zwischenziel)->get_halt());

@@ -243,7 +243,7 @@ template<class T> class vector_tpl
 };
 
 
-template<class T> inline void swap(vector_tpl<T>& a, vector_tpl<T>& b)
+template<class T> void swap(vector_tpl<T>& a, vector_tpl<T>& b)
 {
 	sim::swap(a.data,  b.data);
 	sim::swap(a.size,  b.size);

@@ -297,7 +297,7 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 
 			buf.append(translator::translate("Postrate"));
 			buf.append(": ");
-			buf.append(besch->get_post_level());
+			buf.append(fablist[entry]->get_pax_level());
 			buf.append("\n");
 
 			buf.append(translator::translate("\nBauzeit von"));

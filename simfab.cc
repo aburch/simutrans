@@ -1379,7 +1379,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 		buf.append(translator::translate("Postrate"));
 		buf.append(": ");
-		buf.append(passagier_rate/3);
+		buf.append(passagier_rate);
 		buf.append("\n");
 	}
 
