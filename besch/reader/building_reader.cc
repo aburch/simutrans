@@ -150,6 +150,12 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		}
 	}
 
+	if(  besch->layouts>2  &&  besch->layouts&1  ) {
+		uint8 l = besch->layouts>4 ? 4 : 2;
+		dbg->error( "building_reader_t::register_obj()", "Building %s has %i layouts (illegal) => set to %i", besch->get_name(), besch->layouts, l );
+		besch->layouts = l;
+	}
+
 	hausbauer_t::register_besch(besch);
 	DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->get_name());
 }
