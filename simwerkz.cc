@@ -3163,7 +3163,7 @@ const char *wkz_roadsign_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 		ribi_t::ribi dir = weg->get_ribi_unmasked();
 
 		// no signals on switches
-		if(  besch->is_signal_type()  ) {
+		if(  ribi_t::is_threeway(dir)  &&  besch->is_signal_type()  ) {
 			return error;
 		}
 
