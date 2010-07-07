@@ -2967,6 +2967,6 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	}
 
 	set_tiles_overtaking( 1+n_tiles );
-	other_overtaker->set_tiles_overtaking( min(-1,2-n_tiles) );
+	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
 	return true;
 }
