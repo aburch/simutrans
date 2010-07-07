@@ -814,31 +814,9 @@ void karte_t::create_rivers( sint16 number )
 
 void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x, sint16 old_y)
 {
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
-
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 	if(  umgebung_t::river_types>0  &&  einstellungen->get_river_number()>0  ) {
 		create_rivers( einstellungen->get_river_number() );
-	}
-
-	if(  umgebung_t::ground_object_probability > 0  ) {
-		// add eyecandy like rocky, moles, flowers, ...
-		koord k;
-		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
-		for(  k.y=0;  k.y<get_groesse_y();  k.y++  ) {
-			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_groesse_x();  k.x++  ) {
-				grund_t *gr = lookup_kartenboden(k);
-				if(  gr->get_typ()==grund_t::boden  &&  !gr->hat_wege()  ) {
-					queried --;
-					if(  queried<0  ) {
-						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->get_hoehe()), gr->get_grund_hang() );
-						if(besch) {
-							queried = simrand(umgebung_t::ground_object_probability*2);
-							gr->obj_add( new groundobj_t( this, gr->get_pos(), besch ) );
-						}
-					}
-				}
-			}
-		}
 	}
 
 printf("Creating cities ...\n");
@@ -983,9 +961,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 
 			// get a default vehikel
 			route_t verbindung;
-			fahrer_t* test_driver;
+			vehikel_t* test_driver;
 			vehikel_besch_t test_drive_besch(road_wt, 500, vehikel_besch_t::diesel );
 			test_driver = vehikelbauer_t::baue(koord3d(), spieler[1], NULL, &test_drive_besch);
+			test_driver->set_flag( ding_t::not_on_map );
 
 			bool ready=false;
 			uint8 phase=0;
@@ -1134,6 +1113,28 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 			delete pos;
 		}
 		einstellungen->set_anzahl_staedte( stadt.get_count() );	// new number of towns (if we did not found enough positions) ...
+	}
+
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
+	if(  umgebung_t::ground_object_probability > 0  ) {
+		// add eyecandy like rocky, moles, flowers, ...
+		koord k;
+		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
+		for(  k.y=0;  k.y<get_groesse_y();  k.y++  ) {
+			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_groesse_x();  k.x++  ) {
+				grund_t *gr = lookup_kartenboden(k);
+				if(  gr->get_typ()==grund_t::boden  &&  !gr->hat_wege()  ) {
+					queried --;
+					if(  queried<0  ) {
+						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->get_hoehe()), gr->get_grund_hang() );
+						if(besch) {
+							queried = simrand(umgebung_t::ground_object_probability*2);
+							gr->obj_add( new groundobj_t( this, gr->get_pos(), besch ) );
+						}
+					}
+				}
+			}
+		}
 	}
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
@@ -2947,11 +2948,6 @@ void karte_t::neuer_monat()
 	for(sint16 i = number_of_factories - 1; i >= 0; i--)
 	{
 		fab = fab_list[i];
-		fab->neuer_monat();
-		// The number of factories might have diminished,
-		// so must adjust i to prevent out of bounds errors.
-		sint16 difference = number_of_factories - fab_list.get_count();
-		i -= difference;
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
 			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T;
@@ -2960,6 +2956,11 @@ void karte_t::neuer_monat()
 		{
 			total_electric_demand += fab->get_base_production() * fab->get_besch()->get_electricity_proportion();
 		}
+		fab->neuer_monat();
+		// The number of factories might have diminished,
+		// so must adjust i to prevent out of bounds errors.
+		sint16 difference = number_of_factories - fab_list.get_count();
+		i -= difference;
 	}
 
 	// Check to see whether more factories need to be added
