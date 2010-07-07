@@ -5,8 +5,8 @@
 
 #include "../../besch/skin_besch.h"
 
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
 
 class bild_besch_t;
 
@@ -92,7 +92,7 @@ public:
 	 */
 	uint32 get_count () const { return tabs.get_count(); }
 
-	gui_komponente_t *get_focus() const { return get_aktives_tab()->get_focus(); }
+	gui_komponente_t *get_focus() { return get_aktives_tab()->get_focus(); }
 };
 
 #endif

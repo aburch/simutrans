@@ -65,9 +65,10 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 				inpath = arg;
 				int n = inpath.rfind('/');
 
-				if(n != string::npos) {
+				if(n!=string::npos) {
 					inpath = inpath.substr(0, n + 1);
-				} else {
+				}
+				else {
 					inpath = "";
 				}
 
@@ -95,7 +96,8 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 						fclose(outfp);
 					}
 				}
-			} else {
+			}
+			else {
 				printf("WARNING: cannot read %s\n", *i);
 			}
 		}

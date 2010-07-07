@@ -8,7 +8,7 @@
 #ifndef gui_fixedwidth_textarea_h
 #define gui_fixedwidth_textarea_h
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../simgraph.h"
 
 /**

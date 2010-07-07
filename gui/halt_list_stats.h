@@ -10,7 +10,7 @@
 #define halt_list_stats_h
 
 #include "../dataobj/koord.h"
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "../halthandle_t.h"
 
 

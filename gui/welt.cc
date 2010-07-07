@@ -430,7 +430,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		allow_player_change.pressed = sets->get_allow_player_change();
 	}
 	else if(komp==&open_setting_gui) {
-		gui_fenster_t *sg = win_get_magic( magic_settings_frame_t );
+		gui_frame_t *sg = win_get_magic( magic_settings_frame_t );
 		if(  sg  ) {
 			destroy_win( sg );
 			open_setting_gui.pressed = false;
@@ -441,7 +441,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&open_climate_gui) {
-		gui_fenster_t *climate_gui = win_get_magic( magic_climate );
+		gui_frame_t *climate_gui = win_get_magic( magic_climate );
 		if(  climate_gui  ) {
 			destroy_win( climate_gui );
 			open_climate_gui.pressed = false;

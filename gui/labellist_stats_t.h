@@ -9,7 +9,7 @@
 #define labellist_stats_t_h
 
 #include "../tpl/vector_tpl.h"
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "components/gui_button.h"
 
 class karte_t;

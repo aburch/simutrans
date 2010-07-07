@@ -44,8 +44,7 @@ static const char * measures[] =
 */
 
 
-int
-leitung_t::gimme_neighbours(leitung_t **conn)
+int leitung_t::gimme_neighbours(leitung_t **conn)
 {
 	int count = 0;
 	grund_t *gr_base = welt->lookup(get_pos());
@@ -65,9 +64,7 @@ leitung_t::gimme_neighbours(leitung_t **conn)
 }
 
 
-
-fabrik_t *
-leitung_t::suche_fab_4(const koord pos)
+fabrik_t *leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
 		fabrik_t *new_fab = fabrik_t::get_fab( welt, pos+koord::nsow[k] );
@@ -95,7 +92,6 @@ leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, p
 	set_besitzer( sp );
 	set_besch(wegbauer_t::leitung_besch);
 }
-
 
 
 leitung_t::~leitung_t()
@@ -146,14 +142,11 @@ leitung_t::~leitung_t()
 }
 
 
-
-void
-leitung_t::entferne(spieler_t *sp) //"remove".
+void leitung_t::entferne(spieler_t *sp) //"remove".
 {
 	spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( bild, 0 );
 }
-
 
 
 /**
@@ -188,7 +181,6 @@ void leitung_t::replace(powernet_t* new_net)
 		}
 	}
 }
-
 
 
 /**
@@ -235,7 +227,6 @@ void leitung_t::verbinde()
 		}
 	}
 }
-
 
 
 /* extended by prissi */
@@ -290,7 +281,6 @@ void leitung_t::calc_bild()
 }
 
 
-
 /**
  * Recalculates the images of all neighbouring
  * powerlines and the powerline itself
@@ -313,7 +303,6 @@ void leitung_t::calc_neighbourhood()
 	set_flag( ding_t::dirty );
 	calc_bild();
 }
-
 
 
 /**
@@ -363,7 +352,6 @@ void leitung_t::laden_abschliessen()
 	assert(gr);
 	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 }
-
 
 
 /**
@@ -458,18 +446,15 @@ void leitung_t::rdwr(loadsave_t *file)
 }
 
 
-
 /************************************ from here on pump (source) stuff ********************************************/
 
 slist_tpl<pumpe_t *> pumpe_t::pumpe_list;
-
 
 
 void pumpe_t::neue_karte()
 {
 	pumpe_list.clear();
 }
-
 
 
 void pumpe_t::step_all(long delta_t)
@@ -481,13 +466,11 @@ void pumpe_t::step_all(long delta_t)
 }
 
 
-
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 {
 	fab = NULL;
 	supply = 0;
 }
-
 
 
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
@@ -496,7 +479,6 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	supply = 0;
 	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
-
 
 
 pumpe_t::~pumpe_t()
@@ -509,7 +491,6 @@ pumpe_t::~pumpe_t()
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
 }
-
 
 
 void pumpe_t::step(long delta_t)
@@ -543,7 +524,6 @@ void pumpe_t::step(long delta_t)
 }
 
 
-
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
@@ -555,7 +535,6 @@ void pumpe_t::laden_abschliessen()
 	}
 	pumpe_list.insert( this );
 }
-
 
 
 void pumpe_t::info(cbuffer_t & buf) const
@@ -570,18 +549,15 @@ void pumpe_t::info(cbuffer_t & buf) const
 }
 
 
-
 /************************************ From here on drain stuff ********************************************/
 
 slist_tpl<senke_t *> senke_t::senke_list;
-
 
 
 void senke_t::neue_karte()
 {
 	senke_list.clear();
 }
-
 
 
 void senke_t::step_all(long delta_t)
@@ -592,7 +568,6 @@ void senke_t::step_all(long delta_t)
 	}
 
 }
-
 
 
 senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
@@ -625,7 +600,6 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 }
 
 
-
 senke_t::~senke_t()
 {
 	if(fab || city)
@@ -644,7 +618,6 @@ senke_t::~senke_t()
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
 }
-
 
 
 void senke_t::step(long delta_t)
@@ -808,8 +781,8 @@ void senke_t::step(long delta_t)
 		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion));
 	}
 	// Income
-	max_einkommen += last_power_demand;
-	einkommen += (power_load * load_proportion);
+	max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
+	einkommen += ((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion);
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
@@ -896,7 +869,6 @@ bool senke_t::sync_step(long delta_t)
 }
 
 
-
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
@@ -910,7 +882,6 @@ void senke_t::laden_abschliessen()
 	senke_list.insert( this );
 	welt->sync_add(this);
 }
-
 
 
 void senke_t::info(cbuffer_t & buf) const

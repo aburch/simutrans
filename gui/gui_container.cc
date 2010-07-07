@@ -226,7 +226,7 @@ void gui_container_t::set_focus( gui_komponente_t *k )
  * returns element that has the focus
  * that is: go down the hierarchy as much as possible
  */
-gui_komponente_t *gui_container_t::get_focus() const
+gui_komponente_t *gui_container_t::get_focus()
 {
 	if(komp_focus) {
 		// if the komp_focus-element has another focused element

@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "../../simdebug.h"
-#include "../../ifc/gui_fenster.h"
+#include "../gui_frame.h"
 #include "gui_textinput.h"
 #include "../../simevent.h"
 #include "../../simgraph.h"
@@ -201,7 +201,7 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
  */
 void gui_textinput_t::zeichnen(koord offset)
 {
-	const gui_fenster_t *const win = win_get_top();
+	gui_frame_t *const win = win_get_top();
 	display_with_focus( offset, (win  &&  win->get_focus()==this) );
 }
 

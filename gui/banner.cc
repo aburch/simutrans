@@ -21,7 +21,7 @@
 #include "banner.h"
 
 
-banner_t::banner_t()
+banner_t::banner_t() : gui_frame_t("")
 {
 	last_ms = dr_time();
 	line = 0;

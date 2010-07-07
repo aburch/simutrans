@@ -9,7 +9,7 @@
 #ifndef gui_werkzeug_waehler_h
 #define gui_werkzeug_waehler_h
 
-#include "../ifc/gui_fenster.h"
+#include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
 //#include "../simmenu.h"
 
@@ -17,7 +17,7 @@ class karte_t;
 class werkzeug_t;
 
 
-class werkzeug_waehler_t : public gui_fenster_t
+class werkzeug_waehler_t : public gui_frame_t
 {
 private:
 	koord icon;	// size of symbols here
@@ -67,8 +67,6 @@ public:
 	// purges toolbar
 	void reset_tools();
 
-	const char *get_name() const {return titel;}
-
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
 	 * @return den Dateinamen für die Hilfe, oder NULL
@@ -76,11 +74,7 @@ public:
 	 */
 	const char *get_hilfe_datei() const {return hilfe_datei;}
 
-	koord get_fenstergroesse() const { return groesse; }
-
 	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
-
-	bool has_sticky() const { return true; }
 
 	/* returns true, if inside window area ...
 	 * @author Hj. Malthaner

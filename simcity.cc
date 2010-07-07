@@ -2832,7 +2832,16 @@ public_transport:
 						if (found) 
 						{
 							ware_t return_pax(wtyp, ret_halt);
-							return_pax.menge = pax_left_to_do;
+							if(  will_return != town_return  &&  wtyp==warenbauer_t::post  ) 
+							{
+							// attractions/factory generate more mail than they recieve
+								return_pax.menge = pax_left_to_do * 3;
+							}
+							else 
+							{
+								// use normal amount for return pas/mail
+								return_pax.menge = pax_left_to_do;
+							}
 							return_pax.set_zielpos(k);
 							return_pax.set_ziel(start_halt);
 							if(ret_halt->find_route(return_pax) != 65535)
@@ -4140,9 +4149,8 @@ void stadt_t::baue(bool new_town)
 }
 
 
-// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
-// "determine suitable place to the city foundation through chance" (Google)
-// "anzahl" = "amount" (Google)
+
+// find suitable places for cities
 vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
 {
 	int cl = 0;
@@ -4159,7 +4167,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 	const sint32 multiplied_number = umgebung_t::cities_ignore_height || welt == NULL ? anzahl : anzahl * 4;
 
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
-	slist_tpl<koord>* list = wl->finde_plaetze(2, 3, (climate_bits)cl, old_x, old_y);
+	// search at least places which are 5x5 squares large
+	slist_tpl<koord>* list = wl->finde_plaetze( 5, 5, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
 	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
 	weighted_vector_tpl<koord>* pre_result;

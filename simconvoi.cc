@@ -4468,8 +4468,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 
 	// Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
-	// tiles_to_overtake = convoi_length + pos_other_convoi
-	int distance = 256 + akt_speed*((get_length()*16)+steps_other)/diff_speed;
+	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
+	int distance = akt_speed*(fahr[0]->get_steps()+(get_length()*16)+steps_other-256)/diff_speed;
 	int time_overtaking = 0;
 
 	// Conditions for overtaking:
@@ -4550,9 +4550,9 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	//   invade the dangerous zone.
 	// Conditions for the street are milder: e.g. if no street, no facing traffic
 	time_overtaking = (time_overtaking << 16)/akt_speed;
-	while ( time_overtaking > 0 ) {
+	while(  time_overtaking > 0  ) {
 
-		if ( route_index >= route.get_count() ) {
+		if(  route_index >= route.get_count()  ) {
 			return false;
 		}
 
@@ -4588,7 +4588,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	}
 
 	set_tiles_overtaking( 1+n_tiles );
-	other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
+	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
 	return true;
 }
 

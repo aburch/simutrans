@@ -2677,9 +2677,9 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 						return true;
 					}
 					// not overtaking/being overtake: we need to make a more thourough test!
-					if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+					if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
 						convoi_t* const ocnv = car->get_convoi();
-						if(  cnv->can_overtake( ocnv, ocnv->get_min_top_speed(), ocnv->get_length()*16, diagonal_length)  ) {
+						if(  cnv->can_overtake( ocnv, ocnv->get_min_top_speed(), ocnv->get_length()*16+ocnv->get_vehikel(0)->get_steps(), diagonal_length)  ) {
 							return true;
 						}
 					} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
@@ -2689,7 +2689,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 					}
 				}
 				// we have to wait ...
-				restart_speed = 0;
+				restart_speed = (cnv->get_akt_speed()*3)/4;
 				cnv->set_tiles_overtaking(0);
 			}
 		}

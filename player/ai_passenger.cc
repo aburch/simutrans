@@ -281,6 +281,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		// we use the free own vehikel_besch_t
 		vehikel_besch_t remover_besch( water_wt, 500, vehikel_besch_t::diesel );
 		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d(start_harbour-start_dx,welt->get_grundwasser()), this, NULL, &remover_besch );
+		test_driver->set_flag( ding_t::not_on_map );
 		route_t verbindung;
 		bool connected = verbindung.calc_route(welt, koord3d(start_harbour-start_dx,welt->get_grundwasser()), koord3d(end_harbour-end_dx,welt->get_grundwasser()), test_driver, 0, 0);
 		delete test_driver;

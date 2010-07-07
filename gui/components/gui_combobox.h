@@ -11,7 +11,7 @@
 #define gui_components_gui_combobox_h
 
 #include "../../simcolor.h"
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "gui_scrolled_list.h"
 #include "gui_textinput.h"
 #include "gui_button.h"
@@ -136,7 +136,7 @@ public:
 	 */
 	void close_box();
 
-	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
+	gui_komponente_t *get_focus() { return (gui_komponente_t *)this; }
 };
 
 #endif

@@ -27,8 +27,8 @@ gui_frame_t::gui_frame_t(char const* const name, spieler_t const* const sp)
 	this->name = name;
 	groesse = koord(200, 100);
 	owner = sp;
-	container.set_pos(koord(0,16));
-	set_resizemode (no_resize); //25-may-02	markus weber	added
+	container.set_pos(koord(0,TITLEBAR_HEIGHT));
+	set_resizemode(no_resize); //25-may-02	markus weber	added
 	dirty = true;
 }
 
@@ -84,7 +84,7 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 		container.clear_dirty();
 	}
 	event_t ev2 = *ev;
-	translate_event(&ev2, 0, -16);
+	translate_event(&ev2, 0, -TITLEBAR_HEIGHT);
 	return container.infowin_event(&ev2);
 }
 

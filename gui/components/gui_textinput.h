@@ -8,8 +8,8 @@
 #ifndef gui_components_gui_textinput_h
 #define gui_components_gui_textinput_h
 
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../../simgraph.h"
 
@@ -119,7 +119,7 @@ public:
 	// to allow for right-aligned text
 	void set_color(COLOR_VAL col){ textcol = col;}
 
-	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
+	gui_komponente_t *get_focus() { return (gui_komponente_t *)this; }
 };
 
 

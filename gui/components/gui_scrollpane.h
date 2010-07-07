@@ -11,7 +11,7 @@
 #define gui_scrollpane_h
 
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "gui_scrollbar.h"
 
 class gui_scrollpane_t : public gui_komponente_t
@@ -82,7 +82,7 @@ public:
 	/**
 	 * returns element that has the focus
 	 */
-	gui_komponente_t *get_focus() const { return komp->get_focus(); }
+	gui_komponente_t *get_focus() { return komp->get_focus(); }
 };
 
 #endif

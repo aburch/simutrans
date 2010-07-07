@@ -8,7 +8,7 @@
 #ifndef message_stats_t_h
 #define message_stats_t_h
 
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "../simimg.h"
 
 class karte_t;

@@ -8,8 +8,8 @@
 #ifndef gui_button_h
 #define gui_button_h
 
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../../simimg.h"
 
@@ -185,7 +185,7 @@ public:
 
 	bool enabled() { return b_enabled; }
 
-	gui_komponente_t *get_focus() const;
+	gui_komponente_t *get_focus();
 
 private:
 	button_t(const button_t&);        // forbidden
