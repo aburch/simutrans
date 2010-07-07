@@ -472,6 +472,9 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 			else if(wait<16) {
 				wait ++;
 			}
+			else {
+				wait = 0;
+			}
 			update_selection();
 		}
 	} else if (komp == &bt_return) {
