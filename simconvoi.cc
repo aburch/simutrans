@@ -2790,14 +2790,17 @@ uint8 convoi_t::get_status_color() const
 uint16 convoi_t::get_tile_length() const
 {
 	uint16 tiles=0;
-	// the last vehicle does not count!
 	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
 		tiles += fahr[i]->get_besch()->get_length();
 	}
-	// add 127/256 tile to account for the driving in stations in north/west direction
-	// see at the end of vehikel_t::hop()
-	return (tiles*16 + 256-1 + 127)/256;
-	// was originally (tiles+16-1)/16;
+	// the last vehicle counts differently in stations and for reserving track
+	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
+	//     see at the end of vehikel_t::hop()
+	// (2) for length of convoi for loading in stations the length of the last vehicle matters
+	//     see convoi_t::hat_gehalten
+	tiles += max(8, fahr[anz_vehikel-1]->get_besch()->get_length());
+
+	return (tiles + 15) / 16;
 }
 
 
