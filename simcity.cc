@@ -1533,7 +1533,7 @@ void stadt_t::step_passagiere()
 						}
 						else {
 							// use normal amount for return pas/mail
-							return_pax.menge = pax_left_to_do*3;
+							return_pax.menge = pax_left_to_do;
 						}
 						return_pax.set_zielpos(k);
 						return_pax.set_ziel(start_halt);
