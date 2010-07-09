@@ -1883,20 +1883,21 @@ uint16 vehikel_t::get_overcrowding() const
 
 uint8 vehikel_t::get_comfort() const
 {
-	if(besch->get_comfort() == 0)
+	const uint8 base_comfort = besch->get_comfort();
+	if(base_comfort == 0)
 	{
 		return 0;
 	}
 	else if(total_freight <= get_fracht_max())
 	{
 		// Not overcrowded - return base level
-		return besch->get_comfort();
+		return base_comfort;
 	}
 
 	// Else
 	// Overcrowded - adjust comfort. Standing passengers
 	// are very uncomfortable (no more than 10).
-	const uint8 standing_comfort = (besch->get_comfort() < 20) ? (standing_comfort / 2) : 10;
+	const uint8 standing_comfort = (base_comfort < 20) ? (base_comfort / 2) : 10;
 	uint16 passenger_count = 0;
 	slist_iterator_tpl<ware_t> iter(fracht);
 	while(iter.next()) 
@@ -1914,11 +1915,11 @@ uint8 vehikel_t::get_comfort() const
 	// Avoid division if we can
 	if(total_standing_passengers == 0)
 	{
-		return besch->get_comfort();
+		return base_comfort;
 	}
 	// Else
 	// Average comfort of seated and standing
-	return ((total_seated_passengers * besch->get_comfort()) + (total_standing_passengers * standing_comfort)) / passenger_count;
+	return ((total_seated_passengers * base_comfort) + (total_standing_passengers * standing_comfort)) / passenger_count;
 }
 
 void vehikel_t::rdwr(loadsave_t *file)
