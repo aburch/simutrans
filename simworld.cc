@@ -4180,9 +4180,16 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		for (int y = 0; y < get_groesse_y(); y++) {
 			for (int x = 0; x < get_groesse_x(); x++) {
 				koord k(x,y);
-				if(access(x,y)->get_kartenboden()->get_typ()==grund_t::fundament) {
-					access(x,y)->get_kartenboden()->set_hoehe( max_hgt(k) );
-					access(x,y)->get_kartenboden()->set_grund_hang(hang_t::flach);
+				grund_t *gr1 = access(x, y)->get_kartenboden();
+				if(gr1->get_typ()==grund_t::fundament) {
+					gr1->set_hoehe( max_hgt(k) );
+					// get new grund
+					grund_t *gr2 = access(x, y)->get_kartenboden();
+					gr2->set_grund_hang(hang_t::flach);
+					// transfer object to on new grund
+					for(  int i=0;  i<gr1->get_top();  i++  ) {
+						gr1->obj_bei(i)->set_pos( gr2->get_pos() );
+					}
 				}
 			}
 		}
