@@ -1896,7 +1896,7 @@ uint8 vehikel_t::get_comfort() const
 	// Else
 	// Overcrowded - adjust comfort. Standing passengers
 	// are very uncomfortable (no more than 10).
-	const uint8 standing_comfort = 10 < besch->get_comfort() - 5 ? 10 : besch->get_comfort() >> 1;
+	const uint8 standing_comfort = (besch->get_comfort < 20) ? (standing_comfort / 2) : 10;
 	uint16 passenger_count = 0;
 	slist_iterator_tpl<ware_t> iter(fracht);
 	while(iter.next()) 
@@ -1908,10 +1908,11 @@ uint8 vehikel_t::get_comfort() const
 			passenger_count += ware.menge;
 		}
 	}
+	assert(passenger_count <= total_freight);
 	const uint16 total_seated_passengers = passenger_count < get_fracht_max() ? passenger_count : get_fracht_max();
 	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
 	// Avoid division if we can
-	if(total_seated_passengers < 1)
+	if(total_standing_passengers == 0)
 	{
 		return besch->get_comfort();
 	}
