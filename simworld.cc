@@ -4398,11 +4398,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	}
 #ifdef DEBUG
 	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
-#endif
 
-#if 0
 	// reroute goods for benchmarking
 	dt = dr_time();
+#endif
+	// reroute_goods needs long time in large game
+	// we must resolve all 'Error in routing' here.
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		sint16 dummy = 0x7FFF;
 		if((hnr++%64)==0) {
@@ -4410,6 +4411,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		}
 		(*i)->reroute_goods(dummy);
 	}
+#ifdef DEBUG
 	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 
