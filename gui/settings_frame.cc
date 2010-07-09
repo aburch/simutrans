@@ -32,7 +32,8 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	scrolly_general(&general),
 	scrolly_economy(&economy),
 	scrolly_routing(&routing),
-	scrolly_costs(&costs)
+	scrolly_costs(&costs),
+	scrolly_climates(&climates)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( 0, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	revert_to_default.add_listener( this );
@@ -45,6 +46,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	economy.init( sets );
 	routing.init( sets );
 	costs.init( sets );
+	climates.init( sets );
 
 	// tab panel
 	tabs.set_pos(koord(0,BUTTON_HEIGHT));
@@ -53,6 +55,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	tabs.add_tab(&scrolly_economy, translator::translate("Economy"));
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
+	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_komponente(&tabs);
 
 
@@ -116,6 +119,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		economy.init( sets );
 		routing.init( sets );
 		costs.init( sets );
+		climates.init( sets );
 	}
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
@@ -131,6 +135,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		economy.init( sets );
 		routing.init( sets );
 		costs.init( sets );
+		climates.init( sets );
 	}
 	return true;
 }
@@ -144,6 +149,7 @@ bool settings_frame_t::infowin_event(const event_t *ev)
 		routing.read( sets );
 		economy.read( sets );
 		costs.read( sets );
+		climates.read( sets );
 	}
 	return gui_frame_t::infowin_event(ev);
 }

@@ -164,9 +164,6 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	if(komp==&no_tree) {
 		umgebung_t::no_tree ^= 1;
 		no_tree.pressed ^= 1;
-		if(  welt_gui  ) {
-			welt_gui->update_preview();
-		}
 	}
 	else if(komp==&water_level) {
 		sets->set_grundwasser( v.i );

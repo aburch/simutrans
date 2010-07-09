@@ -38,6 +38,8 @@ private:
 	gui_scrollpane_t scrolly_routing;
 	settings_costs_stats_t	costs;
 	gui_scrollpane_t scrolly_costs;
+	settings_climates_stats_t	climates;
+	gui_scrollpane_t scrolly_climates;
 
 	button_t revert_to_default, revert_to_last_save;
 

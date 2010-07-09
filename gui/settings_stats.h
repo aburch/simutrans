@@ -12,12 +12,14 @@
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
+#include "../utils/cbuffer_t.h"
 
 #include "components/gui_komponente.h"
 #include "gui_container.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_label.h"
 #include "components/list_button.h"
+#include "components/action_listener.h"
 
 class einstellungen_t;
 
@@ -94,17 +96,29 @@ class einstellungen_t;
 	seperator += 1;\
 
 
-// call this before and EXIT_...
-#define EXIT_INIT \
+// call this before and READ_...
+#define READ_INIT \
+	slist_iterator_tpl<gui_numberinput_t *>numiter(numinp);\
+	slist_iterator_tpl<button_t *>booliter(button);
+
+#define READ_NUM(t) numiter.next(); (t)( numiter.get_current()->get_value() )
+#define READ_COST(t) numiter.next(); (t)( (sint64)(numiter.get_current()->get_value())*100 )
+#define READ_NUM_VALUE(t) numiter.next(); (t) = numiter.get_current()->get_value()
+#define READ_COST_VALUE(t) numiter.next(); (t) = (sint64)(numiter.get_current()->get_value())*100
+#define READ_BOOL(t) booliter.next(); (t)( booliter.get_current()->pressed )
+#define READ_BOOL_VALUE(t) booliter.next(); (t) = booliter.get_current()->pressed
+
+/*
 	uint32 read_numinp = 0;\
 	uint32 read_button = 0;\
 
-#define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
-#define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
-#define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
-#define EXIT_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
-#define EXIT_BOOL(t) (t)( button.at(read_button++)->pressed )
-#define EXIT_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
+#define READ_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
+#define READ_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
+#define READ_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
+#define READ_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
+#define READ_BOOL(t) (t)( button.at(read_button++)->pressed )
+#define READ_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
+*/
 
 
 /**
@@ -120,11 +134,11 @@ protected:
 	slist_tpl<gui_numberinput_t *> numinp;
 	slist_tpl<button_t *> button;
 
+	void free_all();
+
 public:
 	settings_stats_t() { width = 16; }
 	~settings_stats_t() { free_all(); }
-
-	void free_all();
 
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
@@ -163,6 +177,18 @@ class settings_costs_stats_t : protected settings_stats_t, public gui_container_
 public:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
+};
+
+class settings_climates_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
+{
+private:
+	cbuffer_t buf;
+	einstellungen_t *local_sets;
+public:
+	settings_climates_stats_t() : buf( 128 ) {}
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 };
 
 
