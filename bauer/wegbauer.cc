@@ -1993,6 +1993,7 @@ void wegbauer_t::baue_strasse()
 				if (wo  &&  wo->get_besch()->get_topspeed() < weg->get_max_speed()) {
 					weg->set_max_speed( wo->get_besch()->get_topspeed() );
 				}
+				weg->set_gehweg(add_sidewalk);
 				spieler_t::add_maintenance( sp, weg->get_besch()->get_wartung());
 				weg->set_besitzer(sp);
 			}
