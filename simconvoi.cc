@@ -1219,7 +1219,7 @@ uint8 convoi_t::get_comfort() const
 		return 0;
 	}
 	
-	else if(passenger_vehicles > 1)
+	else if(passenger_vehicles > 0)
 	{
 		base_comfort /= passenger_seating;
 	}
