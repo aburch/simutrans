@@ -2667,12 +2667,26 @@ stadt_t *karte_t::get_city(const koord pos) const
 
 	if(ist_in_kartengrenzen(pos)) 
 	{
+		uint16 cities = 0;
 		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) 
 		{
 			stadt_t* c = *i;
 			if(c->is_within_city_limits(pos))
 			{
-				city = c;
+				cities ++;
+				if(cities > 1)
+				{
+					// We have a city within a city. Make sure to return the *inner* city.
+					if(city->is_within_city_limits(c->get_pos()))
+					{
+						// "c" is the inner city: c's town hall is within the city limits of "city".
+						city = c;
+					}
+				}
+				else
+				{
+					city = c;
+				}
 			}
 		}
 	}
