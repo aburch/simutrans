@@ -558,6 +558,8 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	bool fundament = to->get_typ()==grund_t::fundament;
 	const gebaeude_t* gb = to->find<gebaeude_t>();
 
+// Is this really needed ? Isn't this a duplication of check_building() ? (z9999)
+#if 1
 	// no crossings to halt
 	if(to!=from  &&  bautyp!=leitung  &&  (bautyp&elevated_flag)==0) {
 		static koord gb_to_zv[4] = { koord::sued, koord::ost, koord::nord, koord::west };
@@ -596,6 +598,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			}
 		}
 	}
+#endif
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
@@ -619,6 +622,25 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 				return false;
 			}
 			if(  !check_building( to2, -zv )  ) {
+				return false;
+			}
+		}
+		height = from->get_hoehe()+Z_TILE_STEP;
+		grund_t *from2 = welt->lookup(koord3d(from->get_pos().get_2d(),height));
+		if(from2) {
+			if(from2->get_weg_nr(0)) {
+				// already an elevated ground here => it will has always a way object, that indicates ownership
+				ok = from2->get_typ()==grund_t::monorailboden  &&  check_owner(from2->obj_bei(0)->get_besitzer(),sp);
+				ok &= from2->get_weg_nr(0)->get_besch()->get_wtyp()==besch->get_wtyp();
+			}
+			else {
+				ok = from2->find<leitung_t>()==NULL;
+			}
+			if(!ok) {
+DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
+				return false;
+			}
+			if(  !check_building( from2, zv )  ) {
 				return false;
 			}
 		}
@@ -677,7 +699,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					return false;
 				}
 				// check for depots/stops/...
-				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+				if((bautyp&elevated_flag)==0  &&  (!check_building( from, zv )  ||  !check_building( to, -zv ))) {
 					return false;
 				}
 				// calculate costs
@@ -711,7 +733,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 					return false;
 				}
 				// check for depots/stops/...
-				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+				if((bautyp&elevated_flag)==0  &&  (!check_building( from, zv )  ||  !check_building( to, -zv ))) {
 					return false;
 				}
 				// calculate costs
@@ -837,7 +859,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			// calculate costs
 			if(ok) {
 				// check for depots/stops/...
-				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+				if((bautyp&elevated_flag)==0  &&  (!check_building( from, zv )  ||  !check_building( to, -zv ))) {
 					return false;
 				}
 				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_leaving_road;	// prefer water very much ...
