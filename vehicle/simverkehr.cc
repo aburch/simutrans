@@ -612,9 +612,9 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		if(frei  &&  str->is_crossing()) {
 			// can we cross?
 			crossing_t* cr = gr->find<crossing_t>(2);
-			if(cr) {
+			if(  cr && !cr->request_crossing(this)) {
 				// approaching railway crossing: check if empty
-				return cr->request_crossing( this );
+				return false;
 			}
 			// no further check, when already entered a crossing (to alloew leaving it)
 			grund_t *gr_here = welt->lookup(get_pos());
