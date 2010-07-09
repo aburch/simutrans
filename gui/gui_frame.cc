@@ -134,10 +134,11 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 		dirty = false;
 	}
 
+	// draw background
+	PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
+
 	// Hajo: skinned windows code
 	if(skinverwaltung_t::window_skin!=NULL) {
-		// draw background
-		PUSH_CLIP(pos.x+1,pos.y+16,gr.x-2,gr.y-16);
 		const int img = skinverwaltung_t::window_skin->get_bild_nr(0);
 
 		for(int j=0; j<gr.y; j+=64) {
@@ -146,7 +147,6 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 				display_color_img(img, pos.x+1 + i, pos.y+16 + j, 0, false, false);
 			}
 		}
-		POP_CLIP();
 	}
 	else {
 		// empty box
@@ -161,4 +161,6 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 	display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false);
 
 	container.zeichnen(pos);
+
+	POP_CLIP();
 }

@@ -68,7 +68,12 @@ scrollbar_t::scrollbar_t(enum type type) :
 
 void scrollbar_t::set_groesse(koord groesse)
 {
-	this->groesse = groesse;
+	if (type == vertical) {
+		this->groesse.y = groesse.y;
+	}
+	else {
+		this->groesse.x = groesse.x;
+	}
 	reposition_buttons();
 }
 
