@@ -5,6 +5,8 @@
  * (see licence.txt)
  */
 
+#include "welt.h"
+#include "../simwin.h"
 #include "../simcity.h"
 #include "../dataobj/einstellungen.h"
 #include "../dataobj/umgebung.h"
@@ -156,24 +158,24 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 
 void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 {
-	EXIT_INIT;
-	EXIT_NUM( sets->set_distance_per_tile_percent );
+	READ_INIT;
+	READ_NUM( sets->set_distance_per_tile_percent );
 
-	EXIT_NUM( sets->set_min_bonus_max_distance );
-	EXIT_NUM( sets->set_median_bonus_distance );
-	EXIT_NUM( sets->set_max_bonus_min_distance );
-	EXIT_NUM( sets->set_max_bonus_multiplier_percent );
+	READ_NUM( sets->set_min_bonus_max_distance );
+	READ_NUM( sets->set_median_bonus_distance );
+	READ_NUM( sets->set_max_bonus_min_distance );
+	READ_NUM( sets->set_max_bonus_multiplier_percent );
 
-	EXIT_NUM( sets->set_tpo_min_minutes );
-	EXIT_NUM( sets->set_tpo_revenue );
+	READ_NUM( sets->set_tpo_min_minutes );
+	READ_NUM( sets->set_tpo_revenue );
 
-	EXIT_NUM( sets->set_city_threshold_size );
-	EXIT_NUM( sets->set_capital_threshold_size );
-	EXIT_BOOL( sets->set_quick_city_growth );
-	EXIT_BOOL( sets->set_assume_everywhere_connected_by_road );
+	READ_NUM( sets->set_city_threshold_size );
+	READ_NUM( sets->set_capital_threshold_size );
+	READ_BOOL( sets->set_quick_city_growth );
+	READ_BOOL( sets->set_assume_everywhere_connected_by_road );
 
 	uint16 default_increase_maintenance_after_years_other;
-	EXIT_NUM_VALUE( default_increase_maintenance_after_years_other );
+	READ_NUM_VALUE( default_increase_maintenance_after_years_other );
 	for(uint8 i = road_wt; i <= air_wt; i ++)
 	{
 		switch(i)
@@ -186,7 +188,7 @@ void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 		case tram_wt:
 		case narrowgauge_wt:
 		case air_wt:
-			EXIT_NUM_ARRAY(sets->set_default_increase_maintenance_after_years, (waytype_t)i);
+			READ_NUM_ARRAY(sets->set_default_increase_maintenance_after_years, (waytype_t)i);
 			break;
 		default:
 			sets->set_default_increase_maintenance_after_years((waytype_t)i, default_increase_maintenance_after_years_other);
@@ -311,49 +313,49 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 
 void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 {
-	EXIT_INIT
-	EXIT_NUM( sets->set_passenger_routing_packet_size );
-	EXIT_NUM( sets->set_max_alternative_destinations );
+	READ_INIT
+	READ_NUM( sets->set_passenger_routing_packet_size );
+	READ_NUM( sets->set_max_alternative_destinations );
 
-	EXIT_NUM( sets->set_local_passengers_max_distance );
-	EXIT_NUM( sets->set_passenger_routing_local_chance );
-	EXIT_NUM2( sets->set_min_local_tolerance, * 10 );
-	EXIT_NUM2( sets->set_max_local_tolerance, * 10 );
-	EXIT_NUM( sets->set_midrange_passengers_min_distance );
-	EXIT_NUM( sets->set_midrange_passengers_max_distance );
-	EXIT_NUM2( sets->set_min_midrange_tolerance, * 10 );
-	EXIT_NUM2( sets->set_max_midrange_tolerance, * 10 );
-	EXIT_NUM( sets->set_passenger_routing_midrange_chance );
-	EXIT_NUM( sets->set_longdistance_passengers_min_distance );
-	EXIT_NUM2( sets->set_min_longdistance_tolerance, * 10 );
-	EXIT_NUM2( sets->set_max_longdistance_tolerance, * 10 );
-	EXIT_NUM( sets->set_tolerable_comfort_short_minutes );
-	EXIT_NUM( sets->set_tolerable_comfort_short );
-	EXIT_NUM( sets->set_tolerable_comfort_median_short_minutes );
-	EXIT_NUM( sets->set_tolerable_comfort_median_short );
-	EXIT_NUM( sets->set_tolerable_comfort_median_median_minutes );
-	EXIT_NUM( sets->set_tolerable_comfort_median_median );
-	EXIT_NUM( sets->set_tolerable_comfort_median_long_minutes );
-	EXIT_NUM( sets->set_tolerable_comfort_median_long );
-	EXIT_NUM( sets->set_tolerable_comfort_long_minutes );
-	EXIT_NUM( sets->set_tolerable_comfort_long );
+	READ_NUM( sets->set_local_passengers_max_distance );
+	READ_NUM( sets->set_passenger_routing_local_chance );
+	READ_NUM2( sets->set_min_local_tolerance, * 10 );
+	READ_NUM2( sets->set_max_local_tolerance, * 10 );
+	READ_NUM( sets->set_midrange_passengers_min_distance );
+	READ_NUM( sets->set_midrange_passengers_max_distance );
+	READ_NUM2( sets->set_min_midrange_tolerance, * 10 );
+	READ_NUM2( sets->set_max_midrange_tolerance, * 10 );
+	READ_NUM( sets->set_passenger_routing_midrange_chance );
+	READ_NUM( sets->set_longdistance_passengers_min_distance );
+	READ_NUM2( sets->set_min_longdistance_tolerance, * 10 );
+	READ_NUM2( sets->set_max_longdistance_tolerance, * 10 );
+	READ_NUM( sets->set_tolerable_comfort_short_minutes );
+	READ_NUM( sets->set_tolerable_comfort_short );
+	READ_NUM( sets->set_tolerable_comfort_median_short_minutes );
+	READ_NUM( sets->set_tolerable_comfort_median_short );
+	READ_NUM( sets->set_tolerable_comfort_median_median_minutes );
+	READ_NUM( sets->set_tolerable_comfort_median_median );
+	READ_NUM( sets->set_tolerable_comfort_median_long_minutes );
+	READ_NUM( sets->set_tolerable_comfort_median_long );
+	READ_NUM( sets->set_tolerable_comfort_long_minutes );
+	READ_NUM( sets->set_tolerable_comfort_long );
 
-	EXIT_NUM( sets->set_max_luxury_bonus_differential );
-	EXIT_NUM( sets->set_max_luxury_bonus_percent );
-	EXIT_NUM( sets->set_max_discomfort_penalty_differential );
-	EXIT_NUM( sets->set_max_discomfort_penalty_percent );
+	READ_NUM( sets->set_max_luxury_bonus_differential );
+	READ_NUM( sets->set_max_luxury_bonus_percent );
+	READ_NUM( sets->set_max_discomfort_penalty_differential );
+	READ_NUM( sets->set_max_discomfort_penalty_percent );
 
-	EXIT_NUM( sets->set_catering_min_minutes );
-	EXIT_NUM( sets->set_catering_level1_minutes );
-	EXIT_NUM( sets->set_catering_level1_max_revenue );
-	EXIT_NUM( sets->set_catering_level2_minutes );
-	EXIT_NUM( sets->set_catering_level2_max_revenue );
-	EXIT_NUM( sets->set_catering_level3_minutes );
-	EXIT_NUM( sets->set_catering_level3_max_revenue );
-	EXIT_NUM( sets->set_catering_level4_minutes );
-	EXIT_NUM( sets->set_catering_level4_max_revenue );
-	EXIT_NUM( sets->set_catering_level5_minutes );
-	EXIT_NUM( sets->set_catering_level5_max_revenue );
+	READ_NUM( sets->set_catering_min_minutes );
+	READ_NUM( sets->set_catering_level1_minutes );
+	READ_NUM( sets->set_catering_level1_max_revenue );
+	READ_NUM( sets->set_catering_level2_minutes );
+	READ_NUM( sets->set_catering_level2_max_revenue );
+	READ_NUM( sets->set_catering_level3_minutes );
+	READ_NUM( sets->set_catering_level3_max_revenue );
+	READ_NUM( sets->set_catering_level4_minutes );
+	READ_NUM( sets->set_catering_level4_max_revenue );
+	READ_NUM( sets->set_catering_level5_minutes );
+	READ_NUM( sets->set_catering_level5_max_revenue );
 
 }
 
@@ -426,40 +428,40 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 
 void settings_general_stats_t::read(einstellungen_t *sets)
 {
-	EXIT_INIT
-//	EXIT_BOOL_VALUE( umgebung_t::drive_on_left );	//cannot be switched after loading paks
-	EXIT_NUM_VALUE( umgebung_t::autosave );
-	EXIT_NUM_VALUE( umgebung_t::fps );
-	EXIT_NUM_VALUE( umgebung_t::max_acceleration );
+	READ_INIT
+//	READ_BOOL_VALUE( umgebung_t::drive_on_left );	//cannot be switched after loading paks
+	READ_NUM_VALUE( umgebung_t::autosave );
+	READ_NUM_VALUE( umgebung_t::fps );
+	READ_NUM_VALUE( umgebung_t::max_acceleration );
 
-	EXIT_BOOL( sets->set_numbered_stations );
-	EXIT_NUM_VALUE( umgebung_t::show_names );
-	EXIT_NUM_VALUE( umgebung_t::show_month );
+	READ_BOOL( sets->set_numbered_stations );
+	READ_NUM_VALUE( umgebung_t::show_names );
+	READ_NUM_VALUE( umgebung_t::show_month );
 
-	EXIT_NUM( sets->set_bits_per_month );
-	EXIT_NUM( sets->set_use_timeline );
-	EXIT_NUM( sets->set_starting_year );
-	EXIT_NUM( sets->set_starting_month );
+	READ_NUM( sets->set_bits_per_month );
+	READ_NUM( sets->set_use_timeline );
+	READ_NUM( sets->set_starting_year );
+	READ_NUM( sets->set_starting_month );
 
-	EXIT_NUM_VALUE( umgebung_t::water_animation );
-	EXIT_NUM_VALUE( umgebung_t::ground_object_probability );
-	EXIT_NUM_VALUE( umgebung_t::moving_object_probability );
+	READ_NUM_VALUE( umgebung_t::water_animation );
+	READ_NUM_VALUE( umgebung_t::ground_object_probability );
+	READ_NUM_VALUE( umgebung_t::moving_object_probability );
 
-	EXIT_BOOL_VALUE( umgebung_t::verkehrsteilnehmer_info );
-	EXIT_BOOL_VALUE( umgebung_t::tree_info );
-	EXIT_BOOL_VALUE( umgebung_t::ground_info );
-	EXIT_BOOL_VALUE( umgebung_t::townhall_info );
-	EXIT_BOOL_VALUE( umgebung_t::single_info );
+	READ_BOOL_VALUE( umgebung_t::verkehrsteilnehmer_info );
+	READ_BOOL_VALUE( umgebung_t::tree_info );
+	READ_BOOL_VALUE( umgebung_t::ground_info );
+	READ_BOOL_VALUE( umgebung_t::townhall_info );
+	READ_BOOL_VALUE( umgebung_t::single_info );
 
-	EXIT_BOOL_VALUE( umgebung_t::window_buttons_right );
-	EXIT_BOOL_VALUE( umgebung_t::window_frame_active );
+	READ_BOOL_VALUE( umgebung_t::window_buttons_right );
+	READ_BOOL_VALUE( umgebung_t::window_frame_active );
 
-	EXIT_BOOL_VALUE( umgebung_t::show_tooltips );
-	EXIT_NUM_VALUE( umgebung_t::tooltip_color );
-	EXIT_NUM_VALUE( umgebung_t::tooltip_textcolor );
+	READ_BOOL_VALUE( umgebung_t::show_tooltips );
+	READ_NUM_VALUE( umgebung_t::tooltip_color );
+	READ_NUM_VALUE( umgebung_t::tooltip_textcolor );
 
-	EXIT_NUM_VALUE( umgebung_t::cursor_overlay_color );
-	EXIT_BOOL_VALUE( umgebung_t::left_to_right_graphs );
+	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
+	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 }
 
 
@@ -491,21 +493,21 @@ void settings_routing_stats_t::init(einstellungen_t *sets)
 
 void settings_routing_stats_t::read(einstellungen_t *sets)
 {
-	EXIT_INIT
-	EXIT_BOOL( sets->set_seperate_halt_capacities );
-	EXIT_BOOL( sets->set_avoid_overcrowding );
-	EXIT_NUM( sets->set_station_coverage );
-	EXIT_NUM( sets->set_max_route_steps );
-	EXIT_NUM( sets->set_max_hops );
-	EXIT_NUM( sets->set_max_transfers );
-	EXIT_NUM_VALUE( sets->way_count_straight );
-	EXIT_NUM_VALUE( sets->way_count_curve );
-	EXIT_NUM_VALUE( sets->way_count_double_curve );
-	EXIT_NUM_VALUE( sets->way_count_90_curve );
-	EXIT_NUM_VALUE( sets->way_count_slope );
-	EXIT_NUM_VALUE( sets->way_count_tunnel );
-	EXIT_NUM_VALUE( sets->way_max_bridge_len );
-	EXIT_NUM_VALUE( sets->way_count_leaving_road );
+	READ_INIT
+	READ_BOOL( sets->set_seperate_halt_capacities );
+	READ_BOOL( sets->set_avoid_overcrowding );
+	READ_NUM( sets->set_station_coverage );
+	READ_NUM( sets->set_max_route_steps );
+	READ_NUM( sets->set_max_hops );
+	READ_NUM( sets->set_max_transfers );
+	READ_NUM_VALUE( sets->way_count_straight );
+	READ_NUM_VALUE( sets->way_count_curve );
+	READ_NUM_VALUE( sets->way_count_double_curve );
+	READ_NUM_VALUE( sets->way_count_90_curve );
+	READ_NUM_VALUE( sets->way_count_slope );
+	READ_NUM_VALUE( sets->way_count_tunnel );
+	READ_NUM_VALUE( sets->way_max_bridge_len );
+	READ_NUM_VALUE( sets->way_count_leaving_road );
 }
 
 
@@ -554,43 +556,45 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 
 void settings_economy_stats_t::read( einstellungen_t *sets )
 {
-	EXIT_INIT
-	if(  sets->get_starting_money(sets->get_starting_year())!=((sint64)(numinp.at(read_numinp)->get_value())*100)  ) {
+	READ_INIT
+	sint64 start_money_temp;
+	READ_COST_VALUE( start_money_temp );
+	if(  sets->get_starting_money(sets->get_starting_year())!=start_money_temp  ) {
 		// because this will render the table based values invalid, we do this only when needed
-		EXIT_COST( sets->set_starting_money );
+		sets->set_starting_money( start_money_temp );
 	}
 	else {
 		// skip this
-		read_numinp++;
+		//read_numinp++;
 	}
-	EXIT_BOOL( sets->set_beginner_mode );
-	EXIT_NUM( sets->set_beginner_price_factor );
-	EXIT_BOOL( sets->set_allow_buying_obsolete_vehicles );
+	READ_BOOL( sets->set_beginner_mode );
+	READ_NUM( sets->set_beginner_price_factor );
+	READ_BOOL( sets->set_allow_buying_obsolete_vehicles );
 
-	EXIT_BOOL( sets->set_just_in_time );
-	EXIT_BOOL( sets->set_crossconnect_factories );
-	EXIT_NUM( sets->set_crossconnect_factor );
-	EXIT_NUM( stadt_t::set_industry_increase );
-	EXIT_NUM( sets->set_factory_spacing );
-	EXIT_NUM( sets->set_electric_promille );
-	EXIT_NUM( sets->set_passenger_factor );
-	EXIT_NUM( stadt_t::set_minimum_city_distance );
-	EXIT_NUM( sets->set_factory_worker_radius );
-	EXIT_NUM( sets->set_factory_worker_minimum_towns );
-	EXIT_NUM( sets->set_factory_worker_maximum_towns );
-	EXIT_NUM( sets->set_factory_worker_percentage );
-	EXIT_NUM( sets->set_tourist_percentage );
-	EXIT_NUM( sets->set_passenger_multiplier );
-	EXIT_NUM( sets->set_mail_multiplier );
-	EXIT_NUM( sets->set_goods_multiplier );
-//	EXIT_NUM( sets->set_electricity_multiplier );
-	EXIT_NUM( sets->set_growthfactor_small );
-	EXIT_NUM( sets->set_growthfactor_medium );
-	EXIT_NUM( sets->set_growthfactor_large );
-	EXIT_BOOL( sets->set_random_pedestrians );
-	EXIT_BOOL( sets->set_show_pax );
-	EXIT_NUM( sets->set_verkehr_level );
-	EXIT_NUM( sets->set_stadtauto_duration );
+	READ_BOOL( sets->set_just_in_time );
+	READ_BOOL( sets->set_crossconnect_factories );
+	READ_NUM( sets->set_crossconnect_factor );
+	READ_NUM( stadt_t::set_industry_increase );
+	READ_NUM( sets->set_factory_spacing );
+	READ_NUM( sets->set_electric_promille );
+	READ_NUM( sets->set_passenger_factor );
+	READ_NUM( stadt_t::set_minimum_city_distance );
+	READ_NUM( sets->set_factory_worker_radius );
+	READ_NUM( sets->set_factory_worker_minimum_towns );
+	READ_NUM( sets->set_factory_worker_maximum_towns );
+	READ_NUM( sets->set_factory_worker_percentage );
+	READ_NUM( sets->set_tourist_percentage );
+	READ_NUM( sets->set_passenger_multiplier );
+	READ_NUM( sets->set_mail_multiplier );
+	READ_NUM( sets->set_goods_multiplier );
+//	READ_NUM( sets->set_electricity_multiplier );
+	READ_NUM( sets->set_growthfactor_small );
+	READ_NUM( sets->set_growthfactor_medium );
+	READ_NUM( sets->set_growthfactor_large );
+	READ_BOOL( sets->set_random_pedestrians );
+	READ_BOOL( sets->set_show_pax );
+	READ_NUM( sets->set_verkehr_level );
+	READ_NUM( sets->set_stadtauto_duration );
 }
 
 
@@ -625,27 +629,112 @@ void settings_costs_stats_t::init(einstellungen_t *sets)
 
 void settings_costs_stats_t::read(einstellungen_t *sets)
 {
-	EXIT_INIT
-	read_button = 0; // silence warning: safe to remove if EXIT_BOOL is used
-	EXIT_NUM_VALUE( sets->maint_building )*100;
-	EXIT_COST_VALUE( sets->cst_multiply_dock )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_station )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_roadstop )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_airterminal )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_post )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_headquarter )*(-1);
-	EXIT_COST_VALUE( sets->cst_depot_air )*(-1);
-	EXIT_COST_VALUE( sets->cst_depot_rail )*(-1);
-	EXIT_COST_VALUE( sets->cst_depot_road )*(-1);
-	EXIT_COST_VALUE( sets->cst_depot_ship )*(-1);
-	EXIT_COST_VALUE( sets->cst_buy_land )*(-1);
-	EXIT_COST_VALUE( sets->cst_alter_land )*(-1);
-	EXIT_COST_VALUE( sets->cst_set_slope )*(-1);
-	EXIT_COST_VALUE( sets->cst_found_city )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_found_industry )*(-1);
-	EXIT_COST_VALUE( sets->cst_remove_tree )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_remove_haus )*(-1);
-	EXIT_COST_VALUE( sets->cst_multiply_remove_field )*(-1);
-	EXIT_COST_VALUE( sets->cst_transformer )*(-1);
-	EXIT_COST_VALUE( sets->cst_maintain_transformer )*(-1);
+	READ_INIT
+	READ_NUM_VALUE( sets->maint_building )*100;
+	READ_COST_VALUE( sets->cst_multiply_dock )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_station )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_roadstop )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_airterminal )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_post )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_headquarter )*(-1);
+	READ_COST_VALUE( sets->cst_depot_air )*(-1);
+	READ_COST_VALUE( sets->cst_depot_rail )*(-1);
+	READ_COST_VALUE( sets->cst_depot_road )*(-1);
+	READ_COST_VALUE( sets->cst_depot_ship )*(-1);
+	READ_COST_VALUE( sets->cst_buy_land )*(-1);
+	READ_COST_VALUE( sets->cst_alter_land )*(-1);
+	READ_COST_VALUE( sets->cst_set_slope )*(-1);
+	READ_COST_VALUE( sets->cst_found_city )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_found_industry )*(-1);
+	READ_COST_VALUE( sets->cst_remove_tree )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_remove_haus )*(-1);
+	READ_COST_VALUE( sets->cst_multiply_remove_field )*(-1);
+	READ_COST_VALUE( sets->cst_transformer )*(-1);
+	READ_COST_VALUE( sets->cst_maintain_transformer )*(-1);
+
+	clear_dirty();
+	set_groesse( settings_stats_t::get_groesse() );
+}
+
+
+#include "../besch/grund_besch.h"
+
+
+void settings_climates_stats_t::init(einstellungen_t *sets)
+{
+	local_sets = sets;
+	INIT_INIT
+	INIT_NUM( "Water level", sets->get_grundwasser(), -10, 0, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "Mountain height", sets->get_max_mountain_height(), 0, 320, 10, false );
+	INIT_NUM( "Map roughness", (sets->get_map_roughness()*20.0 + 0.5)-8, 0, 7, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+	INIT_LB( "Summer snowline" );
+	INIT_NUM( "Winter snowline", sets->get_winter_snowline(), sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
+	SEPERATOR
+	// other climate borders ...
+	sint16 arctic = 0;
+	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
+		INIT_NUM( grund_besch_t::get_climate_name_from_bit((climate)i), sets->get_climate_borders()[i], sets->get_grundwasser(), 24, gui_numberinput_t::AUTOLINEAR, false );
+		if(sets->get_climate_borders()[i]>arctic) {
+			arctic = sets->get_climate_borders()[i];
+		}
+	}
+	numinp.at(3)->set_limits( 0, arctic );
+	buf.clear();
+	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
+	label.at(3)->set_text( buf );
+	SEPERATOR
+	INIT_BOOL( "no tree", umgebung_t::no_tree );
+	SEPERATOR
+	INIT_NUM( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "minimum length of rivers", sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "maximum length of rivers", sets->get_max_river_length(), sets->get_min_river_length()+16, 8196, gui_numberinput_t::AUTOLINEAR, false );
+	// add listener to all of them
+	slist_iterator_tpl<gui_numberinput_t *>iter(numinp);
+	while(  iter.next()  ) {
+		iter.get_current()->add_listener( this );
+	}
+}
+
+
+void settings_climates_stats_t::read(einstellungen_t *sets)
+{
+	READ_INIT
+	READ_NUM( sets->set_grundwasser );
+	READ_NUM( sets->set_max_mountain_height );
+	double n;
+	READ_NUM_VALUE( n );
+	sets->set_map_roughness( (n+8.0)/20.0 );
+	READ_NUM( sets->set_winter_snowline );
+	// other climate borders ...
+	sint16 arctic = 0;
+	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
+		READ_NUM_VALUE( (sint16)(sets->get_climate_borders()[i]) );
+		if(  sets->get_climate_borders()[i]>arctic  ) {
+			arctic = sets->get_climate_borders()[i];
+		}
+	}
+	numinp.at(3)->set_limits( 0, arctic );
+	buf.clear();
+	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
+	label.at(3)->set_text( buf );
+	READ_BOOL_VALUE( umgebung_t::no_tree );
+	READ_NUM( sets->set_river_number );
+	READ_NUM( sets->set_min_river_length );
+	READ_NUM( sets->set_max_river_length );
+}
+
+
+bool settings_climates_stats_t::action_triggered(gui_action_creator_t *komp, value_t extra)
+{
+	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
+	read( local_sets );
+	slist_iterator_tpl<gui_numberinput_t *>iter(numinp);
+	for(  uint i=0;  iter.next();  i++  ) {
+		if(  iter.get_current()==komp  &&  i<3  &&  welt_gui  ) {
+			// update world preview
+			welt_gui->update_preview();
+		}
+	}
+	return true;
 }

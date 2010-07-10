@@ -12,6 +12,7 @@
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
+#include "../utils/cbuffer_t.h"
 
 #include "components/gui_komponente.h"
 #include "gui_container.h"
@@ -20,6 +21,7 @@
 #include "components/gui_label.h"
 #include "components/gui_textarea.h"
 #include "components/list_button.h"
+#include "components/action_listener.h"
 
 class einstellungen_t;
 
@@ -27,11 +29,11 @@ class einstellungen_t;
  * ATTENTION: In the init and read preocedures, the order of the item MUST be identical!
  */
 
-// call this befor any init is done ...
+// call this before any init is done ...
 #define INIT_INIT \
 	width = 16;\
 	sint16 ypos = 4;\
-	remove_all();\
+	gui_container_t::remove_all();\
 	free_all();\
 	seperator = 0;\
 
@@ -43,12 +45,12 @@ class einstellungen_t;
 	ni->set_pos( koord( 2, ypos ) );\
 	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
-	add_komponente( ni );\
+	gui_container_t::add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
 	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
 	label.append( lb );\
-	add_komponente( lb );\
+	gui_container_t::add_komponente( lb );\
 	ypos += BUTTON_HEIGHT;\
 }\
 
@@ -96,19 +98,32 @@ class einstellungen_t;
 	seperator += 1;\
 
 
-// call this before and EXIT_...
-#define EXIT_INIT \
+// call this before and READ_...
+#define READ_INIT \
+	slist_iterator_tpl<gui_numberinput_t *>numiter(numinp);\
+	slist_iterator_tpl<button_t *>booliter(button);
+
+#define READ_NUM(t) numiter.next(); (t)( numiter.get_current()->get_value() )
+#define READ_NUM2(t,expr) (t)( numiter.get_current()->get_value() expr)
+#define READ_COST(t) numiter.next(); (t)( (sint64)(numiter.get_current()->get_value())*100 )
+#define READ_NUM_ARRAY(t, i) (t)((i), numiter.get_current()->get_value() )
+#define READ_NUM_VALUE(t) numiter.next(); (t) = numiter.get_current()->get_value()
+#define READ_COST_VALUE(t) numiter.next(); (t) = (sint64)(numiter.get_current()->get_value())*100
+#define READ_BOOL(t) booliter.next(); (t)( booliter.get_current()->pressed )
+#define READ_BOOL_VALUE(t) booliter.next(); (t) = booliter.get_current()->pressed
+
+/*
 	uint32 read_numinp = 0;\
 	uint32 read_button = 0;\
 
-#define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
-#define EXIT_NUM2(t,expr) (t)( numinp.at(read_numinp++)->get_value() expr)
-#define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
-#define EXIT_NUM_ARRAY(t, i) (t)((i), numinp.at(read_numinp++)->get_value() )
-#define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
-#define EXIT_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
-#define EXIT_BOOL(t) (t)( button.at(read_button++)->pressed )
-#define EXIT_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
+#define READ_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
+#define READ_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
+#define READ_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
+#define READ_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
+#define READ_BOOL(t) (t)( button.at(read_button++)->pressed )
+#define READ_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
+*/
+
 
 
 /**
@@ -132,8 +147,11 @@ protected:
 	button_t& new_button(koord pos, const char *text, bool pressed);
 	gui_component_table_t& new_table(koord pos, coordinate_t columns, coordinate_t rows);
 	void set_cell_component(gui_component_table_t &tbl, gui_komponente_t &c, coordinate_t x, coordinate_t y);
-
 	void free_all();
+
+public:
+	settings_stats_t() { width = 16; }
+	~settings_stats_t() { free_all(); }
 
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
@@ -141,9 +159,6 @@ protected:
 	//koord get_groesse() const {
 	//	return koord(width,(numinp.get_count()+button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
 	//}
-public:
-	settings_stats_t() { width = 16; }
-	~settings_stats_t() { free_all(); }
 };
 
 
@@ -189,6 +204,18 @@ class settings_costs_stats_t : public settings_stats_t
 public:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
+};
+
+class settings_climates_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
+{
+private:
+	cbuffer_t buf;
+	einstellungen_t *local_sets;
+public:
+	settings_climates_stats_t() : buf( 128 ) {}
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 };
 
 

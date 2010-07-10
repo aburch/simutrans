@@ -34,7 +34,8 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	scrolly_routing(&routing),
 	scrolly_costs(&costs),
 	scrolly_exp_general(&exp_general),
-	scrolly_exp_revenue(&exp_revenue)
+	scrolly_exp_revenue(&exp_revenue),
+	scrolly_climates(&climates)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( 0, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
 	revert_to_default.add_listener( this );
@@ -56,6 +57,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	height = max(height, exp_general.get_groesse().y + tabs_experimental.HEADER_VSIZE);
 	exp_revenue.init( sets );
 	height = max(height, exp_revenue.get_groesse().y + tabs_experimental.HEADER_VSIZE);
+	climates.init( sets );
 
 	// tab panel
 	tabs.set_pos(koord(0,BUTTON_HEIGHT));
@@ -65,6 +67,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
 	tabs.add_tab(&tabs_experimental, translator::translate("Experimental"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
+	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_komponente(&tabs);
 
 	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("General Exp."));
@@ -133,6 +136,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		exp_general.init( sets );
 		exp_revenue.init( sets );
 		costs.init( sets );
+		climates.init( sets );
 	}
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
@@ -150,6 +154,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		exp_general.init( sets );
 		exp_revenue.init( sets );
 		costs.init( sets );
+		climates.init( sets );
 	}
 	return true;
 }
@@ -165,6 +170,7 @@ bool settings_frame_t::infowin_event(const event_t *ev)
 		exp_general.read( sets );
 		exp_revenue.read( sets );
 		costs.read( sets );
+		climates.read( sets );
 	}
 	return gui_frame_t::infowin_event(ev);
 }

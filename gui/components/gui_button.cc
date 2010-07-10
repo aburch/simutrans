@@ -369,7 +369,8 @@ void button_t::set_tooltip(const char * t)
 
 
 
-bool button_t::getroffen(int x,int y) {
+bool button_t::getroffen(int x,int y)
+{
 	bool hit=gui_komponente_t::getroffen(x, y);
 	if(pressed  &&  !hit  &&  type<=STATE_MASK) {
 		// moved away
