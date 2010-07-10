@@ -569,11 +569,13 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		if(!lt) {
 			lt = new leitung_t(welt, bruecke->get_pos(), sp);
 			bruecke->obj_add( lt );
-			lt->laden_abschliessen();
 		}
 		else {
-			lt->calc_neighbourhood();
+			// remove maintainance - it will be added in leitung_t::laden_abschliessen
+			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung());
 		}
+		// connect to neighbor tiles and networks, add maintenance
+		lt->laden_abschliessen();
 	}
 	bruecke_t *br = new bruecke_t(welt, end, sp, besch, img);
 	bruecke->obj_add( br );
