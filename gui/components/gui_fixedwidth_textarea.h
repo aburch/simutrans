@@ -45,6 +45,8 @@ public:
 	virtual void set_groesse(koord groesse);
 
 	virtual void zeichnen(koord offset);
+
+	bool has_text() { return text != NULL; }
 };
 
 #endif

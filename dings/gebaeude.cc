@@ -676,12 +676,12 @@ void gebaeude_t::info(cbuffer_t & buf) const
 				delete [] text;
 			}
 		}
-		buf.append( "\n\n" );
+		buf.append( "\n" );
 
 		// belongs to which city?
-		if (!is_factory && ptr.stadt != NULL) {
+		/*if (!is_factory && ptr.stadt != NULL) {
 			buf.printf(translator::translate("Town: %s\n"), ptr.stadt->get_name());
-		}
+		}*/
 
 		if( get_tile()->get_besch()->get_utyp() < haus_besch_t::bahnhof ) {
 			buf.append(translator::translate("Passagierrate"));
