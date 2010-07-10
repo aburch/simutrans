@@ -13,6 +13,8 @@
 
 #ifdef _WIN32
 #include <SDL_syswm.h>
+// windows.h defines min and max macros which we don't want
+#define NOMINMAX 1
 #include <windows.h>
 #else
 #include <sys/stat.h>

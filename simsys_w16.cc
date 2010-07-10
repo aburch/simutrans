@@ -17,15 +17,14 @@
 
 // windows Bibliotheken DirectDraw 5.x
 #define UNICODE 1
+// windows.h defines min and max macros which we don't want
+#define NOMINMAX 1
 #include <windows.h>
 #include <winreg.h>
 #include <wingdi.h>
 #include <mmsystem.h>
 
 #include "simgraph.h"
-
-#undef max
-#undef min
 
 
 // needed for wheel
