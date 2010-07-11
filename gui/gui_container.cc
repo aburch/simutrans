@@ -159,7 +159,8 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			// CAUTION : call to infowin_event() should not delete the component itself!
 			swallowed = komp->infowin_event(&ev2);
 
-			gui_komponente_t *focus = komp->get_focus();
+			// focused component of this container can only be one of its immediate children
+			gui_komponente_t *focus = komp->get_focus() ? komp : NULL;
 
 			// set focus for komponente, if komponente allows focus
 			if(  focus  &&  IS_LEFTRELEASE(ev)  &&  komp->getroffen(ev->cx, ev->cy)  ) {

@@ -56,7 +56,7 @@ void gui_tab_panel_t::set_groesse(koord gr)
 }
 
 
-bool gui_tab_panel_t::action_triggered(gui_action_creator_t *komp, value_t p)
+bool gui_tab_panel_t::action_triggered(gui_action_creator_t *komp, value_t)
 {
 	if(  komp == &left  ) {
 		offset_tab = min( offset_tab+1, tabs.get_count()-1 );
@@ -90,7 +90,6 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		int k=0;
 		for(  slist_tpl<tab>::const_iterator i = tabs.begin(), end = tabs.end();  i != end;  ++i, ++k  ) {
 			if(  k>=offset_tab  ) {
-				const char* text = i->title;
 				if(  text_x < ev->mx  &&  text_x+i->width > ev->mx  ) {
 					// either tooltip or change
 					active_tab = k;

@@ -709,9 +709,11 @@ void settings_climates_stats_t::read(einstellungen_t *sets)
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
-		READ_NUM_VALUE( (sint16)(sets->get_climate_borders()[i]) );
-		if(  sets->get_climate_borders()[i]>arctic  ) {
-			arctic = sets->get_climate_borders()[i];
+		sint16 ch;
+		READ_NUM_VALUE( ch );
+		((sint16 *)sets->get_climate_borders())[i] = ch;
+		if(  ch>arctic  ) {
+			arctic = ch;
 		}
 	}
 	numinp.at(3)->set_limits( 0, arctic );
