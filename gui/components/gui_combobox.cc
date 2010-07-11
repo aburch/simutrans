@@ -19,6 +19,7 @@
 
 
 gui_combobox_t::gui_combobox_t() :
+	gui_komponente_t(true),
 	droplist(gui_scrolled_list_t::select)
 {
 	bt_prev.set_typ(button_t::arrowleft);

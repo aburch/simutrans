@@ -68,6 +68,12 @@ public:
 	*/
 	void remove_all();
 
+	/**
+	 * Returns true if any child component is focusable
+	 * @author Knightly
+	 */
+	virtual bool is_focusable();
+
 	// activates this element
 	void set_focus( gui_komponente_t *komp_focus );
 
