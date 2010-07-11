@@ -787,7 +787,7 @@ void karte_t::create_rivers( sint16 number )
 
 
 
-void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint16 old_x, sint16 old_y)
+void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y)
 {
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
 	if(  umgebung_t::river_types>0  &&  einstellungen->get_river_number()>0  ) {
@@ -817,9 +817,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		uint32 tbegin = dr_time();
 #endif
 		for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
-//			int citizens=(int)(einstellungen->get_mittlere_einwohnerzahl()*0.9);
+//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
 //			citizens = citizens/10+simrand(2*citizens+1);
-			int current_citicens = (2500l * einstellungen->get_mittlere_einwohnerzahl()) /(simrand(20000)+100);
+			int current_citicens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
 			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 			stadt.append(s, s->get_einwohner(), 64);
@@ -1471,7 +1471,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 	// Resize marker_t:
 	marker.init(new_groesse_x, new_groesse_y);
 
-	distribute_groundobjs_cities(sets->get_anzahl_staedte(),old_x, old_y);
+	distribute_groundobjs_cities(sets->get_anzahl_staedte(), sets->get_mittlere_einwohnerzahl(), old_x, old_y);
 
 	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
 	fabrikbauer_t::neue_karte( this );

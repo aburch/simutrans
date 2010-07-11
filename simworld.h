@@ -373,7 +373,7 @@ private:
 	 * It's now an extra function so we don't need the code twice.
 	 * @auther Gerd Wachsmuth
 	 */
-	void distribute_groundobjs_cities(int new_cities, sint16 old_x, sint16 old_y);
+	void distribute_groundobjs_cities(int new_cities, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y);
 
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
