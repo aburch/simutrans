@@ -1125,7 +1125,12 @@ void stadt_t::verbinde_fabriken()
 	slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
 	arbeiterziele.clear();
 	while (fab_iter.next()) {
-		add_factory_arbeiterziel(fab_iter.get_current());
+		fabrik_t* fab = fab_iter.get_current();
+		// note: this is a hotfix to avoid connecting a city to all factories.
+		// all factories may need to recalc which city is nearer, when building/removing a city, without the case of destroying map. please improve this. (z9999)
+		if( (fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_minimum_towns()  ||  koord_distance( fab->get_pos(), this->get_pos() ) < welt->get_einstellungen()->get_factory_worker_radius())  &&  fab->get_arbeiterziele().get_count()<welt->get_einstellungen()->get_factory_worker_maximum_towns() ) {
+			add_factory_arbeiterziel(fab);
+		}
 	}
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i factories (sum_weight=%i).", arbeiterziele.get_count(), arbeiterziele.get_sum_weight());
 }

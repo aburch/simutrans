@@ -4233,7 +4233,14 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		// old versions did not save factory connections
 		if(file->get_version()<99014) {
+			// this needs to avoid the first city to be connected to all town
+			sint32 temp_min = get_einstellungen()->get_factory_worker_minimum_towns();
+			sint32 temp_max = get_einstellungen()->get_factory_worker_maximum_towns();
+			get_einstellungen()->set_factory_worker_minimum_towns(0);
+			get_einstellungen()->set_factory_worker_maximum_towns(0x7FFFFFFF);
 			(*i)->verbinde_fabriken();
+			get_einstellungen()->set_factory_worker_minimum_towns(temp_min);
+			get_einstellungen()->set_factory_worker_maximum_towns(temp_max);
 		}
 		display_progress(x++, get_groesse_y() + 256 + stadt.get_count());
 	}
