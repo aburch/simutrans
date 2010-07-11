@@ -1916,6 +1916,11 @@ void wegbauer_t::baue_strasse()
 		sp = NULL;
 	}
 
+	// Use cityroad with timeline
+	if(besch==cityroad) {
+		besch = welt->get_city_road();
+	}
+
 	// init undo
 	if(sp!=NULL) {
 		// intercity roads have no owner, so we must check for an owner
