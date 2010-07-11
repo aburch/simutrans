@@ -260,7 +260,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 void settings_costs_stats_t::init(einstellungen_t *sets)
 {
 	INIT_INIT
-	INIT_NUM( "maintenance_building", sets->maint_building/100, 1, 100000000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "maintenance_building", sets->maint_building, 1, 100000000, 100, false );
 	INIT_COST( "cost_multiply_dock", -sets->cst_multiply_dock, 1, 100000000, 10, false );
 	INIT_COST( "cost_multiply_station", -sets->cst_multiply_station, 1, 100000000, 10, false );
 	INIT_COST( "cost_multiply_roadstop", -sets->cst_multiply_roadstop, 1, 100000000, 10, false );
@@ -287,7 +287,7 @@ void settings_costs_stats_t::init(einstellungen_t *sets)
 void settings_costs_stats_t::read(einstellungen_t *sets)
 {
 	READ_INIT
-	READ_NUM_VALUE( sets->maint_building )*100;
+	READ_NUM_VALUE( sets->maint_building );
 	READ_COST_VALUE( sets->cst_multiply_dock )*(-1);
 	READ_COST_VALUE( sets->cst_multiply_station )*(-1);
 	READ_COST_VALUE( sets->cst_multiply_roadstop )*(-1);
