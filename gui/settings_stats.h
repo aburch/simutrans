@@ -206,7 +206,7 @@ public:
 	void read( einstellungen_t *sets );
 };
 
-class settings_climates_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
+class settings_climates_stats_t : public settings_stats_t, public action_listener_t
 {
 private:
 	cbuffer_t buf;
