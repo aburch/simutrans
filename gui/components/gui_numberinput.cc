@@ -136,7 +136,11 @@ sint32 gui_numberinput_t::get_next_value()
 	switch( step_mode ) {
 		// automatic linear
 		case AUTOLINEAR:
-			return clamp( value+max(1,(max_value-min_value)/100), min_value, max_value );
+		{
+			sint64 diff = (sint64)max_value - (sint64)min_value;
+			sint32 one_percent = (sint32) (diff / 100l);
+			return clamp( value+max(1,one_percent), min_value, max_value );
+		}
 		// power of 2
 		case POWER2:
 		{
@@ -151,7 +155,7 @@ sint32 gui_numberinput_t::get_next_value()
 		// pregressive (used for loading bars
 		case PROGRESS:
 		{
-			sint64 diff = max_value-min_value;
+			sint64 diff = (sint64)max_value - (sint64)min_value;
 			for( int i=0;  i<7;  i++  ) {
 				if(  value-min_value < ((diff*(sint64)percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
@@ -177,7 +181,11 @@ sint32 gui_numberinput_t::get_prev_value()
 	switch( step_mode ) {
 		// automatic linear
 		case AUTOLINEAR:
-			return clamp( value-max(1,(uint32)(max_value-min_value)/100u), min_value, max_value );
+		{
+			sint64 diff = (sint64)max_value - (sint64)min_value;
+			sint32 one_percent = (sint32) (diff / 100ll);
+			return clamp( value-max(1,one_percent), min_value, max_value );
+		}
 		// power of 2
 		case POWER2:
 		{
@@ -192,7 +200,7 @@ sint32 gui_numberinput_t::get_prev_value()
 		// pregressive (used for loading bars
 		case PROGRESS:
 		{
-			sint64 diff = max_value-min_value;
+			sint64 diff = (sint64)max_value-(sint64)min_value;
 			for( int i=6;  i>=0;  i--  ) {
 				if(  value-min_value > ((diff*percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
