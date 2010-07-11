@@ -2673,7 +2673,7 @@ void karte_t::update_frame_sleep_time(long /*delta*/)
 	}
 	else {
 		// try to get 10 fps or lower rate (if set)
-		uint32 frame_intervall = max( 100, 1000/umgebung_t::fps );
+		sint32 frame_intervall = max( 100, 1000/umgebung_t::fps );
 		if(get_frame_time()>frame_intervall) {
 			reduce_frame_time();
 		}
