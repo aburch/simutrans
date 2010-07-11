@@ -135,8 +135,6 @@ public:
 	 * @author hsiegeln
 	 */
 	void close_box();
-
-	gui_komponente_t *get_focus() { return (gui_komponente_t *)this; }
 };
 
 #endif
