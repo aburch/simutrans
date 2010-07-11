@@ -16,7 +16,8 @@
 char gui_numberinput_t::tooltip[256];
 
 
-gui_numberinput_t::gui_numberinput_t()
+gui_numberinput_t::gui_numberinput_t() :
+	gui_komponente_t(true)
 {
 	bt_left.set_typ(button_t::repeatarrowleft );
 	bt_left.set_pos( koord(0,-1) );
