@@ -30,8 +30,8 @@
 
 
 
-extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
-	gui_frame_t("extend edit tool", sp_),
+extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* welt) :
+	gui_frame_t(name, sp_),
 	sp(sp_),
 	buf(2048),
 	info_text(buf, COLUMN_WIDTH),
