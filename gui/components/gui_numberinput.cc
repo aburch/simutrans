@@ -327,8 +327,7 @@ void gui_numberinput_t::zeichnen(koord offset)
 	koord new_offset = pos+offset;
 	bt_left.zeichnen(new_offset);
 
-	gui_frame_t *win = win_get_top();
-	textinp.display_with_focus( new_offset, (win  &&  win->get_focus()==this) );
+	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.zeichnen(new_offset);
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {

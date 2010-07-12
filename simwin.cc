@@ -330,6 +330,16 @@ gui_frame_t *win_get_top()
 }
 
 
+/**
+ * returns the focused component of the top window
+ * @author Knightly
+ */
+gui_komponente_t *win_get_focus()
+{
+	return wins.get_count()>0 ? wins[wins.get_count()-1].gui->get_focus() : NULL;
+}
+
+
 int win_get_open_count()
 {
 	return wins.get_count();
