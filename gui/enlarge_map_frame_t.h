@@ -30,7 +30,8 @@ private:
 	bool changed_number_of_towns;
 	int old_lang;
 
-	gui_numberinput_t inp_x_size, inp_y_size, inp_number_of_towns, inp_town_size;
+	gui_numberinput_t inp_x_size, inp_y_size, inp_number_of_towns, inp_number_of_big_cities;
+   	gui_numberinput_t inp_number_of_clusters, inp_cluster_size, inp_town_size;
 
 	button_t start_button;
 

@@ -330,6 +330,10 @@ SOURCES += vehicle/simverkehr.cc
 
 SOURCES += simgraph$(COLOUR_DEPTH).cc
 
+ifdef DBG_WEIGHTMAP
+  SOURCES += utils/dbg_weightmap.cc
+  CFLAGS += -DDBG_WEIGHTMAP
+endif
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d.cc

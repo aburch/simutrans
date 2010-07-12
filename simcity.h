@@ -142,8 +142,8 @@ public:
 
 	static uint32 get_industry_increase();
 	static void set_industry_increase(uint32 ind_increase);
-	static uint32 get_minimum_city_distance();
-	static void set_minimum_city_distance(uint32 s);
+	static uint32 get_city_isolation_factor();
+	static void set_city_isolation_factor(uint32 s);
 
 private:
 	static karte_t *welt;
@@ -608,7 +608,7 @@ public:
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
 	 * @author Gerd Wachsmuth
 	 */
-	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl, sint16 old_x, sint16 old_y);
+	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<sint32> *sizes_list, unsigned number_of_clusters, unsigned cluster_size, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 	void zeige_info(void);

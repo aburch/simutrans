@@ -240,6 +240,7 @@ public:
 	static bool hilly;
 
 	static bool cities_ignore_height;
+	static uint8 cities_like_water;
 
 	static einstellungen_t default_einstellungen;
 

@@ -1,6 +1,7 @@
 #ifndef MAKEOBJ
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include "simtools.h"
 #include "dataobj/umgebung.h"
 
@@ -102,6 +103,25 @@ uint32 simrand(const uint32 max)
 	return simrand_plain() % max;
 }
 
+/* generates random number with gaussian distribution
+ * math taken from random.py in Python */
+double simrand_gauss(const double mean, const double sigma)
+{
+	assert( random_origin !=1);
+	static double gauss_next = 0.0; /* "impossible" value, random numbers can't be exactly 0.0 */
+	double z;
+	z = gauss_next;
+	gauss_next = 0.0;
+	if (z == 0.0) {
+		double x = rand()/(RAND_MAX + 1.0);
+		double y = rand()/(RAND_MAX + 1.0);
+		double x2pi = x * 2 * acos(-1.0); // acos(-1.0) == M_PI (it is removed from header files for some reasons)
+		double g2rad = sqrt(-2.0 * log ( 1.0 - y));
+		z = cos(x2pi) * g2rad;
+		gauss_next = sin(x2pi) * g2rad;
+	}
+	return(mean + z * sigma);
+}
 
 void set_random_mode( uint16 mode )
 {
@@ -139,6 +159,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
+		srand(seed);
 		rand_seed = seed;
 		random_origin = 0;
 	}

@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
+#include <limits>
 
 #include "boden/wege/strasse.h"
 #include "boden/grund.h"
@@ -56,6 +58,7 @@
 #include "bauer/fabrikbauer.h"
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
+#include "utils/dbg_weightmap.h"
 
 #include "tpl/minivec_tpl.h"
 
@@ -261,10 +264,9 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 const uint32 stadt_t::step_bau_interval = 21000;
 
 /**
- * try to built cities at least this distance apart
- * @author prissi
+ * How much cities avoid each other
  */
-static uint32 minimum_city_distance = 16;
+static uint32 city_isolation_factor = 1;
 
 /*
  * chance to do renovation instead new building (in percent)
@@ -648,14 +650,14 @@ void stadt_t::set_industry_increase(uint32 ind_increase)
 	}
 }
 
-uint32 stadt_t::get_minimum_city_distance()
+uint32 stadt_t::get_city_isolation_factor()
 {
-	return minimum_city_distance;
+	return city_isolation_factor;
 }
 
-void stadt_t::set_minimum_city_distance(uint32 s)
+void stadt_t::set_city_isolation_factor(uint32 s)
 {
-	minimum_city_distance = s;
+	city_isolation_factor = s;
 }
 
 
@@ -681,7 +683,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 	char buf[128];
 
-	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
+	city_isolation_factor = contents.get_int("city_isolation_factor", 1);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", renovation_percentage);
 	
 	// to keep compatible with the typo, here both are ok
@@ -4148,191 +4150,240 @@ void stadt_t::baue(bool new_town)
 	}
 }
 
-
-
-// find suitable places for cities
-vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl, sint16 old_x, sint16 old_y)
+vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sint32> *sizes_list, unsigned number_of_clusters, unsigned cluster_size, sint16 old_x, sint16 old_y)
 {
+	const int grid_step = 8;
+	const double distance_scale = 1.0/(grid_step * 2);
+	const double population_scale = 1.0/1024;
+	double water_charge = sqrt(umgebung_t::cities_like_water/100.0); // should be from 0 to 1.0
+	double water_part;
+	double terrain_part;
+	if (!umgebung_t::cities_ignore_height) {
+		terrain_part = 1.0 - water_charge; water_part = water_charge;
+	}
+	else{
+		terrain_part = 0.0; water_part = 1.0;
+	}
+
+
+	double one_population_charge = 1.0 + city_isolation_factor/10.0; // should be > 1.0 
+	double clustering = 2.0 + cluster_size/100.0; // should be > 2.0 
+
+
+	vector_tpl<koord>* result = new vector_tpl<koord>(sizes_list->get_count());
+
 	int cl = 0;
-	for (int i = 0; i < MAX_CLIMATES; i++) 
-	{
-		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, wl->get_timeline_year_month(), false, (climate)i)) 
-		{
+	for (int i = 0; i < MAX_CLIMATES; i++) {
+		if (hausbauer_t::get_special(0, haus_besch_t::rathaus, wl->get_timeline_year_month(), false, (climate)i)) {
 			cl |= (1 << i);
 		}
 	}
-
-	// For clustering cities by climate type, we need a list of at least 4x the number of sites actually needed
-	// for towns so that, from that expanded list, the final locations can be chosen. 
-	const sint32 multiplied_number = umgebung_t::cities_ignore_height || welt == NULL ? anzahl : anzahl * 4;
-
 	DBG_DEBUG("karte_t::init()", "get random places in climates %x", cl);
 	// search at least places which are 5x5 squares large
 	slist_tpl<koord>* list = wl->finde_plaetze( 5, 5, (climate_bits)cl, old_x, old_y);
 	DBG_DEBUG("karte_t::init()", "found %i places", list->get_count());
-	vector_tpl<koord>* result = new vector_tpl<koord>(anzahl);
-	weighted_vector_tpl<koord>* pre_result;
-	if(welt != NULL && !umgebung_t::cities_ignore_height)
-	{
-		pre_result = new weighted_vector_tpl<koord>(multiplied_number);
+	unsigned int weight_max;
+	// unsigned long here -- from weighted_vector_tpl.h(weight field type)
+	if ( list->get_count() == 0 || (std::numeric_limits<unsigned long>::max)()/ list->get_count() > 65535) {
+		weight_max = 65535;
+	}
+	else {
+		weight_max = (std::numeric_limits<unsigned long>::max)()/list->get_count();
 	}
 
-	// pre processed array: max 1 city from each square can be built
-	// each entry represents a cell of minimum_city_distance/2 length and width
-	const uint32 xmax = (2*wl->get_groesse_x())/minimum_city_distance+1;
-	const uint32 ymax = (2*wl->get_groesse_y())/minimum_city_distance+1;
+	// max 1 city from each square can be built
+	// each entry represents a cell of grid_step length and width
+	const int xmax = wl->get_groesse_x()/grid_step;
+	const int ymax = wl->get_groesse_y()/grid_step;
 	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);
 	while (!list->empty()) {
 		const koord k = list->remove_first();
-		places.at( (2*k.x)/minimum_city_distance, (2*k.y)/minimum_city_distance).append(k);
+		places.at( k.x/grid_step, k.y/grid_step).append(k);
 	}
-	// weigthed index vector into places array
-	weighted_vector_tpl<koord> index_to_places(xmax*ymax);
-	for(uint32 i=0; i<xmax; i++) {
-		for(uint32 j=0; j<ymax; j++) {
-			if (!places.at(i,j).empty()) {
-				index_to_places.append( koord(i,j), places.at(i,j).get_count());
-			}
+
+	/* Water
+	 */
+	array2d_tpl<double> water_field(xmax, ymax);
+	//calculate distance to nearest river/sea
+	array2d_tpl<double> water_distance(xmax, ymax);
+	for (int y = 0; y < ymax; y++) {
+		for (int x = 0; x < xmax; x++) {
+			water_distance.at(x,y) = (std::numeric_limits<double>::max)();
 		}
 	}
-	// post-processing array:
-	// each entry represents a cell of minimum_city_distance length and width
-	// to limit the search for neighboring cities
-	const uint32 xmax2 = wl->get_groesse_x()/minimum_city_distance+1;
-	const uint32 ymax2 = wl->get_groesse_y()/minimum_city_distance+1;
-	array2d_tpl< vector_tpl<koord> > result_places(xmax2, ymax2);
-
-	for (int i = 0; i < multiplied_number; i++) {
-		// check distances of all cities to their respective neightbours
-		while (!index_to_places.empty()) {
-			// find a random cell
-			const uint32 weight = simrand(index_to_places.get_sum_weight());
-			const koord ip = index_to_places.at_weight(weight);
-			// remove this cell from index list
-			index_to_places.remove(ip);
-			// get random place in the cell
-			if (places.at(ip).empty()) continue;
-			const uint32 j = simrand(places.at(ip).get_count());
-			const koord k = places.at(ip)[j];
-
-			// check minimum distance
-
-			bool ok = true;
-
-			const koord k2mcd = koord( k.x/minimum_city_distance, k.y/minimum_city_distance );
-			for(sint32 i=k2mcd.x-1; ok && i<=k2mcd.x+1; i++) {
-				for(sint32 j=k2mcd.y-1; ok && j<=k2mcd.y+1; j++) {
-					if (i>=0 && i<(sint32)xmax2 && j>=0 && j<(sint32)ymax2) {
-						for(uint32 l=0; ok && l<result_places.at(i,j).get_count(); l++) {
-							if (koord_distance(k, result_places.at(i,j)[l]) < minimum_city_distance){
-								ok = false;
+	koord pos;
+	//skip edges -- they treated as water, we don't want it
+	for( pos.y = 2; pos.y < wl->get_groesse_y()-2; pos.y++) {
+		for (pos.x = 2; pos.x < wl->get_groesse_x()-2; pos.x++ ) {
+			koord my_grid_pos(pos.x/grid_step, pos.y/grid_step);
+			grund_t *gr = wl->lookup_kartenboden(pos);
+			if ( gr->get_hoehe() <= wl->get_grundwasser()  || ( gr->hat_weg(water_wt) /*&& gr->get_max_speed()*/ )  ) {
+				koord dpos;
+				for ( dpos.y = -4; dpos.y < 5; dpos.y++) {
+					for ( dpos.x = -4; dpos.x < 5 ; dpos.x++) {
+						koord neighbour_grid_pos = my_grid_pos + dpos;
+					if ( neighbour_grid_pos.x >= 0 && neighbour_grid_pos.y >= 0 &&
+						 neighbour_grid_pos.x < xmax && neighbour_grid_pos.y < ymax  ) {
+							koord neighbour_center(neighbour_grid_pos.x*grid_step + grid_step/2, neighbour_grid_pos.y*grid_step + grid_step/2);
+							double distance =  koord_distance(pos,neighbour_center) * distance_scale; 
+							if ( water_distance.at(neighbour_grid_pos) > distance ) {
+								water_distance.at(neighbour_grid_pos) = distance;
 							}
 						}
 					}
 				}
 			}
+		}
+	}
 
-			if (ok){ //minimum_dist > minimum_city_distance) {
-				// all citys are far enough => ok, find next place
-				// all cities are far enough => ok, find next place
-				if(welt != NULL && !umgebung_t::cities_ignore_height)
- 				{
-					const sint16 height_above_water = welt->lookup_hgt(k) - welt->get_grundwasser();
-					uint32 weight;
-					switch(height_above_water)
-					{
-					case 1:
-						weight = 24;
-						break;
-					case 2:
-						weight = 22;
-						break;
-					case 3:
-						weight = 16;
-						break;
-					case 4:
-						weight = 12;
-						break;
-					case 5:
-						weight = 10;
-						break;
-					case 6:
-						weight = 9;
-						break;
-					case 7:
-						weight = 8;
-						break;
-					case 8:
-						weight = 7;
-						break;
-					case 9:
-						weight = 6;
-						break;
-					case 10:
-						weight = 5;
-						break;
-					case 11:
-						weight = 4;
-						break;
-					case 12:
-					case 13:
-						weight = 3;
-						break;
-					case 14:
-					case 15:
-						weight = 2;
-						break;
-					default:
-						weight = 1;
-					};
-					pre_result->append(k, weight); 
- 					break;
-				}
-				else
-				{
-					result->append(k);
- 					break;
-				}
-
-				result_places.at(k2mcd).append(k);
-				break;
+	//now calculate water attraction field
+	for (int y = 0; y < ymax; y++) {
+		for (int x = 0; x < xmax; x++) {
+			double distance = water_distance.at(x, y);
+			double f;
+			//we want city near water, but not too near
+			if ( distance <= 1.0/4.0) {
+				f = -1.0;
 			}
 			else {
-				// remove the place from the list
-				places.at(ip).remove_at(j);
-				// re-insert in index list with new weight
-				if (!places.at(ip).empty()) {
-					index_to_places.append( ip, places.at(ip).get_count());
+				f = water_charge/(distance*distance)-water_charge;
+			}
+			water_field.at(x,y) = f;
+		}
+	}
+	dbg_weightmap(water_field, places, weight_max, "water_", 0);
+	
+	/* Terrain
+	 */
+	array2d_tpl<double> terrain_field(xmax, ymax);
+	for (int y = 0; y < ymax; y++) {
+		for (int x = 0; x < xmax; x++) {
+			terrain_field.at(x,y) = 0.0;
+		}
+	}
+
+	for ( pos.y = 1; pos.y < wl->get_groesse_y(); pos.y++) {
+		for (pos.x = 1; pos.x < wl->get_groesse_x(); pos.x++) {
+			double f;
+			if (umgebung_t::cities_ignore_height) {
+				f = 0.0;
+			}
+			else {
+				const sint16 height_above_water = welt->lookup_hgt(pos) - welt->get_grundwasser();
+				int weight;
+				switch(height_above_water)
+				{
+					case 1: weight = 24; break;
+					case 2: weight = 22; break;
+					case 3: weight = 16; break;
+					case 4: weight = 12; break;
+					case 5: weight = 10; break;
+					case 6: weight = 9; break;
+					case 7: weight = 8; break;
+					case 8: weight = 7; break;
+					case 9: weight = 6; break;
+					case 10: weight = 5; break;
+					case 11: weight = 4; break;
+					case 12: weight = 3; break;
+					case 13: weight = 3; break;
+					case 14: weight = 2; break;
+					case 15: weight = 2; break;
+					default: weight = 1;
+				}
+				f = weight/12.0 - 1.0;
+			}
+			koord grid_pos(pos.x/grid_step, pos.y/grid_step);
+			terrain_field.at(grid_pos) += f/(grid_step*grid_step);
+		}
+	}
+	dbg_weightmap(terrain_field, places, weight_max, "terrain_", 0);
+
+	
+
+	weighted_vector_tpl<koord> index_to_places(xmax*ymax);
+	array2d_tpl<double> isolation_field(xmax, ymax);
+	array2d_tpl<bool> cluster_field(xmax, ymax);
+	for (int y = 0; y < ymax; y++) {
+		for (int x = 0; x < xmax; x++) {
+			isolation_field.at(x,y) = 0.0;
+			cluster_field.at(x,y) = (number_of_clusters == 0);
+		}
+	}
+	array2d_tpl<double> total_field(xmax, ymax);
+
+	for (unsigned int city_nr = 0; city_nr < sizes_list->get_count(); city_nr++) {
+		//calculate summary field
+		double population = (*sizes_list)[city_nr] * population_scale;
+		if (population < 1.0) { population = 1.0; };
+		double population_charge = sqrt( population * one_population_charge);
+
+		for (int y = 0; y < ymax; y++) {
+			for (int x = 0; x < xmax; x++) {
+				double f = water_part * water_field.at(x,y) + terrain_part*terrain_field.at(x,y)- isolation_field.at(x,y) * population_charge;
+				if(city_nr >= number_of_clusters && !cluster_field.at(x,y)) {
+					f = -1.0;
+				}
+				total_field.at(x,y) = f;
+			}
+		}
+		dbg_weightmap(total_field, places, weight_max, "total_", city_nr);
+		// translate field to weigthed vector
+		index_to_places.clear();
+		for(int y=0; y<ymax; y++) {
+			for(int x=0; x<xmax; x++) {
+				if (places.at(x,y).empty()) continue; // (*)
+				double f= total_field.at(x,y);
+				if ( f > 1.0 ) {
+					f = 1.0;
+				}
+				else if ( f < -1.0 ) {
+					f = -1.0;
+				}
+				int weight(weight_max*(f + 1.0) /2.0);
+				if (weight) {
+					index_to_places.append( koord(x,y), weight);
 				}
 			}
-			// if we reached here, the city was not far enough => try again
 		}
 
-		if (index_to_places.empty() && i < anzahl - 1) {
-			dbg->warning("stadt_t::random_place()", "Not enough places found!");
+		if (index_to_places.empty() ) {
+			if(city_nr < sizes_list->get_count() - 1) {
+				dbg->warning("stadt_t::random_place()", "Not enough places found!");
+			}
 			break;
 		}
+
+		// find a random cell
+		const uint32 weight = simrand(index_to_places.get_sum_weight());
+		const koord ip = index_to_places.at_weight(weight);
+		// get random place in the cell
+		const uint32 j = simrand(places.at(ip).get_count());
+		// places.at(ip) can't be empty (see (*) above )
+		const koord k = places.at(ip)[j];
+		places.at(ip).remove_at(j);
+		result->append(k);
+			
+		// now update fields
+		for (int y = 0; y < ymax; y++) {
+			for (int x = 0; x < xmax; x++) {
+				const koord central_pos(x * grid_step + grid_step/2, y * grid_step+grid_step/2);
+				if (central_pos == k) {
+					isolation_field.at(x,y) = 1.0;
+				}
+				else 
+				{
+					const double distance = accurate_distance(k, central_pos) * distance_scale;
+					isolation_field.at(x,y) += population_charge/(distance*distance);
+					if (city_nr < number_of_clusters && distance < clustering*population_charge) {
+						cluster_field.at(x,y) = true;
+					}
+				}
+			}
+		}
 	}
+	
 	list->clear();
 	delete list;
-	if(welt != NULL && !umgebung_t::cities_ignore_height)
- 	{
-		uint16 weight = 0;
-		const uint16 total_weight = pre_result->get_sum_weight();
-		for (int i = 0; i < anzahl; i++) 
- 		{
-			// Now produce the real results from the pre-list.
-			weight = simrand(total_weight);
-			if(!result->append_unique(pre_result->at_weight(weight)))
-			{
-				i--;
-			}
- 		}
-
-		pre_result->clear();
-		delete pre_result;
-	}
-
 	return result;
 }
 
