@@ -22,6 +22,7 @@
 #include "../../simgraph.h"
 
 gui_textinput_t::gui_textinput_t() :
+	gui_komponente_t(true),
 	text(NULL),
 	max(0),
 	cursor_pos(0),
@@ -29,9 +30,7 @@ gui_textinput_t::gui_textinput_t() :
 	textcol(COL_BLACK),
 	cursor_reference_time(0),
 	focus_recieved(false)
-{
-	set_allow_focus(true);
-}
+{ }
 
 
 /**

@@ -277,7 +277,8 @@ void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horiz
 	}
 }
 
-button_t::button_t()
+button_t::button_t() :
+	gui_komponente_t(true)
 {
 	b_no_translate = false;
 	translated_text = text = empty;
@@ -616,7 +617,7 @@ gui_komponente_t *button_t::get_focus()
 		case box: // old, 4-line box
 		case roundbox: // new box with round corners
 		case square: // little square in front of text
-			return (gui_komponente_t *)this;
+			return gui_komponente_t::get_focus();
 
 		// those cannot recieve focus ...
 		case arrowleft:

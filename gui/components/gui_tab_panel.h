@@ -105,6 +105,12 @@ public:
 	 */
 	bool action_triggered(gui_action_creator_t *komp, value_t p);
 
+	/**
+	 * Returns true if the hosted component of the active tab is focusable
+	 * @author Knightly
+	 */
+	virtual bool is_focusable() { return get_aktives_tab()->is_focusable(); }
+
 	gui_komponente_t *get_focus() { return get_aktives_tab()->get_focus(); }
 };
 
