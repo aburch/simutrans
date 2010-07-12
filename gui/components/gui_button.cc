@@ -334,6 +334,7 @@ void button_t::set_typ(enum type t)
 			default:
 			break;
 	}
+	update_focusability();
 }
 
 
@@ -607,14 +608,15 @@ void button_t::zeichnen(koord offset)
 }
 
 
-gui_komponente_t *button_t::get_focus()
+void button_t::update_focusability()
 {
 	switch (type&STATE_MASK) {
 
 		case box: // old, 4-line box
 		case roundbox: // new box with round corners
 		case square: // little square in front of text
-			return gui_komponente_t::get_focus();
+			set_focusable(true);
+			break;
 
 		// those cannot recieve focus ...
 		case arrowleft:
@@ -626,7 +628,8 @@ gui_komponente_t *button_t::get_focus()
 		case arrowdown:
 		case scrollbar_horizontal:
 		case scrollbar_vertical:
+		default:
+			set_focusable(false);
 			break;
 	}
-	return NULL;
 }
