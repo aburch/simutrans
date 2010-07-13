@@ -62,6 +62,7 @@
 	CHANGE: also starts without any skin
 	FIX: no signals to be built on switches, since they will not display correctly
 	FIX: waiting time cycles also on left button
+	ADD: (z9999+) limit size of toolsbars in simuconf.tab
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
