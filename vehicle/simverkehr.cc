@@ -552,6 +552,11 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		const uint8 next_fahrtrichtung = ribi_t::rueckwaerts(this_fahrtrichtung);
 		frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
 
+		// do not block railroad crossing
+		if(frei  &&  str->is_crossing()) {
+			const grund_t *gr = welt->lookup(get_pos());
+			frei = (NULL == no_cars_blocking( gr, NULL, next_fahrtrichtung, next_fahrtrichtung, next_fahrtrichtung ));
+		}
 	}
 	else {
 		// driving on: check for crossongs etc. too
@@ -559,6 +564,11 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 
 		// do not block this crossing (if possible)
 		if(ribi_t::is_threeway(str->get_ribi_unmasked())) {
+			// but leaving from railroad crossing is more important
+			grund_t *gr_here = welt->lookup(get_pos());
+			if(gr_here  &&  gr_here->ist_uebergang()) {
+				return true;
+			}
 			grund_t *test = welt->lookup(pos_next_next);
 			if(test) {
 				uint8 next_90fahrtrichtung = this->calc_richtung(pos_next.get_2d(), pos_next_next.get_2d());
@@ -612,9 +622,9 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 		if(frei  &&  str->is_crossing()) {
 			// can we cross?
 			crossing_t* cr = gr->find<crossing_t>(2);
-			if(cr) {
+			if(  cr && !cr->request_crossing(this)) {
 				// approaching railway crossing: check if empty
-				return cr->request_crossing( this );
+				return false;
 			}
 			// no further check, when already entered a crossing (to alloew leaving it)
 			grund_t *gr_here = welt->lookup(get_pos());
@@ -624,12 +634,14 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 			// ok, now check for free exit
 			koord dir = pos_next.get_2d()-get_pos().get_2d();
 			koord3d checkpos = pos_next+dir;
-			const uint8 nextnext_fahrtrichtung = ribi_typ(dir);
 			while(1) {
 				const grund_t *test = welt->lookup(checkpos);
 				if(!test) {
+					// should not reach here ! (z9999)
 					break;
 				}
+				const uint8 next_fahrtrichtung = ribi_typ(dir);
+				const uint8 nextnext_fahrtrichtung = ribi_typ(dir);
 				// test next field after way crossing
 				if(no_cars_blocking( test, NULL, next_fahrtrichtung, nextnext_fahrtrichtung, nextnext_fahrtrichtung )) {
 					return false;
@@ -639,6 +651,15 @@ bool stadtauto_t::ist_weg_frei(grund_t *gr)
 					// approaching railway crossing: check if empty
 					crossing_t* cr = gr->find<crossing_t>(2);
 					return cr->request_crossing( this );
+				}
+				else {
+					// seems to be a deadend.
+					if((test->get_weg_ribi(road_wt)&next_fahrtrichtung) ==0) {
+						// will be going back
+						pos_next_next=get_pos();
+						// check also opposite direction are free
+						dir = -dir;
+					}
 				}
 				checkpos += dir;
 			}
