@@ -16,7 +16,8 @@
 char gui_numberinput_t::tooltip[256];
 
 
-gui_numberinput_t::gui_numberinput_t()
+gui_numberinput_t::gui_numberinput_t() :
+	gui_komponente_t(true)
 {
 	bt_left.set_typ(button_t::repeatarrowleft );
 	bt_left.set_pos( koord(0,-1) );
@@ -135,7 +136,11 @@ sint32 gui_numberinput_t::get_next_value()
 	switch( step_mode ) {
 		// automatic linear
 		case AUTOLINEAR:
-			return clamp( value+max(1,(max_value-min_value)/100), min_value, max_value );
+		{
+			sint64 diff = (sint64)max_value - (sint64)min_value;
+			sint32 one_percent = (sint32) (diff / 100l);
+			return clamp( value+max(1,one_percent), min_value, max_value );
+		}
 		// power of 2
 		case POWER2:
 		{
@@ -150,7 +155,7 @@ sint32 gui_numberinput_t::get_next_value()
 		// pregressive (used for loading bars
 		case PROGRESS:
 		{
-			sint64 diff = max_value-min_value;
+			sint64 diff = (sint64)max_value - (sint64)min_value;
 			for( int i=0;  i<7;  i++  ) {
 				if(  value-min_value < ((diff*(sint64)percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
@@ -176,7 +181,11 @@ sint32 gui_numberinput_t::get_prev_value()
 	switch( step_mode ) {
 		// automatic linear
 		case AUTOLINEAR:
-			return clamp( value-max(1,(uint32)(max_value-min_value)/100u), min_value, max_value );
+		{
+			sint64 diff = (sint64)max_value - (sint64)min_value;
+			sint32 one_percent = (sint32) (diff / 100ll);
+			return clamp( value-max(1,one_percent), min_value, max_value );
+		}
 		// power of 2
 		case POWER2:
 		{
@@ -191,7 +200,7 @@ sint32 gui_numberinput_t::get_prev_value()
 		// pregressive (used for loading bars
 		case PROGRESS:
 		{
-			sint64 diff = max_value-min_value;
+			sint64 diff = (sint64)max_value-(sint64)min_value;
 			for( int i=6;  i>=0;  i--  ) {
 				if(  value-min_value > ((diff*percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
@@ -318,8 +327,7 @@ void gui_numberinput_t::zeichnen(koord offset)
 	koord new_offset = pos+offset;
 	bt_left.zeichnen(new_offset);
 
-	gui_frame_t *win = win_get_top();
-	textinp.display_with_focus( new_offset, (win  &&  win->get_focus()==this) );
+	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.zeichnen(new_offset);
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {

@@ -30,10 +30,10 @@ private:
 	/**
 	* some components might not be allowed to gain focus
 	* for example: gui_textarea_t
-	* this flag can be set to true to deny focus requesst for a gui_component always
+	* this flag can be set to true to deny focus request for a gui_component always
 	* @author hsiegeln
 	*/
-	bool allow_focus:1;
+	bool focusable:1;
 
 protected:
 	/**
@@ -48,7 +48,7 @@ public:
 	* Basic contructor, initialises member variables
 	* @author Hj. Malthaner
 	*/
-	gui_komponente_t() : visible(true), allow_focus(false) {}
+	gui_komponente_t(bool _focusable = false) : visible(true), focusable(_focusable) {}
 
 	/**
 	* Virtueller Destruktor, damit Klassen sauber abgeleitet werden können
@@ -56,11 +56,10 @@ public:
 	*/
 	virtual ~gui_komponente_t() {}
 
-	void set_allow_focus(bool yesno) {
-		allow_focus = yesno;
-	}
+	void set_focusable(bool yesno) { focusable = yesno; }
 
-	bool get_allow_focus() { return allow_focus; }
+	// Knightly : a component can only be focusable when it is visible
+	virtual bool is_focusable() { return visible && focusable; }
 
 	/**
 	* Sets component to be shown/hidden
@@ -149,7 +148,7 @@ public:
 	 * other derivates like scrolled list of tabs want to
 	 * return a component out of their selection
 	 */
-	virtual gui_komponente_t *get_focus() { return NULL; }
+	virtual gui_komponente_t *get_focus() { return is_focusable() ? (gui_komponente_t *)this : NULL; }
 };
 
 #endif

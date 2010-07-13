@@ -80,6 +80,12 @@ public:
 
 	koord get_client_size();
 	/**
+	 * Returns true if the hosted component is focusable
+	 * @author Knightly
+	 */
+	virtual bool is_focusable() { return komp->is_focusable(); }
+
+	/**
 	 * returns element that has the focus
 	 */
 	gui_komponente_t *get_focus() { return komp->get_focus(); }

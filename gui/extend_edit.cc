@@ -30,8 +30,8 @@
 
 
 
-extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
-	gui_frame_t("extend edit tool", sp_),
+extend_edit_gui_t::extend_edit_gui_t(const char *name, spieler_t* sp_, karte_t* welt) :
+	gui_frame_t(name, sp_),
 	sp(sp_),
 	buf(2048),
 	info_text(buf, COLUMN_WIDTH),
@@ -44,21 +44,6 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 
 	const sint16 image_width = get_base_tile_raster_width()*2;
 	tab_panel_width = ( image_width>COLUMN_WIDTH ? image_width : COLUMN_WIDTH );
-
-	bt_climates.init( button_t::square_state, "ignore climates", koord(tab_panel_width+2*MARGIN, MARGIN) );
-	bt_climates.add_listener(this);
-	add_komponente(&bt_climates);
-
-	bt_timeline.init( button_t::square_state, "Use timeline start year", koord(tab_panel_width+2*MARGIN, BUTTON_HEIGHT+MARGIN) );
-	bt_timeline.pressed = welt->get_einstellungen()->get_use_timeline();
-	bt_timeline.add_listener(this);
-	add_komponente(&bt_timeline);
-
-	bt_obsolete.init( button_t::square_state, "Show obsolete", koord(tab_panel_width+2*MARGIN, 2*BUTTON_HEIGHT+MARGIN) );
-	bt_obsolete.add_listener(this);
-	add_komponente(&bt_obsolete);
-
-	offset_of_comp = MARGIN+3*BUTTON_HEIGHT+4;
 
 	// init scrolled list
 	scl.set_groesse(koord(tab_panel_width, SCL_HEIGHT-14));
@@ -74,6 +59,21 @@ extend_edit_gui_t::extend_edit_gui_t(spieler_t* sp_,karte_t* welt) :
 	tabs.add_tab(&scl, translator::translate("Object"));//city
 	tabs.add_listener(this);
 	add_komponente(&tabs);
+
+	bt_climates.init( button_t::square_state, "ignore climates", koord(tab_panel_width+2*MARGIN, MARGIN) );
+	bt_climates.add_listener(this);
+	add_komponente(&bt_climates);
+
+	bt_timeline.init( button_t::square_state, "Use timeline start year", koord(tab_panel_width+2*MARGIN, BUTTON_HEIGHT+MARGIN) );
+	bt_timeline.pressed = welt->get_einstellungen()->get_use_timeline();
+	bt_timeline.add_listener(this);
+	add_komponente(&bt_timeline);
+
+	bt_obsolete.init( button_t::square_state, "Show obsolete", koord(tab_panel_width+2*MARGIN, 2*BUTTON_HEIGHT+MARGIN) );
+	bt_obsolete.add_listener(this);
+	add_komponente(&bt_obsolete);
+
+	offset_of_comp = MARGIN+3*BUTTON_HEIGHT+4;
 
 	// item list
 	info_text.set_pos(koord(0, 10));

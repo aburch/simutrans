@@ -1,23 +1,9 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
+ * Copyright 1997, 2001 Hansjörg Malthaner
  * hansjoerg.malthaner@gmx.de
+ * Copyright 2010 Simutrans contributors
+ * Available under the Artistic License (see license.txt)
  *
- * This file is part of the Simugraph engine and may not be used
- * in other projects without written permission of the author.
- *
- * Usage for Iso-Angband is granted.
- */
-
-/*
- * Versuch einer Graphic fuer Simulationsspiele
- * Hj. Malthaner, Aug. 1997
- *
- * 3D, isometrische Darstellung
- *
- *
- * 18.11.97 lineare Speicherung fuer Images -> hoehere Performance
- * 22.03.00 run längen Speicherung fuer Images -> hoehere Performance
- * 15.08.00 dirty tile verwaltung fuer effizientere updates
  */
 
 #include <stdlib.h>
@@ -659,8 +645,8 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 	clip_rect.w = w;
 	clip_rect.h = h;
 
-	clip_rect.xx = x + w;
-	clip_rect.yy = y + h;
+	clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
+	clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
 }
 
 

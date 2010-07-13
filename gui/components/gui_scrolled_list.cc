@@ -12,6 +12,7 @@
 #include "../../simworld.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
+#include "../../simwin.h"
 #include "../../utils/simstring.h"
 
 
@@ -24,6 +25,7 @@ int gui_scrolled_list_t::total_vertical_size() const
 
 
 gui_scrolled_list_t::gui_scrolled_list_t(enum type type) :
+	gui_komponente_t(true),
 	sb(scrollbar_t::vertical)
 {
 	this->type = type;
@@ -172,6 +174,15 @@ bool gui_scrolled_list_t::infowin_event(const event_t *ev)
 		}
 	}
 
+	// got to next/previous choice
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  (ev->ev_code==SIM_KEY_UP  ||  ev->ev_code==SIM_KEY_DOWN)  ) {
+		int new_selection = (ev->ev_code==SIM_KEY_DOWN) ? min(item_list.get_count()-1, selection+1) : max(0, selection-1);
+		selection = new_selection;
+		show_selection(selection);
+		call_listeners((long)new_selection);
+		return true;
+	}
+
 	if(sb.getroffen(x, y)  ||  IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev)) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -sb.get_pos().x, -sb.get_pos().y);
@@ -235,7 +246,7 @@ void gui_scrolled_list_t::zeichnen(koord pos)
 			if(i == selection) {
 				// the selection is grey on color
 				display_fillbox_wh_clip(x+3, ycum-1, w-5, 11, highlight_color, true);
-				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, MN_GREY3, true);
+				display_proportional_clip(x+7, ycum, item->get_text(), ALIGN_LEFT, (win_get_focus()==this ? COL_WHITE : MN_GREY3), true);
 			}
 			else {
 				// normal text
