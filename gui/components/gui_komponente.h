@@ -148,7 +148,7 @@ public:
 	 * other derivates like scrolled list of tabs want to
 	 * return a component out of their selection
 	 */
-	virtual gui_komponente_t *get_focus() { return NULL; }
+	virtual gui_komponente_t *get_focus() { return is_focusable() ? (gui_komponente_t *)this : NULL; }
 };
 
 #endif

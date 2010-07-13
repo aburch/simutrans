@@ -26,7 +26,7 @@ typedef short KOORD_VAL;
 
 
 struct clip_dimension {
-    int x, xx, w, y, yy, h;
+    KOORD_VAL x, xx, w, y, yy, h;
 };
 
 

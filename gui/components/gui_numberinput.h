@@ -111,12 +111,6 @@ public:
 	 * This method is called if an action is triggered
 	 */
 	virtual bool action_triggered(gui_action_creator_t *komp, value_t p);
-
-	/**
-	 * returns element that has the focus
-	 * that is: go down the hierarchy as much as possible
-	 */
-	gui_komponente_t *get_focus() { return (gui_komponente_t *)this; }
 };
 
 #endif

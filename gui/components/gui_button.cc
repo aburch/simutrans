@@ -334,6 +334,7 @@ void button_t::set_typ(enum type t)
 			default:
 			break;
 	}
+	update_focusability();
 }
 
 
@@ -470,8 +471,7 @@ void button_t::zeichnen(koord offset)
 
 		case box: // old, 4-line box
 			{
-				gui_frame_t *win = win_get_top();
-				if(  win  &&  win->get_focus()==this  ) {
+				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
 				}
@@ -490,8 +490,7 @@ void button_t::zeichnen(koord offset)
 
 		case roundbox: // new box with round corners
 			{
-				gui_frame_t *win = win_get_top();
-				if(  win  &&  win->get_focus()==this  ) {
+				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by-1, bw+2, 1, COL_WHITE, false);
 					if(b_cap_left!=IMG_LEER  &&  bh==14) {
@@ -508,8 +507,7 @@ void button_t::zeichnen(koord offset)
 
 		case square: // little square in front of text
 			{
-				gui_frame_t *win = win_get_top();
-				if(  win  &&  win->get_focus()==this  ) {
+				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx+16, by+(12+large_font_height)/2-2, bw-14, 1, COL_WHITE, false);
 				}
@@ -610,14 +608,15 @@ void button_t::zeichnen(koord offset)
 }
 
 
-gui_komponente_t *button_t::get_focus()
+void button_t::update_focusability()
 {
 	switch (type&STATE_MASK) {
 
 		case box: // old, 4-line box
 		case roundbox: // new box with round corners
 		case square: // little square in front of text
-			return (gui_komponente_t *)this;
+			set_focusable(true);
+			break;
 
 		// those cannot recieve focus ...
 		case arrowleft:
@@ -629,7 +628,8 @@ gui_komponente_t *button_t::get_focus()
 		case arrowdown:
 		case scrollbar_horizontal:
 		case scrollbar_vertical:
+		default:
+			set_focusable(false);
 			break;
 	}
-	return NULL;
 }

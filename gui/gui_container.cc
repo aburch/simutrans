@@ -80,7 +80,9 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
 			swallowed = komp_focus->infowin_event(&ev2);
 		}
-		if(  !swallowed  ) {
+
+		// Knightly : either event not swallowed, or inner container has no focused child component after TAB event
+		if(  !swallowed  ||  (ev->ev_code==9  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
 			if(  ev->ev_code==9  ) {
 				// TAB: find new focus
 				slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
@@ -115,9 +117,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					new_focus->infowin_event(&ev2);
 				}
 
-				// Knightly :	do not consider as swallowed if focus is lost from the container's child components
-				//				==> give successive components in the parent container a chance to receive focus
-				swallowed = (  komp_focus!=new_focus  &&  new_focus  );
+				swallowed = komp_focus!=new_focus;
 			}
 			else if(  ev->ev_code==13  ||  ev->ev_code==27  ) {
 				new_focus = NULL;

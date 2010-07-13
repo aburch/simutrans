@@ -172,8 +172,7 @@ void gui_combobox_t::zeichnen(koord offset)
 		tstrncpy(editstr, item->get_text(), lengthof(editstr));
 	}
 
-	gui_frame_t *win = win_get_top();
-	textinp.display_with_focus( offset,(win  &&  win->get_focus()==this) );
+	textinp.display_with_focus( offset, (win_get_focus()==this) );
 
 	if (droplist.is_visible()) {
 		droplist.zeichnen(offset);
