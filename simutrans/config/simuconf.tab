@@ -415,6 +415,13 @@ autosave = 0
 # show full screen
 #fullscreen = 0
 
+# maximum size of tool bars (0 = no limit)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
+toolbar_max_width = 0
+toolbar_max_height = 0
+
+
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
 frames_per_second = 25

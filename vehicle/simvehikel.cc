@@ -2615,6 +2615,11 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 			// do not block intersections
 			if (!dt && ribi_t::is_threeway(str->get_ribi_unmasked()) && route_index + 1U < r.get_count() - 1) {
+				// but leaving from railroad crossing is more important
+				grund_t *gr_here = welt->lookup(get_pos());
+				if(gr_here  &&  gr_here->ist_uebergang()) {
+					return true;
+				}
 				// we have to test also next field
 				if (grund_t const* const gr = welt->lookup(r.position_bei(route_index + 1U))) {
 					koord const& nextnext                 = r.position_bei(route_index + 2).get_2d();

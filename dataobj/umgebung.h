@@ -217,6 +217,9 @@ public:
 	static uint8 tooltip_color;
 	static uint8 tooltip_textcolor;
 
+	static uint8 toolbar_max_width;
+	static uint8 toolbar_max_height;
+
 	// color used for cursor overlay blending
 	static uint8 cursor_overlay_color;
 
