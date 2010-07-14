@@ -1695,7 +1695,7 @@ void stadt_t::verbinde_fabriken()
 	{
 	// while (fab_iter.next()) {
 		// fabrik_t* fab = fab_iter.get_current();
-		fabrik_t* fab = welt->get_fab_list[i];
+		fabrik_t* fab = welt->get_fab_list()[i];
 		// note: this is a hotfix to avoid connecting a city to all factories.
 		// all factories may need to recalc which city is nearer, when building/removing a city, without the case of destroying map. please improve this. (z9999)
 		if( (fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_minimum_towns()  ||  koord_distance( fab->get_pos(), this->get_pos() ) < welt->get_einstellungen()->get_factory_worker_radius())  &&  fab->get_arbeiterziele().get_count()<welt->get_einstellungen()->get_factory_worker_maximum_towns() ) {
