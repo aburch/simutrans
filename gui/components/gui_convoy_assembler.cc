@@ -611,11 +611,11 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 				{
 					if(veh_action == va_insert) 
 					{
-						append = !(!convoi_t::pruefe_nachfolger(info, veh) || (veh && !convoi_t::pruefe_vorgaenger(info, veh)));
+						append = convoi_t::pruefe_nachfolger(info, veh) && (veh==NULL  ||  convoi_t::pruefe_vorgaenger(info, veh));
 					} 
 					else if(veh_action == va_append) 
 					{
-						append = !(!convoi_t::pruefe_vorgaenger(veh, info) || (veh && !convoi_t::pruefe_nachfolger(veh, info)));
+						append = convoi_t::pruefe_vorgaenger(veh, info)  &&  (veh==NULL  ||  convoi_t::pruefe_nachfolger(veh, info));
 					}
 					if(upgrade == u_upgrade)
 					{
