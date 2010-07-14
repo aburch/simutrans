@@ -160,7 +160,7 @@ void gui_frame_t::zeichnen(koord pos, koord gr)
 	// Hajo: bottom line
 	display_fillbox_wh(pos.x, pos.y+gr.y-1, gr.x, 1, MN_GREY0, false);
 
-	container.zeichnen(pos);
-
 	POP_CLIP();
+
+	container.zeichnen(pos);
 }

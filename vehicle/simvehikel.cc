@@ -3197,7 +3197,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 						if(  way->has_sign()  ) {
 							roadsign_t *rs = gr->find<roadsign_t>(1);
 							if(  rs  &&  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-								if(  (rs->get_besch()->get_flags()&&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
+								if(  (rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
 									// end of choose on route => not choosing here
 									choose_ok = false;
 								}

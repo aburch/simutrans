@@ -422,8 +422,13 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
-		sets->set_use_timeline( use_intro_dates.pressed^1 );
-		use_intro_dates.pressed = sets->get_use_timeline();
+		// 0,1 should force setting to new game as well. don't allow to change
+		// 2,3 allow to change
+		if(sets->get_use_timeline()&2) {
+			// don't change bit1. bit1 affects loading saved game
+			sets->set_use_timeline( sets->get_use_timeline()^1 );
+			use_intro_dates.pressed = sets->get_use_timeline()&1;
+		}
 	}
 	else if(komp==&allow_player_change) {
 		sets->set_allow_player_change( allow_player_change.pressed^1 );

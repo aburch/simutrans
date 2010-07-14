@@ -4568,13 +4568,15 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		for (int y = 0; y < get_groesse_y(); y++) {
 			for (int x = 0; x < get_groesse_x(); x++) {
 				koord k(x,y);
-				grund_t *gr = access(x, y)->get_kartenboden();
-				if(  gr->get_typ()==grund_t::fundament  ) {
-					gr->set_hoehe( max_hgt(k) );
-					gr->set_grund_hang( hang_t::flach );
+				grund_t *gr1 = access(x, y)->get_kartenboden();
+				if(gr1->get_typ()==grund_t::fundament) {
+					gr1->set_hoehe( max_hgt(k) );
+					// get new grund
+					grund_t *gr2 = access(x, y)->get_kartenboden();
+					gr2->set_grund_hang(hang_t::flach);
 					// transfer object to on new grund
-					for(  int i=0;  i<gr->get_top();  i++  ) {
-						gr->obj_bei(i)->set_pos( gr->get_pos() );
+					for(  int i=0;  i<gr1->get_top();  i++  ) {
+						gr1->obj_bei(i)->set_pos( gr2->get_pos() );
 					}
 				}
 			}
@@ -4623,7 +4625,14 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		// old versions did not save factory connections
 		if(file->get_version()<99014) {
+			// this needs to avoid the first city to be connected to all town
+			sint32 temp_min = get_einstellungen()->get_factory_worker_minimum_towns();
+			sint32 temp_max = get_einstellungen()->get_factory_worker_maximum_towns();
+			get_einstellungen()->set_factory_worker_minimum_towns(0);
+			get_einstellungen()->set_factory_worker_maximum_towns(0x7FFFFFFF);
 			(*i)->verbinde_fabriken();
+			get_einstellungen()->set_factory_worker_minimum_towns(temp_min);
+			get_einstellungen()->set_factory_worker_maximum_towns(temp_max);
 		}
 		display_progress(x++, get_groesse_y() + 256 + stadt.get_count());
 	}
@@ -4798,11 +4807,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	}
 #ifdef DEBUG
 	DBG_MESSAGE("rebuild_destinations()","for all haltstellen_t took %ld ms", dr_time()-dt );
-#endif
 
-#if 0
 	// reroute goods for benchmarking
 	dt = dr_time();
+#endif
+	// reroute_goods needs long time in large game
+	// we must resolve all 'Error in routing' here.
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		sint16 dummy = 0x7FFF;
 		if((hnr++%64)==0) {
@@ -4810,6 +4820,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		}
 		(*i)->reroute_goods(dummy);
 	}
+#ifdef DEBUG
 	DBG_MESSAGE("reroute_goods()","for all haltstellen_t took %ld ms", dr_time()-dt );
 #endif
 

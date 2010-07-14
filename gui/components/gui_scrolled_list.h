@@ -138,6 +138,8 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+
+	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
 };
 
 #endif
