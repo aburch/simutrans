@@ -1175,14 +1175,13 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	set_ticks_per_world_month_shift(einstellungen->get_bits_per_month());
 	next_month_ticks =  karte_t::ticks_per_world_month;
 	season=(2+letzter_monat/3)&3; // summer always zero
-	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 	is_dragging = false;
 	steps = 0;
 	recalc_average_speed();	// resets timeline
 
 	grundwasser = sets->get_grundwasser();      //29-Nov-01     Markus Weber    Changed
 	grund_besch_t::calc_water_level( this, height_to_climate );
-	snowline = sets->get_winter_snowline()*Z_TILE_STEP;
+	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 
 	if(sets->get_beginner_mode()) {
 		warenbauer_t::set_multiplier( get_einstellungen()->get_starting_year() );
@@ -4037,6 +4036,10 @@ void karte_t::laden(loadsave_t *file)
 		warenbauer_t::set_multiplier( 1000 );
 	}
 
+	grundwasser = einstellungen->get_grundwasser();
+DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
+	grund_besch_t::calc_water_level( this, height_to_climate );
+
 	// just an initialisation for the loading
 	season = (2+letzter_monat/3)&3; // summer always zero
 	snowline = einstellungen->get_winter_snowline()*Z_TILE_STEP + grundwasser;
@@ -4054,12 +4057,6 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 
 	// Reliefkarte an neue welt anpassen
 	reliefkarte_t::get_karte()->set_welt(this);
-
-	//12-Jan-02     Markus Weber added
-	grundwasser = einstellungen->get_grundwasser();
-	grund_besch_t::calc_water_level( this, height_to_climate );
-
-DBG_DEBUG("karte_t::laden()","grundwasser %i",grundwasser);
 
 	init_felder();
 
@@ -4758,7 +4755,7 @@ void karte_t::bewege_zeiger(const event_t *ev)
 		//bool select_karten_boden = event_get_last_control_shift()==2;
 
 		sint8 hgt; // trial height
-		sint8 groff; // offset for lower raise tool
+		sint8 groff=0; // offset for lower raise tool
 		// fallback: take kartenboden if nothing else found
 		const grund_t *bd = NULL;
 		// for the calculation of hmin/hmax see simview.cc
