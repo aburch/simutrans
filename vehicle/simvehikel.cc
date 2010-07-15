@@ -2920,6 +2920,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 
 bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
+	if(!bd) return false;
 	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->get_weg(get_waytype()));
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
