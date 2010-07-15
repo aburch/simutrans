@@ -4190,7 +4190,7 @@ bool convoi_t::has_same_vehicles(convoihandle_t other) const
 	bool forward_compare_good = true;
 	for (int i=0; i<get_vehikel_anzahl(); i++)
 	{
-		if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()
+		if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
 			forward_compare_good = false;
 			break;
@@ -4200,7 +4200,7 @@ bool convoi_t::has_same_vehicles(convoihandle_t other) const
 		return true;
 	}
 	bool reverse_compare_good = true;
-	for (int i=0, int j=get_vehikel_anzahl()-1; i<get_vehikel_anzahl(); i++, j--)
+	for (int i=0, j=get_vehikel_anzahl()-1; i<get_vehikel_anzahl(); i++, j--)
 	{
 		if (get_vehikel(j)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
