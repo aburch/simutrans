@@ -4173,37 +4173,42 @@ convoi_t::get_catering_level(uint8 type) const
  /**
  * True if this convoy has the same vehicles as the other
  * @author isidoro
+ * @author neroden (fixed)
  */
 bool convoi_t::has_same_vehicles(convoihandle_t other) const
 {
-	if (other.is_bound()) 
+	if (!other.is_bound()) 
 	{
-		if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) 
+		return false;
+	}
+	if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) 
+	{
+		return false;
+	}
+	// We must compare both in the 'same direction' and in the 'reverse direction'.
+	// We cannot use the 'reverse' flag to tell the difference.
+	bool forward_compare_good = true;
+	for (int i=0; i<get_vehikel_anzahl(); i++)
+	{
+		if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()
 		{
-			return false;
+			forward_compare_good = false;
+			break;
 		}
-		if(reversed == other->reversed)
+	}
+	if (forward_compare_good) {
+		return true;
+	}
+	bool reverse_compare_good = true;
+	for (int i=0, int j=get_vehikel_anzahl()-1; i<get_vehikel_anzahl(); i++, j--)
+	{
+		if (get_vehikel(j)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
-			for (int i=0; i<get_vehikel_anzahl(); i++) 
-			{
-				if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()) 
-				{
-					return false;
-				}
-			}
+			reverse_compare_good = false;
+			break;
 		}
-		else
-		{
-			int reverse_count = get_vehikel_anzahl() - 1;
-			for (int i=0; i<get_vehikel_anzahl(); i++) 
-			{
-				if (get_vehikel(reverse_count)->get_besch()!=other->get_vehikel(i)->get_besch()) 
-				{
-					return false;
-				}
-				reverse_count --;
-			}
-		}
+	}
+	if (reverse_compare_good) {
 		return true;
 	}
 	return false;
