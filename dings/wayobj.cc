@@ -337,7 +337,7 @@ wayobj_t::calc_bild()
 				image_id after = besch->get_front_diagonal_image_id(dir);
 				image_id bild = besch->get_back_diagonal_image_id(dir);
 				if(bild==IMG_LEER  &&  after==IMG_LEER) {
-					// ok, we have diagonals
+					// no diagonals available
 					diagonal = false;
 				}
 			}
