@@ -516,10 +516,14 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 	// delete towns first (will also delete all their houses)
 	// for the next game we need to remember the desired number ...
 	sint32 no_of_cities=einstellungen->get_anzahl_staedte();
+//	unsigned no_of_big_cities = einstellungen->get_number_of_big_cities();
+//	unsigned no_of_clusters = einstellungen->get_number_of_clusters();
 	while (!stadt.empty()) {
 		rem_stadt(stadt.front());
 	}
 	einstellungen->set_anzahl_staedte(no_of_cities);
+//	einstellungen->set_number_of_big_cities(no_of_big_cities);
+//	einstellungen->set_number_of_clusters(no_of_clusters);
 
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
@@ -819,7 +823,9 @@ void karte_t::distribute_groundobjs_cities( const einstellungen_t *sets, sint16 
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 
 	unsigned new_anzahl_staedte = sets->get_anzahl_staedte();
-	unsigned number_of_big_cities = umgebung_t::number_of_big_cities;
+	unsigned number_of_big_cities = sets->get_number_of_big_cities();
+	unsigned number_of_clusters = sets->get_number_of_clusters();
+	unsigned cluster_size = sets->get_cluster_size();
 
 	if(  umgebung_t::river_types>0  &&  einstellungen->get_river_number()>0  ) {
 		create_rivers( einstellungen->get_river_number() );
@@ -854,7 +860,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 	}	
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
-	vector_tpl<koord> *pos = stadt_t::random_place(this, city_population, old_x, old_y);
+	vector_tpl<koord> *pos = stadt_t::random_place(this, city_population, number_of_clusters, cluster_size, old_x, old_y);
 
 	if(  !pos->empty()  ) {
 		const sint32 old_anzahl_staedte = stadt.get_count();

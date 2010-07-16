@@ -884,6 +884,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sets.set_map_roughness( 0.6 );
 		sets.set_groesse(64,64);
 		sets.set_anzahl_staedte(1);
+		sets.set_number_of_big_cities(1);
 		sets.set_mittlere_einwohnerzahl( 1600 );
 		sets.set_land_industry_chains(1);
 		sets.set_tourist_attractions(1);
