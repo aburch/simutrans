@@ -80,15 +80,17 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
 			swallowed = komp_focus->infowin_event(&ev2);
 		}
-		if(  !swallowed  ) {
+
+		// Knightly : either event not swallowed, or inner container has no focused child component after TAB event
+		if(  !swallowed  ||  (ev->ev_code==9  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
 			if(  ev->ev_code==9  ) {
 				// TAB: find new focus
 				slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
 				new_focus = NULL;
 				if(  (ev->ev_key_mod&1)==0  ) {
 					// find next textinput field
-					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()->get_focus()!=komp_focus)  ) {
-						if(  iter.get_current()->get_focus()  ) {
+					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()!=komp_focus)  ) {
+						if(  iter.get_current()->is_focusable()  ) {
 							new_focus = iter.get_current();
 						}
 					}
@@ -97,15 +99,24 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					// or previous input field
 					bool valid = komp_focus==NULL;
 					while(  iter.next()  ) {
-						if(  valid  &&  iter.get_current()->get_focus()  ) {
+						if(  valid  &&  iter.get_current()->is_focusable()  ) {
 							new_focus = iter.get_current();
 							break;
 						}
-						if(  iter.get_current()->get_focus()==komp_focus  ) {
+						if(  iter.get_current()==komp_focus  ) {
 							valid = true;
 						}
 					}
 				}
+
+				// Knightly :	inner containers with focusable components may not have a focused component yet
+				//				==> give the inner container a chance to activate the first focusable component
+				if(  new_focus  &&  new_focus->get_focus()==NULL  ) {
+					event_t ev2 = *ev;
+					translate_event(&ev2, -new_focus->get_pos().x, -new_focus->get_pos().y);
+					new_focus->infowin_event(&ev2);
+				}
+
 				swallowed = komp_focus!=new_focus;
 			}
 			else if(  ev->ev_code==13  ||  ev->ev_code==27  ) {
@@ -215,6 +226,19 @@ void gui_container_t::zeichnen(koord offset)
 }
 
 
+bool gui_container_t::is_focusable()
+{
+	slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
+
+	while(  iter.next()  ) {
+		if(  iter.get_current()->is_focusable()  ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void gui_container_t::set_focus( gui_komponente_t *k )
 {
 	if(  komponenten.is_contained(k)  ||  k==NULL  ) {
@@ -229,10 +253,7 @@ void gui_container_t::set_focus( gui_komponente_t *k )
  */
 gui_komponente_t *gui_container_t::get_focus()
 {
-	if(komp_focus) {
-		// if the komp_focus-element has another focused element
-		// .. return this element instead
-		return komp_focus->get_focus();
-	}
-	return NULL;
+	// if the komp_focus-element has another focused element
+	// .. return this element instead
+	return komp_focus ? komp_focus->get_focus() : NULL;
 }

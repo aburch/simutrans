@@ -379,24 +379,29 @@ void root_writer_t::uncopy(const char* name)
 				fseek( infp, pos, SEEK_SET );
 			}
 			else if(  writer=="bridge"  ) {
-				// we need to take name from thrid children, the cursor node ...
-				obj_node_info_t node;
-				size_t pos = ftell(infp);
-				// quick and dirty: since there are a variable number, we just skip all image nodes
-				do {
-					obj_node_t::read_node( infp, node );
-					fseek(infp, node.size, SEEK_CUR );
-				} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
-				// then we try the next node (shoudl be cursor node then!
-				if(  node.type==obj_cursor  ) {
-					node_name = name_from_next_node(infp);
+				size_t pos=ftell(infp);
+				node_name = name_from_next_node(infp);
+				if(  node_name.len()==0  ) {
+					fseek( infp, pos, SEEK_SET );
+					// we need to take name from thrid children, the cursor node ...
+					obj_node_info_t node;
+					// quick and dirty: since there are a variable number, we just skip all image nodes
+					do {
+						obj_node_t::read_node( infp, node );
+						fseek(infp, node.size, SEEK_CUR );
+					} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
+					// then we try the next node (shoudl be cursor node then!
+					if(  node.type==obj_cursor  ) {
+						node_name = name_from_next_node(infp);
+					}
+					fseek( infp, pos, SEEK_SET );
 				}
-				fseek( infp, pos, SEEK_SET );
 			}
 			else {
 				node_name = name_from_next_node(infp);
 			}
 			// use a clever default name, if no name there
+			// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained. (z9999)
 			if(  node_name.size() == 0  ) {
 				char random_name[16];
 				// we use the file position as unique name

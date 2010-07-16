@@ -22,6 +22,7 @@
 #include "../../simgraph.h"
 
 gui_textinput_t::gui_textinput_t() :
+	gui_komponente_t(true),
 	text(NULL),
 	max(0),
 	cursor_pos(0),
@@ -29,9 +30,7 @@ gui_textinput_t::gui_textinput_t() :
 	textcol(COL_BLACK),
 	cursor_reference_time(0),
 	focus_recieved(false)
-{
-	set_allow_focus(true);
-}
+{ }
 
 
 /**
@@ -201,8 +200,7 @@ DBG_DEBUG("gui_textinput_t::gui_textinput_t()","cursor_pos=%i, cx=%i",cursor_pos
  */
 void gui_textinput_t::zeichnen(koord offset)
 {
-	gui_frame_t *const win = win_get_top();
-	display_with_focus( offset, (win  &&  win->get_focus()==this) );
+	display_with_focus( offset, (win_get_focus()==this) );
 }
 
 

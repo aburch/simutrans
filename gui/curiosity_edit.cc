@@ -53,8 +53,8 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 
 
-curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_,karte_t* welt) :
-	extend_edit_gui_t(sp_,welt),
+curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_, karte_t* welt) :
+	extend_edit_gui_t(translator::translate("curiosity builder"), sp_, welt),
 	hauslist(16),
 	lb_rotation( rot_str, COL_WHITE, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )

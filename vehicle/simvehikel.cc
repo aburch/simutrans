@@ -2615,6 +2615,11 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 			// do not block intersections
 			if (!dt && ribi_t::is_threeway(str->get_ribi_unmasked()) && route_index + 1U < r.get_count() - 1) {
+				// but leaving from railroad crossing is more important
+				grund_t *gr_here = welt->lookup(get_pos());
+				if(gr_here  &&  gr_here->ist_uebergang()) {
+					return true;
+				}
 				// we have to test also next field
 				if (grund_t const* const gr = welt->lookup(r.position_bei(route_index + 1U))) {
 					koord const& nextnext                 = r.position_bei(route_index + 2).get_2d();
@@ -2915,6 +2920,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 
 bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
+	if(!bd) return false;
 	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->get_weg(get_waytype()));
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
@@ -3192,7 +3198,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 						if(  way->has_sign()  ) {
 							roadsign_t *rs = gr->find<roadsign_t>(1);
 							if(  rs  &&  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-								if(  (rs->get_besch()->get_flags()&&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
+								if(  (rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
 									// end of choose on route => not choosing here
 									choose_ok = false;
 								}

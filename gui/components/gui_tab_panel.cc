@@ -101,7 +101,24 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 		}
 		return true;
 	}
-	if(  ev->ev_code == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
+
+	// Knightly : navigate among the tabs using Ctrl-PgUp and Ctrl-PgDn
+	if(  ev->ev_class==EVENT_KEYBOARD  &&  (ev->ev_key_mod & 2)  ) {
+		if(  ev->ev_code==62  ) {
+			// Ctrl-PgUp -> go to the previous tab
+			const int next_tab_idx = active_tab - 1;
+			active_tab = next_tab_idx<0 ? max(0, (int)tabs.get_count()-1) : next_tab_idx;
+			return true;
+		}
+		else if(  ev->ev_code==60  ) {
+			// Ctrl-PgDn -> go to the next tab
+			const int next_tab_idx = active_tab + 1;
+			active_tab = next_tab_idx>=(int)tabs.get_count() ? 0 : next_tab_idx;
+			return true;
+		}
+	}
+
+	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
 		// Komponente getroffen
 		event_t ev2 = *ev;
 		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y-HEADER_VSIZE);

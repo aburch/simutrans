@@ -69,6 +69,8 @@ sint16 umgebung_t::max_acceleration;
 bool umgebung_t::show_tooltips;
 uint8 umgebung_t::tooltip_color;
 uint8 umgebung_t::tooltip_textcolor;
+uint8 umgebung_t::toolbar_max_width;
+uint8 umgebung_t::toolbar_max_height;
 uint8 umgebung_t::cursor_overlay_color;
 uint8 umgebung_t::show_vehicle_states;
 sint8 umgebung_t::daynight_level;
@@ -157,6 +159,9 @@ void umgebung_t::init()
 	show_tooltips = true;
 	tooltip_color = 4;
 	tooltip_textcolor = COL_BLACK;
+
+	toolbar_max_width = 0;
+	toolbar_max_height = 0;
 
 	cursor_overlay_color = COL_ORANGE;
 

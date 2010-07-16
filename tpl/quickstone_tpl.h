@@ -56,24 +56,30 @@ private:
 			}
 		}
 
-		// no free entry found, extent array if possible
-		uint16 newsize = (uint16)min( 65535ul, 2l*size );
-		if(  size<newsize  ) {
-			T ** newdata = new T* [newsize];
-			memcpy( newdata, data, sizeof(T*)*size );
-			for(  uint16 i=size;  i<newsize;  i++  ) {
-				newdata[i] = 0;
-			}
-			delete [] data;
-			data = newdata;
-			next = size+1;
-			size = newsize;
-			return next-1;
+		// no free entry found, extend array if possible
+		uint16 newsize;
+		if (size == 65535) {
+			// completely out of handles
+			dbg->fatal("quickstone<T>::find_next()","no free index found (size=%i)",size);
+			return 0; //dummy for compiler
+		} else if (size >= 32768) {
+			// max out on handles, don't overflow uint16
+			newsize = 65535;
+		} else {
+			newsize = 2*size;
 		}
 
-		// completely out of handles
-		dbg->fatal("quickstone<T>::find_next()","no free index found (size=%i)",size);
-		return 0; //dummy for compiler
+		// Move data to new extended array
+		T ** newdata = new T* [newsize];
+		memcpy( newdata, data, sizeof(T*)*size );
+		for(  uint16 i=size;  i<newsize;  i++  ) {
+			newdata[i] = 0;
+		}
+		delete [] data;
+		data = newdata;
+		next = size+1;
+		size = newsize;
+		return next-1;
 	}
 
 	/**

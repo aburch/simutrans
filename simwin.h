@@ -12,6 +12,7 @@
 
 class karte_t;
 class gui_frame_t;
+class gui_komponente_t;
 struct event_t;
 
 /* Typen fuer die Fenster */
@@ -96,6 +97,9 @@ int win_get_posy(gui_frame_t *ig);
 void win_set_pos(gui_frame_t *ig, int x, int y);
 
 gui_frame_t *win_get_top();
+
+// Knightly : returns the focused component of the top window
+gui_komponente_t *win_get_focus();
 
 int win_get_open_count();
 

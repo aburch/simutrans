@@ -34,9 +34,15 @@ private:
 	 * window width in toolboxes
 	 * @author Hj. Malthaner
 	 */
-	int tool_icon_width;
+	uint8 tool_icon_width;
+	uint8 tool_icon_height;
+
+	uint16 tool_icon_disp_start;
+	uint16 tool_icon_disp_end;
 
 	koord groesse;
+
+	bool has_prev_next;
 
 	/**
 	 * Fenstertitel
@@ -80,6 +86,13 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	bool getroffen(int x, int y);
+
+	/**
+	 * Does this window need a next button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Volker Meyer
+	 */
+	bool has_next() const {return has_prev_next;}
 
 	/* Events werden hiermit an die GUI-Komponenten
 	 * gemeldet

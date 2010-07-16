@@ -89,7 +89,7 @@ const haus_tile_besch_t *haus_besch_t::get_tile(int layout, int x, int y) const
 	koord dims = get_groesse(layout);
 
 	if(layout < 0  ||  x < 0  ||  y < 0  ||  layout >= layouts  ||  x >= get_b(layout)  ||  y >= get_h(layout)) {
-	dbg->fatal("hausbauer_t::get_tile()",
+	dbg->fatal("haus_tile_besch_t::get_tile()",
 			   "invalid request for l=%d, x=%d, y=%d on building %s (l=%d, x=%d, y=%d)",
 		   layout, x, y, get_name(), layouts, groesse.x, groesse.y);
 	}
