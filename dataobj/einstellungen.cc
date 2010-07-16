@@ -41,16 +41,6 @@ einstellungen_t::einstellungen_t() :
 	tourist_attractions = 16;
 
 	anzahl_staedte = 16;
-
-	// constraints:
-	// number_of_big_cities <= anzahl_staedte
-	// number_of_big_cities == 0 if anzahl_staedte == 0
-	// number_of_big_cities >= 1 if anzahl_staedte !=0
-	number_of_big_cities = 1;
-	//constraints:
-	// 0<= number_of_clusters <= anzahl_staedts/4
-	number_of_clusters = 0;
-	cluster_size = 200;
 	mittlere_einwohnerzahl = 1600;
 
 	station_coverage_size = 2;

@@ -43,9 +43,6 @@ private:
 	sint32 tourist_attractions;
 
 	sint32 anzahl_staedte;
-	unsigned number_of_big_cities;
-	unsigned number_of_clusters;
-	unsigned cluster_size;
 	sint32 mittlere_einwohnerzahl;
 
 	// town growth factors
@@ -426,15 +423,6 @@ public:
 
 	void set_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
 	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
-
-	void set_number_of_big_cities(unsigned n) {number_of_big_cities=n;}
-	unsigned get_number_of_big_cities() const {return number_of_big_cities;}
-
-	void set_number_of_clusters(unsigned n) {number_of_clusters=n;}
-	unsigned get_number_of_clusters() const {return number_of_clusters;}
-
-	void set_cluster_size(unsigned n) {cluster_size=n;}
-	unsigned get_cluster_size() const {return cluster_size;}
 
 	void set_mittlere_einwohnerzahl(sint32 n) {mittlere_einwohnerzahl=n;}
 	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}

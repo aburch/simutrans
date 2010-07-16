@@ -74,6 +74,16 @@ uint8 umgebung_t::show_vehicle_states;
 sint8 umgebung_t::daynight_level;
 bool umgebung_t::hilly = false;
 bool umgebung_t::cities_ignore_height = false;
+
+// constraints:
+// number_of_big_cities <= anzahl_staedte
+// number_of_big_cities == 0 if anzahl_staedte == 0
+// number_of_big_cities >= 1 if anzahl_staedte !=0
+uint32 umgebung_t::number_of_big_cities = 1;
+//constraints:
+// 0<= number_of_clusters <= anzahl_staedts/4
+uint32 umgebung_t::number_of_clusters = 0;
+uint32 umgebung_t::cluster_size = 200;
 uint8 umgebung_t::cities_like_water = 60;
 bool umgebung_t::left_to_right_graphs = true;
 

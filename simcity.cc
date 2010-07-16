@@ -4150,8 +4150,10 @@ void stadt_t::baue(bool new_town)
 	}
 }
 
-vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sint32> *sizes_list, unsigned number_of_clusters, unsigned cluster_size, sint16 old_x, sint16 old_y)
+vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y)
 {
+	unsigned number_of_clusters = umgebung_t::number_of_clusters;
+	unsigned cluster_size = umgebung_t::cluster_size;
 	const int grid_step = 8;
 	const double distance_scale = 1.0/(grid_step * 2);
 	const double population_scale = 1.0/1024;
