@@ -18,7 +18,9 @@ class enlarge_map_frame_t  : public gui_frame_t, private action_listener_t
 private:
 	// local settings of the new world ...
 	einstellungen_t * sets;
-
+	uint32 number_of_big_cities;
+	uint32 number_of_clusters;
+	uint32 cluster_size;
 	enum { preview_size = 64 };
 
 	/**

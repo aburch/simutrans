@@ -155,7 +155,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	else {
 		inp_number_of_big_cities.set_limits(0,0);
 	}
-	inp_number_of_big_cities.set_value(sets->get_number_of_big_cities() );
+	inp_number_of_big_cities.set_value(umgebung_t::number_of_big_cities );
 	add_komponente( &inp_number_of_big_cities );
 	intTopOfButton += 12;
 
@@ -163,7 +163,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_number_of_clusters.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_clusters.add_listener(this);
 	inp_number_of_clusters.set_limits(0,sets->get_anzahl_staedte()/3 );
-	inp_number_of_clusters.set_value(sets->get_number_of_clusters());
+	inp_number_of_clusters.set_value(umgebung_t::number_of_clusters);
 	add_komponente( &inp_number_of_clusters );
 	intTopOfButton += 12;
 
@@ -171,7 +171,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_cluster_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_cluster_size.add_listener(this);
 	inp_cluster_size.set_limits(1,9999);
-	inp_cluster_size.set_value(sets->get_cluster_size());
+	inp_cluster_size.set_value(umgebung_t::cluster_size);
 	add_komponente( &inp_cluster_size );
 	intTopOfButton += 12;
 
@@ -414,37 +414,37 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	else if(komp==&inp_number_of_towns) {
 		sets->set_anzahl_staedte( v.i );
 		if (v.i == 0) {
-			sets->set_number_of_big_cities(0);
+			umgebung_t::number_of_big_cities = 0;
 			inp_number_of_big_cities.set_limits(0,0);
 			inp_number_of_big_cities.set_value(0);
 		}
 		else {
 			inp_number_of_big_cities.set_limits(1, v.i);
-			if (sets->get_number_of_big_cities() == 0) {
-				sets->set_number_of_big_cities(1);
+			if ( umgebung_t::number_of_big_cities == 0) {
+				umgebung_t::number_of_big_cities =1;
 				inp_number_of_big_cities.set_value(1);
 			}
 		}
 
-		if (sets->get_number_of_big_cities() > unsigned(v.i)) {
-			sets->set_number_of_big_cities(v.i);
-			inp_number_of_big_cities.set_value( sets->get_number_of_big_cities() );
+		if (umgebung_t::number_of_big_cities > unsigned(v.i)) {
+			umgebung_t::number_of_big_cities = v.i;
+			inp_number_of_big_cities.set_value( umgebung_t::number_of_big_cities );
 		}
 
 		inp_number_of_clusters.set_limits(0, v.i/4);
-		if (sets->get_number_of_clusters() > unsigned(v.i)/4) {
-			sets->set_number_of_clusters(v.i/4);
+		if (umgebung_t::number_of_clusters > unsigned(v.i)/4) {
+			umgebung_t::number_of_clusters = v.i/4;
 			inp_number_of_clusters.set_value(v.i/4);
 		}
 	}
 	else if(komp==&inp_number_of_big_cities) {
-		sets->set_number_of_big_cities( v.i );
+		umgebung_t::number_of_big_cities = v.i;
 	}
 	else if(komp == &inp_number_of_clusters) {
-		sets->set_number_of_clusters(v.i);
+		umgebung_t::number_of_clusters = v.i;
 	}
 	else if(komp == &inp_cluster_size) {
-		sets->set_cluster_size(v.i);
+		umgebung_t::cluster_size = v.i;
 	}
 	else if(komp==&inp_town_size) {
 		sets->set_mittlere_einwohnerzahl( v.i );

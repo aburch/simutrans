@@ -20,6 +20,7 @@
 #include "../simskin.h"
 
 #include "../dataobj/einstellungen.h"
+#include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
 // just for their structure size ...
@@ -65,8 +66,10 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	sets = new einstellungen_t(*(welt->get_einstellungen())); // Make a copy.
 	sets->set_groesse_x(welt->get_groesse_x());
 	sets->set_groesse_y(welt->get_groesse_y());
-	sets->set_number_of_big_cities(0);
-	sets->set_number_of_clusters(0);
+	number_of_big_cities  = 0;
+	number_of_clusters = 0;
+	cluster_size = umgebung_t::cluster_size;
+	
 	changed_number_of_towns = false;
 	int intTopOfButton = 24;
 
@@ -114,7 +117,7 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	inp_number_of_clusters.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_number_of_clusters.add_listener(this);
 	inp_number_of_clusters.set_limits(0,sets->get_anzahl_staedte()/3 );
-	inp_number_of_clusters.set_value(sets->get_number_of_clusters());
+	inp_number_of_clusters.set_value(number_of_clusters);
 	add_komponente( &inp_number_of_clusters );
 	intTopOfButton += 12;
 
@@ -122,7 +125,7 @@ enlarge_map_frame_t::enlarge_map_frame_t(spieler_t *, karte_t *w) :
 	inp_cluster_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_cluster_size.add_listener(this);
 	inp_cluster_size.set_limits(1,9999);
-	inp_cluster_size.set_value(sets->get_cluster_size());
+	inp_cluster_size.set_value(cluster_size);
 	add_komponente( &inp_cluster_size );
 	intTopOfButton += 12;
 
@@ -169,25 +172,25 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 	else if(komp==&inp_number_of_towns) {
 		sets->set_anzahl_staedte( v.i );
 		if (v.i == 0) {
-			sets->set_number_of_big_cities(0);
+			number_of_big_cities = 0;
 			inp_number_of_big_cities.set_limits(0,0);
 			inp_number_of_big_cities.set_value(0);
 		}
 		else {
 			inp_number_of_big_cities.set_limits(1, v.i); 
-			if (sets->get_number_of_big_cities() == 0) {
-				sets->set_number_of_big_cities(1);
+			if ( number_of_big_cities == 0) {
+				number_of_big_cities = 1;
 				inp_number_of_big_cities.set_value(1);
 			}
 		}
 
-		if (sets->get_number_of_big_cities() > unsigned(v.i)) {
-			sets->set_number_of_big_cities(v.i);
-			inp_number_of_big_cities.set_value( sets->get_number_of_big_cities() );
+		if ( number_of_big_cities > unsigned(v.i)) {
+			number_of_big_cities= v.i;
+			inp_number_of_big_cities.set_value( number_of_big_cities );
 		}
 	}
 	else if(komp==&inp_number_of_big_cities) {
-		sets->set_number_of_big_cities( v.i );
+		number_of_big_cities = v.i;
 	}
 	else if(komp==&inp_town_size) {
 		sets->set_mittlere_einwohnerzahl( v.i );
@@ -199,7 +202,12 @@ bool enlarge_map_frame_t::action_triggered( gui_action_creator_t *komp,value_t v
 		// just hide it for the moment ...
 		win_set_pos( this, display_get_width()+2, display_get_height()+2 );
 		intr_refresh_display( true );
+		//Quick and Ugly Hack: we don't want change main umgebung_t
+		uint32 saved_number_of_big_cities = umgebung_t::number_of_big_cities; umgebung_t::number_of_big_cities = number_of_big_cities;
+		uint32 saved_number_of_clusters  = umgebung_t::number_of_clusters; umgebung_t::number_of_clusters = number_of_clusters;
 		welt->enlarge_map(sets, NULL);
+		umgebung_t::number_of_big_cities = saved_number_of_big_cities;
+		umgebung_t::number_of_clusters = saved_number_of_clusters; 		
 		destroy_all_win( true );
 	}
 	else {
@@ -302,7 +310,7 @@ void enlarge_map_frame_t::update_preview()
 		sets->set_anzahl_staedte( new_towns );
 		inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 		if (new_towns != 0 ) {
-			sets->set_number_of_big_cities(1);
+			number_of_big_cities = 1;
 			inp_number_of_big_cities.set_value(1);
 			inp_number_of_big_cities.set_limits(1, new_towns); 
 		}
