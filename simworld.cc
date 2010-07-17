@@ -4450,7 +4450,7 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 	{
 		uint32 old_ticks = (uint32)ticks;
 		file->rdwr_long(old_ticks, " ");
-		ticks = old_ticks;
+		ticks = (sint64)old_ticks;
 	}
 	else
 	{

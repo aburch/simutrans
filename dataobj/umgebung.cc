@@ -248,6 +248,5 @@ void umgebung_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_bool(hilly, "");
 		file->rdwr_bool(cities_ignore_height, "");
-
 	}
 }
