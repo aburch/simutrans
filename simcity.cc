@@ -4355,6 +4355,16 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 
 		if (index_to_places.empty() ) {
 			if(city_nr < sizes_list->get_count() - 1) {
+				if(number_of_clusters > 0) {
+					for (int y = 0; y < ymax; y++) {
+						for (int x = 0; x < xmax; x++) {
+							cluster_field.at(x,y) = true;
+						}
+					}
+					number_of_clusters = 0;
+					city_nr--;
+					continue;
+				}
 				dbg->warning("stadt_t::random_place()", "Not enough places found!");
 			}
 			break;
