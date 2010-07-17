@@ -529,7 +529,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "minimum_city_distance", stadt_t::get_minimum_city_distance(), 1, 20000, 10, false );
+	INIT_NUM( "city_isolation_factor", stadt_t::get_city_isolation_factor(), 1, 20000, 1, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
@@ -578,7 +578,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_NUM( sets->set_factory_spacing );
 	READ_NUM( sets->set_electric_promille );
 	READ_NUM( sets->set_passenger_factor );
-	READ_NUM( stadt_t::set_minimum_city_distance );
+	READ_NUM( stadt_t::set_city_isolation_factor );	
 	READ_NUM( sets->set_factory_worker_radius );
 	READ_NUM( sets->set_factory_worker_minimum_towns );
 	READ_NUM( sets->set_factory_worker_maximum_towns );

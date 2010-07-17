@@ -95,6 +95,15 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &cities_ignore_height );
 	intTopOfButton += 12;
 
+	cities_like_water.set_pos(koord(LEFT_ARROW,intTopOfButton) );
+	cities_like_water.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	cities_like_water.set_limits( 0, 100 );
+	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
+	cities_like_water.wrap_mode( false );
+	cities_like_water.add_listener( this );
+	add_komponente( &cities_like_water );
+	intTopOfButton += 12;
+
 	// summer snowline always starting above highest climate
 	intTopOfButton += 18+5;
 
@@ -196,6 +205,9 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			welt_gui->update_preview();
 		}
 	}
+	else if(komp==&cities_like_water) {
+		umgebung_t::cities_like_water =  v.i;
+	}	
 	else if(komp==&river_n) {
 		sets->set_river_number( v.i );
 	}
@@ -261,6 +273,7 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	hilly.pressed = umgebung_t::hilly;
 
 	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
+	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
 
 	gui_frame_t::zeichnen(pos, gr);
 
@@ -273,7 +286,9 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	y += 36+5;
+	y += 36;
+	display_proportional_clip(x, y, translator::translate("Cities like water"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12+5;
 
 	// season stuff
 	display_proportional_clip(x, y, translator::translate("Summer snowline"), ALIGN_LEFT, COL_BLACK, true);

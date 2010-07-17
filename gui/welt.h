@@ -51,6 +51,9 @@ private:
 	button_t random_map, load_map;
 
 	gui_numberinput_t inp_number_of_towns,
+		inp_number_of_big_cities,
+		inp_number_of_clusters,
+		inp_cluster_size,
 		inp_town_size,
 		inp_intercity_road_len,
 		inp_traffic_density,

@@ -11,6 +11,7 @@
  */
 
 #include <algorithm>
+#include <limits>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -519,6 +520,7 @@ DBG_MESSAGE("karte_t::destroy()", "stops destroyed");
 		rem_stadt(stadt.front());
 	}
 	einstellungen->set_anzahl_staedte(no_of_cities);
+
 DBG_MESSAGE("karte_t::destroy()", "towns destroyed");
 
 	while(!sync_list.empty()) {
@@ -812,16 +814,47 @@ void karte_t::create_rivers( sint16 number )
 
 
 
-void karte_t::distribute_groundobjs_cities(int new_anzahl_staedte, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y)
+void karte_t::distribute_groundobjs_cities( const einstellungen_t *sets, sint16 old_x, sint16 old_y)
 {
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing rivers");
+	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
+
+	unsigned new_anzahl_staedte = sets->get_anzahl_staedte();
+	unsigned number_of_big_cities = umgebung_t::number_of_big_cities;
+
 	if(  umgebung_t::river_types>0  &&  einstellungen->get_river_number()>0  ) {
 		create_rivers( einstellungen->get_river_number() );
 	}
 
 printf("Creating cities ...\n");
+DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
+	vector_tpl<sint32> *city_population = new vector_tpl<sint32>(new_anzahl_staedte);
+//	double rank1_population = (2.0 * einstellungen->get_mittlere_einwohnerzahl() * new_anzahl_staedte)/(1.0+new_anzahl_staedte);
+	double rank1_population = einstellungen->get_mittlere_einwohnerzahl();
+
+	for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) {
+		double population;
+		int rank;
+		do {
+			if ( i < number_of_big_cities ) {
+				rank = 1;
+			}
+			else {
+				rank = i - number_of_big_cities + 2;
+			}
+			population = rank1_population/rank;
+			/* now add some gaussian noise */
+			double next_rank_population = rank1_population/(rank+1);
+			double sigma = (population - next_rank_population)/3.0;
+			population = simrand_gauss(population, sigma);
+		} while ((population < 0) || (population > std::numeric_limits<uint32_t>::max() ));
+		city_population->append( uint32(population));
+	}
+	for (unsigned i =0; i< new_anzahl_staedte; i++) {
+		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, (*city_population)[i]);
+	}	
+
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
-	vector_tpl<koord> *pos = stadt_t::random_place(this, new_anzahl_staedte, old_x, old_y);
+	vector_tpl<koord> *pos = stadt_t::random_place(this, city_population, old_x, old_y);
 
 	if(  !pos->empty()  ) {
 		const sint32 old_anzahl_staedte = stadt.get_count();
@@ -841,12 +874,9 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 #ifdef DEBUG
 		uint32 tbegin = dr_time();
 #endif
-		for(  int i=0;  i<new_anzahl_staedte;  i++  ) {
-//			int citizens=(int)(new_mittlere_einwohnerzahl*0.9);
-//			citizens = citizens/10+simrand(2*citizens+1);
-			int current_citicens = (2500l * new_mittlere_einwohnerzahl) /(simrand(20000)+100);
-			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], current_citicens);
-DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
+		for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) {
+			stadt_t* s = new stadt_t(spieler[1], (*pos)[i], (*city_population)[i]);
+			DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld inhabitants",i,(s->get_city_history_month())[HIST_CITICENS] );
 			stadt.append(s, s->get_einwohner(), 64);
 			if(is_display_init()) {
 				old_progress ++;
@@ -858,6 +888,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","Erzeuge stadt %i with %ld i
 		}
 
 		delete pos;
+		delete city_population;
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
 
 		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
@@ -1527,7 +1558,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 	// Resize marker_t:
 	marker.init(new_groesse_x, new_groesse_y);
 
-	distribute_groundobjs_cities(sets->get_anzahl_staedte(), sets->get_mittlere_einwohnerzahl(), old_x, old_y);
+	distribute_groundobjs_cities(sets, old_x, old_y);
 
 	// hausbauer_t::neue_karte(); <- this would reinit monuments! do not do this!
 	fabrikbauer_t::neue_karte( this );

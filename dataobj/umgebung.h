@@ -242,7 +242,11 @@ public:
 	// @author: jamespetts
 	static bool hilly;
 
+	static uint32 number_of_big_cities;
+	static uint32 number_of_clusters;
+	static uint32 cluster_size;
 	static bool cities_ignore_height;
+	static uint8 cities_like_water;
 
 	static einstellungen_t default_einstellungen;
 
