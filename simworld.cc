@@ -846,7 +846,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 			double next_rank_population = rank1_population/(rank+1);
 			double sigma = (population - next_rank_population)/3.0;
 			population = simrand_gauss(population, sigma);
-		} while ((population < 0) || (population > std::numeric_limits<uint32_t>::max() ));
+		} while ((population < 0) || (population > std::numeric_limits<uint32>::max() ));
 		city_population->append( uint32(population));
 	}
 	for (unsigned i =0; i< new_anzahl_staedte; i++) {

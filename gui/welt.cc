@@ -648,11 +648,11 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Number of big cities"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("Number of big cities:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Number of clusters"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("Number of city clusters:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
-	display_proportional_clip(x, y, translator::translate("Cluster size"), ALIGN_LEFT, COL_BLACK, true);
+	display_proportional_clip(x, y, translator::translate("City cluster size:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
