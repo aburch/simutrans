@@ -2090,7 +2090,7 @@ void stadt_t::step_bau()
 		bev = (wachstum >> 4);
 		bool need_building = true;
 		uint32 buildings_count = buildings.get_count();
-		while (need_building ) {
+		while (need_building || won < bev/2) {
 			baue(false); // it update won
 			if ( buildings_count == buildings.get_count() ) {
 				continue;
