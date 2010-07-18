@@ -2086,6 +2086,22 @@ void stadt_t::calc_growth()
 void stadt_t::step_bau()
 {
 	bool new_town = (bev == 0);
+	if (new_town) {
+		bev = (wachstum >> 4);
+		bool need_building = true;
+		uint32 buildings_count = buildings.get_count();
+		while (need_building ) {
+			baue(false); // it update won
+			if ( buildings_count == buildings.get_count() ) {
+				continue;
+			}
+			if(buildings[buildings_count]->get_haustyp() == gebaeude_t::wohnung) {
+				need_building = false;
+			}
+			buildings_count = buildings.get_count();
+		}
+		bev = 0;
+	}
 	// since we use internall a finer value ...
 	const int growth_step = (wachstum >> 4);
 	wachstum &= 0x0F;
