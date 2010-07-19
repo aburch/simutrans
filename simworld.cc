@@ -3007,9 +3007,9 @@ void karte_t::neuer_monat()
 			{
 				total_electric_demand += fab->get_base_production() * fab->get_besch()->get_electricity_proportion();
 			}
+			number_of_factories = fab_list.get_count();
 		}
 		i -= difference;
-		number_of_factories --;
 	}
 
 	// Check to see whether more factories need to be added
