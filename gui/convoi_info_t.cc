@@ -91,70 +91,6 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	input.set_text( cnv->access_internal_name(), 116);
 	add_komponente(&input);
 
-	add_komponente(&sort_label);
-
-	toggler.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	toggler.set_text("Chart");
-	toggler.set_typ(button_t::roundbox_state);
-	toggler.add_listener(this);
-	toggler.set_tooltip("Show/hide statistics");
-	add_komponente(&toggler);
-	toggler.pressed = false;
-
-	sort_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
-	sort_button.set_typ(button_t::roundbox);
-	sort_button.add_listener(this);
-	sort_button.set_tooltip("Sort by");
-	add_komponente(&sort_button);
-
-	details_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	details_button.set_text("Details");
-	details_button.set_typ(button_t::roundbox);
-	details_button.add_listener(this);
-	details_button.set_tooltip("Vehicle details");
-	add_komponente(&details_button);
-
-	scrolly.set_pos(koord(0, offset_below_viewport+46));
-	add_komponente(&scrolly);
-
-	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
-	filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
-	add_komponente(&filled_bar);
-
-	speed_bar.set_base(max_convoi_speed);
-	speed_bar.set_vertical(false);
-	speed_bar.add_color_value(&mean_convoi_speed, COL_GREEN);
-	add_komponente(&speed_bar);
-
-	// we update this ourself!
-	route_bar.add_color_value(&cnv_route_index, COL_GREEN);
-	add_komponente(&route_bar);
-
-	// goto line button
-	line_button.init( button_t::posbutton, NULL, koord(10, 64) );
-	line_button.set_targetpos( koord(0,0) );
-	line_button.add_listener( this );
-	line_bound = false;
-
-	set_fenstergroesse(koord(total_width, view.get_groesse().y+222));
-
-	// chart
-	chart.set_pos(koord(88,offset_below_viewport+BUTTON_HEIGHT+8));
-	chart.set_groesse(koord(TOTAL_WIDTH-88-4, 100));
-	chart.set_dimension(12, 10000);
-	chart.set_visible(false);
-	chart.set_background(MN_GREY1);
-	for (int cost = 0; cost<MAX_CONVOI_COST; cost++) {
-		chart.add_curve( cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
-		filterButtons[cost].init(button_t::box_state, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), view.get_groesse().y+174+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-		filterButtons[cost].add_listener(this);
-		filterButtons[cost].background = cost_type_color[cost];
-		filterButtons[cost].set_visible(false);
-		filterButtons[cost].pressed = false;
-		add_komponente(filterButtons + cost);
-	}
-	add_komponente(&chart);
 	add_komponente(&view);
 
 	// this convoi belongs not to an AI
@@ -188,6 +124,71 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	follow_button.set_tooltip("Follow the convoi on the map.");
 	add_komponente(&follow_button);
 	follow_button.add_listener(this);
+
+	// chart
+	chart.set_pos(koord(88,offset_below_viewport+BUTTON_HEIGHT+8));
+	chart.set_groesse(koord(TOTAL_WIDTH-88-4, 100));
+	chart.set_dimension(12, 10000);
+	chart.set_visible(false);
+	chart.set_background(MN_GREY1);
+	for (int cost = 0; cost<MAX_CONVOI_COST; cost++) {
+		chart.add_curve( cost_type_color[cost], cnv->get_finance_history(), MAX_CONVOI_COST, cost, MAX_MONTHS, cost_type_money[cost], false, true, cost_type_money[cost]*2 );
+		filterButtons[cost].init(button_t::box_state, cost_type[cost], koord(BUTTON1_X+(BUTTON_WIDTH+BUTTON_SPACER)*(cost%4), view.get_groesse().y+174+(BUTTON_HEIGHT+2)*(cost/4)), koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+		filterButtons[cost].add_listener(this);
+		filterButtons[cost].background = cost_type_color[cost];
+		filterButtons[cost].set_visible(false);
+		filterButtons[cost].pressed = false;
+		add_komponente(filterButtons + cost);
+	}
+	add_komponente(&chart);
+
+	add_komponente(&sort_label);
+
+	sort_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
+	sort_button.set_typ(button_t::roundbox);
+	sort_button.add_listener(this);
+	sort_button.set_tooltip("Sort by");
+	add_komponente(&sort_button);
+
+	toggler.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	toggler.set_text("Chart");
+	toggler.set_typ(button_t::roundbox_state);
+	toggler.add_listener(this);
+	toggler.set_tooltip("Show/hide statistics");
+	add_komponente(&toggler);
+	toggler.pressed = false;
+
+	details_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	details_button.set_text("Details");
+	details_button.set_typ(button_t::roundbox);
+	details_button.add_listener(this);
+	details_button.set_tooltip("Vehicle details");
+	add_komponente(&details_button);
+
+	scrolly.set_pos(koord(0, offset_below_viewport+46));
+	add_komponente(&scrolly);
+
+	filled_bar.add_color_value(&cnv->get_loading_limit(), COL_YELLOW);
+	filled_bar.add_color_value(&cnv->get_loading_level(), COL_GREEN);
+	add_komponente(&filled_bar);
+
+	speed_bar.set_base(max_convoi_speed);
+	speed_bar.set_vertical(false);
+	speed_bar.add_color_value(&mean_convoi_speed, COL_GREEN);
+	add_komponente(&speed_bar);
+
+	// we update this ourself!
+	route_bar.add_color_value(&cnv_route_index, COL_GREEN);
+	add_komponente(&route_bar);
+
+	// goto line button
+	line_button.init( button_t::posbutton, NULL, koord(10, 64) );
+	line_button.set_targetpos( koord(0,0) );
+	line_button.add_listener( this );
+	line_bound = false;
+
+	set_fenstergroesse(koord(total_width, view.get_groesse().y+222));
 
 	cnv->set_sortby( umgebung_t::default_sortmode );
 
