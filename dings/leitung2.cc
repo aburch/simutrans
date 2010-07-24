@@ -373,7 +373,11 @@ void leitung_t::rdwr(loadsave_t *file)
 		//      net = powernet_t::load_net((powernet_t *) value);
 		set_net(NULL);
 	}
+
 	if(get_typ()==leitung) {
+		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
+		 * (Otherwise it will be always true!
+		 */
 		if(file->get_version() > 102002) {
 			if(file->is_saving()) {
 				const char *s = besch->get_name();
@@ -423,10 +427,11 @@ void pumpe_t::step_all(long delta_t)
 }
 
 
-pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
+pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::invalid, NULL )
 {
 	fab = NULL;
 	supply = 0;
+	rdwr( file );
 }
 
 
@@ -527,7 +532,7 @@ void senke_t::step_all(long delta_t)
 }
 
 
-senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
+senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::invalid, NULL )
 {
 	fab = NULL;
 	einkommen = 0;
@@ -536,6 +541,7 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
+	rdwr( file );
 }
 
 
