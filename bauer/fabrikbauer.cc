@@ -936,7 +936,7 @@ next_ware_check:
 			welt->update_map();
 		}
 
-		// only return, if successfull
+		// only return, if successful
 		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
 			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player
