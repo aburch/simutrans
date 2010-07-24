@@ -83,11 +83,11 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 		// Knightly : either event not swallowed, or inner container has no focused child component after TAB event
 		if(  !swallowed  ||  (ev->ev_code==9  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
-			if(  ev->ev_code==9  ) {
+			if(  ev->ev_code==SIM_KEY_TAB  ) {
 				// TAB: find new focus
 				slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
 				new_focus = NULL;
-				if(  (ev->ev_key_mod&1)==0  ) {
+				if(  !IS_SHIFT_PRESSED(ev)  ) {
 					// find next textinput field
 					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()!=komp_focus)  ) {
 						if(  iter.get_current()->is_focusable()  ) {
@@ -119,9 +119,9 @@ bool gui_container_t::infowin_event(const event_t *ev)
 
 				swallowed = komp_focus!=new_focus;
 			}
-			else if(  ev->ev_code==13  ||  ev->ev_code==27  ) {
+			else if(  ev->ev_code==SIM_KEY_ENTER  ||  ev->ev_code==SIM_KEY_ESCAPE  ) {
 				new_focus = NULL;
-				if(  ev->ev_code==27  ) {
+				if(  ev->ev_code==SIM_KEY_ESCAPE  ) {
 					// no untop message even!
 					komp_focus = NULL;
 				}
@@ -174,7 +174,7 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			gui_komponente_t *focus = komp->get_focus() ? komp : NULL;
 
 			// set focus for komponente, if komponente allows focus
-			if(  focus  &&  IS_LEFTRELEASE(ev)  &&  komp->getroffen(ev->cx, ev->cy)  ) {
+			if(  focus  &&  IS_LEFTCLICK(ev)  &&  komp->getroffen(ev->cx, ev->cy)  ) {
 				/* the focus swallow all following events;
 				 * due to the activation action
 				 */

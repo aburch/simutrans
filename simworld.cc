@@ -4990,7 +4990,7 @@ void karte_t::interactive_event(event_t &ev)
 			// distinguish between backspace and ctrl-H (both keycode==8), and enter and ctrl-M (both keycode==13)
 			case 8:
 			case 13:
-				if(  (ev.ev_key_mod & 2) == 0  ) {
+				if(  !IS_CONTROL_PRESSED(&ev)  ) {
 					// Control is _not_ pressed => Backspace or Enter pressed.
 					if(  ev.ev_code == 8  ) {
 						// Backspace
