@@ -360,6 +360,42 @@ allow_buying_obsolete_vehicles = 1
 # max length
 #river_max_length = 320
 
+################################# forest stuff #################################
+#  please be careful in changing them, I spent lot of time finding optimals.
+#  those values have impact on no. of spawned trees -> memory consumption
+#
+# Number of trees on square 2 - minimal usable, 3 good, 4 very nice looking
+max_no_of_trees_on_square = 3
+
+# Base forest size - minimal size of forest - map independent
+forest_base_size = 36
+
+# Map size divisor - smaller it is the larger are individual forests
+forest_map_size_divisor = 38
+
+# Forest count divisor - smaller it is, the more forest are generated
+forest_count_divisor = 16
+
+# Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
+forest_boundary_blur = 10
+
+# Forest boundary thickness  - determines how thick will the boundary line be
+forest_boundary_thickness = 2
+
+# Determins how dense are spare trees going to be planted (works inversly)
+forest_inverse_spare_tree_density = 400
+
+# climate with trees entirely (1: water, 2:desert, 4:tropic, 8:mediterran, 16:temperate, 32:tundra, 64:rocky, 128:arctic)
+# zero (default) means no climate with at least one tree per tile
+tree_climates = 4
+
+# climates with no trees at all (desert and arctic at the moment)
+no_tree_climates = 130
+
+# if set, no trees will be created at all (save about 30% memory and
+# the season change will be much smoother on small machines)
+#no_tree = 0
+
 ###################################time stuff###################################
 
 # Enforce vehicle introduction dates?

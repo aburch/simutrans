@@ -341,7 +341,7 @@ void settings_climates_stats_t::init(einstellungen_t *sets)
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
 	label.at(3)->set_text( buf );
 	SEPERATOR
-	INIT_BOOL( "no tree", umgebung_t::no_tree );
+	INIT_BOOL( "no tree", sets->get_no_trees() );
 	SEPERATOR
 	INIT_NUM( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "minimum length of rivers", sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
@@ -377,7 +377,7 @@ void settings_climates_stats_t::read(einstellungen_t *sets)
 	buf.clear();
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
 	label.at(3)->set_text( buf );
-	READ_BOOL_VALUE( umgebung_t::no_tree );
+	READ_BOOL( sets->set_no_trees );
 	READ_NUM( sets->set_river_number );
 	READ_NUM( sets->set_min_river_length );
 	READ_NUM( sets->set_max_river_length );

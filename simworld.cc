@@ -1210,11 +1210,8 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	enlarge_map(this->einstellungen, h_field);
 
 DBG_DEBUG("karte_t::init()","distributing trees");
-	if(!umgebung_t::no_tree) {
+	if(!einstellungen->get_no_trees()) {
 		baum_t::distribute_trees(this,3);
-	}
-	else {
-		umgebung_t::no_tree = false;
 	}
 
 DBG_DEBUG("karte_t::init()","built timeline");

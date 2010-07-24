@@ -679,9 +679,6 @@ int simu_main(int argc, char** argv)
 	printf("Reading speedbonus configuration ...\n");
 	vehikelbauer_t::speedbonus_init(umgebung_t::objfilename);
 
-	printf("Reading forest configuration ...\n");
-	baum_t::forestrules_init(umgebung_t::objfilename);
-
 	printf("Reading menu configuration ...\n");
 	werkzeug_t::init_menu();
 

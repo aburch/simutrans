@@ -61,6 +61,18 @@ einstellungen_t::einstellungen_t() :
 	min_river_length = 16;
 	max_river_length = 256;
 
+	// forest setting ...
+	forest_base_size = 36; 	// Base forest size - minimal size of forest - map independent
+	forest_map_size_divisor = 38;	// Map size divisor - smaller it is the larger are individual forests
+	forest_count_divisor = 16;	// Forest count divisor - smaller it is, the more forest are generated
+	forest_boundary_blur = 6;	// Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
+	forest_boundary_thickness = 2;	// Forest boundary thickness  - determines how thick will the boundary line be
+	forest_inverse_spare_tree_density = 5;	// Determins how often are spare trees going to be planted (works inversly)
+	max_no_of_trees_on_square = 3;	// Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
+	tree_climates = 0;	// bit set, if this climate is to be covered with trees entirely
+	no_tree_climates = 0;	// bit set, if this climate is to be void of random trees
+	no_trees = false;	// if set, no trees at all, may be useful for low end engines
+
 	// some settigns more
 	allow_player_change = true;
 	use_timeline = 2;
@@ -584,6 +596,17 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_bool( allow_buying_obsolete_vehicles, "" );
 			file->rdwr_long( factory_worker_minimum_towns, "" );
 			file->rdwr_long( factory_worker_maximum_towns, "" );
+			// forest stuff
+			file->rdwr_byte( forest_base_size, "" );
+			file->rdwr_byte( forest_map_size_divisor, "" );
+			file->rdwr_byte( forest_count_divisor, "" );
+			file->rdwr_byte( forest_boundary_blur, "" );
+			file->rdwr_byte( forest_boundary_thickness, "" );
+			file->rdwr_short( forest_inverse_spare_tree_density, "" );
+			file->rdwr_byte( max_no_of_trees_on_square, "" );
+			file->rdwr_short( tree_climates, "" );
+			file->rdwr_short( no_tree_climates, "" );
+			file->rdwr_bool( no_trees, "" );
 		}
 	}
 }
@@ -638,7 +661,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		const char *test = ltrim(contents.get(name));
 		if(*test) {
 			const int add_river = i<umgebung_t::river_types ? i : umgebung_t::river_types;
-			free( (void *)umgebung_t::river_type[add_river] );
+			free( (void *)(umgebung_t::river_type[add_river]) );
 			umgebung_t::river_type[add_river] = NULL;
 			umgebung_t::river_type[add_river] = strdup( test );
 			if(  add_river==umgebung_t::river_types  ) {
@@ -848,6 +871,18 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	river_number = contents.get_int("river_number", river_number );
 	min_river_length = contents.get_int("river_min_length", min_river_length );
 	max_river_length = contents.get_int("river_max_length", max_river_length );
+
+	// forest stuff (now part of simuconf.tab)
+	forest_base_size = contents.get_int("forest_base_size", forest_base_size );
+	forest_map_size_divisor = contents.get_int("forest_map_size_divisor", forest_map_size_divisor );
+	forest_count_divisor = contents.get_int("forest_count_divisor", forest_count_divisor );
+	forest_boundary_blur = contents.get_int("forest_boundary_blur", forest_boundary_blur );
+	forest_boundary_thickness = contents.get_int("forest_boundary_thickness", forest_boundary_thickness );
+	forest_inverse_spare_tree_density = contents.get_int("forest_inverse_spare_tree_density", forest_inverse_spare_tree_density );
+	max_no_of_trees_on_square = contents.get_int("max_no_of_trees_on_square", max_no_of_trees_on_square );
+	tree_climates = contents.get_int("tree_climates", tree_climates );
+	no_tree_climates = contents.get_int("no_tree_climates", no_tree_climates );
+	no_trees	= contents.get_int("no_trees", no_trees );
 
 	pak_diagonal_multiplier = contents.get_int("diagonal_multiplier", pak_diagonal_multiplier);
 
