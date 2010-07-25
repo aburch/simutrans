@@ -930,6 +930,7 @@ bool check_pos_win(event_t *ev)
 							// mark title bar dirty
 							mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+wins[i].gui->get_fenstergroesse().x, wins[i].pos.y+16 );
 						}
+						break;
 					default : // Title
 						if (IS_LEFTDRAG(ev)) {
 							i = top_win(i);
