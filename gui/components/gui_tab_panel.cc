@@ -46,6 +46,7 @@ void gui_tab_panel_t::set_groesse(koord gr)
 		i->x_offset = required_groesse.x-4;
 		i->width = 8 + (i->title ? proportional_string_width( i->title ) : IMG_WIDTH);
 		required_groesse.x += i->width;
+		i->component->set_pos( koord(0, HEADER_VSIZE) );
 		i->component->set_groesse( get_groesse() - koord(0, HEADER_VSIZE) );
 	}
 
@@ -103,14 +104,14 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	}
 
 	// Knightly : navigate among the tabs using Ctrl-PgUp and Ctrl-PgDn
-	if(  ev->ev_class==EVENT_KEYBOARD  &&  (ev->ev_key_mod & 2)  ) {
-		if(  ev->ev_code==62  ) {
+	if(  ev->ev_class==EVENT_KEYBOARD  &&  IS_CONTROL_PRESSED(ev)  ) {
+		if(  ev->ev_code==SIM_KEY_PGUP  ) {
 			// Ctrl-PgUp -> go to the previous tab
 			const int next_tab_idx = active_tab - 1;
 			active_tab = next_tab_idx<0 ? max(0, (int)tabs.get_count()-1) : next_tab_idx;
 			return true;
 		}
-		else if(  ev->ev_code==60  ) {
+		else if(  ev->ev_code==SIM_KEY_PGDN  ) {
 			// Ctrl-PgDn -> go to the next tab
 			const int next_tab_idx = active_tab + 1;
 			active_tab = next_tab_idx>=(int)tabs.get_count() ? 0 : next_tab_idx;
@@ -121,7 +122,7 @@ bool gui_tab_panel_t::infowin_event(const event_t *ev)
 	if(  ev->ev_class == EVENT_KEYBOARD  ||  DOES_WINDOW_CHILDREN_NEED(ev)  ||  get_aktives_tab()->getroffen(ev->mx, ev->my)  ||  get_aktives_tab()->getroffen(ev->cx, ev->cy)) {
 		// Komponente getroffen
 		event_t ev2 = *ev;
-		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y-HEADER_VSIZE);
+		translate_event(&ev2, -get_aktives_tab()->get_pos().x, -get_aktives_tab()->get_pos().y );
 		return get_aktives_tab()->infowin_event(&ev2);
 	}
 	return false;
@@ -151,7 +152,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 		if(  i<offset_tab  ) {
 			// just draw component, if here ...
 			if (i == active_tab) {
-				iter->component->zeichnen(koord(parent_pos.x+pos.x, ypos + required_groesse.y));
+				iter->component->zeichnen( parent_pos+pos );
 			}
 		}
 		else {
@@ -185,7 +186,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				else {
 					display_color_img( iter->img->get_nummer(), text_x - iter->img->get_pic()->x + (IMG_WIDTH/2) - (iter->img->get_pic()->w/2), ypos - iter->img->get_pic()->y + 10 - (iter->img->get_pic()->h/2), 0, false, true);
 				}
-				iter->component->zeichnen(koord(parent_pos.x+pos.x, ypos + required_groesse.y));
+				iter->component->zeichnen( parent_pos+pos );
 			}
 
 			text_x += width + 8;

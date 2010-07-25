@@ -91,6 +91,19 @@ private:
 	sint16 min_river_length;
 	sint16 max_river_length;
 
+	// forest stuff
+	uint8 forest_base_size;
+	uint8 forest_map_size_divisor;
+	uint8 forest_count_divisor;
+	uint8 forest_boundary_blur;
+	uint8 forest_boundary_thickness;
+	uint16 forest_inverse_spare_tree_density;
+	uint8 max_no_of_trees_on_square;
+	uint16 tree_climates;
+	uint16 no_tree_climates;
+	bool no_trees;
+
+	// game mechanics
 	uint8 allow_player_change;
 	uint8 use_timeline;
 	sint16 starting_year;
@@ -757,6 +770,19 @@ public:
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
 	void set_allow_buying_obsolete_vehicles(bool n) { allow_buying_obsolete_vehicles = n; }
+
+	// forest stuff
+	uint8 get_forest_base_size() const { return forest_base_size; }
+	uint8 get_forest_map_size_divisor() const { return forest_map_size_divisor; }
+	uint8 get_forest_count_divisor() const { return forest_count_divisor; }
+	uint8 get_forest_boundary_blur() const { return forest_boundary_blur; }
+	uint8 get_forest_boundary_thickness() const { return forest_boundary_thickness; }
+	uint16 get_forest_inverse_spare_tree_density() const { return forest_inverse_spare_tree_density; }
+	uint8 get_max_no_of_trees_on_square() const { return max_no_of_trees_on_square; }
+	uint16 get_tree_climates() const { return tree_climates; }
+	uint16 get_no_tree_climates() const { return no_tree_climates; }
+	bool get_no_trees() const { return no_trees; }
+	void set_no_trees(bool b) { no_trees = b; }
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }

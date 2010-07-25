@@ -2035,6 +2035,89 @@ KOORD_VAL display_get_char_width(utf16 c)
 }
 
 
+/**
+ * For the next logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer advances to point to the next logical character
+ * @author Knightly
+ */
+unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
+{
+	unsigned short char_code;
+	if(  has_unicode  ) {
+		size_t len = 0;
+		char_code = utf8_to_utf16((const utf8 *)text, &len);
+		if(  char_code==0  ) {
+			// case : end of text reached -> do not advance text pointer
+			byte_length = 0;
+			pixel_width = 0;
+		}
+		else {
+			text += len;
+			byte_length = len;
+			if(  char_code>=large_font.num_chars  ||  (pixel_width = large_font.screen_width[char_code])==0  ) {
+				// default width for missing characters
+				pixel_width = large_font.screen_width[0];
+			}
+		}
+	}
+	else {
+		char_code = *text;
+		if(  char_code==0  ) {
+			// case : end of text reached -> do not advance text pointer
+			byte_length = 0;
+			pixel_width = 0;
+		}
+		else {
+			++text;
+			byte_length = 1;
+			pixel_width = large_font.screen_width[char_code];
+		}
+	}
+	return char_code;
+}
+
+
+/**
+ * For the previous logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer recedes to point to the previous logical character
+ * @author Knightly
+ */
+unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width)
+{
+	if(  text<=text_start  ) {
+		// case : start of text reached or passed -> do not move the pointer backwards
+		byte_length = 0;
+		pixel_width = 0;
+		return 0;
+	}
+
+	unsigned short char_code;
+	if(  has_unicode  ) {
+		// determine the start of the previous logical character
+		do {
+			--text;
+		} while (  text>text_start  &&  (*text & 0xC0)==0x80  );
+
+		size_t len = 0;
+		char_code = utf8_to_utf16((const utf8 *)text, &len);
+		byte_length = len;
+		if(  char_code>=large_font.num_chars  ||  (pixel_width = large_font.screen_width[char_code])==0  ) {
+			// default width for missing characters
+			pixel_width = large_font.screen_width[0];
+		}
+	}
+	else {
+		--text;
+		char_code = *text;
+		byte_length = 1;
+		pixel_width = large_font.screen_width[char_code];
+	}
+	return char_code;
+}
+
+
 /* proportional_string_width with a text of a given length
  * extended for universal font routines with unicode support
  * @author Volker Meyer

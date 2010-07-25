@@ -1270,11 +1270,8 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	enlarge_map(this->einstellungen, h_field);
 
 DBG_DEBUG("karte_t::init()","distributing trees");
-	if(!umgebung_t::no_tree) {
+	if(!einstellungen->get_no_trees()) {
 		baum_t::distribute_trees(this,3);
-	}
-	else {
-		umgebung_t::no_tree = false;
 	}
 
 DBG_DEBUG("karte_t::init()","built timeline");
@@ -5468,7 +5465,7 @@ void karte_t::interactive_event(event_t &ev)
 			// distinguish between backspace and ctrl-H (both keycode==8), and enter and ctrl-M (both keycode==13)
 			case 8:
 			case 13:
-				if(  (ev.ev_key_mod & 2) == 0  ) {
+				if(  !IS_CONTROL_PRESSED(&ev)  ) {
 					// Control is _not_ pressed => Backspace or Enter pressed.
 					if(  ev.ev_code == 8  ) {
 						// Backspace

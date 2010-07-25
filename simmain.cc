@@ -739,10 +739,6 @@ int simu_main(int argc, char** argv)
 	printf("Reading electricity consumption configuration ...\n");
 	stadt_t::electricity_consumption_init(umgebung_t::objfilename);
 	
-	printf("Reading forest configuration ...\n");
-
-	baum_t::forestrules_init(umgebung_t::objfilename);
-
 	printf("Reading menu configuration ...\n");
 	werkzeug_t::init_menu();
 

@@ -209,9 +209,6 @@ public:
 	// false to quit the programs
 	static bool quit_simutrans;
 
-	// new game start without tree
-	static bool no_tree;
-
 	// customize your tooltips
 	static bool show_tooltips;
 	static uint8 tooltip_color;

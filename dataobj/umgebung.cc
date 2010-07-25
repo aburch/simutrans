@@ -42,7 +42,6 @@ bool umgebung_t::use_transparency_station_coverage;
 uint8 umgebung_t::station_coverage_show;
 sint32  umgebung_t::show_names;
 sint32 umgebung_t::message_flags[4];
-bool umgebung_t::no_tree;
 uint32 umgebung_t::water_animation;
 uint32 umgebung_t::ground_object_probability;
 uint32 umgebung_t::moving_object_probability;
@@ -112,7 +111,6 @@ void umgebung_t::init()
 
 	show_names = 3;
 
-	no_tree = false;
 	water_animation = 250; // 250ms per wave stage
 	ground_object_probability = 10; // every n-th tile
 	moving_object_probability = 1000; // every n-th tile
@@ -228,7 +226,10 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_byte( verbose_debug, "" );
 
 	file->rdwr_long( intercity_road_length, "" );
-	file->rdwr_bool( no_tree, "" );
+	if(  file->get_version()<=102002  ) {
+		bool no_tree = false;
+		file->rdwr_bool( no_tree, "" );
+	}
 	file->rdwr_long( ground_object_probability, "" );
 	file->rdwr_long( moving_object_probability, "" );
 

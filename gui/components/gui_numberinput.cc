@@ -263,7 +263,9 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 				case '-':
 					call_textinp = min_value <0;
 					break;
+				case 1:		// allow Ctrl-A (select all text) to function
 				case 8:
+				case 9:		// allow text input to handle unfocus event
 				case 127:
 				case '0':
 				case '1':
