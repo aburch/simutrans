@@ -809,17 +809,20 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_long( factory_worker_minimum_towns, "" );
 				file->rdwr_long( factory_worker_maximum_towns, "" );
 			}
-			// forest stuff
-			file->rdwr_byte( forest_base_size, "" );
-			file->rdwr_byte( forest_map_size_divisor, "" );
-			file->rdwr_byte( forest_count_divisor, "" );
-			file->rdwr_byte( forest_boundary_blur, "" );
-			file->rdwr_byte( forest_boundary_thickness, "" );
-			file->rdwr_short( forest_inverse_spare_tree_density, "" );
-			file->rdwr_byte( max_no_of_trees_on_square, "" );
-			file->rdwr_short( tree_climates, "" );
-			file->rdwr_short( no_tree_climates, "" );
-			file->rdwr_bool( no_trees, "" );
+			if(file->get_experimental_version() >= 9)
+			{
+				// forest stuff
+				file->rdwr_byte( forest_base_size, "" );
+				file->rdwr_byte( forest_map_size_divisor, "" );
+				file->rdwr_byte( forest_count_divisor, "" );
+				file->rdwr_byte( forest_boundary_blur, "" );
+				file->rdwr_byte( forest_boundary_thickness, "" );
+				file->rdwr_short( forest_inverse_spare_tree_density, "" );
+				file->rdwr_byte( max_no_of_trees_on_square, "" );
+				file->rdwr_short( tree_climates, "" );
+				file->rdwr_short( no_tree_climates, "" );
+				file->rdwr_bool( no_trees, "" );
+			}
 		}
 
 		if(file->get_experimental_version() >= 1)
