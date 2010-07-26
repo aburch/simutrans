@@ -178,11 +178,11 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			remove_komponente( player_active+i-2 );
 			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  ) {
 				add_komponente( player_active+i-2 );
-				welt->get_einstellungen()->set_player_type( i, p.i );
+				welt->access_einstellungen()->set_player_type( i, p.i );
 			}
 			else {
 				player_select[i].set_selection(0);
-				welt->get_einstellungen()->set_player_type( i, 0 );
+				welt->access_einstellungen()->set_player_type( i, 0 );
 			}
 			break;
 		}

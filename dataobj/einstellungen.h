@@ -18,6 +18,16 @@ class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
 
+// these are the only classes, that are allowed to modfy elements from einstellungen_t
+// for all remaing special cases there are the set_...() routines
+class settings_general_stats_t;
+class settings_routing_stats_t;
+class settings_economy_stats_t;
+class settings_costs_stats_t;
+class settings_climates_stats_t;
+class climate_gui_t;
+class welt_gui_t;
+
 
 struct road_timeline_t
 {
@@ -29,6 +39,14 @@ struct road_timeline_t
 
 class einstellungen_t
 {
+friend class settings_general_stats_t;
+friend class settings_routing_stats_t;
+friend class settings_economy_stats_t;
+friend class settings_costs_stats_t;
+friend class settings_climates_stats_t;
+friend class climate_gui_t;
+friend class welt_gui_t;
+
 private:
 	sint32 groesse_x, groesse_y;
 	sint32 nummer;
@@ -271,26 +289,24 @@ public:
 
 	void set_groesse_x(sint32 g) {groesse_x=g;}
 	void set_groesse_y(sint32 g) {groesse_y=g;}
-	void set_groesse(sint32 w,sint32 h) {groesse_x=w;groesse_y=h;}
+	void set_groesse(sint32 x, sint32 y) {groesse_x = x; groesse_y=y;}
 	sint32 get_groesse_x() const {return groesse_x;}
 	sint32 get_groesse_y() const {return groesse_y;}
 
-	void set_karte_nummer(sint32 n) {nummer=n;}
 	sint32 get_karte_nummer() const {return nummer;}
 
 	void set_land_industry_chains(sint32 d) {land_industry_chains=d;}
 	sint32 get_land_industry_chains() const {return land_industry_chains;}
 
-	void set_electric_promille(sint32 d) { electric_promille=d;}
 	sint32 get_electric_promille() const {return electric_promille;}
 
-	void set_tourist_attractions(sint32 d) {tourist_attractions=d;}
+	void set_tourist_attractions( sint32 n ) { tourist_attractions = n; }
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
 
 	void set_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
 	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
 
-	void set_mittlere_einwohnerzahl(sint32 n) {mittlere_einwohnerzahl=n;}
+	void set_mittlere_einwohnerzahl( sint32 n ) {mittlere_einwohnerzahl = n;}
 	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
 
 	void set_verkehr_level(sint32 l) {verkehr_level=l;}
@@ -299,16 +315,12 @@ public:
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
 
-	void set_grundwasser(sint16 n) {grundwasser=n;}
 	sint16 get_grundwasser() const {return grundwasser;}
 
-	void set_max_mountain_height(double n) {max_mountain_height=n;}          //01-Dec-01        Markus Weber    Added
 	double get_max_mountain_height() const {return max_mountain_height;}
 
-	void set_map_roughness(double n) {map_roughness=n;}                      //01-Dec-01        Markus Weber    Added
 	double get_map_roughness() const {return map_roughness;}
 
-	void set_station_coverage(unsigned short n) {station_coverage_size=n;}	// prissi, May-2005
 	uint16 get_station_coverage() const {return station_coverage_size;}
 
 	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
@@ -317,31 +329,30 @@ public:
 	void set_use_timeline(char n) {use_timeline=n;}	// prissi, Oct-2005
 	uint8 get_use_timeline() const {return use_timeline;}
 
-	void set_starting_year(short n) {starting_year=n;}	// prissi, Oct-2005
+	void set_starting_year( sint16 n ) { starting_year = n; }
 	sint16 get_starting_year() const {return starting_year;}
 
-	void set_starting_month(short n) {starting_month=n;}
 	sint16 get_starting_month() const {return starting_month;}
 
-	void set_bits_per_month(short n) {bits_per_month=n;}	// prissi, Oct-2005
 	sint16 get_bits_per_month() const {return bits_per_month;}
 
 	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
 	const char* get_filename() const { return filename.c_str(); }
 
-	void set_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
 	bool get_beginner_mode() const {return beginner_mode;}
 
-	void set_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
+	void set_just_in_time(bool b) { just_in_time = b; }
 	bool get_just_in_time() const {return just_in_time;}
 
-	void set_default_climates();	// will reanble the new borders assigned below to the array
-	const sint16 *get_climate_borders() { return climate_borders; }
+	void set_default_climates();
+	const sint16 *get_climate_borders() const { return climate_borders; }
 
-	void set_winter_snowline(sint16 sl) { winter_snowline = sl; }
 	sint16 get_winter_snowline() const {return winter_snowline;}
 
-	void rotate90() { rotation = (rotation+1)&3; set_groesse( groesse_y, groesse_x ); }
+	void rotate90() {
+		rotation = (rotation+1)&3;
+		set_groesse( groesse_y, groesse_x );
+	}
 	uint8 get_rotation() const { return rotation; }
 
 	void set_origin_x(sint16 x) { origin_x = x; }
@@ -353,39 +364,29 @@ public:
 	void set_freeplay( bool f ) { freeplay = f; }
 
 	sint32 get_max_route_steps() const { return max_route_steps; }
-	void set_max_route_steps(sint32 m) { max_route_steps=m; }
 	sint32 get_max_hops() const { return max_hops; }
-	void set_max_hops(sint32 m) { max_hops=m; }
 	sint32 get_max_transfers() const { return max_transfers; }
-	void set_max_transfers(sint32 m) { max_transfers=m; }
 
 	sint64 get_starting_money(sint16 year) const;
-	void set_starting_money(sint64 s) { starting_money = s; }
 
 	bool get_random_pedestrians() const { return fussgaenger; }
 	void set_random_pedestrians( bool f ) { fussgaenger = f; }
 
 	sint16 get_factory_spacing() const { return factory_spacing; }
-	void set_factory_spacing(sint16 s) { factory_spacing = s; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
-	void set_crossconnect_factor(sint16 s) { crossconnect_factor = s; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
-	void set_crossconnect_factories( bool f ) { crossconnect_factories = f; }
 
 	bool get_numbered_stations() const { return numbered_stations; }
-	void set_numbered_stations(bool b) { numbered_stations = b; }
 
 	sint32 get_stadtauto_duration() const { return stadtauto_duration; }
-	void set_stadtauto_duration(sint32 d) { stadtauto_duration = d; }
 
 	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
-	void set_beginner_price_factor(sint32 s) { beginner_price_factor = s; }
 
 	const weg_besch_t *get_city_road_type( uint16 year );
 	const weg_besch_t *get_intercity_road_type( uint16 year );
 
+	void set_pak_diagonal_multiplier(uint16 n) { pak_diagonal_multiplier = n; }
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
-	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
 
 	const char *get_name_language_iso() const { return language_code_names; }
 	void set_name_language_iso( const char *iso ) {
@@ -395,79 +396,57 @@ public:
 	}
 
 	void set_player_active(uint8 i, bool b) { automaten[i] = b; }
-
-	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 	void set_player_type(uint8 i, uint8 t) { spieler_type[i] = t; }
+	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
-	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
 
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
 	uint8 get_pay_for_total_distance_mode() const { return pay_for_total_distance ; }
-	void set_pay_for_total_distance_mode( uint8 b ) { pay_for_total_distance = b < 2 ? b : 0; }
 
 	// do not take people to overcrowded destinations
 	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
-	void set_avoid_overcrowding( bool b ) { avoid_overcrowding = b; }
 
 	// do not allow routes over overcrowded destinations
 	bool is_no_routing_over_overcrowding() const { return no_routing_over_overcrowding; }
-	void set_no_routing_over_overcrowding( bool b ) { no_routing_over_overcrowding = b; }
 
 	sint16 get_river_number() const { return river_number; }
-	void set_river_number( sint16 n ) { river_number=n; }
 	sint16 get_min_river_length() const { return min_river_length; }
-	void set_min_river_length( sint16 n ) { min_river_length=n; }
 	sint16 get_max_river_length() const { return max_river_length; }
-	void set_max_river_length( sint16 n ) { max_river_length=n; }
 
 	// true, if this pak should be used with extensions (default)
+	void set_with_private_paks(bool b ) {with_private_paks = b;}
 	bool get_with_private_paks() const { return with_private_paks; }
-	void set_with_private_paks(bool b) { with_private_paks = b; }
 
 	sint32 get_passenger_factor() const { return passenger_factor; }
-	void set_passenger_factor(sint32 n) { passenger_factor = n; }
 
 	// town growth stuff
 	sint32 get_passenger_multiplier() const { return passenger_multiplier; }
-	void set_passenger_multiplier(sint32 n) { passenger_multiplier = n; }
 	sint32 get_mail_multiplier() const { return mail_multiplier; }
-	void set_mail_multiplier(sint32 n) { mail_multiplier = n; }
 	sint32 get_goods_multiplier() const { return goods_multiplier; }
-	void set_goods_multiplier(sint32 n) { goods_multiplier = n; }
 	sint32 get_electricity_multiplier() const { return electricity_multiplier; }
-	void set_electricity_multiplier(sint32 n) { electricity_multiplier = n; }
 
 	// Also there are size dependen factors (0=no growth)
 	sint32 get_growthfactor_small() const { return growthfactor_small; }
-	void set_growthfactor_small(sint32 n) { growthfactor_small = n; }
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
-	void set_growthfactor_medium(sint32 n) { growthfactor_medium = n; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
-	void set_growthfactor_large(sint32 n) { growthfactor_large = n; }
 
 	// percentage of passengers wanting different sorts of trips
 	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
-	void set_factory_worker_percentage(sint16 n) { factory_worker_percentage = n; }
 	sint16 get_tourist_percentage() const { return tourist_percentage; }
-	void set_tourist_percentage(sint16 n) { tourist_percentage = n; }
 
 	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
 	uint16 get_factory_worker_radius() const { return factory_worker_radius; }
-	void set_factory_worker_radius(uint16 n) { factory_worker_radius = n; }
 
 	// any factory will be connected to at least this number of next cities
 	uint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
-	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = n; }
 
 	// any factory will be connected to not more than this number of next cities
 	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
-	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
-	void set_allow_buying_obsolete_vehicles(bool n) { allow_buying_obsolete_vehicles = n; }
 
 	// forest stuff
 	uint8 get_forest_base_size() const { return forest_base_size; }

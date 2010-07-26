@@ -376,8 +376,7 @@ char const* grund_besch_t::get_climate_name_from_bit(climate n)
 /* this routine is called during the creation of a new map
  * it will recalculate all transitions according the given water level
  */
-void
-grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
+void grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 {
 	grund_besch_t::welt = w;
 
