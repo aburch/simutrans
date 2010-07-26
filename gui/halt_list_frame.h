@@ -70,7 +70,7 @@ private:
     /*
      * Child window, if open
      */
-    gui_fenster_t *filter_frame;
+    gui_frame_t *filter_frame;
 
     /*
      * All filter settings are static, so they are not reset each

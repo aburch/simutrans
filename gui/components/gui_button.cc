@@ -6,6 +6,7 @@
  */
 
 #include "gui_button.h"
+#include "../gui_frame.h"
 
 #include "../../simdebug.h"
 #include "../../simcolor.h"
@@ -19,8 +20,6 @@
 
 #include "../../simskin.h"
 #include "../../besch/skin_besch.h"
-
-#include "../../ifc/gui_fenster.h"
 
 #define STATE_MASK (127)
 #define AUTOMATIC_MASK (255)
@@ -229,7 +228,7 @@ void button_t::draw_roundbutton(sint16 x, sint16 y, sint16 w, sint16 h, bool pre
 
 void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horizontal, bool slider)
 {
-	if(  scrollbar_left!=IMG_LEER  ) {
+	if(  scrollbar_middle!=IMG_LEER  ) {
 		if(  horizontal  ) {
 			const int image_offset = 24 + (slider ? 3 : 0);
 			const sint16 lw = skinverwaltung_t::window_skin->get_bild(image_offset)->get_pic()->w;
@@ -249,8 +248,8 @@ void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horiz
 				display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+2), x+w-rw-64, y, 0, false, true);
 			}
 			// now the begin and end ...
-			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
-			display_color_img(skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x+w-rw, y, 0, false, true);
+			display_color_img( skinverwaltung_t::window_skin->get_bild_nr(image_offset+0), x, y, 0, false, true);
+			display_color_img( skinverwaltung_t::window_skin->get_bild_nr(image_offset+1), x+w-rw, y, 0, false, true);
 		}
 		else {
 			// vertical bar ...
@@ -278,7 +277,8 @@ void button_t::draw_scrollbar(sint16 x, sint16 y, sint16 w, sint16 h, bool horiz
 	}
 }
 
-button_t::button_t()
+button_t::button_t() :
+	gui_komponente_t(true)
 {
 	b_no_translate = false;
 	translated_text = text = empty;
@@ -334,6 +334,7 @@ void button_t::set_typ(enum type t)
 			default:
 			break;
 	}
+	update_focusability();
 }
 
 
@@ -370,7 +371,8 @@ void button_t::set_tooltip(const char * t)
 
 
 
-bool button_t::getroffen(int x,int y) {
+bool button_t::getroffen(int x,int y)
+{
 	bool hit=gui_komponente_t::getroffen(x, y);
 	if(pressed  &&  !hit  &&  type<=STATE_MASK) {
 		// moved away
@@ -455,6 +457,10 @@ bool button_t::infowin_event(const event_t *ev)
 // draw button. x,y is top left of window.
 void button_t::zeichnen(koord offset)
 {
+	if(  !is_visible()  ) {
+		return;
+	}
+
 	int bx = offset.x + pos.x;
 	int by = offset.y + pos.y;
 
@@ -465,8 +471,7 @@ void button_t::zeichnen(koord offset)
 
 		case box: // old, 4-line box
 			{
-				const gui_fenster_t *win = win_get_top();
-				if(  win  &&  win->get_focus()==this  ) {
+				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
 				}
@@ -485,8 +490,7 @@ void button_t::zeichnen(koord offset)
 
 		case roundbox: // new box with round corners
 			{
-				const gui_fenster_t *win = win_get_top();
-				if(  win  &&  win->get_focus()==this  ) {
+				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx-1, by-1, bw+2, 1, COL_WHITE, false);
 					if(b_cap_left!=IMG_LEER  &&  bh==14) {
@@ -503,40 +507,65 @@ void button_t::zeichnen(koord offset)
 
 		case square: // little square in front of text
 			{
-				const gui_fenster_t *win = win_get_top();
-				if(  win  &&  win->get_focus()==this  ) {
+				if(  win_get_focus()==this  ) {
 					// white box around
 					display_fillbox_wh_clip(bx+16, by+(12+large_font_height)/2-2, bw-14, 1, COL_WHITE, false);
 				}
-				display_button_image(bx, by, SQUARE_BUTTON, pressed);
+				if(  square_button_pushed!=IMG_LEER  ) {
+					display_button_image(bx, by, SQUARE_BUTTON, pressed);
+				}
+				else {
+					display_fillbox_wh_clip( bx, by, 11, 11, COL_BLACK, true );
+					display_fillbox_wh_clip( bx+1, by+1, 9, 9, pressed ? MN_GREY3 : MN_GREY1, true );
+				}
 				display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 			}
 			break;
 
 		case arrowleft:
 		case repeatarrowleft:
-			display_button_image(bx, by, ARROW_LEFT, pressed);
+			if(  arrow_left_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_LEFT, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, "<", true );
+			}
 			break;
 
 		case posbutton:
 		case arrowright:
 		case repeatarrowright:
-			display_button_image(bx, by, ARROW_RIGHT, pressed);
+			if(  arrow_right_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_RIGHT, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, ">", true );
+			}
 			break;
 
 		case arrowup:
-			display_button_image(bx, by, ARROW_UP, pressed);
+			if(  arrow_up_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_UP, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, "+", true );
+			}
 			break;
 
 		case arrowdown:
-			display_button_image(bx, by, ARROW_DOWN, pressed);
+			if(  arrow_down_pushed!=IMG_LEER  ) {
+				display_button_image(bx, by, ARROW_DOWN, pressed);
+			}
+			else {
+				display_ddd_proportional_clip( bx, by+5, 14, 0, pressed ? MN_GREY1 : MN_GREY3, COL_BLACK, "+", true );
+			}
 			break;
 
 		case scrollbar_horizontal:
 		case scrollbar_vertical:
 			// new 3d-look scrollbar knob
 			// pressed: background
-			if(  scrollbar_left==IMG_LEER  ) {
+			if(  scrollbar_center==IMG_LEER  ) {
 				mark_rect_dirty_wc(bx, by, bx+bw-1, by+bh-1);
 				// use own 3D like routines
 				if (pressed) {
@@ -579,14 +608,15 @@ void button_t::zeichnen(koord offset)
 }
 
 
-gui_komponente_t *button_t::get_focus() const
+void button_t::update_focusability()
 {
 	switch (type&STATE_MASK) {
 
 		case box: // old, 4-line box
 		case roundbox: // new box with round corners
 		case square: // little square in front of text
-			return (gui_komponente_t *)this;
+			set_focusable(true);
+			break;
 
 		// those cannot recieve focus ...
 		case arrowleft:
@@ -598,7 +628,8 @@ gui_komponente_t *button_t::get_focus() const
 		case arrowdown:
 		case scrollbar_horizontal:
 		case scrollbar_vertical:
+		default:
+			set_focusable(false);
 			break;
 	}
-	return NULL;
 }

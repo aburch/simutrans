@@ -14,18 +14,21 @@
 #include "../simwerkz.h"
 #include "../besch/skin_besch.h"
 #include "../besch/sound_besch.h"
+#include "../dataobj/umgebung.h"
 #include "werkzeug_waehler.h"
 
 
 
 werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, koord icon, bool allow_break) :
-	tools(0), groesse(icon)
+	gui_frame_t(titel), tools(0)
 {
 	this->allow_break = allow_break;
     this->welt = welt;
-    this->titel  = titel;
     this->hilfe_datei = helpfile;
 	this->icon = icon;
+	this->tool_icon_disp_start = 0;
+	this->tool_icon_disp_end = 0;
+	set_fenstergroesse( icon );
     dirty = true;
 }
 
@@ -47,15 +50,26 @@ void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 	int ww = (display_get_width()/icon.x)-2;
 	tool_icon_width = tools.get_count();
 DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
-	if(allow_break  &&  ww<tool_icon_width) {
+	if(allow_break  &&  (ww<tool_icon_width  ||  (umgebung_t::toolbar_max_width>0  &&  umgebung_t::toolbar_max_width<tool_icon_width))) {
 		//break them
 		int rows = (tool_icon_width/ww)+1;
 DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 		// assure equal distribution if more than a single row is needed
 		tool_icon_width = (tool_icon_width+rows-1)/rows;
+		if(  umgebung_t::toolbar_max_width > 0  ) {
+			// At least, 3 rows is needed to drag toolbar
+			tool_icon_width = min( tool_icon_width, max(umgebung_t::toolbar_max_width, 3) );
+		}
+  	}
+	tool_icon_height = max( (display_get_height()/icon.y)-3, 1 );
+	if(  umgebung_t::toolbar_max_height > 0  ) {
+		tool_icon_height = min(tool_icon_height, umgebung_t::toolbar_max_height);
 	}
 	dirty = true;
-	groesse = koord( tool_icon_width*icon.x, ((tools.get_count()-1)/tool_icon_width) * icon.y + 16 + icon.y );
+	gui_frame_t::set_fenstergroesse( koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1)/tool_icon_width)+1)*icon.y+16 ) );
+	tool_icon_disp_start = 0;
+	tool_icon_disp_end = min( tool_icon_disp_start+tool_icon_width*tool_icon_height, tools.get_count() );
+	has_prev_next = (tool_icon_width*tool_icon_height < tools.get_count());
 
 DBG_DEBUG("werkzeug_waehler_t::add_tool()", "at position %i (width %i)", tools.get_count(), tool_icon_width);
 }
@@ -69,8 +83,10 @@ void werkzeug_waehler_t::reset_tools()
 		i--;
 		tools.remove_at(i);
 	}
-	groesse = koord( icon.x, 16 );
+	gui_frame_t::set_fenstergroesse( koord( icon.x, TITLEBAR_HEIGHT ) );
 	tool_icon_width = 0;
+	tool_icon_disp_start = 0;
+	tool_icon_disp_end = 0;
 }
 
 
@@ -78,8 +94,8 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 {
 	int dx = x/icon.x;
 	int	dy = (y-16)/icon.y;
-	if(x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<16  ||  dy<tool_icon_width)) {
-		return y < 16 || dx + tool_icon_width * dy < (int)tools.get_count();
+	if(  x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<TITLEBAR_HEIGHT  ||  dy<tool_icon_width)  ) {
+		return y < TITLEBAR_HEIGHT || dx + tool_icon_width * dy + tool_icon_disp_start < (int)tools.get_count();
 	}
 	return false;
 }
@@ -93,7 +109,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 		const int y = (ev->my-16) / icon.y;
 
 		if(x>=0 && x<tool_icon_width  &&  y>=0) {
-			const int wz_idx = x+(tool_icon_width*y);
+			const int wz_idx = x+(tool_icon_width*y)+tool_icon_disp_start;
 
 			if (wz_idx < (int)tools.get_count()) {
 				welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
@@ -106,6 +122,24 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
 		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
 	}
+	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
+		if(ev->ev_code==NEXT_WINDOW) {
+			tool_icon_disp_start = (tool_icon_disp_start+tool_icon_width*tool_icon_height >= (int)tools.get_count()) ? tool_icon_disp_start : tool_icon_disp_start+tool_icon_width*tool_icon_height;
+		}
+		else {
+			tool_icon_disp_start = (tool_icon_disp_start-tool_icon_width*tool_icon_height < 0) ? 0 : tool_icon_disp_start-tool_icon_width*tool_icon_height;
+		}
+
+		int xy = tool_icon_width*tool_icon_height;
+		tool_icon_disp_end = min(tool_icon_disp_start+xy, tools.get_count());
+		if(tool_icon_disp_end-tool_icon_disp_start<xy) {
+			// Needs this to redraw empty space ?
+			welt->set_dirty();
+		}
+		koord last = groesse;
+		groesse = koord( tool_icon_width*icon.x, min(tool_icon_height, ((tools.get_count()-1-tool_icon_disp_start)/tool_icon_width+1))*icon.y+16);
+		dirty = true;
+	}
 	return false;
 }
 
@@ -113,10 +147,10 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 void werkzeug_waehler_t::zeichnen(koord pos, koord)
 {
 	spieler_t *sp = welt->get_active_player();
-	for (uint i = 0; i < tools.get_count(); i++) {
+	for(  uint i = tool_icon_disp_start;  i < tool_icon_disp_end;  i++  ) {
 		const image_id icon_img = tools[i]->get_icon(sp);
 
-		const koord draw_pos=pos+koord((i%tool_icon_width)*icon.x,16+(i/tool_icon_width)*icon.y);
+		const koord draw_pos=pos+koord(((i-tool_icon_disp_start)%tool_icon_width)*icon.x,16+((i-tool_icon_disp_start)/tool_icon_width)*icon.y);
 		if(icon_img == IMG_LEER) {
 			// Hajo: no icon image available, draw a blank
 			// DDD box as replacement
@@ -144,8 +178,8 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	const sint16 xdiff = (mx - pos.x) / icon.x;
 	const sint16 ydiff = (my - pos.y - 16) / icon.y;
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+16) {
-		const int tipnr = xdiff+(tool_icon_width*ydiff);
-		if (tipnr < (int)tools.get_count()) {
+		const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
+		if (tipnr < (int)tool_icon_disp_end) {
 			win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, tools[tipnr]->get_tooltip(welt->get_active_player()));
 		}
 	}

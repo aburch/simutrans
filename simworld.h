@@ -401,7 +401,7 @@ private:
 	 * It's now an extra function so we don't need the code twice.
 	 * @auther Gerd Wachsmuth
 	 */
-	void distribute_groundobjs_cities(int new_cities, sint16 old_x, sint16 old_y);
+	void distribute_groundobjs_cities(const einstellungen_t *set, sint16 old_x, sint16 old_y);
 
 	// Used for detecting whether paths/connexions are stale.
 	// @author: jamespetts

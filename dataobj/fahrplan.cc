@@ -177,9 +177,7 @@ void schedule_t::cleanup()
 			lastpos = eintrag[i].pos;
 		}
 	}
-	if(  aktuell>=eintrag.get_count()  ) {
-		aktuell = max(1,eintrag.get_count())-1;
-	}
+	make_aktuell_valid();
 }
 
 
@@ -187,9 +185,7 @@ void schedule_t::cleanup()
 bool schedule_t::remove()
 {
 	bool ok = eintrag.remove_at(aktuell);
-	if(  aktuell>=eintrag.get_count()  ) {
-		aktuell = max(1,eintrag.get_count())-1;
-	}
+	make_aktuell_valid();
 	return ok;
 }
 
@@ -199,9 +195,7 @@ void schedule_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fahrplan_t" );
 
-	if(  aktuell>=eintrag.get_count()  ) {
-		aktuell = max(1,eintrag.get_count())-1;
-	}
+	make_aktuell_valid();
 
 	uint8 size = eintrag.get_count();
 	if(  file->get_version()<=101000  ) {

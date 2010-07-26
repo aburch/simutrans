@@ -8,11 +8,11 @@
 #ifndef dataobj_umgebung_h
 #define dataobj_umgebung_h
 
+#include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../simcolor.h"
 #include "einstellungen.h"
-#include <string>
 
 
 /**
@@ -209,13 +209,13 @@ public:
 	// false to quit the programs
 	static bool quit_simutrans;
 
-	// new game start without tree
-	static bool no_tree;
-
 	// customize your tooltips
 	static bool show_tooltips;
 	static uint8 tooltip_color;
 	static uint8 tooltip_textcolor;
+
+	static uint8 toolbar_max_width;
+	static uint8 toolbar_max_height;
 
 	// color used for cursor overlay blending
 	static uint8 cursor_overlay_color;
@@ -239,7 +239,11 @@ public:
 	// @author: jamespetts
 	static bool hilly;
 
+	static uint32 number_of_big_cities;
+	static uint32 number_of_clusters;
+	static uint32 cluster_size;
 	static bool cities_ignore_height;
+	static uint8 cities_like_water;
 
 	static einstellungen_t default_einstellungen;
 

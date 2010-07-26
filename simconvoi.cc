@@ -1219,7 +1219,7 @@ uint8 convoi_t::get_comfort() const
 		return 0;
 	}
 	
-	else if(passenger_vehicles > 1)
+	else if(passenger_vehicles > 0)
 	{
 		base_comfort /= passenger_seating;
 	}
@@ -1268,11 +1268,22 @@ void convoi_t::new_month()
 	add_running_cost(welt->calc_adjusted_monthly_figure(running_cost));
 
 	// everything normal: update history
-	for (int j = 0; j<MAX_CONVOI_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>0; k--) {
+	for (int j = 0; j<MAX_CONVOI_COST; j++) 
+	{
+		for (int k = MAX_MONTHS-1; k>0; k--) 
+		{
 			financial_history[k][j] = financial_history[k-1][j];
 		}
 		financial_history[0][j] = 0;
+	}
+
+	if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
+	{
+		// Last month's average speed is recorded as zero. This means that no
+		// average speed data have been recorded in the last month, making 
+		// revenue calculations inaccurate. Use the second previous month's average speed
+		// for the previous month's average speed.
+		financial_history[1][CONVOI_AVERAGE_SPEED] = financial_history[2][CONVOI_AVERAGE_SPEED];
 	}
 
 	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
@@ -4173,37 +4184,42 @@ convoi_t::get_catering_level(uint8 type) const
  /**
  * True if this convoy has the same vehicles as the other
  * @author isidoro
+ * @author neroden (fixed)
  */
 bool convoi_t::has_same_vehicles(convoihandle_t other) const
 {
-	if (other.is_bound()) 
+	if (!other.is_bound()) 
 	{
-		if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) 
+		return false;
+	}
+	if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) 
+	{
+		return false;
+	}
+	// We must compare both in the 'same direction' and in the 'reverse direction'.
+	// We cannot use the 'reverse' flag to tell the difference.
+	bool forward_compare_good = true;
+	for (int i=0; i<get_vehikel_anzahl(); i++)
+	{
+		if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
-			return false;
+			forward_compare_good = false;
+			break;
 		}
-		if(reversed == other->reversed)
+	}
+	if (forward_compare_good) {
+		return true;
+	}
+	bool reverse_compare_good = true;
+	for (int i=0, j=get_vehikel_anzahl()-1; i<get_vehikel_anzahl(); i++, j--)
+	{
+		if (get_vehikel(j)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
-			for (int i=0; i<get_vehikel_anzahl(); i++) 
-			{
-				if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()) 
-				{
-					return false;
-				}
-			}
+			reverse_compare_good = false;
+			break;
 		}
-		else
-		{
-			int reverse_count = get_vehikel_anzahl() - 1;
-			for (int i=0; i<get_vehikel_anzahl(); i++) 
-			{
-				if (get_vehikel(reverse_count)->get_besch()!=other->get_vehikel(i)->get_besch()) 
-				{
-					return false;
-				}
-				reverse_count --;
-			}
-		}
+	}
+	if (reverse_compare_good) {
 		return true;
 	}
 	return false;
@@ -4411,14 +4427,17 @@ bool convoi_t::has_no_cargo() const
 uint16 convoi_t::get_tile_length() const
 {
 	uint16 tiles=0;
-	// the last vehicle does not count!
 	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
 		tiles += fahr[i]->get_besch()->get_length();
 	}
-	// add 127/256 tile to account for the driving in stations in north/west direction
-	// see at the end of vehikel_t::hop()
-	return (tiles*16 + 256-1 + 127)/256;
-	// was originally (tiles+16-1)/16;
+	// the last vehicle counts differently in stations and for reserving track
+	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
+	//     see at the end of vehikel_t::hop()
+	// (2) for length of convoi for loading in stations the length of the last vehicle matters
+	//     see convoi_t::hat_gehalten
+	tiles += max(8, fahr[anz_vehikel-1]->get_besch()->get_length());
+
+	return (tiles + 15) / 16;
 }
 
 
@@ -4468,8 +4487,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 
 	// Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
-	// tiles_to_overtake = convoi_length + pos_other_convoi
-	int distance = 256 + akt_speed*((get_length()*16)+steps_other)/diff_speed;
+	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
+	int distance = akt_speed*(fahr[0]->get_steps()+(get_length()*16)+steps_other-256)/diff_speed;
 	int time_overtaking = 0;
 
 	// Conditions for overtaking:
@@ -4550,9 +4569,9 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	//   invade the dangerous zone.
 	// Conditions for the street are milder: e.g. if no street, no facing traffic
 	time_overtaking = (time_overtaking << 16)/akt_speed;
-	while ( time_overtaking > 0 ) {
+	while(  time_overtaking > 0  ) {
 
-		if ( route_index >= route.get_count() ) {
+		if(  route_index >= route.get_count()  ) {
 			return false;
 		}
 
@@ -4588,7 +4607,7 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	}
 
 	set_tiles_overtaking( 1+n_tiles );
-	other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
+	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
 	return true;
 }
 

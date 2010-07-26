@@ -418,11 +418,13 @@ uint8 replace_frame_t::get_present_state() {
 void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 {
 	uint8 state=get_present_state();
-	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==(uint8)(-1)) {
+	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==(uint8)(-1)) 
+	{
 		return;
 	}
 
-	switch (state) {
+	switch (state) 
+	{
 	case state_replace:
 	{
 		if(convoy_assembler.get_vehicles()->get_count()==0)
@@ -523,12 +525,12 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 			} 
 			else if (replace_line) 
 			{
-				linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
+				linehandle_t line = cnv.is_bound() ? cnv->get_line() : linehandle_t();
 				if (line.is_bound()) 
 				{
-					for (uint32 i=0; i<line->count_convoys(); i++) 
+					for (uint32 i = 0; i < line->count_convoys(); i++) 
 					{
-						convoihandle_t cnv_aux=line->get_convoy(i);
+						convoihandle_t cnv_aux = line->get_convoy(i);
 						if (cnv->has_same_vehicles(cnv_aux))
 						{
 							replace_convoy(cnv_aux);
@@ -539,6 +541,10 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/
 							copy = true;
 						}
 					}
+				}
+				else
+				{
+					replace_convoy(cnv);
 				}
 			} 
 			else if (replace_all) 

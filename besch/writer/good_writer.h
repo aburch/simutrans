@@ -1,6 +1,7 @@
 #ifndef GOOD_WRITER_H
 #define GOOD_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

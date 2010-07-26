@@ -26,7 +26,7 @@ typedef short KOORD_VAL;
 
 
 struct clip_dimension {
-    int x, xx, w, y, yy, h;
+    KOORD_VAL x, xx, w, y, yy, h;
 };
 
 
@@ -202,6 +202,22 @@ size_t get_next_char(const char* text, size_t pos);
 long get_prev_char(const char* text, long pos);
 
 KOORD_VAL display_get_char_width(utf16 c);
+
+/**
+ * For the next logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer advances to point to the next logical character
+ * @author Knightly
+ */
+unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width);
+
+/**
+ * For the previous logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer recedes to point to the previous logical character
+ * @author Knightly
+ */
+unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width);
 
 /* routines for string len (macros for compatibility with old calls) */
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)

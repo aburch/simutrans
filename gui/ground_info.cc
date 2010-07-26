@@ -10,6 +10,8 @@
 #include "../simworld.h"
 #include "../utils/simstring.h"
 #include "ground_info.h"
+#include "../simcity.h"
+#include "../dataobj/translator.h"
 
 
 cbuffer_t grund_info_t::gr_info(1024);
@@ -26,8 +28,19 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
 		set_owner( d->get_besitzer() );
 	}
 
-	gr_info.clear();
 	gr->info(gr_info);
+	if(gr_info.len() < 1)
+	{
+		stadt_t* city = gr->get_welt()->get_city(gr->get_pos().get_2d());
+		if(city)
+		{
+			textarea.set_text(city->get_name());
+		}
+		else
+		{
+			textarea.set_text(translator::translate("Open countryside"));
+		}
+	}
 	textarea.recalc_size();
 
 	sint16 width  = textarea.get_groesse().x + 20;
@@ -48,6 +61,10 @@ grund_info_t::grund_info_t(const grund_t* gr_) :
  * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
  * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
  * in dem die Komponente dargestellt wird.
+ * 
+ * component redraw. The given values refer to the window, ie they 
+ * are the coordinates of the window displays rea in which the component
+ * we presented (Google)
  */
 void grund_info_t::zeichnen(koord pos, koord groesse)
 {

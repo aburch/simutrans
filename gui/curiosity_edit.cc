@@ -53,8 +53,8 @@ static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 
 
 
-curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_,karte_t* welt) :
-	extend_edit_gui_t(sp_,welt),
+curiosity_edit_frame_t::curiosity_edit_frame_t(spieler_t* sp_, karte_t* welt) :
+	extend_edit_gui_t(translator::translate("curiosity builder"), sp_, welt),
 	hauslist(16),
 	lb_rotation( rot_str, COL_WHITE, gui_label_t::right ),
 	lb_rotation_info( translator::translate("Rotation"), COL_BLACK, gui_label_t::left )
@@ -234,7 +234,13 @@ void curiosity_edit_frame_t::change_item_info(sint32 entry)
 			buf.append( translator::translate( besch->get_name() ) );
 
 			buf.printf("\n\n%s: %i\n",translator::translate("Passagierrate"),besch->get_level());
-			buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
+			if(besch->get_utyp()==haus_besch_t::attraction_land) {
+				// same with passengers
+				buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_level());
+			}
+			else {
+				buf.printf("%s: %i\n",translator::translate("Postrate"),besch->get_post_level());
+			}
 
 			buf.append(translator::translate("\nBauzeit von"));
 			buf.append(besch->get_intro_year_month()/12);

@@ -189,8 +189,8 @@ static void zeige_banner(karte_t *welt)
 
 	create_win(0, -48, b, w_info, magic_none );
 
-	// hide titelbar with this trick
-	win_set_pos( b, 0, -48 );
+	// hide title bar and active window frame with this trick
+	win_set_pos( b, -200, -248 );
 	welt->set_pause( false );
 	welt->reset_interaction();
 	welt->reset_timer();
@@ -739,10 +739,6 @@ int simu_main(int argc, char** argv)
 	printf("Reading electricity consumption configuration ...\n");
 	stadt_t::electricity_consumption_init(umgebung_t::objfilename);
 	
-	printf("Reading forest configuration ...\n");
-
-	baum_t::forestrules_init(umgebung_t::objfilename);
-
 	printf("Reading menu configuration ...\n");
 	werkzeug_t::init_menu();
 

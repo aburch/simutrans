@@ -9,7 +9,7 @@
 #ifndef gui_werkzeug_waehler_h
 #define gui_werkzeug_waehler_h
 
-#include "../ifc/gui_fenster.h"
+#include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
 //#include "../simmenu.h"
 
@@ -17,7 +17,7 @@ class karte_t;
 class werkzeug_t;
 
 
-class werkzeug_waehler_t : public gui_fenster_t
+class werkzeug_waehler_t : public gui_frame_t
 {
 private:
 	koord icon;	// size of symbols here
@@ -34,9 +34,15 @@ private:
 	 * window width in toolboxes
 	 * @author Hj. Malthaner
 	 */
-	int tool_icon_width;
+	uint8 tool_icon_width;
+	uint8 tool_icon_height;
+
+	uint16 tool_icon_disp_start;
+	uint16 tool_icon_disp_end;
 
 	koord groesse;
+
+	bool has_prev_next;
 
 	/**
 	 * Fenstertitel
@@ -67,8 +73,6 @@ public:
 	// purges toolbar
 	void reset_tools();
 
-	const char *get_name() const {return titel;}
-
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
 	 * @return den Dateinamen für die Hilfe, oder NULL
@@ -76,16 +80,19 @@ public:
 	 */
 	const char *get_hilfe_datei() const {return hilfe_datei;}
 
-	koord get_fenstergroesse() const { return groesse; }
-
 	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
-
-	bool has_sticky() const { return true; }
 
 	/* returns true, if inside window area ...
 	 * @author Hj. Malthaner
 	 */
 	bool getroffen(int x, int y);
+
+	/**
+	 * Does this window need a next button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Volker Meyer
+	 */
+	bool has_next() const {return has_prev_next;}
 
 	/* Events werden hiermit an die GUI-Komponenten
 	 * gemeldet

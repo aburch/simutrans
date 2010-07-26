@@ -1504,7 +1504,7 @@ int grund_t::get_max_speed() const
 	if (weg_t const* const w = get_weg_nr(0)) {
 		max = w->get_max_speed();
 	}
-	if (weg_t const* const w = get_weg_nr(0)) {
+	if (weg_t const* const w = get_weg_nr(1)) {
 		max = min(max, w->get_max_speed());
 	}
 	return max;

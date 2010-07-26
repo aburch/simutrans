@@ -17,6 +17,8 @@
 #endif
 
 #ifdef _WIN32
+// windows.h defines min and max macros which we don't want
+#define NOMINMAX 1
 #include <windows.h>
 #else
 #ifndef  __HAIKU__

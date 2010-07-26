@@ -7,7 +7,7 @@
 #define gui_chart_h
 
 #include "../../simtypes.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
 
 // CURVE TYPES

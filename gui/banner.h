@@ -8,7 +8,7 @@
 #ifndef banner_h
 #define banner_h
 
-#include "../ifc/gui_fenster.h"
+#include "gui_frame.h"
 
 
 /**
@@ -17,7 +17,7 @@
  *
  * @author Hj. Malthaner
  */
-class banner_t : public gui_fenster_t
+class banner_t : public gui_frame_t
 {
 private:
 	sint32 last_ms;

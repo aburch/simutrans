@@ -17,7 +17,7 @@
 
 #include "../../besch/vehikel_besch.h"
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 
 #include "../../tpl/ptrhashtable_tpl.h"
 #include "../../tpl/vector_tpl.h"

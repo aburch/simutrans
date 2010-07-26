@@ -80,15 +80,17 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			translate_event(&ev2, -komp_focus->get_pos().x, -komp_focus->get_pos().y);
 			swallowed = komp_focus->infowin_event(&ev2);
 		}
-		if(  !swallowed  ) {
-			if(  ev->ev_code==9  ) {
+
+		// Knightly : either event not swallowed, or inner container has no focused child component after TAB event
+		if(  !swallowed  ||  (ev->ev_code==9  &&  komp_focus  &&  komp_focus->get_focus()==NULL)  ) {
+			if(  ev->ev_code==SIM_KEY_TAB  ) {
 				// TAB: find new focus
 				slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
 				new_focus = NULL;
-				if(  (ev->ev_key_mod&1)==0  ) {
+				if(  !IS_SHIFT_PRESSED(ev)  ) {
 					// find next textinput field
-					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()->get_focus()!=komp_focus)  ) {
-						if(  iter.get_current()->get_focus()  ) {
+					while(  iter.next()  &&  (komp_focus==NULL  ||  iter.get_current()!=komp_focus)  ) {
+						if(  iter.get_current()->is_focusable()  ) {
 							new_focus = iter.get_current();
 						}
 					}
@@ -97,20 +99,29 @@ bool gui_container_t::infowin_event(const event_t *ev)
 					// or previous input field
 					bool valid = komp_focus==NULL;
 					while(  iter.next()  ) {
-						if(  valid  &&  iter.get_current()->get_focus()  ) {
+						if(  valid  &&  iter.get_current()->is_focusable()  ) {
 							new_focus = iter.get_current();
 							break;
 						}
-						if(  iter.get_current()->get_focus()==komp_focus  ) {
+						if(  iter.get_current()==komp_focus  ) {
 							valid = true;
 						}
 					}
 				}
+
+				// Knightly :	inner containers with focusable components may not have a focused component yet
+				//				==> give the inner container a chance to activate the first focusable component
+				if(  new_focus  &&  new_focus->get_focus()==NULL  ) {
+					event_t ev2 = *ev;
+					translate_event(&ev2, -new_focus->get_pos().x, -new_focus->get_pos().y);
+					new_focus->infowin_event(&ev2);
+				}
+
 				swallowed = komp_focus!=new_focus;
 			}
-			else if(  ev->ev_code==13  ||  ev->ev_code==27  ) {
+			else if(  ev->ev_code==SIM_KEY_ENTER  ||  ev->ev_code==SIM_KEY_ESCAPE  ) {
 				new_focus = NULL;
-				if(  ev->ev_code==27  ) {
+				if(  ev->ev_code==SIM_KEY_ESCAPE  ) {
 					// no untop message even!
 					komp_focus = NULL;
 				}
@@ -159,10 +170,11 @@ bool gui_container_t::infowin_event(const event_t *ev)
 			// CAUTION : call to infowin_event() should not delete the component itself!
 			swallowed = komp->infowin_event(&ev2);
 
-			gui_komponente_t *focus = komp->get_focus();
+			// focused component of this container can only be one of its immediate children
+			gui_komponente_t *focus = komp->get_focus() ? komp : NULL;
 
 			// set focus for komponente, if komponente allows focus
-			if(  focus  &&  IS_LEFTRELEASE(ev)  &&  komp->getroffen(ev->cx, ev->cy)  ) {
+			if(  focus  &&  IS_LEFTCLICK(ev)  &&  komp->getroffen(ev->cx, ev->cy)  ) {
 				/* the focus swallow all following events;
 				 * due to the activation action
 				 */
@@ -214,6 +226,19 @@ void gui_container_t::zeichnen(koord offset)
 }
 
 
+bool gui_container_t::is_focusable()
+{
+	slist_iterator_tpl<gui_komponente_t *> iter (komponenten);
+
+	while(  iter.next()  ) {
+		if(  iter.get_current()->is_focusable()  ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+
 void gui_container_t::set_focus( gui_komponente_t *k )
 {
 	if(  komponenten.is_contained(k)  ||  k==NULL  ) {
@@ -226,12 +251,9 @@ void gui_container_t::set_focus( gui_komponente_t *k )
  * returns element that has the focus
  * that is: go down the hierarchy as much as possible
  */
-gui_komponente_t *gui_container_t::get_focus() const
+gui_komponente_t *gui_container_t::get_focus()
 {
-	if(komp_focus) {
-		// if the komp_focus-element has another focused element
-		// .. return this element instead
-		return komp_focus->get_focus();
-	}
-	return NULL;
+	// if the komp_focus-element has another focused element
+	// .. return this element instead
+	return komp_focus ? komp_focus->get_focus() : NULL;
 }

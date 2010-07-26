@@ -1,6 +1,7 @@
 #ifndef SKIN_WRITER_H
 #define SKIN_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

@@ -12,8 +12,8 @@
 
 #include "../../simtypes.h"
 #include "../../tpl/list_tpl.h"
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../gui_frame.h"
 

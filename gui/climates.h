@@ -48,6 +48,7 @@ private:
 	// @ author: jamespetts
 	button_t cities_ignore_height;
 
+	gui_numberinput_t cities_like_water;
 public:
 	climate_gui_t(einstellungen_t* sets);
 

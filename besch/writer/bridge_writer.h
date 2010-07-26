@@ -1,6 +1,7 @@
 #ifndef BRIDGE_WRITER_H
 #define BRIDGE_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

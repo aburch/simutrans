@@ -5,8 +5,9 @@
 
 #include "../../besch/skin_besch.h"
 
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
+#include "gui_button.h"
 
 class bild_besch_t;
 
@@ -18,21 +19,27 @@ class bild_besch_t;
  */
 class gui_tab_panel_t :
 	public gui_action_creator_t,
+	public action_listener_t,
 	public gui_komponente_t
 {
 private:
 	struct tab
 	{
-		tab(gui_komponente_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool) {}
+		tab(gui_komponente_t* c, const char *name, const bild_besch_t *b, const char *tool) : component(c), title(name), img(b), tooltip(tool), x_offset(4) {}
 
 		gui_komponente_t* component;
 		const char *title;
 		const bild_besch_t *img;
 		const char *tooltip;
+		sint16 x_offset;
+		sint16 width;
 	};
 
 	slist_tpl<tab> tabs;
-	int active_tab;
+	int active_tab, offset_tab;
+
+	koord required_groesse;
+	button_t left, right;
 
 public:
 	enum { HEADER_VSIZE = 18};
@@ -92,7 +99,19 @@ public:
 	 */
 	uint32 get_count () const { return tabs.get_count(); }
 
-	gui_komponente_t *get_focus() const { return get_aktives_tab()->get_focus(); }
+	/**
+	 * This method is called if an action is triggered:
+	 * currently only left/right button
+	 */
+	bool action_triggered(gui_action_creator_t *komp, value_t p);
+
+	/**
+	 * Returns true if the hosted component of the active tab is focusable
+	 * @author Knightly
+	 */
+	virtual bool is_focusable() { return get_aktives_tab()->is_focusable(); }
+
+	gui_komponente_t *get_focus() { return get_aktives_tab()->get_focus(); }
 };
 
 #endif

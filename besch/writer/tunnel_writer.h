@@ -1,6 +1,7 @@
 #ifndef TUNNEL_WRITER_H
 #define TUNNEL_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 

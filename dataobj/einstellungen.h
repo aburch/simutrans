@@ -1,10 +1,10 @@
 #ifndef dataobj_einstellungen_h
 #define dataobj_einstellungen_h
 
+#include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
 
-#include <string>
 
 /**
  * Spieleinstellungen
@@ -91,6 +91,19 @@ private:
 	sint16 min_river_length;
 	sint16 max_river_length;
 
+	// forest stuff
+	uint8 forest_base_size;
+	uint8 forest_map_size_divisor;
+	uint8 forest_count_divisor;
+	uint8 forest_boundary_blur;
+	uint8 forest_boundary_thickness;
+	uint16 forest_inverse_spare_tree_density;
+	uint8 max_no_of_trees_on_square;
+	uint16 tree_climates;
+	uint16 no_tree_climates;
+	bool no_trees;
+
+	// game mechanics
 	uint8 allow_player_change;
 	uint8 use_timeline;
 	sint16 starting_year;
@@ -743,20 +756,33 @@ public:
 	void set_tourist_percentage(sint16 n) { tourist_percentage = n; }
 
 	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
-	sint16 get_factory_worker_radius() const { return factory_worker_radius; }
-	void set_factory_worker_radius(sint16 n) { factory_worker_radius = n; }
+	uint16 get_factory_worker_radius() const { return factory_worker_radius; }
+	void set_factory_worker_radius(uint16 n) { factory_worker_radius = n; }
 
 	// any factory will be connected to at least this number of next cities
-	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
-	void set_factory_worker_minimum_towns(sint32 n) { factory_worker_minimum_towns = n; }
+	uint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
+	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = n; }
 
 	// any factory will be connected to not more than this number of next cities
-	sint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
-	void set_factory_worker_maximum_towns(sint32 n) { factory_worker_maximum_towns = n; }
+	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
+	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
 	void set_allow_buying_obsolete_vehicles(bool n) { allow_buying_obsolete_vehicles = n; }
+
+	// forest stuff
+	uint8 get_forest_base_size() const { return forest_base_size; }
+	uint8 get_forest_map_size_divisor() const { return forest_map_size_divisor; }
+	uint8 get_forest_count_divisor() const { return forest_count_divisor; }
+	uint8 get_forest_boundary_blur() const { return forest_boundary_blur; }
+	uint8 get_forest_boundary_thickness() const { return forest_boundary_thickness; }
+	uint16 get_forest_inverse_spare_tree_density() const { return forest_inverse_spare_tree_density; }
+	uint8 get_max_no_of_trees_on_square() const { return max_no_of_trees_on_square; }
+	uint16 get_tree_climates() const { return tree_climates; }
+	uint16 get_no_tree_climates() const { return no_tree_climates; }
+	bool get_no_trees() const { return no_trees; }
+	void set_no_trees(bool b) { no_trees = b; }
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }

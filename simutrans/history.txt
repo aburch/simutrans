@@ -58,6 +58,12 @@
 	CHANGE: TAB goes to next/Shift+TAB to previous edit box, moving and resizing now even when other windows open
 	ADD: skinnable scrollbars
 	ADD: setting dialoge tool (handle with care, should not be visible by defualt for pak sets!)
+	ADD: resizer also part of skin
+	CHANGE: also starts without any skin
+	FIX: no signals to be built on switches, since they will not display correctly
+	FIX: waiting time cycles also on left button
+	ADD: (z9999+) limit size of toolsbars in simuconf.tab
+	FIX: (z9999+) loading old games before 88.00
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

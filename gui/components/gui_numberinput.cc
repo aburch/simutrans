@@ -5,8 +5,8 @@
  * (see licence.txt)
  */
 
+#include "../gui_frame.h"
 #include "gui_numberinput.h"
-#include "../../ifc/gui_fenster.h"
 #include "../../simwin.h"
 #include "../../simgraph.h"
 #include "../../macros.h"
@@ -16,7 +16,8 @@
 char gui_numberinput_t::tooltip[256];
 
 
-gui_numberinput_t::gui_numberinput_t()
+gui_numberinput_t::gui_numberinput_t() :
+	gui_komponente_t(true)
 {
 	bt_left.set_typ(button_t::repeatarrowleft );
 	bt_left.set_pos( koord(0,-1) );
@@ -57,7 +58,7 @@ void gui_numberinput_t::set_groesse(koord groesse)
 void gui_numberinput_t::set_value(sint32 new_value)
 {	// range check
 	value = clamp( new_value, min_value, max_value );
-	const gui_fenster_t *win = win_get_top();
+	gui_frame_t *win = win_get_top();
 	if(  win  &&  win->get_focus()!=this  ) {
 		// final value should be correct, but during editing wrng values are allowed
 		new_value = value;
@@ -135,7 +136,11 @@ sint32 gui_numberinput_t::get_next_value()
 	switch( step_mode ) {
 		// automatic linear
 		case AUTOLINEAR:
-			return clamp( value+max(1,(max_value-min_value)/100), min_value, max_value );
+		{
+			sint64 diff = (sint64)max_value - (sint64)min_value;
+			sint32 one_percent = (sint32) (diff / 100l);
+			return clamp( value+max(1,one_percent), min_value, max_value );
+		}
 		// power of 2
 		case POWER2:
 		{
@@ -150,7 +155,7 @@ sint32 gui_numberinput_t::get_next_value()
 		// pregressive (used for loading bars
 		case PROGRESS:
 		{
-			sint64 diff = max_value-min_value;
+			sint64 diff = (sint64)max_value - (sint64)min_value;
 			for( int i=0;  i<7;  i++  ) {
 				if(  value-min_value < ((diff*(sint64)percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
@@ -176,7 +181,11 @@ sint32 gui_numberinput_t::get_prev_value()
 	switch( step_mode ) {
 		// automatic linear
 		case AUTOLINEAR:
-			return clamp( value-max(1,(uint32)(max_value-min_value)/100u), min_value, max_value );
+		{
+			sint64 diff = (sint64)max_value - (sint64)min_value;
+			sint32 one_percent = (sint32) (diff / 100ll);
+			return clamp( value-max(1,one_percent), min_value, max_value );
+		}
 		// power of 2
 		case POWER2:
 		{
@@ -191,7 +200,7 @@ sint32 gui_numberinput_t::get_prev_value()
 		// pregressive (used for loading bars
 		case PROGRESS:
 		{
-			sint64 diff = max_value-min_value;
+			sint64 diff = (sint64)max_value-(sint64)min_value;
 			for( int i=6;  i>=0;  i--  ) {
 				if(  value-min_value > ((diff*percent[i])/100l)  ) {
 					return min_value+(sint32)((diff*percent[i])/100l);
@@ -254,7 +263,9 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 				case '-':
 					call_textinp = min_value <0;
 					break;
+				case 1:		// allow Ctrl-A (select all text) to function
 				case 8:
+				case 9:		// allow text input to handle unfocus event
 				case 127:
 				case '0':
 				case '1':
@@ -275,7 +286,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 				case SIM_KEY_UP:
 				case SIM_KEY_DOWN:
 						// next/previous choice
-						new_value = (ev->ev_code==SIM_KEY_UP) ? get_prev_value() : get_next_value();
+						new_value = (ev->ev_code==SIM_KEY_DOWN) ? get_prev_value() : get_next_value();
 			}
 			if(  call_textinp  ) {
 				event_t ev2 = *ev;
@@ -318,8 +329,7 @@ void gui_numberinput_t::zeichnen(koord offset)
 	koord new_offset = pos+offset;
 	bt_left.zeichnen(new_offset);
 
-	const gui_fenster_t *win = win_get_top();
-	textinp.zeichnen_mit_cursor( new_offset, (win  &&  win->get_focus()==this) );
+	textinp.display_with_focus( new_offset, (win_get_focus()==this) );
 	bt_right.zeichnen(new_offset);
 
 	if(getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {

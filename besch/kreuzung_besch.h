@@ -94,7 +94,7 @@ public:
 	*/
 	bool is_available(const uint16 month_now) const
 	{
-		return month_now==0  ||  (intro_date <= month_now  &&  month_now <= obsolete_date);
+		return month_now==0  ||  (intro_date <= month_now  &&  month_now < obsolete_date);
 	}
 };
 

@@ -473,7 +473,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 		for(  weighted_vector_tpl<stadt_t*>::const_iterator iter = staedte.begin(), end = staedte.end();  iter != end;  ++iter  ) {
 			distance_stadt.insert_ordered( *iter, RelativeDistanceOrdering(fab->get_pos().get_2d()) );
 		}
-		for(  unsigned i = 0;  i<distance_stadt.get_count()  &&  fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_maximum_towns();  i++   ) {
+		for(  uint32 i = 0;  i<distance_stadt.get_count()  &&  fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_maximum_towns();  i++   ) {
 			if(  fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_minimum_towns()  ||  koord_distance( fab->get_pos(), distance_stadt[i]->get_pos() ) < welt->get_einstellungen()->get_factory_worker_radius()  ) {
 				distance_stadt[i]->add_factory_arbeiterziel(fab);
 			}
@@ -936,7 +936,7 @@ next_ware_check:
 			welt->update_map();
 		}
 
-		// only return, if successfull
+		// only return, if successful
 		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
 			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player

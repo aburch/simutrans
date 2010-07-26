@@ -592,7 +592,7 @@ void reliefkarte_t::calc_map()
 	else {
 		// always the whole map ...
 		if(rotate45) {
-			memset( (void *)(relief->to_array()), COL_BLACK, relief_size.x*relief_size.y );
+			relief->init( COL_BLACK );
 		}
 		koord k;
 		for(  k.y=0;  k.y < welt->get_groesse_y();  k.y++  ) {

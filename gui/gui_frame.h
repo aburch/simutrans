@@ -12,11 +12,14 @@
 #ifndef gui_gui_frame_h
 #define gui_gui_frame_h
 
-#include "../ifc/gui_fenster.h"
+#include "../dataobj/koord.h"
+#include "../simgraph.h"
 #include "gui_container.h"
 #include "../player/simplay.h"
 #include "../simcolor.h"
 
+// height of titlebar
+#define TITLEBAR_HEIGHT (16)
 
 /**
  * Eine Klasse für Fenster mit Komponenten.
@@ -26,8 +29,18 @@
  *
  * @author Hj. Malthaner
  */
-class gui_frame_t : virtual public gui_fenster_t
+class gui_frame_t
 {
+public:
+	/**
+	 * Resize modes
+	 * @author Markus Weber
+	 * @date   11-May-2002
+	 */
+	enum resize_modes {
+		no_resize = 0, vertical_resize = 1, horizonal_resize = 2, diagonal_resize = 3
+	};
+
 private:
 	gui_container_t container;
 
@@ -66,6 +79,8 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	gui_frame_t(const char *name, const spieler_t *sp=NULL);
+
+	virtual ~gui_frame_t() {}
 
 	/**
 	 * Fügt eine Komponente zum Fenster hinzu.
@@ -132,7 +147,59 @@ public:
 	*/
 	koord get_client_windowsize() const {return groesse-koord(0,16); }
 
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	virtual const char * get_hilfe_datei() const {return NULL;}
+
+	/**
+	 * Does this window need a min size button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Hj. Malthaner
+	 */
+	virtual bool has_min_sizer() const {return false;}
+
+	/**
+	 * Does this window need a next button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Volker Meyer
+	 */
+	virtual bool has_next() const {return false;}
+
+	/**
+	 * Does this window need a prev button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Volker Meyer
+	 */
+	virtual bool has_prev() const {return has_next();}
+
 	virtual bool has_sticky() const { return true; }
+
+	/**
+	 * Set resize mode
+	 * @author Markus Weber
+	 * @date   11-May-2002
+	 */
+	void set_resizemode(resize_modes mode) { resize_mode = mode; }
+
+	/**
+	 * Get resize mode
+	 * @author Markus Weber
+	 * @date   25-May-2002
+	 */
+	resize_modes get_resizemode(void) { return resize_mode; }
+
+	/**
+	 * Prüft, ob eine Position innerhalb der Komponente liegt.
+	 * @author Hj. Malthaner
+	 */
+	virtual bool getroffen(int x, int y)
+	{
+		koord groesse = get_fenstergroesse();
+		return (  x>=0  &&  y>=0  &&  x<groesse.x  &&  y<groesse.y  );
+	}
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
@@ -149,23 +216,11 @@ public:
 	 */
 	virtual void zeichnen(koord pos, koord gr);
 
-	/**
-	 * Set resize mode
-	 * @author Markus Weber
-	 * @date   11-May-2002
-	 */
-	void set_resizemode(resize_modes mode) { resize_mode = mode; }
-
-	/**
-	 * Get resize mode
-	 * @author Markus Weber
-	 * @date   25-May-2002
-	 */
-	resize_modes get_resizemode(void) { return resize_mode; }
-
+	// called, when the map is rotated
+	virtual void map_rotate90( sint16 /*new_ysize*/ ) { }
 
 	void set_focus( gui_komponente_t *k ) { container.set_focus(k); }
-	gui_komponente_t *get_focus() const { return container.get_focus(); }
+	virtual gui_komponente_t *get_focus() { return container.get_focus(); }
 };
 
 #endif

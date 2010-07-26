@@ -1883,20 +1883,21 @@ uint16 vehikel_t::get_overcrowding() const
 
 uint8 vehikel_t::get_comfort() const
 {
-	if(besch->get_comfort() == 0)
+	const uint8 base_comfort = besch->get_comfort();
+	if(base_comfort == 0)
 	{
 		return 0;
 	}
 	else if(total_freight <= get_fracht_max())
 	{
 		// Not overcrowded - return base level
-		return besch->get_comfort();
+		return base_comfort;
 	}
 
 	// Else
 	// Overcrowded - adjust comfort. Standing passengers
 	// are very uncomfortable (no more than 10).
-	const uint8 standing_comfort = 10 < besch->get_comfort() - 5 ? 10 : besch->get_comfort() >> 1;
+	const uint8 standing_comfort = (base_comfort < 20) ? (base_comfort / 2) : 10;
 	uint16 passenger_count = 0;
 	slist_iterator_tpl<ware_t> iter(fracht);
 	while(iter.next()) 
@@ -1908,16 +1909,17 @@ uint8 vehikel_t::get_comfort() const
 			passenger_count += ware.menge;
 		}
 	}
+	assert(passenger_count <= total_freight);
 	const uint16 total_seated_passengers = passenger_count < get_fracht_max() ? passenger_count : get_fracht_max();
 	const uint16 total_standing_passengers = passenger_count > total_seated_passengers ? passenger_count - total_seated_passengers : 0;
 	// Avoid division if we can
-	if(total_seated_passengers < 1)
+	if(total_standing_passengers == 0)
 	{
-		return besch->get_comfort();
+		return base_comfort;
 	}
 	// Else
 	// Average comfort of seated and standing
-	return ((total_seated_passengers * besch->get_comfort()) + (total_standing_passengers * standing_comfort)) / passenger_count;
+	return ((total_seated_passengers * base_comfort) + (total_standing_passengers * standing_comfort)) / passenger_count;
 }
 
 void vehikel_t::rdwr(loadsave_t *file)
@@ -2613,6 +2615,11 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 			// do not block intersections
 			if (!dt && ribi_t::is_threeway(str->get_ribi_unmasked()) && route_index + 1U < r.get_count() - 1) {
+				// but leaving from railroad crossing is more important
+				grund_t *gr_here = welt->lookup(get_pos());
+				if(gr_here  &&  gr_here->ist_uebergang()) {
+					return true;
+				}
 				// we have to test also next field
 				if (grund_t const* const gr = welt->lookup(r.position_bei(route_index + 1U))) {
 					koord const& nextnext                 = r.position_bei(route_index + 2).get_2d();
@@ -2677,9 +2684,9 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 						return true;
 					}
 					// not overtaking/being overtake: we need to make a more thourough test!
-					if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
+					if(  automobil_t const* const car = ding_cast<automobil_t>(dt)  ) {
 						convoi_t* const ocnv = car->get_convoi();
-						if(  cnv->can_overtake( ocnv, ocnv->get_min_top_speed(), ocnv->get_length()*16, diagonal_length)  ) {
+						if(  cnv->can_overtake( ocnv, ocnv->get_min_top_speed(), ocnv->get_length()*16+ocnv->get_vehikel(0)->get_steps(), diagonal_length)  ) {
 							return true;
 						}
 					} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
@@ -2689,7 +2696,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 					}
 				}
 				// we have to wait ...
-				restart_speed = 0;
+				restart_speed = (cnv->get_akt_speed()*3)/4;
 				cnv->set_tiles_overtaking(0);
 			}
 		}
@@ -2913,6 +2920,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 
 bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
+	if(!bd) return false;
 	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->get_weg(get_waytype()));
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
@@ -3190,7 +3198,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 						if(  way->has_sign()  ) {
 							roadsign_t *rs = gr->find<roadsign_t>(1);
 							if(  rs  &&  rs->get_besch()->get_wtyp()==get_waytype()  ) {
-								if(  (rs->get_besch()->get_flags()&&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
+								if(  (rs->get_besch()->get_flags()&roadsign_besch_t::END_OF_CHOOSE_AREA)!=0  ) {
 									// end of choose on route => not choosing here
 									choose_ok = false;
 								}

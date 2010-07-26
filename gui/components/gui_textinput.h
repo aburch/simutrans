@@ -8,8 +8,8 @@
 #ifndef gui_components_gui_textinput_h
 #define gui_components_gui_textinput_h
 
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../../simgraph.h"
 
@@ -42,16 +42,24 @@ protected:
 	size_t max;
 
 	/**
-	 * position of text cursor
+	 * position of head cursor to the text
+	 * represents front end of the selected text portion
 	 * @author hsiegeln
 	 */
-	size_t cursor_pos;
+	size_t head_cursor_pos;
 
 	/**
-	  * offset for drawing the cursor
+	 * position of tail cursor to the text
+	 * represent rear end of the selected text portion
+	 * @author Knightly
+	 */
+	size_t tail_cursor_pos;
+
+	/**
+	  * offset for controlling horizontal text scroll
 	  * Dwachs: made private to check for mouse induced cursor moves
 	  */
-	KOORD_VAL cursor_offset;
+	KOORD_VAL scroll_offset;
 
 	/**
 	 * text alignment
@@ -60,6 +68,31 @@ protected:
 	uint8 align;
 
 	COLOR_VAL textcol;
+
+	/**
+	 * reference time for regulating cursor blinking
+	 * @author Knightly
+	 */
+	unsigned long cursor_reference_time;
+
+	/**
+	 * whether focus has been received
+	 * @author Knightly
+	 */
+	bool focus_recieved;
+
+	/**
+	 * determine new cursor position from event coordinates
+	 * @author Knightly
+	 */
+	size_t calc_cursor_pos(const int x);
+
+	/**
+	 * Remove selected text portion, if any.
+	 * Returns true if some selected text is actually deleted.
+	 * @author Knightly
+	 */
+	bool remove_selection();
 
 public:
 	gui_textinput_t();
@@ -76,7 +109,7 @@ public:
 	 *
 	 * @author Hj. Malthaner
 	 */
-	char *get_text() const {return text;}
+	char *get_text() const { return text; }
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
@@ -91,15 +124,21 @@ public:
 	 */
 	virtual void zeichnen(koord offset);
 
-	void zeichnen_mit_cursor( koord offset, bool show_cursor );
+	/**
+	 * Detect change of focus state and determine whether cursor should be displayed,
+	 * and call the function that performs the actual display
+	 * @author Knightly
+	 */
+	void display_with_focus(koord offset, bool has_focus);
+
+	// function that performs the actual display
+	virtual void display_with_cursor(koord offset, bool cursor_active, bool cursor_visible);
 
 	// to allow for right-aligned text
 	void set_alignment(uint8 _align){ align = _align;}
 
-	// to allow for right-aligned text
+	// to set text color
 	void set_color(COLOR_VAL col){ textcol = col;}
-
-	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
 };
 
 
@@ -108,8 +147,8 @@ class gui_hidden_textinput_t : public gui_textinput_t
 	// and set the cursor right when clicking with the mouse
 	virtual bool infowin_event(const event_t *);
 
-	// just draw with stars ...
-	virtual void zeichnen(koord offset);
+	// function that performs the actual display; just draw with stars ...
+	virtual void display_with_cursor(koord offset, bool cursor_active, bool cursor_visible);
 };
 
 

@@ -52,7 +52,7 @@ void set_thousand_sep(char c)
  */
 void set_thousand_sep_exponent(int new_thousand_sep_exponent)
 {
-	thousand_sep_exponent = new_thousand_sep_exponent>0 ? thousand_sep_exponent : 3;
+	thousand_sep_exponent = new_thousand_sep_exponent>0 ? new_thousand_sep_exponent : 3;
 }
 
 

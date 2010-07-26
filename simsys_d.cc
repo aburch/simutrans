@@ -27,13 +27,14 @@
 #ifdef _WIN32
 #define BITMAP winBITMAP
 #define WinMain winWinMain
+// windows.h defines min and max macros which we don't want
+#define NOMINMAX 1
 #include <windows.h>
 #undef BITMAP
 #undef WinMain
 #endif
 
 #include <allegro.h>
-
 
 
 static void simtimer_init(void);

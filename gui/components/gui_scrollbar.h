@@ -1,7 +1,7 @@
 #ifndef gui_scrollbar_h
 #define gui_scrollbar_h
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "../../simevent.h"
 #include "gui_button.h"
 
@@ -18,6 +18,9 @@ class scrollbar_t :
 {
 public:
 	enum type { vertical, horizontal };
+
+	// width/height of bar part
+	static sint16 BAR_SIZE;
 
 private:
 	enum type type;

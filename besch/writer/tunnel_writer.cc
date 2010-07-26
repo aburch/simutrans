@@ -1,4 +1,5 @@
 #include <cmath>
+#include <string>
 #include "../../dataobj/tabfile.h"
 #include "../../dataobj/ribi.h"
 #include "../tunnel_besch.h"

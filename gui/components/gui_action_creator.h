@@ -8,8 +8,8 @@
 #ifndef gui_ifc_action_creator_h
 #define gui_ifc_action_creator_h
 
-#include "../gui/components/action_listener.h"
-#include "../tpl/slist_tpl.h"
+#include "action_listener.h"
+#include "../../tpl/slist_tpl.h"
 
 
 /**

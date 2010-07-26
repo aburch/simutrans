@@ -24,6 +24,8 @@ Image[5]=> skins.1.4
 Image[22]=> skins.1.5
 # Sticky gadget sticky
 Image[23]=> skins.1.6
+# Resize border
+Image[36]=> skins.2.6
 
 # Square button
 Image[6]=> skins.2.0
@@ -68,29 +70,31 @@ Image[21]=> skins.4.3
 # Scrollbar skins
 # horizontal background (in this skin just button recycling)
 # left
-Image[24]=> skins.3.0
+Image[24]=-
 # right
-Image[25]=> skins.3.1
+Image[25]=-
 # in between
-Image[26]=> skins.3.2
+Image[26]=> skins.3.6
 #horizontal forground (slider)
 # left
-Image[27]=> skins.3.3
+Image[27]=> skins.3.0
 # right
-Image[28]=> skins.3.4
+Image[28]=> skins.3.1
 # in between
-Image[29]=> skins.3.5
+Image[29]=> skins.3.2
 # same for vertical background
 # left
-Image[30]=> skins.5.0
+Image[30]=-
 # right
-Image[31]=> skins.5.1
+Image[31]=-
 # in between
-Image[32]=> skins.5.2
+Image[32]=> skins.5.6
 # and vertical forground (slider)
 # left
-Image[33]=> skins.5.3
+Image[33]=> skins.5.0
 # right
-Image[34]=> skins.5.4
+Image[34]=> skins.5.1
 # in between
-Image[35]=> skins.5.5
+Image[35]=> skins.5.2
+
+

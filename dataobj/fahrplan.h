@@ -59,16 +59,30 @@ public:
 	// always returns a valid entry to the current stop
 	const struct linieneintrag_t &get_current_eintrag() const { return aktuell>=eintrag.get_count() ? dummy_eintrag : eintrag[aktuell]; }
 
+private:
+	/**
+	 * Fix up aktuell value, which we may have made out of range
+	 * @author neroden
+	 */
+	void make_aktuell_valid() {
+		uint8 count = eintrag.get_count();
+		if(  count == 0  ) {
+			aktuell = 0;
+		}
+		else if(  aktuell >= count  ) {
+			aktuell = count-1;
+		}
+	}
+
+public:
 	/**
 	 * set the current stop of the fahrplan
 	 * if new value is bigger than stops available, the max stop will be used
 	 * @author hsiegeln
 	 */
 	void set_aktuell(uint8 new_aktuell) {
-		if(  new_aktuell>=eintrag.get_count()  ) {
-			new_aktuell = max(1,eintrag.get_count())-1;
-		}
 		aktuell = new_aktuell;
+		make_aktuell_valid();
 	}
 
 	// advance entry by one ...

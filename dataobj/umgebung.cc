@@ -1,3 +1,4 @@
+#include <string>
 #include "umgebung.h"
 #include "loadsave.h"
 #include "../simconst.h"
@@ -41,7 +42,6 @@ bool umgebung_t::use_transparency_station_coverage;
 uint8 umgebung_t::station_coverage_show;
 sint32  umgebung_t::show_names;
 sint32 umgebung_t::message_flags[4];
-bool umgebung_t::no_tree;
 uint32 umgebung_t::water_animation;
 uint32 umgebung_t::ground_object_probability;
 uint32 umgebung_t::moving_object_probability;
@@ -68,11 +68,24 @@ sint16 umgebung_t::max_acceleration;
 bool umgebung_t::show_tooltips;
 uint8 umgebung_t::tooltip_color;
 uint8 umgebung_t::tooltip_textcolor;
+uint8 umgebung_t::toolbar_max_width;
+uint8 umgebung_t::toolbar_max_height;
 uint8 umgebung_t::cursor_overlay_color;
 uint8 umgebung_t::show_vehicle_states;
 sint8 umgebung_t::daynight_level;
 bool umgebung_t::hilly = false;
 bool umgebung_t::cities_ignore_height = false;
+
+// constraints:
+// number_of_big_cities <= anzahl_staedte
+// number_of_big_cities == 0 if anzahl_staedte == 0
+// number_of_big_cities >= 1 if anzahl_staedte !=0
+uint32 umgebung_t::number_of_big_cities = 1;
+//constraints:
+// 0<= number_of_clusters <= anzahl_staedts/4
+uint32 umgebung_t::number_of_clusters = 0;
+uint32 umgebung_t::cluster_size = 200;
+uint8 umgebung_t::cities_like_water = 60;
 bool umgebung_t::left_to_right_graphs = true;
 
 
@@ -98,7 +111,6 @@ void umgebung_t::init()
 
 	show_names = 3;
 
-	no_tree = false;
 	water_animation = 250; // 250ms per wave stage
 	ground_object_probability = 10; // every n-th tile
 	moving_object_probability = 1000; // every n-th tile
@@ -145,6 +157,9 @@ void umgebung_t::init()
 	show_tooltips = true;
 	tooltip_color = 4;
 	tooltip_textcolor = COL_BLACK;
+
+	toolbar_max_width = 0;
+	toolbar_max_height = 0;
 
 	cursor_overlay_color = COL_ORANGE;
 
@@ -211,7 +226,10 @@ void umgebung_t::rdwr(loadsave_t *file)
 	file->rdwr_byte( verbose_debug, "" );
 
 	file->rdwr_long( intercity_road_length, "" );
-	file->rdwr_bool( no_tree, "" );
+	if(  file->get_version()<=102002  ) {
+		bool no_tree = false;
+		file->rdwr_bool( no_tree, "" );
+	}
 	file->rdwr_long( ground_object_probability, "" );
 	file->rdwr_long( moving_object_probability, "" );
 
@@ -242,6 +260,5 @@ void umgebung_t::rdwr(loadsave_t *file)
 	{
 		file->rdwr_bool(hilly, "");
 		file->rdwr_bool(cities_ignore_height, "");
-
 	}
 }

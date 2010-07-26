@@ -8,7 +8,7 @@
 #ifndef world_view_t_h
 #define world_view_t_h
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../dataobj/koord3d.h"
 #include "../../tpl/vector_tpl.h"
 

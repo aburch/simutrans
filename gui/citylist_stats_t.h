@@ -8,7 +8,7 @@
 #ifndef CITYLIST_STATS_T_H
 #define CITYLIST_STATS_T_H
 
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "../tpl/vector_tpl.h"
 
 

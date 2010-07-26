@@ -8,6 +8,7 @@
 #ifndef dings_baum_h
 #define dings_baum_h
 
+#include <string>
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/weighted_vector_tpl.h"
@@ -34,17 +35,6 @@ private:
 	static stringhashtable_tpl<const baum_besch_t *> besch_names;
 	static vector_tpl<const baum_besch_t *> baum_typen;
 	static vector_tpl<weighted_vector_tpl<uint32> > baum_typen_per_climate;
-
-	// static for the forest rule set
-	static uint8 forest_base_size;
-	static uint8 forest_map_size_divisor;
-	static uint8 forest_count_divisor;
-	static uint8 forest_boundary_blur;
-	static uint8 forest_boundary_thickness;
-	static uint16 forest_inverse_spare_tree_density;
-	static uint8 max_no_of_trees_on_square;
-	static uint16 tree_climates;
-	static uint16 no_tree_climates;
 
 	bool saee_baum();
 
@@ -95,9 +85,6 @@ public:
 	const baum_besch_t* get_besch() const { return baum_typen[baumtype]; }
 
 	// static functions to handle trees
-
-	// reads configuration data
-	static bool forestrules_init(const std::string &objpathname);
 
 	// distributes trees on a map
 	static void distribute_trees(karte_t *welt, int dichte);

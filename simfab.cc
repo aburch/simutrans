@@ -142,7 +142,7 @@ fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 		// If there are no consumers left, industry is orphaned.
 		// Reconnect or close.
 
-		//Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
+		// Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
 		
 		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 		{
@@ -167,11 +167,10 @@ fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 		// If there are no suppliers left, industry is orphaned.
 		// Reconnect or close.
 
-		//Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
+		// Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
 		
 		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 		{
-
 			fabrik_t* fab = welt->get_fab_list()[i];
 			if(add_supplier(fab))
 			{
@@ -1667,7 +1666,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 		buf.append(translator::translate("Postrate"));
 		buf.append(": ");
-		buf.append(passagier_rate/3);
+		buf.append(passagier_rate);
 		buf.append("\n");
 	}
 

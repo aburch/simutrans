@@ -146,6 +146,35 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_number_of_towns );
 	intTopOfButton += 12;
 
+	inp_number_of_big_cities.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_big_cities.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_big_cities.add_listener(this);
+	if (sets->get_anzahl_staedte() != 0 ) {
+		inp_number_of_big_cities.set_limits(1,sets->get_anzahl_staedte() );
+	}
+	else {
+		inp_number_of_big_cities.set_limits(0,0);
+	}
+	inp_number_of_big_cities.set_value(umgebung_t::number_of_big_cities );
+	add_komponente( &inp_number_of_big_cities );
+	intTopOfButton += 12;
+
+	inp_number_of_clusters.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_clusters.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_clusters.add_listener(this);
+	inp_number_of_clusters.set_limits(0,sets->get_anzahl_staedte()/3 );
+	inp_number_of_clusters.set_value(umgebung_t::number_of_clusters);
+	add_komponente( &inp_number_of_clusters );
+	intTopOfButton += 12;
+
+	inp_cluster_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_cluster_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_cluster_size.add_listener(this);
+	inp_cluster_size.set_limits(1,9999);
+	inp_cluster_size.set_value(umgebung_t::cluster_size);
+	add_komponente( &inp_cluster_size );
+	intTopOfButton += 12;
+
 	inp_town_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
 	inp_town_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
 	inp_town_size.add_listener(this);
@@ -384,6 +413,38 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 	else if(komp==&inp_number_of_towns) {
 		sets->set_anzahl_staedte( v.i );
+		if (v.i == 0) {
+			umgebung_t::number_of_big_cities = 0;
+			inp_number_of_big_cities.set_limits(0,0);
+			inp_number_of_big_cities.set_value(0);
+		}
+		else {
+			inp_number_of_big_cities.set_limits(1, v.i);
+			if ( umgebung_t::number_of_big_cities == 0) {
+				umgebung_t::number_of_big_cities =1;
+				inp_number_of_big_cities.set_value(1);
+			}
+		}
+
+		if (umgebung_t::number_of_big_cities > unsigned(v.i)) {
+			umgebung_t::number_of_big_cities = v.i;
+			inp_number_of_big_cities.set_value( umgebung_t::number_of_big_cities );
+		}
+
+		inp_number_of_clusters.set_limits(0, v.i/4);
+		if (umgebung_t::number_of_clusters > unsigned(v.i)/4) {
+			umgebung_t::number_of_clusters = v.i/4;
+			inp_number_of_clusters.set_value(v.i/4);
+		}
+	}
+	else if(komp==&inp_number_of_big_cities) {
+		umgebung_t::number_of_big_cities = v.i;
+	}
+	else if(komp == &inp_number_of_clusters) {
+		umgebung_t::number_of_clusters = v.i;
+	}
+	else if(komp == &inp_cluster_size) {
+		umgebung_t::cluster_size = v.i;
 	}
 	else if(komp==&inp_town_size) {
 		sets->set_mittlere_einwohnerzahl( v.i );
@@ -422,15 +483,20 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
-		sets->set_use_timeline( use_intro_dates.pressed^1 );
-		use_intro_dates.pressed = sets->get_use_timeline();
+		// 0,1 should force setting to new game as well. don't allow to change
+		// 2,3 allow to change
+		if(sets->get_use_timeline()&2) {
+			// don't change bit1. bit1 affects loading saved game
+			sets->set_use_timeline( sets->get_use_timeline()^1 );
+			use_intro_dates.pressed = sets->get_use_timeline()&1;
+		}
 	}
 	else if(komp==&allow_player_change) {
 		sets->set_allow_player_change( allow_player_change.pressed^1 );
 		allow_player_change.pressed = sets->get_allow_player_change();
 	}
 	else if(komp==&open_setting_gui) {
-		gui_fenster_t *sg = win_get_magic( magic_settings_frame_t );
+		gui_frame_t *sg = win_get_magic( magic_settings_frame_t );
 		if(  sg  ) {
 			destroy_win( sg );
 			open_setting_gui.pressed = false;
@@ -441,7 +507,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&open_climate_gui) {
-		gui_fenster_t *climate_gui = win_get_magic( magic_climate );
+		gui_frame_t *climate_gui = win_get_magic( magic_climate );
 		if(  climate_gui  ) {
 			destroy_win( climate_gui );
 			open_climate_gui.pressed = false;
@@ -581,6 +647,12 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	y += 12+5;
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Number of big cities:"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Number of city clusters:"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("City cluster size:"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;

@@ -9,7 +9,7 @@
 #ifndef gui_components_gui_divider_h
 #define gui_components_gui_divider_h
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../simgraph.h"
 #include "../../simcolor.h"
 
