@@ -74,6 +74,8 @@ uint8 umgebung_t::cursor_overlay_color;
 uint8 umgebung_t::show_vehicle_states;
 sint8 umgebung_t::daynight_level;
 bool umgebung_t::left_to_right_graphs;
+uint32 umgebung_t::tooltip_delay;
+uint32 umgebung_t::tooltip_duration;
 
 
 
@@ -162,6 +164,9 @@ void umgebung_t::init()
 	shuffle_midi = true;
 
 	left_to_right_graphs = false;
+
+	tooltip_delay = 500;
+	tooltip_duration = 5000;
 }
 
 
@@ -242,5 +247,10 @@ void umgebung_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>102001  ) {
 		file->rdwr_byte( show_vehicle_states, "" );
 		file->rdwr_bool( left_to_right_graphs, "" );
+	}
+
+	if(  file->get_version()>=102003  ) {
+		file->rdwr_long( tooltip_delay, "" );
+		file->rdwr_long( tooltip_duration, "" );
 	}
 }

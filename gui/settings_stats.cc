@@ -76,6 +76,8 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "show_tooltips", umgebung_t::show_tooltips );
 	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "tooltip_delay", umgebung_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "tooltip_duration", umgebung_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
 	INIT_NUM( "cursor_overlay_color", umgebung_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
@@ -117,6 +119,8 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_BOOL_VALUE( umgebung_t::show_tooltips );
 	READ_NUM_VALUE( umgebung_t::tooltip_color );
 	READ_NUM_VALUE( umgebung_t::tooltip_textcolor );
+	READ_NUM_VALUE( umgebung_t::tooltip_delay );
+	READ_NUM_VALUE( umgebung_t::tooltip_duration );
 
 	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );

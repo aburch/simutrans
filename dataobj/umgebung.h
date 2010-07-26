@@ -235,6 +235,10 @@ public:
 
 	static bool left_to_right_graphs;
 
+	// tooltip visualisation duration
+	static uint32 tooltip_delay;
+	static uint32 tooltip_duration;
+
 	static einstellungen_t default_einstellungen;
 
 	// init with default values

@@ -109,8 +109,6 @@ static const char * tooltip_text = 0;
 static const char * static_tooltip_text = 0;
 // Knightly :	For timed tooltip with initial delay and finite visible duration.
 //				Valid owners are required for timing. Invalid (NULL) owners disable timing.
-#define TOOLTIP_DELAY		(500ul)				// initial delay
-#define TOOLTIP_DURATION	(5000ul)			// visible duration after initial delay
 static const void * tooltip_current_owner = 0;	// current owner of the registered tooltip
 static const void * tooltip_previous_owner = 0;	// previous owner of the registered tooltip
 static unsigned long tooltip_register_time = 0;	// time at which a tooltip is initially registered
@@ -1065,7 +1063,7 @@ void win_display_flush(double konto)
 			if(  tooltip_text  &&  *tooltip_text  ) {
 				// Knightly : display tooltip when current owner is invalid or when it is within visible duration
 				unsigned long elapsed_time;
-				if(  !tooltip_current_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>TOOLTIP_DELAY  &&  elapsed_time<=TOOLTIP_DELAY+TOOLTIP_DURATION)  ) {
+				if(  !tooltip_current_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
 					display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
 				}

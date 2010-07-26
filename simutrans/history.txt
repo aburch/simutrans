@@ -64,6 +64,8 @@
 	FIX: waiting time cycles also on left button
 	ADD: (z9999+) limit size of toolsbars in simuconf.tab
 	FIX: (z9999+) loading old games before 88.00
+	CHANGE: forest settings moved to simuconf.tab
+	ADD: delay and duration of tooltip configurable in simuconf.tab
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
