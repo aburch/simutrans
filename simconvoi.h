@@ -650,9 +650,6 @@ public:
 	*/
 	void open_schedule_window( bool show );
 
-	static bool pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
-	static bool pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
-
 	/**
 	* pruefe ob Beschraenkungen fuer alle Fahrzeuge erfuellt sind
 	* @author Hj. Malthaner

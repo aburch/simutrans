@@ -2156,82 +2156,23 @@ void convoi_t::open_schedule_window( bool show )
 	fpl->eingabe_beginnen();
 }
 
-
-
-/* Fahrzeuge passen oft nur in bestimmten kombinationen
- * die Beschraenkungen werden hier geprueft, die für die Nachfolger von
- * vor gelten - daher muß vor != NULL sein..
+/**
+ * Check validity of convoi with respect to vehicle constraints
  */
-bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
-{
-	const vehikel_besch_t *soll;
-
-	if(!vor->get_nachfolger_count()) {
-		// Alle Nachfolger erlaubt
-		return true;
-	}
-	for(int i=0; i < vor->get_nachfolger_count(); i++) {
-		soll = vor->get_nachfolger(i);
-		//DBG_MESSAGE("convoi_t::pruefe_an_index()",
-		//    "checking successor: should be %d, is %d",
-		//    soll ? soll->get_name() : "none",
-		//    hinter ? hinter->get_name() : "none");
-
-		if(hinter == soll) {
-			// Diese Beschränkung erlaubt unseren Nachfolger
-			return true;
-		}
-	}
-	//DBG_MESSAGE("convoi_t::pruefe_an_index()",
-	//		 "No matching successor found.");
-	return false;
-}
-
-/* Fahrzeuge passen oft nur in bestimmten kombinationen
- * die Beschraenkungen werden hier geprueft, die für die Vorgänger von
- *  hinter gelten - daher muß hinter != NULL sein.
- */
-bool convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
-{
-	const vehikel_besch_t *soll;
-
-	if(!hinter->get_vorgaenger_count()) {
-		// Alle Vorgänger erlaubt
-		return true;
-	}
-	for(int i=0; i < hinter->get_vorgaenger_count(); i++) {
-		soll = hinter->get_vorgaenger(i);
-		//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-		//	     "checking predecessor: should be %s, is %s",
-		//	     soll ? soll->get_name() : "none",
-		//	     vor ? vor->get_name() : "none");
-
-		if(vor == soll) {
-			// Diese Beschränkung erlaubt unseren Vorgänger
-			return true;
-		}
-	}
-	//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-	//		 "No matching predecessor found.");
-	return false;
-}
-
-
-
 bool convoi_t::pruefe_alle()
 {
-	bool ok = (anz_vehikel == 0 || pruefe_vorgaenger(NULL, fahr[0]->get_besch()));
+	bool ok = anz_vehikel == 0  ||  fahr[0]->get_besch()->can_follow(NULL);
 	unsigned i;
 
 	const vehikel_t* pred = fahr[0];
 	for(i = 1; ok && i < anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
-		ok = pruefe_nachfolger(pred->get_besch(), v->get_besch()) &&
-				 pruefe_vorgaenger(pred->get_besch(), v->get_besch());
+		ok = pred->get_besch()->can_lead(v->get_besch())  &&
+				 v->get_besch()->can_follow(pred->get_besch());
 		pred = v;
 	}
 	if(ok) {
-		ok = pruefe_nachfolger(pred->get_besch(), NULL);
+		ok = pred->get_besch()->can_lead(NULL);
 	}
 
 	return ok;

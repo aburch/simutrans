@@ -180,37 +180,6 @@ public:
 		return get_child<vehikel_besch_t>(6 + i);
 	}
 
-	/* returns true, if this veh can be before the next_veh */
-	bool can_lead(const vehikel_besch_t *next_veh) const
-	{
-		if(  nachfolger==0  ) {
-			return next_veh != 0;
-		}
-		for( int i=0;  i<nachfolger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
-			if(veh==next_veh) {
-				return true;
-			}
-		}
-		// only here if not allowed
-		return false;
-	}
-	/* returns true, if this veh can be after the prev_veh */
-	bool can_follow(const vehikel_besch_t *prev_veh) const
-	{
-		if(  vorgaenger==0  ) {
-			return prev_veh != 0;
-		}
-		for( int i=0;  i<vorgaenger;  i++  ) {
-			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
-			if(veh==prev_veh) {
-				return true;
-			}
-		}
-		// only here if not allowed
-		return false;
-	}
-
 	int get_vorgaenger_count() const { return vorgaenger; }
 
 	// Liefert die erlaubten Nachfolger.
@@ -226,6 +195,48 @@ public:
 	}
 
 	int get_nachfolger_count() const { return nachfolger; }
+
+	/* returns true, if this veh can be before the next_veh */
+	bool can_lead(const vehikel_besch_t *next_veh) const
+	{
+		if(  nachfolger==0  ) {
+			return true;
+		}
+		for( int i=0;  i<nachfolger;  i++  ) {
+			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
+			if(veh==next_veh) {
+				return true;
+			}
+		}
+		// only here if not allowed
+		return false;
+	}
+
+	/* test, if a certain vehicle can lead a convoi *
+	 * used by vehikel_search
+	 * @author prissi
+	 */
+	bool can_lead() const {
+		return can_lead(NULL);
+	}
+
+	/* returns true, if this veh can be after the prev_veh */
+	bool can_follow(const vehikel_besch_t *prev_veh) const
+	{
+		if(  vorgaenger==0  ) {
+			return true;
+		}
+		for( int i=0;  i<vorgaenger;  i++  ) {
+			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
+			if(veh==prev_veh) {
+				return true;
+			}
+		}
+		// only here if not allowed
+		return false;
+	}
+
+	bool can_follow_any() const { return nachfolger==0; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
@@ -278,25 +289,6 @@ public:
 	* @author prissi
 	*/
 	uint8 get_length() const { return len; }
-
-	/* test, if a certain vehicle can lead a convoi *
-	 * used by vehikel_search
-	 * @author prissi
-	 */
-	bool can_lead() const {
-		if(vorgaenger==0) {
-			return true;
-		}
-		for( int i=0;  i<vorgaenger;  i++  ) {
-			if (!get_child<vehikel_besch_t>(6 + i)) {
-				return true;
-			}
-		}
-		// cannot lead
-		return false;
-	}
-
-	bool can_follow_any() const { return nachfolger==0; }
 };
 
 #endif

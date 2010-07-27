@@ -649,9 +649,9 @@ void depot_frame_t::build_vehicle_lists()
 				bool append = true;
 				if(!show_all) {
 					if(veh_action == va_insert) {
-						append = convoi_t::pruefe_nachfolger(info, veh)  &&  (veh==NULL  ||  convoi_t::pruefe_vorgaenger(info, veh));
+						append = info->can_lead(veh)  &&  (veh==NULL  ||  veh->can_follow(info));
 					} else if(veh_action == va_append) {
-						append = convoi_t::pruefe_vorgaenger(veh, info)  &&  (veh==NULL  ||  convoi_t::pruefe_nachfolger(veh, info));
+						append = info->can_follow(veh)  &&  (veh==NULL  ||  veh->can_lead(info));
 					}
 				}
 				if(append) {
@@ -733,12 +733,12 @@ void depot_frame_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics[0].lcolor = convoi_t::pruefe_vorgaenger(NULL, cnv->front()->get_besch()) ? COL_GREEN : COL_YELLOW;
+		convoi_pics[0].lcolor = cnv->front()->get_besch()->can_follow(NULL) ? COL_GREEN : COL_YELLOW;
 		for(  i=1;  i<cnv->get_vehikel_anzahl(); i++) {
-			convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(cnv->get_vehikel(i - 1)->get_besch(), cnv->get_vehikel(i)->get_besch()) ? COL_GREEN : COL_RED;
-			convoi_pics[i].lcolor     = convoi_t::pruefe_vorgaenger(cnv->get_vehikel(i - 1)->get_besch(), cnv->get_vehikel(i)->get_besch()) ? COL_GREEN : COL_RED;
+			convoi_pics[i - 1].rcolor = cnv->get_vehikel(i-1)->get_besch()->can_lead(cnv->get_vehikel(i)->get_besch()) ? COL_GREEN : COL_RED;
+			convoi_pics[i].lcolor     = cnv->get_vehikel(i)->get_besch()->can_follow(cnv->get_vehikel(i-1)->get_besch()) ? COL_GREEN : COL_RED;
 		}
-		convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(cnv->get_vehikel(i - 1)->get_besch(), NULL) ? COL_GREEN : COL_YELLOW;
+		convoi_pics[i - 1].rcolor = cnv->get_vehikel(i-1)->get_besch()->can_lead(NULL) ? COL_GREEN : COL_YELLOW;
 
 		// change grren into blue for retired vehicles
 		for(i=0;  i<cnv->get_vehikel_anzahl(); i++) {
@@ -773,17 +773,17 @@ void depot_frame_t::update_data()
 		*/
 
 		if(veh_action == va_insert) {
-			if (!convoi_t::pruefe_nachfolger(info, veh) || (veh && !convoi_t::pruefe_vorgaenger(info, veh))) {
+			if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
 				iter1.get_current_value()->lcolor = COL_RED;
 				iter1.get_current_value()->rcolor = COL_RED;
-			} else if(!convoi_t::pruefe_vorgaenger(NULL, info)) {
+			} else if(!info->can_follow(NULL)) {
 				iter1.get_current_value()->lcolor = COL_YELLOW;
 			}
 		} else if(veh_action == va_append) {
-			if(!convoi_t::pruefe_vorgaenger(veh, info) || (veh && !convoi_t::pruefe_nachfolger(veh, info))) {
+			if(!info->can_follow(veh)  ||  (veh  &&  !veh->can_lead(info))) {
 				iter1.get_current_value()->lcolor = COL_RED;
 				iter1.get_current_value()->rcolor = COL_RED;
-			} else if(!convoi_t::pruefe_nachfolger(info, NULL)) {
+			} else if(!info->can_lead(NULL)) {
 				iter1.get_current_value()->rcolor = COL_YELLOW;
 			}
 		} else if( veh_action == va_sell ) {
