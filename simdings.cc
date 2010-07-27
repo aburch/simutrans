@@ -307,7 +307,7 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 * @author prissi
  */
 void
-ding_t::mark_image_dirty(image_id bild,sint8 yoff) const
+ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
 {
 	if(bild!=IMG_LEER) {
 		int xpos=0, ypos=0;

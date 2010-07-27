@@ -949,6 +949,6 @@ void gebaeude_t::entferne(spieler_t *sp)
 
 	// remove all traces from the screen
 	for(  int i=0;  get_bild(i)!=IMG_LEER;  i++ ) {
-		mark_image_dirty( get_bild(i), -get_tile_raster_width()*i );
+		mark_image_dirty( get_bild(i), -(i<<6) );
 	}
 }
