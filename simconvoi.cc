@@ -1668,23 +1668,23 @@ convoi_t::rdwr(loadsave_t *file)
 	// @author hsiegeln
 	if(file->get_version()<88003) {
 		dummy = 0;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		line_id = (uint16)dummy;
 	}
 	else {
-		file->rdwr_short(line_id, " ");
+		file->rdwr_short(line_id);
 	}
 
 	dummy = anz_vehikel;
-	file->rdwr_long(dummy, " ");
+	file->rdwr_long(dummy);
 	anz_vehikel = (uint8)dummy;
 
 	if(file->get_version()<99014) {
 		// was anz_ready
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 	}
 
-	file->rdwr_long(wait_lock, " ");
+	file->rdwr_long(wait_lock);
 	// some versions may produce broken safegames apparently
 	if(wait_lock > 60000) {
 		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
@@ -1692,18 +1692,18 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	bool dummy_bool=false;
-	file->rdwr_bool(dummy_bool, " ");
-	file->rdwr_long(besitzer_n, "\n");
-	file->rdwr_long(akt_speed, " ");
-	file->rdwr_long(akt_speed_soll, " ");
-	file->rdwr_long(sp_soll, " ");
-	file->rdwr_enum(state, " ");
-	file->rdwr_enum(alte_richtung, " ");
+	file->rdwr_bool(dummy_bool);
+	file->rdwr_long(besitzer_n);
+	file->rdwr_long(akt_speed);
+	file->rdwr_long(akt_speed_soll);
+	file->rdwr_long(sp_soll);
+	file->rdwr_enum(state);
+	file->rdwr_enum(alte_richtung);
 
 	// read the yearly income (which has since then become a 64 bit value)
 	// will be recalculated later directly from the history
 	if(file->get_version()<=89003) {
-		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy);
 	}
 
 	route.rdwr(file);
@@ -1844,7 +1844,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	bool has_fpl = (fpl != NULL);
-	file->rdwr_bool(has_fpl, "");
+	file->rdwr_bool(has_fpl);
 	if(has_fpl) {
 		//DBG_MESSAGE("convoi_t::rdwr()","convoi has a schedule, state %s!",state_names[state]);
 		const vehikel_t* v = fahr[0];
@@ -1880,12 +1880,12 @@ convoi_t::rdwr(loadsave_t *file)
 		int j;
 		for (j = 0; j<3; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (j = 2; j<5; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -1896,7 +1896,7 @@ convoi_t::rdwr(loadsave_t *file)
 		// load statistics
 		for (int j = 0; j<5; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -1907,14 +1907,14 @@ convoi_t::rdwr(loadsave_t *file)
 		// load statistics
 		for (int j = 0; j<MAX_CONVOI_COST; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 	}
 
 	// the convoi odometer
 	if(  file->get_version()>102002  ){
-		file->rdwr_longlong( total_distance_traveled, "" );
+		file->rdwr_longlong( total_distance_traveled);
 	}
 
 	// since it was saved as an signed int
@@ -1928,7 +1928,7 @@ convoi_t::rdwr(loadsave_t *file)
 
 	// save/restore pending line updates
 	if(file->get_version()>84008   &&  file->get_version()<99013) {
-		file->rdwr_long(dummy, "\n");	// ignore
+		file->rdwr_long(dummy);	// ignore
 	}
 	if(file->is_loading()) {
 		line_update_pending = linehandle_t();
@@ -1953,22 +1953,22 @@ convoi_t::rdwr(loadsave_t *file)
 		steps_driven = -1;
 	}
 	else {
-		file->rdwr_short( steps_driven, "s" );
+		file->rdwr_short(steps_driven);
 	}
 
 	// waiting time left ...
 	if(file->get_version()>=99017) {
 		if(file->is_saving()) {
 			if(go_on_ticks==WAIT_INFINITE) {
-				file->rdwr_long( go_on_ticks, "dt" );
+				file->rdwr_long(go_on_ticks);
 			}
 			else {
 				uint32 diff_ticks = welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
-				file->rdwr_long( diff_ticks, "dt" );
+				file->rdwr_long(diff_ticks);
 			}
 		}
 		else {
-			file->rdwr_long( go_on_ticks, "dt" );
+			file->rdwr_long(go_on_ticks);
 			if(go_on_ticks!=WAIT_INFINITE) {
 				go_on_ticks += welt->get_zeit_ms();
 			}
@@ -1987,7 +1987,7 @@ convoi_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( 0 );
 	}
 	else {
-		file->rdwr_byte( tiles_overtaking, "o" );
+		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
 	}
 	// no_load, withdraw
@@ -1996,8 +1996,8 @@ convoi_t::rdwr(loadsave_t *file)
 		withdraw = false;
 	}
 	else {
-		file->rdwr_bool( no_load, "" );
-		file->rdwr_bool( withdraw, "" );
+		file->rdwr_bool(no_load);
+		file->rdwr_bool(withdraw);
 	}
 
 	if( file->is_loading() ) {

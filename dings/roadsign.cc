@@ -371,20 +371,20 @@ void roadsign_t::rdwr(loadsave_t *file)
 
 	uint8 dummy=0;
 	if(  file->get_version()<=102002  ) {
-		file->rdwr_byte(dummy, " ");
+		file->rdwr_byte(dummy);
 		if(  file->is_loading()  ) {
 			ticks_ns = ticks_ow = 16;
 		}
 	}
 	else {
-		file->rdwr_byte(ticks_ns, "" );
-		file->rdwr_byte(ticks_ow, "" );
+		file->rdwr_byte(ticks_ns);
+		file->rdwr_byte(ticks_ow);
 	}
 	dummy = zustand;
-	file->rdwr_byte(dummy, " ");
+	file->rdwr_byte(dummy);
 	zustand = dummy;
 	dummy = dir;
-	file->rdwr_byte(dummy, "\n");
+	file->rdwr_byte(dummy);
 	dir = dummy;
 	if(file->get_version()<89000) {
 		dir = ribi_t::rueckwaerts(dir);

@@ -1402,17 +1402,17 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	}
 
 	// now save current state ...
-	file->rdwr_enum(state, "");
-	file->rdwr_long( construction_speed, "" );
-	file->rdwr_bool( air_transport, "" );
-	file->rdwr_bool( ship_transport, "" );
+	file->rdwr_enum(state);
+	file->rdwr_long(construction_speed);
+	file->rdwr_bool(air_transport);
+	file->rdwr_bool(ship_transport);
 	platz1.rdwr( file );
 	platz2.rdwr( file );
 
 	if(file->is_saving()) {
 		// save current pointers
 		sint32 delta_steps = next_contruction_steps-welt->get_steps();
-		file->rdwr_long(delta_steps, " ");
+		file->rdwr_long(delta_steps);
 		koord k = start_stadt ? start_stadt->get_pos() : koord::invalid;
 		k.rdwr(file);
 		k = end_stadt ? end_stadt->get_pos() : koord::invalid;
@@ -1424,7 +1424,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// since steps in loaded game == 0
-		file->rdwr_long(next_contruction_steps, " ");
+		file->rdwr_long(next_contruction_steps);
 		next_contruction_steps += welt->get_steps();
 		// reinit current pointers
 		koord k;

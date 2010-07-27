@@ -455,7 +455,7 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 		count = list.get_count();
 		DBG_MESSAGE("depot_t::vehikel_laden()","saving %d vehicles",count);
 	}
-	file->rdwr_long(count, "\n");
+	file->rdwr_long(count);
 
 	if(file->is_loading()) {
 

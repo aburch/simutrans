@@ -869,23 +869,23 @@ void stadt_t::rdwr(loadsave_t* file)
 	uint32 lob = lo.y;
 	uint32 lre = ur.x;
 	uint32 lun = ur.y;
-	file->rdwr_long(lli, " ");
-	file->rdwr_long(lob, "\n");
-	file->rdwr_long(lre, " ");
-	file->rdwr_long(lun, "\n");
+	file->rdwr_long(lli);
+	file->rdwr_long(lob);
+	file->rdwr_long(lre);
+	file->rdwr_long(lun);
 	lo.x = lli;
 	lo.y = lob;
 	ur.x = lre;
 	ur.y = lun;
-	file->rdwr_long(besitzer_n, "\n");
-	file->rdwr_long(bev, " ");
-	file->rdwr_long(arb, " ");
-	file->rdwr_long(won, "\n");
+	file->rdwr_long(besitzer_n);
+	file->rdwr_long(bev);
+	file->rdwr_long(arb);
+	file->rdwr_long(won);
 	// old values zentrum_namen_cnt : aussen_namen_cnt
 	if(file->get_version()<99018) {
 		sint32 dummy=0;
-		file->rdwr_long(dummy, " ");
-		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy);
+		file->rdwr_long(dummy);
 	}
 
 	if (file->is_loading()) {
@@ -915,52 +915,52 @@ void stadt_t::rdwr(loadsave_t* file)
 		// 86.00.0 introduced city history
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
 			for (uint hist_type = 0; hist_type < 2; hist_type++) {
-				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 			for (uint hist_type = 4; hist_type < 6; hist_type++) {
-				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
 		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
 			for (uint hist_type = 0; hist_type < 2; hist_type++) {
-				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 			for (uint hist_type = 4; hist_type < 6; hist_type++) {
-				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
 		// not needed any more
 		sint32 dummy = 0;
-		file->rdwr_long(dummy, " ");
-		file->rdwr_long(dummy, "\n");
-		file->rdwr_long(dummy, " ");
-		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy);
+		file->rdwr_long(dummy);
+		file->rdwr_long(dummy);
+		file->rdwr_long(dummy);
 	}
 	else {
 		// 99.17.0 extended city history
 		for (uint year = 0; year < MAX_CITY_HISTORY_YEARS; year++) {
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
-				file->rdwr_longlong(city_history_year[year][hist_type], " ");
+				file->rdwr_longlong(city_history_year[year][hist_type]);
 			}
 		}
 		for (uint month = 0; month < MAX_CITY_HISTORY_MONTHS; month++) {
 			for (uint hist_type = 0; hist_type < MAX_CITY_HISTORY; hist_type++) {
-				file->rdwr_longlong(city_history_month[month][hist_type], " ");
+				file->rdwr_longlong(city_history_month[month][hist_type]);
 			}
 		}
 		// save button settings for this town
-		file->rdwr_long( stadtinfo_options, "si" );
+		file->rdwr_long( stadtinfo_options);
 	}
 
 	if(file->get_version()>99014  &&  file->get_version()<99016) {
 		sint32 dummy = 0;
-		file->rdwr_long(dummy, " ");
-		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy);
+		file->rdwr_long(dummy);
 	}
 
 	// since 102.2 there are static cities
 	if(file->get_version()>102001) {
-		file->rdwr_bool(allow_citygrowth,"");
+		file->rdwr_bool(allow_citygrowth);
 	}
 	else if(  file->is_loading()  ) {
 		allow_citygrowth = true;

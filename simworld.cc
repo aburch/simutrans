@@ -3769,9 +3769,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		access_einstellungen()->set_player_type( i, old_sp[i] );
 	}
 
-	file->rdwr_long(ticks, " ");
-	file->rdwr_long(letzter_monat, " ");
-	file->rdwr_long(letztes_jahr, "\n");
+	file->rdwr_long(ticks);
+	file->rdwr_long(letzter_monat);
+	file->rdwr_long(letztes_jahr);
 
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->rdwr(file);
@@ -3797,13 +3797,13 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 	if(  file->get_version()<=102001  ) {
 		// not needed any more
 		for(int j=0; j<(get_groesse_y()+1)*(get_groesse_x()+1); j++) {
-			file->rdwr_byte(grid_hgts[j], "\n");
+			file->rdwr_byte(grid_hgts[j]);
 		}
 	DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved hgt");
 	}
 
 	sint32 fabs = fab_list.get_count();
-	file->rdwr_long(fabs, "\n");
+	file->rdwr_long(fabs);
 	slist_iterator_tpl<fabrik_t*> fiter( fab_list );
 	while(fiter.next()) {
 		(fiter.get_current())->rdwr(file);
@@ -3814,7 +3814,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved tiles");
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved fabs");
 
 	sint32 haltcount=haltestelle_t::get_alle_haltestellen().get_count();
-	file->rdwr_long(haltcount,"hc");
+	file->rdwr_long(haltcount);
 	slist_iterator_tpl<halthandle_t> iter (haltestelle_t::get_alle_haltestellen());
 	while(iter.next()) {
 		iter.get_current()->rdwr( file );
@@ -3824,7 +3824,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved stops");
 	// svae number of convois
 	if(  file->get_version()>=101000  ) {
 		uint16 i=convoi_array.get_count();
-		file->rdwr_short( i, "" );
+		file->rdwr_short(i);
 	}
 	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
 		// one MUST NOT call INT_CHECK here or else the convoi will be broken during reloading!
@@ -3864,20 +3864,20 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
 	// centered on what?
 	sint32 dummy = ij_off.x;
-	file->rdwr_long(dummy, " ");
+	file->rdwr_long(dummy);
 	dummy = ij_off.y;
-	file->rdwr_long(dummy, "\n");
+	file->rdwr_long(dummy);
 
 	if(file->get_version()>=99018) {
 		// most recent version is 99018
 		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
 			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		for (int month = 0;month</*MAX_WORLD_HISTORY_MONTHS*/12;month++) {
 			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
 	}
@@ -4065,9 +4065,9 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 
 DBG_DEBUG("karte_t::laden", "init felder ok");
 
-	file->rdwr_long(ticks, " ");
-	file->rdwr_long(letzter_monat, " ");
-	file->rdwr_long(letztes_jahr, "\n");
+	file->rdwr_long(ticks);
+	file->rdwr_long(letzter_monat);
+	file->rdwr_long(letztes_jahr);
 	if(file->get_version()<86006) {
 		letztes_jahr += umgebung_t::default_einstellungen.get_starting_year();
 	}
@@ -4132,7 +4132,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		for (int y = 0; y <= get_groesse_y(); y++) {
 			for (int x = 0; x <= get_groesse_x(); x++) {
 				sint32 hgt;
-				file->rdwr_long(hgt, "\n");
+				file->rdwr_long(hgt);
 				// old height step was 16!
 				set_grid_hgt(koord(x, y), (hgt*Z_TILE_STEP)/16 );
 			}
@@ -4142,7 +4142,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		// hgt now bytes
 		DBG_MESSAGE("karte_t::laden()","loading grid for older versions");
 		for( sint32 i=0;  i<(get_groesse_y()+1)*(get_groesse_x()+1);  i++  ) {
-			file->rdwr_byte( grid_hgts[i], "\n" );
+			file->rdwr_byte(grid_hgts[i]);
 		}
 	}
 	else {
@@ -4163,7 +4163,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		for (int y = 0; y < get_groesse_y(); y++) {
 			for (int x = 0; x < get_groesse_x(); x++) {
 				sint8 slope;
-				file->rdwr_byte(slope, ",");
+				file->rdwr_byte(slope);
 				access(x, y)->get_kartenboden()->set_grund_hang(slope);
 			}
 		}
@@ -4193,7 +4193,7 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 	reliefkarte_t::get_karte()->set_welt(this);
 
 	sint32 fabs;
-	file->rdwr_long(fabs, "\n");
+	file->rdwr_long(fabs);
 	DBG_MESSAGE("karte_t::laden()", "prepare for %i factories", fabs);
 
 	for(sint32 i = 0; i < fabs; i++) {
@@ -4244,7 +4244,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	//  like the total number of stops build (for the numbered station feature)
 	if(file->get_version()>=99008) {
 		sint32 halt_count;
-		file->rdwr_long(halt_count,"hc");
+		file->rdwr_long(halt_count);
 		DBG_MESSAGE("karte_t::laden()","%d halts loaded",halt_count);
 		for(int i=0; i<halt_count; i++) {
 			halthandle_t halt = haltestelle_t::create( this, file );
@@ -4260,7 +4260,7 @@ DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 	DBG_MESSAGE("karte_t::laden()", "load convois");
 	uint16 convoi_nr = 65535;
 	if(  file->get_version()>=101000  ) {
-		file->rdwr_short( convoi_nr, "" );
+		file->rdwr_short(convoi_nr);
 	}
 	while(  convoi_nr-->0  ) {
 
@@ -4309,8 +4309,8 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	old_blockmanager_t::laden_abschliessen(this);
 	DBG_MESSAGE("karte_t::laden()", "blocks loaded");
 
-	file->rdwr_long(mi, " ");
-	file->rdwr_long(mj, "\n");
+	file->rdwr_long(mi);
+	file->rdwr_long(mj);
 	DBG_MESSAGE("karte_t::laden()", "Setting view to %d,%d", mi,mj);
 	if(ist_in_kartengrenzen(mi,mj)) {
 		change_world_position( koord3d(mi,mj,min_hgt(koord(mi,mj))) );
@@ -4420,12 +4420,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		// most recent savegame version is 99018
 		for (int year = 0;  year</*MAX_WORLD_HISTORY_YEARS*/12;  year++) {
 			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		for (int month = 0;month</*MAX_WORLD_HISTORY_MONTHS*/12;month++) {
 			for (int cost_type = 0; cost_type</*MAX_WORLD_COST*/12; cost_type++) {
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
 		last_month_bev = finance_history_month[1][WORLD_CITICENS];

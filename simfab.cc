@@ -467,10 +467,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	pos.rdwr(file);
 
-	file->rdwr_byte(rotate, "\n");
+	file->rdwr_byte(rotate);
 
 	// now rebuilt information for received goods
-	file->rdwr_long(eingang_count, "\n");
+	file->rdwr_long(eingang_count);
 	for(i=0; i<eingang_count; i++) {
 		ware_production_t dummy;
 		const char *typ = NULL;
@@ -482,8 +482,8 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 
 		file->rdwr_str(typ);
-		file->rdwr_long(dummy.menge, " ");
-		file->rdwr_long(dummy.max, "\n");
+		file->rdwr_long(dummy.menge);
+		file->rdwr_long(dummy.max);
 		if(file->is_loading()) {
 			dummy.set_typ( warenbauer_t::get_info(typ) );
 			guarded_free(const_cast<char *>(typ));
@@ -502,7 +502,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// now rebuilt information for produced goods
-	file->rdwr_long(ausgang_count, "\n");
+	file->rdwr_long(ausgang_count);
 	for(i=0; i<ausgang_count; i++) {
 		ware_production_t dummy;
 		const char *typ = NULL;
@@ -515,10 +515,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			dummy.abgabe_letzt = ausgang[i].abgabe_letzt;
 		}
 		file->rdwr_str(typ);
-		file->rdwr_long(dummy.menge, " ");
-		file->rdwr_long(dummy.max, "\n");
-		file->rdwr_long(dummy.abgabe_sum, " ");
-		file->rdwr_long(dummy.abgabe_letzt, "\n");
+		file->rdwr_long(dummy.menge);
+		file->rdwr_long(dummy.max);
+		file->rdwr_long(dummy.abgabe_sum);
+		file->rdwr_long(dummy.abgabe_letzt);
 
 		if(file->is_loading()) {
 			dummy.set_typ( warenbauer_t::get_info(typ));
@@ -530,13 +530,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	// restore other information
 	spieler_n = welt->sp2num(besitzer_p);
-	file->rdwr_long(spieler_n, "\n");
-	file->rdwr_long(prodbase, "\n");
-	file->rdwr_long(prodfaktor, "\n");
+	file->rdwr_long(spieler_n);
+	file->rdwr_long(prodbase);
+	file->rdwr_long(prodfaktor);
 
 	// information on fields ...
 	if(file->get_version()>99016) {
-		file->rdwr_long(power, "\n");
+		file->rdwr_long(power);
 	}
 
 	// owner stuff
@@ -565,7 +565,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 	}
 
-	file->rdwr_long(anz_lieferziele, "\n");
+	file->rdwr_long(anz_lieferziele);
 
 	// connect/save consumer
 	if(file->is_loading()) {
@@ -586,14 +586,14 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	if(file->get_version()>99009) {
 		if(file->is_saving()) {
 			uint16 nr=fields.get_count();
-			file->rdwr_short(nr,"f");
+			file->rdwr_short(nr);
 			if(  file->get_version()>102002  ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					koord k = fields[i].location;
 					k.rdwr(file);
 					uint16 idx = fields[i].field_class_index;
-					file->rdwr_short(idx, NULL);
+					file->rdwr_short(idx);
 				}
 			}
 			else {
@@ -608,13 +608,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			uint16 nr=0;
 			koord k;
 			uint16 idx;
-			file->rdwr_short(nr,"f");
+			file->rdwr_short(nr);
 			fields.resize(nr);
 			if(  file->get_version()>102002  ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
-					file->rdwr_short(idx, NULL);
+					file->rdwr_short(idx);
 					if(  idx>=besch->get_field()->get_field_class_count()  ) {
 						// set class index to 0 if it is out of range
 						idx = 0;
@@ -635,13 +635,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	// restore city pointer here
 	if(  file->get_version()>=99014  ) {
 		sint32 nr = arbeiterziele.get_count();
-		file->rdwr_long( nr, "c" );
+		file->rdwr_long(nr);
 		for( int i=0;  i<nr;  i++  ) {
 			sint32 city_index = -1;
 			if(file->is_saving()) {
 				city_index = welt->get_staedte().index_of( arbeiterziele.at(i) );
 			}
-			file->rdwr_long( city_index, "c" );
+			file->rdwr_long(city_index);
 			if(file->is_loading()) {
 				// will also update factory information
 				welt->get_staedte()[city_index]->add_factory_arbeiterziel( this );

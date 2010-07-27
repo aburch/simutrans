@@ -1386,45 +1386,45 @@ void vehikel_t::rdwr_from_convoi(loadsave_t *file)
 	if(file->get_version()<86006) {
 		// parameter werden in der deklarierten reihenfolge gespeichert
 		sint32 l;
-		file->rdwr_long(insta_zeit, "\n");
-		file->rdwr_long(l, " ");
+		file->rdwr_long(insta_zeit);
+		file->rdwr_long(l);
 		dx = (sint8)l;
-		file->rdwr_long(l, "\n");
+		file->rdwr_long(l);
 		dy = (sint8)l;
-		file->rdwr_long(l, "\n");
+		file->rdwr_long(l);
 		hoff = (sint8)(l*TILE_HEIGHT_STEP/16);
-		file->rdwr_long(speed_limit, "\n");
-		file->rdwr_enum(fahrtrichtung, " ");
-		file->rdwr_enum(alte_fahrtrichtung, "\n");
-		file->rdwr_long(fracht_count, " ");
-		file->rdwr_long(l, "\n");
+		file->rdwr_long(speed_limit);
+		file->rdwr_enum(fahrtrichtung);
+		file->rdwr_enum(alte_fahrtrichtung);
+		file->rdwr_long(fracht_count);
+		file->rdwr_long(l);
 		route_index = (uint16)l;
 		insta_zeit = (insta_zeit >> welt->ticks_per_world_month_shift) + welt->get_einstellungen()->get_starting_year();
 DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1,insta_zeit/12);
 	}
 	else {
 		// prissi: changed several data types to save runtime memory
-		file->rdwr_long(insta_zeit, "\n");
+		file->rdwr_long(insta_zeit);
 		if(file->get_version()<99018) {
-			file->rdwr_byte(dx, " ");
-			file->rdwr_byte(dy, "\n");
+			file->rdwr_byte(dx);
+			file->rdwr_byte(dy);
 		}
 		else {
-			file->rdwr_byte(steps, " ");
-			file->rdwr_byte(steps_next, "\n");
+			file->rdwr_byte(steps);
+			file->rdwr_byte(steps_next);
 			if(steps_next==old_diagonal_length  &&  file->is_loading()) {
 				// reset diagonal length (convoi will be resetted anyway, if game diagonal is different)
 				steps_next = diagonal_length;
 			}
 		}
 		sint16 dummy16 = ((16*(sint16)hoff)/TILE_HEIGHT_STEP);
-		file->rdwr_short(dummy16, "\n");
+		file->rdwr_short(dummy16);
 		hoff = (sint8)((TILE_HEIGHT_STEP*(sint16)dummy16)/16);
-		file->rdwr_long(speed_limit, "\n");
-		file->rdwr_enum(fahrtrichtung, " ");
-		file->rdwr_enum(alte_fahrtrichtung, "\n");
-		file->rdwr_long(fracht_count, " ");
-		file->rdwr_short(route_index, "\n");
+		file->rdwr_long(speed_limit);
+		file->rdwr_enum(fahrtrichtung);
+		file->rdwr_enum(alte_fahrtrichtung);
+		file->rdwr_long(fracht_count);
+		file->rdwr_short(route_index);
 		// restore dxdy information
 		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
@@ -1460,12 +1460,12 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	if(file->get_version()>=88007) {
 		bool target_info;
 		if(file->is_loading()) {
-			file->rdwr_bool(target_info," ");
+			file->rdwr_bool(target_info);
 			cnv = (convoi_t *)target_info;	// will be checked during convoi reassignement
 		}
 		else {
 			target_info = target_halt.is_bound();
-			file->rdwr_bool(target_info, " ");
+			file->rdwr_bool(target_info);
 		}
 	}
 	else {
@@ -1530,8 +1530,8 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 	// skip first last info (the convoi will know this better than we!)
 	if(file->get_version()<88007) {
 		bool dummy = 0;
-		file->rdwr_bool(dummy, " ");
-		file->rdwr_bool(dummy, " ");
+		file->rdwr_bool(dummy);
+		file->rdwr_bool(dummy);
 	}
 
 	// koordinate of the last stop
@@ -3420,13 +3420,13 @@ void aircraft_t::rdwr_from_convoi(loadsave_t *file)
 
 	vehikel_t::rdwr_from_convoi(file);
 
-	file->rdwr_enum(state, " ");
-	file->rdwr_short(flughoehe, " ");
+	file->rdwr_enum(state);
+	file->rdwr_short(flughoehe);
 	flughoehe &= ~(TILE_HEIGHT_STEP-1);
-	file->rdwr_short(target_height, "\n");
-	file->rdwr_long(suchen," ");
-	file->rdwr_long(touchdown," ");
-	file->rdwr_long(takeoff,"\n");
+	file->rdwr_short(target_height);
+	file->rdwr_long(suchen);
+	file->rdwr_long(touchdown);
+	file->rdwr_long(takeoff);
 }
 
 

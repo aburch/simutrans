@@ -56,16 +56,16 @@ void ware_t::set_besch(const ware_besch_t* type)
 void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 {
 	sint32 amount = menge;
-	file->rdwr_long(amount, " ");
+	file->rdwr_long(amount);
 	menge = amount;
 	if(file->get_version()<99008) {
 		sint32 max;
-		file->rdwr_long(max, " ");
+		file->rdwr_long(max);
 	}
 
 	uint8 catg=0;
 	if(file->get_version()>=88005) {
-		file->rdwr_byte(catg,"c");
+		file->rdwr_byte(catg);
 	}
 
 	if(file->is_saving()) {

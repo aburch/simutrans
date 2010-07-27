@@ -183,25 +183,25 @@ void weg_t::rdwr(loadsave_t *file)
 	// save owner
 	if(  file->get_version() >= 99006  ) {
 		sint8 spnum=get_player_nr();
-		file->rdwr_byte(spnum,"");
+		file->rdwr_byte(spnum);
 		set_player_nr(spnum);
 	}
 
 	// all connected directions
 	uint8 dummy8 = ribi;
-	file->rdwr_byte(dummy8, "\n");
+	file->rdwr_byte(dummy8);
 	if(  file->is_loading()  ) {
 		ribi = dummy8 & 15;	// before: high bits was maske
 		ribi_maske = 0;	// maske will be restored by signal/roadsing
 	}
 
 	uint16 dummy16=max_speed;
-	file->rdwr_short(dummy16, "\n");
+	file->rdwr_short(dummy16);
 	max_speed=dummy16;
 
 	if(  file->get_version() >= 89000  ) {
 		dummy8 = flags;
-		file->rdwr_byte(dummy8,"f");
+		file->rdwr_byte(dummy8);
 		if(  file->is_loading()  ) {
 			// all other flags are restored afterwards
 			flags = dummy8 & HAS_SIDEWALK;
@@ -211,7 +211,7 @@ void weg_t::rdwr(loadsave_t *file)
 	for(  int type=0;  type<MAX_WAY_STATISTICS;  type++  ) {
 		for(  int month=0;  month<MAX_WAY_STAT_MONTHS;  month++  ) {
 			sint32 w = statistics[month][type];
-			file->rdwr_long(w, "\n");
+			file->rdwr_long(w);
 			statistics[month][type] = (sint16)w;
 			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);
 		}

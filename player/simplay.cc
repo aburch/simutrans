@@ -651,29 +651,29 @@ void spieler_t::rdwr(loadsave_t *file)
 	xml_tag_t sss( file, "spieler_t" );
 	sint32 halt_count=0;
 
-	file->rdwr_longlong(konto, " ");
-	file->rdwr_long(konto_ueberzogen, " ");
+	file->rdwr_longlong(konto);
+	file->rdwr_long(konto_ueberzogen);
 
 	if(file->get_version()<101000) {
 		// ignore steps
 		sint32 ldummy=0;
-		file->rdwr_long(ldummy, " ");
+		file->rdwr_long(ldummy);
 	}
 
 	if(file->get_version()<99009) {
 		sint32 farbe;
-		file->rdwr_long(farbe, " ");
+		file->rdwr_long(farbe);
 		kennfarbe1 = (uint8)farbe*2;
 		kennfarbe2 = kennfarbe1+24;
 	}
 	else {
-		file->rdwr_byte(kennfarbe1, " ");
-		file->rdwr_byte(kennfarbe2, " ");
+		file->rdwr_byte(kennfarbe1);
+		file->rdwr_byte(kennfarbe2);
 	}
 	if(file->get_version()<99008) {
-		file->rdwr_long(halt_count, " ");
+		file->rdwr_long(halt_count);
 	}
-	file->rdwr_long(haltcount, " ");
+	file->rdwr_long(haltcount);
 
 	if (file->get_version() < 84008) {
 		// not so old save game
@@ -683,11 +683,11 @@ void spieler_t::rdwr(loadsave_t *file)
 					// a cost_type has has been added. For old savegames we only have 9 cost_types, now we have 10.
 					// for old savegames only load 9 types and calculate the 10th; for new savegames load all 10 values
 					if (cost_type < 9) {
-						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+						file->rdwr_longlong(finance_history_year[year][cost_type]);
 					}
 				} else {
 					if (cost_type < 10) {
-						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+						file->rdwr_longlong(finance_history_year[year][cost_type]);
 					}
 				}
 			}
@@ -697,13 +697,13 @@ void spieler_t::rdwr(loadsave_t *file)
 	else if (file->get_version() < 86000) {
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<10; cost_type++) {
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		// in 84008 monthly finance history was introduced
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<10; cost_type++) {
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
 	}
@@ -711,12 +711,12 @@ void spieler_t::rdwr(loadsave_t *file)
 		// powerline category missing
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<12; cost_type++) {
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<12; cost_type++) {
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
 	}
@@ -724,12 +724,12 @@ void spieler_t::rdwr(loadsave_t *file)
 		// without detailed goo statistics
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<13; cost_type++) {
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<13; cost_type++) {
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
 	}
@@ -737,12 +737,12 @@ void spieler_t::rdwr(loadsave_t *file)
 		// saved everything
 		for (int year = 0;year<MAX_PLAYER_HISTORY_YEARS;year++) {
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 		}
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 		}
 	}
@@ -751,20 +751,20 @@ void spieler_t::rdwr(loadsave_t *file)
 		for(int year = 0;  year<MAX_PLAYER_HISTORY_YEARS;  year++  ) {
 			for(  int cost_type = 0;   cost_type<MAX_PLAYER_COST;   cost_type++  ) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
 				}
 			}
 		}
 		for (int month = 0;month<MAX_PLAYER_HISTORY_MONTHS;month++) {
 			for (int cost_type = 0; cost_type<MAX_PLAYER_COST; cost_type++) {
 				if(  cost_type<COST_NETWEALTH  ||  cost_type>COST_MARGIN  ) {
-					file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
 				}
 			}
 		}
 	}
 	if(  file->get_version()>102002  ) {
-		file->rdwr_longlong(starting_money, "");
+		file->rdwr_longlong(starting_money);
 	}
 
 	// we have to pay maintenance at the beginning of a month
@@ -772,22 +772,22 @@ void spieler_t::rdwr(loadsave_t *file)
 		buche( -finance_history_month[1][COST_MAINTENANCE], COST_MAINTENANCE );
 	}
 
-	file->rdwr_bool(automat, "\n");
+	file->rdwr_bool(automat);
 
 	// state is not saved anymore
 	if(file->get_version()<99014) {
 		sint32 ldummy=0;
-		file->rdwr_long(ldummy, " ");
-		file->rdwr_long(ldummy, "\n");
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
 	}
 
 	// the AI stuff is now saved directly by the different AI
 	if(  file->get_version()<101000) {
 		sint32 ldummy = -1;
-		file->rdwr_long(ldummy, " ");
-		file->rdwr_long(ldummy, "\n");
-		file->rdwr_long(ldummy, " ");
-		file->rdwr_long(ldummy, "\n");
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
 		koord k(-1,-1);
 		k.rdwr( file );
 		k.rdwr( file );
@@ -844,7 +844,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		headquarter_pos = koord::invalid;
 	}
 	else {
-		file->rdwr_long(headquarter_level, " ");
+		file->rdwr_long(headquarter_level);
 		headquarter_pos.rdwr( file );
 		if(file->is_loading()) {
 			if(headquarter_level>(sint32)hausbauer_t::headquarter.get_count()) {
@@ -865,7 +865,7 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	if(file->get_version()>102002) {
 		// password hash
 		for(  int i=0;  i<20;  i++  ) {
-			file->rdwr_byte( pwd_hash[i], "" );
+			file->rdwr_byte(pwd_hash[i]);
 		}
 		if(  file->is_loading()  ) {
 			locked = true;

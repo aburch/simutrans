@@ -564,7 +564,7 @@ void route_t::rdwr(loadsave_t *file)
 	xml_tag_t r( file, "route_t" );
 	sint32 max_n = route.get_count()-1;
 
-	file->rdwr_long(max_n, "\n");
+	file->rdwr_long(max_n);
 	if(file->is_loading()) {
 		koord3d k;
 		route.clear();

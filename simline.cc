@@ -131,11 +131,11 @@ void simline_t::rdwr(loadsave_t *file)
 	file->rdwr_str(name, lengthof(name));
 	if(file->get_version()<88003) {
 		sint32 dummy=id;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		id = (uint16)dummy;
 	}
 	else {
-		file->rdwr_short(id, " ");
+		file->rdwr_short(id);
 	}
 	fpl->rdwr(file);
 
@@ -143,7 +143,7 @@ void simline_t::rdwr(loadsave_t *file)
 	if(  file->get_version()<=102002  ) {
 		for (int j = 0; j<6; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -153,13 +153,13 @@ void simline_t::rdwr(loadsave_t *file)
 	else {
 		for (int j = 0; j<MAX_LINE_COST; j++) {
 			for (int k = MAX_MONTHS-1; k>=0; k--) {
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 	}
 
 	if(file->get_version()>=102002) {
-		file->rdwr_bool( withdraw, "" );
+		file->rdwr_bool(withdraw);
 	}
 
 	// otherwise inintialized to zero if loading ...

@@ -2109,13 +2109,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->get_version()<99008) {
 		init_pos.rdwr( file );
 	}
-	file->rdwr_long(spieler_n, "\n");
+	file->rdwr_long(spieler_n);
 
 	if(file->get_version()<=88005) {
 		bool dummy;
-		file->rdwr_bool(dummy, " "); // pax
-		file->rdwr_bool(dummy, " "); // post
-		file->rdwr_bool(dummy, "\n");	// ware
+		file->rdwr_bool(dummy); // pax
+		file->rdwr_bool(dummy); // post
+		file->rdwr_bool(dummy);	// ware
 	}
 
 	if(file->is_loading()) {
@@ -2164,7 +2164,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
 				count = warray->get_count();
-				file->rdwr_short(count, " ");
+				file->rdwr_short(count);
 				for(unsigned i=0;  i<warray->get_count();  i++ ) {
 					ware_t &ware = (*warray)[i];
 					ware.rdwr(welt,file);
@@ -2180,7 +2180,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
 		while(*s) {
-			file->rdwr_short(count, " ");
+			file->rdwr_short(count);
 			if(count>0) {
 				for(int i = 0; i < count; i++) {
 					// add to internal storage (use this function, since the old categories were different)
@@ -2199,7 +2199,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		// old games save the list with stations
 		// however, we have to rebuilt them anyway for the new format
 		if(file->get_version()<99013) {
-			file->rdwr_short(count, " ");
+			file->rdwr_short(count);
 			for(int i=0; i<count; i++) {
 				warenziel_t wz (file);
 			}
@@ -2209,7 +2209,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 	for (int j = 0; j<MAX_HALT_COST; j++) {
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
-			file->rdwr_longlong(financial_history[k][j], " ");
+			file->rdwr_longlong(financial_history[k][j]);
 		}
 	}
 	pax_happy    = financial_history[0][HALT_HAPPY];

@@ -610,7 +610,7 @@ grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 	}
 	else {
 		const bool snow_transition = (height+Z_TILE_STEP==welt->get_snowline());
-		const bool snow = height >= welt->get_snowline();
+		const bool snow = (height >= welt->get_snowline());
 		if(h==0) {
 			// water, coastal or winter slope?
 			return slope ? image_offset + (uint16)slope + (14*(snow_transition||snow)) : image_offset;

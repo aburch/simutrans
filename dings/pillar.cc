@@ -85,12 +85,12 @@ void pillar_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) {
 		const char *s = besch->get_name();
 		file->rdwr_str(s);
-		file->rdwr_byte(dir,"\n");
+		file->rdwr_byte(dir);
 	}
 	else {
 		char s[256];
 		file->rdwr_str(s, lengthof(s));
-		file->rdwr_byte(dir,"\n");
+		file->rdwr_byte(dir);
 
 		besch = brueckenbauer_t::get_besch(s);
 		if(besch==0) {

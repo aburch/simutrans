@@ -710,8 +710,8 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_str(buf, lengthof(buf));
 	}
-	file->rdwr_short(idx, "\n");
-	file->rdwr_long(insta_zeit, " ");
+	file->rdwr_short(idx);
+	file->rdwr_long(insta_zeit);
 
 	if(file->is_loading()) {
 		tile = hausbauer_t::find_tile(buf, idx);
@@ -825,7 +825,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	if(file->get_version()<99006) {
 		// ignore the sync flag
 		uint8 dummy=sync;
-		file->rdwr_byte(dummy, "\n");
+		file->rdwr_byte(dummy);
 	}
 
 	// restore city pointer here
@@ -834,7 +834,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
 			city_index = welt->get_staedte().index_of( ptr.stadt );
 		}
-		file->rdwr_long( city_index, "c" );
+		file->rdwr_long(city_index);
 		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_besch()==NULL  ||  tile->get_besch()->is_connected_with_town())  ) {
 			ptr.stadt = welt->get_staedte()[city_index];
 		}

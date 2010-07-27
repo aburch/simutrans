@@ -1308,22 +1308,22 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	}
 
 	// now save current state ...
-	file->rdwr_enum(state, " ");
+	file->rdwr_enum(state);
 	platz1.rdwr( file );
 	size1.rdwr( file );
 	platz2.rdwr( file );
 	size2.rdwr( file );
-	file->rdwr_long(count_rail, "" );
-	file->rdwr_long(count_road, "" );
-	file->rdwr_long(count, "" );
-	file->rdwr_bool( road_transport, "" );
-	file->rdwr_bool( rail_transport, "" );
-	file->rdwr_bool( ship_transport, "" );
+	file->rdwr_long(count_rail);
+	file->rdwr_long(count_road);
+	file->rdwr_long(count);
+	file->rdwr_bool(road_transport);
+	file->rdwr_bool(rail_transport);
+	file->rdwr_bool(ship_transport);
 
 	if(file->is_saving()) {
 		// save current pointers
 		sint32 delta_steps = next_contruction_steps-welt->get_steps();
-		file->rdwr_long(delta_steps, " ");
+		file->rdwr_long(delta_steps);
 		koord3d k3d = root ? root->get_pos() : koord3d::invalid;
 		k3d.rdwr(file);
 		k3d = start ? start->get_pos() : koord3d::invalid;
@@ -1350,7 +1350,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// since steps in loaded game == 0
-		file->rdwr_long(next_contruction_steps, " ");
+		file->rdwr_long(next_contruction_steps);
 		// reinit current pointers
 		koord3d k3d;
 		k3d.rdwr(file);
@@ -1381,7 +1381,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 
 	// finally: forbidden connection list
 	sint32 cnt = forbidden_connections.get_count();
-	file->rdwr_long(cnt,"Fc");
+	file->rdwr_long(cnt);
 	if(file->is_saving()) {
 		slist_iterator_tpl<fabconnection_t*> iter(forbidden_connections);
 		while(  iter.next()  ) {
