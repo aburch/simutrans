@@ -468,7 +468,7 @@ public:
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
 
-	const einstellungen_t * const get_einstellungen() const { return einstellungen; }
+	const einstellungen_t * get_einstellungen() const { return einstellungen; }
 	einstellungen_t *access_einstellungen() const { return einstellungen; }
 
 	// returns current speed bonus
