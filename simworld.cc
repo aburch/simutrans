@@ -5232,7 +5232,7 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 
 		if(  umgebung_t::networkmode  ) {
-			// did we recieved a new command?
+			// did we receive a new command?
 			network_command_t *nwc = network_check_activity( min(5u,next_step_time-dr_time()) );
 			if(  nwc==NULL  &&  !network_check_server_connection()  ) {
 				network_disconnect();

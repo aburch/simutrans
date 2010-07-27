@@ -469,7 +469,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 
 	file->rdwr_byte(rotate, "\n");
 
-	// now rebuilt information for recieved goods
+	// now rebuilt information for received goods
 	file->rdwr_long(eingang_count, "\n");
 	for(i=0; i<eingang_count; i++) {
 		ware_production_t dummy;

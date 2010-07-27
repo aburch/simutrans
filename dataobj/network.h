@@ -47,20 +47,20 @@ bool network_init_server( int port );
 
 /* do appropriate action for network server:
  * - either connect to a new client
- * - recieve commands
+ * - receive commands
  * returns pointer to commmand or NULL
  * timeout in milliseconds
  */
 network_command_t* network_check_activity(int timeout);
 
-// recieves x bytes from socket sender
-uint16 network_recieve_data( SOCKET sender, void *dest, const uint16 length );
+// receives x bytes from socket sender
+uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length );
 
 // before calling this, the server should have saved the current game as "server-network.sve"
 const char *network_send_file( uint32 client_id, const char *filename );
 
 // this saves the game from network under "client-network.sve"
-const char *network_recieve_file( SOCKET s, const char *name, const long len );
+const char *network_receive_file( SOCKET s, const char *name, const long len );
 
 // number of currently active clients
 int network_get_clients();

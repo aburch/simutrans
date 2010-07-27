@@ -316,7 +316,7 @@ bool load_font(font_type* fnt, const char* fname)
 
 		fnt->screen_width[32] = 4;
 		fnt->char_data[CHARACTER_LEN*32 + CHARACTER_LEN-1] = 0;	// space width
-		fprintf(stderr, "%s sucessfully loaded as old format prop font!\n", fname);
+		fprintf(stderr, "%s successfully loaded as old format prop font!\n", fname);
 		return true;
 	}
 

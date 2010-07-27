@@ -192,7 +192,7 @@ const char *network_connect(const char *cp)
 		// garanteed individual file name ...
 		char filename[256];
 		sprintf( filename, "client%i-network.sve", client_id );
-		err = network_recieve_file( my_client_socket, filename, len );
+		err = network_receive_file( my_client_socket, filename, len );
 	}
 end:
 	if(err) {
@@ -319,7 +319,7 @@ static int fill_set(fd_set *fds)
 
 /* do appropriate action for network server:
  * - either connect to a new client
- * - recieve commands
+ * - receive commands
  */
 network_command_t* network_check_activity(int timeout)
 {
@@ -373,7 +373,7 @@ network_command_t* network_check_activity(int timeout)
 		if(  sender==INVALID_SOCKET  ) {
 			return NULL;
 		}
-		// recieve only one command
+		// receive only one command
 		FD_ZERO(&fds);
 		FD_SET(sender,&fds);
 		tv.tv_usec = 0;
@@ -386,7 +386,7 @@ network_command_t* network_check_activity(int timeout)
 			network_remove_client(sender);
 		}
 		else {
-			dbg->warning( "network_check_activity()", "recieved cmd id=%d %s", nwc->get_id(), nwc->get_name());
+			dbg->warning( "network_check_activity()", "received cmd id=%d %s", nwc->get_id(), nwc->get_name());
 		}
 		// read something sucessful
 		return nwc;
@@ -469,7 +469,7 @@ void network_send_server(network_command_t* nwc )
 
 
 
-uint16 network_recieve_data( SOCKET sender, void *dest, const uint16 length )
+uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length )
 {
 	fd_set fds;
 	uint16 bytes = 0;
@@ -540,12 +540,12 @@ const char *network_send_file( uint32 client_id, const char *filename )
 }
 
 
-const char *network_recieve_file( SOCKET s, const char *save_as, const long length )
+const char *network_receive_file( SOCKET s, const char *save_as, const long length )
 {
 	// ok, we have a socket to connect
 	remove(save_as);
 
-	DBG_MESSAGE("network_recieve_file","Game size %li", length );
+	DBG_MESSAGE("network_receive_file","Game size %li", length );
 
 	if(is_display_init()  &&  length>0) {
 		display_set_progress_text(translator::translate("Transferring game ..."));
