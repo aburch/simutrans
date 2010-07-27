@@ -196,7 +196,9 @@ public:
 
 	int get_nachfolger_count() const { return nachfolger; }
 
-	/* returns true, if this veh can be before the next_veh */
+	/* returns true, if this veh can be before the next_veh
+	 * uses NULL to indicate end of convoi
+	 */
 	bool can_lead(const vehikel_besch_t *next_veh) const
 	{
 		if(  nachfolger==0  ) {
@@ -212,15 +214,9 @@ public:
 		return false;
 	}
 
-	/* test, if a certain vehicle can lead a convoi *
-	 * used by vehikel_search
-	 * @author prissi
+	/* returns true, if this veh can be after the prev_veh
+	 * uses NULL to indicate front of convoi
 	 */
-	bool can_lead() const {
-		return can_lead(NULL);
-	}
-
-	/* returns true, if this veh can be after the prev_veh */
 	bool can_follow(const vehikel_besch_t *prev_veh) const
 	{
 		if(  vorgaenger==0  ) {

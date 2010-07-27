@@ -111,11 +111,11 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// first display ground
 	int	y;
-	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
+	for(y=-4; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+dpy_height; x+=2) {
+		for(sint16 x=-2-((y+dpy_width) & 1); x<=2*dpy_width; x+=2) {
 
 			const sint16 i = ((y+x) >> 1) + i_off;
 			const sint16 j = ((y-x) >> 1) + j_off;
@@ -138,11 +138,11 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// and then things (and other ground)
 	// especially necessary for vehicles
-	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
+	for(y=-4; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+dpy_height; x+=2) {
+		for(sint16 x=-2-((y+dpy_width) & 1); x<=2*dpy_width; x+=2) {
 
 			const int i = ((y+x) >> 1) + i_off;
 			const int j = ((y-x) >> 1) + j_off;
@@ -177,7 +177,7 @@ karte_ansicht_t::display(bool force_dirty)
 							underground_level = 127;
 					} */
 					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
-					if(yypos-IMG_SIZE*2<disp_height  &&  yypos+IMG_SIZE>menu_height) {
+					if(yypos-IMG_SIZE*3<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
 					}
 				}
@@ -186,11 +186,11 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// and finally overlays (station coverage and signs)
-	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
+	for(y=-4; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+dpy_height; x+=2) {
+		for(sint16 x=-2-((y+dpy_width) & 1); x<=2*dpy_width; x+=2) {
 
 			const int i = ((y+x) >> 1) + i_off;
 			const int j = ((y-x) >> 1) + j_off;

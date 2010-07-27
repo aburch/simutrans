@@ -351,7 +351,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 
 			// engine, but not allowed to lead a convoi, or no power at all or no electrics allowed
 			if(target_weight) {
-				if(test_besch->get_leistung()==0  ||  !test_besch->can_lead()  ||  (!include_electric  &&  test_besch->get_engine_type()==vehikel_besch_t::electric) ) {
+				if(test_besch->get_leistung()==0  ||  !test_besch->can_follow(NULL)  ||  (!include_electric  &&  test_besch->get_engine_type()==vehikel_besch_t::electric) ) {
 					continue;
 				}
 			}
@@ -401,7 +401,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 
 			else {
 				// engine/tugboat/truck for trailer
-				if(  test_besch->get_zuladung()!=0  ||  !test_besch->can_lead()  ) {
+				if(  test_besch->get_zuladung()!=0  ||  !test_besch->can_follow(NULL)  ) {
 					continue;
 				}
 				// finally, we might be able to use this vehicle
