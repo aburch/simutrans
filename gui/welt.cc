@@ -68,7 +68,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
-	this->sets->set_beginner_mode(umgebung_t::default_einstellungen.get_beginner_mode());
+	this->sets->beginner_mode = umgebung_t::default_einstellungen.get_beginner_mode();
 
 	// find earliest start date ...
 	uint16 game_start = 2999;
@@ -460,7 +460,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_land_industry_chains( v.i );
 	}
 	else if(komp==&inp_electric_producer) {
-		sets->set_electric_promille( v.i*10 );
+		sets->electric_promille = v.i*10;
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
@@ -478,7 +478,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->set_grundwasser(-2);
+		sets->grundwasser = -2;
 		create_win(new load_relief_frame_t(sets), w_info, magic_load_t);
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
@@ -537,7 +537,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 
 	if(knr>=0) {
-		sets->set_karte_nummer( knr );
+		sets->nummer = knr;
 		if(!loaded_heightfield) {
 			update_preview();
 		}

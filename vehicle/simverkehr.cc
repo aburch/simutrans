@@ -228,41 +228,41 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 
 	if(file->get_version() < 86006) {
 		sint32 l;
-		file->rdwr_long(l, "\n");
-		file->rdwr_long(l, " ");
-		file->rdwr_long(weg_next, "\n");
-		file->rdwr_long(l, " ");
+		file->rdwr_long(l);
+		file->rdwr_long(l);
+		file->rdwr_long(weg_next);
+		file->rdwr_long(l);
 		dx = (sint8)l;
-		file->rdwr_long(l, "\n");
+		file->rdwr_long(l);
 		dy = (sint8)l;
-		file->rdwr_enum(fahrtrichtung, " ");
-		file->rdwr_long(l, "\n");
+		file->rdwr_enum(fahrtrichtung);
+		file->rdwr_long(l);
 		hoff = (sint8)l;
 	}
 	else {
 		if(file->get_version()<99005) {
 			sint32 dummy32;
-			file->rdwr_long(dummy32, "\n");
+			file->rdwr_long(dummy32);
 		}
-		file->rdwr_long(weg_next, "\n");
+		file->rdwr_long(weg_next);
 		if(file->get_version()<99018) {
-			file->rdwr_byte(dx, " ");
-			file->rdwr_byte(dy, "\n");
+			file->rdwr_byte(dx);
+			file->rdwr_byte(dy);
 		}
 		else {
-			file->rdwr_byte(steps, " ");
-			file->rdwr_byte(steps_next, "\n");
+			file->rdwr_byte(steps);
+			file->rdwr_byte(steps_next);
 		}
-		file->rdwr_enum(fahrtrichtung, " ");
+		file->rdwr_enum(fahrtrichtung);
 		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
 		if(file->get_version()<99005  ||  file->get_version()>99016) {
 			sint16 dummy16 = ((16*(sint16)hoff)/TILE_STEPS);
-			file->rdwr_short(dummy16, "\n");
+			file->rdwr_short(dummy16);
 			hoff = (sint8)((TILE_STEPS*(sint16)dummy16)/16);
 		}
 		else {
-			file->rdwr_byte(hoff, "\n");
+			file->rdwr_byte(hoff);
 		}
 	}
 	pos_next.rdwr(file);
@@ -291,7 +291,7 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 
 	// the lifetime in ms
 	if(file->get_version()>89004) {
-		file->rdwr_long( time_to_life, "t" );
+		file->rdwr_long(time_to_life);
 	}
 
 	// Hajo: avoid endless growth of the values
@@ -534,7 +534,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		time_to_life = simrand(1000000)+10000;
 	}
 	else if(file->get_version() <= 89004) {
-		file->rdwr_long(time_to_life, "\n");
+		file->rdwr_long(time_to_life);
 		time_to_life *= 10000;	// converting from hops left to ms since start
 	}
 
@@ -546,7 +546,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 	else {
 		sint32 dummy32=current_speed;
-		file->rdwr_long(dummy32, "\n");
+		file->rdwr_long(dummy32);
 		current_speed = dummy32;
 	}
 
@@ -562,7 +562,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( 0 );
 	}
 	else {
-		file->rdwr_byte( tiles_overtaking, "o" );
+		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
 	}
 

@@ -104,7 +104,7 @@ gui_convoy_assembler_t::gui_convoy_assembler_t(karte_t *w, waytype_t wt, signed 
 	bool old_show_all=show_all;
 	show_retired_vehicles = true;
 	show_all = true;
-	einstellungen_t* e = get_welt()->get_einstellungen();
+	einstellungen_t* e = get_welt()->access_einstellungen();
 	char timeline = e->get_use_timeline();
 	e->set_use_timeline(0);
 	build_vehicle_lists();
@@ -611,11 +611,11 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 				{
 					if(veh_action == va_insert) 
 					{
-						append = convoi_t::pruefe_nachfolger(info, veh) && (veh==NULL  ||  convoi_t::pruefe_vorgaenger(info, veh));
+						append = info->can_lead(veh)  &&  (veh==NULL  ||  veh->can_follow(info));
 					} 
 					else if(veh_action == va_append) 
 					{
-						append = convoi_t::pruefe_vorgaenger(veh, info)  &&  (veh==NULL  ||  convoi_t::pruefe_nachfolger(veh, info));
+						append = info->can_follow(veh)  &&  (veh==NULL  ||  veh->can_lead(info));
 					}
 					if(upgrade == u_upgrade)
 					{
@@ -865,12 +865,12 @@ void gui_convoy_assembler_t::update_data()
 		}
 
 		/* color bars for current convoi: */
-		convoi_pics[0].lcolor = convoi_t::pruefe_vorgaenger(NULL, vehicles[0]) ? COL_DARK_GREEN : COL_YELLOW;
+		convoi_pics[0].lcolor = vehicles[0]->can_follow(NULL) ? COL_DARK_GREEN : COL_YELLOW;
 		for(  i=1;  i<vehicles.get_count(); i++) {
-			convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(vehicles[i - 1], vehicles[i]) ? COL_DARK_GREEN : COL_RED;
-			convoi_pics[i].lcolor     = convoi_t::pruefe_vorgaenger(vehicles[i - 1], vehicles[i]) ? COL_DARK_GREEN : COL_RED;
+			convoi_pics[i - 1].rcolor = vehicles[i - 1]->can_lead(vehicles[i]) ? COL_DARK_GREEN : COL_RED;
+			convoi_pics[i].lcolor     = vehicles[i]->can_follow(vehicles[i - 1]) ? COL_DARK_GREEN : COL_RED;
 		}
-		convoi_pics[i - 1].rcolor = convoi_t::pruefe_nachfolger(vehicles[i - 1], NULL) ? COL_DARK_GREEN : COL_YELLOW;
+		convoi_pics[i - 1].rcolor = vehicles[i - 1]->can_lead(NULL) ? COL_DARK_GREEN : COL_YELLOW;
 
 		// change green into blue for retired vehicles
 		for(i=0;  i<vehicles.get_count(); i++) {
@@ -916,17 +916,17 @@ void gui_convoy_assembler_t::update_data()
 		*/
 
 		if(veh_action == va_insert) {
-			if (!convoi_t::pruefe_nachfolger(info, veh) || (veh && !convoi_t::pruefe_vorgaenger(info, veh))) {
+			if(!info->can_lead(veh)  ||  (veh  &&  !veh->can_follow(info))) {
 				iter1.get_current_value()->lcolor = COL_RED;
 				iter1.get_current_value()->rcolor = COL_RED;
-			} else if(!convoi_t::pruefe_vorgaenger(NULL, info)) {
+			} else if(!info->can_follow(NULL)) {
 				iter1.get_current_value()->lcolor = COL_YELLOW;
 			}
 		} else if(veh_action == va_append) {
-			if(!convoi_t::pruefe_vorgaenger(veh, info) || (veh && !convoi_t::pruefe_nachfolger(veh, info))) {
+			if(!info->can_follow(veh)  ||  (veh  &&  !veh->can_lead(info))) {
 				iter1.get_current_value()->lcolor = COL_RED;
 				iter1.get_current_value()->rcolor = COL_RED;
-			} else if(!convoi_t::pruefe_nachfolger(info, NULL)) {
+			} else if(!info->can_lead(NULL)) {
 				iter1.get_current_value()->rcolor = COL_YELLOW;
 			}
 		}
@@ -1043,23 +1043,23 @@ void gui_convoy_assembler_t::update_data()
 						}
 						if(veh_action == va_insert) 
 						{
-							if (!convoi_t::pruefe_nachfolger(info, veh) || (veh && !convoi_t::pruefe_vorgaenger(info, veh))) 
+							if (!veh->can_lead(info) || (veh && !info->can_follow(veh)))
 							{
 								iter1.get_current_value()->lcolor = COL_RED;
 								iter1.get_current_value()->rcolor = COL_RED;
 							} 
-							else if(!convoi_t::pruefe_vorgaenger(NULL, info)) 
+							else if(!info->can_follow(NULL)) 
 							{
 								iter1.get_current_value()->lcolor = COL_YELLOW;
 							}
 						} 
 						else if(veh_action == va_append) 
 						{
-							if(!convoi_t::pruefe_vorgaenger(veh, info) || (veh && !convoi_t::pruefe_nachfolger(veh, info))) {
+							if(!veh->can_lead(info) || (veh  &&  !veh->can_lead(info))) {
 								iter1.get_current_value()->lcolor = COL_RED;
 								iter1.get_current_value()->rcolor = COL_RED;
 							} 
-							else if(!convoi_t::pruefe_nachfolger(info, NULL)) 
+							else if(!info->can_lead(NULL))
 							{
 								iter1.get_current_value()->rcolor = COL_YELLOW;
 							}

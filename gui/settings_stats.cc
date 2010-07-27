@@ -418,6 +418,8 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "show_tooltips", umgebung_t::show_tooltips );
 	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "tooltip_delay", umgebung_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "tooltip_duration", umgebung_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
 	INIT_NUM( "cursor_overlay_color", umgebung_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
@@ -434,14 +436,14 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_NUM_VALUE( umgebung_t::fps );
 	READ_NUM_VALUE( umgebung_t::max_acceleration );
 
-	READ_BOOL( sets->set_numbered_stations );
+	READ_BOOL_VALUE( sets->numbered_stations );
 	READ_NUM_VALUE( umgebung_t::show_names );
 	READ_NUM_VALUE( umgebung_t::show_month );
 
-	READ_NUM( sets->set_bits_per_month );
-	READ_NUM( sets->set_use_timeline );
-	READ_NUM( sets->set_starting_year );
-	READ_NUM( sets->set_starting_month );
+	READ_NUM_VALUE( sets->bits_per_month );
+	READ_NUM_VALUE( sets->use_timeline );
+	READ_NUM_VALUE( sets->starting_year );
+	READ_NUM_VALUE( sets->starting_month );
 
 	READ_NUM_VALUE( umgebung_t::water_animation );
 	READ_NUM_VALUE( umgebung_t::ground_object_probability );
@@ -459,6 +461,8 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_BOOL_VALUE( umgebung_t::show_tooltips );
 	READ_NUM_VALUE( umgebung_t::tooltip_color );
 	READ_NUM_VALUE( umgebung_t::tooltip_textcolor );
+	READ_NUM_VALUE( umgebung_t::tooltip_delay );
+	READ_NUM_VALUE( umgebung_t::tooltip_duration );
 
 	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
@@ -494,12 +498,15 @@ void settings_routing_stats_t::init(einstellungen_t *sets)
 void settings_routing_stats_t::read(einstellungen_t *sets)
 {
 	READ_INIT
-	READ_BOOL( sets->set_seperate_halt_capacities );
-	READ_BOOL( sets->set_avoid_overcrowding );
-	READ_NUM( sets->set_station_coverage );
-	READ_NUM( sets->set_max_route_steps );
-	READ_NUM( sets->set_max_hops );
-	READ_NUM( sets->set_max_transfers );
+	// routing of goods
+	READ_BOOL_VALUE( sets->seperate_halt_capacities );
+	READ_BOOL_VALUE( sets->avoid_overcrowding );
+	READ_NUM_VALUE( sets->station_coverage_size );
+	READ_NUM_VALUE( sets->max_route_steps );
+	READ_NUM_VALUE( sets->max_hops );
+	READ_NUM_VALUE( sets->max_transfers );
+
+	// routing on ways
 	READ_NUM_VALUE( sets->way_count_straight );
 	READ_NUM_VALUE( sets->way_count_curve );
 	READ_NUM_VALUE( sets->way_count_double_curve );
@@ -561,40 +568,37 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_COST_VALUE( start_money_temp );
 	if(  sets->get_starting_money(sets->get_starting_year())!=start_money_temp  ) {
 		// because this will render the table based values invalid, we do this only when needed
-		sets->set_starting_money( start_money_temp );
+		sets->starting_money = start_money_temp;
 	}
-	else {
-		// skip this
-		//read_numinp++;
-	}
-	READ_BOOL( sets->set_beginner_mode );
-	READ_NUM( sets->set_beginner_price_factor );
-	READ_BOOL( sets->set_allow_buying_obsolete_vehicles );
 
-	READ_BOOL( sets->set_just_in_time );
-	READ_BOOL( sets->set_crossconnect_factories );
-	READ_NUM( sets->set_crossconnect_factor );
+	READ_BOOL_VALUE( sets->beginner_mode );
+	READ_NUM_VALUE( sets->beginner_price_factor );
+	READ_BOOL_VALUE( sets->allow_buying_obsolete_vehicles );
+
+	READ_BOOL_VALUE( sets->just_in_time );
+	READ_BOOL_VALUE( sets->crossconnect_factories );
+	READ_NUM_VALUE( sets->crossconnect_factor );
 	READ_NUM( stadt_t::set_industry_increase );
-	READ_NUM( sets->set_factory_spacing );
-	READ_NUM( sets->set_electric_promille );
-	READ_NUM( sets->set_passenger_factor );
+	READ_NUM_VALUE( sets->factory_spacing );
+	READ_NUM_VALUE( sets->electric_promille );
 	READ_NUM( stadt_t::set_city_isolation_factor );	
-	READ_NUM( sets->set_factory_worker_radius );
-	READ_NUM( sets->set_factory_worker_minimum_towns );
-	READ_NUM( sets->set_factory_worker_maximum_towns );
-	READ_NUM( sets->set_factory_worker_percentage );
-	READ_NUM( sets->set_tourist_percentage );
-	READ_NUM( sets->set_passenger_multiplier );
-	READ_NUM( sets->set_mail_multiplier );
-	READ_NUM( sets->set_goods_multiplier );
-//	READ_NUM( sets->set_electricity_multiplier );
-	READ_NUM( sets->set_growthfactor_small );
-	READ_NUM( sets->set_growthfactor_medium );
-	READ_NUM( sets->set_growthfactor_large );
+	READ_NUM_VALUE( sets->passenger_factor );
+	READ_NUM_VALUE( sets->factory_worker_radius );
+	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
+	READ_NUM_VALUE( sets->factory_worker_maximum_towns );
+	READ_NUM_VALUE( sets->factory_worker_percentage );
+	READ_NUM_VALUE( sets->tourist_percentage );
+	READ_NUM_VALUE( sets->passenger_multiplier );
+	READ_NUM_VALUE( sets->mail_multiplier );
+	READ_NUM_VALUE( sets->goods_multiplier );
+//	READ_NUM_VALUE( sets->set_electricity_multiplier );
+	READ_NUM_VALUE( sets->growthfactor_small );
+	READ_NUM_VALUE( sets->growthfactor_medium );
+	READ_NUM_VALUE( sets->growthfactor_large );
 	READ_BOOL( sets->set_random_pedestrians );
 	READ_BOOL( sets->set_show_pax );
 	READ_NUM( sets->set_verkehr_level );
-	READ_NUM( sets->set_stadtauto_duration );
+	READ_NUM_VALUE( sets->stadtauto_duration );
 }
 
 
@@ -700,18 +704,18 @@ void settings_climates_stats_t::init(einstellungen_t *sets)
 void settings_climates_stats_t::read(einstellungen_t *sets)
 {
 	READ_INIT
-	READ_NUM( sets->set_grundwasser );
-	READ_NUM( sets->set_max_mountain_height );
+	READ_NUM_VALUE( sets->grundwasser );
+	READ_NUM_VALUE( sets->max_mountain_height );
 	double n;
 	READ_NUM_VALUE( n );
-	sets->set_map_roughness( (n+8.0)/20.0 );
-	READ_NUM( sets->set_winter_snowline );
+	sets->map_roughness = (n+8.0)/20.0;
+	READ_NUM_VALUE( sets->winter_snowline );
 	// other climate borders ...
 	sint16 arctic = 0;
 	for(  int i=desert_climate;  i!=arctic_climate;  i++  ) {
 		sint16 ch;
 		READ_NUM_VALUE( ch );
-		((sint16 *)sets->get_climate_borders())[i] = ch;
+		sets->climate_borders[i] = ch;
 		if(  ch>arctic  ) {
 			arctic = ch;
 		}
@@ -720,10 +724,10 @@ void settings_climates_stats_t::read(einstellungen_t *sets)
 	buf.clear();
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
 	label.at(3)->set_text( buf );
-	READ_BOOL( sets->set_no_trees );
-	READ_NUM( sets->set_river_number );
-	READ_NUM( sets->set_min_river_length );
-	READ_NUM( sets->set_max_river_length );
+	READ_BOOL_VALUE( sets->no_trees );
+	READ_NUM_VALUE( sets->river_number );
+	READ_NUM_VALUE( sets->min_river_length );
+	READ_NUM_VALUE( sets->max_river_length );
 }
 
 

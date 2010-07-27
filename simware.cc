@@ -73,16 +73,16 @@ void ware_t::set_besch(const ware_besch_t* type)
 void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 {
 	sint32 amount = menge;
-	file->rdwr_long(amount, " ");
+	file->rdwr_long(amount);
 	menge = amount;
 	if(file->get_version()<99008) {
 		sint32 max;
-		file->rdwr_long(max, " ");
+		file->rdwr_long(max);
 	}
 
 	uint8 catg=0;
 	if(file->get_version()>=88005) {
-		file->rdwr_byte(catg,"c");
+		file->rdwr_byte(catg);
 	}
 
 	if(file->is_saving()) {
@@ -153,20 +153,20 @@ void ware_t::rdwr(karte_t *welt,loadsave_t *file)
 	if(file->get_experimental_version() == 1)
 	{
 		uint32 dummy_2;
-		file->rdwr_long(dummy_2, "");
-		file->rdwr_long(dummy_2, "");
+		file->rdwr_long(dummy_2);
+		file->rdwr_long(dummy_2);
 	}
 
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_long(accumulated_distance, "");
+		file->rdwr_long(accumulated_distance);
 		if(file->get_experimental_version() < 4)
 		{
 			// Was journey steps
 			uint8 dummy;
-			file->rdwr_byte(dummy, "");
+			file->rdwr_byte(dummy);
 		}
-		file->rdwr_longlong(arrival_time, "");
+		file->rdwr_longlong(arrival_time);
 	}
 	else
 	{

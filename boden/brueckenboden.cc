@@ -68,10 +68,10 @@ void brueckenboden_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()<88009) {
 		uint8 sl;
-		file->rdwr_byte( sl, " " );
+		file->rdwr_byte(sl);
 		slope = sl;
 	}
-	file->rdwr_byte(weg_hang, "\n");
+	file->rdwr_byte(weg_hang);
 
 	if(!find<bruecke_t>()) {
 		dbg->error( "brueckenboden_t::rdwr()","no bridge on bridge ground at (%s); try replacement", pos.get_str() );

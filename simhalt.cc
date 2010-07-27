@@ -3092,13 +3092,13 @@ void haltestelle_t::rdwr(loadsave_t *file)
 	if(file->get_version()<99008) {
 		init_pos.rdwr( file );
 	}
-	file->rdwr_long(spieler_n, "\n");
+	file->rdwr_long(spieler_n);
 
 	if(file->get_version()<=88005) {
 		bool dummy;
-		file->rdwr_bool(dummy, " "); // pax
-		file->rdwr_bool(dummy, " "); // post
-		file->rdwr_bool(dummy, "\n");	// ware
+		file->rdwr_bool(dummy); // pax
+		file->rdwr_bool(dummy); // post
+		file->rdwr_bool(dummy);	// ware
 	}
 
 	if(file->is_loading()) {
@@ -3160,7 +3160,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				s = "y";	// needs to be non-empty
 				file->rdwr_str(s);
 				short count = warray->get_count();
-				file->rdwr_short(count, " ");
+				file->rdwr_short(count);
 				for(unsigned i=0;  i<warray->get_count();  i++ ) {
 					ware_t &ware = (*warray)[i];
 					ware.rdwr(welt,file);
@@ -3179,7 +3179,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		while(*s) 
 		{
 			short count;
-			file->rdwr_short(count, " ");
+			file->rdwr_short(count);
 			if(count > 0) 
 			{
 				for(int i = 0; i < count; i++) 
@@ -3204,7 +3204,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		if(file->get_version()<99013) 
 		{
 			short count;
-			file->rdwr_short(count, " ");
+			file->rdwr_short(count);
 
 			for(int i=0; i<count; i++) 
 			{
@@ -3229,7 +3229,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS	- 1; k >= 0; k--) 
 			{
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 	}
@@ -3240,7 +3240,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		{
 			for (int k = MAX_MONTHS - 1; k >= 0; k--) 
 			{
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int k = MAX_MONTHS - 1; k >= 0; k--) 
@@ -3257,7 +3257,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			{
 				uint16 halts_count;
 				halts_count = waiting_times[i].get_count();
-				file->rdwr_short(halts_count, "");
+				file->rdwr_short(halts_count);
 			
 				koordhashtable_iterator_tpl<koord, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
 
@@ -3266,19 +3266,19 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					koord save_koord = iter.get_current_key();
 					save_koord.rdwr(file);
 					uint8 waiting_time_count = iter.get_current_value().get_count();
-					file->rdwr_byte(waiting_time_count, "");
+					file->rdwr_byte(waiting_time_count);
 					ITERATE(iter.get_current_value(),i)
 					{
 						// Store each waiting time
 						uint16 current_time = iter.access_current_value().get_element(i);
-						file->rdwr_short(current_time, "");
+						file->rdwr_short(current_time);
 					}
 				}
 			}
 			else
 			{
 				uint16 halts_count;
-				file->rdwr_short(halts_count, "");
+				file->rdwr_short(halts_count);
 				for(uint16 k = 0; k < halts_count; k ++)
 				{
 					koord halt_position;
@@ -3287,11 +3287,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					{
 						fixed_list_tpl<uint16, 16> list;
 						uint8 waiting_time_count;
-						file->rdwr_byte(waiting_time_count, "");
+						file->rdwr_byte(waiting_time_count);
 						for(uint8 j = 0; j < waiting_time_count; j ++)
 						{
 							uint16 current_time;
-							file->rdwr_short(current_time, "");
+							file->rdwr_short(current_time);
 							list.add_to_tail(current_time);
 						}
 						waiting_times[i].put(halt_position, list);
@@ -3300,11 +3300,11 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					{
 						// The list was not properly saved.
 						uint8 waiting_time_count;
-						file->rdwr_byte(waiting_time_count, "");
+						file->rdwr_byte(waiting_time_count);
 						for(uint8 j = 0; j < waiting_time_count; j ++)
 						{
 							uint16 current_time;
-							file->rdwr_short(current_time, "");
+							file->rdwr_short(current_time);
 						}
 					}
 				}
@@ -3316,9 +3316,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			uint16 old_paths_timestamp = 0;
 			uint16 old_connexions_timestamp = 0;
 			bool old_reschedule = false;
-			file->rdwr_short(old_paths_timestamp, "");
-			file->rdwr_short(old_connexions_timestamp, "");
-			file->rdwr_bool(old_reschedule, "");
+			file->rdwr_short(old_paths_timestamp);
+			file->rdwr_short(old_connexions_timestamp);
+			file->rdwr_bool(old_reschedule);
 			for(short i = 0; i < max_catg_count_file; i ++)
 			{
 				paths_timestamp[i] = old_paths_timestamp;
@@ -3330,9 +3330,9 @@ void haltestelle_t::rdwr(loadsave_t *file)
 		{
 			for(short i = 0; i < max_catg_count_file; i ++)
 			{
-				file->rdwr_short(paths_timestamp[i], "");
-				file->rdwr_short(connexions_timestamp[i], "");
-				file->rdwr_bool(reschedule[i], "");
+				file->rdwr_short(paths_timestamp[i]);
+				file->rdwr_short(connexions_timestamp[i]);
+				file->rdwr_bool(reschedule[i]);
 			}
 		}
 	}

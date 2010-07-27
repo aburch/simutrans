@@ -94,9 +94,9 @@ void scenario_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	file->rdwr_short( what_scenario, "" );
-	file->rdwr_long( city_nr, "" );
-	file->rdwr_longlong( factor, "" );
+	file->rdwr_short(what_scenario);
+	file->rdwr_long(city_nr);
+	file->rdwr_longlong(factor);
 	fabpos.rdwr( file );
 
 	if(  file->is_loading()  ) {

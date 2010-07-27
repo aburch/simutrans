@@ -740,16 +740,16 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_str(buf, lengthof(buf));
 	}
-	file->rdwr_short(idx, "\n");
+	file->rdwr_short(idx);
 	if(file->get_experimental_version() <= 1)
 	{
 		uint32 old_insta_zeit = (uint32) insta_zeit;
-		file->rdwr_long(old_insta_zeit, " ");
+		file->rdwr_long(old_insta_zeit);
 		insta_zeit = old_insta_zeit;
 	}
 	else
 	{
-		file->rdwr_longlong(insta_zeit, " ");
+		file->rdwr_longlong(insta_zeit);
 	}
 
 	if(file->is_loading()) {
@@ -864,7 +864,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 	if(file->get_version()<99006) {
 		// ignore the sync flag
 		uint8 dummy=sync;
-		file->rdwr_byte(dummy, "\n");
+		file->rdwr_byte(dummy);
 	}
 
 	// restore city pointer here
@@ -873,7 +873,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 		if(  file->is_saving()  &&  ptr.stadt!=NULL  ) {
 			city_index = welt->get_staedte().index_of( ptr.stadt );
 		}
-		file->rdwr_long( city_index, "c" );
+		file->rdwr_long(city_index);
 		if(  file->is_loading()  &&  city_index!=-1  &&  (tile==NULL  ||  tile->get_besch()==NULL  ||  tile->get_besch()->is_connected_with_town())  ) {
 			ptr.stadt = welt->get_staedte()[city_index];
 		}
@@ -1017,6 +1017,6 @@ void gebaeude_t::entferne(spieler_t *sp)
 
 	// remove all traces from the screen
 	for(  int i=0;  get_bild(i)!=IMG_LEER;  i++ ) {
-		mark_image_dirty( get_bild(i), -get_tile_raster_width()*i );
+		mark_image_dirty( get_bild(i), -(i<<6) );
 	}
 }

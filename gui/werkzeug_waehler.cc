@@ -180,7 +180,7 @@ void werkzeug_waehler_t::zeichnen(koord pos, koord)
 	if(xdiff>=0  &&  xdiff<tool_icon_width  &&  ydiff>=0  &&  mx>=pos.x  &&  my>=pos.y+16) {
 		const int tipnr = xdiff+(tool_icon_width*ydiff)+tool_icon_disp_start;
 		if (tipnr < (int)tool_icon_disp_end) {
-			win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, tools[tipnr]->get_tooltip(welt->get_active_player()));
+			win_set_tooltip(get_maus_x() + 16, pos.y + 16 + ((ydiff+1)*icon.y) + 12, tools[tipnr]->get_tooltip(welt->get_active_player()), tools[tipnr]);
 		}
 	}
 

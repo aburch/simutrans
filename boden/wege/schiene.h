@@ -25,7 +25,7 @@ class schiene_t : public weg_t
 {
 protected:
 	/**
-	* Bound when this block was sucessfully reserved by the convoi
+	* Bound when this block was successfully reserved by the convoi
 	* @author prissi
 	*/
 	convoihandle_t reserved;

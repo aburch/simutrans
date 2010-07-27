@@ -350,6 +350,6 @@ void gui_table_t::zeichnen(koord offset) {
 	paint_cells(pos);
 	if (*tooltip)
 	{
-		win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, tooltip );
+		win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, tooltip, this);
 	}
 }

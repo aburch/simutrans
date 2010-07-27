@@ -272,12 +272,38 @@ public:
 		return get_child<vehikel_besch_t>(6 + i);
 	}
 
+	// Liefert die erlaubten Nachfolger.
+	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
+	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
+	// man vorher hat_nachfolger() befragen
+	const vehikel_besch_t *get_nachfolger(int i) const
+	{
+		if(i < 0 || i >= nachfolger) {
+			return 0;
+		}
+		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
+	}
+
+	int get_nachfolger_count() const { return nachfolger; }
+
 	/* returns true, if this veh can be before the next_veh */
 	bool can_lead(const vehikel_besch_t *next_veh) const
 	{
-		if(  nachfolger==0  ) {
-			return next_veh != 0;
+		if(nachfolger == 0) 
+		{
+			if(can_be_at_rear)
+			{
+				return true;
+			}
+			else
+			{
+				if(next_veh != NULL)
+				{
+					return true;
+				}
+			}
 		}
+
 		for( int i=0;  i<nachfolger;  i++  ) {
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
 			if(veh==next_veh) {
@@ -287,11 +313,20 @@ public:
 		// only here if not allowed
 		return false;
 	}
+
+	/* test, if a certain vehicle can lead a convoi *
+	 * used by vehikel_search
+	 * @author prissi
+	 */
+	bool can_lead() const {
+		return can_lead(NULL);
+	}
+
 	/* returns true, if this veh can be after the prev_veh */
 	bool can_follow(const vehikel_besch_t *prev_veh) const
 	{
 		if(  vorgaenger==0  ) {
-			return prev_veh != 0;
+			return true;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
@@ -305,25 +340,6 @@ public:
 
 	int get_vorgaenger_count() const { return vorgaenger; }
 
-	// Liefert die erlaubten Nachfolger.
-	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
-	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
-	// man vorher hat_nachfolger() befragen
-
-	// Returns the lawful successor.
-	// provides get_nachfolger (0) == NULL, it means that either all
-	// succeed or none are allowed. To distinguish, one should 
-	// predict hat_nachfolger () question (Google)
-	const vehikel_besch_t *get_nachfolger(int i) const
-	{
-		if(i < 0 || i >= nachfolger) {
-			return NULL;
-		}
-		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
-	}
-
-	int get_nachfolger_count() const { return nachfolger; }
-
 	// Returns the vehicle types to which this vehicle type may be upgraded.
 
 	const vehikel_besch_t *get_upgrades(int i) const
@@ -336,6 +352,8 @@ public:
 	}
 
 	int get_upgrades_count() const { return upgrades; }
+
+	bool can_follow_any() const { return nachfolger==0; }
 
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
@@ -444,49 +462,12 @@ public:
 
 	float get_air_resistance() const { return air_resistance; }
 	
-	///*Bitwise encoded way constraints (permissive)
-	//*@author: jamespetts*/
-	//uint8 get_permissive_constraints() const { return way_constraints_permissive; }
-	//
-	///*Bitwise encoded way constraints (prohibitive)
-	//*@author: jamespetts*/
-	//uint8 get_prohibitive_constraints() const { return way_constraints_prohibitive; }
-
-	//bool permissive_way_constraint_set(uint8 i) const
-	//{
-	//	return (((way_constraints_permissive >> i) & 1) != 0);
-	//}
-
-	//bool prohibitive_way_constraint_set(uint8 i) const
-	//{
-	//	return (((way_constraints_prohibitive >> i) & 1) != 0);
-	//}
 	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }
 	
 	/*The level of catering provided by this vehicle (0 if none)
 	*@author: jamespetts*/
 	uint8 get_catering_level() const { return catering_level; }
-
-
-	/* test, if a certain vehicle can lead a convoi *
-	 * used by vehikel_search
-	 * @author prissi
-	 */
-	bool can_lead() const {
-		if(vorgaenger==0) {
-			return true;
-		}
-		for( int i=0;  i<vorgaenger;  i++  ) {
-			if (!get_child<vehikel_besch_t>(6 + i)) {
-				return true;
-			}
-		}
-		// cannot lead
-		return false;
-	}
-
-	bool can_follow_any() const { return nachfolger==0; }
 
 	void set_scale(float scale_factor)
 	{ 

@@ -128,10 +128,10 @@ void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
 			file->wr_obj_id("Linemanagement");
 		}
 		uint32 count = all_managed_lines.get_count();
-		file->rdwr_long(count, " ");
+		file->rdwr_long(count);
 		for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
 			simline_t::linetype lt = (*i)->get_linetype();
-			file->rdwr_enum(lt, "\n");
+			file->rdwr_enum(lt);
 			(*i)->rdwr(file);
 		}
 	}
@@ -146,11 +146,11 @@ void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
 			}
 		}
 		sint32 totalLines = 0;
-		file->rdwr_long(totalLines, " ");
+		file->rdwr_long(totalLines);
 DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 		for (int i = 0; i<totalLines; i++) {
 			simline_t::linetype lt=simline_t::line;
-			file->rdwr_enum(lt, "\n");
+			file->rdwr_enum(lt);
 			simline_t * line;
 			switch(lt) {
 				case simline_t::truckline:    line = new truckline_t(   welt, sp); break;

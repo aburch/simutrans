@@ -57,7 +57,7 @@ void gui_flowtext_t::set_text(const char *text)
 				}
 				else {
 					att = ATT_A_END;
-					links.append(hyperlink_t(param.substr(8, param.size() - 1)));
+					links.append(hyperlink_t(param.substr(8, param.size() - 9)));
 				}
 			} else if (word[0] == 'h' && word[1] == '1') {
 				att = endtag ? ATT_H1_END : ATT_H1_START;

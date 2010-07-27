@@ -28,7 +28,7 @@ packet_t::packet_t(SOCKET sender) : memory_rw_t(buf,MAX_PACKET_LEN,false)
 	}
 
 	// read the header
-	if(  network_recieve_data(sender,buf,HEADER_SIZE)!=HEADER_SIZE ) {
+	if(  network_receive_data(sender,buf,HEADER_SIZE)!=HEADER_SIZE ) {
 		error = true;
 		network_remove_client( sender );
 		return;
@@ -42,7 +42,7 @@ packet_t::packet_t(SOCKET sender) : memory_rw_t(buf,MAX_PACKET_LEN,false)
 	}
 
 	// receive the rest of the packet
-	if(  network_recieve_data( sender, buf+HEADER_SIZE, size-HEADER_SIZE )!=size-HEADER_SIZE  ) {
+	if(  network_receive_data( sender, buf+HEADER_SIZE, size-HEADER_SIZE )!=size-HEADER_SIZE  ) {
 		error = true;
 		network_remove_client( sender );
 		return;

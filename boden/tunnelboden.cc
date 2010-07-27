@@ -90,7 +90,7 @@ tunnelboden_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()<88009) {
 		uint32 int_hang = slope;
-		file->rdwr_long(int_hang, "\n");
+		file->rdwr_long(int_hang);
 		slope = int_hang;
 	}
 
