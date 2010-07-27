@@ -4292,28 +4292,32 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 				f = 0.0;
 			}
 			else {
-				const sint16 height_above_water = welt->lookup_hgt(pos) - welt->get_grundwasser();
 				int weight;
-				switch(height_above_water)
-				{
-					case 1: weight = 24; break;
-					case 2: weight = 22; break;
-					case 3: weight = 16; break;
-					case 4: weight = 12; break;
-					case 5: weight = 10; break;
-					case 6: weight = 9; break;
-					case 7: weight = 8; break;
-					case 8: weight = 7; break;
-					case 9: weight = 6; break;
-					case 10: weight = 5; break;
-					case 11: weight = 4; break;
-					case 12: weight = 3; break;
-					case 13: weight = 3; break;
-					case 14: weight = 2; break;
-					case 15: weight = 2; break;
-					default: weight = 1;
+				if ( welt == NULL ) {
+					weight = 1;
 				}
-				f = weight/12.0 - 1.0;
+				else {
+					const sint16 height_above_water = welt->lookup_hgt(pos) - welt->get_grundwasser();
+					switch(height_above_water)
+					{
+						case 1: weight = 24; break;
+						case 2: weight = 22; break;
+						case 3: weight = 16; break;
+						case 4: weight = 12; break;
+						case 5: weight = 10; break;
+						case 6: weight = 9; break;
+						case 7: weight = 8; break;
+						case 8: weight = 7; break;
+						case 9: weight = 6; break;
+						case 10: weight = 5; break;
+						case 11: weight = 4; break;
+						case 12: weight = 3; break;
+						case 13: weight = 3; break;
+						case 14: weight = 2; break;
+						case 15: weight = 2; break;
+						default: weight = 1;
+					}
+				}			
 			}
 			koord grid_pos(pos.x/grid_step, pos.y/grid_step);
 			terrain_field.at(grid_pos) += f/(grid_step*grid_step);
