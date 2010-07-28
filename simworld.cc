@@ -5050,6 +5050,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 	// mouse wheel scrolled -> rezoom
 	if (ev.ev_class == EVENT_CLICK) {
+		const sint16 org_raster_width = get_tile_raster_width();
 		if(ev.ev_code==MOUSE_WHEELUP) {
 			if(win_change_zoom_factor(true)) {
 				set_dirty();
@@ -5059,6 +5060,12 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 			if(win_change_zoom_factor(false)) {
 				set_dirty();
 			}
+		}
+		const sint16 new_raster_width = get_tile_raster_width();
+		if (org_raster_width != new_raster_width) {
+			// scale the fine offsets for displaying
+			x_off = (x_off * new_raster_width) / org_raster_width;
+			y_off = (y_off * new_raster_width) / org_raster_width;
 		}
 	}
 	INT_CHECK("simworld 2117");
