@@ -44,9 +44,9 @@ public:
 
 	// to allow for an arbitary number, we use lists
 	static vector_tpl<const haus_besch_t*> station_building;
+private:
 	static vector_tpl<const haus_besch_t*> headquarter;
 
-private:
 	/**
 	 * Liefert einen zufälligen Eintrag aus der Liste.
 	 * @author V. Meyer
@@ -90,6 +90,13 @@ public:
 	 * @author V. Meyer
 	 */
 	static const haus_besch_t* get_wohnhaus(int level, uint16 time, climate cl);
+
+	/**
+	 * Returns Headquarter with Level level
+	 * (takes the first matching one)
+	 * @author Dwachs
+	 */
+	static const haus_besch_t* get_headquarter(int level, uint16 time);
 
 	/**
 	 * Liefert per Zufall die Beschreibung eines Sehenswuerdigkeit,

@@ -847,9 +847,6 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		file->rdwr_long(headquarter_level);
 		headquarter_pos.rdwr( file );
 		if(file->is_loading()) {
-			if(headquarter_level>(sint32)hausbauer_t::headquarter.get_count()) {
-				headquarter_level = (sint32)hausbauer_t::headquarter.get_count();
-			}
 			if(headquarter_level<0) {
 				headquarter_pos = koord::invalid;
 				headquarter_level = 0;
