@@ -269,6 +269,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\clipboard_w32.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\colors.cc"
 				>
 			</File>
