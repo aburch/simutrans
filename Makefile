@@ -62,6 +62,12 @@ ifeq ($(OSTYPE),mingw)
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
+ifeq ($(OSTYPE),mingw)
+  SOURCES += clipboard_w32.cc
+else
+  SOURCES += clipboard_internal.cc
+endif
+
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
 
