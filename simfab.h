@@ -260,7 +260,12 @@ public:
 
 	char const* get_name() const { return translator::translate(besch->get_name()); }
 	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
-	spieler_t *get_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->first_obj()->get_besitzer() : NULL; }
+
+	spieler_t *get_besitzer() const
+	{
+		grund_t const* const p = welt->lookup(pos);
+		return p ? p->first_obj()->get_besitzer() : 0;
+	}
 
 	void zeige_info() const;
 	void info(cbuffer_t& buf) const;
