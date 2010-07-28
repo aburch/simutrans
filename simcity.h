@@ -193,9 +193,9 @@ private:
 	uint32 next_bau_step;
 
 	// population statistics
-	uint32 bev; // total population
-	uint32 arb; // amount with jobs
-	uint32 won; // amount with homes
+	sint32 bev; // total population
+	sint32 arb; // amount with jobs
+	sint32 won; // amount with homes
 
 	/**
 	 * Modifier for city growth
