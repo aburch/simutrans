@@ -115,12 +115,11 @@ bool extend_edit_gui_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 {
 	if (komp == &tabs) {
 		// switch list translation or object name
-		if(tabs.get_active_tab_index()==0 && is_show_trans_name==false) {
+		if (tabs.get_active_tab_index() == 0 && !is_show_trans_name) {
 			// show translation list
 			is_show_trans_name = true;
 			fill_list( is_show_trans_name );
-		}
-		else if(tabs.get_active_tab_index()==1  &&   is_show_trans_name==true) {
+		} else if (tabs.get_active_tab_index() == 1 && is_show_trans_name) {
 			// show object list
 			is_show_trans_name = false;
 			fill_list( is_show_trans_name );
