@@ -147,6 +147,9 @@ beginner_price_factor = 1500
 
 ##################################factory stuff#################################
 
+# when a city reaches 2^n of this number then a new factory chain is spawned
+#industry_increase_every = 2000
+
 # smallest distance between two adjacent factories
 factory_spacing = 6
 
@@ -325,6 +328,9 @@ allow_buying_obsolete_vehicles = 1
 # also pak dependent
 #
 
+# minimum distance between two townhalls
+#minimum_city_distance = 16
+
 # Max. length of initial intercity road connections
 # If you want to speed up map creation, lower this value.
 # If you want more initial intercity roads, raise this value.
@@ -426,7 +432,7 @@ starting_month = 1
 
 # Should month be shown in date? (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4)
 # This is most useful, if you use longer months than the default length (see below)
-show_month = 1
+#show_month = 1
 
 # Global time multiplier (will be save with new games)
 # 2^bits_per_month = duration of a game month in microseconds real time

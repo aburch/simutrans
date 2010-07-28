@@ -67,12 +67,6 @@ karte_t* stadt_t::welt = NULL; // one is enough ...
  */
 const uint32 stadt_t::step_bau_interval = 21000;
 
-/**
- * try to built cities at least this distance apart
- * @author prissi
- */
-static uint32 minimum_city_distance = 16;
-
 /*
  * chance to do renovation instead new building (in percent)
  * @author prissi
@@ -85,13 +79,6 @@ static uint32 renovation_percentage = 12;
  * @author prissi
  */
 static uint32 min_building_density = 25;
-
-/**
- * add a new consumer every % people increase
- * @author prissi
- */
-static uint32 industry_increase_every[8];
-
 
 // the following are the scores for the different building types
 static int ind_start_score =   0;
@@ -253,30 +240,6 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
 
 
 
-uint32 stadt_t::get_industry_increase()
-{
-	return industry_increase_every[0];
-}
-
-void stadt_t::set_industry_increase(uint32 ind_increase)
-{
-	for (int i = 0; i < 8; i++) {
-		industry_increase_every[i] = ind_increase << i;
-	}
-}
-
-uint32 stadt_t::get_minimum_city_distance()
-{
-	return minimum_city_distance;
-}
-
-void stadt_t::set_minimum_city_distance(uint32 s)
-{
-	minimum_city_distance = s;
-}
-
-
-
 /**
  * Reads city configuration data
  * @author Hj. Malthaner
@@ -298,12 +261,10 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 	char buf[128];
 
-	minimum_city_distance = contents.get_int("minimum_city_distance", 16);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", 25);
 	// to keep compatible with the typo, here both are ok
 	min_building_density = (uint32)contents.get_int("minimum_building_desity", 25);
 	min_building_density = (uint32)contents.get_int("minimum_building_density", min_building_density);
-	set_industry_increase( contents.get_int("industry_increase_every", 0) );
 
 	// init the building value tables
 	ind_start_score = contents.get_int("ind_start_score", 0);
@@ -1992,9 +1953,10 @@ void stadt_t::check_bau_rathaus(bool new_town)
  */
 void stadt_t::check_bau_factory(bool new_town)
 {
-	if (!new_town && industry_increase_every[0] > 0 && bev % industry_increase_every[0] == 0) {
+	if (!new_town  &&  welt->get_einstellungen()->get_industry_increase_every() > 0  &&  (bev % welt->get_einstellungen()->get_industry_increase_every())== 0) {
+		uint32 div = bev / welt->get_einstellungen()->get_industry_increase_every();
 		for (int i = 0; i < 8; i++) {
-			if (industry_increase_every[i] == (uint32)bev) {
+			if (div==(1<<i)) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
 				fabrikbauer_t::increase_industry_density( welt, true );
 			}
@@ -2587,6 +2549,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 
 	// pre processed array: max 1 city from each square can be built
 	// each entry represents a cell of minimum_city_distance/2 length and width
+	const uint32 minimum_city_distance = wl->get_einstellungen()->get_minimum_city_distance();
 	const uint32 xmax = (2*wl->get_groesse_x())/minimum_city_distance+1;
 	const uint32 ymax = (2*wl->get_groesse_y())/minimum_city_distance+1;
 	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);

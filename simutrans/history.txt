@@ -68,6 +68,7 @@
 	ADD: delay and duration of tooltip configurable in simuconf.tab
 	ADD: timeline for headquarters (pak-sets may need to be updated as the default intro date is 1900, default retire date is 2999)
 	ADD: blinking cursor, selectable text and clipboard functions for text input fields
+	ADD: industry increase and minimum city distance now also saved in savegame
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

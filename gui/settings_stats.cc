@@ -191,12 +191,12 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
 	INIT_NUM( "crossconnect_factories_percentage", sets->get_crossconnect_factor(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "industry_increase_every", stadt_t::get_industry_increase(), 0, 100000, 100, false );
+	INIT_NUM( "industry_increase_every", sets->get_industry_increase_every(), 0, 100000, 100, false );
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "minimum_city_distance", stadt_t::get_minimum_city_distance(), 1, 20000, 10, false );
+	INIT_NUM( "minimum_city_distance", sets->get_minimum_city_distance(), 1, 20000, 10, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
@@ -238,11 +238,11 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_BOOL_VALUE( sets->just_in_time );
 	READ_BOOL_VALUE( sets->crossconnect_factories );
 	READ_NUM_VALUE( sets->crossconnect_factor );
-	READ_NUM( stadt_t::set_industry_increase );
+	READ_NUM_VALUE( sets->industry_increase );
 	READ_NUM_VALUE( sets->factory_spacing );
 	READ_NUM_VALUE( sets->electric_promille );
 	READ_NUM_VALUE( sets->passenger_factor );
-	READ_NUM( stadt_t::set_minimum_city_distance );
+	READ_NUM_VALUE( sets->minimum_city_distance );
 	READ_NUM_VALUE( sets->factory_worker_radius );
 	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
 	READ_NUM_VALUE( sets->factory_worker_maximum_towns );

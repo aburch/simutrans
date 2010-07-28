@@ -73,6 +73,9 @@ private:
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
 
+	uint32 minimum_city_distance;
+	uint32 industry_increase;
+
 	// percentage of routing
 	sint16 factory_worker_percentage;
 	sint16 tourist_percentage;
@@ -460,6 +463,9 @@ public:
 	uint16 get_no_tree_climates() const { return no_tree_climates; }
 	bool get_no_trees() const { return no_trees; }
 	void set_no_trees(bool b) { no_trees = b; }
+
+	uint32 get_industry_increase_every() const { return industry_increase; }
+	uint32 get_minimum_city_distance() const { return minimum_city_distance; }
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }
