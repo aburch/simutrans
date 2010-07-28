@@ -24,10 +24,6 @@ class stadt_t;
 
 // production happens in every second
 #define PRODUCTION_DELTA_T (1024)
-// error of shifting
-#define BASEPRODSHIFT (8)
-// base production=1 is 16 => shift 4
-#define MAX_PRODBASE_SHIFT (4)
 
 
 // to prepare for 64 precision ...
