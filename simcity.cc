@@ -275,6 +275,16 @@ static uint32 city_isolation_factor = 1;
 static uint32 renovation_percentage = 25;
 
 /*
+ * how many buildings will be renovated in one step
+ */
+static uint32 renovations_count = 1;
+
+/*
+ * how hard we want to find them
+ */
+static uint32 renovations_try = 3;
+
+/*
  * minimum ratio of city area to building area to allow expansion
  * the higher this value, the slower the city expansion if there are still "holes"
  * @author prissi
@@ -685,6 +695,9 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 	city_isolation_factor = contents.get_int("city_isolation_factor", 1);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", renovation_percentage);
+	renovations_count = (uint32)contents.get_int("renovations_count", renovations_count);
+	renovations_try   = (uint32)contents.get_int("renovations_try", renovations_try);
+
 	
 	// to keep compatible with the typo, here both are ok
 	min_building_density = (uint32)contents.get_int("minimum_building_desity", 25);
@@ -3747,15 +3760,15 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 }
 
 
-void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
+bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 {
 	const gebaeude_t::typ alt_typ = gb->get_haustyp();
 	if (alt_typ == gebaeude_t::unbekannt) {
-		return; // only renovate res, com, ind
+		return false; // only renovate res, com, ind
 	}
 
 	if (gb->get_tile()->get_besch()->get_b()*gb->get_tile()->get_besch()->get_h()!=1) {
-		return; // too big ...
+		return false; // too big ...
 	}
 
 	// hier sind wir sicher dass es ein Gebaeude ist
@@ -3787,6 +3800,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 
 	// try to built
 	const haus_besch_t* h = NULL;
+	bool return_value = false;
 	if (sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
@@ -3856,7 +3870,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 					// do not renovate, if the building is already in a neighbour tile
 					gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
 					if (gb != NULL && gb->get_tile()->get_besch() == h) {
-						return;
+						return return_value; //it will return false
 					}
 				}
 			}
@@ -3873,6 +3887,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		gb->set_tile( h->get_tile(gebaeude_layout[streetdir], 0, 0) );
 		welt->lookup(k)->get_kartenboden()->calc_bild();
 		update_gebaeude_from_stadt(gb);
+		return_value = true;
 
 		switch (will_haben) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
@@ -3881,6 +3896,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 			default: break;
 		}
 	}
+	return return_value;
 }
 
 
@@ -4094,19 +4110,25 @@ void stadt_t::baue(bool new_town)
 	}
 
 	// renovation (only done when nothing matches a certain location)
-	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
+	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
+	double maxdist(koord_distance(ur,c));
+	if (maxdist < 10) {maxdist = 10;}
+	int was_renovated=0;
+	int try_nr = 0;
+	if (!buildings.empty() && simrand(100) <= renovation_percentage  ) {
 		gebaeude_t* gb;
-		// try to find a public owned building
-		for(uint8 i=0; i<4; i++) {
+		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
+			// try to find a public owned building
 			gb = buildings[simrand(buildings.get_count())];
-			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  ) {
-				renoviere_gebaeude(gb);
-				break;
+			double dist(koord_distance(c, gb->get_pos()));
+			uint32 distance_rate = uint32(100 * (1.0 - dist/maxdist));
+			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100) < distance_rate) {
+				if(renoviere_gebaeude(gb)) { was_renovated++;}
 			}
 		}
 		INT_CHECK("simcity 3746");
 	}
-	else if(!welt->get_einstellungen()->get_quick_city_growth())
+	if(!was_renovated && !welt->get_einstellungen()->get_quick_city_growth())
 	{
 		// firstly, determine all potential candidate coordinates
 		vector_tpl<koord> candidates( (ur.x - lo.x + 1) * (ur.y - lo.y + 1) );
