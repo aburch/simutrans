@@ -336,7 +336,7 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 			str++;
 			if(*str!=',') {
 				uint16 cursor = (uint16)atoi(str);
-				if(  cursor>=skinverwaltung_t::werkzeuge_general->get_bild_anzahl()  ) {
+				if(  cursor>=skinverwaltung_t::cursor_general->get_bild_anzahl()  ) {
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong cursor (%i) given for general_tool[%i]", cursor, i );
 				}
 				w->cursor = skinverwaltung_t::cursor_general->get_bild_nr(cursor);
