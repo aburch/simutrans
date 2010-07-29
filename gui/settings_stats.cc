@@ -357,6 +357,9 @@ void settings_climates_stats_t::init(einstellungen_t *sets)
 	while(  iter.next()  ) {
 		iter.get_current()->add_listener( this );
 	}
+
+	clear_dirty();
+	set_groesse( settings_stats_t::get_groesse() );
 }
 
 
