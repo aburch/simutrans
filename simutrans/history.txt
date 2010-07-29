@@ -70,6 +70,7 @@
 	ADD: blinking cursor, selectable text and clipboard functions for text input fields
 	ADD: industry increase and minimum city distance now also saved in savegame
 	FIX: error in routing will clear itself after loading
+	FIX: not restore fields if there is already a building on this tile
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
