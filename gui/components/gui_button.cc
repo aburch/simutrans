@@ -518,17 +518,17 @@ void button_t::zeichnen(koord offset)
 				display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
 				if(  win_get_focus()==this  ) {
 					// white box around
-					int rw = 11;
-					int rh = 11;
+					int rw = 13;
+					int rh = 13;
 					if(  square_button_pushed!=IMG_LEER  ) {
 						const bild_t *const img = skinverwaltung_t::window_skin->get_bild(7)->get_pic();
-						rw = img->w;
-						rh = img->h;
+						rw = img->w + 2;
+						rh = img->h + 2;
 					}
-					display_fillbox_wh_clip(bx, by, rw, 1, COL_WHITE, false);
-					display_fillbox_wh_clip(bx, by+rh-1, rw, 1, COL_WHITE, false);
-					display_vline_wh_clip(bx, by, rh, COL_WHITE, false);
-					display_vline_wh_clip(bx+rw-1, by, rh, COL_WHITE, false);
+					display_fillbox_wh_clip(bx-1, by-1, rw, 1, COL_WHITE, false);
+					display_fillbox_wh_clip(bx-1, by+rh-2, rw, 1, COL_WHITE, false);
+					display_vline_wh_clip(bx-1, by-1, rh, COL_WHITE, false);
+					display_vline_wh_clip(bx+rw-2, by-1, rh, COL_WHITE, false);
 				}
 			}
 			break;
