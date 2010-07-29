@@ -4360,9 +4360,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			haltestelle_t::destroy(h);	// remove from list
 		}
 		else {
-			(*i)->laden_abschliessen();
 			++i;
 		}
+	}
+	// otherwise ware might get wrong halt coordinates during reassigning of coordinates
+	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
+		(*i)->laden_abschliessen();
 	}
 
 	// register all line stops and change line types, if needed

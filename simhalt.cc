@@ -996,6 +996,7 @@ sint32 haltestelle_t::rebuild_destinations()
 		non_identical_schedules[i] = 0;
 	}
 	rebuilt_destination_counter = welt->get_schedule_counter();
+	reroute_counter = rebuilt_destination_counter-1;
 	resort_freight_info = true;	// might result in error in routing
 
 	last_catg_index = 255;	// must reroute everything
@@ -2221,10 +2222,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 
 void haltestelle_t::laden_abschliessen()
 {
-	if(besitzer_p==NULL) {
-		return;
-	}
-
 	// fix good destination coordinates
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		if(waren[i]) {
