@@ -58,6 +58,9 @@ void dr_copy(const char *source, size_t length)
 		GlobalUnlock(hText);
 	}
 	else {
+		if(  hText  ) {
+			GlobalFree(hText);
+		}
 		return;
 	}
 
