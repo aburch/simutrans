@@ -461,11 +461,11 @@ void button_t::zeichnen(koord offset)
 		return;
 	}
 
-	int bx = offset.x + pos.x;
-	int by = offset.y + pos.y;
+	const int bx = offset.x + pos.x;
+	const int by = offset.y + pos.y;
 
-	int bw = groesse.x;
-	int bh = groesse.y;
+	const int bw = groesse.x;
+	const int bh = groesse.y;
 
 	switch (type&STATE_MASK) {
 
@@ -603,7 +603,7 @@ void button_t::zeichnen(koord offset)
 	}
 
 	if(translated_tooltip &&  getroffen( get_maus_x()-offset.x, get_maus_y()-offset.y )) {
-		win_set_tooltip(get_maus_x() + 16, get_maus_y() - 16, translated_tooltip );
+		win_set_tooltip(get_maus_x() + 16, by + bh + 12, translated_tooltip, this);
 	}
 }
 

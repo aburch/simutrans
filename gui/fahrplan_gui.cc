@@ -75,7 +75,7 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spiel
 void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->get_count()) {
-		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to recieved unused entry %i in schedule %p.",i,fpl);
+		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to receive unused entry %i in schedule %p.",i,fpl);
 		return;
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];

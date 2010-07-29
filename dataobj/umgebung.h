@@ -245,6 +245,10 @@ public:
 	static bool cities_ignore_height;
 	static uint8 cities_like_water;
 
+	// tooltip visualisation duration
+	static uint32 tooltip_delay;
+	static uint32 tooltip_duration;
+
 	static einstellungen_t default_einstellungen;
 
 	// init with default values

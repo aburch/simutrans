@@ -119,25 +119,25 @@ crossing_t::rdwr(loadsave_t *file)
 
 	// variables ... attention, logic now in crossing_logic_t
 	zustand = logic==NULL ? crossing_logic_t::CROSSING_INVALID : logic->get_state();
-	file->rdwr_byte(zustand, " ");
-	file->rdwr_byte(ns, " ");
+	file->rdwr_byte(zustand);
+	file->rdwr_byte(ns);
 	if(file->get_version()<99016) {
 		uint32 ldummy=0;
 		uint8 bdummy=0;
-		file->rdwr_byte(bdummy, " ");
-		file->rdwr_long(ldummy, " ");
+		file->rdwr_byte(bdummy);
+		file->rdwr_long(ldummy);
 	}
 	// which waytypes?
 	if(file->is_saving()) {
 		uint8 wt = besch->get_waytype(0);
-		file->rdwr_byte(wt,"w");
+		file->rdwr_byte(wt);
 		wt = besch->get_waytype(1);
-		file->rdwr_byte(wt,"w");
+		file->rdwr_byte(wt);
 	}
 	else {
 		uint8 w1, w2;
-		file->rdwr_byte(w1,"w");
-		file->rdwr_byte(w2,"w");
+		file->rdwr_byte(w1);
+		file->rdwr_byte(w2);
 		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, 0);
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );

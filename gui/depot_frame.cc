@@ -366,32 +366,36 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 	build_vehicle_lists();
 }
 
+
 static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
 {
 	depot->get_besitzer()->simlinemgmt.get_lines(depot->get_line_type(), lines);
 }
 
 
+/*
+* Reset counts and check for valid vehicles
+*/
 void depot_frame_t::update_data()
 {
 	switch(depot->convoi_count()) {
 		case 0:
-			tstrncpy( txt_convois, translator::translate("no convois"), lengthof(txt_convois) );
+			tstrncpy(txt_convois, translator::translate("no convois"), lengthof(txt_convois));
 			break;
 		case 1:
 			if(icnv == -1) {
-				tstrncpy( txt_convois, translator::translate("1 convoi"), lengthof(txt_convois) );
+				sprintf(txt_convois, translator::translate("1 convoi"));
 			}
 			else {
-				sprintf( txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count() );
+				sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
 			}
 			break;
 		default:
 			if(icnv == -1) {
-				sprintf( txt_convois, translator::translate("%d convois"), depot->convoi_count() );
+				sprintf(txt_convois, translator::translate("%d convois"), depot->convoi_count());
 			}
 			else {
-				sprintf( txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count() );
+				sprintf(txt_convois, translator::translate("convoi %d of %d"), icnv + 1, depot->convoi_count());
 			}
 			break;
 	}

@@ -457,7 +457,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Lock game"); }
 	bool init( karte_t *welt, spieler_t * ) { return welt->get_einstellungen()->get_allow_player_change(); }
 	const char *work( karte_t *welt, spieler_t *, koord3d ) {
-		welt->get_einstellungen()->set_allow_player_change( false );
+		welt->access_einstellungen()->set_allow_player_change( false );
 		destroy_all_win( true );
 		welt->switch_active_player( 0 );
 		welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
@@ -797,7 +797,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("5LIGHT_CHOOSE"); }
 	bool is_selected(karte_t *welt) const { return welt->get_einstellungen()->get_show_pax(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->get_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
+		welt->access_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
 		return false;
 	}
 	virtual bool is_init_network_save() const { return false; }
@@ -809,7 +809,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("6LIGHT_CHOOSE"); }
 	bool is_selected(karte_t *welt) const { return welt->get_einstellungen()->get_random_pedestrians(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->get_einstellungen()->set_random_pedestrians( !welt->get_einstellungen()->get_random_pedestrians() );
+		welt->access_einstellungen()->set_random_pedestrians( !welt->get_einstellungen()->get_random_pedestrians() );
 		return false;
 	}
 	virtual bool is_init_network_save() const { return false; }
@@ -823,7 +823,7 @@ public:
 	bool is_selected(karte_t *) const { return false; }
 	bool init( karte_t *welt, spieler_t * ) {
 		assert(  default_param  );
-		welt->get_einstellungen()->set_verkehr_level( atoi(default_param) );
+		welt->access_einstellungen()->set_verkehr_level( atoi(default_param) );
 		return false;
 	}
 	virtual bool is_init_network_save() const { return false; }
@@ -1247,7 +1247,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Climate Control"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_climate); }
 	bool init( karte_t *welt, spieler_t * ) {
-		create_win( new climate_gui_t(welt->get_einstellungen()), w_info, magic_climate );
+		create_win( new climate_gui_t(welt->access_einstellungen()), w_info, magic_climate );
 		return false;
 	}
 };
@@ -1259,7 +1259,7 @@ public:
 	const char *get_tooltip(spieler_t *) { return translator::translate("Setting"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_settings_frame_t); }
 	bool init( karte_t *welt, spieler_t * ) {
-		create_win( new settings_frame_t(welt->get_einstellungen()), w_info, magic_settings_frame_t );
+		create_win( new settings_frame_t(welt->access_einstellungen()), w_info, magic_settings_frame_t );
 		return false;
 	}
 };

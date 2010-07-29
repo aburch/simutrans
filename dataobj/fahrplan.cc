@@ -200,11 +200,11 @@ void schedule_t::rdwr(loadsave_t *file)
 	uint8 size = eintrag.get_count();
 	if(  file->get_version()<=101000  ) {
 		uint32 dummy=aktuell;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		aktuell = (uint8)dummy;
 
 		sint32 maxi=size;
-		file->rdwr_long(maxi, " ");
+		file->rdwr_long(maxi);
 		DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
 		if(file->get_version()<86010) {
 			// old array had different maxi-counter
@@ -213,11 +213,11 @@ void schedule_t::rdwr(loadsave_t *file)
 		size = (uint8)max(0,maxi);
 	}
 	else {
-		file->rdwr_byte(aktuell, " ");
-		file->rdwr_byte(size, " ");
+		file->rdwr_byte(aktuell);
+		file->rdwr_byte(size);
 		if( file->get_version()>=102003 && file->get_experimental_version()>=9 ) {
-			file->rdwr_bool(bidirectional, " ");
-			file->rdwr_bool(mirrored, " ");
+			file->rdwr_bool(bidirectional);
+			file->rdwr_bool(mirrored);
 		}
 	}
 	eintrag.resize(size);
@@ -227,7 +227,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			koord3d pos;
 			uint32 dummy;
 			pos.rdwr(file);
-			file->rdwr_long(dummy, "\n");
+			file->rdwr_long(dummy);
 
 			struct linieneintrag_t stop;
 			stop.pos = pos;
@@ -244,9 +244,9 @@ void schedule_t::rdwr(loadsave_t *file)
 				eintrag[i] .waiting_time_shift = 0;
 			}
 			eintrag[i].pos.rdwr(file);
-			file->rdwr_byte(eintrag[i].ladegrad, "\n");
+			file->rdwr_byte(eintrag[i].ladegrad);
 			if(file->get_version()>=99018) {
-				file->rdwr_byte( eintrag[i].waiting_time_shift, "w" );
+				file->rdwr_byte(eintrag[i].waiting_time_shift);
 			}
 		}
 	}

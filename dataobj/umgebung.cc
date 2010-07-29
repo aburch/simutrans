@@ -87,6 +87,8 @@ uint32 umgebung_t::number_of_clusters = 0;
 uint32 umgebung_t::cluster_size = 200;
 uint8 umgebung_t::cities_like_water = 60;
 bool umgebung_t::left_to_right_graphs = true;
+uint32 umgebung_t::tooltip_delay;
+uint32 umgebung_t::tooltip_duration;
 
 
 
@@ -174,7 +176,10 @@ void umgebung_t::init()
 	mute_midi = false;
 	shuffle_midi = true;
 
-	//left_to_right_graphs = true;
+	left_to_right_graphs = false;
+
+	tooltip_delay = 500;
+	tooltip_duration = 5000;
 }
 
 // save/restore environment
@@ -182,56 +187,56 @@ void umgebung_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t u( file, "umgebung_t" );
 
-	file->rdwr_short( scroll_multi, "" );
-	file->rdwr_bool( night_shift, "" );
-	file->rdwr_byte( daynight_level, "" );
-	file->rdwr_long( water_animation, "" );
-	file->rdwr_bool( drive_on_left, "" );
+	file->rdwr_short( scroll_multi);
+	file->rdwr_bool( night_shift);
+	file->rdwr_byte( daynight_level);
+	file->rdwr_long( water_animation);
+	file->rdwr_bool( drive_on_left);
 
-	file->rdwr_byte( show_month, "" );
+	file->rdwr_byte( show_month);
 
-	file->rdwr_bool( use_transparency_station_coverage, "" );
-	file->rdwr_byte( station_coverage_show, "" );
-	file->rdwr_long( show_names, "" );
+	file->rdwr_bool( use_transparency_station_coverage);
+	file->rdwr_byte( station_coverage_show);
+	file->rdwr_long( show_names);
 
-	file->rdwr_bool( hide_with_transparency, "" );
-	file->rdwr_byte( hide_buildings, "" );
-	file->rdwr_bool( hide_trees, "" );
+	file->rdwr_bool( hide_with_transparency);
+	file->rdwr_byte( hide_buildings);
+	file->rdwr_bool( hide_trees);
 
-	file->rdwr_long( message_flags[0], "" );
-	file->rdwr_long( message_flags[1], "" );
-	file->rdwr_long( message_flags[2], "" );
-	file->rdwr_long( message_flags[3], "" );
+	file->rdwr_long( message_flags[0]);
+	file->rdwr_long( message_flags[1]);
+	file->rdwr_long( message_flags[2]);
+	file->rdwr_long( message_flags[3]);
 
-	file->rdwr_bool( show_tooltips, "" );
-	file->rdwr_byte( tooltip_color, "" );
-	file->rdwr_byte( tooltip_textcolor, "" );
+	file->rdwr_bool( show_tooltips);
+	file->rdwr_byte( tooltip_color);
+	file->rdwr_byte( tooltip_textcolor);
 
-	file->rdwr_long( autosave, "" );
-	file->rdwr_long( fps, "" );
-	file->rdwr_short( max_acceleration, "" );
+	file->rdwr_long( autosave);
+	file->rdwr_long( fps);
+	file->rdwr_short( max_acceleration);
 
-	file->rdwr_bool( verkehrsteilnehmer_info , "" );
-	file->rdwr_bool( tree_info, "" );
-	file->rdwr_bool( ground_info , "" );
-	file->rdwr_bool( townhall_info , "" );
-	file->rdwr_bool( single_info , "" );
+	file->rdwr_bool( verkehrsteilnehmer_info );
+	file->rdwr_bool( tree_info);
+	file->rdwr_bool( ground_info );
+	file->rdwr_bool( townhall_info );
+	file->rdwr_bool( single_info );
 
-	file->rdwr_byte( default_sortmode, "" );
-	file->rdwr_byte( default_mapmode, "" );
+	file->rdwr_byte( default_sortmode);
+	file->rdwr_byte( default_mapmode);
 
-	file->rdwr_bool( window_buttons_right , "" );
-	file->rdwr_bool( window_frame_active , "" );
+	file->rdwr_bool( window_buttons_right );
+	file->rdwr_bool( window_frame_active );
 
-	file->rdwr_byte( verbose_debug, "" );
+	file->rdwr_byte( verbose_debug);
 
-	file->rdwr_long( intercity_road_length, "" );
+	file->rdwr_long( intercity_road_length);
 	if(  file->get_version()<=102002  ) {
 		bool no_tree = false;
-		file->rdwr_bool( no_tree, "" );
+		file->rdwr_bool( no_tree);
 	}
-	file->rdwr_long( ground_object_probability, "" );
-	file->rdwr_long( moving_object_probability, "" );
+	file->rdwr_long( ground_object_probability);
+	file->rdwr_long( moving_object_probability);
 
 	if(  file->is_loading()  ) {
 		// these three bytes will be lost ...
@@ -243,22 +248,29 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_str( language_iso );
 	}
 
-	file->rdwr_short( global_volume, "" );
-	file->rdwr_short( midi_volume, "" );
-	file->rdwr_bool( mute_sound, "" );
-	file->rdwr_bool( mute_midi, "" );
-	file->rdwr_bool( shuffle_midi, "" );
+	file->rdwr_short( global_volume);
+	file->rdwr_short( midi_volume);
+	file->rdwr_bool( mute_sound);
+	file->rdwr_bool( mute_midi);
+	file->rdwr_bool( shuffle_midi);
 
 	if(  file->get_version()>102001  ) {
-		file->rdwr_byte( show_vehicle_states, "" );
+		file->rdwr_byte( show_vehicle_states );
 		bool dummy;
-		file->rdwr_bool(dummy, "");
-		file->rdwr_bool(left_to_right_graphs, "");
+		file->rdwr_bool(dummy);
+		file->rdwr_bool(left_to_right_graphs);
 	}
 
 	if(file->get_experimental_version() >= 6)
 	{
-		file->rdwr_bool(hilly, "");
-		file->rdwr_bool(cities_ignore_height, "");
+		file->rdwr_bool(hilly);
+		file->rdwr_bool(cities_ignore_height);
+	}
+
+	if(  file->get_experimental_version() >= 9 ) 
+	{
+		file->rdwr_long( tooltip_delay);
+		file->rdwr_long( tooltip_duration);
+
 	}
 }

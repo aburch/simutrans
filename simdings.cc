@@ -217,13 +217,13 @@ ding_t::rdwr(loadsave_t *file)
 	}
 
 	sint8 byte = (sint8)(((sint16)16*(sint16)xoff)/TILE_STEPS);
-	file->rdwr_byte(byte, " ");
+	file->rdwr_byte(byte);
 	xoff = (sint8)(((sint16)byte*TILE_STEPS)/16);
 	byte = (sint8)(((sint16)16*(sint16)yoff)/TILE_STEPS);
-	file->rdwr_byte(byte, "\n");
+	file->rdwr_byte(byte);
 	yoff = (sint8)(((sint16)byte*TILE_STEPS)/16);
 	byte = besitzer_n;
-	file->rdwr_byte(byte, "\n");
+	file->rdwr_byte(byte);
 	besitzer_n = byte;
 }
 
@@ -317,7 +317,7 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 * @author prissi
  */
 void
-ding_t::mark_image_dirty(image_id bild,sint8 yoff) const
+ding_t::mark_image_dirty(image_id bild,sint16 yoff) const
 {
 	if(bild!=IMG_LEER) {
 		int xpos=0, ypos=0;

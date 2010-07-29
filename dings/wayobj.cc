@@ -137,7 +137,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 	xml_tag_t t( file, "wayobj_t" );
 	ding_t::rdwr(file);
 	if(file->get_version()>=89000) {
-		file->rdwr_byte(dir, "\n");
+		file->rdwr_byte(dir);
 		if(file->is_saving()) {
 			const char *s = besch->get_name();
 			file->rdwr_str(s);

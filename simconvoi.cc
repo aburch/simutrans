@@ -2358,43 +2358,43 @@ convoi_t::rdwr(loadsave_t *file)
 	// @author hsiegeln
 	if(file->get_version()<88003) {
 		dummy = 0;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		line_id = (uint16)dummy;
 	}
 	else {
-		file->rdwr_short(line_id, " ");
+		file->rdwr_short(line_id);
 	}
 
 	dummy = anz_vehikel;
-	file->rdwr_long(dummy, " ");
+	file->rdwr_long(dummy);
 	anz_vehikel = (uint8)dummy;
 
 	if(file->get_version()<99014) {
 		// was anz_ready
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 	}
 
-	file->rdwr_long(wait_lock, " ");
-	// some versions may produce broken savegames apparently
+	file->rdwr_long(wait_lock);
+	// some versions may produce broken safegames apparently
 	if(wait_lock > 60000) {
 		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
 		wait_lock = 60000;
 	}
 
 	bool dummy_bool=false;
-	file->rdwr_bool(dummy_bool, " ");
-	file->rdwr_long(besitzer_n, "\n");
-	file->rdwr_long(akt_speed, " ");
+	file->rdwr_bool(dummy_bool);
+	file->rdwr_long(besitzer_n);
+	file->rdwr_long(akt_speed);
 	sint32 akt_speed_soll = 0; // Former variable now unused
-	file->rdwr_long(akt_speed_soll, " ");
-	file->rdwr_long(sp_soll, " ");
-	file->rdwr_enum(state, " ");
-	file->rdwr_enum(alte_richtung, " ");
+	file->rdwr_long(akt_speed_soll);
+	file->rdwr_long(sp_soll);
+	file->rdwr_enum(state);
+	file->rdwr_enum(alte_richtung);
 
 	// read the yearly income (which has since then become a 64 bit value)
 	// will be recalculated later directly from the history
 	if(file->get_version()<=89003) {
-		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy);
 	}
 
 	route.rdwr(file);
@@ -2540,7 +2540,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	bool has_fpl = (fpl != NULL);
-	file->rdwr_bool(has_fpl, "");
+	file->rdwr_bool(has_fpl);
 	if(has_fpl) {
 		//DBG_MESSAGE("convoi_t::rdwr()","convoi has a schedule, state %s!",state_names[state]);
 		const vehikel_t* v = fahr[0];
@@ -2589,7 +2589,7 @@ convoi_t::rdwr(loadsave_t *file)
 					financial_history[k][j] = 0;
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (j = 2; j < 5; j++) 
@@ -2606,7 +2606,7 @@ convoi_t::rdwr(loadsave_t *file)
 					financial_history[k][j] = 0;
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -2631,7 +2631,7 @@ convoi_t::rdwr(loadsave_t *file)
 					financial_history[k][j] = 0;
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int j = 7; j<MAX_CONVOI_COST; j++) 
@@ -2664,31 +2664,31 @@ convoi_t::rdwr(loadsave_t *file)
 				{
 					// Simutrans-Standard: distances in tiles, not km. Convert.
 					sint64 distance;
-					file->rdwr_longlong(distance, " ");
+					file->rdwr_longlong(distance);
 					financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 	}
 
-	// the convoi odometer
+	// the convoy odometer
 	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
 	{
-		file->rdwr_longlong( total_distance_traveled, "" );
+		file->rdwr_longlong( total_distance_traveled);
 	}
 	else if(file->get_version() > 102002)
 	{
 		//Simutrans-Standard save - this value is in tiles, not km. Convert.
 		sint64 tile_distance;
-		file->rdwr_longlong( tile_distance, "" );
+		file->rdwr_longlong( tile_distance);
 		total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
 	}
 
 	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
 	{
-		file->rdwr_byte(tiles_since_last_odometer_increment, "");
+		file->rdwr_byte(tiles_since_last_odometer_increment);
 	}
 
 	// since it was saved as an signed int
@@ -2704,7 +2704,7 @@ convoi_t::rdwr(loadsave_t *file)
 
 	// save/restore pending line updates
 	if(file->get_version()>84008   &&  file->get_version()<99013) {
-		file->rdwr_long(dummy, "\n");	// ignore
+		file->rdwr_long(dummy);	// ignore
 	}
 	if(file->is_loading()) {
 		line_update_pending = linehandle_t();
@@ -2729,7 +2729,7 @@ convoi_t::rdwr(loadsave_t *file)
 		steps_driven = -1;
 	}
 	else {
-		file->rdwr_short( steps_driven, "s" );
+		file->rdwr_short(steps_driven);
 	}
 
 	// waiting time left ...
@@ -2742,17 +2742,17 @@ convoi_t::rdwr(loadsave_t *file)
 				if(file->get_experimental_version() <= 1)
 				{
 					uint32 old_go_on_ticks = (uint32)go_on_ticks;
-					file->rdwr_long( old_go_on_ticks, "dt" );
+					file->rdwr_long( old_go_on_ticks );
 				}
 				else
 				{
-					file->rdwr_longlong(go_on_ticks, "dt" );
+					file->rdwr_longlong(go_on_ticks );
 				}
 			}
 			else 
 			{
 				sint64 diff_ticks = welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
-				file->rdwr_longlong(diff_ticks, "dt" );
+				file->rdwr_longlong(diff_ticks);
 			}
 		}
 		else 
@@ -2760,12 +2760,12 @@ convoi_t::rdwr(loadsave_t *file)
 			if(file->get_experimental_version() <= 1)
 			{
 				uint32 old_go_on_ticks = (uint32)go_on_ticks;				
-				file->rdwr_long( old_go_on_ticks, "dt" );
+				file->rdwr_long( old_go_on_ticks);
 				go_on_ticks = old_go_on_ticks;
 			}
 			else
 			{
-				file->rdwr_longlong(go_on_ticks, "dt" );
+				file->rdwr_longlong(go_on_ticks);
 			}
 
 			if(go_on_ticks!=WAIT_INFINITE)
@@ -2787,7 +2787,7 @@ convoi_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( 0 );
 	}
 	else {
-		file->rdwr_byte( tiles_overtaking, "o" );
+		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
 	}
 	
@@ -2799,8 +2799,8 @@ convoi_t::rdwr(loadsave_t *file)
 		withdraw = false;
 	}
 	else {
-		file->rdwr_bool( no_load, "" );
-		file->rdwr_bool( withdraw, "" );
+		file->rdwr_bool(no_load);
+		file->rdwr_bool(withdraw);
 	}
 
 	// reverse_schedule
@@ -2808,7 +2808,7 @@ convoi_t::rdwr(loadsave_t *file)
 		reverse_schedule = false;
 	}
 	else {
-		file->rdwr_bool( reverse_schedule, "" );
+		file->rdwr_bool( reverse_schedule);
 	}
 
 	// Simutrans-Experimental specific parameters. 
@@ -2819,12 +2819,12 @@ convoi_t::rdwr(loadsave_t *file)
 
 	if(file->get_experimental_version() >= 1)
 	{
-		file->rdwr_bool(reversed, "");
+		file->rdwr_bool(reversed);
 		
 		//Replacing settings
 		// BG, 31-MAR-2010: new replacing code starts with exp version 8:
 		bool is_replacing = replace && (file->get_experimental_version() >= 8);
-		file->rdwr_bool(is_replacing, "");
+		file->rdwr_bool(is_replacing);
 
 		if(file->get_experimental_version() >= 8)
 		{
@@ -2839,14 +2839,14 @@ convoi_t::rdwr(loadsave_t *file)
 					replace = new replace_data_t(file);
 				}
 			}
-			file->rdwr_bool(depot_when_empty, "");
+			file->rdwr_bool(depot_when_empty);
 		}
 		else
 		{
 			// Original vehicle replacing settings - stored in convoi_t.
 			bool old_autostart;
-			file->rdwr_bool(old_autostart, "");
-			file->rdwr_bool(depot_when_empty, "");
+			file->rdwr_bool(old_autostart);
+			file->rdwr_bool(depot_when_empty);
 
 			uint16 replacing_vehicles_count = 0;
 
@@ -2859,11 +2859,11 @@ convoi_t::rdwr(loadsave_t *file)
 				//  at least the number of replacing vehicles (always 0) must be written. 
 				//replacing_vehicles = replace->get_replacing_vehicles();
 				//replacing_vehicles_count = replacing_vehicles->get_count();
-				file->rdwr_short(replacing_vehicles_count, "");
+				file->rdwr_short(replacing_vehicles_count);
 			}
 			else
 			{
-				file->rdwr_short(replacing_vehicles_count, "");
+				file->rdwr_short(replacing_vehicles_count);
 				if (replacing_vehicles_count > 0)
 				{
 					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
@@ -2896,12 +2896,12 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_longlong(last_departure_time, "");
+		file->rdwr_longlong(last_departure_time);
 		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : MAX_CONVOI_COST;
 		for(uint8 i = 0; i < count; i ++)
 		{	
-			file->rdwr_long(rolling_average[i], "");
-			file->rdwr_short(rolling_average_count[i], "");
+			file->rdwr_long(rolling_average[i]);
+			file->rdwr_short(rolling_average_count[i]);
 		}		
 	}
 	else
@@ -3083,99 +3083,24 @@ void convoi_t::open_schedule_window( bool show )
 
 
 
-/* Fahrzeuge passen oft nur in bestimmten kombinationen
- * die Beschraenkungen werden hier geprueft, die für die Nachfolger von
- * vor gelten - daher muß vor != NULL sein..
- * TRANSLATION: (Google)
- * Vehicles are often triggered only in certain combinations restrictions are approved,
- * the successor to continue to apply - therefore must be done before != NULL.
- */
-bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
-{
-	const vehikel_besch_t *soll;
-
-	if(!vor->get_nachfolger_count()) 
-	{
-		if(vor->get_can_be_at_rear())
-		{
-			return true;
-		}
-		else
-		{
-			if(hinter != NULL)
-			{
-				return true;
-			}
-		}
-	}
-	for(int i=0; i < vor->get_nachfolger_count(); i++) {
-		soll = vor->get_nachfolger(i);
-		//DBG_MESSAGE("convoi_t::pruefe_an_index()",
-		//    "checking successor: should be %d, is %d",
-		//    soll ? soll->get_name() : "none",
-		//    hinter ? hinter->get_name() : "none");
-
-		if(hinter == soll) {
-			// Diese Beschränkung erlaubt unseren Nachfolger
-			// This restriction allows our successors (Google translations)
-			return hinter || vor->get_can_be_at_rear();
-		}
-	}
-	//DBG_MESSAGE("convoi_t::pruefe_an_index()",
-	//		 "No matching successor found.");
-	return false;
-}
-
-/* Fahrzeuge passen oft nur in bestimmten kombinationen
- * die Beschraenkungen werden hier geprueft, die für die Vorgänger von
- *  hinter gelten - daher muß hinter != NULL sein.
- * 
- * Vehicles are often only fit in certain combinations, 
- * the restrictions are approved, the predecessor of 
- * behind apply - must be behind! = NULL. (Google)
- */
-bool convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
-{
-	const vehikel_besch_t *soll; //"Soll" = should (Google)
-
-	if(!hinter->get_vorgaenger_count()) {
-		// Alle Vorgänger erlaubt
-		// "All previous permits" (Google).
-		return true;
-	}
-	for(int i=0; i < hinter->get_vorgaenger_count(); i++) {
-		soll = hinter->get_vorgaenger(i);
-		//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-		//	     "checking predecessor: should be %s, is %s",
-		//	     soll ? soll->get_name() : "none",
-		//	     vor ? vor->get_name() : "none");
-
-		if(vor == soll) {
-			// Diese Beschränkung erlaubt unseren Vorgänger
-			// 	This restriction allows our predecessors (Google)
-			return true;
-		}
-	}
-	//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-	//		 "No matching predecessor found.");
-	return false;
-}
-
 
 bool convoi_t::pruefe_alle() //"examine all" (Babelfish)
+/**
+ * Check validity of convoi with respect to vehicle constraints
+ */
 {
-	bool ok = (anz_vehikel == 0 || pruefe_vorgaenger(NULL, fahr[0]->get_besch()));
+	bool ok = anz_vehikel == 0  ||  fahr[0]->get_besch()->can_follow(NULL);
 	unsigned i;
 
 	const vehikel_t* pred = fahr[0];
 	for(i = 1; ok && i < anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
-		ok = pruefe_nachfolger(pred->get_besch(), v->get_besch()) &&
-				 pruefe_vorgaenger(pred->get_besch(), v->get_besch());
+		ok = pred->get_besch()->can_lead(v->get_besch())  &&
+				 v->get_besch()->can_follow(pred->get_besch());
 		pred = v;
 	}
 	if(ok) {
-		ok = pruefe_nachfolger(pred->get_besch(), NULL);
+		ok = pred->get_besch()->can_lead(NULL);
 	}
 
 	return ok;

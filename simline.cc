@@ -161,11 +161,11 @@ void simline_t::rdwr(loadsave_t *file)
 	file->rdwr_str(name, lengthof(name));
 	if(file->get_version()<88003) {
 		sint32 dummy=id;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		id = (uint16)dummy;
 	}
 	else {
-		file->rdwr_short(id, " ");
+		file->rdwr_short(id);
 	}
 	fpl->rdwr(file);
 
@@ -187,7 +187,8 @@ void simline_t::rdwr(loadsave_t *file)
 					financial_history[k][j] = 0;
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
+
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) 
@@ -211,17 +212,18 @@ void simline_t::rdwr(loadsave_t *file)
 					financial_history[k][j] = 0;
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 	}
 
 	if(file->get_version()>=102002) {
-		file->rdwr_bool( withdraw, "" );
+		file->rdwr_bool(withdraw);
 	}
 
-	if(file->get_version()>=102003 && file->get_experimental_version() >= 9) {
-		file->rdwr_bool( start_reversed, "" );
+	if(file->get_experimental_version() >= 9) 
+	{
+		file->rdwr_bool( start_reversed);
 	}
 
 	// otherwise inintialized to zero if loading ...
@@ -232,8 +234,8 @@ void simline_t::rdwr(loadsave_t *file)
 		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : MAX_LINE_COST;
 		for(uint8 i = 0; i < counter; i ++)
 		{	
-			file->rdwr_long(rolling_average[i], "");
-			file->rdwr_short(rolling_average_count[i], "");
+			file->rdwr_long(rolling_average[i]);
+			file->rdwr_short(rolling_average_count[i]);
 		}	
 	}
 }

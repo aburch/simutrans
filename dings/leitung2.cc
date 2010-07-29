@@ -371,7 +371,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) 
 	{
 		value = (unsigned long)get_net();
-		file->rdwr_long(value, "\n");
+		file->rdwr_long(value);
 		koord city_pos  = koord::invalid;
 		if(city != NULL)
 		{
@@ -381,7 +381,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	}
 	else 
 	{
-		file->rdwr_long(value, "\n");
+		file->rdwr_long(value);
 		//      net = powernet_t::load_net((powernet_t *) value);
 		set_net(NULL);
 		if(file->get_experimental_version() >= 3)

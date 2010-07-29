@@ -157,12 +157,12 @@ schiene_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()<99008) {
 		sint32 blocknr=-1;
-		file->rdwr_long(blocknr, "\n");
+		file->rdwr_long(blocknr);
 	}
 
 	if(file->get_version()<89000) {
 		uint8 dummy;
-		file->rdwr_byte(dummy, "\n");
+		file->rdwr_byte(dummy);
 		set_electrify(dummy);
 	}
 

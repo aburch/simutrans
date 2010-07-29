@@ -353,7 +353,7 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 		const uint8 current_option = welt->get_einstellungen()->get_default_path_option();
 		if(current_option == 1)
 		{
-			welt->get_einstellungen()->set_default_path_option(2);
+			welt->access_einstellungen()->set_default_path_option(2);
 			buttons[20].pressed = true;
 			path_explorer_t::full_instant_refresh();
 		}

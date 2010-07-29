@@ -170,17 +170,17 @@ replace_data_t::~replace_data_t()
 
 void replace_data_t::rdwr(loadsave_t *file)
 {
-	file->rdwr_bool(autostart, "");
-	file->rdwr_bool(retain_in_depot, "");
-	file->rdwr_bool(use_home_depot, "");
-	file->rdwr_bool(allow_using_existing_vehicles, "");
+	file->rdwr_bool(autostart);
+	file->rdwr_bool(retain_in_depot);
+	file->rdwr_bool(use_home_depot);
+	file->rdwr_bool(allow_using_existing_vehicles);
 	
 	uint16 replacing_vehicles_count;
 
 	if(file->is_saving())
 	{
 		replacing_vehicles_count = replacing_vehicles->get_count();
-		file->rdwr_short(replacing_vehicles_count, "");
+		file->rdwr_short(replacing_vehicles_count);
 		ITERATE_PTR(replacing_vehicles, i)
 		{
 			const char *s = replacing_vehicles->get_element(i)->get_name();
@@ -189,7 +189,7 @@ void replace_data_t::rdwr(loadsave_t *file)
 	}
 	else
 	{
-		file->rdwr_short(replacing_vehicles_count, "");
+		file->rdwr_short(replacing_vehicles_count);
 		for(uint16 i = 0; i < replacing_vehicles_count; i ++)
 		{
 			char vehicle_name[256];

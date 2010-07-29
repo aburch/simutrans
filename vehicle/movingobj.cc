@@ -197,19 +197,19 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 	vehikel_basis_t::rdwr(file);
 
-	file->rdwr_enum(fahrtrichtung, " ");
+	file->rdwr_enum(fahrtrichtung);
 	if (file->is_loading()) {
 		// restore dxdy information
 		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
 	}
 
-	file->rdwr_byte(steps, " ");
-	file->rdwr_byte(steps_next, "\n");
+	file->rdwr_byte(steps);
+	file->rdwr_byte(steps_next);
 
 	pos_next.rdwr(file);
 	pos_next_next.rdwr(file);
-	file->rdwr_short( timetochange, "" );
+	file->rdwr_short(timetochange);
 
 	if(file->is_saving()) {
 		const char *s = get_besch()->get_name();
