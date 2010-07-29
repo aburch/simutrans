@@ -3246,35 +3246,27 @@ KOORD_VAL display_get_char_width(utf16 c)
  */
 unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
 {
+	size_t len;
 	unsigned short char_code;
 	if(  has_unicode  ) {
-		size_t len = 0;
+		len = 0;
 		char_code = utf8_to_utf16((const utf8 *)text, &len);
-		if(  char_code==0  ) {
-			// case : end of text reached -> do not advance text pointer
-			byte_length = 0;
-			pixel_width = 0;
-		}
-		else {
-			text += len;
-			byte_length = len;
-			if(  char_code>=large_font.num_chars  ||  (pixel_width = large_font.screen_width[char_code])==0  ) {
-				// default width for missing characters
-				pixel_width = large_font.screen_width[0];
-			}
-		}
 	}
 	else {
-		char_code = *text;
-		if(  char_code==0  ) {
-			// case : end of text reached -> do not advance text pointer
-			byte_length = 0;
-			pixel_width = 0;
-		}
-		else {
-			++text;
-			byte_length = 1;
-			pixel_width = large_font.screen_width[char_code];
+		len = 1;
+		char_code = (unsigned char)(*text);
+	}
+	if(  char_code==0  ) {
+		// case : end of text reached -> do not advance text pointer
+		byte_length = 0;
+		pixel_width = 0;
+	}
+	else {
+		text += len;
+		byte_length = len;
+		if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
+			// default width for missing characters
+			pixel_width = large_font.screen_width[0];
 		}
 	}
 	return char_code;
@@ -3306,16 +3298,15 @@ unsigned short get_prev_char_with_metrics(const char* &text, const char *const t
 		size_t len = 0;
 		char_code = utf8_to_utf16((const utf8 *)text, &len);
 		byte_length = len;
-		if(  char_code>=large_font.num_chars  ||  (pixel_width = large_font.screen_width[char_code])==0  ) {
-			// default width for missing characters
-			pixel_width = large_font.screen_width[0];
-		}
 	}
 	else {
 		--text;
-		char_code = *text;
+		char_code = (unsigned char)(*text);
 		byte_length = 1;
-		pixel_width = large_font.screen_width[char_code];
+	}
+	if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
+		// default width for missing characters
+		pixel_width = large_font.screen_width[0];
 	}
 	return char_code;
 }
@@ -3353,9 +3344,14 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 		}
 	} else {
 #endif
+		uint8 char_width;
 		while (*text!=0  &&  len>0) {
 			c = (unsigned char)*text;
-			width += fnt->screen_width[c];
+			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])==0  ) {
+				// default width for missing characters
+				char_width = fnt->screen_width[0];
+			}
+			width += char_width;
 			text++;
 			len--;
 		}

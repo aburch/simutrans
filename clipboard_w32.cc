@@ -102,8 +102,8 @@ size_t dr_paste(char *target, size_t max_length)
 					utf8_buffer += byte_count;
 					++utf16_text;
 				}
-				max_length = tmp_length;
 				pText = buffer;
+				max_length = tmp_length;
 			}
 			else {
 				const size_t text_length = strlen(pText);
