@@ -84,49 +84,47 @@ size_t dr_paste(char *target, size_t max_length)
 	size_t inserted_length = 0;
 
 	HGLOBAL hText;	// handle to the memory block for holding the text
-	if(  OpenClipboard(NULL)  ) {
-		hText = GetClipboardData(has_unicode ? CF_UNICODETEXT : CF_TEXT);
-		CloseClipboard();
-	}
-
 	const char *pText;	// pointer to the start of the memory block
-	if(  hText  &&  (pText=(const char*)GlobalLock(hText))  ) {
-		// determine the number of bytes to be pasted
-		if(  has_unicode  ) {
-			// convert clipboard text from utf-16 to utf-8
-			const utf16 *utf16_text = (utf16 *)pText;
-			utf8 *utf8_buffer = (utf8 *)buffer;
-			size_t tmp_length = 0;
-			size_t byte_count;
-			while(  *utf16_text  &&  tmp_length+(byte_count=utf16_to_utf8(*utf16_text, utf8_buffer))<=max_length  ) {
-				tmp_length += byte_count;
-				utf8_buffer += byte_count;
-				++utf16_text;
+	if(  OpenClipboard(NULL)  ) {
+		if(  (hText=GetClipboardData(has_unicode?CF_UNICODETEXT:CF_TEXT))  &&  (pText=(const char*)GlobalLock(hText))  ) {
+			// determine the number of bytes to be pasted
+			if(  has_unicode  ) {
+				// convert clipboard text from utf-16 to utf-8
+				const utf16 *utf16_text = (utf16 *)pText;
+				utf8 *utf8_buffer = (utf8 *)buffer;
+				size_t tmp_length = 0;
+				size_t byte_count;
+				while(  *utf16_text  &&  tmp_length+(byte_count=utf16_to_utf8(*utf16_text, utf8_buffer))<=max_length  ) {
+					tmp_length += byte_count;
+					utf8_buffer += byte_count;
+					++utf16_text;
+				}
+				max_length = tmp_length;
+				pText = buffer;
 			}
-			max_length = tmp_length;
-			pText = buffer;
-		}
-		else {
-			const size_t text_length = strlen(pText);
-			if(  text_length<max_length  ) {
-				max_length = text_length;
+			else {
+				const size_t text_length = strlen(pText);
+				if(  text_length<max_length  ) {
+					max_length = text_length;
+				}
 			}
-		}
-		inserted_length = max_length;
+			inserted_length = max_length;
 
-		// move the text to free up space for inserting the clipboard content
-		char *target_old_end = target + strlen(target);
-		char *target_new_end = target_old_end + max_length;
-		while(  target_old_end>=target  ) {
-			*target_new_end-- = *target_old_end--;
-		}
+			// move the text to free up space for inserting the clipboard content
+			char *target_old_end = target + strlen(target);
+			char *target_new_end = target_old_end + max_length;
+			while(  target_old_end>=target  ) {
+				*target_new_end-- = *target_old_end--;
+			}
 
-		// insert the clipboard content
-		while(  (max_length--)>0  ) {
-			*target++ = *pText++;
-		}
+			// insert the clipboard content
+			while(  (max_length--)>0  ) {
+				*target++ = *pText++;
+			}
 
-		GlobalUnlock(hText);
+			GlobalUnlock(hText);
+		}
+		CloseClipboard();
 	}
 
 	// return the inserted length for cursor advancing
