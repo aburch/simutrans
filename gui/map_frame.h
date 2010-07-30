@@ -55,6 +55,12 @@ private:
 	   */
 	bool is_dragging;
 
+	/**
+	 * remember that we zoomed
+	 * to center map
+	 */
+	bool zoomed;
+
 	gui_scrollpane_t scrolly;
 
 	// position of the buttons
