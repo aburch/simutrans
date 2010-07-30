@@ -266,6 +266,7 @@ static simwin_gadget_et decode_gadget_boxes(
 static void win_draw_window_title(const koord pos, const koord gr,
 		const PLAYER_COLOR_VAL titel_farbe,
 		const char * const text,
+		const PLAYER_COLOR_VAL text_farbe,
 		const bool closing,
 		const bool sticky,
 		const simwin_gadget_flags_t * const flags )
@@ -278,7 +279,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 
 	// Draw the gadgets and then move left and draw text.
 	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
-	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, false );
+	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
 	POP_CLIP();
 }
 
@@ -406,6 +407,11 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 	}
 
 	if(  wins.get_count() < MAX_WIN  ) {
+
+		if(  wins.get_count()>0  ) {
+			// mark old title dirty
+			mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_fenstergroesse().x, wins.back().pos.y+16 );
+		}
 
 		wins.append( simwin_t() );
 		simwin_t &win = wins[wins.get_count()-1];
@@ -590,11 +596,14 @@ int top_win(int win)
 		return win;
 	} // already topped
 
+	// mark old title dirty
+	mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_fenstergroesse().x, wins.back().pos.y+16 );
+
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
 	wins.append(tmp);
 
-	// mark dirty
+	 // mark new dirty
 	koord gr = wins[win].gui->get_fenstergroesse();
 	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
 
@@ -623,25 +632,32 @@ void display_win(int win)
 	gui_frame_t *komp = wins[win].gui;
 	koord gr = komp->get_fenstergroesse();
 	koord pos = wins[win].pos;
-	int titel_farbe = komp->get_titelcolor();
+	PLAYER_COLOR_VAL title_color = (komp->get_titelcolor()&0xF8)+umgebung_t::front_window_bar_color;
+	PLAYER_COLOR_VAL text_color = +umgebung_t::front_window_text_color;
+	if(  (unsigned)win!=wins.get_count()-1  ) {
+		// not top => maximum brightness
+		title_color = (title_color&0xF8)+umgebung_t::bottom_window_bar_color;
+		text_color = umgebung_t::bottom_window_text_color;
+	}
 	bool need_dragger = komp->get_resizemode() != gui_frame_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
 	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
 	win_draw_window_title(wins[win].pos,
 			gr,
-			titel_farbe,
+			title_color,
 			translator::translate(komp->get_name()),
+			text_color,
 			wins[win].closing,
 			wins[win].sticky,
 			( & wins[win].flags ) );
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
 		if(!wins[win].rollup) {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , titel_farbe, titel_farbe+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , title_color, title_color+1 );
 		}
 		else {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, 18, titel_farbe, titel_farbe+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, 18, title_color, title_color+1 );
 		}
 	}
 	if(!wins[win].rollup) {

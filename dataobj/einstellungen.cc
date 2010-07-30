@@ -638,8 +638,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info );
 
 	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right );
-	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active );
 	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs );
+	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active );
+	umgebung_t::front_window_bar_color = contents.get_int("front_window_bar_color", umgebung_t::front_window_bar_color );
+	umgebung_t::front_window_text_color = contents.get_int("front_window_text_color", umgebung_t::front_window_text_color );
+	umgebung_t::bottom_window_bar_color = contents.get_int("bottom_window_bar_color", umgebung_t::bottom_window_bar_color );
+	umgebung_t::bottom_window_text_color = contents.get_int("bottom_window_text_color", umgebung_t::bottom_window_text_color );
 
 	umgebung_t::show_tooltips = contents.get_int("show_tooltips", umgebung_t::show_tooltips );
 	umgebung_t::tooltip_color = contents.get_int("tooltip_background_color", umgebung_t::tooltip_color );

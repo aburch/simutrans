@@ -72,10 +72,14 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "window_buttons_right", umgebung_t::window_buttons_right );
 	INIT_BOOL( "window_frame_active", umgebung_t::window_frame_active );
+	INIT_NUM( "front_window_bar_color", umgebung_t::front_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "front_window_text_color", umgebung_t::front_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "bottom_window_bar_color", umgebung_t::bottom_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "bottom_window_text_color", umgebung_t::bottom_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
 	INIT_BOOL( "show_tooltips", umgebung_t::show_tooltips );
-	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, 1, 0 );
+	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, 1, 0 );
 	INIT_NUM( "tooltip_delay", umgebung_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "tooltip_duration", umgebung_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
@@ -115,6 +119,10 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 
 	READ_BOOL_VALUE( umgebung_t::window_buttons_right );
 	READ_BOOL_VALUE( umgebung_t::window_frame_active );
+	READ_NUM_VALUE( umgebung_t::front_window_bar_color );
+	READ_NUM_VALUE( umgebung_t::front_window_text_color );
+	READ_NUM_VALUE( umgebung_t::bottom_window_bar_color );
+	READ_NUM_VALUE( umgebung_t::bottom_window_text_color );
 
 	READ_BOOL_VALUE( umgebung_t::show_tooltips );
 	READ_NUM_VALUE( umgebung_t::tooltip_color );

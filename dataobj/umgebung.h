@@ -147,10 +147,6 @@ public:
 	*/
 	static bool window_buttons_right;
 
-	/*
-	 * frame active window
-	 */
-	static bool window_frame_active;
 
 	/**
 	* Produce more debug info ?
@@ -213,7 +209,10 @@ public:
 	static bool show_tooltips;
 	static uint8 tooltip_color;
 	static uint8 tooltip_textcolor;
+	static uint32 tooltip_delay;
+	static uint32 tooltip_duration;
 
+	// limit width and height of menu toolbars
 	static uint8 toolbar_max_width;
 	static uint8 toolbar_max_height;
 
@@ -235,9 +234,12 @@ public:
 
 	static bool left_to_right_graphs;
 
-	// tooltip visualisation duration
-	static uint32 tooltip_delay;
-	static uint32 tooltip_duration;
+	// how to highlight topped (untopped windows)
+	static bool window_frame_active;
+	static uint8 front_window_bar_color;
+	static uint8 front_window_text_color;
+	static uint8 bottom_window_bar_color;
+	static uint8 bottom_window_text_color;
 
 	static einstellungen_t default_einstellungen;
 
