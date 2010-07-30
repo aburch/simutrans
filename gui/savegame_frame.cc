@@ -38,7 +38,7 @@
 // Since during initialisations virtual functions do not work yet
 // in derived classes (since the object in question is not full initialized yet)
 // this functions returns true for files to be added.
-savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
+savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories ) :
 	gui_frame_t("Load/Save"),
 	input(),
 	fnlabel("Filename"),
@@ -46,6 +46,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
 {
 	this->suffix = suffix;
 	this->fullpath = path;
+	this->only_directories = only_directories;
 	use_pak_extension = suffix==NULL  ||  strcmp( suffix, ".sve" )==0;
 	in_action = false;
 
@@ -161,11 +162,17 @@ void savegame_frame_t::fill_list()
 		}
 		else {
 			do {
+				if(only_directories) {
+					if ((entry.attrib & _A_SUBDIR)==0) {
+						continue;
+					}
+				}
 				if(check_file(entry.name,suffix)) {
 					add_file(entry.name, get_info(entry.name), not_cutting_extension);
 				}
 			} while(_findnext(hfind, &entry) == 0 );
 		}
+		_findclose(hfind);
 	}
 #endif
 
