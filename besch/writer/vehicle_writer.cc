@@ -248,6 +248,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Vorgänger/Nachfolgerbedingungen
 	//
 	uint8 besch_vorgaenger = 0;
+	bool found;
 	do {
 		char buf[40];
 
@@ -256,14 +257,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
 
 		str = obj.get(buf);
-		if (str.size() > 0) {
-			if (besch_vorgaenger == 0 && !STRICMP(str.c_str(), "none")) {
+		found = str.size() > 0;
+		if (found) {
+			if (!STRICMP(str.c_str(), "none")) {
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
 			besch_vorgaenger++;
 		}
-	} while (str.size() > 0);
+	} while (found);
 
 	uint8 besch_nachfolger = 0;
 	do {
@@ -274,14 +276,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[next][%d]", besch_nachfolger);
 
 		str = obj.get(buf);
-		if (str.size() > 0) {
-			if (besch_nachfolger == 0 && !STRICMP(str.c_str(), "none")) {
+		found = str.size() > 0;
+		if (found) {
+			if (!STRICMP(str.c_str(), "none")) {
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
 			besch_nachfolger++;
 		}
-	} while (str.size() > 0);
+	} while (found);
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
