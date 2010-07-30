@@ -138,7 +138,7 @@ bool win_change_zoom_factor(bool magnify);
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  * @author Hj. Malthaner, Knightly
  */
-void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner);
+void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner = NULL, const void *const group = NULL);
 
 /**
  * Sets a static tooltip that follows the mouse

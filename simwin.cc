@@ -109,8 +109,8 @@ static const char * tooltip_text = 0;
 static const char * static_tooltip_text = 0;
 // Knightly :	For timed tooltip with initial delay and finite visible duration.
 //				Valid owners are required for timing. Invalid (NULL) owners disable timing.
-static const void * tooltip_current_owner = 0;	// current owner of the registered tooltip
-static const void * tooltip_previous_owner = 0;	// previous owner of the registered tooltip
+static const void * tooltip_owner = 0;	// owner of the registered tooltip
+static const void * tooltip_group = 0;	// group to which the owner belongs
 static unsigned long tooltip_register_time = 0;	// time at which a tooltip is initially registered
 
 static bool show_ticker=0;
@@ -1059,11 +1059,10 @@ void win_display_flush(double konto)
 
 		if(umgebung_t::show_tooltips) {
 			// Hajo: check if there is a tooltip to display
-			tooltip_previous_owner = tooltip_current_owner;	// Knightly : update previous owner before current owner is reset
 			if(  tooltip_text  &&  *tooltip_text  ) {
 				// Knightly : display tooltip when current owner is invalid or when it is within visible duration
 				unsigned long elapsed_time;
-				if(  !tooltip_current_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
+				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
 					display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
 				}
@@ -1072,9 +1071,13 @@ void win_display_flush(double konto)
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
 				display_ddd_proportional(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
 			}
-			// Hajo/Knightly : clear tooltip text and owner to avoid sticky tooltips
+			// Knightly : reset owner and group if no tooltip has been registered
+			if(  !tooltip_text  ) {
+				tooltip_owner = 0;
+				tooltip_group = 0;
+			}
+			// Hajo : clear tooltip text to avoid sticky tooltips
 			tooltip_text = 0;
-			tooltip_current_owner = 0;
 		}
 
 		display_set_height( oldh );
@@ -1230,16 +1233,39 @@ bool win_change_zoom_factor(bool magnify)
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  * @author Hj. Malthaner, Knightly
  */
-void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner)
+void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner, const void *const group)
 {
 	// must be set every time as win_display_flush() will reset them
 	tooltip_text = text;
-	tooltip_current_owner = owner;
 
-	// update ownership and register time only if new owner is valid and there is a change of ownership
-	if(  tooltip_current_owner  &&  tooltip_current_owner!=tooltip_previous_owner  ) {
-		tooltip_previous_owner = tooltip_current_owner;
-		tooltip_register_time = dr_time();
+	// update ownership if changed
+	if(  owner!=tooltip_owner  ) {
+		tooltip_owner = owner;
+		// update register time only if owner is valid
+		if(  owner  ) {
+			const unsigned long current_time = dr_time();
+			if(  group  &&  group==tooltip_group  ) {
+				// case : same group
+				const unsigned long elapsed_time = current_time - tooltip_register_time;
+				if(  elapsed_time>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration  ) {
+					// case : tooltip was already showing for the previous owner -> delay time is reduced to 1/4
+					tooltip_register_time = current_time - umgebung_t::tooltip_delay + (umgebung_t::tooltip_delay>>2);
+				}
+				else {
+					// case : tooltip was not previously showing (either within delay interval or duration expired)
+					tooltip_register_time = current_time;
+				}
+			}
+			else {
+				// case : owner has no associated group or group is different -> simply reset to current time
+				tooltip_group = group;
+				tooltip_register_time = current_time;
+			}
+		}
+		else {
+			// no owner to associate with a group even if the group is valid
+			tooltip_group = 0;
+		}
 	}
 
 	tooltip_xpos = xpos;

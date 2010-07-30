@@ -158,7 +158,7 @@ void gui_chart_t::zeichnen(koord offset)
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
 					number_to_string(tooltip, tmp, c.precision);
-					win_set_tooltip( get_maus_x()+8, get_maus_y()-12, tooltip, NULL );
+					win_set_tooltip( get_maus_x()+8, get_maus_y()-12, tooltip );
 				}
 
 				// draw line between two financial markers; this is only possible from the second value on
