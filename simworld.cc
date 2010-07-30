@@ -3776,6 +3776,15 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat);
 	file->rdwr_long(letztes_jahr);
 
+	// rdwr cityrules for networkgames
+	if(file->get_version()>102002) {
+		bool rdwr_city_rules = umgebung_t::networkmode;
+		file->rdwr_bool(rdwr_city_rules);
+		if (rdwr_city_rules) {
+			stadt_t::cityrules_rdwr(file);
+		}
+	}
+
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->rdwr(file);
 		if(silent) {
@@ -4108,6 +4117,14 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	active_player = spieler[0];
 	active_player_nr = 0;
 
+	// rdwr cityrules for networkgames
+	if(file->get_version()>102002) {
+		bool rdwr_city_rules = umgebung_t::networkmode;
+		file->rdwr_bool(rdwr_city_rules);
+		if (rdwr_city_rules) {
+			stadt_t::cityrules_rdwr(file);
+		}
+	}
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte());
 	stadt.clear();
 	stadt.resize(einstellungen->get_anzahl_staedte());

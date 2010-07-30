@@ -72,6 +72,7 @@
 	FIX: error in routing will clear itself after loading
 	FIX: not restore fields if there is already a building on this tile
 	CHANGE: minimap will center after zooming
+	ADD: parameters of cityrules.tab saved in savegame (networkmode)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

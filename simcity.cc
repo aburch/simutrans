@@ -81,14 +81,14 @@ static uint32 renovation_percentage = 12;
 static uint32 min_building_density = 25;
 
 // the following are the scores for the different building types
-static int ind_start_score =   0;
-static int com_start_score = -10;
-static int res_start_score =   0;
+static sint16 ind_start_score =   0;
+static sint16 com_start_score = -10;
+static sint16 res_start_score =   0;
 
 // order: res com, ind, given by gebaeude_t::typ
-static int ind_neighbour_score[] = { -8, 0,  8 };
-static int com_neighbour_score[] = {  1, 8,  1 };
-static int res_neighbour_score[] = {  8, 0, -8 };
+static sint16 ind_neighbour_score[] = { -8, 0,  8 };
+static sint16 com_neighbour_score[] = {  1, 8,  1 };
+static sint16 res_neighbour_score[] = {  8, 0, -8 };
 
 /**
  * Rule data structure
@@ -99,15 +99,40 @@ class rule_entry_t {
 public:
 	uint8 x,y;
 	char flag;
-	rule_entry_t() : x(0), y(0), flag('.') {}
-	rule_entry_t(uint8 x_, uint8 y_, char f_) : x(x_), y(y_), flag(f_) {}
+	rule_entry_t(uint8 x_=0, uint8 y_=0, char f_='.') : x(x_), y(y_), flag(f_) {}
+
+	void rdwr(loadsave_t* file)
+	{
+		file->rdwr_byte(x);
+		file->rdwr_byte(y);
+		uint8 c = flag;
+		file->rdwr_byte(c);
+		flag = c;
+	}
 };
 
 class rule_t {
 public:
-	int  chance;
+	sint16  chance;
 	vector_tpl<rule_entry_t> rule;
-	rule_t() : chance(0) {}
+	rule_t(uint32 count=0) : chance(0), rule(count) {}
+
+	void rdwr(loadsave_t* file)
+	{
+		file->rdwr_short(chance);
+
+		if (file->is_loading()) {
+			rule.clear();
+		}
+		uint32 count = rule.get_count();
+		file->rdwr_long(count);
+		for(uint32 i=0; i<count; i++) {
+			if (file->is_loading()) {
+				rule.append(rule_entry_t());
+			}
+			rule[i].rdwr(file);
+		}
+	}
 };
 
 // house rules
@@ -394,7 +419,57 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	return true;
 }
 
+/**
+* Reads/writes city configuration data from/to a savegame
+* called from karte_t::speichern and karte_t::laden
+* only written for networkgames
+* @author Dwachs
+*/
+void stadt_t::cityrules_rdwr(loadsave_t *file)
+{
+	file->rdwr_long(renovation_percentage);
+	file->rdwr_long(min_building_density);
 
+	file->rdwr_short(ind_start_score);
+	file->rdwr_short(ind_neighbour_score[0]);
+	file->rdwr_short(ind_neighbour_score[1]);
+	file->rdwr_short(ind_neighbour_score[2]);
+
+	file->rdwr_short(com_start_score);
+	file->rdwr_short(com_neighbour_score[0]);
+	file->rdwr_short(com_neighbour_score[1]);
+	file->rdwr_short(com_neighbour_score[2]);
+
+	file->rdwr_short(res_start_score);
+	file->rdwr_short(res_neighbour_score[0]);
+	file->rdwr_short(res_neighbour_score[1]);
+	file->rdwr_short(res_neighbour_score[2]);
+
+	// house rules
+	if (file->is_loading()) {
+		house_rules.clear();
+	}
+	uint32 count = house_rules.get_count();
+	file->rdwr_long(count);
+	for(uint32 i=0; i<count; i++) {
+		if (file->is_loading()) {
+			house_rules.append(new rule_t());
+		}
+		house_rules[i]->rdwr(file);
+	}
+	// road rules
+	if (file->is_loading()) {
+		road_rules.clear();
+	}
+	count = road_rules.get_count();
+	file->rdwr_long(count);
+	for(uint32 i=0; i<count; i++) {
+		if (file->is_loading()) {
+			road_rules.append(new rule_t());
+		}
+		road_rules[i]->rdwr(file);
+	}
+}
 
 /**
  * denkmal_platz_sucher_t:
@@ -1955,8 +2030,8 @@ void stadt_t::check_bau_factory(bool new_town)
 {
 	if (!new_town  &&  welt->get_einstellungen()->get_industry_increase_every() > 0  &&  (bev % welt->get_einstellungen()->get_industry_increase_every())== 0) {
 		uint32 div = bev / welt->get_einstellungen()->get_industry_increase_every();
-		for (int i = 0; i < 8; i++) {
-			if (div==(1<<i)) {
+		for (uint8 i = 0; i < 8; i++) {
+			if (div==(1u<<i)) {
 				DBG_MESSAGE("stadt_t::check_bau_factory", "adding new industry at %i inhabitants.", get_einwohner());
 				fabrikbauer_t::increase_industry_density( welt, true );
 			}
