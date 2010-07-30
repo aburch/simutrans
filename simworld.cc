@@ -3341,6 +3341,23 @@ void karte_t::change_world_position( koord3d new_ij )
 // change the center viewport position
 void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_yoff )
 {
+	const sint16 raster = get_tile_raster_width();
+	// truncate new_xoff, modify new_ij.x
+	new_ij.x -= new_xoff/raster;
+	new_ij.y += new_xoff/raster;
+	new_xoff %= raster;
+
+	// truncate new_yoff, modify new_ij.y
+	int lines = 0;
+	if(y_off>0) {
+		lines = (new_yoff + (raster/4))/(raster/2);
+	}
+	else {
+		lines = (new_yoff - (raster/4))/(raster/2);
+	}
+	new_ij -= koord( lines, lines );
+	new_yoff -= (raster/2)*lines;
+
 	//position changed? => update and mark dirty
 	if(new_ij!=ij_off  ||  new_xoff!=x_off  ||  new_yoff!=y_off) {
 		ij_off = new_ij;
@@ -3355,24 +3372,10 @@ void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_y
 void karte_t::blick_aendern(event_t *ev)
 {
 	if(!scroll_lock) {
-		const int raster = get_tile_raster_width();
 		koord new_ij = ij_off;
 
 		sint16 new_xoff = x_off - (ev->mx - ev->cx) * umgebung_t::scroll_multi;
-		new_ij.x -= new_xoff/raster;
-		new_ij.y += new_xoff/raster;
-		new_xoff %= raster;
-
-		int lines = 0;
 		sint16 new_yoff = y_off - (ev->my-ev->cy) * umgebung_t::scroll_multi;
-		if(y_off>0) {
-			lines = (new_yoff + (raster/4))/(raster/2);
-		}
-		else {
-			lines = (new_yoff - (raster/4))/(raster/2);
-		}
-		new_ij -= koord( lines, lines );
-		new_yoff -= (raster/2)*lines;
 
 		// this sets the new position and mark screen dirty
 		// => with next refresh we will be at a new location
