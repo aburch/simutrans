@@ -3918,6 +3918,11 @@ bool karte_t::laden(const char *filename)
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
 	if(  strstr(filename,"net:")==filename  ) {
+		// probably finish network mode?
+		if(  umgebung_t::networkmode  ) {
+			network_core_shutdown();
+			umgebung_t::networkmode = false;
+		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4);
 		if(err) {
