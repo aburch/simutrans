@@ -471,10 +471,6 @@ void button_t::zeichnen(koord offset)
 
 		case box: // old, 4-line box
 			{
-				if(  win_get_focus()==this  ) {
-					// white box around
-					display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
-				}
 				if (pressed) {
 					display_ddd_box_clip(bx, by, bw, bh, MN_GREY0, MN_GREY4);
 					display_fillbox_wh_clip(bx+1, by+1, bw-2, bh-2, background, false);
@@ -485,32 +481,33 @@ void button_t::zeichnen(koord offset)
 				}
 				int len = proportional_string_width(translated_text);
 				display_proportional_clip(bx+max((bw-len)/2,0),by+(bh-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+				if(  win_get_focus()==this  ) {
+					// white box around
+					display_fillbox_wh_clip(bx, by, bw, 1, COL_WHITE, false);
+					display_fillbox_wh_clip(bx, by+bh-1, bw, 1, COL_WHITE, false);
+					display_vline_wh_clip(bx, by, bh, COL_WHITE, false);
+					display_vline_wh_clip(bx+bw-1, by, bh, COL_WHITE, false);
+				}
 			}
 			break;
 
 		case roundbox: // new box with round corners
 			{
-				if(  win_get_focus()==this  ) {
-					// white box around
-					display_fillbox_wh_clip(bx-1, by-1, bw+2, 1, COL_WHITE, false);
-					if(b_cap_left!=IMG_LEER  &&  bh==14) {
-						display_fillbox_wh_clip(bx-1, by+skinverwaltung_t::window_skin->get_bild(13)->get_pic()->h, bw+2, 1, COL_WHITE, false);
-					}
-					else {
-						display_fillbox_wh_clip(bx-1, by+bh, bw+2, 1, COL_WHITE, false);
-					}
-				}
 				draw_roundbutton( bx, by, bw, bh, pressed );
 				display_proportional_clip(bx+(bw>>1),by+(bh-large_font_height)/2, translated_text, ALIGN_MIDDLE, b_enabled ? foreground : COL_GREY4, true);
+				if(  win_get_focus()==this  ) {
+					// white box around
+					const int rh = ( b_cap_left!=IMG_LEER && bh==14 ) ? skinverwaltung_t::window_skin->get_bild(13)->get_pic()->h : bh;
+					display_fillbox_wh_clip(bx, by, bw, 1, COL_WHITE, false);
+					display_fillbox_wh_clip(bx, by+rh-1, bw, 1, COL_WHITE, false);
+					display_vline_wh_clip(bx, by, rh, COL_WHITE, false);
+					display_vline_wh_clip(bx+bw-1, by, rh, COL_WHITE, false);
+				}
 			}
 			break;
 
 		case square: // little square in front of text
 			{
-				if(  win_get_focus()==this  ) {
-					// white box around
-					display_fillbox_wh_clip(bx+16, by+(12+large_font_height)/2-2, bw-14, 1, COL_WHITE, false);
-				}
 				if(  square_button_pushed!=IMG_LEER  ) {
 					display_button_image(bx, by, SQUARE_BUTTON, pressed);
 				}
@@ -519,6 +516,20 @@ void button_t::zeichnen(koord offset)
 					display_fillbox_wh_clip( bx+1, by+1, 9, 9, pressed ? MN_GREY3 : MN_GREY1, true );
 				}
 				display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+				if(  win_get_focus()==this  ) {
+					// white box around
+					int rw = 13;
+					int rh = 13;
+					if(  square_button_pushed!=IMG_LEER  ) {
+						const bild_t *const img = skinverwaltung_t::window_skin->get_bild(7)->get_pic();
+						rw = img->w + 2;
+						rh = img->h + 2;
+					}
+					display_fillbox_wh_clip(bx-1, by-1, rw, 1, COL_WHITE, false);
+					display_fillbox_wh_clip(bx-1, by+rh-2, rw, 1, COL_WHITE, false);
+					display_vline_wh_clip(bx-1, by-1, rh, COL_WHITE, false);
+					display_vline_wh_clip(bx+rw-2, by-1, rh, COL_WHITE, false);
+				}
 			}
 			break;
 

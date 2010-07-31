@@ -109,8 +109,8 @@ static const char * tooltip_text = 0;
 static const char * static_tooltip_text = 0;
 // Knightly :	For timed tooltip with initial delay and finite visible duration.
 //				Valid owners are required for timing. Invalid (NULL) owners disable timing.
-static const void * tooltip_current_owner = 0;	// current owner of the registered tooltip
-static const void * tooltip_previous_owner = 0;	// previous owner of the registered tooltip
+static const void * tooltip_owner = 0;	// owner of the registered tooltip
+static const void * tooltip_group = 0;	// group to which the owner belongs
 static unsigned long tooltip_register_time = 0;	// time at which a tooltip is initially registered
 
 static bool show_ticker=0;
@@ -266,6 +266,7 @@ static simwin_gadget_et decode_gadget_boxes(
 static void win_draw_window_title(const koord pos, const koord gr,
 		const PLAYER_COLOR_VAL titel_farbe,
 		const char * const text,
+		const PLAYER_COLOR_VAL text_farbe,
 		const bool closing,
 		const bool sticky,
 		const simwin_gadget_flags_t * const flags )
@@ -278,7 +279,7 @@ static void win_draw_window_title(const koord pos, const koord gr,
 
 	// Draw the gadgets and then move left and draw text.
 	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
-	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, COL_WHITE, false );
+	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
 	POP_CLIP();
 }
 
@@ -406,6 +407,11 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 	}
 
 	if(  wins.get_count() < MAX_WIN  ) {
+
+		if(  wins.get_count()>0  ) {
+			// mark old title dirty
+			mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_fenstergroesse().x, wins.back().pos.y+16 );
+		}
 
 		wins.append( simwin_t() );
 		simwin_t &win = wins[wins.get_count()-1];
@@ -590,11 +596,14 @@ int top_win(int win)
 		return win;
 	} // already topped
 
+	// mark old title dirty
+	mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+wins.back().gui->get_fenstergroesse().x, wins.back().pos.y+16 );
+
 	simwin_t tmp = wins[win];
 	wins.remove_at(win);
 	wins.append(tmp);
 
-	// mark dirty
+	 // mark new dirty
 	koord gr = wins[win].gui->get_fenstergroesse();
 	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
 
@@ -623,25 +632,32 @@ void display_win(int win)
 	gui_frame_t *komp = wins[win].gui;
 	koord gr = komp->get_fenstergroesse();
 	koord pos = wins[win].pos;
-	int titel_farbe = komp->get_titelcolor();
+	PLAYER_COLOR_VAL title_color = (komp->get_titelcolor()&0xF8)+umgebung_t::front_window_bar_color;
+	PLAYER_COLOR_VAL text_color = +umgebung_t::front_window_text_color;
+	if(  (unsigned)win!=wins.get_count()-1  ) {
+		// not top => maximum brightness
+		title_color = (title_color&0xF8)+umgebung_t::bottom_window_bar_color;
+		text_color = umgebung_t::bottom_window_text_color;
+	}
 	bool need_dragger = komp->get_resizemode() != gui_frame_t::no_resize;
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
 	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
 	win_draw_window_title(wins[win].pos,
 			gr,
-			titel_farbe,
+			title_color,
 			translator::translate(komp->get_name()),
+			text_color,
 			wins[win].closing,
 			wins[win].sticky,
 			( & wins[win].flags ) );
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
 		if(!wins[win].rollup) {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , titel_farbe, titel_farbe+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, gr.y+2 , title_color, title_color+1 );
 		}
 		else {
-			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, 18, titel_farbe, titel_farbe+1 );
+			display_ddd_box( wins[win].pos.x-1, wins[win].pos.y-1, gr.x+2, 18, title_color, title_color+1 );
 		}
 	}
 	if(!wins[win].rollup) {
@@ -1059,11 +1075,10 @@ void win_display_flush(double konto)
 
 		if(umgebung_t::show_tooltips) {
 			// Hajo: check if there is a tooltip to display
-			tooltip_previous_owner = tooltip_current_owner;	// Knightly : update previous owner before current owner is reset
 			if(  tooltip_text  &&  *tooltip_text  ) {
 				// Knightly : display tooltip when current owner is invalid or when it is within visible duration
 				unsigned long elapsed_time;
-				if(  !tooltip_current_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
+				if(  !tooltip_owner  ||  ((elapsed_time=dr_time()-tooltip_register_time)>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration)  ) {
 					const sint16 width = proportional_string_width(tooltip_text)+7;
 					display_ddd_proportional(min(tooltip_xpos,disp_width-width), max(menu_height+7,tooltip_ypos), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, tooltip_text, true);
 				}
@@ -1072,9 +1087,13 @@ void win_display_flush(double konto)
 				const sint16 width = proportional_string_width(static_tooltip_text)+7;
 				display_ddd_proportional(min(get_maus_x()+16,disp_width-width), max(menu_height+7,get_maus_y()-16), width, 0, umgebung_t::tooltip_color, umgebung_t::tooltip_textcolor, static_tooltip_text, true);
 			}
-			// Hajo/Knightly : clear tooltip text and owner to avoid sticky tooltips
+			// Knightly : reset owner and group if no tooltip has been registered
+			if(  !tooltip_text  ) {
+				tooltip_owner = 0;
+				tooltip_group = 0;
+			}
+			// Hajo : clear tooltip text to avoid sticky tooltips
 			tooltip_text = 0;
-			tooltip_current_owner = 0;
 		}
 
 		display_set_height( oldh );
@@ -1230,16 +1249,39 @@ bool win_change_zoom_factor(bool magnify)
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  * @author Hj. Malthaner, Knightly
  */
-void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner)
+void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner, const void *const group)
 {
 	// must be set every time as win_display_flush() will reset them
 	tooltip_text = text;
-	tooltip_current_owner = owner;
 
-	// update ownership and register time only if new owner is valid and there is a change of ownership
-	if(  tooltip_current_owner  &&  tooltip_current_owner!=tooltip_previous_owner  ) {
-		tooltip_previous_owner = tooltip_current_owner;
-		tooltip_register_time = dr_time();
+	// update ownership if changed
+	if(  owner!=tooltip_owner  ) {
+		tooltip_owner = owner;
+		// update register time only if owner is valid
+		if(  owner  ) {
+			const unsigned long current_time = dr_time();
+			if(  group  &&  group==tooltip_group  ) {
+				// case : same group
+				const unsigned long elapsed_time = current_time - tooltip_register_time;
+				if(  elapsed_time>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration  ) {
+					// case : tooltip was already showing for the previous owner -> delay time is reduced to 1/4
+					tooltip_register_time = current_time - umgebung_t::tooltip_delay + (umgebung_t::tooltip_delay>>2);
+				}
+				else {
+					// case : tooltip was not previously showing (either within delay interval or duration expired)
+					tooltip_register_time = current_time;
+				}
+			}
+			else {
+				// case : owner has no associated group or group is different -> simply reset to current time
+				tooltip_group = group;
+				tooltip_register_time = current_time;
+			}
+		}
+		else {
+			// no owner to associate with a group even if the group is valid
+			tooltip_group = 0;
+		}
 	}
 
 	tooltip_xpos = xpos;

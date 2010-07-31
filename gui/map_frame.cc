@@ -196,6 +196,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	set_resizemode(diagonal_resize);
 
 	is_dragging = false;
+	zoomed = false;
 
 	karte->set_mode( (reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode );
 }
@@ -232,27 +233,11 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 	else if(komp==zoom_buttons+1) {
 		// zoom out
-		if(reliefkarte_t::get_karte()->zoom_in>1) {
-			reliefkarte_t::get_karte()->zoom_in--;
-		}
-		else if(reliefkarte_t::get_karte()->zoom_out<4  ) {
-			reliefkarte_t::get_karte()->zoom_out++;
-		}
-		// recalc sliders
-		reliefkarte_t::get_karte()->calc_map_groesse();
-		scrolly.set_groesse( scrolly.get_groesse() );
+		zoom(true);
 	}
 	else if(komp==zoom_buttons+0) {
 		// zoom in
-		if(reliefkarte_t::get_karte()->zoom_out>1) {
-			reliefkarte_t::get_karte()->zoom_out--;
-		}
-		else if(reliefkarte_t::get_karte()->zoom_in<4  ) {
-			reliefkarte_t::get_karte()->zoom_in++;
-		}
-		// recalc sliders
-		reliefkarte_t::get_karte()->calc_map_groesse();
-		scrolly.set_groesse( scrolly.get_groesse() );
+		zoom(false);
 	}
 	else if(komp==&b_rotate45) {
 		// rotated/straight map
@@ -309,9 +294,12 @@ void map_frame_t::zoom(bool zoom_out)
 			reliefkarte_t::get_karte()->zoom_in++;
 		}
 	}
-	// recalc sliders
+	// recalc map size
 	reliefkarte_t::get_karte()->calc_map_groesse();
-	scrolly.set_groesse( scrolly.get_groesse() );
+	// recalc all the other data incl scrollbars
+	resize(koord(0,0));
+
+	zoomed = true;
 }
 
 
@@ -492,12 +480,13 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 		// only recenter by zoom or position change; we want still be able to scroll
 		if(old_ij!=ij) {
 			koord groesse = scrolly.get_groesse();
-			if(
+			if(	zoomed  ||
 				(scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x) ||
 				(scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y) ) {
 				// recenter cursor by scrolling
 				scrolly.set_scroll_position( max(0,ij.x-(groesse.x/2)), max(0,ij.y-(groesse.y/2)) );
 				old_ij = ij;
+				zoomed = false;
 			}
 		}
 	}
