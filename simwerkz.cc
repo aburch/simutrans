@@ -4869,7 +4869,7 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 {
 	if(  default_param==NULL  ) {
-		dbg->error( "wkz_change_player_t::init()", "noting to do!" );
+		dbg->error( "wkz_change_player_t::init()", "nothing to do!" );
 		return false;
 	}
 
@@ -4912,5 +4912,12 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 			}
 			break;
 	}
+
+	// update the window
+	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+	if (playerwin) {
+		playerwin->update_data();
+	}
+
 	return false;
 }
