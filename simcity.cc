@@ -4339,7 +4339,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 						case 15: weight = 2; break;
 						default: weight = 1;
 					}
-				}			
+				}
+				f = weight/12.0 - 1.0;
 			}
 			koord grid_pos(pos.x/grid_step, pos.y/grid_step);
 			terrain_field.at(grid_pos) += f/(grid_step*grid_step);
