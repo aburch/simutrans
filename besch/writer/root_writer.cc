@@ -381,11 +381,7 @@ void root_writer_t::uncopy(const char* name)
 			else if(  writer=="bridge"  ) {
 				size_t pos=ftell(infp);
 				node_name = name_from_next_node(infp);
-<<<<<<< HEAD:besch/writer/root_writer.cc
-				if(  node_name.len()==0  ) {
-=======
 				if(  node_name.size()==0  ) {
->>>>>>> Simutrans-base/master:besch/writer/root_writer.cc
 					fseek( infp, pos, SEEK_SET );
 					// we need to take name from thrid children, the cursor node ...
 					obj_node_info_t node;
