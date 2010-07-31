@@ -4309,7 +4309,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 
 	for ( pos.y = 1; pos.y < wl->get_groesse_y(); pos.y++) {
 		for (pos.x = 1; pos.x < wl->get_groesse_x(); pos.x++) {
-			double f;
+			double f = 1.0;
 			if (umgebung_t::cities_ignore_height) {
 				f = 0.0;
 			}

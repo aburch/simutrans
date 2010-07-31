@@ -66,6 +66,7 @@
 	FIX: (z9999+) loading old games before 88.00
 	CHANGE: forest settings moved to simuconf.tab
 	ADD: delay and duration of tooltip configurable in simuconf.tab
+	ADD: timeline for headquarters (pak-sets may need to be updated as the default intro date is 1900, default retire date is 2999)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
