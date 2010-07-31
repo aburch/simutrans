@@ -178,7 +178,6 @@ void savegame_frame_t::fill_list()
 					}
 				}
 				if(check_file(entry.name,suffix)) {
-					//add_file(entry.name, not_cutting_extension);
 					add_file(entry.name, get_info(entry.name), not_cutting_extension);
 				}
 			} while(_findnext(hfind, &entry) == 0 );
