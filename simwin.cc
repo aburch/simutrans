@@ -1263,12 +1263,13 @@ void win_set_tooltip(int xpos, int ypos, const char *text, const void *const own
 			if(  group  &&  group==tooltip_group  ) {
 				// case : same group
 				const unsigned long elapsed_time = current_time - tooltip_register_time;
-				if(  elapsed_time>umgebung_t::tooltip_delay  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration  ) {
-					// case : tooltip was already showing for the previous owner -> delay time is reduced to 1/4
-					tooltip_register_time = current_time - umgebung_t::tooltip_delay + (umgebung_t::tooltip_delay>>2);
+				const unsigned long threshold = umgebung_t::tooltip_delay - (umgebung_t::tooltip_delay>>2);	// 3/4 of delay
+				if(  elapsed_time>threshold  &&  elapsed_time<=umgebung_t::tooltip_delay+umgebung_t::tooltip_duration  ) {
+					// case : threshold was reached and duration not expired -> delay time is reduced to 1/4
+					tooltip_register_time = current_time - threshold;
 				}
 				else {
-					// case : tooltip was not previously showing (either within delay interval or duration expired)
+					// case : either before threshold or duration expired
 					tooltip_register_time = current_time;
 				}
 			}
