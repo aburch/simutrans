@@ -103,7 +103,7 @@ bool pakselector_t::check_file( const char *filename, const char * )
 }
 
 
-pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir, true )
+pakselector_t::pakselector_t() : savegame_frame_t( NULL, umgebung_t::program_dir, true, true )
 {
 	//at_least_one_add = false;
 	init(NULL, umgebung_t::program_dir);
