@@ -4336,7 +4336,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 	}
 
 
-	double one_population_charge = 1.0 + welt->get_einstellungen()->get_city_isolation_factor()/10.0; // should be > 1.0 
+	double one_population_charge = 1.0 + wl->get_einstellungen()->get_city_isolation_factor()/10.0; // should be > 1.0 
 	double clustering = 2.0 + cluster_size/100.0; // should be > 2.0 
 
 
