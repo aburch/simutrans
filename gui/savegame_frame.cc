@@ -41,7 +41,7 @@ savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool on
 	gui_frame_t("Load/Save"),
 	input(),
 	fnlabel("Filename"),
-	scrolly(&button_frame)
+	scrolly(use_table ? (gui_komponente_t*)&file_table : (gui_komponente_t*)&button_frame)
 {
 	this->use_table = use_table;
 	this->only_directories = only_directories;
