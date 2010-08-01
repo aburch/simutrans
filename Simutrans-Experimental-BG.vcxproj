@@ -311,7 +311,6 @@
     <ClCompile Include="dings\crossing.cc" />
     <ClCompile Include="dataobj\crossing_logic.cc" />
     <ClCompile Include="besch\reader\crossing_reader.cc" />
-    <ClCompile Include="utils\cstring_t.cc" />
     <ClCompile Include="gui\curiosity_edit.cc" />
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />
