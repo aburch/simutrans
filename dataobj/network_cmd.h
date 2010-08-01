@@ -113,7 +113,9 @@ public:
 	uint32 len;
 };
 
-// commands that have to be executed in a certain sync_step
+/**
+ * commands that have to be executed at a certain sync_step
+ */
 class network_world_command_t : public network_command_t {
 public:
 	network_world_command_t() : network_command_t(), sync_step(0) {};
@@ -125,6 +127,9 @@ public:
 	// apply it to the world
 	virtual void do_command(karte_t*) {}
 	uint32 get_sync_step() const { return sync_step; }
+	// ignore events that lie in the past?
+	// if false: any cmd with sync_step < world->sync_step forces network disconnect
+	virtual bool ignore_old_events() const { return false;}
 	// for sorted data structures
 	bool operator <= (network_world_command_t c) const { return sync_step <= c.sync_step; }
 	static bool cmp(network_world_command_t *nwc1, network_world_command_t *nwc2) { return nwc1->get_sync_step() <= nwc2->get_sync_step(); }
@@ -166,6 +171,8 @@ public:
 	virtual const char* get_name() { return "nwc_check_t";}
 	uint32 server_random_seed;
 	uint32 server_sync_step;
+	// no action required -> can be ignored if too old
+	virtual bool ignore_old_events() const { return true;}
 };
 
 /**

@@ -5270,6 +5270,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// did we receive a new command?
 			network_command_t *nwc = network_check_activity( min(5u,next_step_time-dr_time()) );
 			if(  nwc==NULL  &&  !network_check_server_connection()  ) {
+				dbg->warning("karte_t::interactive", "lost connection to server", nwc->get_id());
 				network_disconnect();
 			}
 
@@ -5325,8 +5326,10 @@ bool karte_t::interactive(uint32 quit_month)
 			if (nwc) {
 				// want to execute something in the past?
 				if (nwc->get_sync_step() < sync_steps) {
-					dbg->warning("karte_t::interactive", "wanted to do_command(%d) in the past", nwc->get_id());
-					network_disconnect();
+					if (!nwc->ignore_old_events()) {
+						dbg->warning("karte_t::interactive", "wanted to do_command(%d) in the past", nwc->get_id());
+						network_disconnect();
+					}
 				}
 				// check random counter?
 				else if (nwc->get_id()==NWC_CHECK) {
@@ -5336,6 +5339,7 @@ bool karte_t::interactive(uint32 quit_month)
 					uint32 server_syncst = nwcheck->server_sync_step;
 					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, last_randoms[server_syncst&15], server_syncst, server_random);
 					if (last_randoms[server_syncst&15]!=server_random) {
+						dbg->warning("karte_t::interactive", "random number generators have different states", nwc->get_id());
 						network_disconnect();
 					}
 				}
