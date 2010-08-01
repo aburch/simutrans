@@ -3708,6 +3708,23 @@ void karte_t::change_world_position( koord3d new_ij )
 // change the center viewport position
 void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_yoff )
 {
+	const sint16 raster = get_tile_raster_width();
+	// truncate new_xoff, modify new_ij.x
+	new_ij.x -= new_xoff/raster;
+	new_ij.y += new_xoff/raster;
+	new_xoff %= raster;
+
+	// truncate new_yoff, modify new_ij.y
+	int lines = 0;
+	if(y_off>0) {
+		lines = (new_yoff + (raster/4))/(raster/2);
+	}
+	else {
+		lines = (new_yoff - (raster/4))/(raster/2);
+	}
+	new_ij -= koord( lines, lines );
+	new_yoff -= (raster/2)*lines;
+
 	//position changed? => update and mark dirty
 	if(new_ij!=ij_off  ||  new_xoff!=x_off  ||  new_yoff!=y_off) {
 		ij_off = new_ij;
@@ -3722,24 +3739,10 @@ void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_y
 void karte_t::blick_aendern(event_t *ev)
 {
 	if(!scroll_lock) {
-		const int raster = get_tile_raster_width();
 		koord new_ij = ij_off;
 
 		sint16 new_xoff = x_off - (ev->mx - ev->cx) * umgebung_t::scroll_multi;
-		new_ij.x -= new_xoff/raster;
-		new_ij.y += new_xoff/raster;
-		new_xoff %= raster;
-
-		int lines = 0;
 		sint16 new_yoff = y_off - (ev->my-ev->cy) * umgebung_t::scroll_multi;
-		if(y_off>0) {
-			lines = (new_yoff + (raster/4))/(raster/2);
-		}
-		else {
-			lines = (new_yoff - (raster/4))/(raster/2);
-		}
-		new_ij -= koord( lines, lines );
-		new_yoff -= (raster/2)*lines;
 
 		// this sets the new position and mark screen dirty
 		// => with next refresh we will be at a new location
@@ -4149,6 +4152,19 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letzter_monat);
 	file->rdwr_long(letztes_jahr);
 
+	// rdwr cityrules (and associated settings) for networkgames
+	if(file->get_version()>102002 && file->get_experimental_version() >= 9) 
+	{
+		bool rdwr_city_rules = umgebung_t::networkmode;
+		file->rdwr_bool(rdwr_city_rules);
+		if (rdwr_city_rules) 
+		{
+			stadt_t::cityrules_rdwr(file);
+			stadt_t::privatecar_rdwr(file);
+			stadt_t::electricity_consumption_rdwr(file);
+		}
+	}
+
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->rdwr(file);
 		if(silent) {
@@ -4293,6 +4309,11 @@ bool karte_t::laden(const char *filename)
 	DBG_MESSAGE("karte_t::laden", "loading game from '%s'", filename);
 
 	if(  strstr(filename,"net:")==filename  ) {
+		// probably finish network mode?
+		if(  umgebung_t::networkmode  ) {
+			network_core_shutdown();
+			umgebung_t::networkmode = false;
+		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4);
 		if(err) {
@@ -4530,6 +4551,14 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	active_player = spieler[0];
 	active_player_nr = 0;
 
+	// rdwr cityrules for networkgames
+	if(file->get_version()>102002) {
+		bool rdwr_city_rules = umgebung_t::networkmode;
+		file->rdwr_bool(rdwr_city_rules);
+		if (rdwr_city_rules) {
+			stadt_t::cityrules_rdwr(file);
+		}
+	}
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte());
 	stadt.clear();
 	stadt.resize(einstellungen->get_anzahl_staedte());
@@ -4802,9 +4831,12 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			haltestelle_t::destroy(h);	// remove from list
 		}
 		else {
-			(*i)->laden_abschliessen();
 			++i;
 		}
+	}
+	// otherwise ware might get wrong halt coordinates during reassigning of coordinates
+	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
+		(*i)->laden_abschliessen();
 	}
 
 	// register all line stops and change line types, if needed
@@ -5529,6 +5561,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 	// mouse wheel scrolled -> rezoom
 	if (ev.ev_class == EVENT_CLICK) {
+		const sint16 org_raster_width = get_tile_raster_width();
 		if(ev.ev_code==MOUSE_WHEELUP) {
 			if(win_change_zoom_factor(true)) {
 				set_dirty();
@@ -5538,6 +5571,12 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 			if(win_change_zoom_factor(false)) {
 				set_dirty();
 			}
+		}
+		const sint16 new_raster_width = get_tile_raster_width();
+		if (org_raster_width != new_raster_width) {
+			// scale the fine offsets for displaying
+			x_off = (x_off * new_raster_width) / org_raster_width;
+			y_off = (y_off * new_raster_width) / org_raster_width;
 		}
 	}
 	INT_CHECK("simworld 2117");

@@ -3346,11 +3346,6 @@ void haltestelle_t::rdwr(loadsave_t *file)
 //"Load lock" (Google)
 void haltestelle_t::laden_abschliessen()
 {
-	if(besitzer_p==NULL) 
-	{
-		return;
-	}
-
 	// fix good destination coordinates
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) 
 	{

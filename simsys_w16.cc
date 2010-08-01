@@ -655,27 +655,9 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 		}
 
 		case WM_CHAR: /* originally KeyPress */
-			if(  wParam==22  /*^V*/  ) {
-				// paste
-				if(  OpenClipboard(this_hwnd)  ) {
-					HANDLE hText = GetClipboardData( CF_UNICODETEXT );
-					if(  hText  ) {
-						WCHAR *chr = (WCHAR *)hText;
-						while(  *chr!=0  ) {
-							if(  *chr!=10  ) {
-								PostMessage( this_hwnd, WM_CHAR, *chr, 0 );
-							}
-							chr ++;
-						}
-					}
-					CloseClipboard();
-				}
-			}
-			else {
-				sys_event.type = SIM_KEYBOARD;
-				sys_event.code = wParam;
-				sys_event.key_mod = ModifierKeys();
-			}
+			sys_event.type = SIM_KEYBOARD;
+			sys_event.code = wParam;
+			sys_event.key_mod = ModifierKeys();
 			break;
 
 		case WM_CLOSE:

@@ -370,10 +370,17 @@ void fabrik_t::baue(sint32 rotate)
 			for( uint16 i=0;  i<fields.get_count();  i++  ) {
 				const koord k = fields[i].location;
 				grund_t *gr=welt->lookup_kartenboden(k);
-				// first make foundation below
-				grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
-				welt->access(k)->boden_ersetzen(gr, gr2);
-				gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field()->get_field_class( fields[i].field_class_index ), this ) );
+				if(  gr->get_typ()==grund_t::boden  ) {
+					// first make foundation below
+					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
+					welt->access(k)->boden_ersetzen(gr, gr2);
+					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field()->get_field_class( fields[i].field_class_index ), this ) );
+				}
+				else {
+					// there was already a building at this position => do not restore!
+					fields.remove_at(i);
+					i--;
+				}
 			}
 		}
 		else {

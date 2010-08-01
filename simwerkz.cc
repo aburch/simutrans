@@ -4570,14 +4570,7 @@ const char *wkz_link_factory_t::work( karte_t *welt, spieler_t *sp, koord3d pos 
  */
 const haus_besch_t *wkz_headquarter_t::next_level( spieler_t *sp )
 {
-	// assume no further headquarter level
-	const sint16 level = sp->get_headquarter_level();
-	for (vector_tpl<const haus_besch_t*>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end(); iter != end; ++iter) {
-		if ((*iter)->get_extra() == level) {
-			return *iter;
-		}
-	}
-	return NULL;
+	return hausbauer_t::get_headquarter(sp->get_headquarter_level(), sp->get_welt()->get_timeline_year_month());
 }
 
 const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
@@ -5761,7 +5754,7 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 {
 	if(  default_param==NULL  ) {
-		dbg->error( "wkz_change_player_t::init()", "noting to do!" );
+		dbg->error( "wkz_change_player_t::init()", "nothing to do!" );
 		return false;
 	}
 
@@ -5804,5 +5797,12 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 			}
 			break;
 	}
+
+	// update the window
+	ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+	if (playerwin) {
+		playerwin->update_data();
+	}
+
 	return false;
 }

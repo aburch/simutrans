@@ -72,11 +72,13 @@ sint32 number_of_cars;
 // (But much of this code is adapted from the speed bonus code,
 // written by Prissi). 
 
-class car_ownership_record_t {
+class car_ownership_record_t 
+{
 public:
 	sint32 year;
 	sint16 ownership_percent;
-	car_ownership_record_t( sint32 y = 0, sint16 ownership = 0 ) {
+	car_ownership_record_t( sint32 y = 0, sint16 ownership = 0 ) 
+	{
 		year = y*12;
 		ownership_percent = ownership;
 	};
@@ -119,6 +121,46 @@ void stadt_t::privatecar_init(const std::string &objfilename)
 }
 
 
+/**
+* Reads/writes private car ownership data from/to a savegame
+* called from karte_t::speichern and karte_t::laden
+* only written for networkgames
+* @author jamespetts
+*/
+void stadt_t::privatecar_rdwr(loadsave_t *file)
+{
+	if(file->get_experimental_version() < 9)
+	{
+		 return;
+	}
+
+	if(file->is_saving())
+	{
+		uint32 count = car_ownership[0].get_count();
+		file->rdwr_long(count);
+		ITERATE(car_ownership[0], i)
+		{
+			file->rdwr_long(car_ownership[0].get_element(i).year);
+			file->rdwr_short(car_ownership[0].get_element(i).ownership_percent);
+		}	
+	}
+
+	else
+	{
+		car_ownership->clear();
+		uint32 counter;
+		file->rdwr_long(counter);
+		uint32 year = 0;
+		uint16 ownership_percent = 0;
+		for(uint32 c = counter; c > 0; c ++)
+		{
+			file->rdwr_long(year);
+			file->rdwr_short(ownership_percent);
+			car_ownership_record_t cow(year, ownership_percent);
+			car_ownership[0].append( cow );
+		}
+	}
+}
 
 sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 {
@@ -211,6 +253,47 @@ void stadt_t::electricity_consumption_init(const std::string &objfilename)
 	delete [] tracks;
 }
 
+/**
+* Reads/writes electricity consumption data from/to a savegame
+* called from karte_t::speichern and karte_t::laden
+* only written for networkgames
+* @author jamespetts
+*/
+void stadt_t::electricity_consumption_rdwr(loadsave_t *file)
+{
+	if(file->get_experimental_version() < 9)
+	{
+		 return;
+	}
+
+	if(file->is_saving())
+	{
+		uint32 count = electricity_consumption[0].get_count();
+		file->rdwr_long(count);
+		ITERATE(electricity_consumption[0], i)
+		{
+			file->rdwr_long(electricity_consumption[0].get_element(i).year);
+			file->rdwr_short(electricity_consumption[0].get_element(i).consumption_percent);
+		}	
+	}
+
+	else
+	{
+		car_ownership->clear();
+		uint32 counter;
+		file->rdwr_long(counter);
+		uint32 year = 0;
+		uint16 consumption_percent = 0;
+		for(uint32 c = counter; c > 0; c ++)
+		{
+			file->rdwr_long(year);
+			file->rdwr_short(consumption_percent);
+			electric_consumption_record_t ele(year, consumption_percent);
+			electricity_consumption[0].append( ele );
+		}
+	}
+}
+
 
 // Returns a *float* which represents a fraction -- so, 1.0F means "100%".
 float stadt_t::get_electricity_consumption(sint32 monthyear) const
@@ -263,10 +346,6 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
  */
 const uint32 stadt_t::step_bau_interval = 21000;
 
-/**
- * How much cities avoid each other
- */
-static uint32 city_isolation_factor = 1;
 
 /*
  * chance to do renovation instead new building (in percent)
@@ -275,28 +354,31 @@ static uint32 city_isolation_factor = 1;
 static uint32 renovation_percentage = 25;
 
 /*
+ * how many buildings will be renovated in one step
+ */
+static uint32 renovations_count = 1;
+
+/*
+ * how hard we want to find them
+ */
+static uint32 renovations_try = 3;
+
+/*
  * minimum ratio of city area to building area to allow expansion
  * the higher this value, the slower the city expansion if there are still "holes"
  * @author prissi
  */
 static uint32 min_building_density = 25;
 
-/**
- * add a new consumer every % people increase
- * @author prissi
- */
-static uint32 industry_increase_every[8];
-
-
 // the following are the scores for the different building types
-static int ind_start_score =   0;
-static int com_start_score = -10;
-static int res_start_score =   0;
+static sint16 ind_start_score =   0;
+static sint16 com_start_score = -10;
+static sint16 res_start_score =   0;
 
 // order: res com, ind, given by gebaeude_t::typ
-static int ind_neighbour_score[] = { -8, 0,  8 };
-static int com_neighbour_score[] = {  1, 8,  1 };
-static int res_neighbour_score[] = {  8, 0, -8 };
+static sint16 ind_neighbour_score[] = { -8, 0,  8 };
+static sint16 com_neighbour_score[] = {  1, 8,  1 };
+static sint16 res_neighbour_score[] = {  8, 0, -8 };
 
 /**
  * Rule data structure
@@ -307,15 +389,40 @@ class rule_entry_t {
 public:
 	uint8 x,y;
 	char flag;
-	rule_entry_t() : x(0), y(0), flag('.') {}
-	rule_entry_t(uint8 x_, uint8 y_, char f_) : x(x_), y(y_), flag(f_) {}
+	rule_entry_t(uint8 x_=0, uint8 y_=0, char f_='.') : x(x_), y(y_), flag(f_) {}
+
+	void rdwr(loadsave_t* file)
+	{
+		file->rdwr_byte(x);
+		file->rdwr_byte(y);
+		uint8 c = flag;
+		file->rdwr_byte(c);
+		flag = c;
+	}
 };
 
 class rule_t {
 public:
-	int  chance;
+	sint16  chance;
 	vector_tpl<rule_entry_t> rule;
-	rule_t() : chance(0) {}
+	rule_t(uint32 count=0) : chance(0), rule(count) {}
+
+	void rdwr(loadsave_t* file)
+	{
+		file->rdwr_short(chance);
+
+		if (file->is_loading()) {
+			rule.clear();
+		}
+		uint32 count = rule.get_count();
+		file->rdwr_long(count);
+		for(uint32 i=0; i<count; i++) {
+			if (file->is_loading()) {
+				rule.append(rule_entry_t());
+			}
+			rule[i].rdwr(file);
+		}
+	}
 };
 
 // house rules
@@ -638,30 +745,6 @@ void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
 
 
 
-uint32 stadt_t::get_industry_increase()
-{
-	return industry_increase_every[0];
-}
-
-void stadt_t::set_industry_increase(uint32 ind_increase)
-{
-	for (int i = 0; i < 8; i++) {
-		industry_increase_every[i] = ind_increase << i;
-	}
-}
-
-uint32 stadt_t::get_city_isolation_factor()
-{
-	return city_isolation_factor;
-}
-
-void stadt_t::set_city_isolation_factor(uint32 s)
-{
-	city_isolation_factor = s;
-}
-
-
-
 /**
  * Reads city configuration data
  * @author Hj. Malthaner
@@ -683,13 +766,13 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 	char buf[128];
 
-	city_isolation_factor = contents.get_int("city_isolation_factor", 1);
 	renovation_percentage = (uint32)contents.get_int("renovation_percentage", renovation_percentage);
-	
+	renovations_count = (uint32)contents.get_int("renovations_count", renovations_count);
+	renovations_try   = (uint32)contents.get_int("renovations_try", renovations_try);
+
 	// to keep compatible with the typo, here both are ok
 	min_building_density = (uint32)contents.get_int("minimum_building_desity", 25);
 	min_building_density = (uint32)contents.get_int("minimum_building_density", min_building_density);
-	set_industry_increase( contents.get_int("industry_increase_every", 0) );
 
 	// init the building value tables
 	ind_start_score = contents.get_int("ind_start_score", 0);
@@ -828,7 +911,61 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 	return true;
 }
 
+/**
+* Reads/writes city configuration data from/to a savegame
+* called from karte_t::speichern and karte_t::laden
+* only written for networkgames
+* @author Dwachs
+*/
+void stadt_t::cityrules_rdwr(loadsave_t *file)
+{
+	if(file->get_experimental_version() < 9)
+	{
+		 return;
+	}
+	file->rdwr_long(renovation_percentage);
+	file->rdwr_long(min_building_density);
 
+	file->rdwr_short(ind_start_score);
+	file->rdwr_short(ind_neighbour_score[0]);
+	file->rdwr_short(ind_neighbour_score[1]);
+	file->rdwr_short(ind_neighbour_score[2]);
+
+	file->rdwr_short(com_start_score);
+	file->rdwr_short(com_neighbour_score[0]);
+	file->rdwr_short(com_neighbour_score[1]);
+	file->rdwr_short(com_neighbour_score[2]);
+
+	file->rdwr_short(res_start_score);
+	file->rdwr_short(res_neighbour_score[0]);
+	file->rdwr_short(res_neighbour_score[1]);
+	file->rdwr_short(res_neighbour_score[2]);
+
+	// house rules
+	if (file->is_loading()) {
+		house_rules.clear();
+	}
+	uint32 count = house_rules.get_count();
+	file->rdwr_long(count);
+	for(uint32 i=0; i<count; i++) {
+		if (file->is_loading()) {
+			house_rules.append(new rule_t());
+		}
+		house_rules[i]->rdwr(file);
+	}
+	// road rules
+	if (file->is_loading()) {
+		road_rules.clear();
+	}
+	count = road_rules.get_count();
+	file->rdwr_long(count);
+	for(uint32 i=0; i<count; i++) {
+		if (file->is_loading()) {
+			road_rules.append(new rule_t());
+		}
+		road_rules[i]->rdwr(file);
+	}
+}
 
 /**
  * denkmal_platz_sucher_t:
@@ -3525,11 +3662,12 @@ void stadt_t::check_bau_rathaus(bool new_town)
  */
 void stadt_t::check_bau_factory(bool new_town)
 {
-	if (!new_town && industry_increase_every[0] > 0 && (uint32)bev % industry_increase_every[0] == 0) 
+	if (!new_town && welt->get_einstellungen()->get_industry_increase_every() > 0 && (uint32)bev % welt->get_einstellungen()->get_industry_increase_every() == 0) 
 	{
-		for (int i = 0; i < 8; i++) 
+		uint32 div = bev / welt->get_einstellungen()->get_industry_increase_every();
+		for (uint8 i = 0; i < 8; i++) 
 		{
-			if (industry_increase_every[i] == bev && welt->get_actual_industry_density() < welt->get_target_industry_density()) 
+			if (div == (1u<<i) && welt->get_actual_industry_density() < welt->get_target_industry_density()) 
 			{
 				// Only add an industry if there is a need for it: if the actual industry density is less than the target density.
 				// @author: jamespetts
@@ -3747,15 +3885,15 @@ void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
 }
 
 
-void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
+bool stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 {
 	const gebaeude_t::typ alt_typ = gb->get_haustyp();
 	if (alt_typ == gebaeude_t::unbekannt) {
-		return; // only renovate res, com, ind
+		return false; // only renovate res, com, ind
 	}
 
 	if (gb->get_tile()->get_besch()->get_b()*gb->get_tile()->get_besch()->get_h()!=1) {
-		return; // too big ...
+		return false; // too big ...
 	}
 
 	// hier sind wir sicher dass es ein Gebaeude ist
@@ -3787,6 +3925,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 
 	// try to built
 	const haus_besch_t* h = NULL;
+	bool return_value = false;
 	if (sum_gewerbe > sum_industrie && sum_gewerbe > sum_wohnung) {
 		// we must check, if we can really update to higher level ...
 		const int try_level = (alt_typ == gebaeude_t::gewerbe ? level + 1 : level);
@@ -3856,7 +3995,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 					// do not renovate, if the building is already in a neighbour tile
 					gebaeude_t* gb = dynamic_cast<gebaeude_t*>(gr->first_obj());
 					if (gb != NULL && gb->get_tile()->get_besch() == h) {
-						return;
+						return return_value; //it will return false
 					}
 				}
 			}
@@ -3873,6 +4012,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		gb->set_tile( h->get_tile(gebaeude_layout[streetdir], 0, 0) );
 		welt->lookup(k)->get_kartenboden()->calc_bild();
 		update_gebaeude_from_stadt(gb);
+		return_value = true;
 
 		switch (will_haben) {
 			case gebaeude_t::wohnung:   won += h->get_level() * 10; break;
@@ -3881,6 +4021,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 			default: break;
 		}
 	}
+	return return_value;
 }
 
 
@@ -4094,19 +4235,25 @@ void stadt_t::baue(bool new_town)
 	}
 
 	// renovation (only done when nothing matches a certain location)
-	if (!buildings.empty()  &&  simrand(100) <= renovation_percentage) {
+	koord c( (ur.x + lo.x)/2 , (ur.y + lo.y)/2);
+	double maxdist(koord_distance(ur,c));
+	if (maxdist < 10) {maxdist = 10;}
+	int was_renovated=0;
+	int try_nr = 0;
+	if (!buildings.empty() && simrand(100) <= renovation_percentage  ) {
 		gebaeude_t* gb;
-		// try to find a public owned building
-		for(uint8 i=0; i<4; i++) {
+		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
+			// try to find a public owned building
 			gb = buildings[simrand(buildings.get_count())];
-			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  ) {
-				renoviere_gebaeude(gb);
-				break;
+			double dist(koord_distance(c, gb->get_pos()));
+			uint32 distance_rate = uint32(100 * (1.0 - dist/maxdist));
+			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100) < distance_rate) {
+				if(renoviere_gebaeude(gb)) { was_renovated++;}
 			}
 		}
 		INT_CHECK("simcity 3746");
 	}
-	else if(!welt->get_einstellungen()->get_quick_city_growth())
+	if(!was_renovated && !welt->get_einstellungen()->get_quick_city_growth())
 	{
 		// firstly, determine all potential candidate coordinates
 		vector_tpl<koord> candidates( (ur.x - lo.x + 1) * (ur.y - lo.y + 1) );
@@ -4189,7 +4336,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 	}
 
 
-	double one_population_charge = 1.0 + city_isolation_factor/10.0; // should be > 1.0 
+	double one_population_charge = 1.0 + welt->get_einstellungen()->get_city_isolation_factor()/10.0; // should be > 1.0 
 	double clustering = 2.0 + cluster_size/100.0; // should be > 2.0 
 
 
@@ -4317,7 +4464,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 						case 15: weight = 2; break;
 						default: weight = 1;
 					}
-				}			
+				}
+				f = weight/12.0 - 1.0;
 			}
 			koord grid_pos(pos.x/grid_step, pos.y/grid_step);
 			terrain_field.at(grid_pos) += f/(grid_step*grid_step);

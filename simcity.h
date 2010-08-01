@@ -131,7 +131,7 @@ class stadt_t
 
 public:
 	/**
-	 * Reads city configuration data
+	 * Reads city configuration data from config/cityrules.tab
 	 * @author Hj. Malthaner
 	 */
 	static bool cityrules_init(const std::string &objpathname);
@@ -140,10 +140,15 @@ public:
 	float get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(const std::string &objfilename);
 
-	static uint32 get_industry_increase();
-	static void set_industry_increase(uint32 ind_increase);
-	static uint32 get_city_isolation_factor();
-	static void set_city_isolation_factor(uint32 s);
+	/**
+	 * Reads/writes city configuration data from/to a savegame
+	 * called from einstellungen_t::rdwr
+	 * only written for networkgames
+	 * @author Dwachs
+	 */
+	static void cityrules_rdwr(loadsave_t *file);
+	static void privatecar_rdwr(loadsave_t *file);
+	static void electricity_consumption_rdwr(loadsave_t *file);
 
 private:
 	static karte_t *welt;
@@ -193,9 +198,9 @@ private:
 	uint32 next_bau_step;
 
 	// population statistics
-	uint32 bev; // total population
-	uint32 arb; // amount with jobs
-	uint32 won; // amount with homes
+	sint32 bev; // total population
+	sint32 arb; // amount with jobs
+	sint32 won; // amount with homes
 
 	/**
 	 * Modifier for city growth
@@ -364,7 +369,7 @@ private:
 	 */
 	void baue_gebaeude(koord pos, bool new_town);
 	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
-	void renoviere_gebaeude(gebaeude_t *gb);
+	bool renoviere_gebaeude(gebaeude_t *gb);
 
 	/**
 	 * baut ein Stueck Strasse

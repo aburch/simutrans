@@ -62,6 +62,7 @@ const haus_besch_t *hausbauer_t::elevated_foundation_besch = NULL;
 vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
 vector_tpl<haus_besch_t*> hausbauer_t::modifiable_station_buildings;
 
+// all headquarter (sorted by hq-level)
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
@@ -73,6 +74,21 @@ static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
 static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
 	int diff = a->get_level() - b->get_level();
+	if (diff == 0) {
+		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
+		 * über den Namen herbei. */
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return diff < 0;
+}
+
+static bool compare_hq_besch(const haus_besch_t* a, const haus_besch_t* b)
+{
+	// the headquarter level is in the extra-variable
+	int diff = a->get_extra() - b->get_extra();
+	if (diff == 0) {
+		diff = a->get_level() - b->get_level();
+	}
 	if (diff == 0) {
 		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
 		 * über den Namen herbei. */
@@ -123,7 +139,7 @@ bool hausbauer_t::alles_geladen()
 					sehenswuerdigkeiten_land.append(besch);
 					break;
 				case haus_besch_t::firmensitz:
-					headquarter.insert_ordered(besch,compare_haus_besch);
+					headquarter.insert_ordered(besch,compare_hq_besch);
 					break;
 				case haus_besch_t::rathaus:
 					rathaeuser.append(besch);
@@ -765,6 +781,17 @@ const haus_besch_t* hausbauer_t::get_industrie(int level, uint16 time, climate c
 const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl, bool allow_earlier)
 {
 	return get_aus_liste(wohnhaeuser, level, time, cl, allow_earlier);
+}
+
+const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
+{
+	for (vector_tpl<const haus_besch_t*>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end(); iter != end; ++iter) {
+		const haus_besch_t* besch = *iter;
+		if (besch->get_extra() == level  &&  !besch->is_future(time)  &&  !besch->is_retired(time)) {
+			return *iter;
+		}
+	}
+	return NULL;
 }
 
 

@@ -383,11 +383,12 @@ int simu_main(int argc, char** argv)
 	}
 
 #ifdef __BEOS__
-	if(1) { // since BeOS only supports relative paths ...
+	if (1) // since BeOS only supports relative paths ...
 #else
 	// use current dir as basedir, else use program_dir
-	if (gimme_arg(argc, argv, "-use_workdir",0)) {
+	if (gimme_arg(argc, argv, "-use_workdir", 0))
 #endif
+	{
 		// save the current directories
 		getcwd(umgebung_t::program_dir, lengthof(umgebung_t::program_dir));
 #ifdef _WIN32

@@ -414,10 +414,14 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "window_buttons_right", umgebung_t::window_buttons_right );
 	INIT_BOOL( "window_frame_active", umgebung_t::window_frame_active );
+	INIT_NUM( "front_window_bar_color", umgebung_t::front_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "front_window_text_color", umgebung_t::front_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "bottom_window_bar_color", umgebung_t::bottom_window_bar_color, 0, 6, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "bottom_window_text_color", umgebung_t::bottom_window_text_color, 208, 240, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
 	INIT_BOOL( "show_tooltips", umgebung_t::show_tooltips );
-	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
-	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
+	INIT_NUM( "tooltip_background_color", umgebung_t::tooltip_color, 0, 255, 1, 0 );
+	INIT_NUM( "tooltip_text_color", umgebung_t::tooltip_textcolor, 0, 255, 1, 0 );
 	INIT_NUM( "tooltip_delay", umgebung_t::tooltip_delay, 0, 10000, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_NUM( "tooltip_duration", umgebung_t::tooltip_duration, 0, 30000, gui_numberinput_t::AUTOLINEAR, 0 );
 	SEPERATOR
@@ -457,6 +461,10 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 
 	READ_BOOL_VALUE( umgebung_t::window_buttons_right );
 	READ_BOOL_VALUE( umgebung_t::window_frame_active );
+	READ_NUM_VALUE( umgebung_t::front_window_bar_color );
+	READ_NUM_VALUE( umgebung_t::front_window_text_color );
+	READ_NUM_VALUE( umgebung_t::bottom_window_bar_color );
+	READ_NUM_VALUE( umgebung_t::bottom_window_text_color );
 
 	READ_BOOL_VALUE( umgebung_t::show_tooltips );
 	READ_NUM_VALUE( umgebung_t::tooltip_color );
@@ -531,12 +539,12 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
 	INIT_NUM( "crossconnect_factories_percentage", sets->get_crossconnect_factor(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "industry_increase_every", stadt_t::get_industry_increase(), 0, 100000, 100, false );
+	INIT_NUM( "industry_increase_every", sets->get_industry_increase_every(), 0, 100000, 100, false );
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "city_isolation_factor", stadt_t::get_city_isolation_factor(), 1, 20000, 1, false );
+	INIT_NUM( "city_isolation_factor", sets->get_city_isolation_factor(), 1, 20000, 1, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
@@ -578,10 +586,10 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_BOOL_VALUE( sets->just_in_time );
 	READ_BOOL_VALUE( sets->crossconnect_factories );
 	READ_NUM_VALUE( sets->crossconnect_factor );
-	READ_NUM( stadt_t::set_industry_increase );
+	READ_NUM_VALUE( sets->industry_increase );
 	READ_NUM_VALUE( sets->factory_spacing );
 	READ_NUM_VALUE( sets->electric_promille );
-	READ_NUM( stadt_t::set_city_isolation_factor );	
+	READ_NUM_VALUE( sets->city_isolation_factor );	
 	READ_NUM_VALUE( sets->passenger_factor );
 	READ_NUM_VALUE( sets->factory_worker_radius );
 	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
@@ -698,6 +706,9 @@ void settings_climates_stats_t::init(einstellungen_t *sets)
 	while(  iter.next()  ) {
 		iter.get_current()->add_listener( this );
 	}
+
+	clear_dirty();
+	set_groesse( settings_stats_t::get_groesse() );
 }
 
 

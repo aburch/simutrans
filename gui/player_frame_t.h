@@ -60,6 +60,14 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * Updates the dialogue window after changes to players states
+	 * called from wkz_change_player_t::init
+	 * necessary for networkgames to keep dialogues synchrone
+	 * @author dwachs
+	 */
+	void update_data();
 };
 
 #endif

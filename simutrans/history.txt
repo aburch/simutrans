@@ -66,6 +66,14 @@
 	FIX: (z9999+) loading old games before 88.00
 	CHANGE: forest settings moved to simuconf.tab
 	ADD: delay and duration of tooltip configurable in simuconf.tab
+	ADD: timeline for headquarters (pak-sets may need to be updated as the default intro date is 1900, default retire date is 2999)
+	ADD: blinking cursor, selectable text and clipboard functions for text input fields
+	ADD: industry increase and minimum city distance now also saved in savegame
+	FIX: error in routing will clear itself after loading
+	FIX: not restore fields if there is already a building on this tile
+	CHANGE: minimap will center after zooming
+	ADD: parameters of cityrules.tab saved in savegame (networkmode)
+	ADD: active window title bar is highlighted (for options see simuconf.tab)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

@@ -281,6 +281,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// "Predecessor / Successor conditions" (Google)
 	//
 	uint8 besch_vorgaenger = 0;
+	bool found;
 	do {
 		char buf[40];
 
@@ -289,14 +290,15 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		sprintf(buf, "constraint[prev][%d]", besch_vorgaenger);
 
 		str = obj.get(buf);
-		if (str.size() > 0) {
-			if (besch_vorgaenger == 0 && !STRICMP(str.c_str(), "none")) {
+		found = str.size() > 0;
+		if (found) {
+			if (!STRICMP(str.c_str(), "none")) {
 				str = "";
 			}
 			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
 			besch_vorgaenger++;
 		}
-	} while (str.size() > 0);
+	} while (found);
 
 	uint8 besch_nachfolger = 0;
 	bool can_be_at_rear = true;
@@ -309,9 +311,10 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 
 		str = obj.get(buf);
 
-		if (str.size() > 0) 
+		found = str.size() > 0;
+		if (found)
 		{
-			if (besch_nachfolger == 0 && !STRICMP(str.c_str(), "none")) 
+			if (!STRICMP(str.c_str(), "none")) 
 			{
 				str = "";
 			}
@@ -327,7 +330,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 				besch_nachfolger++;
 			}
 		}
-	} while (str.size() > 0);
+	} while (found);
 
 	// Upgrades: these are the vehicle types to which this vehicle
 	// can be upgraded. "None" means that it cannot be upgraded. 
@@ -337,15 +340,20 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 		char buf[40];
 		sprintf(buf, "upgrade[%d]", upgrades);
 		str = obj.get(buf);
-		if (str.size() > 0) {
+		found = str.size() > 0;
+		if (found) 
+		{
 			if (upgrades == 0 && !STRICMP(str.c_str(), "none")) 
 			{
-				str = "";
+				if (!STRICMP(str.c_str(), "none")) 
+				{
+					str = "";
+				}
+				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
+				upgrades++;
 			}
-			xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-			upgrades++;
 		}
-	} while (str.size() > 0);
+	} while (found);
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error
