@@ -2227,14 +2227,15 @@ void stadt_t::step_bau()
 		bev = (wachstum >> 4);
 		bool need_building = true;
 		uint32 buildings_count = buildings.get_count();
-		while (need_building) {
+		uint32 try_nr = 0;
+		while (need_building && try_nr < 1000) {
 			baue(false); // it update won
-			if ( buildings_count == buildings.get_count() ) {
-				continue;
+			if ( buildings_count != buildings.get_count() ) {
+				if(buildings[buildings_count]->get_haustyp() == gebaeude_t::wohnung) {
+					need_building = false;
+				}
 			}
-			if(buildings[buildings_count]->get_haustyp() == gebaeude_t::wohnung) {
-				need_building = false;
-			}
+			try_nr++;
 			buildings_count = buildings.get_count();
 		}
 		bev = 0;
