@@ -185,7 +185,11 @@ bool network_world_command_t::execute(karte_t *welt)
 	dbg->warning("network_world_command_t::execute","do_command %d at sync_step %d world now at %d", get_id(), get_sync_step(), welt->get_sync_steps());
 	// want to execute something in the past?
 	if (get_sync_step() < welt->get_sync_steps()) {
-		welt->network_disconnect();
+		if (!ignore_old_events()) {
+			dbg->warning("network_world_command_t::execute", "wanted to execute(%d) in the past", get_id());
+			welt->network_disconnect();
+		}
+		return true; // to delete cmd
 	}
 	else {
 		welt->command_queue_append(this);
