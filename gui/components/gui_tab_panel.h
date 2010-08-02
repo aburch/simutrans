@@ -112,6 +112,13 @@ public:
 	virtual bool is_focusable() { return get_aktives_tab()->is_focusable(); }
 
 	gui_komponente_t *get_focus() { return get_aktives_tab()->get_focus(); }
+
+	/**
+	 * Get the relative position of the focused component.
+	 * Used for auto-scrolling inside a scroll pane.
+	 * @author Knightly
+	 */
+	virtual koord get_focus_pos() { return pos + get_aktives_tab()->get_focus_pos(); }
 };
 
 #endif

@@ -88,6 +88,13 @@ public:
 	 * returns element that has the focus
 	 */
 	gui_komponente_t *get_focus() { return komp->get_focus(); }
+
+	/**
+	 * Get the relative position of the focused component.
+	 * Used for auto-scrolling inside a scroll pane.
+	 * @author Knightly
+	 */
+	virtual koord get_focus_pos() { return pos + ( komp->get_focus_pos() - koord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 };
 
 #endif

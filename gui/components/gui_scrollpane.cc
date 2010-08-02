@@ -101,6 +101,35 @@ bool gui_scrollpane_t::infowin_event(const event_t *ev)
 		// hand event to component
 		swallow = komp->infowin_event(&ev2);
 
+		// Knightly : check if we need to scroll to the focused component
+		if(  IS_LEFTCLICK(ev)  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==9)  ) {
+			const gui_komponente_t *const focused_komp = komp->get_focus();
+			if(  focused_komp  ) {
+				const koord komp_size = focused_komp->groesse;
+				const koord relative_pos = komp->get_focus_pos();
+				if(  b_show_scroll_x  ) {
+					const sint32 knob_offset_x = scroll_x.get_knob_offset();
+					const sint32 view_width = groesse.x-scrollbar_t::BAR_SIZE;
+					if(  relative_pos.x<knob_offset_x  ) {
+						scroll_x.set_knob_offset(relative_pos.x);
+					}
+					else if(  relative_pos.x+komp_size.x>knob_offset_x+view_width  ) {
+						scroll_x.set_knob_offset(relative_pos.x+komp_size.x-view_width);
+					}
+				}
+				if(  b_show_scroll_y  ) {
+					const sint32 knob_offset_y = scroll_y.get_knob_offset();
+					const sint32 view_height = (b_has_size_corner || b_show_scroll_x) ? groesse.y-scrollbar_t::BAR_SIZE : groesse.y;
+					if(  relative_pos.y<knob_offset_y  ) {
+						scroll_y.set_knob_offset(relative_pos.y);
+					}
+					else if(  relative_pos.y+komp_size.y>knob_offset_y+view_height  ) {
+						scroll_y.set_knob_offset(relative_pos.y+komp_size.y-view_height);
+					}
+				}
+			}
+		}
+
 		// Hajo: hack: component could have changed size
 		// this recalculates the scrollbars
 		if(  old_komp_groesse!=komp->get_groesse()  ) {
