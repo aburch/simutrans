@@ -116,16 +116,18 @@ bool loadsave_t::rd_open(const char *filename)
 			version = int_version(str, &dummy, pak_extension);
 
 			read( buf, sizeof(" pak=\"")-1 );
-			s = pak_extension;
-			for(  int i=0;  i<63;  i++ ) {
-				char c = lsgetc();
-				if(c=='\"') {
-					break;
+			if (version>0) {
+				s = pak_extension;
+				for(  int i=0;  i<63;  i++ ) {
+					char c = lsgetc();
+					if(c=='\"') {
+						break;
+					}
+					*s++ = c;
 				}
-				*s++ = c;
+				*s = 0;
+				while(  lsgetc()!='>'  )  ;
 			}
-			*s = 0;
-			while(  lsgetc()!='>'  )  ;
 		}
 	}
 	else {
@@ -909,7 +911,7 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 {
 	// major number (0..)
 	uint32 v0 = atoi(version_text);
-	while(*version_text && *version_text++ != '.')
+	while(*version_text  &&  *version_text++ != '.')
 		;
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
@@ -918,7 +920,7 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 
 	// middle number (.99.)
 	uint32 v1 = atoi(version_text);
-	while(*version_text && *version_text++ != '.')
+	while(*version_text  &&  *version_text++ != '.')
 		;
 	if(!*version_text) {
 		dbg->fatal( "loadsave_t::int_version()","Really broken version string!" );
@@ -929,8 +931,16 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 	uint32 v2 = atoi(version_text);
 	uint32 version = v0 * 1000000 + v1 * 1000 + v2;
 
-	while(  isdigit(*version_text)  ) {
+	while(*version_text  &&  isdigit(*version_text)) {
 		version_text++;
+	}
+	// simutrans-experimental savegame?
+	// the next char is either 'b'/'z'/'-',
+	// if it is '.' the we try to load a simutrans-experimental savegame
+	if(*version_text == '.') {
+		// st-exp savegame, we can't load it, return version=0
+		strcpy(pak_extension_str,"(st-exp)");
+		return 0;
 	}
 
 	if(  version<=102002  ) {
@@ -947,7 +957,8 @@ uint32 loadsave_t::int_version(const char *version_text, int * /*mode*/, char *p
 		}
 		else if(  *version_text  ) {
 			// illegal version ...
-			version = 999999999;
+			strcpy(pak_extension_str,"(broken)");
+			return 0;
 		}
 	}
 	else {
