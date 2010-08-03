@@ -34,8 +34,8 @@ private:
 	 * window width in toolboxes
 	 * @author Hj. Malthaner
 	 */
-	uint8 tool_icon_width;
-	uint8 tool_icon_height;
+	uint16 tool_icon_width;
+	uint16 tool_icon_height;
 
 	uint16 tool_icon_disp_start;
 	uint16 tool_icon_disp_end;
