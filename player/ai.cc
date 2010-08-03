@@ -356,7 +356,7 @@ bool ai_t::built_update_headquarter()
 					place = ai_bauplatz_mit_strasse_sucher_t(welt).suche_platz(st->get_pos(), besch->get_b(), besch->get_h(), besch->get_allowed_climate_bits(), &is_rotate);
 				}
 			}
-			const char *err=NULL;
+			const char *err="No suitable ground!";
 			if(  place!=koord::invalid  ) {
 				err = werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->get_pos() );
 			}

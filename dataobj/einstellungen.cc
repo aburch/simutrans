@@ -65,8 +65,6 @@ einstellungen_t::einstellungen_t() :
 	forest_base_size = 36; 	// Base forest size - minimal size of forest - map independent
 	forest_map_size_divisor = 38;	// Map size divisor - smaller it is the larger are individual forests
 	forest_count_divisor = 16;	// Forest count divisor - smaller it is, the more forest are generated
-	forest_boundary_blur = 6;	// Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
-	forest_boundary_thickness = 2;	// Forest boundary thickness  - determines how thick will the boundary line be
 	forest_inverse_spare_tree_density = 5;	// Determins how often are spare trees going to be planted (works inversly)
 	max_no_of_trees_on_square = 3;	// Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
 	tree_climates = 0;	// bit set, if this climate is to be covered with trees entirely
@@ -603,8 +601,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_byte( forest_base_size );
 			file->rdwr_byte( forest_map_size_divisor );
 			file->rdwr_byte( forest_count_divisor );
-			file->rdwr_byte( forest_boundary_blur );
-			file->rdwr_byte( forest_boundary_thickness );
 			file->rdwr_short( forest_inverse_spare_tree_density );
 			file->rdwr_byte( max_no_of_trees_on_square );
 			file->rdwr_short( tree_climates );
@@ -889,8 +885,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	forest_base_size = contents.get_int("forest_base_size", forest_base_size );
 	forest_map_size_divisor = contents.get_int("forest_map_size_divisor", forest_map_size_divisor );
 	forest_count_divisor = contents.get_int("forest_count_divisor", forest_count_divisor );
-	forest_boundary_blur = contents.get_int("forest_boundary_blur", forest_boundary_blur );
-	forest_boundary_thickness = contents.get_int("forest_boundary_thickness", forest_boundary_thickness );
 	forest_inverse_spare_tree_density = contents.get_int("forest_inverse_spare_tree_density", forest_inverse_spare_tree_density );
 	max_no_of_trees_on_square = contents.get_int("max_no_of_trees_on_square", max_no_of_trees_on_square );
 	tree_climates = contents.get_int("tree_climates", tree_climates );
