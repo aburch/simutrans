@@ -289,7 +289,7 @@ bool gui_numberinput_t::infowin_event(const event_t *ev)
 				case SIM_KEY_UP:
 				case SIM_KEY_DOWN:
 						// next/previous choice
-						new_value = (ev->ev_code==SIM_KEY_UP) ? get_prev_value() : get_next_value();
+						new_value = (ev->ev_code==SIM_KEY_DOWN) ? get_prev_value() : get_next_value();
 			}
 			if(  call_textinp  ) {
 				event_t ev2 = *ev;
