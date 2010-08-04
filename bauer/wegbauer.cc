@@ -726,24 +726,20 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		{
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
-			ok = (!sch  ||  check_owner(sch->get_besitzer(),sp));
+			// if no way there: check for right ground type, otherwise check owner
+			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),sp);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
-					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt) |  from->get_weg_ribi_unmasked(track_wt) |  ribi_t::doppelt(ribi_typ(from->get_grund_hang()));
-					ok = ok && ((ribi & ribi_typ(zv))!=0);
+					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt)  |  from->get_weg_ribi_unmasked(track_wt)  |  ribi_t::doppelt(ribi_typ(from->get_grund_hang()));
+					ok = ok && ((ribi & ribi_typ(zv))==ribi_typ(zv));
 				}
 				if(to->ist_tunnel()) {
-					const ribi_t::ribi ribi = to->get_weg_ribi_unmasked(road_wt) |  to->get_weg_ribi_unmasked(track_wt);
-					ok = ok && ((ribi & ribi_typ(-zv))!=0);
+					const ribi_t::ribi ribi = to->get_weg_ribi_unmasked(road_wt)  |  to->get_weg_ribi_unmasked(track_wt)  |  ribi_t::doppelt(ribi_typ(to->get_grund_hang()));
+					ok = ok && ((ribi & ribi_typ(-zv))==ribi_typ(-zv));
 				}
 			}
 			if(ok) {
-				// check for depots/stops/...
-				if(  fundament  ) {
-					return false;
-				}
-
 				// calculate costs
 				*costs = to->hat_weg(track_wt) ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
 				// prefer own track
