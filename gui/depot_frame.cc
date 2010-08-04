@@ -1083,8 +1083,9 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 				total_max_weight += (max_weight*besch->get_zuladung()+499)/1000;
 				total_min_weight += (min_weight*besch->get_zuladung()+499)/1000;
 			}
-			max_speed = min(speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt((((double)total_power/total_min_weight)-1)*2500));
-			min_speed = min(speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt((((double)total_power/total_max_weight)-1)*2500));
+			// ensure that argument of sqrt is not negative
+			max_speed = total_power < total_min_weight ? 0 : min( speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt( (double)total_power/total_min_weight - 1)*50 );
+			min_speed = total_power < total_max_weight ? 0 : min( speed_to_kmh(cnv->get_min_top_speed()), (uint32) sqrt( (double)total_power/total_max_weight - 1)*50 );
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
 				translator::translate("Station tiles:"), cnv->get_tile_length() );
