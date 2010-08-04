@@ -18,7 +18,8 @@ class pillar_t : public ding_t
 {
 	const bruecke_besch_t *besch;
 	uint8 dir;
-	bool hide;
+	bool asymmetric;
+	image_id bild;
 
 protected:
 	void rdwr(loadsave_t *file);
@@ -32,7 +33,11 @@ public:
 
 	const bruecke_besch_t* get_besch() const { return besch; }
 
-	image_id get_bild() const { return hide ? IMG_LEER : besch->get_hintergrund((bruecke_besch_t::img_t)dir, get_pos().z >= welt->get_snowline()); }
+	image_id get_bild() const { return asymmetric ? IMG_LEER : bild; }
+
+	// asymmetric pillars are placed at the southern/eastern boundary of the tile
+	// thus the images have to be displayed after vehicles
+	image_id get_after_bild() const { return asymmetric ? bild : IMG_LEER;}
 
 	// needs to check for hiding asymmetric pillars
 	void calc_bild();
