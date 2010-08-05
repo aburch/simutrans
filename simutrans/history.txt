@@ -77,6 +77,7 @@
 	CHG: canals cannot be built on canals of other players
 	FIX: removed obsolete forest config parameters
 	FIX: traffic light setting also network safe
+	ADD: if present show copyright line from ground.outside.pak (which should contain pak set and revision)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

@@ -89,6 +89,7 @@ DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...",iter.g
 }
 
 
+
 bool obj_reader_t::load(const char *liste, const char *message)
 {
 	searchfolder_t find;
@@ -182,6 +183,10 @@ DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 			read_file(*i);
 			if ((n & teilung) == 0 && drawing) {
 				display_progress(n, max);
+				// name of the pak
+				if(  grund_besch_t::ausserhalb->get_copyright()[0]  ) {
+					display_proportional( display_get_width()/2, display_get_height()/2-8-LINESPACE-4, grund_besch_t::ausserhalb->get_copyright(), ALIGN_MIDDLE, COL_WHITE, true );
+				}
 			}
 		}
 
