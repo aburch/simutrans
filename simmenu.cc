@@ -138,6 +138,7 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_DEPOT_TOOL:        tool = new wkz_change_depot_t(); break;
 		case WKZ_PWDHASH_TOOL:		tool = new wkz_change_password_hash_t(); break;
 		case WKZ_SET_PLAYER_TOOL:	tool = new wkz_change_player_t(); break;
+		case WKZ_TRAFFIC_LIGHT_TOOL:tool = new wkz_change_traffic_light_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}

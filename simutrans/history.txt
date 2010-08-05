@@ -76,6 +76,7 @@
 	ADD: active window title bar is highlighted (for options see simuconf.tab)
 	CHG: canals cannot be built on canals of other players
 	FIX: removed obsolete forest config parameters
+	FIX: traffic light setting also network safe
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

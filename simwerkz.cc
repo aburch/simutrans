@@ -43,6 +43,7 @@
 #include "besch/haus_besch.h"
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
+#include "besch/roadsign_besch.h"
 #include "besch/tunnel_besch.h"
 #include "besch/groundobj_besch.h"
 
@@ -56,6 +57,7 @@
 #include "gui/karte.h"	// to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/fahrplan_gui.h"
+#include "gui/trafficlight_info.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -4919,5 +4921,37 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 		playerwin->update_data();
 	}
 
+	return false;
+}
+
+
+/* Sets traffic light phases via default_param:
+ * [pos],[ns_flag],[ticks]
+ */
+bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
+{
+	koord3d pos;
+	sint16 z, ns, ticks;
+	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%hi", &pos.x, &pos.y, &z, &ns, &ticks )  ) {
+		return false;
+	}
+	pos.z = (sint8)z;
+	if(  grund_t *gr = welt->lookup(pos)  ) {
+		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
+			if(  rs->get_besch()->is_traffic_light()  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
+				if(  ns  ) {
+					rs->set_ticks_ns( ticks );
+				}
+				else {
+					rs->set_ticks_ow( ticks );
+				}
+				// update the window
+				trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
+				if (trafficlight_win) {
+					trafficlight_win->update_data();
+				}
+			}
+		}
+	}
 	return false;
 }
