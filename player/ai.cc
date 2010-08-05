@@ -370,8 +370,6 @@ bool ai_t::built_update_headquarter()
 				}
 			}
 			if(  place==koord::invalid  ||  err!=NULL  ) {
-				add_headquarter( 0, koord::invalid );
-
 				dbg->warning( "ai_t::built_update_headquarter()", "HQ failed with : %s", translator::translate(err) );
 			}
 			return false;
