@@ -1001,6 +1001,25 @@ void convoi_t::new_month()
 
 void convoi_t::betrete_depot(depot_t *dep)
 {
+	// first remove reservation, if train is still on train
+	if(  !route.empty()  &&  anz_vehikel>0) {
+		/* now remove reservation from all tiles
+		 * otherwise vehicles with lenght>8 may leave holes
+		 * on diagonals (lenght 8)
+		 */
+		uint32 start_index = route.get_count()-1;
+		do {
+			if(  grund_t *gr = welt->lookup(route.position_bei(start_index))  ) {
+				if (schiene_t* const sch = dynamic_cast<schiene_t*>(gr->get_weg(fahr[0]->get_waytype()))) {
+					if(  !sch->unreserve(self)  ) {
+						// unreserve until no reserved track is encoutered
+						break;
+					}
+				}
+			}
+		} while(  start_index--!=0  );
+	}
+
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
