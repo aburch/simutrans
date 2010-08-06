@@ -97,6 +97,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_REMOVE_WAYOBJ:    tool = new wkz_wayobj_remover_t(); break;
 		case WKZ_SLICED_AND_UNDERGROUND_VIEW: tool = new wkz_show_underground_t(); break;
 		case WKZ_BUY_HOUSE:        tool = new wkz_buy_house_t(); break;
+		case WKZ_CITYROAD:         tool = new wkz_build_cityroad(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
@@ -572,6 +573,12 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 				uint8 toolnr = atoi(toolname+13);
 				if(  toolnr<GENERAL_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+						// compatibility mode: wkz_cityroad is used for wkz_wegebau with defaultparam 'cityroad'
+						if(  toolnr==WKZ_WEGEBAU  &&  param_str  &&  strcmp(param_str,"city_road")==0) {
+							toolnr = WKZ_CITYROAD;
+							dbg->warning("werkzeug_t::read_menu()", "toolbar[%i][%i]: replaced way-builder(id=14) with default param=cityroad by cityroad builder(id=36)", i,j);
+						}
+						// now create tool
 						addtool = create_general_tool( toolnr );
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
@@ -827,6 +834,11 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			}
 		}
 		else if(w->get_icon(welt->get_active_player())!=IMG_LEER) {
+			// get the right city_road
+			if(w->get_id() == (WKZ_CITYROAD | GENERAL_TOOL)) {
+				w->init(welt,sp);
+			}
+			// now add it to the toolbar gui
 			wzw->add_werkzeug( w );
 		}
 	}

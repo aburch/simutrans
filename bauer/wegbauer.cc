@@ -911,6 +911,7 @@ wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32)
 	keep_existing_ways = false;
 	keep_existing_city_roads = false;
 	keep_existing_faster_ways = false;
+	build_sidewalk = false;
 }
 
 
@@ -1835,10 +1836,8 @@ void wegbauer_t::baue_elevated()
 
 void wegbauer_t::baue_strasse()
 {
-	// construct city road?
-	const weg_besch_t *cityroad = get_besch("city_road");
 	// only public player or cities (sp==NULL) can build cityroads with sidewalk
-	bool add_sidewalk = besch==cityroad  &&  (sp==NULL  ||  sp->get_player_nr()==1);
+	bool add_sidewalk = build_sidewalk  &&  (sp==NULL  ||  sp->get_player_nr()==1);
 
 	if(add_sidewalk) {
 		sp = NULL;

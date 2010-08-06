@@ -224,8 +224,9 @@ public:
 class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
+protected:
 	const weg_besch_t *besch;
-	const weg_besch_t *get_besch(uint16,bool) const;
+
 public:
 	wkz_wegebau_t() : two_click_werkzeug_t(), besch(NULL) { id = WKZ_WEGEBAU | GENERAL_TOOL; }
 	virtual image_id get_icon(spieler_t *) const;
@@ -234,13 +235,23 @@ public:
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  besch->get_styp()!=1); }
-
-private:
+protected:
+	const weg_besch_t *get_besch(uint16,bool) const;
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
-
+private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
+};
+
+class wkz_build_cityroad : public wkz_wegebau_t {
+public:
+	wkz_build_cityroad() : wkz_wegebau_t() { id = WKZ_CITYROAD | GENERAL_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual image_id get_icon(spieler_t *sp) const { return werkzeug_t::get_icon(sp); }
+	virtual bool is_selected( karte_t *welt ) const { return werkzeug_t::is_selected(welt); }
+private:
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 };
 
 class wkz_brueckenbau_t : public two_click_werkzeug_t {

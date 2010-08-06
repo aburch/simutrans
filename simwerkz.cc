@@ -1674,6 +1674,41 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 	}
 }
 
+/* city road construction */
+bool wkz_build_cityroad::init( karte_t *welt, spieler_t *sp )
+{
+	wkz_wegebau_t::init( welt, sp );
+
+	// now get city_road besch
+	besch = welt->get_city_road();
+	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
+		cursor = besch->get_cursor()->get_bild_nr(0);
+	}
+	default_param = besch->get_name();
+	return besch!=NULL;
+}
+
+const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
+{
+	wegbauer_t bauigel(welt, sp);
+	bauigel.set_build_sidewalk(true);
+	calc_route( bauigel, start, end );
+	if(  bauigel.get_route().get_count()>1  ) {
+		welt->mute_sound(true);
+		bauigel.baue();
+		welt->mute_sound(false);
+
+		struct sound_info info;
+		info.index = SFX_CASH;
+		info.volume = 255;
+		info.pri = 0;
+		sound_play(info);
+
+		return NULL;
+	}
+	return "";
+}
+
 /* bridge construction */
 const char *wkz_brueckenbau_t::get_tooltip(spieler_t *sp)
 {
