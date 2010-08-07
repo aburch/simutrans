@@ -774,9 +774,11 @@ const fabrik_t* reliefkarte_t::draw_fab_connections(const uint8 colour, const ko
 				display_direct_line(fabpos.x, fabpos.y, end.x, end.y, colour);
 				display_fillbox_wh_clip(end.x, end.y, 3, 3, ((welt->get_zeit_ms() >> 10) & 1) == 0 ? COL_RED : COL_WHITE, true);
 
-				const koord boxpos = end + koord(10, 0);
+				koord boxpos = end + koord(10, 0);
 				const char * name = translator::translate(fab2->get_name());
-				display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 5, COL_WHITE, name, true);
+				int name_width = proportional_string_width(name)+8;
+				boxpos.x = clamp( boxpos.x, pos.x, pos.x+get_groesse().x-name_width );
+				display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, 5, COL_WHITE, name, true);
 			}
 		}
 	}
@@ -1001,9 +1003,12 @@ void reliefkarte_t::zeichnen(koord pos)
 		if(fab) {
 			koord fabpos = fab->get_pos().get_2d();
 			karte_to_screen( fabpos );
-			const koord boxpos = fabpos + koord(10, 0) + pos;
+			koord boxpos = fabpos + koord(10, 0);
 			const char * name = translator::translate(fab->get_name());
-			display_ddd_proportional_clip(boxpos.x, boxpos.y, proportional_string_width(name)+8, 0, 10, COL_WHITE, name, true);
+			int name_width = proportional_string_width(name)+8;
+			boxpos.x = clamp( boxpos.x, 0, 0+get_groesse().x-name_width );
+			boxpos += pos;
+			display_ddd_proportional_clip(boxpos.x, boxpos.y, name_width, 0, 10, COL_WHITE, name, true);
 		}
 	}
 }
