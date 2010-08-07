@@ -604,8 +604,8 @@ int top_win(int win)
 	wins.append(tmp);
 
 	 // mark new dirty
-	koord gr = wins[win].gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
+	koord gr = wins.back().gui->get_fenstergroesse();
+	mark_rect_dirty_wc( wins.back().pos.x, wins.back().pos.y, wins.back().pos.x+gr.x, wins.back().pos.y+gr.y );
 
 	event_t ev;
 
