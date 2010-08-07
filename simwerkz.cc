@@ -2484,7 +2484,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	koord size = besch->get_groesse();
 	koord offsets;
 	halthandle_t halt;
-
+	const char *msg = "Tile not empty.";
 
 	if(  rotation==-1  ) {
 		//no predefined rotation
@@ -2497,10 +2497,43 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		for( int r=0;  r<2;  r++  ) {
 			koord testsize = besch->get_groesse(r);
 			for(  sint8 j=3;  j>=0;  j-- ) {
+				bool ok = true;
 				koord offset(((j&1)^1)*(testsize.x-1),((j>>1)&1)*(testsize.y-1));
 				if(welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())) {
+					// first we must check over/under halt
+					halthandle_t last_halt = halthandle_t();
+					for(  sint16 x=0;  x<testsize.x;  x++  ) {
+						for(  sint16 y=0;  y<testsize.y;  y++  ) {
+							const planquadrat_t *pl = welt->lookup( pos-offset+koord(x,y) );
+							halthandle_t test_halt = pl->get_halt();
+							if(test_halt.is_bound()) {
+								if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+									// there is an other player's halt
+									ok = false;
+									msg = "Das Feld gehoert\neinem anderen Spieler\n";
+								}
+								else if(!last_halt.is_bound()) {
+									last_halt = test_halt;
+								}
+								else if(last_halt != test_halt) {
+									// there are several halts
+									ok = false;
+									msg = "Several halts found.";
+								}
+							}
+						}
+					}
+					if(!ok) {
+						continue;
+					}
 					// well, at least this is theoretical possible here
 					any_ok = true;
+					if(rotation==-1) {
+						// we can build it. reserve this one
+						// This needs to build a building at under/over a halt.
+						rotation = r;
+						offsets = offset;
+					}
 					koord test_start = pos-offset;
 					// find all surrounding tiles with a stop
 					int neighbour_halt_n = 0, neighbour_halt_s = 0, neighbour_halt_e = 0, neighbour_halt_w = 0;
@@ -2606,10 +2639,21 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 
 		// no suitable ground here ...
 		if(  !any_ok  ) {
-			return "Tile not empty.";
+			return msg;
+		}
+		// check over/under halt again
+		for(  sint16 x=0;  x<besch->get_b(rotation);  x++  ) {
+			for(  sint16 y=0;  y<besch->get_h(rotation);  y++  ) {
+				const planquadrat_t *pl = welt->lookup( pos-offsets+koord(x,y) );
+				halthandle_t test_halt = pl->get_halt();
+				if( test_halt.is_bound()  &&  spieler_t::check_owner( sp, test_halt->get_besitzer()) ) {
+					halt = test_halt;
+					break;
+				}
+			}
 		}
 		// is there no halt to connect?
-		if(  !halt.is_bound()  ||  any_halt==0  ) {
+		if(  !halt.is_bound()  ) {
 			return "Post muss neben\nHaltestelle\nliegen!\n";
 		}
 	}
@@ -2617,13 +2661,35 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		// rotation was pre-slected; just search for stop now
 		assert(  rotation < besch->get_all_layouts()  );
 		koord testsize = besch->get_groesse(rotation);
-		if(  !welt->ist_platz_frei(pos-offset, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())  ) {
+		offsets = koord(0,0);
+
+		if(  !welt->ist_platz_frei(pos, testsize.x, testsize.y, NULL, besch->get_allowed_climate_bits())  ) {
 			return "Tile not empty.";
 		}
-		halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->get_pos(), besch->get_b(rotation), besch->get_h(rotation) );
-		// is there no halt to connect?
-		if(  !halt.is_bound()  ) {
-			return "Post muss neben\nHaltestelle\nliegen!\n";
+		// check over/under halt
+		for(  sint16 x=0;  x<testsize.x;  x++  ) {
+			for(  sint16 y=0;  y<testsize.y;  y++  ) {
+				const planquadrat_t *pl = welt->lookup(pos+koord(x,y));
+				halthandle_t test_halt = pl->get_halt();
+				if(test_halt.is_bound()) {
+					if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+						return "Das Feld gehoert\neinem anderen Spieler\n";
+					}
+					else if(!halt.is_bound()) {
+						halt = test_halt;
+					}
+					else if(halt != test_halt) {
+						 return "Several halts found.";
+					}
+				}
+			}
+		}
+		if(!halt.is_bound()) {
+			halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->get_pos(), besch->get_b(rotation), besch->get_h(rotation) );
+			// is there no halt to connect?
+			if(  !halt.is_bound()  ) {
+				return "Post muss neben\nHaltestelle\nliegen!\n";
+			}
 		}
 	}
 
@@ -2652,6 +2718,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	int len = besch->get_groesse().y-1;
 	koord dx = koord((hang_t::typ)hang);
 	koord last_pos = pos - dx*len;
+	halthandle_t halt = halthandle_t();
 
 	// check, if we can built here ...
 	if(!hang_t::ist_einfach(hang)) {
@@ -2664,9 +2731,17 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 				return "Zu nah am Kartenrand";
 			}
 			else {
-				halthandle_t halt = welt->lookup(pos-dx*i)->get_halt();
-				if(halt.is_bound()  &&  !spieler_t::check_owner( sp, halt->get_besitzer())) {
-					return "Das Feld gehoert\neinem anderen Spieler\n";
+				halthandle_t test_halt = welt->lookup(pos-dx*i)->get_halt();
+				if(test_halt.is_bound()) {
+					if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+						return "Das Feld gehoert\neinem anderen Spieler\n";
+					}
+					else if(!halt.is_bound()) {
+						halt = test_halt;
+					}
+					else if(halt != test_halt) {
+						 return "Several halts found.";
+					}
 				}
 				else {
 					const grund_t *gr=welt->lookup(pos-dx*i)->get_kartenboden();
@@ -2761,7 +2836,9 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	}
 
 //DBG_MESSAGE("wkz_dockbau()","search for stop");
-	halthandle_t halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->get_pos() );
+	if(!halt.is_bound()) {
+		halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->get_pos() );
+	}
 	bool neu = !halt.is_bound();
 
 	if(neu) { // neues dock
