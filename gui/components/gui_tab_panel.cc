@@ -53,8 +53,8 @@ void gui_tab_panel_t::set_groesse(koord gr)
 	}
 
 	if(  required_groesse.x>gr.x  ) {
-		left.set_pos( koord( 2, 2 ) );
-		right.set_pos( koord( gr.x-10, 2 ) );
+		left.set_pos( koord( 2, 5 ) );
+		right.set_pos( koord( gr.x-10, 5 ) );
 	}
 }
 
