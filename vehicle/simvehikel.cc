@@ -1076,7 +1076,7 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 	}
 
 	if(ist_erstes) {
-		uint32 tiles_left = cnv->get_next_stop_index()+1-route_index;
+		uint32 tiles_left = cnv->get_next_stop_index()-route_index;
 		if(tiles_left<4) {
 			// break at the end of stations/in front of signals
 			uint32 brake_speed_soll = speed_limit;
