@@ -616,7 +616,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool( numbered_stations);
-			if(  file->get_version()<=102002 && file->get_experimental_version() < 8)
+			if(  file->get_version()<=102002 || file->get_experimental_version() < 8)
 			{
 				if(  file->is_loading()  ) 
 				{
@@ -1047,7 +1047,8 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			// to problems, so, whilst strictly enforced weight limits should be allowed
 			// for new games and games saved with this feature enabled, it should not be
 			// allowed for older saved games.
-			enforce_weight_limits = enforce_weight_limits < 2 ? enforce_weight_limits : 1;
+			// enforce_weight_limits = enforce_weight_limits < 2 ? enforce_weight_limits : 1;
+			enforce_weight_limits = 0;
 		}
 		
 		if(file->get_experimental_version() >= 4)

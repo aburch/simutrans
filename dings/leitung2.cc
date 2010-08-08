@@ -443,7 +443,7 @@ void leitung_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else if(get_typ() == pumpe || get_typ() == senke)
+	else if(file->get_experimental_version() >= 8 && (get_typ() == pumpe || get_typ() == senke))
 	{
 		// Must add dummy string here, or else the loading/saving will fail, 
 		// since we do not know whether a leitung is a plain leitung, or a pumpe
