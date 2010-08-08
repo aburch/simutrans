@@ -54,9 +54,14 @@ int leitung_t::gimme_neighbours(leitung_t **conn)
 		conn[i] = NULL;
 		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  &&  spieler_t::check_owner(get_besitzer(), lt->get_besitzer())  ) {
-				conn[i] = lt;
-				count++;
+			if(  lt  ) {
+				const spieler_t *owner = get_besitzer();
+				const spieler_t *other = lt->get_besitzer();
+				const spieler_t *super = welt->get_spieler(1);
+				if (owner==other  ||  owner==super  ||  other==super) {
+					conn[i] = lt;
+					count++;
+				}
 			}
 		}
 	}
@@ -400,7 +405,7 @@ void leitung_t::rdwr(loadsave_t *file)
 		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
 		 * (Otherwise it will be always true!
 		 */
-		if(file->get_version() > 102002 && file->get_experimental_version() >= 8)
+		if(file->get_version() > 102002 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
 		{
 			if(file->is_saving()) 
 			{

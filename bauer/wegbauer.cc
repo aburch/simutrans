@@ -367,7 +367,11 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 		return (ns_way==iwtyp ? ribi_t::ist_gerade_ns(ribi_typ(zv)) : ribi_t::ist_gerade_ow(ribi_typ(zv)));
 	}
 	// no crossings in tunnels
-	if(bautyp & tunnel_flag) {
+	if((bautyp & tunnel_flag)!=0  || bd->ist_tunnel()) {
+		return false;
+	}
+	// no crossings on elevated ways
+	if((bautyp & elevated_flag)!=0  ||  bd->get_typ()==grund_t::monorailboden) {
 		return false;
 	}
 	// crossing available and ribis ok
@@ -527,7 +531,7 @@ bool wegbauer_t::check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const
 /* do not go through depots, station buildings etc. ...
  * direction results from layout
  */
-static bool check_building( const grund_t *to, const koord dir )
+bool wegbauer_t::check_building( const grund_t *to, const koord dir ) const
 {
 	if(dir==koord(0,0)) {
 		return true;
@@ -540,7 +544,14 @@ static bool check_building( const grund_t *to, const koord dir )
 	gebaeude_t *gb = to->find<gebaeude_t>();
 	if(gb==NULL) {
 		// but depots might be overlooked ...
-		gb = to->get_depot();
+		depot_t* depot = to->get_depot();
+		// no road to tram depot and vice-versa
+		if (depot) {
+			if ( (waytype_t)(bautyp&bautyp_mask) != depot->get_wegtyp() ) {
+				return false;
+			}
+		}
+		gb = depot;
 	}
 	// check, if we may enter
 	if(gb) {
@@ -596,51 +607,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 	}
 
 	// ok, slopes are ok
-	bool ok = to->ist_natur()  &&  !to->ist_wasser();
-	bool fundament = to->get_typ()==grund_t::fundament;
-	const gebaeude_t* gb = to->find<gebaeude_t>();
-
-// Is this really needed ? Isn't this a duplication of check_building() ? (z9999)
-#if 1
-	// no crossings to halt
-	if(to!=from  &&  bautyp!=leitung  &&  (bautyp&elevated_flag)==0) {
-		static koord gb_to_zv[4] = { koord::sued, koord::ost, koord::nord, koord::west };
-		if(gb  &&  (gb->get_besitzer()==sp  ||  to->get_halt().is_bound())) {
-
-			// terminal imposes stronger direction checks
-			if(gb->get_tile()->get_besch()->get_all_layouts()==4) {
-				if(zv!=gb_to_zv[(gb->get_tile()->get_layout()+2)&3]) {
-//DBG_MESSAGE("cannot go","from %i,%i, to %i, %i due to 4 way stop",from_pos.x,from_pos.y,to_pos.x,to_pos.y);
-					return false;
-				}
-			}
-			else {
-				// through station
-				if( !ribi_t::ist_gerade( ribi_typ(zv)|ribi_typ(gb_to_zv[gb->get_tile()->get_layout()&1]) ) ) {
-					return false;
-				}
-			}
-		}
-
-		// no crossings from halt
-		const gebaeude_t* from_gb = from->find<gebaeude_t>();
-		if(from_gb  &&  (from_gb->get_besitzer()==sp  ||  from->get_halt().is_bound())) {
-			// terminal imposes stronger direction checks
-			if(from_gb->get_tile()->get_besch()->get_all_layouts()==4) {
-				if(zv!=gb_to_zv[from_gb->get_tile()->get_layout()]) {
-//DBG_MESSAGE("cannot go","from %i,%i, to %i, %i due to 4 way stop",from_pos.x,from_pos.y,to_pos.x,to_pos.y);
-					return false;
-				}
-			}
-			else {
-				// through station
-				if( !ribi_t::ist_gerade( ribi_typ(zv)|ribi_typ(gb_to_zv[from_gb->get_tile()->get_layout()&1]) ) ) {
-					return false;
-				}
-			}
-		}
-	}
-#endif
+	bool ok = true;
 
 	// universal check for elevated things ...
 	if(bautyp&elevated_flag) {
@@ -648,53 +615,63 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 			// no suitable ground below!
 			return false;
 		}
-		sint8 height = to->get_hoehe()+Z_TILE_STEP;
-		grund_t *to2 = welt->lookup(koord3d(to->get_pos().get_2d(),height));
+		gebaeude_t *gb = to->find<gebaeude_t>();
+		if(gb==NULL) {
+			// but depots might be overlooked ...
+			gb = to->get_depot();
+		}
+		if(gb) {
+			// no halt => citybuilding => do not touch
+			// also check for too high buildings ...
+			if(!check_owner(gb->get_besitzer(),sp)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) {
+				return false;
+			}
+			// building above houses is expensive ... avoid it!
+			*costs += 4;
+		}
+		// up to now 'to' and 'from' refered to the ground one height step below the elevated way
+		// now get the grounds at the right height
+		koord3d pos = to->get_pos()+koord3d(0,0,Z_TILE_STEP);
+		grund_t *to2 = welt->lookup(pos);
 		if(to2) {
 			if(to2->get_weg_nr(0)) {
-				// already an elevated ground here => it will has always a way object, that indicates ownership
+				// already an elevated ground here => it will have always a way object, that indicates ownership
 				ok = to2->get_typ()==grund_t::monorailboden  &&  check_owner(to2->obj_bei(0)->get_besitzer(),sp);
 				ok &= to2->get_weg_nr(0)->get_besch()->get_wtyp()==besch->get_wtyp();
 			}
 			else {
 				ok = to2->find<leitung_t>()==NULL;
 			}
-			if(!ok) {
-DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
+			if (!ok) {
 				return false;
 			}
-			if(  !check_building( to2, -zv )  ) {
-				return false;
-			}
+			to = to2;
 		}
-		height = from->get_hoehe()+Z_TILE_STEP;
-		grund_t *from2 = welt->lookup(koord3d(from->get_pos().get_2d(),height));
+		else {
+			// simulate empty elevated tile
+			static monorailboden_t to_dummy(welt, koord3d::invalid, hang_t::flach);
+			to_dummy.set_pos(pos);
+			to_dummy.set_grund_hang(to->get_grund_hang());
+			to = &to_dummy;
+		}
+		pos = from->get_pos()+koord3d(0,0,Z_TILE_STEP);
+		grund_t *from2 = welt->lookup(pos);
 		if(from2) {
-			if(from2->get_weg_nr(0)) {
-				// already an elevated ground here => it will has always a way object, that indicates ownership
-				ok = from2->get_typ()==grund_t::monorailboden  &&  check_owner(from2->obj_bei(0)->get_besitzer(),sp);
-				ok &= from2->get_weg_nr(0)->get_besch()->get_wtyp()==besch->get_wtyp();
-			}
-			else {
-				ok = from2->find<leitung_t>()==NULL;
-			}
-			if(!ok) {
-DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
-				return false;
-			}
-			if(  !check_building( from2, zv )  ) {
-				return false;
-			}
+			from = from2;
 		}
-		if(gb) {
-			// no halt => citybuilding => do not touch
-			if(!check_owner(gb->get_besitzer(),sp)  ||  gb->get_tile()->get_hintergrund(0,1,0)!=IMG_LEER) {  // also check for too high buildings ...
-				return false;
-			}
-			// building above houses is expensive ... avoid it!
-			*costs += 4;
+		else {
+			// simulate empty elevated tile
+			static monorailboden_t from_dummy(welt, koord3d::invalid, hang_t::flach);
+			from_dummy.set_pos(pos);
+			from_dummy.set_grund_hang(from->get_grund_hang());
+			from = &from_dummy;
 		}
-		ok = true;
+		// now 'from' and 'to' point to grounds at the right height
+	}
+
+	// universal check for depots/stops/...
+	if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
+		return false;
 	}
 
 	if((bautyp&tunnel_flag)==0) {
@@ -715,114 +692,74 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 	}
 
 	// universal check for crossings
-	if (to!=from  &&  (bautyp&elevated_flag)==0  &&  (bautyp&bautyp_mask)!=leitung) {
+	if (to!=from  &&  (bautyp&bautyp_mask)!=leitung) {
 		waytype_t wtyp = (waytype_t)(bautyp == river ? water_wt :  bautyp&bautyp_mask);
 		if(!check_crossing(zv,to,wtyp,sp)  ||  !check_crossing(-zv,from,wtyp,sp)) {
 			return false;
 		}
 	}
+
+	// universal check for building under powerlines
+	if ((bautyp&bautyp_mask)!=leitung) {
+		if (!check_for_leitung(zv,to)  ||  !check_for_leitung(-zv,from)) {
+			return false;
+		}
+	}
+
+	bool fundament = to->get_typ()==grund_t::fundament;
+
 	// no check way specific stuff
 	switch(bautyp&bautyp_mask) {
 
 		case strasse:
 		{
 			const weg_t *str=to->get_weg(road_wt);
-			if((bautyp&elevated_flag)==0) {
-				// we allow connection to any road
-				ok =	(str  ||  !fundament)  &&  !to->ist_wasser()  &&  check_for_leitung(zv,to);
-				if(!ok) {
-					return false;
-				}
+
+			// we allow connection to any road
+			ok = (str  ||  !fundament)  &&  !to->ist_wasser();
+			if(!ok) {
+				return false;
 			}
-			if(ok) {
-				const weg_t *from_str=from->get_weg(road_wt);
-				// check for end/start of bridge
-				if(to->get_weg_hang()!=to->get_grund_hang()  &&  (from_str==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|from_str->get_ribi_unmasked()))) {
-					return false;
-				}
-				// check for depots/stops/...
-				if((bautyp&elevated_flag)==0  &&  (!check_building( from, zv )  ||  !check_building( to, -zv ))) {
-					return false;
-				}
-				// calculate costs
-				*costs = str ? 0 : welt->get_einstellungen()->way_count_straight;
-				if((str==NULL  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
-					*costs += 4;	// avoid crossings
-				}
-				if(to->get_weg_hang()!=0) {
-					*costs += welt->get_einstellungen()->way_count_slope;
-				}
+			// check for end/start of bridge
+			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (str==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|str->get_ribi_unmasked()))) {
+				return false;
+			}
+			// calculate costs
+			*costs = str ? 0 : welt->get_einstellungen()->way_count_straight;
+			if((str==NULL  &&  to->hat_wege())  ||  (str  &&  to->has_two_ways())) {
+				*costs += 4;	// avoid crossings
+			}
+			if(to->get_weg_hang()!=0) {
+				*costs += welt->get_einstellungen()->way_count_slope;
 			}
 		}
 		break;
 
 		case schiene:
-		{
-			const weg_t *sch=to->get_weg(track_wt);
-			// extra check for AI construction (not adding to existing tracks!)
-			if((bautyp&bot_flag)!=0  &&  (gb  ||  sch  ||  to->get_halt().is_bound())) {
-				return false;
-			}
-			// ok, regular construction here
-			if((bautyp&elevated_flag)==0) {
-				ok =	!fundament  &&  !to->ist_wasser()  &&
-				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
-					check_for_leitung(zv,to);
-			}
-			if(ok) {
-				// check for end/start of bridge
-				if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|sch->get_ribi_unmasked()))) {
-					return false;
-				}
-				// check for depots/stops/...
-				if((bautyp&elevated_flag)==0  &&  (!check_building( from, zv )  ||  !check_building( to, -zv ))) {
-					return false;
-				}
-				// calculate costs
-				*costs = sch ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
-				if((sch  &&  to->has_two_ways())  ||  (sch==NULL  &&  to->hat_wege())) {
-					*costs += 4;	// avoid crossings
-				}
-				if(to->get_weg_hang()!=0) {
-					*costs += welt->get_einstellungen()->way_count_slope;
-				}
-			}
-		}
-		break;
-
-		// like tram, but checks for bridges too
-		// will not connect to any other ways
-		case monorail:
 		default:
 		{
 			const weg_t *sch=to->get_weg(besch->get_wtyp());
 			// extra check for AI construction (not adding to existing tracks!)
-			if(bautyp&bot_flag  &&  (gb  ||  sch  ||  to->get_halt().is_bound())) {
+			if((bautyp&bot_flag)!=0  &&  (sch  ||  to->get_halt().is_bound())) {
 				return false;
 			}
-			if((bautyp&elevated_flag)==0) {
-				// classical monorail
-				ok =	!fundament  &&  !to->ist_wasser()  &&
-				  (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&
-					check_for_leitung(zv,to)  &&  !to->get_depot();
-				// check for end/start of bridge
-				if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  ribi_t::ist_kreuzung(ribi_typ(to_pos,from_pos)|sch->get_ribi_unmasked()))) {
-					return false;
-				}
-				// check for depots/stops/...
-				if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
-					return false;
-				}
+			// ok, regular construction here
+			// if no way there: check for right ground type, otherwise check owner
+			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),sp);
+			if(!ok) {
+				return false;
+			}
+			// check for end/start of bridge
+			if(to->get_weg_hang()!=to->get_grund_hang()  &&  (sch==NULL  ||  !ribi_t::ist_gerade(ribi_typ(zv)|sch->get_ribi_unmasked()))) {
+				return false;
 			}
 			// calculate costs
-			if(ok) {
-				*costs = welt->get_einstellungen()->way_count_straight;
-				if(!to->hat_wege()) {
-					*costs += welt->get_einstellungen()->way_count_straight;
-				}
-				if(to->get_weg_hang()!=0) {
-					*costs += welt->get_einstellungen()->way_count_slope;
-				}
+			*costs = sch ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
+			if((sch  &&  to->has_two_ways())  ||  (sch==NULL  &&  to->hat_wege())) {
+				*costs += 4;	// avoid crossings
+			}
+			if(to->get_weg_hang()!=0) {
+				*costs += welt->get_einstellungen()->way_count_slope;
 			}
 		}
 		break;
@@ -831,28 +768,23 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		{
 			const weg_t *sch=to->get_weg(track_wt);
 			// roads are checked in check_crossing
-			ok = (!sch  ||  check_owner(sch->get_besitzer(),sp))  &&  check_for_leitung(zv,to);
+			// if no way there: check for right ground type, otherwise check owner
+			ok = sch==NULL  ?  (!fundament  &&  !to->ist_wasser())  :  check_owner(sch->get_besitzer(),sp);
 			// tram track allowed in road tunnels, but only along existing roads / tracks
 			if(from!=to) {
 				if(from->ist_tunnel()) {
-					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt) |  from->get_weg_ribi_unmasked(track_wt) |  ribi_t::doppelt(ribi_typ(from->get_grund_hang()));
-					ok = ok && ((ribi & ribi_typ(zv))!=0);
+					const ribi_t::ribi ribi = from->get_weg_ribi_unmasked(road_wt)  |  from->get_weg_ribi_unmasked(track_wt)  |  ribi_t::doppelt(ribi_typ(from->get_grund_hang()));
+					ok = ok && ((ribi & ribi_typ(zv))==ribi_typ(zv));
 				}
 				if(to->ist_tunnel()) {
-					const ribi_t::ribi ribi = to->get_weg_ribi_unmasked(road_wt) |  to->get_weg_ribi_unmasked(track_wt);
-					ok = ok && ((ribi & ribi_typ(-zv))!=0);
+					const ribi_t::ribi ribi = to->get_weg_ribi_unmasked(road_wt)  |  to->get_weg_ribi_unmasked(track_wt)  |  ribi_t::doppelt(ribi_typ(to->get_grund_hang()));
+					ok = ok && ((ribi & ribi_typ(-zv))==ribi_typ(-zv));
 				}
 			}
 			if(ok) {
-				// check for depots/stops/...
-				if(  fundament  ||  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
-					return false;
-				}
-				// with this check, laying tracks into road depot is still possible, althoguh we cannot drive there ...
-
 				// calculate costs
 				*costs = to->hat_weg(track_wt) ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_straight+1;	// only prefer existing rails a little
-				// perfer own track
+				// prefer own track
 				if(to->hat_weg(road_wt)) {
 					*costs += welt->get_einstellungen()->way_count_straight;
 				}
@@ -897,19 +829,19 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 		break;
 
 		case wasser:
-			ok = (ok  ||  to->ist_wasser()  ||  (to->hat_weg(water_wt)  &&  check_owner(to->get_weg(water_wt)->get_besitzer(),sp)))  &&  check_for_leitung(zv,to);
+		{
+			const weg_t *sch=to->get_weg(water_wt);
+			// if no way there: check for right ground type, otherwise check owner
+			ok = sch==NULL  ?  !fundament  :  check_owner(sch->get_besitzer(),sp);
 			// calculate costs
 			if(ok) {
-				// check for depots/stops/...
-				if((bautyp&elevated_flag)==0  &&  (!check_building( from, zv )  ||  !check_building( to, -zv ))) {
-					return false;
-				}
 				*costs = to->ist_wasser()  ||  to->hat_weg(water_wt) ? welt->get_einstellungen()->way_count_straight : welt->get_einstellungen()->way_count_leaving_road;	// prefer water very much ...
 				if(to->get_weg_hang()!=0) {
 					*costs += welt->get_einstellungen()->way_count_slope*2;
 				}
 			}
 			break;
+		}
 
 		case river:
 			if(  to->ist_wasser()  ) {
@@ -919,13 +851,9 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			}
 			else {
 				// only downstream
-				ok = from->get_pos().z>=to->get_pos().z  &&  check_for_leitung(zv,to)  &&  (to->hat_weg(water_wt)  ||  !to->hat_wege());
+				ok = from->get_pos().z>=to->get_pos().z  &&  (to->hat_weg(water_wt)  ||  !to->hat_wege());
 				// calculate costs
 				if(ok) {
-					// check for depots/stops/...
-					if(  !check_building( from, zv )  ||  !check_building( to, -zv )  ) {
-						return false;
-					}
 					// prefer existing rivers:
 					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(welt->get_einstellungen()->way_count_90_curve);
 					if(to->get_weg_hang()!=0) {
@@ -936,7 +864,7 @@ DBG_MESSAGE("wegbauer_t::is_allowed_step()","wrong ground already there!");
 			break;
 
 		case luft: // hsiegeln: runway
-			ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament  &&  check_building( from, zv )  &&  check_building( to, -zv );
+			ok = !to->ist_wasser() && (to->hat_weg(air_wt) || !to->hat_wege())  &&  to->find<leitung_t>()==NULL  &&  !fundament;
 			// calculate costs
 			*costs = welt->get_einstellungen()->way_count_straight;
 			break;
@@ -1025,6 +953,7 @@ wegbauer_t::wegbauer_t(karte_t* wl, spieler_t* spl) : next_gr(32)
 	keep_existing_ways = false;
 	keep_existing_city_roads = false;
 	keep_existing_faster_ways = false;
+	build_sidewalk = false;
 }
 
 
@@ -1964,18 +1893,11 @@ void wegbauer_t::baue_elevated()
 
 void wegbauer_t::baue_strasse()
 {
-	// construct city road?
-	const weg_besch_t *cityroad = get_besch("city_road");
 	// only public player or cities (sp==NULL) can build cityroads with sidewalk
-	bool add_sidewalk = besch==cityroad  &&  (sp==NULL  ||  sp->get_player_nr()==1);
+	bool add_sidewalk = build_sidewalk  &&  (sp==NULL  ||  sp->get_player_nr()==1);
 
 	if(add_sidewalk) {
 		sp = NULL;
-	}
-
-	// Use cityroad with timeline
-	if(besch==cityroad) {
-		besch = welt->get_city_road();
 	}
 
 	// init undo

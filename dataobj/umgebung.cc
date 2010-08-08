@@ -276,7 +276,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_bool(cities_ignore_height);
 	}
 	
-	if(  file->get_version()>=102003 && file->get_experimental_version() >= 9) 
+	if( file->get_experimental_version() >= 9 || (file->get_experimental_version() == 0 && file->get_version()>=102003)) 
 	{
 		file->rdwr_long( tooltip_delay );
 		file->rdwr_long( tooltip_duration );

@@ -8,6 +8,8 @@
 #include "trafficlight_info.h"
 #include "../dings/roadsign.h"
 
+#include "../simmenu.h"
+
 trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
 	ding_infowin_t(s),
 	ampel(s)
@@ -40,11 +42,25 @@ trafficlight_info_t::trafficlight_info_t(roadsign_t* s) :
    */
 bool trafficlight_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
+	static char param[16];
+	karte_t *welt = ampel->get_welt();
 	if(komp == &ns) {
-		ampel->set_ticks_ns( v.i );
+		sprintf( param, "%s,1,%i", ampel->get_pos().get_str(), (int)v.i );
+		werkzeug_t::simple_tool[WKZ_TRAFFIC_LIGHT_TOOL]->set_default_param( param );
+		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LIGHT_TOOL], welt->get_active_player() );
 	}
 	else if(komp == &ow) {
-		ampel->set_ticks_ow( v.i );
+		sprintf( param, "%s,0,%i", ampel->get_pos().get_str(), (int)v.i );
+		werkzeug_t::simple_tool[WKZ_TRAFFIC_LIGHT_TOOL]->set_default_param( param );
+		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_TRAFFIC_LIGHT_TOOL], welt->get_active_player() );
 	}
 	return true;
+}
+
+
+// notify for an external update
+void trafficlight_info_t::update_data()
+{
+	ns.set_value( ampel->get_ticks_ns() );
+	ow.set_value( ampel->get_ticks_ow() );
 }

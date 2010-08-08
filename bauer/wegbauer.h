@@ -122,6 +122,8 @@ private:
 	bool keep_existing_faster_ways;
 	bool keep_existing_city_roads;
 
+	bool build_sidewalk;
+
 	karte_t *welt;
 	uint32 maximum;    // hoechste Suchtiefe
 
@@ -188,6 +190,8 @@ public:
 	 */
 	void set_keep_city_roads(bool yesno) { keep_existing_city_roads = yesno; }
 
+	void set_build_sidewalk(bool yesno) { build_sidewalk = yesno; }
+
 	void route_fuer(bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
@@ -207,6 +211,8 @@ public:
 	bool check_for_leitung(const koord zv, const grund_t *bd) const;
 	// allowed owner?
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const;
+	// checks whether buildings on the tile allow to leave in direction dir
+	bool check_building( const grund_t *to, const koord dir ) const;
 
 	void baue();
 };

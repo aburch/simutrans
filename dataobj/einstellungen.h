@@ -116,8 +116,6 @@ private:
 	uint8 forest_base_size;
 	uint8 forest_map_size_divisor;
 	uint8 forest_count_divisor;
-	uint8 forest_boundary_blur;
-	uint8 forest_boundary_thickness;
 	uint16 forest_inverse_spare_tree_density;
 	uint8 max_no_of_trees_on_square;
 	uint16 tree_climates;
@@ -761,8 +759,6 @@ public:
 	uint8 get_forest_base_size() const { return forest_base_size; }
 	uint8 get_forest_map_size_divisor() const { return forest_map_size_divisor; }
 	uint8 get_forest_count_divisor() const { return forest_count_divisor; }
-	uint8 get_forest_boundary_blur() const { return forest_boundary_blur; }
-	uint8 get_forest_boundary_thickness() const { return forest_boundary_thickness; }
 	uint16 get_forest_inverse_spare_tree_density() const { return forest_inverse_spare_tree_density; }
 	uint8 get_max_no_of_trees_on_square() const { return max_no_of_trees_on_square; }
 	uint16 get_tree_climates() const { return tree_climates; }

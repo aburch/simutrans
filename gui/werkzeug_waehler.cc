@@ -94,7 +94,7 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 {
 	int dx = x/icon.x;
 	int	dy = (y-16)/icon.y;
-	if(  x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<TITLEBAR_HEIGHT  ||  dy<tool_icon_width)  ) {
+	if(  x>=0 && dx<tool_icon_width  &&  y>=0  &&  (y<TITLEBAR_HEIGHT  ||  dy<tool_icon_height)  ) {
 		return y < TITLEBAR_HEIGHT || dx + tool_icon_width * dy + tool_icon_disp_start < (int)tools.get_count();
 	}
 	return false;

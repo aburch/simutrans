@@ -44,6 +44,7 @@
 #include "besch/haus_besch.h"
 #include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
+#include "besch/roadsign_besch.h"
 #include "besch/tunnel_besch.h"
 #include "besch/groundobj_besch.h"
 #include "besch/roadsign_besch.h"
@@ -59,6 +60,7 @@
 #include "gui/depot_frame.h"
 #include "gui/fahrplan_gui.h"
 #include "gui/signal_spacing.h"
+#include "gui/trafficlight_info.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -1817,6 +1819,41 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 			way->mark_image_dirty( way->get_bild(), 0 );
 		}
 	}
+}
+
+/* city road construction */
+bool wkz_build_cityroad::init( karte_t *welt, spieler_t *sp )
+{
+	wkz_wegebau_t::init( welt, sp );
+
+	// now get city_road besch
+	besch = welt->get_city_road();
+	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
+		cursor = besch->get_cursor()->get_bild_nr(0);
+	}
+	default_param = besch->get_name();
+	return besch!=NULL;
+}
+
+const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
+{
+	wegbauer_t bauigel(welt, sp);
+	bauigel.set_build_sidewalk(true);
+	calc_route( bauigel, start, end );
+	if(  bauigel.get_route().get_count()>1  ) {
+		welt->mute_sound(true);
+		bauigel.baue();
+		welt->mute_sound(false);
+
+		struct sound_info info;
+		info.index = SFX_CASH;
+		info.volume = 255;
+		info.pri = 0;
+		sound_play(info);
+
+		return NULL;
+	}
+	return "";
 }
 
 /* bridge construction */
@@ -5804,5 +5841,37 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 		playerwin->update_data();
 	}
 
+	return false;
+}
+
+
+/* Sets traffic light phases via default_param:
+ * [pos],[ns_flag],[ticks]
+ */
+bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
+{
+	koord3d pos;
+	sint16 z, ns, ticks;
+	if(  5!=sscanf( default_param, "%hi,%hi,%hi,%hi,%hi", &pos.x, &pos.y, &z, &ns, &ticks )  ) {
+		return false;
+	}
+	pos.z = (sint8)z;
+	if(  grund_t *gr = welt->lookup(pos)  ) {
+		if( roadsign_t *rs = gr->find<roadsign_t>()  ) {
+			if(  rs->get_besch()->is_traffic_light()  &&  spieler_t::check_owner(rs->get_besitzer(),sp)  ) {
+				if(  ns  ) {
+					rs->set_ticks_ns( ticks );
+				}
+				else {
+					rs->set_ticks_ow( ticks );
+				}
+				// update the window
+				trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
+				if (trafficlight_win) {
+					trafficlight_win->update_data();
+				}
+			}
+		}
+	}
 	return false;
 }

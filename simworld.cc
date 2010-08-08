@@ -1637,6 +1637,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
 	next_step_time = last_step_time = 0;
+	fix_ratio_frame_time = 200;
 
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
@@ -4153,7 +4154,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 	file->rdwr_long(letztes_jahr);
 
 	// rdwr cityrules (and associated settings) for networkgames
-	if(file->get_version()>102002 && file->get_experimental_version() >= 9) 
+	if(file->get_version()>102002 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9))
 	{
 		bool rdwr_city_rules = umgebung_t::networkmode;
 		file->rdwr_bool(rdwr_city_rules);
@@ -4552,7 +4553,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	active_player_nr = 0;
 
 	// rdwr cityrules for networkgames
-	if(file->get_version()>102002) {
+	if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) {
 		bool rdwr_city_rules = umgebung_t::networkmode;
 		file->rdwr_bool(rdwr_city_rules);
 		if (rdwr_city_rules) {
@@ -5095,8 +5096,9 @@ void karte_t::reset_timer()
 	}
 	else if(step_mode==FIX_RATIO) {
 		last_frame_idx = 0;
-		next_step_time = last_tick_sync+( 1000/clamp(einstellungen->get_frames_per_second(),5,100) );
-		set_frame_time( 1000/clamp(einstellungen->get_frames_per_second(),5,100) );
+		fix_ratio_frame_time = 1000/clamp(einstellungen->get_frames_per_second(),5,100);
+		next_step_time = last_tick_sync + fix_ratio_frame_time;
+		set_frame_time( fix_ratio_frame_time );
 		intr_disable();
 		// other stuff needed to synchronize
 		tile_counter = 0;
@@ -5616,8 +5618,8 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 				while(  dr_time()<ms  ) {
 					dr_sleep ( 10 );
 				}
-				reset_timer();
 			}
+			reset_timer();
 		}
 	}
 	else {
@@ -5653,7 +5655,6 @@ bool karte_t::interactive(uint32 quit_month)
 
 	// only needed for network
 	uint32 next_command_step = 0xFFFFFFFFu;
-	const uint32 frame_time = 1000/clamp(einstellungen->get_frames_per_second(),5,100);
 	sint32 ms_difference = 0;
 	reset_timer();
 
@@ -5764,7 +5765,7 @@ bool karte_t::interactive(uint32 quit_month)
 					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 					// are we on time?
 					ms_difference = 0;
-					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*frame_time - umgebung_t::server_ms_ahead;
+					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*fix_ratio_frame_time - umgebung_t::server_ms_ahead;
 					if(  difftime < 0) {
 						// running ahead
 						next_step_time -= difftime;
@@ -5856,7 +5857,7 @@ bool karte_t::interactive(uint32 quit_month)
 					clear_random_mode( STEP_RANDOM );
 				}
 				else if(  step_mode==FIX_RATIO  ) {
-					next_step_time += frame_time;
+					next_step_time += fix_ratio_frame_time;
 					if(  ms_difference>5  ) {
 						next_step_time -= 5;
 						ms_difference -= 5;
@@ -5865,7 +5866,7 @@ bool karte_t::interactive(uint32 quit_month)
 						next_step_time += 5;
 						ms_difference += 5;
 					}
-					sync_step( frame_time, true, true );
+					sync_step( fix_ratio_frame_time, true, true );
 					if(  ++network_frame_count==einstellungen->get_frames_per_step()  ) {
 						// ever fourth frame
 						set_random_mode( STEP_RANDOM );

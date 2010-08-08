@@ -32,12 +32,12 @@
 const weg_besch_t *schiene_t::default_schiene=NULL;
 bool schiene_t::show_reservations = false;
 
+
 schiene_t::schiene_t(karte_t *welt) : weg_t(welt)
 {
 	reserved = convoihandle_t();
 	set_besch(schiene_t::default_schiene);
 }
-
 
 
 schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt)
@@ -47,8 +47,7 @@ schiene_t::schiene_t(karte_t *welt, loadsave_t *file) : weg_t(welt)
 }
 
 
-void
-schiene_t::entferne(spieler_t *)
+void schiene_t::entferne(spieler_t *)
 {
 	// removes reservation
 	if(reserved.is_bound()) {
@@ -56,7 +55,6 @@ schiene_t::entferne(spieler_t *)
 		reserved->suche_neue_route();
 	}
 }
-
 
 
 void schiene_t::info(cbuffer_t & buf) const
@@ -71,7 +69,6 @@ void schiene_t::info(cbuffer_t & buf) const
 #endif
 	}
 }
-
 
 
 /**
@@ -101,14 +98,12 @@ bool schiene_t::reserve(convoihandle_t c, ribi_t::ribi dir  )
 }
 
 
-
 /**
 * releases previous reservation
 * only true, if there was something to release
 * @author prissi
 */
-bool
-schiene_t::unreserve(convoihandle_t c)
+bool schiene_t::unreserve(convoihandle_t c)
 {
 	// is this tile reserved by us?
 	if(reserved.is_bound()  &&  reserved==c) {
@@ -128,8 +123,7 @@ schiene_t::unreserve(convoihandle_t c)
 * releases previous reservation
 * @author prissi
 */
-bool
-schiene_t::unreserve(vehikel_t *)
+bool schiene_t::unreserve(vehikel_t *)
 {
 	// is this tile empty?
 	if(!reserved.is_bound()) {
@@ -146,10 +140,7 @@ schiene_t::unreserve(vehikel_t *)
 }
 
 
-
-
-void
-schiene_t::rdwr(loadsave_t *file)
+void schiene_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "schiene_t" );
 

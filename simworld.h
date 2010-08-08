@@ -323,6 +323,7 @@ private:
 	// Variables used in interactive()
 	uint32 sync_steps;
 	uint8  network_frame_count;
+	uint32 fix_ratio_frame_time; // set in reset_timer()
 
 	/**
 	 * fuer performancevergleiche

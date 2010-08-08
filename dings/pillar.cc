@@ -26,7 +26,7 @@
 pillar_t::pillar_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	besch = NULL;
-	hide = false;
+	asymmetric = false;
 	rdwr(file);
 }
 
@@ -38,13 +38,14 @@ pillar_t::pillar_t(karte_t *welt, koord3d pos, spieler_t *sp, const bruecke_besc
 	this->dir = (uint8)img;
 	set_yoff(-hoehe);
 	set_besitzer( sp );
+	asymmetric = besch->has_pillar_asymmetric();
 	calc_bild();
 }
 
 
 void pillar_t::calc_bild()
 {
-	hide = false;
+	bool hide = false;
 	if(get_yoff()==0  &&  besch->has_pillar_asymmetric()) {
 		if(  grund_t *gr = welt->lookup(get_pos())  ) {
 			hang_t::typ h = gr->get_grund_hang();
@@ -53,6 +54,7 @@ void pillar_t::calc_bild()
 			}
 		}
 	}
+	bild = hide ? IMG_LEER : besch->get_hintergrund((bruecke_besch_t::img_t)dir, get_pos().z >= welt->get_snowline());
 }
 
 /**
@@ -103,6 +105,7 @@ void pillar_t::rdwr(loadsave_t *file)
 				dbg->warning("pillar_t::rdwr()","Unknown bridge %s replaced by ClassicRoad",s);
 			}
 		}
+		asymmetric = besch ? besch->has_pillar_asymmetric() : false;
 	}
 }
 

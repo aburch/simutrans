@@ -218,6 +218,4 @@ public:
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 };
 
-
-
 #endif

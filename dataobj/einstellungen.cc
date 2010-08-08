@@ -65,8 +65,6 @@ einstellungen_t::einstellungen_t() :
 	forest_base_size = 36; 	// Base forest size - minimal size of forest - map independent
 	forest_map_size_divisor = 38;	// Map size divisor - smaller it is the larger are individual forests
 	forest_count_divisor = 16;	// Forest count divisor - smaller it is, the more forest are generated
-	forest_boundary_blur = 6;	// Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
-	forest_boundary_thickness = 2;	// Forest boundary thickness  - determines how thick will the boundary line be
 	forest_inverse_spare_tree_density = 5;	// Determins how often are spare trees going to be planted (works inversly)
 	max_no_of_trees_on_square = 3;	// Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
 	tree_climates = 0;	// bit set, if this climate is to be covered with trees entirely
@@ -618,7 +616,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool( numbered_stations);
-			if(  file->get_version()<=102002 || (file->get_experimental_version() > 0 && file->get_experimental_version() < 8))
+			if(  file->get_version()<=102002 && file->get_experimental_version() < 8)
 			{
 				if(  file->is_loading()  ) 
 				{
@@ -639,6 +637,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) city roads!", num_city_roads );
 				}
 				for(  int i=0;  i<num_city_roads;  i++  ) {
+					const sint64 TEST = lengthof(city_roads[i].name);
 					file->rdwr_str(city_roads[i].name, lengthof(city_roads[i].name) );
 					file->rdwr_short(city_roads[i].intro );
 					file->rdwr_short(city_roads[i].retire );
@@ -806,26 +805,31 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles);
-			if(file->get_experimental_version() >= 8)
+			if(file->get_experimental_version() >= 8 || (file->get_experimental_version() == 0 && file->get_version()>=102003))
 			{
 				file->rdwr_long( factory_worker_minimum_towns);
 				file->rdwr_long( factory_worker_maximum_towns);
 			}
-			if(file->get_experimental_version() >= 9)
+			if(file->get_experimental_version() >= 9 || (file->get_experimental_version() == 0 && file->get_version()>=102003))
 			{
 				// forest stuff
 				file->rdwr_byte( forest_base_size);
 				file->rdwr_byte( forest_map_size_divisor);
 				file->rdwr_byte( forest_count_divisor);
-				file->rdwr_byte( forest_boundary_blur);
-				file->rdwr_byte( forest_boundary_thickness);
 				file->rdwr_short( forest_inverse_spare_tree_density);
 				file->rdwr_byte( max_no_of_trees_on_square);
 				file->rdwr_short( tree_climates);
 				file->rdwr_short( no_tree_climates);
 				file->rdwr_bool( no_trees);
-				
+				if(file->get_experimental_version() < 9)
+				{
+					sint32 dummy = 0;
+					file->rdwr_long(dummy); // Was "minimum city distance"
+				}
 				file->rdwr_long( industry_increase );
+			}
+			if(file->get_experimental_version() >= 9)
+			{
 				file->rdwr_long( city_isolation_factor );
 			}
 		}
@@ -1355,8 +1359,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	forest_base_size = contents.get_int("forest_base_size", forest_base_size );
 	forest_map_size_divisor = contents.get_int("forest_map_size_divisor", forest_map_size_divisor );
 	forest_count_divisor = contents.get_int("forest_count_divisor", forest_count_divisor );
-	forest_boundary_blur = contents.get_int("forest_boundary_blur", forest_boundary_blur );
-	forest_boundary_thickness = contents.get_int("forest_boundary_thickness", forest_boundary_thickness );
 	forest_inverse_spare_tree_density = contents.get_int("forest_inverse_spare_tree_density", forest_inverse_spare_tree_density );
 	max_no_of_trees_on_square = contents.get_int("max_no_of_trees_on_square", max_no_of_trees_on_square );
 	tree_climates = contents.get_int("tree_climates", tree_climates );

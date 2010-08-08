@@ -16,9 +16,6 @@
 
 /* stuff not set here ....
 INIT_NUM( "intercity_road_length", umgebung_t::intercity_road_length);
-INIT_NUM( "river_number", river_number );
-INIT_NUM( "river_min_length", min_river_length );
-INIT_NUM( "river_max_length", max_river_length );
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
@@ -696,8 +693,6 @@ void settings_climates_stats_t::init(einstellungen_t *sets)
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
 	label.at(3)->set_text( buf );
 	SEPERATOR
-	INIT_BOOL( "no tree", sets->get_no_trees() );
-	SEPERATOR
 	INIT_NUM( "Number of rivers", sets->get_river_number(), 0, 1024, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "minimum length of rivers", sets->get_min_river_length(), 0, max(16,sets->get_max_river_length())-16, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "maximum length of rivers", sets->get_max_river_length(), sets->get_min_river_length()+16, 8196, gui_numberinput_t::AUTOLINEAR, false );
@@ -706,6 +701,16 @@ void settings_climates_stats_t::init(einstellungen_t *sets)
 	while(  iter.next()  ) {
 		iter.get_current()->add_listener( this );
 	}
+	// the following are independent and thus need no listener
+	SEPERATOR
+	INIT_BOOL( "no tree", sets->get_no_trees() );
+	INIT_NUM( "forest_base_size", sets->get_forest_base_size(), 10, 255, 1, false );
+	INIT_NUM( "forest_map_size_divisor", sets->get_forest_map_size_divisor(), 2, 255, 1, false );
+	INIT_NUM( "forest_count_divisor", sets->get_forest_count_divisor(), 2, 255, 1, false );
+	INIT_NUM( "forest_inverse_spare_tree_density", sets->get_forest_inverse_spare_tree_density(), 0, 100, 1, false );
+	INIT_NUM( "max_no_of_trees_on_square", sets->get_max_no_of_trees_on_square(), 1, 6, 1, true );
+	INIT_NUM( "tree_climates", sets->get_tree_climates(), 0, 255, 1, false );
+	INIT_NUM( "no_tree_climates", sets->get_no_tree_climates(), 0, 255, 1, false );
 
 	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
@@ -735,14 +740,21 @@ void settings_climates_stats_t::read(einstellungen_t *sets)
 	buf.clear();
 	buf.printf( "%s %i", translator::translate( "Summer snowline" ), arctic );
 	label.at(3)->set_text( buf );
-	READ_BOOL_VALUE( sets->no_trees );
 	READ_NUM_VALUE( sets->river_number );
 	READ_NUM_VALUE( sets->min_river_length );
 	READ_NUM_VALUE( sets->max_river_length );
+	READ_BOOL_VALUE( sets->no_trees );
+	READ_NUM_VALUE( sets->forest_base_size );
+	READ_NUM_VALUE( sets->forest_map_size_divisor );
+	READ_NUM_VALUE( sets->forest_count_divisor );
+	READ_NUM_VALUE( sets->forest_inverse_spare_tree_density );
+	READ_NUM_VALUE( sets->max_no_of_trees_on_square );
+	READ_NUM_VALUE( sets->tree_climates );
+	READ_NUM_VALUE( sets->no_tree_climates );
 }
 
 
-bool settings_climates_stats_t::action_triggered(gui_action_creator_t *komp, value_t extra)
+bool settings_climates_stats_t::action_triggered(gui_action_creator_t *komp, value_t)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	read( local_sets );

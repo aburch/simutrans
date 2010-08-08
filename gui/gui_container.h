@@ -82,6 +82,13 @@ public:
 	 * that is: go down the hierarchy as much as possible
 	 */
 	virtual gui_komponente_t *get_focus();
+
+	/**
+	 * Get the relative position of the focused component.
+	 * Used for auto-scrolling inside a scroll pane.
+	 * @author Knightly
+	 */
+	virtual koord get_focus_pos() { return komp_focus ? pos+komp_focus->get_focus_pos() : koord::invalid; }
 };
 
 #endif

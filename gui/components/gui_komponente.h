@@ -149,6 +149,13 @@ public:
 	 * return a component out of their selection
 	 */
 	virtual gui_komponente_t *get_focus() { return is_focusable() ? (gui_komponente_t *)this : NULL; }
+
+	/**
+	 * Get the relative position of the focused component.
+	 * Used for auto-scrolling inside a scroll pane.
+	 * @author Knightly
+	 */
+	virtual koord get_focus_pos() { return pos; }
 };
 
 #endif

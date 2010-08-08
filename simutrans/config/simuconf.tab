@@ -400,12 +400,6 @@ forest_map_size_divisor = 38
 # Forest count divisor - smaller it is, the more forest are generated
 forest_count_divisor = 16
 
-# Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
-forest_boundary_blur = 10
-
-# Forest boundary thickness  - determines how thick will the boundary line be
-forest_boundary_thickness = 2
-
 # Determins how dense are spare trees going to be planted (works inversly)
 forest_inverse_spare_tree_density = 400
 

@@ -59,10 +59,10 @@ void gui_tab_panel_t::set_groesse(koord gr)
 
 bool gui_tab_panel_t::action_triggered(gui_action_creator_t *komp, value_t)
 {
-	if(  komp == &left  ) {
+	if(  komp==&right  ) {
 		offset_tab = min( offset_tab+1, tabs.get_count()-1 );
 	}
-	else if(  komp == &right  ) {
+	else if(  komp==&left  ) {
 		offset_tab = max( offset_tab-1, 0 );
 	}
 	return true;
