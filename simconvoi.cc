@@ -3081,7 +3081,9 @@ void convoi_t::open_schedule_window( bool show )
 	}
 
 	akt_speed = 0;	// stop the train ...
-	state = FAHRPLANEINGABE;
+	if(state!=INITIAL) {
+		state = FAHRPLANEINGABE;
+	}
 	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 

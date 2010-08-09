@@ -51,8 +51,8 @@ void gui_tab_panel_t::set_groesse(koord gr)
 	}
 
 	if(  required_groesse.x>gr.x  ) {
-		left.set_pos( koord( 2, 2 ) );
-		right.set_pos( koord( gr.x-10, 2 ) );
+		left.set_pos( koord( 2, 5 ) );
+		right.set_pos( koord( gr.x-10, 5 ) );
 	}
 }
 
@@ -147,15 +147,18 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 
 	display_fillbox_wh_clip(xpos, ypos+HEADER_VSIZE-1, 4, 1, COL_WHITE, true);
 
+	// do not draw under right button
+	int xx = required_groesse.x>get_groesse().x ? get_groesse().x-22 : get_groesse().x;
+
 	int i=0;
 	for (slist_tpl<tab>::const_iterator iter = tabs.begin(), end = tabs.end(); iter != end; ++iter, ++i) {
-		if(  i<offset_tab  ) {
-			// just draw component, if here ...
-			if (i == active_tab) {
-				iter->component->zeichnen( parent_pos+pos );
-			}
+		// just draw component, if here ...
+		if (i == active_tab) {
+			iter->component->zeichnen( parent_pos+pos );
 		}
-		else {
+		if(i>=offset_tab) {
+			// set clipping
+			PUSH_CLIP(xpos, ypos, xx, ypos+HEADER_VSIZE);
 			// only start drwing here ...
 			const char* text = iter->title;
 			const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
@@ -186,10 +189,10 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				else {
 					display_color_img( iter->img->get_nummer(), text_x - iter->img->get_pic()->x + (IMG_WIDTH/2) - (iter->img->get_pic()->w/2), ypos - iter->img->get_pic()->y + 10 - (iter->img->get_pic()->h/2), 0, false, true);
 				}
-				iter->component->zeichnen( parent_pos+pos );
 			}
-
 			text_x += width + 8;
+			// reset clipping
+			POP_CLIP();
 		}
 	}
 	display_fillbox_wh_clip(text_x-4, ypos+HEADER_VSIZE-1, xpos+groesse.x-(text_x-4), 1, MN_GREY4, true);
@@ -206,7 +209,7 @@ void gui_tab_panel_t::zeichnen(koord parent_pos)
 				const char* text = iter->title;
 				const int width = text ? proportional_string_width( text ) : IMG_WIDTH;
 
-				if(text_x < mx && text_x+width+8 > mx) {
+				if(text_x < mx && text_x+width+8 > mx  && (required_groesse.x<=get_groesse().x || mx < right.get_pos().x-12)) {
 					// tooltip or change
 					win_set_tooltip(get_maus_x() + 16, ypos + HEADER_VSIZE + 12, iter->tooltip, &(*iter), this);
 					break;

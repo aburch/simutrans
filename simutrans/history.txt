@@ -80,6 +80,8 @@
 	ADD: if present show copyright line from ground.outside.pak (which should contain pak set and revision)
 	ADD: new general_tool[36] to build cityroad according to timeline
 	FIX: (z9999) building a harbour must check also for existing stops above/below
+	FIX: (z9999) trains were braking on field too late after changing of route count
+	FIX: (z9999) stopping before occipied crossings with a signal and many other signal fixes
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
