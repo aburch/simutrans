@@ -1047,8 +1047,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			// to problems, so, whilst strictly enforced weight limits should be allowed
 			// for new games and games saved with this feature enabled, it should not be
 			// allowed for older saved games.
-			// enforce_weight_limits = enforce_weight_limits < 2 ? enforce_weight_limits : 1;
-			enforce_weight_limits = 0;
+			enforce_weight_limits = enforce_weight_limits == 0 ? 0 : 1;
 		}
 		
 		if(file->get_experimental_version() >= 4)
