@@ -285,6 +285,8 @@ public:
 
 	void rdwr(loadsave_t *file);
 
+	void copy_city_road( einstellungen_t &other );
+
 	// init form this file ...
 	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 

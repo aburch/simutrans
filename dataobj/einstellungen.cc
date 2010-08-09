@@ -679,16 +679,14 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// old syntax for single city road
 	const char *str = ltrim(contents.get("city_road_type") );
-	if(str[0]==0) {
-		// old fallback value
-		str = "city_road";
+	if(  str[0]  ) {
+		num_city_roads = 1;
+		tstrncpy(city_roads[0].name, str, lengthof(city_roads[0].name) );
+		rtrim( city_roads[0].name );
+		// default her: always available
+		city_roads[0].intro = 1;
+		city_roads[0].retire = NEVER;
 	}
-	num_city_roads = 1;
-	tstrncpy(city_roads[0].name, str, lengthof(city_roads[0].name) );
-	rtrim( city_roads[0].name );
-	// default her: always available
-	city_roads[0].intro = 1;
-	city_roads[0].retire = NEVER;
 
 	// new: up to ten city_roads are possible
 	if(  *contents.get("city_road[0]")  ) {
@@ -1063,4 +1061,13 @@ const weg_besch_t *einstellungen_t::get_city_road_type( uint16 year )
 const weg_besch_t *einstellungen_t::get_intercity_road_type( uint16 year )
 {
 	return get_timeline_road_type(year, num_intercity_roads, intercity_roads );
+}
+
+
+void einstellungen_t::copy_city_road( einstellungen_t &other )
+{
+	num_city_roads = other.num_city_roads;
+	for(  int i=0;  i<10;  i++  ) {
+		city_roads[i] = other.city_roads[i];
+	}
 }
