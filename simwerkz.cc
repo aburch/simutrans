@@ -1546,6 +1546,9 @@ const char* wkz_wegebau_t::get_default_param() const
 
 bool wkz_wegebau_t::is_selected( karte_t *welt ) const
 {
+	if (welt->get_werkzeug(welt->get_active_player_nr())->get_id()!=id) {
+		return false;
+	}
 	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
 	return (selected  &&  selected->get_besch(welt->get_timeline_year_month(),false) == get_besch(welt->get_timeline_year_month(),false));
 }

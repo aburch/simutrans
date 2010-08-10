@@ -250,6 +250,7 @@ public:
 	wkz_build_cityroad() : wkz_wegebau_t() { id = WKZ_CITYROAD | GENERAL_TOOL; }
 	virtual const weg_besch_t *get_besch(uint16,bool) const;
 	virtual image_id get_icon(spieler_t *sp) const { return werkzeug_t::get_icon(sp); }
+	virtual bool is_selected( karte_t *welt ) const { return werkzeug_t::is_selected(welt); }
 private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 };
