@@ -4215,6 +4215,14 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						}
 						if(updated) {
 							fpl->cleanup();
+							// Knightly : remove lineless convoy from old stop
+							if(  last_halt.is_bound()  ) {
+								last_halt->remove_convoy(cnv);
+							}
+							// Knightly : register lineless convoy at new stop
+							if(  new_halt.is_bound()  ) {
+								new_halt->add_convoy(cnv);
+							}
 							if(  !fpl->ist_abgeschlossen()  ) {
 								// schedule is not owned by schedule window ...
 								// ... thus we can set this schedule

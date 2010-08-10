@@ -170,7 +170,9 @@ void simline_t::rdwr(loadsave_t *file)
 
 void simline_t::laden_abschliessen()
 {
-	register_stops(fpl);
+	if(  line_managed_convoys.get_count()>0  ) {
+		register_stops(fpl);
+	}
 	recalc_status();
 }
 

@@ -92,6 +92,16 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 		cont.remove_komponente( b );
 		delete b;
 	}
+	while(!convoylabels.empty()) {
+		gui_label_t *l = convoylabels.remove_first();
+		cont.remove_komponente( l );
+		delete l;
+	}
+	while(!convoybuttons.empty()) {
+		button_t *b = convoybuttons.remove_first();
+		cont.remove_komponente( b );
+		delete b;
+	}
 	buf.clear();
 
 	const slist_tpl<fabrik_t *> & fab_list = halt->get_fab_list();
@@ -174,11 +184,11 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	buf.append("\n");
 	offset_y += LINESPACE;
 
-	if (!halt->registered_lines.empty()) {
-		buf.append(translator::translate("Lines serving this stop"));
-		buf.append(":\n");
-		offset_y += LINESPACE;
+	buf.append(translator::translate("Lines serving this stop"));
+	buf.append(":\n");
+	offset_y += LINESPACE;
 
+	if(  !halt->registered_lines.empty()  ) {
 		for (unsigned int i = 0; i<halt->registered_lines.get_count(); i++) {
 			// Line buttons only if owner ...
 			if (halt->get_welt()->get_active_player()==halt->registered_lines[i]->get_besitzer()) {
@@ -198,6 +208,46 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			buf.append("\n");
 			offset_y += LINESPACE;
 		}
+	}
+	else {
+		buf.append(" ");
+		buf.append( translator::translate("keine") );
+		buf.append("\n");
+		offset_y += LINESPACE;
+	}
+
+	// Knightly : add lineless convoys which serve this stop
+	buf.append("\n");
+	offset_y += LINESPACE;
+
+	buf.append( translator::translate("Lineless convoys serving this stop") );
+	buf.append(":\n");
+	offset_y += LINESPACE;
+
+	if(  !halt->registered_convoys.empty()  ) {
+		for(  uint32 i=0;  i<halt->registered_convoys.get_count();  ++i  ) {
+			// Convoy buttons
+			button_t *b = new button_t();
+			b->init( button_t::posbutton, NULL, koord(10, offset_y) );
+			b->set_targetpos( koord(-2, i) );
+			b->add_listener( this );
+			convoybuttons.append( b );
+			cont.add_komponente( b );
+
+			// Line labels with color of player
+			gui_label_t *l = new gui_label_t( halt->registered_convoys[i]->get_name(), PLAYER_FLAG|(halt->registered_convoys[i]->get_besitzer()->get_player_color1()+0) );
+			l->set_pos( koord(26, offset_y) );
+			convoylabels.append( l );
+			cont.add_komponente( l );
+			buf.append("\n");
+			offset_y += LINESPACE;
+		}
+	}
+	else {
+		buf.append(" ");
+		buf.append( translator::translate("keine") );
+		buf.append("\n");
+		offset_y += LINESPACE;
 	}
 
 	buf.append("\n");
@@ -268,11 +318,11 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
 	if(extra.i&~1) {
 		koord k = *(const koord *)extra.p;
-		if(k.x>=0) {
+		if(  k.x>=0  ) {
 			// goto button pressed
 			halt->get_welt()->change_world_position( koord3d(k,halt->get_welt()->max_hgt(k)) );
 		}
-		else {
+		else if(  k.x==-1  ) {
 			// Line button pressed.
 			uint16 j=k.y;
 			if(  j < halt->registered_lines.get_count()  ) {
@@ -284,6 +334,14 @@ bool halt_detail_t::action_triggered( gui_action_creator_t *, value_t extra)
 					sp->simlinemgmt.show_lineinfo(sp,line);
 					halt->get_welt()->set_dirty();
 				}
+			}
+		}
+		else if(  k.x==-2  ) {
+			// Knightly : lineless convoy button pressed
+			uint16 j = k.y;
+			if(  j<halt->registered_convoys.get_count()  ) {
+				convoihandle_t convoy = halt->registered_convoys[j];
+				convoy->zeige_info();
 			}
 		}
 	}

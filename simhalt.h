@@ -609,6 +609,24 @@ public:
 	vector_tpl<linehandle_t> registered_lines;
 
 	/**
+	 * Register a lineless convoy which serves this stop
+	 * @author Knightly
+	 */
+	void add_convoy(convoihandle_t convoy) { registered_convoys.append_unique(convoy); }
+
+	/**
+	 * Unregister a lineless convoy
+	 * @author Knightly
+	 */
+	void remove_convoy(convoihandle_t convoy) { registered_convoys.remove(convoy); }
+
+	/**
+	 * A list of lineless convoys serving this stop
+	 * @author Knightly
+	 */
+	vector_tpl<convoihandle_t> registered_convoys;
+
+	/**
 	 * book a certain amount into the halt's financial history
 	 * @author hsiegeln
 	 */

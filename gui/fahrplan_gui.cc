@@ -395,10 +395,6 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 				}
 			}
 			else {
-				// since matches does not check for depots, we need to do it this way ...
-				if(  fpl->get_count()!=old_fpl->get_count()  ||  !old_fpl->matches( sp->get_welt(), fpl )  ) {
-					sp->get_welt()->set_schedule_counter();
-				}
 				cbuffer_t buf(5500);
 				fpl->sprintf_schedule( buf );
 				cnv->call_convoi_tool( 'g', buf );
