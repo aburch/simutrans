@@ -2620,6 +2620,22 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		}
 	}
 
+	// Knightly : remove registered lineless convoys as well
+	for(  int j=registered_convoys.get_count()-1;  j>=0;  --j  ) {
+		const schedule_t *const fpl = registered_convoys[j]->get_schedule();
+		bool ok = false;
+		for(  uint8 k=0;  k<fpl->get_count();  ++k  ) {
+			if(  get_halt( welt, fpl->eintrag[k].pos, registered_convoys[j]->get_besitzer() )==self  ) {
+				ok = true;
+				break;
+			}
+		}
+		// need removal?
+		if(  !ok  ) {
+			registered_convoys.remove_at(j);
+		}
+	}
+
 	return true;
 }
 
