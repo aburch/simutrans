@@ -2480,10 +2480,12 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			// only check lineless convoys which are not yet registered
 			if(  !cnv->get_line().is_bound()  &&  !registered_convoys.is_contained(cnv)  ) {
 				const schedule_t *const fpl = cnv->get_schedule();
-				for(  int k=0;  k<fpl->get_count();  ++k  ) {
-					if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
-						registered_convoys.append(cnv);
-						break;
+				if(  fpl  ) {
+					for(  int k=0;  k<fpl->get_count();  ++k  ) {
+						if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
+							registered_convoys.append(cnv);
+							break;
+						}
 					}
 				}
 			}
@@ -2509,10 +2511,12 @@ bool haltestelle_t::add_grund(grund_t *gr)
 			// only check lineless convoys which have matching ownership and which are not yet registered
 			if(  !cnv->get_line().is_bound()  &&  cnv->get_besitzer()==get_besitzer()  &&  !registered_convoys.is_contained(cnv)  ) {
 				const schedule_t *const fpl = cnv->get_schedule();
-				for(  int k=0;  k<fpl->get_count();  ++k  ) {
-					if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
-						registered_convoys.append(cnv);
-						break;
+				if(  fpl  ) {
+					for(  int k=0;  k<fpl->get_count();  ++k  ) {
+						if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
+							registered_convoys.append(cnv);
+							break;
+						}
 					}
 				}
 			}
