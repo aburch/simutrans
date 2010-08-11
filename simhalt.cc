@@ -1043,10 +1043,6 @@ sint32 haltestelle_t::rebuild_destinations()
 			const linehandle_t line = registered_lines[ index_for_lines ];
 			index_for_lines++;
 
-			if(  line->count_convoys()==0  ){
-				continue;
-			}
-
 			owner = line->get_besitzer();
 			fpl = line->get_schedule();
 			goods_catg_index = &line->get_goods_catg_index();
@@ -1054,9 +1050,6 @@ sint32 haltestelle_t::rebuild_destinations()
 		else {
 			convoihandle_t cnv = registered_convoys[index_for_convoys];
 			++index_for_convoys;
-			if(  cnv->get_line().is_bound()  ) {
-				continue;
-			}
 
 			owner = cnv->get_besitzer();
 			fpl = cnv->get_schedule();
