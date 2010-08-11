@@ -2066,8 +2066,11 @@ void convoi_t::zeige_info()
 {
 	if(  in_depot()  ) {
 		// Knightly : if ownership matches, we can try to open the depot dialog
-		if(  home_depot!=koord3d::invalid  &&  get_besitzer()==welt->get_active_player()  ) {
-			grund_t *const ground = welt->lookup(home_depot);
+		if(  get_besitzer()==welt->get_active_player()  ) {
+			grund_t *ground = welt->lookup( front()->get_pos() );
+			if(  ground==NULL  ||  ground->get_depot()==NULL  ) {
+				ground = welt->lookup( get_home_depot() );
+			}
 			if(  ground  ) {
 				depot_t *const depot = ground->get_depot();
 				if(  depot  ) {
@@ -2782,7 +2785,7 @@ void convoi_t::register_stops()
 {
 	if(  fpl  ) {
 		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
-			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, besitzer_p );
+			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
 			if(  halt.is_bound()  ) {
 				halt->add_convoy(self);
 			}
@@ -2799,7 +2802,7 @@ void convoi_t::unregister_stops()
 {
 	if(  fpl  ) {
 		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
-			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, besitzer_p );
+			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
 			if(  halt.is_bound()  ) {
 				halt->remove_convoy(self);
 			}
