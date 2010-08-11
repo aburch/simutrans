@@ -25,6 +25,7 @@
 #include "gui/karte.h"
 #include "gui/convoi_info_t.h"
 #include "gui/fahrplan_gui.h"
+#include "gui/depot_frame.h"
 #include "gui/messagebox.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
@@ -1391,12 +1392,16 @@ bool convoi_t::set_schedule(schedule_t * f)
 		bool changed = false;
 		if(  line.is_bound()  ) {
 			if(  !f->matches( welt, line->get_schedule() )  ) {
+				// change from line to individual schedule
+				//		-> unset line now and register stops from new schedule later
 				changed = true;
 				unset_line();
 			}
 		}
 		else {
 			if(  !f->matches( welt, fpl )  ) {
+				// Knightly : merely change schedule and do not involve line
+				//				-> unregister stops from old schedule now and register stops from new schedule later
 				changed = true;
 				unregister_stops();
 			}
@@ -1408,6 +1413,8 @@ bool convoi_t::set_schedule(schedule_t * f)
 		}
 		fpl = f;
 		if(  changed  ) {
+			// Knightly : if line is unset or schedule is changed
+			//				-> register stops from new schedule
 			register_stops();
 			welt->set_schedule_counter();	// must trigger refresh
 		}
@@ -2057,12 +2064,27 @@ convoi_t::rdwr(loadsave_t *file)
 
 void convoi_t::zeige_info()
 {
-	if(!in_depot()) {
-
-		if(umgebung_t::verbose_debug) {
+	if(  in_depot()  ) {
+		// Knightly : if ownership matches, we can try to open the depot dialog
+		if(  home_depot!=koord3d::invalid  &&  get_besitzer()==welt->get_active_player()  ) {
+			grund_t *const ground = welt->lookup(home_depot);
+			if(  ground  ) {
+				depot_t *const depot = ground->get_depot();
+				if(  depot  ) {
+					depot->zeige_info();
+					// try to activate this particular convoy in the depot
+					depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (long)depot ) );
+					if(  frame  ) {
+						frame->activate_convoi(self);
+					}
+				}
+			}
+		}
+	}
+	else {
+		if(  umgebung_t::verbose_debug  ) {
 			dump();
 		}
-
 		create_win( new convoi_info_t(self), w_info, magic_convoi_info+self.get_id() );
 	}
 }
