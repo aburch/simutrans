@@ -1029,9 +1029,6 @@ sint32 haltestelle_t::rebuild_destinations()
 	uint32 current_index = 0;
 	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
 
-		// Gives the first occurence of "self" in "fpl".
-		uint8 first_self_index = 0;
-
 		// Now, collect the "fpl", "owner" and "add_catg_index" from line resp. convoy.
 		if( lines ) {
 			if(  current_index >= registered_lines.get_count()  ) {
@@ -1058,8 +1055,9 @@ sint32 haltestelle_t::rebuild_destinations()
 		}
 
 		// find first own index
-		for(  first_self_index=0;  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self;  ) {
-			first_self_index++;
+		uint8 first_self_index = 0;
+		while(  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self  ) {
+			++first_self_index;
 		}
 
 		// determine goods category indices supported by this halt
