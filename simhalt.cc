@@ -439,11 +439,12 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 
+	destroy_win( magic_halt_info + self.get_id() );
+	destroy_win( magic_halt_detail + self.get_id() );
+
 	// finally detach handle
 	// before it is needed for clearing up the planqudrat and tiles
 	self.detach();
-
-	destroy_win((long)this);
 
 	for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
 		if(waren[i]) {
@@ -1832,7 +1833,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 
 void haltestelle_t::zeige_info()
 {
-	create_win(new halt_info_t(welt, self), w_info, (long)this );
+	create_win( new halt_info_t(welt, self), w_info, magic_halt_info + self.get_id() );
 }
 
 

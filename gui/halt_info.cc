@@ -165,6 +165,11 @@ halt_info_t::zeichnen(koord pos, koord gr)
 	if(halt.is_bound()) {
 		if(strcmp(edit_name,halt->get_name())) {
 			halt->set_name( edit_name );
+			// Knightly : need to update the title text of the associated halt detail dialog, if present
+			halt_detail_t *const details_frame = dynamic_cast<halt_detail_t *>( win_get_magic( magic_halt_detail + halt.get_id() ) );
+			if(  details_frame  ) {
+				details_frame->set_name( halt->get_name() );
+			}
 		}
 
 		// buffer update now only when needed by halt itself => dedicated buffer for this
@@ -287,7 +292,7 @@ halt_info_t::zeichnen(koord pos, koord gr)
 bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
-		create_win( new halt_detail_t(halt), w_info, (long)this);
+		create_win( new halt_detail_t(halt), w_info, magic_halt_detail + halt.get_id() );
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%4;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
