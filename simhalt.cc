@@ -1026,54 +1026,40 @@ sint32 haltestelle_t::rebuild_destinations()
 	 * lines==false => search for single convoys without lines
 	 */
 	bool lines = true;
-	uint32 index_for_lines = 0;
-	uint32 index_for_convoys = 0;
-	while(  lines  ||  index_for_convoys < registered_convoys.get_count()  ) {
+	uint32 current_index = 0;
+	while(  lines  ||  current_index < registered_convoys.get_count()  ) {
 
 		// Gives the first occurence of "self" in "fpl".
 		uint8 first_self_index = 0;
 
 		// Now, collect the "fpl", "owner" and "add_catg_index" from line resp. convoy.
 		if( lines ) {
-			if(  index_for_lines >= registered_lines.get_count()  ) {
+			if(  current_index >= registered_lines.get_count()  ) {
 				// We have looped over all lines.
 				lines = false;
+				current_index = 0;	// Knightly : start over for registered lineless convoys
 				continue;
 			}
 
-			const linehandle_t line = registered_lines[ index_for_lines ];
-			index_for_lines++;
+			const linehandle_t line = registered_lines[current_index];
+			++current_index;
 
 			owner = line->get_besitzer();
 			fpl = line->get_schedule();
 			goods_catg_index = &line->get_goods_catg_index();
 		}
 		else {
-			convoihandle_t cnv = registered_convoys[index_for_convoys];
-			++index_for_convoys;
+			const convoihandle_t cnv = registered_convoys[current_index];
+			++current_index;
 
 			owner = cnv->get_besitzer();
 			fpl = cnv->get_schedule();
 			goods_catg_index = &cnv->get_goods_catg_index();
 		}
 
-		if(  !i_am_public  &&  owner!=get_besitzer()  ) {
-			continue;
-		}
-
-		if(  fpl==NULL  ) {
-			// may happen for cnv in depots
-			continue;
-		}
-
 		// find first own index
 		for(  first_self_index=0;  first_self_index < fpl->get_count()  &&  get_halt( welt, fpl->eintrag[first_self_index].pos, owner ) != self;  ) {
 			first_self_index++;
-		}
-
-		if(  first_self_index == fpl->get_count()  ) {
-			// this convoi does not stop here (the usual case for convoys)
-			continue;
 		}
 
 		// determine goods category indices supported by this halt
