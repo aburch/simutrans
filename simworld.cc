@@ -5425,6 +5425,7 @@ bool karte_t::interactive(uint32 quit_month)
 		umgebung_t::quit_simutrans = true;
 	}
 
+	display_show_pointer(true);
 	return finish_loop;
 }
 
