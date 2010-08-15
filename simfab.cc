@@ -689,7 +689,7 @@ uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
 	const uint32 max = prodbase * prodfaktor;
-	uint32 menge = (max >> (18-10+4-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T;
+	uint32 menge = ((max >> (18-10+4-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T);
 
 	if (ausgang.get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -821,7 +821,7 @@ void fabrik_t::step(long delta_t)
 		// not a producer => then consume electricity ...
 		if(  !besch->is_electricity_producer()  ) {
 			// one may be thinking of linking this to actual production only
-			prodfaktor = 16 + (16 * power) / (prodbase * PRODUCTION_DELTA_T);
+			prodfaktor = 16 + (16 * power) / (prodbase * PRODUCTION_DELTA_T + 1);
 		}
 
 		const uint32 ecount = eingang.get_count();
@@ -844,7 +844,7 @@ void fabrik_t::step(long delta_t)
 			for(  index = 0;  index < ecount;  index++  ) {
 
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
-				const uint32 v = (menge*vb) >> 8;
+				const uint32 v = max(1,(menge*vb) >> 8);
 
 				if(  (uint32)eingang[index].menge > v + 1  ) {
 					eingang[index].menge -= v;
@@ -898,7 +898,7 @@ void fabrik_t::step(long delta_t)
 				}
 
 				const uint32 pb = besch->get_produkt(produkt)->get_faktor();
-				const uint32 p = (menge*pb) >> 8;
+				const uint32 p = max(1,(menge*pb) >> 8);
 
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
