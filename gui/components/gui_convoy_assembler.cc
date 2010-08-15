@@ -504,7 +504,7 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		}
 		sprintf(txt_convoi_count, "%s %d (%s %i)",
 			translator::translate("Fahrzeuge:"), vehicles.get_count(),
-			translator::translate("Station tiles:"), (vsum.length + TILE_STEPS - 1) / TILE_STEPS);
+			translator::translate("Station tiles:"), vsum.get_tile_length());
 		sprintf(txt_convoi_speed + txt_convoi_speed_offs,  
 			min_speed == max_speed ? " %d km/h @ %g t" : " %d km/h @ %g t %s %d km/h @ %g t", 
 			min_speed, max_weight * 0.001f,	translator::translate("..."), max_speed, min_weight * 0.001f);

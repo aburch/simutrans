@@ -86,7 +86,7 @@ void gui_convoy_label_t::zeichnen(koord offset)
 		if (show_number) {
 			sprintf(tmp, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
-				translator::translate("Station tiles:"), (convoy.get_vehicle_summary().length + TILE_STEPS - 1)/TILE_STEPS);
+				translator::translate("Station tiles:"), convoy.get_vehicle_summary().get_tile_length());
 			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
 			offset.y+=LINESPACE;
 		}

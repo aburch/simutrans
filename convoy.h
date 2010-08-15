@@ -126,6 +126,13 @@ struct vehicle_summary_t
 		length = weight = 0;
 		max_speed = INT_MAX; // if there is no vehicle, there is no speed limit!
 	}
+
+	inline uint32 get_tile_length() const
+	{
+		// BG, 15-AUG-2010: Notice: this implementation of get_tile_length() differs from convoi_t.get_tile_length(), 
+		// which rounds up the length of the last vehicle to solve some problems with the north/west direction.
+		return (length + TILE_STEPS - 1) / TILE_STEPS;
+	}
 };
 
 /******************************************************************************/
