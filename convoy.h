@@ -116,22 +116,31 @@ inline double x_to_steps(double v)
 struct vehicle_summary_t
 {
 	uint32 length;			// sum of vehicles' length in 1/TILE_STEPSth of a tile
-	sint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
-	//uint32 power;			// sum of vehicles' continuous power in W 
+	uint32 tiles;           // length of convoy in tiles.
 	uint32 weight;			// sum of vehicles' own weight without load in kg
+	sint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
 
 	inline void clear()
 	{
-		//power = 0;
-		length = weight = 0;
+		length = 0;
+		tiles = 0;
+		weight = 0;
 		max_speed = INT_MAX; // if there is no vehicle, there is no speed limit!
 	}
 
-	inline uint32 get_tile_length() const
+	inline void add_vehicle(const vehikel_besch_t &b)
 	{
-		// BG, 15-AUG-2010: Notice: this implementation of get_tile_length() differs from convoi_t.get_tile_length(), 
-		// which rounds up the length of the last vehicle to solve some problems with the north/west direction.
-		return (length + TILE_STEPS - 1) / TILE_STEPS;
+		length += b.get_length();
+		weight += b.get_gewicht();
+		max_speed = min(max_speed, (uint32) b.get_geschw());
+	}
+
+	// call update_summary() after all vehicles have been added.
+	inline void update_summary(uint8 length_of_last_vehicle)
+	{
+		// this correction corresponds to the correction in convoi_t::get_tile_length()
+		tiles = (length + (max(8, length_of_last_vehicle) - length_of_last_vehicle) + TILE_STEPS - 1) / TILE_STEPS;
+		weight *= 1000;
 	}
 };
 
