@@ -1698,6 +1698,9 @@ sint64 wegbauer_t::calc_costs()
 						}
 						old_speedlimit = weg->get_besch()->get_topspeed();
 					}
+					else if (besch->get_wtyp()==water_wt  &&  gr->ist_wasser()) {
+						old_speedlimit = new_speedlimit;
+					}
 				}
 			}
 			// eventually we have to remove trees
