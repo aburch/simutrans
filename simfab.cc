@@ -854,7 +854,7 @@ void fabrik_t::step(long delta_t)
 						power += prodbase * PRODUCTION_DELTA_T * 4;
 					}
 					// to find out, if storage changed
-					delta_menge += (eingang[index].menge & fabrik_t::precision_mask) + v;
+					delta_menge += v;
 				}
 				else {
 					if(  besch->is_electricity_producer()  ) {
@@ -865,7 +865,6 @@ void fabrik_t::step(long delta_t)
 					eingang[index].menge = 0;
 				}
 			}
-			delta_menge /= eingang.get_count();
 		}
 		else {
 			// ok, calulate maximum allowed consumption
@@ -904,7 +903,7 @@ void fabrik_t::step(long delta_t)
 				// produce
 				if (ausgang[produkt].menge < ausgang[produkt].max) {
 					// to find out, if storage changed
-					delta_menge += (ausgang[produkt].menge & fabrik_t::precision_mask) + p;
+					delta_menge += p;
 					ausgang[produkt].menge += p;
 					// if less than 3/4 filled we neary always consume power
 					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3)  &&  (p > 0);
@@ -913,7 +912,6 @@ void fabrik_t::step(long delta_t)
 					ausgang[produkt].menge = ausgang[produkt].max - 1;
 				}
 			}
-			delta_menge /= ausgang.get_count();
 
 			// and finally consume stock
 			for(index = 0; index<ecount; index ++) {
@@ -944,7 +942,7 @@ void fabrik_t::step(long delta_t)
 
 	delta_sum += delta_t;
 	if(  delta_sum > PRODUCTION_DELTA_T  ) {
-		delta_sum -= delta_sum - delta_sum % PRODUCTION_DELTA_T;
+		delta_sum = delta_sum % PRODUCTION_DELTA_T;
 
 		// distribute, if there are more than 10 waiting ...
 		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
@@ -958,6 +956,9 @@ void fabrik_t::step(long delta_t)
 
 		recalc_factory_status();
 
+		// rescale delta_menge here: all products should be produced at least once
+		// (if consumer only: all supplements should be consumed once)
+		delta_menge /= ausgang.empty() ? eingang.get_count() : ausgang.get_count();
 		if((delta_menge>>fabrik_t::precision_bits)>0) {
 
 			// we produced some real quantity => smoke
