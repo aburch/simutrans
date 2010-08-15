@@ -958,7 +958,14 @@ void fabrik_t::step(long delta_t)
 
 		// rescale delta_menge here: all products should be produced at least once
 		// (if consumer only: all supplements should be consumed once)
-		delta_menge /= ausgang.empty() ? eingang.get_count() : ausgang.get_count();
+		if(ausgang.empty()) {
+			if (!eingang.empty()) {
+				delta_menge /= eingang.get_count();
+			}
+		}
+		else {
+			delta_menge /= ausgang.get_count();
+		}
 		if((delta_menge>>fabrik_t::precision_bits)>0) {
 
 			// we produced some real quantity => smoke
