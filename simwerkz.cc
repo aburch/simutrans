@@ -57,6 +57,7 @@
 #include "gui/karte.h"	// to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/fahrplan_gui.h"
+#include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
 
 #include "dings/zeiger.h"
@@ -5070,6 +5071,34 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
 				trafficlight_info_t* trafficlight_win = (trafficlight_info_t*)win_get_magic((long)rs);
 				if (trafficlight_win) {
 					trafficlight_win->update_data();
+				}
+			}
+		}
+	}
+	return false;
+}
+
+/**
+ * change city:
+ * g[x],[y],[allow_city_growth]
+ */
+bool wkz_change_city_t::init( karte_t *welt, spieler_t *sp )
+{
+	koord pos;
+	sint16 allow_growth;
+	if(  3!=sscanf( default_param, "g%hi,%hi,%hi", &pos.x, &pos.y, &allow_growth )  ) {
+		return false;
+	}
+	grund_t *gr = welt->lookup_kartenboden(pos);
+	if (gr) {
+		gebaeude_t *gb = gr->find<gebaeude_t>();
+		if (gb) {
+			stadt_t *st = gb->get_stadt();
+			if (st) {
+				st->set_citygrowth_yesno(allow_growth);
+				stadt_info_t *stinfo = dynamic_cast<stadt_info_t*>(win_get_magic((long)st));
+				if (stinfo) {
+					stinfo->update_data();
 				}
 			}
 		}

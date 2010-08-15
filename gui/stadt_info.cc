@@ -7,6 +7,7 @@
 
 #include "../simdebug.h"
 #include "../simcity.h"
+#include "../simmenu.h"
 #include "../simworld.h"
 #include "../simcolor.h"
 #include "../dataobj/translator.h"
@@ -198,9 +199,12 @@ void stadt_info_t::zeichnen(koord pos, koord gr)
 
 bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
+	static char param[16];
 	if(  komp==&allow_growth  ) {
-		stadt->set_citygrowth_yesno( !stadt->get_citygrowth() );
-		allow_growth.pressed = stadt->get_citygrowth();
+		sprintf(param,"g%hi,%hi,%hi", stadt->get_pos().x, stadt->get_pos().y, !stadt->get_citygrowth() );
+		karte_t *welt = stadt->get_welt();
+		werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL]->set_default_param( param );
+		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL],welt->get_active_player());
 		return true;
 	}
 	else {
@@ -264,4 +268,10 @@ bool stadt_info_t::infowin_event(const event_t *ev)
 	}
 
 	return gui_frame_t::infowin_event(ev);
+}
+
+
+void stadt_info_t::update_data()
+{
+	allow_growth.pressed = stadt->get_citygrowth();
 }

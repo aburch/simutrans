@@ -84,6 +84,8 @@ public:
 
 	// since we need to update the city pointer when topped
 	bool infowin_event(const event_t *ev);
+
+	void update_data();
 };
 
 #endif

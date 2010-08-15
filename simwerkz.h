@@ -861,6 +861,14 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+// change city: (dis)allow growth
+class wkz_change_city_t : public werkzeug_t {
+public:
+	wkz_change_city_t() : werkzeug_t() { id = WKZ_CHANGE_CITY_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
 /********************** dialoge tools *****************************/
 
 // general help
