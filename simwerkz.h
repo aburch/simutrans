@@ -235,7 +235,7 @@ public:
 	virtual const char* get_default_param() const;
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
-	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  besch->get_styp()!=1); }
+	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  (besch->get_styp()!=1  ||  besch->get_wtyp()==air_wt)); }
 protected:
 	virtual const weg_besch_t *get_besch(uint16,bool) const;
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
