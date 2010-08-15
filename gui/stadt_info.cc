@@ -120,7 +120,7 @@ void stadt_info_t::init_pax_dest( uint8* pax_dest )
 	for( uint16 i = 0; i < PAX_DESTINATIONS_SIZE; i++ ) {
 		for( uint16 j = 0; j < PAX_DESTINATIONS_SIZE; j++ ) {
 			const koord pos(i * gr_x / PAX_DESTINATIONS_SIZE, j * gr_y / PAX_DESTINATIONS_SIZE);
-			const grund_t* gr = stadt_t::get_welt()->lookup(pos)->get_kartenboden();
+			const grund_t* gr = stadt_t::get_welt()->lookup_kartenboden(pos);
 			pax_dest[j*PAX_DESTINATIONS_SIZE+i] = reliefkarte_t::calc_relief_farbe(gr);
 		}
 	}

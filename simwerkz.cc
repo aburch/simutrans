@@ -3836,7 +3836,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 			// eventually adjust production
 			if(default_param  &&  strlen(default_param)>0) {
-				f->set_base_production( atol(default_param+2)>>(welt->ticks_per_world_month_shift-18) );
+				f->set_base_production( max(1,atol(default_param+2)>>(welt->ticks_per_world_month_shift-18)) );
 			}
 
 			// crossconnect all?
