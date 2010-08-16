@@ -2332,7 +2332,8 @@ bool waggon_t::ist_ziel(const grund_t *gr,const grund_t *prev_gr) const
 
 bool waggon_t::ist_weg_frei(int & restart_speed)
 {
-	if(ist_erstes  &&  (cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS)) {
+	assert(ist_erstes);
+	if(  cnv->get_state()==convoi_t::CAN_START  ||  cnv->get_state()==convoi_t::CAN_START_ONE_MONTH  ||  cnv->get_state()==convoi_t::CAN_START_TWO_MONTHS  ) {
 		// reserve first block at the start until the next signal
 		weg_t *w = welt->lookup( get_pos() )->get_weg(get_waytype());
 		if(  w->has_signal()  ) {
@@ -2363,12 +2364,27 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	weg_t *w = gr->get_weg(get_waytype());
+	schiene_t *w = (schiene_t *)gr->get_weg(get_waytype());
 	if(w==NULL) {
 		return false;
 	}
 
+	/* this should happen only before signals ...
+	 * but if it is already reserved, we can save lots of other checks later
+	 */
+	if(  !w->can_reserve(cnv->self)  ) {
+		return false;
+	}
+
 	uint16 next_block=cnv->get_next_stop_index()-1;
+	// it happened in the past that a convoi has a next signal stored way after the curretn position!
+	// this should never ever happen, but we can cure this easily
+	if(  next_block+1<route_index  ) {
+		cnv->suche_neue_route();
+		dbg->error( "waggon_t::ist_weg_frei()", "%s: next_block (%i)->(%s) is smaller than current pos (%i)", cnv->get_name(), next_block, cnv->get_route()->position_bei(next_block).get_str(), route_index );
+		return false;
+	}
+
 	if(next_block<=route_index+3) {
 		route_t *rt=cnv->get_route();
 		koord3d block_pos=rt->position_bei(next_block);
@@ -2383,15 +2399,10 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				// ok, here is a draw/turnbridge ...
 				bool ok = cr->request_crossing(this);
 				if(!ok) {
-					// cannot pass, will brake ...
-					if(route_index==next_block) {
-						restart_speed = 0;
-						return false;
-					}
-					restart_speed = -1;
-					return true;
+					// cannt cross => wait here
+					restart_speed = 0;
+					return false;
 				}
-				//  drive on ...
 			}
 		}
 
@@ -2427,7 +2438,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 					}
 					else if(cr) {
 						// crossing, we need to search next signal again
-						for ( uint16 i=next_stop; i<cnv->get_route()->get_count(); i++) {
+						for ( uint16 i=next_stop+1; i<cnv->get_route()->get_count(); i++) {
 							koord3d pos = cnv->get_route()->position_bei(i);
 							grund_t *gr = welt->lookup(pos);
 							schiene_t * sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
