@@ -216,11 +216,13 @@ void simline_t::unregister_stops(schedule_t * fpl)
 
 void simline_t::renew_stops()
 {
-	if(  old_fpl  ) {
-		unregister_stops( old_fpl );
+	if(  line_managed_convoys.get_count()>0  ) {
+		if(  old_fpl  ) {
+			unregister_stops( old_fpl );
+		}
+		register_stops( fpl );
+		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
 	}
-	register_stops( fpl );
-	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
 }
 
 
