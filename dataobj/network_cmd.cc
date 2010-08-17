@@ -372,12 +372,21 @@ bool nwc_tool_t::execute(karte_t *welt)
 
 vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
 
+
+void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
+	if (wkz) {
+		delete wkz;
+	}
+	wkz = wkz_;
+}
+
 void nwc_tool_t::do_command(karte_t *welt)
 {
 	dbg->warning("nwc_tool_t::do_command", "steps %d wkz %d %s", get_sync_step(), wkz_id, init ? "init" : "work");
 	if (exec) {
 		bool local = tool_client_id == network_get_client_id();
 		werkzeug_t *wkz = NULL;
+		tool_node_t *tool_node = NULL;
 		spieler_t *sp = welt->get_spieler(player_nr);
 		if (sp == NULL) {
 			return;
@@ -394,38 +403,19 @@ void nwc_tool_t::do_command(karte_t *welt)
 				tool_list.append(new_tool_node);
 				index = tool_list.get_count()-1;
 			}
-			tool_node_t &tool_node = tool_list[index];
+			// this node needs to be updated after we called init / work
+			tool_node = &(tool_list[index]);
 
-			if (tool_node.wkz == NULL  ||  tool_node.wkz->get_id() != wkz_id) {
-				if (tool_node.wkz) {
-						// only exit, if it is not the same tool again ...
-						tool_node.wkz->exit(welt,sp);
-						if (tool_node.default_param) {
-							free((void*)tool_node.default_param);
-							tool_node.default_param = NULL;
-						}
-						delete tool_node.wkz;
-				}
-				tool_node.wkz = create_tool(wkz_id);
-			}
-			if (tool_node.wkz) {
-				if (tool_node.default_param) {
-					free((void*)tool_node.default_param);
-					tool_node.default_param = NULL;
-				}
-				tool_node.default_param = strdup(default_param);
-				tool_node.wkz->set_default_param( tool_node.default_param );
-				wkz = tool_node.wkz;
+			wkz = tool_node->get_tool();
+			// create a new tool if necessary
+			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(), default_param)) {
+				wkz = create_tool(wkz_id);
 			}
 		}
 		else {
 			// local player applied a tool
 			wkz = welt->get_werkzeug(player_nr);
-			if (wkz  &&
-				(wkz->get_id() != wkz_id  ||
-				 (wkz->get_default_param()==NULL  &&  default_param!=NULL) ||
-				 (wkz->get_default_param()!=NULL  &&  default_param==NULL) ||
-				 (default_param!=NULL  &&  strcmp(wkz->get_default_param(),default_param)!=0))) {
+			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(), default_param)) {
 				wkz = NULL;
 			}
 			if (wkz == NULL) {
@@ -438,33 +428,45 @@ void nwc_tool_t::do_command(karte_t *welt)
 					}
 				}
 				if (wkz==NULL) {
-					if(  wkz_id&GENERAL_TOOL  ) {
-						wkz = werkzeug_t::general_tool[wkz_id&0xFFF];
-					}
-					else if(  wkz_id&SIMPLE_TOOL  ) {
-						wkz = werkzeug_t::simple_tool[wkz_id&0xFFF];
-					}
-					else if(  wkz_id&DIALOGE_TOOL  ) {
-						wkz = werkzeug_t::dialog_tool[wkz_id&0xFFF];
-					}
-					// does this have any side effects??
-					//wkz->set_default_param(default_param);
+					wkz = wkz_list[wkz_id&0xFFF];
 				}
 			}
 		}
 		if(  wkz  ) {
 			const char* old_default_param = wkz->get_default_param();
 			wkz->set_default_param(default_param);
-			wkz->flags = flags | (local ? werkzeug_t::WFL_LOCAL : 0);
+			if (local) {
+				wkz->flags = flags | werkzeug_t::WFL_LOCAL;
+			}
+			else {
+				wkz->flags = flags & ~werkzeug_t::WFL_LOCAL;
+			}
 			dbg->warning("command","%d:%d:%s:%d",wkz_id&0xFFF,init,wkz->get_tooltip(sp),wkz->flags);
+			// call INIT
 			if(  init  ) {
 				if(local) {
 					welt->local_set_werkzeug(wkz, sp);
 				}
 				else {
-					wkz->init( welt, sp );
+					if(wkz->init( welt, sp )) {
+						// store tool in the tool_node
+						werkzeug_t *old_tool = tool_node->get_tool();
+						// only exit, if it is not the same tool again ...
+						if (old_tool  &&  old_tool != wkz) {
+							old_tool->exit(welt,sp);
+						}
+						tool_node->set_tool(wkz); // will delete old_tool here
+						tool_node->set_default_param(default_param);
+						wkz->set_default_param( tool_node->get_default_param() );
+					}
+					else {
+						// delete temp tool
+						delete wkz;
+						wkz = NULL;
+					}
 				}
 			}
+			// call WORK
 			else {
 				const char *err = wkz->work( welt, sp, pos );
 				// only local players or AIs get the callback
@@ -472,8 +474,11 @@ void nwc_tool_t::do_command(karte_t *welt)
 					sp->tell_tool_result(wkz, pos, err, local);
 				}
 			}
-			wkz->set_default_param(old_default_param);
-			wkz->flags = 0;
+			// restore data
+			if (wkz) {
+				wkz->set_default_param(old_default_param);
+				wkz->flags = 0;
+			}
 		}
 
 	}

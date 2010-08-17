@@ -212,15 +212,45 @@ private:
 	bool init;
 	bool exec;
 
+	// compare default_param's (NULL pointers allowed
+	// @returns true if default_param are equal
+	static bool cmp_default_param(const char *d1, const char *d2)
+	{
+		if (d1) {
+			return d2 ? strcmp(d1,d2)==0 : false;
+		}
+		else {
+			return d2==NULL;
+		}
+	}
+
 	// contains tools of players at other clients
 	class tool_node_t {
-	public:
+	private:
+		const char* default_param;
 		werkzeug_t *wkz;
+	public:
 		uint32 client_id;
 		uint8 player_id;
-		const char* default_param;
 		tool_node_t() : wkz(NULL), client_id(0), player_id(255), default_param(NULL) {}
 		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : wkz(_wkz), client_id(_client_id), player_id(_player_id), default_param(NULL) {}
+
+		void set_default_param(const char* param) {
+			if (default_param) {
+				delete [] default_param;
+				default_param = NULL;
+			}
+			if (param) {
+				default_param = strdup(param);
+			}
+		}
+
+		const char* get_default_param() const { return default_param; }
+
+		void set_tool(werkzeug_t *wkz_);
+
+		werkzeug_t* get_tool() const { return wkz;}
+
 		// compares only the ids
 		inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
 	};
