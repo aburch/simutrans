@@ -319,21 +319,27 @@ void leitung_t::info(cbuffer_t & buf) const
 	uint32 demand = get_net()->get_demand();
 	uint32 load = demand>supply?supply:demand;
 
-	buf.append(translator::translate("Net ID: "));
+	buf.append(translator::translate("Net ID:"));
+	buf.append(" ");
 	buf.append((unsigned long)get_net());
-	buf.append(translator::translate("\nCapacity: "));
+	buf.append(translator::translate("\nCapacity:"));
+	buf.append(" ");
 	buf.append(get_net()->get_max_capacity()>>POWER_TO_MW);
 	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nDemand: "));
+	buf.append(translator::translate("\nDemand:"));
+	buf.append(" ");
 	buf.append(demand>>POWER_TO_MW);
 	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nGeneration: "));
+	buf.append(translator::translate("\nGeneration:"));
+	buf.append(" ");
 	buf.append(supply>>POWER_TO_MW);
 	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nAct. Load: "));
+	buf.append(translator::translate("\nAct. Load:"));
+	buf.append(" ");
 	buf.append(load>>POWER_TO_MW);
 	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nGen. Usage: "));
+	buf.append(translator::translate("\nGen. Usage:"));
+	buf.append(" ");
 	buf.append((100*load)/(supply>0?supply:1));
 	buf.append("%");
 }
