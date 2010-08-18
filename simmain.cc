@@ -976,7 +976,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 				// save setting ...
 				loadsave_t file;
-				if(file.wr_open("default.sve",loadsave_t::binary,"settings only")) {
+				if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR)) {
 					// save default setting
 					umgebung_t::default_einstellungen.rdwr(&file);
 					file.close();
@@ -1019,7 +1019,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// save setting ...
 	chdir( umgebung_t::user_dir );
-	if(file.wr_open("settings.xml",loadsave_t::xml,"settings only/")) {
+	if(file.wr_open("settings.xml",loadsave_t::xml,"settings only/",SAVEGAME_VER_NR)) {
 		umgebung_t::rdwr(&file);
 		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();

@@ -1,6 +1,7 @@
 #include <string>
 #include "umgebung.h"
 #include "loadsave.h"
+#include "../simversion.h"
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simcolor.h"
@@ -9,6 +10,7 @@
 bool umgebung_t::drive_on_left = false;
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
+const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
 bool umgebung_t::networkmode = false;
 bool umgebung_t::server = false;
 long umgebung_t::server_frames_ahead = 1;
@@ -122,6 +124,8 @@ void umgebung_t::init()
 
 	default_sortmode = 1;	// sort by amount
 	default_mapmode = 0;	// show cities
+
+	savegame_version_str = SAVEGAME_VER_NR;
 
 	/**
 	 * show month in date?

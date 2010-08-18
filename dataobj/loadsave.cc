@@ -148,7 +148,7 @@ bool loadsave_t::rd_open(const char *filename)
 
 
 
-bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension)
+bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version)
 {
 	mode = m;
 	close();
@@ -201,22 +201,22 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	// delete trailing path seperator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
-	version = int_version(SAVEGAME_VER_NR, NULL, NULL );
+	version = int_version( savegame_version, NULL, NULL );
 
 	if(  !is_xml()  ) {
 		char str[4096];
 		size_t len;
 		if(  version<=102002  ) {
-			len = sprintf( str, "%s%s%s\n", SAVEGAME_VERSION, "zip", this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_version, "zip", this->pak_extension );
 		}
 		else {
-			len = sprintf( str, "%s-%s\n", SAVEGAME_VERSION, this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_version, this->pak_extension );
 		}
 		write( str, len );
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", SAVEGAME_VER_NR, this->pak_extension );
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_version, this->pak_extension );
 		write( str, n );
 		ident = 1;
 	}

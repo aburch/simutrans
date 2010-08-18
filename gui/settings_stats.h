@@ -14,12 +14,13 @@
 #include "../tpl/array_tpl.h"
 #include "../utils/cbuffer_t.h"
 
-#include "components/gui_komponente.h"
 #include "gui_container.h"
+#include "components/gui_komponente.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_label.h"
 #include "components/list_button.h"
 #include "components/action_listener.h"
+#include "components/gui_combobox.h"
 
 class einstellungen_t;
 
@@ -151,9 +152,13 @@ public:
 
 
 // the only task left are the respective init/reading routines
-class settings_general_stats_t : protected settings_stats_t, public gui_container_t
+class settings_general_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
 {
+	gui_combobox_t savegame;
+	gui_label_t savegame_label;
 public:
+	// needed for savegame combobox
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 };

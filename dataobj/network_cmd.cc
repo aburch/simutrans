@@ -5,6 +5,7 @@
 #include "../simtools.h"
 #include "../simwerkz.h"
 #include "../simworld.h"
+#include "../simversion.h"
 #include "../player/simplay.h"
 
 #ifdef _MSC_VER
@@ -215,7 +216,10 @@ void nwc_sync_t::do_command(karte_t *welt)
 		char fn[256];
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
 		filename = fn;
+		const char *old_savegame = umgebung_t::savegame_version_str;
+		umgebung_t::savegame_version_str = SERVER_SAVEGAME_VER_NR;
 		welt->speichern(filename, false );
+		umgebung_t::savegame_version_str = old_savegame;
 
 		long old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
@@ -244,7 +248,10 @@ void nwc_sync_t::do_command(karte_t *welt)
 			}
 		}
 #endif
+		const char *old_savegame = umgebung_t::savegame_version_str;
+		umgebung_t::savegame_version_str = SERVER_SAVEGAME_VER_NR;
 		welt->speichern(filename, false );
+		umgebung_t::savegame_version_str = old_savegame;
 
 		// ok, now sending game
 		// this sends nwc_game_t
