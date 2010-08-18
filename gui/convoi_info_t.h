@@ -17,6 +17,7 @@
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
+#include "../simconvoi.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -46,7 +47,7 @@ private:
 	button_t follow_button;
 	button_t go_home_button;
 	button_t no_load_button;
-	button_t filterButtons[7];
+	button_t filterButtons[MAX_CONVOI_COST];
 
 	button_t sort_button;
 	button_t details_button;

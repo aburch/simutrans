@@ -19,14 +19,14 @@
 #include "convoihandle_t.h"
 #include "halthandle_t.h"
 
-#define MAX_CONVOI_COST   6 // Total number of cost items
-#define MAX_MONTHS     12 // Max history
-#define CONVOI_CAPACITY   0 // the amount of ware that could be transported, theoretically
-#define CONVOI_TRANSPORTED_GOODS 1 // the amount of ware that has been transported
-#define CONVOI_REVENUE		2 // the income this CONVOI generated
+#define MAX_MONTHS               12 // Max history
+#define CONVOI_CAPACITY           0 // the amount of ware that could be transported, theoretically
+#define CONVOI_TRANSPORTED_GOODS  1 // the amount of ware that has been transported
+#define CONVOI_REVENUE            2 // the income this CONVOI generated
 #define CONVOI_OPERATIONS         3 // the cost of operations this CONVOI generated
 #define CONVOI_PROFIT             4 // total profit of this convoi
-#define CONVOI_DISTANCE           5 // total distance traveld this month
+#define CONVOI_DISTANCE           5 // total distance traveled this month
+#define MAX_CONVOI_COST           6 // Total number of cost items
 
 class depot_t;
 class karte_t;
@@ -750,7 +750,7 @@ public:
 	* return a specified element from the financial history
 	* @author hsiegeln
 	*/
-	sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
+	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
 
 	/**
 	* only purpose currently is to roll financial history

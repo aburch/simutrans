@@ -2347,10 +2347,10 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 	sint64 gewinn = 0;
 	grund_t *gr=welt->lookup(fahr[0]->get_pos());
 
-	int station_lenght=0;
+	int station_length=0;
 	if(gr->ist_wasser()) {
 		// harbour has any size
-		station_lenght = 24*16;
+		station_length = 24*16;
 	}
 	else {
 		// calculate real station length
@@ -2362,7 +2362,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 			pos.z += Z_TILE_STEP;
 		}
 		while(  grund  &&  grund->get_halt() == halt  ) {
-			station_lenght += 16;
+			station_length += 16;
 			pos += zv;
 			grund = welt->lookup(pos);
 			if(  grund==NULL  ) {
@@ -2381,8 +2381,8 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
 
-		station_lenght -= v->get_besch()->get_length();
-		if(station_lenght<0) {
+		station_length -= v->get_besch()->get_length();
+		if(station_length<0) {
 			break;
 		}
 
