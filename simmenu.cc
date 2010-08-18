@@ -872,6 +872,14 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 }
 
 
+bool toolbar_t::exit( karte_t *welt, spieler_t *sp )
+{
+	if(win_get_magic((long)this)) {
+		destroy_win(wzw);
+	}
+	return false;
+}
+
 
 bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 {

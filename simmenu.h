@@ -322,6 +322,8 @@ public:
 	virtual bool is_init_network_save() const { return true; }
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
+	// close this toolbar
+	virtual bool exit( karte_t *welt, spieler_t *sp );
 	void update(karte_t *, spieler_t *);	// just refresh content
 	void append(werkzeug_t *w) { tools.append(w); }
 };

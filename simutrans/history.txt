@@ -86,6 +86,7 @@
 	ADD: register lineless convoys at the halts and list them with links in the halt details dialog
 	FIX: do not crash with prodbase 0 and ensure some basic production
 	FIX: convois did not properly looked up next signal for signals on closed crossings
+	ADD: clicking on icon of selected toolbar closes the toolbar
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
