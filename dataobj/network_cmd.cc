@@ -369,8 +369,29 @@ bool nwc_tool_t::execute(karte_t *welt)
 }
 
 
+// compare default_param's (NULL pointers allowed
+// @returns true if default_param are equal
+bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
+{
+	if (d1) {
+		return d2 ? strcmp(d1,d2)==0 : false;
+	}
+	else {
+		return d2==NULL;
+	}
+}
 
-vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
+
+
+void nwc_tool_t::tool_node_t::set_default_param(const char* param) {
+	if (default_param) {
+		delete [] default_param;
+		default_param = NULL;
+	}
+	if (param) {
+		default_param = strdup(param);
+	}
+}
 
 
 void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
@@ -379,6 +400,10 @@ void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
 	}
 	wkz = wkz_;
 }
+
+
+vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
+
 
 void nwc_tool_t::do_command(karte_t *welt)
 {
