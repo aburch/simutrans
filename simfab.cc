@@ -708,8 +708,8 @@ uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 			}
 		}
 		else {
-			// overfull?
-			menge = maxi-1;
+			// overfull? Reduce to maximum
+			menge = 0;
 		}
 	}
 
