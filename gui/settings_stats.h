@@ -155,7 +155,6 @@ public:
 class settings_general_stats_t : protected settings_stats_t, public gui_container_t, public action_listener_t
 {
 	gui_combobox_t savegame;
-	gui_label_t savegame_label;
 public:
 	// needed for savegame combobox
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);

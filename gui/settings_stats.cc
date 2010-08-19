@@ -63,23 +63,6 @@ bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, valu
 void settings_general_stats_t::init(einstellungen_t *sets)
 {
 	INIT_INIT
-	// combobox for savegame version
-	savegame.set_pos( koord(2,ypos-2) );
-	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(version);  i++  ) {
-		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
-		if(  strcmp(version[i],SAVEGAME_VER_NR)==0  ) {
-			savegame.set_selection( i );
-		}
-	}
-	savegame.set_focusable( false );
-	add_komponente( &savegame );
-	savegame.add_listener( this );
-	savegame_label.set_pos( koord( 76, ypos+2 ) );
-	savegame_label.set_text( "savegame version" );
-	add_komponente( &savegame_label );
-	ypos += BUTTON_HEIGHT;
-
 //	INIT_BOOL( "drive_left", umgebung_t::drive_on_left );	//cannot be switched after loading paks
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
@@ -120,6 +103,21 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "cursor_overlay_color", umgebung_t::cursor_overlay_color, 0, 255, gui_numberinput_t::AUTOLINEAR, 0 );
 	INIT_BOOL( "left_to_right_graphs", umgebung_t::left_to_right_graphs );
 
+	SEPERATOR
+	// combobox for savegame version
+	savegame.set_pos( koord(2,ypos-2) );
+	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
+	for(  int i=0;  i<lengthof(version);  i++  ) {
+		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
+		if(  strcmp(version[i],SAVEGAME_VER_NR)==0  ) {
+			savegame.set_selection( i );
+		}
+	}
+	savegame.set_focusable( false );
+	add_komponente( &savegame );
+	savegame.add_listener( this );
+	INIT_LB( "savegame version" );
+	label.back()->set_pos( koord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
 	set_groesse( settings_stats_t::get_groesse() );
 }
@@ -127,7 +125,6 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 void settings_general_stats_t::read(einstellungen_t *sets)
 {
 	READ_INIT
-	umgebung_t::savegame_version_str = version[ savegame.get_selection() ];
 //	READ_BOOL_VALUE( umgebung_t::drive_on_left );	//cannot be switched after loading paks
 	READ_NUM_VALUE( umgebung_t::autosave );
 	READ_NUM_VALUE( umgebung_t::fps );
@@ -167,6 +164,8 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 
 	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
+
+	umgebung_t::savegame_version_str = version[ savegame.get_selection() ];
 }
 
 
