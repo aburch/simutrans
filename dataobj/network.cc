@@ -65,7 +65,7 @@ bool network_initialize()
 #ifdef WIN32
 		/* Let's load the network in windows */
 		WSADATA wsa;
-		if(WSAStartup(MAKEWORD(2, 0), &wsa) != 0) {
+		if(WSAStartup(0x101, &wsa) != 0) {
 			dbg->error("NetworkInitialize()","failed loading windows socket library");
 			return false;
 		}
@@ -92,10 +92,25 @@ const char *network_open_address( const char *cp)
 		cp = address;
 	}
 
+	// now activate network
+	if(  !network_initialize()  ) {
+		return "Cannot init network!";
+	}
+
 	struct sockaddr_in server_name;
 #ifdef  WIN32
+	bool ok = true;
 	server_name.sin_addr.s_addr = inet_addr(cp);
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
+		ok = false;
+		struct hostent *theHost;
+		theHost = gethostbyname( cp );
+		if(theHost) {
+			server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
+			ok = true;
+		}
+	}
+	if(!ok) {
 #else
 #if defined(__BEOS__)
 	struct hostent *theHost;
@@ -105,7 +120,13 @@ const char *network_open_address( const char *cp)
 	}
 	else {// Bad address
 #else
-	if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
+//	if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
+	struct hostent *theHost;
+	theHost = gethostbyname( cp );
+	if(theHost) {
+		server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
+	}
+	else {// Bad address
 #endif
 #endif
 		sprintf( err_str, "Bad address %s", cp );
@@ -113,11 +134,6 @@ const char *network_open_address( const char *cp)
 	}
 	server_name.sin_port=htons(port);
 	server_name.sin_family=AF_INET;
-
-	// now activate network
-	if(  !network_initialize()  ) {
-		return "Cannot init network!";
-	}
 
 	my_client_socket = socket(PF_INET,SOCK_STREAM,0);
 	if(my_client_socket==INVALID_SOCKET) {
