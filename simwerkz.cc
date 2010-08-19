@@ -5082,7 +5082,7 @@ bool wkz_change_traffic_light_t::init( karte_t *welt, spieler_t *sp )
  * change city:
  * g[x],[y],[allow_city_growth]
  */
-bool wkz_change_city_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 {
 	koord pos;
 	sint16 allow_growth;

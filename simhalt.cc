@@ -1003,8 +1003,6 @@ sint32 haltestelle_t::rebuild_destinations()
 	last_catg_index = 255;	// must reroute everything
 	sint32 connections_searched = 0;
 
-	const bool i_am_public = (get_besitzer()==welt->get_spieler(1));
-
 	vector_tpl<warenzielsorter_t> warenziele_by_stops;
 
 // DBG_MESSAGE("haltestelle_t::rebuild_destinations()", "Adding new table entries");

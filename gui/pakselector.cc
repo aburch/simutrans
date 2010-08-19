@@ -54,6 +54,7 @@ bool pakselector_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	else if(komp != &input) {
 		return savegame_frame_t::action_triggered( komp, v );
 	}
+	return false;
 }
 
 
