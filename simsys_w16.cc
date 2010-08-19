@@ -64,10 +64,14 @@ volatile HDC hdc = NULL;
 
 const wchar_t* const title =
 #ifdef _MSC_VER
-			L"Simutrans " WIDE_VERSION_NUMBER;
+			L"Simutrans " WIDE_VERSION_NUMBER
 #else
-			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE;
+			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE
 #endif
+#ifdef REVISION
+			" - r" QUOTEME(REVISION)
+#endif
+;
 
 #ifdef MULTI_THREAD
 

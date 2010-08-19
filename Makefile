@@ -102,6 +102,13 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
+ifneq ($(WITH_REVISION),)
+  REV = $(shell svnversion)
+  ifneq ($(REV),)
+    CFLAGS  += -DREVISION="$(REV)"
+  endif
+endif
+
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -Wstrict-prototypes
 

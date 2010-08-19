@@ -12,6 +12,9 @@ template <typename T, unsigned N> static inline void lengthof_check(T (&)[N]) {}
 
 #define endof(x) ((x) + lengthof(x))
 
+#define QUOTEME_(x) #x
+#define QUOTEME(x) QUOTEME_(x)
+
 #define MEMZERON(ptr, n) memset((ptr), 0, sizeof(*(ptr)) * (n))
 #define MEMZERO(obj)     MEMZERON(&(obj), 1)
 

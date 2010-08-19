@@ -16,6 +16,7 @@
 #include "../simsys.h"
 #include "../simversion.h"
 #include "../simgraph.h"
+#include "../macros.h"
 #include "../besch/skin_besch.h"
 
 #include "banner.h"
@@ -58,7 +59,11 @@ void banner_t::zeichnen(koord /*pos*/, koord)
 		int color   = (s == 0 ? COL_WHITE : COL_BLACK);
 
 		display_proportional(xoff + s + 24+30, yoff + s +  10, "This is a beta version of Simutrans:", ALIGN_LEFT, heading, true);
+#ifdef REVISION
+		display_proportional(xoff + s + 48+30, yoff + s +  22, "Version " VERSION_NUMBER " " VERSION_DATE " r" QUOTEME(REVISION), ALIGN_LEFT, color, true);
+#else
 		display_proportional(xoff + s + 48+30, yoff + s +  22, "Version " VERSION_NUMBER " " VERSION_DATE, ALIGN_LEFT, color, true);
+#endif
 		display_proportional(xoff + s + 24+30, yoff + s +  40, "This version is developed by", ALIGN_LEFT, heading, true);
 		display_proportional(xoff + s + 48+30, yoff + s +  56, "the simutrans team, based on", ALIGN_LEFT, color, true);
 		display_proportional(xoff + s + 48+30, yoff + s +  70, "Simutrans 0.84.21.2 by", ALIGN_LEFT, color, true);
