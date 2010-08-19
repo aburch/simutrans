@@ -98,6 +98,8 @@ const char *network_open_address( const char *cp)
 	}
 
 	struct sockaddr_in server_name;
+	memset(&server_name,0,sizeof(server_name));
+	server_name.sin_family=AF_INET;
 #ifdef  WIN32
 	bool ok = true;
 	server_name.sin_addr.s_addr = inet_addr(cp);
@@ -133,14 +135,16 @@ const char *network_open_address( const char *cp)
 		return err_str;
 	}
 	server_name.sin_port=htons(port);
-	server_name.sin_family=AF_INET;
 
-	my_client_socket = socket(PF_INET,SOCK_STREAM,0);
+	my_client_socket = socket(AF_INET,SOCK_STREAM,0);
 	if(my_client_socket==INVALID_SOCKET) {
 		return "Cannot create socket";
 	}
 
 	if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
+#ifdef  WIN32
+		FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
+#endif
 		dbg->warning( "network_open_address", err_str );
 		return err_str;
 	}
