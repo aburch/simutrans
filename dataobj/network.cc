@@ -10,6 +10,8 @@
 #ifdef __BEOS__
 #include <net/netdb.h>
 #include <net/sockets.h>
+#elif !defined(WIN32)
+#include <netdb.h>
 #endif
 
 // Haiku has select in an additional header
