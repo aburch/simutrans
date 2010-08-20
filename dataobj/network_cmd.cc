@@ -318,7 +318,7 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
 	wkz_id = nwt.wkz_id;
-	default_param = nwt.default_param==NULL ? NULL : strdup(nwt.default_param);
+	default_param = nwt.default_param==NULL ? strdup("") : strdup(nwt.default_param);
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
 	flags = nwt.flags;

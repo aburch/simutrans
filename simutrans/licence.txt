@@ -118,3 +118,6 @@ IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED
 WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 The End
+---------------------------------------------------------------------------
+This means, translated to ebay terms:
+You may not charge for the program, if you charge shipping fees.

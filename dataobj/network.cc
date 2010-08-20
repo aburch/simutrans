@@ -67,7 +67,7 @@ bool network_initialize()
 #ifdef WIN32
 		/* Let's load the network in windows */
 		WSADATA wsa;
-		if(WSAStartup(0x101, &wsa) != 0) {
+		if(int err = WSAStartup(0x101, &wsa)) {
 			dbg->error("NetworkInitialize()","failed loading windows socket library");
 			return false;
 		}
@@ -140,6 +140,8 @@ const char *network_open_address( const char *cp)
 	if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
 #ifdef  WIN32
 		FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
+#else
+		sprintf( err_str, "Could not connect to %s", cp );
 #endif
 		dbg->warning( "network_open_address", err_str );
 		return err_str;
