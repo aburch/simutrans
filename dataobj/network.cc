@@ -104,11 +104,11 @@ const char *network_open_address( const char *cp)
 	server_name.sin_family=AF_INET;
 #ifdef  WIN32
 	bool ok = true;
-	server_name.sin_addr.s_addr = inet_addr(cp);
+	server_name.sin_addr.s_addr = inet_addr(cp);	// for windows we must first try to resolve the number
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
 		ok = false;
 		struct hostent *theHost;
-		theHost = gethostbyname( cp );
+		theHost = gethostbyname( cp );	// ... before resolving a name ...
 		if(theHost) {
 			server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
 			ok = true;
@@ -116,22 +116,16 @@ const char *network_open_address( const char *cp)
 	}
 	if(!ok) {
 #else
-#if defined(__BEOS__)
-	struct hostent *theHost;
-	theHost = gethostbyname( cp );
-	if(theHost) {
-		server_name.sin_addr.s_addr = *(ulong *)theHost->h_addr_list[0];
-	}
-	else {// Bad address
-#else
-//	if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
+	/* inet_anon does not work on BeOS; but since gethostbyname() can
+	 * do this job on all other systems too, we use it only:
+     * instead of if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
+     */
 	struct hostent *theHost;
 	theHost = gethostbyname( cp );
 	if(theHost) {
 		server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
 	}
 	else {// Bad address
-#endif
 #endif
 		sprintf( err_str, "Bad address %s", cp );
 		return err_str;
