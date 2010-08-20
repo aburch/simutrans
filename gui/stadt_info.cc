@@ -52,7 +52,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	name_input.set_pos(koord(8, 8));
 
 	add_komponente(&name_input);
-	set_fenstergroesse(koord(410, 305+20+20));
+	set_fenstergroesse(koord(410, 325+20+20));
 
 	allow_growth.init( button_t::square_state, "Allow city growth", koord(8,104) );
 	allow_growth.pressed = stadt->get_citygrowth();
@@ -60,8 +60,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	add_komponente(&allow_growth);
 
 	//CHART YEAR
-	chart.set_pos(koord(1,1));
-	chart.set_groesse(koord(360,120));
+	chart.set_pos(koord(21,1));
+	chart.set_groesse(koord(340,120));
 	chart.set_dimension(MAX_CITY_HISTORY_YEARS, 10000);
 	chart.set_seed(stadt->get_welt()->get_last_year());
 	chart.set_background(MN_GREY1);
@@ -71,8 +71,8 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	//CHART YEAR END
 
 	//CHART MONTH
-	mchart.set_pos(koord(1,1));
-	mchart.set_groesse(koord(360,120));
+	mchart.set_pos(koord(21,1));
+	mchart.set_groesse(koord(340,120));
 	mchart.set_dimension(MAX_CITY_HISTORY_MONTHS, 10000);
 	mchart.set_seed(0);
 	mchart.set_background(MN_GREY1);
@@ -85,13 +85,13 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	// tab (month/year)
 	year_month_tabs.add_tab(&chart, translator::translate("Years"));
 	year_month_tabs.add_tab(&mchart, translator::translate("Months"));
-	year_month_tabs.set_pos(koord(40,125));
-	year_month_tabs.set_groesse(koord(360, 125));
+	year_month_tabs.set_pos(koord(60,135));
+	year_month_tabs.set_groesse(koord(320, 135));
 	add_komponente(&year_month_tabs);
 
 	// add filter buttons
 	for(  int hist=0;  hist<MAX_CITY_HISTORY-1;  hist++  ) {
-		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,270+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
+		filterButtons[hist].init(button_t::box_state, translator::translate(hist_type[hist]), koord(4+(hist%4)*100,290+(hist/4)*(BUTTON_HEIGHT+4)), koord(96, BUTTON_HEIGHT));
 		filterButtons[hist].background = hist_type_color[hist];
 		filterButtons[hist].pressed = (stadt->stadtinfo_options & (1<<hist))!=0;
 		// skip electricity
