@@ -268,34 +268,40 @@ static void ask_objfilename()
  */
 static void ask_language()
 {
-	display_show_pointer(true);
-	show_pointer(1);
-	set_pointer(0);
-	sprachengui_t* sel = new sprachengui_t();
-	koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
-	event_t ev;
-
-	destroy_all_win(true);	// since eventually the successful load message is still there ....
-	create_win( xy.x, xy.y, sel, w_info, magic_none );
-
-	while(  translator::get_language()==-1  ) {
-		// do not move, do not close it!
-		dr_prepare_flush();
-		sel->zeichnen( xy, sel->get_fenstergroesse() );
-		display_poll_event(&ev);
-		// main window resized
-		check_pos_win(&ev);
-		dr_flush();
-		dr_sleep(50);
-		// main window resized
-		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
-			// main window resized
-			simgraph_resize( ev.mx, ev.my );
-			display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
-		}
+	if(  display_get_width()==0  ) {
+		// only console available ... => choose english for the moment
+		translator::set_language( "en" );
 	}
-	destroy_win( sel );
-	set_pointer(0);
+	else {
+		display_show_pointer(true);
+		show_pointer(1);
+		set_pointer(0);
+		sprachengui_t* sel = new sprachengui_t();
+		koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
+		event_t ev;
+
+		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		create_win( xy.x, xy.y, sel, w_info, magic_none );
+
+		while(  translator::get_language()==-1  ) {
+			// do not move, do not close it!
+			dr_prepare_flush();
+			sel->zeichnen( xy, sel->get_fenstergroesse() );
+			display_poll_event(&ev);
+			// main window resized
+			check_pos_win(&ev);
+			dr_flush();
+			dr_sleep(50);
+			// main window resized
+			if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
+				// main window resized
+				simgraph_resize( ev.mx, ev.my );
+				display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+			}
+		}
+		destroy_win( sel );
+		set_pointer(0);
+	}
 }
 
 
@@ -723,6 +729,7 @@ int simu_main(int argc, char** argv)
 		else {
 			sprintf(buf, SAVE_PATH_X "%s", searchfolder_t::complete(name, "sve").c_str());
 		}
+		printf( "loading savegame \"%s\"\n", name );
 		loadgame = buf;
 		new_world = false;
 	}
@@ -885,6 +892,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	welt->get_message()->clear();
 
 	if(  !umgebung_t::networkmode  &&  new_world  ) {
+		printf( "Show banner ... \n" );
 		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
 	}
@@ -1003,6 +1011,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			}
 		}
 
+		printf( "Running world, pause=%i, fast forward=%i ... \n", welt->is_paused(), welt->is_fast_forward() );
 		loadgame = ""; // only first time
 
 		// run the loop
@@ -1013,6 +1022,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->set_fast_forward(false);
 		welt->set_pause(false);
 		setsimrand(dr_time(), dr_time());
+
+		printf( "World finished ...\n" );
 	}
 
 	intr_disable();
