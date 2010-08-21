@@ -299,12 +299,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	player_nr = sp->get_player_nr();
 	wkz_id = wkz->get_id();
 	const char *dfp = wkz->get_default_param();
-	if (dfp) {
-		default_param = strdup(dfp);
-	}
-	else {
-		default_param = 0;
-	}
+	default_param = dfp ? strdup(dfp) : NULL;
 	exec = false;
 	init = init_;
 	tool_client_id = 0;
@@ -318,7 +313,7 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
 	wkz_id = nwt.wkz_id;
-	default_param = nwt.default_param==NULL ? strdup("") : strdup(nwt.default_param);
+	default_param = nwt.default_param ? strdup(nwt.default_param) : NULL;
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
 	flags = nwt.flags;
@@ -392,7 +387,7 @@ bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
 
 void nwc_tool_t::tool_node_t::set_default_param(const char* param) {
 	if (default_param) {
-		delete [] default_param;
+		free( (void *)default_param );
 		default_param = NULL;
 	}
 	if (param) {

@@ -81,6 +81,7 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
+	bild = IMG_LEER;
 	set_net(NULL);
 	ribi = ribi_t::keine;
 	rdwr(file);
@@ -89,6 +90,7 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, pos)
 {
+	bild = IMG_LEER;
 	set_net(NULL);
 	set_besitzer( sp );
 	set_besch(wegbauer_t::leitung_besch);
