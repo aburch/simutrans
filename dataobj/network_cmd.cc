@@ -397,6 +397,9 @@ void nwc_tool_t::tool_node_t::set_default_param(const char* param) {
 
 
 void nwc_tool_t::tool_node_t::set_tool(werkzeug_t *wkz_) {
+	if (wkz == wkz_) {
+		return;
+	}
 	if (wkz) {
 		delete wkz;
 	}
@@ -449,7 +452,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 				// get the right tool
 				vector_tpl<werkzeug_t*> &wkz_list = wkz_id&GENERAL_TOOL ? werkzeug_t::general_tool : wkz_id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
 				for(uint32 i=0; i<wkz_list.get_count(); i++) {
-					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id &&  (wkz_list[i]->get_default_param()!=NULL ? strcmp(wkz_list[i]->get_default_param(),default_param)==0 : default_param==NULL)) {
+					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id &&  cmp_default_param(wkz_list[i]->get_default_param(),default_param)) {
 						wkz = wkz_list[i];
 						break;
 					}
