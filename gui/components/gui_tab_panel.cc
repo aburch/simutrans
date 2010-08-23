@@ -73,14 +73,14 @@ bool gui_tab_panel_t::action_triggered(gui_action_creator_t *komp, value_t)
 
 bool gui_tab_panel_t::infowin_event(const event_t *ev)
 {
-	if(  required_groesse.x>groesse.x  ) {
+	if(  required_groesse.x>groesse.x  &&  ev->ev_class!=EVENT_KEYBOARD  &&  ev->ev_code==MOUSE_LEFTBUTTON  ) {
 		// buttons pressed
-		if(  left.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+		if(  left.getroffen(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -left.get_pos().x, -left.get_pos().y);
 			return left.infowin_event(&ev2);
 		}
-		else if(  right.getroffen(ev->cx, ev->cy)  &&  ev->ev_code == MOUSE_LEFTBUTTON  ) {
+		else if(  right.getroffen(ev->cx, ev->cy)  ) {
 			event_t ev2 = *ev;
 			translate_event(&ev2, -right.get_pos().x, -right.get_pos().y);
 			return right.infowin_event(&ev2);
