@@ -561,7 +561,7 @@ void baum_t::info(cbuffer_t & buf) const
 	buf.append( translator::translate(get_besch()->get_name()) );
 	buf.append( "\n" );
 	int age = welt->get_current_month() - geburt;
-	buf.printf( translator::translate("%i years %i months old"), age/12, (age%12) );
+	buf.printf( translator::translate("%i years %i months old."), age/12, (age%12) );
 }
 
 
