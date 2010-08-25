@@ -581,7 +581,6 @@ void karte_t::add_convoi(convoihandle_t &cnv)
 {
 	assert(cnv.is_bound());
 	convoi_array.append_unique(cnv);
-	cnv->get_besitzer()->buche( 1, COST_ALL_CONVOIS );
 }
 
 
@@ -589,7 +588,6 @@ void karte_t::add_convoi(convoihandle_t &cnv)
 void karte_t::rem_convoi(convoihandle_t& cnv)
 {
 	convoi_array.remove(cnv);
-	cnv->get_besitzer()->buche( -1, COST_ALL_CONVOIS );
 }
 
 /**

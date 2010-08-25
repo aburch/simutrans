@@ -20,6 +20,7 @@
 #include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
 
 static const char* total_bev_translation = NULL;
 char citylist_stats_t::total_bev_string[128];
@@ -141,12 +142,11 @@ void citylist_stats_t::zeichnen(koord offset)
 	// some cities there?
 	if(  total_bev > 0  ) {
 		buf.clear();
-		buf.printf( "%s: ", total_bev_translation );
-		buf.append( total_bev, 0 );
+		buf.printf( "%s%u", total_bev_translation, total_bev );
 		buf.append( " (" );
 		buf.append( total_growth/10.0, 1 );
 		buf.append( ")" );
-		strcpy( total_bev_string, buf );
+		tstrncpy( total_bev_string, buf, 128 );
 	}
 	else {
 		total_bev_string[0] = 0;

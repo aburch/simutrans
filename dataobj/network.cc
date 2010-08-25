@@ -7,6 +7,7 @@
 #include "network.h"
 #include "network_cmd.h"
 
+
 #ifdef __BEOS__
 #include <net/netdb.h>
 #include <net/sockets.h>
@@ -18,6 +19,9 @@
 #ifndef FD_SET
 #include <sys/select.h>
 #endif
+
+#include "loadsave.h"
+#include "gameinfo.h"
 
 #include "../simconst.h"
 
@@ -151,6 +155,63 @@ const char *network_open_address( const char *cp)
 
 	return NULL;
 }
+
+
+// connect to address (cp), receive gameinfo, close
+const char *network_gameinfo(const char *cp, gameinfo_t *gi)
+{
+	// open from network
+	const char *err = network_open_address( cp );
+	if(  err==NULL  ) {
+		// want to join
+		{
+			nwc_gameinfo_t nwgi;
+			nwgi.rdwr();
+			nwgi.send(my_client_socket);
+		}
+		network_add_client( my_client_socket );
+		// wait for join command (tolerate some wrong commands)
+		network_command_t *nwc = NULL;
+		for(uint8 i=0; i<5; i++) {
+			nwc = network_check_activity( 10000 );
+			if (nwc  &&  nwc->get_id() == NWC_GAMEINFO) break;
+		}
+		if (nwc==NULL) {
+			err = "Server did not respond!";
+			goto end;
+		}
+		nwc_gameinfo_t *nwgi = dynamic_cast<nwc_gameinfo_t*>(nwc);
+		if (nwgi==NULL) {
+			err = "Protocoll error (expected NWC_GAMEINFO)";
+			goto end;
+		}
+		if (nwgi->len==0) {
+			err = "Server busy";
+			goto end;
+		}
+		uint32 len = nwgi->len;
+		char filename[1024];
+		sprintf( filename, "client%i-network.sve", nwgi->len );
+		err = network_receive_file( my_client_socket, filename, len );
+		// now into gameinfo
+		loadsave_t fd;
+		if(  fd.rd_open( filename )  ) {
+			gameinfo_t *pgi = new gameinfo_t( &fd );
+			*gi = *pgi;
+			delete pgi;
+			fd.close();
+		}
+		remove( filename );
+		network_close_socket( my_client_socket );
+	}
+end:
+	if(err) {
+		dbg->warning("network_connect", err);
+	}
+	return err;
+}
+
+
 
 
 // connect to address (cp), receive game, save to client%i-network.sve
@@ -592,6 +653,9 @@ const char *network_receive_file( SOCKET s, const char *save_as, const long leng
 		}
 	}
 	fclose( f );
+	if(  length_read<length  ) {
+		return "Not enough bytes transferred";
+	}
 	return NULL;
 }
 

@@ -14,12 +14,13 @@ class werkzeug_t;
 // actual commands
 enum {
 	NWC_INVALID   = 0,
-	NWC_JOIN      = 1,
-	NWC_SYNC      = 2,
-	NWC_GAME      = 3,
-	NWC_READY     = 4,
-	NWC_TOOL      = 5,
-	NWC_CHECK     = 6,
+	NWC_GAMEINFO,
+	NWC_JOIN,
+	NWC_SYNC,
+	NWC_GAME,
+	NWC_READY,
+	NWC_TOOL,
+	NWC_CHECK,
 	NWC_COUNT
 };
 
@@ -60,6 +61,24 @@ public:
 	// creates an instance:
 	// creates a packet, reads it from socket, get the nwc-id, and reads its data
 	static network_command_t* read_from_socket(SOCKET s);
+};
+
+/**
+ * nwc_gameinfo_t
+ * @from-client: client wants map info
+ *		server sends nwc_gameinfo_t to sender
+ * @from-server:
+ *		@data len of gameinfo
+ *		client processes this in network_connect
+ */
+class nwc_gameinfo_t : public network_command_t {
+public:
+	nwc_gameinfo_t() : network_command_t(NWC_GAMEINFO) { len = 0; }
+	virtual bool execute(karte_t *);
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_gameinfo_t";}
+	uint32 client_id;
+	uint32 len;
 };
 
 /**

@@ -86,16 +86,20 @@ public:
 	}
 
 	array2d_tpl<T> & operator = (const array2d_tpl <T> &other) {
-		if(  h != other.h  &&  w != other.w  ) {
-			if(  h*w!=0  ) {
-				dbg->error("array2d_tpl<T>::=()","source has different size!");
+		if(  this != &other  ) // protect against invalid self-assignment
+        {
+			if(  h != other.h  &&  w != other.w  ) {
+				if(  h*w!=0  ) {
+					dbg->error("array2d_tpl<T>::=()","source has different size!");
+				}
 			}
+			delete [] data;
+			w = other.w;
+			h = other.h;
+			data = new T[w*h];
+			memcpy(data, other.data, sizeof(T)*w*h);
 		}
-		delete [] data;
-		w = other.w;
-		h = other.h;
-		data = new T[w*h];
-		memcpy(data, other.data, sizeof(T)*w*h);
+		return *this;
 	}
 };
 

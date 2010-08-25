@@ -29,8 +29,12 @@ typedef int SOCKET;
 #define NETWORK_VERSION (1)
 
 class network_command_t;
+class gameinfo_t;
 
 bool network_initialize();
+
+// connect to address (cp), receive gameinfo, close
+const char *network_gameinfo(const char *cp, gameinfo_t *gi);
 
 // connects to server at (cp), receives game, save to client%i-network.sve
 const char* network_connect(const char *cp);

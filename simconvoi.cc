@@ -172,6 +172,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
+	sp->buche( 1, COST_ALL_CONVOIS );
 	init(sp->get_welt(), sp);
 	set_name( "Unnamed" );
 	welt->add_convoi( self );
@@ -181,6 +182,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 convoi_t::~convoi_t()
 {
+	besitzer_p->buche( -1, COST_ALL_CONVOIS );
+
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
 
@@ -254,6 +257,8 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 
 void convoi_t::laden_abschliessen()
 {
+	besitzer_p->buche( 1, COST_ALL_CONVOIS );
+
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
 			grund_t *gr = welt->lookup(home_depot);
@@ -270,6 +275,7 @@ void convoi_t::laden_abschliessen()
 					fahr[i]->get_pos() = koord3d::invalid;
 				}
 				destroy();
+				return;
 			}
 		}
 		// anyway reassign convoi pointer ...
@@ -332,6 +338,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		// no vehicles in this convoi?!?
 		dbg->error( "convoi_t::laden_abschliessen()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
 		destroy();
+		return;
 	}
 	// put convoi agian right on track?
 	if(realing_position  &&  anz_vehikel>1) {

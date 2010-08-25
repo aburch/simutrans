@@ -2,6 +2,8 @@
 #include "network.h"
 #include "network_packet.h"
 
+#include "loadsave.h"
+#include "gameinfo.h"
 #include "../simtools.h"
 #include "../simwerkz.h"
 #include "../simworld.h"
@@ -30,6 +32,7 @@ network_command_t* network_command_t::read_from_socket(SOCKET s)
 	}
 	network_command_t* nwc = NULL;
 	switch (p->get_id()) {
+		case NWC_GAMEINFO:    nwc = new nwc_gameinfo_t(); break;
 		case NWC_JOIN:	      nwc = new nwc_join_t(); break;
 		case NWC_SYNC:        nwc = new nwc_sync_t(); break;
 		case NWC_GAME:        nwc = new nwc_game_t(); break;
@@ -114,6 +117,57 @@ bool network_command_t::is_local_cmd()
 }
 
 
+void nwc_gameinfo_t::rdwr()
+{
+	network_command_t::rdwr();
+	packet->rdwr_long(len);
+
+}
+
+
+// will send the gameinfo to the client
+bool nwc_gameinfo_t::execute(karte_t *welt)
+{
+	if (umgebung_t::server) {
+		dbg->message("nwc_gameinfo_t::execute", "");
+		// TODO: check whether we can send a file
+		nwc_gameinfo_t nwgi;
+		loadsave_t fd;
+		if(  fd.wr_open( "serverinfo.sve", loadsave_t::bzip2, "info", SERVER_SAVEGAME_VER_NR )  ) {
+			gameinfo_t gi(welt);
+			gi.rdwr( &fd );
+			fd.close();
+			// get gameinfo size
+			FILE *fh = fopen( "serverinfo.sve", "rb" );
+			fseek( fh, 0, SEEK_END );
+			nwgi.len = ftell( fh );
+			rewind( fh );
+			// init the rest of the packet
+			SOCKET s = packet->get_sender();
+//			nwj.client_id = network_get_client_id(s);
+			nwgi.rdwr();
+			nwgi.send( packet->get_sender() );
+			// send gameinfo
+			while(  !feof(fh)  ) {
+				char buffer[1024];
+				int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fh );
+				if(  ::send(s,buffer,bytes_read,0)==-1) {
+					dbg->warning( "nwc_gameinfo_t::execute", "Client closed connection during transfer" );;
+					break;
+				}
+			}
+			network_remove_client( s );
+			fclose( fh );
+			remove( "serverinfo.sve" );
+		}
+	}
+	else {
+		len = 0;
+	}
+	return true;
+}
+
+
 void nwc_join_t::rdwr()
 {
 	network_command_t::rdwr();
@@ -125,7 +179,7 @@ void nwc_join_t::rdwr()
 bool nwc_join_t::execute(karte_t *welt)
 {
 	if (umgebung_t::server) {
-		dbg->warning("nwc_join_t::execute", "");
+		dbg->message("nwc_join_t::execute", "");
 		// TODO: check whether we can send a file
 		nwc_join_t nwj;
 		nwj.client_id = network_get_client_id(packet->get_sender());

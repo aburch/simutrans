@@ -393,6 +393,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\gameinfo.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dings\gebaeude.cc"
 				>
 			</File>
@@ -766,6 +770,10 @@
 			</File>
 			<File
 				RelativePath=".\utils\searchfolder.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\server_frame.cc"
 				>
 			</File>
 			<File

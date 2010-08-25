@@ -53,6 +53,7 @@ public:
 		virtual ~var_text_scrollitem_t() { delete text; }
 		const char *get_text() { return text; }
 		virtual void set_text(char *t) {
+			assert(  t!=text  );
 			delete text;
 			text = strdup(t);
 		}
