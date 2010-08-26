@@ -84,7 +84,7 @@ bool network_initialize()
 
 
 // open a socket or give a decent error message
-const char *network_open_address( const char *cp)
+const char *network_open_address( const char *cp, long timeout_ms )
 {
 	// Network load. Address format e.g.: "net:128.0.0.1:13353"
 	char address[32];
@@ -141,6 +141,66 @@ const char *network_open_address( const char *cp)
 		return "Cannot create socket";
 	}
 
+#if 1
+	// use non-blocking sockets to have a shorter timeout
+	unsigned long opt;
+	fd_set fds;
+	struct timeval timeout;
+#ifdef  WIN32
+	opt = 1;
+	ioctlsocket(my_client_socket, FIONBIO, &opt);
+#else
+	if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
+		return "fcntl error";
+	}
+	opt |= O_NONBLOCK;
+	if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
+		return "fcntl error";
+	}
+#endif
+	if(  connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name)) == SOCKET_ERROR  ) {
+#ifdef  WIN32
+		// WSAEWOULDBLOCK indicate, that it may still succeed
+		if (WSAGetLastError() != WSAEWOULDBLOCK) {
+			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
+#else
+		// EINPROGRESS indicate, that it may still succeed
+		if(  errno != EINPROGRESS  ) {
+			sprintf( err_str, "Could not connect to %s", cp );
+#endif
+			return err_str;
+		}
+	}
+
+	// no add only this socket to set
+	FD_ZERO(&fds);
+	FD_SET(my_client_socket, &fds);
+
+	// enter timeout
+	timeout.tv_sec = timeout_ms/1000;
+	timeout.tv_usec = ((timeout_ms%1000)*1000);
+
+	// and wait ...
+	if(  select(my_client_socket + 1, NULL, &fds, NULL, &timeout) == SOCKET_ERROR  ) {
+		// some other problem?
+		return "Call to select failed";
+	}
+
+	// is this socket ok?
+	if (FD_ISSET(my_client_socket, &fds) == 0) {
+		// not in set => timeout
+		return "Server did not respond!";
+	}
+
+	// make a blocking socket out of it
+#ifdef  WIN32
+	opt = 0;
+	ioctlsocket(my_client_socket, FIONBIO, &opt);
+#else
+	opt &= (~O_NONBLOCK);
+	fcntl(my_client_socket, F_SETFL, opt);
+#endif
+#else
 	if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
 #ifdef  WIN32
 		FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
@@ -150,6 +210,8 @@ const char *network_open_address( const char *cp)
 		dbg->warning( "network_open_address", err_str );
 		return err_str;
 	}
+#endif
+
 	active_clients = 0;
 	server_command_queue.clear();
 
@@ -161,7 +223,7 @@ const char *network_open_address( const char *cp)
 const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 {
 	// open from network
-	const char *err = network_open_address( cp );
+	const char *err = network_open_address( cp, 5000 );
 	if(  err==NULL  ) {
 		// want to join
 		{
@@ -218,7 +280,7 @@ end:
 const char *network_connect(const char *cp)
 {
 	// open from network
-	const char *err = network_open_address( cp );
+	const char *err = network_open_address( cp, 10000 );
 	if(  err==NULL  ) {
 		// want to join
 		{
