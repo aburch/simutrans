@@ -141,7 +141,7 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		return "Cannot create socket";
 	}
 
-#if 1
+#if !defined(__BEOS__)  &&  !defined(__HAIKU__)
 	// use non-blocking sockets to have a shorter timeout
 	unsigned long opt;
 	fd_set fds;
