@@ -323,7 +323,7 @@ void leitung_t::info(cbuffer_t & buf) const
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
 	buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
-	buf.printf( translator::translate("Demand %u MW\n"), demand>>POWER_TO_MW );
+	buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
 	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
 	buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
 	buf.printf( translator::translate("Usage: %u %%"), (100*load)/(supply>0?supply:1) );
