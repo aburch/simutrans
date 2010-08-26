@@ -219,10 +219,57 @@ const char *network_open_address( const char *cp, long timeout_ms )
 }
 
 
+// download a http file from server address="www.simutrans.com:88" at path "/b/xxx.htm" to file localname="list.txt"
+const char *network_download_http( const char *address, const char *name, const char *localname )
+{
+	SOCKET old_my = my_client_socket;
+	// open from network
+	const char *err = network_open_address( address, 5000 );
+	if(  err==NULL  ) {
+		char uri[1024];
+		int len = sprintf( uri, "GET %s HTTP/1.1\nHost: %s\n\n", name, address );
+		send( my_client_socket, uri, len, 0 );
+		// read the header
+		char line[1024], rbuf;
+		int pos = 0;
+		long length = 0;
+		bool prev_empty = false;
+		while(1) {
+			int i = recv( my_client_socket, &rbuf, 1, 0 );
+			if(  i>0  ) {
+				if(  rbuf>=32  &&  pos<sizeof(line)-1  ) {
+					line[pos++] = rbuf;
+				}
+				if(  rbuf==10  ) {
+					if(  pos == 0  ) {
+						// this line was empty => now data will follow
+						break;
+					}
+					line[pos] = 0;
+					// we only need the length tag
+					if(  STRNICMP("Content-Length:",line,15)==0  ) {
+						length = atol( line+15 );
+					}
+					pos = 0;
+				}
+			}
+			else {
+				break;
+			}
+		}
+		err = network_receive_file( my_client_socket, localname, length );
+		network_close_socket( my_client_socket );
+	}
+	my_client_socket = old_my;
+	return err;
+}
+
+
 // connect to address (cp), receive gameinfo, close
 const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 {
 	// open from network
+	SOCKET old_my_client_socket = my_client_socket;
 	const char *err = network_open_address( cp, 5000 );
 	if(  err==NULL  ) {
 		// want to join
@@ -264,9 +311,10 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 			fd.close();
 		}
 		remove( filename );
-		network_close_socket( my_client_socket );
+		network_remove_client( my_client_socket );
 	}
 end:
+	my_client_socket = old_my_client_socket;
 	if(err) {
 		dbg->warning("network_connect", err);
 	}

@@ -42,7 +42,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 	loadlist.init( button_t::box, "download list", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
 	loadlist.add_listener(this);
-	loadlist.disable();
+//	loadlist.disable();
 	add_komponente( &loadlist );
 
 	pos_y += BUTTON_HEIGHT+8;
@@ -137,20 +137,42 @@ bool server_frame_t::infowin_event(const event_t *ev)
 bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(  &serverlist == komp  ) {
-		if(  p.i<=0  ) {
+		if(  p.i==0  ) {
 			gi = gameinfo_t(welt);
 			update_info();
 		}
-		else {
-			const char *err = network_gameinfo( serverlist.get_element(serverlist.get_selection())->get_text(), &gi );
+		else if(  p.i>0  ) {
+			const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
 			if(  err==NULL  ) {
+				serverlist.get_element(p.i)->set_color( COL_BLACK );
 				update_info();
+			}
+			else {
+				serverlist.get_element(p.i)->set_color( COL_RED );
 			}
 		}
 	}
 	else if(  &add == komp  ) {
-		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "Enter name", COL_BLACK ) );
+		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "Enter name", COL_BLUE ) );
 		serverlist.set_selection( serverlist.count_elements()-1 );
+	}
+	else if(  &loadlist == komp  ) {
+		// download list from main server
+		network_download_http( "www.physik.tu-berlin.de:80", "/~prissi/simutrans/serverlist.txt", "serverlist.txt" );
+		serverlist.clear_elements();
+		serverlist.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("current game"), COL_BLACK ) );
+		// read the list
+		FILE *fh = fopen( "serverlist.txt", "r" );
+		while( !feof(fh) ) {
+			char line[1024];
+			fgets( line, sizeof(line), fh );
+			if(  line[0]!='#'  &&  line[0]>' '  ) {
+				// add new server address
+				serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line, COL_BLUE ) );
+			}
+		}
+		fclose( fh );
+		remove( "serverlist.txt" );
 	}
 	else if(  &join == komp  ) {
 		std::string filename = "net:";

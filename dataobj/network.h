@@ -33,6 +33,9 @@ class gameinfo_t;
 
 bool network_initialize();
 
+// connect to address with patch name receive to localname, close
+const char *network_download_http( const char *address, const char *name, const char *localname );
+
 // connect to address (cp), receive gameinfo, close
 const char *network_gameinfo(const char *cp, gameinfo_t *gi);
 
