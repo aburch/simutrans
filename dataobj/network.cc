@@ -38,6 +38,9 @@
 
 #ifdef WIN32
 #define socklen_t int
+#else
+#include <fcntl.h>
+#include <errno.h>
 #endif
 
 static bool network_active = false;
@@ -143,7 +146,7 @@ const char *network_open_address( const char *cp, long timeout_ms )
 
 #if !defined(__BEOS__)  &&  !defined(__HAIKU__)
 	// use non-blocking sockets to have a shorter timeout
-	unsigned long opt;
+	long opt;
 	fd_set fds;
 	struct timeval timeout;
 #ifdef  WIN32
@@ -158,7 +161,7 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		return "fcntl error";
 	}
 #endif
-	if(  connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name)) == SOCKET_ERROR  ) {
+	if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
 #ifdef  WIN32
 		// WSAEWOULDBLOCK indicate, that it may still succeed
 		if (WSAGetLastError() != WSAEWOULDBLOCK) {
@@ -181,7 +184,7 @@ const char *network_open_address( const char *cp, long timeout_ms )
 	timeout.tv_usec = ((timeout_ms%1000)*1000);
 
 	// and wait ...
-	if(  select(my_client_socket + 1, NULL, &fds, NULL, &timeout) == SOCKET_ERROR  ) {
+	if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
 		// some other problem?
 		return "Call to select failed";
 	}
