@@ -146,13 +146,13 @@ const char *network_open_address( const char *cp, long timeout_ms )
 
 #if !defined(__BEOS__)  &&  !defined(__HAIKU__)
 	// use non-blocking sockets to have a shorter timeout
-	long opt;
 	fd_set fds;
 	struct timeval timeout;
 #ifdef  WIN32
-	opt = 1;
+	unsigned long opt =1;
 	ioctlsocket(my_client_socket, FIONBIO, &opt);
 #else
+	int opt;
 	if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
 		return "fcntl error";
 	}
