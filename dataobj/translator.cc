@@ -112,6 +112,17 @@ static bool is_unicode_file(FILE* f)
 		DBG_DEBUG("is_unicode_file()", "file is UTF-8");
 		return true;
 	}
+	if(  str[0]==0xEF  &&  str[1]==0xBB   &&  fgetc(f)==0xBF  ) {
+		// the first letter is the byte order mark => may need to skip a paragraph (Latin A7, UTF8 C2 A7)
+		pos = ftell(f);
+		fread( str, 1, 2,  f );
+		if(  str[0] != 0xC2  ||  str[1] == 0xA7  ) {
+			fseek(f, pos, SEEK_SET);
+			dbg->error( "is_unicode_file()", "file is UTF-8 but has no paragraph" );
+		}
+		DBG_DEBUG("is_unicode_file()", "file is UTF-8");
+		return true;
+	}
 	fseek(f, pos, SEEK_SET);
 	return false;
 }
