@@ -483,7 +483,7 @@ private:
 	waytype_t waytype[2];
 	halthandle_t last_halt;
 public:
-	wkz_stop_moving_t() : werkzeug_t() { wkz_linkzeiger=NULL; id = WKZ_STOP_MOVER | GENERAL_TOOL; }
+	wkz_stop_moving_t() : werkzeug_t(), last_pos(koord3d::invalid) { wkz_linkzeiger=NULL; id = WKZ_STOP_MOVER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("replace stop"); }
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -560,7 +560,7 @@ public:
 	wkz_undo_t() : werkzeug_t() { id = WKZ_UNDO | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Undo last ways construction"); }
 	bool init( karte_t *, spieler_t *sp ) {
-		if(!sp->undo()) {
+		if(!sp->undo()  &&  is_local_execution()) {
 			create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
 		}
 		return false;
@@ -945,7 +945,7 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
-// open messages
+// open finance window
 class wkz_finances_t : public werkzeug_t {
 public:
 	wkz_finances_t() : werkzeug_t() { id = WKZ_FINANCES | DIALOGE_TOOL; }
@@ -973,7 +973,7 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
-// open player dialoge
+// open display options
 class wkz_displayoptions_t : public werkzeug_t {
 public:
 	wkz_displayoptions_t() : werkzeug_t() { id = WKZ_DISPLAYOPTIONS | DIALOGE_TOOL; }
