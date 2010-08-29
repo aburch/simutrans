@@ -140,7 +140,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
 		if( gr->ist_natur()  &&
-			gr->get_top()<10  &&
+			gr->get_top() < welt->get_einstellungen()->get_max_no_of_trees_on_square()  &&
 			(!check_climate  ||  besch->is_allowed_climate(welt->get_climate(gr->get_hoehe())))
 			)
 		{
@@ -457,19 +457,8 @@ bool baum_t::saee_baum()
 	// spawn a new tree in an area 3x3 tiles around
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
 	const koord k = get_pos().get_2d() + koord(simrand(5)-2, simrand(5)-2);
-	const planquadrat_t* p = welt->lookup(k);
-	if (p) {
-		grund_t *bd = p->get_kartenboden();
-		if(	bd!=NULL  &&
-			get_besch()->is_allowed_climate(welt->get_climate(bd->get_pos().z))  &&
-			bd->ist_natur()  &&
-			bd->get_top()<welt->get_einstellungen()->get_max_no_of_trees_on_square())
-		{
-			bd->obj_add( new baum_t(welt, bd->get_pos(), baumtype) );
-			return true;
-		}
-	}
-	return false;
+
+	return plant_tree_on_coordinate(welt, k, baum_typen[baumtype], true, false);
 }
 
 
