@@ -986,22 +986,35 @@ spieler_t::undo()
 			last_built.clear();
 			return false;
 		}
-		// we allow only leitung
+		// we allow ways, unimportant stuff but no vehicles, signals, wayobjs etc
 		if(gr->obj_count()>0) {
-			for( unsigned i=1;  i<gr->get_top();  i++  ) {
+			for( unsigned i=0;  i<gr->get_top();  i++  ) {
 				switch(gr->obj_bei(i)->get_typ()) {
 					// these are allowed
-					case ding_t::way:
-					case ding_t::verkehr:
-					case ding_t::fussgaenger:
+					case ding_t::zeiger:
+					case ding_t::wolke:
 					case ding_t::leitung:
+					case ding_t::pillar:
+					case ding_t::way:
+					case ding_t::label:
+					case ding_t::crossing:
+					case ding_t::fussgaenger:
+					case ding_t::verkehr:
+					case ding_t::movingobj:
 						break;
 					// special case airplane
 					// they can be everywhere, so we allow for everythign but runway undo
-					case ding_t::aircraft:
+					case ding_t::aircraft: {
 						if(undo_type!=air_wt) {
 							break;
 						}
+						const aircraft_t* aircraft = ding_cast<aircraft_t>(gr->obj_bei(i));
+						// flying aircrafts are ok
+						if(!aircraft->is_on_ground()) {
+							break;
+						}
+						// fall through !
+					}
 					// all other are forbidden => no undo any more
 					default:
 						last_built.clear();
