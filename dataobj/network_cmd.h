@@ -231,30 +231,45 @@ private:
 	bool init;
 	bool exec;
 
-	// compare default_param's (NULL pointers allowed
+	// compare default_param's (NULL pointers allowed)
 	// @returns true if default_param are equal
 	static bool cmp_default_param(const char *d1, const char *d2);
 
-	// contains tools of players at other clients
+	/**
+	 * contains tools of players at other clients:
+	 *   for every player at every client we store the active tool in this node class
+	 *
+	 * the member variable default_param saves the default-parameter of the tool,
+	 * i.e. wkz->default_param == default_param
+	 *
+	 * default_param has its own simple memory management
+	 */
 	class tool_node_t {
 	private:
 		const char* default_param;
 		werkzeug_t *wkz;
+		// own memory management for default_param
+		void set_default_param(const char* param);
+		void set_tool(werkzeug_t *wkz_);
 	public:
 		uint32 client_id;
 		uint8 player_id;
 		tool_node_t() : default_param(NULL), wkz(NULL), client_id(0), player_id(255) {}
 		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : default_param(NULL), wkz(_wkz), client_id(_client_id), player_id(_player_id) {}
 
-		void set_default_param(const char* param);
-
-		const char* get_default_param() const { return default_param; }
-
-		void set_tool(werkzeug_t *wkz_);
+		const char* get_default_param() const { return default_param;}
 
 		werkzeug_t* get_tool() const { return wkz;}
 
-		// compares only the ids
+		/**
+		 * mimics void karte_t::local_set_werkzeug(werkzeug_t *, spieler_t *)
+		 * deletes wkz_new if wkz_new->init() returns false and store is false
+		 */
+		void client_set_werkzeug(werkzeug_t * &wkz_new, const char* default_param_, bool store, karte_t*, spieler_t*);
+
+		/**
+		 * @returns true if ids (player_id and client_id) of both tool_node_t's are equal
+		 */
 		inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
 	};
 
