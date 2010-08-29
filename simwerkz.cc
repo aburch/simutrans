@@ -359,7 +359,7 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 					}
 				}
 			}
-			// no window zet opened> trz ground info
+			// no window yet opened -> try ground info
 			gr->zeige_info();
 		}
 		else {
@@ -1171,7 +1171,9 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				const ding_t* thing = gr->obj_bei(0);
 				if(thing == NULL  ||  thing->get_besitzer() == sp  ||  (spieler_t::check_owner(thing->get_besitzer(), sp)  &&  (thing->get_typ() != ding_t::gebaeude))) {
 					gr->obj_add(new label_t(welt, gr->get_pos(), sp, "\0"));
-					gr->find<label_t>()->zeige_info();
+					if (is_local_execution()) {
+						gr->find<label_t>()->zeige_info();
+					}
 					return "";
 				}
 			}
@@ -3875,10 +3877,12 @@ const char *wkz_link_factory_t::work( karte_t *welt, spieler_t *sp, koord3d pos 
 		// It's a factory
 		if(last_fab==NULL) {
 			// first click
-			grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-			wkz_linkzeiger = new zeiger_t(welt, gr->get_pos(), NULL);
-			wkz_linkzeiger->set_bild( cursor );
-			gr->obj_add(wkz_linkzeiger);
+			if (is_local_execution()) {
+				grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
+				wkz_linkzeiger = new zeiger_t(welt, gr->get_pos(), NULL);
+				wkz_linkzeiger->set_bild( cursor );
+				gr->obj_add(wkz_linkzeiger);
+			}
 			last_fab = fab;
 			return NULL;
 		}
@@ -4072,24 +4076,7 @@ bool wkz_stop_moving_t::init( karte_t *, spieler_t * )
 	}
 	return true;
 }
-// checks if the given ground is suitable for stop moving
-bool wkz_stop_moving_check_grund(grund_t *bd, spieler_t *sp) {
-	// must be on a way or in the sea?
-	if(!bd->ist_wasser()) {
-		weg_t *w1 = bd->get_weg_nr(0);
-		if(  w1==NULL  ||  !spieler_t::check_owner( w1->get_besitzer(), sp )  ) {
-			// fails, if no way
-			return false;
-		}
-		weg_t *w2 = bd->get_weg_nr(1);
-		if(  w2  &&  !spieler_t::check_owner( w2->get_besitzer(), sp )  ) {
-			// this only fails, if wrong owner
-			return false;
-		}
-	}
-	// ok, now we have old_stop
-	return true;
-}
+
 
 const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
@@ -4141,9 +4128,11 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				waytype[1] = bd->get_weg_nr(1)->get_waytype();
 			}
 		}
-		wkz_linkzeiger = new zeiger_t(welt, last_pos, NULL);
-		wkz_linkzeiger->set_bild( cursor );
-		bd->obj_add(wkz_linkzeiger);
+		if (is_local_execution()) {
+			wkz_linkzeiger = new zeiger_t(welt, last_pos, NULL);
+			wkz_linkzeiger->set_bild( cursor );
+			bd->obj_add(wkz_linkzeiger);
+		}
 	}
 	else {
 		// second click

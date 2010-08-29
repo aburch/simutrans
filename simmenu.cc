@@ -987,12 +987,15 @@ void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_
 {
 	const uint8 sp_nr = sp->get_player_nr();
 	first_click_var[sp_nr] = false;
-	welt->show_distance = start[sp_nr] = new_start;
-	start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
-	start_marker[sp_nr]->set_bild( get_marker_image() );
-	grund_t *gr = welt->lookup( start[sp_nr] );
-	if( gr ) {
-		gr->obj_add(start_marker[sp_nr]);
+	start[sp_nr] = new_start;
+	if (is_local_execution()) {
+		welt->show_distance = new_start;
+		start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
+		start_marker[sp_nr]->set_bild( get_marker_image() );
+		grund_t *gr = welt->lookup( start[sp_nr] );
+		if( gr ) {
+			gr->obj_add(start_marker[sp_nr]);
+		}
 	}
 	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start[sp_nr].get_str());
 }
