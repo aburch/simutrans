@@ -14,7 +14,7 @@
 #include "../dataobj/umgebung.h"
 #include "zeiger.h"
 
-zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
+zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_no_info_t(welt)
 {
 	changed = false;
 	richtung = ribi_t::alle;
@@ -27,7 +27,7 @@ zeiger_t::zeiger_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 
 
 zeiger_t::zeiger_t(karte_t *welt, koord3d pos, spieler_t *sp) :
-    ding_t(welt, pos)
+    ding_no_info_t(welt, pos)
 {
 	changed = false;
 	set_besitzer( sp );
