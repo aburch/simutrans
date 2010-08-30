@@ -1544,6 +1544,8 @@ void fabrik_t::add_all_suppliers()
 			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
 				// add us to this factory
 				fab->add_lieferziel(pos.get_2d());
+				// and vice versa
+				add_supplier(fab->get_pos().get_2d());
 			}
 		}
 	}
