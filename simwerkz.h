@@ -1281,5 +1281,6 @@ public:
 		create_win( new server_frame_t(welt), w_info, magic_server_frame_t );
 		return false;
 	}
+	virtual bool is_init_network_save() const { return true; }
 };
 #endif
