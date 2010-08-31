@@ -492,6 +492,9 @@ void pumpe_t::laden_abschliessen()
 		fab->set_transformer_connected( true );
 	}
 	pumpe_list.insert( this );
+
+	set_bild(skinverwaltung_t::pumpe->get_bild_nr(0));
+	is_crossing = false;
 }
 
 
@@ -670,6 +673,9 @@ void senke_t::laden_abschliessen()
 	}
 	senke_list.insert( this );
 	welt->sync_add(this);
+
+	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
+	is_crossing = false;
 }
 
 
