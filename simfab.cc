@@ -897,19 +897,22 @@ void fabrik_t::step(long delta_t)
 					menge = produktion(produkt, delta_t);
 				}
 
-				const uint32 pb = besch->get_produkt(produkt)->get_faktor();
-				const uint32 p = max(1,(menge*pb) >> 8);
+				if (menge>0) {
+					const uint32 pb = besch->get_produkt(produkt)->get_faktor();
+					// ensure some minimum production
+					const uint32 p = max(1,(menge*pb) >> 8);
 
-				// produce
-				if (ausgang[produkt].menge < ausgang[produkt].max) {
-					// to find out, if storage changed
-					delta_menge += p;
-					ausgang[produkt].menge += p;
-					// if less than 3/4 filled we neary always consume power
-					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3)  &&  (p > 0);
-				}
-				else {
-					ausgang[produkt].menge = ausgang[produkt].max - 1;
+					// produce
+					if (ausgang[produkt].menge < ausgang[produkt].max) {
+						// to find out, if storage changed
+						delta_menge += p;
+						ausgang[produkt].menge += p;
+						// if less than 3/4 filled we neary always consume power
+						currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3);
+					}
+					else {
+						ausgang[produkt].menge = ausgang[produkt].max - 1;
+					}
 				}
 			}
 
@@ -958,15 +961,9 @@ void fabrik_t::step(long delta_t)
 
 		// rescale delta_menge here: all products should be produced at least once
 		// (if consumer only: all supplements should be consumed once)
-		if(ausgang.empty()) {
-			if (!eingang.empty()) {
-				delta_menge /= eingang.get_count();
-			}
-		}
-		else {
-			delta_menge /= ausgang.get_count();
-		}
-		if((delta_menge>>fabrik_t::precision_bits)>0) {
+		const uint32 min_change = ausgang.empty() ? eingang.get_count() : ausgang.get_count();
+
+		if((delta_menge>>fabrik_t::precision_bits) > min_change) {
 
 			// we produced some real quantity => smoke
 			smoke();
@@ -977,10 +974,9 @@ void fabrik_t::step(long delta_t)
 			}
 
 			INT_CHECK("simfab 558");
+			// reset for next cycle
+			delta_menge = 0;
 		}
-
-		// reset for next cycle
-		delta_menge = 0;
 
 		// to distribute to all target equally, we use this counter, for the factory, to try first
 		last_lieferziel_start ++;
