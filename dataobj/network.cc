@@ -145,75 +145,78 @@ const char *network_open_address( const char *cp, long timeout_ms )
 	}
 
 #if !defined(__BEOS__)  &&  !defined(__HAIKU__)
-	// use non-blocking sockets to have a shorter timeout
-	fd_set fds;
-	struct timeval timeout;
+	if(  0 &&  timeout_ms>0  ) {
+		// use non-blocking sockets to have a shorter timeout
+		fd_set fds;
+		struct timeval timeout;
 #ifdef  WIN32
-	unsigned long opt =1;
-	ioctlsocket(my_client_socket, FIONBIO, &opt);
+		unsigned long opt =1;
+		ioctlsocket(my_client_socket, FIONBIO, &opt);
 #else
-	int opt;
-	if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
-		return "fcntl error";
-	}
-	opt |= O_NONBLOCK;
-	if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
-		return "fcntl error";
-	}
+		int opt;
+		if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
+			return "fcntl error";
+		}
+		opt |= O_NONBLOCK;
+		if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
+			return "fcntl error";
+		}
 #endif
-	if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
+		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
 #ifdef  WIN32
-		// WSAEWOULDBLOCK indicate, that it may still succeed
-		if (WSAGetLastError() != WSAEWOULDBLOCK) {
+			// WSAEWOULDBLOCK indicate, that it may still succeed
+			if (WSAGetLastError() != WSAEWOULDBLOCK) {
+				FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
+#else
+			// EINPROGRESS indicate, that it may still succeed
+			if(  errno != EINPROGRESS  ) {
+				sprintf( err_str, "Could not connect to %s", cp );
+#endif
+				return err_str;
+			}
+		}
+
+		// no add only this socket to set
+		FD_ZERO(&fds);
+		FD_SET(my_client_socket, &fds);
+
+		// enter timeout
+		timeout.tv_sec = timeout_ms/1000;
+		timeout.tv_usec = ((timeout_ms%1000)*1000);
+
+		// and wait ...
+		if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
+			// some other problem?
+			return "Call to select failed";
+		}
+
+		// is this socket ok?
+		if (FD_ISSET(my_client_socket, &fds) == 0) {
+			// not in set => timeout
+			return "Server did not respond!";
+		}
+
+		// make a blocking socket out of it
+#ifdef  WIN32
+		opt = 0;
+		ioctlsocket(my_client_socket, FIONBIO, &opt);
+#else
+		opt &= (~O_NONBLOCK);
+		fcntl(my_client_socket, F_SETFL, opt);
+#endif
+	} else
+#endif
+	{
+		if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
+#ifdef  WIN32
 			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
 #else
-		// EINPROGRESS indicate, that it may still succeed
-		if(  errno != EINPROGRESS  ) {
 			sprintf( err_str, "Could not connect to %s", cp );
 #endif
+			dbg->warning( "network_open_address", err_str );
 			return err_str;
 		}
 	}
-
-	// no add only this socket to set
-	FD_ZERO(&fds);
-	FD_SET(my_client_socket, &fds);
-
-	// enter timeout
-	timeout.tv_sec = timeout_ms/1000;
-	timeout.tv_usec = ((timeout_ms%1000)*1000);
-
-	// and wait ...
-	if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
-		// some other problem?
-		return "Call to select failed";
-	}
-
-	// is this socket ok?
-	if (FD_ISSET(my_client_socket, &fds) == 0) {
-		// not in set => timeout
-		return "Server did not respond!";
-	}
-
-	// make a blocking socket out of it
-#ifdef  WIN32
-	opt = 0;
-	ioctlsocket(my_client_socket, FIONBIO, &opt);
-#else
-	opt &= (~O_NONBLOCK);
-	fcntl(my_client_socket, F_SETFL, opt);
-#endif
-#else
-	if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
-#ifdef  WIN32
-		FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
-#else
-		sprintf( err_str, "Could not connect to %s", cp );
-#endif
-		dbg->warning( "network_open_address", err_str );
-		return err_str;
-	}
-#endif
 
 	active_clients = 0;
 	server_command_queue.clear();
@@ -275,7 +278,6 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 	SOCKET old_my_client_socket = my_client_socket;
 	const char *err = network_open_address( cp, 5000 );
 	if(  err==NULL  ) {
-		// want to join
 		{
 			nwc_gameinfo_t nwgi;
 			nwgi.rdwr();
@@ -331,7 +333,7 @@ end:
 const char *network_connect(const char *cp)
 {
 	// open from network
-	const char *err = network_open_address( cp, 10000 );
+	const char *err = network_open_address( cp, 0 );
 	if(  err==NULL  ) {
 		// want to join
 		{
@@ -465,6 +467,9 @@ void network_remove_client( SOCKET sock )
 	if(  clients.is_contained(sock)  &&  active_clients>0) {
 		uint32 ind = clients.index_of(sock);
 		clients[ind] = INVALID_SOCKET;
+		if(  !umgebung_t::server  ) {
+			clients.remove_at( ind );
+		}
 		active_clients--;
 		network_close_socket(sock);
 	}

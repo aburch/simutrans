@@ -132,6 +132,8 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 		dbg->message("nwc_gameinfo_t::execute", "");
 		// TODO: check whether we can send a file
 		nwc_gameinfo_t nwgi;
+		// init the rest of the packet
+		SOCKET s = packet->get_sender();
 		loadsave_t fd;
 		if(  fd.wr_open( "serverinfo.sve", loadsave_t::bzip2, "info", SERVER_SAVEGAME_VER_NR )  ) {
 			gameinfo_t gi(welt);
@@ -142,11 +144,9 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			fseek( fh, 0, SEEK_END );
 			nwgi.len = ftell( fh );
 			rewind( fh );
-			// init the rest of the packet
-			SOCKET s = packet->get_sender();
 //			nwj.client_id = network_get_client_id(s);
 			nwgi.rdwr();
-			nwgi.send( packet->get_sender() );
+			nwgi.send( s );
 			// send gameinfo
 			while(  !feof(fh)  ) {
 				char buffer[1024];
@@ -156,10 +156,10 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 					break;
 				}
 			}
-			network_remove_client( s );
 			fclose( fh );
 			remove( "serverinfo.sve" );
 		}
+		network_remove_client( s );
 	}
 	else {
 		len = 0;

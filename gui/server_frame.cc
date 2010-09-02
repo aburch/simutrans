@@ -8,6 +8,7 @@
 #include "../simworld.h"
 #include "../simcolor.h"
 #include "../simgraph.h"
+#include "../simwin.h"
 
 #include "components/list_button.h"
 #include "../dataobj/translator.h"
@@ -177,10 +178,12 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 	else if(  &join == komp  ) {
 		std::string filename = "net:";
 		filename += serverlist.get_element(serverlist.get_selection())->get_text();
+		destroy_win(this);
 		welt->laden(filename.c_str());
 	}
 	else if(  &quit == komp  ) {
 		welt->beenden( true );
+		destroy_win(this);
 	}
 	return true;
 }
