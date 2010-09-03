@@ -9,6 +9,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../utils/simstring.h"
 
 #include "components/list_button.h"
 #include "../dataobj/translator.h"
@@ -77,10 +78,13 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 void server_frame_t::update_info()
 {
+	char temp[32];
+
 	buf.clear();
 	buf.printf( "%ux%u\n", gi.get_groesse_x(), gi.get_groesse_y() );
 	buf.printf( "%s %u\n", translator::translate("Towns"), gi.get_anzahl_staedte() );
-	buf.printf( "%s %u\n", translator::translate("citicens"), gi.get_einwohnerzahl() );
+	number_to_string( temp, gi.get_einwohnerzahl(), 0 );
+	buf.printf( "%s %s\n", translator::translate("citicens"), temp );
 	buf.printf( "%s %u\n", translator::translate("Factories"), gi.get_industries() );
 	buf.printf( "%s %u\n", translator::translate("Convoys"), gi.get_convoi_count() );
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
@@ -143,13 +147,15 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			update_info();
 		}
 		else if(  p.i>0  ) {
-			const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
-			if(  err==NULL  ) {
-				serverlist.get_element(p.i)->set_color( COL_BLACK );
-				update_info();
-			}
-			else {
-				serverlist.get_element(p.i)->set_color( COL_RED );
+			if(  serverlist.get_element(p.i)->get_color()!=COL_WHITE  ) {
+				const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
+				if(  err==NULL  ) {
+					serverlist.get_element(p.i)->set_color( COL_BLACK );
+					update_info();
+				}
+				else {
+					serverlist.get_element(p.i)->set_color( COL_RED );
+				}
 			}
 		}
 	}
@@ -167,9 +173,15 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		while( !feof(fh) ) {
 			char line[1024];
 			fgets( line, sizeof(line), fh );
-			if(  line[0]!='#'  &&  line[0]>' '  ) {
-				// add new server address
-				serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line, COL_BLUE ) );
+			if(  line[0]>32  ) {
+				if(  line[0]!='#'  ) {
+					// add new server address
+					serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line, COL_BLUE ) );
+				}
+				else {
+					// add new comment
+					serverlist.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line+1, COL_WHITE ) );
+				}
 			}
 		}
 		fclose( fh );

@@ -327,8 +327,6 @@ end:
 }
 
 
-
-
 // connect to address (cp), receive game, save to client%i-network.sve
 const char *network_connect(const char *cp)
 {
@@ -440,6 +438,10 @@ SOCKET network_get_server()
 void network_add_client( SOCKET sock )
 {
 	if(  !clients.is_contained(sock)  ) {
+		// purge it first
+		while(  !clients.empty()  &&  clients.back() == INVALID_SOCKET  ) {
+			clients.remove_at(clients.get_count()-1);
+		}
 #ifdef TCP_NODELAY
 		// do not wait to join small (command) packets when sending (may cause 200ms delay!)
 		setsockopt( sock, SOL_SOCKET, TCP_NODELAY, NULL, 0 );
@@ -471,7 +473,7 @@ void network_remove_client( SOCKET sock )
 		// just decrease count
 		active_clients--;
 		// and maybe purge it
-		while (!clients.empty()  &&  clients.back() == INVALID_SOCKET) {
+		while(  !clients.empty()  &&  clients.back() == INVALID_SOCKET  ) {
 			clients.remove_at(clients.get_count()-1);
 		}
 		network_close_socket(sock);
