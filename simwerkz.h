@@ -725,10 +725,13 @@ public:
 class wkz_rotate90_t : public werkzeug_t {
 public:
 	wkz_rotate90_t() : werkzeug_t() { id = WKZ_ROTATE90 | SIMPLE_TOOL; }
+	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Rotate map"); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->rotate90();
-		welt->update_map();
+		if (!umgebung_t::networkmode) {
+			welt->rotate90();
+			welt->update_map();
+		}
 		return false;
 	}
 };
