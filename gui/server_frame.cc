@@ -145,13 +145,16 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		if(  p.i==0  ) {
 			gi = gameinfo_t(welt);
 			update_info();
+			join.disable();
 		}
 		else if(  p.i>0  ) {
+			join.disable();
 			if(  serverlist.get_element(p.i)->get_color()!=COL_WHITE  ) {
 				const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
 				if(  err==NULL  ) {
 					serverlist.get_element(p.i)->set_color( COL_BLACK );
 					update_info();
+					join.enable();
 				}
 				else {
 					serverlist.get_element(p.i)->set_color( COL_RED );
@@ -173,6 +176,9 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		while( !feof(fh) ) {
 			char line[1024];
 			fgets( line, sizeof(line), fh );
+			for(  int i=strlen(line);  i>0  &&  line[i-1]<=32;  i--  ) {
+				line[i-1] = 0;
+			}
 			if(  line[0]>32  ) {
 				if(  line[0]!='#'  ) {
 					// add new server address
@@ -180,7 +186,7 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 				}
 				else {
 					// add new comment
-					serverlist.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( line+1, COL_WHITE ) );
+					serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line+1, COL_WHITE ) );
 				}
 			}
 		}
