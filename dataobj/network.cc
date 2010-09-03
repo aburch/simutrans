@@ -464,13 +464,26 @@ void network_add_client( SOCKET sock )
 
 void network_remove_client( SOCKET sock )
 {
-	if(  clients.is_contained(sock)  &&  active_clients>0) {
+	if(  clients.is_contained(sock)  ) {
+		assert(active_clients>0);
 		uint32 ind = clients.index_of(sock);
 		clients[ind] = INVALID_SOCKET;
-		if(  !umgebung_t::server  ) {
-			clients.remove_at( ind );
+		bool remove_id = true;
+		if(  umgebung_t::server  ) {
+			/* for server:
+			 * only remove, if there are not new sockets allocated afterwards
+			 * (otherwise ids will be wrong!)
+			 */
+			for( uint32 i=ind+1;  i<clients.get_count()  &&  remove_id;  ind++  ) {
+				remove_id &= (clients[ind] == INVALID_SOCKET);
+			}
 		}
+		// just decrease count
 		active_clients--;
+		// and maybe purge it
+		while(  remove_id  &&  clients.get_count()>ind  ) {
+			clients.remove_at( clients.get_count()-1 );
+		}
 		network_close_socket(sock);
 	}
 }

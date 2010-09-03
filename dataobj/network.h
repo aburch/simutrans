@@ -45,7 +45,7 @@ const char* network_connect(const char *cp);
 void network_close_socket( SOCKET sock );
 
 void network_add_client( SOCKET sock );
-void network_remove_client( SOCKET sock );
+void network_remove_client( SOCKET sock  );
 uint32 network_get_client_id( SOCKET sock );
 SOCKET network_get_socket( uint32 client_id );
 
