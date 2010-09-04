@@ -64,12 +64,17 @@ volatile HDC hdc = NULL;
 
 const wchar_t* const title =
 #ifdef _MSC_VER
+#define TOW_(x) L#x
+#define TOW(x) TOW_(x)
 			L"Simutrans " WIDE_VERSION_NUMBER
+#ifdef REVISION
+			L" - r" TOW(REVISION)
+#endif
 #else
 			L"" SAVEGAME_PREFIX " " VERSION_NUMBER " - " VERSION_DATE
-#endif
 #ifdef REVISION
 			" - r" QUOTEME(REVISION)
+#endif
 #endif
 ;
 

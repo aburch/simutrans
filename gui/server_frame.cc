@@ -32,7 +32,6 @@ server_frame_t::server_frame_t(karte_t* w) :
 	sint16 pos_y = 4;
 	serverlist.set_pos( koord(2,pos_y) );
 	serverlist.set_groesse( koord(236,BUTTON_HEIGHT) );
-	serverlist.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("current game"), COL_BLACK ) );
 	serverlist.add_listener(this);
 	serverlist.set_selection( 0 );
 	add_komponente( &serverlist );
@@ -44,7 +43,6 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 	loadlist.init( button_t::box, "download list", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
 	loadlist.add_listener(this);
-//	loadlist.disable();
 	add_komponente( &loadlist );
 
 	pos_y += BUTTON_HEIGHT+8;
@@ -142,7 +140,7 @@ bool server_frame_t::infowin_event(const event_t *ev)
 bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(  &serverlist == komp  ) {
-		if(  p.i==0  ) {
+		if(  p.i==-1  ) {
 			gi = gameinfo_t(welt);
 			update_info();
 			join.disable();
@@ -158,6 +156,7 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 				}
 				else {
 					serverlist.get_element(p.i)->set_color( COL_RED );
+					join.disable();
 				}
 			}
 		}
@@ -170,7 +169,6 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		// download list from main server
 		network_download_http( "www.physik.tu-berlin.de:80", "/~prissi/simutrans/serverlist.txt", "serverlist.txt" );
 		serverlist.clear_elements();
-		serverlist.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("current game"), COL_BLACK ) );
 		// read the list
 		FILE *fh = fopen( "serverlist.txt", "r" );
 		while( !feof(fh) ) {
