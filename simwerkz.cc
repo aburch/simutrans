@@ -2867,7 +2867,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	}
 	else
 	{
-		cost = besch->get_station_price() * besch->get_b() * besch->get_h();
+		cost = -besch->get_station_price() * besch->get_b() * besch->get_h();
 	}
 
 	if(!sp->can_afford(cost))
@@ -2904,7 +2904,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	}
 	else
 	{
-		costs = besch->get_station_price();
+		costs = -besch->get_station_price();
 	}
 
 	if(!sp->can_afford(costs))
@@ -3100,7 +3100,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	}
 	else
 	{
-		adjusted_cost = besch->get_station_price() + welt->calc_adjusted_monthly_figure(besch->get_station_maintenance() * besch->get_b() * besch->get_h() * 60);
+		adjusted_cost = -besch->get_station_price() + welt->calc_adjusted_monthly_figure(besch->get_station_maintenance() * besch->get_b() * besch->get_h() * 60);
 	}
 
 	if(!sp->can_afford(adjusted_cost))
@@ -3275,7 +3275,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 	// Now check for whether there is a Simutrans-Experimental individually set price
 	if(besch->get_base_station_price() != 2147483647)
 	{
-		cost = besch->get_station_price() * besch->get_b() * besch->get_h();
+		cost = -besch->get_station_price() * besch->get_b() * besch->get_h();
 	}
 	else
 	{
@@ -3394,7 +3394,7 @@ char const* wkz_station_t::get_tooltip(spieler_t* const sp)
 		}
 		if(besch->get_base_station_price() != 2147483647)
 		{
-			price = besch->get_station_price();
+			price = -besch->get_station_price();
 		}
 		else
 		{
@@ -3437,7 +3437,7 @@ char const* wkz_station_t::get_tooltip(spieler_t* const sp)
 
 		if(besch->get_base_station_price() != 2147483647)
 		{
-			price = besch->get_station_price();
+			price = -besch->get_station_price();
 		}
 		else
 		{

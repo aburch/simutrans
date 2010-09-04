@@ -47,14 +47,6 @@ uint16 vehikel_besch_t::get_betriebskosten(karte_t* welt) const
 	return calc_running_cost(welt, get_betriebskosten());
 }
 
-// Get running costs. Running costs increased if the vehicle is obsolete.
-// Unscaled version for GUI purposes.
-// @author: jamespetts
-uint16 vehikel_besch_t::get_base_running_costs(karte_t* welt) const
-{
-	return calc_running_cost(welt, get_base_running_costs());
-}
-
 uint32 vehikel_besch_t::get_fixed_maintenance(karte_t *welt) const
 {
 	return calc_running_cost(welt, get_fixed_maintenance());

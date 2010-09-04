@@ -1217,36 +1217,12 @@ void vehikel_t::betrete_feld()
 
 void vehikel_t::hop()
 {	
-	// Fahrtkosten
-	// "Travel costs" (Babelfish)
-	if(hop_count == 0)
-	{
-		// Only re-check running costs every 256 steps
-		uint16 costs = besch->get_betriebskosten(welt);
-		if(costs != base_costs)
-		{
-			// Recalculate base costs only if necessary
-			base_costs = costs;
-			diagonal_costs = (costs * diagonal_length) / 255;
-			if(diagonal_costs == 0 && base_costs != 0)
-			{
-				diagonal_costs = 1;
-			}
-		}
-	}
-	if(steps_next != 255)
-	{
-		cnv->add_running_cost(-diagonal_costs);
-	}
-	else
-	{
-		cnv->add_running_cost(-base_costs);
-	}
-
 	if(ist_erstes)
 	{
 		// Only the first vehicle in a convoy does this,
 		// or else there is double counting.
+		// NOTE: As of 9.0, increment_odometer() also adds running costs for *all* vehicles in the convoy.
+
 		cnv->increment_odometer();
 	}
 
@@ -2411,7 +2387,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	if(str->has_sign()) {
 		const roadsign_t* rs = bd->find<roadsign_t>();
 		if(rs!=NULL) {
-			if(rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())) {
+			if(get_besch() && rs->get_besch()->get_min_speed()>0  &&  rs->get_besch()->get_min_speed()>kmh_to_speed(get_besch()->get_geschw())) {
 				return false;
 			}
 			// do not search further for a free stop beyond here

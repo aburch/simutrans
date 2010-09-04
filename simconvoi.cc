@@ -513,15 +513,24 @@ void convoi_t::add_running_cost(sint64 cost)
 
 void convoi_t::increment_odometer()
 {
-	tiles_since_last_odometer_increment ++;
-	// Need to use clipping here when converting a float to a uint8 to round down.
+	float tiles = 1;
+	if(fahr[0]->get_steps() != 255)
+	{
+		// Diagonal
+		tiles = fahr[0]->get_diagonal_length() / 255.0F;
+	}
+	tiles_since_last_odometer_increment += tiles;
 	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-	const uint8 km = tiles_since_last_odometer_increment * distance_per_tile;
-	if(km >= 1)
+	const float km = tiles_since_last_odometer_increment * distance_per_tile;
+	if(km >= 1.0F)
 	{
 		book( km, CONVOI_DISTANCE );
 		total_distance_traveled += km;
-		tiles_since_last_odometer_increment -= (km / distance_per_tile);
+		tiles_since_last_odometer_increment = (km - 1) * distance_per_tile;
+		for(uint8 i= 0; i < anz_vehikel; i++)
+		{
+			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
+		}
 	}
 }
 
@@ -2707,7 +2716,18 @@ convoi_t::rdwr(loadsave_t *file)
 
 	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
 	{
-		file->rdwr_byte(tiles_since_last_odometer_increment);
+		if(file->get_experimental_version() <= 8)
+		{
+			uint8 old_tiles = (uint8)tiles_since_last_odometer_increment;
+			file->rdwr_byte(old_tiles);
+			tiles_since_last_odometer_increment = (float)old_tiles;
+		}
+		else
+		{
+			double tiles = (double)tiles_since_last_odometer_increment;
+			file->rdwr_double(tiles);
+			tiles_since_last_odometer_increment = (float)tiles;
+		}
 	}
 
 	// since it was saved as an signed int
@@ -3617,7 +3637,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	bool second_run = anz_vehikel <= 1;
 	uint8 convoy_length = 0;
 	bool changed_loading_level = false;
-	for(uint8 i=0; i < anz_vehikel ; i++) 
+	for(sint8 i=0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
 
@@ -3641,7 +3661,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		changed_loading_level |= v->entladen(k, halt);
 		if(!no_load) {
 			// load
-			changed_loading_level |= v->beladen(k, halt);
+			changed_loading_level |= v->beladen(k, halt, second_run);
 		}
 		else 
 		{
@@ -3884,7 +3904,7 @@ sint32 convoi_t::get_per_kilometre_running_cost() const
 {
 	sint32 running_cost = 0;
 	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) { //"anzahl" = "number" (Babelfish)
-		sint32 vehicle_running_cost = fahr[i]->get_besch()->get_base_running_costs(welt);
+		sint32 vehicle_running_cost = fahr[i]->get_besch()->get_betriebskosten(welt);
 		running_cost += vehicle_running_cost;
 	}
 	return running_cost;

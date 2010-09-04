@@ -104,7 +104,6 @@ private:
 	uint16 gewicht; //Weight in tons
 	uint32 leistung; //Power in kW
 	uint16 betriebskosten;  //Running costs
-	uint16 scaled_running_costs; //@author: jamespetts
 	uint32 fixed_maintenance; //@author: jamespetts, April 2009
 
 	uint16 intro_date; // introduction date
@@ -356,10 +355,7 @@ public:
 	uint32 get_preis() const { return preis; }
 	uint16 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
-	uint16 get_betriebskosten() const { return scaled_running_costs; }
-	uint16 get_base_running_costs() const { return betriebskosten; }
-	uint16 get_base_running_costs(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
-	
+	uint16 get_betriebskosten() const { return betriebskosten; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint32 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
@@ -468,7 +464,6 @@ public:
 	void set_scale(float scale_factor)
 	{ 
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		scaled_running_costs = (uint16)(betriebskosten == 0 ? 0 : (betriebskosten * scale_factor >= 1 ? betriebskosten * scale_factor : 1)); 
 		preis = (uint32)(preis == 0 ? 0 : (preis * scale_factor >= 1 ? preis * scale_factor : 1));
 		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 : (fixed_maintenance * scale_factor >= 1 ? fixed_maintenance * scale_factor : 1));
 	}
