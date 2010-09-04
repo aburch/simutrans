@@ -473,7 +473,6 @@ void pumpe_t::step_all(long delta_t)
 	}
 }
 
-
 pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::invalid, NULL )
 {
 	fab = NULL;

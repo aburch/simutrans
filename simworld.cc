@@ -566,12 +566,8 @@ DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
 
 	// alle fabriken aufräumen
 	// "all factories clear up" (Babelfish)
-	//slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
-	//while(fab_iter.next()) {
-	//for(sint16 i = fab_list.get_count() - 1; i >= 0; i --)
 	ITERATE(fab_list, i)
 	{
-		//delete fab_iter.get_current();
 		delete fab_list[i];
 	}
 	fab_list.clear();
@@ -584,6 +580,8 @@ DBG_MESSAGE("karte_t::destroy()", "attraction list destroyed");
 	delete scenario;
 	scenario = NULL;
 
+	senke_t::neue_karte();
+	pumpe_t::neue_karte();
 
 	bool empty_depot_list = depot_t::get_depot_list().empty();
 	assert( empty_depot_list );
