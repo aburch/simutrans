@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2002 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2002 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -13,6 +13,9 @@
 class koord;
 class koord3d;
 
+/**
+ * slopes
+ */
 class hang_t {
 #ifndef DOUBLE_GROUNDS
 	static const int flags[16];
@@ -23,17 +26,32 @@ class hang_t {
 	enum { wegbar_ns = 1, wegbar_ow = 2, einfach = 4 };
 
 public:
-	typedef sint8 typ;
-
 	/*
-	 * Eigentlich aus bits zusammengesetzt:
-	 * Bit 0: gesetzt, falls Suedwestecke erhöht
-	 * Bit 1: gesetzt, falls Suedostecke erhöht
-	 * Bit 2: gesetzt, falls Nordostecke erhöht
-	 * Bit 3: gesetzt, falls Nordwestecke erhöht
+	 * Bitfield
+	 * Bit 0 is set if southwest corner is raised
+	 * Bit 1 is set if southeast corner is raised
+	 * Bit 2 is set if northeast corner is raised
+	 * Bit 3 is set if northwest corner is raised
 	 *
-	 * Und nicht verwirren lassen - der Suedhang ist im Norden hoch
+	 * Dont get confused - the southern/southward slope has its northern corners raised
 	 */
+	typedef sint8 typ;
+	/*
+	 * Macros to access the height of the 4 corners
+	 */
+#ifndef DOUBLE_GROUNDS
+#define corner1(i) (i%2)    	// sw corner
+#define corner2(i) ((i/2)%2)	// se corner
+#define corner3(i) ((i/4)%2)	// ne corner
+#define corner4(i) (i/8)    	// nw corner
+
+#else
+
+#define corner1(i) (i%3)    	// sw corner
+#define corner2(i) ((i/3)%3)	// se corner
+#define corner3(i) ((i/9)%9)	// ne corner
+#define corner4(i) (i/27)   	// nw corner
+#endif
 
 #ifndef DOUBLE_GROUNDS
 	enum _typ {
@@ -42,7 +60,7 @@ public:
 		west = 6, 	    // Westhang
 		ost = 9,	    // Osthang
 		sued = 12,	    // Suedhang
-		erhoben = 15	    // Speziell für Brückenanfänge (prissi: unsued, I think)
+		erhoben = 15	// all corners raised (not allowed as value in grund_t::slope)
 	};
 
 	static const hang_t::typ hang_from_ribi[16];
@@ -81,11 +99,9 @@ public:
 
 
 /**
- * Hajo: Nach Volkers einführung des NSOW arrays in der Koordinaten klasse
- * brauchen wir etwas entsprechendes für Richtungsbits. Deshalb habe ich hier
- * eine Klasse mit einer Sammlung von Daten für richtungsbits angelegt
- *
- * @author Hansjörg Malthaner
+ * Directions in simutrans
+ * ribi_t = Richtungs-Bit = Directions-Bitfield
+ * @author Hj. Malthaner
  */
 class ribi_t {
 	static const int flags[16];

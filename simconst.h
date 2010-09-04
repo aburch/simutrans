@@ -67,34 +67,15 @@
 
 // inclination types
 #ifndef DOUBLE_GROUNDS
-// single height definitions
-#define SOUTH_SLOPE (12)
-#define NORTH_SLOPE (3)
-#define WEST_SLOPE (6)
-#define EAST_SLOPE (9)
+// constants used in tools wkz_setslope / wkz_restoreslope_t
 #define ALL_UP_SLOPE (16)
 #define ALL_DOWN_SLOPE (17)
 #define RESTORE_SLOPE (18)
-
-#define corner1(i) (i%2)
-#define corner2(i) ((i/2)%2)
-#define corner3(i) ((i/4)%2)
-#define corner4(i) (i/8)
-
 #else
 // double height (two slopes per tile) definitions
-#define SOUTH_SLOPE (36)
-#define NORTH_SLOPE (4)
-#define WEST_SLOPE (12)
-#define EAST_SLOPE (28)
 #define ALL_UP_SLOPE (82)
 #define ALL_DOWN_SLOPE (83)
 #define RESTORE_SLOPE (84)
-
-#define corner1(i) (i%3)
-#define corner2(i) ((i/3)%3)
-#define corner3(i) ((i/9)%9)
-#define corner4(i) (i/27)
 #endif
 
 
