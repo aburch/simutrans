@@ -817,7 +817,7 @@ void karte_t::distribute_groundobjs_cities( const einstellungen_t *sets, sint16 
 {
 	DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 
-	unsigned new_anzahl_staedte = sets->get_anzahl_staedte();
+	double new_anzahl_staedte = sets->get_anzahl_staedte();
 	unsigned number_of_big_cities = umgebung_t::number_of_big_cities;
 
 	if(  umgebung_t::river_types>0  &&  einstellungen->get_river_number()>0  ) {
@@ -827,32 +827,41 @@ void karte_t::distribute_groundobjs_cities( const einstellungen_t *sets, sint16 
 printf("Creating cities ...\n");
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 	vector_tpl<sint32> *city_population = new vector_tpl<sint32>(new_anzahl_staedte);
-//	double rank1_population = (2.0 * einstellungen->get_mittlere_einwohnerzahl() * new_anzahl_staedte)/(1.0+new_anzahl_staedte);
+	//double rank1_population = (2.0 * einstellungen->get_mittlere_einwohnerzahl() * new_anzahl_staedte)/(1.0+new_anzahl_staedte);
 	double rank1_population = einstellungen->get_mittlere_einwohnerzahl();
 
-	for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) {
-		double population;
-		int rank;
-		do {
-			if ( i < number_of_big_cities ) {
-				rank = 1;
+	double adjusted_counter = 1;
+	double population;
+	const double adjusted_city_size = 2.0 * new_anzahl_staedte;
+	for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) 
+	{
+		do {	
+			if (i < number_of_big_cities) 
+			{
+				population = (2.5 * rank1_population * new_anzahl_staedte) / (1.0 + new_anzahl_staedte);
 			}
-			else {
-				rank = i - number_of_big_cities + 2;
+			else
+			{
+				adjusted_counter = i - number_of_big_cities + 2;
+				population = rank1_population * ((new_anzahl_staedte - adjusted_counter) / adjusted_city_size);
 			}
-			population = rank1_population/rank;
 			/* now add some gaussian noise */
-			double next_rank_population = rank1_population/(rank+1);
-			double sigma = (population - next_rank_population)/3.0;
+			double next_rank_population = rank1_population * ((new_anzahl_staedte - adjusted_counter + 1) / adjusted_city_size);
+			double sigma = (population - next_rank_population) / 3.0;
 			population = simrand_gauss(population, sigma);
 		} while ((population < 0) || (population > std::numeric_limits<uint32>::max() ));
 		city_population->append( uint32(population));
 	}
-	for (unsigned i =0; i< new_anzahl_staedte; i++) {
+
+#ifdef DEBUG
+	for (unsigned i =0; i< new_anzahl_staedte; i++) 
+	{
 		DBG_DEBUG("karte_t::distribute_groundobjs_cities()", "City rank %d -- %d", i, (*city_population)[i]);
 	}	
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
+#endif 
+
 	vector_tpl<koord> *pos = stadt_t::random_place(this, city_population, old_x, old_y);
 
 	if(  !pos->empty()  ) {
