@@ -832,8 +832,10 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 
 	double adjusted_counter = 1;
 	double population;
-	const double adjusted_city_size = 2.0 * new_anzahl_staedte;
-	for(  unsigned i=0;  i<new_anzahl_staedte;  i++  ) 
+	double adjusted_city_size = 2.0 * new_anzahl_staedte;
+	const int division_1 = new_anzahl_staedte / 3.25;
+	const int division_2 = new_anzahl_staedte / 2.5;
+	for(unsigned i = 0; i < new_anzahl_staedte; i++) 
 	{
 		do {	
 			if (i < number_of_big_cities) 
@@ -846,9 +848,26 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 				population = rank1_population * ((new_anzahl_staedte - adjusted_counter) / adjusted_city_size);
 			}
 			/* now add some gaussian noise */
-			double next_rank_population = rank1_population * ((new_anzahl_staedte - adjusted_counter + 1) / adjusted_city_size);
-			double sigma = (population - next_rank_population) / 3.0;
+			double sigma;
+			if(i < number_of_big_cities)
+			{
+				population /= 2.0;
+				sigma = population;
+			}
+			else
+			{
+				population /= 4.0;
+				sigma = population * 3.0;
+			}
 			population = simrand_gauss(population, sigma);
+			if(i == division_1)
+			{
+				adjusted_city_size = 3.0 * new_anzahl_staedte;
+			}
+			else if(i == division_2)
+			{
+				adjusted_city_size = 4.5 * new_anzahl_staedte;
+			}
 		} while ((population < 0) || (population > std::numeric_limits<uint32>::max() ));
 		city_population->append( uint32(population));
 	}
