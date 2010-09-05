@@ -2502,12 +2502,12 @@ void stadt_t::step_passagiere()
 {
 	//@author: jamespetts
 	// Passenger routing and generation metrics.	
-	const uint16 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
-	const uint16 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
-	const uint16 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
-	const uint16 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
-	const uint16 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
-	const uint16 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
+	const uint32 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
+	const uint32 local_passengers_max_distance = welt->get_einstellungen()->get_local_passengers_max_distance();
+	const uint32 midrange_passengers_min_distance = welt->get_einstellungen()->get_midrange_passengers_min_distance();
+	const uint32 midrange_passengers_max_distance = welt->get_einstellungen()->get_midrange_passengers_max_distance();
+	const uint32 longdistance_passengers_min_distance = welt->get_einstellungen()->get_longdistance_passengers_min_distance();
+	const uint32 longdistance_passengers_max_distance = welt->get_einstellungen()->get_longdistance_passengers_max_distance();
 
 	const uint16 min_local_tolerance = welt->get_einstellungen()->get_min_local_tolerance();
 	const uint16 max_local_tolerance = max(0, welt->get_einstellungen()->get_max_local_tolerance() - min_local_tolerance);
@@ -2639,23 +2639,23 @@ void stadt_t::step_passagiere()
 					if((float)passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 					{
 						// Will always be a destination in the current town.
-						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, 0, 0);	
+						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, 0, local_passengers_max_distance, k);	
 					}
 					else
 					{
-						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance);
+						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, local_passengers_min_distance, local_passengers_max_distance, k);
 					}
 				}
 				else if(range == midrange)
 				{
 					//Medium
-					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance);
+					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, midrange_passengers_min_distance, midrange_passengers_max_distance, k);
 				}
 				else
 				//else if(range == longdistance)
 				{
 					//Long distance
-					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance);  //"Ziel" = "target" (Google)
+					destinations[destinations_assigned] = finde_passagier_ziel(&will_return, longdistance_passengers_min_distance, longdistance_passengers_max_distance, k);  //"Ziel" = "target" (Google)
 				}
 			}
 			
@@ -2810,7 +2810,7 @@ walk:
 
 					// Now, decide whether passengers would prefer to use their private cars,
 					// even though they can travel by public transport.
-					const uint16 distance = accurate_distance(destinations[current_destination].location, k);
+					const uint32 distance = accurate_distance(destinations[current_destination].location, k);
 					if(car_minutes < 65535)
 					{
 						// Check first that the destination is reachable by car, and that the journey
@@ -2878,61 +2878,9 @@ walk:
 						
 						// If identical, no adjustment.
 
-						/* DEPRACATED - USE COMPARATIVE JOURNEY TIMES INSTEAD
-
-						// This is the speed bonus calculation, without reference to price.
-						const ware_besch_t* passengers = pax.get_besch();
-						const uint16 average_speed = ((distance * welt->get_einstellungen()->get_distance_per_tile()) * 600) / best_journey_time;
-						const sint32 ref_speed = welt->get_average_speed(road_wt) > 0 ? welt->get_average_speed(road_wt) : 1;
-						const uint16 speed_bonus_rating = convoi_t::calc_adjusted_speed_bonus(passengers->get_speed_bonus(), distance, welt);
-						const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
-						const float base_bonus = (float)speed_base * ((float)speed_bonus_rating / 100.0F);
-						//base_bonus should be 1 if the average speed is the same as the bonus speed.
-
-						if(base_bonus > 0)
-						{
-							// Positive bonus - reduce probability of car use
-							// by up to 50% if the bonus is 50 or more.
-							if(base_bonus >= 50)
-							{
-								private_car_chance *= 0.5F;
-							}
-							else
-							{
-								const float proportion = (float)base_bonus / 50.0F;
-								private_car_chance -= (private_car_chance * 0.5F) * proportion;
-							}
-						}
-						else if(base_bonus < 0)
-						{
-							// Negative bonus - increase probability of car use
-							// by up to 85% if the bonus is -50 or less.
-							if(base_bonus <= -50)
-							{
-								private_car_chance += private_car_chance * 0.85F;
-							}
-							else
-							{
-								const float proportion = (float)base_bonus / -50.0F;
-								private_car_chance += (private_car_chance * 0.85F) * proportion;
-							}
-						}
-						// Do nothing if base_bonus == 0.
-						*/
-
-						//Secondly, the number of unhappy passengers at the start station compared with the number of happy passengers.
+						//Fourthly, the number of unhappy passengers at the start station compared with the number of happy passengers.
 						float unhappy_factor = start_halt->get_unhappy_proportion(0);
-						/*float unhappy_total = start_halt->get_pax_unhappy() - start_halt->get_pax_happy();
-						float unhappy_factor;
-						if(unhappy_total > 0)
-						{
-							unhappy_factor = unhappy_total / start_halt->get_capacity(0);
-						}
-						else
-						{
-							unhappy_factor = 0.0F;
-						}*/
-
+						
 						if(unhappy_factor > 0.8F)
 						{
 							private_car_chance /= unhappy_factor;
@@ -3169,8 +3117,7 @@ public_transport:
 }
 
 
-inline void 
-stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
+inline void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 {
 	if(destination_town == NULL || (destination_town->get_pos().x == pos.x && destination_town->get_pos().y == pos.y))
 	{
@@ -3199,18 +3146,29 @@ stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
  * returns a random and uniformly distributed point within city borders
  * @author Hj. Malthaner
  */
-koord stadt_t::get_zufallspunkt() const
+koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord origin) const
 {
 	if(!buildings.empty()) 
 	{
-		gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
-		koord k = gb->get_pos().get_2d();
-		if(!welt->ist_in_kartengrenzen(k)) 
+		if(origin == koord::invalid)
 		{
-			// this building should not be in this list, since it has been already deleted!
-			dbg->error("stadt_t::get_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->get_name(), gb);
-			const_cast<stadt_t*>(this)->buildings.remove(gb);
-			k = koord(0, 0);
+			origin = this->get_pos();
+		}
+		koord k = koord::invalid;
+		uint32 distance = 0;
+		uint8 counter = 0;
+		while (counter++ < 32 && (k == koord::invalid || distance > max_distance || distance < min_distance))
+		{
+			gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
+			k = gb->get_pos().get_2d();
+			if(!welt->ist_in_kartengrenzen(k)) 
+			{
+				// this building should not be in this list, since it has been already deleted!
+				dbg->error("stadt_t::get_zufallspunkt()", "illegal building in city list of %s: %p removing!", this->get_name(), gb);
+				const_cast<stadt_t*>(this)->buildings.remove(gb);
+				k = koord(0, 0);
+			}
+			distance = accurate_distance(k, origin);
 		}
 		return k;
 	}
@@ -3223,12 +3181,16 @@ koord stadt_t::get_zufallspunkt() const
  * changing this strongly affects selection of targets and thus game strategy
  */
 
-stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uint16 min_distance, uint16 max_distance)
+stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uint32 min_distance, uint32 max_distance, koord origin)
 {
 	const int rand = simrand(100);
 	destination current_destination;
 	current_destination.object.town = NULL;
 	current_destination.type = 1;
+	if(origin == koord::invalid)
+	{
+		origin = this->get_pos();
+	}
 
 	// about 1/3 are workers
 	if(rand < welt->get_einstellungen()->get_factory_worker_percentage()  &&  arbeiterziele.get_sum_weight() > 0 )
@@ -3236,6 +3198,11 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight()));
 		*will_return = factoy_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
+		uint8 counter = 0;
+		while(counter ++ < 32 && (accurate_distance(origin, fab->get_pos().get_2d()) > max_distance || accurate_distance(origin, fab->get_pos().get_2d()) < min_distance))
+		{
+			fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight()));
+		}
 		current_destination.location = fab->get_pos().get_2d();
 		current_destination.object.industry = fab;
 		return current_destination;
@@ -3246,6 +3213,11 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		*will_return = tourist_return;	// tourists will return
 		const gebaeude_t* gb = welt->get_random_ausflugsziel();
 		current_destination.type = TOURIST_PAX ;
+		uint8 counter = 0;
+		while(counter ++ < 32 && (accurate_distance(origin, gb->get_pos().get_2d()) > max_distance || accurate_distance(origin, gb->get_pos().get_2d()) < min_distance))
+		{
+			gb =  welt->get_random_ausflugsziel();
+		}
 		current_destination.location = gb->get_pos().get_2d();
 		current_destination.object.attraction = gb;
 		return current_destination;
@@ -3272,7 +3244,8 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 			for(uint8 i = 0; i < 32; i ++)
 			{
 				zielstadt = welt->get_town_at(random);
-				distance = accurate_distance(this->get_pos(), zielstadt->get_pos());
+				// Add 65 here, as the destination building might be *closer* than the town hall. 65 is a reasonable maximum for town hall to border.
+				distance = accurate_distance(origin, zielstadt->get_pos()) + 65; 
 				if(distance <= max_distance && distance >= min_distance)
 				{
 					break;
@@ -3289,18 +3262,10 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		// long distance traveller? => then we return
 		// zielstadt = "Destination city"
 		*will_return = (this != zielstadt) ? town_return : no_return;
-		// Testing having all passengers making only return trips.
-		//*will_return = town_return;
-		current_destination.location = zielstadt->get_zufallspunkt(); //"random dot"
+		current_destination.location = zielstadt->get_zufallspunkt(min_distance, max_distance, origin); //"random dot"
 		current_destination.object.town = zielstadt;
 		return current_destination;
 	}
-}
-
-stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return)
-{
-	//Default version, gives wide range of distances.
-	return finde_passagier_ziel(will_return, 0, 4096);
 }
 
 

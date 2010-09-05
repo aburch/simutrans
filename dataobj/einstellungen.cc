@@ -906,12 +906,41 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(obsolete_running_cost_increase_percent);
 			file->rdwr_short(obsolete_running_cost_increase_phase_years);
 
-			file->rdwr_short(local_passengers_min_distance);
-			file->rdwr_short(local_passengers_max_distance);
-			file->rdwr_short(midrange_passengers_min_distance);
-			file->rdwr_short(midrange_passengers_max_distance);
-			file->rdwr_short(longdistance_passengers_min_distance);
-			file->rdwr_short(longdistance_passengers_max_distance);
+			if(file->get_experimental_version() >= 9)
+			{
+				file->rdwr_long(local_passengers_min_distance);
+				file->rdwr_long(local_passengers_max_distance);
+				file->rdwr_long(midrange_passengers_min_distance);
+				file->rdwr_long(midrange_passengers_max_distance);
+				file->rdwr_long(longdistance_passengers_min_distance);
+				file->rdwr_long(longdistance_passengers_max_distance);
+			}
+			else
+			{
+				uint16 old_local_passengers_min_distance = (uint16) local_passengers_min_distance;
+				file->rdwr_short(old_local_passengers_min_distance);
+				local_passengers_min_distance = (uint32)old_local_passengers_min_distance;
+
+				uint16 old_local_passengers_max_distance = (uint16)local_passengers_max_distance;
+				file->rdwr_short(old_local_passengers_max_distance);
+				local_passengers_max_distance = (uint32)old_local_passengers_max_distance;
+
+				uint16 old_midrange_passengers_min_distance = (uint16)midrange_passengers_min_distance;	
+				file->rdwr_short(old_midrange_passengers_min_distance);
+				midrange_passengers_min_distance = (uint32)old_midrange_passengers_min_distance;
+
+				uint16 old_midrange_passengers_max_distance = (uint16)midrange_passengers_max_distance;
+				file->rdwr_short(old_midrange_passengers_max_distance);
+				midrange_passengers_max_distance = (uint32)old_midrange_passengers_max_distance;
+
+				uint16 old_longdistance_passengers_min_distance = (uint16)longdistance_passengers_min_distance;
+				file->rdwr_short(old_longdistance_passengers_min_distance);
+				longdistance_passengers_min_distance = (uint32)old_longdistance_passengers_min_distance;
+
+				uint16 old_longdistance_passengers_max_distance = (uint16)longdistance_passengers_max_distance;
+				file->rdwr_short(old_longdistance_passengers_max_distance);
+				longdistance_passengers_max_distance = (uint32)old_longdistance_passengers_max_distance;
+			}
 
 			file->rdwr_byte(passenger_routing_packet_size);
 			file->rdwr_byte(max_alternative_destinations);
@@ -1466,7 +1495,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		passenger_routing_packet_size = 7;
 	}
 	max_alternative_destinations = contents.get_int("max_alternative_destinations", max_alternative_destinations);
-	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance ", passenger_routing_local_chance);
+	passenger_routing_local_chance  = contents.get_int("passenger_routing_local_chance", passenger_routing_local_chance);
 	if(passenger_routing_local_chance < 1 || passenger_routing_local_chance > 99)
 	{
 		passenger_routing_local_chance = 33;

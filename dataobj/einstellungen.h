@@ -276,12 +276,12 @@ private:
 	// Passenger destination ranges
 	// Use to set the extent to which passengers prefer local, medium, or long-range destinations.
 	// The distances can (and probably should) overlap.
-	uint16 local_passengers_min_distance;
-	uint16 local_passengers_max_distance;
-	uint16 midrange_passengers_min_distance;
-	uint16 midrange_passengers_max_distance;
-	uint16 longdistance_passengers_min_distance;
-	uint16 longdistance_passengers_max_distance;
+	uint32 local_passengers_min_distance;
+	uint32 local_passengers_max_distance;
+	uint32 midrange_passengers_min_distance;
+	uint32 midrange_passengers_max_distance;
+	uint32 longdistance_passengers_min_distance;
+	uint32 longdistance_passengers_max_distance;
 	
 	// @author: jamespetts
 	// Private car settings
@@ -639,16 +639,16 @@ public:
 	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }
 	void   set_obsolete_running_cost_increase_phase_years(uint16 value) { obsolete_running_cost_increase_phase_years = value; }
 
-	uint16 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
-	uint16 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
+	uint32 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
+	uint32 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
 	void   set_local_passengers_max_distance(uint16 value) { local_passengers_max_distance = value; }
-	uint16 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
+	uint32 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
 	void   set_midrange_passengers_min_distance(uint16 value) { midrange_passengers_min_distance = value; }
-	uint16 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
+	uint32 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
 	void   set_midrange_passengers_max_distance(uint16 value) { midrange_passengers_max_distance = value; }
-	uint16 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
+	uint32 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
 	void   set_longdistance_passengers_min_distance(uint16 value) { longdistance_passengers_min_distance = value; }
-	uint16 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
+	uint32 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
 
 	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
 	void  set_passenger_routing_packet_size(uint8 value) { passenger_routing_packet_size = value; }

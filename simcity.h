@@ -491,7 +491,7 @@ public:
 	 * Stadtgrenzen zurück
 	 * @author Hj. Malthaner
 	 */
-	koord get_zufallspunkt() const;
+	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
 
 	/**
 	 * gibt das pax-statistik-array für letzten monat zurück
@@ -586,8 +586,7 @@ public:
 	 * such ein (zufälliges) ziel für einen Passagier
 	 * @author Hj. Malthaner
 	 */
-	destination finde_passagier_ziel(pax_zieltyp* will_return);
-	destination finde_passagier_ziel(pax_zieltyp* will_return, uint16 min_distance, uint16 max_distance);
+	destination finde_passagier_ziel(pax_zieltyp* will_return, uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.
