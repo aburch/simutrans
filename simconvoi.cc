@@ -3160,16 +3160,13 @@ void convoi_t::laden() //"load" (Babelfish)
 	//@author: jamespetts
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 	
-	if(current_stop != fpl->get_aktuell())
-	{
-		const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
-		const uint16 average_speed = ((double)journey_distance / journey_time) * 20.0;
-		book(average_speed, CONVOI_AVERAGE_SPEED);
-		last_departure_time = welt->get_zeit_ms();
+	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
+	const uint16 average_speed = ((double)journey_distance / journey_time) * 20.0;
+	book(average_speed, CONVOI_AVERAGE_SPEED);
+	last_departure_time = welt->get_zeit_ms();
 		
-		// Recalculate comfort
-		book(get_comfort(), CONVOI_COMFORT);
-	}
+	// Recalculate comfort
+	book(get_comfort(), CONVOI_COMFORT);
 
 	for(uint8 i = 0; i < anz_vehikel; i++)
 	{
@@ -3241,7 +3238,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	if(!line.is_bound())
 	{
 		// No line - must use convoy
-		if(financial_history[1][CONVOI_AVERAGE_SPEED] < 1)
+		if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
 		{
 			average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
 		}
@@ -3253,7 +3250,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	else
 	{
-		if(line->get_finance_history(1, LINE_AVERAGE_SPEED) < 1)
+		if(line->get_finance_history(1, LINE_AVERAGE_SPEED) == 0)
 		{
 			average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
 		}
