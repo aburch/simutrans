@@ -640,6 +640,10 @@ public:
 	void remove_connected_industry(fabrik_t* fab);
 	void remove_connected_attraction(gebaeude_t* attraction);
 
+	// @author: jamespetts
+	// September 2010
+	uint16 get_max_dimension();
+
 };
 
 #endif

@@ -311,48 +311,48 @@ void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 {
 	READ_INIT
-	READ_NUM( sets->set_passenger_routing_packet_size );
-	READ_NUM( sets->set_max_alternative_destinations );
+	READ_NUM_VALUE( sets->passenger_routing_packet_size );
+	READ_NUM_VALUE( sets->max_alternative_destinations );
 
-	READ_NUM( sets->set_local_passengers_max_distance );
-	READ_NUM( sets->set_passenger_routing_local_chance );
-	READ_NUM2( sets->set_min_local_tolerance, * 10 );
-	READ_NUM2( sets->set_max_local_tolerance, * 10 );
-	READ_NUM( sets->set_midrange_passengers_min_distance );
-	READ_NUM( sets->set_midrange_passengers_max_distance );
-	READ_NUM2( sets->set_min_midrange_tolerance, * 10 );
-	READ_NUM2( sets->set_max_midrange_tolerance, * 10 );
-	READ_NUM( sets->set_passenger_routing_midrange_chance );
-	READ_NUM( sets->set_longdistance_passengers_min_distance );
-	READ_NUM2( sets->set_min_longdistance_tolerance, * 10 );
-	READ_NUM2( sets->set_max_longdistance_tolerance, * 10 );
-	READ_NUM( sets->set_tolerable_comfort_short_minutes );
-	READ_NUM( sets->set_tolerable_comfort_short );
-	READ_NUM( sets->set_tolerable_comfort_median_short_minutes );
-	READ_NUM( sets->set_tolerable_comfort_median_short );
-	READ_NUM( sets->set_tolerable_comfort_median_median_minutes );
-	READ_NUM( sets->set_tolerable_comfort_median_median );
-	READ_NUM( sets->set_tolerable_comfort_median_long_minutes );
-	READ_NUM( sets->set_tolerable_comfort_median_long );
-	READ_NUM( sets->set_tolerable_comfort_long_minutes );
-	READ_NUM( sets->set_tolerable_comfort_long );
+	READ_NUM_VALUE( sets->local_passengers_max_distance );
+	READ_NUM_VALUE( sets->passenger_routing_local_chance );
+	READ_NUM_VALUE_TENTHS( (sets->min_local_tolerance) );
+	READ_NUM_VALUE_TENTHS( sets->max_local_tolerance);
+	READ_NUM_VALUE( sets->midrange_passengers_min_distance );
+	READ_NUM_VALUE( sets->midrange_passengers_max_distance );
+	READ_NUM_VALUE( sets->passenger_routing_midrange_chance );
+	READ_NUM_VALUE_TENTHS( sets->min_midrange_tolerance );
+	READ_NUM_VALUE_TENTHS( sets->max_midrange_tolerance );
+	READ_NUM_VALUE( sets->longdistance_passengers_min_distance );
+	READ_NUM_VALUE_TENTHS( sets->min_longdistance_tolerance );
+	READ_NUM_VALUE_TENTHS( sets->max_longdistance_tolerance);
+	READ_NUM_VALUE( sets->tolerable_comfort_short_minutes );
+	READ_NUM_VALUE( sets->tolerable_comfort_short );
+	READ_NUM_VALUE( sets->tolerable_comfort_median_short_minutes );
+	READ_NUM_VALUE( sets->tolerable_comfort_median_short );
+	READ_NUM_VALUE( sets->tolerable_comfort_median_median_minutes );
+	READ_NUM_VALUE( sets->tolerable_comfort_median_median );
+	READ_NUM_VALUE( sets->tolerable_comfort_median_long_minutes );
+	READ_NUM_VALUE( sets->tolerable_comfort_median_long );
+	READ_NUM_VALUE( sets->tolerable_comfort_long_minutes );
+	READ_NUM_VALUE( sets->tolerable_comfort_long );
 
-	READ_NUM( sets->set_max_luxury_bonus_differential );
-	READ_NUM( sets->set_max_luxury_bonus_percent );
-	READ_NUM( sets->set_max_discomfort_penalty_differential );
-	READ_NUM( sets->set_max_discomfort_penalty_percent );
+	READ_NUM_VALUE( sets->max_luxury_bonus_differential );
+	READ_NUM_VALUE( sets->max_luxury_bonus_percent );
+	READ_NUM_VALUE( sets->max_discomfort_penalty_differential );
+	READ_NUM_VALUE( sets->max_discomfort_penalty_percent );
 
-	READ_NUM( sets->set_catering_min_minutes );
-	READ_NUM( sets->set_catering_level1_minutes );
-	READ_NUM( sets->set_catering_level1_max_revenue );
-	READ_NUM( sets->set_catering_level2_minutes );
-	READ_NUM( sets->set_catering_level2_max_revenue );
-	READ_NUM( sets->set_catering_level3_minutes );
-	READ_NUM( sets->set_catering_level3_max_revenue );
-	READ_NUM( sets->set_catering_level4_minutes );
-	READ_NUM( sets->set_catering_level4_max_revenue );
-	READ_NUM( sets->set_catering_level5_minutes );
-	READ_NUM( sets->set_catering_level5_max_revenue );
+	READ_NUM_VALUE( sets->catering_min_minutes );
+	READ_NUM_VALUE( sets->catering_level1_minutes );
+	READ_NUM_VALUE( sets->catering_level1_max_revenue );
+	READ_NUM_VALUE( sets->catering_level2_minutes );
+	READ_NUM_VALUE( sets->catering_level2_max_revenue );
+	READ_NUM_VALUE( sets->catering_level3_minutes );
+	READ_NUM_VALUE( sets->catering_level3_max_revenue );
+	READ_NUM_VALUE( sets->catering_level4_minutes );
+	READ_NUM_VALUE( sets->catering_level4_max_revenue );
+	READ_NUM_VALUE( sets->catering_level5_minutes );
+	READ_NUM_VALUE( sets->catering_level5_max_revenue );
 
 }
 

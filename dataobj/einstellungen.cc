@@ -940,6 +940,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				uint16 old_longdistance_passengers_max_distance = (uint16)longdistance_passengers_max_distance;
 				file->rdwr_short(old_longdistance_passengers_max_distance);
 				longdistance_passengers_max_distance = (uint32)old_longdistance_passengers_max_distance;
+				if(longdistance_passengers_max_distance == 0)
+				{
+					// Often, with high numbers specified, this value would be set incorrectly to zero. Correct this.
+					longdistance_passengers_max_distance = 65535;
+				}
 			}
 
 			file->rdwr_byte(passenger_routing_packet_size);
@@ -1454,7 +1459,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	tolerable_comfort_median_median = contents.get_int("tolerable_comfort_median_median", tolerable_comfort_median_median);
 	tolerable_comfort_median_long = contents.get_int("tolerable_comfort_median_long", tolerable_comfort_median_long);
 	tolerable_comfort_median_short_minutes = contents.get_int("tolerable_comfort_median_short_minutes", tolerable_comfort_median_short_minutes);
-	tolerable_comfort_median_short_minutes = contents.get_int("tolerable_comfort_median_median_minutes", tolerable_comfort_median_median_minutes);
+	tolerable_comfort_median_median_minutes = contents.get_int("tolerable_comfort_median_median_minutes", tolerable_comfort_median_median_minutes);
 	tolerable_comfort_median_long_minutes = contents.get_int("tolerable_comfort_median_long_minutes", tolerable_comfort_median_long_minutes);
 	max_luxury_bonus_differential = contents.get_int("max_luxury_bonus_differential", max_luxury_bonus_differential);
 	max_discomfort_penalty_differential = contents.get_int("max_discomfort_penalty_differential", max_discomfort_penalty_differential);

@@ -3157,7 +3157,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 		koord k = koord::invalid;
 		uint32 distance = 0;
 		uint8 counter = 0;
-		while (counter++ < 32 && (k == koord::invalid || distance > max_distance || distance < min_distance))
+		while (counter++ < 16 && (k == koord::invalid || distance > max_distance || distance < min_distance))
 		{
 			gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
 			k = gb->get_pos().get_2d();
@@ -3238,14 +3238,27 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		{
 			const uint32 weight = welt->get_town_list_weight();
 			const uint16 number_of_towns = welt->get_staedte().get_count();
-			const uint16 town_step = weight / number_of_towns;
+			uint16 town_step = weight / number_of_towns;
 			uint32 random = simrand(weight);
 			uint32 distance = 0;
-			for(uint8 i = 0; i < 32; i ++)
+			const uint16 max_x = max((origin.x - ur.x), (origin.x - lo.x));
+			const uint16 max_y = max((origin.y - ur.y), (origin.y - lo.y));
+			const uint16 max_internal_distance = max(max_x, max_y);
+			const uint8 max_count = min(64, number_of_towns + 1);
+			for(uint8 i = 0; i < max_count; i ++)
 			{
 				zielstadt = welt->get_town_at(random);
-				// Add 65 here, as the destination building might be *closer* than the town hall. 65 is a reasonable maximum for town hall to border.
-				distance = accurate_distance(origin, zielstadt->get_pos()) + 65; 
+				// Add max_internal_distnace here, as the destination building might be *closer* than the town hall.
+				
+				if(zielstadt == this)
+				{
+					distance = accurate_distance(origin, zielstadt->get_pos()) + max_internal_distance; 
+				}
+				else
+				{
+					distance = accurate_distance(origin, zielstadt->get_pos()) + max(max_internal_distance, zielstadt->get_max_dimension());
+				}
+				
 				if(distance <= max_distance && distance >= min_distance)
 				{
 					break;
@@ -3255,6 +3268,11 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 				if(random > weight)
 				{
 					random = 0;
+				}
+				if(i == 16 || i == 32)
+				{
+					// Necessary to modulate the destinations to avoid repeatedly hitting the same towns.
+					town_step -= 128;
 				}
 			}
 		}
@@ -3266,6 +3284,13 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		current_destination.object.town = zielstadt;
 		return current_destination;
 	}
+}
+
+uint16 stadt_t::get_max_dimension()
+{
+	const uint16 x = ur.x - lo.x;
+	const uint16 y = ur.y - lo.y;
+	return max(x,y);
 }
 
 

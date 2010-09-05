@@ -108,6 +108,7 @@ class einstellungen_t;
 #define READ_COST(t) numiter.next(); (t)( (sint64)(numiter.get_current()->get_value())*100 )
 #define READ_NUM_ARRAY(t, i) (t)((i), numiter.get_current()->get_value() )
 #define READ_NUM_VALUE(t) numiter.next(); (t) = numiter.get_current()->get_value()
+#define READ_NUM_VALUE_TENTHS(t) numiter.next(); (t) = (numiter.get_current()->get_value() * 10)
 #define READ_COST_VALUE(t) numiter.next(); (t) = (sint64)(numiter.get_current()->get_value())*100
 #define READ_BOOL(t) booliter.next(); (t)( booliter.get_current()->pressed )
 #define READ_BOOL_VALUE(t) booliter.next(); (t) = booliter.get_current()->pressed

@@ -206,6 +206,8 @@ private:
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
 
+public:
+
 	//Cornering settings
 	//@author: jamespetts
 	
@@ -323,6 +325,8 @@ private:
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
 	float speed_bonus_multiplier;
+	
+private:
 
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
@@ -338,6 +342,8 @@ private:
 	// 0 = multimedia timer functions
 	// 1 = performance counter functions
 	uint8 system_time_option;
+	
+public:
 
 	// The ranges for the journey time tolerance for passengers.
 	// @author: jamespetts
@@ -353,6 +359,8 @@ private:
 	// tolerate.
 	// @author: jamespetts, December 2009
 	uint16 max_walking_distance;
+	
+private:
 
 	// if true, you can buy obsolete stuff
 	bool allow_buying_obsolete_vehicles;
