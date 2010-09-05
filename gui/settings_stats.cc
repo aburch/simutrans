@@ -388,7 +388,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_INIT
 //	INIT_BOOL( "drive_left", umgebung_t::drive_on_left );	//cannot be switched after loading paks
 	INIT_NUM( "autosave", umgebung_t::autosave, 0, 12, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 25, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "frames_per_second",umgebung_t::fps, 10, 30, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "fast_forward", umgebung_t::max_acceleration, 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_BOOL( "numbered_stations", sets->get_numbered_stations() );
@@ -541,7 +541,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "factory_spacing", sets->get_factory_spacing(), 1, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "electric_promille", sets->get_electric_promille(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
-	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "passenger_factor",  sets->get_passenger_factor(), 0, 64, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "city_isolation_factor", sets->get_city_isolation_factor(), 1, 20000, 1, false );
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
@@ -587,8 +587,8 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_NUM_VALUE( sets->industry_increase );
 	READ_NUM_VALUE( sets->factory_spacing );
 	READ_NUM_VALUE( sets->electric_promille );
-	READ_NUM_VALUE( sets->city_isolation_factor );	
 	READ_NUM_VALUE( sets->passenger_factor );
+	READ_NUM_VALUE( sets->city_isolation_factor );
 	READ_NUM_VALUE( sets->factory_worker_radius );
 	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
 	READ_NUM_VALUE( sets->factory_worker_maximum_towns );
