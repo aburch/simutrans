@@ -4712,28 +4712,34 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 
 		case 'd':	// delete line
 			{
-				// close a schedule window, if stil active
-				gui_frame_t *w = win_get_magic( (long)line.get_rep() );
-				if(w) {
-					destroy_win( w );
+				if (line.is_bound()  &&  line->count_convoys()==0) {
+					// close a schedule window, if still active
+					gui_frame_t *w = win_get_magic( (long)line.get_rep() );
+					if(w) {
+						destroy_win( w );
+					}
+					sp->simlinemgmt.delete_line(line);
 				}
-				sp->simlinemgmt.delete_line(line);
 			}
 			break;
 
 		case 'g': // change schedule
 			{
-				line->get_schedule()->eingabe_abschliessen();
-				schedule_t *fpl = line->get_schedule()->copy();
-				fpl->sscanf_schedule( p );
-				line->set_schedule( fpl );
-				line->get_besitzer()->simlinemgmt.update_line(line);
+				if (line.is_bound()) {
+					line->get_schedule()->eingabe_abschliessen();
+					schedule_t *fpl = line->get_schedule()->copy();
+					fpl->sscanf_schedule( p );
+					line->set_schedule( fpl );
+					line->get_besitzer()->simlinemgmt.update_line(line);
+				}
 			}
 			break;
 
 		case 'w': // change widthdraw
 			{
-				line->set_withdraw( atoi(p) );
+				if (line.is_bound()) {
+					line->set_withdraw( atoi(p) );
+				}
 			}
 			break;
 	}
