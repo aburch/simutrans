@@ -862,11 +862,11 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 			population = simrand_gauss(population, sigma);
 			if(i == division_1)
 			{
-				adjusted_city_size = 3.0 * new_anzahl_staedte;
+				adjusted_city_size = 2.5 * new_anzahl_staedte;
 			}
 			else if(i == division_2)
 			{
-				adjusted_city_size = 4.5 * new_anzahl_staedte;
+				adjusted_city_size = 3.75 * new_anzahl_staedte;
 			}
 		} while ((population < 0) || (population > std::numeric_limits<uint32>::max() ));
 		city_population->append( uint32(population));
