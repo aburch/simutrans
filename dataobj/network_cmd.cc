@@ -262,6 +262,10 @@ void nwc_sync_t::rdwr()
 void nwc_sync_t::do_command(karte_t *welt)
 {
 	dbg->warning("nwc_sync_t::do_command", "sync_steps %d", get_sync_step());
+	// save screen coordinates & offsets
+	const koord ij = welt->get_world_position();
+	const sint16 xoff = welt->get_x_off();
+	const sint16 yoff = welt->get_y_off();
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
 	chdir( umgebung_t::user_dir );
@@ -336,6 +340,8 @@ void nwc_sync_t::do_command(karte_t *welt)
 		nwc_ready_t nwc(old_sync_steps);
 		nwc.send(network_get_socket(client_id));
 	}
+	// restore screen coordinates & offsets
+	welt->change_world_position(ij, xoff, yoff);
 }
 
 void nwc_check_t::rdwr()
