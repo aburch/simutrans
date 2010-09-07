@@ -145,7 +145,7 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			update_info();
 			join.disable();
 		}
-		else if(  p.i>0  ) {
+		else if(  p.i>=0  ) {
 			join.disable();
 			if(  serverlist.get_element(p.i)->get_color()!=COL_WHITE  ) {
 				const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
@@ -223,6 +223,6 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
-	// drawing twice, but otherwise it will no overlay image
+	// drawing twice, but otherwise it will not overlay image
 	serverlist.zeichnen( pos+koord(0,16) );
 }
