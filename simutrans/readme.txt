@@ -76,6 +76,31 @@ t = must be a stop
 Simutrans command line options
 ------------------------------
 
+Aplphabetical list of options:
+
+-addons
+-debug n=1..4
+-freeplay
+-fullscreen
+-help
+-lang en
+-load bla[.sve]
+-log n=0|1
+-noaddons
+-nomidi
+-nosound
+-objects path/
+-res n=1..5
+-screensize 600x350
+-server
+-singleuser
+-timeline n=0|1
+-use_workdir
+
+
+Detailed Description
+--------------------
+
 1.) Choose a resolution:
 
 1a.) Choose a 'standard'  resolution
@@ -152,7 +177,11 @@ explantion of the problem is much more important than the log file when
 reporting problems.
 
 The -debug switch turns on additional debug messages. The recommended
-combination is "-log 1 -debug"
+combination is "-log 1 -debug 3"
+
+Behind -debug you can give a debuglevel. 1 only errors [default], 2 logs also
+warnings, 3 all messages and 4 will generate a division by zero on a fatal
+error to allow for a backtrace.
 
 
 3.) Run Simutrans in free playing mode (bankrupt check turned off):
@@ -160,27 +189,7 @@ combination is "-log 1 -debug"
 simutrans -freeplay
 
 
-4.) Screen refresh setting:
-
-On slow machines even updating 640x480 pixels each frame may be
-too much load for the CPU. To run Simutrans on slow machines, frame
-skipping can be activated. Vehicles may move less smoothly this way,
-but at least it is possible to run Simutrans at all. This is helpful
-to run the big resolutions on standard machines, too.
-
-simutrans -refresh n
-
-displays every nth frame only. n=2 should result in a speedup of 25%,
-n=3 in a speedup of 33%
-You can chose n in a range from 1 to 16, where n=1 has the same effect as
-omitting this setting at all. n >= 4 may result in 'jumpy' vehicle movement.
-
-Try several values to find the best setting for your hardware. Usually
-n=2 or n=3 works best on slow machines. n=16 may be a kind of slideshow
-mode.
-
-
-5.) Getting help (well it just says read this readme file)
+4.) Getting help (well it just says read this readme file)
 
 simutrans -h
 simutrans -?
@@ -191,12 +200,20 @@ All print a quick help message, which basically says
 "Read the readme file"
 
 
+12) starting a server (without portnumer, it will be on port 13353
+
+simutrans -server [portnr]
+
+It is recommended to start server-games without addons with the pak
+set without modifications.
+
+
 6.) Use alternative PAK files
 
 If you have an alternative PAK file set for Simutrans, such as the
 winter scenario, you can use the following command line argument:
 
-simutrans -objects winter_pak/
+simutrans -objects winter_pak/ [-addons|-noaddons]
 
 "winter_pak" is the directory where the PAK files are stored. Use the
 name of your setup instead! The trailing slash is mandatory.
@@ -206,7 +223,11 @@ you can have additional add-ons in your personal simutrans directory.
 That way those are kept, when updating the main pak sets.
 You can additionally specify "-addons" or "-noaddons" to force loading
 or prevent addons to be loaded with a pakset. This overrides the setting
-in simuconf.tab.
+in simuconf.tab. "-noaddons" is defualt.
+
+If you specify "-use_workdir" the simutrans environment from the current
+directory will be taken. Otherwise simutrans will take the environment from
+the directory where the executable is located.
 
 
 7) Turn sound and music off (as of Simutrans 0.81.23exp)
@@ -220,7 +241,7 @@ simutrans -nosound
 simutrans -nomidi
 
 This also helps if Simutrans crashes on startup due to buggy or
-incompatible sound drivers.
+incompatible sound drivers. This is a problem especially in 64 bit Linux.
 
 
 8) Switch on/off multiplayer
@@ -264,6 +285,11 @@ Default value : setting starting_year in simuconf.tab
 simutrans -load mygame.sve
 
 
+11) define a language on startup using the iso codes
+
+simutrans -lang en
+
+
 
 All the above mentioned options can be combined, i.e.
 
@@ -302,4 +328,4 @@ The official Simutrans home page:
 http://www.simutrans.com
 
 This readme file was written by Hansjörg Malthaner, November 2000,
-Last update 24-Jul-2006 by Markus Pristovsek
+Last update 8-Sep-2010 by Markus Pristovsek

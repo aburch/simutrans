@@ -270,6 +270,7 @@ static void ask_language()
 {
 	if(  display_get_width()==0  ) {
 		// only console available ... => choose english for the moment
+		dbg->warning( "ask_language", "No language selected, will use english!" );
 		translator::set_language( "en" );
 	}
 	else {
@@ -670,8 +671,17 @@ int simu_main(int argc, char** argv)
 		exit(11);
 	}
 
-	// use requested (if available)
-	if(  found_settings  ) {
+	// use requested language (if available)
+	if (gimme_arg(argc, argv, "-lang", 1)) {
+		const char *iso = gimme_arg(argc, argv, "-lang", 1);
+		if(  strlen(iso)>=2  ) {
+			translator::set_language( iso );
+		}
+		if(  translator::get_language()==-1  ) {
+			dbg->error("simmain", "Illegal language defintion \"%s\"", iso );
+		}
+	}
+	else if(  found_settings  ) {
 		translator::set_language( umgebung_t::language_iso );
 	}
 
