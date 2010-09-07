@@ -98,6 +98,11 @@ public:
 	virtual const char* get_name() { return "nwc_join_t";}
 	uint32 client_id;
 	uint8 answer;
+
+	/**
+	 * this clients is in the process of joining
+	 */
+	static SOCKET pending_join_client;
 };
 
 /**

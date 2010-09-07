@@ -168,6 +168,9 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 }
 
 
+SOCKET nwc_join_t::pending_join_client = INVALID_SOCKET;
+
+
 void nwc_join_t::rdwr()
 {
 	network_command_t::rdwr();
@@ -183,13 +186,15 @@ bool nwc_join_t::execute(karte_t *welt)
 		// TODO: check whether we can send a file
 		nwc_join_t nwj;
 		nwj.client_id = network_get_client_id(packet->get_sender());
-		nwj.answer = nwj.client_id>0 ? 1 : 0;
+		// no other joining process active?
+		nwj.answer = nwj.client_id>0  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
 		nwj.rdwr();
 		nwj.send( packet->get_sender());
 		if (nwj.answer == 1) {
 			// now send sync command
 			nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, nwj.client_id);
 			network_send_all(nws, false);
+			pending_join_client = packet->get_sender();
 		}
 	}
 	return true;
@@ -339,6 +344,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
 		nwc_ready_t nwc(old_sync_steps);
 		nwc.send(network_get_socket(client_id));
+		nwc_join_t::pending_join_client = INVALID_SOCKET;
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
@@ -414,18 +420,31 @@ bool nwc_tool_t::execute(karte_t *welt)
 	}
 	else if (umgebung_t::server) {
 		// special care for unpause command
-		if (wkz_id == (WKZ_PAUSE | SIMPLE_TOOL)  &&  welt->is_paused()) {
-			nwc_ready_t *nwt = new nwc_ready_t(welt->get_sync_steps());
-			network_send_all(nwt, true);
-			welt->network_game_set_pause(false, welt->get_sync_steps());
+		if (wkz_id == (WKZ_PAUSE | SIMPLE_TOOL)) {
+			if (welt->is_paused()) {
+				// we cant do unpause in regular sync steps
+				// sent ready-command instead
+				nwc_ready_t *nwt = new nwc_ready_t(welt->get_sync_steps());
+				network_send_all(nwt, true);
+				welt->network_game_set_pause(false, welt->get_sync_steps());
+				// reset pending_join_client to allow connection attempts again
+				nwc_join_t::pending_join_client = INVALID_SOCKET;
+				return true;
+			}
+			else {
+				// do not pause the game while a join process is active
+				if (nwc_join_t::pending_join_client != INVALID_SOCKET) {
+					return true;
+				}
+				// set pending_join_client to block connection attempts during pause
+				nwc_join_t::pending_join_client = network_get_server();
+			}
 		}
-		else {
-			// copy data, sets tool_client_id to sender client_id
-			nwc_tool_t *nwt = new nwc_tool_t(*this);
-			nwt->exec = true;
-			nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
-			network_send_all(nwt, false);
-		}
+		// copy data, sets tool_client_id to sender client_id
+		nwc_tool_t *nwt = new nwc_tool_t(*this);
+		nwt->exec = true;
+		nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
+		network_send_all(nwt, false);
 	}
 	return true;
 }
