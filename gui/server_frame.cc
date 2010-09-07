@@ -232,7 +232,7 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	display_ddd_box_clip(pos.x+3, pos_y-1, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
 	display_array_wh(pos.x+4, pos_y, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
-	display_multiline_text( pos.x+4+mapsize.x+2+10, pos_y, buf, COL_BLACK );
+	display_multiline_text( pos.x+4+mapsize.x+2+10, date.get_pos().y+pos.y+16, buf, COL_BLACK );
 	pos_y += mapsize.y + 2*LINESPACE + 5;
 
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);

@@ -7,6 +7,7 @@
 #ifndef simsys_h
 #define simsys_h
 
+#include <stddef.h>
 #include "simtypes.h"
 
 
