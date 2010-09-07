@@ -31,6 +31,13 @@ public:
 
 	void zeichnen(koord pos, koord gr);
 
+	/**
+	 * Manche Fenster haben einen Hilfetext assoziiert.
+	 * @return den Dateinamen für die Hilfe, oder NULL
+	 * @author Hj. Malthaner
+	 */
+	const char *get_hilfe_datei() const {return "server.txt";}
+
 	bool action_triggered( gui_action_creator_t *komp,value_t p );
 
 	bool infowin_event(const event_t *ev);

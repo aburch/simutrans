@@ -7,6 +7,7 @@
  */
 
 #include "gameinfo.h"
+#include "network.h"
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simtools.h"
@@ -70,6 +71,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 			convoi_count += sp->get_finance_history_year(0,COST_ALL_CONVOIS);
 		}
 	}
+	clients = network_get_clients();
 
 	halt_count = haltestelle_t::get_alle_haltestellen().get_count();
 
@@ -175,7 +177,8 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	file->rdwr_long( game_engine_revision );
 	file->rdwr_long( pak_set_crc );
 
-	for(  int i=0;  i<15;  i++  ) {
+	for(  int i=0;  i<16;  i++  ) {
 		file->rdwr_byte( spieler_type[i] );
 	}
+	file->rdwr_byte( clients );
 }

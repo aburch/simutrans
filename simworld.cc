@@ -2790,7 +2790,7 @@ void karte_t::neuer_monat()
 	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", letzter_monat+1 );
-		speichern( buf, true );
+		speichern( buf, umgebung_t::savegame_version_str, true );
 	}
 }
 
@@ -3681,7 +3681,7 @@ karte_t::play_sound_area_clipped(koord pos, sound_info info)
 
 
 
-void karte_t::speichern(const char *filename, bool silent )
+void karte_t::speichern(const char *filename, const char *version_str, bool silent )
 {
 #ifndef DEMO
 DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
@@ -3689,7 +3689,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
 
 	display_show_load_pointer( true );
-	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str(), umgebung_t::savegame_version_str )) {
+	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str(), version_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
@@ -4035,7 +4035,7 @@ void karte_t::laden(loadsave_t *file)
 	}
 	set_random_mode(LOAD_RANDOM);
 
-	if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  network_get_clients()==0)  ) {
 		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()<2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
 			access_einstellungen()->set_use_timeline( umgebung_t::default_einstellungen.get_use_timeline() );

@@ -80,6 +80,19 @@ void server_frame_t::update_info()
 
 	buf.clear();
 	buf.printf( "%ux%u\n", gi.get_groesse_x(), gi.get_groesse_y() );
+	if(  gi.get_clients()!=255  ) {
+		uint8 player=0, locked = 0;
+		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			if(  gi.get_player_type(i)&~spieler_t::PASSWORD_PROTECTED  ) {
+				player ++;
+				if(  gi.get_player_type(i)&spieler_t::PASSWORD_PROTECTED  ) {
+					locked ++;
+				}
+			}
+		}
+		buf.printf( translator::translate("%u Player (%u locked)\n"), player, locked );
+		buf.printf( translator::translate("%u Client(s)\n"), (unsigned)gi.get_clients() );
+	}
 	buf.printf( "%s %u\n", translator::translate("Towns"), gi.get_anzahl_staedte() );
 	number_to_string( temp, gi.get_einwohnerzahl(), 0 );
 	buf.printf( "%s %s\n", translator::translate("citicens"), temp );
@@ -145,7 +158,7 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			update_info();
 			join.disable();
 		}
-		else if(  p.i>=0  ) {
+		else {
 			join.disable();
 			if(  serverlist.get_element(p.i)->get_color()!=COL_WHITE  ) {
 				const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
@@ -167,7 +180,8 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 	}
 	else if(  &loadlist == komp  ) {
 		// download list from main server
-		network_download_http( "www.physik.tu-berlin.de:80", "/~prissi/simutrans/serverlist.txt", "serverlist.txt" );
+//		network_download_http( "www.physik.tu-berlin.de:80", "/~prissi/simutrans/serverlist.txt", "serverlist.txt" );
+		network_download_http( "simutrans-germany.com:80", "/serverlist/serverlist.txt", "serverlist.txt" );
 		serverlist.clear_elements();
 		// read the list
 		FILE *fh = fopen( "serverlist.txt", "r" );

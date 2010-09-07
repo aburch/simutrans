@@ -21,6 +21,7 @@
 
 #include "../simworld.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/umgebung.h"
 #include "../pathes.h"
 #include "../utils/simstring.h"
 
@@ -35,7 +36,7 @@ void loadsave_frame_t::action(const char *filename)
 		welt->laden(filename);
 	}
 	else {
-		welt->speichern(filename,false);
+		welt->speichern( filename, umgebung_t::savegame_version_str, false );
 		welt->set_dirty();
 		welt->reset_timer();
 	}

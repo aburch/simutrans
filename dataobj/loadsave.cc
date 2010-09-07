@@ -247,6 +247,10 @@ const char *loadsave_t::close()
 		}
 		else if(  is_bzip2()  ) {
 			if(   saving  ) {
+				/* BZLIB seems to eat the last byte, if it is at odd position
+				 * => we just write a dummy zero padding byte
+				 */
+				write( "", 1 );
 				BZ2_bzWriteClose( &bse, bzfp, 0, NULL, NULL );
 			}
 			else {

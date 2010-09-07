@@ -50,6 +50,7 @@ private:
 
 	// 0 = emtpy, otherwise some vaule from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
+	uint8 clients;	// currently connected players
 
 public:
 	gameinfo_t( karte_t *welt );
@@ -82,6 +83,7 @@ public:
 	const char *get_pak_name() const { return pak_name.c_str(); }
 	bool get_with_private_paks() const { return with_private_paks; }
 	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
+	uint8 get_clients() const { return clients; }
 };
 
 #endif
