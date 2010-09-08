@@ -49,7 +49,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 	date.set_pos( koord( 4, pos_y ) );
 	add_komponente( &date );
 
-	pos_y += gi.get_map()->get_height()+LINESPACE+6;
+	pos_y += 8*LINESPACE;
 
 	revision.set_pos( koord( 4, pos_y ) );
 	add_komponente( &revision );
@@ -101,7 +101,7 @@ void server_frame_t::update_info()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision_buf.clear();
-	if(  serverlist.get_selection()>0  ) {
+	if(  serverlist.get_selection()>=0  ) {
 		// need to compare with our world now
 		gameinfo_t current(welt);
 
@@ -204,6 +204,7 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		}
 		fclose( fh );
 		remove( "serverlist.txt" );
+		serverlist.set_selection( 0 );
 	}
 	else if(  &join == komp  ) {
 		std::string filename = "net:";
@@ -233,7 +234,7 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	display_array_wh(pos.x+4, pos_y, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
 	display_multiline_text( pos.x+4+mapsize.x+2+10, date.get_pos().y+pos.y+16, buf, COL_BLACK );
-	pos_y += mapsize.y + 2*LINESPACE + 5;
+	pos_y += 9*LINESPACE - 1;
 
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
