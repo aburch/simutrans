@@ -2,9 +2,8 @@
 
 #ifdef  __MINGW32__
 // warning: IPv6 will only work on XP and up ...
-#define WINVER 0x0501
-#endif
 #define USE_IP4_ONLY
+#endif
 
 #include <stdio.h>
 #include <stdlib.h>
