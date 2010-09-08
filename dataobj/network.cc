@@ -46,6 +46,14 @@ static uint32 active_clients;
 // list of commands on the server
 static slist_tpl<network_command_t *> server_command_queue;
 
+#ifdef WIN32
+#define RET_ERR_STR { FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); return err_str; }
+#else
+#define RET_ERR_STR return err_str
+#endif
+
+
+
 // global client id
 static uint32 client_id;
 uint32 network_get_client_id()
@@ -95,116 +103,45 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		return "Cannot init network!";
 	}
 
-	struct sockaddr_in server_name;
-	memset(&server_name,0,sizeof(server_name));
-	server_name.sin_family=AF_INET;
-#ifdef  WIN32
-	bool ok = true;
-	server_name.sin_addr.s_addr = inet_addr(cp);	// for windows we must first try to resolve the number
-	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
-		ok = false;
-		struct hostent *theHost;
-		theHost = gethostbyname( cp );	// ... before resolving a name ...
-		if(theHost) {
-			server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
-			ok = true;
-		}
-	}
-	if(!ok) {
-#else
-	/* inet_anon does not work on BeOS; but since gethostbyname() can
-	 * do this job on all other systems too, we use it only:
-     * instead of if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
-     */
-	struct hostent *theHost;
-	theHost = gethostbyname( cp );
-	if(theHost) {
-		server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
-	}
-	else {// Bad address
-#endif
+	char port_nr[8];
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+
+	struct addrinfo *res;
+	int ret;
+	sprintf( port_nr, "%u", port );
+	if ((ret = getaddrinfo(cp, port_nr, &hints, &res))!=0) {
 		sprintf( err_str, "Bad address %s", cp );
-		return err_str;
-	}
-	server_name.sin_port=htons(port);
-
-	my_client_socket = socket(AF_INET,SOCK_STREAM,0);
-	if(my_client_socket==INVALID_SOCKET) {
-		return "Cannot create socket";
+		RET_ERR_STR;
 	}
 
-#if !defined(__BEOS__)  &&  !defined(__HAIKU__)
-	if(  0 &&  timeout_ms>0  ) {
-		// use non-blocking sockets to have a shorter timeout
-		fd_set fds;
-		struct timeval timeout;
-#ifdef  WIN32
-		unsigned long opt =1;
-		ioctlsocket(my_client_socket, FIONBIO, &opt);
+	my_client_socket = INVALID_SOCKET;
+	struct addrinfo *walk;
+	for(  walk = res;  walk != NULL;  walk = walk->ai_next  ) {
+		my_client_socket = socket( walk->ai_family, walk->ai_socktype, walk->ai_protocol );
+		if (my_client_socket < 0){
+			/* actually not a valid socket ... */
+			continue;
+		}
+		if(  connect(my_client_socket, walk->ai_addr, walk->ai_addrlen) != 0  ) {
+#ifdef WIN32
+			closesocket(my_client_socket);
 #else
-		int opt;
-		if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
-			return "fcntl error";
-		}
-		opt |= O_NONBLOCK;
-		if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
-			return "fcntl error";
-		}
+			close(my_client_socket);
 #endif
-		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
-#ifdef  WIN32
-			// WSAEWOULDBLOCK indicate, that it may still succeed
-			if (WSAGetLastError() != WSAEWOULDBLOCK) {
-				FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
-#else
-			// EINPROGRESS indicate, that it may still succeed
-			if(  errno != EINPROGRESS  ) {
-				sprintf( err_str, "Could not connect to %s", cp );
-#endif
-				return err_str;
-			}
+			my_client_socket = INVALID_SOCKET;
+			/* could not connect with this! */
+			continue;
 		}
+		break;
+	}
 
-		// no add only this socket to set
-		FD_ZERO(&fds);
-		FD_SET(my_client_socket, &fds);
-
-		// enter timeout
-		timeout.tv_sec = timeout_ms/1000;
-		timeout.tv_usec = ((timeout_ms%1000)*1000);
-
-		// and wait ...
-		if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
-			// some other problem?
-			return "Call to select failed";
-		}
-
-		// is this socket ok?
-		if (FD_ISSET(my_client_socket, &fds) == 0) {
-			// not in set => timeout
-			return "Server did not respond!";
-		}
-
-		// make a blocking socket out of it
-#ifdef  WIN32
-		opt = 0;
-		ioctlsocket(my_client_socket, FIONBIO, &opt);
-#else
-		opt &= (~O_NONBLOCK);
-		fcntl(my_client_socket, F_SETFL, opt);
-#endif
-	} else
-#endif
-	{
-		if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
-#ifdef  WIN32
-			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
-#else
-			sprintf( err_str, "Could not connect to %s", cp );
-#endif
-			dbg->warning( "network_open_address", err_str );
-			return err_str;
-		}
+	freeaddrinfo(res);
+	if (my_client_socket == INVALID_SOCKET) {
+		sprintf( err_str, "Could not connect to %s", cp );
+		RET_ERR_STR;
 	}
 
 	active_clients = 0;
