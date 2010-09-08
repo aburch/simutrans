@@ -2,6 +2,30 @@
 #define sim_network_h
 
 #ifdef WIN32
+#include <WinSock2.h>
+#include <ws2tcpip.h>
+#undef min
+#undef max
+#else
+#ifdef __BEOS__
+#include <net/netdb.h>
+#include <net/sockets.h>
+#include <sys/select.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+#endif
+#include <fcntl.h>
+#include <errno.h>
+// to keep compatibility to MS windows
+typedef int SOCKET;
+#define INVALID_SOCKET -1
+#endif
+
+#if 0
+#ifdef WIN32
 // must be include before all simutrans stuff!
 #include <winsock.h>
 #undef min
@@ -18,10 +42,7 @@
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
 #endif
-
-// to keep compatibility to MS windows
-typedef int SOCKET;
-#define INVALID_SOCKET -1
+#endif
 #endif
 
 #include "../simtypes.h"

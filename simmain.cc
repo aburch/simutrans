@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string>
 #include <new>
@@ -58,12 +59,12 @@
 #include "utils/simstring.h"
 #include "utils/searchfolder.h"
 
+#include "dataobj/network.h"	// must be before any "windows.h" is included via bzlib2.h ...
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/translator.h"
-#include "dataobj/network.h"
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"

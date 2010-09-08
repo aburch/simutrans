@@ -7,19 +7,6 @@
 #include "network.h"
 #include "network_cmd.h"
 
-
-#ifdef __BEOS__
-#include <net/netdb.h>
-#include <net/sockets.h>
-#elif !defined(WIN32)
-#include <netdb.h>
-#endif
-
-// Haiku has select in an additional header
-#ifndef FD_SET
-#include <sys/select.h>
-#endif
-
 #include "loadsave.h"
 #include "gameinfo.h"
 
@@ -36,11 +23,13 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/slist_tpl.h"
 
+#if 0
 #ifdef WIN32
 #define socklen_t int
 #else
 #include <fcntl.h>
 #include <errno.h>
+#endif
 #endif
 
 static bool network_active = false;
@@ -74,7 +63,7 @@ bool network_initialize()
 #ifdef WIN32
 		/* Let's load the network in windows */
 		WSADATA wsa;
-		if(int err = WSAStartup(0x101, &wsa)) {
+		if(int err = WSAStartup( MAKEWORD(2, 2), &wsa)) {
 			dbg->error("NetworkInitialize()","failed loading windows socket library");
 			return false;
 		}

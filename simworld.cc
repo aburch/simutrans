@@ -74,6 +74,8 @@
 #include "gui/help_frame.h"
 #include "gui/karte.h"
 
+#include "dataobj/network.h"
+#include "dataobj/network_cmd.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/scenario.h"
@@ -81,8 +83,6 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
 #include "dataobj/powernet.h"
-#include "dataobj/network.h"
-#include "dataobj/network_cmd.h"
 
 #include "utils/simstring.h"
 
