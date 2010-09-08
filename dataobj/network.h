@@ -6,6 +6,9 @@
 #include <ws2tcpip.h>
 #undef min
 #undef max
+#ifndef IPV6_V6ONLY
+#define IPV6_V6ONLY (27)
+#endif
 #else
 #ifdef __BEOS__
 #include <net/netdb.h>
@@ -108,8 +111,5 @@ void network_core_shutdown();
 
 // get our id on the server
 uint32 network_get_client_id();
-
-// get server socket
-SOCKET network_get_server();
 
 #endif

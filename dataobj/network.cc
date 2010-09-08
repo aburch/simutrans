@@ -23,18 +23,13 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/slist_tpl.h"
 
-#if 0
-#ifdef WIN32
-#define socklen_t int
-#else
-#include <fcntl.h>
-#include <errno.h>
-#endif
+#if WIN32
+#include <windows.h>
 #endif
 
 static bool network_active = false;
 // local server cocket
-static SOCKET my_socket = INVALID_SOCKET;
+static vector_tpl<SOCKET> my_socket;
 // local client socket
 static SOCKET my_client_socket = INVALID_SOCKET;
 static slist_tpl<const char *>pending_list;
@@ -87,14 +82,27 @@ bool network_initialize()
 const char *network_open_address( const char *cp, long timeout_ms )
 {
 	// Network load. Address format e.g.: "net:128.0.0.1:13353"
-	char address[32];
+	char address[1024];
 	static char err_str[256];
 	uint16 port = 13353;
 	const char *cp2 = strrchr(cp,':');
-	if(cp2!=NULL) {
-		port=atoi(cp2+1);
-		// Copy the address part
-		tstrncpy(address,cp,cp2-cp>31?31:cp2-cp+1);
+	const char *cp1 = strrchr(cp,']');
+
+	if(cp1!=NULL  ||  cp2!=NULL) {
+		if(  cp2!=NULL  &&  cp2>cp1  ) {
+			port=atoi(cp2+1);
+		}
+		else {
+			cp2 = cp1+1;
+		}
+		if(  cp1  ) {
+			// IPv6 addresse net:[....]:port
+			tstrncpy(address,cp+1,cp1-cp>=sizeof(address)?sizeof(address):cp1-cp);
+		}
+		else {
+			// Copy the address part
+			tstrncpy(address,cp,cp2-cp>31?31:cp2-cp+1);
+		}
 		cp = address;
 	}
 
@@ -328,37 +336,57 @@ bool network_init_server( int port )
 
 	network_initialize();
 
-	my_socket = socket(PF_INET, SOCK_STREAM, 0);
-	if(  my_socket==INVALID_SOCKET  ) {
+	struct addrinfo *res;
+	struct addrinfo hints;
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = PF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_flags = AI_PASSIVE;
+	int ret;
+	char port_nr[16];
+	sprintf( port_nr, "%u", port );
+	if((ret = getaddrinfo(NULL, port_nr, &hints, &res)) != 0) {
 		dbg->fatal("init_server()", "Fail to open socket!");
-		return false;
 	}
 
-	name.sin_family = AF_INET;
-	name.sin_port = htons(port);
-	name.sin_addr.s_addr = htonl(INADDR_ANY);
-	if(  bind(my_socket, (struct sockaddr *)&name, sizeof(name))==-1  ) {
-		dbg->fatal("init_server()", "Bind failed!");
-		return false;
-	}
+	SOCKET fd;
+	struct addrinfo *walk;
+	for (walk = res; walk != NULL; walk = walk->ai_next) {
+		fd = socket(walk->ai_family, walk->ai_socktype, walk->ai_protocol);
+		if (fd == INVALID_SOCKET) {
+			continue;
+		}
 
-	if(  listen(my_socket, MAX_PLAYER_COUNT /* max pending connections */)==-1  ) {
-		dbg->fatal("init_server()", "Listen failed for %i sockets!", MAX_PLAYER_COUNT );
-		return false;
-	}
+		if (walk->ai_family == AF_INET6) {
+			int on = 1;
+			if (setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&on, sizeof(on)) == -1) {
+				// only use real IPv6 sockets for IPv6
+				continue;
+			}
+		}
 
-	active_clients = 0;
-	network_add_client( my_socket );
+		if (bind(fd, walk->ai_addr, walk->ai_addrlen)) {
+			/* Hier kann eine Fehlermeldung hin, z.B. mit warn() */
+			continue;
+		}
+
+		if (listen(fd, 32) == -1) {
+			/* Hier kann eine Fehlermeldung hin, z.B. mit warn() */
+			continue;
+		}
+
+		my_socket.append( fd );
+	}
+	freeaddrinfo(res);
+
+	for(  uint32 i=0;  i<my_socket.get_count();  i++  ) {
+		network_add_client( my_socket[i] );
+	}
+	active_clients = 1;
 	client_id = 0;
 	server_command_queue.clear();
 
 	return true;
-}
-
-// get server socket
-SOCKET network_get_server()
-{
-	return clients.get_count()>0 ? clients[0] : INVALID_SOCKET;
 }
 
 void network_add_client( SOCKET sock )
@@ -473,10 +501,17 @@ network_command_t* network_check_activity(int timeout)
 	}
 
 	// accept new connection
-	if(  my_socket!=INVALID_SOCKET  &&  FD_ISSET(my_socket, &fds)  ) {
+	int nr = -1;
+	for(  int i=0;  i<my_socket.get_count();  i++  ) {
+		if(  FD_ISSET(my_socket[i], &fds)  ) {
+			nr = i;
+			break;
+		}
+	}
+	if(  nr>=0  ) {
 		struct sockaddr_in client_name;
 		socklen_t size = sizeof(client_name);
-		SOCKET s = accept(my_socket, (struct sockaddr *)&client_name, &size);
+		SOCKET s = accept(my_socket[nr], (struct sockaddr *)&client_name, &size);
 		if(  s!=INVALID_SOCKET  ) {
 #ifdef  __BEOS__
 			dbg->message("check_activity()", "Accepted connection from: %lh.\n", client_name.sin_addr.s_addr );
@@ -560,7 +595,7 @@ void network_send_all(network_command_t* nwc, bool exclude_us )
 			if (clients[i]!=INVALID_SOCKET) {
 				SOCKET s = clients[i];
 				// if we are server do not send to ourselves
-				if(s==my_socket) {
+				if(my_socket.is_contained(s)) {
 					continue;
 				}
 				nwc->send(s);
@@ -719,8 +754,8 @@ void network_close_socket( SOCKET sock )
 #else
 		close( sock );
 #endif
-		if(  sock==my_socket  ) {
-			my_socket = INVALID_SOCKET;
+		if(  my_socket.is_contained(sock)  ) {
+			my_socket.remove( sock );
 		}
 		if(  sock==my_client_socket  ) {
 			my_client_socket = INVALID_SOCKET;
@@ -735,7 +770,9 @@ void network_close_socket( SOCKET sock )
  */
 void network_core_shutdown()
 {
-	network_close_socket( my_socket );
+	while(  my_socket.get_count()!=0  ) {
+		network_close_socket( my_socket.back() );
+	}
 	network_close_socket( my_client_socket );
 	while(  !pending_list.empty()  ) {
 		free( (void *)pending_list.remove_first() );

@@ -431,7 +431,7 @@ bool nwc_tool_t::execute(karte_t *welt)
 					return true;
 				}
 				// set pending_join_client to block connection attempts during pause
-				nwc_join_t::pending_join_client = network_get_server();
+				nwc_join_t::pending_join_client = network_get_socket(0);
 			}
 		}
 		// copy data, sets tool_client_id to sender client_id
