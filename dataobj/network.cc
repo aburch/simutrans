@@ -1,5 +1,11 @@
 /* basic network functionality, borrowed from OpenTTD */
 
+#ifdef  __MINGW32__
+// warning: IPv6 will only work on XP and up ...
+#define WINVER 0x0501
+#endif
+#define USE_IP4_ONLY
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -22,10 +28,6 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 #include "../tpl/slist_tpl.h"
-
-#if WIN32
-#include <windows.h>
-#endif
 
 static bool network_active = false;
 // local server cocket
@@ -81,7 +83,137 @@ bool network_initialize()
 // open a socket or give a decent error message
 const char *network_open_address( const char *cp, long timeout_ms )
 {
-	// Network load. Address format e.g.: "net:128.0.0.1:13353"
+#ifdef USE_IP4_ONLY
+	// Network load. Address format e.g.: "128.0.0.1:13353"
+	char address[32];
+	static char err_str[256];
+	uint16 port = 13353;
+	const char *cp2 = strrchr(cp,':');
+	if(cp2!=NULL) {
+		port=atoi(cp2+1);
+		// Copy the address part
+		tstrncpy(address,cp,cp2-cp>31?31:cp2-cp+1);
+		cp = address;
+	}
+
+	// now activate network
+	if(  !network_initialize()  ) {
+		return "Cannot init network!";
+	}
+
+	struct sockaddr_in server_name;
+	memset(&server_name,0,sizeof(server_name));
+	server_name.sin_family=AF_INET;
+#ifdef  WIN32
+	bool ok = true;
+	server_name.sin_addr.s_addr = inet_addr(cp);	// for windows we must first try to resolve the number
+	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
+		ok = false;
+		struct hostent *theHost;
+		theHost = gethostbyname( cp );	// ... before resolving a name ...
+		if(theHost) {
+			server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
+			ok = true;
+		}
+	}
+	if(!ok) {
+#else
+	/* inet_anon does not work on BeOS; but since gethostbyname() can
+	 * do this job on all other systems too, we use it only:
+     * instead of if(inet_aton(cp,&server_name.sin_addr)==0) { // Bad address
+     */
+	struct hostent *theHost;
+	theHost = gethostbyname( cp );
+	if(theHost) {
+		server_name.sin_addr = *(struct in_addr *)theHost->h_addr_list[0];
+	}
+	else {// Bad address
+#endif
+		sprintf( err_str, "Bad address %s", cp );
+		return err_str;
+	}
+	server_name.sin_port=htons(port);
+
+	my_client_socket = socket(AF_INET,SOCK_STREAM,0);
+	if(my_client_socket==INVALID_SOCKET) {
+		return "Cannot create socket";
+	}
+
+#if !defined(__BEOS__)  &&  !defined(__HAIKU__)
+	if(  0 &&  timeout_ms>0  ) {
+		// use non-blocking sockets to have a shorter timeout
+		fd_set fds;
+		struct timeval timeout;
+#ifdef  WIN32
+		unsigned long opt =1;
+		ioctlsocket(my_client_socket, FIONBIO, &opt);
+#else
+		int opt;
+		if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
+			return "fcntl error";
+		}
+		opt |= O_NONBLOCK;
+		if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
+			return "fcntl error";
+		}
+#endif
+		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
+#ifdef  WIN32
+			// WSAEWOULDBLOCK indicate, that it may still succeed
+			if (WSAGetLastError() != WSAEWOULDBLOCK) {
+				FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
+#else
+			// EINPROGRESS indicate, that it may still succeed
+			if(  errno != EINPROGRESS  ) {
+				sprintf( err_str, "Could not connect to %s", cp );
+#endif
+				return err_str;
+			}
+		}
+
+		// no add only this socket to set
+		FD_ZERO(&fds);
+		FD_SET(my_client_socket, &fds);
+
+		// enter timeout
+		timeout.tv_sec = timeout_ms/1000;
+		timeout.tv_usec = ((timeout_ms%1000)*1000);
+
+		// and wait ...
+		if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
+			// some other problem?
+			return "Call to select failed";
+		}
+
+		// is this socket ok?
+		if (FD_ISSET(my_client_socket, &fds) == 0) {
+			// not in set => timeout
+			return "Server did not respond!";
+		}
+
+		// make a blocking socket out of it
+#ifdef  WIN32
+		opt = 0;
+		ioctlsocket(my_client_socket, FIONBIO, &opt);
+#else
+		opt &= (~O_NONBLOCK);
+		fcntl(my_client_socket, F_SETFL, opt);
+#endif
+	} else
+#endif
+	{
+		if(connect(my_client_socket,(struct sockaddr *)&server_name,sizeof(server_name))==-1) {
+#ifdef  WIN32
+			FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
+#else
+			sprintf( err_str, "Could not connect to %s", cp );
+#endif
+			dbg->warning( "network_open_address", err_str );
+			return err_str;
+		}
+	}
+#else
+	// Address format e.g.: "128.0.0.1:13353" or "[::1]:80"
 	char address[1024];
 	static char err_str[256];
 	uint16 port = 13353;
@@ -151,7 +283,7 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		sprintf( err_str, "Could not connect to %s", cp );
 		RET_ERR_STR;
 	}
-
+#endif
 	active_clients = 0;
 	server_command_queue.clear();
 
@@ -220,10 +352,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		network_add_client( my_client_socket );
 		// wait for join command (tolerate some wrong commands)
 		network_command_t *nwc = NULL;
-		for(uint8 i=0; i<5; i++) {
-			nwc = network_check_activity( 10000 );
-			if (nwc  &&  nwc->get_id() == NWC_GAMEINFO) break;
-		}
+		nwc = network_check_activity( 10000 );	// 10s should be enough for reply ...
 		if (nwc==NULL) {
 			err = "Server did not respond!";
 			goto end;
@@ -335,7 +464,30 @@ bool network_init_server( int port )
 	struct sockaddr_in name;
 
 	network_initialize();
+#ifdef USE_IP4_ONLY
+	SOCKET my = socket(PF_INET, SOCK_STREAM, 0);
+	if(  my==INVALID_SOCKET  ) {
+		dbg->fatal("init_server()", "Fail to open socket!");
+		return false;
+	}
 
+	name.sin_family = AF_INET;
+	name.sin_port = htons(port);
+	name.sin_addr.s_addr = htonl(INADDR_ANY);
+	if(  bind(my, (struct sockaddr *)&name, sizeof(name))==-1  ) {
+		dbg->fatal("init_server()", "Bind failed!");
+		return false;
+	}
+
+	if(  listen(my, MAX_PLAYER_COUNT /* max pending connections */)==-1  ) {
+		dbg->fatal("init_server()", "Listen failed for %i sockets!", MAX_PLAYER_COUNT );
+		return false;
+	}
+
+	active_clients = 0;
+	my_socket.append( my );
+	network_add_client( my );
+#else
 	struct addrinfo *res;
 	struct addrinfo hints;
 	memset(&hints, 0, sizeof(struct addrinfo));
@@ -383,11 +535,12 @@ bool network_init_server( int port )
 		network_add_client( my_socket[i] );
 	}
 	active_clients = 1;
+#endif
 	client_id = 0;
 	server_command_queue.clear();
-
 	return true;
 }
+
 
 void network_add_client( SOCKET sock )
 {
@@ -434,6 +587,7 @@ void network_remove_client( SOCKET sock )
 	}
 }
 
+
 uint32 network_get_client_id( SOCKET sock )
 {
 	if(  clients.is_contained(sock)  ) {
@@ -442,12 +596,14 @@ uint32 network_get_client_id( SOCKET sock )
 	return 0; // 0 is the index of the server
 }
 
+
 // number of currently active clients
 int network_get_clients()
 {
 	// all clients except ourselves
 	return active_clients - 1;
 }
+
 
 SOCKET network_get_socket( uint32 client_id )
 {
@@ -458,6 +614,7 @@ SOCKET network_get_socket( uint32 client_id )
 		return INVALID_SOCKET;
 	}
 }
+
 
 static int fill_set(fd_set *fds)
 {
