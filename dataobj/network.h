@@ -24,6 +24,7 @@
 #		include <netdb.h>
 #		include <unistd.h>
 #		include <arpa/inet.h>
+#		include <netinet/in.h>
 #	endif
 // non-windows
 #	include <fcntl.h>
