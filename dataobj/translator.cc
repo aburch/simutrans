@@ -220,7 +220,7 @@ const char* translator::get_city_name(uint nr)
  * new cities will get their appropriate names
  * @author hajo, prissi
  */
-static void init_city_names(bool is_utf_language)
+void translator::init_city_names(int lang)
 {
 	FILE* file;
 
@@ -237,12 +237,12 @@ static void init_city_names(bool is_utf_language)
 	// @author prissi: first try in scenario
 	// not found => try user location
 	string local_file_name(umgebung_t::user_dir);
-	local_file_name = local_file_name + "citylist_" + translator::get_lang()->iso + ".txt";
+	local_file_name = local_file_name + "citylist_" + langs[lang].iso_base + ".txt";
 	file = fopen(local_file_name.c_str(), "rb");
 	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 	if (file==NULL) {
 		string local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + szenario_path + "text/citylist_" + translator::get_lang()->iso + ".txt";
+		local_file_name = local_file_name + szenario_path + "text/citylist_" + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
@@ -250,7 +250,7 @@ static void init_city_names(bool is_utf_language)
 	// not found => try old location
 	if (file==NULL) {
 		string local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + "text/citylist_" + translator::get_lang()->iso + ".txt";
+		local_file_name = local_file_name + "text/citylist_" + langs[lang].iso_base + ".txt";
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 		file = fopen(local_file_name.c_str(), "rb");
 		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
@@ -265,7 +265,7 @@ static void init_city_names(bool is_utf_language)
 		while(  !feof(file)  ) {
 			if (fgets_line(buf, sizeof(buf), file)) {
 				rtrim(buf);
-				char *c = recode(buf, file_is_utf, is_utf_language);
+				char *c = recode(buf, file_is_utf, langs[lang].utf_encoded);
 				if(  *c!=0  &&  *c!='#'  ) {
 					namen_liste.append(c);
 				}
@@ -280,7 +280,7 @@ static void init_city_names(bool is_utf_language)
 		for(  uint i = 0;  i < 16;  i++  ) {
 			char name[32];
 			sprintf( name, "%%%X_CITY_SYLL", i );
-			const char* s1 = translator::translate(name);
+			const char* s1 = translator::translate(name,lang);
 			if(s1==name) {
 				// name not available ...
 				continue;
@@ -290,7 +290,7 @@ static void init_city_names(bool is_utf_language)
 			for(  uint j = 0;  j < 16;  j++  ) {
 
 				sprintf( name, "&%X_CITY_SYLL", j );
-				const char* s2 = translator::translate(name);
+				const char* s2 = translator::translate(name,lang);
 				if(s2==name) {
 					// name not available ...
 					continue;
@@ -523,6 +523,19 @@ void translator::set_language(int lang)
 	else {
 		dbg->warning("translator::set_language()", "Out of bounds : %d", lang);
 	}
+}
+
+
+// returns the id for this language or -1 if not there
+int translator::get_language_id(const char* iso)
+{
+	for(  int i = 0;  i < single_instance.lang_count;  i++  ) {
+		const char* iso_base = langs[i].iso_base;
+		if(  iso_base[0] == iso[0]  &&  iso_base[1] == iso[1]  ) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 

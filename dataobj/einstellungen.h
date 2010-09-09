@@ -391,7 +391,7 @@ public:
 	void set_pak_diagonal_multiplier(uint16 n) { pak_diagonal_multiplier = n; }
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
 
-	const char *get_name_language_iso() const { return language_code_names; }
+	int get_name_language_id() const;
 	void set_name_language_iso( const char *iso ) {
 		language_code_names[0] = iso[0];
 		language_code_names[1] = iso[1];

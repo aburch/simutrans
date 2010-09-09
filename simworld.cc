@@ -4032,6 +4032,7 @@ void karte_t::laden(loadsave_t *file)
 	if(  umgebung_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand( einstellungen->get_random_counter(), 0xFFFFFFFFu );
+		translator::init_city_names( einstellungen->get_name_language_id() );
 	}
 	set_random_mode(LOAD_RANDOM);
 

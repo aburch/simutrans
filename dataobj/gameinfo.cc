@@ -9,6 +9,7 @@
 #include "gameinfo.h"
 #include "network.h"
 #include "einstellungen.h"
+#include "translator.h"
 #include "umgebung.h"
 #include "../simtools.h"
 #include "../simdebug.h"
@@ -83,7 +84,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	bits_per_month = welt->get_einstellungen()->get_bits_per_month();
 
 	// names of the stations ...
-	memcpy( language_code_names, welt->get_einstellungen()->get_name_language_iso(), lengthof(language_code_names) );
+	memcpy( language_code_names, translator::get_langs()[welt->get_einstellungen()->get_name_language_id()].iso, lengthof(language_code_names) );
 
 	// will contain server-IP/name for network games
 	file_name = welt->get_einstellungen()->get_filename();
