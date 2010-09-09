@@ -33,7 +33,7 @@ static bool network_active = false;
 static vector_tpl<SOCKET> my_socket;
 // local client socket
 static SOCKET my_client_socket = INVALID_SOCKET;
-static slist_tpl<const char *>pending_list;
+//static slist_tpl<const char *>pending_list;
 
 // to query all open sockets, we maintain this list
 static vector_tpl<SOCKET> clients;
@@ -930,9 +930,6 @@ void network_core_shutdown()
 		network_close_socket( my_socket.back() );
 	}
 	network_close_socket( my_client_socket );
-	while(  !pending_list.empty()  ) {
-		free( (void *)pending_list.remove_first() );
-	}
 	if(network_active) {
 #if defined(WIN32)
 		WSACleanup();

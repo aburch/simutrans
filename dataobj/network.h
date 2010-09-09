@@ -1,30 +1,36 @@
 #ifndef sim_network_h
 #define sim_network_h
 
+// windows headers
 #ifdef WIN32
-#include <WinSock2.h>
-#include <ws2tcpip.h>
-#undef min
-#undef max
-#ifndef IPV6_V6ONLY
-#define IPV6_V6ONLY (27)
-#endif
+#	include <WinSock2.h>
+#	include <ws2tcpip.h>
+#	undef min
+#	undef max
+
+#	ifndef IPV6_V6ONLY
+#		define IPV6_V6ONLY (27)
+#	endif
 #else
-#ifdef __BEOS__
-#include <net/netdb.h>
-#include <net/sockets.h>
-#include <sys/select.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
-#endif
-#include <fcntl.h>
-#include <errno.h>
-// to keep compatibility to MS windows
-typedef int SOCKET;
-#define INVALID_SOCKET -1
+	// beos specific headers
+#	ifdef __BEOS__
+#		include <net/netdb.h>
+#		include <net/sockets.h>
+#		include <sys/select.h>
+	// non-beos / non-windows
+#	else
+#		include <sys/types.h>
+#		include <sys/socket.h>
+#		include <netdb.h>
+#		include <unistd.h>
+#		include <arpa/inet.h>
+#	endif
+// non-windows
+#	include <fcntl.h>
+#	include <errno.h>
+	// to keep compatibility to MS windows
+	typedef int SOCKET;
+#	define INVALID_SOCKET -1
 #endif
 
 #if 0
@@ -43,7 +49,6 @@ typedef int SOCKET;
 #else
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <arpa/inet.h>
 #endif
 #endif
 #endif
