@@ -304,7 +304,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	// however ships and planes may be where not way is below ...
 	if(start!=0  &&  obj.some[0]->is_way()  &&  ((weg_t *)obj.some[0])->get_waytype()==road_wt) {
 
-		const uint8 fahrtrichtung = ((vehikel_t*)ding)->get_fahrtrichtung();
+		const uint8 fahrtrichtung = ((vehikel_basis_t*)ding)->get_fahrtrichtung();
 
 		// this is very complicated:
 		// we may have many objects in two lanes (actually five with tram and pedestrians)

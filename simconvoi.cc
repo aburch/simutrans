@@ -257,8 +257,6 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 
 void convoi_t::laden_abschliessen()
 {
-	besitzer_p->buche( 1, COST_ALL_CONVOIS );
-
 	if(fpl==NULL) {
 		if(  state!=INITIAL  ) {
 			grund_t *gr = welt->lookup(home_depot);
