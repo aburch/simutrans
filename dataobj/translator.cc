@@ -527,7 +527,7 @@ void translator::set_language(int lang)
 
 
 // returns the id for this language or -1 if not there
-int translator::get_language_id(const char* iso)
+int translator::get_language(const char* iso)
 {
 	for(  int i = 0;  i < single_instance.lang_count;  i++  ) {
 		const char* iso_base = langs[i].iso_base;

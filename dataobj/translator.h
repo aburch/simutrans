@@ -71,7 +71,7 @@ class translator
 		}
 
 		// returns the id for this language or -1 if not there
-		static int get_language_id(const char* iso);
+		static int get_language(const char* iso);
 
 		/** Get information about the currently selected language */
 		static const lang_info* get_lang();

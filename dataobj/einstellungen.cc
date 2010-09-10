@@ -977,7 +977,7 @@ int einstellungen_t::get_name_language_id() const
 {
 	int lang = -1;
 	if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-		lang = translator::get_language_id( language_code_names );
+		lang = translator::get_language( language_code_names );
 	}
 	if(  lang == -1  ) {
 		lang = translator::get_language();
