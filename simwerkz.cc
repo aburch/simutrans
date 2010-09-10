@@ -4835,26 +4835,28 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 		case 's':	// sells a vehikel
 		case 'r': 	// removes a vehicle (assumes a valid depot)
 			if(  tool=='r'  ) {
-				assert( cnv.is_bound() );
+				// test may fail after double-click on the button:
+				// two remove cmds are sent, only the first will remove, the second should not trigger assertion failure
+				if ( cnv.is_bound() ) {
+					int start_nr = atoi(p);
+					int nr = start_nr;
 
-				int start_nr = atoi(p);
-				int nr = start_nr;
-
-				// find end
-				while(nr<cnv->get_vehikel_anzahl()) {
-					const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
-					nr ++;
-					if(info->get_nachfolger_count()!=1) {
-						break;
+					// find end
+					while(nr<cnv->get_vehikel_anzahl()) {
+						const vehikel_besch_t *info = cnv->get_vehikel(nr)->get_besch();
+						nr ++;
+						if(info->get_nachfolger_count()!=1) {
+							break;
+						}
 					}
-				}
-				// now remove the vehicles
-				if(cnv->get_vehikel_anzahl()==nr-start_nr) {
-					depot->disassemble_convoi(cnv, false);
-				}
-				else {
-					for( int i=start_nr;  i<nr;  i++  ) {
-						depot->remove_vehicle(cnv, start_nr);
+					// now remove the vehicles
+					if(cnv->get_vehikel_anzahl()==nr-start_nr) {
+						depot->disassemble_convoi(cnv, false);
+					}
+					else {
+						for( int i=start_nr;  i<nr;  i++  ) {
+							depot->remove_vehicle(cnv, start_nr);
+						}
 					}
 				}
 			}
