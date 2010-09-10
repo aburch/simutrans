@@ -74,6 +74,7 @@ enum magic_numbers {
 	magic_station_building_select,
 	magic_keyhelp,
 	magic_server_frame_t,
+	magic_send_message_frame_t,
 	magic_info_pointer,	// mark end of the list
 	magic_convoi_info=magic_info_pointer+839,
 	magic_convoi_detail=magic_convoi_info+65536,

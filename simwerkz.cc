@@ -19,6 +19,7 @@
 #include "simskin.h"
 #include "simcity.h"
 #include "simtools.h"
+#include "simmesg.h"
 
 #include "bauer/fabrikbauer.h"
 #include "bauer/vehikelbauer.h"
@@ -5106,3 +5107,115 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 	}
 	return false;
 }
+
+
+
+/* Handles all action of lines. Needs a default param:
+ * [object='c|h|l|m|t'][id],[name]
+ * c=convoi, h=halt, l=line,  m=marker, t=town
+ * in case of marker, id is a pos3d string
+ */
+bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
+{
+	uint16 id = 0;
+	koord3d pos = koord3d::invalid;
+
+	// skip the rest of the command
+	const char *p = default_param;
+	const char what = *p++;
+	switch(  what  ) {
+		case 'h':
+		case 'l':
+		case 'c':
+		case 't':
+			id = atoi(p);
+			while(  *p>0  &&  *p++!=','  ) {
+			}
+			break;
+		case 'm':
+			if(  3!=sscanf( default_param, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
+				dbg->error( "wkz_rename_t::init", "no position given for marker! (%s)", default_param );
+				return false;
+			}
+			while(  *p>0  &&  *p++!=','  ) {
+			}
+			while(  *p>0  &&  *p++!=','  ) {
+			}
+			while(  *p>0  &&  *p++!=','  ) {
+			}
+			pos.z = id;
+			id = 0;
+			break;
+		default:
+			dbg->error( "wkz_rename_t::init", "illegal request! (%s)", default_param );
+			return false;
+	}
+
+	// now for action ...
+	switch(  what  ) {
+		case 'h':
+		{
+			halthandle_t halt;
+			halt.set_id( id );
+			if(  halt.is_bound()  ) {
+				halt->set_name( p );
+				return false;
+			}
+			break;
+		}
+
+		case 'l':
+		{
+			linehandle_t line;
+			line.set_id( id );
+			if(  line.is_bound()  ) {
+				tstrncpy( line->get_name(), p, 128 );
+				return false;
+			}
+			break;
+		}
+
+		case 'c':
+		{
+			convoihandle_t cnv;
+			cnv.set_id( id );
+			if(  cnv.is_bound()  ) {
+				cnv->set_name( p );
+				return false;
+			}
+			break;
+		}
+
+		case 't':
+		{
+			if(  id<welt->get_staedte().get_count()  ) {
+				welt->get_staedte()[id]->set_name( p );
+				return false;
+			}
+			break;
+		}
+
+		case 'm':
+			if(  grund_t *gr = welt->lookup(pos)  ) {
+				gr->set_text(p);
+				return false;
+			}
+			break;
+	}
+	// we are only getting here, if we could not process this request
+	dbg->error( "wkz_rename_t::init", "could not perform (%s)", default_param );
+	return false;
+}
+
+
+/* send message to the message queue
+ */
+bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
+{
+	if(  *default_param  ) {
+		welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+	}
+	return false;
+}
+
+

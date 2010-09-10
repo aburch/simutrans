@@ -5,8 +5,8 @@
  * (see licence.txt)
  */
 
-#ifndef gui_password_frame_h
-#define gui_password_frame_t_h
+#ifndef gui_send_message_frame_h
+#define gui_send_message_frame_h
 
 
 #include "components/action_listener.h"
@@ -16,28 +16,19 @@
 #include "components/gui_label.h"
 
 
-class password_frame_t : public gui_frame_t, action_listener_t
+class send_message_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	char ibuf[1024];
+	char ibuf[256];
 
 protected:
 	spieler_t *sp;
 
-	gui_hidden_textinput_t input;
-	gui_label_t fnlabel;
+	gui_textinput_t input;
 
 public:
-	password_frame_t( spieler_t *sp );
+	send_message_frame_t( spieler_t *sp );
 
-	/**
-	 * This method is called if an action is triggered
-	 * @author Hj. Malthaner
-	 *
-	 * Returns true, if action is done and no more
-	 * components should be triggered.
-	 * V.Meyer
-	 */
 	virtual bool action_triggered( gui_action_creator_t *komp, value_t extra);
 };
 

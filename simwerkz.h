@@ -873,6 +873,22 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+// internal tool: rename stuff
+class wkz_rename_t : public werkzeug_t {
+public:
+	wkz_rename_t() : werkzeug_t() { id = WKZ_RENAME_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
+// internal tool: send message (could be used for chats)
+class wkz_add_message_t : public werkzeug_t {
+public:
+	wkz_add_message_t() : werkzeug_t() { id = WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
 /********************** dialoge tools *****************************/
 
 // general help
