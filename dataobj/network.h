@@ -13,10 +13,9 @@
 #	endif
 #else
 	// beos specific headers
-#	ifdef __BEOS__
+#	ifdef  __BEOS__
 #		include <net/netdb.h>
 #		include <net/sockets.h>
-#		include <sys/select.h>
 	// non-beos / non-windows
 #	else
 #		include <sys/types.h>
@@ -26,6 +25,9 @@
 #		include <arpa/inet.h>
 #		include <netinet/in.h>
 #	endif
+#   ifdef  __HAIKU__
+#		include <sys/select.h>
+#   endif
 // non-windows
 #	include <fcntl.h>
 #	include <errno.h>
