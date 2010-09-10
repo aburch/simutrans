@@ -910,11 +910,15 @@ void network_close_socket( SOCKET sock )
 #else
 		close( sock );
 #endif
+		// reset all the special / static socket variables
 		if(  my_socket.is_contained(sock)  ) {
 			my_socket.remove( sock );
 		}
 		if(  sock==my_client_socket  ) {
 			my_client_socket = INVALID_SOCKET;
+		}
+		if(  sock==nwc_join_t::pending_join_client  ) {
+			nwc_join_t::pending_join_client = INVALID_SOCKET;
 		}
 		clients.remove( sock );
 	}
