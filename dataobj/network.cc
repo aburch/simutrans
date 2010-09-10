@@ -533,7 +533,7 @@ bool network_init_server( int port )
 	for(  uint32 i=0;  i<my_socket.get_count();  i++  ) {
 		network_add_client( my_socket[i] );
 	}
-	active_clients = 1;
+	active_clients = my_socket.get_count();
 #endif
 	client_id = 0;
 	server_command_queue.clear();
