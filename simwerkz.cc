@@ -4589,12 +4589,16 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 
 	convoihandle_t cnv;
 	cnv.set_id( convoi_id );
-	assert(cnv.is_bound());
+	// double click on remove button will send two such commands
+	// the first will delete the convoi, the second should not trigger the assertion
+	assert(cnv.is_bound()  ||  tool=='x');
 
 	// first letter is now the actual command
 	switch(  tool  ) {
 		case 'x': // self destruction ...
-			cnv->self_destruct();
+			if(cnv.is_bound()) {
+				cnv->self_destruct();
+			}
 			return false;
 
 		case 'f': // open schedule
