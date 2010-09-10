@@ -271,6 +271,8 @@ void nwc_sync_t::do_command(karte_t *welt)
 	const koord ij = welt->get_world_position();
 	const sint16 xoff = welt->get_x_off();
 	const sint16 yoff = welt->get_y_off();
+	// save active player
+	const uint8 active_player = welt->get_active_player_nr();
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
 	chdir( umgebung_t::user_dir );
@@ -342,6 +344,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
+	welt->switch_active_player(active_player);
 }
 
 void nwc_check_t::rdwr()
