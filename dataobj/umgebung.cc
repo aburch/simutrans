@@ -12,7 +12,13 @@ char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
 bool umgebung_t::networkmode = false;
-bool umgebung_t::server = false;
+uint16 umgebung_t::server = 0;
+
+// if 1, announce game to listserver on start, if 2 when new player is joining (or clients==0)
+uint8 umgebung_t::announce_server = 0;
+std::string umgebung_t::server_name;
+std::string umgebung_t::server_comment;
+
 long umgebung_t::server_frames_ahead = 1;
 long umgebung_t::server_ms_ahead = 250;
 long umgebung_t::network_frames_per_step = 4;

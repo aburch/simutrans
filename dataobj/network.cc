@@ -328,7 +328,10 @@ const char *network_download_http( const char *address, const char *name, const 
 				break;
 			}
 		}
-		err = network_receive_file( my_client_socket, localname, length );
+		// for a simple query, just pass an empty filename
+		if(  localname  &&  *localname  ) {
+			err = network_receive_file( my_client_socket, localname, length );
+		}
 		network_close_socket( my_client_socket );
 	}
 	my_client_socket = old_my;

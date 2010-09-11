@@ -5183,7 +5183,38 @@ bool karte_t::interactive(uint32 quit_month)
 
 	if(  umgebung_t::server  ) {
 		step_mode |= FIX_RATIO;
+
 		reset_timer();
+		// announce me on server
+		if(  umgebung_t::announce_server  ) {
+			cbuffer_t buf(2048);
+			buf.printf( "/serverlist/slist.php?ID=1284126665&st=on" );
+			buf.append( "&ip=" );
+			buf.append( umgebung_t::server_name.c_str() );
+			if(  umgebung_t::server!=13353  ) {
+				buf.append( "&port=" );
+				buf.append( umgebung_t::server );
+			}
+#ifdef REVISION
+			buf.append( "&rev=" REVISION );
+#endif
+			buf.append( "&pak=\"" );
+			// comment currently not used
+			if(  grund_besch_t::ausserhalb->get_copyright()  &&  STRICMP("none",grund_besch_t::ausserhalb->get_copyright())!=0  ) {
+				// construct from outside object copyright string
+				buf.append( grund_besch_t::ausserhalb->get_copyright() );
+			}
+			else {
+				// construct from pak name
+				std::string pak_name = umgebung_t::objfilename;
+				pak_name.erase( pak_name.length()-1 );
+				buf.append( pak_name.c_str() );
+			}
+			buf.append( "\"" );
+			buf.append( "&comment=" );
+			buf.append( umgebung_t::server_comment.c_str() );
+			network_download_http( "simutrans-germany.com:80", buf, "" );
+		}
 	}
 
 	do {
@@ -5429,6 +5460,14 @@ bool karte_t::interactive(uint32 quit_month)
 
 	if(  get_current_month() >= quit_month  ) {
 		umgebung_t::quit_simutrans = true;
+	}
+
+	if(  umgebung_t::announce_server  ) {
+		cbuffer_t buf(2048);
+		buf.printf( "/serverlist/slist.php?ID=1284126665&st=off" );
+		buf.append( "&ip=" );
+		buf.append( umgebung_t::server_name.c_str() );
+		network_download_http( "simutrans-germany.com:80", buf, "" );
 	}
 
 	display_show_pointer(true);

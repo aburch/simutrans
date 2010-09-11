@@ -90,6 +90,7 @@
 	ADD: server uses a different savegame revision => testing already possible now
 	ADD: savegame version can be set in settings
 	ADD: simple chat system added (send message option in message window)
+	ADD: semiautomatical announce of servers possible
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
