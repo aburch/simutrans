@@ -3274,6 +3274,11 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 					// Necessary to modulate the destinations to avoid repeatedly hitting the same towns.
 					town_step -= 128;
 				}
+
+				if(i == max_count && distance > max_distance && min_distance < max_internal_distance)
+				{
+					zielstadt = this;
+				}
 			}
 		}
 

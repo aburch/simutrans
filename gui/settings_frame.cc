@@ -38,10 +38,12 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	scrolly_climates(&climates)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( 0, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
-	revert_to_default.add_listener( this );
+	revert_to_default.disable();
+	//revert_to_default.add_listener( this );
 	add_komponente( &revert_to_default );
 	revert_to_last_save.init( button_t::roundbox, "Default.sve", koord( BUTTON_WIDTH, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
-	revert_to_last_save.add_listener( this );
+	//revert_to_last_save.add_listener( this );
+	revert_to_last_save.disable();
 	add_komponente( &revert_to_last_save );
 
 	sint16 height = 0;
