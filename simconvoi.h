@@ -880,7 +880,7 @@ public:
 	* return a specified element from the financial history
 	* @author hsiegeln
 	*/
-	inline sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
+	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
 
 	/**
 	* only purpose currently is to roll financial history

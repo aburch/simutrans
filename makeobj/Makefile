@@ -42,8 +42,8 @@ ifeq ($(OSTYPE),mac)
 endif
 
 ifneq ($(OPTIMISE),)
-  CFLAGS   += -O3 -fno-schedule-insns -fomit-frame-pointer
-  CXXFLAGS += -O3 -fno-schedule-insns -fomit-frame-pointer
+  CFLAGS   += -O3 -fno-schedule-insns
+  CXXFLAGS += -O3 -fno-schedule-insns
   ifneq ($(OSTYPE),mac)
     CFLAGS  += -minline-all-stringops
   endif

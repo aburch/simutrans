@@ -1016,7 +1016,16 @@ void gebaeude_t::entferne(spieler_t *sp)
 	}
 
 	// remove all traces from the screen
-	for(  int i=0;  get_bild(i)!=IMG_LEER;  i++ ) {
-		mark_image_dirty( get_bild(i), -(i<<6) );
+	image_id img;
+	if(  zeige_baugrube  ||
+			(!umgebung_t::hide_with_transparency  &&
+				umgebung_t::hide_buildings>(get_haustyp()!=unbekannt ? umgebung_t::NOT_HIDE : umgebung_t::SOME_HIDDEN_BUIDLING))  ) {
+		img = skinverwaltung_t::construction_site->get_bild_nr(0);
+	}
+	else {
+		img = tile->get_hintergrund(count, 0, snow) ;
+	}
+	for(  int i=0;  img!=IMG_LEER;  img=get_bild(++i)  ) {
+		mark_image_dirty( img, -(i<<6) );
 	}
 }

@@ -102,6 +102,13 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
+ifneq ($(WITH_REVISION),)
+  REV = $(shell svnversion)
+  ifneq ($(REV),)
+    CFLAGS  += -DREVISION="$(REV)"
+  endif
+endif
+
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -Wstrict-prototypes
 
@@ -166,6 +173,7 @@ SOURCES += dataobj/dingliste.cc
 SOURCES += dataobj/einstellungen.cc
 SOURCES += dataobj/fahrplan.cc
 SOURCES += dataobj/freelist.cc
+SOURCES += dataobj/gameinfo.cc
 SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
 SOURCES += dataobj/loadsave.cc
@@ -276,6 +284,8 @@ SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/schedule_list.cc
+SOURCES += gui/send_message_frame.cc
+SOURCES += gui/server_frame.cc
 SOURCES += gui/settings_frame.cc
 SOURCES += gui/settings_stats.cc
 SOURCES += gui/signal_spacing.cc

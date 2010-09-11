@@ -209,6 +209,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
+	sp->buche( 1, COST_ALL_CONVOIS );
 	init(sp->get_welt(), sp);
 	set_name( "Unnamed" );
 	welt->add_convoi( self );
@@ -222,6 +223,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 convoi_t::~convoi_t()
 {
+	besitzer_p->buche( -1, COST_ALL_CONVOIS );
+
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
 
@@ -323,6 +326,7 @@ void convoi_t::laden_abschliessen()
 					fahr[i]->get_pos() = koord3d::invalid;
 				}
 				destroy();
+				return;
 			}
 		}
 		// anyway reassign convoi pointer ...
@@ -386,6 +390,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		// no vehicles in this convoi?!?
 		dbg->error( "convoi_t::laden_abschliessen()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
 		destroy();
+		return;
 	}
 	// put convoi agian right on track?
 	if(realing_position  &&  anz_vehikel>1) {
@@ -3145,7 +3150,9 @@ void convoi_t::open_schedule_window( bool show )
 	// - just starting
 	// - a line update is pending
 	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
-		create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
+		if (show) {
+			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
+		}
 		return;
 	}
 
@@ -3648,10 +3655,9 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 	sint64 gewinn = 0;
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
-	int station_length = 0;
-	if(gr->ist_wasser()) 
-	{
-		// habour has any size
+	int station_length=0;
+	if(gr->ist_wasser()) {
+		// harbour has any size
 		station_length = 24*16;
 	}
 	else
@@ -3665,8 +3671,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			// start on bridge?
 			pos.z += Z_TILE_STEP;
 		}
-		while(  grund  &&  grund->get_halt() == halt  ) 
-		{
+		while(  grund  &&  grund->get_halt() == halt  ) {
 			station_length += TILE_STEPS;
 			pos += zv;
 			grund = welt->lookup(pos);

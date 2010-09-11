@@ -21,7 +21,13 @@ freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 {
 	// sort according to freight
-	int const idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
+	// if w1 and w2 differ, they are sorted according to catg_index and index
+	// we sort with respect to catg_indexfirst, since freights with the same category
+	// will be displayed together
+	int idx = w1.get_besch()->get_catg_index() - w2.get_besch()->get_catg_index();
+	if (idx == 0) {
+		idx = w1.get_besch()->get_index() - w2.get_besch()->get_index();
+	}
 	if (idx != 0) {
 		return idx < 0;
 	}

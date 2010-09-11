@@ -20,6 +20,7 @@
 #include "../player/simplay.h"
 #include "loadsave.h"
 #include "tabfile.h"
+#include "translator.h"
 
 
 #define NEVER 0xFFFFU
@@ -1707,6 +1708,19 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	printf("Reading simuconf.tab successful!\n" );
 
 	simuconf.close( );
+}
+
+
+int einstellungen_t::get_name_language_id() const
+{
+	int lang = -1;
+	if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+		lang = translator::get_language( language_code_names );
+	}
+	if(  lang == -1  ) {
+		lang = translator::get_language();
+	}
+	return lang;
 }
 
 

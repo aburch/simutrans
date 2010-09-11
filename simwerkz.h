@@ -51,6 +51,7 @@
 #include "gui/labellist_frame_t.h"
 #include "gui/climates.h"
 #include "gui/settings_frame.h"
+#include "gui/server_frame.h"
 
 #include "tpl/slist_tpl.h"
 
@@ -236,7 +237,7 @@ public:
 	virtual const char* get_default_param(spieler_t *) const;
 	virtual bool is_selected( karte_t *welt ) const;
 	virtual bool init( karte_t *, spieler_t * );
-	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  besch->get_styp()!=1); }
+	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  (besch->get_styp()!=1  ||  besch->get_wtyp()==air_wt)); }
 protected:
 	virtual const weg_besch_t *get_besch(uint16,bool) const;
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
@@ -506,7 +507,7 @@ private:
 	waytype_t waytype[2];
 	halthandle_t last_halt;
 public:
-	wkz_stop_moving_t() : werkzeug_t() { wkz_linkzeiger=NULL; id = WKZ_STOP_MOVER | GENERAL_TOOL; }
+	wkz_stop_moving_t() : werkzeug_t(), last_pos(koord3d::invalid) { wkz_linkzeiger=NULL; id = WKZ_STOP_MOVER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("replace stop"); }
 	bool init( karte_t *, spieler_t * );
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
@@ -583,7 +584,7 @@ public:
 	wkz_undo_t() : werkzeug_t() { id = WKZ_UNDO | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Undo last ways construction"); }
 	bool init( karte_t *, spieler_t *sp ) {
-		if(!sp->undo()) {
+		if(!sp->undo()  &&  is_local_execution()) {
 			create_win( new news_img("UNDO failed!"), w_time_delete, magic_none);
 		}
 		return false;
@@ -748,10 +749,13 @@ public:
 class wkz_rotate90_t : public werkzeug_t {
 public:
 	wkz_rotate90_t() : werkzeug_t() { id = WKZ_ROTATE90 | SIMPLE_TOOL; }
+	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Rotate map"); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->rotate90();
-		welt->update_map();
+		if (!umgebung_t::networkmode) {
+			welt->rotate90();
+			welt->update_map();
+		}
 		return false;
 	}
 };
@@ -885,6 +889,30 @@ public:
 	virtual bool is_init_network_save() const { return false; }
 };
 
+// change city: (dis)allow growth
+class wkz_change_city_t : public werkzeug_t {
+public:
+	wkz_change_city_t() : werkzeug_t() { id = WKZ_CHANGE_CITY_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
+// internal tool: rename stuff
+class wkz_rename_t : public werkzeug_t {
+public:
+	wkz_rename_t() : werkzeug_t() { id = WKZ_RENAME_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
+// internal tool: send message (could be used for chats)
+class wkz_add_message_t : public werkzeug_t {
+public:
+	wkz_add_message_t() : werkzeug_t() { id = WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL; }
+	virtual bool init( karte_t *, spieler_t * );
+	virtual bool is_init_network_save() const { return false; }
+};
+
 /********************** dialoge tools *****************************/
 
 // general help
@@ -960,7 +988,7 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
-// open messages
+// open finance window
 class wkz_finances_t : public werkzeug_t {
 public:
 	wkz_finances_t() : werkzeug_t() { id = WKZ_FINANCES | DIALOGE_TOOL; }
@@ -988,7 +1016,7 @@ public:
 	virtual bool is_work_network_save() const { return true; }
 };
 
-// open player dialoge
+// open display options
 class wkz_displayoptions_t : public werkzeug_t {
 public:
 	wkz_displayoptions_t() : werkzeug_t() { id = WKZ_DISPLAYOPTIONS | DIALOGE_TOOL; }
@@ -1238,10 +1266,13 @@ class wkz_enlarge_map_t : public werkzeug_t{
 public:
 	wkz_enlarge_map_t() : werkzeug_t() { id = WKZ_ENLARGE_MAP | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("enlarge map"); }
+	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_bigger_map); }
 	bool init( karte_t *welt, spieler_t *sp ) {
-		destroy_all_win( true );
-		create_win( new enlarge_map_frame_t(sp,welt), w_info, magic_bigger_map );
+		if (!umgebung_t::networkmode) {
+			destroy_all_win( true );
+			create_win( new enlarge_map_frame_t(sp,welt), w_info, magic_bigger_map );
+		}
 		return false;
 	}
 };
@@ -1272,15 +1303,30 @@ public:
 	}
 };
 
-/* open climate settings */
+/* open all game settings */
 class wkz_settings_t : public werkzeug_t {
 public:
 	wkz_settings_t() : werkzeug_t() { id = WKZ_SETTINGS | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Setting"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_settings_frame_t); }
 	bool init( karte_t *welt, spieler_t * ) {
-		create_win( new settings_frame_t(welt->access_einstellungen()), w_info, magic_settings_frame_t );
+		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+			create_win( new settings_frame_t(welt->access_einstellungen()), w_info, magic_settings_frame_t );
+		}
 		return false;
 	}
+};
+
+/* server info and join dialoge */
+class wkz_server_t : public werkzeug_t {
+public:
+	wkz_server_t() : werkzeug_t() { id = WKZ_GAMEINFO | DIALOGE_TOOL; }
+	const char *get_tooltip(spieler_t *) { return translator::translate("Game info"); }
+	bool is_selected(karte_t *) const { return win_get_magic(magic_server_frame_t); }
+	bool init( karte_t *welt, spieler_t * ) {
+		create_win( new server_frame_t(welt), w_info, magic_server_frame_t );
+		return false;
+	}
+	virtual bool is_init_network_save() const { return true; }
 };
 #endif

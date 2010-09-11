@@ -503,3 +503,7 @@ fast_forward = 50
 # simutrans PING). Larger values cause longer delay for commands.
 network_ms_ahead = 250
 
+# The server sends after a fixed number of steps some information to the clients.
+# Large values here means: reduced server communication (if that is of importance...)
+# Small values should improve the timing of the clients.
+#server_frames_between_checks = 256

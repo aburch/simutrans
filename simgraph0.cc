@@ -32,6 +32,7 @@ int large_font_height = 10;
 KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
+
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
 	return 0;
@@ -178,6 +179,12 @@ void display_rezoomed_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const sign
 void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed char, const PLAYER_COLOR_VAL, const int, const int)
 {
 }
+
+// Knightly : variables for storing currently used image procedure set and tile raster width
+display_image_proc display_normal = display_base_img;
+display_image_proc display_color = display_base_img;
+display_blend_proc display_blend = display_base_img_blend;
+signed short current_tile_raster_width = 0;
 
 void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
 {

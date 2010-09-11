@@ -100,6 +100,9 @@ enum {
 	WKZ_PWDHASH_TOOL,
 	WKZ_SET_PLAYER_TOOL,
 	WKZ_TRAFFIC_LIGHT_TOOL,
+	WKZ_CHANGE_CITY_TOOL,
+	WKZ_RENAME_TOOL,
+	WKZ_ADD_MESSAGE_TOOL,
 	SIMPLE_TOOL_COUNT,
 	SIMPLE_TOOL = 0x2000
 };
@@ -134,6 +137,7 @@ enum {
 	WKZ_LIST_LABEL,
 	WKZ_CLIMATES,
 	WKZ_SETTINGS,
+	WKZ_GAMEINFO,
 	DIALOGE_TOOL_COUNT,
 	DIALOGE_TOOL = 0x4000
 };
@@ -321,6 +325,8 @@ public:
 	virtual bool is_init_network_save() const { return true; }
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
+	// close this toolbar
+	virtual bool exit( karte_t *welt, spieler_t *sp );
 	void update(karte_t *, spieler_t *);	// just refresh content
 	void append(werkzeug_t *w) { tools.append(w); }
 };

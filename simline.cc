@@ -298,19 +298,22 @@ void simline_t::unregister_stops(schedule_t * fpl)
 
 void simline_t::renew_stops()
 {
-	if(  old_fpl  ) 
+	if(  line_managed_convoys.get_count()>0  ) 
 	{
-		unregister_stops( old_fpl );
+		if(  old_fpl  ) 
+		{
+			unregister_stops( old_fpl );
 
-		// Added by : Knightly
-		haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 0);
-	}
-	register_stops( fpl );
+			// Added by : Knightly
+			haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 0);
+		}
+		register_stops( fpl );
 	
-	// Added by Knightly
-	haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
+		// Added by Knightly
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 		
-	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
+		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
+	}
 }
 
 

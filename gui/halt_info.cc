@@ -194,12 +194,6 @@ halt_info_t::zeichnen(koord pos, koord gr)
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);
-		// will grow as needed
-		if (freight_info.is_full()) {
-			freight_info.extent( 1024 );
-			// tell the halt to give the info in the now larger buffer
-			halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
-		}
 		if(old_len!=freight_info.len()) {
 			text.set_text(freight_info);
 			text.recalc_size();

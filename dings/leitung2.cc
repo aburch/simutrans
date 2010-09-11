@@ -84,6 +84,7 @@ fabrik_t *leitung_t::suche_fab_4(const koord pos)
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	city = NULL;
+	bild = IMG_LEER;
 	set_net(NULL);
 	ribi = ribi_t::keine;
 	rdwr(file);
@@ -93,6 +94,7 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, pos)
 {
 	city = NULL;
+	bild = IMG_LEER;
 	set_net(NULL);
 	set_besitzer( sp );
 	set_besch(wegbauer_t::leitung_besch);
@@ -321,25 +323,14 @@ void leitung_t::info(cbuffer_t & buf) const
 
 	uint32 supply = get_net()->get_supply();
 	uint32 demand = get_net()->get_demand();
-	uint32 load = demand>supply?supply:demand;
+	uint32 load = demand>supply ? supply:demand;
 
-	buf.append(translator::translate("Net ID: "));
-	buf.append((unsigned long)get_net());
-	buf.append(translator::translate("\nCapacity: "));
-	buf.append(get_net()->get_max_capacity()>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nDemand: "));
-	buf.append(demand>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nGeneration: "));
-	buf.append(supply>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nAct. Load: "));
-	buf.append(load>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nGen. Usage: "));
-	buf.append((100*load)/(supply>0?supply:1));
-	buf.append("%");
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
+	buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
+	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
+	buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
+	buf.printf( translator::translate("Usage: %u %%"), (100*load)/(supply>0?supply:1) );
 }
 
 
@@ -542,6 +533,9 @@ void pumpe_t::laden_abschliessen()
 		fab->set_transformer_connected( true );
 	}
 	pumpe_list.insert( this );
+
+	set_bild(skinverwaltung_t::pumpe->get_bild_nr(0));
+	is_crossing = false;
 }
 
 
@@ -549,11 +543,8 @@ void pumpe_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	buf.append(translator::translate("Net ID: "));
-	buf.append((unsigned long)get_net());
-	buf.append(translator::translate("\nGeneration: "));
-	buf.append(supply>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
 }
 
 
@@ -890,6 +881,9 @@ void senke_t::laden_abschliessen()
 	}
 	senke_list.insert( this );
 	welt->sync_add(this);
+
+	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
+	is_crossing = false;
 }
 
 
@@ -897,17 +891,10 @@ void senke_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	buf.append(translator::translate("Net ID: "));
-	buf.append((unsigned long)get_net());
-	buf.append(translator::translate("\nDemand: "));
-	buf.append(last_power_demand>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nAct. Load: "));
-	buf.append(power_load>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nSupplied: "));
-	buf.append((100*power_load)/(last_power_demand>0?last_power_demand:1));
-	buf.append("%");
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Demand %u MW\n"), last_power_demand>>POWER_TO_MW );
+	buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
+	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 	if(city)
 	{
 		buf.append(translator::translate("\nCity: "));

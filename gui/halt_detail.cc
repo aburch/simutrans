@@ -109,7 +109,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 
 	sint16 offset_y = 20;
 	buf.append(translator::translate("Fabrikanschluss"));
-	buf.append(":\n");
+	buf.append("\n");
 	offset_y += LINESPACE;
 
 	if (!fab_list.empty()) {
@@ -158,7 +158,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	offset_y += LINESPACE;
 
 	buf.append(translator::translate("Angenommene Waren"));
-	buf.append(":\n");
+	buf.append("\n");
 	offset_y += LINESPACE;
 
 	if (!nimmt_an.empty()  &&  halt->get_ware_enabled()) {
@@ -185,7 +185,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	offset_y += LINESPACE;
 
 	buf.append(translator::translate("Lines serving this stop"));
-	buf.append(":\n");
+	buf.append("\n");
 	offset_y += LINESPACE;
 
 	if(  !halt->registered_lines.empty()  ) {
@@ -221,7 +221,7 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 	offset_y += LINESPACE;
 
 	buf.append( translator::translate("Lineless convoys serving this stop") );
-	buf.append(":\n");
+	buf.append("\n");
 	offset_y += LINESPACE;
 
 	if(  !halt->registered_convoys.empty()  ) {

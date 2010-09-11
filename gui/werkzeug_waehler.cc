@@ -103,7 +103,7 @@ bool werkzeug_waehler_t::getroffen(int x, int y)
 
 bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 {
-	if(IS_LEFTRELEASE(ev)) {
+	if(IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev)) {
 		// tooltips?
 		const int x = (ev->mx) / icon.x;
 		const int y = (ev->my-16) / icon.y;
@@ -112,9 +112,20 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 			const int wz_idx = x+(tool_icon_width*y)+tool_icon_disp_start;
 
 			if (wz_idx < (int)tools.get_count()) {
-				welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
+				dirty = true;
+				// change tool
+				if(IS_LEFTRELEASE(ev)) {
+					welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
+				}
+				else {
+				// right-click on toolbar icon closes toolbar
+					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  &&  (tools[wz_idx]->get_id()&TOOLBAR_TOOL)) {
+						tools[wz_idx]->exit(welt, welt->get_active_player());
+						// triggers werkzeug_waehler_t::infowin_event if the other toolbar,
+						// which resets active tool to query tool
+					}
+				}
 			}
-			dirty = true;
 			return true;
 		}
 	}

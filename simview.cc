@@ -78,7 +78,7 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// change to night mode?
 	// images will be recalculated only, when there has been a change, so we set always
-	if(grund_t::underground_mode) {
+	if(grund_t::underground_mode == grund_t::ugm_all) {
 		display_day_night_shift(0);
 	}
 	else if(!umgebung_t::night_shift) {

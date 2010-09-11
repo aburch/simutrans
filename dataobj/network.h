@@ -1,6 +1,42 @@
 #ifndef sim_network_h
 #define sim_network_h
 
+// windows headers
+#ifdef WIN32
+#	include <WinSock2.h>
+#	include <ws2tcpip.h>
+#	undef min
+#	undef max
+
+#	ifndef IPV6_V6ONLY
+#		define IPV6_V6ONLY (27)
+#	endif
+#else
+	// beos specific headers
+#	ifdef  __BEOS__
+#		include <net/netdb.h>
+#		include <net/sockets.h>
+	// non-beos / non-windows
+#	else
+#		include <sys/types.h>
+#		include <sys/socket.h>
+#		include <netdb.h>
+#		include <unistd.h>
+#		include <arpa/inet.h>
+#		include <netinet/in.h>
+#	endif
+#   ifdef  __HAIKU__
+#		include <sys/select.h>
+#   endif
+// non-windows
+#	include <fcntl.h>
+#	include <errno.h>
+	// to keep compatibility to MS windows
+	typedef int SOCKET;
+#	define INVALID_SOCKET -1
+#endif
+
+#if 0
 #ifdef WIN32
 // must be include before all simutrans stuff!
 #include <WinSock.h>
@@ -16,12 +52,8 @@
 #else
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <arpa/inet.h>
 #endif
-
-// to keep compatibility to MS windows
-typedef int SOCKET;
-#define INVALID_SOCKET -1
+#endif
 #endif
 
 #include "../simtypes.h"
@@ -29,8 +61,15 @@ typedef int SOCKET;
 #define NETWORK_VERSION (1)
 
 class network_command_t;
+class gameinfo_t;
 
 bool network_initialize();
+
+// connect to address with patch name receive to localname, close
+const char *network_download_http( const char *address, const char *name, const char *localname );
+
+// connect to address (cp), receive gameinfo, close
+const char *network_gameinfo(const char *cp, gameinfo_t *gi);
 
 // connects to server at (cp), receives game, save to client%i-network.sve
 const char* network_connect(const char *cp);
@@ -38,7 +77,7 @@ const char* network_connect(const char *cp);
 void network_close_socket( SOCKET sock );
 
 void network_add_client( SOCKET sock );
-void network_remove_client( SOCKET sock );
+void network_remove_client( SOCKET sock  );
 uint32 network_get_client_id( SOCKET sock );
 SOCKET network_get_socket( uint32 client_id );
 
@@ -80,8 +119,5 @@ void network_core_shutdown();
 
 // get our id on the server
 uint32 network_get_client_id();
-
-// get server socket
-SOCKET network_get_server();
 
 #endif

@@ -49,7 +49,11 @@ void cbuffer_t::clear()
  */
 void cbuffer_t::append(const char * text)
 {
-	while(size < capacity-1  &&  *text) {
+	while(  *text  ) {
+		if(  size>=capacity-1  ) {
+			// Knightly : double the capacity if full
+			extend(capacity);
+		}
 		buf[size++] = *text++;
 	}
 	buf[size] = 0;
@@ -117,9 +121,9 @@ void cbuffer_t::printf(const char* fmt, ...)
 }
 
 
-void cbuffer_t::extent(const unsigned int by_amount)
+void cbuffer_t::extend(const unsigned int by_amount)
 {
-	if(  size+by_amount > capacity  ) {
+	if(  size+by_amount>=capacity  ) {
 		unsigned int new_capacity = capacity + by_amount;
 		char *new_buf = new char [new_capacity];
 		memcpy( new_buf, buf, capacity );

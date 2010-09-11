@@ -17,6 +17,7 @@
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
+#include "../simconvoi.h"
 
 #include "../utils/cbuffer_t.h"
 

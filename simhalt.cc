@@ -819,12 +819,12 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 			}
 			// now we have a building here
 			if (gb->is_monument()) {
-				building_name = translator::translate(gb->get_name());
+				building_name = translator::translate(gb->get_name(),lang);
 			}
 			else if (gb->ist_rathaus() ||
 				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_land || // land attraction
 				gb->get_tile()->get_besch()->get_utyp() == haus_besch_t::attraction_city) { // town attraction
-				building_name = make_single_line_string(translator::translate(gb->get_tile()->get_besch()->get_name()), 2);
+				building_name = make_single_line_string(translator::translate(gb->get_tile()->get_besch()->get_name(),lang), 2);
 			}
 			else {
 				// normal town house => not suitable for naming
@@ -1478,6 +1478,7 @@ sint16 haltestelle_t::create_reachable_halt_list(const schedule_t *const sched, 
 {
 	halt_list.clear();
 	sint16 self_halt_idx = -1;
+
 
 	if (sched && sched_owner)
 	{

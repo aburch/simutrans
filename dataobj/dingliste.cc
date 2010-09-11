@@ -304,7 +304,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	// however ships and planes may be where not way is below ...
 	if(start!=0  &&  obj.some[0]->is_way()  &&  ((weg_t *)obj.some[0])->get_waytype()==road_wt) {
 
-		const uint8 fahrtrichtung = ((vehikel_t*)ding)->get_fahrtrichtung();
+		const uint8 fahrtrichtung = ((vehikel_basis_t*)ding)->get_fahrtrichtung();
 
 		// this is very complicated:
 		// we may have many objects in two lanes (actually five with tram and pedestrians)
@@ -547,6 +547,28 @@ bool dingliste_t::remove(const ding_t* ding)
 }
 
 
+/**
+ * removes object from map
+ * deletes object if it is not a zeiger_t
+ */
+void local_delete_object(ding_t *ding, spieler_t *sp)
+{
+	vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(ding);
+	if (v  &&  ding->get_typ() != ding_t::fussgaenger  &&  ding->get_typ() != ding_t::verkehr  &&  ding->get_typ() != ding_t::movingobj) {
+		v->verlasse_feld();
+		assert(0);
+	}
+	else {
+		ding->entferne(sp);
+		ding->set_flag(ding_t::not_on_map);
+		// all objects except zeiger (pointer) are destroyed here
+		// zeiger's will be deleted if their associated werkzeug_t (tool) terminates
+		if (ding->get_typ() != ding_t::zeiger) {
+			delete ding;
+		}
+	}
+}
+
 
 bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
@@ -560,33 +582,14 @@ bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	if(capacity>1) {
 		while(  top>offset  ) {
 			top --;
-			ding_t *dt = obj.some[top];
-			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(dt);
-			if (v && dt->get_typ() != ding_t::fussgaenger && dt->get_typ() != ding_t::verkehr && dt->get_typ() != ding_t::movingobj) {
-				v->verlasse_feld();
-				assert(0);
-			}
-			else {
-				dt->entferne(sp);
-				dt->set_flag(ding_t::not_on_map);
-				delete dt;
-			}
+			local_delete_object(obj.some[top], sp);
 			obj.some[top] = NULL;
 			ok = true;
 		}
 	}
 	else {
 		if(capacity==1) {
-			ding_t *dt = obj.one;
-			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(dt);
-			if (v && dt->get_typ() != ding_t::fussgaenger && dt->get_typ() != ding_t::verkehr && dt->get_typ() != ding_t::movingobj) {
-				v->verlasse_feld();
-			}
-			else {
-				dt->entferne(sp);
-				dt->set_flag(ding_t::not_on_map);
-				delete dt;
-			}
+			local_delete_object(obj.one, sp);
 			ok = true;
 			obj.one = NULL;
 			capacity = top = 0;

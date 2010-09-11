@@ -14,12 +14,13 @@ class werkzeug_t;
 // actual commands
 enum {
 	NWC_INVALID   = 0,
-	NWC_JOIN      = 1,
-	NWC_SYNC      = 2,
-	NWC_GAME      = 3,
-	NWC_READY     = 4,
-	NWC_TOOL      = 5,
-	NWC_CHECK     = 6,
+	NWC_GAMEINFO,
+	NWC_JOIN,
+	NWC_SYNC,
+	NWC_GAME,
+	NWC_READY,
+	NWC_TOOL,
+	NWC_CHECK,
 	NWC_COUNT
 };
 
@@ -63,6 +64,24 @@ public:
 };
 
 /**
+ * nwc_gameinfo_t
+ * @from-client: client wants map info
+ *		server sends nwc_gameinfo_t to sender
+ * @from-server:
+ *		@data len of gameinfo
+ *		client processes this in network_connect
+ */
+class nwc_gameinfo_t : public network_command_t {
+public:
+	nwc_gameinfo_t() : network_command_t(NWC_GAMEINFO) { len = 0; }
+	virtual bool execute(karte_t *);
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_gameinfo_t";}
+	uint32 client_id;
+	uint32 len;
+};
+
+/**
  * nwc_join_t
  * @from-client: client wants to join the server
  *		server sends nwc_join_t to sender, nwc_sync_t to all clients
@@ -79,6 +98,11 @@ public:
 	virtual const char* get_name() { return "nwc_join_t";}
 	uint32 client_id;
 	uint8 answer;
+
+	/**
+	 * this clients is in the process of joining
+	 */
+	static SOCKET pending_join_client;
 };
 
 /**
@@ -212,19 +236,49 @@ private:
 	bool init;
 	bool exec;
 
-	// contains tools of players at other clients
+	// compare default_param's (NULL pointers allowed)
+	// @returns true if default_param are equal
+	static bool cmp_default_param(const char *d1, const char *d2);
+
+	/**
+	 * contains tools of players at other clients:
+	 *   for every player at every client we store the active tool in this node class
+	 *
+	 * the member variable default_param saves the default-parameter of the tool,
+	 * i.e. wkz->default_param == default_param
+	 *
+	 * default_param has its own simple memory management
+	 */
 	class tool_node_t {
-	public:
+	private:
+		const char* default_param;
 		werkzeug_t *wkz;
+		// own memory management for default_param
+		void set_default_param(const char* param);
+		void set_tool(werkzeug_t *wkz_);
+	public:
 		uint32 client_id;
 		uint8 player_id;
-		const char* default_param;
-		tool_node_t() : wkz(NULL), client_id(0), player_id(255), default_param(NULL) {}
-		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : wkz(_wkz), client_id(_client_id), player_id(_player_id), default_param(NULL) {}
-		// compares only the ids
+		tool_node_t() : default_param(NULL), wkz(NULL), client_id(0), player_id(255) {}
+		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : default_param(NULL), wkz(_wkz), client_id(_client_id), player_id(_player_id) {}
+
+		const char* get_default_param() const { return default_param;}
+
+		werkzeug_t* get_tool() const { return wkz;}
+
+		/**
+		 * mimics void karte_t::local_set_werkzeug(werkzeug_t *, spieler_t *)
+		 * deletes wkz_new if wkz_new->init() returns false and store is false
+		 */
+		void client_set_werkzeug(werkzeug_t * &wkz_new, const char* default_param_, bool store, karte_t*, spieler_t*);
+
+		/**
+		 * @returns true if ids (player_id and client_id) of both tool_node_t's are equal
+		 */
 		inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
 	};
 
+	// static list of active tools for each pair (client_id, player_id)
 	static vector_tpl<tool_node_t> tool_list;
 };
 

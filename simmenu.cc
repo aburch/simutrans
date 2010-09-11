@@ -140,6 +140,9 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_PWDHASH_TOOL:		tool = new wkz_change_password_hash_t(); break;
 		case WKZ_SET_PLAYER_TOOL:	tool = new wkz_change_player_t(); break;
 		case WKZ_TRAFFIC_LIGHT_TOOL:tool = new wkz_change_traffic_light_t(); break;
+		case WKZ_CHANGE_CITY_TOOL:  tool = new wkz_change_city_t(); break;
+		case WKZ_RENAME_TOOL:       tool = new wkz_rename_t(); break;
+		case WKZ_ADD_MESSAGE_TOOL:  tool = new wkz_add_message_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
@@ -180,6 +183,7 @@ werkzeug_t *create_dialog_tool(int toolnr)
 		case WKZ_LIST_LABEL:     tool = new wkz_list_label_t(); break;
 		case WKZ_CLIMATES:       tool = new wkz_climates_t(); break;
 		case WKZ_SETTINGS:       tool = new wkz_settings_t(); break;
+		case WKZ_GAMEINFO:       tool = new wkz_server_t(); break;
 		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 		                         return NULL;
 	}
@@ -871,6 +875,14 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 }
 
 
+bool toolbar_t::exit( karte_t *, spieler_t *)
+{
+	if(win_get_magic((long)this)) {
+		destroy_win(wzw);
+	}
+	return false;
+}
+
 
 bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 {
@@ -982,12 +994,15 @@ void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_
 {
 	const uint8 sp_nr = sp->get_player_nr();
 	first_click_var[sp_nr] = false;
-	welt->show_distance = start[sp_nr] = new_start;
-	start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
-	start_marker[sp_nr]->set_bild( get_marker_image() );
-	grund_t *gr = welt->lookup( start[sp_nr] );
-	if( gr ) {
-		gr->obj_add(start_marker[sp_nr]);
+	start[sp_nr] = new_start;
+	if (is_local_execution()) {
+		welt->show_distance = new_start;
+		start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
+		start_marker[sp_nr]->set_bild( get_marker_image() );
+		grund_t *gr = welt->lookup( start[sp_nr] );
+		if( gr ) {
+			gr->obj_add(start_marker[sp_nr]);
+		}
 	}
 	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start[sp_nr].get_str());
 }

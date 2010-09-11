@@ -50,6 +50,7 @@ class translator
 			bool utf_encoded;
 		};
 
+		static void init_city_names(int lang);
 		static const char* get_city_name(uint nr); ///< return a random city name
 		static int get_count_city_name(void);
 
@@ -68,6 +69,9 @@ class translator
 		static int get_language() {
 			return single_instance.current_lang;
 		}
+
+		// returns the id for this language or -1 if not there
+		static int get_language(const char* iso);
 
 		/** Get information about the currently selected language */
 		static const lang_info* get_lang();

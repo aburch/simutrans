@@ -78,6 +78,8 @@
 #include "gui/help_frame.h"
 #include "gui/karte.h"
 
+#include "dataobj/network.h"
+#include "dataobj/network_cmd.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/scenario.h"
@@ -85,8 +87,6 @@
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
 #include "dataobj/powernet.h"
-#include "dataobj/network.h"
-#include "dataobj/network_cmd.h"
 
 #include "utils/simstring.h"
 
@@ -603,7 +603,6 @@ void karte_t::add_convoi(convoihandle_t &cnv)
 {
 	assert(cnv.is_bound());
 	convoi_array.append_unique(cnv);
-	cnv->get_besitzer()->buche( 1, COST_ALL_CONVOIS );
 }
 
 
@@ -611,7 +610,6 @@ void karte_t::add_convoi(convoihandle_t &cnv)
 void karte_t::rem_convoi(convoihandle_t& cnv)
 {
 	convoi_array.remove(cnv);
-	cnv->get_besitzer()->buche( -1, COST_ALL_CONVOIS );
 }
 
 /**
@@ -1227,6 +1225,10 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 {
 	clear_random_mode( 7 );
 	mute_sound(true);
+	if (umgebung_t::networkmode) {
+		network_core_shutdown();
+		umgebung_t::networkmode = false;
+	}
 
 	intr_disable();
 	if(plan) {
@@ -1356,6 +1358,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	active_player_nr = 0;
 	active_player = spieler[0];
+	werkzeug_t::update_toolbars(this);
 
 	set_dirty();
 	step_mode = PAUSE_FLAG;
@@ -3136,7 +3139,7 @@ void karte_t::neuer_monat()
 	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", letzter_monat+1 );
-		speichern( buf, true );
+		speichern( buf, umgebung_t::savegame_version_str, true );
 	}
 
 	// Added by : Knightly
@@ -4076,7 +4079,7 @@ karte_t::play_sound_area_clipped(koord pos, sound_info info)
 
 
 
-void karte_t::speichern(const char *filename,bool silent)
+void karte_t::speichern(const char *filename, const char *version_str, bool silent )
 {
 #ifndef DEMO
 DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
@@ -4084,7 +4087,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
 
 	display_show_load_pointer( true );
-	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str())) {
+	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str(), version_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}
@@ -4413,6 +4416,7 @@ bool karte_t::laden(const char *filename)
 		recalc_average_speed();
 		mute_sound(false);
 
+		werkzeug_t::update_toolbars(this);
 		set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
 	}
 #endif
@@ -4474,10 +4478,11 @@ void karte_t::laden(loadsave_t *file)
 	if(  umgebung_t::networkmode  ) {
 		// to have games synchronized, transfer random counter too
 		setsimrand( einstellungen->get_random_counter(), 0xFFFFFFFFu );
+		translator::init_city_names( einstellungen->get_name_language_id() );
 	}
 	set_random_mode(LOAD_RANDOM);
 
-	if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  network_get_clients()==0)  ) {
 		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()<2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
 			access_einstellungen()->set_use_timeline( umgebung_t::default_einstellungen.get_use_timeline() );
@@ -5435,8 +5440,9 @@ void karte_t::switch_active_player(uint8 new_player)
 		koord3d old_zeiger_pos = zeiger->get_pos();
 		zeiger->set_bild( IMG_LEER );	// unmarks also area
 		zeiger->set_pos( koord3d::invalid );
-		if (two_click_werkzeug_t* const tool = dynamic_cast<two_click_werkzeug_t*>(werkzeug[active_player_nr])) {
-			tool->cleanup(active_player, false);
+		// exit active tool to remove pointers (for two_click_tool_t's, stop mover, factory linker)
+		if(werkzeug[active_player_nr]) {
+			werkzeug[active_player_nr]->exit(this, active_player);
 		}
 		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;

@@ -49,8 +49,15 @@ void pillar_t::calc_bild()
 	if(get_yoff()==0  &&  besch->has_pillar_asymmetric()) {
 		if(  grund_t *gr = welt->lookup(get_pos())  ) {
 			hang_t::typ h = gr->get_grund_hang();
-			if(h==hang_t::nord  ||  h==hang_t::west) {
-				hide = true;
+			if(dir == bruecke_besch_t::NS_Pillar) {
+				if((h & hang_t::nord) == hang_t::nord) {
+					hide = true;
+				}
+			}
+			else {
+				if((h & hang_t::west) == hang_t::west) {
+					hide = true;
+				}
 			}
 		}
 	}

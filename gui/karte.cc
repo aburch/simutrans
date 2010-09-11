@@ -70,8 +70,7 @@ void reliefkarte_t::karte_to_screen( koord &k ) const
 
 
 // and retransform
-inline void
-reliefkarte_t::screen_to_karte( koord &k ) const
+inline void reliefkarte_t::screen_to_karte( koord &k ) const
 {
 	k = koord( (k.x*zoom_in)/zoom_out, (k.y*zoom_in)/zoom_out );
 	if(rotate45) {
@@ -81,8 +80,7 @@ reliefkarte_t::screen_to_karte( koord &k ) const
 }
 
 
-uint8
-reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
+uint8 reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 {
 	if(max_value!=0) {
 		// color array goes from light blue to red
@@ -99,9 +97,7 @@ reliefkarte_t::calc_severity_color(sint32 amount, sint32 max_value)
 }
 
 
-
-void
-reliefkarte_t::set_relief_farbe(koord k, const int color)
+void reliefkarte_t::set_relief_farbe(koord k, const int color)
 {
 	// if map is in normal mode, set new color for map
 	// otherwise do nothing
@@ -132,9 +128,7 @@ reliefkarte_t::set_relief_farbe(koord k, const int color)
 }
 
 
-
-void
-reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
+void reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 {
 	koord p;
 	karte_to_screen(k);
@@ -167,7 +161,6 @@ reliefkarte_t::set_relief_farbe_area(koord k, int areasize, uint8 color)
 }
 
 
-
 /**
  * calculates ground color for position (hoehe - grundwasser).
  * @author Hj. Malthaner
@@ -178,13 +171,11 @@ uint8 reliefkarte_t::calc_hoehe_farbe(const sint16 hoehe, const sint16 grundwass
 }
 
 
-
 /**
  * Updated Kartenfarbe an Position k
  * @author Hj. Malthaner
  */
-uint8
-reliefkarte_t::calc_relief_farbe(const grund_t *gr)
+uint8 reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 {
 	uint8 color = COL_BLACK;
 
@@ -275,9 +266,7 @@ reliefkarte_t::calc_relief_farbe(const grund_t *gr)
 }
 
 
-
-void
-reliefkarte_t::calc_map_pixel(const koord k)
+void reliefkarte_t::calc_map_pixel(const koord k)
 {
 	// we ignore requests, when nothing visible ...
 	if(!is_visible) {
@@ -549,7 +538,6 @@ reliefkarte_t::calc_map_pixel(const koord k)
 }
 
 
-
 void reliefkarte_t::calc_map_groesse()
 {
 	const sint32 size_x = rotate45 ? ((welt->get_groesse_y()+zoom_in)*zoom_out)/zoom_in+((welt->get_groesse_x()+zoom_in)*zoom_out)/zoom_in+1 : ((welt->get_groesse_x()+zoom_in-1)*zoom_out)/zoom_in;
@@ -557,7 +545,6 @@ void reliefkarte_t::calc_map_groesse()
 	set_groesse( koord( min(32767,size_x), min(32767,size_y-1) ) ); // of the gui_komponete to adjust scroll bars
 	needs_redraw = true;
 }
-
 
 
 void reliefkarte_t::calc_map()
@@ -653,11 +640,6 @@ void reliefkarte_t::calc_map()
 }
 
 
-
-// from now on public routines
-
-
-
 reliefkarte_t::reliefkarte_t()
 {
 	relief = NULL;
@@ -675,14 +657,12 @@ reliefkarte_t::reliefkarte_t()
 }
 
 
-
 reliefkarte_t::~reliefkarte_t()
 {
 	if(relief != NULL) {
 		delete relief;
 	}
 }
-
 
 
 reliefkarte_t *reliefkarte_t::get_karte()
@@ -692,7 +672,6 @@ reliefkarte_t *reliefkarte_t::get_karte()
 	}
 	return single_instance;
 }
-
 
 
 void reliefkarte_t::set_welt(karte_t *welt)
@@ -713,23 +692,17 @@ void reliefkarte_t::set_welt(karte_t *welt)
 }
 
 
-
-void
-reliefkarte_t::set_mode(MAP_MODES new_mode)
+void reliefkarte_t::set_mode(MAP_MODES new_mode)
 {
 	mode = new_mode;
 	needs_redraw = true;
 }
 
 
-
-void
-reliefkarte_t::neuer_monat()
+void reliefkarte_t::neuer_monat()
 {
 	needs_redraw = true;
 }
-
-
 
 
 // these two are the only gui_container specific routines
@@ -757,7 +730,6 @@ bool reliefkarte_t::infowin_event(const event_t *ev)
 
 	return false;
 }
-
 
 
 // helper function for redraw: factory connections
@@ -830,7 +802,6 @@ void reliefkarte_t::draw_schedule(const koord pos) const
 		display_direct_line(last_koord.x, last_koord.y, first_koord.x, first_koord.y, 127);
 	}
 }
-
 
 
 // draw the map
@@ -1018,7 +989,6 @@ void reliefkarte_t::zeichnen(koord pos)
 		}
 	}
 }
-
 
 
 void reliefkarte_t::set_city( const stadt_t* _city )

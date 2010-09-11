@@ -135,11 +135,16 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	snowline_winter.set_limits( 0, arctic );
 	intTopOfButton += 5;
 
-	no_tree.init( button_t::square, "no tree", koord(10,intTopOfButton) ); // right align
+	no_tree.init( button_t::square_state, "no tree", koord(10,intTopOfButton) ); // right align
 	no_tree.pressed = sets->get_no_trees();
 	no_tree.add_listener( this );
 	add_komponente( &no_tree );
 	intTopOfButton += 12+4;
+
+	hilly.pressed = umgebung_t::hilly;
+
+	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
+	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
 
 	river_n.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_n.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
@@ -264,15 +269,6 @@ bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 void climate_gui_t::zeichnen(koord pos, koord gr)
 {
-	no_tree.pressed = sets->get_no_trees();
-
-	no_tree.set_text( "no tree" );
-
-	hilly.pressed = umgebung_t::hilly;
-
-	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
-	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
-
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;

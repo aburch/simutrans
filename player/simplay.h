@@ -62,7 +62,7 @@ class spieler_t
 public:
 	enum { MAX_KONTO_VERZUG = 3 };
 
-	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI };
+	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
 
 	// BG, 2009-06-06: differ between infrastructure and vehicle maintenance 
 	enum { MAINT_INFRASTRUCTURE=0, MAINT_VEHICLE=1, MAINT_COUNT };

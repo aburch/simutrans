@@ -33,6 +33,9 @@ public:
 	//points to the current directory user for loading and saving
 	static const char *user_dir;
 
+	// version for which the savegames should be created
+	static const char *savegame_version_str;
+
 	static std::string objfilename;
 
 	// true, if we are in networkmode

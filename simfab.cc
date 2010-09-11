@@ -810,7 +810,7 @@ uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
 	const uint32 max = prodbase * prodfaktor;
-	uint32 menge = (max >> (18-10+4-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T;
+	uint32 menge = ((max >> (18-10+4-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T);
 
 	if (ausgang.get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -829,8 +829,8 @@ uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 			}
 		}
 		else {
-			// overfull?
-			menge = maxi-1;
+			// overfull? Reduce to maximum
+			menge = 0;
 		}
 	}
 
@@ -942,7 +942,7 @@ void fabrik_t::step(long delta_t)
 		// not a producer => then consume electricity ...
 		if(  !besch->is_electricity_producer()  ) {
 			// one may be thinking of linking this to actual production only
-			prodfaktor = 16 + (  16 * power * besch->get_inverse_electricity_proportion() / (prodbase * PRODUCTION_DELTA_T)  );
+			prodfaktor = 16 + (  16 * power * besch->get_inverse_electricity_proportion() / (prodbase * PRODUCTION_DELTA_T + 1)  );
 		}
 
 		const uint32 ecount = eingang.get_count();
@@ -965,7 +965,7 @@ void fabrik_t::step(long delta_t)
 			for(  index = 0;  index < ecount;  index++  ) {
 
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
-				const uint32 v = (menge*vb) >> 8;
+				const uint32 v = max(1,(menge*vb) >> 8);
 
 				if(  (uint32)eingang[index].menge > v + 1  ) {
 					eingang[index].menge -= v;
@@ -975,7 +975,7 @@ void fabrik_t::step(long delta_t)
 						power += prodbase * PRODUCTION_DELTA_T * 4;
 					}
 					// to find out, if storage changed
-					delta_menge += (eingang[index].menge & fabrik_t::precision_mask) + v;
+					delta_menge += v;
 				}
 				else {
 					if(  besch->is_electricity_producer()  ) {
@@ -986,7 +986,6 @@ void fabrik_t::step(long delta_t)
 					eingang[index].menge = 0;
 				}
 			}
-			delta_menge /= eingang.get_count();
 		}
 		else {
 			// ok, calulate maximum allowed consumption
@@ -1019,22 +1018,24 @@ void fabrik_t::step(long delta_t)
 					menge = produktion(produkt, delta_t);
 				}
 
-				const uint32 pb = besch->get_produkt(produkt)->get_faktor();
-				const uint32 p = (menge*pb) >> 8;
+				if (menge>0) {
+					const uint32 pb = besch->get_produkt(produkt)->get_faktor();
+					// ensure some minimum production
+					const uint32 p = max(1,(menge*pb) >> 8);
 
-				// produce
-				if (ausgang[produkt].menge < ausgang[produkt].max) {
-					// to find out, if storage changed
-					delta_menge += (ausgang[produkt].menge & fabrik_t::precision_mask) + p;
-					ausgang[produkt].menge += p;
-					// if less than 3/4 filled we neary always consume power
-					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3)  &&  (p > 0);
-				}
-				else {
-					ausgang[produkt].menge = ausgang[produkt].max - 1;
+					// produce
+					if (ausgang[produkt].menge < ausgang[produkt].max) {
+						// to find out, if storage changed
+						delta_menge += p;
+						ausgang[produkt].menge += p;
+						// if less than 3/4 filled we neary always consume power
+						currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3);
+					}
+					else {
+						ausgang[produkt].menge = ausgang[produkt].max - 1;
+					}
 				}
 			}
-			delta_menge /= ausgang.get_count();
 
 			// and finally consume stock
 			for(index = 0; index<ecount; index ++) {
@@ -1065,7 +1066,7 @@ void fabrik_t::step(long delta_t)
 
 	delta_sum += delta_t;
 	if(  delta_sum > PRODUCTION_DELTA_T  ) {
-		delta_sum -= delta_sum - delta_sum % PRODUCTION_DELTA_T;
+		delta_sum = delta_sum % PRODUCTION_DELTA_T;
 
 		// distribute, if there are more than 10 waiting ...
 		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
@@ -1079,7 +1080,11 @@ void fabrik_t::step(long delta_t)
 
 		recalc_factory_status();
 
-		if((delta_menge>>fabrik_t::precision_bits)>0) {
+		// rescale delta_menge here: all products should be produced at least once
+		// (if consumer only: all supplements should be consumed once)
+		const uint32 min_change = ausgang.empty() ? eingang.get_count() : ausgang.get_count();
+
+		if((delta_menge>>fabrik_t::precision_bits) > min_change) {
 
 			// we produced some real quantity => smoke
 			smoke();
@@ -1090,10 +1095,9 @@ void fabrik_t::step(long delta_t)
 			}
 
 			INT_CHECK("simfab 558");
+			// reset for next cycle
+			delta_menge = 0;
 		}
-
-		// reset for next cycle
-		delta_menge = 0;
 
 		// to distribute to all target equally, we use this counter, for the factory, to try first
 		last_lieferziel_start ++;
@@ -1826,6 +1830,8 @@ void fabrik_t::add_all_suppliers()
 			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
 				// add us to this factory
 				fab->add_lieferziel(pos.get_2d());
+				// and vice versa
+				add_supplier(fab->get_pos().get_2d());
 			}
 		}
 	}

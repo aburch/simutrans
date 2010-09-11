@@ -73,7 +73,7 @@ public:
 	~loadsave_t();
 
 	bool rd_open(const char *filename);
-	bool wr_open(const char *filename, mode_t mode, const char *pak_extension);
+	bool wr_open(const char *filename, mode_t mode, const char *pak_extension, const char *svaegame_version );
 	const char *close();
 
 	static void set_savemode(mode_t mode) { save_mode = mode; }

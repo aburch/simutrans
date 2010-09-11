@@ -187,11 +187,6 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 }
 
 
-
-/**
- * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
- */
 bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
     if(komp == &sortedby) {
@@ -232,11 +227,7 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
     return true;
 }
 
-/**
- * resize window in response to a resize event
- * @author Hj. Malthaner
- * @date   16-Oct-2003
- */
+
 void citylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
@@ -252,15 +243,7 @@ void citylist_frame_t::resize(const koord delta)
 }
 
 
-
-/**
- * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- * @author Hj. Malthaner
- */
-void
-citylist_frame_t::zeichnen(koord pos, koord gr)
+void citylist_frame_t::zeichnen(koord pos, koord gr)
 {
 	if(show_stats.pressed) {
 		welt->update_history();

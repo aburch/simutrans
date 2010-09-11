@@ -160,7 +160,7 @@ bool loadsave_t::rd_open(const char *filename)
 
 
 
-bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension)
+bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version)
 {
 	mode = m;
 	close();
@@ -214,17 +214,10 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	const char *c = pak_extension;
 	
 	// Use Experimental version numbering if appropriate.
-	std::string savegame_version;
-	std::string savegame_ver_nr;
+	std::string savegame_ver = savegame_version;
 	if(save_experimental)
 	{
-		savegame_version = EXPERIMENTAL_SAVEGAME_VERSION;
-		savegame_ver_nr = COMBINED_VER_NR;
-	}
-	else
-	{
-		savegame_version = SAVEGAME_VERSION;
-		savegame_ver_nr = SAVEGAME_VER_NR;
+		savegame_ver.append(EXPERIMENTAL_VER_NR);
 	}
 
 	// find the start
@@ -239,28 +232,28 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	// delete trailing path seperator
 	this->pak_extension[strlen(this->pak_extension)-1] = 0;
 
-	loadsave_t::combined_version combined_version = int_version(SAVEGAME_VER_NR, NULL, NULL );
+	loadsave_t::combined_version combined_version = int_version(savegame_version, NULL, NULL );
 	version = combined_version.version;
 
 	if(  !is_xml()  ) {
 		char str[4096];
 		size_t len;
 		if(  version<102002  ) {
-			len = sprintf( str, "%s%s%s\n", savegame_version.c_str(), "zip", this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s%s%s\n", savegame_ver.c_str(), "zip", this->pak_extension );
 		}
 		else {
-			len = sprintf( str, "%s-%s\n", savegame_version.c_str(), this->pak_extension );
+			len = sprintf( str, SAVEGAME_PREFIX "%s-%s\n", savegame_ver.c_str(), this->pak_extension );
 		}
 		write( str, len );
 	}
 	else {
 		char str[4096];
-		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver_nr.c_str(), this->pak_extension );
+		int n = sprintf( str, "<?xml version=\"1.0\"?>\n<Simutrans version=\"%s\" pak=\"%s\">\n", savegame_ver.c_str(), this->pak_extension );
 		write( str, n );
 		ident = 1;
 	}
 
-	loadsave_t::combined_version versions = int_version(savegame_ver_nr.c_str(), NULL, NULL );
+	loadsave_t::combined_version versions = int_version(savegame_ver.c_str(), NULL, NULL );
 	version = versions.version;
 	experimental_version = versions.experimental_version;
 
@@ -290,6 +283,10 @@ const char *loadsave_t::close()
 		}
 		else if(  is_bzip2()  ) {
 			if(   saving  ) {
+				/* BZLIB seems to eat the last byte, if it is at odd position
+				 * => we just write a dummy zero padding byte
+				 */
+				write( "", 1 );
 				BZ2_bzWriteClose( &bse, bzfp, 0, NULL, NULL );
 			}
 			else {

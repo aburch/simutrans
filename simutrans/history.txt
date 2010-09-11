@@ -84,6 +84,12 @@
 	FIX: (z9999) stopping before occipied crossings with a signal and many other signal fixes
 	ADD: for text input, double-click to select a word and triple-click to select the whole text
 	ADD: register lineless convoys at the halts and list them with links in the halt details dialog
+	FIX: do not crash with prodbase 0 and ensure some basic production
+	FIX: convois did not properly looked up next signal for signals on closed crossings
+	ADD: right-click on icon of selected toolbar closes the toolbar
+	ADD: server uses a different savegame revision => testing already possible now
+	ADD: savegame version can be set in settings
+	ADD: simple chat system added (send message option in message window)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

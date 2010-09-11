@@ -14,14 +14,15 @@
 #include "../tpl/array_tpl.h"
 #include "../utils/cbuffer_t.h"
 
-#include "components/gui_komponente.h"
 #include "gui_container.h"
+#include "components/gui_komponente.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_component_table.h"
 #include "components/gui_label.h"
 #include "components/gui_textarea.h"
 #include "components/list_button.h"
 #include "components/action_listener.h"
+#include "components/gui_combobox.h"
 
 class einstellungen_t;
 
@@ -29,11 +30,11 @@ class einstellungen_t;
  * ATTENTION: In the init and read preocedures, the order of the item MUST be identical!
  */
 
-// call this before any init is done ...
+// call this befor any init is done ...
 #define INIT_INIT \
 	width = 16;\
 	sint16 ypos = 4;\
-	gui_container_t::remove_all();\
+	remove_all();\
 	free_all();\
 	seperator = 0;\
 
@@ -45,12 +46,12 @@ class einstellungen_t;
 	ni->set_pos( koord( 2, ypos ) );\
 	ni->set_groesse( koord( 37+7*max(1,(sint16)(log10((double)(c)+1.0)+0.5)), BUTTON_HEIGHT ) );\
 	numinp.append( ni );\
-	gui_container_t::add_komponente( ni );\
+	add_komponente( ni );\
 	gui_label_t *lb = new gui_label_t();\
 	lb->set_text_pointer(t);\
 	lb->set_pos( koord( ni->get_groesse().x+6, ypos ) );\
 	label.append( lb );\
-	gui_container_t::add_komponente( lb );\
+	add_komponente( lb );\
 	ypos += BUTTON_HEIGHT;\
 }\
 
@@ -165,9 +166,12 @@ public:
 
 
 // the only task left are the respective init/reading routines
-class settings_general_stats_t : public settings_stats_t
+class settings_general_stats_t : public settings_stats_t, public action_listener_t
 {
+	gui_combobox_t savegame;
 public:
+	// needed for savegame combobox
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 };
@@ -180,20 +184,6 @@ public:
 };
 
 class settings_economy_stats_t : public settings_stats_t
-{
-public:
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
-};
-
-class settings_experimental_general_stats_t : public settings_stats_t
-{
-public:
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
-};
-
-class settings_experimental_revenue_stats_t : public settings_stats_t
 {
 public:
 	void init( einstellungen_t *sets );
@@ -217,6 +207,20 @@ public:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+};
+
+class settings_experimental_general_stats_t : public settings_stats_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
+class settings_experimental_revenue_stats_t : public settings_stats_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
 };
 
 #endif

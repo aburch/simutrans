@@ -73,6 +73,8 @@ enum magic_numbers {
 	magic_labellist,
 	magic_station_building_select,
 	magic_keyhelp,
+	magic_server_frame_t,
+	magic_send_message_frame_t,
 	magic_info_pointer,	// mark end of the list
 	magic_convoi_info=magic_info_pointer+839,
 	magic_convoi_detail=magic_convoi_info+65536,
@@ -141,7 +143,7 @@ bool win_change_zoom_factor(bool magnify);
  * @param owner : owner==NULL disables timing (initial delay and visible duration)
  * @author Hj. Malthaner, Knightly
  */
-void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner = NULL, const void *const group = NULL);
+void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner = 0, const void *const group = 0);
 
 /**
  * Sets a static tooltip that follows the mouse
