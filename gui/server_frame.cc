@@ -16,6 +16,7 @@
 #include "../dataobj/network.h"
 #include "../dataobj/umgebung.h"
 #include "server_frame.h"
+#include "messagebox.h"
 
 
 
@@ -186,25 +187,30 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		serverlist.clear_elements();
 		// read the list
 		FILE *fh = fopen( "serverlist.txt", "r" );
-		while( !feof(fh) ) {
-			char line[1024];
-			fgets( line, sizeof(line), fh );
-			for(  int i=strlen(line);  i>0  &&  line[i-1]<=32;  i--  ) {
-				line[i-1] = 0;
-			}
-			if(  line[0]>32  ) {
-				if(  line[0]!='#'  ) {
-					// add new server address
-					serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line, COL_BLUE ) );
+		if (fh) {
+			while( !feof(fh) ) {
+				char line[1024];
+				fgets( line, sizeof(line), fh );
+				for(  int i=strlen(line);  i>0  &&  line[i-1]<=32;  i--  ) {
+					line[i-1] = 0;
 				}
-				else {
-					// add new comment
-					serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line+1, COL_WHITE ) );
+				if(  line[0]>32  ) {
+					if(  line[0]!='#'  ) {
+						// add new server address
+						serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line, COL_BLUE ) );
+					}
+					else {
+						// add new comment
+						serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line+1, COL_WHITE ) );
+					}
 				}
 			}
+			fclose( fh );
+			remove( "serverlist.txt" );
 		}
-		fclose( fh );
-		remove( "serverlist.txt" );
+		else {
+			create_win( new news_img("Could not download server list!"), w_time_delete, magic_none);
+		}
 		serverlist.set_selection( 0 );
 	}
 	else if(  &join == komp  ) {
