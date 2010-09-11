@@ -678,9 +678,13 @@ void path_explorer_t::compartment_t::step()
 				halt_list.clear();
 				recurrence_list.clear();
 
-				for (uint8 i = 0; i < entry_count; ++i)
+				uint8 index = 0;
+				bool reverse = false;
+				bool first_run = true;
+
+				for (uint8 i = 0; i < entry_count * 3; ++i)
 				{
-					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[i].pos, current_owner);
+					current_halt = haltestelle_t::get_halt(world, current_schedule->eintrag[index].pos, current_owner);
 					
 					// Make sure that the halt found was built before refresh started and that it supports current goods category
 					if ( current_halt.is_bound() && current_halt->get_inauguration_time() < refresh_start_time && current_halt->is_enabled(ware_type) )
@@ -690,6 +694,38 @@ void path_explorer_t::compartment_t::step()
 						// Initialise the corresponding recurrence list entry to false
 						recurrence_list.append(false, 64);
 					}
+					
+					current_schedule->increment_index(&index, &reverse);
+
+					// check if we have traversed the whole schedule, both ways if appropriate
+					if (index == 0)
+					{
+						if(!current_schedule->is_mirrored())
+						{
+							break;
+						}
+						else
+						{
+							// This will give just under 3*sched->get_count() entries in a worst-case scenario
+							// (i.e. if this halt is the last stop in the scedule).
+							// This is necessary to represent both directions using a single halt_list.
+							if ( first_run == true )
+							{
+								// first run -> continue on
+								first_run = false;
+							}
+							else if ( reverse == false )
+							{
+								// second run -> also visit all stops in reverse direction
+								reverse = true;
+							}
+							else
+							{
+								// visited everywhere both forwards and backwards.
+								break;
+							}
+						}
+					}
 				}
 
 				// precalculate journey times between consecutive halts
@@ -697,6 +733,7 @@ void path_explorer_t::compartment_t::step()
 				journey_time_factor = journey_time_adjustment / (float)current_average_speed;
 				journey_time_list.clear();
 				journey_time_list.append(0);	// reserve the first entry for the last journey time from last halt to first halt
+
 
 				for (uint8 i = 0; i < entry_count; ++i)
 				{
@@ -707,7 +744,9 @@ void path_explorer_t::compartment_t::step()
 															halt_list[(i+1)%entry_count]->get_basis_pos() ) * journey_time_factor ),
 						64 
 					);
+					
 				}
+				
 
 				journey_time_list[0] = journey_time_list[entry_count];	// copy the last entry to the first entry
 				journey_time_list.remove_at(entry_count);	// remove the last entry

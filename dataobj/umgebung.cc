@@ -285,4 +285,12 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_byte( bottom_window_bar_color );
 		file->rdwr_byte( bottom_window_text_color );
 	}
+
+	if(file->get_experimental_version() >= 9)
+	{
+		file->rdwr_long(number_of_big_cities);
+		file->rdwr_long(number_of_clusters);
+		file->rdwr_long(cluster_size);
+		file->rdwr_byte(cities_like_water);
+	}
 }
