@@ -773,10 +773,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gui\send_message_frame.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\gui\server_frame.cc"
 				>
 			</File>
@@ -1874,10 +1870,6 @@
 			</File>
 			<File
 				RelativePath=".\utils\searchfolder.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gui\send_message_frame.h"
 				>
 			</File>
 			<File

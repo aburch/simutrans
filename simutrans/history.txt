@@ -91,6 +91,7 @@
 	ADD: savegame version can be set in settings
 	ADD: simple chat system added (send message option in message window)
 	ADD: semiautomatical announce of servers possible
+	CHANGE: chat option now part of message centre
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

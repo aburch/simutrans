@@ -5196,7 +5196,7 @@ bool karte_t::interactive(uint32 quit_month)
 				buf.append( umgebung_t::server );
 			}
 #ifdef REVISION
-			buf.append( "&rev=" REVISION );
+			buf.append( "&rev=" QUOTEME(REVISION) );
 #endif
 			buf.append( "&pak=\"" );
 			// comment currently not used
