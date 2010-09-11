@@ -438,6 +438,18 @@ private:
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
 
+	/**
+	 * Register the convoy with the stops in the schedule
+	 * @author Knightly
+	 */
+	void register_stops();
+
+	/**
+	 * Unregister the convoy from the stops in the schedule
+	 * @author Knightly
+	 */
+	void unregister_stops();
+
 	uint32 move_to(karte_t const&, koord3d const& k, uint16 start_index);
 
 	/**

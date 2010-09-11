@@ -226,6 +226,7 @@ class wkz_wegebau_t : public two_click_werkzeug_t {
 private:
 	static const weg_besch_t *defaults[17];	// default ways for all types
 protected:
+	static karte_t *welt;
 	const weg_besch_t *besch;
 
 public:
@@ -237,7 +238,7 @@ public:
 	virtual bool init( karte_t *, spieler_t * );
 	virtual bool is_move_network_save(spieler_t *sp) const { return two_click_werkzeug_t::is_move_network_save(sp) && (besch  &&  besch->get_styp()!=1); }
 protected:
-	const weg_besch_t *get_besch(uint16,bool) const;
+	virtual const weg_besch_t *get_besch(uint16,bool) const;
 	void calc_route( wegbauer_t &bauigel, const koord3d &, const koord3d & );
 private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
@@ -248,7 +249,7 @@ private:
 class wkz_build_cityroad : public wkz_wegebau_t {
 public:
 	wkz_build_cityroad() : wkz_wegebau_t() { id = WKZ_CITYROAD | GENERAL_TOOL; }
-	virtual bool init( karte_t *, spieler_t * );
+	virtual const weg_besch_t *get_besch(uint16,bool) const;
 	virtual image_id get_icon(spieler_t *sp) const { return werkzeug_t::get_icon(sp); }
 	virtual bool is_selected( karte_t *welt ) const { return werkzeug_t::is_selected(welt); }
 private:

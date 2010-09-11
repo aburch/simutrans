@@ -26,6 +26,7 @@
 #include "gui/karte.h"
 #include "gui/convoi_info_t.h"
 #include "gui/fahrplan_gui.h"
+#include "gui/depot_frame.h"
 #include "gui/messagebox.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
@@ -235,6 +236,11 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
 
+	// Knightly : if lineless convoy -> unregister from stops
+	if(  !line.is_bound()  ) {
+		unregister_stops();
+	}
+
 	// force asynchronous recalculation
 	if(fpl) {
 		if(!fpl->ist_abgeschlossen()) { //"is completed" (Google)
@@ -411,6 +417,11 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			}
 		}
 		fahr[0]->set_erstes(true);
+	}
+
+	// Knightly : if lineless convoy -> register itself with stops
+	if(  !line.is_bound()  ) {
+		register_stops();
 	}
 }
 
@@ -1844,9 +1855,15 @@ bool convoi_t::set_schedule(schedule_t * f)
 
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
 
-	if(f == NULL) {
+	if(  f==NULL  ) {
 		if(  line.is_bound()  ) {
 			unset_line();
+		}
+		else {
+			// Knightly : if schedule is going to be deleted -> make sure to unregister stops for lineless convoys
+			if(  state==INITIAL  ) {
+				unregister_stops();
+			}
 		}
 		if(  state==INITIAL  ) {
 			delete fpl;
@@ -1881,18 +1898,37 @@ bool convoi_t::set_schedule(schedule_t * f)
 	
 	// happens to be identical?
 	if(fpl!=f) {
-		// now check, we we have been bond to a line we are about to loose:
-		if(  line.is_bound()  &&  !f->matches( welt, line->get_schedule() )  ) {
-			unset_line();
+		// now check, we we have been bond to a line we are about to lose:
+		bool changed = false;
+		if(  line.is_bound()  ) {
+			if(  !f->matches( welt, line->get_schedule() )  ) {
+				// change from line to individual schedule
+				//		-> unset line now and register stops from new schedule later
+				changed = true;
+				unset_line();
+			}
+		}
+		else {
+			if(  !f->matches( welt, fpl )  ) {
+				// Knightly : merely change schedule and do not involve line
+				//				-> unregister stops from old schedule now and register stops from new schedule later
+				changed = true;
+				unregister_stops();
+			}
 		}
 		// destroy a possibly open schedule window
-		if(fpl &&  !fpl->ist_abgeschlossen()) 
-		{ 
-			//"is completed" (Google)
+		//"is completed" (Google)
+		if(  fpl  &&  !fpl->ist_abgeschlossen()  ) {
 			destroy_win((long)fpl);
 			delete fpl;
 		}
 		fpl = f;
+		if(  changed  ) {
+			// Knightly : if line is unset or schedule is changed
+			//				-> register stops from new schedule
+			register_stops();
+			welt->set_schedule_counter();	// must trigger refresh
+		}
 	}
 
 	// remove wrong freight
@@ -2960,12 +2996,30 @@ convoi_t::rdwr(loadsave_t *file)
 
 void convoi_t::zeige_info()
 {
-	if(!in_depot()) {
-
-		if(umgebung_t::verbose_debug) {
+	if(  in_depot()  ) {
+		// Knightly : if ownership matches, we can try to open the depot dialog
+		if(  get_besitzer()==welt->get_active_player()  ) {
+			grund_t *ground = welt->lookup( front()->get_pos() );
+			if(  ground==NULL  ||  ground->get_depot()==NULL  ) {
+				ground = welt->lookup( get_home_depot() );
+			}
+			if(  ground  ) {
+				depot_t *const depot = ground->get_depot();
+				if(  depot  ) {
+					depot->zeige_info();
+					// try to activate this particular convoy in the depot
+					depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (long)depot ) );
+					if(  frame  ) {
+						frame->activate_convoi(self);
+					}
+				}
+			}
+		}
+	}
+	else {
+		if(  umgebung_t::verbose_debug  ) {
 			dump();
 		}
-
 		create_win( new convoi_info_t(self), w_info, magic_convoi_info+self.get_id() );
 	}
 }
@@ -3926,8 +3980,13 @@ void convoi_t::set_line(linehandle_t org_line)
 	if(!org_line.is_bound()) {
 		return;
 	}
-	if(line.is_bound()) {
+	if(  line.is_bound()  ) {
 		unset_line();
+	}
+	else {
+		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
+		unregister_stops();
+		welt->set_schedule_counter();	// must trigger refresh
 	}
 	line_update_pending = org_line;
 	check_pending_updates();
@@ -4080,6 +4139,39 @@ void convoi_t::check_pending_updates()
 	}
 }
 
+
+/**
+ * Register the convoy with the stops in the schedule
+ * @author Knightly
+ */
+void convoi_t::register_stops()
+{
+	if(  fpl  ) {
+		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
+			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
+			if(  halt.is_bound()  ) {
+				halt->add_convoy(self);
+			}
+		}
+	}
+}
+
+
+/**
+ * Unregister the convoy from the stops in the schedule
+ * @author Knightly
+ */
+void convoi_t::unregister_stops()
+{
+	if(  fpl  ) {
+		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
+			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
+			if(  halt.is_bound()  ) {
+				halt->remove_convoy(self);
+			}
+		}
+	}
+}
 
 
 /*

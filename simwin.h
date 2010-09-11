@@ -76,8 +76,10 @@ enum magic_numbers {
 	magic_info_pointer,	// mark end of the list
 	magic_convoi_info=magic_info_pointer+839,
 	magic_convoi_detail=magic_convoi_info+65536,
-	magic_replace=magic_convoi_detail+65536,
-	magix_max=magic_replace+65536
+	magic_halt_info=magic_convoi_detail+65536,
+	magic_halt_detail=magic_halt_info+65536,
+	magic_replace=magic_halt_detail+65536,
+	magic_max=magic_replace+65536
 };
 
 // Haltezeit für Nachrichtenfenster

@@ -4839,16 +4839,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		display_progress(get_groesse_y()+48+stadt.get_count()+(y*128)/get_groesse_y(), get_groesse_y()+256+stadt.get_count());
 	}
 
-	// adding lines and other stuff for convois
-	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
-		convoihandle_t cnv = convoi_array[i];
-		cnv->laden_abschliessen();
-		// was deleted during loading => use same position again
-		if(!cnv.is_bound()) {
-			i--;
-		}
-	}
-
 	// finish the loading of stops (i.e. assign the right good for these stops)
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
 		if(  (*i)->get_besitzer()==NULL  ||  !(*i)->existiert_in_welt()  ) {
@@ -4864,6 +4854,16 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	// otherwise ware might get wrong halt coordinates during reassigning of coordinates
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		(*i)->laden_abschliessen();
+	}
+
+	// adding lines and other stuff for convois
+	for(unsigned i=0;  i<convoi_array.get_count();  i++ ) {
+		convoihandle_t cnv = convoi_array[i];
+		cnv->laden_abschliessen();
+		// was deleted during loading => use same position again
+		if(!cnv.is_bound()) {
+			i--;
+		}
 	}
 
 	// register all line stops and change line types, if needed
@@ -5934,6 +5934,7 @@ bool karte_t::interactive(uint32 quit_month)
 		umgebung_t::quit_simutrans = true;
 	}
 
+	display_show_pointer(true);
 	return finish_loop;
 }
 

@@ -1622,6 +1622,7 @@ const char *wkz_fahrplan_ins_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 /* way construction */
 const weg_besch_t *wkz_wegebau_t::defaults[17] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+karte_t *wkz_wegebau_t::welt = NULL;	// for default city road
 
 const weg_besch_t *wkz_wegebau_t::get_besch( uint16 timeline_year_month, bool remember ) const
 {
@@ -1688,12 +1689,16 @@ const char* wkz_wegebau_t::get_default_param(spieler_t *) const
 
 bool wkz_wegebau_t::is_selected( karte_t *welt ) const
 {
+	if (welt->get_werkzeug(welt->get_active_player_nr())->get_id()!=id) {
+		return false;
+	}
 	const wkz_wegebau_t *selected = dynamic_cast<const wkz_wegebau_t *>(welt->get_werkzeug(welt->get_active_player_nr()));
 	return (selected  &&  selected->get_besch(welt->get_timeline_year_month(),false) == get_besch(welt->get_timeline_year_month(),false));
 }
 
 bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 {
+	this->welt = welt;
 	two_click_werkzeug_t::init( welt, sp );
 
 	// now get current besch
@@ -1822,17 +1827,9 @@ void wkz_wegebau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &sta
 }
 
 /* city road construction */
-bool wkz_build_cityroad::init( karte_t *welt, spieler_t *sp )
+const weg_besch_t *wkz_build_cityroad::get_besch(uint16,bool) const
 {
-	wkz_wegebau_t::init( welt, sp );
-
-	// now get city_road besch
-	besch = welt->get_city_road();
-	if(besch  &&  besch->get_cursor()->get_bild_nr(0) != IMG_LEER) {
-		cursor = besch->get_cursor()->get_bild_nr(0);
-	}
-	default_param = besch->get_name();
-	return besch!=NULL;
+	return welt->get_city_road();
 }
 
 const char *wkz_build_cityroad::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &end )
@@ -4925,6 +4922,14 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						}
 						if(updated) {
 							fpl->cleanup();
+							// Knightly : remove lineless convoy from old stop
+							if(  last_halt.is_bound()  ) {
+								last_halt->remove_convoy(cnv);
+							}
+							// Knightly : register lineless convoy at new stop
+							if(  new_halt.is_bound()  ) {
+								new_halt->add_convoy(cnv);
+							}
 							if(  !fpl->ist_abgeschlossen()  ) {
 								// schedule is not owned by schedule window ...
 								// ... thus we can set this schedule

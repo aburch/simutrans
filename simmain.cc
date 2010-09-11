@@ -874,6 +874,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		sint32 old_autosave = umgebung_t::autosave;
 		umgebung_t::autosave = false;
 		einstellungen_t sets;
+		sets.copy_city_road( umgebung_t::default_einstellungen );
 		sets.set_default_climates();
 		sets.set_use_timeline( 1 );
 		sets.set_groesse(64,64);

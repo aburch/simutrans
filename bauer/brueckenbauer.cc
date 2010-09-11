@@ -223,7 +223,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 			else if(  gr1->get_typ()==grund_t::monorailboden  ) {
-				// check if we can connect ro elevated way
+				// check if we can connect to elevated way
 				const weg_t* weg = gr1->get_weg_nr(0);
 				if(  weg==NULL  ||  weg->get_waytype()==wegtyp
 //					|| (crossing_logic_t::get_crossing(wegtyp, weg->get_waytype()))
@@ -239,14 +239,12 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 			if(wegtyp != powerline_wt) {
 				if(gr2->has_two_ways()) {
 					if (gr2->ist_uebergang()  ||  wegtyp!=road_wt) {
-						error_msg =  "Tile not empty.";
-						return koord3d::invalid;
-					}
-					// If road and tram, we have to check both ribis.
-					ribi = gr2->get_weg_nr(0)->get_ribi_unmasked() | gr2->get_weg_nr(1)->get_ribi_unmasked();
-					if(  besch->get_waytype()  !=  road_wt  ) {
-						// only road bridges allowed here.
+						// full ribi -> build no bridge here
 						ribi = 15;
+					}
+					else {
+						// road/tram on the tile, we have to check both ribis.
+						ribi = gr2->get_weg_nr(0)->get_ribi_unmasked() | gr2->get_weg_nr(1)->get_ribi_unmasked();
 					}
 				}
 				else {

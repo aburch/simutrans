@@ -545,6 +545,9 @@ haltestelle_t::~haltestelle_t()
 		}
 	}
 
+	destroy_win( magic_halt_info + self.get_id() );
+	destroy_win( magic_halt_detail + self.get_id() );
+
 	// finally detach handle
 	// before it is needed for clearing up the planqudrat and tiles
 	self.detach();
@@ -2777,7 +2780,7 @@ void haltestelle_t::get_short_freight_info(cbuffer_t & buf)
 
 void haltestelle_t::zeige_info()
 {
-	create_win(new halt_info_t(welt, self), w_info, (long)this );
+	create_win( new halt_info_t(welt, self), w_info, magic_halt_info + self.get_id() );
 }
 
 
@@ -3593,16 +3596,16 @@ bool haltestelle_t::add_grund(grund_t *gr)
 		}
 	}
 
-	// check, if we have to add a line to this coordinate
+	// check if we have to register line(s) and/or lineless convoy(s) which serve this halt
 	vector_tpl<linehandle_t> check_line(0);
-	if(get_besitzer()==welt->get_spieler(1)) {
+	if(  get_besitzer()==welt->get_spieler(1)  ) {
 		// must iterate over all players lines ...
 		for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 			if(welt->get_spieler(i)) {
 				welt->get_spieler(i)->simlinemgmt.get_lines(simline_t::line, &check_line);
 				for(  uint j=0;  j<check_line.get_count();  j++  ) {
-					// only add unknow lines
-					if(  !registered_lines.is_contained(check_line[j])  ) {
+					// only add unknown lines
+					if(  !registered_lines.is_contained(check_line[j])  &&  check_line[j]->count_convoys()>0  ) {
 						const schedule_t *fpl = check_line[j]->get_schedule();
 						for(  int k=0;  k<fpl->get_count();  k++  ) {
 							if(get_halt(welt,fpl->eintrag[k].pos,check_line[j]->get_besitzer())==self) {
@@ -3614,17 +3617,49 @@ bool haltestelle_t::add_grund(grund_t *gr)
 				}
 			}
 		}
+		// Knightly : iterate over all convoys
+		for(  vector_tpl<convoihandle_t>::const_iterator i=welt->convois_begin(), end=welt->convois_end();  i!=end;  ++i  ) {
+			const convoihandle_t cnv = (*i);
+			// only check lineless convoys which are not yet registered
+			if(  !cnv->get_line().is_bound()  &&  !registered_convoys.is_contained(cnv)  ) {
+				const schedule_t *const fpl = cnv->get_schedule();
+				if(  fpl  ) {
+					for(  int k=0;  k<fpl->get_count();  ++k  ) {
+						if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
+							registered_convoys.append(cnv);
+							break;
+						}
+					}
+				}
+			}
+		}
 	}
 	else {
 		get_besitzer()->simlinemgmt.get_lines(simline_t::line, &check_line);
 		for(  uint32 j=0;  j<check_line.get_count();  j++  ) {
-			// only add unknow lines
-			if(  !registered_lines.is_contained(check_line[j])  ) {
+			// only add unknown lines
+			if(  !registered_lines.is_contained(check_line[j])  &&  check_line[j]->count_convoys()>0  ) {
 				const schedule_t *fpl = check_line[j]->get_schedule();
 				for(  int k=0;  k<fpl->get_count();  k++  ) {
 					if(get_halt(welt,fpl->eintrag[k].pos,get_besitzer())==self) {
 						registered_lines.append(check_line[j]);
 						break;
+					}
+				}
+			}
+		}
+		// Knightly : iterate over all convoys
+		for(  vector_tpl<convoihandle_t>::const_iterator i=welt->convois_begin(), end=welt->convois_end();  i!=end;  ++i  ) {
+			const convoihandle_t cnv = (*i);
+			// only check lineless convoys which have matching ownership and which are not yet registered
+			if(  !cnv->get_line().is_bound()  &&  cnv->get_besitzer()==get_besitzer()  &&  !registered_convoys.is_contained(cnv)  ) {
+				const schedule_t *const fpl = cnv->get_schedule();
+				if(  fpl  ) {
+					for(  int k=0;  k<fpl->get_count();  ++k  ) {
+						if(  get_halt(welt, fpl->eintrag[k].pos, get_besitzer())==self  ) {
+							registered_convoys.append(cnv);
+							break;
+						}
 					}
 				}
 			}
@@ -3736,6 +3771,22 @@ bool haltestelle_t::rem_grund(grund_t *gr)
 		// need removal?
 		if(!ok) {
 			registered_lines.remove_at(j);
+		}
+	}
+
+	// Knightly : remove registered lineless convoys as well
+	for(  int j=registered_convoys.get_count()-1;  j>=0;  --j  ) {
+		const schedule_t *const fpl = registered_convoys[j]->get_schedule();
+		bool ok = false;
+		for(  uint8 k=0;  k<fpl->get_count();  ++k  ) {
+			if(  get_halt( welt, fpl->eintrag[k].pos, registered_convoys[j]->get_besitzer() )==self  ) {
+				ok = true;
+				break;
+			}
+		}
+		// need removal?
+		if(  !ok  ) {
+			registered_convoys.remove_at(j);
 		}
 	}
 

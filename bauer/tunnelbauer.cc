@@ -420,6 +420,15 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 
 	maint += besch->get_wartung() - weg->get_besch()->get_wartung();
 
+	// remove sidewalk
+	weg_t *str = tunnel->get_weg( road_wt );
+	if( str  &&  str->hat_gehweg()) {
+		str->set_gehweg(false);
+	}
+
+	tunnel->calc_bild();
+	tunnel->set_flag(grund_t::dirty);
+
 	// Auto-connect to a way outside the new tunnel mouth
 	grund_t *ground_outside = welt->lookup(end-zv);
 	if( !ground_outside ) {
