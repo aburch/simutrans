@@ -2373,6 +2373,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 	 * but if it is already reserved, we can save lots of other checks later
 	 */
 	if(  !w->can_reserve(cnv->self)  ) {
+		restart_speed = 0;
 		return false;
 	}
 
