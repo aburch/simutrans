@@ -1141,6 +1141,10 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 {
 	clear_random_mode( 7 );
 	mute_sound(true);
+	if (umgebung_t::networkmode) {
+		network_core_shutdown();
+		umgebung_t::networkmode = false;
+	}
 
 	intr_disable();
 	if(plan) {
@@ -1262,6 +1266,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	active_player_nr = 0;
 	active_player = spieler[0];
+	werkzeug_t::update_toolbars(this);
 
 	set_dirty();
 	step_mode = PAUSE_FLAG;
@@ -3993,6 +3998,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		recalc_average_speed();
 		mute_sound(false);
 
+		werkzeug_t::update_toolbars(this);
 		set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], get_active_player() );
 	}
 #endif
