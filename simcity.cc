@@ -1596,7 +1596,6 @@ void stadt_t::step_passagiere()
 		for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) {
 			halthandle_t halt = halt_list[h];
 			if (halt->is_enabled(wtyp)) {
-//			assert(halt->get_ware_summe(wtyp)>halt->get_capacity();
 				halt->add_pax_unhappy(num_pax);
 			}
 		}

@@ -1134,7 +1134,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				// remove something from the most waiting goods
 				if(best_halt->recall_ware( most_waiting, min(most_waiting.menge/2,1-capacity_left) ) ) {
 					best_ware.menge += most_waiting.menge;
-					assert( (sint32)best_halt->get_ware_summe(best_ware.get_besch())==(sint32)best_halt->get_capacity(2)-capacity_left-(sint32)most_waiting.menge );
 				}
 				else {
 					// overcrowded with other stuff (not from us)
