@@ -118,7 +118,7 @@ public:
 	 *
 	 * @author V. Meyer
 	 */
-	const char *get(const char *key);
+	const char *get(const char *key) const;
 
 	/**
 	 * Get the string value for a key - key must be lowercase

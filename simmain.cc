@@ -570,7 +570,10 @@ int simu_main(int argc, char** argv)
 		}
 		// will fail fatal on the opening routine ...
 		dbg->message( "simmain()", "Server started on port %i", portadress );
-		umgebung_t::server = umgebung_t::networkmode = network_init_server( portadress );
+		umgebung_t::networkmode = network_init_server( portadress );
+		if(  umgebung_t::networkmode  ) {
+			umgebung_t::server = portadress;
+		}
 	}
 
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);

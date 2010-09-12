@@ -507,3 +507,13 @@ network_ms_ahead = 250
 # Large values here means: reduced server communication (if that is of importance...)
 # Small values should improve the timing of the clients.
 #server_frames_between_checks = 256
+
+# Automatically announce server on the central server directory
+# 0 (default) = off, 1 = announce hourly, 2=announce additionally at joins
+#announce_server = 0
+
+# DNS name or IP of your server
+#server_name = 127.0.0.1
+
+# Additionally comment on your server; will be shown on game-info
+#server_comment = Testserver

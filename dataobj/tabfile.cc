@@ -32,7 +32,7 @@ void tabfile_t::close()
 }
 
 
-const char *tabfileobj_t::get(const char *key)
+const char *tabfileobj_t::get(const char *key) const
 {
 	const char *result = objinfo.get(key);
 	return result ? result : "";
