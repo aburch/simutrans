@@ -277,7 +277,7 @@ void translator::init_city_names(int lang)
 	if (namen_liste.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
-		for(  uint i = 0;  i < 16;  i++  ) {
+		for(  uint i = 0;  i < 256;  i++  ) {
 			char name[32];
 			sprintf( name, "%%%X_CITY_SYLL", i );
 			const char* s1 = translator::translate(name,lang);
@@ -287,7 +287,7 @@ void translator::init_city_names(int lang)
 			}
 			// now add all second name extensions ...
 			const size_t l1 = strlen(s1);
-			for(  uint j = 0;  j < 16;  j++  ) {
+			for(  uint j = 0;  j < 128;  j++  ) {
 
 				sprintf( name, "&%X_CITY_SYLL", j );
 				const char* s2 = translator::translate(name,lang);
