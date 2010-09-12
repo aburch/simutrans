@@ -47,7 +47,7 @@ void werkzeug_waehler_t::add_werkzeug(werkzeug_t *w)
 	// only for non-empty icons ...
 	tools.append(w);
 
-	int ww = (display_get_width()/icon.x)-2;
+	int ww = max(2,(display_get_width()/icon.x)-2);	// to avoid zero or negative ww on posix (no graphic) backends
 	tool_icon_width = tools.get_count();
 DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, tool_icon_width=%i",ww,tool_icon_width);
 	if(allow_break  &&  (ww<tool_icon_width  ||  (umgebung_t::toolbar_max_width>0  &&  umgebung_t::toolbar_max_width<tool_icon_width))) {
