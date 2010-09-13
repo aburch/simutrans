@@ -185,7 +185,7 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 	double dx = 0;
 	if (adverse.max_speed < INT_MAX)
 	{
-		const uint32 speed_limit = kmh_to_speed(adverse.max_speed);
+		const sint32 speed_limit = kmh_to_speed(adverse.max_speed);
 		if (akt_speed_soll > speed_limit)
 		{
 			akt_speed_soll = speed_limit;
@@ -312,16 +312,15 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 void potential_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 {		
 	vehicle.clear();
-	for (uint32 i = vehicles.get_count(); i-- > 0; )
+	uint32 count = vehicles.get_count();
+	for (uint32 i = count; i-- > 0; )
 	{
-		const vehikel_besch_t &b = *vehicles[i];
-		vehicle.length += b.get_length();
-		vehicle.max_speed = min(vehicle.max_speed, (uint32) b.get_geschw());
-		//vehicle.power += b.get_leistung() * b.get_gear();
-		vehicle.weight += b.get_gewicht();
+		vehicle.add_vehicle(*vehicles[i]);
 	}
-	//vehicle.power = (uint32)((vehicle.power * 1000) * world.get_einstellungen()->get_global_power_factor() + (GEAR_FACTOR/2)) / GEAR_FACTOR;
-	vehicle.weight *= 1000;
+	if (count > 0)
+	{
+		vehicle.update_summary(vehicles[count - 1]->get_length());
+	}
 }
 
 
@@ -385,10 +384,21 @@ sint16 existing_convoy_t::get_current_friction()
 
 void existing_convoy_t::update_vehicle_summary(vehicle_summary_t &vehicle)
 {
-	vehicle.length = convoy.get_length();
-	vehicle.max_speed = speed_to_kmh(convoy.get_min_top_speed());
-	//vehicle.power = (convoy.get_power_index() * 1000 + (GEAR_FACTOR/2)) / GEAR_FACTOR;
-	vehicle.weight = convoy.get_sum_gewicht() * 1000;
+	vehicle.clear();
+	uint32 count = convoy.get_vehikel_anzahl();
+	for (uint32 i = count; i-- > 0; )
+	{
+		vehicle.add_vehicle(*convoy.get_vehikel(i)->get_besch());
+	}
+	if (count > 0)
+	{
+		vehicle.update_summary(convoy.get_vehikel(count-1)->get_besch()->get_length());
+	}
+	//both get_length() and get_tile_length() iterate through the list of vehicles, thus most likely it's faster to iterate once as done above.
+	//vehicle.length = convoy.get_length();
+	//vehicle.tiles = convoy.get_tile_length();
+	//vehicle.max_speed = speed_to_kmh(convoy.get_min_top_speed());
+	//vehicle.weight = convoy.get_sum_gewicht() * 1000;
 }
 
 
