@@ -387,7 +387,10 @@ void spieler_t::roll_finance_history_month()
 		}
 	}
 	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
-		finance_history_month[0][i] = 0;
+		// reset everything except number of convois
+		if (i != COST_ALL_CONVOIS) {
+			finance_history_month[0][i] = 0;
+		}
 	}
 }
 
@@ -402,7 +405,10 @@ void spieler_t::roll_finance_history_year()
 		}
 	}
 	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
-		finance_history_year[0][i] = 0;
+		// reset everything except number of convois
+		if (i != COST_ALL_CONVOIS) {
+			finance_history_year[0][i] = 0;
+		}
 	}
 }
 

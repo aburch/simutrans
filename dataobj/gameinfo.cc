@@ -57,10 +57,10 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		}
 	}
 
-	convoi_count = 0;
 	total_pass_transported = welt->get_finance_history_month(1,karte_t::WORLD_PAS_RATIO);
 	total_mail_transported = welt->get_finance_history_month(1,karte_t::WORLD_MAIL_RATIO);
 	total_goods_transported = welt->get_finance_history_month(1,karte_t::WORLD_GOODS_RATIO);
+	convoi_count = welt->get_convoi_count();
 
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++ ) {
 		spieler_type[i] = spieler_t::EMPTY;
@@ -69,7 +69,6 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 			if(  !sp->get_password_hash().empty()  ) {
 				spieler_type[i] |= spieler_t::PASSWORD_PROTECTED;
 			}
-			convoi_count += sp->get_finance_history_year(0,COST_ALL_CONVOIS);
 		}
 	}
 	clients = network_get_clients();
