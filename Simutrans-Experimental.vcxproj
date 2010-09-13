@@ -216,7 +216,6 @@
   <ItemGroup>
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
-    <ClCompile Include="gui\send_message_frame.cc" />
     <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />

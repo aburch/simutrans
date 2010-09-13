@@ -720,9 +720,6 @@
     <ClCompile Include="dataobj\gameinfo.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gui\send_message_frame.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\server_frame.cc">
       <Filter>Source Files</Filter>
     </ClCompile>

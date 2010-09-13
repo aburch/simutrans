@@ -838,7 +838,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 		do {	
 			if (i < number_of_big_cities) 
 			{
-				population = (2.5 * rank1_population * new_anzahl_staedte) / (1.0 + new_anzahl_staedte);
+				population = (3.25 * rank1_population * new_anzahl_staedte) / (1.0 + new_anzahl_staedte);
 			}
 			else
 			{
