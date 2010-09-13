@@ -3244,7 +3244,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 			const uint16 max_x = max((origin.x - ur.x), (origin.x - lo.x));
 			const uint16 max_y = max((origin.y - ur.y), (origin.y - lo.y));
 			const uint16 max_internal_distance = max(max_x, max_y);
-			const uint8 max_count = min(96, number_of_towns + 1);
+			const uint8 max_count = 96;
 			for(uint8 i = 0; i < max_count; i ++)
 			{
 				zielstadt = welt->get_town_at(random);
@@ -3280,10 +3280,11 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 					town_step += 64;
 				}
 
-				if(i == max_count && distance > max_distance && min_distance < max_internal_distance)
+				// This is almost never hit, even on very big maps. It is therefore an unnecessary check.
+				/*if(i == max_count && distance > max_distance && min_distance < max_internal_distance)
 				{
 					zielstadt = this;
-				}
+				}*/
 			}
 		}
 
