@@ -709,7 +709,7 @@ network_command_t* network_check_activity(karte_t *welt, int timeout)
 		// something failed
 		if (nwc == NULL) {
 			network_remove_client(sender);
-			if(  welt  ) {
+			if(  welt  &&  umgebung_t::server  ) {
 				// add message via tool!
 				cbuffer_t buf(256);
 				buf.printf( translator::translate("Now %u clients connected.",welt->get_einstellungen()->get_name_language_id()), network_get_clients() );

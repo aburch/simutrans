@@ -35,7 +35,7 @@ private:
 	gui_label_t player_name;
 	gui_textinput_t input;
 	location_view_t view;
-	char edit_name[64];
+	char edit_name[256];
 
 public:
 	label_info_t(karte_t *welt, label_t* l);

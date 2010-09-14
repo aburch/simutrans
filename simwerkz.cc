@@ -5111,7 +5111,7 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 
 
 /* Handles all action of lines. Needs a default param:
- * [object='c|h|l|m|t'][id],[name]
+ * [object='c|h|l|m|t'][id|pos],[name]
  * c=convoi, h=halt, l=line,  m=marker, t=town
  * in case of marker, id is a pos3d string
  */
@@ -5133,7 +5133,7 @@ bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
 			}
 			break;
 		case 'm':
-			if(  3!=sscanf( default_param, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
+			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
 				dbg->error( "wkz_rename_t::init", "no position given for marker! (%s)", default_param );
 				return false;
 			}
