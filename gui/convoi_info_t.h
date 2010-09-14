@@ -69,11 +69,15 @@ private:
 	*/
 	cbuffer_t freight_info;
 
+	char cnv_name[256];
+
 	static bool route_search_in_progress;
 	static const char *sort_text[SORT_MODES];
 
 public:
 	convoi_info_t(convoihandle_t cnv);
+
+	virtual ~convoi_info_t();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

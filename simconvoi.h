@@ -500,7 +500,7 @@ public:
 	* Sets the name. Copies name into this->name and translates it.
 	* @author V. Meyer
 	*/
-	void set_name(const char *name);
+	void set_name(const char *name, bool with_new_id = true);
 
 	/**
 	 * Gibt die Position des Convois zurück.

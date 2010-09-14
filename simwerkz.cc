@@ -5180,7 +5180,8 @@ bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
 			convoihandle_t cnv;
 			cnv.set_id( id );
 			if(  cnv.is_bound()  ) {
-				cnv->set_name( p );
+				//  set name without ID
+				cnv->set_name( p, false );
 				return false;
 			}
 			break;
