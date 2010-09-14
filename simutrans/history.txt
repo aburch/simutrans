@@ -93,6 +93,7 @@
 	ADD: semiautomatical announce of servers possible
 	CHANGE: chat option now part of message centre
 	ADD: messages on joining and leaving
+	CHANGE: renaming of stuff now in network games
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
