@@ -155,7 +155,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 
 halt_info_t::~halt_info_t()
 {
-	if(  strcmp(halt->get_name(),edit_name)  &&  edit_name[0]  ) {
+	if(  halt.is_bound()  &&  strcmp(halt->get_name(),edit_name)  &&  edit_name[0]  ) {
 		// text changed => call tool
 		cbuffer_t buf(300);
 		buf.printf( "h%u,%s", halt.get_id(), edit_name );

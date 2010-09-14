@@ -50,6 +50,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	name_input.set_text(name, 30);
 	name_input.set_groesse(koord(124, 14));
 	name_input.set_pos(koord(8, 8));
+	name_input.add_listener( this );
 
 	add_komponente(&name_input);
 	set_fenstergroesse(koord(410, 325+20+20));
@@ -111,6 +112,19 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 }
 
 
+stadt_info_t::~stadt_info_t()
+{
+	if(  stadt->get_welt()->get_staedte().is_contained(stadt)  &&  strcmp(name, stadt->get_name())  &&  name[0]  ) {
+		// text changed => call tool
+		cbuffer_t buf(300);
+		buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
+		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+		w->set_default_param( buf );
+		stadt->get_welt()->set_werkzeug( w, NULL );
+		// since init always returns false, it is save to delete immediately
+		delete w;
+	}
+}
 
 
 void stadt_info_t::init_pax_dest( uint8* pax_dest )
@@ -143,10 +157,6 @@ void stadt_info_t::add_pax_dest( uint8* pax_dest, const sparse_tpl< uint8 >* cit
 void stadt_info_t::zeichnen(koord pos, koord gr)
 {
 	stadt_t* const c = stadt;
-
-	if (strcmp(name, c->get_name())) {
-		c->set_name(name);
-	}
 
 	// Hajo: update chart seed
 	chart.set_seed(c->get_welt()->get_last_year());
@@ -206,6 +216,18 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL]->set_default_param( param );
 		welt->set_werkzeug( werkzeug_t::simple_tool[WKZ_CHANGE_CITY_TOOL],welt->get_active_player());
 		return true;
+	}
+	if(  komp==&name_input  ) {
+		if(  strcmp(name, stadt->get_name())  &&  name[0]  ) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			stadt->get_welt()->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
+		}
 	}
 	else {
 		for ( int i = 0; i<MAX_CITY_HISTORY; i++) {

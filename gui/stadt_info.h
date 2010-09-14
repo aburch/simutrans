@@ -56,6 +56,8 @@ private:
 public:
 	stadt_info_t(stadt_t *stadt);
 
+	~stadt_info_t();
+
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
 	 * @return den Dateinamen für die Hilfe, oder NULL
