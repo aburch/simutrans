@@ -571,8 +571,6 @@ assert( depot_t::get_depot_list().empty() );
 
 DBG_MESSAGE("karte_t::destroy()", "world destroyed");
 	printf("World destroyed.\n");
-
-	msg->clear();
 }
 
 
@@ -5306,7 +5304,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(  umgebung_t::networkmode  ) {
 			// did we receive a new command?
-			network_command_t *nwc = network_check_activity( min(5u,next_step_time-dr_time()) );
+			network_command_t *nwc = network_check_activity( this, min(5u,next_step_time-dr_time()) );
 			if(  nwc==NULL  &&  !network_check_server_connection()  ) {
 				dbg->warning("karte_t::interactive", "lost connection to server");
 				network_disconnect();

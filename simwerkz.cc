@@ -5213,7 +5213,7 @@ bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
 bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(  *default_param  ) {
-		welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+		welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, sp ? PLAYER_FLAG|sp->get_player_nr() : COL_BLACK, IMG_LEER );
 	}
 	return false;
 }

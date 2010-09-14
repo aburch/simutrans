@@ -19,6 +19,9 @@
 
 #include "../simdebug.h"
 #include "../simgraph.h"
+#include "../simworld.h"
+#include "../simwerkz.h"
+#include "../simmesg.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
@@ -354,7 +357,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		network_add_client( my_client_socket );
 		// wait for join command (tolerate some wrong commands)
 		network_command_t *nwc = NULL;
-		nwc = network_check_activity( 10000 );	// 10s should be enough for reply ...
+		nwc = network_check_activity( NULL, 10000 );	// 10s should be enough for reply ...
 		if (nwc==NULL) {
 			err = "Server did not respond!";
 			goto end;
@@ -408,7 +411,7 @@ const char *network_connect(const char *cp)
 		// wait for join command (tolerate some wrong commands)
 		network_command_t *nwc = NULL;
 		for(uint8 i=0; i<5; i++) {
-			nwc = network_check_activity( 10000 );
+			nwc = network_check_activity( NULL, 10000 );
 			if (nwc  &&  nwc->get_id() == NWC_JOIN) break;
 		}
 		if (nwc==NULL) {
@@ -428,7 +431,7 @@ const char *network_connect(const char *cp)
 		// ignore the next (nwc_sync_t) command
 		// wait for sync command (tolerate some wrong commands)
 		for(uint8 i=0; i<5; i++) {
-			nwc = network_check_activity( 10000 );
+			nwc = network_check_activity( NULL, 10000 );
 			if (nwc  &&  nwc->get_id() == NWC_SYNC) break;
 		}
 		if (nwc == NULL  ||  nwc->get_id()!=NWC_SYNC  ||  ((nwc_sync_t*)nwc)->client_id!= client_id) {
@@ -438,7 +441,7 @@ const char *network_connect(const char *cp)
 		// receive nwc_game_t
 		// wait for sync command (tolerate some wrong commands)
 		for(uint8 i=0; i<2; i++) {
-			nwc = network_check_activity( 60000 );
+			nwc = network_check_activity( NULL, 60000 );
 			if (nwc  &&  nwc->get_id() == NWC_GAME) break;
 		}
 		if (nwc == NULL  ||  nwc->get_id()!=NWC_GAME) {
@@ -636,7 +639,7 @@ static int fill_set(fd_set *fds)
  * - either connect to a new client
  * - receive commands
  */
-network_command_t* network_check_activity(int timeout)
+network_command_t* network_check_activity(karte_t *welt, int timeout)
 {
 	if (umgebung_t::server  &&  !server_command_queue.empty()) {
 		return server_command_queue.remove_first();
@@ -706,6 +709,16 @@ network_command_t* network_check_activity(int timeout)
 		// something failed
 		if (nwc == NULL) {
 			network_remove_client(sender);
+			if(  welt  ) {
+				// add message via tool!
+				cbuffer_t buf(256);
+				buf.printf( translator::translate("Now %u clients connected.",welt->get_einstellungen()->get_name_language_id()), network_get_clients() );
+				werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
+				w->set_default_param( buf );
+				welt->set_werkzeug( w, NULL );
+				// since init always returns false, it is save to delete immediately
+				delete w;
+			}
 		}
 		else {
 			dbg->warning( "network_check_activity()", "received cmd id=%d %s", nwc->get_id(), nwc->get_name());

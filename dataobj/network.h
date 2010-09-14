@@ -62,6 +62,7 @@
 
 class network_command_t;
 class gameinfo_t;
+class karte_t;
 
 bool network_initialize();
 
@@ -90,7 +91,7 @@ bool network_init_server( int port );
  * returns pointer to commmand or NULL
  * timeout in milliseconds
  */
-network_command_t* network_check_activity(int timeout);
+network_command_t* network_check_activity(karte_t *welt, int timeout);
 
 // receives x bytes from socket sender
 uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length );

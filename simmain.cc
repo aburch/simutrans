@@ -976,6 +976,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			}
 
 			destroy_all_win(true);
+			welt->get_message()->clear();
+
 			// scenario?
 			if(wg->get_scenario()) {
 				char path[1024];
