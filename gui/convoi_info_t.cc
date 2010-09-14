@@ -202,7 +202,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 // only handle a pending renaming ...
 convoi_info_t::~convoi_info_t()
 {
-	if(  strcmp(cnv->get_name(),cnv_name)  ) {
+	if(  strcmp(cnv->get_name(),cnv_name)  &&  cnv_name[0]  ) {
 		// text changed => call tool
 		cbuffer_t buf(300);
 		buf.printf( "c%u,%s", cnv.get_id(), cnv_name );

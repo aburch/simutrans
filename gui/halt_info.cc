@@ -13,6 +13,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../simwerkz.h"
 #include "../simskin.h"
 #include "../utils/simstring.h"
 #include "../freight_list_sorter.h"
@@ -88,6 +89,7 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
 	input.set_text(edit_name, lengthof(edit_name));
 	add_komponente(&input);
+	input.add_listener(this);
 
 	add_komponente(&view);
 
@@ -145,12 +147,25 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	resize(koord(0,0));
 
 	button.add_listener(this);
-//	input.add_listener(this);
 	sort_button.add_listener(this);
 
 	add_komponente(&scrolly);
 }
 
+
+halt_info_t::~halt_info_t()
+{
+	if(  strcmp(halt->get_name(),edit_name)  &&  edit_name[0]  ) {
+		// text changed => call tool
+		cbuffer_t buf(300);
+		buf.printf( "h%u,%s", halt.get_id(), edit_name );
+		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+		w->set_default_param( buf );
+		halt->get_welt()->set_werkzeug( w, NULL );
+		// since init always returns false, it is save to delete immediately
+		delete w;
+	}
+}
 
 
 /**
@@ -159,18 +174,9 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
  * in dem die Komponente dargestellt wird.
  * @author Hj. Malthaner
  */
-void
-halt_info_t::zeichnen(koord pos, koord gr)
+void halt_info_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
-		if(strcmp(edit_name,halt->get_name())) {
-			halt->set_name( edit_name );
-			// Knightly : need to update the title text of the associated halt detail dialog, if present
-			halt_detail_t *const details_frame = dynamic_cast<halt_detail_t *>( win_get_magic( magic_halt_detail + halt.get_id() ) );
-			if(  details_frame  ) {
-				details_frame->set_name( halt->get_name() );
-			}
-		}
 
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
@@ -302,6 +308,18 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		resize(koord(0,0));
 		for (int i=0;i<MAX_HALT_COST;i++) {
 			filterButtons[i].set_visible(toggler.pressed);
+		}
+	}
+	else if(  comp == &input  ) {
+		if(  strcmp(halt->get_name(),edit_name)  ) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "h%u,%s", halt.get_id(), edit_name );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			halt->get_welt()->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 		}
 	}
 	else {
