@@ -31,6 +31,10 @@
 #include "../tpl/vector_tpl.h"
 #include "../tpl/slist_tpl.h"
 
+
+static char const* network_receive_file(SOCKET s, char const* save_as, long length);
+
+
 static bool network_active = false;
 // local server cocket
 static vector_tpl<SOCKET> my_socket;
@@ -873,7 +877,7 @@ const char *network_send_file( uint32 client_id, const char *filename )
 }
 
 
-const char *network_receive_file( SOCKET s, const char *save_as, const long length )
+static char const* network_receive_file(SOCKET const s, char const* const save_as, long const length)
 {
 	// ok, we have a socket to connect
 	remove(save_as);
