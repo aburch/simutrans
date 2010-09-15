@@ -92,7 +92,7 @@ void network_command_t::rdwr()
 		ready = true;
 	}
 	packet->rdwr_long(our_client_id);
-	dbg->message("network_command_t::rdwr", "rdwr packet_id=%d, client_id=%ld", id, our_client_id);
+	dbg->message("network_command_t::rdwr", "%s packet_id=%d, client_id=%ld", packet->is_saving() ? "write" : "read", id, our_client_id);
 }
 
 
@@ -361,6 +361,10 @@ void nwc_check_t::rdwr()
 	network_world_command_t::rdwr();
 	packet->rdwr_long(server_random_seed);
 	packet->rdwr_long(server_sync_step);
+	if (packet->is_loading()  &&  umgebung_t::server) {
+		// server does not receive nwc_check_t-commands
+		packet->failed();
+	}
 }
 
 
@@ -414,14 +418,17 @@ void nwc_tool_t::rdwr()
 	//if (packet->is_loading()) {
 		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec, flags);
 	//}
+	if (packet->is_loading()  &&  umgebung_t::server  &&  exec) {
+		// server does not receive exec-commands
+		packet->failed();
+	}
 }
 
 bool nwc_tool_t::execute(karte_t *welt)
 {
-	dbg->warning("nwc_tool_t::execute", "sync_steps %d %s wkz %d %s", get_sync_step(), exec ? "exec" : "send", wkz_id, init ? "init" : "work");
 	if (exec) {
 		// append to command queue
-		dbg->warning("nwc_tool_t::execute", "append steps=%d current sync=%d", get_sync_step(),welt->get_sync_steps());
+		dbg->warning("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work");
 		return network_world_command_t::execute(welt);
 	}
 	else if (umgebung_t::server) {
@@ -450,6 +457,7 @@ bool nwc_tool_t::execute(karte_t *welt)
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
 		nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
+		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
 		network_send_all(nwt, false);
 	}
 	return true;

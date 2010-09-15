@@ -38,6 +38,7 @@ public:
 	void send(SOCKET s);
 
 	bool has_failed() const { return error  ||  is_overflow();}
+	void failed() { error = true; }
 
 	// can we understand the received packet?
 	bool check_version() const { return is_saving() || (version <= NETWORK_VERSION); }
