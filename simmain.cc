@@ -728,26 +728,39 @@ int simu_main(int argc, char** argv)
 	}
 
 	bool new_world = true;
-	string loadgame;
+	std::string loadgame;
 
 	if (gimme_arg(argc, argv, "-load", 0) != NULL) {
-		char buf[256];
+		cbuffer_t buf(1024);
 		chdir( umgebung_t::user_dir );
 		/**
 		 * Added automatic adding of extension
 		 */
 		const char *name = gimme_arg(argc, argv, "-load", 1);
 		if(  strstr(name,"net:")==name  ) {
-			strcpy( buf, name );
+			buf.append( name );
 		}
 		else {
-			sprintf(buf, SAVE_PATH_X "%s", searchfolder_t::complete(name, "sve").c_str());
+			buf.printf( SAVE_PATH_X "%s", searchfolder_t::complete(name, "sve").c_str() );
 		}
 		printf( "loading savegame \"%s\"\n", name );
 		loadgame = buf;
 		new_world = false;
 	}
-	else {
+
+	// recover last server game
+	if(  new_world  &&  umgebung_t::server  ) {
+		chdir( umgebung_t::user_dir );
+		if(  FILE *f = fopen("server-network.sve","rb")  ) {
+			// try recover with the latest savegame
+			loadgame = "server-network.sve";
+			fclose(f);
+			new_world = false;
+		}
+	}
+
+	// still nothing to be loaded => search for demo games
+	if(  new_world  ) {
 		chdir( umgebung_t::program_dir );
 		char buffer[256];
 		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, umgebung_t::objfilename.c_str());
@@ -860,6 +873,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		intr_set(welt, view);
 		win_set_welt(welt);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
+		if(  umgebung_t::server  ) {
+			// meaningless to use a locked map; there are passwords now
+			welt->access_einstellungen()->set_allow_player_change( true );
+		}
 	}
 
 	welt->set_fast_forward(false);
