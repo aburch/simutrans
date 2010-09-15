@@ -891,22 +891,23 @@ const char *network_receive_file( SOCKET s, const char *save_as, const long leng
 	// good place to show a progress bar
 	char rbuf[4096];
 	sint32 length_read = 0;
-	FILE *f = fopen( save_as, "wb" );
-	while(  f!=NULL  &&  length_read<length  ) {
-		int i = recv( s, rbuf, length_read+4096<length?4096:length-length_read, 0 );
-		if(  i>0  ) {
-			fwrite( rbuf, i, 1, f );
-			display_progress( length_read, length);
-			length_read += i;
-		}
-		else {
-			if(  i<0  ) {
-				dbg->error("loadsave_t::rd_open()","recv failed with %i",i);
+	if (FILE* const f = fopen(save_as, "wb")) {
+		while (length_read < length) {
+			int i = recv(s, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
+			if (i > 0) {
+				fwrite(rbuf, i, 1, f);
+				display_progress(length_read, length);
+				length_read += i;
 			}
-			break;
+			else {
+				if (i < 0) {
+					dbg->error("loadsave_t::rd_open()", "recv failed with %i", i);
+				}
+				break;
+			}
 		}
+		fclose(f);
 	}
-	fclose( f );
 	if(  length_read<length  ) {
 		return "Not enough bytes transferred";
 	}
