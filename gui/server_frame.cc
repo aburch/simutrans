@@ -22,8 +22,8 @@
 
 
 server_frame_t::server_frame_t(karte_t* w) :
-	welt(w),
 	gui_frame_t("Game info"),
+	welt(w),
 	gi(welt),
 	buf(1024),
 	time(32),

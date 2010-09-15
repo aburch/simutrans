@@ -307,7 +307,6 @@ const char *network_download_http( const char *address, const char *name, const 
 		char line[1024], rbuf;
 		int pos = 0;
 		long length = 0;
-		bool prev_empty = false;
 		while(1) {
 			int i = recv( my_client_socket, &rbuf, 1, 0 );
 			if(  i>0  ) {
@@ -466,8 +465,6 @@ end:
 // if sucessful, starts a server on this port
 bool network_init_server( int port )
 {
-	struct sockaddr_in name;
-
 	network_initialize();
 #ifdef USE_IP4_ONLY
 	SOCKET my = socket(PF_INET, SOCK_STREAM, 0);
@@ -476,6 +473,7 @@ bool network_init_server( int port )
 		return false;
 	}
 
+	struct sockaddr_in name;
 	name.sin_family = AF_INET;
 	name.sin_port = htons(port);
 	name.sin_addr.s_addr = htonl(INADDR_ANY);

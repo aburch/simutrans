@@ -5115,7 +5115,7 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
  * c=convoi, h=halt, l=line,  m=marker, t=town
  * in case of marker, id is a pos3d string
  */
-bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_rename_t::init(karte_t* const welt, spieler_t*)
 {
 	uint16 id = 0;
 	koord3d pos = koord3d::invalid;
