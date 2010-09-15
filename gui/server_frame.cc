@@ -9,6 +9,7 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../simmesg.h"
 #include "../utils/simstring.h"
 
 #include "components/list_button.h"
@@ -21,8 +22,8 @@
 
 
 server_frame_t::server_frame_t(karte_t* w) :
-	welt(w),
 	gui_frame_t("Game info"),
+	welt(w),
 	gi(welt),
 	buf(1024),
 	time(32),
@@ -217,6 +218,7 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		std::string filename = "net:";
 		filename += serverlist.get_element(serverlist.get_selection())->get_text();
 		destroy_win(this);
+		welt->get_message()->clear();
 		welt->laden(filename.c_str());
 	}
 	else if(  &quit == komp  ) {

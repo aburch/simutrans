@@ -9,11 +9,13 @@
 #include "../simworld.h"
 #include "../simcolor.h"
 #include "../simwin.h"
+#include "../simwerkz.h"
 #include "../simskin.h"
 #include "../besch/skin_besch.h"
 #include "../dataobj/umgebung.h"
 #include "../dings/label.h"
 #include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
 
 
 
@@ -71,7 +73,16 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(komp == &input  &&  welt->get_active_player()==label->get_besitzer()) {
 		// check owner to change text
 		grund_t *gd = welt->lookup(label->get_pos());
-		gd->set_text(edit_name);
+		if(  strcmp(gd->get_text(),edit_name)  ) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "m%s,%s", label->get_pos().get_str(), edit_name );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			welt->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
+		}
 		destroy_win(this);
 	}
 

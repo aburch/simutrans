@@ -7,6 +7,7 @@
 #include "../simtools.h"
 #include "../simwerkz.h"
 #include "../simworld.h"
+#include "../simmesg.h"
 #include "../simversion.h"
 #include "../player/simplay.h"
 
@@ -195,6 +196,14 @@ bool nwc_join_t::execute(karte_t *welt)
 			nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, nwj.client_id);
 			network_send_all(nws, false);
 			pending_join_client = packet->get_sender();
+			// add message via tool!
+			cbuffer_t buf(256);
+			buf.printf( translator::translate("Now %u clients connected.",welt->get_einstellungen()->get_name_language_id()), network_get_clients() );
+			werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			welt->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 		}
 	}
 	return true;
@@ -359,7 +368,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 : network_world_command_t(NWC_TOOL, sync_steps)
 {
 	pos = pos_;
-	player_nr = sp->get_player_nr();
+	player_nr = sp ? sp->get_player_nr() : -1;
 	wkz_id = wkz->get_id();
 	const char *dfp = wkz->get_default_param();
 	default_param = dfp ? strdup(dfp) : NULL;
@@ -530,9 +539,6 @@ void nwc_tool_t::do_command(karte_t *welt)
 		const char *old_default_param = NULL;
 
 		spieler_t *sp = welt->get_spieler(player_nr);
-		if (sp == NULL) {
-			return;
-		}
 		// our tool or from network?
 		if (!local) {
 			// do we have a tool for this client already?

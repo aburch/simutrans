@@ -52,7 +52,10 @@ void baum_t::distribute_trees(karte_t *welt, int dichte)
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
-		create_forest( welt, koord( simrand(welt->get_groesse_x()), simrand(welt->get_groesse_y()) ), koord( (t_forest_size*(1+simrand(2))), (t_forest_size*(1+simrand(2))) ) );
+		// to have same execution order for simrand
+		const koord start = koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
+		const koord size = koord(t_forest_size,t_forest_size) + koord::koord_random( t_forest_size, t_forest_size );
+		create_forest( welt, start, size );
 	}
 
 	fill_trees(welt, dichte);
@@ -456,7 +459,11 @@ bool baum_t::saee_baum()
 {
 	// spawn a new tree in an area 3x3 tiles around
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
-	const koord k = get_pos().get_2d() + koord(simrand(5)-2, simrand(5)-2);
+
+	// to have same execution order for simrand
+	const sint16 sx = simrand(5)-2;
+	const sint16 sy = simrand(5)-2;
+	const koord k = get_pos().get_2d() + koord(sx,sy);
 
 	return plant_tree_on_coordinate(welt, k, baum_typen[baumtype], true, false);
 }

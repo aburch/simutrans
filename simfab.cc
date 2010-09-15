@@ -795,7 +795,10 @@ void fabrik_t::smoke() const
 		const uint8 rot = rotate%besch->get_haus()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr=welt->lookup_kartenboden(pos.get_2d()+ro);
-		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), ((rada->get_xy_off(rot).x+simrand(7)-3)*TILE_STEPS)/16, ((rada->get_xy_off(rot).y+simrand(7)-3)*TILE_STEPS)/16, rada->get_bilder() );
+		// to get same random order on different compilers
+		const sint8 offsetx =  ((rada->get_xy_off(rot).x+simrand(7)-3)*TILE_STEPS)/16;
+		const sint8 offsety =  ((rada->get_xy_off(rot).y+simrand(7)-3)*TILE_STEPS)/16;
+		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), offsetx, offsety, rada->get_bilder() );
 		gr->obj_add(smoke);
 		welt->sync_add( smoke );
 	}
@@ -1279,7 +1282,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				if(best_halt->recall_ware( most_waiting, min(most_waiting.menge/2,1-capacity_left) ) ) 
 				{
 					best_ware.menge += most_waiting.menge;
-					assert( (sint32)best_halt->get_ware_summe(best_ware.get_besch())==(sint32)best_halt->get_capacity(2)-capacity_left-(sint32)most_waiting.menge );
 				}
 				else {
 					// overcrowded with other stuff (not from us)

@@ -55,6 +55,7 @@
 #include "dings/label.h"
 
 #include "gui/halt_info.h"
+#include "gui/halt_detail.h"
 #include "gui/karte.h"
 
 #include "utils/simstring.h"
@@ -703,6 +704,11 @@ void haltestelle_t::set_name(const char *new_name)
 			if(new_name  &&  !all_names.put(gr->get_text(),self)) {
 				DBG_MESSAGE("haltestelle_t::set_name()","name %s already used!",new_name);
 			}
+		}
+		// Knightly : need to update the title text of the associated halt detail dialog, if present
+		halt_detail_t *const details_frame = dynamic_cast<halt_detail_t *>( win_get_magic( magic_halt_detail + self.get_id() ) );
+		if(  details_frame  ) {
+			details_frame->set_name( get_name() );
 		}
 	}
 }

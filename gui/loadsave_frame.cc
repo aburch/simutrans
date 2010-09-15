@@ -25,6 +25,7 @@
 #include "loadsave_frame.h"
 
 #include "../simworld.h"
+#include "../simmesg.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 #include "../pathes.h"
@@ -48,6 +49,7 @@ public:
 void loadsave_frame_t::action(const char *filename)
 {
 	if(do_load) {
+		welt->get_message()->clear();
 		welt->laden(filename);
 	}
 	else {

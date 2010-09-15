@@ -434,11 +434,9 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	}
 	number_of_climates--;
 
-#if DEBUG
 	for( int h=0;  h<32;  h++  ) {
 		DBG_MESSAGE("grund_besch_t::calc_water_level()","climate in height %i: %s (order no %i)", h, climate_names[height_to_climate[h]], height_to_texture_climate[h] );
 	}
-#endif
 
 	// not the wrong tile size?
 	assert(boden_texture->get_bild_ptr(0)->pic.w == grund_besch_t::ausserhalb->get_bild_ptr(0)->pic.w);

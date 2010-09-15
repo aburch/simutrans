@@ -93,19 +93,25 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 		ticker::add_msg(text, pos, colorval);
 	}
 
-	// we will not add messages two times to the list if it was within the last 20 messages or within last three months
-	sint32 now = welt->get_current_month()-2;
-	uint32 i = 0;
-	for(  slist_tpl<node>::const_iterator iter = list.begin(), end = list.end();  iter!=end  &&  i<20; ++iter  ) {
-		const node& n = *iter;
-		if (n.time >= now &&
-				strcmp(n.msg, text) == 0 &&
-				(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
-				(n.pos.y & 0xFFF0) == (pos.y & 0xFFF0)) {
-			// we had exactly this message already
-			return;
+	/* we will not add messages two times to the list
+	 * if it was within the last 20 messages
+	 * or within last three months
+	 * and is not a general (BLACK) message
+	 */
+	if(  color!=COL_BLACK  ) {
+		sint32 now = welt->get_current_month()-2;
+		uint32 i = 0;
+		for(  slist_tpl<node>::const_iterator iter = list.begin(), end = list.end();  iter!=end  &&  i<20; ++iter  ) {
+			const node& n = *iter;
+			if (n.time >= now &&
+					strcmp(n.msg, text) == 0 &&
+					(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
+					(n.pos.y & 0xFFF0) == (pos.y & 0xFFF0)) {
+				// we had exactly this message already
+				return;
+			}
+			i++;
 		}
-		i++;
 	}
 
 	// we do not allow messages larger than 256 bytes

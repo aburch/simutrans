@@ -81,15 +81,23 @@ private:
 	*/
 	cbuffer_t freight_info;
 
+
 #ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 	sint64 physics_curves[MAX_MONTHS][1];
 #endif
+
+	char cnv_name[256];
+
+	static bool route_search_in_progress;
+
 	static const char *sort_text[SORT_MODES];
 
 public:
 	//static bool route_search_in_progress;
 	convoi_info_t(convoihandle_t cnv);
+
+	virtual ~convoi_info_t();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.

@@ -501,7 +501,7 @@ bool gui_hidden_textinput_t::infowin_event(const event_t *ev)
 
 
 
-void gui_hidden_textinput_t::display_with_cursor(koord offset, bool cursor_active, bool cursor_visible)
+void gui_hidden_textinput_t::display_with_cursor(koord const offset, bool, bool const cursor_visible)
 {
 	display_fillbox_wh_clip(pos.x+offset.x+1, pos.y+offset.y+1,groesse.x-2, groesse.y-2, MN_GREY1, true);
 	display_ddd_box_clip(pos.x+offset.x, pos.y+offset.y,groesse.x, groesse.y,MN_GREY0, MN_GREY4);

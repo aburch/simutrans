@@ -103,8 +103,10 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	const sint16 total_width = 3*(BUTTON_WIDTH+BUTTON_SPACER) + 30 + view.get_groesse().x + 10;
 
 	input.set_pos(koord(10,4));
-	input.set_text( cnv->access_internal_name(), 116);
+	tstrncpy( cnv_name, cnv->get_name(), lengthof(cnv_name) );
+	input.set_text( cnv_name, lengthof(cnv_name));
 	add_komponente(&input);
+	input.add_listener(this);
 
 	add_komponente(&view);
 
@@ -250,6 +252,20 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 }
 
 
+// only handle a pending renaming ...
+convoi_info_t::~convoi_info_t()
+{
+	if(  cnv.is_bound()  &&  strcmp(cnv->get_name(),cnv_name)  &&  cnv_name[0]  ) {
+		// text changed => call tool
+		cbuffer_t buf(300);
+		buf.printf( "c%u,%s", cnv.get_id(), cnv_name );
+		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+		w->set_default_param( buf );
+		cnv->get_welt()->set_werkzeug( w, NULL );
+		// since init always returns false, it is save to delete immediately
+		delete w;
+	}
+}
 
 
 /**
@@ -263,8 +279,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
  *
  * @author Hj. Malthaner
  */
-void
-convoi_info_t::zeichnen(koord pos, koord gr)
+void convoi_info_t::zeichnen(koord pos, koord gr)
 {
 	if(!cnv.is_bound() || cnv->in_depot() || cnv->get_vehikel_anzahl() == 0) 
 	{
@@ -509,6 +524,19 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	if(  komp == &line_button  ) {
 		cnv->get_besitzer()->simlinemgmt.show_lineinfo( cnv->get_besitzer(), cnv->get_line() );
 		cnv->get_welt()->set_dirty();
+	}
+
+	if(  komp == &input  ) {
+		if(  strcmp(cnv->get_name(),cnv_name)  ) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "c%u,%s", cnv.get_id(), cnv_name );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			cnv->get_welt()->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
+		}
 	}
 
 	// sort by what

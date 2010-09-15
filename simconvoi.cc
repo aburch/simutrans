@@ -490,12 +490,17 @@ koord3d convoi_t::get_pos() const
  * Sets the name. Creates a copy of name.
  * @author Hj. Malthaner
  */
-void convoi_t::set_name(const char *name)
+void convoi_t::set_name(const char *name, bool with_new_id)
 {
-	char buf[128];
-	name_offset = sprintf(buf,"(%i) ",self.get_id() );
-	tstrncpy(buf+name_offset, translator::translate(name), 116);
-	tstrncpy(name_and_id, buf, lengthof(name_and_id));
+	if(  with_new_id  ) {
+		char buf[128];
+		name_offset = sprintf(buf,"(%i) ",self.get_id() );
+		tstrncpy(buf+name_offset, translator::translate(name), 116);
+		tstrncpy(name_and_id, buf, lengthof(name_and_id));
+	}
+	else {
+		tstrncpy(name_and_id, name, lengthof(name_and_id));
+	}
 }
 
 

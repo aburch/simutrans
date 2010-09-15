@@ -4180,14 +4180,14 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 }
 
 
+// will check a single random pos in the city, then baue will be called
 void stadt_t::baue(bool new_town)
 {
 	if(welt->get_einstellungen()->get_quick_city_growth())
 	{
 		// Old system (from Standard) - faster but less accurate.
 
-		// will check a single random pos in the city, then baue will be called
-		const koord k(lo + koord(simrand(ur.x - lo.x + 2)-1, simrand(ur.y - lo.y + 2)-1));
+		const koord k(lo + koord::koord_random(ur.x - lo.x + 2,ur.y - lo.y + 2)-koord(1,1) );
 
 		// do not build on any border tile
 		if(  !welt->ist_in_kartengrenzen(k+koord(1,1))  ||  k.x<=0  ||  k.y<=0  ) {

@@ -5919,11 +5919,11 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 
 
 /* Handles all action of lines. Needs a default param:
- * [object='c|h|l|m|t'][id],[name]
+ * [object='c|h|l|m|t'][id|pos],[name]
  * c=convoi, h=halt, l=line,  m=marker, t=town
  * in case of marker, id is a pos3d string
  */
-bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
+bool wkz_rename_t::init(karte_t* const welt, spieler_t*)
 {
 	uint16 id = 0;
 	koord3d pos = koord3d::invalid;
@@ -5941,7 +5941,7 @@ bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
 			}
 			break;
 		case 'm':
-			if(  3!=sscanf( default_param, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
+			if(  3!=sscanf( p, "%hi,%hi,%hi", &pos.x, &pos.y, &id )  ) {
 				dbg->error( "wkz_rename_t::init", "no position given for marker! (%s)", default_param );
 				return false;
 			}
@@ -5988,7 +5988,8 @@ bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
 			convoihandle_t cnv;
 			cnv.set_id( id );
 			if(  cnv.is_bound()  ) {
-				cnv->set_name( p );
+				//  set name without ID
+				cnv->set_name( p, false );
 				return false;
 			}
 			break;
@@ -6021,7 +6022,7 @@ bool wkz_rename_t::init( karte_t *welt, spieler_t *sp )
 bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(  *default_param  ) {
-		welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+		welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, sp ? PLAYER_FLAG|sp->get_player_nr() : COL_BLACK, IMG_LEER );
 	}
 	return false;
 }

@@ -27,6 +27,10 @@ public:
 	koord(ribi_t::ribi ribi) { *this = from_ribi[ribi]; }
 	koord(hang_t::typ hang)  { *this = from_hang[hang]; }
 
+	// use this instead of koord(simrand(x),simrand(y)) to avoid
+	// different order on different compilers
+	static koord koord_random(uint16 xrange, uint16 yrange);
+
 	void rdwr(loadsave_t *file);
 
 	const char *get_str() const;

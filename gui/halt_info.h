@@ -59,6 +59,8 @@ public:
 
 	halt_info_t(karte_t *welt, halthandle_t halt);
 
+	virtual ~halt_info_t();
+
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
 	 * @return den Dateinamen für die Hilfe, oder NULL
