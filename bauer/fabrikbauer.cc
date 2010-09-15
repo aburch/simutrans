@@ -361,7 +361,7 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {
-		koord3d	pos=koord3d(simrand(welt->get_groesse_x()),simrand(welt->get_groesse_y()),1);
+		koord3d	pos=koord3d( koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y()),1);
 		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),true,(climate)simrand((int)arctic_climate+1));
 
 		// no attractions for that climate or too new
@@ -971,11 +971,9 @@ next_ware_check:
 					// we cannot built this factory here
 					continue;
 				}
-				koord3d	pos = in_city ?
-					welt->lookup_kartenboden( welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight() ) )->get_pos() )->get_pos() :
-					koord3d(simrand(welt->get_groesse_x()),simrand(welt->get_groesse_y()),1);
-
-				int	rotation=simrand(fab->get_haus()->get_all_layouts()-1);
+				koord   testpos = in_city ? welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight() ) )->get_pos() : koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
+				koord3d pos =  welt->lookup_kartenboden( testpos )->get_pos();
+				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1);
 				if(!in_city) {
 					pos = finde_zufallsbauplatz(welt, pos, 20, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),not_yet_too_desperate_to_ignore_climates);
 				}
