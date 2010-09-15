@@ -301,7 +301,7 @@ const char *network_download_http( const char *address, const char *name, const 
 	const char *err = network_open_address( address, 5000 );
 	if(  err==NULL  ) {
 		char uri[1024];
-		int len = sprintf( uri, "GET %s HTTP/1.1\nHost: %s\n\n", name, address );
+		int const len = sprintf(uri, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", name, address);
 		send( my_client_socket, uri, len, 0 );
 		// read the header
 		char line[1024], rbuf;
