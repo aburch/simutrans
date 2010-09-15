@@ -3924,6 +3924,7 @@ bool karte_t::laden(const char *filename)
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
 			umgebung_t::networkmode = false;
+			umgebung_t::server = false;
 		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4);
@@ -5479,6 +5480,8 @@ void karte_t::network_disconnect()
 	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server.");
 	network_core_shutdown();
 	umgebung_t::networkmode = false;
+	umgebung_t::server = false;
+
 	step_mode = NORMAL;
 	reset_timer();
 	while(  !command_queue.empty()  ) {
