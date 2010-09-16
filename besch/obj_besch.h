@@ -48,7 +48,7 @@ public:
 	 * ATTENTION: xref's are NOT resolved yet
 	 * @author Dwachs
 	 */
-	void calc_checksum(checksum_t *chk) const
+	void calc_checksum(checksum_t *) const
 	{
 	}
 

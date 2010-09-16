@@ -1,12 +1,7 @@
 #include "pakset_info.h"
 #include "../simdebug.h"
-
-#include "network_info.h"
-#include "../tpl/vector_tpl.h"
-
-#include "../simgraph.h"
-
 #include "../dataobj/translator.h"
+#include "../tpl/vector_tpl.h"
 
 stringhashtable_tpl<checksum_t*> pakset_info_t::info;
 checksum_t pakset_info_t::general;

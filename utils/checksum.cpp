@@ -2,7 +2,7 @@
 
 #include "../dataobj/network_packet.h"
 
-#include <string>
+#include <string.h>
 #include <stdio.h>
 #include "../simdebug.h"
 
