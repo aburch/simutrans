@@ -32,7 +32,6 @@ server_frame_t::server_frame_t(karte_t* w) :
 	pakset_checksum_buf(80)
 {
 	update_info();
-	update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
 
 	sint16 pos_y = 4;
 	serverlist.set_pos( koord(2,pos_y) );
@@ -46,33 +45,31 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add.add_listener(this);
 	add_komponente( &add );
 
-	show_all_pak.init( button_t::square_state, "show all", koord( 124, pos_y + 1 ), koord( 112, BUTTON_HEIGHT) );
-	show_all_pak.add_listener(this);
-	add_komponente( &show_all_pak );
+	if(  !show_all_rev.pressed  ) {
+		show_all_rev.init( button_t::square_state, "show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
+		show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
+		show_all_rev.add_listener(this);
+		add_komponente( &show_all_rev );
+	}
 
 	pos_y += BUTTON_HEIGHT+8;
 	date.set_pos( koord( 4, pos_y ) );
 	add_komponente( &date );
 
 	pos_y += 8*LINESPACE;
-
 	revision.set_pos( koord( 4, pos_y ) );
 	add_komponente( &revision );
 	show_all_rev.pressed = gi.get_game_engine_revision()==0;
-	if(  !show_all_rev.pressed  ) {
-		show_all_rev.init( button_t::square_state, "show all", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
-		show_all_rev.add_listener(this);
-		add_komponente( &show_all_rev );
-	}
 
 	pos_y += LINESPACE;
-
 	pak_version.set_pos( koord( 4, pos_y ) );
 	add_komponente( &pak_version );
 
+#if DEBUG>=4
 	pos_y += LINESPACE;
 	pakset_checksum.set_pos( koord( 4, pos_y ) );
 	add_komponente( &pakset_checksum );
+#endif
 
 	pos_y += 5+LINESPACE;
 
@@ -83,6 +80,8 @@ server_frame_t::server_frame_t(karte_t* w) :
 	join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
 	join.add_listener(this);
 	add_komponente( &join );
+
+	update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
 
 	pos_y += 6+BUTTON_HEIGHT+16;
 	set_fenstergroesse( koord( 240, pos_y ) );
@@ -118,7 +117,9 @@ void server_frame_t::update_info()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision_buf.clear();
+#if DEBUG==4
 	pakset_checksum_buf.clear();
+#endif
 	find_mismatch.disable();
 	if(  serverlist.get_selection()>=0  ) {
 		// need to compare with our world now
@@ -131,17 +132,19 @@ void server_frame_t::update_info()
 
 		pak_version.set_text( gi.get_pak_name() );
 		// this will be using CRC when implemented
-		pak_version.set_color( strcmp(gi.get_pak_name(),current.get_pak_name())==0  &&  gi.get_with_private_paks()==false  ? COL_BLACK : COL_RED );
+		pak_version.set_color( gi.get_pakset_checksum() == current.get_pakset_checksum()  ? COL_BLACK : COL_RED );
 
+#if DEBUG>=4
 		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
 		pakset_checksum.set_color(gi.get_pakset_checksum() == current.get_pakset_checksum() ? COL_BLACK : COL_RED );
 		pakset_checksum.set_text(pakset_checksum_buf);
-		if(  revision.get_color()==COL_BLACK  &&  pak_version.get_color()==COL_BLACK  &&  pakset_checksum.get_color()==COL_BLACK  ) {
+#endif
+		if(  revision.get_color()==COL_BLACK  &&  pak_version.get_color()==COL_BLACK  &&  current.get_pakset_checksum()==gi.get_pakset_checksum()  ) {
 			join.enable();
 		}
 		else {
 			join.disable();
-			if(  pak_version.get_color()==COL_RED  ) {
+			if(  gi.get_pakset_checksum() == current.get_pakset_checksum()  ) {
 				find_mismatch.enable();
 			}
 		}
@@ -152,8 +155,10 @@ void server_frame_t::update_info()
 		revision.set_color( COL_BLACK );
 		pak_version.set_text( gi.get_pak_name() );
 		pak_version.set_color( COL_BLACK );
+#if DEBUG>=4
 		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
 		pakset_checksum.set_text(pakset_checksum_buf);
+#endif
 		join.disable();
 	}
 
@@ -248,37 +253,35 @@ bool server_frame_t::infowin_event(const event_t *ev)
 bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(  &serverlist == komp  ) {
-		if(  p.i==-1  ) {
+		if(  p.i<=-1  ) {
 			gi = gameinfo_t(welt);
 			update_info();
 			join.disable();
 		}
 		else {
 			join.disable();
-			if(  serverlist.get_element(p.i)->get_color()!=COL_WHITE  ) {
-				const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
-				if(  err==NULL  ) {
-					serverlist.get_element(p.i)->set_color( COL_BLACK );
-					update_info();
-				}
-				else {
-					serverlist.get_element(p.i)->set_color( COL_RED );
-				}
+			const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
+			if(  err==NULL  ) {
+				serverlist.get_element(p.i)->set_color( COL_BLACK );
+				update_info();
+			}
+			else {
+				serverlist.get_element(p.i)->set_color( COL_RED );
+				buf.clear();
+				date.set_text( "Server did not respond!" );
+				revision.set_text( "" );
+				pak_version.set_text( "" );
 			}
 		}
 		set_dirty();
 	}
 	else if(  &add == komp  ) {
-		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "localhost", COL_BLUE ) );
+		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "Enter address", COL_BLUE ) );
 		serverlist.set_selection( serverlist.count_elements()-1 );
 	}
 	else if(  &show_all_rev == komp  ) {
 		show_all_rev.pressed ^= 1;
-		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_pak.pressed ? NULL : gi.get_pak_name() );
-	}
-	else if(  &show_all_pak == komp  ) {
-		show_all_pak.pressed ^= 1;
-		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_pak.pressed ? NULL : gi.get_pak_name() );
+		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
 	}
 	else if(  &join == komp  ) {
 		std::string filename = "net:";
@@ -308,8 +311,11 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	display_array_wh(pos.x+4, pos_y, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
 	display_multiline_text( pos.x+4+max(mapsize.x,proportional_string_width(date.get_text_pointer()))+2+10, date.get_pos().y+pos.y+16, buf, COL_BLACK );
+#if DEBUG>=4
 	pos_y += 10*LINESPACE - 1;
-
+#else
+	pos_y += 9*LINESPACE - 1;
+#endif
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
 	// drawing twice, but otherwise it will not overlay image

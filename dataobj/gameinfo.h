@@ -43,9 +43,6 @@ private:
 	std::string file_name;
 	std::string pak_name;
 
-	// true, if this pak should be used with extensions (default)
-	bool with_private_paks;
-
 	uint32 game_engine_revision;
 	checksum_t pakset_checksum;
 
@@ -82,7 +79,6 @@ public:
 	uint32 get_game_engine_revision() const { return game_engine_revision; }
 	const char *get_name_language_iso() const { return language_code_names; }
 	const char *get_pak_name() const { return pak_name.c_str(); }
-	bool get_with_private_paks() const { return with_private_paks; }
 	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 	uint8 get_clients() const { return clients; }
 	const checksum_t & get_pakset_checksum() const { return pakset_checksum; }

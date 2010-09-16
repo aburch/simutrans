@@ -4,6 +4,7 @@
 #include "sha1.h"
 
 class SHA1;
+class loadsave_t;
 
 class checksum_t
 {
@@ -35,24 +36,7 @@ public:
 	void input(const char *data);
 	const char* get_str(const int maxlen=20) const;
 
-	template<class LOADSAVE> void rdwr(LOADSAVE *file)
-	{
-		if(file->is_saving()) {
-			if (!valid) {
-				finish();
-			}
-		}
-		else {
-			valid = true;
-			if (sha) {
-				delete sha;
-			}
-			sha = NULL;
-		}
-		for(uint8 i=0; i<20; i++) {
-			file->rdwr_byte(message_digest[i]);
-		}
-	}
+	void rdwr(loadsave_t *file);
 
 	/**
 	 * build checksum of checksums

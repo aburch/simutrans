@@ -21,9 +21,12 @@ private:
 	cbuffer_t	buf, time, revision_buf, pakset_checksum_buf;
 
 	button_t add, join, find_mismatch;
-	button_t show_all_rev, show_all_pak;
+	button_t show_all_rev;
 	gui_combobox_t serverlist;
-	gui_label_t revision, pak_version, date, pakset_checksum;
+	gui_label_t revision, pak_version, date;
+#if DEBUG>=4
+	gui_label_t pakset_checksum;
+#endif
 
 	void update_info();
 

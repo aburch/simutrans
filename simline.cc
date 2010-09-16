@@ -236,7 +236,7 @@ void simline_t::renew_stops()
 			unregister_stops( old_fpl );
 		}
 		register_stops( fpl );
-		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
+		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name.c_str());
 	}
 }
 

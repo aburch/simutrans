@@ -106,9 +106,6 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	game_engine_revision = 0;
 #endif
 	pakset_checksum = *(pakset_info_t::get_checksum());
-
-	// true, if this pak should be used with extensions (default)
-	with_private_paks = welt->get_einstellungen()->get_with_private_paks();
 }
 
 
@@ -173,8 +170,6 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		pak_name = temp;
 	}
-	file->rdwr_bool( with_private_paks );
-
 	file->rdwr_long( game_engine_revision );
 
 	for(  int i=0;  i<16;  i++  ) {
@@ -182,5 +177,5 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	}
 	file->rdwr_byte( clients );
 
-	pakset_checksum.rdwr<loadsave_t>(file);
+	pakset_checksum.rdwr(file);
 }
