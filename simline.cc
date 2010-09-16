@@ -1,3 +1,4 @@
+#include "utils/simstring.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "simtypes.h"
@@ -22,7 +23,9 @@ karte_t *simline_t::welt=NULL;
 simline_t::simline_t(karte_t* welt, spieler_t* sp)
 {
 	self = linehandle_t(this);
-	sprintf( name, "(%i) %s", self.get_id(), translator::translate("Line") );
+	char printname[128];
+	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line") );
+	name = printname;
 	init_financial_history();
 	this->id = INVALID_LINE_ID;
 	this->welt = welt;
@@ -38,7 +41,9 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 void simline_t::set_line_id(uint32 id)
 {
 	this->id = id;
-	sprintf( name, "(%i) %s", id, translator::translate("Line") );
+	char printname[128];
+	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line") );
+	name = printname;
 }
 
 
@@ -128,7 +133,17 @@ void simline_t::rdwr(loadsave_t *file)
 
 	assert(fpl);
 
-	file->rdwr_str(name, lengthof(name));
+	if(  file->is_loading()  ) {
+		char name[1024];
+		file->rdwr_str(name, lengthof(name));
+		this->name = name;
+	}
+	else {
+		char name[1024];
+		tstrncpy( name, this->name.c_str(), lengthof(name) );
+		file->rdwr_str(name, lengthof(name));
+	}
+
 	if(file->get_version()<88003) {
 		sint32 dummy=id;
 		file->rdwr_long(dummy);

@@ -5169,7 +5169,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t*)
 			linehandle_t line;
 			line.set_id( id );
 			if(  line.is_bound()  ) {
-				tstrncpy( line->get_name(), p, 128 );
+				line->set_name( p );
 				return false;
 			}
 			break;

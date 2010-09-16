@@ -15,5 +15,4 @@ void line_scrollitem_t::set_text(char *t)
 		// since init always returns false, it is save to delete immediately
 		delete w;
 	}
-	tstrncpy( line->get_name(), t, 128 );
 }

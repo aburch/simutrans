@@ -43,7 +43,8 @@ private:
 	sint32 last_schedule_count;
 	uint32 last_vehicle_count;
 
-	char line_name[128];
+	// so even japanese can have long enough names ...
+	char line_name[512];
 
 	void display(koord pos);
 

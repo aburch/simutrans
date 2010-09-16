@@ -552,8 +552,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		// ok, this line is visible
 		scrolly.set_visible(true);
 		scrolly_haltestellen.set_visible(true);
-		strcpy(line_name, new_line->get_name());
-		inp_name.set_text(line_name, 128);
+		tstrncpy(line_name, new_line->get_name(), lengthof(line_name));
+		inp_name.set_text(line_name, lengthof(line_name));
 		inp_name.set_visible(true);
 		filled_bar.set_visible(true);
 

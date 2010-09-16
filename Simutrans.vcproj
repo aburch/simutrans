@@ -249,6 +249,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\utils\checksum.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\citybuilding_edit.cc"
 				>
 			</File>
@@ -338,6 +342,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\extend_edit.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\besch\fabrik_besch.cc"
 				>
 			</File>
 			<File
@@ -601,6 +609,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\line_item.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\line_management_gui.cc"
 				>
 			</File>
@@ -698,6 +710,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\pakselector.cc"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\pakset_info.cc"
 				>
 			</File>
 			<File
@@ -1039,6 +1055,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\besch\vehikel_besch.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\bauer\vehikelbauer.cc"
 				>
 			</File>
@@ -1202,6 +1222,10 @@
 			</File>
 			<File
 				RelativePath=".\utils\cbuffer_t.h"
+				>
+			</File>
+			<File
+				RelativePath=".\utils\checksum.h"
 				>
 			</File>
 			<File
@@ -1770,6 +1794,10 @@
 			</File>
 			<File
 				RelativePath=".\gui\pakselector.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\pakset_info.h"
 				>
 			</File>
 			<File
