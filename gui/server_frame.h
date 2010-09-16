@@ -20,11 +20,15 @@ private:
 	gameinfo_t gi;
 	cbuffer_t	buf, time, revision_buf;
 
-	button_t add, loadlist, join, quit;
+	button_t add, join, find_mismatch;
+	button_t show_all_rev, show_all_pak;
 	gui_combobox_t serverlist;
 	gui_label_t revision, pak_version, date;
 
 	void update_info();
+
+	// pass 0 for mismatched revisions and NULL for pakset to see all
+	bool update_serverlist( uint32 revision, const char *pakset );
 
 public:
 	server_frame_t( karte_t *welt );

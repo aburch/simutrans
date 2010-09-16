@@ -75,8 +75,8 @@ public:
 	 * Sets the colour of the label
 	 * @author Owen Rudge
 	 */
-
 	void set_color(int colour) { this->color = colour; }
+	uint8 get_color() const { return color; }
 
 	/**
 	 * Sets the alignment of the label
