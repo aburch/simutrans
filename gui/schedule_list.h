@@ -43,6 +43,8 @@ private:
 	sint32 last_schedule_count;
 	uint32 last_vehicle_count;
 
+	char line_name[128];
+
 	void display(koord pos);
 
 	void update_lineinfo(linehandle_t new_line);
@@ -55,7 +57,7 @@ private:
 
 public:
 	schedule_list_gui_t(spieler_t* sp);
-
+	~schedule_list_gui_t();
 	/**
 	* in top-level fenstern wird der Name in der Titelzeile dargestellt
 	* @return den nicht uebersetzten Namen der Komponente
