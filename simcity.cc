@@ -4520,7 +4520,10 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 
 		if (index_to_places.empty() ) {
 			if(city_nr < sizes_list->get_count() - 1) {
+				char buf[256];		
 				if(number_of_clusters > 0) {
+					snprintf(buf, 256, translator::translate("City generation: %d cities inside clusters.\n"), city_nr);
+					wl->get_message()->add_message(buf,koord::invalid,message_t::city,COL_GROWTH);
 					for (int y = 0; y < ymax; y++) {
 						for (int x = 0; x < xmax; x++) {
 							cluster_field.at(x,y) = true;
@@ -4530,6 +4533,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 					city_nr--;
 					continue;
 				}
+				snprintf(buf, 256, translator::translate("City generation: Not enough places found! Only %d cities placed.\n"), city_nr);
+				wl->get_message()->add_message(buf,koord::invalid,message_t::city,COL_GROWTH);				
 				dbg->warning("stadt_t::random_place()", "Not enough places found!");
 			}
 			break;
