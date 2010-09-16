@@ -92,7 +92,7 @@ bool loadsave_t::rd_open(const char *filename)
 			return false;
 		}
 		else {
-			mode = xml|zipped;
+			mode |= xml;
 			while(  lsgetc()!='<'  ) { /* nothing */ }
 			read( buf, sizeof(SAVEGAME_PREFIX) - 1 );
 			if(  strncmp(buf, SAVEGAME_PREFIX, sizeof(SAVEGAME_PREFIX) - 1)  ) {
