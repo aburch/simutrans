@@ -6,6 +6,7 @@
 #include "good_reader.h"
 #include "../obj_node_info.h"
 #include "../ware_besch.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void good_reader_t::register_obj(obj_besch_t *&data)
@@ -16,6 +17,10 @@ void good_reader_t::register_obj(obj_besch_t *&data)
 	DBG_DEBUG("good_reader_t::register_obj()","loaded good '%s'", besch->get_name());
 
 	obj_for_xref(get_type(), besch->get_name(), data);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

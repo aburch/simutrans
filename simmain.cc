@@ -65,6 +65,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/translator.h"
+#include "dataobj/pakset_info.h"
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
@@ -716,6 +717,8 @@ int simu_main(int argc, char** argv)
 		chdir( umgebung_t::program_dir );
 	}
 	obj_reader_t::laden_abschliessen();
+	pakset_info_t::calculate_checksum();
+	pakset_info_t::debug();
 
 	// set overtaking offsets
 	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );

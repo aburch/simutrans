@@ -16,6 +16,7 @@
 
 class haus_besch_t;
 class werkzeug_t;
+class checksum_t;
 
 /*
  *  Autor:
@@ -330,6 +331,8 @@ public:
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
 	}
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

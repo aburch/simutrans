@@ -17,6 +17,8 @@
 #include "../simtypes.h"
 
 
+class checksum_t;
+
 /**
  * Vehicle type description - all attributes of a vehicle type
  *
@@ -285,6 +287,8 @@ public:
 	* @author prissi
 	*/
 	uint8 get_length() const { return len; }
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

@@ -24,6 +24,9 @@
 #include "bildliste2d_besch.h"
 #include "weg_besch.h"
 
+
+class checksum_t;
+
 class tunnel_besch_t : public obj_besch_std_name_t {
 	friend class tunnel_writer_t;
 	friend class tunnel_reader_t;
@@ -113,6 +116,8 @@ public:
 	}
 
 	bool has_broad_portals() const { return (broad_portals != 0); };
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

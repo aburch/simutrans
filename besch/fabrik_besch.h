@@ -14,6 +14,7 @@
 #include "../dataobj/koord.h"
 #include "../tpl/weighted_vector_tpl.h"
 
+class checksum_t;
 
 /* Knightly : this besch will store data specific to each class of fields
  * Fields are xref'ed from skin_besch_t
@@ -38,6 +39,8 @@ public:
 	uint16 get_field_production() const { return production_per_field; }
 	uint16 get_storage_capacity() const { return storage_capacity; }
 	uint16 get_spawn_weight() const { return spawn_weight; }
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 
@@ -70,6 +73,8 @@ public:
 	uint16 get_field_class_count() const { return field_classes; }
 	field_class_besch_t const* get_field_class(uint16 const idx) const { return idx < field_classes ? get_child<field_class_besch_t>(idx) : 0; }
 	const weighted_vector_tpl<uint16> &get_field_class_indices() const { return field_class_indices; }
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 
@@ -147,6 +152,7 @@ public:
 	int get_kapazitaet() const { return kapazitaet; }
 	int get_anzahl() const { return anzahl; }
 	int get_verbrauch() const { return verbrauch; }
+	void calc_checksum(checksum_t *chk) const;
 };
 
 
@@ -178,6 +184,7 @@ public:
 	ware_besch_t const* get_ware() const { return get_child<ware_besch_t>(0); }
 	uint32 get_kapazitaet() const { return kapazitaet; }
 	uint32 get_faktor() const { return faktor; }
+	void calc_checksum(checksum_t *chk) const;
 };
 
 
@@ -258,6 +265,8 @@ public:
 	int get_pax_level() const { return pax_level; }
 
 	int is_electricity_producer() const { return electricity_producer; }
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

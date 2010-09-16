@@ -5,6 +5,7 @@
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../tpl/array2d_tpl.h"
+#include "../utils/checksum.h"
 
 class karte_t;
 class loadsave_t;
@@ -46,9 +47,9 @@ private:
 	bool with_private_paks;
 
 	uint32 game_engine_revision;
-	uint32 pak_set_crc;
+	checksum_t pakset_checksum;
 
-	// 0 = emtpy, otherwise some vaule from simplay
+	// 0 = empty, otherwise some value from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
 	uint8 clients;	// currently connected players
 
@@ -84,6 +85,7 @@ public:
 	bool get_with_private_paks() const { return with_private_paks; }
 	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 	uint8 get_clients() const { return clients; }
+	const checksum_t & get_pakset_checksum() const { return pakset_checksum; }
 };
 
 #endif

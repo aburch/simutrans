@@ -11,6 +11,7 @@
 #include "obj_besch_std_name.h"
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
+#include "../utils/checksum.h"
 
 
 class werkzeug_t;
@@ -215,6 +216,18 @@ public:
 	}
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
+	}
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(price);
+		chk->input(maintenance);
+		chk->input(topspeed);
+		chk->input(max_weight);
+		chk->input(intro_date);
+		chk->input(obsolete_date);
+		chk->input(wtyp);
+		chk->input(styp);
 	}
 };
 

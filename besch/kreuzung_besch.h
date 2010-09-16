@@ -11,7 +11,10 @@
 #include "bild_besch.h"
 #include "bildliste_besch.h"
 #include "../simtypes.h"
+#include "../utils/checksum.h"
 
+
+class checksum_t;
 
 /*
  *  Autor:
@@ -95,6 +98,18 @@ public:
 	bool is_available(const uint16 month_now) const
 	{
 		return month_now==0  ||  (intro_date <= month_now  &&  month_now < obsolete_date);
+	}
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(wegtyp1);
+		chk->input(wegtyp2);
+		chk->input(closed_animation_time);
+		chk->input(open_animation_time);
+		chk->input(topspeed1);
+		chk->input(topspeed2);
+		chk->input(intro_date);
+		chk->input(obsolete_date);
 	}
 };
 

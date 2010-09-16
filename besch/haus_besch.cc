@@ -6,6 +6,7 @@
 #include "../simdebug.h"
 
 #include "haus_besch.h"
+#include "../utils/checksum.h"
 
 
 
@@ -121,4 +122,36 @@ int haus_besch_t::layout_anpassen(int layout) const
 		}
 	}
 	return layout;
+}
+
+
+void haus_besch_t::calc_checksum(checksum_t *chk) const
+{
+	chk->input((uint8)gtyp);
+	chk->input((uint8)utype);
+	chk->input(animation_time);
+	chk->input(extra_data);
+	chk->input(groesse.x);
+	chk->input(groesse.y);
+	chk->input((uint8)flags);
+	chk->input(level);
+	chk->input(layouts);
+	chk->input(enables);
+	chk->input(chance);
+	chk->input((uint8)allowed_climates);
+	chk->input(intro_date);
+	chk->input(obsolete_date);
+	// now check the layout
+	for(uint8 i=0; i<layouts; i++) {
+		sint16 b=get_b(i);
+		for(sint16 x=0; x<b; x++) {
+			sint16 h=get_h(i);
+			for(sint16 y=0; y<h; y++) {
+				if (get_tile(i,x,y)) {
+					chk->input((sint16)(x+y+i));
+				}
+			}
+		}
+	}
+
 }

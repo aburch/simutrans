@@ -9,6 +9,9 @@
 
 #include "obj_besch_std_name.h"
 #include "../simcolor.h"
+#include "../utils/checksum.h"
+
+class checksum_t;
 
 /*
  *  Autor:
@@ -125,6 +128,16 @@ public:
 	* @author Hj. Malthaner
 	*/
 	COLOR_VAL get_color() const { return color; }
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(value);
+		chk->input(base_value);
+		chk->input(catg);
+		chk->input(catg_index);
+		chk->input(speed_bonus);
+		chk->input(weight_per_unit);
+	}
 };
 
 #endif

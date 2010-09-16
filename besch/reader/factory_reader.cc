@@ -7,6 +7,7 @@
 #include "../obj_node_info.h"
 #include "../fabrik_besch.h"
 #include "../xref_besch.h"
+#include "../../dataobj/pakset_info.h"
 
 #include "factory_reader.h"
 
@@ -302,4 +303,8 @@ void factory_reader_t::register_obj(obj_besch_t *&data)
 	size_t fab_name_len = strlen( besch->get_name() );
 	besch->electricity_producer = ( fab_name_len>11   &&  (strcmp(besch->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(besch->get_name()+fab_name_len-11, "Power Plant")==0) );
 	fabrikbauer_t::register_besch(besch);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }

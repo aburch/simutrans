@@ -24,6 +24,7 @@
 #include "../dataobj/ribi.h"
 
 class werkzeug_t;
+class checksum_t;
 
 
 class bruecke_besch_t : public obj_besch_std_name_t {
@@ -48,7 +49,7 @@ private:
 	uint8 max_length;	// =0 off, else maximum length
 	uint8 max_height;	// =0 off, else maximum length
 
-	// allowed eara
+	// allowed era
 	uint16 intro_date;
 	uint16 obsolete_date;
 
@@ -156,6 +157,8 @@ public:
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
 	}
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

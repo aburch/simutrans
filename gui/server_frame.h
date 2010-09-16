@@ -18,12 +18,12 @@ class server_frame_t : public gui_frame_t, private action_listener_t
 private:
 	karte_t *welt;
 	gameinfo_t gi;
-	cbuffer_t	buf, time, revision_buf;
+	cbuffer_t	buf, time, revision_buf, pakset_checksum_buf;
 
 	button_t add, join, find_mismatch;
 	button_t show_all_rev, show_all_pak;
 	gui_combobox_t serverlist;
-	gui_label_t revision, pak_version, date;
+	gui_label_t revision, pak_version, date, pakset_checksum;
 
 	void update_info();
 

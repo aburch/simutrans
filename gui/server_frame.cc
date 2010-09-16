@@ -16,6 +16,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/pakset_info.h"
 #include "server_frame.h"
 #include "messagebox.h"
 
@@ -27,7 +28,8 @@ server_frame_t::server_frame_t(karte_t* w) :
 	gi(welt),
 	buf(1024),
 	time(32),
-	revision_buf(64)
+	revision_buf(64),
+	pakset_checksum_buf(80)
 {
 	update_info();
 	update_serverlist( gi.get_game_engine_revision(), gi.get_pak_name() );
@@ -43,6 +45,10 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
 	add.add_listener(this);
 	add_komponente( &add );
+
+	show_all_pak.init( button_t::square_state, "show all", koord( 124, pos_y + 1 ), koord( 112, BUTTON_HEIGHT) );
+	show_all_pak.add_listener(this);
+	add_komponente( &show_all_pak );
 
 	pos_y += BUTTON_HEIGHT+8;
 	date.set_pos( koord( 4, pos_y ) );
@@ -63,9 +69,10 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 	pak_version.set_pos( koord( 4, pos_y ) );
 	add_komponente( &pak_version );
-	show_all_pak.init( button_t::square_state, "show all", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	show_all_pak.add_listener(this);
-	add_komponente( &show_all_pak );
+
+	pos_y += LINESPACE;
+	pakset_checksum.set_pos( koord( 4, pos_y ) );
+	add_komponente( &pakset_checksum );
 
 	pos_y += 5+LINESPACE;
 
@@ -111,6 +118,7 @@ void server_frame_t::update_info()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision_buf.clear();
+	pakset_checksum_buf.clear();
 	find_mismatch.disable();
 	if(  serverlist.get_selection()>=0  ) {
 		// need to compare with our world now
@@ -125,7 +133,10 @@ void server_frame_t::update_info()
 		// this will be using CRC when implemented
 		pak_version.set_color( strcmp(gi.get_pak_name(),current.get_pak_name())==0  &&  gi.get_with_private_paks()==false  ? COL_BLACK : COL_RED );
 
-		if(  revision.get_color()==COL_BLACK  &&  pak_version.get_color()==COL_BLACK  ) {
+		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
+		pakset_checksum.set_color(gi.get_pakset_checksum() == current.get_pakset_checksum() ? COL_BLACK : COL_RED );
+		pakset_checksum.set_text(pakset_checksum_buf);
+		if(  revision.get_color()==COL_BLACK  &&  pak_version.get_color()==COL_BLACK  &&  pakset_checksum.get_color()==COL_BLACK  ) {
 			join.enable();
 		}
 		else {
@@ -141,6 +152,8 @@ void server_frame_t::update_info()
 		revision.set_color( COL_BLACK );
 		pak_version.set_text( gi.get_pak_name() );
 		pak_version.set_color( COL_BLACK );
+		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
+		pakset_checksum.set_text(pakset_checksum_buf);
 		join.disable();
 	}
 
@@ -255,6 +268,10 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		}
 		set_dirty();
 	}
+	else if(  &add == komp  ) {
+		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "localhost", COL_BLUE ) );
+		serverlist.set_selection( serverlist.count_elements()-1 );
+	}
 	else if(  &show_all_rev == komp  ) {
 		show_all_rev.pressed ^= 1;
 		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_pak.pressed ? NULL : gi.get_pak_name() );
@@ -291,7 +308,7 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	display_array_wh(pos.x+4, pos_y, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
 	display_multiline_text( pos.x+4+max(mapsize.x,proportional_string_width(date.get_text_pointer()))+2+10, date.get_pos().y+pos.y+16, buf, COL_BLACK );
-	pos_y += 9*LINESPACE - 1;
+	pos_y += 10*LINESPACE - 1;
 
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 

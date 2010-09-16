@@ -9,6 +9,7 @@
 #include "../obj_node_info.h"
 
 #include "../../simdebug.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void crossing_reader_t::register_obj(obj_besch_t *&data)
@@ -17,6 +18,10 @@ void crossing_reader_t::register_obj(obj_besch_t *&data)
 	if(besch->topspeed1!=0) {
 		crossing_logic_t::register_besch(besch);
 	}
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 
