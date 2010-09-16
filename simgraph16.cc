@@ -1896,12 +1896,12 @@ void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff
  * Kopiert Pixel von src nach dest
  * @author Hj. Malthaner
  */
-static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const unsigned int len)
+static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	// for gcc this seems to produce the optimal code ...
-	const PIXVAL *const end = dest + len;
-
-	while (dest < end) *dest++ = *src++;
+	while (src < end) {
+		*dest++ = *src++;
+	}
 }
 
 
@@ -1916,11 +1916,30 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
 	}
 }
 
+/**
+ * templated pixel copy routines
+ * to be used in display_img_pc
+ */
+enum picopy_routines {
+	plain = 0,	/// simply copies the pixels
+ 	colored = 1	/// replaces player colors
+};
+
+template<picopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
+template<> void templated_pixcopy<plain>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
+{
+	pixcopy(dest, src, end);
+}
+template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
+{
+	colorpixcopy(dest, src, end);
+}
 
 /**
  * draws image with clipping along arbitrary lines
  * @author Dwachs
  */
+template<int copyroutine>
 static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
 	if (h > 0) {
@@ -1951,7 +1970,7 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= xmin ? 0 : xmin - xpos);
 					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
 
-					pixcopy(tp + xpos + left, sp + left, len - left);
+					templated_pixcopy<plain>(tp + xpos + left, sp + left, sp + len);
 				}
 
 				sp += runlen;
@@ -1991,7 +2010,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 
-					pixcopy(tp + xpos + left, sp + left, len - left);
+					pixcopy(tp + xpos + left, sp + left, sp + len);
 				}
 
 				sp += runlen;
@@ -2434,7 +2453,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 
 			// clipping at poly lines?
 			if (number_of_clips>0) {
-					display_img_pc(h, xp, yp, sp);
+					display_img_pc<plain>(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {
 						mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
@@ -2578,7 +2597,13 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 				// no player
 				activate_player_color( 0, daynight );
 			}
-			display_color_img_aux( (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data, xp+x, yp+y, h );
+			// clipping at poly lines?
+			if (number_of_clips>0) {
+				display_img_pc<colored>(h, xp+x, yp+y,  (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data);
+			}
+			else {
+				display_color_img_aux( (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data, xp+x, yp+y, h );
+			}
 		}
 	} // number ok
 }
