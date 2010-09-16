@@ -664,10 +664,10 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	umgebung_t::announce_server = contents.get_int("announce_server", umgebung_t::announce_server );
 	if(  *contents.get("server_name")  ) {
-		umgebung_t::server_name = contents.get("server_name");
+		umgebung_t::server_name = ltrim(contents.get("server_name"));
 	}
 	if(  *contents.get("server_comment")  ) {
-		umgebung_t::server_comment = contents.get("server_comment");
+		umgebung_t::server_comment = ltrim(contents.get("server_comment"));
 	}
 
 	// up to ten rivers are possible

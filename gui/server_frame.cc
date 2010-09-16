@@ -144,7 +144,7 @@ void server_frame_t::update_info()
 		}
 		else {
 			join.disable();
-			if(  gi.get_pakset_checksum() == current.get_pakset_checksum()  ) {
+			if(  !(gi.get_pakset_checksum()==current.get_pakset_checksum())  ) {
 				find_mismatch.enable();
 			}
 		}

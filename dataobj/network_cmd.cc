@@ -182,7 +182,7 @@ void nwc_join_t::rdwr()
 
 bool nwc_join_t::execute(karte_t *welt)
 {
-	if (umgebung_t::server) {
+	if(umgebung_t::server) {
 		dbg->message("nwc_join_t::execute", "");
 		// TODO: check whether we can send a file
 		nwc_join_t nwj;
@@ -350,6 +350,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 		nwc_ready_t nwc(old_sync_steps);
 		nwc.send(network_get_socket(client_id));
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
+
+		// announce new status on server
+		welt->announce_server();
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);

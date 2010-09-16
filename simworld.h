@@ -815,7 +815,7 @@ public:
 	// the convois are also handled each steps => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
 	void rem_convoi(convoihandle_t& cnv);
-	unsigned get_convoi_count() const {return convoi_array.get_count();}
+	uint32 get_convoi_count() const {return convoi_array.get_count();}
 	const convoihandle_t get_convoi(sint32 i) const {return convoi_array[(uint32)i];}
 	vector_tpl<convoihandle_t>::const_iterator convois_begin() const { return convoi_array.begin(); }
 	vector_tpl<convoihandle_t>::const_iterator convois_end()   const { return convoi_array.end();   }
@@ -967,6 +967,9 @@ public:
 	uint32 get_sync_steps() const { return sync_steps; }
 
 	void command_queue_append(network_world_command_t*);
+
+	// announce server and current state to listserver
+	void announce_server();
 
 	void network_disconnect();
 };

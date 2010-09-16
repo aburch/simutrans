@@ -611,7 +611,7 @@ uint32 network_get_client_id( SOCKET sock )
 int network_get_clients()
 {
 	// all clients except ourselves
-	return active_clients - 1;
+	return max(1,active_clients) - 1;
 }
 
 
@@ -723,6 +723,8 @@ network_command_t* network_check_activity(karte_t *welt, int timeout)
 				welt->set_werkzeug( w, NULL );
 				// since init always returns false, it is save to delete immediately
 				delete w;
+				// give new status
+				welt->announce_server();
 			}
 		}
 		else {

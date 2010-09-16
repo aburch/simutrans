@@ -14,8 +14,8 @@ const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
 bool umgebung_t::networkmode = false;
 uint16 umgebung_t::server = 0;
 
-// if 1, announce game to listserver on start, if 2 when new player is joining (or clients==0)
-uint8 umgebung_t::announce_server = 0;
+// if !=0 contains ID from simutrans-germany.com
+uint32 umgebung_t::announce_server = 0;
 std::string umgebung_t::server_name;
 std::string umgebung_t::server_comment;
 

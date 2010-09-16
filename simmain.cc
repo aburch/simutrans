@@ -453,8 +453,9 @@ int simu_main(int argc, char** argv)
 			umgebung_t::rdwr(&file);
 			umgebung_t::default_einstellungen.rdwr(&file);
 			file.close();
-			// reset to false (otherwise freeplay will persist)
+			// reset to false (otherwise these settings will persist)
 			umgebung_t::default_einstellungen.set_freeplay( false );
+			umgebung_t::announce_server = 0;
 		}
 	}
 
@@ -521,6 +522,10 @@ int simu_main(int argc, char** argv)
 		if(  umgebung_t::networkmode  ) {
 			umgebung_t::server = portadress;
 		}
+	}
+	else {
+		// no announce for clients ...
+		umgebung_t::announce_server = 0;
 	}
 
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER "  Date: " VERSION_DATE);
