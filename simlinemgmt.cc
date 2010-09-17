@@ -43,7 +43,7 @@ simlinemgmt_t::~simlinemgmt_t()
 	destroy_win( (long)this );
 	// and delete all lines ...
 	while(  all_managed_lines.get_count()>0  ) {
-		linehandle_t line = all_managed_lines[all_managed_lines.get_count()-1];
+		linehandle_t line = all_managed_lines.back();
 		all_managed_lines.remove_at( all_managed_lines.get_count()-1 );
 		delete line.get_rep();	// detaching handled by line itself
 	}
