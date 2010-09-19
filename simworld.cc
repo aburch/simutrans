@@ -765,13 +765,8 @@ void karte_t::create_rivers( sint16 number )
 				// may be good to start a river here
 				water_tiles.append(k);
 			}
-			else if(  h>=last_height  ||  koord_distance(last_koord,k)>simrand(max_dist)  ) {
-				// something worth to add here
-				if(  h>last_height  ) {
-					last_height = h;
-				}
-				last_koord = k;
-				mountain_tiles.append( k, h, 256 );
+			else {
+				mountain_tiles.append( k, h * h, 256 );
 			}
 		}
 	}
