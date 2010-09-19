@@ -1080,8 +1080,8 @@ void haltestelle_t::step(sint16 &units_remaining)
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
 								if(account_line.is_bound())
 								{
-									account_line->book(-refund_amount, CONVOI_PROFIT);
-									account_line->book(-refund_amount, CONVOI_REFUNDS);
+									account_line->book(-refund_amount, LINE_PROFIT);
+									account_line->book(-refund_amount, LINE_REFUNDS);
 								}
 								else
 								{
