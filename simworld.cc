@@ -876,7 +876,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 				}
 				else {
 					// look for a road near the townhall
-					const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
+					gebaeude_t const* const gb = ding_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
 					bool ok = false;
 					if(  gb  &&  gb->ist_rathaus()  ) {
 						koord pos = stadt[i]->get_pos() + koord(-1,-1);

@@ -1298,9 +1298,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			gr->get_grund_hang() == 0  &&
 			hausbauer_t::get_special(0,haus_besch_t::rathaus,welt->get_timeline_year_month(),0,welt->get_climate(gr->get_hoehe()))!=NULL  ) {
 
-			ding_t *d = gr->first_obj();
-			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(d);
-
+			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
 			if(gb && gb->ist_rathaus()) {
 				dbg->warning("wkz_add_city()", "Already a city here");
 				return "Tile not empty.";
