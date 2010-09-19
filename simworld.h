@@ -433,7 +433,7 @@ public:
 	 */
 	static bool get_height_data_from_file( const char *filename, sint8 grundwasser, sint8 *&hfield, sint16 &ww, sint16 &hh, bool update_only_values );
 
-	message_t *get_message() { return msg; }
+	message_t *get_message() const { return msg; }
 
 	// set to something useful, if there is a total distance != 0 to show in the bar below
 	koord3d show_distance;

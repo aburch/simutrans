@@ -82,15 +82,15 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &mountain_roughness );
 	intTopOfButton += 12;
 
-	hilly.init( button_t::square, "Hilly landscape", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	hilly.init( button_t::square_state, "Hilly landscape", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	hilly.pressed=umgebung_t::hilly;
 	hilly.add_listener( this );
 	add_komponente( &hilly );
 	intTopOfButton += 12;
 
-	cities_ignore_height.init( button_t::square, "Cities ignore height", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	cities_ignore_height.init( button_t::square_state, "Cities ignore height", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	cities_ignore_height.set_tooltip("Cities will be built all over the terrain, rather than preferring lower ground");
-	cities_ignore_height.pressed=umgebung_t::hilly;
+	cities_ignore_height.pressed=umgebung_t::cities_ignore_height;
 	cities_ignore_height.add_listener( this );
 	add_komponente( &cities_ignore_height );
 	intTopOfButton += 12;
