@@ -72,16 +72,10 @@ template<> struct map_ding<weg_t>         { static const ding_t::typ code = ding
 template<> struct map_ding<zeiger_t>      { static const ding_t::typ code = ding_t::zeiger;      };
 
 
-template<typename T> static inline T const* ding_cast(ding_t const* const d)
-{
-	return d->get_typ() == map_ding<T>::code ? static_cast<T const*>(d) : 0;
-}
-
 template<typename T> static inline T* ding_cast(ding_t* const d)
 {
 	return d->get_typ() == map_ding<T>::code ? static_cast<T*>(d) : 0;
 }
-
 
 
 /**
