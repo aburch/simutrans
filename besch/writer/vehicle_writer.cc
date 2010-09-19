@@ -336,24 +336,25 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// can be upgraded. "None" means that it cannot be upgraded. 
 	// @author: jamespetts
 	uint8 upgrades = 0;
-	do {
-		char buf[40];
-		sprintf(buf, "upgrade[%d]", upgrades);
-		str = obj.get(buf);
-		found = str.size() > 0;
-		if (found) 
-		{
-			if (upgrades == 0 && !STRICMP(str.c_str(), "none")) 
-			{
-				if (!STRICMP(str.c_str(), "none")) 
-				{
-					str = "";
-				}
-				xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
-				upgrades++;
-			}
-		}
-	} while (found);
+    do 
+	{
+           char buf[40];
+           sprintf(buf, "upgrade[%d]", upgrades);
+           str = obj.get(buf);
+           found = str.size() > 0;
+           if (found)
+           {
+                   if (!STRICMP(str.c_str(), "none"))
+                   {
+                           str = "";
+                   }
+                   else
+                   {   
+                           xref_writer_t::instance()->write_obj(fp, node, obj_vehicle, str.c_str(), false);
+                           upgrades++;
+                   }
+           }
+        } while (found);
 
 	// multiple freight image types - define what good uses each index
 	// good without index will be an error

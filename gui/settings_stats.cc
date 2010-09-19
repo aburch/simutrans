@@ -228,8 +228,8 @@ void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 void settings_experimental_revenue_stats_t::init( einstellungen_t *sets )
 {
 	INIT_INIT;
-	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 100, gui_numberinput_t::AUTOLINEAR, false );
-	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "passenger_routing_packet_size", sets->get_passenger_routing_packet_size(), 1, 64, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "max_alternative_destinations", sets->get_max_alternative_destinations(), 0, 15, gui_numberinput_t::AUTOLINEAR, false );
 	{
 		gui_component_table_t &tbl = new_table(koord(0, ypos), 6, 4);
 		int row = 0;

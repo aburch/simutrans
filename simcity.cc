@@ -2584,13 +2584,13 @@ void stadt_t::step_passagiere()
 	// Check run in batches to save computational effort.
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(welt->get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
-	bool has_private_car = private_car_percent > 0 ? simrand(100) <= (uint16)private_car_percent : false;
+	const bool has_private_car = private_car_percent > 0 ? simrand(100) <= (uint16)private_car_percent : false;
 
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
 	{		
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
-		uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
+		const uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
 		// Passengers with a private car will not tolerate second best destinations,
 		// and will use their private car to get to their first choice destination
 		// regardless of whether they might go to other destinations by public transport.
@@ -2612,9 +2612,8 @@ void stadt_t::step_passagiere()
 
 			const uint8 destination_count = simrand(max_destinations) + 1;
 
-			// Split passengers: 1/3rd are local only, 
-			// 1/3rd are local or medium distance, 
-			// and 1/3rd are of any distance.
+			// Split passengers: between local, midrange and long-distance
+			// according to the percentages set in simuconf.tab.
 			// Note: a random town will be found if there are no towns within range.
 			const uint8 passenger_routing_choice = simrand(100);
 			const journey_distance_type range = 
@@ -2631,7 +2630,7 @@ void stadt_t::step_passagiere()
 					simrand(max_midrange_tolerance) + min_midrange_tolerance : 
 				simrand(max_longdistance_tolerance) + min_longdistance_tolerance;
 			destination destinations[16];
-			for(int destinations_assigned = 0; destinations_assigned < destination_count; destinations_assigned ++)
+			for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
 			{				
 				if(range == local)
 				{
@@ -3269,7 +3268,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 				{
 					random = 0;
 				}
-				if(i == 16 || i == 32 || i == 64)
+				/*if(i == 16 || i == 32 || i == 64)
 				{
 					// Necessary to modulate the destinations to avoid repeatedly hitting the same towns.
 					town_step -= 128;
