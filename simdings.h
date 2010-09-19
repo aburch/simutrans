@@ -350,7 +350,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual void calc_bild() {}
-} GCC_PACKED;
+};
 
 
 class ding_no_info_t : public ding_t
