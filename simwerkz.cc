@@ -1206,7 +1206,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 	if(gr) {
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
-			schiene_t *w = dynamic_cast<schiene_t *>(gr->get_weg_nr(wnr));
+			schiene_t const* const w = ding_cast<schiene_t>(gr->get_weg_nr(wnr));
 			// is this a reserved track?
 			if(w!=NULL  &&  w->is_reserved()) {
 				/* now we do a very crude procedure:
@@ -1222,7 +1222,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 				slist_iterator_tpl<weg_t *>iter(weg_t::get_alle_wege());
 				while(iter.next()) {
 					if(iter.get_current()->get_waytype()==waytype) {
-						schiene_t *sch = dynamic_cast<schiene_t *>(iter.access_current());
+						schiene_t* const sch = ding_cast<schiene_t>(iter.access_current());
 						if (sch->get_reserved_convoi() == cnv) {
 							vehikel_t& v = *cnv->front();
 							if (!gr->suche_obj(v.get_typ())) {

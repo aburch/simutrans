@@ -114,4 +114,10 @@ public:
 	virtual PLAYER_COLOR_VAL get_outline_bild() const {return weg_t::get_bild();}
 };
 
+
+template<> inline schiene_t* ding_cast<schiene_t>(ding_t* const d)
+{
+	return dynamic_cast<schiene_t*>(d);
+}
+
 #endif

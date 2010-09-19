@@ -235,7 +235,7 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 			v.mark_image_dirty(v.get_bild(), v.get_hoff());
 			v.verlasse_feld();
 			// maybe unreserve this
-			if (schiene_t* const rails = dynamic_cast<schiene_t*>(gr->get_weg(v.get_waytype()))) {
+			if (schiene_t* const rails = ding_cast<schiene_t>(gr->get_weg(v.get_waytype()))) {
 				rails->unreserve(&v);
 			}
 		}
@@ -362,8 +362,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			// eventually reserve this again
 			grund_t *gr=welt->lookup(v->get_pos());
 			// airplanes may have no ground ...
-			schiene_t *sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
-			if(sch0) {
+			if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 				sch0->reserve(self,ribi_t::keine);
 			}
 		}
@@ -1031,7 +1030,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 		uint32 start_index = route.get_count()-1;
 		do {
 			if(  grund_t *gr = welt->lookup(route.position_bei(start_index))  ) {
-				if (schiene_t* const sch = dynamic_cast<schiene_t*>(gr->get_weg(fahr[0]->get_waytype()))) {
+				if (schiene_t* const sch = ding_cast<schiene_t>(gr->get_weg(fahr[0]->get_waytype()))) {
 					if(  !sch->unreserve(self)  ) {
 						// unreserve until no reserved track is encoutered
 						break;
@@ -1626,8 +1625,7 @@ void convoi_t::vorfahren()
 					cr->release_crossing(v);
 				}
 				// eventually unreserve this
-				schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
-				if(sch0) {
+				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 					sch0->unreserve(v);
 				}
 			}
@@ -1700,8 +1698,8 @@ void convoi_t::vorfahren()
 		// do not prereserve for airplanes
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
-			schiene_t * sch0 = dynamic_cast<schiene_t *>( welt->lookup(fahr[i]->get_pos())->get_weg(fahr[i]->get_waytype()) );
-			if(sch0) {
+			vehikel_t const& v = *fahr[i];
+			if (schiene_t* const sch0 = ding_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
 				sch0->reserve(self,ribi_t::keine);
 			}
 			else {
