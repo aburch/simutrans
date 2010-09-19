@@ -15,9 +15,11 @@
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
+#include "../utils/checksum.h"
 
 
 class werkzeug_t;
+class checksum_t;
 
 /*
  *  Autor:
@@ -127,6 +129,16 @@ public:
 	}
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
+	}
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(flags);
+		chk->input(wtyp);
+		chk->input(min_speed);
+		chk->input(cost);
+		chk->input(intro_date);
+		chk->input(obsolete_date);
 	}
 };
 

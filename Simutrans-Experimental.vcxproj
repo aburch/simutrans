@@ -214,8 +214,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="besch\fabrik_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\pakset_info.cc" />
+    <ClCompile Include="gui\line_item.cc" />
     <ClCompile Include="gui\server_frame.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
@@ -327,6 +330,7 @@
     <ClCompile Include="gui\load_relief_frame.cc" />
     <ClCompile Include="dataobj\loadsave.cc" />
     <ClCompile Include="gui\loadsave_frame.cc" />
+    <ClCompile Include="utils\checksum.cc" />
     <ClCompile Include="utils\log.cc" />
     <ClCompile Include="boden\wege\maglev.cc" />
     <ClCompile Include="gui\map_frame.cc" />
@@ -473,6 +477,7 @@
     <ClInclude Include="dataobj\gameinfo.h" />
     <ClInclude Include="dataobj\network_cmd.h" />
     <ClInclude Include="dataobj\network_packet.h" />
+    <ClInclude Include="dataobj\pakset_info.h" />
     <ClInclude Include="gui\components\action_listener.h" />
     <ClInclude Include="gui\password_frame.h" />
     <ClInclude Include="gui\send_message_frame.h" />
@@ -519,6 +524,7 @@
     <ClInclude Include="dataobj\crossing_logic.h" />
     <ClInclude Include="besch\reader\crossing_reader.h" />
     <ClInclude Include="besch\writer\crossing_writer.h" />
+    <ClInclude Include="utils\checksum.h" />
     <ClInclude Include="utils\cstring_t.h" />
     <ClInclude Include="gui\curiosity_edit.h" />
     <ClInclude Include="gui\curiositylist_frame_t.h" />

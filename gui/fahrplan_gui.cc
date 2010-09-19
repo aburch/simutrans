@@ -279,7 +279,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	mode = adding;
 	set_min_windowsize( koord(BUTTON_WIDTH*3+16, ypos+BUTTON_HEIGHT+3*(LINESPACE + 1)+16) );
 	resize( koord(0,0) );
-	resize( koord(0,(LINESPACE + 1)*min(15,fpl->get_count())) );
+	resize( koord(25,(LINESPACE + 1)*min(15,fpl->get_count())) );
 
 	// set this schedule as current to show on minimap if possible
 	reliefkarte_t::get_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)

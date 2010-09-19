@@ -83,8 +83,8 @@ const int cost_type_color[MAX_HALT_COST] =
 	COL_VEHICLE_ASSETS
 };
 
-halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
-	: gui_frame_t(edit_name, halt->get_besitzer()),
+halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
+		gui_frame_t(halt->get_name(), halt->get_besitzer()),
 		scrolly(&text),
 		text("                                                                                     "
 			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"

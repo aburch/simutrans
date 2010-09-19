@@ -65,6 +65,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/translator.h"
+#include "dataobj/pakset_info.h"
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
@@ -519,8 +520,9 @@ int simu_main(int argc, char** argv)
 			umgebung_t::rdwr(&file);
 			umgebung_t::default_einstellungen.rdwr(&file);
 			file.close();
-			// reset to false (otherwise freeplay will persist)
+			// reset to false (otherwise these settings will persist)
 			umgebung_t::default_einstellungen.set_freeplay( false );
+			umgebung_t::announce_server = 0;
 		}
 	}
 
@@ -574,6 +576,10 @@ int simu_main(int argc, char** argv)
 		if(  umgebung_t::networkmode  ) {
 			umgebung_t::server = portadress;
 		}
+	}
+	else {
+		// no announce for clients ...
+		umgebung_t::announce_server = 0;
 	}
 
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
@@ -776,6 +782,8 @@ int simu_main(int argc, char** argv)
 		chdir( umgebung_t::program_dir );
 	}
 	obj_reader_t::laden_abschliessen();
+	pakset_info_t::calculate_checksum();
+	pakset_info_t::debug();
 
 	// set overtaking offsets
 	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );

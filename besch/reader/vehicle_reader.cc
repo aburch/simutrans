@@ -9,6 +9,7 @@
 
 #include "vehicle_reader.h"
 #include "../obj_node_info.h"
+#include "../../dataobj/pakset_info.h"
 
 
 
@@ -18,6 +19,10 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 	vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
 	vehikelbauer_t::register_besch(besch);
 	obj_for_xref(get_type(), besch->get_name(), data);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

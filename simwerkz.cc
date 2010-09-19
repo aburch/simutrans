@@ -1310,7 +1310,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 	if(gr) {
 		for(unsigned wnr=0;  wnr<2;  wnr++  ) {
 
-			schiene_t *w = dynamic_cast<schiene_t *>(gr->get_weg_nr(wnr));
+			schiene_t const* const w = ding_cast<schiene_t>(gr->get_weg_nr(wnr));
 			// is this a reserved track?
 			if(w!=NULL  &&  w->is_reserved()) {
 				/* now we do a very crude procedure:
@@ -1326,7 +1326,7 @@ const char *wkz_clear_reservation_t::work( karte_t *welt, spieler_t *, koord3d k
 				slist_iterator_tpl<weg_t *>iter(weg_t::get_alle_wege());
 				while(iter.next()) {
 					if(iter.get_current()->get_waytype()==waytype) {
-						schiene_t *sch = dynamic_cast<schiene_t *>(iter.access_current());
+						schiene_t* const sch = ding_cast<schiene_t>(iter.access_current());
 						if (sch->get_reserved_convoi() == cnv) {
 							vehikel_t& v = *cnv->front();
 							if (!gr->suche_obj(v.get_typ())) {
@@ -1428,9 +1428,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			gr->get_grund_hang() == 0  &&
 			hausbauer_t::get_special(0,haus_besch_t::rathaus,welt->get_timeline_year_month(),0,welt->get_climate(gr->get_hoehe()))!=NULL  ) {
 
-			ding_t *d = gr->first_obj();
-			gebaeude_t *gb = dynamic_cast<gebaeude_t *>(d);
-
+			gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
 			if(gb && gb->ist_rathaus()) {
 				dbg->warning("wkz_add_city()", "Already a city here");
 				return "Tile not empty.";
@@ -5977,7 +5975,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t*)
 			linehandle_t line;
 			line.set_id( id );
 			if(  line.is_bound()  ) {
-				tstrncpy( line->get_name(), p, 128 );
+				line->set_name( p );
 				return false;
 			}
 			break;

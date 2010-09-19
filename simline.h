@@ -6,6 +6,8 @@
 #ifndef simline_h
 #define simline_h
 
+#include <string>
+
 #include "convoihandle_t.h"
 #include "linehandle_t.h"
 #include "simconvoi.h"
@@ -52,7 +54,7 @@ protected:
 
 private:
 	static karte_t * welt;
-	char name[128];
+	std::string name;
 
 	/**
 	 * Handle for ourselves. Can be used like the 'this' pointer
@@ -150,7 +152,8 @@ public:
 	 * get name of line
 	 * @author hsiegeln
 	 */
-	char *get_name() {return name;}
+	const char *get_name() const { return name.c_str(); }
+	void set_name(const char *str) { name = str; }
 
 	uint16 get_line_id() const {return id;}
 

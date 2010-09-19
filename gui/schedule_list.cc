@@ -281,6 +281,23 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t* sp_) :
 	build_line_list(0);
 }
 
+schedule_list_gui_t::~schedule_list_gui_t()
+{
+	// change line name if necessary
+	if (line.is_bound()) {
+		const char *t = inp_name.get_text();
+		if(  t  &&  t[0]  &&  strcmp(t, line->get_name())) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "l%u,%s", line.get_id(), t );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			sp->get_welt()->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
+		}
+	}
+}
 
 
 /**
@@ -519,11 +536,26 @@ void schedule_list_gui_t::build_line_list(int filter)
 /* hides show components */
 void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 {
+	// change line name if necessary
+	if (line.is_bound()) {
+		const char *t = inp_name.get_text();
+		if(  t  &&  t[0]  &&  strcmp(t, line->get_name())) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "l%u,%s", line.get_id(), t );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			sp->get_welt()->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
+		}
+	}
 	if(new_line.is_bound()) {
 		// ok, this line is visible
 		scrolly.set_visible(true);
 		scrolly_haltestellen.set_visible(true);
-		inp_name.set_text(new_line->get_name(), 128);
+		tstrncpy(line_name, new_line->get_name(), lengthof(line_name));
+		inp_name.set_text(line_name, lengthof(line_name));
 		inp_name.set_visible(true);
 		filled_bar.set_visible(true);
 

@@ -16,6 +16,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/pakset_info.h"
 #include "server_frame.h"
 #include "messagebox.h"
 
@@ -27,7 +28,8 @@ server_frame_t::server_frame_t(karte_t* w) :
 	gi(welt),
 	buf(1024),
 	time(32),
-	revision_buf(64)
+	revision_buf(64),
+	pakset_checksum_buf(80)
 {
 	update_info();
 
@@ -43,31 +45,43 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add.add_listener(this);
 	add_komponente( &add );
 
-	loadlist.init( button_t::box, "download list", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	loadlist.add_listener(this);
-	add_komponente( &loadlist );
+	if(  !show_all_rev.pressed  ) {
+		show_all_rev.init( button_t::square_state, "show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
+		show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
+		show_all_rev.add_listener(this);
+		add_komponente( &show_all_rev );
+	}
 
 	pos_y += BUTTON_HEIGHT+8;
 	date.set_pos( koord( 4, pos_y ) );
 	add_komponente( &date );
 
 	pos_y += 8*LINESPACE;
-
 	revision.set_pos( koord( 4, pos_y ) );
 	add_komponente( &revision );
+	show_all_rev.pressed = gi.get_game_engine_revision()==0;
 
 	pos_y += LINESPACE;
 	pak_version.set_pos( koord( 4, pos_y ) );
 	add_komponente( &pak_version );
 
+#if DEBUG>=4
+	pos_y += LINESPACE;
+	pakset_checksum.set_pos( koord( 4, pos_y ) );
+	add_komponente( &pakset_checksum );
+#endif
+
 	pos_y += 5+LINESPACE;
-	join.init( button_t::box, "join game", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+
+	find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+	find_mismatch.add_listener(this);
+	add_komponente( &find_mismatch );
+
+	join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
 	join.add_listener(this);
 	add_komponente( &join );
 
-	quit.init( button_t::box, "Beenden", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	quit.add_listener(this);
-	add_komponente( &quit );
+	update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
 
 	pos_y += 6+BUTTON_HEIGHT+16;
 	set_fenstergroesse( koord( 240, pos_y ) );
@@ -103,18 +117,37 @@ void server_frame_t::update_info()
 	buf.printf( "%s %u\n", translator::translate("Stops"), gi.get_halt_count() );
 
 	revision_buf.clear();
+#if DEBUG==4
+	pakset_checksum_buf.clear();
+#endif
+	find_mismatch.disable();
 	if(  serverlist.get_selection()>=0  ) {
 		// need to compare with our world now
 		gameinfo_t current(welt);
 
 		revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
 		revision.set_text( revision_buf );
-		revision.set_color( current.get_game_engine_revision()==gi.get_game_engine_revision() ? COL_BLACK : COL_RED );
+		// zero means do not know => assume match
+		revision.set_color( current.get_game_engine_revision()==0  ||  gi.get_game_engine_revision()==0  ||  current.get_game_engine_revision()==gi.get_game_engine_revision() ? COL_BLACK : COL_RED );
 
 		pak_version.set_text( gi.get_pak_name() );
-		pak_version.set_color( strcmp(gi.get_pak_name(),current.get_pak_name())==0  &&  gi.get_with_private_paks()==false  ? COL_BLACK : COL_RED );
+		// this will be using CRC when implemented
+		pak_version.set_color( gi.get_pakset_checksum() == current.get_pakset_checksum()  ? COL_BLACK : COL_RED );
 
-		join.enable();
+#if DEBUG>=4
+		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
+		pakset_checksum.set_color(gi.get_pakset_checksum() == current.get_pakset_checksum() ? COL_BLACK : COL_RED );
+		pakset_checksum.set_text(pakset_checksum_buf);
+#endif
+		if(  revision.get_color()==COL_BLACK  &&  pak_version.get_color()==COL_BLACK  &&  current.get_pakset_checksum()==gi.get_pakset_checksum()  ) {
+			join.enable();
+		}
+		else {
+			join.disable();
+			if(  !(gi.get_pakset_checksum()==current.get_pakset_checksum())  ) {
+				find_mismatch.enable();
+			}
+		}
 	}
 	else {
 		revision_buf.printf( "%s %u", translator::translate( "Revision:" ), gi.get_game_engine_revision() );
@@ -122,6 +155,10 @@ void server_frame_t::update_info()
 		revision.set_color( COL_BLACK );
 		pak_version.set_text( gi.get_pak_name() );
 		pak_version.set_color( COL_BLACK );
+#if DEBUG>=4
+		pakset_checksum_buf.printf("%s %s",translator::translate( "Pakset checksum:" ), gi.get_pakset_checksum().get_str(8));
+		pakset_checksum.set_text(pakset_checksum_buf);
+#endif
 		join.disable();
 	}
 
@@ -143,6 +180,67 @@ void server_frame_t::update_info()
 }
 
 
+bool server_frame_t::update_serverlist( uint revision, const char *pakset )
+{
+	// download list from main server
+	if(  const char *err = network_download_http( "simutrans-germany.com:80", "/serverlist/data/serverlist.txt", "serverlist.txt" )  ) {
+		dbg->warning( "server_frame_t::update_serverlist", "could not download list: %s", err );
+		return false;
+	}
+	// read the list
+	FILE *fh = fopen( "serverlist.txt", "r" );
+	if (fh) {
+		serverlist.clear_elements();
+		while( !feof(fh) ) {
+			char line[4096];
+			fgets( line, sizeof(line), fh );
+
+			// find servername
+			const char *c = strstr( line, " : " );
+			if(  c==NULL  ) {
+				continue;
+			}
+
+			// get servername (and remove default port)
+			char servername[4096];
+			tstrncpy( servername, line, c-line+1 );
+			if(  strcmp( servername+strlen(servername)-6, ":13353" )==0  ) {
+				servername[strlen(servername)-6] = 0;
+			}
+
+			// now program revision
+			const char *c2 = strstr( c+3, " : " );
+			if(  c2==NULL  ) {
+				continue;
+			}
+			uint32 serverrev = atol(c2);
+			if(  revision!=0  &&  serverrev!=0  &&  revision!=serverrev  ) {
+				// do not add mismatched servers
+				continue;
+			}
+
+			// now check pakset match
+			if(  pakset!=NULL  ) {
+				if(  strncmp( pakset, c2+3, strlen(pakset) )  ) {
+					continue;
+				}
+			}
+
+			// now add entry
+			serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( servername, COL_BLUE ) );
+		}
+		fclose( fh );
+		remove( "serverlist.txt" );
+		serverlist.set_selection( -1 );
+	}
+	else {
+		dbg->warning( "server_frame_t::update_serverlist", "could not open list" );
+		return false;
+	}
+	return true;
+}
+
+
 bool server_frame_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  ) {
@@ -155,64 +253,35 @@ bool server_frame_t::infowin_event(const event_t *ev)
 bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(  &serverlist == komp  ) {
-		if(  p.i==-1  ) {
+		if(  p.i<=-1  ) {
 			gi = gameinfo_t(welt);
 			update_info();
 			join.disable();
 		}
 		else {
 			join.disable();
-			if(  serverlist.get_element(p.i)->get_color()!=COL_WHITE  ) {
-				const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
-				if(  err==NULL  ) {
-					serverlist.get_element(p.i)->set_color( COL_BLACK );
-					update_info();
-					join.enable();
-				}
-				else {
-					serverlist.get_element(p.i)->set_color( COL_RED );
-					join.disable();
-				}
+			const char *err = network_gameinfo( serverlist.get_element(p.i)->get_text(), &gi );
+			if(  err==NULL  ) {
+				serverlist.get_element(p.i)->set_color( COL_BLACK );
+				update_info();
+			}
+			else {
+				serverlist.get_element(p.i)->set_color( COL_RED );
+				buf.clear();
+				date.set_text( "Server did not respond!" );
+				revision.set_text( "" );
+				pak_version.set_text( "" );
 			}
 		}
 		set_dirty();
 	}
 	else if(  &add == komp  ) {
-		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "Enter name", COL_BLUE ) );
+		serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( "Enter address", COL_BLUE ) );
 		serverlist.set_selection( serverlist.count_elements()-1 );
 	}
-	else if(  &loadlist == komp  ) {
-		// download list from main server
-//		network_download_http( "www.physik.tu-berlin.de:80", "/~prissi/simutrans/serverlist.txt", "serverlist.txt" );
-		network_download_http( "simutrans-germany.com:80", "/serverlist/serverlist.txt", "serverlist.txt" );
-		serverlist.clear_elements();
-		// read the list
-		FILE *fh = fopen( "serverlist.txt", "r" );
-		if (fh) {
-			while( !feof(fh) ) {
-				char line[1024];
-				fgets( line, sizeof(line), fh );
-				for(  int i=strlen(line);  i>0  &&  line[i-1]<=32;  i--  ) {
-					line[i-1] = 0;
-				}
-				if(  line[0]>32  ) {
-					if(  line[0]!='#'  ) {
-						// add new server address
-						serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line, COL_BLUE ) );
-					}
-					else {
-						// add new comment
-						serverlist.append_element( new gui_scrolled_list_t::var_text_scrollitem_t( line+1, COL_WHITE ) );
-					}
-				}
-			}
-			fclose( fh );
-			remove( "serverlist.txt" );
-		}
-		else {
-			create_win( new news_img("Could not download server list!"), w_time_delete, magic_none);
-		}
-		serverlist.set_selection( 0 );
+	else if(  &show_all_rev == komp  ) {
+		show_all_rev.pressed ^= 1;
+		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
 	}
 	else if(  &join == komp  ) {
 		std::string filename = "net:";
@@ -221,9 +290,8 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		welt->get_message()->clear();
 		welt->laden(filename.c_str());
 	}
-	else if(  &quit == komp  ) {
-		welt->beenden( true );
-		destroy_win(this);
+	else if(  &find_mismatch == komp  ) {
+		// to be implemented
 	}
 	return true;
 }
@@ -243,8 +311,11 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	display_array_wh(pos.x+4, pos_y, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
 	display_multiline_text( pos.x+4+max(mapsize.x,proportional_string_width(date.get_text_pointer()))+2+10, date.get_pos().y+pos.y+16, buf, COL_BLACK );
+#if DEBUG>=4
+	pos_y += 10*LINESPACE - 1;
+#else
 	pos_y += 9*LINESPACE - 1;
-
+#endif
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
 	// drawing twice, but otherwise it will not overlay image

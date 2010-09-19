@@ -9,6 +9,7 @@
 #include "../groundobj_besch.h"
 #include "../obj_node_info.h"
 #include "groundobj_reader.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void groundobj_reader_t::register_obj(obj_besch_t *&data)
@@ -20,6 +21,10 @@ void groundobj_reader_t::register_obj(obj_besch_t *&data)
 	else {
 		movingobj_t::register_besch(besch);
 	}
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

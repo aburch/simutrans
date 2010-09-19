@@ -14,8 +14,10 @@
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
+#include "../utils/checksum.h"
 
 class werkzeug_t;
+class checksum_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -261,6 +263,21 @@ public:
 	}
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
+	}
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(price);
+		chk->input(maintenance);
+		chk->input(topspeed);
+		chk->input(intro_date);
+		chk->input(obsolete_date);
+		chk->input(wtyp);
+		chk->input(own_wtyp);
+
+		//Experimental values
+		chk->input(way_constraints.get_permissive());
+		chk->input(way_constraints.get_prohibitive());
 	}
 };
 

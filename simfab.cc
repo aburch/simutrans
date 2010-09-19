@@ -218,7 +218,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 
 	delta_sum = 0;
 	delta_menge = 0;
-	last_lieferziel_start = 0;
+	index_offset = 0;
 	total_input = total_output = 0;
 	status = nothing;
 	currently_producing = false;
@@ -244,7 +244,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	transformer_connected = false;
 	power = 0;
 	power_demand = 0;
-	last_lieferziel_start = 0;
+	index_offset = 0;
 	total_input = total_output = 0;
 	status = nothing;
 
@@ -1101,11 +1101,7 @@ void fabrik_t::step(long delta_t)
 			// reset for next cycle
 			delta_menge = 0;
 		}
-
-		// to distribute to all target equally, we use this counter, for the factory, to try first
-		last_lieferziel_start ++;
 	}
-
 }
 
 
@@ -1113,12 +1109,14 @@ class distribute_ware_t
 {
 public:
 	halthandle_t halt;
-	sint32	space_left;
-	ware_t	ware;
-	distribute_ware_t( halthandle_t h, sint32 l, ware_t w )
+	sint32 space_left;
+	sint32 space_total;
+	ware_t ware;
+	distribute_ware_t( halthandle_t h, sint32 l, sint32 t, ware_t w )
 	{
 		halt = h;
 		space_left = l;
+		space_total = t;
 		ware = w;
 	}
 	distribute_ware_t() {}
@@ -1152,18 +1150,20 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	slist_tpl<distribute_ware_t> dist_list;
 	bool still_overflow = true;
 
+	// to distribute to all target equally, we use this counter, for the source hald, and target factory, to try first
+	index_offset++;
+
 	/* prissi: distribute goods to factory
 	 * that has not an overflowing input storage
 	 * also prevent stops from overflowing, if possible
 	 */
 	sint32 menge = ausgang[produkt].menge >> precision_bits;
 
-	// ok, first send everything away
+	// ok, first generate list of possible destinations
 	const halthandle_t *haltlist = plan->get_haltlist();
 
-	for(unsigned i = 0; i < plan->get_haltlist_count(); i++) 
-	{
-		halthandle_t halt = haltlist[i];
+	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
+		halthandle_t halt = haltlist[(i + index_offset) % plan->get_haltlist_count()];
 
 		// Über alle Ziele iterieren
 		// "Iterate over all goals" (Babelfish)
@@ -1171,7 +1171,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		{
 			// prissi: this way, the halt, that is tried first, will change. 
 			// As a result, if all destinations are empty, it will be spread evenly.
-			const koord lieferziel = lieferziele[(n + last_lieferziel_start) % lieferziele.get_count()];
+			const koord lieferziel = lieferziele[(n + index_offset) % lieferziele.get_count()];
 
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
 			int vorrat;
@@ -1193,6 +1193,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				// Station can only store up to a maximum amount of goods per square
 				const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
+
 				// ok, still enough space
 				const uint16 current_journey_time = halt->find_route(ware);
 				if(current_journey_time < 65535)
@@ -1211,17 +1212,15 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 							still_overflow = false;
 							dist_list.clear();
 						}
-						if(still_overflow  ||  !overflown) 
-						{
-							dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
+						if(still_overflow  ||  !overflown) {
+							dist_list.insert( distribute_ware_t( halt, halt_left, halt->get_capacity(2), ware ) );
 						}
 					}
 					else 
 					{
 						// only distribute to no-overflowed factories
-						if(!overflown) 
-						{
-							dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
+						if(!overflown) {
+							dist_list.insert( distribute_ware_t( halt, halt_left, halt->get_capacity(2), ware ) );
 						}
 					}
 				}
@@ -1231,26 +1230,36 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// Auswertung der Ergebnisse
 	// "Evaluation of the results" (Babelfish)
-	if (!dist_list.empty()) 
-	{
+	if (!dist_list.empty()) {
 		slist_iterator_tpl<distribute_ware_t> iter (dist_list);
 
 		ware_t best_ware       = dist_list.front().ware;
 		halthandle_t best_halt = dist_list.front().halt;
 		sint32 best_amount        = 999999;
+		sint32 best_usage = -1;
 		sint32 capacity_left = -1;
 
-		while(iter.next()) 
-		{
+		// search list of destinations for the best one.
+		while(iter.next()) {
 			halthandle_t halt = iter.get_current().halt;
 			const ware_t& ware = iter.get_current().ware;
 
 			const sint32 amount = (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos());
-			if(amount < best_amount) 
-			{
+
+			sint32 space_left = iter.get_current().space_left;
+			if( space_left < 0) space_left = 0; // ensure overfull stations compare equal allowing tie breaker clause
+
+			sint32 space_total = iter.get_current().space_total;
+			if( space_total < 1) space_total = 1; // div by 0 prevention
+
+			const sint32 usage = (space_left << precision_bits) / space_total;
+
+			// best is one with most free space, tie breaker - one with least product already waiting
+			if( usage > best_usage || (usage == best_usage && amount < best_amount)) {
 				best_ware = ware;
 				best_halt = halt;
 				best_amount = amount;
+				best_usage = usage;
 				capacity_left = iter.get_current().space_left;
 			}
 //DBG_MESSAGE("verteile_waren()","best_amount %i %s",best_amount,translator::translate(ware.get_name()));

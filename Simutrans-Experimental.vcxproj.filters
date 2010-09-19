@@ -723,6 +723,18 @@
     <ClCompile Include="gui\server_frame.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="utils\checksum.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\line_item.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\pakset_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\fabrik_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -1704,6 +1716,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="gui\server_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\checksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\pakset_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

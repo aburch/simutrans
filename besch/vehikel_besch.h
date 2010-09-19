@@ -23,6 +23,7 @@
 #define GEAR_FACTOR 64
 
 const uint32 DEFAULT_FIXED_VEHICLE_MAINTENANCE = 0;
+class checksum_t;
 
 /**
  * Vehicle type description - all attributes of a vehicle type
@@ -484,6 +485,7 @@ public:
 	 */
 	uint32 get_effective_power_index(uint16 speed /* in m/s */ ) const;
 
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

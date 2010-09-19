@@ -7,6 +7,7 @@
 #include "../baum_besch.h"
 #include "../obj_node_info.h"
 #include "tree_reader.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void tree_reader_t::register_obj(obj_besch_t *&data)
@@ -15,6 +16,9 @@ void tree_reader_t::register_obj(obj_besch_t *&data)
 
     baum_t::register_besch(besch);
 //    printf("...Baum %s geladen\n", besch->get_name());
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

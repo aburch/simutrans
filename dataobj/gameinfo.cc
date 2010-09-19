@@ -22,6 +22,7 @@
 #include "../utils/simstring.h"
 #include "loadsave.h"
 #include "tabfile.h"
+#include "pakset_info.h"
 
 
 #define MINIMAP_SIZE (64)
@@ -103,11 +104,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 	game_engine_revision = atol( QUOTEME(REVISION) );
 #else
 	game_engine_revision = 0;
-	pak_set_crc = 0;
 #endif
-
-	// true, if this pak should be used with extensions (default)
-	with_private_paks = welt->get_einstellungen()->get_with_private_paks();
+	pakset_checksum = *(pakset_info_t::get_checksum());
 }
 
 
@@ -172,13 +170,12 @@ void gameinfo_t::rdwr(loadsave_t *file)
 	if(  file->is_loading()  ) {
 		pak_name = temp;
 	}
-	file->rdwr_bool( with_private_paks );
-
 	file->rdwr_long( game_engine_revision );
-	file->rdwr_long( pak_set_crc );
 
 	for(  int i=0;  i<16;  i++  ) {
 		file->rdwr_byte( spieler_type[i] );
 	}
 	file->rdwr_byte( clients );
+
+	pakset_checksum.rdwr(file);
 }

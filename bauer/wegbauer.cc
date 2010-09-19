@@ -2149,7 +2149,7 @@ void wegbauer_t::baue_fluss()
 	/* since the contraints of the wayfinder ensures that a river flows always downwards
 	 * we can assume that the first tiles are the ocean.
 	 * Usually the wayfinder would find either direction!
-	 * route[0] tile at the ocean, route[get_count()-1] the spring of the river
+	 * route.front() tile at the ocean, route.back() the spring of the river
 	 */
 
 	// Do we join an other river?
@@ -2250,7 +2250,7 @@ DBG_MESSAGE("wegbauer_t::baue()","called, but no valid route.");
 		// no valid route here ...
 		return;
 	}
-	DBG_MESSAGE("wegbauer_t::baue()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, get_count()-1, route[0].x, route[0].y, route[get_count()-1].x, route[get_count()-1].y);
+	DBG_MESSAGE("wegbauer_t::baue()", "type=%d max_n=%d start=%d,%d end=%d,%d", bautyp, get_count() - 1, route.front().x, route.front().y, route.back().x, route.back().y);
 
 #ifdef DEBUG_ROUTES
 long ms=dr_time();

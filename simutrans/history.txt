@@ -94,6 +94,7 @@
 	CHANGE: chat option now part of message centre
 	ADD: messages on joining and leaving
 	CHANGE: renaming of stuff now in network games
+	ADD: clients and server compare paksets before joining
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

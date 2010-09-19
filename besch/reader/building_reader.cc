@@ -6,6 +6,7 @@
 #include "../intro_dates.h"
 #include "../obj_node_info.h"
 #include "building_reader.h"
+#include "../../dataobj/pakset_info.h"
 
 
 obj_besch_t * tile_reader_t::read_node(FILE *fp, obj_node_info_t &node)
@@ -158,6 +159,13 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 
 	hausbauer_t::register_besch(besch);
 	DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->get_name());
+
+	// do not calculate checksum if factory, will be done in factory_reader_t
+	if (besch->utype!=haus_besch_t::fabrik) {
+		checksum_t *chk = new checksum_t();
+		besch->calc_checksum(chk);
+		pakset_info_t::append(besch->get_name(), chk);
+	}
 }
 
 

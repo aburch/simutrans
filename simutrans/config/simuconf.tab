@@ -509,10 +509,11 @@ network_ms_ahead = 250
 #server_frames_between_checks = 256
 
 # Automatically announce server on the central server directory
-# 0 (default) = off, 1 = announce hourly, 2=announce additionally at joins
+# 0 (default) = off, any other number is ID from
+# http://simutrans-germany.com/serverlist/
 #announce_server = 0
 
-# DNS name or IP of your server
+# DNS name or IP of your server also IPv& is accepted
 #server_name = 127.0.0.1
 
 # Additionally comment on your server; will be shown on game-info

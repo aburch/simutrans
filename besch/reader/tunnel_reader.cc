@@ -10,6 +10,7 @@
 #include "tunnel_reader.h"
 
 #include "../../bauer/tunnelbauer.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void tunnel_reader_t::register_obj(obj_besch_t *&data)
@@ -17,6 +18,10 @@ void tunnel_reader_t::register_obj(obj_besch_t *&data)
 	tunnel_besch_t *besch = static_cast<tunnel_besch_t *>(data);
 	DBG_DEBUG("tunnel_reader_t::register_obj", "Loaded '%s'", besch->get_name());
 	tunnelbauer_t::register_besch(besch);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

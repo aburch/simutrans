@@ -7,12 +7,17 @@
 
 #include "way_obj_reader.h"
 #include "../obj_node_info.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void way_obj_reader_t::register_obj(obj_besch_t *&data)
 {
     way_obj_besch_t *besch = static_cast<way_obj_besch_t *>(data);
     wayobj_t::register_besch(besch);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

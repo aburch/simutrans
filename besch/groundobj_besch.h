@@ -9,6 +9,7 @@
 #include "../simtypes.h"
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
+#include "../utils/checksum.h"
 
 /*
  *  Autor:
@@ -69,6 +70,18 @@ public:
 	sint32 get_preis() const { return cost_removal; }
 
 	uint16 get_index() const { return index; }
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input((uint8)allowed_climates);
+		chk->input(distribution_weight);
+		chk->input(number_of_seasons);
+		chk->input(speed);
+		chk->input(index);
+		chk->input(trees_on_top);
+		chk->input((uint8)waytype);
+		chk->input(cost_removal);
+	}
 };
 
 #endif

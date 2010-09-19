@@ -49,7 +49,7 @@ public:
 	// if we are the server, we are at this port ...
 	static uint16 server;
 
-	static uint8 announce_server;
+	static uint32 announce_server;
 	static std::string server_name;
 	static std::string server_comment;
 

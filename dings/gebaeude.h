@@ -183,4 +183,10 @@ public:
 	void laden_abschliessen();
 };
 
+
+template<> inline gebaeude_t* ding_cast<gebaeude_t>(ding_t* const d)
+{
+	return dynamic_cast<gebaeude_t*>(d);
+}
+
 #endif

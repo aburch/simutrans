@@ -25,6 +25,7 @@
 #include "../dataobj/way_constraints.h"
 
 class werkzeug_t;
+class checksum_t;
 
 class bruecke_besch_t : public obj_besch_std_name_t {
     friend class bridge_writer_t;
@@ -49,7 +50,7 @@ private:
 	uint8 max_height;	// =0 off, else maximum length
 	uint32 max_weight; //@author: jamespetts. Weight limit for vehicles.
 
-	// allowed eara
+	// allowed era
 	uint16 intro_date;
 	uint16 obsolete_date;
 
@@ -194,6 +195,7 @@ public:
 		builder = w;
 	}
 
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

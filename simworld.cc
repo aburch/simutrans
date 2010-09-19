@@ -959,7 +959,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 				}
 				else {
 					// look for a road near the townhall
-					const gebaeude_t* gb = dynamic_cast<gebaeude_t*>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
+					gebaeude_t const* const gb = ding_cast<gebaeude_t>(lookup_kartenboden(stadt[i]->get_pos())->first_obj());
 					bool ok = false;
 					if(  gb  &&  gb->ist_rathaus()  ) {
 						koord pos = stadt[i]->get_pos() + koord(-1,-1);
@@ -4341,6 +4341,7 @@ bool karte_t::laden(const char *filename)
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
 			umgebung_t::networkmode = false;
+			umgebung_t::server = false;
 		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4);
@@ -5695,7 +5696,7 @@ bool karte_t::interactive(uint32 quit_month)
 		// announce me on server
 		if(  umgebung_t::announce_server  ) {
 			cbuffer_t buf(2048);
-			buf.printf( "/serverlist/slist.php?ID=1284126665&st=on" );
+			buf.printf( "/serverlist/slist.php?ID=%u&st=on", umgebung_t::announce_server );
 			buf.append( "&ip=" );
 			buf.append( umgebung_t::server_name.c_str() );
 			if(  umgebung_t::server!=13353  ) {
@@ -5704,6 +5705,8 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 #ifdef REVISION
 			buf.append( "&rev=" QUOTEME(REVISION) );
+#else
+			buf.append( "&rev=0" );
 #endif
 			buf.append( "&pak=\"" );
 			// comment currently not used
@@ -5718,9 +5721,11 @@ bool karte_t::interactive(uint32 quit_month)
 				buf.append( pak_name.c_str() );
 			}
 			buf.append( "\"" );
-			buf.append( "&comment=" );
+			buf.append( "&name=" );
 			buf.append( umgebung_t::server_comment.c_str() );
-			network_download_http( "simutrans-germany.com:80", buf, "" );
+			network_download_http( "simutrans-germany.com:80", buf, NULL );
+			// update status
+			announce_server();
 		}
 	}
 
@@ -5971,14 +5976,36 @@ bool karte_t::interactive(uint32 quit_month)
 
 	if(  umgebung_t::announce_server  ) {
 		cbuffer_t buf(2048);
-		buf.printf( "/serverlist/slist.php?ID=1284126665&st=off" );
-		buf.append( "&ip=" );
-		buf.append( umgebung_t::server_name.c_str() );
-		network_download_http( "simutrans-germany.com:80", buf, "" );
+		buf.printf( "/serverlist/slist.php?ID=%u&st=off", umgebung_t::announce_server );
+		network_download_http( "simutrans-germany.com:80", buf, NULL );
 	}
 
 	display_show_pointer(true);
 	return finish_loop;
+}
+
+
+// if announce_server has a valid ID, it will be announced on the list
+void karte_t::announce_server()
+{
+	if(  umgebung_t::announce_server  ) {
+		// now send the status
+		cbuffer_t buf(2048);
+		buf.printf( "/serverlist/slist.php?ID=%u:", umgebung_t::announce_server );
+		buf.printf( "&gd=time%u.%u:size%ux%u:", (get_current_month()%12)+1, get_current_month()/12, get_groesse_x(), get_groesse_y() );
+		uint8 player=0, locked = 0;
+		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+			if(  spieler[i]  &&  spieler[i]->get_ai_id()!=spieler_t::EMPTY  ) {
+				player ++;
+				if(  spieler[i]->is_locked()  ) {
+					locked ++;
+				}
+			}
+		}
+		buf.printf( "Players%u:locked%u:Clients%u", player, locked, network_get_clients() );
+		buf.printf( "Towns%u:citicens%u:Factories%u:Convoys%u:Stops%u", stadt.get_count(), stadt.get_sum_weight(), fab_list.get_count(), get_convoi_count(), haltestelle_t::get_alle_haltestellen().get_count() );
+		network_download_http( "simutrans-germany.com:80", buf, NULL );
+	}
 }
 
 
@@ -5988,6 +6015,8 @@ void karte_t::network_disconnect()
 	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server.");
 	network_core_shutdown();
 	umgebung_t::networkmode = false;
+	umgebung_t::server = false;
+
 	step_mode = NORMAL;
 	reset_timer();
 	while(  !command_queue.empty()  ) {

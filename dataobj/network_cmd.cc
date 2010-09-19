@@ -92,7 +92,7 @@ void network_command_t::rdwr()
 		ready = true;
 	}
 	packet->rdwr_long(our_client_id);
-	dbg->message("network_command_t::rdwr", "rdwr packet_id=%d, client_id=%ld", id, our_client_id);
+	dbg->message("network_command_t::rdwr", "%s packet_id=%d, client_id=%ld", packet->is_saving() ? "write" : "read", id, our_client_id);
 }
 
 
@@ -136,7 +136,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 		// init the rest of the packet
 		SOCKET s = packet->get_sender();
 		loadsave_t fd;
-		if(  fd.wr_open( "serverinfo.sve", loadsave_t::bzip2, "info", SERVER_SAVEGAME_VER_NR )  ) {
+		if(  fd.wr_open( "serverinfo.sve", loadsave_t::xml_bzip2, "info", SERVER_SAVEGAME_VER_NR )  ) {
 			gameinfo_t gi(welt);
 			gi.rdwr( &fd );
 			fd.close();
@@ -182,7 +182,7 @@ void nwc_join_t::rdwr()
 
 bool nwc_join_t::execute(karte_t *welt)
 {
-	if (umgebung_t::server) {
+	if(umgebung_t::server) {
 		dbg->message("nwc_join_t::execute", "");
 		// TODO: check whether we can send a file
 		nwc_join_t nwj;
@@ -350,6 +350,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 		nwc_ready_t nwc(old_sync_steps);
 		nwc.send(network_get_socket(client_id));
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
+
+		// announce new status on server
+		welt->announce_server();
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
@@ -361,6 +364,10 @@ void nwc_check_t::rdwr()
 	network_world_command_t::rdwr();
 	packet->rdwr_long(server_random_seed);
 	packet->rdwr_long(server_sync_step);
+	if (packet->is_loading()  &&  umgebung_t::server) {
+		// server does not receive nwc_check_t-commands
+		packet->failed();
+	}
 }
 
 
@@ -414,14 +421,17 @@ void nwc_tool_t::rdwr()
 	//if (packet->is_loading()) {
 		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec, flags);
 	//}
+	if (packet->is_loading()  &&  umgebung_t::server  &&  exec) {
+		// server does not receive exec-commands
+		packet->failed();
+	}
 }
 
 bool nwc_tool_t::execute(karte_t *welt)
 {
-	dbg->warning("nwc_tool_t::execute", "sync_steps %d %s wkz %d %s", get_sync_step(), exec ? "exec" : "send", wkz_id, init ? "init" : "work");
 	if (exec) {
 		// append to command queue
-		dbg->warning("nwc_tool_t::execute", "append steps=%d current sync=%d", get_sync_step(),welt->get_sync_steps());
+		dbg->warning("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work");
 		return network_world_command_t::execute(welt);
 	}
 	else if (umgebung_t::server) {
@@ -450,6 +460,7 @@ bool nwc_tool_t::execute(karte_t *welt)
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
 		nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
+		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
 		network_send_all(nwt, false);
 	}
 	return true;

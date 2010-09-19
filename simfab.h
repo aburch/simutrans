@@ -68,6 +68,9 @@ public:
 	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
 
 private:
+	// used for haltlist and lieferziele searches in verteile_waren to produce round robin results
+	uint32 index_offset;
+
 	/**
 	 * Die möglichen Lieferziele
 	 * 
@@ -75,7 +78,6 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	vector_tpl <koord> lieferziele;
-	uint32 last_lieferziel_start;
 
 	/**
 	 * suppliers to this factry

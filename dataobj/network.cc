@@ -538,6 +538,7 @@ bool network_init_server( int port )
 	}
 	freeaddrinfo(res);
 
+	dbg->message("network_init_server", "add server %d sockets", my_socket.get_count());
 	for(  uint32 i=0;  i<my_socket.get_count();  i++  ) {
 		network_add_client( my_socket[i] );
 	}
@@ -551,6 +552,7 @@ bool network_init_server( int port )
 
 void network_add_client( SOCKET sock )
 {
+	dbg->message("network_add_client", "add client socket[%d]", sock);
 	if(  !clients.is_contained(sock)  ) {
 		// purge it first
 		while(  !clients.empty()  &&  clients.back() == INVALID_SOCKET  ) {
@@ -580,6 +582,7 @@ void network_add_client( SOCKET sock )
 
 void network_remove_client( SOCKET sock )
 {
+	dbg->message("network_remove_client", "remove client socket[%d]", sock);
 	if(  clients.is_contained(sock)  ) {
 		assert(active_clients>0);
 		uint32 ind = clients.index_of(sock);
@@ -608,7 +611,7 @@ uint32 network_get_client_id( SOCKET sock )
 int network_get_clients()
 {
 	// all clients except ourselves
-	return active_clients - 1;
+	return max(1,active_clients) - 1;
 }
 
 
@@ -720,10 +723,12 @@ network_command_t* network_check_activity(karte_t *welt, int timeout)
 				welt->set_werkzeug( w, NULL );
 				// since init always returns false, it is save to delete immediately
 				delete w;
+				// give new status
+				welt->announce_server();
 			}
 		}
 		else {
-			dbg->warning( "network_check_activity()", "received cmd id=%d %s", nwc->get_id(), nwc->get_name());
+			dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender);
 		}
 		// read something sucessful
 		return nwc;

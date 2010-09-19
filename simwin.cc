@@ -332,7 +332,7 @@ gui_frame_t *win_get_magic(long magic)
  */
 gui_frame_t *win_get_top()
 {
-	return wins.get_count()>0 ? wins[wins.get_count()-1].gui : NULL;
+	return wins.empty() ? 0 : wins.back().gui;
 }
 
 
@@ -342,7 +342,7 @@ gui_frame_t *win_get_top()
  */
 gui_komponente_t *win_get_focus()
 {
-	return wins.get_count()>0 ? wins[wins.get_count()-1].gui->get_focus() : NULL;
+	return wins.empty() ? 0 : wins.back().gui->get_focus();
 }
 
 
@@ -371,7 +371,7 @@ bool top_win(const gui_frame_t *gui)
  */
 bool win_is_top(const gui_frame_t *ig)
 {
-	return wins.get_count()>0 ? wins[wins.get_count()-1].gui == ig : false;
+	return !wins.empty() && wins.back().gui == ig;
 }
 
 
@@ -414,7 +414,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 		}
 
 		wins.append( simwin_t() );
-		simwin_t &win = wins[wins.get_count()-1];
+		simwin_t& win = wins.back();
 
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused

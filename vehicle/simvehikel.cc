@@ -690,7 +690,9 @@ void vehikel_t::set_convoi(convoi_t *c)
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
 				if (!gr || !gr->get_weg(get_waytype())) {
-					pos_next = r.position_bei(route_index + 1U);
+					if (!(water_wt == get_waytype()  &&  gr->ist_wasser())) { // ships on the open sea are valid
+						pos_next = r.position_bei(route_index + 1U);
+					}
 				}
 			}
 		}
@@ -2897,7 +2899,7 @@ bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t
 bool waggon_t::ist_befahrbar(const grund_t *bd) const
 {
 	if(!bd) return false;
-	const schiene_t * sch = dynamic_cast<const schiene_t *> (bd->get_weg(get_waytype()));
+	schiene_t const* const sch = ding_cast<schiene_t>(bd->get_weg(get_waytype()));
 
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...

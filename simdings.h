@@ -350,7 +350,15 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual void calc_bild() {}
-} GCC_PACKED;
+};
+
+
+template<typename T> static T* ding_cast(ding_t*);
+
+template<typename T> static inline T const* ding_cast(ding_t const* const d)
+{
+	return ding_cast<T>(const_cast<ding_t*>(d));
+}
 
 
 class ding_no_info_t : public ding_t
