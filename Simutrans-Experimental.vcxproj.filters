@@ -1760,6 +1760,9 @@
     <None Include="base_texts_experimental_forgotten_items_1.dat">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_9.0.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">

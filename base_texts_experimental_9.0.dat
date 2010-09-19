@@ -1,0 +1,38 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Addendum for version 9.0
+#
+# Author: jamespetts
+# Created: September 2010
+#
+obj=program_text
+name=City generation: not enough places found for cities. Only %d cities generated.\n
+note=Explanation of when not enough cities are generated.
+-
+obj=program_text
+name=City generation: only %d cities could be placed inside clusters.\n
+note=Explanation of when not enough space to put all cities in clusters.
+-
+obj=program_text
+name=Alternate directions
+note=Button text in the schedule window for setting every other convoy to follow its schedule in reverse.
+-
+obj=program_text
+name=When adding convoys to the line, every second convoy will follow it in the reverse direction.
+note=Tooltip text for the "Alternate convoys" button in the schedule window.
+-
+obj=program_text
+name=Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.
+note=New tooltip text for the "return ticket" button in the schedule window.
+-
+obj=program_text
+name=Number of big cities
+note=Text for the setting for the number of large cities generated in the "new world" dialogue
+-
+obj=program_text
+name=Number of clusters
+note=Text for the setting for the number of clusters in which cities are generated in the "new world" dialogue
+-
+obj=program_text
+name=Cluster size
+note=Text for the setting for the size of clusters in which cities are generated in the "new world" dialogue
+-
