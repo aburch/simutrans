@@ -5704,10 +5704,22 @@ bool karte_t::interactive(uint32 quit_month)
 			buf.append( "&rev=0" );
 #endif
 			buf.append( "&pak=\"" );
-			// comment currently not used
+			// announce ak set
 			if(  grund_besch_t::ausserhalb->get_copyright()  &&  STRICMP("none",grund_besch_t::ausserhalb->get_copyright())!=0  ) {
 				// construct from outside object copyright string
-				buf.append( grund_besch_t::ausserhalb->get_copyright() );
+				// replace all spaces by %20
+				char two[2] = { 0, 0 };
+				const char *c = grund_besch_t::ausserhalb->get_copyright();
+				while(  *c  ) {
+					if(  *c!=' '  ) {
+						two[0] = *c;
+						buf.append( two );
+					}
+					else {
+						buf.append( "%20" );
+					}
+					c++;
+				}
 			}
 			else {
 				// construct from pak name
@@ -5715,9 +5727,20 @@ bool karte_t::interactive(uint32 quit_month)
 				pak_name.erase( pak_name.length()-1 );
 				buf.append( pak_name.c_str() );
 			}
-			buf.append( "\"" );
 			buf.append( "&name=" );
-			buf.append( umgebung_t::server_comment.c_str() );
+			// add comment and replace all spaces by %20
+			char two[2] = { 0, 0 };
+			const char *c = umgebung_t::server_comment.c_str();
+			while(  *c  ) {
+				if(  *c!=' '  ) {
+					two[0] = *c;
+					buf.append( two );
+				}
+				else {
+					buf.append( "%20" );
+				}
+				c++;
+			}
 			network_download_http( "simutrans-germany.com:80", buf, NULL );
 			// update status
 			announce_server();
