@@ -185,7 +185,7 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 	double dx = 0;
 	if (adverse.max_speed < INT_MAX)
 	{
-		const sint32 speed_limit = kmh_to_speed(adverse.max_speed);
+		const uint32 speed_limit = kmh_to_speed(adverse.max_speed);
 		if (akt_speed_soll > speed_limit)
 		{
 			akt_speed_soll = speed_limit;
