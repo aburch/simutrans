@@ -291,7 +291,6 @@ void werkzeug_t::read_menu(const std::string &objfilename)
 	char_to_tool.clear();
 	tabfile_t menuconf;
 	// only use pak sepcific menues, since otherwise images may missing
-	const std::string user_dir=umgebung_t::user_dir;
 	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
 		dbg->fatal("werkzeug_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
 	}
