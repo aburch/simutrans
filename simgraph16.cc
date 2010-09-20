@@ -570,19 +570,16 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 		*width = 0;
 		return 0;
 	}
+	if (*x + *width > max_width) {
+		*width = max_width - *x;
+	}
 	if (*x < min_width) {
 		const KOORD_VAL xoff = min_width - *x;
 
 		*width += *x-min_width;
 		*x = min_width;
 
-		if (*x + *width > max_width) {
-			*width = max_width - *x;
-		}
-
 		return xoff;
-	} else if (*x + *width > max_width) {
-		*width = max_width - *x;
 	}
 	return 0;
 }
@@ -1920,12 +1917,12 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
  * templated pixel copy routines
  * to be used in display_img_pc
  */
-enum picopy_routines {
+enum pixcopy_routines {
 	plain = 0,	/// simply copies the pixels
  	colored = 1	/// replaces player colors
 };
 
-template<picopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
+template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
 template<> void templated_pixcopy<plain>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	pixcopy(dest, src, end);
@@ -1939,7 +1936,7 @@ template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, cons
  * draws image with clipping along arbitrary lines
  * @author Dwachs
  */
-template<int copyroutine>
+template<pixcopy_routines copyroutine>
 static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
 	if (h > 0) {
@@ -1970,7 +1967,7 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= xmin ? 0 : xmin - xpos);
 					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
 
-					templated_pixcopy<plain>(tp + xpos + left, sp + left, sp + len);
+					templated_pixcopy<copyroutine>(tp + xpos + left, sp + left, sp + len);
 				}
 
 				sp += runlen;
