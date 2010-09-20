@@ -836,7 +836,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	for(  int i = 0;  i<10;  i++  ) {
 		char name[32];
 		sprintf( name, "starting_money[%i]", i );
-		int *test = contents.get_ints(name );
+		sint64 *test = contents.get_sint64s(name );
 		if ((test[0]>1) && (test[0]<=3)) {
 			// insert sorted by years
 			int k=0;
@@ -847,7 +847,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 					break;
 				}
 			}
-			startingmoneyperyear[k].year = test[1];
+			startingmoneyperyear[k].year = (sint16)test[1];
 			startingmoneyperyear[k].money = test[2];
 			if (test[0]==3) {
 				startingmoneyperyear[k].interpol = test[3]!=0;
@@ -855,6 +855,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 			else {
 				startingmoneyperyear[k].interpol = false;
 			}
+			printf("smpy[%d] year=%d money=%lld\n",k,startingmoneyperyear[k].year,startingmoneyperyear[k].money);
 			j++;
 		}
 		else {

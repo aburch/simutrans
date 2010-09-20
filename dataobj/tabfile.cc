@@ -108,6 +108,12 @@ int tabfileobj_t::get_int(const char *key, int def)
 	}
 }
 
+sint64 atosint64(const char* a)
+{
+	return (sint64)(atof(a)+0.5);
+}
+
+
 sint64 tabfileobj_t::get_int64(const char *key, sint64 def)
 {
 	const char *value = get(key);
@@ -116,7 +122,7 @@ sint64 tabfileobj_t::get_int64(const char *key, sint64 def)
 		return def;
 	}
 	else {
-		return (sint64)(atof(value)+0.5);
+		return atosint64(value);
 	}
 }
 
@@ -152,6 +158,38 @@ int *tabfileobj_t::get_ints(const char *key)
 	return result;
 }
 
+
+sint64 *tabfileobj_t::get_sint64s(const char *key)
+{
+	const char *value = get(key);
+	const char *tmp;
+	int         count = 1;
+	sint64         *result;
+
+	if(!value || !*value) {
+		result = new sint64[1];
+		result[0] = 0;
+		return result;
+	}
+	// Anzahl bestimmen
+	for(tmp = value; *tmp; tmp++) {
+		if(*tmp == ',') {
+			count++;
+		}
+	}
+	// Ergebnisvektor erstellen und füllen
+	result = new sint64[count + 1];
+
+	result[0] = count;
+	count = 1;
+	result[count++] = atosint64(value);
+	for(tmp = value; *tmp; tmp++) {
+		if(*tmp == ',') {
+			result[count++] = atosint64(tmp + 1);
+		}
+	}
+	return result;
+}
 
 
 bool tabfile_t::read(tabfileobj_t &objinfo)
