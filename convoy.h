@@ -118,14 +118,14 @@ struct vehicle_summary_t
 	uint32 length;			// sum of vehicles' length in 1/TILE_STEPSth of a tile
 	uint32 tiles;           // length of convoy in tiles.
 	uint32 weight;			// sum of vehicles' own weight without load in kg
-	sint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
+	uint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
 
 	inline void clear()
 	{
 		length = 0;
 		tiles = 0;
 		weight = 0;
-		max_speed = INT_MAX; // if there is no vehicle, there is no speed limit!
+		max_speed = UINT_MAX; // if there is no vehicle, there is no speed limit!
 	}
 
 	inline void add_vehicle(const vehikel_besch_t &b)
