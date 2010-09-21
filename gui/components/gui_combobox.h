@@ -23,7 +23,7 @@ class gui_combobox_t :
 	public action_listener_t
 {
 private:
-	char editstr[128];
+	char editstr[128],old_editstr[128];
 
 	// buttons for setting selection manually
 	gui_textinput_t textinp;
@@ -51,6 +51,16 @@ private:
 	 * @author hsiegeln
 	 */
 	koord max_size;
+
+	/**
+	 * renames the selected item if necessary
+	 */
+	void rename_selected_item();
+
+	/**
+	 * resets the input field to the name of the item
+	 */
+	void reset_selected_item_name();
 
 public:
 	gui_combobox_t();
