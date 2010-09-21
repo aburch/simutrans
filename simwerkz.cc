@@ -5113,7 +5113,7 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
  * c=convoi, h=halt, l=line,  m=marker, t=town
  * in case of marker, id is a pos3d string
  */
-bool wkz_rename_t::init(karte_t* const welt, spieler_t*)
+bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 {
 	uint16 id = 0;
 	koord3d pos = koord3d::invalid;
@@ -5168,6 +5168,11 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t*)
 			line.set_id( id );
 			if(  line.is_bound()  ) {
 				line->set_name( p );
+
+				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic((long)&(sp->simlinemgmt)));
+				if(  sl  ) {
+					sl->update_data( line );
+				}
 				return false;
 			}
 			break;

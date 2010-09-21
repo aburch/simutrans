@@ -11,7 +11,7 @@ void line_scrollitem_t::set_text(char *t)
 		buf.printf( "l%u,%s", line.get_id(), t );
 		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 		w->set_default_param( buf );
-		line->get_besitzer()->get_welt()->set_werkzeug( w, NULL );
+		line->get_besitzer()->get_welt()->set_werkzeug( w, line->get_besitzer() );
 		// since init always returns false, it is save to delete immediately
 		delete w;
 	}

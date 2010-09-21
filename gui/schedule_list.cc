@@ -382,6 +382,9 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 		// brute force: just recalculate whole list on each click to keep it current
 		build_line_list(tabs.get_active_tab_index());
 	}
+	else if (komp == &inp_name) {
+		rename_line();
+	}
 	else {
 		if (line.is_bound()) {
 			for ( int i = 0; i<MAX_LINE_COST; i++) {
@@ -402,6 +405,38 @@ bool schedule_list_gui_t::action_triggered( gui_action_creator_t *komp, value_t 
 	return true;
 }
 
+
+void schedule_list_gui_t::reset_line_name()
+{
+	// change text input of selected line
+	if (line.is_bound()) {
+		tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
+		tstrncpy(line_name, line->get_name(), sizeof(line_name));
+		inp_name.set_text(line_name, sizeof(line_name));
+	}
+}
+
+
+void schedule_list_gui_t::rename_line()
+{
+	if (line.is_bound()) {
+		const char *t = inp_name.get_text();
+		// only change if old name and current name are the same
+		// otherwise some unintended undo if renaming would occur
+		if(  t  &&  t[0]  &&  strcmp(t, line->get_name())  &&  strcmp(old_line_name, line->get_name())==0) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "l%u,%s", line.get_id(), t );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			sp->get_welt()->set_werkzeug( w, line->get_besitzer() );
+			// since init always returns false, it is save to delete immediately
+			delete w;
+			// do not trigger this command again
+			tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
+		}
+	}
+}
 
 
 void schedule_list_gui_t::zeichnen(koord pos, koord gr)
@@ -536,24 +571,12 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 {
 	// change line name if necessary
 	if (line.is_bound()) {
-		const char *t = inp_name.get_text();
-		if(  t  &&  t[0]  &&  strcmp(t, line->get_name())) {
-			// text changed => call tool
-			cbuffer_t buf(300);
-			buf.printf( "l%u,%s", line.get_id(), t );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, NULL );
-			// since init always returns false, it is save to delete immediately
-			delete w;
-		}
+		rename_line();
 	}
 	if(new_line.is_bound()) {
 		// ok, this line is visible
 		scrolly.set_visible(true);
 		scrolly_haltestellen.set_visible(true);
-		tstrncpy(line_name, new_line->get_name(), lengthof(line_name));
-		inp_name.set_text(line_name, lengthof(line_name));
 		inp_name.set_visible(true);
 		filled_bar.set_visible(true);
 
@@ -651,6 +674,8 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		last_vehicle_count = 0;
 	}
 	line = new_line;
+
+	reset_line_name();
 }
 
 
@@ -666,6 +691,23 @@ void schedule_list_gui_t::show_lineinfo(linehandle_t line)
 				build_line_list( i );
 				break;
 			}
+		}
+	}
+}
+
+
+void schedule_list_gui_t::update_data(linehandle_t changed_line)
+{
+	if (changed_line.is_bound()) {
+		const uint16 i = tabs.get_active_tab_index();
+		if (tabs_to_lineindex[i] == simline_t::line  ||  tabs_to_lineindex[i] == changed_line->get_linetype()) {
+			// rebuilds the line list, but does not change selection
+			build_line_list(i);
+		}
+
+		// change text input of selected line
+		if (changed_line.get_id() == line.get_id()) {
+			reset_line_name();
 		}
 	}
 }

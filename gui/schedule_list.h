@@ -44,7 +44,15 @@ private:
 	uint32 last_vehicle_count;
 
 	// so even japanese can have long enough names ...
-	char line_name[512];
+	char line_name[512], old_line_name[512];
+
+	// resets textinput to current line name
+	// necessary after line was renamed
+	void reset_line_name();
+
+	// rename selected line
+	// checks if possible / necessary
+	void rename_line();
 
 	void display(koord pos);
 
@@ -116,6 +124,11 @@ public:
 	 * @author isidoro
 	 */
 	void show_lineinfo(linehandle_t line);
+
+	/**
+	 * called after renaming of line
+	 */
+	void update_data(linehandle_t changed_line);
 };
 
 #endif
