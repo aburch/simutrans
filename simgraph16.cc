@@ -2480,57 +2480,41 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 /**
  * Zeichnet Bild, ersetzt Spielerfarben
  * assumes height is ok and valid data are caluclated
+ * color replacement needs the original data => sp points to non-cached data
  * @author hajo/prissi
  */
-static void display_color_img_aux(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
+static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
 {
-	KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
-	if (h > 0) { // clipping may have reduced it
+	PIXVAL *tp = textur + y * disp_width;
 
-		// color replacement needs the original data => sp points to non-cached data
+	do { // zeilen dekodieren
+		int xpos = x;
 
-		PIXVAL *tp = textur + y * disp_width;
+		// bild darstellen
 
-		// oben clippen
-		while (yoff) {
-			yoff--;
-			do {
-				// clear run + colored run + next clear run
-				++sp;
-				sp += *sp + 1;
-			} while (*sp);
-			sp++;
-		}
+		uint16 runlen = *sp++;
 
-		do { // zeilen dekodieren
-			int xpos = x;
+		do {
+			// wir starten mit einem clear run
+			xpos += runlen;
 
-			// bild darstellen
+			// jetzt kommen farbige pixel
+			runlen = *sp++;
 
-			uint16 runlen = *sp++;
+			// Hajo: something to display?
+			if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
+				const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
+				const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
 
-			do {
-				// wir starten mit einem clear run
-				xpos += runlen;
+				colorpixcopy(tp + xpos + left, sp + left, sp + len);
+			}
 
-				// jetzt kommen farbige pixel
-				runlen = *sp++;
+			sp += runlen;
+			xpos += runlen;
+		} while ((runlen = *sp++));
 
-				// Hajo: something to display?
-				if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
-					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
-					const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
-
-					colorpixcopy(tp + xpos + left, sp + left, sp + len);
-				}
-
-				sp += runlen;
-				xpos += runlen;
-			} while ((runlen = *sp++));
-
-			tp += disp_width;
-		} while (--h);
-	}
+		tp += disp_width;
+	} while (--h);
 }
 
 
@@ -2571,19 +2555,19 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 
 		// prissi: now test if visible and clipping needed
 		{
-			const KOORD_VAL x = images[n].x;
-			const KOORD_VAL y = images[n].y;
+			const KOORD_VAL x = images[n].x + xp;
+			      KOORD_VAL y = images[n].y + yp;
 			const KOORD_VAL w = images[n].w;
-			const KOORD_VAL h = images[n].h;
+			      KOORD_VAL h = images[n].h;
 
-			if (h == 0 || xp + x >= clip_rect.xx || yp + y >= clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+			if (h <= 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
 				// not visible => we are done
 				// happens quite often ...
 				return;
 			}
 
 			if (dirty) {
-				mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
+				mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
 			}
 
 			// colors for 2nd company color
@@ -2594,12 +2578,31 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 				// no player
 				activate_player_color( 0, daynight );
 			}
-			// clipping at poly lines?
-			if (number_of_clips>0) {
-				display_img_pc<colored>(h, xp+x, yp+y,  (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data);
-			}
-			else {
-				display_color_img_aux( (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data, xp+x, yp+y, h );
+			// color replacement needs the original data => sp points to non-cached data
+			const PIXVAL *sp = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
+
+			// clip top/bottom
+			KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
+			if (h > 0) { // clipping may have reduced it
+
+				// oben clippen
+				while (yoff) {
+					yoff--;
+					do {
+						// clear run + colored run + next clear run
+						++sp;
+						sp += *sp + 1;
+					} while (*sp);
+					sp++;
+				}
+
+				// clipping at poly lines?
+				if (number_of_clips>0) {
+					display_img_pc<colored>(h, x, y, sp);
+				}
+				else {
+					display_color_img_wc(sp, x, y, h );
+				}
 			}
 		}
 	} // number ok
@@ -2620,19 +2623,19 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 	else if (n < anz_images) {
 
 		// prissi: now test if visible and clipping needed
-		const KOORD_VAL x = images[n].base_x;
-		const KOORD_VAL y = images[n].base_y;
+		const KOORD_VAL x = images[n].base_x + xp;
+		      KOORD_VAL y = images[n].base_y + yp;
 		const KOORD_VAL w = images[n].base_w;
-		const KOORD_VAL h = images[n].base_h;
+		      KOORD_VAL h = images[n].base_h;
 
-		if (h == 0 || xp + x >= clip_rect.xx || yp + y >= clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+		if (h <= 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
 			// not visible => we are done
 			// happens quite often ...
 			return;
 		}
 
 		if (dirty) {
-			mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
+			mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
 		}
 
 		// colors for 2nd company color
@@ -2643,7 +2646,26 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 			// no player
 			activate_player_color( 0, daynight );
 		}
-		display_color_img_aux( images[n].base_data, xp+x, yp+y, h );
+
+		// color replacement needs the original data => sp points to non-cached data
+		const PIXVAL *sp = images[n].base_data;
+
+		// clip top/bottom
+		KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
+		if (h > 0) { // clipping may have reduced it
+
+			// oben clippen
+			while (yoff) {
+				yoff--;
+				do {
+					// clear run + colored run + next clear run
+					++sp;
+					sp += *sp + 1;
+				} while (*sp);
+				sp++;
+			}
+			display_color_img_wc( sp, x, y, h );
+		}
 
 	} // number ok
 }
