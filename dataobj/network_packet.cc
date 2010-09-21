@@ -72,9 +72,14 @@ void packet_t::send(SOCKET s)
 		}
 
 		int sent = ::send(s, (const char*) buf, size, 0);
-		dbg->message("packet_t::send", "sent %d bytes; id=%d, size=%d", sent, id, size);
 		if (sent!=size) {
-			error = true;
+			dbg->warning("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d", sent, s, id, size);
+			// TODO: send the rest of the packet later
+			network_remove_client( s );
+			return;
+		}
+		else {
+			dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d", sent, s, id, size);
 		}
 	}
 	else {
