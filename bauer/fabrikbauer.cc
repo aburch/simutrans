@@ -246,18 +246,18 @@ DBG_MESSAGE("fabrikbauer_t::finde_anzahl_hersteller()","%i producer for good '%s
 const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, uint16 timeline )
 {
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
-	slist_tpl <const fabrik_besch_t *> producer;
-	int gewichtung=0;
+	weighted_vector_tpl<const fabrik_besch_t *> producer;
 
 	while(iter.next()) {
 		const fabrik_besch_t *tmp = iter.get_current_value();
 
-		for (uint i = 0; i < tmp->get_produkte(); i++) {
-			const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
-			if(produkt->get_ware()==ware  &&  tmp->get_gewichtung()>0  &&  (timeline==0  ||  (tmp->get_haus()->get_intro_year_month() <= timeline  &&  tmp->get_haus()->get_retire_year_month() > timeline))  ) {
-				producer.insert(tmp);
-				gewichtung += tmp->get_gewichtung();
-				break;
+		if (tmp->get_gewichtung()>0  &&  (timeline==0  ||  (tmp->get_haus()->get_intro_year_month() <= timeline  &&  tmp->get_haus()->get_retire_year_month() > timeline))) {
+			for (uint i = 0; i < tmp->get_produkte(); i++) {
+				const fabrik_produkt_besch_t *produkt = tmp->get_produkt(i);
+				if(produkt->get_ware()==ware) {
+					producer.insert_unique_ordered(tmp, tmp->get_gewichtung(), compare_fabrik_besch);
+					break;
+				}
 			}
 		}
 	}
@@ -268,15 +268,9 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 		return NULL;
 	}
 	// now find a random one
-	int next=simrand(gewichtung);
-	const fabrik_besch_t *besch=NULL;
-	for (slist_iterator_tpl<const fabrik_besch_t*> i(producer); i.next();) {
-		besch = i.get_current();
-		next -= besch->get_gewichtung();
-		if(next<0) {
-			break;
-		}
-	}
+	// now find a random one
+	uint32 next=simrand(producer.get_sum_weight());
+	const fabrik_besch_t* besch = producer.at_weight(next);
 	DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->get_name()),besch->get_name());
 	return besch;
 }
