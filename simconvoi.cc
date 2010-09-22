@@ -443,7 +443,14 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	else {
-		tstrncpy(name_and_id, name, lengthof(name_and_id));
+		char buf[128];
+		// check if there is a id in the name string
+		name_offset = sprintf(buf,"(%i) ",self.get_id() );
+		if(  strlen(name) < name_offset  ||  strncmp(buf,name,name_offset)!=0) {
+			name_offset = 0;
+		}
+		tstrncpy(buf+name_offset, name+name_offset, sizeof(buf)-name_offset);
+		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 }
 
