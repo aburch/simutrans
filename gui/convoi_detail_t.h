@@ -100,4 +100,9 @@ public:
      * V.Meyer
      */
     bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * called when convoi was renamed
+	 */
+	void update_data() { set_dirty(); }
 };
