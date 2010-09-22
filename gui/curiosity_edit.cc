@@ -114,10 +114,10 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	hauslist.clear();
 
 	if(bt_city_attraction.pressed) {
-		const slist_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::attraction_city );
-		for (slist_tpl<const haus_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
+		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::attraction_city );
+		for (uint32 i = 0; i < s->get_count(); i++) {
 
-			const haus_besch_t *besch = (*i);
+			const haus_besch_t *besch = (*s)[i];
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch,compare_haus_besch);
@@ -126,10 +126,10 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_land_attraction.pressed) {
-		const slist_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::attraction_land );
-		for (slist_tpl<const haus_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
+		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::attraction_land );
+		for (uint32 i = 0; i < s->get_count(); i++) {
 
-			const haus_besch_t *besch = (*i);
+			const haus_besch_t *besch = (*s)[i];
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch,compare_haus_besch);
@@ -138,10 +138,10 @@ void curiosity_edit_frame_t::fill_list( bool translate )
 	}
 
 	if(bt_monuments.pressed) {
-		const slist_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::denkmal );
-		for (slist_tpl<const haus_besch_t *>::const_iterator i = s->begin(), end = s->end(); i != end; ++i) {
+		const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list( haus_besch_t::denkmal );
+		for (uint32 i = 0; i < s->get_count(); i++) {
 
-			const haus_besch_t *besch = (*i);
+			const haus_besch_t *besch = (*s)[i];
 			if(!use_timeline  ||  (!besch->is_future(month_now)  &&  (!besch->is_retired(month_now)  ||  allow_obsolete))  ) {
 				// timeline allows for this
 				hauslist.insert_ordered(besch,compare_haus_besch);

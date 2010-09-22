@@ -73,9 +73,10 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	// find earliest start date ...
 	uint16 game_start = 2999;
 	// first townhalls
-	slist_iterator_tpl<const haus_besch_t*> iter(hausbauer_t::get_list(haus_besch_t::rathaus));
-	while(  iter.next()  ) {
-		uint16 year = (iter.get_current()->get_intro_year_month()+11)/12;
+	const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list(haus_besch_t::rathaus);
+	for (uint32 i = 0; i<s->get_count(); i++) {
+		const haus_besch_t *besch = (*s)[i];
+		uint16 year = (besch->get_intro_year_month()+11)/12;
 		if(  year<game_start  ) {
 			game_start = year;
 		}
