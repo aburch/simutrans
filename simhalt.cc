@@ -1074,7 +1074,8 @@ void haltestelle_t::step(sint16 &units_remaining)
 							{
 								// Refund is approximation: 1.5x distance at standard rate with no adjustments. 
 								// (Previous versions had 2x, but this was probably too harsh). 
-								const sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 1.5;
+								sint64 refund_amount = tmp.menge * tmp.get_besch()->get_preis() * distance * 1.5;
+								refund_amount = (refund_amount + 1500ll) / 3000ll;
 								
 								besitzer_p->buche(-refund_amount, get_basis_pos(), COST_INCOME);
 								linehandle_t account_line = get_preferred_line(tmp.get_zwischenziel(), tmp.get_catg());
