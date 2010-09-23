@@ -11,7 +11,6 @@
 #include "../besch/haus_besch.h"
 #include "../dataobj/koord3d.h"
 #include "../simtypes.h"
-#include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 
 class gebaeude_t;
@@ -30,11 +29,11 @@ class hausbauer_t
 {
 
 private:
-	static slist_tpl<const haus_besch_t*> sehenswuerdigkeiten_land;
-	static slist_tpl<const haus_besch_t*> sehenswuerdigkeiten_city;
-	static slist_tpl<const haus_besch_t*> rathaeuser;
-	static slist_tpl<const haus_besch_t*> denkmaeler;
-	static slist_tpl<const haus_besch_t*> ungebaute_denkmaeler;
+	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_land;
+	static vector_tpl<const haus_besch_t*> sehenswuerdigkeiten_city;
+	static vector_tpl<const haus_besch_t*> rathaeuser;
+	static vector_tpl<const haus_besch_t*> denkmaeler;
+	static vector_tpl<const haus_besch_t*> ungebaute_denkmaeler;
 
 public:
 	/**
@@ -54,7 +53,7 @@ private:
 	 * Liefert einen zufälligen Eintrag aus der Liste.
 	 * @author V. Meyer
 	 */
-	static const haus_besch_t* waehle_aus_liste(slist_tpl<const haus_besch_t*>& liste, uint16 time, bool ignore_retire, climate cl);
+	static const haus_besch_t* waehle_aus_liste(vector_tpl<const haus_besch_t*>& liste, uint16 time, bool ignore_retire, climate cl);
 
 public:
 	/* finds a station building, which enables pas/mail/goods for the AI
@@ -165,7 +164,7 @@ public:
 	static gebaeude_t* neues_gebaeude(karte_t* welt, spieler_t* sp, koord3d pos, int layout, const haus_besch_t* besch, void* param = NULL);
 
 	// currently only used for edit menu
-	static const slist_tpl<const haus_besch_t *> *get_list( haus_besch_t::utyp typ );
+	static const vector_tpl<const haus_besch_t *> *get_list( haus_besch_t::utyp typ );
 	static const vector_tpl<const haus_besch_t *> *get_citybuilding_list( gebaeude_t::typ typ );
 
 };

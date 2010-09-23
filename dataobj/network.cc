@@ -290,9 +290,6 @@ const char *network_open_address( const char *cp, long timeout_ms )
 		RET_ERR_STR;
 	}
 #endif
-	active_clients = 0;
-	server_command_queue.clear();
-
 	return NULL;
 }
 
@@ -410,6 +407,7 @@ const char *network_connect(const char *cp)
 			nwc_join.rdwr();
 			nwc_join.send(my_client_socket);
 		}
+		active_clients = 0;
 		network_add_client( my_client_socket );
 		// wait for join command (tolerate some wrong commands)
 		network_command_t *nwc = NULL;

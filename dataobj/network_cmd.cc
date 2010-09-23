@@ -549,7 +549,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 		bool reset_default_param = false;
 		const char *old_default_param = NULL;
 
-		spieler_t *sp = welt->get_spieler(player_nr);
+		spieler_t *sp = player_nr < MAX_PLAYER_COUNT ? welt->get_spieler(player_nr) : NULL;
 		// our tool or from network?
 		if (!local) {
 			// do we have a tool for this client already?
@@ -581,7 +581,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 		else {
 			// local player applied a tool
 			// first try the active tool of our world
-			wkz = welt->get_werkzeug(player_nr);
+			wkz = player_nr < MAX_PLAYER_COUNT ? welt->get_werkzeug(player_nr) : NULL;
 			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(), default_param)) {
 				// get the right tool
 				vector_tpl<werkzeug_t*> &wkz_list = wkz_id&GENERAL_TOOL ? werkzeug_t::general_tool : wkz_id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;

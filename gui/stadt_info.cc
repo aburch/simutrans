@@ -54,8 +54,7 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 	gui_frame_t("Stadtinformation"),
 	stadt(stadt_)
 {
-	tstrncpy(name, stadt->get_name(), lengthof(name));
-	name_input.set_text(name, 30);
+	reset_city_name();
 	name_input.set_groesse(koord(124, 14));
 	name_input.set_pos(koord(8, 8));
 	name_input.add_listener( this );
@@ -124,15 +123,41 @@ stadt_info_t::stadt_info_t(stadt_t* stadt_) :
 
 stadt_info_t::~stadt_info_t()
 {
-	if(  stadt->get_welt()->get_staedte().is_contained(stadt)  &&  strcmp(name, stadt->get_name())  &&  name[0]  ) {
-		// text changed => call tool
-		cbuffer_t buf(300);
-		buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
-		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-		w->set_default_param( buf );
-		stadt->get_welt()->set_werkzeug( w, NULL );
-		// since init always returns false, it is save to delete immediately
-		delete w;
+	// send rename command if necessary
+	rename_city();
+}
+
+/**
+ * send rename command if necessary
+ */
+void stadt_info_t::rename_city()
+{
+	if (stadt->get_welt()->get_staedte().is_contained(stadt)) {
+		const char *t = name_input.get_text();
+		// only change if old name and current name are the same
+		// otherwise some unintended undo if renaming would occur
+		if(  t  &&  t[0]  &&  strcmp(t, stadt->get_name())  &&  strcmp(old_name, stadt->get_name())==0) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			stadt->get_welt()->set_werkzeug( w, NULL );
+			// since init always returns false, it is save to delete immediately
+			delete w;
+			// do not trigger this command again
+			tstrncpy(old_name, t, sizeof(old_name));
+		}
+	}
+}
+
+void stadt_info_t::reset_city_name()
+{
+	// change text input
+	if (stadt->get_welt()->get_staedte().is_contained(stadt)) {
+		tstrncpy(old_name, stadt->get_name(), sizeof(old_name));
+		tstrncpy(name, stadt->get_name(), sizeof(name));
+		name_input.set_text(name, sizeof(name));
 	}
 }
 
@@ -246,16 +271,8 @@ bool stadt_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		return true;
 	}
 	if(  komp==&name_input  ) {
-		if(  strcmp(name, stadt->get_name())  &&  name[0]  ) {
-			// text changed => call tool
-			cbuffer_t buf(300);
-			buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			stadt->get_welt()->set_werkzeug( w, NULL );
-			// since init always returns false, it is save to delete immediately
-			delete w;
-		}
+		// send rename command if necessary
+		rename_city();
 	}
 	else {
 		for ( int i = 0; i<MAX_CITY_HISTORY; i++) {
@@ -324,4 +341,8 @@ bool stadt_info_t::infowin_event(const event_t *ev)
 void stadt_info_t::update_data()
 {
 	allow_growth.pressed = stadt->get_citygrowth();
+	if (strcmp(old_name, stadt->get_name())) {
+		reset_city_name();
+	}
+	set_dirty();
 }

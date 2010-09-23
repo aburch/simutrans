@@ -370,7 +370,7 @@ void fabrik_t::baue(sint32 rotate)
 			for( uint16 i=0;  i<fields.get_count();  i++  ) {
 				const koord k = fields[i].location;
 				grund_t *gr=welt->lookup_kartenboden(k);
-				if(  gr->get_typ()==grund_t::boden  ) {
+				if(  gr->ist_natur()  ) {
 					// first make foundation below
 					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);

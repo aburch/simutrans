@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 	if (argc && STRNICMP(argv[0], "pak", 3) == 0) {
 		int img_size = atoi(argv[0] + 3);
 
-		if (img_size >= 16 && img_size < 256) {
+		if (img_size >= 16 && img_size < 32766) {
 			printf("Image size is set to %dx%d\n", img_size, img_size);
 
 			image_writer_t::set_img_size(img_size);

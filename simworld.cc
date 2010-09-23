@@ -5164,6 +5164,7 @@ void karte_t::step_year()
 	current_month += 12;
 	letztes_jahr ++;
 	reset_timer();
+	recalc_average_speed();
 }
 
 

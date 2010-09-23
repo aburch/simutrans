@@ -1801,6 +1801,10 @@ void stadt_t::set_name(const char *new_name)
 	if(gr) {
 		gr->set_text( new_name );
 	}
+	stadt_info_t *win = dynamic_cast<stadt_info_t*>(win_get_magic((long)this));
+	if (win) {
+		win->update_data();
+	}
 }
 
 

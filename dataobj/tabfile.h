@@ -158,6 +158,7 @@ public:
 	 * @author V. Meyer
 	 */
 	int *get_ints(const char *key);
+	sint64 *get_sint64s(const char *key);
 };
 
 #endif

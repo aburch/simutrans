@@ -46,13 +46,18 @@ vector_tpl<const groundobj_besch_t *> groundobj_t::groundobj_typen(0);
 stringhashtable_tpl<groundobj_besch_t *> groundobj_t::besch_names;
 
 
+bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t* b)
+{
+	return strcmp(a->get_name(), b->get_name())<0;
+}
+
 bool groundobj_t::alles_geladen()
 {
 	groundobj_typen.resize(besch_names.get_count());
 	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
 	while(  iter.next()  ) {
 		iter.access_current_value()->index = groundobj_typen.get_count();
-		groundobj_typen.append( iter.get_current_value() );
+		groundobj_typen.insert_ordered( iter.get_current_value(), compare_groundobj_besch );
 	}
 	if(besch_names.empty()) {
 		groundobj_typen.append( NULL );
