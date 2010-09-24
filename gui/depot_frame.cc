@@ -1061,8 +1061,8 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 			uint32 total_power=0;
 			uint32 total_max_weight=0;
 			uint32 total_min_weight=0;
-			uint16 max_speed=0;
-			uint16 min_speed=0;
+			sint32 max_speed=0;
+			sint32 min_speed=0;
 			for( unsigned i=0;  i<cnv->get_vehikel_anzahl();  i++) {
 				const vehikel_besch_t *besch = cnv->get_vehikel(i)->get_besch();
 
@@ -1084,8 +1084,8 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 				total_min_weight += (min_weight*besch->get_zuladung()+499)/1000;
 			}
 			// ensure that argument of sqrt is not negative
-			max_speed = total_power < total_min_weight ? 0 : min( speed_to_kmh(cnv->get_min_top_speed()), (uint32) (sqrt( (double)total_power/total_min_weight - 1)*50) );
-			min_speed = total_power < total_max_weight ? 0 : min( speed_to_kmh(cnv->get_min_top_speed()), (uint32) (sqrt( (double)total_power/total_max_weight - 1)*50) );
+			max_speed = total_power < total_min_weight ? 0 : min( speed_to_kmh(cnv->get_min_top_speed()), sqrt( (double)total_power/total_min_weight - 1)*50 );
+			min_speed = total_power < total_max_weight ? 0 : min( speed_to_kmh(cnv->get_min_top_speed()), sqrt( (double)total_power/total_max_weight - 1)*50 );
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
 				translator::translate("Station tiles:"), cnv->get_tile_length() );

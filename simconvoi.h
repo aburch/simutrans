@@ -216,7 +216,7 @@ private:
 	// recalc_data is true
 	bool recalc_data;
 	sint32 sum_friction_weight;
-	uint32 speed_limit;
+	sint32 speed_limit;
 
 
 	/**

@@ -11,6 +11,7 @@
  * Hansjoerg Malthaner, Nov. 1999
  */
 
+#include <limits>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -71,6 +72,8 @@
 #include "simverkehr.h"
 
 #define INVALID_INDEX (65535u)
+
+#define SPEED_UNLIMITED ((std::numeric_limits<sint32>::max)())
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
@@ -908,7 +911,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 }
 
 
-bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool vehikel_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	return route->calc_route(welt, start, ziel, this, max_speed);
 }
@@ -1081,7 +1084,7 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 		uint32 tiles_left = cnv->get_next_stop_index()-route_index;
 		if(tiles_left<4) {
 			// break at the end of stations/in front of signals
-			uint32 brake_speed_soll = speed_limit;
+			sint32 brake_speed_soll = speed_limit;
 
 			if(check_for_finish) {
 				// for the half last tile to stop in stations only
@@ -1112,7 +1115,7 @@ void vehikel_t::rauche()
 		if(!smoke) {
 			// Hajo: only produce smoke when heavily accelerating
 			//       or steam engine
-			uint32 akt_speed = kmh_to_speed(besch->get_geschw());
+			sint32 akt_speed = kmh_to_speed(besch->get_geschw());
 			if(akt_speed > speed_limit) {
 				akt_speed = speed_limit;
 			}
@@ -1736,7 +1739,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 
 
 // need to reset halt reservation (if there was one)
-bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	assert(cnv);
 	// free target reservation
@@ -1779,7 +1782,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int automobil_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -1788,7 +1791,7 @@ int automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 	}
 
 	// max_speed?
-	uint32 max_tile_speed = w->get_max_speed();
+	sint32 max_tile_speed = w->get_max_speed();
 
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
@@ -2226,7 +2229,7 @@ void waggon_t::set_convoi(convoi_t *c)
 
 
 // need to reset halt reservation (if there was one)
-bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
@@ -2271,11 +2274,11 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int waggon_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(get_waytype());
-	uint32 max_tile_speed = w ? w->get_max_speed() : 999;
+	sint32 max_tile_speed = w ? w->get_max_speed() : 999;
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
 
@@ -3052,7 +3055,7 @@ ribi_t::ribi aircraft_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int aircraft_t::get_kosten(const grund_t *gr,const uint32 ) const
+int aircraft_t::get_kosten(const grund_t *gr,const sint32 ) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(air_wt);
@@ -3524,7 +3527,7 @@ uint8 aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
@@ -3760,7 +3763,7 @@ void aircraft_t::hop()
 		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
 	}
 
-	uint32 new_speed_limit = SPEED_UNLIMITED;
+	sint32 new_speed_limit = SPEED_UNLIMITED;
 	sint32 new_friction = 0;
 
 	// take care of inflight height ...

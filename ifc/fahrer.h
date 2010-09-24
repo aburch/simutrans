@@ -33,7 +33,7 @@ public:
 	virtual waytype_t get_waytype() const = 0;
 
 	// how expensive to go here (for way search) with the maximum convoi speed as second parameter
-	virtual int get_kosten(const grund_t *,const uint32) const = 0;
+	virtual int get_kosten(const grund_t *,const sint32) const = 0;
 
 	// returns true for the way search to an unknown target.
 	// first is current ground, second is starting ground

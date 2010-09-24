@@ -804,8 +804,8 @@ void ai_goods_t::step()
 			uint32 dist = koord_distance( start->get_pos(), ziel->get_pos() );
 
 			// guess the "optimum" speed (usually a little too low)
-			uint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
-			uint32 best_road_speed = min(60+freight->get_speed_bonus()*5, 130 );
+			sint32 best_rail_speed = 80;// is ok enough for goods, was: min(60+freight->get_speed_bonus()*5, 140 );
+			sint32 best_road_speed = min(60+freight->get_speed_bonus()*5, 130 );
 
 			// obey timeline
 			uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);

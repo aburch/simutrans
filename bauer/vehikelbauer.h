@@ -45,12 +45,12 @@ public:
 	/* extended sreach for vehicles for KI
 	* @author prissi
 	*/
-	static const vehikel_besch_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const uint32 target_speed,const ware_besch_t * target_freight, bool include_electric, bool not_obsolete );
+	static const vehikel_besch_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete );
 
 	/* for replacement during load time
 	 * prev_veh==NULL equals leading of convoi
 	 */
-	static const vehikel_besch_t *get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const uint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last );
+	static const vehikel_besch_t *get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last );
 };
 
 #endif

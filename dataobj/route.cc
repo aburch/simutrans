@@ -293,7 +293,7 @@ ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const uint32 max_cost)
 {
 	bool ok = false;
 
@@ -495,7 +495,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_khm, const uint32 max_cost)
+bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 max_cost)
 {
 	route.clear();
 

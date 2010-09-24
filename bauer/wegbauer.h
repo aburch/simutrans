@@ -41,7 +41,7 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit,const uint16 time, const weg_t::system_type system_type);
+	static const weg_besch_t *  weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type);
 
 	static const weg_besch_t * get_besch(const char *way_name,const uint16 time=0);
 

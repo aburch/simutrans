@@ -16,7 +16,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	obj_node_t node(this, 22, &parent);
 
-	uint32 topspeed    = obj.get_int("topspeed",     999);
+	sint32 topspeed    = obj.get_int("topspeed",     999);
 	uint32 preis       = obj.get_int("cost",           0);
 	uint32 maintenance = obj.get_int("maintenance", 1000);
 	uint8 wegtyp       = get_waytype(obj.get("waytype"));
@@ -32,7 +32,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// version 4: snow images + underground way image + broad portals
 	uint16 version = 0x8004;
 	node.write_uint16(fp, version,        0);
-	node.write_uint32(fp, topspeed,       2);
+	node.write_sint32(fp, topspeed,       2);
 	node.write_uint32(fp, preis,          6);
 	node.write_uint32(fp, maintenance,   10);
 	node.write_uint8 (fp, wegtyp,        14);

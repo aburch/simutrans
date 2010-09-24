@@ -112,7 +112,7 @@ bool brueckenbauer_t::laden_erfolgreich()
  * Find a matchin bridge
  * @author Hj. Malthaner
  */
-const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const bruecke_besch_t *find_besch=NULL;
 

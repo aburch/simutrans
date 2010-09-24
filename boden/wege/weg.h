@@ -139,13 +139,13 @@ public:
 	* Setzt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	void set_max_speed(uint16 s) { max_speed = s; }
+	void set_max_speed(sint32 s) { max_speed = s; }
 
 	/**
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	uint16 get_max_speed() const { return max_speed; }
+	sint32 get_max_speed() const { return max_speed; }
 
 	/**
 	* Setzt neue Beschreibung. Ersetzt alte Höchstgeschwindigkeit

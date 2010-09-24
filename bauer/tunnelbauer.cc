@@ -108,7 +108,7 @@ const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
  * Find a matchin tunnel
  * @author Hj. Malthaner
  */
-const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const tunnel_besch_t *find_besch=NULL;
 

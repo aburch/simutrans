@@ -32,7 +32,7 @@ class bruecke_besch_t : public obj_besch_std_name_t {
     friend class bridge_reader_t;
 
 private:
-	uint32  topspeed;
+	sint32  topspeed;
 	uint32  preis;
 
 	/**
@@ -112,7 +112,7 @@ public:
 	 * Determines max speed in km/h allowed on this bridge
 	 * @author Hj. Malthaner
 	 */
-	uint32  get_topspeed() const { return topspeed; }
+	sint32  get_topspeed() const { return topspeed; }
 
 	/**
 	 * Distance of pillars (=0 for no pillars)

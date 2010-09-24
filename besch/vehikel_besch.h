@@ -239,7 +239,7 @@ public:
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
 	uint32 get_preis() const { return preis; }
-	uint16 get_geschw() const { return geschw; }
+	sint32 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
 	uint32 get_leistung() const { return leistung; }
 	uint16 get_betriebskosten() const { return betriebskosten; }

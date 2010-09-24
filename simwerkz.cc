@@ -2078,7 +2078,7 @@ class electron_t : fahrer_t {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_kosten(const grund_t *,const uint32) const { return 1; }
+	virtual int get_kosten(const grund_t *,const sint32) const { return 1; }
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const { return false; }
 };
 

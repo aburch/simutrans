@@ -149,7 +149,7 @@ bool wegbauer_t::register_besch(weg_besch_t *besch)
  * The timeline is also respected.
  * @author prissi, gerw
  */
-const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const uint32 speed_limit, const uint16 time, const weg_t::system_type system_type)
+const weg_besch_t* wegbauer_t::weg_search(const waytype_t wtyp, const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type)
 {
 	const weg_besch_t* best = NULL;
 	bool best_allowed = false; // Does the best way fulfill the timeline?
@@ -1668,7 +1668,7 @@ sint64 wegbauer_t::calc_costs()
 	}
 
 	for(uint32 i=0; i<get_count(); i++) {
-		sint16 old_speedlimit = -1;
+		sint32 old_speedlimit = -1;
 
 		const grund_t* gr = welt->lookup(route[i] + offset);
 		if( gr ) {
@@ -2051,7 +2051,7 @@ class fluss_fahrer_t : public fahrer_t
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt)!=0; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_weg_ribi_unmasked(water_wt); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
-	virtual int get_kosten(const grund_t *,const uint32) const { return 1; }
+	virtual int get_kosten(const grund_t *,const sint32) const { return 1; }
 	virtual bool ist_ziel(const grund_t *cur,const grund_t *) const { return cur->ist_wasser()  &&  cur->get_grund_hang()==hang_t::flach; }
 };
 
