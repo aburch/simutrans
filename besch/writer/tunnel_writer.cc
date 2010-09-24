@@ -70,7 +70,6 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	// Version 3: pre-defined ways
 	// version 4: snow images + underground way image + broad portals
 	uint16 version = 0x8004;
-<<<<<<< HEAD
 
 	// This is the overlay flag for Simutrans-Experimental
 	// This sets the *second* highest bit to 1. 
@@ -82,7 +81,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	version += 0x100;
 
 	node.write_uint16(fp, version,						0);
-	node.write_uint32(fp, topspeed,						2);
+	node.write_sint32(fp, topspeed,						2);
 	node.write_uint32(fp, preis,						6);
 	node.write_uint32(fp, maintenance,					10);
 	node.write_uint8 (fp, wegtyp,						14);
@@ -101,15 +100,6 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	{
 		node.write_sint8(fp, 0, 26);
 	}
-=======
-	node.write_uint16(fp, version,        0);
-	node.write_sint32(fp, topspeed,       2);
-	node.write_uint32(fp, preis,          6);
-	node.write_uint32(fp, maintenance,   10);
-	node.write_uint8 (fp, wegtyp,        14);
-	node.write_uint16(fp, intro_date,    15);
-	node.write_uint16(fp, obsolete_date, 17);
->>>>>>> 7ad6ad0... (inkelyad) Code: all speed related variables are now sint32
 
 	sint8 number_seasons = 0;
 	uint8 number_portals = 1;

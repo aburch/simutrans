@@ -66,7 +66,6 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	uint8 draw_as_ding = (obj.get_int("draw_as_ding", 0) == 1);
 	sint8 number_seasons = 0;
 
-<<<<<<< HEAD
 	// Way constraints
 	// One byte for permissive, one byte for prohibitive.
 	// Therefore, 8 possible constraints of each type.
