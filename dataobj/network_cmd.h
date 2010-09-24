@@ -112,15 +112,17 @@ public:
  *		client paused, waits for unpause
  * @from-server:
  *		data is resent to client
+ *		map_counter to identify network_commands
  *		unpause client
  */
 class nwc_ready_t : public network_command_t {
 public:
-	nwc_ready_t(uint32 sync_steps_=0) : network_command_t(NWC_READY), sync_steps(sync_steps_) {}
+	nwc_ready_t(uint32 sync_steps_=0, uint32 map_counter_=0) : network_command_t(NWC_READY), sync_steps(sync_steps_), map_counter(map_counter_) {}
 	virtual bool execute(karte_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_ready_t";}
 	uint32 sync_steps;
+	uint32 map_counter;
 };
 
 /**
@@ -142,8 +144,8 @@ public:
  */
 class network_world_command_t : public network_command_t {
 public:
-	network_world_command_t() : network_command_t(), sync_step(0) {};
-	network_world_command_t(uint16 /*id*/, uint32 /*sync_step*/);
+	network_world_command_t() : network_command_t(), sync_step(0), map_counter(0) {};
+	network_world_command_t(uint16 /*id*/, uint32 /*sync_step*/, uint32 /*map_counter*/);
 	virtual void rdwr();
 	virtual const char* get_name() { return "network_world_command_t";}
 	// put it to the command queue
@@ -151,6 +153,7 @@ public:
 	// apply it to the world
 	virtual void do_command(karte_t*) {}
 	uint32 get_sync_step() const { return sync_step; }
+	uint32 get_map_counter() const { return map_counter; }
 	// ignore events that lie in the past?
 	// if false: any cmd with sync_step < world->sync_step forces network disconnect
 	virtual bool ignore_old_events() const { return false;}
@@ -159,6 +162,7 @@ public:
 	static bool cmp(network_world_command_t *nwc1, network_world_command_t *nwc2) { return nwc1->get_sync_step() <= nwc2->get_sync_step(); }
 protected:
 	uint32 sync_step; // when this has to be executed
+	uint32 map_counter; // cmd comes from world at this stage
 	// TODO: uint16 sub_step to have an order within one step
 };
 
@@ -171,8 +175,8 @@ protected:
  */
 class nwc_sync_t : public network_world_command_t {
 public:
-	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0) {};
-	nwc_sync_t(uint32 sync_steps, uint32 send_to_client) : network_world_command_t(NWC_SYNC, sync_steps), client_id(send_to_client) {};
+	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0, 0) {};
+	nwc_sync_t(uint32 sync_steps, uint32 map_counter, uint32 send_to_client) : network_world_command_t(NWC_SYNC, sync_steps, map_counter), client_id(send_to_client) {};
 	virtual void rdwr();
 	virtual void do_command(karte_t*);
 	virtual const char* get_name() { return "nwc_sync_t";}
@@ -188,8 +192,8 @@ public:
  */
 class nwc_check_t : public network_world_command_t {
 public:
-	nwc_check_t() : network_world_command_t(NWC_CHECK, 0) {};
-	nwc_check_t(uint32 sync_steps, uint32 server_random_seed_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps), server_random_seed(server_random_seed_), server_sync_step(server_sync_step_) {};
+	nwc_check_t() : network_world_command_t(NWC_CHECK, 0, 0) {};
+	nwc_check_t(uint32 sync_steps, uint32 map_counter, uint32 server_random_seed_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps, map_counter), server_random_seed(server_random_seed_), server_sync_step(server_sync_step_) {};
 	virtual void rdwr();
 	virtual void do_command(karte_t*) {}
 	virtual const char* get_name() { return "nwc_check_t";}
@@ -214,8 +218,8 @@ public:
 
 class nwc_tool_t : public network_world_command_t {
 public:
-	nwc_tool_t() : network_world_command_t(NWC_TOOL, 0) { default_param = NULL; }
-	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, bool init);
+	nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0) { default_param = NULL; }
+	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);
 
 	virtual ~nwc_tool_t();

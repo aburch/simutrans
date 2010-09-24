@@ -342,6 +342,9 @@ private:
 
 	uint32 tile_counter;
 
+	// to identify different stages of the same game
+	uint32 map_counter;
+
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
 
@@ -972,6 +975,16 @@ public:
 	void announce_server();
 
 	void network_disconnect();
+
+	/**
+	 * to identify the current map
+	 */
+	uint32 get_map_counter() const { return map_counter; }
+	void set_map_counter(uint32 new_mc) { map_counter = new_mc; }
+	/**
+	 * called by server before sending the ready-cmds
+	 */
+	void reset_map_counter();
 };
 
 #endif

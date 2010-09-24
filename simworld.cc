@@ -2173,7 +2173,7 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 	}
 	else {
 		// queue tool for network
-		nwc_tool_t *nwc = new nwc_tool_t(sp, w, zeiger->get_pos(), steps, true);
+		nwc_tool_t *nwc = new nwc_tool_t(sp, w, zeiger->get_pos(), steps, map_counter, true);
 		network_send_server(nwc);
 	}
 }
@@ -4649,6 +4649,11 @@ void karte_t::reset_interaction()
 }
 
 
+void karte_t::reset_map_counter()
+{
+	map_counter = dr_time();
+}
+
 
 // jump one year ahead
 // (not updating history!)
@@ -5071,7 +5076,7 @@ DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 				}
 				else {
 					// queue tool for network
-					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), wkz, zeiger->get_pos(), steps, false);
+					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), wkz, zeiger->get_pos(), steps, map_counter, false);
 					network_send_server(nwc);
 					result = false;
 				}
@@ -5459,7 +5464,7 @@ bool karte_t::interactive(uint32 quit_month)
 					last_randoms[sync_steps&15] = get_random_seed();
 					// broadcast sync info
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  &&  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0) {
-						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, last_randoms[sync_steps&15], sync_steps);
+						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&15], sync_steps);
 						network_send_all(nwc, true);
 					}
 					if( umgebung_t::networkmode  &&  (sync_steps & 7)==0) {
