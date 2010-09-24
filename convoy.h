@@ -58,6 +58,7 @@ a = (F - cf * v^2 - Frs) / m
 #ifndef convoy_h
 #define convoy_h
 
+#include <limits>
 #include <math.h>
 #include "tpl/vector_tpl.h"
 #include "besch/vehikel_besch.h"
@@ -93,6 +94,10 @@ a = (F - cf * v^2 - Frs) / m
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
 
+#define WEIGHT_UNLIMITED ((std::numeric_limits<sint32>::max)())
+
+// anything greater then 2097151 will give us overflow in kmh_to_speed. 
+#define KMH_SPEED_UNLIMITED  (300000)
 /**
  * Convert simutrans speed to m/s
  */
@@ -117,22 +122,22 @@ struct vehicle_summary_t
 {
 	uint32 length;			// sum of vehicles' length in 1/TILE_STEPSth of a tile
 	uint32 tiles;           // length of convoy in tiles.
-	uint32 weight;			// sum of vehicles' own weight without load in kg
-	uint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
+	sint32 weight;			// sum of vehicles' own weight without load in kg
+	sint32 max_speed;		// minimum of all vehicles' maximum speed in km/h
 
 	inline void clear()
 	{
 		length = 0;
 		tiles = 0;
 		weight = 0;
-		max_speed = UINT_MAX; // if there is no vehicle, there is no speed limit!
+		max_speed = KMH_SPEED_UNLIMITED; // if there is no vehicle, there is no speed limit!
 	}
 
 	inline void add_vehicle(const vehikel_besch_t &b)
 	{
 		length += b.get_length();
 		weight += b.get_gewicht();
-		max_speed = min(max_speed, (uint32) b.get_geschw());
+		max_speed = min(max_speed, b.get_geschw());
 	}
 
 	// call update_summary() after all vehicles have been added.
@@ -157,7 +162,7 @@ struct adverse_summary_t
 	inline void clear()
 	{
 		cf = fr = 0;
-		max_speed = INT_MAX; 
+		max_speed = KMH_SPEED_UNLIMITED; 
 	}
 
 	inline void set_by_waytype(waytype_t waytype)
@@ -203,8 +208,8 @@ struct adverse_summary_t
 struct freight_summary_t
 {
 	// several freight of the same category may weigh different: 
-	uint32 min_freight_weight; // in kg
-	uint32 max_freight_weight; // in kg
+	sint32 min_freight_weight; // in kg
+	sint32 max_freight_weight; // in kg
 
 	inline void clear()
 	{
@@ -218,7 +223,7 @@ struct freight_summary_t
 
 struct weight_summary_t
 {
-	uint32 weight;			// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
+	sint32 weight;			// vehicle and freight weight in kg. depends on vehicle (weight) and freight (weight)
 	double weight_cos;		// vehicle and freight weight in kg multiplied by cos(alpha). depends on adverse (way/inclination), vehicle and freight
 	double weight_sin;		// vehicle and freight weight in kg multiplied by sin(alpha). depends on adverse (way/inclination), vehicle and freight
 
@@ -226,7 +231,7 @@ struct weight_summary_t
 	{
 	}
 
-	weight_summary_t(uint32 kgs, sint32 sin_alpha)
+	weight_summary_t(sint32 kgs, sint32 sin_alpha)
 	{
 		clear();
 		add_weight(kgs, sin_alpha);
@@ -261,9 +266,10 @@ private:
 	/**
 	 * Get force in N according to current speed in m/s
 	 */
-	inline uint32 get_force(double speed) 
+	inline sint32 get_force(double speed) 
 	{
-		uint16 v = abs((uint16)abs(speed));
+		//uint16 v = abs((uint16)abs(speed));
+		sint32 v = (sint32)abs(speed);
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
 	}
 	/*
@@ -277,8 +283,8 @@ protected:
 	/**
 	 * get force in kN according to current speed m/s in
 	 */
-	virtual uint32 get_force_summary(uint16 speed) = 0;
-	virtual uint32 get_power_summary(uint16 speed) = 0;
+	virtual sint32 get_force_summary(sint32 speed) = 0;
+	virtual sint32 get_power_summary(sint32 speed) = 0;
 
 	virtual const vehicle_summary_t &get_vehicle_summary() {
 		return vehicle;
@@ -288,11 +294,11 @@ protected:
 		return adverse;
 	}
 
-	virtual uint32 get_starting_force() { 
+	virtual sint32 get_starting_force() { 
 		return get_force_summary(0) * 1000; 
 	}
 
-	virtual uint32 get_continuous_power() { 
+	virtual sint32 get_continuous_power() { 
 		return get_power_summary(get_vehicle_summary().max_speed) * 1000; 
 	}
 public:
@@ -312,9 +318,9 @@ public:
 	 * @param sin_alpha is 1000 times sin(inclination_angle). e.g. 50 == inclination of 2.8 per mille.
 	 * Depends on vehicle and adverse.
 	 */
-	uint32 calc_max_weight(sint32 sin_alpha); 
+	sint32 calc_max_weight(sint32 sin_alpha); 
 
-	uint32 calc_max_starting_weight(sint32 sin_alpha);
+	sint32 calc_max_starting_weight(sint32 sin_alpha);
 
 	/** 
 	 * Calculate the movement within delta_t
@@ -342,8 +348,8 @@ class lazy_convoy_t /*abstract*/ : public convoy_t
 {
 private:
 	freight_summary_t freight;
-	uint32 starting_force;   // in N, calculated in get_starting_force()
-	uint32 continuous_power; // in W, calculated in get_continuous_power()
+	sint32 starting_force;   // in N, calculated in get_starting_force()
+	sint32 continuous_power; // in W, calculated in get_continuous_power()
 protected:
 	int is_valid;
 	// decendents implement the update methods. 
@@ -432,7 +438,7 @@ public:
 		is_valid &= ~(cd_starting_force);
 	}
 
-	virtual uint32 get_starting_force() 
+	virtual sint32 get_starting_force() 
 	{
 		if (!(is_valid & cd_starting_force)) 
 		{
@@ -451,7 +457,7 @@ public:
 		is_valid &= ~(cd_continuous_power);
 	}
 
-	virtual uint32 get_continuous_power()
+	virtual sint32 get_continuous_power()
 	{
 		if (!(is_valid & cd_continuous_power)) 
 		{
@@ -475,14 +481,14 @@ public:
 		return convoy_t::calc_max_speed(weight);
 	}
 
-	uint32 calc_max_weight(sint32 sin_alpha)
+	sint32 calc_max_weight(sint32 sin_alpha)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
 		return convoy_t::calc_max_weight(sin_alpha);
 	}
 
-	uint32 calc_max_starting_weight(sint32 sin_alpha)
+	sint32 calc_max_starting_weight(sint32 sin_alpha)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
@@ -508,8 +514,8 @@ protected:
 	virtual void update_vehicle_summary(vehicle_summary_t &vehicle);
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
-	virtual uint32 get_force_summary(uint16 speed /* in m/s */);
-	virtual uint32 get_power_summary(uint16 speed /* in m/s */);
+	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
+	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
 public:
 	potential_convoy_t(karte_t &world, vector_tpl<const vehikel_besch_t *> &besch) : lazy_convoy_t(), vehicles(besch), world(world)
 	{
@@ -542,8 +548,8 @@ protected:
 	virtual void update_adverse_summary(adverse_summary_t &adverse);
 	virtual void update_freight_summary(freight_summary_t &freight);
 	virtual void update_weight_summary(weight_summary_t &weight);
-	virtual uint32 get_force_summary(uint16 speed /* in m/s */);
-	virtual uint32 get_power_summary(uint16 speed /* in m/s */);
+	virtual sint32 get_force_summary(sint32 speed /* in m/s */);
+	virtual sint32 get_power_summary(sint32 speed /* in m/s */);
 public:
 	existing_convoy_t(convoi_t &vehicles) : lazy_convoy_t(), convoy(vehicles)
 	{

@@ -1338,7 +1338,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 		//const bool i_am_public = besitzer_p == welt->get_spieler(1); // unused
 
 		// Check the average speed.
-		uint16 average_speed = 0;
+		sint32 average_speed = 0;
 		if(line.is_bound())
 		{
 			average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
@@ -2250,7 +2250,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
-		const uint16 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
+		const sint32 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
 
 		// uses fpl->increment_index to iterate over stops
 		uint8 index = fpl->get_aktuell();

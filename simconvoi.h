@@ -257,7 +257,8 @@ private:
 	// will be recalculated if
 	// recalc_data is true
 	bool recalc_data;
-	uint32 speed_limit;
+	sint32 sum_friction_weight;
+	sint32 speed_limit;
 
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated

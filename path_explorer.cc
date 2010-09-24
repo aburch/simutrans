@@ -626,7 +626,7 @@ void path_explorer_t::compartment_t::step()
 			linkage_t current_linkage;
 			schedule_t *current_schedule;
 			spieler_t *current_owner;
-			uint32 current_average_speed;
+			sint32 current_average_speed;
 
 			uint8 entry_count;
 			halthandle_t current_halt;

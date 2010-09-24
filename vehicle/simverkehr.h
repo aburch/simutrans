@@ -159,7 +159,7 @@ public:
 	virtual overtaker_t *get_overtaker() { return this; }
 
 	// Overtaking for city cars
-	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);
+	virtual bool can_overtake(overtaker_t *other_overtaker, sint32 other_speed, int steps_other, int diagonal_length);
 
 	// Sets the list in which the vehicle is referenced, so that
 	// it can be removed from the list when it is deleted. 

@@ -82,7 +82,7 @@ public:
 	 * Find a matching bridge
 	 * @author prissi
 	 */
-	static const bruecke_besch_t *find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time);
+	static const bruecke_besch_t *find_bridge(const waytype_t wtyp, const sint32 min_speed,const uint16 time);
 
 	/**
 	 * Fill menu with icons of given waytype

@@ -86,7 +86,7 @@ public:
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten( const grund_t* gr, uint32 max_speed) const;
+	virtual int get_kosten( const grund_t* gr, sint32 max_speed) const;
 
 	~road_destination_finder_t()
 	{

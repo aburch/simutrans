@@ -82,7 +82,7 @@ wayobj_t::~wayobj_t()
 				weg->set_electrify(false);
 				// restore old speed limit and way constraints
 				weg->reset_way_constraints();
-				uint32 max_speed = weg->hat_gehweg() ? 50 : weg->get_besch()->get_topspeed();
+				sint32 max_speed = weg->hat_gehweg() ? 50 : weg->get_besch()->get_topspeed();
 				if(gr->get_typ()==grund_t::tunnelboden) {
 					tunnel_t *t = gr->find<tunnel_t>(1);
 					if(t) {

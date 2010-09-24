@@ -56,7 +56,7 @@ private:
 	 * Max speed
 	 * @author Hj. Malthaner
 	 */
-	uint32 topspeed;
+	sint32 topspeed;
 
 	/**
 	 * Max weight
@@ -121,7 +121,7 @@ public:
 	 * Determines max speed in km/h allowed on this way
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_topspeed() const { return topspeed; }
+	sint32 get_topspeed() const { return topspeed; }
 
 	//Returns maximum weight
 	uint32 get_max_weight() const { return (max_weight < 9999 && max_weight > 0) ? max_weight : 999; }

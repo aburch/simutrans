@@ -11,6 +11,7 @@
  * Hansjoerg Malthaner, Nov. 1999
  */
 
+#include <limits>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -77,6 +78,7 @@
 
 #define INVALID_INDEX (65535u)
 
+//#define SPEED_UNLIMITED 1280000
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
@@ -1062,7 +1064,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	set_besitzer( sp );
 	insta_zeit = welt->get_current_month();
 	cnv = NULL;
-	speed_limit = SPEED_UNLIMITED;
+	speed_limit = speed_unlimited();
 
 	route_index = 1;
 
@@ -1132,8 +1134,7 @@ vehikel_t::vehikel_t(karte_t *welt) :
 }
 
 
-
-bool vehikel_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool vehikel_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	return route->calc_route(welt, start, ziel, this, max_speed, cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight());
 }
@@ -1296,7 +1297,7 @@ void vehikel_t::hop()
 	}
 	else
 	{
-		speed_limit = SPEED_UNLIMITED;
+		speed_limit = speed_unlimited();
 	}
 
 	if(  check_for_finish  &  ist_erstes  ) {
@@ -1323,7 +1324,7 @@ void vehikel_t::hop()
  * taking into account the curve and weight limit.
  * @author: jamespetts
  */
-uint32
+sint32
 vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi current_direction, bool is_corner)
 {
 	grund_t *g;
@@ -1334,7 +1335,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	}
 	waytype_t waytype = get_waytype();
 	const weg_t *w = g->get_weg(waytype);
-	uint32 base_limit;
+	sint32 base_limit;
 	uint16 weight_limit;
 	static bool is_tilting = besch->get_tilting();
 	if(w != NULL)
@@ -1348,9 +1349,9 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		base_limit = kmh_to_speed(200);
 		weight_limit = 999;
 	}
-	uint32 overweight_speed_limit = base_limit;
-	uint32 corner_speed_limit = base_limit;
-	uint32 new_limit = base_limit;
+	sint32 overweight_speed_limit = base_limit;
+	sint32 corner_speed_limit = base_limit;
+	sint32 new_limit = base_limit;
 	uint32 heaviest_vehicle = cnv->get_heaviest_vehicle();
 
 	//Reduce speed for overweight vehicles
@@ -1437,7 +1438,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		}
 
 		//Smoothing code: slightly smoothed corners benefit.		
-		uint32 max_speed_90 = kmh_to_speed(55);
+		sint32 max_speed_90 = kmh_to_speed(55);
 		if(direction_difference > compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) && limit_adjustment_factor < 0.8))
 		{
 			limit_adjustment_factor += 0.15;
@@ -1468,7 +1469,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				//If we are here, there *must* be a curve, since we have already checked that.
 				//If this is 0, this is an error, and we will assume a 45 degree bend.
 #ifndef debug_corners
-				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor); 
+				corner_speed_limit = base_limit * limit_adjustment_factor; 
 #else
 				corner_speed_limit = base_limit;
 #endif
@@ -1476,23 +1477,23 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 			case 45 :
 				
-				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor);
+				corner_speed_limit = base_limit * limit_adjustment_factor;
 				break;
 
 			case 90 :
 				// Sharp corners have a hard limit for speed irrespective of the base
 				// speed limit of the underlying way.
-				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.5)), max_speed_90);
+				corner_speed_limit = min(base_limit * (limit_adjustment_factor * 0.5), max_speed_90);
 				break;
 					
 			case 135 :
 
-				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.35)), kmh_to_speed(40));
+				corner_speed_limit = min(base_limit * (limit_adjustment_factor * 0.35), kmh_to_speed(40));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = min((uint32)(base_limit * (limit_adjustment_factor * 0.25)), kmh_to_speed(30));
+				corner_speed_limit = min(base_limit * (limit_adjustment_factor * 0.25), kmh_to_speed(30));
 				break;
 				
 			default :
@@ -1591,7 +1592,7 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 		if(tiles_left < welt->get_einstellungen()->get_max_direction_steps(get_waytype()))
 		{
 			// break at the end of stations/in front of signals
-			uint32 brake_speed_soll = speed_limit;
+			sint32 brake_speed_soll = speed_limit;
 
 			if(check_for_finish) {
 				// for the half last tile to stop in stations only
@@ -1645,7 +1646,7 @@ void vehikel_t::rauche()
 		if(!smoke) {
 			// Hajo: only produce smoke when heavily accelerating
 			//       or steam engine
-			uint32 akt_speed = kmh_to_speed(besch->get_geschw());
+			sint32 akt_speed = kmh_to_speed(besch->get_geschw());
 			if(akt_speed > speed_limit) {
 				akt_speed = speed_limit;
 			}
@@ -2350,7 +2351,7 @@ automobil_t::automobil_t(karte_t *welt, loadsave_t *file, bool is_first, bool is
 
 
 // need to reset halt reservation (if there was one)
-bool automobil_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool automobil_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	assert(cnv);
 	// free target reservation
@@ -2409,7 +2410,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int automobil_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -2418,7 +2419,7 @@ int automobil_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
 	}
 
 	// max_speed?
-	uint32 max_tile_speed = w->get_max_speed();
+	sint32 max_tile_speed = w->get_max_speed();
 
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed<=max_tile_speed) ? 1 :  (max_speed*4)/(max_tile_speed*4);
@@ -2884,7 +2885,7 @@ void waggon_t::set_convoi(convoi_t *c)
 
 
 // need to reset halt reservation (if there was one)
-bool waggon_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool waggon_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 	if(ist_erstes  &&  route_index<cnv->get_route()->get_count()) {
 		// free all reserved blocks
@@ -2943,11 +2944,11 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int waggon_t::get_kosten(const grund_t *gr,const uint32 max_speed) const
+int waggon_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(get_waytype());
-	uint32 max_tile_speed = w ? w->get_max_speed() : 999;
+	sint32 max_tile_speed = w ? w->get_max_speed() : 999;
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed <= max_tile_speed) ? 1 : (max_speed*4)/(max_tile_speed*4);
 
@@ -3807,8 +3808,7 @@ aircraft_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int
-aircraft_t::get_kosten(const grund_t *gr,const uint32 ) const
+int aircraft_t::get_kosten(const grund_t *gr,const sint32 ) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(air_wt);
@@ -4296,7 +4296,7 @@ aircraft_t::get_approach_ribi( koord3d start, koord3d ziel )
 
 // main routine: searches the new route in up to three steps
 // must also take care of stops under traveling and the like
-bool aircraft_t::calc_route(koord3d start, koord3d ziel, uint32 max_speed, route_t* route)
+bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route)
 {
 //DBG_MESSAGE("aircraft_t::calc_route()","search route from %i,%i,%i to %i,%i,%i",start.x,start.y,start.z,ziel.x,ziel.y,ziel.z);
 
@@ -4535,7 +4535,7 @@ aircraft_t::hop()
 		mark_image_dirty( bild, get_yoff()-flughoehe-hoff-2 );
 	}
 
-	uint32 new_speed_limit = SPEED_UNLIMITED;
+	sint32 new_speed_limit = speed_unlimited();
 	sint32 new_friction = 0;
 
 	// take care of inflight height ...

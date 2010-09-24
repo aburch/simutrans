@@ -943,7 +943,7 @@ void stadtauto_t::calc_bild()
 void stadtauto_t::calc_current_speed()
 {
 	const weg_t * weg = welt->lookup(get_pos())->get_weg(road_wt);
-	uint16 max_speed;
+	sint32 max_speed;
 	if(besch != NULL)
 	{
 		max_speed = besch->get_geschw();
@@ -952,7 +952,7 @@ void stadtauto_t::calc_current_speed()
 	{
 		max_speed = kmh_to_speed(90);
 	}
-	const uint16 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
+	const sint32 speed_limit = weg ? kmh_to_speed(weg->get_max_speed()) : max_speed;
 	current_speed += max_speed>>2;
 	if(current_speed > max_speed) {
 		current_speed = max_speed;

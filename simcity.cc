@@ -2462,9 +2462,9 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 		return 65535;
 	}
 	koord3d pos;
-	const uint16 vehicle_speed_average = welt->get_citycar_speed_average();
-	uint16 top_speed;
-	uint32 speed_sum = 0;
+	const sint32 vehicle_speed_average = welt->get_citycar_speed_average();
+	sint32 top_speed;
+	sint32 speed_sum = 0;
 	uint32 count = 0;
 	weg_t* road;
 	ITERATE_PTR(private_car_route,i)
@@ -2475,7 +2475,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 		speed_sum += min(top_speed, vehicle_speed_average);
 		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
-	const uint16 speed_average = (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
+	const sint32 speed_average = (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
 	const float journey_distance_km = (float)private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile();
 	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
@@ -4618,7 +4618,7 @@ ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
 	return master->get_ribi(gr); 
 }
 
-int road_destination_finder_t::get_kosten( const grund_t* gr, uint32 max_speed) const
+int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);

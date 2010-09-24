@@ -354,7 +354,7 @@ public:
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
 	uint32 get_preis() const { return preis; }
-	uint16 get_geschw() const { return geschw; }
+	sint32 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
 	uint16 get_betriebskosten() const { return betriebskosten; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
@@ -475,7 +475,7 @@ public:
 	 * Effective force in kN: force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_force_index(uint16 speed /* in m/s */ ) const;
+	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
 
 	/**
 	 * Get effective power index. 
@@ -483,7 +483,7 @@ public:
 	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_power_index(uint16 speed /* in m/s */ ) const;
+	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;
 
 	void calc_checksum(checksum_t *chk) const;
 };
