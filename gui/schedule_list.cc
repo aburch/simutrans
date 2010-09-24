@@ -433,7 +433,7 @@ void schedule_list_gui_t::rename_line()
 			// since init always returns false, it is save to delete immediately
 			delete w;
 			// do not trigger this command again
-			tstrncpy(old_line_name, line->get_name(), sizeof(old_line_name));
+			tstrncpy(old_line_name, t, sizeof(old_line_name));
 		}
 	}
 }

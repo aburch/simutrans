@@ -27,6 +27,7 @@
 #include "gui/fahrplan_gui.h"
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
+#include "gui/convoi_detail_t.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
 
@@ -451,6 +452,15 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 		}
 		tstrncpy(buf+name_offset, name+name_offset, sizeof(buf)-name_offset);
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
+	}
+	// now tell the windows that we were renamed
+	convoi_detail_t *detail = dynamic_cast<convoi_detail_t*>(win_get_magic( magic_convoi_detail+self.get_id()));
+	if (detail) {
+		detail->update_data();
+	}
+	convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()));
+	if (info) {
+		info->update_data();
 	}
 }
 

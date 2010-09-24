@@ -69,7 +69,15 @@ private:
 	*/
 	cbuffer_t freight_info;
 
-	char cnv_name[256];
+	char cnv_name[256],old_cnv_name[256];
+
+	// resets textinput to current cnv name
+	// necessary after cnv was renamed
+	void reset_cnv_name();
+
+	// rename selected cnv
+	// checks if possible / necessary
+	void rename_cnv();
 
 	static bool route_search_in_progress;
 	static const char *sort_text[SORT_MODES];
@@ -109,4 +117,9 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * called when convoi was renamed
+	 */
+	void update_data() { reset_cnv_name(); set_dirty(); }
 };

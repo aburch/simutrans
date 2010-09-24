@@ -60,7 +60,6 @@
 #include "gui/fahrplan_gui.h"
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
-#include "gui/convoi_detail_t.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -5186,11 +5185,6 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 			if(  cnv.is_bound()  ) {
 				//  set name without ID
 				cnv->set_name( p, false );
-
-				convoi_detail_t *detail = dynamic_cast<convoi_detail_t*>(win_get_magic( magic_convoi_detail+cnv.get_id()));
-				if (detail) {
-					detail->update_data();
-				}
 				return false;
 			}
 			break;
