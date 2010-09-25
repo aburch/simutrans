@@ -243,10 +243,11 @@ bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 
 bool server_frame_t::infowin_event(const event_t *ev)
 {
+	bool swallowed = gui_frame_t::infowin_event( ev );
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  ) {
 		action_triggered( &serverlist, value_t(serverlist.get_selection()) );
 	}
-	return gui_frame_t::infowin_event( ev );
+	return swallowed;
 }
 
 
