@@ -453,7 +453,14 @@ bool stadtauto_t::sync_step(long delta_t)
 	}
 	else {
 		weg_next += current_speed*delta_t;
-		weg_next -= fahre_basis( weg_next );
+		const uint32 distance = fahre_basis( weg_next );
+		// hop_check could have set weg_next to zero, check for possible underflow here
+		if (weg_next > distance) {
+			weg_next -= distance;
+		}
+		else {
+			weg_next = 0;
+		}
 	}
 
 	return time_to_life>0;
