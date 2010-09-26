@@ -780,6 +780,9 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		// will be handled by the city after reloading
 		arbeiterziele.clear();
 	}
+	
+	// Necessary to ensure that the industry density is correct after re-loading a game.
+	welt->increase_actual_industry_density(1.0 / (double)besch->get_gewichtung());
 }
 
 
