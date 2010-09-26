@@ -166,7 +166,7 @@ void vehikel_besch_t::loaded()
  * Get effective force in kN at given speed in m/s: effective_force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_force_index(uint16 speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_force == 0) 
 	{
@@ -180,7 +180,7 @@ uint32 vehikel_besch_t::get_effective_force_index(uint16 speed /* in m/s */ ) co
  * Get effective power in kW at given speed in m/s: effective_power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{

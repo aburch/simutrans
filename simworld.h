@@ -411,7 +411,7 @@ private:
 	// @author: jamespetts
 	void set_scale();
 
-	uint16 citycar_speed_average;
+	sint32 citycar_speed_average;
 
 	void set_citycar_speed_average();
 
@@ -1149,7 +1149,7 @@ public:
 
 	void network_disconnect();
 
-	uint16 get_citycar_speed_average() const { return citycar_speed_average; }
+	sint32 get_citycar_speed_average() const { return citycar_speed_average; }
 
 	void set_recheck_road_connexions() { recheck_road_connexions = true; }
 
@@ -1160,10 +1160,10 @@ public:
 	 * speed limit of the appropriate type
 	 * of road.
 	 */
-	uint16 get_generic_road_speed_city() const { return generic_road_speed_city; }
-	uint16 get_generic_road_speed_intercity() const { return generic_road_speed_intercity; };
+	sint32 get_generic_road_speed_city() const { return generic_road_speed_city; }
+	sint32 get_generic_road_speed_intercity() const { return generic_road_speed_intercity; };
 
-	uint16 calc_generic_road_speed(const weg_besch_t* besch);
+	sint32 calc_generic_road_speed(const weg_besch_t* besch);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
 

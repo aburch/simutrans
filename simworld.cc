@@ -6081,17 +6081,17 @@ void karte_t::calc_generic_road_speed_intercity()
 	generic_road_speed_intercity = calc_generic_road_speed(besch);
 }
 
-uint16 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
+sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 {
-	const uint16 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
-	const uint16 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
+	const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
+	const sint32 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
 	const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
 	return journey_time_per_tile;
 }
 
 void karte_t::calc_max_road_check_depth()
 {
-	uint16 max_road_speed = 0;
+	sint32 max_road_speed = 0;
 	stringhashtable_tpl <weg_besch_t *> * ways = wegbauer_t::get_all_ways();
 
 	if(ways != NULL)

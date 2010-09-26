@@ -3232,7 +3232,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 	
 	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
-	const uint16 average_speed = ((double)journey_distance / journey_time) * 20.0;
+	const sint32 average_speed = ((double)journey_distance / journey_time) * 20.0;
 	book(average_speed, CONVOI_AVERAGE_SPEED);
 	last_departure_time = welt->get_zeit_ms();
 		
@@ -4326,7 +4326,7 @@ public:
 	{ 
 		return master->get_ribi(gr); 
 	};
-	virtual int get_kosten( const grund_t*, uint32) const 
+	virtual int get_kosten( const grund_t*, sint32) const 
 	{ 
 		return 1; 
 	};

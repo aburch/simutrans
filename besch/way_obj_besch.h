@@ -58,7 +58,7 @@ private:
      * Max speed
      * @author Hj. Malthaner
      */
-    uint32 topspeed;
+    sint32 topspeed;
 
     /**
      * Introduction date
@@ -110,7 +110,7 @@ public:
 	 * Determines max speed in km/h allowed on this way
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_topspeed() const { return topspeed; }
+	sint32 get_topspeed() const { return topspeed; }
 
 	/**
 	 * get way type

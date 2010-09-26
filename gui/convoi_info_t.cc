@@ -409,8 +409,8 @@ enable_home:
 		{
 			const int pos_y = pos_y0; // line 1
 			char tmp[256];
-			const uint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
+			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
+			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(empty_weight, convoy.get_current_friction()));
 			sprintf(tmp, translator::translate(min_speed == max_speed ? "%i km/h (max. %ikm/h)" : "%i km/h (max. %i %s %ikm/h)"), 
 				speed_to_kmh(cnv->get_akt_speed()), min_speed, translator::translate("..."), max_speed );
 			display_proportional(pos_x, pos_y, tmp, ALIGN_LEFT, COL_BLACK, true );

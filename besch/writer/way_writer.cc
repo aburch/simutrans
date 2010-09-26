@@ -44,7 +44,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 
 	uint32 price       = obj.get_int("cost",        100);
 	uint32 maintenance = obj.get_int("maintenance", 100);
-	uint32 topspeed    = obj.get_int("topspeed",    999);
+	sint32 topspeed    = obj.get_int("topspeed",    999);
 	uint32 max_weight  = obj.get_int("max_weight",  999);
 
 	uint16 intro  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -102,7 +102,7 @@ void way_writer_t::write_obj(FILE* outfp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint16(outfp, version,					0);
 	node.write_uint32(outfp, price,						2);
 	node.write_uint32(outfp, maintenance,				6);
-	node.write_uint32(outfp, topspeed,					10);
+	node.write_sint32(outfp, topspeed,					10);
 	node.write_uint32(outfp, max_weight,				14);
 	node.write_uint16(outfp, intro,						18);
 	node.write_uint16(outfp, retire,					20);

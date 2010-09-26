@@ -469,11 +469,11 @@ void gui_convoy_assembler_t::zeichnen(koord parent_pos)
 		potential_convoy_t convoy(*welt, vehicles);
 		const vehicle_summary_t &vsum = convoy.get_vehicle_summary();
 		sint32 friction = convoy.get_current_friction();
-		uint32 allowed_speed = vsum.max_speed;
-		uint32 min_weight = vsum.weight;
-		uint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight;
-		uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
-		uint32 max_speed = min_speed;
+		sint32 allowed_speed = vsum.max_speed;
+		sint32 min_weight = vsum.weight;
+		sint32 max_weight = min_weight + convoy.get_freight_summary().max_freight_weight;
+		sint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
+		sint32 max_speed = min_speed;
 		uint32 txt_convoi_speed_offs = sprintf(txt_convoi_speed, "%s", translator::translate("Max. speed:"));
 		int col_convoi_speed = COL_BLACK;
 		if (min_speed == 0)
@@ -1262,10 +1262,10 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 			vehicle_as_potential_convoy_t convoy(*get_welt(), *veh_type);
 			sint32 friction = convoy.get_current_friction();
-			uint32 max_weight = convoy.calc_max_starting_weight(friction);
-			uint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
-			uint32 min_weight = convoy.calc_max_weight(friction);
-			uint32 max_speed = convoy.get_vehicle_summary().max_speed;
+			sint32 max_weight = convoy.calc_max_starting_weight(friction);
+			sint32 min_speed = convoy.calc_max_speed(weight_summary_t(max_weight, friction));
+			sint32 min_weight = convoy.calc_max_weight(friction);
+			sint32 max_speed = convoy.get_vehicle_summary().max_speed;
 			if (min_weight < convoy.get_vehicle_summary().weight)
 			{
 				min_weight = convoy.get_vehicle_summary().weight;
