@@ -95,6 +95,7 @@
 	ADD: messages on joining and leaving
 	CHANGE: renaming of stuff now in network games
 	ADD: clients and server compare paksets before joining
+	CHANGE: for two-click-tools: ctrl+click sets start marker, useful for point-to-point bridge building with two clicks in network games
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

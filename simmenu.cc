@@ -909,28 +909,33 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 	cleanup( sp, true );
 
 	const char *error = "";	//default: nosound
-	uint8 value = is_valid_pos( welt, sp, pos, error, start[sp->get_player_nr()] );
+	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click(sp) ? start[sp->get_player_nr()] : koord3d::invalid );
+	DBG_MESSAGE("two_click_werkzeug_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
+		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( welt, sp );
 		return error;
 	}
 
 	if(  is_first_click(sp)  ) {
-		if( value & 1 ) {
+		// work directly if possible and ctrl is NOT pressed
+		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
-			dbg->warning("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( welt, sp, pos, koord3d::invalid );
 		}
 		else {
 			// set starting position.
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting start to %s", pos.get_str() );
 			start_at( welt, sp, pos );
 		}
 	}
 	else {
 		if( value & 2 ) {
-			dbg->warning("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
 			error = do_work( welt, sp, start[sp->get_player_nr()], pos );
 		}
+		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( welt, sp ); // Do the cleanup stuff after(!) do_work (otherwise start==koord3d::invalid).
 	}
 	return error;
