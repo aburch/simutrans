@@ -390,7 +390,7 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	pos = pos_;
 	player_nr = sp ? sp->get_player_nr() : -1;
 	wkz_id = wkz->get_id();
-	const char *dfp = wkz->get_default_param();
+	const char *dfp = wkz->get_default_param(sp);
 	default_param = dfp ? strdup(dfp) : NULL;
 	exec = false;
 	init = init_;
@@ -586,7 +586,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 
 			wkz = tool_node->get_tool();
 			// create a new tool if necessary
-			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(), default_param)) {
+			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(sp), default_param)) {
 				wkz = create_tool(wkz_id);
 				// before calling work initialize new tool / exit old tool
 				if (!init) {
@@ -601,13 +601,13 @@ void nwc_tool_t::do_command(karte_t *welt)
 			// local player applied a tool
 			// first try the active tool of our world
 			wkz = player_nr < MAX_PLAYER_COUNT ? welt->get_werkzeug(player_nr) : NULL;
-			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(), default_param)) {
+			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(sp), default_param)) {
 				// get the right tool
 				vector_tpl<werkzeug_t*> &wkz_list = wkz_id&GENERAL_TOOL ? werkzeug_t::general_tool : wkz_id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
 				wkz = NULL;
 				// first do a detailed search for tool that matches id and default_param
 				for(uint32 i=0; i < wkz_list.get_count(); i++) {
-					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id  &&  cmp_default_param(wkz_list[i]->get_default_param(),default_param)) {
+					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id  &&  cmp_default_param(wkz_list[i]->get_default_param(sp),default_param)) {
 						wkz = wkz_list[i];
 						break;
 					}
@@ -618,7 +618,8 @@ void nwc_tool_t::do_command(karte_t *welt)
 					wkz = wkz_list[wkz_id&0xFFF];
 					// we need to reset default_param later otherwise it might point into nirwana soon
 					reset_default_param = true;
-					old_default_param = wkz->get_default_param();
+					// get raw default_param sp==NULL
+					old_default_param = wkz->get_default_param(NULL);
 					// now set correct parameter
 					wkz->set_default_param(default_param);
 				}

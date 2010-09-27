@@ -2186,7 +2186,8 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 	if(w->init(this,sp)) {
 
 		set_dirty();
-		if(w!=werkzeug[sp->get_player_nr()]) {
+		werkzeug_t *sp_wkz = werkzeug[sp->get_player_nr()];
+		if(w != sp_wkz) {
 
 			// reinit same tool => do not play sound twice
 			struct sound_info info;
@@ -2196,7 +2197,9 @@ void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 			sound_play(info);
 
 			// only exit, if it is not the same tool again ...
-			werkzeug[sp->get_player_nr()]->exit(this,sp);
+			sp_wkz->flags |= werkzeug_t::WFL_LOCAL;
+			sp_wkz->exit(this, sp);
+			sp_wkz->flags =0;
 		}
 
 		if(  sp==active_player  ) {
