@@ -183,7 +183,7 @@ public:
 	pwd_hash_t& get_password_hash() { return pwd_hash; }
 
 	// this type of AIs identifier
-	virtual uint8 get_ai_id() { return HUMAN; }
+	virtual uint8 get_ai_id() const { return HUMAN; }
 
 	// @author hsiegeln
 	simlinemgmt_t simlinemgmt;

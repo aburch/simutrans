@@ -94,7 +94,7 @@ public:
 	virtual ~ai_passenger_t() {}
 
 	// this type of AIs identifier
-	virtual uint8 get_ai_id() { return AI_PASSENGER; }
+	virtual uint8 get_ai_id() const { return AI_PASSENGER; }
 
 	virtual void bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel);
 

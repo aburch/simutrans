@@ -38,6 +38,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	this->welt = wl;
 
 	for(int i=0; i<MAX_PLAYER_COUNT-1; i++) {
+		const spieler_t *const sp = welt->get_spieler(i);
 
 		player_change_to[i].init(button_t::arrowright_state, " ", koord(16+4,6+i*2*LINESPACE), koord(10,BUTTON_HEIGHT));
 		player_change_to[i].add_listener(this);
@@ -45,19 +46,19 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		if(i>=2) {
 			player_active[i-2].init(button_t::square_state, "", koord(4,6+i*2*LINESPACE));
 			player_active[i-2].add_listener(this);
-			if(  welt->get_einstellungen()->get_player_type(i)!=spieler_t::EMPTY  ) {
+			if(sp  &&  sp->get_ai_id()!=spieler_t::HUMAN) {
 				add_komponente( player_active+i-2 );
 			}
 		}
 
-		if(welt->get_spieler(i)!=NULL  &&  welt->get_einstellungen()->get_allow_player_change()) {
+		if(sp  &&  welt->get_einstellungen()->get_allow_player_change()) {
 			// allow change to human and public
 			add_komponente(player_change_to+i);
 		}
 
 		// finances button
 		player_get_finances[i].init(button_t::box, "", koord(34,4+i*2*LINESPACE), koord(120,BUTTON_HEIGHT));
-		player_get_finances[i].background = PLAYER_FLAG|((wl->get_spieler(i)?welt->get_spieler(i)->get_player_color1():i*8)+4);
+		player_get_finances[i].background = PLAYER_FLAG|((sp ? sp->get_player_color1():i*8)+4);
 		player_get_finances[i].add_listener(this);
 
 		player_select[i].set_pos( koord(34,4+i*2*LINESPACE) );
@@ -71,8 +72,8 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		// when adding new players, add a name here ...
 		player_select[i].set_selection(welt->get_einstellungen()->get_player_type(i) );
 		player_select[i].add_listener(this);
-		if(  welt->get_spieler(i)!=NULL  ) {
-			player_get_finances[i].set_text( welt->get_spieler(i)->get_name() );
+		if(  sp!=NULL  ) {
+			player_get_finances[i].set_text( sp->get_name() );
 			add_komponente( player_get_finances+i );
 			player_select[i].set_visible(false);
 		}
@@ -84,7 +85,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		// password/locked button
 		player_lock[i].init(button_t::box, "", koord(160+1,4+i*2*LINESPACE+1), koord(BUTTON_HEIGHT-2,BUTTON_HEIGHT-2));
-		player_lock[i].background = (wl->get_spieler(i)  &&  welt->get_spieler(i)->is_locked()) ? COL_RED : COL_GREEN;
+		player_lock[i].background = sp  &&  sp->is_locked() ? COL_RED : COL_GREEN;
 		player_lock[i].add_listener(this);
 		add_komponente( player_lock+i );
 
@@ -212,7 +213,9 @@ void ki_kontroll_t::update_data()
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
 				add_komponente(player_get_finances+i);
-				add_komponente(player_change_to+i);
+				if(welt->get_einstellungen()->get_allow_player_change()) {
+					add_komponente(player_change_to+i);
+				}
 				player_get_finances[i].set_text(welt->get_spieler(i)->get_name());
 			}
 			// human players cannot be deactivated

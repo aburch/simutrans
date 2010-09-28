@@ -131,7 +131,7 @@ public:
 	virtual ~ai_goods_t() {}
 
 	// this type of AIs identifier
-	virtual uint8 get_ai_id() { return AI_GOODS; }
+	virtual uint8 get_ai_id() const { return AI_GOODS; }
 
 	virtual void rdwr(loadsave_t *file);
 
