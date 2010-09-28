@@ -79,7 +79,7 @@ bool label_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 			buf.printf( "m%s,%s", label->get_pos().get_str(), edit_name );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
-			welt->set_werkzeug( w, NULL );
+			welt->set_werkzeug( w, label->get_besitzer() );
 			// since init always returns false, it is save to delete immediately
 			delete w;
 		}

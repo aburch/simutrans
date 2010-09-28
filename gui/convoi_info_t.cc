@@ -493,7 +493,7 @@ void convoi_info_t::rename_cnv()
 			buf.printf( "c%u,%s", cnv.get_id(), t );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
-			cnv->get_welt()->set_werkzeug( w, NULL );
+			cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer());
 			// since init always returns false, it is save to delete immediately
 			delete w;
 			// do not trigger this command again

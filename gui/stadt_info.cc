@@ -132,7 +132,8 @@ void stadt_info_t::rename_city()
 			buf.printf( "t%u,%s", stadt->get_welt()->get_staedte().index_of(stadt), name );
 			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
 			w->set_default_param( buf );
-			stadt->get_welt()->set_werkzeug( w, NULL );
+			karte_t* const welt = stadt->get_welt();
+			welt->set_werkzeug( w, welt->get_spieler(1));
 			// since init always returns false, it is save to delete immediately
 			delete w;
 			// do not trigger this command again
