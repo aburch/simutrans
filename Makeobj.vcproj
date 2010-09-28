@@ -166,15 +166,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\besch\bild_besch.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\besch\writer\bridge_writer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\besch\bruecke_besch.cc"
 				>
 			</File>
 			<File
@@ -187,10 +179,6 @@
 			</File>
 			<File
 				RelativePath=".\besch\writer\crossing_writer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\utils\cstring_t.cc"
 				>
 			</File>
 			<File
@@ -227,10 +215,6 @@
 			</File>
 			<File
 				RelativePath=".\besch\writer\groundobj_writer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\besch\haus_besch.cc"
 				>
 			</File>
 			<File
@@ -318,19 +302,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\besch\tunnel_besch.cc"
-				>
-			</File>
-			<File
 				RelativePath=".\besch\writer\tunnel_writer.cc"
 				>
 			</File>
 			<File
 				RelativePath=".\besch\writer\vehicle_writer.cc"
-				>
-			</File>
-			<File
-				RelativePath=".\besch\ware_besch.cc"
 				>
 			</File>
 			<File
@@ -385,10 +361,6 @@
 			</File>
 			<File
 				RelativePath=".\besch\writer\crossing_writer.h"
-				>
-			</File>
-			<File
-				RelativePath=".\utils\cstring_t.h"
 				>
 			</File>
 			<File

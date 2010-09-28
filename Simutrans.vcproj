@@ -808,6 +808,9 @@
 				RelativePath=".\dings\signal.cc"
 				>
 			</File>
+                        <File
+                                RelativePath=".\gui\signal_spacing.cc"
+                        </File>
 			<File
 				RelativePath=".\besch\reader\sim_reader.cc"
 				>
@@ -1920,6 +1923,9 @@
 				RelativePath=".\dings\signal.h"
 				>
 			</File>
+                        <File
+                                RelativePath=".\gui\signal_spacing.h"
+                        </File>
 			<File
 				RelativePath=".\simcity.h"
 				>
