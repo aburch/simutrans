@@ -325,6 +325,8 @@ public:
 	virtual image_id get_icon(spieler_t *) const;
 	bool is_selected(karte_t *welt) const;
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
+	virtual bool is_move_network_save(spieler_t *) const { return true; }
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
 	// close this toolbar
