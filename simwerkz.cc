@@ -3099,6 +3099,10 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 		return false;
 	}
 	cursor = hb->get_cursor()->get_bild_nr(0);
+	if(  !is_local_execution()  ) {
+		// do not change cursor
+		return false;
+	}
 	if(  hb->get_utyp()==haus_besch_t::generic_extension  &&  hb->get_all_layouts()>1  ) {
 		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
 			// call station dialoge instead
@@ -3117,7 +3121,6 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 		}
 	}
 	else {
-		rotation = -1;
 		welt->get_zeiger()->set_area( koord( welt->get_einstellungen()->get_station_coverage()*2+1, welt->get_einstellungen()->get_station_coverage()*2+1 ), true );
 	}
 	return true;
@@ -3827,7 +3830,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  */
 bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
@@ -3898,7 +3901,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 // show industry size in cursor (in known)
 bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4000,7 +4003,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 // show industry size in cursor (in known)
 bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4074,7 +4077,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 // show industry size in cursor (must be known!)
 bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4231,7 +4234,7 @@ bool wkz_headquarter_t::init( karte_t *welt, spieler_t *sp )
 {
 	// do no use this, if there is no next level to built ...
 	const haus_besch_t *besch = next_level(sp);
-	if (besch) {
+	if (is_local_execution()  &&  besch) {
 		const int rotation = 0;
 		welt->get_zeiger()->set_area( besch->get_groesse(rotation), false );
 		return true;
