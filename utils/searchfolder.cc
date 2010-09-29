@@ -55,14 +55,14 @@ int searchfolder_t::search(const std::string &filepath, const std::string &exten
 		if(dot == -1 || dot < slash) {
 			// Look for a file with default extension
 			name = path.substr(slash + 1, std::string::npos);
-			path = path.substr(slash + 1);
+			path = path.substr(0, slash + 1);
 			ext = std::string(".") + extension;
 		}
 		else {
 			// Look for a file with own extension
  			ext = path.substr(dot, std::string::npos);
 			name = path.substr(slash + 1, dot - slash - 1);
-			path = path.substr(slash + 1);
+			path = path.substr(0, slash + 1);
 		}
 	}
 #ifdef _MSC_VER

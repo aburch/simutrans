@@ -503,7 +503,7 @@ void translator::load_language_iso(const string &iso)
 	langs[single_instance.lang_count].iso = strdup(iso.c_str());
 	int loc = iso.find('_');
 	if (loc != -1) {
-		base = iso.substr(loc);
+		base = iso.substr(0, loc);
 	}
 	langs[single_instance.lang_count].iso_base = strdup(base.c_str());
 }
