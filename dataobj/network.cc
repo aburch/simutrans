@@ -952,6 +952,8 @@ void network_close_socket( SOCKET sock )
  */
 void network_core_shutdown()
 {
+	server_command_queue.clear();
+
 	while(  my_socket.get_count()!=0  ) {
 		network_close_socket( my_socket.back() );
 	}
@@ -961,5 +963,8 @@ void network_core_shutdown()
 		WSACleanup();
 #endif
 	}
+
 	network_active = false;
+	umgebung_t::networkmode = false;
+	umgebung_t::server = false;
 }

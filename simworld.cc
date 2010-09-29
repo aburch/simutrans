@@ -1141,10 +1141,10 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	mute_sound(true);
 	if (umgebung_t::networkmode) {
 		network_core_shutdown();
-		umgebung_t::networkmode = false;
 	}
-
+	step_mode  = PAUSE_FLAG;
 	intr_disable();
+
 	if(plan) {
 		destroy();
 	}
@@ -3926,8 +3926,6 @@ bool karte_t::laden(const char *filename)
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
-			umgebung_t::networkmode = false;
-			umgebung_t::server = false;
 		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4);
@@ -3951,7 +3949,6 @@ bool karte_t::laden(const char *filename)
 			if(  strcmp(filename,fn)!=0  ) {
 				// remain only in networkmode, if I am the server
 				dbg->warning("karte_t::laden","finished network mode");
-				umgebung_t::networkmode = false;
 				network_core_shutdown();
 				// closing the socket will tell the server, I am away too
 			}
@@ -5537,8 +5534,6 @@ void karte_t::network_disconnect()
 	// force disconnect
 	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server.");
 	network_core_shutdown();
-	umgebung_t::networkmode = false;
-	umgebung_t::server = false;
 
 	step_mode = NORMAL;
 	reset_timer();
