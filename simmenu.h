@@ -205,7 +205,7 @@ public:
 
 	// returns default_param of this tool for player sp
 	// if sp==NULL returns default_param that was used to create the tool
-	virtual const char* get_default_param(spieler_t *sp=NULL) const { return default_param; }
+	virtual const char* get_default_param(spieler_t* = NULL) const { return default_param; }
 	void set_default_param(const char* str) { default_param = str; }
 
 	// this will draw the tool with some indication, if active
