@@ -16,4 +16,6 @@
 
 #define RES_VERSION_NUMBER  0, 102, 3, 0
 
+#define ANNOUNCE_SERVER "simutrans-germany.com:80"
+
 #endif

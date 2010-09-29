@@ -379,6 +379,10 @@ private:
 	 */
 	void distribute_groundobjs_cities(int new_cities, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y);
 
+	// announce server and current state to listserver
+	// will be done in step when client number changed
+	void announce_server();
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -970,9 +974,6 @@ public:
 	uint32 get_sync_steps() const { return sync_steps; }
 
 	void command_queue_append(network_world_command_t*);
-
-	// announce server and current state to listserver
-	void announce_server();
 
 	void network_disconnect();
 

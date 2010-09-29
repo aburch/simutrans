@@ -112,7 +112,7 @@
 
 
 static bool is_dragging = false;
-
+static int last_clients = -1;
 
 
 // changes the snowline height (for the seasons)
@@ -3152,6 +3152,10 @@ void karte_t::step()
 	if(  recalc_snowline()  ) {
 		pending_season_change ++;
 	}
+
+	if(  umgebung_t::announce_server  &&  last_clients!=network_get_clients()  ) {
+		announce_server();
+	}
 }
 
 
@@ -5205,7 +5209,7 @@ bool karte_t::interactive(uint32 quit_month)
 #else
 			buf.append( "&rev=0" );
 #endif
-			buf.append( "&pak=\"" );
+			buf.append( "&pak=" );
 			// announce ak set
 			if(  grund_besch_t::ausserhalb->get_copyright()  &&  STRICMP("none",grund_besch_t::ausserhalb->get_copyright())!=0  ) {
 				// construct from outside object copyright string
@@ -5243,8 +5247,8 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 				c++;
 			}
-			network_download_http( "simutrans-germany.com:80", buf, NULL );
-			// update status
+			network_download_http( ANNOUNCE_SERVER, buf, NULL );
+			// and now the details
 			announce_server();
 		}
 	}
@@ -5467,9 +5471,11 @@ bool karte_t::interactive(uint32 quit_month)
 						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&15], sync_steps);
 						network_send_all(nwc, true);
 					}
-					if( umgebung_t::networkmode  &&  (sync_steps & 7)==0) {
+#if DEBUG>4
+					if(  umgebung_t::networkmode  &&  (sync_steps & 7)==0  &&  umgebung_t::verbose_debug>4  ) {
 						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, last_randoms[sync_steps&15]);
 					}
+#endif
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );
@@ -5487,7 +5493,6 @@ bool karte_t::interactive(uint32 quit_month)
 			interactive_event(ev);
 		}
 
-		//dbg->warning("karte_t::interactive", "steps=%d sync_steps=%d", steps, sync_steps);
 	} while(!finish_loop  &&  get_current_month()<quit_month);
 
 	if(  get_current_month() >= quit_month  ) {
@@ -5522,9 +5527,10 @@ void karte_t::announce_server()
 				}
 			}
 		}
-		buf.printf( "Players%u:locked%u:Clients%u", player, locked, network_get_clients() );
+		last_clients = network_get_clients();
+		buf.printf( "Players%u:locked%u:Clients%u", player, locked, last_clients );
 		buf.printf( "Towns%u:citicens%u:Factories%u:Convoys%u:Stops%u", stadt.get_count(), stadt.get_sum_weight(), fab_list.get_count(), get_convoi_count(), haltestelle_t::get_alle_haltestellen().get_count() );
-		network_download_http( "simutrans-germany.com:80", buf, NULL );
+		network_download_http( ANNOUNCE_SERVER, buf, NULL );
 	}
 }
 

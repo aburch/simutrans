@@ -721,8 +721,6 @@ network_command_t* network_check_activity(karte_t *welt, int timeout)
 				welt->set_werkzeug( w, NULL );
 				// since init always returns false, it is save to delete immediately
 				delete w;
-				// give new status
-				welt->announce_server();
 			}
 		}
 		else {

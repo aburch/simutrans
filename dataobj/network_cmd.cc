@@ -363,9 +363,6 @@ void nwc_sync_t::do_command(karte_t *welt)
 		nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
 		nwc.send(network_get_socket(client_id));
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
-
-		// announce new status on server
-		welt->announce_server();
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
