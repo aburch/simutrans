@@ -328,7 +328,7 @@ public:
 class wkz_station_t : public werkzeug_t {
 private:
 	static char toolstring[256];
-	const char *wkz_station_building_aux( karte_t *, spieler_t *, koord3d, const haus_besch_t *, sint8 rotation );
+	const char *wkz_station_building_aux( karte_t *, spieler_t *, bool, koord3d, const haus_besch_t *, sint8 rotation );
 	const char *wkz_station_dock_aux( karte_t *, spieler_t *, koord3d, const haus_besch_t * );
 	const char *wkz_station_aux( karte_t *, spieler_t *, koord3d, const haus_besch_t *, waytype_t, sint64 cost, const char *halt_suffix );
 	const haus_besch_t *get_besch( sint8 &rotation ) const;

@@ -2476,7 +2476,7 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 
 
 /* build all kind of station extension buildings */
-const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp, koord3d k, const haus_besch_t *besch, sint8 rotation )
+const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp, bool extend_public_halt, koord3d k, const haus_besch_t *besch, sint8 rotation )
 {
 	// need kartenboden
 	if (welt->lookup_kartenboden(k.get_2d())->get_hoehe() != k.z) {
@@ -2484,6 +2484,10 @@ const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp
 	}
 	koord pos = k.get_2d();
 DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building on square %d,%d", pos.x, pos.y);
+
+	// Player sp pays for the construction
+	// but we try to extend stations of Player new_owner that may be the public player
+	spieler_t *new_owner = extend_public_halt ? welt->get_spieler(1) : sp;
 
 	koord size = besch->get_groesse();
 	koord offsets;
@@ -2511,7 +2515,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							const planquadrat_t *pl = welt->lookup( pos-offset+koord(x,y) );
 							halthandle_t test_halt = pl->get_halt();
 							if(test_halt.is_bound()) {
-								if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+								if(!spieler_t::check_owner( new_owner, test_halt->get_besitzer())) {
 									// there is an other player's halt
 									ok = false;
 									msg = "Das Feld gehoert\neinem anderen Spieler\n";
@@ -2546,7 +2550,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					for(  sint16 y=-1;  y<=testsize.y;  y++  ) {
 						// left (for all tiles, even bridges)
 						const planquadrat_t *pl = welt->lookup( test_start+koord(-1,y) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2560,7 +2564,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							}
 						}
 						pl = welt->lookup( test_start+koord(testsize.x,y) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2578,7 +2582,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					for(  sint16 x=-1;  x<=testsize.x;  x++  ) {
 						// upper and lower
 						const planquadrat_t *pl = welt->lookup( test_start+koord(x,-1) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2592,7 +2596,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							}
 						}
 						pl = welt->lookup( test_start+koord(x,testsize.y) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2650,7 +2654,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 			for(  sint16 y=0;  y<besch->get_h(rotation);  y++  ) {
 				const planquadrat_t *pl = welt->lookup( pos-offsets+koord(x,y) );
 				halthandle_t test_halt = pl->get_halt();
-				if( test_halt.is_bound()  &&  spieler_t::check_owner( sp, test_halt->get_besitzer()) ) {
+				if( test_halt.is_bound()  &&  spieler_t::check_owner( new_owner, test_halt->get_besitzer()) ) {
 					halt = test_halt;
 					break;
 				}
@@ -2676,7 +2680,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				const planquadrat_t *pl = welt->lookup(pos+koord(x,y));
 				halthandle_t test_halt = pl->get_halt();
 				if(test_halt.is_bound()) {
-					if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+					if(!spieler_t::check_owner( new_owner, test_halt->get_besitzer())) {
 						return "Das Feld gehoert\neinem anderen Spieler\n";
 					}
 					else if(!halt.is_bound()) {
@@ -2689,7 +2693,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 			}
 		}
 		if(!halt.is_bound()) {
-			halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->get_pos(), besch->get_b(rotation), besch->get_h(rotation) );
+			halt = suche_nahe_haltestelle(new_owner, welt, welt->lookup_kartenboden(pos)->get_pos(), besch->get_b(rotation), besch->get_h(rotation) );
 			// is there no halt to connect?
 			if(  !halt.is_bound()  ) {
 				return "Post muss neben\nHaltestelle\nliegen!\n";
@@ -2702,7 +2706,13 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	}
 
 	hausbauer_t::baue(welt, halt->get_besitzer(), k-offsets, rotation, besch, &halt);
-	sp->buche(welt->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_b()*besch->get_h(), pos, COST_CONSTRUCTION);
+
+	sint64 cost = welt->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_b()*besch->get_h();
+	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)) {
+		// public stops are expensive!
+		cost += ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_per_world_month_shift-18));
+	}
+	sp->buche( cost, pos, COST_CONSTRUCTION);
 	halt->recalc_station_type();
 
 	return NULL;
@@ -3218,7 +3228,11 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			break;
 		case haus_besch_t::hafen_geb:
 		case haus_besch_t::generic_extension:
-			msg = wkz_station_t::wkz_station_building_aux(welt, sp, pos, besch, rotation );
+			msg = wkz_station_t::wkz_station_building_aux(welt, sp, false, pos, besch, rotation );
+			if (msg) {
+				// try to build near a public halt
+				msg = wkz_station_t::wkz_station_building_aux(welt, sp, true, pos, besch, rotation );
+			}
 			break;
 		case haus_besch_t::generic_stop:
 			switch(besch->get_extra()) {
@@ -3516,7 +3530,6 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	}
 	// mark tiles to calculate positions of signals
 	mark_tiles(welt, sp, start, end);
-	bool can_built = !marked[sp->get_player_nr()].empty();
 	// only search the marked tiles
 	for(  slist_tpl<zeiger_t*>::const_iterator i=marked[sp->get_player_nr()].begin(); i!=marked[sp->get_player_nr()].end();  ++i  ) {
 		koord3d pos = (*i)->get_pos();
