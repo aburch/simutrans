@@ -98,6 +98,7 @@
 	CHANGE: for two-click-tools: ctrl+click sets start marker, useful for point-to-point bridge building with two clicks in network games
 	ADD: (gerw/Dwachs) build signals like ways; ctrl+click on icon opens dialogue to change parameters (help file: signal_spacing.h), in network games: ctrl+click and then drag
 	ADD: station extensions can be built near public halts
+	CHANGE: when joining with public station, the public station keeps its name
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
 

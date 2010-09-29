@@ -1886,6 +1886,11 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 		public_owner->halt_add(self);
 	}
 
+	// set name to name of first public stop
+	if (!joining.empty()) {
+		set_name( joining.front()->get_name());
+	}
+
 	while(!joining.empty()) {
 		// join this halt with me
 		halthandle_t halt = joining.remove_first();
