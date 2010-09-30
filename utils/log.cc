@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  */
@@ -47,7 +47,9 @@ void log_t::debug(const char *who, const char *format, ...)
 				fflush(log);
 			}
 		}
+		va_end(argptr);
 
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "Debug: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
@@ -78,13 +80,14 @@ void log_t::message(const char *who, const char *format, ...)
 				fflush(log);
 			}
 		}
+		va_end(argptr);
 
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "Message: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
 			fprintf(tee,"\n");
 		}
-
 		va_end(argptr);
 	}
 }
@@ -109,6 +112,9 @@ void log_t::warning(const char *who, const char *format, ...)
 				fflush(log);
 			}
 		}
+		va_end(argptr);
+
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "Warning: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
@@ -141,6 +147,9 @@ void log_t::error(const char *who, const char *format, ...)
 			fprintf(log ,"Please report all errors to\n");
 			fprintf(log ,"team@64.simutrans.com\n");
 		}
+		va_end(argptr);
+
+		va_start(argptr, format);
 		if( tee ) {                         /* nur loggen wenn schon ein log */
 			fprintf(tee, "ERROR: %s:\t",who);      /* geoeffnet worden ist */
 			vfprintf(tee, format, argptr);
