@@ -964,5 +964,4 @@ void network_core_shutdown()
 
 	network_active = false;
 	umgebung_t::networkmode = false;
-	umgebung_t::server = false;
 }

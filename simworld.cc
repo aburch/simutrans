@@ -3930,6 +3930,7 @@ bool karte_t::laden(const char *filename)
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
+			umgebung_t::server = false;
 		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4);
@@ -5505,6 +5506,7 @@ bool karte_t::interactive(uint32 quit_month)
 		network_download_http( "simutrans-germany.com:80", buf, NULL );
 	}
 
+	intr_enable();
 	display_show_pointer(true);
 	return finish_loop;
 }
