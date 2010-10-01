@@ -499,10 +499,16 @@ int simu_main(int argc, char** argv)
 	// now set the desired objectfilename (overide all previous settings)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
-		// append (back)slash if necessary
+		// append slash / replace trailing backslash if necessary
 		uint16 len = umgebung_t::objfilename.length();
-		if (len > 0  &&  umgebung_t::objfilename[len-1]!=path_sep[0]) {
-			umgebung_t::objfilename.append(path_sep);
+		if (len > 0) {
+			if (umgebung_t::objfilename[len-1]=='\\') {
+				umgebung_t::objfilename.erase(len-1);
+				umgebung_t::objfilename += "/";
+			}
+			else if (umgebung_t::objfilename[len-1]!='/') {
+				umgebung_t::objfilename += "/";
+			}
 		}
 	}
 
