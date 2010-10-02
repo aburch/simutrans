@@ -305,7 +305,7 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	*	Structure of [VINFO] is one multiline text.
 	*/
-	int VINFO_HEIGHT = 86;
+	int VINFO_HEIGHT = 86+12;
 
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
@@ -1175,6 +1175,8 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 {
 	char buf[1024];
 	const char *c;
+	const koord size = get_fenstergroesse();
+	PUSH_CLIP(pos.x, pos.y, size.x-1, size.y-1);
 
 	gui_komponente_t const* const tab = tabs.get_aktives_tab();
 	gui_image_list_t const* const lst =
@@ -1300,6 +1302,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 
 		display_multiline_text( pos.x + 200, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*2 + 4, buf, COL_BLACK);
 	}
+	POP_CLIP();
 }
 
 
