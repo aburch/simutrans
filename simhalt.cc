@@ -2350,7 +2350,30 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 								}
 							}	
 						}
-						
+	
+						connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
+						if (next_connexion) {
+							convoihandle_t last_loaded_convoy = (next_connexion->last_loaded_convoy)[cnv->get_besitzer()->get_player_nr()];
+
+							if (last_loaded_convoy.is_bound())
+							{
+								if (last_loaded_convoy != cnv->self ) 
+								{ //Last time we were loading different convoy
+								   	if (last_loaded_convoy->loading_at_halt == self /*&& last_loaded_convoy->get_finance_history(0,CONVOI_AVERAGE_SPEED) >= cnv->get_finance_history(0,CONVOI_AVERAGE_SPEED)*/)
+									{ // and it is still here /*and is not slower*/
+										continue;
+									}
+									else
+									{
+										(next_connexion->last_loaded_convoy)[cnv->get_besitzer()->get_player_nr()]= cnv->self;
+									}
+								}
+							}
+							else
+							{
+								(next_connexion->last_loaded_convoy)[cnv->get_besitzer()->get_player_nr()]= cnv->self;
+							}
+						}					
 						// not too much?
 						ware_t neu(tmp);
 						if(  tmp.menge > maxi  ) 
