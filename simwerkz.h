@@ -546,6 +546,7 @@ class wkz_fastforward_t : public werkzeug_t {
 public:
 	wkz_fastforward_t() : werkzeug_t() { id = WKZ_FASTFORWARD | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Fast forward"); }
+	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *welt) const { return welt->is_fast_forward(); }
 	bool init( karte_t *welt, spieler_t * ) {
 		welt->set_pause(0);
