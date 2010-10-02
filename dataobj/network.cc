@@ -944,6 +944,13 @@ void network_close_socket( SOCKET sock )
 	}
 }
 
+void network_reset_server()
+{
+	server_command_queue.clear();
+	while (!my_socket.is_contained(clients.back())) {
+		network_remove_client(clients.back());
+	}
+}
 
 /**
  * Shuts down the network core (since that is needed for some platforms

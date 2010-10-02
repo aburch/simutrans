@@ -113,6 +113,8 @@ void network_send_all(network_command_t* nwc, bool exclude_us );
 // nwc is invalid after the call
 void network_send_server(network_command_t* nwc );
 
+void network_reset_server();
+
 void network_core_shutdown();
 
 // get our id on the server

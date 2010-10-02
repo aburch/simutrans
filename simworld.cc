@@ -1140,7 +1140,12 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	clear_random_mode( 7 );
 	mute_sound(true);
 	if (umgebung_t::networkmode) {
-		network_core_shutdown();
+		if (umgebung_t::server) {
+			network_reset_server();
+		}
+		else {
+			network_core_shutdown();
+		}
 	}
 	step_mode  = PAUSE_FLAG;
 	intr_disable();
