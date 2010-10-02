@@ -60,7 +60,7 @@ DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 			// At least, 3 rows is needed to drag toolbar
 			tool_icon_width = min( tool_icon_width, max(umgebung_t::toolbar_max_width, 3) );
 		}
-  	}
+	}
 	tool_icon_height = max( (display_get_height()/icon.y)-3, 1 );
 	if(  umgebung_t::toolbar_max_height > 0  ) {
 		tool_icon_height = min(tool_icon_height, umgebung_t::toolbar_max_height);

@@ -60,7 +60,7 @@ int searchfolder_t::search(const std::string &filepath, const std::string &exten
 		}
 		else {
 			// Look for a file with own extension
- 			ext = path.substr(dot, std::string::npos);
+			ext = path.substr(dot, std::string::npos);
 			name = path.substr(slash + 1, dot - slash - 1);
 			path = path.substr(0, slash + 1);
 		}

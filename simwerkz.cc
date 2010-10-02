@@ -5547,5 +5547,3 @@ bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 	}
 	return false;
 }
-
-

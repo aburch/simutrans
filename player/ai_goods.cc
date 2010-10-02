@@ -853,7 +853,7 @@ DBG_MESSAGE("do_ki()","check railway");
 			count_rail=255;	// no cars yet
 			if(  rail_vehicle!=NULL  ) {
 				// if our car is faster: well use slower speed to save money
-			 	best_rail_speed = min(51,rail_vehicle->get_geschw());
+				best_rail_speed = min(51, rail_vehicle->get_geschw());
 				// for engine: gues number of cars
 				count_rail = (prod*dist) / (rail_vehicle->get_zuladung()*best_rail_speed)+1;
 				// assume the engine weight 100 tons for power needed calcualtion
@@ -1020,8 +1020,8 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				if(count_rail>=3) {
 					if(count_rail<org_count_rail) {
 						// rethink engine
-					 	int best_rail_speed = min(51,rail_vehicle->get_geschw());
-					  	// obey timeline
+						int best_rail_speed = min(51, rail_vehicle->get_geschw());
+						// obey timeline
 						uint month_now = (welt->use_timeline() ? welt->get_current_month() : 0);
 						// for engine: gues number of cars
 						long power_needed=(long)(((best_rail_speed*best_rail_speed)/2500.0+1.0)*(100.0+count_rail*(rail_vehicle->get_gewicht()+rail_vehicle->get_zuladung()*freight->get_weight_per_unit()*0.001)));

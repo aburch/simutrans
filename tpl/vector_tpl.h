@@ -165,7 +165,7 @@ template<class T> class vector_tpl
 
 		/**
 		 * put the data at a certain position
- 		 * BEWARE: using this function will create default objects, depending on
+		 * BEWARE: using this function will create default objects, depending on
 		 * the type of the vector
 		 */
 		void store_at(const uint32 pos, const T& elem)

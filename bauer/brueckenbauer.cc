@@ -200,7 +200,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 			return koord3d::invalid;
 		}
 		// and if ground is above bridge / double slopes
- 		if (height<-Z_TILE_STEP){
+		if (height < -Z_TILE_STEP) {
 			break; // to trigger the right error message
 		}
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));

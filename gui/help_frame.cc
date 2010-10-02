@@ -113,19 +113,19 @@ help_frame_t::help_frame_t(const std::string &filename) :
 		set_text(buf);
 	}
 	else {
- 		std::string file_prefix("text/");
- 		std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-  		chdir( umgebung_t::program_dir );
+		std::string file_prefix("text/");
+		std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
+		chdir(umgebung_t::program_dir);
 
- 		FILE * file = fopen(fullname.c_str(), "rb");
-  		if(!file) {
-  			//Check for the 'base' language(ie en from en_gb)
- 			file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
-  		}
-  		if(!file) {
-  			// Hajo: check fallback english
- 			file = fopen((file_prefix+"/en/"+filename).c_str(), "rb");
-  		}
+		FILE* file = fopen(fullname.c_str(), "rb");
+		if (!file) {
+			//Check for the 'base' language(ie en from en_gb)
+			file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
+		}
+		if (!file) {
+			// Hajo: check fallback english
+			file = fopen((file_prefix + "/en/" + filename).c_str(), "rb");
+		}
 		// go back to load/save dir
 		chdir( umgebung_t::user_dir );
 

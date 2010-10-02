@@ -240,7 +240,7 @@ void log_t::fatal(const char *who, const char *format, ...)
 	}
 
 #ifdef DEBUG
- 	if(old_level>4) {
+	if (old_level > 4) {
 		// generate a division be zero error, if the user request it
 		static int make_this_a_division_by_zero = 0;
 		printf("%i", 15 / make_this_a_division_by_zero);

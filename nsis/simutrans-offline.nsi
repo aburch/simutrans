@@ -409,6 +409,3 @@ Function DownloadInstall
   CopyFiles "$TEMP\Simutrans\*.*" "$INSTDIR"
   RMdir /r "$TEMP\simutrans"
 FunctionEnd
-
-
-

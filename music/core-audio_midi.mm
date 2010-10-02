@@ -146,5 +146,3 @@ bool dr_init_midi(void)
 	movies = [[NSMutableArray alloc] initWithCapacity: MAX_MIDI];
 	return true;
 }
-
-

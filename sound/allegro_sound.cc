@@ -97,11 +97,11 @@ void dr_play_sample(int key, int volume)
 		}
 
 		reallocate_voice(v, sound_samples[key]);
-      		voice_set_volume(v, volume);
-      		voice_set_pan(v, 128);
-      		voice_set_frequency(v, sound_samples[key]->freq);
-      		voice_set_playmode(v, PLAYMODE_PLAY);
-      		voice_start(v);
+		voice_set_volume(v, volume);
+		voice_set_pan(v, 128);
+		voice_set_frequency(v, sound_samples[key]->freq);
+		voice_set_playmode(v, PLAYMODE_PLAY);
+		voice_start(v);
 
 		vc ++;
 	}

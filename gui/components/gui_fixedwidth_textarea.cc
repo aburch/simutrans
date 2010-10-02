@@ -14,7 +14,7 @@
 
 gui_fixedwidth_textarea_t::gui_fixedwidth_textarea_t(const char *const text_, const sint16 width, const koord reserved_area_)
 {
- 	set_text(text_);
+	set_text(text_);
 	set_width(width);
 	set_reserved_area(reserved_area_);
 }

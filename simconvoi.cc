@@ -2782,7 +2782,7 @@ void convoi_t::check_pending_updates()
 			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		}
 
- 		if(state!=INITIAL) {
+		if (state != INITIAL) {
 			if(is_same  ||  is_depot) {
 				/* same destination
 				 * We are already there => remove wrong freight and keep current state

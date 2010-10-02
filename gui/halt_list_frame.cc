@@ -212,9 +212,9 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 				}
 				else if(ware != warenbauer_t::nichts) {
 
-					 // Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
-    					 // Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
-					 // begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
+					// Oh Mann - eine doppelte Schleife und das noch pro Haltestelle
+					// Zum Glück ist die Anzahl der Fabriken und die ihrer Ausgänge
+					// begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 
 					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
 					while(!ok && fab_iter.next()) {
@@ -365,20 +365,20 @@ bool halt_list_frame_t::infowin_event(const event_t *ev)
  */
 bool halt_list_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
-    if(komp == &filter_on) {
+	if (komp == &filter_on) {
 		set_filter(any_filter, !get_filter(any_filter));
 		filter_on.set_text(get_filter(any_filter) ? "hl_btn_filter_enable" : "hl_btn_filter_disable");
 		display_list();
-    }
-	else if(komp == &sortedby) {
-    	set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
+	}
+	else if (komp == &sortedby) {
+		set_sortierung((sort_mode_t)((get_sortierung() + 1) % SORT_MODES));
 		display_list();
-    }
-	else if(komp == &sorteddir) {
-    	set_reverse(!get_reverse());
+	}
+	else if (komp == &sorteddir) {
+		set_reverse(!get_reverse());
 		display_list();
-    }
-	else if(komp == &filter_details) {
+	}
+	else if (komp == &filter_details) {
 		if (filter_frame) {
 			destroy_win(filter_frame);
 		}
@@ -386,8 +386,8 @@ bool halt_list_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* 
 			filter_frame = new halt_list_filter_frame_t(m_sp, this);
 			create_win(filter_frame, w_info, (long)this);
 		}
-    }
-    return true;
+	}
+	return true;
 }
 
 

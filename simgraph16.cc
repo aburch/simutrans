@@ -1919,7 +1919,7 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
  */
 enum pixcopy_routines {
 	plain = 0,	/// simply copies the pixels
- 	colored = 1	/// replaces player colors
+	colored = 1	/// replaces player colors
 };
 
 template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
