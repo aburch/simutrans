@@ -775,11 +775,16 @@ int simu_main(int argc, char** argv)
 	// recover last server game
 	if(  new_world  &&  umgebung_t::server  ) {
 		chdir( umgebung_t::user_dir );
-		if(  FILE *f = fopen("server-network.sve","rb")  ) {
-			// try recover with the latest savegame
-			loadgame = "server-network.sve";
-			fclose(f);
-			new_world = false;
+		loadsave_t file;
+		// try recover with the latest savegame
+		if(file.rd_open("server-network.sve")) {
+			// compare pakset (objfilename has trailing path separator, pak_extension not)
+			if (strncmp(file.get_pak_extension(),umgebung_t::objfilename.c_str(),strlen(file.get_pak_extension()))==0) {
+				// same pak directory - load this
+				loadgame = "server-network.sve";
+				new_world = false;
+			}
+			file.close();
 		}
 	}
 
