@@ -1506,8 +1506,11 @@ bool convoi_t::can_go_alte_richtung()
 		const vehikel_t* v = fahr[i];
 		grund_t *gr = welt->lookup(v->get_pos());
 
-
-		convoi_length += v->get_besch()->get_length();
+		// not last vehicle?
+		// the length of last vehicle does not matter when it comes to positioning of vehicles
+		if ( i+1 < anz_vehikel) {
+			convoi_length += v->get_besch()->get_length();
+		}
 
 		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
 			// ending here is an error!
