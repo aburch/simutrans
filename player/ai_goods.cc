@@ -1219,8 +1219,8 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 											cnv->step();
 										}
 									}
+									simlinemgmt.delete_line( line );
 								}
-								simlinemgmt.delete_line( line );
 							}
 							// delete harbour
 							call_general_tool( WKZ_REMOVER, water_stop, NULL );
