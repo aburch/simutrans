@@ -231,6 +231,8 @@ void movingobj_t::rdwr(loadsave_t *file)
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;
+		// not saved, recalculate
+		hoff = calc_height();
 	}
 	weg_next = 0;
 }
