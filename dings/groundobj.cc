@@ -56,9 +56,14 @@ bool groundobj_t::alles_geladen()
 	groundobj_typen.resize(besch_names.get_count());
 	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
 	while(  iter.next()  ) {
-		iter.access_current_value()->index = groundobj_typen.get_count();
 		groundobj_typen.insert_ordered( iter.get_current_value(), compare_groundobj_besch );
 	}
+	// iterate again to assign the index
+	stringhashtable_iterator_tpl<groundobj_besch_t *>iter2(besch_names);
+	while(  iter2.next()  ) {
+		iter2.access_current_value()->index = groundobj_typen.index_of( iter2.get_current_value());
+	}
+
 	if(besch_names.empty()) {
 		groundobj_typen.append( NULL );
 		DBG_MESSAGE("groundobj_t", "No groundobj found - feature disabled");
