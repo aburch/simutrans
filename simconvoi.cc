@@ -440,7 +440,7 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 	if(  with_new_id  ) {
 		char buf[128];
 		name_offset = sprintf(buf,"(%i) ",self.get_id() );
-		tstrncpy(buf+name_offset, translator::translate(name), 116);
+		tstrncpy(buf+name_offset, translator::translate(name,welt->get_einstellungen()->get_name_language_id()), 116);
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	else {

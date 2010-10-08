@@ -1231,7 +1231,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 
 			sprintf(name,
 			"%s (%s)",
-			translator::translate(veh_type->get_name()),
+			translator::translate(veh_type->get_name(),depot->get_welt()->get_einstellungen()->get_name_language_id()),
 			translator::translate(engine_type_names[veh_type->get_engine_type()+1]));
 
 			int n = sprintf(buf,
@@ -1258,7 +1258,7 @@ void depot_frame_t::draw_vehicle_info_text(koord pos)
 			// waggon
 			sprintf(buf,
 				translator::translate("WAGGON_INFO"),
-				translator::translate(veh_type->get_name()),
+				translator::translate(veh_type->get_name(),depot->get_welt()->get_einstellungen()->get_name_language_id()),
 				veh_type->get_preis()/100,
 				veh_type->get_betriebskosten()/100.0,
 				veh_type->get_zuladung(),
