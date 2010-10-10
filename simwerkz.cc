@@ -5264,7 +5264,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 
 
 // sets the password (hash) for a given player
-bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
+bool wkz_change_password_hash_t::init( karte_t *welt, spieler_t *sp)
 {
 	if(  default_param==NULL  ) {
 		return false;
@@ -5305,6 +5305,7 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 		}
 	}
 	sp->get_password_hash() = new_hash;
+	sp->set_unlock( welt->get_player_password_hash(sp->get_player_nr()) );
 	return false;
 }
 

@@ -2167,7 +2167,7 @@ void karte_t::set_player_password_hash( uint8 player_nr, uint8 *hash )
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
-	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
+	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&  w->get_id()!=(WKZ_PWDHASH_TOOL|SIMPLE_TOOL)  &&  sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
 		// player is currently password protected => request unlock first
 		create_win( -1, -1, new password_frame_t(sp), w_info, (long)(player_password_hash[sp->get_player_nr()]) );
 		return;

@@ -177,7 +177,7 @@ public:
 
 	bool is_locked() const { return locked; }
 
-	bool set_unlock( uint8 *hash );
+	bool set_unlock( const uint8 *hash );
 
 	// some routine needs this for direct manipulation
 	pwd_hash_t& get_password_hash() { return pwd_hash; }

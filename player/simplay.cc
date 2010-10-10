@@ -162,16 +162,14 @@ const char* spieler_t::get_name(void) const
 
 /* returns FALSE when unlocking!
  */
-bool spieler_t::set_unlock( uint8 *hash )
+bool spieler_t::set_unlock( const uint8 *hash )
 {
-	if(  locked  ) {
-		if (pwd_hash.empty()) {
-			locked = false;
-		}
-		else if(  hash!=NULL  ) {
-			// matches password?
-			locked = pwd_hash != hash;
-		}
+	if(  pwd_hash.empty()  ) {
+		locked = false;
+	}
+	else if(  hash!=NULL  ) {
+		// matches password?
+		locked = (pwd_hash != hash);
 	}
 	return locked;
 }

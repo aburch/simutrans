@@ -56,8 +56,12 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 		SHA1 sha1;
 		sha1.Input( input.get_text(), strlen( input.get_text() ) );
 		uint8 hash[20];
+		MEMZERO(hash);
 		sha1.Result( hash );
-		if(  !sp->set_unlock( hash )  ) {
+		/* if curretn active player is player 1 and this is unlocked, he may reset passwords
+		 * otherwise you need the valid previous password
+		 */
+		if(  (sp->get_welt()->get_active_player_nr()==1  &&  !sp->get_welt()->get_spieler(1)->is_locked())  ||  !sp->set_unlock( hash )  ) {
 			// set this to world
 			sp->get_welt()->set_player_password_hash( sp->get_player_nr(), hash );
 			// and change player password
