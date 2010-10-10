@@ -46,7 +46,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add_komponente( &add );
 
 	if(  !show_all_rev.pressed  ) {
-		show_all_rev.init( button_t::square_state, "show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
+		show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
 		show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
 		show_all_rev.add_listener(this);
 		add_komponente( &show_all_rev );
