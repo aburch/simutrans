@@ -1242,7 +1242,9 @@ void win_display_flush(double konto)
 
 	static cbuffer_t info(256);
 	info.clear();
-	info.printf( "(%s)", pos.get_str() );
+	if(  pos!=koord3d::invalid  ) {
+		info.printf( "(%s)", pos.get_str() );
+	}
 	if(  skinverwaltung_t::timelinesymbol==NULL  ) {
 		info.printf( " %s", translator::translate(wl->use_timeline()?"timeline":"no timeline") );
 	}
@@ -1263,20 +1265,17 @@ void win_display_flush(double konto)
 	}
 #ifdef DEBUG
 	if(  umgebung_t::verbose_debug>3  ) {
-		if(  info.len()  ) {
-			info.append( " " );
-		}
 		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
-			info.append( "+" );
+			info.append( " +" );
 		}
 		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
-			info.append( "+" );
+			info.append( " *" );
 		}
 	}
 #endif
 
 	KOORD_VAL w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
-	KOORD_VAL w_right  = display_proportional(right_border, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
+	KOORD_VAL w_right  = display_proportional(right_border-4, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
 	KOORD_VAL middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
 
 	if(wl->get_active_player()) {
