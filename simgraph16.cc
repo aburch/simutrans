@@ -182,8 +182,9 @@ struct imd {
 #define NEED_PLAYER_RECODE (128)
 
 
-static sint16 disp_width  = 640;
-static sint16 disp_height = 480;
+static KOORD_VAL disp_width  = 640;
+static KOORD_VAL disp_actual_width  = 640;
+static KOORD_VAL disp_height = 480;
 
 
 /*
@@ -541,7 +542,7 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 
 sint16 display_get_width(void)
 {
-	return disp_width;
+	return disp_actual_width;
 }
 
 
@@ -4053,6 +4054,7 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
+	disp_actual_width = w;
 	// some cards need those alignments
 	w = (w + 15) & 0x7FF0;
 	if(  w<=0  ) {

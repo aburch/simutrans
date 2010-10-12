@@ -50,6 +50,7 @@
 #include "tpl/vector_tpl.h"
 
 #include "utils/simstring.h"
+#include "utils/cbuffer_t.h"
 
 
 #define dragger_size 12
@@ -1130,9 +1131,6 @@ void win_display_flush(double konto)
 	}
 
 	char time [128];
-	char info [256];
-	char stretch_text[256];
-	char delta_pos[64];
 
 //DBG_MESSAGE("umgebung_t::show_month","%d",umgebung_t::show_month);
 	// @author hsiegeln - updated to show month
@@ -1142,6 +1140,21 @@ void win_display_flush(double konto)
 	char const* const season = translator::translate(seasons[wl->get_jahreszeit()]);
 	char const* const month_ = translator::get_month_name(month % 12);
 	switch (umgebung_t::show_month) {
+		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+			sprintf(time, "%d. %s %d %d:%02dh", tage, month_, year, stunden, minuten);
+			break;
+
+		case umgebung_t::DATE_FMT_US_NO_SEASON: {
+			uint32 hours_ = stunden % 12;
+			if (hours_ == 0) hours_ = 12;
+			sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+			break;
+		}
+
+		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+			sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
+			break;
+
 		case umgebung_t::DATE_FMT_GERMAN:
 			sprintf(time, "%s, %d. %s %d %d:%02dh", season, tage, month_, year, stunden, minuten);
 			break;
@@ -1166,46 +1179,105 @@ void win_display_flush(double konto)
 			break;
 	}
 
-	// time multiplier text
-	if(wl->is_fast_forward()) {
-		sprintf(stretch_text, ">> (T~%1.2f)", wl->get_simloops()/50.0 );
-	}
-	else if(wl->is_paused()) {
-		strcpy( stretch_text, translator::translate("GAME PAUSED") );
-	}
-	else {
-		sprintf(stretch_text, "(T=%1.2f)", wl->get_time_multiplier()/16.0 );
-	}
-
-#ifdef DEBUG
-	if(  umgebung_t::verbose_debug>3  ) {
-		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
-			strcat(stretch_text, "+" );
-		}
-		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
-			strcat(stretch_text, "*" );
-		}
-	}
-#endif
-
-	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
-		sprintf(delta_pos,"-(%d,%d) ", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
-	}
-	else {
-		delta_pos[0] = 0;
-	}
-	sprintf(info,"(%d,%d,%d)%s %s  %s", pos.x, pos.y, pos.z/Z_TILE_STEP, delta_pos, stretch_text, translator::translate(wl->use_timeline()?"timeline":"no timeline") );
-
-	// bottom text line
+	// bottom text background
 	display_set_clip_wh( 0, 0, disp_width, disp_height );
 	display_fillbox_wh(0, disp_height-16, disp_width, 1, MN_GREY4, false);
 	display_fillbox_wh(0, disp_height-15, disp_width, 15, MN_GREY1, false);
 
-	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_jahreszeit()), 2, disp_height-15, 0, false, true );
+	bool tooltip_check = get_maus_y()>disp_height-15;
+	if(  tooltip_check  ) {
+		tooltip_xpos = get_maus_x();
+		tooltip_ypos = disp_height-15-10-16*show_ticker;
+	}
 
-	int w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
-	int w_right = 10+display_proportional(disp_width-10, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
-	int middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
+	// season color
+	display_color_img( skinverwaltung_t::seasons_icons->get_bild_nr(wl->get_jahreszeit()), 2, disp_height-15, 0, false, true );
+	if(  tooltip_check  &&  tooltip_xpos<14  ) {
+		tooltip_text = translator::translate(seasons[wl->get_jahreszeit()]);
+		tooltip_check = false;
+	}
+
+	KOORD_VAL right_border = disp_width-4;
+
+	// shown if timeline game
+	if(  wl->use_timeline()  &&  skinverwaltung_t::timelinesymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::timelinesymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("timeline");
+			tooltip_check = false;
+		}
+	}
+
+	// shown if connected
+	if(  umgebung_t::networkmode  &&  skinverwaltung_t::networksymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::networksymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("Connected with server");
+			tooltip_check = false;
+		}
+	}
+
+	// put pause icon
+	if(  wl->is_paused()  &&  skinverwaltung_t::pausesymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::pausesymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("GAME PAUSED");
+			tooltip_check = false;
+		}
+	}
+
+	// put fast forward icon
+	if(  wl->is_fast_forward()  &&  skinverwaltung_t::fastforwardsymbol  ) {
+		right_border -= 14;
+		display_color_img( skinverwaltung_t::fastforwardsymbol->get_bild_nr(0), right_border, disp_height-15, 0, false, true );
+		if(  tooltip_check  &&  tooltip_xpos>=right_border  ) {
+			tooltip_text = translator::translate("Fast forward");
+			tooltip_check = false;
+		}
+	}
+
+
+	static cbuffer_t info(256);
+	info.clear();
+	info.printf( "(%s)", pos.get_str() );
+	if(  skinverwaltung_t::timelinesymbol==NULL  ) {
+		info.printf( " %s", translator::translate(wl->use_timeline()?"timeline":"no timeline") );
+	}
+	if(wl->show_distance!=koord3d::invalid  &&  wl->show_distance!=pos) {
+		info.printf("-(%d,%d)", wl->show_distance.x-pos.x, wl->show_distance.y-pos.y );
+	}
+	if(  !umgebung_t::networkmode  ) {
+		// time multiplier text
+		if(wl->is_fast_forward()) {
+			info.printf(" %s(T~%1.2f)", skinverwaltung_t::fastforwardsymbol?"":">> ", wl->get_simloops()/50.0 );
+		}
+		else if(!wl->is_paused()) {
+			info.printf(" (T=%1.2f)", wl->get_time_multiplier()/16.0 );
+		}
+		else if(  skinverwaltung_t::pausesymbol==NULL  ) {
+			info.printf( " %s", translator::translate("GAME PAUSED") );
+		}
+	}
+#ifdef DEBUG
+	if(  umgebung_t::verbose_debug>3  ) {
+		if(  info.len()  ) {
+			info.append( " " );
+		}
+		if(  haltestelle_t::get_rerouting_status()==RESCHEDULING  ) {
+			info.append( "+" );
+		}
+		else if(  haltestelle_t::get_rerouting_status()==REROUTING  ) {
+			info.append( "+" );
+		}
+	}
+#endif
+
+	KOORD_VAL w_left = 20+display_proportional(20, disp_height-12, time, ALIGN_LEFT, COL_BLACK, true);
+	KOORD_VAL w_right  = display_proportional(right_border, disp_height-12, info, ALIGN_RIGHT, COL_BLACK, true);
+	KOORD_VAL middle = (disp_width+((w_left+8)&0xFFF0)-((w_right+8)&0xFFF0))/2;
 
 	if(wl->get_active_player()) {
 		char buffer[256];

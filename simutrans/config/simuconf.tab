@@ -436,7 +436,10 @@ starting_year = 1930
 # Starting month of the game for people who want to start in summer (default 1=January)
 starting_month = 1
 
-# Should month be shown in date? (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4)
+# Should month be shown in date?
+# 0=no, 1=yes
+# 2>=show day in japan format=2, us format=3, german=4
+# 5>=show no season but everything else in japan format=5, us format=5, german=6
 # This is most useful, if you use longer months than the default length (see below)
 #show_month = 1
 
