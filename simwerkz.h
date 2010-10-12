@@ -887,8 +887,6 @@ class wkz_change_player_t : public werkzeug_t {
 public:
 	wkz_change_player_t() : werkzeug_t() { id = WKZ_SET_PLAYER_TOOL | SIMPLE_TOOL; }
 	virtual bool init( karte_t *, spieler_t * );
-	// password check so far only locally ...
-	virtual bool is_init_network_save() const { return true; }
 };
 
 // change timing of traffic light
@@ -1338,5 +1336,6 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 #endif
