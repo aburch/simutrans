@@ -338,7 +338,7 @@ private:
 
 	message_t *msg;
 
-	int average_speed[8];
+	sint32 average_speed[8];
 
 	uint32 tile_counter;
 
@@ -480,7 +480,7 @@ public:
 	einstellungen_t *access_einstellungen() const { return einstellungen; }
 
 	// returns current speed bonus
-	int get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
+	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
 
 	// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
