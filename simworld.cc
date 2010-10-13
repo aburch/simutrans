@@ -4504,6 +4504,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	// restore all open windows
 	rwdr_all_win(file);
 
+	// restore locked state
+	for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
+		if(  spieler[i]  ) {
+			spieler[i]->set_unlock( player_password_hash[i] );
+		}
+	}
+
 	clear_random_mode(LOAD_RANDOM);
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
