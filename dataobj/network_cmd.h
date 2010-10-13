@@ -218,6 +218,10 @@ public:
 
 class nwc_tool_t : public network_world_command_t {
 public:
+	// to detect desync we sent these infos always together (only valid for tools)
+	uint32 last_random_seed;
+	uint32 last_sync_step;
+
 	nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0) { default_param = NULL; }
 	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);

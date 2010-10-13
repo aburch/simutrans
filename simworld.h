@@ -300,6 +300,7 @@ private:
 
 	// Variables used in interactive()
 	uint32 sync_steps;
+	uint32 last_random_seed, last_random_seed_sync;
 	uint8  network_frame_count;
 	uint32 fix_ratio_frame_time; // set in reset_timer()
 
@@ -972,6 +973,9 @@ public:
 	bool interactive(uint32 quit_month);
 
 	uint32 get_sync_steps() const { return sync_steps; }
+
+	uint32 get_last_random_seed() const { return last_random_seed; }
+	uint32 get_last_random_seed_sync() const { return last_random_seed_sync; }
 
 	void command_queue_append(network_world_command_t*);
 

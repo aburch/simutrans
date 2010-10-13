@@ -418,6 +418,8 @@ nwc_tool_t::~nwc_tool_t()
 void nwc_tool_t::rdwr()
 {
 	network_world_command_t::rdwr();
+	packet->rdwr_long(last_sync_step);
+	packet->rdwr_long(last_random_seed);
 	packet->rdwr_byte(player_nr);
 	sint16 posx = pos.x; packet->rdwr_short(posx); pos.x = posx;
 	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
@@ -476,6 +478,8 @@ bool nwc_tool_t::execute(karte_t *welt)
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
 		nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
+		nwt->last_sync_step = welt->get_last_random_seed_sync();
+		nwt->last_random_seed = welt->get_last_random_seed();
 		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
 		network_send_all(nwt, false);
 	}

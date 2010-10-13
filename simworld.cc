@@ -5189,7 +5189,7 @@ bool karte_t::interactive(uint32 quit_month)
 	bool cursor_hidden = false;
 	sync_steps = 0;
 
-	uint32 last_randoms[16];
+	uint32 last_randoms[64];
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
@@ -5421,11 +5421,24 @@ bool karte_t::interactive(uint32 quit_month)
 					uint32 server_syncst = nwcheck->server_sync_step;
 					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, last_randoms[server_syncst&15], server_syncst, server_random);
 					if (last_randoms[server_syncst&15]!=server_random) {
-						dbg->warning("karte_t::interactive", "random number generators have different states", nwc->get_id());
+						dbg->warning("karte_t::interactive", "random number generators have different states" );
 						network_disconnect();
 					}
 				}
 				else {
+					// check timiming
+					if(  nwc->get_id()==NWC_TOOL  ) {
+						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
+						if(  last_randoms[nwt->last_sync_step&63]!=nwt->last_random_seed  ) {
+							// lost synchronisation ...
+							dbg->warning("karte_t::interactive", "random number generators have different states (skipping command)" );
+							if(  !umgebung_t::server  ) {
+								network_disconnect();
+							}
+							delete nwc;
+							continue;
+						}
+					}
 					nwc->do_command(this);
 				}
 				delete nwc;
@@ -5473,7 +5486,8 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
-					last_randoms[sync_steps&15] = get_random_seed();
+					last_random_seed = last_randoms[sync_steps&63] = get_random_seed();
+					last_random_seed_sync = sync_steps;
 					// broadcast sync info
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  &&  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0) {
 						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&15], sync_steps);
@@ -5549,6 +5563,7 @@ void karte_t::network_disconnect()
 	// force disconnect
 	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server.");
 	network_core_shutdown();
+	destroy_all_win(true);
 
 	step_mode = NORMAL;
 	reset_timer();
