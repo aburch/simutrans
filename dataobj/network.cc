@@ -489,9 +489,9 @@ bool network_init_server( int port )
 		return false;
 	}
 
-	active_clients = 0;
 	my_socket.append( my );
 	network_add_client( my );
+	active_clients = my_socket.get_count();
 #else
 	struct addrinfo *res;
 	struct addrinfo hints;
