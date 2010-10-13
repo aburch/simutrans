@@ -2396,7 +2396,12 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		route_t *rt=cnv->get_route();
 		koord3d block_pos=rt->position_bei(next_block);
 		grund_t *gr_next_block = welt->lookup(block_pos);
-		const schiene_t *sch1 = (const schiene_t *)gr_next_block->get_weg(get_waytype());
+		const schiene_t *sch1 = gr_next_block ? (const schiene_t *)gr_next_block->get_weg(get_waytype()) : NULL;
+		if(sch1==NULL) {
+			// weg not existent (likely destroyed)
+			cnv->suche_neue_route();
+			return false;
+		}
 
 		// Is a crossing?
 		// note: crossing and signal might exist on same tile
@@ -2406,16 +2411,16 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				// ok, here is a draw/turnbridge ...
 				bool ok = cr->request_crossing(this);
 				if(!ok) {
-					// cannt cross => wait here
+					// cannot cross => wait here
 					restart_speed = 0;
 					return false;
 				}
 			}
 		}
 
-		// next cehck for signal
+		// next check for signal
 		signal_t *sig = NULL;
-		if(  sch1  &&  sch1->has_signal()  ) {
+		if(  sch1->has_signal()  ) {
 			sig = gr_next_block->find<signal_t>();
 		}
 		if(  sig  ) {
@@ -2449,6 +2454,11 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 							koord3d pos = cnv->get_route()->position_bei(i);
 							grund_t *gr = welt->lookup(pos);
 							schiene_t * sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
+							if(sch1==NULL) {
+								// weg not existent (likely destroyed)
+								cnv->suche_neue_route();
+								return false;
+							}
 							if(sch1->has_signal()) {
 								// find a signal
 								is_presignal = true;
