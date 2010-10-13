@@ -334,34 +334,70 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 			int old_count = win_get_open_count();
 
-			// show halt and labels first ...
-			if(  gr->get_halt().is_bound()  ) {
-				gr->get_halt()->zeige_info();
-				if(  old_count!=win_get_open_count()  ) {
-					return NULL;
+			if(  is_ctrl_pressed()  ) {
+				// reverse order
+				for(int n=0;  n<gr->get_top();  n++  ) {
+					ding_t *dt = gr->obj_bei(n);
+					if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
+						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
+						dt->zeige_info();
+						// did some new window open?
+						if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+							return NULL;
+						}
+					}
 				}
-			}
-			if(  gr->get_flag(grund_t::marked)  ) {
-				label_t *lb = gr->find<label_t>();
-				if(  lb  ) {
-					lb->zeige_info();
+
+				if(  gr->get_flag(grund_t::marked)  ) {
+					label_t *lb = gr->find<label_t>();
+					if(  lb  ) {
+						lb->zeige_info();
+						if(  old_count!=win_get_open_count()  ) {
+							return NULL;
+						}
+					}
+				}
+
+				if(  gr->get_halt().is_bound()  ) {
+					gr->get_halt()->zeige_info();
 					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
 				}
-			}
 
-			for(int n=gr->get_top()-1;  n>=0;  n--  ) {
-				ding_t *dt = gr->obj_bei(n);
-				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
-					DBG_MESSAGE("wkz_abfrage()", "index %d", n);
-					dt->zeige_info();
-					// did some new window open?
-					if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+			}
+			else {
+
+				// show halt and labels first ...
+				if(  gr->get_halt().is_bound()  ) {
+					gr->get_halt()->zeige_info();
+					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
 				}
+				if(  gr->get_flag(grund_t::marked)  ) {
+					label_t *lb = gr->find<label_t>();
+					if(  lb  ) {
+						lb->zeige_info();
+						if(  old_count!=win_get_open_count()  ) {
+							return NULL;
+						}
+					}
+				}
+
+				for(int n=gr->get_top()-1;  n>=0;  n--  ) {
+					ding_t *dt = gr->obj_bei(n);
+					if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
+						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
+						dt->zeige_info();
+						// did some new window open?
+						if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+							return NULL;
+						}
+					}
+				}
 			}
+
 			// no window yet opened -> try ground info
 			gr->zeige_info();
 		}
