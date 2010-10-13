@@ -409,7 +409,7 @@ public:
 	// In Experimental this is mostly for entering stations etc.,
 	// as the new physics engine handles ways
 	sint32 get_speed_limit() const { return speed_limit; }
-	static sint32 speed_unlimited() {return std::numeric_limits<sint32>::max(); }
+	static sint32 speed_unlimited() {return (std::numeric_limits<sint32>::max)(); }
 
 	const slist_tpl<ware_t> & get_fracht() const { return fracht;}   // liste der gerade transportierten güter
 
