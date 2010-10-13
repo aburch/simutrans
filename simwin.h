@@ -11,6 +11,7 @@
 #include "simtypes.h"
 
 class karte_t;
+class loadsave_t;
 class gui_frame_t;
 class gui_komponente_t;
 struct event_t;
@@ -88,6 +89,8 @@ enum magic_numbers {
 
 void init_map_win();
 
+// windows with a valid id can be saved and restored
+void rwdr_all_win(loadsave_t *file);
 
 int create_win(gui_frame_t*, wintype, long magic);
 int create_win(int x, int y, gui_frame_t*, wintype, long magic);

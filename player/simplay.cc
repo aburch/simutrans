@@ -874,6 +874,11 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			set_unlock( NULL );
 		}
 	}
+
+	// save the name too
+	if(file->get_version()>102003) {
+		file->rdwr_str( spieler_name_buf, lengthof(spieler_name_buf) );
+	}
 }
 
 

@@ -34,11 +34,13 @@
 
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
+#include "dataobj/loadsave.h"
 
 #include "besch/skin_besch.h"
 
 #include "dings/zeiger.h"
 
+#include "gui/map_frame.h"
 #include "gui/help_frame.h"
 #include "gui/messagebox.h"
 #include "gui/werkzeug_waehler.h"
@@ -377,6 +379,55 @@ bool win_is_top(const gui_frame_t *ig)
 
 
 // window functions
+
+
+// save/restore all dialogues
+void rwdr_all_win(loadsave_t *file)
+{
+	if(  file->get_version()>102003  ) {
+		if(  file->is_saving()  ) {
+			for ( uint32 i=0;  i < wins.get_count();  i++ ) {
+				uint32 id = wins[i].gui->get_rdwr_id();
+				if(  id!=magic_reserved  ) {
+					file->rdwr_long( id );
+					wins[i].pos.rdwr( file );
+					file->rdwr_bool( wins[i].sticky );
+					file->rdwr_bool( wins[i].rollup );
+					wins[i].gui->rdwr( file );
+				}
+			}
+			uint32 end = magic_none;
+			file->rdwr_long( end );
+		}
+		else {
+			// restore windows
+			while(1) {
+				uint32 id;
+				file->rdwr_long(id);
+				// create the matching
+				switch(id) {
+
+					case magic_reliefmap:
+						{
+							gui_frame_t *w = new map_frame_t(wl);
+							koord p;
+							p.rdwr(file);
+							create_win( p.x, p.y, w, w_info, id );
+							file->rdwr_bool( wins.back().sticky );
+							file->rdwr_bool( wins.back().rollup );
+							w->rdwr( file );
+						}
+						break;
+
+					// end of dialogues
+					case magic_none: return;
+				}
+			}
+		}
+	}
+}
+
+
 
 int create_win(gui_frame_t* const gui, wintype const wt, long const magic)
 {

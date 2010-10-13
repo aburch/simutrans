@@ -13,6 +13,7 @@
 #define gui_map_frame_h
 
 #include "gui_frame.h"
+#include "../simwin.h"
 #include "components/gui_scrollpane.h"
 #include "components/action_listener.h"
 #include "components/gui_button.h"
@@ -43,9 +44,9 @@ private:
 	static koord size;
 	static koord screenpos;
 
-	static uint8 legend_visible;
-	static uint8 scale_visible;
-	static uint8 directory_visible;
+	static bool legend_visible;
+	static bool scale_visible;
+	static bool directory_visible;
 
 	static bool is_cursor_hidden;
 
@@ -104,6 +105,10 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	map_frame_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	virtual uint32 get_rdwr_id() { return magic_reliefmap; }
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten

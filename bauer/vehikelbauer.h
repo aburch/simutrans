@@ -33,6 +33,7 @@ class vehikelbauer_t
 public:
 	static bool speedbonus_init(const std::string &objfilename);
 	static sint32 get_speedbonus( sint32 monthyear, waytype_t wt );
+	static void rdwr_speedbonus(loadsave_t *file);
 
 	static bool register_besch(const vehikel_besch_t *besch);
 	static bool alles_geladen();

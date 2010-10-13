@@ -3794,10 +3794,13 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 
 	// rdwr cityrules for networkgames
 	if(file->get_version()>102002) {
-		bool rdwr_city_rules = umgebung_t::networkmode;
-		file->rdwr_bool(rdwr_city_rules);
-		if (rdwr_city_rules) {
+		bool do_rdwr = umgebung_t::networkmode;
+		file->rdwr_bool(do_rdwr);
+		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
+			if(file->get_version()>102003) {
+				vehikelbauer_t::rdwr_speedbonus(file);
+			}
 		}
 	}
 
@@ -3913,6 +3916,9 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	// finally a possible scenario
 	scenario->rdwr( file );
 
+	// save all open windows (upon request)
+	rwdr_all_win(file);
+
 	if(needs_redraw) {
 		update_map();
 	}
@@ -3989,6 +3995,10 @@ bool karte_t::laden(const char *filename)
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
+		if(  strstr(filename,"net:")==filename  ) {
+			// fresh game from server => forget about window positions
+			destroy_all_win(true);
+		}
 
 		if(  umgebung_t::server  ) {
 			step_mode = FIX_RATIO;
@@ -4139,12 +4149,15 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	active_player = spieler[0];
 	active_player_nr = 0;
 
-	// rdwr cityrules for networkgames
+	// rdwr cityrules, speedbonus for networkgames
 	if(file->get_version()>102002) {
-		bool rdwr_city_rules = umgebung_t::networkmode;
-		file->rdwr_bool(rdwr_city_rules);
-		if (rdwr_city_rules) {
+		bool do_rdwr = umgebung_t::networkmode;
+		file->rdwr_bool(do_rdwr);
+		if (do_rdwr) {
 			stadt_t::cityrules_rdwr(file);
+			if(file->get_version()>102003) {
+				vehikelbauer_t::rdwr_speedbonus(file);
+			}
 		}
 	}
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte());
@@ -4487,6 +4500,10 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	if(file->get_version()>=99018) {
 		scenario->rdwr(file);
 	}
+
+	// restore all open windows
+	rwdr_all_win(file);
+
 	clear_random_mode(LOAD_RANDOM);
 	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }

@@ -17,6 +17,7 @@
 
 #include "../dataobj/umgebung.h"
 #include "../dataobj/tabfile.h"
+#include "../dataobj/loadsave.h"
 
 #include "../besch/bildliste_besch.h"
 #include "../besch/vehikel_besch.h"
@@ -41,6 +42,10 @@ public:
 		year = y*12;
 		speed = kmh;
 	};
+	void rdwr(loadsave_t *file) {
+		file->rdwr_long(year);
+		file->rdwr_long(speed);
+	}
 };
 
 // speed boni
@@ -88,7 +93,6 @@ bool vehikelbauer_t::speedbonus_init(const std::string &objfilename)
 
 	return true;
 }
-
 
 
 sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
@@ -144,6 +148,23 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 }
 
 
+void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
+{
+	for(  int j=0;  j<8;  j++  ) {
+		uint32 count = speedbonus[j].get_count();
+		file->rdwr_long(count);
+		if (file->is_loading()) {
+			speedbonus[j].clear();
+			speedbonus[j].resize(count);
+		}
+		for(uint32 i=0; i<count; i++) {
+			if (file->is_loading()) {
+				speedbonus[j].append(bonus_record_t());
+			}
+			speedbonus[j][i].rdwr(file);
+		}
+	}
+}
 
 
 vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb )

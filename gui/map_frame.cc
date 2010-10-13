@@ -25,15 +25,16 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/koord.h"
+#include "../dataobj/loadsave.h"
 #include "../besch/fabrik_besch.h"
 
 
 static koord old_ij=koord::invalid;
 
 koord map_frame_t::size=koord(0,0);
-uint8 map_frame_t::legend_visible=false;
-uint8 map_frame_t::scale_visible=false;
-uint8 map_frame_t::directory_visible=false;
+bool map_frame_t::legend_visible=false;
+bool map_frame_t::scale_visible=false;
+bool map_frame_t::directory_visible=false;
 bool map_frame_t::is_cursor_hidden=false;
 
 // Hajo: we track our position onscreen
@@ -194,10 +195,64 @@ map_frame_t::map_frame_t(karte_t *welt) :
 }
 
 
+void map_frame_t::rdwr( loadsave_t *file )
+{
+	if(  file->is_loading()  ) {
+		file->rdwr_bool( reliefkarte_t::get_karte()->rotate45 );
+		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
+		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
+		file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
+		file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
+		bool show_legend_state;
+		file->rdwr_bool( show_legend_state );
+		file->rdwr_bool( scale_visible );
+		file->rdwr_bool( directory_visible );
+		file->rdwr_byte( umgebung_t::default_mapmode );
+		koord savesize;
+		savesize.rdwr(file);
+		set_fenstergroesse( savesize );
+		resize( koord(0,0) );
+		// notify minimap of new settings
+		reliefkarte_t::get_karte()->calc_map_groesse();
+		scrolly.set_groesse( scrolly.get_groesse() );
+
+		sint32 xoff;
+		file->rdwr_long( xoff );
+		sint32 yoff;
+		file->rdwr_long( yoff );
+		scrolly.set_scroll_position( xoff, yoff );
+
+		reliefkarte_t::get_karte()->set_mode((reliefkarte_t::MAP_MODES)umgebung_t::default_mapmode);
+		for (int i=0;i<MAX_BUTTON_TYPE;i++) {
+			filter_buttons[i].pressed = i==umgebung_t::default_mapmode;
+		}
+		if(  legend_visible!=show_legend_state  ) {
+			action_triggered( &b_show_legend, (long)0 );
+		}
+	}
+	else {
+		file->rdwr_bool( reliefkarte_t::get_karte()->rotate45 );
+		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
+		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
+		file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
+		file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
+		file->rdwr_bool( legend_visible );
+		file->rdwr_bool( scale_visible );
+		file->rdwr_bool( directory_visible );
+		file->rdwr_byte( umgebung_t::default_mapmode );
+		koord gr = get_fenstergroesse();
+		gr.rdwr(file);
+		file->rdwr_byte( umgebung_t::default_mapmode );
+		sint32 xoff = scrolly.get_scroll_x();
+		file->rdwr_long( xoff );
+		sint32 yoff = scrolly.get_scroll_y();
+		file->rdwr_long( yoff );
+	}
+}
+
 
 // button pressed
-bool
-map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
+bool map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
 	if(komp==&b_show_legend) {
 		if(!legend_visible) {
@@ -264,6 +319,7 @@ map_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 	return true;
 }
+
 
 void map_frame_t::zoom(bool zoom_out)
 {
@@ -362,7 +418,6 @@ bool map_frame_t::infowin_event(const event_t *ev)
 }
 
 
-
 /**
  * size window in response and save it in static size
  * @author (Mathew Hounsell)
@@ -377,7 +432,6 @@ void map_frame_t::set_fenstergroesse(koord groesse)
 	map_frame_t::size = get_fenstergroesse();
 DBG_MESSAGE("map_frame_t::set_fenstergroesse()","gr.x=%i, gr.y=%i",size.x,size.y );
 }
-
 
 
 /**
@@ -447,7 +501,6 @@ void map_frame_t::resize(const koord delta)
 
 	set_fenstergroesse( groesse );
 }
-
 
 
 /**
