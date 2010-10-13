@@ -100,6 +100,8 @@
 	ADD: station extensions can be built near public halts
 	CHANGE: when joining with public station, the public station keeps its name
 	CHANGE: Introduced symbols and tooltips for a much more compact status line
+	ADD: dialogue can be changed (currently only minimap)
+
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
 
