@@ -491,7 +491,7 @@ bool network_init_server( int port )
 
 	my_socket.append( my );
 	network_add_client( my );
-	active_clients = my_socket.get_count();
+	active_clients = 0;
 #else
 	struct addrinfo *res;
 	struct addrinfo hints;
@@ -540,7 +540,7 @@ bool network_init_server( int port )
 	for(  uint32 i=0;  i<my_socket.get_count();  i++  ) {
 		network_add_client( my_socket[i] );
 	}
-	active_clients = my_socket.get_count();
+	active_clients = 0;
 #endif
 	client_id = 0;
 	server_command_queue.clear();
