@@ -5443,8 +5443,8 @@ bool karte_t::interactive(uint32 quit_month)
 					// this was the random number at the previous sync step on the server
 					uint32 server_random = nwcheck->server_random_seed;
 					uint32 server_syncst = nwcheck->server_sync_step;
-					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, last_randoms[server_syncst&15], server_syncst, server_random);
-					if (last_randoms[server_syncst&15]!=server_random) {
+					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, last_randoms[server_syncst&63], server_syncst, server_random);
+					if (last_randoms[server_syncst&63]!=server_random) {
 						dbg->warning("karte_t::interactive", "random number generators have different states" );
 						network_disconnect();
 					}
@@ -5514,12 +5514,12 @@ bool karte_t::interactive(uint32 quit_month)
 					last_random_seed_sync = sync_steps;
 					// broadcast sync info
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  &&  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0) {
-						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&15], sync_steps);
+						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&63], sync_steps);
 						network_send_all(nwc, true);
 					}
 #if DEBUG>4
 					if(  umgebung_t::networkmode  &&  (sync_steps & 7)==0  &&  umgebung_t::verbose_debug>4  ) {
-						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, last_randoms[sync_steps&15]);
+						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, last_randoms[sync_steps&63]);
 					}
 #endif
 				}
