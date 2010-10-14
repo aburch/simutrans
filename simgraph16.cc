@@ -3941,6 +3941,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	int i;
 
 	// make sure it something of 16 (also better for caching ... )
+	disp_actual_width = width;
 	width = (width + 15) & 0x7FF0;
 
 	if (dr_os_open(width, height, 16, full_screen)) {
@@ -3954,7 +3955,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
 		display_load_font(FONT_PATH_X "prop.fnt");
-	} else {
+	}
+	else {
 		puts("Error  : can't open window!");
 		exit(-1);
 	}
