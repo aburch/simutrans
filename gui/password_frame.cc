@@ -58,7 +58,7 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 		uint8 hash[20];
 		MEMZERO(hash);
 		sha1.Result( hash );
-		/* if curretn active player is player 1 and this is unlocked, he may reset passwords
+		/* if current active player is player 1 and this is unlocked, he may reset passwords
 		 * otherwise you need the valid previous password
 		 */
 		if(  !sp->is_locked()  ||  (sp->get_welt()->get_active_player_nr()==1  &&  !sp->get_welt()->get_spieler(1)->is_locked())   ) {
@@ -75,6 +75,8 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
 			delete w;
 		}
 		else {
+			// set this to world to unlock
+			sp->get_welt()->set_player_password_hash( sp->get_player_nr(), hash );
 			sp->set_unlock( hash );
 		}
 		// always destroy window
