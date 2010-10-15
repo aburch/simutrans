@@ -197,17 +197,18 @@ map_frame_t::map_frame_t(karte_t *welt) :
 
 void map_frame_t::rdwr( loadsave_t *file )
 {
+	file->rdwr_bool( reliefkarte_t::get_karte()->rotate45 );
+	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
+	file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
+	file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
+	file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
+	bool show_legend_state = legend_visible;
+	file->rdwr_bool( show_legend_state );
+	file->rdwr_bool( scale_visible );
+	file->rdwr_bool( directory_visible );
+	file->rdwr_byte( umgebung_t::default_mapmode );
+
 	if(  file->is_loading()  ) {
-		file->rdwr_bool( reliefkarte_t::get_karte()->rotate45 );
-		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
-		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
-		file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
-		file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
-		bool show_legend_state;
-		file->rdwr_bool( show_legend_state );
-		file->rdwr_bool( scale_visible );
-		file->rdwr_bool( directory_visible );
-		file->rdwr_byte( umgebung_t::default_mapmode );
 		koord savesize;
 		savesize.rdwr(file);
 		set_fenstergroesse( savesize );
@@ -231,18 +232,8 @@ void map_frame_t::rdwr( loadsave_t *file )
 		}
 	}
 	else {
-		file->rdwr_bool( reliefkarte_t::get_karte()->rotate45 );
-		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_schedule );
-		file->rdwr_bool( reliefkarte_t::get_karte()->is_show_fab );
-		file->rdwr_short( reliefkarte_t::get_karte()->zoom_in );
-		file->rdwr_short( reliefkarte_t::get_karte()->zoom_out );
-		file->rdwr_bool( legend_visible );
-		file->rdwr_bool( scale_visible );
-		file->rdwr_bool( directory_visible );
-		file->rdwr_byte( umgebung_t::default_mapmode );
 		koord gr = get_fenstergroesse();
 		gr.rdwr(file);
-		file->rdwr_byte( umgebung_t::default_mapmode );
 		sint32 xoff = scrolly.get_scroll_x();
 		file->rdwr_long( xoff );
 		sint32 yoff = scrolly.get_scroll_y();
