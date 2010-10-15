@@ -301,9 +301,13 @@ void nwc_sync_t::do_command(karte_t *welt)
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
 		filename = fn;
 
+		bool old_restore_UI = umgebung_t::restore_UI;
+		umgebung_t::restore_UI = true;
+
 		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
 		long old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
+		umgebung_t::restore_UI = old_restore_UI;
 
 		// pause clients, restore steps
 		welt->network_game_set_pause(true, old_sync_steps);
@@ -329,6 +333,8 @@ void nwc_sync_t::do_command(karte_t *welt)
 			}
 		}
 #endif
+		bool old_restore_UI = umgebung_t::restore_UI;
+		umgebung_t::restore_UI = true;
 		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
 
 		// ok, now sending game
@@ -341,6 +347,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		long old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
+		umgebung_t::restore_UI = old_restore_UI;
 
 #ifdef DO_NOT_SEND_HASHES
 		// restore password info

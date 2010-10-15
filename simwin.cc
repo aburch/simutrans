@@ -43,16 +43,18 @@
 #include "gui/map_frame.h"
 #include "gui/help_frame.h"
 #include "gui/messagebox.h"
-#include "gui/werkzeug_waehler.h"
-
 #include "gui/gui_frame.h"
 
 #include "player/simplay.h"
-
 #include "tpl/vector_tpl.h"
-
 #include "utils/simstring.h"
 #include "utils/cbuffer_t.h"
+
+// needed to restore/save them
+#include "gui/werkzeug_waehler.h"
+#include "gui/player_frame_t.h"
+#include "gui/money_frame.h"
+
 
 
 #define dragger_size 12
@@ -405,23 +407,36 @@ void rwdr_all_win(loadsave_t *file)
 				uint32 id;
 				file->rdwr_long(id);
 				// create the matching
+				gui_frame_t *w = NULL;
 				switch(id) {
-
-					case magic_reliefmap:
-						{
-							gui_frame_t *w = new map_frame_t(wl);
-							koord p;
-							p.rdwr(file);
-							create_win( p.x, p.y, w, w_info, id );
-							file->rdwr_bool( wins.back().sticky );
-							file->rdwr_bool( wins.back().rollup );
-							w->rdwr( file );
-						}
-						break;
 
 					// end of dialogues
 					case magic_none: return;
+
+					// actual dialogues to restore
+					case magic_reliefmap:      w = new map_frame_t(wl); break;
+					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
+
+
+					default:
+						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
+							w = new money_frame_t( wl->get_spieler(id-magic_finances_t) );
+							break;
+						}
+						dbg->fatal( "rwdr_all_win()", "No idea how to restore magic $%Xlu", id );
 				}
+				/* sequece is now the same for all dialogues
+				 * restore coordinates
+				 * create window
+				 * restore state
+				 * restore content
+				 */
+				koord p;
+				p.rdwr(file);
+				create_win( p.x, p.y, w, w_info, id );
+				file->rdwr_bool( wins.back().sticky );
+				file->rdwr_bool( wins.back().rollup );
+				w->rdwr( file );
 			}
 		}
 	}

@@ -559,7 +559,7 @@ DBG_MESSAGE("gebaeude_t::zeige_info()", "at %d,%d - name is '%s'", get_pos().x, 
 		}
 		else if(ist_firmensitz()) {
 			int old_count = win_get_open_count();
-			create_win( new money_frame_t(get_besitzer()), w_info, (long)get_besitzer() );
+			create_win( new money_frame_t(get_besitzer()), w_info, magic_finances_t+get_besitzer()->get_player_nr() );
 			// already open?
 			if(umgebung_t::townhall_info  &&  old_count==win_get_open_count()) {
 				create_win( new ding_infowin_t(this), w_info, (long)this);

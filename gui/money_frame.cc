@@ -18,6 +18,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/loadsave.h"
 
 // for headquarter construction only ...
 #include "../simskin.h"
@@ -474,4 +475,36 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		}
 	}
 	return false;
+}
+
+
+uint32 money_frame_t::get_rdwr_id()
+{
+	return magic_finances_t+sp->get_player_nr();
+}
+
+
+
+void money_frame_t::rdwr( loadsave_t *file )
+{
+	bool monthly = mchart.is_visible();;
+	file->rdwr_bool( monthly );
+
+	// button state already cooledcted
+	file->rdwr_long( bFilterStates[sp->get_player_nr()] );
+
+	if(  file->is_loading()  ) {
+		// states ...
+		for( uint32 i = 0; i<MAX_PLAYER_COST; i++) {
+			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
+				chart.show_curve(i);
+				mchart.show_curve(i);
+			}
+			else {
+				chart.hide_curve(i);
+				mchart.hide_curve(i);
+			}
+		}
+		year_month_tabs.set_active_tab_index( monthly );
+	}
 }

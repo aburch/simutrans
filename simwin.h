@@ -58,10 +58,13 @@ enum magic_numbers {
 	magic_city_info_t,
 	magic_citylist_frame_t,
 	magic_mainhelp,
+	// player dependent stuff => 16 times present
 	magic_finances_t,
-	magic_help,
-	magic_convoi_t,
-	magic_jump,
+	magic_convoi_list=magic_finances_t+16,
+	magic_line_list=magic_convoi_list+16,
+	magic_halt_list=magic_line_list+16,
+	// normal stuff
+	magic_jump=magic_halt_list+16,
 	magic_curiositylist,
 	magic_factorylist,
 	magic_goodslist,
@@ -75,12 +78,12 @@ enum magic_numbers {
 	magic_station_building_select,
 	magic_keyhelp,
 	magic_server_frame_t,
-	magic_info_pointer,	// mark end of the list
-	magic_convoi_info=magic_info_pointer+839,
+	magic_convoi_info,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_halt_info=magic_convoi_detail+65536,
 	magic_halt_detail=magic_halt_info+65536,
-	magic_max=magic_halt_detail+65536
+	magic_max=magic_halt_detail+65536,
+	magic_info_pointer	// mark end of the list
 };
 
 // Haltezeit für Nachrichtenfenster

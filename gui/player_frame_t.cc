@@ -159,7 +159,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		if(komp==(player_get_finances+i)) {
 			// get finances
 			player_get_finances[i].pressed = false;
-			create_win( new money_frame_t(welt->get_spieler(i)), w_info, (long)welt->get_spieler(i) );
+			create_win( new money_frame_t(welt->get_spieler(i)), w_info, magic_finances_t+welt->get_spieler(i)->get_player_nr() );
 			break;
 		}
 		if(komp==(player_change_to+i)) {

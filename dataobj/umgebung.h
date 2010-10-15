@@ -45,6 +45,7 @@ public:
 	static long network_frames_per_step;
 	// how often to synchronize
 	static uint32 server_sync_steps_between_checks;
+	static bool restore_UI;	// when true, restore the windows from a savegame
 
 	// if we are the server, we are at this port ...
 	static uint16 server;

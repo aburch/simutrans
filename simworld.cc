@@ -3611,8 +3611,7 @@ bool karte_t::ist_wasser(koord pos, koord dim) const
 
 
 
-bool
-karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
+bool karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
 	koord k;
 
@@ -3676,8 +3675,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_g
  *
  * @author Hj. Malthaner
  */
-bool
-karte_t::play_sound_area_clipped(koord pos, sound_info info)
+bool karte_t::play_sound_area_clipped(koord pos, sound_info info)
 {
 	if(is_sound) {
 		const int dist = koord_distance( pos, zeiger->get_pos() );
@@ -3995,10 +3993,6 @@ bool karte_t::laden(const char *filename)
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
-		if(  strstr(filename,"net:")==filename  ) {
-			// fresh game from server => forget about window positions
-			destroy_all_win(true);
-		}
 
 		if(  umgebung_t::server  ) {
 			step_mode = FIX_RATIO;
@@ -4501,13 +4495,30 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		scenario->rdwr(file);
 	}
 
-	// restore all open windows
-	rwdr_all_win(file);
-
 	// restore locked state
 	for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
 		if(  spieler[i]  ) {
 			spieler[i]->set_unlock( player_password_hash[i] );
+		}
+	}
+
+	if(  file->get_version()>=102004  ) {
+		if(  umgebung_t::restore_UI  ) {
+			/* restore all open windows
+			 * otherwise it will be ignored
+			 * which is save, since it is the end of file
+			 */
+			rwdr_all_win( file );
+			file->rdwr_byte( active_player_nr );
+		}
+		else {
+			if(  file->is_saving()  ) {
+				// dummy info
+				uint32 end = magic_none;
+				file->rdwr_long( end );
+				uint8 player_zero = 0;
+				file->rdwr_byte( player_zero );
+			}
 		}
 	}
 
