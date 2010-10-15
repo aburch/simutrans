@@ -3915,6 +3915,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 	scenario->rdwr( file );
 
 	// save all open windows (upon request)
+	file->rdwr_byte( active_player_nr );
 	rwdr_all_win(file);
 
 	if(needs_redraw) {
@@ -4507,20 +4508,21 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 	if(  file->get_version()>=102004  ) {
 		if(  umgebung_t::restore_UI  ) {
+			file->rdwr_byte( active_player_nr );
+			active_player = spieler[active_player_nr];
 			/* restore all open windows
 			 * otherwise it will be ignored
 			 * which is save, since it is the end of file
 			 */
 			rwdr_all_win( file );
-			file->rdwr_byte( active_player_nr );
 		}
 		else {
 			if(  file->is_saving()  ) {
 				// dummy info
-				uint32 end = magic_none;
-				file->rdwr_long( end );
 				uint8 player_zero = 0;
 				file->rdwr_byte( player_zero );
+				uint32 end = magic_none;
+				file->rdwr_long( end );
 			}
 		}
 	}

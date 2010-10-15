@@ -417,13 +417,17 @@ void rwdr_all_win(loadsave_t *file)
 					case magic_reliefmap:      w = new map_frame_t(wl); break;
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
 
-
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
 							w = new money_frame_t( wl->get_spieler(id-magic_finances_t) );
-							break;
 						}
-						dbg->fatal( "rwdr_all_win()", "No idea how to restore magic $%Xlu", id );
+						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
+							werkzeug_t::toolbar_tool[id-magic_toolbar]->update(wl,wl->get_active_player());
+							w = werkzeug_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
+						}
+						else {
+							dbg->fatal( "rwdr_all_win()", "No idea how to restore magic $%Xlu", id );
+						}
 				}
 				/* sequece is now the same for all dialogues
 				 * restore coordinates

@@ -783,7 +783,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 {
 	if(wzw==NULL) {
 		DBG_MESSAGE("toolbar_t::update()","update/create toolbar %s",default_param);
-		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, iconsize, this!=werkzeug_t::toolbar_tool[0] );
+		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, toolbar_tool.index_of(this), iconsize, this!=werkzeug_t::toolbar_tool[0] );
 	}
 
 	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
@@ -858,7 +858,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1));
 
 	// show/create window
-	if(win_get_magic((long)this)) {
+	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
 		if(close) {
 			destroy_win(wzw);
 		}
@@ -869,7 +869,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	}
 	else if(!close  &&  this!=werkzeug_t::toolbar_tool[0]) {
 		// not open and not main menu
-		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, (long)this );
+		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
 		DBG_MESSAGE("toolbar_t::init()", "ID=%id", id);
 	}
 	return false;
@@ -878,7 +878,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 
 bool toolbar_t::exit( karte_t *, spieler_t *)
 {
-	if(win_get_magic((long)this)) {
+	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
 		destroy_win(wzw);
 	}
 	return false;

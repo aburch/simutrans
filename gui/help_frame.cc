@@ -161,8 +161,7 @@ help_frame_t::help_frame_t(const std::string &filename) :
  * @param the hyper ref of the link
  * @author Hj. Malthaner
  */
-bool
-help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
+bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
 	const char *str = (const char *)(extra.p);
 	uint32 magic = 0;

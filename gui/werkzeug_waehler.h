@@ -11,7 +11,7 @@
 
 #include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
-//#include "../simmenu.h"
+#include "../simwin.h"
 
 class karte_t;
 class werkzeug_t;
@@ -29,6 +29,9 @@ private:
 	* @author Hj. Malthaner
 	*/
 	vector_tpl<werkzeug_t *> tools;
+
+	// get current toolbar nummer for saving
+	uint32 toolbar_id;
 
 	/**
 	 * window width in toolboxes
@@ -62,7 +65,7 @@ private:
 	bool allow_break;
 
 public:
-	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, koord size, bool allow_break=true );
+	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, uint32 toolbar_id, koord size, bool allow_break=true );
 
 	/**
 	 * Add a new tool with values and tooltip text.
@@ -107,6 +110,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
+
+	// since no information are needed to be saved to restore this, returning magic is enough
+	virtual uint32 get_rdwr_id() { return magic_toolbar+toolbar_id; }
 };
 
 #endif
