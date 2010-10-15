@@ -118,7 +118,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 					welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
 				}
 				else {
-				// right-click on toolbar icon closes toolbar
+					// right-click on toolbar icon closes toolbar
 					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  &&  (tools[wz_idx]->get_id()&TOOLBAR_TOOL)) {
 						tools[wz_idx]->exit(welt, welt->get_active_player());
 						// triggers werkzeug_waehler_t::infowin_event if the other toolbar,

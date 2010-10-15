@@ -4006,7 +4006,10 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		ok = true;
 		file.close();
-		create_win( new news_img("Spielstand wurde\ngeladen!\n"), w_time_delete, magic_none);
+		if(  !umgebung_t::networkmode  ||  !umgebung_t::restore_UI  ) {
+			// do not notify if we restore everything
+			create_win( new news_img("Spielstand wurde\ngeladen!\n"), w_time_delete, magic_none);
+		}
 		set_dirty();
 
 		reset_timer();
