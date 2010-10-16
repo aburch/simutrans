@@ -395,6 +395,7 @@ void rwdr_all_win(loadsave_t *file)
 				if(  id!=magic_reserved  ) {
 					file->rdwr_long( id );
 					wins[i].pos.rdwr( file );
+					file->rdwr_byte( wins[i].wt );
 					file->rdwr_bool( wins[i].sticky );
 					file->rdwr_bool( wins[i].rollup );
 					wins[i].gui->rdwr( file );
@@ -441,7 +442,9 @@ void rwdr_all_win(loadsave_t *file)
 				 */
 				koord p;
 				p.rdwr(file);
-				create_win( p.x, p.y, w, w_info, id );
+				uint8 win_type;
+				file->rdwr_byte( win_type );
+				create_win( p.x, p.y, w, (wintype)win_type, id );
 				file->rdwr_bool( wins.back().sticky );
 				file->rdwr_bool( wins.back().rollup );
 				w->rdwr( file );
