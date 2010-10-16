@@ -16,6 +16,7 @@
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../simwin.h"
 
 class spieler_t;
 
@@ -67,6 +68,13 @@ public:
 
 	// only defined to update schedule, if changed
 	void zeichnen( koord pos, koord gr );
+
+	// this contructor is only used during loading
+	halt_detail_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_halt_detail; }
 };
 
 #endif

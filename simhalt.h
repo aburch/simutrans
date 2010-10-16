@@ -384,7 +384,7 @@ public:
 	 */
 	void neuer_monat();
 
-	karte_t* get_welt() const { return welt; }
+	static karte_t* get_welt() { return welt; }
 
 	/**
 	 * Kann die Ware nicht zum Ziel geroutet werden (keine Route), dann werden

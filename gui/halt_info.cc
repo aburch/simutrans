@@ -15,10 +15,14 @@
 #include "../simwin.h"
 #include "../simwerkz.h"
 #include "../simskin.h"
-#include "../utils/simstring.h"
+
 #include "../freight_list_sorter.h"
+
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
+
+#include "../utils/simstring.h"
 #include "components/list_button.h"
 #include "../besch/skin_besch.h"
 
@@ -285,6 +289,22 @@ void halt_info_t::zeichnen(koord pos, koord gr)
 }
 
 
+// activate the statistic
+void halt_info_t::show_hide_statistics( bool show )
+{
+	toggler.pressed = show;
+	const koord offset = show ? koord(0, 170) : koord(0, -170);
+	set_min_windowsize(get_min_windowsize() + offset);
+	scrolly.set_pos(scrolly.get_pos() + offset);
+	chart.set_visible(show);
+	set_fenstergroesse(get_fenstergroesse() + offset);
+	resize(koord(0,0));
+	for (int i=0;i<MAX_HALT_COST;i++) {
+		filterButtons[i].set_visible(toggler.pressed);
+	}
+}
+
+
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
@@ -298,17 +318,7 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
 		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
 	} else  if (comp == &toggler) {
-		toggler.pressed ^= 1;
-		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
-		set_min_windowsize(get_min_windowsize() + offset);
-		scrolly.set_pos(scrolly.get_pos() + offset);
-		// toggle visibility of components
-		chart.set_visible(toggler.pressed);
-		set_fenstergroesse(get_fenstergroesse() + offset);
-		resize(koord(0,0));
-		for (int i=0;i<MAX_HALT_COST;i++) {
-			filterButtons[i].set_visible(toggler.pressed);
-		}
+		show_hide_statistics( toggler.pressed^1 );
 	}
 	else if(  comp == &input  ) {
 		if(  strcmp(halt->get_name(),edit_name)  ) {
@@ -364,4 +374,68 @@ void halt_info_t::resize(const koord delta)
 void halt_info_t::map_rotate90( sint16 new_ysize )
 {
 	view.map_rotate90(new_ysize);
+}
+
+
+halt_info_t::halt_info_t(karte_t *welt):
+	gui_frame_t("", NULL),
+	scrolly(&text),
+	text(""),
+	sort_label(NULL),
+	view(welt, koord3d::invalid, koord(64,64) ),
+	freight_info(0),
+	info_buf(0)
+{
+	// just a dummy
+	this->welt = welt;
+}
+
+
+void halt_info_t::rdwr(loadsave_t *file)
+{
+	koord3d halt_pos;
+	koord gr = get_fenstergroesse();
+	uint32 flags = 0;
+	bool stats = toggler.pressed;
+	sint32 xoff = scrolly.get_scroll_x();
+	sint32 yoff = scrolly.get_scroll_y();
+	if(  file->is_saving()  ) {
+		halt_pos = halt->get_basis_pos3d();
+		for( int i = 0; i<MAX_HALT_COST; i++) {
+			if(  filterButtons[i].pressed  ) {
+				flags |= (1<<i);
+			}
+		}
+	}
+	halt_pos.rdwr( file );
+	gr.rdwr( file );
+	file->rdwr_long( flags );
+	file->rdwr_byte( umgebung_t::default_sortmode );
+	file->rdwr_bool( stats );
+	file->rdwr_long( xoff );
+	file->rdwr_long( yoff );
+	if(  file->is_loading()  ) {
+		halt = welt->lookup( halt_pos )->get_halt();
+		// now we can open the window ...
+		KOORD_VAL xpos = win_get_posx( this );
+		KOORD_VAL ypos = win_get_posy( this );
+		halt_info_t *w = new halt_info_t(welt,halt);
+		create_win( xpos, ypos, w, w_info, magic_halt_info+halt.get_id() );
+		if(  stats  ) {
+			gr.y -= 170;
+		}
+		w->set_fenstergroesse( gr );
+		for( int i = 0; i<MAX_HALT_COST; i++) {
+			w->filterButtons[i].pressed = (flags>>i)&1;
+			if(w->filterButtons[i].pressed) {
+				w->chart.show_curve(i);
+			}
+		}
+		w->show_hide_statistics( stats );
+		halt->get_freight_info(w->freight_info);
+		w->text.set_text(w->freight_info);
+		w->text.recalc_size();
+		w->scrolly.set_scroll_position( xoff, yoff );
+		destroy_win( this );
+	}
 }

@@ -54,6 +54,8 @@
 #include "gui/werkzeug_waehler.h"
 #include "gui/player_frame_t.h"
 #include "gui/money_frame.h"
+#include "gui/halt_detail.h"
+#include "gui/halt_info.h"
 
 
 
@@ -414,6 +416,8 @@ void rwdr_all_win(loadsave_t *file)
 					case magic_none: return;
 
 					// actual dialogues to restore
+					case magic_halt_info:      w = new halt_info_t(wl); break;
+					case magic_halt_detail:    w = new halt_detail_t(wl); break;
 					case magic_reliefmap:      w = new map_frame_t(wl); break;
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
 

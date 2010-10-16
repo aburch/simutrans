@@ -17,6 +17,7 @@
 #include "../bauer/warenbauer.h"
 
 #include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
 
 #include "schedule_list.h"
 
@@ -363,4 +364,41 @@ void halt_detail_t::zeichnen(koord pos, koord gr)
 		}
 	}
 	gui_frame_t::zeichnen( pos, gr );
+}
+
+
+halt_detail_t::halt_detail_t(karte_t *):
+	gui_frame_t("", NULL),
+	scrolly(&cont),
+	txt_info(""),
+	cb_info_buffer(0)
+{
+	// just a dummy
+}
+
+
+void halt_detail_t::rdwr(loadsave_t *file)
+{
+	koord3d halt_pos;
+	koord gr = get_fenstergroesse();
+	sint32 xoff = scrolly.get_scroll_x();
+	sint32 yoff = scrolly.get_scroll_y();
+	if(  file->is_saving()  ) {
+		halt_pos = halt->get_basis_pos3d();
+	}
+	halt_pos.rdwr( file );
+	gr.rdwr( file );
+	file->rdwr_long( xoff );
+	file->rdwr_long( yoff );
+	if(  file->is_loading()  ) {
+		halt = haltestelle_t::get_welt()->lookup( halt_pos )->get_halt();
+		// now we can open the window ...
+		KOORD_VAL xpos = win_get_posx( this );
+		KOORD_VAL ypos = win_get_posy( this );
+		halt_detail_t *w = new halt_detail_t(halt);
+		create_win( xpos, ypos, w, w_info, magic_halt_detail+halt.get_id() );
+		w->set_fenstergroesse( gr );
+		w->scrolly.set_scroll_position( xoff, yoff );
+		destroy_win( this );
+	}
 }

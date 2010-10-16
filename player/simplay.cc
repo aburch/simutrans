@@ -343,7 +343,7 @@ void spieler_t::neuer_monat()
 	if(konto < 0) {
 		konto_ueberzogen++;
 		if(!welt->get_einstellungen()->is_freeplay()) {
-			if(  this == welt->get_spieler(0)  &&  !umgenung_t::networkmode  ) {
+			if(  this == welt->get_spieler(0)  &&  !umgebung_t::networkmode  ) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win(true);
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
