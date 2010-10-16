@@ -5230,6 +5230,7 @@ bool karte_t::interactive(uint32 quit_month)
 	sync_steps = 0;
 
 	uint32 last_randoms[64];
+#define LRAND(x) (last_randoms[(x) % lengthof(last_randoms)])
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
@@ -5459,8 +5460,8 @@ bool karte_t::interactive(uint32 quit_month)
 					// this was the random number at the previous sync step on the server
 					uint32 server_random = nwcheck->server_random_seed;
 					uint32 server_syncst = nwcheck->server_sync_step;
-					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, last_randoms[server_syncst&63], server_syncst, server_random);
-					if (last_randoms[server_syncst&63]!=server_random) {
+					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, LRAND(server_syncst), server_syncst, server_random);
+					if (LRAND(server_syncst) != server_random) {
 						dbg->warning("karte_t::interactive", "random number generators have different states" );
 						network_disconnect();
 					}
@@ -5469,7 +5470,7 @@ bool karte_t::interactive(uint32 quit_month)
 					// check timiming
 					if(  nwc->get_id()==NWC_TOOL  ) {
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-						if(  last_randoms[nwt->last_sync_step&63]!=nwt->last_random_seed  ) {
+						if (LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
 							// lost synchronisation ...
 							dbg->warning("karte_t::interactive", "random number generators have different states (skipping command)" );
 							if(  !umgebung_t::server  ) {
@@ -5526,16 +5527,16 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
-					last_random_seed = last_randoms[sync_steps&63] = get_random_seed();
+					last_random_seed = LRAND(sync_steps) = get_random_seed();
 					last_random_seed_sync = sync_steps;
 					// broadcast sync info
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  &&  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0) {
-						nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&63], sync_steps);
+						nwc_check_t* const nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, LRAND(sync_steps), sync_steps);
 						network_send_all(nwc, true);
 					}
 #if DEBUG>4
 					if(  umgebung_t::networkmode  &&  (sync_steps & 7)==0  &&  umgebung_t::verbose_debug>4  ) {
-						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, last_randoms[sync_steps&63]);
+						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, LRAND(sync_steps));
 					}
 #endif
 				}
@@ -5570,6 +5571,7 @@ bool karte_t::interactive(uint32 quit_month)
 	intr_enable();
 	display_show_pointer(true);
 	return finish_loop;
+#undef LRAND
 }
 
 
