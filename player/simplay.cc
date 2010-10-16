@@ -343,7 +343,7 @@ void spieler_t::neuer_monat()
 	if(konto < 0) {
 		konto_ueberzogen++;
 		if(!welt->get_einstellungen()->is_freeplay()) {
-			if(this == welt->get_spieler(0)) {
+			if(  this == welt->get_spieler(0)  &&  !umgenung_t::networkmode  ) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win(true);
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -352,7 +352,6 @@ void spieler_t::neuer_monat()
 				else {
 					// tell the player
 					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
-//					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
 					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
