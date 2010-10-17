@@ -2746,7 +2746,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 	sint64 cost = welt->get_einstellungen()->cst_multiply_post*besch->get_level()*besch->get_b()*besch->get_h();
 	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)) {
 		// public stops are expensive!
-		cost += ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_per_world_month_shift-18));
+		cost -= ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_per_world_month_shift-18));
 	}
 	sp->buche( cost, pos, COST_CONSTRUCTION);
 	halt->recalc_station_type();
