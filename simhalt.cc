@@ -548,7 +548,7 @@ void haltestelle_t::set_name(const char *new_name)
 char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 {
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
-	const char *stop = translator::translate(typ);
+	const char *stop = translator::translate(typ,lang);
 	char buf[1024];
 
 	// this fails only, if there are no towns at all!
