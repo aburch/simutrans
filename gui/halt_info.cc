@@ -431,11 +431,15 @@ void halt_info_t::rdwr(loadsave_t *file)
 				w->chart.show_curve(i);
 			}
 		}
-		w->show_hide_statistics( stats );
+		if(  stats  ) {
+			w->show_hide_statistics( true );
+		}
 		halt->get_freight_info(w->freight_info);
 		w->text.set_text(w->freight_info);
 		w->text.recalc_size();
 		w->scrolly.set_scroll_position( xoff, yoff );
+		// we must invalidate halthandle
+		halt = halthandle_t();
 		destroy_win( this );
 	}
 }
