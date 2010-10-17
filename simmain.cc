@@ -704,8 +704,9 @@ int simu_main(int argc, char** argv)
 			translator::set_language( iso );
 		}
 		if(  translator::get_language()==-1  ) {
-			dbg->error("simmain", "Illegal language defintion \"%s\"", iso );
+			dbg->fatal("simmain", "Illegal language defintion \"%s\"", iso );
 		}
+		umgebung_t::language_iso = translator::get_lang()->iso_base
 	}
 	else if(  found_settings  ) {
 		translator::set_language( umgebung_t::language_iso );
