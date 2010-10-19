@@ -5249,10 +5249,8 @@ bool karte_t::interactive(uint32 quit_month)
 			buf.printf( "/serverlist/slist.php?ID=%u&st=on", umgebung_t::announce_server );
 			buf.append( "&ip=" );
 			buf.append( umgebung_t::server_name.c_str() );
-			if(  umgebung_t::server!=13353  ) {
-				buf.append( "&port=" );
-				buf.append( umgebung_t::server );
-			}
+			buf.append( "&port=" );
+			buf.append( umgebung_t::server );
 #ifdef REVISION
 			buf.append( "&rev=" QUOTEME(REVISION) );
 #else
