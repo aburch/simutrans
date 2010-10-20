@@ -53,6 +53,13 @@ network_command_t* network_command_t::read_from_socket(SOCKET s)
 }
 
 
+// needed by world to kick clients if needed
+SOCKET network_command_t::get_sender()
+{
+	return packet->get_sender();
+}
+
+
 network_command_t::network_command_t(uint16 id_)
 {
 	packet = new packet_t();
@@ -400,6 +407,8 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	init = init_;
 	tool_client_id = 0;
 	flags = wkz->flags;
+	last_sync_step = sp->get_welt()->get_last_random_seed_sync();
+	last_random_seed = sp->get_welt()->get_last_random_seed();
 }
 
 

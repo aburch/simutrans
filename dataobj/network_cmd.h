@@ -58,6 +58,8 @@ public:
 
 	uint16 get_id() { return id;}
 
+	SOCKET get_sender();
+
 	// creates an instance:
 	// creates a packet, reads it from socket, get the nwc-id, and reads its data
 	static network_command_t* read_from_socket(SOCKET s);

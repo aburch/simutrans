@@ -5413,6 +5413,30 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 					dbg->message("NWC_CHECK","time difference to server %lli",difftime);
 				}
+				// check timiming
+				if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
+					nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
+					if(  nwt->last_sync_step > last_random_seed_sync  ) {
+						dbg->warning("karte_t::interactive", "client was too fast (skipping command)" );
+						delete nwc;
+						continue;
+					}
+					// out of sync => drop client
+					if(LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
+						// lost synchronisation ...
+						if(  !umgebung_t::server  ) {
+							dbg->warning("karte_t::interactive", "random number generators have different states (closing connection)" );
+							network_disconnect();
+						}
+						else {
+							//server kicks client out actively
+							dbg->warning("karte_t::interactive", "random number generators have different states (kicking client)" );
+							network_close_socket( nwc->get_sender() );
+						}
+						delete nwc;
+						continue;
+					}
+				}
 				if (nwc->execute(this)) {
 					delete nwc;
 				}

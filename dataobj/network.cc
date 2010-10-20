@@ -582,7 +582,10 @@ void network_remove_client( SOCKET sock )
 {
 	dbg->message("network_remove_client", "remove client socket[%d]", sock);
 	if(  clients.is_contained(sock)  ) {
-		assert(active_clients>0);
+		if(  active_clients<=0  ) {
+			dbg->error( "network_remove_client", "active cleints count reached prematurely zero, resetting" );
+			active_clients = 1;
+		}
 		uint32 ind = clients.index_of(sock);
 		clients[ind] = INVALID_SOCKET;
 		// just decrease count
