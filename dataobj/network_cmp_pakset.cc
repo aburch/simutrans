@@ -5,7 +5,6 @@
 #include "umgebung.h"
 #include "../simgraph.h"
 #include "../utils/cbuffer_t.h"
-#include <std>
 
 stringhashtable_iterator_tpl<checksum_t*> nwc_pakset_info_t::server_iterator(pakset_info_t::info);
 SOCKET nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
