@@ -300,7 +300,7 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		else {
 			std::string msg;
 			network_compare_pakset_with_server(serverlist.get_element(serverlist.get_selection())->get_text(), msg);
-			if (!msg.empty()) {
+			if(  !msg.empty()  ) {
 				help_frame_t *win = new help_frame_t();
 				win->set_text(msg.c_str());
 				create_win(win, w_info, magic_pakset_info_t);

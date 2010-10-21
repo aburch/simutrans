@@ -5,7 +5,7 @@
 #include "umgebung.h"
 #include "../simgraph.h"
 #include "../utils/cbuffer_t.h"
-
+#include <std>
 
 stringhashtable_iterator_tpl<checksum_t*> nwc_pakset_info_t::server_iterator(pakset_info_t::info);
 SOCKET nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
@@ -14,11 +14,12 @@ bool nwc_pakset_info_t::execute(karte_t *)
 {
 	// server side of the communication
 	// client side in network_compare_pakset_with_server
-	if (umgebung_t::server) {
+	if(  umgebung_t::server  ) {
 		nwc_pakset_info_t *nwi = new nwc_pakset_info_t();
 		bool send = false;
 		bool ready = false;
 		switch(flag) {
+
 			case CL_INIT:       // client want pakset info
 			{
 				if (server_receiver!=INVALID_SOCKET  &&  network_get_client_id(server_receiver)>0) {
@@ -38,6 +39,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 				send = true;
 				break;
 			}
+
 			case CL_WANT_NEXT: // client received one info packet, wants next
 				if (server_iterator.next()) {
 					nwi->flag = SV_DATA;
@@ -50,14 +52,14 @@ bool nwc_pakset_info_t::execute(karte_t *)
 					ready = true;
 				}
 				send = true;
-
 				break;
+
 			case CL_QUIT:      // client ends this negotiation
 				server_receiver = INVALID_SOCKET;
 				break;
 			default: ;
 		}
-		if (send) {
+		if(  send  ) {
 			if(network_get_client_id(server_receiver)>0) {
 				nwi->send(server_receiver);
 			}
@@ -65,16 +67,19 @@ bool nwc_pakset_info_t::execute(karte_t *)
 				// client disappeared
 				server_receiver = INVALID_SOCKET;
 			}
-			if (nwi->name) delete [] name;
+			if(  nwi->name  ) {
+				delete [] name;
+			}
 		}
 		delete nwi;
-		if (ready) {
+		if(  ready  ) {
 			// all information sent
 			server_receiver = INVALID_SOCKET;
 		}
 	}
 	return true;
 }
+
 
 void nwc_pakset_info_t::rdwr()
 {
@@ -84,13 +89,14 @@ void nwc_pakset_info_t::rdwr()
 	packet->rdwr_str(name);
 	bool has_info = (chk!=NULL  &&  chk->is_valid())  ||  packet->is_loading();
 	packet->rdwr_bool(has_info);
-	if (has_info) {
-		if (packet->is_loading()) {
+	if(  has_info  ) {
+		if(  packet->is_loading()  ) {
 			chk = new checksum_t();
 		}
 		chk->rdwr(packet);
 	}
 }
+
 
 // declaration of stuff from network.cc needed here.
 const char *network_open_address( const char *cp, long timeout_ms );
@@ -98,7 +104,6 @@ extern SOCKET my_client_socket;
 
 void network_compare_pakset_with_server(const char* cp, std::string &msg)
 {
-	msg.clear();
 	// open from network
 	SOCKET old_my_client_socket = my_client_socket;
 	const char *err = network_open_address( cp, 50000 );
@@ -168,10 +173,11 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 					delete nwi;
 					break;
 				}
+
 				case nwc_pakset_info_t::SV_DATA:
 				{
 					checksum_t* chk = addons.remove(nwi->name);
-					if (chk) {
+					if(chk) {
 						if((*chk)==(*(nwi->chk))) {
 							// found identical besch's
 						}
@@ -197,16 +203,20 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 					delete nwi;
 					break;
 				}
+
 				case nwc_pakset_info_t::SV_LAST:
 				case nwc_pakset_info_t::SV_ERROR:
 				default:
 					ready = true;
 			}
+
 			// update progress bar
 			if(is_display_init()  &&  num_paks>0) {
 				display_progress(progress, num_paks);
 			}
+
 		} while (!ready  &&  wrong_paks<=MAX_WRONG_PAKS);
+
 		// now report the result
 		msg.append("<title>");
 		msg.append(translator::translate("Pakset differences"));
