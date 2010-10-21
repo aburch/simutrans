@@ -206,6 +206,8 @@ public:
 	 * @author player
 	 */
 	const char* get_name() const;
+	void set_name(const char *);
+
 	sint8 get_player_nr() const {return player_nr; }
 
 	/**

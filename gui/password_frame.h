@@ -19,13 +19,14 @@
 class password_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	char ibuf[1024];
+	char ibuf[256], player_name_str[256];
 
 protected:
 	spieler_t *sp;
 
-	gui_hidden_textinput_t input;
-	gui_label_t fnlabel;
+	gui_textinput_t player_name;
+	gui_hidden_textinput_t password;
+	gui_label_t fnlabel, const_player_name;
 
 public:
 	password_frame_t( spieler_t *sp );

@@ -160,6 +160,12 @@ const char* spieler_t::get_name(void) const
 }
 
 
+void spieler_t::set_name(const char *new_name)
+{
+	tstrncpy( spieler_name_buf, new_name, lengthof(spieler_name_buf) );
+}
+
+
 /* returns FALSE when unlocking!
  */
 bool spieler_t::set_unlock( const uint8 *hash )
