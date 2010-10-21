@@ -11,6 +11,7 @@
 
 #include "network.h"
 #include "network_cmd.h"
+#include "network_cmp_pakset.h"
 
 #include "loadsave.h"
 #include "gameinfo.h"
@@ -39,7 +40,7 @@ static bool network_active = false;
 // local server cocket
 static vector_tpl<SOCKET> my_socket;
 // local client socket
-static SOCKET my_client_socket = INVALID_SOCKET;
+SOCKET my_client_socket = INVALID_SOCKET;
 //static slist_tpl<const char *>pending_list;
 
 // to query all open sockets, we maintain this list
@@ -942,6 +943,9 @@ void network_close_socket( SOCKET sock )
 		}
 		if(  sock==nwc_join_t::pending_join_client  ) {
 			nwc_join_t::pending_join_client = INVALID_SOCKET;
+		}
+		if(  sock==nwc_pakset_info_t::server_receiver) {
+			nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
 		}
 		clients.remove( sock );
 	}

@@ -1,6 +1,7 @@
 #include "network_cmd.h"
 #include "network.h"
 #include "network_packet.h"
+#include "network_cmp_pakset.h"
 
 #include "loadsave.h"
 #include "gameinfo.h"
@@ -40,6 +41,7 @@ network_command_t* network_command_t::read_from_socket(SOCKET s)
 		case NWC_READY:       nwc = new nwc_ready_t(); break;
 		case NWC_TOOL:        nwc = new nwc_tool_t(); break;
 		case NWC_CHECK:       nwc = new nwc_check_t(); break;
+		case NWC_PAKSETINFO:  nwc = new nwc_pakset_info_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}

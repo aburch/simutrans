@@ -101,6 +101,7 @@
 	CHANGE: when joining with public station, the public station keeps its name
 	CHANGE: Introduced symbols and tooltips for a much more compact status line
 	ADD: dialogue can be changed (currently only minimap)
+	ADD: possibility to compare pakset of client and server
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

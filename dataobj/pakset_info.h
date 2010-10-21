@@ -3,7 +3,6 @@
 
 #include "../tpl/stringhashtable_tpl.h"
 #include "../utils/checksum.h"
-#include <string>
 
 
 class pakset_info_t
@@ -20,6 +19,8 @@ class pakset_info_t
 	static checksum_t general;
 
 public:
+	static const checksum_t& get_pakset_checksum() { return general; }
+	static const stringhashtable_tpl<checksum_t*>& get_info() { return info; }
 
 	static void calculate_checksum();
 	static checksum_t* get_checksum() { return &general; }
@@ -27,6 +28,8 @@ public:
 	static void append(const char* name, checksum_t *chk);
 
 	static void debug();
+
+	friend class nwc_pakset_info_t;
 };
 
 #endif

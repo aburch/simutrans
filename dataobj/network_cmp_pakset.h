@@ -1,0 +1,46 @@
+#ifndef _NETWORK_CMP_PAKSET_H_
+#define _NETWORK_CMP_PAKSET_H_
+
+#include "network_cmd.h"
+#include "pakset_info.h"
+#include <string>
+/**
+ * Compare paksets on server and client
+ * client side of communication
+ * @param cp url of server
+ * @param msg contains html-text of differences to be displayed in a help_frame window
+ */
+void network_compare_pakset_with_server(const char* cp, std::string &msg);
+
+/**
+ * nwc_pakset_info_t
+ * @from-client: client wants to get pakset info from server
+ */
+class nwc_pakset_info_t : public network_command_t {
+public:
+	nwc_pakset_info_t() : network_command_t(NWC_PAKSETINFO), flag(UNDEFINED), name(NULL), chk(NULL) {}
+	virtual bool execute(karte_t *);
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_pakset_info_t";}
+
+	enum {
+		CL_INIT       = 0, // client want pakset info
+		CL_WANT_NEXT  = 1, // client received one info packet, wants next
+		CL_QUIT       = 2, // client ends this negotiation
+		SV_ERROR      = 10, // server busy etc
+		SV_PAKSET     = 11, // server sends pakset checksum
+		SV_DATA       = 12, // server sends data
+		SV_LAST       = 19, // server sends last info packet
+		UNDEFINED     = 255
+	};
+	uint8 flag;
+	// name of and info about besch
+	char *name;
+	checksum_t *chk;
+
+	// for the communication of the server with the client
+	static stringhashtable_iterator_tpl<checksum_t*> server_iterator;
+	static SOCKET server_receiver;
+};
+
+#endif

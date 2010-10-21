@@ -15,10 +15,12 @@
 #include "components/list_button.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
+#include "../dataobj/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/pakset_info.h"
 #include "server_frame.h"
 #include "messagebox.h"
+#include "help_frame.h"
 
 
 
@@ -292,7 +294,18 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		welt->laden(filename.c_str());
 	}
 	else if(  &find_mismatch == komp  ) {
-		// to be implemented
+		if (gui_frame_t *info = win_get_magic(magic_pakset_info_t)) {
+			top_win(info);
+		}
+		else {
+			std::string msg;
+			network_compare_pakset_with_server(serverlist.get_element(serverlist.get_selection())->get_text(), msg);
+			if (!msg.empty()) {
+				help_frame_t *win = new help_frame_t();
+				win->set_text(msg.c_str());
+				create_win(win, w_info, magic_pakset_info_t);
+			}
+		}
 	}
 	return true;
 }

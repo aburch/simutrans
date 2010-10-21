@@ -78,6 +78,7 @@ enum magic_numbers {
 	magic_station_building_select,
 	magic_keyhelp,
 	magic_server_frame_t,
+	magic_pakset_info_t,
 	magic_convoi_info,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_halt_info=magic_convoi_detail+65536,
