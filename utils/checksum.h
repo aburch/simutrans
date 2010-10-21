@@ -48,7 +48,7 @@ public:
 			if (sha) {
 				delete sha;
 			}
-			sha = NULL;
+			sha = 0;
 		}
 		for(uint8 i=0; i<20; i++) {
 			file->rdwr_byte(message_digest[i]);
