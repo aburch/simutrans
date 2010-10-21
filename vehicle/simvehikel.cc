@@ -11,7 +11,7 @@
  * Hansjoerg Malthaner, Nov. 1999
  */
 
-#include <limits>
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -73,7 +73,7 @@
 
 #define INVALID_INDEX (65535u)
 
-#define SPEED_UNLIMITED ((std::numeric_limits<sint32>::max)())
+#define SPEED_UNLIMITED (INT_MAX)
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
