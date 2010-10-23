@@ -738,6 +738,9 @@
     <ClCompile Include="dataobj\network_cmp_pakset.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="dataobj\network_socket_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
