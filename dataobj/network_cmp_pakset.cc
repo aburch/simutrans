@@ -1,6 +1,7 @@
 #include "network_cmp_pakset.h"
 #include "network_packet.h"
 #include "network.h"
+#include "network_socket_list.h"
 #include "translator.h"
 #include "umgebung.h"
 #include "../simgraph.h"
@@ -21,7 +22,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 
 			case CL_INIT:       // client want pakset info
 			{
-				if (server_receiver!=INVALID_SOCKET  &&  network_get_client_id(server_receiver)>0) {
+				if (server_receiver!=INVALID_SOCKET  &&  socket_list_t::has_client(server_receiver)) {
 					// we are already talking to another client
 					nwi->flag = SV_ERROR;
 					nwi->send(packet->get_sender());
@@ -59,7 +60,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 			default: ;
 		}
 		if(  send  ) {
-			if(network_get_client_id(server_receiver)>0) {
+			if(socket_list_t::has_client(server_receiver)) {
 				nwi->send(server_receiver);
 			}
 			else {
@@ -98,16 +99,15 @@ void nwc_pakset_info_t::rdwr()
 
 
 // declaration of stuff from network.cc needed here.
-const char *network_open_address( const char *cp, long timeout_ms );
-extern SOCKET my_client_socket;
+SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
 
 void network_compare_pakset_with_server(const char* cp, std::string &msg)
 {
 	// open from network
-	SOCKET old_my_client_socket = my_client_socket;
-	const char *err = network_open_address( cp, 50000 );
+	const char *err = NULL;
+	SOCKET my_client_socket = network_open_address( cp, 5000, err );
 	if(  err==NULL  ) {
-		network_add_client(my_client_socket); // for network_check_activity
+		socket_list_t::add_client(my_client_socket); // for network_check_activity
 		// client side of comparison
 		// server part in nwc_pakset_info_t::execute
 		// start
@@ -263,9 +263,8 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			msg.append((const char*)buf);
 			msg.append("<br>\n");
 		}
-		network_remove_client(my_client_socket);
+		socket_list_t::remove_client(my_client_socket);
 	}
-	my_client_socket = old_my_client_socket;
 	if(err) {
 		dbg->warning("network_connect", err);
 	}
