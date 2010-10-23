@@ -5249,7 +5249,6 @@ bool karte_t::interactive(uint32 quit_month)
 	// only needed for network
 	uint32 next_command_step = 0xFFFFFFFFu;
 	sint32 ms_difference = 0;
-	uint32 playing_clients = 0;
 	reset_timer();
 
 	if(  umgebung_t::server  ) {
