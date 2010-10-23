@@ -1,6 +1,7 @@
 
 #include "../simdebug.h"
 #include "network_packet.h"
+#include "network_socket_list.h"
 
 
 void packet_t::rdwr_header( uint16 &size )
@@ -30,7 +31,7 @@ packet_t::packet_t(SOCKET sender) : memory_rw_t(buf,MAX_PACKET_LEN,false)
 	// read the header
 	if(  network_receive_data(sender,buf,HEADER_SIZE)!=HEADER_SIZE ) {
 		error = true;
-		network_remove_client( sender );
+		socket_list_t::remove_client( sender );
 		return;
 	}
 	init( buf, HEADER_SIZE, false );
@@ -44,7 +45,7 @@ packet_t::packet_t(SOCKET sender) : memory_rw_t(buf,MAX_PACKET_LEN,false)
 	// receive the rest of the packet
 	if(  network_receive_data( sender, buf+HEADER_SIZE, size-HEADER_SIZE )!=size-HEADER_SIZE  ) {
 		error = true;
-		network_remove_client( sender );
+		socket_list_t::remove_client( sender );
 		return;
 	}
 	init( buf+HEADER_SIZE, size-HEADER_SIZE, false );
@@ -75,7 +76,7 @@ void packet_t::send(SOCKET s)
 		if (sent!=size) {
 			dbg->warning("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d", sent, s, id, size);
 			// TODO: send the rest of the packet later
-			network_remove_client( s );
+			socket_list_t::remove_client( s );
 			return;
 		}
 		else {

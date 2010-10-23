@@ -8,6 +8,7 @@
 
 #include "gameinfo.h"
 #include "network.h"
+#include "network_socket_list.h"
 #include "einstellungen.h"
 #include "translator.h"
 #include "umgebung.h"
@@ -72,7 +73,7 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 			}
 		}
 	}
-	clients = network_get_clients();
+	clients = socket_list_t::get_playing_clients();
 
 	halt_count = haltestelle_t::get_alle_haltestellen().get_count();
 

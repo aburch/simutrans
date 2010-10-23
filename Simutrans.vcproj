@@ -701,6 +701,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_socket_list.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\besch\reader\obj_reader.cc"
 				>
 			</File>
@@ -814,7 +818,7 @@
 			</File>
 			<File
 				RelativePath=".\gui\signal_spacing.cc"
-			>
+				>
 			</File>
 			<File
 				RelativePath=".\besch\reader\sim_reader.cc"
@@ -1770,6 +1774,10 @@
 			</File>
 			<File
 				RelativePath=".\dataobj\network_packet.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_socket_list.h"
 				>
 			</File>
 			<File

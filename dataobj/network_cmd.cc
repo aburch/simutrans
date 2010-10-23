@@ -1,6 +1,7 @@
 #include "network_cmd.h"
 #include "network.h"
 #include "network_packet.h"
+#include "network_socket_list.h"
 #include "network_cmp_pakset.h"
 
 #include "loadsave.h"
@@ -169,7 +170,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			fclose( fh );
 			remove( "serverinfo.sve" );
 		}
-		network_remove_client( s );
+		socket_list_t::remove_client( s );
 	}
 	else {
 		len = 0;
@@ -195,9 +196,9 @@ bool nwc_join_t::execute(karte_t *welt)
 		dbg->message("nwc_join_t::execute", "");
 		// TODO: check whether we can send a file
 		nwc_join_t nwj;
-		nwj.client_id = network_get_client_id(packet->get_sender());
+		nwj.client_id = socket_list_t::get_client_id(packet->get_sender());
 		// no other joining process active?
-		nwj.answer = nwj.client_id>0  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
+		nwj.answer = socket_list_t::get_client(nwj.client_id).is_active()  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
 		nwj.rdwr();
 		nwj.send( packet->get_sender());
 		if (nwj.answer == 1) {
@@ -205,14 +206,6 @@ bool nwc_join_t::execute(karte_t *welt)
 			nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, welt->get_map_counter(), nwj.client_id);
 			network_send_all(nws, false);
 			pending_join_client = packet->get_sender();
-			// add message via tool!
-			cbuffer_t buf(256);
-			buf.printf( translator::translate("Now %u clients connected.",welt->get_einstellungen()->get_name_language_id()), network_get_clients() );
-			werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			welt->set_werkzeug( w, NULL );
-			// since init always returns false, it is save to delete immediately
-			delete w;
 		}
 	}
 	return true;
@@ -376,8 +369,12 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		// unpause the client that received the game
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
-		nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
-		nwc.send(network_get_socket(client_id));
+		SOCKET sock = socket_list_t::get_socket(client_id);
+		if (sock != INVALID_SOCKET) {
+			nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
+			nwc.send(sock);
+			socket_list_t::change_state(client_id, socket_info_t::playing);
+		}
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
 	}
 	// restore screen coordinates & offsets
@@ -489,7 +486,7 @@ bool nwc_tool_t::execute(karte_t *welt)
 					return true;
 				}
 				// set pending_join_client to block connection attempts during pause
-				nwc_join_t::pending_join_client = network_get_socket(0);
+				nwc_join_t::pending_join_client = ~INVALID_SOCKET;
 			}
 		}
 		// copy data, sets tool_client_id to sender client_id

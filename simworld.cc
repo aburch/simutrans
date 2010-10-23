@@ -75,6 +75,7 @@
 #include "gui/karte.h"
 
 #include "dataobj/network.h"
+#include "dataobj/network_socket_list.h"
 #include "dataobj/network_cmd.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
@@ -3160,8 +3161,19 @@ void karte_t::step()
 		pending_season_change ++;
 	}
 
-	if(  umgebung_t::announce_server  &&  last_clients!=network_get_clients()  ) {
+	// number of playing clients changed
+	if(  umgebung_t::announce_server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
+		last_clients = socket_list_t::get_playing_clients();
+		// inform the master server
 		announce_server();
+		// add message via tool
+		cbuffer_t buf(256);
+		buf.printf( translator::translate("Now %u clients connected.", einstellungen->get_name_language_id()), last_clients );
+		werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
+		w->set_default_param( buf );
+		set_werkzeug( w, NULL );
+		// since init always returns false, it is save to delete immediately
+		delete w;
 	}
 }
 
@@ -4061,7 +4073,7 @@ void karte_t::laden(loadsave_t *file)
 	}
 	set_random_mode(LOAD_RANDOM);
 
-	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  network_get_clients()==0)  ) {
+	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
 		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()<2) {
 			// not locked => eventually switch off timeline settings, if explicitly stated
 			access_einstellungen()->set_use_timeline( umgebung_t::default_einstellungen.get_use_timeline() );
@@ -5237,6 +5249,7 @@ bool karte_t::interactive(uint32 quit_month)
 	// only needed for network
 	uint32 next_command_step = 0xFFFFFFFFu;
 	sint32 ms_difference = 0;
+	uint32 playing_clients = 0;
 	reset_timer();
 
 	if(  umgebung_t::server  ) {
@@ -5431,7 +5444,7 @@ bool karte_t::interactive(uint32 quit_month)
 						else {
 							//server kicks client out actively
 							dbg->warning("karte_t::interactive", "random number generators have different states (kicking client)" );
-							network_close_socket( nwc->get_sender() );
+							socket_list_t::remove_client( nwc->get_sender() );
 						}
 						delete nwc;
 						continue;
@@ -5551,10 +5564,13 @@ bool karte_t::interactive(uint32 quit_month)
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
 					last_random_seed = LRAND(sync_steps) = get_random_seed();
 					last_random_seed_sync = sync_steps;
-					// broadcast sync info
-					if(  umgebung_t::networkmode  &&  umgebung_t::server  &&  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0) {
-						nwc_check_t* const nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, LRAND(sync_steps), sync_steps);
-						network_send_all(nwc, true);
+					// some serverside tasks
+					if(  umgebung_t::networkmode  &&  umgebung_t::server) {
+						// broadcast sync info
+						if ((sync_steps % umgebung_t::server_sync_steps_between_checks)==0) {
+							nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&63], sync_steps);
+							network_send_all(nwc, true);
+						}
 					}
 #if DEBUG>4
 					if(  umgebung_t::networkmode  &&  (sync_steps & 7)==0  &&  umgebung_t::verbose_debug>4  ) {
@@ -5614,7 +5630,7 @@ void karte_t::announce_server()
 				}
 			}
 		}
-		last_clients = network_get_clients();
+		last_clients = socket_list_t::get_playing_clients();
 		buf.printf( "Players%u:locked%u:Clients%u", player, locked, last_clients );
 		buf.printf( "Towns%u:citicens%u:Factories%u:Convoys%u:Stops%u", stadt.get_count(), stadt.get_sum_weight(), fab_list.get_count(), get_convoi_count(), haltestelle_t::get_alle_haltestellen().get_count() );
 		network_download_http( ANNOUNCE_SERVER, buf, NULL );

@@ -77,10 +77,7 @@ const char* network_connect(const char *cp);
 
 void network_close_socket( SOCKET sock );
 
-void network_add_client( SOCKET sock );
-void network_remove_client( SOCKET sock  );
-uint32 network_get_client_id( SOCKET sock );
-SOCKET network_get_socket( uint32 client_id );
+void network_set_socket_nodelay( SOCKET sock );
 
 // if sucessful, starts a server on this port
 bool network_init_server( int port );
@@ -98,9 +95,6 @@ uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length );
 
 // before calling this, the server should have saved the current game as "server-network.sve"
 const char *network_send_file( uint32 client_id, const char *filename );
-
-// number of currently active clients
-int network_get_clients();
 
 // true, if I can wrinte on the server connection
 bool network_check_server_connection();

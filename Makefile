@@ -183,6 +183,7 @@ SOURCES += dataobj/network.cc
 SOURCES += dataobj/network_cmd.cc
 SOURCES += dataobj/network_cmp_pakset.cc
 SOURCES += dataobj/network_packet.cc
+SOURCES += dataobj/network_socket_list.cc
 SOURCES += dataobj/pakset_info.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/ribi.cc
