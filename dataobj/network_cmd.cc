@@ -473,7 +473,7 @@ bool nwc_tool_t::execute(karte_t *welt)
 			if (welt->is_paused()) {
 				// we cant do unpause in regular sync steps
 				// sent ready-command instead
-				nwc_ready_t *nwt = new nwc_ready_t(welt->get_sync_steps());
+				nwc_ready_t *nwt = new nwc_ready_t(welt->get_sync_steps(), welt->get_map_counter());
 				network_send_all(nwt, true);
 				welt->network_game_set_pause(false, welt->get_sync_steps());
 				// reset pending_join_client to allow connection attempts again
