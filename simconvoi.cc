@@ -609,6 +609,9 @@ bool convoi_t::sync_step(long delta_t)
 	else {
 		return true;
 	}
+	if (loading_at_halt.is_bound() && state != LOADING ) {
+		loading_at_halt = halthandle_t();
+	}
 
 	switch(state) {
 		case INITIAL:
@@ -3663,6 +3666,7 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 {
 	sint64 gewinn = 0;
+	loading_at_halt = halt;
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
 	int station_length=0;

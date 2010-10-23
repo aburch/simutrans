@@ -15,6 +15,7 @@
 
 #include "simdings.h"
 #include "simtypes.h"
+#include "simconst.h"
 
 #include "bauer/warenbauer.h"
 
@@ -214,6 +215,9 @@ public:
 		// convoy is selected.
 
 		// TODO: Consider whether to add comfort
+
+		//
+		convoihandle_t last_loaded_convoy[MAX_PLAYER_COUNT];
 
 		// Used for the memory pool only.
 #ifdef USE_INDEPENDENT_PATH_POOL
