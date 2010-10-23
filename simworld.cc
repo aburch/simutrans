@@ -5241,8 +5241,9 @@ bool karte_t::interactive(uint32 quit_month)
 	bool cursor_hidden = false;
 	sync_steps = 0;
 
-	uint32 last_randoms[64];
-#define LRAND(x) (last_randoms[(x) % lengthof(last_randoms)])
+#define LAST_RANDOMS_COUNT 64
+	uint32 last_randoms[LAST_RANDOMS_COUNT];
+#define LRAND(x) (last_randoms[(x) % LAST_RANDOMS_COUNT])
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
@@ -5425,7 +5426,7 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 					dbg->message("NWC_CHECK","time difference to server %lli",difftime);
 				}
-				// check timiming
+				// check timing
 				if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
 					nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 					if(  nwt->last_sync_step > last_random_seed_sync  ) {
@@ -5433,8 +5434,8 @@ bool karte_t::interactive(uint32 quit_month)
 						delete nwc;
 						continue;
 					}
-					// out of sync => drop client
-					if(LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
+					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
+					if(nwt->last_sync_step + LAST_RANDOMS_COUNT > last_random_seed_sync  &&  LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
 						// lost synchronisation ...
 						if(  !umgebung_t::server  ) {
 							dbg->warning("karte_t::interactive", "random number generators have different states (closing connection)" );
