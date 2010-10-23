@@ -3081,19 +3081,22 @@ void haltestelle_t::recalc_station_type()
 		// enabled the matching types
 		enables |= besch->get_enabled();
 		if(  welt->get_einstellungen()->is_seperate_halt_capacities()  ) {
-			if(besch->get_enabled()&1) {
-				capacity[0] += besch->get_level()*32;
+			if(besch->get_enabled()&1) 
+			{
+				capacity[0] +=  besch->get_station_capacity();
 			}
-			if(besch->get_enabled()&2) {
-				capacity[1] += besch->get_level()*32;
+			if(besch->get_enabled()&2) 
+			{
+				capacity[1] +=  besch->get_station_capacity();
 			}
-			if(besch->get_enabled()&4) {
-				capacity[2] += besch->get_level()*32;
+			if(besch->get_enabled()&4) 
+			{
+				capacity[2] +=  besch->get_station_capacity();
 			}
 		}
 		else {
 			// no sperate capacities: sum up all
-			capacity[0] += besch->get_level()*32;
+			capacity[0] +=  besch->get_station_capacity();
 			capacity[2] = capacity[1] = capacity[0];
 		}
 	}
