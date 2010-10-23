@@ -1186,6 +1186,8 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 {
 	char buf[1024];
 	const char *c;
+	const koord size = depot_frame ? depot_frame->get_fenstergroesse() : replace_frame->get_fenstergroesse();
+	PUSH_CLIP(pos.x, pos.y, size.x-1, size.y-1);
 
 	gui_komponente_t const* const tab = tabs.get_aktives_tab();
 	gui_image_list_t const* const lst =
@@ -1519,6 +1521,7 @@ void gui_convoy_assembler_t::draw_vehicle_info_text(koord pos)
 
 		display_multiline_text( pos.x + 220, pos.y + tabs.get_pos().y + tabs.get_groesse().y + 31 + LINESPACE*3 + 4, buf, COL_BLACK);
 	}
+	POP_CLIP();
 }
 
 

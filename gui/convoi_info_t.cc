@@ -103,8 +103,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	const sint16 total_width = 3*(BUTTON_WIDTH+BUTTON_SPACER) + 30 + view.get_groesse().x + 10;
 
 	input.set_pos(koord(10,4));
-	tstrncpy( cnv_name, cnv->get_name(), lengthof(cnv_name) );
-	input.set_text( cnv_name, lengthof(cnv_name));
+	reset_cnv_name();
 	add_komponente(&input);
 	input.add_listener(this);
 
@@ -255,16 +254,8 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 // only handle a pending renaming ...
 convoi_info_t::~convoi_info_t()
 {
-	if(  cnv.is_bound()  &&  strcmp(cnv->get_name(),cnv_name)  &&  cnv_name[0]  ) {
-		// text changed => call tool
-		cbuffer_t buf(300);
-		buf.printf( "c%u,%s", cnv.get_id(), cnv_name );
-		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-		w->set_default_param( buf );
-		cnv->get_welt()->set_werkzeug( w, NULL );
-		// since init always returns false, it is save to delete immediately
-		delete w;
-	}
+	// rename if necessary
+	rename_cnv();
 }
 
 
@@ -527,16 +518,8 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 
 	if(  komp == &input  ) {
-		if(  strcmp(cnv->get_name(),cnv_name)  ) {
-			// text changed => call tool
-			cbuffer_t buf(300);
-			buf.printf( "c%u,%s", cnv.get_id(), cnv_name );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			cnv->get_welt()->set_werkzeug( w, NULL );
-			// since init always returns false, it is save to delete immediately
-			delete w;
-		}
+		// rename if necessary
+		rename_cnv();
 	}
 
 	// sort by what
@@ -637,6 +620,39 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 	}
 
 	return false;
+}
+
+
+void convoi_info_t::reset_cnv_name()
+{
+	// change text input of selected line
+	if (cnv.is_bound()) {
+		tstrncpy(old_cnv_name, cnv->get_name(), sizeof(old_cnv_name));
+		tstrncpy(cnv_name, cnv->get_name(), sizeof(cnv_name));
+		input.set_text(cnv_name, sizeof(cnv_name));
+	}
+}
+
+
+void convoi_info_t::rename_cnv()
+{
+	if (cnv.is_bound()) {
+		const char *t = input.get_text();
+		// only change if old name and current name are the same
+		// otherwise some unintended undo if renaming would occur
+		if(  t  &&  t[0]  &&  strcmp(t, cnv->get_name())  &&  strcmp(old_cnv_name, cnv->get_name())==0) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "c%u,%s", cnv.get_id(), t );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer());
+			// since init always returns false, it is save to delete immediately
+			delete w;
+			// do not trigger this command again
+			tstrncpy(old_cnv_name, t, sizeof(old_cnv_name));
+		}
+	}
 }
 
 

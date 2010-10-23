@@ -133,7 +133,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 
 	mw = XCreateSimpleWindow(
 		md, DefaultRootWindow(md),
-	 	mh.x, mh.y, mh.width, mh.height, 5,
+		mh.x, mh.y, mh.width, mh.height, 5,
 		mfg, mbg
 	);
 

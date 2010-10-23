@@ -692,6 +692,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmp_pakset.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\network_packet.cc"
 				>
 			</File>
@@ -806,6 +810,10 @@
 			<File
 				RelativePath=".\dings\signal.cc"
 				>
+			</File>
+			<File
+				RelativePath=".\gui\signal_spacing.cc"
+			>
 			</File>
 			<File
 				RelativePath=".\besch\reader\sim_reader.cc"
@@ -1756,6 +1764,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_cmp_pakset.h"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\network_packet.h"
 				>
 			</File>
@@ -1917,6 +1929,10 @@
 			</File>
 			<File
 				RelativePath=".\dings\signal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\signal_spacing.h"
 				>
 			</File>
 			<File

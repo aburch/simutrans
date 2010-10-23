@@ -217,6 +217,7 @@
     <ClCompile Include="besch\fabrik_besch.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\network_cmp_pakset.cc" />
     <ClCompile Include="dataobj\pakset_info.cc" />
     <ClCompile Include="gui\line_item.cc" />
     <ClCompile Include="gui\server_frame.cc" />

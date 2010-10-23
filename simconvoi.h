@@ -161,13 +161,13 @@ private:
 
 	static karte_t *welt;
 
- 	/**
+	/**
 	* the convoi is being withdrawn from service
 	* @author kierongreen
 	*/
 	bool withdraw;
 
- 	/**
+	/**
 	* nothing will be loaded onto this convoi
 	* @author kierongreen
 	*/

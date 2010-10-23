@@ -81,13 +81,20 @@ private:
 	*/
 	cbuffer_t freight_info;
 
-
 #ifdef ACCELERATION_BUTTON
 	//Bernd Gabriel, Sep, 24 2009: acceleration curve:
 	sint64 physics_curves[MAX_MONTHS][1];
 #endif
 
-	char cnv_name[256];
+	char cnv_name[256],old_cnv_name[256];
+
+	// resets textinput to current cnv name
+	// necessary after cnv was renamed
+	void reset_cnv_name();
+
+	// rename selected cnv
+	// checks if possible / necessary
+	void rename_cnv();
 
 	static bool route_search_in_progress;
 
@@ -129,4 +136,9 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * called when convoi was renamed
+	 */
+	void update_data() { reset_cnv_name(); set_dirty(); }
 };

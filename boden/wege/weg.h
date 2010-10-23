@@ -183,7 +183,6 @@ public:
 	//void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 	void add_way_constraints(const way_constraints_of_way_t& value) { way_constraints.add(value); }
 
-
 	/**
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner

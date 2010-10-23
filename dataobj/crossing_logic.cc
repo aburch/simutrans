@@ -127,7 +127,7 @@ void crossing_logic_t::add_to_crossing( const vehikel_basis_t *v )
 	if(v->get_waytype()==besch->get_waytype(0)) {
 		on_way1.append_unique(v);
 	}
- 	else if(v->get_waytype()==besch->get_waytype(1)) {
+	else if (v->get_waytype() == besch->get_waytype(1)) {
 		// add it and close crossing
 		on_way2.append_unique(v);
 		if(  request_close==v  ) {

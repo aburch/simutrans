@@ -28,6 +28,7 @@
 #include "gui/fahrplan_gui.h"
 #include "gui/depot_frame.h"
 #include "gui/messagebox.h"
+#include "gui/convoi_detail_t.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
 
@@ -494,7 +495,7 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 	if(  with_new_id  ) {
 		char buf[128];
 		name_offset = sprintf(buf,"(%i) ",self.get_id() );
-		tstrncpy(buf+name_offset, translator::translate(name), 116);
+		tstrncpy(buf+name_offset, translator::translate(name,welt->get_einstellungen()->get_name_language_id()), 116);
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	else {
@@ -506,6 +507,15 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 		}
 		tstrncpy(buf+name_offset, name+name_offset, sizeof(buf)-name_offset);
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
+	}
+	// now tell the windows that we were renamed
+	convoi_detail_t *detail = dynamic_cast<convoi_detail_t*>(win_get_magic( magic_convoi_detail+self.get_id()));
+	if (detail) {
+		detail->update_data();
+	}
+	convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()));
+	if (info) {
+		info->update_data();
 	}
 }
 
@@ -2009,8 +2019,11 @@ bool convoi_t::can_go_alte_richtung()
 		const vehikel_t* v = fahr[i];
 		grund_t *gr = welt->lookup(v->get_pos());
 
-
-		convoi_length += v->get_besch()->get_length();
+		// not last vehicle?
+		// the length of last vehicle does not matter when it comes to positioning of vehicles
+		if ( i+1 < anz_vehikel) {
+			convoi_length += v->get_besch()->get_length();
+		}
 
 		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
 			// ending here is an error!
@@ -4137,7 +4150,7 @@ void convoi_t::check_pending_updates()
 			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		}
 
- 		if(state!=INITIAL) {
+		if (state != INITIAL) {
 			if(is_same  ||  is_depot) {
 				/* same destination
 				 * We are already there => remove wrong freight and keep current state

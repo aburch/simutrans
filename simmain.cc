@@ -391,6 +391,14 @@ int simu_main(int argc, char** argv)
 		return 0;
 	}
 
+#ifdef _WIN32
+#define PATHSEP "\\"
+#else
+#define PATHSEP "/"
+#endif
+	const char* path_sep = PATHSEP;
+
+
 #ifdef __BEOS__
 	if (1) // since BeOS only supports relative paths ...
 #else
@@ -400,21 +408,15 @@ int simu_main(int argc, char** argv)
 	{
 		// save the current directories
 		getcwd(umgebung_t::program_dir, lengthof(umgebung_t::program_dir));
-#ifdef _WIN32
-		strcat( umgebung_t::program_dir, "\\" );
-#else
-		strcat( umgebung_t::program_dir, "/" );
-#endif
+		strcat( umgebung_t::program_dir, path_sep );
 	}
 	else {
 		strcpy( umgebung_t::program_dir, argv[0] );
-#ifdef _WIN32
-		*(strrchr( umgebung_t::program_dir, '\\' )+1) = 0;
-#else
-		*(strrchr( umgebung_t::program_dir, '/' )+1) = 0;
-#endif
+		*(strrchr( umgebung_t::program_dir, path_sep[0] )+1) = 0;
+
 		chdir( umgebung_t::program_dir );
 	}
+	printf("Use work dir %s\n", umgebung_t::program_dir);
 
 	// only the pak specifiy conf should overide this!
 	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
@@ -426,7 +428,10 @@ int simu_main(int argc, char** argv)
 	bool multiuser = (gimme_arg(argc, argv, "-singleuser", 0) == NULL);
 
 	tabfile_t simuconf;
-	if(simuconf.open("config/simuconf.tab")) 
+	char path_to_simuconf[24];
+	// was  config/simuconf.tab
+	sprintf(path_to_simuconf, "config%csimuconf.tab", path_sep[0]);
+	if(simuconf.open(path_to_simuconf)) 
 	{		
 		found_simuconf = true;
 	}
@@ -529,7 +534,7 @@ int simu_main(int argc, char** argv)
 	// continue parsing ...
 	chdir( umgebung_t::program_dir );
 	if(  found_simuconf  ) {
-		if(simuconf.open("config/simuconf.tab")) {
+		if(simuconf.open(path_to_simuconf)) {
 			printf("parse_simuconf() at config/simuconf.tab: ");
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
@@ -561,6 +566,17 @@ int simu_main(int argc, char** argv)
 	// now set the desired objectfilename (overide all previous settings)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
+		// append slash / replace trailing backslash if necessary
+		uint16 len = umgebung_t::objfilename.length();
+		if (len > 0) {
+			if (umgebung_t::objfilename[len-1]=='\\') {
+				umgebung_t::objfilename.erase(len-1);
+				umgebung_t::objfilename += "/";
+			}
+			else if (umgebung_t::objfilename[len-1]!='/') {
+				umgebung_t::objfilename += "/";
+			}
+		}
 	}
 
 	// starting a server?
@@ -679,7 +695,7 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now find the pak specific tab file ...
-	const string obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
+	const string obj_conf = umgebung_t::objfilename + path_to_simuconf;
 	string dummy("");
 	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
@@ -742,8 +758,9 @@ int simu_main(int argc, char** argv)
 			translator::set_language( iso );
 		}
 		if(  translator::get_language()==-1  ) {
-			dbg->error("simmain", "Illegal language defintion \"%s\"", iso );
+			dbg->fatal("simmain", "Illegal language defintion \"%s\"", iso );
 		}
+		umgebung_t::language_iso = translator::get_lang()->iso_base;
 	}
 	else if(  found_settings  ) {
 		translator::set_language( umgebung_t::language_iso );
@@ -819,11 +836,16 @@ int simu_main(int argc, char** argv)
 	// recover last server game
 	if(  new_world  &&  umgebung_t::server  ) {
 		chdir( umgebung_t::user_dir );
-		if(  FILE *f = fopen("server-network.sve","rb")  ) {
-			// try recover with the latest savegame
-			loadgame = "server-network.sve";
-			fclose(f);
-			new_world = false;
+		loadsave_t file;
+		// try recover with the latest savegame
+		if(file.rd_open("server-network.sve")) {
+			// compare pakset (objfilename has trailing path separator, pak_extension not)
+			if (strncmp(file.get_pak_extension(),umgebung_t::objfilename.c_str(),strlen(file.get_pak_extension()))==0) {
+				// same pak directory - load this
+				loadgame = "server-network.sve";
+				new_world = false;
+			}
+			file.close();
 		}
 	}
 

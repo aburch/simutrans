@@ -680,6 +680,7 @@ bool depot_frame_t::check_way_electrified(bool init)
 	if(!init)
 	{
 		convoy_assembler.set_electrified( way_electrified );
+
 	}
 	if( way_electrified ) 
 	{

@@ -155,7 +155,7 @@ class gui_convoy_assembler_t :
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
-	static const sint16 VINFO_HEIGHT = 186;
+	static const sint16 VINFO_HEIGHT = 186 + 12;
 
 public:
 	// Used for listeners to know what has happened

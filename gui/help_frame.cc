@@ -67,8 +67,10 @@ help_frame_t::help_frame_t() :
 	scrolly(&flow)
 {
 	set_text("<title>Unnamed</title><p>No text set</p>");
-	add_komponente(&flow);
 	flow.add_listener(this);
+	set_resizemode(diagonal_resize);
+	add_komponente(&scrolly);
+	set_min_windowsize(koord(16*4, 16));
 }
 
 
@@ -113,19 +115,19 @@ help_frame_t::help_frame_t(const std::string &filename) :
 		set_text(buf);
 	}
 	else {
- 		std::string file_prefix("text/");
- 		std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
-  		chdir( umgebung_t::program_dir );
+		std::string file_prefix("text/");
+		std::string fullname = file_prefix + translator::get_lang()->iso + "/" + filename;
+		chdir(umgebung_t::program_dir);
 
- 		FILE * file = fopen(fullname.c_str(), "rb");
-  		if(!file) {
-  			//Check for the 'base' language(ie en from en_gb)
- 			file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
-  		}
-  		if(!file) {
-  			// Hajo: check fallback english
- 			file = fopen((file_prefix+"/en/"+filename).c_str(), "rb");
-  		}
+		FILE* file = fopen(fullname.c_str(), "rb");
+		if (!file) {
+			//Check for the 'base' language(ie en from en_gb)
+			file = fopen((file_prefix + translator::get_lang()->iso_base + "/" + filename).c_str(), "rb");
+		}
+		if (!file) {
+			// Hajo: check fallback english
+			file = fopen((file_prefix + "/en/" + filename).c_str(), "rb");
+		}
 		// go back to load/save dir
 		chdir( umgebung_t::user_dir );
 
@@ -153,6 +155,7 @@ help_frame_t::help_frame_t(const std::string &filename) :
 	set_resizemode(diagonal_resize);
 	add_komponente(&scrolly);
 	flow.add_listener(this);
+	set_min_windowsize(koord(16*4, 16));
 }
 
 
@@ -161,8 +164,7 @@ help_frame_t::help_frame_t(const std::string &filename) :
  * @param the hyper ref of the link
  * @author Hj. Malthaner
  */
-bool
-help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
+bool help_frame_t::action_triggered( gui_action_creator_t *, value_t extra)
 {
 	const char *str = (const char *)(extra.p);
 	uint32 magic = 0;

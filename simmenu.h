@@ -63,7 +63,7 @@ enum {
 	WKZ_REMOVE_WAYOBJ,
 	WKZ_SLICED_AND_UNDERGROUND_VIEW,
 	WKZ_BUY_HOUSE,
- 	WKZ_CITYROAD,
+	WKZ_CITYROAD,
 	GENERAL_TOOL_COUNT,
 	GENERAL_TOOL = 0x1000
 };
@@ -203,7 +203,9 @@ public:
 	virtual image_id get_icon(spieler_t *) const { return icon; }
 	void set_icon(image_id i) { icon = i; }
 
-	virtual const char* get_default_param(spieler_t *sp=NULL) const { (void) sp; return default_param; }
+	// returns default_param of this tool for player sp
+	// if sp==NULL returns default_param that was used to create the tool
+	virtual const char* get_default_param(spieler_t* = NULL) const { return default_param; }
 	void set_default_param(const char* str) { default_param = str; }
 
 	// this will draw the tool with some indication, if active
@@ -323,6 +325,8 @@ public:
 	virtual image_id get_icon(spieler_t *) const;
 	bool is_selected(karte_t *welt) const;
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
+	virtual bool is_move_network_save(spieler_t *) const { return true; }
 	// show this toolbar
 	virtual bool init(karte_t *w, spieler_t *sp);
 	// close this toolbar

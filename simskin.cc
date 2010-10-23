@@ -31,6 +31,11 @@ const skin_besch_t* skinverwaltung_t::maglevhaltsymbol   = NULL;
 const skin_besch_t* skinverwaltung_t::narrowgaugehaltsymbol = NULL;
 const skin_besch_t* skinverwaltung_t::bushaltsymbol      = NULL;
 const skin_besch_t* skinverwaltung_t::tramhaltsymbol     = NULL;
+const skin_besch_t* skinverwaltung_t::networksymbol      = NULL;
+const skin_besch_t* skinverwaltung_t::timelinesymbol     = NULL;
+const skin_besch_t* skinverwaltung_t::fastforwardsymbol  = NULL;
+const skin_besch_t* skinverwaltung_t::pausesymbol        = NULL;
+
 const skin_besch_t* skinverwaltung_t::electricity        = NULL;
 const skin_besch_t* skinverwaltung_t::intown             = NULL;
 const skin_besch_t* skinverwaltung_t::passagiere         = NULL;
@@ -105,6 +110,10 @@ static spezial_obj_tpl<skin_besch_t> fakultative_objekte[] = {
 	{ &skinverwaltung_t::maglevhaltsymbol,   "MaglevStop"     },
 	{ &skinverwaltung_t::narrowgaugehaltsymbol,"NarrowgaugeStop"},
 	{ &skinverwaltung_t::tramhaltsymbol,     "TramStop"       },
+	{ &skinverwaltung_t::networksymbol,      "networksym"     },
+	{ &skinverwaltung_t::timelinesymbol,     "timelinesym"    },
+	{ &skinverwaltung_t::fastforwardsymbol,  "fastforwardsym" },
+	{ &skinverwaltung_t::pausesymbol,        "pausesym"       },
 	{ NULL, NULL }
 };
 

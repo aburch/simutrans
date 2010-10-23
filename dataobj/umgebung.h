@@ -45,6 +45,7 @@ public:
 	static long network_frames_per_step;
 	// how often to synchronize
 	static uint32 server_sync_steps_between_checks;
+	static bool restore_UI;	// when true, restore the windows from a savegame
 
 	// if we are the server, we are at this port ...
 	static uint16 server;
@@ -187,7 +188,10 @@ public:
 		DATE_FMT_MONTH    = 1,
 		DATE_FMT_JAPANESE = 2,
 		DATE_FMT_US       = 3,
-		DATE_FMT_GERMAN   = 4
+		DATE_FMT_GERMAN   = 4,
+		DATE_FMT_JAPANESE_NO_SEASON = 5,
+		DATE_FMT_US_NO_SEASON       = 6,
+		DATE_FMT_GERMAN_NO_SEASON   = 7,
 	};
 
 	/**

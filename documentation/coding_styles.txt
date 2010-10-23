@@ -336,7 +336,7 @@ Change the following construct from:
 
 	class myclass {
 	    ...
-    	    static const int MY_CONST = 77;
+	    static const int MY_CONST = 77;
 	    ...
 	};
 
@@ -344,7 +344,7 @@ to:
 
 	class myclass {
 	    ...
-    	    enum { MY_CONST = 77 };
+	    enum { MY_CONST = 77 };
 	    ...
 	};
 

@@ -63,7 +63,6 @@
 #include "gui/signal_spacing.h"
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
-#include "gui/convoi_detail_t.h"
 
 #include "dings/zeiger.h"
 #include "dings/bruecke.h"
@@ -346,34 +345,70 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 			int old_count = win_get_open_count();
 
-			// show halt and labels first ...
-			if(  gr->get_halt().is_bound()  ) {
-				gr->get_halt()->zeige_info();
-				if(  old_count!=win_get_open_count()  ) {
-					return NULL;
+			if(  is_ctrl_pressed()  ) {
+				// reverse order
+				for(int n=0;  n<gr->get_top();  n++  ) {
+					ding_t *dt = gr->obj_bei(n);
+					if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
+						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
+						dt->zeige_info();
+						// did some new window open?
+						if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+							return NULL;
+						}
+					}
 				}
-			}
-			if(  gr->get_flag(grund_t::marked)  ) {
-				label_t *lb = gr->find<label_t>();
-				if(  lb  ) {
-					lb->zeige_info();
+
+				if(  gr->get_flag(grund_t::marked)  ) {
+					label_t *lb = gr->find<label_t>();
+					if(  lb  ) {
+						lb->zeige_info();
+						if(  old_count!=win_get_open_count()  ) {
+							return NULL;
+						}
+					}
+				}
+
+				if(  gr->get_halt().is_bound()  ) {
+					gr->get_halt()->zeige_info();
 					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
 				}
-			}
 
-			for(int n=gr->get_top()-1;  n>=0;  n--  ) {
-				ding_t *dt = gr->obj_bei(n);
-				if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
-					DBG_MESSAGE("wkz_abfrage()", "index %d", n);
-					dt->zeige_info();
-					// did some new window open?
-					if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+			}
+			else {
+
+				// show halt and labels first ...
+				if(  gr->get_halt().is_bound()  ) {
+					gr->get_halt()->zeige_info();
+					if(  old_count!=win_get_open_count()  ) {
 						return NULL;
 					}
 				}
+				if(  gr->get_flag(grund_t::marked)  ) {
+					label_t *lb = gr->find<label_t>();
+					if(  lb  ) {
+						lb->zeige_info();
+						if(  old_count!=win_get_open_count()  ) {
+							return NULL;
+						}
+					}
+				}
+
+				for(int n=gr->get_top()-1;  n>=0;  n--  ) {
+					ding_t *dt = gr->obj_bei(n);
+					if(dt  &&  dt->get_typ()!=ding_t::wayobj  &&  dt->get_typ()!=ding_t::pillar  &&  dt->get_typ()!=ding_t::label) {
+						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
+						dt->zeige_info();
+						// did some new window open?
+						if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+							return NULL;
+						}
+					}
+				}
 			}
+
 			// no window yet opened -> try ground info
 			gr->zeige_info();
 		}
@@ -1670,8 +1705,11 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 
 // default ways are not intialized sychronous for different clients
 // return always name of a way, never the string containing the waytype
-const char* wkz_wegebau_t::get_default_param(spieler_t *) const
+const char* wkz_wegebau_t::get_default_param(spieler_t *sp) const
 {
+	if (sp==NULL) {
+		return default_param;
+	}
 	if (besch) {
 		return besch->get_name();
 	}
@@ -1882,7 +1920,7 @@ const char *wkz_brueckenbau_t::do_work( karte_t *welt, spieler_t *sp, const koor
 	}
 	else {
 		const koord zv(ribi_typ(end-start));
-		brueckenbauer_t::baue_bruecke( welt, sp, start, end, zv, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat));
+		brueckenbauer_t::baue_bruecke( welt, sp, start, end, zv, besch, wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), besch->get_max_weight(), welt->get_timeline_year_month(), weg_t::type_flat));
 		return NULL; // all checks are performed before building.
 	}
 }
@@ -1954,7 +1992,7 @@ void wkz_brueckenbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d 
 	}
 	else {
 		if (besch->get_waytype() == powerline_wt  ? !gr->find<leitung_t>() : !gr->hat_weg(besch->get_waytype())) {
-			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat);
+			const weg_besch_t *weg_besch = wegbauer_t::weg_search(besch->get_waytype(), besch->get_topspeed(), besch->get_max_weight(), welt->get_timeline_year_month(), weg_t::type_flat);
 			costs += weg_besch->get_preis();
 		}
 	}
@@ -2091,7 +2129,7 @@ void wkz_tunnelbau_t::calc_route( wegbauer_t &bauigel, const koord3d &start, con
 {
 	const tunnel_besch_t *besch = tunnelbauer_t::get_besch(default_param);
 	int bt = besch->get_waytype()|wegbauer_t::tunnel_flag;
-	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), welt->get_timeline_year_month(), weg_t::type_flat );
+	const weg_besch_t *wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), besch->get_max_weight(), welt->get_timeline_year_month(), weg_t::type_flat );
 	bauigel.route_fuer((wegbauer_t::bautyp_t)bt, wb, besch);
 	bauigel.set_keep_existing_faster_ways( !is_ctrl_pressed() );
 	// wegbauer tries to find route to 3d coordinate if no ground at end exists or is not kartenboden
@@ -2173,7 +2211,7 @@ void wkz_tunnelbau_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &s
 	const weg_besch_t *wb = besch->get_weg_besch();
 	if(wb==NULL) {
 		// ignore timeline to get consistent results
-		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_topspeed(), 0, weg_t::type_flat );
+		wb = wegbauer_t::weg_search( besch->get_waytype(), besch->get_max_weight(), besch->get_topspeed(), 0, weg_t::type_flat );
 	}
 
 	welt->lookup_kartenboden(end.get_2d())->clear_flag(grund_t::marked);
@@ -2635,7 +2673,7 @@ const char *wkz_wayobj_t::do_work( karte_t * welt, spieler_t * sp, const koord3d
 
 
 /* build all kind of station extension buildings */
-const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp, koord3d k, const haus_besch_t *besch, sint8 rotation )
+const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp, bool extend_public_halt, koord3d k, const haus_besch_t *besch, sint8 rotation )
 {
 	// need kartenboden
 	if (welt->lookup_kartenboden(k.get_2d())->get_hoehe() != k.z) {
@@ -2643,6 +2681,10 @@ const char *wkz_station_t::wkz_station_building_aux(karte_t *welt, spieler_t *sp
 	}
 	koord pos = k.get_2d();
 DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building on square %d,%d", pos.x, pos.y);
+
+	// Player sp pays for the construction
+	// but we try to extend stations of Player new_owner that may be the public player
+	spieler_t *new_owner = extend_public_halt ? welt->get_spieler(1) : sp;
 
 	koord size = besch->get_groesse();
 	koord offsets;
@@ -2670,7 +2712,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							const planquadrat_t *pl = welt->lookup( pos-offset+koord(x,y) );
 							halthandle_t test_halt = pl->get_halt();
 							if(test_halt.is_bound()) {
-								if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+								if(!spieler_t::check_owner( new_owner, test_halt->get_besitzer())) {
 									// there is an other player's halt
 									ok = false;
 									msg = "Das Feld gehoert\neinem anderen Spieler\n";
@@ -2705,7 +2747,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					for(  sint16 y=-1;  y<=testsize.y;  y++  ) {
 						// left (for all tiles, even bridges)
 						const planquadrat_t *pl = welt->lookup( test_start+koord(-1,y) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2719,7 +2761,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							}
 						}
 						pl = welt->lookup( test_start+koord(testsize.x,y) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2737,7 +2779,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 					for(  sint16 x=-1;  x<=testsize.x;  x++  ) {
 						// upper and lower
 						const planquadrat_t *pl = welt->lookup( test_start+koord(x,-1) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2751,7 +2793,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							}
 						}
 						pl = welt->lookup( test_start+koord(x,testsize.y) );
-						if(  pl  &&  pl->get_halt().is_bound()  &&  sp==pl->get_halt()->get_besitzer()  ) {
+						if(  pl  &&  pl->get_halt().is_bound()  &&  new_owner==pl->get_halt()->get_besitzer()  ) {
 							halt = pl->get_halt();
 							for(  uint b=0;  b<pl->get_boden_count();  b++  ) {
 								grund_t *gr = pl->get_boden_bei(b);
@@ -2809,7 +2851,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 			for(  sint16 y=0;  y<besch->get_h(rotation);  y++  ) {
 				const planquadrat_t *pl = welt->lookup( pos-offsets+koord(x,y) );
 				halthandle_t test_halt = pl->get_halt();
-				if( test_halt.is_bound()  &&  spieler_t::check_owner( sp, test_halt->get_besitzer()) ) {
+				if( test_halt.is_bound()  &&  spieler_t::check_owner( new_owner, test_halt->get_besitzer()) ) {
 					halt = test_halt;
 					break;
 				}
@@ -2835,7 +2877,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 				const planquadrat_t *pl = welt->lookup(pos+koord(x,y));
 				halthandle_t test_halt = pl->get_halt();
 				if(test_halt.is_bound()) {
-					if(!spieler_t::check_owner( sp, test_halt->get_besitzer())) {
+					if(!spieler_t::check_owner( new_owner, test_halt->get_besitzer())) {
 						return "Das Feld gehoert\neinem anderen Spieler\n";
 					}
 					else if(!halt.is_bound()) {
@@ -2848,7 +2890,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 			}
 		}
 		if(!halt.is_bound()) {
-			halt = suche_nahe_haltestelle(sp, welt, welt->lookup_kartenboden(pos)->get_pos(), besch->get_b(rotation), besch->get_h(rotation) );
+			halt = suche_nahe_haltestelle(new_owner, welt, welt->lookup_kartenboden(pos)->get_pos(), besch->get_b(rotation), besch->get_h(rotation) );
 			// is there no halt to connect?
 			if(  !halt.is_bound()  ) {
 				return "Post muss neben\nHaltestelle\nliegen!\n";
@@ -2875,7 +2917,11 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 		return CREDIT_MESSAGE;
 	}
 	hausbauer_t::baue(welt, halt->get_besitzer(), k-offsets, rotation, besch, &halt);
-	sp->buche(cost, pos, COST_CONSTRUCTION);
+	if(sp!=halt->get_besitzer()  &&  halt->get_besitzer()==welt->get_spieler(1)) {
+		// public stops are expensive!
+		cost -= ((welt->get_einstellungen()->maint_building*besch->get_level()*besch->get_b()*besch->get_h()*60)<<(welt->ticks_per_world_month_shift-18));
+	}
+	sp->buche( cost, pos, COST_CONSTRUCTION);
 	halt->recalc_station_type();
 
 	return NULL;
@@ -3335,6 +3381,10 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 		return false;
 	}
 	cursor = hb->get_cursor()->get_bild_nr(0);
+	if(  !is_local_execution()  ) {
+		// do not change cursor
+		return false;
+	}
 	if(  hb->get_utyp()==haus_besch_t::generic_extension  &&  hb->get_all_layouts()>1  ) {
 		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
 			// call station dialoge instead
@@ -3353,7 +3403,6 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 		}
 	}
 	else {
-		rotation = -1;
 		welt->get_zeiger()->set_area( koord( welt->get_einstellungen()->get_station_coverage()*2+1, welt->get_einstellungen()->get_station_coverage()*2+1 ), true );
 	}
 	return true;
@@ -3516,7 +3565,11 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			break;
 		case haus_besch_t::hafen_geb:
 		case haus_besch_t::generic_extension:
-			msg = wkz_station_t::wkz_station_building_aux(welt, sp, pos, besch, rotation );
+			msg = wkz_station_t::wkz_station_building_aux(welt, sp, false, pos, besch, rotation );
+			if (msg) {
+				// try to build near a public halt
+				msg = wkz_station_t::wkz_station_building_aux(welt, sp, true, pos, besch, rotation );
+			}
 			break;
 		case haus_besch_t::generic_stop:
 			switch(besch->get_extra()) {
@@ -3594,7 +3647,7 @@ const char *wkz_station_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 }
 
 
-// builds roadsings and signals
+// builds roadsigns and signals
 wkz_roadsign_t::wkz_roadsign_t() : two_click_werkzeug_t()
 {
 	id = WKZ_ROADSIGN | GENERAL_TOOL;
@@ -3699,6 +3752,7 @@ const char* wkz_roadsign_t::get_default_param(spieler_t *sp) const
 
 // read variables from default_param if cmd comes from network
 // default_param: sign_name,signal_spacing,remove,replace
+// if the static variable toolstring is the default_param then reset default_param to name of signal
 void wkz_roadsign_t::read_default_param(spieler_t * sp)
 {
 	char name[256]="";
@@ -3763,6 +3817,14 @@ bool wkz_roadsign_t::calc_route( route_t &verbindung, spieler_t *sp, const koord
 	bool can_built;
 	if( start != to ) {
 		can_built = verbindung.calc_route(sp->get_welt(), start, to, test_driver, 0, 0);
+		// prevent building of many signals if start and to are adjacent
+		// but the step start->to is now allowed
+		if (can_built  &&  koord_distance(start, to)==1  &&  verbindung.get_count()>2) {
+			grund_t *gr, *grto = sp->get_welt()->lookup(to);
+			if (sp->get_welt()->lookup(start)->get_neighbour(gr, besch->get_wtyp(), to.get_2d()-start.get_2d())  &&  gr==grto) {
+				can_built = false;
+			}
+		}
 	}
 	else {
 		verbindung.clear();
@@ -3780,10 +3842,10 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 		return;
 	}
 	const uint8 signal_density = 2*signal_spacing[sp->get_player_nr()]; // measured in half tiles (straight track count as 2, diagonal as 1, since sqrt(1/2) = 1/2 ;)
-	uint8 next_signal = signal_density+1; // too place a sign asap
+	uint8 next_signal = signal_density+1; // to place a sign asap
 	sint32 cost = 0;
 	// dummy roadsign to get images for preview
-	roadsign_t *dummy_rs; 
+	roadsign_t *dummy_rs;
 	if (besch->is_signal_type()) {
 		dummy_rs = new signal_t(welt, sp, koord3d::invalid, ribi_t::keine, besch);
 	}
@@ -3813,7 +3875,7 @@ void wkz_roadsign_t::mark_tiles( karte_t *welt, spieler_t *sp, const koord3d &st
 		next_signal += ribi_t::ist_gerade(ribi)? 2 : 1;
 		if(  next_signal >= signal_density  /*&&  !ribi_t::ist_einfach(ribi)*/  ) {
 			// can we place signal here?
-			if (check_pos_intern(welt, sp, route.position_bei(i))==NULL  ||  
+			if (check_pos_intern(welt, sp, route.position_bei(i))==NULL  ||
 				(replace_other_signals[sp->get_player_nr()]  &&  rs != NULL  &&  rs->ist_entfernbar(sp) == NULL) ) {
 				zeiger_t* zeiger = new zeiger_t(welt, gr->get_pos(), sp );
 				marked[sp->get_player_nr()].append(zeiger);
@@ -3853,7 +3915,9 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	}
 	// mark tiles to calculate positions of signals
 	mark_tiles(welt, sp, start, end);
+
 	//bool can_built = !marked[sp->get_player_nr()].empty(); // unused
+
 	// only search the marked tiles
 	for(  slist_tpl<zeiger_t*>::const_iterator i=marked[sp->get_player_nr()].begin(); i!=marked[sp->get_player_nr()].end();  ++i  ) {
 		koord3d pos = (*i)->get_pos();
@@ -3905,6 +3969,7 @@ void wkz_roadsign_t::set_values( spieler_t *sp, uint8 spacing, bool remove, bool
 	signal_spacing[sp->get_player_nr()] = spacing;
 	remove_intermediate_signals[sp->get_player_nr()] = remove;
 	replace_other_signals[sp->get_player_nr()] = replace; 
+
 }
 void wkz_roadsign_t::get_values( spieler_t *sp, uint8 &spacing, bool &remove, bool &replace )
 {
@@ -4206,7 +4271,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
  */
 bool wkz_build_haus_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		const haus_tile_besch_t *tile = hausbauer_t::find_tile(c,0);
 		if(tile!=NULL) {
@@ -4277,7 +4342,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 // show industry size in cursor (in known)
 bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4380,7 +4445,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 // show industry size in cursor (in known)
 bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4456,7 +4521,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 // show industry size in cursor (must be known!)
 bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 {
-	if(default_param  &&  strlen(default_param)>0) {
+	if(is_local_execution()  &&  default_param  &&  strlen(default_param)>0) {
 		const char *c = default_param+2;
 		while(*c  &&  *c++!=',') { /* do nothing */ }
 		const fabrik_besch_t *fab = fabrikbauer_t::get_fabesch(c);
@@ -4625,7 +4690,7 @@ bool wkz_headquarter_t::init( karte_t *welt, spieler_t *sp )
 {
 	// do no use this, if there is no next level to built ...
 	const haus_besch_t *besch = next_level(sp);
-	if (besch) {
+	if (is_local_execution()  &&  besch) {
 		const int rotation = 0;
 		welt->get_zeiger()->set_area( besch->get_groesse(rotation), false );
 		return true;
@@ -5747,7 +5812,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 
 
 // sets the password (hash) for a given player
-bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
+bool wkz_change_password_hash_t::init( karte_t *welt, spieler_t *sp)
 {
 	if(  default_param==NULL  ) {
 		return false;
@@ -5788,6 +5853,7 @@ bool wkz_change_password_hash_t::init( karte_t *, spieler_t *sp)
 		}
 	}
 	sp->get_password_hash() = new_hash;
+	sp->set_unlock( welt->get_player_password_hash(sp->get_player_nr()) );
 	return false;
 }
 
@@ -5919,7 +5985,7 @@ bool wkz_change_city_t::init( karte_t *welt, spieler_t * )
 
 /* Handles all action of lines. Needs a default param:
  * [object='c|h|l|m|t'][id|pos],[name]
- * c=convoi, h=halt, l=line,  m=marker, t=town
+ * c=convoi, h=halt, l=line,  m=marker, t=town, p=player
  * in case of marker, id is a pos3d string
  */
 bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
@@ -5935,6 +6001,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		case 'l':
 		case 'c':
 		case 't':
+		case 'p':
 			id = atoi(p);
 			while(  *p>0  &&  *p++!=','  ) {
 			}
@@ -5994,11 +6061,6 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 			if(  cnv.is_bound()  ) {
 				//  set name without ID
 				cnv->set_name( p, false );
-
-				convoi_detail_t *detail = dynamic_cast<convoi_detail_t*>(win_get_magic( magic_convoi_detail+cnv.get_id()));
-				if (detail) {
-					detail->update_data();
-				}
 				return false;
 			}
 			break;
@@ -6019,6 +6081,11 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 				return false;
 			}
 			break;
+
+		case 'p':
+			if(  welt->get_spieler(id)  ) {
+				welt->get_spieler(id)->set_name(p);
+			}
 	}
 	// we are only getting here, if we could not process this request
 	dbg->error( "wkz_rename_t::init", "could not perform (%s)", default_param );
@@ -6035,5 +6102,3 @@ bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 	}
 	return false;
 }
-
-

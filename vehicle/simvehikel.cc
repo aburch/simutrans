@@ -11,7 +11,8 @@
  * Hansjoerg Malthaner, Nov. 1999
  */
 
-#include <limits>
+#include <limits.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -78,7 +79,7 @@
 
 #define INVALID_INDEX (65535u)
 
-//#define SPEED_UNLIMITED 1280000
+//#define SPEED_UNLIMITED (INT_MAX)
 
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
@@ -1659,6 +1660,7 @@ void vehikel_t::rauche()
 			if(gr) {
 				wolke_t *abgas =  new wolke_t(welt, get_pos(), get_xoff()+((dx*(sint16)((uint16)steps*TILE_STEPS))>>8), get_yoff()+((dy*(sint16)((uint16)steps*TILE_STEPS))>>8)+hoff, besch->get_rauch() );
 				if(  !gr->obj_add(abgas)  ) {
+					abgas->set_flag(ding_t::not_on_map);
 					delete abgas;
 				}
 				else {
@@ -3096,7 +3098,12 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		}
 		koord3d block_pos=rt->position_bei(next_block);
 		grund_t *gr_next_block = welt->lookup(block_pos);
-		const schiene_t *sch1 = (const schiene_t *)gr_next_block->get_weg(get_waytype());
+		const schiene_t *sch1 = gr_next_block ? (const schiene_t *)gr_next_block->get_weg(get_waytype()) : NULL;
+		if(sch1==NULL) {
+			// weg not existent (likely destroyed)
+			cnv->suche_neue_route();
+			return false;
+		}
 
 		// Is a crossing?
 		// note: crossing and signal might exist on same tile
@@ -3106,16 +3113,16 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				// ok, here is a draw/turnbridge ...
 				bool ok = cr->request_crossing(this);
 				if(!ok) {
-					// cannt cross => wait here
+					// cannot cross => wait here
 					restart_speed = 0;
 					return false;
 				}
 			}
 		}
 
-		// next cehck for signal
+		// next check for signal
 		signal_t *sig = NULL;
-		if(  sch1  &&  sch1->has_signal()  ) {
+		if(  sch1->has_signal()  ) {
 			sig = gr_next_block->find<signal_t>();
 		}
 		if(  sig  ) {
@@ -3149,6 +3156,11 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 							koord3d pos = cnv->get_route()->position_bei(i);
 							grund_t *gr = welt->lookup(pos);
 							schiene_t * sch1 = gr ? (schiene_t *)gr->get_weg(get_waytype()) : NULL;
+							if(sch1==NULL) {
+								// weg not existent (likely destroyed)
+								cnv->suche_neue_route();
+								return false;
+							}
 							if(sch1->has_signal()) {
 								// find a signal
 								is_presignal = true;
@@ -4536,6 +4548,7 @@ aircraft_t::hop()
 	}
 
 	sint32 new_speed_limit = speed_unlimited();
+
 	sint32 new_friction = 0;
 
 	// take care of inflight height ...

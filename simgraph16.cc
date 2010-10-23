@@ -182,8 +182,9 @@ struct imd {
 #define NEED_PLAYER_RECODE (128)
 
 
-static sint16 disp_width  = 640;
-static sint16 disp_height = 480;
+static KOORD_VAL disp_width  = 640;
+static KOORD_VAL disp_actual_width  = 640;
+static KOORD_VAL disp_height = 480;
 
 
 /*
@@ -541,7 +542,7 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 
 sint16 display_get_width(void)
 {
-	return disp_width;
+	return disp_actual_width;
 }
 
 
@@ -1919,7 +1920,7 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
  */
 enum pixcopy_routines {
 	plain = 0,	/// simply copies the pixels
- 	colored = 1	/// replaces player colors
+	colored = 1	/// replaces player colors
 };
 
 template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
@@ -3940,6 +3941,7 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 	int i;
 
 	// make sure it something of 16 (also better for caching ... )
+	disp_actual_width = width;
 	width = (width + 15) & 0x7FF0;
 
 	if (dr_os_open(width, height, 16, full_screen)) {
@@ -3953,7 +3955,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
 		display_load_font(FONT_PATH_X "prop.fnt");
-	} else {
+	}
+	else {
 		puts("Error  : can't open window!");
 		exit(-1);
 	}
@@ -4053,6 +4056,7 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
+	disp_actual_width = w;
 	// some cards need those alignments
 	w = (w + 15) & 0x7FF0;
 	if(  w<=0  ) {

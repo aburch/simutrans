@@ -3831,12 +3831,14 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 						}
 						weg->set_gehweg(true);
 						// if not current city road standard, then replace it
-						if (weg->get_besch() != welt->get_city_road()) {
+						if(weg->get_besitzer()!=NULL  &&  !gr->get_depot()  &&  !gr->is_halt()) 
+						{
 							spieler_t *sp = weg->get_besitzer();
-							if(sp && !gr->get_depot() && !gr->is_halt()) {
-								sp->add_maintenance( -weg->get_besch()->get_wartung());
-								weg->set_besitzer(NULL); // make public
+							if(sp && !gr->get_depot() && !gr->is_halt())
+							{
+								spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 							}
+							weg->set_besitzer(NULL); // make public
 							weg->set_besch(welt->get_city_road());
 						}
 						gr->calc_bild();

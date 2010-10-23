@@ -11,6 +11,7 @@
 #include "simtypes.h"
 
 class karte_t;
+class loadsave_t;
 class gui_frame_t;
 class gui_komponente_t;
 struct event_t;
@@ -57,10 +58,13 @@ enum magic_numbers {
 	magic_city_info_t,
 	magic_citylist_frame_t,
 	magic_mainhelp,
+	// player dependent stuff => 16 times present
 	magic_finances_t,
-	magic_help,
-	magic_convoi_t,
-	magic_jump,
+	magic_convoi_list=magic_finances_t+16,
+	magic_line_list=magic_convoi_list+16,
+	magic_halt_list=magic_line_list+16,
+	// normal stuff
+	magic_jump=magic_halt_list+16,
 	magic_curiositylist,
 	magic_factorylist,
 	magic_goodslist,
@@ -74,13 +78,15 @@ enum magic_numbers {
 	magic_station_building_select,
 	magic_keyhelp,
 	magic_server_frame_t,
-	magic_info_pointer,	// mark end of the list
-	magic_convoi_info=magic_info_pointer+839,
+	magic_pakset_info_t,
+	magic_convoi_info,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_halt_info=magic_convoi_detail+65536,
 	magic_halt_detail=magic_halt_info+65536,
 	magic_replace=magic_halt_detail+65536,
-	magic_max=magic_replace+65536
+	magic_toolbar=magic_replace+65536,
+	magic_info_pointer=magic_toolbar+256,
+	magic_max = magic_info_pointer+843
 };
 
 // Haltezeit für Nachrichtenfenster
@@ -89,6 +95,8 @@ enum magic_numbers {
 
 void init_map_win();
 
+// windows with a valid id can be saved and restored
+void rwdr_all_win(loadsave_t *file);
 
 int create_win(gui_frame_t*, wintype, long magic);
 int create_win(int x, int y, gui_frame_t*, wintype, long magic);

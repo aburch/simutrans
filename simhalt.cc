@@ -723,7 +723,7 @@ void haltestelle_t::set_name(const char *new_name)
 char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 {
 	stadt_t *stadt = welt->suche_naechste_stadt(k);
-	const char *stop = translator::translate(typ);
+	const char *stop = translator::translate(typ,lang);
 	char buf[1024];
 
 	// this fails only, if there are no towns at all!
@@ -2901,6 +2901,11 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 		besitzer_p->halt_remove(self);
 		besitzer_p = public_owner;
 		public_owner->halt_add(self);
+	}
+
+	// set name to name of first public stop
+	if (!joining.empty()) {
+		set_name( joining.front()->get_name());
 	}
 
 	while(!joining.empty()) {

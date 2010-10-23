@@ -322,6 +322,7 @@ private:
 
 	// Variables used in interactive()
 	uint32 sync_steps;
+	uint32 last_random_seed, last_random_seed_sync;
 	uint8  network_frame_count;
 	uint32 fix_ratio_frame_time; // set in reset_timer()
 
@@ -366,9 +367,12 @@ private:
 
 	message_t *msg;
 
-	int average_speed[8];
+	sint32 average_speed[8];
 
 	uint32 tile_counter;
+
+	// to identify different stages of the same game
+	uint32 map_counter;
 
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
@@ -426,6 +430,10 @@ private:
 	uint16 generic_road_speed_intercity;
 
 	uint32 max_road_check_depth;
+
+	// announce server and current state to listserver
+	// will be done in step when client number changed
+	void announce_server();
 
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
@@ -524,7 +532,7 @@ public:
 	einstellungen_t *access_einstellungen() const { return einstellungen; }
 
 	// returns current speed bonus
-	int get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
+	sint32 get_average_speed(waytype_t typ) const { return average_speed[ (typ==16 ? 3 : (int)(typ-1)&7 ) ]; }
 
 	// speed record management
 	sint32 get_record_speed( waytype_t w ) const;
@@ -1142,10 +1150,10 @@ public:
 
 	uint32 get_sync_steps() const { return sync_steps; }
 
-	void command_queue_append(network_world_command_t*);
+	uint32 get_last_random_seed() const { return last_random_seed; }
+	uint32 get_last_random_seed_sync() const { return last_random_seed_sync; }
 
-	// announce server and current state to listserver
-	void announce_server();
+	void command_queue_append(network_world_command_t*);
 
 	void network_disconnect();
 
@@ -1166,6 +1174,17 @@ public:
 	sint32 calc_generic_road_speed(const weg_besch_t* besch);
 
 	uint32 get_max_road_check_depth() const { return max_road_check_depth; }
+
+	/**
+	 * to identify the current map
+	 */
+	uint32 get_map_counter() const { return map_counter; }
+	
+	void set_map_counter(uint32 new_mc) { map_counter = new_mc; }
+	/**
+	 * called by server before sending the ready-cmds
+	 */
+	void reset_map_counter();
 
 private:
 		

@@ -15,10 +15,12 @@
 #include "components/list_button.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
+#include "../dataobj/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/pakset_info.h"
 #include "server_frame.h"
 #include "messagebox.h"
+#include "help_frame.h"
 
 
 
@@ -46,7 +48,7 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add_komponente( &add );
 
 	if(  !show_all_rev.pressed  ) {
-		show_all_rev.init( button_t::square_state, "show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
+		show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
 		show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
 		show_all_rev.add_listener(this);
 		add_komponente( &show_all_rev );
@@ -183,7 +185,7 @@ void server_frame_t::update_info()
 bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 {
 	// download list from main server
-	if(  const char *err = network_download_http( "simutrans-germany.com:80", "/serverlist/data/serverlist.txt", "serverlist.txt" )  ) {
+	if(  const char *err = network_download_http( "simutrans-germany.com:80", "/serverlist_ex/data/serverlist.txt", "serverlist.txt" )  ) {
 		dbg->warning( "server_frame_t::update_serverlist", "could not download list: %s", err );
 		return false;
 	}
@@ -243,10 +245,11 @@ bool server_frame_t::update_serverlist( uint revision, const char *pakset )
 
 bool server_frame_t::infowin_event(const event_t *ev)
 {
+	bool swallowed = gui_frame_t::infowin_event( ev );
 	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == SIM_KEY_ENTER  ) {
 		action_triggered( &serverlist, value_t(serverlist.get_selection()) );
 	}
-	return gui_frame_t::infowin_event( ev );
+	return swallowed;
 }
 
 
@@ -291,7 +294,18 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		welt->laden(filename.c_str());
 	}
 	else if(  &find_mismatch == komp  ) {
-		// to be implemented
+		if (gui_frame_t *info = win_get_magic(magic_pakset_info_t)) {
+			top_win(info);
+		}
+		else {
+			std::string msg;
+			network_compare_pakset_with_server(serverlist.get_element(serverlist.get_selection())->get_text(), msg);
+			if(  !msg.empty()  ) {
+				help_frame_t *win = new help_frame_t();
+				win->set_text(msg.c_str());
+				create_win(win, w_info, magic_pakset_info_t);
+			}
+		}
 	}
 	return true;
 }

@@ -164,18 +164,22 @@ const char* spieler_t::get_name(void) const
 }
 
 
+void spieler_t::set_name(const char *new_name)
+{
+	tstrncpy( spieler_name_buf, new_name, lengthof(spieler_name_buf) );
+}
+
+
 /* returns FALSE when unlocking!
  */
-bool spieler_t::set_unlock( uint8 *hash )
+bool spieler_t::set_unlock( const uint8 *hash )
 {
-	if(  locked  ) {
-		if (pwd_hash.empty()) {
-			locked = false;
-		}
-		else if(  hash!=NULL  ) {
-			// matches password?
-			locked = pwd_hash != hash;
-		}
+	if(  pwd_hash.empty()  ) {
+		locked = false;
+	}
+	else if(  hash!=NULL  ) {
+		// matches password?
+		locked = (pwd_hash != hash);
 	}
 	return locked;
 }
@@ -386,7 +390,7 @@ void spieler_t::neuer_monat()
 
 		if(!welt->get_einstellungen()->is_freeplay()) 
 		{
-			if(this == welt->get_spieler(0)) 
+			if(  this == welt->get_spieler(0)  &&  !umgebung_t::networkmode  )
 			{
 				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
@@ -1135,6 +1139,12 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 			// disallow all actions, if password set (might be unlocked by karte_t::set_werkzeug() )
 			set_unlock( NULL );
 		}
+	}
+
+	// save the name too
+	if(file->get_version()>102003 && file->get_experimental_version() >= 9) 
+	{
+		file->rdwr_str( spieler_name_buf, lengthof(spieler_name_buf) );
 	}
 
 	if(file->is_loading())

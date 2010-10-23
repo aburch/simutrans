@@ -19,9 +19,10 @@
 
 
 
-werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, koord icon, bool allow_break) :
+werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const char *helpfile, uint32 toolbar_id, koord icon, bool allow_break) :
 	gui_frame_t(titel), tools(0)
 {
+	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
     this->welt = welt;
     this->hilfe_datei = helpfile;
@@ -60,7 +61,7 @@ DBG_DEBUG("werkzeug_waehler_t::add_tool()","ww=%i, rows=%i",ww,rows);
 			// At least, 3 rows is needed to drag toolbar
 			tool_icon_width = min( tool_icon_width, max(umgebung_t::toolbar_max_width, 3) );
 		}
-  	}
+	}
 	tool_icon_height = max( (display_get_height()/icon.y)-3, 1 );
 	if(  umgebung_t::toolbar_max_height > 0  ) {
 		tool_icon_height = min(tool_icon_height, umgebung_t::toolbar_max_height);
@@ -118,7 +119,7 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 					welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
 				}
 				else {
-				// right-click on toolbar icon closes toolbar
+					// right-click on toolbar icon closes toolbar
 					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  &&  (tools[wz_idx]->get_id()&TOOLBAR_TOOL)) {
 						tools[wz_idx]->exit(welt, welt->get_active_player());
 						// triggers werkzeug_waehler_t::infowin_event if the other toolbar,

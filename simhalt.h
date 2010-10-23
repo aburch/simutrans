@@ -573,7 +573,7 @@ public:
 	 */
 	void neuer_monat();
 
-	karte_t* get_welt() const { return welt; }
+	static karte_t* get_welt() { return welt; }
 
 	// @author: jamespetts, although much is borrowed from suche_route
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.

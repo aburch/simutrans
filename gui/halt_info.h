@@ -20,6 +20,7 @@
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../simwin.h"
 
 
 /**
@@ -53,6 +54,8 @@ private:
 	*/
 	cbuffer_t freight_info;
 	cbuffer_t info_buf;
+
+	void show_hide_statistics( bool show );
 
 public:
 	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, SORT_MODES = 6 };
@@ -93,6 +96,13 @@ public:
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
 	void map_rotate90( sint16 );
+
+	// this contructor is only used during loading
+	halt_info_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_halt_info; }
 };
 
 #endif

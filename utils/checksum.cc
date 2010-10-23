@@ -1,8 +1,5 @@
 #include "checksum.h"
 
-//#include "../dataobj/network_packet.h"
-#include "../dataobj/loadsave.h"
-
 #include <string.h>
 #include <stdio.h>
 #include "../simdebug.h"
@@ -152,27 +149,5 @@ void checksum_t::finish()
 		valid = true;
 		delete sha;
 		sha = NULL;
-	}
-}
-
-
-void checksum_t::rdwr(loadsave_t *file)
-{
-	xml_tag_t e( file, "checksum_t" );
-
-	if(file->is_saving()) {
-		if (!valid) {
-			finish();
-		}
-	}
-	else {
-		valid = true;
-		if (sha) {
-			delete sha;
-		}
-		sha = NULL;
-	}
-	for(uint8 i=0; i<20; i++) {
-		file->rdwr_byte(message_digest[i]);
 	}
 }

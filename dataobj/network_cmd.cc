@@ -1,6 +1,7 @@
 #include "network_cmd.h"
 #include "network.h"
 #include "network_packet.h"
+#include "network_cmp_pakset.h"
 
 #include "loadsave.h"
 #include "gameinfo.h"
@@ -40,6 +41,7 @@ network_command_t* network_command_t::read_from_socket(SOCKET s)
 		case NWC_READY:       nwc = new nwc_ready_t(); break;
 		case NWC_TOOL:        nwc = new nwc_tool_t(); break;
 		case NWC_CHECK:       nwc = new nwc_check_t(); break;
+		case NWC_PAKSETINFO:  nwc = new nwc_pakset_info_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
@@ -50,6 +52,13 @@ network_command_t* network_command_t::read_from_socket(SOCKET s)
 		}
 	}
 	return nwc;
+}
+
+
+// needed by world to kick clients if needed
+SOCKET network_command_t::get_sender()
+{
+	return packet->get_sender();
 }
 
 
@@ -193,7 +202,7 @@ bool nwc_join_t::execute(karte_t *welt)
 		nwj.send( packet->get_sender());
 		if (nwj.answer == 1) {
 			// now send sync command
-			nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, nwj.client_id);
+			nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, welt->get_map_counter(), nwj.client_id);
 			network_send_all(nws, false);
 			pending_join_client = packet->get_sender();
 			// add message via tool!
@@ -214,11 +223,12 @@ bool nwc_ready_t::execute(karte_t *welt)
 {
 	if (umgebung_t::server) {
 		// unpause the sender ie send ready_t back
-		nwc_ready_t nwc(sync_steps);
+		nwc_ready_t nwc(sync_steps, welt->get_map_counter());
 		nwc.send( this->packet->get_sender());
 	}
 	else {
 		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d",sync_steps);
+		welt->set_map_counter(map_counter);
 		welt->network_game_set_pause(false, sync_steps);
 	}
 	return true;
@@ -229,6 +239,7 @@ void nwc_ready_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_long(sync_steps);
+	packet->rdwr_long(map_counter);
 }
 
 void nwc_game_t::rdwr()
@@ -237,16 +248,18 @@ void nwc_game_t::rdwr()
 	packet->rdwr_long(len);
 }
 
-network_world_command_t::network_world_command_t(uint16 id, uint32 sync_step)
+network_world_command_t::network_world_command_t(uint16 id, uint32 sync_step, uint32 map_counter)
 : network_command_t(id)
 {
 	this->sync_step = sync_step;
+	this->map_counter = map_counter;
 }
 
 void network_world_command_t::rdwr()
 {
 	network_command_t::rdwr();
 	packet->rdwr_long(sync_step);
+	packet->rdwr_long(map_counter);
 }
 
 bool network_world_command_t::execute(karte_t *welt)
@@ -258,6 +271,12 @@ bool network_world_command_t::execute(karte_t *welt)
 			dbg->warning("network_world_command_t::execute", "wanted to execute(%d) in the past", get_id());
 			welt->network_disconnect();
 		}
+		return true; // to delete cmd
+	}
+	else if (map_counter != welt->get_map_counter()) {
+		// command from another world
+		// maybe sent before sync happened -> ignore
+		dbg->warning("network_world_command_t::execute", "wanted to execute(%d) from another world", get_id());
 		return true; // to delete cmd
 	}
 	else {
@@ -291,9 +310,13 @@ void nwc_sync_t::do_command(karte_t *welt)
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
 		filename = fn;
 
+		bool old_restore_UI = umgebung_t::restore_UI;
+		umgebung_t::restore_UI = true;
+
 		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
 		long old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
+		umgebung_t::restore_UI = old_restore_UI;
 
 		// pause clients, restore steps
 		welt->network_game_set_pause(true, old_sync_steps);
@@ -319,6 +342,8 @@ void nwc_sync_t::do_command(karte_t *welt)
 			}
 		}
 #endif
+		bool old_restore_UI = umgebung_t::restore_UI;
+		umgebung_t::restore_UI = true;
 		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
 
 		// ok, now sending game
@@ -331,6 +356,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		long old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
+		umgebung_t::restore_UI = old_restore_UI;
 
 #ifdef DO_NOT_SEND_HASHES
 		// restore password info
@@ -345,14 +371,14 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// restore steps
 		welt->network_game_set_pause(false, old_sync_steps);
 
+		// generate new map_counter
+		welt->reset_map_counter();
+
 		// unpause the client that received the game
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
-		nwc_ready_t nwc(old_sync_steps);
+		nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
 		nwc.send(network_get_socket(client_id));
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
-
-		// announce new status on server
-		welt->announce_server();
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
@@ -371,23 +397,25 @@ void nwc_check_t::rdwr()
 }
 
 
-nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync_steps, bool init_)
-: network_world_command_t(NWC_TOOL, sync_steps)
+nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync_steps, uint32 map_counter, bool init_)
+: network_world_command_t(NWC_TOOL, sync_steps, map_counter)
 {
 	pos = pos_;
 	player_nr = sp ? sp->get_player_nr() : -1;
 	wkz_id = wkz->get_id();
-	const char *dfp = wkz->get_default_param();
+	const char *dfp = wkz->get_default_param(sp);
 	default_param = dfp ? strdup(dfp) : NULL;
 	exec = false;
 	init = init_;
 	tool_client_id = 0;
 	flags = wkz->flags;
+	last_sync_step = sp->get_welt()->get_last_random_seed_sync();
+	last_random_seed = sp->get_welt()->get_last_random_seed();
 }
 
 
 nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
-: network_world_command_t(NWC_TOOL, nwt.get_sync_step())
+: network_world_command_t(NWC_TOOL, nwt.get_sync_step(), nwt.get_map_counter())
 {
 	pos = nwt.pos;
 	player_nr = nwt.player_nr;
@@ -408,6 +436,8 @@ nwc_tool_t::~nwc_tool_t()
 void nwc_tool_t::rdwr()
 {
 	network_world_command_t::rdwr();
+	packet->rdwr_long(last_sync_step);
+	packet->rdwr_long(last_random_seed);
 	packet->rdwr_byte(player_nr);
 	sint16 posx = pos.x; packet->rdwr_short(posx); pos.x = posx;
 	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
@@ -435,6 +465,12 @@ bool nwc_tool_t::execute(karte_t *welt)
 		return network_world_command_t::execute(welt);
 	}
 	else if (umgebung_t::server) {
+		if (map_counter != welt->get_map_counter()) {
+			// command from another world
+			// maybe sent before sync happened -> ignore
+			dbg->warning("nwc_tool_t::execute", "wanted to execute(%d) from another world", get_id());
+			return true; // to delete cmd
+		}
 		// special care for unpause command
 		if (wkz_id == (WKZ_PAUSE | SIMPLE_TOOL)) {
 			if (welt->is_paused()) {
@@ -460,6 +496,8 @@ bool nwc_tool_t::execute(karte_t *welt)
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
 		nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
+		nwt->last_sync_step = welt->get_last_random_seed_sync();
+		nwt->last_random_seed = welt->get_last_random_seed();
 		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
 		network_send_all(nwt, false);
 	}
@@ -567,7 +605,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 
 			wkz = tool_node->get_tool();
 			// create a new tool if necessary
-			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(), default_param)) {
+			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(sp), default_param)) {
 				wkz = create_tool(wkz_id);
 				// before calling work initialize new tool / exit old tool
 				if (!init) {
@@ -582,13 +620,13 @@ void nwc_tool_t::do_command(karte_t *welt)
 			// local player applied a tool
 			// first try the active tool of our world
 			wkz = player_nr < MAX_PLAYER_COUNT ? welt->get_werkzeug(player_nr) : NULL;
-			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(), default_param)) {
+			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(sp), default_param)) {
 				// get the right tool
 				vector_tpl<werkzeug_t*> &wkz_list = wkz_id&GENERAL_TOOL ? werkzeug_t::general_tool : wkz_id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
 				wkz = NULL;
 				// first do a detailed search for tool that matches id and default_param
 				for(uint32 i=0; i < wkz_list.get_count(); i++) {
-					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id  &&  cmp_default_param(wkz_list[i]->get_default_param(),default_param)) {
+					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id  &&  cmp_default_param(wkz_list[i]->get_default_param(sp),default_param)) {
 						wkz = wkz_list[i];
 						break;
 					}
@@ -599,7 +637,8 @@ void nwc_tool_t::do_command(karte_t *welt)
 					wkz = wkz_list[wkz_id&0xFFF];
 					// we need to reset default_param later otherwise it might point into nirwana soon
 					reset_default_param = true;
-					old_default_param = wkz->get_default_param();
+					// get raw default_param sp==NULL
+					old_default_param = wkz->get_default_param(NULL);
 					// now set correct parameter
 					wkz->set_default_param(default_param);
 				}

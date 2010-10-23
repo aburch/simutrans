@@ -21,6 +21,8 @@
 // height of titlebar
 #define TITLEBAR_HEIGHT (16)
 
+class loadsave_t;
+
 /**
  * Eine Klasse für Fenster mit Komponenten.
  * Anders als die anderen Fensterklasen in Simutrans ist dies
@@ -106,6 +108,13 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void set_name(const char *name) { this->name=name; }
+
+	/* this returns an unique id, if the dialoge can be saved
+	 * if this is defined, you better define a matching constructor with karte_t * and loadsave_t *
+	 */
+	virtual uint32 get_rdwr_id() { return 0; }
+
+	virtual void rdwr( loadsave_t * ) {}
 
 	/**
 	 * gibt farbinformationen fuer Fenstertitel, -ränder und -körper

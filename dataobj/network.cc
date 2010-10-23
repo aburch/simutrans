@@ -11,6 +11,7 @@
 
 #include "network.h"
 #include "network_cmd.h"
+#include "network_cmp_pakset.h"
 
 #include "loadsave.h"
 #include "gameinfo.h"
@@ -39,7 +40,7 @@ static bool network_active = false;
 // local server cocket
 static vector_tpl<SOCKET> my_socket;
 // local client socket
-static SOCKET my_client_socket = INVALID_SOCKET;
+SOCKET my_client_socket = INVALID_SOCKET;
 //static slist_tpl<const char *>pending_list;
 
 // to query all open sockets, we maintain this list
@@ -489,9 +490,9 @@ bool network_init_server( int port )
 		return false;
 	}
 
-	active_clients = 0;
 	my_socket.append( my );
 	network_add_client( my );
+	active_clients = 0;
 #else
 	struct addrinfo *res;
 	struct addrinfo hints;
@@ -540,7 +541,7 @@ bool network_init_server( int port )
 	for(  uint32 i=0;  i<my_socket.get_count();  i++  ) {
 		network_add_client( my_socket[i] );
 	}
-	active_clients = my_socket.get_count();
+	active_clients = 0;
 #endif
 	client_id = 0;
 	server_command_queue.clear();
@@ -582,7 +583,10 @@ void network_remove_client( SOCKET sock )
 {
 	dbg->message("network_remove_client", "remove client socket[%d]", sock);
 	if(  clients.is_contained(sock)  ) {
-		assert(active_clients>0);
+		if(  active_clients<=0  ) {
+			dbg->error( "network_remove_client", "active cleints count reached prematurely zero, resetting" );
+			active_clients = 1;
+		}
 		uint32 ind = clients.index_of(sock);
 		clients[ind] = INVALID_SOCKET;
 		// just decrease count
@@ -721,8 +725,6 @@ network_command_t* network_check_activity(karte_t *welt, int timeout)
 				welt->set_werkzeug( w, NULL );
 				// since init always returns false, it is save to delete immediately
 				delete w;
-				// give new status
-				welt->announce_server();
 			}
 		}
 		else {
@@ -942,7 +944,19 @@ void network_close_socket( SOCKET sock )
 		if(  sock==nwc_join_t::pending_join_client  ) {
 			nwc_join_t::pending_join_client = INVALID_SOCKET;
 		}
+		if(  sock==nwc_pakset_info_t::server_receiver) {
+			nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
+		}
 		clients.remove( sock );
+	}
+}
+
+
+void network_reset_server()
+{
+	server_command_queue.clear();
+	while (!my_socket.is_contained(clients.back())) {
+		network_remove_client(clients.back());
 	}
 }
 
@@ -952,6 +966,8 @@ void network_close_socket( SOCKET sock )
  */
 void network_core_shutdown()
 {
+	server_command_queue.clear();
+
 	while(  my_socket.get_count()!=0  ) {
 		network_close_socket( my_socket.back() );
 	}
@@ -961,5 +977,7 @@ void network_core_shutdown()
 		WSACleanup();
 #endif
 	}
+
 	network_active = false;
+	umgebung_t::networkmode = false;
 }

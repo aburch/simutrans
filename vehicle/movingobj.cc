@@ -53,8 +53,12 @@ bool movingobj_t::alles_geladen()
 	movingobj_typen.resize(besch_names.get_count());
 	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
 	while(  iter.next()  ) {
-		iter.access_current_value()->index = movingobj_typen.get_count();
 		movingobj_typen.insert_ordered( iter.get_current_value(), compare_groundobj_besch );
+	}
+	// iterate again to assign the index
+	stringhashtable_iterator_tpl<groundobj_besch_t *>iter2(besch_names);
+	while(  iter2.next()  ) {
+		iter2.access_current_value()->index = movingobj_typen.index_of( iter2.get_current_value());
 	}
 
 	if(besch_names.empty()) {
@@ -230,6 +234,8 @@ void movingobj_t::rdwr(loadsave_t *file)
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;
+		// not saved, recalculate
+		hoff = calc_height();
 	}
 	weg_next = 0;
 }

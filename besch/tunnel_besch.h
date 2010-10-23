@@ -62,9 +62,9 @@ private:
 	*/
 	uint8 has_way;
 
- 	/* Has broad portals?
- 	 */
- 	uint8 broad_portals;
+	/* Has broad portals?
+	 */
+	uint8 broad_portals;
 
 	werkzeug_t *builder;
 
