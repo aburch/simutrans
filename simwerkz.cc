@@ -1226,15 +1226,19 @@ const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 // show/repair blocks
 bool wkz_clear_reservation_t::init( karte_t *welt, spieler_t * )
 {
-	schiene_t::show_reservations = true;
-	welt->set_dirty();
+	if (is_local_execution()) {
+		schiene_t::show_reservations = true;
+		welt->set_dirty();
+	}
 	return true;
 }
 
 bool wkz_clear_reservation_t::exit( karte_t *welt, spieler_t * )
 {
-	schiene_t::show_reservations = false;
-	welt->set_dirty();
+	if (is_local_execution()) {
+		schiene_t::show_reservations = false;
+		welt->set_dirty();
+	}
 	return true;
 }
 
