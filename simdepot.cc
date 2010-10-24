@@ -373,7 +373,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
-		} else if (!cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->get_route())) {
+		} else if (!cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())) {
 			// no route to go ...
 			if (local_execution) {
 				static char buf[256];
@@ -587,7 +587,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	}
 
 	// reserve the next segments of the train
-	route_t *route=cnv->get_route();
+	const route_t *route=cnv->get_route();
 	bool success = true;
 	uint16 tiles = cnv->get_tile_length();
 	uint32 i;

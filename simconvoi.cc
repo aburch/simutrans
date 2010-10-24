@@ -1733,8 +1733,7 @@ void convoi_t::vorfahren()
 }
 
 
-void
-convoi_t::rdwr(loadsave_t *file)
+void convoi_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "convoi_t" );
 
@@ -2839,6 +2838,15 @@ void convoi_t::unregister_stops()
 		}
 	}
 }
+
+
+// set next stop before breaking will occur (or route search etc.)
+// currently only used for tracks
+void convoi_t::set_next_stop_index(uint16 n)
+{
+	next_stop_index = min( route.get_count(), n+1 );
+}
+
 
 
 /*

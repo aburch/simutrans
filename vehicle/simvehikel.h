@@ -501,6 +501,15 @@ protected:
 
 	void betrete_feld();
 
+	bool is_weg_frei_signal( uint16 start_index, int &restart_speed );
+
+	bool is_weg_frei_pre_signal( signal_t *sig, uint16 start_index, int &restart_speed );
+
+	bool is_weg_frei_longblock_signal( signal_t *sig, uint16 start_index, int &restart_speed );
+
+	bool is_weg_frei_choose_signal( signal_t *sig, uint16 start_index, int &restart_speed );
+
+
 public:
 	virtual waytype_t get_waytype() const { return track_wt; }
 
@@ -517,9 +526,8 @@ public:
 	virtual bool ist_weg_frei(int &restart_speed);
 
 	// reserves or unreserves all blocks and returns the handle to the next block (if there)
-	// if count is larger than 1, maximum 64 tiles will be checked (freeing or reserving a choose signal path)
-	// return the last checked block
-	uint16 block_reserver(const route_t *route, uint16 start_index, int count, bool reserve ) const;
+	// returns ture on successful reservation
+	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_singal, uint16 &next_crossing, int signal_count, bool reserve ) const;
 
 	void verlasse_feld();
 
