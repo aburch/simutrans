@@ -2213,11 +2213,11 @@ void waggon_t::set_convoi(convoi_t *c)
 								break;
 							}
 							if(sch->has_signal()) {
-								next_signal_index = i+1;
+								next_signal_index = i;
 								break;
 							}
 							if(sch->is_crossing()) {
-								next_signal_index = i+1;
+								next_signal_index = i;
 								break;
 							}
 						}
@@ -2472,20 +2472,17 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 		return false;
 	}
 
-	// now we are in a step and can use the route search array
 	target_halt = target->get_halt();
 	if(  !block_reserver( cnv->get_route(), start_block+1, next_signal, next_crossing, 100000, true )  ) {
 		// no free route to target!
 		// note: any old reservations should be invalid after the block reserver call.
-		//           We can now start freshly all over
+		// => We can now start freshly all over
 
-		// if we fail, we will wait in a step, much more simulation friendly
-		// thus we ensure correct convoi state!
 		if(!cnv->is_waiting()) {
-			// do not stop before the signal ...
 			restart_speed = -1;
 			return false;
 		}
+		// now we are in a step and can use the route search array
 
 		// now it we are in a step and can use the route search
 		route_t target_rt;
