@@ -3954,7 +3954,7 @@ bool karte_t::laden(const char *filename)
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
-			umgebung_t::server = false;
+			umgebung_t::server = 0;
 		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4);

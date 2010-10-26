@@ -431,8 +431,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 
 
 // attention! this will not be used for railway depots! They will be loaded by hand ...
-void
-depot_t::rdwr(loadsave_t *file)
+void depot_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
 
@@ -446,8 +445,7 @@ depot_t::rdwr(loadsave_t *file)
 
 
 
-void
-depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
+void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 {
 	sint32 count;
 

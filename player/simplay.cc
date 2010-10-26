@@ -348,8 +348,8 @@ void spieler_t::neuer_monat()
 	// Bankrott ?
 	if(konto < 0) {
 		konto_ueberzogen++;
-		if(!welt->get_einstellungen()->is_freeplay()) {
-			if(  this == welt->get_spieler(0)  &&  !umgebung_t::networkmode  ) {
+		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1  )) {
+			if(  get_ai_id()==HUMAN  &&  !umgebung_t::networkmode  ) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win(true);
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -361,10 +361,15 @@ void spieler_t::neuer_monat()
 					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
-			else if(automat  &&  this!=welt->get_spieler(1)) {
+			else if(automat) {
 				// for AI, we only declare bankrupt, if total assest are below zero
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					ai_bankrupt();
+				}
+				// tell the current player
+				if(  welt->get_active_player_nr()==player_nr  ) {
+					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
 		}
