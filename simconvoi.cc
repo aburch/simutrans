@@ -288,6 +288,8 @@ void convoi_t::laden_abschliessen()
 	bool realing_position = false;
 	if(anz_vehikel>0) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
+		sint16 step_pos;
+		koord3d drive_pos;
 		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 			vehikel_t* v = fahr[i];
 			v->set_erstes( i==0 );
@@ -299,6 +301,24 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			if(v->need_realignment()) {
 				// diagonal => convoi must restart
 				realing_position |= (v->get_fahrtrichtung()&0x0A)!=0  &&  (state==DRIVING  ||  is_waiting());
+			}
+			// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
+			if(  !realing_position  &&  state!=INITIAL  ) {
+				if(  i==0  ) {
+					step_pos = v->get_steps();
+				}
+				else {
+					if(  drive_pos!=v->get_pos()  ) {
+						step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? 130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier() : 255;
+					}
+					if(  abs( v->get_steps() - step_pos )>15  ) {
+						// not where it should be => realing
+						realing_position = true;
+						dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
+					}
+				}
+				step_pos -= v->get_besch()->get_length()*16;
+				drive_pos = v->get_pos();
 			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
