@@ -348,7 +348,7 @@ void spieler_t::neuer_monat()
 	// Bankrott ?
 	if(konto < 0) {
 		konto_ueberzogen++;
-		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1  )) {
+		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1  ) {
 			if(  get_ai_id()==HUMAN  &&  !umgebung_t::networkmode  ) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win(true);
