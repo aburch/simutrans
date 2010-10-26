@@ -2479,7 +2479,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 				// we will come later here again ...
 				break;
 			}
-			if(plan_halt.is_bound() && plan_halt->is_enabled(catg_index)) 
+			if(plan_halt.is_bound() && plan_halt->get_pax_enabled()) 
 			{
 				connexion * const next_connexion = connexions[catg_index]->get(plan_halt);
 				if (next_connexion) {
