@@ -178,6 +178,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	freight_info_order = 0;
 	loading_level = 0;
 	loading_limit = 0;
+	free_seats = 0;
 
 	next_stop_index = 65535;
 
@@ -203,6 +204,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 
 	// Added by : Knightly
 	old_fpl = NULL;
+	free_seats = 0;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 }
@@ -219,6 +221,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	// Added by : Knightly
 	old_fpl = NULL;
+	free_seats = 0;
 }
 
 
