@@ -1419,6 +1419,11 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 				if(existing_connexion->journey_time > new_connexion->journey_time)
 				{
 					// The new connexion is better - replace it.
+					// We don't want to lose loading queue
+					for ( int i = 0 ; i < MAX_PLAYER_COUNT; i++ )
+					{
+						(new_connexion->last_loaded_convoy)[i] = (existing_connexion->last_loaded_convoy)[i];
+					}
 					delete existing_connexion;
 					connexions[category]->set(current_halt, new_connexion);
 				}
