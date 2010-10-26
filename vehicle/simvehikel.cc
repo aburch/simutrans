@@ -71,7 +71,7 @@
 #include "simvehikel.h"
 #include "simverkehr.h"
 
-#define INVALID_INDEX (65535u)
+#define INVALID_INDEX (65530u)
 
 #define SPEED_UNLIMITED (INT_MAX)
 
@@ -2635,16 +2635,22 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return false;
 	}
 
-	uint16 next_block=cnv->get_next_stop_index()-1;
-	// it happened in the past that a convoi has a next signal stored way after the curretn position!
-	// this should never ever happen, but we can cure this easily
-	if(  next_block+1<route_index  ) {
-		cnv->suche_neue_route();
-		dbg->error( "waggon_t::ist_weg_frei()", "%s: next_block (%i)->(%s) is smaller than current pos (%i)", cnv->get_name(), next_block, cnv->get_route()->position_bei(next_block).get_str(), route_index );
-		return false;
+	// is there any signal/crossing to be resrved?
+	uint16 next_block = cnv->get_next_stop_index()-1;
+	if(  next_block >= cnv->get_route()->get_count()  ) {
+		// no obstacle in the way => drive on ...
+		return true;
 	}
 
-	if(next_block<=route_index+3) {
+	// it happened in the past that a convoi has a next signal stored way after the curretn position!
+	// this only happens in vorfahren, but we can cure this easily
+	if(  next_block+1<route_index  ) {
+		bool ok = block_reserver( cnv->get_route(), route_index, next_signal, next_crossing, 0, true );
+		cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+		return ok;
+	}
+
+	if(  next_block <= route_index+3  ) {
 		koord3d block_pos=cnv->get_route()->position_bei(next_block);
 		grund_t *gr_next_block = welt->lookup(block_pos);
 		const schiene_t *sch1 = gr_next_block ? (const schiene_t *)gr_next_block->get_weg(get_waytype()) : NULL;

@@ -2844,7 +2844,7 @@ void convoi_t::unregister_stops()
 // currently only used for tracks
 void convoi_t::set_next_stop_index(uint16 n)
 {
-	next_stop_index = min( route.get_count(), n+1 );
+	next_stop_index = n+1;
 }
 
 
