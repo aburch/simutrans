@@ -793,6 +793,7 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->journey_time = accumulated_journey_time;
 						new_connexion->best_convoy = current_linkage.convoy;
 						new_connexion->best_line = current_linkage.line;
+						new_connexion->alternative_seats = 0;
 
 						// Adapted from haltestelle_t::add_connexion()
 						// Check whether this is the best connexion so far, and, if so, add it.

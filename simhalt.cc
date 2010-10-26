@@ -1411,7 +1411,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			new_connexion->journey_time = accumulated_journey_time;
 			new_connexion->best_convoy = cnv;
 			new_connexion->best_line = line;
-
+			new_connexion->alternative_seats = 0;
 
 			// Check whether this is the best connexion so far, and, if so, add it.
 			if(!connexions[category]->put(current_halt, new_connexion))
