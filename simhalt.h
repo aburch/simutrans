@@ -218,6 +218,7 @@ public:
 
 		//
 		convoihandle_t last_loaded_convoy[MAX_PLAYER_COUNT];
+		uint16 alternative_seats; // used in overcrowd calculations in hole_ab, updated by update_alternative_seats
 
 		// Used for the memory pool only.
 #ifdef USE_INDEPENDENT_PATH_POOL
@@ -229,6 +230,7 @@ public:
 		void* operator new(size_t size);
 		void operator delete(void *p);
 	};
+	bool do_alternative_seats_calculation; //for optimisations purpose 
 
 	// Data on paths to ultimate destinations
 	struct path
@@ -696,7 +698,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 
-	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv);
+	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -823,6 +825,21 @@ public:
 	 * @author Knightly
 	 */
 	vector_tpl<convoihandle_t> registered_convoys;
+
+	/**
+	 * We need to maintain list of 'currently here' convoys.
+	 * @author Inkelyad
+	 */
+	void convoy_has_arrived(convoihandle_t convoy) { here_convoys.append_unique(convoy); }
+	void convoy_has_left(convoihandle_t convoy) { here_convoys.remove(convoy); }
+	bool convoy_is_here(convoihandle_t convoy) { return here_convoys.is_contained(convoy); } // List of convoys at stop is usually short, so it will be fast
+	minivec_tpl<convoihandle_t> here_convoys;
+
+	/**
+	 * It will calculate number of free seats in all other (not cnv) convoys at stop
+	 * @author Inkelyad
+	 */
+	void update_alternative_seats(convoihandle_t cnv);
 
 	/**
 	 * book a certain amount into the halt's financial history

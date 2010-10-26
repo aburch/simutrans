@@ -808,6 +808,7 @@ void path_explorer_t::compartment_t::step()
 								{
 									(new_connexion->last_loaded_convoy)[i] = (existing_connexion->last_loaded_convoy)[i];
 								}
+								new_connexion->alternative_seats = existing_connexion->alternative_seats;
 								delete existing_connexion;
 								catg_connexions->set(halt_list[t], new_connexion);
 							}

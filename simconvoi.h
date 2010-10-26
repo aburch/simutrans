@@ -137,6 +137,12 @@ private:
 	sint32 loading_limit;
 
 	/**
+	 * Free seats for passengers, calculated in convoi_t::calc_loading
+	 * @author Inkelyad
+	 */
+	sint32 free_seats;
+
+	/**
 	* The vehicles of this convoi
 	*
 	* @author Hj. Malthaner
@@ -805,7 +811,7 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void laden();
-	halthandle_t loading_at_halt; // local cache, will be used when state == LOADING, updated by hat_gehalten() and sync_step()
+	halthandle_t loading_at_halt; // local cache, will be used when state == LOADING, updated by hat_gehalten() and async_step()
 
 	/**
 	* Setup vehicles before starting to move
@@ -841,6 +847,12 @@ public:
 	* @date  12.06.2003
 	*/
 	inline const sint32 &get_loading_limit() const { return loading_limit; }
+
+	/**
+	 * How many free seats for passengers in convoy? Used in overcrowded loading
+	 * @auhor Inkelyad
+	 */
+	inline const sint32 &get_free_seats() const { return free_seats; }
 
 	/**
 	* Schedule convoid for self destruction. Will be executed
