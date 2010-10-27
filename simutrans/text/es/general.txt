@@ -1,13 +1,13 @@
 <title>Ayuda de Simutrans</title>
 
 <h1><strong>Ayuda General</strong></h1>
-<br>
+<p>
 - <a href="simutrans.txt">Bienvenido</a>
 <br>
 - <a href="window.txt">Interfaz del Juego/Ventanas</a><br>
 - <a href="mouse.txt">Ayuda de Raton</a> (en construccion)<br>
 - <a href="keys.txt">Ayuda de Teclado</a>
-<br>
+</p>
 <p>
 <a href="options.txt">
 <strong>Opciones de Juego</strong></a>
@@ -98,7 +98,7 @@ Opciones de Juego</a><br>
 
 <p>
 Si nada de esto te ayuda, prueba en<br>
-<em>http://guide.simutrans.com</em><br>
+<em>http://docs.simutrans.com</em><br>
 <em>http://wiki.simutrans.com</em><br>
 <em>http://simutrans-tips.com</em><br>
 <em>http://forum.simutrans.com</em>

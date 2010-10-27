@@ -20,8 +20,8 @@
 - <a href="load.txt">Laden</a><br>
 - <a href="save.txt">Opslaan</a><br>
 - <a href="new_world.txt">Nieuwe wereld</a><br>
-         -- <a href="climates.txt">Klimaat instellingen</a><br>
-         -- <a href="load_relief.txt">Laad hoogtekaart</a>
+         -- <a href="climates.txt">Klimaat instellingen</a><br>
+         -- <a href="load_relief.txt">Laad hoogtekaart</a>
 </p>
 
 <p>
@@ -37,7 +37,7 @@
 - <a href="shiptools.txt">Scheepvaart</a><br>
 - <a href="airtools.txt">Luchtvaart</a><br>
 - <a href="special.txt">Bijzondere werktuigen</a><br>
-         -- <a href="edittools.txt">Kaarteditor</a><br>
+         -- <a href="edittools.txt">Kaarteditor</a><br>
 - <a href="removal_tool.txt">Verwijder</a>
 </p>
 
@@ -45,14 +45,14 @@
 <strong>Menu - management</strong><br>
 - <a href="linemanagement.txt">Lijnen administratie</a><br>
 - <a href="list.txt">Lijsten administratie</a><br>
-         -- <a href="haltlist.txt">Stations lijst</a><br>
-                     --- <a href="haltlist_filter.txt">Station filter</a><br>
-         -- <a href="convoi.txt">Voertuigen lijst</a><br>
-                     --- <a href="convoi_filter.txt">Voertuigen filter</a><br>
-         -- <a href="citylist_filter.txt">Lijst met steden</a><br>
-         -- <a href="goods_filter.txt">Goederen lijst</a><br>
-         -- <a href="factorylist_filter.txt">Industrie lijst</a><br>
-         -- <a href="curiositylist_filter.txt">Bezienswaardigheden</a><br>
+         -- <a href="haltlist.txt">Stations lijst</a><br>
+                     --- <a href="haltlist_filter.txt">Station filter</a><br>
+         -- <a href="convoi.txt">Voertuigen lijst</a><br>
+                     --- <a href="convoi_filter.txt">Voertuigen filter</a><br>
+         -- <a href="citylist_filter.txt">Lijst met steden</a><br>
+         -- <a href="goods_filter.txt">Goederen lijst</a><br>
+         -- <a href="factorylist_filter.txt">Industrie lijst</a><br>
+         -- <a href="curiositylist_filter.txt">Bezienswaardigheden</a><br>
 - <a href="mailbox.txt">Berichtencentrum</a><br>
 - <a href="finances.txt">Financiën</a>
 </p>
@@ -70,17 +70,17 @@
 -<a href="depot.txt">Depot/Garage/Werf informatie</a><br>
 -<a href="schedule.txt">Dienstregeling informatie</a><br>
 - <a href="station.txt">Station/Halte informatie</a><br>
-         -- <a href="station_details.txt">Station/Halte details</a><br>
+         -- <a href="station_details.txt">Station/Halte details</a><br>
 - <a href="convoiinfo.txt">Voertuigen informatie</a><br>
-         -- <a href="convoidetail.txt">Voertuigen details</a><br>
+         -- <a href="convoidetail.txt">Voertuigen details</a><br>
 - <a href="citywindow.txt">Stad informatie</a><br>
 - <a href="industry_info.txt">Industrie informatie</a>
 </p>
 
 <p>
 Aanvullende hulp is te vinden op de diverse Simutrans websites (in het Engels):<br>
-<em>http://guide.simutrans.com</em>
-<em>http://wiki.simutrans.com</em>
-<em>http://simutrans-tips.com</em>
+<em>http://guide.simutrans.com</em><br>
+<em>http://wiki.simutrans.com</em><br>
+<em>http://simutrans-tips.com</em><br>
 <em>http://forum.simutrans.com</em>
 </p>

@@ -40,6 +40,7 @@ Abaixo do gráfico são mostrados o número de unidades veiculares do comboio selec
 Os botões de opção (logo abaixo, clique para usar) da <strong>janela do depósito</strong> incluem:
 </p>
 <p>
+<em>Partir:</em> Coloca o Comboio em funcionamento se uma rota foi programada e/ou encontrada.
 </p>
 <p>
 <a href="schedule.txt"><em>Programar:</em></a> abre controles para mudar a rota e quantidade de itens que um <a href="convoiinfo.txt">comboio</a> esperará em uma <a href="station.txt">parada</a>.

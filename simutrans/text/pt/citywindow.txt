@@ -21,7 +21,7 @@
   <em> População:
   </em> é o número de habitantes. O mais recente aumento da população é mostrado entre parênteses.
   <br>
-  <em> Construções:
+  <em> Edifícios:
   </em> é o número de edifícios da cidade.
   <br>
   <em> Coordenadas no mapa:

@@ -16,7 +16,7 @@ Quando a janela <strong>Programar</strong> é aberta através das informações do c
 Clicando na caixa de texto, é possível digitar e alterar o nome da linha.
 </p>
 <p>
-<em>Carregar até:</em> configura a quantidade mínima de mercadorias ou passageiros que o <a href="convoiinfo.txt">comboio</a> deve esperar até prosseguir.
+<em>Carga mínima (%):</em> configura a quantidade mínima de mercadorias ou passageiros que o <a href="convoiinfo.txt">comboio</a> deve esperar até prosseguir.
 A porcentagem mostrada se refere à capacidade total do comboio e não a um tipo individual de item carregado.<br>
 O comboio esperará na parada até estar carregado com a porcentagem requerida.<br>
 Para usar: clique em uma parada na lista para selecioná-la (o <em>></em> antes do nome da parada mostra que mesma está selecionada), e use os botões em forma de seta para definir a porcentagem.<br>
@@ -41,7 +41,7 @@ A nova parada ou ponto de passagem é inserido na <strong>programação</strong> an
 Clique no botão para ativá-lo, e clique em um item da lista para remover.
 </p>
 <p>
-<em>Espelhar linha:</em> adiciona as <a href="station.txt">paradas</a> e pontos de passagem existentes em ordem reversa na rota. Os valores do <em>Carregar até</em> também são replicados. Clique no botão para usá-lo: a nova rota aparecerá na <strong>programação</strong>.
+<em>Espelhar linha:</em> adiciona as <a href="station.txt">paradas</a> e pontos de passagem existentes em ordem reversa na rota. Os valores de <em>Carga mínima (%)</em> também são replicados. Clique no botão para usá-lo: a nova rota aparecerá na <strong>programação</strong>.
 </p>
 <p>
 <em>Promover a</em> <a href="linemanagement.txt"><em>linha:</em></a> (somente disponível quando a janela <strong>Programar</strong> for aberta pelas <a href="convoiinfo.txt">Informações do comboio</a>) cria uma nova linha utilizando a atual programação. A nova linha é identificada por um número e é listada no Gerenciador de Linhas.

@@ -12,7 +12,7 @@ eksisterer)
 <p>
 <em>Udseende:</em><br>
 Dialogen består af en række radio-knapper. En radioknap for hvert muligt sprog.
-<p>
+</p>
 
 <p>
 Når du vælger et sprog i radioknap-menuen vil samtlige tekster blive vist på

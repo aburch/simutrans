@@ -10,7 +10,7 @@ Clique no ícone da caixa de correio na barra superior do jogo ou pressione <a hr
 Clique na mensagem para mover a tela do jogo para a posição relacionada à mensagem.
 </p>
 <p>
-O botão <em>Opções</em> abre <strong>Opções das menssagens</strong> que tem controles para determinar como são exibidas as mensagens.
+O botão <em>Opções</em> abre <strong>Opções das mensagens</strong> que tem controles para determinar como são exibidas as mensagens.
 </p>
 <br>
 <p>
