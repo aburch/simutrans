@@ -1,16 +1,16 @@
-<title>?Industry/factory List Help</title>
+<title>Factory List Help</title>
 
-<h1><strong>?Industry/factory List</strong></h1>
+<h1><strong>Factory List</strong></h1>
 
 <p>
-<strong>?Industry/factory List</strong> shows information about all <a href="industry_info.txt">industry</a> (suppliers and consumers of goods) in the current game.
+<strong>Factory List</strong> shows information about all <a href="industry_info.txt">factories</a> (suppliers and consumers of goods) in the current game.
 </p>
 <p>
-To open <strong>?Industry/factory List</strong>: click on factory-list-tool in <a href="list.txt">List Management</a>.<br>
+To open <strong>factory List</strong>: click on factory-list-tool in <a href="list.txt">List Management</a>.<br>
 {Tips: If items in list are only partially visible, then <a href="mouse.txt">re-size</a> <strong>Industry/factory List</strong> or scroll list using slider-bar.}
 </p>
 <p>
-<em>Sorted by:</em> has options to determine the order of Industry listed.<br>
+<em>Sorted by:</em> has options to determine the order of listed ndustries listed.<br>
 Click on buttons to cycle through options (changes name of option-button):
 </p>
 <p>
@@ -30,14 +30,14 @@ Click on a item listed in<strong>Factory List</strong>to see more <a href="indus
 </p>
 <p>
 <em>status-colour-bar</em> colours indicate operation of the Industry (also used in <a href="industry_info.txt">Industry Information</a>):<br>
-- <em>white:</em> does not require input.<br>
+- <em>white:</em> does not require supplements.<br>
 - <em>yellow:</em> connected by transport, but Industry Supply Chain has poor supply.<br>
 - <em>green:</em> at optimum status.<br>
 - <em>orange:</em> operational but improvements possible.<br>
 - <em>red:</em> operational but part of Industry Supply chain has excess supply.
 </p>
 <p>
-<em>red-lightning-strike-icon</em> is shown if the Industry has electricity supplied through <a href="special.txt">transformer stations</a>.
+<em>red-lightning-strike-icon</em> is shown if the Industry has electricity supplied through <a href="special.txt">transformer</a>.
 </p>
 <p><em>factory name:</em> name of the <a href="industry_info.txt">industry</a>.
 </p>
@@ -45,5 +45,5 @@ Click on a item listed in<strong>Factory List</strong>to see more <a href="indus
 In brackets 3 values represent:<br>
 <em>current input:</em> amount of goods stored ready to be processed.<br>
 <em>current output:</em> amount of goods that are ready for transportation.<br>
-<em>total production:</em> production rate of the factory (maximum amount of goods produced per month/?day)
+<em>total production:</em> production rate of the factory (maximum amount of goods produced per month)
 </p>

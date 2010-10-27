@@ -61,8 +61,12 @@ Values (click on name-button to view details on graph), include:
 <em>Margin</em> - is the ratio of Operational Profit to Proceeds.
 </p>
 <p>
-<em>Travel?led</em> - total number of goods, passengers and mail transported.
+<em>Travelled</em> - total number of goods, passengers and mail transported.
 </p>
 <p>
 {Tips: Some costs, starting balance and finances in game can be changed in simuconf.tab}
+</p>
+<h1><strong>Scenario information</strong></h1>
+<p>
+If you play a scenario, then the scenario goal and the percentage of the progress is displayed.
 </p>

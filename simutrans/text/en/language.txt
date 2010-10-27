@@ -1,20 +1,24 @@
-<title>Language Help</title>
+<title>Languages Help</title>
 
-<h1><strong>Language</strong></h1>
+<h1><strong>Languages</strong></h1>
 
 <p>
-<strong>Language</strong> changes the language used in the game.
+The <strong>Languages</strong> window changes the language used in the game.
 </p>
 <p>
-<strong>Language</strong> opens from <a href="options.txt">Game Options</a> & with <a href="new_world.txt">Create a New Game</a>.
+It opens from the <a href="options.txt">Game Options</a> window and with the <a href="new_world.txt">Create a New Game</a> windows.
 </p>
 <p>
-For the game in other languages: click button to select new language; before start of game, for place names in new language.
+The default language for Simutrans is English. To play the game in
+a different language, select the button next to the language you would like to play in.</p>
+<p>
+Language can be changed any time during game play. To change the language, select Game Options -> Language.</p>
+<p>Language change happens immediately when creating a new game and on closing the <strong>Languages</strong> window when changing mid game.
 </p>
 <p>
-New language may only appear in new or re-opened toolbars, options & texts in the game.<br>
 If a translation is not available in the selected language, it may appear in English.
 </p>
+
 <p>
-Visit http://simutranslator.simutrans-germany.com to help with translating.
-</p>
+To help in translating Simutrans in your language,
+visit http://simutranslator.simutrans-germany.com</p>

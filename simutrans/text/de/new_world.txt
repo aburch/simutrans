@@ -28,7 +28,7 @@ Ein Klick auf einen Pfeil nach links verringert, ein Klick auf einen Pfeil nach 
 · <em>Zufallskarte:</em> Wähle eine zufällige Karte aus. Die oben gemachten Einstellungen werden nicht verändert.
 </p>
 <p>
-· <em>Lade Relief:</em> Die getroffenen Einstellungen werden anstatt auf die angezeigte Karte auf ein im Verzeichnis <em>simutrans/save</em> gespeichertes Relief übertragen. Der <a href="load_relief.txt">Relief laden</a> Dialog wird eingeblendet.
+· <em>Lade Relief:</em> Die getroffenen Einstellungen werden anstatt auf die angezeigte Karte auf ein im Verzeichnis <em>simutrans/maps</em> bzw. <em>Benutzerverzeichnis/simutrans/maps</em> gespeichertes Relief übertragen. Der <a href="load_relief.txt">Relief laden</a> Dialog wird eingeblendet.
 </p>
 <p>
 · <em>Anzahl Städte:</em> Bestimmt die Anzahl der Städte auf der Karte. Der Vorgabewert ist 16. Ist eine Karte zu rauh, oder ist die Zahl der Städte zu hoch, werden weniger als die eingestellte Anzahl von Städten generiert. (Der Mindestabstand der Städte ist in der Datei <em>simutrans/config/cityrules.tab</em> als Wert der Variablen <em>minimum_city_distance</em> angegeben).

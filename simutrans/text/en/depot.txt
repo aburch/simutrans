@@ -56,7 +56,7 @@ Option-buttons (click to use) for <strong>Depot Controls</strong> include:
 <a href="linemanagement.txt"><em>New Line:</em></a> opens controls to define a <a href="schedule.txt">Schedule</a> (a route and minimum quantity of items that a Convoy will wait for at a Stop), which may be used for multiple <a href="convoiinfo.txt">Convoys</a>.
 </p>
 <p>
-<em>Apply Line:</em> assigns <a href="linemanagement.txt">Line</a> displayed in line-name-box at top of <strong>Depot Controls</strong> to selected <a href="convoiinfo.txt">Convoy</a>.
+<em>Assign Line:</em> assigns <a href="linemanagement.txt">Line</a> displayed in line-name-box at top of <strong>Depot Controls</strong> to selected <a href="convoiinfo.txt">Convoy</a>.
 </p>
 <p>
 <a href="linemanagement.txt"><em>Update Line:</em></a> opens controls to change the <a href="schedule.txt">Schedule</a> (a route and minimum quantity of items that a Convoy will wait for at a Stop) of selected Line.

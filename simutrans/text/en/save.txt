@@ -24,7 +24,7 @@ Filenames can be a combination of letters, numbers & symbols to a maximum length
 <a href="load.txt">Load</a>.
 </p>
 <p>
-WARNING: Click x-button by filename to DELETE game immediately & permanently, the filename is removed from list and <strong>Save</strong> closes. Use this function carefully.
+WARNING: Click x-button by filename to DELETE game immediately & permanently, the filename is removed from list. Use this function carefully.
 </p>
 <p>
 {Tips: Re-start a saved game from Load.<br>

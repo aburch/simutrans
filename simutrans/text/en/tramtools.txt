@@ -47,7 +47,7 @@ To build a tram depot: click on tool (changes cursor to a depot), then click on 
 {Tips: Depots only show electric vehicles if they are on electric Track. Remove depots with Destroy/Remove.}
 </p>
 <p>
-<em>?Rail-stops:</em> tools build station-platforms, used by rail vehicles to pick-up and drop-off goods, passengers & mail.<br>
+<em>Rail-stops:</em> tools build station-platforms, used by rail vehicles to pick-up and drop-off goods, passengers & mail.<br>
 A station-platform when not built adjacent to an existing <a href="station.txt">Stop</a> will create a new Stop.<br>
 Rail-stops have a maintenance cost & are built on Track (but not at bends and junctions in Track).<br>
 Rail-stops have a catchment area for goods, passengers & mail. Different station-platforms may have different capacities for passengers and mail. In the corner of some tool-options an icon (used in <a href="haltlist.txt">Station List</a> & Stop Information) shows which items the station-platform allows a Stop to handle.<br>

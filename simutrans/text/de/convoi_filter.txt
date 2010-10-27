@@ -5,7 +5,7 @@
 <p>
 Im Fenster der <em>Fahrzeugliste - Einstellungen</em> können die Filteroptionen für die Anzeige in der <a href="convoi.txt">Fahrzeugliste</a> gesetzt werden. Ein eingedrückter Knopf bedeutet, dass das Kriterium erfüllt sein muss, um durch den Filter zur Anzeige zu gelangen. Dabei werden die Eigenschaften innerhalb einer Hauptgruppe mit logischem "OR" (eines der angewählten Kriterien muss erfüllt sein) und zwischen den Hauptmenüs mit logischem "AND" (alle angewählten Kriterien müssen erfüllt sein) verknüpft. Die Wirkung der Filtereinstellungen ist positiv, es werden nur Fahrzeugverbände angezeigt, welche die eingestellten Kriterien erfüllen.</p>
 <p>
-<em>Namen filtern:</em> Im Textfeld kann der Name eines Fahrzeugverbandes bzw. mehrerer Fahrzeugverbände angegeben werden. Es werden nur diejenigen Fahrzeugverbände in die gefilterte Liste aufgenommen, deren Bezeichner mit dem Name des Filters in allen Zeichen (inkl. Leerzeichen) identisch ist. <strong>Achtung</strong>Platzhalterfunktionen wie * oder ? werden nicht unterstützt.
+<em>Namen filtern:</em> Im Textfeld kann der Name eines Fahrzeugverbandes bzw. mehrerer Fahrzeugverbände angegeben werden. Es werden nur diejenigen Fahrzeugverbände in die gefilterte Liste aufgenommen, deren Bezeichner mit dem Name des Filters in allen Zeichen (inkl. Leerzeichen) identisch ist. <strong>Achtung:</strong> Platzhalterfunktionen wie * oder ? werden nicht unterstützt.
 </p>
 <p>
 <em>Typen filtern:</em> Die gefilterte Liste zeigt nur Fahrzeugverbände an, welche dem gefilterten Typ entsprechen. Trams und Magnetbahnen sind den Zügen zugeordnet.</p>

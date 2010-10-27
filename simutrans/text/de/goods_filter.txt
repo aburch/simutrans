@@ -4,7 +4,7 @@
 
 <p>
 Die Warenliste wird mit <em>Shift</em>+<em>G</em> oder über die <a href="list.txt">Listenverwaltung</a> aufgerufen.<br/>
-In der Warenliste sind Pssagiere sowie alle Güter, die Dir im gespielten pak zum Transport anvertraut werden können, gelistet.
+In der Warenliste sind Passagiere sowie alle Güter, die Dir im gespielten Grafikset ( pak ) zum Transport anvertraut werden können, gelistet.
 </p>
 <p>
 · <em>Fracht:</em> Passagiere und alle Güterarten in Simutrans werden nach einer internen Sortierung gelistet. Vor jeder Frachtart befindet sich ein <em>Farbquadrat</em>. Die gleichen Farben findest Du auch an den Säulen über den Haltestellennamen wieder. Sie zeigen dort an, wieviel Einheiten je Güterart an den Haltestellen gelagert sind. Die Anzeige läßt sich über die Taste <em>!</em> ein- und ausblenden.
