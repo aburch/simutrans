@@ -1601,7 +1601,7 @@ void stadt_t::rdwr(loadsave_t* file)
 		// save button settings for this town
 		file->rdwr_long( stadtinfo_options);
 	}
-	else if(file->get_experimental_version() > 0 && file->get_experimental_version() < 3)
+	else if(file->get_experimental_version() > 0 && (file->get_experimental_version() < 3|| file->get_experimental_version() == 0))
 	{
 		// Move congestion history to the correct place (shares with power received).
 		

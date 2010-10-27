@@ -36,3 +36,7 @@ obj=program_text
 name=Cluster size
 note=Text for the setting for the size of clusters in which cities are generated in the "new world" dialogue
 -
+obj=program_text
+name=savegame Experimental version
+note=Text for determining the save version for Experimental games in the settings dialogue
+-

@@ -3142,7 +3142,7 @@ void karte_t::neuer_monat()
 	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", letzter_monat+1 );
-		speichern( buf, umgebung_t::savegame_version_str, true );
+		speichern( buf, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, true );
 	}
 
 	// Added by : Knightly
@@ -4095,7 +4095,7 @@ bool karte_t::play_sound_area_clipped(koord pos, sound_info info)
 
 
 
-void karte_t::speichern(const char *filename, const char *version_str, bool silent )
+void karte_t::speichern(const char *filename, const char *version_str, const char *ex_version_str, bool silent )
 {
 #ifndef DEMO
 DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
@@ -4103,7 +4103,7 @@ DBG_MESSAGE("karte_t::speichern()", "saving game to '%s'", filename);
 	loadsave_t  file;
 
 	display_show_load_pointer( true );
-	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str(), version_str )) {
+	if(!file.wr_open(filename, loadsave_t::save_mode, umgebung_t::objfilename.c_str(), version_str, ex_version_str )) {
 		create_win(new news_img("Kann Spielstand\nnicht speichern.\n"), w_info, magic_none);
 		dbg->error("karte_t::speichern()","cannot open file for writing! check permissions!");
 	}

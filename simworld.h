@@ -1120,7 +1120,7 @@ public:
 	 * @param filename name of the file to write
 	 * @author Hj. Malthaner
 	 */
-	void speichern(const char *filename, const char *version, bool silent);
+	void speichern(const char *filename, const char *version, const char *ex_version, bool silent);
 
 	/**
 	 * Loads a map from a file

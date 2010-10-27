@@ -199,7 +199,10 @@ void simline_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
@@ -224,7 +227,10 @@ void simline_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);

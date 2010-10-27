@@ -36,6 +36,9 @@ public:
 	// version for which the savegames should be created
 	static const char *savegame_version_str;
 
+	// version for which the savegames should be created
+	static const char *savegame_ex_version_str;
+
 	static std::string objfilename;
 
 	// true, if we are in networkmode

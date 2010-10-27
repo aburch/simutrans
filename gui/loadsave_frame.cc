@@ -53,7 +53,7 @@ void loadsave_frame_t::action(const char *filename)
 		welt->laden(filename);
 	}
 	else {
-		welt->speichern( filename, umgebung_t::savegame_version_str, false );
+		welt->speichern( filename, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, false );
 		welt->set_dirty();
 		welt->reset_timer();
 	}

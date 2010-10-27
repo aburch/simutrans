@@ -20,15 +20,31 @@ INIT_NUM( "intercity_road_length", umgebung_t::intercity_road_length);
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
-static const char *version[6]=
+static const char *version[7]=
 {
 	"0.99.17",
 	"0.100.0",
 	"0.101.0",
 	"0.102.1",
 	"0.102.2",
+	"0.102.3",
 	"0.102.4"
 };
+
+static const char *version_ex[10]=
+{
+	"", /*Ex version 0 has no Ex string at all*/
+	".1",
+	".2",
+	".3",
+	".4",
+	".5",
+	".6",
+	".7",
+	".8",
+	".9"
+};
+
 
 
 // just free memory
@@ -389,10 +405,18 @@ void settings_experimental_revenue_stats_t::read(einstellungen_t *sets)
 
 bool settings_general_stats_t::action_triggered(gui_action_creator_t *komp, value_t v)
 {
-	assert( komp==&savegame );
+	assert( komp==&savegame || komp==&savegame_ex );
 
-	if(  v.i==-1  ) {
-		savegame.set_selection( 0 );
+	if(  v.i==-1  ) 
+	{
+		if(komp==&savegame)
+		{
+			savegame.set_selection( 0 );
+		}
+		else if( komp==&savegame_ex )
+		{
+			savegame_ex.set_selection( 0 );
+		}
 	}
 	return true;
 }
@@ -459,6 +483,34 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_LB( "savegame version" );
 	label.back()->set_pos( koord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
+
+	SEPERATOR
+	// combobox for Experimental savegame version
+	savegame_ex.set_pos( koord(2,ypos-2) );
+	savegame_ex.set_groesse( koord(70,BUTTON_HEIGHT) );
+	for(  int i=0;  i<lengthof(version_ex);  i++  ) 
+	{
+		if(i == 0)
+		{
+			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( "0", COL_BLACK ) );
+		}
+		else
+		{
+			savegame_ex.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version_ex[i]+1, COL_BLACK ) );
+		}
+		if(  strcmp(version_ex[i],EXPERIMENTAL_VER_NR)==0  ) 
+		{
+			savegame_ex.set_selection( i );
+		}
+	}
+	savegame_ex.set_focusable( false );
+	add_komponente( &savegame_ex );
+	savegame_ex.add_listener( this );
+	INIT_LB( "savegame Experimental version" );
+	label.back()->set_pos( koord( 76, label.back()->get_pos().y ) );
+	clear_dirty();
+	ypos+=105;
+
 	set_groesse( koord(width, ypos) );
 }
 
@@ -506,6 +558,7 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 
 	umgebung_t::savegame_version_str = version[ savegame.get_selection() ];
+	umgebung_t::savegame_ex_version_str = version_ex[ savegame_ex.get_selection() ];
 }
 
 

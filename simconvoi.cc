@@ -2681,7 +2681,10 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
@@ -2698,7 +2701,10 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
@@ -2709,7 +2715,7 @@ convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 //BG: superfluous 102002 check:	else if(file->get_version() <= 102002 || (file->get_version() < 102002 && file->get_experimental_version() < 7))
-	else if(file->get_version() <= 102002 || file->get_experimental_version() < 7)
+	else if(file->get_version() <= 102002 || (file->get_experimental_version() < 7 && file->get_experimental_version() != 0))
 	{
 		// load statistics
 		for (int j = 0; j<7; j++) 
@@ -2723,7 +2729,10 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
@@ -2751,7 +2760,10 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 
@@ -2759,8 +2771,16 @@ convoi_t::rdwr(loadsave_t *file)
 				{
 					// Simutrans-Standard: distances in tiles, not km. Convert.
 					sint64 distance;
-					file->rdwr_longlong(distance);
-					financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
+					if(file->is_loading())
+					{
+						file->rdwr_longlong(distance);
+						financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
+					}
+					else
+					{
+						distance = financial_history[k][j] / welt->get_einstellungen()->get_distance_per_tile();
+						file->rdwr_longlong(distance);
+					}
 					continue;
 				}
 				file->rdwr_longlong(financial_history[k][j]);
@@ -2769,7 +2789,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// the convoy odometer
-	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	if(file->get_version() >= 102003 && (file->get_experimental_version() >= 7 || file->get_experimental_version() == 0))
 	{
 		file->rdwr_longlong( total_distance_traveled);
 	}
@@ -2781,7 +2801,7 @@ convoi_t::rdwr(loadsave_t *file)
 		total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
 	}
 
-	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	if(file->get_version() >= 102003 && (file->get_experimental_version() >= 7 || file->get_experimental_version() == 0))
 	{
 		if(file->get_experimental_version() <= 8)
 		{
@@ -2910,7 +2930,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// reverse_schedule
-	if(file->get_version()<102003 || file->get_experimental_version() < 9) {
+	if(file->get_version()<102003 || (file->get_experimental_version() < 9 && file->get_experimental_version() != 0)) {
 		reverse_schedule = false;
 	}
 	else {

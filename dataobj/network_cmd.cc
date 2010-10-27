@@ -146,7 +146,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 		// init the rest of the packet
 		SOCKET s = packet->get_sender();
 		loadsave_t fd;
-		if(  fd.wr_open( "serverinfo.sve", loadsave_t::xml_bzip2, "info", SERVER_SAVEGAME_VER_NR )  ) {
+		if(  fd.wr_open( "serverinfo.sve", loadsave_t::xml_bzip2, "info", SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR )  ) {
 			gameinfo_t gi(welt);
 			gi.rdwr( &fd );
 			fd.close();
@@ -306,7 +306,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
 
-		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
+		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
 		long old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
 		umgebung_t::restore_UI = old_restore_UI;
@@ -337,7 +337,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 #endif
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
-		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
+		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR, false );
 
 		// ok, now sending game
 		// this sends nwc_game_t

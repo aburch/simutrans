@@ -11,6 +11,7 @@ bool umgebung_t::drive_on_left = false;
 char umgebung_t::program_dir[1024];
 const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
+const char *umgebung_t::savegame_ex_version_str = EXPERIMENTAL_VER_NR;
 bool umgebung_t::networkmode = false;
 bool umgebung_t::restore_UI = false;
 uint16 umgebung_t::server = 0;
@@ -146,6 +147,7 @@ void umgebung_t::init()
 	default_mapmode = 0;	// show cities
 
 	savegame_version_str = SAVEGAME_VER_NR;
+	savegame_ex_version_str = EXPERIMENTAL_VER_NR;
 
 	/**
 	 * show month in date?

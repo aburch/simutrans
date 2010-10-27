@@ -215,7 +215,8 @@ void schedule_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(aktuell);
 		file->rdwr_byte(size);
-		if( file->get_version()>=102003 && file->get_experimental_version()>=9 ) {
+		if( file->get_version()>=102003 && (file->get_experimental_version() >= 9 || file->get_experimental_version() == 0))
+		{
 			file->rdwr_bool(bidirectional);
 			file->rdwr_bool(mirrored);
 		}

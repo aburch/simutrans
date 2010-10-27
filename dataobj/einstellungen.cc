@@ -617,7 +617,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long(stadtauto_duration );
 
 			file->rdwr_bool( numbered_stations);
-			if(  file->get_version()<=102002 || file->get_experimental_version() < 8)
+			if(  file->get_version()<=102002 || (file->get_experimental_version() < 8 && file->get_experimental_version() != 0))
 			{
 				if(  file->is_loading()  ) 
 				{
@@ -854,7 +854,14 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				{
 					// In earlier versions, the default was set to a higher level. This
 					// is a problem when the new journey time tolerance features is used.
-					distance_per_tile_integer *= 0.8F;
+					if(file->is_loading())
+					{
+						distance_per_tile_integer *= 0.8F;
+					}
+					else
+					{
+						distance_per_tile_integer /= 0.8F;
+					}
 				}		
 				distance_per_tile = distance_per_tile_integer / 100.0F;
 				

@@ -160,7 +160,7 @@ bool loadsave_t::rd_open(const char *filename)
 
 
 
-bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version)
+bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extension, const char *savegame_version, const char *savegame_version_ex)
 {
 	mode = m;
 	close();
@@ -213,12 +213,9 @@ bool loadsave_t::wr_open(const char *filename, mode_t m, const char *pak_extensi
 	const char *end = pak_extension + strlen(pak_extension)-1;
 	const char *c = pak_extension;
 	
-	// Use Experimental version numbering if appropriate.
+	// Add Experimental version numbering.
 	std::string savegame_ver = savegame_version;
-	if(save_experimental)
-	{
-		savegame_ver.append(EXPERIMENTAL_VER_NR);
-	}
+	savegame_ver.append(savegame_version_ex);
 
 	// find the start
 	while(*c<*end) {
