@@ -793,6 +793,7 @@ void path_explorer_t::compartment_t::step()
 						new_connexion->journey_time = accumulated_journey_time;
 						new_connexion->best_convoy = current_linkage.convoy;
 						new_connexion->best_line = current_linkage.line;
+						new_connexion->alternative_seats = 0;
 
 						// Adapted from haltestelle_t::add_connexion()
 						// Check whether this is the best connexion so far, and, if so, add it.
@@ -803,6 +804,12 @@ void path_explorer_t::compartment_t::step()
 							if( existing_connexion->journey_time > new_connexion->journey_time )
 							{
 								// The new connexion is better - replace it.
+								// We don't want to lose loading queue
+								for ( int i = 0 ; i < MAX_PLAYER_COUNT; i++ )
+								{
+									(new_connexion->last_loaded_convoy)[i] = (existing_connexion->last_loaded_convoy)[i];
+								}
+								new_connexion->alternative_seats = existing_connexion->alternative_seats;
 								delete existing_connexion;
 								catg_connexions->set(halt_list[t], new_connexion);
 							}

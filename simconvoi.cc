@@ -178,6 +178,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	freight_info_order = 0;
 	loading_level = 0;
 	loading_limit = 0;
+	free_seats = 0;
 
 	next_stop_index = 65535;
 
@@ -203,6 +204,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 
 	// Added by : Knightly
 	old_fpl = NULL;
+	free_seats = 0;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 }
@@ -219,6 +221,7 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	// Added by : Knightly
 	old_fpl = NULL;
+	free_seats = 0;
 }
 
 
@@ -618,9 +621,6 @@ bool convoi_t::sync_step(long delta_t)
 	}
 	else {
 		return true;
-	}
-	if (loading_at_halt.is_bound() && state != LOADING ) {
-		loading_at_halt = halthandle_t();
 	}
 
 	switch(state) {
@@ -1069,6 +1069,10 @@ end_loop:
 		case ROUTING_1:
 			{
 				vehikel_t* v = fahr[0];
+				if (loading_at_halt.is_bound() && state != LOADING ) {
+					loading_at_halt->convoy_has_left(self);
+					loading_at_halt = halthandle_t();
+				}
 
 				if (fpl->empty()) {
 					state = NO_ROUTE;
@@ -3295,6 +3299,7 @@ void convoi_t::laden() //"load" (Babelfish)
 	// "own stop?" (Babelfish)
 	if (halt.is_bound()) 
 	{
+		halt->convoy_has_arrived(self);
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
 		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) 
@@ -3734,6 +3739,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		}
 	}
 
+	halt->update_alternative_seats(self);
 	// only load vehicles in station
 
 	//int convoy_length = 0;
@@ -3823,13 +3829,21 @@ void convoi_t::calc_loading()
 {
 	int fracht_max = 0;
 	int fracht_menge = 0;
+	int seats_max = 0;
+	int seats_menge = 0;
+
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
 		fracht_max += v->get_fracht_max();
 		fracht_menge += v->get_fracht_menge();
+		if ( v->get_fracht_typ() == warenbauer_t::passagiere ) {
+			seats_max += v->get_fracht_max();
+			seats_menge += v->get_fracht_menge();
+		}
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 	loading_limit = 0;	// will be set correctly from hat_gehalten() routine
+	free_seats = seats_max > seats_menge ? seats_max - seats_menge : 0;
 
 	// since weight has changed
 	recalc_data=true;

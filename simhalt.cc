@@ -328,6 +328,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	{
 		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
 	}
+	do_alternative_seats_calculation = true;
 
 	// Modified by : Knightly
 	// Purpose	   : To withhold creation of pathing data structures if they are not needed
@@ -424,7 +425,8 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	{
 		connexions[i] = new quickstone_hashtable_tpl<haltestelle_t, connexion*>();
 	}
-	
+	do_alternative_seats_calculation = true;
+
 	pax_happy = 0;
 	pax_unhappy = 0;
 	pax_no_route = 0;
@@ -1409,7 +1411,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			new_connexion->journey_time = accumulated_journey_time;
 			new_connexion->best_convoy = cnv;
 			new_connexion->best_line = line;
-
+			new_connexion->alternative_seats = 0;
 
 			// Check whether this is the best connexion so far, and, if so, add it.
 			if(!connexions[category]->put(current_halt, new_connexion))
@@ -1419,6 +1421,12 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 				if(existing_connexion->journey_time > new_connexion->journey_time)
 				{
 					// The new connexion is better - replace it.
+					// We don't want to lose loading queue
+					for ( int i = 0 ; i < MAX_PLAYER_COUNT; i++ )
+					{
+						(new_connexion->last_loaded_convoy)[i] = (existing_connexion->last_loaded_convoy)[i];
+					}
+					new_connexion->alternative_seats = existing_connexion->alternative_seats;
 					delete existing_connexion;
 					connexions[category]->set(current_halt, new_connexion);
 				}
@@ -2237,7 +2245,7 @@ bool haltestelle_t::recall_ware( ware_t& w, uint32 menge )
 
 
 // will load something compatible with wtyp into the car which schedule is fpl
-ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv) //"hole from" (Google)
+ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowded) //"hole from" (Google)
 {
 	// prissi: first iterate over the next stop, then over the ware
 	// might be a little slower, but ensures that passengers to nearest stop are served first
@@ -2272,7 +2280,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				
 				accumulated_journey_time += (((float)accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
 												/ (float)average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 600.0F);
-				previous_halt = plan_halt;		
+				//previous_halt = plan_halt;		
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
 				sint32 offset = simrand(warray->get_count());
@@ -2353,8 +2361,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 	
 						connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
 						if (next_connexion) {
+							//refuse to be overcrowded if alternative exist
+							if ( overcrowded && next_connexion->alternative_seats )
+							{
+								continue;
+							}
 							convoihandle_t last_loaded_convoy = (next_connexion->last_loaded_convoy)[cnv->get_besitzer()->get_player_nr()];
-
 							if (last_loaded_convoy.is_bound())
 							{
 								if (last_loaded_convoy != cnv->self ) 
@@ -2416,6 +2428,73 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 	// empty quantity of required type -> no effect
 	return ware_t (wtyp);
+}
+
+/** 
+ * It will calculate number of free seats in all other (not cnv) convoys at stop
+ * @author Inkelyad, adapted from hole_ab
+ */
+void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
+{
+	if ( here_convoys.get_count() > 1) {
+		do_alternative_seats_calculation = true;
+	}
+
+	if (!do_alternative_seats_calculation )
+	{
+		return;
+	}
+
+	int catg_index =  warenbauer_t::passagiere->get_catg_index();
+	quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*(connexions[catg_index]));
+	while(iter.next())
+	{
+		iter.get_current_value()->alternative_seats = 0;
+	}
+
+	if (here_convoys.get_count() < 2 ) { // Alternative don't exists, only one convoy here
+		do_alternative_seats_calculation = false; // so we will not do clean-up again
+		return;
+	}
+
+	for (int i = 0; i < here_convoys.get_count(); i++)
+	{
+		if ( here_convoys[i] == cnv || ! here_convoys[i]->get_free_seats())
+		{
+			continue;
+		}
+		const schedule_t *fpl = here_convoys[i]->get_schedule();
+		const spieler_t *sp = here_convoys[i]->get_besitzer();
+		const uint8 count = fpl->get_count();
+
+		// uses fpl->increment_index to iterate over stops
+		uint8 index = fpl->get_aktuell();
+		bool reverse = cnv->get_reverse_schedule();
+		fpl->increment_index(&index, &reverse);
+
+		while (index != fpl->get_aktuell()) {
+			const halthandle_t plan_halt = haltestelle_t::get_halt(welt, fpl->eintrag[index].pos, sp);
+			if(plan_halt == self) 
+			{
+				// we will come later here again ...
+				break;
+			}
+			if(plan_halt.is_bound() && plan_halt->get_pax_enabled()) 
+			{
+				connexion * const next_connexion = connexions[catg_index]->get(plan_halt);
+				if (next_connexion) {
+					next_connexion->alternative_seats += here_convoys[i]->get_free_seats();
+				}			
+			}
+
+			// if the schedule is mirrored and has reached its end, break
+			// as the convoi will be returning this way later.
+			if( fpl->is_mirrored() && (index==0 || index==(count-1)) ) {
+				break;
+			}
+			fpl->increment_index(&index, &reverse);
+		}
+	}
 }
 
 inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
