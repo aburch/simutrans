@@ -257,9 +257,9 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
 	if(  &serverlist == komp  ) {
 		if(  p.i<=-1  ) {
+			join.disable();
 			gi = gameinfo_t(welt);
 			update_info();
-			join.disable();
 		}
 		else {
 			join.disable();
@@ -287,11 +287,17 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
 	}
 	else if(  &join == komp  ) {
-		std::string filename = "net:";
-		filename += serverlist.get_element(serverlist.get_selection())->get_text();
-		destroy_win(this);
-		welt->get_message()->clear();
-		welt->laden(filename.c_str());
+		if(  serverlist.get_selection()==-1  ) {
+			dbg->error( "server_frame_t::action_triggered()", "join pressed without valid selection" );
+			join.disable();
+		}
+		else {
+			std::string filename = "net:";
+			filename += serverlist.get_element(serverlist.get_selection())->get_text();
+			destroy_win(this);
+			welt->get_message()->clear();
+			welt->laden(filename.c_str());
+		}
 	}
 	else if(  &find_mismatch == komp  ) {
 		if (gui_frame_t *info = win_get_magic(magic_pakset_info_t)) {

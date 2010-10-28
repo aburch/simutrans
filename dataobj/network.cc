@@ -154,11 +154,13 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 #else
 		int opt;
 		if(  (opt = fcntl(my_client_socket, F_GETFL, NULL)) < 0  ) {
-			return "fcntl error";
+			err = "fcntl error";
+			return INVALID_SOCKET;
 		}
 		opt |= O_NONBLOCK;
 		if( fcntl(my_client_socket, F_SETFL, opt) < 0) {
-			return "fcntl error";
+			err = "fcntl error";
+			return INVALID_SOCKET;
 		}
 #endif
 		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
@@ -543,7 +545,7 @@ void network_set_socket_nodelay( SOCKET sock )
  * - either connect to a new client
  * - receive commands
  */
-network_command_t* network_check_activity(karte_t *welt, int timeout)
+network_command_t* network_check_activity(karte_t *, int timeout)
 {
 	if (umgebung_t::server  &&  !server_command_queue.empty()) {
 		return server_command_queue.remove_first();

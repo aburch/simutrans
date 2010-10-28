@@ -467,7 +467,8 @@ private:
 	void advance_schedule();
 
 public:
-	inline route_t* get_route() { return &route; }
+	const route_t* get_route() const { return &route; }
+	route_t* access_route() { return &route; }
 
 	/**
 	* Checks if this convoi has a driveable route
@@ -920,8 +921,8 @@ public:
 	* The slowdown ist done by the vehicle routines
 	* @author prissi
 	*/
-	inline uint16 get_next_stop_index() const {return next_stop_index;}
-	inline void set_next_stop_index(uint16 n) {next_stop_index=n;}
+	uint16 get_next_stop_index() const {return next_stop_index;}
+	void set_next_stop_index(uint16 n);
 
 	/* the current state of the convoi */
 	uint8 get_status_color() const;

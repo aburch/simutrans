@@ -388,9 +388,9 @@ void spieler_t::neuer_monat()
 			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
 		}
 
-		if(!welt->get_einstellungen()->is_freeplay()) 
+		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1 ) 
 		{
-			if(  this == welt->get_spieler(0)  &&  !umgebung_t::networkmode  )
+			if( get_ai_id()==HUMAN  &&  !umgebung_t::networkmode )
 			{
 				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
@@ -426,13 +426,18 @@ void spieler_t::neuer_monat()
 					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
-			else if(automat  &&  this!=welt->get_spieler(1)) 
-			{
+			else 
+{
 				// for AI, we only declare bankrupt, if total assest are below zero
 				// Also, AI players play by the same rules as human players: will only go bankrupt if humans can.
 				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
 					ai_bankrupt();
+				}
+				// tell the current player
+				if(  welt->get_active_player_nr()==player_nr  ) {
+					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
 		}
