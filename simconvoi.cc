@@ -250,7 +250,9 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 			v.betrete_feld();
 		}
 
-		if (i != anz_vehikel - 1U) train_length += v.get_besch()->get_length();
+		if (i != anz_vehikel - 1U) {
+			train_length += v.get_besch()->get_length();
+		}
 	}
 	return train_length;
 }
@@ -1701,7 +1703,8 @@ void convoi_t::vorfahren()
 			// in north/west direction, we leave the vehicle away to start as much back as possible
 			ribi_t::ribi neue_richtung = fahr[0]->get_fahrtrichtung();
 			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost) {
-				train_length += fahr[anz_vehikel-1]->get_besch()->get_length();
+				// drive the convoi to the same position, but do not hop into next tile!
+				train_length += min( (train_length%16)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
 			}
 			else {
 				train_length += 1;
