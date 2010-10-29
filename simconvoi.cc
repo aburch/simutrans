@@ -582,9 +582,14 @@ void convoi_t::calc_acceleration(long delta_t)
 
 	// obey speed maximum with additional const brake ...
 	if(akt_speed > akt_speed_soll) {
-		akt_speed -= 24;
-		if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
-			akt_speed = akt_speed_soll+kmh_to_speed(20);
+		if (akt_speed > akt_speed_soll + 24) {
+			akt_speed -= 24;
+			if(akt_speed > akt_speed_soll+kmh_to_speed(20)) {
+				akt_speed = akt_speed_soll+kmh_to_speed(20);
+			}
+		}
+		else {
+			akt_speed = akt_speed_soll;
 		}
 	}
 
