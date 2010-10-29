@@ -31,6 +31,11 @@
 #include "../utils/simstring.h"
 
 
+int sprachengui_t::cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b)
+{
+	return strcmp( a.button->get_text(), b.button->get_text() )<0;
+}
+
 /**
  * Causes the required fonts for currently selected
  * language to be loaded
@@ -99,12 +104,11 @@ sprachengui_t::sprachengui_t() :
 
 	const translator::lang_info* lang = translator::get_langs();
 	for (int i = 0; i < translator::get_language_count(); ++i, ++lang) {
-		button_t& b = buttons[i];
+		button_t* b = new button_t();
 
-		b.set_pos(koord(10 + (i % 2) * 100 , 44 + 14 * (i / 2)));
-		b.set_typ(button_t::square_state);
-		b.set_text(lang->name);
-		b.set_no_translate(true);
+		b->set_typ(button_t::square_state);
+		b->set_text(lang->name);
+		b->set_no_translate(true);
 
 		// check, if font exists
 		chdir(umgebung_t::program_dir);
@@ -128,18 +132,38 @@ sprachengui_t::sprachengui_t() :
 		// now we know this combination is working
 		if(ok) {
 			// only listener for working languages ...
-			b.add_listener(this);
+			b->add_listener(this);
 		} else {
 			dbg->warning("sprachengui_t::sprachengui_t()", "no font found for %s", lang->name);
-			b.disable();
+			b->disable();
 		}
-		add_komponente(&b);
+		add_komponente(b);
+
+		// press button
+		int id = translator::get_language(lang->iso);
+		if(  translator::get_language() == id  ) {
+			b->pressed = true;
+		}
+
+		// insert ordered by language name
+		language_button_t lb;
+		lb.button = b;
+		lb.id = id;
+		buttons.insert_ordered(lb, sprachengui_t::cmp_language_button);
 	}
+
+	// now set position
+	const uint32 count = buttons.get_count();
+	for(uint32 i=0; i<count; i++)
+	{
+		const bool right = 2*i >= count;
+		const sint16 x = 10 + (right  ? 100 : 0);
+		const sint16 y = 44 + 14 * (right ? i - (count+1)/2: i);
+		buttons[i].button->set_pos(koord(x,y));
+	}
+
 	chdir(umgebung_t::user_dir);
 
-	if(  translator::get_language()>0  ) {
-		buttons[translator::get_language()].pressed = true;
-	}
 	set_fenstergroesse( koord(220, 74+(translator::get_language_count()/2)*14) );
 }
 
@@ -148,14 +172,14 @@ sprachengui_t::sprachengui_t() :
 bool sprachengui_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	for(int i=0; i<translator::get_language_count(); i++) {
-		button_t& b = buttons[i];
-		if(&b == komp) {
-			b.pressed = true;
-			translator::set_language(i);
+		button_t *b = buttons[i].button;
+		if(b == komp) {
+			b->pressed = true;
+			translator::set_language(buttons[i].id);
 			init_font_from_lang();
 		}
 		else {
-			b.pressed = false;
+			b->pressed = false;
 		}
 	}
 	return true;

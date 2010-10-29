@@ -8,7 +8,7 @@
 #include "components/gui_image.h"
 #include "components/gui_divider.h"
 
-#include "../tpl/array_tpl.h"
+#include "../tpl/vector_tpl.h"
 
 
 /**
@@ -21,8 +21,15 @@ class sprachengui_t : public gui_frame_t, private action_listener_t
 private:
 	gui_textarea_t text_label;
 	gui_image_t flags;
-	array_tpl<button_t> buttons;
+
+	struct language_button_t {
+		button_t* button;
+		int id;
+	};
+	vector_tpl<language_button_t> buttons;
 	gui_divider_t seperator;
+
+	static int cmp_language_button(sprachengui_t::language_button_t a, sprachengui_t::language_button_t b);
 
 public:
 	/**
