@@ -4717,7 +4717,6 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		// liste in gleicher reihenfolge wie vor dem speichern wieder aufbauen
 		fabrik_t *fab = new fabrik_t(this, file);
 		if(fab->get_besch()) {
-			//fab_list.append( fab );
 			fab_list.append(fab);
 		}
 		else {
