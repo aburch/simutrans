@@ -58,7 +58,7 @@ public:
 		return get_hintergrund(0,0,0)!=IMG_LEER  ||  get_vordergrund(0,0)!=IMG_LEER;
 	}
 
-	image_id get_hintergrund(int phase, int hoehe,int season) const
+	image_id get_hintergrund(int phase, int hoehe, int season) const
 	{
 		season &= (seasons-1);
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
@@ -76,9 +76,13 @@ public:
 	bool is_hintergrund_phases(int season) const
 	{
 		season &= (seasons-1);
+		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
+		const uint8 max_h = bl->get_anzahl();
 		for(  uint8 phase=1;  phase<phasen;  phase++  ) {
-			if (get_child<bildliste2d_besch_t>(0+2*season)->get_bild(0, phase)) {
-				return true;
+			for(  uint8 h=0;  h<max_h;  h++  ) {
+				if(  get_child<bildliste2d_besch_t>(0+2*season)->get_bild( h, phase )  ) {
+					return true;
+				}
 			}
 		}
 		return false;
