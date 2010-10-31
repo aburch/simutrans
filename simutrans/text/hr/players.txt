@@ -1,0 +1,32 @@
+<title>Pomoc Liste Igraca</title>
+
+<h1><strong>Lista Igraca</strong></h1>
+
+<p>
+<strong>Lista Igraca</strong> daje informacije i ima kontrole za razne tvrtke igraca.
+</p>
+<p>
+Klik na Igraci-gumb u <a href="options.txt">Postavkama Igre</a> ili pritisak <a href="keys.txt">[k]</a> za otvaranje <strong>Liste Igraca</strong> koja prikazuje imena igraca & <a href="finances.txt">Stanja Racuna</a>.
+</p>
+<p>
+Postoji osam igraca: covjek, javni servis i sest AI igraca. Kontrole omogucuju igranje igre kao drugaciji igrac ako je odabrano <a href="new_world.txt">Dozvoliti promjenu igraca</a> na pocetku igre.
+</p>
+<p>
+Klik na gumb strelice za rad kao drugacija tvrtka igraca u trenutnoj igri. Poruka potvrde se pojavljuje kako je promijenjen igrac: klik na x u gornjem lijevom kutu poruke ili koristiti tipkovnicu za zatvaranje.
+</p>
+<p>
+Klik na ime igraca za predgled njegovih <a href="finances.txt">financija</a>.
+</p>
+<p>
+Klik na cetvrtasti-gumb pokraj AI imena igraca za promjenu ukljucen/iskljucen igrac (gumb je podebljan kakda je igrac odabran).
+</p>
+<p>
+AI igraci ne bankrotiraju i koriste vozila sa najvecom efikasnoacu.<br>
+Iskljucivanje AI igraca tijekom igre nece ukloniti prijevoznu mrezu.<br>
+Neki AI igraci mogu koristiti samo cestovna ili zeljeznicka vozila, neki mogu prevoziti samo robu ili putnike.
+</p>
+<p>
+{Savjeti: Vozila ne mogu koristiti tracnice drugog igraca ili <a href="station.txt">Stajalista</a> (svejedno vozila svih igraca mogu koristiti predmete sagradjene od igraca javnog servisa).<br>
+Igraci ne mogu graditi predmete ili postavljati putne tocke na tracnice drugih igraca ili <a href="roadtools.txt">ceste</a>, ili uklanjati predmete sagradjene od drugih igraca (svejedni neki predmeti gradjeni od javnog servisa mogu se unistiti koristeci <a href="removal_tool.txt">Unisti/Ukloni</a>).<br>
+Onemoguciti postavku promjene igraca i pristup posebnih <a href="edittools.txt">alata</a> kao igrac javnog servisa.}
+</p>

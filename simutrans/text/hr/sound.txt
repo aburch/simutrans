@@ -1,0 +1,26 @@
+<title>Pomoc Postavki Zvuka</title>
+
+<h1><strong>Postavke Zvuka</strong></h1>
+
+<p>
+<strong>Postavke Zvuka</strong> ima kontrole za zvucne efekte i glazbu.
+</p>
+<p>
+<strong>Postavke Zvuka</strong> se otvara iz <a href="options.txt">Opcije Igre.</a>
+</p>
+<p>
+Koristiti tipke strelica za prilagodbu postavki ili <a href="mouse.txt">pomicnih traka</a> za smanjivanje/povecavanje glasnoce:
+</p>
+<p><em>Glasnoca zvuka:</em> postavlja glasnocu zvucnih efekata u igri.
+</p>
+<p>
+<em>Glasnoca glazbe:</em> postavlja glasnocu glazbe. Ako glazba ne postoji tada kontrole nece raditi.
+</p>
+<p>
+<em>Trenutno svira:</em>
+ changes music; tipke strelica kruze kroz dostupnu glazbu.
+</p>
+<p>
+Molimo primjetiti: glazba se ne isporucuje sa Simutrans-om.<br>
+Pomognite javno dodati glazbu na http://wiki.simutrans.com
+</p>

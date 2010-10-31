@@ -1,0 +1,25 @@
+<title>Ucitavanje Pomoci</title>
+
+<h1><strong>Ucitavanje</strong></h1>
+
+<p>
+<strong>Ucitavanje</strong> pomnovno pokrece <a href="save.txt">spremljenu</a> igru (za nastavak igranja) & moze se koristiti za brisanje tih igara. Igra koja je ponovno startana mijenja trenutni svijet koji je izgubljen.
+</p>
+<p>
+<strong>Ucitavanje</strong> otvara iz <a href="new_world.txt">Stvaranje Novoga Svijeta</a> & <a href="options.txt">Postavke Igre</a> ili pritiskom <a href="keys.txt">[L]</a>; & lista imena, datuma & vremena (of spremanja) dostuopnih igara.<br>
+Ako nisu vidljive sve igre: koristiti <a href="mouse.txt">kliznik</a> sa desne strane liste za pomicanje imena.
+</p>
+<p>
+Klik na ime liste za ponovno pokretanje igre; ili unos imena u kucicu s gornje strane Ucitavanja: klik na kvacicu, tip imena, & stisnuti [Enter] ili [Return] ili klik na <em>OK</em>.<br>
+Neispravno ime ce izazvati poruku o gresci: zatvoriti poruku, ponovno pokusati.
+</p>
+<p>
+UPOZORENJE: Klik na x-button s imenom za BRISANJE igre odmah & za stalno.<br>
+Ime se uklanja iz liste i <strong>Ucitavanje</strong> se zatvara. Koristiti funkciju oprezno.
+</p>
+<p>
+BITNO: Nove distribucije Simutrans-a se javljaju redovito & igre iz prethodnih distribucija Simutrans-a mozda ne rade sa kasnijim inacicama; molimo procitajte biljeske distribucije za kasnije inacice kako bi se provjerila kompatibilnost starijih igara.
+</p>
+<p>
+Klik na <em>Odustajanje</em> za zatvaranje <strong>Ucitavanja</strong>; ili x u gornjem lijevom kutu; ili koristiti tipkovnicu.
+</p>
