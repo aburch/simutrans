@@ -33,7 +33,7 @@ O cursor mudará para um cubo amarelo vazio que restaura o terreno no quadro.
 </p>
 <p>
 {Dica: O Editor de terreno fica mais fácil de se usar com a grade. Pressione [#] para exibir/ocultar a grade sobre o terreno.<br>
-Use a ferramenta Eliminar para remover obstáculos.<br>
+Use a ferramenta Remover para remover obstáculos.<br>
 Dependendo do local do mapa, as ferramentas podem elevar ou rebaixar terreno dentro da água.}
 </p>
 <p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.

@@ -10,7 +10,7 @@ Se estiver jogando com <a href="new_world.txt">linha do tempo</a>, então conform
 Ferramentas para a construção de depósitos estão disponíveis na barra de ferramentas de cada tipo de transporte: <a href="railtools.txt">depósitos ferroviários</a>; <a href="monorailtools.txt">depósitos de monotrilhos</a>; <a href="tramtools.txt">depósitos de bondes</a>; <a href="roadtools.txt">garagens</a>; <a href="shiptools.txt">estaleiros</a> e <a href="airtools.txt">hangares</a>.
 </p>
 <p>
-Clique em um depósito construído na área de jogo com a ferramenta <a href="inspection_tool.txt">Verificar</a> para abrir a <strong>janela de controles do depósito</strong>, que fornecem informações e permitem a compra e o gerenciamento dos <a href="convoiinfo.txt">comboios</a> (um veículo operacional ou a combinação de mais de uma unidade veicular).<br>
+Clique em um depósito construído na área de jogo com a ferramenta <a href="inspection_tool.txt">Consultar</a> para abrir a <strong>janela de controles do depósito</strong>, que fornecem informações e permitem a compra e o gerenciamento dos <a href="convoiinfo.txt">comboios</a> (um veículo operacional ou a combinação de mais de uma unidade veicular).<br>
 A barra de título da <strong>janela do depósito</strong> indica para que tipo de veículo o depósito serve.
 </p>
 <p>

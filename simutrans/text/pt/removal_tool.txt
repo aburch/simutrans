@@ -1,18 +1,18 @@
-<title>Ajuda - Ferramenta Eliminar</title>
+<title>Ajuda - Ferramenta Remover</title>
 
-<h1><strong>Ferramenta Eliminar</strong></h1>
+<h1><strong>Ferramenta Remover</strong></h1>
 
 <p>
-<strong>Ferramenta Eliminar</strong> é usada para destruir e remover os itens e obstáculos não desejados à construção em um único quadro do terreno na
+<strong>Ferramenta Remover</strong> é usada para destruir e remover os itens e obstáculos não desejados à construção em um único quadro do terreno na
 <a href="window.txt">tela do jogo</a>.
 </p>
 <p>
-Para usar: Clique no ícone com uma cruz vermelha (ou <it>escavadora</it>, no pak128) no topo da tela do jogo ou pressione <a href="keys.txt">[a]</a> para abrir a <strong>Ferramenta Eliminar</strong> (o cursor torna-se numa cruz vermelha numa nuvem de poeira).<br>
+Para usar: Clique no ícone com uma cruz vermelha (ou <it>escavadora</it>, no pak128) no topo da tela do jogo ou pressione <a href="keys.txt">[a]</a> para abrir a <strong>Ferramenta Remover</strong> (o cursor torna-se numa cruz vermelha numa nuvem de poeira).<br>
 Posicione o cursor na tela dojogo, um retângulo amarelo indica a posição em que a ferramenta irá operar (as coordenadas do mapa são indicadas na barra cinza abaixo). Então clique sobre o objeto na tela do jogo para remover.
 </p>
 <p>
 O custo do uso da ferramenta é indicado na tela do jogo e aparece bem onde estava o <a href="finances.txt">item eliminado</a>. O custo da remoção é equivalente ao custo da construção para os itens do jogador.<br>
-O custo de destruir <a href="inspection_tool.txt">edifícios da cidade</a> é o mesmo valor apresentado na caixa de diálogo deste edifício aberta pela <it>Ferramenta de verificação</it>. O custo de destruir árvores é de 100 Hajo Credits.
+O custo de destruir <a href="inspection_tool.txt">edifícios da cidade</a> é o mesmo valor apresentado na caixa de diálogo deste edifício aberta pela <it>Ferramenta de consula</it>. O custo de destruir árvores é de 100 Hajo Credits.
 </p>
 <p>
 <strong>Ferramenta de remoção</strong> pode ser usada para remover os pedestres individuais e os carros privados.

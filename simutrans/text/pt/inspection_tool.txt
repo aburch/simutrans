@@ -1,12 +1,12 @@
-<title>Ajuda - Verificar</title>
+<title>Ajuda - Consultar</title>
 
-<h1><strong>Verificar</strong></h1>
+<h1><strong>Consultar</strong></h1>
 
 <p>
-A ferramenta <strong>Verificar</strong> é usada para abrir caixas de diálogo que fornecem informações ou controles para vários itens.
+A ferramenta <strong>Consultar</strong> é usada para abrir caixas de diálogo que fornecem informações ou controles para vários itens.
 </p>
 <p>
-Clique na lupa no topo da área de jogo ou pressione <a href="keys.txt">[a]</a> para abrir a ferramenta <strong>Verificar</strong> (o cursor mudará para uma lupa).
+Clique na lupa no topo da área de jogo ou pressione <a href="keys.txt">[a]</a> para abrir a ferramenta <strong>Consultar</strong> (o cursor mudará para uma lupa).
 </p>
 <p>
 Para usar: posicione o cursor em forma de lupa no local desejado na área de jogo e clique para abrir a caixa de diálogo. Se mais de um item estiver no local desejado, outro clique abrirá uma segunda caixa de diálogo.
@@ -38,7 +38,7 @@ Clique nos seguintes itens na área de jogo com a ferramenta para abrir as caixas
 - <em>Geração de viagens:</em> é a popularidade relativa como destino para passageiros.<br>
 - <em>Geração de correios:</em> é a popularidade relativa como destino para correio.<br>
 - <em>Construído a partir de:</em> indica o ano que o edifício aparece quando se joga com <a href="new_world.txt">Linha do tempo</a>.<br>
-- <em>Valor:</em> indica o custo para remover o edifício com a ferramenta <a href="window.txt">Eliminar</a>.<br>
+- <em>Valor:</em> indica o custo para remover o edifício com a ferramenta <a href="window.txt">Remover</a>.<br>
 - <em>Construído por:</em> nome da pessoa que criou o edifício para o Simutrans.
 </p>
 <p>
