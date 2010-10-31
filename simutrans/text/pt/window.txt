@@ -17,7 +17,7 @@ O lado direito da barra de título oferece controles para minimizar, maximizar a 
 - <em>Disquete</em>: abre as <a href="options.txt">Preferências</a><br>
 - <em>Mapa</em>: abre o <a href="map.txt">Mapa</a>
 <br>
-- <em>Lupa</em> seleciona a <a href="inspection_tool.txt">Ferramenta Verificar</a><br>
+- <em>Lupa</em> seleciona a <a href="inspection_tool.txt">Ferramenta Consultar</a><br>
 - <em>Barranco</em>: abre o <a href="slopetools.txt">Editor de terrenos</a><br>
 - <em>Locomotiva</em>: abre a <a href="railtools.txt">barra de ferramentas Ferrovias</a>
 <br>
@@ -30,7 +30,7 @@ O lado direito da barra de título oferece controles para minimizar, maximizar a 
 - <em>Avião</em>: abre a <a href="airtools.txt">barra de ferramentas Aeroportos</a>
 <br>
 - <em>Círculo amarelo com uma bola vermelha dentro</em> (um <em>guindaste</em> no pak128): abre a <a href="special.txt">barra de Ferramentas Especiais</a><br>
-- <em>X vermelho</em> (um <em>trator</em> no pak128): seleciona a <a href="removal_tool.txt">ferramenta Eliminar</a>
+- <em>X vermelho</em> (um <em>trator</em> no pak128): seleciona a <a href="removal_tool.txt">ferramenta Remover</a>
 </p>
 <p>
 - Os ícones do <a href="general.txt"><it>Menu de Gerenciamento</it></a> incluem:<br>

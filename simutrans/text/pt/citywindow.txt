@@ -8,7 +8,7 @@
 <a href="industry_info.txt">indústrias</a> são criadas e os limites da cidade se expandem.
 </p>
 <p> Clique em uma Prefeitura na tela do jogo com a
-<a href="inspection_tool.txt">Ferramenta Verificar</a> ou em uma cidade listada em <a href="citylist_filter.txt">Lista das Cidades</a> para abrir <strong>Informações das Cidades</strong>, a qual contém: um campo para o nome, estatísticas, dois mini-mapas e um gráfico informativo da área urbana.
+<a href="inspection_tool.txt">Ferramenta Consultar</a> ou em uma cidade listada em <a href="citylist_filter.txt">Lista das Cidades</a> para abrir <strong>Informações das Cidades</strong>, a qual contém: um campo para o nome, estatísticas, dois mini-mapas e um gráfico informativo da área urbana.
 </p>
 <p>
 <em> Nome:</em> o nome atribuído à cidade aparece num campo de nome no topo das <strong>Estatísticas da Cidade</strong>. Este nome é usado nos nomes dados às Paradas criadas.

@@ -23,7 +23,7 @@
 <a href="window.txt"><strong>Menu principal</strong></a><br>
 - <a href="options.txt">Preferências</a><br>
 - <a href="map.txt">Mapa</a><br>
-- <a href="inspection_tool.txt">Ferramenta de verificação</a><br>
+- <a href="inspection_tool.txt">Ferramenta de consulta</a><br>
 - <a href="slopetools.txt">Editor de terrenos</a><br>
 - <a href="railtools.txt">Ferrovias</a><br>
 - <a href="monorailtools.txt">Monotrilhos e Maglevs</a><br>
@@ -33,7 +33,7 @@
 - <a href="airtools.txt">Aeroportos</a><br>
 - <a href="special.txt">Ferramentas especiais</a><br>
 - - <a href="edittools.txt">Editor de mapa</a><br>
-- <a href="removal_tool.txt">Ferramenta Eliminar</a>
+- <a href="removal_tool.txt">Ferramenta Remover</a>
 </p>
 <p>
 <a href="window.txt"><strong>Opções de Gerenciamento</strong></a><br>

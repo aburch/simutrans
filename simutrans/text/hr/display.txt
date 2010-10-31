@@ -1,0 +1,62 @@
+<title>Pomoc Postavki Prikaza</title>
+
+<h1><strong>Postavke Prikaza</strong></h1>
+
+<p>
+<strong>Postavke Prikaza</strong>ima kontrole za izgled igre; & nudi informacije o performansama racunala.
+</p>
+<p>
+Klik na Prikaz-gumb u <a href="options.txt">Postavkama Igre</a> za otvaranje <strong>Postavke Prikaza</strong>.
+</p>
+<p>
+Klik na kvadrate-gumbe za odabir postavki (gumb je oznacen kada je postavka odabrana), ili koristiti <a href="mouse.txt">tipke strelica</a> za prilagodbu postavki:
+</p>
+<p>
+<em>promjena dana i noci:</em> pogled vremena noci u igri.
+</p>
+<p>
+<em>
+Svjetlina:</em>prikazuje koliko svjetlo/tamno se igra pojavljuje; manji brojevi za zatamnjenje; premale ili prebelike vrijednosti stvaraju probleme; koristiti <a href="keys.txt">[+]</a> za povecanje vrijednosti preko 0.
+</p>
+<p>
+<em>Inverzni pomak:</em> mijenja smjer pomicanja za pogled igre u <a href="window.txt">?Prozoru Igre</a>.
+</p>
+<p>
+<em>
+Brzina Pomicanja:</em> postavlja brzinu pomicanja za pogled igre u Prozoru Igre.
+</p>
+<p>
+<em>Pjesaci u gradovima:</em> pogled pjesaka koji se pojavljuju u <a href="citywindow.txt">urbanim podrucjima</a>.
+</p>
+<p>
+<em>Pjesaci na stajalistima:</em> Pogled pjesaka koji nastaju kada vozilo dolazi na <a href="station.txt">Stajaliste</a>.
+</p>
+<p>
+<em>Gustoca prometa:</em> postavlja broj privatnih auta u <a href="citywindow.txt">urbanim podrucjima</a>.<br>
+Broj novih privatnih automobila koji nastaju kako urbana podrucja rastu ovisi o velicini urbanih podrucja i gustoci prometa. Vece vrijednosti stvaraju vise privatnog prometa, 0 ne stvara nista.
+</p>
+<p>
+{Savjeti: Vise postavki i podrazumijevane postavke za Simutrans pokretanje se mogu promijeniti u simuconf.tab}.
+</p>
+<br>
+<p>
+<strong>Informacija Prikaza:</strong>
+</p>
+<p>
+Ispod ovih postavki, informacija se prikazuje o racunalnim performansama pri izvrsavanju Simutrans-a.<br>
+Ako su brojevi (obicno bijeli) crveni ili ?zuti mozda je potrebno promijeniti vase postavke.<br>
+Promjene u stopi kako vrijeme prolazi u igri, <a href="window.txt">T</a>, (koristeci Fast Forward  >> ikonu iznad pogleda igre, ili [,]/ [.]) moze promijeniti broj boje.
+</p>
+<p>
+<em>Vrijeme Okvira:</em> ?Prvi broj je zamisljeno vrijeme izmedju okvira; drugi broj je stvarno vrijeme izmedju okvira.
+</p>
+<p>
+<em>Besposlenost:</em> Ako je iznad 0, racunalo ima kapaciteta za izvrsavanje drugog software-a.
+</p>
+<p>
+<em>
+FPS:</em> Vece vrijednosti znace kako se vozila pojavljuju gladje. Ako broj ostaje crven, racunalo je presporo za trenutne postavke(?pokusajte smanjiti velicinu prozora pogleda igre).
+</p>
+<p>
+<em>Simloopovi:</em> Ako broj ostane crven, racunalo je presporo za treutne postavke - pokusajte sa manjom kartom sa manje urbanih podrucja.
+</p>

@@ -1,0 +1,152 @@
+<title>Uusi peli -ohje</title>
+
+
+
+<h1><strong>Uusi peli</strong></h1>
+
+
+
+<p>
+
+<strong>Uusi peli</strong> asettaa uuden pelin ominaisuudet.<br>
+
+Muokattavia asetuksia ovat mm. maaston koko ja kaupunki- ja teollisuusalueiden määrä pelin alussa. Asetusten mukaisesta uudesta kartasta näkee esikatseluversion.
+
+</p>
+
+<p>
+
+<strong>Uusi peli</strong> avautuu yhdessä <a href="language.txt">Kielet</a>- ja <a href="climates.txt">Ilmaston asetukset</a> -ikkunoiden kanssa, kun Simutrans käynnistyy. Sen saa esille myös <a href="options.txt">Peliasetukset</a>-kuvakkeesta (tällöin muut työkalut, ikkunat ja tekstit sulkeutuvat).<br>
+
+Pikanäppäimiä käytettäessä <strong>Uusi peli</strong> avautuu näppäimillä <a href="keys.txt">[Q]</a> and [X].
+
+</p>
+
+<p>
+
+Palataksesi nykyiseen peliin <strong>Uusi peli</strong>-ikkunasta klikkaa rastia vasemmassa yläkulmassa.
+
+</p>
+
+<p>
+
+Nuolipainikkeet säätävät asetuksia ja painikkeet vaihtavat päälle/pois tai avaavat uusia asetuksia:
+</p>
+
+<p>
+
+<em>Kartan numero:</em> valitsee pelissä käytettävän kartan numeron.<br>
+
+Klikkaa numerolaatikkoa ja kirjoita haluamasi numero tai käytä nuolipainikkeita siirtyäksesi eri maastovaihtoehtojen välillä.
+<br>
+
+Esikatselukuva näyttää valitun maaston (vesi on sinistä, maa on vaaleampaa korkeammilla kohdilla).
+
+</p>
+
+<p>
+
+<em>Kartan koko:</em> asettaa kartan sivujen pituudet (ylempi arvo on leveys, alempi korkeus).
+
+Suuret kartat vaativat enemmän muistia ja niiden luominen kestää pidempään. Esim. tietokoneella, jossa on 256 Mt RAM-muistia, on kokoa 512 x 512 oleva kartta käytännössä maksimi sujuvaan peliin.
+</p>
+
+<p>
+
+<em>Arvo kartta:</em> valitsee satunnaisen kartan l. kartan numeron. Muut asetukset säilyvät ennallaan.
+
+</p>
+
+<p>
+
+<a href="load_relief.txt"><em>Lataa korkokuva:</em></a> avaa uuden ikkunan valmiiksi tehtyjen maastopohjien lataamiseksi.
+
+</p>
+
+<p>
+
+<em>Kaupunkien määrä:</em> asettaa <a href="citywindow.txt">kaupunkien</a> lukumäärän pelin alussa.
+
+</p>
+
+<p>
+
+<em>Asukkaita keskimäärin:</em> asettaa kaupunkien väkiluvun pelin alussa.<br>
+
+Tämä on keskiarvo; Simutrans pyrkii luomaan enemmän pieniä kyliä kuin suuria kaupunkeja.
+
+</p>
+
+<p>
+
+<em>Maanteiden pituus:</em> asettaa kaupunkienvälisten teiden pituuden.
+
+</p>
+
+<p>
+
+<em>Liikennetiheys:</em> asettaa henkilöautojen määrän kaupungeissa.<br>
+
+Korkeat arvot luovat enemmän yksityisliikennettä, 0 ei yhtään. Väestön suuretessa ilmaantuu uusia autoja.
+</p>
+
+<p>
+
+<em>Tehtaita:</em> asettaa <a href="industry_info.txt">tuotantoketjujen</a> määrän pelin alussa.<br>
+
+Jos maasto on hyvin mäkistä, voi lopullinen määrä jäädä pienemmäksi.
+
+</p>
+
+<p>
+
+<em>Sähköntuotto:</em> asettaa <a href="industry_info.txt">voimaloiden</a> enimmillään tuottaman sähkön määrän prosentteina muiden tehtaiden enimmillään tarvitsemasta määrästä.<br>
+
+Useiden tehtaiden ja laitosten tuotantoa voidaan tehostaa kytkemällä ne sähköverkkoon.
+
+</p>
+
+<p>
+
+<a href="curiositylist_filter.txt"><em>Turistikohteita:</em></a> asettaa turistaa ja postia puoleensavetävien nähtävyyksien määrän pelin alussa.<br>
+
+Nämä esiintyvät kaupunkialueiden ulkopuolella eivätkä ole riippuvaisia kaupunkeihin luotujen nähtävyyksien määrästä. Nähtävyyksien lähistöltä syntyy myös turistien ja postin paluuliikennettä.
+
+</p>
+
+<p>
+
+<em>Käytä aikalinjaa vuodesta:</em> asettaa pelin aloitusvuoden.
+
+Kun neliöpainike on alhaalla, aikalinja on valittu ja pelin ajan kuluessa voi ilmaantua uusia ajoneuvo- ja rakennusvaihtoehtoja.
+<br>
+
+Kun neliöpainike on alhaalla ja aikalinja siis pois päältä, peli alkaa yhä valittuna vuonna, mutta kaikki ajoneuvot ja rakennukset ovat käytettävissä välittömästi. Kaupungeissa on tällöin rakennuksia usealta aikakaudelta ja hitaammat ajoneuvot eivät ole yhtä tuottoisia kuin muuten (kuljetuspalkkioihin vaikuttaa kulloinkin saatavilla olevien ajoneuvojen keskinopeus).
+
+</p>
+
+<p>
+
+<em>Salli pelaajan vaihtaminen:</em> antaa mahdollisuuden ohjata tekoälyn(AI) tai julkiset palvelut -<a href="players.txt">pelaajan</a> yhtiötä (asetusta ei voi vaihtaa pelin alettua).
+
+</p>
+
+<p>
+
+<a href="load.txt">
+
+<em>Lataa peli:</em></a> avaa uuden ikkunan, jossa voi avata <a href="save.txt">tallennetun</a> pelin. Nykyinen (tallentamaton) peli menetetään.
+
+</p>
+
+<p>
+
+<em>Aloita peli:</em> luo uuden pelimaailman valituilla asetuksilla. Klikkaa aloittaaksi - onnea matkaan ja nauti pelistä!
+
+</p>
+
+<p>
+
+{Vinkki: Simutransin käynnistyessä näytettäviä oletusarvoja voi muokata tiedostossa simuconf.tab}
+
+</p>

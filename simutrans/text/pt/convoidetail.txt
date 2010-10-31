@@ -9,7 +9,7 @@ Os <strong>Detalhes do Comboio</strong> dão informações sobre um Comboio (um veí
 
 Os <strong>Detalhes do Comboio</strong> abrem-se do
 botão de opções <a href="convoiinfo.txt">
-Detalhes</a> na janela da Informação do Comboio (use a <a href="inspection_tool.txt">ferramenta Verificar</a> sobre um Comboio)</strong>.
+Detalhes</a> na janela da Informação do Comboio (use a <a href="inspection_tool.txt">ferramenta Consultar</a> sobre um Comboio)</strong>.
 <br>
 Se todos os itens não estão visíveis, <a href="mouse.txt">reajuste</a> a janela dos <strong>Detalhes do Comboio</strong> ou use as barras laterais para ver os outros itens.
 </p>
