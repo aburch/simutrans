@@ -50,7 +50,7 @@ To build a a station-platform: click on tool to select (changes cursor to a plat
 {Tips: Remove train-stops with Destroy/Remove. Extend station-platforms & build multi-platform Stops (by building more platform sections on adjacent track) to accommodate longer and more vehicles, increase capacity & catchment area. Press [v] to show/hide catchment area for goods & passengers in game-view. Hold down [Ctrl] to build on bridges or elevated Track above lower Tracks.}
 </p>
 <p>
-<em>Monorail Foundation:</em>tool constructs ?an extension to a <a href="station.txt">Stop</a> and increases the capacity of the Stop. Monorail foundations are built on ends of monorail/maglev Track and have a maintenance cost.<br>
+<em>Monorail Foundation:</em> tool constructs an extension to a <a href="station.txt">Stop</a> and increases the capacity of the Stop. Monorail foundations are built on ends of monorail/maglev Track and have a maintenance cost.<br>
 To build an monorail foundation: click on tool to select (changes cursor to foundation), then click required position on the end of a track.<br>
 {Tips: Remove monorail foundations with Destroy/Remove.}
 </p>

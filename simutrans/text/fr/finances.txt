@@ -11,8 +11,8 @@ Ainsi qu'un graphique permettant de voir rapidement l'état de vos finances.
 </p>
 
 <p>
-<em>Construction</em> - C'est la somme des dépences concernant les constructions dans l'année en comprenant les signaux
-			ferroviaires, les rails, les routes, les arrêts, les gares, les dépots et les postes.
+<em>Construction</em> - C'est la somme des dépenses concernant les constructions dans l'année en comprenant les signaux
+			ferroviaires, les rails, les routes, les arrêts, les gares, les dépôts et les postes.
 </p>
 <p>
 <em>Nouveaux véhicules</em> - Somme de tous les véhicules achetés dans n'importe quel type de dépôt.

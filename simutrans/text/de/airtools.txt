@@ -3,7 +3,7 @@
 <h1><strong>Flughafenbauwerkzeuge</strong></h1>
 
 <p>
-Diese Werkzeugleiste dient dem Bau von Rollfeldern, Startbahnen, Hangare, Gangways und Nebengebäuden. Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
+Diese Werkzeugleiste dient dem Bau von Rollfeldern, Startbahnen, Hangars, Gangways und Nebengebäuden. Bei der Auswahl eines Werkzeuges verwandelt sich der Cursor in das jeweilige Symbol.
 </p>
 <p>
 <em>Rollfelder</em> und <em>Startbahnen</em> bilden die Verkehrswege des Flughafens. Sie werden wie <a href="roadtools.txt">Strassen</a> gebaut, damit ein funktionstüchtiger Flughafen entsteht, müssen folgende Regeln eingehalten werden:<br>
@@ -18,3 +18,4 @@ Im <em>Hangar</em> kannst Du Flugzeuge bauen sowie Linien einrichten und die Flu
 </p>
 <p>
 <em>Nebengebäude</em> für Flughäfen haben dieselben Funktionen wie alle anderen <a href="special.txt">Nebengebäude.</a>
+</p>

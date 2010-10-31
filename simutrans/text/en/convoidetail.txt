@@ -35,6 +35,6 @@ Information listed for all vehicle-units includes:<br>
 - <em>Resale Value:</em> amount received if sold.<br>
 - <em>Power:</em> power generated (by motorised vehicle units).<br>
 - <em>Friction:</em> current friction level.<br>
-- <em>Max income:</em> ?income of vehicle-unit by type of item transported by Convoy.<br>
+- <em>Max income:</em> Maximum possible income of vehicle-unit by type of item transported by this Convoy.<br>
 - <em>items on board</em> amount and destination of items currently carried by vehicle-unit.
 </p>

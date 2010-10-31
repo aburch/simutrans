@@ -70,5 +70,5 @@
 <br/>· <em>Kasse:</em> Der Kassenbestand des aktuell agierenden Spielers wird angezeigt und permanent aktualisiert.
 <br/>· <em>Positionskoordinaten:</em> In der Klammer werden die X- und Y-Koordinaten sowie die Höhenebene der Kachel angezeigt, über welcher sich der Cursor gerade befindet.
 <br/>· <em>Spielgeschwindigkeit:</em> Der Wert (T=1.00) gibt die momentane Spielgeschwindigkeit an, siehe unter <a href="game_control.txt">Spielsteuerung</a>, Abschnitt Spielgeschwindigkeit. Bei Vorlauf wird die T-Anzeige durch zwei Pfeile ersetzt.
-<br/>· <em>(no) timeline:</em> Zeigt an, ob die timeline aktiviert ist oder nicht, siehe <a href="new_world.txt">Neue Welt erstellen</a>.
+<br/>· <em>mit Epochen:</em> Zeigt an, ob die timeline aktiviert ist oder nicht, siehe <a href="new_world.txt">Neue Welt erstellen</a>.
 </p>

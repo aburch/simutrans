@@ -15,7 +15,7 @@
 <i>ゲームオプション</i>: <a href="options.txt">※ゲームオプション</a><br><br>
 <a href="language.txt">※言語</a>　|　<a href="color.txt">※カラーダイアログ</a>　|　<a href="display.txt">※表示設定</a><br><br>
 <a href="sound.txt">※サウンドダイアログ</a>　|　<a href="players.txt">ライバル会社一覧</a>　|　<a href="load.txt">※ゲームの再開</a><br><br>
-<a href="save.txt">※ゲームの保存</a>　|　<a href="new_world.txt">※新しいマップの作成</a>　|　
+<a href="save.txt">※ゲームの保存</a>　|　<a href="new_world.txt">※新しいマップの作成</a>　|
 <a href="climates.txt">Climate Control</a><br><br>
 <a href="load_relief.txt">Load Height Map</a>　|　<a href="settings.txt">高度な設定</a>
 </p>

@@ -26,12 +26,14 @@ Blendet die farbigen Schaltflächen ein, mit denen verschiedene Informationen in 
 <em>Freileitungen</em> trägt die Hochspannungsleitungen in die Karte ein. Die Farbe kodiert die aktuelle Stromleistung beim öffnen der Karte (wird nicht automatisch aktualisiert!).<br/>
 <em>Attraktionen</em> vergrößert die eingetragenen Touristenattraktionen in der Karte und färbt sie nach ihrem Passagieraufkommen ein.<br/>
 <em>Fabriken</em> vergrößert die Anzeige der Industrien in der Karte.
-</p>
+</p><p>
 <em>Depots</em> Hebt alle Depots in orange, gelb, rot und rosa hevor, je nach Wegtyp.
 <br/>
 <em>Wälder</em> Geschlossene Waldgebiete (mit mehr als zwei Bäumen pro Kachel) werden hellgrün hervorgehoben.
 <br/>
 <em>Stadtgrenzen:</em> Umrahmungen der Stadtgebiete, d.h. alle Gebiete, die zu einer Stadt direkt gehören.
+<br/>
+<em>Reiseziele:</em> Falls eine Stadt ausgewählt ist, werden die Reiseziele dieser Stadt auf der Karte angezeigt (analog zu der kleinen Karte der <a href="citywindow.txt">Stadtinformation</a>.
 </p>
 <br/>
 <strong>Werteskala</strong>

@@ -30,3 +30,8 @@ Some AI players may use just road or rail vehicles, some may transport just good
 Players may not build items or place waypoints on another player's track or <a href="roadtools.txt">road</a>, or remove items built by another player (however some items built by the public service player may be removed using <a href="removal_tool.txt">Destroy/Remove</a>).<br>
 Disable player-change option and access extra <a href="edittools.txt">tools</a> as the public service player.}
 </p>
+<p>
+For games over internet, the players can be protected by passwords.
+A protected player is marked by a red box to the right of his name.
+If no password is set or the player is unlocked, this box is shown in gree. Click on the box to open the password dialog, where the passwort can be typed or set.
+</p>

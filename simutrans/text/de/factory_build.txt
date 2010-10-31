@@ -6,13 +6,12 @@
 Der Dialog ist in vier Bereiche aufgeteilt.
 <br>
 · oben links befindet sich die Auswahlliste mit den Industrien<br>
-· untern links wird das Bild der ausgewählten Industrie angezeigt<br>
+· unten links wird das Bild der ausgewählten Industrie angezeigt<br>
 · oben rechts befinden sich einige Optionen<br>
 · unten rechts werden die Informationen der ausgewählten Industrie angezeigt<br>
 </p>
-<p>
 <h1>Auswahlliste</h1>
-<br>
+<p>
 In der Auswahlliste werden alle zur Verfügung stehenden Industrien angezeigt.
 Oben befinden sich zwei Reiter, die die Anzeige umschalten.<br>
 · <em>Übersetzung:</em> Zeigt die Namen so an, wie diese im Spiel verwendet werden. Dies ist abhängig von der eingestellten Sprache. Wenn keine Übersetzung für die eingestellte Sprache vorhanden ist, wird der Objektname angezeigt.<br>
@@ -24,7 +23,7 @@ Die Schriftfarben haben folgende Bedeutung:<br>
 · <em>blaue Schrift</em> kennzeichnet Industrien, die Waren nur benötigen<br>
 </p>
 <h1>Optionen</h1>
-<br>
+<p>
 · <em>alle Klimazonen:</em> Diese Option deaktiviert die Klimazonenzuordnung beim Bau der Industrie.<br>
 · <em>Mit Epoche ab Jahr:</em> Es werden nur die Industrien in der Auswahlliste angezeigt, die im aktuellem Spieljahr zur Verfügung stehen.<br>
 · <em>Auch veraltete zeigen:</em> Es werden auch die Industrien in der Auswahlliste angezeigt, die in früheren Spieljahren mal zur Verfügung standen.<br>
