@@ -2277,7 +2277,14 @@ void convoi_t::vorfahren()
 			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost)
 			{
 				// drive the convoi to the same position, but do not hop into next tile!
-				train_length += min( (train_length%16)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
+				if(  train_length%16==0  ) {
+					// any space we need => just add
+					train_length += fahr[anz_vehikel-1]->get_besch()->get_length();
+				}
+				else {
+					// limit train to front of tile
+					train_length += min( (train_length%16)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
+				}
 			}
 			else
 			{

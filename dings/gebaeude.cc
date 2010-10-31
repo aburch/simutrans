@@ -247,8 +247,7 @@ void gebaeude_t::set_fab(fabrik_t *fb)
 /* sets the corresponding city
  * @author prissi
  */
-void
-gebaeude_t::set_stadt(stadt_t *s)
+void gebaeude_t::set_stadt(stadt_t *s)
 {
 	if(is_factory  &&  ptr.fab!=NULL) {
 		dbg->fatal("gebaeude_t::set_stadt()","building already bound to factory!");
@@ -262,8 +261,7 @@ gebaeude_t::set_stadt(stadt_t *s)
 
 
 /* make this building without construction */
-void
-gebaeude_t::add_alter(uint32 a)
+void gebaeude_t::add_alter(uint32 a)
 {
 	insta_zeit -= min(a,insta_zeit);
 }
@@ -271,8 +269,7 @@ gebaeude_t::add_alter(uint32 a)
 
 
 
-void
-gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
+void gebaeude_t::set_tile(const haus_tile_besch_t *new_tile)
 {
 	insta_zeit = welt->get_zeit_ms();
 
