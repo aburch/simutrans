@@ -3345,6 +3345,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
 			// destroy when empty
+			loading_at_halt->convoy_has_left(self);
 			self_destruct();
 			return;
 		}
