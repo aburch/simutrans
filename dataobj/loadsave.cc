@@ -19,18 +19,11 @@
 
 loadsave_t::mode_t loadsave_t::save_mode = bzip2;	// default to use for saving
 
-loadsave_t::loadsave_t(bool experimental) : filename()
-{
-	fp = NULL;
-	save_experimental = experimental;
-}
-
 loadsave_t::loadsave_t() : filename()
 {
 	mode = 0;
 	saving = false;
 	fp = NULL;
-	save_experimental = true;
 	bzfp = NULL;
 	bse = BZ_OK+1;
 }

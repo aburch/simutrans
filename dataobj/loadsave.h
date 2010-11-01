@@ -59,8 +59,6 @@ private:
 
 	void rdwr_xml_number(sint64 &s, const char *typ);
 
-	bool save_experimental;
-
 public:
 	
 	struct combined_version { uint32 version; uint32 experimental_version; };
@@ -68,7 +66,6 @@ public:
 	static mode_t save_mode;	// default to use for saving
 	static combined_version int_version(const char *version_text, int *mode, char *pak);
 
-	loadsave_t(bool experimental);
 	loadsave_t();
 	~loadsave_t();
 
@@ -91,7 +88,6 @@ public:
 	uint32 get_version() const { return version; }
 	uint32 get_experimental_version() const { return experimental_version; }
 	const char *get_pak_extension() const { return pak_extension; }
-	bool get_save_experimental() const { return save_experimental; }
 
 	void rdwr_byte(sint8 &c);
 	void rdwr_byte(uint8 &c);
