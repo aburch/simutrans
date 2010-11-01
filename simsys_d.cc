@@ -364,11 +364,13 @@ unsigned short* dr_textur_init(void)
 	return (unsigned short *)(texture_map->line[0]);
 }
 
+extern void display_set_actual_width(KOORD_VAL w);
 
-// reiszes screen (Not allowed)
+// resizes screen (Not allowed)
 int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
-	return FALSE;
+	display_set_actual_width( width );
+	return width;
 }
 
 
@@ -423,7 +425,7 @@ void dr_flush(void)
 
 #ifdef WIN32
 // try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigned short *data, int bitdepth );
 #endif
 
 /**
@@ -435,7 +437,7 @@ extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned s
 int dr_screenshot(const char *filename)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width, height, (short unsigned int *)texture_map, 16)) {
+	if(dr_screenshot_png(filename, width-1, height, width, (short unsigned int *)texture_map, 16)) {
 		return 1;
 	}
 #endif

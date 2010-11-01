@@ -107,7 +107,7 @@ int GetEncoderClsid(const wchar_t *format, CLSID *pClsid)
  * Windows XP and newer
  * On Win98 and up, if .NET is installed
  */
-int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth )
+int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigned short *data, int bitdepth )
 {
 	// first we try as PNG
 	CLSID encoderClsid;
@@ -138,17 +138,17 @@ int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data,
 	GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
 	if(  bitdepth==8  ) {
-		GdipCreateBitmapFromScan0(w, h, ((w + 7) & 0xFFF8), PixelFormat8bppIndexed , (BYTE*)data, &myImage);
+		GdipCreateBitmapFromScan0(w, h, maxwidth, PixelFormat8bppIndexed , (BYTE*)data, &myImage);
 	}
 	else {
-		GdipCreateBitmapFromScan0(w, h, ((w + 15) & 0xFFF0) * 2, bitdepth == 16 ? PixelFormat16bppRGB565 : PixelFormat16bppRGB555, (BYTE*)data, &myImage);
+		GdipCreateBitmapFromScan0(w, h, maxwidth * 2, bitdepth == 16 ? PixelFormat16bppRGB565 : PixelFormat16bppRGB555, (BYTE*)data, &myImage);
 	}
 	if(  myImage==NULL  &&  bitdepth>8  ) {
 		/* we may have XP or newer => have to convert them to 32 first to save them ... Grrrr */
 		BYTE *newdata = malloc( w*h*4 );
 		BYTE *dest = newdata;
 		unsigned short *src = data;
-		int ww = ((w+15) & 0xFFF0);
+		int ww = maxwidth;
 		int x, y;
 
 		for(  y=0;  y<h;  y++  ) {

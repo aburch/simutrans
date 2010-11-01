@@ -252,19 +252,27 @@ int dr_os_close(void)
 int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 {
 	WAIT_FOR_SCREEN();
+
+	// some cards need those alignments
+	w = (w + 15) & 0x7FF8;
+	if(  w<=0  ) {
+		w = 16;
+	}
+
 	if(w>MaxSize.right  ||  h>MaxSize.bottom) {
 		// since the query routines that return the desktop data do not take into account a change of resolution
 		free(AllDibData);
 		AllDibData = NULL;
-		MaxSize.right = (w+16) & 0xFFF0;
+		MaxSize.right = w;
 		MaxSize.bottom = h;
 		AllDibData = MALLOCN(unsigned short, MaxSize.right * MaxSize.bottom );
 		*textur = AllDibData;
 	}
+
 	AllDib->biWidth   = w;
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
-	return TRUE;
+	return w;
 }
 
 
@@ -370,7 +378,7 @@ void set_pointer(int loading)
 
 
 // try using GDIplus to save an screenshot
-extern "C" bool dr_screenshot_png(char const* filename, int w, int h, unsigned short* data, int bpp);
+extern "C" bool dr_screenshot_png(char const* filename, int w, int h, int maxsize, unsigned short* data, int bpp);
 
 /**
  * Some wrappers can save screenshots.
@@ -381,15 +389,18 @@ extern "C" bool dr_screenshot_png(char const* filename, int w, int h, unsigned s
 int dr_screenshot(const char *filename)
 {
 #ifdef USE_16BIT_DIB
-	if(!dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,16)) {
+	if(  !dr_screenshot_png(filename,display_get_width()-1,WindowSize.bottom + 1,AllDib->biWidth,AllDibData,16)  ) {
 #else
-	if(!dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,15)) {
+	if(  !dr_screenshot_png(filename,AllDib->biWidth,WindowSize.bottom + 1,AllDibData,15)  ) {
 #endif
 		// not successful => save as BMP
 		FILE *fBmp = fopen(filename, "wb");
 		if (fBmp) {
 			BITMAPFILEHEADER bf;
 
+			// since the number of drawn pixel can be smaller than the actual width => only use the drawn pixel for bitmap
+			LONG old_width = AllDib->biWidth;
+			AllDib->biWidth = display_get_width()-1;
 			AllDib->biHeight = WindowSize.bottom + 1;
 
 			bf.bfType = 0x4d42; //"BM"
@@ -401,8 +412,10 @@ int dr_screenshot(const char *filename)
 			fwrite(AllDib, sizeof(BITMAPINFOHEADER) + sizeof(DWORD) * 3, 1, fBmp);
 
 			for(  LONG i = 0; i < AllDib->biHeight; i++) {
-				fwrite(AllDibData + (AllDib->biHeight - 1 - i) * AllDib->biWidth, AllDib->biWidth, 2, fBmp);
+				// row must be alsway even number of pixel
+				fwrite(AllDibData + (AllDib->biHeight - 1 - i) * old_width, (AllDib->biWidth + 1) & 0xFFFE, 2, fBmp);
 			}
+			AllDib->biWidth = old_width;
 
 			fclose(fBmp);
 		}

@@ -238,13 +238,22 @@ int dr_os_close(void)
 }
 
 
-// reiszes screen
+extern void display_set_actual_width(KOORD_VAL w);
+
+// resizes screen
 int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
 #ifdef USE_HW
 	SDL_UnlockSurface(screen);
 #endif
 	int flags = screen->flags;
+
+	// some cards need those alignments
+	w = (w + 15) & 0x7FF8;
+	if(  w<=0  ) {
+		w = 16;
+	}
+
 	width = w;
 	height = h;
 
@@ -252,7 +261,8 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 	printf("textur_resize()::screen=%p\n", screen);
 	fflush(NULL);
 	*textur = (unsigned short*)screen->pixels;
-	return 1;
+	display_set_actual_width( w );
+	return w;
 }
 
 
@@ -387,7 +397,7 @@ void set_pointer(int loading)
 
 
 // try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int max_width, unsigned short *data, int bitdepth );
 
 /**
  * Some wrappers can save screenshots.
@@ -398,7 +408,7 @@ extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned s
 int dr_screenshot(const char *filename)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width, height, ( unsigned short *)(screen->pixels), screen->format->BitsPerPixel)) {
+	if(dr_screenshot_png(filename, display_get_width(), height, width, ( unsigned short *)(screen->pixels), screen->format->BitsPerPixel)) {
 		return 1;
 	}
 #endif
