@@ -229,6 +229,9 @@ public:
 	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);
 
+	// messages are allowed to arrive at any time
+	virtual bool ignore_old_events() const;
+
 	virtual ~nwc_tool_t();
 
 	virtual void rdwr();

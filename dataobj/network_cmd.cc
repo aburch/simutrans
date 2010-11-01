@@ -502,6 +502,13 @@ bool nwc_tool_t::execute(karte_t *welt)
 }
 
 
+bool nwc_tool_t::ignore_old_events() const
+{
+	// messages are allowed to arrive at any time (return true if message)
+	return wkz_id==(SIMPLE_TOOL|WKZ_ADD_MESSAGE_TOOL);
+}
+
+
 // compare default_param's (NULL pointers allowed
 // @returns true if default_param are equal
 bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
