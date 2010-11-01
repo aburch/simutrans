@@ -346,12 +346,10 @@ void planquadrat_t::angehoben(karte_t *welt)
 		if (max_hgt > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
 			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
 			// recalc water ribis
-			for(int y=-1; y<=1; y+=2) {
-				for(int x=-1; x<=1; x+=2) {
-					grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d()+koord(x,y));
-					if (gr2  &&  gr2->ist_wasser()) {
-						gr2->calc_bild();
-					}
+			for(int r=0; r<4; r++) {
+				grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord::nsow[r]);
+				if (gr2  &&  gr2->ist_wasser()) {
+					gr2->calc_bild();
 				}
 			}
 		}
