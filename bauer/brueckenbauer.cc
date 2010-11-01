@@ -332,6 +332,9 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 	if(gr->get_depot()) {
 		return false;
 	}
+	if(gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL) {
+		return false;
+	}
 	return true;
 }
 
@@ -627,7 +630,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// search neighbors
 		for(int r = 0; r < 4; r++) {
 			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
-				if(  wegtyp != powerline_wt  ||  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt  ) {
+				if(  wegtyp != powerline_wt  ||  (to->find<bruecke_t>()  &&  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt)  ) {
 					tmp_list.insert(to->get_pos());
 					marker.markiere(to);
 				}
