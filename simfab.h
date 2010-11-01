@@ -281,7 +281,7 @@ public:
 	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen ("someone wants to pick up were")
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-	sint32 get_abgabe_letzt(sint32 t) { return ausgang[t].abgabe_letzt; }
+	sint32 get_abgabe_letzt(sint32 t) const { return ausgang[t].abgabe_letzt; }
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
 	void neuer_monat();

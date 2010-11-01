@@ -486,7 +486,16 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		bool is_leitungsbruecke = false;
 		if(gr->ist_bruecke()  &&  gr->ist_karten_boden()) {
 			bruecke_t* br = gr->find<bruecke_t>();
-			is_leitungsbruecke = br->get_besch()->get_waytype()==powerline_wt;
+			if (br == NULL) {
+				// no bridge? most likely transformer on a former bridge tile...
+				grund_t *gr_new = new boden_t(welt, pos, gr->get_grund_hang());
+				gr_new->take_obj_from( gr );
+				welt->access(pos.get_2d())->kartenboden_setzen( gr_new );
+				gr = gr_new;
+			}
+			else {
+				is_leitungsbruecke = br->get_besch()->get_waytype()==powerline_wt;
+			}
 		}
 		if(is_leitungsbruecke) {
 			msg = brueckenbauer_t::remove(welt, sp, gr->get_pos(), powerline_wt );
@@ -1405,8 +1414,7 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 	}	
 	grund_t *gr=welt->lookup_kartenboden(k.get_2d());
 
-	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  !gr->hat_wege()  &&  gr->kann_alle_obj_entfernen(sp)==NULL  &&  gr->find<gebaeude_t>()==NULL) {
-
+	if(gr  && gr->is_visible() &&  gr->get_grund_hang()==0  &&  !gr->ist_wasser()  &&  gr->ist_natur() &&  gr->kann_alle_obj_entfernen(sp)==NULL) {
 		fabrik_t *fab=leitung_t::suche_fab_4(k.get_2d());
 		if( fab != NULL && fab->is_transformer_connected()  ) {
 			return "Only one transformer per factory!";
