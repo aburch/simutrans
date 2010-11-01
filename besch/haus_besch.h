@@ -79,8 +79,8 @@ public:
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
 		const uint16 max_h = bl->get_anzahl();
 		for(  uint16 phase=1;  phase<phasen;  phase++  ) {
-			for(  uint8 h=16;  h<max_h;  h++  ) {
-				if(  get_child<bildliste2d_besch_t>(0+2*season)->get_bild( h, phase )  ) {
+			for(  uint16 h=0;  h<max_h;  h++  ) {
+				if(  bl->get_bild( h, phase )  ) {
 					return true;
 				}
 			}
