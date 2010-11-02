@@ -3327,7 +3327,7 @@ const char *wkz_roadsign_t::get_tooltip(spieler_t *)
 {
 	const roadsign_besch_t * besch = roadsign_t::find_besch(default_param);
 	if(besch) {
-		return tooltip_with_price( besch->get_name(), besch->get_preis() );
+		return tooltip_with_price( besch->get_name(), -besch->get_preis() );
 	}
 	return NULL;
 }
