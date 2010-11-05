@@ -75,6 +75,8 @@ unsigned short* dr_textur_init(void);
 
 
 void dr_textur(int xp, int yp, int w, int h);
+
+/* returns the actual width (might be larger than requested! */
 int dr_textur_resize(unsigned short** textur,int w, int h, int bpp);
 
 // needed for screen update

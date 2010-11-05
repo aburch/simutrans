@@ -546,6 +546,13 @@ sint16 display_get_width(void)
 }
 
 
+// only use, if you are really really sure!
+void display_set_actual_width(KOORD_VAL w)
+{
+	disp_actual_width = w;
+}
+
+
 sint16 display_get_height(void)
 {
 	return disp_height;
@@ -4056,12 +4063,7 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
-	disp_actual_width = w;
-	// some cards need those alignments
-	w = (w + 15) & 0x7FF0;
-	if(  w<=0  ) {
-		w = 16;
-	}
+	disp_actual_width = max( 16, w );
 	if(  h<=0  ) {
 		h = 64;
 	}
@@ -4073,7 +4075,7 @@ void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
 
-		dr_textur_resize(&textur, disp_width, disp_height, 16);
+		disp_width = dr_textur_resize(&textur, disp_width, disp_height, 16);
 
 		tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;

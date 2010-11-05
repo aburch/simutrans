@@ -3,8 +3,13 @@
 
 // windows headers
 #ifdef WIN32
+#ifdef USE_IP4_ONLY
+// must be include before all simutrans stuff!
+#                   include <winsock.h>
+#else
 #	include <WinSock2.h>
 #	include <ws2tcpip.h>
+#endif
 #	undef min
 #	undef max
 
