@@ -1690,7 +1690,7 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 			xpos += tile_raster_scale_x(get_xoff(), raster_width);
 			ypos += tile_raster_scale_y(get_yoff(), raster_width);
 			if(ypos>LINESPACE+32  &&  ypos+LINESPACE<display_get_clip_wh().yy) {
-				display_ddd_proportional( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true);
+				display_ddd_proportional_clip( xpos, ypos, width, 0, color, COL_BLACK, tooltip_text, true);
 			}
 		}
 	}

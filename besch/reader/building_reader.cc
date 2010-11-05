@@ -62,7 +62,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 {
 	haus_besch_t *besch = static_cast<haus_besch_t *>(data);
 
-	if (besch->utype == haus_besch_t::fabrik) {
+	if(  besch->utype == haus_besch_t::fabrik  ) {
 		// this stuff is just for compatibility
 		if(  strcmp("Oelbohrinsel",besch->get_name())==0  ) {
 			besch->enables = 1|2|4;
@@ -72,7 +72,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		}
 	}
 
-	if (besch->utype == haus_besch_t::weitere && besch->enables == 0x80) {
+	if(  besch->utype == haus_besch_t::weitere  &&  besch->enables == 0x80  ) {
 		// this stuff is just for compatibility
 		size_t checkpos = strlen(besch->get_name());
 		besch->enables = 0;
@@ -114,7 +114,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 		}
 	}
 	// now old style depots ...
-	else if(besch->utype==haus_besch_t::weitere) {
+	else if(  besch->utype==haus_besch_t::weitere  ) {
 		size_t checkpos = strlen(besch->get_name());
 		if(  strcmp("AirDepot",besch->get_name()+checkpos-8)==0  ) {
 			besch->utype = haus_besch_t::depot;
@@ -161,7 +161,7 @@ void building_reader_t::register_obj(obj_besch_t *&data)
 	DBG_DEBUG("building_reader_t::register_obj", "Loaded '%s'", besch->get_name());
 
 	// do not calculate checksum if factory, will be done in factory_reader_t
-	if (besch->utype!=haus_besch_t::fabrik) {
+	if(  besch->utype!=haus_besch_t::fabrik  ) {
 		checksum_t *chk = new checksum_t();
 		besch->calc_checksum(chk);
 		pakset_info_t::append(besch->get_name(), chk);

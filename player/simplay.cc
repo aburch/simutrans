@@ -231,9 +231,7 @@ void spieler_t::display_messages()
 			const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
 			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 			const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
-
-			display_proportional_clip( x+1, y+1, m->str, ALIGN_LEFT, COL_BLACK, true);
-			display_proportional_clip( x, y, m->str, ALIGN_LEFT, PLAYER_FLAG|(kennfarbe1+3), true);
+			display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
 		}
 	}
 }
