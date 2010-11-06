@@ -45,7 +45,7 @@ private:
 
 	static uint16 random_tree_for_climate_intern(climate cl);
 
-	static uint8 plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count, const uint8 count=1);
+	static uint8 plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count, const uint8 count);
 public:
 	// only the load save constructor should be called outside
 	// otherwise I suggest use the plant tree function (see below)

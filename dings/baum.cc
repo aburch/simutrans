@@ -232,7 +232,7 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
 				uint16 cl = 1<<welt->get_climate(gr->get_hoehe());
 				if( (cl & welt->get_einstellungen()->get_no_tree_climates())==0  &&  (  (cl & welt->get_einstellungen()->get_tree_climates())!=0  ||  simrand(welt->get_einstellungen()->get_forest_inverse_spare_tree_density()*dichte) < 100  )  ) {
-					plant_tree_on_coordinate(welt, pos, 1);
+					plant_tree_on_coordinate(welt, pos, 1, 1);
 				}
 			}
 		}
@@ -427,7 +427,7 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
 	// Hajo: auch aeltere Baeume erzeugen
-	geburt = welt->get_current_month() - simrand(400);
+	geburt = welt->get_current_month() - simrand(703);
 	baumtype = random_tree_for_climate_intern(welt->get_climate(pos.z));
 	season = 0;
 	calc_off();
