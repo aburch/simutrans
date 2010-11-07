@@ -249,7 +249,8 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 	int flags = screen->flags;
 
 	// some cards need those alignments
-	w = (w + 15) & 0x7FF8;
+	// especially 64bit want a border of 8bytes
+	w = (w + 15) & 0x7FF0;
 	if(  w<=0  ) {
 		w = 16;
 	}
