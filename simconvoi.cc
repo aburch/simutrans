@@ -3918,6 +3918,10 @@ void convoi_t::destroy()
 	if(fpl!=NULL  &&  !fpl->ist_abgeschlossen()) {
 		destroy_win((long)fpl);
 	}
+	
+	if (loading_at_halt.is_bound() ) {
+		loading_at_halt->convoy_has_left(self);
+	}
 
 	if(  line.is_bound()  ) {
 		// needs to be done here to remove correctly ware catg from lines
