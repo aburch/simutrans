@@ -4092,4 +4092,8 @@ void aircraft_t::display_after(int xpos_org, int ypos_org, bool is_global) const
 
 		vehikel_t::display_after( xpos_org, ypos_org-tile_raster_scale_y(current_flughohe-hoff-2, raster_width), is_global );
 	}
+	else if(  is_on_ground()  ) {
+		// show loading toolstips on ground
+		vehikel_t::display_after( xpos_org, ypos_org, is_global );
+	}
 }
