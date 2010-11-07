@@ -155,7 +155,7 @@ int dr_query_screen_height()
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
-	MaxSize.right = (w+16)&0x7FF0;
+	MaxSize.right = (w+7)&0x7FF8;
 	MaxSize.bottom = h;
 
 	// fake fullscreen
@@ -230,7 +230,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	*((DWORD*)(AllDib + 1) + 1) = 0x000007E0;
 	*((DWORD*)(AllDib + 1) + 2) = 0x0000001F;
 #endif
-	return TRUE;
+	return MaxSize.right;
 }
 
 
@@ -270,6 +270,7 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 	}
 
 	AllDib->biWidth   = w;
+	AllDib->biHeight   = h;
 	WindowSize.right  = w;
 	WindowSize.bottom = h;
 	return w;
@@ -349,6 +350,7 @@ void dr_flush()
 
 void dr_textur(int xp, int yp, int w, int h)
 {
+	h = min( yp+h, WindowSize.bottom ) - yp;
 	AllDib->biHeight = h+1;
 	StretchDIBits(
 		hdc,

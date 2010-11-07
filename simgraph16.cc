@@ -3780,9 +3780,6 @@ void display_set_progress_text(const char *t)
 // draws a progress bar and flushes the display
 void display_progress(int part, int total)
 {
-	const int disp_width=display_get_width();
-	const int disp_height=display_get_height();
-
 	const int width=disp_width/2;
 	part = (part*width)/total;
 
@@ -3799,7 +3796,7 @@ void display_progress(int part, int total)
 	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_BLUE, TRUE);
 
 	if(progress_text) {
-		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
+		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
 	}
 	dr_flush();
 }
@@ -3954,14 +3951,13 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int i;
 
-	// make sure it something of 16 (also better for caching ... )
 	disp_actual_width = width;
-	width = (width + 15) & 0x7FF0;
+	disp_height = height;
 
-	if (dr_os_open(width, height, 16, full_screen)) {
+	// get real width from os-dependent routines
+	disp_width = dr_os_open(width, height, 16, full_screen);
+	if(  disp_width>0  ) {
 
-		disp_width = width;
-		disp_height = height;
 
 		textur = dr_textur_init();
 
