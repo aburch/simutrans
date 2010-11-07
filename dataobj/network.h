@@ -1,18 +1,30 @@
 #ifndef sim_network_h
 #define sim_network_h
 
+
 // windows headers
 #ifdef WIN32
-#ifdef USE_IP4_ONLY
 // must be include before all simutrans stuff!
-#                   include <winsock.h>
+
+// first: we must find out version number
+#ifndef WINVER
+#	define _WINSOCKAPI_
+#	include <windows.h>
+#	undef _WINSOCKAPI_
+#endif
+
+// then we know which winsock version to use
+#if WINVER < 0x0500
+#	include <winsock.h>
+#	define USE_IP4_ONLY
+#	define socklen_t int
 #else
+#	include <Windows.h>
 #	include <WinSock2.h>
 #	include <ws2tcpip.h>
 #endif
 #	undef min
 #	undef max
-
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
 #	endif
@@ -21,6 +33,7 @@
 #	ifdef  __BEOS__
 #		include <net/netdb.h>
 #		include <net/sockets.h>
+
 	// non-beos / non-windows
 #	else
 #		include <sys/types.h>
@@ -33,7 +46,8 @@
 #   ifdef  __HAIKU__
 #		include <sys/select.h>
 #   endif
-// non-windows
+
+// all non-windows
 #	include <fcntl.h>
 #	include <errno.h>
 	// to keep compatibility to MS windows
