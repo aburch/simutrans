@@ -109,7 +109,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
 	for(  int i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
-		if(  strcmp(version[i],SAVEGAME_VER_NR)==0  ) {
+		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {
 			savegame.set_selection( i );
 		}
 	}
