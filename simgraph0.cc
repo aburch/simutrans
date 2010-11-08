@@ -248,6 +248,10 @@ int display_text_proportional_len_clip(KOORD_VAL, KOORD_VAL, const char*, int, c
 	return 0;
 }
 
+void display_outline_proportional(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+{
+}
+
 void display_shadow_proportional(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
 {
 }

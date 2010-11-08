@@ -1188,9 +1188,9 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	const bool dirty = get_flag(grund_t::dirty);
 
 	// marker/station text
-	if(get_flag(has_text)  &&  umgebung_t::show_names) {
+	if(  get_flag(has_text)  &&  umgebung_t::show_names  ) {
 		const char *text = get_text();
-		if(umgebung_t::show_names & 1) {
+		if(umgebung_t::show_names == 1) {
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
 			display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty);
@@ -1202,6 +1202,18 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 			if(halt.is_bound()  &&  halt->get_basis_pos3d()==pos) {
 				halt->display_status(xpos, ypos);
 			}
+		}
+
+		if(umgebung_t::show_names == 2) {
+			const KOORD_VAL new_xpos = xpos - (16+proportional_string_width(text) - get_tile_raster_width())/2;
+			display_outline_proportional( new_xpos, ypos-5, text_farbe()+1, COL_BLACK, text, dirty);
+		}
+
+		if(umgebung_t::show_names == 3) {
+			const KOORD_VAL new_xpos = xpos - (16+proportional_string_width(text) - get_tile_raster_width())/2;
+			display_outline_proportional( new_xpos, ypos-5, COL_YELLOW, COL_BLACK, text, dirty);
+			display_ddd_box_clip( new_xpos-16, ypos-5, LINESPACE, LINESPACE, text_farbe()-1, text_farbe()+1 );
+			display_fillbox_wh( new_xpos-16+1, ypos-4, LINESPACE-2, LINESPACE-2, text_farbe(), dirty );
 		}
 	}
 

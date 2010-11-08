@@ -3648,6 +3648,23 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
 }
 
 
+void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos - 1, ypos - 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
+void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
 /**
  * Zeichnet schattiertes Rechteck
  * @author Hj. Malthaner
@@ -3661,14 +3678,6 @@ void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, 
 
 	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, TRUE);
 	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
-}
-
-
-void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
-{
-	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
-	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
-	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
 }
 
 
