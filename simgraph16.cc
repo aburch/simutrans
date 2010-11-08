@@ -3666,8 +3666,9 @@ void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, 
 
 void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
 {
-	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, ALIGN_LEFT | DT_CLIP, shadow_color, -1);
-	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_color, -1);
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
 }
 
 
