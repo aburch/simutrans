@@ -150,14 +150,16 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[17].set_text("show grid");
 
 	buttons[18].set_pos( koord(10,SHOW_STATION_SIGNS) );
-	buttons[18].set_typ(button_t::square_state);
-	buttons[18].set_text("show station names");
+	buttons[18].set_typ(button_t::arrowright);
+	buttons[18].set_tooltip("show station names");
+/*	buttons[18].set_text("show station names");
 	buttons[18].pressed = umgebung_t::show_names&1;
+	*/
 
 	buttons[19].set_pos( koord(10,SHOW_STATION_GOODS) );
 	buttons[19].set_typ(button_t::square_state);
 	buttons[19].set_text("show waiting bars");
-	buttons[19].pressed = umgebung_t::show_names&1;
+	buttons[19].pressed = umgebung_t::show_names&2;
 
 	buttons[20].set_pos( koord(10,SLICE) );
 	buttons[20].set_typ(button_t::square_state);
@@ -245,7 +247,18 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	} else if((buttons+17)==komp) {
 		grund_t::toggle_grid();
 	} else if((buttons+18)==komp) {
-		umgebung_t::show_names ^= 1;
+		if(  umgebung_t::show_names&1  ) {
+			if(  (umgebung_t::show_names>>2) == 2  ) {
+				umgebung_t::show_names &= 2;
+			}
+			else {
+				umgebung_t::show_names += 4;
+			}
+		}
+		else {
+			umgebung_t::show_names &= 2;
+			umgebung_t::show_names |= 1;
+		}
 	} else if((buttons+19)==komp) {
 		umgebung_t::show_names ^= 2;
 	} else if((buttons+20)==komp) {
@@ -283,11 +296,30 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	buttons[15].pressed = umgebung_t::station_coverage_show;
 	buttons[16].pressed = grund_t::underground_mode == grund_t::ugm_all;
 	buttons[17].pressed = grund_t::show_grid;
-	buttons[18].pressed = umgebung_t::show_names&1;
+	//buttons[18].pressed = umgebung_t::show_names&1;
 	buttons[19].pressed = (umgebung_t::show_names&2)!=0;
 	buttons[20].pressed = grund_t::underground_mode == grund_t::ugm_level;
 
 	gui_frame_t::zeichnen(pos, gr);
+
+	// draw the lable stype
+	if(  umgebung_t::show_names&1  ) {
+		PLAYER_COLOR_VAL pc = welt->get_active_player() ? welt->get_active_player()->get_player_color1()+4 : COL_ORANGE;
+		const char *text = translator::translate("show station names");
+		switch( umgebung_t::show_names >> 2 ) {
+			case 0:
+				display_ddd_proportional_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y+(LINESPACE/2), proportional_string_width(text)+7, 0, pc, COL_BLACK, text, 1 );
+				break;
+			case 1:
+				display_outline_proportional( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, pc+1, COL_BLACK, text, 1 );
+				break;
+			case 2:
+				display_outline_proportional( 16+x+buttons[18].get_pos().x+16, y+buttons[18].get_pos().y, COL_YELLOW, COL_BLACK, text, 1 );
+				display_ddd_box_clip( 16+x+buttons[18].get_pos().x, y+buttons[18].get_pos().y, LINESPACE, LINESPACE, pc-2, pc+2 );
+				display_fillbox_wh( 16+x+buttons[18].get_pos().x+1, y+buttons[18].get_pos().y+1, LINESPACE-2, LINESPACE-2, pc, 1 );
+				break;
+		}
+	}
 
 	// seperator
 	display_ddd_box_clip(x+10, y+SEPERATE1, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);

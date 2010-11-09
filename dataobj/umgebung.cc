@@ -49,7 +49,7 @@ bool umgebung_t::hide_trees;
 uint8 umgebung_t::hide_buildings;
 bool umgebung_t::use_transparency_station_coverage;
 uint8 umgebung_t::station_coverage_show;
-sint32  umgebung_t::show_names;
+sint32 umgebung_t::show_names;
 sint32 umgebung_t::message_flags[4];
 uint32 umgebung_t::water_animation;
 uint32 umgebung_t::ground_object_probability;

@@ -91,6 +91,7 @@ public:
 
 	/**
 	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
+	* lable type 4..7
 	*
 	* @author Hj. Malthaner
 	*/
