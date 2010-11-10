@@ -20,6 +20,7 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
+#include "../dataobj/loadsave.h"
 #include "fahrplan_gui.h"
 // @author hsiegeln
 #include "../simlinemgmt.h"
@@ -47,6 +48,9 @@ static const bool cost_type_money[MAX_CONVOI_COST] =
 {
 	false, false, true, true, true, false
 };
+
+
+karte_t *convoi_info_t::welt = NULL;
 
 bool convoi_info_t::route_search_in_progress=false;
 
@@ -80,6 +84,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 	freight_info(8192)
 {
 	this->cnv = cnv;
+	welt = cnv->get_welt();
 	this->mean_convoi_speed = speed_to_kmh(cnv->get_akt_speed()*4);
 	this->max_convoi_speed = speed_to_kmh(cnv->get_min_top_speed()*4);
 
@@ -325,6 +330,21 @@ enable_home:
 }
 
 
+// activate the statistic
+void convoi_info_t::show_hide_statistics( bool show )
+{
+	toggler.pressed = show;
+	const koord offset = show ? koord(0, 170) : koord(0, -170);
+	set_min_windowsize(get_min_windowsize() + offset);
+	scrolly.set_pos(scrolly.get_pos() + offset);
+	chart.set_visible(show);
+	set_fenstergroesse(get_fenstergroesse() + offset);
+	resize(koord(0,0));
+	for (int i=0;i<MAX_CONVOI_COST;i++) {
+		filterButtons[i].set_visible(toggler.pressed);
+	}
+}
+
 
 /**
  * This method is called if an action is triggered
@@ -438,17 +458,7 @@ DBG_MESSAGE("convoi_info_t::action_triggered()","convoi state %i => cannot chang
 	}
 
 	if (komp == &toggler) {
-		toggler.pressed = !toggler.pressed;
-		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
-		set_min_windowsize(get_min_windowsize() + offset);
-		scrolly.set_pos(scrolly.get_pos() + offset);
-		// toggle visibility of components
-		chart.set_visible(toggler.pressed);
-		set_fenstergroesse(get_fenstergroesse() + offset);
-		resize(koord(0,0));
-		for (int i=0;i<MAX_CONVOI_COST;i++) {
-			filterButtons[i].set_visible(toggler.pressed);
-		}
+		show_hide_statistics( toggler.pressed^1 );
 		return true;
 	}
 
@@ -531,4 +541,103 @@ void convoi_info_t::resize(const koord delta)
 	// convoi load indicator
 	filled_bar.set_pos(koord(170,22+2*LINESPACE));
 	filled_bar.set_groesse(koord(view.get_pos().x - 175, 4));
+}
+
+
+
+convoi_info_t::convoi_info_t(karte_t *welt)
+:	gui_frame_t("", NULL),
+	scrolly(&text),
+	text(""),
+	view( welt, koord(64,64)),
+	sort_label(translator::translate("loaded passenger/freight")),
+	freight_info(0)
+{
+	this->welt = welt;
+}
+
+
+
+void convoi_info_t::rdwr(loadsave_t *file)
+{
+	koord3d cnv_pos;
+	char name[128];
+	koord gr = get_fenstergroesse();
+	uint32 flags = 0;
+	bool stats = toggler.pressed;
+	sint32 xoff = scrolly.get_scroll_x();
+	sint32 yoff = scrolly.get_scroll_y();
+	if(  file->is_saving()  ) {
+		cnv_pos = cnv->front()->get_pos();
+		for( int i = 0; i<MAX_CONVOI_COST; i++) {
+			if(  filterButtons[i].pressed  ) {
+				flags |= (1<<i);
+			}
+		}
+		tstrncpy( name, cnv->get_name(), 128 );
+	}
+	cnv_pos.rdwr( file );
+	file->rdwr_str( name, lengthof(name) );
+	gr.rdwr( file );
+	file->rdwr_long( flags );
+	file->rdwr_byte( umgebung_t::default_sortmode );
+	file->rdwr_bool( stats );
+	file->rdwr_long( xoff );
+	file->rdwr_long( yoff );
+	if(  file->is_loading()  ) {
+		// find convoi by name and position
+		if(  grund_t *gr = welt->lookup(cnv_pos)  ) {
+			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
+				if(  gr->obj_bei(i)->is_moving()  ) {
+					vehikel_t *v = dynamic_cast<vehikel_t *>(gr->obj_bei(i));
+					if(  v  &&  v->get_convoi()  ) {
+						if(  strcmp(v->get_convoi()->get_name(),name)==0  ) {
+							cnv = v->get_convoi()->self;
+							break;
+						}
+					}
+				}
+			}
+		}
+		// we might be unlucky, then search all convois for a convoi with this name
+		if(  !cnv.is_bound()  ) {
+			for(  vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end();  i != end;  ++i  ) {
+				if(  strcmp( (*i)->get_name(),name)==0  ) {
+					cnv = *i;
+					break;
+				}
+			}
+		}
+		// still not found?
+		if(  !cnv.is_bound()  ) {
+			dbg->error( "convoi_info_t::rdwr()", "Could not restore convoi info window of %s", name );
+			destroy_win( this );
+			return;
+		}
+		// now we can open the window ...
+		KOORD_VAL xpos = win_get_posx( this );
+		KOORD_VAL ypos = win_get_posy( this );
+		convoi_info_t *w = new convoi_info_t(cnv);
+		create_win( xpos, ypos, w, w_info, magic_convoi_info+cnv.get_id() );
+		if(  stats  ) {
+			gr.y -= 170;
+		}
+		w->set_fenstergroesse( gr );
+		for( int i = 0; i<MAX_CONVOI_COST; i++) {
+			w->filterButtons[i].pressed = (flags>>i)&1;
+			if(w->filterButtons[i].pressed) {
+				w->chart.show_curve(i);
+			}
+		}
+		if(  stats  ) {
+			w->show_hide_statistics( true );
+		}
+		cnv->get_freight_info(w->freight_info);
+		w->text.set_text(w->freight_info);
+		w->text.recalc_size();
+		w->scrolly.set_scroll_position( xoff, yoff );
+		// we must invalidate halthandle
+		cnv = convoihandle_t();
+		destroy_win( this );
+	}
 }

@@ -15,6 +15,7 @@
 #include "components/gui_label.h"                  // 09-Dec-2001      Markus Weber    Added
 #include "components/action_listener.h"
 #include "../convoihandle_t.h"
+#include "../simwin.h"
 
 class koord;
 
@@ -25,7 +26,7 @@ class koord;
 class gui_vehicleinfo_t : public gui_container_t
 {
 private:
-    /**
+	/**
      * Handle des anzuzeigenden Convois.
      * @author Hj. Malthaner
      */
@@ -37,6 +38,8 @@ public:
      * @author Hj. Malthaner
      */
     gui_vehicleinfo_t(convoihandle_t cnv);
+
+	void set_cnv( convoihandle_t c ) { cnv = c; }
 
     /**
      * Zeichnet die Komponente
@@ -60,6 +63,8 @@ public:
 	enum sort_mode_t { by_destination=0, by_via=1, by_amount_via=2, by_amount=3, SORT_MODES=4 };
 
 private:
+	static karte_t *welt;
+
 	gui_scrollpane_t scrolly;
 	gui_vehicleinfo_t veh_info;
 
@@ -105,4 +110,11 @@ public:
 	 * called when convoi was renamed
 	 */
 	void update_data() { set_dirty(); }
+
+	// this contructor is only used during loading
+	convoi_detail_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_convoi_detail; }
 };

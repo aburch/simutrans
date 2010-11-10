@@ -56,6 +56,8 @@
 #include "gui/money_frame.h"
 #include "gui/halt_detail.h"
 #include "gui/halt_info.h"
+#include "gui/convoi_detail_t.h"
+#include "gui/convoi_info_t.h"
 
 
 
@@ -417,6 +419,8 @@ void rwdr_all_win(loadsave_t *file)
 					case magic_none: return;
 
 					// actual dialogues to restore
+					case magic_convoi_info:    w = new convoi_info_t(wl); break;
+					case magic_convoi_detail:  w = new convoi_detail_t(wl); break;
 					case magic_halt_info:      w = new halt_info_t(wl); break;
 					case magic_halt_detail:    w = new halt_detail_t(wl); break;
 					case magic_reliefmap:      w = new map_frame_t(wl); break;
