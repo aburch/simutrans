@@ -3162,10 +3162,12 @@ void karte_t::step()
 	}
 
 	// number of playing clients changed
-	if(  umgebung_t::announce_server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
+	if(  umgebung_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
 		last_clients = socket_list_t::get_playing_clients();
-		// inform the master server
-		announce_server();
+		if(  umgebung_t::announce_server  ) {
+			// inform the master server
+			announce_server();
+		}
 		// add message via tool
 		cbuffer_t buf(256);
 		buf.printf( translator::translate("Now %u clients connected.", einstellungen->get_name_language_id()), last_clients );
@@ -5408,7 +5410,8 @@ bool karte_t::interactive(uint32 quit_month)
 				network_disconnect();
 			}
 
-			if(  nwc  ) {
+			// process all the received commands at once
+			while (nwc) {
 				// check timing
 				if (nwc->get_id()==NWC_CHECK) {
 					// checking for synchronisation
@@ -5426,7 +5429,7 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 					dbg->message("NWC_CHECK","time difference to server %lli",difftime);
 				}
-				// check timing
+				// check random number generator states
 				if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
 					nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 					if(  nwt->last_sync_step > last_random_seed_sync  ) {
@@ -5450,17 +5453,24 @@ bool karte_t::interactive(uint32 quit_month)
 						continue;
 					}
 				}
+
+				// execute command, append to command queue if necessary
 				if (nwc->execute(this)) {
 					delete nwc;
 				}
-				// when execute next command?
-				if(  !command_queue.empty()  ) {
-					next_command_step = command_queue.front()->get_sync_step();
-				}
-				else {
-					next_command_step = 0xFFFFFFFFu;
-				}
+				// fetch the next command
+				nwc = network_get_received_command();
 			}
+			// when execute next command?
+			if(  !command_queue.empty()  ) {
+				next_command_step = command_queue.front()->get_sync_step();
+			}
+			else {
+				next_command_step = 0xFFFFFFFFu;
+			}
+
+			// send data
+			network_process_send_queues(min(5u,next_step_time-dr_time()));
 		}
 		else {
 			// we wait here for maximum 9ms
@@ -5502,7 +5512,6 @@ bool karte_t::interactive(uint32 quit_month)
 					}
 				}
 				else {
-					// check timiming
 					if(  nwc->get_id()==NWC_TOOL  ) {
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 						if (LRAND(nwt->last_sync_step) != nwt->last_random_seed) {

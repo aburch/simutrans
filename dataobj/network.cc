@@ -39,8 +39,18 @@ static char const* network_receive_file(SOCKET s, char const* save_as, long leng
 
 static bool network_active = false;
 
-// list of commands on the server
-static slist_tpl<network_command_t *> server_command_queue;
+// list of received commands
+static slist_tpl<network_command_t *> received_command_queue;
+
+void clear_command_queue()
+{
+	while(!received_command_queue.empty()) {
+		network_command_t *nwc = received_command_queue.remove_first();
+		if (nwc) {
+			delete nwc;
+		}
+	}
+}
 
 #ifdef WIN32
 #define RET_ERR_STR { FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); err = err_str; return INVALID_SOCKET; }
@@ -527,7 +537,7 @@ bool network_init_server( int port )
 	dbg->message("network_init_server", "added server %d sockets", socket_list_t::get_server_sockets());
 #endif
 	client_id = 0;
-	server_command_queue.clear();
+	clear_command_queue();
 	return true;
 }
 
@@ -541,16 +551,21 @@ void network_set_socket_nodelay( SOCKET sock )
 }
 
 
-/* do appropriate action for network server:
- * - either connect to a new client
- * - receive commands
+network_command_t* network_get_received_command()
+{
+	if (!received_command_queue.empty()) {
+		return received_command_queue.remove_first();
+	}
+	return NULL;
+}
+
+
+/* do appropriate action for network games:
+ * - server: accept connection to a new client
+ * - all: receive commands and puts them to the received_command_queue
  */
 network_command_t* network_check_activity(karte_t *, int timeout)
 {
-	if (umgebung_t::server  &&  !server_command_queue.empty()) {
-		return server_command_queue.remove_first();
-	}
-
 	fd_set fds;
 	FD_ZERO(&fds);
 
@@ -564,52 +579,80 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 	int action = select(s_max, &fds, NULL, NULL, &tv );
 
 	if(  action<=0  ) {
-		// timeout
-		return NULL;
+		// timeout: return command from the queue
+		return network_get_received_command();
 	}
 
 	// accept new connection
-	SOCKET accept_sock = socket_list_t::fd_isset(&fds, true);
+	socket_list_t::server_socket_iterator_t iter_s(&fds);
+	while(iter_s.next()) {
+		SOCKET accept_sock = iter_s.get_current();
 
-	if(  accept_sock!=INVALID_SOCKET  ) {
-		struct sockaddr_in client_name;
-		socklen_t size = sizeof(client_name);
-		SOCKET s = accept(accept_sock, (struct sockaddr *)&client_name, &size);
-		if(  s!=INVALID_SOCKET  ) {
-#ifdef  __BEOS__
-			dbg->message("check_activity()", "Accepted connection from: %lh.\n", client_name.sin_addr.s_addr );
-#else
-			dbg->message("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
-#endif
-			socket_list_t::add_client(s);
+		if(  accept_sock!=INVALID_SOCKET  ) {
+			struct sockaddr_in client_name;
+			socklen_t size = sizeof(client_name);
+			SOCKET s = accept(accept_sock, (struct sockaddr *)&client_name, &size);
+			if(  s!=INVALID_SOCKET  ) {
+	#ifdef  __BEOS__
+				dbg->message("check_activity()", "Accepted connection from: %lh.\n", client_name.sin_addr.s_addr );
+	#else
+				dbg->message("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
+	#endif
+				socket_list_t::add_client(s);
+			}
 		}
-		// not a request
-		return NULL;
 	}
-	else {
-		SOCKET sender = socket_list_t::fd_isset(&fds, false);
-		if(  sender==INVALID_SOCKET  ) {
-			return NULL;
+
+	// receive from clients
+	socket_list_t::client_socket_iterator_t iter_c(&fds);
+	while(iter_c.next()) {
+		SOCKET sender = iter_c.get_current();
+
+		if (sender != INVALID_SOCKET  &&  socket_list_t::has_client(sender)) {
+			uint32 client_id = socket_list_t::get_client_id(sender);
+			network_command_t *nwc = socket_list_t::get_client(client_id).receive_nwc();
+			if (nwc) {
+				received_command_queue.append(nwc);
+				dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender);
+			}
+			// errors are caught and treated in socket_info_t::receive_nwc
 		}
-		// receive only one command
-		FD_ZERO(&fds);
-		FD_SET(sender,&fds);
-		tv.tv_usec = 0;
-		if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
-			return NULL;
-		}
-		network_command_t *nwc = network_command_t::read_from_socket(sender);
-		// something failed
-		if (nwc == NULL) {
-			socket_list_t::remove_client(sender);
-		}
-		else {
-			dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender);
-		}
-		// read something sucessful
-		return nwc;
 	}
-	return NULL;
+	return network_get_received_command();
+}
+
+
+void network_process_send_queues(int timeout)
+{
+	fd_set fds;
+	FD_ZERO(&fds);
+
+	int s_max = socket_list_t::fill_set(&fds);
+
+	// time out
+	struct timeval tv;
+	tv.tv_sec = 0; // seconds
+	tv.tv_usec = max(0, timeout) * 1000; // micro-seconds
+
+	int action = select(s_max, NULL, &fds, NULL, &tv );
+
+	if(  action<=0  ) {
+		// timeout: return
+		return;
+	}
+
+	// send to clients
+	socket_list_t::client_socket_iterator_t iter_c(&fds);
+	while(iter_c.next()  &&  action>0) {
+		SOCKET sock = iter_c.get_current();
+
+		if (sock != INVALID_SOCKET  &&  socket_list_t::has_client(sock)) {
+			uint32 client_id = socket_list_t::get_client_id(sock);
+			socket_list_t::get_client(client_id).process_send_queue();
+			// errors are caught and treated in socket_info_t::process_send_queue
+		}
+		action --;
+	}
 }
 
 
@@ -650,7 +693,7 @@ void network_send_all(network_command_t* nwc, bool exclude_us )
 		socket_list_t::send_all(nwc, true);
 		if(  !exclude_us  &&  umgebung_t::server  ) {
 			// I am the server
-			server_command_queue.append(nwc);
+			received_command_queue.append(nwc);
 		}
 		else {
 			delete nwc;
@@ -672,17 +715,23 @@ void network_send_server(network_command_t* nwc )
 		}
 		else {
 			// I am the server
-			server_command_queue.append(nwc);
+			received_command_queue.append(nwc);
 		}
 	}
 }
 
 
-
-uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length )
+/**
+ * receive data from sender
+ * @param dest the destination buffer
+ * @param len length of destination buffer and number of bytes to be received
+ * @param received number of received bytes is returned here
+ * @returns true if connection is still valid, false if an error occurs and connection needs to be closed
+ */
+bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received )
 {
 	fd_set fds;
-	uint16 bytes = 0;
+	received = 0;
 	char *ptr = (char *)dest;
 	// time out
 	struct timeval tv;
@@ -692,17 +741,30 @@ uint16 network_receive_data( SOCKET sender, void *dest, const uint16 length )
 		FD_SET(sender,&fds);
 		tv.tv_sec = 0;
 		tv.tv_usec = 250000ul;	// maximum 250ms timeout
+		// can we read?
 		if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
-			return bytes;
+			return true;
 		}
-		if(  recv( sender, ptr+bytes, 1, 0 )==0  ) {
-			socket_list_t::remove_client( sender );
-			return 0;
+		// now receive
+		int res = recv( sender, ptr+received, len-received, 0 );
+		if (res == -1) {
+			int err = GET_LAST_ERROR();
+			if (err != EWOULDBLOCK) {
+				dbg->warning("network_receive_data", "error %d while receiving from [%d]", err, sender);
+				return false;
+			}
+			// try again later
+			return true;
 		}
-		bytes ++;
-	} while(  bytes<length  );
+		if (res == 0) {
+			// connection closed
+			dbg->warning("network_receive_data", "connection [%d] already closed", sender);
+			return false;
+		}
+		received += res;
+	} while(  received<len  );
 
-	return length;
+	return true;
 }
 
 
@@ -812,7 +874,7 @@ void network_close_socket( SOCKET sock )
 
 void network_reset_server()
 {
-	server_command_queue.clear();
+	clear_command_queue();
 	socket_list_t::reset_clients();
 }
 
@@ -822,7 +884,7 @@ void network_reset_server()
  */
 void network_core_shutdown()
 {
-	server_command_queue.clear();
+	clear_command_queue();
 
 	socket_list_t::reset();
 

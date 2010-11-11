@@ -15,30 +15,54 @@ class packet_t : public memory_rw_t {
 private:
 	// the buffer
 	uint8 buf[MAX_PACKET_LEN];
+	// the header
+	// [0]  size
+	uint16 size;
 	// [2]	version
 	uint16 version;
 	// [4]  id
 	uint16 id;
 
-	bool error:1;
-
 	// who sent this packet
 	SOCKET sock;
 
-	void rdwr_header( uint16 &size );
-	// ready for sending
-	bool   ready;
+	bool error:1;
+	// ready for sending / fully received
+	bool ready:1;
+	// how much already sent / received
+	uint16 count;
+
+
+	void rdwr_header();
 
 public:
-	packet_t() : memory_rw_t(buf+HEADER_SIZE,MAX_PACKET_LEN-HEADER_SIZE,true), version(NETWORK_VERSION), id(0), error(false), sock(INVALID_SOCKET), ready(false) {};
+	/**
+	 * constructor: packet is in saving-mode
+	 */
+	packet_t();
+	packet_t(const packet_t &p);
 
-	// read the packet from the socket
+	/**
+	 * constructor: packet is in loading-mode
+	 * @param s socket from where the packet has to be received
+	 */
 	packet_t(SOCKET s);
 
+	/**
+	 * start/continue sending
+	 * sets bools ready or error
+	 */
 	void send(SOCKET s);
+
+	/**
+	 * start/continue receiving
+	 * sets bools ready or error
+	 */
+	void recv();
 
 	bool has_failed() const { return error  ||  is_overflow();}
 	void failed() { error = true; }
+	bool is_ready() const { return ready; }
 
 	// can we understand the received packet?
 	bool check_version() const { return is_saving() || (version <= NETWORK_VERSION); }

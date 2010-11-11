@@ -61,9 +61,14 @@ public:
 
 	SOCKET get_sender();
 
+	/**
+	 * returns ptr to a copy of the packet
+	 */
+	packet_t *copy_packet() const;
+
 	// creates an instance:
-	// creates a packet, reads it from socket, get the nwc-id, and reads its data
-	static network_command_t* read_from_socket(SOCKET s);
+	// gets the nwc-id from the packet, and reads its data
+	static network_command_t* read_from_packet(packet_t *p);
 };
 
 /**

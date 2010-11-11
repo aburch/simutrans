@@ -24,13 +24,12 @@
 static vector_tpl<uint16>hashes_ok;	// bit set, if this player on that client is not protected
 #endif
 
-network_command_t* network_command_t::read_from_socket(SOCKET s)
+network_command_t* network_command_t::read_from_packet(packet_t *p)
 {
-	// receive packet
-	packet_t *p = new packet_t(s);
 	// check data
-	if (p->has_failed()  ||  !p->check_version()) {
+	if (p==NULL  ||  p->has_failed()  ||  !p->check_version()) {
 		delete p;
+		dbg->warning("network_command_t::read_from_packet", "error in packet");
 		return NULL;
 	}
 	network_command_t* nwc = NULL;
@@ -48,6 +47,7 @@ network_command_t* network_command_t::read_from_socket(SOCKET s)
 	}
 	if (nwc) {
 		if (!nwc->receive(p) ||  p->has_failed()) {
+			dbg->warning("network_command_t::read_from_packet", "error while reading cmd from packet");
 			delete nwc;
 			nwc = NULL;
 		}
@@ -125,6 +125,17 @@ void network_command_t::send(SOCKET s)
 bool network_command_t::is_local_cmd()
 {
 	return (our_client_id == (uint32)network_get_client_id());
+}
+
+
+packet_t* network_command_t::copy_packet() const
+{
+	if (packet) {
+		return new packet_t(*packet);
+	}
+	else {
+		return NULL;
+	}
 }
 
 
