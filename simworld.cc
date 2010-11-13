@@ -5435,7 +5435,7 @@ bool karte_t::interactive(uint32 quit_month)
 					if(  nwt->last_sync_step > last_random_seed_sync  ) {
 						dbg->warning("karte_t::interactive", "client was too fast (skipping command)" );
 						delete nwc;
-						continue;
+						nwc = NULL;
 					}
 					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 					if(nwt->last_sync_step + LAST_RANDOMS_COUNT > last_random_seed_sync  &&  LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
@@ -5450,14 +5450,15 @@ bool karte_t::interactive(uint32 quit_month)
 							socket_list_t::remove_client( nwc->get_sender() );
 						}
 						delete nwc;
-						continue;
+						nwc = NULL;
 					}
 				}
 
 				// execute command, append to command queue if necessary
-				if (nwc->execute(this)) {
+				if(nwc  &&  nwc->execute(this)) {
 					delete nwc;
 				}
+/******* what happens with undeleted nwcs here??? ********/
 				// fetch the next command
 				nwc = network_get_received_command();
 			}
