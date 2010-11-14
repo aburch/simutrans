@@ -500,7 +500,7 @@ DBG_MESSAGE("ai_passenger_t::create_simple_road_transport()","Already connection
 	INT_CHECK("simplay 846");
 
 	bauigel.calc_route(welt->lookup_kartenboden(platz1)->get_pos(),welt->lookup_kartenboden(platz2)->get_pos());
-	if(bauigel.get_count()-1 > 1) {
+	if(bauigel.get_count() > 2) {
 DBG_MESSAGE("ai_t::create_simple_road_transport()","building simple road from %d,%d to %d,%d",platz1.x, platz1.y, platz2.x, platz2.y);
 		bauigel.baue();
 		return true;
