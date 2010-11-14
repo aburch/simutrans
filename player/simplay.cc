@@ -347,7 +347,7 @@ void spieler_t::neuer_monat()
 	if(konto < 0) {
 		konto_ueberzogen++;
 		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1  ) {
-			if(  get_ai_id()==HUMAN  &&  !umgebung_t::networkmode  ) {
+			if(  welt->get_active_player_nr()==player_nr  &&  !umgebung_t::networkmode  ) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win(true);
 					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
@@ -359,7 +359,9 @@ void spieler_t::neuer_monat()
 					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
-			else {
+			// no assets => nothing to go bankrupt about again
+			else if(  maintenance!=0  ||  finance_history_year[0][COST_ALL_CONVOIS]!=0  ) {
+
 				// for AI, we only declare bankrupt, if total assest are below zero
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					ai_bankrupt();
@@ -536,8 +538,7 @@ halthandle_t spieler_t::halt_add(koord pos)
  * Erzeugt eine neue Haltestelle des Spielers an Position pos
  * @author Hj. Malthaner
  */
-void
-spieler_t::halt_add(halthandle_t halt)
+void spieler_t::halt_add(halthandle_t halt)
 {
 	if(!halt_list.is_contained(halt)) {
 		halt_list.append(halt);

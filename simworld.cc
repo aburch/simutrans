@@ -2770,6 +2770,29 @@ void karte_t::neuer_monat()
 	INT_CHECK("simworld 1282");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","players");
+	if(  letzter_monat == 0  &&  !get_einstellungen()->is_freeplay()  ) {
+		// remove all player (but first and second) who went bankrupt during last year
+		for(int i=2; i<MAX_PLAYER_COUNT-1; i++) {
+			if(  spieler[i] != NULL  &&  (spieler[i]->get_ai_id()==spieler_t::HUMAN  ||  !umgebung_t::networkmode)  &&
+				spieler[i]->get_finance_history_year(0,COST_NETWEALTH)<=0  &&
+				spieler[i]->get_finance_history_year(0,COST_MAINTENANCE)==0  &&
+				spieler[i]->get_finance_history_year(0,COST_ALL_CONVOIS)==0  )
+			{
+				delete spieler[i];
+				spieler[i] = 0;
+				// if currently still active => reset to default human
+				if(  i == active_player_nr  ) {
+					i = 0;
+					active_player = spieler[0];
+				}
+			}
+		}
+		// update the window
+		ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+		if (playerwin) {
+			playerwin->update_data();
+		}
+	}
 	// spieler
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
 		if(  spieler[i] != NULL  ) {
