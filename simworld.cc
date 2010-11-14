@@ -5456,9 +5456,11 @@ bool karte_t::interactive(uint32 quit_month)
 
 				// execute command, append to command queue if necessary
 				if(nwc  &&  nwc->execute(this)) {
+					// network_world_command_t's will be appended to command queue in execute
+					// all others have to be deleted here
 					delete nwc;
+
 				}
-/******* what happens with undeleted nwcs here??? ********/
 				// fetch the next command
 				nwc = network_get_received_command();
 			}
