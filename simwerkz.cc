@@ -3573,7 +3573,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	// read data from string
 	read_default_param(sp);
 	// single click ->place signal
-	if (end==koord3d::invalid) {
+	if( end == koord3d::invalid  ||  start == end ) {
 		grund_t *gr = welt->lookup(start);
 		return place_sign_intern( welt, sp, gr );
 	}
