@@ -2525,6 +2525,7 @@ void convoi_t::calc_loading()
  */
 void convoi_t::self_destruct()
 {
+	line_update_pending = linehandle_t();	// does not bother to add it to a new line anyway ...
 	// convois in depot are not contained in the map array!
 	if(state==INITIAL) {
 		for(  int i=0;  i<anz_vehikel;  i++  ) {

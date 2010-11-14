@@ -570,8 +570,14 @@ void spieler_t::ai_bankrupt()
 
 		linehandle_t line = cnv->get_line();
 
-		cnv->self_destruct();
-		cnv->step();	// to really get rid of it
+		if(  cnv->get_state() != convoi_t::INITIAL  ) {
+			cnv->self_destruct();
+			cnv->step();	// to really get rid of it
+		}
+		else {
+			// convois in depots are directly destroyed
+			cnv->self_destruct();
+		}
 
 		// last vehicle on that connection (no line => railroad)
 		if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
