@@ -166,7 +166,7 @@ public: // from now stuff to deal with fd_set's
 	 */
 	class client_socket_iterator_t : public socket_iterator_t {
 	public:
-		client_socket_iterator_t(fd_set *fds) : socket_iterator_t(fds) {}
+		client_socket_iterator_t(fd_set *fds) : socket_iterator_t(fds) { index = server_sockets; }
 		bool next();
 	};
 };
