@@ -68,7 +68,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 				server_receiver = INVALID_SOCKET;
 			}
 			if(  nwi->name  ) {
-				delete [] name;
+				free(name);
 			}
 		}
 		delete nwi;
