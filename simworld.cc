@@ -5525,6 +5525,10 @@ bool karte_t::interactive(uint32 quit_month)
 						network_disconnect();
 					}
 				}
+				// check map counter
+				else if (nwc->get_map_counter() != map_counter) {
+					dbg->warning("karte_t::interactive", "wanted to do_command(%d) from another world", nwc->get_id());
+				}
 				// check random counter?
 				else if (nwc->get_id()==NWC_CHECK) {
 					nwc_check_t* nwcheck = (nwc_check_t*)nwc;

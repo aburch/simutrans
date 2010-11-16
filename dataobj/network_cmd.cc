@@ -277,15 +277,16 @@ bool network_world_command_t::execute(karte_t *welt)
 		}
 		return true; // to delete cmd
 	}
-	else if (map_counter != welt->get_map_counter()) {
+	if (map_counter != welt->get_map_counter()) {
 		// command from another world
-		// maybe sent before sync happened -> ignore
+		// could happen if we are behind and still have to execute the next sync command
 		dbg->warning("network_world_command_t::execute", "wanted to execute(%d) from another world", get_id());
-		return true; // to delete cmd
+		if (umgebung_t::server) {
+			return true; // to delete cmd
+		}
+		// map_counter has to be checked before calling do_command()
 	}
-	else {
-		welt->command_queue_append(this);
-	}
+	welt->command_queue_append(this);
 	return false;
 }
 
