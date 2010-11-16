@@ -131,6 +131,11 @@ public:
 	virtual const char* get_name() { return "nwc_ready_t";}
 	uint32 sync_steps;
 	uint32 map_counter;
+
+	static void append_map_counter(uint32 map_counter_);
+	static void clear_map_counters();
+private:
+	static vector_tpl<uint32>all_map_counters;
 };
 
 /**

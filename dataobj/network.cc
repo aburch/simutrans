@@ -538,6 +538,7 @@ bool network_init_server( int port )
 #endif
 	client_id = 0;
 	clear_command_queue();
+	nwc_ready_t::clear_map_counters();
 	return true;
 }
 
@@ -876,6 +877,7 @@ void network_reset_server()
 {
 	clear_command_queue();
 	socket_list_t::reset_clients();
+	nwc_ready_t::clear_map_counters();
 }
 
 

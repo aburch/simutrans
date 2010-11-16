@@ -4741,6 +4741,7 @@ void karte_t::reset_interaction()
 void karte_t::reset_map_counter()
 {
 	map_counter = dr_time();
+	nwc_ready_t::append_map_counter(map_counter);
 }
 
 
