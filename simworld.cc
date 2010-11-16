@@ -4727,7 +4727,7 @@ void karte_t::reset_timer()
 		next_step_time = last_tick_sync+(3200/get_time_multiplier() );
 		intr_enable();
 	}
-	DBG_MESSAGE("karte_t::reset_timer()","called, mode=$%X");
+	DBG_MESSAGE("karte_t::reset_timer()","called, mode=$%X", step_mode);
 }
 
 
