@@ -925,7 +925,9 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+		DBG_MESSAGE("simmain", "calling view->display");
 		view->display(true);
+		DBG_MESSAGE("simmain", "calling intr_refresh_display");
 		intr_refresh_display(true);
 	}
 	else {
@@ -948,14 +950,17 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
+	DBG_MESSAGE("simmain", "sprachengui_t::init_font_from_lang");
 	sprachengui_t::init_font_from_lang();
 
 	welt->get_message()->clear();
 
 	if(  !umgebung_t::networkmode  &&  new_world  ) {
+		DBG_MESSAGE("simmain", "show banner");
 		printf( "Show banner ... \n" );
 		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
+		DBG_MESSAGE("simmain", "banner closed");
 	}
 
 	while (!umgebung_t::quit_simutrans) {
@@ -963,6 +968,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		check_midi();
 
 		// to purge all previous old messages
+		DBG_MESSAGE("simmain", "set_message_flags");
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
 		if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
