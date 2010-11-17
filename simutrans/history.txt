@@ -103,6 +103,7 @@
 	ADD: dialogue can be changed (currently only minimap)
 	ADD: possibility to compare pakset of client and server
 	CHANGE: one year after bankrupt, clear slot for new player
+	CHANGE: first load convoi waiting the longest time at a stop
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

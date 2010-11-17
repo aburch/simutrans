@@ -397,12 +397,12 @@ public:
 	* fahrzeug an haltestelle entladen
 	* @author Hj. Malthaner
 	*/
-	bool entladen(koord k, halthandle_t halt);
+	bool entladen(halthandle_t halt);
 
 	/**
 	* fahrzeug an haltestelle beladen
 	*/
-	bool beladen(koord k, halthandle_t halt);
+	bool beladen(halthandle_t halt);
 
 	// sets or querey begin and end of convois
 	void set_erstes(bool janein) {ist_erstes = janein;}

@@ -306,6 +306,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 {
 	self = halthandle_t(this);
 	markers[ self.get_id() ] = current_mark;
+	last_loading_step = wl->get_steps();
 
 	welt = wl;
 
@@ -346,6 +347,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 
 	markers[ self.get_id() ] = current_mark;
 
+	last_loading_step = wl->get_steps();
 	welt = wl;
 
 	this->init_pos = k;
@@ -783,6 +785,32 @@ char *haltestelle_t::create_name(const koord k, const char *typ, const int lang)
 	// emergency measure: But before we should run out of handles anyway ...
 	assert(0);
 	return strdup("Unnamed");
+}
+
+
+
+// add convoi to loading
+void haltestelle_t::request_loading( convoihandle_t cnv )
+{
+	if(  !loading_here.is_contained(cnv)  ) {
+		loading_here.append (cnv );
+	}
+	if(  last_loading_step != welt->get_steps()  ) {
+		last_loading_step = welt->get_steps();
+		// now iterate over all convois
+		for(  slist_tpl<convoihandle_t>::iterator i = loading_here.begin(), end = loading_here.end();  i != end;  ) {
+			if(  (*i).is_bound()  &&  (*i)->get_state()==convoi_t::LOADING  ) {
+				// now we load into convoi
+				(*i)->hat_gehalten( self );
+			}
+			if(  (*i).is_bound()  &&  (*i)->get_state()==convoi_t::LOADING  ) {
+				++i;
+			}
+			else {
+				i = loading_here.erase( i );
+			}
+		}
+	}
 }
 
 

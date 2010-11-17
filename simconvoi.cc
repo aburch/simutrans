@@ -371,6 +371,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		koord3d k0 = fahr[anz_vehikel-1]->get_pos();
 
 		uint32 train_length = move_to(*welt, k0, start_index) + 1;
+		const koord3d last_start = fahr[0]->get_pos();
 
 		// now advance all convoi until it is completely on the track
 		fahr[0]->set_erstes(false); // switches off signal checks ...
@@ -390,6 +391,14 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			}
 		}
 		fahr[0]->set_erstes(true);
+		if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  fahr[0]->get_pos() != last_start  ) {
+			state = WAITING_FOR_CLEARANCE;
+		}
+	}
+
+	if(  state==LOADING  ) {
+		// the fully the shorter => reregister as older convoi
+		wait_lock = 2000-loading_level*20;
 	}
 
 	// Knightly : if lineless convoy -> register itself with stops
@@ -1140,7 +1149,7 @@ void convoi_t::start()
 			fahr[i]->set_erstes( false );
 			fahr[i]->set_letztes( false );
 			fahr[i]->clear_flag( ding_t::not_on_map );
-			fahr[i]->beladen( home_depot.get_2d(), halthandle_t() );
+			fahr[i]->beladen( halthandle_t() );
 		}
 		fahr[0]->set_erstes( true );
 		fahr[anz_vehikel-1]->set_letztes( true );
@@ -2331,6 +2340,10 @@ void convoi_t::laden()
 		return;
 	}
 
+	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
+		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
+	}
+
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
 	// eigene haltestelle ?
 	if (halt.is_bound()) {
@@ -2338,39 +2351,16 @@ void convoi_t::laden()
 		const spieler_t* owner = halt->get_besitzer();
 		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) {
 			// loading/unloading ...
-			hat_gehalten(k, halt);
+			halt->request_loading( self );
+//			hat_gehalten(k, halt);
+		}
+		else {
+			halt = halthandle_t();
 		}
 	}
 
-	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
-		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
-	}
-
-	// Nun wurde ein/ausgeladen werden
-	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
-
-		// This is the minimum time it takes for loading
-		wait_lock = WTT_LOADING;
-
-		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
-			// destroy when empty
-			self_destruct();
-			return;
-		}
-
-		// add available capacity after loading(!) to statistics
-		for (unsigned i = 0; i<anz_vehikel; i++) {
-			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
-		}
-
-		// Advance schedule
-		fpl->advance();
-		state = ROUTING_1;
-	}
-	else {
-		// just wait a little longer to get maximum load ...
-		wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
-	}
+	// just wait a little longer to get maximum load ...
+	wait_lock = (WTT_LOADING*2)+(self.get_id())%1024;
 }
 
 
@@ -2404,7 +2394,7 @@ void convoi_t::calc_gewinn()
  *
  * V.Meyer: ladegrad is now stored in the object (not returned)
  */
-void convoi_t::hat_gehalten(koord k, halthandle_t halt)
+void convoi_t::hat_gehalten(halthandle_t halt)
 {
 	sint64 gewinn = 0;
 	grund_t *gr=welt->lookup(fahr[0]->get_pos());
@@ -2455,14 +2445,14 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 			v->last_stop_pos = v->get_pos().get_2d();
 		}
 
-		changed_loading_level |= v->entladen(k, halt);
+		changed_loading_level |= v->entladen(halt);
 		if(!no_load) {
 			// load
-			changed_loading_level |= v->beladen(k, halt);
+			changed_loading_level |= v->beladen(halt);
 		}
 		else {
 			// do not load anymore - but call beladen() to recalculate vehikel weight
-			v->beladen(k, halthandle_t());
+			v->beladen(halthandle_t());
 		}
 
 	}
@@ -2482,6 +2472,28 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt)
 		book(gewinn, CONVOI_PROFIT);
 		book(gewinn, CONVOI_REVENUE);
 	}
+
+	// Nun wurde ein/ausgeladen werden
+	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
+
+		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
+			// destroy when empty
+			self_destruct();
+			return;
+		}
+
+		// add available capacity after loading(!) to statistics
+		for (unsigned i = 0; i<anz_vehikel; i++) {
+			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
+		}
+
+		// Advance schedule
+		fpl->advance();
+		state = ROUTING_1;
+	}
+
+	// at least wait the minimum time for loading
+	wait_lock = WTT_LOADING;
 }
 
 
