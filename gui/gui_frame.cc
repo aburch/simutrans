@@ -102,14 +102,14 @@ void gui_frame_t::resize(const koord delta)
 
 	// resize window to the minimal width
 	if (new_size.x < min_windowsize.x) {
+		size_change.x = min_windowsize.x - groesse.x;
 		new_size.x = min_windowsize.x;
-		size_change.x = 0;
 	}
 
 	// resize window to the minimal heigth
 	if (new_size.y < min_windowsize.y) {
+		size_change.y = min_windowsize.y - groesse.y;
 		new_size.y = min_windowsize.y;
-		size_change.y = 0;
 	}
 
 	// resize window
