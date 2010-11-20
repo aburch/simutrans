@@ -153,8 +153,9 @@ bool obj_reader_t::load(const char *liste, const char *message)
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}
 		if(skinverwaltung_t::biglogosymbol) {
-			const int w = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->w;
-			const int h = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->h;
+			const bild_t *bild0 = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic();
+			const int w = bild0->w;
+			const int h = bild0->h + bild0->y;
 			int x = display_get_width()/2-w;
 			int y = display_get_height()/4-w;
 			if(y<0) {
