@@ -18,8 +18,8 @@ packet_t::packet_t() : memory_rw_t(buf,MAX_PACKET_LEN,true),
 	size(0),
 	version(NETWORK_VERSION),
 	id(0),
-	error(false),
 	sock(INVALID_SOCKET),
+	error(false),
 	ready(false),
 	count(0)
 {
