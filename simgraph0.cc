@@ -94,6 +94,10 @@ sint16 display_set_height(KOORD_VAL)
 	return 0;
 }
 
+void display_set_actual_width(KOORD_VAL)
+{
+}
+
 int display_get_light(void)
 {
 	return 0;

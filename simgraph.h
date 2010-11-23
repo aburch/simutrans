@@ -111,6 +111,7 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
 KOORD_VAL display_get_width(void);
 KOORD_VAL display_get_height(void);
 KOORD_VAL display_set_height(KOORD_VAL);
+void display_set_actual_width(KOORD_VAL);
 
 
 int display_get_light(void);
