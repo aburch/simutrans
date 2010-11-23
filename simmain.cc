@@ -925,10 +925,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+#ifdef display_in_main
 		DBG_MESSAGE("simmain", "calling view->display");
 		view->display(true);
 		DBG_MESSAGE("simmain", "calling intr_refresh_display");
 		intr_refresh_display(true);
+#endif
+		intr_enable();
 	}
 	else {
 		intr_disable();
@@ -942,6 +945,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		display_set_pointer(skinverwaltung_t::mouse_cursor->get_bild_nr(0));
 	}
 #endif
+	DBG_MESSAGE("simmain", "calling display_show_pointer");
 	display_show_pointer(true);
 	show_pointer(1);
 	set_pointer(0);
