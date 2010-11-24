@@ -388,7 +388,13 @@ void dr_textur(int xp, int yp, int w, int h)
 	if (yp + h > screen->h) {
 		h = screen->h - yp;
 	}
-	SDL_UpdateRect(screen, xp, yp, w, h);
+#ifdef DEBUG
+	// make sure both are positive numbers
+	if(  w*h>0  )
+#endif
+	{
+		SDL_UpdateRect(screen, xp, yp, w, h);
+	}
 #endif
 }
 

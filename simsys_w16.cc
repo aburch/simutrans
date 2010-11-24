@@ -350,15 +350,22 @@ void dr_flush()
 
 void dr_textur(int xp, int yp, int w, int h)
 {
+	// make really sure we are not beyond screen coordinates
 	h = min( yp+h, WindowSize.bottom ) - yp;
-	AllDib->biHeight = h+1;
-	StretchDIBits(
-		hdc,
-		xp, yp, w, h,
-		xp, h + 1, w, -h,
-		(LPSTR)(AllDibData + yp * WindowSize.right), (LPBITMAPINFO)AllDib,
-		DIB_RGB_COLORS, SRCCOPY
-	);
+#ifdef DEBUG
+	w = min( xp+w, WindowSize.right ) - xp;
+	if(  h>1  &&  w>0  )
+#endif
+	{
+		AllDib->biHeight = h+1;
+		StretchDIBits(
+			hdc,
+			xp, yp, w, h,
+			xp, h + 1, w, -h,
+			(LPSTR)(AllDibData + yp * WindowSize.right), (LPBITMAPINFO)AllDib,
+			DIB_RGB_COLORS, SRCCOPY
+		);
+	}
 }
 
 

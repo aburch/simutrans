@@ -3858,7 +3858,7 @@ void display_flush_buffer(void)
 			x++;
 		} while (x < tiles_per_line);
 	}
-	dr_textur(0, 0, disp_width, disp_height);
+	dr_textur(0, 0, disp_actual_width, disp_height);
 #else
 	for (y = 0; y < tile_lines; y++) {
 		x = 0;
