@@ -45,6 +45,7 @@
 #include "simsys.h"
 #include "simevent.h"
 #include "simgraph.h"
+#include "simdebug.h"
 
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
@@ -222,6 +223,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	else {
 		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
 	}
+	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 
 	SDL_EnableUNICODE(TRUE);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -268,6 +270,14 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 
 	screen = SDL_SetVideoMode(width, height, bpp, flags);
 	printf("textur_resize()::screen=%p\n", screen);
+	if (screen) {
+		DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
+	}
+	else {
+		if (dbg) {
+			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
+		}
+	}
 	fflush(NULL);
 	*textur = (unsigned short*)screen->pixels;
 	display_set_actual_width( w );

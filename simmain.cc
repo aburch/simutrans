@@ -624,7 +624,9 @@ int simu_main(int argc, char** argv)
 	}
 
 	printf("Preparing display ...\n");
+	DBG_MESSAGE("simmain", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
 	simgraph_init(disp_width, disp_height, fullscreen);
+	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.empty()  ) {
