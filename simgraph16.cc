@@ -1,5 +1,5 @@
 /*
- * Copyright 1997, 2001 Hansjörg Malthaner
+ * Copyright 1997, 2001 Hj. Malthaner
  * hansjoerg.malthaner@gmx.de
  * Copyright 2010 Simutrans contributors
  * Available under the Artistic License (see license.txt)
@@ -1077,7 +1077,7 @@ static void recode(void)
 	unsigned n;
 
 	for (n = 0; n < anz_images; n++) {
-		// tut jetzt on demand recode_img() für jedes Bild einzeln
+		// recode images only if the recoded image is needed
 		images[n].recode_flags |= FLAG_NORMAL_RECODE;
 		images[n].player_flags = NEED_PLAYER_RECODE;
 	}
@@ -1749,9 +1749,6 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 }
 
 
-/**
- * Fügt ein Image aus anderer Quelle hinzu
- */
 void register_image(struct bild_t* bild)
 {
 	struct imd* image;
@@ -3127,7 +3124,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 #ifdef USE_C
 			uint32 *lp;
 
-			if (count & 1) *p++ = longcolval;
+			if (count & 1) *p++ = colval;
 			count >>= 1;
 			lp = (uint32 *)p;
 			while (count-- != 0) {
