@@ -69,8 +69,9 @@
 class simwin_gadget_flags_t
 {
 public:
-	simwin_gadget_flags_t( void ) : close( false ) , help( false ) , prev( false ), size( false ), next( false ), sticky( false ) { }
+	simwin_gadget_flags_t( void ) : title(true), close( false ), help( false ), prev( false ), size( false ), next( false ), sticky( false ) { }
 
+	bool title:1;
 	bool close:1;
 	bool help:1;
 	bool prev:1;
@@ -280,16 +281,18 @@ static void win_draw_window_title(const koord pos, const koord gr,
 		const bool sticky,
 		const simwin_gadget_flags_t * const flags )
 {
-	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
-	display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, false);
-	display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, false);
-	display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, false);
-	display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, false);
+	if(  flags->title  ) {
+		PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
+		display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, false);
+		display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, false);
+		display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, false);
+		display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, false);
 
-	// Draw the gadgets and then move left and draw text.
-	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
-	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
-	POP_CLIP();
+		// Draw the gadgets and then move left and draw text.
+		int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
+		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
+		POP_CLIP();
+	}
 }
 
 
@@ -501,6 +504,7 @@ int create_win(int x, int y, gui_frame_t* const gui, wintype const wt, long cons
 		// (Mathew Hounsell) Make Sure Closes Aren't Forgotten.
 		// Must Reset as the entries and thus flags are reused
 		win.flags.close = true;
+		win.flags.title = gui->has_title();
 		win.flags.help = ( gui->get_hilfe_datei() != NULL );
 		win.flags.prev = gui->has_prev();
 		win.flags.next = gui->has_next();

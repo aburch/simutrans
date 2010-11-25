@@ -29,6 +29,8 @@ public:
 
 	bool has_sticky() const { return false; }
 
+	virtual bool has_title() const { return false; }
+
 	/**
 	* Fenstertitel
 	* @author Hj. Malthaner
@@ -41,11 +43,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	PLAYER_COLOR_VAL get_titelcolor() const {return WIN_TITEL; }
-
-	/**
-	* @return gibt wunschgroesse für das beobachtungsfenster zurueck
-	*/
-	koord get_fenstergroesse() const { return koord(display_get_width(),display_get_height()+48); }
 
 	/* returns true, if inside window area ...
 	* @author Hj. Malthaner

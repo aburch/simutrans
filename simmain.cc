@@ -189,10 +189,8 @@ static void zeige_banner(karte_t *welt)
 
 	destroy_all_win(true);	// since eventually the successful load message is still there ....
 
-	create_win(0, -48, b, w_info, magic_none );
+	create_win( (display_get_width()-b->get_fenstergroesse().x)/2, (display_get_height()-b->get_fenstergroesse().y)/2, b, w_info, magic_none );
 
-	// hide title bar and active window frame with this trick
-	win_set_pos( b, -200, -248 );
 	welt->set_pause( false );
 	welt->reset_interaction();
 	welt->reset_timer();
