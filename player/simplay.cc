@@ -595,6 +595,26 @@ void spieler_t::ai_bankrupt()
 		haltestelle_t::destroy( h );
 	}
 
+	// transfer all ways in public stops belonging to me to no one
+	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
+	while(  iter.next()  ) {
+		halthandle_t halt = iter.get_current();
+		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
+			// only concerns public stops tiles
+			for(  slist_tpl<haltestelle_t::tile_t>::const_iterator iter_tiles = halt->get_tiles().begin(), end = halt->get_tiles().end();  iter_tiles != end;  ++iter_tiles  ) {
+				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
+					weg_t *w = iter_tiles->grund->get_weg_nr(wnr);
+					if(  w  &&  w->get_besitzer()==this  ) {
+						// take ownership
+						spieler_t::add_maintenance( this, -w->get_besch()->get_wartung() );
+						w->set_besitzer(NULL); // make public
+					}
+				}
+			}
+		}
+	}
+
+
 	// next remove all ways, depot etc, that are not road or channels
 	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
 		for( int x=0;  x<welt->get_groesse_x();  x++  ) {
@@ -633,7 +653,7 @@ void spieler_t::ai_bankrupt()
 								case ding_t::way:
 								{
 									weg_t *w=(weg_t *)dt;
-									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
+									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
 										add_maintenance( -w->get_besch()->get_wartung() );
 										w->set_besitzer( NULL );
 									}
