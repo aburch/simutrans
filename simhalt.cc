@@ -320,7 +320,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, loadsave_t* file)
 	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
-	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
+	waiting_times = new koordhashtable_tpl<koord, waiting_time_set >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
 	// Knightly : create the actual connexion hash tables
@@ -417,7 +417,7 @@ haltestelle_t::haltestelle_t(karte_t* wl, koord k, spieler_t* sp)
 	for ( uint8 i = 0; i < max_categories; i++ ) {
 		non_identical_schedules[i] = 0;
 	}
-	waiting_times = new koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >[max_categories];
+	waiting_times = new koordhashtable_tpl<koord, waiting_time_set >[max_categories];
 	connexions = new quickstone_hashtable_tpl<haltestelle_t, connexion*>*[max_categories];
 
 	// Knightly : create the actual connexion hash tables
@@ -504,6 +504,17 @@ haltestelle_t::~haltestelle_t()
 	// do not forget the players list ...
 	if(besitzer_p!=NULL) {
 		besitzer_p->halt_remove(self);
+	}
+
+	// clean waiting_times for each stop 
+	// Inkelyad, November 2010
+	slist_iterator_tpl <halthandle_t> halt_iter(alle_haltestellen);
+	while (halt_iter.next() ) {
+		halthandle_t current_halt = halt_iter.get_current();
+		for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
+		{
+			waiting_times[category].remove(get_basis_pos());	
+		}
 	}
 
 	// free name
@@ -616,16 +627,16 @@ void haltestelle_t::rotate90( const sint16 y_size )
 		if(waren[i]) 
 		{
 			vector_tpl<koord> k_list;
-			vector_tpl<fixed_list_tpl<uint16, 16> > f_list;
-			koordhashtable_iterator_tpl<koord, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
+			vector_tpl<waiting_time_set> f_list;
+			koordhashtable_iterator_tpl<koord, waiting_time_set > iter(waiting_times[i]);
 			while(iter.next())
 			{
 				koord k = iter.get_current_key();
-				fixed_list_tpl<uint16, 16> f  = waiting_times[i].remove(k);
+				waiting_time_set f  = waiting_times[i].remove(k);
 				k.rotate90(y_size);
 				if(waiting_times[i].is_contained(k))
 				{
-					fixed_list_tpl<uint16, 16> f_2 = waiting_times[i].remove(k);
+					waiting_time_set f_2 = waiting_times[i].remove(k);
 					koord k_2 = k;
 					k_2.rotate90(y_size);
 					assert(k_2 != koord::invalid);
@@ -1105,8 +1116,8 @@ void haltestelle_t::step(sint16 &units_remaining)
 						// have waited to get transport.
 						uint16 waiting_minutes = get_waiting_minutes(welt->get_zeit_ms() - tmp.arrival_time);
 						if(waiting_minutes == 0 && welt->get_zeit_ms() != tmp.arrival_time)
-						{ 
-							waiting_minutes = 1;
+						{						
+							waiting_minutes = 4;
 						}
 						waiting_minutes *= 1.5;
 						if(waiting_minutes > 0)
@@ -1145,6 +1156,25 @@ void haltestelle_t::neuer_monat()
 	pax_no_route = 0;
 	pax_unhappy = 0;
 	pax_too_slow = 0;
+
+	// If the waiting times have not been updated for too long, gradually re-set them; also increment the timing records.
+	for ( int category = 0; category < warenbauer_t::get_max_catg_index(); category++ )
+	{
+		koordhashtable_iterator_tpl<koord, waiting_time_set> iter(waiting_times[category]);
+		while (iter.next())
+		{
+			// If the waiting time data are stale (more than two months old), gradually flush them.
+			if(iter.get_current_value().month > 2)
+			{
+				for(int i = 0; i < 4; i ++)
+				{
+					iter.access_current_value().times.add_to_tail(39);
+				}
+			}
+			// Update the waiting time timing records.
+			iter.access_current_value().month ++;
+		}
+	}
 
 	// hsiegeln: roll financial history
 	for (int j = 0; j<MAX_HALT_COST; j++) {
@@ -1307,7 +1337,7 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 {
 	if(&waiting_times[category].get(halt->get_basis_pos()) != NULL)
 	{
-		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt->get_basis_pos());
+		fixed_list_tpl<uint16, 16> times = waiting_times[category].get(halt->get_basis_pos()).times;
 		const uint16 count = times.get_count();
 		if(count > 0 && halt.is_bound())
 		{
@@ -1317,14 +1347,14 @@ uint16 haltestelle_t::get_average_waiting_time(halthandle_t halt, uint8 category
 				total_times += times.get_element(i);
 			}
 			total_times /= count;
-			// Minimum waiting time of 1 minute (i.e., 10 tenths of a minute)
+			// Minimum waiting time of 4 minutes (i.e., 40 tenths of a minute)
 			// This simulates the overhead time needed to arrive at a stop, and 
 			// board, etc. It should help to prevent perverse vias on a single route.
-			return total_times >= 10 ? (uint16)total_times : 10;
+			return total_times >= 40 ? (uint16)total_times : 40;
 		}
-		return 9;
+		return 39;
 	}
-	return 9;
+	return 39;
 }
 
 // Modified by : Knightly
@@ -3387,19 +3417,23 @@ void haltestelle_t::rdwr(loadsave_t *file)
 				halts_count = waiting_times[i].get_count();
 				file->rdwr_short(halts_count);
 			
-				koordhashtable_iterator_tpl<koord, fixed_list_tpl<uint16, 16> > iter(waiting_times[i]);
+				koordhashtable_iterator_tpl<koord, waiting_time_set > iter(waiting_times[i]);
 
 				while(iter.next())
 				{
 					koord save_koord = iter.get_current_key();
 					save_koord.rdwr(file);
-					uint8 waiting_time_count = iter.get_current_value().get_count();
+					uint8 waiting_time_count = iter.get_current_value().times.get_count();
 					file->rdwr_byte(waiting_time_count);
-					ITERATE(iter.get_current_value(),i)
+					ITERATE(iter.get_current_value().times,i)
 					{
 						// Store each waiting time
-						uint16 current_time = iter.access_current_value().get_element(i);
+						uint16 current_time = iter.access_current_value().times.get_element(i);
 						file->rdwr_short(current_time);
+					}
+					if(file->get_experimental_version() >= 9)
+					{
+						file->rdwr_byte(iter.access_current_value().month);
 					}
 				}
 			}
@@ -3414,6 +3448,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 					if(halt_position != koord::invalid)
 					{
 						fixed_list_tpl<uint16, 16> list;
+						uint8 month;
+						waiting_time_set set;
 						uint8 waiting_time_count;
 						file->rdwr_byte(waiting_time_count);
 						for(uint8 j = 0; j < waiting_time_count; j ++)
@@ -3422,7 +3458,17 @@ void haltestelle_t::rdwr(loadsave_t *file)
 							file->rdwr_short(current_time);
 							list.add_to_tail(current_time);
 						}
-						waiting_times[i].put(halt_position, list);
+						if(file->get_experimental_version() >= 9)
+						{
+							file->rdwr_byte(month);
+						}
+						else
+						{
+							month = 0;
+						}
+						set.month = month;
+						set.times = list;
+						waiting_times[i].put(halt_position, set);
 					}
 					else
 					{
@@ -3433,6 +3479,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 						{
 							uint16 current_time;
 							file->rdwr_short(current_time);
+						}
+						
+						if(file->get_experimental_version() >= 9)
+						{
+							uint8 month;
+							file->rdwr_byte(month);
 						}
 					}
 				}

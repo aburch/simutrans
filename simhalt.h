@@ -429,10 +429,16 @@ private:
 	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
 	~haltestelle_t();
 
+	struct waiting_time_set
+	{
+		fixed_list_tpl<uint16, 16> times;
+		uint8 month;
+	};
+		
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >* waiting_times;
+	koordhashtable_tpl<koord, waiting_time_set >* waiting_times;
 
 	// Used for pathfinding. The list is stored on the heap so that it can be re-used
 	// if searching is aborted part-way through.
@@ -876,7 +882,7 @@ public:
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
-	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category)
+	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false)
 	{
 		if(halt.is_bound())
 		{
@@ -885,9 +891,16 @@ public:
 			if(waiting_times[category].access(halt->get_basis_pos()) == NULL)
 			{
 				tmp = new fixed_list_tpl<uint16, 16>;
-				waiting_times[category].put(halt->get_basis_pos(), *tmp);
+				waiting_time_set *set = new waiting_time_set;
+				set->times = *tmp;
+				set->month = 0;
+				waiting_times[category].put(halt->get_basis_pos(), *set);
 			}
-			waiting_times[category].access(halt->get_basis_pos())->add_to_tail(time);
+			waiting_times[category].access(halt->get_basis_pos())->times.add_to_tail(time);
+			if(!do_not_reset_month)
+			{
+				waiting_times[category].access(halt->get_basis_pos())->month = 0;
+			}
 		}
 	
 	}
