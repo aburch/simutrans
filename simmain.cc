@@ -197,7 +197,9 @@ static void zeige_banner(karte_t *welt)
 
 	do {
 		static long ms_pause = 1000/min(100,umgebung_t::fps);
+		DBG_DEBUG("zeige_banner", "calling win_poll_event");
 		win_poll_event(&ev);
+		DBG_DEBUG("zeige_banner", "calling check_pos_win");
 		check_pos_win(&ev);
 		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 			umgebung_t::quit_simutrans = true;
@@ -205,7 +207,9 @@ static void zeige_banner(karte_t *welt)
 		dr_sleep(ms_pause);
 		static uint32 last_step = dr_time();
 		uint32 next_step = dr_time();
+		DBG_DEBUG("zeige_banner", "calling welt->sync_step(%d)",next_step-last_step);
 		welt->sync_step( next_step-last_step, true, true );
+		DBG_DEBUG("zeige_banner", "calling welt->step");
 		welt->step();
 		last_step = next_step;
 	} while(win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
