@@ -8,6 +8,8 @@
 class ding_view_t : public world_view_t
 {
 	public:
+		ding_view_t(karte_t *w, koord const size) : world_view_t(w, size), ding(NULL) {}
+
 		ding_view_t(ding_t const* d, koord const size) : world_view_t(d->get_welt(), size), ding(d) {}
 
 		ding_t const* get_ding() const { return ding; }

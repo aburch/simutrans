@@ -112,7 +112,16 @@ private:
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
+	slist_tpl<convoihandle_t> loading_here;
+	long last_loading_step;
+
 public:
+	// add convoi to loading queue
+	void request_loading( convoihandle_t cnv );
+
+	// removes convoi from laoding quee
+	void finish_loading( convoihandle_t cnv ) { loading_here.remove(cnv); }
+
 	/* recalculates the station bar */
 	void recalc_status();
 

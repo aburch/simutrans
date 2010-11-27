@@ -186,6 +186,9 @@ public:
 
 	virtual bool has_sticky() const { return true; }
 
+	// if false, title and all gadgets will be not drawn
+	virtual bool has_title() const { return true; }
+
 	/**
 	 * Set resize mode
 	 * @author Markus Weber

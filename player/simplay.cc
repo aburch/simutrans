@@ -388,7 +388,7 @@ void spieler_t::neuer_monat()
 
 		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1 ) 
 		{
-			if( get_ai_id()==HUMAN  &&  !umgebung_t::networkmode )
+			if( welt->get_active_player_nr()==player_nr  &&  !umgebung_t::networkmode )
 			{
 				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
@@ -424,8 +424,11 @@ void spieler_t::neuer_monat()
 					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
-			else 
-{
+
+			// no assets => nothing to go bankrupt about again
+			else if(  maintenance!=0  ||  finance_history_year[0][COST_ALL_CONVOIS]!=0  ) 
+			{
+
 				// for AI, we only declare bankrupt, if total assest are below zero
 				// Also, AI players play by the same rules as human players: will only go bankrupt if humans can.
 				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
@@ -675,8 +678,7 @@ halthandle_t spieler_t::halt_add(koord pos)
  * Erzeugt eine neue Haltestelle des Spielers an Position pos
  * @author Hj. Malthaner
  */
-void
-spieler_t::halt_add(halthandle_t halt)
+void spieler_t::halt_add(halthandle_t halt)
 {
 	if(!halt_list.is_contained(halt)) {
 		halt_list.append(halt);
@@ -709,8 +711,14 @@ void spieler_t::ai_bankrupt()
 
 		linehandle_t line = cnv->get_line();
 
-		cnv->self_destruct();
-		cnv->step();	// to really get rid of it
+		if(  cnv->get_state() != convoi_t::INITIAL  ) {
+			cnv->self_destruct();
+			cnv->step();	// to really get rid of it
+		}
+		else {
+			// convois in depots are directly destroyed
+			cnv->self_destruct();
+		}
 
 		// last vehicle on that connection (no line => railroad)
 		if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
@@ -728,6 +736,26 @@ void spieler_t::ai_bankrupt()
 		halt_list.remove(h);
 		haltestelle_t::destroy( h );
 	}
+
+	// transfer all ways in public stops belonging to me to no one
+	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
+	while(  iter.next()  ) {
+		halthandle_t halt = iter.get_current();
+		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
+			// only concerns public stops tiles
+			for(  slist_tpl<haltestelle_t::tile_t>::const_iterator iter_tiles = halt->get_tiles().begin(), end = halt->get_tiles().end();  iter_tiles != end;  ++iter_tiles  ) {
+				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
+					weg_t *w = iter_tiles->grund->get_weg_nr(wnr);
+					if(  w  &&  w->get_besitzer()==this  ) {
+						// take ownership
+						spieler_t::add_maintenance( this, -w->get_besch()->get_wartung() );
+						w->set_besitzer(NULL); // make public
+					}
+				}
+			}
+		}
+	}
+
 
 	// next remove all ways, depot etc, that are not road or channels
 	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
@@ -767,7 +795,7 @@ void spieler_t::ai_bankrupt()
 								case ding_t::way:
 								{
 									weg_t *w=(weg_t *)dt;
-									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
+									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
 										add_maintenance( -w->get_besch()->get_wartung() );
 										w->set_besitzer( NULL );
 									}

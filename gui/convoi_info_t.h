@@ -18,6 +18,7 @@
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
 #include "../simconvoi.h"
+#include "../simwin.h"
 
 #include "../utils/cbuffer_t.h"
 
@@ -31,6 +32,7 @@
 #define BUTTON_COUNT MAX_CONVOI_COST
 #endif
 
+
 /**
  * Displays an information window for a convoi
  *
@@ -43,6 +45,8 @@ public:
 	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, SORT_MODES = 6 };
 
 private:
+	static karte_t *welt;
+
 	gui_scrollpane_t scrolly;
 	gui_textarea_t text;
 	ding_view_t view;
@@ -100,6 +104,8 @@ private:
 
 	static const char *sort_text[SORT_MODES];
 
+	void show_hide_statistics( bool show );
+
 public:
 	//static bool route_search_in_progress;
 	convoi_info_t(convoihandle_t cnv);
@@ -141,4 +147,11 @@ public:
 	 * called when convoi was renamed
 	 */
 	void update_data() { reset_cnv_name(); set_dirty(); }
+
+	// this contructor is only used during loading
+	convoi_info_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_convoi_info; }
 };

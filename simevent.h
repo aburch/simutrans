@@ -14,7 +14,7 @@
 
 /* Messageverarbeitung */
 
-/* Klassen */
+/* Event Classes */
 
 #define EVENT_NONE                    0
 #define EVENT_KEYBOARD                1
@@ -35,7 +35,7 @@
 #define EVENT_SYSTEM                254
 #define IGNORE_EVENT                255
 
-/* codes */
+/* Event Codes */
 
 #define MOUSE_LEFTBUTTON              1
 #define MOUSE_RIGHTBUTTON             2
@@ -122,7 +122,7 @@
 // This macro is to determine if the event should be also handled by children of containers.
 #define DOES_WINDOW_CHILDREN_NEED(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_class == WINDOW_RESIZE || (ev)->ev_class == WINDOW_MAKE_MIN_SIZE ) // 11-Mar-03 (Mathew Hounsell) Added
 
-#define IS_WINDOW_TOP(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_class == WIN_TOP )
+#define IS_WINDOW_TOP(ev) ((ev)->ev_class == INFOWIN || (ev)->ev_code == WIN_TOP)
 
 #define IS_LEFT_BUTTON_PRESSED(ev) ((ev)->button_state&1)
 #define IS_RIGHT_BUTTON_PRESSED(ev) (((ev)->button_state&2)>>1)

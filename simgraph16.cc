@@ -1,5 +1,5 @@
 /*
- * Copyright 1997, 2001 Hansjörg Malthaner
+ * Copyright 1997, 2001 Hj. Malthaner
  * hansjoerg.malthaner@gmx.de
  * Copyright 2010 Simutrans contributors
  * Available under the Artistic License (see license.txt)
@@ -1077,7 +1077,7 @@ static void recode(void)
 	unsigned n;
 
 	for (n = 0; n < anz_images; n++) {
-		// tut jetzt on demand recode_img() für jedes Bild einzeln
+		// recode images only if the recoded image is needed
 		images[n].recode_flags |= FLAG_NORMAL_RECODE;
 		images[n].player_flags = NEED_PLAYER_RECODE;
 	}
@@ -1749,9 +1749,6 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 }
 
 
-/**
- * Fügt ein Image aus anderer Quelle hinzu
- */
 void register_image(struct bild_t* bild)
 {
 	struct imd* image;
@@ -3127,7 +3124,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 #ifdef USE_C
 			uint32 *lp;
 
-			if (count & 1) *p++ = longcolval;
+			if (count & 1) *p++ = colval;
 			count >>= 1;
 			lp = (uint32 *)p;
 			while (count-- != 0) {
@@ -3648,6 +3645,23 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
 }
 
 
+void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos - 1, ypos - 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
+void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
 /**
  * Zeichnet schattiertes Rechteck
  * @author Hj. Malthaner
@@ -3661,13 +3675,6 @@ void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, 
 
 	display_vline_wh_clip(x1,         y1 + 1, h, tl_color, TRUE);
 	display_vline_wh_clip(x1 + w - 1, y1 + 1, h, rd_color, TRUE);
-}
-
-
-void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
-{
-	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, ALIGN_LEFT | DT_CLIP, shadow_color, -1);
-	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, ALIGN_LEFT | DT_CLIP, text_color, -1);
 }
 
 
@@ -3780,9 +3787,6 @@ void display_set_progress_text(const char *t)
 // draws a progress bar and flushes the display
 void display_progress(int part, int total)
 {
-	const int disp_width=display_get_width();
-	const int disp_height=display_get_height();
-
 	const int width=disp_width/2;
 	part = (part*width)/total;
 
@@ -3799,7 +3803,7 @@ void display_progress(int part, int total)
 	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_NO_ROUTE, TRUE);
 
 	if(progress_text) {
-		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
+		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
 	}
 	dr_flush();
 }
@@ -3851,7 +3855,7 @@ void display_flush_buffer(void)
 			x++;
 		} while (x < tiles_per_line);
 	}
-	dr_textur(0, 0, disp_width, disp_height);
+	dr_textur(0, 0, disp_actual_width, disp_height);
 #else
 	for (y = 0; y < tile_lines; y++) {
 		x = 0;
@@ -3954,14 +3958,13 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int i;
 
-	// make sure it something of 16 (also better for caching ... )
 	disp_actual_width = width;
-	width = (width + 15) & 0x7FF0;
+	disp_height = height;
 
-	if (dr_os_open(width, height, 16, full_screen)) {
+	// get real width from os-dependent routines
+	disp_width = dr_os_open(width, height, 16, full_screen);
+	if(  disp_width>0  ) {
 
-		disp_width = width;
-		disp_height = height;
 
 		textur = dr_textur_init();
 

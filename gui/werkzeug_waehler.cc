@@ -24,8 +24,8 @@ werkzeug_waehler_t::werkzeug_waehler_t(karte_t* welt, const char* titel, const c
 {
 	this->toolbar_id = toolbar_id;
 	this->allow_break = allow_break;
-    this->welt = welt;
-    this->hilfe_datei = helpfile;
+	this->welt = welt;
+	this->hilfe_datei = helpfile;
 	this->icon = icon;
 	this->tool_icon_disp_start = 0;
 	this->tool_icon_disp_end = 0;

@@ -51,6 +51,7 @@
 #include "simevent.h"
 #include "simgraph.h"
 #include "./dataobj/umgebung.h"
+#include "simdebug.h"
 
 // try to use hardware double buffering ...
 // this is equivalent on 16 bpp and much slower on 32 bpp
@@ -197,12 +198,20 @@ int dr_query_screen_height()
 }
 
 
+extern void display_set_actual_width(KOORD_VAL w);
 
 
 // open the window
 int dr_os_open(int w, int h, int bpp, int fullscreen)
 {
 	Uint32 flags = sync_blit ? 0 : SDL_ASYNCBLIT;
+
+	// some cards need those alignments
+	// especially 64bit want a border of 8bytes
+	w = (w + 15) & 0x7FF0;
+	if(  w<=0  ) {
+		w = 16;
+	}
 
 	width = w;
 	height = h;
@@ -221,10 +230,12 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	screen = SDL_SetVideoMode(w, h, bpp, flags);
 	if (screen == NULL) {
 		fprintf(stderr, "Couldn't open the window: %s\n", SDL_GetError());
-		return FALSE;
-	} else {
+		return 0;
+	}
+	else {
 		fprintf(stderr, "Screen Flags: requested=%x, actual=%x\n", flags, screen->flags);
 	}
+	DBG_MESSAGE("dr_os_open(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 
 	SDL_EnableUNICODE(TRUE);
 	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
@@ -235,7 +246,8 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	arrow = SDL_GetCursor();
 	hourglass = SDL_CreateCursor(hourglass_cursor, hourglass_cursor_mask, 16, 22, 8, 11);
 
-	return TRUE;
+	display_set_actual_width( w );
+	return w;
 }
 
 
@@ -250,8 +262,6 @@ int dr_os_close(void)
 	return TRUE;
 }
 
-
-extern void display_set_actual_width(KOORD_VAL w);
 
 // resizes screen
 int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
@@ -273,6 +283,14 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 
 	screen = SDL_SetVideoMode(width, height, bpp, flags);
 	printf("textur_resize()::screen=%p\n", screen);
+	if (screen) {
+		DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
+	}
+	else {
+		if (dbg) {
+			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
+		}
+	}
 	fflush(NULL);
 	*textur = (unsigned short*)screen->pixels;
 	display_set_actual_width( w );
@@ -387,9 +405,19 @@ void dr_textur(int xp, int yp, int w, int h)
 {
 #ifndef USE_HW
 	// make sure the given rectangle is completely on screen
-	if (xp + w > screen->w) w = screen->w - xp;
-	if (yp + h > screen->h) h = screen->h - yp;
-	SDL_UpdateRect(screen, xp, yp, w, h);
+	if (xp + w > screen->w) {
+		w = screen->w - xp;
+	}
+	if (yp + h > screen->h) {
+		h = screen->h - yp;
+	}
+#ifdef DEBUG
+	// make sure both are positive numbers
+	if(  w*h>0  )
+#endif
+	{
+		SDL_UpdateRect(screen, xp, yp, w, h);
+	}
 #endif
 }
 

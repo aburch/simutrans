@@ -94,6 +94,7 @@ public:
 
 	/**
 	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
+	* lable type 4..7
 	*
 	* @author Hj. Malthaner
 	*/
@@ -194,7 +195,7 @@ public:
 		DATE_FMT_GERMAN   = 4,
 		DATE_FMT_JAPANESE_NO_SEASON = 5,
 		DATE_FMT_US_NO_SEASON       = 6,
-		DATE_FMT_GERMAN_NO_SEASON   = 7,
+		DATE_FMT_GERMAN_NO_SEASON   = 7
 	};
 
 	/**

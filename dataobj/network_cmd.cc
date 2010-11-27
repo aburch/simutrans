@@ -24,13 +24,12 @@
 static vector_tpl<uint16>hashes_ok;	// bit set, if this player on that client is not protected
 #endif
 
-network_command_t* network_command_t::read_from_socket(SOCKET s)
+network_command_t* network_command_t::read_from_packet(packet_t *p)
 {
-	// receive packet
-	packet_t *p = new packet_t(s);
 	// check data
-	if (p->has_failed()  ||  !p->check_version()) {
+	if (p==NULL  ||  p->has_failed()  ||  !p->check_version()) {
 		delete p;
+		dbg->warning("network_command_t::read_from_packet", "error in packet");
 		return NULL;
 	}
 	network_command_t* nwc = NULL;
@@ -48,6 +47,7 @@ network_command_t* network_command_t::read_from_socket(SOCKET s)
 	}
 	if (nwc) {
 		if (!nwc->receive(p) ||  p->has_failed()) {
+			dbg->warning("network_command_t::read_from_packet", "error while reading cmd from packet");
 			delete nwc;
 			nwc = NULL;
 		}
@@ -125,6 +125,17 @@ void network_command_t::send(SOCKET s)
 bool network_command_t::is_local_cmd()
 {
 	return (our_client_id == (uint32)network_get_client_id());
+}
+
+
+packet_t* network_command_t::copy_packet() const
+{
+	if (packet) {
+		return new packet_t(*packet);
+	}
+	else {
+		return NULL;
+	}
 }
 
 
@@ -212,15 +223,47 @@ bool nwc_join_t::execute(karte_t *welt)
 }
 
 
+/**
+ * saves the history of map counters
+ * the current one is at index zero, the older ones behind
+ */
+#define MAX_MAP_COUNTERS (7)
+vector_tpl<uint32> nwc_ready_t::all_map_counters(MAX_MAP_COUNTERS);
+
+
+void nwc_ready_t::append_map_counter(uint32 map_counter_)
+{
+	if (all_map_counters.get_count() == MAX_MAP_COUNTERS) {
+		all_map_counters.remove_at( all_map_counters.get_count()-1 );
+	}
+	all_map_counters.insert_at(0, map_counter_);
+}
+
+
+void nwc_ready_t::clear_map_counters()
+{
+	all_map_counters.clear();
+}
+
+
 bool nwc_ready_t::execute(karte_t *welt)
 {
 	if (umgebung_t::server) {
-		// unpause the sender ie send ready_t back
-		nwc_ready_t nwc(sync_steps, welt->get_map_counter());
+		// unpause the sender: send ready_t back
+		// get the right map counter first
+		// i.e. that one the comes after the mapcounter in this command
+		uint32 mpc = welt->get_map_counter();
+		for (uint32 i=1; i<all_map_counters.get_count(); i++) {
+			if (all_map_counters[i] == map_counter) {
+				mpc = all_map_counters[i-1];
+				break;
+			}
+		}
+		nwc_ready_t nwc(sync_steps, mpc);
 		nwc.send( this->packet->get_sender());
 	}
 	else {
-		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d",sync_steps);
+		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d map_counter=%d",sync_steps,map_counter);
 		welt->set_map_counter(map_counter);
 		welt->network_game_set_pause(false, sync_steps);
 	}
@@ -266,15 +309,16 @@ bool network_world_command_t::execute(karte_t *welt)
 		}
 		return true; // to delete cmd
 	}
-	else if (map_counter != welt->get_map_counter()) {
+	if (map_counter != welt->get_map_counter()) {
 		// command from another world
-		// maybe sent before sync happened -> ignore
-		dbg->warning("network_world_command_t::execute", "wanted to execute(%d) from another world", get_id());
-		return true; // to delete cmd
+		// could happen if we are behind and still have to execute the next sync command
+		dbg->warning("network_world_command_t::execute", "wanted to execute(%d) from another world (mpc=%d)", get_id(), map_counter);
+		if (umgebung_t::server) {
+			return true; // to delete cmd
+		}
+		// map_counter has to be checked before calling do_command()
 	}
-	else {
-		welt->command_queue_append(this);
-	}
+	welt->command_queue_append(this);
 	return false;
 }
 
@@ -315,7 +359,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		welt->network_game_set_pause(true, old_sync_steps);
 
 		// tell server we are ready
-		network_command_t *nwc = new nwc_ready_t(old_sync_steps);
+		network_command_t *nwc = new nwc_ready_t(old_sync_steps, welt->get_map_counter());
 		network_send_server(nwc);
 	}
 	else {

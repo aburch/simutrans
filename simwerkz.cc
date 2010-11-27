@@ -3346,11 +3346,11 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		// public stops are expensive!
 		if(besch->get_base_station_price() != 2147483647)
 		{
-			cost += welt->calc_adjusted_monthly_figure(cost * 60);
+			cost -= welt->calc_adjusted_monthly_figure(cost * 60);
 		}
 		else
 		{
-			cost += welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
+			cost -= welt->calc_adjusted_monthly_figure(welt->get_einstellungen()->maint_building * besch->get_level() * besch->get_b() * besch->get_h() * 60);
 		}
 	}
 
@@ -3921,7 +3921,7 @@ const char *wkz_roadsign_t::do_work( karte_t *welt, spieler_t *sp, const koord3d
 	// read data from string
 	read_default_param(sp);
 	// single click ->place signal
-	if (end==koord3d::invalid) {
+	if( end == koord3d::invalid  ||  start == end ) {
 		grund_t *gr = welt->lookup(start);
 		return place_sign_intern( welt, sp, gr );
 	}

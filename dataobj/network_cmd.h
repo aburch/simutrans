@@ -61,9 +61,14 @@ public:
 
 	SOCKET get_sender();
 
+	/**
+	 * returns ptr to a copy of the packet
+	 */
+	packet_t *copy_packet() const;
+
 	// creates an instance:
-	// creates a packet, reads it from socket, get the nwc-id, and reads its data
-	static network_command_t* read_from_socket(SOCKET s);
+	// gets the nwc-id from the packet, and reads its data
+	static network_command_t* read_from_packet(packet_t *p);
 };
 
 /**
@@ -126,6 +131,11 @@ public:
 	virtual const char* get_name() { return "nwc_ready_t";}
 	uint32 sync_steps;
 	uint32 map_counter;
+
+	static void append_map_counter(uint32 map_counter_);
+	static void clear_map_counters();
+private:
+	static vector_tpl<uint32>all_map_counters;
 };
 
 /**

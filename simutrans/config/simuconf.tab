@@ -235,7 +235,10 @@ townhall_info = 0
 # 1 = station names
 # 2 = statistics
 # 3 = names and statistics
-#
+# The visual style is added to this number:
+#   0 = black name in color box
+#   4 = name in player color with outline
+#   8 = box left of name in yellow outline
 show_names = 3
 
 # Color of cursor overlay, which is blended over marked ground tiles

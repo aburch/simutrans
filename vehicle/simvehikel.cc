@@ -1741,7 +1741,7 @@ void vehikel_t::loesche_fracht()
 }
 
 
-bool vehikel_t::beladen(koord, halthandle_t halt, bool overcrowd)
+bool vehikel_t::beladen(halthandle_t halt, bool overcrowd)
 {
 	bool ok = true;
 	if(halt.is_bound()) 
@@ -1759,7 +1759,7 @@ bool vehikel_t::beladen(koord, halthandle_t halt, bool overcrowd)
  * "Vehicle to stop discharged" (translated by Google)
  * @author Hj. Malthaner
  */
-bool vehikel_t::entladen(koord, halthandle_t halt)
+bool vehikel_t::entladen(halthandle_t halt)
 {
 	// printf("Vehikel %p entladen\n", this);
 	uint16 menge = unload_freight(halt);

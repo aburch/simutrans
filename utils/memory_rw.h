@@ -10,30 +10,30 @@
 
 class memory_rw_t {
 private:
+	// pointer to the buffer
 	char *ptr;
-	bool saving:1;
-	bool overflow:1;
+	// actual read/write position
 	uint32 index;
+	// maximal buffer size
 	uint32 max_size;
 
+	bool saving:1;
+	bool overflow:1;
 public:
-	memory_rw_t( void *p, uint32 max, bool save ) { init(p,max,save); }
+	memory_rw_t( void *ptr, uint32 max, bool saving );
 
-	void init( void *ptr, uint32 max, bool saving );
-
+protected:
 	void set_max_size( uint32 new_max_size ) { max_size = new_max_size; }
-	uint32 get_current_size() const { return index; }
+
+	uint32 get_current_index() const { return index; }
+
 	void set_index(uint32 new_index) { index = new_index; }
 
-
-	// Low-Level Read / Write function
-	void rdwr(void *data, uint32 len);
-
+public:
 	bool is_saving() const { return saving; }
 	bool is_loading() const { return !saving; }
 
 	bool is_overflow() const { return overflow; }
-	bool is_finished() const { return index<max_size; }
 
 	void rdwr_byte(sint8 &c);
 	void rdwr_byte(uint8 &c);
@@ -46,5 +46,9 @@ public:
 	void rdwr_double(double &dbl);
 	// s: pointer to a string allocated with malloc!
 	void rdwr_str(char *&s);
+
+private:
+	// Low-Level Read / Write function
+	void rdwr(void *data, uint32 len);
 };
 #endif

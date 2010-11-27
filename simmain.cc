@@ -189,17 +189,17 @@ static void zeige_banner(karte_t *welt)
 
 	destroy_all_win(true);	// since eventually the successful load message is still there ....
 
-	create_win(0, -48, b, w_info, magic_none );
+	create_win( (display_get_width()-b->get_fenstergroesse().x)/2, (display_get_height()-b->get_fenstergroesse().y)/2, b, w_info, magic_none );
 
-	// hide title bar and active window frame with this trick
-	win_set_pos( b, -200, -248 );
 	welt->set_pause( false );
 	welt->reset_interaction();
 	welt->reset_timer();
 
 	do {
 		static long ms_pause = 1000/min(100,umgebung_t::fps);
+		DBG_DEBUG("zeige_banner", "calling win_poll_event");
 		win_poll_event(&ev);
+		DBG_DEBUG("zeige_banner", "calling check_pos_win");
 		check_pos_win(&ev);
 		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 			umgebung_t::quit_simutrans = true;
@@ -207,7 +207,9 @@ static void zeige_banner(karte_t *welt)
 		dr_sleep(ms_pause);
 		static uint32 last_step = dr_time();
 		uint32 next_step = dr_time();
+		DBG_DEBUG("zeige_banner", "calling welt->sync_step(%d)",next_step-last_step);
 		welt->sync_step( next_step-last_step, true, true );
+		DBG_DEBUG("zeige_banner", "calling welt->step");
 		welt->step();
 		last_step = next_step;
 	} while(win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
@@ -678,7 +680,9 @@ int simu_main(int argc, char** argv)
 	}
 
 	printf("Preparing display ...\n");
+	DBG_MESSAGE("simmain", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
 	simgraph_init(disp_width, disp_height, fullscreen);
+	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.empty()  ) {
@@ -985,8 +989,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+#ifdef display_in_main
+		DBG_MESSAGE("simmain", "calling view->display");
 		view->display(true);
+		DBG_MESSAGE("simmain", "calling intr_refresh_display");
 		intr_refresh_display(true);
+#endif
+		intr_enable();
 	}
 	else {
 		intr_disable();
@@ -1000,6 +1009,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		display_set_pointer(skinverwaltung_t::mouse_cursor->get_bild_nr(0));
 	}
 #endif
+	DBG_MESSAGE("simmain", "calling display_show_pointer");
 	display_show_pointer(true);
 	show_pointer(1);
 	set_pointer(0);
@@ -1008,14 +1018,17 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
+	DBG_MESSAGE("simmain", "sprachengui_t::init_font_from_lang");
 	sprachengui_t::init_font_from_lang();
 
 	welt->get_message()->clear();
 
 	if(  !umgebung_t::networkmode  &&  new_world  ) {
+		DBG_MESSAGE("simmain", "show banner");
 		printf( "Show banner ... \n" );
 		ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
+		DBG_MESSAGE("simmain", "banner closed");
 	}
 
 	while (!umgebung_t::quit_simutrans) {
@@ -1023,6 +1036,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		check_midi();
 
 		// to purge all previous old messages
+		DBG_MESSAGE("simmain", "set_message_flags");
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
 		if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {

@@ -6,10 +6,10 @@
 
 #undef SIM_BIG_ENDIAN
 
-void memory_rw_t::init( void *start, uint32 max, bool rw )
+memory_rw_t::memory_rw_t( void *ptr, uint32 max, bool saving )
 {
-	saving = rw;
-	ptr = (char *)start;
+	this->saving = saving;
+	this->ptr = (char *)ptr;
 	index = 0;
 	max_size = max;
 	overflow = false;
