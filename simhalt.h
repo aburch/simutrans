@@ -225,8 +225,6 @@ public:
 
 		// TODO: Consider whether to add comfort
 
-		//
-		convoihandle_t last_loaded_convoy[MAX_PLAYER_COUNT];
 		uint16 alternative_seats; // used in overcrowd calculations in hole_ab, updated by update_alternative_seats
 
 		// Used for the memory pool only.
@@ -840,15 +838,6 @@ public:
 	 * @author Knightly
 	 */
 	vector_tpl<convoihandle_t> registered_convoys;
-
-	/**
-	 * We need to maintain list of 'currently here' convoys.
-	 * @author Inkelyad
-	 */
-	void convoy_has_arrived(convoihandle_t convoy) { here_convoys.append_unique(convoy); }
-	void convoy_has_left(convoihandle_t convoy) { here_convoys.remove(convoy); }
-	bool convoy_is_here(convoihandle_t convoy) { return here_convoys.is_contained(convoy); } // List of convoys at stop is usually short, so it will be fast
-	minivec_tpl<convoihandle_t> here_convoys;
 
 	/**
 	 * It will calculate number of free seats in all other (not cnv) convoys at stop

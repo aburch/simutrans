@@ -811,7 +811,6 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void laden();
-	halthandle_t loading_at_halt; // local cache, will be used when state == LOADING, updated by hat_gehalten() and async_step()
 
 	/**
 	* Setup vehicles before starting to move

@@ -1100,10 +1100,6 @@ end_loop:
 		case ROUTING_1:
 			{
 				vehikel_t* v = fahr[0];
-				if (loading_at_halt.is_bound() && state != LOADING ) {
-					loading_at_halt->convoy_has_left(self);
-					loading_at_halt = halthandle_t();
-				}
 
 				if (fpl->empty()) {
 					state = NO_ROUTE;
@@ -3341,7 +3337,6 @@ void convoi_t::laden() //"load" (Babelfish)
 	// "own stop?" (Babelfish)
 	if (halt.is_bound()) 
 	{
-		halt->convoy_has_arrived(self);
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
 		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) 
@@ -3721,7 +3716,6 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 void convoi_t::hat_gehalten(halthandle_t halt)
 {
 	sint64 gewinn = 0;
-	loading_at_halt = halt;
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
 	int station_length=0;
@@ -3929,10 +3923,6 @@ void convoi_t::destroy()
 		destroy_win((long)fpl);
 	}
 	
-	if (loading_at_halt.is_bound() ) {
-		loading_at_halt->convoy_has_left(self);
-	}
-
 	if(  line.is_bound()  ) {
 		// needs to be done here to remove correctly ware catg from lines
 		unset_line();

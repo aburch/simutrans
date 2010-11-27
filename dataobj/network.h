@@ -57,7 +57,7 @@
 	// to keep compatibility to MS windows
 	typedef int SOCKET;
 #	define INVALID_SOCKET -1
-
+#	define GET_LAST_ERROR() (errno)
 #endif
 
 #if 0

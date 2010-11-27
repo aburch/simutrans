@@ -1481,11 +1481,6 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 				if(existing_connexion->journey_time > new_connexion->journey_time)
 				{
 					// The new connexion is better - replace it.
-					// We don't want to lose loading queue
-					for ( int i = 0 ; i < MAX_PLAYER_COUNT; i++ )
-					{
-						(new_connexion->last_loaded_convoy)[i] = (existing_connexion->last_loaded_convoy)[i];
-					}
 					new_connexion->alternative_seats = existing_connexion->alternative_seats;
 					delete existing_connexion;
 					connexions[category]->set(current_halt, new_connexion);
@@ -2419,33 +2414,12 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 							}	
 						}
 	
+						//refuse to be overcrowded if alternative exist
 						connexion * const next_connexion = connexions[catg_index]->get(next_transfer);
-						if (next_connexion) {
-							//refuse to be overcrowded if alternative exist
-							if ( overcrowded && next_connexion->alternative_seats )
-							{
-								continue;
-							}
-							convoihandle_t last_loaded_convoy = (next_connexion->last_loaded_convoy)[cnv->get_besitzer()->get_player_nr()];
-							if (last_loaded_convoy.is_bound())
-							{
-								if (last_loaded_convoy != cnv->self ) 
-								{ //Last time we were loading different convoy
-								   	if (last_loaded_convoy->loading_at_halt == self /*&& last_loaded_convoy->get_finance_history(0,CONVOI_AVERAGE_SPEED) >= cnv->get_finance_history(0,CONVOI_AVERAGE_SPEED)*/)
-									{ // and it is still here /*and is not slower*/
-										continue;
-									}
-									else
-									{
-										(next_connexion->last_loaded_convoy)[cnv->get_besitzer()->get_player_nr()]= cnv->self;
-									}
-								}
-							}
-							else
-							{
-								(next_connexion->last_loaded_convoy)[cnv->get_besitzer()->get_player_nr()]= cnv->self;
-							}
-						}					
+						if (next_connexion &&  overcrowded && next_connexion->alternative_seats )
+						{
+							continue;
+						}
 						// not too much?
 						ware_t neu(tmp);
 						if(  tmp.menge > maxi  ) 
@@ -2496,7 +2470,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
  */
 void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 {
-	if ( here_convoys.get_count() > 1) {
+	if ( loading_here.get_count() > 1) {
 		do_alternative_seats_calculation = true;
 	}
 
@@ -2512,19 +2486,19 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 		iter.get_current_value()->alternative_seats = 0;
 	}
 
-	if (here_convoys.get_count() < 2 ) { // Alternative don't exists, only one convoy here
+	if (loading_here.get_count() < 2 ) { // Alternative don't exists, only one convoy here
 		do_alternative_seats_calculation = false; // so we will not do clean-up again
 		return;
 	}
 
-	for (int i = 0; i < here_convoys.get_count(); i++)
+	for (slist_tpl<convoihandle_t>::iterator cnv_i = loading_here.begin(), end = loading_here.end();  cnv_i != end;  ++cnv_i)
 	{
-		if ( here_convoys[i] == cnv || ! here_convoys[i]->get_free_seats())
+		if (!(*cnv_i).is_bound() || (*cnv_i) == cnv || ! (*cnv_i)->get_free_seats() )
 		{
 			continue;
 		}
-		const schedule_t *fpl = here_convoys[i]->get_schedule();
-		const spieler_t *sp = here_convoys[i]->get_besitzer();
+		const schedule_t *fpl = (*cnv_i)->get_schedule();
+		const spieler_t *sp = (*cnv_i)->get_besitzer();
 		const uint8 count = fpl->get_count();
 
 		// uses fpl->increment_index to iterate over stops
@@ -2543,7 +2517,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 			{
 				connexion * const next_connexion = connexions[catg_index]->get(plan_halt);
 				if (next_connexion) {
-					next_connexion->alternative_seats += here_convoys[i]->get_free_seats();
+					next_connexion->alternative_seats += (*cnv_i)->get_free_seats();
 				}			
 			}
 
