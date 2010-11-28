@@ -496,11 +496,11 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			guarded_free(const_cast<char *>(typ));
 
 			// Hajo: repair files that have 'insane' values
-			dummy.menge >>= (old_precision_bits-precision_bits);
-			dummy.max >>= (old_precision_bits-precision_bits);
 			if(dummy.menge < 0) {
 				dummy.menge = 0;
 			}
+			dummy.menge >>= (old_precision_bits-precision_bits);
+			dummy.max >>= (old_precision_bits-precision_bits);
 			if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
 				dummy.menge = (FAB_MAX_INPUT << precision_bits);
 			}
@@ -530,6 +530,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		if(file->is_loading()) {
 			dummy.set_typ( warenbauer_t::get_info(typ));
 			guarded_free(const_cast<char *>(typ));
+			// Hajo: repair files that have 'insane' values
+			if(dummy.menge < 0) {
+				dummy.menge = 0;
+			}
 			dummy.menge >>= (old_precision_bits-precision_bits);
 			dummy.max >>= (old_precision_bits-precision_bits);
 			ausgang.append(dummy);
@@ -1031,8 +1035,9 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	/* prissi: distribute goods to factory
 	 * that has not an overflowing input storage
 	 * also prevent stops from overflowing, if possible
+	 * Since we can called with menge>max/2 are at least 10 are there, we must first limit the amount we distribute
 	 */
-	sint32 menge = ausgang[produkt].menge >> precision_bits;
+	sint32 menge = min( 10, ausgang[produkt].menge >> precision_bits );
 
 	// ok, first generate list of possible destinations
 	const halthandle_t *haltlist = plan->get_haltlist();
@@ -1129,7 +1134,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 //DBG_MESSAGE("verteile_waren()","best_amount %i %s",best_amount,translator::translate(ware.get_name()));
 		}
 
-		menge = max( 10, min( menge, 9+capacity_left ) );
+		menge = min( menge, 9+capacity_left );
 		best_ware.menge = menge;
 		if(capacity_left<0) {
 
