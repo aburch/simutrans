@@ -987,7 +987,7 @@ bool check_pos_win(event_t *ev)
 			}
 
 			// Hajo: if within title bar && window needs decoration
-			if(  y<wins[i].pos.y+16  ) {
+			if(  y<wins[i].pos.y+16  &&  wins[i].flags.title  ) {
 				// no more moving
 				is_moving = -1;
 

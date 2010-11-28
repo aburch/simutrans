@@ -184,7 +184,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
  */
 static void zeige_banner(karte_t *welt)
 {
-	banner_t* b = new banner_t();
+	banner_t* b = new banner_t(welt);
 	event_t ev;
 
 	destroy_all_win(true);	// since eventually the successful load message is still there ....
@@ -195,25 +195,29 @@ static void zeige_banner(karte_t *welt)
 	welt->reset_interaction();
 	welt->reset_timer();
 
+	long ms_pause = max( 25, 1000/umgebung_t::fps );
+	uint32 last_step = dr_time()+ms_pause;
+	uint step_count = 5;
 	do {
-		static long ms_pause = 1000/min(100,umgebung_t::fps);
-		DBG_DEBUG("zeige_banner", "calling win_poll_event");
-		win_poll_event(&ev);
-		DBG_DEBUG("zeige_banner", "calling check_pos_win");
-		check_pos_win(&ev);
-		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
-			umgebung_t::quit_simutrans = true;
-		}
-		dr_sleep(ms_pause);
-		static uint32 last_step = dr_time();
-		uint32 next_step = dr_time();
-		DBG_DEBUG("zeige_banner", "calling welt->sync_step(%d)",next_step-last_step);
-		welt->sync_step( next_step-last_step, true, true );
+		do {
+			DBG_DEBUG("zeige_banner", "calling win_poll_event");
+			win_poll_event(&ev);
+			DBG_DEBUG("zeige_banner", "calling check_pos_win");
+			check_pos_win(&ev);
+			if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
+				umgebung_t::quit_simutrans = true;
+				break;
+			}
+			dr_sleep(5);
+		} while(  dr_time()<last_step  );
+		welt->sync_step( ms_pause, true, true );
 		DBG_DEBUG("zeige_banner", "calling welt->step");
-		welt->step();
-		last_step = next_step;
-	} while(win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
-
+		if(  step_count--==0  ) {
+			welt->step();
+			step_count = 5;
+		}
+		last_step += ms_pause;
+	} while(  win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
 
 	if (IS_LEFTCLICK(&ev)) {
 		do {
@@ -968,6 +972,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		printf( "Show banner ... \n" );
 		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
 		zeige_banner(welt);
+		// only show new world, if no other dialoge is active ...
+		new_world = win_get_open_count()==0;
 		DBG_MESSAGE("simmain", "banner closed");
 	}
 

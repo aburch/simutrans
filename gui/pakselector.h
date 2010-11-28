@@ -35,6 +35,8 @@ protected:
 public:
 	void fill_list();	// do the search ...
 
+	virtual bool has_title() const { return false; }
+
 	bool has_pak() const { return !entries.empty(); }
 
 	const char * get_hilfe_datei() const { return ""; }
