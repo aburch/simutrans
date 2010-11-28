@@ -4368,8 +4368,8 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 
 	// max 1 city from each square can be built
 	// each entry represents a cell of grid_step length and width
-	const int xmax = wl->get_groesse_x()/grid_step;
-	const int ymax = wl->get_groesse_y()/grid_step;
+	const int xmax = wl->get_groesse_x()/grid_step + 1;
+	const int ymax = wl->get_groesse_y()/grid_step + 1;
 	array2d_tpl< vector_tpl<koord> > places(xmax, ymax);
 	while (!list->empty()) {
 		const koord k = list->remove_first();
