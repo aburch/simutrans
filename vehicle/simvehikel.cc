@@ -2202,7 +2202,14 @@ void vehikel_t::display_after(int xpos, int ypos, bool is_gobal) const
 
 			case convoi_t::LOADING:
 				if(  state>=1  ) {
-					sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit() );
+					char waiting_time[64];
+					cnv->snprintf_remained_loading_time(waiting_time, sizeof(waiting_time));
+					if (cnv->get_loading_limit() && *waiting_time) {
+						sprintf( tooltip_text, translator::translate("Loading (%i->%i%%), %s left!"), cnv->get_loading_level(), cnv->get_loading_limit(), waiting_time);
+					}
+					else {
+						sprintf( tooltip_text, translator::translate("Loading (%i->%i%%)!"), cnv->get_loading_level(), cnv->get_loading_limit());
+					}
 					color = COL_YELLOW;
 				}
 				break;

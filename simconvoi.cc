@@ -3328,11 +3328,21 @@ void convoi_t::laden() //"load" (Babelfish)
 		return;
 	}
 
-	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
-		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
-	}
-
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
+	if(go_on_ticks==WAIT_INFINITE) {
+		sint64 go_on_ticks_spacing = WAIT_INFINITE;
+		if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) {
+			uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
+			sint64 wait_from_ticks = (welt->get_zeit_ms()/spacing) * spacing; // remember, it is integer division
+			int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
+			go_on_ticks_spacing = wait_from_ticks + spacing * queue_pos;
+		}
+		sint64 go_on_ticks_waiting = WAIT_INFINITE;
+		if ( fpl->get_current_eintrag().waiting_time_shift>0) {
+			go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
+		}
+		go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
+	}
 	// eigene haltestelle ?
 	// "own stop?" (Babelfish)
 	if (halt.is_bound()) 
@@ -4773,6 +4783,24 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	set_tiles_overtaking( 1+n_tiles );
 	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
 	return true;
+}
+
+/**
+ * Format remained loading time from go_on_ticks
+ */
+void convoi_t::snprintf_remained_loading_time(char *p, size_t size) const
+{
+	if (go_on_ticks == WAIT_INFINITE || go_on_ticks < welt->get_zeit_ms())
+	{
+		*p = '\0';
+	}
+	else
+	{
+		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
+		unsigned int hours = (ticks_left * 24) >> welt->ticks_per_world_month_shift;
+		unsigned int minutes = ((ticks_left * 24 * 60) >> welt->ticks_per_world_month_shift)%60;
+		snprintf(p, size, "%u:%02u", hours, minutes);
+	}
 }
 
 uint32 

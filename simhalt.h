@@ -968,5 +968,10 @@ public:
 	 */
 	static void init_markers();
 
+	/**
+	 * Get queue position for spacing. It is *not* same as index in 'loading_here'.
+	 * @author Inkelyad
+	 */
+	int get_queue_pos(convoihandle_t cnv) const;
 };
 #endif
