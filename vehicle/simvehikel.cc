@@ -3636,7 +3636,7 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	bool do_early_platform_search =	cnv != NULL
 		&& cnv->get_line().is_bound()
 		&& cnv->get_line()->get_schedule() != NULL
-		&& cnv->get_line()->get_schedule()->is_mirrored()
+		&& (cnv->get_line()->get_schedule()->is_mirrored() || cnv->get_line()->get_schedule()->is_bidirectional())
 		&& cnv->get_schedule() != NULL 
 		&& cnv->get_schedule()->get_current_eintrag().ladegrad == 0;
 
