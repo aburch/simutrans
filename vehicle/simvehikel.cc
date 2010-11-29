@@ -2824,7 +2824,7 @@ void waggon_t::set_convoi(convoi_t *c)
 		if(ist_erstes) {
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
-				const route_t & r = *cnv->get_route();
+				route_t & r = *cnv->get_route();
 				if (!r.empty() && route_index + 1U < r.get_count() - 1) {
 					uint16 dummy;
 					block_reserver(&r, cnv->back()->get_route_index(), dummy, dummy, 100000, false);
@@ -2835,7 +2835,7 @@ void waggon_t::set_convoi(convoi_t *c)
 				assert(c!=NULL);
 				// eventually reserve new route
 				if(  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
-					const route_t & r = *c->get_route();
+					route_t & r = *c->get_route();
 					if (route_index >= r.get_count()) {
 						c->suche_neue_route();
 						dbg->warning("waggon_t::set_convoi()", "convoi %i had a too high route index! (%i of max %i)", c->self.get_id(), route_index, r.get_count() - 1);
@@ -3610,7 +3610,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
  * return the last checked block
  * @author prissi
  */
-bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve ) const
+bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_signal_index, uint16 &next_crossing_index, int count, bool reserve ) const
 {
 	bool success=true;
 #ifdef MAX_CHOOSE_BLOCK_TILES
@@ -3669,7 +3669,7 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 				count --;
 				next_signal_index = i;
 			}
-			ribi = ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,(uint32)(i+1))) );
+			ribi = ribi_typ( route->position_bei(max(1,i)-1), route->position_bei(min(route->get_count()-1,i+1)) );
 			if( !sch1->reserve(cnv->self,ribi) ) {
 				success = false;
 			}
@@ -3750,6 +3750,12 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 		if(signal) {
 			signal->set_zustand(roadsign_t::gruen);
 		}
+	}
+	// if an early platform was found, stop there
+	if(early_platform_index!=INVALID_INDEX) {
+		next_signal_index = early_platform_index;
+		// directly modify the route
+		route->truncate_from(early_platform_index);
 	}
 
 	// stop at station or signals, not at waypoints
