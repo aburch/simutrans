@@ -3633,8 +3633,15 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 	ribi_t::ribi ribi = ribi_t::keine;
 	halthandle_t dest_halt = halthandle_t();
 	uint16 early_platform_index = INVALID_INDEX;
-	if( cnv && cnv->get_schedule() && cnv->get_schedule()->get_current_eintrag().ladegrad == 0 ) {
-		platform_size_needed = (cnv->get_length() + 15) / 16;
+	bool do_early_platform_search =	cnv != NULL
+		&& cnv->get_line().is_bound()
+		&& cnv->get_line()->get_schedule() != NULL
+		&& cnv->get_line()->get_schedule()->is_mirrored()
+		&& cnv->get_schedule() != NULL 
+		&& cnv->get_schedule()->get_current_eintrag().ladegrad == 0;
+
+	if( do_early_platform_search ) {
+		platform_size_needed = cnv->get_tile_length();
 		dest_halt = haltestelle_t::get_halt(welt, cnv->get_schedule()->get_current_eintrag().pos, cnv->get_besitzer());
 	}
 
@@ -3677,29 +3684,31 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 				next_crossing_index = i;
 			}
 			// check if there is an early platform available to stop at
-			if( early_platform_index==INVALID_INDEX ) {
-				if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
-					if( ribi==ribi_last ) {
-						platform_size_found++;
+			if ( do_early_platform_search ) {
+				if( early_platform_index==INVALID_INDEX ) {
+					if( gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
+						if( ribi==ribi_last ) {
+							platform_size_found++;
+						} else {
+							platform_size_found = 1;
+						}
+						if( platform_size_found>=platform_size_needed ) {
+							early_platform_index = i;
+						}
 					} else {
-						platform_size_found = 1;
+						platform_size_found = 0;
 					}
-					if( platform_size_found>=platform_size_needed ) {
-						early_platform_index = i;
-					}
+				} else if( ribi_last==ribi && gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
+					// a platform was found, but it continues so go on to its end
+					early_platform_index = i;
 				} else {
-					platform_size_found = 0;
+					// a platform was found, and has ended, thus the last index was fine.
+					sch1->unreserve(cnv->self);
+					success = true;
+					break;
 				}
-			} else if( ribi_last==ribi && gr->get_halt().is_bound() && gr->get_halt()==dest_halt ) {
-				// a platform was found, but it continues so go on to its end
-				early_platform_index = i;
-			} else {
-				// a platform was found, and has ended, thus the last index was fine.
-				sch1->unreserve(cnv->self);
-				success = true;
-				break;
+				ribi_last = ribi;
 			}
-			ribi_last = ribi;
 		}
 		else if(sch1) {
 			if(!sch1->unreserve(cnv->self)) {
@@ -3751,11 +3760,13 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 			signal->set_zustand(roadsign_t::gruen);
 		}
 	}
-	// if an early platform was found, stop there
-	if(early_platform_index!=INVALID_INDEX) {
-		next_signal_index = early_platform_index;
-		// directly modify the route
-		route->truncate_from(early_platform_index);
+	if (do_early_platform_search) {
+		// if an early platform was found, stop there
+		if(early_platform_index!=INVALID_INDEX) {
+			next_signal_index = early_platform_index;
+			// directly modify the route
+			route->truncate_from(early_platform_index);
+		}
 	}
 
 	// stop at station or signals, not at waypoints
