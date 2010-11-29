@@ -246,26 +246,27 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_wait_next.add_listener(this);
 	add_komponente(&bt_wait_next);
 
+	bt_mirror.init(button_t::square_automatic, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
+	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.");
+	bt_mirror.pressed = fpl->is_mirrored();
+	bt_mirror.add_listener(this);
+	add_komponente(&bt_mirror);
+
 	ypos += BUTTON_HEIGHT;
 
 	// Spacing
 	if ( !cnv.is_bound() ) {
 		lb_spacing.set_pos( koord( 10, ypos+2 ) );
 		add_komponente(&lb_spacing);
-		numimp_spacing.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
+		//numimp_spacing.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
+		numimp_spacing.set_pos( koord( BUTTON_WIDTH*2, ypos+2 ) );
 		numimp_spacing.set_groesse( koord( 60, BUTTON_HEIGHT ) );
 		numimp_spacing.set_value( fpl->get_spacing() );
-		numimp_spacing.set_limits( 0, 30000 );
+		numimp_spacing.set_limits( 0, 999 );
 		numimp_spacing.set_increment_mode( 1 );
 		numimp_spacing.add_listener(this);
 		add_komponente(&numimp_spacing);
 	}
-
-	bt_mirror.init(button_t::square_automatic, "return ticket", koord( BUTTON_WIDTH*2, ypos ), koord(BUTTON_WIDTH,BUTTON_HEIGHT) );
-	bt_mirror.set_tooltip("Vehicles make a round trip between the schedule endpoints, visiting all stops in reverse after reaching the end.");
-	bt_mirror.pressed = fpl->is_mirrored();
-	bt_mirror.add_listener(this);
-	add_komponente(&bt_mirror);
 
 	ypos += BUTTON_HEIGHT;
 
