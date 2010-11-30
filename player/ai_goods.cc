@@ -443,8 +443,8 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 	const haus_besch_t* fh = hausbauer_t::get_random_station(haus_besch_t::generic_stop, road_wt, welt->get_timeline_year_month(), haltestelle_t::WARE);
 	// succeed in frachthof creation
 	if(fh  &&  call_general_tool(WKZ_STATION, platz1, fh->get_name())  &&  call_general_tool(WKZ_STATION, platz2, fh->get_name())  ) {
-		koord3d pos1 = welt->lookup(platz1)->get_kartenboden()->get_pos();
-		koord3d pos2 = welt->lookup(platz2)->get_kartenboden()->get_pos();
+		koord3d pos1 = welt->lookup_kartenboden(platz1)->get_pos();
+		koord3d pos2 = welt->lookup_kartenboden(platz2)->get_pos();
 
 		int	start_location=0;
 		// sometimes, when factories are very close, we need exakt calculation
@@ -458,7 +458,7 @@ void ai_goods_t::create_road_transport_vehikel(fabrik_t *qfab, int anz_vehikel)
 		koord3d startpos=(start_location==0)?pos1:pos2;
 		ribi_t::ribi w_ribi = welt->lookup(startpos)->get_weg_ribi_unmasked(road_wt);
 		// now start all vehicle one field before, so they load immediately
-		startpos = welt->lookup(koord(startpos.get_2d())+koord(w_ribi))->get_kartenboden()->get_pos();
+		startpos = welt->lookup_kartenboden(koord(startpos.get_2d())+koord(w_ribi))->get_pos();
 
 		// since 86.01 we use lines for road vehicles ...
 		schedule_t *fpl=new autofahrplan_t();
@@ -501,8 +501,8 @@ void ai_goods_t::create_rail_transport_vehikel(const koord platz1, const koord p
 		return;
 	}
 	convoi_t* cnv = new convoi_t(this);
-	koord3d pos1= welt->lookup(platz1)->get_kartenboden()->get_pos();
-	koord3d pos2 = welt->lookup(platz2)->get_kartenboden()->get_pos();
+	koord3d pos1= welt->lookup_kartenboden(platz1)->get_pos();
+	koord3d pos2 = welt->lookup_kartenboden(platz2)->get_pos();
 
 	// probably need to electrify the track?
 	if(  rail_engine->get_engine_type()==vehikel_besch_t::electric  ) {

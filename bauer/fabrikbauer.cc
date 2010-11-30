@@ -313,7 +313,7 @@ koord3d fabrikbauer_t::finde_zufallsbauplatz(karte_t *welt, const koord3d pos, c
 			}
 			// climate check
 			if(  fabrik_t::ist_bauplatz(welt, k, groesse,wasser,climates)  ) {
-				list.append( welt->lookup(k)->get_kartenboden()->get_pos() );
+				list.append( welt->lookup_kartenboden(k)->get_pos() );
 				// nicht gleich daneben nochmal suchen
 				k.x += 4;
 				if(  list.get_count() >= 10000  ) {
@@ -426,7 +426,7 @@ fabrik_t* fabrikbauer_t::baue_fabrik(karte_t* welt, koord3d* parent, const fabri
 				for(k.y=pos.y; k.y<pos.y+dim.y; k.y++) {
 					if(welt->ist_in_kartengrenzen(k)) {
 						// add all water to station
-						grund_t *gr = welt->lookup(k)->get_kartenboden();
+						grund_t *gr = welt->lookup_kartenboden(k);
 						// build only on gb, otherwise can't remove it
 						// also savegame restore only halt on gb
 						// this needs for bad fish swarm
@@ -582,7 +582,7 @@ int fabrikbauer_t::baue_hierarchie(koord3d* parent, const fabrik_besch_t* info, 
 #endif /* 0 */
 
 		if(k != koord::invalid) {
-			*pos = welt->lookup(k)->get_kartenboden()->get_pos();
+			*pos = welt->lookup_kartenboden(k)->get_pos();
 		}
 		else {
 			return 0;

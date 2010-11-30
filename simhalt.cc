@@ -2145,7 +2145,7 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
 				dbg->error("haltestelle_t::rdwr()", "invalid position %s", k.get_str() );
-				gr = welt->lookup(k.get_2d())->get_kartenboden();
+				gr = welt->lookup_kartenboden(k.get_2d());
 				dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
 			}
 			// during loading and saving halts will be referred by their base postion
@@ -2460,9 +2460,10 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord p=pos+koord(x,y);
-			if(welt->ist_in_kartengrenzen(p)) {
-				welt->access(p)->add_to_haltlist( self );
-				welt->lookup(p)->get_kartenboden()->set_flag(grund_t::dirty);
+			planquadrat_t *plan = welt->access(p);
+			if(plan) {
+				plan->add_to_haltlist( self );
+				plan->get_kartenboden()->set_flag(grund_t::dirty);
 			}
 		}
 	}

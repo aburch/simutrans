@@ -1089,7 +1089,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 
 		if(  gr1->get_typ()==grund_t::boden  ) {
 			// first left side
-			const grund_t *grleft=welt->lookup(pos.get_2d()+koord(-1,0))->get_kartenboden();
+			const grund_t *grleft=welt->lookup_kartenboden(pos.get_2d()+koord(-1,0));
 			if(grleft) {
 				const sint16 left_hgt=grleft->get_hoehe()/Z_TILE_STEP + (new_slope==ALL_DOWN_SLOPE && grleft->get_grund_hang()? 1 : 0);
 				const sint8 diff_from_ground = abs(left_hgt-test_hgt);
@@ -1099,7 +1099,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 
 			// right side
-			const grund_t *grright=welt->lookup(pos.get_2d()+koord(1,0))->get_kartenboden();
+			const grund_t *grright=welt->lookup_kartenboden(pos.get_2d()+koord(1,0));
 			if(grright) {
 				const sint16 right_hgt=grright->get_hoehe()/Z_TILE_STEP  + (new_slope==ALL_DOWN_SLOPE && grright->get_grund_hang()? 1 : 0);
 				const sint8 diff_from_ground = abs(right_hgt-test_hgt);
@@ -1108,7 +1108,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				}
 			}
 
-			const grund_t *grback=welt->lookup(pos.get_2d()+koord(0,-1))->get_kartenboden();
+			const grund_t *grback=welt->lookup_kartenboden(pos.get_2d()+koord(0,-1));
 			if(grback) {
 				const sint16 back_hgt=grback->get_hoehe()/Z_TILE_STEP  + (new_slope==ALL_DOWN_SLOPE && grback->get_grund_hang()? 1 : 0);
 				const sint8 diff_from_ground = abs(back_hgt-test_hgt);
@@ -1117,7 +1117,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				}
 			}
 
-			const grund_t *grfront=welt->lookup(pos.get_2d()+koord(0,1))->get_kartenboden();
+			const grund_t *grfront=welt->lookup_kartenboden(pos.get_2d()+koord(0,1));
 			if(grfront) {
 				const sint16 front_hgt=grfront->get_hoehe()/Z_TILE_STEP  + (new_slope==ALL_DOWN_SLOPE && grfront->get_grund_hang()? 1 : 0);
 				const sint8 diff_from_ground = abs(front_hgt-test_hgt);
@@ -1186,7 +1186,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				// recalc slope walls on neightbours
 				for(int y=-1; y<=1; y++) {
 					for(int x=-1; x<=1; x++) {
-						grund_t *gr = welt->lookup(pos.get_2d()+koord(x,y))->get_kartenboden();
+						grund_t *gr = welt->lookup_kartenboden(pos.get_2d()+koord(x,y));
 						gr->calc_bild();
 					}
 				}
@@ -1213,7 +1213,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 const char *wkz_marker_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
 	if(welt->ist_in_kartengrenzen(pos.get_2d())) {
-		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
+		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		if (gr) {
 			if(!gr->get_text()) {
 				const ding_t* thing = gr->obj_bei(0);
@@ -2807,7 +2807,7 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 					}
 				}
 				else {
-					const grund_t *gr=welt->lookup(pos-dx*i)->get_kartenboden();
+					const grund_t *gr=welt->lookup_kartenboden(pos-dx*i);
 					const char *msg = gr->kann_alle_obj_entfernen(sp);
 					if(msg) {
 						return msg;

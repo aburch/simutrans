@@ -784,13 +784,13 @@ void ai_passenger_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehik
 {
 DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
-	koord3d startpos = welt->lookup(startpos2d)->get_kartenboden()->get_pos();
+	koord3d startpos = welt->lookup_kartenboden(startpos2d)->get_pos();
 
 	// since 86.01 we use lines for road vehicles ...
 	schedule_t *fpl=new autofahrplan_t();
 	// do not start at current stop => wont work ...
 	for(int j=0;  j<anzahl;  j++) {
-		fpl->append(welt->lookup(stops[j])->get_kartenboden(), j == 0 || !do_wait ? 0 : 10);
+		fpl->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10);
 	}
 	fpl->set_aktuell( stops[0]==startpos2d );
 	fpl->eingabe_abschliessen();

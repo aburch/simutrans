@@ -107,7 +107,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		if(!welt->ist_in_kartengrenzen(pos)) {
 			break;
 		}
-		route.append(welt->lookup(pos)->get_kartenboden()->get_pos());
+		route.append(welt->lookup_kartenboden(pos)->get_pos());
 	}
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 

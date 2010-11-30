@@ -187,7 +187,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 #ifdef ONLY_TUNNELS_BELOW_GROUND
 		// check if ground is below tunnel level
-		gr = welt->lookup(pos.get_2d())->get_kartenboden();
+		gr = welt->lookup_kartenboden(pos.get_2d());
 		if(  gr->get_hoehe() < pos.z  ){
 			return koord3d::invalid;
 		}
@@ -310,7 +310,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	}
 	// calc new back image for the ground
 	if(grund_t::underground_mode) {
-		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
+		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		gr->calc_bild();
 		gr->set_flag(grund_t::dirty);
 	}
@@ -335,11 +335,11 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	}
 
 	// if end is above ground construct an exit
-	if(welt->lookup(end.get_2d())->get_kartenboden()->get_pos().z==end.z) {
+	if(welt->lookup_kartenboden(end.get_2d())->get_pos().z==end.z) {
 		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost);
 		// calc new back image for the ground
 		if (end!=start && grund_t::underground_mode) {
-			grund_t *gr = welt->lookup(pos.get_2d()-zv)->get_kartenboden();
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d()-zv);
 			gr->calc_bild();
 			gr->set_flag(grund_t::dirty);
 		}

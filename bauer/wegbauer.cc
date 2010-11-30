@@ -1331,10 +1331,10 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 		if(bautyp&tunnel_flag) {
 #ifdef ONLY_TUNNELS_BELOW_GROUND
 			// ground must be above tunnel
-			ok &= (welt->lookup(pos.get_2d())->get_kartenboden()->get_hoehe() > pos.z);
+			ok &= (welt->lookup_kartenboden(pos.get_2d())->get_hoehe() > pos.z);
 #else
 			// at least tunnel not in the sea
-			const grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
+			const grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 			ok = ok && (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()), welt->get_grundwasser() ) > pos.z);
 #endif
 			// create fake tunnel grounds if needed
@@ -1369,7 +1369,7 @@ wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 			// check for last tile
 			if(  ok  &&  bd_nach->get_pos().get_2d()==ziel.get_2d()  ) {
 				// at least tunnel not in the sea
-				const grund_t *gr = welt->lookup(bd_nach->get_pos().get_2d())->get_kartenboden();
+				const grund_t *gr = welt->lookup_kartenboden(bd_nach->get_pos().get_2d());
 				ok = ok  &&  (!gr->ist_wasser()  ||  min( welt->lookup_hgt(pos.get_2d()+diff), welt->get_grundwasser() ) > pos.z);
 			}
 
@@ -1442,14 +1442,14 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 	// now try begin and endpoint
 	const koord zv(ribi);
 	// end start
-	const grund_t *gr = welt->lookup(start)->get_kartenboden();
+	const grund_t *gr = welt->lookup_kartenboden(start);
 	const weg_t *weg=gr->get_weg(air_wt);
 	if(weg  &&  (weg->get_besch()->get_styp()==0  ||  ribi_t::ist_kurve(weg->get_ribi()|ribi))) {
 		// cannot connect to taxiway at the start and no curve possible
 		return false;
 	}
 	// check end
-	gr = welt->lookup(ziel)->get_kartenboden();
+	gr = welt->lookup_kartenboden(ziel);
 	weg=gr->get_weg(air_wt);
 	if(weg  &&  (weg->get_besch()->get_styp()==1  ||  ribi_t::ist_kurve(weg->get_ribi()|ribi))) {
 		// cannot connect to taxiway at the end and no curve at the end
@@ -1457,9 +1457,9 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 	}
 	// now try a straight line with no crossings and no curves at the end
 	const int dist=koord_distance( ziel, start );
-	grund_t *from = welt->lookup(start)->get_kartenboden();
+	grund_t *from = welt->lookup_kartenboden(start);
 	for(  int i=0;  i<=dist;  i++  ) {
-		grund_t *to = welt->lookup(start+zv*i)->get_kartenboden();
+		grund_t *to = welt->lookup_kartenboden(start+zv*i);
 		long dummy;
 		if (!is_allowed_step(from, to, &dummy)) {
 			return false;
@@ -1470,7 +1470,7 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 	route.clear();
 	route.resize(dist + 2);
 	for(  int i=0;  i<=dist;  i++  ) {
-		route.append(welt->lookup(start + zv * i)->get_kartenboden()->get_pos());
+		route.append(welt->lookup_kartenboden(start + zv * i)->get_pos());
 	}
 	return true;
 }
