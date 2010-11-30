@@ -385,7 +385,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 				// if the selected line is different to the convoi's line, apply it
 				if(new_line!=cnv->get_line()) {
 					char id[16];
-					sprintf( id, "%i", new_line.get_id() );
+					sprintf( id, "%i,%i", new_line.get_id(), fpl->get_aktuell() );
 					cnv->call_convoi_tool( 'l', id );
 				}
 				else {

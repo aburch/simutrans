@@ -4994,11 +4994,18 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 
 		case 'l': // change line
 			{
+				// read out id and new aktuell index
+				uint16 id=0, aktuell=0;
+				int count=sscanf( p, "%hi,%hi", &id, &aktuell );
 				linehandle_t l;
-				l.set_id( atoi(p) );
+				l.set_id( id );
 				if(  l.is_bound()  ) {
+					if(  count==1 ) {
+						// aktuell was not supplied -> take it from line schedule
+						aktuell = l->get_schedule()->get_aktuell();
+					}
 					cnv->set_line( l );
-					cnv->get_schedule()->set_aktuell(l->get_schedule()->get_aktuell());
+					cnv->get_schedule()->set_aktuell(aktuell);
 					cnv->get_schedule()->eingabe_abschliessen();
 				}
 			}
