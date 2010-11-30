@@ -104,7 +104,7 @@ void banner_t::zeichnen(koord pos, koord gr )
 	yp += LINESPACE+2;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Simutrans 0.84.21.2 by", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Hansjörg Malthaner et al.", true );
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Hansj\366rg Malthaner et al.", true );
 	yp += LINESPACE+2;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "under Artistic Licence.", true );
 	yp += LINESPACE+7;
