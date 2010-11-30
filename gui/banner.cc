@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2004 Hansjï¿½rg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -65,7 +65,7 @@ bool banner_t::infowin_event(const event_t *ev)
 
 
 
-bool banner_t::action_triggered( gui_action_creator_t *komp, value_t extra)
+bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	if(  komp == &quit  ) {
 		umgebung_t::quit_simutrans = true;
@@ -104,7 +104,7 @@ void banner_t::zeichnen(koord pos, koord gr )
 	yp += LINESPACE+2;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Simutrans 0.84.21.2 by", true );
 	yp += LINESPACE+2;
-	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Hansjörg Malthaner et al.", true );
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Hansjï¿½rg Malthaner et al.", true );
 	yp += LINESPACE+2;
 	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "under Artistic Licence.", true );
 	yp += LINESPACE+7;
