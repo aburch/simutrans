@@ -41,7 +41,7 @@ gui_chart_t::gui_chart_t() : gui_komponente_t()
 }
 
 
-int gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision )
+int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision )
 {
 	curve_t new_curve;
 	new_curve.color = color;

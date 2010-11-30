@@ -402,7 +402,7 @@ public:
 	inline uint32 get_last_month() const { return letzter_monat; }
 
 	// @author hsiegeln
-	inline sint32 get_last_year() { return letztes_jahr; }
+	inline sint32 get_last_year() const { return letztes_jahr; }
 
 	/**
 	 * dirty: redraw whole screen
@@ -424,15 +424,15 @@ public:
 	* Returns the finance history for player
 	* @author hsiegeln
 	*/
-	sint64 get_finance_history_year(int year, int type) { return finance_history_year[year][type]; }
-	sint64 get_finance_history_month(int month, int type) { return finance_history_month[month][type]; }
+	sint64 get_finance_history_year(int year, int type) const { return finance_history_year[year][type]; }
+	sint64 get_finance_history_month(int month, int type) const { return finance_history_month[month][type]; }
 
 	/**
 	 * Returns pointer to finance history for player
 	 * @author hsiegeln
 	 */
-	sint64* get_finance_history_year() { return *finance_history_year; }
-	sint64* get_finance_history_month() { return *finance_history_month; }
+	const sint64* get_finance_history_year() const { return *finance_history_year; }
+	const sint64* get_finance_history_month() const { return *finance_history_month; }
 
 	// recalcs all map images
 	void update_map();
@@ -504,7 +504,7 @@ public:
 	 * marks an area using the grund_t mark flag
 	 * @author prissi
 	 */
-	void mark_area( const koord3d center, const koord radius, const bool mark );
+	void mark_area( const koord3d center, const koord radius, const bool mark ) const;
 
 	/**
 	 * Player management here
@@ -817,7 +817,7 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint8 hgt);
+	bool can_ebne_planquadrat(koord pos, sint8 hgt) const;
 	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
 
 	// the convois are also handled each steps => thus we keep track of them too
@@ -849,8 +849,8 @@ public:
 
 	bool add_fab(fabrik_t *fab);
 	bool rem_fab(fabrik_t *fab);
-	int get_fab_index(fabrik_t* fab) { return fab_list.index_of(fab); }
-	fabrik_t* get_fab(unsigned index) { return index < fab_list.get_count() ? fab_list.at(index) : NULL; }
+	int get_fab_index(fabrik_t* fab)  const { return fab_list.index_of(fab); }
+	fabrik_t* get_fab(unsigned index) const { return index < fab_list.get_count() ? fab_list.at(index) : NULL; }
 	const slist_tpl<fabrik_t*>& get_fab_list() const { return fab_list; }
 
 	/* sucht zufaellig eine Fabrik aus der Fabrikliste
@@ -878,11 +878,11 @@ public:
 
 	void step();
 
-	inline planquadrat_t *access(int i, int j) {
+	inline planquadrat_t *access(int i, int j) const {
 		return ist_in_kartengrenzen(i, j) ? &plan[i + j*cached_groesse_gitter_x] : NULL;
 	}
 
-	inline planquadrat_t *access(koord k) {
+	inline planquadrat_t *access(koord k) const {
 		return ist_in_kartengrenzen(k) ? &plan[k.x + k.y*cached_groesse_gitter_x] : NULL;
 	}
 
@@ -938,7 +938,7 @@ public:
 	 * @param pos Position an der das Ereignis stattfand
 	 * @author Hj. Malthaner
 	 */
-	bool play_sound_area_clipped(koord pos, sound_info info);
+	bool play_sound_area_clipped(koord pos, sound_info info) const;
 
 	void mute_sound( bool state ) { is_sound = !state; }
 
@@ -977,7 +977,7 @@ public:
 	uint32 get_last_random_seed() const { return last_random_seed; }
 	uint32 get_last_random_seed_sync() const { return last_random_seed_sync; }
 
-	void command_queue_append(network_world_command_t*);
+	void command_queue_append(network_world_command_t*) const;
 
 	void network_disconnect();
 
