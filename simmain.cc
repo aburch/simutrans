@@ -210,6 +210,7 @@ static void zeige_banner(karte_t *welt)
 			}
 			dr_sleep(5);
 		} while(  dr_time()<last_step  );
+		DBG_DEBUG("zeige_banner", "calling welt->sync_step");
 		welt->sync_step( ms_pause, true, true );
 		DBG_DEBUG("zeige_banner", "calling welt->step");
 		if(  step_count--==0  ) {
