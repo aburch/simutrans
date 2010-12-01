@@ -105,6 +105,7 @@
 	CHANGE: one year after bankrupt, clear slot for new player
 	CHANGE: first load convoi waiting the longest time at a stop
 	FIX: after bankruptsy, ways on public stops will remain unowned, so new people can connect to them
+	FIX: transfer statistics too, when joining stops
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
