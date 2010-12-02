@@ -2542,6 +2542,7 @@ bool karte_t::sync_remove(sync_steppable *obj)	// entfernt alle dinge == obj aus
  */
 void karte_t::sync_step(long delta_t, bool sync, bool display )
 {
+	DBG_DEBUG4("karte_t::sync_step", "start sync_step");
 	set_random_mode( SYNC_STEP_RANDOM );
 	if(sync) {
 		// only omitted, when called to display a new frame during fast forward
@@ -2550,6 +2551,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 		// just for progress
 		ticks += delta_t;
 
+		DBG_DEBUG4("karte_t::sync_step", "add to sync list");
 		// ingore calls by interrupt during fast forward ...
 		while(!sync_add_list.empty()) {
 			sync_steppable *ss = sync_add_list.remove_first();
@@ -2562,6 +2564,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			sync_list.remove( ss );
 		}
 
+		DBG_DEBUG4("karte_t::sync_step", "syncstep all objects");
 		for(  slist_tpl<sync_steppable*>::iterator i=sync_list.begin();  i!=sync_list.end();  ) {
 			// if false, then remove
 			sync_steppable *ss = *i;
@@ -2574,6 +2577,7 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			}
 		}
 
+		DBG_DEBUG4("karte_t::sync_step", "remove from sync list");
 		// now remove everything from this time
 		while(!sync_remove_list.empty()) {
 			sync_steppable *ss = sync_remove_list.remove_first();
@@ -2607,10 +2611,12 @@ void karte_t::sync_step(long delta_t, bool sync, bool display )
 			}
 		}
 
+		DBG_DEBUG4("karte_t::sync_step", "display stuff");
 		// display new frame with water animation
 		intr_refresh_display( false );
 		update_frame_sleep_time(delta_t);
 	}
+	DBG_DEBUG4("karte_t::sync_step", "end");
 	clear_random_mode( SYNC_STEP_RANDOM );
 }
 
@@ -3041,6 +3047,7 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 
 void karte_t::step()
 {
+	DBG_DEBUG4("karte_t::step", "start step");
 	unsigned long time = dr_time();
 
 	// first: check for new month
@@ -3056,9 +3063,11 @@ void karte_t::step()
 			last_step_ticks %= karte_t::ticks_per_world_month;
 		}
 
+		DBG_DEBUG4("karte_t::step", "calling neuer_monat");
 		neuer_monat();
 	}
 
+	DBG_DEBUG4("karte_t::step", "time calculations");
 	const long delta_t = (long)ticks-(long)last_step_ticks;
 	if(  step_mode==NORMAL  ) {
 		/* Try to maintain a decent pause, with a step every 170-250 ms (~5,5 simloops/s)
@@ -3115,6 +3124,7 @@ void karte_t::step()
 
 	// check for pending seasons change
 	if(pending_season_change>0) {
+		DBG_DEBUG4("karte_t::step", "pending_season_change");
 		// process
 		const uint32 end_count = min( cached_groesse_gitter_x*cached_groesse_gitter_y,  tile_counter + max( 16384, cached_groesse_gitter_x*cached_groesse_gitter_y/16 ) );
 		while(  tile_counter < end_count  ) {
@@ -3133,6 +3143,7 @@ void karte_t::step()
 	// to make sure the tick counter will be updated
 	INT_CHECK("karte_t::step");
 
+	DBG_DEBUG4("karte_t::step", "step convois");
 	// since convois will be deleted during stepping, we need to step backwards
 	for(sint32 i=convoi_array.get_count()-1;  i>=0;  i--  ) {
 		convoihandle_t cnv = convoi_array[i];
@@ -3143,6 +3154,7 @@ void karte_t::step()
 	}
 
 	// now step all towns (to generate passengers)
+	DBG_DEBUG4("karte_t::step", "step cities");
 	sint64 bev=0;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		(*i)->step(delta_t);
@@ -3152,6 +3164,7 @@ void karte_t::step()
 	// the inhabitants stuff
 	finance_history_month[0][WORLD_CITICENS] = bev;
 
+	DBG_DEBUG4("karte_t::step", "step factories");
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
 	while(iter.next()) {
 		iter.get_current()->step(delta_t);
@@ -3159,10 +3172,12 @@ void karte_t::step()
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// step powerlines - required order: pumpe, senke, then powernet
+	DBG_DEBUG4("karte_t::step", "step poweline stuff");
 	pumpe_t::step_all( delta_t );
 	senke_t::step_all( delta_t );
 	powernet_t::step_all( delta_t );
 
+	DBG_DEBUG4("karte_t::step", "step players");
 	// then step all players
 	for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		if(  spieler[i] != NULL  ) {
@@ -3170,12 +3185,14 @@ void karte_t::step()
 		}
 	}
 
+	DBG_DEBUG4("karte_t::step", "step halts");
 	haltestelle_t::step_all();
 
 	// ok, next step
 	INT_CHECK("simworld 1975");
 
 	if((steps%8)==0) {
+		DBG_DEBUG4("karte_t::step", "checkmidi");
 		check_midi();
 	}
 
@@ -3200,6 +3217,7 @@ void karte_t::step()
 		// since init always returns false, it is save to delete immediately
 		delete w;
 	}
+	DBG_DEBUG4("karte_t::step", "end");
 }
 
 
@@ -5277,6 +5295,7 @@ bool karte_t::interactive(uint32 quit_month)
 	uint32 next_command_step = 0xFFFFFFFFu;
 	sint32 ms_difference = 0;
 	reset_timer();
+	DBG_DEBUG4("karte_t::interactive", "welcome in this routine");
 
 	if(  umgebung_t::server  ) {
 		step_mode |= FIX_RATIO;
@@ -5339,9 +5358,11 @@ bool karte_t::interactive(uint32 quit_month)
 		}
 	}
 
+	DBG_DEBUG4("karte_t::interactive", "start the loop");
 	do {
 		// check for too much time eaten by frame updates ...
 		if(  step_mode==NORMAL  ) {
+			DBG_DEBUG4("karte_t::interactive", "decide to play a sound");
 			last_interaction = dr_time();
 			if(  mouse_rest_time+sound_wait_time < last_interaction  ) {
 				// we play an ambient sound, if enabled
@@ -5375,9 +5396,11 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 				sound_wait_time *= 2;
 			}
+			DBG_DEBUG4("karte_t::interactive", "end of sound");
 		}
 
 		// get an event
+		DBG_DEBUG4("karte_t::interactive", "calling win_poll_event");
 		win_poll_event(&ev);
 
 		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
@@ -5393,6 +5416,7 @@ bool karte_t::interactive(uint32 quit_month)
 				set_random_mode( INTERACTIVE_RANDOM );
 			}
 
+			DBG_DEBUG4("karte_t::interactive", "calling check_pos_win");
 			swallowed = check_pos_win(&ev);
 
 			if(  !swallowed  ) {
@@ -5417,6 +5441,7 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 			}
 
+			DBG_DEBUG4("karte_t::interactive", "after check_pos_win");
 			if((!swallowed  &&  (ev.ev_class==EVENT_DRAG  &&  ev.ev_code==MOUSE_LEFTBUTTON))  ||  (ev.button_state==0  &&  ev.ev_class==EVENT_MOVE)  ||  ev.ev_class==EVENT_RELEASE) {
 				bewege_zeiger(&ev);
 			}
@@ -5424,6 +5449,7 @@ bool karte_t::interactive(uint32 quit_month)
 			if(  umgebung_t::networkmode  ) {
 				clear_random_mode( INTERACTIVE_RANDOM );
 			}
+			DBG_DEBUG4("karte_t::interactive", "end of event handling");
 		}
 
 		if(  umgebung_t::networkmode  ) {
@@ -5503,6 +5529,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// we wait here for maximum 9ms
 			// average is 5 ms, so we usually
 			// are quite responsive
+			DBG_DEBUG4("karte_t::interactive", "can I get some sleep?");
 			INT_CHECK( "karte_t::interactive()" );
 			const sint32 wait_time = (sint32)(next_step_time-dr_time());
 			if(wait_time>0) {
@@ -5514,6 +5541,7 @@ bool karte_t::interactive(uint32 quit_month)
 				}
 					INT_CHECK( "karte_t::interactive()" );
 			}
+			DBG_DEBUG4("karte_t::interactive", "end of sleep");
 		}
 
 		while(  !command_queue.empty()  &&  (next_command_step<=sync_steps/*  ||  step_mode&PAUSE_FLAG*/)  ) {
@@ -5631,9 +5659,11 @@ bool karte_t::interactive(uint32 quit_month)
 
 
 		if (!swallowed) {
+			DBG_DEBUG4("karte_t::interactive", "calling interactive_event");
 			interactive_event(ev);
 		}
 
+		DBG_DEBUG4("karte_t::interactive", "point of loop return");
 	} while(!finish_loop  &&  get_current_month()<quit_month);
 
 	if(  get_current_month() >= quit_month  ) {

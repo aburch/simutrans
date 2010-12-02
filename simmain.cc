@@ -200,9 +200,9 @@ static void zeige_banner(karte_t *welt)
 	uint step_count = 5;
 	do {
 		do {
-			DBG_DEBUG("zeige_banner", "calling win_poll_event");
+			DBG_DEBUG4("zeige_banner", "calling win_poll_event");
 			win_poll_event(&ev);
-			DBG_DEBUG("zeige_banner", "calling check_pos_win");
+			DBG_DEBUG4("zeige_banner", "calling check_pos_win");
 			check_pos_win(&ev);
 			if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 				umgebung_t::quit_simutrans = true;
@@ -210,9 +210,9 @@ static void zeige_banner(karte_t *welt)
 			}
 			dr_sleep(5);
 		} while(  dr_time()<last_step  );
-		DBG_DEBUG("zeige_banner", "calling welt->sync_step");
+		DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
 		welt->sync_step( ms_pause, true, true );
-		DBG_DEBUG("zeige_banner", "calling welt->step");
+		DBG_DEBUG4("zeige_banner", "calling welt->step");
 		if(  step_count--==0  ) {
 			welt->step();
 			step_count = 5;
@@ -1008,8 +1008,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				welt->set_fast_forward(false);
 
 				INT_CHECK("simmain 803");
+				DBG_DEBUG4("wait_for_new_world", "calling win_poll_event");
 				win_poll_event(&ev);
 				INT_CHECK("simmain 805");
+				DBG_DEBUG4("wait_for_new_world", "calling check_pos_win");
 				check_pos_win(&ev);
 				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 					umgebung_t::quit_simutrans = true;
@@ -1020,13 +1022,18 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					if(  ((count++)&7)==0 ) {
 						static uint32 last_step = dr_time();
 						uint32 next_step = dr_time();
+						DBG_DEBUG4("wait_for_new_world", "calling welt->sync_step");
 						welt->sync_step( next_step-last_step, true, true );
+						DBG_DEBUG4("wait_for_new_world", "calling win_poll_event");
 						welt->step();
+						DBG_DEBUG4("wait_for_new_world", "calling welt->step");
 						last_step = next_step;
+						DBG_DEBUG4("wait_for_new_world", "back from welt->step");
 					}
 				}
 				dr_sleep(5);
 				welt->reset_interaction();
+				DBG_DEBUG4("wait_for_new_world", "end of loop");
 			} while(
 				!wg->get_load() &&
 				!wg->get_scenario() &&
@@ -1039,10 +1046,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 			if (IS_LEFTCLICK(&ev)) {
 				do {
+					DBG_DEBUG4("wait_for_new_world", "calling display_get_event");
 					display_get_event(&ev);
 				} while (!IS_LEFTRELEASE(&ev));
 			}
 
+			DBG_DEBUG4("wait_for_new_world", "calling destroy_all_win");
 			destroy_all_win(true);
 			welt->get_message()->clear();
 
@@ -1058,12 +1067,16 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			// Neue Karte erzeugen
 			else if (wg->get_start()) {
 				// since not autodelete
+				DBG_DEBUG4("wait_for_new_world", "delete wg");
 				delete wg;
 
 				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
+
+				DBG_DEBUG4("wait_for_new_world", "calling intr_refresh_display");
 				intr_refresh_display(true);
 
 				umgebung_t::default_einstellungen.heightfield = "";
+				DBG_DEBUG4("wait_for_new_world", "calling welt->init");
 				welt->init(&umgebung_t::default_einstellungen,0);
 
 				// save setting ...
@@ -1073,9 +1086,12 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					umgebung_t::default_einstellungen.rdwr(&file);
 					file.close();
 				}
+				DBG_DEBUG4("wait_for_new_world", "calling destroy_all_win");
 				destroy_all_win(true);
+				DBG_DEBUG4("wait_for_new_world", "calling welt->step_month");
 				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
 				welt->set_pause(false);
+				DBG_DEBUG4("wait_for_new_world", "new world created");
 			}
 			else if(wg->get_load()) {
 				delete wg;
@@ -1093,6 +1109,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					break;
 				}
 			}
+			DBG_DEBUG4("wait_for_new_world", "the end");
 		}
 
 		printf( "Running world, pause=%i, fast forward=%i ... \n", welt->is_paused(), welt->is_fast_forward() );
