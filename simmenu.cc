@@ -760,7 +760,7 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 // simply true, if visible
 bool toolbar_t::is_selected(karte_t *) const
 {
-	return win_get_magic((long)this);
+	return win_get_magic(magic_toolbar+toolbar_tool.index_of( const_cast<toolbar_t* const>(this) ));
 }
 
 
