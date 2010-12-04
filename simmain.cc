@@ -981,7 +981,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 #if 1
 		if (new_world) {
-			destroy_all_win( true );
 			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), welt, never_quit );
 			if(  umgebung_t::quit_simutrans  ) {
 				break;
