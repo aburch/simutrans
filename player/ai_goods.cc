@@ -1096,11 +1096,14 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 							schedule_t *fpl=line->get_schedule();
 							if(fpl->get_count()>1  &&  haltestelle_t::get_halt(welt,fpl->eintrag[0].pos,this)==start_halt) {
 								while(line->count_convoys()>0) {
-									line->get_convoy(0)->self_destruct();
-									line->get_convoy(0)->step();
+									convoihandle_t cnv = line->get_convoy(0);
+									cnv->self_destruct();
+									if(cnv.is_bound()) {
+										cnv->step();
+									}
 								}
+								simlinemgmt.delete_line( line );
 							}
-							simlinemgmt.delete_line( line );
 						}
 						// delete harbour
 						call_general_tool( WKZ_REMOVER, platz1+koord::nsow[r], NULL );
