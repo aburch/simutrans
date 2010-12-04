@@ -56,10 +56,12 @@ bool banner_t::infowin_event(const event_t *ev)
 	if(  gui_frame_t::getroffen( ev->cx, ev->cy  )  ) {
 		gui_frame_t::infowin_event( ev );
 	}
+/*
 	else if(  ev->ev_class==EVENT_RELEASE  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code!=0)  ) {
 		destroy_win(this);
 		return true;
 	}
+*/
 	return false;
 }
 
@@ -69,6 +71,7 @@ bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	if(  komp == &quit  ) {
 		umgebung_t::quit_simutrans = true;
+		destroy_win(this);
 	}
 	else if(  komp == &new_map  ) {
 		destroy_win(this);

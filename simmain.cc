@@ -179,47 +179,81 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 
 
-/**
- * Show Intro Screen
- */
-static void zeige_banner(karte_t *welt)
+void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 {
-	banner_t* b = new banner_t(welt);
-	event_t ev;
+	if(  display_get_width()==0  ) {
+		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
+		// cannot handle this!
+		return;
+	}
 
+	event_t ev;
 	destroy_all_win(true);	// since eventually the successful load message is still there ....
 
-	create_win( (display_get_width()-b->get_fenstergroesse().x)/2, (display_get_height()-b->get_fenstergroesse().y)/2, b, w_info, magic_none );
+	create_win( (display_get_width()-gui->get_fenstergroesse().x)/2, (display_get_height()-gui->get_fenstergroesse().y)/2, gui, w_info, magic_none );
 
-	welt->set_pause( false );
-	welt->reset_interaction();
-	welt->reset_timer();
+	if(  welt  ) {
+		welt->set_pause( false );
+		welt->reset_interaction();
+		welt->reset_timer();
 
-	long ms_pause = max( 25, 1000/umgebung_t::fps );
-	uint32 last_step = dr_time()+ms_pause;
-	uint step_count = 5;
-	do {
-		do {
-			DBG_DEBUG4("zeige_banner", "calling win_poll_event");
-			win_poll_event(&ev);
-			DBG_DEBUG4("zeige_banner", "calling check_pos_win");
-			check_pos_win(&ev);
-			if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
-				umgebung_t::quit_simutrans = true;
-				break;
+		long ms_pause = max( 25, 1000/umgebung_t::fps );
+		uint32 last_step = dr_time()+ms_pause;
+		uint step_count = 5;
+		while(  win_is_open(gui)  &&  !umgebung_t::quit_simutrans  &&  !quit()  ) {
+			do {
+				DBG_DEBUG4("zeige_banner", "calling win_poll_event");
+				win_poll_event(&ev);
+				// no toolbar events
+				if(  ev.my < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
+					ev.my = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				}
+				if(  ev.cy < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
+					ev.cy = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				}
+				DBG_DEBUG4("zeige_banner", "calling check_pos_win");
+				check_pos_win(&ev);
+				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
+					umgebung_t::quit_simutrans = true;
+					break;
+				}
+				dr_sleep(5);
+			} while(  dr_time()<last_step  );
+			DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
+			welt->sync_step( ms_pause, true, true );
+			DBG_DEBUG4("zeige_banner", "calling welt->step");
+			if(  step_count--==0  ) {
+				welt->step();
+				step_count = 5;
 			}
-			dr_sleep(5);
-		} while(  dr_time()<last_step  );
-		DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
-		welt->sync_step( ms_pause, true, true );
-		DBG_DEBUG4("zeige_banner", "calling welt->step");
-		if(  step_count--==0  ) {
-			welt->step();
-			step_count = 5;
+			last_step += ms_pause;
 		}
-		last_step += ms_pause;
-	} while(  win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
+	}
+	else {
+		display_show_pointer(true);
+		show_pointer(1);
+		set_pointer(0);
+		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+		while(  win_is_open(gui)  &&  !umgebung_t::quit_simutrans  &&  !quit()  ) {
+			// do not move, do not close it!
+			dr_prepare_flush();
+			gui->zeichnen( koord(win_get_posx(gui),win_get_posy(gui)), gui->get_fenstergroesse() );
+			display_poll_event(&ev);
+			// main window resized
+			check_pos_win(&ev);
+			dr_flush();
+			dr_sleep(50);
+			// main window resized
+			if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
+				// main window resized
+				simgraph_resize( ev.mx, ev.my );
+				display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+			}
+		}
+		set_pointer(1);
+	}
 
+	// just trigger not another following window => wait for button release
 	if (IS_LEFTCLICK(&ev)) {
 		do {
 			display_get_event(&ev);
@@ -228,46 +262,26 @@ static void zeige_banner(karte_t *welt)
 }
 
 
+// some routines for the modal display
+static bool never_quit() { return false; }
+static bool empty_objfilename() { return !umgebung_t::objfilename.empty(); }
+static bool no_language() { return translator::get_language()==-1; }
+
+
 
 /**
  * Show pak selector
  */
 static void ask_objfilename()
 {
-	// more than one => show selector box (ugly and without translations ...)
-	set_pointer(0);
 	pakselector_t* sel = new pakselector_t();
 	sel->fill_list();
-	if(!sel->has_pak()) {
-		// nothing there ...
-		set_pointer(1);
+	if(sel->has_pak()) {
+		modal_dialogue( sel, NULL, empty_objfilename );
+	}
+	else {
 		delete sel;
-		return;
 	}
-	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
-	event_t ev;
-
-	destroy_all_win(true);	// since eventually the successful load message is still there ....
-
-	create_win( xy.x, xy.y, sel, w_info, magic_none );
-
-	while(umgebung_t::objfilename.empty()) {
-		// do not move, do not close it!
-		dr_prepare_flush();
-		sel->zeichnen( xy, sel->get_fenstergroesse() );
-		display_poll_event(&ev);
-		// main window resized
-		check_pos_win(&ev);
-		dr_flush();
-		dr_sleep(50);
-		// main window resized
-		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
-			// main window resized
-			simgraph_resize( ev.mx, ev.my );
-			display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
-		}
-	}
-	set_pointer(1);
 }
 
 
@@ -283,34 +297,9 @@ static void ask_language()
 		translator::set_language( "en" );
 	}
 	else {
-		display_show_pointer(true);
-		show_pointer(1);
-		set_pointer(0);
 		sprachengui_t* sel = new sprachengui_t();
-		koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
-		event_t ev;
-
-		destroy_all_win(true);	// since eventually the successful load message is still there ....
-		create_win( xy.x, xy.y, sel, w_info, magic_none );
-
-		while(  translator::get_language()==-1  ) {
-			// do not move, do not close it!
-			dr_prepare_flush();
-			sel->zeichnen( xy, sel->get_fenstergroesse() );
-			display_poll_event(&ev);
-			// main window resized
-			check_pos_win(&ev);
-			dr_flush();
-			dr_sleep(50);
-			// main window resized
-			if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
-				// main window resized
-				simgraph_resize( ev.mx, ev.my );
-				display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
-			}
-		}
+		modal_dialogue( sel, NULL, no_language );
 		destroy_win( sel );
-		set_pointer(0);
 	}
 }
 
@@ -972,7 +961,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		DBG_MESSAGE("simmain", "show banner");
 		printf( "Show banner ... \n" );
 		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
-		zeige_banner(welt);
+		modal_dialogue( new banner_t(welt), welt, never_quit );
 		// only show new world, if no other dialoge is active ...
 		new_world = win_get_open_count()==0;
 		DBG_MESSAGE("simmain", "banner closed");
@@ -990,6 +979,15 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			welt->set_pause( false );
 		}
 
+#if 1
+		if (new_world) {
+			destroy_all_win( true );
+			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), welt, never_quit );
+			if(  umgebung_t::quit_simutrans  ) {
+				break;
+			}
+		}
+#else
 		if (new_world) {
 			climate_gui_t *cg = new climate_gui_t(&umgebung_t::default_einstellungen);
 			event_t ev;
@@ -1111,7 +1109,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			}
 			DBG_DEBUG4("wait_for_new_world", "the end");
 		}
-
+#endif
 		printf( "Running world, pause=%i, fast forward=%i ... \n", welt->is_paused(), welt->is_fast_forward() );
 		loadgame = ""; // only first time
 

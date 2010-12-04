@@ -7,6 +7,12 @@
  */
 
 #include <string.h>
+#ifdef _MSC_VER
+#include <new.h> // for _set_new_handler
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "welt.h"
 #include "karte.h"
@@ -17,6 +23,7 @@
 #include "../simwin.h"
 #include "../simimg.h"
 #include "../simtools.h"
+#include "../simversion.h"
 
 #include "../bauer/hausbauer.h"
 #include "../bauer/wegbauer.h"
@@ -24,6 +31,7 @@
 #include "../besch/haus_besch.h"
 
 #include "../dataobj/einstellungen.h"
+#include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
@@ -45,6 +53,10 @@
 #include "sprachen.h"
 #include "climates.h"
 #include "settings_frame.h"
+#include "loadsave_frame.h"
+#include "load_relief_frame.h"
+#include "messagebox.h"
+#include "scenario_frame.h"
 
 #define START_HEIGHT (28)
 
@@ -213,13 +225,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_intro_date );
 	intTopOfButton += 12;
 
-	allow_player_change.set_pos( koord(10,intTopOfButton) );
-	allow_player_change.set_typ( button_t::square_state );
-	allow_player_change.add_listener( this );
-	allow_player_change.pressed = sets->get_allow_player_change();
-	add_komponente( &allow_player_change );
-	intTopOfButton += 12;
-
 	intTopOfButton += 10;
 	open_setting_gui.set_pos( koord(10,intTopOfButton) );
 	open_setting_gui.set_groesse( koord(80, 14) );
@@ -280,8 +285,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
  * @param filename name of heightfield file
  * @author Hajo/prissi
  */
-bool
-welt_gui_t::update_from_heightfield(const char *filename)
+bool welt_gui_t::update_from_heightfield(const char *filename)
 {
 	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
 
@@ -333,8 +337,7 @@ welt_gui_t::update_from_heightfield(const char *filename)
  * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
  * @author Hj. Malthaner
  */
-void
-welt_gui_t::update_preview()
+void welt_gui_t::update_preview()
 {
 	const int mx = sets->get_groesse_x()/preview_size;
 	const int my = sets->get_groesse_y()/preview_size;
@@ -361,8 +364,7 @@ welt_gui_t::update_preview()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool
-welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 {
 	// check for changed map (update preview for any event)
 	int knr = inp_map_number.get_value(); //
@@ -427,10 +429,6 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			use_intro_dates.pressed = sets->get_use_timeline()&1;
 		}
 	}
-	else if(komp==&allow_player_change) {
-		sets->set_allow_player_change( allow_player_change.pressed^1 );
-		allow_player_change.pressed = sets->get_allow_player_change();
-	}
 	else if(komp==&open_setting_gui) {
 		gui_frame_t *sg = win_get_magic( magic_settings_frame_t );
 		if(  sg  ) {
@@ -455,21 +453,42 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&load_game) {
-		load = true;
+		destroy_all_win(true);
+		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	}
 	else if(komp==&load_scenario) {
-		scenario = true;
+		char path[1024];
+		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
+		chdir( path );
+		destroy_all_win(true);
+		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
+		chdir( umgebung_t::user_dir );
 	}
 	else if(komp==&start_game) {
+		destroy_all_win(true);
+		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 		if(loaded_heightfield) {
-			load_heightfield = true;
+			welt->load_heightfield(&umgebung_t::default_einstellungen);
 		}
 		else {
-			start = true;
+			intr_refresh_display(true);
+			umgebung_t::default_einstellungen.heightfield = "";
+			welt->init( &umgebung_t::default_einstellungen, 0 );
+		}
+		destroy_all_win(true);
+		welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
+		welt->set_pause(false);
+		// save setting ...
+		loadsave_t file;
+		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR)) {
+			// save default setting
+			umgebung_t::default_einstellungen.rdwr(&file);
+			file.close();
 		}
 	}
 	else if(komp==&quit_game) {
-		quit = true;
+		destroy_all_win(true);
+		umgebung_t::quit_simutrans = true;
 	}
 
 	if(knr>=0) {
@@ -515,8 +534,6 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		load_map.set_text("Lade Relief");
 		load_map.set_tooltip("load height data from file");
 		use_intro_dates.set_text("Use timeline start year");
-		allow_player_change.set_text("Allow player change");
-//		use_beginner_mode.set_text("Beginner mode");
 		open_setting_gui.set_text("Setting");
 		open_climate_gui.set_text("Climate Control");
 		load_game.set_text("Load game");
@@ -585,7 +602,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	y += 12+5;
 	y += 12+5;
-	y += 12+5;
+	y += 5;
 
 	display_ddd_box_clip(x, y-22, 240, 0, MN_GREY0, MN_GREY4);
 

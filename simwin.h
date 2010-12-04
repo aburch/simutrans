@@ -102,6 +102,7 @@ int create_win(int x, int y, gui_frame_t*, wintype, long magic);
 
 bool check_pos_win(struct event_t *ev);
 
+bool win_is_open(gui_frame_t *ig );
 int win_get_posx(gui_frame_t *ig);
 int win_get_posy(gui_frame_t *ig);
 void win_set_pos(gui_frame_t *ig, int x, int y);

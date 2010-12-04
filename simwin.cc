@@ -856,6 +856,25 @@ void resize_win(int i, event_t *ev)
 }
 
 
+
+// returns true, if gui is a open window handle
+bool win_is_open(gui_frame_t *gui)
+{
+	for(  uint i=0;  i<wins.get_count();  i++  ) {
+		if(  wins[i].gui == gui  ) {
+			for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
+				if(  kill_list[i].gui == gui  ) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+	return false;
+}
+
+
+
 int win_get_posx(gui_frame_t *gui)
 {
 	for(  int i=wins.get_count()-1;  i>=0;  i--  ) {

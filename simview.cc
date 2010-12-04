@@ -42,8 +42,7 @@ static const sint8 hours2night[] =
 
 
 
-void
-karte_ansicht_t::display(bool force_dirty)
+void karte_ansicht_t::display(bool force_dirty)
 {
 	DBG_DEBUG4("karte_ansicht_t::display", "starting ...");
 	display_set_image_proc(true);

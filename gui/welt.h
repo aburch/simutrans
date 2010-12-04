@@ -61,7 +61,6 @@ private:
 		inp_intro_date;
 
 	button_t use_intro_dates;
-	button_t allow_player_change;
 
 	button_t open_climate_gui, open_setting_gui;
 
@@ -98,13 +97,6 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "new_world.txt";}
-
-	bool get_load_heightfield() const {return load_heightfield;}
-	bool get_scenario() const {return scenario;}
-	bool get_load() const {return load;}
-	bool get_start() const {return start;}
-	bool get_close() const {return close;}
-	bool get_quit() const {return quit;}
 
 	einstellungen_t* get_sets() const { return sets; }
 
