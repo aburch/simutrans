@@ -138,7 +138,11 @@ crossing_t::rdwr(loadsave_t *file)
 		uint8 w1, w2;
 		file->rdwr_byte(w1);
 		file->rdwr_byte(w2);
-		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, 0);
+		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, welt->get_timeline_year_month());
+		if(besch==NULL) {
+			dbg->warning("crossing_t::crossing_t()","requested for waytypes %i and %i not available, try to load object without timeline", w1, w2 );
+			besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, 0);
+		}
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::crossing_t()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
 		}
