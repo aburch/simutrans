@@ -466,7 +466,7 @@ public:
 	*/
 	void hat_gehalten(halthandle_t halt);
 
-	const route_t* get_route() const { return &route; }
+	route_t* get_route() { return &route; }
 	route_t* access_route() { return &route; }
 
 	/**

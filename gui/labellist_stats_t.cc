@@ -65,8 +65,8 @@ class compare_labels
 				case labellist::by_player:
 				{
 					if(!filter) {
-						label_t* a_l = welt->lookup(a)->get_kartenboden()->find<label_t>();
-						label_t* b_l = welt->lookup(b)->get_kartenboden()->find<label_t>();
+						label_t* a_l = welt->lookup_kartenboden(a)->find<label_t>();
+						label_t* b_l = welt->lookup_kartenboden(b)->find<label_t>();
 						if(a_l && b_l) {
 							cmp = a_l->get_besitzer()->get_player_nr() - b_l->get_besitzer()->get_player_nr();
 						}
@@ -75,8 +75,8 @@ class compare_labels
 				}
 			}
 			if(cmp==0) {
-				const char* a_name = welt->lookup(a)->get_kartenboden()->get_text();
-				const char* b_name = welt->lookup(b)->get_kartenboden()->get_text();
+				const char* a_name = welt->lookup_kartenboden(a)->get_text();
+				const char* b_name = welt->lookup_kartenboden(b)->get_text();
 
 				cmp = strcmp(a_name, b_name);
 			}
@@ -98,8 +98,8 @@ void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sortby, bool so
 	slist_iterator_tpl <koord> iter (welt->get_label_list());
 	while(iter.next()) {
 		koord pos = iter.get_current();
-		label_t* label = welt->lookup(pos)->get_kartenboden()->find<label_t>();
-		const char* name = welt->lookup(pos)->get_kartenboden()->get_text();
+		label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
+		const char* name = welt->lookup_kartenboden(pos)->get_text();
 		// some old version games don't have label nor name.
 		// Check them to avoid crashes.
 		if(label  &&  name  &&  (!filter  ||  (label  &&  (label->get_besitzer() == welt->get_active_player())))) {
@@ -137,9 +137,9 @@ bool labellist_stats_t::infowin_event(const event_t * ev)
 		if(  ev->cx>0  &&  ev->cx<15  ) {
 			welt->change_world_position(pos);
 		}
-		else if(welt->lookup(pos)->get_kartenboden()->find<label_t>()) {
+		else if(welt->lookup_kartenboden(pos)->find<label_t>()) {
 			// avoid crash
-				welt->lookup(pos)->get_kartenboden()->find<label_t>()->zeige_info();
+				welt->lookup_kartenboden(pos)->find<label_t>()->zeige_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {

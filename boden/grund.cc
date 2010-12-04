@@ -647,7 +647,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// check for foundation
 	if(k.x>0  &&  k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,-1))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(-1,-1));
 		if(gr) {
 			const sint16 left_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -665,7 +665,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// now enter the left two height differences
 	if(k.x>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,0))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(-1,0));
 		if(gr) {
 			const sint16 left_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -727,7 +727,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// now enter the back two height differences
 	if(k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(0,-1))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(0,-1));
 		if(gr) {
 			const sint16 back_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -789,7 +789,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	}
 
 	// not ground -> then not draw first ...
-	if(welt->lookup(k)->get_kartenboden()!=this) {
+	if(welt->lookup_kartenboden(k)!=this) {
 		clear_flag(grund_t::draw_as_ding);
 	}
 

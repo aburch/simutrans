@@ -3003,7 +3003,7 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				const planquadrat_t *pl2 = welt->lookup(gr->get_pos().get_2d()+koord::neighbours[i]);
 				if(  pl2  ) {
 					halthandle_t halt = pl2->get_halt();
-					if(  halt.is_bound()  &&  halt->get_besitzer()==public_owner  &&  !joining.is_contained(halt)) {
+					if(  halt.is_bound()  &&  halt->get_besitzer()==public_owner  &&  !joining.is_contained(halt)  ) {
 						joining.append(halt);
 					}
 				}
@@ -3027,6 +3027,14 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 
 		// now with the second stop
 		while(halt.is_bound()  &&  halt!=self) {
+			// add statistics
+			for(  int month=0;  month<MAX_MONTHS;  month++  ) {
+				for(  int type=0;  type<MAX_HALT_COST;  type++  ) {
+					financial_history[month][type] += halt->financial_history[month][type];
+					halt->financial_history[month][type] = 0;	// to avoind counting twice
+				}
+			}
+
 			// we always take the first remaining tile and transfer it => more safe
 			koord3d t = halt->get_basis_pos3d();
 			grund_t *gr = welt->lookup(t);
@@ -3268,16 +3276,8 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			grund_t *gr = welt->lookup(k);
 			if(!gr) {
 				dbg->error("haltestelle_t::rdwr()", "invalid position %s", k.get_str() );
-				const planquadrat_t* tmp = welt->lookup(k.get_2d());
-				if (tmp)
-				{
-					gr = tmp->get_kartenboden();
-					dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
-				}
-				else
-				{
-					dbg->fatal("haltestelle_t::rdwr()", "invalid halt co-ordinate at %i, %i, %i", k.x, k.y, k.z);
-				}
+				gr = welt->lookup_kartenboden(k.get_2d());
+				dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
 			}
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...
@@ -3759,9 +3759,10 @@ bool haltestelle_t::add_grund(grund_t *gr)
 	for (int y = -cov; y <= cov; y++) {
 		for (int x = -cov; x <= cov; x++) {
 			koord p=pos+koord(x,y);
-			if(welt->ist_in_kartengrenzen(p)) {
-				welt->access(p)->add_to_haltlist( self );
-				welt->lookup(p)->get_kartenboden()->set_flag(grund_t::dirty);
+			planquadrat_t *plan = welt->access(p);
+			if(plan) {
+				plan->add_to_haltlist( self );
+				plan->get_kartenboden()->set_flag(grund_t::dirty);
 			}
 		}
 	}

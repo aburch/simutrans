@@ -119,7 +119,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		if(!welt->ist_in_kartengrenzen(pos)) {
 			break;
 		}
-		route.append(welt->lookup(pos)->get_kartenboden()->get_pos());
+		route.append(welt->lookup_kartenboden(pos)->get_pos());
 	}
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 
@@ -508,7 +508,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	INT_CHECK("route 194");
 	// target reached?
 	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
-		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		if(  step >= MAX_STEP  ) {
+			dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		}
 	}
 	else {
 		// reached => construct route
