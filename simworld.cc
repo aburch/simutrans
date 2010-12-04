@@ -5488,7 +5488,7 @@ bool karte_t::interactive(uint32 quit_month)
 						nwc = NULL;
 					}
 					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
-					if(nwt->last_sync_step + LAST_RANDOMS_COUNT > last_random_seed_sync  &&  LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
+					else if(nwt->last_sync_step + LAST_RANDOMS_COUNT > last_random_seed_sync  &&  LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
 						// lost synchronisation ...
 						if(  !umgebung_t::server  ) {
 							dbg->warning("karte_t::interactive", "random number generators have different states (closing connection)" );
