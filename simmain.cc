@@ -188,8 +188,6 @@ void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 	}
 
 	event_t ev;
-	destroy_all_win(true);	// since eventually the successful load message is still there ....
-
 	create_win( (display_get_width()-gui->get_fenstergroesse().x)/2, (display_get_height()-gui->get_fenstergroesse().y)/2, gui, w_info, magic_none );
 
 	if(  welt  ) {
@@ -277,6 +275,7 @@ static void ask_objfilename()
 	pakselector_t* sel = new pakselector_t();
 	sel->fill_list();
 	if(sel->has_pak()) {
+		destroy_all_win(true);	// since eventually the successful load message is still there ....
 		modal_dialogue( sel, NULL, empty_objfilename );
 	}
 	else {
@@ -298,6 +297,7 @@ static void ask_language()
 	}
 	else {
 		sprachengui_t* sel = new sprachengui_t();
+		destroy_all_win(true);	// since eventually the successful load message is still there ....
 		modal_dialogue( sel, NULL, no_language );
 		destroy_win( sel );
 	}
@@ -962,6 +962,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		DBG_MESSAGE("simmain", "show banner");
 		printf( "Show banner ... \n" );
 		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+		destroy_all_win(true);	// since eventually the successful load message is still there ....
 		modal_dialogue( new banner_t(welt), welt, never_quit );
 		// only show new world, if no other dialoge is active ...
 		new_world = win_get_open_count()==0;
