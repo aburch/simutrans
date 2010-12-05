@@ -5411,7 +5411,7 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 			}
 			break;
 		case 'f': // activate/deactivate freeplay
-			if(  (welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change())  &&  welt->get_active_player_nr()!=1  ) {
+			if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
 				dbg->error( "wkz_change_player_t::init()", "Only public player can enable freeplay!" );
 			}
 			else {

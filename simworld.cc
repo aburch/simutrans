@@ -5033,7 +5033,7 @@ void karte_t::switch_active_player(uint8 new_player)
 	}
 
 	// no cheating allowed?
-	if(!einstellungen->get_allow_player_change()) {
+	if(!einstellungen->get_allow_player_change()  &&  spieler[1]->is_locked()) {
 		active_player_nr = 0;
 		active_player = spieler[0];
 		if(new_player!=0) {
