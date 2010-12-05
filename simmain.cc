@@ -456,6 +456,7 @@ int simu_main(int argc, char** argv)
 			file.close();
 			// reset to false (otherwise these settings will persist)
 			umgebung_t::default_einstellungen.set_freeplay( false );
+			umgebung_t::default_einstellungen.set_allow_player_change( true );
 			umgebung_t::announce_server = 0;
 		}
 	}
