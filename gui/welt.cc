@@ -471,7 +471,6 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 			welt->load_heightfield(&umgebung_t::default_einstellungen);
 		}
 		else {
-			intr_refresh_display(true);
 			umgebung_t::default_einstellungen.heightfield = "";
 			welt->init( &umgebung_t::default_einstellungen, 0 );
 		}
