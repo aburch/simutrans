@@ -71,18 +71,18 @@ bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
 	if(  komp == &quit  ) {
 		umgebung_t::quit_simutrans = true;
-		destroy_win(this);
+		destroy_all_win(true);
 	}
 	else if(  komp == &new_map  ) {
-		destroy_win(this);
+		destroy_all_win(true);
 	}
 	else if(  komp == &load_map  ) {
+		destroy_all_win(true);
 		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
-		destroy_win(this);
 	}
 	else if(  komp == &join_map  ) {
+		destroy_all_win(true);
 		create_win( new server_frame_t(welt), w_info, magic_server_frame_t );
-		destroy_win(this);
 	}
 	return true;
 }

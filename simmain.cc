@@ -958,20 +958,23 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->get_message()->clear();
 
-	if(  !umgebung_t::networkmode  &&  new_world  ) {
-		DBG_MESSAGE("simmain", "show banner");
-		printf( "Show banner ... \n" );
-		ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
-		destroy_all_win(true);	// since eventually the successful load message is still there ....
-		modal_dialogue( new banner_t(welt), welt, never_quit );
-		// only show new world, if no other dialoge is active ...
-		new_world = win_get_open_count()==0;
-		DBG_MESSAGE("simmain", "banner closed");
-	}
-
-	while (!umgebung_t::quit_simutrans) {
+	destroy_all_win(true);
+	while(  !umgebung_t::quit_simutrans  ) {
 		// play next tune?
 		check_midi();
+
+		if(  !umgebung_t::networkmode  &&  new_world  ) {
+			DBG_MESSAGE("simmain", "show banner");
+			printf( "Show banner ... \n" );
+			ticker::add_msg("Welcome to Simutrans, a game created by Hj. Malthaner and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+			modal_dialogue( new banner_t(welt), welt, never_quit );
+			// only show new world, if no other dialoge is active ...
+			new_world = win_get_open_count()==0;
+			DBG_MESSAGE("simmain", "banner closed");
+		}
+		if(  umgebung_t::quit_simutrans  ) {
+			break;
+		}
 
 		// to purge all previous old messages
 		DBG_MESSAGE("simmain", "set_message_flags");
@@ -982,7 +985,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		}
 
 #if 1
-		if (new_world) {
+		if(  new_world  ) {
 			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), welt, never_quit );
 			if(  umgebung_t::quit_simutrans  ) {
 				break;
