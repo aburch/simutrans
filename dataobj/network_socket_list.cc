@@ -120,12 +120,15 @@ void socket_list_t::book_state_change(uint8 state, sint8 incr)
 			break;
 	}
 }
+
+
 void socket_list_t::change_state(uint32 id, uint8 new_state)
 {
 	book_state_change(list[id].state, -1);
 	list[id].state = new_state;
 	book_state_change(list[id].state, +1);
 }
+
 
 void socket_list_t::reset()
 {
@@ -137,6 +140,7 @@ void socket_list_t::reset()
 	server_sockets = 0;
 }
 
+
 void socket_list_t::reset_clients()
 {
 	for(uint32 j=server_sockets; j<list.get_count(); j++) {
@@ -145,6 +149,7 @@ void socket_list_t::reset_clients()
 	connected_clients = 0;
 	playing_clients = 0;
 }
+
 
 void socket_list_t::add_client( SOCKET sock )
 {
@@ -167,6 +172,7 @@ void socket_list_t::add_client( SOCKET sock )
 
 	network_set_socket_nodelay( sock );
 }
+
 
 void socket_list_t::add_server( SOCKET sock )
 {
@@ -223,6 +229,7 @@ uint32 socket_list_t::get_client_id( SOCKET sock ){
 	}
 	return list.get_count();
 }
+
 
 void socket_list_t::send_all(network_command_t* nwc, bool only_playing_clients)
 {
