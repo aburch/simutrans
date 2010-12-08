@@ -4964,8 +4964,15 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	convoihandle_t cnv;
 	cnv.set_id( convoi_id );
 	// double click on remove button will send two such commands
-	// the first will delete the convoi, the second should not trigger the assertion
-	assert(cnv.is_bound()  ||  tool=='x');
+	// the first will delete the convoi, the second should not trigger an assertion
+	// catch such commands here
+	if( !cnv.is_bound()) {
+		if (is_local_execution()) {
+			create_win( new news_img("Convoy already deleted!"), w_time_delete, magic_none);
+		}
+		dbg->warning("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
+		return false;
+	}
 
 	// first letter is now the actual command
 	switch(  tool  ) {
@@ -5171,9 +5178,15 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 	}
 
 	grund_t *gr = welt->lookup(pos);
-	assert(gr);
-	depot_t *depot = gr->get_depot();
-	assert(depot  &&  spieler_t::check_owner( depot->get_besitzer(), sp) );
+	depot_t *depot = gr ? gr->get_depot() : NULL;
+	if(  depot==NULL  ){
+		dbg->warning("wkz_change_depot_t::init", "no depot found at (%s)", pos.get_str());
+		return false;
+	}
+	if(  !spieler_t::check_owner( depot->get_besitzer(), sp)  ) {
+		dbg->warning("wkz_change_depot_t::init", "depot at (%s) belongs to another player", pos.get_str());
+		return false;
+	}
 
 	convoihandle_t cnv;
 	cnv.set_id( convoi_id );
