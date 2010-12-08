@@ -1976,6 +1976,10 @@ void convoi_t::rdwr(loadsave_t *file)
 					}
 				}
 				gr->obj_add(v);
+				v->clear_flag(ding_t::not_on_map);
+			}
+			else {
+				v->set_flag(ding_t::not_on_map);
 			}
 
 			// add to convoi
