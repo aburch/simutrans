@@ -281,18 +281,16 @@ static void win_draw_window_title(const koord pos, const koord gr,
 		const bool sticky,
 		const simwin_gadget_flags_t * const flags )
 {
-	if(  flags->title  ) {
-		PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
-		display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, false);
-		display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, false);
-		display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, false);
-		display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, false);
+	PUSH_CLIP(pos.x, pos.y, gr.x, gr.y);
+	display_fillbox_wh_clip(pos.x, pos.y, gr.x, 1, titel_farbe+1, false);
+	display_fillbox_wh_clip(pos.x, pos.y+1, gr.x, 14, titel_farbe, false);
+	display_fillbox_wh_clip(pos.x, pos.y+15, gr.x, 1, COL_BLACK, false);
+	display_vline_wh_clip(pos.x+gr.x-1, pos.y,   15, COL_BLACK, false);
 
-		// Draw the gadgets and then move left and draw text.
-		int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
-		display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
-		POP_CLIP();
-	}
+	// Draw the gadgets and then move left and draw text.
+	int width = display_gadget_boxes( flags, pos.x+(REVERSE_GADGETS?0:gr.x-20), pos.y, titel_farbe, closing, sticky );
+	display_proportional_clip( pos.x + (REVERSE_GADGETS?width+4:4), pos.y+(16-large_font_height)/2, text, ALIGN_LEFT, text_farbe, false );
+	POP_CLIP();
 }
 
 
@@ -729,14 +727,16 @@ void display_win(int win)
 
 	// %HACK (Mathew Hounsell) So draw will know if gadget is needed.
 	wins[win].flags.help = ( komp->get_hilfe_datei() != NULL );
-	win_draw_window_title(wins[win].pos,
-			gr,
-			title_color,
-			translator::translate(komp->get_name()),
-			text_color,
-			wins[win].closing,
-			wins[win].sticky,
-			( & wins[win].flags ) );
+	if(  wins[win].flags.title  ) {
+		win_draw_window_title(wins[win].pos,
+				gr,
+				title_color,
+				translator::translate(komp->get_name()),
+				text_color,
+				wins[win].closing,
+				wins[win].sticky,
+				( & wins[win].flags ) );
+	}
 	// mark top window, if requested
 	if(umgebung_t::window_frame_active  &&  (unsigned)win==wins.get_count()-1) {
 		const int y_off = wins[win].flags.title ? 0 : 16;
