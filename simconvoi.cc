@@ -292,6 +292,7 @@ void convoi_t::laden_abschliessen()
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
 		sint16 step_pos;
 		koord3d drive_pos;
+		const uint8 diagonal_length = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
 		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 			vehikel_t* v = fahr[i];
 			v->set_erstes( i==0 );
@@ -302,17 +303,24 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			// wrong alingmant here => must relocate
 			if(v->need_realignment()) {
 				// diagonal => convoi must restart
-				realing_position |= (v->get_fahrtrichtung()&0x0A)!=0  &&  (state==DRIVING  ||  is_waiting());
+				realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
 			}
 			// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
-			if(  !realing_position  &&  state!=INITIAL  ) {
+			if(  !realing_position  &&  state!=INITIAL) {
 				if(  i==0  ) {
 					step_pos = v->get_steps();
 				}
 				else {
 					if(  drive_pos!=v->get_pos()  ) {
-						step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? 130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier() : 255;
+						// with long vehicles on diagonals, vehicles need not to be on consecutive tiles
+						// do some guessing here
+						uint32 dist = koord_distance(drive_pos, v->get_pos());
+						if (dist>1) {
+							step_pos += (dist-1) * diagonal_length;
+						}
+						step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_length : 256;
 					}
+					dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
 					if(  abs( v->get_steps() - step_pos )>15  ) {
 						// not where it should be => realing
 						realing_position = true;
@@ -366,36 +374,41 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		// display just a warning
 		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
 
-		// since start may have been changed
-		uint16 start_index = max(2,fahr[anz_vehikel-1]->get_route_index())-2;
-		koord3d k0 = fahr[anz_vehikel-1]->get_pos();
+		if (route.empty()) {
+			// realigning needs a route
+			state = NO_ROUTE;
+		}
+		else {
+			// since start may have been changed
+			uint16 start_index = max(2,fahr[anz_vehikel-1]->get_route_index())-2;
+			koord3d k0 = fahr[anz_vehikel-1]->get_pos();
 
-		uint32 train_length = move_to(*welt, k0, start_index) + 1;
-		const koord3d last_start = fahr[0]->get_pos();
+			uint32 train_length = move_to(*welt, k0, start_index) + 1;
+			const koord3d last_start = fahr[0]->get_pos();
 
-		// now advance all convoi until it is completely on the track
-		fahr[0]->set_erstes(false); // switches off signal checks ...
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			vehikel_t* v = fahr[i];
+			// now advance all convoi until it is completely on the track
+			fahr[0]->set_erstes(false); // switches off signal checks ...
+			for(unsigned i=0; i<anz_vehikel; i++) {
+				vehikel_t* v = fahr[i];
 
-			v->darf_rauchen(false);
-			fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
-			train_length -= v->get_besch()->get_length();
-			v->darf_rauchen(true);
+				v->darf_rauchen(false);
+				fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
+				train_length -= v->get_besch()->get_length();
+				v->darf_rauchen(true);
 
-			// eventually reserve this again
-			grund_t *gr=welt->lookup(v->get_pos());
-			// airplanes may have no ground ...
-			if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
-				sch0->reserve(self,ribi_t::keine);
+				// eventually reserve this again
+				grund_t *gr=welt->lookup(v->get_pos());
+				// airplanes may have no ground ...
+				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+					sch0->reserve(self,ribi_t::keine);
+				}
+			}
+			fahr[0]->set_erstes(true);
+			if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  fahr[0]->get_pos() != last_start  ) {
+				state = WAITING_FOR_CLEARANCE;
 			}
 		}
-		fahr[0]->set_erstes(true);
-		if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  fahr[0]->get_pos() != last_start  ) {
-			state = WAITING_FOR_CLEARANCE;
-		}
 	}
-
 	if(  state==LOADING  ) {
 		// the fully the shorter => reregister as older convoi
 		wait_lock = 2000-loading_level*20;
