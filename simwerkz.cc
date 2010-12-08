@@ -5619,9 +5619,20 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(  *default_param  ) {
-		cbuffer_t buffer(1024);
-		buffer.printf("%s: %s", sp->get_name(), default_param);
-		welt->get_message()->add_message( buffer, koord::invalid, message_t::ai, sp ? PLAYER_FLAG|sp->get_player_nr() : COL_BLACK, IMG_LEER );
+		if(  sp  ) {
+			if(  umgebung_t::add_player_name_to_message  ) {
+				cbuffer_t buffer(1024);
+				buffer.printf("%s: %s", sp->get_name(), default_param);
+				welt->get_message()->add_message( buffer, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+			}
+			else {
+				welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+			}
+		}
+		else {
+			// system message
+			welt->get_message()->add_message( default_param, koord::invalid, message_t::general, COL_BLACK, IMG_LEER );
+		}
 	}
 	return false;
 }
