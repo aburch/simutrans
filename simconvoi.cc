@@ -306,7 +306,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 				realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
 			}
 			// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
-			if(  !realing_position  &&  state!=INITIAL) {
+			if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
 				if(  i==0  ) {
 					step_pos = v->get_steps();
 				}
@@ -377,6 +377,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		if (route.empty()) {
 			// realigning needs a route
 			state = NO_ROUTE;
+			dbg->error( "convoi_t::laden_abschliessen()", "No valid route, but needs realignment at (%s)!", fahr[0]->get_pos().get_str() );
 		}
 		else {
 			// since start may have been changed
