@@ -5622,7 +5622,7 @@ bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 		if(  sp  ) {
 			if(  umgebung_t::add_player_name_to_message  ) {
 				cbuffer_t buffer(1024);
-				buffer.printf("%s: %s", sp->get_name(), default_param);
+				buffer.printf("[%s] %s", sp->get_name(), default_param);
 				welt->get_message()->add_message( buffer, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
 			}
 			else {
