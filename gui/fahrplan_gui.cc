@@ -380,24 +380,27 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 		old_fpl->eingabe_abschliessen();
 		// now apply the changes
 		if(cnv.is_bound()) {
-			// if a line is selected
-			if(  new_line.is_bound()  ) {
-				// if the selected line is different to the convoi's line, apply it
-				if(new_line!=cnv->get_line()) {
-					char id[16];
-					sprintf( id, "%i,%i", new_line.get_id(), fpl->get_aktuell() );
-					cnv->call_convoi_tool( 'l', id );
+			// do not send changes if the convois is about to be deleted
+			if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
+				// if a line is selected
+				if(  new_line.is_bound()  ) {
+					// if the selected line is different to the convoi's line, apply it
+					if(new_line!=cnv->get_line()) {
+						char id[16];
+						sprintf( id, "%i,%i", new_line.get_id(), fpl->get_aktuell() );
+						cnv->call_convoi_tool( 'l', id );
+					}
+					else {
+						cbuffer_t buf(5500);
+						fpl->sprintf_schedule( buf );
+						cnv->call_convoi_tool( 'g', buf );
+					}
 				}
 				else {
 					cbuffer_t buf(5500);
 					fpl->sprintf_schedule( buf );
 					cnv->call_convoi_tool( 'g', buf );
 				}
-			}
-			else {
-				cbuffer_t buf(5500);
-				fpl->sprintf_schedule( buf );
-				cnv->call_convoi_tool( 'g', buf );
 			}
 		}
 		else {

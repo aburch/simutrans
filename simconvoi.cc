@@ -2558,9 +2558,6 @@ void convoi_t::self_destruct()
 	line_update_pending = linehandle_t();	// does not bother to add it to a new line anyway ...
 	// convois in depot are not contained in the map array!
 	if(state==INITIAL) {
-		for(  int i=0;  i<anz_vehikel;  i++  ) {
-			fahr[i]->set_flag( ding_t::not_on_map );
-		}
 		destroy();
 	}
 	else {
@@ -2584,6 +2581,14 @@ void convoi_t::destroy()
 		fahr[0]->set_convoi(NULL);
 	}
 
+	if(  state == INITIAL  ) {
+		// in depot => not on map
+		for(int i=anz_vehikel-1;  i>=0; i--) {
+			fahr[i]->set_flag( ding_t::not_on_map );
+		}
+	}
+	state = SELF_DESTRUCT;
+
 	if(fpl!=NULL  &&  !fpl->ist_abgeschlossen()) {
 		destroy_win((long)fpl);
 	}
@@ -2593,16 +2598,6 @@ void convoi_t::destroy()
 		unset_line();
 		delete fpl;
 		fpl = NULL;
-	}
-
-	if(  state != INITIAL  ) {
-		state = SELF_DESTRUCT;
-	}
-	else {
-		// in depot => not on map
-		for(int i=anz_vehikel-1;  i>=0; i--) {
-			fahr[i]->set_flag( ding_t::not_on_map );
-		}
 	}
 
 	// pay the current value
