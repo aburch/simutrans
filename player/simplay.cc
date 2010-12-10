@@ -177,7 +177,7 @@ bool spieler_t::set_unlock( const uint8 *hash )
 		// matches password?
 		locked = (pwd_hash != hash);
 	}
-	if (!locked  &&  player_nr==1) {
+	if(  !locked  &&  player_nr==1  ) {
 		// public player unlocked:
 		// allow to change active player
 		welt->access_einstellungen()->set_allow_player_change(true);
