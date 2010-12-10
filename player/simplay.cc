@@ -656,6 +656,7 @@ void spieler_t::ai_bankrupt()
 									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
 										add_maintenance( -w->get_besch()->get_wartung() );
 										w->set_besitzer( NULL );
+										w->count_sign();
 									}
 									else {
 										gr->weg_entfernen( w->get_waytype(), true );
