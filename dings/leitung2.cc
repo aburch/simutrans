@@ -684,7 +684,7 @@ void senke_t::info(cbuffer_t & buf) const
 	ding_t::info( buf );
 
 	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
-	buf.printf( translator::translate("Demand %u MW\n"), last_power_demand>>POWER_TO_MW );
+	buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
 	buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
 	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 }
