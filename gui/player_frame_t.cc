@@ -51,7 +51,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 			}
 		}
 
-		if(sp  &&  welt->get_einstellungen()->get_allow_player_change()) {
+		if(  sp  &&  (welt->get_einstellungen()->get_allow_player_change()  ||  !welt->get_spieler(1)->is_locked())  ) {
 			// allow change to human and public
 			add_komponente(player_change_to+i);
 		}
@@ -97,16 +97,15 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 	// freeplay mode
 	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT-1)*LINESPACE*2) );
-	if(  !welt->get_einstellungen()->get_allow_player_change()  ) {
+	freeplay.add_listener(this);
+	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
 		freeplay.disable();
-	}
-	else {
-		freeplay.add_listener(this);
 	}
 	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
 	add_komponente( &freeplay );
 
 	set_fenstergroesse(koord(260, (MAX_PLAYER_COUNT-1)*LINESPACE*2+16+14+4));
+	update_data();
 }
 
 
@@ -177,7 +176,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			remove_komponente( player_active+i-2 );
 			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  ) {
 				add_komponente( player_active+i-2 );
-				welt->access_einstellungen()->set_player_type( i, p.i );
+				welt->access_einstellungen()->set_player_type( i, (uint8)p.i );
 			}
 			else {
 				player_select[i].set_selection(0);
@@ -213,7 +212,7 @@ void ki_kontroll_t::update_data()
 				player_select[i].set_visible(false);
 				player_get_finances[i].set_visible(true);
 				add_komponente(player_get_finances+i);
-				if(welt->get_einstellungen()->get_allow_player_change()) {
+				if(welt->get_einstellungen()->get_allow_player_change()    ||  !welt->get_spieler(1)->is_locked()) {
 					add_komponente(player_change_to+i);
 				}
 				player_get_finances[i].set_text(welt->get_spieler(i)->get_name());
@@ -237,7 +236,7 @@ void ki_kontroll_t::update_data()
 void ki_kontroll_t::zeichnen(koord pos, koord gr)
 {
 	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
-	if(  (welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change())  &&  welt->get_active_player_nr()!=1  ) {
+	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
 		freeplay.disable();
 	}
 	else {

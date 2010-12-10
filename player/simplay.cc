@@ -181,6 +181,11 @@ bool spieler_t::set_unlock( const uint8 *hash )
 		// matches password?
 		locked = (pwd_hash != hash);
 	}
+	if (!locked  &&  player_nr==1) {
+		// public player unlocked:
+		// allow to change active player
+		welt->access_einstellungen()->set_allow_player_change(true);
+	}
 	return locked;
 }
 
@@ -798,6 +803,7 @@ void spieler_t::ai_bankrupt()
 									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
 										add_maintenance( -w->get_besch()->get_wartung() );
 										w->set_besitzer( NULL );
+										w->count_sign();
 									}
 									else {
 										gr->weg_entfernen( w->get_waytype(), true );

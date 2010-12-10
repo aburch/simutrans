@@ -383,13 +383,9 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 
 bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
-	if(cnv.is_bound()) 
-	{
-		if(  cnv->get_line().is_bound()  ) {
-			cnv->set_schedule( NULL );
-		}
-		if(!sell)
-		{
+	if(cnv.is_bound()) {
+
+		if(!sell) {
 			// store vehicles in depot
 			vehikel_t *v;
 			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {

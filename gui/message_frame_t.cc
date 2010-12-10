@@ -72,7 +72,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 	if(  komp==&option_bt  ) {
 		create_win(320, 200, new message_option_t(welt), w_info, magic_none );
 	}
-	else if(komp == &input  &&  ibuf[0]>0  ) {
+	else if(  komp==&input  &&  ibuf[0]!=0  ) {
 		// add message via tool!
 		werkzeug_t *w = create_tool( WKZ_ADD_MESSAGE_TOOL | SIMPLE_TOOL );
 		w->set_default_param( ibuf );

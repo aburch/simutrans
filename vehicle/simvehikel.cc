@@ -115,7 +115,7 @@ void vehikel_basis_t::set_diagonal_multiplier( uint32 multiplier, uint32 old_dia
 // if true, convoi, must restart!
 bool vehikel_basis_t::need_realignment()
 {
-	return old_diagonal_length!=diagonal_length  &&  (fahrtrichtung&0x0A)!=0;
+	return old_diagonal_length!=diagonal_length  &&  ribi_t::ist_kurve(fahrtrichtung);
 }
 
 // [0]=xoff [1]=yoff
@@ -228,7 +228,7 @@ vehikel_basis_t::verlasse_feld() //"leave field" (Google)
 	}
 
 	// then remove from ground (or search whole map, if failed)
-	if(gr==NULL  ||  !gr->obj_remove(this)) {
+	if(!get_flag(not_on_map)  &&  (gr==NULL  ||  !gr->obj_remove(this)) ) {
 
 		// was not removed (not found?)
 		dbg->error("vehikel_basis_t::verlasse_feld()","'typ %i' %p could not be removed from %d %d", get_typ(), this, get_pos().x, get_pos().y);

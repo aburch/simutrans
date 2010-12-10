@@ -4782,6 +4782,22 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 	return "";
 }
 
+const char *wkz_lock_game_t::work( karte_t *welt, spieler_t *, koord3d )
+{
+	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
+		return "Only public player can lock games!";
+	}
+	welt->clear_player_password_hashes();
+	if(  !welt->get_spieler(1)->is_locked() ) {
+		return "In order to lock the game, you have to protect the public player by password!";
+	}
+	welt->access_einstellungen()->set_allow_player_change( false );
+	destroy_all_win( true );
+	welt->switch_active_player( 0 );
+	welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
+	return NULL;
+}
+
 const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	if( stadtauto_t::list_empty() ) {
@@ -5393,8 +5409,15 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	convoihandle_t cnv;
 	cnv.set_id( convoi_id );
 	// double click on remove button will send two such commands
-	// the first will delete the convoi, the second should not trigger the assertion
-	assert(cnv.is_bound()  ||  tool=='x');
+	// the first will delete the convoi, the second should not trigger an assertion
+	// catch such commands here
+	if( !cnv.is_bound()) {
+		if (is_local_execution()) {
+			create_win( new news_img("Convoy already deleted!"), w_time_delete, magic_none);
+		}
+		dbg->warning("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
+		return false;
+	}
 
 	// first letter is now the actual command
 	switch(  tool  ) {
@@ -5665,9 +5688,15 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 	}
 
 	grund_t *gr = welt->lookup(pos);
-	assert(gr);
-	depot_t *depot = gr->get_depot();
-	assert(depot  &&  spieler_t::check_owner( depot->get_besitzer(), sp) );
+	depot_t *depot = gr ? gr->get_depot() : NULL;
+	if(  depot==NULL  ){
+		dbg->warning("wkz_change_depot_t::init", "no depot found at (%s)", pos.get_str());
+		return false;
+	}
+	if(  !spieler_t::check_owner( depot->get_besitzer(), sp)  ) {
+		dbg->warning("wkz_change_depot_t::init", "depot at (%s) belongs to another player", pos.get_str());
+		return false;
+	}
 
 	convoihandle_t cnv;
 	cnv.set_id( convoi_id );
@@ -5922,7 +5951,7 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 			}
 			break;
 		case 'f': // activate/deactivate freeplay
-			if(  (welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change())  &&  welt->get_active_player_nr()!=1  ) {
+			if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
 				dbg->error( "wkz_change_player_t::init()", "Only public player can enable freeplay!" );
 			}
 			else {
@@ -6117,7 +6146,20 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(  *default_param  ) {
-		welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, sp ? PLAYER_FLAG|sp->get_player_nr() : COL_BLACK, IMG_LEER );
+		if(  sp  ) {
+			if(  umgebung_t::add_player_name_to_message  ) {
+				cbuffer_t buffer(1024);
+				buffer.printf("[%s] %s", sp->get_name(), default_param);
+				welt->get_message()->add_message( buffer, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+			}
+			else {
+				welt->get_message()->add_message( default_param, koord::invalid, message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+			}
+		}
+		else {
+			// system message
+			welt->get_message()->add_message( default_param, koord::invalid, message_t::general, COL_BLACK, IMG_LEER );
+		}
 	}
 	return false;
 }
