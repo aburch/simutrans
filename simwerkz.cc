@@ -4372,6 +4372,22 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 	return "";
 }
 
+const char *wkz_lock_game_t::work( karte_t *welt, spieler_t *, koord3d )
+{
+	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
+		return "Only public player can lock games!";
+	}
+	welt->clear_player_password_hashes();
+	if(  !welt->get_spieler(1)->is_locked() ) {
+		return "In order to lock the game, you have to protect the public player by password!";
+	}
+	welt->access_einstellungen()->set_allow_player_change( false );
+	destroy_all_win( true );
+	welt->switch_active_player( 0 );
+	welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
+	return NULL;
+}
+
 const char *wkz_add_citycar_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	if( stadtauto_t::list_empty() ) {

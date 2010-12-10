@@ -475,14 +475,7 @@ class wkz_lock_game_t : public werkzeug_t {
 public:
 	wkz_lock_game_t() : werkzeug_t() { id = WKZ_LOCK_GAME | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Lock game"); }
-	bool init( karte_t *welt, spieler_t * ) { return welt->get_einstellungen()->get_allow_player_change(); }
-	const char *work( karte_t *welt, spieler_t *, koord3d ) {
-		welt->access_einstellungen()->set_allow_player_change( false );
-		destroy_all_win( true );
-		welt->switch_active_player( 0 );
-		welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
-		return NULL;
-	}
+	const char *work( karte_t *welt, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
 };
 

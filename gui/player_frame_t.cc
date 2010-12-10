@@ -51,7 +51,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 			}
 		}
 
-		if(  welt->get_einstellungen()->get_allow_player_change()  ||  !welt->get_spieler(1)->is_locked()  ) {
+		if(  sp  &&  (welt->get_einstellungen()->get_allow_player_change()  ||  !welt->get_spieler(1)->is_locked())  ) {
 			// allow change to human and public
 			add_komponente(player_change_to+i);
 		}
@@ -97,16 +97,15 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 	// freeplay mode
 	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT-1)*LINESPACE*2) );
+	freeplay.add_listener(this);
 	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
 		freeplay.disable();
-	}
-	else {
-		freeplay.add_listener(this);
 	}
 	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
 	add_komponente( &freeplay );
 
 	set_fenstergroesse(koord(260, (MAX_PLAYER_COUNT-1)*LINESPACE*2+16+14+4));
+	update_data();
 }
 
 

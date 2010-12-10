@@ -517,6 +517,7 @@ public:
 	const uint8 *get_player_password_hash( uint8 player_nr ) const { return player_password_hash[player_nr]; }
 	void switch_active_player(uint8 nr);
 	const char *new_spieler( uint8 nr, uint8 type );
+	void clear_player_password_hashes();
 
 	// if a schedule is changed, it will increment the schedule counter
 	// every step the haltstelle will check and reroute the goods if needed

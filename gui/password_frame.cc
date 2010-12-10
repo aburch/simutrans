@@ -16,6 +16,7 @@
 
 #include "components/list_button.h"
 #include "password_frame.h"
+#include "player_frame_t.h"
 
 #define DIALOG_WIDTH (360)
 
@@ -94,6 +95,11 @@ bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			// set this to world to unlock
 			sp->get_welt()->set_player_password_hash( sp->get_player_nr(), hash );
 			sp->set_unlock( hash );
+			// update the player window
+			ki_kontroll_t* playerwin = (ki_kontroll_t*)win_get_magic(magic_ki_kontroll_t);
+			if (playerwin) {
+				playerwin->update_data();
+			}
 		}
 	}
 

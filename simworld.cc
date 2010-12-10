@@ -2165,6 +2165,17 @@ void karte_t::set_player_password_hash( uint8 player_nr, uint8 *hash )
 }
 
 
+void karte_t::clear_player_password_hashes()
+{
+	for(int i=0; i<MAX_PLAYER_COUNT ; i++) {
+		MEMZERO(player_password_hash[i]);
+		if (spieler[i]) {
+			spieler[i]->set_unlock(player_password_hash[i]);
+		}
+	}
+}
+
+
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
