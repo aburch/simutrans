@@ -97,7 +97,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 	// freeplay mode
 	freeplay.init( button_t::square_state, "freeplay mode", koord(4,2+(MAX_PLAYER_COUNT-1)*LINESPACE*2) );
-	if(  !welt->get_einstellungen()->get_allow_player_change()  ||  !welt->get_spieler(1)->is_locked()  ) {
+	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
 		freeplay.disable();
 	}
 	else {
@@ -177,7 +177,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 			remove_komponente( player_active+i-2 );
 			if(  p.i<spieler_t::MAX_AI  &&  p.i>0  ) {
 				add_komponente( player_active+i-2 );
-				welt->access_einstellungen()->set_player_type( i, p.i );
+				welt->access_einstellungen()->set_player_type( i, (uint8)p.i );
 			}
 			else {
 				player_select[i].set_selection(0);
@@ -237,7 +237,7 @@ void ki_kontroll_t::update_data()
 void ki_kontroll_t::zeichnen(koord pos, koord gr)
 {
 	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
-	if(  !welt->get_spieler(1)->is_locked()  ||  welt->get_einstellungen()->get_allow_player_change()  ) {
+	if(  welt->get_spieler(1)->is_locked()  ||  !welt->get_einstellungen()->get_allow_player_change()  ) {
 		freeplay.disable();
 	}
 	else {
