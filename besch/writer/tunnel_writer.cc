@@ -17,13 +17,13 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int pos, i;
 
-	obj_node_t node(this, 28, &parent);
+	obj_node_t node(this, 29, &parent);
 
-	sint32 topspeed    = obj.get_int("topspeed",    999);
+	sint32 topspeed    = obj.get_int("topspeed",    1000);
 	uint32 preis       = obj.get_int("cost",          0);
 	uint32 maintenance = obj.get_int("maintenance",1000);
 	uint8 wegtyp       = get_waytype(obj.get("waytype"));
-	uint32 max_weight = obj.get_int("max_weight",  999);
+	uint32 max_weight = obj.get_int("max_weight",  1000);
 
 	// prissi: timeline
 	uint16 intro_date  = obj.get_int("intro_year", DEFAULT_INTRO_DATE) * 12;
@@ -135,7 +135,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	if(  str.size() != 0  ) {
 		number_portals = 4;
 	}
-	node.write_sint8(fp, (number_portals==4), 27);
+	node.write_sint8(fp, (number_portals==4), 28);
 
 	write_head(fp, node, obj);
 
@@ -166,10 +166,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	str = obj.get("way");
 	if (str.size() > 0) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), true);
-		node.write_sint8(fp, 1, 20);
+		node.write_sint8(fp, 1, 27);
 	}
 	else {
-		node.write_sint8(fp, 0, 20);
+		node.write_sint8(fp, 0, 27);
 	}
 
 	cursorkeys.clear();
