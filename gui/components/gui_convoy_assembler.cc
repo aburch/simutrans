@@ -657,9 +657,26 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 					}
 					else
 					{
-						if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
+						if(info->is_available_only_as_upgrade())
 						{
-							append = false;
+							if(depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false))
+							{
+								append = false;
+							}
+							else if(replace_frame)
+							{
+								append = false;
+								convoihandle_t cnv = replace_frame->get_convoy();
+								const uint8 count = cnv->get_vehikel_anzahl();
+								for(uint8 i = 0; i < count; i++)
+								{
+									if(cnv->get_vehikel(i)->get_besch() == info)
+									{
+										append = true;
+										break;
+									}
+								}
+							}
 						}
 					}
 					const uint8 shifter = 1 << info->get_engine_type();
@@ -820,16 +837,36 @@ void gui_convoy_assembler_t::image_from_storage_list(gui_image_list_t::image_dat
 			bild_data->lcolor != COL_PURPLE &&
 			!((bild_data->lcolor == COL_DARK_ORANGE || bild_data->rcolor == COL_DARK_ORANGE)
 			&& veh_action != va_sell
-			&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true))) 
+			/*&& depot_frame != NULL && !depot_frame->get_depot()->find_oldest_newest(info, true)*/)) 
 		{
 			//replace_frame->replace.add_vehicle(info);
-			if(veh_action == va_insert)
+			if(upgrade == u_upgrade)
 			{
-				vehicles.insert_at(0, info);
+				uint8 count;
+				ITERATE(vehicles,n)
+				{
+					count = vehicles[n]->get_upgrades_count();
+					for(int i = 0; i < count; i++)
+					{
+						if(vehicles[n]->get_upgrades(i) == info)
+						{
+							vehicles.insert_at(n, info);
+							vehicles.remove_at(n+1);
+							return;
+						}
+					}
+				}
 			}
-			else if(veh_action == va_append)
+			else
 			{
-				vehicles.append(info);
+				if(veh_action == va_insert)
+				{
+					vehicles.insert_at(0, info);
+				}
+				else if(veh_action == va_append)
+				{
+					vehicles.append(info);
+				}
 			}
 			// No action for sell - not available in the replacer window.
 		}
@@ -980,22 +1017,22 @@ void gui_convoy_assembler_t::update_data()
 			iter1.get_current_value()->rcolor = COL_DARK_PURPLE;
 			vector_tpl<const vehikel_besch_t*> vehicle_list;
 
-			if(replace_frame == NULL)
-			{
+			//if(replace_frame == NULL)
+			//{
 				ITERATE(vehicles,i)
 				{
 					vehicle_list.append(vehicles[i]);
 				}
-			}
-			else
-			{
-				const convoihandle_t cnv = replace_frame->get_convoy();
-			
-				for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
-				{
-					vehicle_list.append(cnv->get_vehikel(i)->get_besch());
-				}
-			}
+			//}
+			//else
+			//{
+			//	const convoihandle_t cnv = replace_frame->get_convoy();
+			//
+			//	for(uint8 i = 0; i < cnv->get_vehikel_anzahl(); i ++)
+			//	{
+			//		vehicle_list.append(cnv->get_vehikel(i)->get_besch());
+			//	}
+			//}
 
 			ITERATE(vehicle_list, i)
 			{
@@ -1070,10 +1107,32 @@ void gui_convoy_assembler_t::update_data()
 		}
 		else
 		{
-			if(info->is_available_only_as_upgrade() && (depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false)))
+			if(info->is_available_only_as_upgrade())
 			{
-				iter1.get_current_value()->lcolor = COL_PURPLE;
-				iter1.get_current_value()->rcolor = COL_PURPLE;
+				bool purple = false;
+				if(depot_frame && !depot_frame->get_depot()->find_oldest_newest(info, false))
+				{
+						purple = true;
+				}
+				else if(replace_frame)
+				{
+					purple = true;
+					convoihandle_t cnv = replace_frame->get_convoy();
+					const uint8 count = cnv->get_vehikel_anzahl();
+					for(uint8 i = 0; i < count; i++)
+					{
+						if(cnv->get_vehikel(i)->get_besch() == info)
+						{
+							purple = false;
+							break;
+						}
+					}
+				}
+				if(purple)
+				{
+					iter1.get_current_value()->lcolor = COL_PURPLE;
+					iter1.get_current_value()->rcolor = COL_PURPLE;
+				}
 			}
 		}
 
