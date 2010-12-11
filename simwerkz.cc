@@ -520,22 +520,6 @@ DBG_MESSAGE("wkz_remover_intern()","at (%s)", pos.get_str());
 		}
 	}
 
-	// catenary or something like this
-	wayobj_t* wo = gr->find<wayobj_t>();
-	if(wo) {
-		msg = wo->ist_entfernbar(sp);
-		if(msg) {
-			return false;
-		}
-		wo->entferne(sp);
-		delete wo;
-		depot_t *dep = gr->get_depot();
-		if( dep ) {
-			dep->update_win();
-		}
-		return true;
-	}
-
 	// check for signal
 	roadsign_t* rs = gr->find<signal_t>();
 	if (rs == NULL) rs = gr->find<roadsign_t>();
@@ -569,6 +553,22 @@ DBG_MESSAGE("wkz_remover()", "bound=%i",halt.is_bound());
 		if(  spieler_t::check_owner( owner, sp )  ) {
 			return haltestelle_t::remove(welt, sp, gr->get_pos(), msg);
 		}
+	}
+
+	// catenary or something like this
+	wayobj_t* wo = gr->find<wayobj_t>();
+	if(wo) {
+		msg = wo->ist_entfernbar(sp);
+		if(msg) {
+			return false;
+		}
+		wo->entferne(sp);
+		delete wo;
+		depot_t *dep = gr->get_depot();
+		if( dep ) {
+			dep->update_win();
+		}
+		return true;
 	}
 
 DBG_MESSAGE("wkz_remover()", "check tunnel/bridge");
