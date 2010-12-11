@@ -18,15 +18,18 @@ class message_t
 public:
 	struct node {
 		char msg[256];
+		sint32 type;
 		koord pos;
 		PLAYER_COLOR_VAL color;
 		image_id bild;
 		long time;
 	};
 
-	enum msg_typ {general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8, warnings=9, MAX_MESSAGE_TYPE };
+	enum msg_typ { general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8, warnings=9, MAX_MESSAGE_TYPE };
 
-	void add_message( const char *text, koord pos, msg_typ where, PLAYER_COLOR_VAL color=COL_BLACK, image_id bild=IMG_LEER );
+	static const char *const msg_typ_names[];
+
+	void add_message( const char *text, koord pos, msg_typ what, PLAYER_COLOR_VAL color=COL_BLACK, image_id bild=IMG_LEER );
 
 	static message_t * get_instance();
 
@@ -46,12 +49,12 @@ private:
 	sint32 auto_win_flags;
 	sint32 ignore_flags;
 
-	slist_tpl<node> list;
+	slist_tpl<node *> list;
 
 public:
-	const slist_tpl<node> &get_list() const { return list; }
+	const slist_tpl<node *> &get_list() const { return list; }
 
-	void clear() { list.clear(); }
+	void clear();
 
 	void rotate90( sint16 size_w );
 };

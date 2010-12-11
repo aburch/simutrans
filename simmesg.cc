@@ -23,6 +23,9 @@
 
 
 
+const char *const message_t::msg_typ_names[] = { "General", "AI", "City", "Convoy", "Industry", "Attraction", "Vehicle", "Station", "Problem", "Warning" };
+
+
 message_t::message_t(karte_t *w)
 {
 	welt = w;
@@ -39,7 +42,15 @@ message_t::message_t(karte_t *w)
 
 message_t::~message_t()
 {
-	list.clear();
+	clear();
+}
+
+
+void message_t::clear()
+{
+	while(  list.get_count()>0  ) {
+		delete list.remove_first();
+	}
 }
 
 
@@ -101,8 +112,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	if(  color!=COL_BLACK  ) {
 		sint32 now = welt->get_current_month()-2;
 		uint32 i = 0;
-		for(  slist_tpl<node>::const_iterator iter = list.begin(), end = list.end();  iter!=end  &&  i<20; ++iter  ) {
-			const node& n = *iter;
+		for(  slist_tpl<node *>::const_iterator iter = list.begin(), end = list.end();  iter!=end  &&  i<20; ++iter  ) {
+			const node& n = *(*iter);
 			if (n.time >= now &&
 					strcmp(n.msg, text) == 0 &&
 					(n.pos.x & 0xFFF0) == (pos.x & 0xFFF0) && // positions need not 100% match ...
@@ -115,17 +126,18 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	}
 
 	// we do not allow messages larger than 256 bytes
-	node n;
+	node *const n = new node();
 
-	tstrncpy(n.msg, text, lengthof(n.msg));
-	n.pos = pos;
-	n.color = colorval;
-	n.time = welt->get_current_month();
-	n.bild = bild;
+	tstrncpy(n->msg, text, lengthof(n->msg));
+	n->type = what;
+	n->pos = pos;
+	n->color = colorval;
+	n->time = welt->get_current_month();
+	n->bild = bild;
 
 	// insert at the top
 	list.insert(n);
-	char* p = list.front().msg;
+	char* p = list.front()->msg;
 	// should we open an autoclose windows?
 	if(art & auto_win_flags) {
 		news_window* news;
@@ -154,8 +166,8 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 void message_t::rotate90( sint16 size_w )
 {
-	for(  slist_tpl<message_t::node>::iterator iter = list.begin(), end = list.end();  iter!=end; ++iter  ) {
-		(*iter).pos.rotate90( size_w );
+	for(  slist_tpl<message_t::node *>::iterator iter = list.begin(), end = list.end();  iter!=end; ++iter  ) {
+		(*iter)->pos.rotate90( size_w );
 	}
 
 }
