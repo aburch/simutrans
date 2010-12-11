@@ -23,7 +23,7 @@
 
 
 
-const char *const message_t::msg_typ_names[] = { "General", "AI", "City", "Convoy", "Industry", "Attraction", "Vehicle", "Station", "Problem", "Warning" };
+const char *const message_t::msg_typ_names[] = { "General", "AI", "City", "Convoy", "Industry", "Attraction", "Vehicle", "Station", "Problem", "Warning", "Chat" };
 
 
 message_t::message_t(karte_t *w)

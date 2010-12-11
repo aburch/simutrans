@@ -25,7 +25,7 @@ public:
 		long time;
 	};
 
-	enum msg_typ { general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8, warnings=9, MAX_MESSAGE_TYPE };
+	enum msg_typ { general=0, ai=1, city=2, convoi=3, industry=4, tourist=5, new_vehicle=6, full=7, problems=8, warnings=9, chat=10, MAX_MESSAGE_TYPE };
 
 	static const char *const msg_typ_names[];
 
