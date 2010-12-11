@@ -2845,19 +2845,31 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// the convoy odometer
-	if(file->get_version() >= 102003 && (file->get_experimental_version() >= 7 || file->get_experimental_version() == 0))
+	if(file->get_version() > 102002)
 	{
-		file->rdwr_longlong( total_distance_traveled);
-	}
-	else if(file->get_version() > 102002)
-	{
-		//Simutrans-Standard save - this value is in tiles, not km. Convert.
-		sint64 tile_distance;
-		file->rdwr_longlong( tile_distance);
-		total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+		if(file->get_experimental_version() < 7)
+		{
+			//Simutrans-Standard save - this value is in tiles, not km. Convert.
+			if(file->is_loading())
+			{
+				sint64 tile_distance;
+				file->rdwr_longlong(tile_distance);
+				total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+			}
+			else
+			{
+				sint64 km_distance = (double)total_distance_traveled / welt->get_einstellungen()->get_distance_per_tile();
+				file->rdwr_longlong(km_distance);
+			}
+		}
+		else
+		{
+			file->rdwr_longlong(total_distance_traveled);
+		}
+
 	}
 
-	if(file->get_version() >= 102003 && (file->get_experimental_version() >= 7 || file->get_experimental_version() == 0))
+	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
 	{
 		if(file->get_experimental_version() <= 8)
 		{
@@ -2973,8 +2985,6 @@ void convoi_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( tiles_overtaking );
 	}
 	
-
-
 	// no_load, withdraw
 	if(file->get_version()<102001) {
 		no_load = false;
@@ -2986,18 +2996,23 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// reverse_schedule
-	if(file->get_version()<102003 || (file->get_experimental_version() < 9 && file->get_experimental_version() != 0)) {
+	if(file->is_loading() && file->get_version()<102003 || (file->get_experimental_version() < 9 && file->get_experimental_version() > 0)) 
+	{
 		reverse_schedule = false;
 	}
-	else {
+	else 
+	{
 		file->rdwr_bool( reverse_schedule);
 	}
 
 	// Simutrans-Experimental specific parameters. 
 	// Must *always* go after standard parameters.
 
-	heaviest_vehicle = calc_heaviest_vehicle();
-	longest_loading_time = calc_longest_loading_time();
+	if(file->is_loading())
+	{
+		heaviest_vehicle = calc_heaviest_vehicle();
+		longest_loading_time = calc_longest_loading_time();
+	}
 
 	if(file->get_experimental_version() >= 1)
 	{
@@ -3086,7 +3101,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			file->rdwr_short(rolling_average_count[i]);
 		}		
 	}
-	else
+	else if(file->is_loading())
 	{
 		// For loading older games, assume that the convoy
 		// left twenty seconds ago, to avoid anomalies when

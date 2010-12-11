@@ -806,12 +806,12 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				frames_per_step = umgebung_t::network_frames_per_step;
 			}
 			file->rdwr_bool( allow_buying_obsolete_vehicles);
-			if(file->get_experimental_version() >= 8 || (file->get_experimental_version() == 0 && file->get_version()>=102003))
+			if(file->get_experimental_version() >= 8 || file->get_experimental_version() == 0)
 			{
 				file->rdwr_long( factory_worker_minimum_towns);
 				file->rdwr_long( factory_worker_maximum_towns);
 			}
-			if(file->get_experimental_version() >= 9 || (file->get_experimental_version() == 0 && file->get_version()>=102003))
+			if(file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)
 			{
 				// forest stuff
 				file->rdwr_byte( forest_base_size);

@@ -4260,8 +4260,11 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "start");
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) 
 		{
-			stadt_t::cityrules_rdwr(file);
-			stadt_t::privatecar_rdwr(file);
+			if(file->get_experimental_version() >= 9)
+			{
+				stadt_t::cityrules_rdwr(file);
+				stadt_t::privatecar_rdwr(file);
+			}
 			stadt_t::electricity_consumption_rdwr(file);
 			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
 			{
@@ -4664,15 +4667,21 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	active_player_nr = 0;
 
 	// rdwr cityrules for networkgames
-	if(file->get_version() >= 102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) {
+	if(file->get_version() >= 102002 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) {
 		bool do_rdwr = umgebung_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) 
 		{
 			stadt_t::cityrules_rdwr(file);
-			stadt_t::privatecar_rdwr(file);
-			stadt_t::electricity_consumption_rdwr(file);
-			vehikelbauer_t::rdwr_speedbonus(file);
+			if(file->get_experimental_version() >= 9)
+			{
+				stadt_t::privatecar_rdwr(file);
+				stadt_t::electricity_consumption_rdwr(file);
+			}
+			if(file->get_version()>102003 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) 
+			{
+				vehikelbauer_t::rdwr_speedbonus(file);
+			}
 		}
 	}
 DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte());
