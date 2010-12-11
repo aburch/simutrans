@@ -11,7 +11,7 @@
 
 #include "../dataobj/translator.h"
 #include "message_frame_t.h"
-#include "message_stats_t.h"
+#include "../simmesg.h"
 #include "message_option_t.h"
 
 #include "components/list_button.h"
@@ -27,8 +27,14 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 {
 	this->welt = welt;
 
-	scrolly.set_pos( koord(0,BUTTON_HEIGHT) );
-	add_komponente(&scrolly);
+	// Knightly : add tabs for classifying messages
+	tabs.set_pos( koord(0, BUTTON_HEIGHT) );
+	tabs.add_tab( &scrolly, translator::translate("All") );
+	for(  int i=0;  i<message_t::MAX_MESSAGE_TYPE;  ++i  ) {
+		tabs.add_tab( &scrolly, translator::translate(message_t::msg_typ_names[i]) );
+	}
+	tabs.add_listener(this);
+	add_komponente(&tabs);
 
 	option_bt.init(button_t::roundbox, translator::translate("Optionen"), koord(BUTTON1_X,0), koord(BUTTON_WIDTH,BUTTON_HEIGHT));
 	option_bt.add_listener(this);
@@ -62,7 +68,7 @@ void message_frame_t::resize(const koord delta)
 	gui_frame_t::resize(delta);
 	koord groesse = get_fenstergroesse()-koord(0,16+BUTTON_HEIGHT);
 	input.set_groesse(koord(groesse.x-10-BUTTON1_X-BUTTON_WIDTH, BUTTON_HEIGHT));
-	scrolly.set_groesse(groesse);
+	tabs.set_groesse(groesse);
 }
 
 
@@ -81,6 +87,12 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		delete w;
 		ibuf[0] = 0;
 		set_focus(&input);
+	}
+	else if(  komp==&tabs  ) {
+		// Knightly : filter messages by type where necessary
+		if(  stats.filter_messages( tabs.get_active_tab_index() - 1 )  ) {
+			scrolly.set_scroll_position(0, 0);
+		}
 	}
 	return true;
 }
