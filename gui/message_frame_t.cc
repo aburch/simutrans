@@ -18,7 +18,33 @@
 #include "components/action_listener.h"
 
 
+#define MAX_MESG_TABS (7)
+
 karte_t *message_frame_t::welt = NULL;
+
+static sint32 categories[MAX_MESG_TABS+1] =
+{
+	-1,
+	(1 << message_t::chat),
+	(1 << message_t::problems),
+	(1 << message_t::traffic_jams) | (1 << message_t::warnings),
+	(1 << message_t::full),
+	(1 << message_t::city) | (1 << message_t::industry),
+	(1 << message_t::ai),
+	(1 << message_t::general)
+};
+
+static const char *tab_strings[]=
+{
+	"Chat_msg",
+	"Problems_msg",
+	"Warnings_msg",
+	"Station_msg",
+	"Town_msg",
+	"Company_msg",
+	"Game_msg"
+};
+
 
 
 message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
@@ -30,8 +56,8 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 	// Knightly : add tabs for classifying messages
 	tabs.set_pos( koord(0, BUTTON_HEIGHT) );
 	tabs.add_tab( &scrolly, translator::translate("All") );
-	for(  int i=0;  i<message_t::MAX_MESSAGE_TYPE;  ++i  ) {
-		tabs.add_tab( &scrolly, translator::translate(message_t::msg_typ_names[i]) );
+	for(  int i=umgebung_t::networkmode ? 0 : 1;  i<MAX_MESG_TABS;  ++i  ) {
+		tabs.add_tab( &scrolly, translator::translate(tab_strings[i]) );
 	}
 	tabs.add_listener(this);
 	add_komponente(&tabs);
@@ -44,9 +70,10 @@ message_frame_t::message_frame_t(karte_t *welt) : gui_frame_t("Mailbox"),
 	input.set_text(ibuf, lengthof(ibuf) );
 	input.add_listener(this);
 	input.set_pos(koord(BUTTON1_X+BUTTON_WIDTH,0));
-	add_komponente(&input);
-
-	set_focus( &input );
+	if(  umgebung_t::networkmode  ) {
+		add_komponente(&input);
+		set_focus( &input );
+	}
 
 	set_fenstergroesse(koord(320, 240));
 	// a min-size for the window
@@ -73,7 +100,7 @@ void message_frame_t::resize(const koord delta)
 
 
 /* triggered, when button clicked; only single button registered, so the action is clear ... */
-bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
+bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t v )
 {
 	if(  komp==&option_bt  ) {
 		create_win(320, 200, new message_option_t(welt), w_info, magic_none );
@@ -90,7 +117,7 @@ bool message_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 	}
 	else if(  komp==&tabs  ) {
 		// Knightly : filter messages by type where necessary
-		if(  stats.filter_messages( tabs.get_active_tab_index() - 1 )  ) {
+		if(  stats.filter_messages( categories[umgebung_t::networkmode ? v.i : (v.i==0 ? 0 : v.i+1)] )  ) {
 			scrolly.set_scroll_position(0, 0);
 		}
 	}

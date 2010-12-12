@@ -23,9 +23,6 @@
 
 
 
-const char *const message_t::msg_typ_names[] = { "General", "AI", "City", "Convoy", "Industry", "Attraction", "Vehicle", "Station", "Problem", "Warning", "Chat" };
-
-
 message_t::message_t(karte_t *w)
 {
 	welt = w;
@@ -106,10 +103,10 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 
 	/* we will not add messages two times to the list
 	 * if it was within the last 20 messages
-	 * or within last three months
+	 * or within last months
 	 * and is not a general (BLACK) message
 	 */
-	if(  color!=COL_BLACK  ) {
+	if(  what == traffic_jams  ) {
 		sint32 now = welt->get_current_month()-2;
 		uint32 i = 0;
 		for(  slist_tpl<node *>::const_iterator iter = list.begin(), end = list.end();  iter!=end  &&  i<20; ++iter  ) {

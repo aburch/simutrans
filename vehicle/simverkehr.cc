@@ -445,7 +445,7 @@ bool stadtauto_t::sync_step(long delta_t)
 			else {
 				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month) {
 					// message after two month, reset waiting timer
-					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::warnings, COL_ORANGE );
+					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams, COL_ORANGE );
 				}
 			}
 		}

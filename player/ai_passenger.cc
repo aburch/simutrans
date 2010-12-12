@@ -1451,31 +1451,10 @@ void ai_passenger_t::rdwr(loadsave_t *file)
  */
 void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
-	switch(cnv->get_state()) {
-
-		case convoi_t::NO_ROUTE:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
-			if(this==welt->get_active_player()) {
-				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
-			}
-			else {
-				cnv->self_destruct();
-			}
-			break;
-
-		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-		case convoi_t::CAN_START_ONE_MONTH:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
-			if(this==welt->get_active_player()) {
-				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(), message_t::convoi, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
-			}
-			break;
-
-		default:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
+	if(  cnv->get_state() == convoi_t::NO_ROUTE  &&  this!=welt->get_active_player()  ) {
+			DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
+			cnv->self_destruct();
+			return;
 	}
+	spieler_t::bescheid_vehikel_problem( cnv, ziel );
 }

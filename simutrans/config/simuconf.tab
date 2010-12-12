@@ -482,7 +482,7 @@ toolbar_max_width = 0
 toolbar_max_height = 0
 
 # if 1, print the company name in front of a message
-#add_player_name_to_message = 0
+#add_player_name_to_message = 1
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)

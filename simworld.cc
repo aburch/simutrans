@@ -5059,7 +5059,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player_nr = 0;
 		active_player = spieler[0];
 		if(new_player!=0) {
-			msg->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+			create_win( new news_img("On this map, you are not\nallowed to change player!\n"), w_time_delete, magic_none);
 		}
 	}
 	else {
@@ -5075,7 +5075,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[new_player];
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-		msg->add_message(buf, koord::invalid, message_t::warnings, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+		msg->add_message(buf, koord::invalid, message_t::ai, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		zeiger->set_area( koord(1,1), false );
 		zeiger->set_pos( old_zeiger_pos );
 	}

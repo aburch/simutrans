@@ -36,7 +36,7 @@ message_stats_t::message_stats_t(karte_t *w) :
 bool message_stats_t::filter_messages(const sint32 msg_type)
 {
 	// only update if there is a change in message type
-	if(  msg_type>=-1  &&  msg_type<message_t::MAX_MESSAGE_TYPE  &&  message_type!=msg_type  ) {
+	if(  msg_type>=-1  &&  message_type!=msg_type  ) {
 		message_type = msg_type;
 		last_count = msg->get_list().get_count();
 		message_selected = -1;
@@ -50,7 +50,7 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 			message_list = &filtered_messages;
 			filtered_messages.clear();
 			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end;  ++iter  ) {
-				if(  (*iter)->type==msg_type  ) {
+				if(  (1 << (*iter)->type) & message_type  ) {
 					filtered_messages.append( *iter );
 				}
 			}
@@ -127,12 +127,9 @@ void message_stats_t::zeichnen(koord offset)
 			uint32 entry_count = new_count - last_count;
 			slist_tpl<message_t::node *> temp_list;		// Knightly : for shuffling messages to ensure correct chronological order
 			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end, entry_count>0;  ++iter, --entry_count  ) {
-				if(  (*iter)->type==message_type  ) {
-					temp_list.insert(*iter);
+				if(  (1 << (*iter)->type) & message_type  ) {
+					filtered_messages.insert(*iter);
 				}
-			}
-			while(  temp_list.get_count()>0  ) {
-				filtered_messages.insert( temp_list.remove_first() );
 			}
 			last_count = new_count;
 			set_groesse( koord(600, min(2000, filtered_messages.get_count()) * BUTTON_HEIGHT + 1) );

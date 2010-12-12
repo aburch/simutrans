@@ -5,6 +5,7 @@
 #include "../simconst.h"
 #include "../simtypes.h"
 #include "../simcolor.h"
+#include "../simmesg.h"
 
 // since this is used at load time and not to be changed afterwards => extra init!
 bool umgebung_t::drive_on_left = false;
@@ -86,7 +87,7 @@ bool umgebung_t::left_to_right_graphs;
 uint32 umgebung_t::tooltip_delay;
 uint32 umgebung_t::tooltip_duration;
 
-bool umgebung_t::add_player_name_to_message = false;
+bool umgebung_t::add_player_name_to_message = true;
 
 uint8 umgebung_t::front_window_bar_color;
 uint8 umgebung_t::front_window_text_color;
@@ -282,5 +283,13 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=110000  ) {
 		file->rdwr_bool( add_player_name_to_message );
+	}
+	else if(  file->is_loading()  ) {
+		// did not know about chat message, so we enable it
+		message_flags[0] |= (1 << message_t::chat);	// ticker
+		message_flags[1] &= ~(1 << message_t::chat); // permanent window off
+		message_flags[2] &= ~(1 << message_t::chat); // tiem window off
+		message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
+
 	}
 }
