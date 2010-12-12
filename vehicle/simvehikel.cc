@@ -2670,11 +2670,11 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 				if(!ok) {
 					// cannot cross => wait here
 					restart_speed = 0;
-					return cnv->get_next_stop_index()>route_index;
+					return cnv->get_next_stop_index()>route_index+1;
 				}
 				else {
 					// can reserve: find next place to do something and drive on
-					if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index()+1, next_signal, next_crossing, 0, true )  ) {
+					if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true )  ) {
 						dbg->error( "waggon_t::ist_weg_frei()", "block not free but was reserved!" );
 						return false;
 					}
