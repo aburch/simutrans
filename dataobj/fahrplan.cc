@@ -1,6 +1,7 @@
 /* completely overhauled by prissi Oct-2005 */
 
 #include <stdio.h>
+#include <ctype.h>
 
 #include "../simdebug.h"
 #include "../simwin.h"
@@ -52,6 +53,7 @@ void schedule_t::copy_from(const schedule_t *src)
 	set_aktuell( src->get_aktuell() );
 
 	abgeschlossen = src->ist_abgeschlossen();
+	spacing = src->get_spacing();
 	bidirectional = src->is_bidirectional();
 	mirrored = src->is_mirrored();
 }
@@ -294,6 +296,9 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
 		return false;
 	}
+	if ( this->spacing != fpl->spacing ) {
+		return false;
+	}
 	// now we have to check all entries ...
 	// we need to do this that complicated, because the last stop may make the difference
 	uint16 f1=0, f2=0;
@@ -376,7 +381,7 @@ void schedule_t::increment_index(uint8 *index, bool *reversed) const {
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.append( aktuell );
-	buf.printf( ",%i,%i", bidirectional, mirrored );
+	buf.printf( ",%i,%i,%i", bidirectional, mirrored, spacing );
 	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
@@ -393,19 +398,20 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	//  first get aktuell pointer
 	aktuell = atoi( p );
-	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
-		p++;
-	}
-	if( *p==',' ) { p++; }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	//bidirectional flag
 	if( *p && (*p!=','  &&  *p!='|') ) { bidirectional = bool(atoi(p)); }
-	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
-		p++;
-	}
-	if( *p==',' ) { p++; }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	// mirrored flag
 	if( *p && (*p!=','  &&  *p!='|') ) { mirrored = bool(atoi(p)); }
-	while(  *p  &&  (*p!=','  &&  *p!='|')  ) {
-		p++;
-	}
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	// spacing
+	if( *p && (*p!=','  &&  *p!='|') ) { spacing = atoi(p); }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
 
 	if(  *p!='|'  ) {
 		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );

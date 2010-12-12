@@ -97,6 +97,9 @@ private:
 	gui_label_t lb_load;
 	gui_numberinput_t numimp_load;
 
+	gui_label_t lb_spacing;
+	gui_numberinput_t numimp_spacing;
+
 	char str_ladegrad[16];
 	char str_parts_month[32];
 

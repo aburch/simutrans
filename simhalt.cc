@@ -4371,3 +4371,25 @@ void haltestelle_t::release_factory_links()
 	}
 	fab_list.clear();
 }
+
+/**
+ * Get queue position for spacing calculation.
+ * @author Inkelyad
+ */
+int haltestelle_t::get_queue_pos(convoihandle_t cnv) const
+{
+	linehandle_t line = cnv->get_line();
+	int count = 0;
+	for(  slist_tpl<convoihandle_t>::const_iterator i = loading_here.begin(), end = loading_here.end();  i != end && (*i) != cnv; ++i )
+	{
+		if (!(*i).is_bound() )
+		{
+			continue;
+		}
+		if ( (*i)->get_line() == line && (*i)->get_schedule()->get_aktuell() == cnv->get_schedule()->get_aktuell() ) {
+			count++;
+		}
+	}
+	return count + 1;
+}
+

@@ -155,6 +155,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	lb_wait("month wait time"),
 	lb_waitlevel(NULL, COL_WHITE, gui_label_t::right),
 	lb_load("Full load"),
+	lb_spacing("Spacing cnv/month"),
 	stats(sp_->get_welt(),sp_),
 	scrolly(&stats),
 	old_fpl(fpl_),
@@ -250,6 +251,22 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	bt_mirror.pressed = fpl->is_mirrored();
 	bt_mirror.add_listener(this);
 	add_komponente(&bt_mirror);
+
+	ypos += BUTTON_HEIGHT;
+
+	// Spacing
+	if ( !cnv.is_bound() ) {
+		lb_spacing.set_pos( koord( 10, ypos+2 ) );
+		add_komponente(&lb_spacing);
+		//numimp_spacing.set_pos( koord( BUTTON_WIDTH*2-65, ypos+2 ) );
+		numimp_spacing.set_pos( koord( BUTTON_WIDTH*2, ypos+2 ) );
+		numimp_spacing.set_groesse( koord( 60, BUTTON_HEIGHT ) );
+		numimp_spacing.set_value( fpl->get_spacing() );
+		numimp_spacing.set_limits( 0, 999 );
+		numimp_spacing.set_increment_mode( 1 );
+		numimp_spacing.add_listener(this);
+		add_komponente(&numimp_spacing);
+	}
 
 	ypos += BUTTON_HEIGHT;
 
@@ -486,6 +503,8 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		}
 	/*} else if (komp == &bt_return) {
 		fpl->add_return_way();*/
+	} else if (komp == &numimp_spacing) {
+		fpl->set_spacing(p.i);
 	} else if (komp == &bt_mirror) {
 		fpl->set_mirrored(bt_mirror.pressed);
 	} else if (komp == &bt_bidirectional) {
