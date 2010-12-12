@@ -260,6 +260,11 @@ void schedule_t::rdwr(loadsave_t *file)
 		dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
 		aktuell = 0;
 	}
+
+	if(file->get_experimental_version() >= 9)
+	{
+		file->rdwr_short(spacing);
+	}
 }
 
 

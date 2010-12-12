@@ -341,6 +341,7 @@ void fahrplan_gui_t::update_selection()
 	// update load
 	lb_load.set_color( COL_GREY3 );
 	lb_wait.set_color( COL_GREY3 );
+	lb_spacing.set_color( COL_GREY3 );
 	if (!fpl->empty()) {
 		fpl->set_aktuell( min(fpl->get_count()-1,fpl->get_aktuell()) );
 		const uint8 aktuell = fpl->get_aktuell();
@@ -349,6 +350,7 @@ void fahrplan_gui_t::update_selection()
 			numimp_load.set_value( fpl->eintrag[aktuell].ladegrad );
 			if(  fpl->eintrag[aktuell].ladegrad>0  ) {
 				lb_wait.set_color( COL_BLACK );
+				lb_spacing.set_color( COL_BLACK );
 			}
 			if(  fpl->eintrag[aktuell].ladegrad>0  &&  fpl->eintrag[aktuell].waiting_time_shift>0  ) {
 				sprintf( str_parts_month, "1/%d",  1<<(16-fpl->eintrag[aktuell].waiting_time_shift) );

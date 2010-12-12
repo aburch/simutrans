@@ -173,7 +173,7 @@ private:
 	bool bidirectional;
 	bool mirrored;
 	uint8 aktuell;
-	int spacing; // store in savegame as sint16
+	sint16 spacing;
 
 	static struct linieneintrag_t dummy_eintrag;
 };
