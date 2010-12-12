@@ -276,6 +276,7 @@ fahrplan_gui_t::fahrplan_gui_t(schedule_t* fpl_, spieler_t* sp_, convoihandle_t 
 	// set this schedule as current to show on minimap if possible
 	reliefkarte_t::get_karte()->set_current_fpl(fpl, sp->get_player_nr()); // (*fpl,player_nr)
 	set_resizemode(diagonal_resize);
+	update_selection();
 }
 
 
