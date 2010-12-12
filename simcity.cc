@@ -1164,7 +1164,12 @@ void stadt_t::verbinde_fabriken()
 	slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
 	arbeiterziele.clear();
 	while (fab_iter.next()) {
-		add_factory_arbeiterziel(fab_iter.get_current());
+		fabrik_t* fab = fab_iter.get_current();
+		const uint32 count = fab->get_arbeiterziele().get_count();
+		if (count < welt->get_einstellungen()->get_factory_worker_minimum_towns()
+			||  (count < welt->get_einstellungen()->get_factory_worker_maximum_towns()  &&  koord_distance(fab->get_pos(), pos) < welt->get_einstellungen()->get_factory_worker_radius())) {
+			add_factory_arbeiterziel(fab);
+		}
 	}
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i factories (sum_weight=%i).", arbeiterziele.get_count(), arbeiterziele.get_sum_weight());
 }
@@ -2414,6 +2419,14 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	// somebody else's things on it?
 	if(  bd->kann_alle_obj_entfernen(NULL)  ) {
 		return false;
+	}
+
+	// some terraforming?
+	hang_t::typ slope = bd->get_grund_hang();
+	if (!hang_t::ist_wegbar(slope)) {
+		if (welt->can_ebne_planquadrat(k, bd->get_hoehe()+1)) {
+			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1);
+		}
 	}
 
 	// initially allow all possible directions ...
