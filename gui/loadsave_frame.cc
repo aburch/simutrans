@@ -49,7 +49,6 @@ public:
 void loadsave_frame_t::action(const char *filename)
 {
 	if(do_load) {
-		welt->get_message()->clear();
 		welt->laden(filename);
 	}
 	else {

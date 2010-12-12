@@ -1831,17 +1831,19 @@ void stadt_t::verbinde_fabriken()
 {
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "search factories near %s (center at %i,%i)", get_name(), pos.x, pos.y);
 
-	//slist_iterator_tpl<fabrik_t*> fab_iter(welt->get_fab_list());
 	arbeiterziele.clear();
 	ITERATE(welt->get_fab_list(), i)
 	{
-	// while (fab_iter.next()) {
-		// fabrik_t* fab = fab_iter.get_current();
 		fabrik_t* fab = welt->get_fab_list()[i];
-		// note: this is a hotfix to avoid connecting a city to all factories.
-		// all factories may need to recalc which city is nearer, when building/removing a city, without the case of destroying map. please improve this. (z9999)
-		if( (fab->get_arbeiterziele().get_count() < welt->get_einstellungen()->get_factory_worker_minimum_towns()  ||  koord_distance( fab->get_pos(), this->get_pos() ) < welt->get_einstellungen()->get_factory_worker_radius())  &&  fab->get_arbeiterziele().get_count()<welt->get_einstellungen()->get_factory_worker_maximum_towns() ) {
+		const uint32 count = fab->get_arbeiterziele().get_count();
+		if (count < welt->get_einstellungen()->get_factory_worker_minimum_towns()
+			||  (count < welt->get_einstellungen()->get_factory_worker_maximum_towns()  &&  accurate_distance(fab->get_pos().get_2d(), pos) < welt->get_einstellungen()->get_factory_worker_radius())) 
+		{
 			add_factory_arbeiterziel(fab);
+			if(fab->get_arbeiterziele().get_count() >= welt->get_einstellungen()->get_factory_worker_maximum_towns())
+			{
+				break;
+			}
 		}
 	}
 	DBG_MESSAGE("stadt_t::verbinde_fabriken()", "is connected with %i factories (sum_weight=%i).", arbeiterziele.get_count(), arbeiterziele.get_sum_weight());
@@ -4059,6 +4061,14 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 	// somebody else's things on it?
 	if(  bd->kann_alle_obj_entfernen(NULL)  ) {
 		return false;
+	}
+
+	// some terraforming?
+	hang_t::typ slope = bd->get_grund_hang();
+	if (!hang_t::ist_wegbar(slope)) {
+		if (welt->can_ebne_planquadrat(k, bd->get_hoehe()+1)) {
+			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1);
+		}
 	}
 
 	// initially allow all possible directions ...
