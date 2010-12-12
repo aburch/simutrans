@@ -471,6 +471,10 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 
 void karte_t::destroy()
 {
+	if(  msg  ) {
+		msg->clear();
+	}
+
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	// rotate the map until it can be saved
