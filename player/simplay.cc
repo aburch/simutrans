@@ -633,10 +633,14 @@ void spieler_t::ai_bankrupt()
 					tunnelbauer_t::remove( welt, this, gr->get_pos(), gr->get_weg_nr(0)->get_waytype() );
 				}
 				else {
+					bool count_signs = false;
 					for(  int i=gr->get_top()-1;  i>=0;  i--  ) {
 						ding_t *dt = gr->obj_bei(i);
 						if(dt->get_besitzer()==this) {
 							switch(dt->get_typ()) {
+								case ding_t::roadsign:
+								case ding_t::signal:
+									count_signs = true;
 								case ding_t::airdepot:
 								case ding_t::bahndepot:
 								case ding_t::monoraildepot:
@@ -646,9 +650,7 @@ void spieler_t::ai_bankrupt()
 								case ding_t::leitung:
 								case ding_t::senke:
 								case ding_t::pumpe:
-								case ding_t::signal:
 								case ding_t::wayobj:
-								case ding_t::roadsign:
 									dt->entferne(this);
 									delete dt;
 									break;
@@ -661,7 +663,6 @@ void spieler_t::ai_bankrupt()
 									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
 										add_maintenance( -w->get_besch()->get_wartung() );
 										w->set_besitzer( NULL );
-										w->count_sign();
 									}
 									else {
 										gr->weg_entfernen( w->get_waytype(), true );
@@ -671,6 +672,12 @@ void spieler_t::ai_bankrupt()
 								default:
 									gr->obj_bei(i)->set_besitzer( welt->get_spieler(1) );
 							}
+						}
+					}
+					if (count_signs  &&  gr->hat_wege()) {
+						gr->get_weg_nr(0)->count_sign();
+						if (gr->has_two_ways()) {
+							gr->get_weg_nr(1)->count_sign();
 						}
 					}
 				}
