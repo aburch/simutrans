@@ -56,6 +56,10 @@
 
 #include "convoy.h"
 
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
+
 /*
  * Waiting time for loading (ms)
  * @author Hj- Malthaner
@@ -4827,7 +4831,8 @@ void convoi_t::snprintf_remained_loading_time(char *p, size_t size) const
 		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
 		unsigned int hours = (ticks_left * 24) >> welt->ticks_per_world_month_shift;
 		unsigned int minutes = ((ticks_left * 24 * 60) >> welt->ticks_per_world_month_shift)%60;
-		printf(p, size, "%u:%02u", hours, minutes);
+		snprintf(p, size, "%u:%02u", hours, minutes);
+		//sprintf(p, "%u:%02u", hours, minutes);
 	}
 }
 
