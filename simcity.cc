@@ -2401,13 +2401,8 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
-	// water?!?
-	if (bd->get_hoehe() <= welt->get_grundwasser()) {
-		return false;
-	}
-
 	if (bd->get_typ() != grund_t::boden) {
-		// not on monorails, foundations, tunnel or bridges
+		// not on water, monorails, foundations, tunnel or bridges
 		return false;
 	}
 
@@ -2421,11 +2416,17 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		return false;
 	}
 
-	// z9999: If not able to built here, try to make artificial slope
+	// dwachs: If not able to built here, try to make artificial slope
 	hang_t::typ slope = bd->get_grund_hang();
 	if (!hang_t::ist_wegbar(slope)) {
 		if (welt->can_ebne_planquadrat(k, bd->get_hoehe()+1)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1);
+		}
+		else if (bd->get_hoehe() > welt->get_grundwasser()  &&  welt->can_ebne_planquadrat(k, bd->get_hoehe())) {
+			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
+		}
+		else {
+			return false;
 		}
 	}
 
