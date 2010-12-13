@@ -125,11 +125,14 @@ void message_stats_t::zeichnen(koord offset)
 		else {
 			// incrementally add new entries to filtered message list before recalculating component size, and update last count
 			uint32 entry_count = new_count - last_count;
-			slist_tpl<message_t::node *> temp_list;		// Knightly : for shuffling messages to ensure correct chronological order
+			slist_tpl<message_t::node *> temp_list;		// Knightly : for ensuring correct chronological order of new messages
 			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end, entry_count>0;  ++iter, --entry_count  ) {
 				if(  (1 << (*iter)->type) & message_type  ) {
-					filtered_messages.insert(*iter);
+					temp_list.insert(*iter);
 				}
+			}
+			while(  temp_list.get_count()>0  ) {
+				filtered_messages.insert( temp_list.remove_first() );
 			}
 			last_count = new_count;
 			set_groesse( koord(600, min(2000, filtered_messages.get_count()) * BUTTON_HEIGHT + 1) );
