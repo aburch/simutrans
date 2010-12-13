@@ -24,7 +24,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 {
 	self = linehandle_t(this);
 	char printname[128];
-	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line") );
+	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
 	name = printname;
 	init_financial_history();
 	this->id = INVALID_LINE_ID;
@@ -42,7 +42,7 @@ void simline_t::set_line_id(uint32 id)
 {
 	this->id = id;
 	char printname[128];
-	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line") );
+	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) )
 	name = printname;
 }
 
