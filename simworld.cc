@@ -1593,6 +1593,8 @@ karte_t::~karte_t()
 		einstellungen = NULL;
 	}
 
+	// not deleting the werkzeuge of this map ...
+
 	delete msg;
 }
 

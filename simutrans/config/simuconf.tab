@@ -147,7 +147,8 @@ beginner_price_factor = 1500
 
 ##################################factory stuff#################################
 
-# when a city reaches 2^n of this number then a new factory chain is spawned
+# when a city reaches 2^n times of this number
+# then a factory is extended, or a new factory chain is spawned
 #industry_increase_every = 2000
 
 # smallest distance between two adjacent factories
