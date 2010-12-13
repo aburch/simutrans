@@ -2672,20 +2672,18 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 					restart_speed = 0;
 					return cnv->get_next_stop_index()>route_index+1;
 				}
-				else {
+				else if(  !sch1->has_signal()  ) {
 					// can reserve: find next place to do something and drive on
 					if(  !block_reserver( cnv->get_route(), cnv->get_next_stop_index(), next_signal, next_crossing, 0, true )  ) {
 						dbg->error( "waggon_t::ist_weg_frei()", "block not free but was reserved!" );
 						return false;
 					}
 					cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
-					return true;
 				}
 			}
 		}
 
 		// next check for signal
-		signal_t *sig = NULL;
 		if(  sch1->has_signal()  ) {
 			if(  !is_weg_frei_signal( next_block, restart_speed )  ) {
 				// only return false, if we are directly in front of the signal
