@@ -4471,7 +4471,14 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		display_progress(get_groesse_y()+48+stadt.get_count()+(y*128)/get_groesse_y(), get_groesse_y()+256+stadt.get_count());
 	}
 
-	// finish the loading of stops (i.e. assign the right good for these stops)
+	// resolve dummy stops into real stops first ...
+	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
+		if(  (*i)->get_besitzer()  &&  (*i)->existiert_in_welt()  ) {
+			(*i)->laden_abschliessen();
+		}
+	}
+
+	// ... before removing dummy stops
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
 		if(  (*i)->get_besitzer()==NULL  ||  !(*i)->existiert_in_welt()  ) {
 			// this stop was only needed for loading goods ...
@@ -4482,10 +4489,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		else {
 			++i;
 		}
-	}
-	// otherwise ware might get wrong halt coordinates during reassigning of coordinates
-	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
-		(*i)->laden_abschliessen();
 	}
 
 	// adding lines and other stuff for convois
