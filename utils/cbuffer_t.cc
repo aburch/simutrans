@@ -108,24 +108,20 @@ void cbuffer_t::printf(const char* fmt, ...)
 	va_start(ap, fmt);
 	int count = vsnprintf( buf+size, capacity-size, fmt, ap);
 	va_end(ap);
+	// buffer too small?
+	while(0 <= count  &&  capacity-size <= (uint)count) {
+		// enlarge buffer
+		extend(capacity);
+		// and try again
+		va_start(ap, fmt);
+		count = vsnprintf( buf+size, capacity-size, fmt, ap);
+		va_end(ap);
+		// .. until everything fit into buffer
+	}
+	// error
 	if(count<0) {
-		// error
 		// truncate
 		buf[capacity-1] = 0;
-	}
-	else if(capacity-size <= (uint)count) {
-		do {
-			// enlarge buffer
-			extend(capacity);
-
-			// and try again
-			va_start(ap, fmt);
-			count = vsnprintf( buf+size, capacity-size, fmt, ap);
-			va_end(ap);
-
-			// until everything fit into buffer
-		} while (0 <= count  &&  capacity-size <= (uint)count);
-		size += count;
 	}
 	else {
 		size += count;
