@@ -109,9 +109,10 @@ void cbuffer_t::printf(const char* fmt, ...)
 	int count = vsnprintf( buf+size, capacity-size, fmt, ap);
 	va_end(ap);
 	// buffer too small?
-	while(0 <= count  &&  capacity-size <= (uint)count) {
+	// we do not increase it beyond 1MB, as this is usually only needed when %s of a random memory location
+	while(0 <= count  &&  capacity-size <= (uint)count  &&  capacity < 1048576) {
 		// enlarge buffer
-		extend(capacity);
+		extend( capacity);
 		// and try again
 		va_start(ap, fmt);
 		count = vsnprintf( buf+size, capacity-size, fmt, ap);
