@@ -471,6 +471,8 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 
 void karte_t::destroy()
 {
+	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger
+
 	if(  msg  ) {
 		msg->clear();
 	}
