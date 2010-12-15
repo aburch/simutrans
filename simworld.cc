@@ -3966,7 +3966,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
 	// saving messages
-	if(  file->get_version()>=110000  ) {
+	if(  file->get_version()>=102005  ) {
 		msg->rdwr(file);
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
@@ -4445,7 +4445,7 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
 	// loading messages
-	if(  file->get_version()>=110000  ) {
+	if(  file->get_version()>=102005  ) {
 		msg->rdwr(file);
 	}
 DBG_MESSAGE("karte_t::laden()", "messages loaded");
