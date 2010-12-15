@@ -17,7 +17,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 {
 	int pos, i;
 
-	obj_node_t node(this, 29, &parent);
+	obj_node_t node(this, 28, &parent);
 
 	sint32 topspeed    = obj.get_int("topspeed",    1000);
 	uint32 preis       = obj.get_int("cost",          0);
@@ -90,16 +90,6 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	node.write_uint32(fp, max_weight,					20);
 	node.write_uint8(fp, permissive_way_constraints,	24);
 	node.write_uint8(fp, prohibitive_way_constraints,	25);
-	string strng = obj.get("way");
-	if (strng.length() > 0) 
-	{
-		xref_writer_t::instance()->write_obj(fp, node, obj_way, strng.c_str(), true);
-		node.write_sint8(fp, 1, 26);
-	}
-	else 
-	{
-		node.write_sint8(fp, 0, 26);
-	}
 
 	sint8 number_seasons = 0;
 	uint8 number_portals = 1;
@@ -135,7 +125,7 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	if(  str.size() != 0  ) {
 		number_portals = 4;
 	}
-	node.write_sint8(fp, (number_portals==4), 28);
+	node.write_sint8(fp, (number_portals==4), 27);
 
 	write_head(fp, node, obj);
 
@@ -166,10 +156,10 @@ void tunnel_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj)
 	str = obj.get("way");
 	if (str.size() > 0) {
 		xref_writer_t::instance()->write_obj(fp, node, obj_way, str.c_str(), true);
-		node.write_sint8(fp, 1, 27);
+		node.write_sint8(fp, 1, 26);
 	}
 	else {
-		node.write_sint8(fp, 0, 27);
+		node.write_sint8(fp, 0, 26);
 	}
 
 	cursorkeys.clear();
