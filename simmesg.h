@@ -22,7 +22,9 @@ public:
 		koord pos;
 		PLAYER_COLOR_VAL color;
 		image_id bild;
-		long time;
+		sint32 time;
+
+		void rdwr(loadsave_t *file);
 	};
 
 	enum msg_typ { general=0, ai=1, city=2, problems=3, industry=4, chat=5, new_vehicle=6, full=7, warnings=8, traffic_jams=9, MAX_MESSAGE_TYPE };
@@ -55,6 +57,8 @@ public:
 	void clear();
 
 	void rotate90( sint16 size_w );
+
+	void rdwr( loadsave_t *file );
 };
 
 #endif

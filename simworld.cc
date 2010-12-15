@@ -3965,6 +3965,12 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
 
+	// saving messages
+	if(  file->get_version()>=110000  ) {
+		msg->rdwr(file);
+	}
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
+
 	// centered on what?
 	sint32 dummy = ij_off.x;
 	file->rdwr_long(dummy);
@@ -4437,6 +4443,12 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 		display_progress(get_groesse_y()+24+stadt.get_count()+(i*3), get_groesse_y()+256+stadt.get_count());
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
+
+	// loading messages
+	if(  file->get_version()>=110000  ) {
+		msg->rdwr(file);
+	}
+DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden

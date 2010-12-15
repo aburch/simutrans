@@ -109,6 +109,7 @@
 	CHANGE: In order to lock a game the public player must be password protected. Unlocking the public player allows player change again.
 	CHANGE: (Knightly) message system has now tabs for faster overview of categories
 	CHANGE: cities try some terraforming to be able to build roads
+	ADD: messages are saved in save games
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

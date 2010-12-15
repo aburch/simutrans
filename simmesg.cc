@@ -16,11 +16,24 @@
 #include "simwin.h"
 #include "simworld.h"
 
+#include "dataobj/loadsave.h"
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
 #include "gui/messagebox.h"
 #include <string.h>
 
+
+void message_t::node::rdwr(loadsave_t *file)
+{
+	file->rdwr_str( msg, lengthof(msg) );
+	file->rdwr_long( type );
+	pos.rdwr( file );
+	file->rdwr_short( color );
+	file->rdwr_long( time );
+	if(  file->is_loading()  ) {
+		bild = IMG_LEER;
+	}
+}
 
 
 message_t::message_t(karte_t *w)
@@ -159,12 +172,32 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 }
 
 
-
-
 void message_t::rotate90( sint16 size_w )
 {
 	for(  slist_tpl<message_t::node *>::iterator iter = list.begin(), end = list.end();  iter!=end; ++iter  ) {
 		(*iter)->pos.rotate90( size_w );
 	}
 
+}
+
+
+void message_t::rdwr( loadsave_t *file )
+{
+	uint16 msg_count;
+	if(  file->is_saving()  ) {
+		msg_count = min( 2000u, list.get_count() );
+		file->rdwr_short(msg_count);
+		for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end, msg_count>0;  ++iter, --msg_count  ) {
+			(*iter)->rdwr(file);
+		}
+	}
+	else {
+		clear();
+		file->rdwr_short(msg_count);
+		while(  (msg_count--)>0  ) {
+			node *n = new node();
+			n->rdwr(file);
+			list.append(n);
+		}
+	}
 }
