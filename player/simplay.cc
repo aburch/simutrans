@@ -24,6 +24,7 @@
 #include "../simmesg.h"
 #include "../simskin.h"
 #include "../simsound.h"
+#include "../simticker.h"
 #include "../simtools.h"
 #include "../simware.h"
 #include "../simwerkz.h"
@@ -355,13 +356,14 @@ void spieler_t::neuer_monat()
 			if(  welt->get_active_player_nr()==player_nr  &&  !umgebung_t::networkmode  ) {
 				if(finance_history_year[0][COST_NETWEALTH]<0) {
 					destroy_all_win(true);
-					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
+					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
+					ticker::add_msg( translator::translate("Bankrott:\n\nDu bist bankrott.\n"), koord::invalid, PLAYER_FLAG + kennfarbe1 + 1 );
 					welt->beenden(false);
 				}
 				else {
 					// tell the player
 					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
-					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
+					welt->get_message()->add_message( buf, koord::invalid, message_t::problems, player_nr, IMG_LEER );
 				}
 			}
 			// no assets => nothing to go bankrupt about again
@@ -1099,6 +1101,7 @@ spieler_t::undo()
 	last_built.clear();
 	return cost!=0;
 }
+
 
 void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, bool local)
 {

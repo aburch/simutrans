@@ -50,7 +50,7 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 			message_list = &filtered_messages;
 			filtered_messages.clear();
 			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end;  ++iter  ) {
-				if(  (1 << (*iter)->type) & message_type  ) {
+				if(  (*iter)->get_type_shifted() & message_type  ) {
 					filtered_messages.append( *iter );
 				}
 			}
@@ -107,7 +107,6 @@ bool message_stats_t::infowin_event(const event_t * ev)
 }
 
 
-
 /**
  * Now draw the list
  * @author prissi
@@ -128,7 +127,7 @@ void message_stats_t::zeichnen(koord offset)
 			// Knightly : for ensuring correct chronological order of the new messages
 			slist_tpl<message_t::node *> temp_list;
 			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end, entry_count>0;  ++iter, --entry_count  ) {
-				if(  (1 << (*iter)->type) & message_type  ) {
+				if(  (*iter)->get_type_shifted() & message_type  ) {
 					temp_list.insert(*iter);
 				}
 			}
@@ -158,8 +157,7 @@ void message_stats_t::zeichnen(koord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
-					offset.x + 2, y, 0, false, true);
+			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, y, 0, false, true);
 		}
 
 		char buf[256];
@@ -169,7 +167,13 @@ void message_stats_t::zeichnen(koord offset)
 				break;
 			}
 		}
+		// correct for player color
+		PLAYER_COLOR_VAL colorval = n.color;
+		if(  n.color&PLAYER_FLAG  ) {
+			spieler_t *sp = welt->get_spieler(n.color&(~PLAYER_FLAG));
+			colorval = sp ? PLAYER_FLAG+sp->get_player_color1()+1 : MN_GREY0;
+		}
 		// display text with clipping
-		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, n.color,true);
+		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, n.color, true);
 	}
 }

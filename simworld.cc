@@ -40,6 +40,7 @@
 #include "simskin.h"
 #include "simsound.h"
 #include "simsys.h"
+#include "simticker.h"
 #include "simtools.h"
 #include "simversion.h"
 #include "simview.h"
@@ -472,11 +473,6 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 void karte_t::destroy()
 {
 	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger
-
-	if(  msg  ) {
-		msg->clear();
-	}
-
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	// rotate the map until it can be saved
@@ -1596,7 +1592,7 @@ karte_t::~karte_t()
 	}
 
 	// not deleting the werkzeuge of this map ...
-
+	msg->clear();
 	delete msg;
 }
 
@@ -4448,6 +4444,9 @@ DBG_MESSAGE("karte_t::laden()", "players loaded");
 	if(  file->get_version()>=102005  ) {
 		msg->rdwr(file);
 	}
+	else if(  !umgebung_t::networkmode  ) {
+		msg->clear();
+	}
 DBG_MESSAGE("karte_t::laden()", "messages loaded");
 
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
@@ -5094,7 +5093,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[new_player];
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-		msg->add_message(buf, koord::invalid, message_t::ai, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+		msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		zeiger->set_area( koord(1,1), false );
 		zeiger->set_pos( old_zeiger_pos );
 	}
@@ -5762,6 +5761,8 @@ void karte_t::network_disconnect()
 		network_world_command_t *cmd = command_queue.remove_first();
 		delete cmd;
 	}
-	create_win(280, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
+	create_win( display_get_width()/2-128, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
+	ticker::add_msg( translator::translate("Lost synchronisation\nwith server."), koord::invalid, COL_BLACK );
+
 	beenden(false);
 }

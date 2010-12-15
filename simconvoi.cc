@@ -1049,6 +1049,10 @@ void convoi_t::new_month()
 		}
 		financial_history[0][j] = 0;
 	}
+	// remind every new month again
+	if(  state==NO_ROUTE  ) {
+		get_besitzer()->bescheid_vehikel_problem( self, get_pos() );
+	}
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;

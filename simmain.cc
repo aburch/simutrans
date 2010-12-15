@@ -956,9 +956,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	DBG_MESSAGE("simmain", "sprachengui_t::init_font_from_lang");
 	sprachengui_t::init_font_from_lang();
 
-	welt->get_message()->clear();
-
 	destroy_all_win(true);
+	welt->get_message()->clear();
 	while(  !umgebung_t::quit_simutrans  ) {
 		// play next tune?
 		check_midi();
