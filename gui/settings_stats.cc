@@ -167,7 +167,10 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 
-	umgebung_t::savegame_version_str = version[ savegame.get_selection() ];
+	int selected = savegame.get_selection();
+	if (0 <= selected  &&  selected < lengthof(version)) {
+		umgebung_t::savegame_version_str = version[ selected ];
+	}
 }
 
 
