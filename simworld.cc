@@ -3751,7 +3751,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_g
  */
 bool karte_t::play_sound_area_clipped(koord pos, sound_info info) const
 {
-	if(is_sound) {
+	if(is_sound  &&  zeiger) {
 		const int dist = koord_distance( pos, zeiger->get_pos() );
 
 		if(dist < 100) {
