@@ -1372,7 +1372,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		display_progress(16, display_total);
 	}
 	else {
-		if(  sets->get_rotation()==0  ) {
+		if(  sets->get_rotation()==0  &&  sets->get_origin_x()==0  &&  sets->get_origin_y()==0) {
 			// otherwise neagtive offsets may occur, so we cache only non-rotated maps
 			init_perlin_map(new_groesse_x,new_groesse_y);
 		}
