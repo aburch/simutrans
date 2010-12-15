@@ -31,7 +31,7 @@ static sint32 categories[MAX_MESG_TABS+1] =
 	(1 << message_t::full),
 	(1 << message_t::city) | (1 << message_t::industry),
 	(1 << message_t::ai),
-	(1 << message_t::general)
+	(1 << message_t::general) | (1 << message_t::new_vehicle)
 };
 
 static const char *tab_strings[]=
