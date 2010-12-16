@@ -100,7 +100,6 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 		}
 		convoy_assembler.set_vehicles(existing_vehicles);
 	}
-	add_komponente(&convoy_assembler);
 
 	bt_replace_line.set_typ(button_t::square);
 	bt_replace_line.set_text("replace all in line");
@@ -155,6 +154,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_allow_using_existing_vehicles.set_tooltip("Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.");
 	bt_allow_using_existing_vehicles.add_listener(this);
 	add_komponente(&bt_allow_using_existing_vehicles);
+	/* This must be *last* of add_komponente */
+	add_komponente(&convoy_assembler);
 
 	rpl = cnv->get_replace() ? new replace_data_t(cnv->get_replace()) : new replace_data_t();
 
