@@ -1005,8 +1005,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
  * @date 7-Feb-2005
  * @author prissi
  */
-void
-spieler_t::init_undo( waytype_t wtype, unsigned short max )
+void spieler_t::init_undo( waytype_t wtype, unsigned short max )
 {
 	// only human player
 	// prissi: allow for UNDO for real player
