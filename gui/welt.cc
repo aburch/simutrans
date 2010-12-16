@@ -22,6 +22,7 @@
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simimg.h"
+#include "../simmesg.h"
 #include "../simtools.h"
 #include "../simversion.h"
 
@@ -453,7 +454,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&load_game) {
-		destroy_all_win(true);
+		welt->get_message()->clear();
 		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	}
 	else if(komp==&load_scenario) {
@@ -461,11 +462,13 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
 		chdir( path );
 		destroy_all_win(true);
+		welt->get_message()->clear();
 		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
 		chdir( umgebung_t::user_dir );
 	}
 	else if(komp==&start_game) {
 		destroy_all_win(true);
+		welt->get_message()->clear();
 		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 		if(loaded_heightfield) {
 			welt->load_heightfield(&umgebung_t::default_einstellungen);
