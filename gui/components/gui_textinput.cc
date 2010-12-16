@@ -7,19 +7,11 @@
 
 #include <string.h>
 
-#include "../../simdebug.h"
-#include "../gui_frame.h"
 #include "gui_textinput.h"
-#include "../../simevent.h"
-#include "../../simgraph.h"
-#include "../../simcolor.h"
 #include "../../simwin.h"
-#include "../../unicode.h"
 #include "../../simsys.h"
-
 #include "../../dataobj/translator.h"
 
-#include "../../simgraph.h"
 
 gui_textinput_t::gui_textinput_t() :
 	gui_komponente_t(true),
