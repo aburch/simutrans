@@ -126,7 +126,7 @@ void message_stats_t::zeichnen(koord offset)
 			uint32 entry_count = new_count - last_count;
 			// Knightly : for ensuring correct chronological order of the new messages
 			slist_tpl<message_t::node *> temp_list;
-			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end, entry_count>0;  ++iter, --entry_count  ) {
+			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end  &&  entry_count>0;  ++iter, --entry_count  ) {
 				if(  (*iter)->get_type_shifted() & message_type  ) {
 					temp_list.insert(*iter);
 				}

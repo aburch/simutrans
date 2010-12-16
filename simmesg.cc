@@ -198,13 +198,13 @@ void message_t::rdwr( loadsave_t *file )
 		if(  umgebung_t::server  ) {
 			// on server: do not save local messages
 			msg_count = 0;
-			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end, msg_count<2000;  ++iter  ) {
+			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end  &&  msg_count<2000;  ++iter  ) {
 				if(  ((*iter)->type & local_flag) == 0  ) {
 					msg_count ++;
 				}
 			}
 			file->rdwr_short( msg_count );
-			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end, msg_count>0;  ++iter  ) {
+			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end  &&  msg_count>0;  ++iter  ) {
 				if(  ((*iter)->type & local_flag) == 0  ) {
 					(*iter)->rdwr(file);
 					msg_count --;
@@ -215,7 +215,7 @@ void message_t::rdwr( loadsave_t *file )
 		else {
 			msg_count = min( 2000u, list.get_count() );
 			file->rdwr_short( msg_count );
-			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end, msg_count>0;  ++iter, --msg_count  ) {
+			for(  slist_tpl<node *>::const_iterator iter=list.begin(), end=list.end();  iter!=end  &&  msg_count>0;  ++iter, --msg_count  ) {
 				(*iter)->rdwr(file);
 			}
 		}
