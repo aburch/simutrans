@@ -84,10 +84,10 @@ bool message_stats_t::infowin_event(const event_t * ev)
 				// show message window again
 				news_window* news;
 				if(  n.pos==koord::invalid  ) {
-					news = new news_img( n.msg, n.bild, n.color );
+					news = new news_img( n.msg, n.bild, n.get_player_color(welt) );
 				}
 				else {
-					news = new news_loc( welt, n.msg, n.pos, n.color );
+					news = new news_loc( welt, n.msg, n.pos, n.get_player_color(welt) );
 				}
 				create_win(-1, -1, news, w_info, magic_none);
 			}
@@ -168,12 +168,8 @@ void message_stats_t::zeichnen(koord offset)
 			}
 		}
 		// correct for player color
-		PLAYER_COLOR_VAL colorval = n.color;
-		if(  n.color&PLAYER_FLAG  ) {
-			spieler_t *sp = welt->get_spieler(n.color&(~PLAYER_FLAG));
-			colorval = sp ? PLAYER_FLAG+sp->get_player_color1()+1 : MN_GREY0;
-		}
+		PLAYER_COLOR_VAL colorval = n.get_player_color(welt);
 		// display text with clipping
-		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, n.color, true);
+		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, colorval, true);
 	}
 }

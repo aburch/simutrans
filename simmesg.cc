@@ -37,6 +37,18 @@ void message_t::node::rdwr(loadsave_t *file)
 }
 
 
+PLAYER_COLOR_VAL message_t::node::get_player_color(karte_t *welt) const
+{
+	// correct for player color
+	PLAYER_COLOR_VAL colorval = color;
+	if(  color&PLAYER_FLAG  ) {
+		spieler_t *sp = welt->get_spieler(color&(~PLAYER_FLAG));
+		colorval = sp ? PLAYER_FLAG+sp->get_player_color1()+1 : MN_GREY0;
+	}
+	return colorval;
+}
+
+
 message_t::message_t(karte_t *w)
 {
 	welt = w;
@@ -90,7 +102,7 @@ void message_t::set_message_flags( sint32 t, sint32 w, sint32 a, sint32 i)
 /**
  * Add a message to the message list
  * @param pos    position of the event
- * @param color  message color 
+ * @param color  message color
  * @param where type of message
  * @param bild images assosiated with message
  * @author prissi
@@ -104,18 +116,6 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	if(  art&ignore_flags  ) {
 		// wants us to ignore this completely
 		return;
-	}
-
-	// correct for player color
-	PLAYER_COLOR_VAL colorval = color;
-	if(  color&PLAYER_FLAG  ) {
-		spieler_t *sp = welt->get_spieler(color&(~PLAYER_FLAG));
-		colorval = sp ? PLAYER_FLAG|(sp->get_player_color1()+1) : MN_GREY0;
-	}
-
-	// should we send this message to a ticker? (always done)
-	if(  art&ticker_flags  ) {
-		ticker::add_msg(text, pos, colorval);
 	}
 
 	/* we will not add messages two times to the list
@@ -148,6 +148,12 @@ DBG_MESSAGE("message_t::add_msg()","%40s (at %i,%i)", text, pos.x, pos.y );
 	n->color = color;
 	n->time = welt->get_current_month();
 	n->bild = bild;
+
+	PLAYER_COLOR_VAL colorval = n->get_player_color(welt);
+	// should we send this message to a ticker? (always done)
+	if(  art&ticker_flags  ) {
+		ticker::add_msg(text, pos, colorval);
+	}
 
 	// insert at the top
 	list.insert(n);

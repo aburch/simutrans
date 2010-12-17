@@ -28,6 +28,8 @@ public:
 		void rdwr(loadsave_t *file);
 
 		uint32 get_type_shifted() const { return 1<<(type & ~local_flag); }
+
+		PLAYER_COLOR_VAL get_player_color(karte_t*) const;
 	};
 
 	enum msg_typ { general=0, ai=1, city=2, problems=3, industry=4, chat=5, new_vehicle=6, full=7, warnings=8, traffic_jams=9, MAX_MESSAGE_TYPE, local_flag = 0x8000u };
