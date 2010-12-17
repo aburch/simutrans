@@ -4983,10 +4983,12 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	// the first will delete the convoi, the second should not trigger an assertion
 	// catch such commands here
 	if( !cnv.is_bound()) {
+#if DEBUG>=4
 		if (is_local_execution()) {
 			create_win( new news_img("Convoy already deleted!"), w_time_delete, magic_none);
 		}
-		dbg->warning("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
+#endif
+		dbg->error("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
 		return false;
 	}
 

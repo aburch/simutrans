@@ -2988,19 +2988,14 @@ schedule_t * schiff_t::erzeuge_neuen_fahrplan() const
 bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
 {
 	if(state!=looking_for_parking) {
-
 		// search for the end of the runway
 		const weg_t *w=gr->get_weg(air_wt);
 		if(w  &&  w->get_besch()->get_styp()==1) {
-
-//DBG_MESSAGE("aircraft_t::ist_ziel()","testing at %i,%i",gr->get_pos().x,gr->get_pos().y);
 			// ok here is a runway
 			ribi_t::ribi ribi= w->get_ribi_unmasked();
-//DBG_MESSAGE("aircraft_t::ist_ziel()","ribi=%i target_ribi=%i",ribi,approach_dir);
 			if(ribi_t::ist_einfach(ribi)  &&  (ribi&approach_dir)!=0) {
 				// pointing in our direction
 				// here we should check for length, but we assume everything is ok
-//DBG_MESSAGE("aircraft_t::ist_ziel()","success at %i,%i",gr->get_pos().x,gr->get_pos().y);
 				return true;
 			}
 		}
@@ -3011,7 +3006,6 @@ bool aircraft_t::ist_ziel(const grund_t *gr,const grund_t *) const
 			return true;
 		}
 	}
-//DBG_MESSAGE("is_target()","failed at %i,%i",gr->get_pos().x,gr->get_pos().y);
 	return false;
 }
 
