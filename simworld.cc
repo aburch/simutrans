@@ -5206,8 +5206,11 @@ void karte_t::interactive_event(event_t &ev)
 		}
 	}
 
-	if(IS_LEFTRELEASE(&ev)) {
-DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
+	if(  IS_LEFTRELEASE(&ev)
+		&&  ev.my < display_get_height()-32+(16*ticker::empty())
+	) {
+
+		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())) {
 			const char *err = NULL;

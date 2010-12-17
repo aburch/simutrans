@@ -948,22 +948,6 @@ bool check_pos_win(event_t *ev)
 		tooltip_register_time = 0;
 	}
 
-	// swallow all events in the infobar
-	if(  IS_LEFTCLICK(ev)  &&  y > display_get_height()-16  ) {
-		// swallow event
-		return true;
-	}
-
-	// goto infowin koordinate, if ticker is active
-	if(  show_ticker  &&  IS_LEFTCLICK(ev)  &&  y > display_get_height()-32  &&  y <= display_get_height()-16  ) {
-		koord p = ticker::get_welt_pos();
-		if(wl->ist_in_kartengrenzen(p)) {
-			wl->change_world_position(koord3d(p,wl->min_hgt(p)));
-		}
-		// swallow event
-		return true;
-	}
-
 	// click in main menu?
 	if(  werkzeug_t::toolbar_tool.get_count()>0  &&  werkzeug_t::toolbar_tool[0]->get_werkzeug_waehler()  &&  y<werkzeug_t::toolbar_tool[0]->iconsize.y  &&  ev->ev_class!=EVENT_KEYBOARD  ) {
 		event_t wev = *ev;
@@ -993,6 +977,25 @@ bool check_pos_win(event_t *ev)
 	// just resize window until button release
 	if(  is_resizing>=0  &&  (unsigned)is_resizing<wins.get_count()  &&  (IS_LEFTDRAG(ev)  ||  IS_LEFTREPEAT(ev))  ) {
 		resize_win( is_resizing, ev );
+		return true;
+	}
+
+	// swallow all other events in the infobar
+	if(  y > display_get_height()-16  ) {
+		// swallow event
+		return true;
+	}
+
+	// swallow all other events in ticker (if there)
+	if(  show_ticker  &&  y > display_get_height()-32  ) {
+		if(  IS_LEFTCLICK(ev)  ) {
+			// goto infowin koordinate, if ticker is active
+			koord p = ticker::get_welt_pos();
+			if(wl->ist_in_kartengrenzen(p)) {
+				wl->change_world_position(koord3d(p,wl->min_hgt(p)));
+			}
+		}
+		// swallow event
 		return true;
 	}
 
