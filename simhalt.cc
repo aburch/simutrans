@@ -147,12 +147,20 @@ halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord pos, const spie
 }
 
 
-halthandle_t
-haltestelle_t::get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp )
+halthandle_t haltestelle_t::get_halt( karte_t *welt, const koord3d pos, const spieler_t *sp )
 {
 	const grund_t *gr = welt->lookup(pos);
-	if(gr) {
-		if(gr->get_halt().is_bound()  &&  spieler_t::check_owner(sp,gr->get_halt()->get_besitzer())  ) {
+	if(gr) 
+	{
+		weg_t *w = gr->get_weg_nr(0);
+
+		if(!w)
+		{
+			w = gr->get_weg_nr(1);
+		}
+
+		if(gr->get_halt().is_bound() && (spieler_t::check_owner(sp, gr->get_halt()->get_besitzer()) || (spieler_t::check_owner(w->get_besitzer(), sp))))
+		{
 			return gr->get_halt();
 		}
 		// no halt? => we do the water check

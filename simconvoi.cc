@@ -3409,11 +3409,12 @@ void convoi_t::laden() //"load" (Babelfish)
 	{
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
-		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) 
+		weg_t *w = welt->lookup(fpl->get_current_eintrag().pos)->get_weg(fpl->get_waytype());
+		spieler_t *sp = w ? w->get_besitzer() : NULL;
+		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1) || (w && sp == NULL) || (w && sp == welt->get_spieler(1)) )
 		{
 			// loading/unloading ...
 			halt->request_loading( self );
-//			hat_gehalten(k, halt);
 		}
 
 		else {
