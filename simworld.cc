@@ -876,7 +876,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities sizes");
 
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 #endif 
-	display_set_progress_text(translator::translate("Placing cities"));
+	display_set_progress_text(translator::translate("Placing cities ..."));
 	vector_tpl<koord> *pos = stadt_t::random_place(this, city_population, old_x, old_y);
 
 	if(  !pos->empty()  ) {
@@ -913,7 +913,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","prepare cities");
 		delete pos;
 		delete city_population;
 DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns", dr_time()-tbegin );
-		display_set_progress_text(translator::translate("Growing cities"));
+		display_set_progress_text(translator::translate("Growing cities ..."));
 		for(  uint32 i=old_anzahl_staedte;  i<stadt.get_count();  i++  ) {
 			// Hajo: do final init after world was loaded/created
 			stadt[i]->laden_abschliessen();
@@ -930,7 +930,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","took %lu ms for all towns",
 		finance_history_year[0][WORLD_CITICENS] = finance_history_month[0][WORLD_CITICENS] = last_month_bev;
 
 		// Hajo: connect some cities with roads
-		display_set_progress_text(translator::translate("Connecting cities"));
+		display_set_progress_text(translator::translate("Connecting cities ..."));
 		const weg_besch_t* besch = einstellungen->get_intercity_road_type(get_timeline_year_month());
 		if(besch == NULL) {
 			// Hajo: try some default (might happen with timeline ... )
@@ -1303,7 +1303,7 @@ DBG_DEBUG("karte_t::init()","init_felder");
 	enlarge_map(this->einstellungen, h_field);
 
 DBG_DEBUG("karte_t::init()","distributing trees");
-	display_set_progress_text(translator::translate("Placing trees"));
+	display_set_progress_text(translator::translate("Placing trees ..."));
 	if(!einstellungen->get_no_trees()) {
 		baum_t::distribute_trees(this,3);
 	}
@@ -1314,6 +1314,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	nosave_warning = nosave = false;
 
 	fabrikbauer_t::neue_karte(this);
+	display_set_progress_text(translator::translate("Placing industries ..."));
 	// new system ...
 	const int max_display_progress=16+einstellungen->get_anzahl_staedte()*4+einstellungen->get_land_industry_chains();
 	int chains=0;
@@ -1334,8 +1335,10 @@ DBG_DEBUG("karte_t::init()","built timeline");
 	finance_history_year[0][WORLD_FACTORIES] = finance_history_month[0][WORLD_FACTORIES] = fab_list.get_count();
 
 	// tourist attractions
+	display_set_progress_text(translator::translate("Placing attractions ..."));
 	fabrikbauer_t::verteile_tourist(this, einstellungen->get_tourist_attractions());
 
+	display_set_progress_text(translator::translate("Finalising ..."));
 	printf("Preparing startup ...\n");
 	if(zeiger == 0) {
 		zeiger = new zeiger_t(this, koord3d::invalid, NULL );
