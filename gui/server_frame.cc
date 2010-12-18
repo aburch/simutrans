@@ -55,10 +55,6 @@ server_frame_t::server_frame_t(karte_t* w) :
 	}
 
 	pos_y += BUTTON_HEIGHT+8;
-	date.set_pos( koord( 4, pos_y ) );
-	add_komponente( &date );
-
-	pos_y += 8*LINESPACE;
 	revision.set_pos( koord( 4, pos_y ) );
 	add_komponente( &revision );
 	show_all_rev.pressed = gi.get_game_engine_revision()==0;
@@ -73,7 +69,12 @@ server_frame_t::server_frame_t(karte_t* w) :
 	add_komponente( &pakset_checksum );
 #endif
 
-	pos_y += 5+LINESPACE;
+	pos_y += LINESPACE+8;
+	date.set_pos( koord( 240-4, pos_y ) );
+	date.set_align( gui_label_t::right );
+	add_komponente( &date );
+
+	pos_y += LINESPACE*8+8;
 
 	find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
 	find_mismatch.add_listener(this);
@@ -170,11 +171,14 @@ void server_frame_t::update_info()
 		case umgebung_t::DATE_FMT_GERMAN:
 		case umgebung_t::DATE_FMT_MONTH:
 		case umgebung_t::DATE_FMT_SEASON:
+		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
 			time.printf( "%s %d", month, gi.get_current_year() );
 			break;
 
 		case umgebung_t::DATE_FMT_US:
 		case umgebung_t::DATE_FMT_JAPANESE:
+		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+		case umgebung_t::DATE_FMT_US_NO_SEASON:
 			time.printf( "%i/%s", gi.get_current_year(), month );
 			break;
 	}
@@ -323,18 +327,21 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	sint16 pos_y = pos.y+16+14+BUTTON_HEIGHT*2;
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
-	pos_y += 6+LINESPACE;
-	const koord mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
-
-	display_ddd_box_clip(pos.x+3, pos_y-1, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
-	display_array_wh(pos.x+4, pos_y, mapsize.x, mapsize.y, gi.get_map()->to_array() );
-
-	display_multiline_text( pos.x+4+max(mapsize.x,proportional_string_width(date.get_text_pointer()))+2+10, date.get_pos().y+pos.y+16, buf, COL_BLACK );
 #if DEBUG>=4
-	pos_y += 10*LINESPACE - 1;
-#else
-	pos_y += 9*LINESPACE - 1;
+	pos_y += LINESPACE;
 #endif
+	pos_y += LINESPACE*2+8;
+	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+
+	pos_y += 4;
+	display_multiline_text( pos.x+4, pos_y, buf, COL_BLACK );
+
+	pos_y += LINESPACE*8;
+	const koord mapsize( gi.get_map()->get_width(), gi.get_map()->get_height() );
+	display_ddd_box_clip( pos.x+240-7-mapsize.x, pos_y-mapsize.y-3, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
+	display_array_wh( pos.x+240-6-mapsize.x, pos_y-mapsize.y-2, mapsize.x, mapsize.y, gi.get_map()->to_array() );
+
+	pos_y += 4;
 	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
 	// drawing twice, but otherwise it will not overlay image
