@@ -129,7 +129,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		uint32 num_paks = addons.get_count()+1;
 		uint32 progress = 0;
 		if(is_display_init()  &&  num_paks>0) {
-			display_set_progress_text(translator::translate("Comparing pak's ..."));
+			display_set_progress_text(translator::translate("Comparing pak files ..."));
 			display_progress(progress, num_paks);
 		}
 		// communication loop
