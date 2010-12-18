@@ -147,7 +147,8 @@ beginner_price_factor = 1500
 
 ##################################factory stuff#################################
 
-# when a city reaches 2^n of this number then a new factory chain is spawned
+# when a city reaches 2^n times of this number
+# then a factory is extended, or a new factory chain is spawned
 #industry_increase_every = 2000
 
 # smallest distance between two adjacent factories
@@ -482,7 +483,7 @@ toolbar_max_width = 0
 toolbar_max_height = 0
 
 # if 1, print the company name in front of a message
-#add_player_name_to_message = 0
+#add_player_name_to_message = 1
 
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)

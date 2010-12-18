@@ -42,6 +42,7 @@
 #include "simskin.h"
 #include "simsound.h"
 #include "simsys.h"
+#include "simticker.h"
 #include "simtools.h"
 #include "simversion.h"
 #include "simview.h"
@@ -479,10 +480,7 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 
 void karte_t::destroy()
 {
-	if(  msg  ) {
-		msg->clear();
-	}
-
+	is_sound = false; // karte_t::play_sound_area_clipped needs valid zeiger
 DBG_MESSAGE("karte_t::destroy()", "destroying world");
 
 	is_shutting_down = true;
@@ -1485,7 +1483,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		display_progress(16, display_total);
 	}
 	else {
-		if(  sets->get_rotation()==0  ) {
+		if(  sets->get_rotation()==0  &&  sets->get_origin_x()==0  &&  sets->get_origin_y()==0) {
 			// otherwise neagtive offsets may occur, so we cache only non-rotated maps
 			init_perlin_map(new_groesse_x,new_groesse_y);
 		}
@@ -1737,6 +1735,8 @@ karte_t::~karte_t()
 		einstellungen = NULL;
 	}
 
+	// not deleting the werkzeuge of this map ...
+	msg->clear();
 	delete msg;
 }
 
@@ -4140,7 +4140,7 @@ DBG_DEBUG("karte_t::finde_plaetze()","for size (%i,%i) in map (%i,%i)",w,h,get_g
  */
 bool karte_t::play_sound_area_clipped(koord pos, sound_info info) const
 {
-	if(is_sound) {
+	if(is_sound  &&  zeiger) {
 		const int dist = koord_distance( pos, zeiger->get_pos() );
 
 		if(dist < 100) {
@@ -4370,6 +4370,12 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved %i convois",convoi_ar
 		}
 	}
 DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved players");
+
+	// saving messages
+	if(  file->get_version()>=102005  ) {
+		msg->rdwr(file);
+	}
+DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 	// centered on what?
 	sint32 dummy = ij_off.x;
@@ -4908,6 +4914,15 @@ DBG_MESSAGE("karte_t::laden()", "%d convois/trains loaded", convoi_array.get_cou
 	}
 DBG_MESSAGE("karte_t::laden()", "players loaded");
 
+	// loading messages
+	if(  file->get_version()>=102005  ) {
+		msg->rdwr(file);
+	}
+	else if(  !umgebung_t::networkmode  ) {
+		msg->clear();
+	}
+DBG_MESSAGE("karte_t::laden()", "messages loaded");
+
 	// nachdem die welt jetzt geladen ist koennen die Blockstrecken neu
 	// angelegt werden
 	old_blockmanager_t::laden_abschliessen(this);
@@ -4945,7 +4960,14 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		display_progress(get_groesse_y()+48+stadt.get_count()+(y*128)/get_groesse_y(), get_groesse_y()+256+stadt.get_count());
 	}
 
-	// finish the loading of stops (i.e. assign the right good for these stops)
+	// resolve dummy stops into real stops first ...
+	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
+		if(  (*i)->get_besitzer()  &&  (*i)->existiert_in_welt()  ) {
+			(*i)->laden_abschliessen();
+		}
+	}
+
+	// ... before removing dummy stops
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ) {
 		if(  (*i)->get_besitzer()==NULL  ||  !(*i)->existiert_in_welt()  ) {
 			// this stop was only needed for loading goods ...
@@ -4956,10 +4978,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		else {
 			++i;
 		}
-	}
-	// otherwise ware might get wrong halt coordinates during reassigning of coordinates
-	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
-		(*i)->laden_abschliessen();
 	}
 
 	// adding lines and other stuff for convois
@@ -5570,7 +5588,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player_nr = 0;
 		active_player = spieler[0];
 		if(new_player!=0) {
-			msg->add_message(translator::translate("On this map, you are not\nallowed to change player!\n"), koord::invalid, message_t::problems, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+			create_win( new news_img("On this map, you are not\nallowed to change player!\n"), w_time_delete, magic_none);
 		}
 	}
 	else {
@@ -5586,7 +5604,7 @@ void karte_t::switch_active_player(uint8 new_player)
 		active_player = spieler[new_player];
 		char buf[512];
 		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-		msg->add_message(buf, koord::invalid, message_t::warnings, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+		msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
 		zeiger->set_area( koord(1,1), false );
 		zeiger->set_pos( old_zeiger_pos );
 	}
@@ -5699,8 +5717,11 @@ void karte_t::interactive_event(event_t &ev)
 		}
 	}
 
-	if(IS_LEFTRELEASE(&ev)) {
-DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
+	if(  IS_LEFTRELEASE(&ev)
+		&&  ev.my < display_get_height()-32+(16*ticker::empty())
+	) {
+
+		DBG_MESSAGE("karte_t::interactive_event(event_t &ev)", "calling a tool");
 
 		if(ist_in_kartengrenzen(zeiger->get_pos().get_2d())) {
 			const char *err = NULL;
@@ -6254,7 +6275,9 @@ void karte_t::network_disconnect()
 		network_world_command_t *cmd = command_queue.remove_first();
 		delete cmd;
 	}
-	create_win(280, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
+	create_win( display_get_width()/2-128, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
+	ticker::add_msg( translator::translate("Lost synchronisation\nwith server."), koord::invalid, COL_BLACK );
+
 	beenden(false);
 }
 

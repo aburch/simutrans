@@ -641,6 +641,7 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_zoom_out_t : public werkzeug_t {
@@ -653,6 +654,7 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_show_coverage_t : public werkzeug_t {
@@ -678,21 +680,22 @@ public:
 			(umgebung_t::show_names&1) ? "show waiting bars" : "show station names");
 	}
 	bool init( karte_t *welt, spieler_t * ) {
-		if(  umgebung_t::show_names==0  ) {
+		if(  umgebung_t::show_names>=11  ) {
+			if(  (umgebung_t::show_names&3)==3  ) {
+				umgebung_t::show_names = 0;
+			}
+			else {
+				umgebung_t::show_names = 2;
+			}
+		}
+		else if(  umgebung_t::show_names==2  ) {
+				umgebung_t::show_names = 3;
+		}
+		else if(  umgebung_t::show_names==0  ) {
 			umgebung_t::show_names = 1;
 		}
 		else {
-			if(  (umgebung_t::show_names>>2) == 2  ) {
-				if(  umgebung_t::show_names & 2  ) {
-					umgebung_t::show_names = 0;
-				}
-				else {
-					umgebung_t::show_names = 3;
-				}
-			}
-			else {
-				umgebung_t::show_names += 4;
-			}
+			umgebung_t::show_names += 4;
 		}
 		welt->set_dirty();
 		return false;
@@ -786,6 +789,7 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 // step size by default_param
@@ -808,6 +812,7 @@ public:
 	const char *get_tooltip(spieler_t *);
 	bool init( karte_t *, spieler_t * );
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 
@@ -821,6 +826,7 @@ public:
 		return false;
 	}
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
 };
 
 class wkz_toggle_pax_station_t : public werkzeug_t {

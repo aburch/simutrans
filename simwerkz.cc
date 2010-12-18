@@ -1632,11 +1632,13 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 			return fpl->fehlermeldung();
 		}
 		// and check for ownership
-		if(  !bd->is_halt()  ) {
-			weg_t *w = bd->get_weg( fpl->get_waytype() );
-			if(  w==NULL  &&  fpl->get_waytype()==tram_wt  ) {
+		weg_t *w = bd->get_weg( fpl->get_waytype() );
+		if(  w==NULL  &&  fpl->get_waytype()==tram_wt  )
+		{
 				w = bd->get_weg( track_wt );
-			}
+		}
+		if(  !bd->is_halt()  )
+		{
 			if(  w!=NULL  &&  w->get_besitzer()!=welt->get_spieler(1)  &&  !spieler_t::check_owner(w->get_besitzer(),sp)  ) {
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
@@ -1644,7 +1646,7 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 				return "Das Feld gehoert\neinem anderen Spieler\n";
 			}
 		}
-		if(  bd->is_halt()  &&  !spieler_t::check_owner( sp, bd->get_halt()->get_besitzer()) ) {
+		if(bd->is_halt()  && (!spieler_t::check_owner( sp, bd->get_halt()->get_besitzer()) && (w!=NULL  &&  w->get_besitzer()!=welt->get_spieler(1)  &&  !spieler_t::check_owner(w->get_besitzer(),sp)))) {
 			return "Das Feld gehoert\neinem anderen Spieler\n";
 		}
 		// ok, now we have a valid ground
@@ -5412,10 +5414,12 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 	// the first will delete the convoi, the second should not trigger an assertion
 	// catch such commands here
 	if( !cnv.is_bound()) {
+#if DEBUG>=4
 		if (is_local_execution()) {
 			create_win( new news_img("Convoy already deleted!"), w_time_delete, magic_none);
 		}
-		dbg->warning("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
+#endif
+		dbg->error("wkz_change_convoi_t::init", "no convoy with id=%d found", convoi_id);
 		return false;
 	}
 

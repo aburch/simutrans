@@ -15,11 +15,8 @@ void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl
 
 	slist_iterator_tpl<std::string> iter(keys);
 
-	int count = 0;
+	unsigned int count = 0;
 	while (iter.next()) {
-		if (iter.get_current().empty()) {	// there can be empty strings; we do not write those!
-			break;
-		}
 		image_writer_t::instance()->write_obj(fp, node, iter.get_current());
 		count ++;
 	}

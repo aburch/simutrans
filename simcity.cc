@@ -3406,7 +3406,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 				if (!new_town) {
 					char buf[256];
 					sprintf(buf, translator::translate("To attract more tourists\n%s built\na %s\nwith the aid of\n%i tax payers."), get_name(), make_single_line_string(translator::translate(besch->get_name()), 2), bev);
-					welt->get_message()->add_message(buf, best_pos, message_t::tourist, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
+					welt->get_message()->add_message(buf, best_pos, message_t::city, CITY_KI, besch->get_tile(0)->get_hintergrund(0, 0, 0));
 				}
 			}
 		}
@@ -4043,13 +4043,8 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 {
 	grund_t* bd = welt->lookup_kartenboden(k);
 
-	// water?!?
-	if (bd->get_hoehe() <= welt->get_grundwasser()) {
-		return false;
-	}
-
 	if (bd->get_typ() != grund_t::boden) {
-		// not on monorails, foundations, tunnel or bridges
+		// not on water, monorails, foundations, tunnel or bridges
 		return false;
 	}
 
@@ -4063,11 +4058,17 @@ bool stadt_t::baue_strasse(const koord k, spieler_t* sp, bool forced)
 		return false;
 	}
 
-	// some terraforming?
+	// dwachs: If not able to built here, try to make artificial slope
 	hang_t::typ slope = bd->get_grund_hang();
 	if (!hang_t::ist_wegbar(slope)) {
 		if (welt->can_ebne_planquadrat(k, bd->get_hoehe()+1)) {
 			welt->ebne_planquadrat(NULL, k, bd->get_hoehe()+1);
+		}
+		else if (bd->get_hoehe() > welt->get_grundwasser()  &&  welt->can_ebne_planquadrat(k, bd->get_hoehe())) {
+			welt->ebne_planquadrat(NULL, k, bd->get_hoehe());
+		}
+		else {
+			return false;
 		}
 	}
 

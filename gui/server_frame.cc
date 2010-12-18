@@ -295,7 +295,6 @@ bool server_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 			std::string filename = "net:";
 			filename += serverlist.get_element(serverlist.get_selection())->get_text();
 			destroy_win(this);
-			welt->get_message()->clear();
 			welt->laden(filename.c_str());
 		}
 	}

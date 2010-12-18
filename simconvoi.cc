@@ -438,6 +438,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		if (route.empty()) {
 			// realigning needs a route
 			state = NO_ROUTE;
+			besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
 			dbg->error( "convoi_t::laden_abschliessen()", "No valid route, but needs realignment at (%s)!", fahr[0]->get_pos().get_str() );
 		}
 		else {
@@ -829,10 +830,12 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
-			state = NO_ROUTE;
-			get_besitzer()->bescheid_vehikel_problem(self,ziel);
-			// wait 10s before next attempt
+		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route )  ) {
+			if(  state != NO_ROUTE  ) {
+				state = NO_ROUTE;
+				get_besitzer()->bescheid_vehikel_problem( self, ziel );
+			}
+			// wait 25s before next attempt
 			wait_lock = 25000;
 		}
 		else {
@@ -1006,7 +1009,7 @@ end_loop:
 						if (line->get_replacing_convoys_count()==0) {
 							char buf[128];
 							sprintf(buf, translator::translate("Replacing\nvehicles of\n%-20s\ncompleted"), line->get_name());
-							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::general, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 						}
 
 					}
@@ -1073,9 +1076,10 @@ end_loop:
 
 				set_schedule(fpl);
 
-				if (fpl->empty()) {
+				if(  fpl->empty()  ) {
 					// no entry => no route ...
 					state = NO_ROUTE;
+					besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
 				}
 				else {
 					// Schedule changed at station
@@ -1119,8 +1123,9 @@ end_loop:
 			{
 				vehikel_t* v = fahr[0];
 
-				if (fpl->empty()) {
+				if(  fpl->empty()  ) {
 					state = NO_ROUTE;
+					besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
 				}
 				else {
 					// check first, if we are already there:
@@ -1145,9 +1150,8 @@ end_loop:
 			{
 				vehikel_t* v = fahr[0];
 
-				if (fpl->empty()) {
+				if(  fpl->empty()  ) {
 					// no entries => no route ...
-					get_besitzer()->bescheid_vehikel_problem(self, v->get_pos());
 				}
 				else {
 					// Hajo: now calculate a new route
@@ -1390,6 +1394,10 @@ void convoi_t::new_month()
 		rolling_average_count[i] = 0;
 	}
 
+	// remind every new month again
+	if(  state==NO_ROUTE  ) {
+		get_besitzer()->bescheid_vehikel_problem( self, get_pos() );
+	}
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
@@ -1404,15 +1412,30 @@ void convoi_t::new_month()
 		}
 	}
 	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH) {
-		get_besitzer()->bescheid_vehikel_problem(self,koord3d::invalid);
+		// make sure, not another vehicle with same line is loading in front
+		bool notify = true;
+		// check, if we are not waiting for load
+		if(  line.is_bound()  &&  loading_level==0  ) {
+			for(  uint i=0;  i < line->count_convoys();  i++  ) {
+				convoihandle_t cnv = line->get_convoy(i);
+				if(  cnv.is_bound()  &&  cnv->get_state()==LOADING  &&  cnv->get_loading_level() < cnv->get_loading_limit()  ) {
+					// convoi on this line is waiting for load => assume we are waiting behind
+					notify = false;
+					break;
+				}
+			}
+		}
+		if(  notify  ) {
+			get_besitzer()->bescheid_vehikel_problem( self, koord3d::invalid );
+		}
 		state = WAITING_FOR_CLEARANCE_TWO_MONTHS;
 	}
 	// check for traffic jam
 	if(state==CAN_START) {
 		state = CAN_START_ONE_MONTH;
 	}
-	else if(state==CAN_START_ONE_MONTH) {
-		get_besitzer()->bescheid_vehikel_problem(self,koord3d::invalid);
+	else if(state==CAN_START_ONE_MONTH  ||  state==CAN_START_TWO_MONTHS  ) {
+		get_besitzer()->bescheid_vehikel_problem( self, koord3d::invalid );
 		state = CAN_START_TWO_MONTHS;
 	}
 	// check for obsolete vehicles in the convoi
@@ -1569,7 +1592,7 @@ void convoi_t::ziel_erreicht()
 		akt_speed = 0;
 		if (!replace || !replace->get_autostart()) {
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 		}
 
 		home_depot=v->get_pos();

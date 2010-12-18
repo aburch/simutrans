@@ -36,7 +36,7 @@ message_stats_t::message_stats_t(karte_t *w) :
 bool message_stats_t::filter_messages(const sint32 msg_type)
 {
 	// only update if there is a change in message type
-	if(  msg_type>=-1  &&  msg_type<message_t::MAX_MESSAGE_TYPE  &&  message_type!=msg_type  ) {
+	if(  msg_type>=-1  &&  message_type!=msg_type  ) {
 		message_type = msg_type;
 		last_count = msg->get_list().get_count();
 		message_selected = -1;
@@ -50,7 +50,7 @@ bool message_stats_t::filter_messages(const sint32 msg_type)
 			message_list = &filtered_messages;
 			filtered_messages.clear();
 			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end;  ++iter  ) {
-				if(  (*iter)->type==msg_type  ) {
+				if(  (*iter)->get_type_shifted() & message_type  ) {
 					filtered_messages.append( *iter );
 				}
 			}
@@ -84,10 +84,10 @@ bool message_stats_t::infowin_event(const event_t * ev)
 				// show message window again
 				news_window* news;
 				if(  n.pos==koord::invalid  ) {
-					news = new news_img( n.msg, n.bild, n.color );
+					news = new news_img( n.msg, n.bild, n.get_player_color(welt) );
 				}
 				else {
-					news = new news_loc( welt, n.msg, n.pos, n.color );
+					news = new news_loc( welt, n.msg, n.pos, n.get_player_color(welt) );
 				}
 				create_win(-1, -1, news, w_info, magic_none);
 			}
@@ -107,7 +107,6 @@ bool message_stats_t::infowin_event(const event_t * ev)
 }
 
 
-
 /**
  * Now draw the list
  * @author prissi
@@ -125,12 +124,14 @@ void message_stats_t::zeichnen(koord offset)
 		else {
 			// incrementally add new entries to filtered message list before recalculating component size, and update last count
 			uint32 entry_count = new_count - last_count;
-			slist_tpl<message_t::node *> temp_list;		// Knightly : for shuffling messages to ensure correct chronological order
-			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end, entry_count>0;  ++iter, --entry_count  ) {
-				if(  (*iter)->type==message_type  ) {
+			// Knightly : for ensuring correct chronological order of the new messages
+			slist_tpl<message_t::node *> temp_list;
+			for(  slist_tpl<message_t::node *>::const_iterator iter=msg->get_list().begin(), end=msg->get_list().end();  iter!=end  &&  entry_count>0;  ++iter, --entry_count  ) {
+				if(  (*iter)->get_type_shifted() & message_type  ) {
 					temp_list.insert(*iter);
 				}
 			}
+			// insert new messages to old messages
 			while(  temp_list.get_count()>0  ) {
 				filtered_messages.insert( temp_list.remove_first() );
 			}
@@ -156,8 +157,7 @@ void message_stats_t::zeichnen(koord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
-					offset.x + 2, y, 0, false, true);
+			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, y, 0, false, true);
 		}
 
 		char buf[256];
@@ -167,7 +167,9 @@ void message_stats_t::zeichnen(koord offset)
 				break;
 			}
 		}
+		// correct for player color
+		PLAYER_COLOR_VAL colorval = n.get_player_color(welt);
 		// display text with clipping
-		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, n.color,true);
+		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, colorval, true);
 	}
 }
