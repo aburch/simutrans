@@ -748,6 +748,8 @@ void karte_t::create_rivers( sint16 number )
 					last_height = h;
 				}
 				last_koord = k;
+				// using h*h as weight would give mountian sources more preferences
+				// on the other hand most rivers do not string near summits ...
 				mountain_tiles.append( k, h, 256 );
 			}
 		}
