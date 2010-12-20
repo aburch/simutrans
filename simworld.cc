@@ -1716,6 +1716,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	citycar_speed_average = 50;
 
+	city_road = NULL;
+
 	// Added by : Knightly
 	path_explorer_t::initialise(this);
 
@@ -6318,10 +6320,17 @@ void karte_t::calc_generic_road_speed_intercity()
 
 sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 {
-	const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
-	const sint32 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
-	const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
-	return journey_time_per_tile;
+	if(besch || city_road)
+	{
+		const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
+		const sint32 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
+		const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
+		return journey_time_per_tile;
+	}
+	else
+	{
+		return 600 * (einstellungen->get_distance_per_tile() / (citycar_speed_average / 1.5F)); 
+	}
 }
 
 void karte_t::calc_max_road_check_depth()
