@@ -5648,8 +5648,8 @@ bool wkz_add_message_t::init( karte_t *welt, spieler_t *sp )
 			}
 		}
 		else {
-			// system message
-			welt->get_message()->add_message( default_param, koord::invalid, message_t::general, COL_BLACK, IMG_LEER );
+			// system message (will not be save on server and will not appear on new clients)
+			welt->get_message()->add_message( default_param, koord::invalid, message_t::general | message_t::local_flag, COL_BLACK, IMG_LEER );
 		}
 	}
 	return false;
