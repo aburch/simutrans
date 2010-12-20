@@ -4999,7 +4999,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		}
 	}
 
-	// must resort them ...
+	// must re-sort them ...
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
@@ -5077,26 +5077,26 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		}
 	}
 
-	if(  file->get_version()>=102004  ) {
-		if(  umgebung_t::restore_UI  ) {
-			file->rdwr_byte( active_player_nr );
-			active_player = spieler[active_player_nr];
-			/* restore all open windows
-			 * otherwise it will be ignored
-			 * which is save, since it is the end of file
-			 */
-			rwdr_all_win( file );
-		}
-		else {
-			if(  file->is_saving()  ) {
-				// dummy info
-				uint8 player_zero = 0;
-				file->rdwr_byte( player_zero );
-				uint32 end = magic_none;
-				file->rdwr_long( end );
-			}
-		}
-	}
+	//if(  file->get_version()>=102004  ) {
+	//	if(  umgebung_t::restore_UI  ) {
+	//		file->rdwr_byte( active_player_nr );
+	//		active_player = spieler[active_player_nr];
+	//		/* restore all open windows
+	//		 * otherwise it will be ignored
+	//		 * which is save, since it is the end of file
+	//		 */
+	//		rwdr_all_win( file );
+	//	}
+	//	else {
+	//		if(  file->is_saving()  ) {
+	//			// dummy info
+	//			uint8 player_zero = 0;
+	//			file->rdwr_byte( player_zero );
+	//			uint32 end = magic_none;
+	//			file->rdwr_long( end );
+	//		}
+	//	}
+	//}
 
 	clear_random_mode(LOAD_RANDOM);
 
