@@ -152,7 +152,7 @@ void stadt_t::privatecar_rdwr(loadsave_t *file)
 		file->rdwr_long(counter);
 		uint32 year = 0;
 		uint16 ownership_percent = 0;
-		for(uint32 c = counter; c > 0; c ++)
+		for(uint32 c = 0; c < counter; c ++)
 		{
 			file->rdwr_long(year);
 			file->rdwr_short(ownership_percent);
@@ -279,12 +279,12 @@ void stadt_t::electricity_consumption_rdwr(loadsave_t *file)
 
 	else
 	{
-		car_ownership->clear();
+		electricity_consumption->clear();
 		uint32 counter;
 		file->rdwr_long(counter);
 		uint32 year = 0;
 		uint16 consumption_percent = 0;
-		for(uint32 c = counter; c > 0; c ++)
+		for(uint32 c = 0; c < counter; c ++)
 		{
 			file->rdwr_long(year);
 			file->rdwr_short(consumption_percent);
