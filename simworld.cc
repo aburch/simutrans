@@ -4682,7 +4682,7 @@ DBG_MESSAGE("karte_t::laden()", "init player");
 	active_player_nr = 0;
 
 	// rdwr cityrules for networkgames
-	if(file->get_version() >= 102002 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) {
+	if(file->get_version() > 102002 && (file->get_experimental_version() == 0 || file->get_experimental_version() >= 9)) {
 		bool do_rdwr = umgebung_t::networkmode;
 		file->rdwr_bool(do_rdwr);
 		if (do_rdwr) 
