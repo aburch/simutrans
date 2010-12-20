@@ -35,7 +35,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 				nwi->flag = SV_PAKSET;
 				nwi->chk = pakset_info_t::get_checksum();
 				nwi->name = strdup("pakset");
-				dbg->warning("nwc_pakset_info_t::execute", "send info about %s",nwi->name);
+				DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi->name);
 				send = true;
 				break;
 			}
@@ -45,7 +45,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 					nwi->flag = SV_DATA;
 					nwi->chk  = server_iterator.get_current_value();
 					nwi->name = strdup(server_iterator.get_current_key());
-					dbg->warning("nwc_pakset_info_t::execute", "send info about %s",nwi->name);
+					DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi->name);
 				}
 				else {
 					nwi->flag = SV_LAST;
