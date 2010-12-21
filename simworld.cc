@@ -1355,6 +1355,9 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 
 	display_progress(0,max_display_progress);
 	setsimrand( 0xFFFFFFFF, einstellungen->get_karte_nummer() );
+	clear_random_mode( 0xFFFF );
+	set_random_mode( MAP_CREATE_RANDOM );
+
 	if(  old_x==0  &&  einstellungen->heightfield.size() > 0  ){
 		// init from file
 		const int display_total = 16 + get_einstellungen()->get_anzahl_staedte()*4 + get_einstellungen()->get_land_industry_chains();
@@ -1515,6 +1518,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 			}
 		}
 	}
+	clear_random_mode( MAP_CREATE_RANDOM );
 
 	if ( old_x != 0 ) {
 		if(is_display_init()) {
