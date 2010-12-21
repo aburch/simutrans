@@ -464,7 +464,7 @@ public:
 	virtual void set_convoi(convoi_t *c);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *,const sint32 ) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord) const;
 
 	virtual bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
@@ -517,7 +517,7 @@ public:
 	bool calc_route(koord3d start, koord3d ziel, sint32 max_speed, route_t* route);
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *,const sint32 ) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord) const;
 
 	// returns true for the way search to an unknown target.
 	virtual bool ist_ziel(const grund_t *,const grund_t *) const;
@@ -618,7 +618,7 @@ class schiff_t : public vehikel_t
 {
 protected:
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *, const sint32) const { return 1; }
+	virtual int get_kosten(const grund_t *, const sint32, koord) const { return 1; }
 
 	void calc_akt_speed(const grund_t *gr);
 
@@ -701,7 +701,7 @@ public:
 	virtual ribi_t::ribi get_ribi(const grund_t* ) const;
 
 	// how expensive to go here (for way search)
-	virtual int get_kosten(const grund_t *,const sint32 ) const;
+	virtual int get_kosten(const grund_t *, const sint32, koord) const;
 
 	virtual bool ist_weg_frei(int &restart_speed);
 
