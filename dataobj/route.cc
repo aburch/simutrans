@@ -426,7 +426,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					current_dir = ribi_typ( tmp->parent->gr->get_pos().get_2d(), to->get_pos().get_2d() );
 					if(tmp->dir!=current_dir) {
 						new_g += 3;
-						if(tmp->parent->dir!=tmp->dir) {
+						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
 							// discourage 90° turns
 							new_g += 10;
 						}
