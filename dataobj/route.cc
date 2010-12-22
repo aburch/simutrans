@@ -125,9 +125,7 @@ bool route_t::node_in_use=false;
 /* find the route to an unknow location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt,
-                    const koord3d start,
-                    fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 max_depth )
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 max_depth )
 {
 	bool ok = false;
 
@@ -159,7 +157,7 @@ bool route_t::find_route(karte_t *welt,
 	route.clear();
 
 	// first tile is not valid?!?
-	if (!fahr->ist_befahrbar(g)) {
+	if(  !fahr->ist_befahrbar(g)  ) {
 		return false;
 	}
 
@@ -190,14 +188,14 @@ bool route_t::find_route(karte_t *welt,
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
-		if(fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)) {
+		if(  fahr->ist_ziel( gr, tmp->parent==NULL ? NULL : tmp->parent->gr )  ) {
 			// we added a target to the closed list: check for length
 			break;
 		}
 
 		// testing all four possible directions
 		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
-		for(int r=0; r<4; r++) {
+		for(  int r=0;  r<4;  r++  ) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
@@ -246,7 +244,7 @@ bool route_t::find_route(karte_t *welt,
 		// ok, now no more restrains
 		start_dir = ribi_t::alle;
 
-	} while (!open.empty() && step < MAX_STEP && open.get_count() < max_depth);
+	} while(  !open.empty()  &&  step < MAX_STEP  &&  open.get_count() < max_depth  );
 
 	INT_CHECK("route 194");
 
