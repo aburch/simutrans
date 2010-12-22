@@ -3367,7 +3367,10 @@ void convoi_t::laden() //"load" (Babelfish)
 	
 	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
 	const sint32 average_speed = ((double)journey_distance / journey_time) * 20.0;
-	book(average_speed, CONVOI_AVERAGE_SPEED);
+	if(journey_distance > 0)
+	{
+		book(average_speed, CONVOI_AVERAGE_SPEED);
+	}
 	last_departure_time = welt->get_zeit_ms();
 		
 	// Recalculate comfort
