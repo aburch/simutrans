@@ -592,8 +592,8 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 
 		if(komp == &reverse_button)
 		{
+			cnv->call_convoi_tool('V', NULL);
 			reverse_button.pressed = !reverse_button.pressed;
-			cnv->set_reverse_schedule( reverse_button.pressed );
 		}
 	}
 

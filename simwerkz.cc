@@ -5507,6 +5507,13 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			break;
 		}
 
+		case 'V': // Reverse button
+		{
+			const bool rs = cnv->get_reverse_schedule();
+			cnv->set_reverse_schedule(!rs);
+			break;
+		}
+
 			
 		case 'R': // Add new replace
 		{
