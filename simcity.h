@@ -15,7 +15,7 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/array2d_tpl.h"
 #include "tpl/slist_tpl.h"
-#include "tpl/ptrhashtable_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 
 #include "vehicle/simverkehr.h"
 #include "tpl/sparse_tpl.h"
@@ -163,7 +163,7 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	unsigned long pax_destinations_new_change;
 
-	koord pos;			// Gruendungsplanquadrat der Stadt
+	koord pos;			// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
 	koord townhall_road; // road in front of townhall
 	koord lo, ur;		// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
@@ -238,13 +238,14 @@ private:
 	enum journey_distance_type { local, midrange, longdistance };
 
 	// Hashtable of all cities/attractions/industries connected by road from this city.
-	// Key: city pointer.
+	// Key: city (etc.) location
 	// Value: journey time per tile (equiv. straight line distance)
 	// (in 10ths of minutes); 65535 = unreachable.
-	// @author: jamespetts, April 2010
-	ptrhashtable_tpl<stadt_t*, uint16> connected_cities;
-	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
-	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
+	// @author: jamespetts, April 2010, modified December 2010 to koords rather than poiners
+	// so as to be network safe
+	koordhashtable_tpl<koord, uint16> connected_cities;
+	koordhashtable_tpl<koord, uint16> connected_industries;
+	koordhashtable_tpl<koord, uint16> connected_attractions;
 
 	road_destination_finder_t *finder;
 	route_t *private_car_route;

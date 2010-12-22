@@ -1303,14 +1303,14 @@ stadt_t::~stadt_t()
 		
 		if(!welt->get_is_shutting_down())
 		{
-			ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
 			while(iter.next())
 			{
-				if(iter.get_current_key() == this)
+				if(iter.get_current_key() == pos)
 				{
 					continue;
 				}
-				iter.get_current_key()->remove_connected_city(this);
+				remove_connected_city(welt->get_city(iter.get_current_key()));
 			}
 		}
 	}
@@ -2276,16 +2276,16 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 		return city == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
 	}
 
-	if(connected_cities.is_contained(city))
+	if(connected_cities.is_contained(city->get_pos()))
 	{
-		return connected_cities.get(city);
+		return connected_cities.get(city->get_pos());
 	}
 	else if(city == this)
 	{
 		const koord3d pos3d(townhall_road, welt->lookup_hgt(townhall_road));
 		const weg_t* road = welt->lookup(pos3d)->get_weg(road_wt);
 		const uint16 journey_time_per_tile = road ? road->get_besch() == welt->get_city_road() ? welt->get_generic_road_speed_city() : welt->calc_generic_road_speed(road->get_besch()) : welt->get_generic_road_speed_city();
-		connected_cities.put(this, journey_time_per_tile);
+		connected_cities.put(pos, journey_time_per_tile);
 		return journey_time_per_tile;
 	}
 	else
@@ -2293,17 +2293,17 @@ uint16 stadt_t::check_road_connexion_to(stadt_t* city)
 		const koord destination_road = city->get_townhall_road();
 		const koord3d desintation_koord(destination_road.x, destination_road.y, welt->lookup_hgt(destination_road));
 		const uint16 journey_time_per_tile = check_road_connexion(desintation_koord);
-		connected_cities.put(city, journey_time_per_tile);
+		connected_cities.put(city->get_pos(), journey_time_per_tile);
 		city->add_road_connexion(journey_time_per_tile, this);
 		if(journey_time_per_tile == 65535)
 		{
 			// We know that, if this city is not connected to any given city, then every city
 			// to which this city is connected must likewise not be connected. So, avoid
 			// unnecessary recalculation by propogating this now.
-			ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+			koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
 			while(iter.next())
 			{
-				iter.get_current_key()->add_road_connexion(65535, city);
+				welt->get_city(iter.get_current_key())->add_road_connexion(65535, city);
 			}
 		}
 		return journey_time_per_tile;
@@ -2317,9 +2317,9 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 		return industry->get_city() && industry->get_city() == this ? welt->get_generic_road_speed_city() : welt->get_generic_road_speed_intercity();
 	}
 	
-	if(connected_industries.is_contained(industry))
+	if(connected_industries.is_contained(industry->get_pos().get_2d()))
 	{
-		return connected_industries.get(industry);
+		return connected_industries.get(industry->get_pos().get_2d());
 	}
 	if(industry->get_city())
 	{
@@ -2359,16 +2359,16 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 				found_road:
 				const koord3d destination = road->get_pos();
 				const uint16 journey_time_per_tile = check_road_connexion(destination);
-				connected_industries.put(industry, journey_time_per_tile);
+				connected_industries.put(industry->get_pos().get_2d(), journey_time_per_tile);
 				if(journey_time_per_tile == 65535)
 				{
 					// We know that, if this city is not connected to any given industry, then every city
 					// to which this city is connected must likewise not be connected. So, avoid
 					// unnecessary recalculation by propogating this now.
-					ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+					koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
 					while(iter.next())
 					{
-						iter.get_current_key()->set_no_connexion_to_industry(industry);
+						welt->get_city(iter.get_current_key())->set_no_connexion_to_industry(industry);
 					}
 				}
 				return journey_time_per_tile;
@@ -2396,9 +2396,9 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 		return welt->get_generic_road_speed_intercity();
 	}
 	
-	if(connected_attractions.is_contained(attraction))
+	if(connected_attractions.is_contained(attraction->get_pos().get_2d()))
 	{
-		return connected_attractions.get(attraction);
+		return connected_attractions.get(attraction->get_pos().get_2d());
 	}
 	const koord pos = attraction->get_pos().get_2d();
 	grund_t *gr;
@@ -2437,16 +2437,16 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 	const koord3d destination = road->get_pos();
 	const uint16 journey_time_per_tile = check_road_connexion(destination);
-	connected_attractions.put(attraction, journey_time_per_tile);
+	connected_attractions.put(attraction->get_pos().get_2d(), journey_time_per_tile);
 	if(journey_time_per_tile == 65535)
 	{
 		// We know that, if this city is not connected to any given industry, then every city
 		// to which this city is connected must likewise not be connected. So, avoid
 		// unnecessary recalculation by propogating this now.
-		ptrhashtable_iterator_tpl<stadt_t*, uint16> iter(connected_cities);
+		koordhashtable_iterator_tpl<koord, uint16> iter(connected_cities);
 		while(iter.next())
 		{
-			iter.get_current_key()->set_no_connexion_to_attraction(attraction);
+			welt->get_city(iter.get_current_key())->set_no_connexion_to_attraction(attraction);
 		}
 	}
 	return journey_time_per_tile;
@@ -2486,17 +2486,17 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
 {
-	connected_cities.put(origin_city, journey_time_per_tile);
+	connected_cities.put(origin_city->get_pos(), journey_time_per_tile);
 }
 
 void stadt_t::set_no_connexion_to_industry(const fabrik_t* unconnected_industry)
 {
-	connected_industries.put(unconnected_industry, 65535);
+	connected_industries.put(unconnected_industry->get_pos().get_2d(), 65535);
 }
 
 void stadt_t::set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction)
 {
-	connected_attractions.put(unconnected_attraction, 65535);
+	connected_attractions.put(unconnected_attraction->get_pos().get_2d(), 65535);
 }
 
 
@@ -4656,16 +4656,16 @@ int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, 
 
 void stadt_t::remove_connected_city(stadt_t* city)
 {
-	connected_cities.remove(city);
+	connected_cities.remove(city->get_pos());
 }
 
 
 void stadt_t::remove_connected_industry(fabrik_t* fab)
 {
-	connected_industries.remove(fab);
+	connected_industries.remove(fab->get_pos().get_2d());
 }
 
 void stadt_t::remove_connected_attraction(gebaeude_t* attraction)
 {
-	connected_attractions.remove(attraction);
+	connected_attractions.remove(attraction->get_pos().get_2d());
 }
