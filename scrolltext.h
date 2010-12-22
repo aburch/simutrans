@@ -49,6 +49,7 @@
 " Ansgar","Linux builds, patches",
 " Nathan Samson","patches",
 " Yobbobandana","patches",
+" Markus Pristovsek","sage advice",
 " Sdog","beta testing",
 " Colin","beta testing",
 " Tick Tock","beta testing",
