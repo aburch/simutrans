@@ -5501,6 +5501,13 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				// Else fallthrough
 			}
 
+		case 'P': // Go to depot
+		{
+			cnv->go_to_depot(true);
+			break;
+		}
+
+			
 		case 'R': // Add new replace
 		{
 			replace_data_t* rpl = new replace_data_t();

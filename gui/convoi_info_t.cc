@@ -585,7 +585,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 				return false;
 			}
 			go_home_button.pressed = true;
-			cnv->go_to_depot(true);
+			cnv->call_convoi_tool('P', NULL);
 			go_home_button.pressed = false;
 			return true;
 		} // end go home button
