@@ -249,6 +249,7 @@ void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 			}
 		}
 		set_pointer(1);
+		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 	}
 
 	// just trigger not another following window => wait for button release
@@ -263,7 +264,7 @@ void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 // some routines for the modal display
 static bool never_quit() { return false; }
 static bool empty_objfilename() { return !umgebung_t::objfilename.empty(); }
-static bool no_language() { return translator::get_language()==-1; }
+static bool no_language() { return translator::get_language()!=-1; }
 
 
 
