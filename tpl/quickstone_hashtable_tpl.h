@@ -12,15 +12,14 @@
 #include <stdlib.h>
 
 /*
- * Define the key characteristics for hashing pointers. For hashing the
- * direct value is used.
+ * Define the key characteristics for hashing IDs.
  */
 template<class key_t>
 class quickstone_hash_tpl {
 public:
 	static uint32 hash(const quickstone_tpl<key_t> key)
 	{
-		return (uint32)(size_t)key.get_rep();
+		return (uint32)(size_t)key.get_id();
 	}
 
 	static key_t null()
@@ -30,12 +29,12 @@ public:
 
 	static void dump(const quickstone_tpl<key_t> key)
 	{
-		printf("%p", (void *)key.get_rep());
+		printf("%p", (void *)key.get_id());
 	}
 
 	static long comp(quickstone_tpl<key_t> key1, quickstone_tpl<key_t> key2)
 	{
-		return (long)((size_t)key1.get_rep() - (size_t)key2.get_rep());
+		return (long)((size_t)key1.get_id() - (size_t)key2.get_id());
 	}
 };
 
