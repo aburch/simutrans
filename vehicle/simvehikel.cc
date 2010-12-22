@@ -2419,7 +2419,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int automobil_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
+int automobil_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
@@ -2436,11 +2436,13 @@ int automobil_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
 	// assume all traffic (and even road signs etc.) is not good ...
 	costs += gr->get_top();
 
-	// effect of hang ...
-	if(gr->get_weg_hang()!=0) {
-		// we do not need to check whether up or down, since everything that goes up must go down
-		// thus just add whenever there is a slope ... (counts as nearly 2 standard tiles)
-		costs += 15;
+	// effect of slope
+	if(  gr->get_weg_hang()!=0  ) {
+		// Knightly : check if the slope is upwards, relative to the previous tile
+		from_pos -= gr->get_pos().get_2d();
+		if(  hang_t::is_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y )  ) {
+			costs += 15;
+		}
 	}
 
 	//@author: jamespetts
@@ -2956,7 +2958,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 
 // how expensive to go here (for way search)
 // author prissi
-int waggon_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
+int waggon_t::get_kosten(const grund_t *gr, const sint32 max_speed, koord from_pos) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(get_waytype());
@@ -2964,11 +2966,13 @@ int waggon_t::get_kosten(const grund_t *gr,const sint32 max_speed) const
 	// add cost for going (with maximum speed, cost is 1)
 	int costs = (max_speed <= max_tile_speed) ? 1 : (max_speed*4)/(max_tile_speed*4);
 
-	// effect of hang ...
-	if(gr->get_weg_hang()!=0) {
-		// we do not need to check whether up or down, since everything that goes up must go down
-		// thus just add whenever there is a slope ... (counts as nearly 2 standard tiles)
-		costs += 25;
+	// effect of slope
+	if(  gr->get_weg_hang()!=0  ) {
+		// Knightly : check if the slope is upwards, relative to the previous tile
+		from_pos -= gr->get_pos().get_2d();
+		if(  hang_t::is_sloping_upwards( gr->get_weg_hang(), from_pos.x, from_pos.y )  ) {
+			costs += 25;
+		}
 	}
 
 	//@author: jamespetts
@@ -3820,7 +3824,7 @@ aircraft_t::get_ribi(const grund_t *gr) const
 
 // how expensive to go here (for way search)
 // author prissi
-int aircraft_t::get_kosten(const grund_t *gr,const sint32 ) const
+int aircraft_t::get_kosten(const grund_t *gr, const sint32, koord) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(air_wt);

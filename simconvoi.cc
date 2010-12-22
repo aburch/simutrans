@@ -4486,7 +4486,7 @@ public:
 	{ 
 		return master->get_ribi(gr); 
 	};
-	virtual int get_kosten( const grund_t*, sint32) const 
+	virtual int get_kosten( const grund_t*, const sint32, koord from_pos) const 
 	{ 
 		return 1; 
 	};

@@ -451,7 +451,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				// new values for cost g
-				uint32 new_g = tmp->g + fahr->get_kosten(to,max_speed);
+				uint32 new_g = tmp->g + fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d());
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
@@ -462,8 +462,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					if(tmp->dir!=current_dir)
 					{
 						new_g += 3;
-						if(tmp->parent->dir!=tmp->dir) 
-						{
+						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
 							// discourage 90° turns
 							new_g += 10;
 						}

@@ -94,6 +94,14 @@ public:
 	static bool ist_wegbar_ns(typ x)  { return (flags[x] & wegbar_ns) != 0; }
 	static bool ist_wegbar_ow(typ x)  { return (flags[x] & wegbar_ow) != 0; }
 	static int get_flags(typ x) {return flags[x]; }
+	static bool is_sloping_upwards(const typ slope, const sint16 relative_pos_x, const sint16 relative_pos_y)
+	{
+		// Knightly : check if the slope is upwards, relative to the previous tile
+		return (	( slope==nord  &&  relative_pos_y<0 )  ||
+					( slope==west  &&  relative_pos_x<0 )  ||
+					( slope==ost   &&  relative_pos_x>0 )  ||
+					( slope==sued  &&  relative_pos_y>0 )		);
+	}
 };
 
 

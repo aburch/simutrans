@@ -4631,7 +4631,7 @@ ribi_t::ribi road_destination_finder_t::get_ribi( const grund_t* gr) const
 	return master->get_ribi(gr); 
 }
 
-int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed) const
+int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, koord from_pos) const
 {
 	// first favor faster ways
 	const weg_t *w=gr->get_weg(road_wt);
