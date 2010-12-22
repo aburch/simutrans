@@ -37,6 +37,11 @@
 #include "../tpl/binary_heap_tpl.h" // fastest
 
 
+#ifdef DEBUG_ROUTES
+#include "../simsys.h"
+#endif
+
+
 
 void route_t::kopiere(const route_t *r)
 {

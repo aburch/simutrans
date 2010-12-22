@@ -137,8 +137,7 @@ public:
 	}
 
 
-
-	int count() const
+	uint32 get_count() const
 	{
 		return node_count;
 	}
