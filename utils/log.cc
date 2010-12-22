@@ -34,7 +34,7 @@
  */
 void log_t::debug(const char *who, const char *format, ...)
 {
-	if(log_debug  &&  debuglevel>3) {
+	if(log_debug  &&  debuglevel==4) {
 		va_list argptr;
 		va_start(argptr, format);
 
