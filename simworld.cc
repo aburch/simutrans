@@ -1722,8 +1722,16 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	city_road = NULL;
 
-	// Added by : Knightly
-	path_explorer_t::initialise(this);
+	if(umgebung_t::networkmode)
+	{
+		// TEMPORARY: Currently, the centralised pathing system does not work in network mode.
+		access_einstellungen()->set_default_path_option(1);
+	}
+	else
+	{
+		// Added by : Knightly
+		path_explorer_t::initialise(this);
+	}
 
 	// @author: jamespetts
 	set_scale();
@@ -4456,6 +4464,8 @@ bool karte_t::laden(const char *filename)
 		}
 		else {
 			umgebung_t::networkmode = true;
+			//TEMPORARY: Centralised pathing does not presently work in network mode.
+			access_einstellungen()->set_default_path_option(1);
 			name.printf( "client%i-network.sve", network_get_client_id() );
 		}
 	}

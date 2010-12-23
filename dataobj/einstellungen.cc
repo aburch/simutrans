@@ -1095,6 +1095,11 @@ void einstellungen_t::rdwr(loadsave_t *file)
 		if(file->get_experimental_version() >= 4)
 		{
 			file->rdwr_byte(default_path_option);
+			if(umgebung_t::networkmode)
+			{
+				// TEMPORARY: Centralised pathing currently does not work in network mode.
+				default_path_option = 1;
+			}
 		}
 
 		if(file->get_experimental_version() >= 5)
