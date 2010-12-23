@@ -754,9 +754,7 @@ void karte_t::create_rivers( sint16 number )
 	vector_tpl<koord> water_tiles;
 	weighted_vector_tpl<koord> mountain_tiles;
 
-	sint8 last_height = 1;
 	koord last_koord(0,0);
-	const sint16 max_dist = cached_groesse_karte_y+cached_groesse_karte_x;
 
 	// trunk of 16 will ensure that rivers are long enough apart ...
 	for(  sint16 y = 8;  y < cached_groesse_karte_y;  y+=16  ) {

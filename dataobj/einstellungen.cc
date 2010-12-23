@@ -638,7 +638,6 @@ void einstellungen_t::rdwr(loadsave_t *file)
 					dbg->fatal( "einstellungen_t::rdwr()", "Too many (%i) city roads!", num_city_roads );
 				}
 				for(  int i=0;  i<num_city_roads;  i++  ) {
-					const sint64 TEST = lengthof(city_roads[i].name);
 					file->rdwr_str(city_roads[i].name, lengthof(city_roads[i].name) );
 					file->rdwr_short(city_roads[i].intro );
 					file->rdwr_short(city_roads[i].retire );

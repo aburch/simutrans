@@ -1254,18 +1254,18 @@ void win_display_flush(double konto)
 	char const* const month_ = translator::get_month_name(month % 12);
 	switch (umgebung_t::show_month) {
 		case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
-			sprintf(time, "%d. %s %d %d:%02dh", tage, month_, year, stunden, minuten);
+			sprintf(time, "%d. %s %lld %d:%02dh", tage, month_, year, stunden, minuten);
 			break;
 
 		case umgebung_t::DATE_FMT_US_NO_SEASON: {
 			uint32 hours_ = stunden % 12;
 			if (hours_ == 0) hours_ = 12;
-			sprintf(time, "%s %d %d %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
+			sprintf(time, "%s %d %lld %2d:%02d%s", month_, tage, year, hours_, minuten, stunden < 12 ? "am" : "pm");
 			break;
 		}
 
 		case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
-			sprintf(time, "%d/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
+			sprintf(time, "%lld/%s/%d %2d:%02dh", year, month_, tage, stunden, minuten);
 			break;
 
 		case umgebung_t::DATE_FMT_GERMAN:

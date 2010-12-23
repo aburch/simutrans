@@ -6,7 +6,7 @@
 #ifndef quickstone_hashtable_tpl_h
 #define quickstone_hashtable_tpl_h
 
-#include "ptrhashtable_tpl.h"
+#include "inthashtable_tpl.h"
 #include "hashtable_tpl.h"
 #include "quickstone_tpl.h"
 #include <stdlib.h>

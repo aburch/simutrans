@@ -58,7 +58,9 @@
 #include "bauer/fabrikbauer.h"
 #include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
+#ifdef DEBUG_WEIGHTMAPS
 #include "utils/dbg_weightmap.h"
+#endif
 
 #include "tpl/minivec_tpl.h"
 
@@ -4437,8 +4439,10 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			water_field.at(x,y) = f;
 		}
 	}
+#ifdef DEBUG_WEIGHTMAPS
 	dbg_weightmap(water_field, places, weight_max, "water_", 0);
-	
+#endif
+
 	/* Terrain
 	 */
 	array2d_tpl<double> terrain_field(xmax, ymax);
@@ -4482,7 +4486,9 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			terrain_field.at(grid_pos) += f/(grid_step*grid_step);
 		}
 	}
+#ifdef DEBUG_WEIGHTMAPS
 	dbg_weightmap(terrain_field, places, weight_max, "terrain_", 0);
+#endif
 
 	
 
@@ -4512,7 +4518,9 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 				total_field.at(x,y) = f;
 			}
 		}
+#ifdef DEBUG_WEIGHTMAPS
 		dbg_weightmap(total_field, places, weight_max, "total_", city_nr);
+#endif
 		// translate field to weigthed vector
 		index_to_places.clear();
 		for(int y=0; y<ymax; y++) {
