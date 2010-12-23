@@ -330,6 +330,7 @@ public:
 	 * @param sp_soll is the number of simutrans steps still to go and returns the new number of steps to go.
 	 */
 	void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
+	virtual ~convoy_t(){}
 };
 
 /******************************************************************************/
@@ -501,6 +502,7 @@ public:
 		validate_adverse_summary();
 		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);
 	}
+	virtual ~lazy_convoy_t(){}
 };
 
 /******************************************************************************/
@@ -521,6 +523,7 @@ public:
 	{
 	}
 	virtual sint16 get_current_friction();
+	virtual ~potential_convoy_t(){}
 };
 
 /******************************************************************************/
@@ -556,6 +559,7 @@ public:
 		validate_vehicle_summary();
 		validate_adverse_summary();
 	}
+	virtual ~existing_convoy_t(){}
 
 	//-----------------------------------------------------------------------------
 

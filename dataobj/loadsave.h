@@ -9,8 +9,7 @@
 #define loadsave_h
 
 #include <stdio.h>
-#include "../bzlib.h"
-//#include <bzlib.h>
+#include <bzlib.h>
 #include <string>
 
 #include "../simtypes.h"

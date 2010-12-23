@@ -561,7 +561,6 @@
     <ClInclude Include="boden\brueckenboden.h" />
     <ClInclude Include="besch\reader\building_reader.h" />
     <ClInclude Include="besch\writer\building_writer.h" />
-    <ClInclude Include="bzlib.h" />
     <ClInclude Include="utils\cbuffer_t.h" />
     <ClInclude Include="gui\citybuilding_edit.h" />
     <ClInclude Include="besch\reader\citycar_reader.h" />
@@ -869,6 +868,7 @@
     <None Include="base_texts_experimental_7_2.dat" />
     <None Include="base_texts_experimental_8.0.dat" />
     <None Include="base_texts_experimental_9.0.dat" />
+    <None Include="base_texts_experimental_9.1.dat" />
     <None Include="base_texts_experimental_additional_5_0.dat" />
     <None Include="base_texts_experimental_additional_5_1.dat" />
     <None Include="base_texts_experimental_forgotten_items_1.dat" />

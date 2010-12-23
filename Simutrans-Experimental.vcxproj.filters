@@ -815,9 +815,6 @@
     <ClInclude Include="besch\writer\building_writer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bzlib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="utils\cbuffer_t.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1785,6 +1782,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="base_texts_experimental_9.0.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_9.1.dat">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

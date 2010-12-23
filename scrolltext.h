@@ -50,6 +50,7 @@
 " Nathan Samson","patches",
 " Yobbobandana","patches",
 " Markus Pristovsek","sage advice",
+" Giuseppe", "Italian translation",
 " Sdog","beta testing",
 " Colin","beta testing",
 " Tick Tock","beta testing",
