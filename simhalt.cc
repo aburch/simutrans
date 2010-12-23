@@ -1798,7 +1798,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 	connexion* current_connexion = NULL;
 	path_node* new_node = NULL;
 	halthandle_t next_halt;
-	path* current_path;
+	path* current_path= NULL;
 	uint8 interrupt_counter = 0;
 
 	while(open_list[category].get_count() > 0)
@@ -1884,6 +1884,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		else
 		{
 			delete current_path;
+			current_path = NULL;
 		}
 
 		// call INT_CHECK() only every 256 iterations

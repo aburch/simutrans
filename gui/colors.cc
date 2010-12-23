@@ -369,12 +369,12 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 			buttons[20].pressed = true;
 			path_explorer_t::full_instant_refresh();
 		}
-		/*else
+		else
 		{
-			welt->get_einstellungen()->set_default_path_option(1);
+			welt->access_einstellungen()->set_default_path_option(1);
 			buttons[20].pressed = false;
 			haltestelle_t::prepare_pathing_data_structures();
-		}*/
+		}
 	}
 
 	welt->set_dirty();

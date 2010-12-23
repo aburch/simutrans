@@ -473,8 +473,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		}
 	}
 	if(  state==LOADING  ) {
-		// the fully the shorter => reregister as older convoi
-		wait_lock = longest_loading_time-loading_level*20;
+		wait_lock = longest_loading_time;
 	}
 
 	// Knightly : if lineless convoy -> register itself with stops
@@ -3425,8 +3424,7 @@ void convoi_t::laden() //"load" (Babelfish)
 		}
 	}
 
-	// just wait a little longer to get maximum load ...
-	wait_lock = (longest_loading_time*2)+(self.get_id())%1024;
+	wait_lock = longest_loading_time;
 }
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
