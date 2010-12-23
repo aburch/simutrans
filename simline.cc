@@ -1,3 +1,4 @@
+#include "utils/simstring.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "simtypes.h"
@@ -18,7 +19,9 @@ karte_t *simline_t::welt=NULL;
 simline_t::simline_t(karte_t* welt, spieler_t* sp)
 {
 	self = linehandle_t(this);
-	sprintf( name, "(%i) %s", self.get_id(), translator::translate("Line") );
+	char printname[128];
+	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
+	name = printname;
 	init_financial_history();
 	this->id = INVALID_LINE_ID;
 	this->welt = welt;
@@ -32,6 +35,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 		rolling_average[i] = 0;
 		rolling_average_count[i] = 0;
 	}
+	start_reversed = false;
 }
 
 
@@ -39,7 +43,9 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 void simline_t::set_line_id(uint32 id)
 {
 	this->id = id;
-	sprintf( name, "(%i) %s", id, translator::translate("Line") );
+	char printname[128];
+	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
+	name = printname;
 }
 
 
@@ -69,16 +75,14 @@ void simline_t::add_convoy(convoihandle_t cnv)
 
 	// first convoi may change line type
 	if (type == trainline  &&  line_managed_convoys.empty() &&  cnv.is_bound()) {
-		if(cnv->get_vehikel(0)) {
-			// check, if needed to convert to tram line?
-			if(cnv->get_vehikel(0)->get_besch()->get_waytype()==tram_wt) {
-				type = simline_t::tramline;
-			}
-			// check, if needed to convert to monorail line?
-			if(cnv->get_vehikel(0)->get_besch()->get_waytype()==monorail_wt) {
-				type = simline_t::monorailline;
+		// check, if needed to convert to tram/monorail line
+		if (vehikel_t const* const v = cnv->front()) {
+			switch (v->get_besch()->get_waytype()) {
+				case tram_wt:     type = simline_t::tramline;     break;
 				// elevated monorail were saved with wrong coordinates for some versions.
 				// We try to recover here
+				case monorail_wt: type = simline_t::monorailline; break;
+				default:          break;
 			}
 		}
 	}
@@ -128,6 +132,12 @@ void simline_t::add_convoy(convoihandle_t cnv)
 		// Added by : Knightly
 		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 	}
+
+	// if the schedule is flagged as bidirectional, set the initial convoy direction
+	if( fpl->is_bidirectional() ) {
+		cnv->set_reverse_schedule(start_reversed);
+		start_reversed = !start_reversed;
+	}
 }
 
 
@@ -153,14 +163,24 @@ void simline_t::rdwr(loadsave_t *file)
 
 	assert(fpl);
 
-	file->rdwr_str(name, lengthof(name));
+	if(  file->is_loading()  ) {
+		char name[1024];
+		file->rdwr_str(name, lengthof(name));
+		this->name = name;
+	}
+	else {
+		char name[1024];
+		tstrncpy( name, this->name.c_str(), lengthof(name) );
+		file->rdwr_str(name, lengthof(name));
+	}
+
 	if(file->get_version()<88003) {
 		sint32 dummy=id;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		id = (uint16)dummy;
 	}
 	else {
-		file->rdwr_short(id, " ");
+		file->rdwr_short(id);
 	}
 	fpl->rdwr(file);
 
@@ -179,10 +199,14 @@ void simline_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
+
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) 
@@ -203,16 +227,24 @@ void simline_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 	}
 
 	if(file->get_version()>=102002) {
-		file->rdwr_bool( withdraw, "" );
+		file->rdwr_bool(withdraw);
+	}
+
+	if(file->get_experimental_version() >= 9) 
+	{
+		file->rdwr_bool( start_reversed);
 	}
 
 	// otherwise inintialized to zero if loading ...
@@ -223,8 +255,8 @@ void simline_t::rdwr(loadsave_t *file)
 		const uint8 counter = file->get_version() < 103000 ? LINE_DISTANCE : MAX_LINE_COST;
 		for(uint8 i = 0; i < counter; i ++)
 		{	
-			file->rdwr_long(rolling_average[i], "");
-			file->rdwr_short(rolling_average_count[i], "");
+			file->rdwr_long(rolling_average[i]);
+			file->rdwr_short(rolling_average_count[i]);
 		}	
 	}
 }
@@ -233,7 +265,9 @@ void simline_t::rdwr(loadsave_t *file)
 
 void simline_t::laden_abschliessen()
 {
-	register_stops(fpl);
+	if(  line_managed_convoys.get_count()>0  ) {
+		register_stops(fpl);
+	}
 	recalc_status();
 }
 
@@ -285,19 +319,22 @@ void simline_t::unregister_stops(schedule_t * fpl)
 
 void simline_t::renew_stops()
 {
-	if(  old_fpl  ) 
+	if(  line_managed_convoys.get_count()>0  ) 
 	{
-		unregister_stops( old_fpl );
+		if(  old_fpl  ) 
+		{
+			unregister_stops( old_fpl );
 
-		// Added by : Knightly
-		haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 0);
-	}
-	register_stops( fpl );
+			// Added by : Knightly
+			haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 0);
+		}
+		register_stops( fpl );
 	
-	// Added by Knightly
-	haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
+		// Added by Knightly
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, welt->get_einstellungen()->get_default_path_option());
 		
-	DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name);
+		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name.c_str());
+	}
 }
 
 
@@ -336,7 +373,7 @@ void simline_t::prepare_for_update()
 
 void simline_t::init_financial_history()
 {
-	memset( financial_history, 0, sizeof(financial_history) );
+	MEMZERO(financial_history);
 }
 
 

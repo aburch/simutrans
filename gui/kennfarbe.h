@@ -39,7 +39,7 @@ public:
 	 */
 	const char * get_hilfe_datei() const { return "color.txt"; }
 
-//	void infowin_event(const event_t *ev);
+//	bool infowin_event(const event_t *ev);
 
 	/**
 	 * This method is called if an action is triggered

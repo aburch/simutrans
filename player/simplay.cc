@@ -24,6 +24,7 @@
 #include "../simmesg.h"
 #include "../simskin.h"
 #include "../simsound.h"
+#include "../simticker.h"
 #include "../simtools.h"
 #include "../simware.h"
 #include "../simwerkz.h"
@@ -102,7 +103,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 	konto_ueberzogen = 0;
 	automat = false;		// Start nicht als automatischer Spieler
 	locked = false;	/* allowe to change anything */
-	memset( pwd_hash, 0, 20 );	// empty password
 
 	headquarter_pos = koord::invalid;
 	headquarter_level = 0;
@@ -165,25 +165,27 @@ const char* spieler_t::get_name(void) const
 }
 
 
+void spieler_t::set_name(const char *new_name)
+{
+	tstrncpy( spieler_name_buf, new_name, lengthof(spieler_name_buf) );
+}
+
+
 /* returns FALSE when unlocking!
  */
-bool spieler_t::set_unlock( uint8 *hash )
+bool spieler_t::set_unlock( const uint8 *hash )
 {
-	if(  locked  ) {
-		bool pwd_empty = true;
-		for(  int i=0;  i<20;  i++  ) {
-			if(  pwd_hash[i] != 0  ) {
-				pwd_empty = false;
-				break;
-			}
-		}
-		if(  pwd_empty  ) {
-			locked = false;
-		}
-		else if(  hash!=NULL  ) {
-			// matches password?
-			locked = (memcmp( hash, pwd_hash, 20 )!=0);
-		}
+	if(  pwd_hash.empty()  ) {
+		locked = false;
+	}
+	else if(  hash!=NULL  ) {
+		// matches password?
+		locked = (pwd_hash != hash);
+	}
+	if(  !locked  &&  player_nr==1  ) {
+		// public player unlocked:
+		// allow to change active player
+		welt->access_einstellungen()->set_allow_player_change(true);
 	}
 	return locked;
 }
@@ -239,9 +241,7 @@ void spieler_t::display_messages()
 			const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
 			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
 			const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
-
-			display_proportional_clip( x+1, y+1, m->str, ALIGN_LEFT, COL_BLACK, true);
-			display_proportional_clip( x, y, m->str, ALIGN_LEFT, PLAYER_FLAG|(kennfarbe1+3), true);
+			display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
 		}
 	}
 }
@@ -356,7 +356,7 @@ void spieler_t::neuer_monat()
 
 	// enough money and scenario finished?
 	if(konto > 0  &&  welt->get_scenario()->active()  &&  finance_history_year[0][COST_SCENARIO_COMPLETED]>=100) {
-		destroy_all_win();
+		destroy_all_win(true);
 		sint32 time = welt->get_current_month()-(welt->get_einstellungen()->get_starting_year()*12);
 		sprintf( buf, translator::translate("Congratulation\nScenario was complete in\n%i months %i years."), time%12, time/12 );
 		create_win(280, 40, new news_img(buf), w_info, magic_none);
@@ -392,14 +392,15 @@ void spieler_t::neuer_monat()
 			base_credit_limit = adjusted_credit_limit > 0 ? adjusted_credit_limit : 0;
 		}
 
-		if(!welt->get_einstellungen()->is_freeplay()) 
+		if(!welt->get_einstellungen()->is_freeplay()  &&  player_nr!=1 ) 
 		{
-			if(this == welt->get_spieler(0)) 
+			if( welt->get_active_player_nr()==player_nr  &&  !umgebung_t::networkmode )
 			{
 				if(finance_history_year[0][COST_NETWEALTH] < 0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
-					destroy_all_win();
-					create_win(280, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
+					destroy_all_win(true);
+					create_win( display_get_width()/2-128, 40, new news_img("Bankrott:\n\nDu bist bankrott.\n"), w_info, magic_none);
+					ticker::add_msg( translator::translate("Bankrott:\n\nDu bist bankrott.\n"), koord::invalid, PLAYER_FLAG + kennfarbe1 + 1 );
 					welt->beenden(false);
 				}
 				else 
@@ -415,28 +416,36 @@ void spieler_t::neuer_monat()
 						n += sprintf(buf, translator::translate("You have been overdrawn\nfor %i months"), konto_ueberzogen );
 						if(konto_ueberzogen > 3)
 						{
-							n += sprintf(buf + n, translator::translate("\n\nYour credit rating is being affected."));
+							n += sprintf(buf + n, "%s", translator::translate("\n\nYour credit rating is being affected."));
 						}
 					}
 					else
 					{
-						n += sprintf(buf, translator::translate("You have been overdrawn\nfor one month"));
+						n += sprintf(buf, "%s", translator::translate("You have been overdrawn\nfor one month"));
 					}
 					if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
 					{
 						n += sprintf(buf + n, translator::translate("\n\nInterest on your debt is\naccumulating at %i %%"), welt->get_einstellungen()->get_interest_rate_percent() );
 					}
 //					sprintf(buf,translator::translate("Verschuldet:\n\nDu hast %d Monate Zeit,\ndie Schulden zurueckzuzahlen.\n"), MAX_KONTO_VERZUG-konto_ueberzogen+1 );
-					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
+					welt->get_message()->add_message( buf, koord::invalid, message_t::problems, player_nr, IMG_LEER );
 				}
 			}
-			else if(automat  &&  this!=welt->get_spieler(1)) 
+
+			// no assets => nothing to go bankrupt about again
+			else if(  maintenance!=0  ||  finance_history_year[0][COST_ALL_CONVOIS]!=0  ) 
 			{
+
 				// for AI, we only declare bankrupt, if total assest are below zero
 				// Also, AI players play by the same rules as human players: will only go bankrupt if humans can.
 				if(finance_history_year[0][COST_NETWEALTH]<0 && welt->get_einstellungen()->bankruptsy_allowed()) 
 				{
 					ai_bankrupt();
+				}
+				// tell the current player
+				if(  welt->get_active_player_nr()==player_nr  ) {
+					sprintf(buf, translator::translate("On loan since %i month(s)"), konto_ueberzogen );
+					welt->get_message()->add_message(buf,koord::invalid,message_t::problems,player_nr,IMG_LEER);
 				}
 			}
 		}
@@ -477,7 +486,10 @@ void spieler_t::roll_finance_history_month()
 		}
 	}
 	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
-		finance_history_month[0][i] = 0;
+		// reset everything except number of convois
+		if (i != COST_ALL_CONVOIS) {
+			finance_history_month[0][i] = 0;
+		}
 	}
 }
 
@@ -492,7 +504,10 @@ void spieler_t::roll_finance_history_year()
 		}
 	}
 	for (int i=0;  i<MAX_PLAYER_COST;  i++) {
-		finance_history_year[0][i] = 0;
+		// reset everything except number of convois
+		if (i != COST_ALL_CONVOIS) {
+			finance_history_year[0][i] = 0;
+		}
 	}
 }
 
@@ -670,8 +685,7 @@ halthandle_t spieler_t::halt_add(koord pos)
  * Erzeugt eine neue Haltestelle des Spielers an Position pos
  * @author Hj. Malthaner
  */
-void
-spieler_t::halt_add(halthandle_t halt)
+void spieler_t::halt_add(halthandle_t halt)
 {
 	if(!halt_list.is_contained(halt)) {
 		halt_list.append(halt);
@@ -704,8 +718,14 @@ void spieler_t::ai_bankrupt()
 
 		linehandle_t line = cnv->get_line();
 
-		cnv->self_destruct();
-		cnv->step();	// to really get rid of it
+		if(  cnv->get_state() != convoi_t::INITIAL  ) {
+			cnv->self_destruct();
+			cnv->step();	// to really get rid of it
+		}
+		else {
+			// convois in depots are directly destroyed
+			cnv->self_destruct();
+		}
 
 		// last vehicle on that connection (no line => railroad)
 		if(  !line.is_bound()  ||  line->count_convoys()==0  ) {
@@ -724,6 +744,26 @@ void spieler_t::ai_bankrupt()
 		haltestelle_t::destroy( h );
 	}
 
+	// transfer all ways in public stops belonging to me to no one
+	slist_iterator_tpl<halthandle_t>iter(haltestelle_t::get_alle_haltestellen());
+	while(  iter.next()  ) {
+		halthandle_t halt = iter.get_current();
+		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
+			// only concerns public stops tiles
+			for(  slist_tpl<haltestelle_t::tile_t>::const_iterator iter_tiles = halt->get_tiles().begin(), end = halt->get_tiles().end();  iter_tiles != end;  ++iter_tiles  ) {
+				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
+					weg_t *w = iter_tiles->grund->get_weg_nr(wnr);
+					if(  w  &&  w->get_besitzer()==this  ) {
+						// take ownership
+						spieler_t::add_maintenance( this, -w->get_besch()->get_wartung() );
+						w->set_besitzer(NULL); // make public
+					}
+				}
+			}
+		}
+	}
+
+
 	// next remove all ways, depot etc, that are not road or channels
 	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
 		for( int x=0;  x<welt->get_groesse_x();  x++  ) {
@@ -737,10 +777,14 @@ void spieler_t::ai_bankrupt()
 					tunnelbauer_t::remove( welt, this, gr->get_pos(), gr->get_weg_nr(0)->get_waytype() );
 				}
 				else {
+					bool count_signs = false;
 					for(  int i=gr->get_top()-1;  i>=0;  i--  ) {
 						ding_t *dt = gr->obj_bei(i);
 						if(dt->get_besitzer()==this) {
 							switch(dt->get_typ()) {
+								case ding_t::roadsign:
+								case ding_t::signal:
+									count_signs = true;
 								case ding_t::airdepot:
 								case ding_t::bahndepot:
 								case ding_t::monoraildepot:
@@ -750,9 +794,7 @@ void spieler_t::ai_bankrupt()
 								case ding_t::leitung:
 								case ding_t::senke:
 								case ding_t::pumpe:
-								case ding_t::signal:
 								case ding_t::wayobj:
-								case ding_t::roadsign:
 									dt->entferne(this);
 									delete dt;
 									break;
@@ -762,7 +804,7 @@ void spieler_t::ai_bankrupt()
 								case ding_t::way:
 								{
 									weg_t *w=(weg_t *)dt;
-									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
+									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
 										add_maintenance( -w->get_besch()->get_wartung() );
 										w->set_besitzer( NULL );
 									}
@@ -774,6 +816,12 @@ void spieler_t::ai_bankrupt()
 								default:
 									gr->obj_bei(i)->set_besitzer( welt->get_spieler(1) );
 							}
+						}
+					}
+					if (count_signs  &&  gr->hat_wege()) {
+						gr->get_weg_nr(0)->count_sign();
+						if (gr->has_two_ways()) {
+							gr->get_weg_nr(1)->count_sign();
 						}
 					}
 				}
@@ -799,29 +847,29 @@ void spieler_t::rdwr(loadsave_t *file)
 	xml_tag_t sss( file, "spieler_t" );
 	sint32 halt_count=0;
 
-	file->rdwr_longlong(konto, " ");
-	file->rdwr_long(konto_ueberzogen, " ");
+	file->rdwr_longlong(konto);
+	file->rdwr_long(konto_ueberzogen);
 
 	if(file->get_version()<101000) {
 		// ignore steps
 		sint32 ldummy=0;
-		file->rdwr_long(ldummy, " ");
+		file->rdwr_long(ldummy);
 	}
 
 	if(file->get_version()<99009) {
 		sint32 farbe;
-		file->rdwr_long(farbe, " ");
+		file->rdwr_long(farbe);
 		kennfarbe1 = (uint8)farbe*2;
 		kennfarbe2 = kennfarbe1+24;
 	}
 	else {
-		file->rdwr_byte(kennfarbe1, " ");
-		file->rdwr_byte(kennfarbe2, " ");
+		file->rdwr_byte(kennfarbe1);
+		file->rdwr_byte(kennfarbe2);
 	}
 	if(file->get_version()<99008) {
-		file->rdwr_long(halt_count, " ");
+		file->rdwr_long(halt_count);
 	}
-	file->rdwr_long(haltcount, " ");
+	file->rdwr_long(haltcount);
 
 	if (file->get_version() < 84008) 
 	{
@@ -836,7 +884,7 @@ void spieler_t::rdwr(loadsave_t *file)
 					// for old savegames only load 9 types and calculate the 10th; for new savegames load all 10 values
 					if (cost_type < 9) 
 					{
-						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+						file->rdwr_longlong(finance_history_year[year][cost_type]);
 
 					} 
 					else 
@@ -862,7 +910,7 @@ void spieler_t::rdwr(loadsave_t *file)
 				{
 					if (cost_type < 10)
 					{
-						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+						file->rdwr_longlong(finance_history_year[year][cost_type]);
 					} 
 					else 
 					{
@@ -884,24 +932,26 @@ void spieler_t::rdwr(loadsave_t *file)
 //DBG_MESSAGE("player_t::rdwr()", "finance_history[year=%d][cost_type=%d]=%ld", year, cost_type,finance_history_year[year][cost_type]);
 		}
 	}
+
 	else if (file->get_version() < 86000) 
 	{
 		for (int year = 0; year < MAX_PLAYER_HISTORY_YEARS; year++) 
 		{
 			for (int cost_type = 0; cost_type < 10; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 			}
 
 			finance_history_year[year][COST_INTEREST] = 0;
 			finance_history_year[year][COST_CREDIT_LIMIT] = 0;
 		}
 		// in 84008 monthly finance history was introduced
+
 		for (int month = 0; month < MAX_PLAYER_HISTORY_MONTHS; month++) 
 		{
 			for (int cost_type = 0; cost_type < 10; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 			}
 			finance_history_year[month][COST_INTEREST] = 0;
 			finance_history_year[month][COST_CREDIT_LIMIT] = 0;
@@ -916,7 +966,7 @@ void spieler_t::rdwr(loadsave_t *file)
 		{
 			for (int cost_type = 0; cost_type < 12; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 				finance_history_year[year][COST_INTEREST] = 0;
 				finance_history_year[year][COST_CREDIT_LIMIT] = 0;
 			}
@@ -925,14 +975,13 @@ void spieler_t::rdwr(loadsave_t *file)
 		{
 			for (int cost_type = 0; cost_type < 12; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 				finance_history_month[month][COST_INTEREST] = 0;
 				finance_history_month[month][COST_CREDIT_LIMIT] = 0;
 			}
 		}
-		
-		
 	}
+
 	else if (file->get_version() < 99017) 
 	{
 		// without detailed goo statistics
@@ -940,7 +989,7 @@ void spieler_t::rdwr(loadsave_t *file)
 		{
 			for (int cost_type = 0; cost_type<13; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+				file->rdwr_longlong(finance_history_year[year][cost_type]);
 				finance_history_year[year][COST_INTEREST] = 0;
 				finance_history_year[year][COST_CREDIT_LIMIT] = 0;
 			}
@@ -949,12 +998,13 @@ void spieler_t::rdwr(loadsave_t *file)
 		{
 			for (int cost_type = 0; cost_type < 13; cost_type++) 
 			{
-				file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+				file->rdwr_longlong(finance_history_month[month][cost_type]);
 				finance_history_month[month][COST_INTEREST] = 0;
 				finance_history_month[month][COST_CREDIT_LIMIT] = 0;
 			}
 		}
 	}
+
 	else if(  file->get_version()<=102002  ) 
 	{
 		// saved everything
@@ -968,7 +1018,7 @@ void spieler_t::rdwr(loadsave_t *file)
 				}
 				else
 				{
-					file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+					file->rdwr_longlong(finance_history_year[year][cost_type]);
 				}
 			}
 		}
@@ -982,7 +1032,7 @@ void spieler_t::rdwr(loadsave_t *file)
 				}
 				else
 				{
-					file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+					file->rdwr_longlong(finance_history_month[month][cost_type]);
 				}
 			}
 		}
@@ -1002,7 +1052,7 @@ void spieler_t::rdwr(loadsave_t *file)
 					}
 					else
 					{
-						file->rdwr_longlong(finance_history_year[year][cost_type], " ");
+						file->rdwr_longlong(finance_history_year[year][cost_type]);
 					}
 				}
 			}
@@ -1019,14 +1069,14 @@ void spieler_t::rdwr(loadsave_t *file)
 					}
 					else
 					{
-						file->rdwr_longlong(finance_history_month[month][cost_type], " ");
+						file->rdwr_longlong(finance_history_month[month][cost_type]);
 					}
 				}
 			}
 		}
 	}
 	if(  file->get_version()>102002 && file->get_experimental_version() != 7 ) {
-		file->rdwr_longlong(starting_money, "");
+		file->rdwr_longlong(starting_money);
 	}
 
 	// we have to pay maintenance at the beginning of a month
@@ -1035,24 +1085,24 @@ void spieler_t::rdwr(loadsave_t *file)
 		buche( -finance_history_month[1][COST_MAINTENANCE], COST_MAINTENANCE );
 	}
 
-	file->rdwr_bool(automat, "\n");
+	file->rdwr_bool(automat);
 
 	// state is not saved anymore
 	if(file->get_version()<99014) 
 	{
 		sint32 ldummy=0;
-		file->rdwr_long(ldummy, " ");
-		file->rdwr_long(ldummy, "\n");
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
 	}
 
 	// the AI stuff is now saved directly by the different AI
 	if(  file->get_version()<101000) 
 	{
 		sint32 ldummy = -1;
-		file->rdwr_long(ldummy, " ");
-		file->rdwr_long(ldummy, "\n");
-		file->rdwr_long(ldummy, " ");
-		file->rdwr_long(ldummy, "\n");
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
+		file->rdwr_long(ldummy);
 		koord k(-1,-1);
 		k.rdwr( file );
 		k.rdwr( file );
@@ -1110,12 +1160,9 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 		headquarter_pos = koord::invalid;
 	}
 	else {
-		file->rdwr_long(headquarter_level, " ");
+		file->rdwr_long(headquarter_level);
 		headquarter_pos.rdwr( file );
 		if(file->is_loading()) {
-			if(headquarter_level>(sint32)hausbauer_t::headquarter.get_count()) {
-				headquarter_level = (sint32)hausbauer_t::headquarter.get_count();
-			}
 			if(headquarter_level<0) {
 				headquarter_pos = koord::invalid;
 				headquarter_level = 0;
@@ -1131,13 +1178,19 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 	if(file->get_version()>102002 && file->get_experimental_version() != 7) {
 		// password hash
 		for(  int i=0;  i<20;  i++  ) {
-			file->rdwr_byte( pwd_hash[i], "" );
+			file->rdwr_byte(pwd_hash[i]);
 		}
 		if(  file->is_loading()  ) {
 			locked = true;
 			// disallow all actions, if password set (might be unlocked by karte_t::set_werkzeug() )
 			set_unlock( NULL );
 		}
+	}
+
+	// save the name too
+	if(file->get_version()>102003 && (file->get_experimental_version() >= 9 || file->get_experimental_version() == 0)) 
+	{
+		file->rdwr_str( spieler_name_buf, lengthof(spieler_name_buf) );
 	}
 
 	if(file->is_loading())
@@ -1202,25 +1255,26 @@ void spieler_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 		case convoi_t::NO_ROUTE:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
 			if(this==welt->get_active_player()) {
-				char buf[256];
-				int i = sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
+				cbuffer_t buf(320);
+				buf.printf( translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
 				uint32 max_weight = cnv->get_route()->get_max_weight();
 				uint32 cnv_weight = cnv->get_heaviest_vehicle();
 				if (cnv_weight > max_weight) {
-					buf[i++] = ' ';
-					i += sprintf(buf+i, translator::translate("Vehicle weighs %dt, but max weight is %dt"), cnv_weight, max_weight); 
+					buf.printf(" ");
+					buf.printf(translator::translate("Vehicle weighs %dt, but max weight is %dt"), cnv_weight, max_weight); 
 				}
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			break;
 
 		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
 		case convoi_t::CAN_START_ONE_MONTH:
+		case convoi_t::CAN_START_TWO_MONTHS:
 DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
-			if(this==welt->get_active_player()) {
-				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
+			{
+				cbuffer_t buf(256);
+				buf.printf( translator::translate("Vehicle %s is stucked!"), cnv->get_name());
+				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::warnings, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
 			break;
 
@@ -1235,8 +1289,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->
  * @date 7-Feb-2005
  * @author prissi
  */
-void
-spieler_t::init_undo( waytype_t wtype, unsigned short max )
+void spieler_t::init_undo( waytype_t wtype, unsigned short max )
 {
 	// only human player
 	// prissi: allow for UNDO for real player
@@ -1277,22 +1330,35 @@ spieler_t::undo()
 			last_built.clear();
 			return false;
 		}
-		// we allow only leitung
+		// we allow ways, unimportant stuff but no vehicles, signals, wayobjs etc
 		if(gr->obj_count()>0) {
-			for( unsigned i=1;  i<gr->get_top();  i++  ) {
+			for( unsigned i=0;  i<gr->get_top();  i++  ) {
 				switch(gr->obj_bei(i)->get_typ()) {
 					// these are allowed
-					case ding_t::way:
-					case ding_t::verkehr:
-					case ding_t::fussgaenger:
+					case ding_t::zeiger:
+					case ding_t::wolke:
 					case ding_t::leitung:
+					case ding_t::pillar:
+					case ding_t::way:
+					case ding_t::label:
+					case ding_t::crossing:
+					case ding_t::fussgaenger:
+					case ding_t::verkehr:
+					case ding_t::movingobj:
 						break;
 					// special case airplane
 					// they can be everywhere, so we allow for everythign but runway undo
-					case ding_t::aircraft:
+					case ding_t::aircraft: {
 						if(undo_type!=air_wt) {
 							break;
 						}
+						const aircraft_t* aircraft = ding_cast<aircraft_t>(gr->obj_bei(i));
+						// flying aircrafts are ok
+						if(!aircraft->is_on_ground()) {
+							break;
+						}
+						// fall through !
+					}
 					// all other are forbidden => no undo any more
 					default:
 						last_built.clear();
@@ -1322,6 +1388,7 @@ spieler_t::undo()
 	last_built.clear();
 	return cost!=0;
 }
+
 
 void spieler_t::tell_tool_result(werkzeug_t *tool, koord3d, const char *err, bool local)
 {

@@ -25,6 +25,9 @@
 #include "bildliste2d_besch.h"
 #include "weg_besch.h"
 
+
+class checksum_t;
+
 class tunnel_besch_t : public obj_besch_std_name_t {
 	friend class tunnel_writer_t;
 	friend class tunnel_reader_t;
@@ -33,7 +36,7 @@ class tunnel_besch_t : public obj_besch_std_name_t {
 private:
 	static int hang_indices[16];
 
-	uint32 topspeed;	// speed in km/h
+	sint32 topspeed;	// speed in km/h
 	uint32 preis;	// 1/100 credits
 	uint32 scaled_price; // The price after scaling. @author: jamespetts
 	uint32 maintenance;	// monthly cost for bits_per_month=18
@@ -59,9 +62,9 @@ private:
 	*/
 	uint8 has_way;
 
- 	/* Has broad portals?
- 	 */
- 	uint8 broad_portals;
+	/* Has broad portals?
+	 */
+	uint8 broad_portals;
 
 	werkzeug_t *builder;
 
@@ -110,7 +113,7 @@ public:
 		scaled_maintenance = maintenance * scale_factor > 0 ? (uint32) (maintenance * scale_factor) : 1;
 	}
 
-	uint32  get_topspeed() const { return topspeed; }
+	sint32  get_topspeed() const { return topspeed; }
 
 	uint32  get_max_weight() const { return max_weight; }
 
@@ -157,6 +160,8 @@ public:
 	}
 
 	bool has_broad_portals() const { return (broad_portals != 0); };
+
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

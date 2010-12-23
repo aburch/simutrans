@@ -15,15 +15,15 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/array2d_tpl.h"
 #include "tpl/slist_tpl.h"
-#include "tpl/ptrhashtable_tpl.h"
+#include "tpl/koordhashtable_tpl.h"
 
 #include "vehicle/simverkehr.h"
 #include "tpl/sparse_tpl.h"
 
+#include <string>
+
 class karte_t;
 class spieler_t;
-class cbuffer_t;
-class cstring_t;
 class fabrik_t;
 
 class rule_t;
@@ -86,7 +86,7 @@ public:
 
 	virtual ribi_t::ribi get_ribi( const grund_t* gr) const;
 
-	virtual int get_kosten( const grund_t* gr, uint32 max_speed) const;
+	virtual int get_kosten( const grund_t* gr, const sint32 max_speed, koord from_pos) const;
 
 	~road_destination_finder_t()
 	{
@@ -131,19 +131,24 @@ class stadt_t
 
 public:
 	/**
-	 * Reads city configuration data
+	 * Reads city configuration data from config/cityrules.tab
 	 * @author Hj. Malthaner
 	 */
-	static bool cityrules_init(cstring_t objpathname);
-	static void privatecar_init(cstring_t objfilename);
+	static bool cityrules_init(const std::string &objpathname);
+	static void privatecar_init(const std::string &objfilename);
 	sint16 get_private_car_ownership(sint32 monthyear);
 	float get_electricity_consumption(sint32 monthyear) const;
-	static void electricity_consumption_init(cstring_t objfilename);
+	static void electricity_consumption_init(const std::string &objfilename);
 
-	static uint32 get_industry_increase();
-	static void set_industry_increase(uint32 ind_increase);
-	static uint32 get_minimum_city_distance();
-	static void set_minimum_city_distance(uint32 s);
+	/**
+	 * Reads/writes city configuration data from/to a savegame
+	 * called from einstellungen_t::rdwr
+	 * only written for networkgames
+	 * @author Dwachs
+	 */
+	static void cityrules_rdwr(loadsave_t *file);
+	static void privatecar_rdwr(loadsave_t *file);
+	static void electricity_consumption_rdwr(loadsave_t *file);
 
 private:
 	static karte_t *welt;
@@ -158,7 +163,7 @@ private:
 	// this counter will increment by one for every change => dialogs can question, if they need to update map
 	unsigned long pax_destinations_new_change;
 
-	koord pos;			// Gruendungsplanquadrat der Stadt
+	koord pos;			// Gruendungsplanquadrat der Stadt ("founding grid square" - Google)
 	koord townhall_road; // road in front of townhall
 	koord lo, ur;		// max size of housing area
 	bool  has_low_density;	// in this case extend borders by two
@@ -192,11 +197,10 @@ private:
 	 */
 	uint32 next_bau_step;
 
-	// attribute fuer die Bevoelkerung
-	// "attribute for the population" (Google)
-	sint32 bev;	// Bevoelkerung gesamt
-	sint32 arb;	// davon mit Arbeit
-	sint32 won;	// davon mit Wohnung
+	// population statistics
+	sint32 bev; // total population
+	sint32 arb; // amount with jobs
+	sint32 won; // amount with homes
 
 	/**
 	 * Modifier for city growth
@@ -234,13 +238,14 @@ private:
 	enum journey_distance_type { local, midrange, longdistance };
 
 	// Hashtable of all cities/attractions/industries connected by road from this city.
-	// Key: city pointer.
+	// Key: city (etc.) location
 	// Value: journey time per tile (equiv. straight line distance)
 	// (in 10ths of minutes); 65535 = unreachable.
-	// @author: jamespetts, April 2010
-	ptrhashtable_tpl<stadt_t*, uint16> connected_cities;
-	ptrhashtable_tpl<const fabrik_t*, uint16> connected_industries;
-	ptrhashtable_tpl<const gebaeude_t*, uint16> connected_attractions;
+	// @author: jamespetts, April 2010, modified December 2010 to koords rather than poiners
+	// so as to be network safe
+	koordhashtable_tpl<koord, uint16> connected_cities;
+	koordhashtable_tpl<koord, uint16> connected_industries;
+	koordhashtable_tpl<koord, uint16> connected_attractions;
 
 	road_destination_finder_t *finder;
 	route_t *private_car_route;
@@ -365,7 +370,7 @@ private:
 	 */
 	void baue_gebaeude(koord pos, bool new_town);
 	void erzeuge_verkehrsteilnehmer(koord pos, sint32 level,koord target);
-	void renoviere_gebaeude(gebaeude_t *gb);
+	bool renoviere_gebaeude(gebaeude_t *gb);
 
 	/**
 	 * baut ein Stueck Strasse
@@ -487,7 +492,7 @@ public:
 	 * Stadtgrenzen zurück
 	 * @author Hj. Malthaner
 	 */
-	koord get_zufallspunkt() const;
+	koord get_zufallspunkt(uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid) const;
 
 	/**
 	 * gibt das pax-statistik-array für letzten monat zurück
@@ -582,8 +587,7 @@ public:
 	 * such ein (zufälliges) ziel für einen Passagier
 	 * @author Hj. Malthaner
 	 */
-	destination finde_passagier_ziel(pax_zieltyp* will_return);
-	destination finde_passagier_ziel(pax_zieltyp* will_return, uint16 min_distance, uint16 max_distance);
+	destination finde_passagier_ziel(pax_zieltyp* will_return, uint32 min_distance = 0, uint32 max_distance = 16384, koord origin = koord::invalid);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.
@@ -609,7 +613,7 @@ public:
 	 * @param old_x, old_y: Generate no cities in (0,0) - (old_x, old_y)
 	 * @author Gerd Wachsmuth
 	 */
-	static vector_tpl<koord> *random_place(const karte_t *wl, sint32 anzahl, sint16 old_x, sint16 old_y);
+	static vector_tpl<koord> *random_place(const karte_t *wl, const vector_tpl<sint32> *sizes_list, sint16 old_x, sint16 old_y);
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 	void zeige_info(void);
@@ -636,6 +640,10 @@ public:
 	void remove_connected_city(stadt_t* city);
 	void remove_connected_industry(fabrik_t* fab);
 	void remove_connected_attraction(gebaeude_t* attraction);
+
+	// @author: jamespetts
+	// September 2010
+	uint16 get_max_dimension();
 
 };
 

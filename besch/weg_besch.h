@@ -12,6 +12,7 @@
 #include "skin_besch.h"
 #include "../dataobj/ribi.h"
 #include "../dataobj/way_constraints.h"
+#include "../utils/checksum.h"
 
 class werkzeug_t;
 
@@ -55,7 +56,7 @@ private:
 	 * Max speed
 	 * @author Hj. Malthaner
 	 */
-	uint32 topspeed;
+	sint32 topspeed;
 
 	/**
 	 * Max weight
@@ -120,7 +121,7 @@ public:
 	 * Determines max speed in km/h allowed on this way
 	 * @author Hj. Malthaner
 	 */
-	uint32 get_topspeed() const { return topspeed; }
+	sint32 get_topspeed() const { return topspeed; }
 
 	//Returns maximum weight
 	uint32 get_max_weight() const { return (max_weight < 9999 && max_weight > 0) ? max_weight : 999; }
@@ -241,6 +242,22 @@ public:
 	}
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
+	}
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(price);
+		chk->input(maintenance);
+		chk->input(topspeed);
+		chk->input(max_weight);
+		chk->input(intro_date);
+		chk->input(obsolete_date);
+		chk->input(wtyp);
+		chk->input(styp);
+
+		//Experimental values
+		chk->input(way_constraints.get_permissive());
+		chk->input(way_constraints.get_prohibitive());
 	}
 };
 

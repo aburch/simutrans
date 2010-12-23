@@ -7,6 +7,7 @@
 #include "../obj_node_info.h"
 #include "../fabrik_besch.h"
 #include "../xref_besch.h"
+#include "../../dataobj/pakset_info.h"
 
 #include "factory_reader.h"
 
@@ -290,11 +291,9 @@ factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->pax_level = decode_uint16(p);
 		if(experimental)
 		{
-			if(experimental_version >= 0)
-			{
-				besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F); 
-				besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
-			}
+			besch->electricity_proportion = ((float)decode_uint16(p) / 100.0F); 
+			besch->inverse_electricity_proportion = 1 / besch->electricity_proportion;
+
 			if(experimental_version >= 1)
 			{
 				besch->upgrades = decode_uint8(p);
@@ -371,4 +370,8 @@ void factory_reader_t::register_obj(obj_besch_t *&data)
 	besch->electricity_producer = ( fab_name_len>11   &&  (strcmp(besch->get_name()+fab_name_len-9, "kraftwerk")==0  ||  strcmp(besch->get_name()+fab_name_len-11, "Power Plant")==0) );
 	fabrikbauer_t::register_besch(besch);
 	obj_for_xref(get_type(), besch->get_name(), data);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }

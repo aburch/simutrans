@@ -1,6 +1,7 @@
 #ifndef MAKEOBJ
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include "simtools.h"
 #include "dataobj/umgebung.h"
 
@@ -94,7 +95,7 @@ uint32 simrand_plain(void)
 /* generates a random number on [0,max-1]-interval */
 uint32 simrand(const uint32 max)
 {
-	assert( random_origin!=1  );
+	assert( (random_origin&1) == 0  );
 
 	if(max<=1) {	// may rather assert this?
 		return 0;
@@ -102,6 +103,25 @@ uint32 simrand(const uint32 max)
 	return simrand_plain() % max;
 }
 
+/* generates random number with gaussian distribution
+ * math taken from random.py in Python */
+double simrand_gauss(const double mean, const double sigma)
+{
+	assert( random_origin !=1);
+	static double gauss_next = 0.0; /* "impossible" value, random numbers can't be exactly 0.0 */
+	double z;
+	z = gauss_next;
+	gauss_next = 0.0;
+	if (z == 0.0) {
+		double x = rand()/(RAND_MAX + 1.0);
+		double y = rand()/(RAND_MAX + 1.0);
+		double x2pi = x * 2 * acos(-1.0); // acos(-1.0) == M_PI (it is removed from header files for some reasons)
+		double g2rad = sqrt(-2.0 * log ( 1.0 - y));
+		z = cos(x2pi) * g2rad;
+		gauss_next = sin(x2pi) * g2rad;
+	}
+	return(mean + z * sigma);
+}
 
 void set_random_mode( uint16 mode )
 {
@@ -139,6 +159,7 @@ uint32 setsimrand(uint32 seed,uint32 ns)
 
 	if(seed!=0xFFFFFFFF) {
 		init_genrand( seed );
+		srand(seed);
 		rand_seed = seed;
 		random_origin = 0;
 	}
@@ -292,17 +313,43 @@ static double interpolated_noise(const double x, const double y)
 
 
 /**
- * x,y Koordinaten des Punktes
- * p   Persistenz
+ * x,y  Point coordinates
+ * p    Persistence (was: Persistenz)
+ * m    Map size (longer side)
  */
-double perlin_noise_2D(const double x, const double y, const double p)
+double perlin_noise_2D(const double x, const double y, const double p, const sint32 m)
 {
+/**
+* Hoehe eines Punktes der Karte mit "perlin noise"
+*
+* @param frequency in 0..1.0 roughness, the higher the rougher
+* @param amplitude in 0..160.0 top height of mountains, may not exceed 160.0!!!
+*/
     double total = 0.0;
-    for(  int  i=0;  i<6;  i++  ) {
-		const double frequency = (double)(1 << i);
-		const double amplitude = pow(p, (double)i);
-		total += interpolated_noise( (x * frequency) / 64.0, (y * frequency) / 64.0) * amplitude;
-    }
+	int i;
+
+    static const double frequency_0[6] = {1,  2,  4,  8, 16, 32};
+	static const double amplitude_0[6] = {0,  1,  2,  3,  4,  5};
+	static const double frequency_1[8] = {0.25, 0.5,  1,  2,  4,  8, 16, 32};
+	static const double amplitude_1[8] = {-0.5,   0,  1,  2,  2,  3,  4,  7};
+
+	if (m<768) {
+		for(i=0; i<6; i++) {
+		const double frequency = frequency_0[i];
+		const double amplitude = pow(p, amplitude_0[i]);
+			total += interpolated_noise((x * frequency) / 64.0,
+			                            (y * frequency) / 64.0) * amplitude;
+		}
+		return total;
+	} else {
+		for(i=0; i<8; i++) {
+			const double frequency = frequency_1[i];
+			const double amplitude = pow(p, amplitude_1[i]);
+			total += interpolated_noise((x * frequency) / 64.0,
+										(y * frequency) / 64.0) * amplitude;
+		}
+		return total;
+	}
 
     return total;
 }

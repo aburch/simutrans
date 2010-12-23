@@ -19,20 +19,19 @@
 class password_frame_t : public gui_frame_t, action_listener_t
 {
 private:
-	char ibuf[1024];
+	char ibuf[256], player_name_str[256];
 
 protected:
 	spieler_t *sp;
 
-	gui_hidden_textinput_t input;
-	gui_label_t fnlabel;        //filename                // 31-Oct-2001  Markus Weber    Added
+	gui_textinput_t player_name;
+	gui_hidden_textinput_t password;
+	gui_label_t fnlabel, const_player_name;
 
 public:
-	/**
-	 * @param suffix Filename suffix, i.e. ".sve", must be four characters
-	 * @author Hj. Malthaner
-	 */
 	password_frame_t( spieler_t *sp );
+
+	const char * get_hilfe_datei() const {return "password.txt";}
 
 	/**
 	 * This method is called if an action is triggered
@@ -43,9 +42,6 @@ public:
 	 * V.Meyer
 	 */
 	virtual bool action_triggered( gui_action_creator_t *komp, value_t extra);
-
-	// must catch open messgae to uptade list, since I am using virtual functions
-//	virtual void infowin_event(const event_t *ev);
 };
 
 #endif

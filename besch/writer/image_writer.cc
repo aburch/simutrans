@@ -1,18 +1,21 @@
+#include <string>
 #include <string.h>
 #include <stdlib.h>
-#include "../../utils/cstring_t.h"
 #include "../../utils/dr_rdpng.h"
 #include "../bild_besch.h"
 #include "obj_node.h"
 #include "root_writer.h"
 #include "obj_pak_exception.h"
 #include "image_writer.h"
+#include "../../macros.h"
 
 //#define TRANSPARENT 0x808088
 #define TRANSPARENT 0xE7FFFF
 
 // Made IMG_SIZE changeable - set in static member image_writer_t::img_size
 //#define IMG_SIZE 64
+
+using std::string;
 
 struct dimension
 {
@@ -71,7 +74,7 @@ static const PIXRGB rgbtab[SPECIAL] = {
 static int special_hist[SPECIAL];
 
 
-cstring_t image_writer_t::last_img_file("");
+string image_writer_t::last_img_file("");
 
 unsigned image_writer_t::width;
 unsigned image_writer_t::height;
@@ -100,7 +103,7 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 	for (int i = 0; i < SPECIAL; i++) {
 		if (rgbtab[i] == (PIXRGB)rgb) {
 			pix = 0x8000 + i;
-			return endian_uint16(&pix);
+			return endian(pix);
 		}
 	}
 
@@ -110,7 +113,7 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 
 	// RGB 555
 	pix = ((r & 0xF8) << 7) | ((g & 0xF8) << 2) | ((b & 0xF8) >> 3);
-	return endian_uint16(&pix);
+	return endian(pix);
 }
 
 
@@ -176,7 +179,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				pix = block_getpix(x + row_px_count, y + line);
 			}
 
-			*dest++ = endian_uint16(&count);
+			*dest++ = endian(count);
 
 			colored_run_counter = dest++;
 			count = 0;
@@ -197,7 +200,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 				// this only happens at the end of a line, so no need to increment clear_colored_run_pair_count
 			}
 			else {
-				*colored_run_counter = endian_uint16(&count);
+				*colored_run_counter = endian(count);
 				clear_colored_run_pair_count++;
 			}
 		} while (row_px_count < width);
@@ -215,10 +218,11 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 bool image_writer_t::block_laden(const char* fname)
 {
 	// The last png-file is cached
-	if (last_img_file == fname || load_block(&block, &width, &height, fname, img_size)) {
+	if(  last_img_file == fname  ||  load_block(&block, &width, &height, fname, img_size)  ) {
 		last_img_file = fname;
 		return true;
-	} else {
+	}
+	else {
 		last_img_file = "";
 		return false;
 	}
@@ -232,71 +236,70 @@ bool image_writer_t::block_laden(const char* fname)
  *  leading "> " maen an unzoomable image
  *  after the dots also spaces are allowed
  */
-void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_imagekey)
+void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagekey)
 {
 	bild_t bild;
 	dimension dim;
 	PIXVAL* pixdata = NULL;
-	cstring_t imagekey;
+	string imagekey;
 
-	memset(&bild, 0, sizeof(bild));
+	MEMZERO(bild);
 
 	// Hajo: if first char is a '>' then this image is not zoomeable
-	if (an_imagekey.len() > 2 && an_imagekey[0] == '>') {
-		imagekey = an_imagekey.substr(2, an_imagekey.len());
+	if(  an_imagekey.size() > 2  &&  an_imagekey[0] == '>'  ) {
+		imagekey = an_imagekey.substr(2, std::string::npos);
 		bild.zoomable = false;
-	} else {
+	}
+	else {
 		imagekey = an_imagekey;
 		bild.zoomable = true;
 	}
 
-	if (imagekey != "-" && imagekey != "") {
+	if(  imagekey != "-"  &&  imagekey != ""  ) {
 		// divide key in filename and image number
 		int row = -1, col = -1;
-		cstring_t numkey;
+		string numkey;
 
-		int j = imagekey.find_back('/');
-		if (j == -1) {
+		int j = imagekey.rfind('/');
+		if(  j == -1  ) {
 			numkey = imagekey;
-		} else {
-			numkey = imagekey.substr(j + 1, imagekey.len());
+		}
+		else {
+			numkey = imagekey.substr(j + 1, std::string::npos);
 		}
 
 		int i = numkey.find('.');
-		if (i == -1) {
+		if(  i == -1  ) {
 			char reason[1024];
-			sprintf(reason, "no image number in %s", (const char*)imagekey );
+			sprintf(reason, "no image number in %s", imagekey.c_str() );
 			throw obj_pak_exception_t("image_writer_t", reason);
 		}
-		numkey = numkey.substr(i + 1, numkey.len());
+		numkey = numkey.substr( i+1, std::string::npos );
 
-		imagekey = root_writer_t::get_inpath() + imagekey.substr(0, imagekey.len() - numkey.len() - 1) +  ".png";
+		imagekey = root_writer_t::get_inpath() + imagekey.substr( 0, imagekey.size()-numkey.size() - 1 ) +  ".png";
 
+		row = atoi(numkey.c_str());
 
 		i = numkey.find('.');
-		if (i == -1) {
-			row = atoi(numkey);
-		} else {
-			row = atoi(numkey.substr(0, i));
-			col = atoi(numkey.substr(i + 1, numkey.len()));
+		if(i != -1) {
+			col = atoi( numkey.c_str()+i+1 );
 
 			// add image offsets
-			numkey = numkey.substr(i + 1, numkey.len());
-			i = numkey.find(',');
-			if (i != -1) {
-				bild.x = atoi(numkey.substr(i+1, numkey.len()));
-				numkey = numkey.substr(i + 1, numkey.len());
-				i = numkey.find(',');
-				if(i!=-1) {
-					bild.y = atoi(numkey.substr(i + 1, numkey.len()));
+			int comma_pos = numkey.find(',');
+			if(comma_pos != -1) {
+				numkey = numkey.substr( comma_pos+1, std::string::npos);
+				bild.x = atoi( numkey.c_str() );
+				comma_pos = numkey.find(',');
+				if(comma_pos != -1) {
+					bild.y = atoi(numkey.substr(i + 1, std::string::npos).c_str());
 				}
 			}
 		}
 
 		// Load complete file
-		if (!block_laden(imagekey)) {
+		if (!block_laden(imagekey.c_str())) {
 			char reason[1024];
-			sprintf(reason, "cannot open %s", (const char*)imagekey );
+			sprintf(reason, "cannot open %s", imagekey .c_str());
 			throw obj_pak_exception_t("image_writer_t", reason);
 		}
 
@@ -306,7 +309,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, cstring_t an_ima
 		}
 		if (col >= (int)(width / img_size) || row >= (int)(height / img_size)) {
 			char reason[1024];
-			sprintf(reason, "invalid image number in %s.%s", (const char*)imagekey, (const char*)numkey);
+			sprintf(reason, "invalid image number in %s.%s", imagekey.c_str(), numkey.c_str());
 			throw obj_pak_exception_t("image_writer_t", reason);
 		}
 		row *= img_size;

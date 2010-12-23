@@ -1,5 +1,6 @@
 #include "koord.h"
 #include "loadsave.h"
+#include "../simtools.h"
 
 
 const koord koord::invalid(-1, -1);
@@ -87,8 +88,8 @@ const koord koord::from_hang[] = {
 void koord::rdwr(loadsave_t *file)
 {
 	xml_tag_t k( file, "koord" );
-	file->rdwr_short(x, " ");
-	file->rdwr_short(y, "\n");
+	file->rdwr_short(x);
+	file->rdwr_short(y);
 }
 
 
@@ -106,4 +107,13 @@ const char *koord::get_str() const
 	}
 	sprintf( pos_str, "%i,%i", x, y );
 	return pos_str;
+}
+
+// obey order of simrand among different compilers
+koord koord::koord_random( uint16 xrange, uint16 yrange )
+{
+	koord ret;
+	ret.x = simrand(xrange);
+	ret.y = simrand(yrange);
+	return ret;
 }

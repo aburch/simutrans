@@ -282,6 +282,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="player\ai.cc" />
     <ClCompile Include="player\ai_goods.cc" />
     <ClCompile Include="player\ai_passenger.cc" />
@@ -311,7 +312,6 @@
     <ClCompile Include="dings\crossing.cc" />
     <ClCompile Include="dataobj\crossing_logic.cc" />
     <ClCompile Include="besch\reader\crossing_reader.cc" />
-    <ClCompile Include="utils\cstring_t.cc" />
     <ClCompile Include="gui\curiosity_edit.cc" />
     <ClCompile Include="gui\curiositylist_frame_t.cc" />
     <ClCompile Include="gui\curiositylist_stats_t.cc" />

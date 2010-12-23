@@ -36,17 +36,17 @@ factorylist_stats_t::factorylist_stats_t(karte_t* w, factorylist::sort_mode_t so
  * gemeldet
  * @author Hj. Malthaner
  */
-void factorylist_stats_t::infowin_event(const event_t * ev)
+bool factorylist_stats_t::infowin_event(const event_t * ev)
 {
 	const unsigned int line = (ev->cy) / (LINESPACE+1);
 	line_selected = 0xFFFFFFFFu;
 	if (line >= fab_list.get_count()) {
-		return;
+		return false;
 	}
 
 	fabrik_t* fab = fab_list[line];
 	if (!fab) {
-		return;
+		return false;
 	}
 
 	// deperess goto button
@@ -67,6 +67,7 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
 		const koord3d pos = fab->get_pos();
 		welt->change_world_position(pos);
 	}
+	return false;
 } // end of function factorylist_stats_t::infowin_event(const event_t * ev)
 
 
@@ -77,7 +78,6 @@ void factorylist_stats_t::infowin_event(const event_t * ev)
  */
 void factorylist_stats_t::zeichnen(koord offset)
 {
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	const struct clip_dimension cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE-1;
 	const int end = cd.yy+LINESPACE+1;
@@ -140,15 +140,8 @@ void factorylist_stats_t::zeichnen(koord offset)
 			// show text
 			display_proportional_clip(xoff+INDICATOR_WIDTH+6+10,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
-			if(i!=line_selected) {
-				// goto information
-				display_color_img(arrow_right_normal, xoff-14, yoff, 0, false, true);
-			}
-			else {
-				// select goto button
-				display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
-					xoff-14, yoff, 0, false, true);
-			}
+			// goto button
+			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
 
 		}
 		yoff += LINESPACE+1;

@@ -17,6 +17,8 @@
 
 // windows Bibliotheken DirectDraw 5.x
 #define UNICODE 1
+// windows.h defines min and max macros which we don't want
+#define NOMINMAX 1
 #include <windows.h>
 #include <winreg.h>
 #include <wingdi.h>
@@ -154,7 +156,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 		// try to force display mode and size
 		DEVMODE settings;
 
-		memset(&settings, 0, sizeof(settings));
+		MEMZERO(settings);
 		settings.dmSize = sizeof(settings);
 		settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		settings.dmBitsPerPel = 8;
@@ -247,9 +249,10 @@ int dr_textur_resize(unsigned short **textur, int w, int h, int bpp)
 
 unsigned short *dr_textur_init()
 {
-	AllDibData = MALLOCN(unsigned char, MaxSize.right * MaxSize.bottom );
+	size_t const n = MaxSize.right * MaxSize.bottom;
+	AllDibData = MALLOCN(unsigned char, n);
 	// start with black
-	memset( AllDibData, 0, MaxSize.right * MaxSize.bottom * sizeof(unsigned char) );
+	MEMZERON(AllDibData, n);
 	return (unsigned short *)AllDibData;
 }
 
@@ -400,7 +403,7 @@ LRESULT WINAPI WindowProc(HWND this_hwnd, UINT msg, WPARAM wParam, LPARAM lParam
 					// try to force display mode and size
 					DEVMODE settings;
 
-					memset(&settings, 0, sizeof(settings));
+					MEMZERO(settings);
 					settings.dmSize = sizeof(settings);
 					settings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 					settings.dmBitsPerPel = 8;

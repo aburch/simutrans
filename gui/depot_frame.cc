@@ -155,11 +155,11 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 
 	if(depot->get_tile()->get_besch()->get_enabled() == 0)
 	{
-		sprintf(txt_traction_types, translator::translate("Unpowered vehicles only"));
+		sprintf(txt_traction_types, "%s", translator::translate("Unpowered vehicles only"));
 	}
 	else if(depot->get_tile()->get_besch()->get_enabled() == 255)
 	{
-		sprintf(txt_traction_types, translator::translate("All traction types"));
+		sprintf(txt_traction_types, "%s", translator::translate("All traction types"));
 	}
 	else
 	{
@@ -179,7 +179,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 				{
 					n += sprintf(txt_traction_types + n, ", ");
 				}
-				n += sprintf(txt_traction_types + n, translator::translate(vehikel_besch_t::get_engine_type((vehikel_besch_t::engine_t)i)));
+				n += sprintf(txt_traction_types + n, "%s", translator::translate(vehikel_besch_t::get_engine_type((vehikel_besch_t::engine_t)i)));
 			}
 		}
 	}
@@ -230,8 +230,8 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/
-	int MIN_TOTAL_WIDTH = max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH);
-	int TOTAL_WIDTH = max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH));
+	int MIN_TOTAL_WIDTH = min((float)display_get_width() *0.9F, max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH));
+	int TOTAL_WIDTH = min((float)display_get_width() * 0.9F, max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
 
 	/*
 	*	Now we can do the first vertical adjustement:
@@ -366,12 +366,16 @@ void depot_frame_t::activate_convoi( convoihandle_t c )
 	build_vehicle_lists();
 }
 
+
 static void get_line_list(const depot_t* depot, vector_tpl<linehandle_t>* lines)
 {
 	depot->get_besitzer()->simlinemgmt.get_lines(depot->get_line_type(), lines);
 }
 
 
+/*
+* Reset counts and check for valid vehicles
+*/
 void depot_frame_t::update_data()
 {
 	switch(depot->convoi_count()) {
@@ -508,14 +512,14 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 }
 
 
-void depot_frame_t::infowin_event(const event_t *ev)
+bool depot_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_code!=WIN_CLOSE  &&  get_welt()->get_active_player() != depot->get_besitzer()) {
 		destroy_win(this);
-		return;
+		return true;
 	}
 
-	gui_frame_t::infowin_event(ev);
+	const bool swallowed = gui_frame_t::infowin_event(ev);
 
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 
@@ -545,6 +549,9 @@ void depot_frame_t::infowin_event(const event_t *ev)
 			win_set_pos( win_get_magic((long)next_dep), x, y );
 			get_welt()->change_world_position(next_dep->get_pos());
 		}
+
+		return true;
+
 	} else if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = get_fenstergroesse();
 		set_fenstergroesse(gr);
@@ -559,6 +566,8 @@ void depot_frame_t::infowin_event(const event_t *ev)
 			line_selector.close_box();
 		}
 	}
+
+	return swallowed;
 }
 
 
@@ -649,7 +658,7 @@ void depot_frame_t::fahrplaneingabe()
 		// this can happen locally, since any update of the schedule is done during closing window
 		schedule_t *fpl = cnv->create_schedule();
 		assert(fpl!=NULL);
-		gui_fenster_t *fplwin = win_get_magic((long)fpl);
+		gui_frame_t *fplwin = win_get_magic((long)fpl);
 		if(   fplwin==NULL  ) {
 			cnv->open_schedule_window( get_welt()->get_active_player()==cnv->get_besitzer() );
 		}
@@ -671,6 +680,7 @@ bool depot_frame_t::check_way_electrified(bool init)
 	if(!init)
 	{
 		convoy_assembler.set_electrified( way_electrified );
+
 	}
 	if( way_electrified ) 
 	{

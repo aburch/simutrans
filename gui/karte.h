@@ -1,7 +1,7 @@
 #ifndef gui_karte_h
 #define gui_karte_h
 
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "../tpl/array2d_tpl.h"
 
 #include "../dataobj/fahrplan.h"
@@ -175,7 +175,7 @@ public:
 	void neuer_monat();
 
 	// these are the gui_container needed functions ...
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	void zeichnen(koord pos);
 

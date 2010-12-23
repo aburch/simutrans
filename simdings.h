@@ -15,7 +15,6 @@
 
 
 class cbuffer_t;
-class fabrik_t;
 class karte_t;
 class spieler_t;
 
@@ -344,14 +343,22 @@ public:
 	* sometimes they have an extra offset, this the yoff parameter
 	* @author prissi
 	*/
-	void mark_image_dirty(image_id bild,sint8 yoff) const;
+	void mark_image_dirty(image_id bild,sint16 yoff) const;
 
 	/**
 	 * Dient zur Neuberechnung des Bildes
 	 * @author Hj. Malthaner
 	 */
 	virtual void calc_bild() {}
-} GCC_PACKED;
+};
+
+
+template<typename T> static T* ding_cast(ding_t*);
+
+template<typename T> static inline T const* ding_cast(ding_t const* const d)
+{
+	return ding_cast<T>(const_cast<ding_t*>(d));
+}
 
 
 class ding_no_info_t : public ding_t

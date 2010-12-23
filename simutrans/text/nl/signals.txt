@@ -7,9 +7,9 @@
 </p>
 <p>
 Er zijn verschillende soorten seinen:<br>
-         - (normale) Seinen<br>
-         - Voorseinen<br>
-         - Keuzeseinen<br>
+         - (normale) Seinen<br>
+         - Voorseinen<br>
+         - Keuzeseinen<br>
 Seinen kunnen in eenrichting- en tweerichtingmode gebouwd worden. In eenrichtingmode kan een sein maar in een richting gepasseerd worden. Let er bij het gebruik van eenrichtingseinen op dat de treinen hun bestemming wel kunnen bereiken. Houd in het begin een eenrichtingsbaanvak extra in de gaten.
 </p>
 <p>

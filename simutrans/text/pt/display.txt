@@ -3,13 +3,22 @@
 <h1><strong>Vídeo</strong></h1>
 
 <p>
-A janela <strong>Vídeo</strong> possui controles para a aparência do jogo e fornece informações da performance do computador.
+A janela <strong>Ajustes de Vídeo</strong> possui controles para a aparência do jogo e fornece informações da performance do computador.
 </p>
 <p>
-Clique no botão 'Vídeo' na janela <a href="options.txt">Preferências</a> para abrir as <strong>configurações de vídeo</strong>.
+Clique no botão 'Vídeo' na janela <a href="options.txt">Preferências</a> para abrir os <strong>Ajustes de vídeo</strong>.
 </p>
 <p>
 Clique nos botões quadrados para selecionar as opções (o botão aparece pressionado quando a opção é selecionada), ou use as <a href="mouse.txt">setas</a> para ajustar as configurações:
+</p>
+<p>
+<em>Mostrar grade:</em> Quando ativado, mostra a terra na tela de jogo dividida em quadros para facilitar a construção. Pode ser ativada pelo atalho [#].
+</p>
+<p>
+<em>Vista subterrânea:</em> Ativa a visão subterrânea, construções debaixo da terra. Pode ser ativada pelo atalho [U].
+</p>
+<p>
+<em>Visão subterrânea em níveis:</em> Alterna entre os níveis de profundidade de visão subterrânea.
 </p>
 <p>
 <em>Alternar dia e noite:</em> ver ciclos de dia e noite no jogo.
@@ -25,6 +34,22 @@ Luminosidade:</em> regula o quão claro/escuro o jogo aparecerá. Valores muito di
 <em>Velocidade de deslocamento:</em> regula a velocidade do deslocamento pela tela do jogo.
 </p>
 <p>
+<em>Usar transparência ao ocultar:</em> Ao ativar, quando se oculta um objeto, mostra-o transparente em vez de escondê-lo totalmente.
+</p>
+<em>Ocultar árvores:</em> Oculta as árvores da tela de jogo.
+<p>
+<p>
+<em>Captura transparente das paradas:</em> Mostra uma captura transparente das paradas. Quando desativado, a captura das paradas é representada por pontos distribuídos pela tela de jogo.
+</p>
+<p>
+<em>Mostrar captura das paradas:</em> Mostra/oculta a área de captura das paradas. Pode ser ativada pelo atalho [v].
+</p>
+<p>
+<em>Mostrar nomes das paradas:</em> Mostra o nome das paradas. Pode ser ativado/desativado pelo atalho [!].
+</p>
+<p>
+<em>Mostrar barras de espera:</em> Mostra a barra de espera das paradas. Pode ser ativado/desativado em alternância com o item anterior pelo atalho [!].
+</p>
 <em>Pedestres nas cidades:</em> permite a simulação de pedestres caminhando pelas <a href="citywindow.txt">áreas urbanas</a>.
 </p>
 <p>

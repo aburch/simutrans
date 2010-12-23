@@ -89,13 +89,16 @@ private:
 
 	// always needed
 	button_t bt_add, bt_insert, bt_remove; // stop management
-	button_t bt_return;
+	button_t bt_bidirectional, bt_mirror;
 
 	button_t bt_wait_prev, bt_wait_next;	// waiting in parts of month
 	gui_label_t lb_wait, lb_waitlevel;
 
 	gui_label_t lb_load;
 	gui_numberinput_t numimp_load;
+
+	gui_label_t lb_spacing;
+	gui_numberinput_t numimp_spacing;
 
 	char str_ladegrad[16];
 	char str_parts_month[32];
@@ -133,7 +136,7 @@ public:
 	 * Mausklicks werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 */
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	const char *get_hilfe_datei() const {return "schedule.txt";}
 

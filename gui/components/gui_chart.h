@@ -7,7 +7,7 @@
 #define gui_chart_h
 
 #include "../../simtypes.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
 
 // CURVE TYPES
@@ -33,14 +33,14 @@ public:
 	 * paint chart
 	 * @author hsiegeln
 	 */
-		void zeichnen(koord offset);
+	void zeichnen(koord offset);
 
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t *);
+	bool infowin_event(const event_t *);
 
 	/*
 	 * set dimension
@@ -62,7 +62,7 @@ public:
 	 * returns curve's id
 	 * @author hsiegeln
 	 */
-	int add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision );
+	int add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision );
 
 	void remove_curves() { curves.clear(); }
 
@@ -102,7 +102,7 @@ private:
 	 */
 	struct curve_t {
 		int color;
-		sint64 *values;
+		const sint64 *values;
 		int size;
 		int offset;
 		int elements;

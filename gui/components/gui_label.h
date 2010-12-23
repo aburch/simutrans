@@ -10,7 +10,7 @@
 #ifndef gui_gui_label_h
 #define gui_gui_label_h
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../simcolor.h"
 
 
@@ -75,8 +75,8 @@ public:
 	 * Sets the colour of the label
 	 * @author Owen Rudge
 	 */
-
 	void set_color(int colour) { this->color = colour; }
+	uint8 get_color() const { return color; }
 
 	/**
 	 * Sets the alignment of the label

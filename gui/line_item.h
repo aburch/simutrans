@@ -19,7 +19,7 @@ public:
 	linehandle_t get_line() const { return line; }
 	void set_color(COLOR_VAL) { assert(false); }
 	virtual const char *get_text() { return line->get_name(); }
-	virtual void set_text(char *t) { tstrncpy( line->get_name(), t, 128 ); }
+	virtual void set_text(char *t);
 	virtual bool is_valid() { return line.is_bound(); }	//  can be used to indicate invalid entries
 };
 

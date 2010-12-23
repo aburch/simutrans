@@ -16,7 +16,7 @@ Wählst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenste
 · <em>Gewinn:</em> Der Gewinn seit dem 1. Januar des Jahres wird angegeben. Ist der Wert negativ, fährt der Fahrzeugverband mit Verlust.<br/>
 · <em>Ladegrad:</em> Der grüne Farbbalken gibt Dir Aufschluss über die aktuelle prozentuale Beladung des Fahrzeugverbandes. Ein (teil)gelber Balken bedeutet, dass der Fahrzeugverband auf die im <a href="schedule.txt">Fahrplan</a> eingestellte Mindestbeladung wartet.<br/>
 · <em>Fahrtziel:</em> Das aktuelle Fahrplanziel wird angezeigt. Ist das Ziel eine Haltestelle, gibt Dir der erste Wert in Klammer darüber Auskunft, auf welchen minimalen Beladegrad der Fahrzeugverband warten wird. Du kannst den Wert für den Fahrzeugverband im <a href="schedule.txt">Fahrplan</a> ändern. Sollen alle Fahrzeuge der Linie von der Änderung betroffen sein, suche die Linie in der<a href="linelist.txt">Linienverwaltung</a> auf. Der farbige Balken dahinter gibt die Entfernung bis zum nächsten Halt an.<br/>
-· <em>Bedient Linie:</em> Der Fahrzeugverband fährt nach dem Plan der angegebenen Linie. Weicht der Fahrplan nach einer Änderung vom Linienplan ab, oder fährt der Fahrzeugverband in keiner Linie, wird die Zeile nicht angezeigt.
+· <em>Bedient Linie:</em> Der Fahrzeugverband fährt nach dem Plan der angegebenen Linie. Weicht der Fahrplan nach einer Änderung vom Linienplan ab, oder fährt der Fahrzeugverband in keiner Linie, wird die Zeile nicht angezeigt. Mit dem Dreieck kann man direkt die Linie in der <a href="linelist.txt">Linienverwaltung</a> öffnen.
 </p>
 <p>
 <em>Fahrplan:</em> Über die Schaltfläche kannst Du den <a href="schedule.txt">Fahrplan</a> des Fahrzeugverbandes aufrufen.
@@ -28,7 +28,7 @@ Wählst Du mit dem Lupenwerkzeug einen Fahrzeugverband an, wird dessen Infofenste
 <em>nach Hause:</em> Bedienst Du den Schalter, bricht der Fahrzeugverband seinen Weg im Fahrplan ab und steuert auf dem kürzesten Weg das nächstgelegene geeignete <a href="depot.txt">Depot</a> an. Beim Erreichen des Depots geht sämtliche Fracht verloren; immerhin wird Dir der Ertrag für die geleistete Strecke ausbezahlt. Die Linie bzw. der Fahrplan sowie der letzte angesteuerte Fahrplanpunkt bleiben weiterhin gültig.
 </p>
 <p>
-<em>nach laden:</em> Der Fahrzeugverband wird ab sofort alle Mindestladung ignorieren und nur noch Fracht abladen.
+<em>nicht laden:</em> Der Fahrzeugverband wird ab sofort alle Mindestladung ignorieren und nur noch Fracht abladen.
 </p>
 <p>
 <em>Chart:</em> Nach der Bedienung des Schalters öffnet bzw. schließt sich ein Statistikbereich mit grafischer Anzeige. Die Kurven entsprechen in den Farben jenen der selektierten Schalter und gewähren eine statistische Übersicht (monatsweise) über die letzten 12 Monate. Der aktuelle Monat steht links.<br/>

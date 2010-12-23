@@ -8,7 +8,7 @@
 #ifndef gui_textarea_h
 #define gui_textarea_h
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 
 
 /**

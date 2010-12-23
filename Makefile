@@ -62,6 +62,12 @@ ifeq ($(OSTYPE),mingw)
   LIBS += -lmingw32 -lgdi32 -lwinmm -lwsock32 -lz -lbz2
 endif
 
+ifeq ($(OSTYPE),mingw)
+  SOURCES += clipboard_w32.cc
+else
+  SOURCES += clipboard_internal.cc
+endif
+
 ALLEGRO_CONFIG ?= allegro-config
 SDL_CONFIG     ?= sdl-config
 
@@ -96,6 +102,13 @@ ifneq ($(PROFILE),)
   LDFLAGS += -pg
 endif
 
+ifneq ($(WITH_REVISION),)
+  REV = $(shell svnversion)
+  ifneq ($(REV),)
+    CFLAGS  += -DREVISION="$(REV)"
+  endif
+endif
+
 CFLAGS   += -Wall -W -Wcast-qual -Wpointer-arith -Wcast-align $(FLAGS)
 CCFLAGS  += -Wstrict-prototypes
 
@@ -109,6 +122,7 @@ SOURCES += bauer/warenbauer.cc
 SOURCES += bauer/wegbauer.cc
 SOURCES += besch/bild_besch.cc
 SOURCES += besch/bruecke_besch.cc
+SOURCES += besch/fabrik_besch.cc
 SOURCES += besch/grund_besch.cc
 SOURCES += besch/haus_besch.cc
 SOURCES += besch/reader/bridge_reader.cc
@@ -160,13 +174,17 @@ SOURCES += dataobj/dingliste.cc
 SOURCES += dataobj/einstellungen.cc
 SOURCES += dataobj/fahrplan.cc
 SOURCES += dataobj/freelist.cc
+SOURCES += dataobj/gameinfo.cc
 SOURCES += dataobj/koord.cc
 SOURCES += dataobj/koord3d.cc
 SOURCES += dataobj/loadsave.cc
 SOURCES += dataobj/marker.cc
 SOURCES += dataobj/network.cc
 SOURCES += dataobj/network_cmd.cc
+SOURCES += dataobj/network_cmp_pakset.cc
 SOURCES += dataobj/network_packet.cc
+SOURCES += dataobj/network_socket_list.cc
+SOURCES += dataobj/pakset_info.cc
 SOURCES += dataobj/powernet.cc
 SOURCES += dataobj/replace_data.cc
 SOURCES += dataobj/ribi.cc
@@ -206,6 +224,7 @@ SOURCES += gui/components/gui_combobox.cc
 SOURCES += gui/components/gui_component_table.cc
 SOURCES += gui/components/gui_convoy_assembler.cc
 SOURCES += gui/components/gui_convoy_label.cc
+SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_flowtext.cc
 SOURCES += gui/components/gui_image_list.cc
 SOURCES += gui/components/gui_label.cc
@@ -217,7 +236,6 @@ SOURCES += gui/components/gui_speedbar.cc
 SOURCES += gui/components/gui_tab_panel.cc
 SOURCES += gui/components/gui_table.cc
 SOURCES += gui/components/gui_textarea.cc
-SOURCES += gui/components/gui_fixedwidth_textarea.cc
 SOURCES += gui/components/gui_textinput.cc
 SOURCES += gui/components/gui_world_view_t.cc
 SOURCES += gui/convoi_detail_t.cc
@@ -253,6 +271,7 @@ SOURCES += gui/kennfarbe.cc
 SOURCES += gui/label_info.cc
 SOURCES += gui/labellist_frame_t.cc
 SOURCES += gui/labellist_stats_t.cc
+SOURCES += gui/line_item.cc
 SOURCES += gui/line_management_gui.cc
 SOURCES += gui/load_relief_frame.cc
 SOURCES += gui/loadsave_frame.cc
@@ -270,6 +289,7 @@ SOURCES += gui/replace_frame.cc
 SOURCES += gui/savegame_frame.cc
 SOURCES += gui/scenario_frame.cc
 SOURCES += gui/schedule_list.cc
+SOURCES += gui/server_frame.cc
 SOURCES += gui/settings_frame.cc
 SOURCES += gui/settings_stats.cc
 SOURCES += gui/signal_spacing.cc
@@ -277,15 +297,15 @@ SOURCES += gui/sound_frame.cc
 SOURCES += gui/sprachen.cc
 SOURCES += gui/stadt_info.cc
 SOURCES += gui/station_building_select.cc
-SOURCES += gui/trafficlight_info.cc
 SOURCES += gui/thing_info.cc
+SOURCES += gui/trafficlight_info.cc
 SOURCES += gui/welt.cc
 SOURCES += gui/werkzeug_waehler.cc
+SOURCES += old_blockmanager.cc
 SOURCES += player/ai.cc
 SOURCES += player/ai_goods.cc
 SOURCES += player/ai_passenger.cc
 SOURCES += player/simplay.cc
-SOURCES += old_blockmanager.cc
 SOURCES += simcity.cc
 SOURCES += convoy.cc
 SOURCES += simconvoi.cc
@@ -318,11 +338,11 @@ SOURCES += sucher/platzsucher.cc
 SOURCES += tpl/debug_helper.cc
 SOURCES += unicode.cc
 SOURCES += utils/cbuffer_t.cc
-SOURCES += utils/cstring_t.cc
+SOURCES += utils/checksum.cc
 SOURCES += utils/log.cc
 SOURCES += utils/memory_rw.cc
-SOURCES += utils/sha1.cc
 SOURCES += utils/searchfolder.cc
+SOURCES += utils/sha1.cc
 SOURCES += utils/simstring.cc
 SOURCES += vehicle/movingobj.cc
 SOURCES += vehicle/simpeople.cc
@@ -331,6 +351,10 @@ SOURCES += vehicle/simverkehr.cc
 
 SOURCES += simgraph$(COLOUR_DEPTH).cc
 
+ifdef DBG_WEIGHTMAP
+  SOURCES += utils/dbg_weightmap.cc
+  CFLAGS += -DDBG_WEIGHTMAP
+endif
 
 ifeq ($(BACKEND),allegro)
   SOURCES  += simsys_d.cc

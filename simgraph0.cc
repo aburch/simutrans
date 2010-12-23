@@ -32,6 +32,7 @@ int large_font_height = 10;
 KOORD_VAL tile_raster_width = 16; // zoomed
 KOORD_VAL base_tile_raster_width = 16; // original
 
+
 KOORD_VAL display_set_base_raster_width(KOORD_VAL)
 {
 	return 0;
@@ -91,6 +92,10 @@ sint16 display_get_height(void)
 sint16 display_set_height(KOORD_VAL)
 {
 	return 0;
+}
+
+void display_set_actual_width(KOORD_VAL)
+{
 }
 
 int display_get_light(void)
@@ -179,6 +184,12 @@ void display_base_img_blend(const unsigned, KOORD_VAL, KOORD_VAL, const signed c
 {
 }
 
+// Knightly : variables for storing currently used image procedure set and tile raster width
+display_image_proc display_normal = display_base_img;
+display_image_proc display_color = display_base_img;
+display_blend_proc display_blend = display_base_img_blend;
+signed short current_tile_raster_width = 0;
+
 void display_mark_img_dirty(unsigned, KOORD_VAL, KOORD_VAL)
 {
 }
@@ -221,6 +232,16 @@ KOORD_VAL display_get_char_width(utf16)
 	return 0;
 }
 
+unsigned short get_next_char_with_metrics(const char* &, unsigned char &, unsigned char &)
+{
+	return 0;
+}
+
+unsigned short get_prev_char_with_metrics(const char* &, const char *const, unsigned char &, unsigned char &)
+{
+	return 0;
+}
+
 int display_calc_proportional_string_len_width(const char*, size_t)
 {
 	return 0;
@@ -229,6 +250,14 @@ int display_calc_proportional_string_len_width(const char*, size_t)
 int display_text_proportional_len_clip(KOORD_VAL, KOORD_VAL, const char*, int, const PLAYER_COLOR_VAL, long)
 {
 	return 0;
+}
+
+void display_outline_proportional(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+{
+}
+
+void display_shadow_proportional(KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL, const char *, int)
+{
 }
 
 void display_ddd_box(KOORD_VAL, KOORD_VAL, KOORD_VAL, KOORD_VAL, PLAYER_COLOR_VAL, PLAYER_COLOR_VAL)

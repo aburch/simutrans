@@ -70,7 +70,7 @@ private:
     /*
      * Child window, if open
      */
-    gui_fenster_t *filter_frame;
+    gui_frame_t *filter_frame;
 
     /*
      * All filter settings are static, so they are not reset each
@@ -107,7 +107,7 @@ public:
     void filter_frame_closed() { filter_frame = NULL; }
 
 	// must be handled, because we could not use scrollpane
-	void infowin_event(const event_t*);
+	bool infowin_event(const event_t*);
 
 	/**
      * This method is called if the size of the window should be changed
@@ -134,7 +134,7 @@ public:
      * @return den Dateinamen für die Hilfe, oder NULL
      * @author V. Meyer
      */
-    const char * get_hilfe_datei() const {return "haltlist.txt"; }
+    const char *get_hilfe_datei() const {return "haltlist.txt"; }
 
     static sort_mode_t get_sortierung() { return sortby; }
     static void set_sortierung(sort_mode_t sm) { sortby = sm; }

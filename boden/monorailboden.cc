@@ -28,7 +28,7 @@ monorailboden_t::rdwr(loadsave_t *file)
 		// save slope locally
 		if(file->get_version()>88005) {
 			uint8 sl;
-			file->rdwr_byte( sl, " " );
+			file->rdwr_byte(sl);
 			slope = sl;
 		}
 		else {

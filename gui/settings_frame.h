@@ -38,6 +38,8 @@ private:
 	gui_scrollpane_t scrolly_routing;
 	settings_costs_stats_t   costs;
 	gui_scrollpane_t scrolly_costs;
+	settings_climates_stats_t	climates;
+	gui_scrollpane_t scrolly_climates;
 
 	gui_tab_panel_t	 tabs_experimental;
 	settings_experimental_general_stats_t exp_general;
@@ -73,12 +75,15 @@ public:
      */
     bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
+	// does not work during new world dialoge
+	virtual bool has_sticky() const { return false; }
+
 	/**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 * @author V. Meyer
 	 */
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 };
 
 #endif

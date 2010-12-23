@@ -21,7 +21,6 @@
 class spieler_t;
 class depot_t;
 class karte_t;
-class grund_info_t;
 class cbuffer_t;
 
 
@@ -73,16 +72,10 @@ template<> struct map_ding<weg_t>         { static const ding_t::typ code = ding
 template<> struct map_ding<zeiger_t>      { static const ding_t::typ code = ding_t::zeiger;      };
 
 
-template<typename T> static inline T const* ding_cast(ding_t const* const d)
-{
-	return d->get_typ() == map_ding<T>::code ? static_cast<T const*>(d) : 0;
-}
-
 template<typename T> static inline T* ding_cast(ding_t* const d)
 {
 	return d->get_typ() == map_ding<T>::code ? static_cast<T*>(d) : 0;
 }
-
 
 
 /**
@@ -274,6 +267,11 @@ public:
 	virtual void clear_back_bild() {back_bild_nr=0;}
 
 	/**
+	* if ground is deleted mark the old spot as dirty
+	*/
+	void mark_image_dirty();
+
+	/**
 	* Gibt den Namen des Untergrundes zurueck.
 	* @return Den Namen des Untergrundes.
 	* @author Hj. Malthaner
@@ -461,6 +459,8 @@ public:
 	* @author Hj. Malthaner
 	*/
 	void display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const;
+
+	void display_if_visible(sint16 xpos, sint16 ypos, sint16 raster_tile_width) const;
 
 	/**
 	 * displays everything that is on a tile - the main display routine for objects on tiles

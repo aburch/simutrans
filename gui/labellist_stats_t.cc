@@ -21,8 +21,6 @@
 #include "../besch/haus_besch.h"
 #include "../besch/skin_besch.h"
 
-#include "../dataobj/translator.h"
-
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
@@ -67,8 +65,8 @@ class compare_labels
 				case labellist::by_player:
 				{
 					if(!filter) {
-						label_t* a_l = welt->lookup(a)->get_kartenboden()->find<label_t>();
-						label_t* b_l = welt->lookup(b)->get_kartenboden()->find<label_t>();
+						label_t* a_l = welt->lookup_kartenboden(a)->find<label_t>();
+						label_t* b_l = welt->lookup_kartenboden(b)->find<label_t>();
 						if(a_l && b_l) {
 							cmp = a_l->get_besitzer()->get_player_nr() - b_l->get_besitzer()->get_player_nr();
 						}
@@ -77,8 +75,8 @@ class compare_labels
 				}
 			}
 			if(cmp==0) {
-				const char* a_name = welt->lookup(a)->get_kartenboden()->get_text();
-				const char* b_name = welt->lookup(b)->get_kartenboden()->get_text();
+				const char* a_name = welt->lookup_kartenboden(a)->get_text();
+				const char* b_name = welt->lookup_kartenboden(b)->get_text();
 
 				cmp = strcmp(a_name, b_name);
 			}
@@ -100,8 +98,8 @@ void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sortby, bool so
 	slist_iterator_tpl <koord> iter (welt->get_label_list());
 	while(iter.next()) {
 		koord pos = iter.get_current();
-		label_t* label = welt->lookup(pos)->get_kartenboden()->find<label_t>();
-		const char* name = welt->lookup(pos)->get_kartenboden()->get_text();
+		label_t* label = welt->lookup_kartenboden(pos)->find<label_t>();
+		const char* name = welt->lookup_kartenboden(pos)->get_text();
 		// some old version games don't have label nor name.
 		// Check them to avoid crashes.
 		if(label  &&  name  &&  (!filter  ||  (label  &&  (label->get_besitzer() == welt->get_active_player())))) {
@@ -116,18 +114,18 @@ void labellist_stats_t::get_unique_labels(labellist::sort_mode_t sortby, bool so
  * gemeldet
  * @author Hj. Malthaner
  */
-void labellist_stats_t::infowin_event(const event_t * ev)
+bool labellist_stats_t::infowin_event(const event_t * ev)
 {
 	const unsigned int line = (ev->cy) / (LINESPACE+1);
 
 	line_selected = 0xFFFFFFFFu;
 	if (line>=labels.get_count()) {
-		return;
+		return false;
 	}
 
 	koord pos = labels[line];
 	if (pos==koord::invalid) {
-		return;
+		return false;
 	}
 
 	// deperess goto button
@@ -139,14 +137,15 @@ void labellist_stats_t::infowin_event(const event_t * ev)
 		if(  ev->cx>0  &&  ev->cx<15  ) {
 			welt->change_world_position(pos);
 		}
-		else if(welt->lookup(pos)->get_kartenboden()->find<label_t>()) {
+		else if(welt->lookup_kartenboden(pos)->find<label_t>()) {
 			// avoid crash
-				welt->lookup(pos)->get_kartenboden()->find<label_t>()->zeige_info();
+				welt->lookup_kartenboden(pos)->find<label_t>()->zeige_info();
 		}
 	}
 	else if (IS_RIGHTRELEASE(ev)) {
 		welt->change_world_position(pos);
 	}
+	return false;
 } // end of function labellist_stats_t::infowin_event(const event_t * ev)
 
 
@@ -156,7 +155,6 @@ void labellist_stats_t::infowin_event(const event_t * ev)
  */
 void labellist_stats_t::zeichnen(koord offset)
 {
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	const struct clip_dimension cd = display_get_clip_wh();
 	const int start = cd.y-LINESPACE+1;
 	const int end = cd.yy;
@@ -173,15 +171,9 @@ void labellist_stats_t::zeichnen(koord offset)
 			continue;
 		}
 
-		if(i!=line_selected) {
-			// goto information
-			display_color_img(arrow_right_normal, offset.x+2, yoff, 0, false, true);
-		}
-		else {
-			// select goto button
-			display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
+		// goto button
+		display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
 				offset.x+2, yoff, 0, false, true);
-		}
 
 		buf.clear();
 

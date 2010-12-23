@@ -16,9 +16,9 @@
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../simwin.h"
 
 class spieler_t;
-class karte_t;
 
 
 /**
@@ -35,6 +35,7 @@ private:
 	uint8 destination_counter;	// last destination counter of the halt; if mismatch to current, then redraw destinations
 	spieler_t *cached_active_player; // So that, if different from current, change line links
 	uint32 cached_line_count;
+	uint32 cached_convoy_count;
 
 	gui_container_t cont;
 	gui_scrollpane_t scrolly;
@@ -45,6 +46,8 @@ private:
 	slist_tpl<button_t *>posbuttons;
 	slist_tpl<gui_label_t *>linelabels;
 	slist_tpl<button_t *>linebuttons;
+	slist_tpl<gui_label_t *> convoylabels;
+	slist_tpl<button_t *> convoybuttons;
 
 public:
 	halt_detail_t(halthandle_t halt);
@@ -65,6 +68,13 @@ public:
 
 	// only defined to update schedule, if changed
 	void zeichnen( koord pos, koord gr );
+
+	// this contructor is only used during loading
+	halt_detail_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_halt_detail; }
 };
 
 #endif

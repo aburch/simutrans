@@ -44,6 +44,10 @@ class trafficlight_info_t : public ding_infowin_t, public action_listener_t
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+
+	// called, after external change
+	void update_data();
 };
 
 #endif

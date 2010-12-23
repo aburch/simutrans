@@ -45,13 +45,20 @@ vector_tpl<const groundobj_besch_t *> movingobj_t::movingobj_typen(0);
 stringhashtable_tpl<groundobj_besch_t *> movingobj_t::besch_names;
 
 
+bool compare_groundobj_besch(const groundobj_besch_t* a, const groundobj_besch_t* b);
+
+
 bool movingobj_t::alles_geladen()
 {
 	movingobj_typen.resize(besch_names.get_count());
 	stringhashtable_iterator_tpl<groundobj_besch_t *>iter(besch_names);
 	while(  iter.next()  ) {
-		iter.access_current_value()->index = movingobj_typen.get_count();
-		movingobj_typen.append( iter.get_current_value() );
+		movingobj_typen.insert_ordered( iter.get_current_value(), compare_groundobj_besch );
+	}
+	// iterate again to assign the index
+	stringhashtable_iterator_tpl<groundobj_besch_t *>iter2(besch_names);
+	while(  iter2.next()  ) {
+		iter2.access_current_value()->index = movingobj_typen.index_of( iter2.get_current_value());
 	}
 
 	if(besch_names.empty()) {
@@ -197,19 +204,19 @@ void movingobj_t::rdwr(loadsave_t *file)
 
 	vehikel_basis_t::rdwr(file);
 
-	file->rdwr_enum(fahrtrichtung, " ");
+	file->rdwr_enum(fahrtrichtung);
 	if (file->is_loading()) {
 		// restore dxdy information
 		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2];
 		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1];
 	}
 
-	file->rdwr_byte(steps, " ");
-	file->rdwr_byte(steps_next, "\n");
+	file->rdwr_byte(steps);
+	file->rdwr_byte(steps_next);
 
 	pos_next.rdwr(file);
 	pos_next_next.rdwr(file);
-	file->rdwr_short( timetochange, "" );
+	file->rdwr_short(timetochange);
 
 	if(file->is_saving()) {
 		const char *s = get_besch()->get_name();
@@ -227,6 +234,8 @@ void movingobj_t::rdwr(loadsave_t *file)
 		}
 		// if not there, besch will be zero
 		use_calc_height = true;
+		// not saved, recalculate
+		hoff = calc_height();
 	}
 	weg_next = 0;
 }

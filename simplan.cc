@@ -346,27 +346,16 @@ void planquadrat_t::angehoben(karte_t *welt)
 		if (max_hgt > welt->get_grundwasser()  &&  gr->get_typ()==grund_t::wasser) {
 			kartenboden_setzen(new boden_t(welt, gr->get_pos(), slope ) );
 			// recalc water ribis
-			for(int y=-1; y<=1; y+=2) {
-				for(int x=-1; x<=1; x+=2) {
-					grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d()+koord(x,y));
-					if (gr2  &&  gr2->ist_wasser()) {
-						gr2->calc_bild();
-					}
+			for(int r=0; r<4; r++) {
+				grund_t *gr2 = welt->lookup_kartenboden(gr->get_pos().get_2d() + koord::nsow[r]);
+				if (gr2  &&  gr2->ist_wasser()) {
+					gr2->calc_bild();
 				}
 			}
 		}
 		else {
 			reliefkarte_t::get_karte()->calc_map_pixel(gr->get_pos().get_2d());
 		}
-	}
-}
-
-
-void planquadrat_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 raster_tile_width) const
-{
-	grund_t *gr=get_kartenboden();
-	if(!gr->get_flag(grund_t::draw_as_ding)  &&  gr->is_karten_boden_visible()) {
-		gr->display_boden(xpos, ypos, raster_tile_width);
 	}
 }
 
@@ -482,12 +471,10 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
  */
 void planquadrat_t::set_halt(halthandle_t halt)
 {
-#ifdef DEBUG
 	if(halt.is_bound()  &&  this_halt.is_bound()  &&  halt!=this_halt) {
 		koord k = (ground_size>0) ? get_kartenboden()->get_pos().get_2d() : koord::invalid;
 		dbg->warning("planquadrat_t::set_halt()","assign new halt to already bound halt at (%i,%i)!", k.x, k.y );
 	}
-#endif
 	this_halt = halt;
 }
 
@@ -551,8 +538,8 @@ void planquadrat_t::add_to_haltlist(halthandle_t halt)
 			for(insert_pos=0;  insert_pos<halt_list_count;  insert_pos++) {
 
 				// not a passenger KI or other is farer away
-				if (halt_list[insert_pos]->get_connexions(0)->empty() && halt_list[insert_pos]->get_connexions(1)->empty() || 
-					 koord_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > koord_distance(halt->get_next_pos(pos), pos))
+				if ((halt_list[insert_pos]->get_connexions(0)->empty() && halt_list[insert_pos]->get_connexions(1)->empty()) || 
+					koord_distance(halt_list[insert_pos]->get_next_pos(pos), pos) > koord_distance(halt->get_next_pos(pos), pos))
 				{
 					halt_list_insert_at( halt, insert_pos );
 					return;

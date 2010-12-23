@@ -42,6 +42,8 @@ public:
 
 	bool has_pak() const { return use_table ? file_table.get_size().get_y() > 0 : !entries.empty(); }
 
+	virtual bool has_title() const { return false; }
+
 	const char * get_hilfe_datei() const { return ""; }
 
 	// since we only want to see the frames ...

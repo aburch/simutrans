@@ -82,7 +82,7 @@ wayobj_t::~wayobj_t()
 				weg->set_electrify(false);
 				// restore old speed limit and way constraints
 				weg->reset_way_constraints();
-				uint32 max_speed = weg->hat_gehweg() ? 50 : weg->get_besch()->get_topspeed();
+				sint32 max_speed = weg->hat_gehweg() ? 50 : weg->get_besch()->get_topspeed();
 				if(gr->get_typ()==grund_t::tunnelboden) {
 					tunnel_t *t = gr->find<tunnel_t>(1);
 					if(t) {
@@ -137,7 +137,7 @@ void wayobj_t::rdwr(loadsave_t *file)
 	xml_tag_t t( file, "wayobj_t" );
 	ding_t::rdwr(file);
 	if(file->get_version()>=89000) {
-		file->rdwr_byte(dir, "\n");
+		file->rdwr_byte(dir);
 		if(file->is_saving()) {
 			const char *s = besch->get_name();
 			file->rdwr_str(s);
@@ -346,7 +346,7 @@ wayobj_t::calc_bild()
 				image_id after = besch->get_front_diagonal_image_id(dir);
 				image_id bild = besch->get_back_diagonal_image_id(dir);
 				if(bild==IMG_LEER  &&  after==IMG_LEER) {
-					// ok, we have diagonals
+					// no diagonals available
 					diagonal = false;
 				}
 			}

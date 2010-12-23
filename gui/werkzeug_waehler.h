@@ -9,16 +9,15 @@
 #ifndef gui_werkzeug_waehler_h
 #define gui_werkzeug_waehler_h
 
-#include "../ifc/gui_fenster.h"
+#include "gui_frame.h"
 #include "../tpl/vector_tpl.h"
-//#include "../simmenu.h"
+#include "../simwin.h"
 
-class spieler_t;
 class karte_t;
 class werkzeug_t;
 
 
-class werkzeug_waehler_t : public gui_fenster_t
+class werkzeug_waehler_t : public gui_frame_t
 {
 private:
 	koord icon;	// size of symbols here
@@ -31,13 +30,22 @@ private:
 	*/
 	vector_tpl<werkzeug_t *> tools;
 
+	// get current toolbar nummer for saving
+	uint32 toolbar_id;
+
 	/**
 	 * window width in toolboxes
 	 * @author Hj. Malthaner
 	 */
-	int tool_icon_width;
+	uint16 tool_icon_width;
+	uint16 tool_icon_height;
+
+	uint16 tool_icon_disp_start;
+	uint16 tool_icon_disp_end;
 
 	koord groesse;
+
+	bool has_prev_next;
 
 	/**
 	 * Fenstertitel
@@ -57,7 +65,7 @@ private:
 	bool allow_break;
 
 public:
-	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, koord size, bool allow_break=true );
+	werkzeug_waehler_t(karte_t *welt, const char *titel, const char *helpfile, uint32 toolbar_id, koord size, bool allow_break=true );
 
 	/**
 	 * Add a new tool with values and tooltip text.
@@ -68,16 +76,12 @@ public:
 	// purges toolbar
 	void reset_tools();
 
-	const char *get_name() const {return titel;}
-
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
 	 * @return den Dateinamen für die Hilfe, oder NULL
 	 * @author Hj. Malthaner
 	 */
 	const char *get_hilfe_datei() const {return hilfe_datei;}
-
-	koord get_fenstergroesse() const { return groesse; }
 
 	PLAYER_COLOR_VAL get_titelcolor() const { return WIN_TITEL; }
 
@@ -86,11 +90,18 @@ public:
 	 */
 	bool getroffen(int x, int y);
 
+	/**
+	 * Does this window need a next button in the title bar?
+	 * @return true if such a button is needed
+	 * @author Volker Meyer
+	 */
+	bool has_next() const {return has_prev_next;}
+
 	/* Events werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
@@ -99,6 +110,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	void zeichnen(koord pos, koord gr);
+
+	// since no information are needed to be saved to restore this, returning magic is enough
+	virtual uint32 get_rdwr_id() { return magic_toolbar+toolbar_id; }
 };
 
 #endif

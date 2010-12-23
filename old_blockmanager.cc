@@ -73,9 +73,9 @@ oldsignal_t::rdwr(loadsave_t *file)
 	}
 	// loading from blockmanager!
 	ding_t::rdwr(file);
-	file->rdwr_byte(blockend, " ");
-	file->rdwr_byte(zustand, " ");
-	file->rdwr_byte(dir, "\n");
+	file->rdwr_byte(blockend);
+	file->rdwr_byte(zustand);
+	file->rdwr_byte(dir);
 }
 
 
@@ -88,7 +88,7 @@ old_blockmanager_t::rdwr_block(karte_t *welt,loadsave_t *file)
 	short int typ = ding_t::signal;
 
 	// signale laden
-	file->rdwr_long(count, "\n");
+	file->rdwr_long(count);
 
 	for(int i=0; i<count; i++) {
 		// read the old signals (only opurpose of the here
@@ -102,12 +102,12 @@ old_blockmanager_t::rdwr_block(karte_t *welt,loadsave_t *file)
 	if(file->get_version()<=88005) {
 		// old style
 		sint32 dummy = 0;
-		file->rdwr_long(dummy, " ");
-		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy);
+		file->rdwr_long(dummy);
 	}
 	else  {
 		sint16 dummy;
-		file->rdwr_short(dummy, "\n");
+		file->rdwr_short(dummy);
 	}
 }
 
@@ -127,7 +127,7 @@ old_blockmanager_t::rdwr(karte_t *welt, loadsave_t *file)
 	// this routine just reads the of signal positions
 	// and converts them to the new type>
 	sint32 count;
-	file->rdwr_long(count, "\n");
+	file->rdwr_long(count);
 	for(int i=0; i<count; i++) {
 		rdwr_block(welt,file);
 	}

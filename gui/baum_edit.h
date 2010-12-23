@@ -5,10 +5,6 @@
 
 #include "components/gui_label.h"
 
-#include "../simwerkz.h"
-
-
-#define MAX_BUILD_TYPE (6)
 
 class baum_besch_t;
 class wkz_plant_tree_t;

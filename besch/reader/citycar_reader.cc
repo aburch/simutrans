@@ -10,6 +10,7 @@
 #include "../obj_node_info.h"
 
 #include "../../simdebug.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void citycar_reader_t::register_obj(obj_besch_t *&data)
@@ -30,6 +31,10 @@ void citycar_reader_t::register_obj(obj_besch_t *&data)
 
 	stadtauto_t::register_besch(besch);
 //    printf("...Stadtauto %s geladen\n", besch->get_name());
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

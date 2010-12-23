@@ -17,6 +17,3 @@ Ponizej znajduje sie lista ustawien z krótkim opisem.
 <em><a href="new_world.txt">Nowa mapa</a> - Rozpoczecie gry na nowej mapie<br>
 <em>Koniec gry</em> - Zakonczenie gry bez jej zapisania.<br>
 </p>
-
-
-</p>

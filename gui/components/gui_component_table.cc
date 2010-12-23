@@ -106,7 +106,7 @@ void gui_component_table_t::set_cell_component(coordinate_t x, coordinate_t y, g
 }
 
 // BG, 11.04.2010
-void gui_component_table_t::infowin_event(const event_t *ev)
+bool gui_component_table_t::infowin_event(const event_t *ev)
 {
 	gui_table_event_t table_event(this, ev);
 	table_event.is_cell_hit = get_cell_at(ev->mx, ev->my, table_event.cell, table_event.offset);
@@ -118,12 +118,14 @@ void gui_component_table_t::infowin_event(const event_t *ev)
 			translate_event(&ev2, -offset.x, -offset.y);
 			c->infowin_event(&ev2);
 		}
+		return true;
 	}
+	return false;
 }
 
 
 // BG, 18.03.2010
-void gui_component_table_t::init_cell(coordinate_t x, coordinate_t y) {
+void gui_component_table_t::init_cell(coordinate_t /*x*/, coordinate_t /*y*/) {
 }
 
 

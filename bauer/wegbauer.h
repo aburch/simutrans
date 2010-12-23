@@ -11,20 +11,17 @@
 #include "../boden/wege/weg.h"
 #include "../tpl/vector_tpl.h"
 #include "../simtypes.h"
-#include "../simwerkz.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
 
 class weg_besch_t;
-class kreuzung_besch_t;
 class bruecke_besch_t;
 class tunnel_besch_t;
 class karte_t;
 class spieler_t;
 class grund_t;
-
-class werkzeug_parameter_waehler_t;
+class werkzeug_waehler_t;
 
 
 /**
@@ -46,9 +43,8 @@ public:
 	 * Finds a way with a given speed limit for a given waytype
 	 * @author prissi
 	 */
-	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit, const uint16 time, const weg_t::system_type system_type);
-
-	static const weg_besch_t *  weg_search(const waytype_t wtyp,const uint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type);
+	static const weg_besch_t *  weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint32 weight_limit, const uint16 time, const weg_t::system_type system_type);
+	static const weg_besch_t *  weg_search(const waytype_t wtyp,const sint32 speed_limit, const uint16 time, const weg_t::system_type system_type);
 
 	static const weg_besch_t * get_besch(const char *way_name,const uint16 time=0);
 
@@ -90,9 +86,6 @@ private:
 	};
 	vector_tpl<next_gr_t> next_gr;
 
-	enum { unseen = 9999999 };
-	enum { max_route_laenge = 1024 };
-
 	spieler_t *sp;
 
 	/**
@@ -127,6 +120,8 @@ private:
 	bool keep_existing_ways;
 	bool keep_existing_faster_ways;
 	bool keep_existing_city_roads;
+
+	bool build_sidewalk;
 
 	karte_t *welt;
 	uint32 maximum;    // hoechste Suchtiefe
@@ -194,6 +189,8 @@ public:
 	 */
 	void set_keep_city_roads(bool yesno) { keep_existing_city_roads = yesno; }
 
+	void set_build_sidewalk(bool yesno) { build_sidewalk = yesno; }
+
 	void route_fuer(bautyp_t wt, const weg_besch_t * besch, const tunnel_besch_t *tunnel_besch=NULL, const bruecke_besch_t *bruecke_besch=NULL);
 
 	void set_maximum(uint32 n) { maximum = n; }
@@ -213,6 +210,8 @@ public:
 	bool check_for_leitung(const koord zv, const grund_t *bd) const;
 	// allowed owner?
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const;
+	// checks whether buildings on the tile allow to leave in direction dir
+	bool check_building( const grund_t *to, const koord dir ) const;
 
 	void baue();
 };

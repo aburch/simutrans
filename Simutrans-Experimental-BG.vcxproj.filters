@@ -102,9 +102,6 @@
     <ClCompile Include="besch\reader\crossing_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\cstring_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\curiosity_edit.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -715,6 +712,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dings\zeiger.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="clipboard_w32.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,7 +11,7 @@
  *
  * @author Hj. Malthaner
  */
-class zeiger_t : public ding_t
+class zeiger_t : public ding_no_info_t
 {
 private:
 	koord area;

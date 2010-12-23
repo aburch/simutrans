@@ -20,10 +20,12 @@ uint32 simrand(const uint32 max);
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
 uint32 simrand_plain(void);
 
-double perlin_noise_2D(const double x, const double y, const double persistence);
+/* generates random number with gaussian(normal) distribution */
+double simrand_gauss(const double mean, const double sigma);
+double perlin_noise_2D(const double x, const double y, const double persistence, const sint32 map_size = 512);
 
 // for netowrk debugging, i.e. finding hidden simrands in worng places
-enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8 };
+enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8, MAP_CREATE_RANDOM=16 };
 void set_random_mode( uint16 );
 void clear_random_mode( uint16 );
 

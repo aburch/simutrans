@@ -144,7 +144,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 	add_komponente(&year_month_tabs);
 
 	const sint16 yb = 42+CHART_HEIGHT-BUTTON_HEIGHT*3-8;
-	chart.set_pos(koord(60,8));
+	chart.set_pos(koord(60,8+gui_tab_panel_t::HEADER_VSIZE));
 	chart.set_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	chart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_YEARS);
 	chart.set_visible(false);
@@ -154,7 +154,7 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 		chart.add_curve(hist_type_color[cost], welt->get_finance_history_year(), karte_t::MAX_WORLD_COST, cost, MAX_WORLD_HISTORY_YEARS, hist_type_type[cost], false, true, (cost==1) ? 1 : 0 );
 	}
 
-	mchart.set_pos(koord(60,8));
+	mchart.set_pos(koord(60,8+gui_tab_panel_t::HEADER_VSIZE));
 	mchart.set_groesse(koord(TOTAL_WIDTH-60-8,yb-16-42-10-gui_tab_panel_t::HEADER_VSIZE));
 	mchart.set_dimension(12, karte_t::MAX_WORLD_COST*MAX_WORLD_HISTORY_MONTHS);
 	mchart.set_visible(false);
@@ -187,11 +187,6 @@ citylist_frame_t::citylist_frame_t(karte_t * welt) :
 }
 
 
-
-/**
- * This method is called if an action is triggered
- * @author Markus Weber/Volker Meyer
- */
 bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 {
     if(komp == &sortedby) {
@@ -232,11 +227,7 @@ bool citylist_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* *
     return true;
 }
 
-/**
- * resize window in response to a resize event
- * @author Hj. Malthaner
- * @date   16-Oct-2003
- */
+
 void citylist_frame_t::resize(const koord delta)
 {
 	gui_frame_t::resize(delta);
@@ -252,15 +243,7 @@ void citylist_frame_t::resize(const koord delta)
 }
 
 
-
-/**
- * Komponente neu zeichnen. Die übergebenen Werte beziehen sich auf
- * das Fenster, d.h. es sind die Bildschirkoordinaten des Fensters
- * in dem die Komponente dargestellt wird.
- * @author Hj. Malthaner
- */
-void
-citylist_frame_t::zeichnen(koord pos, koord gr)
+void citylist_frame_t::zeichnen(koord pos, koord gr)
 {
 	if(show_stats.pressed) {
 		welt->update_history();

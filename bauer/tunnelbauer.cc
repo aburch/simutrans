@@ -29,7 +29,6 @@
 #include "../boden/wege/monorail.h"
 #include "../boden/wege/kanal.h"
 #include "../boden/wege/strasse.h"
-#include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/koord3d.h"
 
@@ -112,7 +111,7 @@ const tunnel_besch_t *tunnelbauer_t::get_besch(const char *name)
  * Find a matchin tunnel
  * @author Hj. Malthaner
  */
-const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const tunnel_besch_t *tunnelbauer_t::find_tunnel(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const tunnel_besch_t *find_besch=NULL;
 
@@ -191,7 +190,7 @@ tunnelbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, waytype_t wegtyp
 
 #ifdef ONLY_TUNNELS_BELOW_GROUND
 		// check if ground is below tunnel level
-		gr = welt->lookup(pos.get_2d())->get_kartenboden();
+		gr = welt->lookup_kartenboden(pos.get_2d());
 		if(  gr->get_hoehe() < pos.z  ){
 			return koord3d::invalid;
 		}
@@ -326,7 +325,7 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	}
 	// calc new back image for the ground
 	if(grund_t::underground_mode) {
-		grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
+		grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 		gr->calc_bild();
 		gr->set_flag(grund_t::dirty);
 	}
@@ -354,11 +353,11 @@ DBG_MESSAGE("tunnelbauer_t::baue()","build from (%d,%d,%d) to (%d,%d,%d) ", pos.
 	}
 
 	// if end is above ground construct an exit
-	if(welt->lookup(end.get_2d())->get_kartenboden()->get_pos().z==end.z) {
+	if(welt->lookup_kartenboden(end.get_2d())->get_pos().z==end.z) {
 		baue_einfahrt(welt, sp, pos, -zv, besch, weg_besch, cost, maint);
 		// calc new back image for the ground
 		if (end!=start && grund_t::underground_mode) {
-			grund_t *gr = welt->lookup(pos.get_2d()-zv)->get_kartenboden();
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d()-zv);
 			gr->calc_bild();
 			gr->set_flag(grund_t::dirty);
 		}
@@ -420,6 +419,15 @@ const weg_besch_t *tunnelbauer_t::baue_einfahrt(karte_t *welt, spieler_t *sp, ko
 	tunnel->set_flag(grund_t::dirty);
 
 	maint += besch->get_wartung() - weg->get_besch()->get_wartung();
+
+	// remove sidewalk
+	weg_t *str = tunnel->get_weg( road_wt );
+	if( str  &&  str->hat_gehweg()) {
+		str->set_gehweg(false);
+	}
+
+	tunnel->calc_bild();
+	tunnel->set_flag(grund_t::dirty);
 
 	// Auto-connect to a way outside the new tunnel mouth
 	grund_t *ground_outside = welt->lookup(end-zv);
@@ -518,8 +526,8 @@ tunnelbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d start, waytype_t weg
 		gr->remove_everything_from_way(sp,wegtyp,ribi_t::keine);	// removes stop and signals correctly
 		// remove everything else
 		gr->obj_loesche_alle(sp);
+		gr->mark_image_dirty();
 		welt->access(pos.get_2d())->boden_entfernen(gr);
-		welt->access(pos.get_2d())->get_kartenboden()->set_flag(grund_t::dirty);
 		delete gr;
 
 		reliefkarte_t::get_karte()->calc_map_pixel( pos.get_2d() );

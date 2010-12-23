@@ -39,25 +39,19 @@ gui_convoiinfo_t::gui_convoiinfo_t(convoihandle_t cnv, int n)
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_convoiinfo_t::infowin_event(const event_t *ev)
+bool gui_convoiinfo_t::infowin_event(const event_t *ev)
 {
 	if(cnv.is_bound()) {
 		if(IS_LEFTRELEASE(ev)) {
-			if(cnv->in_depot()) {
-				grund_t *gr = cnv->get_welt()->lookup(cnv->get_vehikel(0)->get_pos());
-				if(gr==NULL  ||  gr->get_depot()==NULL) {
-					gr = cnv->get_welt()->lookup(cnv->get_home_depot());
-				}
-				gr->get_depot()->zeige_info();
-			}
-			else {
-				cnv->zeige_info();
-			}
+			cnv->zeige_info();
+			return true;
 		}
 		else if(IS_RIGHTRELEASE(ev)) {
-			cnv->get_welt()->change_world_position(cnv->get_vehikel(0)->get_pos());
+			cnv->get_welt()->change_world_position(cnv->front()->get_pos());
+			return true;
 		}
 	}
+	return false;
 }
 
 

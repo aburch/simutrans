@@ -14,11 +14,16 @@ Dieser Dialog erscheint immer zusammen mit dem <a href="new_world.txt">Neue Welt
 <br>
 <p>
 Im folgenden werden die Grenzen der Schneezone festgelegt. Im Laufe des Jahres sinkt und steigt die Schneegrenze in Simutrans entsprechend der gewählten Einstellung.</p>
-
+<p>
 · <em>Sommerschnee:</em> Ab dieser Höhe beginnt der ewige Schnee. Dort gibt es sehr wenige Städte, Industrien und Vegetation.</p>
+<p>
 · <em>Winterschnee:</em> Bis zu dieser Höhe fällt im Winter Schnee. Das hat keine Auswirkungen auf das Spiel sondern dient allein der Optik.</p>
 
-<br>
 <p>
-Zum Schluss werden die Grenzen der einzelnen Klimazonen bestimmt. Diese werden in Höhenstufen ab Grundwasser gerechnet. Die Anzeige der Klimazonen geht von Null bis zur eingestellten Höhe. Höhere Klimazonen werden dabei von niedrigeren Klimazonen im unteren Bereich überdeckt. Du kannst also Wüste in Tundra und dann in Tropen übergehen lassen.</br>
-<strong>Achtung</strong></br>Gebäude, Industrien und Vegetation können bestimmten Klimazonen zugeordnet sein. In welchen Klimazonen was vorkommt, liegt in den Händen der Pakset- und Addon-Ersteller.</p>
+Im nächsten Block werden die Grenzen der einzelnen Klimazonen bestimmt. Diese werden in Höhenstufen ab Grundwasser gerechnet. Die Anzeige der Klimazonen geht von Null bis zur eingestellten Höhe. Höhere Klimazonen werden dabei von niedrigeren Klimazonen im unteren Bereich überdeckt. Du kannst also Wüste in Tundra und dann in Tropen übergehen lassen.<br>
+<strong>Achtung:</strong> <br>Gebäude, Industrien und Vegetation können bestimmten Klimazonen zugeordnet sein. In welchen Klimazonen was vorkommt, liegt in den Händen der Pakset- und Addon-Ersteller.</p>
+
+<p>Ist die Schaltfläche <em>Keine Bäume</em> aktiviert, werden auf der neuen Karte keine Bäume generiert. </p>
+
+<p>
+Als letztes können Parameter eingestellt werden, um die Erzeugung von Flüssen auf der neuen Karte zu beeinflussen.</p>

@@ -12,8 +12,10 @@
 #include <io.h>
 #include <direct.h>
 #endif
+
+#include <string>
+
 #include <sys/stat.h>
-#include <string.h>
 #include <time.h>
 
 #include "../pathes.h"
@@ -35,20 +37,14 @@
 // Since during initialisations virtual functions do not work yet
 // in derived classes (since the object in question is not full initialized yet)
 // this functions returns true for files to be added.
-savegame_frame_t::savegame_frame_t(const char *suffix, const char *path ) :
-	gui_frame_t("Load/Save") ,
-	fnlabel("Filename"),
-	scrolly(&button_frame)
-{
-	use_table = false;
-	init(suffix, path);
-}
-savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool use_table ) :
-	gui_frame_t("Load/Save") ,
+savegame_frame_t::savegame_frame_t(const char *suffix, const char *path, bool only_directories, bool use_table ) :
+	gui_frame_t("Load/Save"),
+	input(),
 	fnlabel("Filename"),
 	scrolly(use_table ? (gui_komponente_t*)&file_table : (gui_komponente_t*)&button_frame)
 {
 	this->use_table = use_table;
+	this->only_directories = only_directories;
 	init(suffix, path);
 }
 
@@ -68,7 +64,6 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	// Input box for game name
 	tstrncpy(ibuf, "", lengthof(ibuf));
 	input.set_text(ibuf, 128);
-	input.add_listener(this);
 	input.set_pos(koord(75,8));
 	//input.set_groesse(koord(DIALOG_WIDTH-75-10, 14));
 	add_komponente(&input);
@@ -109,6 +104,7 @@ void savegame_frame_t::init(const char *suffix, const char *path)
 	cancelbutton.add_listener(this);
 	add_komponente(&cancelbutton);
 
+	set_focus( &input );
 	set_fenstergroesse(koord(DIALOG_WIDTH, y + 40));
 }
 
@@ -176,11 +172,17 @@ void savegame_frame_t::fill_list()
 		}
 		else {
 			do {
+				if(only_directories) {
+					if ((entry.attrib & _A_SUBDIR)==0) {
+						continue;
+					}
+				}
 				if(check_file(entry.name,suffix)) {
 					add_file(entry.name, not_cutting_extension);
 				}
 			} while(_findnext(hfind, &entry) == 0 );
 		}
+		_findclose(hfind);
 	}
 #endif
 
@@ -291,15 +293,15 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 		button->set_no_translate(true);
 		button->set_text(name);	// to avoid translation
 
-		const cstring_t compare_to = umgebung_t::objfilename.len()>0  ?  umgebung_t::objfilename.left( umgebung_t::objfilename.len()-1 ) + " -"  :  cstring_t("");
+		const string compare_to = umgebung_t::objfilename.size()>0  ?  umgebung_t::objfilename.substr(0, umgebung_t::objfilename.size()-1 ) + " -"  :  string("");
 		// sort by date descending:
 		slist_tpl<entry>::iterator i = entries.begin();
 		slist_tpl<entry>::iterator end = entries.end();
-		if(  strncmp( compare_to, pak, compare_to.len() )!=0  ) {
+		if(  strncmp( compare_to.c_str(), pak, compare_to.size() )!=0  ) {
 			// skip current ones
 			while(  i != end  ) {
 				// extract palname in same format than in savegames ...
-				if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+				if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
 					break;
 				}
 				++i;
@@ -319,13 +321,12 @@ void savegame_frame_t::add_file(const char *filename, const char *pak, const boo
 					break;
 				}
 				// not our savegame any more => insert
-				if(  strncmp( compare_to, i->label->get_text_pointer(), compare_to.len() ) !=0  ) {
+				if(  strncmp( compare_to.c_str(), i->label->get_text_pointer(), compare_to.size() ) !=0  ) {
 					break;
 				}
 				++i;
 			}
 		}
-
 		gui_label_t* l = new gui_label_t(NULL);
 		l->set_text_pointer(date);
 		entries.insert(i, entry(button, new button_t, l));
@@ -345,7 +346,7 @@ bool savegame_frame_t::check_file( const char *filename, const char *suffix )
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
+bool savegame_frame_t::action_triggered( gui_action_creator_t *komp, value_t p)
 {
 	char buf[1024];
 
@@ -355,14 +356,14 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 
 		if (strstr(ibuf,"net:")==ibuf) {
 			tstrncpy(buf,ibuf,lengthof(buf));
-		} else {
+		}
+		else {
 			tstrncpy(buf, SAVE_PATH_X, lengthof(buf));
 			strcat(buf, ibuf);
 			strcat(buf, suffix);
 		}
-
+		set_focus( NULL );
 		action(buf);
-
 		destroy_win(this);      //29-Oct-2001         Markus Weber    Close window
 
 	}
@@ -438,22 +439,25 @@ bool savegame_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 				}
 
 				if(action_btn) {
+					set_focus( NULL );
 					action(buf);
 					destroy_win(this);
 				}
 				else {
 					if(  del_action(buf)  ) {
+						set_focus( NULL );
 						destroy_win(this);
 					}
 					else {
-						// remove only file from list
-						button_frame.remove_komponente( i->button );
-						delete i->button;
-						button_frame.remove_komponente( i->del );
-						delete i->del;
-						button_frame.remove_komponente( i->label );
-						delete i->label;
-						entries.erase( i );
+						set_focus(NULL);
+						// do not delete components
+						// simply hide them
+						i->button->set_visible(false);
+						i->del->set_visible(false);
+						i->label->set_visible(false);
+						i->button->set_groesse( koord( 0, 0 ) );
+						i->del->set_groesse( koord( 0, 0 ) );
+
 						resize( koord(0,0) );
 						in_action = false;
 					}
@@ -501,14 +505,16 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 	{
 		for (slist_tpl<entry>::const_iterator i = entries.begin(), end = entries.end(); i != end; ++i) {
 			// resize all but delete button
-			button_t*    button1 = i->del;
-			button1->set_pos( koord( button1->get_pos().x, y ) );
-			button_t*    button2 = i->button;
-			gui_label_t* label   = i->label;
-			button2->set_pos( koord( button2->get_pos().x, y ) );
-			button2->set_groesse(koord( groesse.x/2-40, 14));
-			label->set_pos(koord(groesse.x/2-40+30, y));
-			y += 14;
+			if(  i->button->is_visible()  ) {
+				button_t*    button1 = i->del;
+				button1->set_pos( koord( button1->get_pos().x, y ) );
+				button_t*    button2 = i->button;
+				gui_label_t* label   = i->label;
+				button2->set_pos( koord( button2->get_pos().x, y ) );
+				button2->set_groesse(koord( groesse.x/2-40, 14));
+				label->set_pos(koord(groesse.x/2-40+30, y));
+				y += 14;
+			}
 		}
 		button_frame.set_groesse( koord( groesse.x, y ) );
 		scrolly.set_groesse( koord(width,groesse.y-40-8) - scrolly.get_pos() );
@@ -524,14 +530,18 @@ void savegame_frame_t::set_fenstergroesse(koord groesse)
 
 
 
-void savegame_frame_t::infowin_event(const event_t *ev)
+bool savegame_frame_t::infowin_event(const event_t *ev)
 {
-	if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN  &&  entries.empty()) {
+	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_OPEN  &&  entries.empty()) {
 		// before no virtual functions can be used ...
 		fill_list();
 		set_focus( &input );
 	}
-	gui_frame_t::infowin_event(ev);
+	if(  ev->ev_class == EVENT_KEYBOARD  &&  ev->ev_code == 13  ) {
+		action_triggered( &input, (long)0 );
+		return true;	// swallowed
+	}
+	return gui_frame_t::infowin_event(ev);
 }
 
 void savegame_frame_t::press_file_table_button(coordinates_t &cell)
@@ -563,7 +573,7 @@ void savegame_frame_t::release_file_table_button()
 
 
 // BG, 26.03.2010
-void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) 
+void gui_file_table_button_column_t::paint_cell(const koord &offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
 {
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
 	koord size = koord(get_width(), row.get_height());
@@ -593,7 +603,7 @@ void gui_file_table_delete_column_t::paint_cell(const koord &offset, coordinate_
 
 
 // BG, 26.03.2010
-void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) 
+void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t /*x*/, coordinate_t /*y*/, const gui_table_row_t &row) 
 {
 	lbl.set_pos(koord(2, 2));
 	lbl.set_groesse(koord(get_width() - 2, row.get_height() - 2));
@@ -605,7 +615,7 @@ void gui_file_table_label_column_t::paint_cell(const koord &offset, coordinate_t
 const char *gui_file_table_action_column_t::get_text(const gui_table_row_t &row) const 
 { 
  	gui_file_table_row_t &file_row = (gui_file_table_row_t&)row;
-	return file_row.text;
+	return file_row.text.c_str();
 }
 
 
@@ -633,7 +643,7 @@ void gui_file_table_time_column_t::paint_cell(const koord &offset, coordinate_t 
 		strftime(date, 18, "%Y-%m-%d %H:%M", tm);
 	}
 	else {
-		tstrncpy(date, "????-??-?? ??:??", 16);
+		tstrncpy(date, "???\?-?\?-?? ??:??", 16); // note: ??- is the trigraph for a tilde, so one ? is escaped.
 	}
 	lbl.set_text(date);
 	gui_file_table_label_column_t::paint_cell(offset, x, y, row);
@@ -649,7 +659,7 @@ gui_file_table_row_t::gui_file_table_row_t(const char *pathname, const char *but
 	this->text = buttontext;
 
 	// first get pak name
-	if (stat(name, &info)) {
+	if (stat(name.c_str(), &info)) {
 		this->error = "failed opening file";
 	}
 }

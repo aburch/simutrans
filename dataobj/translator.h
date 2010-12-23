@@ -8,16 +8,9 @@
 #define TRANSLATOR_H
 
 #include <stdio.h>
+#include <string>
 #include "../tpl/stringhashtable_tpl.h"
 
-
-class loadsave_t;
-class cstring_t;
-
-// Bernd Gabriel: like fgets, but removes \n from end of line and for windows style line ends \r, if present.
-// Example: Where fgets() returns "Hello World\n" or "Hello World\r\n", fgets_line() returns "Hello World".
-// Notice: include both \n and \r in your buffer length calculation.
-char *fgets_line(char *buffer, int max_len, FILE *file);
 
 /**
  * Central location for loading and translating language text for the
@@ -33,7 +26,6 @@ class translator
 	private:
 		//cannot be instantiated outside translator
 		translator() { current_lang = -1; }
-		~translator() {}
 
 		int current_lang;
 		int lang_count;
@@ -45,7 +37,7 @@ class translator
 
 		/* Methods related to loading a language file into memory */
 		static void load_language_file(FILE* file);
-		static void load_language_iso(cstring_t& iso);
+		static void load_language_iso(const std::string &iso);
 
 	public:
 		struct lang_info {
@@ -58,6 +50,7 @@ class translator
 			bool utf_encoded;
 		};
 
+		static void init_city_names(int lang);
 		static const char* get_city_name(uint nr); ///< return a random city name
 		static int get_count_city_name(void);
 
@@ -67,7 +60,7 @@ class translator
 		 * behaviour may follow if calls to translate message or similar are
 		 * called before load has been called
 		 */
-		static bool load(const cstring_t& scenario_path);
+		static bool load(const std::string &scenario_path);
 
 		/**
 		 * Get/Set the currently selected language, based on the
@@ -76,6 +69,9 @@ class translator
 		static int get_language() {
 			return single_instance.current_lang;
 		}
+
+		// returns the id for this language or -1 if not there
+		static int get_language(const char* iso);
 
 		/** Get information about the currently selected language */
 		static const lang_info* get_lang();

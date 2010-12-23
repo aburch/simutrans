@@ -14,6 +14,7 @@
 #include "../simimg.h"
 #include "../simskin.h"
 #include "../simwin.h"
+#include "../simhalt.h"
 #include "../player/simplay.h"
 #include "../gui/label_info.h"
 
@@ -39,14 +40,6 @@ label_t::label_t(karte_t *welt, koord3d pos, spieler_t *sp, const char *text) :
 	welt->add_label(pos.get_2d());
 	grund_t *gr=welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
-#if 0
-		// This only allows to own cityroad and city buildins.
-		// Land don't have owner anymore.
-		ding_t *d=gr->obj_bei(0);
-		if(d  &&  d->get_besitzer()==NULL) {
-			d->set_besitzer(sp);
-		}
-#endif
 		if (text) {
 			gr->set_text(text);
 		}
@@ -62,7 +55,10 @@ label_t::~label_t()
 	welt->remove_label(k);
 	grund_t *gr = welt->lookup_kartenboden(k);
 	if(gr) {
-		gr->set_text(NULL);
+		// do not remove name from halts
+		if (!gr->is_halt()  ||  gr->get_halt()->get_basis_pos3d()!=gr->get_pos()) {
+			gr->set_text(NULL);
+		}
 	}
 }
 

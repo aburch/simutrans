@@ -25,6 +25,7 @@
 #include "loadsave_frame.h"
 
 #include "../simworld.h"
+#include "../simmesg.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 #include "../pathes.h"
@@ -51,7 +52,7 @@ void loadsave_frame_t::action(const char *filename)
 		welt->laden(filename);
 	}
 	else {
-		welt->speichern(filename,false);
+		welt->speichern( filename, umgebung_t::savegame_version_str, umgebung_t::savegame_ex_version_str, false );
 		welt->set_dirty();
 		welt->reset_timer();
 	}
@@ -64,7 +65,7 @@ bool loadsave_frame_t::del_action(const char *filename)
 }
 
 
-loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve", NULL, true)
+loadsave_frame_t::loadsave_frame_t(karte_t *welt, bool do_load) : savegame_frame_t(".sve", NULL, false, true)
 {
 	this->welt = welt;
 	this->do_load = do_load;
@@ -90,7 +91,7 @@ const char * loadsave_frame_t::get_hilfe_datei() const
 }
 
 
-void loadsave_frame_t::init(const char *suffix, const char *path )
+void loadsave_frame_t::init(const char * /*suffix*/, const char * /*path*/ )
 {
 	file_table.set_owns_columns(false);
 	file_table.add_column(&delete_column);
@@ -144,7 +145,7 @@ gui_loadsave_table_row_t::gui_loadsave_table_row_t(const char *pathname, const c
 
 gui_file_table_pak_column_t::gui_file_table_pak_column_t() : gui_file_table_label_column_t(150) 
 {
-	strcpy(pak, umgebung_t::objfilename);
+	strcpy(pak, umgebung_t::objfilename.c_str());
 	pak[strlen(pak) - 1] = 0;
 }
 

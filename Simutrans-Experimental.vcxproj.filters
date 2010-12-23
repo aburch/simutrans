@@ -102,9 +102,6 @@
     <ClCompile Include="besch\reader\crossing_reader.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="utils\cstring_t.cc">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gui\curiosity_edit.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -717,6 +714,33 @@
     <ClCompile Include="dings\zeiger.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="clipboard_w32.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\gameinfo.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\server_frame.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\checksum.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gui\line_item.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\pakset_info.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="besch\fabrik_besch.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_cmp_pakset.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dataobj\network_socket_list.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gui\components\action_listener.h">
@@ -789,9 +813,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="besch\writer\building_writer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="bzlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="utils\cbuffer_t.h">
@@ -1682,6 +1703,30 @@
     <ClInclude Include="dings\zeiger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="gui\password_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\gameinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_packet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\network_cmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\send_message_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gui\server_frame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\checksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dataobj\pakset_info.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
@@ -1734,6 +1779,12 @@
     </None>
     <None Include="makeobj\Makefile" />
     <None Include="base_texts_experimental_forgotten_items_1.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_9.0.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="base_texts_experimental_9.1.dat">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

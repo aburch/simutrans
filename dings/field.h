@@ -8,7 +8,7 @@
 #include "../simimg.h"
 
 
-class loadsave_t;
+class field_class_besch_t;
 class fabrik_t;
 
 class field_t : public ding_t

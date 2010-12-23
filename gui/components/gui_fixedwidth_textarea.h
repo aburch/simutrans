@@ -8,7 +8,7 @@
 #ifndef gui_fixedwidth_textarea_h
 #define gui_fixedwidth_textarea_h
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "../../simgraph.h"
 
 /**
@@ -45,6 +45,8 @@ public:
 	virtual void set_groesse(koord groesse);
 
 	virtual void zeichnen(koord offset);
+
+	bool has_text() { return text != NULL; }
 };
 
 #endif

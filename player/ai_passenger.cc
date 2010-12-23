@@ -8,7 +8,9 @@
 /* simple passenger AI (not using trains, not preoptimized network) */
 
 #include "../simcity.h"
+#include "../simfab.h"
 #include "../simhalt.h"
+#include "../simmenu.h"
 #include "../simtools.h"
 #include "../simmesg.h"
 #include "../simworld.h"
@@ -21,6 +23,7 @@
 
 #include "../dataobj/loadsave.h"
 
+#include "../utils/cbuffer_t.h"
 #include "../utils/simstring.h"
 
 #include "../vehicle/simvehikel.h"
@@ -278,6 +281,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		// we use the free own vehikel_besch_t
 		vehikel_besch_t remover_besch( water_wt, 500, vehikel_besch_t::diesel );
 		vehikel_t* test_driver = vehikelbauer_t::baue( koord3d(start_harbour-start_dx,welt->get_grundwasser()), this, NULL, &remover_besch );
+		test_driver->set_flag( ding_t::not_on_map );
 		route_t verbindung;
 		bool connected = verbindung.calc_route(welt, koord3d(start_harbour-start_dx,welt->get_grundwasser()), koord3d(end_harbour-end_dx,welt->get_grundwasser()), test_driver, 0, 0);
 		delete test_driver;
@@ -336,7 +340,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock", translator::get_language() );
+		char *name = halt->create_name(bushalt, "Dock", welt->get_einstellungen()->get_name_language_id() );
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -365,7 +369,7 @@ bool ai_passenger_t::create_water_transport_vehikel(const stadt_t* start_stadt, 
 		}
 		// and change name to dock ...
 		halthandle_t halt = welt->lookup(bushalt)->get_halt();
-		char *name = halt->create_name(bushalt, "Dock", translator::get_language());
+		char *name = halt->create_name(bushalt, "Dock", welt->get_einstellungen()->get_name_language_id() );
 		halt->set_name( name );
 		free(name);
 		// finally built the dock
@@ -573,7 +577,7 @@ halthandle_t ai_passenger_t::build_airport(const stadt_t* city, koord pos, int r
 	}
 	// and change name to airport ...
 	halthandle_t halt = welt->lookup(bushalt)->get_halt();
-	char *name = halt->create_name( bushalt, "Airport", translator::get_language() );
+	char *name = halt->create_name( bushalt, "Airport", welt->get_einstellungen()->get_name_language_id() );
 	halt->set_name( name );
 	free(name);
 	// built also runway now ...
@@ -800,13 +804,13 @@ void ai_passenger_t::create_bus_transport_vehikel(koord startpos2d,int anz_vehik
 {
 DBG_MESSAGE("ai_passenger_t::create_bus_transport_vehikel()","bus at (%i,%i)",startpos2d.x,startpos2d.y);
 	// now start all vehicle one field before, so they load immediately
-	koord3d startpos = welt->lookup(startpos2d)->get_kartenboden()->get_pos();
+	koord3d startpos = welt->lookup_kartenboden(startpos2d)->get_pos();
 
 	// since 86.01 we use lines for road vehicles ...
 	schedule_t *fpl=new autofahrplan_t();
 	// do not start at current stop => wont work ...
 	for(int j=0;  j<anzahl;  j++) {
-		fpl->append(welt->lookup(stops[j])->get_kartenboden(), j == 0 || !do_wait ? 0 : 10);
+		fpl->append(welt->lookup_kartenboden(stops[j]), j == 0 || !do_wait ? 0 : 10);
 	}
 	fpl->set_aktuell( stops[0]==startpos2d );
 	fpl->eingabe_abschliessen();
@@ -1302,7 +1306,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				}
 
 				// avoid empty schedule ?!?
-				assert(line->get_schedule()->get_count()>0);
+				assert(!line->get_schedule()->empty());
 
 				// made loss with this line
 				if(line->get_finance_history(0,LINE_PROFIT)<0) {
@@ -1315,13 +1319,15 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 							convoihandle_t cnv = line->get_convoy(i);
 							if(cnv->has_obsolete_vehicles()) {
 								obsolete.append(cnv);
-								capacity += cnv->get_vehikel(0)->get_besch()->get_zuladung();
+								capacity += cnv->front()->get_besch()->get_zuladung();
 							}
 						}
 						if(capacity>0) {
 							// now try to finde new vehicle
-							const vehikel_besch_t *v_besch = vehikelbauer_t::vehikel_search( line->get_convoy(0)->get_vehikel(0)->get_waytype(), welt->get_current_month(), 50, welt->get_average_speed(line->get_convoy(0)->get_vehikel(0)->get_waytype()), warenbauer_t::passagiere, false, false );
-							if(  !v_besch->is_retired(welt->get_current_month())  &&  v_besch!=line->get_convoy(0)->get_vehikel(0)->get_besch()) {
+							vehikel_t              const& v       = *line->get_convoy(0)->front();
+							waytype_t              const  wt      = v.get_waytype();
+							vehikel_besch_t const* const  v_besch = vehikelbauer_t::vehikel_search(wt, welt->get_current_month(), 50, welt->get_average_speed(wt), warenbauer_t::passagiere, false, false);
+							if (!v_besch->is_retired(welt->get_current_month()) && v_besch != v.get_besch()) {
 								// there is a newer one ...
 								for(  uint32 new_capacity=0;  capacity>new_capacity;  new_capacity+=v_besch->get_zuladung()) {
 									if(  convoihandle_t::is_exhausted()  ) {
@@ -1359,7 +1365,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","using %s on %s",road_vehicle->g
 				// next: check for overflowing lines, i.e. running with 3/4 of the capacity
 				if(  ratio<10  &&  !convoihandle_t::is_exhausted()  ) {
 					// else add the first convoi again
-					vehikel_t* v = vehikelbauer_t::baue( line->get_schedule()->eintrag[0].pos, this, NULL, line->get_convoy(0)->get_vehikel(0)->get_besch()  );
+					vehikel_t* const v = vehikelbauer_t::baue(line->get_schedule()->eintrag[0].pos, this, NULL, line->get_convoy(0)->front()->get_besch());
 					convoi_t* new_cnv = new convoi_t(this);
 					new_cnv->set_name( v->get_besch()->get_name() );
 					new_cnv->add_vehikel( v );
@@ -1416,17 +1422,17 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	}
 
 	// now save current state ...
-	file->rdwr_enum(state, "");
-	file->rdwr_long( construction_speed, "" );
-	file->rdwr_bool( air_transport, "" );
-	file->rdwr_bool( ship_transport, "" );
+	file->rdwr_enum(state);
+	file->rdwr_long(construction_speed);
+	file->rdwr_bool(air_transport);
+	file->rdwr_bool(ship_transport);
 	platz1.rdwr( file );
 	platz2.rdwr( file );
 
 	if(file->is_saving()) {
 		// save current pointers
 		sint32 delta_steps = next_contruction_steps-welt->get_steps();
-		file->rdwr_long(delta_steps, " ");
+		file->rdwr_long(delta_steps);
 		koord k = start_stadt ? start_stadt->get_pos() : koord::invalid;
 		k.rdwr(file);
 		k = end_stadt ? end_stadt->get_pos() : koord::invalid;
@@ -1438,7 +1444,7 @@ void ai_passenger_t::rdwr(loadsave_t *file)
 	}
 	else {
 		// since steps in loaded game == 0
-		file->rdwr_long(next_contruction_steps, " ");
+		file->rdwr_long(next_contruction_steps);
 		next_contruction_steps += welt->get_steps();
 		// reinit current pointers
 		koord k;
@@ -1465,31 +1471,10 @@ void ai_passenger_t::rdwr(loadsave_t *file)
  */
 void ai_passenger_t::bescheid_vehikel_problem(convoihandle_t cnv,const koord3d ziel)
 {
-	switch(cnv->get_state()) {
-
-		case convoi_t::NO_ROUTE:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
-			if(this==welt->get_active_player()) {
-				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s can't find a route!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
-			}
-			else {
-				cnv->self_destruct();
-			}
-			break;
-
-		case convoi_t::WAITING_FOR_CLEARANCE_ONE_MONTH:
-		case convoi_t::CAN_START_ONE_MONTH:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s stucked!", cnv->get_name(),ziel.x,ziel.y);
-			if(this==welt->get_active_player()) {
-				char buf[256];
-				sprintf(buf,translator::translate("Vehicle %s is stucked!"), cnv->get_name());
-				welt->get_message()->add_message(buf, cnv->get_pos().get_2d(),message_t::convoi,PLAYER_FLAG|player_nr,cnv->get_vehikel(0)->get_basis_bild());
-			}
-			break;
-
-		default:
-DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s, state %i!", cnv->get_name(), cnv->get_state());
+	if(  cnv->get_state() == convoi_t::NO_ROUTE  &&  this!=welt->get_active_player()  ) {
+			DBG_MESSAGE("ai_passenger_t::bescheid_vehikel_problem","Vehicle %s can't find a route to (%i,%i)!", cnv->get_name(),ziel.x,ziel.y);
+			cnv->self_destruct();
+			return;
 	}
+	spieler_t::bescheid_vehikel_problem( cnv, ziel );
 }

@@ -35,8 +35,7 @@ kanal_t::kanal_t(karte_t *welt) : weg_t (welt)
 
 
 
-void
-kanal_t::rdwr(loadsave_t *file)
+void kanal_t::rdwr(loadsave_t *file)
 {
 	weg_t::rdwr(file);
 

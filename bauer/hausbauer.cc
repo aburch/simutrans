@@ -15,8 +15,6 @@
 #include "../boden/wasser.h"
 #include "../boden/fundament.h"
 
-#include "../dataobj/translator.h"
-
 #include "../dings/leitung2.h"
 #include "../dings/zeiger.h"
 
@@ -42,11 +40,11 @@
 static vector_tpl<const haus_besch_t*> wohnhaeuser;
 static vector_tpl<const haus_besch_t*> gewerbehaeuser;
 static vector_tpl<const haus_besch_t*> industriehaeuser;
-slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_land;
-slist_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_city;
-slist_tpl<const haus_besch_t *> hausbauer_t::rathaeuser;
-slist_tpl<const haus_besch_t *> hausbauer_t::denkmaeler;
-slist_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
+vector_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_land;
+vector_tpl<const haus_besch_t *> hausbauer_t::sehenswuerdigkeiten_city;
+vector_tpl<const haus_besch_t *> hausbauer_t::rathaeuser;
+vector_tpl<const haus_besch_t *> hausbauer_t::denkmaeler;
+vector_tpl<const haus_besch_t *> hausbauer_t::ungebaute_denkmaeler;
 
 /*
  * Diese Tabelle ermöglicht das Auffinden einer Beschreibung durch ihren Namen
@@ -64,6 +62,7 @@ const haus_besch_t *hausbauer_t::elevated_foundation_besch = NULL;
 vector_tpl<const haus_besch_t *> hausbauer_t::station_building;
 vector_tpl<haus_besch_t*> hausbauer_t::modifiable_station_buildings;
 
+// all headquarter (sorted by hq-level)
 vector_tpl<const haus_besch_t *> hausbauer_t::headquarter;
 
 static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
@@ -75,6 +74,21 @@ static spezial_obj_tpl<haus_besch_t> spezial_objekte[] = {
 static bool compare_haus_besch(const haus_besch_t* a, const haus_besch_t* b)
 {
 	int diff = a->get_level() - b->get_level();
+	if (diff == 0) {
+		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
+		 * über den Namen herbei. */
+		diff = strcmp(a->get_name(), b->get_name());
+	}
+	return diff < 0;
+}
+
+static bool compare_hq_besch(const haus_besch_t* a, const haus_besch_t* b)
+{
+	// the headquarter level is in the extra-variable
+	int diff = a->get_extra() - b->get_extra();
+	if (diff == 0) {
+		diff = a->get_level() - b->get_level();
+	}
 	if (diff == 0) {
 		/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
 		 * über den Namen herbei. */
@@ -119,19 +133,19 @@ bool hausbauer_t::alles_geladen()
 			case gebaeude_t::unbekannt:
 			switch (besch->get_utyp()) {
 				case haus_besch_t::denkmal:
-					denkmaeler.append(besch);
+					denkmaeler.insert_ordered(besch,compare_haus_besch);
 					break;
 				case haus_besch_t::attraction_land:
-					sehenswuerdigkeiten_land.append(besch);
+					sehenswuerdigkeiten_land.insert_ordered(besch,compare_haus_besch);
 					break;
 				case haus_besch_t::firmensitz:
-					headquarter.insert_ordered(besch,compare_haus_besch);
+					headquarter.insert_ordered(besch,compare_hq_besch);
 					break;
 				case haus_besch_t::rathaus:
-					rathaeuser.append(besch);
+					rathaeuser.insert_ordered(besch,compare_haus_besch);
 					break;
 				case haus_besch_t::attraction_city:
-					sehenswuerdigkeiten_city.append(besch);
+					sehenswuerdigkeiten_city.insert_ordered(besch,compare_haus_besch);
 					break;
 
 				case haus_besch_t::fabrik:
@@ -243,10 +257,9 @@ DBG_DEBUG("hausbauer_t::fill_menu()","maximum %i",station_building.get_count());
 // new map => reset monument list to ensure every monument appears only once per map
 void hausbauer_t::neue_karte()
 {
-	slist_iterator_tpl<const haus_besch_t *>  iter(denkmaeler);
 	ungebaute_denkmaeler.clear();
-	while(iter.next()) {
-		ungebaute_denkmaeler.append(iter.get_current());
+	for(uint32 i=0; i<denkmaeler.get_count(); i++) {
+		ungebaute_denkmaeler.append(denkmaeler[i]);
 	}
 }
 
@@ -434,7 +447,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				// Hajo: after staring a new map, build fake old buildings
 				gb->add_alter(10000);
 			}
-			grund_t *gr = welt->lookup(pos.get_2d() + k)->get_kartenboden();
+			grund_t *gr = welt->lookup_kartenboden(pos.get_2d() + k);
 			if(gr->ist_wasser()) {
 				gr->obj_add(gb);
 			} else if (besch->get_utyp() == haus_besch_t::hafen) {
@@ -462,9 +475,9 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 					gr->obj_add( lt );
 				}
 				if(needs_ground_recalc  &&  welt->ist_in_kartengrenzen(pos.get_2d()+koord(1,1))  &&  (k.y+1==dim.y  ||  k.x+1==dim.x)) {
-					welt->lookup(pos.get_2d()+k+koord(1,0))->get_kartenboden()->calc_bild();
-					welt->lookup(pos.get_2d()+k+koord(0,1))->get_kartenboden()->calc_bild();
-					welt->lookup(pos.get_2d()+k+koord(1,1))->get_kartenboden()->calc_bild();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,0))->calc_bild();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(0,1))->calc_bild();
+					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_bild();
 				}
 			}
 			if(besch->ist_ausflugsziel()) {
@@ -485,8 +498,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 	}
 	// remove only once ...
 	if(besch->get_utyp()==haus_besch_t::denkmal) {
-		bool removed = ungebaute_denkmaeler.remove( besch );
-		assert( removed );
+		ungebaute_denkmaeler.remove( besch );
 	}
 	return first_building;
 }
@@ -672,10 +684,10 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, uint16 time, bool ignore_retire, climate cl)
 {
 	weighted_vector_tpl<const haus_besch_t *> auswahl(16);
-	slist_iterator_tpl<const haus_besch_t*> iter(utype == haus_besch_t::rathaus ? rathaeuser : (bev == -1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city));
 
-	while(iter.next()) {
-		const haus_besch_t *besch = iter.get_current();
+	vector_tpl<const haus_besch_t*> &list = utype == haus_besch_t::rathaus ? rathaeuser : (bev == -1 ? sehenswuerdigkeiten_land : sehenswuerdigkeiten_city);
+	for(uint32 i=0; i<list.get_count(); i++) {
+		const haus_besch_t *besch = list[i];
 		// extra data contains number of inhabitants for building
 		if(bev == -1 || besch->get_extra()==bev) {
 			if(cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl)) {
@@ -769,18 +781,27 @@ const haus_besch_t* hausbauer_t::get_wohnhaus(int level, uint16 time, climate cl
 	return get_aus_liste(wohnhaeuser, level, time, cl, allow_earlier);
 }
 
+const haus_besch_t* hausbauer_t::get_headquarter(int level, uint16 time)
+{
+	for (vector_tpl<const haus_besch_t*>::const_iterator iter = hausbauer_t::headquarter.begin(), end = hausbauer_t::headquarter.end(); iter != end; ++iter) {
+		const haus_besch_t* besch = *iter;
+		if (besch->get_extra() == level  &&  !besch->is_future(time)  &&  !besch->is_retired(time)) {
+			return *iter;
+		}
+	}
+	return NULL;
+}
+
 
 // get a random object
-const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *> &liste, uint16 time, bool ignore_retire, climate cl)
+const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t *> &liste, uint16 time, bool ignore_retire, climate cl)
 {
 	//"select from list" (Google)
 	if (!liste.empty()) {
 		// previously just returned a random object; however, now we do als look at the chance entry
 		weighted_vector_tpl<const haus_besch_t *> auswahl(16);
-		slist_iterator_tpl <const haus_besch_t *> iter (liste);
-
-		while(iter.next()) {
-			const haus_besch_t *besch = iter.get_current();
+		for(uint32 i=0; i<liste.get_count(); i++) {
+			const haus_besch_t *besch = liste[i];
 			if((cl==MAX_CLIMATES  ||  besch->is_allowed_climate(cl))  &&  besch->get_chance()>0  &&  (time==0  ||  (besch->get_intro_year_month()<=time  &&  (ignore_retire  ||  besch->get_retire_year_month()>time)  )  )  ) {
 //				DBG_MESSAGE("hausbauer_t::get_aus_liste()","appended %s at %i", besch->get_name(), thislevel );
 				auswahl.append(besch,besch->get_chance(),4);
@@ -801,7 +822,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(slist_tpl<const haus_besch_t *
 
 
 
-const slist_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t::utyp typ)
+const vector_tpl<const haus_besch_t*>* hausbauer_t::get_list(const haus_besch_t::utyp typ)
 {
 	switch (typ) {
 		case haus_besch_t::denkmal:         return &ungebaute_denkmaeler;

@@ -4,6 +4,17 @@
 #include <stddef.h>
 
 
+#ifndef STRICMP
+#ifdef _MSC_VER
+#define STRICMP stricmp
+#define STRNICMP strnicmp
+#else
+#define STRICMP strcasecmp
+#define STRNICMP strncasecmp
+#endif
+#endif
+
+
 // a single use number to string ...
 // format could be zero, the "%d" is assumed
 char *ntos(long number, const char *format);
@@ -56,7 +67,10 @@ char *make_single_line_string(const char *in,int number_of_lines);
 void money_to_string(char * buf, double f);
 
 
-// returns the number of characters
+/**
+ * Formats a number value. Uses thousand separator. Buffer must be large enough,
+ * no checks are made!
+ */
 int number_to_string(char * buf, double f, int decimal_places );
 
 

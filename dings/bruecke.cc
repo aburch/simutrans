@@ -80,7 +80,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 		s = besch->get_name();
 	}
 	file->rdwr_str(s);
-	file->rdwr_enum(img, "");
+	file->rdwr_enum(img);
 
 	if(file->is_loading()) {
 		besch = brueckenbauer_t::get_besch(s);

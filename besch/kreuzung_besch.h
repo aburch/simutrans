@@ -11,7 +11,10 @@
 #include "bild_besch.h"
 #include "bildliste_besch.h"
 #include "../simtypes.h"
+#include "../utils/checksum.h"
 
+
+class checksum_t;
 
 /*
  *  Autor:
@@ -35,8 +38,8 @@ private:
 	uint32 closed_animation_time;
 	uint32 open_animation_time;
 
-	uint32 topspeed1;	// the topspeed depeds strongly on the crossing ...
-	uint32 topspeed2;
+	sint32 topspeed1;	// the topspeed depeds strongly on the crossing ...
+	sint32 topspeed2;
 
 	/**
 	 * Introduction/Retire date
@@ -73,7 +76,7 @@ public:
 	}
 
 	waytype_t get_waytype(int i) const { return (waytype_t)(i==0? wegtyp1 : wegtyp2); }
-	uint32 get_maxspeed(int i) const { return i==0 ? topspeed1 : topspeed2; }
+	sint32 get_maxspeed(int i) const { return i==0 ? topspeed1 : topspeed2; }
 	uint16 get_phases(bool open, bool front) const { return get_child<bildliste_besch_t>(6 - 4 * open + 2 * front)->get_anzahl(); }
 	uint32 get_animation_time(bool open) const { return open ? open_animation_time : closed_animation_time; }
 
@@ -94,7 +97,19 @@ public:
 	*/
 	bool is_available(const uint16 month_now) const
 	{
-		return month_now==0  ||  (intro_date <= month_now  &&  month_now <= obsolete_date);
+		return month_now==0  ||  (intro_date <= month_now  &&  month_now < obsolete_date);
+	}
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(wegtyp1);
+		chk->input(wegtyp2);
+		chk->input(closed_animation_time);
+		chk->input(open_animation_time);
+		chk->input(topspeed1);
+		chk->input(topspeed2);
+		chk->input(intro_date);
+		chk->input(obsolete_date);
 	}
 };
 

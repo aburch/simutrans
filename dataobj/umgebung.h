@@ -8,12 +8,12 @@
 #ifndef dataobj_umgebung_h
 #define dataobj_umgebung_h
 
+#include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
 #include "../simcolor.h"
 #include "einstellungen.h"
 
-class cstring_t;
 
 /**
  * Diese Klasse bildet eine Abstraktion der Kommandozeilenparameter.
@@ -33,7 +33,13 @@ public:
 	//points to the current directory user for loading and saving
 	static const char *user_dir;
 
-	static cstring_t objfilename;
+	// version for which the savegames should be created
+	static const char *savegame_version_str;
+
+	// version for which the savegames should be created
+	static const char *savegame_ex_version_str;
+
+	static std::string objfilename;
 
 	// true, if we are in networkmode
 	static bool networkmode;
@@ -42,12 +48,20 @@ public:
 	static long network_frames_per_step;
 	// how often to synchronize
 	static uint32 server_sync_steps_between_checks;
+	static bool restore_UI;	// when true, restore the windows from a savegame
 
-	// true, if we are the server
-	static bool server;
+	// if we are the server, we are at this port ...
+	static uint16 server;
 
-// scrollrichtung
+	static uint32 announce_server;
+	static std::string server_name;
+	static std::string server_comment;
+
+	// scrollrichtung
 	static sint16 scroll_multi;
+
+	// messages with player name
+	static bool add_player_name_to_message;
 
 	/**
 	* tag-nacht wechsel zeigen ?
@@ -83,6 +97,7 @@ public:
 
 	/**
 	* Namen (Städte, Haltestellen) anzeigen? (0 .. 3)
+	* lable type 4..7
 	*
 	* @author Hj. Malthaner
 	*/
@@ -147,10 +162,6 @@ public:
 	*/
 	static bool window_buttons_right;
 
-	/*
-	 * frame active window
-	 */
-	static bool window_frame_active;
 
 	/**
 	* Produce more debug info ?
@@ -179,6 +190,17 @@ public:
 	static const char *river_type[10];
 	static uint8 river_types;
 
+	enum date_fmt {
+		DATE_FMT_SEASON   = 0,
+		DATE_FMT_MONTH    = 1,
+		DATE_FMT_JAPANESE = 2,
+		DATE_FMT_US       = 3,
+		DATE_FMT_GERMAN   = 4,
+		DATE_FMT_JAPANESE_NO_SEASON = 5,
+		DATE_FMT_US_NO_SEASON       = 6,
+		DATE_FMT_GERMAN_NO_SEASON   = 7
+	};
+
 	/**
 	* show month in date?
 	*
@@ -201,13 +223,16 @@ public:
 	// false to quit the programs
 	static bool quit_simutrans;
 
-	// new game start without tree
-	static bool no_tree;
-
 	// customize your tooltips
 	static bool show_tooltips;
 	static uint8 tooltip_color;
 	static uint8 tooltip_textcolor;
+	static uint32 tooltip_delay;
+	static uint32 tooltip_duration;
+
+	// limit width and height of menu toolbars
+	static uint8 toolbar_max_width;
+	static uint8 toolbar_max_height;
 
 	// color used for cursor overlay blending
 	static uint8 cursor_overlay_color;
@@ -231,7 +256,18 @@ public:
 	// @author: jamespetts
 	static bool hilly;
 
+	static uint32 number_of_big_cities;
+	static uint32 number_of_clusters;
+	static uint32 cluster_size;
 	static bool cities_ignore_height;
+	static uint8 cities_like_water;
+
+	// how to highlight topped (untopped windows)
+	static bool window_frame_active;
+	static uint8 front_window_bar_color;
+	static uint8 front_window_text_color;
+	static uint8 bottom_window_bar_color;
+	static uint8 bottom_window_text_color;
 
 	static einstellungen_t default_einstellungen;
 

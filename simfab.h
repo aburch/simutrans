@@ -24,10 +24,6 @@ class stadt_t;
 
 // production happens in every second
 #define PRODUCTION_DELTA_T (1024)
-// error of shifting
-#define BASEPRODSHIFT (8)
-// base production=1 is 16 => shift 4
-#define MAX_PRODBASE_SHIFT (4)
 
 
 // to prepare for 64 precision ...
@@ -72,6 +68,9 @@ public:
 	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
 
 private:
+	// used for haltlist and lieferziele searches in verteile_waren to produce round robin results
+	uint32 index_offset;
+
 	/**
 	 * Die möglichen Lieferziele
 	 * 
@@ -79,7 +78,6 @@ private:
 	 * @author Hj. Malthaner
 	 */
 	vector_tpl <koord> lieferziele;
-	uint32 last_lieferziel_start;
 
 	/**
 	 * suppliers to this factry
@@ -283,14 +281,19 @@ public:
 	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen ("someone wants to pick up were")
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
-	sint32 get_abgabe_letzt(sint32 t) { return ausgang[t].abgabe_letzt; }
+	sint32 get_abgabe_letzt(sint32 t) const { return ausgang[t].abgabe_letzt; }
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten ("factory must also work")
 	void neuer_monat();
 
-	const char *get_name() const { return besch ? translator::translate(besch->get_name()) : "unnamed"; }
-	sint32 get_kennfarbe() const { return besch ? besch->get_kennfarbe() : 0; }
-	spieler_t *get_besitzer() const { return welt->lookup(pos) ? welt->lookup(pos)->first_obj()->get_besitzer() : NULL; }
+	char const* get_name() const { return translator::translate(besch->get_name()); }
+	sint32 get_kennfarbe() const { return besch->get_kennfarbe(); }
+
+	spieler_t *get_besitzer() const
+	{
+		grund_t const* const p = welt->lookup(pos);
+		return p ? p->first_obj()->get_besitzer() : 0;
+	}
 
 	void zeige_info() const;
 	void info(cbuffer_t& buf) const;

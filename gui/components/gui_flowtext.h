@@ -1,10 +1,11 @@
 #ifndef GUI_COMPONENTS_FLOWTEXT_H
 #define GUI_COMPONENTS_FLOWTEXT_H
 
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include <string>
+
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
 #include "../../tpl/slist_tpl.h"
-#include "../../utils/cstring_t.h"
 #include "action_listener.h"
 
 
@@ -39,7 +40,7 @@ public:
 	 * Events werden hiermit an die GUI-Komponenten gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t*);
+	bool infowin_event(const event_t*);
 
 	bool dirty;
 	koord last_offset;
@@ -61,9 +62,9 @@ private:
 
 	struct node_t
 	{
-		node_t(const cstring_t& text_, attributes att_) : text(text_), att(att_), next(0) {}
+		node_t(const std::string &text_, attributes att_) : text(text_), att(att_), next(0) {}
 
-		cstring_t  text;
+		std::string text;
 		attributes att;
 		node_t*    next;
 	};
@@ -74,11 +75,11 @@ private:
 	 */
 	struct hyperlink_t
 	{
-		hyperlink_t(const cstring_t& param_) : param(param_), next(0) {}
+		hyperlink_t(const std::string &param_) : param(param_), next(0) {}
 
 		koord        tl;    // top left display position
 		koord        br;    // bottom right display position
-		cstring_t    param;
+		std::string  param;
 		hyperlink_t* next;
 	};
 

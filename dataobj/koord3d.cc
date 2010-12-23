@@ -29,15 +29,15 @@ koord3d::rdwr(loadsave_t *file)
 	sint16 v16;
 
 	v16 = x;
-	file->rdwr_short(v16, " ");
+	file->rdwr_short(v16);
 	x = v16;
 
 	v16 = y;
-	file->rdwr_short(v16, " ");
+	file->rdwr_short(v16);
 	y = v16;
 
 	if(file->get_version()<99005) {
-		file->rdwr_short(v16, "\n");
+		file->rdwr_short(v16);
 		if(v16!=-1) {
 			z = (v16/16);
 		}
@@ -48,7 +48,7 @@ koord3d::rdwr(loadsave_t *file)
 	}
 	else {
 		sint8 v8=z;
-		file->rdwr_byte(v8, "\n");
+		file->rdwr_byte(v8);
 		z = v8;
 	}
 }

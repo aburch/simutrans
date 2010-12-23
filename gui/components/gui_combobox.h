@@ -11,7 +11,7 @@
 #define gui_components_gui_combobox_h
 
 #include "../../simcolor.h"
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "gui_scrolled_list.h"
 #include "gui_textinput.h"
 #include "gui_button.h"
@@ -23,7 +23,7 @@ class gui_combobox_t :
 	public action_listener_t
 {
 private:
-	char editstr[128];
+	char editstr[128],old_editstr[128];
 
 	// buttons for setting selection manually
 	gui_textinput_t textinp;
@@ -52,17 +52,25 @@ private:
 	 */
 	koord max_size;
 
+	/**
+	 * renames the selected item if necessary
+	 */
+	void rename_selected_item();
+
+	/**
+	 * resets the input field to the name of the item
+	 */
+	void reset_selected_item_name();
+
 public:
 	gui_combobox_t();
 
-	~gui_combobox_t();
-
-	  /**
+	/**
 	 * Events werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t *);
+	bool infowin_event(const event_t *);
 
 	/**
 	 * This method is called if an action is triggered

@@ -9,6 +9,7 @@
 
 #include "vehicle_reader.h"
 #include "../obj_node_info.h"
+#include "../../dataobj/pakset_info.h"
 
 
 
@@ -18,6 +19,10 @@ vehicle_reader_t::register_obj(obj_besch_t *&data)
 	vehikel_besch_t *besch = static_cast<vehikel_besch_t *>(data);
 	vehikelbauer_t::register_besch(besch);
 	obj_for_xref(get_type(), besch->get_name(), data);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 
@@ -185,7 +190,7 @@ vehicle_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->freight_image_type = decode_uint8(p);
 		if(experimental)
 		{
-			if(experimental_version >= 0 && experimental_version <= 4)
+			if(experimental_version <= 4)
 			{
 				besch->is_tilting = decode_uint8(p);
 				way_constraints.set_permissive(decode_uint8(p));

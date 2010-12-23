@@ -23,6 +23,7 @@
 #define GEAR_FACTOR 64
 
 const uint32 DEFAULT_FIXED_VEHICLE_MAINTENANCE = 0;
+class checksum_t;
 
 /**
  * Vehicle type description - all attributes of a vehicle type
@@ -104,7 +105,6 @@ private:
 	uint16 gewicht; //Weight in tons
 	uint32 leistung; //Power in kW
 	uint16 betriebskosten;  //Running costs
-	uint16 scaled_running_costs; //@author: jamespetts
 	uint32 fixed_maintenance; //@author: jamespetts, April 2009
 
 	uint16 intro_date; // introduction date
@@ -272,12 +272,40 @@ public:
 		return get_child<vehikel_besch_t>(6 + i);
 	}
 
-	/* returns true, if this veh can be before the next_veh */
+	// Liefert die erlaubten Nachfolger.
+	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
+	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
+	// man vorher hat_nachfolger() befragen
+	const vehikel_besch_t *get_nachfolger(int i) const
+	{
+		if(i < 0 || i >= nachfolger) {
+			return 0;
+		}
+		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
+	}
+
+	int get_nachfolger_count() const { return nachfolger; }
+
+	/* returns true, if this veh can be before the next_veh
+	 * uses NULL to indicate end of convoi
+	 */
 	bool can_lead(const vehikel_besch_t *next_veh) const
 	{
-		if(  nachfolger==0  ) {
-			return next_veh != 0;
+		if(nachfolger == 0) 
+		{
+			if(can_be_at_rear)
+			{
+				return true;
+			}
+			else
+			{
+				if(next_veh != NULL)
+				{
+					return true;
+				}
+			}
 		}
+
 		for( int i=0;  i<nachfolger;  i++  ) {
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + vorgaenger + i);
 			if(veh==next_veh) {
@@ -287,11 +315,14 @@ public:
 		// only here if not allowed
 		return false;
 	}
-	/* returns true, if this veh can be after the prev_veh */
+
+	/* returns true, if this veh can be after the prev_veh
+	 * uses NULL to indicate front of convoi
+	 */
 	bool can_follow(const vehikel_besch_t *prev_veh) const
 	{
 		if(  vorgaenger==0  ) {
-			return prev_veh != 0;
+			return true;
 		}
 		for( int i=0;  i<vorgaenger;  i++  ) {
 			vehikel_besch_t const* const veh = get_child<vehikel_besch_t>(6 + i);
@@ -304,25 +335,6 @@ public:
 	}
 
 	int get_vorgaenger_count() const { return vorgaenger; }
-
-	// Liefert die erlaubten Nachfolger.
-	// liefert get_nachfolger(0) == NULL, so bedeutet das entweder alle
-	// Nachfolger sind erlaubt oder keine. Um das zu unterscheiden, sollte
-	// man vorher hat_nachfolger() befragen
-
-	// Returns the lawful successor.
-	// provides get_nachfolger (0) == NULL, it means that either all
-	// succeed or none are allowed. To distinguish, one should 
-	// predict hat_nachfolger () question (Google)
-	const vehikel_besch_t *get_nachfolger(int i) const
-	{
-		if(i < 0 || i >= nachfolger) {
-			return NULL;
-		}
-		return get_child<vehikel_besch_t>(6 + vorgaenger + i);
-	}
-
-	int get_nachfolger_count() const { return nachfolger; }
 
 	// Returns the vehicle types to which this vehicle type may be upgraded.
 
@@ -337,15 +349,14 @@ public:
 
 	int get_upgrades_count() const { return upgrades; }
 
+	bool can_follow_any() const { return nachfolger==0; }
+
 	waytype_t get_waytype() const { return static_cast<waytype_t>(typ); }
 	uint16 get_zuladung() const { return zuladung; }
 	uint32 get_preis() const { return preis; }
-	uint16 get_geschw() const { return geschw; }
+	sint32 get_geschw() const { return geschw; }
 	uint16 get_gewicht() const { return gewicht; }
-	uint16 get_betriebskosten() const { return scaled_running_costs; }
-	uint16 get_base_running_costs() const { return betriebskosten; }
-	uint16 get_base_running_costs(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
-	
+	uint16 get_betriebskosten() const { return betriebskosten; }
 	uint16 get_betriebskosten(karte_t *welt) const; //Overloaded method - includes increase for obsolescence.
 	uint32 get_fixed_maintenance() const { return fixed_maintenance; }
 	uint32 get_fixed_maintenance(karte_t *welt) const;  //Overloaded method - includes increase for obsolescence.
@@ -444,23 +455,6 @@ public:
 
 	float get_air_resistance() const { return air_resistance; }
 	
-	///*Bitwise encoded way constraints (permissive)
-	//*@author: jamespetts*/
-	//uint8 get_permissive_constraints() const { return way_constraints_permissive; }
-	//
-	///*Bitwise encoded way constraints (prohibitive)
-	//*@author: jamespetts*/
-	//uint8 get_prohibitive_constraints() const { return way_constraints_prohibitive; }
-
-	//bool permissive_way_constraint_set(uint8 i) const
-	//{
-	//	return (((way_constraints_permissive >> i) & 1) != 0);
-	//}
-
-	//bool prohibitive_way_constraint_set(uint8 i) const
-	//{
-	//	return (((way_constraints_prohibitive >> i) & 1) != 0);
-	//}
 	const way_constraints_of_vehicle_t& get_way_constraints() const { return way_constraints; }
 	void set_way_constraints(const way_constraints_of_vehicle_t& value) { way_constraints = value; }
 	
@@ -468,30 +462,9 @@ public:
 	*@author: jamespetts*/
 	uint8 get_catering_level() const { return catering_level; }
 
-
-	/* test, if a certain vehicle can lead a convoi *
-	 * used by vehikel_search
-	 * @author prissi
-	 */
-	bool can_lead() const {
-		if(vorgaenger==0) {
-			return true;
-		}
-		for( int i=0;  i<vorgaenger;  i++  ) {
-			if (!get_child<vehikel_besch_t>(6 + i)) {
-				return true;
-			}
-		}
-		// cannot lead
-		return false;
-	}
-
-	bool can_follow_any() const { return nachfolger==0; }
-
 	void set_scale(float scale_factor)
 	{ 
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		scaled_running_costs = (uint16)(betriebskosten == 0 ? 0 : (betriebskosten * scale_factor >= 1 ? betriebskosten * scale_factor : 1)); 
 		preis = (uint32)(preis == 0 ? 0 : (preis * scale_factor >= 1 ? preis * scale_factor : 1));
 		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 : (fixed_maintenance * scale_factor >= 1 ? fixed_maintenance * scale_factor : 1));
 	}
@@ -502,7 +475,7 @@ public:
 	 * Effective force in kN: force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_force_index(uint16 speed /* in m/s */ ) const;
+	uint32 get_effective_force_index(sint32 speed /* in m/s */ ) const;
 
 	/**
 	 * Get effective power index. 
@@ -510,8 +483,9 @@ public:
 	 * Effective power in kW: power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
 	 * @author Bernd Gabriel
 	 */
-	uint32 get_effective_power_index(uint16 speed /* in m/s */ ) const;
+	uint32 get_effective_power_index(sint32 speed /* in m/s */ ) const;
 
+	void calc_checksum(checksum_t *chk) const;
 };
 
 #endif

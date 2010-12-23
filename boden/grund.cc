@@ -194,7 +194,7 @@ void grund_t::rdwr(loadsave_t *file)
 		pos.rdwr(file);
 	}
 	else {
-		file->rdwr_byte( z, "" );
+		file->rdwr_byte(z);
 		pos.z = get_typ()==grund_t::wasser ? welt->get_grundwasser() : z;
 	}
 
@@ -213,7 +213,7 @@ void grund_t::rdwr(loadsave_t *file)
 
 	if(file->get_version()<99007) {
 		bool label;
-		file->rdwr_bool(label, "\n");
+		file->rdwr_bool(label);
 		if(label) {
 			dinge.add( new label_t(welt, pos, welt->get_spieler(0), get_text() ) );
 		}
@@ -221,12 +221,12 @@ void grund_t::rdwr(loadsave_t *file)
 
 	sint8 besitzer_n=-1;
 	if(file->get_version()<99005) {
-		file->rdwr_byte(besitzer_n, "\n");
+		file->rdwr_byte(besitzer_n);
 	}
 
 	if(file->get_version()>=88009) {
 		uint8 sl = slope;
-		file->rdwr_byte( sl, " " );
+		file->rdwr_byte(sl);
 		slope = sl;
 	}
 	else {
@@ -311,12 +311,12 @@ void grund_t::rdwr(loadsave_t *file)
 							sint16 d16;
 							sint32 d32;
 
-							file->rdwr_byte(d8, "\n");
-							file->rdwr_short(d16, "\n");
-							file->rdwr_long(d32, "\n");
-							file->rdwr_long(d32, "\n");
-							file->rdwr_long(d32, "\n");
-							file->rdwr_long(d32, "\n");
+							file->rdwr_byte(d8);
+							file->rdwr_short(d16);
+							file->rdwr_long(d32);
+							file->rdwr_long(d32);
+							file->rdwr_long(d32);
+							file->rdwr_long(d32);
 							DBG_MESSAGE("grund_t::rdwr()","at (%i,%i) dock ignored",get_pos().x, get_pos().y);
 						}
 						break;
@@ -330,7 +330,7 @@ void grund_t::rdwr(loadsave_t *file)
 					if(get_typ()==fundament) {
 						// remove this (but we can not correct the other wasy, since possibly not yet loaded)
 						dbg->error("grund_t::rdwr()","removing way from foundation at %i,%i",pos.x,pos.y);
-						// we do not delete them, to keep maitenance costs correct
+						// we do not delete them, to keep maintenance costs correct
 					}
 					else {
 						assert((flags&has_way2)==0);	// maximum two ways on one tile ...
@@ -607,6 +607,22 @@ static inline uint8 get_backbild_from_diff(sint8 h1, sint8 h2)
 	}
 }
 
+/**
+* if ground is deleted mark the old spot as dirty
+*/
+void grund_t::mark_image_dirty()
+{
+	// see ding_t::mark_image_dirty
+	if(bild_nr!=IMG_LEER) {
+		// better not try to twist your brain to follow the retransformation ...
+		const sint16 rasterweite=get_tile_raster_width();
+		const koord diff = pos.get_2d()-welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const sint16 x = (diff.x-diff.y)*(rasterweite/2);
+		const sint16 y = (diff.x+diff.y)*(rasterweite/4) + tile_raster_scale_y( -get_disp_height()*TILE_HEIGHT_STEP/Z_TILE_STEP, rasterweite) + ((display_get_width()/rasterweite)&1)*(rasterweite/4);
+		// mark the region after the image as dirty
+		display_mark_img_dirty( bild_nr, x+welt->get_x_off(), y+welt->get_y_off() );
+	}
+}
 
 // artifical walls from here on ...
 void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
@@ -631,7 +647,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// check for foundation
 	if(k.x>0  &&  k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,-1))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(-1,-1));
 		if(gr) {
 			const sint16 left_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -649,7 +665,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// now enter the left two height differences
 	if(k.x>0) {
-		const grund_t *gr=welt->lookup(k+koord(-1,0))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(-1,0));
 		if(gr) {
 			const sint16 left_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -711,7 +727,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 
 	// now enter the back two height differences
 	if(k.y>0) {
-		const grund_t *gr=welt->lookup(k+koord(0,-1))->get_kartenboden();
+		const grund_t *gr=welt->lookup_kartenboden(k+koord(0,-1));
 		if(gr) {
 			const sint16 back_hgt=gr->get_disp_height()/Z_TILE_STEP;
 			const sint8 slope=gr->get_disp_slope();
@@ -773,7 +789,7 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	}
 
 	// not ground -> then not draw first ...
-	if(welt->lookup(k)->get_kartenboden()!=this) {
+	if(welt->lookup_kartenboden(k)!=this) {
 		clear_flag(grund_t::draw_as_ding);
 	}
 
@@ -892,6 +908,14 @@ void grund_t::display_boden(const sint16 xpos, const sint16 ypos, const sint16 r
 		if (clip) {
 			clear_all_poly_clip();
 		}
+	}
+}
+
+
+void grund_t::display_if_visible(sint16 const xpos, sint16 const ypos, sint16 const raster_tile_width) const
+{
+	if (!get_flag(grund_t::draw_as_ding) && is_karten_boden_visible()) {
+		display_boden(xpos, ypos, raster_tile_width);
 	}
 }
 
@@ -1167,12 +1191,27 @@ void grund_t::display_overlay(const sint16 xpos, const sint16 ypos)
 	const bool dirty = get_flag(grund_t::dirty);
 
 	// marker/station text
-	if(get_flag(has_text)  &&  umgebung_t::show_names) {
-		const char *text = get_text();
-		if(umgebung_t::show_names & 1) {
+	if(  get_flag(has_text)  &&  umgebung_t::show_names  ) {
+		if(  umgebung_t::show_names&1  ) {
+			const char *text = get_text();
 			const sint16 raster_tile_width = get_tile_raster_width();
 			const int width = proportional_string_width(text)+7;
-			display_ddd_proportional_clip(xpos - (width - raster_tile_width)/2, ypos, width, 0, text_farbe(), COL_BLACK, text, dirty);
+			int new_xpos = xpos - (width-raster_tile_width)/2;
+			PLAYER_COLOR_VAL pc = text_farbe();
+
+			switch( umgebung_t::show_names >> 2 ) {
+				case 0:
+					display_ddd_proportional_clip( new_xpos, ypos, width, 0, pc, COL_BLACK, text, dirty );
+					break;
+				case 1:
+					display_outline_proportional( new_xpos, ypos-(LINESPACE/2), pc+3, COL_BLACK, text, dirty );
+					break;
+				case 2:
+					display_outline_proportional( 16+new_xpos, ypos-(LINESPACE/2), COL_YELLOW, COL_BLACK, text, dirty );
+					display_ddd_box_clip( new_xpos, ypos-(LINESPACE/2), LINESPACE, LINESPACE, pc-2, pc+2 );
+					display_fillbox_wh( new_xpos+1, ypos-(LINESPACE/2)+1, LINESPACE-2, LINESPACE-2, pc, dirty );
+					break;
+			}
 		}
 
 		// display station waiting information/status
@@ -1480,7 +1519,7 @@ int grund_t::get_max_speed() const
 	if (weg_t const* const w = get_weg_nr(0)) {
 		max = w->get_max_speed();
 	}
-	if (weg_t const* const w = get_weg_nr(0)) {
+	if (weg_t const* const w = get_weg_nr(1)) {
 		max = min(max, w->get_max_speed());
 	}
 	return max;
@@ -1521,6 +1560,10 @@ bool grund_t::remove_everything_from_way(spieler_t* sp, waytype_t wt, ribi_t::ri
 					return false;
 				}
 			}
+		}
+		// remove ribi from canals to sea level
+		if (wt==water_wt  &&  pos.z==welt->get_grundwasser()  &&  slope!=hang_t::flach) {
+			rem &= ~ribi_t::doppelt(ribi_typ(slope));
 		}
 
 		// remove ribi from canals to sea level

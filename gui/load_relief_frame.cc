@@ -5,7 +5,7 @@
  * (see licence.txt)
  */
 
-#include <string.h>
+#include <string>
 #include <stdio.h>
 
 #include "../simio.h"
@@ -21,15 +21,15 @@
  */
 void load_relief_frame_t::action(const char *filename)
 {
-	cstring_t p("maps/");
+	std::string p("maps/");
 	sets->heightfield = p+filename;
 }
 
 
 bool load_relief_frame_t::del_action(const char *filename)
 {
-	cstring_t p("maps/");
-	remove(p+filename);
+	std::string p("maps/");
+	remove((p+filename).c_str());
 	return false;
 }
 

@@ -121,7 +121,7 @@ public:
 	 */
 	const char * get_hilfe_datei() const {return "replace.txt";}
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	/**
 	 * Zeichnet das Frame

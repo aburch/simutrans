@@ -13,11 +13,16 @@
 #include "../simcolor.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../simwerkz.h"
 #include "../simskin.h"
-#include "../utils/simstring.h"
+
 #include "../freight_list_sorter.h"
+
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../dataobj/loadsave.h"
+
+#include "../utils/simstring.h"
 #include "components/list_button.h"
 #include "../besch/skin_besch.h"
 
@@ -82,8 +87,8 @@ const int cost_type_color[MAX_HALT_COST] =
 	COL_VEHICLE_ASSETS
 };
 
-halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
-	: gui_frame_t(edit_name, halt->get_besitzer()),
+halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt) :
+		gui_frame_t(halt->get_name(), halt->get_besitzer()),
 		scrolly(&text),
 		text("                                                                                     "
 			" \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n \n"
@@ -104,44 +109,10 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	input.set_pos(koord(10,4));
 	tstrncpy(edit_name, halt->get_name(), lengthof(edit_name));
 	input.set_text(edit_name, lengthof(edit_name));
-
-	add_komponente(&sort_label);
-
-	// hsiegeln: added sort_button
-	sort_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	sort_button.set_pos(koord(BUTTON1_X, offset_below_viewport));
-	sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
-	sort_button.set_typ(button_t::roundbox);
-	sort_button.set_tooltip("Sort waiting list by");
-
-	toggler.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	toggler.set_pos(koord(BUTTON3_X, offset_below_viewport));
-	toggler.set_text("Chart");
-	toggler.set_typ(button_t::roundbox_state);
-	toggler.set_tooltip("Show/hide statistics");
-	toggler.add_listener(this);
-	toggler.pressed = false;
-	add_komponente(&toggler);
-
-	button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
-	button.set_pos(koord(BUTTON4_X, offset_below_viewport));
-	button.set_text("Details");
-	button.set_typ(button_t::roundbox);
-
-	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+4));
-
-	add_komponente(&sort_button);
-	add_komponente(&button);
 	add_komponente(&input);
+	input.add_listener(this);
 
-	set_fenstergroesse(koord(total_width, view.get_groesse().y+208));
-	set_min_windowsize(koord(total_width, view.get_groesse().y+138));
-	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
-	resize(koord(0,0));
-
-	button.add_listener(this);
-//	input.add_listener(this);
-	sort_button.add_listener(this);
+	add_komponente(&view);
 
 	// chart
 	chart.set_pos(koord(66,view.get_groesse().y+24));
@@ -165,10 +136,59 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
 	}
 	add_komponente(&chart);
 
-	add_komponente(&view);
+	add_komponente(&sort_label);
+
+	// hsiegeln: added sort_button
+	sort_button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	sort_button.set_pos(koord(BUTTON1_X, offset_below_viewport));
+	sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
+	sort_button.set_typ(button_t::roundbox);
+	sort_button.set_tooltip("Sort waiting list by");
+	add_komponente(&sort_button);
+
+	toggler.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	toggler.set_pos(koord(BUTTON3_X, offset_below_viewport));
+	toggler.set_text("Chart");
+	toggler.set_typ(button_t::roundbox_state);
+	toggler.set_tooltip("Show/hide statistics");
+	toggler.add_listener(this);
+	toggler.pressed = false;
+	add_komponente(&toggler);
+
+	button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
+	button.set_pos(koord(BUTTON4_X, offset_below_viewport));
+	button.set_text("Details");
+	button.set_typ(button_t::roundbox);
+
+	scrolly.set_pos(koord(0, offset_below_viewport+BUTTON_HEIGHT+4));
+
+	add_komponente(&button);
+
+	set_fenstergroesse(koord(total_width, view.get_groesse().y+208));
+	set_min_windowsize(koord(total_width, view.get_groesse().y+138));
+	set_resizemode(diagonal_resize);     // 31-May-02	markus weber	added
+	resize(koord(0,0));
+
+	button.add_listener(this);
+	sort_button.add_listener(this);
+
 	add_komponente(&scrolly);
 }
 
+
+halt_info_t::~halt_info_t()
+{
+	if(  halt.is_bound()  &&  strcmp(halt->get_name(),edit_name)  &&  edit_name[0]  ) {
+		// text changed => call tool
+		cbuffer_t buf(300);
+		buf.printf( "h%u,%s", halt.get_id(), edit_name );
+		werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+		w->set_default_param( buf );
+		halt->get_welt()->set_werkzeug( w, halt->get_besitzer() );
+		// since init always returns false, it is save to delete immediately
+		delete w;
+	}
+}
 
 
 /**
@@ -177,23 +197,13 @@ halt_info_t::halt_info_t(karte_t *welt, halthandle_t halt)
  * in dem die Komponente dargestellt wird.
  * @author Hj. Malthaner
  */
-void
-halt_info_t::zeichnen(koord pos, koord gr)
+void halt_info_t::zeichnen(koord pos, koord gr)
 {
 	if(halt.is_bound()) {
-		if(strcmp(edit_name,halt->get_name())) {
-			halt->set_name( edit_name );
-		}
 
 		// buffer update now only when needed by halt itself => dedicated buffer for this
 		int old_len=freight_info.len();
 		halt->get_freight_info(freight_info);
-		// will grow as needed
-		if (freight_info.is_full()) {
-			freight_info.extent( 1024 );
-			// tell the halt to give the info in the now larger buffer
-			halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
-		}
 		if(old_len!=freight_info.len()) {
 			text.set_text(freight_info);
 			text.recalc_size();
@@ -298,6 +308,22 @@ halt_info_t::zeichnen(koord pos, koord gr)
 }
 
 
+// activate the statistic
+void halt_info_t::show_hide_statistics( bool show )
+{
+	toggler.pressed = show;
+	const koord offset = show ? koord(0, 170) : koord(0, -170);
+	set_min_windowsize(get_min_windowsize() + offset);
+	scrolly.set_pos(scrolly.get_pos() + offset);
+	chart.set_visible(show);
+	set_fenstergroesse(get_fenstergroesse() + offset);
+	resize(koord(0,0));
+	for (int i=0;i<MAX_HALT_COST;i++) {
+		filterButtons[i].set_visible(toggler.pressed);
+	}
+}
+
+
 /**
  * This method is called if an action is triggered
  * @author Hj. Malthaner
@@ -305,22 +331,24 @@ halt_info_t::zeichnen(koord pos, koord gr)
 bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 {
 	if (comp == &button) { 			// details button pressed
-		create_win( new halt_detail_t(halt), w_info, (long)this);
+		create_win( new halt_detail_t(halt), w_info, magic_halt_detail + halt.get_id() );
 	} else if (comp == &sort_button) { 	// @author hsiegeln sort button pressed
 		umgebung_t::default_sortmode = ((int)(halt->get_sortby())+1)%SORT_MODES;
 		halt->set_sortby((freight_list_sorter_t::sort_mode_t) umgebung_t::default_sortmode);
 		sort_button.set_text(sort_text[umgebung_t::default_sortmode]);
 	} else  if (comp == &toggler) {
-		toggler.pressed ^= 1;
-		const koord offset = toggler.pressed ? koord(0, 170) : koord(0, -170);
-		set_min_windowsize(get_min_windowsize() + offset);
-		scrolly.set_pos(scrolly.get_pos() + offset);
-		// toggle visibility of components
-		chart.set_visible(toggler.pressed);
-		set_fenstergroesse(get_fenstergroesse() + offset);
-		resize(koord(0,0));
-		for (int i=0;i<MAX_HALT_COST;i++) {
-			filterButtons[i].set_visible(toggler.pressed);
+		show_hide_statistics( toggler.pressed^1 );
+	}
+	else if(  comp == &input  ) {
+		if(  strcmp(halt->get_name(),edit_name)  ) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "h%u,%s", halt.get_id(), edit_name );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			halt->get_welt()->set_werkzeug( w, halt->get_besitzer() );
+			// since init always returns false, it is save to delete immediately
+			delete w;
 		}
 	}
 	else {
@@ -364,7 +392,73 @@ void halt_info_t::resize(const koord delta)
 
 void halt_info_t::map_rotate90( sint16 new_ysize )
 {
-	koord3d l = view.get_location();
-	l.rotate90( new_ysize );
-	view.set_location( l );
+	view.map_rotate90(new_ysize);
+}
+
+
+halt_info_t::halt_info_t(karte_t *welt):
+	gui_frame_t("", NULL),
+	scrolly(&text),
+	text(""),
+	sort_label(NULL),
+	view(welt, koord3d::invalid, koord(64,64) ),
+	freight_info(0),
+	info_buf(0)
+{
+	// just a dummy
+	this->welt = welt;
+}
+
+
+void halt_info_t::rdwr(loadsave_t *file)
+{
+	koord3d halt_pos;
+	koord gr = get_fenstergroesse();
+	uint32 flags = 0;
+	bool stats = toggler.pressed;
+	sint32 xoff = scrolly.get_scroll_x();
+	sint32 yoff = scrolly.get_scroll_y();
+	if(  file->is_saving()  ) {
+		halt_pos = halt->get_basis_pos3d();
+		for( int i = 0; i<MAX_HALT_COST; i++) {
+			if(  filterButtons[i].pressed  ) {
+				flags |= (1<<i);
+			}
+		}
+	}
+	halt_pos.rdwr( file );
+	gr.rdwr( file );
+	file->rdwr_long( flags );
+	file->rdwr_byte( umgebung_t::default_sortmode );
+	file->rdwr_bool( stats );
+	file->rdwr_long( xoff );
+	file->rdwr_long( yoff );
+	if(  file->is_loading()  ) {
+		halt = welt->lookup( halt_pos )->get_halt();
+		// now we can open the window ...
+		KOORD_VAL xpos = win_get_posx( this );
+		KOORD_VAL ypos = win_get_posy( this );
+		halt_info_t *w = new halt_info_t(welt,halt);
+		create_win( xpos, ypos, w, w_info, magic_halt_info+halt.get_id() );
+		if(  stats  ) {
+			gr.y -= 170;
+		}
+		w->set_fenstergroesse( gr );
+		for( int i = 0; i<MAX_HALT_COST; i++) {
+			w->filterButtons[i].pressed = (flags>>i)&1;
+			if(w->filterButtons[i].pressed) {
+				w->chart.show_curve(i);
+			}
+		}
+		if(  stats  ) {
+			w->show_hide_statistics( true );
+		}
+		halt->get_freight_info(w->freight_info);
+		w->text.set_text(w->freight_info);
+		w->text.recalc_size();
+		w->scrolly.set_scroll_position( xoff, yoff );
+		// we must invalidate halthandle
+		halt = halthandle_t();
+		destroy_win( this );
+	}
 }

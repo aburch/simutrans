@@ -100,7 +100,6 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 		}
 		convoy_assembler.set_vehicles(existing_vehicles);
 	}
-	add_komponente(&convoy_assembler);
 
 	bt_replace_line.set_typ(button_t::square);
 	bt_replace_line.set_text("replace all in line");
@@ -155,6 +154,8 @@ replace_frame_t::replace_frame_t(convoihandle_t cnv, const char *name):
 	bt_allow_using_existing_vehicles.set_tooltip("Use any vehicles already present in the depot, if available, instead of buying new ones or upgrading.");
 	bt_allow_using_existing_vehicles.add_listener(this);
 	add_komponente(&bt_allow_using_existing_vehicles);
+	/* This must be *last* of add_komponente */
+	add_komponente(&convoy_assembler);
 
 	rpl = cnv->get_replace() ? new replace_data_t(cnv->get_replace()) : new replace_data_t();
 
@@ -223,7 +224,7 @@ void replace_frame_t::layout(koord *gr)
 	min_total_height+=convoy_assembler.get_min_height();
 
 	set_min_windowsize(koord(min_total_width, min_total_height));
-	if(fgr.x<total_width) {
+	if(fgr.x<0 || (uint32)fgr.x<total_width) {
 		gui_frame_t::set_fenstergroesse(koord(min_total_width, max(fgr.y,min_total_height) ));
 	}
 	if(gr  &&  gr->x==0) {
@@ -327,8 +328,8 @@ void replace_frame_t::update_data()
 			for (uint32 i=0; i<line->count_convoys(); i++) {
 				convoihandle_t cnv_aux=line->get_convoy(i);
 				if (cnv->has_same_vehicles(cnv_aux)) {
-					uint32 present_state=get_present_state();
-					if (present_state==-1) {
+					uint8 present_state=get_present_state();
+					if (present_state==(uint8)(-1)) {
 						continue;
 					}
 					switch(convoy_assembler.get_action())
@@ -357,8 +358,8 @@ void replace_frame_t::update_data()
 			convoihandle_t cnv_aux=welt->get_convoi(i);
 			if (cnv_aux.is_bound() && cnv_aux->get_besitzer()==cnv->get_besitzer() && cnv->has_same_vehicles(cnv_aux)) 
 			{
-				uint32 present_state=get_present_state();
-				if (present_state==-1) 
+				uint8 present_state=get_present_state();
+				if (present_state==(uint8)(-1))
 				{
 					continue;
 				}
@@ -400,9 +401,9 @@ void replace_frame_t::update_data()
 
 uint8 replace_frame_t::get_present_state() {
 	if (numinp[state_replace].get_value()==0 && numinp[state_sell].get_value()==0 && numinp[state_skip].get_value()==0) {
-		return -1;
+		return (uint8)(-1);
 	}
-	for (uint32 i=0; i<n_states; ++i) {
+	for (uint8 i=0; i<n_states; ++i) {
 		if (replaced_so_far>=numinp[state].get_value()) {
 			replaced_so_far=0;
 			state=(state+1)%n_states;
@@ -417,12 +418,14 @@ uint8 replace_frame_t::get_present_state() {
 
 void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 {
-	uint32 state=get_present_state();
-	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==-1) {
+	uint8 state=get_present_state();
+	if (!cnv_rpl.is_bound() || cnv_rpl->in_depot() || state==(uint8)(-1)) 
+	{
 		return;
 	}
 
-	switch (state) {
+	switch (state) 
+	{
 	case state_replace:
 	{
 		if(convoy_assembler.get_vehicles()->get_count()==0)
@@ -473,7 +476,7 @@ void replace_frame_t::replace_convoy(convoihandle_t cnv_rpl)
 	replaced_so_far++;
 }
 
-bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
+bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t /*p*/)
 {
 	if(komp != NULL) 
 	{	// message from outside!
@@ -523,12 +526,12 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 			} 
 			else if (replace_line) 
 			{
-				linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
+				linehandle_t line = cnv.is_bound() ? cnv->get_line() : linehandle_t();
 				if (line.is_bound()) 
 				{
-					for (uint32 i=0; i<line->count_convoys(); i++) 
+					for (uint32 i = 0; i < line->count_convoys(); i++) 
 					{
-						convoihandle_t cnv_aux=line->get_convoy(i);
+						convoihandle_t cnv_aux = line->get_convoy(i);
 						if (cnv->has_same_vehicles(cnv_aux))
 						{
 							replace_convoy(cnv_aux);
@@ -539,6 +542,10 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 							copy = true;
 						}
 					}
+				}
+				else
+				{
+					replace_convoy(cnv);
 				}
 			} 
 			else if (replace_all) 
@@ -571,17 +578,20 @@ bool replace_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 }
 
 
-void replace_frame_t::infowin_event(const event_t *ev)
+bool replace_frame_t::infowin_event(const event_t *ev)
 {
 	gui_frame_t::infowin_event(ev);
 	if(IS_WINDOW_REZOOM(ev)) {
 		koord gr = get_fenstergroesse();
 		set_fenstergroesse(gr);
+		return true;
 	} else if(ev->ev_class == INFOWIN && ev->ev_code == WIN_OPEN) {
 		convoy_assembler.build_vehicle_lists();
 		update_data();
 		layout(NULL);
+		return true;
 	}
+	return false;
 }
 
 
@@ -627,12 +637,12 @@ sint64 replace_frame_t::calc_total_cost()
 	ITERATE((*convoy_assembler.get_vehicles()),j)
 	{
 		const vehikel_besch_t* veh = NULL;
-		const vehikel_besch_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j];
+		//const vehikel_besch_t* test_new_vehicle = (*convoy_assembler.get_vehicles())[j]; // unused
 		// First - check whether there are any of the required vehicles already
 		// in the convoy (free)
 		ITERATE(current_vehicles,k)
 		{
-			const vehikel_besch_t* test_old_vehicle = current_vehicles[k]->get_besch();
+			//const vehikel_besch_t* test_old_vehicle = current_vehicles[k]->get_besch(); // unused
 			if(!keep_vehicles.is_contained(k) && current_vehicles[k]->get_besch() == (*convoy_assembler.get_vehicles())[j])
 			{
 				veh = current_vehicles[k]->get_besch();
@@ -656,7 +666,7 @@ sint64 replace_frame_t::calc_total_cost()
 				{	
 					for(uint8 c = 0; c < current_vehicles[l]->get_besch()->get_upgrades_count(); c ++)
 					{
-						const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c);
+						//const vehikel_besch_t* possible_upgrade_test = current_vehicles[l]->get_besch()->get_upgrades(c); // unused
 						if(!keep_vehicles.is_contained(l) && (*convoy_assembler.get_vehicles())[j] == current_vehicles[l]->get_besch()->get_upgrades(c))
 						{
 							veh = current_vehicles[l]->get_besch();

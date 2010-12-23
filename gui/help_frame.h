@@ -8,6 +8,7 @@
 #ifndef gui_help_frame_h
 #define gui_help_frame_h
 
+#include <string>
 #include "gui_frame.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_flowtext.h"
@@ -20,10 +21,11 @@ private:
 	gui_flowtext_t flow;
 
 public:
+	help_frame_t();
+	help_frame_t(const std::string &filename);
+
 	void set_text(const char * text);
 
-	help_frame_t();
-	help_frame_t(cstring_t filename);
 
 	/**
 	 * resize window in response to a resize event

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hansjoerg Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -22,6 +22,10 @@
 #include "gui_frame.h"
 #include "gui_container.h"
 
+#include <string>
+
+using std::string;
+
 
 class gui_file_table_column_t : public gui_table_column_t
 {
@@ -30,7 +34,7 @@ protected:
 	virtual const char *get_text(const gui_table_row_t &row) const { (void) row; return ""; }
 public:
 	gui_file_table_column_t(coordinate_t size_) : gui_table_column_t(size_) { pressed = false; }
-	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return STRICMP(get_text(row1), get_text(row2)); }
+	virtual int compare_rows(const gui_table_row_t &row1, const gui_table_row_t &row2) const { return strcmp(get_text(row1), get_text(row2)); }
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row) = 0;
 	bool get_pressed() const { return pressed; }
 	void set_pressed(bool value) { pressed = value; }
@@ -44,8 +48,8 @@ protected:
 public:
 	gui_file_table_button_column_t(coordinate_t size_) : gui_file_table_column_t(size_) {}
 	virtual void paint_cell(const koord &offset, coordinate_t x, coordinate_t y, const gui_table_row_t &row);
-	void set_text(char *text) { btn.set_text(text); }
-	void set_tooltip(char *tooltip) { btn.set_tooltip(tooltip); }
+	void set_text(const char *text) { btn.set_text(text); }
+	void set_tooltip(const char *tooltip) { btn.set_tooltip(tooltip); }
 };
 
 
@@ -102,16 +106,16 @@ class gui_file_table_row_t : public gui_table_row_t
 	friend class gui_file_table_action_column_t;
 	friend class gui_file_table_time_column_t;
 protected:
-	cstring_t text;
-	cstring_t name;
-	cstring_t error;
+	string text;
+	string name;
+	string error;
 	bool pressed;
 	bool delete_enabled;
 	struct stat info;
 public:
 	//gui_file_table_row_t();
 	gui_file_table_row_t(const char *pathname, const char *buttontext, bool delete_enabled = true);
-	const char *get_name() const { return name; }
+	const char *get_name() const { return name.c_str(); }
 	void set_pressed(bool value) { pressed = value; }
 	bool get_pressed() { return pressed; }
 	void set_delete_enabled(bool value) { delete_enabled = value; }
@@ -139,6 +143,9 @@ private:
 
 	// path, to be put in front
 	const char *fullpath;
+
+	// search for directories (pak_selector gui)
+	bool only_directories;
 
 	// true, if there is additional information, i.e. loading a game
 	bool use_pak_extension;
@@ -216,8 +223,7 @@ public:
 	 * @param suffix Filename suffix, i.e. ".sve", must be four characters
 	 * @author Hj. Malthaner
 	 */
-	savegame_frame_t(const char *suffix, const char *path );
-	savegame_frame_t(const char *suffix, const char *path, bool use_table );
+	savegame_frame_t(const char *suffix, const char *path, bool only_directories = false, bool use_table = false );
 
 	virtual ~savegame_frame_t();
 
@@ -238,8 +244,8 @@ public:
 	 */
 	virtual bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
-	// must catch open messgae to uptade list, since I am using virtual functions
-	virtual void infowin_event(const event_t *ev);
+	// must catch open message to update list, since I am using virtual functions
+	virtual bool infowin_event(const event_t *ev);
 };
 
 #endif

@@ -1,6 +1,7 @@
 #ifndef IMAGELIST2D_WRITER_H
 #define IMAGELIST2D_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 
@@ -20,7 +21,7 @@ class imagelist2d_writer_t : public obj_writer_t {
 		virtual obj_type get_type() const { return obj_imagelist2d; }
 		virtual const char* get_type_name() const { return "imagelist2d"; }
 
-		void write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<cstring_t> >& keys);
+		void write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<slist_tpl<std::string> >& keys);
 };
 
 #endif

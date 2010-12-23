@@ -45,10 +45,8 @@ void scenario_t::init( const char *filename, karte_t *w )
 
 	tabfile_t scenario;
 
-	char path[1024];
-	sprintf( path, "%s.tab", filename );
 	if (!scenario.open(filename)) {
-		dbg->error("scenario_t::scenario_t()", "Can't read %s", path );
+		dbg->error("scenario_t::scenario_t()", "Can't read %s", filename );
 		return;
 	}
 
@@ -96,9 +94,9 @@ void scenario_t::rdwr(loadsave_t *file)
 		}
 	}
 
-	file->rdwr_short( what_scenario, "" );
-	file->rdwr_long( city_nr, "" );
-	file->rdwr_longlong( factor, "" );
+	file->rdwr_short(what_scenario);
+	file->rdwr_long(city_nr);
+	file->rdwr_longlong(factor);
 	fabpos.rdwr( file );
 
 	if(  file->is_loading()  ) {
@@ -191,9 +189,13 @@ int scenario_t::completed(int player_nr)
 		{
 			spieler_t *sp = welt->get_spieler(player_nr);
 			int pts = 0;
-			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); i != end; ++i) {
+			for (vector_tpl<convoihandle_t>::const_iterator i = welt->convois_begin(), end = welt->convois_end(); pts < factor  &&  i != end; ++i) {
 				convoihandle_t cnv = *i;
-				if(  cnv->get_besitzer() == sp  &&  cnv->get_jahresgewinn()>0  &&  cnv->get_state()!=convoi_t::INITIAL  &&  cnv->get_vehikel_anzahl()>0  &&  cnv->get_vehikel(0)->get_waytype()==track_wt) {
+				if (cnv->get_besitzer()         == sp                &&
+						cnv->get_jahresgewinn()     >  0                 &&
+						cnv->get_state()            != convoi_t::INITIAL &&
+						cnv->get_vehikel_anzahl()   >  0                 &&
+						cnv->front()->get_waytype() == track_wt) {
 					pts ++;
 				}
 			}

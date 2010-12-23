@@ -11,7 +11,8 @@
 #include "simtypes.h"
 
 class karte_t;
-class gui_fenster_t;
+class loadsave_t;
+class gui_frame_t;
 class gui_komponente_t;
 struct event_t;
 
@@ -57,10 +58,13 @@ enum magic_numbers {
 	magic_city_info_t,
 	magic_citylist_frame_t,
 	magic_mainhelp,
+	// player dependent stuff => 16 times present
 	magic_finances_t,
-	magic_help,
-	magic_convoi_t,
-	magic_jump,
+	magic_convoi_list=magic_finances_t+16,
+	magic_line_list=magic_convoi_list+16,
+	magic_halt_list=magic_line_list+16,
+	// normal stuff
+	magic_jump=magic_halt_list+16,
 	magic_curiositylist,
 	magic_factorylist,
 	magic_goodslist,
@@ -73,11 +77,16 @@ enum magic_numbers {
 	magic_labellist,
 	magic_station_building_select,
 	magic_keyhelp,
-	magic_info_pointer,	// mark end of the list
-	magic_convoi_info=magic_info_pointer+839,
+	magic_server_frame_t,
+	magic_pakset_info_t,
+	magic_convoi_info,
 	magic_convoi_detail=magic_convoi_info+65536,
-	magic_replace=magic_convoi_detail+65536,
-	magix_max=magic_replace+65536
+	magic_halt_info=magic_convoi_detail+65536,
+	magic_halt_detail=magic_halt_info+65536,
+	magic_replace=magic_halt_detail+65536,
+	magic_toolbar=magic_replace+65536,
+	magic_info_pointer=magic_toolbar+256,
+	magic_max = magic_info_pointer+843
 };
 
 // Haltezeit für Nachrichtenfenster
@@ -86,62 +95,42 @@ enum magic_numbers {
 
 void init_map_win();
 
+// windows with a valid id can be saved and restored
+void rwdr_all_win(loadsave_t *file);
 
-/**
- * redirect keyboard input into UI windows
- *
- * @return true if focus granted
- * @author Hj. Malthaner
- */
-bool request_focus(gui_komponente_t *);
-
-
-/**
- * current focus?
- *
- * @return true if focus granted
- * @author Hj. Malthaner
- */
-bool has_focus(const gui_komponente_t *);
-
-
-/**
- * redirect keyboard input into game engine
- *
- * @author Hj. Malthaner
- */
-void release_focus(gui_komponente_t *);
-
-
-int create_win(gui_fenster_t*, wintype, long magic);
-int create_win(int x, int y, gui_fenster_t*, wintype, long magic);
+int create_win(gui_frame_t*, wintype, long magic);
+int create_win(int x, int y, gui_frame_t*, wintype, long magic);
 
 bool check_pos_win(struct event_t *ev);
 
-int win_get_posx(gui_fenster_t *ig);
-int win_get_posy(gui_fenster_t *ig);
-void win_set_pos(gui_fenster_t *ig, int x, int y);
+bool win_is_open(gui_frame_t *ig );
+int win_get_posx(gui_frame_t *ig);
+int win_get_posy(gui_frame_t *ig);
+void win_set_pos(gui_frame_t *ig, int x, int y);
 
-const gui_fenster_t *win_get_top();
+gui_frame_t *win_get_top();
+
+// Knightly : returns the focused component of the top window
+gui_komponente_t *win_get_focus();
 
 int win_get_open_count();
 
 // returns the window (if open) otherwise zero
-gui_fenster_t *win_get_magic(long magic);
+gui_frame_t *win_get_magic(long magic);
 
 /**
  * Checks ifa window is a top level window
  *
  * @author Hj. Malthaner
  */
-bool win_is_top(const gui_fenster_t *ig);
+bool win_is_top(const gui_frame_t *ig);
 
 
-void destroy_win(const gui_fenster_t *ig);
+void destroy_win(const gui_frame_t *ig);
 void destroy_win(const long magic);
-void destroy_all_win();
+void destroy_all_win(bool destroy_sticky);
 
-bool top_win(const gui_fenster_t *ig);
+bool top_win(const gui_frame_t *ig);
 int top_win(int win);
 void display_win(int win);
 void display_all_win();
@@ -159,9 +148,10 @@ bool win_change_zoom_factor(bool magnify);
 
 /**
  * Sets the tooltip to display.
- * @author Hj. Malthaner
+ * @param owner : owner==NULL disables timing (initial delay and visible duration)
+ * @author Hj. Malthaner, Knightly
  */
-void win_set_tooltip(int xpos, int ypos, const char *text);
+void win_set_tooltip(int xpos, int ypos, const char *text, const void *const owner = 0, const void *const group = 0);
 
 /**
  * Sets a static tooltip that follows the mouse

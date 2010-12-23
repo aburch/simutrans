@@ -38,7 +38,7 @@
 
 
 // new tool definition
-wkz_plant_tree_t baum_edit_frame_t::baum_tool=wkz_plant_tree_t();
+wkz_plant_tree_t baum_edit_frame_t::baum_tool;
 char baum_edit_frame_t::param_str[256];
 
 
@@ -53,8 +53,8 @@ static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 }
 
 
-baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_,karte_t* welt) :
-	extend_edit_gui_t(sp_,welt),
+baum_edit_frame_t::baum_edit_frame_t(spieler_t* sp_, karte_t* welt) :
+	extend_edit_gui_t(translator::translate("baum builder"), sp_, welt),
 	baumlist(16)
 {
 	bt_timeline.set_text( "Random age" );

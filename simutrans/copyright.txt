@@ -18,5 +18,9 @@ comments please send to:
 	team@64.simutrans.com
 
 The source code from the program is available under the Artistic Licence.
+This is a written permission as demanded for above for every right granted
+by the Artistic License.  Note, however, that individual pak sets may come
+with their own license.
+
 Download the source from https://sourceforge.net/projects/simutrans or
 find out about our svn in the forum.

@@ -23,7 +23,6 @@
 
 #define MAX_CONVOI_COST				9 // Total number of cost items
 #define MAX_MONTHS					12 // Max history
-#define MAX_CONVOI_NON_MONEY_TYPES	4 // number of non money types in convoi's financial statistic
 
 #define CONVOI_CAPACITY				0 // the amount of ware that could be transported, theoretically
 #define CONVOI_TRANSPORTED_GOODS	1 // the amount of ware that has been transported
@@ -138,6 +137,12 @@ private:
 	sint32 loading_limit;
 
 	/**
+	 * Free seats for passengers, calculated in convoi_t::calc_loading
+	 * @author Inkelyad
+	 */
+	sint32 free_seats;
+
+	/**
 	* The vehicles of this convoi
 	*
 	* @author Hj. Malthaner
@@ -162,13 +167,13 @@ private:
 
 	static karte_t *welt;
 
- 	/**
+	/**
 	* the convoi is being withdrawn from service
 	* @author kierongreen
 	*/
 	bool withdraw;
 
- 	/**
+	/**
 	* nothing will be loaded onto this convoi
 	* @author kierongreen
 	*/
@@ -187,6 +192,12 @@ private:
 	* @author isidoro
 	*/
 	bool depot_when_empty;
+
+	/**
+	* the convoi traverses its schedule in reverse order
+	* @author yobbobandana
+	*/
+	bool reverse_schedule;
 
 	/**
 	* the convoi caches its freight info; it is only recalculation after loading or resorting
@@ -252,7 +263,8 @@ private:
 	// will be recalculated if
 	// recalc_data is true
 	bool recalc_data;
-	uint32 speed_limit;
+	sint32 sum_friction_weight;
+	sint32 speed_limit;
 
 	/**
 	* Lowest top speed of all vehicles. Doesn't get saved, but calculated
@@ -296,7 +308,7 @@ private:
 	// the odometer was last incremented.
 	// Used for converting tiles to km.
 	// @author: jamespetts
-	uint8 tiles_since_last_odometer_increment;
+	float tiles_since_last_odometer_increment;
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)
@@ -369,13 +381,6 @@ private:
 	 */
 	void calc_acceleration(long delta_t);
 
-	/**
-	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
-	* "Convoi holds by stop and sets ratio for freight" (Babelfish)
-	* @author Hj. Malthaner
-	*/
-	void hat_gehalten(koord k, halthandle_t halt);
-
 	/*
 	* struct holds new financial history for convoi
 	* @author hsiegeln
@@ -433,10 +438,36 @@ private:
 	 */
 	bool calc_obsolescence(uint16 timeline_year_month);
 
+	/**
+	 * Register the convoy with the stops in the schedule
+	 * @author Knightly
+	 */
+	void register_stops();
+
+	/**
+	 * Unregister the convoy from the stops in the schedule
+	 * @author Knightly
+	 */
+	void unregister_stops();
+
 	uint32 move_to(karte_t const&, koord3d const& k, uint16 start_index);
 
+	/**
+	* Advance the schedule cursor.
+	* Also toggles the reverse_schedule flag if necessary.
+	* @author yobbobandana
+	*/
+	void advance_schedule();
+
 public:
-	inline route_t* get_route() { return &route; }
+	/**
+	* Convoi haelt an Haltestelle und setzt quote fuer Fracht
+	* @author Hj. Malthaner
+	*/
+	void hat_gehalten(halthandle_t halt);
+
+	route_t* get_route() { return &route; }
+	route_t* access_route() { return &route; }
 
 	/**
 	* Checks if this convoi has a driveable route
@@ -468,7 +499,7 @@ public:
 	* get state
 	* @author hsiegeln
 	*/
-	inline int get_state() { return state; }
+	int get_state() const { return state; }
 
 	/**
 	* true if in waiting state (maybe also due to starting)
@@ -571,7 +602,7 @@ public:
 	* Sets the name. Copies name into this->name and translates it.
 	* @author V. Meyer
 	*/
-	void set_name(const char *name);
+	void set_name(const char *name, bool with_new_id = true);
 
 	/**
 	 * Gibt die Position des Convois zurück.
@@ -671,6 +702,10 @@ public:
 	// @author: jamespetts, February 2010
 	void upgrade_vehicle(uint16 i, vehikel_t* v);
 
+	vehikel_t* front() const { return fahr[0]; }
+
+	vehikel_t* back() const { return fahr[anz_vehikel - 1]; }
+
 	/**
 	* Adds a vehicel at the start or end of the convoi.
 	* @author Hj. Malthaner
@@ -723,6 +758,18 @@ public:
 
 	void check_pending_updates();
 
+	/**
+	* Get whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	inline bool get_reverse_schedule() const { return reverse_schedule; }
+
+	/**
+	* Set whether the convoi is traversing its schedule in reverse.
+	* @author yobbobandana
+	*/
+	void set_reverse_schedule(bool reverse = true) { reverse_schedule = reverse; }
+
 #if 0
 private:
 	/**
@@ -749,9 +796,6 @@ public:
 	* @see simwin
 	*/
 	void open_schedule_window( bool show );
-
-	static bool pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
-	static bool pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter);
 
 	/**
 	* pruefe ob Beschraenkungen fuer alle Fahrzeuge erfuellt sind
@@ -804,6 +848,17 @@ public:
 	inline const sint32 &get_loading_limit() const { return loading_limit; }
 
 	/**
+	 * Format remained loading time from go_on_ticks
+	 */
+	void snprintf_remained_loading_time(char *p, size_t size) const;
+
+	/**
+	 * How many free seats for passengers in convoy? Used in overcrowded loading
+	 * @auhor Inkelyad
+	 */
+	inline const sint32 &get_free_seats() const { return free_seats; }
+
+	/**
 	* Schedule convoid for self destruction. Will be executed
 	* upon next sync step
 	* @author Hj. Malthaner
@@ -843,7 +898,7 @@ public:
 	* return a specified element from the financial history
 	* @author hsiegeln
 	*/
-	inline sint64 get_finance_history(int month, int cost_type) { return financial_history[month][cost_type]; }
+	sint64 get_finance_history(int month, int cost_type) const { return financial_history[month][cost_type]; }
 
 	/**
 	* only purpose currently is to roll financial history
@@ -869,8 +924,8 @@ public:
 	* The slowdown ist done by the vehicle routines
 	* @author prissi
 	*/
-	inline uint16 get_next_stop_index() const {return next_stop_index;}
-	inline void set_next_stop_index(uint16 n) {next_stop_index=n;}
+	uint16 get_next_stop_index() const {return next_stop_index;}
+	void set_next_stop_index(uint16 n);
 
 	/* the current state of the convoi */
 	uint8 get_status_color() const;

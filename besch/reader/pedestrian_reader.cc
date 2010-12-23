@@ -11,6 +11,7 @@
 #include "../obj_node_info.h"
 
 #include "pedestrian_reader.h"
+#include "../../dataobj/pakset_info.h"
 
 /*
  *  Autor:
@@ -22,7 +23,9 @@ void pedestrian_reader_t::register_obj(obj_besch_t *&data)
 
 	fussgaenger_t::register_besch(besch);
 
-	obj_for_xref(get_type(), besch->get_name(), data);
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

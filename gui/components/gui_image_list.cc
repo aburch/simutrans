@@ -27,14 +27,16 @@ gui_image_list_t::gui_image_list_t(vector_tpl<image_data_t> *images) :
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_image_list_t::infowin_event(const event_t *ev)
+bool gui_image_list_t::infowin_event(const event_t *ev)
 {
 	int sel_index = index_at(-pos, ev->mx, ev->my);
 	if(sel_index!=-1  &&  IS_LEFTCLICK(ev)) {
 		value_t p;
 		p.i = sel_index;
 		call_listeners( p );
+		return true;
 	}
+	return false;
 }
 
 

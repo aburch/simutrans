@@ -18,6 +18,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/scenario.h"
+#include "../dataobj/loadsave.h"
 
 // for headquarter construction only ...
 #include "../simskin.h"
@@ -91,7 +92,6 @@ const uint8 button_order[MAX_PLAYER_COST] =
 	6, 5, 10, 7, 19
 };
 
-char money_frame_t::digit[4];
 
 /**
  * fills buffer (char array) with finance info
@@ -142,6 +142,9 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		old_tmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_mmoney(NULL, COL_WHITE, gui_label_t::money),
 		old_omoney(NULL, COL_WHITE, gui_label_t::money),
+		credit_limit(NULL, COL_WHITE, gui_label_t::money),
+		interest(NULL, COL_WHITE, gui_label_t::money),
+		old_interest(NULL, COL_WHITE, gui_label_t::money),
 		tylabel2("This Year", COL_WHITE, gui_label_t::right),
 		gtmoney(NULL, COL_WHITE, gui_label_t::money),
 		vtmoney(NULL, COL_WHITE, gui_label_t::money),
@@ -157,10 +160,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		operational_money(NULL, COL_RED, gui_label_t::money),
 		warn("", COL_YELLOW, gui_label_t::left),
 		scenario("", COL_BLACK, gui_label_t::left),
-		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64)),
-		credit_limit(NULL, COL_WHITE, gui_label_t::money),
-		interest(NULL, COL_WHITE, gui_label_t::money),
-		old_interest(NULL, COL_WHITE, gui_label_t::money)
+		headquarter_view(sp->get_welt(), koord3d::invalid, koord(120, 64))
 {
 	if(sp->get_welt()->get_spieler(0)!=sp) 
 	{
@@ -306,7 +306,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 	// easier headquarter access
 	old_level = sp->get_headquarter_level();
 	old_pos = sp->get_headquarter_pos();
-	if(!hausbauer_t::headquarter.empty()) {
+	if(old_level > 0  ||  hausbauer_t::get_headquarter(0,sp->get_welt()->get_timeline_year_month())!=NULL) {
 
 		headquarter.init(button_t::box, old_pos!=koord::invalid ? "upgrade HQ" : "build HQ", koord(582-12-120, 0), koord(120, BUTTONSPACE));
 		headquarter.add_listener(this);
@@ -463,7 +463,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 		warn.set_color( COL_RED );
 		if(sp->get_finance_history_year(0, COST_NETWEALTH) < 0 && sp->get_welt()->get_einstellungen()->bankruptsy_allowed()) 
 		{
-			sprintf(str_buf[25], translator::translate("Company bankrupt") );
+			tstrncpy(str_buf[15], translator::translate("Company bankrupt"), lengthof(str_buf[15]) );
 		}
 		else 
 		{
@@ -562,4 +562,36 @@ bool money_frame_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		}
 	}
 	return false;
+}
+
+
+uint32 money_frame_t::get_rdwr_id()
+{
+	return magic_finances_t+sp->get_player_nr();
+}
+
+
+
+void money_frame_t::rdwr( loadsave_t *file )
+{
+	bool monthly = mchart.is_visible();;
+	file->rdwr_bool( monthly );
+
+	// button state already cooledcted
+	file->rdwr_long( bFilterStates[sp->get_player_nr()] );
+
+	if(  file->is_loading()  ) {
+		// states ...
+		for( uint32 i = 0; i<MAX_PLAYER_COST; i++) {
+			if (bFilterStates[sp->get_player_nr()] & (1<<i)) {
+				chart.show_curve(i);
+				mchart.show_curve(i);
+			}
+			else {
+				chart.hide_curve(i);
+				mchart.hide_curve(i);
+			}
+		}
+		year_month_tabs.set_active_tab_index( monthly );
+	}
 }

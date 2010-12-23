@@ -27,13 +27,14 @@
 #ifdef _WIN32
 #define BITMAP winBITMAP
 #define WinMain winWinMain
+// windows.h defines min and max macros which we don't want
+#define NOMINMAX 1
 #include <windows.h>
 #undef BITMAP
 #undef WinMain
 #endif
 
 #include <allegro.h>
-
 
 
 static void simtimer_init(void);
@@ -55,11 +56,12 @@ struct sys_event sys_event;
  */
 
 #define queue_length 4096
+#define queue_items 6
 
 
 static volatile unsigned int event_top_mark = 0;
 static volatile unsigned int event_bot_mark = 0;
-static volatile int event_queue[queue_length * 5 + 8];
+static volatile int event_queue[queue_length * queue_items + 8];
 
 
 #define INSERT_EVENT(a, b) \
@@ -68,7 +70,8 @@ static volatile int event_queue[queue_length * 5 + 8];
 	event_queue[event_top_mark++] = mouse_x; \
 	event_queue[event_top_mark++] = mouse_y; \
 	event_queue[event_top_mark++] = mouse_b; \
-	if (event_top_mark >= queue_length * 5) event_top_mark = 0;
+	event_queue[event_top_mark++] = mouse_z; \
+	if (event_top_mark >= queue_length * queue_items) event_top_mark = 0;
 
 
 void my_mouse_callback(int flags)
@@ -99,6 +102,17 @@ void my_mouse_callback(int flags)
 
 	if (flags & MOUSE_FLAG_RIGHT_UP) {
 		INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_RIGHTUP)
+	}
+
+	if (flags & MOUSE_FLAG_MOVE_Z) {
+	    if(event_top_mark > 0) {
+	        if (event_queue[event_top_mark-1] < mouse_z) {
+	            INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_WHEELUP)
+            }
+	        else if (event_queue[event_top_mark-1] > mouse_z) {
+	            INSERT_EVENT(SIM_MOUSE_BUTTONS, SIM_MOUSE_WHEELDOWN)
+            }
+	    }
 	}
 }
 END_OF_FUNCTION(my_mouse_callback)
@@ -203,9 +217,10 @@ int dr_os_init(const int* parameter)
 	LOCK_FUNCTION(my_close_button_callback);
 	set_close_button_callback(my_close_button_callback);
 
-	if (ok == 0) {
-		simtimer_init();
+	if (ok != 0) {
+		dr_fatal_notify("Could not init Allegro.\n",0);
 	}
+	simtimer_init();
 
 	return ok == 0;
 }
@@ -251,7 +266,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 	install_keyboard();
 
 	set_color_depth(bpp);
-	if (set_gfx_mode(GFX_AUTODETECT, w, h, 0, 0) != 0) {
+	if (set_gfx_mode(fullscreen? GFX_AUTODETECT : GFX_AUTODETECT_WINDOWED, w, h, 0, 0) != 0) {
 		fprintf(stderr, "Error: %s\n", allegro_error);
 		return FALSE;
 	}
@@ -349,11 +364,13 @@ unsigned short* dr_textur_init(void)
 	return (unsigned short *)(texture_map->line[0]);
 }
 
+extern void display_set_actual_width(KOORD_VAL w);
 
-// reiszes screen (Not allowed)
+// resizes screen (Not allowed)
 int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 {
-	return FALSE;
+	display_set_actual_width( width );
+	return width;
 }
 
 
@@ -408,7 +425,7 @@ void dr_flush(void)
 
 #ifdef WIN32
 // try saving png using gdiplus.dll
-extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned short *data, int bitdepth );
+extern "C" int dr_screenshot_png(const char *filename,  int w, int h, int maxwidth, unsigned short *data, int bitdepth );
 #endif
 
 /**
@@ -420,7 +437,7 @@ extern "C" int dr_screenshot_png(const char *filename,  int w, int h, unsigned s
 int dr_screenshot(const char *filename)
 {
 #ifdef WIN32
-	if(dr_screenshot_png(filename, width, height, (short unsigned int *)texture_map, 16)) {
+	if(dr_screenshot_png(filename, width-1, height, width, (short unsigned int *)texture_map, 16)) {
 		return 1;
 	}
 #endif
@@ -459,9 +476,10 @@ static void internalGetEvents(void)
 		sys_event.mx      = event_queue[event_bot_mark++];
 		sys_event.my      = event_queue[event_bot_mark++];
 		sys_event.mb      = event_queue[event_bot_mark++];
+		event_bot_mark++;   // jump over mouse_z
 		sys_event.key_mod = recalc_keys();
 
-		if (event_bot_mark >= queue_length * 5) {
+		if (event_bot_mark >= queue_length * queue_items) {
 			event_bot_mark = 0;
 		}
 	} else {
@@ -530,7 +548,6 @@ void timer_callback(void)
 }
 END_OF_FUNCTION(timer_callback)
 
-
 static void simtimer_init(void)
 {
 	printf("Installing timer...\n");
@@ -546,8 +563,9 @@ static void simtimer_init(void)
 
 	if (install_int(timer_callback, 5) == 0) {
 		printf("Timer installed.\n");
-	} else {
-		printf("Error: Timer not available, aborting.\n");
+	}
+	else {
+		dr_fatal_notify("Error: Timer not available, aborting.\n",0);
 		exit(1);
 	}
 }

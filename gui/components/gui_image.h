@@ -12,7 +12,7 @@
 
 #include "../../simimg.h"
 #include "../../simgraph.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 
 
 class gui_image_t : public gui_komponente_t

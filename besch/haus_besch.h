@@ -16,6 +16,7 @@
 
 class haus_besch_t;
 class werkzeug_t;
+class checksum_t;
 
 /*
  *  Autor:
@@ -60,7 +61,7 @@ public:
 		return get_hintergrund(0,0,0)!=IMG_LEER  ||  get_vordergrund(0,0)!=IMG_LEER;
 	}
 
-	image_id get_hintergrund(int phase, int hoehe,int season) const
+	image_id get_hintergrund(int phase, int hoehe, int season) const
 	{
 		season &= (seasons-1);
 		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
@@ -78,9 +79,13 @@ public:
 	bool is_hintergrund_phases(int season) const
 	{
 		season &= (seasons-1);
-		for(  uint8 phase=1;  phase<phasen;  phase++  ) {
-			if (get_child<bildliste2d_besch_t>(0+2*season)->get_bild(0, phase)) {
-				return true;
+		bildliste2d_besch_t const* const bl = get_child<bildliste2d_besch_t>(0 + 2 * season);
+		const uint16 max_h = bl->get_anzahl();
+		for(  uint16 phase=1;  phase<phasen;  phase++  ) {
+			for(  uint16 h=0;  h<max_h;  h++  ) {
+				if(  bl->get_bild( h, phase )  ) {
+					return true;
+				}
 			}
 		}
 		return false;
@@ -362,6 +367,8 @@ public:
 	void set_builder( werkzeug_t *w )  {
 		builder = w;
 	}
+
+	void calc_checksum(checksum_t *chk) const;
 };
 	
 

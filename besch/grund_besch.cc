@@ -376,8 +376,7 @@ char const* grund_besch_t::get_climate_name_from_bit(climate n)
 /* this routine is called during the creation of a new map
  * it will recalculate all transitions according the given water level
  */
-void
-grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
+void grund_besch_t::calc_water_level(karte_t *w, uint8 *height_to_climate)
 {
 	grund_besch_t::welt = w;
 
@@ -435,11 +434,9 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 	}
 	number_of_climates--;
 
-#if DEBUG
 	for( int h=0;  h<32;  h++  ) {
 		DBG_MESSAGE("grund_besch_t::calc_water_level()","climate in height %i: %s (order no %i)", h, climate_names[height_to_climate[h]], height_to_texture_climate[h] );
 	}
-#endif
 
 	// not the wrong tile size?
 	assert(boden_texture->get_bild_ptr(0)->pic.w == grund_besch_t::ausserhalb->get_bild_ptr(0)->pic.w);
@@ -611,7 +608,7 @@ grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 	}
 	else {
 		const bool snow_transition = (height+Z_TILE_STEP==welt->get_snowline());
-		const bool snow = height >= welt->get_snowline();
+		const bool snow = (height >= welt->get_snowline());
 		if(h==0) {
 			// water, coastal or winter slope?
 			return slope ? image_offset + (uint16)slope + (14*(snow_transition||snow)) : image_offset;

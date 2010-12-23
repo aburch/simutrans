@@ -5,6 +5,7 @@
  * (see licence.txt)
  */
 
+#include <string>
 #include <stdio.h>
 #include <math.h>
 
@@ -38,70 +39,6 @@ static const uint8 baum_bild_alter[12] =
 	0,1,2,3,3,3,3,3,3,4,4,4
 };
 
-/******************************** static stuff for forest rules ****************************************************************/
-
-// at first deafault values for forest creation will be set
-// Base forest size - minimal size of forest - map independent
-uint8 baum_t::forest_base_size = 36;
-
-// Map size divisor - smaller it is the larger are individual forests
-uint8 baum_t::forest_map_size_divisor = 38;
-
-// Forest count divisor - smaller it is, the more forest are generated
-uint8 baum_t::forest_count_divisor = 16;
-
-// Forest boundary sharpenss: 0 - perfectly sharp boundaries, 20 - very blurred
-uint8 baum_t::forest_boundary_blur = 6;
-
-// Forest boundary thickness  - determines how thick will the boundary line be
-uint8 baum_t::forest_boundary_thickness = 2;
-
-// Determins how often are spare trees going to be planted (works inversly)
-uint16 baum_t::forest_inverse_spare_tree_density = 5;
-
-// Number of trees on square 2 - minimal usable, 3 good, 5 very nice looking
-uint8 baum_t::max_no_of_trees_on_square = 3;
-
-// bit set, if this climate is to be covered with trees entirely
-uint16 baum_t::tree_climates = 0;
-
-// bit set, if this climate is to be void of random trees
-uint16 baum_t::no_tree_climates = 0;
-
-
-
-/**
- * Reads forest configuration data
- * @author prissi
- */
-bool baum_t::forestrules_init(cstring_t objfilename)
-{
-	tabfile_t forestconf;
-	// first take user data, then user global data
-	cstring_t user_dir=umgebung_t::user_dir;
-	if (!forestconf.open(user_dir+"forestrules.tab")) {
-		if (!forestconf.open(objfilename+"config/forestrules.tab")) {
-			dbg->warning("baum_t::forestrules_init()", "Can't read forestrules.tab" );
-			return false;
-		}
-	}
-
-	tabfileobj_t contents;
-	forestconf.read(contents);
-
-	baum_t::forest_base_size = contents.get_int("forest_base_size", baum_t::forest_base_size );
-	baum_t::forest_map_size_divisor = contents.get_int("forest_map_size_divisor", baum_t::forest_map_size_divisor );
-	baum_t::forest_count_divisor = contents.get_int("forest_count_divisor", baum_t::forest_count_divisor );
-	baum_t::forest_boundary_blur = contents.get_int("forest_boundary_blur", baum_t::forest_boundary_blur );
-	baum_t::forest_boundary_thickness = contents.get_int("forest_boundary_thickness", baum_t::forest_boundary_thickness );
-	baum_t::forest_inverse_spare_tree_density = contents.get_int("forest_inverse_spare_tree_density", baum_t::forest_inverse_spare_tree_density );
-	baum_t::max_no_of_trees_on_square = contents.get_int("max_no_of_trees_on_square", baum_t::max_no_of_trees_on_square );
-	baum_t::tree_climates = contents.get_int("tree_climates", baum_t::tree_climates );
-	baum_t::no_tree_climates = contents.get_int("no_tree_climates", baum_t::no_tree_climates );
-
-	return true;
-}
-
 
 
 // distributes trees on a map
@@ -110,12 +47,15 @@ void baum_t::distribute_trees(karte_t *welt, int dichte)
 	// now we can proceed to tree planting routine itself
 	// best forests results are produced if forest size is tied to map size -
 	// but there is some nonlinearity to ensure good forests on small maps
-	const unsigned t_forest_size = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.25)*forest_base_size/11 + ((welt->get_groesse_x()+welt->get_groesse_y())/(2*forest_map_size_divisor));
-	const uint8 c_forest_count = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.5 )/forest_count_divisor;
+	const unsigned t_forest_size = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.25)*welt->get_einstellungen()->get_forest_base_size()/11 + ((welt->get_groesse_x()+welt->get_groesse_y())/(2*welt->get_einstellungen()->get_forest_map_size_divisor()));
+	const uint8 c_forest_count = (unsigned)pow( ((double)welt->get_groesse_x()*(double)welt->get_groesse_y()), 0.5 )/welt->get_einstellungen()->get_forest_count_divisor();
 
 DBG_MESSAGE("verteile_baeume()","creating %i forest",c_forest_count);
 	for (uint8 c1 = 0 ; c1 < c_forest_count ; c1++) {
-		create_forest( welt, koord( simrand(welt->get_groesse_x()), simrand(welt->get_groesse_y()) ), koord( (t_forest_size*(1+simrand(2))), (t_forest_size*(1+simrand(2))) ) );
+		// to have same execution order for simrand
+		const koord start = koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
+		const koord size = koord(t_forest_size,t_forest_size) + koord::koord_random( t_forest_size, t_forest_size );
+		create_forest( welt, start, size );
 	}
 
 	fill_trees(welt, dichte);
@@ -203,7 +143,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 	grund_t *gr = welt->lookup_kartenboden(pos);
 	if(gr) {
 		if( gr->ist_natur()  &&
-			gr->get_top()<10  &&
+			gr->get_top() < welt->get_einstellungen()->get_max_no_of_trees_on_square()  &&
 			(!check_climate  ||  besch->is_allowed_climate(welt->get_climate(gr->get_hoehe())))
 			)
 		{
@@ -262,7 +202,7 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 			}
 
 			uint8 number_to_plant = 0;
-			const uint8 max_trees_here = min(max_no_of_trees_on_square,  (tree_probability - 38 +1)/2);
+			const uint8 max_trees_here = min(welt->get_einstellungen()->get_max_no_of_trees_on_square(),  (tree_probability - 38 +1)/2);
 			for (uint8 c2 = 0 ; c2<max_trees_here; c2++) {
 				const uint32 rating = simrand(10) + 38 + c2*2;
 				if (rating < tree_probability ) {
@@ -270,7 +210,7 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 				}
 			}
 
-			number_of_new_trees += baum_t::plant_tree_on_coordinate(welt, koord( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos)), max_no_of_trees_on_square, number_to_plant);
+			number_of_new_trees += baum_t::plant_tree_on_coordinate(welt, koord( (sint16)(xpos_f+x_tree_pos), (sint16)(ypos_f+y_tree_pos)), welt->get_einstellungen()->get_max_no_of_trees_on_square(), number_to_plant);
 		}
 	}
 	return number_of_new_trees;
@@ -285,14 +225,14 @@ void baum_t::fill_trees(karte_t *welt, int dichte)
 	}
 DBG_MESSAGE("verteile_baeume()","distributing single trees");
 	koord pos;
-	for(pos.y=0;pos.y<welt->get_groesse_y(); pos.y++) {
-		for(pos.x=0; pos.x<welt->get_groesse_x(); pos.x++) {
+	for(  pos.y=0;  pos.y<welt->get_groesse_y();  pos.y++  ) {
+		for(  pos.x=0;  pos.x<welt->get_groesse_x();  pos.x++  ) {
 			grund_t *gr = welt->lookup_kartenboden(pos);
 			if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
 				uint16 cl = 1<<welt->get_climate(gr->get_hoehe());
-				if( (cl & no_tree_climates)==0  &&  (  (cl & tree_climates)!=0  ||  simrand(forest_inverse_spare_tree_density*dichte) < 100  )  ) {
-					plant_tree_on_coordinate(welt, pos, 1);
+				if( (cl & welt->get_einstellungen()->get_no_tree_climates())==0  &&  (  (cl & welt->get_einstellungen()->get_tree_climates())!=0  ||  simrand(welt->get_einstellungen()->get_forest_inverse_spare_tree_density()*dichte) < 100  )  ) {
+					plant_tree_on_coordinate(welt, pos, 1, 1);
 				}
 			}
 		}
@@ -487,7 +427,7 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
 	// Hajo: auch aeltere Baeume erzeugen
-	geburt = welt->get_current_month() - simrand(400);
+	geburt = welt->get_current_month() - simrand(703);
 	baumtype = random_tree_for_climate_intern(welt->get_climate(pos.z));
 	season = 0;
 	calc_off();
@@ -519,20 +459,13 @@ bool baum_t::saee_baum()
 {
 	// spawn a new tree in an area 3x3 tiles around
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
-	const koord k = get_pos().get_2d() + koord(simrand(5)-2, simrand(5)-2);
-	const planquadrat_t* p = welt->lookup(k);
-	if (p) {
-		grund_t *bd = p->get_kartenboden();
-		if(	bd!=NULL  &&
-			get_besch()->is_allowed_climate(welt->get_climate(bd->get_pos().z))  &&
-			bd->ist_natur()  &&
-			bd->get_top()<max_no_of_trees_on_square)
-		{
-			bd->obj_add( new baum_t(welt, bd->get_pos(), baumtype) );
-			return true;
-		}
-	}
-	return false;
+
+	// to have same execution order for simrand
+	const sint16 sx = simrand(5)-2;
+	const sint16 sy = simrand(5)-2;
+	const koord k = get_pos().get_2d() + koord(sx,sy);
+
+	return plant_tree_on_coordinate(welt, k, baum_typen[baumtype], true, false);
 }
 
 
@@ -546,7 +479,7 @@ bool baum_t::check_season(long month)
 	if(alter>=512  &&  alter<=515  ) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
-		const uint8 c_plant_tree_max = 1+simrand(max_no_of_trees_on_square);
+		const uint8 c_plant_tree_max = 1+simrand(welt->get_einstellungen()->get_max_no_of_trees_on_square());
 		uint retrys = 0;
 		for(uint8 c_temp=0;  c_temp<c_plant_tree_max  &&  retrys<c_plant_tree_max;  c_temp++ ) {
 			if(  !saee_baum()  ) {
@@ -574,7 +507,7 @@ void baum_t::rdwr(loadsave_t *file)
 	ding_t::rdwr(file);
 
 	sint32 alter = (welt->get_current_month() - geburt)<<18;
-	file->rdwr_long(alter, "\n");
+	file->rdwr_long(alter);
 
 	// after loading, calculate new
 	geburt = welt->get_current_month() - (alter>>18);
@@ -624,7 +557,7 @@ void baum_t::info(cbuffer_t & buf) const
 	buf.append( translator::translate(get_besch()->get_name()) );
 	buf.append( "\n" );
 	int age = welt->get_current_month() - geburt;
-	buf.printf( translator::translate("%i years %i months old"), age/12, (age%12) );
+	buf.printf( translator::translate("%i years %i months old."), age/12, (age%12) );
 }
 
 

@@ -99,7 +99,7 @@ public:
 	virtual void remove_column(coordinate_t x);
 	virtual void remove_row(coordinate_t y);
 
-	virtual void infowin_event(const event_t *ev);
+	virtual bool infowin_event(const event_t *ev);
 };
 
 #endif

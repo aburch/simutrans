@@ -1,3 +1,4 @@
+#include <string>
 #include <string.h>
 #include "../../simcolor.h"
 #include "../../simevent.h"
@@ -27,7 +28,7 @@ void gui_flowtext_t::set_text(const char *text)
 	const unsigned char* lead = (const unsigned char*)text;
 
 	// hyperref param
-	cstring_t param;
+	std::string param;
 
 	while (*tail) {
 		if (*lead == '<') {
@@ -56,7 +57,7 @@ void gui_flowtext_t::set_text(const char *text)
 				}
 				else {
 					att = ATT_A_END;
-					links.append(hyperlink_t(param.substr(8, param.len() - 1)));
+					links.append(hyperlink_t(param.substr(8, param.size() - 9)));
 				}
 			} else if (word[0] == 'h' && word[1] == '1') {
 				att = endtag ? ATT_H1_END : ATT_H1_START;
@@ -177,7 +178,7 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 	for (slist_tpl<node_t>::const_iterator node = nodes.begin(), end = nodes.end(); node != end; ++node) {
 		switch (node->att) {
 			case ATT_NONE: {
-				int nxpos = xpos + proportional_string_width(node->text) + 4;
+				int nxpos = xpos + proportional_string_width(node->text.c_str()) + 4;
 
 				if (nxpos >= width) {
 					if (nxpos - xpos > max_width) {
@@ -191,9 +192,9 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 
 				if (doit) {
 					if (double_it) {
-						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, node->text, 0, double_color, false);
+						display_proportional_clip(offset.x + xpos + 1, offset.y + ypos + 1, node->text.c_str(), 0, double_color, false);
 					}
-					display_proportional_clip(offset.x + xpos, offset.y + ypos, node->text, 0, color, false);
+					display_proportional_clip(offset.x + xpos, offset.y + ypos, node->text.c_str(), 0, color, false);
 				}
 
 				xpos = nxpos;
@@ -285,18 +286,16 @@ koord gui_flowtext_t::output(koord offset, bool doit)
 }
 
 
-void gui_flowtext_t::infowin_event(const event_t* ev)
+bool gui_flowtext_t::infowin_event(const event_t* ev)
 {
-	if (IS_WHEELUP(ev) || IS_WHEELDOWN(ev)) {
-	}
-
 	if (IS_LEFTCLICK(ev)) {
 		// scan links for hit
 		for (slist_tpl<hyperlink_t>::const_iterator i = links.begin(), end = links.end(); i != end; ++i) {
 			if (i->tl.x <= ev->cx && ev->cx < i->br.x &&
 					i->tl.y <= ev->cy && ev->cy < i->br.y) {
-				call_listeners((const void*)i->param);
+				call_listeners((const void*)i->param.c_str());
 			}
 		}
 	}
+	return true;
 }

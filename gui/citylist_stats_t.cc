@@ -20,6 +20,7 @@
 #include "../dataobj/translator.h"
 
 #include "../utils/cbuffer_t.h"
+#include "../utils/simstring.h"
 
 static const char* total_bev_translation = NULL;
 char citylist_stats_t::total_bev_string[128];
@@ -76,13 +77,13 @@ void citylist_stats_t::sort(citylist::sort_mode_t sb, bool sr)
 }
 
 
-void citylist_stats_t::infowin_event(const event_t * ev)
+bool citylist_stats_t::infowin_event(const event_t * ev)
 {
 	const uint line = ev->cy / (LINESPACE + 1);
 
 	line_select = 0xFFFFFFFFu;
 	if (line >= city_list.get_count()) {
-		return;
+		return false;
 	}
 
 	stadt_t* stadt = city_list[line];
@@ -102,6 +103,7 @@ void citylist_stats_t::infowin_event(const event_t * ev)
 		const koord pos = stadt->get_pos();
 		welt->change_world_position( koord3d(pos, welt->min_hgt(pos)) );
 	}
+	return false;
 }
 
 
@@ -109,7 +111,6 @@ void citylist_stats_t::zeichnen(koord offset)
 {
 	cbuffer_t buf(256);
 
-	image_id const arrow_right_normal = skinverwaltung_t::window_skin->get_bild(10)->get_nummer();
 	sint32 total_bev = 0;
 	sint32 total_growth = 0;
 
@@ -131,15 +132,9 @@ void citylist_stats_t::zeichnen(koord offset)
 		buf.append( ")" );
 		display_proportional_clip(offset.x + 4 + 10, offset.y + i * (LINESPACE + 1), buf, ALIGN_LEFT, COL_BLACK, true);
 
-		if(i!=line_select) {
-			// goto information
-			display_color_img(arrow_right_normal, offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
-		}
-		else {
-			// select goto button
-			display_color_img(skinverwaltung_t::window_skin->get_bild(11)->get_nummer(),
-				offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
-		}
+		// goto button
+		display_color_img( i!=line_select ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
+			offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 
 		total_bev    += bev;
 		total_growth += growth;
@@ -147,12 +142,11 @@ void citylist_stats_t::zeichnen(koord offset)
 	// some cities there?
 	if(  total_bev > 0  ) {
 		buf.clear();
-		buf.printf( "%s: ", total_bev_translation );
-		buf.append( total_bev, 0 );
+		buf.printf( "%s%u", total_bev_translation, total_bev );
 		buf.append( " (" );
 		buf.append( total_growth/10.0, 1 );
 		buf.append( ")" );
-		strcpy( total_bev_string, buf );
+		tstrncpy( total_bev_string, buf, 128 );
 	}
 	else {
 		total_bev_string[0] = 0;

@@ -5,7 +5,7 @@
 
 #include "gui_scrollbar.h"
 #include "action_listener.h"
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "../../simcolor.h"
 
 /**
@@ -53,6 +53,7 @@ public:
 		virtual ~var_text_scrollitem_t() { delete text; }
 		const char *get_text() { return text; }
 		virtual void set_text(char *t) {
+			assert(  t!=text  );
 			delete text;
 			text = strdup(t);
 		}
@@ -125,7 +126,8 @@ public:
 
 	void set_groesse(koord groesse);
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
+
 	void zeichnen(koord pos);
 
 	/**
@@ -137,6 +139,8 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+
+	gui_komponente_t *get_focus() const { return (gui_komponente_t *)this; }
 };
 
 #endif

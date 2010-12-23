@@ -142,7 +142,7 @@ fabrik_t::disconnect_consumer(koord pos) //Returns true if must be destroyed.
 		// If there are no consumers left, industry is orphaned.
 		// Reconnect or close.
 
-		//Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
+		// Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
 		
 		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 		{
@@ -167,11 +167,10 @@ fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 		// If there are no suppliers left, industry is orphaned.
 		// Reconnect or close.
 
-		//Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
+		// Attempt to reconnect. NOTE: This code may not work well if there are multiple supply types.
 		
 		for(sint16 i = welt->get_fab_list().get_count() - 1; i >= 0; i --)
 		{
-
 			fabrik_t* fab = welt->get_fab_list()[i];
 			if(add_supplier(fab))
 			{
@@ -188,8 +187,6 @@ fabrik_t::disconnect_supplier(koord pos) //Returns true if must be destroyed.
 fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 {
 	welt = wl;
-
-	besch = NULL;
 
 	besitzer_p = NULL;
 	power = 0;
@@ -221,7 +218,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 
 	delta_sum = 0;
 	delta_menge = 0;
-	last_lieferziel_start = 0;
+	index_offset = 0;
 	total_input = total_output = 0;
 	status = nothing;
 	currently_producing = false;
@@ -247,11 +244,11 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	transformer_connected = false;
 	power = 0;
 	power_demand = 0;
-	last_lieferziel_start = 0;
+	index_offset = 0;
 	total_input = total_output = 0;
 	status = nothing;
 
-	// create producer information
+	// create input information
 	for(int i=0; i < fabesch->get_lieferanten(); i++) {
 		const fabrik_lieferant_besch_t *lieferant = fabesch->get_lieferant(i);
 		ware_production_t ware;
@@ -262,15 +259,18 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 		eingang.append(ware);
 	}
 
-	// create consumer information
+	// create output information
 	for (uint i = 0; i < fabesch->get_produkte(); i++) {
 		const fabrik_produkt_besch_t *produkt = fabesch->get_produkt(i);
 		ware_production_t ware;
 		ware.set_typ( produkt->get_ware() );
 		ware.abgabe_letzt = ware.abgabe_sum = 0;
 		ware.max = produkt->get_kapazitaet() << fabrik_t::precision_bits;
-		// if source then start with full storage (thus AI will built immeadiately lines)
-		ware.menge = (fabesch->get_lieferanten()==0) ? ware.max-(16<<fabrik_t::precision_bits) : 0;
+		ware.menge = 0;
+		if(  ware.max>0  &&  fabesch->get_lieferanten()==0  ) {
+			// if source then start with full storage (thus AI will built immeadiately lines)
+			ware.menge = ware.max-1;
+		}
 		ausgang.append(ware);
 	}
 
@@ -360,32 +360,34 @@ fabrik_t::~fabrik_t()
 
 void fabrik_t::baue(sint32 rotate)
 {
-	if(besch) {
-		this->rotate = rotate;
-		pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
-		hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->get_haus(), this);
-		pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
-		if(besch->get_field()) {
-			// if there are fields
-			if(!fields.empty()) {
-				for( uint16 i=0;  i<fields.get_count();  i++  ) {
-					const koord k = fields[i].location;
-					grund_t *gr=welt->lookup_kartenboden(k);
+	this->rotate = rotate;
+	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
+	hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->get_haus(), this);
+	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
+	if(besch->get_field()) {
+		// if there are fields
+		if(!fields.empty()) {
+			for( uint16 i=0;  i<fields.get_count();  i++  ) {
+				const koord k = fields[i].location;
+				grund_t *gr=welt->lookup_kartenboden(k);
+				if(  gr->ist_natur()  ) {
 					// first make foundation below
 					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);
 					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field()->get_field_class( fields[i].field_class_index ), this ) );
 				}
-			}
-			else {
-				// we will start with a certain minimum number
-				while(fields.get_count()<besch->get_field()->get_min_fields()  &&  add_random_field(0))
-					;
+				else {
+					// there was already a building at this position => do not restore!
+					fields.remove_at(i);
+					i--;
+				}
 			}
 		}
-	}
-	else {
-		dbg->error("fabrik_t::baue()", "Bulding description not available!");
+		else {
+			// we will start with a certain minimum number
+			while(fields.get_count()<besch->get_field()->get_min_fields()  &&  add_random_field(0))
+				;
+		}
 	}
 }
 
@@ -581,31 +583,22 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		besch = fabrikbauer_t::get_fabesch(s);
 		if(besch==NULL) {
 			besch = fabrikbauer_t::get_fabesch(translator::compatibility_name(s));
-		}
-		if(besch==NULL) {
-			dbg->fatal( "fabrik_t::rdwr()","no besch for %s", s );
+			if (!besch) {
+				dbg->fatal("fabrik_t::rdwr()", "no besch for %s", s);
+			}
 		}
 		// set ware arrays ...
-		if(besch) {
-			eingang.clear();
-			eingang.resize(besch->get_lieferanten());
-			ausgang.clear();
-			ausgang.resize(besch->get_produkte());
-		}
-		else {
-			// save defaults for loading only, factory will be ignored!
-			eingang.clear();
-			eingang.resize(16);
-			ausgang.clear();
-			ausgang.resize(10);
-		}
+		eingang.clear();
+		eingang.resize(besch->get_lieferanten());
+		ausgang.clear();
+		ausgang.resize(besch->get_produkte());
 	}
 	pos.rdwr(file);
 
-	file->rdwr_byte(rotate, "\n");
+	file->rdwr_byte(rotate);
 
-	// now rebuilt information for recieved goods
-	file->rdwr_long(eingang_count, "\n");
+	// now rebuilt information for received goods
+	file->rdwr_long(eingang_count);
 	for(i=0; i<eingang_count; i++) {
 		ware_production_t dummy;
 		const char *typ = NULL;
@@ -617,18 +610,18 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 		}
 
 		file->rdwr_str(typ);
-		file->rdwr_long(dummy.menge, " ");
-		file->rdwr_long(dummy.max, "\n");
+		file->rdwr_long(dummy.menge);
+		file->rdwr_long(dummy.max);
 		if(file->is_loading()) {
 			dummy.set_typ( warenbauer_t::get_info(typ) );
 			guarded_free(const_cast<char *>(typ));
 
 			// Hajo: repair files that have 'insane' values
-			dummy.menge >>= (old_precision_bits-precision_bits);
-			dummy.max >>= (old_precision_bits-precision_bits);
 			if(dummy.menge < 0) {
 				dummy.menge = 0;
 			}
+			dummy.menge >>= (old_precision_bits-precision_bits);
+			dummy.max >>= (old_precision_bits-precision_bits);
 			if(dummy.menge > (FAB_MAX_INPUT << precision_bits)) {
 				dummy.menge = (FAB_MAX_INPUT << precision_bits);
 			}
@@ -637,7 +630,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 
 	// now rebuilt information for produced goods
-	file->rdwr_long(ausgang_count, "\n");
+	file->rdwr_long(ausgang_count);
 	for(i=0; i<ausgang_count; i++) {
 		ware_production_t dummy;
 		const char *typ = NULL;
@@ -650,14 +643,18 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			dummy.abgabe_letzt = ausgang[i].abgabe_letzt;
 		}
 		file->rdwr_str(typ);
-		file->rdwr_long(dummy.menge, " ");
-		file->rdwr_long(dummy.max, "\n");
-		file->rdwr_long(dummy.abgabe_sum, " ");
-		file->rdwr_long(dummy.abgabe_letzt, "\n");
+		file->rdwr_long(dummy.menge);
+		file->rdwr_long(dummy.max);
+		file->rdwr_long(dummy.abgabe_sum);
+		file->rdwr_long(dummy.abgabe_letzt);
 
 		if(file->is_loading()) {
 			dummy.set_typ( warenbauer_t::get_info(typ));
 			guarded_free(const_cast<char *>(typ));
+			// Hajo: repair files that have 'insane' values
+			if(dummy.menge < 0) {
+				dummy.menge = 0;
+			}
 			dummy.menge >>= (old_precision_bits-precision_bits);
 			dummy.max >>= (old_precision_bits-precision_bits);
 			ausgang.append(dummy);
@@ -665,13 +662,13 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	// restore other information
 	spieler_n = welt->sp2num(besitzer_p);
-	file->rdwr_long(spieler_n, "\n");
-	file->rdwr_long(prodbase, "\n");
-	file->rdwr_long(prodfaktor, "\n");
+	file->rdwr_long(spieler_n);
+	file->rdwr_long(prodbase);
+	file->rdwr_long(prodfaktor);
 
 	// information on fields ...
 	if(file->get_version()>99016) {
-		file->rdwr_long(power, "\n");
+		file->rdwr_long(power);
 	}
 
 	// owner stuff
@@ -681,12 +678,10 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 			prodfaktor = 16;
 		}
 		if(file->get_version() < 86001) {
-			if(besch) {
-				koord k=besch->get_haus()->get_groesse();
-DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
-				// since we step from 86.01 per factory, not per tile!
-				prodbase *= k.x*k.y*2;
-			}
+			koord k=besch->get_haus()->get_groesse();
+			DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
+			// since we step from 86.01 per factory, not per tile!
+			prodbase *= k.x*k.y*2;
 		}
 		// Hajo: restore factory owner
 		// Due to a omission in Volkers changes, there might be savegames
@@ -702,7 +697,7 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		}
 	}
 
-	file->rdwr_long(anz_lieferziele, "\n");
+	file->rdwr_long(anz_lieferziele);
 
 	// connect/save consumer
 	if(file->is_loading()) {
@@ -723,14 +718,14 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 	if(file->get_version()>99009) {
 		if(file->is_saving()) {
 			uint16 nr=fields.get_count();
-			file->rdwr_short(nr,"f");
+			file->rdwr_short(nr);
 			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					koord k = fields[i].location;
 					k.rdwr(file);
 					uint16 idx = fields[i].field_class_index;
-					file->rdwr_short(idx, NULL);
+					file->rdwr_short(idx);
 				}
 			}
 			else {
@@ -745,13 +740,13 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 			uint16 nr=0;
 			koord k;
 			uint16 idx;
-			file->rdwr_short(nr,"f");
+			file->rdwr_short(nr);
 			fields.resize(nr);
 			if(  file->get_version()>102002  && file->get_experimental_version() != 7 ) {
 				// each field stores location and a field class index
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
-					file->rdwr_short(idx, NULL);
+					file->rdwr_short(idx);
 					if(  idx>=besch->get_field()->get_field_class_count()  ) {
 						// set class index to 0 if it is out of range
 						idx = 0;
@@ -772,13 +767,13 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 	// restore city pointer here
 	if(  file->get_version()>=99014  ) {
 		sint32 nr = arbeiterziele.get_count();
-		file->rdwr_long( nr, "c" );
+		file->rdwr_long(nr);
 		for( int i=0;  i<nr;  i++  ) {
 			sint32 city_index = -1;
 			if(file->is_saving()) {
 				city_index = welt->get_staedte().index_of( arbeiterziele.at(i) );
 			}
-			file->rdwr_long( city_index, "c" );
+			file->rdwr_long(city_index);
 			if(file->is_loading()) {
 				// will also update factory information
 				welt->get_staedte()[city_index]->add_factory_arbeiterziel( this );
@@ -789,6 +784,9 @@ DBG_DEBUG("fabrik_t::rdwr()","correction of production by %i",k.x*k.y);
 		// will be handled by the city after reloading
 		arbeiterziele.clear();
 	}
+	
+	// Necessary to ensure that the industry density is correct after re-loading a game.
+	welt->increase_actual_industry_density(1.0 / (double)besch->get_gewichtung());
 }
 
 
@@ -804,7 +802,10 @@ void fabrik_t::smoke() const
 		const uint8 rot = rotate%besch->get_haus()->get_all_layouts();
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr=welt->lookup_kartenboden(pos.get_2d()+ro);
-		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), ((rada->get_xy_off(rot).x+simrand(7)-3)*TILE_STEPS)/16, ((rada->get_xy_off(rot).y+simrand(7)-3)*TILE_STEPS)/16, rada->get_bilder() );
+		// to get same random order on different compilers
+		const sint8 offsetx =  ((rada->get_xy_off(rot).x+simrand(7)-3)*TILE_STEPS)/16;
+		const sint8 offsety =  ((rada->get_xy_off(rot).y+simrand(7)-3)*TILE_STEPS)/16;
+		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), offsetx, offsety, rada->get_bilder() );
 		gr->obj_add(smoke);
 		welt->sync_add( smoke );
 	}
@@ -819,7 +820,7 @@ uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 {
 	// default prodfaktor = 16 => shift 4, default time = 1024 => shift 10, rest precion
 	const uint32 max = prodbase * prodfaktor;
-	uint32 menge = (max >> (18-10+4-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T;
+	uint32 menge = ((max >> (18-10+4-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T);
 
 	if (ausgang.get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
@@ -838,8 +839,8 @@ uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 			}
 		}
 		else {
-			// overfull?
-			menge = maxi-1;
+			// overfull? Reduce to maximum
+			menge = 0;
 		}
 	}
 
@@ -951,7 +952,7 @@ void fabrik_t::step(long delta_t)
 		// not a producer => then consume electricity ...
 		if(  !besch->is_electricity_producer()  ) {
 			// one may be thinking of linking this to actual production only
-			prodfaktor = 16 + (  16 * power * besch->get_inverse_electricity_proportion() / (prodbase * PRODUCTION_DELTA_T)  );
+			prodfaktor = 16 + (  16 * power * besch->get_inverse_electricity_proportion() / (prodbase * PRODUCTION_DELTA_T + 1)  );
 		}
 
 		const uint32 ecount = eingang.get_count();
@@ -974,7 +975,7 @@ void fabrik_t::step(long delta_t)
 			for(  index = 0;  index < ecount;  index++  ) {
 
 				const uint32 vb = besch->get_lieferant(index)->get_verbrauch();
-				const uint32 v = (menge*vb) >> 8;
+				const uint32 v = max(1,(menge*vb) >> 8);
 
 				if(  (uint32)eingang[index].menge > v + 1  ) {
 					eingang[index].menge -= v;
@@ -984,7 +985,7 @@ void fabrik_t::step(long delta_t)
 						power += prodbase * PRODUCTION_DELTA_T * 4;
 					}
 					// to find out, if storage changed
-					delta_menge += (eingang[index].menge & fabrik_t::precision_mask) + v;
+					delta_menge += v;
 				}
 				else {
 					if(  besch->is_electricity_producer()  ) {
@@ -995,7 +996,6 @@ void fabrik_t::step(long delta_t)
 					eingang[index].menge = 0;
 				}
 			}
-			delta_menge /= eingang.get_count();
 		}
 		else {
 			// ok, calulate maximum allowed consumption
@@ -1028,21 +1028,24 @@ void fabrik_t::step(long delta_t)
 					menge = produktion(produkt, delta_t);
 				}
 
-				const uint32 pb = besch->get_produkt(produkt)->get_faktor();
-				const uint32 p = (menge*pb) >> 8;
+				if (menge>0) {
+					const uint32 pb = besch->get_produkt(produkt)->get_faktor();
+					// ensure some minimum production
+					const uint32 p = max(1,(menge*pb) >> 8);
 
-				// produce
-				if (ausgang[produkt].menge < ausgang[produkt].max) {
-					// to find out, if storage changed
-					delta_menge += (ausgang[produkt].menge & fabrik_t::precision_mask) + p;
-					ausgang[produkt].menge += p;
-					// if less than 3/4 filled we neary always consume power
-					currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3)  &&  (p > 0);
-				} else {
-					ausgang[produkt].menge = ausgang[produkt].max - 1;
+					// produce
+					if (ausgang[produkt].menge < ausgang[produkt].max) {
+						// to find out, if storage changed
+						delta_menge += p;
+						ausgang[produkt].menge += p;
+						// if less than 3/4 filled we neary always consume power
+						currently_producing |= (ausgang[produkt].menge*4 < ausgang[produkt].max*3);
+					}
+					else {
+						ausgang[produkt].menge = ausgang[produkt].max - 1;
+					}
 				}
 			}
-			delta_menge /= ausgang.get_count();
 
 			// and finally consume stock
 			for(index = 0; index<ecount; index ++) {
@@ -1073,7 +1076,7 @@ void fabrik_t::step(long delta_t)
 
 	delta_sum += delta_t;
 	if(  delta_sum > PRODUCTION_DELTA_T  ) {
-		delta_sum -= delta_sum - delta_sum % PRODUCTION_DELTA_T;
+		delta_sum = delta_sum % PRODUCTION_DELTA_T;
 
 		// distribute, if there are more than 10 waiting ...
 		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
@@ -1087,7 +1090,11 @@ void fabrik_t::step(long delta_t)
 
 		recalc_factory_status();
 
-		if((delta_menge>>fabrik_t::precision_bits)>0) {
+		// rescale delta_menge here: all products should be produced at least once
+		// (if consumer only: all supplements should be consumed once)
+		const uint32 min_change = ausgang.empty() ? eingang.get_count() : ausgang.get_count();
+
+		if((delta_menge>>fabrik_t::precision_bits) > min_change) {
 
 			// we produced some real quantity => smoke
 			smoke();
@@ -1098,15 +1105,10 @@ void fabrik_t::step(long delta_t)
 			}
 
 			INT_CHECK("simfab 558");
+			// reset for next cycle
+			delta_menge = 0;
 		}
-
-		// reset for next cycle
-		delta_menge = 0;
-
-		// to distribute to all target equally, we use this counter, for the factory, to try first
-		last_lieferziel_start ++;
 	}
-
 }
 
 
@@ -1114,12 +1116,14 @@ class distribute_ware_t
 {
 public:
 	halthandle_t halt;
-	sint32	space_left;
-	ware_t	ware;
-	distribute_ware_t( halthandle_t h, sint32 l, ware_t w )
+	sint32 space_left;
+	sint32 space_total;
+	ware_t ware;
+	distribute_ware_t( halthandle_t h, sint32 l, sint32 t, ware_t w )
 	{
 		halt = h;
 		space_left = l;
+		space_total = t;
 		ware = w;
 	}
 	distribute_ware_t() {}
@@ -1153,18 +1157,21 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 	slist_tpl<distribute_ware_t> dist_list;
 	bool still_overflow = true;
 
+	// to distribute to all target equally, we use this counter, for the source hald, and target factory, to try first
+	index_offset++;
+
 	/* prissi: distribute goods to factory
 	 * that has not an overflowing input storage
 	 * also prevent stops from overflowing, if possible
+	 * Since we can called with menge>max/2 are at least 10 are there, we must first limit the amount we distribute
 	 */
-	sint32 menge = ausgang[produkt].menge >> precision_bits;
+	sint32 menge = min( 10, ausgang[produkt].menge >> precision_bits );
 
-	// ok, first send everything away
+	// ok, first generate list of possible destinations
 	const halthandle_t *haltlist = plan->get_haltlist();
 
-	for(unsigned i = 0; i < plan->get_haltlist_count(); i++) 
-	{
-		halthandle_t halt = haltlist[i];
+	for(  unsigned i=0;  i<plan->get_haltlist_count();  i++  ) {
+		halthandle_t halt = haltlist[(i + index_offset) % plan->get_haltlist_count()];
 
 		// Über alle Ziele iterieren
 		// "Iterate over all goals" (Babelfish)
@@ -1172,7 +1179,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		{
 			// prissi: this way, the halt, that is tried first, will change. 
 			// As a result, if all destinations are empty, it will be spread evenly.
-			const koord lieferziel = lieferziele[(n + last_lieferziel_start) % lieferziele.get_count()];
+			const koord lieferziel = lieferziele[(n + index_offset) % lieferziele.get_count()];
 
 			fabrik_t * ziel_fab = get_fab(welt, lieferziel);
 			int vorrat;
@@ -1194,6 +1201,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				// Station can only store up to a maximum amount of goods per square
 				const sint32 halt_left = (sint32)halt->get_capacity(2) - (sint32)halt->get_ware_summe(ware.get_besch());
+
 				// ok, still enough space
 				const uint16 current_journey_time = halt->find_route(ware);
 				if(current_journey_time < 65535)
@@ -1212,17 +1220,15 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 							still_overflow = false;
 							dist_list.clear();
 						}
-						if(still_overflow  ||  !overflown) 
-						{
-							dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
+						if(still_overflow  ||  !overflown) {
+							dist_list.insert( distribute_ware_t( halt, halt_left, halt->get_capacity(2), ware ) );
 						}
 					}
 					else 
 					{
 						// only distribute to no-overflowed factories
-						if(!overflown) 
-						{
-							dist_list.insert( distribute_ware_t( halt, halt_left, ware ) );
+						if(!overflown) {
+							dist_list.insert( distribute_ware_t( halt, halt_left, halt->get_capacity(2), ware ) );
 						}
 					}
 				}
@@ -1232,32 +1238,42 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 	// Auswertung der Ergebnisse
 	// "Evaluation of the results" (Babelfish)
-	if (!dist_list.empty()) 
-	{
+	if (!dist_list.empty()) {
 		slist_iterator_tpl<distribute_ware_t> iter (dist_list);
 
 		ware_t best_ware       = dist_list.front().ware;
 		halthandle_t best_halt = dist_list.front().halt;
 		sint32 best_amount        = 999999;
+		sint32 best_usage = -1;
 		sint32 capacity_left = -1;
 
-		while(iter.next()) 
-		{
+		// search list of destinations for the best one.
+		while(iter.next()) {
 			halthandle_t halt = iter.get_current().halt;
 			const ware_t& ware = iter.get_current().ware;
 
 			const sint32 amount = (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos());
-			if(amount < best_amount) 
-			{
+
+			sint32 space_left = iter.get_current().space_left;
+			if( space_left < 0) space_left = 0; // ensure overfull stations compare equal allowing tie breaker clause
+
+			sint32 space_total = iter.get_current().space_total;
+			if( space_total < 1) space_total = 1; // div by 0 prevention
+
+			const sint32 usage = (space_left << precision_bits) / space_total;
+
+			// best is one with most free space, tie breaker - one with least product already waiting
+			if( usage > best_usage || (usage == best_usage && amount < best_amount)) {
 				best_ware = ware;
 				best_halt = halt;
 				best_amount = amount;
+				best_usage = usage;
 				capacity_left = iter.get_current().space_left;
 			}
 //DBG_MESSAGE("verteile_waren()","best_amount %i %s",best_amount,translator::translate(ware.get_name()));
 		}
 
-		menge = max( 10, min( menge, 9+capacity_left ) );
+		menge = min( menge, 9+capacity_left );
 		best_ware.menge = menge;
 		if(capacity_left<0) 
 		{
@@ -1283,7 +1299,6 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 				if(best_halt->recall_ware( most_waiting, min(most_waiting.menge/2,1-capacity_left) ) ) 
 				{
 					best_ware.menge += most_waiting.menge;
-					assert( (sint32)best_halt->get_ware_summe(best_ware.get_besch())==(sint32)best_halt->get_capacity(2)-capacity_left-(sint32)most_waiting.menge );
 				}
 				else {
 					// overcrowded with other stuff (not from us)
@@ -1430,9 +1445,6 @@ void fabrik_t::neuer_monat()
 				}
 			}
 
-			const uint32 number_of_customers = lieferziele.get_count();
-			const uint32 number_of_suppliers = suppliers.get_count();
-			const uint16 jobs = besch->get_pax_level();
 			hausbauer_t::remove(welt, welt->get_spieler(1), gb);
 		}
 	}
@@ -1684,7 +1696,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 		buf.append(translator::translate("Postrate"));
 		buf.append(": ");
-		buf.append(passagier_rate/3);
+		buf.append(passagier_rate);
 		buf.append("\n");
 	}
 
@@ -1837,6 +1849,8 @@ void fabrik_t::add_all_suppliers()
 			if(fab!=this  &&  fab->vorrat_an(ware) > -1) {
 				// add us to this factory
 				fab->add_lieferziel(pos.get_2d());
+				// and vice versa
+				add_supplier(fab->get_pos().get_2d());
 			}
 		}
 	}

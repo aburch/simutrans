@@ -1,7 +1,7 @@
 #ifndef gui_scrollbar_h
 #define gui_scrollbar_h
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 #include "../../simevent.h"
 #include "gui_button.h"
 
@@ -19,6 +19,9 @@ class scrollbar_t :
 public:
 	enum type { vertical, horizontal };
 
+	// width/height of bar part
+	static sint16 BAR_SIZE;
+
 private:
 	enum type type;
 
@@ -31,7 +34,7 @@ private:
 	 * number of pixels to scroll with arrow button press. default: 11 pixels
 	 */
 	sint32 knob_scroll_amount;
-	button_t button_def[3];
+	button_t button_def[4];
 
 	void reposition_buttons();
 	void button_press(sint32 number); // arrow button
@@ -71,7 +74,7 @@ public:
 
 	void set_knob_offset(sint32 v) { knob_offset = v; reposition_buttons(); }
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	void zeichnen(koord pos);
 };

@@ -15,6 +15,7 @@
 
 #include "simdings.h"
 #include "simtypes.h"
+#include "simconst.h"
 
 #include "bauer/warenbauer.h"
 
@@ -111,7 +112,16 @@ private:
 
 	static uint8 status_step;	// NONE or SCHEDULING or REROUTING
 
+	slist_tpl<convoihandle_t> loading_here;
+	long last_loading_step;
+
 public:
+	// add convoi to loading queue
+	void request_loading( convoihandle_t cnv );
+
+	// removes convoi from laoding quee
+	void finish_loading( convoihandle_t cnv ) { loading_here.remove(cnv); }
+
 	/* recalculates the station bar */
 	void recalc_status();
 
@@ -215,6 +225,8 @@ public:
 
 		// TODO: Consider whether to add comfort
 
+		uint16 alternative_seats; // used in overcrowd calculations in hole_ab, updated by update_alternative_seats
+
 		// Used for the memory pool only.
 #ifdef USE_INDEPENDENT_PATH_POOL
 		connexion* link;
@@ -225,6 +237,7 @@ public:
 		void* operator new(size_t size);
 		void operator delete(void *p);
 	};
+	bool do_alternative_seats_calculation; //for optimisations purpose 
 
 	// Data on paths to ultimate destinations
 	struct path
@@ -423,10 +436,16 @@ private:
 	haltestelle_t(karte_t *welt, koord pos, spieler_t *sp);
 	~haltestelle_t();
 
+	struct waiting_time_set
+	{
+		fixed_list_tpl<uint16, 16> times;
+		uint8 month;
+	};
+		
 	// Record of waiting times. Takes a list of the last 16 waiting times per type of goods.
 	// Getter method will need to average the waiting times. 
 	// @author: jamespetts
-	koordhashtable_tpl<koord, fixed_list_tpl<uint16, 16> >* waiting_times;
+	koordhashtable_tpl<koord, waiting_time_set >* waiting_times;
 
 	// Used for pathfinding. The list is stored on the heap so that it can be re-used
 	// if searching is aborted part-way through.
@@ -569,7 +588,7 @@ public:
 	 */
 	void neuer_monat();
 
-	karte_t* get_welt() const { return welt; }
+	static karte_t* get_welt() { return welt; }
 
 	// @author: jamespetts, although much is borrowed from suche_route
 	// Returns the journey time of the best possible route from this halt. Time == 65535 when there is no route.
@@ -692,7 +711,7 @@ public:
 	 * @author Hj. Malthaner
 	 */
 
-	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv);
+	ware_t hole_ab( const ware_besch_t *warentyp, uint32 menge, const schedule_t *fpl, const spieler_t *sp, convoi_t* cnv, bool overcrowd);
 
 	/* liefert ware an. Falls die Ware zu wartender Ware dazugenommen
 	 * werden kann, kann ware_t gelöscht werden! D.h. man darf ware nach
@@ -803,6 +822,30 @@ public:
 	vector_tpl<linehandle_t> registered_lines;
 
 	/**
+	 * Register a lineless convoy which serves this stop
+	 * @author Knightly
+	 */
+	void add_convoy(convoihandle_t convoy) { registered_convoys.append_unique(convoy); }
+
+	/**
+	 * Unregister a lineless convoy
+	 * @author Knightly
+	 */
+	void remove_convoy(convoihandle_t convoy) { registered_convoys.remove(convoy); }
+
+	/**
+	 * A list of lineless convoys serving this stop
+	 * @author Knightly
+	 */
+	vector_tpl<convoihandle_t> registered_convoys;
+
+	/**
+	 * It will calculate number of free seats in all other (not cnv) convoys at stop
+	 * @author Inkelyad
+	 */
+	void update_alternative_seats(convoihandle_t cnv);
+
+	/**
 	 * book a certain amount into the halt's financial history
 	 * @author hsiegeln
 	 */
@@ -837,7 +880,7 @@ public:
 	// @author: jamespetts
 	uint16 get_average_waiting_time(halthandle_t halt, uint8 category) const;
 
-	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category)
+	void add_waiting_time(uint16 time, halthandle_t halt, uint8 category, bool do_not_reset_month = false)
 	{
 		if(halt.is_bound())
 		{
@@ -846,9 +889,16 @@ public:
 			if(waiting_times[category].access(halt->get_basis_pos()) == NULL)
 			{
 				tmp = new fixed_list_tpl<uint16, 16>;
-				waiting_times[category].put(halt->get_basis_pos(), *tmp);
+				waiting_time_set *set = new waiting_time_set;
+				set->times = *tmp;
+				set->month = 0;
+				waiting_times[category].put(halt->get_basis_pos(), *set);
 			}
-			waiting_times[category].access(halt->get_basis_pos())->add_to_tail(time);
+			waiting_times[category].access(halt->get_basis_pos())->times.add_to_tail(time);
+			if(!do_not_reset_month)
+			{
+				waiting_times[category].access(halt->get_basis_pos())->month = 0;
+			}
 		}
 	
 	}
@@ -918,5 +968,10 @@ public:
 	 */
 	static void init_markers();
 
+	/**
+	 * Get queue position for spacing. It is *not* same as index in 'loading_here'.
+	 * @author Inkelyad
+	 */
+	int get_queue_pos(convoihandle_t cnv) const;
 };
 #endif

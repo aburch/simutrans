@@ -42,9 +42,9 @@ static const sint8 hours2night[] =
 
 
 
-void
-karte_ansicht_t::display(bool force_dirty)
+void karte_ansicht_t::display(bool force_dirty)
 {
+	DBG_DEBUG4("karte_ansicht_t::display", "starting ...");
 	display_set_image_proc(true);
 
 	uint32 rs = get_random_seed();
@@ -78,7 +78,7 @@ karte_ansicht_t::display(bool force_dirty)
 
 	// change to night mode?
 	// images will be recalculated only, when there has been a change, so we set always
-	if(grund_t::underground_mode) {
+	if(grund_t::underground_mode == grund_t::ugm_all) {
 		display_day_night_shift(0);
 	}
 	else if(!umgebung_t::night_shift) {
@@ -89,7 +89,7 @@ karte_ansicht_t::display(bool force_dirty)
 		uint32 month = welt->get_last_month();
 		const uint32 ticks_this_month = welt->get_zeit_ms() % welt->ticks_per_world_month;
 		uint32 stunden2;
-		if(umgebung_t::show_month>1) {
+		if (umgebung_t::show_month > umgebung_t::DATE_FMT_MONTH) {
 			static sint32 tage_per_month[12]={31,28,31,30,31,30,31,31,30,31,30,31};
 			stunden2 = (((sint64)ticks_this_month*tage_per_month[month]) >> (welt->ticks_per_world_month_shift-17));
 			stunden2 = ((stunden2*3) / 8192) % 48;
@@ -109,41 +109,57 @@ karte_ansicht_t::display(bool force_dirty)
 	// gr->get_disp_height() == min(gr->get_hoehe(), hmax_ground)
 	const sint8 hmax_ground = (grund_t::underground_mode==grund_t::ugm_level) ? grund_t::underground_level : 127;
 
+
+	// lower limit for y: display correctly water/outside graphics at upper border of screen
+	int y_min = (-const_y_off + 4*tile_raster_scale_y( min(hmax_ground,welt->get_grundwasser())*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE )
+					+ 4*(menu_height -IMG_SIZE) -IMG_SIZE/2-1) / IMG_SIZE;
+
 	// first display ground
+	DBG_DEBUG4("karte_ansicht_t::display", "display ground");
 	int	y;
-	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
+	for(y=y_min; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
+		// plotted = we plotted something for y=lower bound
+		bool plotted = y>y_min;
 
-		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+dpy_height; x+=2) {
+		for(sint16 x=-2-((y+dpy_width) & 1); x<=2*dpy_width; x+=2) {
 
 			const sint16 i = ((y+x) >> 1) + i_off;
 			const sint16 j = ((y-x) >> 1) + j_off;
 			const sint16 xpos = x*(IMG_SIZE/2) + const_x_off;
 
 			if(xpos+IMG_SIZE>0  &&  xpos<disp_width) {
-				const planquadrat_t *plan=welt->lookup(koord(i,j));
-				if(plan  &&  plan->get_kartenboden()) {
-					sint16 yypos = ypos - tile_raster_scale_y( min(plan->get_kartenboden()->get_hoehe(), hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
+				if (grund_t const* const kb = welt->lookup_kartenboden(koord(i, j))) {
+					const sint16 yypos = ypos - tile_raster_scale_y(min(kb->get_hoehe(), hmax_ground) * TILE_HEIGHT_STEP / Z_TILE_STEP, IMG_SIZE);
 					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
-						plan->display_boden(xpos, yypos, IMG_SIZE);
+						kb->display_if_visible(xpos, yypos, IMG_SIZE);
+						plotted = true;
 					}
 				}
 				else {
 					// outside ...
-					display_img(grund_besch_t::ausserhalb->get_bild(hang_t::flach), xpos,ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE ), force_dirty);
+					const sint16 yypos = ypos - tile_raster_scale_y( welt->get_grundwasser()*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE );
+					if(yypos-IMG_SIZE<disp_height  &&  yypos+IMG_SIZE>menu_height) {
+						display_img(grund_besch_t::ausserhalb->get_bild(hang_t::flach), xpos,yypos, force_dirty);
+					}
 				}
 			}
+		}
+		// increase lower bound if nothing is visible
+		if (!plotted) {
+			y_min++;
 		}
 	}
 
 	// and then things (and other ground)
 	// especially necessary for vehicles
-	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
+	DBG_DEBUG4("karte_ansicht_t::display", "display things");
+	for(y=y_min; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+dpy_height; x+=2) {
+		for(sint16 x=-2-((y+dpy_width) & 1); x<=2*dpy_width; x+=2) {
 
 			const int i = ((y+x) >> 1) + i_off;
 			const int j = ((y-x) >> 1) + j_off;
@@ -178,7 +194,7 @@ karte_ansicht_t::display(bool force_dirty)
 							underground_level = 127;
 					} */
 					sint16 yypos = ypos - tile_raster_scale_y( min(gr->get_hoehe(),hmax_ground)*TILE_HEIGHT_STEP/Z_TILE_STEP, IMG_SIZE);
-					if(yypos-IMG_SIZE*2<disp_height  &&  yypos+IMG_SIZE>menu_height) {
+					if(yypos-IMG_SIZE*3<disp_height  &&  yypos+IMG_SIZE>menu_height) {
 						plan->display_dinge(xpos, yypos, IMG_SIZE, true, hmin, hmax);
 					}
 				}
@@ -187,11 +203,12 @@ karte_ansicht_t::display(bool force_dirty)
 	}
 
 	// and finally overlays (station coverage and signs)
-	for(y=-dpy_height; y<dpy_height+dpy_width; y++) {
+	DBG_DEBUG4("karte_ansicht_t::display", "display overlays");
+	for(y=y_min; y<dpy_height+4*4; y++) {
 
 		const sint16 ypos = y*(IMG_SIZE/4) + const_y_off;
 
-		for(sint16 x=-dpy_width-(y & 1); x<=dpy_width+dpy_height; x+=2) {
+		for(sint16 x=-2-((y+dpy_width) & 1); x<=2*dpy_width; x+=2) {
 
 			const int i = ((y+x) >> 1) + i_off;
 			const int j = ((y-x) >> 1) + j_off;
@@ -217,6 +234,7 @@ karte_ansicht_t::display(bool force_dirty)
 		}
 	}
 	ding_t *zeiger = welt->get_zeiger();
+	DBG_DEBUG4("karte_ansicht_t::display", "display pointer");
 	if(zeiger) {
 		// better not try to twist your brain to follow the retransformation ...
 		const sint16 rasterweite=get_tile_raster_width();
@@ -246,6 +264,7 @@ karte_ansicht_t::display(bool force_dirty)
 		zeiger->clear_flag(ding_t::dirty);
 	}
 
+	DBG_DEBUG4("karte_ansicht_t::display", "display ticker");
 	if(welt) {
 		// finally update the ticker
 		for(int x=0; x<MAX_PLAYER_COUNT; x++) {
@@ -260,4 +279,5 @@ karte_ansicht_t::display(bool force_dirty)
 	if(force_dirty) {
 		mark_rect_dirty_wc( 0, 0, display_get_width(), display_get_height() );
 	}
+	DBG_DEBUG4("karte_ansicht_t::display", "... ready");
 }

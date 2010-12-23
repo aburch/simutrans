@@ -80,12 +80,10 @@ void replace_data_t::sprintf_replace( cbuffer_t &buf) const
 	{
 		zeros = 1;
 	}
-	if(zeros > 0)
+	while(zeros > 0)
 	{
-	for(zeros; zeros --; zeros > 0)
-		{
-			buf.append("0");
-		}
+		buf.append("0");
+		zeros--;
 	}
 	buf.append((int)number_of_convoys);
 
@@ -116,7 +114,7 @@ bool replace_data_t::sscanf_replace(const char *ptr)
 
 	//Secondly, get the number of replacing vehicles
 	char rv[5];
-	for(uint8 i = 0; i ++; i < 5)
+	for(uint8 i = 0; i < 5; i ++)
 	{
 		rv[i] = *p++;
 	}
@@ -172,17 +170,17 @@ replace_data_t::~replace_data_t()
 
 void replace_data_t::rdwr(loadsave_t *file)
 {
-	file->rdwr_bool(autostart, "");
-	file->rdwr_bool(retain_in_depot, "");
-	file->rdwr_bool(use_home_depot, "");
-	file->rdwr_bool(allow_using_existing_vehicles, "");
+	file->rdwr_bool(autostart);
+	file->rdwr_bool(retain_in_depot);
+	file->rdwr_bool(use_home_depot);
+	file->rdwr_bool(allow_using_existing_vehicles);
 	
 	uint16 replacing_vehicles_count;
 
 	if(file->is_saving())
 	{
 		replacing_vehicles_count = replacing_vehicles->get_count();
-		file->rdwr_short(replacing_vehicles_count, "");
+		file->rdwr_short(replacing_vehicles_count);
 		ITERATE_PTR(replacing_vehicles, i)
 		{
 			const char *s = replacing_vehicles->get_element(i)->get_name();
@@ -191,7 +189,7 @@ void replace_data_t::rdwr(loadsave_t *file)
 	}
 	else
 	{
-		file->rdwr_short(replacing_vehicles_count, "");
+		file->rdwr_short(replacing_vehicles_count);
 		for(uint16 i = 0; i < replacing_vehicles_count; i ++)
 		{
 			char vehicle_name[256];

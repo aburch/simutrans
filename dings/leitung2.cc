@@ -44,8 +44,7 @@ static const char * measures[] =
 */
 
 
-int
-leitung_t::gimme_neighbours(leitung_t **conn)
+int leitung_t::gimme_neighbours(leitung_t **conn)
 {
 	int count = 0;
 	grund_t *gr_base = welt->lookup(get_pos());
@@ -55,9 +54,14 @@ leitung_t::gimme_neighbours(leitung_t **conn)
 		conn[i] = NULL;
 		if(  gr_base->get_neighbour( gr, invalid_wt, koord::nsow[i] ) ) {
 			leitung_t *lt = gr->get_leitung();
-			if(  lt  &&  spieler_t::check_owner(get_besitzer(), lt->get_besitzer())  ) {
-				conn[i] = lt;
-				count++;
+			if(  lt  ) {
+				const spieler_t *owner = get_besitzer();
+				const spieler_t *other = lt->get_besitzer();
+				const spieler_t *super = welt->get_spieler(1);
+				if (owner==other  ||  owner==super  ||  other==super) {
+					conn[i] = lt;
+					count++;
+				}
 			}
 		}
 	}
@@ -65,9 +69,7 @@ leitung_t::gimme_neighbours(leitung_t **conn)
 }
 
 
-
-fabrik_t *
-leitung_t::suche_fab_4(const koord pos)
+fabrik_t *leitung_t::suche_fab_4(const koord pos)
 {
 	for(int k=0; k<4; k++) {
 		fabrik_t *new_fab = fabrik_t::get_fab( welt, pos+koord::nsow[k] );
@@ -82,6 +84,7 @@ leitung_t::suche_fab_4(const koord pos)
 leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	city = NULL;
+	bild = IMG_LEER;
 	set_net(NULL);
 	ribi = ribi_t::keine;
 	rdwr(file);
@@ -91,11 +94,11 @@ leitung_t::leitung_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 leitung_t::leitung_t(karte_t *welt, koord3d pos, spieler_t *sp) : ding_t(welt, pos)
 {
 	city = NULL;
+	bild = IMG_LEER;
 	set_net(NULL);
 	set_besitzer( sp );
 	set_besch(wegbauer_t::leitung_besch);
 }
-
 
 
 leitung_t::~leitung_t()
@@ -146,14 +149,11 @@ leitung_t::~leitung_t()
 }
 
 
-
-void
-leitung_t::entferne(spieler_t *sp) //"remove".
+void leitung_t::entferne(spieler_t *sp) //"remove".
 {
 	spieler_t::accounting(sp, -besch->get_preis()/2, get_pos().get_2d(), COST_CONSTRUCTION);
 	mark_image_dirty( bild, 0 );
 }
-
 
 
 /**
@@ -188,7 +188,6 @@ void leitung_t::replace(powernet_t* new_net)
 		}
 	}
 }
-
 
 
 /**
@@ -235,7 +234,6 @@ void leitung_t::verbinde()
 		}
 	}
 }
-
 
 
 /* extended by prissi */
@@ -290,7 +288,6 @@ void leitung_t::calc_bild()
 }
 
 
-
 /**
  * Recalculates the images of all neighbouring
  * powerlines and the powerline itself
@@ -315,7 +312,6 @@ void leitung_t::calc_neighbourhood()
 }
 
 
-
 /**
  * @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
  * Beobachtungsfenster angezeigt wird.
@@ -327,25 +323,14 @@ void leitung_t::info(cbuffer_t & buf) const
 
 	uint32 supply = get_net()->get_supply();
 	uint32 demand = get_net()->get_demand();
-	uint32 load = demand>supply?supply:demand;
+	uint32 load = demand>supply ? supply:demand;
 
-	buf.append(translator::translate("Net ID: "));
-	buf.append((unsigned long)get_net());
-	buf.append(translator::translate("\nCapacity: "));
-	buf.append(get_net()->get_max_capacity()>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nDemand: "));
-	buf.append(demand>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nGeneration: "));
-	buf.append(supply>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nAct. Load: "));
-	buf.append(load>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nGen. Usage: "));
-	buf.append((100*load)/(supply>0?supply:1));
-	buf.append("%");
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Capacity: %u MW\n"), get_net()->get_max_capacity()>>POWER_TO_MW );
+	buf.printf( translator::translate("Demand: %u MW\n"), demand>>POWER_TO_MW );
+	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
+	buf.printf( translator::translate("Act. load: %u MW\n"), load>>POWER_TO_MW );
+	buf.printf( translator::translate("Usage: %u %%"), (100*load)/(supply>0?supply:1) );
 }
 
 
@@ -365,7 +350,6 @@ void leitung_t::laden_abschliessen()
 }
 
 
-
 /**
  * Speichert den Zustand des Objekts.
  *
@@ -383,7 +367,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) 
 	{
 		value = (unsigned long)get_net();
-		file->rdwr_long(value, "\n");
+		file->rdwr_long(value);
 		koord city_pos  = koord::invalid;
 		if(city != NULL)
 		{
@@ -393,7 +377,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	}
 	else 
 	{
-		file->rdwr_long(value, "\n");
+		file->rdwr_long(value);
 		//      net = powernet_t::load_net((powernet_t *) value);
 		set_net(NULL);
 		if(file->get_experimental_version() >= 3)
@@ -409,7 +393,10 @@ void leitung_t::rdwr(loadsave_t *file)
 	}
 	if(get_typ()==leitung) 
 	{
-		if(file->get_version() > 102002 && file->get_experimental_version() >= 8)
+		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
+		 * (Otherwise it will be always true!
+		 */
+		if(file->get_version() > 102002 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
 		{
 			if(file->is_saving()) 
 			{
@@ -447,16 +434,15 @@ void leitung_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
-	else if(get_typ() == pumpe || get_typ() == senke)
+	else if(file->get_experimental_version() >= 8 && (get_typ() == pumpe || get_typ() == senke))
 	{
 		// Must add dummy string here, or else the loading/saving will fail, 
 		// since we do not know whether a leitung is a plain leitung, or a pumpe
 		// or a senke on *loading*, whereas we do on saving.
-		char* dummy = "~";
+		char dummy[2] = "~";
 		file->rdwr_str(dummy, 2);
 	}
 }
-
 
 
 /************************************ from here on pump (source) stuff ********************************************/
@@ -464,12 +450,10 @@ void leitung_t::rdwr(loadsave_t *file)
 slist_tpl<pumpe_t *> pumpe_t::pumpe_list;
 
 
-
 void pumpe_t::neue_karte()
 {
 	pumpe_list.clear();
 }
-
 
 
 void pumpe_t::step_all(long delta_t)
@@ -480,14 +464,12 @@ void pumpe_t::step_all(long delta_t)
 	}
 }
 
-
-
-pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
+pumpe_t::pumpe_t(karte_t *welt, loadsave_t *file ) : leitung_t( welt, koord3d::invalid, NULL )
 {
 	fab = NULL;
 	supply = 0;
+	rdwr( file );
 }
-
 
 
 pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , pos, sp)
@@ -496,7 +478,6 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 	supply = 0;
 	sp->buche( welt->get_einstellungen()->cst_transformer, get_pos().get_2d(), COST_CONSTRUCTION);
 }
-
 
 
 pumpe_t::~pumpe_t()
@@ -509,7 +490,6 @@ pumpe_t::~pumpe_t()
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
 }
-
 
 
 void pumpe_t::step(long delta_t)
@@ -543,7 +523,6 @@ void pumpe_t::step(long delta_t)
 }
 
 
-
 void pumpe_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
@@ -554,21 +533,19 @@ void pumpe_t::laden_abschliessen()
 		fab->set_transformer_connected( true );
 	}
 	pumpe_list.insert( this );
-}
 
+	set_bild(skinverwaltung_t::pumpe->get_bild_nr(0));
+	is_crossing = false;
+}
 
 
 void pumpe_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	buf.append(translator::translate("Net ID: "));
-	buf.append((unsigned long)get_net());
-	buf.append(translator::translate("\nGeneration: "));
-	buf.append(supply>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Generation: %u MW\n"), supply>>POWER_TO_MW );
 }
-
 
 
 /************************************ From here on drain stuff ********************************************/
@@ -576,12 +553,10 @@ void pumpe_t::info(cbuffer_t & buf) const
 slist_tpl<senke_t *> senke_t::senke_list;
 
 
-
 void senke_t::neue_karte()
 {
 	senke_list.clear();
 }
-
 
 
 void senke_t::step_all(long delta_t)
@@ -594,8 +569,7 @@ void senke_t::step_all(long delta_t)
 }
 
 
-
-senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
+senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t( welt, koord3d::invalid, NULL )
 {
 	fab = NULL;
 	einkommen = 0;
@@ -604,6 +578,7 @@ senke_t::senke_t(karte_t *welt, loadsave_t *file) : leitung_t(welt , file)
 	delta_sum = 0;
 	last_power_demand = 0;
 	power_load = 0;
+	rdwr( file );
 }
 
 
@@ -625,7 +600,6 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp, stadt_t* c) : leitun
 }
 
 
-
 senke_t::~senke_t()
 {
 	if(fab || city)
@@ -644,7 +618,6 @@ senke_t::~senke_t()
 	}
 	spieler_t::add_maintenance(get_besitzer(), welt->get_einstellungen()->cst_maintain_transformer);
 }
-
 
 
 void senke_t::step(long delta_t)
@@ -720,7 +693,7 @@ void senke_t::step(long delta_t)
 
 		uint32 demand_distribution;
 		uint8 count = 0;
-		for(sint16 n = 0; n < city_substations->get_count(); n ++)
+		for(uint16 n = 0; n < city_substations->get_count(); n ++)
 		{
 			// Now check those that have more than enough power.
 
@@ -808,8 +781,8 @@ void senke_t::step(long delta_t)
 		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion));
 	}
 	// Income
-	max_einkommen += last_power_demand;
-	einkommen += (power_load * load_proportion);
+	max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
+	einkommen += ((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion);
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {
@@ -896,7 +869,6 @@ bool senke_t::sync_step(long delta_t)
 }
 
 
-
 void senke_t::laden_abschliessen()
 {
 	leitung_t::laden_abschliessen();
@@ -909,25 +881,20 @@ void senke_t::laden_abschliessen()
 	}
 	senke_list.insert( this );
 	welt->sync_add(this);
-}
 
+	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
+	is_crossing = false;
+}
 
 
 void senke_t::info(cbuffer_t & buf) const
 {
 	ding_t::info( buf );
 
-	buf.append(translator::translate("Net ID: "));
-	buf.append((unsigned long)get_net());
-	buf.append(translator::translate("\nDemand: "));
-	buf.append(last_power_demand>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nAct. Load: "));
-	buf.append(power_load>>POWER_TO_MW);
-	buf.append(translator::translate(" MW"));
-	buf.append(translator::translate("\nSupplied: "));
-	buf.append((100*power_load)/(last_power_demand>0?last_power_demand:1));
-	buf.append("%");
+	buf.printf( translator::translate("Net ID: %u\n"), (unsigned long)get_net() );
+	buf.printf( translator::translate("Demand: %u MW\n"), last_power_demand>>POWER_TO_MW );
+	buf.printf( translator::translate("Act. load: %u MW\n"), power_load>>POWER_TO_MW );
+	buf.printf( translator::translate("Usage: %u %%"), (100*power_load)/(last_power_demand>0?last_power_demand:1) );
 	if(city)
 	{
 		buf.append(translator::translate("\nCity: "));

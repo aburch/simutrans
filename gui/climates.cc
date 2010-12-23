@@ -82,17 +82,26 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &mountain_roughness );
 	intTopOfButton += 12;
 
-	hilly.init( button_t::square, "Hilly landscape", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	hilly.init( button_t::square_state, "Hilly landscape", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	hilly.pressed=umgebung_t::hilly;
 	hilly.add_listener( this );
 	add_komponente( &hilly );
 	intTopOfButton += 12;
 
-	cities_ignore_height.init( button_t::square, "Cities ignore height", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
+	cities_ignore_height.init( button_t::square_state, "Cities ignore height", koord(10,intTopOfButton), koord(BUTTON_WIDTH,BUTTON_HEIGHT)); // right align
 	cities_ignore_height.set_tooltip("Cities will be built all over the terrain, rather than preferring lower ground");
-	cities_ignore_height.pressed=umgebung_t::hilly;
+	cities_ignore_height.pressed=umgebung_t::cities_ignore_height;
 	cities_ignore_height.add_listener( this );
 	add_komponente( &cities_ignore_height );
+	intTopOfButton += 12;
+
+	cities_like_water.set_pos(koord(LEFT_ARROW,intTopOfButton) );
+	cities_like_water.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
+	cities_like_water.set_limits( 0, 100 );
+	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
+	cities_like_water.wrap_mode( false );
+	cities_like_water.add_listener( this );
+	add_komponente( &cities_like_water );
 	intTopOfButton += 12;
 
 	// summer snowline always starting above highest climate
@@ -126,11 +135,16 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	snowline_winter.set_limits( 0, arctic );
 	intTopOfButton += 5;
 
-	no_tree.init( button_t::square, "no tree", koord(10,intTopOfButton) ); // right align
-	no_tree.pressed=umgebung_t::no_tree;
+	no_tree.init( button_t::square_state, "no tree", koord(10,intTopOfButton) ); // right align
+	no_tree.pressed = sets->get_no_trees();
 	no_tree.add_listener( this );
 	add_komponente( &no_tree );
 	intTopOfButton += 12+4;
+
+	hilly.pressed = umgebung_t::hilly;
+
+	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
+	cities_like_water.set_value( (int)(umgebung_t::cities_like_water));
 
 	river_n.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_n.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
@@ -152,7 +166,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 
 	river_max.set_pos(koord(LEFT_ARROW,intTopOfButton) );
 	river_max.set_groesse(koord(RIGHT_ARROW-LEFT_ARROW+10, 12));
-	river_max.set_limits(sets->get_min_river_length()+16,1024);
+	river_max.set_limits(sets->get_min_river_length()+16,4096);
 	river_max.set_value( sets->get_max_river_length() );
 	river_max.wrap_mode( false );
 	river_max.add_listener(this);
@@ -170,48 +184,47 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool
-climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
+bool climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
 	welt_gui_t *welt_gui = dynamic_cast<welt_gui_t *>(win_get_magic( magic_welt_gui_t ));
 	if(komp==&no_tree) {
-		umgebung_t::no_tree ^= 1;
 		no_tree.pressed ^= 1;
-		if(  welt_gui  ) {
-			welt_gui->update_preview();
-		}
+		sets->set_no_trees(no_tree.pressed);
 	}
 	else if(komp==&water_level) {
-		sets->set_grundwasser( v.i );
+		sets->grundwasser = (sint16)v.i;
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==&mountain_height) {
-		sets->set_max_mountain_height( v.i );
+		sets->max_mountain_height = v.i;
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
 	else if(komp==&mountain_roughness) {
-		sets->set_map_roughness( (double)(v.i+8)/20.0 );
+		sets->map_roughness = (double)(v.i+8)/20.0;
 		if(  welt_gui  ) {
 			welt_gui->update_preview();
 		}
 	}
+	else if(komp==&cities_like_water) {
+		umgebung_t::cities_like_water =  v.i;
+	}	
 	else if(komp==&river_n) {
-		sets->set_river_number( v.i );
+		sets->river_number = (sint16)v.i;
 	}
 	else if(komp==&river_min) {
-		sets->set_min_river_length( v.i );
+		sets->min_river_length = (sint16)v.i;
 		river_max.set_limits(v.i+16,1024);
 	}
 	else if(komp==&river_max) {
-		sets->set_max_river_length( v.i );
+		sets->max_river_length = (sint16)v.i;
 		river_min.set_limits(0,max(16,v.i)-16);
 	}
 	else if(komp==&snowline_winter) {
-		sets->set_winter_snowline( v.i );
+		sets->winter_snowline = (sint16)v.i;
 	}
 	else if(komp==&hilly)
 	{
@@ -229,23 +242,22 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 	}
 	else {
 		// all climate borders from here on
-		sint16 *climate_borders = (sint16 *)sets->get_climate_borders();
 
 		// artic starts at maximum end of climate
 		sint16 arctic = 0;
 		for(  int i=desert_climate;  i<=rocky_climate;  i++  ) {
 			if(  komp==climate_borders_ui+i-1  ) {
-				climate_borders[i] = v.i;
+				sets->climate_borders[i] = v.i;
 			}
-			if(climate_borders[i]>arctic) {
-				arctic = climate_borders[i];
+			if(sets->climate_borders[i]>arctic) {
+				arctic = sets->climate_borders[i];
 			}
 		}
-		climate_borders[arctic_climate] = arctic;
+		sets->climate_borders[arctic_climate] = arctic;
 
 		// correct summer snowline too
 		if(arctic<sets->get_winter_snowline()) {
-			sets->set_winter_snowline( arctic );
+			sets->winter_snowline = arctic;
 		}
 		snowline_winter.set_limits( 0, arctic );
 	}
@@ -257,14 +269,6 @@ climate_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 void climate_gui_t::zeichnen(koord pos, koord gr)
 {
-	no_tree.pressed = umgebung_t::no_tree;
-
-	no_tree.set_text( "no tree" );
-
-	hilly.pressed = umgebung_t::hilly;
-
-	cities_ignore_height.pressed = umgebung_t::cities_ignore_height;
-
 	gui_frame_t::zeichnen(pos, gr);
 
 	const int x = pos.x+10;
@@ -276,7 +280,9 @@ void climate_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Mountain height"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Map roughness"), ALIGN_LEFT, COL_BLACK, true);
-	y += 36+5;
+	y += 36;
+	display_proportional_clip(x, y, translator::translate("Cities like water"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12+5;
 
 	// season stuff
 	display_proportional_clip(x, y, translator::translate("Summer snowline"), ALIGN_LEFT, COL_BLACK, true);

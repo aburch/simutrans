@@ -133,7 +133,7 @@ int dr_os_open(int w, int h, int bpp, int fullscreen)
 
 	mw = XCreateSimpleWindow(
 		md, DefaultRootWindow(md),
-	 	mh.x, mh.y, mh.width, mh.height, 5,
+		mh.x, mh.y, mh.width, mh.height, 5,
 		mfg, mbg
 	);
 
@@ -449,7 +449,6 @@ static void internal_GetEvents(int wait)
 			break;
 
 		default:
-			printf("Unbekanntes Ereignis # %d!\n", event.type);
 			sys_event.type = SIM_IGNORE_EVENT;
 			sys_event.code = 0;
 			break;

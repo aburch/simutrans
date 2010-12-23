@@ -197,8 +197,8 @@ bool goods_frame_t::compare_goods(uint16 const a, uint16 const b)
 					}
 					else
 					{
-						const uint8 differential = journey_minutes - 2;
-						const uint8 max_differential = 300 - 2;
+						const uint16 differential = journey_minutes - 2;
+						const uint16 max_differential = 300 - 2;
 						const float proportion = (float)differential / (float)max_differential;
 						comfort_modifier = (0.8F * proportion) + 0.2F;
 					}

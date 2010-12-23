@@ -9,7 +9,7 @@
 #define factorylist_stats_t_h
 
 #include "../tpl/vector_tpl.h"
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "../simcolor.h"
 #include "components/gui_button.h"
 #include "fabrik_info.h"
@@ -44,7 +44,7 @@ public:
 	* gemeldet
 	* @author Hj. Malthaner
 	*/
-	void infowin_event(const event_t *);
+	bool infowin_event(const event_t *);
 
 	void sort(factorylist::sort_mode_t sortby, bool sortreverse);
 

@@ -1,4 +1,4 @@
-#include "../../utils/cstring_t.h"
+#include <string>
 #include "../../tpl/slist_tpl.h"
 #include "../bildliste_besch.h"
 #include "obj_node.h"
@@ -7,19 +7,16 @@
 #include "imagelist_writer.h"
 
 
-void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<cstring_t>& keys)
+void imagelist_writer_t::write_obj(FILE* fp, obj_node_t& parent, const slist_tpl<std::string>& keys)
 {
 	bildliste_besch_t besch;
 
 	obj_node_t node(this, 4, &parent);
 
-	slist_iterator_tpl<cstring_t> iter(keys);
+	slist_iterator_tpl<std::string> iter(keys);
 
-	int count = 0;
+	unsigned int count = 0;
 	while (iter.next()) {
-		if ((const char *)(iter.get_current()) == NULL) {	// there can be empty strings; we do not write those!
-			break;
-		}
 		image_writer_t::instance()->write_obj(fp, node, iter.get_current());
 		count ++;
 	}

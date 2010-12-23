@@ -11,16 +11,16 @@
 #define __SEARCHFOLDER_H
 
 
-#include "../utils/cstring_t.h"
+#include <string>
 #include "../tpl/vector_tpl.h"
 
 
 class searchfolder_t {
 public:
 	~searchfolder_t();
-	int search(const char *filepath, const char *extension);
+	int search(const std::string &filepath, const std::string &extension);
 
-	static cstring_t complete(const char *filepath, const char *extension);
+	static std::string complete(const std::string &filepath, const std::string &extension);
 
 	typedef vector_tpl<char*>::const_iterator const_iterator;
 	const_iterator begin() const { return files.begin(); }

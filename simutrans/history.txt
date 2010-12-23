@@ -55,8 +55,66 @@
 	ADD: enable to use more than one powerline object
 	ADD: texture for tunnel grounds (Obj=misc, Name=TunnelTexture, Image with numbers 0,3,6,9)
 	ADD: simuconf.tab: add default values for cityroad ("city_road") and intercity road ("asphalt_road")
+	CHANGE: TAB goes to next/Shift+TAB to previous edit box, moving and resizing now even when other windows open
+	ADD: skinnable scrollbars
+	ADD: setting dialoge tool (handle with care, should not be visible by defualt for pak sets!)
+	ADD: resizer also part of skin
+	CHANGE: also starts without any skin
+	FIX: no signals to be built on switches, since they will not display correctly
+	FIX: waiting time cycles also on left button
+	ADD: (z9999+) limit size of toolsbars in simuconf.tab
+	FIX: (z9999+) loading old games before 88.00
+	CHANGE: forest settings moved to simuconf.tab
+	ADD: delay and duration of tooltip configurable in simuconf.tab
+	ADD: timeline for headquarters (pak-sets may need to be updated as the default intro date is 1900, default retire date is 2999)
+	ADD: blinking cursor, selectable text and clipboard functions for text input fields
+	ADD: industry increase and minimum city distance now also saved in savegame
+	FIX: error in routing will clear itself after loading
+	FIX: not restore fields if there is already a building on this tile
+	CHANGE: minimap will center after zooming
+	ADD: parameters of cityrules.tab saved in savegame (networkmode)
+	ADD: active window title bar is highlighted (for options see simuconf.tab)
+	CHG: canals cannot be built on canals of other players
+	FIX: removed obsolete forest config parameters
+	FIX: traffic light setting also network safe
+	ADD: if present show copyright line from ground.outside.pak (which should contain pak set and revision)
+	ADD: new general_tool[36] to build cityroad according to timeline
+	FIX: (z9999) building a harbour must check also for existing stops above/below
+	FIX: (z9999) trains were braking on field too late after changing of route count
+	FIX: (z9999) stopping before occipied crossings with a signal and many other signal fixes
+	ADD: for text input, double-click to select a word and triple-click to select the whole text
+	ADD: register lineless convoys at the halts and list them with links in the halt details dialog
+	FIX: do not crash with prodbase 0 and ensure some basic production
+	FIX: convois did not properly looked up next signal for signals on closed crossings
+	ADD: right-click on icon of selected toolbar closes the toolbar
+	ADD: server uses a different savegame revision => testing already possible now
+	ADD: savegame version can be set in settings
+	ADD: simple chat system added (send message option in message window)
+	ADD: semiautomatical announce of servers possible
+	CHANGE: chat option now part of message centre
+	ADD: messages on joining and leaving
+	CHANGE: renaming of stuff now in network games
+	ADD: clients and server compare paksets before joining
+	CHANGE: for two-click-tools: ctrl+click sets start marker, useful for point-to-point bridge building with two clicks in network games
+	ADD: (gerw/Dwachs) build signals like ways; ctrl+click on icon opens dialogue to change parameters (help file: signal_spacing.h), in network games: ctrl+click and then drag
+	ADD: station extensions can be built near public halts
+	CHANGE: when joining with public station, the public station keeps its name
+	CHANGE: Introduced symbols and tooltips for a much more compact status line
+	ADD: dialogue can be changed (currently only minimap)
+	ADD: possibility to compare pakset of client and server
+	CHANGE: one year after bankrupt, clear slot for new player
+	CHANGE: first load convoi waiting the longest time at a stop
+	FIX: after bankruptsy, ways on public stops will remain unowned, so new people can connect to them
+	FIX: transfer statistics too, when joining stops
+	CHANGE: In order to lock a game the public player must be password protected. Unlocking the public player allows player change again.
+	CHANGE: (Knightly) message system has now tabs for faster overview of categories
+	CHANGE: cities try some terraforming to be able to build roads
+	ADD: messages are saved in save games
+	CHANGE: passwords are only checked/changed if <enter> is pressed in the password input box
+
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
+
 	FIX: connecting upslope to upper way works in sliced mode (r2949)
 	FIX: longer convoi's name could cause crash when entering depot
 	FIX: lines were never freed upon deletion
@@ -80,7 +138,10 @@ Release of 102.2.2 (r3131 on 8-Mar-2010):
 	FIX: stop factory building if more than 10 attempts failed
 	FIX: (Dwachs) display correct length in depot
 
+
+
 Release of 102.2.1 (r2928)
+
 	FIX: minimap was not updated when a bridge was deleted
 	FIX: AI could not built any lines
 	FIX: grid slopes were not (re)set correctly
@@ -937,7 +998,7 @@ Release of 99.01
 	FIX: pause at waypoints
 	CHANGE: automatically loading pak/demo.sve (or whatever the pak folder is) on startup
 	CHANGE: symbol.BigLogo.pak with maximum for image loaded during intial startup
-	CHANGE: more complex tunnels, with cost=,maitenance=, topspeed=, waytype=, intro- and retiredates
+	CHANGE: more complex tunnels, with cost=, maintenance=, topspeed=, waytype=, intro- and retiredates
 	CHANGE: allowed tunnels for all but air, also removal or tunnel with tramrails should work
 	FIX: city roads no longer destroy runways and the like
 	FIX: more even house distribution with rotation
@@ -1872,7 +1933,7 @@ Release of 87.01
 4-Nov-2005 (prissi)
 	FIX: loading old maps with obsolete docks
 	FIX: no route next to attraction should now have a more meaningful number (so you can better guess how much you have to transport)
-	FIX: mail from attractions and factories again 4x recieved mail
+	FIX: mail from attractions and factories again 4x received mail
 	CHANGE: some further small optimizations for faster drawing of dialoges
 	CHANGE: vehicles now sorted in depot by intro year and engine type
 3-Nov-2005 (mip)
@@ -6268,7 +6329,7 @@ You can use this version with the 0.81.35exp base package.
          - FIX: midi playlist displays message
                 "Musicplaying disabled/not available" if either no MIDI
                 files could be loaded or if the soundcard could not be
-                initialized succesfully
+                initialized successfully
          - FIX: Song name in playlist is updated if a new song starts
                 playing
 

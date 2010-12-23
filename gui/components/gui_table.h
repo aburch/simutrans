@@ -12,8 +12,8 @@
 
 #include "../../simtypes.h"
 #include "../../tpl/list_tpl.h"
-#include "../../ifc/gui_action_creator.h"
-#include "../../ifc/gui_komponente.h"
+#include "gui_action_creator.h"
+#include "gui_komponente.h"
 #include "../../simcolor.h"
 #include "../gui_frame.h"
 
@@ -274,7 +274,7 @@ public:
 
 	bool get_cell_at(koord_x x, koord_y y, coordinates_t &cell, koord &offset);
 
-	virtual void infowin_event(const event_t *ev);
+	virtual bool infowin_event(const event_t *ev);
 
 	/**
 	 * Set row sort order of a column. 

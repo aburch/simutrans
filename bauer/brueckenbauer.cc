@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "../simdebug.h"
+#include "../simwerkz.h"
 #include "brueckenbauer.h"
 #include "wegbauer.h"
 
@@ -40,7 +41,6 @@
 #include "../dings/pillar.h"
 #include "../dings/signal.h"
 
-#include "../dataobj/translator.h"
 #include "../tpl/stringhashtable_tpl.h"
 #include "../tpl/vector_tpl.h"
 
@@ -112,7 +112,7 @@ bool brueckenbauer_t::laden_erfolgreich()
  * Find a matchin bridge
  * @author Hj. Malthaner
  */
-const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const uint32 min_speed,const uint16 time)
+const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const sint32 min_speed, const uint16 time)
 {
 	const bruecke_besch_t *find_besch=NULL;
 
@@ -195,11 +195,14 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 		}
 		// check for height
 		sint16 height = pos.z -welt->lookup_kartenboden(pos.get_2d())->get_hoehe();
-		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()  ) {
+		if(besch->get_max_height()!=0  &&  height>besch->get_max_height()) {
 			error_msg = "bridge is too high for its type!";
 			return koord3d::invalid;
 		}
-
+		// and if ground is above bridge / double slopes
+		if (height < -Z_TILE_STEP) {
+			break; // to trigger the right error message
+		}
 		gr1 = welt->lookup(pos + koord3d(0, 0, Z_TILE_STEP));
 		if(  gr1  &&  gr1->get_weg_hang()==hang_t::flach  &&  length>=min_length) {
 			if(  gr1->get_typ()==grund_t::boden  ) {
@@ -223,7 +226,7 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 				}
 			}
 			else if(  gr1->get_typ()==grund_t::monorailboden  ) {
-				// check if we can connect ro elevated way
+				// check if we can connect to elevated way
 				const weg_t* weg = gr1->get_weg_nr(0);
 				if(  weg==NULL  ||  weg->get_waytype()==wegtyp
 //					|| (crossing_logic_t::get_crossing(wegtyp, weg->get_waytype()))
@@ -239,14 +242,12 @@ koord3d brueckenbauer_t::finde_ende(karte_t *welt, koord3d pos, koord zv, const 
 			if(wegtyp != powerline_wt) {
 				if(gr2->has_two_ways()) {
 					if (gr2->ist_uebergang()  ||  wegtyp!=road_wt) {
-						error_msg =  "Tile not empty.";
-						return koord3d::invalid;
-					}
-					// If road and tram, we have to check both ribis.
-					ribi = gr2->get_weg_nr(0)->get_ribi_unmasked() | gr2->get_weg_nr(1)->get_ribi_unmasked();
-					if(  besch->get_waytype()  !=  road_wt  ) {
-						// only road bridges allowed here.
+						// full ribi -> build no bridge here
 						ribi = 15;
+					}
+					else {
+						// road/tram on the tile, we have to check both ribis.
+						ribi = gr2->get_weg_nr(0)->get_ribi_unmasked() | gr2->get_weg_nr(1)->get_ribi_unmasked();
 					}
 				}
 				else {
@@ -331,6 +332,9 @@ bool brueckenbauer_t::ist_ende_ok(spieler_t *sp, const grund_t *gr)
 		return false;
 	}
 	if(gr->get_depot()) {
+		return false;
+	}
+	if(gr->find<senke_t>()!=NULL  ||  gr->find<pumpe_t>()!=NULL) {
 		return false;
 	}
 	return true;
@@ -479,7 +483,7 @@ void brueckenbauer_t::baue_bruecke(karte_t *welt, spieler_t *sp, koord3d pos, ko
 		if(besch->get_pillar()>0) {
 			// make a new pillar here
 			if(besch->get_pillar()==1  ||  (pos.x*zv.x+pos.y*zv.y)%besch->get_pillar()==0) {
-				grund_t *gr = welt->lookup(pos.get_2d())->get_kartenboden();
+				grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 //DBG_MESSAGE("bool brueckenbauer_t::baue_bruecke()","h1=%i, h2=%i",pos.z,gr->get_pos().z);
 				sint16 height = (pos.z - gr->get_pos().z)/Z_TILE_STEP+1;
 				while(height-->0) {
@@ -582,11 +586,13 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 		if(!lt) {
 			lt = new leitung_t(welt, bruecke->get_pos(), sp); //"leading" (Google)
 			bruecke->obj_add( lt );
-			lt->laden_abschliessen();
 		}
 		else {
-			lt->calc_neighbourhood();
+			// remove maintainance - it will be added in leitung_t::laden_abschliessen
+			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung());
 		}
+		// connect to neighbor tiles and networks, add maintenance
+		lt->laden_abschliessen();
 	}
 	bruecke_t *br = new bruecke_t(welt, end, sp, besch, img);
 	bruecke->obj_add( br );
@@ -605,8 +611,6 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 	slist_tpl<koord3d> tmp_list;
 	const char    *msg;
 
-	// Erstmal das ganze Außmaß der Brücke bestimmen und sehen,
-	// ob uns was im Weg ist.
 	tmp_list.insert(pos);
 	marker.markiere(welt->lookup(pos));
 	waytype_t delete_wegtyp = wegtyp==powerline_wt ? invalid_wt : wegtyp;
@@ -642,7 +646,7 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 		// search neighbors
 		for(int r = 0; r < 4; r++) {
 			if(  (zv == koord::invalid  ||  zv == koord::nsow[r])  &&  from->get_neighbour(to, delete_wegtyp, koord::nsow[r])  &&  !marker.ist_markiert(to)  &&  to->ist_bruecke()  ) {
-				if(  wegtyp != powerline_wt  ||  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt  ) {
+				if(  wegtyp != powerline_wt  ||  (to->find<bruecke_t>()  &&  to->find<bruecke_t>()->get_besch()->get_waytype() == powerline_wt)  ) {
 					tmp_list.insert(to->get_pos());
 					marker.markiere(to);
 				}
@@ -669,12 +673,13 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 
 		// we may have a second way/powerline here ...
 		gr->obj_loesche_alle(sp);
+		gr->mark_image_dirty();
 
 		welt->access(pos.get_2d())->boden_entfernen(gr);
 		delete gr;
 
 		// finally delete all pillars (if there)
-		gr = welt->lookup(pos.get_2d())->get_kartenboden();
+		gr = welt->lookup_kartenboden(pos.get_2d());
 		ding_t *p;
 		while ((p = gr->find<pillar_t>()) != 0) {
 			p->entferne(p->get_besitzer());

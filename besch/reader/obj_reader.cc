@@ -1,3 +1,4 @@
+#include <string>
 #include <string.h>
 
 #ifndef _MSC_VER
@@ -32,7 +33,6 @@
 #include "../../tpl/ptrhashtable_tpl.h"
 #include "../../tpl/stringhashtable_tpl.h"
 #include "../../simdebug.h"
-#include "../../utils/cstring_t.h"
 
 #include "../obj_besch.h"
 #include "../obj_node_info.h"
@@ -89,17 +89,18 @@ DBG_MESSAGE("obj_reader_t::laden_abschliessen()","Checking %s objects...",iter.g
 }
 
 
+
 bool obj_reader_t::load(const char *liste, const char *message)
 {
 	searchfolder_t find;
-	cstring_t name = find.complete(liste, "dat");
+	std::string name = find.complete(liste, "dat");
 	size_t i;
 	const bool drawing=is_display_init();
 
-	if(name.right(1) != "/") {
+	if(name.at(name.size() - 1) != '/') {
 		// very old style ... (I think unused by now)
 
-		FILE *listfp = fopen(name,"rt");
+		FILE *listfp = fopen(name.c_str(), "rt");
 		if(listfp) {
 			while(!feof(listfp)) {
 				char buf[256];
@@ -148,12 +149,13 @@ bool obj_reader_t::load(const char *liste, const char *message)
 
 		if(drawing  &&  skinverwaltung_t::biglogosymbol==NULL) {
 			display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
-			read_file(name+"symbol.BigLogo.pak");
+			read_file((name+"symbol.BigLogo.pak").c_str());
 DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbol);
 		}
 		if(skinverwaltung_t::biglogosymbol) {
-			const int w = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->w;
-			const int h = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic()->h;
+			const bild_t *bild0 = skinverwaltung_t::biglogosymbol->get_bild(0)->get_pic();
+			const int w = bild0->w;
+			const int h = bild0->h + bild0->y;
 			int x = display_get_width()/2-w;
 			int y = display_get_height()/4-w;
 			if(y<0) {
@@ -170,18 +172,22 @@ DBG_MESSAGE("obj_reader_t::load()","big logo %p", skinverwaltung_t::biglogosymbo
 
 		if(  grund_besch_t::ausserhalb==NULL  ) {
 			// defining the pak tile witdh ....
-			read_file(name+"ground.Outside.pak");
+			read_file((name+"ground.Outside.pak").c_str());
 			if(grund_besch_t::ausserhalb==NULL) {
 				dbg->error("obj_reader_t::load()","ground.Outside.pak not found, cannot guess tile size! (driving on left will not work!)");
 			}
 		}
 
-DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", (const char*)name);
+DBG_MESSAGE("obj_reader_t::load()", "reading from '%s'", name.c_str());
 		uint n = 0;
 		for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i, n++) {
 			read_file(*i);
 			if ((n & teilung) == 0 && drawing) {
 				display_progress(n, max);
+				// name of the pak
+				if(  grund_besch_t::ausserhalb->get_copyright()[0]  ) {
+					display_proportional( display_get_width()/2, display_get_height()/2-8-LINESPACE-4, grund_besch_t::ausserhalb->get_copyright(), ALIGN_MIDDLE, COL_WHITE, true );
+				}
 			}
 		}
 
@@ -369,9 +375,9 @@ void obj_reader_t::resolve_xrefs()
 			}
 
 			slist_iterator_tpl<obj_besch_t **> xref_iter(xrefname_iter.access_current_value());
-			while(xref_iter.next()) {
-			if(!obj_loaded && fatals.get(xref_iter.get_current())) {
-				dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",	&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
+			while(  xref_iter.next()  ) {
+				if(  !obj_loaded  &&  fatals.get(xref_iter.get_current())  ) {
+					dbg->fatal("obj_reader_t::resolve_xrefs", "cannot resolve '%4.4s-%s'",	&xreftype_iter.get_current_key(), xrefname_iter.get_current_key());
 				}
 				// delete old xref-node
 				xref_nodes.append(*xref_iter.get_current());

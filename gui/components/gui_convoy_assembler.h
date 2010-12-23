@@ -17,7 +17,7 @@
 
 #include "../../besch/vehikel_besch.h"
 
-#include "../../ifc/gui_action_creator.h"
+#include "gui_action_creator.h"
 
 #include "../../tpl/ptrhashtable_tpl.h"
 #include "../../tpl/vector_tpl.h"
@@ -155,7 +155,7 @@ class gui_convoy_assembler_t :
 	// add a single vehicle (helper function)
 	void add_to_vehicle_list(const vehikel_besch_t *info);
 
-	static const sint16 VINFO_HEIGHT = 186;
+	static const sint16 VINFO_HEIGHT = 186 + 12;
 
 public:
 	// Used for listeners to know what has happened
@@ -200,7 +200,7 @@ public:
 	/* The gui_komponente_t interface */
 	virtual void zeichnen(koord offset);
 
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	inline void clear_convoy() {vehicles.clear();}
 

@@ -24,8 +24,6 @@
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
 
-#include "../dataobj/translator.h"
-
 #include "../utils/simstring.h"
 
 #include "../vehicle/simvehikel.h"
@@ -61,7 +59,7 @@ bool convoi_frame_t::passes_filter(convoihandle_t cnv)
 		return false;
 	}
 
-	vehikel_t *fahr = cnv->get_vehikel(0);
+	vehikel_t const* const fahr = cnv->front();
 	if(get_filter(typ_filter)) {
 		switch(fahr->get_typ()) {
 			case ding_t::automobil:
@@ -153,8 +151,8 @@ bool convoi_frame_t::compare_convois(convoihandle_t const cnv1, convoihandle_t c
 			break;
 		case nach_typ:
 			if(cnv1->get_vehikel_anzahl()*cnv2->get_vehikel_anzahl()>0) {
-				vehikel_t *fahr1 = cnv1->get_vehikel(0);
-				vehikel_t *fahr2 = cnv2->get_vehikel(0);
+				vehikel_t const* const fahr1 = cnv1->front();
+				vehikel_t const* const fahr2 = cnv2->front();
 
 				result = fahr1->get_typ() - fahr2->get_typ();
 				if(result == 0) {
@@ -248,7 +246,7 @@ convoi_frame_t::~convoi_frame_t()
 
 
 
-void convoi_frame_t::infowin_event(const event_t *ev)
+bool convoi_frame_t::infowin_event(const event_t *ev)
 {
 	if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
 		if(filter_frame) {
@@ -259,6 +257,7 @@ void convoi_frame_t::infowin_event(const event_t *ev)
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
 		vscroll.infowin_event(ev);
+		return true;
 	}
 	else if((IS_LEFTRELEASE(ev)  ||  IS_RIGHTRELEASE(ev))  &&  ev->my>47  &&  ev->mx+11<get_fenstergroesse().x) {
 		int y = (ev->my-47)/40 + vscroll.get_knob_offset();
@@ -266,9 +265,10 @@ void convoi_frame_t::infowin_event(const event_t *ev)
 			// let gui_convoiinfo_t() handle this, since then it will be automatically consistent
 			gui_convoiinfo_t ci(convois[y], 0);
 			ci.infowin_event( ev );
+			return true;
 		}
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }
 
 

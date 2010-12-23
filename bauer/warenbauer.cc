@@ -36,7 +36,6 @@ static spezial_obj_tpl<ware_besch_t> spezial_objekte[] = {
 };
 
 
-
 bool warenbauer_t::alles_geladen()
 {
 	if(!::alles_geladen(spezial_objekte)) {
@@ -143,10 +142,7 @@ bool warenbauer_t::register_besch(ware_besch_t *besch)
 }
 
 
-
-
-const ware_besch_t *
-warenbauer_t::get_info(const char* name)
+const ware_besch_t *warenbauer_t::get_info(const char* name)
 {
 	const ware_besch_t *ware = besch_names.get(name);
 	if (ware==NULL) {
@@ -156,9 +152,7 @@ warenbauer_t::get_info(const char* name)
 }
 
 
-
-const ware_besch_t *
-warenbauer_t::get_info_catg(const uint8 catg)
+const ware_besch_t *warenbauer_t::get_info_catg(const uint8 catg)
 {
 	if(catg>0) {
 		for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
@@ -172,9 +166,7 @@ warenbauer_t::get_info_catg(const uint8 catg)
 }
 
 
-
-const ware_besch_t *
-warenbauer_t::get_info_catg_index(const uint8 catg_index)
+const ware_besch_t *warenbauer_t::get_info_catg_index(const uint8 catg_index)
 {
 	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {
 		if(waren[i]->get_catg_index()==catg_index) {
@@ -186,10 +178,8 @@ warenbauer_t::get_info_catg_index(const uint8 catg_index)
 }
 
 
-
 // adjuster for dummies ...
-void
-warenbauer_t::set_multiplier(sint32 multiplier)
+void warenbauer_t::set_multiplier(sint32 multiplier)
 {
 //DBG_MESSAGE("warenbauer_t::set_multiplier()","new factor %i",multiplier);
 	for(unsigned i=0;  i<get_waren_anzahl();  i++  ) {

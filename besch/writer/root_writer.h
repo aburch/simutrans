@@ -1,12 +1,11 @@
 #ifndef ROOT_WRITER_H
 #define ROOT_WRITER_H
 
+#include <string>
 #include <stdio.h>
 #include "obj_writer.h"
 #include "../objversion.h"
 
-
-class cstring_t;
 struct obj_node_info_t;
 
 
@@ -14,7 +13,7 @@ class root_writer_t : public obj_writer_t {
 	private:
 		static root_writer_t the_instance;
 
-		static cstring_t inpath;
+		static std::string inpath;
 
 		root_writer_t() { register_writer(false); }
 
@@ -36,7 +35,7 @@ class root_writer_t : public obj_writer_t {
 		/* makes single files from a merged file */
 		void uncopy(const char* name);
 
-		static const cstring_t& get_inpath() { return inpath; }
+		static const std::string & get_inpath() { return inpath; }
 
 	private:
 		bool do_copy(FILE* outfp, obj_node_info_t& root, const char* open_file_name);

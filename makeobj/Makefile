@@ -42,8 +42,8 @@ ifeq ($(OSTYPE),mac)
 endif
 
 ifneq ($(OPTIMISE),)
-  CFLAGS   += -O3 -fno-schedule-insns -fomit-frame-pointer
-  CXXFLAGS += -O3 -fno-schedule-insns -fomit-frame-pointer
+  CFLAGS   += -O3 -fno-schedule-insns
+  CXXFLAGS += -O3 -fno-schedule-insns
   ifneq ($(OSTYPE),mac)
     CFLAGS  += -minline-all-stringops
   endif
@@ -118,7 +118,6 @@ SHARED_SOURCES += ../dataobj/tabfile.cc
 SHARED_SOURCES += ../simdebug.cc
 SHARED_SOURCES += ../simmem.cc
 SHARED_SOURCES += ../tpl/debug_helper.cc
-SHARED_SOURCES += ../utils/cstring_t.cc
 SHARED_SOURCES += ../utils/simstring.cc
 SHARED_SOURCES += ../utils/searchfolder.cc
 VARIANT_SOURCES += ../simtools.cc

@@ -14,7 +14,7 @@ Os Comboios são montados e comprados do <a href="depot.txt">depósito</a> para o 
 {Dica: Um Comboio tem um número limite máximo de veículos em sua composição: trens, 24; veículos rodoviários, 4 .}
 </p>
 <p>
-Clique em um Comboio enquanto estiver na visão do jogo com a <a href="inspection_tool.txt">ferramenta Verificar</a> ou clique no Comboio listado na <a href="convoi.txt">Lista de Veículos</a> ou no <a href="linemanagement.txt">Gerenciador de Linhas</a> para abrir a janela <strong>Informações do Comboio</strong><br>
+Clique em um Comboio enquanto estiver na visão do jogo com a <a href="inspection_tool.txt">ferramenta Consultar</a> ou clique no Comboio listado na <a href="convoi.txt">Lista de Veículos</a> ou no <a href="linemanagement.txt">Gerenciador de Linhas</a> para abrir a janela <strong>Informações do Comboio</strong><br>
 A barra de título da janela <strong>Informações do Comboio</strong> mostra um número de identificação único e o nome do Comboio (por padrão isso é feito quando o primeiro veículo é comprado ou montado em um <a href="depot.txt">depósito</a>).<br>
 A janela <strong>Informações do Comboio</strong> contém uma caixa do nome; uma mini-visão e a informação sobre o Comboio; botões de opções; e uma lista de todos os itens atualmente sendo carregados (se todos os itens não estão visíveis <a href="mouse.txt">reajuste</a> a janela de <strong>Informações do Comboio</strong> ou use as barras laterais para ver os outros itens).
 </p>

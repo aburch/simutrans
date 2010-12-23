@@ -38,17 +38,17 @@ gui_scrollpane_t::gui_scrollpane_t(gui_komponente_t *komp) :
  */
 void gui_scrollpane_t::recalc_sliders(koord groesse)
 {
-	scroll_x.set_pos(koord(0, groesse.y-11));
-	scroll_x.set_groesse(groesse-koord(12,12));
-	scroll_x.set_knob(groesse.x-12, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
+	scroll_x.set_pos(koord(0, groesse.y-scrollbar_t::BAR_SIZE));
+	scroll_x.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+	scroll_x.set_knob(groesse.x-scrollbar_t::BAR_SIZE, komp->get_groesse().x + komp->get_pos().x);	// set client/komp area
 
 	if(b_has_size_corner  ||  b_show_scroll_x) {
-		scroll_y.set_pos(koord(groesse.x-11, 0));
-		scroll_y.set_groesse(groesse-koord(12,12));
-		scroll_y.set_knob(groesse.y-12, komp->get_groesse().y + komp->get_pos().y);
+		scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
+		scroll_y.set_groesse(groesse-koord(scrollbar_t::BAR_SIZE,scrollbar_t::BAR_SIZE));
+		scroll_y.set_knob(groesse.y-scrollbar_t::BAR_SIZE, komp->get_groesse().y + komp->get_pos().y);
 	}
 	else {
-		scroll_y.set_pos(koord(groesse.x-11, 0));
+		scroll_y.set_pos(koord(groesse.x-scrollbar_t::BAR_SIZE, 0));
 		scroll_y.set_groesse(groesse);
 		scroll_y.set_knob(groesse.y, komp->get_groesse().y + komp->get_pos().y);
 	}
@@ -75,37 +75,69 @@ void gui_scrollpane_t::set_groesse(koord groesse)
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_scrollpane_t::infowin_event(const event_t *ev)
+bool gui_scrollpane_t::infowin_event(const event_t *ev)
 {
-	if(b_show_scroll_y  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
+	if(b_show_scroll_y  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_y.getroffen(ev->mx, ev->my) || scroll_y.getroffen(ev->cx, ev->cy)) ) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_y.get_pos().x, -scroll_y.get_pos().y);
-		scroll_y.infowin_event(&ev2);
+		return scroll_y.infowin_event(&ev2);
 	}
-	else if(b_show_scroll_x  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
+	else if(b_show_scroll_x  &&  ev->ev_class!=EVENT_KEYBOARD  &&  (scroll_x.getroffen(ev->mx, ev->my) || scroll_x.getroffen(ev->cx, ev->cy))) {
 		event_t ev2 = *ev;
 		translate_event(&ev2, -scroll_x.get_pos().x, -scroll_x.get_pos().y);
-		scroll_x.infowin_event(&ev2);
+		return scroll_x.infowin_event(&ev2);
 	}
 	else if(b_show_scroll_y  &&  (IS_WHEELUP(ev)  ||  IS_WHEELDOWN(ev))) {
 		// otherwise these events are only registered where directly over the scroll region
 		// (and sometime even not then ... )
-		scroll_y.infowin_event(ev);
+		return scroll_y.infowin_event(ev);
 	}
 	else {
 		// translate according to scrolled position
+		bool swallow;
 		event_t ev2 = *ev;
 		translate_event(&ev2, scroll_x.get_knob_offset() - komp->get_pos().x, scroll_y.get_knob_offset() - komp->get_pos().y);
 
 		// hand event to component
-		komp->infowin_event(&ev2);
+		swallow = komp->infowin_event(&ev2);
+
+		// Knightly : check if we need to scroll to the focused component
+		if(  IS_LEFTCLICK(ev)  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code==9)  ) {
+			const gui_komponente_t *const focused_komp = komp->get_focus();
+			if(  focused_komp  ) {
+				const koord komp_size = focused_komp->groesse;
+				const koord relative_pos = komp->get_focus_pos();
+				if(  b_show_scroll_x  ) {
+					const sint32 knob_offset_x = scroll_x.get_knob_offset();
+					const sint32 view_width = groesse.x-scrollbar_t::BAR_SIZE;
+					if(  relative_pos.x<knob_offset_x  ) {
+						scroll_x.set_knob_offset(relative_pos.x);
+					}
+					else if(  relative_pos.x+komp_size.x>knob_offset_x+view_width  ) {
+						scroll_x.set_knob_offset(relative_pos.x+komp_size.x-view_width);
+					}
+				}
+				if(  b_show_scroll_y  ) {
+					const sint32 knob_offset_y = scroll_y.get_knob_offset();
+					const sint32 view_height = (b_has_size_corner || b_show_scroll_x) ? groesse.y-scrollbar_t::BAR_SIZE : groesse.y;
+					if(  relative_pos.y<knob_offset_y  ) {
+						scroll_y.set_knob_offset(relative_pos.y);
+					}
+					else if(  relative_pos.y+komp_size.y>knob_offset_y+view_height  ) {
+						scroll_y.set_knob_offset(relative_pos.y+komp_size.y-view_height);
+					}
+				}
+			}
+		}
 
 		// Hajo: hack: component could have changed size
 		// this recalculates the scrollbars
 		if(  old_komp_groesse!=komp->get_groesse()  ) {
 			recalc_sliders(get_groesse());
 		}
+		return swallow;
 	}
+	return false;
 }
 
 
@@ -144,7 +176,7 @@ void gui_scrollpane_t::zeichnen(koord pos)
 {
 	pos += this->pos;
 
-	PUSH_CLIP(pos.x, pos.y, groesse.x-12*b_show_scroll_y, groesse.y-11*b_show_scroll_x );
+	PUSH_CLIP(pos.x, pos.y, groesse.x-scrollbar_t::BAR_SIZE*b_show_scroll_y, groesse.y-scrollbar_t::BAR_SIZE*b_show_scroll_x );
 	komp->zeichnen(pos - koord(scroll_x.get_knob_offset(), scroll_y.get_knob_offset()));
 	POP_CLIP();
 

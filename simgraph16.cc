@@ -1,23 +1,9 @@
 /*
- * Copyright (c) 2001 Hansjörg Malthaner
+ * Copyright 1997, 2001 Hj. Malthaner
  * hansjoerg.malthaner@gmx.de
+ * Copyright 2010 Simutrans contributors
+ * Available under the Artistic License (see license.txt)
  *
- * This file is part of the Simugraph engine and may not be used
- * in other projects without written permission of the author.
- *
- * Usage for Iso-Angband is granted.
- */
-
-/*
- * Versuch einer Graphic fuer Simulationsspiele
- * Hj. Malthaner, Aug. 1997
- *
- * 3D, isometrische Darstellung
- *
- *
- * 18.11.97 lineare Speicherung fuer Images -> hoehere Performance
- * 22.03.00 run längen Speicherung fuer Images -> hoehere Performance
- * 15.08.00 dirty tile verwaltung fuer effizientere updates
  */
 
 #include <stdlib.h>
@@ -26,6 +12,7 @@
 #include <math.h>
 #include <limits.h>
 
+#include "macros.h"
 #include "simtypes.h"
 #include "font.h"
 #include "pathes.h"
@@ -195,8 +182,9 @@ struct imd {
 #define NEED_PLAYER_RECODE (128)
 
 
-static sint16 disp_width  = 640;
-static sint16 disp_height = 480;
+static KOORD_VAL disp_width  = 640;
+static KOORD_VAL disp_actual_width  = 640;
+static KOORD_VAL disp_height = 480;
 
 
 /*
@@ -554,7 +542,14 @@ KOORD_VAL display_set_base_raster_width(KOORD_VAL new_raster)
 
 sint16 display_get_width(void)
 {
-	return disp_width;
+	return disp_actual_width;
+}
+
+
+// only use, if you are really really sure!
+void display_set_actual_width(KOORD_VAL w)
+{
+	disp_actual_width = w;
 }
 
 
@@ -583,19 +578,16 @@ static int clip_wh(KOORD_VAL *x, KOORD_VAL *width, const KOORD_VAL min_width, co
 		*width = 0;
 		return 0;
 	}
+	if (*x + *width > max_width) {
+		*width = max_width - *x;
+	}
 	if (*x < min_width) {
 		const KOORD_VAL xoff = min_width - *x;
 
 		*width += *x-min_width;
 		*x = min_width;
 
-		if (*x + *width > max_width) {
-			*width = max_width - *x;
-		}
-
 		return xoff;
-	} else if (*x + *width > max_width) {
-		*width = max_width - *x;
 	}
 	return 0;
 }
@@ -658,8 +650,8 @@ void display_set_clip_wh(KOORD_VAL x, KOORD_VAL y, KOORD_VAL w, KOORD_VAL h)
 	clip_rect.w = w;
 	clip_rect.h = h;
 
-	clip_rect.xx = x + w;
-	clip_rect.yy = y + h;
+	clip_rect.xx = x + w; // watch out, clips to KOORD_VAL max
+	clip_rect.yy = y + h; // watch out, clips to KOORD_VAL max
 }
 
 
@@ -1085,7 +1077,7 @@ static void recode(void)
 	unsigned n;
 
 	for (n = 0; n < anz_images; n++) {
-		// tut jetzt on demand recode_img() für jedes Bild einzeln
+		// recode images only if the recoded image is needed
 		images[n].recode_flags |= FLAG_NORMAL_RECODE;
 		images[n].player_flags = NEED_PLAYER_RECODE;
 	}
@@ -1287,7 +1279,7 @@ static void rezoom_img(const image_id n)
 			if(y>x) {
 				x = y;
 			}
-			if(size < x) {
+			if(size < (uint32)x) {
 				free( baseimage );
 				free( baseimage2 );
 				size = x;
@@ -1757,9 +1749,6 @@ void display_set_player_color_scheme(const int player, const COLOR_VAL col1, con
 }
 
 
-/**
- * Fügt ein Image aus anderer Quelle hinzu
- */
 void register_image(struct bild_t* bild)
 {
 	struct imd* image;
@@ -1909,12 +1898,12 @@ void display_set_base_image_offset(unsigned bild, KOORD_VAL xoff, KOORD_VAL yoff
  * Kopiert Pixel von src nach dest
  * @author Hj. Malthaner
  */
-static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const unsigned int len)
+static inline void pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
 {
 	// for gcc this seems to produce the optimal code ...
-	const PIXVAL *const end = dest + len;
-
-	while (dest < end) *dest++ = *src++;
+	while (src < end) {
+		*dest++ = *src++;
+	}
 }
 
 
@@ -1929,11 +1918,30 @@ static inline void colorpixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * 
 	}
 }
 
+/**
+ * templated pixel copy routines
+ * to be used in display_img_pc
+ */
+enum pixcopy_routines {
+	plain = 0,	/// simply copies the pixels
+	colored = 1	/// replaces player colors
+};
+
+template<pixcopy_routines copyroutine> void templated_pixcopy(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end);
+template<> void templated_pixcopy<plain>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
+{
+	pixcopy(dest, src, end);
+}
+template<> void templated_pixcopy<colored>(PIXVAL *dest, const PIXVAL *src, const PIXVAL * const end)
+{
+	colorpixcopy(dest, src, end);
+}
 
 /**
  * draws image with clipping along arbitrary lines
  * @author Dwachs
  */
+template<pixcopy_routines copyroutine>
 static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, const PIXVAL *sp)
 {
 	if (h > 0) {
@@ -1964,7 +1972,7 @@ static void display_img_pc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= xmin ? 0 : xmin - xpos);
 					const int len  = (xmax - xpos >= runlen ? runlen : xmax - xpos);
 
-					pixcopy(tp + xpos + left, sp + left, len - left);
+					templated_pixcopy<copyroutine>(tp + xpos + left, sp + left, sp + len);
 				}
 
 				sp += runlen;
@@ -2004,7 +2012,7 @@ static void display_img_wc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
 					const int len  = (clip_rect.xx - xpos >= runlen ? runlen : clip_rect.xx - xpos);
 
-					pixcopy(tp + xpos + left, sp + left, len - left);
+					pixcopy(tp + xpos + left, sp + left, sp + len);
 				}
 
 				sp += runlen;
@@ -2447,7 +2455,7 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 
 			// clipping at poly lines?
 			if (number_of_clips>0) {
-					display_img_pc(h, xp, yp, sp);
+					display_img_pc<plain>(h, xp, yp, sp);
 					// since height may be reduced, start marking here
 					if (dirty) {
 						mark_rect_dirty_wc(xp, yp, xp + w - 1, yp + h - 1);
@@ -2477,57 +2485,41 @@ void display_img_aux(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 u
 /**
  * Zeichnet Bild, ersetzt Spielerfarben
  * assumes height is ok and valid data are caluclated
+ * color replacement needs the original data => sp points to non-cached data
  * @author hajo/prissi
  */
-static void display_color_img_aux(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
+static void display_color_img_wc(const PIXVAL *sp, KOORD_VAL x, KOORD_VAL y, KOORD_VAL h )
 {
-	KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
-	if (h > 0) { // clipping may have reduced it
+	PIXVAL *tp = textur + y * disp_width;
 
-		// color replacement needs the original data => sp points to non-cached data
+	do { // zeilen dekodieren
+		int xpos = x;
 
-		PIXVAL *tp = textur + y * disp_width;
+		// bild darstellen
 
-		// oben clippen
-		while (yoff) {
-			yoff--;
-			do {
-				// clear run + colored run + next clear run
-				++sp;
-				sp += *sp + 1;
-			} while (*sp);
-			sp++;
-		}
+		uint16 runlen = *sp++;
 
-		do { // zeilen dekodieren
-			int xpos = x;
+		do {
+			// wir starten mit einem clear run
+			xpos += runlen;
 
-			// bild darstellen
+			// jetzt kommen farbige pixel
+			runlen = *sp++;
 
-			uint16 runlen = *sp++;
+			// Hajo: something to display?
+			if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
+				const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
+				const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
 
-			do {
-				// wir starten mit einem clear run
-				xpos += runlen;
+				colorpixcopy(tp + xpos + left, sp + left, sp + len);
+			}
 
-				// jetzt kommen farbige pixel
-				runlen = *sp++;
+			sp += runlen;
+			xpos += runlen;
+		} while ((runlen = *sp++));
 
-				// Hajo: something to display?
-				if (xpos + runlen > clip_rect.x && xpos < clip_rect.xx) {
-					const int left = (xpos >= clip_rect.x ? 0 : clip_rect.x - xpos);
-					const int len  = (clip_rect.xx-xpos > runlen ? runlen : clip_rect.xx - xpos);
-
-					colorpixcopy(tp + xpos + left, sp + left, sp + len);
-				}
-
-				sp += runlen;
-				xpos += runlen;
-			} while ((runlen = *sp++));
-
-			tp += disp_width;
-		} while (--h);
-	}
+		tp += disp_width;
+	} while (--h);
 }
 
 
@@ -2568,19 +2560,19 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 
 		// prissi: now test if visible and clipping needed
 		{
-			const KOORD_VAL x = images[n].x;
-			const KOORD_VAL y = images[n].y;
+			const KOORD_VAL x = images[n].x + xp;
+			      KOORD_VAL y = images[n].y + yp;
 			const KOORD_VAL w = images[n].w;
-			const KOORD_VAL h = images[n].h;
+			      KOORD_VAL h = images[n].h;
 
-			if (h == 0 || xp + x >= clip_rect.xx || yp + y >= clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+			if (h <= 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
 				// not visible => we are done
 				// happens quite often ...
 				return;
 			}
 
 			if (dirty) {
-				mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
+				mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
 			}
 
 			// colors for 2nd company color
@@ -2591,7 +2583,32 @@ void display_color_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8
 				// no player
 				activate_player_color( 0, daynight );
 			}
-			display_color_img_aux( (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data, xp+x, yp+y, h );
+			// color replacement needs the original data => sp points to non-cached data
+			const PIXVAL *sp = (tile_raster_width != base_tile_raster_width  &&  images[n].zoom_data != NULL) ? images[n].zoom_data : images[n].base_data;
+
+			// clip top/bottom
+			KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
+			if (h > 0) { // clipping may have reduced it
+
+				// oben clippen
+				while (yoff) {
+					yoff--;
+					do {
+						// clear run + colored run + next clear run
+						++sp;
+						sp += *sp + 1;
+					} while (*sp);
+					sp++;
+				}
+
+				// clipping at poly lines?
+				if (number_of_clips>0) {
+					display_img_pc<colored>(h, x, y, sp);
+				}
+				else {
+					display_color_img_wc(sp, x, y, h );
+				}
+			}
 		}
 	} // number ok
 }
@@ -2611,19 +2628,19 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 	else if (n < anz_images) {
 
 		// prissi: now test if visible and clipping needed
-		const KOORD_VAL x = images[n].base_x;
-		const KOORD_VAL y = images[n].base_y;
+		const KOORD_VAL x = images[n].base_x + xp;
+		      KOORD_VAL y = images[n].base_y + yp;
 		const KOORD_VAL w = images[n].base_w;
-		const KOORD_VAL h = images[n].base_h;
+		      KOORD_VAL h = images[n].base_h;
 
-		if (h == 0 || xp + x >= clip_rect.xx || yp + y >= clip_rect.yy || xp + x + w <= clip_rect.x || yp + y + h <= clip_rect.y) {
+		if (h <= 0 || x >= clip_rect.xx || y >= clip_rect.yy || x + w <= clip_rect.x || y + h <= clip_rect.y) {
 			// not visible => we are done
 			// happens quite often ...
 			return;
 		}
 
 		if (dirty) {
-			mark_rect_dirty_wc(xp + x, yp + y, xp + x + w - 1, yp + y + h - 1);
+			mark_rect_dirty_wc(x, y, x + w - 1, y + h - 1);
 		}
 
 		// colors for 2nd company color
@@ -2634,7 +2651,26 @@ void display_base_img(const unsigned n, KOORD_VAL xp, KOORD_VAL yp, const sint8 
 			// no player
 			activate_player_color( 0, daynight );
 		}
-		display_color_img_aux( images[n].base_data, xp+x, yp+y, h );
+
+		// color replacement needs the original data => sp points to non-cached data
+		const PIXVAL *sp = images[n].base_data;
+
+		// clip top/bottom
+		KOORD_VAL yoff = clip_wh(&y, &h, clip_rect.y, clip_rect.yy);
+		if (h > 0) { // clipping may have reduced it
+
+			// oben clippen
+			while (yoff) {
+				yoff--;
+				do {
+					// clear run + colored run + next clear run
+					++sp;
+					sp += *sp + 1;
+				} while (*sp);
+				sp++;
+			}
+			display_color_img_wc( sp, x, y, h );
+		}
 
 	} // number ok
 }
@@ -3088,7 +3124,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 #ifdef USE_C
 			uint32 *lp;
 
-			if (count & 1) *p++ = longcolval;
+			if (count & 1) *p++ = colval;
 			count >>= 1;
 			lp = (uint32 *)p;
 			while (count-- != 0) {
@@ -3251,6 +3287,80 @@ KOORD_VAL display_get_char_width(utf16 c)
 }
 
 
+/**
+ * For the next logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer advances to point to the next logical character
+ * @author Knightly
+ */
+unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width)
+{
+	size_t len;
+	unsigned short char_code;
+	if(  has_unicode  ) {
+		len = 0;
+		char_code = utf8_to_utf16((const utf8 *)text, &len);
+	}
+	else {
+		len = 1;
+		char_code = (unsigned char)(*text);
+	}
+	if(  char_code==0  ) {
+		// case : end of text reached -> do not advance text pointer
+		byte_length = 0;
+		pixel_width = 0;
+	}
+	else {
+		text += len;
+		byte_length = len;
+		if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
+			// default width for missing characters
+			pixel_width = large_font.screen_width[0];
+		}
+	}
+	return char_code;
+}
+
+
+/**
+ * For the previous logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer recedes to point to the previous logical character
+ * @author Knightly
+ */
+unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width)
+{
+	if(  text<=text_start  ) {
+		// case : start of text reached or passed -> do not move the pointer backwards
+		byte_length = 0;
+		pixel_width = 0;
+		return 0;
+	}
+
+	unsigned short char_code;
+	if(  has_unicode  ) {
+		// determine the start of the previous logical character
+		do {
+			--text;
+		} while (  text>text_start  &&  (*text & 0xC0)==0x80  );
+
+		size_t len = 0;
+		char_code = utf8_to_utf16((const utf8 *)text, &len);
+		byte_length = len;
+	}
+	else {
+		--text;
+		char_code = (unsigned char)(*text);
+		byte_length = 1;
+	}
+	if(  char_code>=large_font.num_chars  ||  (pixel_width=large_font.screen_width[char_code])==0  ) {
+		// default width for missing characters
+		pixel_width = large_font.screen_width[0];
+	}
+	return char_code;
+}
+
+
 /* proportional_string_width with a text of a given length
  * extended for universal font routines with unicode support
  * @author Volker Meyer
@@ -3283,9 +3393,14 @@ int display_calc_proportional_string_len_width(const char* text, size_t len)
 		}
 	} else {
 #endif
+		uint8 char_width;
 		while (*text!=0  &&  len>0) {
 			c = (unsigned char)*text;
-			width += fnt->screen_width[c];
+			if(  c>=fnt->num_chars  ||  (char_width=fnt->screen_width[c])==0  ) {
+				// default width for missing characters
+				char_width = fnt->screen_width[0];
+			}
+			width += char_width;
 			text++;
 			len--;
 		}
@@ -3422,7 +3537,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 		}
 #endif
 		// print unknown character?
-		if(c > fnt->num_chars || fnt->screen_width[c] == 0) {
+		if (c >= fnt->num_chars || fnt->screen_width[c] == 0) {
 			c = 0;
 		}
 
@@ -3530,6 +3645,23 @@ void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYE
 }
 
 
+void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos - 1, ypos - 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
+void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty)
+{
+	const int flags = ALIGN_LEFT | DT_CLIP | (dirty ? DT_DIRTY : 0);
+	display_text_proportional_len_clip(xpos + 1, ypos + 1 + (12 - large_font_height) / 2, text, flags, shadow_color, -1);
+	display_text_proportional_len_clip(xpos, ypos + (12 - large_font_height) / 2, text, flags, text_color, -1);
+}
+
+
 /**
  * Zeichnet schattiertes Rechteck
  * @author Hj. Malthaner
@@ -3558,7 +3690,7 @@ void display_ddd_proportional(KOORD_VAL xpos, KOORD_VAL ypos, KOORD_VAL width, K
 	display_vline_wh(xpos - 2,         ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe + 1, dirty);
 	display_vline_wh(xpos + width - 3, ypos - halfheight - hgt - 1, halfheight * 2 + 1, ddd_farbe - 1, dirty);
 
-	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT | DT_CLIP, text_farbe, -1);
+	display_text_proportional_len_clip(xpos + 2, ypos - halfheight + 1, text, ALIGN_LEFT, text_farbe, -1);
 }
 
 
@@ -3655,9 +3787,6 @@ void display_set_progress_text(const char *t)
 // draws a progress bar and flushes the display
 void display_progress(int part, int total)
 {
-	const int disp_width=display_get_width();
-	const int disp_height=display_get_height();
-
 	const int width=disp_width/2;
 	part = (part*width)/total;
 
@@ -3674,7 +3803,7 @@ void display_progress(int part, int total)
 	display_fillbox_wh(width/2, disp_height/2-5, part, 12, COL_NO_ROUTE, TRUE);
 
 	if(progress_text) {
-		display_proportional(width,display_get_height()/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
+		display_proportional(width,disp_height/2-4,progress_text,ALIGN_MIDDLE,COL_WHITE,0);
 	}
 	dr_flush();
 }
@@ -3726,7 +3855,7 @@ void display_flush_buffer(void)
 			x++;
 		} while (x < tiles_per_line);
 	}
-	dr_textur(0, 0, disp_width, disp_height);
+	dr_textur(0, 0, disp_actual_width, disp_height);
 #else
 	for (y = 0; y < tile_lines; y++) {
 		x = 0;
@@ -3749,7 +3878,7 @@ void display_flush_buffer(void)
 	tmp = tile_dirty_old;
 	tile_dirty_old = tile_dirty;
 	tile_dirty = tmp;
-	memset(tile_dirty, 0, tile_buffer_length);
+	MEMZERON(tile_dirty, tile_buffer_length);
 }
 
 
@@ -3829,13 +3958,13 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 {
 	int i;
 
-	// make sure it something of 16 (also better for caching ... )
-	width = (width + 15) & 0x7FF0;
+	disp_actual_width = width;
+	disp_height = height;
 
-	if (dr_os_open(width, height, 16, full_screen)) {
+	// get real width from os-dependent routines
+	disp_width = dr_os_open(width, height, 16, full_screen);
+	if(  disp_width>0  ) {
 
-		disp_width = width;
-		disp_height = height;
 
 		textur = dr_textur_init();
 
@@ -3843,7 +3972,8 @@ int simgraph_init(KOORD_VAL width, KOORD_VAL height, int full_screen)
 		large_font.screen_width = NULL;
 		large_font.char_data = NULL;
 		display_load_font(FONT_PATH_X "prop.fnt");
-	} else {
+	}
+	else {
 		puts("Error  : can't open window!");
 		exit(-1);
 	}
@@ -3943,20 +4073,19 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
+	disp_actual_width = max( 16, w );
+	if(  h<=0  ) {
+		h = 64;
+	}
+	// only resize, if internal values are different
 	if (disp_width != w || disp_height != h) {
-		disp_width = (w + 15) & 0x7FF0;
-		if(  disp_width<=0  ) {
-			disp_width = 16;
-		}
+		disp_width = w;
 		disp_height = h;
-		if(  disp_height<=0  ) {
-			disp_height = 64;
-		}
 
 		guarded_free(tile_dirty);
 		guarded_free(tile_dirty_old);
 
-		dr_textur_resize(&textur, disp_width, disp_height, 16);
+		disp_width = dr_textur_resize(&textur, disp_width, disp_height, 16);
 
 		tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
 		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;

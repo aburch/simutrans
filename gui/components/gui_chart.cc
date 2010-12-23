@@ -42,7 +42,7 @@ gui_chart_t::gui_chart_t() : gui_komponente_t()
 }
 
 
-int gui_chart_t::add_curve(int color, sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision )
+int gui_chart_t::add_curve(int color, const sint64 *values, int size, int offset, int elements, int type, bool show, bool show_value, int precision )
 {
 	curve_t new_curve;
 	new_curve.color = color;
@@ -158,7 +158,7 @@ void gui_chart_t::zeichnen(koord offset)
 				// display tooltip?
 				if(i==tooltip_n  &&  abs((int)(baseline-(int)(tmp/scale)-tooltipkoord.y))<10) {
 					number_to_string(tooltip, tmp, c.precision);
-					win_set_tooltip( get_maus_x()+16, get_maus_y()-16, tooltip );
+					win_set_tooltip( get_maus_x()+8, get_maus_y()-12, tooltip );
 				}
 
 				// draw line between two financial markers; this is only possible from the second value on
@@ -234,7 +234,7 @@ void gui_chart_t::calc_gui_chart_values(sint64 *baseline, float *scale, char *cm
  * gemeldet
  * @author Hj. Malthaner
  */
-void gui_chart_t::infowin_event(const event_t *ev)
+bool gui_chart_t::infowin_event(const event_t *ev)
 {
 	if(IS_LEFTREPEAT(ev)  ||  IS_LEFTCLICK(ev)) {
 		// tooptip to show?
@@ -244,4 +244,5 @@ void gui_chart_t::infowin_event(const event_t *ev)
 		tooltipkoord = koord::invalid;
 		tooltip[0] = 0;
 	}
+	return true;
 }

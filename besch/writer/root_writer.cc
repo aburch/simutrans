@@ -1,28 +1,24 @@
+#include <string>
 #include <stdlib.h>
-
-#include "../../utils/cstring_t.h"
 #include "../../dataobj/tabfile.h"
 #include "../../utils/searchfolder.h"
 #include "../obj_besch.h"
 #include "obj_node.h"
 #include "obj_writer.h"
 #include "root_writer.h"
-#include <stdlib.h>
 
+using std::string;
 
-cstring_t root_writer_t::inpath;
+string root_writer_t::inpath;
 
 void root_writer_t::write_header(FILE* fp)
 {
-	uint32 l;
-
 	fprintf(fp,
 		"Simutrans object file\n"
 		"Compiled with SimObjects " COMPILER_VERSION "\n\x1A"
 	);
 
-	l = COMPILER_VERSION_CODE;
-	l = endian_uint32(&l);
+	uint32 l = endian(uint32(COMPILER_VERSION_CODE));
 	fwrite(&l, 1, sizeof(uint32), fp); // Compiler Version zum Checken
 
 	obj_node_t::set_start_offset(ftell(fp));
@@ -36,13 +32,13 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 	FILE* outfp = NULL;
 	obj_node_t* node = NULL;
 	bool separate = false;
-	cstring_t file = find.complete(filename, "pak");
+	string file = find.complete(filename, "pak");
 
-	if (file.right(1) == "/") {
+	if (file[file.size()-1] == '/') {
 		printf("writing invidual files to %s\n", filename);
 		separate = true;
 	} else {
-		outfp = fopen(file, "wb");
+		outfp = fopen(file.c_str(), "wb");
 
 		if (!outfp) {
 			printf("ERROR: cannot create destination file %s\n", filename);
@@ -67,26 +63,27 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 				printf("   reading file %s\n", *i);
 
 				inpath = arg;
-				int n = inpath.find_back('/');
+				string::size_type n = inpath.rfind('/');
 
-				if(n) {
+				if(n!=string::npos) {
 					inpath = inpath.substr(0, n + 1);
-				} else {
+				}
+				else {
 					inpath = "";
 				}
 
 				while(infile.read(obj)) {
 					if(separate) {
-						cstring_t name(filename);
+						string name(filename);
 
 						name = name + obj.get("obj") + "." + obj.get("name") + ".pak";
 
-						outfp = fopen(name, "wb");
+						outfp = fopen(name.c_str(), "wb");
 						if (!outfp) {
 							printf("ERROR: cannot create destination file %s\n", filename);
 							exit(3);
 						}
-						printf("   writing file %s\n", (const char*)name);
+						printf("   writing file %s\n", name.c_str());
 						write_header(outfp);
 
 						node = new obj_node_t(this, 0, NULL);
@@ -99,7 +96,8 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 						fclose(outfp);
 					}
 				}
-			} else {
+			}
+			else {
 				printf("WARNING: cannot read %s\n", *i);
 			}
 		}
@@ -114,16 +112,15 @@ void root_writer_t::write(const char* filename, int argc, char* argv[])
 
 void root_writer_t::write_obj_node_info_t(FILE* outfp, const obj_node_info_t &root)
 {
-	uint32 type     = endian_uint32(&root.type);
-	uint16 children = endian_uint16(&root.children);
-	uint16 root_size = root.size;
-	root_size        = endian_uint16(&root_size);
+	uint32 type      = endian(root.type);
+	uint16 children  = endian(root.children);
+	uint16 root_size = endian(uint16(root.size));
 	fwrite(&type,     4, 1, outfp);
 	fwrite(&children, 2, 1, outfp);
 	if(  root.size>=LARGE_RECORD_SIZE  ) {
 		root_size = LARGE_RECORD_SIZE;
 		fwrite(&root_size,     2, 1, outfp);
-		uint32 size = endian_uint32(&root.size);
+		uint32 size = endian(root.size);
 		fwrite(&size,     4, 1, outfp);
 	}
 	else {
@@ -144,7 +141,7 @@ bool root_writer_t::do_dump(const char* open_file_name)
 		// Compiled Verison
 		uint32 version;
 		fread(&version, sizeof(version), 1, infp);
-		printf("File %s (version %d):\n", open_file_name, endian_uint32(&version) );
+		printf("File %s (version %d):\n", open_file_name, endian(version));
 
 		dump_nodes(infp, 1);
 		fclose(infp);
@@ -190,7 +187,7 @@ bool root_writer_t::do_list(const char* open_file_name)
 		uint32 version;
 
 		fread(&version, sizeof(version), 1, infp);
-		printf("Contents of file %s (pak version %d):\n", open_file_name, endian_uint32(&version));
+		printf("Contents of file %s (pak version %d):\n", open_file_name, endian(version));
 		printf("type             name\n"
 		"---------------- ------------------------------\n");
 
@@ -245,7 +242,7 @@ bool root_writer_t::do_copy(FILE* outfp, obj_node_info_t& root, const char* open
 		// Compiled Version check (since the ancient ending was also pak)
 		uint32 version;
 		fread(&version, sizeof(version), 1, infp);
-		if (endian_uint32(&version) <= COMPILER_VERSION_CODE) {
+		if (endian(version) <= COMPILER_VERSION_CODE) {
 			printf("   copying file %s\n", open_file_name);
 
 			obj_node_info_t info;
@@ -276,7 +273,7 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		outfp = fopen(name, "wb");
 	}
 	if (outfp == NULL) {
-		name = find.complete(name, "pak");
+		name = find.complete(name, "pak").c_str();
 		outfp = fopen(name, "wb");
 	}
 
@@ -303,7 +300,12 @@ void root_writer_t::copy(const char* name, int argc, char* argv[])
 		} else {
 			find.search(argv[i], "pak");
 			for (searchfolder_t::const_iterator i = find.begin(), end = find.end(); i != end; ++i) {
-				any |= do_copy(outfp, root, *i);
+				if (strcmp(*i, name) != 0) {
+					any |= do_copy(outfp, root, *i);
+				}
+				else {
+					printf("WARNING: skipping reading from output file\n");
+				}
 			}
 		}
 
@@ -329,7 +331,7 @@ void root_writer_t::uncopy(const char* name)
 	}
 	if (infp == NULL) {
 		searchfolder_t find;
-		name = find.complete(name, "pak");
+		name = find.complete(name, "pak").c_str();
 		infp = fopen(name, "rb");
 	}
 
@@ -347,7 +349,7 @@ void root_writer_t::uncopy(const char* name)
 	// check version of pak format
 	uint32 version;
 	fread(&version, sizeof(version), 1, infp);
-	if(endian_uint32(&version) <= COMPILER_VERSION_CODE) {
+	if (endian(version) <= COMPILER_VERSION_CODE) {
 		// read root node
 		obj_node_info_t root;
 		obj_node_t::read_node( infp, root );
@@ -365,8 +367,8 @@ void root_writer_t::uncopy(const char* name)
 			long start_pos=ftell(infp);
 
 			// now make a name
-			cstring_t writer = node_writer_name(infp);
-			cstring_t node_name;
+			string writer = node_writer_name(infp);
+			string node_name;
 			if(  writer=="factory"  ) {
 				// we need to take name from following building node ...
 				obj_node_info_t node;
@@ -377,39 +379,44 @@ void root_writer_t::uncopy(const char* name)
 				fseek( infp, pos, SEEK_SET );
 			}
 			else if(  writer=="bridge"  ) {
-				// we need to take name from thrid children, the cursor node ...
-				obj_node_info_t node;
-				size_t pos = ftell(infp);
-				// quick and dirty: since there are a variable number, we just skip all image nodes
-				do {
-					obj_node_t::read_node( infp, node );
-					fseek(infp, node.size, SEEK_CUR );
-				} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
-				// then we try the next node (shoudl be cursor node then!
-				if(  node.type==obj_cursor  ) {
-					node_name = name_from_next_node(infp);
+				size_t pos=ftell(infp);
+				node_name = name_from_next_node(infp);
+				if(  node_name.size()==0  ) {
+					fseek( infp, pos, SEEK_SET );
+					// we need to take name from thrid children, the cursor node ...
+					obj_node_info_t node;
+					// quick and dirty: since there are a variable number, we just skip all image nodes
+					do {
+						obj_node_t::read_node( infp, node );
+						fseek(infp, node.size, SEEK_CUR );
+					} while(  (node.type==obj_imagelist  ||  node.type==obj_image)  &&  !feof(infp)  );
+					// then we try the next node (shoudl be cursor node then!
+					if(  node.type==obj_cursor  ) {
+						node_name = name_from_next_node(infp);
+					}
+					fseek( infp, pos, SEEK_SET );
 				}
-				fseek( infp, pos, SEEK_SET );
 			}
 			else {
 				node_name = name_from_next_node(infp);
 			}
 			// use a clever default name, if no name there
-			if(  node_name.len()==0  ) {
+			// note: this doesn't work because node_name.size() is not 0 even if invalid file characters are contained. (z9999)
+			if(  node_name.size() == 0  ) {
 				char random_name[16];
 				// we use the file position as unique name
 				sprintf( random_name, "p%li", ftell(infp) );
-				printf("  ERROR: %s has no name! (using %s) as default\n", (const char *)writer, (const char *)random_name );
+				printf("  ERROR: %s has no name! (using %s) as default\n", writer.c_str(), (const char *)random_name );
 				node_name = random_name;
 			}
-			cstring_t outfile = writer + "." + node_name + ".pak";
-			FILE* outfp = fopen(outfile, "wb");
+			string outfile = writer + "." + node_name + ".pak";
+			FILE* outfp = fopen(outfile.c_str(), "wb");
 			if (!outfp) {
-				printf("  ERROR: could not open %s for writing (aborting)\n", (const char*)outfile);
+				printf("  ERROR: could not open %s for writing (aborting)\n", outfile.c_str());
 				fclose(infp);
 				exit(3);
 			}
-			printf("  writing '%s' ... \n", (const char*)outfile);
+			printf("  writing '%s' ... \n", outfile.c_str());
 
 			// now copy the nodes
 			fseek(infp, start_pos, SEEK_SET);
@@ -442,7 +449,7 @@ void root_writer_t::copy_nodes(FILE* outfp, FILE* infp, obj_node_info_t& start)
 		char* buf = new char[info.size];
 		fread(buf, info.size, 1, infp);
 		fwrite(buf, info.size, 1, outfp);
-		delete [] buf;
+		delete []  buf;
 		copy_nodes(outfp, infp, info);
 	}
 }

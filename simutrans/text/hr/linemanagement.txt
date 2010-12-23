@@ -1,0 +1,104 @@
+<title>Pomoc upravljanja linijama</title>
+
+<h1><strong>Upravljanje linijom</strong></h1>
+
+<p>
+<strong>Upravljanje Linijom</strong>nudi informacije i kontrole za upravljanje linijama (rute i najmanja kolicina robe & putnika zahtjevani za <a href="convoiinfo.txt">Konvoj</a> to proceed) za konvoj ili visestruke konvoje na istoj ruti.
+</p>
+<p>
+Linije se sastoje od <a href="station.txt">Stajalista</a> gdje vozila utovaruju i istovaruju robu i putnike (vozila vodenog prijevoza mogu koristiti bilo koji kvadrat u podrucju pokrivenisti doka) i putne tocke (koristene za usmjeravanje vozila ako postoji vise od jedne opcije ili nude privremene tocke cilja).
+</p>
+<p>
+Klik na mreznu-ikonu s gornje strane igre ili pritisak <a href="keys.txt">[w]</a> za otvaranje <strong>Upravljanje Linijama</strong>, sto moze <a href="mouse.txt">mijenjati velicinu</a> (klik na strelicu dolje u alatnoj traci za povrataka na originalnu velicinu).
+</p>
+<p>
+Lijeva strana od <strong>Upravljanja Linijama</strong> prikazuje postojece Linije (za pomicanje u listi: koristiti klizac s desne strane liste), koje se mogu filtrirati prema tipu prijevoza, klikom na indeks-jahac iznad liste za odabir:<br>
+<em>Sve</em>: lista Linija za sva vozila.<br>
+<em>Vlak</em>: lista Linija za sva tracnicka vozila.<br>
+<em>Monorail</em>: lista Linija za sva Monorail/maglev vozila.<br>
+<em>Tramvaj</em>: lista Linija za sve tramvaje.<br>
+<em>Kamion</em>: lista Linija za sva cestovna vozila.<br>
+<em>Brod</em>: lista Linija za sva vodena prijevozna vozila.<br>
+<em>Zrak</em>: lista Linija za sve zrakoplove.
+</p>
+<p>
+Boja imena linije koja se pojavljuje u listi za prikaz slijedeceg:<br>
+<it>bijela</it> - nema vozila pridruzenih liniji<br>
+<it>zuta</it> - ?nisu u funkciji, ne stvaraju dobit ili gubitak<br>
+<it>crna</it> - ?stvaraju profit, ?visak kapaciteta, ?poboljsanje moguce<br>
+<it>plava</it> - ?stvaraju profit, malo dodatnog kapaciteta <br>
+<it>crvena</it> - linija stvara gubitak<br>
+<p>
+Pod listom postojecih linija su gumbi opcija za upravljanje Linijama.<br>
+Klik na liniju za odabir (istice ime) i pregled informacija o <a href="station.txt">Stajalistima</a>, dobiti, i konvojima na odabranoj Liniji.<br>
+Ako su detalji o Stajalistima ili Konvojima samo djelomicnop vidljivi potrebno je promijeniti velicinu <strong>Upravljanje Linijama</strong> ili koristiti klizac za pomicanje informacija.
+</p>
+<p>
+Opcijski gumbi, slijeva, sadrze (klik za odabir):
+</p>
+<p>
+<em>Nova Linija:</em>opcija otvara kontrole za definiranje <a href="schedule.txt">Rasporeda</a> (ruta i najmanja kolicina robe ili putnika zahtjevanih od <a href="convoiinfo.txt">Convoja</a> to proceed) za novu Liniju .<br>
+Dodati koliko je potrebno <a href="station.txt">Stajalista</a> ili putnih tocaka, postavka nivoa Cekanja na koliko je potrebno, zatim zatvoriti Kontrole Rasporeda za stvaranje Nove Linije (klik x u gornjem lijevom kutu kotrola ili koristiti tipkovnicu). Novoj Liniji ce se pridjeliti broj i prikazati se u <strong>Upravkljanju Linijama</strong>.<br>
+{Savjeti: Odabrati tip prijevoza koristeci index-jahac prije stvaranja nove linije. Vozila ne utrpavaju ili istrpavaju robu i putnike na putnim tockama.}
+</p>
+<p>
+<em>Osvjezavanje Linije:</em> otvara kontrole za promjenu i upravljanje postojecim <a href="schedule.txt">Rasporedom</a> (ruta i najmanja kolicina robe i putnika zahtjavana od <a href="convoiinfo.txt">Konvoja</a> za nastavak) Linije. Promjene ce se odraziti na vozila na Liniji, kada se zatvore Kontrole Rasporeda (klikk x u gornjem lijevom kutu).<br>
+Klik na ime Linije u listi za odabir (oznacava ime) tada klik na gumb opcije za otvaranje Kontrola Rasporeda.
+</p>
+<p>
+<em>Brisanje Linije:</em> brisanje odabrane linije (ruta i najmanja kolicina robe i putnika zahtjevane od <a href="convoiinfo.txt">Konvoja</a> za nastavak).<br>
+Klik na ime Linije u listi za odabir (oznacava ime), tada klik na gumb opcije za uklanjanje. Daljnja potvrda nece biti potrebna.
+</p>
+<p>
+Kada je Linija odabrana, <a href="station.txt">Stajalistza</a> su prikazana gore lijevo u <strong>Upravljanje Linijom</strong>. Klik na Stajaliste u listi za otvaranje Informacija o Stajalistu.<br>
+Stavke prikazane za svako stajaliste sadrze:<br>
+<em>status-traku-boje:</em> Boje prikazuju operaciju od <a href="station.txt">Stajalista</a> s obzirom na popunjenost. Status-traka-boje je takoðer koristi u <a href="haltlist.txt">Listi Stajalista</a> i Informacija o Stakjalistu je iste boje prikazane u traci-boje iznad Stajalista u prikazu igre:<br>
+- <em>zuto:</em> nije u sluzbi.<br>
+- <em>zeleno:</em> nisu potrebna poboljsanja.<br>
+- <em>narancasto:</em> moguca poboljsanja.<br>
+- <em>crveno:</em> preporucena poboljsanja.<br>
+{Savjeti: Koristiti [!] za promjenu stupca-boje iznad Stajalista u pogledu igre.} <br>
+<em>ime</em> koje je pridruzeno Stajalistu.<br>
+<em>broj</em> Stajalista (Stajalista se numeriraju ako je ukljucena postavka u simuconf.tab).<br>
+<em>ikona/e vozila</em> prikaz koji tipovi vozila mogu kosristiti stajaliste (takodjer koristeno u Informaciji Stajalista i Listi Stanica). Ikone sadrze: autobus (za cestovna putnicka vozila), kamion (za cestovna vozila prijevoza robe), vlak, brod ili zrakoplov. Tramvaji su prikazani autobus-ikonom ili vlak-ikonom sto ovisi o tipu stanice.<br>
+<em>ikona/e tereta</em> prikaz koji predmeti (putnici, roba i posta) koje Stajaliste moze obraditi (takodjer koristeno u Informaciji Stajalista i Listi Stanica).<br>
+{Savjeti: dodavanje ispravnih dodataka moze promijeniti kategorije predmeta koje stajaliste moze obraditi. <a href="special.txt">Postanski ured</a> moze biti dodan Stajalistima za obradu poste}.<br>
+<em>cekanje</em> detalja o raznim robama i putnicima.
+</p>
+<p>
+Sdesna od <strong>Upravljanja Linijama</strong> informacije na grafu, ime-kvadratic i <a href="convoiinfo.txt">Konvoj</a> lista su prikazani za odabranu Liniju.
+</p>
+<p>
+Klik na ime Linije u listi za odabir (oznacava ime). Klik na opcija-dugme za promjenu informacije, o odabranoj Liniji i vozilima pridruzenim istoj, na grafu (x-os je vrijeme u mjesecima):
+</p>
+<p>
+- <em>Slobodan Kapacitet</em> - kolicina viska prostora od vozila za robu i putnike.
+</p>
+<p>
+- <em>Putova?li</em> - kolicina robe i putnika koji koriste Liniju.
+</p>
+<p>
+- <em>Prihod</em> - kolicina dobiti stvorena od vozila.
+</p>
+<p>
+- <em>Operativni Troskovi</em> - nastali troskovi od vozila u tranzitu.
+</p>
+<p>
+- <a href="finances.txt"><em>Profit</em></a> - stvoreni profit minus tro¹kovi koji su nastali (Prihod minus Operativni Troskovi).
+</p>
+<p>
+- <a href="convoiinfo.txt"><em>Konvoji</em></a> - broj Konvoja pridruzenih Liniji.
+</p>
+<p>
+Za preimenovanje Linije: Klik na imne Linije u listi za odabir (oznacava ime), tada klik na ime-kvacicu (pod opcijama grafa, ispod ispisanih Konvoja) i upis novoga imena.
+</p>
+<p>
+Kada je Linija odabrana (klik na ime Linije u listi za oznacavanje), <a href="convoiinfo.txt">Konvoji</a> pridruzeni Liniji su prikazani ispod grafa.<br>
+Na gornjem dijelu liste vozila: ukupni broj Konvoja pridruzenih Liniji; prihod (prinos minus operacijski troskovi), kapacitet, i trenutna kolicina robe i putnika prevezenih (% punog kapaciteta u zagradama) svih Konvoja od Linije je prikazano.<br>
+Klik na prikazani predmet za prikaz informacija o tome Konvoju (koristiti klizac za pomicanje liste).<br>
+Predmeti prikazani za svaki Konvoj sadrze:<br>
+<em>ime</em> koje je pridruzeno (podrazumijevano je to proizvodjac prve jedinice vozila <a href="depot.txt">kupjene</a> ili sastavljene za Konvoj).<br>
+<em>dohodak</em> prikazuje dobit (stvoreni prihod minus opecarijski troskovi).<br>
+<em>Linija:</em> prikazuje ime Linije prikazane za Konvoj i prikazuje je li u <a href="depot.txt">depou</a>.<br>
+<em>grafike</em> prikazuje kompoziciju i trenutni nivo predmeta na ploci.
+</p>

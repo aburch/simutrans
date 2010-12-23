@@ -7,6 +7,12 @@
  */
 
 #include <string.h>
+#ifdef _MSC_VER
+#include <new.h> // for _set_new_handler
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
 
 #include "welt.h"
 #include "karte.h"
@@ -16,7 +22,9 @@
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simimg.h"
+#include "../simmesg.h"
 #include "../simtools.h"
+#include "../simversion.h"
 
 #include "../bauer/hausbauer.h"
 #include "../bauer/wegbauer.h"
@@ -24,6 +32,7 @@
 #include "../besch/haus_besch.h"
 
 #include "../dataobj/einstellungen.h"
+#include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
 
@@ -45,6 +54,10 @@
 #include "sprachen.h"
 #include "climates.h"
 #include "settings_frame.h"
+#include "loadsave_frame.h"
+#include "load_relief_frame.h"
+#include "messagebox.h"
+#include "scenario_frame.h"
 
 #define START_HEIGHT (28)
 
@@ -68,14 +81,15 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	this->welt = welt;
 	this->sets = sets;
 	this->old_lang = -1;
-	this->sets->set_beginner_mode(umgebung_t::default_einstellungen.get_beginner_mode());
+	this->sets->beginner_mode = umgebung_t::default_einstellungen.get_beginner_mode();
 
 	// find earliest start date ...
 	uint16 game_start = 2999;
 	// first townhalls
-	slist_iterator_tpl<const haus_besch_t*> iter(hausbauer_t::get_list(haus_besch_t::rathaus));
-	while(  iter.next()  ) {
-		uint16 year = (iter.get_current()->get_intro_year_month()+11)/12;
+	const vector_tpl<const haus_besch_t *> *s = hausbauer_t::get_list(haus_besch_t::rathaus);
+	for (uint32 i = 0; i<s->get_count(); i++) {
+		const haus_besch_t *besch = (*s)[i];
+		uint16 year = (besch->get_intro_year_month()+11)/12;
 		if(  year<game_start  ) {
 			game_start = year;
 		}
@@ -144,6 +158,35 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	inp_number_of_towns.set_limits(0,999);
 	inp_number_of_towns.set_value(abs(sets->get_anzahl_staedte()) );
 	add_komponente( &inp_number_of_towns );
+	intTopOfButton += 12;
+
+	inp_number_of_big_cities.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_big_cities.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_big_cities.add_listener(this);
+	if (sets->get_anzahl_staedte() != 0 ) {
+		inp_number_of_big_cities.set_limits(1,sets->get_anzahl_staedte() );
+	}
+	else {
+		inp_number_of_big_cities.set_limits(0,0);
+	}
+	inp_number_of_big_cities.set_value(umgebung_t::number_of_big_cities );
+	add_komponente( &inp_number_of_big_cities );
+	intTopOfButton += 12;
+
+	inp_number_of_clusters.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_number_of_clusters.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_number_of_clusters.add_listener(this);
+	inp_number_of_clusters.set_limits(0,sets->get_anzahl_staedte()/3 );
+	inp_number_of_clusters.set_value(umgebung_t::number_of_clusters);
+	add_komponente( &inp_number_of_clusters );
+	intTopOfButton += 12;
+
+	inp_cluster_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
+	inp_cluster_size.set_groesse(koord(RIGHT_COLUMN_WIDTH, 12));
+	inp_cluster_size.add_listener(this);
+	inp_cluster_size.set_limits(1,9999);
+	inp_cluster_size.set_value(umgebung_t::cluster_size);
+	add_komponente( &inp_cluster_size );
 	intTopOfButton += 12;
 
 	inp_town_size.set_pos(koord(RIGHT_COLUMN,intTopOfButton) );
@@ -215,13 +258,6 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
 	add_komponente( &inp_intro_date );
 	intTopOfButton += 12;
 
-	allow_player_change.set_pos( koord(10,intTopOfButton) );
-	allow_player_change.set_typ( button_t::square_state );
-	allow_player_change.add_listener( this );
-	allow_player_change.pressed = sets->get_allow_player_change();
-	add_komponente( &allow_player_change );
-	intTopOfButton += 12;
-
 	intTopOfButton += 8;
 	open_setting_gui.set_pos( koord(10,intTopOfButton) );
 	open_setting_gui.set_groesse( koord(80, 14) );
@@ -282,8 +318,7 @@ DBG_MESSAGE("","sizeof(stat)=%d, sizeof(tm)=%d",sizeof(struct stat),sizeof(struc
  * @param filename name of heightfield file
  * @author Hajo/prissi
  */
-bool
-welt_gui_t::update_from_heightfield(const char *filename)
+bool welt_gui_t::update_from_heightfield(const char *filename)
 {
 	DBG_MESSAGE("welt_gui_t::update_from_heightfield()",filename);
 
@@ -324,8 +359,6 @@ welt_gui_t::update_from_heightfield(const char *filename)
 			}
 		}
 
-		strcpy(map_number_s,translator::translate("file"));
-
 		return true;
 	}
 	return false;
@@ -337,20 +370,20 @@ welt_gui_t::update_from_heightfield(const char *filename)
  * Berechnet Preview-Karte neu. Inititialisiert RNG neu!
  * @author Hj. Malthaner
  */
-void
-welt_gui_t::update_preview()
+void welt_gui_t::update_preview()
 {
 	const int mx = sets->get_groesse_x()/preview_size;
 	const int my = sets->get_groesse_y()/preview_size;
+	const sint32 map_size = max(sets->get_groesse_y(), sets->get_groesse_x());
 
 	if(loaded_heightfield) {
-		update_from_heightfield(sets->heightfield);
+		update_from_heightfield(sets->heightfield.c_str());
 	}
 	else {
 		setsimrand( 0xFFFFFFFF, sets->get_karte_nummer() );
 		for(int j=0; j<preview_size; j++) {
 			for(int i=0; i<preview_size; i++) {
-				karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(i*mx,j*my), koord::invalid ), sets->get_grundwasser()/Z_TILE_STEP);
+				karte[j*preview_size+i] = reliefkarte_t::calc_hoehe_farbe(karte_t::perlin_hoehe( sets, koord(i*mx,j*my), koord::invalid, map_size  ), sets->get_grundwasser()/Z_TILE_STEP);
 			}
 		}
 		sets->heightfield = "";
@@ -365,8 +398,7 @@ welt_gui_t::update_preview()
  * This method is called if an action is triggered
  * @author Hj. Malthaner
  */
-bool
-welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
+bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 {
 	// check for changed map (update preview for any event)
 	int knr = inp_map_number.get_value(); //
@@ -385,6 +417,38 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 	}
 	else if(komp==&inp_number_of_towns) {
 		sets->set_anzahl_staedte( v.i );
+		if (v.i == 0) {
+			umgebung_t::number_of_big_cities = 0;
+			inp_number_of_big_cities.set_limits(0,0);
+			inp_number_of_big_cities.set_value(0);
+		}
+		else {
+			inp_number_of_big_cities.set_limits(1, v.i);
+			if ( umgebung_t::number_of_big_cities == 0) {
+				umgebung_t::number_of_big_cities =1;
+				inp_number_of_big_cities.set_value(1);
+			}
+		}
+
+		if (umgebung_t::number_of_big_cities > unsigned(v.i)) {
+			umgebung_t::number_of_big_cities = v.i;
+			inp_number_of_big_cities.set_value( umgebung_t::number_of_big_cities );
+		}
+
+		inp_number_of_clusters.set_limits(0, v.i/4);
+		if (umgebung_t::number_of_clusters > unsigned(v.i)/4) {
+			umgebung_t::number_of_clusters = v.i/4;
+			inp_number_of_clusters.set_value(v.i/4);
+		}
+	}
+	else if(komp==&inp_number_of_big_cities) {
+		umgebung_t::number_of_big_cities = v.i;
+	}
+	else if(komp == &inp_number_of_clusters) {
+		umgebung_t::number_of_clusters = v.i;
+	}
+	else if(komp == &inp_cluster_size) {
+		umgebung_t::cluster_size = v.i;
 	}
 	else if(komp==&inp_town_size) {
 		sets->set_mittlere_einwohnerzahl( v.i );
@@ -400,7 +464,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_land_industry_chains( v.i );
 	}
 	else if(komp==&inp_electric_producer) {
-		sets->set_electric_promille( v.i*10 );
+		sets->electric_promille = v.i*10;
 	}
 	else if(komp==&inp_tourist_attractions) {
 		sets->set_tourist_attractions( v.i );
@@ -418,20 +482,21 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		// load relief
 		loaded_heightfield = false;
 		sets->heightfield = "";
-		sets->set_grundwasser(-2);
+		sets->grundwasser = -2;
 		create_win(new load_relief_frame_t(sets), w_info, magic_load_t);
 		knr = sets->get_karte_nummer();	// otherwise using cancel would not show the normal generated map again
 	}
 	else if(komp==&use_intro_dates) {
-		sets->set_use_timeline( use_intro_dates.pressed^1 );
-		use_intro_dates.pressed = sets->get_use_timeline();
-	}
-	else if(komp==&allow_player_change) {
-		sets->set_allow_player_change( allow_player_change.pressed^1 );
-		allow_player_change.pressed = sets->get_allow_player_change();
+		// 0,1 should force setting to new game as well. don't allow to change
+		// 2,3 allow to change
+		if(sets->get_use_timeline()&2) {
+			// don't change bit1. bit1 affects loading saved game
+			sets->set_use_timeline( sets->get_use_timeline()^1 );
+			use_intro_dates.pressed = sets->get_use_timeline()&1;
+		}
 	}
 	else if(komp==&open_setting_gui) {
-		gui_fenster_t *sg = win_get_magic( magic_settings_frame_t );
+		gui_frame_t *sg = win_get_magic( magic_settings_frame_t );
 		if(  sg  ) {
 			destroy_win( sg );
 			open_setting_gui.pressed = false;
@@ -442,7 +507,7 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&open_climate_gui) {
-		gui_fenster_t *climate_gui = win_get_magic( magic_climate );
+		gui_frame_t *climate_gui = win_get_magic( magic_climate );
 		if(  climate_gui  ) {
 			destroy_win( climate_gui );
 			open_climate_gui.pressed = false;
@@ -454,25 +519,47 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		}
 	}
 	else if(komp==&load_game) {
-		load = true;
+		welt->get_message()->clear();
+		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
 	}
 	else if(komp==&load_scenario) {
-		scenario = true;
+		char path[1024];
+		sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
+		chdir( path );
+		destroy_all_win(true);
+		welt->get_message()->clear();
+		create_win( new scenario_frame_t(welt), w_info, magic_load_t );
+		chdir( umgebung_t::user_dir );
 	}
 	else if(komp==&start_game) {
+		destroy_all_win(true);
+		welt->get_message()->clear();
+		create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
 		if(loaded_heightfield) {
-			load_heightfield = true;
+			welt->load_heightfield(&umgebung_t::default_einstellungen);
 		}
 		else {
-			start = true;
+			umgebung_t::default_einstellungen.heightfield = "";
+			welt->init( &umgebung_t::default_einstellungen, 0 );
+		}
+		destroy_all_win(true);
+		welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
+		welt->set_pause(false);
+		// save setting ...
+		loadsave_t file;
+		if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) {
+			// save default setting
+			umgebung_t::default_einstellungen.rdwr(&file);
+			file.close();
 		}
 	}
 	else if(komp==&quit_game) {
-		quit = true;
+		destroy_all_win(true);
+		umgebung_t::quit_simutrans = true;
 	}
 
 	if(knr>=0) {
-		sets->set_karte_nummer( knr );
+		sets->nummer = knr;
 		if(!loaded_heightfield) {
 			update_preview();
 		}
@@ -482,21 +569,23 @@ welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 
 
 
-void welt_gui_t::infowin_event(const event_t *ev)
+bool  welt_gui_t::infowin_event(const event_t *ev)
 {
 	gui_frame_t::infowin_event(ev);
 
 	if(ev->ev_class==INFOWIN  &&  ev->ev_code==WIN_CLOSE) {
 		close = true;
 	}
+
+	return true;
 }
 
 
 
 void welt_gui_t::zeichnen(koord pos, koord gr)
 {
-	if(!loaded_heightfield  && sets->heightfield.len()!=0) {
-		if(update_from_heightfield(sets->heightfield)) {
+	if(!loaded_heightfield  && sets->heightfield.size()!=0) {
+		if(update_from_heightfield(sets->heightfield.c_str())) {
 			loaded_heightfield = true;
 		}
 		else {
@@ -512,8 +601,6 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 		load_map.set_text("Lade Relief");
 		load_map.set_tooltip("load height data from file");
 		use_intro_dates.set_text("Use timeline start year");
-		allow_player_change.set_text("Allow player change");
-//		use_beginner_mode.set_text("Beginner mode");
 		open_setting_gui.set_text("Setting");
 		open_climate_gui.set_text("Climate Control");
 		load_game.set_text("Load game");
@@ -562,7 +649,7 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	) / (1024 * 1024);
 	const float tile_km = sets->get_distance_per_tile();
 	
-	sprintf(buf, "%s (%d MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
+	sprintf(buf, "%s (%ld MByte, %.2f km/%s):", translator::translate("Size"), memory, tile_km, translator::translate("tile"));
 	display_proportional_clip(x, y, buf, ALIGN_LEFT, COL_BLACK, true);
 //	display_proportional_clip(x + LEFT_ARROW - 10, y, translator::translate("Tiles"), ALIGN_LEFT, COL_BLACK, true);
 //	sprintf(buf, "%.2f km/%s", tile_km, translator::translate("tile"));
@@ -581,6 +668,12 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 
 	display_proportional_clip(x, y, translator::translate("5WORLD_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
+	display_proportional_clip(x, y, translator::translate("Number of big cities:"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("Number of city clusters:"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
+	display_proportional_clip(x, y, translator::translate("City cluster size:"), ALIGN_LEFT, COL_BLACK, true);
+	y += 12;
 	display_proportional_clip(x, y, translator::translate("Median Citizen per town"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Intercity road len:"), ALIGN_LEFT, COL_BLACK, true);
@@ -593,10 +686,16 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	display_proportional_clip(x, y, translator::translate("Percent Electricity"), ALIGN_LEFT, COL_BLACK, true);
 	y += 12;
 	display_proportional_clip(x, y, translator::translate("Tourist attractions"), ALIGN_LEFT, COL_BLACK, true);
-	y += 12;
+
+	y += 12+5;
+
+	//y += 12+5;
+	//y += 12+5;
+	//y += 5;
+
 
 	y += 12;
-	y += 12 + 3;
+	//y += 12 + 3;
 
 	display_ddd_box_clip(x, y, 240, 0, MN_GREY0, MN_GREY4);
 

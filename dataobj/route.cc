@@ -42,6 +42,11 @@
 #include "../tpl/binary_heap_tpl.h" // fastest
 
 
+#ifdef DEBUG_ROUTES
+#include "../simsys.h"
+#endif
+
+
 
 void route_t::kopiere(const route_t *r)
 {
@@ -60,7 +65,7 @@ void route_t::append(const route_t *r)
 	const uint32 hops = r->get_count()-1;
 	route.resize(hops+1+route.get_count());
 
-	while(get_count()>0  &&  route[get_count()-1] == r->position_bei(0)) {
+	while (get_count() != 0 && back() == r->front()) {
 		// skip identical end tiles
 		route.remove_at(get_count()-1);
 	}
@@ -84,6 +89,13 @@ void route_t::remove_koord_from(uint32 i) {
 }
 
 
+void route_t::truncate_from(uint16 index) {
+	for( uint16 i=get_count()-1; i>index; i-- ) {
+		route.remove_at(i);
+	}
+}
+
+
 
 /**
  * Appends a straight line from the last koord3d in route to the desired target.
@@ -97,7 +109,7 @@ bool route_t::append_straight_route(karte_t *welt, koord3d dest )
 	}
 
 	// then try to calculate direct route
-	koord pos = route[get_count()-1].get_2d();
+	koord pos = back().get_2d();
 	const koord ziel=dest.get_2d();
 	route.resize( route.get_count()+koord_distance(pos,ziel)+2 );
 DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",pos.x,pos.y,dest.x,dest.y);
@@ -112,7 +124,7 @@ DBG_MESSAGE("route_t::append_straight_route()","start from (%i,%i) to (%i,%i)",p
 		if(!welt->ist_in_kartengrenzen(pos)) {
 			break;
 		}
-		route.append(welt->lookup(pos)->get_kartenboden()->get_pos());
+		route.append(welt->lookup_kartenboden(pos)->get_pos());
 	}
 	DBG_MESSAGE("route_t::append_straight_route()","to (%i,%i) found.",ziel.x,ziel.y);
 
@@ -130,9 +142,7 @@ bool route_t::node_in_use=false;
 /* find the route to an unknow location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt,
-                    const koord3d start,
-                    fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 max_depth )
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 max_depth )
 {
 	bool ok = false;
 
@@ -164,7 +174,7 @@ bool route_t::find_route(karte_t *welt,
 	route.clear();
 
 	// first tile is not valid?!?
-	if (!fahr->ist_befahrbar(g)) {
+	if(  !fahr->ist_befahrbar(g)  ) {
 		return false;
 	}
 
@@ -195,14 +205,14 @@ bool route_t::find_route(karte_t *welt,
 
 //DBG_DEBUG("add to close","(%i,%i,%i) f=%i",gr->get_pos().x,gr->get_pos().y,gr->get_pos().z,tmp->f);
 		// already there
-		if(fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)) {
+		if(  fahr->ist_ziel( gr, tmp->parent==NULL ? NULL : tmp->parent->gr )  ) {
 			// we added a target to the closed list: check for length
 			break;
 		}
 
 		// testing all four possible directions
 		const ribi_t::ribi ribi =  fahr->get_ribi(gr);
-		for(int r=0; r<4; r++) {
+		for(  int r=0;  r<4;  r++  ) {
 			// a way goes here, and it is not marked (i.e. in the closed list)
 			grund_t* to;
 			if(  (ribi & ribi_t::nsow[r] & start_dir)!=0  // allowed dir (we can restrict the first step by start_dir)
@@ -251,14 +261,16 @@ bool route_t::find_route(karte_t *welt,
 		// ok, now no more restrains
 		start_dir = ribi_t::alle;
 
-	} while (!open.empty() && step < MAX_STEP && open.get_count() < max_depth);
+	} while(  !open.empty()  &&  step < MAX_STEP  &&  open.get_count() < max_depth  );
 
 	INT_CHECK("route 194");
 
 //DBG_DEBUG("reached","");
 	// target reached?
 	if(!fahr->ist_ziel(gr,tmp->parent==NULL?NULL:tmp->parent->gr)  ||  step >= MAX_STEP) {
-		dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		if(  step >= MAX_STEP  ) {
+			dbg->warning("route_t::find_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		}
 	}
 	else {
 		// reached => construct route
@@ -296,7 +308,7 @@ ribi_t::ribi *get_next_dirs(const koord gr_pos, const koord ziel)
 
 
 
-bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_speed, const uint32 max_cost, const uint32 weight)
+bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_speed, const uint32 max_cost, const uint32 weight)
 {
 	bool ok = false;
 
@@ -442,7 +454,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 				}
 
 				// new values for cost g
-				uint32 new_g = tmp->g + fahr->get_kosten(to,max_speed);
+				uint32 new_g = tmp->g + fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d());
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
@@ -453,8 +465,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 					if(tmp->dir!=current_dir)
 					{
 						new_g += 3;
-						if(tmp->parent->dir!=tmp->dir) 
-						{
+						if(tmp->parent->dir!=tmp->dir  &&  tmp->parent->parent!=NULL) {
 							// discourage 90° turns
 							new_g += 10;
 						}
@@ -499,7 +510,9 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 	INT_CHECK("route 194");
 	// target reached?
 	if(!ziel_erreicht  || step >= MAX_STEP  ||  tmp->parent==NULL) {
-		dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		if(  step >= MAX_STEP  ) {
+			dbg->warning("route_t::intern_calc_route()","Too many steps (%i>=max %i) in route (too long/complex)",step,MAX_STEP);
+		}
 	}
 	else {
 		// reached => construct route
@@ -525,7 +538,7 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
  * corrected 12/2005 for station search
  * @author Hansjörg Malthaner, prissi
  */
-bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const uint32 max_khm, const uint32 weight, const uint32 max_cost)
+bool route_t::calc_route(karte_t *welt, const koord3d ziel, const koord3d start, fahrer_t *fahr, const sint32 max_khm, const uint32 weight, const uint32 max_cost)
 {
 	route.clear();
 
@@ -594,7 +607,7 @@ void route_t::rdwr(loadsave_t *file)
 	xml_tag_t r( file, "route_t" );
 	sint32 max_n = route.get_count()-1;
 
-	file->rdwr_long(max_n, "\n");
+	file->rdwr_long(max_n);
 	if(file->is_loading()) {
 		koord3d k;
 		route.clear();

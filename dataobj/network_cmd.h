@@ -7,16 +7,21 @@
 #include "network.h"
 
 class packet_t;
-class karte_t; class spieler_t; class werkzeug_t;
+class karte_t;
+class spieler_t;
+class werkzeug_t;
+
 // actual commands
 enum {
 	NWC_INVALID   = 0,
-	NWC_JOIN      = 1,
-	NWC_SYNC      = 2,
-	NWC_GAME      = 3,
-	NWC_READY     = 4,
-	NWC_TOOL      = 5,
-	NWC_CHECK     = 6,
+	NWC_GAMEINFO,
+	NWC_JOIN,
+	NWC_SYNC,
+	NWC_GAME,
+	NWC_READY,
+	NWC_TOOL,
+	NWC_CHECK,
+	NWC_PAKSETINFO,
 	NWC_COUNT
 };
 
@@ -54,9 +59,34 @@ public:
 
 	uint16 get_id() { return id;}
 
+	SOCKET get_sender();
+
+	/**
+	 * returns ptr to a copy of the packet
+	 */
+	packet_t *copy_packet() const;
+
 	// creates an instance:
-	// creates a packet, reads it from socket, get the nwc-id, and reads its data
-	static network_command_t* read_from_socket(SOCKET s);
+	// gets the nwc-id from the packet, and reads its data
+	static network_command_t* read_from_packet(packet_t *p);
+};
+
+/**
+ * nwc_gameinfo_t
+ * @from-client: client wants map info
+ *		server sends nwc_gameinfo_t to sender
+ * @from-server:
+ *		@data len of gameinfo
+ *		client processes this in network_connect
+ */
+class nwc_gameinfo_t : public network_command_t {
+public:
+	nwc_gameinfo_t() : network_command_t(NWC_GAMEINFO) { len = 0; }
+	virtual bool execute(karte_t *);
+	virtual void rdwr();
+	virtual const char* get_name() { return "nwc_gameinfo_t";}
+	uint32 client_id;
+	uint32 len;
 };
 
 /**
@@ -76,6 +106,11 @@ public:
 	virtual const char* get_name() { return "nwc_join_t";}
 	uint32 client_id;
 	uint8 answer;
+
+	/**
+	 * this clients is in the process of joining
+	 */
+	static SOCKET pending_join_client;
 };
 
 /**
@@ -85,15 +120,22 @@ public:
  *		client paused, waits for unpause
  * @from-server:
  *		data is resent to client
+ *		map_counter to identify network_commands
  *		unpause client
  */
 class nwc_ready_t : public network_command_t {
 public:
-	nwc_ready_t(uint32 sync_steps_=0) : network_command_t(NWC_READY), sync_steps(sync_steps_) {}
+	nwc_ready_t(uint32 sync_steps_=0, uint32 map_counter_=0) : network_command_t(NWC_READY), sync_steps(sync_steps_), map_counter(map_counter_) {}
 	virtual bool execute(karte_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_ready_t";}
 	uint32 sync_steps;
+	uint32 map_counter;
+
+	static void append_map_counter(uint32 map_counter_);
+	static void clear_map_counters();
+private:
+	static vector_tpl<uint32>all_map_counters;
 };
 
 /**
@@ -110,11 +152,13 @@ public:
 	uint32 len;
 };
 
-// commands that have to be executed in a certain sync_step
+/**
+ * commands that have to be executed at a certain sync_step
+ */
 class network_world_command_t : public network_command_t {
 public:
-	network_world_command_t() : network_command_t(), sync_step(0) {};
-	network_world_command_t(uint16 /*id*/, uint32 /*sync_step*/);
+	network_world_command_t() : network_command_t(), sync_step(0), map_counter(0) {};
+	network_world_command_t(uint16 /*id*/, uint32 /*sync_step*/, uint32 /*map_counter*/);
 	virtual void rdwr();
 	virtual const char* get_name() { return "network_world_command_t";}
 	// put it to the command queue
@@ -122,11 +166,16 @@ public:
 	// apply it to the world
 	virtual void do_command(karte_t*) {}
 	uint32 get_sync_step() const { return sync_step; }
+	uint32 get_map_counter() const { return map_counter; }
+	// ignore events that lie in the past?
+	// if false: any cmd with sync_step < world->sync_step forces network disconnect
+	virtual bool ignore_old_events() const { return false;}
 	// for sorted data structures
 	bool operator <= (network_world_command_t c) const { return sync_step <= c.sync_step; }
 	static bool cmp(network_world_command_t *nwc1, network_world_command_t *nwc2) { return nwc1->get_sync_step() <= nwc2->get_sync_step(); }
 protected:
 	uint32 sync_step; // when this has to be executed
+	uint32 map_counter; // cmd comes from world at this stage
 	// TODO: uint16 sub_step to have an order within one step
 };
 
@@ -139,8 +188,8 @@ protected:
  */
 class nwc_sync_t : public network_world_command_t {
 public:
-	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0) {};
-	nwc_sync_t(uint32 sync_steps, uint32 send_to_client) : network_world_command_t(NWC_SYNC, sync_steps), client_id(send_to_client) {};
+	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0, 0) {};
+	nwc_sync_t(uint32 sync_steps, uint32 map_counter, uint32 send_to_client) : network_world_command_t(NWC_SYNC, sync_steps, map_counter), client_id(send_to_client) {};
 	virtual void rdwr();
 	virtual void do_command(karte_t*);
 	virtual const char* get_name() { return "nwc_sync_t";}
@@ -156,13 +205,15 @@ public:
  */
 class nwc_check_t : public network_world_command_t {
 public:
-	nwc_check_t() : network_world_command_t(NWC_CHECK, 0) {};
-	nwc_check_t(uint32 sync_steps, uint32 server_random_seed_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps), server_random_seed(server_random_seed_), server_sync_step(server_sync_step_) {};
+	nwc_check_t() : network_world_command_t(NWC_CHECK, 0, 0) {};
+	nwc_check_t(uint32 sync_steps, uint32 map_counter, uint32 server_random_seed_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps, map_counter), server_random_seed(server_random_seed_), server_sync_step(server_sync_step_) {};
 	virtual void rdwr();
 	virtual void do_command(karte_t*) {}
 	virtual const char* get_name() { return "nwc_check_t";}
 	uint32 server_random_seed;
 	uint32 server_sync_step;
+	// no action required -> can be ignored if too old
+	virtual bool ignore_old_events() const { return true;}
 };
 
 /**
@@ -180,9 +231,16 @@ public:
 
 class nwc_tool_t : public network_world_command_t {
 public:
-	nwc_tool_t() : network_world_command_t(NWC_TOOL, 0) { default_param = NULL; }
-	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, bool init);
+	// to detect desync we sent these infos always together (only valid for tools)
+	uint32 last_random_seed;
+	uint32 last_sync_step;
+
+	nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0) { default_param = NULL; }
+	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);
+
+	// messages are allowed to arrive at any time
+	virtual bool ignore_old_events() const;
 
 	virtual ~nwc_tool_t();
 
@@ -202,19 +260,49 @@ private:
 	bool init;
 	bool exec;
 
-	// contains tools of players at other clients
+	// compare default_param's (NULL pointers allowed)
+	// @returns true if default_param are equal
+	static bool cmp_default_param(const char *d1, const char *d2);
+
+	/**
+	 * contains tools of players at other clients:
+	 *   for every player at every client we store the active tool in this node class
+	 *
+	 * the member variable default_param saves the default-parameter of the tool,
+	 * i.e. wkz->default_param == default_param
+	 *
+	 * default_param has its own simple memory management
+	 */
 	class tool_node_t {
-	public:
+	private:
+		const char* default_param;
 		werkzeug_t *wkz;
+		// own memory management for default_param
+		void set_default_param(const char* param);
+		void set_tool(werkzeug_t *wkz_);
+	public:
 		uint32 client_id;
 		uint8 player_id;
-		const char* default_param;
-		tool_node_t() : wkz(NULL), client_id(0), player_id(255), default_param(NULL) {}
-		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : wkz(_wkz), client_id(_client_id), player_id(_player_id), default_param(NULL) {}
-		// compares only the ids
+		tool_node_t() : default_param(NULL), wkz(NULL), client_id(0), player_id(255) {}
+		tool_node_t(werkzeug_t *_wkz, uint8 _player_id, uint32 _client_id) : default_param(NULL), wkz(_wkz), client_id(_client_id), player_id(_player_id) {}
+
+		const char* get_default_param() const { return default_param;}
+
+		werkzeug_t* get_tool() const { return wkz;}
+
+		/**
+		 * mimics void karte_t::local_set_werkzeug(werkzeug_t *, spieler_t *)
+		 * deletes wkz_new if wkz_new->init() returns false and store is false
+		 */
+		void client_set_werkzeug(werkzeug_t * &wkz_new, const char* default_param_, bool store, karte_t*, spieler_t*);
+
+		/**
+		 * @returns true if ids (player_id and client_id) of both tool_node_t's are equal
+		 */
 		inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
 	};
 
+	// static list of active tools for each pair (client_id, player_id)
 	static vector_tpl<tool_node_t> tool_list;
 };
 

@@ -7,6 +7,7 @@
 #ifndef simplay_h
 #define simplay_h
 
+#include "../dataobj/pwd_hash.h"
 #include "../simtypes.h"
 #include "../simlinemgmt.h"
 
@@ -50,10 +51,7 @@ enum player_cost {
 
 
 class fabrik_t;
-class stadt_t;
-class gebaeude_t;
 class koord3d;
-class ware_production_t;
 class werkzeug_t;
 
 /**
@@ -64,7 +62,7 @@ class spieler_t
 public:
 	enum { MAX_KONTO_VERZUG = 3 };
 
-	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI };
+	enum { EMPTY=0, HUMAN=1, AI_GOODS=2, AI_PASSENGER=3, MAX_AI, PASSWORD_PROTECTED=128 };
 
 	// BG, 2009-06-06: differ between infrastructure and vehicle maintenance 
 	enum { MAINT_INFRASTRUCTURE=0, MAINT_VEHICLE=1, MAINT_COUNT };
@@ -167,7 +165,7 @@ protected:
 	bool locked;
 
 	// contains the password hash for local games
-	uint8 pwd_hash[20];
+	pwd_hash_t pwd_hash;
 
 public:
 	virtual bool set_active( bool b ) { return automat = b; }
@@ -176,13 +174,13 @@ public:
 
 	bool is_locked() const { return locked; }
 
-	bool set_unlock( uint8 *hash );
+	bool set_unlock( const uint8 *hash );
 
 	// some routine needs this for direct manipulation
-	uint8 *get_password_hash_ptr() { return pwd_hash; }
+	pwd_hash_t& get_password_hash() { return pwd_hash; }
 
 	// this type of AIs identifier
-	virtual uint8 get_ai_id() { return HUMAN; }
+	virtual uint8 get_ai_id() const { return HUMAN; }
 
 	// @author hsiegeln
 	simlinemgmt_t simlinemgmt;
@@ -205,6 +203,8 @@ public:
 	 * @author player
 	 */
 	const char* get_name() const;
+	void set_name(const char *);
+
 	sint8 get_player_nr() const {return player_nr; }
 
 	/**

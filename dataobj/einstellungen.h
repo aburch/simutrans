@@ -1,9 +1,10 @@
 #ifndef dataobj_einstellungen_h
 #define dataobj_einstellungen_h
 
-#include "../utils/cstring_t.h"
+#include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
+
 
 /**
  * Spieleinstellungen
@@ -18,17 +19,35 @@ class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
 
+// these are the only classes, that are allowed to modfy elements from einstellungen_t
+// for all remaing special cases there are the set_...() routines
+class settings_general_stats_t;
+class settings_routing_stats_t;
+class settings_economy_stats_t;
+class settings_costs_stats_t;
+class settings_climates_stats_t;
+class climate_gui_t;
+class welt_gui_t;
 
-typedef struct
+
+struct road_timeline_t
 {
 	char name[64];
 	uint16 intro;
 	uint16 retire;
-} road_timeline_t;
+};
 
 
 class einstellungen_t
 {
+friend class settings_general_stats_t;
+friend class settings_routing_stats_t;
+friend class settings_economy_stats_t;
+friend class settings_costs_stats_t;
+friend class settings_climates_stats_t;
+friend class climate_gui_t;
+friend class welt_gui_t;
+
 private:
 	sint32 groesse_x, groesse_y;
 	sint32 nummer;
@@ -54,6 +73,9 @@ private:
 	sint32 growthfactor_small;
 	sint32 growthfactor_medium;
 	sint32 growthfactor_large;
+
+	uint32 industry_increase;
+	uint32 city_isolation_factor;
 
 	// percentage of routing
 	sint16 factory_worker_percentage;
@@ -90,13 +112,24 @@ private:
 	sint16 min_river_length;
 	sint16 max_river_length;
 
+	// forest stuff
+	uint8 forest_base_size;
+	uint8 forest_map_size_divisor;
+	uint8 forest_count_divisor;
+	uint16 forest_inverse_spare_tree_density;
+	uint8 max_no_of_trees_on_square;
+	uint16 tree_climates;
+	uint16 no_tree_climates;
+	bool no_trees;
+
+	// game mechanics
 	uint8 allow_player_change;
 	uint8 use_timeline;
 	sint16 starting_year;
 	sint16 starting_month;
 	sint16 bits_per_month;
 
-	cstring_t filename;
+	std::string filename;
 
 	bool beginner_mode;
 	sint32 beginner_price_factor;
@@ -131,11 +164,12 @@ private:
 
 	sint64 starting_money;
 
-	typedef struct {
+	struct yearmoney
+	{
 		sint16 year;
 		sint64 money;
 		bool interpol;
-	} yearmoney;
+	};
 
 	yearmoney startingmoneyperyear[10];
 
@@ -171,6 +205,8 @@ private:
 
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
+
+public:
 
 	//Cornering settings
 	//@author: jamespetts
@@ -242,12 +278,12 @@ private:
 	// Passenger destination ranges
 	// Use to set the extent to which passengers prefer local, medium, or long-range destinations.
 	// The distances can (and probably should) overlap.
-	uint16 local_passengers_min_distance;
-	uint16 local_passengers_max_distance;
-	uint16 midrange_passengers_min_distance;
-	uint16 midrange_passengers_max_distance;
-	uint16 longdistance_passengers_min_distance;
-	uint16 longdistance_passengers_max_distance;
+	uint32 local_passengers_min_distance;
+	uint32 local_passengers_max_distance;
+	uint32 midrange_passengers_min_distance;
+	uint32 midrange_passengers_max_distance;
+	uint32 longdistance_passengers_min_distance;
+	uint32 longdistance_passengers_max_distance;
 	
 	// @author: jamespetts
 	// Private car settings
@@ -289,6 +325,8 @@ private:
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
 	float speed_bonus_multiplier;
+	
+private:
 
 	// true, if this pak should be used with extensions (default)
 	bool with_private_paks;
@@ -304,6 +342,8 @@ private:
 	// 0 = multimedia timer functions
 	// 1 = performance counter functions
 	uint8 system_time_option;
+	
+public:
 
 	// The ranges for the journey time tolerance for passengers.
 	// @author: jamespetts
@@ -319,6 +359,8 @@ private:
 	// tolerate.
 	// @author: jamespetts, December 2009
 	uint16 max_walking_distance;
+	
+private:
 
 	// if true, you can buy obsolete stuff
 	bool allow_buying_obsolete_vehicles;
@@ -392,37 +434,37 @@ public:
 	 * Set to empty string in order to avoid loading.
 	 * @author Hj. Malthaner
 	 */
-	cstring_t heightfield;
+	std::string heightfield;
 
 	einstellungen_t();
 
 	void rdwr(loadsave_t *file);
 
+	void copy_city_road( einstellungen_t &other );
+
 	// init form this file ...
-	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, cstring_t &objfilename );
+	void parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, sint16 &disp_height, sint16 &fullscreen, std::string &objfilename );
 
 	void set_groesse_x(sint32 g) {groesse_x=g;}
 	void set_groesse_y(sint32 g) {groesse_y=g;}
-	void set_groesse(sint32 w,sint32 h) {groesse_x=w;groesse_y=h;}
+	void set_groesse(sint32 x, sint32 y) {groesse_x = x; groesse_y=y;}
 	sint32 get_groesse_x() const {return groesse_x;}
 	sint32 get_groesse_y() const {return groesse_y;}
 
-	void set_karte_nummer(sint32 n) {nummer=n;}
 	sint32 get_karte_nummer() const {return nummer;}
 
 	void set_land_industry_chains(sint32 d) {land_industry_chains=d;}
 	sint32 get_land_industry_chains() const {return land_industry_chains;}
 
-	void set_electric_promille(sint32 d) { electric_promille=d;}
 	sint32 get_electric_promille() const {return electric_promille;}
 
-	void set_tourist_attractions(sint32 d) {tourist_attractions=d;}
+	void set_tourist_attractions( sint32 n ) { tourist_attractions = n; }
 	sint32 get_tourist_attractions() const {return tourist_attractions;}
 
 	void set_anzahl_staedte(sint32 n) {anzahl_staedte=n;}
 	sint32 get_anzahl_staedte() const {return anzahl_staedte;}
 
-	void set_mittlere_einwohnerzahl(sint32 n) {mittlere_einwohnerzahl=n;}
+	void set_mittlere_einwohnerzahl( sint32 n ) {mittlere_einwohnerzahl = n;}
 	sint32 get_mittlere_einwohnerzahl() const {return mittlere_einwohnerzahl;}
 
 	void set_verkehr_level(sint32 l) {verkehr_level=l;}
@@ -431,16 +473,12 @@ public:
 	void set_show_pax(bool yesno) {show_pax=yesno;}
 	bool get_show_pax() const {return show_pax != 0;}
 
-	void set_grundwasser(sint32 n) {grundwasser=n;}
-	sint32 get_grundwasser() const {return grundwasser;}
+	sint16 get_grundwasser() const {return grundwasser;}
 
-	void set_max_mountain_height(double n) {max_mountain_height=n;}          //01-Dec-01        Markus Weber    Added
 	double get_max_mountain_height() const {return max_mountain_height;}
 
-	void set_map_roughness(double n) {map_roughness=n;}                      //01-Dec-01        Markus Weber    Added
 	double get_map_roughness() const {return map_roughness;}
 
-	void set_station_coverage(unsigned short n) {station_coverage_size=n;}	// prissi, May-2005
 	uint16 get_station_coverage() const {return station_coverage_size;}
 
 	void set_allow_player_change(char n) {allow_player_change=n;}	// prissi, Oct-2005
@@ -449,31 +487,30 @@ public:
 	void set_use_timeline(char n) {use_timeline=n;}	// prissi, Oct-2005
 	uint8 get_use_timeline() const {return use_timeline;}
 
-	void set_starting_year(short n) {starting_year=n;}	// prissi, Oct-2005
+	void set_starting_year( sint16 n ) { starting_year = n; }
 	sint16 get_starting_year() const {return starting_year;}
 
-	void set_starting_month(short n) {starting_month=n;}
 	sint16 get_starting_month() const {return starting_month;}
 
-	void set_bits_per_month(short n) {bits_per_month=n;}	// prissi, Oct-2005
 	sint16 get_bits_per_month() const {return bits_per_month;}
 
 	void set_filename(const char *n) {filename=n;}	// prissi, Jun-06
-	const char* get_filename() const { return filename; }
+	const char* get_filename() const { return filename.c_str(); }
 
-	void set_beginner_mode(bool yesno) {beginner_mode=yesno;}	// prissi, Aug-06
 	bool get_beginner_mode() const {return beginner_mode;}
 
-	void set_just_in_time(bool yesno) {just_in_time=yesno;}	// prissi, Aug-06
+	void set_just_in_time(bool b) { just_in_time = b; }
 	bool get_just_in_time() const {return just_in_time;}
 
-	void set_default_climates();	// will reanble the new borders assigned below to the array
-	const sint16 *get_climate_borders() { return climate_borders; }
+	void set_default_climates();
+	const sint16 *get_climate_borders() const { return climate_borders; }
 
-	void set_winter_snowline(sint16 sl) { winter_snowline = sl; }
 	sint16 get_winter_snowline() const {return winter_snowline;}
 
-	void rotate90() { rotation = (rotation+1)&3; set_groesse( groesse_y, groesse_x ); }
+	void rotate90() {
+		rotation = (rotation+1)&3;
+		set_groesse( groesse_y, groesse_x );
+	}
 	uint8 get_rotation() const { return rotation; }
 
 	void set_origin_x(sint16 x) { origin_x = x; }
@@ -485,41 +522,31 @@ public:
 	void set_freeplay( bool f ) { freeplay = f; }
 
 	sint32 get_max_route_steps() const { return max_route_steps; }
-	void set_max_route_steps(sint32 m) { max_route_steps=m; }
 	sint32 get_max_hops() const { return max_hops; }
-	void set_max_hops(sint32 m) { max_hops=m; }
 	sint32 get_max_transfers() const { return max_transfers; }
-	void set_max_transfers(sint32 m) { max_transfers=m; }
 
 	sint64 get_starting_money(sint16 year) const;
-	void set_starting_money(sint64 s) { starting_money = s; }
 
 	bool get_random_pedestrians() const { return fussgaenger; }
 	void set_random_pedestrians( bool f ) { fussgaenger = f; }
 
 	sint16 get_factory_spacing() const { return factory_spacing; }
-	void set_factory_spacing(sint16 s) { factory_spacing = s; }
 	sint16 get_crossconnect_factor() const { return crossconnect_factor; }
-	void set_crossconnect_factor(sint16 s) { crossconnect_factor = s; }
 	bool is_crossconnect_factories() const { return crossconnect_factories; }
-	void set_crossconnect_factories( bool f ) { crossconnect_factories = f; }
 
 	bool get_numbered_stations() const { return numbered_stations; }
-	void set_numbered_stations(bool b) { numbered_stations = b; }
 
 	sint32 get_stadtauto_duration() const { return stadtauto_duration; }
-	void set_stadtauto_duration(sint32 d) { stadtauto_duration = d; }
 
 	sint32 get_beginner_price_factor() const { return beginner_price_factor; }
-	void set_beginner_price_factor(sint32 s) { beginner_price_factor = s; }
 
 	const weg_besch_t *get_city_road_type( uint16 year );
 	const weg_besch_t *get_intercity_road_type( uint16 year );
 
+	void set_pak_diagonal_multiplier(uint16 n) { pak_diagonal_multiplier = n; }
 	uint16 get_pak_diagonal_multiplier() const { return pak_diagonal_multiplier; }
-	void set_pak_diagonal_multiplier( uint16 pdm ) { pak_diagonal_multiplier = pdm; }
 
-	const char *get_name_language_iso() const { return language_code_names; }
+	int get_name_language_id() const;
 	void set_name_language_iso( const char *iso ) {
 		language_code_names[0] = iso[0];
 		language_code_names[1] = iso[1];
@@ -527,12 +554,10 @@ public:
 	}
 
 	void set_player_active(uint8 i, bool b) { automaten[i] = b; }
-
-	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 	void set_player_type(uint8 i, uint8 t) { spieler_type[i] = t; }
+	uint8 get_player_type(uint8 i) const { return spieler_type[i]; }
 
 	bool is_seperate_halt_capacities() const { return seperate_halt_capacities ; }
-	void set_seperate_halt_capacities( bool b ) { seperate_halt_capacities = b; }
 
 	uint16 get_min_bonus_max_distance() const { return min_bonus_max_distance; }
 	void   set_min_bonus_max_distance(uint16 value) { min_bonus_max_distance = value; }
@@ -624,16 +649,16 @@ public:
 	uint16 get_obsolete_running_cost_increase_phase_years() const { return obsolete_running_cost_increase_phase_years; }
 	void   set_obsolete_running_cost_increase_phase_years(uint16 value) { obsolete_running_cost_increase_phase_years = value; }
 
-	uint16 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
-	uint16 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
+	uint32 get_local_passengers_min_distance() const { return local_passengers_min_distance; }
+	uint32 get_local_passengers_max_distance() const { return local_passengers_max_distance; }
 	void   set_local_passengers_max_distance(uint16 value) { local_passengers_max_distance = value; }
-	uint16 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
+	uint32 get_midrange_passengers_min_distance() const { return midrange_passengers_min_distance; }
 	void   set_midrange_passengers_min_distance(uint16 value) { midrange_passengers_min_distance = value; }
-	uint16 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
+	uint32 get_midrange_passengers_max_distance() const { return midrange_passengers_max_distance; }
 	void   set_midrange_passengers_max_distance(uint16 value) { midrange_passengers_max_distance = value; }
-	uint16 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
+	uint32 get_longdistance_passengers_min_distance() const { return longdistance_passengers_min_distance; }
 	void   set_longdistance_passengers_min_distance(uint16 value) { longdistance_passengers_min_distance = value; }
-	uint16 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
+	uint32 get_longdistance_passengers_max_distance() const { return longdistance_passengers_max_distance; }
 
 	uint8 get_passenger_routing_packet_size() const { return passenger_routing_packet_size; }
 	void  set_passenger_routing_packet_size(uint8 value) { passenger_routing_packet_size = value; }
@@ -648,8 +673,8 @@ public:
 	uint8 get_base_car_preference_percent () const { return base_car_preference_percent; }
 	uint8 get_congestion_density_factor () const { return congestion_density_factor; }
 
-	uint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
-	uint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
+	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
+	sint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
 	float get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
 	float get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
 	uint8 get_min_direction_steps (waytype_t waytype) const { return min_direction_steps[waytype]; }
@@ -671,25 +696,23 @@ public:
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
 	float get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
+	// allowed modes are 0,1,2
+	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
+
 
 	bool is_avoid_overcrowding() const { return avoid_overcrowding; }
-	void set_avoid_overcrowding( bool b ) { avoid_overcrowding = b; }
 
 	uint16 get_passenger_max_wait() const { return passenger_max_wait; }
 
 	uint8 get_max_rerouting_interval_months() const { return max_rerouting_interval_months; }
 
 	sint16 get_river_number() const { return river_number; }
-	void set_river_number( sint16 n ) { river_number = n; }
 	sint16 get_min_river_length() const { return min_river_length; }
-	void set_min_river_length( sint16 n ) { min_river_length = n; }
 	sint16 get_max_river_length() const { return max_river_length; }
 
-	void set_max_river_length( sint16 n ) { max_river_length = n; }
-
 	// true, if this pak should be used with extensions (default)
+	void set_with_private_paks(bool b ) {with_private_paks = b;}
 	bool get_with_private_paks() const { return with_private_paks; }
-	void set_with_private_paks(bool b) { with_private_paks = b; }
 
 
 	inline uint8 get_default_path_option() const { return default_path_option; }
@@ -714,48 +737,50 @@ public:
 	void set_max_longdistance_tolerance(uint16 value) { max_longdistance_tolerance = value; }
 
 	sint32 get_passenger_factor() const { return passenger_factor; }
-	void set_passenger_factor(sint32 n) { passenger_factor = n; }
 
 	// town growth stuff
 	sint32 get_passenger_multiplier() const { return passenger_multiplier; }
-	void set_passenger_multiplier(sint32 n) { passenger_multiplier = n; }
 	sint32 get_mail_multiplier() const { return mail_multiplier; }
-	void set_mail_multiplier(sint32 n) { mail_multiplier = n; }
 	sint32 get_goods_multiplier() const { return goods_multiplier; }
-	void set_goods_multiplier(sint32 n) { goods_multiplier = n; }
 	sint32 get_electricity_multiplier() const { return electricity_multiplier; }
-	void set_electricity_multiplier(sint32 n) { electricity_multiplier = n; }
 
 	// Also there are size dependen factors (0=no growth)
 	sint32 get_growthfactor_small() const { return growthfactor_small; }
-	void set_growthfactor_small(sint32 n) { growthfactor_small = n; }
 	sint32 get_growthfactor_medium() const { return growthfactor_medium; }
-	void set_growthfactor_medium(sint32 n) { growthfactor_medium = n; }
 	sint32 get_growthfactor_large() const { return growthfactor_large; }
-	void set_growthfactor_large(sint32 n) { growthfactor_large = n; }
 
-	// amount of different destinations
-	sint32 get_factory_worker_percentage() const { return factory_worker_percentage; }
-	void set_factory_worker_percentage(sint32 n) { factory_worker_percentage = n; }
-	sint32 get_tourist_percentage() const { return tourist_percentage; }
-	void set_tourist_percentage(sint32 n) { tourist_percentage = n; }
+	// percentage of passengers wanting different sorts of trips
+	sint16 get_factory_worker_percentage() const { return factory_worker_percentage; }
+	sint16 get_tourist_percentage() const { return tourist_percentage; }
 
-	// radius within factories belog to towns (usually set to 77 but 1/8 of map size may be meaningful too)
-	sint32 get_factory_worker_radius() const { return factory_worker_radius; }
-	void set_factory_worker_radius(sint32 n) { factory_worker_radius = n; }
+	// radius from factories to get workers from towns (usually set to 77 but 1/8 of map size may be meaningful too)
+	uint16 get_factory_worker_radius() const { return factory_worker_radius; }
 
 	// any factory will be connected to at least this number of next cities
-	sint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
-	void set_factory_worker_minimum_towns(sint32 n) { factory_worker_minimum_towns = n; }
+	uint32 get_factory_worker_minimum_towns() const { return factory_worker_minimum_towns; }
+	void set_factory_worker_minimum_towns(uint32 n) { factory_worker_minimum_towns = n; }
 
 	// any factory will be connected to not more than this number of next cities
-	sint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
-	void set_factory_worker_maximum_towns(sint32 n) { factory_worker_maximum_towns = n; }
+	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
+	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }
-	void set_allow_buying_obsolete_vehicles(bool n) { allow_buying_obsolete_vehicles = n; }
 
+	// forest stuff
+	uint8 get_forest_base_size() const { return forest_base_size; }
+	uint8 get_forest_map_size_divisor() const { return forest_map_size_divisor; }
+	uint8 get_forest_count_divisor() const { return forest_count_divisor; }
+	uint16 get_forest_inverse_spare_tree_density() const { return forest_inverse_spare_tree_density; }
+	uint8 get_max_no_of_trees_on_square() const { return max_no_of_trees_on_square; }
+	uint16 get_tree_climates() const { return tree_climates; }
+	uint16 get_no_tree_climates() const { return no_tree_climates; }
+	bool get_no_trees() const { return no_trees; }
+	void set_no_trees(bool b) { no_trees = b; }
+
+	uint32 get_industry_increase_every() const { return industry_increase; }
+	uint32 get_city_isolation_factor() const { return city_isolation_factor; }
+	
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }
 	uint32 get_frames_per_second() const { return frames_per_second; }

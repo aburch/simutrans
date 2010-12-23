@@ -88,6 +88,7 @@ void interrupt_check()
 // debug version with caller information
 void interrupt_check(const char* caller_info)
 {
+	DBG_DEBUG4("interrupt_check", "called from (%s)", caller_info);
 	static const char * last_caller = "program start";
 	if(enabled) {
 		const long now = dr_time();

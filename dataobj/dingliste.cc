@@ -5,6 +5,7 @@
 #include <stdio.h>
 
 #include "../simdebug.h"
+#include "../simgraph.h"
 #include "dingliste.h"
 #include "../bauer/hausbauer.h"
 #include "../dings/dummy.h"
@@ -202,7 +203,7 @@ void dingliste_t::set_capacity(uint8 new_cap)
 	else if(capacity<=1  &&  new_cap>1) {
 		ding_t *tmp=obj.one;
 		obj.some = dl_alloc(new_cap);
-		memset( obj.some, 0, sizeof(ding_t*)*new_cap );
+		MEMZERON(obj.some, new_cap);
 		obj.some[0] = tmp;
 		capacity = new_cap;
 		assert(top<=1);
@@ -303,7 +304,7 @@ bool dingliste_t::intern_add_moving(ding_t* ding)
 	// however ships and planes may be where not way is below ...
 	if(start!=0  &&  obj.some[0]->is_way()  &&  ((weg_t *)obj.some[0])->get_waytype()==road_wt) {
 
-		const uint8 fahrtrichtung = ((vehikel_t*)ding)->get_fahrtrichtung();
+		const uint8 fahrtrichtung = ((vehikel_basis_t*)ding)->get_fahrtrichtung();
 
 		// this is very complicated:
 		// we may have many objects in two lanes (actually five with tram and pedestrians)
@@ -449,7 +450,7 @@ bool dingliste_t::add(ding_t* ding)
 	if(pri==0) {
 		// check for other ways to keep order! (maximum is two ways per tile at the moment)
 		weg_t const* const w   = ding_cast<weg_t>(obj.some[0]);
-		uint8        const pos = w && w->get_waytype() ? 1 : 0;
+		uint8        const pos = w  &&  w->get_waytype() < static_cast<weg_t*>(ding)->get_waytype() ? 1 : 0;
 		intern_insert_at(ding, pos);
 		return true;
 	}
@@ -546,6 +547,28 @@ bool dingliste_t::remove(const ding_t* ding)
 }
 
 
+/**
+ * removes object from map
+ * deletes object if it is not a zeiger_t
+ */
+void local_delete_object(ding_t *ding, spieler_t *sp)
+{
+	vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(ding);
+	if (v  &&  ding->get_typ() != ding_t::fussgaenger  &&  ding->get_typ() != ding_t::verkehr  &&  ding->get_typ() != ding_t::movingobj) {
+		v->verlasse_feld();
+		assert(0);
+	}
+	else {
+		ding->entferne(sp);
+		ding->set_flag(ding_t::not_on_map);
+		// all objects except zeiger (pointer) are destroyed here
+		// zeiger's will be deleted if their associated werkzeug_t (tool) terminates
+		if (ding->get_typ() != ding_t::zeiger) {
+			delete ding;
+		}
+	}
+}
+
 
 bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 {
@@ -559,33 +582,14 @@ bool dingliste_t::loesche_alle(spieler_t *sp, uint8 offset)
 	if(capacity>1) {
 		while(  top>offset  ) {
 			top --;
-			ding_t *dt = obj.some[top];
-			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(dt);
-			if (v && dt->get_typ() != ding_t::fussgaenger && dt->get_typ() != ding_t::verkehr && dt->get_typ() != ding_t::movingobj) {
-				v->verlasse_feld();
-				assert(0);
-			}
-			else {
-				dt->entferne(sp);
-				dt->set_flag(ding_t::not_on_map);
-				delete dt;
-			}
+			local_delete_object(obj.some[top], sp);
 			obj.some[top] = NULL;
 			ok = true;
 		}
 	}
 	else {
 		if(capacity==1) {
-			ding_t *dt = obj.one;
-			vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(dt);
-			if (v && dt->get_typ() != ding_t::fussgaenger && dt->get_typ() != ding_t::verkehr && dt->get_typ() != ding_t::movingobj) {
-				v->verlasse_feld();
-			}
-			else {
-				dt->entferne(sp);
-				dt->set_flag(ding_t::not_on_map);
-				delete dt;
-			}
+			local_delete_object(obj.one, sp);
 			ok = true;
 			obj.one = NULL;
 			capacity = top = 0;
@@ -738,7 +742,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 	if(file->is_saving()) {
 		max_object_index = top-1;
 	}
-	file->rdwr_long(max_object_index, "\n");
+	file->rdwr_long(max_object_index);
 
 	if(max_object_index>254) {
 		dbg->error("dingliste_t::laden()","Too many objects (%i) at (%i,%i), some vehicle may not appear immediately.",max_object_index,current_pos.x,current_pos.y);
@@ -849,10 +853,15 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 					bahndepot_t*                   bd;
 					gebaeude_t                     gb(welt, file);
 					haus_tile_besch_t const* const tile = gb.get_tile();
-					switch (tile->get_besch()->get_extra()) {
-						case monorail_wt: bd = new monoraildepot_t(welt, gb.get_pos(), gb.get_besitzer(), tile); break;
-						case tram_wt:     bd = new tramdepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
-						default:          bd = new bahndepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+					if(  tile  ) {
+						switch (tile->get_besch()->get_extra()) {
+							case monorail_wt: bd = new monoraildepot_t(welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+							case tram_wt:     bd = new tramdepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+							default:          bd = new bahndepot_t(    welt, gb.get_pos(), gb.get_besitzer(), tile); break;
+						}
+					}
+					else {
+						bd = new bahndepot_t( welt, gb.get_pos(), gb.get_besitzer(), NULL );
 					}
 					bd->rdwr_vehicles(file);
 					d   = bd;

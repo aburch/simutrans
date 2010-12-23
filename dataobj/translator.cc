@@ -4,6 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
  */
+#include <string>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,65 +22,25 @@
 #include "loadsave.h"
 #include "umgebung.h"
 #include "../simmem.h"
-#include "../utils/cstring_t.h"
 #include "../utils/searchfolder.h"
 #include "../utils/simstring.h"
 #include "../unicode.h"
 #include "../tpl/vector_tpl.h"
 
-/*	Bernd Gabriel: 
+using std::string;
 
-	Under windows git converts lf to cr/lf by default while writing to disk and
-	removes the cr while reading from disk.	This works well with source code 
-	files, but not with data files like *.tab.
-
-	Two alternative ways to handle it:
-
-	1) Accept cr/lf in *.tab: 
-		this is done by fgets_line().
-
-	2) After you initially cloned the <repository> tell git 
-		not to convert lf and then re-fetch all files:
-
-		git config core.autocrlf false
-		git reset --hard
-		git fetch <repository> (or use GitGui).
-*/
-
-char *fgets_line(char *buffer, int max_len, FILE *file)
+// allow all kinds of line feeds
+static char *fgets_line(char *buffer, int max_len, FILE *file)
 {
 	char *result = fgets(buffer, max_len, file);
-	int len = strlen(buffer);
-	switch (len)
-	{
-	default:
-		// Bernd Gabriel: accept both standard and windows line feeds.
-		if (buffer[len - 2] == '\r')
-		{
-			buffer[len - 2] = '\0';
-			break;
-		}
-	case 1:
-		buffer[len - 1] = '\0';
-	case 0:
-		break;
+	size_t len = strlen(buffer);
+	// remove all trailing junk
+	while(  len>1  &&  (buffer[len-1]==13  ||  buffer[len-1]==10)  ) {
+		buffer[len-1] = 0;
+		len--;
 	}
 	return result;
 }
-
-
-//// allow all kinds of line feeds
-//static char *fgets_line(char *buffer, int max_len, FILE *file)
-//{
-//	char *result = fgets(buffer, max_len, file);
-//	size_t len = strlen(buffer);
-//	// remove all trailing junk
-//	while(  len>1  &&  (buffer[len-1]==13  ||  buffer[len-1]==10)  ) {
-//		buffer[len-1] = 0;
-//		len--;
-//	}
-//	return result;
-//}
 
 
 const char *translator::lang_info::translate(const char* text) const
@@ -148,6 +109,17 @@ static bool is_unicode_file(FILE* f)
 //	fflush(NULL);
 	if (str[0] == 0xC2 && str[1] == 0xA7) {
 		// the first line must contain an UTF8 coded paragraph (Latin A7, UTF8 C2 A7), then it is unicode
+		DBG_DEBUG("is_unicode_file()", "file is UTF-8");
+		return true;
+	}
+	if(  str[0]==0xEF  &&  str[1]==0xBB   &&  fgetc(f)==0xBF  ) {
+		// the first letter is the byte order mark => may need to skip a paragraph (Latin A7, UTF8 C2 A7)
+		pos = ftell(f);
+		fread( str, 1, 2,  f );
+		if(  str[0] != 0xC2  ||  str[1] == 0xA7  ) {
+			fseek(f, pos, SEEK_SET);
+			dbg->error( "is_unicode_file()", "file is UTF-8 but has no paragraph" );
+		}
 		DBG_DEBUG("is_unicode_file()", "file is UTF-8");
 		return true;
 	}
@@ -248,7 +220,7 @@ const char* translator::get_city_name(uint nr)
  * new cities will get their appropriate names
  * @author hajo, prissi
  */
-static void init_city_names(bool is_utf_language)
+void translator::init_city_names(int lang)
 {
 	FILE* file;
 
@@ -264,24 +236,24 @@ static void init_city_names(bool is_utf_language)
 
 	// @author prissi: first try in scenario
 	// not found => try user location
-	cstring_t local_file_name(umgebung_t::user_dir);
-	local_file_name = local_file_name + "citylist_" + translator::get_lang()->iso + ".txt";
-	file = fopen(local_file_name, "rb");
-	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+	string local_file_name(umgebung_t::user_dir);
+	local_file_name = local_file_name + "citylist_" + langs[lang].iso_base + ".txt";
+	file = fopen(local_file_name.c_str(), "rb");
+	DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 	if (file==NULL) {
-		cstring_t local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + szenario_path + "text/citylist_" + translator::get_lang()->iso + ".txt";
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
-		file = fopen(local_file_name, "rb");
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+		string local_file_name(umgebung_t::program_dir);
+		local_file_name = local_file_name + szenario_path + "text/citylist_" + langs[lang].iso_base + ".txt";
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		file = fopen(local_file_name.c_str(), "rb");
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 	}
 	// not found => try old location
 	if (file==NULL) {
-		cstring_t local_file_name(umgebung_t::program_dir);
-		local_file_name = local_file_name + "text/citylist_" + translator::get_lang()->iso + ".txt";
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
-		file = fopen(local_file_name, "rb");
-		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", (const char*)local_file_name);
+		string local_file_name(umgebung_t::program_dir);
+		local_file_name = local_file_name + "text/citylist_" + langs[lang].iso_base + ".txt";
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
+		file = fopen(local_file_name.c_str(), "rb");
+		DBG_DEBUG("translator::init_city_names()", "try to read city name list '%s'", local_file_name.c_str());
 	}
 	fflush(NULL);
 	DBG_DEBUG("translator::init_city_names()","file %p",file);
@@ -293,7 +265,7 @@ static void init_city_names(bool is_utf_language)
 		while(  !feof(file)  ) {
 			if (fgets_line(buf, sizeof(buf), file)) {
 				rtrim(buf);
-				char *c = recode(buf, file_is_utf, is_utf_language);
+				char *c = recode(buf, file_is_utf, langs[lang].utf_encoded);
 				if(  *c!=0  &&  *c!='#'  ) {
 					namen_liste.append(c);
 				}
@@ -305,20 +277,20 @@ static void init_city_names(bool is_utf_language)
 	if (namen_liste.empty()) {
 		DBG_MESSAGE("translator::init_city_names", "reading failed, creating random names.");
 		// Hajo: try to read list failed, create random names
-		for(  uint i = 0;  i < 64;  i++  ) {
+		for(  uint i = 0;  i < 256;  i++  ) {
 			char name[32];
 			sprintf( name, "%%%X_CITY_SYLL", i );
-			const char* s1 = translator::translate(name);
+			const char* s1 = translator::translate(name,lang);
 			if(s1==name) {
 				// name not available ...
 				continue;
 			}
 			// now add all second name extensions ...
 			const size_t l1 = strlen(s1);
-			for(  uint j = 0;  j < 64;  j++  ) {
+			for(  uint j = 0;  j < 128;  j++  ) {
 
 				sprintf( name, "&%X_CITY_SYLL", j );
-				const char* s2 = translator::translate(name);
+				const char* s2 = translator::translate(name,lang);
 				if(s2==name) {
 					// name not available ...
 					continue;
@@ -390,10 +362,10 @@ static translator::lang_info* get_lang_by_iso(const char* iso)
 }
 
 
-bool translator::load(const cstring_t& scenario_path)
+bool translator::load(const string &scenario_path)
 {
 	chdir( umgebung_t::program_dir );
-	tstrncpy(szenario_path, scenario_path, lengthof(szenario_path));
+	tstrncpy(szenario_path, scenario_path.c_str(), lengthof(szenario_path));
 
 	//initialize these values to 0(ie. nothing loaded)
 	single_instance.current_lang = -1;
@@ -405,13 +377,14 @@ bool translator::load(const cstring_t& scenario_path)
 
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-		cstring_t fileName(*i);
-		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
+		const string fileName(*i);
+		size_t pstart = fileName.rfind('/') + 1;
+		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 
 		FILE* file = NULL;
-		file = fopen(fileName, "rb");
+		file = fopen(fileName.c_str(), "rb");
 		if (file != NULL) {
-			DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", (const char*)fileName, (const char*)iso);
+			DBG_MESSAGE("translator::load()", "base file \"%s\" - iso: \"%s\"", fileName.c_str(), iso.c_str());
 			load_language_iso(iso);
 			load_language_file(file);
 			fclose(file);
@@ -431,27 +404,28 @@ bool translator::load(const cstring_t& scenario_path)
 
 	// now read the scenario specific text
 	// there can be more than one file per language, provided it is name like iso_xyz.tab
-	cstring_t folderName(scenario_path + "text/");
+	const string folderName(scenario_path + "text/");
 	int num_pak_lang_dat = folder.search(folderName, "tab");
-	DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", (const char*)folderName, num_pak_lang_dat);
+	DBG_MESSAGE("translator::load()", "search folder \"%s\" and found %i files", folderName.c_str(), num_pak_lang_dat);
 	//read now the basic language infos
 	for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-		cstring_t fileName(*i);
-		cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
+		const string fileName(*i);
+		size_t pstart = fileName.rfind('/') + 1;
+		const string iso = fileName.substr(pstart, fileName.size() - pstart - 4);
 
-		lang_info* lang = get_lang_by_iso(iso);
+		lang_info* lang = get_lang_by_iso(iso.c_str());
 		if (lang != NULL) {
-			DBG_MESSAGE("translator::load()", "loading pak translations from %s for language %s", (const char*)fileName, lang->iso_base);
-			FILE* file = fopen(fileName, "rb");
+			DBG_MESSAGE("translator::load()", "loading pak translations from %s for language %s", fileName.c_str(), lang->iso_base);
+			FILE* file = fopen(fileName.c_str(), "rb");
 			if (file != NULL) {
 				bool file_is_utf = is_unicode_file(file);
 				load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 				fclose(file);
 			} else {
-				dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
+				dbg->warning("translator::load()", "cannot open '%s'", fileName.c_str());
 			}
 		} else {
-			dbg->warning("translator::load()", "no basic texts for language '%s'", (const char*)iso);
+			dbg->warning("translator::load()", "no basic texts for language '%s'", iso.c_str());
 		}
 	}
 
@@ -459,26 +433,27 @@ bool translator::load(const cstring_t& scenario_path)
 		chdir( umgebung_t::user_dir );
 		// now read the scenario specific text
 		// there can be more than one file per language, provided it is name like iso_xyz.tab
-		cstring_t folderName(scenario_path + "text/");
+		const string folderName(scenario_path + "text/");
 		folder.search(folderName, "tab");
 		//read now the basic language infos
 		for (searchfolder_t::const_iterator i = folder.begin(), end = folder.end(); i != end; ++i) {
-			cstring_t fileName(*i);
-			cstring_t iso = fileName.substr(fileName.find_back('/') + 1, fileName.len() - 4);
+			const string fileName(*i);
+			size_t pstart = fileName.rfind('/') + 1;
+			const string iso = fileName.substr(pstart, fileName.size()  - pstart - 4);
 
-			lang_info* lang = get_lang_by_iso(iso);
+			lang_info* lang = get_lang_by_iso(iso.c_str());
 			if (lang != NULL) {
-				DBG_MESSAGE("translator::load()", "loading pak addon translations from %s for language %s", (const char*)fileName, lang->iso_base);
-				FILE* file = fopen(fileName, "rb");
+				DBG_MESSAGE("translator::load()", "loading pak addon translations from %s for language %s", fileName.c_str(), lang->iso_base);
+				FILE* file = fopen(fileName.c_str(), "rb");
 				if (file != NULL) {
 					bool file_is_utf = is_unicode_file(file);
 					load_language_file_body(file, &lang->texts, lang->utf_encoded, file_is_utf);
 					fclose(file);
 				} else {
-					dbg->warning("translator::load()", "cannot open '%s'", (const char*)fileName);
+					dbg->warning("translator::load()", "cannot open '%s'", fileName.c_str());
 				}
 			} else {
-				dbg->warning("translator::load()", "no addon texts for language '%s'", (const char*)iso);
+				dbg->warning("translator::load()", "no addon texts for language '%s'", iso.c_str());
 			}
 		}
 		chdir( umgebung_t::program_dir );
@@ -490,7 +465,7 @@ bool translator::load(const cstring_t& scenario_path)
 	}
 
 	// now we try to read the compatibility stuff
-	FILE* file = fopen(scenario_path + "compat.tab", "rb");
+	FILE* file = fopen((scenario_path + "compat.tab").c_str(), "rb");
 	if (file != NULL) {
 		load_language_file_body(file, &compatibility, false, false);
 		DBG_MESSAGE("translator::load()", "scenario compatibilty texts loaded.");
@@ -503,7 +478,7 @@ bool translator::load(const cstring_t& scenario_path)
 	// also addon compatibility ...
 	if(  umgebung_t::program_dir!=umgebung_t::user_dir  &&  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		chdir( umgebung_t::user_dir );
-		FILE* file = fopen(scenario_path + "compat.tab", "rb");
+		FILE* file = fopen((scenario_path + "compat.tab").c_str(), "rb");
 		if (file != NULL) {
 			load_language_file_body(file, &compatibility, false, false);
 			DBG_MESSAGE("translator::load()", "scenario addon compatibility texts loaded.");
@@ -522,15 +497,15 @@ bool translator::load(const cstring_t& scenario_path)
 }
 
 
-void translator::load_language_iso(cstring_t& iso)
+void translator::load_language_iso(const string &iso)
 {
-	cstring_t base(iso);
-	langs[single_instance.lang_count].iso = strdup(iso);
+	string base(iso);
+	langs[single_instance.lang_count].iso = strdup(iso.c_str());
 	int loc = iso.find('_');
 	if (loc != -1) {
-		base = iso.left(loc);
+		base = iso.substr(0, loc);
 	}
-	langs[single_instance.lang_count].iso_base = strdup(base);
+	langs[single_instance.lang_count].iso_base = strdup(base.c_str());
 }
 
 
@@ -542,12 +517,25 @@ void translator::set_language(int lang)
 		umgebung_t::language_iso = langs[lang].iso;
 		umgebung_t::default_einstellungen.set_name_language_iso( langs[lang].iso );
 		display_set_unicode(langs[lang].utf_encoded);
-		init_city_names(langs[lang].utf_encoded);
+		init_city_names(lang);
 		DBG_MESSAGE("translator::set_language()", "%s, unicode %d", langs[lang].name, langs[lang].utf_encoded);
 	}
 	else {
 		dbg->warning("translator::set_language()", "Out of bounds : %d", lang);
 	}
+}
+
+
+// returns the id for this language or -1 if not there
+int translator::get_language(const char* iso)
+{
+	for(  int i = 0;  i < single_instance.lang_count;  i++  ) {
+		const char* iso_base = langs[i].iso_base;
+		if(  iso_base[0] == iso[0]  &&  iso_base[1] == iso[1]  ) {
+			return i;
+		}
+	}
+	return -1;
 }
 
 

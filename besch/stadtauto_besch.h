@@ -11,6 +11,7 @@
 #include "bildliste_besch.h"
 #include "../dataobj/ribi.h"
 #include "../simtypes.h"
+#include "../utils/checksum.h"
 
 
 /*
@@ -49,7 +50,7 @@ public:
 
 	int get_gewichtung() const { return gewichtung; }
 
-	int get_geschw() const { return geschw; }
+	sint32 get_geschw() const { return geschw; }
 
 	/**
 	* @return introduction year
@@ -67,6 +68,14 @@ public:
 	* @author prissi
 	*/
 	uint8 get_length_to_next( uint8 next_dir ) const { return length[next_dir]; }
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input(gewichtung);
+		chk->input(geschw);
+		chk->input(intro_date);
+		chk->input(obsolete_date);
+	}
 };
 
 #endif

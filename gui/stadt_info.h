@@ -30,7 +30,7 @@ template <class T> class sparse_tpl;
 class stadt_info_t : public gui_frame_t, private action_listener_t
 {
 private:
-	char name[256];
+	char name[256], old_name[256];
 
 	stadt_t *stadt;
 
@@ -53,8 +53,14 @@ private:
 	void init_pax_dest( uint8* pax_dest );
 	void add_pax_dest( uint8* pax_dest, const sparse_tpl< uint8 >* city_pax_dest );
 
+	void rename_city();
+
+	void reset_city_name();
+
 public:
 	stadt_info_t(stadt_t *stadt);
+
+	~stadt_info_t();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -83,7 +89,9 @@ public:
 	void map_rotate90( sint16 );
 
 	// since we need to update the city pointer when topped
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
+
+	void update_data();
 };
 
 #endif

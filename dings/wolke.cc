@@ -76,11 +76,11 @@ void wolke_t::rdwr(loadsave_t *file)
 	divisor = 10000;
 
 	uint32 ldummy = 0;
-	file->rdwr_long(ldummy, "\n");
+	file->rdwr_long(ldummy);
 
 	uint16 dummy = 0;
-	file->rdwr_short(dummy, "\n");
-	file->rdwr_short(dummy, "\n");
+	file->rdwr_short(dummy);
+	file->rdwr_short(dummy);
 
 	// do not remove from this position, since there will be nothing
 	ding_t::set_flag(ding_t::not_on_map);
@@ -154,7 +154,7 @@ async_wolke_t::async_wolke_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 	ding_t::rdwr( file );
 
 	uint32 dummy;
-	file->rdwr_long(dummy, "\n");
+	file->rdwr_long(dummy);
 
 	// do not remove from this position, since there will be nothing
 	ding_t::set_flag(ding_t::not_on_map);

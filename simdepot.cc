@@ -30,6 +30,10 @@
 #include "dataobj/fahrplan.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/translator.h"
+
+#include "bauer/hausbauer.h"
+#include "dings/gebaeude.h"
+
 #include "bauer/vehikelbauer.h"
 
 #include "boden/wege/schiene.h"
@@ -379,13 +383,9 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 
 bool depot_t::disassemble_convoi(convoihandle_t cnv, bool sell)
 {
-	if(cnv.is_bound()) 
-	{
-		if(  cnv->get_line().is_bound()  ) {
-			cnv->set_schedule( NULL );
-		}
-		if(!sell)
-		{
+	if(cnv.is_bound()) {
+
+		if(!sell) {
 			// store vehicles in depot
 			vehikel_t *v;
 			while(  (v=cnv->remove_vehikel_bei(0))!=NULL  ) {
@@ -429,7 +429,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 		return false;
 	}
 
-	if(cnv.is_bound() &&  cnv->get_schedule()!=NULL  &&  cnv->get_schedule()->get_count() > 0) {
+	if (cnv.is_bound() && cnv->get_schedule() && !cnv->get_schedule()->empty()) {
 		// if next schedule entry is this depot => advance to next entry
 		const koord3d& cur_pos = cnv->get_schedule()->get_current_eintrag().pos;
 		if (cur_pos == get_pos()) {
@@ -441,7 +441,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
 			}
-		} else if (!cnv->get_vehikel(0)->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->get_route())) {
+		} else if (!cnv->front()->calc_route(this->get_pos(), cur_pos, cnv->get_min_top_speed(), cnv->access_route())) {
 			// no route to go ...
 			if (local_execution) {
 				static char buf[256];
@@ -499,8 +499,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 
 
 // attention! this will not be used for railway depots! They will be loaded by hand ...
-void
-depot_t::rdwr(loadsave_t *file)
+void depot_t::rdwr(loadsave_t *file)
 {
 	gebaeude_t::rdwr(file);
 
@@ -514,8 +513,7 @@ depot_t::rdwr(loadsave_t *file)
 
 
 
-void
-depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
+void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 {
 // read/write vehicles in the depot, which are not part of a convoi.
 
@@ -525,9 +523,16 @@ depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 		count = list.get_count();
 		DBG_MESSAGE("depot_t::vehikel_laden()","saving %d vehicles",count);
 	}
-	file->rdwr_long(count, "\n");
+	file->rdwr_long(count);
 
 	if(file->is_loading()) {
+
+		// no house definition for this => use a normal hut ...
+		if(  this->get_tile()==NULL  ) {
+			dbg->error( "depot_t::rdwr()", "tile for depot not found!" );
+			set_tile( (*hausbauer_t::get_citybuilding_list( gebaeude_t::wohnung ))[0]->get_tile(0) );
+		}
+
 		DBG_MESSAGE("depot_t::vehikel_laden()","loading %d vehicles",count);
 		for(int i=0; i<count; i++) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
@@ -607,8 +612,8 @@ vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old, v
 		if (veh != NULL && veh->get_besch() == besch) 
 		{
 			// joy of XOR, finally a line where I could use it!
-			if (avoid == NULL || !avoid->is_contained(veh) && (found_veh == NULL ||
-					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit()))) // Used when replacing to avoid specifying the same vehicle twice
+			if (avoid == NULL || (!avoid->is_contained(veh) && (found_veh == NULL ||
+					old ^ (found_veh->get_insta_zeit() > veh->get_insta_zeit())))) // Used when replacing to avoid specifying the same vehicle twice
 			{
 				found_veh = veh;
 			}
@@ -676,7 +681,7 @@ sint32 depot_t::calc_restwert(const vehikel_besch_t *veh_type)
 
 bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 {
-	waytype_t wt=cnv->get_vehikel(0)->get_waytype();
+	waytype_t const wt = cnv->front()->get_waytype();
 	schiene_t* sch0 = (schiene_t *)welt->lookup(get_pos())->get_weg(wt);
 	if(sch0==NULL) {
 		// no rail here???
@@ -689,7 +694,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	}
 
 	// reserve the next segments of the train
-	route_t *route=cnv->get_route();
+	const route_t *route=cnv->get_route();
 	bool success = true;
 	uint16 tiles = cnv->get_tile_length();
 	uint32 i;

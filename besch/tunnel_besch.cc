@@ -8,6 +8,7 @@
 
 #include "../dataobj/ribi.h"
 #include "tunnel_besch.h"
+#include "../utils/checksum.h"
 
 
 int tunnel_besch_t::hang_indices[16] = {
@@ -28,3 +29,18 @@ int tunnel_besch_t::hang_indices[16] = {
     -1,			// 14:tal SW
     -1			// 15:alles oben
 };
+
+void tunnel_besch_t::calc_checksum(checksum_t *chk) const
+{
+	chk->input(topspeed);
+	chk->input(preis);
+	chk->input(maintenance);
+	chk->input(wegtyp);
+	chk->input(intro_date);
+	chk->input(obsolete_date);
+	
+	//Experimental settings
+	chk->input(max_weight);
+	chk->input(way_constraints.get_permissive());
+	chk->input(way_constraints.get_prohibitive());
+}

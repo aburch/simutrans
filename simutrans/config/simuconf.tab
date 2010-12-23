@@ -147,6 +147,10 @@ beginner_price_factor = 1500
 
 ##################################factory stuff#################################
 
+# when a city reaches 2^n times of this number
+# then a factory is extended, or a new factory chain is spawned
+#industry_increase_every = 2000
+
 # smallest distance between two adjacent factories
 factory_spacing = 6
 
@@ -232,7 +236,10 @@ townhall_info = 0
 # 1 = station names
 # 2 = statistics
 # 3 = names and statistics
-#
+# The visual style is added to this number:
+#   0 = black name in color box
+#   4 = name in player color with outline
+#   8 = box left of name in yellow outline
 show_names = 3
 
 # Color of cursor overlay, which is blended over marked ground tiles
@@ -244,20 +251,38 @@ show_names = 3
 # -- pak128.japan
 #cursor_overlay_color = 149
 
+##################################window stuff##################################
 # show the windows close etc. buttons on the right (like windows 98)
 #window_buttons_right = 0
 
-# draw a frame with titlebar color around active window
+# there are three different ways to indicate an active window
+
+# first: draw a frame with titlebar color around active window
 #window_frame_active = 0
+
+# second: draw the title with a different brighness (0: dark ... 6: bright)
+front_window_bar_color = 1
+bottom_window_bar_color = 3
+
+# third (best together with 2nd):use different text color for bar
+# some colors are 215-white, 240-blck 208-214- all shades of gray
+front_window_text_color = 215
+bottom_window_text_color = 209
 
 # show tooltips (default 1=show)
 show_tooltips = 1
 
-# background color (+-1 arounf this index is used), taken from playercolor table
+# tooltip background color (+-1 arounf this index is used), taken from playercolor table
 tooltip_background_color = 4
 
 # tooltip text color (240=black, 215=white)
 tooltip_text_color = 240
+
+# delay before showing tooltip in ms (default 500ms)
+tooltip_delay = 500
+
+# duration in ms during tooltip is visible (default 5000ms=5s)
+tooltip_duration = 5000
 
 ###################################money stuff##################################
 #
@@ -319,6 +344,9 @@ allow_buying_obsolete_vehicles = 1
 # also pak dependent
 #
 
+# minimum distance between two townhalls
+#minimum_city_distance = 16
+
 # Max. length of initial intercity road connections
 # If you want to speed up map creation, lower this value.
 # If you want more initial intercity roads, raise this value.
@@ -360,6 +388,36 @@ allow_buying_obsolete_vehicles = 1
 # max length
 #river_max_length = 320
 
+################################# forest stuff #################################
+#  please be careful in changing them, I spent lot of time finding optimals.
+#  those values have impact on no. of spawned trees -> memory consumption
+#
+# Number of trees on square 2 - minimal usable, 3 good, 4 very nice looking
+max_no_of_trees_on_square = 3
+
+# Base forest size - minimal size of forest - map independent
+forest_base_size = 36
+
+# Map size divisor - smaller it is the larger are individual forests
+forest_map_size_divisor = 38
+
+# Forest count divisor - smaller it is, the more forest are generated
+forest_count_divisor = 16
+
+# Determins how dense are spare trees going to be planted (works inversly)
+forest_inverse_spare_tree_density = 400
+
+# climate with trees entirely (1: water, 2:desert, 4:tropic, 8:mediterran, 16:temperate, 32:tundra, 64:rocky, 128:arctic)
+# zero (default) means no climate with at least one tree per tile
+tree_climates = 4
+
+# climates with no trees at all (desert and arctic at the moment)
+no_tree_climates = 130
+
+# if set, no trees will be created at all (save about 30% memory and
+# the season change will be much smoother on small machines)
+#no_tree = 0
+
 ###################################time stuff###################################
 
 # Enforce vehicle introduction dates?
@@ -382,9 +440,12 @@ starting_year = 1930
 # Starting month of the game for people who want to start in summer (default 1=January)
 starting_month = 1
 
-# Should month be shown in date? (0=no, 1=yes, 2>=show day in japan format=2, us format=3, german=4)
+# Should month be shown in date?
+# 0=no, 1=yes
+# 2>=show day in japan format=2, us format=3, german=4
+# 5>=show no season but everything else in japan format=5, us format=5, german=6
 # This is most useful, if you use longer months than the default length (see below)
-show_month = 1
+#show_month = 1
 
 # Global time multiplier (will be save with new games)
 # 2^bits_per_month = duration of a game month in microseconds real time
@@ -415,6 +476,15 @@ autosave = 0
 # show full screen
 #fullscreen = 0
 
+# maximum size of tool bars (0 = no limit)
+# if more tools than allowed by height,
+# next and prev arrows for scrolling appears
+toolbar_max_width = 0
+toolbar_max_height = 0
+
+# if 1, print the company name in front of a message
+#add_player_name_to_message = 1
+
 # How many frames per second to use? Display may look pretty until 10 or so
 # (depends very much on computer, game complexity and graphics driver)
 frames_per_second = 25
@@ -442,3 +512,18 @@ fast_forward = 50
 # simutrans PING). Larger values cause longer delay for commands.
 network_ms_ahead = 250
 
+# The server sends after a fixed number of steps some information to the clients.
+# Large values here means: reduced server communication (if that is of importance...)
+# Small values should improve the timing of the clients.
+#server_frames_between_checks = 256
+
+# Automatically announce server on the central server directory
+# 0 (default) = off, any other number is ID from
+# http://simutrans-germany.com/serverlist/
+#announce_server = 0
+
+# DNS name or IP of your server also IPv& is accepted
+#server_name = 127.0.0.1
+
+# Additionally comment on your server; will be shown on game-info
+#server_comment = Testserver

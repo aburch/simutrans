@@ -15,7 +15,6 @@
 
 class karte_t;
 class vehikel_t;
-class schedule_t;
 class depot_frame_t;
 class vehikel_besch_t;
 class gui_convoy_assembler;

@@ -1,0 +1,25 @@
+# Simutranslator settings for Simutrans-Experimental texts
+# Second addendum for version 8.0
+#
+# Author: jamespetts
+# Created: May 2010
+#
+obj=program_text
+name=Hilly landscape
+note=For the climate window
+-
+obj=program_text
+name=Congestion
+note=Displayed in the city graphs
+-
+obj=program_text
+name=Goods supplied
+note=Displayed in the city graphs
+-
+obj=program_text
+name=Power supply
+note=Displayed in the city graphs
+-
+obj=program_text
+name=Car ownership
+note=Displayed in the city graphs

@@ -1,4 +1,6 @@
 #include "vehikel_besch.h"
+#include "xref_besch.h"
+#include "../utils/checksum.h"
 
 uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost) const
 {
@@ -45,14 +47,6 @@ uint32 vehikel_besch_t::calc_running_cost(const karte_t *welt, uint32 base_cost)
 uint16 vehikel_besch_t::get_betriebskosten(karte_t* welt) const
 {
 	return calc_running_cost(welt, get_betriebskosten());
-}
-
-// Get running costs. Running costs increased if the vehicle is obsolete.
-// Unscaled version for GUI purposes.
-// @author: jamespetts
-uint16 vehikel_besch_t::get_base_running_costs(karte_t* welt) const
-{
-	return calc_running_cost(welt, get_base_running_costs());
 }
 
 uint32 vehikel_besch_t::get_fixed_maintenance(karte_t *welt) const
@@ -172,7 +166,7 @@ void vehikel_besch_t::loaded()
  * Get effective force in kN at given speed in m/s: effective_force_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_force_index(uint16 speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_force_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_force == 0) 
 	{
@@ -186,7 +180,7 @@ uint32 vehikel_besch_t::get_effective_force_index(uint16 speed /* in m/s */ ) co
  * Get effective power in kW at given speed in m/s: effective_power_index * welt->get_einstellungen()->get_global_power_factor() / GEAR_FACTOR
  * @author Bernd Gabriel, Dec 14, 2009
  */
-uint32 vehikel_besch_t::get_effective_power_index(uint16 speed /* in m/s */ ) const
+uint32 vehikel_besch_t::get_effective_power_index(sint32 speed /* in m/s */ ) const
 {
 	if (geared_power == 0) 
 	{
@@ -206,4 +200,47 @@ uint16 vehikel_besch_t::get_obsolete_year_month(const karte_t *welt) const
 	{
 		return obsolete_date + (welt->get_einstellungen()->get_default_increase_maintenance_after_years((waytype_t)typ) * 12);
 	}
+}
+
+void vehikel_besch_t::calc_checksum(checksum_t *chk) const
+{
+	chk->input(preis);
+	chk->input(zuladung);
+	chk->input(geschw);
+	chk->input(gewicht);
+	chk->input(leistung);
+	chk->input(betriebskosten);
+	chk->input(intro_date);
+	chk->input(obsolete_date);
+	chk->input(gear);
+	chk->input(typ);
+	chk->input(len);
+	chk->input(vorgaenger);
+	chk->input(nachfolger);
+	chk->input(engine_type);
+	// freight
+	const xref_besch_t *xref = get_child<xref_besch_t>(2);
+	chk->input(xref ? xref->get_name() : "NULL");
+	// vehicle constraints
+	for(uint8 i=0; i<vorgaenger+nachfolger; i++) {
+		const xref_besch_t *xref = get_child<xref_besch_t>(6+i);
+		chk->input(xref ? xref->get_name() : "NULL");
+	}
+
+	// Experimental settings
+	chk->input(upgrade_price);
+	chk->input(overcrowded_capacity);
+	chk->input(fixed_maintenance);
+	chk->input(upgrades);
+	chk->input(is_tilting ? 1 : 0);
+	chk->input(way_constraints.get_permissive());
+	chk->input(way_constraints.get_prohibitive());
+	chk->input(bidirectional ? 1 : 0);
+	chk->input(can_lead_from_rear ? 1 : 0);
+	chk->input(can_be_at_rear ? 1 : 0);
+	chk->input(comfort);
+	chk->input(loading_time);
+	chk->input(tractive_effort);
+	const uint16 ar = air_resistance * 100;
+	chk->input(ar);
 }

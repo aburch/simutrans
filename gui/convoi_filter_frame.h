@@ -37,11 +37,11 @@ private:
 			this->ware = ware;
 			this->parent = parent;
 		}
-		virtual void infowin_event(const event_t *ev) {
+		virtual bool infowin_event(const event_t *ev) {
 			if(IS_LEFTRELEASE(ev)) {
 				parent->ware_item_triggered(ware);
 			}
-			button_t::infowin_event(ev);
+			return button_t::infowin_event(ev);
 		}
 		virtual void zeichnen(koord offset) {
 			pressed = parent->get_ware_filter(ware);

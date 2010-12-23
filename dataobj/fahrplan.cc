@@ -1,6 +1,7 @@
 /* completely overhauled by prissi Oct-2005 */
 
 #include <stdio.h>
+#include <ctype.h>
 
 #include "../simdebug.h"
 #include "../simwin.h"
@@ -26,18 +27,9 @@
 
 struct linieneintrag_t schedule_t::dummy_eintrag = { koord3d::invalid, 0, 0 };
 
-void schedule_t::init()
+
+schedule_t::schedule_t(loadsave_t* const file)
 {
-	aktuell = 0;
-	abgeschlossen = false;
-	type = schedule_t::fahrplan;
-}
-
-
-
-schedule_t::schedule_t(loadsave_t *file)
-{
-	type = schedule_t::fahrplan;
 	rdwr(file);
 	if(file->is_loading()) {
 		cleanup();
@@ -61,6 +53,9 @@ void schedule_t::copy_from(const schedule_t *src)
 	set_aktuell( src->get_aktuell() );
 
 	abgeschlossen = src->ist_abgeschlossen();
+	spacing = src->get_spacing();
+	bidirectional = src->is_bidirectional();
+	mirrored = src->is_mirrored();
 }
 
 
@@ -68,6 +63,7 @@ void schedule_t::copy_from(const schedule_t *src)
 bool schedule_t::ist_halt_erlaubt(const grund_t *gr) const
 {
 	// first: check, if we can go here
+	waytype_t const my_waytype = get_waytype();
 	bool ok = gr->hat_weg(my_waytype);
 	if(  !ok  ) {
 		if(  my_waytype==air_wt  ) {
@@ -183,9 +179,7 @@ void schedule_t::cleanup()
 			lastpos = eintrag[i].pos;
 		}
 	}
-	if(  aktuell>=eintrag.get_count()  ) {
-		aktuell = max(1,eintrag.get_count())-1;
-	}
+	make_aktuell_valid();
 }
 
 
@@ -193,9 +187,7 @@ void schedule_t::cleanup()
 bool schedule_t::remove()
 {
 	bool ok = eintrag.remove_at(aktuell);
-	if(  aktuell>=eintrag.get_count()  ) {
-		aktuell = max(1,eintrag.get_count())-1;
-	}
+	make_aktuell_valid();
 	return ok;
 }
 
@@ -205,18 +197,16 @@ void schedule_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t f( file, "fahrplan_t" );
 
-	if(  aktuell>=eintrag.get_count()  ) {
-		aktuell = max(1,eintrag.get_count())-1;
-	}
+	make_aktuell_valid();
 
 	uint8 size = eintrag.get_count();
 	if(  file->get_version()<=101000  ) {
 		uint32 dummy=aktuell;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		aktuell = (uint8)dummy;
 
 		sint32 maxi=size;
-		file->rdwr_long(maxi, " ");
+		file->rdwr_long(maxi);
 		DBG_MESSAGE("fahrplan_t::rdwr()","read schedule %p with %i entries",this,maxi);
 		if(file->get_version()<86010) {
 			// old array had different maxi-counter
@@ -225,8 +215,13 @@ void schedule_t::rdwr(loadsave_t *file)
 		size = (uint8)max(0,maxi);
 	}
 	else {
-		file->rdwr_byte(aktuell, " ");
-		file->rdwr_byte(size, " ");
+		file->rdwr_byte(aktuell);
+		file->rdwr_byte(size);
+		if( file->get_version()>=102003 && (file->get_experimental_version() >= 9 || file->get_experimental_version() == 0))
+		{
+			file->rdwr_bool(bidirectional);
+			file->rdwr_bool(mirrored);
+		}
 	}
 	eintrag.resize(size);
 
@@ -235,7 +230,7 @@ void schedule_t::rdwr(loadsave_t *file)
 			koord3d pos;
 			uint32 dummy;
 			pos.rdwr(file);
-			file->rdwr_long(dummy, "\n");
+			file->rdwr_long(dummy);
 
 			struct linieneintrag_t stop;
 			stop.pos = pos;
@@ -252,9 +247,9 @@ void schedule_t::rdwr(loadsave_t *file)
 				eintrag[i] .waiting_time_shift = 0;
 			}
 			eintrag[i].pos.rdwr(file);
-			file->rdwr_byte(eintrag[i].ladegrad, "\n");
+			file->rdwr_byte(eintrag[i].ladegrad);
 			if(file->get_version()>=99018) {
-				file->rdwr_byte( eintrag[i].waiting_time_shift, "w" );
+				file->rdwr_byte(eintrag[i].waiting_time_shift);
 			}
 		}
 	}
@@ -265,13 +260,18 @@ void schedule_t::rdwr(loadsave_t *file)
 		dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
 		aktuell = 0;
 	}
+
+	if(file->get_experimental_version() >= 9)
+	{
+		file->rdwr_short(spacing);
+	}
 }
 
 
 
 void schedule_t::rotate90( sint16 y_size )
 {
- 	// now we have to rotate all entries ...
+	// now we have to rotate all entries ...
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		eintrag[i].pos.rotate90(y_size);
 	}
@@ -292,9 +292,16 @@ bool schedule_t::matches(karte_t *welt, const schedule_t *fpl)
 	if(this==fpl) {
 		return true;
 	}
+	// different bidirectional or mirrored settings => not equal
+	if ((this->bidirectional != fpl->bidirectional) || (this->mirrored != fpl->mirrored)) {
+		return false;
+	}
 	// unequal count => not equal
 	const uint8 min_count = min( fpl->eintrag.get_count(), eintrag.get_count() );
 	if(  min_count==0  &&  fpl->eintrag.get_count()!=eintrag.get_count()  ) {
+		return false;
+	}
+	if ( this->spacing != fpl->spacing ) {
 		return false;
 	}
 	// now we have to check all entries ...
@@ -347,10 +354,39 @@ void schedule_t::add_return_way()
 }
 
 
+/*
+ * Increment or decrement the given index according to the given direction.
+ * Also switches the direction if necessary.
+ * @author yobbobandana
+ */
+void schedule_t::increment_index(uint8 *index, bool *reversed) const {
+	if( !get_count() ) { return; }
+	if( *reversed ) {
+		if( *index != 0 ) {
+			*index = *index - 1;
+		} else if( mirrored ) {
+			*reversed = false;
+			*index = get_count()>1 ? 1 : 0;
+		} else {
+			*index = get_count()-1;
+		}
+	} else {
+		if( *index < get_count()-1 ) {
+			*index = *index + 1;
+		} else if( mirrored && get_count()>1 ) {
+			*reversed = true;
+			*index = get_count()-2;
+		} else {
+			*index = 0;
+		}
+	}
+}
+
 
 void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.append( aktuell );
+	buf.printf( ",%i,%i,%i", bidirectional, mirrored, spacing );
 	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
@@ -367,9 +403,21 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	//  first get aktuell pointer
 	aktuell = atoi( p );
-	while(  *p  &&  *p!='|'  ) {
-		p++;
-	}
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	//bidirectional flag
+	if( *p && (*p!=','  &&  *p!='|') ) { bidirectional = bool(atoi(p)); }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	// mirrored flag
+	if( *p && (*p!=','  &&  *p!='|') ) { mirrored = bool(atoi(p)); }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+	// spacing
+	if( *p && (*p!=','  &&  *p!='|') ) { spacing = atoi(p); }
+	while ( *p && isdigit(*p) ) { p++; }
+	if ( *p && *p == ',' ) { p++; }
+
 	if(  *p!='|'  ) {
 		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
 		return false;

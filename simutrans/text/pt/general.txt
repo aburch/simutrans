@@ -1,10 +1,12 @@
 <title>Ajuda do Simutrans</title>
 
-<h1><strong>Ajuda geral</strong></h1><br>
+<h1><strong>Ajuda geral</strong></h1>
+<p>
 - <a href="simutrans.txt">Bem-vindo</a><br>
 - <a href="window.txt">Interface/janela do jogo</a><br>
 - <a href="mouse.txt">Mouse</a><br>
 - <a href="keys.txt">Configuração do teclado</a>
+</p>
 <p>
 <a href="options.txt"><strong>Preferências</strong></a><br>
 - <a href="language.txt">Idioma</a><br>
@@ -21,7 +23,7 @@
 <a href="window.txt"><strong>Menu principal</strong></a><br>
 - <a href="options.txt">Preferências</a><br>
 - <a href="map.txt">Mapa</a><br>
-- <a href="inspection_tool.txt">Ferramenta de verificação</a><br>
+- <a href="inspection_tool.txt">Ferramenta de consulta</a><br>
 - <a href="slopetools.txt">Editor de terrenos</a><br>
 - <a href="railtools.txt">Ferrovias</a><br>
 - <a href="monorailtools.txt">Monotrilhos e Maglevs</a><br>
@@ -31,7 +33,7 @@
 - <a href="airtools.txt">Aeroportos</a><br>
 - <a href="special.txt">Ferramentas especiais</a><br>
 - - <a href="edittools.txt">Editor de mapa</a><br>
-- <a href="removal_tool.txt">Ferramenta Eliminar</a>
+- <a href="removal_tool.txt">Ferramenta Remover</a>
 </p>
 <p>
 <a href="window.txt"><strong>Opções de Gerenciamento</strong></a><br>
@@ -68,7 +70,7 @@
 </p>
 <p>
 Se você não encontrou aqui a ajuda que procura, então tente:<br>
-<em>http://guide.simutrans.com</em>, ou<br>
+<em>http://docs.simutrans.com</em>, ou<br>
 <em>http://wiki.simutrans.com</em>, ou<br>
 <em>http://simutrans-tips.com</em>, ou<br>
 <em>http://forum.simutrans.com</em>, ou<br>
@@ -78,10 +80,10 @@ Se você não encontrou aqui a ajuda que procura, então tente:<br>
 </p>
 <p>
 <strong>Equipe de tradução do Simutrans PT-SubFórum</strong>
-<p>
+<br />
 Nossa equipe em 17/01/2008, em ordem alfabética:
 </p>
-</p>
+<p>
 Caio R. Monteiro<br>
 DanielRS<br>
 ecostaoli<br>

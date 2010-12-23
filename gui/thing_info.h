@@ -11,7 +11,7 @@
 #include "../simdebug.h"
 #include "../simdings.h"
 #include "gui_frame.h"
-#include "components/gui_world_view_t.h"
+#include "components/ding_view_t.h"
 #include "components/gui_fixedwidth_textarea.h"
 #include "../utils/cbuffer_t.h"
 
@@ -24,21 +24,16 @@
 class ding_infowin_t : public gui_frame_t
 {
 protected:
-	world_view_t view;
+	ding_view_t view;
 
 	static cbuffer_t buf;
 
 	gui_fixedwidth_textarea_t textarea;
 
-	/**
-	 * The thing we observe. The thing will delete this object
-	 * if self deleted.
-	 * @author Hj. Malthaner
-	 */
-	const ding_t* ding;
-
 public:
 	ding_infowin_t(const ding_t* ding);
+
+	ding_t const* get_ding() const { return view.get_ding(); }
 
 	/**
 	 * @return window title
@@ -46,7 +41,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual const char *get_name() const { return ding->get_name(); }
+	virtual char const* get_name() const { return get_ding()->get_name(); }
 
 	/**
 	 * @return the text to display in the info window
@@ -54,21 +49,7 @@ public:
 	 * @author Hj. Malthaner
 	 * @see simwin
 	 */
-	virtual void info(cbuffer_t & buf) const { ding->info(buf); }
-
-	/**
-	 * @return a pointer to the player who owns this thing
-	 *
-	 * @author Hj. Malthaner
-	 */
-	virtual spieler_t* get_besitzer() const { return ding->get_besitzer(); }
-
-	/**
-	 * @return the current map position
-	 *
-	 * @author Hj. Malthaner
-	 */
-	virtual koord3d get_pos() const { return ding->get_pos(); }
+	virtual void info(cbuffer_t& buf) const { get_ding()->info(buf); }
 
 	/**
 	* komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

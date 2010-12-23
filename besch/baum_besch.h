@@ -11,6 +11,7 @@
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
 
+#include "../utils/checksum.h"
 /*
  *  Autor:
  *      Volker Meyer
@@ -60,6 +61,12 @@ public:
 			return get_child<bildliste2d_besch_t>(2)->get_anzahl() / 5;
 		}
 		return number_of_seasons;
+	}
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input((uint8)allowed_climates);
+		chk->input(distribution_weight);
 	}
 };
 

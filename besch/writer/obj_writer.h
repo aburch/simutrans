@@ -2,9 +2,9 @@
 #define OBJ_WRITER
 
 #include <stdio.h>
+#include <string>
 #include "../intro_dates.h"
 #include "../objversion.h"
-#include "../../utils/cstring_t.h"
 
 
 class obj_node_t;
@@ -28,10 +28,10 @@ class obj_writer_t {
 		void skip_nodes(FILE* fp);
 		void show_capabilites();
 
-		cstring_t name_from_next_node(FILE* fp) const;
+		std::string name_from_next_node(FILE* fp) const;
 		const char* node_writer_name(FILE* infp) const;
 
-		virtual cstring_t get_node_name(FILE* /*fp*/) const { return ""; }
+		virtual std::string get_node_name(FILE* /*fp*/) const { return ""; }
 
 		virtual void dump_node(FILE* infp, const obj_node_info_t& node);
 		virtual void write_obj(FILE* /*fp*/, obj_node_t& /*parent*/, tabfileobj_t& /*obj*/) {}

@@ -11,7 +11,7 @@
 #define gui_scrollpane_h
 
 
-#include "../../ifc/gui_komponente.h"
+#include "gui_komponente.h"
 #include "gui_scrollbar.h"
 
 class gui_scrollpane_t : public gui_komponente_t
@@ -64,7 +64,7 @@ public:
 	 * gemeldet
 	 * @author Hj. Malthaner
 	 */
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	/**
 	 * Zeichnet die Komponente
@@ -79,6 +79,23 @@ public:
 	void set_size_corner(bool yesno) { b_has_size_corner = yesno; }
 
 	koord get_client_size();
+	/**
+	 * Returns true if the hosted component is focusable
+	 * @author Knightly
+	 */
+	virtual bool is_focusable() { return komp->is_focusable(); }
+
+	/**
+	 * returns element that has the focus
+	 */
+	gui_komponente_t *get_focus() { return komp->get_focus(); }
+
+	/**
+	 * Get the relative position of the focused component.
+	 * Used for auto-scrolling inside a scroll pane.
+	 * @author Knightly
+	 */
+	virtual koord get_focus_pos() { return pos + ( komp->get_focus_pos() - koord( scroll_x.get_knob_offset(), scroll_y.get_knob_offset() ) ); }
 };
 
 #endif

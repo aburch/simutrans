@@ -86,13 +86,13 @@ void gui_convoy_label_t::zeichnen(koord offset)
 		if (show_number) {
 			sprintf(tmp, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
-				translator::translate("Station tiles:"), (convoy.get_vehicle_summary().length + TILE_STEPS - 1)/TILE_STEPS);
+				translator::translate("Station tiles:"), convoy.get_vehicle_summary().tiles);
 			display_proportional( offset.x + 4, offset.y , tmp, ALIGN_LEFT, COL_BLACK, true );
 			offset.y+=LINESPACE;
 		}
 		if (show_max_speed) {
-			const uint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
-			const uint32 max_speed = convoy.calc_max_speed(weight_summary_t(convoy.get_vehicle_summary().weight, convoy.get_current_friction()));
+			const sint32 min_speed = convoy.calc_max_speed(convoy.get_weight_summary());
+			const sint32 max_speed = convoy.calc_max_speed(weight_summary_t(convoy.get_vehicle_summary().weight, convoy.get_current_friction()));
 			sprintf(tmp,  min_speed == max_speed ? "%s %d km/h" : "%s %d %s %d km/h", 
 				translator::translate("Max. speed:"), min_speed, 
 				translator::translate("..."), max_speed );

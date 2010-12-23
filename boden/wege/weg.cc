@@ -179,6 +179,7 @@ void weg_t::init()
 	init_statistics();
 	alle_wege.insert(this);
 	flags = 0;
+	bild = IMG_LEER;
 }
 
 
@@ -205,25 +206,25 @@ void weg_t::rdwr(loadsave_t *file)
 	// save owner
 	if(  file->get_version() >= 99006  ) {
 		sint8 spnum=get_player_nr();
-		file->rdwr_byte(spnum,"");
+		file->rdwr_byte(spnum);
 		set_player_nr(spnum);
 	}
 
 	// all connected directions
 	uint8 dummy8 = ribi;
-	file->rdwr_byte(dummy8, "\n");
+	file->rdwr_byte(dummy8);
 	if(  file->is_loading()  ) {
 		ribi = dummy8 & 15;	// before: high bits was maske
 		ribi_maske = 0;	// maske will be restored by signal/roadsing
 	}
 
-	uint16 dummy16=max_speed;
-	file->rdwr_short(dummy16, "\n");
+	sint16 dummy16=max_speed;
+	file->rdwr_short(dummy16);
 	max_speed=dummy16;
 
 	if(  file->get_version() >= 89000  ) {
 		dummy8 = flags;
-		file->rdwr_byte(dummy8,"f");
+		file->rdwr_byte(dummy8);
 		if(  file->is_loading()  ) {
 			// all other flags are restored afterwards
 			flags = dummy8 & HAS_SIDEWALK;
@@ -233,7 +234,7 @@ void weg_t::rdwr(loadsave_t *file)
 	for(  int type=0;  type<MAX_WAY_STATISTICS;  type++  ) {
 		for(  int month=0;  month<MAX_WAY_STAT_MONTHS;  month++  ) {
 			sint32 w = statistics[month][type];
-			file->rdwr_long(w, "\n");
+			file->rdwr_long(w);
 			statistics[month][type] = (sint16)w;
 			// DBG_DEBUG("weg_t::rdwr()", "statistics[%d][%d]=%d", month, type, statistics[month][type]);
 		}
@@ -242,7 +243,7 @@ void weg_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 1)
 	{
 		uint16 wdummy16 = max_weight;
-		file->rdwr_short(wdummy16, "\n");
+		file->rdwr_short(wdummy16);
 		max_weight = wdummy16;
 	}
 }
@@ -353,7 +354,7 @@ void weg_t::count_sign()
 			flags |= HAS_CROSSING;
 			i = 3;
 			const crossing_t* cr = gr->find<crossing_t>();
-			uint32 top_speed = cr->get_besch()->get_maxspeed( cr->get_besch()->get_waytype(0)==get_waytype() ? 0 : 1);
+			sint32 top_speed = cr->get_besch()->get_maxspeed( cr->get_besch()->get_waytype(0)==get_waytype() ? 0 : 1);
 			if(  top_speed < max_speed  ) {
 				max_speed = top_speed;
 			}
@@ -446,61 +447,66 @@ void weg_t::calc_bild()
 	}
 	grund_t *from = welt->lookup(get_pos());
 	grund_t *to;
+	image_id old_bild = bild;
 
 	if(  from==NULL  ||  besch==NULL  ||  !from->is_visible()  ) {
 		// no ground, in tunnel
 		set_bild(IMG_LEER);
-		return;
 	}
-	if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
+	else if(  from->ist_tunnel() &&  from->ist_karten_boden()  &&  (grund_t::underground_mode==grund_t::ugm_none || (grund_t::underground_mode==grund_t::ugm_level && from->get_hoehe()<grund_t::underground_level))  ) {
 		// in tunnel mouth, no underground mode
 		set_bild(IMG_LEER);
-		return;
 	}
-	if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
+	else if(  from->ist_bruecke()  &&  from->obj_bei(0)==this  ) {
 		// first way on a bridge (bruecke_t will set the image)
 		return;
 	}
+	else {
+		// use snow image if above snowline and above ground
+		bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
+		flags &= ~IS_SNOW;
+		if(  snow  ) {
+			flags |= IS_SNOW;
+		}
 
-	// use snow image if above snowline and above ground
-	bool snow = (!from->ist_tunnel()   ||  from->ist_karten_boden())  &&  (get_pos().z >= welt->get_snowline());
-	flags &= ~IS_SNOW;
-	if(  snow  ) {
-		flags |= IS_SNOW;
-	}
+		hang_t::typ hang = from->get_weg_hang();
+		if(hang != hang_t::flach) {
+			// on slope
+			set_bild(besch->get_hang_bild_nr(hang, snow));
+		}
+		else {
+			// flat way
+			set_bild(besch->get_bild_nr(ribi, snow));
 
-	hang_t::typ hang = from->get_weg_hang();
-	if(hang != hang_t::flach) {
-		set_bild(besch->get_hang_bild_nr(hang, snow));
-		return;
-	}
+			// try diagonal image
+			if(  besch->has_diagonal_bild()  ) {
 
-	if(  besch->has_diagonal_bild()  ) {
+				check_diagonal();
 
-		check_diagonal();
+				if(is_diagonal()) {
+					static int recursion = 0; /* Communicate among different instances of this method */
 
-		if(is_diagonal()) {
-			static int recursion = 0; /* Communicate among different instances of this method */
+					if(recursion == 0) {
+						recursion++;
+						for(int r = 0; r < 4; r++) {
+							if(from->get_neighbour(to, get_waytype(), koord::nsow[r])) {
+								to->get_weg(get_waytype())->calc_bild();
+							}
+						}
+						recursion--;
+					}
 
-			if(recursion == 0) {
-				recursion++;
-				for(int r = 0; r < 4; r++) {
-					if(from->get_neighbour(to, get_waytype(), koord::nsow[r])) {
-						to->get_weg(get_waytype())->calc_bild();
+					image_id diag_bild = besch->get_diagonal_bild_nr(ribi, snow);
+					if(diag_bild != IMG_LEER) {
+						set_bild(diag_bild);
 					}
 				}
-				recursion--;
-			}
-
-			image_id bild = besch->get_diagonal_bild_nr(ribi, snow);
-			if(bild != IMG_LEER) {
-				set_bild(bild);
-				return;
 			}
 		}
 	}
-
-	set_bild(besch->get_bild_nr(ribi, snow));
+	if (bild!=old_bild) {
+		mark_image_dirty(old_bild, from->get_weg_yoff());
+	}
 }
 
 // checks, if this way qualifies as diagonal

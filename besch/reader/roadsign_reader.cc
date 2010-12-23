@@ -10,6 +10,7 @@
 #include "../obj_node_info.h"
 
 #include "../../simdebug.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void roadsign_reader_t::register_obj(obj_besch_t *&data)
@@ -17,6 +18,10 @@ void roadsign_reader_t::register_obj(obj_besch_t *&data)
     roadsign_besch_t *besch = static_cast<roadsign_besch_t *>(data);
 
     roadsign_t::register_besch(besch);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

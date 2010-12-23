@@ -6,6 +6,7 @@
  * New configurable OOP tool system
  */
 
+#include <string>
 #include <algorithm>
 
 #include "unicode.h"
@@ -29,7 +30,6 @@
 #include "boden/grund.h"
 #include "boden/wege/strasse.h"
 
-#include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
 
@@ -97,6 +97,7 @@ werkzeug_t *create_general_tool(int toolnr)
 		case WKZ_REMOVE_WAYOBJ:    tool = new wkz_wayobj_remover_t(); break;
 		case WKZ_SLICED_AND_UNDERGROUND_VIEW: tool = new wkz_show_underground_t(); break;
 		case WKZ_BUY_HOUSE:        tool = new wkz_buy_house_t(); break;
+		case WKZ_CITYROAD:         tool = new wkz_build_cityroad(); break;
 		default:                   dbg->error("create_general_tool()","cannot satisfy request for general_tool[%i]!",toolnr);
 		                           return NULL;
 	}
@@ -138,6 +139,10 @@ werkzeug_t *create_simple_tool(int toolnr)
 		case WKZ_DEPOT_TOOL:        tool = new wkz_change_depot_t(); break;
 		case WKZ_PWDHASH_TOOL:		tool = new wkz_change_password_hash_t(); break;
 		case WKZ_SET_PLAYER_TOOL:	tool = new wkz_change_player_t(); break;
+		case WKZ_TRAFFIC_LIGHT_TOOL:tool = new wkz_change_traffic_light_t(); break;
+		case WKZ_CHANGE_CITY_TOOL:  tool = new wkz_change_city_t(); break;
+		case WKZ_RENAME_TOOL:       tool = new wkz_rename_t(); break;
+		case WKZ_ADD_MESSAGE_TOOL:  tool = new wkz_add_message_t(); break;
 		default:                    dbg->error("create_simple_tool()","cannot satisfy request for simple_tool[%i]!",toolnr);
 		                            return NULL;
 	}
@@ -177,6 +182,8 @@ werkzeug_t *create_dialog_tool(int toolnr)
 		case WKZ_ENLARGE_MAP:    tool = new wkz_enlarge_map_t(); break;
 		case WKZ_LIST_LABEL:     tool = new wkz_list_label_t(); break;
 		case WKZ_CLIMATES:       tool = new wkz_climates_t(); break;
+		case WKZ_SETTINGS:       tool = new wkz_settings_t(); break;
+		case WKZ_GAMEINFO:       tool = new wkz_server_t(); break;
 		default:                 dbg->error("create_dialog_tool()","cannot satisfy request for dialog_tool[%i]!",toolnr);
 		                         return NULL;
 	}
@@ -279,14 +286,13 @@ static bool compare_werkzeug(werkzeug_t const* const a, werkzeug_t const* const 
 
 
 // read a tab file to add images, cursors and sound to the tools
-void werkzeug_t::read_menu(cstring_t objfilename)
+void werkzeug_t::read_menu(const std::string &objfilename)
 {
 	char_to_tool.clear();
 	tabfile_t menuconf;
 	// only use pak sepcific menues, since otherwise images may missing
-	cstring_t user_dir=umgebung_t::user_dir;
-	if (!menuconf.open(objfilename+"config/menuconf.tab")) {
-		dbg->fatal("werkzeug_t::init_menu()", "Can't read %sconfig/menuconf.tab", (const char *)objfilename );
+	if (!menuconf.open((objfilename+"config/menuconf.tab").c_str())) {
+		dbg->fatal("werkzeug_t::init_menu()", "Can't read %sconfig/menuconf.tab", objfilename.c_str() );
 	}
 
 	tabfileobj_t contents;
@@ -335,7 +341,7 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 			str++;
 			if(*str!=',') {
 				uint16 cursor = (uint16)atoi(str);
-				if(  cursor>=skinverwaltung_t::werkzeuge_general->get_bild_anzahl()  ) {
+				if(  cursor>=skinverwaltung_t::cursor_general->get_bild_anzahl()  ) {
 					dbg->fatal( "werkzeug_t::init_menu()", "wrong cursor (%i) given for general_tool[%i]", cursor, i );
 				}
 				w->cursor = skinverwaltung_t::cursor_general->get_bild_nr(cursor);
@@ -570,6 +576,12 @@ void werkzeug_t::read_menu(cstring_t objfilename)
 				uint8 toolnr = atoi(toolname+13);
 				if(  toolnr<GENERAL_TOOL_COUNT  ) {
 					if(icon!=IMG_LEER  ||  key_str  ||  param_str) {
+						// compatibility mode: wkz_cityroad is used for wkz_wegebau with defaultparam 'cityroad'
+						if(  toolnr==WKZ_WEGEBAU  &&  param_str  &&  strcmp(param_str,"city_road")==0) {
+							toolnr = WKZ_CITYROAD;
+							dbg->warning("werkzeug_t::read_menu()", "toolbar[%i][%i]: replaced way-builder(id=14) with default param=cityroad by cityroad builder(id=36)", i,j);
+						}
+						// now create tool
 						addtool = create_general_tool( toolnr );
 						// copy defaults
 						*addtool = *(general_tool[toolnr]);
@@ -726,6 +738,8 @@ const char *kartenboden_werkzeug_t::check( karte_t *welt, spieler_t *, koord3d p
 class wkz_dummy_t : public werkzeug_t {
 	bool init( karte_t *, spieler_t * ) { return false; }
 	virtual bool is_init_network_save() const { return true; }
+	virtual bool is_work_network_save() const { return true; }
+	virtual bool is_move_network_save(spieler_t *) const { return true; }
 };
 
 werkzeug_t *werkzeug_t::dummy = new wkz_dummy_t();
@@ -746,7 +760,7 @@ image_id toolbar_t::get_icon(spieler_t *sp) const
 // simply true, if visible
 bool toolbar_t::is_selected(karte_t *) const
 {
-	return win_get_magic((long)this);
+	return win_get_magic(magic_toolbar+toolbar_tool.index_of( const_cast<toolbar_t* const>(this) ));
 }
 
 
@@ -769,7 +783,7 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 {
 	if(wzw==NULL) {
 		DBG_MESSAGE("toolbar_t::update()","update/create toolbar %s",default_param);
-		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, iconsize, this!=werkzeug_t::toolbar_tool[0] );
+		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, toolbar_tool.index_of(this), iconsize, this!=werkzeug_t::toolbar_tool[0] );
 	}
 
 	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
@@ -825,6 +839,11 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			}
 		}
 		else if(w->get_icon(welt->get_active_player())!=IMG_LEER) {
+			// get the right city_road
+			if(w->get_id() == (WKZ_CITYROAD | GENERAL_TOOL)) {
+				w->init(welt,sp);
+			}
+			// now add it to the toolbar gui
 			wzw->add_werkzeug( w );
 		}
 	}
@@ -839,7 +858,7 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	bool close = (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1));
 
 	// show/create window
-	if(win_get_magic((long)this)) {
+	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
 		if(close) {
 			destroy_win(wzw);
 		}
@@ -850,12 +869,20 @@ bool toolbar_t::init(karte_t *welt, spieler_t *sp)
 	}
 	else if(!close  &&  this!=werkzeug_t::toolbar_tool[0]) {
 		// not open and not main menu
-		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, (long)this );
+		create_win( wzw, w_info|w_do_not_delete|w_no_overlap, magic_toolbar+toolbar_tool.index_of(this) );
 		DBG_MESSAGE("toolbar_t::init()", "ID=%id", id);
 	}
 	return false;
 }
 
+
+bool toolbar_t::exit( karte_t *, spieler_t *)
+{
+	if(  win_get_magic(magic_toolbar+toolbar_tool.index_of(this))  ) {
+		destroy_win(wzw);
+	}
+	return false;
+}
 
 
 bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
@@ -885,7 +912,7 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 
 	const char *error = "";	//default: nosound
 	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click(sp) ? start[sp->get_player_nr()] : koord3d::invalid );
-	dbg->warning("two_click_werkzeug_t::work", "Position %s valid=%d", pos.get_str(), value );
+	DBG_MESSAGE("two_click_werkzeug_t::work", "Position %s valid=%d", pos.get_str(), value );
 	if(  value == 0  ) {
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
 		init( welt, sp );
@@ -896,18 +923,18 @@ const char *two_click_werkzeug_t::work( karte_t *welt, spieler_t *sp, koord3d po
 		// work directly if possible and ctrl is NOT pressed
 		if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
 			// Work here directly.
-			dbg->warning("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Call tool at %s", pos.get_str() );
 			error = do_work( welt, sp, pos, koord3d::invalid );
 		}
 		else {
 			// set starting position.
-			dbg->warning("two_click_werkzeug_t::work", "Setting start to %s", pos.get_str() );
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting start to %s", pos.get_str() );
 			start_at( welt, sp, pos );
 		}
 	}
 	else {
 		if( value & 2 ) {
-			dbg->warning("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
+			DBG_MESSAGE("two_click_werkzeug_t::work", "Setting end to %s", pos.get_str() );
 			error = do_work( welt, sp, start[sp->get_player_nr()], pos );
 		}
 		flags &= ~(WFL_SHIFT | WFL_CTRL);
@@ -968,12 +995,15 @@ void two_click_werkzeug_t::start_at( karte_t *welt, spieler_t* sp, koord3d &new_
 {
 	const uint8 sp_nr = sp->get_player_nr();
 	first_click_var[sp_nr] = false;
-	welt->show_distance = start[sp_nr] = new_start;
-	start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
-	start_marker[sp_nr]->set_bild( get_marker_image() );
-	grund_t *gr = welt->lookup( start[sp_nr] );
-	if( gr ) {
-		gr->obj_add(start_marker[sp_nr]);
+	start[sp_nr] = new_start;
+	if (is_local_execution()) {
+		welt->show_distance = new_start;
+		start_marker[sp_nr] = new zeiger_t(welt, start[sp_nr], NULL);
+		start_marker[sp_nr]->set_bild( get_marker_image() );
+		grund_t *gr = welt->lookup( start[sp_nr] );
+		if( gr ) {
+			gr->obj_add(start_marker[sp_nr]);
+		}
 	}
 	DBG_MESSAGE("two_click_werkzeug_t::start_at", "Setting start to %s", start[sp_nr].get_str());
 }

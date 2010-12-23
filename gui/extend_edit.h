@@ -72,7 +72,7 @@ protected:
 	virtual void change_item_info( sint32 /*entry, -1= none */ ) {}
 
 public:
-	extend_edit_gui_t(spieler_t* sp,karte_t* welt);
+	extend_edit_gui_t(const char *name, spieler_t* sp, karte_t* welt);
 
 	/**
 	* Does this window need a min size button in the title bar?
@@ -85,7 +85,7 @@ public:
 	 * Mausklicks werden hiermit an die GUI-Komponenten
 	 * gemeldet
 	 */
-	void infowin_event(const event_t *ev);
+	bool infowin_event(const event_t *ev);
 
 	/**
 	 * This method is called if an action is triggered

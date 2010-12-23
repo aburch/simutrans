@@ -111,7 +111,7 @@ void dr_destroy_midi(void)
  * Sets midi pos
  * @author Kieron Green
  */
-void set_midi_pos(int pos)
+void set_midi_pos(int)
 {
 }
 

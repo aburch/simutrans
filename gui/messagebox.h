@@ -2,7 +2,7 @@
 #define gui_messagebox_h
 
 #include "gui_frame.h"
-#include "components/gui_world_view_t.h"
+#include "components/location_view_t.h"
 #include "components/gui_image.h"
 #include "components/gui_fixedwidth_textarea.h"
 #include "../simskin.h"
@@ -18,8 +18,6 @@ class news_window : public gui_frame_t
 public:
 	virtual PLAYER_COLOR_VAL get_titelcolor() const { return color; }
 
-	virtual ~news_window();
-
 protected:
 	news_window(const char* text, PLAYER_COLOR_VAL color);
 
@@ -27,7 +25,6 @@ protected:
 	void extend_window_with_component(gui_komponente_t *const component, const koord size, const koord offset = koord(0,0));
 
 private:
-	char *text;
 	gui_fixedwidth_textarea_t textarea;
 	PLAYER_COLOR_VAL color;
 };
@@ -53,7 +50,7 @@ public:
 	void map_rotate90( sint16 new_ysize );
 
 private:
-	world_view_t view;
+	location_view_t view;
 };
 
 #endif

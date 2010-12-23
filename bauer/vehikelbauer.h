@@ -12,15 +12,14 @@
 #include "../dataobj/koord3d.h"
 #include "../simimg.h"
 #include "../simtypes.h"
+#include <string>
 
 class vehikel_t;
-class cstring_t;
 class spieler_t;
 class convoi_t;
 class vehikel_besch_t;
 class ware_besch_t;
 template <class T> class slist_tpl;
-template <class T> class vector_tpl;
 
 
 /**
@@ -35,8 +34,9 @@ template <class T> class vector_tpl;
 class vehikelbauer_t
 {
 public:
-	static bool speedbonus_init(cstring_t objfilename);
+	static bool speedbonus_init(const std::string &objfilename);
 	static sint32 get_speedbonus( sint32 monthyear, waytype_t wt );
+	static void rdwr_speedbonus(loadsave_t *file);
 
 	static bool register_besch(vehikel_besch_t *besch);
 	static bool alles_geladen();
@@ -55,12 +55,12 @@ public:
 	/* extended sreach for vehicles for KI
 	* @author prissi
 	*/
-	static const vehikel_besch_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const uint32 target_speed,const ware_besch_t * target_freight, bool include_electric, bool not_obsolete );
+	static const vehikel_besch_t *vehikel_search(waytype_t typ,const uint16 month_now,const uint32 target_power,const sint32 target_speed, const ware_besch_t * target_freight, bool include_electric, bool not_obsolete );
 
 	/* for replacement during load time
 	 * prev_veh==NULL equals leading of convoi
 	 */
-	static const vehikel_besch_t *get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const uint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last );
+	static const vehikel_besch_t *get_best_matching( waytype_t wt, const uint16 month_now, const uint32 target_weight, const uint32 target_power, const sint32 target_speed, const ware_besch_t * target_freight, bool not_obsolete, const vehikel_besch_t *prev_veh, bool is_last );
 };
 
 #endif

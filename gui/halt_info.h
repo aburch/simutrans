@@ -14,12 +14,13 @@
 #include "components/gui_textarea.h"
 #include "components/gui_textinput.h"
 #include "components/gui_button.h"
-#include "components/gui_world_view_t.h"
+#include "components/location_view_t.h"
 #include "components/action_listener.h"
 #include "components/gui_chart.h"
 
 #include "../halthandle_t.h"
 #include "../utils/cbuffer_t.h"
+#include "../simwin.h"
 
 
 /**
@@ -38,7 +39,7 @@ private:
 	gui_textinput_t input;
 	gui_chart_t chart;
 	gui_label_t sort_label;
-	world_view_t view;
+	location_view_t view;
 	button_t button;
 	button_t sort_button;     // @author hsiegeln
 	button_t filterButtons[8];
@@ -54,10 +55,14 @@ private:
 	cbuffer_t freight_info;
 	cbuffer_t info_buf;
 
+	void show_hide_statistics( bool show );
+
 public:
 	enum sort_mode_t { by_destination = 0, by_via = 1, by_amount_via = 2, by_amount = 3, by_origin = 4, by_origin_sum = 5, SORT_MODES = 6 };
 
 	halt_info_t(karte_t *welt, halthandle_t halt);
+
+	virtual ~halt_info_t();
 
 	/**
 	 * Manche Fenster haben einen Hilfetext assoziiert.
@@ -91,6 +96,13 @@ public:
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
 
 	void map_rotate90( sint16 );
+
+	// this contructor is only used during loading
+	halt_info_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_halt_info; }
 };
 
 #endif

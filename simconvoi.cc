@@ -21,11 +21,14 @@
 #include "simlinemgmt.h"
 #include "simline.h"
 #include "freight_list_sorter.h"
+#include "simtools.h"
 
 #include "gui/karte.h"
 #include "gui/convoi_info_t.h"
 #include "gui/fahrplan_gui.h"
+#include "gui/depot_frame.h"
 #include "gui/messagebox.h"
+#include "gui/convoi_detail_t.h"
 #include "boden/grund.h"
 #include "boden/wege/schiene.h"	// for railblocks
 
@@ -53,11 +56,15 @@
 
 #include "convoy.h"
 
+#if _MSC_VER
+#define snprintf _snprintf
+#endif
+
 /*
  * Waiting time for loading (ms)
  * @author Hj- Malthaner
  */
-#define WTT_LOADING 2000
+//#define WTT_LOADING 2000
 
 /*
  * Waiting time for infinite loading (ms)
@@ -124,6 +131,7 @@ void convoi_t::reset()
 	has_obsolete = false;
 	no_load = false;
 	depot_when_empty = false;
+	reverse_schedule = false;
 
 	jahresgewinn = 0;
 
@@ -174,6 +182,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	freight_info_order = 0;
 	loading_level = 0;
 	loading_limit = 0;
+	free_seats = 0;
 
 	next_stop_index = 65535;
 
@@ -199,6 +208,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 
 	// Added by : Knightly
 	old_fpl = NULL;
+	free_seats = 0;
 	recalc_catg_index();
 	has_obsolete = calc_obsolescence(welt->get_timeline_year_month());
 }
@@ -206,6 +216,7 @@ convoi_t::convoi_t(karte_t* wl, loadsave_t* file) : fahr(max_vehicle, NULL)
 convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 {
 	self = convoihandle_t(this);
+	sp->buche( 1, COST_ALL_CONVOIS );
 	init(sp->get_welt(), sp);
 	set_name( "Unnamed" );
 	welt->add_convoi( self );
@@ -214,11 +225,14 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 
 	// Added by : Knightly
 	old_fpl = NULL;
+	free_seats = 0;
 }
 
 
 convoi_t::~convoi_t()
 {
+	besitzer_p->buche( -1, COST_ALL_CONVOIS );
+
 	assert(self.is_bound());
 	assert(anz_vehikel==0);
 
@@ -233,13 +247,18 @@ DBG_MESSAGE("convoi_t::~convoi_t()", "destroying %d, %p", self.get_id(), this);
 	welt->sync_remove( this );
 	welt->rem_convoi( self );
 
+	// Knightly : if lineless convoy -> unregister from stops
+	if(  !line.is_bound()  ) {
+		unregister_stops();
+	}
+
 	// force asynchronous recalculation
 	if(fpl) {
 		if(!fpl->ist_abgeschlossen()) { //"is completed" (Google)
 			destroy_win((long)fpl);
 		}
 	
-		if(fpl->get_count()>0  &&  !line.is_bound()  ) 
+		if (!fpl->empty() && !line.is_bound()) 
 		{
 			// New method - recalculate as necessary
 			
@@ -277,7 +296,7 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 			v.mark_image_dirty(v.get_bild(), v.get_hoff());
 			v.verlasse_feld();
 			// maybe unreserve this
-			if (schiene_t* const rails = dynamic_cast<schiene_t*>(gr->get_weg(v.get_waytype()))) {
+			if (schiene_t* const rails = ding_cast<schiene_t>(gr->get_weg(v.get_waytype()))) {
 				rails->unreserve(&v);
 			}
 		}
@@ -291,7 +310,9 @@ uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const sta
 			v.betrete_feld();
 		}
 
-		if (i != anz_vehikel - 1U) train_length += v.get_besch()->get_length();
+		if (i != anz_vehikel - 1U) {
+			train_length += v.get_besch()->get_length();
+		}
 	}
 	return train_length;
 }
@@ -315,6 +336,7 @@ void convoi_t::laden_abschliessen()
 					fahr[i]->get_pos() = koord3d::invalid;
 				}
 				destroy();
+				return;
 			}
 		}
 		// anyway reassign convoi pointer ...
@@ -329,6 +351,9 @@ void convoi_t::laden_abschliessen()
 	bool realing_position = false;
 	if(anz_vehikel>0) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
+		sint16 step_pos;
+		koord3d drive_pos;
+		const uint8 diagonal_length = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
 		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 			vehikel_t* v = fahr[i];
 			v->set_erstes( i==0 );
@@ -339,7 +364,32 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			// wrong alingmant here => must relocate
 			if(v->need_realignment()) {
 				// diagonal => convoi must restart
-				realing_position |= (v->get_fahrtrichtung()&0x0A)!=0  &&  (state==DRIVING  ||  is_waiting());
+				realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
+			}
+			// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
+			if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
+				if(  i==0  ) {
+					step_pos = v->get_steps();
+				}
+				else {
+					if(  drive_pos!=v->get_pos()  ) {
+						// with long vehicles on diagonals, vehicles need not to be on consecutive tiles
+						// do some guessing here
+						uint32 dist = koord_distance(drive_pos, v->get_pos());
+						if (dist>1) {
+							step_pos += (dist-1) * diagonal_length;
+						}
+						step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_length : 256;
+					}
+					dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
+					if(  abs( v->get_steps() - step_pos )>15  ) {
+						// not where it should be => realing
+						realing_position = true;
+						dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
+					}
+				}
+				step_pos -= v->get_besch()->get_length()*16;
+				drive_pos = v->get_pos();
 			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
@@ -378,37 +428,57 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 		// no vehicles in this convoi?!?
 		dbg->error( "convoi_t::laden_abschliessen()","No vehicles in Convoi %i: will be destroyed!", self.get_id() );
 		destroy();
+		return;
 	}
 	// put convoi agian right on track?
 	if(realing_position  &&  anz_vehikel>1) {
 		// display just a warning
 		dbg->warning("convoi_t::laden_abschliessen()","cnv %i is currently too long.",self.get_id());
 
-		// since start may have been changed
-		uint16 start_index = max(2,fahr[anz_vehikel-1]->get_route_index())-2;
-		koord3d k0 = fahr[anz_vehikel-1]->get_pos();
+		if (route.empty()) {
+			// realigning needs a route
+			state = NO_ROUTE;
+			besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
+			dbg->error( "convoi_t::laden_abschliessen()", "No valid route, but needs realignment at (%s)!", fahr[0]->get_pos().get_str() );
+		}
+		else {
+			// since start may have been changed
+			uint16 start_index = max(2,fahr[anz_vehikel-1]->get_route_index())-2;
+			koord3d k0 = fahr[anz_vehikel-1]->get_pos();
 
-		uint32 train_length = move_to(*welt, k0, start_index) + 1;
+			uint32 train_length = move_to(*welt, k0, start_index) + 1;
+			const koord3d last_start = fahr[0]->get_pos();
 
-		// now advance all convoi until it is completely on the track
-		fahr[0]->set_erstes(false); // switches off signal checks ...
-		for(unsigned i=0; i<anz_vehikel; i++) {
-			vehikel_t* v = fahr[i];
+			// now advance all convoi until it is completely on the track
+			fahr[0]->set_erstes(false); // switches off signal checks ...
+			for(unsigned i=0; i<anz_vehikel; i++) {
+				vehikel_t* v = fahr[i];
 
 			v->darf_rauchen(false); //"Allowed to smoke" (Google)
 			fahr[i]->fahre_basis( ((TILE_STEPS)*train_length)<<12 );
 			train_length -= v->get_besch()->get_length();
 			v->darf_rauchen(true);
 
-			// eventually reserve this again
-			grund_t *gr=welt->lookup(v->get_pos());
-			// airplanes may have no ground ...
-			schiene_t *sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
-			if(sch0) {
-				sch0->reserve(self,ribi_t::keine);
+				// eventually reserve this again
+				grund_t *gr=welt->lookup(v->get_pos());
+				// airplanes may have no ground ...
+				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
+					sch0->reserve(self,ribi_t::keine);
+				}
+			}
+			fahr[0]->set_erstes(true);
+			if(  state != INITIAL  &&  state != FAHRPLANEINGABE  &&  fahr[0]->get_pos() != last_start  ) {
+				state = WAITING_FOR_CLEARANCE;
 			}
 		}
-		fahr[0]->set_erstes(true);
+	}
+	if(  state==LOADING  ) {
+		wait_lock = longest_loading_time;
+	}
+
+	// Knightly : if lineless convoy -> register itself with stops
+	if(  !line.is_bound()  ) {
+		register_stops();
 	}
 }
 
@@ -472,12 +542,33 @@ koord3d convoi_t::get_pos() const
  * Sets the name. Creates a copy of name.
  * @author Hj. Malthaner
  */
-void convoi_t::set_name(const char *name)
+void convoi_t::set_name(const char *name, bool with_new_id)
 {
-	char buf[128];
-	name_offset = sprintf(buf,"(%i) ",self.get_id() );
-	tstrncpy(buf+name_offset, translator::translate(name), 116);
-	tstrncpy(name_and_id, buf, lengthof(name_and_id));
+	if(  with_new_id  ) {
+		char buf[128];
+		name_offset = sprintf(buf,"(%i) ",self.get_id() );
+		tstrncpy(buf+name_offset, translator::translate(name,welt->get_einstellungen()->get_name_language_id()), 116);
+		tstrncpy(name_and_id, buf, lengthof(name_and_id));
+	}
+	else {
+		char buf[128];
+		// check if there is a id in the name string
+		name_offset = sprintf(buf,"(%i) ",self.get_id() );
+		if(  strlen(name) < name_offset  ||  strncmp(buf,name,name_offset)!=0) {
+			name_offset = 0;
+		}
+		tstrncpy(buf+name_offset, name+name_offset, sizeof(buf)-name_offset);
+		tstrncpy(name_and_id, buf, lengthof(name_and_id));
+	}
+	// now tell the windows that we were renamed
+	convoi_detail_t *detail = dynamic_cast<convoi_detail_t*>(win_get_magic( magic_convoi_detail+self.get_id()));
+	if (detail) {
+		detail->update_data();
+	}
+	convoi_info_t *info = dynamic_cast<convoi_info_t*>(win_get_magic( magic_convoi_info+self.get_id()));
+	if (info) {
+		info->update_data();
+	}
 }
 
 
@@ -511,15 +602,24 @@ void convoi_t::add_running_cost(sint64 cost)
 
 void convoi_t::increment_odometer()
 {
-	tiles_since_last_odometer_increment ++;
-	// Need to use clipping here when converting a float to a uint8 to round down.
+	float tiles = 1;
+	if(fahr[0]->get_steps() != 255)
+	{
+		// Diagonal
+		tiles = fahr[0]->get_diagonal_length() / 255.0F;
+	}
+	tiles_since_last_odometer_increment += tiles;
 	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-	const uint8 km = tiles_since_last_odometer_increment * distance_per_tile;
-	if(km >= 1)
+	const float km = tiles_since_last_odometer_increment * distance_per_tile;
+	if(km >= 1.0F)
 	{
 		book( km, CONVOI_DISTANCE );
 		total_distance_traveled += km;
-		tiles_since_last_odometer_increment -= (km / distance_per_tile);
+		tiles_since_last_odometer_increment = (km - 1) * distance_per_tile;
+		for(uint8 i= 0; i < anz_vehikel; i++)
+		{
+			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
+		}
 	}
 }
 
@@ -729,10 +829,12 @@ bool convoi_t::drive_to()
 			}
 		}
 
-		if(  !fahr[0]->calc_route(start, ziel, speed_to_kmh(min_top_speed), &route)  ) {
-			state = NO_ROUTE;
-			get_besitzer()->bescheid_vehikel_problem(self,ziel);
-			// wait 10s before next attempt
+		if(  !fahr[0]->calc_route( start, ziel, speed_to_kmh(min_top_speed), &route )  ) {
+			if(  state != NO_ROUTE  ) {
+				state = NO_ROUTE;
+				get_besitzer()->bescheid_vehikel_problem( self, ziel );
+			}
+			// wait 25s before next attempt
 			wait_lock = 25000;
 		}
 		else {
@@ -906,7 +1008,7 @@ end_loop:
 						if (line->get_replacing_convoys_count()==0) {
 							char buf[128];
 							sprintf(buf, translator::translate("Replacing\nvehicles of\n%-20s\ncompleted"), line->get_name());
-							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+							welt->get_message()->add_message(buf, home_depot.get_2d(),message_t::general, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 						}
 
 					}
@@ -973,18 +1075,22 @@ end_loop:
 
 				set_schedule(fpl);
 
-				if(fpl->get_count()==0) {
+				if(  fpl->empty()  ) {
 					// no entry => no route ...
 					state = NO_ROUTE;
+					besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
 				}
 				else {
 					// Schedule changed at station
 					// this station? then complete loading task else drive on
 					halthandle_t h = haltestelle_t::get_halt( welt, get_pos(), get_besitzer() );
 					if(  h.is_bound()  &&  h==haltestelle_t::get_halt( welt, fpl->get_current_eintrag().pos, get_besitzer() )  ) {
-						if(  route.get_count()>0  &&  h==haltestelle_t::get_halt( welt, route.position_bei(route.get_count()-1), get_besitzer() )  ){
-							state = get_pos()==route.position_bei(route.get_count()-1) ? LOADING : DRIVING;
-							break;
+						if (route.get_count() > 0) {
+							koord3d const& pos = route.back();
+							if (h == haltestelle_t::get_halt(welt, pos, get_besitzer())) {
+								state = get_pos() == pos ? LOADING : DRIVING;
+								break;
+							}
 						}
 						else {
 							if(  drive_to()  ) {
@@ -1016,14 +1122,15 @@ end_loop:
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->get_count()==0) {
+				if(  fpl->empty()  ) {
 					state = NO_ROUTE;
+					besitzer_p->bescheid_vehikel_problem( self, koord3d::invalid );
 				}
 				else {
 					// check first, if we are already there:
 					assert( fpl->get_aktuell()<fpl->get_count()  );
 					if(  v->get_pos()==fpl->get_current_eintrag().pos  ) {
-						fpl->advance();
+						advance_schedule();
 					}
 					// Hajo: now calculate a new route
 
@@ -1042,9 +1149,8 @@ end_loop:
 			{
 				vehikel_t* v = fahr[0];
 
-				if(fpl->get_count()==0) {
+				if(  fpl->empty()  ) {
 					// no entries => no route ...
-					get_besitzer()->bescheid_vehikel_problem(self, v->get_pos());
 				}
 				else {
 					// Hajo: now calculate a new route
@@ -1158,6 +1264,21 @@ end_loop:
 	}
 }
 
+void convoi_t::advance_schedule() {
+	// check if the convoi should switch direction
+	if(  fpl->is_mirrored() && fpl->get_aktuell()==fpl->get_count()-1  ) {
+		reverse_schedule = true;
+	}
+	else if( fpl->is_mirrored() && fpl->get_aktuell()==0  ) {
+		reverse_schedule = false;
+	}
+	// advance the schedule cursor
+	if (reverse_schedule) {
+		fpl->advance_reverse();
+	} else {
+		fpl->advance();
+	}
+}
 
 void convoi_t::neues_jahr()
 {
@@ -1177,26 +1298,31 @@ uint16 convoi_t::get_overcrowded() const
 
 uint8 convoi_t::get_comfort() const
 {
-	uint16 base_comfort = 0;
+	uint32 base_comfort = 0;
 	uint8 passenger_vehicles = 0;
+	uint16 passenger_seating = 0;
+
+	uint16 capacity;
 	
 	for(uint8 i = 0; i < anz_vehikel; i ++)
 	{
 		if(fahr[i]->get_fracht_typ()->get_catg_index() == 0)
 		{
 			passenger_vehicles ++;
-			base_comfort += fahr[i]->get_comfort();
+			capacity = fahr[i]->get_besch()->get_zuladung();
+			base_comfort += fahr[i]->get_comfort() * capacity;
+			passenger_seating += capacity;
 		}
 	}
-	if(passenger_vehicles < 1)
+	if(passenger_vehicles < 1 || passenger_seating < 1)
 	{
+		// Avoid division if possible
 		return 0;
 	}
 	
-	else if(passenger_vehicles > 1)
+	else if(passenger_vehicles > 0)
 	{
-		// Avoid division if possible
-		base_comfort /= passenger_vehicles;
+		base_comfort /= passenger_seating;
 	}
 	
 	const uint8 catering_level = get_catering_level(0);
@@ -1204,28 +1330,22 @@ uint8 convoi_t::get_comfort() const
 	{
 	case 0:
 		return base_comfort;
-		break;
 
 	case 1:
 		return base_comfort + 5;
-		break;
 
 	case 2:
 		return base_comfort + 10;
-		break;
 
 	case 3:
 		return base_comfort + 16;
-		break;
 
 	case 4:
 		return base_comfort + 20;
-		break;
 
 	default:
 	case 5:
 		return base_comfort + 25;
-		break;
 	};
 }
 
@@ -1249,11 +1369,22 @@ void convoi_t::new_month()
 	add_running_cost(welt->calc_adjusted_monthly_figure(running_cost));
 
 	// everything normal: update history
-	for (int j = 0; j<MAX_CONVOI_COST; j++) {
-		for (int k = MAX_MONTHS-1; k>0; k--) {
+	for (int j = 0; j<MAX_CONVOI_COST; j++) 
+	{
+		for (int k = MAX_MONTHS-1; k>0; k--) 
+		{
 			financial_history[k][j] = financial_history[k-1][j];
 		}
 		financial_history[0][j] = 0;
+	}
+
+	if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
+	{
+		// Last month's average speed is recorded as zero. This means that no
+		// average speed data have been recorded in the last month, making 
+		// revenue calculations inaccurate. Use the second previous month's average speed
+		// for the previous month's average speed.
+		financial_history[1][CONVOI_AVERAGE_SPEED] = financial_history[2][CONVOI_AVERAGE_SPEED];
 	}
 
 	for(uint8 i = 0; i < MAX_CONVOI_COST; i ++)
@@ -1262,6 +1393,10 @@ void convoi_t::new_month()
 		rolling_average_count[i] = 0;
 	}
 
+	// remind every new month again
+	if(  state==NO_ROUTE  ) {
+		get_besitzer()->bescheid_vehikel_problem( self, get_pos() );
+	}
 	// check for traffic jam
 	if(state==WAITING_FOR_CLEARANCE) {
 		state = WAITING_FOR_CLEARANCE_ONE_MONTH;
@@ -1276,15 +1411,30 @@ void convoi_t::new_month()
 		}
 	}
 	else if(state==WAITING_FOR_CLEARANCE_ONE_MONTH) {
-		get_besitzer()->bescheid_vehikel_problem(self,koord3d::invalid);
+		// make sure, not another vehicle with same line is loading in front
+		bool notify = true;
+		// check, if we are not waiting for load
+		if(  line.is_bound()  &&  loading_level==0  ) {
+			for(  uint i=0;  i < line->count_convoys();  i++  ) {
+				convoihandle_t cnv = line->get_convoy(i);
+				if(  cnv.is_bound()  &&  cnv->get_state()==LOADING  &&  cnv->get_loading_level() < cnv->get_loading_limit()  ) {
+					// convoi on this line is waiting for load => assume we are waiting behind
+					notify = false;
+					break;
+				}
+			}
+		}
+		if(  notify  ) {
+			get_besitzer()->bescheid_vehikel_problem( self, koord3d::invalid );
+		}
 		state = WAITING_FOR_CLEARANCE_TWO_MONTHS;
 	}
 	// check for traffic jam
 	if(state==CAN_START) {
 		state = CAN_START_ONE_MONTH;
 	}
-	else if(state==CAN_START_ONE_MONTH) {
-		get_besitzer()->bescheid_vehikel_problem(self,koord3d::invalid);
+	else if(state==CAN_START_ONE_MONTH  ||  state==CAN_START_TWO_MONTHS  ) {
+		get_besitzer()->bescheid_vehikel_problem( self, koord3d::invalid );
 		state = CAN_START_TWO_MONTHS;
 	}
 	// check for obsolete vehicles in the convoi
@@ -1297,6 +1447,25 @@ void convoi_t::new_month()
 
 void convoi_t::betrete_depot(depot_t *dep)
 {
+	// first remove reservation, if train is still on train
+	if(  !route.empty()  &&  anz_vehikel>0) {
+		/* now remove reservation from all tiles
+		 * otherwise vehicles with lenght>8 may leave holes
+		 * on diagonals (lenght 8)
+		 */
+		uint32 start_index = route.get_count()-1;
+		do {
+			if(  grund_t *gr = welt->lookup(route.position_bei(start_index))  ) {
+				if (schiene_t* const sch = ding_cast<schiene_t>(gr->get_weg(fahr[0]->get_waytype()))) {
+					if(  !sch->unreserve(self)  ) {
+						// unreserve until no reserved track is encoutered
+						break;
+					}
+				}
+			}
+		} while(  start_index--!=0  );
+	}
+
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		vehikel_t* v = fahr[i];
@@ -1306,6 +1475,7 @@ void convoi_t::betrete_depot(depot_t *dep)
 			// remove from blockstrecke
 			v->set_letztes(true);
 			v->verlasse_feld();
+			v->set_flag( ding_t::not_on_map );
 		}
 	}
 
@@ -1334,7 +1504,7 @@ void convoi_t::start()
 		}
 		else 
 		{
-			home_depot = route.position_bei(0);
+			home_depot = route.front();
 			fahr[0]->set_pos( home_depot );
 		}
 		// put the convoi on the depot ground, to get automatical rotation
@@ -1347,6 +1517,12 @@ void convoi_t::start()
 		no_load = false;
 		depot_when_empty = false;
 
+		// if the schedule is mirrored, convoys starting
+		// reversed should go directly to the end.
+		if( fpl->is_mirrored() && reverse_schedule ) {
+			fpl->advance_reverse();
+		}
+
 		state = ROUTING_1;
 
 		// recalc weight and image
@@ -1354,7 +1530,8 @@ void convoi_t::start()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->set_erstes( false );
 			fahr[i]->set_letztes( false );
-			fahr[i]->beladen( home_depot.get_2d(), halthandle_t() );
+			fahr[i]->clear_flag( ding_t::not_on_map );
+			fahr[i]->beladen( halthandle_t() );
 		}
 		fahr[0]->set_erstes( true );
 		fahr[anz_vehikel-1]->set_letztes( true );
@@ -1414,7 +1591,7 @@ void convoi_t::ziel_erreicht()
 		akt_speed = 0;
 		if (!replace || !replace->get_autostart()) {
 			buf.printf( translator::translate("!1_DEPOT_REACHED"), get_name() );
-			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::convoi, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
+			welt->get_message()->add_message(buf, v->get_pos().get_2d(),message_t::warnings, PLAYER_FLAG|get_besitzer()->get_player_nr(), IMG_LEER);
 		}
 
 		home_depot=v->get_pos();
@@ -1432,7 +1609,7 @@ void convoi_t::ziel_erreicht()
 		}
 		else {
 			// Neither depot nor station: waypoint
-			fpl->advance();
+			advance_schedule();
 			state = ROUTING_1;
 			if(replace && depot_when_empty &&  has_no_cargo()) {
 				depot_when_empty=false;
@@ -1778,9 +1955,15 @@ bool convoi_t::set_schedule(schedule_t * f)
 
 	DBG_DEBUG("convoi_t::set_schedule()", "new=%p, old=%p", f, fpl);
 
-	if(f == NULL) {
+	if(  f==NULL  ) {
 		if(  line.is_bound()  ) {
 			unset_line();
+		}
+		else {
+			// Knightly : if schedule is going to be deleted -> make sure to unregister stops for lineless convoys
+			if(  state==INITIAL  ) {
+				unregister_stops();
+			}
 		}
 		if(  state==INITIAL  ) {
 			delete fpl;
@@ -1815,18 +1998,37 @@ bool convoi_t::set_schedule(schedule_t * f)
 	
 	// happens to be identical?
 	if(fpl!=f) {
-		// now check, we we have been bond to a line we are about to loose:
-		if(  line.is_bound()  &&  !f->matches( welt, line->get_schedule() )  ) {
-			unset_line();
+		// now check, we we have been bond to a line we are about to lose:
+		bool changed = false;
+		if(  line.is_bound()  ) {
+			if(  !f->matches( welt, line->get_schedule() )  ) {
+				// change from line to individual schedule
+				//		-> unset line now and register stops from new schedule later
+				changed = true;
+				unset_line();
+			}
+		}
+		else {
+			if(  !f->matches( welt, fpl )  ) {
+				// Knightly : merely change schedule and do not involve line
+				//				-> unregister stops from old schedule now and register stops from new schedule later
+				changed = true;
+				unregister_stops();
+			}
 		}
 		// destroy a possibly open schedule window
-		if(fpl &&  !fpl->ist_abgeschlossen()) 
-		{ 
-			//"is completed" (Google)
+		//"is completed" (Google)
+		if(  fpl  &&  !fpl->ist_abgeschlossen()  ) {
 			destroy_win((long)fpl);
 			delete fpl;
 		}
 		fpl = f;
+		if(  changed  ) {
+			// Knightly : if line is unset or schedule is changed
+			//				-> register stops from new schedule
+			register_stops();
+			welt->set_schedule_counter();	// must trigger refresh
+		}
 	}
 
 	// remove wrong freight
@@ -1872,7 +2074,7 @@ bool convoi_t::can_go_alte_richtung()
 	}
 
 	// going backwards? then recalculate all
-	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.position_bei(0).get_2d(), route.position_bei(min(2,route.get_count()-1)).get_2d()));
+	ribi_t::ribi neue_richtung_rwr = ribi_t::rueckwaerts(fahr[0]->calc_richtung(route.front().get_2d(), route.position_bei(min(2, route.get_count() - 1)).get_2d()));
 //	DBG_MESSAGE("convoi_t::go_alte_richtung()","neu=%i,rwr_neu=%i,alt=%i",neue_richtung_rwr,ribi_t::rueckwaerts(neue_richtung_rwr),alte_richtung);
 	if(neue_richtung_rwr&alte_richtung) {
 		akt_speed = 8;
@@ -1888,8 +2090,11 @@ bool convoi_t::can_go_alte_richtung()
 		const vehikel_t* v = fahr[i];
 		grund_t *gr = welt->lookup(v->get_pos());
 
-
-		convoi_length += v->get_besch()->get_length();
+		// not last vehicle?
+		// the length of last vehicle does not matter when it comes to positioning of vehicles
+		if ( i+1 < anz_vehikel) {
+			convoi_length += v->get_besch()->get_length();
+		}
 
 		if(gr==NULL  ||  (pred!=NULL  &&  (abs(v->get_pos().x-pred->get_pos().x)>=2  ||  abs(v->get_pos().y-pred->get_pos().y)>=2))  ) {
 			// ending here is an error!
@@ -1941,7 +2146,7 @@ bool convoi_t::can_go_alte_richtung()
 	// we continue our journey; however later cars need also a correct route entry
 	// eventually we need to add their positions to the convoi's route
 	koord3d pos = fahr[0]->get_pos();
-	assert(pos==route.position_bei(0));
+	assert(pos == route.front());
 	if(welt->lookup(pos)->get_depot()) {
 		return false;
 	}
@@ -1949,12 +2154,12 @@ bool convoi_t::can_go_alte_richtung()
 		for(i=0; i<anz_vehikel; i++) {
 			vehikel_t* v = fahr[i];
 			// eventually add current position to the route
-			if(route.position_bei(0)!=v->get_pos()  &&  route.position_bei(1)!=v->get_pos()) {
+			if (route.front() != v->get_pos() && route.position_bei(1) != v->get_pos()) {
 				route.insert(v->get_pos());
 			}
 			// eventually we need to add also a previous position to this path
 			if(v->get_besch()->get_length()>8  &&  i+1<anz_vehikel) {
-				if(route.position_bei(0)!=v->get_pos_prev()  &&  route.position_bei(1)!=v->get_pos_prev()) {
+				if (route.front() != v->get_pos_prev() && route.position_bei(1) != v->get_pos_prev()) {
 					route.insert(v->get_pos_prev());
 				}
 			}
@@ -2011,7 +2216,7 @@ void convoi_t::vorfahren()
 
 	recalc_data = true;
 
-	koord3d k0 = route.position_bei(0);
+	koord3d k0 = route.front();
 	grund_t *gr = welt->lookup(k0);
 	if(gr  &&  gr->get_depot()) {
 		// start in depot
@@ -2026,8 +2231,7 @@ void convoi_t::vorfahren()
 					cr->release_crossing(v);
 				}
 				// eventually unreserve this
-				schiene_t * sch0 = dynamic_cast<schiene_t *>( gr->get_weg(fahr[i]->get_waytype()) );
-				if(sch0) {
+				if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[i]->get_waytype()))) {
 					sch0->unreserve(v);
 				}
 			}
@@ -2108,7 +2312,7 @@ void convoi_t::vorfahren()
 			}
 
 			// since start may have been changed
-			k0 = route.position_bei(0);
+			k0 = route.front();
 
 			uint32 train_length = move_to(*welt, k0, 0);
 
@@ -2117,7 +2321,15 @@ void convoi_t::vorfahren()
 			ribi_t::ribi neue_richtung = fahr[0]->get_direction_of_travel();
 			if(neue_richtung==ribi_t::sued  ||  neue_richtung==ribi_t::ost)
 			{
-				train_length += fahr[anz_vehikel-1]->get_besch()->get_length();
+				// drive the convoi to the same position, but do not hop into next tile!
+				if(  train_length%16==0  ) {
+					// any space we need => just add
+					train_length += fahr[anz_vehikel-1]->get_besch()->get_length();
+				}
+				else {
+					// limit train to front of tile
+					train_length += min( (train_length%16)-1, fahr[anz_vehikel-1]->get_besch()->get_length() );
+				}
 			}
 			else
 			{
@@ -2188,8 +2400,8 @@ void convoi_t::vorfahren()
 		// do not prereserve for airplanes
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			// eventually reserve this
-			schiene_t * sch0 = dynamic_cast<schiene_t *>( welt->lookup(fahr[i]->get_pos())->get_weg(fahr[i]->get_waytype()) );
-			if(sch0) {
+			vehikel_t const& v = *fahr[i];
+			if (schiene_t* const sch0 = ding_cast<schiene_t>(welt->lookup(v.get_pos())->get_weg(v.get_waytype()))) {
 				sch0->reserve(self,ribi_t::keine);
 			}
 			else {
@@ -2266,13 +2478,13 @@ convoi_t::reverse_order(bool rev)
 	}
 
 	fahr[anz_vehikel - 1]->set_letztes(false);
-    
-    for(a; a<--b; a++) //increment a and decrement b until they meet each other
-    {
-		reverse = fahr[a];		//put what's in a into swap space
-        fahr[a] = fahr[b];		//put what's in b into a
-        fahr[b] = reverse;		//put what's in the swap (a) into b
-    }
+
+	for( ; a<--b; a++) //increment a and decrement b until they meet each other
+	{
+		reverse = fahr[a]; //put what's in a into swap space
+		fahr[a] = fahr[b]; //put what's in b into a
+		fahr[b] = reverse; //put what's in the swap (a) into b
+	}
 
 	if(!rev)
 	{
@@ -2301,8 +2513,7 @@ convoi_t::reverse_order(bool rev)
 
 
 
-void
-convoi_t::rdwr(loadsave_t *file)
+void convoi_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "convoi_t" );
 
@@ -2320,23 +2531,23 @@ convoi_t::rdwr(loadsave_t *file)
 	// @author hsiegeln
 	if(file->get_version()<88003) {
 		dummy = 0;
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 		line_id = (uint16)dummy;
 	}
 	else {
-		file->rdwr_short(line_id, " ");
+		file->rdwr_short(line_id);
 	}
 
 	dummy = anz_vehikel;
-	file->rdwr_long(dummy, " ");
+	file->rdwr_long(dummy);
 	anz_vehikel = (uint8)dummy;
 
 	if(file->get_version()<99014) {
 		// was anz_ready
-		file->rdwr_long(dummy, " ");
+		file->rdwr_long(dummy);
 	}
 
-	file->rdwr_long(wait_lock, " ");
+	file->rdwr_long(wait_lock);
 	// some versions may produce broken savegames apparently
 	if(wait_lock > 60000) {
 		dbg->warning("convoi_t::sync_prepre()","Convoi %d: wait lock out of bounds: wait_lock = %d, setting to 60000",self.get_id(), wait_lock);
@@ -2344,19 +2555,19 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	bool dummy_bool=false;
-	file->rdwr_bool(dummy_bool, " ");
-	file->rdwr_long(besitzer_n, "\n");
-	file->rdwr_long(akt_speed, " ");
+	file->rdwr_bool(dummy_bool);
+	file->rdwr_long(besitzer_n);
+	file->rdwr_long(akt_speed);
 	sint32 akt_speed_soll = 0; // Former variable now unused
-	file->rdwr_long(akt_speed_soll, " ");
-	file->rdwr_long(sp_soll, " ");
-	file->rdwr_enum(state, " ");
-	file->rdwr_enum(alte_richtung, " ");
+	file->rdwr_long(akt_speed_soll);
+	file->rdwr_long(sp_soll);
+	file->rdwr_enum(state);
+	file->rdwr_enum(alte_richtung);
 
 	// read the yearly income (which has since then become a 64 bit value)
 	// will be recalculated later directly from the history
 	if(file->get_version()<=89003) {
-		file->rdwr_long(dummy, "\n");
+		file->rdwr_long(dummy);
 	}
 
 	route.rdwr(file);
@@ -2493,6 +2704,10 @@ convoi_t::rdwr(loadsave_t *file)
 					}
 				}
 				gr->obj_add(v);
+				v->clear_flag(ding_t::not_on_map);
+			}
+			else {
+				v->set_flag(ding_t::not_on_map);
 			}
 
 			// add to convoi
@@ -2502,7 +2717,7 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 
 	bool has_fpl = (fpl != NULL);
-	file->rdwr_bool(has_fpl, "");
+	file->rdwr_bool(has_fpl);
 	if(has_fpl) {
 		//DBG_MESSAGE("convoi_t::rdwr()","convoi has a schedule, state %s!",state_names[state]);
 		const vehikel_t* v = fahr[0];
@@ -2548,10 +2763,13 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (j = 2; j < 5; j++) 
@@ -2565,10 +2783,13 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int k = MAX_MONTHS-1; k>=0; k--) {
@@ -2576,7 +2797,7 @@ convoi_t::rdwr(loadsave_t *file)
 		}
 	}
 //BG: superfluous 102002 check:	else if(file->get_version() <= 102002 || (file->get_version() < 102002 && file->get_experimental_version() < 7))
-	else if(file->get_version() <= 102002 || file->get_experimental_version() < 7)
+	else if(file->get_version() <= 102002 || (file->get_experimental_version() < 7 && file->get_experimental_version() != 0))
 	{
 		// load statistics
 		for (int j = 0; j<7; j++) 
@@ -2590,10 +2811,13 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 		for (int j = 7; j<MAX_CONVOI_COST; j++) 
@@ -2618,7 +2842,10 @@ convoi_t::rdwr(loadsave_t *file)
 					// Thus, this value must be skipped properly to
 					// assign the values. Likewise, versions of Experimental < 8
 					// did not store refund information.
-					financial_history[k][j] = 0;
+					if(file->is_loading())
+					{
+						financial_history[k][j] = 0;
+					}
 					continue;
 				}
 
@@ -2626,31 +2853,62 @@ convoi_t::rdwr(loadsave_t *file)
 				{
 					// Simutrans-Standard: distances in tiles, not km. Convert.
 					sint64 distance;
-					file->rdwr_longlong(distance, " ");
-					financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
+					if(file->is_loading())
+					{
+						file->rdwr_longlong(distance);
+						financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
+					}
+					else
+					{
+						distance = financial_history[k][j] / welt->get_einstellungen()->get_distance_per_tile();
+						file->rdwr_longlong(distance);
+					}
 					continue;
 				}
-				file->rdwr_longlong(financial_history[k][j], " ");
+				file->rdwr_longlong(financial_history[k][j]);
 			}
 		}
 	}
 
-	// the convoi odometer
-	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
+	// the convoy odometer
+	if(file->get_version() > 102002)
 	{
-		file->rdwr_longlong( total_distance_traveled, "" );
-	}
-	else if(file->get_version() > 102002)
-	{
-		//Simutrans-Standard save - this value is in tiles, not km. Convert.
-		sint64 tile_distance;
-		file->rdwr_longlong( tile_distance, "" );
-		total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+		if(file->get_experimental_version() < 7)
+		{
+			//Simutrans-Standard save - this value is in tiles, not km. Convert.
+			if(file->is_loading())
+			{
+				sint64 tile_distance;
+				file->rdwr_longlong(tile_distance);
+				total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+			}
+			else
+			{
+				sint64 km_distance = (double)total_distance_traveled / welt->get_einstellungen()->get_distance_per_tile();
+				file->rdwr_longlong(km_distance);
+			}
+		}
+		else
+		{
+			file->rdwr_longlong(total_distance_traveled);
+		}
+
 	}
 
 	if(file->get_version() >= 102003 && file->get_experimental_version() >= 7)
 	{
-		file->rdwr_byte(tiles_since_last_odometer_increment, "");
+		if(file->get_experimental_version() <= 8)
+		{
+			uint8 old_tiles = (uint8)tiles_since_last_odometer_increment;
+			file->rdwr_byte(old_tiles);
+			tiles_since_last_odometer_increment = (float)old_tiles;
+		}
+		else
+		{
+			double tiles = (double)tiles_since_last_odometer_increment;
+			file->rdwr_double(tiles);
+			tiles_since_last_odometer_increment = (float)tiles;
+		}
 	}
 
 	// since it was saved as an signed int
@@ -2666,7 +2924,7 @@ convoi_t::rdwr(loadsave_t *file)
 
 	// save/restore pending line updates
 	if(file->get_version()>84008   &&  file->get_version()<99013) {
-		file->rdwr_long(dummy, "\n");	// ignore
+		file->rdwr_long(dummy);	// ignore
 	}
 	if(file->is_loading()) {
 		line_update_pending = linehandle_t();
@@ -2680,7 +2938,10 @@ convoi_t::rdwr(loadsave_t *file)
 		last_stop_pos.rdwr(file);
 	}
 	else {
-		last_stop_pos = !route.empty() ? route.position_bei(0) : (anz_vehikel > 0 ? fahr[0]->get_pos() : koord3d(0, 0, 0));
+		last_stop_pos =
+			!route.empty()   ? route.front()      :
+			anz_vehikel != 0 ? fahr[0]->get_pos() :
+			koord3d(0, 0, 0);
 	}
 
 	// for leaving the depot routine
@@ -2688,7 +2949,7 @@ convoi_t::rdwr(loadsave_t *file)
 		steps_driven = -1;
 	}
 	else {
-		file->rdwr_short( steps_driven, "s" );
+		file->rdwr_short(steps_driven);
 	}
 
 	// waiting time left ...
@@ -2701,17 +2962,17 @@ convoi_t::rdwr(loadsave_t *file)
 				if(file->get_experimental_version() <= 1)
 				{
 					uint32 old_go_on_ticks = (uint32)go_on_ticks;
-					file->rdwr_long( old_go_on_ticks, "dt" );
+					file->rdwr_long( old_go_on_ticks );
 				}
 				else
 				{
-					file->rdwr_longlong(go_on_ticks, "dt" );
+					file->rdwr_longlong(go_on_ticks );
 				}
 			}
 			else 
 			{
 				sint64 diff_ticks = welt->get_zeit_ms()>go_on_ticks ? 0 : go_on_ticks-welt->get_zeit_ms();
-				file->rdwr_longlong(diff_ticks, "dt" );
+				file->rdwr_longlong(diff_ticks);
 			}
 		}
 		else 
@@ -2719,12 +2980,12 @@ convoi_t::rdwr(loadsave_t *file)
 			if(file->get_experimental_version() <= 1)
 			{
 				uint32 old_go_on_ticks = (uint32)go_on_ticks;				
-				file->rdwr_long( old_go_on_ticks, "dt" );
+				file->rdwr_long( old_go_on_ticks);
 				go_on_ticks = old_go_on_ticks;
 			}
 			else
 			{
-				file->rdwr_longlong(go_on_ticks, "dt" );
+				file->rdwr_longlong(go_on_ticks);
 			}
 
 			if(go_on_ticks!=WAIT_INFINITE)
@@ -2746,36 +3007,47 @@ convoi_t::rdwr(loadsave_t *file)
 		set_tiles_overtaking( 0 );
 	}
 	else {
-		file->rdwr_byte( tiles_overtaking, "o" );
+		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
 	}
 	
-
-
 	// no_load, withdraw
 	if(file->get_version()<102001) {
 		no_load = false;
 		withdraw = false;
 	}
 	else {
-		file->rdwr_bool( no_load, "" );
-		file->rdwr_bool( withdraw, "" );
+		file->rdwr_bool(no_load);
+		file->rdwr_bool(withdraw);
 	}
-	
+
+	// reverse_schedule
+	if(file->is_loading() && file->get_version()<102003 || (file->get_experimental_version() < 9 && file->get_experimental_version() > 0)) 
+	{
+		reverse_schedule = false;
+	}
+	else 
+	{
+		file->rdwr_bool( reverse_schedule);
+	}
+
 	// Simutrans-Experimental specific parameters. 
 	// Must *always* go after standard parameters.
 
-	heaviest_vehicle = calc_heaviest_vehicle();
-	longest_loading_time = calc_longest_loading_time();
+	if(file->is_loading())
+	{
+		heaviest_vehicle = calc_heaviest_vehicle();
+		longest_loading_time = calc_longest_loading_time();
+	}
 
 	if(file->get_experimental_version() >= 1)
 	{
-		file->rdwr_bool(reversed, "");
+		file->rdwr_bool(reversed);
 		
 		//Replacing settings
 		// BG, 31-MAR-2010: new replacing code starts with exp version 8:
 		bool is_replacing = replace && (file->get_experimental_version() >= 8);
-		file->rdwr_bool(is_replacing, "");
+		file->rdwr_bool(is_replacing);
 
 		if(file->get_experimental_version() >= 8)
 		{
@@ -2790,14 +3062,14 @@ convoi_t::rdwr(loadsave_t *file)
 					replace = new replace_data_t(file);
 				}
 			}
-			file->rdwr_bool(depot_when_empty, "");
+			file->rdwr_bool(depot_when_empty);
 		}
 		else
 		{
 			// Original vehicle replacing settings - stored in convoi_t.
 			bool old_autostart;
-			file->rdwr_bool(old_autostart, "");
-			file->rdwr_bool(depot_when_empty, "");
+			file->rdwr_bool(old_autostart);
+			file->rdwr_bool(depot_when_empty);
 
 			uint16 replacing_vehicles_count = 0;
 
@@ -2810,11 +3082,11 @@ convoi_t::rdwr(loadsave_t *file)
 				//  at least the number of replacing vehicles (always 0) must be written. 
 				//replacing_vehicles = replace->get_replacing_vehicles();
 				//replacing_vehicles_count = replacing_vehicles->get_count();
-				file->rdwr_short(replacing_vehicles_count, "");
+				file->rdwr_short(replacing_vehicles_count);
 			}
 			else
 			{
-				file->rdwr_short(replacing_vehicles_count, "");
+				file->rdwr_short(replacing_vehicles_count);
 				if (replacing_vehicles_count > 0)
 				{
 					// BG, 31-MAR-2010: new replacing code starts with exp version 8.
@@ -2847,15 +3119,15 @@ convoi_t::rdwr(loadsave_t *file)
 	}
 	if(file->get_experimental_version() >= 2)
 	{
-		file->rdwr_longlong(last_departure_time, "");
+		file->rdwr_longlong(last_departure_time);
 		const uint8 count = file->get_version() < 103000 ? CONVOI_DISTANCE : MAX_CONVOI_COST;
 		for(uint8 i = 0; i < count; i ++)
 		{	
-			file->rdwr_long(rolling_average[i], "");
-			file->rdwr_short(rolling_average_count[i], "");
+			file->rdwr_long(rolling_average[i]);
+			file->rdwr_short(rolling_average_count[i]);
 		}		
 	}
-	else
+	else if(file->is_loading())
 	{
 		// For loading older games, assume that the convoy
 		// left twenty seconds ago, to avoid anomalies when
@@ -2872,12 +3144,30 @@ convoi_t::rdwr(loadsave_t *file)
 
 void convoi_t::zeige_info()
 {
-	if(!in_depot()) {
-
-		if(umgebung_t::verbose_debug) {
+	if(  in_depot()  ) {
+		// Knightly : if ownership matches, we can try to open the depot dialog
+		if(  get_besitzer()==welt->get_active_player()  ) {
+			grund_t *ground = welt->lookup( front()->get_pos() );
+			if(  ground==NULL  ||  ground->get_depot()==NULL  ) {
+				ground = welt->lookup( get_home_depot() );
+			}
+			if(  ground  ) {
+				depot_t *const depot = ground->get_depot();
+				if(  depot  ) {
+					depot->zeige_info();
+					// try to activate this particular convoy in the depot
+					depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (long)depot ) );
+					if(  frame  ) {
+						frame->activate_convoi(self);
+					}
+				}
+			}
+		}
+	}
+	else {
+		if(  umgebung_t::verbose_debug  ) {
 			dump();
 		}
-
 		create_win( new convoi_info_t(self), w_info, magic_convoi_info+self.get_id() );
 	}
 }
@@ -2923,11 +3213,11 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		// rebuilt the list with goods ...
 		vector_tpl<ware_t> total_fracht;
 
-		ALLOCA(uint32, max_loaded_waren, warenbauer_t::get_waren_anzahl());
-		memset( max_loaded_waren, 0, sizeof(uint32)*warenbauer_t::get_waren_anzahl() );
+		size_t const n = warenbauer_t::get_waren_anzahl();
+		ALLOCA(uint32, max_loaded_waren, n);
+		MEMZERON(max_loaded_waren, n);
 
-		unsigned i;
-		for(i=0; i<anz_vehikel; i++) {
+		for(  uint32 i = 0;  i != anz_vehikel;  ++i  ) {
 			const vehikel_t* v = fahr[i];
 
 			// first add to capacity indicator
@@ -2966,9 +3256,9 @@ void convoi_t::get_freight_info(cbuffer_t & buf)
 		}
 		buf.clear();
 
-		// append info on total capacity
-		slist_tpl<ware_t> capacity;
-		for(i=0;  i<warenbauer_t::get_waren_anzahl();  i++  ) {
+		// apend info on total capacity
+		slist_tpl <ware_t>capacity;
+		for (size_t i = 0; i != n; ++i) {
 			if(max_loaded_waren[i]>0  &&  i!=warenbauer_t::INDEX_NONE) {
 				ware_t ware(warenbauer_t::get_info(i));
 				ware.menge = max_loaded_waren[i];
@@ -3003,7 +3293,9 @@ void convoi_t::open_schedule_window( bool show )
 	// - just starting
 	// - a line update is pending
 	if(  (state==FAHRPLANEINGABE  ||  line_update_pending.is_bound())  &&  get_besitzer()==welt->get_active_player()  ) {
-		create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
+		if (show) {
+			create_win( new news_img("Not allowed!\nThe convoi's schedule can\nnot be changed currently.\nTry again later!"), w_time_delete, magic_none );
+		}
 		return;
 	}
 
@@ -3013,7 +3305,9 @@ void convoi_t::open_schedule_window( bool show )
 	}
 
 	akt_speed = 0;	// stop the train ...
-	state = FAHRPLANEINGABE;
+	if(state!=INITIAL) {
+		state = FAHRPLANEINGABE;
+	}
 	wait_lock = 25000;
 	alte_richtung = fahr[0]->get_fahrtrichtung();
 
@@ -3034,99 +3328,24 @@ void convoi_t::open_schedule_window( bool show )
 
 
 
-/* Fahrzeuge passen oft nur in bestimmten kombinationen
- * die Beschraenkungen werden hier geprueft, die für die Nachfolger von
- * vor gelten - daher muß vor != NULL sein..
- * TRANSLATION: (Google)
- * Vehicles are often triggered only in certain combinations restrictions are approved,
- * the successor to continue to apply - therefore must be done before != NULL.
- */
-bool convoi_t::pruefe_nachfolger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
-{
-	const vehikel_besch_t *soll;
-
-	if(!vor->get_nachfolger_count()) 
-	{
-		if(vor->get_can_be_at_rear())
-		{
-			return true;
-		}
-		else
-		{
-			if(hinter != NULL)
-			{
-				return true;
-			}
-		}
-	}
-	for(int i=0; i < vor->get_nachfolger_count(); i++) {
-		soll = vor->get_nachfolger(i);
-		//DBG_MESSAGE("convoi_t::pruefe_an_index()",
-		//    "checking successor: should be %d, is %d",
-		//    soll ? soll->get_name() : "none",
-		//    hinter ? hinter->get_name() : "none");
-
-		if(hinter == soll) {
-			// Diese Beschränkung erlaubt unseren Nachfolger
-			// This restriction allows our successors (Google translations)
-			return hinter || vor->get_can_be_at_rear();
-		}
-	}
-	//DBG_MESSAGE("convoi_t::pruefe_an_index()",
-	//		 "No matching successor found.");
-	return false;
-}
-
-/* Fahrzeuge passen oft nur in bestimmten kombinationen
- * die Beschraenkungen werden hier geprueft, die für die Vorgänger von
- *  hinter gelten - daher muß hinter != NULL sein.
- * 
- * Vehicles are often only fit in certain combinations, 
- * the restrictions are approved, the predecessor of 
- * behind apply - must be behind! = NULL. (Google)
- */
-bool convoi_t::pruefe_vorgaenger(const vehikel_besch_t *vor, const vehikel_besch_t *hinter)
-{
-	const vehikel_besch_t *soll; //"Soll" = should (Google)
-
-	if(!hinter->get_vorgaenger_count()) {
-		// Alle Vorgänger erlaubt
-		// "All previous permits" (Google).
-		return true;
-	}
-	for(int i=0; i < hinter->get_vorgaenger_count(); i++) {
-		soll = hinter->get_vorgaenger(i);
-		//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-		//	     "checking predecessor: should be %s, is %s",
-		//	     soll ? soll->get_name() : "none",
-		//	     vor ? vor->get_name() : "none");
-
-		if(vor == soll) {
-			// Diese Beschränkung erlaubt unseren Vorgänger
-			// 	This restriction allows our predecessors (Google)
-			return true;
-		}
-	}
-	//DBG_MESSAGE("convoi_t::pruefe_vorgaenger()",
-	//		 "No matching predecessor found.");
-	return false;
-}
-
 
 bool convoi_t::pruefe_alle() //"examine all" (Babelfish)
+/**
+ * Check validity of convoi with respect to vehicle constraints
+ */
 {
-	bool ok = (anz_vehikel == 0 || pruefe_vorgaenger(NULL, fahr[0]->get_besch()));
+	bool ok = anz_vehikel == 0  ||  fahr[0]->get_besch()->can_follow(NULL);
 	unsigned i;
 
 	const vehikel_t* pred = fahr[0];
 	for(i = 1; ok && i < anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
-		ok = pruefe_nachfolger(pred->get_besch(), v->get_besch()) &&
-				 pruefe_vorgaenger(pred->get_besch(), v->get_besch());
+		ok = pred->get_besch()->can_lead(v->get_besch())  &&
+				 v->get_besch()->can_follow(pred->get_besch());
 		pred = v;
 	}
 	if(ok) {
-		ok = pruefe_nachfolger(pred->get_besch(), NULL);
+		ok = pred->get_besch()->can_lead(NULL);
 	}
 
 	return ok;
@@ -3145,16 +3364,16 @@ void convoi_t::laden() //"load" (Babelfish)
 	//@author: jamespetts
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
 	
-	if(current_stop != fpl->get_aktuell())
+	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
+	const sint32 average_speed = ((double)journey_distance / journey_time) * 20.0;
+	if(journey_distance > 0)
 	{
-		const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
-		const uint16 average_speed = ((double)journey_distance / journey_time) * 20.0;
 		book(average_speed, CONVOI_AVERAGE_SPEED);
-		last_departure_time = welt->get_zeit_ms();
-		
-		// Recalculate comfort
-		book(get_comfort(), CONVOI_COMFORT);
 	}
+	last_departure_time = welt->get_zeit_ms();
+		
+	// Recalculate comfort
+	book(get_comfort(), CONVOI_COMFORT);
 
 	for(uint8 i = 0; i < anz_vehikel; i++)
 	{
@@ -3172,52 +3391,40 @@ void convoi_t::laden() //"load" (Babelfish)
 	}
 
 	halthandle_t halt = haltestelle_t::get_halt(welt, fpl->get_current_eintrag().pos,besitzer_p);
+	if(go_on_ticks==WAIT_INFINITE) {
+		sint64 go_on_ticks_spacing = WAIT_INFINITE;
+		if (line.is_bound() && fpl->get_spacing() && line->count_convoys()) {
+			uint32 spacing = welt->ticks_per_world_month/fpl->get_spacing();
+			sint64 wait_from_ticks = (welt->get_zeit_ms()/spacing) * spacing; // remember, it is integer division
+			int queue_pos = halt.is_bound()?halt->get_queue_pos(self):1;
+			go_on_ticks_spacing = wait_from_ticks + spacing * queue_pos;
+		}
+		sint64 go_on_ticks_waiting = WAIT_INFINITE;
+		if ( fpl->get_current_eintrag().waiting_time_shift>0) {
+			go_on_ticks_waiting = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
+		}
+		go_on_ticks = (std::min)(go_on_ticks_spacing, go_on_ticks_waiting);
+	}
 	// eigene haltestelle ?
 	// "own stop?" (Babelfish)
 	if (halt.is_bound()) 
 	{
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
-		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1)  ) 
+		const weg_t *w = welt->lookup(fpl->get_current_eintrag().pos)->get_weg(fpl->get_waytype());
+		const spieler_t *sp = w ? w->get_besitzer() : NULL;
+		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1) || (w && sp == NULL) || (w && sp == welt->get_spieler(1)) )
 		{
 			// loading/unloading ...
-			hat_gehalten(k, halt);
+			halt->request_loading( self );
+		}
+
+		else {
+			halt = halthandle_t();
 		}
 	}
 
-	if(go_on_ticks==WAIT_INFINITE  &&  fpl->get_current_eintrag().waiting_time_shift>0) {
-		go_on_ticks = welt->get_zeit_ms() + (welt->ticks_per_world_month >> (16-fpl->get_current_eintrag().waiting_time_shift));
-	}
-
-	// Nun wurde ein/ausgeladen werden
-	// "Now, a / unloaded" (Google)
-	if(loading_level >= loading_limit  ||  no_load  ||  welt->get_zeit_ms() > go_on_ticks)  
-	{
-
-		// This is the minimum time it takes for loading
-		wait_lock = longest_loading_time;
-
-		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
-			// destroy when empty
-			self_destruct();
-			return;
-		}
-
-		// add available capacity after loading(!) to statistics
-		for (uint8 i = 0; i < anz_vehikel; i++) 
-		{
-			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
-		}
-
-		// Advance schedule
-		fpl->advance();
-		state = ROUTING_1;
-	}
-
-	else {
-		// just wait a little longer to get maximum load ...
-		wait_lock = (longest_loading_time*2)+(self.get_id())%1024;
-	}
+	wait_lock = longest_loading_time;
 }
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
@@ -3227,7 +3434,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	if(!line.is_bound())
 	{
 		// No line - must use convoy
-		if(financial_history[1][CONVOI_AVERAGE_SPEED] < 1)
+		if(financial_history[1][CONVOI_AVERAGE_SPEED] == 0)
 		{
 			average_speed = financial_history[0][CONVOI_AVERAGE_SPEED];
 		}
@@ -3239,7 +3446,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	else
 	{
-		if(line->get_finance_history(1, LINE_AVERAGE_SPEED) < 1)
+		if(line->get_finance_history(1, LINE_AVERAGE_SPEED) == 0)
 		{
 			average_speed = line->get_finance_history(0, LINE_AVERAGE_SPEED);
 		}
@@ -3578,15 +3785,14 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
  *
  * V.Meyer: ladegrad is now stored in the object (not returned)
  */
-void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
+void convoi_t::hat_gehalten(halthandle_t halt)
 {
 	sint64 gewinn = 0;
 	grund_t *gr = welt->lookup(fahr[0]->get_pos());
 
-	int station_length = 0;
-	if(gr->ist_wasser()) 
-	{
-		// habour has any size
+	int station_length=0;
+	if(gr->ist_wasser()) {
+		// harbour has any size
 		station_length = 24*16;
 	}
 	else
@@ -3600,8 +3806,7 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			// start on bridge?
 			pos.z += Z_TILE_STEP;
 		}
-		while(  grund  &&  grund->get_halt() == halt  ) 
-		{
+		while(  grund  &&  grund->get_halt() == halt  ) {
 			station_length += TILE_STEPS;
 			pos += zv;
 			grund = welt->lookup(pos);
@@ -3617,13 +3822,14 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		}
 	}
 
+	halt->update_alternative_seats(self);
 	// only load vehicles in station
 
 	//int convoy_length = 0;
 	bool second_run = anz_vehikel <= 1;
 	uint8 convoy_length = 0;
 	bool changed_loading_level = false;
-	for(uint8 i=0; i < anz_vehikel ; i++) 
+	for(sint8 i=0; i < anz_vehikel ; i++) 
 	{
 		vehikel_t* v = fahr[i];
 
@@ -3640,19 +3846,19 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 			v->last_stop_pos = v->get_pos().get_2d();
 			//Unload
 			v->current_revenue = 0;
-			freight_info_resort |= v->entladen(k, halt);
+			freight_info_resort |= v->entladen(halt);
 			gewinn += v->current_revenue;
 		}
 
-		changed_loading_level |= v->entladen(k, halt);
+		changed_loading_level |= v->entladen(halt);
 		if(!no_load) {
 			// load
-			changed_loading_level |= v->beladen(k, halt);
+			changed_loading_level |= v->beladen(halt, second_run);
 		}
 		else 
 		{
 			// do not load anymore - but call beladen() to recalculate vehikel weight
-			v->beladen(k, halthandle_t());
+			v->beladen(halthandle_t());
 		}
 
 		// Run this routine twice: first, load all vehicles to their non-overcrowded capacity.
@@ -3683,6 +3889,28 @@ void convoi_t::hat_gehalten(koord k, halthandle_t halt) //"has held" (Google)
 		book(gewinn, CONVOI_PROFIT);
 		book(gewinn, CONVOI_REVENUE);
 	}
+
+	// Nun wurde ein/ausgeladen werden
+	if(loading_level>=loading_limit  ||  no_load  ||  welt->get_zeit_ms()>go_on_ticks)  {
+
+		if(withdraw  &&  (loading_level==0  ||  goods_catg_index.empty())) {
+			// destroy when empty
+			self_destruct();
+			return;
+		}
+
+		// add available capacity after loading(!) to statistics
+		for (unsigned i = 0; i<anz_vehikel; i++) {
+			book(get_vehikel(i)->get_fracht_max()-get_vehikel(i)->get_fracht_menge(), CONVOI_CAPACITY);
+		}
+
+		// Advance schedule
+		advance_schedule();
+		state = ROUTING_1;
+	}
+
+	// at least wait the minimum time for loading
+	wait_lock = longest_loading_time;
 }
 
 
@@ -3706,13 +3934,21 @@ void convoi_t::calc_loading()
 {
 	int fracht_max = 0;
 	int fracht_menge = 0;
+	int seats_max = 0;
+	int seats_menge = 0;
+
 	for(unsigned i=0; i<anz_vehikel; i++) {
 		const vehikel_t* v = fahr[i];
 		fracht_max += v->get_fracht_max();
 		fracht_menge += v->get_fracht_menge();
+		if ( v->get_fracht_typ() == warenbauer_t::passagiere ) {
+			seats_max += v->get_fracht_max();
+			seats_menge += v->get_fracht_menge();
+		}
 	}
 	loading_level = fracht_max > 0 ? (fracht_menge*100)/fracht_max : 100;
 	loading_limit = 0;	// will be set correctly from hat_gehalten() routine
+	free_seats = seats_max > seats_menge ? seats_max - seats_menge : 0;
 
 	// since weight has changed
 	recalc_data=true;
@@ -3726,11 +3962,9 @@ void convoi_t::calc_loading()
  */
 void convoi_t::self_destruct()
 {
+	line_update_pending = linehandle_t();	// does not bother to add it to a new line anyway ...
 	// convois in depot are not contained in the map array!
 	if(state==INITIAL) {
-		for(  int i=0;  i<anz_vehikel;  i++  ) {
-			fahr[i]->set_flag( ding_t::not_on_map );
-		}
 		destroy();
 	}
 	else {
@@ -3754,19 +3988,23 @@ void convoi_t::destroy()
 		fahr[0]->set_convoi(NULL);
 	}
 
+	if(  state == INITIAL  ) {
+		// in depot => not on map
+		for(int i=anz_vehikel-1;  i>=0; i--) {
+			fahr[i]->set_flag( ding_t::not_on_map );
+		}
+	}
+	state = SELF_DESTRUCT;
+
 	if(fpl!=NULL  &&  !fpl->ist_abgeschlossen()) {
 		destroy_win((long)fpl);
 	}
-
+	
 	if(  line.is_bound()  ) {
 		// needs to be done here to remove correctly ware catg from lines
 		unset_line();
 		delete fpl;
 		fpl = NULL;
-	}
-
-	if(  state != INITIAL  ) {
-		state = SELF_DESTRUCT;
 	}
 
 	// pay the current value
@@ -3884,7 +4122,7 @@ sint32 convoi_t::get_per_kilometre_running_cost() const
 {
 	sint32 running_cost = 0;
 	for (unsigned i = 0; i<get_vehikel_anzahl(); i++) { //"anzahl" = "number" (Babelfish)
-		sint32 vehicle_running_cost = fahr[i]->get_besch()->get_base_running_costs(welt);
+		sint32 vehicle_running_cost = fahr[i]->get_besch()->get_betriebskosten(welt);
 		running_cost += vehicle_running_cost;
 	}
 	return running_cost;
@@ -3909,8 +4147,13 @@ void convoi_t::set_line(linehandle_t org_line)
 	if(!org_line.is_bound()) {
 		return;
 	}
-	if(line.is_bound()) {
+	if(  line.is_bound()  ) {
 		unset_line();
+	}
+	else {
+		// Knightly : originally a lineless convoy -> unregister itself from stops as it now belongs to a line
+		unregister_stops();
+		welt->set_schedule_counter();	// must trigger refresh
 	}
 	line_update_pending = org_line;
 	check_pending_updates();
@@ -3948,7 +4191,7 @@ void convoi_t::check_pending_updates()
 		bool is_depot = false;
 		koord3d current = koord3d::invalid, depot = koord3d::invalid;
 
-		if(fpl->get_count()==0  ||  new_fpl->get_count()==0) {
+		if (fpl->empty() || new_fpl->empty()) {
 			// was no entry or is no entry => goto  1st stop
 			aktuell = 0;
 		}
@@ -3975,33 +4218,36 @@ void convoi_t::check_pending_updates()
 				 * we try first same sequence as in old schedule;
 				 * if not found, we try for same nextnext station
 				 */
-				const koord3d next = fpl->eintrag[(aktuell+1)%fpl->get_count()].pos;
-				const koord3d nextnext = fpl->eintrag[(aktuell+2)%fpl->get_count()].pos;
-				const koord3d nextnextnext = fpl->eintrag[(aktuell+3)%fpl->get_count()].pos;
+				uint8 index = aktuell;
+				bool reverse = reverse_schedule;
+				koord3d next[4];
+				for( uint8 i=0; i<4; i++ ) {
+					next[i] = fpl->eintrag[index].pos;
+					fpl->increment_index(&index, &reverse);
+				}
+				const int weights[4] = {3, 4, 2, 1};
 				int how_good_matching = 0;
 				const uint8 new_count = new_fpl->get_count();
 
 				for(  uint8 i=0;  i<new_count;  i++  ) {
-					int quality =
-						(new_fpl->eintrag[i].pos==current)*3 +
-						(new_fpl->eintrag[(i+1)%new_count].pos==next)*4 +
-						(new_fpl->eintrag[(i+2)%new_count].pos==nextnext)*2 +
-						(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext);
+					index = i;
+					reverse = reverse_schedule;
+					int quality = 0;
+					for( uint8 j=0; j<4; j++ ) {
+						quality += (new_fpl->eintrag[index].pos==next[j])*weights[j];
+						new_fpl->increment_index(&index, &reverse);
+					}
 					if(  quality>how_good_matching  ) {
 						// better match than previous: but depending of distance, the next number will be different
-						if(new_fpl->eintrag[i].pos==current) {
-							aktuell = i;
+						index = i;
+						reverse = reverse_schedule;
+						for( uint8 j=0; j<4; j++ ) {
+							if( new_fpl->eintrag[index].pos==next[j] ) {
+								aktuell = index;
+								break;
+							}
+							new_fpl->increment_index(&index, &reverse);
 						}
-						else if(new_fpl->eintrag[(i+1)%new_count].pos==next) {
-							aktuell = i+1;
-						}
-						else if(new_fpl->eintrag[(i+2)%new_count].pos==nextnext) {
-							aktuell = i+2;
-						}
-						else if(new_fpl->eintrag[(i+3)%new_count].pos==nextnextnext) {
-							aktuell = i+3;
-						}
-						aktuell %= new_count;
 						how_good_matching = quality;
 					}
 				}
@@ -4039,7 +4285,7 @@ void convoi_t::check_pending_updates()
 			fpl->set_aktuell( (fpl->get_aktuell()+fpl->get_count()-1)%fpl->get_count() );
 		}
 
- 		if(state!=INITIAL) {
+		if (state != INITIAL) {
 			if(is_same  ||  is_depot) {
 				/* same destination
 				 * We are already there => remove wrong freight and keep current state
@@ -4058,6 +4304,48 @@ void convoi_t::check_pending_updates()
 			}
 		}
 	}
+}
+
+
+/**
+ * Register the convoy with the stops in the schedule
+ * @author Knightly
+ */
+void convoi_t::register_stops()
+{
+	if(  fpl  ) {
+		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
+			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
+			if(  halt.is_bound()  ) {
+				halt->add_convoy(self);
+			}
+		}
+	}
+}
+
+
+/**
+ * Unregister the convoy from the stops in the schedule
+ * @author Knightly
+ */
+void convoi_t::unregister_stops()
+{
+	if(  fpl  ) {
+		for(  uint8 i=0;  i<fpl->get_count();  ++i  ) {
+			const halthandle_t halt = haltestelle_t::get_halt( welt, fpl->eintrag[i].pos, get_besitzer() );
+			if(  halt.is_bound()  ) {
+				halt->remove_convoy(self);
+			}
+		}
+	}
+}
+
+
+// set next stop before breaking will occur (or route search etc.)
+// currently only used for tracks
+void convoi_t::set_next_stop_index(uint16 n)
+{
+	next_stop_index = n+1;
 }
 
 
@@ -4127,37 +4415,42 @@ convoi_t::get_catering_level(uint8 type) const
  /**
  * True if this convoy has the same vehicles as the other
  * @author isidoro
+ * @author neroden (fixed)
  */
 bool convoi_t::has_same_vehicles(convoihandle_t other) const
 {
-	if (other.is_bound()) 
+	if (!other.is_bound()) 
 	{
-		if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) 
+		return false;
+	}
+	if (get_vehikel_anzahl()!=other->get_vehikel_anzahl()) 
+	{
+		return false;
+	}
+	// We must compare both in the 'same direction' and in the 'reverse direction'.
+	// We cannot use the 'reverse' flag to tell the difference.
+	bool forward_compare_good = true;
+	for (int i=0; i<get_vehikel_anzahl(); i++)
+	{
+		if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
-			return false;
+			forward_compare_good = false;
+			break;
 		}
-		if(reversed == other->reversed)
+	}
+	if (forward_compare_good) {
+		return true;
+	}
+	bool reverse_compare_good = true;
+	for (int i=0, j=get_vehikel_anzahl()-1; i<get_vehikel_anzahl(); i++, j--)
+	{
+		if (get_vehikel(j)->get_besch()!=other->get_vehikel(i)->get_besch())
 		{
-			for (int i=0; i<get_vehikel_anzahl(); i++) 
-			{
-				if (get_vehikel(i)->get_besch()!=other->get_vehikel(i)->get_besch()) 
-				{
-					return false;
-				}
-			}
+			reverse_compare_good = false;
+			break;
 		}
-		else
-		{
-			int reverse_count = get_vehikel_anzahl() - 1;
-			for (int i=0; i<get_vehikel_anzahl(); i++) 
-			{
-				if (get_vehikel(reverse_count)->get_besch()!=other->get_vehikel(i)->get_besch()) 
-				{
-					return false;
-				}
-				reverse_count --;
-			}
-		}
+	}
+	if (reverse_compare_good) {
 		return true;
 	}
 	return false;
@@ -4194,7 +4487,7 @@ public:
 	{ 
 		return master->get_ribi(gr); 
 	};
-	virtual int get_kosten( const grund_t*, uint32) const 
+	virtual int get_kosten( const grund_t*, const sint32, koord from_pos) const 
 	{ 
 		return 1; 
 	};
@@ -4365,14 +4658,17 @@ bool convoi_t::has_no_cargo() const
 uint16 convoi_t::get_tile_length() const
 {
 	uint16 tiles=0;
-	// the last vehicle does not count!
 	for(sint8 i=0;  i<anz_vehikel-1;  i++) {
 		tiles += fahr[i]->get_besch()->get_length();
 	}
-	// add 127/256 tile to account for the driving in stations in north/west direction
-	// see at the end of vehikel_t::hop()
-	return (tiles*16 + 256-1 + 127)/256;
-	// was originally (tiles+16-1)/16;
+	// the last vehicle counts differently in stations and for reserving track
+	// (1) add 8 = 127/256 tile to account for the driving in stations in north/west direction
+	//     see at the end of vehikel_t::hop()
+	// (2) for length of convoi for loading in stations the length of the last vehicle matters
+	//     see convoi_t::hat_gehalten
+	tiles += max(8, fahr[anz_vehikel-1]->get_besch()->get_length());
+
+	return (tiles + 15) / 16;
 }
 
 
@@ -4422,8 +4718,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 
 	// Distance it takes overtaking (unit:256*tile) = my_speed * time_overtaking
 	// time_overtaking = tiles_to_overtake/diff_speed
-	// tiles_to_overtake = convoi_length + pos_other_convoi
-	int distance = 256 + akt_speed*((get_length()*16)+steps_other)/diff_speed;
+	// tiles_to_overtake = convoi_length + current pos within tile + (pos_other_convoi wihtin tile + length of other convoi) - one tile
+	int distance = akt_speed*(fahr[0]->get_steps()+(get_length()*16)+steps_other-256)/diff_speed;
 	int time_overtaking = 0;
 
 	// Conditions for overtaking:
@@ -4504,9 +4800,9 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	//   invade the dangerous zone.
 	// Conditions for the street are milder: e.g. if no street, no facing traffic
 	time_overtaking = (time_overtaking << 16)/akt_speed;
-	while ( time_overtaking > 0 ) {
+	while(  time_overtaking > 0  ) {
 
-		if ( route_index >= route.get_count() ) {
+		if(  route_index >= route.get_count()  ) {
 			return false;
 		}
 
@@ -4542,8 +4838,27 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	}
 
 	set_tiles_overtaking( 1+n_tiles );
-	other_overtaker->set_tiles_overtaking( -1-(n_tiles/2) );
+	other_overtaker->set_tiles_overtaking( -1-(n_tiles*(akt_speed-diff_speed))/akt_speed );
 	return true;
+}
+
+/**
+ * Format remained loading time from go_on_ticks
+ */
+void convoi_t::snprintf_remained_loading_time(char *p, size_t size) const
+{
+	if (go_on_ticks == WAIT_INFINITE || go_on_ticks < welt->get_zeit_ms())
+	{
+		*p = '\0';
+	}
+	else
+	{
+		uint32 ticks_left = (int)(go_on_ticks - welt->get_zeit_ms());
+		unsigned int hours = (ticks_left * 24) >> welt->ticks_per_world_month_shift;
+		unsigned int minutes = ((ticks_left * 24 * 60) >> welt->ticks_per_world_month_shift)%60;
+		snprintf(p, size, "%u:%02u", hours, minutes);
+		//sprintf(p, "%u:%02u", hours, minutes);
+	}
 }
 
 uint32 

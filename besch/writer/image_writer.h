@@ -1,6 +1,7 @@
 #ifndef IMAGE_WRITER_H
 #define IMAGE_WRITER_H
 
+#include <string>
 #include <stdio.h>
 #include "obj_writer.h"
 #include "../objversion.h"
@@ -18,7 +19,7 @@ class image_writer_t : public obj_writer_t {
 	private:
 		static image_writer_t the_instance;
 
-		static cstring_t last_img_file;
+		static std::string last_img_file;
 		static unsigned char* block;
 		static unsigned width;
 		static unsigned height;
@@ -36,7 +37,7 @@ class image_writer_t : public obj_writer_t {
 		virtual obj_type get_type() const { return obj_image; }
 		virtual const char* get_type_name() const { return "image"; }
 
-		void write_obj(FILE* fp, obj_node_t& parent, cstring_t imagekey);
+		void write_obj(FILE* fp, obj_node_t& parent, std::string imagekey);
 
 	private:
 		bool block_laden(const char* fname);

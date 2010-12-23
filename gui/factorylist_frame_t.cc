@@ -35,7 +35,7 @@ const char *factorylist_frame_t::sort_text[factorylist::SORT_MODES] = {
 };
 
 factorylist_frame_t::factorylist_frame_t(karte_t * welt) :
-    gui_frame_t(translator::translate("fl_title")),
+    gui_frame_t("fl_title"),
     sort_label(translator::translate("hl_txt_sort")),
 	stats(welt,sortby,sortreverse),
 	scrolly(&stats)

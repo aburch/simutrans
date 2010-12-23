@@ -7,6 +7,7 @@
 #ifndef simsys_h
 #define simsys_h
 
+#include <stddef.h>
 #include "simtypes.h"
 
 
@@ -74,6 +75,8 @@ unsigned short* dr_textur_init(void);
 
 
 void dr_textur(int xp, int yp, int w, int h);
+
+/* returns the actual width (might be larger than requested! */
 int dr_textur_resize(unsigned short** textur,int w, int h, int bpp);
 
 // needed for screen update
@@ -114,5 +117,22 @@ bool dr_fatal_notify(const char* msg, int choices);
  * @author Hj. Malthaner
  */
 int dr_screenshot(const char *filename);
+
+/**
+ * Copy text to the clipboard
+ * @param source : pointer to the start of the source text
+ * @param length : number of character bytes to copy
+ * @author Knightly
+ */
+void dr_copy(const char *source, size_t length);
+
+/**
+ * Paste text from the clipboard
+ * @param target : pointer to the insertion position in the target text
+ * @param max_length : maximum number of character bytes which could be inserted
+ * @return number of character bytes actually inserted -> for cursor advancing
+ * @author Knightly
+ */
+size_t dr_paste(char *target, size_t max_length);
 
 #endif

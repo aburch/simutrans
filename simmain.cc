@@ -1,4 +1,6 @@
+
 #include <stdio.h>
+#include <string>
 #include <new>
 #include <time.h>
 
@@ -55,15 +57,15 @@
 #include "dings/baum.h"
 
 #include "utils/simstring.h"
-#include "utils/cstring_t.h"
 #include "utils/searchfolder.h"
 
+#include "dataobj/network.h"	// must be before any "windows.h" is included via bzlib2.h ...
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
 #include "dataobj/tabfile.h"
 #include "dataobj/einstellungen.h"
 #include "dataobj/translator.h"
-#include "dataobj/network.h"
+#include "dataobj/pakset_info.h"
 
 #include "besch/reader/obj_reader.h"
 #include "besch/sound_besch.h"
@@ -75,6 +77,7 @@
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"
 
+using std::string;
 
 /* diagnostic routine:
  * show the size of several internal structures
@@ -176,40 +179,80 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 
 
-/**
- * Show Intro Screen
- */
-static void zeige_banner(karte_t *welt)
+void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 {
-	banner_t* b = new banner_t();
+	if(  display_get_width()==0  ) {
+		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
+		// cannot handle this!
+		return;
+	}
+
 	event_t ev;
+	create_win( (display_get_width()-gui->get_fenstergroesse().x)/2, (display_get_height()-gui->get_fenstergroesse().y)/2, gui, w_info, magic_none );
 
-	destroy_all_win();	// since eventually the successful load message is still there ....
+	if(  welt  ) {
+		welt->set_pause( false );
+		welt->reset_interaction();
+		welt->reset_timer();
 
-	create_win(0, -48, b, w_info, magic_none );
-
-	// hide titelbar with this trick
-	win_set_pos( b, 0, -48 );
-	welt->set_pause( false );
-	welt->reset_interaction();
-	welt->reset_timer();
-
-	do {
-		static long ms_pause = 1000/min(100,umgebung_t::fps);
-		win_poll_event(&ev);
-		check_pos_win(&ev);
-		if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
-			umgebung_t::quit_simutrans = true;
+		long ms_pause = max( 25, 1000/umgebung_t::fps );
+		uint32 last_step = dr_time()+ms_pause;
+		uint step_count = 5;
+		while(  win_is_open(gui)  &&  !umgebung_t::quit_simutrans  &&  !quit()  ) {
+			do {
+				DBG_DEBUG4("zeige_banner", "calling win_poll_event");
+				win_poll_event(&ev);
+				// no toolbar events
+				if(  ev.my < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
+					ev.my = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				}
+				if(  ev.cy < werkzeug_t::toolbar_tool[0]->iconsize.y  ) {
+					ev.cy = werkzeug_t::toolbar_tool[0]->iconsize.y;
+				}
+				DBG_DEBUG4("zeige_banner", "calling check_pos_win");
+				check_pos_win(&ev);
+				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
+					umgebung_t::quit_simutrans = true;
+					break;
+				}
+				dr_sleep(5);
+			} while(  dr_time()<last_step  );
+			DBG_DEBUG4("zeige_banner", "calling welt->sync_step");
+			welt->sync_step( ms_pause, true, true );
+			DBG_DEBUG4("zeige_banner", "calling welt->step");
+			if(  step_count--==0  ) {
+				welt->step();
+				step_count = 5;
+			}
+			last_step += ms_pause;
 		}
-		dr_sleep(ms_pause);
-		static uint32 last_step = dr_time();
-		uint32 next_step = dr_time();
-		welt->sync_step( next_step-last_step, true, true );
-		welt->step();
-		last_step = next_step;
-	} while(win_is_top(b)  &&  !umgebung_t::quit_simutrans  );
+	}
+	else {
+		display_show_pointer(true);
+		show_pointer(1);
+		set_pointer(0);
+		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+		while(  win_is_open(gui)  &&  !umgebung_t::quit_simutrans  &&  !quit()  ) {
+			// do not move, do not close it!
+			dr_prepare_flush();
+			gui->zeichnen( koord(win_get_posx(gui),win_get_posy(gui)), gui->get_fenstergroesse() );
+			display_poll_event(&ev);
+			// main window resized
+			check_pos_win(&ev);
+			dr_flush();
+			dr_sleep(50);
+			// main window resized
+			if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
+				// main window resized
+				simgraph_resize( ev.mx, ev.my );
+				display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+			}
+		}
+		set_pointer(1);
+		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
+	}
 
-
+	// just trigger not another following window => wait for button release
 	if (IS_LEFTCLICK(&ev)) {
 		do {
 			display_get_event(&ev);
@@ -218,46 +261,27 @@ static void zeige_banner(karte_t *welt)
 }
 
 
+// some routines for the modal display
+static bool never_quit() { return false; }
+static bool empty_objfilename() { return !umgebung_t::objfilename.empty(); }
+static bool no_language() { return translator::get_language()!=-1; }
+
+
 
 /**
  * Show pak selector
  */
 static void ask_objfilename()
 {
-	// more than one => show selector box (ugly and without translations ...)
-	set_pointer(0);
 	pakselector_t* sel = new pakselector_t();
 	sel->fill_list();
-	if(!sel->has_pak()) {
-		// nothing there ...
-		set_pointer(1);
+	if(sel->has_pak()) {
+		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		modal_dialogue( sel, NULL, empty_objfilename );
+	}
+	else {
 		delete sel;
-		return;
 	}
-	koord xy( display_get_width()/2 - 180, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
-	event_t ev;
-
-	destroy_all_win();	// since eventually the successful load message is still there ....
-
-	create_win( xy.x, xy.y, sel, w_info, magic_none );
-
-	while(umgebung_t::objfilename.empty()) {
-		// do not move, do not close it!
-		dr_prepare_flush();
-		sel->zeichnen( xy, sel->get_fenstergroesse() );
-		display_poll_event(&ev);
-		// main window resized
-		check_pos_win(&ev);
-		dr_flush();
-		dr_sleep(50);
-		// main window resized
-		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
-			// main window resized
-			simgraph_resize( ev.mx, ev.my );
-			display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
-		}
-	}
-	set_pointer(1);
 }
 
 
@@ -267,34 +291,17 @@ static void ask_objfilename()
  */
 static void ask_language()
 {
-	display_show_pointer(true);
-	show_pointer(1);
-	set_pointer(0);
-	sprachengui_t* sel = new sprachengui_t();
-	koord xy( display_get_width()/2 - sel->get_fenstergroesse().x/2, display_get_height()/2 - sel->get_fenstergroesse().y/2 );
-	event_t ev;
-
-	destroy_all_win();	// since eventually the successful load message is still there ....
-	create_win( xy.x, xy.y, sel, w_info, magic_none );
-
-	while(  translator::get_language()==-1  ) {
-		// do not move, do not close it!
-		dr_prepare_flush();
-		sel->zeichnen( xy, sel->get_fenstergroesse() );
-		display_poll_event(&ev);
-		// main window resized
-		check_pos_win(&ev);
-		dr_flush();
-		dr_sleep(50);
-		// main window resized
-		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
-			// main window resized
-			simgraph_resize( ev.mx, ev.my );
-			display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
-		}
+	if(  display_get_width()==0  ) {
+		// only console available ... => choose english for the moment
+		dbg->warning( "ask_language", "No language selected, will use english!" );
+		translator::set_language( "en" );
 	}
-	destroy_win( sel );
-	set_pointer(0);
+	else {
+		sprachengui_t* sel = new sprachengui_t();
+		destroy_all_win(true);	// since eventually the successful load message is still there ....
+		modal_dialogue( sel, NULL, no_language );
+		destroy_win( sel );
+	}
 }
 
 
@@ -377,33 +384,67 @@ int simu_main(int argc, char** argv)
 			"  by Hansjörg Malthaner et. al.\n"
 			"  <hansjoerg.malthaner@gmx.de>\n"
 			"---------------------------------------\n"
+			"command line parameters available: \n"
+			" -addons             loads also addons (with -objects)\n"
+			" -async              asynchronic images, only for SDL\n"
+			" -debug NUM          enables debuging (1..5)\n"
+			" -freeplay           play with endless money\n"
+			" -fullscreen         starts simutrans in fullscreen mode\n"
+			" -fps COUNT          framerate (from 5 to 100)\n"
+			" -h | -help | --help displays this help\n"
+			" -lang CODE          starts with specified language\n"
+			" -load file[.sve]    loads game in file 'save/file.sve'\n"
+			" -log                enables logging to file 'simu.log'\n"
+			" -noaddons           does not load any addon (default)\n"
+			" -nomidi             turns off background music\n"
+			" -nosound            turns off ambient sounds\n"
+			" -objects DIR_NAME/  load the pakset in specified directory\n"
+			" -res N              starts in specified resolution: \n"
+			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
+			" -screensize WxH     set screensize to width W and height H\n"
+			" -server [port]      starts program as server (for network game)\n"
+			"                     without port specified uses 13353\n"
+			" -singleuser         Save everything in program directory (portable version)\n"
+#ifdef DEBUG
+			" -sizes              Show current size of some structures\n"
+#endif
+			" -startyear N        start in year N\n"
+			" -timeline           enables timeline\n"
+#if defined DEBUG || defined PROFILE
+			" -times              does some simple profiling\n"
+			" -until MONTH        quits when MONTH = (month*12+year-1) starts\n"
+#endif
+			" -use_workdir        use current dir as basedir\n"
 		);
 		return 0;
 	}
 
+#ifdef _WIN32
+#define PATHSEP "\\"
+#else
+#define PATHSEP "/"
+#endif
+	const char* path_sep = PATHSEP;
+
+
 #ifdef __BEOS__
-	if(1) { // since BeOS only supports relative paths ...
+	if (1) // since BeOS only supports relative paths ...
 #else
 	// use current dir as basedir, else use program_dir
-	if (gimme_arg(argc, argv, "-use_workdir",0)) {
+	if (gimme_arg(argc, argv, "-use_workdir", 0))
 #endif
+	{
 		// save the current directories
 		getcwd(umgebung_t::program_dir, lengthof(umgebung_t::program_dir));
-#ifdef _WIN32
-		strcat( umgebung_t::program_dir, "\\" );
-#else
-		strcat( umgebung_t::program_dir, "/" );
-#endif
+		strcat( umgebung_t::program_dir, path_sep );
 	}
 	else {
 		strcpy( umgebung_t::program_dir, argv[0] );
-#ifdef _WIN32
-		*(strrchr( umgebung_t::program_dir, '\\' )+1) = 0;
-#else
-		*(strrchr( umgebung_t::program_dir, '/' )+1) = 0;
-#endif
+		*(strrchr( umgebung_t::program_dir, path_sep[0] )+1) = 0;
+
 		chdir( umgebung_t::program_dir );
 	}
+	printf("Use work dir %s\n", umgebung_t::program_dir);
 
 	// only the pak specifiy conf should overide this!
 	uint16 pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
@@ -415,7 +456,10 @@ int simu_main(int argc, char** argv)
 	bool multiuser = (gimme_arg(argc, argv, "-singleuser", 0) == NULL);
 
 	tabfile_t simuconf;
-	if(simuconf.open("config/simuconf.tab")) 
+	char path_to_simuconf[24];
+	// was  config/simuconf.tab
+	sprintf(path_to_simuconf, "config%csimuconf.tab", path_sep[0]);
+	if(simuconf.open(path_to_simuconf)) 
 	{		
 		found_simuconf = true;
 	}
@@ -509,15 +553,17 @@ int simu_main(int argc, char** argv)
 			umgebung_t::rdwr(&file);
 			umgebung_t::default_einstellungen.rdwr(&file);
 			file.close();
-			// reset to false (otherwise freeplay will persist)
+			// reset to false (otherwise these settings will persist)
 			umgebung_t::default_einstellungen.set_freeplay( false );
+			umgebung_t::default_einstellungen.set_allow_player_change( true );
+			umgebung_t::announce_server = 0;
 		}
 	}
 
 	// continue parsing ...
 	chdir( umgebung_t::program_dir );
 	if(  found_simuconf  ) {
-		if(simuconf.open("config/simuconf.tab")) {
+		if(simuconf.open(path_to_simuconf)) {
 			printf("parse_simuconf() at config/simuconf.tab: ");
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
@@ -526,9 +572,9 @@ int simu_main(int argc, char** argv)
 	// if set for multiuser, then parses the users config (if there)
 	// retrieve everything (but we must do this again once more ... )
 	if(multiuser) {
-		cstring_t obj_conf = cstring_t(umgebung_t::user_dir) + cstring_t("simuconf.tab");
-		if (simuconf.open(obj_conf)) {
-			printf("parse_simuconf() at %s: ", (const char *)obj_conf );
+		const string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
+		if (simuconf.open(obj_conf.c_str())) {
+			printf("parse_simuconf() at %s: ", obj_conf.c_str() );
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, disp_width, disp_height, fullscreen, umgebung_t::objfilename );
 		}
 	}
@@ -549,6 +595,17 @@ int simu_main(int argc, char** argv)
 	// now set the desired objectfilename (overide all previous settings)
 	if (gimme_arg(argc, argv, "-objects", 1)) {
 		umgebung_t::objfilename = gimme_arg(argc, argv, "-objects", 1);
+		// append slash / replace trailing backslash if necessary
+		uint16 len = umgebung_t::objfilename.length();
+		if (len > 0) {
+			if (umgebung_t::objfilename[len-1]=='\\') {
+				umgebung_t::objfilename.erase(len-1);
+				umgebung_t::objfilename += "/";
+			}
+			else if (umgebung_t::objfilename[len-1]!='/') {
+				umgebung_t::objfilename += "/";
+			}
+		}
 	}
 
 	// starting a server?
@@ -560,7 +617,14 @@ int simu_main(int argc, char** argv)
 		}
 		// will fail fatal on the opening routine ...
 		dbg->message( "simmain()", "Server started on port %i", portadress );
-		umgebung_t::server = umgebung_t::networkmode = network_init_server( portadress );
+		umgebung_t::networkmode = network_init_server( portadress );
+		if(  umgebung_t::networkmode  ) {
+			umgebung_t::server = portadress;
+		}
+	}
+	else {
+		// no announce for clients ...
+		umgebung_t::announce_server = 0;
 	}
 
 	DBG_MESSAGE( "simmain::main()", "Version: " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION "  Date: " VERSION_DATE);
@@ -643,7 +707,9 @@ int simu_main(int argc, char** argv)
 	}
 
 	printf("Preparing display ...\n");
+	DBG_MESSAGE("simmain", "simgraph_init disp_width=%d, disp_height=%d, fullscreen=%d", disp_width, disp_height, fullscreen);
 	simgraph_init(disp_width, disp_height, fullscreen);
+	DBG_MESSAGE("simmain", ".. results in disp_width=%d, disp_height=%d", display_get_width(), display_get_height());
 
 	// if no object files given, we ask the user
 	if(  umgebung_t::objfilename.empty()  ) {
@@ -660,21 +726,21 @@ int simu_main(int argc, char** argv)
 	}
 
 	// now find the pak specific tab file ...
-	cstring_t obj_conf = umgebung_t::objfilename + "config/simuconf.tab";
-	cstring_t dummy("");
-	if (simuconf.open(obj_conf)) {
+	const string obj_conf = umgebung_t::objfilename + path_to_simuconf;
+	string dummy("");
+	if (simuconf.open(obj_conf.c_str())) {
 		sint16 idummy;
-		printf("parse_simuconf() at %s: ", (const char *)obj_conf);
+		printf("parse_simuconf() at %s: ", obj_conf.c_str());
 		umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 		pak_diagonal_multiplier = umgebung_t::default_einstellungen.get_pak_diagonal_multiplier();
 		simuconf.close();
 	}
 	// and parse again parse the user settings
 	if(umgebung_t::user_dir!=umgebung_t::program_dir) {
-		cstring_t obj_conf = cstring_t(umgebung_t::user_dir) + "simuconf.tab";
-		if (simuconf.open(obj_conf)) {
+		const string obj_conf = string(umgebung_t::user_dir) + "simuconf.tab";
+		if (simuconf.open(obj_conf.c_str())) {
 			sint16 idummy;
-			printf("parse_simuconf() at %s: ", (const char *)obj_conf);
+			printf("parse_simuconf() at %s: ", obj_conf.c_str());
 			umgebung_t::default_einstellungen.parse_simuconf( simuconf, idummy, idummy, idummy, dummy );
 			simuconf.close();
 		}
@@ -716,8 +782,18 @@ int simu_main(int argc, char** argv)
 		exit(11);
 	}
 
-	// use requested (if available)
-	if(  found_settings  ) {
+	// use requested language (if available)
+	if (gimme_arg(argc, argv, "-lang", 1)) {
+		const char *iso = gimme_arg(argc, argv, "-lang", 1);
+		if(  strlen(iso)>=2  ) {
+			translator::set_language( iso );
+		}
+		if(  translator::get_language()==-1  ) {
+			dbg->fatal("simmain", "Illegal language defintion \"%s\"", iso );
+		}
+		umgebung_t::language_iso = translator::get_lang()->iso_base;
+	}
+	else if(  found_settings  ) {
 		translator::set_language( umgebung_t::language_iso );
 	}
 
@@ -738,26 +814,24 @@ int simu_main(int argc, char** argv)
 	printf("Reading electricity consumption configuration ...\n");
 	stadt_t::electricity_consumption_init(umgebung_t::objfilename);
 	
-	printf("Reading forest configuration ...\n");
-
-	baum_t::forestrules_init(umgebung_t::objfilename);
-
 	printf("Reading menu configuration ...\n");
 	werkzeug_t::init_menu();
 
 	// loading all paks
-	printf("Reading object data from %s...\n", (const char*)umgebung_t::objfilename);
-	obj_reader_t::load(umgebung_t::objfilename, translator::translate("Loading paks ...") );
+	printf("Reading object data from %s...\n", umgebung_t::objfilename.c_str());
+	obj_reader_t::load(umgebung_t::objfilename.c_str(), translator::translate("Loading paks ...") );
 	if(  umgebung_t::default_einstellungen.get_with_private_paks()  ) {
 		// try to read addons from private directory
 		chdir( umgebung_t::user_dir );
-		if(!obj_reader_t::load(umgebung_t::objfilename,translator::translate("Loading addon paks ..."))) {
+		if(!obj_reader_t::load(umgebung_t::objfilename.c_str(), translator::translate("Loading addon paks ..."))) {
 			fprintf(stderr, "reading addon object data failed (disabling).\n");
 			umgebung_t::default_einstellungen.set_with_private_paks( false );
 		}
 		chdir( umgebung_t::program_dir );
 	}
 	obj_reader_t::laden_abschliessen();
+	pakset_info_t::calculate_checksum();
+	pakset_info_t::debug();
 
 	// set overtaking offsets
 	vehikel_basis_t::set_overtaking_offsets( umgebung_t::drive_on_left );
@@ -770,28 +844,47 @@ int simu_main(int argc, char** argv)
 	}
 
 	bool new_world = true;
-	cstring_t loadgame = "";
+	std::string loadgame;
 
 	if (gimme_arg(argc, argv, "-load", 0) != NULL) {
-		char buf[256];
+		cbuffer_t buf(1024);
 		chdir( umgebung_t::user_dir );
 		/**
 		 * Added automatic adding of extension
 		 */
 		const char *name = gimme_arg(argc, argv, "-load", 1);
 		if(  strstr(name,"net:")==name  ) {
-			strcpy( buf, name );
+			buf.append( name );
 		}
 		else {
-			sprintf(buf, SAVE_PATH_X "%s", (const char*)searchfolder_t::complete(name, "sve"));
+			buf.printf( SAVE_PATH_X "%s", searchfolder_t::complete(name, "sve").c_str() );
 		}
+		printf( "loading savegame \"%s\"\n", name );
 		loadgame = buf;
 		new_world = false;
 	}
-	else {
+
+	// recover last server game
+	if(  new_world  &&  umgebung_t::server  ) {
+		chdir( umgebung_t::user_dir );
+		loadsave_t file;
+		// try recover with the latest savegame
+		if(file.rd_open("server-network.sve")) {
+			// compare pakset (objfilename has trailing path separator, pak_extension not)
+			if (strncmp(file.get_pak_extension(),umgebung_t::objfilename.c_str(),strlen(file.get_pak_extension()))==0) {
+				// same pak directory - load this
+				loadgame = "server-network.sve";
+				new_world = false;
+			}
+			file.close();
+		}
+	}
+
+	// still nothing to be loaded => search for demo games
+	if(  new_world  ) {
 		chdir( umgebung_t::program_dir );
 		char buffer[256];
-		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, (const char*)umgebung_t::objfilename);
+		sprintf(buffer, "%s%sdemo.sve", (const char*)umgebung_t::program_dir, umgebung_t::objfilename.c_str());
 		// access did not work!
 		FILE *f=fopen(buffer,"rb");
 		if(f) {
@@ -867,7 +960,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	setsimrand(dr_time(), dr_time());
 	clear_random_mode( 7 );	// allow all
 
-	if(loadgame==""  ||  !welt->laden(loadgame)) {
+	if(loadgame==""  ||  !welt->laden(loadgame.c_str())) {
 		// create a default map
 		DBG_MESSAGE("init with default map","(failing will be a pak error!)");
 		// no autosave on initial map during the first six month ...
@@ -875,19 +968,15 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		new_world = true;
 		sint32 old_autosave = umgebung_t::autosave;
 		umgebung_t::autosave = false;
-		einstellungen_t sets = umgebung_t::default_einstellungen;
+		einstellungen_t sets;
+		sets.copy_city_road( umgebung_t::default_einstellungen );
 		sets.set_default_climates();
 		sets.set_use_timeline( 1 );
-		sets.set_grundwasser( -2*Z_TILE_STEP );
-		sets.set_max_mountain_height( 160 );
-		sets.set_map_roughness( 0.6 );
 		sets.set_groesse(64,64);
 		sets.set_anzahl_staedte(1);
-		sets.set_mittlere_einwohnerzahl( 1600 );
 		sets.set_land_industry_chains(1);
 		sets.set_tourist_attractions(1);
 		sets.set_verkehr_level(7);
-		sets.set_karte_nummer( 33 );
 		welt->init(&sets,0);
 		//  start in June ...
 		intr_set(welt, view);
@@ -905,6 +994,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		intr_set(welt, view);
 		win_set_welt(welt);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
+		if(  umgebung_t::server  ) {
+			// meaningless to use a locked map; there are passwords now
+			welt->access_einstellungen()->set_allow_player_change( true );
+		}
 	}
 
 	welt->set_fast_forward(false);
@@ -923,8 +1016,13 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	welt->reset_timer();
 	if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+#ifdef display_in_main
+		DBG_MESSAGE("simmain", "calling view->display");
 		view->display(true);
+		DBG_MESSAGE("simmain", "calling intr_refresh_display");
 		intr_refresh_display(true);
+#endif
+		intr_enable();
 	}
 	else {
 		intr_disable();
@@ -938,6 +1036,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		display_set_pointer(skinverwaltung_t::mouse_cursor->get_bild_nr(0));
 	}
 #endif
+	DBG_MESSAGE("simmain", "calling display_show_pointer");
 	display_show_pointer(true);
 	show_pointer(1);
 	set_pointer(0);
@@ -946,26 +1045,44 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 	// Hajo: simgraph init loads default fonts, now we need to load
 	// the real fonts for the current language
+	DBG_MESSAGE("simmain", "sprachengui_t::init_font_from_lang");
 	sprachengui_t::init_font_from_lang();
 
+	destroy_all_win(true);
 	welt->get_message()->clear();
-
-	if(  !umgebung_t::networkmode  &&  new_world  ) {
-		ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
-		zeige_banner(welt);
-	}
-
-	while (!umgebung_t::quit_simutrans) {
+	while(  !umgebung_t::quit_simutrans  ) {
 		// play next tune?
 		check_midi();
 
+		if(  !umgebung_t::networkmode  &&  new_world  ) {
+			DBG_MESSAGE("simmain", "show banner");
+			printf( "Show banner ... \n" );
+			ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
+			modal_dialogue( new banner_t(welt), welt, never_quit );
+			// only show new world, if no other dialoge is active ...
+			new_world = win_get_open_count()==0;
+			DBG_MESSAGE("simmain", "banner closed");
+		}
+		if(  umgebung_t::quit_simutrans  ) {
+			break;
+		}
+
 		// to purge all previous old messages
+		DBG_MESSAGE("simmain", "set_message_flags");
 		welt->get_message()->set_message_flags(umgebung_t::message_flags[0], umgebung_t::message_flags[1], umgebung_t::message_flags[2], umgebung_t::message_flags[3]);
 
 		if(  !umgebung_t::networkmode  &&  !umgebung_t::server  ) {
 			welt->set_pause( false );
 		}
 
+#if 1
+		if(  new_world  ) {
+			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), welt, never_quit );
+			if(  umgebung_t::quit_simutrans  ) {
+				break;
+			}
+		}
+#else
 		if (new_world) {
 			climate_gui_t *cg = new climate_gui_t(&umgebung_t::default_einstellungen);
 			event_t ev;
@@ -984,8 +1101,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 				welt->set_fast_forward(false);
 
 				INT_CHECK("simmain 803");
+				DBG_DEBUG4("wait_for_new_world", "calling win_poll_event");
 				win_poll_event(&ev);
 				INT_CHECK("simmain 805");
+				DBG_DEBUG4("wait_for_new_world", "calling check_pos_win");
 				check_pos_win(&ev);
 				if(  ev.ev_class == EVENT_SYSTEM  &&  ev.ev_code == SYSTEM_QUIT  ) {
 					umgebung_t::quit_simutrans = true;
@@ -996,13 +1115,18 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					if(  ((count++)&7)==0 ) {
 						static uint32 last_step = dr_time();
 						uint32 next_step = dr_time();
+						DBG_DEBUG4("wait_for_new_world", "calling welt->sync_step");
 						welt->sync_step( next_step-last_step, true, true );
+						DBG_DEBUG4("wait_for_new_world", "calling win_poll_event");
 						welt->step();
+						DBG_DEBUG4("wait_for_new_world", "calling welt->step");
 						last_step = next_step;
+						DBG_DEBUG4("wait_for_new_world", "back from welt->step");
 					}
 				}
 				dr_sleep(5);
 				welt->reset_interaction();
+				DBG_DEBUG4("wait_for_new_world", "end of loop");
 			} while(
 				!wg->get_load() &&
 				!wg->get_scenario() &&
@@ -1015,15 +1139,19 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 			if (IS_LEFTCLICK(&ev)) {
 				do {
+					DBG_DEBUG4("wait_for_new_world", "calling display_get_event");
 					display_get_event(&ev);
 				} while (!IS_LEFTRELEASE(&ev));
 			}
 
-			destroy_all_win();
+			DBG_DEBUG4("wait_for_new_world", "calling destroy_all_win");
+			destroy_all_win(true);
+			welt->get_message()->clear();
+
 			// scenario?
 			if(wg->get_scenario()) {
 				char path[1024];
-				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, (const char *)umgebung_t::objfilename );
+				sprintf( path, "%s%sscenario/", umgebung_t::program_dir, umgebung_t::objfilename.c_str() );
 				chdir( path );
 				delete wg;
 				create_win( new scenario_frame_t(welt), w_info, magic_load_t );
@@ -1032,24 +1160,31 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			// Neue Karte erzeugen
 			else if (wg->get_start()) {
 				// since not autodelete
+				DBG_DEBUG4("wait_for_new_world", "delete wg");
 				delete wg;
 
 				create_win(200, 100, new news_img("Erzeuge neue Karte.\n", skinverwaltung_t::neueweltsymbol->get_bild_nr(0)), w_info, magic_none);
+
+				DBG_DEBUG4("wait_for_new_world", "calling intr_refresh_display");
 				intr_refresh_display(true);
 
 				umgebung_t::default_einstellungen.heightfield = "";
+				DBG_DEBUG4("wait_for_new_world", "calling welt->init");
 				welt->init(&umgebung_t::default_einstellungen,0);
 
 				// save setting ...
 				loadsave_t file;
-				if(file.wr_open("default.sve",loadsave_t::binary,"settings only")) {
+				if(file.wr_open("default.sve",loadsave_t::binary,"settings only",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) {
 					// save default setting
 					umgebung_t::default_einstellungen.rdwr(&file);
 					file.close();
 				}
-				destroy_all_win();
+				DBG_DEBUG4("wait_for_new_world", "calling destroy_all_win");
+				destroy_all_win(true);
+				DBG_DEBUG4("wait_for_new_world", "calling welt->step_month");
 				welt->step_month( umgebung_t::default_einstellungen.get_starting_month() );
 				welt->set_pause(false);
+				DBG_DEBUG4("wait_for_new_world", "new world created");
 			}
 			else if(wg->get_load()) {
 				delete wg;
@@ -1067,8 +1202,10 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 					break;
 				}
 			}
+			DBG_DEBUG4("wait_for_new_world", "the end");
 		}
-
+#endif
+		printf( "Running world, pause=%i, fast forward=%i ... \n", welt->is_paused(), welt->is_fast_forward() );
 		loadgame = ""; // only first time
 
 		// run the loop
@@ -1079,19 +1216,22 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		welt->set_fast_forward(false);
 		welt->set_pause(false);
 		setsimrand(dr_time(), dr_time());
+
+		printf( "World finished ...\n" );
 	}
 
 	intr_disable();
 
 	// save setting ...
 	chdir( umgebung_t::user_dir );
-	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/")) 
+	if(file.wr_open(xml_filename,loadsave_t::xml,"settings only/",SAVEGAME_VER_NR, EXPERIMENTAL_VER_NR)) 
 	{
 		umgebung_t::rdwr(&file);
 		umgebung_t::default_einstellungen.rdwr(&file);
 		file.close();
 	}
 
+	welt->destroy();	// some compiler aparently do not like accessing welt during destroy
 	delete welt;
 	welt = NULL;
 

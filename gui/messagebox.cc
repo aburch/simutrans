@@ -15,8 +15,7 @@
 
 news_window::news_window(const char* t, PLAYER_COLOR_VAL title_color) :
 	gui_frame_t("Meldung"),
-	text(strdup(translator::translate(t))),
-	textarea(text, 160),
+	textarea(translator::translate(t), 160),
 	color(title_color)
 {
 	textarea.set_pos( koord(10, 10) );
@@ -45,13 +44,6 @@ void news_window::extend_window_with_component(gui_komponente_t *const component
 }
 
 
-news_window::~news_window()
-{
-	// allocated by strdup() ...
-	free( text );
-}
-
-
 news_img::news_img(const char* text, image_id id, PLAYER_COLOR_VAL color) :
 	news_window(text, color),
 	bild(id)
@@ -77,7 +69,5 @@ news_loc::news_loc(karte_t* welt, const char* text, koord k, PLAYER_COLOR_VAL co
 
 void news_loc::map_rotate90( sint16 new_ysize )
 {
-	koord3d l = view.get_location();
-	l.rotate90( new_ysize );
-	view.set_location( l );
+	view.map_rotate90(new_ysize);
 }

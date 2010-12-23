@@ -9,11 +9,10 @@
 #define labellist_stats_t_h
 
 #include "../tpl/vector_tpl.h"
-#include "../ifc/gui_komponente.h"
+#include "components/gui_komponente.h"
 #include "components/gui_button.h"
 
 class karte_t;
-class gebaeude_t;
 
 namespace labellist {
     enum sort_mode_t { by_name=0, by_koord, by_player, SORT_MODES };
@@ -40,7 +39,7 @@ public:
 	* gemeldet
 	* @author Hj. Malthaner
 	*/
-	void infowin_event(const event_t *);
+	bool infowin_event(const event_t *);
 
 	/**
 	* Zeichnet die Komponente

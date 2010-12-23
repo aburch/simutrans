@@ -17,7 +17,6 @@
 #include "components/gui_textinput.h"
 
 class einstellungen_t;
-class welt_gui_t;
 
 
 /**
@@ -49,6 +48,7 @@ private:
 	// @ author: jamespetts
 	button_t cities_ignore_height;
 
+	gui_numberinput_t cities_like_water;
 public:
 	climate_gui_t(einstellungen_t* sets);
 
@@ -58,6 +58,9 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	const char * get_hilfe_datei() const {return "climates.txt";}
+
+	// does not work during new world dialoge
+	virtual bool has_sticky() const { return false; }
 
 	/**
 	 * komponente neu zeichnen. Die übergebenen Werte beziehen sich auf

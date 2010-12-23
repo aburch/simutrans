@@ -36,7 +36,7 @@ const char *labellist_frame_t::sort_text[labellist::SORT_MODES] = {
 };
 
 labellist_frame_t::labellist_frame_t(karte_t * welt) :
-    gui_frame_t(translator::translate("labellist_title")),
+    gui_frame_t("labellist_title"),
     sort_label(translator::translate("hl_txt_sort")),
 	stats(welt,sortby,sortreverse,filter_state),
 	scrolly(&stats)

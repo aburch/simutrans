@@ -8,6 +8,7 @@
 
 #include "way_reader.h"
 #include "../obj_node_info.h"
+#include "../../dataobj/pakset_info.h"
 
 
 void way_reader_t::register_obj(obj_besch_t *&data)
@@ -17,6 +18,10 @@ void way_reader_t::register_obj(obj_besch_t *&data)
     wegbauer_t::register_besch(besch);
 //    printf("...Weg %s geladen\n", besch->get_name());
 	obj_for_xref(get_type(), besch->get_name(), data);
+
+	checksum_t *chk = new checksum_t();
+	besch->calc_checksum(chk);
+	pakset_info_t::append(besch->get_name(), chk);
 }
 
 

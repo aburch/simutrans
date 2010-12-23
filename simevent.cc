@@ -12,6 +12,7 @@
 static int cx = -1; // coordinates of last mouse click event
 static int cy = -1; // initialised to "nowhere"
 static int control_shift_state = 0;	// none pressed
+static event_t meta_event(EVENT_NONE);	// Knightly : for storing meta-events like double-clicks and triple-clicks
 
 
 int event_get_last_control_shift(void)
@@ -40,6 +41,13 @@ void change_drag_start(int x, int y)
 
 static void fill_event(struct event_t *ev)
 {
+	// Knightly : variables for detecting double-clicks and triple-clicks
+	const  unsigned long interval = 400;
+	static unsigned int  prev_ev_class = EVENT_NONE;
+	static unsigned int  prev_ev_code = 0;
+	static unsigned long prev_ev_time = 0;
+	static unsigned char repeat_count = 0;	// number of consecutive sequences of click-release
+
 	// for autorepeat buttons we track button state, press time and a repeat time
 	// code by Niels Roest and Hj. Maltahner
 
@@ -142,9 +150,52 @@ static void fill_event(struct event_t *ev)
 			break;
 	}
 
+	// Knightly : check for double-clicks and triple-clicks
+	const unsigned long curr_time = dr_time();
+	if(  ev->ev_class==EVENT_CLICK  ) {
+		if(  prev_ev_class==EVENT_RELEASE  &&  prev_ev_code==ev->ev_code  &&  curr_time-prev_ev_time<=interval  ) {
+			// case : a mouse click which forms an unbroken sequence with the previous clicks and releases
+			prev_ev_class = EVENT_CLICK;
+			prev_ev_time = curr_time;
+		}
+		else {
+			// case : initial click or broken click-release sequence -> prepare for the start of a new sequence
+			prev_ev_class = EVENT_CLICK;
+			prev_ev_code = ev->ev_code;
+			prev_ev_time = curr_time;
+			repeat_count = 0;
+		}
+	}
+	else if(  ev->ev_class==EVENT_RELEASE  &&  prev_ev_class==EVENT_CLICK  &&  prev_ev_code==ev->ev_code  &&  curr_time-prev_ev_time<=interval  ) {
+		// case : a mouse release which forms an unbroken sequence with the previous clicks and releases
+		prev_ev_class = EVENT_RELEASE;
+		prev_ev_time = curr_time;
+		++repeat_count;
+
+		// create meta-events where necessary
+		if(  repeat_count==2  ) {
+			// case : double-click
+			meta_event = *ev;
+			meta_event.ev_class = EVENT_DOUBLE_CLICK;
+		}
+		else if(  repeat_count==3  ) {
+			// case : triple-click
+			meta_event = *ev;
+			meta_event.ev_class = EVENT_TRIPLE_CLICK;
+			repeat_count = 0;	// reset -> start over again
+		}
+	}
+	else if(  ev->ev_class!=EVENT_NONE  &&  prev_ev_class!=EVENT_NONE  ) {
+		// case : broken click-release sequence -> simply reset
+		prev_ev_class = EVENT_NONE;
+		prev_ev_code = 0;
+		prev_ev_time = 0;
+		repeat_count = 0;
+	}
+
 	if (IS_LEFTCLICK(ev)) {
 		// remember button press
-		lb_time = dr_time();
+		lb_time = curr_time;
 		repeat_time = 400;
 	} else if (pressed_buttons == 0) {
 		lb_time = 0;
@@ -155,11 +206,9 @@ static void fill_event(struct event_t *ev)
 		 * disabling the repeat feature for non-left buttons
 		 */
 		if (pressed_buttons == MOUSE_LEFTBUTTON) {
-			unsigned long now = dr_time();
-
-			if (now > lb_time + repeat_time) {
+			if (curr_time > lb_time + repeat_time) {
 				repeat_time = 100;
-				lb_time = now;
+				lb_time = curr_time;
 				ev->ev_class = EVENT_REPEAT;
 				ev->ev_code = pressed_buttons;
 			}
@@ -176,11 +225,18 @@ static void fill_event(struct event_t *ev)
  */
 void display_poll_event(struct event_t *ev)
 {
-	GetEventsNoWait();
-	fill_event(ev);
-	// prepare for next event
-	sys_event.type = SIM_NOEVENT;
-	sys_event.code = 0;
+	// Knightly : if there is any pending meta-event, consume it instead of fetching a new event from the system
+	if(  meta_event.ev_class!=EVENT_NONE  ) {
+		*ev = meta_event;
+		meta_event.ev_class = EVENT_NONE;
+	}
+	else {
+		GetEventsNoWait();
+		fill_event(ev);
+		// prepare for next event
+		sys_event.type = SIM_NOEVENT;
+		sys_event.code = 0;
+	}
 }
 
 
@@ -190,9 +246,16 @@ void display_poll_event(struct event_t *ev)
  */
 void display_get_event(struct event_t *ev)
 {
-	GetEvents();
-	fill_event(ev);
-	// prepare for next event
-	sys_event.type = SIM_NOEVENT;
-	sys_event.code = 0;
+	// Knightly : if there is any pending meta-event, consume it instead of fetching a new event from the system
+	if(  meta_event.ev_class!=EVENT_NONE  ) {
+		*ev = meta_event;
+		meta_event.ev_class = EVENT_NONE;
+	}
+	else {
+		GetEvents();
+		fill_event(ev);
+		// prepare for next event
+		sys_event.type = SIM_NOEVENT;
+		sys_event.code = 0;
+	}
 }

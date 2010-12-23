@@ -1,6 +1,7 @@
 #ifndef BUILDING_WRITER_H
 #define BUILDING_WRITER_H
 
+#include <string>
 #include "obj_writer.h"
 #include "../objversion.h"
 
@@ -17,8 +18,8 @@ class tile_writer_t : public obj_writer_t {
 		static tile_writer_t *instance() { return &the_instance; }
 
 		virtual void write_obj(FILE* fp, obj_node_t &parent, int index, int seasons,
-			slist_tpl<slist_tpl<slist_tpl<cstring_t> > >& backkeys,
-			slist_tpl<slist_tpl<slist_tpl<cstring_t> > >& frontkeys
+			slist_tpl<slist_tpl<slist_tpl<std::string> > >& backkeys,
+			slist_tpl<slist_tpl<slist_tpl<std::string> > >& frontkeys
 		);
 
 	protected:
@@ -34,7 +35,7 @@ class building_writer_t : public obj_writer_t {
 		building_writer_t() { register_writer(true); }
 
 	public:
-		virtual cstring_t get_node_name(FILE* fp) const { return name_from_next_node(fp); }
+		virtual std::string get_node_name(FILE* fp) const { return name_from_next_node(fp); }
 
 		static building_writer_t* instance() { return &the_instance; }
 

@@ -12,6 +12,7 @@
 #include <unistd.h>
 #endif
 
+#include <string>
 #include "../simcity.h"
 #include "../simwin.h"
 
@@ -24,21 +25,25 @@
 #include "components/list_button.h"
 #include "components/action_listener.h"
 
+using std::string;
 
 settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	sets(s),
 	scrolly_general(&general),
 	scrolly_economy(&economy),
 	scrolly_routing(&routing),
+	scrolly_costs(&costs),
 	scrolly_exp_general(&exp_general),
 	scrolly_exp_revenue(&exp_revenue),
-	scrolly_costs(&costs)
+	scrolly_climates(&climates)
 {
 	revert_to_default.init( button_t::roundbox, "Simuconf.tab", koord( 0, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
-	revert_to_default.add_listener( this );
+	revert_to_default.disable();
+	//revert_to_default.add_listener( this );
 	add_komponente( &revert_to_default );
 	revert_to_last_save.init( button_t::roundbox, "Default.sve", koord( BUTTON_WIDTH, 0), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
-	revert_to_last_save.add_listener( this );
+	//revert_to_last_save.add_listener( this );
+	revert_to_last_save.disable();
 	add_komponente( &revert_to_last_save );
 
 	sint16 height = 0;
@@ -54,6 +59,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	height = max(height, exp_general.get_groesse().y + tabs_experimental.HEADER_VSIZE);
 	exp_revenue.init( sets );
 	height = max(height, exp_revenue.get_groesse().y + tabs_experimental.HEADER_VSIZE);
+	climates.init( sets );
 
 	// tab panel
 	tabs.set_pos(koord(0,BUTTON_HEIGHT));
@@ -63,6 +69,7 @@ settings_frame_t::settings_frame_t(einstellungen_t *s) : gui_frame_t("Setting"),
 	tabs.add_tab(&scrolly_routing, translator::translate("Routing"));
 	tabs.add_tab(&tabs_experimental, translator::translate("Experimental"));
 	tabs.add_tab(&scrolly_costs, translator::translate("Costs"));
+	tabs.add_tab(&scrolly_climates, translator::translate("Climate Control"));
 	add_komponente(&tabs);
 
 	tabs_experimental.add_tab(&scrolly_exp_general, translator::translate("General Exp."));
@@ -105,21 +112,21 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		chdir( umgebung_t::program_dir );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
-			cstring_t dummy_str;
+			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
 		stadt_t::cityrules_init(umgebung_t::objfilename);
 		chdir( umgebung_t::program_dir );
-		chdir( umgebung_t::objfilename );
+		chdir( umgebung_t::objfilename.c_str() );
 		if(simuconf.open("config/simuconf.tab")) {
 			sint16 dummy16;
-			cstring_t dummy_str;
+			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
 		chdir(  umgebung_t::user_dir  );
 		if(simuconf.open("simuconf.tab")) {
 			sint16 dummy16;
-			cstring_t dummy_str;
+			string dummy_str;
 			sets->parse_simuconf( simuconf, dummy16, dummy16, dummy16, dummy_str );
 		}
 		simuconf.close();
@@ -131,6 +138,7 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		exp_general.init( sets );
 		exp_revenue.init( sets );
 		costs.init( sets );
+		climates.init( sets );
 	}
 	else if(  komp==&revert_to_last_save  ) {
 		// load settings of last generated map
@@ -148,13 +156,14 @@ bool settings_frame_t::action_triggered( gui_action_creator_t *komp, value_t )
 		exp_general.init( sets );
 		exp_revenue.init( sets );
 		costs.init( sets );
+		climates.init( sets );
 	}
 	return true;
 }
 
 
 
-void settings_frame_t::infowin_event(const event_t *ev)
+bool settings_frame_t::infowin_event(const event_t *ev)
 {
 	if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
 		general.read( sets );
@@ -163,6 +172,7 @@ void settings_frame_t::infowin_event(const event_t *ev)
 		exp_general.read( sets );
 		exp_revenue.read( sets );
 		costs.read( sets );
+		climates.read( sets );
 	}
-	gui_frame_t::infowin_event(ev);
+	return gui_frame_t::infowin_event(ev);
 }

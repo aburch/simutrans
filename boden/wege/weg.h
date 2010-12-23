@@ -149,7 +149,7 @@ public:
 	* Setzt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	void set_max_speed(uint16 s) { max_speed = s; }
+	void set_max_speed(sint32 s) { max_speed = s; }
 
 	void set_max_weight(uint32 w);
 
@@ -183,12 +183,11 @@ public:
 	//void set_way_constraints(const way_constraints_of_way_t& value) { way_constraints = value; }
 	void add_way_constraints(const way_constraints_of_way_t& value) { way_constraints.add(value); }
 
-
 	/**
 	* Ermittelt die erlaubte Höchstgeschwindigkeit
 	* @author Hj. Malthaner
 	*/
-	uint16 get_max_speed() const { return max_speed; }
+	sint32 get_max_speed() const { return max_speed; }
 
 	uint32 get_max_weight() const { return max_weight; }
 

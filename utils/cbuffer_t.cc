@@ -49,7 +49,11 @@ void cbuffer_t::clear()
  */
 void cbuffer_t::append(const char * text)
 {
-	while(size < capacity-1  &&  *text) {
+	while(  *text  ) {
+		if(  size>=capacity-1  ) {
+			// Knightly : double the capacity if full
+			extend(capacity);
+		}
 		buf[size++] = *text++;
 	}
 	buf[size] = 0;
@@ -103,23 +107,32 @@ void cbuffer_t::printf(const char* fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 	int count = vsnprintf( buf+size, capacity-size, fmt, ap);
-	if(count==-1) {
-		// truncated
-		buf[capacity-1] = 0;
+	va_end(ap);
+	// buffer too small?
+	// we do not increase it beyond 1MB, as this is usually only needed when %s of a random memory location
+	while(0 <= count  &&  capacity-size <= (uint)count  &&  capacity < 1048576) {
+		// enlarge buffer
+		extend( capacity);
+		// and try again
+		va_start(ap, fmt);
+		count = vsnprintf( buf+size, capacity-size, fmt, ap);
+		va_end(ap);
+		// .. until everything fit into buffer
 	}
-	else if(capacity-size <= (uint)count) {
-		size = capacity - 1;
+	// error
+	if(count<0) {
+		// truncate
+		buf[capacity-1] = 0;
 	}
 	else {
 		size += count;
 	}
-	va_end(ap);
 }
 
 
-void cbuffer_t::extent(const unsigned int by_amount)
+void cbuffer_t::extend(const unsigned int by_amount)
 {
-	if(  size+by_amount > capacity  ) {
+	if(  size+by_amount>=capacity  ) {
 		unsigned int new_capacity = capacity + by_amount;
 		char *new_buf = new char [new_capacity];
 		memcpy( new_buf, buf, capacity );

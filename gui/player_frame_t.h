@@ -60,6 +60,17 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	/**
+	 * Updates the dialogue window after changes to players states
+	 * called from wkz_change_player_t::init
+	 * necessary for networkgames to keep dialogues synchrone
+	 * @author dwachs
+	 */
+	void update_data();
+
+	// since no information are needed to be saved to restore this, returning magic is enough
+	virtual uint32 get_rdwr_id() { return magic_ki_kontroll_t; }
 };
 
 #endif

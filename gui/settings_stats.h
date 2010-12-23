@@ -12,14 +12,17 @@
 
 #include "../tpl/vector_tpl.h"
 #include "../tpl/array_tpl.h"
+#include "../utils/cbuffer_t.h"
 
-#include "../ifc/gui_komponente.h"
 #include "gui_container.h"
+#include "components/gui_komponente.h"
 #include "components/gui_numberinput.h"
 #include "components/gui_component_table.h"
 #include "components/gui_label.h"
 #include "components/gui_textarea.h"
 #include "components/list_button.h"
+#include "components/action_listener.h"
+#include "components/gui_combobox.h"
 
 class einstellungen_t;
 
@@ -96,19 +99,33 @@ class einstellungen_t;
 	seperator += 1;\
 
 
-// call this before and EXIT_...
-#define EXIT_INIT \
+// call this before and READ_...
+#define READ_INIT \
+	slist_iterator_tpl<gui_numberinput_t *>numiter(numinp);\
+	slist_iterator_tpl<button_t *>booliter(button);
+
+#define READ_NUM(t) numiter.next(); (t)( numiter.get_current()->get_value() )
+#define READ_NUM2(t,expr) (t)( numiter.get_current()->get_value() expr)
+#define READ_COST(t) numiter.next(); (t)( (sint64)(numiter.get_current()->get_value())*100 )
+#define READ_NUM_ARRAY(t, i) (t)((i), numiter.get_current()->get_value() )
+#define READ_NUM_VALUE(t) numiter.next(); (t) = numiter.get_current()->get_value()
+#define READ_NUM_VALUE_TENTHS(t) numiter.next(); (t) = (numiter.get_current()->get_value() * 10)
+#define READ_COST_VALUE(t) numiter.next(); (t) = (sint64)(numiter.get_current()->get_value())*100
+#define READ_BOOL(t) booliter.next(); (t)( booliter.get_current()->pressed )
+#define READ_BOOL_VALUE(t) booliter.next(); (t) = booliter.get_current()->pressed
+
+/*
 	uint32 read_numinp = 0;\
 	uint32 read_button = 0;\
 
-#define EXIT_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
-#define EXIT_NUM2(t,expr) (t)( numinp.at(read_numinp++)->get_value() expr)
-#define EXIT_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
-#define EXIT_NUM_ARRAY(t, i) (t)((i), numinp.at(read_numinp++)->get_value() )
-#define EXIT_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
-#define EXIT_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
-#define EXIT_BOOL(t) (t)( button.at(read_button++)->pressed )
-#define EXIT_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
+#define READ_NUM(t) (t)( numinp.at(read_numinp++)->get_value() )
+#define READ_COST(t) (t)( (sint64)(numinp.at(read_numinp++)->get_value())*100 )
+#define READ_NUM_VALUE(t) (t) = numinp.at(read_numinp++)->get_value()
+#define READ_COST_VALUE(t) (t) = (sint64)(numinp.at(read_numinp++)->get_value())*100
+#define READ_BOOL(t) (t)( button.at(read_button++)->pressed )
+#define READ_BOOL_VALUE(t) (t) = button.at(read_button++)->pressed
+*/
+
 
 
 /**
@@ -132,8 +149,11 @@ protected:
 	button_t& new_button(koord pos, const char *text, bool pressed);
 	gui_component_table_t& new_table(koord pos, coordinate_t columns, coordinate_t rows);
 	void set_cell_component(gui_component_table_t &tbl, gui_komponente_t &c, coordinate_t x, coordinate_t y);
-
 	void free_all();
+
+public:
+	settings_stats_t() { width = 16; }
+	~settings_stats_t() { free_all(); }
 
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
@@ -141,17 +161,18 @@ protected:
 	//koord get_groesse() const {
 	//	return koord(width,(numinp.get_count()+button.get_count()+label.get_count())*BUTTON_HEIGHT+seperator*7+6);
 	//}
-public:
-	settings_stats_t() { width = 16; }
-	~settings_stats_t() { free_all(); }
 };
 
 
 
 // the only task left are the respective init/reading routines
-class settings_general_stats_t : public settings_stats_t
+class settings_general_stats_t : public settings_stats_t, public action_listener_t
 {
+	gui_combobox_t savegame;
+	gui_combobox_t savegame_ex;
 public:
+	// needed for savegame combobox
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 };
@@ -170,6 +191,25 @@ public:
 	void read( einstellungen_t *sets );
 };
 
+class settings_costs_stats_t : public settings_stats_t
+{
+public:
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+};
+
+class settings_climates_stats_t : public settings_stats_t, public action_listener_t
+{
+private:
+	cbuffer_t buf;
+	einstellungen_t *local_sets;
+public:
+	settings_climates_stats_t() : buf( 128 ) {}
+	void init( einstellungen_t *sets );
+	void read( einstellungen_t *sets );
+	bool action_triggered(gui_action_creator_t *komp, value_t extra);
+};
+
 class settings_experimental_general_stats_t : public settings_stats_t
 {
 public:
@@ -183,14 +223,5 @@ public:
 	void init( einstellungen_t *sets );
 	void read( einstellungen_t *sets );
 };
-
-class settings_costs_stats_t : public settings_stats_t
-{
-public:
-	void init( einstellungen_t *sets );
-	void read( einstellungen_t *sets );
-};
-
-
 
 #endif

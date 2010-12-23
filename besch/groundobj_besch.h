@@ -9,6 +9,7 @@
 #include "../simtypes.h"
 #include "obj_besch_std_name.h"
 #include "bildliste2d_besch.h"
+#include "../utils/checksum.h"
 
 /*
  *  Autor:
@@ -35,7 +36,7 @@ class groundobj_besch_t : public obj_besch_std_name_t {
 	climate_bits allowed_climates;
 	uint16 distribution_weight;
 	uint8  number_of_seasons;
-	uint32  speed;
+	sint32  speed;
 	uint16 index;
 	bool  trees_on_top;
 	waytype_t waytype;
@@ -60,7 +61,7 @@ public:
 
 	uint8 get_seasons() const { return number_of_seasons; }
 
-	uint32 get_speed() const { return speed; }
+	sint32 get_speed() const { return speed; }
 
 	bool can_built_trees_here() const { return trees_on_top; }
 
@@ -69,6 +70,18 @@ public:
 	sint32 get_preis() const { return cost_removal; }
 
 	uint16 get_index() const { return index; }
+
+	void calc_checksum(checksum_t *chk) const
+	{
+		chk->input((uint8)allowed_climates);
+		chk->input(distribution_weight);
+		chk->input(number_of_seasons);
+		chk->input(speed);
+		chk->input(index);
+		chk->input(trees_on_top);
+		chk->input((uint8)waytype);
+		chk->input(cost_removal);
+	}
 };
 
 #endif

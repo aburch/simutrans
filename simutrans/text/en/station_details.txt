@@ -28,6 +28,9 @@ Information listed includes:<br>
 Lines are listed alphanumerically within ASCII-code order (capital letters before lower case letters).
 </p>
 <p>
+<em>Lineless convoys serving this stops:</em> Convoy not assigned to a line, which stop here.
+</p>
+<p>
 <em>Direct routes from here:</em>lists name of Stops that can be reached without a transfer and type of items (goods and passnegers) that can be delivered.<br>
 Stops are listed alphanumerically within ASCII-code order (capital letters before lower case letters) by ?type of transport, name of Stop, and type of item that can be delivered (which is also shown for each Stop).
 </p>

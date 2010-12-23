@@ -37,6 +37,8 @@ class signal_spacing_frame_t : public gui_frame_t, private action_listener_t
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	const char * get_hilfe_datei() const {return "signal_spacing.txt";}
 };
 
 #endif

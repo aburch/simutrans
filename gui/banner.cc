@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2004 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2004 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -16,91 +16,139 @@
 #include "../simsys.h"
 #include "../simversion.h"
 #include "../simgraph.h"
+#include "../macros.h"
 #include "../besch/skin_besch.h"
+#include "../dataobj/umgebung.h"
 
+#include "components/list_button.h"
 #include "banner.h"
+#include "loadsave_frame.h"
+#include "server_frame.h"
 
 
-banner_t::banner_t()
+banner_t::banner_t( karte_t *w) : gui_frame_t(""),
+	logo( skinverwaltung_t::logosymbol->get_bild_nr(0), 0 ),
+	welt(w)
 {
 	last_ms = dr_time();
 	line = 0;
-	xoff = (display_get_width()  / 2) - 180;
-	yoff = (display_get_height() / 2) - 125;
+	logo.set_pos( koord( 238, 40 ) );
+	add_komponente( &logo );
+	set_fenstergroesse( koord( BUTTON_WIDTH*3+40, 16+111+11*LINESPACE+2*BUTTON_HEIGHT+12 ) );
+	new_map.init( button_t::roundbox, "Neue Karte", koord( 10, 232 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	new_map.add_listener( this );
+	add_komponente( &new_map );
+	load_map.init( button_t::roundbox, "Load game", koord( 10+BUTTON_WIDTH+10, 232 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	load_map.add_listener( this );
+	add_komponente( &load_map );
+	join_map.init( button_t::roundbox, "join game", koord( 10+2*BUTTON_WIDTH+20, 232 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	join_map.add_listener( this );
+	add_komponente( &join_map );
+	quit.init( button_t::roundbox, "Beenden", koord( 10+2*BUTTON_WIDTH+20, 232+BUTTON_HEIGHT+5 ), koord( BUTTON_WIDTH, BUTTON_HEIGHT ) );
+	quit.add_listener( this );
+	add_komponente( &quit );
 }
 
 
 
-void banner_t::infowin_event(const event_t *ev)
+bool banner_t::infowin_event(const event_t *ev)
 {
-	if(ev->ev_class==EVENT_RELEASE  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code!=0)) {
+	if(  gui_frame_t::getroffen( ev->cx, ev->cy  )  ) {
+		gui_frame_t::infowin_event( ev );
+	}
+/*
+	else if(  ev->ev_class==EVENT_RELEASE  ||  (ev->ev_class==EVENT_KEYBOARD  &&  ev->ev_code!=0)  ) {
 		destroy_win(this);
+		return true;
 	}
+*/
+	return false;
 }
 
 
 
-void banner_t::zeichnen(koord /*pos*/, koord)
+bool banner_t::action_triggered( gui_action_creator_t *komp, value_t)
 {
-	display_ddd_box(xoff,  yoff, 360, 270, COL_GREY6, COL_GREY2);
-	display_fillbox_wh(xoff + 1, yoff + 1, 358, 268, COL_GREY5, true);
-	display_ddd_box(xoff + 4, yoff + 4, 352, 262, COL_GREY2, COL_GREY6);
-	display_fillbox_wh(xoff + 5, yoff + 5, 350, 260, COL_GREY4, true);
-
-	display_color_img(skinverwaltung_t::logosymbol->get_bild_nr(0), xoff + 264, yoff + 40, 0, false, true);
-
-	// first the fixed part
-	// shadow effect by drawing two times with an offset
-	for (int s = 1; s >= 0; s--) {
-		int heading = (s == 0 ? 7 : COL_BLACK);
-		int color   = (s == 0 ? COL_WHITE : COL_BLACK);
-
-		display_proportional(xoff + s + 24+30, yoff + s +  10, "This is an experimental version of Simutrans:", ALIGN_LEFT, heading, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  22, "Version " VERSION_NUMBER " "  VERSION_DATE, ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 24+30, yoff + s +  40, "This experimental version", ALIGN_LEFT, heading, true);
-		display_proportional(xoff + s + 24+30+155, yoff + s +  40, NARROW_EXPERIMENTAL_VERSION, ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  56, "is modified by James E. Petts", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  70, "from Simutrans, 1997-2005", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  82, "(c) Hj. Malthaner; and", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s +  94, "2005-2009 maintained by", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 24+30, yoff + s + 112, "Markus Pristovsek and the Simutrans team,", ALIGN_LEFT, heading, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 128, "released under the Artistic Licence.", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 140, "For more information, please", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 24+30, yoff + s + 158, "visit the Simutrans website or forum", ALIGN_LEFT, heading, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 174, "http://www.simutrans.com", ALIGN_LEFT, color, true);
-		display_proportional(xoff + s + 48+30, yoff + s + 186, "http://forum.simutrans.com", ALIGN_LEFT, color, true);
+	if(  komp == &quit  ) {
+		umgebung_t::quit_simutrans = true;
+		destroy_all_win(true);
 	}
+	else if(  komp == &new_map  ) {
+		destroy_all_win(true);
+	}
+	else if(  komp == &load_map  ) {
+		destroy_all_win(true);
+		create_win( new loadsave_frame_t(welt, true), w_info, magic_load_t);
+	}
+	else if(  komp == &join_map  ) {
+		destroy_all_win(true);
+		create_win( new server_frame_t(welt), w_info, magic_server_frame_t );
+	}
+	return true;
+}
+
+
+void banner_t::zeichnen(koord pos, koord gr )
+{
+	gui_frame_t::zeichnen( pos, gr );
+	KOORD_VAL yp = pos.y+22;
+	display_shadow_proportional( pos.x+10, yp, 7, COL_BLACK, "This is an experimental version of Simutrans:", true );
+	yp += LINESPACE+5;
+#ifdef REVISION
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " NARROW_EXPERIMENTAL_VERSION " " VERSION_DATE " r" QUOTEME(REVISION), true );
+#else
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "Version " VERSION_NUMBER " " NARROW_EXPERIMENTAL_VERSION " " VERSION_DATE, true );
+#endif
+	yp += LINESPACE+7;
+
+	display_shadow_proportional( pos.x+10, yp, 7, COL_BLACK,  "This version is modified by", true );
+	yp += LINESPACE+5;
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "James E. Petts, from Simutrans", true );
+	yp += LINESPACE+2;
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "created and maintained by", true );
+	yp += LINESPACE+2;
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "by Hansj\366rg Malthaner et. al.", true );
+	yp += LINESPACE+2;
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "and the Simutrans community", true );
+	yp += LINESPACE+2;
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "and released under the Artistic Licence.", true );
+	yp += LINESPACE+7;
+
+	display_shadow_proportional( pos.x+10, yp, 7, COL_BLACK, "For more information, see the website and forum:", true );
+	yp += LINESPACE+2;
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://www.simutrans.com", true );
+	yp += LINESPACE+2;
+	display_shadow_proportional( pos.x+10+24, yp, COL_WHITE, COL_BLACK, "http://forum.simutrans.com", true );
+	yp += LINESPACE+7;
 
 	// now the scrolling
 	static const char* const scrolltext[] = {
 #include "../scrolltext.h"
 	};
 
-	const int text_line = (line / 9) * 2;
-	const int text_offset = line % 9;
-	const int left = 60;
-	const int top = 196+10;
+	const KOORD_VAL text_line = (line / 9) * 2;
+	const KOORD_VAL text_offset = line % 9;
+	const KOORD_VAL left = pos.x+10;
+	const KOORD_VAL width = gr.x-20;
 
-	display_fillbox_wh(xoff + left, yoff + top, 240, 48, COL_GREY1, true);
+	display_fillbox_wh(left, yp, width, 52, COL_GREY1, true);
+	display_fillbox_wh(left, yp - 1, width, 1, COL_GREY3, false);
+	display_fillbox_wh(left, yp + 52, width, 1, COL_GREY6, false);
 
-	display_proportional(xoff + left +   4, yoff +  1 + top - text_offset, scrolltext[text_line +  0], ALIGN_LEFT,  COL_WHITE, true);
-	display_proportional(xoff + left + 236, yoff +  1 + top - text_offset, scrolltext[text_line +  1], ALIGN_RIGHT, COL_WHITE, true);
-	display_proportional(xoff + left +   4, yoff + 10 + top - text_offset, scrolltext[text_line +  2], ALIGN_LEFT,  COL_WHITE, true);
-	display_proportional(xoff + left + 236, yoff + 10 + top - text_offset, scrolltext[text_line +  3], ALIGN_RIGHT, COL_WHITE, true);
-	display_proportional(xoff + left +   4, yoff + 19 + top - text_offset, scrolltext[text_line +  4], ALIGN_LEFT,  COL_GREY6, true);
-	display_proportional(xoff + left + 236, yoff + 19 + top - text_offset, scrolltext[text_line +  5], ALIGN_RIGHT, COL_GREY6, true);
-	display_proportional(xoff + left +   4, yoff + 28 + top - text_offset, scrolltext[text_line +  6], ALIGN_LEFT,  COL_GREY5, true);
-	display_proportional(xoff + left + 236, yoff + 28 + top - text_offset, scrolltext[text_line +  7], ALIGN_RIGHT, COL_GREY5, true);
-	display_proportional(xoff + left +   4, yoff + 37 + top - text_offset, scrolltext[text_line +  8], ALIGN_LEFT,  COL_GREY4, true);
-	display_proportional(xoff + left + 236, yoff + 37 + top - text_offset, scrolltext[text_line +  9], ALIGN_RIGHT, COL_GREY4, true);
-	display_proportional(xoff + left +   4, yoff + 46 + top - text_offset, scrolltext[text_line + 10], ALIGN_LEFT,  COL_GREY3, true);
-	display_proportional(xoff + left + 236, yoff + 46 + top - text_offset, scrolltext[text_line + 11], ALIGN_RIGHT, COL_GREY3, true);
-
-	display_fillbox_wh(xoff + left, yoff + top - 8, 240, 7, COL_GREY4, true);
-	display_fillbox_wh(xoff + left, yoff + top - 1, 240, 1, COL_GREY3, true);
-
-	display_fillbox_wh(xoff + left, yoff + top + 48, 240, 1, COL_GREY6, true);
-	display_fillbox_wh(xoff + left, yoff + top + 49, 240, 7, COL_GREY4, true);
+	PUSH_CLIP( left, yp, width, 52 );
+	display_proportional_clip( left + 4, yp + 1 - text_offset, scrolltext[text_line + 0], ALIGN_LEFT, COL_WHITE, false);
+	display_proportional_clip( left + width - 4, yp + 1 - text_offset, scrolltext[text_line + 1], ALIGN_RIGHT, COL_WHITE, false);
+	display_proportional( left + 4, yp + 11 - text_offset, scrolltext[text_line + 2], ALIGN_LEFT, COL_WHITE, false);
+	display_proportional( left + width - 4, yp + 11 - text_offset, scrolltext[text_line + 3], ALIGN_RIGHT, COL_WHITE, false);
+	display_proportional( left + 4, yp + 21 - text_offset, scrolltext[text_line + 4], ALIGN_LEFT, COL_GREY6, false);
+	display_proportional( left + width - 4, yp + 21 - text_offset, scrolltext[text_line + 5], ALIGN_RIGHT, COL_GREY6, false);
+	display_proportional( left + 4, yp + 31 - text_offset, scrolltext[text_line + 6], ALIGN_LEFT, COL_GREY5, false);
+	display_proportional( left + width - 4, yp + 31 - text_offset, scrolltext[text_line + 7], ALIGN_RIGHT, COL_GREY5, false);
+	display_proportional( left + 4, yp + 41 - text_offset, scrolltext[text_line + 8], ALIGN_LEFT, COL_GREY4, false);
+	display_proportional( left + width - 4, yp + 41 - text_offset, scrolltext[text_line + 9], ALIGN_RIGHT, COL_GREY4, false);
+	display_proportional_clip( left + 4, yp + 51 - text_offset, scrolltext[text_line + 10], ALIGN_LEFT, COL_GREY3, false);
+	display_proportional_clip( left + width - 4, yp + 51 - text_offset, scrolltext[text_line + 11], ALIGN_RIGHT, COL_GREY3, false);
+	POP_CLIP();
 
 	// scroll on every 70 ms
 	if(dr_time()>last_ms+70u) {

@@ -26,7 +26,7 @@ typedef short KOORD_VAL;
 
 
 struct clip_dimension {
-    int x, xx, w, y, yy, h;
+    KOORD_VAL x, xx, w, y, yy, h;
 };
 
 
@@ -110,6 +110,7 @@ void mark_rect_dirty_wc(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL x2, KOORD_VAL y2);
 KOORD_VAL display_get_width(void);
 KOORD_VAL display_get_height(void);
 KOORD_VAL display_set_height(KOORD_VAL);
+void display_set_actual_width(KOORD_VAL);
 
 
 int display_get_light(void);
@@ -192,7 +193,8 @@ void display_show_load_pointer(int loading);
 void display_array_wh(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_VAL h, const COLOR_VAL *arr);
 
 // compound painting routines
-
+void display_outline_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty);
+void display_shadow_proportional(KOORD_VAL xpos, KOORD_VAL ypos, PLAYER_COLOR_VAL text_color, PLAYER_COLOR_VAL shadow_color, const char *text, int dirty);
 void display_ddd_box(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
 void display_ddd_box_clip(KOORD_VAL x1, KOORD_VAL y1, KOORD_VAL w, KOORD_VAL h, PLAYER_COLOR_VAL tl_color, PLAYER_COLOR_VAL rd_color);
 
@@ -202,6 +204,22 @@ size_t get_next_char(const char* text, size_t pos);
 long get_prev_char(const char* text, long pos);
 
 KOORD_VAL display_get_char_width(utf16 c);
+
+/**
+ * For the next logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer advances to point to the next logical character
+ * @author Knightly
+ */
+unsigned short get_next_char_with_metrics(const char* &text, unsigned char &byte_length, unsigned char &pixel_width);
+
+/**
+ * For the previous logical character in the text, returns the character code
+ * as well as retrieves the char byte count and the screen pixel width
+ * CAUTION : The text pointer recedes to point to the previous logical character
+ * @author Knightly
+ */
+unsigned short get_prev_char_with_metrics(const char* &text, const char *const text_start, unsigned char &byte_length, unsigned char &pixel_width);
 
 /* routines for string len (macros for compatibility with old calls) */
 #define proportional_string_width(text)          display_calc_proportional_string_len_width(text, 0x7FFF)
