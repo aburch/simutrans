@@ -67,14 +67,18 @@ password_frame_t::password_frame_t( spieler_t *sp ) :
  */
 bool password_frame_t::action_triggered( gui_action_creator_t *komp, value_t p )
 {
-	if(komp == &password  &&  p.i == 1) {
+	if(komp == &password  &&  (ibuf[0]!=0  ||  p.i == 1)) {
 		// Enter-Key pressed
 		// test for matching password to unlock
 		SHA1 sha1;
-		sha1.Input( password.get_text(), strlen( password.get_text() ) );
+		size_t len = strlen( password.get_text() );
+		sha1.Input( password.get_text(), len );
 		uint8 hash[20];
 		MEMZERO(hash);
-		sha1.Result( hash );
+		// remove hash to re-open slot if password is empty
+		if(len>0) {
+			sha1.Result( hash );
+		}
 		/* if current active player is player 1 and this is unlocked, he may reset passwords
 		 * otherwise you need the valid previous password
 		 */

@@ -249,6 +249,7 @@ void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 			}
 		}
 		set_pointer(1);
+		display_fillbox_wh( 0, 0, display_get_width(), display_get_height(), COL_BLACK, true );
 	}
 
 	// just trigger not another following window => wait for button release
@@ -263,7 +264,7 @@ void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 // some routines for the modal display
 static bool never_quit() { return false; }
 static bool empty_objfilename() { return !umgebung_t::objfilename.empty(); }
-static bool no_language() { return translator::get_language()==-1; }
+static bool no_language() { return translator::get_language()!=-1; }
 
 
 
@@ -383,6 +384,37 @@ int simu_main(int argc, char** argv)
 			"  by Hansjörg Malthaner et. al.\n"
 			"  <hansjoerg.malthaner@gmx.de>\n"
 			"---------------------------------------\n"
+			"command line parameters available: \n"
+			" -addons             loads also addons (with -objects)\n"
+			" -async              asynchronic images, only for SDL\n"
+			" -debug NUM          enables debuging (1..5)\n"
+			" -freeplay           play with endless money\n"
+			" -fullscreen         starts simutrans in fullscreen mode\n"
+			" -fps COUNT          framerate (from 5 to 100)\n"
+			" -h | -help | --help displays this help\n"
+			" -lang CODE          starts with specified language\n"
+			" -load file[.sve]    loads game in file 'save/file.sve'\n"
+			" -log                enables logging to file 'simu.log'\n"
+			" -noaddons           does not load any addon (default)\n"
+			" -nomidi             turns off background music\n"
+			" -nosound            turns off ambient sounds\n"
+			" -objects DIR_NAME/  load the pakset in specified directory\n"
+			" -res N              starts in specified resolution: \n"
+			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
+			" -screensize WxH     set screensize to width W and height H\n"
+			" -server [port]      starts program as server (for network game)\n"
+			"                     without port specified uses 13353\n"
+			" -singleuser         Save everything in program directory (portable version)\n"
+#ifdef DEBUG
+			" -sizes              Show current size of some structures\n"
+#endif
+			" -startyear N        start in year N\n"
+			" -timeline           enables timeline\n"
+#if defined DEBUG || defined PROFILE
+			" -times              does some simple profiling\n"
+			" -until MONTH        quits when MONTH = (month*12+year-1) starts\n"
+#endif
+			" -use_workdir        use current dir as basedir\n"
 		);
 		return 0;
 	}
