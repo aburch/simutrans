@@ -419,8 +419,8 @@ bool route_t::intern_calc_route(karte_t *welt, const koord3d ziel, const koord3d
 						continue;
 				}
 
-				// new values for cost g
-				uint32 new_g = tmp->g + fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d());
+				// new values for cost g (without way it is either in the air or in water => no costs)
+				uint32 new_g = tmp->g + (w ? fahr->get_kosten(to, max_speed, tmp->gr->get_pos().get_2d()) : 1);
 
 				// check for curves (usually, one would need the lastlast and the last;
 				// if not there, then we could just take the last
