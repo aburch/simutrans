@@ -534,6 +534,7 @@ class wkz_pause_t : public werkzeug_t {
 public:
 	wkz_pause_t() : werkzeug_t() { id = WKZ_PAUSE | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Pause"); }
+	image_id get_icon(spieler_t *sp) const { return umgebung_t::networkmode  &&  (sp!=sp->get_welt()->get_spieler(1)  ||  sp->is_locked())  ? IMG_LEER : icon; }
 	bool is_selected(karte_t *welt) const { return welt->is_paused(); }
 	bool init( karte_t *welt, spieler_t * ) {
 		welt->set_fast_forward(0);
