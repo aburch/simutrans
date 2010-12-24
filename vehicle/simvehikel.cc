@@ -3382,7 +3382,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		// so first check crossing
 		if(  sch1->is_crossing()  ) {
 			if(  crossing_t* cr = gr_next_block->find<crossing_t>(2)  ) {
-				// ok, here is a draw/turnbridge ...
+					// ok, here is a draw/turnbridge ...
 				bool ok = cr->request_crossing(this);
 				if(!ok) {
 					// cannot cross => wait here
