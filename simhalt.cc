@@ -1828,8 +1828,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 			if (current_node->link == NULL)
 			{
 				// case : origin path node
-				halthandle_t null_halt;
-				current_path->halt = null_halt;
+				current_path->halt = halthandle_t();
 			}
 			else if (!current_node->link->halt.is_bound())
 			{
@@ -1848,7 +1847,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 			current_connexions = current_node->halt->get_connexions(category);
 
 			// Add reachable halts to open list only if current halt is a transfer halt
-			if ( current_node->halt->non_identical_schedules[category] > 1 )
+			if ( current_node->halt->non_identical_schedules[category] > 1 || current_node->link == NULL )
 			{
 				quickstone_hashtable_iterator_tpl<haltestelle_t, connexion*> iter(*current_connexions);
 
