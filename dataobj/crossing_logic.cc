@@ -222,20 +222,34 @@ void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
 }
 
-const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, uint16 timeline_year_month)
+const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, uint32 way0_maxspeed, uint16 timeline_year_month)
 {
 	// mark if crossing possible
 	const waytype_t way0 = ns <  ow ? ns : ow;
 	const waytype_t way1 = ns >= ow ? ns : ow;
+	const kreuzung_besch_t *best = NULL;
 	if(way0<8  &&  way1<9  &&  way0!=way1) {
 		uint8 index = way0 * 9 + way1 - ((way0+2)*(way0+1))/2;
 		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
-		for(uint8 i=0; i<vec.get_count(); i++) {
-			if (vec[i]->is_available(timeline_year_month)) {
-				return vec[i];
+		for(  uint8 i=0;  i<vec.get_count();  i++  ) {
+			if(  vec[i]->is_available(timeline_year_month)  ) {
+				// better matching speed => take this
+				if(  best==NULL  ) {
+					best = vec[i];
+				}
+				else {
+					const uint8 way0_nr = way0==ow;
+					if(
+					(vec[i]->get_maxspeed(way0_nr) > way0_maxspeed  &&  vec[i]->get_maxspeed(way0_nr) < best->get_maxspeed(way0_nr))  ||
+					(best->get_maxspeed(way0_nr) < way0_maxspeed  &&  best->get_maxspeed(way0_nr) < vec[i]->get_maxspeed(way0_nr))
+					) {
+						best = vec[i];
+					}
+				}
 			}
 		}
 	}
+	return best;
 	return NULL;
 }
 

@@ -82,7 +82,7 @@ public:
 	static void register_besch(kreuzung_besch_t *besch);
 	static bool alles_geladen() {return true; }
 
-	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow, uint16 timeline_year_month);
+	static const kreuzung_besch_t *get_crossing(const waytype_t ns, const waytype_t ow, uint32 way_0_speed, uint16 timeline_year_month);
 
 	// returns a new or an existing crossing_logic_t object
 	// new, of no matching crossings are next to it

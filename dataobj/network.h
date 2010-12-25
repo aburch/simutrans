@@ -30,6 +30,7 @@
 #	endif
 
 #	define GET_LAST_ERROR() WSAGetLastError()
+#	include <errno.h>
 #	undef  EWOULDBLOCK
 #	define EWOULDBLOCK WSAEWOULDBLOCK
 #else

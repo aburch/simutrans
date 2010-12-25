@@ -45,18 +45,13 @@ packet_t::packet_t(const packet_t &p) : memory_rw_t(buf,MAX_PACKET_LEN,true)
 packet_t::packet_t(SOCKET sender) : memory_rw_t(buf,MAX_PACKET_LEN,false)
 {
 	// initialize data
-	error = false;
+	error = ( sender==INVALID_SOCKET );
 	ready = false;
 	version = 0;
 	count = 0;
 	size = 0;
 	id = 0;
 	version = 0;
-
-	if(sender==INVALID_SOCKET  ) {
-		error = true;
-		return;
-	}
 	sock = sender;
 }
 
