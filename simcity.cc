@@ -194,7 +194,7 @@ sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 		{
 			// interpolate linear
 			const sint32 delta_ownership_percent = car_ownership[0][i].ownership_percent - car_ownership[0][i-1].ownership_percent;
-			const sint32 delta_years = car_ownership[0][i].year - car_ownership[0][i-1].year;
+			const sint64 delta_years = car_ownership[0][i].year - car_ownership[0][i-1].year;
 			return ( (delta_ownership_percent*(monthyear-car_ownership[0][i-1].year)) / delta_years ) + car_ownership[0][i-1].ownership_percent;
 		}
 	}
@@ -212,9 +212,9 @@ sint16 stadt_t::get_private_car_ownership(sint32 monthyear)
 
 class electric_consumption_record_t {
 public:
-	sint32 year;
+	sint64 year;
 	sint16 consumption_percent;
-	electric_consumption_record_t( sint32 y = 0, sint16 consumption = 0 ) {
+	electric_consumption_record_t( sint64 y = 0, sint16 consumption = 0 ) {
 		year = y*12;
 		consumption_percent = consumption;
 	};
@@ -275,7 +275,7 @@ void stadt_t::electricity_consumption_rdwr(loadsave_t *file)
 		file->rdwr_long(count);
 		ITERATE(electricity_consumption[0], i)
 		{
-			file->rdwr_long(electricity_consumption[0].get_element(i).year);
+			file->rdwr_longlong(electricity_consumption[0].get_element(i).year);
 			file->rdwr_short(electricity_consumption[0].get_element(i).consumption_percent);
 		}	
 	}
@@ -285,11 +285,11 @@ void stadt_t::electricity_consumption_rdwr(loadsave_t *file)
 		electricity_consumption->clear();
 		uint32 counter;
 		file->rdwr_long(counter);
-		uint32 year = 0;
+		sint64 year = 0;
 		uint16 consumption_percent = 0;
 		for(uint32 c = 0; c < counter; c ++)
 		{
-			file->rdwr_long(year);
+			file->rdwr_longlong(year);
 			file->rdwr_short(consumption_percent);
 			electric_consumption_record_t ele(year, consumption_percent);
 			electricity_consumption[0].append( ele );
@@ -329,7 +329,7 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 		{
 			// interpolate linear
 			const sint32 delta_consumption_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
-			const sint32 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
+			const sint64 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
 			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
 		}
 	}

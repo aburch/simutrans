@@ -36,14 +36,14 @@ static inthashtable_tpl<waytype_t, slist_tpl<vehikel_besch_t*> > typ_fahrzeuge;
 
 class bonus_record_t {
 public:
-	sint32 year;
+	sint64 year;
 	sint32 speed;
-	bonus_record_t( sint32 y=0, sint32 kmh=0 ) {
+	bonus_record_t( sint64 y=0, sint32 kmh=0 ) {
 		year = y*12;
 		speed = kmh;
 	};
 	void rdwr(loadsave_t *file) {
-		file->rdwr_long(year);
+		file->rdwr_longlong(year);
 		file->rdwr_long(speed);
 	}
 };
@@ -120,7 +120,7 @@ sint32 vehikelbauer_t::get_speedbonus( sint32 monthyear, waytype_t wt )
 		else {
 			// interpolate linear
 			const sint32 delta_speed = speedbonus[typ][i].speed - speedbonus[typ][i-1].speed;
-			const sint32 delta_years = speedbonus[typ][i].year - speedbonus[typ][i-1].year;
+			const sint64 delta_years = speedbonus[typ][i].year - speedbonus[typ][i-1].year;
 			return ( (delta_speed*(monthyear-speedbonus[typ][i-1].year)) / delta_years ) + speedbonus[typ][i-1].speed;
 		}
 	}
