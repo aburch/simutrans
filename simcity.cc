@@ -77,9 +77,9 @@ sint32 number_of_cars;
 class car_ownership_record_t 
 {
 public:
-	sint32 year;
+	sint64 year;
 	sint16 ownership_percent;
-	car_ownership_record_t( sint32 y = 0, sint16 ownership = 0 ) 
+	car_ownership_record_t( sint64 y = 0, sint16 ownership = 0 ) 
 	{
 		year = y*12;
 		ownership_percent = ownership;
@@ -142,7 +142,8 @@ void stadt_t::privatecar_rdwr(loadsave_t *file)
 		file->rdwr_long(count);
 		ITERATE(car_ownership[0], i)
 		{
-			file->rdwr_long(car_ownership[0].get_element(i).year);
+			
+			file->rdwr_longlong(car_ownership[0].get_element(i).year);
 			file->rdwr_short(car_ownership[0].get_element(i).ownership_percent);
 		}	
 	}
@@ -152,13 +153,13 @@ void stadt_t::privatecar_rdwr(loadsave_t *file)
 		car_ownership->clear();
 		uint32 counter;
 		file->rdwr_long(counter);
-		uint32 year = 0;
+		sint64 year = 0;
 		uint16 ownership_percent = 0;
 		for(uint32 c = 0; c < counter; c ++)
 		{
-			file->rdwr_long(year);
+			file->rdwr_longlong(year);
 			file->rdwr_short(ownership_percent);
-			car_ownership_record_t cow(year, ownership_percent);
+			car_ownership_record_t cow(year / 12, ownership_percent);
 			car_ownership[0].append( cow );
 		}
 	}
