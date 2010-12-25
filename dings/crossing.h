@@ -72,6 +72,13 @@ public:
 	void set_logic( crossing_logic_t *l ) { logic = l; }
 	crossing_logic_t *get_logic() { return logic; }
 
+	/*
+	* called whenever the snowline height changes
+	* return false and the ding_t will be deleted
+	* @author prissi
+	*/
+	virtual bool check_season(const long) { calc_bild(); return true; }
+
 	/**
 	 * Dient zur Neuberechnung des Bildes
 	 * @author Hj. Malthaner

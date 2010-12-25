@@ -86,8 +86,7 @@ void crossing_t::state_changed()
  * Dient zur Neuberechnung des Bildes
  * @author Hj. Malthaner
  */
-void
-crossing_t::calc_bild()
+void crossing_t::calc_bild()
 {
 	if(logic) {
 		zustand = logic->get_state();
@@ -95,7 +94,7 @@ crossing_t::calc_bild()
 	const bool snow_image = get_pos().z >= welt->get_snowline();
 	// recalc bild each step ...
 	const bild_besch_t *a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, snow_image );
-	if (a==NULL  &&  snow_image) {
+	if(  a==NULL  &&  snow_image  ) {
 		// no snow image? take normal one
 		a = besch->get_bild_after( ns, zustand!=crossing_logic_t::CROSSING_CLOSED, 0);
 	}
