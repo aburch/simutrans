@@ -351,9 +351,9 @@ SOURCES += vehicle/simverkehr.cc
 
 SOURCES += simgraph$(COLOUR_DEPTH).cc
 
-ifdef DBG_WEIGHTMAP
+ifdef DEBUG_WEIGHTMAPS
   SOURCES += utils/dbg_weightmap.cc
-  CFLAGS += -DDBG_WEIGHTMAP
+  CFLAGS += -DDEBUG_WEIGHTMAPS
 endif
 
 ifeq ($(BACKEND),allegro)
@@ -451,6 +451,8 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   SOURCES += simres.rc
   WINDRES ?= windres
 endif
+
+CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL
 
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
