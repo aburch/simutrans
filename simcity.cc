@@ -1790,6 +1790,90 @@ void stadt_t::rotate90( const sint16 y_size )
 	}
 	pax_destinations_new_change ++;
 	swap<uint8>( pax_destinations_temp, pax_destinations_old );
+
+	vector_tpl<koord> k_list(connected_cities.get_count());
+	vector_tpl<uint16> f_list(connected_cities.get_count());
+	koordhashtable_iterator_tpl<koord, uint16> iter1(connected_cities);
+	while(iter1.next())
+	{
+		koord k = iter1.get_current_key();
+		uint16 f  = connected_cities.remove(k);
+		k.rotate90(y_size);
+		if(connected_cities.is_contained(k))
+		{
+			uint16 f_2 = connected_cities.remove(k);
+			koord k_2 = k;
+			k_2.rotate90(y_size);
+			assert(k_2 != koord::invalid);
+			k_list.append(k_2);
+			f_list.append(f_2);
+		}
+		assert(k != koord::invalid);
+		k_list.append(k);
+		f_list.append(f);
+	}
+	connected_cities.clear();
+
+	for(uint32 j = 0; j < k_list.get_count(); j ++)
+	{
+		connected_cities.put(k_list[j], f_list[j]);
+	}
+
+	k_list.clear();
+	f_list.clear();
+	koordhashtable_iterator_tpl<koord, uint16> iter2(connected_industries);
+	while(iter2.next())
+	{
+		koord k = iter2.get_current_key();
+		uint16 f  = connected_industries.remove(k);
+		k.rotate90(y_size);
+		if(connected_industries.is_contained(k))
+		{
+			uint16 f_2 = connected_industries.remove(k);
+			koord k_2 = k;
+			k_2.rotate90(y_size);
+			assert(k_2 != koord::invalid);
+			k_list.append(k_2);
+			f_list.append(f_2);
+		}
+		assert(k != koord::invalid);
+		k_list.append(k);
+		f_list.append(f);
+	}
+	connected_industries.clear();
+
+	for(uint32 m = 0; m < k_list.get_count(); m ++)
+	{
+		connected_industries.put(k_list[m], f_list[m]);
+	}
+
+	k_list.clear();
+	f_list.clear();
+	koordhashtable_iterator_tpl<koord, uint16> iter3(connected_attractions);
+	while(iter3.next())
+	{
+		koord k = iter3.get_current_key();
+		uint16 f  = connected_attractions.remove(k);
+		k.rotate90(y_size);
+		if(connected_attractions.is_contained(k))
+		{
+			uint16 f_2 = connected_attractions.remove(k);
+			koord k_2 = k;
+			k_2.rotate90(y_size);
+			assert(k_2 != koord::invalid);
+			k_list.append(k_2);
+			f_list.append(f_2);
+		}
+		assert(k != koord::invalid);
+		k_list.append(k);
+		f_list.append(f);
+	}
+	connected_attractions.clear();
+
+	for(uint32 n = 0; n < k_list.get_count(); n ++)
+	{
+		connected_attractions.put(k_list[n], f_list[n]);
+	}
 }
 
 
@@ -2489,16 +2573,29 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 
 void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_city)
 {
+	
+	if(this == NULL)
+	{
+		return;
+	}
 	connected_cities.put(origin_city->get_pos(), journey_time_per_tile);
 }
 
 void stadt_t::set_no_connexion_to_industry(const fabrik_t* unconnected_industry)
 {
+	if(this == NULL)
+	{
+		return;
+	}
 	connected_industries.put(unconnected_industry->get_pos().get_2d(), 65535);
 }
 
 void stadt_t::set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction)
 {
+	if(this == NULL)
+	{
+		return;
+	}
 	connected_attractions.put(unconnected_attraction->get_pos().get_2d(), 65535);
 }
 

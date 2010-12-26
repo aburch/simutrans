@@ -276,8 +276,8 @@ void replace_frame_t::layout(koord *gr)
 	current_y+=LINESPACE+2;
 
 	bt_replace_line.set_pos(koord(margin,current_y));
-	bt_retain_in_depot.set_pos(koord(margin + 128,current_y));
-	bt_allow_using_existing_vehicles.set_pos(koord(margin + (128 *2),current_y));
+	bt_retain_in_depot.set_pos(koord(margin + 162,current_y));
+	bt_allow_using_existing_vehicles.set_pos(koord(margin + (162 *2),current_y));
 	lb_sell.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_sell].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_sell].set_groesse( koord( 50, a_button_height ) );
@@ -285,7 +285,7 @@ void replace_frame_t::layout(koord *gr)
 	current_y+=LINESPACE+2;
 
 	bt_replace_all.set_pos(koord(margin,current_y));
-	bt_use_home_depot.set_pos(koord(margin + 128,current_y));
+	bt_use_home_depot.set_pos(koord(margin + 162,current_y));
 	lb_skip.set_pos(koord(fgr.x-166,current_y));
 	numinp[state_skip].set_pos( koord( fgr.x-110, current_y ) );
 	numinp[state_skip].set_groesse( koord( 50, a_button_height ) );
