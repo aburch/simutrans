@@ -587,6 +587,7 @@
     <ClInclude Include="tpl\debug_helper.h" />
     <ClInclude Include="gui\depot_frame.h" />
     <ClInclude Include="dataobj\dingliste.h" />
+    <ClInclude Include="utils\dbg_weightmap.h" />
     <ClInclude Include="utils\dr_rdgif.h" />
     <ClInclude Include="utils\dr_rdpng.h" />
     <ClInclude Include="utils\dr_rdppm.h" />

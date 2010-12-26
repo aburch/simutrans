@@ -1727,6 +1727,9 @@
     <ClInclude Include="dataobj\pakset_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="utils\dbg_weightmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="base_texts_experimental.dat">
