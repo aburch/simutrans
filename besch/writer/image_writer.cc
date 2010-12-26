@@ -291,7 +291,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 				bild.x = atoi( numkey.c_str() );
 				comma_pos = numkey.find(',');
 				if(comma_pos != -1) {
-					bild.y = atoi(numkey.substr(i + 1, std::string::npos).c_str());
+					bild.y = atoi(numkey.substr( comma_pos + 1, std::string::npos).c_str());
 				}
 			}
 		}
