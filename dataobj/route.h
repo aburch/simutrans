@@ -151,7 +151,7 @@ public:
 	 */
 	bool append_straight_route( karte_t *w, koord3d );
 
-	/* find the route to an unknow location (where tile_found becomes true)
+	/* find the route to an unknown location (where tile_found becomes true)
 	* the max_depth is the maximum length of a route
 	* @author prissi
 	*/

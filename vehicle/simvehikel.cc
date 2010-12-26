@@ -2390,7 +2390,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 			return false;
 		}
 		const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
-		if(routing_weight > str->get_max_weight())
+		if(str && routing_weight > str->get_max_weight())
 		{
 			weight = false;
 		}
@@ -2923,7 +2923,6 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	// Hajo: diesel and steam engines can use electrifed track as well.
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
-	const bool ok = sch && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
 	
 	bool weight = true;
 	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
@@ -2932,10 +2931,14 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		weight = false;
 	}
 
+	const bool ok = weight && sch && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
+	
+
 	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
 	{
 		return ok;
 	}
+
 	else 
 	{
 		// we are searching a stop here:
@@ -2955,7 +2958,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 		}
 		// but we can only use empty blocks ...
 		// now check, if we could enter here
-		return sch->can_reserve(cnv->self) && weight;
+		return sch->can_reserve(cnv->self);
 	}
 }
 
