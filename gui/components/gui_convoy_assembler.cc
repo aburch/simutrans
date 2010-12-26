@@ -324,8 +324,9 @@ void gui_convoy_assembler_t::layout()
 	 */
 	convoi.set_grid(koord(grid.x - grid_dx, grid.y));
 	convoi.set_placement(koord(placement.x - placement_dx, placement.y));
-	convoi.set_pos(koord((groesse.x-get_convoy_image_width())/2, 0));
+	convoi.set_pos(koord((max(get_pos().x + 10, groesse.x-get_convoy_image_width())/2), 0));
 	convoi.set_groesse(koord(get_convoy_image_width(), get_convoy_image_height()));
+	
 
 	sint16 CINFO_VSTART = get_convoy_image_height();
 	lb_convoi_count.set_pos(koord(4, CINFO_VSTART));
