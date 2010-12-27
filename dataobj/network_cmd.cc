@@ -81,6 +81,9 @@ network_command_t::network_command_t()
 bool network_command_t::receive(packet_t *p)
 {
 	ready = true;
+	if(  packet  ) {
+		delete packet;
+	}
 	packet = p;
 	id = p->get_id();
 	rdwr();
