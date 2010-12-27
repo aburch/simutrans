@@ -832,9 +832,9 @@ static char const* network_receive_file(SOCKET const s, char const* const save_a
 		while (length_read < length) {
 			int i = recv(s, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
 			if (i > 0) {
-				fwrite(rbuf, i, 1, f);
-				display_progress(length_read, length);
+				fwrite(rbuf, 1, i, f);
 				length_read += i;
+				display_progress(length_read, length);
 			}
 			else {
 				if (i < 0) {
