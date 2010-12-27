@@ -3039,7 +3039,7 @@ void karte_t::neuer_monat()
 	// recalc old settings (and maybe update the staops with the current values)
 	reliefkarte_t::get_karte()->neuer_monat();
 
-	INT_CHECK("simworld 1701");
+	INT_CHECK("simworld 3042");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","convois");
 	// hsiegeln - call new month for convoys
@@ -3050,7 +3050,7 @@ void karte_t::neuer_monat()
 
 	base_pathing_counter ++;
 
-	INT_CHECK("simworld 1701");
+	INT_CHECK("simworld 3053");
 
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","factories");
@@ -3102,7 +3102,7 @@ void karte_t::neuer_monat()
 		}
 	}
 
-	INT_CHECK("simworld 1278");
+	INT_CHECK("simworld 3105");
 
 	//	DBG_MESSAGE("karte_t::neuer_monat()","cities");
 	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
@@ -3114,12 +3114,12 @@ void karte_t::neuer_monat()
 		recheck_road_connexions = false;
 		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
-		INT_CHECK("simworld 1278");
+		INT_CHECK("simworld 3117");
 		total_electric_demand += (*i)->get_power_demand();
 	}
 	swap(stadt, new_weighted_stadt);
 
-	if(fabrikbauer_t::power_stations_available(this) && ((electric_productivity*4000l)/total_electric_demand) > get_einstellungen()->get_electric_promille())
+	if(fabrikbauer_t::power_stations_available(this) && ((electric_productivity*4000l)/total_electric_demand) < get_einstellungen()->get_electric_promille())
 	{
 		// Add industries if there is a shortage of electricity - power stations will be built.
 		// Also (8.1 and onwards) - check whether power stations are available, or else large quantities of other industries will
@@ -3127,7 +3127,7 @@ void karte_t::neuer_monat()
 		fabrikbauer_t::increase_industry_density(this, true, true);
 	}
 
-	INT_CHECK("simworld 1282");
+	INT_CHECK("simworld 3130");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","players");
 	if(  letzter_monat == 0  &&  !get_einstellungen()->is_freeplay()  ) {
@@ -3172,7 +3172,7 @@ void karte_t::neuer_monat()
 	}
 	car = NULL;
 
-	INT_CHECK("simworld 1289");
+	INT_CHECK("simworld 3175");
 
 //	DBG_MESSAGE("karte_t::neuer_monat()","halts");
 	slist_iterator_tpl <halthandle_t> halt_iter (haltestelle_t::get_alle_haltestellen());
