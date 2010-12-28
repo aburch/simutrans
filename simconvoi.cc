@@ -920,17 +920,12 @@ void convoi_t::step()
 			break;
 
 		case NO_ROUTE:
-			// stucked vehicles
-			{
-				vehikel_t* v = fahr[0];
-
-				if(  fpl->empty()  ) {
-					// no entries => no route ...
-				}
-				else {
-					// Hajo: now calculate a new route
-					drive_to();
-				}
+			// stuck vehicles
+			if (fpl->empty()) {
+				// no entries => no route ...
+			} else {
+				// Hajo: now calculate a new route
+				drive_to();
 			}
 			break;
 
