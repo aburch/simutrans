@@ -441,6 +441,12 @@ public:
 };
 
 
+template<> inline vehikel_t* ding_cast<vehikel_t>(ding_t* const d)
+{
+	return dynamic_cast<vehikel_t*>(d);
+}
+
+
 /**
  * Eine Klasse für Strassenfahrzeuge. Verwaltet das Aussehen der
  * Fahrzeuge und die Befahrbarkeit des Untergrundes.
