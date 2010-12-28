@@ -548,6 +548,8 @@ void network_set_socket_nodelay( SOCKET sock )
 #ifdef TCP_NODELAY
 	// do not wait to join small (command) packets when sending (may cause 200ms delay!)
 	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, NULL, 0 );
+#else
+	(void)sock;
 #endif
 }
 
