@@ -2338,8 +2338,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		for (int i = 0; i < 8; i++) {
 			grund_t* gr = welt->lookup_kartenboden(k + neighbours[i]);
 			if (gr != NULL && gr->get_weg_hang() == gr->get_grund_hang()) {
-				strasse_t* weg = static_cast<strasse_t*>(gr->get_weg(road_wt));
-				if (weg != NULL) {
+				if (weg_t* const weg = gr->get_weg(road_wt)) {
 					if (i < 4) {
 							// update directions (SENW)
 							streetdir += (1 << i);
