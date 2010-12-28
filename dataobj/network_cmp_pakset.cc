@@ -15,7 +15,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 	// server side of the communication
 	// client side in network_compare_pakset_with_server
 	if(  umgebung_t::server  ) {
-		nwc_pakset_info_t *nwi = new nwc_pakset_info_t();
+		nwc_pakset_info_t nwi;
 		bool send = false;
 		bool ready = false;
 		switch(flag) {
@@ -24,31 +24,31 @@ bool nwc_pakset_info_t::execute(karte_t *)
 			{
 				if (server_receiver!=INVALID_SOCKET  &&  socket_list_t::has_client(server_receiver)) {
 					// we are already talking to another client
-					nwi->flag = SV_ERROR;
-					nwi->send(packet->get_sender());
+					nwi.flag = SV_ERROR;
+					nwi.send(packet->get_sender());
 					break;
 				}
 				server_receiver = packet->get_sender();
 				// restart iterator
 				server_iterator = pakset_info_t::info;
 
-				nwi->flag = SV_PAKSET;
-				nwi->chk = pakset_info_t::get_checksum();
-				nwi->name = strdup("pakset");
-				DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi->name);
+				nwi.flag = SV_PAKSET;
+				nwi.chk = pakset_info_t::get_checksum();
+				nwi.name = strdup("pakset");
+				DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi.name);
 				send = true;
 				break;
 			}
 
 			case CL_WANT_NEXT: // client received one info packet, wants next
 				if (server_iterator.next()) {
-					nwi->flag = SV_DATA;
-					nwi->chk  = server_iterator.get_current_value();
-					nwi->name = strdup(server_iterator.get_current_key());
-					DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi->name);
+					nwi.flag = SV_DATA;
+					nwi.chk  = server_iterator.get_current_value();
+					nwi.name = strdup(server_iterator.get_current_key());
+					DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi.name);
 				}
 				else {
-					nwi->flag = SV_LAST;
+					nwi.flag = SV_LAST;
 					ready = true;
 				}
 				send = true;
@@ -61,17 +61,14 @@ bool nwc_pakset_info_t::execute(karte_t *)
 		}
 		if(  send  ) {
 			if(socket_list_t::has_client(server_receiver)) {
-				nwi->send(server_receiver);
+				nwi.send(server_receiver);
 			}
 			else {
 				// client disappeared
 				server_receiver = INVALID_SOCKET;
 			}
-			if(  nwi->name  ) {
-				free(name);
-			}
+			free( nwi.name );
 		}
-		delete nwi;
 		if(  ready  ) {
 			// all information sent
 			server_receiver = INVALID_SOCKET;
