@@ -766,7 +766,7 @@ void gebaeude_t::rdwr(loadsave_t *file)
 					}
 					level --;
 				}
-				// we try to replace citybuildings with their mathing counterparts
+				// we try to replace citybuildings with their matching counterparts
 				// if none are matching, we try again without climates and timeline!
 				switch(type) {
 					case gebaeude_t::wohnung:
@@ -775,8 +775,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 							if(hb==NULL) {
 								hb = hausbauer_t::get_wohnhaus(level,0, MAX_CLIMATES );
 							}
-							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->get_name());
-							tile = hb->get_tile(0);
+							if( hb) {
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with residence level %i by %s",buf,level,hb->get_name());
+								tile = hb->get_tile(0);
+							}
 						}
 						break;
 
@@ -786,8 +788,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 							if(hb==NULL) {
 								hb = hausbauer_t::get_gewerbe(level,0, MAX_CLIMATES );
 							}
-							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->get_name());
-							tile = hb->get_tile(0);
+							if(hb) {
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with commercial level %i by %s",buf,level,hb->get_name());
+								tile = hb->get_tile(0);
+							}
 						}
 						break;
 
@@ -800,8 +804,10 @@ void gebaeude_t::rdwr(loadsave_t *file)
 									hb = hausbauer_t::get_gewerbe(level,0, MAX_CLIMATES );
 								}
 							}
-							dbg->message("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i by %s",buf,level,hb->get_name());
-							tile = hb->get_tile(0);
+							if (hb) {
+								dbg->message("gebaeude_t::rwdr", "replace unknown building %s with industrie level %i by %s",buf,level,hb->get_name());
+								tile = hb->get_tile(0);
+							}
 						}
 						break;
 
