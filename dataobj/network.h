@@ -104,12 +104,19 @@ network_command_t* network_get_received_command();
 network_command_t* network_check_activity(karte_t *welt, int timeout);
 
 /**
- * send data to dest
+ * send data to dest:
+ * if timeout_ms is positive:
+ *    try to send all data, return true if all data are sent otherwise false
+ * if timeout_ms is not positive:
+ *    try to send as much as possible but return after one send attempt
+ *    return true if connection is still open and sending can be continued later
+ *
  * @param buf the data
- * @param size length of buffer and number of bytes to be sent
- * @returns true if data was completely send, false if an error occurs and connection needs to be closed
+ * @param count length of buffer and number of bytes to be sent
+ * @param sent number of bytes sent
+ * @param timeout_ms time-out in milli-seconds
  */
-bool network_send_data( SOCKET dest, const char *buf, const uint16 size);
+bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 &count, const int timeout_ms );
 
 /**
  * receive data from sender

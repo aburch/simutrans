@@ -100,7 +100,7 @@ void packet_t::recv()
 }
 
 
-void packet_t::send(SOCKET s)
+void packet_t::send(SOCKET s, bool complete)
 {
 	if (has_failed()) {
 		return;
@@ -114,31 +114,21 @@ void packet_t::send(SOCKET s)
 		rdwr_header();
 	}
 
-	while (count < size) {
-		int sent = ::send(s, (const char*) buf+count, size-count, 0);
-		if (sent == -1) {
-			int err = GET_LAST_ERROR();
-			if (err != EWOULDBLOCK) {
-				dbg->warning("packet_t::send", "error %d while sending to [%d]", err, s);
-				error = true;
-				return;
-			}
-			// try again later
-			return;
-		}
-		if (sent == 0) {
-			// connection closed
-			dbg->warning("packet_t::send", "connection [%d] already closed", s);
-			error = true;
-			return;
-		}
-		count += sent;
-		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size, size-count);
+	uint16 sent;
+	const int timeout_ms = complete ? 250 : 0;
+	if ( !network_send_data(s, (const char*) buf+count, size-count, sent, timeout_ms) ) {
+		dbg->warning("packet_t::send", "error while sending to [%d]", s);
+		error = true;
+		return;
 	}
+	count += sent;
 
 	// ready ?
 	if (count == size) {
 		ready = true;
 		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d", count, s, id, size);
+	}
+	else {
+		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size, size-count);
 	}
 }

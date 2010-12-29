@@ -51,8 +51,9 @@ public:
 	/**
 	 * start/continue sending
 	 * sets bools ready or error
+	 * @param complete: forces to send the complete packet
 	 */
-	void send(SOCKET s);
+	void send(SOCKET s, bool complete);
 
 	/**
 	 * start/continue receiving
