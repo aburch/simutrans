@@ -1963,6 +1963,13 @@ void haltestelle_t::make_public_and_join( spieler_t *sp )
 		}
 	}
 
+	// tell the world of it ...
+	if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
+		cbuffer_t buf(256);
+		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
+		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
+	}
+
 	recalc_station_type();
 }
 
