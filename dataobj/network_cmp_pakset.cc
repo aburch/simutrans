@@ -107,10 +107,11 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		socket_list_t::add_client(my_client_socket); // for network_check_activity
 		// client side of comparison
 		// server part in nwc_pakset_info_t::execute
-		// start
-		nwc_pakset_info_t *nwi = new nwc_pakset_info_t();
-		nwi->flag = nwc_pakset_info_t::CL_INIT;
-		nwi->send(my_client_socket);
+		{
+			// start
+			nwc_pakset_info_t nwi(nwc_pakset_info_t::CL_INIT);
+			nwi.send(my_client_socket);
+		}
 		// copy our info to addon
 		// ie treat all our pak's as if they were not present on the server
 		stringhashtable_tpl<checksum_t*> addons;
@@ -134,7 +135,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		uint16 wrong_paks=0;
 		bool ready = false;
 		do {
-			nwi = NULL;
+			nwc_pakset_info_t *nwi = NULL;
 			// wait for nwc_pakset_info_t, ignore other commands
 			for(uint8 i=0; i<5; i++) {
 				network_command_t* nwc = network_check_activity( NULL, 10000 );
@@ -146,10 +147,8 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 
 			if (nwi == NULL) {
 				dbg->warning("network_compare_pakset_with_server", "server did not answer");
-				nwi = new nwc_pakset_info_t();
-				nwi->flag = nwc_pakset_info_t::CL_QUIT;
-				nwi->send(my_client_socket);
-				delete nwi;
+				nwc_pakset_info_t nwi_quit(nwc_pakset_info_t::CL_QUIT);
+				nwi_quit.send(my_client_socket);
 				break;
 			}
 			switch(nwi->flag) {
@@ -163,10 +162,8 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 					}
 					progress++;
 					// request new data
-					nwi = new nwc_pakset_info_t();
-					nwi->flag = nwc_pakset_info_t::CL_WANT_NEXT;
-					nwi->send(my_client_socket);
-					delete nwi;
+					nwc_pakset_info_t nwi_data(nwc_pakset_info_t::CL_WANT_NEXT);
+					nwi_data.send(my_client_socket);
 					break;
 				}
 
@@ -187,16 +184,15 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 						missing.put(nwi->name, nwi->chk);
 						wrong_paks++;
 					}
-					nwi = new nwc_pakset_info_t();
+					nwc_pakset_info_t nwi_next;
 					if (wrong_paks<=MAX_WRONG_PAKS) {
 						// request new data
-						nwi->flag = nwc_pakset_info_t::CL_WANT_NEXT;
+						nwi_next.flag = nwc_pakset_info_t::CL_WANT_NEXT;
 					}
 					else {
-						nwi->flag = nwc_pakset_info_t::CL_QUIT;
+						nwi_next.flag = nwc_pakset_info_t::CL_QUIT;
 					}
-					nwi->send(my_client_socket);
-					delete nwi;
+					nwi_next.send(my_client_socket);
 					break;
 				}
 
