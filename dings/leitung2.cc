@@ -765,7 +765,7 @@ void senke_t::step(long delta_t)
 				const uint32 current_factory_load = (
 						current_factory_demand
 						* (municipal_power_load << 5)
-						/ municipal_power_demand
+						/ ( municipal_power_demand == 0 ? 1 : municipal_power_demand)
 					) >> 5; // <<5 for same reasons as above, FIXME
 				city_factories[i]->add_power( current_factory_load );
 				if (current_factory_demand > current_factory_load) {
