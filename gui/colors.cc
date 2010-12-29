@@ -208,17 +208,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Centralised path searching");
 	buttons[b].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
-	// TEMPORARY: Currently, the centralised path system does not work in network mode.
-	if(umgebung_t::networkmode)
-	{
-		buttons[b].set_tooltip("Centralised path searching is currently not available when playing online.");
-		buttons[b].disable();
-	}
-	else
-	{
-		buttons[b].set_tooltip("Use centralised instead of distributed path searching system.");
-		buttons[b].enable();
-	}
+	buttons[b].set_tooltip("Use centralised instead of distributed path searching system.");
 
 	//21
 	buttons[++b].set_pos( koord(10,SLICE) );
@@ -371,10 +361,10 @@ bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
 
 	else if((buttons+20)==komp)
 	{
+		// TEMPORARY: Disable this because the distributed path search causes crashes. Re-enable when fixed.
 		const uint8 current_option = welt->get_einstellungen()->get_default_path_option();
-		if(current_option == 1 && !umgebung_t::networkmode)
+		if(current_option == 1)
 		{
-			// Currently, the centralised pathing system does not work in network mode.
 			welt->access_einstellungen()->set_default_path_option(2);
 			buttons[20].pressed = true;
 			path_explorer_t::full_instant_refresh();
