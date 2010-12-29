@@ -107,7 +107,7 @@ void packet_t::send(SOCKET s)
 	}
 	// header written ?
 	if (size == 0) {
-		size = get_current_index() + HEADER_SIZE;
+		size = get_current_index();
 		// write header at right place
 		set_index(0);
 		set_max_size(HEADER_SIZE);
