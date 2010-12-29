@@ -64,7 +64,7 @@ void packet_t::recv()
 	uint16 received = 0;
 	// receive header
 	if (count < HEADER_SIZE) {
-		if (!network_receive_data(sock, buf + count, HEADER_SIZE - count, received)) {
+		if (!network_receive_data(sock, buf + count, HEADER_SIZE - count, received, 0)) {
 			error = true;
 			return;
 		}
@@ -87,7 +87,7 @@ void packet_t::recv()
 	}
 	if (count >= HEADER_SIZE) {
 		received = 0;
-		if (!network_receive_data(sock, buf + count, size - count, received)) {
+		if (!network_receive_data(sock, buf + count, size - count, received, 0)) {
 			error = true;
 			return;
 		}

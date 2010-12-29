@@ -776,19 +776,18 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size)
  * @param received number of received bytes is returned here
  * @returns true if connection is still valid, false if an error occurs and connection needs to be closed
  */
-bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received )
+bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received, const int timeout_ms )
 {
-	fd_set fds;
 	received = 0;
 	char *ptr = (char *)dest;
-	// time out
-	struct timeval tv;
 
 	do {
+		fd_set fds;
 		FD_ZERO(&fds);
 		FD_SET(sender,&fds);
+		struct timeval tv;
 		tv.tv_sec = 0;
-		tv.tv_usec = 250000ul;	// maximum 250ms timeout
+		tv.tv_usec = timeout_ms * 1000ul;
 		// can we read?
 		if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
 			return true;
