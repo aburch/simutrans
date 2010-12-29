@@ -104,6 +104,14 @@ network_command_t* network_get_received_command();
 network_command_t* network_check_activity(karte_t *welt, int timeout);
 
 /**
+ * send data to dest
+ * @param buf the data
+ * @param size length of buffer and number of bytes to be sent
+ * @returns true if data was completely send, false if an error occurs and connection needs to be closed
+ */
+bool network_send_data( SOCKET dest, const char *buf, const uint16 size);
+
+/**
  * receive data from sender
  * @param dest the destination buffer
  * @param len length of destination buffer and number of bytes to be received

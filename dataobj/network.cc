@@ -308,7 +308,10 @@ const char *network_download_http( const char *address, const char *name, const 
 	if(  err==NULL  ) {
 		char uri[1024];
 		int const len = sprintf(uri, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", name, address);
-		send( my_client_socket, uri, len, 0 );
+		if (!network_send_data(my_client_socket, uri, len))
+		{
+			err = "Server did not respond!";
+		}
 		// read the header
 		char line[1024], rbuf;
 		int pos = 0;
@@ -725,6 +728,48 @@ void network_send_server(network_command_t* nwc )
 
 
 /**
+ * send data to dest
+ * @param buf the data
+ * @param size length of buffer and number of bytes to be sent
+ * @returns true if data was completely send, false if an error occurs and connection needs to be closed
+ */
+bool network_send_data( SOCKET dest, const char *buf, const uint16 size)
+{
+	uint16 count = 0;
+	while (count < size) {
+		int sent = ::send(dest, buf+count, size-count, 0);
+		if (sent == -1) {
+			int err = GET_LAST_ERROR();
+			if (err != EWOULDBLOCK) {
+				dbg->warning("network_send_data", "error %d while sending to [%d]", err, dest);
+				return false;
+			}
+			// try again, test whether sending is possible
+			fd_set fds;
+			FD_ZERO(&fds);
+			FD_SET(dest,&fds);
+			struct timeval tv;
+			tv.tv_sec = 0;
+			tv.tv_usec = 250000ul;	// maximum 250ms timeout
+			// can we write?
+			if(  select((int)dest+1, NULL, &fds, NULL, &tv )!=1  ) {
+				dbg->warning("network_send_data", "could not write to [%s]", dest);
+				return false;
+			}
+			continue;
+		}
+		if (sent == 0) {
+			// connection closed
+			dbg->warning("network_send_data", "connection [%d] already closed", dest);
+			return false;
+		}
+		count += sent;
+		dbg->message("network_send_data", "sent %d bytes to socket[%d]; size=%d, left=%d", count, dest, size, size-count);
+	}
+	return true;
+}
+
+/**
  * receive data from sender
  * @param dest the destination buffer
  * @param len length of destination buffer and number of bytes to be received
@@ -799,7 +844,7 @@ const char *network_send_file( uint32 client_id, const char *filename )
 	long bytes_sent = 0;
 	while(  !feof(fp)  ) {
 		int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fp );
-		if(  send(s,buffer,bytes_read,0)==-1) {
+		if( !network_send_data(s, buffer, bytes_read) ) {
 			socket_list_t::remove_client(s);
 			return "Client closed connection during transfer";
 		}

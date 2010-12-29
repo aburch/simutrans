@@ -133,7 +133,7 @@ void packet_t::send(SOCKET s)
 			return;
 		}
 		count += sent;
-		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size,size-count-sent);
+		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size, size-count);
 	}
 
 	// ready ?

@@ -176,7 +176,7 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			while(  !feof(fh)  ) {
 				char buffer[1024];
 				int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fh );
-				if(  ::send(s,buffer,bytes_read,0)==-1) {
+				if(  !network_send_data(s,buffer,bytes_read)) {
 					dbg->warning( "nwc_gameinfo_t::execute", "Client closed connection during transfer" );;
 					break;
 				}
