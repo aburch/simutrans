@@ -1289,22 +1289,14 @@ sint64 grund_t::remove_trees()
 {
 	sint64 cost=0;
 	// remove all trees ...
-	while(1) {
-		baum_t *d=find<baum_t>(0);
-		if(d==NULL) {
-			break;
-		}
+	while (baum_t* const d = find<baum_t>(0)) {
 		// we must mark it by hand, sinc ewe want to join costs
 		d->mark_image_dirty( get_bild(), 0 );
 		delete d;
 		cost -= welt->get_einstellungen()->cst_remove_tree;
 	}
 	// remove all groundobjs ...
-	while(1) {
-		groundobj_t *d=find<groundobj_t>(0);
-		if(d==NULL) {
-			break;
-		}
+	while (groundobj_t* const d = find<groundobj_t>(0)) {
 		cost += d->get_besch()->get_preis();
 		delete d;
 	}
