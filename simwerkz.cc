@@ -2133,7 +2133,7 @@ const char *wkz_wayremover_t::get_tooltip(spieler_t *)
 	return NULL;
 }
 
-class electron_t : fahrer_t {
+class electron_t : public fahrer_t {
 	bool ist_befahrbar(const grund_t* gr) const { return gr->get_leitung()!=NULL; }
 	virtual ribi_t::ribi get_ribi(const grund_t* gr) const { return gr->get_leitung()->get_ribi(); }
 	virtual waytype_t get_waytype() const { return invalid_wt; }
@@ -2202,7 +2202,7 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 			test_driver = driver;
 		}
 		else {
-			test_driver = (fahrer_t *)new electron_t();
+			test_driver = new electron_t();
 		}
 		verbindung.calc_route(sp->get_welt(), start, end, test_driver, 0);
 		delete test_driver;
