@@ -2711,7 +2711,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const sint32 anzahl,
 			break;
 		}
 	}
-	list->clear();
 	delete list;
 
 	return result;
