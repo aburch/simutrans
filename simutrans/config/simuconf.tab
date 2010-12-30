@@ -500,7 +500,7 @@ fast_forward = 50
 #
 
 # How much comands should be delayed before sending back to clients.
-# A larger number will catch even cleints running slightly ahead but cause delays
+# A larger number will catch even clients running slightly ahead but cause delays
 #server_frames_ahead = 1
 
 # In network mode, there will be a fixed number of screen updates before a step.

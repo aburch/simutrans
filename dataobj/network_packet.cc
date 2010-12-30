@@ -107,7 +107,7 @@ void packet_t::send(SOCKET s)
 	}
 	// header written ?
 	if (size == 0) {
-		size = get_current_index() + HEADER_SIZE;
+		size = get_current_index();
 		// write header at right place
 		set_index(0);
 		set_max_size(HEADER_SIZE);
@@ -133,7 +133,7 @@ void packet_t::send(SOCKET s)
 			return;
 		}
 		count += sent;
-		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size,size-count-sent);
+		dbg->message("packet_t::send", "sent %d bytes to socket[%d]; id=%d, size=%d, left=%d", count, s, id, size, size-count);
 	}
 
 	// ready ?

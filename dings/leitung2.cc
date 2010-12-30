@@ -762,7 +762,8 @@ void senke_t::step(long delta_t)
 		{
 			if (city_factories[i] != fab) { //don't produce twice for the factory supplied above
 				const uint32 current_factory_demand = city_factories[i]->get_power_demand() * load_proportion;
-				const uint32 current_factory_load = (
+				const uint32 current_factory_load =  municipal_power_demand == 0 ? current_factory_demand : 
+					(
 						current_factory_demand
 						* (municipal_power_load << 5)
 						/ municipal_power_demand

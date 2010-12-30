@@ -1799,6 +1799,9 @@
     <None Include="..\..\..\Simutrans\simu-server.log">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="base_texts_experimental_forgotten_items_2.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc">
