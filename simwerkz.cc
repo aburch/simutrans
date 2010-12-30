@@ -1634,6 +1634,12 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		if( besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser ) {
 			return 0;
 		}
+		// test if way already exists on the way and if we are allowed to connect
+		weg_t *way = gr->get_weg(besch->get_wtyp());
+		if(way) {
+			error = way->ist_entfernbar(sp);
+			return error==NULL ? 2 : 0;
+		}
 		// check for ownership but ignore moving things
 		if(sp!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {

@@ -307,14 +307,14 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 			return true;
 		}
 	}
-	// right owner of the other way
-	if(!check_owner(w->get_besitzer(),sp)) {
-		return false;
-	}
 	// special case: tram track on road
 	if ( (wtyp==road_wt  &&  w->get_waytype()==track_wt  &&  w->get_besch()->get_styp()==7)  ||
 		     (wtyp0==tram_wt  &&  w->get_waytype()==road_wt) ) {
 		return true;
+	}
+	// right owner of the other way
+	if(!check_owner(w->get_besitzer(),sp)) {
+		return false;
 	}
 	// check for existing crossing
 	crossing_t *cr = bd->find<crossing_t>();
