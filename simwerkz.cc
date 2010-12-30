@@ -1776,6 +1776,12 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		if( besch->get_wtyp() != water_wt  &&  gr->get_typ() == grund_t::wasser ) {
 			return 0;
 		}
+		// test if way already exists on the way and if we are allowed to connect
+		weg_t *way = gr->get_weg(besch->get_wtyp());
+		if(way) {
+			error = way->ist_entfernbar(sp);
+			return error==NULL ? 2 : 0;
+		}
 		// check for ownership but ignore moving things
 		if(sp!=NULL) {
 			for(uint8 i=0; i<gr->obj_count(); i++) {
@@ -4771,6 +4777,11 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			// sometime those are not correct after rotation ...
 			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
+			// tell the world of it ...
+			cbuffer_t buf(256);
+			buf.printf( translator::translate("%s s\nheadquarter now\nat (%i,%i)."), sp->get_name(), pos.x, pos.y );
+			welt->get_message()->add_message( buf, pos.get_2d(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), hq->get_tile()->get_hintergrund(0,0,0) );
+			// reset to query tool, since costly relocations should be avoided
 			if(is_local_execution()  &&  sp == welt->get_active_player()) {
 				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], sp );
 			}

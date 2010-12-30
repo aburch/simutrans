@@ -111,6 +111,7 @@
 	CHANGE: cities try some terraforming to be able to build roads
 	ADD: messages are saved in save games
 	CHANGE: passwords are only checked/changed if <enter> is pressed in the password input box
+	ADD: more messages for headquarters and making stops public
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

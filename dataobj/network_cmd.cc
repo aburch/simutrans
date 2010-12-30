@@ -121,7 +121,7 @@ void network_command_t::prepare_to_send()
 void network_command_t::send(SOCKET s)
 {
 	prepare_to_send();
-	packet->send(s);
+	packet->send(s, true);
 }
 
 
@@ -176,7 +176,8 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			while(  !feof(fh)  ) {
 				char buffer[1024];
 				int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fh );
-				if(  !network_send_data(s,buffer,bytes_read)) {
+				uint16 dummy;
+				if(  !network_send_data(s,buffer,bytes_read,dummy,250)) {
 					dbg->warning( "nwc_gameinfo_t::execute", "Client closed connection during transfer" );;
 					break;
 				}

@@ -42,7 +42,10 @@ public:
 	bool receive(packet_t *p);
 	// calls rdwr if packet is empty
 	void prepare_to_send();
-	// really sends to a client
+	/**
+	 * sends to a client
+	 * sends complete command-packet
+	 */
 	void send(SOCKET s);
 
 	// write our data to the packet
