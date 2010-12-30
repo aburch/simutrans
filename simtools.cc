@@ -150,7 +150,7 @@ void clear_random_mode( uint16 mode )
 	random_origin &= ~mode;
 }
 
-static uint8 get_random_mode()
+uint8 get_random_mode()
 {
 	return random_origin;
 }

@@ -2183,7 +2183,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 				ware.set_zwischenziel(final_path->halt);
 				return final_path->journey_time;
 			}
-			// If the next transfer is not bound, something has gone wrong.
+			dbg->error("haltestelle_t::find_route", "Path from %s to %s not found: next transfer missing", this->get_name(), ziel_list->get_element(best_destination).is_bound() ?  ziel_list->get_element(best_destination)->get_name() : "Unknown destination");
 			return 65535;
 		}
 	}
@@ -2494,7 +2494,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 		iter.get_current_value()->alternative_seats = 0;
 	}
 
-	if (loading_here.get_count() < 2 ) { // Alternative don't exists, only one convoy here
+	if (loading_here.get_count() < 2 ) { // Alternatives don't exist, only one convoy here
 		do_alternative_seats_calculation = false; // so we will not do clean-up again
 		return;
 	}
