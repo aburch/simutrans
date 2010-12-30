@@ -1889,7 +1889,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		// call INT_CHECK() only every 256 iterations
 		if ( ++interrupt_counter == 0 )
 		{
-			INT_CHECK( "simhalt 1694" );
+			INT_CHECK( "simhalt 1892" );
 		}
 
 		if(current_node->halt == goal)
