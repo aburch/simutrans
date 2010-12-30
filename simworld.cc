@@ -1748,7 +1748,6 @@ karte_t::~karte_t()
 	}
 
 	// not deleting the werkzeuge of this map ...
-	msg->clear();
 	delete msg;
 }
 

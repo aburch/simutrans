@@ -37,5 +37,5 @@ void xref_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
 	fread(buf, node.size, 1, infp);
 	printf(" -> %4.4s-node '%s'", buf, buf + 4);
 
-	delete buf;
+	delete [] buf;
 }

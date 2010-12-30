@@ -4668,8 +4668,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			}
 		}
 	}
-	
-	list->clear();
 	delete list;
 	return result;
 }

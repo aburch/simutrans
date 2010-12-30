@@ -323,7 +323,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 			}
 		}
 		init_dim(image, &dim, img_size);
-		delete image;
+		delete [] image;
 
 		bild.x += dim.xmin;
 		bild.y += dim.ymin;
