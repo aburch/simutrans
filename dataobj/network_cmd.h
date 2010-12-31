@@ -45,8 +45,9 @@ public:
 	/**
 	 * sends to a client
 	 * sends complete command-packet
+	 * @returns whether send was succesfull
 	 */
-	void send(SOCKET s);
+	bool send(SOCKET s);
 
 	// write our data to the packet
 	virtual void rdwr();

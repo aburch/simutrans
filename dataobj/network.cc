@@ -360,7 +360,10 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		{
 			nwc_gameinfo_t nwgi;
 			nwgi.rdwr();
-			nwgi.send(my_client_socket);
+			if (!nwgi.send(my_client_socket)) {
+				err = "send of NWC_GAMEINFO failed";
+				goto end;
+			}
 		}
 		socket_list_t::add_client( my_client_socket );
 		// wait for join command (tolerate some wrong commands)
@@ -413,7 +416,10 @@ const char *network_connect(const char *cp)
 		{
 			nwc_join_t nwc_join;
 			nwc_join.rdwr();
-			nwc_join.send(my_client_socket);
+			if (!nwc_join.send(my_client_socket)) {
+				err = "send of NWC_JOIN failed";
+				goto end;
+			}
 		}
 		socket_list_t::reset();
 		socket_list_t::add_client(my_client_socket);
@@ -841,7 +847,9 @@ const char *network_send_file( uint32 client_id, const char *filename )
 	}
 	// send size of file
 	nwc_game_t nwc(length);
-	nwc.send(s);
+	if (!nwc.send(s)) {
+		return "Client closed connection during transfer";
+	}
 
 	// good place to show a progress bar
 	if(is_display_init()  &&  length>0) {

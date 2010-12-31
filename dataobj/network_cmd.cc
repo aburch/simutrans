@@ -118,10 +118,15 @@ void network_command_t::prepare_to_send()
 }
 
 
-void network_command_t::send(SOCKET s)
+bool network_command_t::send(SOCKET s)
 {
 	prepare_to_send();
 	packet->send(s, true);
+	bool ok = packet->is_ready();
+	if (!ok) {
+		dbg->warning("network_command_t::send", "send packet_id=%d to [%d] failed", id, s);
+	}
+	return ok;
 }
 
 
@@ -171,16 +176,20 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			rewind( fh );
 //			nwj.client_id = network_get_client_id(s);
 			nwgi.rdwr();
-			nwgi.send( s );
-			// send gameinfo
-			while(  !feof(fh)  ) {
-				char buffer[1024];
-				int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fh );
-				uint16 dummy;
-				if(  !network_send_data(s,buffer,bytes_read,dummy,250)) {
-					dbg->warning( "nwc_gameinfo_t::execute", "Client closed connection during transfer" );;
-					break;
+			if ( nwgi.send( s ) ) {
+				// send gameinfo
+				while(  !feof(fh)  ) {
+					char buffer[1024];
+					int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fh );
+					uint16 dummy;
+					if(  !network_send_data(s,buffer,bytes_read,dummy,250)) {
+						dbg->warning( "nwc_gameinfo_t::execute", "Client closed connection during transfer" );
+						break;
+					}
 				}
+			}
+			else {
+				dbg->warning( "nwc_gameinfo_t::execute", "send of NWC_GAMEINFO failed" );
 			}
 			fclose( fh );
 			remove( "serverinfo.sve" );
@@ -215,12 +224,16 @@ bool nwc_join_t::execute(karte_t *welt)
 		// no other joining process active?
 		nwj.answer = socket_list_t::get_client(nwj.client_id).is_active()  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
 		nwj.rdwr();
-		nwj.send( packet->get_sender());
-		if (nwj.answer == 1) {
-			// now send sync command
-			nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, welt->get_map_counter(), nwj.client_id);
-			network_send_all(nws, false);
-			pending_join_client = packet->get_sender();
+		if (nwj.send( packet->get_sender())) {
+			if (nwj.answer == 1) {
+				// now send sync command
+				nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, welt->get_map_counter(), nwj.client_id);
+				network_send_all(nws, false);
+				pending_join_client = packet->get_sender();
+			}
+		}
+		else {
+			dbg->warning( "nwc_join_t::execute", "send of NWC_JOIN failed" );
 		}
 	}
 	return true;
@@ -264,7 +277,9 @@ bool nwc_ready_t::execute(karte_t *welt)
 			}
 		}
 		nwc_ready_t nwc(sync_steps, mpc);
-		nwc.send( this->packet->get_sender());
+		if (!nwc.send( this->packet->get_sender())) {
+			dbg->warning( "nwc_ready_t::execute", "send of NWC_READY failed" );
+		}
 	}
 	else {
 		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d map_counter=%d",sync_steps,map_counter);
@@ -420,8 +435,12 @@ void nwc_sync_t::do_command(karte_t *welt)
 		SOCKET sock = socket_list_t::get_socket(client_id);
 		if (sock != INVALID_SOCKET) {
 			nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
-			nwc.send(sock);
-			socket_list_t::change_state(client_id, socket_info_t::playing);
+			if (nwc.send(sock)) {
+				socket_list_t::change_state(client_id, socket_info_t::playing);
+			}
+			else {
+				dbg->warning( "nwc_sync_t::execute", "send of NWC_READY failed" );
+			}
 		}
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
 	}
