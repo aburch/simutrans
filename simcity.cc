@@ -2809,6 +2809,7 @@ void stadt_t::step_passagiere()
 							{
 								can_walk_ziel = true;
 								start_halt = start_halts[i];
+								// Mail does not walk, but people delivering it do.
 								haltestelle_t::erzeuge_fussgaenger(welt, start_halts[i]->get_basis_pos3d(), pax_left_to_do);
 								goto walk; // because we found at least one valid step ...
 							}
