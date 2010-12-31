@@ -1720,16 +1720,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	city_road = NULL;
 
-	if(umgebung_t::networkmode)
-	{
-		// TEMPORARY: Currently, the centralised pathing system does not work in network mode.
-		access_einstellungen()->set_default_path_option(1);
-	}
-	else
-	{
-		// Added by : Knightly
-		path_explorer_t::initialise(this);
-	}
+	// Added by : Knightly
+	path_explorer_t::initialise(this);
 
 	// @author: jamespetts
 	set_scale();
@@ -4461,8 +4453,6 @@ bool karte_t::laden(const char *filename)
 		}
 		else {
 			umgebung_t::networkmode = true;
-			//TEMPORARY: Centralised pathing does not presently work in network mode.
-			access_einstellungen()->set_default_path_option(1);
 			name.printf( "client%i-network.sve", network_get_client_id() );
 		}
 	}
@@ -6027,6 +6017,15 @@ bool karte_t::interactive(uint32 quit_month)
 				network_disconnect();
 			}
 
+			// Knightly : send changed limits to server where necessary
+			if(  einstellungen->get_default_path_option()==2  &&  path_explorer_t::are_local_limits_changed()  ) {
+				path_explorer_t::limit_set_t local_limits = path_explorer_t::get_local_limits();
+				network_send_server( new nwc_routesearch_t(sync_steps, map_counter, local_limits, false) );
+				path_explorer_t::reset_local_limits_state();
+				dbg->warning("karte_t::interactive", "nwc_routesearch_t object created and sent to server: sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
+					sync_steps, map_counter, local_limits.rebuild_connexions, local_limits.filter_eligible, local_limits.fill_matrix, local_limits.explore_paths, local_limits.reroute_goods);
+			}
+
 			// process all the received commands at once
 			while (nwc) {
 				// check timing
@@ -6087,6 +6086,11 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 			else {
 				next_command_step = 0xFFFFFFFFu;
+			}
+
+			// Knightly : check if changed limits, if any, have to be transmitted to all clients
+			if(  einstellungen->get_default_path_option()==2  &&  umgebung_t::server  ) {
+				nwc_routesearch_t::check_for_transmission( this );
 			}
 
 			// send data

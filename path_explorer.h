@@ -8,6 +8,7 @@
 #ifndef path_explorer_h
 #define path_explorer_h
 
+#include "utils/memory_rw.h"
 #include "simline.h"
 #include "simhalt.h"
 #include "simworld.h"
@@ -23,6 +24,68 @@
 
 class path_explorer_t
 {
+public:
+
+	struct limit_set_t
+	{
+		uint32 rebuild_connexions;
+		uint32 filter_eligible;
+		uint32 fill_matrix;
+		uint64 explore_paths;
+		uint32 reroute_goods;
+
+		limit_set_t() : rebuild_connexions(0), filter_eligible(0), fill_matrix(0), explore_paths(0), reroute_goods(0) { }
+		limit_set_t(bool) : rebuild_connexions(UINT32_MAX_VALUE), filter_eligible(UINT32_MAX_VALUE), fill_matrix(UINT32_MAX_VALUE), explore_paths(UINT64_MAX_VALUE), reroute_goods(UINT32_MAX_VALUE) { }
+		limit_set_t(uint32 c, uint32 e, uint32 m, uint64 p, uint32 g) : rebuild_connexions(c), filter_eligible(e), fill_matrix(m), explore_paths(p), reroute_goods(g) { }
+		
+		template<typename T>
+		static inline T min_of(const T a, const T b) { return (a < b ? a : b); }
+
+		void find_min_with(const limit_set_t &other)
+		{
+			rebuild_connexions = min_of(rebuild_connexions, other.rebuild_connexions);
+			filter_eligible = min_of(filter_eligible, other.filter_eligible);
+			fill_matrix = min_of(fill_matrix, other.fill_matrix);
+			explore_paths = min_of(explore_paths, other.explore_paths);
+			reroute_goods = min_of(reroute_goods, other.reroute_goods);
+		}
+
+		bool operator == (const limit_set_t &other) const
+		{
+			if( rebuild_connexions == other.rebuild_connexions	&&
+				filter_eligible == other.filter_eligible		&&
+				fill_matrix == other.fill_matrix				&&
+				explore_paths == other.explore_paths			&&
+				reroute_goods == other.reroute_goods				)
+			{
+				return true;
+			}
+			return false;
+		}
+
+		bool operator != (const limit_set_t &other) const { return !( *this == other ); }
+
+		void rdwr(memory_rw_t *buffer)
+		{
+			buffer->rdwr_long( rebuild_connexions );
+			buffer->rdwr_long( filter_eligible );
+			buffer->rdwr_long( fill_matrix );
+			uint32 explore_paths_quotient;
+			uint32 explore_paths_remainder;
+			if( buffer->is_saving() )
+			{
+				explore_paths_quotient = (uint32)(explore_paths / (uint64)UINT32_MAX_VALUE);
+				explore_paths_remainder = (uint32)(explore_paths % (uint64)UINT32_MAX_VALUE);
+			}
+			buffer->rdwr_long( explore_paths_quotient );
+			buffer->rdwr_long( explore_paths_remainder );
+			if( buffer->is_loading() )
+			{
+				explore_paths = (uint64)explore_paths_quotient * (uint64)UINT32_MAX_VALUE + (uint64)explore_paths_remainder;
+			}
+			buffer->rdwr_long( reroute_goods );
+		}
+	};
 
 private:
 
@@ -281,6 +344,10 @@ private:
 		static uint16 representative_halt_count;
 		static uint8 representative_category;
 
+		// indicate whether phase limits are used or not
+		// -> it is turned off for initial full instant search
+		static bool use_limits;
+		
 		// iteration limits
 		static uint32 limit_rebuild_connexions;
 		static uint32 limit_filter_eligible;
@@ -288,12 +355,15 @@ private:
 		static uint64 limit_explore_paths;
 		static uint32 limit_reroute_goods;
 
-		// back-up iteration limits
-		static uint32 backup_rebuild_connexions;
-		static uint32 backup_filter_eligible;
-		static uint32 backup_fill_matrix;
-		static uint64 backup_explore_paths;
-		static uint32 backup_reroute_goods;
+		// local iteration limits
+		static uint32 local_rebuild_connexions;
+		static uint32 local_filter_eligible;
+		static uint32 local_fill_matrix;
+		static uint64 local_explore_paths;
+		static uint32 local_reroute_goods;
+
+		// indicate whether local limits has changed
+		static bool local_limits_changed;
 
 		// default iteration limits
 		static const uint32 default_rebuild_connexions = 4096;
@@ -301,10 +371,6 @@ private:
 		static const uint32 default_fill_matrix = 4096;
 		static const uint64 default_explore_paths = 1048576;
 		static const uint32 default_reroute_goods = 4096;
-
-		// maximum limit for full refresh
-		static const uint32 maximum_limit_32bit = UINT32_MAX_VALUE;
-		static const uint64 maximum_limit_64bit = UINT64_MAX_VALUE;
 
 		// phase indices
 		static const uint8 phase_check_flag = 0;
@@ -360,31 +426,31 @@ private:
 		static void reset_connexion_list();
 
 		static void finalise_connexion_list();
+
+		static void enable_limits(const bool yesno)
+		{
+			use_limits = yesno;
+		}
 		
-		static void backup_limits()
+		static limit_set_t get_local_limits()
 		{
-			backup_rebuild_connexions = limit_rebuild_connexions;
-			backup_filter_eligible = limit_filter_eligible;
-			backup_fill_matrix = limit_fill_matrix;
-			backup_explore_paths = limit_explore_paths;
-			backup_reroute_goods = limit_reroute_goods;
+			return limit_set_t( local_rebuild_connexions, local_filter_eligible, local_fill_matrix, local_explore_paths, local_reroute_goods );
 		}
-		static void restore_limits()
+
+		static limit_set_t get_active_limits()
 		{
-			limit_rebuild_connexions = backup_rebuild_connexions;
-			limit_filter_eligible = backup_filter_eligible;
-			limit_fill_matrix = backup_fill_matrix;
-			limit_explore_paths = backup_explore_paths;
-			limit_reroute_goods = backup_reroute_goods;
+			return limit_set_t( limit_rebuild_connexions, limit_filter_eligible, limit_fill_matrix, limit_explore_paths, limit_reroute_goods );
 		}
-		static void set_maximum_limits()
+
+		static void set_limits(const limit_set_t &limit_set)
 		{
-			limit_rebuild_connexions = maximum_limit_32bit;
-			limit_filter_eligible = maximum_limit_32bit;
-			limit_fill_matrix = maximum_limit_32bit;
-			limit_explore_paths = maximum_limit_64bit;
-			limit_reroute_goods = maximum_limit_32bit;
+			limit_rebuild_connexions = limit_set.rebuild_connexions;
+			limit_filter_eligible = limit_set.filter_eligible;
+			limit_fill_matrix = limit_set.fill_matrix;
+			limit_explore_paths = limit_set.explore_paths;
+			limit_reroute_goods = limit_set.reroute_goods;
 		}
+
 		static void set_default_limits()
 		{
 			limit_rebuild_connexions = default_rebuild_connexions;
@@ -394,6 +460,8 @@ private:
 			limit_reroute_goods = default_reroute_goods;
 		}
 
+		static bool are_local_limits_changed() { return local_limits_changed; }
+		static void reset_local_limits_state() { local_limits_changed = false; }
 		static uint32 get_limit_rebuild_connexions() { return limit_rebuild_connexions; }
 		static uint32 get_limit_filter_eligible() { return limit_filter_eligible; }
 		static uint32 get_limit_fill_matrix() { return limit_fill_matrix; }
@@ -425,6 +493,11 @@ public:
 	}
 
 	static karte_t *get_world() { return world; }
+	static bool are_local_limits_changed() { return compartment_t::are_local_limits_changed(); }
+	static void reset_local_limits_state() { compartment_t::reset_local_limits_state(); }
+	static limit_set_t get_local_limits() { return compartment_t::get_local_limits(); }
+	static limit_set_t get_active_limits() { return compartment_t::get_active_limits(); }
+	static void set_limits(const limit_set_t &limit_set) { compartment_t::set_limits(limit_set); }
 	static uint32 get_limit_rebuild_connexions() { return compartment_t::get_limit_rebuild_connexions(); }
 	static uint32 get_limit_filter_eligible() { return compartment_t::get_limit_filter_eligible(); }
 	static uint32 get_limit_fill_matrix() { return compartment_t::get_limit_fill_matrix(); }

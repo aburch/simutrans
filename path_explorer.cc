@@ -13,7 +13,8 @@
 #include "besch/ware_besch.h"
 #include "simsys.h"
 #include "simgraph.h"
-#include "./player/simplay.h"
+#include "player/simplay.h"
+#include "dataobj/umgebung.h"
 
 
 // #define DEBUG_EXPLORER_SPEED
@@ -111,10 +112,8 @@ void path_explorer_t::full_instant_refresh()
 	display_set_progress_text(translator::translate("Calculating paths ..."));
 	display_progress(curr_step, total_steps);
 
-	compartment_t::backup_limits();
-
-	// change all limits to maximum so that each phase is performed in one step
-	compartment_t::set_maximum_limits();
+	// disable the iteration limits
+	compartment_t::enable_limits(false);
 
 	// clear all connexion hash tables and reset serving transport counters
 	compartment_t::reset_connexion_list();
@@ -152,8 +151,8 @@ void path_explorer_t::full_instant_refresh()
 	printf("\n\nTotal time taken :  %lu ms \n", diff);
 #endif
 
-	// restore limits back to default
-	compartment_t::restore_limits();
+	// enable iteration limits again
+	compartment_t::enable_limits(true);
 
 	// reset current category pointer
 	current_compartment = 0;
@@ -205,17 +204,21 @@ const char *const path_explorer_t::compartment_t::phase_name[] =
 
 path_explorer_t::compartment_t::connexion_list_entry_t path_explorer_t::compartment_t::connexion_list[65536];
 
+bool path_explorer_t::compartment_t::use_limits = true;
+
 uint32 path_explorer_t::compartment_t::limit_rebuild_connexions = default_rebuild_connexions;
 uint32 path_explorer_t::compartment_t::limit_filter_eligible = default_filter_eligible;
 uint32 path_explorer_t::compartment_t::limit_fill_matrix = default_fill_matrix;
 uint64 path_explorer_t::compartment_t::limit_explore_paths = default_explore_paths;
 uint32 path_explorer_t::compartment_t::limit_reroute_goods = default_reroute_goods;
 
-uint32 path_explorer_t::compartment_t::backup_rebuild_connexions = default_rebuild_connexions;
-uint32 path_explorer_t::compartment_t::backup_filter_eligible = default_filter_eligible;
-uint32 path_explorer_t::compartment_t::backup_fill_matrix = default_fill_matrix;
-uint64 path_explorer_t::compartment_t::backup_explore_paths = default_explore_paths;
-uint32 path_explorer_t::compartment_t::backup_reroute_goods = default_reroute_goods;
+uint32 path_explorer_t::compartment_t::local_rebuild_connexions = default_rebuild_connexions;
+uint32 path_explorer_t::compartment_t::local_filter_eligible = default_filter_eligible;
+uint32 path_explorer_t::compartment_t::local_fill_matrix = default_fill_matrix;
+uint64 path_explorer_t::compartment_t::local_explore_paths = default_explore_paths;
+uint32 path_explorer_t::compartment_t::local_reroute_goods = default_reroute_goods;
+
+bool path_explorer_t::compartment_t::local_limits_changed = false;
 
 uint16 path_explorer_t::compartment_t::representative_halt_count = 0;
 uint8 path_explorer_t::compartment_t::representative_category = 0;
@@ -824,7 +827,7 @@ void path_explorer_t::compartment_t::step()
 
 				// iteration control
 				++iterations;
-				if (iterations == limit_rebuild_connexions)
+				if ( use_limits && iterations == limit_rebuild_connexions)
 				{
 					break;
 				}
@@ -852,12 +855,13 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_rebuild_connexions == maximum_limit_32bit )
+						if ( umgebung_t::networkmode )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_rebuild_connexions;
+							const uint32 percentage = projected_iterations * 100 / local_rebuild_connexions;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_rebuild_connexions = projected_iterations;
+								local_rebuild_connexions = projected_iterations;
+								local_limits_changed = true;
 							}
 						}
 						else
@@ -945,7 +949,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				++iterations;
-				if (iterations == limit_filter_eligible)
+				if ( use_limits && iterations == limit_filter_eligible )
 				{
 					break;
 				}
@@ -973,12 +977,13 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_filter_eligible == maximum_limit_32bit )
+						if ( umgebung_t::networkmode )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_filter_eligible;
+							const uint32 percentage = projected_iterations * 100 / local_filter_eligible;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_filter_eligible = projected_iterations;
+								local_filter_eligible = projected_iterations;
+								local_limits_changed = true;
 							}
 						}
 						else
@@ -1124,7 +1129,7 @@ void path_explorer_t::compartment_t::step()
 				
 				// iteration control
 				++iterations;
-				if (iterations == limit_fill_matrix)
+				if ( use_limits && iterations == limit_fill_matrix )
 				{
 					break;
 				}
@@ -1151,12 +1156,13 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_fill_matrix == maximum_limit_32bit )
+						if ( umgebung_t::networkmode )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_fill_matrix;
+							const uint32 percentage = projected_iterations * 100 / local_fill_matrix;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_fill_matrix = projected_iterations;
+								local_fill_matrix = projected_iterations;
+								local_limits_changed = true;
 							}
 						}
 						else
@@ -1290,7 +1296,7 @@ void path_explorer_t::compartment_t::step()
 
 							// iteration control
 							iterations_processed += target_halt_list.get_count();
-							if (iterations_processed >= limit_explore_paths)
+							if ( use_limits && iterations_processed >= limit_explore_paths )
 							{
 								goto loop_termination;
 							}
@@ -1343,12 +1349,13 @@ void path_explorer_t::compartment_t::step()
 					const uint64 projected_iterations = static_cast<uint64>( statistic_iteration / statistic_duration ) * static_cast<uint64>( time_midpoint );
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_explore_paths == maximum_limit_64bit )
+						if ( umgebung_t::networkmode )
 						{
-							const uint32 percentage = static_cast<uint32>( projected_iterations * 100 / backup_explore_paths );
+							const uint32 percentage = static_cast<uint32>( projected_iterations * 100 / local_explore_paths );
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_explore_paths = projected_iterations;
+								local_explore_paths = projected_iterations;
+								local_limits_changed = true;
 							}
 						}
 						else
@@ -1469,7 +1476,7 @@ void path_explorer_t::compartment_t::step()
 				++phase_counter;
 
 				// iteration control
-				if (iterations == limit_reroute_goods)
+				if ( use_limits && iterations == limit_reroute_goods )
 				{
 					break;
 				}
@@ -1496,12 +1503,13 @@ void path_explorer_t::compartment_t::step()
 					const uint32 projected_iterations = statistic_iteration * time_midpoint / statistic_duration;
 					if ( projected_iterations > 0 )
 					{
-						if ( limit_reroute_goods == maximum_limit_32bit )
+						if ( umgebung_t::networkmode )
 						{
-							const uint32 percentage = projected_iterations * 100 / backup_reroute_goods;
+							const uint32 percentage = projected_iterations * 100 / local_reroute_goods;
 							if ( percentage < percent_lower_limit || percentage > percent_upper_limit )
 							{
-								backup_reroute_goods = projected_iterations;
+								local_reroute_goods = projected_iterations;
+								local_limits_changed = true;
 							}
 						}
 						else
