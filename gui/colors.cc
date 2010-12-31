@@ -209,6 +209,9 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_text("Centralised path searching");
 	buttons[b].pressed = welt->get_einstellungen()->get_default_path_option() == 2;
 	buttons[b].set_tooltip("Use centralised instead of distributed path searching system.");
+	if(  umgebung_t::networkmode  ) {
+		buttons[b].disable();
+	}
 
 	//21
 	buttons[++b].set_pos( koord(10,SLICE) );
