@@ -2050,7 +2050,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
 #ifdef USE_C
-#if 1
+#if GCC_VERSION > 40200
 				{
 					// "classic" C code (why is it faster!?!)
 					const uint32 *ls;
@@ -2073,6 +2073,9 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// some architectures: faster with inline of memory functions!
 				memcpy( p, sp, runlen*sizeof(PIXVAL) );
 				sp += runlen;
+#if GCC_VERSION > 40200
+				p += runlen;
+#endif
 #endif
 #else
 				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cache alignment?)
@@ -3122,6 +3125,11 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 		do {
 			unsigned int count = w;
 #ifdef USE_C
+#if GCC_VERSION > 40200
+			while (count-- != 0) {
+				*p++ = colval;
+			}
+#else
 			uint32 *lp;
 
 			if (count & 1) *p++ = colval;
@@ -3131,6 +3139,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 				*lp++ = longcolval;
 			}
 			p = (PIXVAL *)lp;
+#endif
 #else
 			asm volatile (
 				// uneven words to copy?
