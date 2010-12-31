@@ -6017,6 +6017,15 @@ bool karte_t::interactive(uint32 quit_month)
 				network_disconnect();
 			}
 
+			// Knightly : send changed limits to server where necessary
+			if(  einstellungen->get_default_path_option()==2  &&  path_explorer_t::are_local_limits_changed()  ) {
+				path_explorer_t::limit_set_t local_limits = path_explorer_t::get_local_limits();
+				network_send_server( new nwc_routesearch_t(sync_steps, map_counter, local_limits, false) );
+				path_explorer_t::reset_local_limits_state();
+				dbg->warning("karte_t::interactive", "nwc_routesearch_t object created and sent to server: sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
+					sync_steps, map_counter, local_limits.rebuild_connexions, local_limits.filter_eligible, local_limits.fill_matrix, local_limits.explore_paths, local_limits.reroute_goods);
+			}
+
 			// process all the received commands at once
 			while (nwc) {
 				// check timing
@@ -6077,6 +6086,11 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 			else {
 				next_command_step = 0xFFFFFFFFu;
+			}
+
+			// Knightly : check if changed limits, if any, have to be transmitted to all clients
+			if(  einstellungen->get_default_path_option()==2  &&  umgebung_t::server  ) {
+				nwc_routesearch_t::check_for_transmission( this );
 			}
 
 			// send data

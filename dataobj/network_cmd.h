@@ -5,6 +5,7 @@
 #include "../tpl/slist_tpl.h"
 #include "koord3d.h"
 #include "network.h"
+#include "../path_explorer.h"
 
 class packet_t;
 class karte_t;
@@ -22,7 +23,8 @@ enum {
 	NWC_TOOL,
 	NWC_CHECK,
 	NWC_PAKSETINFO,
-	NWC_COUNT
+	NWC_COUNT,
+	NWC_ROUTESEARCH
 };
 
 class network_command_t {
@@ -197,6 +199,49 @@ public:
 	virtual void do_command(karte_t*);
 	virtual const char* get_name() { return "nwc_sync_t";}
 	uint32 client_id; // this client shall receive the game
+};
+
+/**
+ * nwc_routesearch_t
+ * @from-client:
+ *		@data updated set of limits from the client
+ * @from-server:
+ *		@data min limit set to be applied to the client
+ * @author Knightly
+ */
+class nwc_routesearch_t : public network_world_command_t {
+public:
+	nwc_routesearch_t() : network_world_command_t(NWC_ROUTESEARCH, 0, 0), apply_limits(false) { };
+	nwc_routesearch_t(uint32 sync_step, uint32 map_counter, path_explorer_t::limit_set_t &_limit_set, bool _apply_limits)
+		: network_world_command_t(NWC_ROUTESEARCH, sync_step, map_counter), limit_set(_limit_set), apply_limits(_apply_limits) { }
+	virtual const char* get_name() { return "nwc_routesearch_t"; }
+	virtual void rdwr();
+	virtual bool execute(karte_t *world);
+	virtual void do_command(karte_t *world);
+
+	static void check_for_transmission(karte_t *world);
+	static void transmit_active_limit_set(SOCKET client_socket, uint32 sync_step, uint32 map_counter);
+	static void remove_client_entry(uint32 client_id);
+	static void reset();
+private:
+	path_explorer_t::limit_set_t limit_set;
+	bool apply_limits;
+
+	struct client_entry_t {
+		uint32 client_id;
+		path_explorer_t::limit_set_t limit_set;
+		
+		client_entry_t() : client_id(0xFFFFFFFF) { }
+		client_entry_t(uint32 _client_id, path_explorer_t::limit_set_t &_limit_set) : client_id(_client_id), limit_set(_limit_set) { }
+	};
+
+	static slist_tpl<client_entry_t> client_entries;
+	static path_explorer_t::limit_set_t active_limit_set;
+	static path_explorer_t::limit_set_t min_limit_set;
+	static uint32 last_update_sync_step;
+	static uint16 accumulated_updates;
+
+	static path_explorer_t::limit_set_t calc_min_limits();
 };
 
 /**

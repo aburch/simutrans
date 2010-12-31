@@ -42,6 +42,7 @@ network_command_t* network_command_t::read_from_packet(packet_t *p)
 		case NWC_TOOL:        nwc = new nwc_tool_t(); break;
 		case NWC_CHECK:       nwc = new nwc_check_t(); break;
 		case NWC_PAKSETINFO:  nwc = new nwc_pakset_info_t(); break;
+		case NWC_ROUTESEARCH: nwc = new nwc_routesearch_t(); break;
 		default:
 			dbg->warning("network_command_t::read_from_socket", "received unknown packet id %d", p->get_id());
 	}
@@ -421,6 +422,10 @@ void nwc_sync_t::do_command(karte_t *welt)
 		if (sock != INVALID_SOCKET) {
 			nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
 			nwc.send(sock);
+			// Knightly : synchronise the iteration limits if necessary
+			if(  welt->get_einstellungen()->get_default_path_option()==2  ) {
+				nwc_routesearch_t::transmit_active_limit_set(sock, old_sync_steps, welt->get_map_counter());
+			}
 			socket_list_t::change_state(client_id, socket_info_t::playing);
 		}
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
@@ -429,6 +434,154 @@ void nwc_sync_t::do_command(karte_t *welt)
 	welt->change_world_position(ij, xoff, yoff);
 	welt->switch_active_player(active_player);
 }
+
+
+slist_tpl<nwc_routesearch_t::client_entry_t> nwc_routesearch_t::client_entries;
+path_explorer_t::limit_set_t nwc_routesearch_t::active_limit_set;
+path_explorer_t::limit_set_t nwc_routesearch_t::min_limit_set;
+uint32 nwc_routesearch_t::last_update_sync_step = 0;
+uint16 nwc_routesearch_t::accumulated_updates = 0;
+
+
+void nwc_routesearch_t::rdwr()
+{
+	network_world_command_t::rdwr();
+	limit_set.rdwr(packet);
+	packet->rdwr_bool(apply_limits);
+	dbg->warning("nwc_routesearch_t::rdwr", "rdwr limits=(%u, %u, %u, %llu, %u) apply_limits=%u",
+		limit_set.rebuild_connexions, limit_set.filter_eligible, limit_set.fill_matrix, limit_set.explore_paths, limit_set.reroute_goods, apply_limits);
+}
+
+
+bool nwc_routesearch_t::execute(karte_t *world)
+{
+	if(  apply_limits  ) {
+		// append to command queue
+		dbg->warning("nwc_routesearch_t::execute", "add to world command queue -> sync_step=%u current sync_step=%u", get_sync_step(), world->get_sync_steps());
+		return network_world_command_t::execute(world);
+	}
+	else if(  umgebung_t::server  ) {
+		if(  map_counter!=world->get_map_counter()  ) {
+			// command from another world
+			// maybe sent before sync happened -> ignore
+			dbg->warning("nwc_routesearch_t::execute", "wanted to execute command (%u) from another world", get_id());
+			return true; // to delete cmd
+		}
+		// if there is an existing entry for the client -> just update the limit set
+		bool found = false;
+		for(  slist_tpl<client_entry_t>::iterator iter=client_entries.begin(), end=client_entries.end();  iter!=end;  ++iter  ) {
+			if(  iter->client_id==our_client_id  ) {
+				iter->limit_set = this->limit_set;
+				found = true;
+			}
+		}
+		// client entry not found -> append to the list
+		if(  !found  ) {
+			client_entries.append( client_entry_t(our_client_id, limit_set) );
+		}
+		dbg->warning("nwc_routesearch_t::execute", "%s client_id=%u limits=(%u, %u, %u, %llu, %u)", found ? "update" : "append", our_client_id,
+			limit_set.rebuild_connexions, limit_set.filter_eligible, limit_set.fill_matrix, limit_set.explore_paths, limit_set.reroute_goods);
+		// check if min limit set has to be updated
+		path_explorer_t::limit_set_t new_min_set = calc_min_limits();
+		if(  new_min_set!=min_limit_set  ) {
+			min_limit_set = new_min_set;
+			last_update_sync_step = world->get_sync_steps();
+			++accumulated_updates;
+			dbg->warning("nwc_routesearch_t::execute", "min_limit_set updated: last_update_sync_step=%u accumulated_updates=%u", last_update_sync_step, accumulated_updates);
+		}
+	}
+	return true;
+}
+
+
+void nwc_routesearch_t::do_command(karte_t *world)
+{
+	// apply the limits
+	path_explorer_t::set_limits(limit_set);
+	dbg->warning("nwc_routesearch_t::do_command", "apply limits=(%u, %u, %u, %llu, %u)",
+		limit_set.rebuild_connexions, limit_set.filter_eligible, limit_set.fill_matrix, limit_set.explore_paths, limit_set.reroute_goods);
+}
+
+
+void nwc_routesearch_t::check_for_transmission(karte_t *world)
+{
+	// transmit min limit set if there has been 8 or more updates, or if no further update after a specified number of sync steps
+	if(  accumulated_updates>8  ||  (accumulated_updates>0  &&
+		 world->get_sync_steps()-last_update_sync_step>=4*world->get_einstellungen()->get_frames_per_step())  ) {
+		network_send_all( new nwc_routesearch_t(world->get_sync_steps() + umgebung_t::server_frames_ahead, world->get_map_counter(), min_limit_set, true), false );
+		last_update_sync_step = 0;
+		accumulated_updates = 0;
+		active_limit_set = min_limit_set;
+		dbg->warning("nwc_routesearch_t::check_for_transmission", "transmit sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
+			world->get_sync_steps() + umgebung_t::server_frames_ahead, world->get_map_counter(), min_limit_set.rebuild_connexions,
+			min_limit_set.filter_eligible, min_limit_set.fill_matrix, min_limit_set.explore_paths, min_limit_set.reroute_goods);
+	}
+}
+
+
+void nwc_routesearch_t::transmit_active_limit_set(SOCKET client_socket, uint32 sync_step, uint32 map_counter)
+{
+	// check if the active limit set is valid -> if not, initialise the active limit set
+	if(  active_limit_set==path_explorer_t::limit_set_t()  ) {
+		active_limit_set = path_explorer_t::get_active_limits();
+	}
+	// now send out the active limit set
+	nwc_routesearch_t nwrs(sync_step, map_counter, active_limit_set, true);
+	nwrs.send(client_socket);
+	dbg->warning("nwc_routesearch_t::transmit_active_limit_set", "transmit sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
+		sync_step, map_counter, active_limit_set.rebuild_connexions, active_limit_set.filter_eligible,
+		active_limit_set.fill_matrix, active_limit_set.explore_paths, active_limit_set.reroute_goods);
+}
+
+
+void nwc_routesearch_t::remove_client_entry(uint32 client_id)
+{
+	// find and remove a client entry with matching ID, if any
+	bool entry_removed = false;
+	for(  slist_tpl<client_entry_t>::iterator iter=client_entries.begin(), end=client_entries.end();  iter!=end;  ++iter  ) {
+		if(  iter->client_id==client_id  ) {
+			client_entries.erase(iter);
+			entry_removed = true;
+			dbg->warning("nwc_routesearch_t::remove_client_entry", "remove client entry id=%u", client_id);
+			break;
+		}
+	}
+	// update the min limit set where necessary
+	if(  entry_removed  ) {
+		path_explorer_t::limit_set_t new_min_set = calc_min_limits();
+		if(  new_min_set!=min_limit_set  ) {
+			min_limit_set = new_min_set;
+			last_update_sync_step = 0;	// force transmission of min limit set
+			++accumulated_updates;
+			dbg->warning("nwc_routesearch_t::remove_client_entry", "min_limit_set updated: last_update_sync_step=%u accumulated_updates=%u limits=(%u, %u, %u, %llu, %u)",
+				last_update_sync_step, accumulated_updates, min_limit_set.rebuild_connexions, min_limit_set.filter_eligible, min_limit_set.fill_matrix, min_limit_set.explore_paths, min_limit_set.reroute_goods);
+		}
+	}
+}
+
+
+void nwc_routesearch_t::reset()
+{
+	client_entries.clear();
+	active_limit_set = path_explorer_t::limit_set_t();
+	min_limit_set = path_explorer_t::limit_set_t();
+	last_update_sync_step = 0;
+	accumulated_updates = 0;
+	dbg->warning("nwc_routesearch_t::reset", "all static variables are reset");
+}
+
+
+path_explorer_t::limit_set_t nwc_routesearch_t::calc_min_limits()
+{
+	// create an initial set with max values
+	path_explorer_t::limit_set_t result_set(true);
+	// compare result set against limit sets of client entries, update it to min values
+	for(  slist_tpl<client_entry_t>::const_iterator iter=client_entries.begin(), end=client_entries.end();  iter!=end;  ++iter  ) {
+		result_set.find_min_with(iter->limit_set);
+	}
+	return result_set;
+}
+
 
 void nwc_check_t::rdwr()
 {
