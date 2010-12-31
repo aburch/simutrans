@@ -2050,7 +2050,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
 #ifdef USE_C
-#if GCC_VERSION > 40200
+#ifndef __GNUG__
 				{
 					// "classic" C code (why is it faster!?!)
 					const uint32 *ls;
@@ -2073,7 +2073,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// some architectures: faster with inline of memory functions!
 				memcpy( p, sp, runlen*sizeof(PIXVAL) );
 				sp += runlen;
-#if GCC_VERSION > 40200
+#ifdef __GNUG__
 				p += runlen;
 #endif
 #endif
@@ -3125,7 +3125,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 		do {
 			unsigned int count = w;
 #ifdef USE_C
-#if GCC_VERSION > 40200
+#ifdef __GNUG__
 			while (count-- != 0) {
 				*p++ = colval;
 			}
