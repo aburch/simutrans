@@ -396,7 +396,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 	}
 end:
 	if(err) {
-		dbg->warning("network_connect", err);
+		dbg->warning("network_gameinfo", err);
 	}
 	return err;
 }
