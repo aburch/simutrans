@@ -38,6 +38,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 					// we are already talking to another client
 					nwi.flag = SV_ERROR;
 					nwi.send(packet->get_sender());
+					// ignore result of send, we dont want to talk to that client either
 					break;
 				}
 				server_receiver = packet->get_sender();
@@ -73,7 +74,10 @@ bool nwc_pakset_info_t::execute(karte_t *)
 		}
 		if(  send  ) {
 			if(socket_list_t::has_client(server_receiver)) {
-				nwi.send(server_receiver);
+				// send, if unsuccessfull stop comparing
+				if (!nwi.send(server_receiver)) {
+					ready = true;
+				}
 			}
 			else {
 				// client disappeared
@@ -121,7 +125,11 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		{
 			// start
 			nwc_pakset_info_t nwi(nwc_pakset_info_t::CL_INIT);
-			nwi.send(my_client_socket);
+			if (!nwi.send(my_client_socket)) {
+				dbg->warning("network_compare_pakset_with_server", "send of NWC_PAKSETINFO failed");
+				socket_list_t::remove_client(my_client_socket);
+				return;
+			}
 		}
 		// copy our info to addon
 		// ie treat all our pak's as if they were not present on the server
@@ -160,7 +168,9 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			if (nwi == NULL) {
 				dbg->warning("network_compare_pakset_with_server", "server did not answer");
 				nwc_pakset_info_t nwi_quit(nwc_pakset_info_t::CL_QUIT);
-				nwi_quit.send(my_client_socket);
+				if (!nwi_quit.send(my_client_socket)) {
+					err = "send of NWC_PAKSETINFO failed";
+				}
 				break;
 			}
 			switch(nwi->flag) {
@@ -175,7 +185,10 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 					progress++;
 					// request new data
 					nwc_pakset_info_t nwi_data(nwc_pakset_info_t::CL_WANT_NEXT);
-					nwi_data.send(my_client_socket);
+					if(!nwi_data.send(my_client_socket)) {
+						err = "send of NWC_PAKSETINFO failed";
+						ready = true;
+					}
 					break;
 				}
 
@@ -206,7 +219,10 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 					else {
 						nwi_next.flag = nwc_pakset_info_t::CL_QUIT;
 					}
-					nwi_next.send(my_client_socket);
+					if(!nwi_next.send(my_client_socket)) {
+						err = "send of NWC_PAKSETINFO failed";
+						ready = true;
+					}
 					break;
 				}
 
@@ -274,6 +290,6 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 		socket_list_t::remove_client(my_client_socket);
 	}
 	if(err) {
-		dbg->warning("network_connect", err);
+		dbg->warning("network_compare_pakset_with_server", err);
 	}
 }
