@@ -53,7 +53,7 @@ void socket_info_t::process_send_queue()
 {
 	while(!send_queue.empty()) {
 		packet_t *p = send_queue.front();
-		p->send(socket);
+		p->send(socket, false);
 		if (p->has_failed()) {
 			// close this client, clear the send_queue
 			socket_list_t::remove_client(socket);

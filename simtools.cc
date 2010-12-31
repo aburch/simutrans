@@ -150,6 +150,11 @@ void clear_random_mode( uint16 mode )
 	random_origin &= ~mode;
 }
 
+uint8 get_random_mode()
+{
+	return random_origin;
+}
+
 
 static uint32 noise_seed = 0;
 

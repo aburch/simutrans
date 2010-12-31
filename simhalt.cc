@@ -1889,7 +1889,7 @@ void haltestelle_t::calculate_paths(const halthandle_t goal, const uint8 categor
 		// call INT_CHECK() only every 256 iterations
 		if ( ++interrupt_counter == 0 )
 		{
-			INT_CHECK( "simhalt 1694" );
+			INT_CHECK( "simhalt 1892" );
 		}
 
 		if(current_node->halt == goal)
@@ -2183,7 +2183,7 @@ uint16 haltestelle_t::find_route(minivec_tpl<halthandle_t> *ziel_list, ware_t &w
 				ware.set_zwischenziel(final_path->halt);
 				return final_path->journey_time;
 			}
-			// If the next transfer is not bound, something has gone wrong.
+			dbg->error("haltestelle_t::find_route", "Path from %s to %s not found: next transfer missing", this->get_name(), ziel_list->get_element(best_destination).is_bound() ?  ziel_list->get_element(best_destination)->get_name() : "Unknown destination");
 			return 65535;
 		}
 	}
@@ -2494,7 +2494,7 @@ void haltestelle_t::update_alternative_seats(convoihandle_t cnv)
 		iter.get_current_value()->alternative_seats = 0;
 	}
 
-	if (loading_here.get_count() < 2 ) { // Alternative don't exists, only one convoy here
+	if (loading_here.get_count() < 2 ) { // Alternatives don't exist, only one convoy here
 		do_alternative_seats_calculation = false; // so we will not do clean-up again
 		return;
 	}
@@ -3083,6 +3083,13 @@ bool haltestelle_t::make_public_and_join( spieler_t *sp )
 				destroy(halt);
 			}
 		}
+	}
+
+	// tell the world of it ...
+	if(  sp->get_player_nr()!=1  &&  umgebung_t::networkmode  ) {
+		cbuffer_t buf(256);
+		buf.printf( translator::translate("%s at (%i,%i) now public stop."), get_name(), get_basis_pos().x, get_basis_pos().y );
+		welt->get_message()->add_message( buf, get_basis_pos(), message_t::ai, PLAYER_FLAG|sp->get_player_nr(), IMG_LEER );
 	}
 
 	recalc_station_type();

@@ -1740,7 +1740,6 @@ karte_t::~karte_t()
 	}
 
 	// not deleting the werkzeuge of this map ...
-	msg->clear();
 	delete msg;
 }
 
@@ -6049,12 +6048,12 @@ bool karte_t::interactive(uint32 quit_month)
 					else if(nwt->last_sync_step + LAST_RANDOMS_COUNT > last_random_seed_sync  &&  LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
 						// lost synchronisation ...
 						if(  !umgebung_t::server  ) {
-							dbg->warning("karte_t::interactive", "random number generators have different states (closing connection)" );
+							dbg->warning("karte_t::interactive", "random number generators have different states (closing connection). Random flags: %d", get_random_mode());
 							network_disconnect();
 						}
 						else {
 							//server kicks client out actively
-							dbg->warning("karte_t::interactive", "random number generators have different states (kicking client)" );
+							dbg->warning("karte_t::interactive", "random number generators have different states (kicking client). Random flags: %d",  get_random_mode());
 							socket_list_t::remove_client( nwc->get_sender() );
 						}
 						delete nwc;
@@ -6133,7 +6132,7 @@ bool karte_t::interactive(uint32 quit_month)
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 						if (LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
 							// lost synchronisation ...
-							dbg->warning("karte_t::interactive", "random number generators have different states (skipping command)" );
+							dbg->warning("karte_t::interactive", "random number generators have different states (skipping command). Random flags: %d", get_random_mode() );
 							if(  !umgebung_t::server  ) {
 								network_disconnect();
 							}
@@ -6269,7 +6268,7 @@ void karte_t::announce_server()
 void karte_t::network_disconnect()
 {
 	// force disconnect
-	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server.");
+	dbg->warning("karte_t::network_disconnect()", "Lost synchronisation with server. Random flags: %d", get_random_mode());
 	network_core_shutdown();
 	destroy_all_win(true);
 

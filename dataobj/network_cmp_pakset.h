@@ -19,6 +19,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg);
 class nwc_pakset_info_t : public network_command_t {
 public:
 	nwc_pakset_info_t(uint8 flag_=UNDEFINED) : network_command_t(NWC_PAKSETINFO), flag(flag_), name(NULL), chk(NULL) {}
+	~nwc_pakset_info_t();
 	virtual bool execute(karte_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_pakset_info_t";}
@@ -37,6 +38,7 @@ public:
 	// name of and info about besch
 	char *name;
 	checksum_t *chk;
+	void clear() { name = NULL; chk = NULL; }
 
 	// for the communication of the server with the client
 	static stringhashtable_iterator_tpl<checksum_t*> server_iterator;

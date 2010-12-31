@@ -2695,10 +2695,14 @@ void stadt_t::step_passagiere()
 	if(start_halts.get_count() > 0 || has_private_car)
 	{		
 		//Add 1 because the simuconf.tab setting is for maximum *alternative* destinations, whereas we need maximum *actual* desintations
-		const uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
+		// const uint8 max_destinations = has_private_car ? 1 : (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
 		// Passengers with a private car will not tolerate second best destinations,
 		// and will use their private car to get to their first choice destination
 		// regardless of whether they might go to other destinations by public transport.
+
+		// Now that private cars also have a journey time tolerance and check whether the roads are connected, passengers *might*
+		// not be able to get to their destination by private car either, so the above is redundant. 
+		const uint8 max_destinations = (welt->get_einstellungen()->get_max_alternative_destinations() < 16 ? welt->get_einstellungen()->get_max_alternative_destinations() : 15) + 1;
 
 		// Find passenger destination
 		for (int pax_routed = 0; pax_routed < num_pax; pax_routed += passenger_packet_size) 
@@ -2972,10 +2976,10 @@ walk:
 						car_preference = ((car_preference - congestion_total) > always_prefer_car_percent) ? car_preference - congestion_total : always_prefer_car_percent;
 
 						// Thirdly adjust for service quality of the public transport.
-						// Compare the average speed, including waiting times, with the speed bonus speed for
-						// private transport.
+						// Compare best journey speed on public transport with the 
+						// likely private car journey time.
 
-						INT_CHECK( "simcity 2606" );
+						INT_CHECK( "simcity 2982" );
 
 						const float proportion = ((float)best_journey_time / (float)car_minutes) * car_minutes > best_journey_time ? 1.25F : 0.75F;
 						car_preference *= proportion;
@@ -3133,39 +3137,16 @@ public_transport:
 						merke_passagier_ziel(destinations[0].location, COL_DARK_ORANGE);
 					}
 				}
-				if(car_minutes < 65535)
+				if(car_minutes <= tolerance)
 				{
 					// Must use private car, since there is no suitable route.
 					// However, check first that car journey is within time tolerance.
-			
-					if(car_minutes <= tolerance)
-					{
-						stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
-						set_private_car_trip(num_pax, destination_town);
+					stadt_t* const destination_town = destinations[0].type == 1 ? destinations[0].object.town : NULL;
+					set_private_car_trip(num_pax, destination_town);
 #ifdef DESTINATION_CITYCARS
-						//citycars with destination
-						erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
+					//citycars with destination
+					erzeuge_verkehrsteilnehmer(k, step_count, destinations[0].location);
 #endif
-					}
-					else
-					{
-						if(!start_halts.empty())
-						{
-							switch(route_good)
-							{
-							case no_route:
-								start_halts[0]->add_pax_no_route(pax_left_to_do);
-								break;
-
-							case too_slow:
-								start_halts[0]->add_pax_too_slow(pax_left_to_do);
-								break;
-
-							default: ;
-								// ok
-							}
-						}
-					}
 				}
 			}
 
@@ -3178,7 +3159,8 @@ public_transport:
 		// The unhappy passengers will be added to all crowded stops
 		// however, there might be no stop too
 		// NOTE: Because of the conditional statement in the original loop,
-		// reaching this code means that passengers must have no private car.
+		// reaching this code means that passengers must not be able to use
+		// a private car for this journey.
 
 		// all passengers without suitable start:
 		// fake one ride to get a proper display of destinations (although there may be more) ...
@@ -3200,13 +3182,12 @@ public_transport:
 		}
 		else
 		{
-			//If the passengers do not have their own private transport, they will be unhappy.
+			//If the passengers cannot use their own private transport, they will be unhappy.
 			for(  uint h=0;  h<plan->get_haltlist_count(); h++  ) 
 			{
 				halthandle_t halt = halt_list[h];
 				if (halt->is_enabled(wtyp)) 
 				{
-					//assert(halt->get_ware_summe(wtyp)>halt->get_capacity();
 					halt->add_pax_unhappy(num_pax);
 				}
 			}
@@ -4687,8 +4668,6 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			}
 		}
 	}
-	
-	list->clear();
 	delete list;
 	return result;
 }

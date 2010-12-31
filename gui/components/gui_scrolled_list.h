@@ -45,16 +45,16 @@ public:
 	// editable text
 	class var_text_scrollitem_t : public scrollitem_t {
 	private:
-		const char *text;
+		char* text;
 	public:
 		var_text_scrollitem_t( const char *t, uint8 col ) : scrollitem_t(col) {
 			text = strdup( t );
 		}
-		virtual ~var_text_scrollitem_t() { delete text; }
+		virtual ~var_text_scrollitem_t() { free(text); }
 		const char *get_text() { return text; }
 		virtual void set_text(char *t) {
 			assert(  t!=text  );
-			delete text;
+			free(text);
 			text = strdup(t);
 		}
 	};

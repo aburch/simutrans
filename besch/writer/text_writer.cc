@@ -26,5 +26,5 @@ void text_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
 
 	fread(buf, node.size, 1, infp);
 	printf(" '%s'", buf);
-	delete buf;
+	delete [] buf;
 }

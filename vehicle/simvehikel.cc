@@ -995,7 +995,7 @@ vehikel_t::play_sound() const
 		if(welt->play_sound_area_clipped(get_pos().get_2d(), info))
 		{
 			// Only reset the counter if the sound can be heard.
-			sint64 sound_offset = simrand(30000) + 5000;
+			sint64 sound_offset = sim_async_rand(30000) + 5000;
 			sound_ticks = welt->get_zeit_ms() + sound_offset;
 		}
 	}

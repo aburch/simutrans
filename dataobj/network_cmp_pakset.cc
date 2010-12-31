@@ -10,6 +10,18 @@
 stringhashtable_iterator_tpl<checksum_t*> nwc_pakset_info_t::server_iterator(pakset_info_t::info);
 SOCKET nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
 
+
+nwc_pakset_info_t::~nwc_pakset_info_t()
+{
+	if (chk) {
+		delete chk;
+	}
+	if (name) {
+		free(name);
+	}
+}
+
+
 bool nwc_pakset_info_t::execute(karte_t *)
 {
 	// server side of the communication
@@ -33,7 +45,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 				server_iterator = pakset_info_t::info;
 
 				nwi.flag = SV_PAKSET;
-				nwi.chk = pakset_info_t::get_checksum();
+				nwi.chk = new checksum_t(*pakset_info_t::get_checksum());
 				nwi.name = strdup("pakset");
 				DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi.name);
 				send = true;
@@ -43,7 +55,7 @@ bool nwc_pakset_info_t::execute(karte_t *)
 			case CL_WANT_NEXT: // client received one info packet, wants next
 				if (server_iterator.next()) {
 					nwi.flag = SV_DATA;
-					nwi.chk  = server_iterator.get_current_value();
+					nwi.chk  = new checksum_t(*server_iterator.get_current_value());
 					nwi.name = strdup(server_iterator.get_current_key());
 					DBG_MESSAGE("nwc_pakset_info_t::execute", "send info about %s",nwi.name);
 				}
@@ -67,7 +79,6 @@ bool nwc_pakset_info_t::execute(karte_t *)
 				// client disappeared
 				server_receiver = INVALID_SOCKET;
 			}
-			free( nwi.name );
 		}
 		if(  ready  ) {
 			// all information sent
@@ -143,6 +154,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 					nwi = (nwc_pakset_info_t*)nwc;
 					break;
 				}
+				delete nwc;
 			}
 
 			if (nwi == NULL) {
@@ -176,12 +188,14 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 						}
 						else {
 							different.put(nwi->name, nwi->chk);
+							nwi->clear();
 							wrong_paks++;
 						}
 						progress++;
 					}
 					else {
 						missing.put(nwi->name, nwi->chk);
+						nwi->clear();
 						wrong_paks++;
 					}
 					nwc_pakset_info_t nwi_next;
@@ -206,6 +220,7 @@ void network_compare_pakset_with_server(const char* cp, std::string &msg)
 			if(is_display_init()  &&  num_paks>0) {
 				display_progress(progress, num_paks);
 			}
+			delete nwi;
 
 		} while (!ready  &&  wrong_paks<=MAX_WRONG_PAKS);
 

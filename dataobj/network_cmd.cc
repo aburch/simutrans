@@ -121,7 +121,7 @@ void network_command_t::prepare_to_send()
 void network_command_t::send(SOCKET s)
 {
 	prepare_to_send();
-	packet->send(s);
+	packet->send(s, true);
 }
 
 
@@ -176,7 +176,8 @@ bool nwc_gameinfo_t::execute(karte_t *welt)
 			while(  !feof(fh)  ) {
 				char buffer[1024];
 				int bytes_read = (int)fread( buffer, 1, sizeof(buffer), fh );
-				if(  !network_send_data(s,buffer,bytes_read)) {
+				uint16 dummy;
+				if(  !network_send_data(s,buffer,bytes_read,dummy,250)) {
 					dbg->warning( "nwc_gameinfo_t::execute", "Client closed connection during transfer" );;
 					break;
 				}
@@ -303,11 +304,11 @@ void network_world_command_t::rdwr()
 
 bool network_world_command_t::execute(karte_t *welt)
 {
-	dbg->warning("network_world_command_t::execute","do_command %d at sync_step %d world now at %d", get_id(), get_sync_step(), welt->get_sync_steps());
+	dbg->warning("network_world_command_t::execute","do_command %d at sync_step %d world now at %d. Random flags: %d", get_id(), get_sync_step(), welt->get_sync_steps(), get_random_mode());
 	// want to execute something in the past?
 	if (get_sync_step() < welt->get_sync_steps()) {
 		if (!ignore_old_events()) {
-			dbg->warning("network_world_command_t::execute", "wanted to execute(%d) in the past", get_id());
+			dbg->warning("network_world_command_t::execute", "wanted to execute(%d) in the past. Random flags: %d", get_id(), get_random_mode());
 			welt->network_disconnect();
 		}
 		return true; // to delete cmd
@@ -334,7 +335,7 @@ void nwc_sync_t::rdwr()
 // save, load, pause, if server send game
 void nwc_sync_t::do_command(karte_t *welt)
 {
-	dbg->warning("nwc_sync_t::do_command", "sync_steps %d", get_sync_step());
+	dbg->warning("nwc_sync_t::do_command", "sync_steps %d. Random flags: &d", get_sync_step(), get_random_mode());
 	// save screen coordinates & offsets
 	const koord ij = welt->get_world_position();
 	const sint16 xoff = welt->get_x_off();
@@ -493,7 +494,7 @@ void nwc_tool_t::rdwr()
 	packet->rdwr_long(tool_client_id);
 	packet->rdwr_byte(flags);
 	//if (packet->is_loading()) {
-		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d flags=%d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec, flags);
+		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d flags=%d. Random mode: %d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec, flags, get_random_mode());
 	//}
 	if (packet->is_loading()  &&  umgebung_t::server  &&  exec) {
 		// server does not receive exec-commands
@@ -505,14 +506,14 @@ bool nwc_tool_t::execute(karte_t *welt)
 {
 	if (exec) {
 		// append to command queue
-		dbg->warning("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work");
+		dbg->warning("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s, random flags: %d", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work",  get_random_mode());
 		return network_world_command_t::execute(welt);
 	}
 	else if (umgebung_t::server) {
 		if (map_counter != welt->get_map_counter()) {
 			// command from another world
 			// maybe sent before sync happened -> ignore
-			dbg->warning("nwc_tool_t::execute", "wanted to execute(%d) from another world", get_id());
+			dbg->warning("nwc_tool_t::execute", "wanted to execute(%d) from another world. Random flags: %d", get_id(), get_random_mode());
 			return true; // to delete cmd
 		}
 		// special care for unpause command
@@ -542,7 +543,7 @@ bool nwc_tool_t::execute(karte_t *welt)
 		nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
 		nwt->last_sync_step = welt->get_last_random_seed_sync();
 		nwt->last_random_seed = welt->get_last_random_seed();
-		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
+		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s. Random flags: %d", nwt->get_sync_step(), wkz_id, init ? "init" : "work", get_random_mode());
 		network_send_all(nwt, false);
 	}
 	return true;
@@ -623,7 +624,7 @@ vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
 
 void nwc_tool_t::do_command(karte_t *welt)
 {
-	dbg->warning("nwc_tool_t::do_command", "steps %d wkz %d %s", get_sync_step(), wkz_id, init ? "init" : "work");
+	dbg->warning("nwc_tool_t::do_command", "steps %d wkz %d %s. Random flags: %d", get_sync_step(), wkz_id, init ? "init" : "work", get_random_mode());
 	if (exec) {
 		// commands are treated differently if they come from this client or not
 		bool local = tool_client_id == network_get_client_id();
@@ -703,7 +704,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 			else {
 				wkz->flags = flags & ~werkzeug_t::WFL_LOCAL;
 			}
-			dbg->warning("command","id=%d init=%d defpar=%s flag=%d",wkz_id&0xFFF,init,default_param,wkz->flags);
+			dbg->warning("command","id=%d init=%d defpar=%s flag=%d. Random flags: %d",wkz_id&0xFFF,init,default_param,wkz->flags, get_random_mode());
 			// call INIT
 			if(  init  ) {
 				if(local) {
