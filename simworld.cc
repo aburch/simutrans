@@ -4039,7 +4039,7 @@ bool karte_t::laden(const char *filename)
 		}
 	}
 	else {
-		// probably finish network mode?
+		// probably finish network mode first?
 		if(  umgebung_t::networkmode  ) {
 			if (  umgebung_t::server  ) {
 				if(  strcmp(filename, "server-network.sve") != 0  ) {
@@ -4049,11 +4049,11 @@ bool karte_t::laden(const char *filename)
 				}
 			}
 			else {
-				// ok, needs better check, since we reload also during sync
+				// check, if reload during sync
 				char fn[256];
 				sprintf( fn, "client%i-network.sve", network_get_client_id() );
 				if(  strcmp(filename,fn)!=0  ) {
-					// remain only in networkmode, if I am the server
+					// no sync => finish network mode
 					dbg->warning("karte_t::laden","finished network mode");
 					network_disconnect();
 					finish_loop = false; // do not trigger intro screen

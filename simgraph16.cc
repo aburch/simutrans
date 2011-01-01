@@ -34,6 +34,11 @@
 #	include <unistd.h>
 #endif
 
+#if __GNUC_==4  &&  __GNUC_MINOR__>1  &&  defined(USE_C)
+#define ALIGN_COPY
+#warning "Needs to use slower copy with GCC > 4.1.x"
+#endif
+
 #include "simgraph.h"
 
 // undefine for debugging the update routines
@@ -2050,7 +2055,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// jetzt kommen farbige pixel
 				runlen = *sp++;
 #ifdef USE_C
-#if 1
+#ifndef ALIGN_COPY
 				{
 					// "classic" C code (why is it faster!?!)
 					const uint32 *ls;
@@ -3115,23 +3120,35 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 		PIXVAL *p = textur + xp + yp * disp_width;
 		int dx = disp_width - w;
 		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
-		const unsigned int longcolval = (colval << 16) | colval;
+		const uint32 longcolval = (colval << 16) | colval;
 
-		if (dirty) mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+		if (dirty) {
+			mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
+		}
 
 		do {
-			unsigned int count = w;
 #ifdef USE_C
+			KOORD_VAL count = w;
+#ifdef ALIGN_COPY
+			// unfourtunately the GCC > 4.1.x has a bug in the optimizer
+			while(  count-- != 0  ) {
+				*p++ = colval;
+			}
+#else
 			uint32 *lp;
 
-			if (count & 1) *p++ = colval;
+			if(  count & 1  ) {
+				*p++ = colval;
+			}
 			count >>= 1;
 			lp = (uint32 *)p;
-			while (count-- != 0) {
+			while(  count-- != 0  ) {
 				*lp++ = longcolval;
 			}
 			p = (PIXVAL *)lp;
+#endif
 #else
+			unsigned int count = w;
 			asm volatile (
 				// uneven words to copy?
 				"shrl %1\n\t"
@@ -3147,7 +3164,6 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 				: "cc", "memory"
 			);
 #endif
-
 			p += dx;
 		} while (--h != 0);
 	}
