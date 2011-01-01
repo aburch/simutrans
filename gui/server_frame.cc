@@ -36,25 +36,29 @@ server_frame_t::server_frame_t(karte_t* w) :
 	update_info();
 
 	sint16 pos_y = 4;
-	serverlist.set_pos( koord(2,pos_y) );
-	serverlist.set_groesse( koord(236,BUTTON_HEIGHT) );
-	serverlist.add_listener(this);
-	serverlist.set_selection( 0 );
-	add_komponente( &serverlist );
 
-	pos_y += 6+BUTTON_HEIGHT;
-	add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	add.add_listener(this);
-	add_komponente( &add );
+	// only show serverlist, when not already in network mode
+	if(  !umgebung_t::networkmode  ) {
+		serverlist.set_pos( koord(2,pos_y) );
+		serverlist.set_groesse( koord(236,BUTTON_HEIGHT) );
+		serverlist.add_listener(this);
+		serverlist.set_selection( 0 );
+		add_komponente( &serverlist );
+		pos_y += 6+BUTTON_HEIGHT;
 
-	if(  !show_all_rev.pressed  ) {
-		show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
-		show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
-		show_all_rev.add_listener(this);
-		add_komponente( &show_all_rev );
+		add.init( button_t::box, "add server", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		add.add_listener(this);
+		add_komponente( &add );
+
+		if(  !show_all_rev.pressed  ) {
+			show_all_rev.init( button_t::square_state, "Show all", koord( 124, pos_y+2 ), koord( 112, BUTTON_HEIGHT) );
+			show_all_rev.set_tooltip( "Show even servers with wrong version or pakset" );
+			show_all_rev.add_listener(this);
+			add_komponente( &show_all_rev );
+		}
+		pos_y += BUTTON_HEIGHT+8;
 	}
 
-	pos_y += BUTTON_HEIGHT+8;
 	revision.set_pos( koord( 4, pos_y ) );
 	add_komponente( &revision );
 	show_all_rev.pressed = gi.get_game_engine_revision()==0;
@@ -76,17 +80,22 @@ server_frame_t::server_frame_t(karte_t* w) :
 
 	pos_y += LINESPACE*8+8;
 
-	find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	find_mismatch.add_listener(this);
-	add_komponente( &find_mismatch );
+	if(  !umgebung_t::networkmode  ) {
+		find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		find_mismatch.add_listener(this);
+		add_komponente( &find_mismatch );
+		pos_y += 6+BUTTON_HEIGHT;
 
-	join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
-	join.add_listener(this);
-	add_komponente( &join );
+		join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
+		join.add_listener(this);
+		add_komponente( &join );
 
-	update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
+		// only update serverlist, when not already in network mode
+		// otherwise desync to current game may happen
+		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
+	}
+	pos_y += 16;
 
-	pos_y += 6+BUTTON_HEIGHT+16;
 	set_fenstergroesse( koord( 240, pos_y ) );
 	set_min_windowsize( koord( 240, pos_y ) );
 	set_resizemode( no_resize );
@@ -324,8 +333,11 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 {
 	gui_frame_t::zeichnen( pos, gr );
 
-	sint16 pos_y = pos.y+16+14+BUTTON_HEIGHT*2;
-	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	sint16 pos_y = pos.y+16;
+	if(  !umgebung_t::networkmode  ) {
+		pos_y += 10+BUTTON_HEIGHT*2+4;
+		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	}
 
 #if DEBUG>=4
 	pos_y += LINESPACE;
@@ -341,9 +353,11 @@ void server_frame_t::zeichnen(koord pos, koord gr)
 	display_ddd_box_clip( pos.x+240-7-mapsize.x, pos_y-mapsize.y-3, mapsize.x+2, mapsize.y+2, MN_GREY0,MN_GREY4);
 	display_array_wh( pos.x+240-6-mapsize.x, pos_y-mapsize.y-2, mapsize.x, mapsize.y, gi.get_map()->to_array() );
 
-	pos_y += 4;
-	display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
+	if(  !umgebung_t::networkmode  ) {
+		pos_y += 4;
+		display_ddd_box_clip( pos.x+4, pos_y, 240-8, 0, MN_GREY0, MN_GREY4);
 
-	// drawing twice, but otherwise it will not overlay image
-	serverlist.zeichnen( pos+koord(0,16) );
+		// drawing twice, but otherwise it will not overlay image
+		serverlist.zeichnen( pos+koord(0,16) );
+	}
 }
