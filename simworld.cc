@@ -4040,15 +4040,25 @@ bool karte_t::laden(const char *filename)
 	}
 	else {
 		// probably finish network mode?
-		if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
-			// ok, needs better check, since we reload also during sync
-			char fn[256];
-			sprintf( fn, "client%i-network.sve", network_get_client_id() );
-			if(  strcmp(filename,fn)!=0  ) {
-				// remain only in networkmode, if I am the server
-				dbg->warning("karte_t::laden","finished network mode");
-				network_core_shutdown();
-				// closing the socket will tell the server, I am away too
+		if(  umgebung_t::networkmode  ) {
+			if (  umgebung_t::server  ) {
+				if(  strcmp(filename, "server-network.sve") != 0  ) {
+					// stay in networkmode, but disconnect clients
+					dbg->warning("karte_t::laden","disconnecting all clients");
+					socket_list_t::reset_clients();
+				}
+			}
+			else {
+				// ok, needs better check, since we reload also during sync
+				char fn[256];
+				sprintf( fn, "client%i-network.sve", network_get_client_id() );
+				if(  strcmp(filename,fn)!=0  ) {
+					// remain only in networkmode, if I am the server
+					dbg->warning("karte_t::laden","finished network mode");
+					network_disconnect();
+					finish_loop = false; // do not trigger intro screen
+					// closing the socket will tell the server, I am away too
+				}
 			}
 		}
 		name.append(filename);
@@ -5763,6 +5773,7 @@ void karte_t::network_disconnect()
 	network_core_shutdown();
 	destroy_all_win(true);
 
+	clear_random_mode( INTERACTIVE_RANDOM );
 	step_mode = NORMAL;
 	reset_timer();
 	while(  !command_queue.empty()  ) {
