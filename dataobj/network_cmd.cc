@@ -446,7 +446,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 	}
 	// restore screen coordinates & offsets
 	welt->change_world_position(ij, xoff, yoff);
-	welt->switch_active_player(active_player);
+	welt->switch_active_player(active_player,true);
 }
 
 void nwc_check_t::rdwr()

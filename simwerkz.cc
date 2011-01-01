@@ -4394,7 +4394,7 @@ const char *wkz_lock_game_t::work( karte_t *welt, spieler_t *, koord3d )
 	}
 	welt->access_einstellungen()->set_allow_player_change( false );
 	destroy_all_win( true );
-	welt->switch_active_player( 0 );
+	welt->switch_active_player( 0, true );
 	welt->set_werkzeug( general_tool[WKZ_ABFRAGE], welt->get_spieler(0) );
 	return NULL;
 }

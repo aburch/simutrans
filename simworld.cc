@@ -5075,7 +5075,7 @@ const char *karte_t::new_spieler(uint8 new_player, uint8 type)
 
 
 /* goes to next active player */
-void karte_t::switch_active_player(uint8 new_player)
+void karte_t::switch_active_player(uint8 new_player, bool silent)
 {
 	// cheat: play as AI
 	bool renew_menu=false;
@@ -5106,9 +5106,12 @@ void karte_t::switch_active_player(uint8 new_player)
 		renew_menu = (active_player_nr==1  ||  new_player==1);
 		active_player_nr = new_player;
 		active_player = spieler[new_player];
-		char buf[512];
-		sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
-		msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+		if(  !silent  ) {
+			// tell the player
+			char buf[512];
+			sprintf(buf, translator::translate("Now active as %s.\n"), get_active_player()->get_name() );
+			msg->add_message(buf, koord::invalid, message_t::ai | message_t::local_flag, PLAYER_FLAG|get_active_player()->get_player_nr(), IMG_LEER);
+		}
 		zeiger->set_area( koord(1,1), false );
 		zeiger->set_pos( old_zeiger_pos );
 	}

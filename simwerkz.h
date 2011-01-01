@@ -601,7 +601,7 @@ public:
 	wkz_switch_player_t() : werkzeug_t() { id = WKZ_SWITCH_PLAYER | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Change player"); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->switch_active_player( welt->get_active_player_nr()+1 );
+		welt->switch_active_player( welt->get_active_player_nr()+1, true );
 		return false;
 	}
 	// since it is handled internally
