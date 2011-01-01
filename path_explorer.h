@@ -38,16 +38,13 @@ public:
 		limit_set_t(bool) : rebuild_connexions(UINT32_MAX_VALUE), filter_eligible(UINT32_MAX_VALUE), fill_matrix(UINT32_MAX_VALUE), explore_paths(UINT64_MAX_VALUE), reroute_goods(UINT32_MAX_VALUE) { }
 		limit_set_t(uint32 c, uint32 e, uint32 m, uint64 p, uint32 g) : rebuild_connexions(c), filter_eligible(e), fill_matrix(m), explore_paths(p), reroute_goods(g) { }
 		
-		template<typename T>
-		static inline T min_of(const T a, const T b) { return (a < b ? a : b); }
-
 		void find_min_with(const limit_set_t &other)
 		{
-			rebuild_connexions = min_of(rebuild_connexions, other.rebuild_connexions);
-			filter_eligible = min_of(filter_eligible, other.filter_eligible);
-			fill_matrix = min_of(fill_matrix, other.fill_matrix);
-			explore_paths = min_of(explore_paths, other.explore_paths);
-			reroute_goods = min_of(reroute_goods, other.reroute_goods);
+			if( other.rebuild_connexions < rebuild_connexions ) { rebuild_connexions = other.rebuild_connexions; }
+			if( other.filter_eligible < filter_eligible ) { filter_eligible = other.filter_eligible; }
+			if( other.fill_matrix < fill_matrix ) { fill_matrix = other.fill_matrix; }
+			if( other.explore_paths < explore_paths ) { explore_paths = other.explore_paths; }
+			if( other.reroute_goods < reroute_goods ) { reroute_goods = other.reroute_goods; }
 		}
 
 		bool operator == (const limit_set_t &other) const

@@ -437,16 +437,18 @@ void nwc_sync_t::do_command(karte_t *welt)
 		if (sock != INVALID_SOCKET) {
 			nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
 			if (nwc.send(sock)) {
-				socket_list_t::change_state(client_id, socket_info_t::playing);
+				// Knightly : synchronise the iteration limits if necessary
+				if(  welt->get_einstellungen()->get_default_path_option()!=2  ||
+					 nwc_routesearch_t::transmit_active_limit_set(sock, old_sync_steps, welt->get_map_counter())  ) {
+					socket_list_t::change_state(client_id, socket_info_t::playing);
+				}
+				else {
+					dbg->warning("nwc_sync_t::do_command", "send of NWC_ROUTESEARCH failed");
+				}
 			}
 			else {
 				dbg->warning( "nwc_sync_t::execute", "send of NWC_READY failed" );
 			}
-			// Knightly : synchronise the iteration limits if necessary
-			if(  welt->get_einstellungen()->get_default_path_option()==2  ) {
-				nwc_routesearch_t::transmit_active_limit_set(sock, old_sync_steps, welt->get_map_counter());
-			}
-			socket_list_t::change_state(client_id, socket_info_t::playing);
 		}
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
 	}
@@ -475,18 +477,27 @@ void nwc_routesearch_t::rdwr()
 
 bool nwc_routesearch_t::execute(karte_t *world)
 {
+	if(  get_map_counter()!=world->get_map_counter()  ) {
+		// since iteration limits are not specific to any world
+		// -> it is safe to execute in spite of the difference in map counters
+		dbg->warning("nwc_routesearch_t::execute", "different map counters: command=%u world=%u", get_map_counter(), world->get_map_counter());
+	}
 	if(  apply_limits  ) {
+		dbg->warning("nwc_routesearch_t::execute", "to be applied: limits=(%u, %u, %u, %llu, %u)", limit_set.rebuild_connexions, limit_set.filter_eligible,
+			limit_set.fill_matrix, limit_set.explore_paths, limit_set.reroute_goods);
+		// check if the command's sync step is valid
+		if(  get_sync_step()<world->get_sync_steps()  ) {
+			// this command should be executed in the past
+			world->network_disconnect();
+			dbg->warning("nwc_routesearch_t::execute", "attempt to execute in the past (sync step: command=%u < world=%u) results in disconnection", get_sync_step(), world->get_sync_steps());
+			return true;	// to delete network command
+		}
 		// append to command queue
-		dbg->warning("nwc_routesearch_t::execute", "add to world command queue -> sync_step=%u current sync_step=%u", get_sync_step(), world->get_sync_steps());
-		return network_world_command_t::execute(world);
+		world->command_queue_append(this);
+		dbg->warning("nwc_routesearch_t::execute", "add to world command queue (sync step: command=%u world=%u)", get_sync_step(), world->get_sync_steps());
+		return false;		// network command now stored in world command queue -> do not delete it
 	}
 	else if(  umgebung_t::server  ) {
-		if(  map_counter!=world->get_map_counter()  ) {
-			// command from another world
-			// maybe sent before sync happened -> ignore
-			dbg->warning("nwc_routesearch_t::execute", "wanted to execute command (%u) from another world", get_id());
-			return true; // to delete cmd
-		}
 		// if there is an existing entry for the client -> just update the limit set
 		bool found = false;
 		for(  slist_tpl<client_entry_t>::iterator iter=client_entries.begin(), end=client_entries.end();  iter!=end;  ++iter  ) {
@@ -539,7 +550,7 @@ void nwc_routesearch_t::check_for_transmission(karte_t *world)
 }
 
 
-void nwc_routesearch_t::transmit_active_limit_set(SOCKET client_socket, uint32 sync_step, uint32 map_counter)
+bool nwc_routesearch_t::transmit_active_limit_set(SOCKET client_socket, uint32 sync_step, uint32 map_counter)
 {
 	// check if the active limit set is valid -> if not, initialise the active limit set
 	if(  active_limit_set==path_explorer_t::limit_set_t()  ) {
@@ -547,10 +558,11 @@ void nwc_routesearch_t::transmit_active_limit_set(SOCKET client_socket, uint32 s
 	}
 	// now send out the active limit set
 	nwc_routesearch_t nwrs(sync_step, map_counter, active_limit_set, true);
-	nwrs.send(client_socket);
-	dbg->warning("nwc_routesearch_t::transmit_active_limit_set", "transmit sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
-		sync_step, map_counter, active_limit_set.rebuild_connexions, active_limit_set.filter_eligible,
+	const bool success = nwrs.send(client_socket);
+	dbg->warning("nwc_routesearch_t::transmit_active_limit_set", "transmit %s sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
+		success ? "succeeded" : "failed", sync_step, map_counter, active_limit_set.rebuild_connexions, active_limit_set.filter_eligible,
 		active_limit_set.fill_matrix, active_limit_set.explore_paths, active_limit_set.reroute_goods);
+	return success;
 }
 
 

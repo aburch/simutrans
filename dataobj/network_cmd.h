@@ -221,7 +221,7 @@ public:
 	virtual void do_command(karte_t *world);
 
 	static void check_for_transmission(karte_t *world);
-	static void transmit_active_limit_set(SOCKET client_socket, uint32 sync_step, uint32 map_counter);
+	static bool transmit_active_limit_set(SOCKET client_socket, uint32 sync_step, uint32 map_counter);
 	static void remove_client_entry(uint32 client_id);
 	static void reset();
 private:
