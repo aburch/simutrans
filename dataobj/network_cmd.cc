@@ -370,7 +370,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		umgebung_t::restore_UI = true;
 
 		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
-		long old_sync_steps = welt->get_sync_steps();
+		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
 		umgebung_t::restore_UI = old_restore_UI;
 
@@ -410,7 +410,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		}
 		// TODO: send command queue to client
 
-		long old_sync_steps = welt->get_sync_steps();
+		uint32 old_sync_steps = welt->get_sync_steps();
 		welt->laden(filename );
 		umgebung_t::restore_UI = old_restore_UI;
 
@@ -439,7 +439,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 				socket_list_t::change_state(client_id, socket_info_t::playing);
 			}
 			else {
-				dbg->warning( "nwc_sync_t::execute", "send of NWC_READY failed" );
+				dbg->warning( "nwc_sync_t::do_command", "send of NWC_READY failed" );
 			}
 		}
 		nwc_join_t::pending_join_client = INVALID_SOCKET;
