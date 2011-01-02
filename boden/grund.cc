@@ -256,6 +256,12 @@ void grund_t::rdwr(loadsave_t *file)
 			if(++i < 2) {
 				switch(wtyp) {
 					default:
+#if DEBUG
+						if(  wtyp != invalid_wt  ) {
+							dbg->error( "grund_t::rdwr()", "invalid waytype %i!", (int)wtyp );
+							wtyp = invalid_wt;
+						}
+#endif
 						break;
 
 					case road_wt:

@@ -163,7 +163,7 @@ bool ki_kontroll_t::action_triggered( gui_action_creator_t *komp,value_t p )
 		}
 		if(komp==(player_change_to+i)) {
 			// make active player
-			welt->switch_active_player(i);
+			welt->switch_active_player(i,false);
 			break;
 		}
 		if(komp==(player_lock+i)  &&  welt->get_spieler(i)) {
