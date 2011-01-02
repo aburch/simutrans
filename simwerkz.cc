@@ -1624,6 +1624,7 @@ bool wkz_wegebau_t::init( karte_t *welt, spieler_t *sp )
 
 uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error, const koord3d & )
 {
+	error = NULL;
 	grund_t *gr=welt->lookup(pos);
 	if(gr  &&  hang_t::ist_wegbar(gr->get_weg_hang())) {
 		// ignore tunnel tiles (except road tunnel for tram track building ..)
@@ -1637,6 +1638,10 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 		// test if way already exists on the way and if we are allowed to connect
 		weg_t *way = gr->get_weg(besch->get_wtyp());
 		if(way) {
+			// allow to connect to any road
+			if (besch->get_wtyp() == road_wt) {
+				return 2;
+			}
 			error = way->ist_entfernbar(sp);
 			return error==NULL ? 2 : 0;
 		}
@@ -1654,7 +1659,6 @@ uint8 wkz_wegebau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &
 	else {
 		return 0;
 	}
-	error = NULL;
 	return 2;
 }
 
