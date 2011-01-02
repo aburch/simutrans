@@ -360,28 +360,29 @@ void nwc_sync_t::do_command(karte_t *welt)
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
 	chdir( umgebung_t::user_dir );
-	const char *filename = "server-network.sve";
 	if (!umgebung_t::server ) {
 		char fn[256];
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
-		filename = fn;
 
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
 
-		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
+		welt->speichern( fn, SERVER_SAVEGAME_VER_NR, false );
 		uint32 old_sync_steps = welt->get_sync_steps();
-		welt->laden(filename );
+		welt->laden( fn );
 		umgebung_t::restore_UI = old_restore_UI;
 
 		// pause clients, restore steps
-		welt->network_game_set_pause(true, old_sync_steps);
+		welt->network_game_set_pause( true, old_sync_steps);
 
 		// tell server we are ready
-		network_command_t *nwc = new nwc_ready_t(old_sync_steps, welt->get_map_counter());
+		network_command_t *nwc = new nwc_ready_t( old_sync_steps, welt->get_map_counter() );
 		network_send_server(nwc);
 	}
 	else {
+		char fn[256];
+		sprintf( fn, "server%d-network.sve", umgebung_t::server );
+
 #ifdef DO_NOT_SEND_HASHES
 		// remove passwords before transfer on the server and set default client mask
 		pwd_hash_t player_hashes[PLAYER_UNOWNED];
@@ -400,18 +401,18 @@ void nwc_sync_t::do_command(karte_t *welt)
 #endif
 		bool old_restore_UI = umgebung_t::restore_UI;
 		umgebung_t::restore_UI = true;
-		welt->speichern(filename, SERVER_SAVEGAME_VER_NR, false );
+		welt->speichern( fn, SERVER_SAVEGAME_VER_NR, false );
 
 		// ok, now sending game
 		// this sends nwc_game_t
-		const char *err = network_send_file( client_id, "server-network.sve" );
+		const char *err = network_send_file( client_id, fn );
 		if (err) {
 			dbg->warning("nwc_sync_t::do_command","send game failed with: %s", err);
 		}
 		// TODO: send command queue to client
 
 		uint32 old_sync_steps = welt->get_sync_steps();
-		welt->laden(filename );
+		welt->laden( fn );
 		umgebung_t::restore_UI = old_restore_UI;
 
 #ifdef DO_NOT_SEND_HASHES
@@ -425,7 +426,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		hashes_ok.insert_at(client_id,default_hashes);
 #endif
 		// restore steps
-		welt->network_game_set_pause(false, old_sync_steps);
+		welt->network_game_set_pause( false, old_sync_steps);
 
 		// generate new map_counter
 		welt->reset_map_counter();
@@ -434,9 +435,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
 		SOCKET sock = socket_list_t::get_socket(client_id);
 		if (sock != INVALID_SOCKET) {
-			nwc_ready_t nwc(old_sync_steps, welt->get_map_counter());
+			nwc_ready_t nwc( old_sync_steps, welt->get_map_counter());
 			if (nwc.send(sock)) {
-				socket_list_t::change_state(client_id, socket_info_t::playing);
+				socket_list_t::change_state( client_id, socket_info_t::playing);
 			}
 			else {
 				dbg->warning( "nwc_sync_t::do_command", "send of NWC_READY failed" );

@@ -547,9 +547,13 @@ int simu_main(int argc, char** argv)
 
 	if (gimme_arg(argc, argv, "-log", 0)) {
 		chdir( umgebung_t::user_dir );
+		char temp_log_name[256];
 		const char *logname = "simu.log";
 		if(  gimme_arg(argc, argv, "-server", 0)  ) {
-			logname = "simu-server.log";
+			const char *p = gimme_arg(argc, argv, "-server", 1);
+			int portadress = p ? atoi( p ) : 13353;
+			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
+			logname = temp_log_name;
 		}
 		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL);
 	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
@@ -812,12 +816,14 @@ int simu_main(int argc, char** argv)
 	if(  new_world  &&  umgebung_t::server  ) {
 		chdir( umgebung_t::user_dir );
 		loadsave_t file;
+		static char servername[128];
+		sprintf( servername, "server%d-network.sve", umgebung_t::server );
 		// try recover with the latest savegame
-		if(file.rd_open("server-network.sve")) {
+		if(  file.rd_open(servername)  ) {
 			// compare pakset (objfilename has trailing path separator, pak_extension not)
-			if (strncmp(file.get_pak_extension(),umgebung_t::objfilename.c_str(),strlen(file.get_pak_extension()))==0) {
+			if(  strncmp( file.get_pak_extension(), umgebung_t::objfilename.c_str(), strlen(file.get_pak_extension() ) )==0  ) {
 				// same pak directory - load this
-				loadgame = "server-network.sve";
+				loadgame = servername;
 				new_world = false;
 			}
 			file.close();

@@ -130,7 +130,7 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 
 void network_process_send_queues(int timeout);
 
-// before calling this, the server should have saved the current game as "server-network.sve"
+// sending file over network
 const char *network_send_file( uint32 client_id, const char *filename );
 
 // true, if I can wrinte on the server connection

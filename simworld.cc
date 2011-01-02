@@ -4042,7 +4042,9 @@ bool karte_t::laden(const char *filename)
 		// probably finish network mode first?
 		if(  umgebung_t::networkmode  ) {
 			if (  umgebung_t::server  ) {
-				if(  strcmp(filename, "server-network.sve") != 0  ) {
+				char fn[256];
+				sprintf( fn, "server%d-network.sve", umgebung_t::server );
+				if(  strcmp(filename, fn) != 0  ) {
 					// stay in networkmode, but disconnect clients
 					dbg->warning("karte_t::laden","disconnecting all clients");
 					network_reset_server();
