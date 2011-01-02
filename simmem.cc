@@ -13,7 +13,7 @@
 // use this for stress test; but it will return less than 32000 handles ...
 //#define HARD_DEBUG
 
-#if defined(WIN32)  && defined(HARD_DEBUG)
+#if defined(_WIN32)  &&  defined(HARD_DEBUG)
 
 #include <assert.h>
 

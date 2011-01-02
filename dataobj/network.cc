@@ -52,7 +52,7 @@ void clear_command_queue()
 	}
 }
 
-#ifdef WIN32
+#ifdef _WIN32
 #define RET_ERR_STR { FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL); err = err_str; return INVALID_SOCKET; }
 #else
 #define RET_ERR_STR { err = err_str; return INVALID_SOCKET; }
@@ -76,14 +76,14 @@ bool network_initialize()
 	if(!network_active) {
 		socket_list_t::reset();
 
-#ifdef WIN32
+#ifdef _WIN32
 		/* Let's load the network in windows */
 		WSADATA wsa;
 		if(int err = WSAStartup( MAKEWORD(2, 2), &wsa)) {
 			dbg->error("NetworkInitialize()","failed loading windows socket library");
 			return false;
 		}
-#endif /* WIN32 */
+#endif /* _WIN32 */
 	}
 	network_active = true;
 	return true;
@@ -117,7 +117,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 	struct sockaddr_in server_name;
 	memset(&server_name,0,sizeof(server_name));
 	server_name.sin_family=AF_INET;
-#ifdef  WIN32
+#ifdef  _WIN32
 	bool ok = true;
 	server_name.sin_addr.s_addr = inet_addr(cp);	// for windows we must first try to resolve the number
 	if((int)server_name.sin_addr.s_addr==-1) {// Bad address
@@ -158,7 +158,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		// use non-blocking sockets to have a shorter timeout
 		fd_set fds;
 		struct timeval timeout;
-#ifdef  WIN32
+#ifdef  _WIN32
 		unsigned long opt =1;
 		ioctlsocket(my_client_socket, FIONBIO, &opt);
 #else
@@ -174,7 +174,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		}
 #endif
 		if(  !connect(my_client_socket, (struct sockaddr*) &server_name, sizeof(server_name))   ) {
-#ifdef  WIN32
+#ifdef  _WIN32
 			// WSAEWOULDBLOCK indicate, that it may still succeed
 			if (WSAGetLastError() != WSAEWOULDBLOCK) {
 				FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM,NULL,WSAGetLastError(),MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL),err_str,sizeof(err_str),NULL);
@@ -211,7 +211,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		}
 
 		// make a blocking socket out of it
-#ifdef  WIN32
+#ifdef  _WIN32
 		opt = 0;
 		ioctlsocket(my_client_socket, FIONBIO, &opt);
 #else
@@ -920,7 +920,7 @@ void network_close_socket( SOCKET sock )
 	if(  sock != INVALID_SOCKET  ) {
 #if defined(__HAIKU__)
 		// no closesocket() ?!?
-#elif defined(WIN32)  ||  defined(__BEOS__)
+#elif defined(_WIN32)  ||  defined(__BEOS__)
 		closesocket( sock );
 #else
 		close( sock );
@@ -954,7 +954,7 @@ void network_core_shutdown()
 	socket_list_t::reset();
 
 	if(network_active) {
-#if defined(WIN32)
+#if defined(_WIN32)
 		WSACleanup();
 #endif
 	}

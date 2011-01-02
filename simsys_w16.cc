@@ -4,7 +4,7 @@
  * This file is part of the Simutrans project under the artistic licence.
  */
 
-#ifndef WIN32
+#ifndef _WIN32
 #error "Only Windows has GDI!"
 #endif
 

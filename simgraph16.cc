@@ -34,9 +34,22 @@
 #	include <unistd.h>
 #endif
 
-#if __GNUC_==4  &&  __GNUC_MINOR__>1  &&  defined(USE_C)
-#define ALIGN_COPY
-#warning "Needs to use slower copy with GCC > 4.1.x"
+// first: find out, which copy routines we may use!
+#ifndef  __GNUC__
+# undef USE_C
+# define USE_C
+# ifndef  _M_IX86
+#  define ALIGN_COPY
+# endif
+#else
+# if defined(USE_C)  ||  !defined(__i386__)
+#  undef USE_C
+#  define USE_C
+#  if (__GNUC__>=4  &&  __GNUC_MINOR__>=2)  ||  !defined(__i386__)
+#   define ALIGN_COPY
+#   warning "Needs to use slower copy with GCC > 4.2.x"
+#  endif
+# endif
 #endif
 
 #include "simgraph.h"
@@ -3481,7 +3494,7 @@ int display_text_proportional_len_clip(KOORD_VAL x, KOORD_VAL y, const char* txt
 	const PIXVAL color = specialcolormap_all_day[color_index & 0xFF];
 #ifndef USE_C
 	// faster drawing with assembler
-	const unsigned long color2 = (color << 16) | color;
+	const uint32 color2 = (color << 16) | color;
 #endif
 
 	// TAKE CARE: Clipping area may be larger than actual screen size ...
@@ -4128,7 +4141,7 @@ void display_snapshot()
 
 	char buf[80];
 
-#ifdef WIN32
+#ifdef _WIN32
 	mkdir(SCRENSHOT_PATH);
 #else
 	mkdir(SCRENSHOT_PATH, 0700);

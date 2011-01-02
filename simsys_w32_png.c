@@ -1,5 +1,5 @@
 
-#ifndef WIN32
+#ifndef _WIN32
 #error "Only Windows has GDI+!"
 #endif
 

@@ -112,7 +112,7 @@ void savegame_frame_t::fill_list()
 #else
 		sprintf( searchpath, "%s/*%s", SAVE_PATH, suffix==NULL ? "" : suffix );
 #endif
-#ifndef	WIN32
+#ifndef	_WIN32
 		mkdir(SAVE_PATH, 0700);
 #else
 		mkdir(SAVE_PATH);

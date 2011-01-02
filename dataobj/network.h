@@ -3,7 +3,7 @@
 
 
 // windows headers
-#ifdef WIN32
+#ifdef _WIN32
 // must be include before all simutrans stuff!
 
 // first: we must find out version number
