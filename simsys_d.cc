@@ -323,10 +323,10 @@ char *dr_query_homedir(void)
 	}
 	return NULL;
 #else
-#ifndef __MACOS__
+#ifndef __APPLE__
 	sprintf( buffer, "%s/simutrans", getenv("HOME") );
 #else
-	sprintf( buffer, "%s/Documents/simutrans", getenv("HOME") );
+	sprintf( buffer, "%s/Library/Simutrans", getenv("HOME") );
 #endif
 	int err = mkdir( buffer, S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH );
 	if(err  &&  err!=EEXIST) {
