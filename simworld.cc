@@ -4045,7 +4045,7 @@ bool karte_t::laden(const char *filename)
 				if(  strcmp(filename, "server-network.sve") != 0  ) {
 					// stay in networkmode, but disconnect clients
 					dbg->warning("karte_t::laden","disconnecting all clients");
-					socket_list_t::reset_clients();
+					network_reset_server();
 				}
 			}
 			else {
