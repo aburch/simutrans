@@ -84,7 +84,6 @@ server_frame_t::server_frame_t(karte_t* w) :
 		find_mismatch.init( button_t::box, "find mismatch", koord( 4, pos_y ), koord( 112, BUTTON_HEIGHT) );
 		find_mismatch.add_listener(this);
 		add_komponente( &find_mismatch );
-		pos_y += 6+BUTTON_HEIGHT;
 
 		join.init( button_t::box, "join game", koord( 124, pos_y ), koord( 112, BUTTON_HEIGHT) );
 		join.add_listener(this);
@@ -93,6 +92,8 @@ server_frame_t::server_frame_t(karte_t* w) :
 		// only update serverlist, when not already in network mode
 		// otherwise desync to current game may happen
 		update_serverlist( gi.get_game_engine_revision()*show_all_rev.pressed, show_all_rev.pressed ? NULL : gi.get_pak_name() );
+
+		pos_y += 6+BUTTON_HEIGHT;
 	}
 	pos_y += 16;
 
