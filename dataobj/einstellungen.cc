@@ -986,7 +986,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 int einstellungen_t::get_name_language_id() const
 {
 	int lang = -1;
-	if(  umgebung_t::networkmode  &&  !umgebung_t::server  ) {
+	if(  umgebung_t::networkmode  ) {
 		lang = translator::get_language( language_code_names );
 	}
 	if(  lang == -1  ) {

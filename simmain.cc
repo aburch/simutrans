@@ -730,14 +730,14 @@ int simu_main(int argc, char** argv)
 	}
 
 	// Adam - Moved away loading from simmain and placed into translator for better modularisation
-	if (!translator::load(umgebung_t::objfilename)) {
+	if(  !translator::load(umgebung_t::objfilename)  ) {
 		// installation error: likely only program started
 		dbg->fatal("simmain::main()", "Unable to load any language files\n*** PLEASE INSTALL PROPER BASE FILES ***\n");
 		exit(11);
 	}
 
 	// use requested language (if available)
-	if (gimme_arg(argc, argv, "-lang", 1)) {
+	if(  gimme_arg(argc, argv, "-lang", 1)  ) {
 		const char *iso = gimme_arg(argc, argv, "-lang", 1);
 		if(  strlen(iso)>=2  ) {
 			translator::set_language( iso );
@@ -944,10 +944,6 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		intr_set(welt, view);
 		win_set_welt(welt);
 		werkzeug_t::toolbar_tool[0]->init(welt,welt->get_active_player());
-		if(  umgebung_t::server  ) {
-			// meaningless to use a locked map; there are passwords now
-			welt->access_einstellungen()->set_allow_player_change( true );
-		}
 	}
 
 	welt->set_fast_forward(false);
