@@ -1429,7 +1429,7 @@ Release of 88.06.1
 	FIX: monorail ground saves slope (otherwise the slope could be changed by building below)
 	CHANGE: schedules are now recalculated more often
 	FIX: no tunnel or bridge destroyed by slopes anymore
-	ADD: indicator for covois stucked for more than a month
+	ADD: indicator for convois stucked for more than a month
 	FIX: much less redraw troubles with slopes (will be drawn as foreground, if any object is behind them)
 	ADD: season indicator
 	FIX: UNDO did remove tracks but no electricfication

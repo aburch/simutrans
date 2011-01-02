@@ -223,7 +223,7 @@ static halthandle_t suche_nahe_haltestelle(spieler_t *sp, karte_t *welt, koord3d
 		}
 	}
 
-	// now just search alll neighbours
+	// now just search all neighbours
 	for(  sint16 y=-1;  y<=h;  y++  ) {
 		const planquadrat_t *plan = welt->lookup( pos.get_2d()+koord(-1,y) );
 		if(plan) {
@@ -633,7 +633,7 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 		gr->obj_remove(zeiger);
 	}
 
-	// remove all other stuff (clouds ... )
+	// remove all other stuff (clouds, ...)
 	bool return_ok = false;
 	uint8 num_obj = gr->obj_count();
 	if(num_obj>0) {
@@ -663,12 +663,12 @@ DBG_MESSAGE("wkz_remover()",  "took out powerline");
 		return true;
 	}
 
-	// ok, now we remove every object, that should be removed one by one.
+	// ok, now we remove every object that should be removed - one by one.
 	// the following objects will be removed together
 DBG_MESSAGE("wkz_remover()", "removing way");
 
 	/*
-	* Eigentlich muessen wir hier noch verhindern, dass ein Bahnhofsgebaeude oder eine
+	* @TODO Eigentlich muessen wir hier noch verhindern, dass ein Bahnhofsgebaeude oder eine
 	* Bushaltestelle vereinzelt wird!
 	* Sonst laesst sich danach die Richtung der Haltestelle verdrehen und die Bilder
 	* gehen kaputt.
@@ -811,7 +811,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 				ok = true;
 				// called by dragging or by AI
 				sint16 height = atoi(default_param);
-				// dragging may be goind up or down!
+				// dragging may be going up or down!
 				while(welt->lookup_hgt(pos)<height) {
 					int diff = welt->raise(pos);
 					if(diff==0) break;
@@ -838,7 +838,7 @@ const char *wkz_raise_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			return !ok ? "Tile not empty." : (n ? NULL : "");
 		}
 		else {
-			// no mountains heigher than 14 ...
+			// no mountains higher than 14 ...
 			return "Maximum tile height difference reached.";
 		}
 	}
@@ -899,7 +899,7 @@ const char *wkz_lower_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			if(default_param  &&  strlen(default_param)>0) {
 				// called by dragging or by AI
 				sint16 height = atoi(default_param);
-				// dragging may be goind up or down!
+				// dragging may be going up or down!
 				while(welt->lookup_hgt(pos)<height) {
 					int diff = welt->raise(pos);
 					if(diff==0) break;
@@ -1052,7 +1052,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 		}
 		else if(new_slope == ALL_DOWN_SLOPE) {
 			new_slope = hang_t::flach;
-			// is more intiutive: if there is a slope, first downgrade it
+			// is more intuitive: if there is a slope, first downgrade it
 			if (gr1->get_grund_hang()==0  ) {
 				new_pos.z -= Z_TILE_STEP;
 			}
@@ -1155,7 +1155,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				gr1->set_pos(new_pos);
 				gr1->clear_flag(grund_t::marked);
 				gr1->set_flag(grund_t::dirty);
-				// eventually update new positions
+				// update new positions if changed
 				if(  new_pos!=pos  ) {
 					for(  int i=0;  i<gr1->get_top();  i++  ) {
 						gr1->obj_bei(i)->set_pos( new_pos );
@@ -1400,7 +1400,7 @@ const char *wkz_buy_house_t::work( karte_t *welt, spieler_t *sp, koord3d pos)
 	}
 
 	if(  gb->get_besitzer()==sp  ) {
-		// this I bought already ...
+		// I bought this already ...
 		return "";
 	}
 
@@ -1460,7 +1460,7 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 			besch = baum_t::random_tree_for_climate( welt->get_climate(pos.z) );
 		}
 		else {
-			// parse default_param: bbbesch_nr b=1 ignore climate b=1 randome age
+			// parse default_param: bbbesch_nr b=1 ignore climate b=1 random age
 			check_climates = default_param[0]=='0';
 			random_age = default_param[1]=='1';
 			besch = baum_t::find_tree(default_param+3);
@@ -1477,9 +1477,9 @@ const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 
 
 /* the following three routines add waypoints/halts to a schedule
- * because we do not like to stop at AIs stop, but we want still force the truck to use AI roads
- * So if there is a halt, then it must be either public or our!
- * @autor prissi
+ * because we do not like to stop at AIs stop, but we still want to force the truck to use AI roads
+ * So if there is a halt, then it must be either public or ours!
+ * @author prissi
  */
 static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d pos, schedule_t *fpl, bool append){
 	if(fpl == NULL) {
@@ -1488,7 +1488,7 @@ static const char *wkz_fahrplan_insert_aux(karte_t *welt, spieler_t *sp, koord3d
 	}
 	grund_t *bd = welt->lookup(pos);
 	if (bd) {
-		// now just for error messages, we assuming a valid ground
+		// now just for error messages, we're assuming a valid ground
 		// check for right way type
 		if(!fpl->ist_halt_erlaubt(bd)) {
 			return fpl->fehlermeldung();
@@ -1575,8 +1575,8 @@ const char *wkz_wegebau_t::get_tooltip(spieler_t *sp)
 	return toolstr;
 }
 
-// default ways are not intialized sychronous for different clients
-// return always name of a way, never the string containing the waytype
+// default ways are not intialized synchronously for different clients
+// always return the name of a way, never the string containing the waytype
 const char* wkz_wegebau_t::get_default_param(spieler_t *sp) const
 {
 	if (sp==NULL) {
@@ -1974,7 +1974,7 @@ uint8 wkz_brueckenbau_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord
 }
 
 
-/* more difficult, since this builts also underground ways */
+/* more difficult, since this builds also underground ways */
 const char *wkz_tunnelbau_t::get_tooltip(spieler_t *sp)
 {
 	const tunnel_besch_t * besch = tunnelbauer_t::get_besch(default_param);
@@ -2575,7 +2575,7 @@ DBG_MESSAGE("wkz_station_building_aux()", "building mail office/station building
 							halthandle_t test_halt = pl->get_halt();
 							if(test_halt.is_bound()) {
 								if(!spieler_t::check_owner( new_owner, test_halt->get_besitzer())) {
-									// there is an other player's halt
+									// there is another player's halt
 									ok = false;
 									msg = "Das Feld gehoert\neinem anderen Spieler\n";
 								}
@@ -2793,14 +2793,14 @@ const char *wkz_station_t::wkz_station_dock_aux(karte_t *welt, spieler_t *sp, ko
 	koord last_pos = pos - dx*len;
 	halthandle_t halt = halthandle_t();
 
-	// check, if we can built here ...
+	// check, if we can build here ...
 	if(!hang_t::ist_einfach(hang)) {
 		return "Dock must be built on single slope!";
 	}
 	else {
 		for(int i=0;  i<=len;  i++  ) {
 			if(!welt->ist_in_kartengrenzen(pos-dx*i)) {
-				// need at least a signle tile to navigate ...
+				// need at least a single tile to navigate ...
 				return "Zu nah am Kartenrand";
 			}
 			else {
@@ -2942,7 +2942,7 @@ DBG_MESSAGE("wkz_dockbau()","building dock from square (%d,%d) to (%d,%d)", pos.
 	return NULL;
 }
 
-// built all types of stops but sea harbours
+// build all types of stops but sea harbours
 const char *wkz_station_t::wkz_station_aux(karte_t *welt, spieler_t *sp, koord3d k, const haus_besch_t *besch, waytype_t wegtype, sint64 cost, const char *type_name )
 {
 	koord pos = k.get_2d();
@@ -2982,7 +2982,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		else if (bd->hat_wege()) {
 			ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
 		}
-		// not straight: sorry cannot built here ...
+		// not straight: sorry cannot build here ...
 		if(!ribi_t::ist_gerade(ribi)) {
 			return p_error;
 		}
@@ -2993,7 +2993,7 @@ DBG_MESSAGE("wkz_halt_aux()", "building %s on square %d,%d for waytype %x", besc
 		if (bd->hat_wege()) {
 			ribi = bd->get_weg_nr(0)->get_ribi_unmasked();
 		}
-		// sorry cannot built here ... (not a terminal tile)
+		// sorry cannot build here ... (not a terminal tile)
 		if(!ribi_t::ist_einfach(ribi)) {
 			return p_error;
 		}
@@ -3174,7 +3174,7 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 	}
 	if(  hb->get_utyp()==haus_besch_t::generic_extension  &&  hb->get_all_layouts()>1  ) {
 		if(  is_ctrl_pressed()  &&  rotation==-1  ) {
-			// call station dialoge instead
+			// call station dialog instead
 			destroy_win( magic_station_building_select );
 			create_win( new station_building_select_t(welt, hb), w_info, magic_station_building_select);
 			// we do not activate building yet; else uncomment the return statement
@@ -3182,7 +3182,7 @@ bool wkz_station_t::init( karte_t *welt, spieler_t * )
 			return false;
 		}
 		else if(  rotation>=0  ) {
-			// rotation si already fixed
+			// rotation is already fixed
 			welt->get_zeiger()->set_area( koord( hb->get_b(rotation), hb->get_h(rotation) ), false );
 		}
 		else {
@@ -3863,7 +3863,7 @@ const char *wkz_depot_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 			return wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, track_wt, welt->get_einstellungen()->cst_depot_rail );
 		case monorail_wt:
 			{
-				// since it need also a foundations, this is slightly more complex ...
+				// since it needs also a foundation, this is slightly more complex ...
 				const char *err = wkz_depot_t::wkz_depot_aux( welt, sp, k, besch, monorail_wt, welt->get_einstellungen()->cst_depot_rail );
 				if(err==NULL) {
 					grund_t *bd = welt->lookup_kartenboden(k.get_2d());
@@ -3987,7 +3987,7 @@ bool wkz_build_industries_land_t::init( karte_t *welt, spieler_t * )
 	return true;
 }
 
-/* builts a (if param=NULL random) industry chain starting here *
+/* builds a (if param=NULL random) industry chain starting here *
  * the parameter string is a follow:
  * 1#34,oelfeld
  * first letter: ignore climates
@@ -4048,7 +4048,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 		int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, rotation, &k, welt->get_spieler(1), 10000 );
 
 		if(anzahl>0) {
-			// least one factory has been built
+			// at least one factory has been built
 			welt->change_world_position( k.get_2d(), 0, 0 );
 			spieler_t::accounting(sp, anzahl*welt->get_einstellungen()->cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION );
 
@@ -4089,7 +4089,7 @@ bool wkz_build_industries_city_t::init( karte_t *welt, spieler_t * )
 	return true;
 }
 
-/* builts a industry chain in the next town
+/* builds a industry chain in the next town
  * defaukt_param see previous function
  */
 const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koord3d k )
@@ -4121,7 +4121,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	k = gr->get_pos();
 	int anzahl = fabrikbauer_t::baue_hierarchie(NULL, fab, false, &k, welt->get_spieler(1), 10000 );
 	if(anzahl>0) {
-		// least one factory has been built
+		// at least one factory has been built
 		welt->change_world_position( k.get_2d(), 0, 0 );
 
 		// eventually adjust production
@@ -4164,7 +4164,7 @@ bool wkz_build_factory_t::init( karte_t *welt, spieler_t * )
 	return false;
 }
 
-/* builts an industry next to the cursor (default_param see above) */
+/* builds an industry next to the cursor (default_param see above) */
 const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 {
 	const grund_t* gr = welt->lookup_kartenboden(k.get_2d());
@@ -4216,7 +4216,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	if(hat_platz) {
 		fabrik_t *f = fabrikbauer_t::baue_fabrik(welt, NULL, fab, rotation, gr->get_pos(), welt->get_spieler(1));
 		if(f) {
-			// least one factory has been built
+			// at least one factory has been built
 			welt->change_world_position( k.get_2d(), 0, 0 );
 			spieler_t::accounting(sp, welt->get_einstellungen()->cst_multiply_found_industry, k.get_2d(), COST_CONSTRUCTION );
 
@@ -4304,7 +4304,7 @@ const char *wkz_headquarter_t::get_tooltip( spieler_t *sp )
 
 bool wkz_headquarter_t::init( karte_t *welt, spieler_t *sp )
 {
-	// do no use this, if there is no next level to built ...
+	// do no use this, if there is no next level to build ...
 	const haus_besch_t *besch = next_level(sp);
 	if (is_local_execution()  &&  besch) {
 		const int rotation = 0;
@@ -4367,7 +4367,7 @@ DBG_MESSAGE("wkz_headquarter()", "building headquarter at (%d,%d)", pos.x, pos.y
 			if(city) {
 				city->add_gebaeude_to_stadt( hq );
 			}
-			// sometime those are not correct after rotation ...
+			// sometimes those are not correct after rotation ...
 			sp->add_headquarter( besch->get_extra()+1, hq->get_pos().get_2d()-hq->get_tile()->get_offset() );
 			sp->buche( cost, pos.get_2d(), COST_CONSTRUCTION);
 			// tell the world of it ...
@@ -4543,8 +4543,8 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		// second click
 		pos = bd->get_pos();
 		const halthandle_t new_halt = h;
-		// depending on the waytype we simply built replacements lists
-		// in the wort case we have to iterate over all tiles twice ...
+		// depending on the waytype we simply build replacements lists
+		// in the worst case we have to iterate over all tiles twice ...
 		for(  uint i=0;  i<2;  i++  ) {
 			const waytype_t wt = waytype[i];
 			slist_tpl <koord3d>old_platform;
@@ -5263,7 +5263,7 @@ bool wkz_change_depot_t::init( karte_t *welt, spieler_t *sp )
 
 		case 'a':	// append a vehicle
 		case 'i':	// insert a vehicle in front
-		case 's':	// sells a vehikel
+		case 's':	// sells a vehicle
 		case 'r': 	// removes a vehicle (assumes a valid depot)
 			if(  tool=='r'  ) {
 				// test may fail after double-click on the button:

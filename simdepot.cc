@@ -137,7 +137,7 @@ void depot_t::call_depot_tool( char tool, convoihandle_t cnv, const char *extra)
 
 /* this is called on two occasions:
  * first a convoy reaches the depot during its journey
- * second during loading a covoi is stored in a depot => only store it again
+ * second during loading a convoi is stored in a depot => only store it again
  */
 void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 {
@@ -164,7 +164,7 @@ void depot_t::convoi_arrived(convoihandle_t acnv, bool fpl_adjust)
 			}
 		}
 	}
-	// this part stores the covoi in the depot
+	// this part stores the convoi in the depot
 	convois.append(acnv);
 	depot_frame_t *depot_frame = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
 	if(depot_frame) {
@@ -230,7 +230,7 @@ void depot_t::sell_vehicle(vehikel_t* veh)
 }
 
 
-// returns the indest of the old/newest vehicle in a list
+// returns the indest of the oldest/newest vehicle in a list
 vehikel_t* depot_t::find_oldest_newest(const vehikel_besch_t* besch, bool old)
 {
 	vehikel_t* found_veh = NULL;
@@ -364,7 +364,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			cnv->get_schedule()->advance();
 		}
 
-		// pruefen ob zug vollstaendig
+		// check if convoi is complete
 		if(cnv->get_sum_leistung() == 0 || !cnv->pruefe_alle()) {
 			if (local_execution) {
 				create_win( new news_img("Diese Zusammenstellung kann nicht fahren!\n"), w_time_delete, magic_none);
@@ -385,7 +385,7 @@ bool depot_t::start_convoi(convoihandle_t cnv, bool local_execution)
 			sint32 icnv = (sint32)convois.index_of( cnv );
 			if (convois.remove(cnv)) {
 				// actually removed cnv from depot, here icnv>=0
-				// make another the current selected convoi
+				// make another convoi the current selected one
 				depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
 				if(  win  ) {
 					if (local_execution) {
@@ -599,7 +599,7 @@ bool bahndepot_t::can_convoi_start(convoihandle_t cnv) const
 	}
 
 	if(!success  &&  i>0) {
-		// free reservation, since we were not sucessfull
+		// free reservation, since we were not sucessful
 		i--;
 		sch0->unreserve(cnv);
 		for(uint32 j=0; j<i; j++) {

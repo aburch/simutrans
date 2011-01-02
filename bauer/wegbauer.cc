@@ -756,7 +756,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 		case leitung:
 			ok = !to->ist_wasser()  &&  (to->get_weg(air_wt)==NULL);
 			if(to->get_weg_nr(0)!=NULL) {
-				// only 90 deg crossings, only a signle way
+				// only 90 deg crossings, only a single way
 				ribi_t::ribi w_ribi= to->get_weg_nr(0)->get_ribi_unmasked();
 				ok &= ribi_t::ist_gerade(w_ribi)  &&  !ribi_t::ist_einfach(w_ribi)  &&  ribi_t::ist_gerade(ribi_typ(zv))  &&  (w_ribi&ribi_typ(zv))==0;
 			}
