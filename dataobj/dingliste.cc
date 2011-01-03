@@ -556,7 +556,6 @@ void local_delete_object(ding_t *ding, spieler_t *sp)
 	vehikel_basis_t* const v = ding_cast<vehikel_basis_t>(ding);
 	if (v  &&  ding->get_typ() != ding_t::fussgaenger  &&  ding->get_typ() != ding_t::verkehr  &&  ding->get_typ() != ding_t::movingobj) {
 		v->verlasse_feld();
-		assert(0);
 	}
 	else {
 		ding->entferne(sp);
