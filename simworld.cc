@@ -4460,7 +4460,9 @@ bool karte_t::laden(const char *filename)
 		// probably finish network mode first?
 		if(  umgebung_t::networkmode  ) {
 			if (  umgebung_t::server  ) {
-				if(  strcmp(filename, "server-network.sve") != 0  ) {
+				char fn[256];
+				sprintf( fn, "server%d-network.sve", umgebung_t::server );
+				if(  strcmp(filename, fn) != 0  ) {
 					// stay in networkmode, but disconnect clients
 					dbg->warning("karte_t::laden","disconnecting all clients");
 					network_reset_server();
@@ -4507,6 +4509,12 @@ bool karte_t::laden(const char *filename)
 
 		if(  umgebung_t::server  ) {
 			step_mode = FIX_RATIO;
+			if(  umgebung_t::server  ) {
+				// meaningless to use a locked map; there are passwords now
+				einstellungen->set_allow_player_change( true );
+				// language of map becomes server language
+				einstellungen->set_name_language_iso( translator::get_lang()->iso_base );
+			}
 		}
 		else if(  umgebung_t::networkmode  ) {
 			step_mode = PAUSE_FLAG|FIX_RATIO;

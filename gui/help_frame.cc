@@ -21,7 +21,7 @@
 #include "help_frame.h"
 
 // for chdir
-#ifdef WIN32
+#ifdef _WIN32
 #include <direct.h>
 #else
 #include <unistd.h>

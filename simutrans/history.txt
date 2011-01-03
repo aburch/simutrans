@@ -112,6 +112,7 @@
 	ADD: messages are saved in save games
 	CHANGE: passwords are only checked/changed if <enter> is pressed in the password input box
 	ADD: more messages for headquarters and making stops public
+	CHANGE: application folder for simutrans now under /Library/Simutrans (default MAC standard)
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
@@ -1429,7 +1430,7 @@ Release of 88.06.1
 	FIX: monorail ground saves slope (otherwise the slope could be changed by building below)
 	CHANGE: schedules are now recalculated more often
 	FIX: no tunnel or bridge destroyed by slopes anymore
-	ADD: indicator for covois stucked for more than a month
+	ADD: indicator for convois stucked for more than a month
 	FIX: much less redraw troubles with slopes (will be drawn as foreground, if any object is behind them)
 	ADD: season indicator
 	FIX: UNDO did remove tracks but no electricfication

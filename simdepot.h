@@ -31,7 +31,7 @@ protected:
 	 * Reworked depot data!
 	 *
 	 * It can now contain any number of vehicles bought by the user (as before).
-	 * And it can held any number of convois (before only one).
+	 * And it can hold any number of convois (before only one).
 	 * It is possible to have 0 convois in a depot, but an empty one shall be
 	 * automatically created, when necessary.
 	 * Convois are numbered 0...(n-1).
@@ -93,7 +93,7 @@ public:
 	/**
 	 * Let convoi leave the depot.
 	 * If not possible, a message is displayed and the function returns false.
-	 * @param if local_execution is true, this methods creates pop-ups in case of errors
+	 * @param if local_execution is true, this method creates pop-ups in case of errors
 	 * @author Volker Meyer, Dwachs
 	 * @date  09.06.2003 / 27.04.2010
 	 */
@@ -101,7 +101,7 @@ public:
 
 	/**
 	 * Destroy the convoi and put the vehicles in the vehicles list (sell==false),
-	 * or sell all immediatly (sell==true).
+	 * or sell all immediately (sell==true).
 	 * @author Volker Meyer
 	 * @date  09.06.2003
 	 */
@@ -158,7 +158,7 @@ public:
 	slist_tpl<vehikel_besch_t*>* get_vehicle_type();
 
 	/**
-	 * Returns the waytype for a certain vehicle; only way to distingiush differnt depots ...
+	 * Returns the waytype for a certain vehicle; only way to distinguish differnt depots ...
 	 * @author prissi
 	 */
 	virtual waytype_t get_wegtyp() const { return invalid_wt; }
@@ -178,6 +178,7 @@ public:
 	void zeige_info();
 
 	/**
+	 * Can object be removed?
 	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
@@ -185,7 +186,7 @@ public:
 
 	/**
 	 * identifies the oldest vehicle of a certain type
-	 * returns NULL if no vehicle is found
+	 * @returns NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
 	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);
@@ -199,7 +200,7 @@ public:
 	sint32 calc_restwert(const vehikel_besch_t *veh_type);
 
 	/*
-	 * sets/gets the line that was selected the last time in the depot-dialog
+	 * sets/gets the line that was selected the last time in the depot dialog
 	 */
 	void set_selected_line(const linehandle_t sel_line);
 	linehandle_t get_selected_line();
@@ -238,7 +239,8 @@ private:
 
 
 /**
- * Depots für Schienenfahrzeuge.
+ * Depots for train vehicles.
+ *
  * @author Hj. Malthaner
  * @see depot_t
  * @see gebaeude_t
@@ -315,7 +317,8 @@ public:
 };
 
 /**
- * Depots für Straßenfahrzeuge
+ * Depots for street vehicles
+ *
  * @author Hj. Malthaner
  * @see depot_t
  * @see gebaeude_t
@@ -335,7 +338,8 @@ public:
 
 
 /**
- * Depots für Schiffe
+ * Depots for ships
+ *
  * @author Hj. Malthaner
  * @see depot_t
  * @see gebaeude_t
@@ -353,6 +357,10 @@ public:
 	//const char *get_name() const {return "Schiffdepot";}
 };
 
+
+/**
+ * Depots for aircrafts
+ */
 class airdepot_t : public depot_t
 {
 public:
