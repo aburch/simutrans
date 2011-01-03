@@ -2091,6 +2091,7 @@ static void display_img_nc(KOORD_VAL h, const KOORD_VAL xp, const KOORD_VAL yp, 
 				// some architectures: faster with inline of memory functions!
 				memcpy( p, sp, runlen*sizeof(PIXVAL) );
 				sp += runlen;
+				p += runlen;
 #endif
 #else
 				// this code is sometimes slower, mostly 5% faster, not really clear why and when (cache alignment?)
