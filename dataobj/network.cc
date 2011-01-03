@@ -554,7 +554,7 @@ bool network_init_server( int port )
 
 void network_set_socket_nodelay( SOCKET sock )
 {
-#ifdef TCP_NODELAY
+#ifdef TCP_NODELAY  &&  !defined(__APPLE__)
 	// do not wait to join small (command) packets when sending (may cause 200ms delay!)
 	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, NULL, 0 );
 #else

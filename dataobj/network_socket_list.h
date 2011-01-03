@@ -137,7 +137,7 @@ public: // from now stuff to deal with fd_set's
 	/**
 	 * fill set with all active sockets
 	 */
-	static int fill_set(fd_set *fds);
+	static SOCKET fill_set(fd_set *fds);
 
 	/**
 	 * iterators to iterate through all sockets whose bits are set in fd_set
