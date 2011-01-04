@@ -3102,12 +3102,12 @@ void karte_t::neuer_monat()
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
 		s->neuer_monat(recheck_road_connexions);
-		recheck_road_connexions = false;
 		outstanding_cars += s->get_outstanding_cars();
 		new_weighted_stadt.append(s, s->get_einwohner(), 64);
 		INT_CHECK("simworld 3117");
 		total_electric_demand += (*i)->get_power_demand();
 	}
+	recheck_road_connexions = false;
 	swap(stadt, new_weighted_stadt);
 
 	if(fabrikbauer_t::power_stations_available(this) && ((electric_productivity*4000l)/total_electric_demand) < get_einstellungen()->get_electric_promille())

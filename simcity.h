@@ -35,7 +35,7 @@ class rule_t;
 #define MAX_CITY_HISTORY_YEARS  (12) // number of years to keep history
 #define MAX_CITY_HISTORY_MONTHS (12) // number of months to keep history
 
-#define PAX_DESTINATIONS_SIZE (128) // size of the minimap.
+#define PAX_DESTINATIONS_SIZE (128) // size of the minimap in the city window.
 
 enum city_cost {
 	HIST_CITICENS=0,// total people
@@ -59,7 +59,9 @@ enum route_status
 {
 	no_route = 0,
 	too_slow = 1,
-	good = 2
+	good = 2,
+	private_car_only = 3,
+	can_walk = 4
 };
 
 class road_destination_finder_t : public fahrer_t
