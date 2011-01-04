@@ -104,6 +104,7 @@ public:
 	const char *check( karte_t *, spieler_t *, koord3d );
 	const char *work( karte_t *, spieler_t *, koord3d );
 	const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 class wkz_lower_t : public werkzeug_t {
@@ -119,6 +120,7 @@ public:
 	const char *check( karte_t *, spieler_t *, koord3d );
 	const char *work( karte_t *, spieler_t *, koord3d);
 	const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* slope tool definitions */
@@ -497,6 +499,7 @@ private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
+	virtual bool is_init_network_save() const { return true; }
 };
 
 /* stop moving tool */
