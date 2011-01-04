@@ -1849,7 +1849,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::rathaus, welt->get_timeline_year_month(), bev==0, welt->get_climate(welt->max_hgt(pos)));
 	if(besch != NULL) {
 		grund_t* gr = welt->lookup_kartenboden(pos);
-		gebaeude_t const* const gb = ding_cast<gebaeude_t>(gr->first_obj());
+		gebaeude_t* gb = ding_cast<gebaeude_t>(gr->first_obj());
 		bool neugruendung = !gb || !gb->ist_rathaus();
 		bool umziehen = !neugruendung;
 		koord alte_str(koord::invalid);
@@ -1917,19 +1917,24 @@ void stadt_t::check_bau_rathaus(bool new_town)
 				}
 			}
 
-			for (k.x = 0; k.x < groesse_alt.x; k.x++) {
-				for (k.y = 0; k.y < groesse_alt.y; k.y++) {
-					// we itereate over all tiles, since the townhalls are allowed sizes bigger than 1x1
-					const koord pos = pos_alt + k;
-					gr = welt->lookup_kartenboden(pos);
-		DBG_MESSAGE("stadt_t::check_bau_rathaus()", "loesch %p", gr->first_obj());
-					gr->obj_loesche_alle(NULL);
+			// remove old townhall
+			if (gb) {
+				DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall at (%s)", pos_alt.get_str());
+				hausbauer_t::remove(welt, NULL, gb);
+			}
 
-					if(umziehen) {
-						DBG_MESSAGE("stadt_t::check_bau_rathaus()", "delete townhall tile %i,%i (gb=%p)", k.x, k.y, gb);
-						welt->access(pos)->boden_ersetzen( gr, new boden_t(welt,gr->get_pos(),hang_t::flach) );
-						// replace old space by normal houses level 0 (must be 1x1!)
-						baue_gebaeude(pos);
+			// replace old space by normal houses level 0 (must be 1x1!)
+			if (umziehen) {
+				for (k.x = 0; k.x < groesse_alt.x; k.x++) {
+					for (k.y = 0; k.y < groesse_alt.y; k.y++) {
+						// we iterate over all tiles, since the townhalls are allowed sizes bigger than 1x1
+						const koord pos = pos_alt + k;
+						gr = welt->lookup_kartenboden(pos);
+						if (gr  &&  gr->ist_natur() &&  gr->kann_alle_obj_entfernen(NULL) == NULL  &&
+							  (  gr->get_grund_hang() == hang_t::flach  ||  welt->lookup(koord3d(k, welt->max_hgt(k))) == NULL  ) ) {
+							DBG_MESSAGE("stadt_t::check_bau_rathaus()", "fill empty spot at (%s)", pos.get_str());
+							baue_gebaeude(pos);
+						}
 					}
 				}
 			}
