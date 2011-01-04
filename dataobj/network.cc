@@ -309,8 +309,7 @@ const char *network_download_http( const char *address, const char *name, const 
 		char uri[1024];
 		int const len = sprintf(uri, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", name, address);
 		uint16 dummy;
-		if (!network_send_data(my_client_socket, uri, len, dummy, 250))
-		{
+		if(  !network_send_data(my_client_socket, uri, len, dummy, 250)  ) {
 			err = "Server did not respond!";
 		}
 		// read the header
@@ -360,7 +359,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		{
 			nwc_gameinfo_t nwgi;
 			nwgi.rdwr();
-			if (!nwgi.send(my_client_socket)) {
+			if(  !nwgi.send(my_client_socket)  ) {
 				err = "send of NWC_GAMEINFO failed";
 				goto end;
 			}
@@ -555,7 +554,7 @@ bool network_init_server( int port )
 
 void network_set_socket_nodelay( SOCKET sock )
 {
-#ifdef TCP_NODELAY
+#ifdef TCP_NODELAY  &&  !defined(__APPLE__)
 	// do not wait to join small (command) packets when sending (may cause 200ms delay!)
 	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, NULL, 0 );
 #else
