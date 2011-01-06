@@ -45,9 +45,13 @@ tunnel_t::tunnel_t(karte_t *welt, koord3d pos, spieler_t *sp, const tunnel_besch
 }
 
 
+waytype_t tunnel_t::get_waytype() const
+{
+	return besch ? besch->get_waytype() : invalid_wt;
+}
 
-void
-tunnel_t::calc_bild()
+
+void tunnel_t::calc_bild()
 {
 	const grund_t *gr = welt->lookup(get_pos());
 	if(gr->ist_karten_boden()) {

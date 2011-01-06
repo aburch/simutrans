@@ -21,6 +21,11 @@ public:
 	const char *get_name() const {return "Tunnelmuendung";}
 	typ get_typ() const { return tunnel; }
 
+	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const;
+
 	void calc_bild();
 
 	void set_bild( image_id b );

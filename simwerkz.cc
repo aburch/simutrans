@@ -2219,24 +2219,38 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 		for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
 			grund_t *gr=welt->lookup(verbindung.position_bei(i));
 			if(  wt!=powerline_wt  ) {
-				if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ||  (gr->is_halt()  &&  !spieler_t::check_owner( gr->get_halt()->get_besitzer(), sp ) )  ) {
+				// no way found
+				if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ) {
 					can_delete = false;
 					break;
 				}
-				if(  gr->kann_alle_obj_entfernen(sp)!=NULL  ) {
-					// we have to do a fine check
-					for( uint i=0;  i<gr->get_top();  i++  ) {
-						ding_t *d = gr->obj_bei(i);
-						uint8 type = d->get_typ();
-						if(type>=ding_t::automobil  &&  type!=ding_t::aircraft) {
-							can_delete = false;
-							break;
+				// check all if we want to delete the first on a no-ground tile
+				bool check_all = !gr->ist_karten_boden()  &&  gr->has_two_ways()  &&  gr->get_weg_nr(0)->get_waytype()==wt;
+				// we have to do a fine check
+				for( uint i=0;  i<gr->get_top()  &&  can_delete;  i++  ) {
+					ding_t *d = gr->obj_bei(i);
+					const uint8 type = d->get_typ();
+					// ignore pillars, powerlines
+					if (type == ding_t::pillar  ||  type==ding_t::leitung) {
+						continue;
+					}
+					// ignore flying aircraft
+					if (type == ding_t::aircraft  &&  !(static_cast<aircraft_t*>(d)->is_on_ground())) {
+						continue;
+					}
+					const waytype_t ding_wt = d->get_waytype();
+					// way-related things
+					if (ding_wt != invalid_wt) {
+						// check this thing if it has the same waytype or if we want to remove the whole bridge/tunnel tile
+						// special case: stations - take care not to produce station without any way
+						const bool lonely_station = type==ding_t::gebaeude  &&  !gr->has_two_ways();
+						if (check_all ||  ding_wt == wt  ||  lonely_station) {
+							can_delete = d->ist_entfernbar(sp) == NULL;
 						}
-						// something else that is not mine ...
-						if(  d->ist_entfernbar(sp)!=NULL  &&  gr->get_leitung()!=d  ) {
-							can_delete = false;
-							break;
-						}
+					}
+					// all other stuff
+					else {
+						can_delete = d->ist_entfernbar(sp) == NULL;
 					}
 				}
 			}

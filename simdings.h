@@ -175,7 +175,7 @@ public:
 	// true for all moving objects
 	inline bool is_moving() const { return flags&is_vehicle; }
 
-	// true for all moving objects
+	// true for ways
 	inline bool is_way() const { return flags&is_wayding; }
 
 	// while in principle, this should trigger the dirty, it takes just too much time to do it
@@ -231,6 +231,11 @@ public:
 	 * @author Hj. Malthaner
 	 */
 	virtual typ get_typ() const = 0;
+
+	/**
+	 * waytype associated with this object
+	 */
+	virtual waytype_t get_waytype() const { return invalid_wt; }
 
 	/*
 	* called whenever the snowline height changes
