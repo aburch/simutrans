@@ -54,7 +54,7 @@ public:
 
 	void init( T value ) {
 		if(sizeof(T)==1) {
-			memset( data, w*h, value );
+			memset( data, value, w*h );
 		}
 		else {
 			unsigned i=(w*h)+1;
