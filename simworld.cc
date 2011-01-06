@@ -2850,7 +2850,7 @@ void karte_t::neuer_monat()
 	recalc_average_speed();
 	INT_CHECK("simworld 1921");
 
-	if(umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0) {
+	if(  !umgebung_t::networkmode  &&  umgebung_t::autosave>0  &&  letzter_monat%umgebung_t::autosave==0  ) {
 		char buf[128];
 		sprintf( buf, "save/autosave%02i.sve", letzter_monat+1 );
 		speichern( buf, umgebung_t::savegame_version_str, true );
