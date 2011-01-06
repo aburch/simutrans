@@ -3688,8 +3688,6 @@ bool karte_t::ist_wasser(koord pos, koord dim) const
 
 bool karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
-	koord k;
-
 	if(pos.x<0 || pos.y<0 || pos.x+w>=get_groesse_x() || pos.y+h>=get_groesse_y()) {
 		return false;
 	}
@@ -3697,6 +3695,7 @@ bool karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate
 	grund_t *gr = lookup_kartenboden(pos);
 	const sint16 platz_h = gr->get_grund_hang() ? max_hgt(pos) : gr->get_hoehe();	// remember the max height of the first tile
 
+	koord k;
 	for(k.y=pos.y+h-1; k.y>=pos.y; k.y--) {
 		for(k.x=pos.x; k.x<pos.x+w; k.x++) {
 			const grund_t *gr = lookup_kartenboden(k);
@@ -3708,7 +3707,7 @@ bool karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate
 #ifdef DOUBLE_GROUNDS
 #error "Fix this function!"
 #endif
-			if(platz_h!=(gr->get_hoehe()+Z_TILE_STEP*((gr->get_grund_hang()+127)/128))  ||  !gr->ist_natur() ||  gr->get_halt().is_bound()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->get_hoehe())))==0) {
+			if(platz_h!=(gr->get_hoehe()+Z_TILE_STEP*((gr->get_grund_hang()+127)/128))  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->get_hoehe())))==0) {
 				if(last_y) {
 					*last_y = k.y;
 				}
