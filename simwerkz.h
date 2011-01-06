@@ -297,6 +297,8 @@ private:
 	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & );
 	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
+	// error message to be returned by calc_route
+	const char *calc_route_error;
 public:
 	wkz_wayremover_t() : two_click_werkzeug_t() { id = WKZ_WAYREMOVER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *);

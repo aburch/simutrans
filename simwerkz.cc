@@ -2213,6 +2213,7 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 	}
 	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_count());
 
+	calc_route_error = NULL;
 	bool can_delete = start == end  ||  verbindung.get_count()>1;
 	if(  can_delete  ) {
 		// found a route => check if I can delete anything on it
@@ -2245,18 +2246,18 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 						// special case: stations - take care not to produce station without any way
 						const bool lonely_station = type==ding_t::gebaeude  &&  !gr->has_two_ways();
 						if (check_all ||  ding_wt == wt  ||  lonely_station) {
-							can_delete = d->ist_entfernbar(sp) == NULL;
+							can_delete = (calc_route_error = d->ist_entfernbar(sp)) == NULL;
 						}
 					}
 					// all other stuff
 					else {
-						can_delete = d->ist_entfernbar(sp) == NULL;
+						can_delete = (calc_route_error = d->ist_entfernbar(sp)) == NULL;
 					}
 				}
 			}
 			else {
 				// for powerline: only a ground and a powerline to remove
-				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  gr->get_leitung()->ist_entfernbar(sp)!=NULL  ) {
+				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  (calc_route_error = gr->get_leitung()->ist_entfernbar(sp))!=NULL  ) {
 					can_delete = false;
 					break;
 				}
@@ -2274,7 +2275,12 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 	route_t verbindung;
 	if( !calc_route( verbindung, sp, start, end )  ) {
 		DBG_MESSAGE("wkz_wayremover()","no route found");
-		return "Ways not connected";
+		if (calc_route_error  &&  *calc_route_error) {
+			return calc_route_error;
+		}
+		else {
+			return "Ways not connected";
+		}
 	}
 	bool can_delete = true;	// assume success
 
