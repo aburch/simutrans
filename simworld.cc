@@ -5323,7 +5323,7 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 				/* make sure, the server is really that far ahead
 				 * Sleep() on windows often returns before!
 				 */
-				unsigned long ms = dr_time()+umgebung_t::server_ms_ahead;
+				unsigned long ms = dr_time() + umgebung_t::server_frames_ahead * fix_ratio_frame_time;
 				while(  dr_time()<ms  ) {
 					dr_sleep ( 10 );
 				}
@@ -5541,7 +5541,7 @@ bool karte_t::interactive(uint32 quit_month)
 					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 					// are we on time?
 					ms_difference = 0;
-					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*fix_ratio_frame_time - umgebung_t::server_ms_ahead;
+					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*fix_ratio_frame_time;
 					if(  difftime < 0) {
 						// running ahead
 						next_step_time -= difftime;
@@ -5710,7 +5710,7 @@ bool karte_t::interactive(uint32 quit_month)
 						// broadcast sync info
 						if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
 								||  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0  ) {
-							nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&63], sync_steps);
+							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, last_randoms[sync_steps&63], sync_steps);
 							network_send_all(nwc, true);
 						}
 					}
