@@ -37,7 +37,7 @@ public:
 	/**
 	 * receive the next command: continues receiving the packet
 	 * if an error occurs while receiving the packet, (this) is reset-ted
-	 * @returns the command if packet is fully received
+	 * @return the command if packet is fully received
 	 */
 	network_command_t* receive_nwc();
 
@@ -96,7 +96,7 @@ public:
 	static bool has_client( SOCKET sock );
 
 	/**
-	 * @returns true if client was found and removed
+	 * @return true if client was found and removed
 	 */
 	static bool remove_client( SOCKET sock );
 
@@ -113,7 +113,7 @@ public:
 	}
 
 	/**
-	 * @returns for client returns socket of connection to server
+	 * @return for client returns socket of connection to server
 	 */
 	static SOCKET get_server_connection_socket() {
 		return get_socket(0);
@@ -130,7 +130,7 @@ public: // from now stuff to deal with fd_set's
 
 	/**
 	 * @param offset pointer to an offset
-	 * @returns the first client whose bit is set in fd_set
+	 * @return the first client whose bit is set in fd_set
 	 */
 	static SOCKET fd_isset(fd_set *fds, bool use_server_sockets, uint32 *offset=NULL);
 

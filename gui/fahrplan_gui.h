@@ -1,5 +1,5 @@
 /*
- * dialog zur Eingabe eines Fahrplanes
+ * Dialog window for defining a schedule
  *
  * Hj. Malthaner
  *
@@ -60,14 +60,14 @@ class fahrplan_gui_t :	public gui_frame_t,
 {
  public:
 	/**
-	 * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
+         * Fills buf with description of schedule's i'th entry.
 	 *
 	 * @author Hj. Malthaner
 	 */
 	static void gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spieler_t *sp, const linieneintrag_t &entry );
 
 	/**
-	 * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
+         * Fills buf with description of schedule's i'th entry.
 	 * short version, without loading level and position ...
 	 * @author Hj. Malthaner
 	 */

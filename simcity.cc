@@ -1567,12 +1567,12 @@ void stadt_t::step_passagiere()
 
 				// now try to add them to the target halt
 				if(  !ret_halt->is_overcrowded(wtyp->get_catg_index())  ) {
-					// prissi: not overcrowded and can recieve => add them
+					// prissi: not overcrowded and can receive => add them
 					if (found) {
 						ware_t return_pax (wtyp);
 
 						if(  will_return != town_return  &&  wtyp==warenbauer_t::post  ) {
-							// attractions/factory generate more mail than they recieve
+							// attractions/factory generate more mail than they receive
 							return_pax.menge = pax_left_to_do*3;
 						}
 						else {

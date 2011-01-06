@@ -51,7 +51,7 @@ static void fill_event(struct event_t *ev)
 	// for autorepeat buttons we track button state, press time and a repeat time
 	// code by Niels Roest and Hj. Maltahner
 
-	static int  pressed_buttons = 0; // assume: at startup no button pressed (nneded for some backends)
+	static int  pressed_buttons = 0; // assume: at startup no button pressed (needed for some backends)
 	static unsigned long lb_time = 0;
 	static long repeat_time = 500;
 
@@ -202,7 +202,7 @@ static void fill_event(struct event_t *ev)
 	} else { // the else is to prevent race conditions
 		/* Hajo: this would transform non-left button presses always
 		 * to repeat events. I need right button clicks.
-		 * I have no idea how thiscan be done cleanly, currently just
+		 * I have no idea how this can be done cleanly, currently just
 		 * disabling the repeat feature for non-left buttons
 		 */
 		if (pressed_buttons == MOUSE_LEFTBUTTON) {

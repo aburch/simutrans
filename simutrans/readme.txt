@@ -76,7 +76,7 @@ t = must be a stop
 Simutrans command line options
 ------------------------------
 
-Aplphabetical list of options:
+Alphabetical list of options:
 
 -addons
 -debug n=1..4
@@ -103,7 +103,7 @@ Detailed Description
 
 1.) Choose a resolution:
 
-1a.) Choose a 'standard'  resolution
+1a.) Choose a 'standard' resolution
 
 simutrans -res n
 
@@ -142,7 +142,7 @@ machine.
 simutrans -screensize 900x400
 
 More general the syntax is -screensize WIDTHxHEIGHT
-where width and height are integral values separated by a small x
+where width and height are integral values separated by a small x.
 This format is strict. Simutrans will not tolerate spaces or other
 format elements.
 
@@ -262,7 +262,7 @@ Example: simutrans -timeline 1 -startyear 1950
 simutrans -timeline <1 or 0>
 
 0 = all vehicles are available from the start of the game
-1 = More relistic. In 1930 are only some historical vehicles
+1 = More realistic. In 1930 are only some historical vehicles
     available. New vehicles will be introduced from time to time.
 
 Example: simutrans -timeline 1 -startyear 1930
@@ -307,8 +307,8 @@ feedback forum:
 http://forum.simutrans.com/
 
 
-If the forum entries and community can't help, you can one of the developer
-by email:
+If the forum entries and community can't help, you can contact one of
+the developer by email:
 
 team@64.simutrans.com
 

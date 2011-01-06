@@ -629,7 +629,7 @@ void button_t::update_focusability()
 			set_focusable(true);
 			break;
 
-		// those cannot recieve focus ...
+		// those cannot receive focus ...
 		case arrowleft:
 		case repeatarrowleft:
 		case arrowright:

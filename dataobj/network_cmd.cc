@@ -578,7 +578,7 @@ bool nwc_tool_t::ignore_old_events() const
 
 
 // compare default_param's (NULL pointers allowed
-// @returns true if default_param are equal
+// @return true if default_param are equal
 bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
 {
 	if (d1) {

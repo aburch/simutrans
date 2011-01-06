@@ -5477,7 +5477,7 @@ bool karte_t::interactive(uint32 quit_month)
 		win_poll_event(&ev);
 
 		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
-			// Beenden des Programms wenn das Fenster geschlossen wird.
+			// quit the program if this windows is closed
 			destroy_all_win(true);
 			umgebung_t::quit_simutrans = true;
 			return false;

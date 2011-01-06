@@ -890,7 +890,7 @@ inline void get_xrange_and_step_y(int &xmin, int &xmax)
 
 
 /*
- * simutrans keeps a list of dirty areas, i.e. places that recieved new graphics
+ * simutrans keeps a list of dirty areas, i.e. places that received new graphics
  * and must be copied to the screen after an update
  */
 static inline void mark_tile_dirty(const int x, const int y)
