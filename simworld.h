@@ -227,7 +227,7 @@ private:
 	/**
 	 * Raise tile (x,y): height of each corner is given
 	 */
-	bool can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 	/**
 	 * Raise grid point (x,y), used during map creation/enlargement
@@ -818,7 +818,7 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint8 hgt) const;
+	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false) const;
 	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
 
 	// the convois are also handled each steps => thus we keep track of them too

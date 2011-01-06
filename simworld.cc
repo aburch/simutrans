@@ -1683,7 +1683,7 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 // raise plan
 // new heights for each corner given
 // only test corners in ctest to avoid infinite loops
-bool karte_t::can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
+bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
 	bool ok;
 	if(ist_in_kartengrenzen(x,y)) {
@@ -1695,43 +1695,48 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 		const sint8 h0_ne = corner3(ctest) ? (gr->ist_wasser() ? lookup_hgt(koord(x+1,y))   : h0 + corner3(gr->get_grund_hang()) ) : hne+1;
 		const sint8 h0_nw = corner4(ctest) ? (gr->ist_wasser() ? lookup_hgt(koord(x,y))     : h0 + corner4(gr->get_grund_hang()) ) : hnw+1;
 
+		const sint8 max_hgt = max(max(hsw,hse),max(hne,hnw));
 
-		ok = can_raise_plan_to(x,y, max(max(hsw,hse),max(hne,hnw)));
+		if (gr->ist_wasser()  &&  keep_water  &&  max_hgt > grundwasser) {
+			return false;
+		}
+
+		ok = can_raise_plan_to(x,y, max_hgt);
 		// sw
 		if (ok && h0_sw < hsw) {
-			ok = can_raise_to(x-1,y+1, hsw-1, hsw-1, hsw, hsw-1, 11);
+			ok = can_raise_to(x-1,y+1, keep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
 		}
 		// s
 		if (ok && (h0_se < hse || h0_sw < hsw) && ((ctest&3)==3)) {
 			const sint8 hs = max(hse, hsw) -1;
-			ok = can_raise_to(x,y+1, hs, hs, hse, hsw, 3);
+			ok = can_raise_to(x,y+1, keep_water, hs, hs, hse, hsw, 3);
 		}
 		// se
 		if (ok && h0_se < hse) {
-			ok = can_raise_to(x+1,y+1, hse-1, hse-1, hse-1, hse, 7);
+			ok = can_raise_to(x+1,y+1, keep_water, hse-1, hse-1, hse-1, hse, 7);
 		}
 		// e
 		if (ok && (h0_se < hse || h0_ne < hne) && ((ctest&6)==6)) {
 			const sint8 he = max(hse, hne) -1;
-			ok = can_raise_to(x+1,y, hse, he, he, hne, 6);
+			ok = can_raise_to(x+1,y, keep_water, hse, he, he, hne, 6);
 		}
 		// ne
 		if (ok && h0_ne < hne) {
-			ok = can_raise_to(x+1,y-1, hne, hne-1, hne-1, hne-1, 14);
+			ok = can_raise_to(x+1,y-1, keep_water, hne, hne-1, hne-1, hne-1, 14);
 		}
 		// n
 		if (ok && (h0_nw < hnw || h0_ne < hne) && ((ctest&12)==12)) {
 			const sint8 hn = max(hnw, hne) -1;
-			ok = can_raise_to(x,y-1, hnw, hne, hn, hn, 12);
+			ok = can_raise_to(x,y-1, keep_water, hnw, hne, hn, hn, 12);
 		}
 		// nw
 		if (ok && h0_nw < hnw) {
-			ok = can_raise_to(x-1,y-1, hnw-1, hnw, hnw-1, hnw-1, 13);
+			ok = can_raise_to(x-1,y-1, keep_water, hnw-1, hnw, hnw-1, hnw-1, 13);
 		}
 		// w
 		if (ok && (h0_nw < hnw || h0_sw < hsw) && ((ctest&9)==9)) {
 			const sint8 hw = max(hnw, hsw) -1;
-			ok = can_raise_to(x-1,y, hw, hsw, hnw, hw, 9);
+			ok = can_raise_to(x-1,y, keep_water, hw, hsw, hnw, hw, 9);
 		}
 	}
 	else {
@@ -2129,13 +2134,13 @@ int karte_t::lower(koord pos)
 
 static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 
-bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt) const
+bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water) const
 {
 	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
 		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 	}
 	else {
-		return can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
+		return can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt);
 	}
 }
 
@@ -2154,7 +2159,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 		}
 	}
 	else {
-		if(  can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt)  ) {
+		if(  can_raise_to(pos.x, pos.y, false, hgt, hgt, hgt, hgt)  ) {
 			n = raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 			ok = true;
 		}
