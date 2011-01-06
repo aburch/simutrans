@@ -139,6 +139,7 @@ Release of 102.2.2 (r3131 on 8-Mar-2010):
 	FIX: (TurfIt) really empty factories input even in consumption factors not 100%
 	FIX: stop factory building if more than 10 attempts failed
 	FIX: (Dwachs) display correct length in depot
+	FIX: isometric map repaired
 
 
 
