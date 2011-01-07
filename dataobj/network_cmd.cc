@@ -540,13 +540,13 @@ void nwc_routesearch_t::check_for_transmission(karte_t *world)
 	// transmit min limit set if there has been 8 or more updates, or if no further update after a specified number of sync steps
 	if(  accumulated_updates>=8  ||  (accumulated_updates>0  &&
 		 world->get_sync_steps()-last_update_sync_step>=4*world->get_einstellungen()->get_frames_per_step())  ) {
-		network_send_all( new nwc_routesearch_t(world->get_sync_steps() + umgebung_t::server_frames_ahead, world->get_map_counter(), min_limit_set, true), false );
+		network_send_all( new nwc_routesearch_t(world->get_sync_steps() + 1, world->get_map_counter(), min_limit_set, true), false );
 		last_update_sync_step = 0;
 		accumulated_updates = 0;
 		active_limit_set = min_limit_set;
 		dbg->warning("nwc_routesearch_t::check_for_transmission", "transmit sync_step=%u map_counter=%u limits=(%u, %u, %u, %llu, %u)",
-			world->get_sync_steps() + umgebung_t::server_frames_ahead, world->get_map_counter(), min_limit_set.rebuild_connexions,
-			min_limit_set.filter_eligible, min_limit_set.fill_matrix, min_limit_set.explore_paths, min_limit_set.reroute_goods);
+			world->get_sync_steps() + 1, world->get_map_counter(), min_limit_set.rebuild_connexions, min_limit_set.filter_eligible,
+			min_limit_set.fill_matrix, min_limit_set.explore_paths, min_limit_set.reroute_goods);
 	}
 }
 
