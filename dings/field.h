@@ -33,7 +33,7 @@ public:
 	void zeige_info();
 
 	/**
-	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
 	const char * ist_entfernbar(const spieler_t *);

@@ -779,7 +779,7 @@ public:
 	void zeige_info();
 
 	/**
-	 * @returns the type of a station
+	 * @return the type of a station
 	 * (combination of: railstation, loading bay, dock)
 	 * @author Markus Weber
 	 */

@@ -501,16 +501,11 @@ fast_forward = 50
 
 # How much comands should be delayed before sending back to clients.
 # A larger number will catch even clients running slightly ahead but cause delays
-#server_frames_ahead = 1
+#server_frames_ahead = 4
 
 # In network mode, there will be a fixed number of screen updates before a step.
 # Reasonable values should result in 2-5 steps per second.
 #server_frames_per_step = 4
-
-# Clients can decide to deliberately running a few ms behind to avoid running ahead
-# of the server; in later versions this value might be set by the roundtrip timer (like
-# simutrans PING). Larger values cause longer delay for commands.
-network_ms_ahead = 250
 
 # The server sends after a fixed number of steps some information to the clients.
 # Large values here means: reduced server communication (if that is of importance...)

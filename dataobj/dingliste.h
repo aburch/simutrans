@@ -48,7 +48,7 @@ public:
 
 	/**
 	* @param n thing index (unsigned value!)
-	* @returns thing at index n or NULL if n is out of bounds
+	* @return thing at index n or NULL if n is out of bounds
 	* @author Hj. Malthaner
 	*/
 	inline ding_t * bei(uint8 n) const
@@ -75,7 +75,7 @@ public:
 	inline int get_top() const {return top;}
 
 	/**
-	* @returns NULL wenn OK, oder Meldung, warum nicht
+	* @return NULL wenn OK, oder Meldung, warum nicht
 	* @author Hj. Malthaner
 	*/
 	const char * kann_alle_entfernen(const spieler_t *, uint8 ) const;

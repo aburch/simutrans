@@ -1,5 +1,5 @@
 /*
- * dialog zur Eingabe eines Fahrplanes
+ * Dialog window for defining a schedule
  *
  * Hj. Malthaner
  *
@@ -35,7 +35,7 @@ char fahrplan_gui_t::no_line[128];	// contains the current translation of "<no l
 
 
 /**
- * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
+ * Fills buf with description of schedule's i'th entry.
  *
  * @author Hj. Malthaner
  */
@@ -68,14 +68,14 @@ void fahrplan_gui_t::gimme_stop_name(cbuffer_t & buf, karte_t *welt, const spiel
 
 
 /**
- * Fuellt buf mit Beschreibung des i-ten Eintrages des Fahrplanes
+ * Fills buf with description of schedule's i'th entry.
  * short version, without loading level and position ...
  * @author Hj. Malthaner
  */
 void fahrplan_gui_t::gimme_short_stop_name(cbuffer_t &buf, karte_t *welt, const spieler_t *sp, const schedule_t *fpl, int i, int max_chars)
 {
 	if(i<0  ||  fpl==NULL  ||  i>=fpl->get_count()) {
-		dbg->warning("void fahrplan_gui_t::gimme_stop_name()","tried to receive unused entry %i in schedule %p.",i,fpl);
+		dbg->warning("void fahrplan_gui_t::gimme_short_stop_name()","tried to receive unused entry %i in schedule %p.",i,fpl);
 		return;
 	}
 	const linieneintrag_t& entry = fpl->eintrag[i];
@@ -128,7 +128,7 @@ void fahrplan_gui_stats_t::zeichnen(koord offset)
 				width = w;
 			}
 
-			// goto button
+			// the goto button (right arrow)
 			display_color_img( i!=fpl->get_aktuell() ? button_t::arrow_right_normal : button_t::arrow_right_pushed,
 				offset.x + 2, offset.y + i * (LINESPACE + 1), 0, false, true);
 		}
@@ -377,7 +377,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 {
 	if ( (ev)->ev_class == EVENT_CLICK  &&  !((ev)->ev_code==MOUSE_WHEELUP  ||  (ev)->ev_code==MOUSE_WHEELDOWN)  &&  !line_selector.getroffen(ev->cx, ev->cy-16))  {//  &&  !scrolly.getroffen(ev->cx, ev->cy+16)) {
 
-		// close combo box; we must do it ourselves, since the box does not recieve outside events ...
+		// close combo box; we must do it ourselves, since the box does not receive outside events ...
 		line_selector.close_box();
 
 		if(ev->my>=scrolly.get_pos().y+16) {
@@ -408,7 +408,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 		old_fpl->eingabe_abschliessen();
 		// now apply the changes
 		if(cnv.is_bound()) {
-			// do not send changes if the convois is about to be deleted
+			// do not send changes if the convoi is about to be deleted
 			if(  cnv->get_state() != convoi_t::SELF_DESTRUCT  ) {
 				// if a line is selected
 				if(  new_line.is_bound()  ) {

@@ -817,6 +817,7 @@ void reliefkarte_t::zeichnen(koord pos)
 
 	if(  needs_redraw  ||  cur_off!=new_off  ||  cur_size!=new_size  ) {
 		calc_map();
+		needs_redraw = false;
 	}
 
 	if(relief==NULL) {

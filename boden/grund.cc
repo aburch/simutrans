@@ -1292,7 +1292,7 @@ bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 /**
  * remove trees and groundobjs on this tile
  * called before building way or powerline
- * @returns costs
+ * @return costs
  */
 sint64 grund_t::remove_trees()
 {

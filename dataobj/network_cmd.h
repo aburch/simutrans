@@ -47,7 +47,7 @@ public:
 	/**
 	 * sends to a client
 	 * sends complete command-packet
-	 * @returns whether send was succesfull
+	 * @return whether send was succesfull
 	 */
 	bool send(SOCKET s);
 
@@ -310,7 +310,7 @@ private:
 	bool exec;
 
 	// compare default_param's (NULL pointers allowed)
-	// @returns true if default_param are equal
+	// @return true if default_param are equal
 	static bool cmp_default_param(const char *d1, const char *d2);
 
 	/**
@@ -346,7 +346,7 @@ private:
 		void client_set_werkzeug(werkzeug_t * &wkz_new, const char* default_param_, bool store, karte_t*, spieler_t*);
 
 		/**
-		 * @returns true if ids (player_id and client_id) of both tool_node_t's are equal
+		 * @return true if ids (player_id and client_id) of both tool_node_t's are equal
 		 */
 		inline bool operator == (const tool_node_t c) const { return client_id==c.client_id  &&  player_id==c.player_id; }
 	};

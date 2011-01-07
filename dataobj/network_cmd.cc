@@ -228,7 +228,7 @@ bool nwc_join_t::execute(karte_t *welt)
 		if (nwj.send( packet->get_sender())) {
 			if (nwj.answer == 1) {
 				// now send sync command
-				nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + umgebung_t::server_frames_ahead, welt->get_map_counter(), nwj.client_id);
+				nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id);
 				network_send_all(nws, false);
 				pending_join_client = packet->get_sender();
 			}
@@ -726,7 +726,7 @@ bool nwc_tool_t::execute(karte_t *welt)
 		// copy data, sets tool_client_id to sender client_id
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
-		nwt->sync_step = welt->get_sync_steps() + umgebung_t::server_frames_ahead;
+		nwt->sync_step = welt->get_sync_steps() + 1;
 		nwt->last_sync_step = welt->get_last_random_seed_sync();
 		nwt->last_random_seed = welt->get_last_random_seed();
 		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s. Random flags: %d", nwt->get_sync_step(), wkz_id, init ? "init" : "work", get_random_mode());
@@ -744,7 +744,7 @@ bool nwc_tool_t::ignore_old_events() const
 
 
 // compare default_param's (NULL pointers allowed
-// @returns true if default_param are equal
+// @return true if default_param are equal
 bool nwc_tool_t::cmp_default_param(const char *d1, const char *d2)
 {
 	if (d1) {

@@ -32,6 +32,13 @@ public:
 	typ get_typ() const { return crossing; }
 	const char* get_name() const { return "Kreuzung"; }
 
+	/**
+	 * waytype associated with this object
+	 * for crossings: return invalid_wt since they do not need a way
+	 * if the way is deleted the crossing will be deleted, too
+	 */
+	waytype_t get_waytype() const { return invalid_wt; }
+
 	crossing_t(karte_t *welt, loadsave_t *file);
 	crossing_t(karte_t *welt, spieler_t *sp, koord3d pos, const kreuzung_besch_t *besch, uint8 ns = 0);
 
@@ -48,7 +55,7 @@ public:
 	void info(cbuffer_t & buf) const { logic->info(buf); }
 
 	/**
-	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *ist_entfernbar(const spieler_t *sp);

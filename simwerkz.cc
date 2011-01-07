@@ -2366,36 +2366,51 @@ bool wkz_wayremover_t::calc_route( route_t &verbindung, spieler_t *sp, const koo
 	}
 	DBG_MESSAGE("wkz_wayremover()","route with %d tile found",verbindung.get_count());
 
+	calc_route_error = NULL;
 	bool can_delete = start == end  ||  verbindung.get_count()>1;
 	if(  can_delete  ) {
 		// found a route => check if I can delete anything on it
 		for(  uint32 i=0;  can_delete  &&  i<verbindung.get_count();  i++  ) {
 			grund_t *gr=welt->lookup(verbindung.position_bei(i));
 			if(  wt!=powerline_wt  ) {
-				if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ||  (gr->is_halt()  &&  !spieler_t::check_owner( gr->get_halt()->get_besitzer(), sp ) )  ) {
+				// no way found
+				if(  gr==NULL  ||  gr->get_weg(wt)==NULL  ) {
 					can_delete = false;
 					break;
 				}
-				if(  gr->kann_alle_obj_entfernen(sp)!=NULL  ) {
-					// we have to do a fine check
-					for( uint i=0;  i<gr->get_top();  i++  ) {
-						ding_t *d = gr->obj_bei(i);
-						uint8 type = d->get_typ();
-						if(type>=ding_t::automobil  &&  type!=ding_t::aircraft) {
-							can_delete = false;
-							break;
+				// check all if we want to delete the first on a no-ground tile
+				bool check_all = !gr->ist_karten_boden()  &&  gr->has_two_ways()  &&  gr->get_weg_nr(0)->get_waytype()==wt;
+				// we have to do a fine check
+				for( uint i=0;  i<gr->get_top()  &&  can_delete;  i++  ) {
+					ding_t *d = gr->obj_bei(i);
+					const uint8 type = d->get_typ();
+					// ignore pillars, powerlines
+					if (type == ding_t::pillar  ||  type==ding_t::leitung) {
+						continue;
+					}
+					// ignore flying aircraft
+					if (type == ding_t::aircraft  &&  !(static_cast<aircraft_t*>(d)->is_on_ground())) {
+						continue;
+					}
+					const waytype_t ding_wt = d->get_waytype();
+					// way-related things
+					if (ding_wt != invalid_wt) {
+						// check this thing if it has the same waytype or if we want to remove the whole bridge/tunnel tile
+						// special case: stations - take care not to produce station without any way
+						const bool lonely_station = type==ding_t::gebaeude  &&  !gr->has_two_ways();
+						if (check_all ||  ding_wt == wt  ||  lonely_station) {
+							can_delete = (calc_route_error = d->ist_entfernbar(sp)) == NULL;
 						}
-						// something else that is not mine ...
-						if(  d->ist_entfernbar(sp)!=NULL  &&  gr->get_leitung()!=d  ) {
-							can_delete = false;
-							break;
-						}
+					}
+					// all other stuff
+					else {
+						can_delete = (calc_route_error = d->ist_entfernbar(sp)) == NULL;
 					}
 				}
 			}
 			else {
 				// for powerline: only a ground and a powerline to remove
-				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  gr->get_leitung()->ist_entfernbar(sp)!=NULL  ) {
+				if(  gr==NULL  ||  gr->get_leitung()==NULL  ||  (calc_route_error = gr->get_leitung()->ist_entfernbar(sp))!=NULL  ) {
 					can_delete = false;
 					break;
 				}
@@ -2413,7 +2428,12 @@ const char *wkz_wayremover_t::do_work( karte_t *welt, spieler_t *sp, const koord
 	route_t verbindung;
 	if( !calc_route( verbindung, sp, start, end )  ) {
 		DBG_MESSAGE("wkz_wayremover()","no route found");
-		return "Ways not connected";
+		if (calc_route_error  &&  *calc_route_error) {
+			return calc_route_error;
+		}
+		else {
+			return "Ways not connected";
+		}
 	}
 	bool can_delete = true;	// assume success
 

@@ -123,6 +123,11 @@ public:
 
 	ding_t::typ get_typ() const { return ding_t::gebaeude; }
 
+	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const;
+
 	// snowline height may have been changed
 	bool check_season(const long /*month*/) { calc_bild(); return true; }
 

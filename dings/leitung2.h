@@ -84,6 +84,11 @@ public:
 	const char *get_name() const {return "Leitung"; }
 
 	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const { return powerline_wt; }
+
+	/**
 	* @return Einen Beschreibungsstring für das Objekt, der z.B. in einem
 	* Beobachtungsfenster angezeigt wird.
 	* @author Hj. Malthaner

@@ -179,14 +179,14 @@ public:
 
 	/**
 	 * Can object be removed?
-	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
 	virtual const char * ist_entfernbar(const spieler_t *sp);
 
 	/**
 	 * identifies the oldest vehicle of a certain type
-	 * @returns NULL if no vehicle is found
+	 * @return NULL if no vehicle is found
 	 * @author hsiegeln (stolen from Hajo)
 	 */
 	vehikel_t* get_oldest_vehicle(const vehikel_besch_t* besch);

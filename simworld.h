@@ -77,9 +77,9 @@ public:
 		WORLD_FACTORIES,	// number of all consuming only factories
 		WORLD_CONVOIS,	// total number of convois
 		WORLD_CITYCARS,	// number of citycars generated
-		WORLD_PAS_RATIO,	// percentage of passengers that started suceessful
+		WORLD_PAS_RATIO,	// percentage of passengers that started successful
 		WORLD_PAS_GENERATED,	// total number generated
-		WORLD_MAIL_RATIO,	// percentage of mail that started sucessful
+		WORLD_MAIL_RATIO,	// percentage of mail that started successful
 		WORLD_MAIL_GENERATED,	// all letters generated
 		WORLD_GOODS_RATIO, // ratio of chain completeness
 		WORLD_TRANSPORTED_GOODS, // all transported goods
@@ -102,7 +102,7 @@ public:
 
 
 private:
-	// die Einstellungen
+	// the settings
 	einstellungen_t *einstellungen;
 
 	// aus performancegruenden werden einige Einstellungen local gecached
@@ -142,7 +142,7 @@ private:
 	koord ansicht_ij_off;
 
 	/**
-	 * Mauszeigerposition, intern
+	 * Position of the mouse pointer (internal)
 	 * @author Hj. Malthaner
 	 */
 	sint32 mi, mj;
@@ -249,7 +249,7 @@ private:
 	/**
 	 * Raise tile (x,y): height of each corner is given
 	 */
-	bool can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
+	bool can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 	int  raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 	/**
 	 * Raise grid point (x,y), used during map creation/enlargement
@@ -262,12 +262,12 @@ private:
 	bool can_lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest=15) const;
 	int  lower_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw);
 	/**
-	 * Lwer grid point (x,y), used during map creation/enlargement
+	 * Lower grid point (x,y), used during map creation/enlargement
 	 */
 	int  lower_to(sint16 x, sint16 y, sint8 h, bool set_slopes);
 
 	/**
-	 * Die fraktale Erzugung der Karte ist nicht perfekt.
+	 * Die fraktale Erzeugung der Karte ist nicht perfekt.
 	 * cleanup_karte() beseitigt etwaige Fehler.
 	 * @author Hj. Malthaner
 	 */
@@ -284,10 +284,10 @@ private:
 	marker_t marker;
 
 	/**
-	 * Die Spieler
+	 * The players of the game
 	 * @author Hj. Malthaner
 	 */
-	spieler_t *spieler[MAX_PLAYER_COUNT];   // Mensch ist spieler Nr. 0 "Humans are player no. 0"
+	spieler_t *spieler[MAX_PLAYER_COUNT];   // Human player has index 0 (zero)
 	uint8 player_password_hash[MAX_PLAYER_COUNT][20];
 	spieler_t *active_player;
 	uint8 active_player_nr;
@@ -301,10 +301,10 @@ private:
 	uint8 schedule_counter;
 
 	/**
-	 * Die Zeit in ms
+	 * The time in ms (milliseconds)
 	 * @author Hj. Malthaner
 	 */
-	sint64 ticks;		      // Anzahl ms seit Erzeugung
+	sint64 ticks;		      // ms since creation
 	sint64 last_step_ticks; // ticks counter at last steps
 	sint64 next_month_ticks;	// from now on is next month
 
@@ -320,7 +320,7 @@ private:
 	uint32 fix_ratio_frame_time; // set in reset_timer()
 
 	/**
-	 * fuer performancevergleiche
+	 * For performance comparison
 	 * @author Hj. Malthaner
 	 */
 	uint32 realFPS;
@@ -332,7 +332,7 @@ private:
 	uint8 last_frame_idx;
 	uint32 last_interaction;	// ms, when the last time events were handled
 	uint32 last_step_time;	// ms, when the last step was done
-	uint32 next_step_time;	// ms, when the next steps is to be done
+	uint32 next_step_time;	// ms, when the next step is to be done
 //	sint32 time_budget;	// takes care of how many ms I am lagging or are in front of
 	uint32 idle_time;
 
@@ -342,9 +342,9 @@ private:
 
 	uint8 season;	// current season
 
-	long steps;          // Anzahl steps seit Erzeugung
+	long steps;          // number of steps since creation
 	bool is_sound;       // flag, that now no sound will play
-	bool finish_loop;    // flag fuer simulationsabbruch (false == abbruch)
+	bool finish_loop;    // flag for ending simutrans (true -> end simutrans)
 
 	// may change due to timeline
 	const weg_besch_t *city_road;
@@ -370,8 +370,8 @@ private:
 	// recalculated speed boni for different vehicles
 	void recalc_average_speed();
 
-	void neuer_monat();      // Monatliche Aktionen
-	void neues_jahr();       // Jaehrliche Aktionen
+	void neuer_monat();      // monthly actions
+	void neues_jahr();       // yearly actions
 
 	/**
 	 * internal saving method
@@ -490,7 +490,7 @@ public:
 	 */
 	koord get_world_position() const { return ij_off; }
 
-	// fine offset within the viewprt tile
+	// fine offset within the viewport tile
 	int get_x_off() const {return x_off;}
 	int get_y_off() const {return y_off;}
 
@@ -516,7 +516,7 @@ public:
 	void set_scroll_lock(bool yesno);
 
 	/* functions for following a convoi on the map
-	* give an unboud handle to unset
+	* give an unbound handle to unset
 	*/
 	void set_follow_convoi(convoihandle_t cnv) { follow_convoi = cnv; }
 	convoihandle_t get_follow_convoi() const { return follow_convoi; }
@@ -564,7 +564,7 @@ public:
 	void clear_player_password_hashes();
 
 	// if a schedule is changed, it will increment the schedule counter
-	// every step the haltstelle will check and reroute the goods if needed
+	// every step the haltestelle will check and reroute the goods if needed
 	uint8 get_schedule_counter() const { return schedule_counter; }
 	void set_schedule_counter() { schedule_counter++; }
 
@@ -793,7 +793,7 @@ public:
 		// prissi: since negative values will make the whole result negative, we can use bitwise or
 		// faster, since pentiums and other long pipeline processors do not like jumps
 		return (k.x|k.y|(cached_groesse_karte_x-k.x)|(cached_groesse_karte_y-k.y))>=0;
-		// this is omly 67% of the above speed
+		// this is only 67% of the above speed
 		//return k.x>=0 &&  k.y>=0  &&  cached_groesse_karte_x>=k.x  &&  cached_groesse_karte_y>=k.y;
 	}
 
@@ -847,7 +847,7 @@ public:
 
 	/**
 	 * Inline because called very frequently!
-	 * @return grund at the bottom (where house will be built)
+	 * @return grund at the bottom (where house will be build)
 	 * @author Hj. Malthaner
 	 */
 	inline grund_t * lookup_kartenboden(const koord pos) const
@@ -858,7 +858,7 @@ public:
 	}
 
 	/**
-	 * returns the natural slope a a position
+	 * returns the natural slope at a position
 	 * uses the corner height for the best slope
 	 * @author prissi
 	 */
@@ -983,10 +983,10 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint8 hgt) const;
+	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false) const;
 	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
 
-	// the convois are also handled each steps => thus we keep track of them too
+	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);
 	void rem_convoi(convoihandle_t& cnv);
 	uint32 get_convoi_count() const {return convoi_array.get_count();}
@@ -1041,7 +1041,7 @@ public:
 	void set_nosave() { nosave = true; }
 	void set_nosave_warning() { nosave_warning = true; }
 
-	// rotate map view by 90 degree
+	// rotate map view by 90 degrees
 	void rotate90();
 
 	bool sync_add(sync_steppable *obj);
@@ -1140,7 +1140,7 @@ public:
 	void beenden(bool b);
 
 	/**
-	 * main loop with even handling;
+	 * main loop with event handling;
 	 * returns false to exit
 	 * @author Hj. Malthaner
 	 */

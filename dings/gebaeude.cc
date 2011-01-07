@@ -538,6 +538,24 @@ const char *gebaeude_t::get_name() const
 	return "Gebaeude";
 }
 
+
+/**
+ * waytype associated with this object
+ */
+waytype_t gebaeude_t::get_waytype() const
+{
+	const haus_besch_t *besch = tile->get_besch();
+	waytype_t wt = invalid_wt;
+	if (besch->get_typ() == gebaeude_t::unbekannt) {
+		const haus_besch_t::utyp utype = besch->get_utyp();
+		if (utype == haus_besch_t::depot  ||  utype == haus_besch_t::generic_stop  ||  utype == haus_besch_t::generic_extension) {
+			wt = (waytype_t)besch->get_extra();
+		}
+	}
+	return wt;
+}
+
+
 bool gebaeude_t::ist_rathaus() const
 {
 	return tile->get_besch()->ist_rathaus();

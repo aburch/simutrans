@@ -92,11 +92,11 @@ private:
 
 	char cnv_name[256],old_cnv_name[256];
 
-	// resets textinput to current cnv name
-	// necessary after cnv was renamed
+	// resets textinput to current convoi name
+	// necessary after convoi was renamed
 	void reset_cnv_name();
 
-	// rename selected cnv
+	// rename selected convoi
 	// checks if possible / necessary
 	void rename_cnv();
 

@@ -21,6 +21,11 @@ public:
 	const char *get_name() const {return "Tunnelmuendung";}
 	typ get_typ() const { return tunnel; }
 
+	/**
+	 * waytype associated with this object
+	 */
+	waytype_t get_waytype() const;
+
 	void calc_bild();
 
 	void set_bild( image_id b );
@@ -42,7 +47,7 @@ public:
 
 	uint8 get_broad_type() const { return broad_type; };
 	/**
-	 * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+	 * @return NULL wenn OK, ansonsten eine Fehlermeldung
 	 * @author Hj. Malthaner
 	 */
 	virtual const char *ist_entfernbar(const spieler_t *sp);

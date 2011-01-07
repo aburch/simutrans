@@ -119,7 +119,7 @@ network_command_t* network_get_received_command();
  * - all: receive commands and puts them to the received_command_queue
  *
  * @param timeout in milliseconds
- * @returns pointer to first received commmand
+ * @return pointer to first received commmand
  * more commands can be obtained by call to network_get_received_command
  */
 network_command_t* network_check_activity(karte_t *welt, int timeout);
@@ -145,7 +145,7 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
  * @param len length of destination buffer and number of bytes to be received
  * @param received number of received bytes is returned here
  * @param timeout_ms time-out in milli-seconds
- * @returns true if connection is still valid, false if an error occurs and connection needs to be closed
+ * @return true if connection is still valid, false if an error occurs and connection needs to be closed
  */
 bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received, const int timeout_ms );
 

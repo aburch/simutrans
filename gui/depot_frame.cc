@@ -562,7 +562,7 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 	}
 	else {
 		if(IS_LEFTCLICK(ev) &&  !line_selector.getroffen(ev->cx, ev->cy-16)) {
-			// close combo box; we must do it ourselves, since the box does not recieve outside events ...
+			// close combo box; we must do it ourselves, since the box does not receive outside events ...
 			line_selector.close_box();
 		}
 	}

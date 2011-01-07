@@ -578,7 +578,7 @@ void depot_t::rdwr_vehikel(slist_tpl<vehikel_t *> &list, loadsave_t *file)
 }
 
 /**
- * @returns NULL wenn OK, ansonsten eine Fehlermeldung
+ * @return NULL wenn OK, ansonsten eine Fehlermeldung
  * @author Hj. Malthaner
  */
 const char * depot_t::ist_entfernbar(const spieler_t *sp)

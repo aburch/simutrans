@@ -1895,7 +1895,7 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 // raise plan
 // new heights for each corner given
 // only test corners in ctest to avoid infinite loops
-bool karte_t::can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
+bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
 	bool ok;
 	if(ist_in_kartengrenzen(x,y)) {
@@ -1907,43 +1907,48 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, sint8 hsw, sint8 hse, sint8 hne, 
 		const sint8 h0_ne = corner3(ctest) ? (gr->ist_wasser() ? lookup_hgt(koord(x+1,y))   : h0 + corner3(gr->get_grund_hang()) ) : hne+1;
 		const sint8 h0_nw = corner4(ctest) ? (gr->ist_wasser() ? lookup_hgt(koord(x,y))     : h0 + corner4(gr->get_grund_hang()) ) : hnw+1;
 
+		const sint8 max_hgt = max(max(hsw,hse),max(hne,hnw));
 
-		ok = can_raise_plan_to(x,y, max(max(hsw,hse),max(hne,hnw)));
+		if (gr->ist_wasser()  &&  keep_water  &&  max_hgt > grundwasser) {
+			return false;
+		}
+
+		ok = can_raise_plan_to(x,y, max_hgt);
 		// sw
 		if (ok && h0_sw < hsw) {
-			ok = can_raise_to(x-1,y+1, hsw-1, hsw-1, hsw, hsw-1, 11);
+			ok = can_raise_to(x-1,y+1, keep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
 		}
 		// s
 		if (ok && (h0_se < hse || h0_sw < hsw) && ((ctest&3)==3)) {
 			const sint8 hs = max(hse, hsw) -1;
-			ok = can_raise_to(x,y+1, hs, hs, hse, hsw, 3);
+			ok = can_raise_to(x,y+1, keep_water, hs, hs, hse, hsw, 3);
 		}
 		// se
 		if (ok && h0_se < hse) {
-			ok = can_raise_to(x+1,y+1, hse-1, hse-1, hse-1, hse, 7);
+			ok = can_raise_to(x+1,y+1, keep_water, hse-1, hse-1, hse-1, hse, 7);
 		}
 		// e
 		if (ok && (h0_se < hse || h0_ne < hne) && ((ctest&6)==6)) {
 			const sint8 he = max(hse, hne) -1;
-			ok = can_raise_to(x+1,y, hse, he, he, hne, 6);
+			ok = can_raise_to(x+1,y, keep_water, hse, he, he, hne, 6);
 		}
 		// ne
 		if (ok && h0_ne < hne) {
-			ok = can_raise_to(x+1,y-1, hne, hne-1, hne-1, hne-1, 14);
+			ok = can_raise_to(x+1,y-1, keep_water, hne, hne-1, hne-1, hne-1, 14);
 		}
 		// n
 		if (ok && (h0_nw < hnw || h0_ne < hne) && ((ctest&12)==12)) {
 			const sint8 hn = max(hnw, hne) -1;
-			ok = can_raise_to(x,y-1, hnw, hne, hn, hn, 12);
+			ok = can_raise_to(x,y-1, keep_water, hnw, hne, hn, hn, 12);
 		}
 		// nw
 		if (ok && h0_nw < hnw) {
-			ok = can_raise_to(x-1,y-1, hnw-1, hnw, hnw-1, hnw-1, 13);
+			ok = can_raise_to(x-1,y-1, keep_water, hnw-1, hnw, hnw-1, hnw-1, 13);
 		}
 		// w
 		if (ok && (h0_nw < hnw || h0_sw < hsw) && ((ctest&9)==9)) {
 			const sint8 hw = max(hnw, hsw) -1;
-			ok = can_raise_to(x-1,y, hw, hsw, hnw, hw, 9);
+			ok = can_raise_to(x-1,y, keep_water, hw, hsw, hnw, hw, 9);
 		}
 	}
 	else {
@@ -2341,13 +2346,13 @@ int karte_t::lower(koord pos)
 
 static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 
-bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt) const
+bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water) const
 {
 	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
 		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 	}
 	else {
-		return can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
+		return can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt);
 	}
 }
 
@@ -2366,7 +2371,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 		}
 	}
 	else {
-		if(  can_raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt)  ) {
+		if(  can_raise_to(pos.x, pos.y, false, hgt, hgt, hgt, hgt)  ) {
 			n = raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 			ok = true;
 		}
@@ -4079,8 +4084,6 @@ bool karte_t::ist_wasser(koord pos, koord dim) const
 
 bool karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate_bits cl) const
 {
-	koord k;
-
 	if(pos.x<0 || pos.y<0 || pos.x+w>=get_groesse_x() || pos.y+h>=get_groesse_y()) {
 		return false;
 	}
@@ -4088,6 +4091,7 @@ bool karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate
 	grund_t *gr = lookup_kartenboden(pos);
 	const sint16 platz_h = gr->get_grund_hang() ? max_hgt(pos) : gr->get_hoehe();	// remember the max height of the first tile
 
+	koord k;
 	for(k.y=pos.y+h-1; k.y>=pos.y; k.y--) {
 		for(k.x=pos.x; k.x<pos.x+w; k.x++) {
 			const grund_t *gr = lookup_kartenboden(k);
@@ -4099,7 +4103,7 @@ bool karte_t::ist_platz_frei(koord pos, sint16 w, sint16 h, int *last_y, climate
 #ifdef DOUBLE_GROUNDS
 #error "Fix this function!"
 #endif
-			if(platz_h!=(gr->get_hoehe()+Z_TILE_STEP*((gr->get_grund_hang()+127)/128))  ||  !gr->ist_natur() ||  gr->get_halt().is_bound()  ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->get_hoehe())))==0) {
+			if(platz_h!=(gr->get_hoehe()+Z_TILE_STEP*((gr->get_grund_hang()+127)/128))  ||  !gr->ist_natur() ||  gr->kann_alle_obj_entfernen(NULL) != NULL  ||  (cl&(1<<get_climate(gr->get_hoehe())))==0) {
 				if(last_y) {
 					*last_y = k.y;
 				}
@@ -5828,7 +5832,7 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 				/* make sure, the server is really that far ahead
 				 * Sleep() on windows often returns before!
 				 */
-				unsigned long ms = dr_time()+umgebung_t::server_ms_ahead;
+				unsigned long ms = dr_time() + umgebung_t::server_frames_ahead * fix_ratio_frame_time;
 				while(  dr_time()<ms  ) {
 					dr_sleep ( 10 );
 				}
@@ -5982,7 +5986,7 @@ bool karte_t::interactive(uint32 quit_month)
 		win_poll_event(&ev);
 
 		if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_QUIT) {
-			// Beenden des Programms wenn das Fenster geschlossen wird.
+			// quit the program if this windows is closed
 			destroy_all_win(true);
 			umgebung_t::quit_simutrans = true;
 			return false;
@@ -6055,7 +6059,7 @@ bool karte_t::interactive(uint32 quit_month)
 					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 					// are we on time?
 					ms_difference = 0;
-					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*fix_ratio_frame_time - umgebung_t::server_ms_ahead;
+					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*fix_ratio_frame_time;
 					if(  difftime < 0) {
 						// running ahead
 						next_step_time -= difftime;
@@ -6229,7 +6233,7 @@ bool karte_t::interactive(uint32 quit_month)
 						// broadcast sync info
 						if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
 								||  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0  ) {
-							nwc_check_t* nwc = new nwc_check_t(sync_steps + umgebung_t::server_frames_ahead, map_counter, last_randoms[sync_steps&63], sync_steps);
+							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, last_randoms[sync_steps&63], sync_steps);
 							network_send_all(nwc, true);
 						}
 					}

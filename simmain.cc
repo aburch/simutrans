@@ -183,7 +183,7 @@ static void show_times(karte_t *welt, karte_ansicht_t *view)
 
 
 
-void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
+void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)() )
 {
 	if(  display_get_width()==0  ) {
 		dbg->error( "modal_dialogue()", "called without a display driver => nothing will be shown!" );
@@ -192,7 +192,7 @@ void modal_dialogue( gui_frame_t *gui, karte_t *welt, bool (*quit)() )
 	}
 
 	event_t ev;
-	create_win( (display_get_width()-gui->get_fenstergroesse().x)/2, (display_get_height()-gui->get_fenstergroesse().y)/2, gui, w_info, magic_none );
+	create_win( (display_get_width()-gui->get_fenstergroesse().x)/2, (display_get_height()-gui->get_fenstergroesse().y)/2, gui, w_info, magic );
 
 	if(  welt  ) {
 		welt->set_pause( false );
@@ -281,7 +281,7 @@ static void ask_objfilename()
 	sel->fill_list();
 	if(sel->has_pak()) {
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
-		modal_dialogue( sel, NULL, empty_objfilename );
+		modal_dialogue( sel, magic_none, NULL, empty_objfilename );
 	}
 	else {
 		delete sel;
@@ -303,7 +303,7 @@ static void ask_language()
 	else {
 		sprachengui_t* sel = new sprachengui_t();
 		destroy_all_win(true);	// since eventually the successful load message is still there ....
-		modal_dialogue( sel, NULL, no_language );
+		modal_dialogue( sel, magic_none, NULL, no_language );
 		destroy_win( sel );
 	}
 }
@@ -1060,7 +1060,8 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 			DBG_MESSAGE("simmain", "show banner");
 			printf( "Show banner ... \n" );
 			ticker::add_msg("Welcome to Simutrans-Experimental, a game created by Hj. Malthaner and the Simutrans community, and modified by James E. Petts and the Simutrans community.", koord::invalid, PLAYER_FLAG + 1);
-			modal_dialogue( new banner_t(welt), welt, never_quit );
+			modal_dialogue( new banner_t(welt), magic_none, welt, never_quit );
+
 			// only show new world, if no other dialoge is active ...
 			new_world = win_get_open_count()==0;
 			DBG_MESSAGE("simmain", "banner closed");
@@ -1079,7 +1080,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 
 #if 1
 		if(  new_world  ) {
-			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), welt, never_quit );
+			modal_dialogue( new welt_gui_t(welt, &umgebung_t::default_einstellungen), magic_welt_gui_t, welt, never_quit );
 			if(  umgebung_t::quit_simutrans  ) {
 				break;
 			}

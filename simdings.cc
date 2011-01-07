@@ -77,7 +77,7 @@ ding_t::ding_t(karte_t *wl, koord3d pos)
 }
 
 
-// removes an object and tries to delete it also form the corresponding dinglist
+// removes an object and tries to delete it also from the corresponding dinglist
 ding_t::~ding_t()
 {
 	destroy_win((long)this);
@@ -265,7 +265,7 @@ ding_t::display(int xpos, int ypos, bool /*reset_dirty*/) const
 		bild = get_bild(++j);
 	}
 
-	// transparentcy?
+	// transparency?
 	const PLAYER_COLOR_VAL transparent = get_outline_colour();
 	if(TRANSPARENT_FLAGS&transparent) {
 		// only transparent outline
@@ -313,7 +313,7 @@ ding_t::display_after(int xpos, int ypos, bool /*is_global*/ ) const
 
 /*
  * when a vehicle moves or a cloud moves, it needs to mark the old spot as dirty (to copy to screen)
- * sometimes they have an extra offset, this the yoff parameter
+ * sometimes they have an extra offset, this is the yoff parameter
 * @author prissi
  */
 void

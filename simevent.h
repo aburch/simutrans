@@ -164,7 +164,7 @@ struct event_t {
 	int button_state;
 
 	/**
-	 * mod key (SHIFT; ALT; STRG; etc) pressed while event as triggered
+	 * mod key (SHIFT; ALT; CTRL; etc) pressed while event as triggered
 	 * @author hsiegeln
 	 */
 	unsigned int ev_key_mod;

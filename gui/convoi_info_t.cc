@@ -112,7 +112,7 @@ convoi_info_t::convoi_info_t(convoihandle_t cnv)
 
 	add_komponente(&view);
 
-	// this convoi belongs not to an AI
+	// this convoi doesn't belong to an AI
 	button.set_groesse(koord(BUTTON_WIDTH, BUTTON_HEIGHT));
 	button.set_text("Fahrplan");
 	button.set_typ(button_t::roundbox);
@@ -531,7 +531,7 @@ bool convoi_info_t::action_triggered( gui_action_creator_t *komp,value_t /* */)
 		return true;
 	}
 
-	// datails?
+	// details?
 	if(komp == &details_button) {
 		create_win(20, 20, new convoi_detail_t(cnv), w_info, magic_convoi_detail+cnv.get_id() );
 		return true;

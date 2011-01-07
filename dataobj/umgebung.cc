@@ -22,8 +22,7 @@ uint32 umgebung_t::announce_server = 0;
 std::string umgebung_t::server_name;
 std::string umgebung_t::server_comment;
 
-long umgebung_t::server_frames_ahead = 1;
-long umgebung_t::server_ms_ahead = 250;
+long umgebung_t::server_frames_ahead = 4;
 long umgebung_t::network_frames_per_step = 4;
 uint32 umgebung_t::server_sync_steps_between_checks = 256;
 
