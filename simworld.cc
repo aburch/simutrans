@@ -1638,7 +1638,7 @@ bool karte_t::can_lower_plan_to(sint16 x, sint16 y, sint8 h) const
 bool karte_t::can_raise_plan_to(sint16 x, sint16 y, sint8 h) const
 {
 	const planquadrat_t *plan = lookup(koord(x,y));
-	if(plan == 0 || !is_plan_height_changeable(x, y)) {
+	if(  plan == 0  ||  !is_plan_height_changeable(x, y)  ) {
 		return false;
 	}
 
@@ -1680,9 +1680,10 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 	return ok;
 }
 
-// raise plan
-// new heights for each corner given
-// only test corners in ctest to avoid infinite loops
+/* raise plan
+ * new heights for each corner given
+ * only test corners in ctest to avoid infinite loops
+ */
 bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8 hse, sint8 hne, sint8 hnw, uint8 ctest) const
 {
 	bool ok;
@@ -1701,10 +1702,10 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 			return false;
 		}
 
-		ok = can_raise_plan_to(x,y, max_hgt);
+		ok = can_raise_plan_to( x, y, max_hgt);
 		// sw
 		if (ok && h0_sw < hsw) {
-			ok = can_raise_to(x-1,y+1, keep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
+			ok = can_raise_to( x-1, y+1, keep_water, hsw-1, hsw-1, hsw, hsw-1, 11);
 		}
 		// s
 		if (ok && (h0_se < hse || h0_sw < hsw) && ((ctest&3)==3)) {
@@ -1747,6 +1748,8 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 	}
 	return ok;
 }
+
+
 // nw-ecke corner4 anheben
 bool karte_t::can_raise(sint16 x, sint16 y) const
 {
@@ -1754,8 +1757,9 @@ bool karte_t::can_raise(sint16 x, sint16 y) const
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
 
-		return can_raise_to(x, y, hnew, hnew, hnew, hnew+1, 15/*all corners*/ );
-	} else {
+		return can_raise_to(x, y, false, hnew, hnew, hnew, hnew+1, 15/*all corners*/ );
+	}
+	else {
 		return true;
 	}
 }
