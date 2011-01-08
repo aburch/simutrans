@@ -230,8 +230,8 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	* Total width is the max from [CONVOI] and [ACTIONS] width.
 	*/
-	int MIN_TOTAL_WIDTH = min((float)display_get_width() *0.9F, max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH));
-	int TOTAL_WIDTH = min((float)display_get_width() * 0.9F, max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
+	int MIN_TOTAL_WIDTH = min((float)display_get_width() *0.7F, max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH));
+	int TOTAL_WIDTH = min((float)display_get_width() * 0.7F, max(fgr.x,max(convoy_assembler.get_convoy_image_width(), ACTIONS_WIDTH)));
 
 	/*
 	*	Now we can do the first vertical adjustement:
@@ -251,8 +251,8 @@ void depot_frame_t::layout(koord *gr)
 	/*
 	 *	Now we can do the complete vertical adjustement:
 	 */
-	int TOTAL_HEIGHT = ASSEMBLER_VSTART + convoy_assembler.get_height();
-	int MIN_TOTAL_HEIGHT = ASSEMBLER_VSTART + convoy_assembler.get_min_height();
+	int TOTAL_HEIGHT = min((float)display_get_height() *0.9F, ASSEMBLER_VSTART + convoy_assembler.get_height());
+	int MIN_TOTAL_HEIGHT =  min((float)display_get_height() *0.9F, ASSEMBLER_VSTART + convoy_assembler.get_min_height());
 
 	/*
 	* DONE with layout planning - now build everything.
