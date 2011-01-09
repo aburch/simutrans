@@ -1315,16 +1315,14 @@ uint8 convoi_t::get_comfort() const
 		return 0;
 	}
 	
-	else if(passenger_vehicles > 0)
-	{
-		base_comfort /= passenger_seating;
-	}
+	// There must be some passenger vehicles of we are here.
+	base_comfort /= passenger_seating;
 	
 	const uint8 catering_level = get_catering_level(0);
 	switch(catering_level)
 	{
 	case 0:
-		return base_comfort;
+		return base_comfort > 0 ? base_comfort : 1;
 
 	case 1:
 		return base_comfort + 5;
@@ -3368,7 +3366,11 @@ void convoi_t::laden() //"load" (Babelfish)
 	last_departure_time = welt->get_zeit_ms();
 		
 	// Recalculate comfort
-	book(get_comfort(), CONVOI_COMFORT);
+	const uint8 comfort = get_comfort();
+	if(comfort)
+	{
+		book(get_comfort(), CONVOI_COMFORT);
+	}
 
 	for(uint8 i = 0; i < anz_vehikel; i++)
 	{
