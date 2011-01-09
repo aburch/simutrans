@@ -583,13 +583,17 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 
 	int s_max = socket_list_t::fill_set(&fds);
 
+#ifdef __APPLE__
 	// time out
 	struct timeval tv;
 	tv.tv_sec = 0; // seconds
 	tv.tv_usec = max(0, timeout) * 1000; // micro-seconds
 
 	int action = select(s_max, &fds, NULL, NULL, &tv );
-
+#else
+#warning "select timeout with timeval does not work on MAC: Fix me!"
+	int action = select(s_max, &fds, NULL, NULL, NULL );
+#endif
 	if(  action<=0  ) {
 		// timeout: return command from the queue
 		return network_get_received_command();
