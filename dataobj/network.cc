@@ -583,7 +583,7 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 
 	int s_max = socket_list_t::fill_set(&fds);
 
-#ifdef __APPLE__
+#ifndef __APPLE__
 	// time out
 	struct timeval tv;
 	tv.tv_sec = 0; // seconds
