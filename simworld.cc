@@ -1680,6 +1680,12 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 	return ok;
 }
 
+
+// since very large mountains can freeze the system
+// we call ociasionally INT_CHECK()
+static int raise_frame_counter = 0;
+
+
 /* raise plan
  * new heights for each corner given
  * only test corners in ctest to avoid infinite loops
@@ -1700,6 +1706,11 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 
 		if (gr->ist_wasser()  &&  keep_water  &&  max_hgt > grundwasser) {
 			return false;
+		}
+
+		// more than 4096 calls => might need a screen update ...
+		if(  ((++raise_frame_counter)&0x0FFF) == 0  ) {
+			INT_CHECK( "somworld.cc" );
 		}
 
 		ok = can_raise_plan_to( x, y, max_hgt);
@@ -1753,6 +1764,7 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 // nw-ecke corner4 anheben
 bool karte_t::can_raise(sint16 x, sint16 y) const
 {
+	raise_frame_counter = 0;
 	if(ist_in_kartengrenzen(x, y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
