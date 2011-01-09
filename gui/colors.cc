@@ -63,7 +63,6 @@
 
 // x coordinates
 #define RIGHT_WIDTH (220)
-#define NUMBER_INP (170)
 
 
 
@@ -72,13 +71,19 @@ color_gui_t::color_gui_t(karte_t *welt) :
 {
 	this->welt = welt;
 
+	// underground slice
+	inp_underground_level.set_pos( koord(RIGHT_WIDTH-10-50, SLICE) );
+	inp_underground_level.set_groesse( koord( 50, BUTTON_HEIGHT-1 ) );
+	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
+	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
+	inp_underground_level.add_listener(this);
+
 	// brightness
 	brightness.set_pos( koord(RIGHT_WIDTH-10-40,BRIGHTNESS) );
 	brightness.set_groesse( koord( 40, BUTTON_HEIGHT-1 ) );
 	brightness.set_value( umgebung_t::daynight_level );
 	brightness.set_limits( 0, 9 );
 	brightness.add_listener(this);
-	add_komponente(&brightness);
 
 	// scrollspeed
 	scrollspeed.set_pos( koord(RIGHT_WIDTH-10-40,SCROLL_SPEED) );
@@ -86,15 +91,13 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	scrollspeed.set_value( abs(umgebung_t::scroll_multi) );
 	scrollspeed.set_limits( 1, 9 );
 	scrollspeed.add_listener(this);
-	add_komponente(&scrollspeed);
 
 	// traffic density
-	traffic_density.set_pos( koord(RIGHT_WIDTH-10-50,DENS_TRAFFIC) );
-	traffic_density.set_groesse( koord( 50, BUTTON_HEIGHT-1 ) );
+	traffic_density.set_pos( koord(RIGHT_WIDTH-10-45,DENS_TRAFFIC) );
+	traffic_density.set_groesse( koord( 45, BUTTON_HEIGHT-1 ) );
 	traffic_density.set_value( welt->get_einstellungen()->get_verkehr_level() );
 	traffic_density.set_limits( 0, 16 );
 	traffic_density.add_listener(this);
-	add_komponente(&traffic_density);
 
 	// other settings
 	buttons[6].set_pos( koord(10,SCROLL_INVERS) );
@@ -165,13 +168,6 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[20].set_typ(button_t::square_state);
 	buttons[20].set_text("sliced underground mode");
 
-	inp_underground_level.set_pos(koord(NUMBER_INP, SLICE) );
-	inp_underground_level.set_groesse( koord(50,12));
-	inp_underground_level.set_limits(welt->get_grundwasser()-10, 32);
-	inp_underground_level.set_value( grund_t::underground_mode==grund_t::ugm_level ? grund_t::underground_level : welt->get_zeiger()->get_pos().z);
-	add_komponente(&inp_underground_level);
-	inp_underground_level.add_listener(this);
-
 	// left/right for convoi tooltips
 	buttons[0].set_pos( koord(10,CONVOI_TOOLTIPS) );
 	buttons[0].set_typ(button_t::arrowleft);
@@ -180,8 +176,36 @@ color_gui_t::color_gui_t(karte_t *welt) :
 
 	for(int i=0;  i<COLORS_MAX_BUTTONS;  i++ ) {
 		buttons[i].add_listener(this);
-		add_komponente( buttons+i );
+	//		add_komponente( buttons+i );
 	}
+
+	// add buttons for sensible keyboard tab order
+	add_komponente( buttons+17 );
+	add_komponente( buttons+16 );
+	add_komponente( buttons+20 );
+	add_komponente( &inp_underground_level );
+	add_komponente( buttons+9 );
+	add_komponente( &brightness );
+	add_komponente( buttons+6 );
+	add_komponente( &scrollspeed );
+	add_komponente( buttons+11 );
+	add_komponente( buttons+12 );
+	add_komponente( buttons+13 );
+	add_komponente( buttons+14 );
+	add_komponente( buttons+15 );
+	add_komponente( buttons+18 );
+	add_komponente( buttons+19 );
+	add_komponente( buttons+8 );
+	add_komponente( buttons+7 );
+	add_komponente( &traffic_density );
+	add_komponente( buttons+0 );
+	add_komponente( buttons+1 );
+
+	// unused buttons
+	// add_komponente( buttons+2 );
+	// add_komponente( buttons+3 );
+	// add_komponente( buttons+4 );
+	// add_komponente( buttons+5 );
 
 	set_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
 }
