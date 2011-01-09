@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include "../simdebug.h"
 
-#undef SIM_BIG_ENDIAN
 
 memory_rw_t::memory_rw_t( void *ptr, uint32 max, bool saving )
 {
