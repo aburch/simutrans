@@ -8,6 +8,7 @@
 #ifndef simintr_h
 #define simintr_h
 
+#include "macros.h"
 
 class karte_t;
 class karte_ansicht_t;
@@ -51,7 +52,7 @@ void interrupt_check(const char* caller_info);
 		#define INT_CHECK(info) interrupt_check();
 	#else
 		// debug version
-		#define INT_CHECK(info) interrupt_check(info);
+		#define INT_CHECK(info) interrupt_check( __FILE__ ":" QUOTEME(__LINE__) );
 	#endif
 #endif
 #endif
