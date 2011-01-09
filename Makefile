@@ -56,6 +56,9 @@ ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
   CFLAGS  += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
+  ifdef MINGW_STATIC
+    LDFLAGS += -static-libgcc -static-libstdc++
+  endif
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
   endif
@@ -456,6 +459,9 @@ CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL
 
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
+
+#MINGW_STATIC = 1  # static link libgcc and libstdc++ to eliminate need for libgcc_s_dw2-1.dll and libstdc++-6.dll in certain MinGW versions
+
 
 PROG ?= sim
 
