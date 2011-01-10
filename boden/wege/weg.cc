@@ -504,7 +504,7 @@ void weg_t::calc_bild()
 			}
 		}
 	}
-	if (bild!=old_bild) {
+	if (bild!=old_bild && from != NULL) {
 		mark_image_dirty(old_bild, from->get_weg_yoff());
 	}
 }

@@ -460,9 +460,6 @@ CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
-#MINGW_STATIC = 1  # static link libgcc and libstdc++ to eliminate need for libgcc_s_dw2-1.dll and libstdc++-6.dll in certain MinGW versions
-
-
 PROG ?= sim
 
 
