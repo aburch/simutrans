@@ -41,6 +41,7 @@ public:
 	// true, if we are in networkmode
 	static bool networkmode;
 	static long server_frames_ahead;
+	static long additional_client_frames_behind;
 	static long network_frames_per_step;
 	// how often to synchronize
 	static uint32 server_sync_steps_between_checks;

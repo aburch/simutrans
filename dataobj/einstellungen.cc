@@ -227,6 +227,7 @@ einstellungen_t::einstellungen_t() :
 	random_counter = 0;	// will be set when actually saving
 	frames_per_second = 20;
 	frames_per_step = 4;
+	server_frames_ahead = 4;
 }
 
 
@@ -610,6 +611,15 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_long( minimum_city_distance );
 			file->rdwr_long( industry_increase );
 		}
+		if(  file->get_version()>=110000  ) {
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				server_frames_ahead = umgebung_t::server_frames_ahead;
+			}
+			file->rdwr_long( server_frames_ahead );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				server_frames_ahead = umgebung_t::server_frames_ahead;
+			}
+		}
 	}
 }
 
@@ -659,6 +669,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// network stuff
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead );
+	umgebung_t::additional_client_frames_behind = contents.get_int("additional_client_frames_behind", umgebung_t::additional_client_frames_behind);
 	umgebung_t::network_frames_per_step = contents.get_int("server_frames_per_step", umgebung_t::network_frames_per_step );
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
 

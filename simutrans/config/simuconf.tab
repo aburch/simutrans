@@ -495,13 +495,19 @@ fast_forward = 50
 ###################################network stuff##############################
 #
 # Synchronized networking is always a trade off between fast respone and safe
-# connections. A more relaxed timing will cuase delay of commands but is more
+# connections. A more relaxed timing will cause delay of commands but is more
 # likely to compensate for clients running slightly faster than the rest.
 #
 
-# How much comands should be delayed before sending back to clients.
-# A larger number will catch even clients running slightly ahead but cause delays
+# How much delay before comands are executed on the clients.
+# A larger number will catch even clients running slightly ahead but cause delay.
+# This is set by the server side.
 #server_frames_ahead = 4
+
+# How much extra delay in command execution on the client side, on top of server_frames_ahead.
+# A larger number can compensate for larger fluctuations in communication latency.
+# This is set by the client side.
+#additional_client_frames_behind = 0
 
 # In network mode, there will be a fixed number of screen updates before a step.
 # Reasonable values should result in 2-5 steps per second.
