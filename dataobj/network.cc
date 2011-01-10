@@ -556,7 +556,8 @@ void network_set_socket_nodelay( SOCKET sock )
 {
 #if defined(TCP_NODELAY)  &&  !defined(__APPLE__)
 	// do not wait to join small (command) packets when sending (may cause 200ms delay!)
-	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, NULL, 0 );
+	int b = 1;
+	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&b, sizeof(b) );
 #else
 	(void)sock;
 #endif
