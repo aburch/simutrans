@@ -80,11 +80,11 @@ void memory_rw_t::rdwr_short(uint16 &i)
 void memory_rw_t::rdwr_long(sint32 &l)
 {
 #ifdef SIM_BIG_ENDIAN
-	uint32 ii;
+	sint32 ii;
 	if(is_saving()) {
 		ii = endian(l);
 	}
-	rdwr(&ii, sizeof(uint32));
+	rdwr(&ii, sizeof(sint32));
 	if(is_loading()) {
 		l = endian(ii);
 	}

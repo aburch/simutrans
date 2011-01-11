@@ -94,7 +94,15 @@ bool SHA1::Result(uint8 *message_digest_array )
 		Computed = true;
 	}
 
+#ifdef SIM_BIG_ENDIAN
+	uint32 H_little_endian[5];
+	for(int i = 0; i < 5; i++) {
+		H_little_endian[i] = endian( H[i] );
+	}
+	memcpy( message_digest_array, H_little_endian, 20 );
+#else
 	memcpy( message_digest_array, H, 20 );
+#endif
 
 	return true;
 }
