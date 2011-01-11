@@ -88,7 +88,7 @@ a = (F - cf * v^2 - Frs) / m
 #define FR_MAGLEV 0.0015
 #define FR_TRACK 0.0051
 #define FR_ROAD  0.015
-#define FR_WATER 0.015
+#define FR_WATER 0.001
 #define FR_AIR 0.001
 
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
