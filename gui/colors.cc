@@ -188,6 +188,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	add_komponente( &brightness );
 	add_komponente( buttons+6 );
 	add_komponente( &scrollspeed );
+	add_komponente( buttons+10 );
 	add_komponente( buttons+11 );
 	add_komponente( buttons+12 );
 	add_komponente( buttons+13 );
