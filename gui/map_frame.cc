@@ -185,6 +185,9 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	const koord win_size = gr-s_gr;	// this is the visible area
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
 
+	old_ij = ij;
+	karte->karte_to_screen(old_ij);
+
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
 
@@ -488,8 +491,6 @@ void map_frame_t::resize(const koord delta)
 	if(offset_y>groesse.y) {
 		groesse.y = offset_y;
 	}
-	old_ij = koord::invalid;
-
 	set_fenstergroesse( groesse );
 }
 
@@ -512,18 +513,17 @@ void map_frame_t::zeichnen(koord pos, koord gr)
 	koord ij = welt->get_world_position();
 	if(welt->ist_in_kartengrenzen(ij)) {
 		reliefkarte_t::get_karte()->karte_to_screen(ij);
-		// only recenter by zoom or position change; we want still be able to scroll
-		if(old_ij!=ij) {
-			koord groesse = scrolly.get_groesse();
-			if(	zoomed  ||
-				(scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x) ||
-				(scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y) ) {
+		// only recenter if zoomed or world position has changed and its outside visible area
+		const koord groesse = scrolly.get_groesse();
+		if(zoomed  ||  ( old_ij != ij  &&
+				( scrolly.get_scroll_x()>ij.x  ||  scrolly.get_scroll_x()+groesse.x<=ij.x  ||
+				  scrolly.get_scroll_y()>ij.y  ||  scrolly.get_scroll_y()+groesse.y<=ij.y ) ) ) {
 				// recenter cursor by scrolling
 				scrolly.set_scroll_position( max(0,ij.x-(groesse.x/2)), max(0,ij.y-(groesse.y/2)) );
-				old_ij = ij;
 				zoomed = false;
-			}
 		}
+		// remember world position, we do not want to have surprises when scrolling later on
+		old_ij = ij;
 	}
 
 	b_rotate45.pressed = reliefkarte_t::get_karte()->rotate45;
