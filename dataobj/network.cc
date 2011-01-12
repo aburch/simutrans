@@ -197,7 +197,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		timeout.tv_usec = ((timeout_ms%1000)*1000);
 
 		// and wait ...
-		if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
+		if(  !select( FD_SETSIZE, NULL, &fds, NULL, &timeout)  ) {
 			// some other problem?
 			err = "Call to select failed";
 			return INVALID_SOCKET;
@@ -584,17 +584,12 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 
 	int s_max = socket_list_t::fill_set(&fds);
 
-#ifndef __APPLE__
-	// time out
+	// time out: MAC complains about too long timeouts
 	struct timeval tv;
-	tv.tv_sec = 0; // seconds
-	tv.tv_usec = max(0, timeout) * 1000; // micro-seconds
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000ul;
 
-	int action = select(s_max, &fds, NULL, NULL, &tv );
-#else
-#warning "select timeout with timeval does not work on MAC: Fix me!"
-	int action = select(s_max, &fds, NULL, NULL, NULL );
-#endif
+	int action = select( FD_SETSIZE, &fds, NULL, NULL, &tv );
 	if(  action<=0  ) {
 		// timeout: return command from the queue
 		return network_get_received_command();
@@ -648,10 +643,10 @@ void network_process_send_queues(int timeout)
 
 	// time out
 	struct timeval tv;
-	tv.tv_sec = 0; // seconds
-	tv.tv_usec = max(0, timeout) * 1000; // micro-seconds
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000ul;
 
-	int action = select(s_max, NULL, &fds, NULL, &tv );
+	int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
 
 	if(  action<=0  ) {
 		// timeout: return
@@ -690,7 +685,7 @@ bool network_check_server_connection()
 		FD_ZERO(&fds);
 		int s_max = socket_list_t::fill_set(&fds);
 
-		int action = select(s_max, NULL, &fds, NULL, &tv );
+		int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
 		if(  action<=0  ) {
 			// timeout
 			return false;
@@ -765,10 +760,10 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 				FD_ZERO(&fds);
 				FD_SET(dest,&fds);
 				struct timeval tv;
-				tv.tv_sec = 0;
-				tv.tv_usec = timeout_ms * 1000ul;
+				tv.tv_sec = timeout_ms / 1000;
+				tv.tv_usec = (timeout_ms % 1000) * 1000ul;
 				// can we write?
-				if(  select((int)dest+1, NULL, &fds, NULL, &tv )!=1  ) {
+				if(  select( FD_SETSIZE, NULL, &fds, NULL, &tv )!=1  ) {
 					dbg->warning("network_send_data", "could not write to [%s]", dest);
 					return false;
 				}
@@ -804,10 +799,10 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 		FD_ZERO(&fds);
 		FD_SET(sender,&fds);
 		struct timeval tv;
-		tv.tv_sec = 0;
-		tv.tv_usec = timeout_ms * 1000ul;
+		tv.tv_sec = timeout_ms / 1000;
+		tv.tv_usec = (timeout_ms % 1000) * 1000ul;
 		// can we read?
-		if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
+		if(  select( FD_SETSIZE, &fds, NULL, NULL, &tv )!=1  ) {
 			return true;
 		}
 		// now receive
