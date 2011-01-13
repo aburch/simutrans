@@ -130,9 +130,14 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 			return true;
 		}
 	}
-	/* this resets to query-tool, when closing toolsbar ... */
+	// this resets to query-tool, when closing toolsbar - but only for selected general tools in the closing toolbar
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+		for(  int i=0;  i<(int)tools.get_count();  i++) {
+			if(  tools[i]->is_selected(welt)   &&  (tools[i]->get_id()&GENERAL_TOOL)  ) {
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+				break;
+			}
+		}
 	}
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 		if(ev->ev_code==NEXT_WINDOW) {
