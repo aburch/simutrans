@@ -1021,7 +1021,7 @@ class wkz_finances_t : public werkzeug_t {
 public:
 	wkz_finances_t() : werkzeug_t() { id = WKZ_FINANCES | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Finanzen"); }
-	bool is_selected(karte_t *welt) const { return win_get_magic((long)welt->get_active_player()); }
+	bool is_selected(karte_t *welt) const { return win_get_magic(magic_finances_t+welt->get_active_player_nr()); }
 	bool init( karte_t *, spieler_t *sp ) {
 		create_win( new money_frame_t(sp), w_info, magic_finances_t+sp->get_player_nr() );
 		return false;
