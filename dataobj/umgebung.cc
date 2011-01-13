@@ -34,6 +34,7 @@ sint16 umgebung_t::midi_volume = 127;
 bool umgebung_t::mute_sound = false;
 bool umgebung_t::mute_midi = false;
 bool umgebung_t::shuffle_midi = true;
+sint16 umgebung_t::window_snap_distance = 8;
 
 // only used internally => do not touch further
 bool umgebung_t::quit_simutrans = false;
@@ -283,6 +284,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=110000  ) {
 		file->rdwr_bool( add_player_name_to_message );
+		file->rdwr_short( window_snap_distance );
 	}
 	else if(  file->is_loading()  ) {
 		// did not know about chat message, so we enable it

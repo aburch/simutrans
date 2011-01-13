@@ -815,22 +815,112 @@ void move_win(int win, event_t *ev)
 {
 	koord gr = wins[win].gui->get_fenstergroesse();
 
+	if(  wins[win].rollup  ) {
+		gr.y = 18;
+	}
+
 	// need to mark all old position dirty
 	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
 
-	int xfrom = ev->cx;
-	int yfrom = ev->cy;
-	int xto = ev->mx;
-	int yto = ev->my;
-	int x,y, xdelta, ydelta;
+	const int xfrom = ev->cx;
+	const int yfrom = ev->cy;
+	const int xto = ev->mx;
+	const int yto = ev->my;
+	const int wins_count = wins.get_count();
+
+	int new_x = wins[win].pos.x+(xto-xfrom);
+	int new_y = wins[win].pos.y+(yto-yfrom);
+	int snap_x = new_x;
+	int snap_y = new_y;
+
+	if(  umgebung_t::window_snap_distance>0  ) {
+		for(  int i=0;  i<=wins_count;  i++  ) {
+			if(  i==win  ) {
+				// Don't snap to self
+				continue;
+			}
+
+			koord i_gr, i_pos;
+			if(  i==wins_count  ){
+				// Allow snap to screen edge
+				i_pos.x = 0;
+				i_pos.y = 0;
+				i_gr.x = display_get_width();
+				i_gr.y = display_get_height()-16;
+				if(  show_ticker  ) {
+					i_gr.y -= 16;
+				}
+			}
+			else {
+				// Snap to other window
+				i_pos = wins[i].pos;
+				i_gr = wins[i].gui->get_fenstergroesse();
+				if(  wins[i].rollup  ) {
+					i_gr.y = 18;
+				}
+			}
+
+			// my bottom below other top  and  my top above other bottom  ---- in same vertical band
+			if(  wins[win].pos.y+gr.y>=i_pos.y  &&  wins[win].pos.y<=i_pos.y+i_gr.y  ) {
+				// other right side and my new right side within snap
+				if(  abs( i_pos.x+i_gr.x-new_x-gr.x )<=umgebung_t::window_snap_distance  ) {
+					snap_x = i_pos.x+i_gr.x-gr.x;  // snap right - align right sides
+				}
+
+				// other left side and my new left side within snap
+				if(  abs( i_pos.x-new_x )<=umgebung_t::window_snap_distance  ) {
+					snap_x = i_pos.x;  // snap left - align left sides
+				}
+			}
+
+			// my new bottom below other top  and  my new top above other bottom  ---- in same vertical band
+			if(  new_y+gr.y>i_pos.y  &&  new_y<i_pos.y+i_gr.y  ) {
+				// other left side and my new right side within snap
+				if(  abs( i_pos.x-new_x-gr.x )<=umgebung_t::window_snap_distance  ) {
+					snap_x = i_pos.x-gr.x;  // snap right - align my right to other left
+				}
+
+				// other right side and my new left within snap
+				if(  abs( i_pos.x+i_gr.x-new_x )<=umgebung_t::window_snap_distance  ) {
+					snap_x = i_pos.x+i_gr.x;  // snap left - align my left to other right
+				}
+			}
+
+			// my right side right of other left side  and  my left side left of other right side  ---- in same horizontal band
+			if(  wins[win].pos.x+gr.x>=i_pos.x  &&  wins[win].pos.x<=i_pos.x+i_gr.x  ) {
+				// other bottom and my new bottom within snap
+				if(  abs( i_pos.y+i_gr.y-new_y-gr.y )<=umgebung_t::window_snap_distance  ) {
+					snap_y = i_pos.y+i_gr.y-gr.y;  // snap down - align bottoms
+				}
+
+				// other top and my new top within snap
+				if(  abs( i_pos.y-new_y )<=umgebung_t::window_snap_distance  ) {
+					snap_y = i_pos.y;  // snap up - align tops
+				}
+			}
+
+			// my new right side right of other left side  and  my new left side left of other right side  ---- in same horizontal band
+			if(  new_x+gr.x>i_pos.x  &&  new_x<i_pos.x+i_gr.x  ) {
+				// other top and my new bottom within snap
+				if(  abs( i_pos.y-new_y-gr.y )<=umgebung_t::window_snap_distance  ) {
+					snap_y = i_pos.y-gr.y;  // snap down - align my bottom to other top
+				}
+
+				// other bottom and my new top within snap
+				if(  abs( i_pos.y+i_gr.y-new_y )<=umgebung_t::window_snap_distance  ) {
+					snap_y = i_pos.y+i_gr.y;  // snap up - align my top to other bottom
+				}
+			}
+		}
+	}
 
 	// CLIP(wert,min,max)
-	x = CLIP(wins[win].pos.x + (xto-xfrom), 8-gr.x, display_get_width()-16);
-	y = CLIP(wins[win].pos.y + (yto-yfrom), 32, display_get_height()-24);
+	new_x = CLIP(snap_x, 8-gr.x, display_get_width()-16);
+	new_y = CLIP(snap_y, 32, display_get_height()-24);
 
 	// delta is actual window movement.
-	xdelta = x - wins[win].pos.x;
-	ydelta = y - wins[win].pos.y;
+	const int xdelta = new_x - wins[win].pos.x;
+	const int ydelta = new_y - wins[win].pos.y;
 
 	wins[win].pos.x += xdelta;
 	wins[win].pos.y += ydelta;
@@ -842,17 +932,95 @@ void move_win(int win, event_t *ev)
 }
 
 
-void resize_win(int i, event_t *ev)
+void resize_win(int win, event_t *ev)
 {
 	event_t wev = *ev;
 	wev.ev_class = WINDOW_RESIZE;
 	wev.ev_code = 0;
 
 	// since we may be smaller afterwards
-	koord gr = wins[i].gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
-	translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-	wins[i].gui->infowin_event( &wev );
+	koord gr = wins[win].gui->get_fenstergroesse();
+	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
+
+	const int xfrom = wev.cx;
+	const int yfrom = wev.cy;
+	const int xto = wev.mx;
+	const int yto = wev.my;
+	const int wins_count = wins.get_count();
+
+	const int new_gr_x = gr.x+(xto-xfrom);
+	const int new_gr_y = gr.y+(yto-yfrom);
+	int snap_gr_x = new_gr_x;
+	int snap_gr_y = new_gr_y;
+
+	if(  umgebung_t::window_snap_distance>0  ) {
+		for(  int i=0;  i<=wins_count;  i++  ) {
+			if(  i==win  ) {
+				// Don't snap to self
+				continue;
+			}
+
+			koord i_gr, i_pos;
+			if(  i==wins_count  ){
+				// Allow snap to screen edge
+				i_pos.x = 0;
+				i_pos.y = 0;
+				i_gr.x = display_get_width();
+				i_gr.y = display_get_height()-16;
+				if(  show_ticker  ) {
+					i_gr.y -= 16;
+				}
+			}
+			else {
+				// Snap to other window
+				i_gr = wins[i].gui->get_fenstergroesse();
+				i_pos = wins[i].pos;
+				if(  wins[i].rollup  ){
+					i_gr.y = 18;
+				}
+			}
+
+			// my bottom below other top  and  my top above other bottom  ---- in same vertical band
+			if(  wins[win].pos.y+gr.y>=i_pos.y  &&  wins[win].pos.y<=i_pos.y+i_gr.y  ) {
+				// other right side and my new right side within snap
+				if(  abs( i_pos.x+i_gr.x-wins[win].pos.x-new_gr_x )<=umgebung_t::window_snap_distance  ) {
+					snap_gr_x = i_pos.x+i_gr.x-wins[win].pos.x;  // snap right - align right sides
+				}
+			}
+
+			// my new bottom below other top  and  my new top above other bottom  ---- in same vertical band
+			if(  wins[win].pos.y+new_gr_y>i_pos.y  &&  wins[win].pos.y<i_pos.y+i_gr.y  ) {
+				// other left side and my new right side within snap
+				if(  abs( i_pos.x-wins[win].pos.x-new_gr_x )<=umgebung_t::window_snap_distance  ) {
+					snap_gr_x = i_pos.x-wins[win].pos.x;  // snap right - align my right to other left
+				}
+			}
+
+			// my right side right of other left side  and  my left side left of other right side  ---- in same horizontal band
+			if(  wins[win].pos.x+gr.x>=i_pos.x  &&  wins[win].pos.x<=i_pos.x+i_gr.x  ) {
+				// other bottom and my new bottom within snap
+				if(  abs( i_pos.y+i_gr.y-wins[win].pos.y-new_gr_y )<=umgebung_t::window_snap_distance  ) {
+					snap_gr_y = i_pos.y+i_gr.y-wins[win].pos.y;  // snap down - align bottoms
+				}
+			}
+
+			// my new right side right of other left side  and  my new left side left of other right side  ---- in same horizontal band
+			if(  wins[win].pos.x+new_gr_x>i_pos.x  &&  wins[win].pos.x<i_pos.x+i_gr.x  ) {
+				// other top and my new bottom within snap
+				if(  abs( i_pos.y-wins[win].pos.y-new_gr_y )<=umgebung_t::window_snap_distance  ) {
+					snap_gr_y = i_pos.y-wins[win].pos.y;  // snap down - align my bottom to other top
+				}
+			}
+		}
+	}
+
+	// adjust event mouse koord per snap
+	wev.mx = wev.cx + snap_gr_x - gr.x;
+	wev.my = wev.cy + snap_gr_y - gr.y;
+
+//	no need for this...
+//	translate_event(&wev, -wins[win].pos.x, -wins[win].pos.y);
+	wins[win].gui->infowin_event( &wev );
 }
 
 

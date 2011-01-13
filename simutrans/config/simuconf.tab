@@ -269,6 +269,10 @@ bottom_window_bar_color = 3
 front_window_text_color = 215
 bottom_window_text_color = 209
 
+# when moving, you can use windows to snap onto each other seamlessly
+# if you do not like it, set the catch radius to zero
+window_snap_distance = 8
+
 # show tooltips (default 1=show)
 show_tooltips = 1
 

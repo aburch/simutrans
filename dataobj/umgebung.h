@@ -60,6 +60,8 @@ public:
 	// messages with player name
 	static bool add_player_name_to_message;
 
+	static sint16 window_snap_distance;
+
 	/**
 	* tag-nacht wechsel zeigen ?
 	*
