@@ -71,7 +71,9 @@ bool checksum_t::operator== (const checksum_t &other) const
 void checksum_t::input(bool data)
 {
 	assert(sha);
-	sha->Input((const char*)&data, sizeof(bool));
+	// save bool as (uint8)1
+	uint8 bool1 = data ? 1 : 0;
+	input(bool1);
 }
 
 
