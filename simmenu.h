@@ -223,6 +223,8 @@ public:
 
 	// returning false on init will automatically invoke previous tool
 	virtual bool init( karte_t *, spieler_t * ) { return true; }
+
+	// returning true on exit will have werkzeug_waehler resets to query-tool on right-click
 	virtual bool exit( karte_t *, spieler_t * ) { return true; }
 
 	/* the return string can have different meanings:
