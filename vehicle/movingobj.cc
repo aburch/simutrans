@@ -381,8 +381,7 @@ bool movingobj_t::hop_check()
 		}
 		// if nothing found, return
 		if(until==0) {
-			pos_next = get_pos();
-			pos_next_next = get_pos().get_2d() - koord(fahrtrichtung);
+			pos_next_next = get_pos().get_2d();
 			// (better would be destruction?)
 		}
 		else {
