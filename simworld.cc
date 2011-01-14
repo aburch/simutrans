@@ -5543,7 +5543,7 @@ bool karte_t::interactive(uint32 quit_month)
 
 		if(  umgebung_t::networkmode  ) {
 			// did we receive a new command?
-			network_command_t *nwc = network_check_activity( this, min(5u,next_step_time-dr_time()) );
+			network_command_t *nwc = network_check_activity( this, clamp( next_step_time-dr_time(), 0, 5) );
 			if(  nwc==NULL  &&  !network_check_server_connection()  ) {
 				dbg->warning("karte_t::interactive", "lost connection to server");
 				network_disconnect();
@@ -5612,7 +5612,7 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 
 			// send data
-			network_process_send_queues(min(5u,next_step_time-dr_time()));
+			network_process_send_queues( clamp( next_step_time-dr_time(), 0, 5) );
 		}
 		else {
 			// we wait here for maximum 9ms
