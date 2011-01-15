@@ -1292,17 +1292,17 @@ static void rezoom_img(const image_id n)
 			// we will upack, resample, pack it
 
 			// thus the unpack buffer must at least fit the window => find out maximum size
-			x = newzoomwidth*(newzoomheight+3)*sizeof(PIXVAL);
-			y = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
-			if(y>x) {
-				x = y;
+			size_t new_size = newzoomwidth*(newzoomheight+6)*sizeof(PIXVAL);
+			size_t unpack_size = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin);
+			if( unpack_size > new_size ) {
+				new_size = unpack_size;
 			}
-			if(size < (uint32)x) {
+			if(size < new_size) {
 				free( baseimage );
 				free( baseimage2 );
-				size = x;
-				baseimage  = MALLOCN(uint8, size);
-				baseimage2 = (PIXVAL*)malloc(size);
+				size = new_size;
+				baseimage  = MALLOCN( uint8, size );
+				baseimage2 = (PIXVAL *)MALLOCN( uint8, size );
 			}
 			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
 
