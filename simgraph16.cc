@@ -1293,7 +1293,7 @@ static void rezoom_img(const image_id n)
 
 			// thus the unpack buffer must at least fit the window => find out maximum size
 			size_t new_size = newzoomwidth*(newzoomheight+6)*sizeof(PIXVAL);
-			size_t unpack_size = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin);
+			size_t unpack_size = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
 			if( unpack_size > new_size ) {
 				new_size = unpack_size;
 			}
