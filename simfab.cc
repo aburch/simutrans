@@ -754,28 +754,6 @@ sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 }
 
 
-sint32 fabrik_t::hole_ab(const ware_besch_t *typ, sint32 menge)
-{
-	for (uint32 index = 0; index < ausgang.get_count(); index++) {
-		if (ausgang[index].get_typ() == typ) {
-			if (ausgang[index].menge >> precision_bits >= menge) {
-				ausgang[index].menge -= menge << precision_bits;
-			} else {
-				menge = ausgang[index].menge >> precision_bits;
-				ausgang[index].menge = 0;
-			}
-
-			ausgang[index].abgabe_sum += menge;
-
-			return menge;
-		}
-	}
-
-	// ware "typ" wird hier nicht produziert
-	return -1;
-}
-
-
 sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 {
 	for (uint32 index = 0; index < eingang.get_count(); index++) {
@@ -1135,7 +1113,13 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 
 		menge = min( menge, 9+capacity_left );
+		// ensure amount is not negative ...
+		if(menge<0) {
+			menge = 0;
+		}
+		// since it is assigned here to an unsigned variable!
 		best_ware.menge = menge;
+
 		if(capacity_left<0) {
 
 			// find, what is most waiting here from us

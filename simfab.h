@@ -252,7 +252,6 @@ public:
 	 * -1 wenn Ware nicht verarbeitet wird
 	 */
 	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
-	sint32 hole_ab(const ware_besch_t *, sint32 menge );     // jemand will waren abholen
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
 
 	sint32 get_abgabe_letzt(sint32 t) const { return ausgang[t].abgabe_letzt; }
