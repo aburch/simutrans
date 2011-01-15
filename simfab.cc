@@ -1094,10 +1094,16 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			const sint32 amount = (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos());
 
 			sint32 space_left = iter.get_current().space_left;
-			if( space_left < 0) space_left = 0; // ensure overfull stations compare equal allowing tie breaker clause
+			if( space_left < 0) {
+				// ensure overfull stations compare equal allowing tie breaker clause
+				space_left = 0;
+			}
 
 			sint32 space_total = iter.get_current().space_total;
-			if( space_total < 1) space_total = 1; // div by 0 prevention
+			if( space_total < 1) {
+				// div by 0 prevention
+				space_total = 1;
+			}
 
 			const sint32 usage = (space_left << precision_bits) / space_total;
 
