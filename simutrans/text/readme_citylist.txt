@@ -15,7 +15,7 @@ english, citylist_en.txt is used. A citylist in pak/text/ will overlay
 a citylist in text/. So different scenarios can have different citylists.
 
 But there are some additional citylist files supplied, i.e.
-citylist_en_au.txt for australian city names and citylist_de_at.txt
+citylist_en_au.txt for australian city names and citylist_de_at.tx
 for austrian city names.
 
 You can copy the citylist either in the folder text/ or to your pak-files
@@ -23,7 +23,7 @@ e.g. pak/text/.
 
 To use them, you need to rename the files. I.e. to use the austrian
 city names, rename citylist_de.txt to citylist_de_de.txt and
-rename citylist_de_at.txt to citylist_de.txt
+rename citylist_de_at.txt to citylist_de.tx
 
 
 If you don't want Simutrans to use the city name lists, delete them.

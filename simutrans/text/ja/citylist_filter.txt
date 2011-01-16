@@ -53,3 +53,4 @@
 旅客輸送率(%)、配達実績、到着の割合は、各都市の発展に大きく影響します。<br>
 割合が高いほど、より速く発展します。
 </p>
+<style type="text/css"><!-- i { color: #000000; font-style: normal; background-color: #ffff99; } --></style>

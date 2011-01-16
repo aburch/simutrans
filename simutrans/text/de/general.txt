@@ -27,7 +27,7 @@
 <br/>·<a href="special.txt">Spezialbauwerkzeuge</a>
 <br/>· Löschwerkzeug
 <br/>
-<br/>·<a href="linelist.txt">Linienverwaltung</a>
+<br/>·<a href="linemanagement.txt">Linienverwaltung</a>
 <br/>·<a href="list.txt">Listenverwaltung</a>
 <br/>· ·<a href="haltlist.txt">Haltestellenliste</a> mit <a href="haltlist_filter.txt">Filtereinstellungen</a>
 <br/>· · öffnet <a href="station.txt">Haltestellenfenster</a> und <a href="station_details.txt">Haltestellen Detailinformation</a>

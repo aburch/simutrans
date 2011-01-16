@@ -1,16 +1,16 @@
-<title>Betöltés Sugó</title>
+<title>BetÃ¶ltÃ©s SugÃ³</title>
 
-<h1>Lementett játékok betöltése</h1>
+<h1>Lementett jÃ¡tÃ©kok betÃ¶ltÃ©se</h1>
 
-<p> A "Betöltés" menûpont lehetõvé teszi a régebben lementett játékok
-folytatását. A felkínált gombok hasonlóak a <a href="save.txt">"Mentés"</a>
-menûpont alatti gombokkal.</p>
+<p> A "BetÃ¶ltÃ©s" menÃ»pont lehetÃµvÃ© teszi a rÃ©gebben lementett jÃ¡tÃ©kok
+folytatÃ¡sÃ¡t. A felkÃ­nÃ¡lt gombok hasonlÃ³ak a <a href="save.txt">"MentÃ©s"</a>
+menÃ»pont alatti gombokkal.</p>
 
-<p>Ha netán olyan játékot szertnél betölteni ami már nem létezik, akkor
-egyszerûen egy hibaüzenetet kapsz.</p>
+<p>Ha netÃ¡n olyan jÃ¡tÃ©kot szertnÃ©l betÃ¶lteni ami mÃ¡r nem lÃ©tezik, akkor
+egyszerÃ»en egy hibaÃ¼zenetet kapsz.</p>
 
-<p><em>Fontos!</em> Régebbi verzióban mentett játékok nem minden esetben
-kompatibilisek az új verziókkal. További információért kutakodj egy kicsit
-a neten. Például itt:<strong>http://forum.simutrans.com</strong>. Több mint valószínû a nagy verzióváltások lementett
-játékai nem kompatibilisek egymással.
+<p><em>Fontos!</em> RÃ©gebbi verziÃ³ban mentett jÃ¡tÃ©kok nem minden esetben
+kompatibilisek az Ãºj verziÃ³kkal. TovÃ¡bbi informÃ¡ciÃ³Ã©rt kutakodj egy kicsit
+a neten. PÃ©ldÃ¡ul itt:<strong>http://forum.simutrans.com</strong>. TÃ¶bb mint valÃ³szÃ­nÃ» a nagy verziÃ³vÃ¡ltÃ¡sok lementett
+jÃ¡tÃ©kai nem kompatibilisek egymÃ¡ssal.
 </p>

@@ -36,8 +36,9 @@ Luminosidade:</em> regula o quão claro/escuro o jogo aparecerá. Valores muito di
 <p>
 <em>Usar transparência ao ocultar:</em> Ao ativar, quando se oculta um objeto, mostra-o transparente em vez de escondê-lo totalmente.
 </p>
-<em>Ocultar árvores:</em> Oculta as árvores da tela de jogo.
 <p>
+<em>Ocultar árvores:</em> Oculta as árvores da tela de jogo.
+</p>
 <p>
 <em>Captura transparente das paradas:</em> Mostra uma captura transparente das paradas. Quando desativado, a captura das paradas é representada por pontos distribuídos pela tela de jogo.
 </p>
@@ -50,6 +51,7 @@ Luminosidade:</em> regula o quão claro/escuro o jogo aparecerá. Valores muito di
 <p>
 <em>Mostrar barras de espera:</em> Mostra a barra de espera das paradas. Pode ser ativado/desativado em alternância com o item anterior pelo atalho [!].
 </p>
+<p>
 <em>Pedestres nas cidades:</em> permite a simulação de pedestres caminhando pelas <a href="citywindow.txt">áreas urbanas</a>.
 </p>
 <p>

@@ -12,16 +12,16 @@
 <br>
 </p>
 <p>
-<i>게임 옵션</i>: <a href="options.txt">※게임 옵션</a><br><br>
+<it>게임 옵션</it>: <a href="options.txt">※게임 옵션</a><br><br>
 <a href="language.txt">※언어</a>|　<a href="color.txt">※칼라 다이얼로그</a>|　<a href="display.txt">※표시 설정</a><br><br>
 <a href="sound.txt">※사운드 다이얼로그</a>|　<a href="players.txt">라이벌 회사 일람</a>|　<a href="load.txt">※게임의 재개</a><br><br>
-<a href="save.txt">※게임의 보존</a>|　<a href="new_world.txt">※새로운 맵의 작성</a>|
+<a href="save.txt">※게임의 보존</a>|　<a href="new_world.txt">※새로운 맵의 작성</a>|　
 <a href="climates.txt">Climate Control</a><br><br>
 <a href="load_relief.txt">Load Height Map</a>　|　<a href="settings.txt">고도의 설정</a>
 </p>
 
 <p>
-<i>메인 메뉴</i><br><br>
+<it>메인 메뉴</it><br><br>
 <a href="options.txt">※게임 옵션</a>|　<a href="map.txt">맵 윈도우</a>
 　|　<a href="inspection_tool.txt">Inspection Tool</a><br><br>
 <a href="slopetools.txt">슬로프 툴</a>|　<a href="railtools.txt">※철도 툴</a>|　<a href="monorailtools.txt">Monorail Tools</a><br><br>
@@ -30,14 +30,14 @@
 <a href="removal_tool.txt">Destroy/Remove</a>
 </p>
 <p>
-<i>일람표</i><br><br>
+<it>일람표</it><br><br>
 <a href="linemanagement.txt">Line Management</a>　|　<a href="list.txt">Lists</a>　|　<a href="haltlist.txt">Stops/Station List</a><br><br>
 <a href="haltlist_filter.txt">Stops/Station List Filter</a>　|　<a href="convoi.txt">Vehicle List</a>　|　<a href="convoi_filter.txt">Vehicle List Filter</a><br><br>
 <a href="citylist_filter.txt">마을 일람</a>|　<a href="goods_filter.txt">Goods List</a>　|　<a href="factorylist_filter.txt">Industry List</a><br><br>
 <a href="curiositylist_filter.txt">Attractions List</a>　|　<a href="mailbox.txt">메세지표/메세지표 설정</a>|　<a href="finances.txt">※재무</a>
 </p>
 <p>
-<i>그 외의 옵션</i><br><br>
+<it>그 외의 옵션</it><br><br>
 <a href="window.txt">Save Screenshot</a>　|　<a href="window.txt">Pause</a>　|　<a href="window.txt">Fast Forward</a>　|　<a href="window.txt">Help</a>
 </p>
 <p>

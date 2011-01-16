@@ -1,24 +1,24 @@
-<title>Javak listája Sugó</title>
+<title>Javak listÃ¡ja SugÃ³</title>
 
-<h1>Javak listája</h1>
+<h1>Javak listÃ¡ja</h1>
 
 <p>
-A különbözõ javaknak különbözõ színe van. Ez nagyon hasznos ha a kis térképet hasunálod. Minden egyes árú egységnek van egy értéke amely úgymond Simucentben van megadva.
-Ez azt jelenti, hogyha az árú a megfelelõ helyre ér, a jövedelmed ennyi centtel lesz több egységenként. Ugyanakkor a sebesség függvényében százalékban véve bónuszcenteket is kapsz.
-A bónusz az alap sebesség és az aktuális sebesség különbségébõl számolódik ki. Részleteket lásd a: <strong>http://128.simutrans.com/graphs.htm</strong> honlapon (angol nyelvû).
+A kÃ¼lÃ¶nbÃ¶zÃµ javaknak kÃ¼lÃ¶nbÃ¶zÃµ szÃ­ne van. Ez nagyon hasznos ha a kis tÃ©rkÃ©pet hasunÃ¡lod. Minden egyes Ã¡rÃº egysÃ©gnek van egy Ã©rtÃ©ke amely Ãºgymond Simucentben van megadva.
+Ez azt jelenti, hogyha az Ã¡rÃº a megfelelÃµ helyre Ã©r, a jÃ¶vedelmed ennyi centtel lesz tÃ¶bb egysÃ©genkÃ©nt. Ugyanakkor a sebessÃ©g fÃ¼ggvÃ©nyÃ©ben szÃ¡zalÃ©kban vÃ©ve bÃ³nuszcenteket is kapsz.
+A bÃ³nusz az alap sebessÃ©g Ã©s az aktuÃ¡lis sebessÃ©g kÃ¼lÃ¶nbsÃ©gÃ©bÃµl szÃ¡molÃ³dik ki. RÃ©szleteket lÃ¡sd a: <strong>http://128.simutrans.com/graphs.htm</strong> honlapon (angol nyelvÃ»).
 </p>
 <p>
-<em>Rakomány</em> Itt vannak felsorolva a különbözõ javak.
+<em>RakomÃ¡ny</em> Itt vannak felsorolva a kÃ¼lÃ¶nbÃ¶zÃµ javak.
 </p>
 <p>
-<em>Ár:</em> Egyes javak ára Simucentben.
+<em>Ãr:</em> Egyes javak Ã¡ra Simucentben.
 </p>
 <p>
-<em>Bonusz:</em> Plusz pénz amit az alapsebbességhez viszonytott aktuális sebességbõl számolodik ki.
+<em>Bonusz:</em> Plusz pÃ©nz amit az alapsebbessÃ©ghez viszonytott aktuÃ¡lis sebessÃ©gbÃµl szÃ¡molodik ki.
 </p>
 <p>
-<em>Típus:</em> Az árú típusa.
+<em>TÃ­pus:</em> Az Ã¡rÃº tÃ­pusa.
 </p>
 <p>
-<em>Súly:</em> Egy egység kg-ban vett súlya.
+<em>SÃºly:</em> Egy egysÃ©g kg-ban vett sÃºlya.
 </p>

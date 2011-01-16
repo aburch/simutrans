@@ -1,10 +1,10 @@
-<title>V·rosok list·ja SugÛ</title>
+<title>V√°rosok list√°ja Sug√≥</title>
 
-<h1>V·rosok list·ja</h1>
+<h1>V√°rosok list√°ja</h1>
 
 <p>
-Itt egy helyen jelennek meg a v·rosok. Jelezve van a v·ros mÈrete (lakossz·mban) illetve, hogy Èpp mennyivel fejlıdıtt.
+Itt egy helyen jelennek meg a v√°rosok. Jelezve van a v√°ros m√©rete (lakossz√°mban) illetve, hogy √©pp mennyivel fejl√µd√µtt.
 </p>
 <p>
--> <a href="citywindow.txt">V·ros statisztik·k</a>
+-> <a href="citywindow.txt">V√°ros statisztik√°k</a>
 </p>

@@ -1,14 +1,13 @@
 <title>Simutrans Help</title>
 
 <h1><strong>General Help</strong></h1>
-<br>
+<p>
 - <a href="simutrans.txt">Welcome</a>
 <br>
 - <a href="window.txt">Game Interface</a><br>
 - <a href="mouse.txt">Mouse Help</a> (to be written)<br>
 - <a href="keys.txt">Keyboard Help</a>
 <br>
-<p>
 <a href="options.txt">
 <strong>Game Options</strong></a>
 <br>

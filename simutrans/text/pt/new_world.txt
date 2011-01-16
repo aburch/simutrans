@@ -1,18 +1,18 @@
-<title>Ajuda - Novo Mundo</title>
+<title>Ajuda - Criar novo jogo</title>
 
 <h1><strong>Começar um Novo Jogo</strong></h1>
 
 <p>
-<strong>Novo Mundo</strong> permite modificar as opções para um novo jogo, com um novo mapa e configurações.<br>
+<strong>Criar novo jogo</strong> permite modificar as opções para um novo jogo, com um novo mapa e configurações.<br>
 As variáveis incluem: tamanho do terreno, número inicial de áreas urbanas e indústrias.<br>
 Uma prévia do terreno, com os ajustes, é mostrada.
 </p>
 <p>
-<strong>Novo Mundo</strong> abre com <a href="language.txt">Língua</a> e <a href="climates.txt">Controle do Clima</a> quando o Simutrans é iniciado (outras opções do jogo estão desligadas) e também abre do botão <a href="options.txt">Preferências</a> (quaisquer barras de ferramentas, textos e opções no jogo atual são fechados).<br>
-Os atalhos do teclado para abrir a janela <strong>Novo Mundo</strong> incluem apertar <a href="keys.txt">[Q]</a> e [X].
+<strong>Criar novo jogo</strong> abre com <a href="language.txt">Língua</a> e <a href="climates.txt">Controle do Clima</a> quando o Simutrans é iniciado (outras opções do jogo estão desligadas) e também abre do botão <a href="options.txt">Preferências</a> (quaisquer barras de ferramentas, textos e opções no jogo atual são fechados).<br>
+Os atalhos do teclado para abrir a janela <strong>Criar novo jogo</strong> incluem apertar <a href="keys.txt">[Q]</a> e [X].
 </p>
 <p>
-Para retornar ao jogo atual, feche a janela <strong>Novo Mundo</strong>: clicando no x no canto superior esquerdo da janela; ou você pode utilizar o teclado.
+Para retornar ao jogo atual, feche a janela <strong>Criar novo jogo</strong>: clicando no x no canto superior esquerdo da janela; ou você pode utilizar o teclado.
 </p>
 <p>
 Os botões em forma de seta permitem ajustar as configurações e os botões que podem ser "apertados" (baixo/alto relevo) ligam/desligam opções ou abrem novos controles:
@@ -75,10 +75,10 @@ Quando o botão em forma de quadrado não está "apertado": o jogo ainda iniciará n
 <em>Carregar jogo:</em></a> abre os controles para jogar um jogo <a href="save.txt">salvo</a> previamente, substituindo o mundo atual que é perdido ao selecionar um jogo salvo.
 </p>
 <p>
-<em>Criar:</em> cria um novo mundo, usando as configurações mostradas na tela. Clique nesse botão para começar a jogar - Boa Sorte e Curta o Jogo!
+<em>Criar jogo:</em> cria um novo mundo, usando as configurações mostradas na tela. Clique nesse botão para começar a jogar - Boa Sorte e Curta o Jogo!
 </p>
 <p>
 {Dica: Os valores usados por padrão quando o Simutrans é iniciado e outras configurações podem ser alterados no arquivo simuconf.tab}
 </p>
-<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008.
+<p> Traduzido pela Equipe de tradução do Simutrans PT-SubFórum (<em>http://pt.simutrans.com</em>), 17/01/2008. Atualizado em 18/12/2010.
 </p>

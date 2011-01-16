@@ -1,54 +1,54 @@
-<title>Közúti\vasúti\hajózási kocsiszin\dokk Sugó</title>
+<title>KÃ¶zÃºti\vasÃºti\hajÃ³zÃ¡si kocsiszin\dokk SugÃ³</title>
 
 <h1>Kocsiszin\dokk ablak</h1>
 <p>
-A kocsiszinben lehetõség van különbözõ típusú jármûvek vásárlására,
-eladására,menetrendek összeállítására.
+A kocsiszinben lehetÃµsÃ©g van kÃ¼lÃ¶nbÃ¶zÃµ tÃ­pusÃº jÃ¡rmÃ»vek vÃ¡sÃ¡rlÃ¡sÃ¡ra,
+eladÃ¡sÃ¡ra,menetrendek Ã¶sszeÃ¡llÃ­tÃ¡sÃ¡ra.
 </p>
 <p>
-A kocsiszin ablak megmutatja a vásárolt jármûveket, illetve, hogy miket
-lehet még vásárolni. A jármûvek különbözõ kategoriákban vannak osztva. Ezt
-a különbözõ füleken olvashatód le. Tulajdonképpen ez a depó lelke. Itt található az
-összes jármû. A felsõ részen ellenben a már kész összeállított konvojok között tudsz
-navigálni. Illetve ugyancsak a fenti legördülõ menük egyikében az útvonalak között
-barangolhatsz. A felsõ részen látható a már összeállított szerelvény. Több típus is
-összekapcsolható ha ez megengedett. Ha nem kapcsolható össze akkor azt
-egy vörös vonal jelzi a jármû alatt. A jobb alsó gomb segítségével
-állítható be a konvojok össszeállítási módja: <strong>"Hozzáad","Elé rak", "Eladási mód"</strong>
+A kocsiszin ablak megmutatja a vÃ¡sÃ¡rolt jÃ¡rmÃ»veket, illetve, hogy miket
+lehet mÃ©g vÃ¡sÃ¡rolni. A jÃ¡rmÃ»vek kÃ¼lÃ¶nbÃ¶zÃµ kategoriÃ¡kban vannak osztva. Ezt
+a kÃ¼lÃ¶nbÃ¶zÃµ fÃ¼leken olvashatÃ³d le. TulajdonkÃ©ppen ez a depÃ³ lelke. Itt talÃ¡lhatÃ³ az
+Ã¶sszes jÃ¡rmÃ». A felsÃµ rÃ©szen ellenben a mÃ¡r kÃ©sz Ã¶sszeÃ¡llÃ­tott konvojok kÃ¶zÃ¶tt tudsz
+navigÃ¡lni. Illetve ugyancsak a fenti legÃ¶rdÃ¼lÃµ menÃ¼k egyikÃ©ben az Ãºtvonalak kÃ¶zÃ¶tt
+barangolhatsz. A felsÃµ rÃ©szen lÃ¡thatÃ³ a mÃ¡r Ã¶sszeÃ¡llÃ­tott szerelvÃ©ny. TÃ¶bb tÃ­pus is
+Ã¶sszekapcsolhatÃ³ ha ez megengedett. Ha nem kapcsolhatÃ³ Ã¶ssze akkor azt
+egy vÃ¶rÃ¶s vonal jelzi a jÃ¡rmÃ» alatt. A jobb alsÃ³ gomb segÃ­tsÃ©gÃ©vel
+Ã¡llÃ­thatÃ³ be a konvojok Ã¶ssszeÃ¡llÃ­tÃ¡si mÃ³dja: <strong>"HozzÃ¡ad", "ElÃ© rak", "EladÃ¡si mÃ³d"</strong>
 <br>
-<em>Hozzáad</em> - egymás után kapcsolódnak össze a jármûvek
+<em>HozzÃ¡ad</em> - egymÃ¡s utÃ¡n kapcsolÃ³dnak Ã¶ssze a jÃ¡rmÃ»vek
 <br>
-<em>Elé rak</em> - az új jármû a régi elejébe kerül
+<em>ElÃ© rak</em> - az Ãºj jÃ¡rmÃ» a rÃ©gi elejÃ©be kerÃ¼l
 <br>
-<em>Eladási mód</em> - a depóban lévõ jármûveket így lehet eladni, tehát nem a konvojokat hanem a már szétbontott
-és depóban lévõ külön jármûveket. Az, hogy a depóban van-e jármû a bal alsó részen látható.
+<em>EladÃ¡si mÃ³d</em> - a depÃ³ban lÃ©vÃµ jÃ¡rmÃ»veket Ã­gy lehet eladni, tehÃ¡t nem a konvojokat hanem a mÃ¡r szÃ©tbontott
+Ã©s depÃ³ban lÃ©vÃµ kÃ¼lÃ¶n jÃ¡rmÃ»veket. Az, hogy a depÃ³ban van-e jÃ¡rmÃ» a bal alsÃ³ rÃ©szen lÃ¡thatÃ³.
 </p>
 <p>
-Az alsó részhez közel az aktuális jármûrõl találhatóak meg a legfontosabb
-paraméterek (ára, fentartási költsége, mit szállít, csúcssebesség, kapacitás stb.).
-A felsõ részen 8 menûgomb található.
+Az alsÃ³ rÃ©szhez kÃ¶zel az aktuÃ¡lis jÃ¡rmÃ»rÃµl talÃ¡lhatÃ³ak meg a legfontosabb
+paramÃ©terek (Ã¡ra, fentartÃ¡si kÃ¶ltsÃ©ge, mit szÃ¡llÃ­t, csÃºcssebessÃ©g, kapacitÃ¡s stb.).
+A felsÃµ rÃ©szen 8 menÃ»gomb talÃ¡lhatÃ³.
 </p>
 <p>
-A <strong>Start</strong> gombbal lehet a készen összeállított konvojt elindítani,
-de csak akkor ha a <a href="schedule.txt">"Menetrend"</a> vagy <strong>"Új vonal"</strong> menûgomb alatt
-már készítettél  egy menetrendet vagy új vonalat. Az új vonalat <strong>"Útvonalat alkalmaz"</strong> gombal
-társítod a konvojhoz. A Menetrend és Vonal között az a különbség, hogy míg a Menetrend csak az adott jármûre érvényes,
-addig a Vonalat más jármû is használhatja párhuzamosan. Vagyis ugyanazt a vonalat nagyon sok jármû is használhatja
-és a Vonalon történõ változtatás minden az illetõ Vonalat használó jármûre kihat.
-A <strong>"Szétbont"</strong> gombbal az aktuális konvojt bontod fel, de a pénzedet nem kapod vissza.
-Ilyenkor ahhoz, hogy eladd a jármûveket, a jobb alsó gombot kell
-<em>Eladási mód</em>-ra változtatni majd a megfelelõ jármûre kattintva eladni. Az egész konvojt egyszerre eladni
+A <strong>Start</strong> gombbal lehet a kÃ©szen Ã¶sszeÃ¡llÃ­tott konvojt elindÃ­tani,
+de csak akkor ha a <a href="schedule.txt">"Menetrend"</a> vagy <strong>"Ãšj vonal"</strong> menÃ»gomb alatt
+mÃ¡r kÃ©szÃ­tettÃ©l  egy menetrendet vagy Ãºj vonalat. Az Ãºj vonalat <strong>"Ãštvonalat alkalmaz"</strong> gombal
+tÃ¡rsÃ­tod a konvojhoz. A Menetrend Ã©s Vonal kÃ¶zÃ¶tt az a kÃ¼lÃ¶nbsÃ©g, hogy mÃ­g a Menetrend csak az adott jÃ¡rmÃ»re Ã©rvÃ©nyes,
+addig a Vonalat mÃ¡s jÃ¡rmÃ» is hasznÃ¡lhatja pÃ¡rhuzamosan. Vagyis ugyanazt a vonalat nagyon sok jÃ¡rmÃ» is hasznÃ¡lhatja
+Ã©s a Vonalon tÃ¶rtÃ©nÃµ vÃ¡ltoztatÃ¡s minden az illetÃµ Vonalat hasznÃ¡lÃ³ jÃ¡rmÃ»re kihat.
+A <strong>"SzÃ©tbont"</strong> gombbal az aktuÃ¡lis konvojt bontod fel, de a pÃ©nzedet nem kapod vissza.
+Ilyenkor ahhoz, hogy eladd a jÃ¡rmÃ»veket, a jobb alsÃ³ gombot kell
+<em>EladÃ¡si mÃ³d</em>-ra vÃ¡ltoztatni majd a megfelelÃµ jÃ¡rmÃ»re kattintva eladni. Az egÃ©sz konvojt egyszerre eladni
 az <strong>"Elad"</strong> gombbal lehet.
 </p>
 <p>
-Vásárláshoz elég ha a bal egérgombbal ráklikkelsz a megfelelõ jármûre.
-A konvoj tetszés szerintí összeállításához, a kiválasztott jármûveket sorba
-kell rakni. Nem akármelyék jármû rakható a másik után. Azt hogy elé/utána
-rakja-e a következõ jármûvet, a jobb alsó részhez közel lévõ kapcsológombbal
-határozod meg.<strong>Csakis egy konvojon dolgozhatsz egyszerre!</strong>
+VÃ¡sÃ¡rlÃ¡shoz elÃ©g ha a bal egÃ©rgombbal rÃ¡klikkelsz a megfelelÃµ jÃ¡rmÃ»re.
+A konvoj tetszÃ©s szerintÃ­ Ã¶sszeÃ¡llÃ­tÃ¡sÃ¡hoz, a kivÃ¡lasztott jÃ¡rmÃ»veket sorba
+kell rakni. Nem akÃ¡rmelyÃ©k jÃ¡rmÃ» rakhatÃ³ a mÃ¡sik utÃ¡n. Azt hogy elÃ©/utÃ¡na
+rakja-e a kÃ¶vetkezÃµ jÃ¡rmÃ»vet, a jobb alsÃ³ rÃ©szhez kÃ¶zel lÃ©vÃµ kapcsolÃ³gombbal
+hatÃ¡rozod meg.<strong>Csakis egy konvojon dolgozhatsz egyszerre!</strong>
 </p>
 <p>
-A már mûködõ konvoj újbóli kocsiszinbe küldéséhez, a jármû ablakában a "Depóba" gombra kell kattintani, vagy kézzel kell
-változtatni a menetrenden. <strong>Figyelem!</strong> A villanyal mûködõ jármûvek csakis a vágányok villamosítása után jelennek meg.
-Az <em>Elavult jármûvek</em> gombbal lehet szabályozni azt, hogy a depó mutassa-e vagy sem a régi jármûveket.
+A mÃ¡r mÃ»kÃ¶dÃµ konvoj ÃºjbÃ³li kocsiszinbe kÃ¼ldÃ©sÃ©hez, a jÃ¡rmÃ» ablakÃ¡ban a "DepÃ³ba" gombra kell kattintani, vagy kÃ©zzel kell
+vÃ¡ltoztatni a menetrenden. <strong>Figyelem!</strong> A villanyal mÃ»kÃ¶dÃµ jÃ¡rmÃ»vek csakis a vÃ¡gÃ¡nyok villamosÃ­tÃ¡sa utÃ¡n jelennek meg.
+Az <em>Elavult jÃ¡rmÃ»vek</em> gombbal lehet szabÃ¡lyozni azt, hogy a depÃ³ mutassa-e vagy sem a rÃ©gi jÃ¡rmÃ»veket.
 </p>
