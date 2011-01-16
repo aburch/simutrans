@@ -93,6 +93,9 @@ Alphabetical list of options:
 -res n=1..5
 -screensize 600x350
 -server
+-server_id
+-server_name
+-server_comment
 -singleuser
 -timeline n=0|1
 -use_workdir
@@ -200,12 +203,19 @@ All print a quick help message, which basically says
 "Read the readme file"
 
 
-12) starting a server (without portnumer, it will be on port 13353
+5.) starting a server (without portnumer, it will be on port 13353
 
 simutrans -server [portnr]
 
 It is recommended to start server-games without addons with the pak
 set without modifications.
+
+If you want to announce your server, you need an ID from the serverlist
+of simutrans-germany.com. You can set this ID via simuconf.tab or
+commandline option "-server_id 12345678"
+
+Similary you can set serv name and commetns via -server_name "Testserver"
+and -server_comment "professionals".
 
 
 6.) Use alternative PAK files

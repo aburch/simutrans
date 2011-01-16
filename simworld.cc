@@ -1544,6 +1544,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	ticks_per_world_month_shift = 20;
 	ticks_per_world_month = (1 << ticks_per_world_month_shift);
 	last_step_ticks = 0;
+	server_next_announce_month = 0xFFFFFFFFu;
 	last_interaction = dr_time();
 	step_mode = PAUSE_FLAG;
 	time_multiplier = 16;
@@ -3245,7 +3246,7 @@ void karte_t::step()
 	// number of playing clients changed
 	if(  umgebung_t::server  &&  last_clients!=socket_list_t::get_playing_clients()  ) {
 		last_clients = socket_list_t::get_playing_clients();
-		if(  umgebung_t::announce_server  ) {
+		if(  umgebung_t::announce_server  &&  umgebung_t::announce_server_intervall<0  ) {
 			// inform the master server
 			announce_server();
 		}
@@ -5442,7 +5443,8 @@ bool karte_t::interactive(uint32 quit_month)
 				c++;
 			}
 			network_download_http( ANNOUNCE_SERVER, buf, NULL );
-			// and now the details
+			// and now the details (resetting month for automatic messages)
+			server_next_announce_month = 0;
 			announce_server();
 		}
 	}
@@ -5749,6 +5751,11 @@ bool karte_t::interactive(uint32 quit_month)
 			}
 		}
 
+		// monthly announcements
+		if(  get_current_month() >= server_next_announce_month  ) {
+			announce_server();
+		}
+
 
 		if (!swallowed) {
 			DBG_DEBUG4("karte_t::interactive", "calling interactive_event");
@@ -5796,6 +5803,12 @@ void karte_t::announce_server()
 		buf.printf( "Players%u:locked%u:Clients%u", player, locked, last_clients );
 		buf.printf( "Towns%u:citicens%u:Factories%u:Convoys%u:Stops%u", stadt.get_count(), stadt.get_sum_weight(), fab_list.get_count(), get_convoi_count(), haltestelle_t::get_alle_haltestellen().get_count() );
 		network_download_http( ANNOUNCE_SERVER, buf, NULL );
+		if(  umgebung_t::announce_server_intervall > 0  ) {
+			server_next_announce_month = current_month + umgebung_t::announce_server_intervall;
+		}
+		else {
+			server_next_announce_month = 0xFFFFFFFFu;
+		}
 	}
 }
 

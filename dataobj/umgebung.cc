@@ -18,6 +18,11 @@ uint16 umgebung_t::server = 0;
 
 // if !=0 contains ID from simutrans-germany.com
 uint32 umgebung_t::announce_server = 0;
+// how often to announce
+// ==0 off
+// ==-1: only on join/leave
+// otherwise: every xx months
+sint32 umgebung_t::announce_server_intervall = 0;
 std::string umgebung_t::server_name;
 std::string umgebung_t::server_comment;
 
@@ -294,4 +299,6 @@ void umgebung_t::rdwr(loadsave_t *file)
 		message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
 
 	}
+
+	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

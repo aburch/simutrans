@@ -390,7 +390,7 @@ int simu_main(int argc, char** argv)
 			" -fps COUNT          framerate (from 5 to 100)\n"
 			" -h | -help | --help displays this help\n"
 			" -lang CODE          starts with specified language\n"
-			" -load file[.sve]    loads game in file 'save/file.sve'\n"
+			" -load FILE[.sve]    loads game in file 'save/FILE.sve'\n"
 			" -log                enables logging to file 'simu.log'\n"
 			" -noaddons           does not load any addon (default)\n"
 			" -nomidi             turns off background music\n"
@@ -399,8 +399,11 @@ int simu_main(int argc, char** argv)
 			" -res N              starts in specified resolution: \n"
 			"                      1=640x480, 2=800x600, 3=1024x768, 4=1280x1024\n"
 			" -screensize WxH     set screensize to width W and height H\n"
-			" -server [port]      starts program as server (for network game)\n"
+			" -server [PORT]      starts program as server (for network game)\n"
 			"                     without port specified uses 13353\n"
+			" -server_id NUM      ID for server announcements\n"
+			" -server_name NAME   name for server announcements\n"
+			" -server_comment TXT comment for server announcements\n"
 			" -singleuser         Save everything in program directory (portable version)\n"
 #ifdef DEBUG
 			" -sizes              Show current size of some structures\n"
@@ -902,6 +905,22 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	if (ref_str != NULL) {
 		int want_refresh = atoi(ref_str);
 		umgebung_t::fps = want_refresh < 5 ? 5 : (want_refresh > 100 ? 100 : want_refresh);
+	}
+
+	// query server stuff
+	ref_str = gimme_arg(argc, argv, "-server_id", 1);
+	if (ref_str != NULL) {
+		umgebung_t::announce_server = atoi(ref_str);
+	}
+
+	ref_str = gimme_arg(argc, argv, "-server_comment", 1);
+	if (ref_str != NULL) {
+		umgebung_t::server_name = ref_str;
+	}
+
+	ref_str = gimme_arg(argc, argv, "-server_comment", 1);
+	if (ref_str != NULL) {
+		umgebung_t::server_comment = ref_str;
 	}
 
 	chdir(umgebung_t::user_dir);

@@ -525,9 +525,13 @@ fast_forward = 50
 # Automatically announce server on the central server directory
 # 0 (default) = off, any other number is ID from
 # http://simutrans-germany.com/serverlist/
-#announce_server = 0
+#server_announce = 0
 
-# DNS name or IP of your server also IPv& is accepted
+# intervall of announcement (if enabled)
+# 0=only on start/exit, -1=on join/leave, intervall>0 every x month
+#server_announce_intervall = 0
+
+# DNS name or IP of your server also IPv6 is accepted
 #server_name = 127.0.0.1
 
 # Additionally comment on your server; will be shown on game-info

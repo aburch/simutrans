@@ -115,6 +115,8 @@
 	CHANGE: application folder for simutrans now under /Library/Simutrans (default MAC standard)
 	ADD: (TurfIt) rightclick closes all toolbars, all dialogues and deselects all tools
 	ADD: (TurfIt/Dwachs) Windows snap onto each other when they are close (controlled by window_snap_distance)
+	ADD: server can do monthly announcements
+	ADD: announcements can be configured on command line
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

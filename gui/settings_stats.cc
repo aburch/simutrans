@@ -168,7 +168,7 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 
 	int selected = savegame.get_selection();
-	if (0 <= selected  &&  selected < lengthof(version)) {
+	if(  0 <= selected  &&  selected < lengthof(version)  ) {
 		umgebung_t::savegame_version_str = version[ selected ];
 	}
 }

@@ -373,6 +373,9 @@ private:
 	 */
 	void distribute_groundobjs_cities(int new_cities, sint32 new_mittlere_einwohnerzahl, sint16 old_x, sint16 old_y);
 
+	// when this month is reached, server will do next announcement
+	uint32 server_next_announce_month;
+
 	// announce server and current state to listserver
 	// will be done in step when client number changed
 	void announce_server();

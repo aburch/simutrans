@@ -675,6 +675,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
 
 	umgebung_t::announce_server = contents.get_int("announce_server", umgebung_t::announce_server );
+	umgebung_t::announce_server = contents.get_int("server_announce", umgebung_t::announce_server );
+	umgebung_t::announce_server_intervall = contents.get_int("server_announce_intervall", umgebung_t::announce_server );
 	if(  *contents.get("server_name")  ) {
 		umgebung_t::server_name = ltrim(contents.get("server_name"));
 	}
