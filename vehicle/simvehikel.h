@@ -532,8 +532,8 @@ public:
 	virtual bool ist_weg_frei(int &restart_speed);
 
 	// reserves or unreserves all blocks and returns the handle to the next block (if there)
-	// returns ture on successful reservation
-	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_singal, uint16 &next_crossing, int signal_count, bool reserve ) const;
+	// returns true on successful reservation
+	bool block_reserver(const route_t *route, uint16 start_index, uint16 &next_signal, uint16 &next_crossing, int signal_count, bool reserve, bool force_unreserve ) const;
 
 	void verlasse_feld();
 

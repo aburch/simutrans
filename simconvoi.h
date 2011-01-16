@@ -300,6 +300,11 @@ private:
 	bool can_go_alte_richtung();
 
 	/**
+	 * remove all track reservations (trains only)
+	 */
+	void unreserve_route();
+
+	/**
 	* Mark first and last vehicle.
 	* @author Hanjsörg Malthaner
 	*/
