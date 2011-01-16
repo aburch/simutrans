@@ -230,7 +230,7 @@ const char *scenario_t::get_description()
 				sprintf( description, translator::translate("Supply %s at (%i,%i)"), target_factory->get_name(), target_factory->get_pos().x, target_factory->get_pos().y );
 			}
 			else {
-				tstrncpy( description, translator::translate("Connect factory"), 511 );
+				tstrncpy(description, translator::translate("Connect factory"), lengthof(description));
 			}
 			break;
 

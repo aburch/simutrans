@@ -254,7 +254,7 @@ money_frame_t::money_frame_t(spieler_t *sp)
 		const char * c = werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp);
 		if(c) {
 			// only true, if the headquarter can be built/updated
-			tstrncpy( headquarter_tooltip, c, 900 );
+			tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
 			headquarter.set_tooltip( headquarter_tooltip );
 			headquarter.enable();
 		}
@@ -406,7 +406,7 @@ void money_frame_t::zeichnen(koord pos, koord gr)
 			const char * c = werkzeug_t::general_tool[WKZ_HEADQUARTER]->get_tooltip(sp);
 			if(c) {
 				// only true, if the headquarter can be built/updated
-				tstrncpy( headquarter_tooltip, c, 900 );
+				tstrncpy(headquarter_tooltip, c, lengthof(headquarter_tooltip));
 				headquarter.set_tooltip( headquarter_tooltip );
 			}
 			else {

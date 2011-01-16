@@ -168,7 +168,7 @@ void convoi_detail_t::rdwr(loadsave_t *file)
 	sint32 yoff = scrolly.get_scroll_y();
 	if(  file->is_saving()  ) {
 		cnv_pos = cnv->front()->get_pos();
-		tstrncpy( name, cnv->get_name(), 128 );
+		tstrncpy(name, cnv->get_name(), lengthof(name));
 	}
 	cnv_pos.rdwr( file );
 	file->rdwr_str( name, lengthof(name) );
