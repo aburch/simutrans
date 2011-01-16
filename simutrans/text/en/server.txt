@@ -1,0 +1,15 @@
+<title>Game informations / Server Help</title>
+
+<h1><strong>Game informations / Server</strong></h1>
+
+<p>
+<strong>Game informations / Server</strong> will show you the current state of the game running, telling you about date, amp size, number of companies, towns, factories, vehicles running, and so on.</p>
+
+<p>
+If your current game is not already an online game, it will show you a dropdown list with other servers to connect. If this list is empty, there are no servers for you pak version or program version. You can then use the <em>show all</em> button to see all existing servers.</p>
+
+<p>
+Upon selection of a server you will see a game information overview of the state of the server. (If the server is down, it may take a while to confirm this.) It will also display the pak set and program version of the server. If both are black, then pak set and program version match and you can join the server by pressing <em>Play online</em>.</p>
+
+<p>
+If there is a mismatch of the pak set, the entry will be red. You can then use the button <em>Compare your pak</em> to get a report on missing, different, or extra paks. (This may take a while.)</p>
