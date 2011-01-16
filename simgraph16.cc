@@ -1272,7 +1272,6 @@ static void rezoom_img(const image_id n)
 			static PIXVAL *baseimage2 = NULL;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
-			sint32 x, y;
 			// embed the baseimage in an image with margin ~ remainder
 			const sint16 x_rem = (images[n].base_x*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
 			const sint16 y_rem = (images[n].base_y*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
@@ -1311,7 +1310,7 @@ static void rezoom_img(const image_id n)
 			sint32 basewidth = xl_margin+orgzoomwidth+xr_margin;
 
 			// now: unpack the image
-			for(  y=0;  y<images[n].base_h;  y++  ) {
+			for (sint32 y = 0; y < images[n].base_h; ++y) {
 				uint16 runlen;
 				uint8 *p = baseimage + baseoff + y*(basewidth*4);
 
