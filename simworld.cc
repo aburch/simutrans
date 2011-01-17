@@ -115,6 +115,8 @@
 
 static bool is_dragging = false;
 static int last_clients = -1;
+static uint8 last_active_player_nr = 0;
+static std::string last_network_game;
 
 
 // changes the snowline height (for the seasons)
@@ -4031,7 +4033,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 bool karte_t::laden(const char *filename)
 {
 	cbuffer_t name(1024);
-	bool ok=false;
+	bool ok = false;
+	bool restore_player_nr = false;
 	mute_sound(true);
 	display_show_load_pointer(true);
 
@@ -4057,6 +4060,10 @@ bool karte_t::laden(const char *filename)
 		else {
 			umgebung_t::networkmode = true;
 			name.printf( "client%i-network.sve", network_get_client_id() );
+			restore_player_nr = strcmp( last_network_game.c_str(), filename )==0;
+			if(  !restore_player_nr  ) {
+				last_network_game = filename;
+			}
 		}
 	}
 	else {
@@ -4120,6 +4127,7 @@ DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 		}
 		else if(  umgebung_t::networkmode  ) {
 			step_mode = PAUSE_FLAG|FIX_RATIO;
+			switch_active_player( last_active_player_nr, true );
 		}
 		else {
 			step_mode = NORMAL;
@@ -5829,6 +5837,7 @@ void karte_t::network_disconnect()
 	}
 	create_win( display_get_width()/2-128, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
 	ticker::add_msg( translator::translate("Lost synchronisation\nwith server."), koord::invalid, COL_BLACK );
+	last_active_player_nr = active_player_nr;
 
 	beenden(false);
 }
