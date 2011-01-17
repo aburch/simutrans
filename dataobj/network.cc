@@ -927,6 +927,7 @@ void network_close_socket( SOCKET sock )
 		// reset all the special / static socket variables
 		if(  sock==nwc_join_t::pending_join_client  ) {
 			nwc_join_t::pending_join_client = INVALID_SOCKET;
+			DBG_MESSAGE( "network_close_socket()", "Close pending_join_client [%d]", nwc_join_t::pending_join_client );
 		}
 		if(  sock==nwc_pakset_info_t::server_receiver) {
 			nwc_pakset_info_t::server_receiver = INVALID_SOCKET;

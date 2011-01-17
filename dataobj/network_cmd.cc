@@ -223,6 +223,7 @@ bool nwc_join_t::execute(karte_t *welt)
 		nwj.client_id = socket_list_t::get_client_id(packet->get_sender());
 		// no other joining process active?
 		nwj.answer = socket_list_t::get_client(nwj.client_id).is_active()  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
+		DBG_MESSAGE( "nwc_join_t", "client_id=%i active=%i pending_join_client=%i %active=%d", socket_list_t::get_client_id(packet->get_sender()), socket_list_t::get_client(nwj.client_id).is_active(), pending_join_client, nwj.answer );
 		nwj.rdwr();
 		if (nwj.send( packet->get_sender())) {
 			if (nwj.answer == 1) {
@@ -230,6 +231,7 @@ bool nwc_join_t::execute(karte_t *welt)
 				nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id);
 				network_send_all(nws, false);
 				pending_join_client = packet->get_sender();
+				DBG_MESSAGE( "nwc_join_t", "pending_join_client now %i", pending_join_client);
 			}
 		}
 		else {
@@ -360,7 +362,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
 	chdir( umgebung_t::user_dir );
-	if (!umgebung_t::server ) {
+	if(  !umgebung_t::server  ) {
 		char fn[256];
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
 
@@ -434,7 +436,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// unpause the client that received the game
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
 		SOCKET sock = socket_list_t::get_socket(client_id);
-		if (sock != INVALID_SOCKET) {
+		if(  sock != INVALID_SOCKET  ) {
 			nwc_ready_t nwc( old_sync_steps, welt->get_map_counter());
 			if (nwc.send(sock)) {
 				socket_list_t::change_state( client_id, socket_info_t::playing);
@@ -536,6 +538,8 @@ bool nwc_tool_t::execute(karte_t *welt)
 			dbg->warning("nwc_tool_t::execute", "wanted to execute(%d) from another world", get_id());
 			return true; // to delete cmd
 		}
+#if 0
+#error "Pause does not reset nwc_join_t::pending_join_client properly. Disabled for now here and in simwerkz.h (wkz_pause_t)"
 		// special care for unpause command
 		if (wkz_id == (WKZ_PAUSE | SIMPLE_TOOL)) {
 			if (welt->is_paused()) {
@@ -550,13 +554,14 @@ bool nwc_tool_t::execute(karte_t *welt)
 			}
 			else {
 				// do not pause the game while a join process is active
-				if (nwc_join_t::pending_join_client != INVALID_SOCKET) {
+				if(  nwc_join_t::pending_join_client != INVALID_SOCKET  ) {
 					return true;
 				}
 				// set pending_join_client to block connection attempts during pause
 				nwc_join_t::pending_join_client = ~INVALID_SOCKET;
 			}
 		}
+#endif
 		// copy data, sets tool_client_id to sender client_id
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
