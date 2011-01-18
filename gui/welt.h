@@ -50,17 +50,15 @@ private:
 
 	button_t random_map, load_map;
 
-	gui_numberinput_t inp_number_of_towns,
+	gui_numberinput_t
+		inp_number_of_towns,
 		inp_town_size,
 		inp_intercity_road_len,
-		inp_traffic_density,
 		inp_other_industries,
-
-		inp_electric_producer,
 		inp_tourist_attractions,
 		inp_intro_date;
 
-	button_t use_intro_dates;
+	button_t use_intro_dates, use_beginner_mode;
 
 	button_t open_climate_gui, open_setting_gui;
 
