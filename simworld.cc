@@ -5793,10 +5793,12 @@ bool karte_t::interactive(uint32 quit_month)
 // if announce_server has a valid ID, it will be announced on the list
 void karte_t::announce_server()
 {
+	// announce game info to server, format is
+	// gd=time3.1923:size256x256:Player2:locked2:Clients1:Towns15:citicens3245:Factories33:Convoys56:Stops17
 	if(  umgebung_t::announce_server  ) {
 		// now send the status
 		cbuffer_t buf(2048);
-		buf.printf( "/serverlist/slist.php?ID=%u:", umgebung_t::announce_server );
+		buf.printf( "/serverlist/slist.php?ID=%u", umgebung_t::announce_server );
 		buf.printf( "&gd=time%u.%u:size%ux%u:", (get_current_month()%12)+1, get_current_month()/12, get_groesse_x(), get_groesse_y() );
 		uint8 player=0, locked = 0;
 		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
