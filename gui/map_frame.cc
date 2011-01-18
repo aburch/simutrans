@@ -185,8 +185,7 @@ map_frame_t::map_frame_t(karte_t *welt) :
 	const koord win_size = gr-s_gr;	// this is the visible area
 	scrolly.set_scroll_position(  max(0,min(ij.x-win_size.x/2,gr.x)), max(0, min(ij.y-win_size.y/2,gr.y)) );
 
-	old_ij = ij;
-	karte->karte_to_screen(old_ij);
+	old_ij = koord::invalid;
 
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
