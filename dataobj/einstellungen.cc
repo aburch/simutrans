@@ -174,6 +174,12 @@ einstellungen_t::einstellungen_t() :
 	/* the big cost section */
 	freeplay = false;
 	starting_money = 20000000;
+	for(  int i=0; i<10; i++  ) {
+		startingmoneyperyear[i].year = 0;
+		startingmoneyperyear[i].money = 0;
+		startingmoneyperyear[i].interpol = 0;
+	}
+
 	maint_building = 5000;	// normal buildings
 
 	// stop buildings
@@ -490,15 +496,25 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			else {
 				// compatibility code
 				sint64 save_starting_money = starting_money;
-				if(file->is_saving()) {
-					if(save_starting_money==0) save_starting_money = get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = 20000000;
+				if(  file->is_saving()  ) {
+					if(save_starting_money==0) {
+						save_starting_money = get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = 20000000;
+					}
 				}
 				file->rdwr_longlong(save_starting_money );
 				if(file->is_loading()) {
-					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = 20000000;
+					if(save_starting_money==0) {
+						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = 20000000;
+					}
 					starting_money = save_starting_money;
 				}
 			}
@@ -880,12 +896,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	// at least one found => use this now!
 	if(  j>0  &&  startingmoneyperyear[0].money>0  ) {
 		starting_money = 0;
-	}
-	// fill remaining entries
-	for(  int i=j+1; i<10; i++  ) {
-		startingmoneyperyear[i].year = 0;
-		startingmoneyperyear[i].money = 0;
-		startingmoneyperyear[i].interpol = 0;
+		// fill remaining entries
+		for(  int i=j+1; i<10; i++  ) {
+			startingmoneyperyear[i].year = 0;
+			startingmoneyperyear[i].money = 0;
+			startingmoneyperyear[i].interpol = 0;
+		}
 	}
 
 	maint_building = contents.get_int("maintenance_building", maint_building );
