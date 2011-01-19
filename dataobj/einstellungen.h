@@ -368,6 +368,7 @@ private:
 	uint32 random_counter;
 	uint32 frames_per_second;	// only used in network mode ...
 	uint32 frames_per_step;
+	uint32 server_frames_ahead;
 
 public:
 	/* the big cost section */
@@ -799,6 +800,7 @@ public:
 
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
+	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
 };
 
 #endif

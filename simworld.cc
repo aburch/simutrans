@@ -1892,6 +1892,12 @@ bool karte_t::is_plan_height_changeable(sint16 x, sint16 y) const
 	return ok;
 }
 
+
+// since very large mountains can freeze the system
+// we call ociasionally INT_CHECK()
+static int raise_frame_counter = 0;
+
+
 /* raise plan
  * new heights for each corner given
  * only test corners in ctest to avoid infinite loops
@@ -1912,6 +1918,11 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 
 		if (gr->ist_wasser()  &&  keep_water  &&  max_hgt > grundwasser) {
 			return false;
+		}
+
+		// more than 4096 calls => might need a screen update ...
+		if(  ((++raise_frame_counter)&0x0FFF) == 0  ) {
+			INT_CHECK( "somworld.cc" );
 		}
 
 		ok = can_raise_plan_to( x, y, max_hgt);
@@ -1965,6 +1976,7 @@ bool karte_t::can_raise_to(sint16 x, sint16 y, bool keep_water, sint8 hsw, sint8
 // nw-ecke corner4 anheben
 bool karte_t::can_raise(sint16 x, sint16 y) const
 {
+	raise_frame_counter = 0;
 	if(ist_in_kartengrenzen(x, y)) {
 		grund_t *gr = lookup_kartenboden(koord(x,y));
 		const sint8 hnew = gr->get_hoehe() + corner4(gr->get_grund_hang());
@@ -5836,7 +5848,7 @@ void karte_t::network_game_set_pause(bool pause_, uint32 syncsteps_)
 				/* make sure, the server is really that far ahead
 				 * Sleep() on windows often returns before!
 				 */
-				unsigned long ms = dr_time() + umgebung_t::server_frames_ahead * fix_ratio_frame_time;
+				unsigned long ms = dr_time() + (einstellungen->get_server_frames_ahead() + (uint32)umgebung_t::additional_client_frames_behind) * fix_ratio_frame_time;
 				while(  dr_time()<ms  ) {
 					dr_sleep ( 10 );
 				}
@@ -6063,7 +6075,7 @@ bool karte_t::interactive(uint32 quit_month)
 					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 					// are we on time?
 					ms_difference = 0;
-					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-umgebung_t::server_frames_ahead)*fix_ratio_frame_time;
+					sint64 difftime = ((sint64)next_step_time-(sint64)(dr_time())) + ((sint64)(nwcheck->server_sync_step)-(sint64)sync_steps-(sint64)einstellungen->get_server_frames_ahead()-(sint64)umgebung_t::additional_client_frames_behind)*fix_ratio_frame_time;
 					if(  difftime < 0) {
 						// running ahead
 						next_step_time -= difftime;

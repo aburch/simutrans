@@ -137,7 +137,6 @@ sprachengui_t::sprachengui_t() :
 			dbg->warning("sprachengui_t::sprachengui_t()", "no font found for %s", lang->name);
 			b->disable();
 		}
-		add_komponente(b);
 
 		// press button
 		int id = translator::get_language(lang->iso);
@@ -160,6 +159,7 @@ sprachengui_t::sprachengui_t() :
 		const sint16 x = 10 + (right  ? 100 : 0);
 		const sint16 y = 44 + 14 * (right ? i - (count+1)/2: i);
 		buttons[i].button->set_pos(koord(x,y));
+		add_komponente( buttons[i].button );
 	}
 
 	chdir(umgebung_t::user_dir);

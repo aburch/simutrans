@@ -420,6 +420,7 @@ einstellungen_t::einstellungen_t() :
 			default_increase_maintenance_after_years[i] = 15;
 		}
 	}
+	server_frames_ahead = 4;
 }
 
 
@@ -1105,19 +1106,29 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			file->rdwr_short(min_longdistance_tolerance);
 			file->rdwr_short(max_longdistance_tolerance);
 		}
-	}
-	
-	if(file->get_experimental_version() >= 8)
-	{
-		file->rdwr_short(max_walking_distance);
-		file->rdwr_bool(quick_city_growth);
-		file->rdwr_bool(assume_everywhere_connected_by_road);
-		for(uint8 i = 0; i < 17; i ++)
-		{
-			file->rdwr_short(default_increase_maintenance_after_years[i]);
+
+		if(  file->get_version()>=110000  ) {
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				server_frames_ahead = umgebung_t::server_frames_ahead;
+			}
+			file->rdwr_long( server_frames_ahead );
+			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+				server_frames_ahead = umgebung_t::server_frames_ahead;
+			}
 		}
-		file->rdwr_long(capital_threshold_size);
-		file->rdwr_long(city_threshold_size);
+		
+		if(file->get_experimental_version() >= 8)
+		{
+			file->rdwr_short(max_walking_distance);
+			file->rdwr_bool(quick_city_growth);
+			file->rdwr_bool(assume_everywhere_connected_by_road);
+			for(uint8 i = 0; i < 17; i ++)
+			{
+				file->rdwr_short(default_increase_maintenance_after_years[i]);
+			}
+			file->rdwr_long(capital_threshold_size);
+			file->rdwr_long(city_threshold_size);
+		}
 	}
 }
 
@@ -1172,6 +1183,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// network stuff
 	umgebung_t::server_frames_ahead = contents.get_int("server_frames_ahead", umgebung_t::server_frames_ahead );
+	umgebung_t::additional_client_frames_behind = contents.get_int("additional_client_frames_behind", umgebung_t::additional_client_frames_behind);
 	umgebung_t::network_frames_per_step = contents.get_int("server_frames_per_step", umgebung_t::network_frames_per_step );
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
 
