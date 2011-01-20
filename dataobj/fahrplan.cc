@@ -339,6 +339,8 @@ void schedule_t::sprintf_schedule( cbuffer_t &buf ) const
 {
 	buf.append( aktuell );
 	buf.append( "|" );
+	buf.append( (int)get_type() );
+	buf.append( "|" );
 	for(  uint8 i = 0;  i<eintrag.get_count();  i++  ) {
 		buf.printf( "%s,%i,%i|", eintrag[i].pos.get_str(), (int)eintrag[i].ladegrad, (int)eintrag[i].waiting_time_shift );
 	}
@@ -354,6 +356,21 @@ bool schedule_t::sscanf_schedule( const char *ptr )
 	}
 	//  first get aktuell pointer
 	aktuell = atoi( p );
+	while(  *p  &&  *p!='|'  ) {
+		p++;
+	}
+	if(  *p!='|'  ) {
+		dbg->error( "schedule_t::sscanf_schedule()","incomplete entry termination!" );
+		return false;
+	}
+	p++;
+	//  then schedule type
+	int type = atoi( p );
+	//  .. check for correct type
+	if(  type != (int)get_type()) {
+		dbg->error( "schedule_t::sscanf_schedule()","schedule has wrong type (%d)! should have been %d.", type, get_type() );
+		return false;
+	}
 	while(  *p  &&  *p!='|'  ) {
 		p++;
 	}
