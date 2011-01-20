@@ -5060,6 +5060,12 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				linehandle_t l;
 				l.set_id( id );
 				if(  l.is_bound()  ) {
+					// sanity check for right line-type (compare schedule types ..)
+					schedule_t *fpl = cnv->create_schedule();
+					if(  fpl  &&  l->get_schedule()  &&  fpl->get_type()!=l->get_schedule()->get_type()  ) {
+						dbg->warning("wkz_change_convoi_t::init", "types of convoi and line do not match");
+						return false;
+					}
 					if(  count==1 ) {
 						// aktuell was not supplied -> take it from line schedule
 						aktuell = l->get_schedule()->get_aktuell();
