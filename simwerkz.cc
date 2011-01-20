@@ -5047,8 +5047,13 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			{
 				schedule_t *fpl = cnv->create_schedule()->copy();
 				fpl->eingabe_abschliessen();
-				fpl->sscanf_schedule( p );
-				cnv->set_schedule( fpl );
+				if (fpl->sscanf_schedule( p )) {
+					cnv->set_schedule( fpl );
+				}
+				else {
+					// could not read schedule, do not assign
+					delete fpl;
+				}
 			}
 			break;
 
@@ -5179,9 +5184,14 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 				if (line.is_bound()) {
 					line->get_schedule()->eingabe_abschliessen();
 					schedule_t *fpl = line->get_schedule()->copy();
-					fpl->sscanf_schedule( p );
-					line->set_schedule( fpl );
-					line->get_besitzer()->simlinemgmt.update_line(line);
+					if (fpl->sscanf_schedule( p )) {
+						line->set_schedule( fpl );
+						line->get_besitzer()->simlinemgmt.update_line(line);
+					}
+					else {
+						// could not read schedule, do not assign
+						delete fpl;
+					}
 				}
 			}
 			break;
