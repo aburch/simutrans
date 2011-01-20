@@ -4050,7 +4050,7 @@ bool karte_t::laden(const char *filename)
 			umgebung_t::server = 0;
 		}
 		chdir( umgebung_t::user_dir );
-		const char *err = network_connect(filename+4);
+		const char *err = network_connect(filename+4, this);
 		if(err) {
 			create_win( new news_img(err), w_info, magic_none );
 			display_show_load_pointer(false);
@@ -4115,6 +4115,10 @@ bool karte_t::laden(const char *filename)
 DBG_MESSAGE("karte_t::laden()","Savegame version is %d", file.get_version());
 
 		laden(&file);
+
+		if(  umgebung_t::networkmode  ) {
+			clear_command_queue();
+		}
 
 		if(  umgebung_t::server  ) {
 			step_mode = FIX_RATIO;
@@ -4848,10 +4852,18 @@ void karte_t::reset_interaction()
 }
 
 
-void karte_t::reset_map_counter()
+void karte_t::set_map_counter(uint32 new_map_counter)
 {
-	map_counter = dr_time();
-	nwc_ready_t::append_map_counter(map_counter);
+	map_counter = new_map_counter;
+	if(  umgebung_t::server  ) {
+		nwc_ready_t::append_map_counter(map_counter);
+	}
+}
+
+
+uint32 karte_t::generate_new_map_counter() const
+{
+	return (uint32)dr_time();
 }
 
 
@@ -5375,6 +5387,14 @@ void karte_t::command_queue_append(network_world_command_t* nwc) const
 }
 
 
+void karte_t::clear_command_queue() const
+{
+	while(  command_queue.get_count()>0  ) {
+		delete command_queue.remove_first();
+	}
+}
+
+
 bool karte_t::interactive(uint32 quit_month)
 {
 	event_t ev;
@@ -5833,10 +5853,7 @@ void karte_t::network_disconnect()
 	clear_random_mode( INTERACTIVE_RANDOM );
 	step_mode = NORMAL;
 	reset_timer();
-	while(  !command_queue.empty()  ) {
-		network_world_command_t *cmd = command_queue.remove_first();
-		delete cmd;
-	}
+	clear_command_queue();
 	create_win( display_get_width()/2-128, 40, new news_img("Lost synchronisation\nwith server."), w_info, magic_none);
 	ticker::add_msg( translator::translate("Lost synchronisation\nwith server."), koord::invalid, COL_BLACK );
 	last_active_player_nr = active_player_nr;

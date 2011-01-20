@@ -78,7 +78,7 @@ const char *network_download_http( const char *address, const char *name, const 
 const char *network_gameinfo(const char *cp, gameinfo_t *gi);
 
 // connects to server at (cp), receives game, save to client%i-network.sve
-const char* network_connect(const char *cp);
+const char* network_connect(const char *cp, karte_t *world);
 
 void network_close_socket( SOCKET sock );
 

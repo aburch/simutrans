@@ -405,7 +405,7 @@ end:
 
 
 // connect to address (cp), receive game, save to client%i-network.sve
-const char *network_connect(const char *cp)
+const char *network_connect(const char *cp, karte_t *world)
 {
 	// open from network
 	const char *err = NULL;
@@ -434,7 +434,7 @@ const char *network_connect(const char *cp)
 		}
 		nwc_join_t *nwj = dynamic_cast<nwc_join_t*>(nwc);
 		if (nwj==NULL) {
-			err = "Protocoll error (expected NWC_JOIN)";
+			err = "Protocol error (expected NWC_JOIN)";
 			goto end;
 		}
 		if (nwj->answer!=1) {
@@ -442,6 +442,17 @@ const char *network_connect(const char *cp)
 			goto end;
 		}
 		client_id = nwj->client_id;
+		// update map counter
+		// wait for sync command (tolerate some wrong commands)
+		for(  uint8 i=0;  i<5;  ++i  ) {
+			nwc = network_check_activity( NULL, 10000 );
+			if(  nwc  &&  nwc->get_id()==NWC_SYNC  ) break;
+		}
+		if(  nwc==NULL  ||  nwc->get_id()!=NWC_SYNC  ) {
+			err = "Protocol error (expected NWC_SYNC)";
+			goto end;
+		}
+		world->set_map_counter( ((nwc_sync_t*)nwc)->get_new_map_counter() );
 		// receive nwc_game_t
 		// wait for game command (tolerate some wrong commands)
 		for(uint8 i=0; i<2; i++) {
@@ -449,7 +460,7 @@ const char *network_connect(const char *cp)
 			if (nwc  &&  nwc->get_id() == NWC_GAME) break;
 		}
 		if (nwc == NULL  ||  nwc->get_id()!=NWC_GAME) {
-			err = "Protocoll error (expected NWC_GAME)";
+			err = "Protocol error (expected NWC_GAME)";
 			goto end;
 		}
 		int len = ((nwc_game_t*)nwc)->len;

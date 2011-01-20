@@ -983,17 +983,19 @@ public:
 
 	void command_queue_append(network_world_command_t*) const;
 
+	void clear_command_queue() const;
+
 	void network_disconnect();
 
 	/**
 	 * to identify the current map
 	 */
 	uint32 get_map_counter() const { return map_counter; }
-	void set_map_counter(uint32 new_mc) { map_counter = new_mc; }
+	void set_map_counter(uint32 new_map_counter);
 	/**
-	 * called by server before sending the ready-cmds
+	 * called by the server before sending the sync commands
 	 */
-	void reset_map_counter();
+	uint32 generate_new_map_counter() const;
 };
 
 #endif

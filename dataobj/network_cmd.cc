@@ -223,15 +223,25 @@ bool nwc_join_t::execute(karte_t *welt)
 		nwj.client_id = socket_list_t::get_client_id(packet->get_sender());
 		// no other joining process active?
 		nwj.answer = socket_list_t::get_client(nwj.client_id).is_active()  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
-		DBG_MESSAGE( "nwc_join_t", "client_id=%i active=%i pending_join_client=%i %active=%d", socket_list_t::get_client_id(packet->get_sender()), socket_list_t::get_client(nwj.client_id).is_active(), pending_join_client, nwj.answer );
+		DBG_MESSAGE( "nwc_join_t::execute", "client_id=%i active=%i pending_join_client=%i %active=%d", socket_list_t::get_client_id(packet->get_sender()), socket_list_t::get_client(nwj.client_id).is_active(), pending_join_client, nwj.answer );
 		nwj.rdwr();
-		if (nwj.send( packet->get_sender())) {
-			if (nwj.answer == 1) {
+		if(  nwj.send( packet->get_sender() )  ) {
+			if(  nwj.answer==1  ) {
 				// now send sync command
-				nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id);
-				network_send_all(nws, false);
-				pending_join_client = packet->get_sender();
-				DBG_MESSAGE( "nwc_join_t", "pending_join_client now %i", pending_join_client);
+				const uint32 new_map_counter = welt->generate_new_map_counter();
+				// since network_send_all() does not include non-playing clients -> send sync command separately to the joining client
+				nwc_sync_t nw_sync(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id, new_map_counter);
+				nw_sync.rdwr();
+				if(  nw_sync.send( packet->get_sender() )  ) {
+					// now send sync command to the server and the remaining clients
+					nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id, new_map_counter);
+					network_send_all(nws, false);
+					pending_join_client = packet->get_sender();
+					DBG_MESSAGE( "nwc_join_t::execute", "pending_join_client now %i", pending_join_client);
+				}
+				else {
+					dbg->warning("nwc_join_t::execute", "send of NWC_SYNC to the joining client failed");
+				}
 			}
 		}
 		else {
@@ -267,26 +277,31 @@ void nwc_ready_t::clear_map_counters()
 
 bool nwc_ready_t::execute(karte_t *welt)
 {
-	if (umgebung_t::server) {
+	if(  umgebung_t::server  ) {
 		// unpause the sender: send ready_t back
-		// get the right map counter first
-		// i.e. that one the comes after the mapcounter in this command
-		uint32 mpc = welt->get_map_counter();
-		for (uint32 i=1; i<all_map_counters.get_count(); i++) {
-			if (all_map_counters[i] == map_counter) {
-				mpc = all_map_counters[i-1];
-				break;
+		// check the validity of the map counter first
+		for(  uint32 i=0;  i<all_map_counters.get_count();  ++i  ) {
+			if(  all_map_counters[i]==map_counter  ) {
+				nwc_ready_t nwc(sync_steps, map_counter);
+				if(  !nwc.send( get_sender())  ) {
+					dbg->warning("nwc_ready_t::execute", "send of NWC_READY failed");
+				}
+				return true;
 			}
 		}
-		nwc_ready_t nwc(sync_steps, mpc);
-		if (!nwc.send( this->packet->get_sender())) {
-			dbg->warning( "nwc_ready_t::execute", "send of NWC_READY failed" );
-		}
+		// no matching map counter -> disconnect client
+		socket_list_t::remove_client( get_sender() );
+		dbg->warning("nwc_ready_t::execute", "disconnect client id=%u due to invalid map counter", our_client_id);
 	}
 	else {
-		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d map_counter=%d",sync_steps,map_counter);
-		welt->set_map_counter(map_counter);
-		welt->network_game_set_pause(false, sync_steps);
+		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d where map_counter=%d", sync_steps, map_counter);
+		if(  map_counter==welt->get_map_counter()  ) {
+			welt->network_game_set_pause(false, sync_steps);
+		}
+		else {
+			welt->network_disconnect();
+			dbg->warning("nwc_ready_t::execute", "disconnecting due to map counter mismatch");
+		}
 	}
 	return true;
 }
@@ -347,6 +362,7 @@ void nwc_sync_t::rdwr()
 {
 	network_world_command_t::rdwr();
 	packet->rdwr_long(client_id);
+	packet->rdwr_long(new_map_counter);
 }
 
 // save, load, pause, if server send game
@@ -376,6 +392,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		// pause clients, restore steps
 		welt->network_game_set_pause( true, old_sync_steps);
+
+		// apply new map counter
+		welt->set_map_counter(new_map_counter);
 
 		// tell server we are ready
 		network_command_t *nwc = new nwc_ready_t( old_sync_steps, welt->get_map_counter() );
@@ -430,8 +449,8 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// restore steps
 		welt->network_game_set_pause( false, old_sync_steps);
 
-		// generate new map_counter
-		welt->reset_map_counter();
+		// apply new map counter
+		welt->set_map_counter(new_map_counter);
 
 		// unpause the client that received the game
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
