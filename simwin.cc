@@ -58,6 +58,7 @@
 #include "gui/halt_info.h"
 #include "gui/convoi_detail_t.h"
 #include "gui/convoi_info_t.h"
+#include "gui/fahrplan_gui.h"
 
 
 
@@ -426,6 +427,7 @@ void rwdr_all_win(loadsave_t *file)
 					case magic_halt_detail:    w = new halt_detail_t(wl); break;
 					case magic_reliefmap:      w = new map_frame_t(wl); break;
 					case magic_ki_kontroll_t:  w = new ki_kontroll_t(wl); break;
+					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(wl); break;
 
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {

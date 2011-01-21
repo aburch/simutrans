@@ -19,6 +19,9 @@ public:
 	line_management_gui_t(linehandle_t line, spieler_t* sp);
 	const char * get_name() const;
 	bool infowin_event(const event_t *ev);
+	// since fahrplay_gut returns a valid handle ...
+	virtual uint32 get_rdwr_id() { return 0; }
+
 
 private:
 	linehandle_t line;

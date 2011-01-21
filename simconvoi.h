@@ -411,6 +411,12 @@ public:
 	void call_convoi_tool( const char function, const char *extra ) const;
 
 	/**
+	* set state: only use by werkzeug_t convoi tool, or not networking!
+	* @author hsiegeln
+	*/
+	void set_state( uint16 new_state ) { assert(new_state<MAX_STATES); state = (states)new_state; }
+
+	/**
 	* get state
 	* @author hsiegeln
 	*/

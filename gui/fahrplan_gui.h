@@ -22,12 +22,15 @@
 
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
+#include "../simwin.h"
 
 
 class schedule_t;
 struct linieneintrag_t;
 class spieler_t;
 class cbuffer_t;
+class karte_t;
+class loadsave_t;
 
 
 class fahrplan_gui_stats_t : public gui_komponente_t
@@ -75,6 +78,7 @@ class fahrplan_gui_t :	public gui_frame_t,
 
 private:
 	static char no_line[128];
+	static karte_t *welt;
 
 	enum mode_t {adding, inserting, removing, undefined_mode};
 
@@ -172,6 +176,13 @@ public:
 	 * Map rotated, rotate schedules too
 	 */
 	void map_rotate90( sint16 );
+
+	// this contructor is only used during loading
+	fahrplan_gui_t(karte_t *welt);
+
+	void rdwr( loadsave_t *file );
+
+	uint32 get_rdwr_id() { return magic_schedule_rdwr_dummy; }
 };
 
 #endif
