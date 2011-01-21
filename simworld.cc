@@ -2235,7 +2235,12 @@ void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 void karte_t::local_set_werkzeug( werkzeug_t *w, spieler_t * sp )
 {
 	w->flags |= werkzeug_t::WFL_LOCAL;
-	if(w->init(this,sp)) {
+
+	bool init_result = w->init(this,sp);
+	// for unsafe tools init() must return false
+	assert(w->is_init_network_save()  ||  !init_result);
+
+	if (init_result) {
 
 		set_dirty();
 		werkzeug_t *sp_wkz = werkzeug[sp->get_player_nr()];
@@ -5287,7 +5292,7 @@ void karte_t::interactive_event(event_t &ev)
 			err = wkz->check( this, get_active_player(), zeiger->get_pos() );
 			if (err==NULL) {
 				wkz->flags = event_get_last_control_shift();
-				if (!umgebung_t::networkmode  ||  wkz->is_work_network_save()) {
+				if (!umgebung_t::networkmode  ||  wkz->is_work_network_save()  ||  wkz->is_work_here_network_save( this, get_active_player(), zeiger->get_pos() ) ) {
 					// do the work
 					wkz->flags |= werkzeug_t::WFL_LOCAL;
 					err = wkz->work( this, get_active_player(), zeiger->get_pos() );
@@ -5297,6 +5302,8 @@ void karte_t::interactive_event(event_t &ev)
 					nwc_tool_t *nwc = new nwc_tool_t(get_active_player(), wkz, zeiger->get_pos(), steps, map_counter, false);
 					network_send_server(nwc);
 					result = false;
+					// reset tool
+					wkz->init(this, get_active_player());
 				}
 			}
 			if (result) {

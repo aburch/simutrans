@@ -145,3 +145,17 @@ void memory_rw_t::rdwr_str(char *&s)
 		}
 	}
 }
+
+
+void memory_rw_t::append(const memory_rw_t &mem)
+{
+	assert(saving  &&  mem.saving);
+	rdwr(mem.ptr, mem.get_current_index());
+}
+
+
+void memory_rw_t::append_tail(const memory_rw_t &mem)
+{
+	assert(saving  &&  !mem.saving);
+	rdwr(mem.ptr + mem.get_current_index(), mem.max_size - mem.get_current_index());
+}

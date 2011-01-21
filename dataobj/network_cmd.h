@@ -6,6 +6,7 @@
 #include "koord3d.h"
 #include "network.h"
 
+class memory_rw_t;
 class packet_t;
 class karte_t;
 class spieler_t;
@@ -243,7 +244,7 @@ public:
 	uint32 last_random_seed;
 	uint32 last_sync_step;
 
-	nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0) { default_param = NULL; }
+	nwc_tool_t();
 	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);
 
@@ -267,6 +268,9 @@ private:
 	uint8 player_nr;
 	bool init;
 	bool exec;
+
+	uint8 custom_data_buf[256];
+	memory_rw_t *custom_data;
 
 	// compare default_param's (NULL pointers allowed)
 	// @return true if default_param are equal
