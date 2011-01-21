@@ -4263,46 +4263,37 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 
 /**	link tool: links products of factory one with factory two (if possible)
  */
-bool wkz_link_factory_t::init( karte_t *, spieler_t * )
+image_id wkz_link_factory_t::get_marker_image()
 {
-	last_fab = NULL;
-	if(wkz_linkzeiger!=NULL) {
-		wkz_linkzeiger->mark_image_dirty( cursor, 0 );
-		delete wkz_linkzeiger;
-		wkz_linkzeiger = NULL;
-	}
-	return true;
+	return cursor;
 }
 
-const char *wkz_link_factory_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+
+uint8 wkz_link_factory_t::is_valid_pos( karte_t *welt, spieler_t *, const koord3d &pos, const char *&error, const koord3d & )
 {
 	fabrik_t *fab = fabrik_t::get_fab( welt, pos.get_2d() );
-	if(fab!=NULL  &&  last_fab!=fab) {
+	if (fab == NULL) {
+		error = "";
+		return 0;
+	}
+	return 2;
+}
+
+
+const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &pos )
+{
+	fabrik_t *last_fab = fabrik_t::get_fab( welt, start.get_2d() );
+	fabrik_t *fab = fabrik_t::get_fab( welt, pos.get_2d() );
+
+	if(fab!=NULL  &&  last_fab!=NULL  &&  last_fab!=fab) {
 		// It's a factory
-		if(last_fab==NULL) {
-			// first click
-			if (is_local_execution()) {
-				grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
-				wkz_linkzeiger = new zeiger_t(welt, gr->get_pos(), NULL);
-				wkz_linkzeiger->set_bild( cursor );
-				gr->obj_add(wkz_linkzeiger);
-			}
-			last_fab = fab;
+		if(fab->add_supplier(last_fab) || last_fab->add_supplier(fab)) {
+			//ok! they are connected
 			return NULL;
-		}
-		else {
-			// second click
-			if(fab->add_supplier(last_fab) || last_fab->add_supplier(fab)) {
-				//ok! they are connected => remove marker
-				init( welt, sp );
-				return NULL;
-			}
 		}
 	}
 	return "";
 }
-
-
 
 
 /* builds company headquarter

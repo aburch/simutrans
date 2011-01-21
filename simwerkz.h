@@ -450,17 +450,16 @@ public:
 	virtual bool is_init_network_save() const { return true; }
 };
 
-class wkz_link_factory_t : public kartenboden_werkzeug_t {
-private:
-	fabrik_t* last_fab;
-	zeiger_t *wkz_linkzeiger;
+class wkz_link_factory_t : public two_click_werkzeug_t {
 public:
-	wkz_link_factory_t() : kartenboden_werkzeug_t() { wkz_linkzeiger=NULL; last_fab=NULL; id = WKZ_LINK_FACTORY | GENERAL_TOOL; }
+	wkz_link_factory_t() : two_click_werkzeug_t() { id = WKZ_LINK_FACTORY | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Connect factory"); }
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
+private:
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & ) { }
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
+	virtual image_id get_marker_image();
 };
 
 class wkz_headquarter_t : public kartenboden_werkzeug_t {
