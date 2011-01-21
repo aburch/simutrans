@@ -4487,81 +4487,96 @@ const char *wkz_forest_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &
 }
 
 
-
-bool wkz_stop_moving_t::init( karte_t *, spieler_t * )
+image_id wkz_stop_moving_t::get_marker_image()
 {
-	last_pos = koord3d::invalid;
-	last_halt = halthandle_t();
-	waytype[0] = invalid_wt;
-	waytype[1] = invalid_wt;
-	if(wkz_linkzeiger!=NULL) {
-		wkz_linkzeiger->mark_image_dirty( cursor, 0 );
-		delete wkz_linkzeiger;
-		wkz_linkzeiger = NULL;
-	}
-	return true;
+	return cursor;
 }
 
 
-const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
+void wkz_stop_moving_t::read_start_position(karte_t *welt, spieler_t *sp, const koord3d &pos)
 {
-	// now we can start
+	waytype[0] = invalid_wt;
+	waytype[1] = invalid_wt;
+	last_halt = halthandle_t();
+
 	grund_t *bd = welt->lookup(pos);
 	if (bd==NULL) {
-		return "";
+		return;
 	}
-
-	// check halts vs waypoints
-	halthandle_t h = haltestelle_t::get_halt(welt,pos,sp);
-	if(last_pos!=koord3d::invalid  &&  (h.is_bound() ^ last_halt.is_bound())) {
-		init(welt,sp);
-		return "Can only move from halt to halt or waypoint to waypoint.";
-	}
-	if(  h.is_bound()  &&  !spieler_t::check_owner( sp, h->get_besitzer() )  ) {
-		init(welt,sp);
-		return "Das Feld gehoert\neinem anderen Spieler\n";
-	}
-
-	// ok, now we have old_stop
-	if(  h.is_bound()  &&  !(bd->is_halt()  ||  (h->get_station_type()&haltestelle_t::dock  &&  bd->ist_wasser())  )  ) {
-		// not this halt ...
-		return "No suitable ground!";
-	}
-	// check waytypes
-	if(  waytype[0] == invalid_wt  &&  (bd->ist_wasser()  ||  bd->hat_wege())  ) {
-		// ok;
+	// now assign waytypes
+	if(bd->ist_wasser()) {
+		waytype[0] = water_wt;
 	}
 	else {
-		if(  (waytype[0] == water_wt  &&  bd->ist_wasser())  ||  bd->hat_weg(waytype[0])  ||  bd->hat_weg(waytype[1])  ) {
-		// ok;
+		waytype[0] = bd->get_weg_nr(0)->get_waytype();
+		if(bd->get_weg_nr(1)) {
+			waytype[1] = bd->get_weg_nr(1)->get_waytype();
 		}
-		else
-			return "No suitable ground!";
+	}
+	// .. and halt
+	last_halt = haltestelle_t::get_halt(welt,pos,sp);
+}
+
+
+uint8 wkz_stop_moving_t::is_valid_pos( karte_t *welt, spieler_t *sp, const koord3d &pos, const char *&error, const koord3d &start)
+{
+	grund_t *bd = welt->lookup(pos);
+	if (bd==NULL) {
+		error = "";
+		return 0;
+	}
+	// check halt ownership
+	halthandle_t h = haltestelle_t::get_halt(welt,pos,sp);
+	if(  h.is_bound()  &&  !spieler_t::check_owner( sp, h->get_besitzer() )  ) {
+		error = "Das Feld gehoert\neinem anderen Spieler\n";
+		return 0;
+	}
+	// check for halt on the tile
+	if(  h.is_bound()  &&  !(bd->is_halt()  ||  (h->get_station_type()&haltestelle_t::dock  &&  bd->ist_wasser())  )  ) {
+		error = "No suitable ground!";
+		return 0;
 	}
 
-
-	if(  last_pos == koord3d::invalid  ) {
-		// put cursor
-		last_pos = bd->get_pos();
-		last_halt = h;
-		if(bd->ist_wasser()) {
-			waytype[0] = water_wt;
+	if (start==koord3d::invalid) {
+		// check for existing ways
+		if (bd->ist_wasser()  ||  bd->hat_wege()) {
+			return 2;
 		}
 		else {
-			waytype[0] = bd->get_weg_nr(0)->get_waytype();
-			if(bd->get_weg_nr(1)) {
-				waytype[1] = bd->get_weg_nr(1)->get_waytype();
-			}
-		}
-		if (is_local_execution()) {
-			wkz_linkzeiger = new zeiger_t(welt, last_pos, NULL);
-			wkz_linkzeiger->set_bild( cursor );
-			bd->obj_add(wkz_linkzeiger);
+			error = "No suitable ground!";
+			return 0;
 		}
 	}
 	else {
-		// second click
-		pos = bd->get_pos();
+		// read conditions at start point
+		read_start_position(welt, sp, start);
+		// check halts vs waypoints
+		if(h.is_bound() ^ last_halt.is_bound()) {
+			error = "Can only move from halt to halt or waypoint to waypoint.";
+			return 0;
+		}
+		// check waytypes
+		if(  (waytype[0] == water_wt  &&  bd->ist_wasser())  ||  bd->hat_weg(waytype[0])  ||  bd->hat_weg(waytype[1])  ) {
+			// ok
+			return 2;
+		}
+		else {
+			error = "No suitable ground!";
+			return 0;
+		}
+	}
+}
+
+const char *wkz_stop_moving_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &last_pos, const koord3d &pos)
+{
+	// read conditions at start point
+	read_start_position(welt, sp, last_pos);
+
+	// second click
+	grund_t *bd = welt->lookup(pos);
+	halthandle_t h = haltestelle_t::get_halt(welt,pos,sp);
+
+	if (bd) {
 		const halthandle_t new_halt = h;
 		// depending on the waytype we simply build replacements lists
 		// in the worst case we have to iterate over all tiles twice ...
@@ -4678,12 +4693,8 @@ const char *wkz_stop_moving_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 		}
 		// since factory connections may have changed
 		welt->set_schedule_counter();
-		//ok! they are connected => remove marker
-		init( welt, sp );
-		return NULL;
 	}
-	return "";
-
+	return NULL;
 }
 
 

@@ -505,19 +505,22 @@ private:
 };
 
 /* stop moving tool */
-class wkz_stop_moving_t : public werkzeug_t {
+class wkz_stop_moving_t : public two_click_werkzeug_t {
 private:
-	koord3d last_pos;
-	zeiger_t *wkz_linkzeiger;
 	waytype_t waytype[2];
 	halthandle_t last_halt;
 public:
-	wkz_stop_moving_t() : werkzeug_t(), last_pos(koord3d::invalid) { wkz_linkzeiger=NULL; id = WKZ_STOP_MOVER | GENERAL_TOOL; }
+	wkz_stop_moving_t() : two_click_werkzeug_t() { id = WKZ_STOP_MOVER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("replace stop"); }
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
+
+private:
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & ) { }
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
+	virtual image_id get_marker_image();
+
+	void read_start_position(karte_t *welt, spieler_t *sp, const koord3d &pos);
 };
 
 /* make all tiles of this player a public stop
