@@ -8,7 +8,6 @@
 #include "gameinfo.h"
 #include "../simtools.h"
 #include "../simwerkz.h"
-#include "../simworld.h"
 #include "../simmesg.h"
 #include "../simversion.h"
 #include "../player/simplay.h"
@@ -474,7 +473,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 void nwc_check_t::rdwr()
 {
 	network_world_command_t::rdwr();
-	packet->rdwr_long(server_random_seed);
+	server_checklist.rdwr(packet);
 	packet->rdwr_long(server_sync_step);
 	if (packet->is_loading()  &&  umgebung_t::server) {
 		// server does not receive nwc_check_t-commands
@@ -502,8 +501,8 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	init = init_;
 	tool_client_id = 0;
 	flags = wkz->flags;
-	last_sync_step = sp->get_welt()->get_last_random_seed_sync();
-	last_random_seed = sp->get_welt()->get_last_random_seed();
+	last_sync_step = sp->get_welt()->get_last_checklist_sync_step();
+	last_checklist = sp->get_welt()->get_last_checklist();
 	// write custom data of wkz to our internal buffer
 	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
 	if (sp) {
@@ -541,7 +540,7 @@ void nwc_tool_t::rdwr()
 {
 	network_world_command_t::rdwr();
 	packet->rdwr_long(last_sync_step);
-	packet->rdwr_long(last_random_seed);
+	last_checklist.rdwr(packet);
 	packet->rdwr_byte(player_nr);
 	sint16 posx = pos.x; packet->rdwr_short(posx); pos.x = posx;
 	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
@@ -619,8 +618,8 @@ bool nwc_tool_t::execute(karte_t *welt)
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
 		nwt->sync_step = welt->get_sync_steps() + 1;
-		nwt->last_sync_step = welt->get_last_random_seed_sync();
-		nwt->last_random_seed = welt->get_last_random_seed();
+		nwt->last_sync_step = welt->get_last_checklist_sync_step();
+		nwt->last_checklist = welt->get_last_checklist();
 		dbg->warning("nwc_tool_t::execute", "send sync_steps=%d  wkz=%d %s", nwt->get_sync_step(), wkz_id, init ? "init" : "work");
 		network_send_all(nwt, false);
 	}

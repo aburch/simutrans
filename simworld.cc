@@ -87,6 +87,7 @@
 #include "dataobj/powernet.h"
 
 #include "utils/simstring.h"
+#include "utils/memory_rw.h"
 
 #include "bauer/brueckenbauer.h"
 #include "bauer/tunnelbauer.h"
@@ -117,6 +118,21 @@ static bool is_dragging = false;
 static int last_clients = -1;
 static uint8 last_active_player_nr = 0;
 static std::string last_network_game;
+
+
+void checklist_t::rdwr(memory_rw_t *buffer)
+{
+	buffer->rdwr_long(random_seed);
+	buffer->rdwr_short(halt_entry);
+	buffer->rdwr_short(line_entry);
+	buffer->rdwr_short(convoy_entry);
+}
+
+
+int checklist_t::print(char *buffer, const char *entity) const
+{
+	return sprintf(buffer, "%s=[rand=%u halt=%u line=%u cnvy=%u] ", entity, random_seed, halt_entry, line_entry, convoy_entry);
+}
 
 
 // changes the snowline height (for the seasons)
@@ -5410,9 +5426,9 @@ bool karte_t::interactive(uint32 quit_month)
 	bool cursor_hidden = false;
 	sync_steps = 0;
 
-#define LAST_RANDOMS_COUNT 64
-	uint32 last_randoms[LAST_RANDOMS_COUNT];
-#define LRAND(x) (last_randoms[(x) % LAST_RANDOMS_COUNT])
+#define LAST_CHECKLISTS_COUNT 64
+	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
+#define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
@@ -5609,23 +5625,19 @@ bool karte_t::interactive(uint32 quit_month)
 				// check random number generator states
 				if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
 					nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-					if(  nwt->last_sync_step > last_random_seed_sync  ) {
+					if(  nwt->last_sync_step > last_checklist_sync_step  ) {
 						dbg->warning("karte_t::interactive", "client was too fast (skipping command)" );
 						delete nwc;
 						nwc = NULL;
 					}
 					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
-					else if(nwt->last_sync_step + LAST_RANDOMS_COUNT > last_random_seed_sync  &&  LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
-						// lost synchronisation ...
-						if(  !umgebung_t::server  ) {
-							dbg->warning("karte_t::interactive", "random number generators have different states (closing connection)" );
-							network_disconnect();
-						}
-						else {
-							//server kicks client out actively
-							dbg->warning("karte_t::interactive", "random number generators have different states (kicking client)" );
-							socket_list_t::remove_client( nwc->get_sender() );
-						}
+					else if(  nwt->last_sync_step+LAST_CHECKLISTS_COUNT>last_checklist_sync_step  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
+						// lost synchronisation -> server kicks client out actively
+						char buf[512];
+						const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
+						nwt->last_checklist.print(buf + offset, "initiator");
+						dbg->warning("karte_t::interactive", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
+						socket_list_t::remove_client( nwc->get_sender() );
 						delete nwc;
 						nwc = NULL;
 					}
@@ -5687,23 +5699,29 @@ bool karte_t::interactive(uint32 quit_month)
 					dbg->warning("karte_t::interactive", "wanted to do_command(%d) from another world", nwc->get_id());
 				}
 				// check random counter?
-				else if (nwc->get_id()==NWC_CHECK) {
+				else if(  nwc->get_id()==NWC_CHECK  ) {
 					nwc_check_t* nwcheck = (nwc_check_t*)nwc;
 					// this was the random number at the previous sync step on the server
-					uint32 server_random = nwcheck->server_random_seed;
-					uint32 server_syncst = nwcheck->server_sync_step;
-					dbg->warning("karte_t::interactive", "client: sync=%d  rand=%d, server: sync=%d  rand=%d", sync_steps, LRAND(server_syncst), server_syncst, server_random);
-					if (LRAND(server_syncst) != server_random) {
-						dbg->warning("karte_t::interactive", "random number generators have different states" );
+					const checklist_t &server_checklist = nwcheck->server_checklist;
+					const uint32 server_sync_step = nwcheck->server_sync_step;
+					char buf[512];
+					const int offset = server_checklist.print(buf, "server");
+					LCHKLST(server_sync_step).print(buf + offset, "client");
+					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
+					if(  LCHKLST(server_sync_step)!=server_checklist  ) {
+						dbg->warning("karte_t::interactive", "disconnecting due to checklist mismatch" );
 						network_disconnect();
 					}
 				}
 				else {
 					if(  nwc->get_id()==NWC_TOOL  ) {
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-						if (LRAND(nwt->last_sync_step) != nwt->last_random_seed) {
+						if(  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 							// lost synchronisation ...
-							dbg->warning("karte_t::interactive", "random number generators have different states (skipping command)" );
+							char buf[512];
+							const int offset = nwt->last_checklist.print(buf, "server");
+							LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
+							dbg->warning("karte_t::interactive", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
 							if(  !umgebung_t::server  ) {
 								network_disconnect();
 							}
@@ -5758,14 +5776,14 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
-					last_random_seed = LRAND(sync_steps) = get_random_seed();
-					last_random_seed_sync = sync_steps;
+					last_checklist = LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
+					last_checklist_sync_step = sync_steps;
 					// some serverside tasks
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  ) {
 						// broadcast sync info
 						if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
 								||  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0  ) {
-							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, last_randoms[sync_steps&63], sync_steps);
+							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, last_checklist, last_checklist_sync_step);
 							network_send_all(nwc, true);
 						}
 					}

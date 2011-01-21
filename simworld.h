@@ -49,6 +49,30 @@ class scenario_t;
 class message_t;
 class weg_besch_t;
 class network_world_command_t;
+class memory_rw_t;
+class cbuffer_t;
+
+
+struct checklist_t
+{
+	uint32 random_seed;
+	uint16 halt_entry;
+	uint16 line_entry;
+	uint16 convoy_entry;
+
+	checklist_t() : random_seed(0), halt_entry(0), line_entry(0), convoy_entry(0) { }
+	checklist_t(uint32 _random_seed, uint16 _halt_entry, uint16 _line_entry, uint16 _convoy_entry)
+		: random_seed(_random_seed), halt_entry(_halt_entry), line_entry(_line_entry), convoy_entry(_convoy_entry) { }
+
+	bool operator == (const checklist_t &other) const
+	{
+		return ( random_seed==other.random_seed && halt_entry==other.halt_entry && line_entry==other.line_entry && convoy_entry==other.convoy_entry );
+	}
+	bool operator != (const checklist_t &other) const { return !( (*this)==other ); }
+
+	void rdwr(memory_rw_t *buffer);
+	int print(char *buffer, const char *entity) const;
+};
 
 
 /**
@@ -293,7 +317,8 @@ private:
 
 	// Variables used in interactive()
 	uint32 sync_steps;
-	uint32 last_random_seed, last_random_seed_sync;
+	uint32 last_checklist_sync_step;
+	checklist_t last_checklist;
 	uint8  network_frame_count;
 	uint32 fix_ratio_frame_time; // set in reset_timer()
 
@@ -978,8 +1003,8 @@ public:
 
 	uint32 get_sync_steps() const { return sync_steps; }
 
-	uint32 get_last_random_seed() const { return last_random_seed; }
-	uint32 get_last_random_seed_sync() const { return last_random_seed_sync; }
+	const checklist_t& get_last_checklist() const { return last_checklist; }
+	uint32 get_last_checklist_sync_step() const { return last_checklist_sync_step; }
 
 	void command_queue_append(network_world_command_t*) const;
 

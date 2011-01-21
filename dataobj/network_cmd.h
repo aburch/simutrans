@@ -2,13 +2,13 @@
 #define _NETWORK_CMD_H_
 
 #include "../simtypes.h"
+#include "../simworld.h"
 #include "../tpl/slist_tpl.h"
 #include "koord3d.h"
 #include "network.h"
 
 class memory_rw_t;
 class packet_t;
-class karte_t;
 class spieler_t;
 class werkzeug_t;
 
@@ -208,21 +208,21 @@ private:
 /**
  * nwc_check_t
  * @from-server:
- *		@data random_seed at previous sync_step
+ *		@data checklist random seed and quickstone next check entries at previous sync_step
  *		clients: check random seed, if check fails disconnect.
  *      the check is done in karte_t::interactive
  */
 class nwc_check_t : public network_world_command_t {
 public:
-	nwc_check_t() : network_world_command_t(NWC_CHECK, 0, 0) {};
-	nwc_check_t(uint32 sync_steps, uint32 map_counter, uint32 server_random_seed_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps, map_counter), server_random_seed(server_random_seed_), server_sync_step(server_sync_step_) {};
+	nwc_check_t() : network_world_command_t(NWC_CHECK, 0, 0), server_sync_step(0) { }
+	nwc_check_t(uint32 sync_steps, uint32 map_counter, const checklist_t &server_checklist_, uint32 server_sync_step_) : network_world_command_t(NWC_CHECK, sync_steps, map_counter), server_checklist(server_checklist_), server_sync_step(server_sync_step_) {};
 	virtual void rdwr();
-	virtual void do_command(karte_t*) {}
-	virtual const char* get_name() { return "nwc_check_t";}
-	uint32 server_random_seed;
+	virtual void do_command(karte_t*) { }
+	virtual const char* get_name() { return "nwc_check_t"; }
+	checklist_t server_checklist;
 	uint32 server_sync_step;
 	// no action required -> can be ignored if too old
-	virtual bool ignore_old_events() const { return true;}
+	virtual bool ignore_old_events() const { return true; }
 };
 
 /**
@@ -241,7 +241,7 @@ public:
 class nwc_tool_t : public network_world_command_t {
 public:
 	// to detect desync we sent these infos always together (only valid for tools)
-	uint32 last_random_seed;
+	checklist_t last_checklist;
 	uint32 last_sync_step;
 
 	nwc_tool_t();
