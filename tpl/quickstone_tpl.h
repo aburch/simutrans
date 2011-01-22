@@ -232,6 +232,12 @@ public:
 
 	static uint16 get_size() { return size; }
 
+	/**
+	 * For checking the consistency of handle allocation
+	 * among the server and the clients in network mode
+	 * @author Knightly
+	 */
+	static uint16 get_next_check() { return next; }
 };
 
 template <class T> T** quickstone_tpl<T>::data = 0;

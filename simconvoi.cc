@@ -493,6 +493,11 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 	if(  state==LOADING  ) {
 		wait_lock = longest_loading_time;
 	}
+	// when saving with open window, this can happen
+	if(  state==FAHRPLANEINGABE  ) {
+		wait_lock = 30000; // 60s to drive on, if the client in question had left
+		fpl->eingabe_abschliessen();
+	}
 
 	// Knightly : if lineless convoy -> register itself with stops
 	if(  !line.is_bound()  ) {

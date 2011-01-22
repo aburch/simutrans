@@ -5424,6 +5424,7 @@ void wkz_show_underground_t::draw_after( karte_t *welt, koord pos ) const
  * 'w' : toggle withdraw
  * 'd' : dissassemble convoi and store vehicle in this depot
  * 'T' : toggle 'retire'
+ * 's' : change state to [number] (and maybe set open schedule flag)
  * 'l' : apply new line [number]
  */
 bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
@@ -5613,8 +5614,19 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 			cnv->set_no_load( cnv->get_withdraw() );
 			cnv->set_replace(NULL);
 			break;
-	}
 
+			case 's': // change state
+			{
+				int new_state = atoi(p);
+				if(  new_state>0  ) {
+					cnv->set_state( new_state );
+					if(  new_state==convoi_t::FAHRPLANEINGABE  ) {
+						cnv->get_schedule()->eingabe_beginnen();
+					}
+				}
+			}
+
+		}
 	return false;	// no related work tool ...
 }
 
