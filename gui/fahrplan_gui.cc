@@ -26,6 +26,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
+#include "../vehicle/simvehikel.h"
+
 #include "../tpl/vector_tpl.h"
 
 #include "fahrplan_gui.h"
@@ -617,6 +619,7 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 	if(  file->is_saving()  ) {
 		tstrncpy( cnv_name, cnv->get_name(), sizeof(cnv_name) );
 		player_nr = sp->get_player_nr();
+		cnv_pos = cnv->get_pos();
 	}
 	else {
 		// dummy types
@@ -626,32 +629,50 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 	gr.rdwr( file );
 	file->rdwr_byte( player_nr );
 	file->rdwr_str( cnv_name, sizeof(cnv_name) );
+	cnv_pos.rdwr( file );
 	old_fpl->rdwr(file);
 	fpl->rdwr(file);
 	if(  file->is_loading()  ) {
-		for(  vector_tpl<convoihandle_t>::const_iterator i=welt->convois_begin(); i!=welt->convois_end();  ++i  ) {
-			if(  (*i)->get_besitzer()->get_player_nr()==player_nr  &&  strncmp( (*i)->get_name(), cnv_name, 256 )==0  &&  old_fpl->matches( welt, (*i)->get_schedule() )  ) {
-				// valid convoi found
-				cnv = *i;
-				// now we can open the window ...
-				KOORD_VAL xpos = win_get_posx( this );
-				KOORD_VAL ypos = win_get_posy( this );
-				fahrplan_gui_t *w = new fahrplan_gui_t( cnv->get_schedule(), cnv->get_besitzer(), cnv );
-				create_win( xpos, ypos, w, w_info, (long)cnv->get_schedule() );
-				w->set_fenstergroesse( gr );
-				w->fpl->copy_from( fpl );
-				cnv->get_schedule()->eingabe_abschliessen();
-				w->fpl->eingabe_abschliessen();
-				break;
+		// find convoi by name and position (since there could be two convois with the same name)
+		if(  grund_t *gr = welt->lookup(cnv_pos)  ) {
+			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
+				if(  gr->obj_bei(i)->is_moving()  ) {
+					vehikel_t const* const v = ding_cast<vehikel_t>(gr->obj_bei(i));
+					if(  v  &&  v->get_convoi()  &&  strcmp(v->get_convoi()->get_name(),cnv_name)==0  &&  old_fpl->matches( welt, v->get_convoi()->get_schedule() )  ) {
+						cnv = v->get_convoi()->self;
+						break;
+					}
+				}
 			}
+		}
+		if(  !cnv.is_bound() ) {
+			// not found (most likely convoi in depot ... )
+			for(  vector_tpl<convoihandle_t>::const_iterator i=welt->convois_begin(); i!=welt->convois_end();  ++i  ) {
+				if(  (*i)->get_besitzer()->get_player_nr()==player_nr  &&  strncmp( (*i)->get_name(), cnv_name, 256 )==0  &&  old_fpl->matches( welt, (*i)->get_schedule() )  ) {
+					// valid convoi found
+					cnv = *i;
+					break;
+				}
+			}
+		}
+		if(  cnv.is_bound() ) {
+			// now we can open the window ...
+			KOORD_VAL xpos = win_get_posx( this );
+			KOORD_VAL ypos = win_get_posy( this );
+			fahrplan_gui_t *w = new fahrplan_gui_t( cnv->get_schedule(), cnv->get_besitzer(), cnv );
+			create_win( xpos, ypos, w, w_info, (long)cnv->get_schedule() );
+			w->set_fenstergroesse( gr );
+			w->fpl->copy_from( fpl );
+			cnv->get_schedule()->eingabe_abschliessen();
+			w->fpl->eingabe_abschliessen();
+		}
+		else {
+			dbg->error( "fahrplan_gui_t::rdwr", "Could not restore schedule window for %s", cnv_name );
 		}
 		sp = NULL;
 		delete old_fpl;
 		delete fpl;
 		fpl = old_fpl = NULL;
-		if(  !cnv.is_bound()  ) {
-			dbg->error( "fahrplan_gui_t::rdwr", "Could not restore schedule window for %s", cnv_name );
-		}
 		cnv = convoihandle_t();
 		destroy_win( this );
 	}
