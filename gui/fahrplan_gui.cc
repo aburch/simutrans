@@ -413,7 +413,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			old_fpl->eingabe_abschliessen();
 		}
 	}
-	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  ) {
+	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
 		// just to be sure, renew the tools ...
 		update_werkzeug( true );
 	}
@@ -649,7 +649,7 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 		delete old_fpl;
 		delete fpl;
 		fpl = old_fpl = NULL;
-		if(  cnv.is_bound()  ) {
+		if(  !cnv.is_bound()  ) {
 			dbg->error( "fahrplan_gui_t::rdwr", "Could not restore schedule window for %s", cnv_name );
 		}
 		cnv = convoihandle_t();
