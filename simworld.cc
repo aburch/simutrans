@@ -1214,7 +1214,7 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 
 	if(sets->get_beginner_mode()) {
-		warenbauer_t::set_multiplier( get_einstellungen()->get_starting_year() );
+		warenbauer_t::set_multiplier( get_einstellungen()->get_beginner_price_factor() );
 		sets->set_just_in_time( 0 );
 	}
 	else {
@@ -4193,6 +4193,7 @@ void karte_t::laden(loadsave_t *file)
 	char buf[80];
 
 	intr_disable();
+	dbg->message("karte_t::laden()", "Prepare for loading" );
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
@@ -4211,7 +4212,7 @@ void karte_t::laden(loadsave_t *file)
 	senke_t::neue_karte();
 
 	// jetzt geht das laden los
-	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
+	dbg->warning("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
 	einstellungen->rdwr(file);
 
 	if(  umgebung_t::networkmode  ) {
@@ -4220,7 +4221,6 @@ void karte_t::laden(loadsave_t *file)
 		translator::init_city_names( einstellungen->get_name_language_id() );
 	}
 	set_random_mode(LOAD_RANDOM);
-	dbg->warning("karte_t::laden()", "Prepare for loading %s", %s );
 
 	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
 		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()<2) {
@@ -4230,7 +4230,7 @@ void karte_t::laden(loadsave_t *file)
 		}
 	}
 	if(einstellungen->get_beginner_mode()) {
-		warenbauer_t::set_multiplier( get_einstellungen()->get_starting_year() );
+		warenbauer_t::set_multiplier( get_einstellungen()->get_beginner_price_factor() );
 	}
 	else {
 		warenbauer_t::set_multiplier( 1000 );

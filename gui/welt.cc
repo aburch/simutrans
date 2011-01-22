@@ -533,6 +533,9 @@ void welt_gui_t::zeichnen(koord pos, koord gr)
 	open_climate_gui.pressed = win_get_magic( magic_climate );
 	open_setting_gui.pressed = win_get_magic( magic_settings_frame_t );
 
+	use_intro_dates.pressed = sets->get_use_timeline()&1;
+	use_beginner_mode.pressed = sets->get_beginner_mode();
+
 	gui_frame_t::zeichnen(pos, gr);
 
 	char buf[256];

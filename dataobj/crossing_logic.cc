@@ -240,7 +240,7 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 				else {
 					const uint8 way0_nr = way0==ow;
 					if(
-					(vec[i]->get_maxspeed(way0_nr) > way0_maxspeed  &&  vec[i]->get_maxspeed(way0_nr) < best->get_maxspeed(way0_nr))  ||
+					(vec[i]->get_maxspeed(way0_nr) >= way0_maxspeed  &&  vec[i]->get_maxspeed(way0_nr) < best->get_maxspeed(way0_nr))  ||
 					(best->get_maxspeed(way0_nr) < way0_maxspeed  &&  best->get_maxspeed(way0_nr) < vec[i]->get_maxspeed(way0_nr))
 					) {
 						best = vec[i];
