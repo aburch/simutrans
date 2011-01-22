@@ -335,7 +335,7 @@ void network_world_command_t::rdwr()
 
 bool network_world_command_t::execute(karte_t *welt)
 {
-	dbg->warning("network_world_command_t::execute","do_command %d at sync_step %d world now at %d", get_id(), get_sync_step(), welt->get_sync_steps());
+	DBG_MESSAGE("network_world_command_t::execute","do_command %d at sync_step %d world now at %d", get_id(), get_sync_step(), welt->get_sync_steps());
 	// want to execute something in the past?
 	if (get_sync_step() < welt->get_sync_steps()) {
 		if (!ignore_old_events()) {
@@ -580,14 +580,14 @@ bool nwc_tool_t::execute(karte_t *welt)
 			custom_data = new_custom_data;
 		}
 		// append to command queue
-		dbg->warning("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work");
+		dbg->message("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work");
 		return network_world_command_t::execute(welt);
 	}
 	else if (umgebung_t::server) {
 		if (map_counter != welt->get_map_counter()) {
 			// command from another world
 			// maybe sent before sync happened -> ignore
-			dbg->warning("nwc_tool_t::execute", "wanted to execute(%d) from another world", get_id());
+			dbg->error("nwc_tool_t::execute", "wanted to execute(%d) from another world", get_id());
 			return true; // to delete cmd
 		}
 #if 0
@@ -700,7 +700,7 @@ vector_tpl<nwc_tool_t::tool_node_t> nwc_tool_t::tool_list;
 
 void nwc_tool_t::do_command(karte_t *welt)
 {
-	dbg->warning("nwc_tool_t::do_command", "steps %d wkz %d %s", get_sync_step(), wkz_id, init ? "init" : "work");
+	DBG_MESSAGE("nwc_tool_t::do_command", "steps %d wkz %d %s", get_sync_step(), wkz_id, init ? "init" : "work");
 	if (exec) {
 		// commands are treated differently if they come from this client or not
 		bool local = tool_client_id == network_get_client_id();
@@ -749,7 +749,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 			else {
 				wkz->flags = flags & ~werkzeug_t::WFL_LOCAL;
 			}
-			dbg->warning("command","id=%d init=%d defpar=%s flag=%d",wkz_id&0xFFF,init,default_param,wkz->flags);
+			DBG_MESSAGE("nwc_tool_t::do_command","id=%d init=%d defpar=%s flag=%d",wkz_id&0xFFF,init,default_param,wkz->flags);
 			// call INIT
 			if(  init  ) {
 				// we should be here only if wkz->init() returns false
@@ -764,7 +764,7 @@ void nwc_tool_t::do_command(karte_t *welt)
 					sp->tell_tool_result(wkz, pos, err, local);
 				}
 				if (err) {
-					dbg->warning("command","failed with '%s'",err);
+					dbg->warning("nwc_tool_t::do_command","failed with '%s'",err);
 				}
 			}
 			// reset flags

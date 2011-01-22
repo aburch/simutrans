@@ -782,9 +782,13 @@ static sint16 get_sound( const char *c )
 // fills and displays a toolbar
 void toolbar_t::update(karte_t *welt, spieler_t *sp)
 {
-	if(wzw==NULL) {
-		DBG_MESSAGE("toolbar_t::update()","update/create toolbar %s",default_param);
+	const bool create = (wzw == NULL);
+	if(create) {
+		DBG_MESSAGE("toolbar_t::update()","create toolbar %s",default_param);
 		wzw = new werkzeug_waehler_t( welt, default_param, helpfile, toolbar_tool.index_of(this), iconsize, this!=werkzeug_t::toolbar_tool[0] );
+	}
+	else {
+		DBG_MESSAGE("toolbar_t::update()","update toolbar %s",default_param);
 	}
 
 	if(  (strcmp(this->default_param,"EDITTOOLS")==0  &&  sp!=welt->get_spieler(1))  ) {
@@ -799,6 +803,9 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 		// no way to call this tool? => then it is most likely a metatool
 		if(w->command_key==1  &&  w->get_icon(welt->get_active_player())==IMG_LEER) {
 			if(w->get_default_param()!=NULL) {
+				if(  create  ) {
+					DBG_DEBUG( "toolbar_t::update()", "add metatool (param=%s)", w->get_default_param() );
+				}
 				if(strstr(w->get_default_param(),"ways(")) {
 					const char *c = w->get_default_param()+5;
 					waytype_t way = (waytype_t)atoi(c);
@@ -843,6 +850,9 @@ void toolbar_t::update(karte_t *welt, spieler_t *sp)
 			// get the right city_road
 			if(w->get_id() == (WKZ_CITYROAD | GENERAL_TOOL)) {
 				w->init(welt,sp);
+			}
+			if(  create  ) {
+				DBG_DEBUG( "toolbar_t::update()", "add tool %i (param=%s)", w->get_id(), w->get_default_param() );
 			}
 			// now add it to the toolbar gui
 			wzw->add_werkzeug( w );

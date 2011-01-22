@@ -26,6 +26,7 @@ double perlin_noise_2D(const double x, const double y, const double persistence)
 enum { INTERACTIVE_RANDOM=1, STEP_RANDOM=2, SYNC_STEP_RANDOM=4, LOAD_RANDOM=8, MAP_CREATE_RANDOM=16 };
 void set_random_mode( uint16 );
 void clear_random_mode( uint16 );
+uint16 get_random_mode();
 
 // just more speed with those (generate a precalculated map, which needs only smoothing)
 void init_perlin_map( sint32 w, sint32 h );
