@@ -642,16 +642,17 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 				w->fpl->copy_from( fpl );
 				cnv->get_schedule()->eingabe_abschliessen();
 				w->fpl->eingabe_abschliessen();
+				break;
 			}
 		}
 		sp = NULL;
 		delete old_fpl;
 		delete fpl;
 		fpl = old_fpl = NULL;
-		destroy_win( this );
 		if(  cnv.is_bound()  ) {
 			dbg->error( "fahrplan_gui_t::rdwr", "Could not restore schedule window for %s", cnv_name );
 		}
 		cnv = convoihandle_t();
+		destroy_win( this );
 	}
 }
