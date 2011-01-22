@@ -71,7 +71,9 @@ bool checksum_t::operator== (const checksum_t &other) const
 void checksum_t::input(bool data)
 {
 	assert(sha);
-	sha->Input((const char*)&data, sizeof(bool));
+	// save bool as (uint8)1
+	uint8 bool1 = data ? 1 : 0;
+	input(bool1);
 }
 
 
@@ -90,8 +92,9 @@ void checksum_t::input(sint8 data)
 
 void checksum_t::input(uint16 data)
 {
+	uint16 little_endian = endian(data);
 	assert(sha);
-	sha->Input((const char*)&data, sizeof(uint16));
+	sha->Input((const char*)&little_endian, sizeof(uint16));
 }
 
 
@@ -103,14 +106,15 @@ void checksum_t::input(sint16 data)
 
 void checksum_t::input(uint32 data)
 {
+	uint32 little_endian = endian(data);
 	assert(sha);
-	sha->Input((const char*)&data, sizeof(uint32));
+	sha->Input((const char*)&little_endian, sizeof(uint32));
 }
 
 
 void checksum_t::input(sint32 data)
 {
-	input((uint16)data);
+	input((uint32)data);
 }
 
 

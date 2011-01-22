@@ -224,13 +224,25 @@ bool nwc_join_t::execute(karte_t *welt)
 		nwj.client_id = socket_list_t::get_client_id(packet->get_sender());
 		// no other joining process active?
 		nwj.answer = socket_list_t::get_client(nwj.client_id).is_active()  &&  pending_join_client == INVALID_SOCKET ? 1 : 0;
+		DBG_MESSAGE( "nwc_join_t::execute", "client_id=%i active=%i pending_join_client=%i %active=%d", socket_list_t::get_client_id(packet->get_sender()), socket_list_t::get_client(nwj.client_id).is_active(), pending_join_client, nwj.answer );
 		nwj.rdwr();
-		if (nwj.send( packet->get_sender())) {
-			if (nwj.answer == 1) {
+		if(  nwj.send( packet->get_sender() )  ) {
+			if(  nwj.answer==1  ) {
 				// now send sync command
-				nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id);
-				network_send_all(nws, false);
-				pending_join_client = packet->get_sender();
+				const uint32 new_map_counter = welt->generate_new_map_counter();
+				// since network_send_all() does not include non-playing clients -> send sync command separately to the joining client
+				nwc_sync_t nw_sync(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id, new_map_counter);
+				nw_sync.rdwr();
+				if(  nw_sync.send( packet->get_sender() )  ) {
+					// now send sync command to the server and the remaining clients
+					nwc_sync_t *nws = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), nwj.client_id, new_map_counter);
+					network_send_all(nws, false);
+					pending_join_client = packet->get_sender();
+					DBG_MESSAGE( "nwc_join_t::execute", "pending_join_client now %i", pending_join_client);
+				}
+				else {
+					dbg->warning("nwc_join_t::execute", "send of NWC_SYNC to the joining client failed");
+				}
 			}
 		}
 		else {
@@ -266,26 +278,31 @@ void nwc_ready_t::clear_map_counters()
 
 bool nwc_ready_t::execute(karte_t *welt)
 {
-	if (umgebung_t::server) {
+	if(  umgebung_t::server  ) {
 		// unpause the sender: send ready_t back
-		// get the right map counter first
-		// i.e. that one the comes after the mapcounter in this command
-		uint32 mpc = welt->get_map_counter();
-		for (uint32 i=1; i<all_map_counters.get_count(); i++) {
-			if (all_map_counters[i] == map_counter) {
-				mpc = all_map_counters[i-1];
-				break;
+		// check the validity of the map counter first
+		for(  uint32 i=0;  i<all_map_counters.get_count();  ++i  ) {
+			if(  all_map_counters[i]==map_counter  ) {
+				nwc_ready_t nwc(sync_steps, map_counter);
+				if(  !nwc.send( get_sender())  ) {
+					dbg->warning("nwc_ready_t::execute", "send of NWC_READY failed");
+				}
+				return true;
 			}
 		}
-		nwc_ready_t nwc(sync_steps, mpc);
-		if (!nwc.send( this->packet->get_sender())) {
-			dbg->warning( "nwc_ready_t::execute", "send of NWC_READY failed" );
-		}
+		// no matching map counter -> disconnect client
+		socket_list_t::remove_client( get_sender() );
+		dbg->warning("nwc_ready_t::execute", "disconnect client id=%u due to invalid map counter", our_client_id);
 	}
 	else {
-		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d map_counter=%d",sync_steps,map_counter);
-		welt->set_map_counter(map_counter);
-		welt->network_game_set_pause(false, sync_steps);
+		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d where map_counter=%d", sync_steps, map_counter);
+		if(  map_counter==welt->get_map_counter()  ) {
+			welt->network_game_set_pause(false, sync_steps);
+		}
+		else {
+			welt->network_disconnect();
+			dbg->warning("nwc_ready_t::execute", "disconnecting due to map counter mismatch");
+		}
 	}
 	return true;
 }
@@ -346,6 +363,7 @@ void nwc_sync_t::rdwr()
 {
 	network_world_command_t::rdwr();
 	packet->rdwr_long(client_id);
+	packet->rdwr_long(new_map_counter);
 }
 
 // save, load, pause, if server send game
@@ -361,7 +379,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 	// transfer game, all clients need to sync (save, reload, and pause)
 	// now save and send
 	chdir( umgebung_t::user_dir );
-	if (!umgebung_t::server ) {
+	if(  !umgebung_t::server  ) {
 		char fn[256];
 		sprintf( fn, "client%i-network.sve", network_get_client_id() );
 
@@ -375,6 +393,9 @@ void nwc_sync_t::do_command(karte_t *welt)
 
 		// pause clients, restore steps
 		welt->network_game_set_pause( true, old_sync_steps);
+
+		// apply new map counter
+		welt->set_map_counter(new_map_counter);
 
 		// tell server we are ready
 		network_command_t *nwc = new nwc_ready_t( old_sync_steps, welt->get_map_counter() );
@@ -429,13 +450,13 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// restore steps
 		welt->network_game_set_pause( false, old_sync_steps);
 
-		// generate new map_counter
-		welt->reset_map_counter();
+		// apply new map counter
+		welt->set_map_counter(new_map_counter);
 
 		// unpause the client that received the game
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
 		SOCKET sock = socket_list_t::get_socket(client_id);
-		if (sock != INVALID_SOCKET) {
+		if(  sock != INVALID_SOCKET  ) {
 			nwc_ready_t nwc( old_sync_steps, welt->get_map_counter());
 			if (nwc.send(sock)) {
 				// Knightly : synchronise the iteration limits if necessary
@@ -628,6 +649,13 @@ void nwc_check_t::rdwr()
 }
 
 
+nwc_tool_t::nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0)
+{
+	default_param = NULL;
+	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
+}
+
+
 nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync_steps, uint32 map_counter, bool init_)
 : network_world_command_t(NWC_TOOL, sync_steps, map_counter)
 {
@@ -642,6 +670,11 @@ nwc_tool_t::nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos_, uint32 sync
 	flags = wkz->flags;
 	last_sync_step = sp->get_welt()->get_last_random_seed_sync();
 	last_random_seed = sp->get_welt()->get_last_random_seed();
+	// write custom data of wkz to our internal buffer
+	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
+	if (sp) {
+		wkz->rdwr_custom_data(sp->get_player_nr(), custom_data);
+	}
 }
 
 
@@ -655,11 +688,17 @@ nwc_tool_t::nwc_tool_t(const nwc_tool_t &nwt)
 	init = nwt.init;
 	tool_client_id = nwt.our_client_id;
 	flags = nwt.flags;
+	// copy custom data of wkz to our internal buffer
+	custom_data = new memory_rw_t(custom_data_buf, lengthof(custom_data_buf), true);
+	if (nwt.custom_data) {
+		custom_data->append(*nwt.custom_data);
+	}
 }
 
 
 nwc_tool_t::~nwc_tool_t()
 {
+	delete custom_data;
 	free( (void *)default_param );
 }
 
@@ -679,6 +718,16 @@ void nwc_tool_t::rdwr()
 	packet->rdwr_bool(exec);
 	packet->rdwr_long(tool_client_id);
 	packet->rdwr_byte(flags);
+	// copy custom data of wkz to/from packet
+	if (packet->is_saving()) {
+		// write to packet
+		packet->append(*custom_data);
+	}
+	else {
+		// read from packet
+		custom_data->append_tail(*packet);
+	}
+
 	//if (packet->is_loading()) {
 		dbg->warning("nwc_tool_t::rdwr", "rdwr id=%d client=%d plnr=%d pos=%s wkzid=%d defpar=%s init=%d exec=%d flags=%d. Random mode: %d", id, tool_client_id, player_nr, pos.get_str(), wkz_id, default_param, init, exec, flags, get_random_mode());
 	//}
@@ -691,6 +740,12 @@ void nwc_tool_t::rdwr()
 bool nwc_tool_t::execute(karte_t *welt)
 {
 	if (exec) {
+		if (custom_data->is_saving()) {
+			// create new memory_rw_t that is in reading mode to read wkz data
+			memory_rw_t *new_custom_data = new memory_rw_t(custom_data_buf, custom_data->get_current_index(), false);
+			delete custom_data;
+			custom_data = new_custom_data;
+		}
 		// append to command queue
 		dbg->warning("nwc_tool_t::execute", "append sync_step=%d current sync_step=%d  wkz=%d %s, random flags: %d", get_sync_step(),welt->get_sync_steps(), wkz_id, init ? "init" : "work",  get_random_mode());
 		return network_world_command_t::execute(welt);
@@ -702,6 +757,8 @@ bool nwc_tool_t::execute(karte_t *welt)
 			dbg->warning("nwc_tool_t::execute", "wanted to execute(%d) from another world. Random flags: %d", get_id(), get_random_mode());
 			return true; // to delete cmd
 		}
+#if 0
+#error "Pause does not reset nwc_join_t::pending_join_client properly. Disabled for now here and in simwerkz.h (wkz_pause_t)"
 		// special care for unpause command
 		if (wkz_id == (WKZ_PAUSE | SIMPLE_TOOL)) {
 			if (welt->is_paused()) {
@@ -716,13 +773,14 @@ bool nwc_tool_t::execute(karte_t *welt)
 			}
 			else {
 				// do not pause the game while a join process is active
-				if (nwc_join_t::pending_join_client != INVALID_SOCKET) {
+				if(  nwc_join_t::pending_join_client != INVALID_SOCKET  ) {
 					return true;
 				}
 				// set pending_join_client to block connection attempts during pause
 				nwc_join_t::pending_join_client = ~INVALID_SOCKET;
 			}
 		}
+#endif
 		// copy data, sets tool_client_id to sender client_id
 		nwc_tool_t *nwt = new nwc_tool_t(*this);
 		nwt->exec = true;
@@ -785,7 +843,6 @@ void nwc_tool_t::tool_node_t::client_set_werkzeug(werkzeug_t* &wkz_new, const ch
 {
 	assert(wkz_new);
 	// call init, before calling work
-	wkz_new->flags = 0;
 	wkz_new->set_default_param(new_param);
 	if (wkz_new->init(welt, sp)  ||  store) {
 		// exit old tool
@@ -821,68 +878,37 @@ void nwc_tool_t::do_command(karte_t *welt)
 		// pointer, where the active tool from a remote client is stored
 		tool_node_t *tool_node = NULL;
 
-		// if we took a tool from the static lists reset default_param after work
-		bool reset_default_param = false;
-		const char *old_default_param = NULL;
-
 		spieler_t *sp = player_nr < MAX_PLAYER_COUNT ? welt->get_spieler(player_nr) : NULL;
-		// our tool or from network?
-		if (!local) {
-			// do we have a tool for this client already?
-			tool_node_t new_tool_node(NULL, player_nr, tool_client_id);
-			uint32 index;
-			if (tool_list.is_contained(new_tool_node)) {
-				index = tool_list.index_of(new_tool_node);
-			}
-			else {
-				tool_list.append(new_tool_node);
-				index = tool_list.get_count()-1;
-			}
-			// this node stores the tool and its default_param
-			tool_node = &(tool_list[index]);
 
-			wkz = tool_node->get_tool();
-			// create a new tool if necessary
-			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(sp), default_param)) {
-				wkz = create_tool(wkz_id);
-				// before calling work initialize new tool / exit old tool
-				if (!init) {
-					// init command was not sent if wkz->is_init_network_safe() returned true
-					wkz->flags = 0;
-					// init tool and set default_param
-					tool_node->client_set_werkzeug(wkz, default_param, true, welt, sp);
-				}
-			}
+		// do we have a tool for this client already?
+		tool_node_t new_tool_node(NULL, player_nr, tool_client_id);
+		uint32 index;
+		if (tool_list.is_contained(new_tool_node)) {
+			index = tool_list.index_of(new_tool_node);
 		}
 		else {
-			// local player applied a tool
-			// first try the active tool of our world
-			wkz = player_nr < MAX_PLAYER_COUNT ? welt->get_werkzeug(player_nr) : NULL;
-			if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(sp), default_param)) {
-				// get the right tool
-				vector_tpl<werkzeug_t*> &wkz_list = wkz_id&GENERAL_TOOL ? werkzeug_t::general_tool : wkz_id&SIMPLE_TOOL ? werkzeug_t::simple_tool : werkzeug_t::dialog_tool;
-				wkz = NULL;
-				// first do a detailed search for tool that matches id and default_param
-				for(uint32 i=0; i < wkz_list.get_count(); i++) {
-					if (wkz_list[i]  &&  wkz_list[i]->get_id()==wkz_id  &&  cmp_default_param(wkz_list[i]->get_default_param(sp),default_param)) {
-						wkz = wkz_list[i];
-						break;
-					}
-				}
-				if (wkz == NULL ) {
-					// take default tool if nothing was found
-					// this happens for all the convoi, line, etc.. tools
-					wkz = wkz_list[wkz_id&0xFFF];
-					// we need to reset default_param later otherwise it might point into nirwana soon
-					reset_default_param = true;
-					// get raw default_param sp==NULL
-					old_default_param = wkz->get_default_param(NULL);
-					// now set correct parameter
-					wkz->set_default_param(default_param);
-				}
+			tool_list.append(new_tool_node);
+			index = tool_list.get_count()-1;
+		}
+		// this node stores the tool and its default_param
+		tool_node = &(tool_list[index]);
+
+		wkz = tool_node->get_tool();
+		// create a new tool if necessary
+		if (wkz == NULL  ||  wkz->get_id() != wkz_id  ||  !cmp_default_param(wkz->get_default_param(sp), default_param)) {
+			wkz = create_tool(wkz_id);
+			// before calling work initialize new tool / exit old tool
+			if (!init) {
+				// init command was not sent if wkz->is_init_network_safe() returned true
+				wkz->flags = 0;
+				// init tool and set default_param
+				tool_node->client_set_werkzeug(wkz, default_param, true, welt, sp);
 			}
 		}
+
 		if(  wkz  ) {
+			// read custom data
+			wkz->rdwr_custom_data(player_nr, custom_data);
 			// set flags correctly
 			if (local) {
 				wkz->flags = flags | werkzeug_t::WFL_LOCAL;
@@ -893,12 +919,9 @@ void nwc_tool_t::do_command(karte_t *welt)
 			dbg->warning("command","id=%d init=%d defpar=%s flag=%d. Random flags: %d",wkz_id&0xFFF,init,default_param,wkz->flags, get_random_mode());
 			// call INIT
 			if(  init  ) {
-				if(local) {
-					welt->local_set_werkzeug(wkz, sp);
-				}
-				else {
-					tool_node->client_set_werkzeug(wkz, default_param, false, welt, sp);
-				}
+				// we should be here only if wkz->init() returns false
+				// no need to change active tool of world
+				tool_node->client_set_werkzeug(wkz, default_param, false, welt, sp);
 			}
 			// call WORK
 			else {
@@ -911,14 +934,9 @@ void nwc_tool_t::do_command(karte_t *welt)
 					dbg->warning("command","failed with '%s'",err);
 				}
 			}
-			// restore data
+			// reset flags
 			if (wkz) {
-				// .. reset flags
 				wkz->flags = 0;
-				if (reset_default_param) {
-					// if we took a default tool reset default_param
-					wkz->set_default_param(old_default_param);
-				}
 			}
 		}
 	}

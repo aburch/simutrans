@@ -40,6 +40,7 @@
 #include "gui/werkzeug_waehler.h"
 
 #include "utils/simstring.h"
+#include "utils/memory_rw.h"
 
 
 // for key loockup; is always sorted during the game
@@ -898,9 +899,44 @@ bool two_click_werkzeug_t::init( karte_t *welt, spieler_t *sp )
 }
 
 
+void two_click_werkzeug_t::rdwr_custom_data(uint8 player_nr_, memory_rw_t *packet)
+{
+	uint8 player_nr = player_nr_ < MAX_PLAYER_COUNT ? player_nr_ : MAX_PLAYER_COUNT-1;
+	packet->rdwr_bool(first_click_var[player_nr]);
+	koord3d & pos = start[player_nr];
+	sint16 posx = pos.x; packet->rdwr_short(posx); pos.x = posx;
+	sint16 posy = pos.y; packet->rdwr_short(posy); pos.y = posy;
+	sint8  posz = pos.z; packet->rdwr_byte(posz);  pos.z = posz;
+}
+
+
 bool two_click_werkzeug_t::is_first_click( spieler_t *sp ) const
 {
 	return first_click_var[sp->get_player_nr()];
+}
+
+
+bool two_click_werkzeug_t::is_work_here_network_save( karte_t *welt, spieler_t *sp, koord3d pos )
+{
+	if(  !is_first_click(sp)  ) {
+		return false;
+	}
+	const char *error = "";	//default: nosound
+	uint8 value = is_valid_pos( welt, sp, pos, error, !is_first_click(sp) ? start[sp->get_player_nr()] : koord3d::invalid );
+	DBG_MESSAGE("two_click_werkzeug_t::is_work_here_network_save", "Position %s valid=%d", pos.get_str(), value );
+	if(  value == 0  ) {
+		return false;
+	}
+
+	// work directly if possible and ctrl is NOT pressed
+	if( (value & 1)  &&  !( (value & 2)  &&  is_ctrl_pressed())) {
+		// would work here directly.
+		return false;
+	}
+	else {
+		// set starting position only
+		return true;
+	}
 }
 
 

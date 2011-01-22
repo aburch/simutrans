@@ -1,12 +1,12 @@
-<title>Állomás/megálló lista Sugó</title>
+<title>ÃllomÃ¡s/megÃ¡llÃ³ lista SugÃ³</title>
 
-<h1>Állomás/megálló lista</h1>
+<h1>ÃllomÃ¡s/megÃ¡llÃ³ lista</h1>
 
 <p>
-Az <strong>Állomás/megálló lista</strong>lehetõvé teszi a kis világodban fellelhetõ megállok és állomásák kilistázását, különbözõ opciók szerint.
-Az állomások/megállók név, a várakozó utas vagy termék, típus és számozás szerint sorba állíthatóak, illetve az azonos kategoriák növekvõ vagy csökkenõ sorrendbe jeleníthetõek meg.
+Az <strong>ÃllomÃ¡s/megÃ¡llÃ³ lista</strong>lehetÃµvÃ© teszi a kis vilÃ¡godban fellelhetÃµ megÃ¡llok Ã©s Ã¡llomÃ¡sÃ¡k kilistÃ¡zÃ¡sÃ¡t, kÃ¼lÃ¶nbÃ¶zÃµ opciÃ³k szerint.
+Az Ã¡llomÃ¡sok/megÃ¡llÃ³k nÃ©v, a vÃ¡rakozÃ³ utas vagy termÃ©k, tÃ­pus Ã©s szÃ¡mozÃ¡s szerint sorba Ã¡llÃ­thatÃ³ak, illetve az azonos kategoriÃ¡k nÃ¶vekvÃµ vagy csÃ¶kkenÃµ sorrendbe jelenÃ­thetÃµek meg.
 </p>
 <p>
-A <a href="haltlist_filter.txt">Filterek</a> segítségével tovább szûkithetõ a megjelenített állomások/megállók listája. A filterek hatása csak engedélyezés után jelenik meg.
- A Filterek tulajdonságait a <a href="haltlist_filter.txt">Beállítások</a> gombbal lehet beállítani.
+A <a href="haltlist_filter.txt">Filterek</a> segÃ­tsÃ©gÃ©vel tovÃ¡bb szÃ»kithetÃµ a megjelenÃ­tett Ã¡llomÃ¡sok/megÃ¡llÃ³k listÃ¡ja. A filterek hatÃ¡sa csak engedÃ©lyezÃ©s utÃ¡n jelenik meg.
+ A Filterek tulajdonsÃ¡gait a <a href="haltlist_filter.txt">BeÃ¡llÃ­tÃ¡sok</a> gombbal lehet beÃ¡llÃ­tani.
 </p>

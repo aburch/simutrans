@@ -1,0 +1,13 @@
+<title>Extended Settings Help</title>
+
+<h1><strong>Extended settings</strong></h1>
+
+<p>
+<strong>Extended settings</strong> allows to modify nearly every parameter of the game engine in the same way editing the central configuration file <it>simuconf.tab</it>. Therefore all parameters have exactly the same name as their counterpart in <it>simuconf.tab</it>, where you can also find the documentation of these parameters.</p>
+
+<p>
+If you modify an existing game, you may need to solve and reload to apply the settings. Some settings (like factory connections) will only affect newly created objects.</p>
+
+<p>
+<em>Attention:</em><br>
+You can easily create an unplayable game or make you ruin game.</p>

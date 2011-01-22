@@ -1,11 +1,11 @@
-<title>Hajózási eszközõk Sugó</title>
+<title>HajÃ³zÃ¡si eszkÃ¶zÃµk SugÃ³</title>
 
-<h1>Hajózási eszközõk</h1>
+<h1>HajÃ³zÃ¡si eszkÃ¶zÃµk</h1>
 <p>
-Itt találhatód a hajók, dokkok építéséhez használatos eszközõket.
+Itt talÃ¡lhatÃ³d a hajÃ³k, dokkok Ã©pÃ­tÃ©sÃ©hez hasznÃ¡latos eszkÃ¶zÃµket.
 </p>
 <p>
-Megállókat a kiválasztott hely közvetlen
-közelébe kell elhelyezd, hogy azt a program a te álltalad
-igényelt állomásnak ismerje fel!
+MegÃ¡llÃ³kat a kivÃ¡lasztott hely kÃ¶zvetlen
+kÃ¶zelÃ©be kell elhelyezd, hogy azt a program a te Ã¡lltalad
+igÃ©nyelt Ã¡llomÃ¡snak ismerje fel!
 </p>

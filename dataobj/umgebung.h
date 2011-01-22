@@ -54,6 +54,7 @@ public:
 	static uint16 server;
 
 	static uint32 announce_server;
+	static sint32 announce_server_intervall;
 	static std::string server_name;
 	static std::string server_comment;
 
@@ -62,6 +63,8 @@ public:
 
 	// messages with player name
 	static bool add_player_name_to_message;
+
+	static sint16 window_snap_distance;
 
 	/**
 	* tag-nacht wechsel zeigen ?

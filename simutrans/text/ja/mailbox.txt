@@ -40,3 +40,4 @@
 ・<em>問題</em>　　　　借金が大きいことをお知らせします。<br>
 ・<em>警告</em>　　　　交通渋滞やプレイヤーの変更をお知らせします。
 </p>
+<style type="text/css"><!-- i { color: #000000; font-style: normal; background-color: #ffff99; } --></style>

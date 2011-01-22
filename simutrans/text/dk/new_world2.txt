@@ -28,7 +28,7 @@ ved at benytte <a href="display.txt">Udseende dialogen.</a>
 
 <p>
 <em>Dag og nat indstilling</em><br>
-Bestemmer om der alt efter klokkeslet skal skiftes imellem dag og nat
+Bestemmer om der alt efter klokkeslet skal skiftes imellem dag og na
 belysning. Denne indstilling kan ligeledes ændres under spillet<br>
 ved at benytte <a href="display.txt">Udseende dialogen.</a>
 </p>

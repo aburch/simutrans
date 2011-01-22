@@ -197,7 +197,7 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 		timeout.tv_usec = ((timeout_ms%1000)*1000);
 
 		// and wait ...
-		if(  !select(my_client_socket + 1, NULL, &fds, NULL, &timeout)  ) {
+		if(  !select( FD_SETSIZE, NULL, &fds, NULL, &timeout)  ) {
 			// some other problem?
 			err = "Call to select failed";
 			return INVALID_SOCKET;
@@ -405,7 +405,7 @@ end:
 
 
 // connect to address (cp), receive game, save to client%i-network.sve
-const char *network_connect(const char *cp)
+const char *network_connect(const char *cp, karte_t *world)
 {
 	// open from network
 	const char *err = NULL;
@@ -434,7 +434,7 @@ const char *network_connect(const char *cp)
 		}
 		nwc_join_t *nwj = dynamic_cast<nwc_join_t*>(nwc);
 		if (nwj==NULL) {
-			err = "Protocoll error (expected NWC_JOIN)";
+			err = "Protocol error (expected NWC_JOIN)";
 			goto end;
 		}
 		if (nwj->answer!=1) {
@@ -442,6 +442,17 @@ const char *network_connect(const char *cp)
 			goto end;
 		}
 		client_id = nwj->client_id;
+		// update map counter
+		// wait for sync command (tolerate some wrong commands)
+		for(  uint8 i=0;  i<5;  ++i  ) {
+			nwc = network_check_activity( NULL, 10000 );
+			if(  nwc  &&  nwc->get_id()==NWC_SYNC  ) break;
+		}
+		if(  nwc==NULL  ||  nwc->get_id()!=NWC_SYNC  ) {
+			err = "Protocol error (expected NWC_SYNC)";
+			goto end;
+		}
+		world->set_map_counter( ((nwc_sync_t*)nwc)->get_new_map_counter() );
 		// receive nwc_game_t
 		// wait for game command (tolerate some wrong commands)
 		for(uint8 i=0; i<2; i++) {
@@ -449,7 +460,7 @@ const char *network_connect(const char *cp)
 			if (nwc  &&  nwc->get_id() == NWC_GAME) break;
 		}
 		if (nwc == NULL  ||  nwc->get_id()!=NWC_GAME) {
-			err = "Protocoll error (expected NWC_GAME)";
+			err = "Protocol error (expected NWC_GAME)";
 			goto end;
 		}
 		int len = ((nwc_game_t*)nwc)->len;
@@ -556,7 +567,8 @@ void network_set_socket_nodelay( SOCKET sock )
 {
 #if defined(TCP_NODELAY)  &&  !defined(__APPLE__)
 	// do not wait to join small (command) packets when sending (may cause 200ms delay!)
-	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, NULL, 0 );
+	int b = 1;
+	setsockopt( sock, IPPROTO_TCP, TCP_NODELAY, (const char*)&b, sizeof(b) );
 #else
 	(void)sock;
 #endif
@@ -583,17 +595,12 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 
 	int s_max = socket_list_t::fill_set(&fds);
 
-#ifndef __APPLE__
-	// time out
+	// time out: MAC complains about too long timeouts
 	struct timeval tv;
-	tv.tv_sec = 0; // seconds
-	tv.tv_usec = max(0, timeout) * 1000; // micro-seconds
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000ul;
 
-	int action = select(s_max, &fds, NULL, NULL, &tv );
-#else
-#warning "select timeout with timeval does not work on MAC: Fix me!"
-	int action = select(s_max, &fds, NULL, NULL, NULL );
-#endif
+	int action = select( FD_SETSIZE, &fds, NULL, NULL, &tv );
 	if(  action<=0  ) {
 		// timeout: return command from the queue
 		return network_get_received_command();
@@ -647,10 +654,10 @@ void network_process_send_queues(int timeout)
 
 	// time out
 	struct timeval tv;
-	tv.tv_sec = 0; // seconds
-	tv.tv_usec = max(0, timeout) * 1000; // micro-seconds
+	tv.tv_sec = timeout / 1000;
+	tv.tv_usec = (timeout % 1000) * 1000ul;
 
-	int action = select(s_max, NULL, &fds, NULL, &tv );
+	int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
 
 	if(  action<=0  ) {
 		// timeout: return
@@ -689,7 +696,7 @@ bool network_check_server_connection()
 		FD_ZERO(&fds);
 		int s_max = socket_list_t::fill_set(&fds);
 
-		int action = select(s_max, NULL, &fds, NULL, &tv );
+		int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
 		if(  action<=0  ) {
 			// timeout
 			return false;
@@ -764,10 +771,10 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 				FD_ZERO(&fds);
 				FD_SET(dest,&fds);
 				struct timeval tv;
-				tv.tv_sec = 0;
-				tv.tv_usec = timeout_ms * 1000ul;
+				tv.tv_sec = timeout_ms / 1000;
+				tv.tv_usec = (timeout_ms % 1000) * 1000ul;
 				// can we write?
-				if(  select((int)dest+1, NULL, &fds, NULL, &tv )!=1  ) {
+				if(  select( FD_SETSIZE, NULL, &fds, NULL, &tv )!=1  ) {
 					dbg->warning("network_send_data", "could not write to [%s]", dest);
 					return false;
 				}
@@ -803,10 +810,10 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 		FD_ZERO(&fds);
 		FD_SET(sender,&fds);
 		struct timeval tv;
-		tv.tv_sec = 0;
-		tv.tv_usec = timeout_ms * 1000ul;
+		tv.tv_sec = timeout_ms / 1000;
+		tv.tv_usec = (timeout_ms % 1000) * 1000ul;
 		// can we read?
-		if(  select((int)sender+1, &fds, NULL, NULL, &tv )!=1  ) {
+		if(  select( FD_SETSIZE, &fds, NULL, NULL, &tv )!=1  ) {
 			return true;
 		}
 		// now receive
@@ -931,6 +938,7 @@ void network_close_socket( SOCKET sock )
 		// reset all the special / static socket variables
 		if(  sock==nwc_join_t::pending_join_client  ) {
 			nwc_join_t::pending_join_client = INVALID_SOCKET;
+			DBG_MESSAGE( "network_close_socket()", "Close pending_join_client [%d]", nwc_join_t::pending_join_client );
 		}
 		if(  sock==nwc_pakset_info_t::server_receiver) {
 			nwc_pakset_info_t::server_receiver = INVALID_SOCKET;

@@ -424,6 +424,9 @@ private:
 
 	uint32 max_road_check_depth;
 
+	// when this month is reached, server will do next announcement
+	uint32 server_next_announce_month;
+
 	// announce server and current state to listserver
 	// will be done in step when client number changed
 	void announce_server();
@@ -1156,6 +1159,8 @@ public:
 
 	void command_queue_append(network_world_command_t*) const;
 
+	void clear_command_queue() const;
+
 	void network_disconnect();
 
 	sint32 get_citycar_speed_average() const { return citycar_speed_average; }
@@ -1180,19 +1185,20 @@ public:
 	 * to identify the current map
 	 */
 	uint32 get_map_counter() const { return map_counter; }
-	
-	void set_map_counter(uint32 new_mc) { map_counter = new_mc; }
+
+	void set_map_counter(uint32 new_map_counter);
+
 	/**
-	 * called by server before sending the ready-cmds
+	 * called by the server before sending the sync commands
 	 */
-	void reset_map_counter();
+
+	uint32 generate_new_map_counter() const;
 
 private:
-		
+
 	void calc_generic_road_speed_city() { generic_road_speed_city = calc_generic_road_speed(city_road); }
 	void calc_generic_road_speed_intercity();
 	void calc_max_road_check_depth();
-
 };
 
 #endif

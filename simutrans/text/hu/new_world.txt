@@ -1,66 +1,66 @@
-<title>Új Térkép Sugó</title>
-<h1>Új térkép</h1>
+<title>Ãšj TÃ©rkÃ©p SugÃ³</title>
+<h1>Ãšj tÃ©rkÃ©p</h1>
 
 <p>
-Itt tudod az új létrehozandó térkép paramétereit beállítani.
-Mindegyik mellet egy rövid leírás található.
+Itt tudod az Ãºj lÃ©trehozandÃ³ tÃ©rkÃ©p paramÃ©tereit beÃ¡llÃ­tani.
+Mindegyik mellet egy rÃ¶vid leÃ­rÃ¡s talÃ¡lhatÃ³.
 </p>
 
 <p>
-<em>Térképszám</em> - Itt határozod meg a térkép típusát. Egy kis elõnézeti térképet
-is láthatsz melyen a paraméterek változtatásának hatását lehet ellenõrizni.
+<em>TÃ©rkÃ©pszÃ¡m</em> - Itt hatÃ¡rozod meg a tÃ©rkÃ©p tÃ­pusÃ¡t. Egy kis elÃµnÃ©zeti tÃ©rkÃ©pet
+is lÃ¡thatsz melyen a paramÃ©terek vÃ¡ltoztatÃ¡sÃ¡nak hatÃ¡sÃ¡t lehet ellenÃµrizni.
 <br>
-<em>Méret</em> - A térkép MB vett méretét lehet meghatározni. Az alap a 20 MB.
-<strong> Fontos! </strong> Minnél nagyobb a MB vett térkép méret annál lassabban készül el az
-új térkép és több memoria szükségeltetik.
+<em>MÃ©ret</em> - A tÃ©rkÃ©p MB vett mÃ©retÃ©t lehet meghatÃ¡rozni. Az alap a 20 MB.
+<strong> Fontos! </strong> MinnÃ©l nagyobb a MB vett tÃ©rkÃ©p mÃ©ret annÃ¡l lassabban kÃ©szÃ¼l el az
+Ãºj tÃ©rkÃ©p Ã©s tÃ¶bb memoria szÃ¼ksÃ©geltetik.
 <br>
 <br>
-<em>Városok száma</em> - A városok számát tudod beállítani (min. 2 max. 64)
-Alapérték 16.
+<em>VÃ¡rosok szÃ¡ma</em> - A vÃ¡rosok szÃ¡mÃ¡t tudod beÃ¡llÃ­tani (min. 2 max. 64)
+AlapÃ©rtÃ©k 16.
 </p>
 <p>
-<em>Forg. sûrûsége</em> - A városban közlekedõ kocsik sûrûségét lehet meghatározni. Alapérték 9.
-<em>Vízmennyiség</em> - Az új térképen megjelenõ vízmennyiséget szabályozód. Minél kisebb
-az érték annál több föld lesz ill. annál kevesebb víz és fordítva. Alpérték 4.
+<em>Forg. sÃ»rÃ»sÃ©ge</em> - A vÃ¡rosban kÃ¶zlekedÃµ kocsik sÃ»rÃ»sÃ©gÃ©t lehet meghatÃ¡rozni. AlapÃ©rtÃ©k 9.
+<em>VÃ­zmennyisÃ©g</em> - Az Ãºj tÃ©rkÃ©pen megjelenÃµ vÃ­zmennyisÃ©get szabÃ¡lyozÃ³d. MinÃ©l kisebb
+az Ã©rtÃ©k annÃ¡l tÃ¶bb fÃ¶ld lesz ill. annÃ¡l kevesebb vÃ­z Ã©s fordÃ­tva. AlpÃ©rtÃ©k 4.
 <br>
-<em>Hegymagasság</em> - A hegyek magasságát lehet beállítani. Minél kissebb annál lágyabb
-az átmenet a terepen. Alapérték 160.
+<em>HegymagassÃ¡g</em> - A hegyek magassÃ¡gÃ¡t lehet beÃ¡llÃ­tani. MinÃ©l kissebb annÃ¡l lÃ¡gyabb
+az Ã¡tmenet a terepen. AlapÃ©rtÃ©k 160.
 <br>
-<em>Terepdurvaság</em> - Mennyire legyen változatos a terep, mennyire legyen dimbes-dombos. Alapérték 2.
-</p>
-
-<p>
-<em>Ipari egys. (terepen)</em> - Az ipari egységek sûrûségét szabályozod városon kívül. Nagyobb érték több ipari egységet jelent.
-<br>
-<em>Ipari egys. (városban)</em> - Az ipari egységek sûrûségét szabályozod a városokban vagy a városok közelében. Nagyobb érték több ipari egységet jelent.
-<br>
-<em>Turista forgalom</em> - Mennyi turista legyen a kis világodban. A nagyobb érték több turistaforgalmat jelent.
+<em>TerepdurvasÃ¡g</em> - Mennyire legyen vÃ¡ltozatos a terep, mennyire legyen dimbes-dombos. AlapÃ©rtÃ©k 2.
 </p>
 
 <p>
-<em>Átlag lakos per város</em> - Itt lehet meghatározni az átlag lakósszámot városonként.
+<em>Ipari egys. (terepen)</em> - Az ipari egysÃ©gek sÃ»rÃ»sÃ©gÃ©t szabÃ¡lyozod vÃ¡roson kÃ­vÃ¼l. Nagyobb Ã©rtÃ©k tÃ¶bb ipari egysÃ©get jelent.
+<br>
+<em>Ipari egys. (vÃ¡rosban)</em> - Az ipari egysÃ©gek sÃ»rÃ»sÃ©gÃ©t szabÃ¡lyozod a vÃ¡rosokban vagy a vÃ¡rosok kÃ¶zelÃ©ben. Nagyobb Ã©rtÃ©k tÃ¶bb ipari egysÃ©get jelent.
+<br>
+<em>Turista forgalom</em> - Mennyi turista legyen a kis vilÃ¡godban. A nagyobb Ã©rtÃ©k tÃ¶bb turistaforgalmat jelent.
+</p>
+
+<p>
+<em>Ãtlag lakos per vÃ¡ros</em> - Itt lehet meghatÃ¡rozni az Ã¡tlag lakÃ³sszÃ¡mot vÃ¡rosonkÃ©nt.
 </p>
 
 
 <p>
-<em>Véletlen térkép</em> - Véletlen térkép generálása (nem befolyásol más beállítást).
+<em>VÃ©letlen tÃ©rkÃ©p</em> - VÃ©letlen tÃ©rkÃ©p generÃ¡lÃ¡sa (nem befolyÃ¡sol mÃ¡s beÃ¡llÃ­tÃ¡st).
 </p>
 
 <p>
-<em>Gyalogosokat mutat</em> - Itt lehet beállítani, hogy mutassa-e vagy sem a városokban a
-gyalogosokat. A játék elindítása után a <a href="display.txt">Képernyõ opciók</a> dialogus ablakban módosítható.
+<em>Gyalogosokat mutat</em> - Itt lehet beÃ¡llÃ­tani, hogy mutassa-e vagy sem a vÃ¡rosokban a
+gyalogosokat. A jÃ¡tÃ©k elindÃ­tÃ¡sa utÃ¡n a <a href="display.txt">KÃ©pernyÃµ opciÃ³k</a> dialogus ablakban mÃ³dosÃ­thatÃ³.
 <br>
-<em>Éjszaka/nappal mód</em> - Itt állítható be, hogy legyen-e éjszaka és nappal mód. Ha ki van kapcsolva
-akkor "állandóan nappal van" :). A játék elindítása után a <a href="display.txt">Képernyõ opciók</a> dialogus ablakban módosítható.
+<em>Ã‰jszaka/nappal mÃ³d</em> - Itt Ã¡llÃ­thatÃ³ be, hogy legyen-e Ã©jszaka Ã©s nappal mÃ³d. Ha ki van kapcsolva
+akkor "Ã¡llandÃ³an nappal van" :). A jÃ¡tÃ©k elindÃ­tÃ¡sa utÃ¡n a <a href="display.txt">KÃ©pernyÃµ opciÃ³k</a> dialogus ablakban mÃ³dosÃ­thatÃ³.
 </p>
 
 <p>
-<em>Játék betöltés</em> - Egy már lementett játék indítását teszi lehetõvé.
-(lásd az Opcióknál a  <a href="load.txt">Mentés</a>menüpontot.)<br>
-<em>Játék indítása</em> Az új a fenti paramétereket alkalmazó játék indítása.
+<em>JÃ¡tÃ©k betÃ¶ltÃ©s</em> - Egy mÃ¡r lementett jÃ¡tÃ©k indÃ­tÃ¡sÃ¡t teszi lehetÃµvÃ©.
+(lÃ¡sd az OpciÃ³knÃ¡l a  <a href="load.txt">MentÃ©s</a>menÃ¼pontot.)<br>
+<em>JÃ¡tÃ©k indÃ­tÃ¡sa</em> Az Ãºj a fenti paramÃ©tereket alkalmazÃ³ jÃ¡tÃ©k indÃ­tÃ¡sa.
 <br>
-<em>Domborzat betölt.</em> Itt lehet az álltalad készített térképfájlt, domborzatfájlt betölteni. Mikor nincs kedved a véletlenszerû térképekhez akkor készíts magadnak egy térképet.
-Azt, hogy hogyan kell ezt csinálni azt a neten lehet megtudni :)
+<em>Domborzat betÃ¶lt.</em> Itt lehet az Ã¡lltalad kÃ©szÃ­tett tÃ©rkÃ©pfÃ¡jlt, domborzatfÃ¡jlt betÃ¶lteni. Mikor nincs kedved a vÃ©letlenszerÃ» tÃ©rkÃ©pekhez akkor kÃ©szÃ­ts magadnak egy tÃ©rkÃ©pet.
+Azt, hogy hogyan kell ezt csinÃ¡lni azt a neten lehet megtudni :)
 <br>
-<em>Kilépés</em> - Végleges kilépés a játékból.<br>
+<em>KilÃ©pÃ©s</em> - VÃ©gleges kilÃ©pÃ©s a jÃ¡tÃ©kbÃ³l.<br>
 </p>

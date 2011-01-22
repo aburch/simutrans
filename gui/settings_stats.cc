@@ -559,9 +559,8 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_NUM_VALUE( umgebung_t::cursor_overlay_color );
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 
-
-	const int selected = savegame.get_selection();
-	if (0 <= selected  &&  selected < lengthof(version)) {
+	int selected = savegame.get_selection();
+	if(  0 <= selected  &&  selected < lengthof(version)  ) {
 		umgebung_t::savegame_version_str = version[ selected ];
 	}
 
@@ -653,7 +652,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	SEPERATOR
 	INIT_BOOL( "random_pedestrians", sets->get_random_pedestrians() );
 	INIT_BOOL( "stop_pedestrians", sets->get_show_pax() );
-	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 12, false );
+	INIT_NUM( "citycar_level", sets->get_verkehr_level(), 0, 16, 1, false );
 	INIT_NUM( "default_citycar_life", sets->get_stadtauto_duration(), 1, 1200, 12, false );
 
 	clear_dirty();

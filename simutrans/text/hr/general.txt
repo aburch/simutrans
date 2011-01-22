@@ -1,7 +1,7 @@
 <title>Simutrans Pomoc</title>
 
 <h1><strong>Opcenita Pomoc</strong></h1>
-<br>
+<p>
 - <a href="simutrans.txt">Dobrodosli</a>
 <br>
 - <a href="window.txt">Sucelje Igre</a><br>
@@ -9,7 +9,6 @@
 - <a href="underground.txt">Podzemlje</a><br>
 - <a href="keys.txt">Pomoc Za Tipkovnicu</a>
 <br>
-<p>
 <a href="options.txt">
 <strong>Opcije Igre</strong></a>
 <br>

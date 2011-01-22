@@ -19,6 +19,11 @@ uint16 umgebung_t::server = 0;
 
 // if !=0 contains ID from simutrans-germany.com
 uint32 umgebung_t::announce_server = 0;
+// how often to announce
+// ==0 off
+// ==-1: only on join/leave
+// otherwise: every xx months
+sint32 umgebung_t::announce_server_intervall = 0;
 std::string umgebung_t::server_name;
 std::string umgebung_t::server_comment;
 
@@ -35,6 +40,7 @@ sint16 umgebung_t::midi_volume = 127;
 bool umgebung_t::mute_sound = false;
 bool umgebung_t::mute_midi = false;
 bool umgebung_t::shuffle_midi = true;
+sint16 umgebung_t::window_snap_distance = 8;
 
 // only used internally => do not touch further
 bool umgebung_t::quit_simutrans = false;
@@ -312,6 +318,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 
 	if(  file->get_version()>=110000  ) {
 		file->rdwr_bool( add_player_name_to_message );
+		file->rdwr_short( window_snap_distance );
 	}
 	else if(  file->is_loading()  ) {
 		// did not know about chat message, so we enable it
@@ -321,4 +328,6 @@ void umgebung_t::rdwr(loadsave_t *file)
 		message_flags[3] &= ~(1 << message_t::chat); // do not ignore completely
 
 	}
+
+	// server settings are not saved, since the are server specific and could be different on different servers on the save computers
 }

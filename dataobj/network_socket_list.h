@@ -150,7 +150,6 @@ public: // from now stuff to deal with fd_set's
 	public:
 		socket_iterator_t(fd_set *fds);
 		SOCKET get_current() const { return current; }
-		virtual bool next() = 0;
 	};
 
 	/**

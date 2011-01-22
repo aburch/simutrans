@@ -1,26 +1,26 @@
-<title>Vasúti eszközök Sugó</title>
+<title>VasÃºti eszkÃ¶zÃ¶k SugÃ³</title>
 
-<h1>Vasúti eszközök</h1>
+<h1>VasÃºti eszkÃ¶zÃ¶k</h1>
 
 <p>
-Itt tudsz vasútat, mozdonyokat, jelzõlámpákat, alagútakat
-megállókat, depókat, felüljárókat építeni.
+Itt tudsz vasÃºtat, mozdonyokat, jelzÃµlÃ¡mpÃ¡kat, alagÃºtakat
+megÃ¡llÃ³kat, depÃ³kat, felÃ¼ljÃ¡rÃ³kat Ã©pÃ­teni.
 </p>
 <p>
-Többfajta vasúti sín létezik, válaszd ki a sebesség
-függvényében a neked megfelelõt.
+TÃ¶bbfajta vasÃºti sÃ­n lÃ©tezik, vÃ¡laszd ki a sebessÃ©g
+fÃ¼ggvÃ©nyÃ©ben a neked megfelelÃµt.
 </p>
 <p>
-A vasúti jelzõ építésekor mikor felépíted, akkor az
-mindkét irányba fog jelezni. Sorozatos klikkeléssel éred el azt,
-hogy a megfelelõ irányba mutasson.
+A vasÃºti jelzÃµ Ã©pÃ­tÃ©sekor mikor felÃ©pÃ­ted, akkor az
+mindkÃ©t irÃ¡nyba fog jelezni. Sorozatos klikkelÃ©ssel Ã©red el azt,
+hogy a megfelelÃµ irÃ¡nyba mutasson.
 </p>
 <p>
-Az alagút építésnél figyelembe kell vedd, hogy egyszer a hegyoldalra
-a síneket kell felépítsd és csak erre majd az alagútat. De erre a játék
-idejében figyelmeztet.
+Az alagÃºt Ã©pÃ­tÃ©snÃ©l figyelembe kell vedd, hogy egyszer a hegyoldalra
+a sÃ­neket kell felÃ©pÃ­tsd Ã©s csak erre majd az alagÃºtat. De erre a jÃ¡tÃ©k
+idejÃ©ben figyelmeztet.
 </p>
 <p>
-A Depóban tudod összeállítani a megfelelõ vasúti szerelvényt
+A DepÃ³ban tudod Ã¶sszeÃ¡llÃ­tani a megfelelÃµ vasÃºti szerelvÃ©nyt
 (mozdonyokat, vagonokat).
 </p>

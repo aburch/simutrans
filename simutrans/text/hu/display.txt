@@ -1,24 +1,24 @@
-<title>Képernyõ beállítások Sugó</title>
+<title>KÃ©pernyÃµ beÃ¡llÃ­tÃ¡sok SugÃ³</title>
 
-<h1>Képernyõ beállítások</h1>
-
-<p>
-Itt tudod a Simutrans megjelenítésével kapcsolatos beállításokat elvégezni.<br>
-A következõ dolgokat tudod állítani:</p>
+<h1>KÃ©pernyÃµ beÃ¡llÃ­tÃ¡sok</h1>
 
 <p>
-<em>Fényesség</em> - Sötétítí világosítja a képernyõt (- irányba sötétedik).<br>
-<em>Színek száma</em> - Nem mûködik<br>
-<em>Görg. sebes.</em> - A képernyõ görgetési sebességét lehet szabályozni (a nagyobb gyorsabb).
+Itt tudod a Simutrans megjelenÃ­tÃ©sÃ©vel kapcsolatos beÃ¡llÃ­tÃ¡sokat elvÃ©gezni.<br>
+A kÃ¶vetkezÃµ dolgokat tudod Ã¡llÃ­tani:</p>
+
+<p>
+<em>FÃ©nyessÃ©g</em> - SÃ¶tÃ©tÃ­tÃ­ vilÃ¡gosÃ­tja a kÃ©pernyÃµt (- irÃ¡nyba sÃ¶tÃ©tedik).<br>
+<em>SzÃ­nek szÃ¡ma</em> - Nem mÃ»kÃ¶dik<br>
+<em>GÃ¶rg. sebes.</em> - A kÃ©pernyÃµ gÃ¶rgetÃ©si sebessÃ©gÃ©t lehet szabÃ¡lyozni (a nagyobb gyorsabb).
 </p>
 
 <p>
-<em>Fordított görgetés</em> - A képernyõ görgetési irányának a megfordítása<br>
-<em>Gyalogost megáll. mutat</em> -  Mutatja/elrejti a gyalogosokat a megállókban. Ha a géped egy kicsit lassú kapcsold ki.<br>
-<em>Gyalogost városb. mutat</em> -  Mutatja/elrejti a gyalogosokat a városokban. Ha a géped egy kicsit lassú kapcsold ki.<br>
-<em>Éjszaka/nappal mód</em> - Mutatja a nappalt és az éjszakákat. Elég érdekes effektus, fõleg az éjszaka.
+<em>FordÃ­tott gÃ¶rgetÃ©s</em> - A kÃ©pernyÃµ gÃ¶rgetÃ©si irÃ¡nyÃ¡nak a megfordÃ­tÃ¡sa<br>
+<em>Gyalogost megÃ¡ll. mutat</em> -  Mutatja/elrejti a gyalogosokat a megÃ¡llÃ³kban. Ha a gÃ©ped egy kicsit lassÃº kapcsold ki.<br>
+<em>Gyalogost vÃ¡rosb. mutat</em> -  Mutatja/elrejti a gyalogosokat a vÃ¡rosokban. Ha a gÃ©ped egy kicsit lassÃº kapcsold ki.<br>
+<em>Ã‰jszaka/nappal mÃ³d</em> - Mutatja a nappalt Ã©s az Ã©jszakÃ¡kat. ElÃ©g Ã©rdekes effektus, fÃµleg az Ã©jszaka.
 </p>
 <p>
-Az ablak alsó részén, a játék szempontjából lényegtelen információk találhatók. Ellenben ha valami hiba van és
-netán levelezni fogsz a fejlesztõkkel, akkor valoszínû errõl fognak egy pár dolgot kérdezni.
+Az ablak alsÃ³ rÃ©szÃ©n, a jÃ¡tÃ©k szempontjÃ¡bÃ³l lÃ©nyegtelen informÃ¡ciÃ³k talÃ¡lhatÃ³k. Ellenben ha valami hiba van Ã©s
+netÃ¡n levelezni fogsz a fejlesztÃµkkel, akkor valoszÃ­nÃ» errÃµl fognak egy pÃ¡r dolgot kÃ©rdezni.
 </p>

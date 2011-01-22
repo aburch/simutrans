@@ -1,52 +1,52 @@
-<title>Pénzügyek Sugó</title>
-<h1>Pénzügyek (<em>f</em>)</h1>
+<title>PÃ©nzÃ¼gyek SugÃ³</title>
+<h1>PÃ©nzÃ¼gyek (<em>f</em>)</h1>
 <p>
-Itt tudod a gazdasági helyzetedet ellenõrizni. Leellenõrizhetõ a
-nyereség, veszteség a gazdasági hálózatod fentartási költsége
-és minden egyéb a játék szempotntjából hasznos információ.<br>
-Több kategoriában tudsz információkat kinyerni grafikus és számszerû
-adatok formájában. Fel vannak tüntetve az ez évi és múlt évi adatok is.
+Itt tudod a gazdasÃ¡gi helyzetedet ellenÃµrizni. LeellenÃµrizhetÃµ a
+nyeresÃ©g, vesztesÃ©g a gazdasÃ¡gi hÃ¡lÃ³zatod fentartÃ¡si kÃ¶ltsÃ©ge
+Ã©s minden egyÃ©b a jÃ¡tÃ©k szempotntjÃ¡bÃ³l hasznos informÃ¡ciÃ³.<br>
+TÃ¶bb kategoriÃ¡ban tudsz informÃ¡ciÃ³kat kinyerni grafikus Ã©s szÃ¡mszerÃ»
+adatok formÃ¡jÃ¡ban. Fel vannak tÃ¼ntetve az ez Ã©vi Ã©s mÃºlt Ã©vi adatok is.
 </p>
-<p>A következõ adatinformációk állank rendelkezésedre:</p>
+<p>A kÃ¶vetkezÃµ adatinformÃ¡ciÃ³k Ã¡llank rendelkezÃ©sedre:</p>
 <p>
-<em>Árbevétel</em> - Minden ami hasznot hoz.
-</p>
-<p>
-<em>Munkálatok</em> - Minden költség amit építkezésre, hálozatfejlesztésre költöttél.
+<em>ÃrbevÃ©tel</em> - Minden ami hasznot hoz.
 </p>
 <p>
-<em>Karbantartás</em> - Minden karbantartás igénylõ munkálat összegzése.
+<em>MunkÃ¡latok</em> - Minden kÃ¶ltsÃ©g amit Ã©pÃ­tkezÃ©sre, hÃ¡lozatfejlesztÃ©sre kÃ¶ltÃ¶ttÃ©l.
 </p>
 <p>
-<em>Üzleti eredmény</em> - Bevételek összegzése.
+<em>KarbantartÃ¡s</em> - Minden karbantartÃ¡s igÃ©nylÃµ munkÃ¡lat Ã¶sszegzÃ©se.
 </p>
 <p>
-<em>Új jármû</em> - Új jármûvekre költött pénzösszeg.
+<em>Ãœzleti eredmÃ©ny</em> - BevÃ©telek Ã¶sszegzÃ©se.
 </p>
 <p>
-<em>Építkezés</em> - Építkezésre költött pénzösszegek összegzése.
+<em>Ãšj jÃ¡rmÃ»</em> - Ãšj jÃ¡rmÃ»vekre kÃ¶ltÃ¶tt pÃ©nzÃ¶sszeg.
 </p>
 <p>
-<em>Össz profit</em> - Minden bevétel összegzése.
+<em>Ã‰pÃ­tkezÃ©s</em> - Ã‰pÃ­tkezÃ©sre kÃ¶ltÃ¶tt pÃ©nzÃ¶sszegek Ã¶sszegzÃ©se.
 </p>
 <p>
-<em>Készpénz</em> - A pillanatnyi készpénz mennyiség (a képernyõ alján folyamatosan jelezve).
+<em>Ã–ssz profit</em> - Minden bevÃ©tel Ã¶sszegzÃ©se.
 </p>
 <p>
-<em>Vagyon</em> - Az álltalad felépített vonalak, épületek, ipari egységek össz értéke.
+<em>KÃ©szpÃ©nz</em> - A pillanatnyi kÃ©szpÃ©nz mennyisÃ©g (a kÃ©pernyÃµ aljÃ¡n folyamatosan jelezve).
 </p>
 <p>
-<em>Nettó jövedelem</em> - A pillanatnyi pénzösszeg ami a kasszába befolyik.
+<em>Vagyon</em> - Az Ã¡lltalad felÃ©pÃ­tett vonalak, Ã©pÃ¼letek, ipari egysÃ©gek Ã¶ssz Ã©rtÃ©ke.
 </p>
 <p>
-<em>Árrés</em> - A pillanatnyi költség és árbevétel közötti különbség. Minnél nagyobb annál jobb.
+<em>NettÃ³ jÃ¶vedelem</em> - A pillanatnyi pÃ©nzÃ¶sszeg ami a kasszÃ¡ba befolyik.
 </p>
 <p>
-<em>Havi karbantartás</em> - A közlekedési hálózatod fenttartási költsége.
+<em>ÃrrÃ©s</em> - A pillanatnyi kÃ¶ltsÃ©g Ã©s Ã¡rbevÃ©tel kÃ¶zÃ¶tti kÃ¼lÃ¶nbsÃ©g. MinnÃ©l nagyobb annÃ¡l jobb.
 </p>
 <p>
-<em>Szállítmányok</em> - A szállításra költött pénzmennyiség.
+<em>Havi karbantartÃ¡s</em> - A kÃ¶zlekedÃ©si hÃ¡lÃ³zatod fenttartÃ¡si kÃ¶ltsÃ©ge.
 </p>
 <p>
-Az eredményeket évre, vagy hónapra lebontva lehet megjeleníteni.
+<em>SzÃ¡llÃ­tmÃ¡nyok</em> - A szÃ¡llÃ­tÃ¡sra kÃ¶ltÃ¶tt pÃ©nzmennyisÃ©g.
+</p>
+<p>
+Az eredmÃ©nyeket Ã©vre, vagy hÃ³napra lebontva lehet megjelenÃ­teni.
 </p>

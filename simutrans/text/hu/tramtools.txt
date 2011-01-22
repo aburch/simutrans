@@ -1,25 +1,25 @@
-<title>Villamos eszközök Sugó</title>
+<title>Villamos eszkÃ¶zÃ¶k SugÃ³</title>
 
-<h1>Villamos eszközök</h1>
+<h1>Villamos eszkÃ¶zÃ¶k</h1>
 
 <p>
-Itt tudsz villamos síneket, jelzõlámpákat,
-megállókat, depókat, felüljárókat építeni.
+Itt tudsz villamos sÃ­neket, jelzÃµlÃ¡mpÃ¡kat,
+megÃ¡llÃ³kat, depÃ³kat, felÃ¼ljÃ¡rÃ³kat Ã©pÃ­teni.
 </p>
 <p>
-Többfajta villamos sín létezik, válaszd ki a sebesség
-függvényében a neked megfelelõt.
+TÃ¶bbfajta villamos sÃ­n lÃ©tezik, vÃ¡laszd ki a sebessÃ©g
+fÃ¼ggvÃ©nyÃ©ben a neked megfelelÃµt.
 </p>
 <p>
-A villamos jelzõ építésekor mikor felépíted, akkor az
-mindkét irányba fog jelezni. Sorozatos klikkeléssel éred el azt,
-hogy a megfelelõ irányba mutasson.
+A villamos jelzÃµ Ã©pÃ­tÃ©sekor mikor felÃ©pÃ­ted, akkor az
+mindkÃ©t irÃ¡nyba fog jelezni. Sorozatos klikkelÃ©ssel Ã©red el azt,
+hogy a megfelelÃµ irÃ¡nyba mutasson.
 </p>
 <p>
-Tudni kell, hogy villamos a rendes vasúti síneken is mûködik.
-Ezért ha hídra vagy alagútra van szükséget használd a
-<a href="railtools.txt">"Vasúti eszközöknél"</a> fellelhetõ kellékeket.
+Tudni kell, hogy villamos a rendes vasÃºti sÃ­neken is mÃ»kÃ¶dik.
+EzÃ©rt ha hÃ­dra vagy alagÃºtra van szÃ¼ksÃ©get hasznÃ¡ld a
+<a href="railtools.txt">"VasÃºti eszkÃ¶zÃ¶knÃ©l"</a> fellelhetÃµ kellÃ©keket.
 </p>
 <p>
-A Depóban tudod összeállítani a megfelelõ villamos szerelvényt.
+A DepÃ³ban tudod Ã¶sszeÃ¡llÃ­tani a megfelelÃµ villamos szerelvÃ©nyt.
 </p>

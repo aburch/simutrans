@@ -1,10 +1,10 @@
-<title>Saját színed</title>
+<title>SajÃ¡t szÃ­ned</title>
 
-<h1>Színválasztó</h1>
+<h1>SzÃ­nvÃ¡lasztÃ³</h1>
 
 <p>
-Itt tudod a saját színedet kiválasztani. Evvel lesznek az összes
-általad birtokolt javak, vonatok, kocsik, épületek stb. megjelenítve. De
-ne feledd nem minden épületnek és/vagy jármûnek változik meg a színe, ezt többnyire a tervezõ
-határozza meg (tudniillik ez egy több emberke álltal fejlesztett játék :-)).
+Itt tudod a sajÃ¡t szÃ­nedet kivÃ¡lasztani. Evvel lesznek az Ã¶sszes
+Ã¡ltalad birtokolt javak, vonatok, kocsik, Ã©pÃ¼letek stb. megjelenÃ­tve. De
+ne feledd nem minden Ã©pÃ¼letnek Ã©s/vagy jÃ¡rmÃ»nek vÃ¡ltozik meg a szÃ­ne, ezt tÃ¶bbnyire a tervezÃµ
+hatÃ¡rozza meg (tudniillik ez egy tÃ¶bb emberke Ã¡lltal fejlesztett jÃ¡tÃ©k :-)).
 </p>

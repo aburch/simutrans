@@ -258,7 +258,7 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 			if(i!=1  &&  !welt->get_einstellungen()->is_freeplay()  &&  sp->get_finance_history_year(0, COST_NETWEALTH)<0) {
 				ai_income[i]->set_color( MONEY_MINUS );
 				ai_income[i]->set_pos( koord( gr.x-4, 8+i*2*LINESPACE ) );
-				tstrncpy(account_str[i], translator::translate("Company bankrupt"), 31 );
+				tstrncpy(account_str[i], translator::translate("Company bankrupt"), lengthof(account_str[i]));
 			}
 			else {
 				double account=sp->get_konto_als_double();

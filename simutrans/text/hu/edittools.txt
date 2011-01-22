@@ -1,26 +1,26 @@
-<title>Szerkesztõ eszközök Sugó</title>
+<title>SzerkesztÃµ eszkÃ¶zÃ¶k SugÃ³</title>
 
-<h1>Szerkesztõ eszközök</h1>
+<h1>SzerkesztÃµ eszkÃ¶zÃ¶k</h1>
 
 <p>
 <br>
-<em>Város növelése:</em> egyszer kiválasztod a megfelelõ várost, megkeresed a <strong>Városházát</strong> majd ráklikkelsz. Egy klikkelés +100 lakost add hozzá a város aktuális lakósszámához.
+<em>VÃ¡ros nÃ¶velÃ©se:</em> egyszer kivÃ¡lasztod a megfelelÃµ vÃ¡rost, megkeresed a <strong>VÃ¡roshÃ¡zÃ¡t</strong> majd rÃ¡klikkelsz. Egy klikkelÃ©s +100 lakost add hozzÃ¡ a vÃ¡ros aktuÃ¡lis lakÃ³sszÃ¡mÃ¡hoz.
 <br>
 <br>
-<em>Város csökkentése:</em> egyszer kiválasztod a megfelelõ várost, megkeresed a <strong>Városházát</strong> majd ráklikkelsz. Egy klikkelés -100 lakost vesz el a város aktuális lakósszámából.
+<em>VÃ¡ros csÃ¶kkentÃ©se:</em> egyszer kivÃ¡lasztod a megfelelÃµ vÃ¡rost, megkeresed a <strong>VÃ¡roshÃ¡zÃ¡t</strong> majd rÃ¡klikkelsz. Egy klikkelÃ©s -100 lakost vesz el a vÃ¡ros aktuÃ¡lis lakÃ³sszÃ¡mÃ¡bÃ³l.
 <br>
 <br>
-<em>Városi út építése:</em> 50 km/h sebességû utakat tudsz építeni.
+<em>VÃ¡rosi Ãºt Ã©pÃ­tÃ©se:</em> 50 km/h sebessÃ©gÃ» utakat tudsz Ã©pÃ­teni.
 <br>
 <br>
-<em>Véletlenszerû turista attrakció építése:</em> véletlenszerûen turista attrakciókat épít, így növelheted az utasforgalmat.
+<em>VÃ©letlenszerÃ» turista attrakciÃ³ Ã©pÃ­tÃ©se:</em> vÃ©letlenszerÃ»en turista attrakciÃ³kat Ã©pÃ­t, Ã­gy nÃ¶velheted az utasforgalmat.
 <br>
 <br>
-<em>Hõerõmû építése:</em> ha a meglévõ hõerõmûveid nem tudják kielégíteni az energia igényeidet akkor ezzel az eszközzel újabb hõerõmûveket építhetsz. A játék a hõerõmûhõz automatikusan szénbányákat is generál.
+<em>HÃµerÃµmÃ» Ã©pÃ­tÃ©se:</em> ha a meglÃ©vÃµ hÃµerÃµmÃ»veid nem tudjÃ¡k kielÃ©gÃ­teni az energia igÃ©nyeidet akkor ezzel az eszkÃ¶zzel Ãºjabb hÃµerÃµmÃ»veket Ã©pÃ­thetsz. A jÃ¡tÃ©k a hÃµerÃµmÃ»hÃµz automatikusan szÃ©nbÃ¡nyÃ¡kat is generÃ¡l.
 <br>
 <br>
-<em>Fogyasztó/ipari egység építése:</em> evvel az eszközzel tudsz új ipari egységeket építeni.
+<em>FogyasztÃ³/ipari egysÃ©g Ã©pÃ­tÃ©se:</em> evvel az eszkÃ¶zzel tudsz Ãºj ipari egysÃ©geket Ã©pÃ­teni.
 <br>
 <br>
-<em>Játék zárolása:</em> evvel az eszközzel megakadájozhatod azt, hogy a térképen módosítani lehessen.
+<em>JÃ¡tÃ©k zÃ¡rolÃ¡sa:</em> evvel az eszkÃ¶zzel megakadÃ¡jozhatod azt, hogy a tÃ©rkÃ©pen mÃ³dosÃ­tani lehessen.
 </p>

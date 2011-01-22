@@ -119,20 +119,27 @@ bool werkzeug_waehler_t::infowin_event(const event_t *ev)
 					welt->set_werkzeug( tools[wz_idx], welt->get_active_player() );
 				}
 				else {
-					// right-click on toolbar icon closes toolbar
-					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  &&  (tools[wz_idx]->get_id()&TOOLBAR_TOOL)) {
-						tools[wz_idx]->exit(welt, welt->get_active_player());
-						// triggers werkzeug_waehler_t::infowin_event if the other toolbar,
+					// right-click on toolbar icon closes toolbars and dialogues. Resets selectable simple and general tools to the query-tool
+					if (tools[wz_idx]  &&  tools[wz_idx]->is_selected(welt)  ) {
+						// ->exit triggers werkzeug_waehler_t::infowin_event in the closing toolbar,
 						// which resets active tool to query tool
+						if(  tools[wz_idx]->exit(welt, welt->get_active_player())  ) {
+							welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+						}
 					}
 				}
 			}
 			return true;
 		}
 	}
-	/* this resets to query-tool, when closing toolsbar ... */
+	// this resets to query-tool, when closing toolsbar - but only for selected general tools in the closing toolbar
 	else if(ev->ev_class==INFOWIN &&  ev->ev_code==WIN_CLOSE) {
-		welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+		for(  int i=0;  i<(int)tools.get_count();  i++) {
+			if(  tools[i]->is_selected(welt)   &&  (tools[i]->get_id()&GENERAL_TOOL)  ) {
+				welt->set_werkzeug( werkzeug_t::general_tool[WKZ_ABFRAGE], welt->get_active_player() );
+				break;
+			}
+		}
 	}
 	if(IS_WINDOW_CHOOSE_NEXT(ev)) {
 		if(ev->ev_code==NEXT_WINDOW) {

@@ -66,3 +66,4 @@ AIプレイヤーの場合は、すべての資産が売却され、活動を停
 ができます。この設定はセーブゲームに保存され、いつでも変更することが<br>
 できます。
 </p>
+<style type="text/css"><!-- i { color: #000000; font-style: normal; background-color: #ffff99; } --></style>

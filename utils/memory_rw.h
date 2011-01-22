@@ -25,11 +25,11 @@ public:
 protected:
 	void set_max_size( uint32 new_max_size ) { max_size = new_max_size; }
 
-	uint32 get_current_index() const { return index; }
-
 	void set_index(uint32 new_index) { index = new_index; }
 
 public:
+	uint32 get_current_index() const { return index; }
+
 	bool is_saving() const { return saving; }
 	bool is_loading() const { return !saving; }
 
@@ -46,6 +46,18 @@ public:
 	void rdwr_double(double &dbl);
 	// s: pointer to a string allocated with malloc!
 	void rdwr_str(char *&s);
+
+	/**
+	 * appends the contents of the other buffer from [0 .. index-1]
+	 * (only if saving)
+	 */
+	void append(const memory_rw_t &mem);
+
+	/**
+	 * appends the contents of the other buffer from [index .. max_size-1]
+	 * (only if reading)
+	 */
+	void append_tail(const memory_rw_t &mem);
 
 private:
 	// Low-Level Read / Write function

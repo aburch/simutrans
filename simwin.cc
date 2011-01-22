@@ -811,48 +811,184 @@ static void remove_old_win()
 }
 
 
-void move_win(int win, event_t *ev)
+static inline void snap_check_distance( sint16 *r, const sint16 a, const sint16 b )
 {
-	koord gr = wins[win].gui->get_fenstergroesse();
-
-	// need to mark all old position dirty
-	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
-
-	int xfrom = ev->cx;
-	int yfrom = ev->cy;
-	int xto = ev->mx;
-	int yto = ev->my;
-	int x,y, xdelta, ydelta;
-
-	// CLIP(wert,min,max)
-	x = CLIP(wins[win].pos.x + (xto-xfrom), 8-gr.x, display_get_width()-16);
-	y = CLIP(wins[win].pos.y + (yto-yfrom), 32, display_get_height()-24);
-
-	// delta is actual window movement.
-	xdelta = x - wins[win].pos.x;
-	ydelta = y - wins[win].pos.y;
-
-	wins[win].pos.x += xdelta;
-	wins[win].pos.y += ydelta;
-
-	// and to mark new position also dirty ...
-	mark_rect_dirty_wc( wins[win].pos.x, wins[win].pos.y, wins[win].pos.x+gr.x, wins[win].pos.y+gr.y );
-
-	change_drag_start(xdelta, ydelta);
+	if(  abs(a-b)<=umgebung_t::window_snap_distance  ) {
+		*r = a;
+	}
 }
 
 
-void resize_win(int i, event_t *ev)
+void snap_check_win( const int win, koord *r, const koord from_pos, const koord from_gr, const koord to_pos, const koord to_gr )
+{
+	bool resize;
+	if(  from_gr==to_gr  &&  from_pos!=to_pos  ) { // check if we're moving
+		resize = false;
+	}
+	else if(  from_gr!=to_gr  &&  from_pos==from_pos  ) { // or resizing the window
+		resize = true;
+	}
+	else {
+		return; // or nothing to do.
+	}
+
+	const int wins_count = wins.get_count();
+
+	for(  int i=0;  i<=wins_count;  i++  ) {
+		if(  i==win  ) {
+			// Don't snap to self
+			continue;
+		}
+
+		koord other_gr, other_pos;
+		if(  i==wins_count  ) {
+			// Allow snap to screen edge
+			other_pos.x = 0;
+			other_pos.y = 32;
+			other_gr.x = display_get_width();
+			other_gr.y = display_get_height()-16-32;
+			if(  show_ticker  ) {
+				other_gr.y -= 16;
+			}
+		}
+		else {
+			// Snap to other window
+			other_gr = wins[i].gui->get_fenstergroesse();
+			other_pos = wins[i].pos;
+			if(  wins[i].rollup  ) {
+				other_gr.y = 18;
+			}
+		}
+
+		// my bottom below other top  and  my top above other bottom  ---- in same vertical band
+		if(  from_pos.y+from_gr.y>=other_pos.y  &&  from_pos.y<=other_pos.y+other_gr.y  ) {
+			if(  resize  ) {
+				// other right side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x+other_gr.x-from_pos.x, to_gr.x );  // snap right - align right sides
+			}
+			else {
+				// other right side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x+other_gr.x-from_gr.x, to_pos.x );  // snap right - align right sides
+
+				// other left side and my new left side within snap
+				snap_check_distance( &r->x, other_pos.x, to_pos.x );  // snap left - align left sides
+			}
+		}
+
+		// my new bottom below other top  and  my new top above other bottom  ---- in same vertical band
+		if(  resize  ) {
+			if(  from_pos.y+to_gr.y>other_pos.y  &&  from_pos.y<other_pos.y+other_gr.y  ) {
+				// other left side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x-from_pos.x, to_gr.x );  // snap right - align my right to other left
+			}
+		}
+		else {
+			if(  to_pos.y+from_gr.y>other_pos.y  &&  to_pos.y<other_pos.y+other_gr.y  ) {
+				// other left side and my new right side within snap
+				snap_check_distance( &r->x, other_pos.x-from_gr.x, to_pos.x );  // snap right - align my right to other left
+
+				// other right side and my new left within snap
+				snap_check_distance( &r->x, other_pos.x+other_gr.x, to_pos.x );  // snap left - align my left to other right
+			}
+		}
+
+		// my right side right of other left side  and  my left side left of other right side  ---- in same horizontal band
+		if(  from_pos.x+from_gr.x>=other_pos.x  &&  from_pos.x<=other_pos.x+other_gr.x  ) {
+			if(  resize  ) {
+				// other bottom and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y+other_gr.y-from_pos.y, to_gr.y );  // snap down - align bottoms
+			}
+			else {
+				// other bottom and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y+other_gr.y-from_gr.y, to_pos.y );  // snap down - align bottoms
+
+				// other top and my new top within snap
+				snap_check_distance( &r->y, other_pos.y, to_pos.y );  // snap up - align tops
+			}
+		}
+
+		// my new right side right of other left side  and  my new left side left of other right side  ---- in same horizontal band
+		if (  resize  ) {
+			if(  from_pos.x+to_gr.x>other_pos.x  &&  from_pos.x<other_pos.x+other_gr.x  ) {
+				// other top and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y-from_pos.y, to_gr.y );  // snap down - align my bottom to other top
+			}
+		}
+		else {
+			if(  to_pos.x+from_gr.x>other_pos.x  &&  to_pos.x<other_pos.x+other_gr.x  ) {
+				// other top and my new bottom within snap
+				snap_check_distance( &r->y, other_pos.y-from_gr.y, to_pos.y );  // snap down - align my bottom to other top
+
+				// other bottom and my new top within snap
+				snap_check_distance( &r->y, other_pos.y+other_gr.y, to_pos.y );  // snap up - align my top to other bottom
+			}
+		}
+	}
+}
+
+
+void move_win(int win, event_t *ev)
+{
+	const koord mouse_from( ev->cx, ev->cy );
+	const koord mouse_to( ev->mx, ev->my );
+
+	const koord from_pos = wins[win].pos;
+	koord from_gr = wins[win].gui->get_fenstergroesse();
+	if(  wins[win].rollup  ) {
+		from_gr.y = 18;
+	}
+
+	koord to_pos = wins[win].pos+(mouse_to-mouse_from);
+	const koord to_gr = from_gr;
+
+	if(  umgebung_t::window_snap_distance>0  ) {
+		snap_check_win( win, &to_pos, from_pos, from_gr, to_pos, to_gr );
+	}
+
+	// CLIP(wert,min,max)
+	to_pos.x = CLIP( to_pos.x, 8-to_gr.x, display_get_width()-16 );
+	to_pos.y = CLIP( to_pos.y, 32, display_get_height()-24 );
+
+	// delta is actual window movement.
+	const koord delta = to_pos - from_pos;
+
+	wins[win].pos += delta;
+
+	// need to mark all of old and new positions dirty
+	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
+	mark_rect_dirty_wc( to_pos.x, to_pos.y, to_pos.x+to_gr.x, to_pos.y+to_gr.y );
+
+	change_drag_start( delta.x, delta.y );
+}
+
+
+void resize_win(int win, event_t *ev)
 {
 	event_t wev = *ev;
 	wev.ev_class = WINDOW_RESIZE;
 	wev.ev_code = 0;
 
+	const koord mouse_from( wev.cx, wev.cy );
+	const koord mouse_to( wev.mx, wev.my );
+
+	const koord from_pos = wins[win].pos;
+	const koord from_gr = wins[win].gui->get_fenstergroesse();
+
+	const koord to_pos = from_pos;
+	koord to_gr = from_gr+(mouse_to-mouse_from);
+
+	if(  umgebung_t::window_snap_distance>0  ) {
+		snap_check_win( win, &to_gr, from_pos, from_gr, to_pos, to_gr );
+	}
+
 	// since we may be smaller afterwards
-	koord gr = wins[i].gui->get_fenstergroesse();
-	mark_rect_dirty_wc( wins[i].pos.x, wins[i].pos.y, wins[i].pos.x+gr.x, wins[i].pos.y+gr.y );
-	translate_event(&wev, -wins[i].pos.x, -wins[i].pos.y);
-	wins[i].gui->infowin_event( &wev );
+	mark_rect_dirty_wc( from_pos.x, from_pos.y, from_pos.x+from_gr.x, from_pos.y+from_gr.y );
+
+	// adjust event mouse koord per snap
+	wev.mx = wev.cx + to_gr.x - from_gr.x;
+	wev.my = wev.cy + to_gr.y - from_gr.y;
+
+	wins[win].gui->infowin_event( &wev );
 }
 
 

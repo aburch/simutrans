@@ -1,8 +1,8 @@
 <title>Simutrans Help (Nederlands)</title>
 
 <h1><strong>Simutrans Help</strong></h1><br>
-<strong>Algemeen</strong>
 <p>
+<strong>Algemeen</strong><br>
 - <a href="simutrans.txt">Welkom</a><br>
 - <a href="window.txt">Speel scherm/interface</a><br>
 - <a href="keys.txt">Toetsenbord configuratie</a><br>

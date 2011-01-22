@@ -449,17 +449,16 @@ public:
 	virtual bool is_init_network_save() const { return true; }
 };
 
-class wkz_link_factory_t : public kartenboden_werkzeug_t {
-private:
-	fabrik_t* last_fab;
-	zeiger_t *wkz_linkzeiger;
+class wkz_link_factory_t : public two_click_werkzeug_t {
 public:
-	wkz_link_factory_t() : kartenboden_werkzeug_t() { wkz_linkzeiger=NULL; last_fab=NULL; id = WKZ_LINK_FACTORY | GENERAL_TOOL; }
+	wkz_link_factory_t() : two_click_werkzeug_t() { id = WKZ_LINK_FACTORY | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Connect factory"); }
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
+private:
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & ) { }
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
+	virtual image_id get_marker_image();
 };
 
 class wkz_headquarter_t : public kartenboden_werkzeug_t {
@@ -504,19 +503,22 @@ private:
 };
 
 /* stop moving tool */
-class wkz_stop_moving_t : public werkzeug_t {
+class wkz_stop_moving_t : public two_click_werkzeug_t {
 private:
-	koord3d last_pos;
-	zeiger_t *wkz_linkzeiger;
 	waytype_t waytype[2];
 	halthandle_t last_halt;
 public:
-	wkz_stop_moving_t() : werkzeug_t(), last_pos(koord3d::invalid) { wkz_linkzeiger=NULL; id = WKZ_STOP_MOVER | GENERAL_TOOL; }
+	wkz_stop_moving_t() : two_click_werkzeug_t() { id = WKZ_STOP_MOVER | GENERAL_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("replace stop"); }
-	bool init( karte_t *, spieler_t * );
-	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
-	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual bool is_init_network_save() const { return true; }
+
+private:
+	virtual const char *do_work( karte_t *, spieler_t *, const koord3d &, const koord3d & );
+	virtual void mark_tiles( karte_t *, spieler_t *, const koord3d &, const koord3d & ) { }
+	virtual uint8 is_valid_pos( karte_t *, spieler_t *, const koord3d &, const char *&, const koord3d & );
+	virtual image_id get_marker_image();
+
+	void read_start_position(karte_t *welt, spieler_t *sp, const koord3d &pos);
 };
 
 /* make all tiles of this player a public stop
@@ -537,27 +539,33 @@ public:
 class wkz_pause_t : public werkzeug_t {
 public:
 	wkz_pause_t() : werkzeug_t() { id = WKZ_PAUSE | SIMPLE_TOOL; }
-	const char *get_tooltip(spieler_t *) { return translator::translate("Pause"); }
-	image_id get_icon(spieler_t *sp) const { return umgebung_t::networkmode  &&  (sp!=sp->get_welt()->get_spieler(1)  ||  sp->is_locked())  ? IMG_LEER : icon; }
+	const char *get_tooltip(spieler_t *) { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Pause"); }
+	image_id get_icon(spieler_t *sp) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *welt) const { return welt->is_paused(); }
-	bool init( karte_t *welt, spieler_t * ) {
-		welt->set_fast_forward(0);
-		welt->set_pause( welt->is_paused()^1 );
+	bool init( karte_t *welt, spieler_t *sp ) {
+		if(  !umgebung_t::networkmode  ) {
+			welt->set_fast_forward(0);
+			welt->set_pause( welt->is_paused()^1 );
+		}
 		return false;
 	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 };
 
 class wkz_fastforward_t : public werkzeug_t {
 public:
 	wkz_fastforward_t() : werkzeug_t() { id = WKZ_FASTFORWARD | SIMPLE_TOOL; }
-	const char *get_tooltip(spieler_t *) { return translator::translate("Fast forward"); }
+	const char *get_tooltip(spieler_t *) { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Fast forward"); }
 	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *welt) const { return welt->is_fast_forward(); }
 	bool init( karte_t *welt, spieler_t * ) {
-		welt->set_pause(0);
-		welt->set_fast_forward( welt->is_fast_forward()^1 );
+		if(  !umgebung_t::networkmode  ) {
+			welt->set_pause(0);
+			welt->set_fast_forward( welt->is_fast_forward()^1 );
+		}
 		return false;
 	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 };
 
 class wkz_screenshot_t : public werkzeug_t {
@@ -673,6 +681,7 @@ public:
 		welt->set_dirty();
 		return false;
 	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -720,6 +729,7 @@ public:
 		welt->set_dirty();
 		return false;
 	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -734,6 +744,7 @@ public:
 		welt->set_dirty();
 		return false;
 	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -767,6 +778,7 @@ public:
 	void draw_after( karte_t *w, koord pos ) const;
 	bool init( karte_t *welt, spieler_t * );
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
+	bool exit( karte_t *, spieler_t * ) { return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -775,9 +787,9 @@ class wkz_rotate90_t : public werkzeug_t {
 public:
 	wkz_rotate90_t() : werkzeug_t() { id = WKZ_ROTATE90 | SIMPLE_TOOL; }
 	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
-	const char *get_tooltip(spieler_t *) { return translator::translate("Rotate map"); }
+	const char *get_tooltip(spieler_t *) { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Rotate map"); }
 	bool init( karte_t *welt, spieler_t * ) {
-		if (!umgebung_t::networkmode) {
+		if(  !umgebung_t::networkmode  ) {
 			welt->rotate90();
 			welt->update_map();
 		}
@@ -844,6 +856,7 @@ public:
 		welt->access_einstellungen()->set_show_pax( !welt->get_einstellungen()->get_show_pax() );
 		return false;
 	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual bool is_init_network_save() const { return false; }
 };
 
@@ -856,6 +869,7 @@ public:
 		welt->access_einstellungen()->set_random_pedestrians( !welt->get_einstellungen()->get_random_pedestrians() );
 		return false;
 	}
+	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
 	virtual bool is_init_network_save() const { return false; }
 };
 
@@ -952,6 +966,7 @@ public:
 		create_win(new help_frame_t("general.txt"), w_info, magic_mainhelp);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_mainhelp); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -966,6 +981,7 @@ public:
 		create_win(240, 120, new optionen_gui_t(welt), w_info, magic_optionen_gui_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_optionen_gui_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -980,6 +996,7 @@ public:
 		create_win( new map_frame_t(welt), w_info, magic_reliefmap);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_reliefmap); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -997,6 +1014,7 @@ public:
 		}
 		return false;
 	}
+	bool exit( karte_t *welt, spieler_t * ) { destroy_win(win_get_magic((long)(&(welt->get_active_player()->simlinemgmt)))); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1011,6 +1029,7 @@ public:
 		create_win( new message_frame_t(welt), w_info, magic_messageframe );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_messageframe); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1020,11 +1039,12 @@ class wkz_finances_t : public werkzeug_t {
 public:
 	wkz_finances_t() : werkzeug_t() { id = WKZ_FINANCES | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Finanzen"); }
-	bool is_selected(karte_t *welt) const { return win_get_magic((long)welt->get_active_player()); }
+	bool is_selected(karte_t *welt) const { return win_get_magic(magic_finances_t+welt->get_active_player_nr()); }
 	bool init( karte_t *, spieler_t *sp ) {
 		create_win( new money_frame_t(sp), w_info, magic_finances_t+sp->get_player_nr() );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t *sp ) { destroy_win(magic_finances_t+sp->get_player_nr()); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1039,6 +1059,7 @@ public:
 		create_win( 272, 160, new ki_kontroll_t(welt), w_info, magic_ki_kontroll_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_ki_kontroll_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1053,6 +1074,7 @@ public:
 		create_win(new color_gui_t(welt), w_info, magic_color_gui_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_color_gui_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1067,6 +1089,7 @@ public:
 		create_win(new sound_frame_t(), w_info, magic_sound_kontroll_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_sound_kontroll_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1081,6 +1104,7 @@ public:
 		create_win(new sprachengui_t(), w_info, magic_sprachengui_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_sprachengui_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1095,6 +1119,7 @@ public:
 		create_win(new farbengui_t(sp), w_info, magic_farbengui_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_farbengui_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1109,6 +1134,7 @@ public:
 		create_win( new jump_frame_t(welt), w_info, magic_jump);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_jump); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1119,12 +1145,13 @@ public:
 	wkz_load_t() : werkzeug_t() { id = WKZ_LOAD | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Laden"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_load_t); }
-	bool is_init_network_save() const { return true; }
 	bool init( karte_t *welt, spieler_t * ) {
 		destroy_all_win( true );
 		create_win(new loadsave_frame_t(welt, true), w_info, magic_load_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_load_t); return false; }
+	bool is_init_network_save() const { return true; }
 };
 
 // save game dialoge
@@ -1133,11 +1160,12 @@ public:
 	wkz_save_t() : werkzeug_t() { id = WKZ_SAVE | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Speichern"); }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_save_t); }
-	bool is_init_network_save() const { return true; }
 	bool init( karte_t *welt, spieler_t * ) {
 		create_win(new loadsave_frame_t(welt, false), w_info, magic_save_t);
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_save_t); return false; }
+	bool is_init_network_save() const { return true; }
 };
 
 /* open the list of halt */
@@ -1150,6 +1178,7 @@ public:
 		create_win( new halt_list_frame_t(sp), w_info, magic_halt_list_t );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_halt_list_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1164,6 +1193,7 @@ public:
 		create_win( new convoi_frame_t(sp), w_info, magic_convoi_list+sp->get_player_nr() );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t *sp ) { destroy_win(magic_convoi_list+sp->get_player_nr()); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1178,6 +1208,7 @@ public:
 		create_win( new citylist_frame_t(welt), w_info, magic_citylist_frame_t );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_citylist_frame_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1192,6 +1223,7 @@ public:
 		create_win( new goods_frame_t(welt), w_info, magic_goodslist );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_goodslist); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1206,6 +1238,7 @@ public:
 		create_win( new factorylist_frame_t(welt), w_info, magic_factorylist );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_factorylist); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1220,6 +1253,7 @@ public:
 		create_win( new curiositylist_frame_t(welt), w_info, magic_curiositylist );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_curiositylist); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1236,6 +1270,7 @@ public:
 		}
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_edit_factory); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1252,6 +1287,7 @@ public:
 		}
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_edit_attraction); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1268,6 +1304,7 @@ public:
 		}
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_edit_house); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1284,6 +1321,7 @@ public:
 		}
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_edit_tree); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1292,16 +1330,17 @@ public:
 class wkz_enlarge_map_t : public werkzeug_t{
 public:
 	wkz_enlarge_map_t() : werkzeug_t() { id = WKZ_ENLARGE_MAP | DIALOGE_TOOL; }
-	const char *get_tooltip(spieler_t *) { return translator::translate("enlarge map"); }
+	const char *get_tooltip(spieler_t *) { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("enlarge map"); }
 	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_bigger_map); }
 	bool init( karte_t *welt, spieler_t *sp ) {
-		if (!umgebung_t::networkmode) {
+		if(  !umgebung_t::networkmode  ) {
 			destroy_all_win( true );
 			create_win( new enlarge_map_frame_t(sp,welt), w_info, magic_bigger_map );
 		}
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_bigger_map); return false; }
 };
 
 /* open the list of label */
@@ -1314,6 +1353,7 @@ public:
 		create_win( new labellist_frame_t(welt), w_info, magic_labellist );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_labellist); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
@@ -1322,26 +1362,32 @@ public:
 class wkz_climates_t : public werkzeug_t {
 public:
 	wkz_climates_t() : werkzeug_t() { id = WKZ_CLIMATES | DIALOGE_TOOL; }
-	const char *get_tooltip(spieler_t *) { return translator::translate("Climate Control"); }
+	const char *get_tooltip(spieler_t *) { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? translator::translate("Climate Control") : translator::translate("deactivated in online mode"); }
+	image_id get_icon(spieler_t *) const { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? icon : IMG_LEER; }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_climate); }
 	bool init( karte_t *welt, spieler_t * ) {
-		create_win( new climate_gui_t(welt->access_einstellungen()), w_info, magic_climate );
+		if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
+			create_win( new climate_gui_t(welt->access_einstellungen()), w_info, magic_climate );
+		}
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_climate); return false; }
 };
 
 /* open all game settings */
 class wkz_settings_t : public werkzeug_t {
 public:
 	wkz_settings_t() : werkzeug_t() { id = WKZ_SETTINGS | DIALOGE_TOOL; }
-	const char *get_tooltip(spieler_t *) { return translator::translate("Setting"); }
+	const char *get_tooltip(spieler_t *) { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? translator::translate("Setting") : translator::translate("deactivated in online mode"); }
+	image_id get_icon(spieler_t *) const { return (!umgebung_t::networkmode  ||  umgebung_t::server) ? icon : IMG_LEER; }
 	bool is_selected(karte_t *) const { return win_get_magic(magic_settings_frame_t); }
 	bool init( karte_t *welt, spieler_t * ) {
-		if(  !umgebung_t::networkmode  ||  welt->get_active_player_nr()==1  ) {
+		if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
 			create_win( new settings_frame_t(welt->access_einstellungen()), w_info, magic_settings_frame_t );
 		}
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_settings_frame_t); return false; }
 };
 
 /* server info and join dialoge */
@@ -1354,6 +1400,7 @@ public:
 		create_win( new server_frame_t(welt), w_info, magic_server_frame_t );
 		return false;
 	}
+	bool exit( karte_t *, spieler_t * ) { destroy_win(magic_server_frame_t); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };

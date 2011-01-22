@@ -1,22 +1,22 @@
-<title>Játék beállítások Sugó</title>
-<h1>Játék beállítások</h1>
+<title>JÃ¡tÃ©k beÃ¡llÃ­tÃ¡sok SugÃ³</title>
+<h1>JÃ¡tÃ©k beÃ¡llÃ­tÃ¡sok</h1>
 
 <p>
-Itt lehet a mindenféle beállítási lehetõségeket kihasználni és alkalmazni
+Itt lehet a mindenfÃ©le beÃ¡llÃ­tÃ¡si lehetÃµsÃ©geket kihasznÃ¡lni Ã©s alkalmazni
 </p>
 
 <p>
-<em>Nyelv</em> - A játék nyelvének a megváltoztatása.<br>
-<em>Játékos szín</em> - Saját színed megváltoztatása.<br>
-<em>Képernyõ</em> - Képernyõvel kapcsolatos beállítások.<br>
-<em>Hang</em> - Hangokkal kapcsolatos beállítások.<br>
-<em>Játékosok</em> - Itt tudod a számítogépes ellenfeleidet (AI) kiválasztani.<br>
-<em>Betöltés</em> - Lementett játék betöltése<br>
-<em>Mentés</em> - Az aktuális játék lementése.<br>
-<em>Új térkép</em> - Új térkép létrehozása (figyelem a régi mentés nélkül lezárodik)<br>
-<em>Kilépés</em> - Kilépés a játékból (nincs figyelmeztetés és nem menti a játékot).<br>
+<em>Nyelv</em> - A jÃ¡tÃ©k nyelvÃ©nek a megvÃ¡ltoztatÃ¡sa.<br>
+<em>JÃ¡tÃ©kos szÃ­n</em> - SajÃ¡t szÃ­ned megvÃ¡ltoztatÃ¡sa.<br>
+<em>KÃ©pernyÃµ</em> - KÃ©pernyÃµvel kapcsolatos beÃ¡llÃ­tÃ¡sok.<br>
+<em>Hang</em> - Hangokkal kapcsolatos beÃ¡llÃ­tÃ¡sok.<br>
+<em>JÃ¡tÃ©kosok</em> - Itt tudod a szÃ¡mÃ­togÃ©pes ellenfeleidet (AI) kivÃ¡lasztani.<br>
+<em>BetÃ¶ltÃ©s</em> - Lementett jÃ¡tÃ©k betÃ¶ltÃ©se<br>
+<em>MentÃ©s</em> - Az aktuÃ¡lis jÃ¡tÃ©k lementÃ©se.<br>
+<em>Ãšj tÃ©rkÃ©p</em> - Ãšj tÃ©rkÃ©p lÃ©trehozÃ¡sa (figyelem a rÃ©gi mentÃ©s nÃ©lkÃ¼l lezÃ¡rodik)<br>
+<em>KilÃ©pÃ©s</em> - KilÃ©pÃ©s a jÃ¡tÃ©kbÃ³l (nincs figyelmeztetÃ©s Ã©s nem menti a jÃ¡tÃ©kot).<br>
 </p>
 
 <p>
-Részleteket az egyes opciók helyi sugójánál találsz.
+RÃ©szleteket az egyes opciÃ³k helyi sugÃ³jÃ¡nÃ¡l talÃ¡lsz.
 </p>

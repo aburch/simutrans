@@ -100,3 +100,4 @@
 　オレンジ: 目的地へ出発できた<br>
 　黄色: 　　目的地へ出発できなかった
 </p>
+<style type="text/css"><!-- i { color: #000000; font-style: normal; background-color: #ffff99; } --></style>

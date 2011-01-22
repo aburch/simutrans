@@ -284,6 +284,24 @@ void convoi_t::close_windows()
 	destroy_win( magic_replace+self.get_id() );
 }
 
+/**
+ * unreserves the whole remaining route
+ */
+void convoi_t::unreserve_route()
+{
+	// need a route, vehicles, and vehicles must belong to this convoi
+	// (otherwise crash during loading when fahr[0]->convoi is not initialized yet
+	if(  !route.empty()  &&  anz_vehikel>0  &&  fahr[0]->get_convoi() == this) {
+		waggon_t* lok = dynamic_cast<waggon_t*>(fahr[0]);
+		if (lok) {
+			// free all reserved blocks
+			uint16 dummy;
+			lok->block_reserver(get_route(), back()->get_route_index(), dummy, dummy,  100000, false, true);
+		}
+	}
+}
+
+
 uint32 convoi_t::move_to(karte_t const& welt, koord3d const& k, uint16 const start_index)
 {
 	uint32 train_length = 0;
@@ -547,7 +565,7 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 	if(  with_new_id  ) {
 		char buf[128];
 		name_offset = sprintf(buf,"(%i) ",self.get_id() );
-		tstrncpy(buf+name_offset, translator::translate(name,welt->get_einstellungen()->get_name_language_id()), 116);
+		tstrncpy(buf + name_offset, translator::translate(name, welt->get_einstellungen()->get_name_language_id()), lengthof(buf) - name_offset);
 		tstrncpy(name_and_id, buf, lengthof(name_and_id));
 	}
 	else {
@@ -1440,24 +1458,8 @@ void convoi_t::new_month()
 
 void convoi_t::betrete_depot(depot_t *dep)
 {
-	// first remove reservation, if train is still on train
-	if(  !route.empty()  &&  anz_vehikel>0) {
-		/* now remove reservation from all tiles
-		 * otherwise vehicles with lenght>8 may leave holes
-		 * on diagonals (lenght 8)
-		 */
-		uint32 start_index = route.get_count()-1;
-		do {
-			if(  grund_t *gr = welt->lookup(route.position_bei(start_index))  ) {
-				if (schiene_t* const sch = ding_cast<schiene_t>(gr->get_weg(fahr[0]->get_waytype()))) {
-					if(  !sch->unreserve(self)  ) {
-						// unreserve until no reserved track is encoutered
-						break;
-					}
-				}
-			}
-		} while(  start_index--!=0  );
-	}
+	// first remove reservation, if train is still on track
+	unreserve_route();
 
 	// Hajo: remove vehicles from world data structure
 	for(unsigned i=0; i<anz_vehikel; i++) {

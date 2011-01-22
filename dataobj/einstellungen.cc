@@ -188,6 +188,12 @@ einstellungen_t::einstellungen_t() :
 	/* the big cost section */
 	freeplay = false;
 	starting_money = 20000000;
+	for(  int i=0; i<10; i++  ) {
+		startingmoneyperyear[i].year = 0;
+		startingmoneyperyear[i].money = 0;
+		startingmoneyperyear[i].interpol = 0;
+	}
+
 	maint_building = 5000;	// normal buildings
 
 	// stop buildings
@@ -689,15 +695,25 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			else {
 				// compatibility code
 				sint64 save_starting_money = starting_money;
-				if(file->is_saving()) {
-					if(save_starting_money==0) save_starting_money = get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = 20000000;
+				if(  file->is_saving()  ) {
+					if(save_starting_money==0) {
+						save_starting_money = get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = 20000000;
+					}
 				}
 				file->rdwr_longlong(save_starting_money );
 				if(file->is_loading()) {
-					if(save_starting_money==0) save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
-					if(save_starting_money==0) save_starting_money = 20000000;
+					if(save_starting_money==0) {
+						save_starting_money = umgebung_t::default_einstellungen.get_starting_money(starting_year );
+					}
+					if(save_starting_money==0) {
+						save_starting_money = 20000000;
+					}
 					starting_money = save_starting_money;
 				}
 			}
@@ -1158,6 +1174,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::townhall_info = contents.get_int("townhall_info", umgebung_t::townhall_info) != 0;
 	umgebung_t::single_info = contents.get_int("only_single_info", umgebung_t::single_info );
 
+	umgebung_t::window_snap_distance = contents.get_int("window_snap_distance", umgebung_t::window_snap_distance );
 	umgebung_t::window_buttons_right = contents.get_int("window_buttons_right", umgebung_t::window_buttons_right );
 	umgebung_t::left_to_right_graphs = contents.get_int("left_to_right_graphs", umgebung_t::left_to_right_graphs );
 	umgebung_t::window_frame_active = contents.get_int("window_frame_active", umgebung_t::window_frame_active );
@@ -1188,6 +1205,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	umgebung_t::server_sync_steps_between_checks = contents.get_int("server_frames_between_checks", umgebung_t::server_sync_steps_between_checks );
 
 	umgebung_t::announce_server = contents.get_int("announce_server", umgebung_t::announce_server );
+	umgebung_t::announce_server = contents.get_int("server_announce", umgebung_t::announce_server );
+	umgebung_t::announce_server_intervall = contents.get_int("server_announce_intervall", umgebung_t::announce_server );
 	if(  *contents.get("server_name")  ) {
 		umgebung_t::server_name = ltrim(contents.get("server_name"));
 	}
@@ -1391,12 +1410,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	// at least one found => use this now!
 	if(  j>0  &&  startingmoneyperyear[0].money>0  ) {
 		starting_money = 0;
-	}
-	// fill remaining entries
-	for(  int i=j+1; i<10; i++  ) {
-		startingmoneyperyear[i].year = 0;
-		startingmoneyperyear[i].money = 0;
-		startingmoneyperyear[i].interpol = 0;
+		// fill remaining entries
+		for(  int i=j+1; i<10; i++  ) {
+			startingmoneyperyear[i].year = 0;
+			startingmoneyperyear[i].money = 0;
+			startingmoneyperyear[i].interpol = 0;
+		}
 	}
 
 	maint_building = contents.get_int("maintenance_building", maint_building);

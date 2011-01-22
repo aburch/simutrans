@@ -1,7 +1,7 @@
-<title> Megálló/állomás infó Sugó </title>
-<h1>Megálló/állomás infó</h1>
+<title> MegÃ¡llÃ³/Ã¡llomÃ¡s infÃ³ SugÃ³ </title>
+<h1>MegÃ¡llÃ³/Ã¡llomÃ¡s infÃ³</h1>
 
 <p>
-Itt találhatod az aktuális állomás paramétereit. Pld. mennyi nyersanyag
-vagy utas várakozik, különbözõ statisztikai grafikonok stb.
+Itt talÃ¡lhatod az aktuÃ¡lis Ã¡llomÃ¡s paramÃ©tereit. Pld. mennyi nyersanyag
+vagy utas vÃ¡rakozik, kÃ¼lÃ¶nbÃ¶zÃµ statisztikai grafikonok stb.
 </p>

@@ -1,12 +1,12 @@
-<title>Közúti eszközök Sugó Help</title>
+<title>KÃ¶zÃºti eszkÃ¶zÃ¶k SugÃ³ Help</title>
 
-<h1>Közúti eszközök</h1>
+<h1>KÃ¶zÃºti eszkÃ¶zÃ¶k</h1>
 
 <p>
-Itt található a közútak és kocsik építéséhez szükséges
-összes eszköz.
+Itt talÃ¡lhatÃ³ a kÃ¶zÃºtak Ã©s kocsik Ã©pÃ­tÃ©sÃ©hez szÃ¼ksÃ©ges
+Ã¶sszes eszkÃ¶z.
 </p>
 <p>
-Többféle úttípus közül választhatsz. Válaszd ki a sebesség függvényében a neked épp
-megfelelõt, majd klikkeléssel helyezd a térképre.
+TÃ¶bbfÃ©le ÃºttÃ­pus kÃ¶zÃ¼l vÃ¡laszthatsz. VÃ¡laszd ki a sebessÃ©g fÃ¼ggvÃ©nyÃ©ben a neked Ã©pp
+megfelelÃµt, majd klikkelÃ©ssel helyezd a tÃ©rkÃ©pre.
 </p>

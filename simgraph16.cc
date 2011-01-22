@@ -1272,7 +1272,6 @@ static void rezoom_img(const image_id n)
 			static PIXVAL *baseimage2 = NULL;
 			PIXVAL *src = images[n].base_data;
 			PIXVAL *dest = NULL;
-			sint32 x, y;
 			// embed the baseimage in an image with margin ~ remainder
 			const sint16 x_rem = (images[n].base_x*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
 			const sint16 y_rem = (images[n].base_y*zoom_num[zoom_factor]) % zoom_den[zoom_factor];
@@ -1292,17 +1291,17 @@ static void rezoom_img(const image_id n)
 			// we will upack, resample, pack it
 
 			// thus the unpack buffer must at least fit the window => find out maximum size
-			x = newzoomwidth*(newzoomheight+3)*sizeof(PIXVAL);
-			y = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
-			if(y>x) {
-				x = y;
+			size_t new_size = newzoomwidth*(newzoomheight+6)*sizeof(PIXVAL);
+			size_t unpack_size = (xl_margin+orgzoomwidth+xr_margin)*(yl_margin+orgzoomheight+yr_margin)*4;
+			if( unpack_size > new_size ) {
+				new_size = unpack_size;
 			}
-			if(size < (uint32)x) {
+			if(size < new_size) {
 				free( baseimage );
 				free( baseimage2 );
-				size = x;
-				baseimage  = MALLOCN(uint8, size);
-				baseimage2 = (PIXVAL*)malloc(size);
+				size = new_size;
+				baseimage  = MALLOCN( uint8, size );
+				baseimage2 = (PIXVAL *)MALLOCN( uint8, size );
 			}
 			memset( baseimage, 255, size ); // fill with invalid data to mark transparent regions
 
@@ -1311,7 +1310,7 @@ static void rezoom_img(const image_id n)
 			sint32 basewidth = xl_margin+orgzoomwidth+xr_margin;
 
 			// now: unpack the image
-			for(  y=0;  y<images[n].base_h;  y++  ) {
+			for (sint32 y = 0; y < images[n].base_h; ++y) {
 				uint16 runlen;
 				uint8 *p = baseimage + baseoff + y*(basewidth*4);
 

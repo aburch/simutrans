@@ -7,6 +7,7 @@
 #include "network.h"
 #include "../path_explorer.h"
 
+class memory_rw_t;
 class packet_t;
 class karte_t;
 class spieler_t;
@@ -189,17 +190,21 @@ protected:
  * nwc_sync_t
  * @from-server:
  *		@data client_id this client wants to receive the game
+ *		@data new_map_counter new map counter for the new world after game reloading
  *		clients: pause game, save, load, wait for nwc_ready_t command to unpause
  *		server: pause game, save, load, send game to client, send nwc_ready_t command to client
  */
 class nwc_sync_t : public network_world_command_t {
 public:
-	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0, 0) {};
-	nwc_sync_t(uint32 sync_steps, uint32 map_counter, uint32 send_to_client) : network_world_command_t(NWC_SYNC, sync_steps, map_counter), client_id(send_to_client) {};
+	nwc_sync_t() : network_world_command_t(NWC_SYNC, 0, 0), client_id(0), new_map_counter(0) {};
+	nwc_sync_t(uint32 sync_steps, uint32 map_counter, uint32 send_to_client, uint32 _new_map_counter) : network_world_command_t(NWC_SYNC, sync_steps, map_counter), client_id(send_to_client), new_map_counter(_new_map_counter) { }
 	virtual void rdwr();
 	virtual void do_command(karte_t*);
-	virtual const char* get_name() { return "nwc_sync_t";}
+	virtual const char* get_name() { return "nwc_sync_t"; }
+	uint32 get_new_map_counter() const { return new_map_counter; }
+private:
 	uint32 client_id; // this client shall receive the game
+	uint32 new_map_counter;	// map counter to be applied to the new world after game reloading
 };
 
 /**
@@ -284,7 +289,7 @@ public:
 	uint32 last_random_seed;
 	uint32 last_sync_step;
 
-	nwc_tool_t() : network_world_command_t(NWC_TOOL, 0, 0) { default_param = NULL; }
+	nwc_tool_t();
 	nwc_tool_t(spieler_t *sp, werkzeug_t *wkz, koord3d pos, uint32 sync_steps, uint32 map_counter, bool init);
 	nwc_tool_t(const nwc_tool_t&);
 
@@ -308,6 +313,9 @@ private:
 	uint8 player_nr;
 	bool init;
 	bool exec;
+
+	uint8 custom_data_buf[256];
+	memory_rw_t *custom_data;
 
 	// compare default_param's (NULL pointers allowed)
 	// @return true if default_param are equal

@@ -1,48 +1,48 @@
-<title>Állomás/megálló filter Sugó</title>
+<title>ÃllomÃ¡s/megÃ¡llÃ³ filter SugÃ³</title>
 
-<h1>Állomás/megálló filter</h1>
+<h1>ÃllomÃ¡s/megÃ¡llÃ³ filter</h1>
 
 <p>
-Az <strong>Állomás/megálló filter</strong> teszi lehetõvé az állomások/megállok további szortírozását.
+Az <strong>ÃllomÃ¡s/megÃ¡llÃ³ filter</strong> teszi lehetÃµvÃ© az Ã¡llomÃ¡sok/megÃ¡llok tovÃ¡bbi szortÃ­rozÃ¡sÃ¡t.
 </p>
 <p>
-<em>Beállítási lehetõségek:</em>
+<em>BeÃ¡llÃ­tÃ¡si lehetÃµsÃ©gek:</em>
 </p>
 
 <p>
 <em>1.) Filter neve:</em><br>
-A filtereket (szûrõket) el lehet nevezni.
+A filtereket (szÃ»rÃµket) el lehet nevezni.
 </p>
 
 <p>
 <em>2.) Filter tipusa:</em><br>
-Megálló típuskont lehet választani. A kívánt filtert a kis kockák "benyomásával" lehet aktiválni.
+MegÃ¡llÃ³ tÃ­puskont lehet vÃ¡lasztani. A kÃ­vÃ¡nt filtert a kis kockÃ¡k "benyomÃ¡sÃ¡val" lehet aktivÃ¡lni.
 </p>
 
 <p>
-<em>3.) Speciális filter:</em><br>
-Itt lehet azokat a megállókat/állomásokat kilistázni melyek túlzsúfoltal vagy amit egyetlen jármû sem érint.
-AZt, hogy az állomást milyen vonalak szolgálják ki, vagy van-e direkt útvonal valamilyen más megállóhoz azt az állomás  <a href='station_detail.txt'>"Részletek"</a> gombjára kattintva tudod megnézni.
+<em>3.) SpeciÃ¡lis filter:</em><br>
+Itt lehet azokat a megÃ¡llÃ³kat/Ã¡llomÃ¡sokat kilistÃ¡zni melyek tÃºlzsÃºfoltal vagy amit egyetlen jÃ¡rmÃ» sem Ã©rint.
+AZt, hogy az Ã¡llomÃ¡st milyen vonalak szolgÃ¡ljÃ¡k ki, vagy van-e direkt Ãºtvonal valamilyen mÃ¡s megÃ¡llÃ³hoz azt az Ã¡llomÃ¡s  <a href='station_detail.txt'>"RÃ©szletek"</a> gombjÃ¡ra kattintva tudod megnÃ©zni.
 </p>
 
 <p>
-<em>4.) Igényelt nyersany.:</em><br>
-Itt lehet az árú vagy utas függvényében jobban szûkíteni a keresett megállók listáját.
-A <strong>"mind"</strong> gombbal minden kijelõlõdik,
-a <strong>"semmi"</strong> mindent töröl, a <strong>"ford."</strong> az aktuális kiválasztást megfordítja.
+<em>4.) IgÃ©nyelt nyersany.:</em><br>
+Itt lehet az Ã¡rÃº vagy utas fÃ¼ggvÃ©nyÃ©ben jobban szÃ»kÃ­teni a keresett megÃ¡llÃ³k listÃ¡jÃ¡t.
+A <strong>"mind"</strong> gombbal minden kijelÃµlÃµdik,
+a <strong>"semmi"</strong> mindent tÃ¶rÃ¶l, a <strong>"ford."</strong> az aktuÃ¡lis kivÃ¡lasztÃ¡st megfordÃ­tja.
 </p>
 
 <p>
-<em>5.) Termelés:</em><br>
-Itt lehet azokat a megállókat/dokkokat kiszûrni melyek az álltalad kiválasztott árúkat termelik.
-A <strong>"mind"</strong> gombbal minden kijelõlõdik,
-a <strong>"semmi"</strong> mindent töröl, a <strong>"ford."</strong> az aktuális kiválasztást megfordítja.
+<em>5.) TermelÃ©s:</em><br>
+Itt lehet azokat a megÃ¡llÃ³kat/dokkokat kiszÃ»rni melyek az Ã¡lltalad kivÃ¡lasztott Ã¡rÃºkat termelik.
+A <strong>"mind"</strong> gombbal minden kijelÃµlÃµdik,
+a <strong>"semmi"</strong> mindent tÃ¶rÃ¶l, a <strong>"ford."</strong> az aktuÃ¡lis kivÃ¡lasztÃ¡st megfordÃ­tja.
 </p>
 
 <p>
--><a href="station.txt">Megálló részletek</a>
+-><a href="station.txt">MegÃ¡llÃ³ rÃ©szletek</a>
 </p>
 
 <p>
--><a href="general.txt">Általános információk</a>
+-><a href="general.txt">ÃltalÃ¡nos informÃ¡ciÃ³k</a>
 </p>

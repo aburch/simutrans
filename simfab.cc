@@ -878,28 +878,6 @@ sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 }
 
 
-sint32 fabrik_t::hole_ab(const ware_besch_t *typ, sint32 menge)
-{
-	for (uint32 index = 0; index < ausgang.get_count(); index++) {
-		if (ausgang[index].get_typ() == typ) {
-			if (ausgang[index].menge >> precision_bits >= menge) {
-				ausgang[index].menge -= menge << precision_bits;
-			} else {
-				menge = ausgang[index].menge >> precision_bits;
-				ausgang[index].menge = 0;
-			}
-
-			ausgang[index].abgabe_sum += menge;
-
-			return menge;
-		}
-	}
-
-	// ware "typ" wird hier nicht produziert
-	return -1;
-}
-
-
 sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 {
 	for (uint32 index = 0; index < eingang.get_count(); index++) {
@@ -1255,10 +1233,16 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			const sint32 amount = (sint32)halt->get_ware_fuer_zielpos(ausgang[produkt].get_typ(),ware.get_zielpos());
 
 			sint32 space_left = iter.get_current().space_left;
-			if( space_left < 0) space_left = 0; // ensure overfull stations compare equal allowing tie breaker clause
+			if( space_left < 0) {
+				// ensure overfull stations compare equal allowing tie breaker clause
+				space_left = 0;
+			}
 
 			sint32 space_total = iter.get_current().space_total;
-			if( space_total < 1) space_total = 1; // div by 0 prevention
+			if( space_total < 1) {
+				// div by 0 prevention
+				space_total = 1;
+			}
 
 			const sint32 usage = (space_left << precision_bits) / space_total;
 
@@ -1274,9 +1258,15 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 		}
 
 		menge = min( menge, 9+capacity_left );
+		// ensure amount is not negative ...
+		if(menge<0) {
+			menge = 0;
+		}
+		// since it is assigned here to an unsigned variable!
 		best_ware.menge = menge;
-		if(capacity_left<0) 
-		{
+
+		if(capacity_left<0) {
+
 			// find, what is most waiting here from us
 			ware_t most_waiting(ausgang[produkt].get_typ());
 			most_waiting.menge = 0;

@@ -1,8 +1,8 @@
-<title>Jármûlista filter Sugó</title>
-<h1>Jármûlista filter</h1>
+<title>JÃ¡rmÃ»lista filter SugÃ³</title>
+<h1>JÃ¡rmÃ»lista filter</h1>
 
 <p>
-<em>Beállítási lehetõségek:</em>
+<em>BeÃ¡llÃ­tÃ¡si lehetÃµsÃ©gek:</em>
 </p>
 
 <p>
@@ -12,29 +12,29 @@ A filtereket el lehet nevezni.
 
 <p>
 <em>2.) Filter tipusa:</em><br>
-Jármûcsoportonként lehet választani. A jármûcsoportok melleti
-kis gombocskát megnyomva lehet aktiválni a kívánt filtert.
+JÃ¡rmÃ»csoportonkÃ©nt lehet vÃ¡lasztani. A jÃ¡rmÃ»csoportok melleti
+kis gombocskÃ¡t megnyomva lehet aktivÃ¡lni a kÃ­vÃ¡nt filtert.
 </p>
 
 <p>
-<em>3.) Speciális filter:</em><br>
-Itt lehet a speciális igényeket kiválasztani. Az eltéved jármûveket (vagy a depóban lévõket) itt nagyon könnyen meg tudod találni.
-Eltévedt jármû az a jármû amelyik nem kapja az útvonalát. Ennek több oka lehet: vagy az történt, hogy építkezéseid során
-egy kapcsolódási pontot megszüntettél, vagy pont egy olyan állomást töröltél ahova a kérdéses jármû épp indulni készült.
-Utóbbi esetben ellenõrizd le a jármû <a href='schedule.txt'>menetrendjét</a> vagy a hozzá rendelt vonalat.
+<em>3.) SpeciÃ¡lis filter:</em><br>
+Itt lehet a speciÃ¡lis igÃ©nyeket kivÃ¡lasztani. Az eltÃ©ved jÃ¡rmÃ»veket (vagy a depÃ³ban lÃ©vÃµket) itt nagyon kÃ¶nnyen meg tudod talÃ¡lni.
+EltÃ©vedt jÃ¡rmÃ» az a jÃ¡rmÃ» amelyik nem kapja az ÃºtvonalÃ¡t. Ennek tÃ¶bb oka lehet: vagy az tÃ¶rtÃ©nt, hogy Ã©pÃ­tkezÃ©seid sorÃ¡n
+egy kapcsolÃ³dÃ¡si pontot megszÃ¼ntettÃ©l, vagy pont egy olyan Ã¡llomÃ¡st tÃ¶rÃ¶ltÃ©l ahova a kÃ©rdÃ©ses jÃ¡rmÃ» Ã©pp indulni kÃ©szÃ¼lt.
+UtÃ³bbi esetben ellenÃµrizd le a jÃ¡rmÃ» <a href='schedule.txt'>menetrendjÃ©t</a> vagy a hozzÃ¡ rendelt vonalat.
 </p>
 
 <p>
 <em>4.) Javak filtere:</em><br>
-Itt lehet még jobban szûkíteni a kersett jármûvek listáját. A javak kiválasztásával csak azok a jármûvek jelennek meg
-amelyek az általad kiválasztott javakat szállítják. A <strong>"mind"</strong> gombbal a teljes javak listája kiválasztódik,
-a <strong>"semmi"</strong> mindent töröl, a <strong>"ford."</strong> az aktuális kiválasztást megfordítja.
+Itt lehet mÃ©g jobban szÃ»kÃ­teni a kersett jÃ¡rmÃ»vek listÃ¡jÃ¡t. A javak kivÃ¡lasztÃ¡sÃ¡val csak azok a jÃ¡rmÃ»vek jelennek meg
+amelyek az Ã¡ltalad kivÃ¡lasztott javakat szÃ¡llÃ­tjÃ¡k. A <strong>"mind"</strong> gombbal a teljes javak listÃ¡ja kivÃ¡lasztÃ³dik,
+a <strong>"semmi"</strong> mindent tÃ¶rÃ¶l, a <strong>"ford."</strong> az aktuÃ¡lis kivÃ¡lasztÃ¡st megfordÃ­tja.
 </p>
 
 <p>
--><a href="convoi.txt">Kis segédlet a konvojokról</a>
+-><a href="convoi.txt">Kis segÃ©dlet a konvojokrÃ³l</a>
 </p>
 
 <p>
--><a href="general.txt">Általános információk</a>
+-><a href="general.txt">ÃltalÃ¡nos informÃ¡ciÃ³k</a>
 </p>

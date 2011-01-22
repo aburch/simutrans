@@ -1,14 +1,14 @@
-<title>Hang beállítások Sugó</title>
+<title>Hang beÃ¡llÃ­tÃ¡sok SugÃ³</title>
 
-<h1>Hang beállítások</h1>
+<h1>Hang beÃ¡llÃ­tÃ¡sok</h1>
 <p>
-Itt tudod a játék hang- és zeneeffektusait beállítani.
+Itt tudod a jÃ¡tÃ©k hang- Ã©s zeneeffektusait beÃ¡llÃ­tani.
 </p>
 
 <p>
-<em>Effektus hangerõ</em> - A játék hangeffetusait szabályozod (pld. vonat fütyülése stb.)<br>
-<em>Zene hangerõ:</em> - A zene hangereját szabályozod. <strong>Figyelem a játékhoz nem minden
-esetben tartozik zene (attól függ honnan töltötted le). Ha nincsenek hangfájlok akkor ez
-a csuszka nem változtat semmin. Azt, hogy épp milyen hangfájl van használatban az két sorral
-lejjebb lehet látni.</strong>
+<em>Effektus hangerÃµ</em> - A jÃ¡tÃ©k hangeffetusait szabÃ¡lyozod (pld. vonat fÃ¼tyÃ¼lÃ©se stb.)<br>
+<em>Zene hangerÃµ:</em> - A zene hangerejÃ¡t szabÃ¡lyozod. <strong>Figyelem a jÃ¡tÃ©khoz nem minden
+esetben tartozik zene (attÃ³l fÃ¼gg honnan tÃ¶ltÃ¶tted le). Ha nincsenek hangfÃ¡jlok akkor ez
+a csuszka nem vÃ¡ltoztat semmin. Azt, hogy Ã©pp milyen hangfÃ¡jl van hasznÃ¡latban az kÃ©t sorral
+lejjebb lehet lÃ¡tni.</strong>
 </p>
