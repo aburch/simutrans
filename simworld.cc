@@ -5633,7 +5633,7 @@ bool karte_t::interactive(uint32 quit_month)
 					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
 					else if(  nwt->last_sync_step+LAST_CHECKLISTS_COUNT>last_checklist_sync_step  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 						// lost synchronisation -> server kicks client out actively
-						char buf[512];
+						char buf[256];
 						const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
 						nwt->last_checklist.print(buf + offset, "initiator");
 						dbg->warning("karte_t::interactive", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
@@ -5704,7 +5704,7 @@ bool karte_t::interactive(uint32 quit_month)
 					// this was the random number at the previous sync step on the server
 					const checklist_t &server_checklist = nwcheck->server_checklist;
 					const uint32 server_sync_step = nwcheck->server_sync_step;
-					char buf[512];
+					char buf[256];
 					const int offset = server_checklist.print(buf, "server");
 					LCHKLST(server_sync_step).print(buf + offset, "client");
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
@@ -5718,7 +5718,7 @@ bool karte_t::interactive(uint32 quit_month)
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
 						if(  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 							// lost synchronisation ...
-							char buf[512];
+							char buf[256];
 							const int offset = nwt->last_checklist.print(buf, "server");
 							LCHKLST(nwt->last_sync_step).print(buf + offset, "executor");
 							dbg->warning("karte_t::interactive", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
