@@ -472,8 +472,9 @@ void planquadrat_t::display_overlay(const sint16 xpos, const sint16 ypos, const 
 void planquadrat_t::set_halt(halthandle_t halt)
 {
 	if(halt.is_bound()  &&  this_halt.is_bound()  &&  halt!=this_halt) {
+		// will only happend during loading
 		koord k = (ground_size>0) ? get_kartenboden()->get_pos().get_2d() : koord::invalid;
-		dbg->warning("planquadrat_t::set_halt()","assign new halt to already bound halt at (%i,%i)!", k.x, k.y );
+		DBG_MESSAGE("planquadrat_t::set_halt()","assign new halt to already bound halt at (%i,%i)!", k.x, k.y );
 	}
 	this_halt = halt;
 }

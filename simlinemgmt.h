@@ -34,6 +34,12 @@ public:
 	void add_line(linehandle_t new_line);
 
 	/*
+	 * creates/checks a line ID for a new line
+	 * @author hsiegeln
+	 */
+	void check_create_id(linehandle_t new_line);
+
+	/*
 	 * delete a line
 	 * @author hsiegeln
 	 */

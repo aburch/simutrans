@@ -617,9 +617,9 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 			SOCKET s = accept(accept_sock, (struct sockaddr *)&client_name, &size);
 			if(  s!=INVALID_SOCKET  ) {
 	#ifdef  __BEOS__
-				dbg->message("check_activity()", "Accepted connection from: %lh.\n", client_name.sin_addr.s_addr );
+				dbg->message("check_activity()", "Accepted connection from: %lh.", client_name.sin_addr.s_addr );
 	#else
-				dbg->message("check_activity()", "Accepted connection from: %s.\n", inet_ntoa(client_name.sin_addr) );
+				dbg->message("check_activity()", "Accepted connection from: %s.", inet_ntoa(client_name.sin_addr) );
 	#endif
 				socket_list_t::add_client(s);
 			}
@@ -636,7 +636,7 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 			network_command_t *nwc = socket_list_t::get_client(client_id).receive_nwc();
 			if (nwc) {
 				received_command_queue.append(nwc);
-				dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender);
+				dbg->warning( "network_check_activity()", "received cmd id=%d %s from socket[%d]", nwc->get_id(), nwc->get_name(), sender );
 			}
 			// errors are caught and treated in socket_info_t::receive_nwc
 		}
@@ -783,11 +783,11 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 		}
 		if (sent == 0) {
 			// connection closed
-			dbg->warning("network_send_data", "connection [%d] already closed", dest);
+			dbg->error("network_send_data", "connection [%d] already closed (sent %d of &d)", dest, count, size );
 			return false;
 		}
 		count += sent;
-		dbg->message("network_send_data", "sent %d bytes to socket[%d]; size=%d, left=%d", count, dest, size, size-count);
+		DBG_DEBUG4("network_send_data", "sent %d bytes to socket[%d]; size=%d, left=%d", count, dest, size, size-count );
 	}
 	// we reach here only if data are sent completely
 	return true;
@@ -829,7 +829,7 @@ bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &
 		}
 		if (res == 0) {
 			// connection closed
-			dbg->warning("network_receive_data", "connection [%d] already closed", sender);
+			dbg->error("network_receive_data", "connection [%d] already closed", sender);
 			return false;
 		}
 		received += res;

@@ -123,9 +123,21 @@ double simrand_gauss(const double mean, const double sigma)
 	return(mean + z * sigma);
 }
 
+void clear_random_mode( uint16 mode )
+{
+	random_origin &= ~mode;
+}
+
+
 void set_random_mode( uint16 mode )
 {
 	random_origin |= mode;
+}
+
+
+uint16 get_random_mode()
+{
+	return random_origin;
 }
 
 
@@ -142,19 +154,6 @@ uint32 sim_async_rand( uint32 max )
 
 	return (rand_seed >> 8) % max;
 }
-
-
-
-void clear_random_mode( uint16 mode )
-{
-	random_origin &= ~mode;
-}
-
-uint8 get_random_mode()
-{
-	return random_origin;
-}
-
 
 static uint32 noise_seed = 0;
 

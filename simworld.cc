@@ -659,16 +659,18 @@ bool karte_t::rem_stadt(stadt_t *s)
 	}
 
 	// reduce number of towns
-	if(s->get_name()) { DBG_MESSAGE("karte_t::rem_stadt()", s->get_name() ); }
+	if(s->get_name()) {
+		DBG_MESSAGE("karte_t::rem_stadt()", s->get_name() );
+	}
 	stadt.remove(s);
-	DBG_MESSAGE("karte_t::rem_stadt()", "reduce city to %i", einstellungen->get_anzahl_staedte()-1 );
+	DBG_DEBUG4("karte_t::rem_stadt()", "reduce city to %i", einstellungen->get_anzahl_staedte()-1 );
 	access_einstellungen()->set_anzahl_staedte(einstellungen->get_anzahl_staedte()-1);
 
 	// remove all links from factories
-	DBG_MESSAGE("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
+	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
 	//slist_iterator_tpl<fabrik_t *> iter(fab_list);
 	//while(iter.next()) {
-	for(sint16 i = fab_list.get_count() - 1; i >= 0; i --)
+	ITERATE(fab_list,i)
 	{
 		//(iter.get_current())->remove_arbeiterziel(s);
 		fab_list[i]->remove_arbeiterziel(s);
@@ -1291,7 +1293,7 @@ void karte_t::init(einstellungen_t* sets, sint8 *h_field)
 	snowline = sets->get_winter_snowline()*Z_TILE_STEP + grundwasser;
 
 	if(sets->get_beginner_mode()) {
-		warenbauer_t::set_multiplier( get_einstellungen()->get_starting_year() );
+		warenbauer_t::set_multiplier( get_einstellungen()->get_beginner_price_factor() );
 		sets->set_just_in_time( 0 );
 	}
 	else {
@@ -2440,6 +2442,11 @@ void karte_t::clear_player_password_hashes()
 // new tool definition
 void karte_t::set_werkzeug( werkzeug_t *w, spieler_t *sp )
 {
+	if(  get_random_mode()&LOAD_RANDOM  ) {
+		dbg->warning("karte_t::set_werkzeug", "Ignored tool %i during loading.", w->get_id() );
+		return;
+	}
+
 	if(  (!w->is_init_network_save()  ||  !w->is_work_network_save())  &&
 		 !(w->get_id()==(WKZ_PWDHASH_TOOL|SIMPLE_TOOL)  ||  w->get_id()==(WKZ_SET_PLAYER_TOOL|SIMPLE_TOOL))  &&
 		 sp  &&  sp->set_unlock(player_password_hash[sp->get_player_nr()])  ) {
@@ -4617,6 +4624,7 @@ void karte_t::laden(loadsave_t *file)
 	char buf[80];
 
 	intr_disable();
+	dbg->message("karte_t::laden()", "Prepare for loading" );
 	for(  uint i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 		werkzeug[i] = werkzeug_t::general_tool[WKZ_ABFRAGE];
 	}
@@ -4645,7 +4653,7 @@ void karte_t::laden(loadsave_t *file)
 	const float old_scale_factor = get_einstellungen()->get_distance_per_tile();
 
 	// jetzt geht das laden los
-	DBG_MESSAGE("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
+	dbg->warning("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
 	einstellungen->rdwr(file);
 
 	if(  umgebung_t::networkmode  ) {
@@ -4663,7 +4671,7 @@ void karte_t::laden(loadsave_t *file)
 		}
 	}
 	if(einstellungen->get_beginner_mode()) {
-		warenbauer_t::set_multiplier( get_einstellungen()->get_starting_year() );
+		warenbauer_t::set_multiplier( get_einstellungen()->get_beginner_price_factor() );
 	}
 	else {
 		warenbauer_t::set_multiplier( 1000 );
@@ -5206,11 +5214,14 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 		}
 
+	clear_random_mode(LOAD_RANDOM);
 	// Added by : Knightly
 	if ( einstellungen->get_default_path_option() == 2 )
 	{
 		path_explorer_t::full_instant_refresh();
 	}
+	
+	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }
 
 // recalcs all ground tiles on the map
