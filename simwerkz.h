@@ -1011,7 +1011,7 @@ public:
 	bool is_selected(karte_t *welt) const { return win_get_magic((long)(&(welt->get_active_player()->simlinemgmt))); }
 	bool init( karte_t *, spieler_t *sp ) {
 		if(sp->get_player_nr()!=1) {
-			sp->simlinemgmt.zeige_info( sp );
+			sp->simlinemgmt.line_management_window( sp );
 		}
 		return false;
 	}

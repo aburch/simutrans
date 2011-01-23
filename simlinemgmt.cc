@@ -50,12 +50,12 @@ simlinemgmt_t::~simlinemgmt_t()
 }
 
 
-void simlinemgmt_t::zeige_info(spieler_t *sp)
+void simlinemgmt_t::line_management_window(spieler_t *sp)
 {
-	schedule_list_gui_t *slg;
-	if(  create_win( slg=new schedule_list_gui_t(sp), w_info, (long)this )>0  ) {
-		// New window created, not reused.  Update schedule_list_gui
-		schedule_list_gui = slg;
+	schedule_list_gui_t *schedule_list_gui = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t+sp->get_player_nr() ));
+	if(  schedule_list_gui==NULL  ) {
+		schedule_list_gui = new schedule_list_gui_t(sp);
+		create_win( schedule_list_gui, w_info, magic_line_management_t+sp->get_player_nr() );
 	}
 }
 
@@ -331,6 +331,6 @@ void simlinemgmt_t::get_lines(int type, vector_tpl<linehandle_t>* lines) const
 
 void simlinemgmt_t::show_lineinfo(spieler_t *sp, linehandle_t line)
 {
-	zeige_info(sp);
+	line_management_window(sp);
 	schedule_list_gui->show_lineinfo(line);
 }

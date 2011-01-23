@@ -60,6 +60,7 @@
 #include "gui/convoi_info_t.h"
 #include "gui/fahrplan_gui.h"
 #include "gui/line_management_gui.h"
+#include "gui/schedule_list.h"
 
 
 
@@ -431,9 +432,13 @@ void rwdr_all_win(loadsave_t *file)
 					case magic_schedule_rdwr_dummy: w = new fahrplan_gui_t(wl); break;
 					case magic_line_schedule_rdwr_dummy: w = new line_management_gui_t(wl); break;
 
+
 					default:
 						if(  id>=magic_finances_t  &&  id<magic_finances_t+MAX_PLAYER_COUNT  ) {
 							w = new money_frame_t( wl->get_spieler(id-magic_finances_t) );
+						}
+						else if(  id>=magic_line_management_t  &&  id<magic_line_management_t+MAX_PLAYER_COUNT  ) {
+							w = new schedule_list_gui_t( wl->get_spieler(id-magic_line_management_t) );
 						}
 						else if(  id>=magic_toolbar  &&  id<magic_toolbar+256  ) {
 							werkzeug_t::toolbar_tool[id-magic_toolbar]->update(wl,wl->get_active_player());

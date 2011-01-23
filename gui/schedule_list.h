@@ -129,6 +129,10 @@ public:
 	 * called after renaming of line
 	 */
 	void update_data(linehandle_t changed_line);
+
+	// follwoing: rdwr stuff
+	void rdwr( loadsave_t *file );
+	uint32 get_rdwr_id();
 };
 
 #endif
