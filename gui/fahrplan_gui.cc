@@ -416,7 +416,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			old_fpl->eingabe_abschliessen();
 		}
 	}
-	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  (get_random_mode()&LOAD_RANDOM)==0  ) {
+	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
 		// just to be sure, renew the tools ...
 		update_werkzeug( true );
 	}
@@ -639,7 +639,7 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
 				if(  gr->obj_bei(i)->is_moving()  ) {
 					vehikel_t const* const v = ding_cast<vehikel_t>(gr->obj_bei(i));
-					if(  v  &&  v->get_convoi()  &&  strcmp(v->get_convoi()->get_name(),cnv_name)==0  &&  old_fpl->matches( welt, v->get_convoi()->get_schedule() )  ) {
+					if(  v  &&  v->get_besitzer()->get_player_nr()==player_nr  &&  v->get_convoi()  &&  strcmp(v->get_convoi()->get_name(),cnv_name)==0  &&  old_fpl->matches( welt, v->get_convoi()->get_schedule() )  ) {
 						cnv = v->get_convoi()->self;
 						break;
 					}
