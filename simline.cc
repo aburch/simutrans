@@ -42,7 +42,7 @@ void simline_t::set_line_id(uint32 id)
 {
 	this->id = id;
 	char printname[128];
-	sprintf( printname, "(%i) %s", self.get_id(), translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
+	sprintf( printname, "(%i) %s", id, translator::translate("Line",welt->get_einstellungen()->get_name_language_id()) );
 	name = printname;
 }
 

@@ -80,6 +80,7 @@ enum magic_numbers {
 	magic_server_frame_t,
 	magic_pakset_info_t,
 	magic_schedule_rdwr_dummy,	// only used to save/load schedules
+	magic_line_schedule_rdwr_dummy,	// only used to save/load line schedules
 	magic_convoi_info,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_halt_info=magic_convoi_detail+65536,

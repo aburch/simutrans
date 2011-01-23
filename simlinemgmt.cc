@@ -59,23 +59,35 @@ void simlinemgmt_t::zeige_info(spieler_t *sp)
 	}
 }
 
+
 void simlinemgmt_t::add_line(linehandle_t new_line)
+{
+	uint16 id = new_line->get_line_id();
+DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line->get_line_id());
+	if(  id!=INVALID_LINE_ID  &&  (used_ids[id/8] & (1<<(id&7)) )!=0  ) {
+		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled! (0x%X)!", id, used_ids[id/8] );
+		id = INVALID_LINE_ID;
+	}
+	all_managed_lines.append(new_line);
+}
+
+
+// since after loading there might be double line ID this routine will correct it
+void simlinemgmt_t::check_create_id(linehandle_t new_line)
 {
 	uint16 id = new_line->get_line_id();
 	if(  id==INVALID_LINE_ID  ) {
 		id = get_unique_line_id();
 		new_line->set_line_id( id );
+		dbg->error("simlinemgmt_t::check_create_id()","New line id %i", id );
 	}
-DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line->get_line_id());
-	if( (used_ids[id/8] & (1<<(id&7)) ) !=0 ) {
-		dbg->error("simlinemgmt_t::add_line()","Line id %i doubled! (0x%X)",id,used_ids[id/8]);
+	else if( (used_ids[id/8] & (1<<(id&7)) ) !=0 ) {
+		uint16 old_id = id;
 		id = get_unique_line_id();
+		dbg->error("simlinemgmt_t::check_create_id()","Reassigned new line id %i to line %s!", id, new_line->get_name());
 		new_line->set_line_id( id );
-		dbg->message("simlinemgmt_t::add_line()","new line id %i!",id);
 	}
 	used_ids[id/8] |= (1<<(id&7));	// should be registered anyway ...
-	all_managed_lines.append(new_line);
-	sort_lines();
 }
 
 
@@ -194,10 +206,12 @@ void simlinemgmt_t::sort_lines()
 void simlinemgmt_t::laden_abschliessen()
 {
 	sort_lines();
+	used_ids[0] |= 1;	// assure, that future ids start at 1 ...
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
+		check_create_id( *i );
 		(*i)->laden_abschliessen();
 	}
-	used_ids[0] |= 1;	// assure, that future ids start at 1 ...
+	sort_lines();
 }
 
 
@@ -287,6 +301,8 @@ linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 			break;
 	}
 	add_line( line->get_handle() );
+	check_create_id( line->get_handle() );
+	sort_lines();
 	return line->get_handle();
 }
 
