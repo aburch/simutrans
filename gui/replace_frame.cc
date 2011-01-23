@@ -325,30 +325,19 @@ void replace_frame_t::update_data()
 	if (replace_line) {
 		linehandle_t line=cnv.is_bound()?cnv->get_line():linehandle_t();
 		if (line.is_bound()) {
-			for (uint32 i=0; i<line->count_convoys(); i++) {
+			for (uint32 i=0; i<line->count_convoys(); i++)
+			{
 				convoihandle_t cnv_aux=line->get_convoy(i);
-				if (cnv->has_same_vehicles(cnv_aux)) {
+				if (cnv->has_same_vehicles(cnv_aux))
+				{
 					uint8 present_state=get_present_state();
-					if (present_state==(uint8)(-1)) {
+					if (present_state==(uint8)(-1))
+					{
 						continue;
 					}
-					switch(convoy_assembler.get_action())
-					{
-						
-					case gui_convoy_assembler_t::clear_convoy_action:
-						money = 0;
-						n[present_state]++;
-						break;
 
-					case gui_convoy_assembler_t::remove_vehicle_action:
-						money += base_total_cost;
-						n[present_state]++;
-						break;
-
-					default:
-						money -= base_total_cost;
-						n[present_state]++;
-					};
+					money -= base_total_cost;
+					n[present_state]++;
 				}
 			}
 		}
@@ -364,23 +353,8 @@ void replace_frame_t::update_data()
 					continue;
 				}
 
-				switch(convoy_assembler.get_action())
-				{
-					
-				case gui_convoy_assembler_t::clear_convoy_action:
-					money = 0;
-					n[present_state]++;
-					break;
-
-				case gui_convoy_assembler_t::remove_vehicle_action:
-					money += base_total_cost;
-					n[present_state]++;
-					break;
-
-				default:
-					money -= base_total_cost;
-					n[present_state]++;
-				};	
+				money -= base_total_cost;
+				n[present_state]++;
 			}
 		}
 	}
