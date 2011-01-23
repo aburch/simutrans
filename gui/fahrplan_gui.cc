@@ -16,6 +16,7 @@
 #include "../simworld.h"
 #include "../simwerkz.h"
 #include "../simgraph.h"
+#include "../simtools.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -415,7 +416,7 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 			old_fpl->eingabe_abschliessen();
 		}
 	}
-	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
+	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  (get_random_mode()&LOAD_RANDOM)==0  ) {
 		// just to be sure, renew the tools ...
 		update_werkzeug( true );
 	}

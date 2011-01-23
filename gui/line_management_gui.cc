@@ -30,23 +30,26 @@ const char *line_management_gui_t::get_name() const
 
 bool line_management_gui_t::infowin_event(const event_t *ev)
 {
-	if(!line.is_bound()) {
-		destroy_win( this );
-	}
-	else {
-		if(  fahrplan_gui_t::infowin_event(ev)  ) {
-			return true;
+	if(  sp!=NULL  ) {
+		// not "magic_line_schedule_rdwr_dummy" during loading of UI ...
+		if(  !line.is_bound()  ) {
+			destroy_win( this );
 		}
-		if(ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE) {
-			// update line schedule via tool!
-			werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
-			cbuffer_t buf(5500);
-			buf.printf( "g,%i,", line.get_id() );
-			fpl->sprintf_schedule( buf );
-			w->set_default_param(buf);
-			line->get_besitzer()->get_welt()->set_werkzeug( w, line->get_besitzer() );
-			// since init always returns false, it is save to delete immediately
-			delete w;
+		else  {
+			if(  fahrplan_gui_t::infowin_event(ev)  ) {
+				return true;
+			}
+			if(  ev->ev_class == INFOWIN  &&  ev->ev_code == WIN_CLOSE  ) {
+				// update line schedule via tool!
+				werkzeug_t *w = create_tool( WKZ_LINE_TOOL | SIMPLE_TOOL );
+				cbuffer_t buf(5500);
+				buf.printf( "g,%i,", line.get_id() );
+				fpl->sprintf_schedule( buf );
+				w->set_default_param(buf);
+				line->get_besitzer()->get_welt()->set_werkzeug( w, line->get_besitzer() );
+				// since init always returns false, it is save to delete immediately
+				delete w;
+			}
 		}
 	}
 	return false;
