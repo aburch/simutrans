@@ -20,7 +20,7 @@ INIT_NUM( "intercity_road_length", umgebung_t::intercity_road_length);
 INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
-static const char *version[7]=
+static const char *version[8]=
 {
 	"0.99.17",
 	"0.100.0",
@@ -28,7 +28,8 @@ static const char *version[7]=
 	"0.102.1",
 	"0.102.2",
 	"0.102.3",
-	"0.102.5"
+	"0.102.5",
+	"0.110.0"
 };
 
 static const char *version_ex[10]=
@@ -510,8 +511,8 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	INIT_LB( "savegame Experimental version" );
 	label.back()->set_pos( koord( 76, label.back()->get_pos().y ) );
 	clear_dirty();
-	ypos+=105;
 
+	ypos+=105;
 	set_groesse( koord(width, ypos) );
 }
 
