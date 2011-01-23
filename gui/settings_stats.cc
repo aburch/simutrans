@@ -567,8 +567,8 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	}
 
 	const int selected_ex = savegame_ex.get_selection();
-	if (0 <= selected  &&  selected < lengthof(version_ex)) {
-		umgebung_t::savegame_ex_version_str = version[ selected ];
+	if (0 <= selected_ex  &&  selected_ex < lengthof(version_ex)) {
+		umgebung_t::savegame_ex_version_str = version_ex[ selected_ex ];
 	}
 }
 
