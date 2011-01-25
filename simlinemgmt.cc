@@ -52,7 +52,7 @@ simlinemgmt_t::~simlinemgmt_t()
 
 void simlinemgmt_t::line_management_window(spieler_t *sp)
 {
-	schedule_list_gui_t *schedule_list_gui = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t+sp->get_player_nr() ));
+	schedule_list_gui = dynamic_cast<schedule_list_gui_t *>(win_get_magic( magic_line_management_t+sp->get_player_nr() ));
 	if(  schedule_list_gui==NULL  ) {
 		schedule_list_gui = new schedule_list_gui_t(sp);
 		create_win( schedule_list_gui, w_info, magic_line_management_t+sp->get_player_nr() );
