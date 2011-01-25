@@ -4,7 +4,7 @@ CONFIG ?= config.default
 
 BACKENDS      = allegro gdi sdl mixer_sdl x11 posix
 COLOUR_DEPTHS = 0 8 16
-OSTYPES       = beos cygwin freebsd haiku linux mingw mac
+OSTYPES       = amiga beos cygwin freebsd haiku linux mingw mac
 
 ifeq ($(findstring $(BACKEND), $(BACKENDS)),)
   $(error Unkown BACKEND "$(BACKEND)", must be one of "$(BACKENDS)")
@@ -23,6 +23,12 @@ ifeq ($(BACKEND), x11)
   $(warning ATTENTION: X11 backend is broken)
 endif
 
+
+ifeq ($(OSTYPE),amiga)
+  STD_LIBS ?= -lz -lbz2 -lunix -lpthread -lSDL_mixer -lsmpeg -lvorbisfile -lvorbis -logg
+  CFLAGS += -mcrt=newlib -DUSE_C -DBIG_ENDIAN -gstabs+
+  LDFLAGS += -Bstatic -non_shared
+endif
 
 ifeq ($(OSTYPE),beos)
   LIBS += -lz -lnet -lbz2

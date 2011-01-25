@@ -610,18 +610,20 @@ int main(int argc, char **argv)
 	argv[0] = pathname;
 #else
 #ifndef __BEOS__
-#	if defined __GLIBC__
+#  if defined(__GLIBC__)  &&  !defined(__AMIGA__)
 	/* glibc has a non-standard extension */
 	char* buffer2 = NULL;
-#else
+#  else
 	char buffer2[PATH_MAX];
-#endif
+#  endif
+#  ifndef __AMIGA__
 	char buffer[PATH_MAX];
 	int length = readlink("/proc/self/exe", buffer, lengthof(buffer) - 1);
 	if (length != -1) {
 		buffer[length] = '\0'; /* readlink() does not NUL-terminate */
 		argv[0] = buffer;
 	}
+#  endif
 	// no process file system => need to parse argv[0]
 	/* should work on most unix or gnu systems */
 	argv[0] = realpath (argv[0], buffer2);
