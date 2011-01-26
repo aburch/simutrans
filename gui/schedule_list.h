@@ -98,10 +98,10 @@ public:
 	void zeichnen(koord pos, koord gr);
 
 	/**
-	* resize window in response to a resize event
+	* Set window size and adjust component sizes and/or positions accordingly
 	* @author Hj. Malthaner
 	*/
-	void resize(const koord delta);
+	virtual void set_fenstergroesse(koord groesse);
 
    /**
    * Mausklicks werden hiermit an die GUI-Komponenten

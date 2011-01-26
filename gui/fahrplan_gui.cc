@@ -570,15 +570,15 @@ void fahrplan_gui_t::zeichnen(koord pos, koord gr)
 
 
 /**
- * resize window in response to a resize event
+ * Set window size and adjust component sizes and/or positions accordingly
  * @author Hj. Malthaner
  * @date   16-Oct-2003
  */
-void fahrplan_gui_t::resize(const koord delta)
+void fahrplan_gui_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 
-	const koord groesse = get_fenstergroesse();
+	groesse = get_fenstergroesse();		// may subject to min window size limitation
 	scrolly.set_groesse( koord(groesse.x, groesse.y-scrolly.get_pos().y-16) );
 
 	line_selector.set_max_size(koord(BUTTON_WIDTH*3, groesse.y-line_selector.get_pos().y -2*16));

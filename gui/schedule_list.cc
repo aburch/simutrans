@@ -505,9 +505,9 @@ void schedule_list_gui_t::display(koord pos)
 }
 
 
-void schedule_list_gui_t::resize(const koord delta)
+void schedule_list_gui_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 
 	int rest_width = get_fenstergroesse().x-LINE_NAME_COLUMN_WIDTH;
 	int button_per_row=max(1,rest_width/(BUTTON_WIDTH+BUTTON_SPACER));

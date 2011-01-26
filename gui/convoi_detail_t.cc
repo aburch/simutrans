@@ -139,12 +139,12 @@ bool convoi_detail_t::action_triggered(gui_action_creator_t *komp,value_t /* */)
 
 
 /**
- * Resize the contents of the window
+ * Set window size and adjust component sizes and/or positions accordingly
  * @author Markus Weber
  */
-void convoi_detail_t::resize(const koord delta)
+void convoi_detail_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 	scrolly.set_groesse(get_client_windowsize()-scrolly.get_pos());
 }
 

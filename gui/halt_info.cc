@@ -352,12 +352,12 @@ bool halt_info_t::action_triggered( gui_action_creator_t *comp,value_t /* */)
 
 
 /**
- * Resize the contents of the window
+ * Set window size and adjust component sizes and/or positions accordingly
  * @author Markus Weber
  */
-void halt_info_t::resize(const koord delta)
+void halt_info_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 
 	const sint16 yoff = scrolly.get_pos().y-BUTTON_HEIGHT-2;
 	input.set_groesse(koord(get_fenstergroesse().x-20, 13));

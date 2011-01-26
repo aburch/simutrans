@@ -514,12 +514,12 @@ void convoi_info_t::rename_cnv()
 
 
 /**
- * Resize the contents of the window
+ * Set window size and adjust component sizes and/or positions accordingly
  * @author Markus Weber
  */
-void convoi_info_t::resize(const koord delta)
+void convoi_info_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 
 	input.set_groesse(koord(get_fenstergroesse().x - 20, 13));
 
