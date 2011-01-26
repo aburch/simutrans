@@ -18,6 +18,8 @@
 #include "../simworld.h"
 #include "../simskin.h"
 
+#include "../dataobj/umgebung.h"
+
 #include "../gui/stadt_info.h"
 
 
@@ -157,9 +159,40 @@ void message_stats_t::zeichnen(koord offset)
 		// goto information
 		if(  n.pos!=koord::invalid  ) {
 			// goto button
-			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 2, y, 0, false, true);
+			display_color_img( message_selected!=((y-offset.y)/BUTTON_HEIGHT) ? button_t::arrow_right_normal : button_t::arrow_right_pushed, offset.x + 4, y, 0, false, true);
 		}
 
+		// correct for player color
+		PLAYER_COLOR_VAL colorval = n.get_player_color(welt);
+
+		// add time
+		char time[64];
+		switch (umgebung_t::show_month) {
+			case umgebung_t::DATE_FMT_GERMAN:
+			case umgebung_t::DATE_FMT_GERMAN_NO_SEASON:
+				sprintf(time, "(%d.%d)", (n.time%12)+1, n.time/12 );
+				break;
+
+			case umgebung_t::DATE_FMT_MONTH:
+			case umgebung_t::DATE_FMT_US:
+			case umgebung_t::DATE_FMT_US_NO_SEASON:
+				sprintf(time, "(%d/%d)", (n.time%12)+1, n.time/12 );
+				break;
+
+			case umgebung_t::DATE_FMT_JAPANESE:
+			case umgebung_t::DATE_FMT_JAPANESE_NO_SEASON:
+				sprintf(time, "(%d/%d)", n.time/12, (n.time%12)+1 );
+				break;
+
+			default:
+				time[0] = 0;
+		}
+		KOORD_VAL left = 14;
+		if(  time[0]  ) {
+			left += display_proportional_clip(offset.x+left, y, time, ALIGN_LEFT, colorval, true)+8;
+		}
+
+		// display text with clipping
 		char buf[256];
 		for(  int j=0;  j<256;  ++j  ) {
 			buf[j] = (n.msg[j]=='\n')?' ':n.msg[j];
@@ -167,9 +200,6 @@ void message_stats_t::zeichnen(koord offset)
 				break;
 			}
 		}
-		// correct for player color
-		PLAYER_COLOR_VAL colorval = n.get_player_color(welt);
-		// display text with clipping
-		display_proportional_clip(offset.x+4+10, y, buf, ALIGN_LEFT, colorval, true);
+		display_proportional_clip(offset.x+left, y, buf, ALIGN_LEFT, colorval, true);
 	}
 }
