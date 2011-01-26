@@ -277,11 +277,21 @@ void nwc_ready_t::clear_map_counters()
 bool nwc_ready_t::execute(karte_t *welt)
 {
 	if(  umgebung_t::server  ) {
-		// unpause the sender: send ready_t back
-		// check the validity of the map counter first
+		// compare checklist
+		if(  checklist!=welt->get_checklist_at(sync_step)  ) {
+			// client has gone out of sync
+			socket_list_t::remove_client( get_sender() );
+			char buf[256];
+			welt->get_checklist_at(sync_step).print(buf, "server");
+			checklist.print(buf, "client");
+			dbg->warning("nwc_ready_t::execute", "disconnect client due to checklist mismatch : sync_step=%u %s", sync_step, buf);
+			return true;
+		}
+		// check the validity of the map counter
 		for(  uint32 i=0;  i<all_map_counters.get_count();  ++i  ) {
 			if(  all_map_counters[i]==map_counter  ) {
-				nwc_ready_t nwc(sync_steps, map_counter);
+				// unpause the sender by sending nwc_ready_t back
+				nwc_ready_t nwc(sync_step, map_counter, checklist);
 				if(  !nwc.send( get_sender())  ) {
 					dbg->warning("nwc_ready_t::execute", "send of NWC_READY failed");
 				}
@@ -293,9 +303,10 @@ bool nwc_ready_t::execute(karte_t *welt)
 		dbg->warning("nwc_ready_t::execute", "disconnect client id=%u due to invalid map counter", our_client_id);
 	}
 	else {
-		dbg->warning("nwc_ready_t::execute", "set sync_steps=%d where map_counter=%d", sync_steps, map_counter);
+		dbg->warning("nwc_ready_t::execute", "set sync_step=%d where map_counter=%d", sync_step, map_counter);
 		if(  map_counter==welt->get_map_counter()  ) {
-			welt->network_game_set_pause(false, sync_steps);
+			welt->network_game_set_pause(false, sync_step);
+			welt->set_checklist_at(sync_step, checklist);
 		}
 		else {
 			welt->network_disconnect();
@@ -309,8 +320,9 @@ bool nwc_ready_t::execute(karte_t *welt)
 void nwc_ready_t::rdwr()
 {
 	network_command_t::rdwr();
-	packet->rdwr_long(sync_steps);
+	packet->rdwr_long(sync_step);
 	packet->rdwr_long(map_counter);
+	checklist.rdwr(packet);
 }
 
 void nwc_game_t::rdwr()
@@ -396,7 +408,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		welt->set_map_counter(new_map_counter);
 
 		// tell server we are ready
-		network_command_t *nwc = new nwc_ready_t( old_sync_steps, welt->get_map_counter() );
+		network_command_t *nwc = new nwc_ready_t( old_sync_steps, welt->get_map_counter(), welt->get_checklist_at(old_sync_steps) );
 		network_send_server(nwc);
 	}
 	else {
@@ -455,7 +467,7 @@ void nwc_sync_t::do_command(karte_t *welt)
 		// we do not want to wait for him (maybe loading failed due to pakset-errors)
 		SOCKET sock = socket_list_t::get_socket(client_id);
 		if(  sock != INVALID_SOCKET  ) {
-			nwc_ready_t nwc( old_sync_steps, welt->get_map_counter());
+			nwc_ready_t nwc( old_sync_steps, welt->get_map_counter(), welt->get_checklist_at(old_sync_steps) );
 			if (nwc.send(sock)) {
 				socket_list_t::change_state( client_id, socket_info_t::playing);
 			}

@@ -5434,13 +5434,16 @@ bool karte_t::interactive(uint32 quit_month)
 	bool cursor_hidden = false;
 	sync_steps = 0;
 
-#define LAST_CHECKLISTS_COUNT 64
-	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
-#define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
 
 	// only needed for network
+	if(  umgebung_t::networkmode  ) {
+		// clear the checklist history
+		for(  int i=0;  i<LAST_CHECKLISTS_COUNT;  ++i  ) {
+			last_checklists[i] = checklist_t();
+		}
+	}
 	uint32 next_command_step = 0xFFFFFFFFu;
 	sint32 ms_difference = 0;
 	reset_timer();
@@ -5633,13 +5636,13 @@ bool karte_t::interactive(uint32 quit_month)
 				// check random number generator states
 				if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
 					nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-					if(  nwt->last_sync_step > last_checklist_sync_step  ) {
+					if(  nwt->last_sync_step>sync_steps  ) {
 						dbg->warning("karte_t::interactive", "client was too fast (skipping command)" );
 						delete nwc;
 						nwc = NULL;
 					}
 					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
-					else if(  nwt->last_sync_step+LAST_CHECKLISTS_COUNT>last_checklist_sync_step  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
+					else if(  nwt->last_sync_step+LAST_CHECKLISTS_COUNT>sync_steps  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 						// lost synchronisation -> server kicks client out actively
 						char buf[256];
 						const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
@@ -5784,14 +5787,13 @@ bool karte_t::interactive(uint32 quit_month)
 						network_frame_count = 0;
 					}
 					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
-					last_checklist = LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
-					last_checklist_sync_step = sync_steps;
+					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
 					// some serverside tasks
 					if(  umgebung_t::networkmode  &&  umgebung_t::server  ) {
 						// broadcast sync info
 						if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
 								||  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0  ) {
-							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, last_checklist, last_checklist_sync_step);
+							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, LCHKLST(sync_steps), sync_steps);
 							network_send_all(nwc, true);
 						}
 					}

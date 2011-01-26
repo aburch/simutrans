@@ -130,12 +130,14 @@ public:
  */
 class nwc_ready_t : public network_command_t {
 public:
-	nwc_ready_t(uint32 sync_steps_=0, uint32 map_counter_=0) : network_command_t(NWC_READY), sync_steps(sync_steps_), map_counter(map_counter_) {}
+	nwc_ready_t() : network_command_t(NWC_READY), sync_step(0), map_counter(0) { }
+	nwc_ready_t(uint32 sync_step_, uint32 map_counter_, const checklist_t &checklist_) : network_command_t(NWC_READY), sync_step(sync_step_), map_counter(map_counter_), checklist(checklist_) { }
 	virtual bool execute(karte_t *);
 	virtual void rdwr();
 	virtual const char* get_name() { return "nwc_ready_t";}
-	uint32 sync_steps;
+	uint32 sync_step;
 	uint32 map_counter;
+	checklist_t checklist;
 
 	static void append_map_counter(uint32 map_counter_);
 	static void clear_map_counters();

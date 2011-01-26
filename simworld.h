@@ -316,8 +316,9 @@ private:
 
 	// Variables used in interactive()
 	uint32 sync_steps;
-	checklist_t last_checklist;
-	uint32 last_checklist_sync_step;
+#define LAST_CHECKLISTS_COUNT 64
+	checklist_t last_checklists[LAST_CHECKLISTS_COUNT];
+#define LCHKLST(x) (last_checklists[(x) % LAST_CHECKLISTS_COUNT])
 	uint8  network_frame_count;
 	uint32 fix_ratio_frame_time; // set in reset_timer()
 
@@ -1002,8 +1003,11 @@ public:
 
 	uint32 get_sync_steps() const { return sync_steps; }
 
-	const checklist_t& get_last_checklist() const { return last_checklist; }
-	uint32 get_last_checklist_sync_step() const { return last_checklist_sync_step; }
+	const checklist_t& get_checklist_at(const uint32 sync_step) const { return LCHKLST(sync_step); }
+	void set_checklist_at(const uint32 sync_step, const checklist_t &chklst) { LCHKLST(sync_step) = chklst; }
+
+	const checklist_t& get_last_checklist() const { return LCHKLST(sync_steps); }
+	uint32 get_last_checklist_sync_step() const { return sync_steps; }
 
 	void command_queue_append(network_world_command_t*) const;
 
