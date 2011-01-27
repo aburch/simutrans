@@ -955,9 +955,9 @@ next_ware_check:
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
 
-	ITERATE(welt->get_fab_list(), i)
+	ITERATE(welt->get_fab_list(), x)
 	{
-		fabrik_t * fab = welt->get_fab_list()[i];
+		fabrik_t * fab = welt->get_fab_list()[x];
 		if(fab->get_besch()->is_electricity_producer()) 
 		{
 			electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;

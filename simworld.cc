@@ -3101,19 +3101,20 @@ void karte_t::neuer_monat()
 	fabrik_t * fab;
 	uint32 total_electric_demand = 1;
 	uint32 electric_productivity = 0;
+	sint16 difference = 0;
 	for(sint16 i = number_of_factories - 1; i >= 0; i--)
 	{
 		fab = fab_list[i];
 		fab->neuer_monat();
 		// The number of factories might have diminished,
 		// so must adjust i to prevent out of bounds errors.
-		const sint16 difference = number_of_factories - fab_list.get_count();
+		difference = number_of_factories - fab_list.get_count();
 		if(difference == 0)
 		{
 			// Check to see whether the factory has closed down - if so, the pointer will be dud.
 			if(fab->get_besch()->is_electricity_producer()) 
 			{
-				electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T;
+				electric_productivity += fab->get_base_production() * PRODUCTION_DELTA_T * 4;
 			}
 			else 
 			{
@@ -3122,6 +3123,7 @@ void karte_t::neuer_monat()
 			number_of_factories = fab_list.get_count();
 		}
 		i -= difference;
+		number_of_factories -= difference;
 	}
 
 	// Check to see whether more factories need to be added

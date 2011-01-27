@@ -235,7 +235,7 @@ const weg_besch_t *wegbauer_t::get_earliest_way(const waytype_t wtyp)
 const weg_besch_t *wegbauer_t::get_latest_way(const waytype_t wtyp)
 {
 	const weg_besch_t *besch = NULL;
-	for(  stringhashtable_iterator_tpl<const weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
+	for(  stringhashtable_iterator_tpl<weg_besch_t*> iter(alle_wegtypen); iter.next();  ) {
 		const weg_besch_t* const test = iter.get_current_value();
 		if(  test->get_wtyp()==wtyp  &&  (besch==NULL  ||  test->get_retire_year_month()>besch->get_retire_year_month())  ) {
 			besch = test;
