@@ -117,6 +117,7 @@
 	ADD: (TurfIt/Dwachs) Windows snap onto each other when they are close (controlled by window_snap_distance)
 	ADD: server can do monthly announcements
 	ADD: announcements can be configured on command line
+	ADD: also schedules and line windows are kept during joining
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):

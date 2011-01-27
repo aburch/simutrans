@@ -49,8 +49,8 @@ gameinfo_t::gameinfo_t(karte_t *welt) :
 		einwohnerzahl += (*i)->get_einwohner();
 	}
 
-	const int gr_x = stadt_t::get_welt()->get_groesse_x();
-	const int gr_y = stadt_t::get_welt()->get_groesse_y();
+	const int gr_x = welt->get_groesse_x();
+	const int gr_y = welt->get_groesse_y();
 	for( uint16 i = 0; i < MINIMAP_SIZE; i++ ) {
 		for( uint16 j = 0; j < MINIMAP_SIZE; j++ ) {
 			const koord pos(i * gr_x / MINIMAP_SIZE, j * gr_y / MINIMAP_SIZE);

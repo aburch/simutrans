@@ -273,7 +273,7 @@ public:
 	virtual const char *work( karte_t *, spieler_t *, koord3d );
 	virtual const char *move( karte_t *, spieler_t *, uint16 /* buttonstate */, koord3d );
 
-	virtual bool is_move_network_save(spieler_t *sp) const { return true; }
+	virtual bool is_move_network_save(spieler_t *) const { return true; }
 	virtual bool is_work_here_network_save(karte_t *, spieler_t *, koord3d);
 
 	bool is_first_click(spieler_t *sp) const;

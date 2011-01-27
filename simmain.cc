@@ -514,11 +514,11 @@ int simu_main(int argc, char** argv)
 		if(  gimme_arg(argc, argv, "-server", 0)  ) {
 			logname = "simu-server.log";
 		}
-		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL);
+		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL, "Hello");
 	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL);
+		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL, "Hello");
 	} else {
-		init_logging(NULL, false, false);
+		init_logging(NULL, false, false, "Hello");
 	}
 
 
@@ -613,6 +613,29 @@ int simu_main(int argc, char** argv)
 				umgebung_t::objfilename += "/";
 			}
 		}
+	}
+
+
+#ifdef REVISION
+	const char *version = "Simutrans version " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " from " VERSION_DATE " r" QUOTEME(REVISION) "\n";
+#else
+	const char *version = "Simutrans version " VERSION_NUMBER NARROW_EXPERIMENTAL_VERSION " from " VERSION_DATE "\n";
+#endif
+	if (gimme_arg(argc, argv, "-log", 0)) {
+		chdir( umgebung_t::user_dir );
+		char temp_log_name[256];
+		const char *logname = "simu.log";
+		if(  gimme_arg(argc, argv, "-server", 0)  ) {
+			const char *p = gimme_arg(argc, argv, "-server", 1);
+			int portadress = p ? atoi( p ) : 13353;
+			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
+			logname = temp_log_name;
+		}
+		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version );
+	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
+		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0 ) != NULL, version );
+	} else {
+		init_logging(NULL, false, false, version);
 	}
 
 	// starting a server?

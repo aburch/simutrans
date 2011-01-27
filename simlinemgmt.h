@@ -25,7 +25,7 @@ public:
 	simlinemgmt_t(karte_t* welt);
 	~simlinemgmt_t();
 
-	void zeige_info(spieler_t *);
+	void line_management_window(spieler_t *);
 
 	/*
 	 * add a line

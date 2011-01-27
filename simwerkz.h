@@ -540,9 +540,9 @@ class wkz_pause_t : public werkzeug_t {
 public:
 	wkz_pause_t() : werkzeug_t() { id = WKZ_PAUSE | SIMPLE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return umgebung_t::networkmode ? translator::translate("deactivated in online mode") : translator::translate("Pause"); }
-	image_id get_icon(spieler_t *sp) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
+	image_id get_icon(spieler_t *) const { return umgebung_t::networkmode ? IMG_LEER : icon; }
 	bool is_selected(karte_t *welt) const { return welt->is_paused(); }
-	bool init( karte_t *welt, spieler_t *sp ) {
+	bool init( karte_t *welt, spieler_t * ) {
 		if(  !umgebung_t::networkmode  ) {
 			welt->set_fast_forward(0);
 			welt->set_pause( welt->is_paused()^1 );
@@ -1010,7 +1010,7 @@ public:
 	bool is_selected(karte_t *welt) const { return win_get_magic((long)(&(welt->get_active_player()->simlinemgmt))); }
 	bool init( karte_t *, spieler_t *sp ) {
 		if(sp->get_player_nr()!=1) {
-			sp->simlinemgmt.zeige_info( sp );
+			sp->simlinemgmt.line_management_window( sp );
 		}
 		return false;
 	}

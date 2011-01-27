@@ -9,6 +9,7 @@
 #define simwin_h
 
 #include "simtypes.h"
+#include "simconst.h"
 
 class karte_t;
 class loadsave_t;
@@ -60,11 +61,12 @@ enum magic_numbers {
 	magic_mainhelp,
 	// player dependent stuff => 16 times present
 	magic_finances_t,
-	magic_convoi_list=magic_finances_t+16,
-	magic_line_list=magic_convoi_list+16,
-	magic_halt_list=magic_line_list+16,
+	magic_convoi_list=magic_finances_t+MAX_PLAYER_COUNT,
+	magic_line_list=magic_convoi_list+MAX_PLAYER_COUNT,
+	magic_halt_list=magic_line_list+MAX_PLAYER_COUNT,
+	magic_line_management_t=magic_halt_list+MAX_PLAYER_COUNT,
 	// normal stuff
-	magic_jump=magic_halt_list+16,
+	magic_jump=magic_line_management_t+MAX_PLAYER_COUNT,
 	magic_curiositylist,
 	magic_factorylist,
 	magic_goodslist,
@@ -80,6 +82,7 @@ enum magic_numbers {
 	magic_server_frame_t,
 	magic_pakset_info_t,
 	magic_schedule_rdwr_dummy,	// only used to save/load schedules
+	magic_line_schedule_rdwr_dummy,	// only used to save/load line schedules
 	magic_convoi_info,
 	magic_convoi_detail=magic_convoi_info+65536,
 	magic_halt_info=magic_convoi_detail+65536,

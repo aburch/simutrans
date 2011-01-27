@@ -78,7 +78,6 @@ class fahrplan_gui_t :	public gui_frame_t,
 
 private:
 	static char no_line[128];
-	static karte_t *welt;
 
 	enum mode_t {adding, inserting, removing, undefined_mode};
 
@@ -121,6 +120,7 @@ private:
 	void update_selection();
 
 protected:
+	static karte_t *welt;
 	schedule_t *fpl;
 	schedule_t* old_fpl;
 	spieler_t *sp;
@@ -131,7 +131,7 @@ protected:
 public:
 	fahrplan_gui_t(schedule_t* fpl, spieler_t* sp, convoihandle_t cnv);
 
-	~fahrplan_gui_t();
+	virtual ~fahrplan_gui_t();
 
 	// for updating info ...
 	void init_line_selector();
@@ -151,10 +151,10 @@ public:
 	void zeichnen(koord pos, koord gr);
 
 	/**
-	 * resize window in response to a resize event
+	 * Set window size and adjust component sizes and/or positions accordingly
 	 * @author Hj. Malthaner
 	 */
-	void resize(const koord delta);
+	virtual void set_fenstergroesse(koord groesse);
 
 	/**
 	 * show or hide the line selector combobox and its associated label
@@ -183,7 +183,7 @@ public:
 	// this contructor is only used during loading
 	fahrplan_gui_t(karte_t *welt);
 
-	void rdwr( loadsave_t *file );
+	virtual void rdwr( loadsave_t *file );
 
 	uint32 get_rdwr_id() { return magic_schedule_rdwr_dummy; }
 };

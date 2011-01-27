@@ -16,6 +16,7 @@
 #include "../simworld.h"
 #include "../simwerkz.h"
 #include "../simgraph.h"
+#include "../simtools.h"
 
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
@@ -602,15 +603,15 @@ void fahrplan_gui_t::zeichnen(koord pos, koord gr)
 
 
 /**
- * resize window in response to a resize event
+ * Set window size and adjust component sizes and/or positions accordingly
  * @author Hj. Malthaner
  * @date   16-Oct-2003
  */
-void fahrplan_gui_t::resize(const koord delta)
+void fahrplan_gui_t::set_fenstergroesse(koord groesse)
 {
-	gui_frame_t::resize(delta);
+	gui_frame_t::set_fenstergroesse(groesse);
 
-	const koord groesse = get_fenstergroesse();
+	groesse = get_fenstergroesse();		// may subject to min window size limitation
 	scrolly.set_groesse( koord(groesse.x, groesse.y-scrolly.get_pos().y-16) );
 
 	line_selector.set_max_size(koord(BUTTON_WIDTH*3, groesse.y-line_selector.get_pos().y -2*16));
@@ -671,7 +672,7 @@ void fahrplan_gui_t::rdwr(loadsave_t *file)
 			for(  uint8 i=0;  i<gr->get_top();  i++  ) {
 				if(  gr->obj_bei(i)->is_moving()  ) {
 					vehikel_t const* const v = ding_cast<vehikel_t>(gr->obj_bei(i));
-					if(  v  &&  v->get_convoi()  &&  strcmp(v->get_convoi()->get_name(),cnv_name)==0  &&  old_fpl->matches( welt, v->get_convoi()->get_schedule() )  ) {
+					if(  v  &&  v->get_besitzer()->get_player_nr()==player_nr  &&  v->get_convoi()  &&  strcmp(v->get_convoi()->get_name(),cnv_name)==0  &&  old_fpl->matches( welt, v->get_convoi()->get_schedule() )  ) {
 						cnv = v->get_convoi()->self;
 						break;
 					}
