@@ -2854,6 +2854,7 @@ void karte_t::neuer_monat()
 			if(  spieler[i] != NULL  &&  (spieler[i]->get_ai_id()==spieler_t::HUMAN  ||  !umgebung_t::networkmode)  &&
 				spieler[i]->get_finance_history_year(0,COST_NETWEALTH)<=0  &&
 				spieler[i]->get_finance_history_year(0,COST_MAINTENANCE)==0  &&
+				spieler[i]->get_maintenance()==0  &&
 				spieler[i]->get_finance_history_year(0,COST_ALL_CONVOIS)==0  )
 			{
 				delete spieler[i];
