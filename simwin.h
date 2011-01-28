@@ -99,7 +99,7 @@ enum magic_numbers {
 void init_map_win();
 
 // windows with a valid id can be saved and restored
-void rwdr_all_win(loadsave_t *file);
+void rdwr_all_win(loadsave_t *file);
 
 int create_win(gui_frame_t*, wintype, long magic);
 int create_win(int x, int y, gui_frame_t*, wintype, long magic);

@@ -4049,7 +4049,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
-	rwdr_all_win(file);
+	rdwr_all_win(file);
 
 	if(needs_redraw) {
 		update_map();
@@ -4695,7 +4695,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			 * otherwise it will be ignored
 			 * which is save, since it is the end of file
 			 */
-			rwdr_all_win( file );
+			rdwr_all_win( file );
 		}
 		else {
 			if(  file->is_saving()  ) {

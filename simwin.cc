@@ -392,7 +392,7 @@ bool win_is_top(const gui_frame_t *ig)
 
 
 // save/restore all dialogues
-void rwdr_all_win(loadsave_t *file)
+void rdwr_all_win(loadsave_t *file)
 {
 	if(  file->get_version()>102003  ) {
 		if(  file->is_saving()  ) {
@@ -445,23 +445,27 @@ void rwdr_all_win(loadsave_t *file)
 							w = werkzeug_t::toolbar_tool[id-magic_toolbar]->get_werkzeug_waehler();
 						}
 						else {
-							dbg->fatal( "rwdr_all_win()", "No idea how to restore magic $%Xlu", id );
+							dbg->fatal( "rdwr_all_win()", "No idea how to restore magic $%Xlu", id );
 						}
 				}
 				/* sequece is now the same for all dialogues
 				 * restore coordinates
 				 * create window
-				 * restore state
+				 * read state
 				 * restore content
+				 * restore state - gui_frame_t::rdwr() might create its own window ->> want to restore state to that window
 				 */
 				koord p;
 				p.rdwr(file);
 				uint8 win_type;
 				file->rdwr_byte( win_type );
 				create_win( p.x, p.y, w, (wintype)win_type, id );
-				file->rdwr_bool( wins.back().sticky );
-				file->rdwr_bool( wins.back().rollup );
+				bool sticky, rollup;
+				file->rdwr_bool( sticky );
+				file->rdwr_bool( rollup );
 				w->rdwr( file );
+				wins.back().sticky = sticky;
+				wins.back().rollup = rollup;
 			}
 		}
 	}
