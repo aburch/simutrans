@@ -4697,15 +4697,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			 */
 			rdwr_all_win( file );
 		}
-		else {
-			if(  file->is_saving()  ) {
-				// dummy info
-				uint8 player_zero = 0;
-				file->rdwr_byte( player_zero );
-				uint32 end = magic_none;
-				file->rdwr_long( end );
-			}
-		}
 	}
 
 	clear_random_mode(LOAD_RANDOM);
