@@ -3181,6 +3181,7 @@ void karte_t::neuer_monat()
 			if(  spieler[i] != NULL  &&  (spieler[i]->get_ai_id()==spieler_t::HUMAN  ||  !umgebung_t::networkmode)  &&
 				spieler[i]->get_finance_history_year(0,COST_NETWEALTH)<=0  &&
 				spieler[i]->get_finance_history_year(0,COST_MAINTENANCE)==0  &&
+				spieler[i]->get_maintenance(spieler_t::MAINT_VEHICLE)==0  &&
 				spieler[i]->get_finance_history_year(0,COST_ALL_CONVOIS)==0  )
 			{
 				delete spieler[i];
@@ -4466,7 +4467,8 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	}
 
 	// save all open windows (upon request)
-	rwdr_all_win(file);
+	file->rdwr_byte( active_player_nr );
+	rdwr_all_win(file);
 
 	if(needs_redraw) 
 	{
@@ -5153,6 +5155,16 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		scenario->rdwr(file);
 	}
 
+	if(file->get_experimental_version() >= 2)
+	{
+		file->rdwr_short(base_pathing_counter);
+	}
+	if(file->get_experimental_version() >= 7)
+	{
+		file->rdwr_double(industry_density_proportion);
+	}
+
+
 	// restore locked state
 	for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
 		if(  spieler[i]  ) {
@@ -5160,26 +5172,27 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		}
 	}
 
-	//if(  file->get_version()>=102004  ) {
-	//	if(  umgebung_t::restore_UI  ) {
-	//		file->rdwr_byte( active_player_nr );
-	//		active_player = spieler[active_player_nr];
-	//		/* restore all open windows
-	//		 * otherwise it will be ignored
-	//		 * which is save, since it is the end of file
-	//		 */
-	//		rwdr_all_win( file );
-	//	}
-	//	else {
-	//		if(  file->is_saving()  ) {
-	//			// dummy info
-	//			uint8 player_zero = 0;
-	//			file->rdwr_byte( player_zero );
-	//			uint32 end = magic_none;
-	//			file->rdwr_long( end );
-	//		}
-	//	}
-	//}
+	if(  file->get_version()>=102004  ) {
+		if(  umgebung_t::restore_UI  ) {
+			file->rdwr_byte( active_player_nr );
+			active_player = spieler[active_player_nr];
+			/* restore all open windows
+			 * otherwise it will be ignored
+			 * which is save, since it is the end of file
+			 */
+			rdwr_all_win( file );
+		}
+		else {
+			if(  file->is_saving()  ) {
+				// dummy info
+				uint8 player_zero = 0;
+				file->rdwr_byte( player_zero );
+				uint32 end = magic_none;
+				file->rdwr_long( end );
+			}
+		}
+	}
+
 
 	clear_random_mode(LOAD_RANDOM);
 
