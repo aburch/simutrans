@@ -188,7 +188,7 @@ DBG_MESSAGE("fabrikbauer_t::get_random_consumer()","No suitable consumer found")
 		return NULL;
 	}
 	// now find a random one
-	uint32 next=simrand(consumer.get_sum_weight());
+	uint32 next=simrand(consumer.get_sum_weight(), "const fabrik_besch_t *fabrikbauer_t::get_random_consumer");
 	const fabrik_besch_t* fb = consumer.at_weight(next);
 	DBG_MESSAGE("fabrikbauer_t::get_random_consumer()", "consumer %s found.", fb->get_name());
 	return fb;
@@ -271,7 +271,7 @@ const fabrik_besch_t *fabrikbauer_t::finde_hersteller(const ware_besch_t *ware, 
 	}
 	// now find a random one
 	// now find a random one
-	uint32 next=simrand(producer.get_sum_weight());
+	uint32 next=simrand(producer.get_sum_weight(), "const fabrik_besch_t *fabrikbauer_t::finde_hersteller");
 	const fabrik_besch_t* besch = producer.at_weight(next);
 	DBG_MESSAGE("fabrikbauer_t::finde_hersteller()","producer for good '%s' was found %s", translator::translate(ware->get_name()),besch->get_name());
 	return besch;
@@ -332,9 +332,9 @@ finish:
 	else {
 		if(wasser) {
 			// take care of offset
-			return list[simrand(list.get_count())] + koord3d(3, 3, 0);
+			return list[simrand(list.get_count(), "koord3d fabrikbauer_t::finde_zufallsbauplatz")] + koord3d(3, 3, 0);
 		}
-		return list[simrand(list.get_count())];
+		return list[simrand(list.get_count(), "koord3d fabrikbauer_t::finde_zufallsbauplatz")];
 	}
 }
 
@@ -359,14 +359,14 @@ void fabrikbauer_t::verteile_tourist(karte_t* welt, int max_number)
 	int retrys = max_number*4;
 	while(current_number<max_number  &&  retrys-->0) {
 		koord3d	pos=koord3d( koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y()),1);
-		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),true,(climate)simrand((int)arctic_climate+1));
+		const haus_besch_t *attraction=hausbauer_t::waehle_sehenswuerdigkeit(welt->get_timeline_year_month(),true,(climate)simrand((int)arctic_climate+1, "void fabrikbauer_t::verteile_tourist"));
 
 		// no attractions for that climate or too new
 		if(attraction==NULL  ||  (welt->use_timeline()  &&  attraction->get_intro_year_month()>welt->get_current_month()) ) {
 			continue;
 		}
 
-		int	rotation=simrand(attraction->get_all_layouts()-1);
+		int	rotation=simrand(attraction->get_all_layouts()-1, "void fabrikbauer_t::verteile_tourist");
 		pos = finde_zufallsbauplatz(welt, pos, 20, attraction->get_groesse(rotation),false,attraction,false);	// so far -> land only
 		if(welt->lookup(pos)) {
 			// Platz gefunden ...
@@ -682,7 +682,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			// for sources (oil fields, forests ... ) prefer thoses with a smaller distance
 			const unsigned distance = koord_distance(fab->get_pos(),our_fab->get_pos());
 
-			if(distance>6) {//  &&  distance < simrand(welt->get_groesse_x()+welt->get_groesse_y())) {
+			if(distance>6) {//  &&  distance < simrand(welt->get_groesse_x()+welt->get_groesse_y(), "fabrikbauer_t::baue_hierarchie")) {
 				// ok, this would match
 				// but can she supply enough?
 
@@ -702,7 +702,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 							}
 						}
 						// here is actually capacity left (or sometimes just connect anyway)!
-						if(production_left>0  ||  simrand(100)<(uint32)welt->get_einstellungen()->get_crossconnect_factor()) {
+						if(production_left>0  ||  simrand(100, "fabrikbauer_t::baue_hierarchie")<(uint32)welt->get_einstellungen()->get_crossconnect_factor()) {
 							found = true;
 							if(production_left>0) {
 								verbrauch -= production_left;
@@ -786,7 +786,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			retry = 0;
 		}
 
-		int rotate = simrand(hersteller->get_haus()->get_all_layouts()-1);
+		int rotate = simrand(hersteller->get_haus()->get_all_layouts()-1, "fabrikbauer_t::baue_hierarchie");
 		koord3d parent_pos = our_fab->get_pos();
 		// ignore climates, when already 40 retrys occurred ...
 		koord3d k = finde_zufallsbauplatz(welt, our_fab->get_pos()+(retry_koord[retry%25]*DISTANCE*2), DISTANCE, hersteller->get_haus()->get_groesse(rotate),hersteller->get_platzierung()==fabrik_besch_t::Wasser,hersteller->get_haus(),j>40);
@@ -998,9 +998,9 @@ next_ware_check:
 					// we cannot built this factory here
 					continue;
 				}
-				koord   testpos = in_city ? welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight() ) )->get_pos() : koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
+				koord   testpos = in_city ? welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight(), "fabrikbauer_t::increase_industry_density()" ) )->get_pos() : koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
 				koord3d pos =  welt->lookup_kartenboden( testpos )->get_pos();
-				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1);
+				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1, "fabrikbauer_t::increase_industry_density()");
 				if(!in_city) {
 					pos = finde_zufallsbauplatz(welt, pos, 20, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),not_yet_too_desperate_to_ignore_climates);
 				}

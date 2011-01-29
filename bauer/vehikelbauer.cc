@@ -430,7 +430,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 					}
 				}
 				// ok, final check
-				if(  besch==NULL  ||  difference<(int)simrand(25)    ) {
+				if(  besch==NULL  ||  difference<(int)simrand(25, "vehikelbauer_t::vehikel_search")    ) {
 					// then we want this vehicle!
 					besch = test_besch;
 					DBG_MESSAGE( "vehikelbauer_t::vehikel_search","Found car %s",besch->get_name());
@@ -456,7 +456,7 @@ const vehikel_besch_t *vehikelbauer_t::vehikel_search( waytype_t wt, const uint1
 				if(  max_weight < target_weight+test_besch->get_gewicht()  ) {
 					current_index += max_weight - (sint32)(target_weight+test_besch->get_gewicht());
 				}
-				current_index += simrand(100);
+				current_index += simrand(100, "vehikelbauer_t::vehikel_search");
 				if(  current_index > besch_index  ) {
 					// then we want this vehicle!
 					besch = test_besch;

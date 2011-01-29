@@ -676,7 +676,7 @@ const haus_besch_t* hausbauer_t::get_random_station(const haus_besch_t::utyp uty
 			}
 		}
 	}
-	return stops.empty() ? NULL : stops.at_weight(simrand(stops.get_sum_weight()));
+	return stops.empty() ? NULL : stops.at_weight(simrand(stops.get_sum_weight(), "const haus_besch_t* hausbauer_t::get_random_station"));
 }
 
 
@@ -705,7 +705,7 @@ const haus_besch_t* hausbauer_t::get_special(int bev, haus_besch_t::utyp utype, 
 		return auswahl.front();
 	}
 	// now there is something to choose
-	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+	return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "const haus_besch_t* hausbauer_t::get_special") );
 }
 
 
@@ -723,7 +723,7 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 	const haus_besch_t *besch_at_least=NULL;
 	for (vector_tpl<const haus_besch_t*>::const_iterator i = liste.begin(), end = liste.end(); i != end; ++i) {
 		const haus_besch_t* besch = *i;
-		const uint16 random = simrand(100);
+		const uint16 random = simrand(100, "static const haus_besch_t* get_aus_liste");
 		if(	besch->is_allowed_climate(cl)  &&
 			besch->get_chance()>0  &&
 			(time==0  ||  (besch->get_intro_year_month()<=time  &&  ((allow_earlier && random > 65) || besch->get_retire_year_month()>time)))) {
@@ -760,7 +760,7 @@ static const haus_besch_t* get_aus_liste(const vector_tpl<const haus_besch_t*>& 
 		return auswahl.front();
 	}
 	// now there is something to choose
-	return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+	return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "static const haus_besch_t* get_aus_liste") );
 }
 
 
@@ -815,7 +815,7 @@ const haus_besch_t *hausbauer_t::waehle_aus_liste(vector_tpl<const haus_besch_t 
 			return auswahl.front();
 		}
 		// now there is something to choose
-		return auswahl.at_weight( simrand(auswahl.get_sum_weight()) );
+		return auswahl.at_weight( simrand(auswahl.get_sum_weight(), "const haus_besch_t *hausbauer_t::waehle_aus_liste") );
 	}
 	return NULL;
 }

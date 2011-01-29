@@ -113,7 +113,7 @@ const char *koord::get_str() const
 koord koord::koord_random( uint16 xrange, uint16 yrange )
 {
 	koord ret;
-	ret.x = simrand(xrange);
-	ret.y = simrand(yrange);
+	ret.x = simrand(xrange, "koord koord::koord_random");
+	ret.y = simrand(yrange, "koord koord::koord_random");
 	return ret;
 }

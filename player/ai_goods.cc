@@ -761,7 +761,7 @@ void ai_goods_t::step()
 					}
 				}
 				if(start_fabs.get_count()>0) {
-					root = start_fabs.at_weight( simrand( start_fabs.get_sum_weight() ) );
+					root = start_fabs.at_weight( simrand( start_fabs.get_sum_weight(), "void ai_goods_t::step()" ) );
 				}
 			}
 			// still nothing => we have to check convois ...
@@ -1190,7 +1190,7 @@ DBG_MESSAGE("ai_goods_t::step()","remove already constructed rail between %i,%i 
 		// remove stucked vehicles (only from roads!)
 		case CHECK_CONVOI:
 		{
-			next_contruction_steps = welt->get_steps() + simrand( 8000 )+1000;
+			next_contruction_steps = welt->get_steps() + simrand( 8000, "void ai_goods_t::step()" )+1000;
 
 			for( int i = welt->get_convoi_count()-1;  i>=0;  i--  ) {
 				const convoihandle_t cnv = welt->get_convoi(i);
@@ -1339,7 +1339,7 @@ void ai_goods_t::rdwr(loadsave_t *file)
 			road_vehicle = NULL;
 			road_weg = NULL;
 
-			next_contruction_steps = welt->get_steps()+simrand(400);
+			next_contruction_steps = welt->get_steps()+simrand(400, "void ai_goods_t::rdwr()");
 
 			road_transport = player_nr!=7;
 			rail_transport = player_nr>3;

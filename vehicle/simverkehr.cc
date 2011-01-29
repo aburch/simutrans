@@ -96,7 +96,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 	ribi_t::ribi liste[4];
 	int count = 0;
 
-	weg_next = simrand(65535);
+	weg_next = simrand(65535, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (weg_next)");
 	hoff = 0;
 
 	// verfügbare ribis in liste eintragen
@@ -105,7 +105,7 @@ verkehrsteilnehmer_t::verkehrsteilnehmer_t(karte_t *welt, koord3d pos) :
 			liste[count++] = ribi_t::nsow[r];
 		}
 	}
-	fahrtrichtung = count ? liste[simrand(count)] : ribi_t::nsow[simrand(4)];
+	fahrtrichtung = count ? liste[simrand(count, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (fahrtrichtung 1)")] : ribi_t::nsow[simrand(4, "verkehrsteilnehmer_t::verkehrsteilnehmer_t (fahrtrichtung 2)")];
 
 	switch(fahrtrichtung) {
 		case ribi_t::nord:
@@ -190,7 +190,7 @@ void verkehrsteilnehmer_t::hop()
 	}
 
 	if(count > 1) {
-		pos_next = liste[simrand(count)]->get_pos();
+		pos_next = liste[simrand(count, "void verkehrsteilnehmer_t::hop()")]->get_pos();
 		fahrtrichtung = calc_set_richtung(get_pos().get_2d(), pos_next.get_2d());
 	} else if(count==1) {
 		pos_next = liste[0]->get_pos();
@@ -450,7 +450,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 #endif
 	: verkehrsteilnehmer_t(welt, pos)
 {
-	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
+	besch = liste_timeline.empty() ? NULL : liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight(), "stadtauto_t::stadtauto_t("));
 	pos_next_next = koord3d::invalid;
 	time_to_life = welt->get_einstellungen()->get_stadtauto_duration() << welt->ticks_per_world_month_shift;
 	current_speed = 48;
@@ -526,7 +526,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 
 		if(  besch == 0  &&  !liste_timeline.empty()  ) {
 			dbg->warning("stadtauto_t::rdwr()", "Object '%s' not found in table, trying random stadtauto object type",s);
-			besch = liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight()));
+			besch = liste_timeline.at_weight(simrand(liste_timeline.get_sum_weight(), "stadtauto_t::rdwr()"));
 		}
 
 		if(besch == 0) {
@@ -538,7 +538,7 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	}
 
 	if(file->get_version() <= 86001) {
-		time_to_life = simrand(1000000)+10000;
+		time_to_life = simrand(1000000, "void stadtauto_t::rdwr")+10000;
 	}
 	else if(file->get_version() <= 89004) {
 		file->rdwr_long(time_to_life);
@@ -819,7 +819,7 @@ bool stadtauto_t::hop_check()
 				continue;
 			}
 #else
-		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4);
+		const uint8 offset = ribi_t::ist_einfach(ribi) ? 0 : simrand(4, "bool stadtauto_t::hop_check");
 		for(uint8 i = 0; i < 4; i++) {
 			const uint8 r = (i+offset)&3;
 #endif
@@ -868,7 +868,7 @@ bool stadtauto_t::hop_check()
 		}
 #ifdef DESTINATION_CITYCARS
 		if(posliste.get_count()>0) {
-			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight()));
+			pos_next_next = posliste.at_weight(simrand(posliste.get_sum_weight(), "bool stadtauto_t::hop_check"));
 		}
 		else {
 			pos_next_next = get_pos();

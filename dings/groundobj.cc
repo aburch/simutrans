@@ -110,7 +110,7 @@ const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(climate cl, h
 
 	// now weight their distribution
 	if(  weight > 0  ) {
-		const int w=simrand(weight);
+		const int w=simrand(weight, "const groundobj_besch_t *groundobj_t::random_groundobj_for_climate(");
 		weight = 0;
 		for(  unsigned i=0;  i<groundobj_typen.get_count();  i++  ) {
 			if(  groundobj_typen[i]->is_allowed_climate(cl)  &&  (slope==hang_t::flach  ||  groundobj_typen[i]->get_phases()==16)  ) {
@@ -213,7 +213,7 @@ void groundobj_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
 		if(  besch_names.empty()  ||  besch==NULL  ) {
-			groundobjtype = simrand(groundobj_typen.get_count());
+			groundobjtype = simrand(groundobj_typen.get_count(), "void groundobj_t::rdwr");
 		}
 		else {
 			groundobjtype = besch->get_index();

@@ -1488,7 +1488,7 @@ const char *wkz_add_city_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 				// always belong to player 1
 
 				int citizens=(int)(welt->get_einstellungen()->get_mittlere_einwohnerzahl()*0.9);
-				//  stadt_t *stadt = new stadt_t(welt, welt->get_spieler(1), pos,citizens/10+simrand(2*citizens+1));
+				//  stadt_t *stadt = new stadt_t(welt, welt->get_spieler(1), pos,citizens/10+simrand(2*citizens+1, "const char *wkz_add_city_t::work"));
 
 				// always start with 1/10 citicens
 				stadt_t* stadt = new stadt_t(welt->get_spieler(1), pos.get_2d(), citizens / 10);
@@ -4350,7 +4350,7 @@ const char *wkz_build_haus_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 	if(besch==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % besch->get_all_layouts() : simrand(besch->get_all_layouts());
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % besch->get_all_layouts() : simrand(besch->get_all_layouts(), "const char *wkz_build_haus_t::work");
 	koord size = besch->get_groesse(rotation);
 
 	// process ignore climates switch
@@ -4429,7 +4429,7 @@ const char *wkz_build_industries_land_t::work( karte_t *welt, spieler_t *sp, koo
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts()-1, "const char *wkz_build_industries_land_t::work");
 	koord size = fab->get_haus()->get_groesse(rotation);
 
 	// process ignore climates switch
@@ -4527,7 +4527,7 @@ const char *wkz_build_industries_city_t::work( karte_t *welt, spieler_t *sp, koo
 	if(fab==NULL) {
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts()-1);
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts()-1, "const char *wkz_build_industries_city_t::work");
 	koord size = fab->get_haus()->get_groesse(rotation);
 
 // process ignore climates switch (not possible for chains!)
@@ -4604,7 +4604,7 @@ const char *wkz_build_factory_t::work( karte_t *welt, spieler_t *sp, koord3d k )
 	{
 		return "";
 	}
-	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts());
+	int rotation = (default_param  &&  default_param[1]!='#') ? (default_param[1]-'0') % fab->get_haus()->get_all_layouts() : simrand(fab->get_haus()->get_all_layouts(), "const char *wkz_build_factory_t::work");
 	koord size = fab->get_haus()->get_groesse(rotation);
 
 	// process ignore climates switch

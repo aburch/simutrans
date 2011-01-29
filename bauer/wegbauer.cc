@@ -869,7 +869,7 @@ bool wegbauer_t::is_allowed_step( const grund_t *from, const grund_t *to, long *
 				// calculate costs
 				if(ok) {
 					// prefer existing rivers:
-					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(welt->get_einstellungen()->way_count_90_curve);
+					*costs = to->hat_weg(water_wt) ? 10 : 10+simrand(welt->get_einstellungen()->way_count_90_curve, "bool wegbauer_t::is_allowed_step");
 					if(to->get_weg_hang()!=0) {
 						*costs += welt->get_einstellungen()->way_count_slope*10;
 					}

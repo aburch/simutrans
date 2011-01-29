@@ -32,6 +32,9 @@
 #include "simintr.h"
 
 #include "simdebug.h"
+#ifdef DEBUG_SIMRAND_CALLES
+#include "utils/cbuffer_t.h"
+#endif
 
 
 struct event_t;
@@ -1221,6 +1224,10 @@ public:
 	 */
 
 	uint32 generate_new_map_counter() const;
+
+#ifdef DEBUG_SIMRAND_CALLS
+	static fixed_list_tpl<const char*, 128> random_callers;
+#endif
 
 private:
 

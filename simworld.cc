@@ -638,7 +638,7 @@ void karte_t::rem_convoi(convoihandle_t& cnv)
  */
 const stadt_t *karte_t::get_random_stadt() const
 {
-	return stadt.at_weight(simrand(stadt.get_sum_weight()));
+	return stadt.at_weight(simrand(stadt.get_sum_weight(), "const stadt_t *karte_t::get_random_stadt"));
 }
 
 void karte_t::add_stadt(stadt_t *s)
@@ -799,8 +799,8 @@ void karte_t::create_rivers( sint16 number )
 	// now make rivers
 	uint8 retrys = 0;
 	while(  number>0  &&  mountain_tiles.get_count()>0  &&  retrys++<100  ) {
-		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight()) );
-		koord end = water_tiles[ simrand(water_tiles.get_count()) ];
+		koord start = mountain_tiles.at_weight( simrand(mountain_tiles.get_sum_weight(), "void karte_t::create_rivers") );
+		koord end = water_tiles[ simrand(water_tiles.get_count(), "void karte_t::create_rivers") ];
 		sint16 dist = koord_distance(start,end);
 		if(  dist > einstellungen->get_min_river_length()  &&  dist < einstellungen->get_max_river_length()  ) {
 			// should be at least of decent length
@@ -1190,7 +1190,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 	if(  umgebung_t::ground_object_probability > 0  ) {
 		// add eyecandy like rocky, moles, flowers, ...
 		koord k;
-		sint32 queried = simrand(umgebung_t::ground_object_probability*2);
+		sint32 queried = simrand(umgebung_t::ground_object_probability*2, "karte_t::distribute_groundobjs_cities()");
 		for(  k.y=0;  k.y<get_groesse_y();  k.y++  ) {
 			for(  k.x=(k.y<old_y)?old_x:0;  k.x<get_groesse_x();  k.x++  ) {
 				grund_t *gr = lookup_kartenboden(k);
@@ -1199,7 +1199,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing groundobjs");
 					if(  queried<0  ) {
 						const groundobj_besch_t *besch = groundobj_t::random_groundobj_for_climate( get_climate(gr->get_hoehe()), gr->get_grund_hang() );
 						if(besch) {
-							queried = simrand(umgebung_t::ground_object_probability*2);
+							queried = simrand(umgebung_t::ground_object_probability*2, "karte_t::distribute_groundobjs_cities()");
 							gr->obj_add( new groundobj_t( this, gr->get_pos(), besch ) );
 						}
 					}
@@ -1212,7 +1212,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 	if(  umgebung_t::moving_object_probability > 0  ) {
 		// add animals and so on (must be done after growing and all other objects, that could change ground coordinates)
 		koord k;
-		sint32 queried = simrand(umgebung_t::moving_object_probability*2);
+		sint32 queried = simrand(umgebung_t::moving_object_probability*2, "karte_t::distribute_groundobjs_cities()");
 		// no need to test the borders, since they are mostly slopes anyway
 		for(k.y=1; k.y<get_groesse_y()-1; k.y++) {
 			for(k.x=(k.y<old_y)?old_x:1; k.x<get_groesse_x()-1; k.x++) {
@@ -1223,7 +1223,7 @@ DBG_DEBUG("karte_t::distribute_groundobjs_cities()","distributing movingobjs");
 						const groundobj_besch_t *besch = movingobj_t::random_movingobj_for_climate( get_climate(gr->get_hoehe()) );
 						if(besch  &&  (besch->get_speed()==0  ||  (besch->get_waytype()!=water_wt  ||  gr->hat_weg(water_wt)  ||  gr->get_hoehe()<=get_grundwasser()) ) ) {
 							if(besch->get_speed()!=0) {
-								queried = simrand(umgebung_t::moving_object_probability*2);
+								queried = simrand(umgebung_t::moving_object_probability*2, "karte_t::distribute_groundobjs_cities()");
 								gr->obj_add( new movingobj_t( this, gr->get_pos(), besch ) );
 							}
 						}
@@ -1747,6 +1747,10 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 	// @author: jamespetts
 	set_scale();
 }
+
+#ifdef DEBUG_SIMRAND_CALLS
+	fixed_list_tpl<const char*, 128> karte_t::random_callers;
+#endif
 
 
 karte_t::~karte_t()
@@ -2730,7 +2734,7 @@ karte_t::get_random_fab() const
 	fabrik_t *result = NULL;
 
 	if(anz > 0) {
-		const int end = simrand( anz );
+		const int end = simrand( anz, "fabrik_t *karte_t::get_random_fab" );
 		result = fab_list[end];
 	}
 	return result;
@@ -2762,7 +2766,7 @@ karte_t::get_random_ausflugsziel() const
 {
 	const unsigned long sum_pax=ausflugsziele.get_sum_weight();
 	if (!ausflugsziele.empty() && sum_pax > 0) {
-		return ausflugsziele.at_weight( simrand(sum_pax) );
+		return ausflugsziele.at_weight( simrand(sum_pax, "const gebaeude_t *karte_t::get_random_ausflugsziel() const") );
 	}
 	// so there are no destinations ... should never occur ...
 	dbg->fatal("karte_t::get_random_ausflugsziel()","nothing found.");
@@ -3140,7 +3144,7 @@ void karte_t::neuer_monat()
 	{
 		// Only add one per month, and randomise.
 		const double proportion = ((target_industry_density - actual_industry_density) / target_industry_density) * 100;
-		const uint8 chance = simrand(100);
+		const uint8 chance = simrand(100, "void karte_t::neuer_monat()");
 		if(chance < proportion)
 		{
 			fabrikbauer_t::increase_industry_density(this, true, true);
@@ -3682,6 +3686,12 @@ void karte_t::step()
 		set_werkzeug( w, NULL );
 		// since init always returns false, it is save to delete immediately
 		delete w;
+#ifdef DEBUG_SIMRAND_CALLS
+		ITERATE(karte_t::random_callers, n)
+		{
+			get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
+		}
+#endif
 	}
 	DBG_DEBUG4("karte_t::step", "end");
 }
@@ -6435,6 +6445,13 @@ void karte_t::network_disconnect()
 	last_active_player_nr = active_player_nr;
 
 	beenden(false);
+
+#ifdef DEBUG_SIMRAND_CALLS
+	ITERATE(karte_t::random_callers, n)
+	{
+		get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
+	}
+#endif
 }
 
 void karte_t::set_citycar_speed_average()

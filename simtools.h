@@ -2,6 +2,9 @@
 #define SIMTOOLS_H
 
 #include "simtypes.h"
+#ifdef DEBUG_SIMRAND_CALLS
+#include "tpl\fixed_list_tpl.h"
+#endif
 
 
 uint32 get_random_seed();
@@ -15,7 +18,11 @@ uint32 setsimrand(uint32 seed, uint32 noise_seed);
 uint32 sim_async_rand(const uint32 max);
 
 /* generates a random number on [0,max-1]-interval */
-uint32 simrand(const uint32 max);
+#ifdef DEBUG_SIMRAND_CALLS
+uint32 simrand(const uint32 max, const char* caller);
+#else
+uint32 simrand(const uint32 max, const char*);
+#endif
 
 /* generates a random number on [0,0xFFFFFFFFu]-interval */
 uint32 simrand_plain(void);

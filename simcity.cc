@@ -733,7 +733,7 @@ sint32 stadt_t::bewerte_pos(const koord pos, rule_t &regel)
 
 void stadt_t::bewerte_strasse(koord k, sint32 rd, rule_t &regel)
 {
-	if (simrand(rd) == 0) {
+	if (simrand(rd, "void stadt_t::bewerte_strasse") == 0) {
 		best_strasse.check(k, bewerte_pos(k, regel));
 	}
 }
@@ -741,7 +741,7 @@ void stadt_t::bewerte_strasse(koord k, sint32 rd, rule_t &regel)
 
 void stadt_t::bewerte_haus(koord k, sint32 rd, rule_t &regel)
 {
-	if (simrand(rd) == 0) {
+	if (simrand(rd, "stadt_t::bewerte_haus") == 0) {
 		best_haus.check(k, bewerte_pos(k, regel));
 	}
 }
@@ -1365,7 +1365,7 @@ stadt_t::stadt_t(spieler_t* sp, koord pos, sint32 citizens) :
 
 	fflush(NULL);
 	// start at random position
-	int start_cont = simrand(name_list_count);
+	int start_cont = simrand(name_list_count, "stadt_t::stadt_t");
 
 	// get a unique name
 	const char* list_name;
@@ -2632,7 +2632,7 @@ void stadt_t::step_passagiere()
 	// post oder pax erzeugen ?
 	// "post or generate pax"
 	const ware_besch_t* wtyp;
-	if (simrand(400) < 300) 
+	if (simrand(400, "void stadt_t::step_passagiere()") < 300) 
 	{
 		wtyp = warenbauer_t::passagiere;
 	}
@@ -2691,7 +2691,7 @@ void stadt_t::step_passagiere()
 	// Check run in batches to save computational effort.
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(welt->get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
-	const bool has_private_car = private_car_percent > 0 ? simrand(100) <= (uint16)private_car_percent : false;
+	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere()") <= (uint16)private_car_percent : false;
 
 		// Record the most useful set of information about why passengers cannot reach their chosen destination:
 		//  Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
@@ -2727,12 +2727,12 @@ void stadt_t::step_passagiere()
 			// search target for the passenger
 			pax_zieltyp will_return;
 
-			const uint8 destination_count = simrand(max_destinations) + 1;
+			const uint8 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere()") + 1;
 
 			// Split passengers: between local, midrange and long-distance
 			// according to the percentages set in simuconf.tab.
 			// Note: a random town will be found if there are no towns within range.
-			const uint8 passenger_routing_choice = simrand(100);
+			const uint8 passenger_routing_choice = simrand(100, "void stadt_t::step_passagiere()");
 			const journey_distance_type range = 
 				passenger_routing_choice <= passenger_routing_local_chance ? 
 				local :
@@ -2742,10 +2742,10 @@ void stadt_t::step_passagiere()
 				wtyp != warenbauer_t::passagiere ? 
 				0 : 
 				range == local ? 
-					simrand(max_local_tolerance) + min_local_tolerance : 
+					simrand(max_local_tolerance, "void stadt_t::step_passagiere()") + min_local_tolerance : 
 				range == midrange ? 
-					simrand(max_midrange_tolerance) + min_midrange_tolerance : 
-				simrand(max_longdistance_tolerance) + min_longdistance_tolerance;
+					simrand(max_midrange_tolerance, "void stadt_t::step_passagiere()") + min_midrange_tolerance : 
+				simrand(max_longdistance_tolerance, "void stadt_t::step_passagiere()") + min_longdistance_tolerance;
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
 			{				
@@ -2940,7 +2940,7 @@ void stadt_t::step_passagiere()
 						const uint32 distance = accurate_distance(destinations[current_destination].location, k);			
 						
 						//Weighted random.
-						uint8 private_car_chance = simrand(100);
+						uint8 private_car_chance = simrand(100, "void stadt_t::step_passagiere()");
 						if(private_car_chance >= 1)
 						{
 							// The basic preference for using a private car if available.
@@ -3295,7 +3295,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 		uint8 counter = 0;
 		while (counter++ < 16 && (k == koord::invalid || distance > max_distance || distance < min_distance))
 		{
-			gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight()));
+			gebaeude_t* gb = buildings.at_weight(simrand(buildings.get_sum_weight(), "koord stadt_t::get_zufallspunkt"));
 			k = gb->get_pos().get_2d();
 			if(!welt->ist_in_kartengrenzen(k)) 
 			{
@@ -3319,7 +3319,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 
 stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uint32 min_distance, uint32 max_distance, koord origin)
 {
-	const int rand = simrand(100);
+	const int rand = simrand(100, "stadt_t::destination stadt_t::finde_passagier_ziel");
 	destination current_destination;
 	current_destination.object.town = NULL;
 	current_destination.type = 1;
@@ -3331,13 +3331,13 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 	// about 1/3 are workers
 	if(rand < welt->get_einstellungen()->get_factory_worker_percentage()  &&  arbeiterziele.get_sum_weight() > 0 )
 	{
-		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight()));
+		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel"));
 		*will_return = factoy_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		uint8 counter = 0;
 		while(counter ++ < 32 && (accurate_distance(origin, fab->get_pos().get_2d()) > max_distance || accurate_distance(origin, fab->get_pos().get_2d()) < min_distance))
 		{
-			fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight()));
+			fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel"));
 		}
 		current_destination.location = fab->get_pos().get_2d();
 		current_destination.object.industry = fab;
@@ -3375,7 +3375,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 			const uint32 weight = welt->get_town_list_weight();
 			const uint16 number_of_towns = welt->get_staedte().get_count();
 			uint16 town_step = weight / number_of_towns;
-			uint32 random = simrand(weight);
+			uint32 random = simrand(weight, "stadt_t::destination stadt_t::finde_passagier_ziel");
 			uint32 distance = 0;
 			const uint16 max_x = max((origin.x - ur.x), (origin.x - lo.x));
 			const uint16 max_y = max((origin.y - ur.y), (origin.y - lo.y));
@@ -3530,7 +3530,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 	// touristenattraktion bauen
 	const haus_besch_t* besch = hausbauer_t::get_special(bev, haus_besch_t::attraction_city, welt->get_timeline_year_month(), new_town, welt->get_climate(welt->max_hgt(pos)));
 	if (besch != NULL) {
-		if (simrand(100) < (uint)besch->get_chance()) {
+		if (simrand(100, "void stadt_t::check_bau_spezial") < (uint)besch->get_chance()) {
 			// baue was immer es ist
 			int rotate = 0;
 			bool is_rotate = besch->get_all_layouts() > 1;
@@ -3539,7 +3539,7 @@ void stadt_t::check_bau_spezial(bool new_town)
 			if (best_pos != koord::invalid) {
 				// then built it
 				if (besch->get_all_layouts() > 1) {
-					rotate = (simrand(20) & 2) + is_rotate;
+					rotate = (simrand(20, "void stadt_t::check_bau_spezial") & 2) + is_rotate;
 				}
 				hausbauer_t::baue( welt, besitzer_p, welt->lookup_kartenboden(best_pos)->get_pos(), rotate, besch );
 				// tell the player, if not during initialization
@@ -3711,7 +3711,7 @@ void stadt_t::check_bau_rathaus(bool new_town)
 		}
 
 		// Now built the new townhall (remember old orientation)
-		int layout = umziehen || neugruendung ? simrand(besch->get_all_layouts()) : old_layout % besch->get_all_layouts();
+		int layout = umziehen || neugruendung ? simrand(besch->get_all_layouts(), "void stadt_t::check_bau_rathaus") : old_layout % besch->get_all_layouts();
 		// on which side should we place the road?
 		uint8 dir;
 		// offset of bulding within searched place, start and end of road
@@ -4362,7 +4362,7 @@ void stadt_t::baue(bool new_town)
 			// since only a single location is checked, we can stop after we have found a positive rule
 			best_strasse.reset(k);
 			const uint32 num_road_rules = road_rules.get_count();
-			uint32 offset = simrand(num_road_rules);	// start with random rule
+			uint32 offset = simrand(num_road_rules, "void stadt_t::baue");	// start with random rule
 			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 				uint32 rule = ( i+offset ) % num_road_rules;
 				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
@@ -4379,7 +4379,7 @@ void stadt_t::baue(bool new_town)
 			// since only a single location is checked, we can stop after we have found a positive rule
 			best_haus.reset(k);
 			const uint32 num_house_rules = house_rules.get_count();
-			offset = simrand(num_house_rules);	// start with random rule
+			offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
 			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
 				uint32 rule = ( i+offset ) % num_house_rules;
 				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
@@ -4399,14 +4399,14 @@ void stadt_t::baue(bool new_town)
 	if (maxdist < 10) {maxdist = 10;}
 	int was_renovated=0;
 	int try_nr = 0;
-	if (!buildings.empty() && simrand(100) <= renovation_percentage  ) {
+	if (!buildings.empty() && simrand(100, "void stadt_t::baue") <= renovation_percentage  ) {
 		gebaeude_t* gb;
 		while (was_renovated < renovations_count && try_nr++ < renovations_try) { // trial an errors parameters
 			// try to find a public owned building
-			gb = buildings[simrand(buildings.get_count())];
+			gb = buildings[simrand(buildings.get_count(), "void stadt_t::baue")];
 			double dist(koord_distance(c, gb->get_pos()));
 			uint32 distance_rate = uint32(100 * (1.0 - dist/maxdist));
-			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100) < distance_rate) {
+			if(  spieler_t::check_owner(gb->get_besitzer(),NULL)  && simrand(100, "void stadt_t::baue") < distance_rate) {
 				if(renoviere_gebaeude(gb)) { was_renovated++;}
 			}
 		}
@@ -4437,13 +4437,13 @@ void stadt_t::baue(bool new_town)
 
 		// loop until all candidates are exhausted or until we find a suitable location to build road or city building
 		while(  candidates.get_count()>0  ) {
-			const uint32 idx = simrand( candidates.get_count() );
+			const uint32 idx = simrand( candidates.get_count(), "void stadt_t::baue" );
 			const koord k = candidates[idx];
 
 			// we can stop after we have found a positive rule
 			best_strasse.reset(k);
 			const uint32 num_road_rules = road_rules.get_count();
-			uint32 offset = simrand(num_road_rules);	// start with random rule
+			uint32 offset = simrand(num_road_rules, "void stadt_t::baue");	// start with random rule
 			for (uint32 i = 0; i < num_road_rules  &&  !best_strasse.found(); i++) {
 				uint32 rule = ( i+offset ) % num_road_rules;
 				bewerte_strasse(k, 8 + road_rules[rule]->chance, *road_rules[rule]);
@@ -4460,7 +4460,7 @@ void stadt_t::baue(bool new_town)
 			// we can stop after we have found a positive rule
 			best_haus.reset(k);
 			const uint32 num_house_rules = house_rules.get_count();
-			offset = simrand(num_house_rules);	// start with random rule
+			offset = simrand(num_house_rules, "void stadt_t::baue");	// start with random rule
 			for (uint32 i = 0; i < num_house_rules  &&  !best_haus.found(); i++) {
 				uint32 rule = ( i+offset ) % num_house_rules;
 				bewerte_haus(k, 8 + house_rules[rule]->chance, *house_rules[rule]);
@@ -4704,10 +4704,10 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 		}
 
 		// find a random cell
-		const uint32 weight = simrand(index_to_places.get_sum_weight());
+		const uint32 weight = simrand(index_to_places.get_sum_weight(), "vector_tpl<koord>* stadt_t::random_place");
 		const koord ip = index_to_places.at_weight(weight);
 		// get random place in the cell
-		const uint32 j = simrand(places.at(ip).get_count());
+		const uint32 j = simrand(places.at(ip).get_count(), "vector_tpl<koord>* stadt_t::random_place");
 		// places.at(ip) can't be empty (see (*) above )
 		const koord k = places.at(ip)[j];
 		places.at(ip).remove_at(j);

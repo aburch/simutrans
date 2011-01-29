@@ -235,7 +235,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	besitzer_p = spieler;
 	prodfaktor = 16;
-	prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+	prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "fabrik_t::fabrik_t");
 	prodbase = prodbase > 0 ? prodbase : 1;
 
 	delta_sum = 0;
@@ -404,7 +404,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		return false;
 	}
 	// we are lucky and are allowed to generate a field
-	if(simrand(10000)<probability) {
+	if(simrand(10000, "bool fabrik_t::add_random_field")<probability) {
 		return false;
 	}
 
@@ -440,7 +440,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 	} while (radius < 10 && build_locations.get_count() == 0);
 	// built on one of the positions
 	if(build_locations.get_count() > 0) {
-		grund_t *gr = build_locations.at(simrand(build_locations.get_count()));
+		grund_t *gr = build_locations.at(simrand(build_locations.get_count(), "bool fabrik_t::add_random_field"));
 		leitung_t* lt = gr->find<leitung_t>();
 		if(lt) {
 			gr->obj_remove(lt);
@@ -452,7 +452,7 @@ bool fabrik_t::add_random_field(uint16 probability)
 		assert(!fields.is_contained(new_field));
 		// Knightly : fetch a random field class besch based on spawn weights
 		const weighted_vector_tpl<uint16> &field_class_indices = fb->get_field_class_indices();
-		new_field.field_class_index = field_class_indices.at_weight( simrand( field_class_indices.get_sum_weight() ) );
+		new_field.field_class_index = field_class_indices.at_weight( simrand( field_class_indices.get_sum_weight(), "bool fabrik_t::add_random_field" ) );
 		const field_class_besch_t *const field_class = fb->get_field_class( new_field.field_class_index );
 		fields.append(new_field);
 		grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
@@ -803,8 +803,8 @@ void fabrik_t::smoke() const
 		koord ro = rada->get_pos_off(size,rot);
 		grund_t *gr=welt->lookup_kartenboden(pos.get_2d()+ro);
 		// to get same random order on different compilers
-		const sint8 offsetx =  ((rada->get_xy_off(rot).x+simrand(7)-3)*TILE_STEPS)/16;
-		const sint8 offsety =  ((rada->get_xy_off(rot).y+simrand(7)-3)*TILE_STEPS)/16;
+		const sint8 offsetx =  ((rada->get_xy_off(rot).x+simrand(7, "void fabrik_t::smoke()")-3)*TILE_STEPS)/16;
+		const sint8 offsety =  ((rada->get_xy_off(rot).y+simrand(7, "void fabrik_t::smoke()")-3)*TILE_STEPS)/16;
 		wolke_t *smoke =  new wolke_t(welt, gr->get_pos(), offsetx, offsety, rada->get_bilder() );
 		gr->obj_add(smoke);
 		welt->sync_add( smoke );
@@ -1352,7 +1352,7 @@ void fabrik_t::neuer_monat()
 		{
 			float proportion = (float)difference / (float)max_difference;
 			proportion *= 2.5F; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100.0F - large change to take into account frequency of checking)
-			const float chance = (float)(simrand(10000) / 100.0F);
+			const float chance = (float)(simrand(10000, "void fabrik_t::neuer_monat()") / 100.0F);
 			if(chance <= proportion)
 			{
 				closedown = true;
@@ -1409,7 +1409,7 @@ void fabrik_t::neuer_monat()
 					}
 					const double average_density = total_density / list_count;
 					const double probability_floating = 1 / ((1 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count());
-					const uint32 chance = simrand(probability_floating);
+					const uint32 chance = simrand(probability_floating, "void fabrik_t::neuer_monat()");
 					if(chance < list_count)
 					{
 						// All the conditions are met: upgrade.
@@ -1422,7 +1422,7 @@ void fabrik_t::neuer_monat()
 						const char* new_name = get_name();
 						gb->calc_bild();
 						// Base production is randomised, so is an instance value. Must re-set from the type.
-						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich());
+						prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "void fabrik_t::neuer_monat()");
 						// Re-add the fields
 						for(uint16 i = 0; i < adjusted_number_of_fields; i ++)
 						{

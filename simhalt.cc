@@ -2346,7 +2346,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 				//previous_halt = plan_halt;		
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.
-				sint32 offset = simrand(warray->get_count());
+				sint32 offset = simrand(warray->get_count(), "ware_t haltestelle_t::hole_ab");
 
 				halthandle_t next_transfer;
 				uint8 catg_index;

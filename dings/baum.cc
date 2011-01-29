@@ -168,7 +168,7 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 			}
 			baum_t *b = new baum_t(welt, gr->get_pos(), besch); //plants the tree
 			if(random_age) {
-				b->geburt = welt->get_current_month() - simrand(400);
+				b->geburt = welt->get_current_month() - simrand(400, "baum_t::plant_tree_on_coordinate");
 			}
 			gr->obj_add( b );
 			return true; //tree was planted - currently unused value is not checked
@@ -204,7 +204,7 @@ uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
 			uint8 number_to_plant = 0;
 			const uint8 max_trees_here = min(welt->get_einstellungen()->get_max_no_of_trees_on_square(),  (tree_probability - 38 +1)/2);
 			for (uint8 c2 = 0 ; c2<max_trees_here; c2++) {
-				const uint32 rating = simrand(10) + 38 + c2*2;
+				const uint32 rating = simrand(10, "uint32 baum_t::create_forest") + 38 + c2*2;
 				if (rating < tree_probability ) {
 					number_to_plant++;
 				}
@@ -231,7 +231,7 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 			if(gr->get_top() == 0  &&  gr->get_typ() == grund_t::boden)  {
 				// plant spare trees, (those with low preffered density) or in an entirely tree climate
 				uint16 cl = 1<<welt->get_climate(gr->get_hoehe());
-				if( (cl & welt->get_einstellungen()->get_no_tree_climates())==0  &&  (  (cl & welt->get_einstellungen()->get_tree_climates())!=0  ||  simrand(welt->get_einstellungen()->get_forest_inverse_spare_tree_density()*dichte) < 100  )  ) {
+				if( (cl & welt->get_einstellungen()->get_no_tree_climates())==0  &&  (  (cl & welt->get_einstellungen()->get_tree_climates())!=0  ||  simrand(welt->get_einstellungen()->get_forest_inverse_spare_tree_density()*dichte, " baum_t::fill_trees(") < 100  )  ) {
 					plant_tree_on_coordinate(welt, pos, 1, 1);
 				}
 			}
@@ -298,8 +298,8 @@ void baum_t::calc_off()
 	int reob;
 	switch (welt->lookup( get_pos())->get_grund_hang() ) {
 		case 0:
-			liob=simrand(30)-15;
-			reob=simrand(30)-15;
+			liob=simrand(30, "baum_t::calc_off()")-15;
+			reob=simrand(30, "baum_t::calc_off()")-15;
 			set_xoff( reob - liob  );
 			set_yoff( (reob + liob)/2 );
 			break;
@@ -311,8 +311,8 @@ void baum_t::calc_off()
 		case 9:
 		case 12:
 		case 13:
-			liob=simrand(16)-8;
-			reob=simrand(16)-8;
+			liob=simrand(16, "baum_t::calc_off()")-8;
+			reob=simrand(16, "baum_t::calc_off()")-8;
 			set_xoff( reob - liob  );
 			set_yoff( reob + liob );
 			break;
@@ -325,8 +325,8 @@ void baum_t::calc_off()
 		case 11:
 		case 14:
 		case 15:
-			liob=simrand(TILE_STEPS)-(TILE_STEPS/2);
-			reob=simrand(TILE_STEPS)-(TILE_STEPS/2);
+			liob=simrand(TILE_STEPS, "baum_t::calc_off()")-(TILE_STEPS/2);
+			reob=simrand(TILE_STEPS, "baum_t::calc_off()")-(TILE_STEPS/2);
 			set_xoff( reob + liob  );
 			set_yoff( -(10*TILE_STEPS/16)-(reob - liob)/2 );
 			break;
@@ -404,7 +404,7 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 
 	// now weight their distribution
 	if (weight > 0) {
-		return baum_typen_per_climate[cl].at_weight( simrand(weight) );
+		return baum_typen_per_climate[cl].at_weight( simrand(weight, "baum_t::random_tree_for_climate_intern") );
 
 	}
 	else {
@@ -427,7 +427,7 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
 	// Hajo: auch aeltere Baeume erzeugen
-	geburt = welt->get_current_month() - simrand(703);
+	geburt = welt->get_current_month() - simrand(703, "baum_t::baum_t");
 	baumtype = random_tree_for_climate_intern(welt->get_climate(pos.z));
 	season = 0;
 	calc_off();
@@ -461,8 +461,8 @@ bool baum_t::saee_baum()
 	// the area for normal new tree planting is slightly more restricted, square of 9x9 was too much
 
 	// to have same execution order for simrand
-	const sint16 sx = simrand(5)-2;
-	const sint16 sy = simrand(5)-2;
+	const sint16 sx = simrand(5, "baum_t::saee_baum()")-2;
+	const sint16 sy = simrand(5, "baum_t::saee_baum()")-2;
 	const koord k = get_pos().get_2d() + koord(sx,sy);
 
 	return plant_tree_on_coordinate(welt, k, baum_typen[baumtype], true, false);
@@ -479,7 +479,7 @@ bool baum_t::check_season(long month)
 	if(alter>=512  &&  alter<=515  ) {
 		// only in this month a tree can span new trees
 		// only 1-3 trees will be planted....
-		const uint8 c_plant_tree_max = 1+simrand(welt->get_einstellungen()->get_max_no_of_trees_on_square());
+		const uint8 c_plant_tree_max = 1+simrand(welt->get_einstellungen()->get_max_no_of_trees_on_square(), "baum_t::check_season");
 		uint retrys = 0;
 		for(uint8 c_temp=0;  c_temp<c_plant_tree_max  &&  retrys<c_plant_tree_max;  c_temp++ ) {
 			if(  !saee_baum()  ) {
@@ -521,7 +521,7 @@ void baum_t::rdwr(loadsave_t *file)
 		}
 		else {
 			// replace with random tree
-			baumtype = simrand(baum_typen.get_count());
+			baumtype = simrand(baum_typen.get_count(), "baum_t::rdwr");
 		}
 	}
 	else {

@@ -456,7 +456,7 @@ bool welt_gui_t::action_triggered( gui_action_creator_t *komp,value_t v)
 		sets->set_starting_year( v.i );
 	}
 	else if(komp==&random_map) {
-		knr = simrand(9999);
+		knr = simrand(9999, "bool welt_gui_t::action_triggered");
 		inp_map_number.set_value(knr);
 		sets->heightfield = "";
 		loaded_heightfield = false;

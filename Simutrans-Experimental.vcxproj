@@ -112,7 +112,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);USE_INDEPENDENT_PATH_POOL</PreprocessorDefinitions>
+      <PreprocessorDefinitions>ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);USE_INDEPENDENT_PATH_POOL;DEBUG_SIMRAND_CALLS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -143,7 +143,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_INDEPENDENT_PATH_POOL;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_INDEPENDENT_PATH_POOL;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;DEBUG=3;%(PreprocessorDefinitions);DEBUG_SIMRAND_CALLS</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -176,7 +176,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>F:\My Documents\Development\Zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_INDEPENDENT_PATH_POOL;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_INDEPENDENT_PATH_POOL;ZLIB_WINAPI;LITTLE_ENDIAN;WIN32;NDEBUG;%(PreprocessorDefinitions);DEBUG_SIMRAND_CALLS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <PrecompiledHeader>

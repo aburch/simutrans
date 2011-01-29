@@ -103,7 +103,7 @@ const groundobj_besch_t *movingobj_t::random_movingobj_for_climate(climate cl)
 
 	// now weight their distribution
 	if (weight > 0) {
-		const int w=simrand(weight);
+		const int w=simrand(weight, "const groundobj_besch_t *movingobj_t::random_movingobj_for_climate");
 		weight = 0;
 		for( unsigned i=0; i<movingobj_typen.get_count();  i++  ) {
 			if(  movingobj_typen[i]->is_allowed_climate(cl) ) {
@@ -227,7 +227,7 @@ void movingobj_t::rdwr(loadsave_t *file)
 		file->rdwr_str(bname, lengthof(bname));
 		groundobj_besch_t *besch = besch_names.get(bname);
 		if(  besch_names.empty()  ||  besch==NULL  ) {
-			groundobjtype = simrand(movingobj_typen.get_count());
+			groundobjtype = simrand(movingobj_typen.get_count(), "void movingobj_t::rdwr");
 		}
 		else {
 			groundobjtype = besch->get_index();
@@ -367,7 +367,7 @@ bool movingobj_t::hop_check()
 
 	if(timetochange==0  ||  !ist_befahrbar(welt->lookup_kartenboden(pos_next_next))) {
 		// direction change needed
-		timetochange = simrand(speed_to_kmh(get_besch()->get_speed())/3);
+		timetochange = simrand(speed_to_kmh(get_besch()->get_speed())/3, "bool movingobj_t::hop_check()");
 		const koord pos=pos_next.get_2d();
 		const grund_t *to[4];
 		uint8 until=0;
@@ -385,7 +385,7 @@ bool movingobj_t::hop_check()
 		}
 		else {
 			// else prepare for direction change
-			const grund_t *next = to[simrand(until)];
+			const grund_t *next = to[simrand(until, "bool movingobj_t::hop_check()")];
 			pos_next_next = next->get_pos().get_2d();
 		}
 	}
