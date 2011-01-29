@@ -394,6 +394,9 @@ bool win_is_top(const gui_frame_t *ig)
 // save/restore all dialogues
 void rdwr_all_win(loadsave_t *file)
 {
+	//FIXME: This does not work in Experimental, so disable this code for now.
+	//return;
+
 	if(  file->get_version()>102003  ) {
 		if(  file->is_saving()  ) {
 			for ( uint32 i=0;  i < wins.get_count();  i++ ) {

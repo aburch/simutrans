@@ -1006,7 +1006,7 @@ class wkz_lines_t : public werkzeug_t {
 public:
 	wkz_lines_t() : werkzeug_t() { id = WKZ_LINEOVERVIEW | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Line Management"); }
-	virtual image_id get_icon(spieler_t *sp) const { return sp->get_player_nr()==1 ? IMG_LEER : icon; }
+	virtual image_id get_icon(spieler_t *sp) const { return sp ? sp->get_player_nr()==1 ? IMG_LEER : icon : IMG_LEER; }
 	bool is_selected(karte_t *welt) const { return win_get_magic((long)(&(welt->get_active_player()->simlinemgmt))); }
 	bool init( karte_t *, spieler_t *sp ) {
 		if(sp->get_player_nr()!=1) {
