@@ -642,7 +642,7 @@ void senke_t::step(long delta_t)
 	if (fab != NULL && fab->get_city() == NULL)
 	{
 		// Factories in cities are dealt with separetely.
-		fab_power_demand = fab->get_power_demand();
+		fab_power_demand = fab->step_power_demand();
 	}
 
 	if(city != NULL)
