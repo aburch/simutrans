@@ -514,11 +514,11 @@ int simu_main(int argc, char** argv)
 		if(  gimme_arg(argc, argv, "-server", 0)  ) {
 			logname = "simu-server.log";
 		}
-		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL, "Hello");
+		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0) != NULL, NULL);
 	} else if (gimme_arg(argc, argv, "-debug", 0) != NULL) {
-		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL, "Hello");
+		init_logging( "stderr", true, gimme_arg(argc, argv, "-debug", 0) != NULL, NULL);
 	} else {
-		init_logging(NULL, false, false, "Hello");
+		init_logging(NULL, false, false, NULL);
 	}
 
 

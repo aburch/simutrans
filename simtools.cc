@@ -107,6 +107,7 @@ uint32 simrand(const uint32 max, const char*)
 #ifdef DEBUG_SIMRAND_CALLS
 	char* buf = new char[256];
 	sprintf(buf, "%s (%i)", caller, get_random_seed());
+	dbg->warning("simrand", buf);
 
 	karte_t::random_callers.add_to_head(buf);
 #endif

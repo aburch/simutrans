@@ -2632,7 +2632,7 @@ void stadt_t::step_passagiere()
 	// post oder pax erzeugen ?
 	// "post or generate pax"
 	const ware_besch_t* wtyp;
-	if (simrand(400, "void stadt_t::step_passagiere()") < 300) 
+	if (simrand(400, "void stadt_t::step_passagiere() (mail or passengers?)") < 300) 
 	{
 		wtyp = warenbauer_t::passagiere;
 	}
@@ -2691,7 +2691,7 @@ void stadt_t::step_passagiere()
 	// Check run in batches to save computational effort.
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(welt->get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
-	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere()") <= (uint16)private_car_percent : false;
+	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere() (has private car?)") <= (uint16)private_car_percent : false;
 
 		// Record the most useful set of information about why passengers cannot reach their chosen destination:
 		//  Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
@@ -2727,12 +2727,12 @@ void stadt_t::step_passagiere()
 			// search target for the passenger
 			pax_zieltyp will_return;
 
-			const uint8 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere()") + 1;
+			const uint8 destination_count = simrand(max_destinations, "void stadt_t::step_passagiere() (number of destinations?)") + 1;
 
 			// Split passengers: between local, midrange and long-distance
 			// according to the percentages set in simuconf.tab.
 			// Note: a random town will be found if there are no towns within range.
-			const uint8 passenger_routing_choice = simrand(100, "void stadt_t::step_passagiere()");
+			const uint8 passenger_routing_choice = simrand(100, "void stadt_t::step_passagiere() (passenger routing choice?)");
 			const journey_distance_type range = 
 				passenger_routing_choice <= passenger_routing_local_chance ? 
 				local :
@@ -2742,10 +2742,10 @@ void stadt_t::step_passagiere()
 				wtyp != warenbauer_t::passagiere ? 
 				0 : 
 				range == local ? 
-					simrand(max_local_tolerance, "void stadt_t::step_passagiere()") + min_local_tolerance : 
+					simrand(max_local_tolerance, "void stadt_t::step_passagiere() (local tolerance?)") + min_local_tolerance : 
 				range == midrange ? 
-					simrand(max_midrange_tolerance, "void stadt_t::step_passagiere()") + min_midrange_tolerance : 
-				simrand(max_longdistance_tolerance, "void stadt_t::step_passagiere()") + min_longdistance_tolerance;
+					simrand(max_midrange_tolerance, "void stadt_t::step_passagiere() (midrange tolerance?)") + min_midrange_tolerance : 
+				simrand(max_longdistance_tolerance, "void stadt_t::step_passagiere() (longdistance tolerance?)") + min_longdistance_tolerance;
 			destination destinations[16];
 			for(int destinations_assigned = 0; destinations_assigned <= destination_count; destinations_assigned ++)
 			{				
@@ -2940,7 +2940,7 @@ void stadt_t::step_passagiere()
 						const uint32 distance = accurate_distance(destinations[current_destination].location, k);			
 						
 						//Weighted random.
-						uint8 private_car_chance = simrand(100, "void stadt_t::step_passagiere()");
+						uint8 private_car_chance = simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
 						if(private_car_chance >= 1)
 						{
 							// The basic preference for using a private car if available.
@@ -3319,7 +3319,7 @@ koord stadt_t::get_zufallspunkt(uint32 min_distance, uint32 max_distance, koord 
 
 stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uint32 min_distance, uint32 max_distance, koord origin)
 {
-	const int rand = simrand(100, "stadt_t::destination stadt_t::finde_passagier_ziel");
+	const int rand = simrand(100, "stadt_t::destination stadt_t::finde_passagier_ziel (init)");
 	destination current_destination;
 	current_destination.object.town = NULL;
 	current_destination.type = 1;
@@ -3331,13 +3331,13 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 	// about 1/3 are workers
 	if(rand < welt->get_einstellungen()->get_factory_worker_percentage()  &&  arbeiterziele.get_sum_weight() > 0 )
 	{
-		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel"));
+		const fabrik_t* fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel (factory 1)"));
 		*will_return = factoy_return;	// worker will return
 		current_destination.type = FACTORY_PAX;
 		uint8 counter = 0;
 		while(counter ++ < 32 && (accurate_distance(origin, fab->get_pos().get_2d()) > max_distance || accurate_distance(origin, fab->get_pos().get_2d()) < min_distance))
 		{
-			fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel"));
+			fab = arbeiterziele.at_weight(simrand(arbeiterziele.get_sum_weight(), "stadt_t::destination stadt_t::finde_passagier_ziel (factory 2)"));
 		}
 		current_destination.location = fab->get_pos().get_2d();
 		current_destination.object.industry = fab;
@@ -3375,7 +3375,7 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 			const uint32 weight = welt->get_town_list_weight();
 			const uint16 number_of_towns = welt->get_staedte().get_count();
 			uint16 town_step = weight / number_of_towns;
-			uint32 random = simrand(weight, "stadt_t::destination stadt_t::finde_passagier_ziel");
+			uint32 random = simrand(weight, "stadt_t::destination stadt_t::finde_passagier_ziel (town)");
 			uint32 distance = 0;
 			const uint16 max_x = max((origin.x - ur.x), (origin.x - lo.x));
 			const uint16 max_y = max((origin.y - ur.y), (origin.y - lo.y));
