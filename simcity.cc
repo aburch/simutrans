@@ -1954,9 +1954,14 @@ void stadt_t::change_size(long delta_citicens)
 		}
 		else {
 //				remove_city();
-			bev = 0;
+			bev = 1;
 		}
 		step_bau();
+	}
+	if(bev == 0)
+	{ 
+		// Cities will experience uncontrollable growth if bev == 0
+		bev = 1;
 	}
 	wachstum = 0;
 	DBG_MESSAGE("stadt_t::change_size()", "%i+%i", bev, delta_citicens);

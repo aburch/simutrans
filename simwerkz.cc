@@ -1572,11 +1572,6 @@ bool wkz_change_city_size_t::init( karte_t *, spieler_t * )
 
 const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t * sp, koord3d pos )
 {
-	if(!sp->can_afford(welt->get_einstellungen()->cst_remove_tree))
-	{
-		return CREDIT_MESSAGE;
-	}
-	
 	stadt_t *city = welt->suche_naechste_stadt(pos.get_2d());
 	if(city!=NULL) {
 		city->change_size( atoi(default_param) );
@@ -1589,6 +1584,11 @@ const char *wkz_change_city_size_t::work( karte_t *welt, spieler_t * sp, koord3d
 
 const char *wkz_plant_tree_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 {
+	if(!sp->can_afford(welt->get_einstellungen()->cst_remove_tree))
+	{
+		return CREDIT_MESSAGE;
+	}
+	
 	grund_t *gr = welt->lookup_kartenboden(pos.get_2d());
 	if(gr) {
 		const baum_besch_t *besch = NULL;
