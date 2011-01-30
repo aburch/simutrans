@@ -628,60 +628,71 @@ void spieler_t::ai_bankrupt()
 			planquadrat_t *plan = welt->access(x,y);
 			for(  int b=plan->get_boden_count()-1;  b>=0;  b--  ) {
 				grund_t *gr = plan->get_boden_bei(b);
-				if(  gr->get_typ()==grund_t::brueckenboden  &&  gr->obj_bei(0)->get_besitzer()==this  ) {
-					brueckenbauer_t::remove( welt, this, gr->get_pos(), (waytype_t)gr->get_weg_nr(0)->get_waytype() );
+				// remove tunnel and bridges first
+				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_besitzer()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
+					koord3d pos = gr->get_pos();
+					if (gr->ist_bruecke()) {
+						brueckenbauer_t::remove( welt, this, pos, gr->get_weg_nr(0)->get_waytype() );
+					}
+					else {
+						tunnelbauer_t::remove( welt, this, pos, gr->get_weg_nr(0)->get_waytype() );
+					}
+					// maybe there are some objects left (station on bridge head etc)
+					gr = plan->get_boden_in_hoehe(pos.z);
+					if (gr == NULL) {
+						continue;
+					}
 				}
-				else if(  gr->get_typ()==grund_t::tunnelboden  &&  gr->obj_bei(0)->get_besitzer()==this  ) {
-					tunnelbauer_t::remove( welt, this, gr->get_pos(), gr->get_weg_nr(0)->get_waytype() );
-				}
-				else {
-					bool count_signs = false;
-					for(  int i=gr->get_top()-1;  i>=0;  i--  ) {
-						ding_t *dt = gr->obj_bei(i);
-						if(dt->get_besitzer()==this) {
-							switch(dt->get_typ()) {
-								case ding_t::roadsign:
-								case ding_t::signal:
-									count_signs = true;
-								case ding_t::airdepot:
-								case ding_t::bahndepot:
-								case ding_t::monoraildepot:
-								case ding_t::tramdepot:
-								case ding_t::strassendepot:
-								case ding_t::schiffdepot:
-								case ding_t::leitung:
-								case ding_t::senke:
-								case ding_t::pumpe:
-								case ding_t::wayobj:
-									dt->entferne(this);
-									delete dt;
-									break;
-								case ding_t::gebaeude:
-									hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
-									break;
-								case ding_t::way:
-								{
-									weg_t *w=(weg_t *)dt;
-									if(!gr->ist_karten_boden()  ||  w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
-										add_maintenance( -w->get_besch()->get_wartung() );
-										w->set_besitzer( NULL );
-									}
-									else {
-										gr->weg_entfernen( w->get_waytype(), true );
-									}
-									break;
+				bool count_signs = false;
+				for(  int i=gr->get_top()-1;  i>=0;  i--  ) {
+					ding_t *dt = gr->obj_bei(i);
+					if(dt->get_besitzer()==this) {
+						switch(dt->get_typ()) {
+							case ding_t::roadsign:
+							case ding_t::signal:
+								count_signs = true;
+							case ding_t::airdepot:
+							case ding_t::bahndepot:
+							case ding_t::monoraildepot:
+							case ding_t::tramdepot:
+							case ding_t::strassendepot:
+							case ding_t::schiffdepot:
+							case ding_t::leitung:
+							case ding_t::senke:
+							case ding_t::pumpe:
+							case ding_t::wayobj:
+								dt->entferne(this);
+								delete dt;
+								break;
+							case ding_t::gebaeude:
+								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
+								break;
+							case ding_t::way:
+							{
+								weg_t *w=(weg_t *)dt;
+								if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
+									add_maintenance( -w->get_besch()->get_wartung() );
+									w->set_besitzer( NULL );
 								}
-								default:
-									gr->obj_bei(i)->set_besitzer( welt->get_spieler(1) );
+								else {
+									gr->weg_entfernen( w->get_waytype(), true );
+								}
+								break;
 							}
+							default:
+								gr->obj_bei(i)->set_besitzer( welt->get_spieler(1) );
 						}
 					}
-					if (count_signs  &&  gr->hat_wege()) {
-						gr->get_weg_nr(0)->count_sign();
-						if (gr->has_two_ways()) {
-							gr->get_weg_nr(1)->count_sign();
-						}
+				}
+				if (count_signs  &&  gr->hat_wege()) {
+					gr->get_weg_nr(0)->count_sign();
+					if (gr->has_two_ways()) {
+						gr->get_weg_nr(1)->count_sign();
 					}
+				}
+				// remove empty tiles (elevated ways)
+				if (!gr->ist_karten_boden()  &&  gr->get_top()==0) {
+					plan->boden_entfernen(gr);
 				}
 			}
 		}
