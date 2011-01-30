@@ -639,17 +639,18 @@ void senke_t::step(long delta_t)
 	uint32 municipal_power_load = 0;
 
 	/* First add up all sources of demand and add the demand to the net. */
-	if (fab != NULL) {
+	if (fab != NULL && fab->get_city() == NULL)
+	{
+		// Factories in cities are dealt with separetely.
 		fab_power_demand = fab->get_power_demand();
 	}
+
 	if(city != NULL)
 	{
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
-			if (city_factories[i] != fab) { // don't double-count for the factory supplied above
-				municipal_power_demand += city_factories[i]->get_power_demand();
-			}
+			municipal_power_demand += city_factories[i]->get_power_demand();
 		}
 		// Add the demand for the population
 		municipal_power_demand += city->get_power_demand();
@@ -735,7 +736,7 @@ void senke_t::step(long delta_t)
 	power_load = get_power_load();
 
 	/* Now actually feed the power through to the factories and city */
-	if (fab != NULL) {
+	if (fab != NULL && fab->get_city() == NULL) {
 		// the connected fab gets priority access to the power supply if there's a shortage
 		// This should use 'min', but the current version of that in simtypes.h 
 		// would cast to signed int (12.05.10)  FIXME.
@@ -760,21 +761,19 @@ void senke_t::step(long delta_t)
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
-			if (city_factories[i] != fab) { //don't produce twice for the factory supplied above
-				const uint32 current_factory_demand = city_factories[i]->get_power_demand() * load_proportion;
-				const uint32 current_factory_load =  municipal_power_demand == 0 ? current_factory_demand : 
-					(
-						current_factory_demand
-						* (municipal_power_load << 5)
-						/ municipal_power_demand
-					) >> 5; // <<5 for same reasons as above, FIXME
-				city_factories[i]->add_power( current_factory_load );
-				if (current_factory_demand > current_factory_load) {
-					// this allows subsequently stepped senke to supply demand
-					// which this senke couldn't
-					city_factories[i]->add_power_demand( current_factory_demand - current_factory_load );
-				}
-
+			const uint32 current_factory_demand = city_factories[i]->step_power_demand() * load_proportion;
+			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
+				(
+					current_factory_demand
+					* ((municipal_power_load << 5)
+					/ municipal_power_demand
+				)) >> 5; // <<5 for same reasons as above, FIXME
+			city_factories[i]->add_power( current_factory_load );
+			if (current_factory_demand > current_factory_load) 
+			{
+				// this allows subsequently stepped senke to supply demand
+				// which this senke couldn't
+				city_factories[i]->add_power_demand( current_factory_demand - current_factory_load );
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories

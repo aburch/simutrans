@@ -256,7 +256,8 @@ public:
 	uint32 get_power() { uint32 p=power; power=0; return p; }
 
 	// returns power wanted by the factory for next step and sets to 0 to prevent multiple senkes on same powernet
-	uint32 get_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
+	uint32 step_power_demand() { uint32 p=power_demand; power_demand=0; return p; }
+	uint32 get_power_demand() const { return power_demand; }
 
 	// give power to the factory to consume ...
 	void add_power(uint32 p) { power += p; }

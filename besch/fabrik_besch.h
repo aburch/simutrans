@@ -252,7 +252,7 @@ public:
 	}
 
 	int get_lieferanten() const { return lieferanten; } //"supplier" (Babelfish)
-	uint get_produkte() const { return produkte; }
+	uint get_produkte() const { return produkte; } // "Products" (Google)
 
 	/* where to built */
 	enum platzierung get_platzierung() const { return platzierung; }

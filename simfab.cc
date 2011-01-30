@@ -1041,7 +1041,8 @@ void fabrik_t::step(long delta_t)
 
 		}
 
-		if(  currently_producing  ) {
+		if(  currently_producing || besch->get_produkte() == 0  ) {
+			// Pure consumers (i.e., those that do not produce anything) should require full power at all times
 			// requires full power even if runs out of raw material next cycle
 			power_demand = PRODUCTION_DELTA_T * (uint32)( (float)prodbase * besch->get_electricity_proportion() );
 		}
