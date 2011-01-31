@@ -543,7 +543,7 @@ public:
 	// if a schedule is changed, it will increment the schedule counter
 	// every step the haltestelle will check and reroute the goods if needed
 	uint8 get_schedule_counter() const { return schedule_counter; }
-	void set_schedule_counter() { schedule_counter++; }
+	void set_schedule_counter();
 
 	// often used, therefore found here
 	bool use_timeline() const { return einstellungen->get_use_timeline(); }

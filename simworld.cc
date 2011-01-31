@@ -3116,6 +3116,13 @@ void karte_t::notify_record( convoihandle_t cnv, sint32 max_speed, koord pos )
 }
 
 
+void karte_t::set_schedule_counter()
+{
+	// do not call this from gui when playing in network mode!
+	assert( (get_random_mode() & INTERACTIVE_RANDOM) == 0  );
+
+	schedule_counter++;
+}
 
 
 void karte_t::step()
@@ -5425,6 +5432,7 @@ bool karte_t::interactive(uint32 quit_month)
 	bool swallowed = false;
 	bool cursor_hidden = false;
 	sync_steps = 0;
+	uint32 sync_step_save = 0;
 
 	network_frame_count = 0;
 	vector_tpl<uint16>hashes_ok;	// bit set: this client can do something with this player
@@ -5623,6 +5631,7 @@ bool karte_t::interactive(uint32 quit_month)
 						// more gentle catching up
 						ms_difference = (sint32 )difftime;
 					}
+					sync_step_save = max(sync_step_save, nwcheck->server_sync_step);
 					dbg->message("NWC_CHECK","time difference to server %lli",difftime);
 				}
 				// check random number generator states
@@ -5659,6 +5668,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// when execute next command?
 			if(  !command_queue.empty()  ) {
 				next_command_step = command_queue.front()->get_sync_step();
+				sync_step_save = max(sync_step_save, next_command_step);
 			}
 			else {
 				next_command_step = 0xFFFFFFFFu;
@@ -5739,6 +5749,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// when execute next command?
 			if(  !command_queue.empty()  ) {
 				next_command_step = command_queue.front()->get_sync_step();
+				sync_step_save = max(sync_step_save, next_command_step);
 			}
 			else {
 				next_command_step = 0xFFFFFFFFu;
@@ -5761,39 +5772,46 @@ bool karte_t::interactive(uint32 quit_month)
 					clear_random_mode( STEP_RANDOM );
 				}
 				else if(  step_mode==FIX_RATIO  ) {
-					next_step_time += fix_ratio_frame_time;
-					if(  ms_difference>5  ) {
-						next_step_time -= 5;
-						ms_difference -= 5;
-					}
-					else if(  ms_difference<-5  ) {
-						next_step_time += 5;
-						ms_difference += 5;
-					}
-					sync_step( fix_ratio_frame_time, true, true );
-					if(  ++network_frame_count==einstellungen->get_frames_per_step()  ) {
-						// ever fourth frame
-						set_random_mode( STEP_RANDOM );
-						step();
-						clear_random_mode( STEP_RANDOM );
-						network_frame_count = 0;
-					}
-					sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
-					LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
-					// some serverside tasks
-					if(  umgebung_t::networkmode  &&  umgebung_t::server  ) {
-						// broadcast sync info
-						if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
-								||  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0  ) {
-							nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, LCHKLST(sync_steps), sync_steps);
-							network_send_all(nwc, true);
+					if (sync_steps < sync_step_save  ||  umgebung_t::server) {
+						next_step_time += fix_ratio_frame_time;
+						if(  ms_difference>5  ) {
+							next_step_time -= 5;
+							ms_difference -= 5;
 						}
-					}
+						else if(  ms_difference<-5  ) {
+							next_step_time += 5;
+							ms_difference += 5;
+						}
+						sync_step( fix_ratio_frame_time, true, true );
+						if(  ++network_frame_count==einstellungen->get_frames_per_step()  ) {
+							// ever fourth frame
+							set_random_mode( STEP_RANDOM );
+							step();
+							clear_random_mode( STEP_RANDOM );
+							network_frame_count = 0;
+						}
+						sync_steps = (steps*einstellungen->get_frames_per_step()+network_frame_count);
+						LCHKLST(sync_steps) = checklist_t(get_random_seed(), halthandle_t::get_next_check(), linehandle_t::get_next_check(), convoihandle_t::get_next_check());
+						// some serverside tasks
+						if(  umgebung_t::networkmode  &&  umgebung_t::server  ) {
+							// broadcast sync info
+							if (  (network_frame_count==0  &&  (sint64)dr_time()-(sint64)next_step_time>fix_ratio_frame_time*2)
+									||  (sync_steps % umgebung_t::server_sync_steps_between_checks)==0  ) {
+								nwc_check_t* nwc = new nwc_check_t(sync_steps + 1, map_counter, LCHKLST(sync_steps), sync_steps);
+								network_send_all(nwc, true);
+							}
+						}
 #if DEBUG>4
 					if(  umgebung_t::networkmode  &&  (sync_steps & 7)==0  &&  umgebung_t::verbose_debug>4  ) {
 						dbg->message("karte_t::interactive", "time=%lu sync=%d  rand=%d", dr_time(), sync_steps, LRAND(sync_steps));
 					}
 #endif
+					}
+					else {
+						next_step_time = dr_time() + fix_ratio_frame_time/2;
+						// only update display
+						sync_step( 0, false, true );
+					}
 				}
 				else {
 					INT_CHECK( "karte_t::interactive()" );
