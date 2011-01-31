@@ -601,7 +601,6 @@ void schedule_list_gui_t::update_lineinfo(linehandle_t new_line)
 		}
 		bt_change_line.enable();
 
-		new_line->recalc_catg_index();	// update withdraw info
 		bt_withdraw_line.pressed = new_line->get_withdraw();
 
 		// fill haltestellen container with info of line's haltestellen
