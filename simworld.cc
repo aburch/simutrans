@@ -4210,6 +4210,9 @@ void karte_t::laden(loadsave_t *file)
 	display_set_progress_text(translator::translate("Loading map ..."));
 	display_progress(0, 100);	// does not matter, since fixed width
 
+	clear_random_mode(~LOAD_RANDOM);
+	set_random_mode(LOAD_RANDOM);
+
 	destroy();
 	tile_counter = 0;
 	simloops = 60;
@@ -4228,7 +4231,6 @@ void karte_t::laden(loadsave_t *file)
 		setsimrand( einstellungen->get_random_counter(), 0xFFFFFFFFu );
 		translator::init_city_names( einstellungen->get_name_language_id() );
 	}
-	set_random_mode(LOAD_RANDOM);
 
 	if(  !umgebung_t::networkmode  ||  (umgebung_t::server  &&  socket_list_t::get_playing_clients()==0)  ) {
 		if(einstellungen->get_allow_player_change()  &&  umgebung_t::default_einstellungen.get_use_timeline()<2) {
