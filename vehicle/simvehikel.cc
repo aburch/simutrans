@@ -3254,9 +3254,12 @@ bool aircraft_t::block_reserver( uint32 start, uint32 end, bool reserve )
 	// unreserve if not successful
 	if(!success  &&  reserve) {
 		for(  i=start;  i<end;  i++  ) {
-			runway_t * sch1 = (runway_t *)welt->lookup(route->position_bei(i))->get_weg(air_wt);
-			if(sch1) {
-				sch1->unreserve(cnv->self);
+			grund_t *gr = welt->lookup(route->position_bei(i));
+			if (gr) {
+				runway_t* sch1 = (runway_t *)gr->get_weg(air_wt);
+				if (sch1) {
+					sch1->unreserve(cnv->self);
+				}
 			}
 		}
 	}
