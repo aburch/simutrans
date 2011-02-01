@@ -1324,6 +1324,8 @@ void win_display_flush(double konto)
 		}
 		else {
 			show_ticker = true;
+			// need to adapt tooltip_y coordinates
+			tooltip_ypos = min(tooltip_ypos, disp_height-15-10-16);
 		}
 	}
 
