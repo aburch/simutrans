@@ -43,7 +43,7 @@ public:
 protected:
 	simline_t(karte_t* welt, spieler_t*sp);
 
-	schedule_t * fpl,  *old_fpl;
+	schedule_t * fpl;
 	spieler_t *sp;
 	linetype type;
 
@@ -135,7 +135,10 @@ public:
 
 	void set_schedule(schedule_t* fpl)
 	{
-		delete this->fpl;
+		if (this->fpl) {
+			unregister_stops();
+			delete this->fpl;
+		}
 		this->fpl = fpl;
 	}
 
@@ -188,11 +191,6 @@ public:
 	void book(sint64 amount, int cost_type) { financial_history[0][cost_type] += amount; }
 
 	void new_month();
-
-	/*
-	 * called from line_management_gui.cc to prepare line for a change of its schedule
-	 */
-	void prepare_for_update();
 
 	linetype get_linetype() { return type; }
 
