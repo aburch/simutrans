@@ -5690,6 +5690,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 		case 'p':
 			if(  welt->get_spieler(id)  ) {
 				welt->get_spieler(id)->set_name(p);
+				return false;
 			}
 	}
 	// we are only getting here, if we could not process this request
