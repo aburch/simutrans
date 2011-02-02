@@ -4370,13 +4370,15 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		}
 	}
 	else {
-		// just restore the corners as ground level
+		// just restore the border as ground level
+		// the heightfield is restored in grund_t::rdwr
+		// but the south and east border of the map have to be resetted to water level
 		DBG_MESSAGE("karte_t::laden()","calculating grid corners");
-		for( sint32 i=1;  i<get_groesse_x()+1;  i++  ) {
-			grid_hgts[i] = grundwasser;
+		for( sint16 i=0;  i<=cached_groesse_gitter_x;  i++  ) {
+			grid_hgts[i + cached_groesse_gitter_y*(cached_groesse_gitter_x+1)] = grundwasser;
 		}
-		for( sint32 j=0;  j<get_groesse_y()+1;  j++  ) {
-			grid_hgts[(get_groesse_x()+1)*j] = grundwasser;
+		for( sint16 j=0;  j<=cached_groesse_gitter_y;  j++  ) {
+			grid_hgts[cached_groesse_gitter_x + j*(cached_groesse_gitter_x+1)] = grundwasser;
 		}
 	}
 
