@@ -2558,7 +2558,7 @@ inline uint16 haltestelle_t::get_waiting_minutes(uint32 waiting_ticks) const
 uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
 {
 	int sum = 0;
-	vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
+	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
 			if(wtyp->get_index()==(*warray)[i].get_index()) {
@@ -2573,10 +2573,10 @@ uint32 haltestelle_t::get_ware_summe(const ware_besch_t *wtyp) const
 
 uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koord zielpos) const
 {
-	vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
+	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			ware_t &ware = (*warray)[i];
+			const ware_t &ware = (*warray)[i];
 			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zielpos()==zielpos) {
 				return ware.menge;
 			}
@@ -2590,10 +2590,10 @@ uint32 haltestelle_t::get_ware_fuer_zielpos(const ware_besch_t *wtyp, const koor
 uint32 haltestelle_t::get_ware_fuer_zwischenziel(const ware_besch_t *wtyp, const halthandle_t zwischenziel) const
 {
 	uint32 sum = 0;
-	vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
+	const vector_tpl<ware_t> * warray = waren[wtyp->get_catg_index()];
 	if(warray!=NULL) {
 		for(unsigned i=0;  i<warray->get_count();  i++ ) {
-			ware_t &ware = (*warray)[i];
+			const ware_t &ware = (*warray)[i];
 			if(wtyp->get_index()==ware.get_index()  &&  ware.get_zwischenziel()==zwischenziel) {
 				sum += ware.menge;
 			}
@@ -2885,7 +2885,7 @@ void haltestelle_t::get_freight_info(cbuffer_t & buf)
 		buf.clear();
 
 		for(unsigned i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-			vector_tpl<ware_t> * warray = waren[i];
+			const vector_tpl<ware_t> * warray = waren[i];
 			if(warray) {
 				freight_list_sorter_t::sort_freight(warray, buf, (freight_list_sorter_t::sort_mode_t)sortierung, NULL, "waiting");
 			}
@@ -3104,7 +3104,7 @@ void haltestelle_t::transfer_goods(halthandle_t halt)
 	}
 	// transfer goods to halt
 	for(uint8 i=0; i<warenbauer_t::get_max_catg_index(); i++) {
-		vector_tpl<ware_t> * warray = waren[i];
+		const vector_tpl<ware_t> * warray = waren[i];
 		if (warray) {
 			for(uint32 j=0; j<warray->get_count(); j++) {
 				halt->add_ware_to_halt( (*warray)[j] );

@@ -102,7 +102,7 @@ uint32 simrand(const uint32 max, const char* caller)
 uint32 simrand(const uint32 max, const char*)
 #endif
 {
-	assert( (random_origin&1) == 0  );
+	assert( (random_origin&INTERACTIVE_RANDOM) == 0  );
 
 #ifdef DEBUG_SIMRAND_CALLS
 	char* buf = new char[256];
