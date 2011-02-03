@@ -603,16 +603,18 @@ void vehikel_t::set_convoi(convoi_t *c)
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.position_bei(route_index);
 		}
 		// some convois were saved with broken coordinates
-		if(!welt->lookup(pos_prev)) {
-			dbg->error("vehikel_t::set_convoi()","pos_prev is illegal of convoi %i at %s", cnv->self.get_id(), get_pos().get_str() );
-			if(welt->lookup_kartenboden(pos_prev.get_2d())) {
-				pos_prev = welt->lookup_kartenboden(pos_prev.get_2d())->get_pos();
+		if(  !welt->lookup(pos_prev)  ) {
+			if(  pos_prev!=koord3d::invalid  ) {
+				dbg->error("vehikel_t::set_convoi()","pos_prev is illegal of convoi %i at %s", cnv->self.get_id(), get_pos().get_str() );
+			}
+			if(  grund_t *gr = welt->lookup_kartenboden(pos_prev.get_2d())  ) {
+				pos_prev = gr->get_pos();
 			}
 			else {
 				pos_prev = get_pos();
 			}
 		}
-		if (pos_next != koord3d::invalid) {
+		if(  pos_next != koord3d::invalid  ) {
 			route_t const& r = *cnv->get_route();
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
@@ -876,6 +878,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 	rauchen = true;
 	fahrtrichtung = ribi_t::keine;
+	pos_prev = koord3d::invalid;
 
 	current_friction = 4;
 	total_freight = 0;

@@ -248,8 +248,10 @@ void schedule_t::rdwr(loadsave_t *file)
 	if(file->is_loading()) {
 		abgeschlossen = true;
 	}
-	if(aktuell>=eintrag.get_count()) {
-		dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
+	if(aktuell>=eintrag.get_count()  ) {
+		if(  eintrag.get_count()>0  ) {
+			dbg->error("fahrplan_t::rdwr()","aktuell %i >count %i => aktuell = 0", aktuell, eintrag.get_count() );
+		}
 		aktuell = 0;
 	}
 }
