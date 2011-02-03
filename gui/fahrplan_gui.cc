@@ -384,7 +384,6 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 		update_werkzeug( false );
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
-		old_fpl->eingabe_abschliessen();
 		// now apply the changes
 		if(cnv.is_bound()) {
 			// do not send changes if the convoi is about to be deleted
