@@ -1019,7 +1019,7 @@ bool win_is_open(gui_frame_t *gui)
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		if(  wins[i].gui == gui  ) {
 			for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
-				if(  kill_list[i].gui == gui  ) {
+				if(  kill_list[j].gui == gui  ) {
 					return false;
 				}
 			}
