@@ -11,6 +11,7 @@
 #include "../simtypes.h"
 #include "../dataobj/koord.h"
 #include "../dataobj/koord3d.h"
+#include "../tpl/stringhashtable_tpl.h"
 
 class bruecke_besch_t;
 class grund_t;
@@ -63,6 +64,8 @@ public:
 
 
 	static bool laden_erfolgreich();
+
+	static stringhashtable_tpl<bruecke_besch_t *> * get_all_bridges();
 
 
 	static const bruecke_besch_t *get_besch(const char *name);

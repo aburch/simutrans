@@ -45,7 +45,7 @@
 #include "../tpl/vector_tpl.h"
 
 
-static stringhashtable_tpl<const bruecke_besch_t *> bruecken_by_name;
+static stringhashtable_tpl<bruecke_besch_t *> bruecken_by_name;
 
 
 /**
@@ -83,7 +83,7 @@ bool brueckenbauer_t::laden_erfolgreich()
 	bool strasse_da = false;
 	bool schiene_da = false;
 
-	stringhashtable_iterator_tpl<const bruecke_besch_t *>iter(bruecken_by_name);
+	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
 	while(  iter.next()  ) {
 		const bruecke_besch_t* besch = iter.get_current_value();
 
@@ -107,6 +107,10 @@ bool brueckenbauer_t::laden_erfolgreich()
 }
 
 
+stringhashtable_tpl<bruecke_besch_t *> * brueckenbauer_t::get_all_bridges() 
+{ 
+	return &bruecken_by_name; 
+}
 
 /**
  * Find a matchin bridge
@@ -116,7 +120,7 @@ const bruecke_besch_t *brueckenbauer_t::find_bridge(const waytype_t wtyp, const 
 {
 	const bruecke_besch_t *find_besch=NULL;
 
-	stringhashtable_iterator_tpl<const bruecke_besch_t *>iter(bruecken_by_name);
+	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
 	while(  iter.next()  ) {
 		const bruecke_besch_t* besch = iter.get_current_value();
 		if(besch->get_waytype() == wtyp) {
@@ -153,7 +157,7 @@ void brueckenbauer_t::fill_menu(werkzeug_waehler_t *wzw, const waytype_t wtyp, s
 	vector_tpl<const bruecke_besch_t*> matching(bruecken_by_name.get_count());
 
 	// list of matching types (sorted by speed)
-	stringhashtable_iterator_tpl<const bruecke_besch_t *>iter(bruecken_by_name);
+	stringhashtable_iterator_tpl<bruecke_besch_t *>iter(bruecken_by_name);
 	while(  iter.next()  ) {
 		const bruecke_besch_t* b = iter.get_current_value();
 		if (b->get_waytype() == wtyp && (

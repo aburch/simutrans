@@ -104,6 +104,7 @@
 #include "besch/grund_besch.h"
 #include "besch/sound_besch.h"
 #include "besch/tunnel_besch.h"
+#include "besch/bruecke_besch.h"
 #include "besch/stadtauto_besch.h"
 
 #include "player/simplay.h"
@@ -1813,6 +1814,20 @@ void karte_t::set_scale()
 			iter.access_current_value()->set_scale(scale_factor);
 		}
 	}
+
+	// Bridges
+
+	stringhashtable_tpl <bruecke_besch_t *> * bridges = brueckenbauer_t::get_all_bridges();
+
+	if(bridges != NULL)
+	{
+		stringhashtable_iterator_tpl <bruecke_besch_t *> iter(bridges);
+		while(iter.next())
+		{
+			iter.access_current_value()->set_scale(scale_factor);
+		}
+	}
+
 
 	// Way objects
 
