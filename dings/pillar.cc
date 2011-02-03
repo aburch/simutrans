@@ -15,8 +15,6 @@
 
 #include "../boden/grund.h"
 
-#include "../gui/thing_info.h"
-
 #include "../dataobj/loadsave.h"
 #include "../dings/pillar.h"
 #include "../dings/bruecke.h"

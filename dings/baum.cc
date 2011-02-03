@@ -27,7 +27,6 @@
 
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
-#include "../dataobj/tabfile.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/freelist.h"
 

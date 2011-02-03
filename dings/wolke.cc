@@ -11,7 +11,6 @@
 #include "../simworld.h"
 #include "../simdings.h"
 #include "../simtools.h"
-#include "../besch/fabrik_besch.h"
 #include "wolke.h"
 
 #include "../dataobj/loadsave.h"

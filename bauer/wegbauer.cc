@@ -29,7 +29,6 @@
 #include "../besch/tunnel_besch.h"
 #include "../besch/haus_besch.h"
 #include "../besch/kreuzung_besch.h"
-#include "../besch/spezial_obj_tpl.h"
 
 #include "../boden/wege/strasse.h"
 #include "../boden/wege/schiene.h"
@@ -59,11 +58,10 @@
 #include "../dings/groundobj.h"
 #include "../dings/wayobj.h"
 
-#include "../vehicle/movingobj.h"
+#include "../ifc/fahrer.h"
 
 #include "../tpl/stringhashtable_tpl.h"
 
-#include "../gui/messagebox.h"
 #include "../gui/karte.h"	// for debugging
 #include "../gui/werkzeug_waehler.h"
 
