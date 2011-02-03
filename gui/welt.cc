@@ -18,7 +18,6 @@
 #include "karte.h"
 
 #include "../simdebug.h"
-#include "../simio.h"
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simimg.h"

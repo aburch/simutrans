@@ -18,7 +18,6 @@
 #include "simhalt.h"
 #include "player/simplay.h"
 #include "simworld.h"
-#include "simio.h"
 #include "simdepot.h"
 #include "simline.h"
 #include "simlinemgmt.h"
