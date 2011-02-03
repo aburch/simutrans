@@ -21,6 +21,14 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :
 }
 
 
+line_management_gui_t::~line_management_gui_t()
+{
+	delete old_fpl;	// since we pass a *copy* of the line's schedule to the base class
+	old_fpl = NULL;
+}
+
+
+
 const char *line_management_gui_t::get_name() const
 {
 	return translator::translate("Line Management");
