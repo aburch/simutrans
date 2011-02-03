@@ -254,12 +254,12 @@ convoihandle_t depot_t::add_convoi()
 {
 	convoi_t* new_cnv = new convoi_t(get_besitzer());
 	new_cnv->set_home_depot(get_pos());
-    convois.append(new_cnv->self);
+	convois.append(new_cnv->self);
 	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
 	if(  win  ) {
 		win->activate_convoi( new_cnv->self );
 	}
-    return new_cnv->self;
+	return new_cnv->self;
 }
 
 
@@ -276,7 +276,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 				vehikel_t* oldest_vehicle = get_oldest_vehicle(info);
 				if (oldest_vehicle != NULL) {
 					// append existing vehicle
-					append_vehicle(convois.back(), oldest_vehicle, false);
+					append_vehicle(new_cnv, oldest_vehicle, false);
 				}
 				else {
 					// buy new vehicle
@@ -302,7 +302,7 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 			win->activate_convoi( new_cnv );
 		}
 
-		return new_cnv->self;
+		return new_cnv;
 	}
 	return convoihandle_t();
 }
