@@ -2088,6 +2088,10 @@
 				RelativePath=".\simwerkz.h"
 				>
 			</File>
+                        <File
+                                RelativePath=".\simwerkz-dialogs.h"
+                                >
+                        </File>
 			<File
 				RelativePath=".\simwin.h"
 				>

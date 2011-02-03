@@ -12,11 +12,9 @@
 #include <math.h>
 
 #include "simdebug.h"
-#include "simworld.h"
 #include "player/simplay.h"
 #include "simsound.h"
 #include "simevent.h"
-#include "simskin.h"
 #include "simcity.h"
 #include "simtools.h"
 #include "simmesg.h"
@@ -35,14 +33,12 @@
 
 #include "simdepot.h"
 #include "simfab.h"
-#include "simwin.h"
 #include "simimg.h"
 #include "simintr.h"
 #include "simhalt.h"
 
 #include "besch/grund_besch.h"
 #include "besch/haus_besch.h"
-#include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
 #include "besch/roadsign_besch.h"
 #include "besch/tunnel_besch.h"
@@ -59,6 +55,8 @@
 #include "gui/karte.h"	// to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/fahrplan_gui.h"
+#include "gui/player_frame_t.h"
+#include "gui/schedule_list.h"
 #include "gui/signal_spacing.h"
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"

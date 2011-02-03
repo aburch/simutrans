@@ -77,6 +77,8 @@
 #include "music/music.h"
 #include "sound/sound.h"
 
+#include "utils/cbuffer_t.h"
+
 #include "bauer/vehikelbauer.h"
 #include "vehicle/simvehikel.h"
 #include "vehicle/simverkehr.h"

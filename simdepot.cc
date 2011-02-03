@@ -40,6 +40,8 @@
 
 #include "besch/haus_besch.h"
 
+#include "utils/cbuffer_t.h"
+
 
 slist_tpl<depot_t *> depot_t::all_depots;
 

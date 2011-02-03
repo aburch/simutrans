@@ -11,6 +11,7 @@
 #include "../simwin.h"
 #include "../simwerkz.h"
 #include "../simlinemgmt.h"
+#include "../utils/cbuffer_t.h"
 
 
 line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :

@@ -12,6 +12,7 @@
 #include "gui_frame.h"
 #include "components/gui_button.h"
 #include "components/gui_scrollpane.h"
+#include "components/gui_tab_panel.h"
 #include "components/gui_textinput.h"
 
 #include "message_stats_t.h"

@@ -74,6 +74,7 @@
 #include "gui/messagebox.h"
 #include "gui/help_frame.h"
 #include "gui/karte.h"
+#include "gui/player_frame_t.h"
 
 #include "dataobj/network.h"
 #include "dataobj/network_socket_list.h"
@@ -86,6 +87,7 @@
 #include "dataobj/tabfile.h"
 #include "dataobj/powernet.h"
 
+#include "utils/cbuffer_t.h"
 #include "utils/simstring.h"
 #include "utils/memory_rw.h"
 

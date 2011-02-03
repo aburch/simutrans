@@ -24,6 +24,7 @@
 
 #include "../besch/grund_besch.h"
 #include "../besch/intro_dates.h"
+#include "../besch/fabrik_besch.h"
 
 #include "../dataobj/translator.h"
 

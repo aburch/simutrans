@@ -17,6 +17,7 @@
 #include "player/simplay.h"
 #include "simmenu.h"
 #include "simwerkz.h"
+#include "simwerkz-dialogs.h"
 #include "simskin.h"
 #include "simsound.h"
 
