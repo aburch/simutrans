@@ -12,7 +12,6 @@
 #include <math.h>
 
 #include "simdebug.h"
-#include "player/simplay.h"
 #include "simsound.h"
 #include "simevent.h"
 #include "simcity.h"

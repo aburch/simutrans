@@ -16,7 +16,7 @@
 #include "components/gui_chart.h"
 #include "components/location_view_t.h"
 
-class spieler_t;
+#include "../player/simplay.h"
 
 /**
  * Finances dialog

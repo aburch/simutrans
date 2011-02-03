@@ -11,7 +11,7 @@
 #include "components/gui_numberinput.h"
 
 class einstellungen_t;
-
+class karte_t;
 
 class enlarge_map_frame_t  : public gui_frame_t, private action_listener_t
 {

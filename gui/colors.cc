@@ -20,6 +20,7 @@
 #include "../dings/zeiger.h"
 #include "../simgraph.h"
 #include "../simmenu.h"
+#include "../player/simplay.h"
 
 #include "../utils/simstring.h"
 

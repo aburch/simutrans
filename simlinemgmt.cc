@@ -18,6 +18,8 @@
 
 #include "gui/schedule_list.h"
 
+#include "player/simplay.h"
+
 uint8 simlinemgmt_t::used_ids[8192];
 
 karte_t *simlinemgmt_t::welt = NULL;

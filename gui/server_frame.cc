@@ -18,6 +18,7 @@
 #include "../dataobj/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/pakset_info.h"
+#include "../player/simplay.h"
 #include "server_frame.h"
 #include "messagebox.h"
 #include "help_frame.h"

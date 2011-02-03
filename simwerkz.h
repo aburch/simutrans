@@ -24,9 +24,10 @@
 
 #include "gui/messagebox.h"
 
+#include "player/simplay.h"
+
 #include "tpl/slist_tpl.h"
 
-class spieler_t;
 class koord3d;
 class koord;
 class wegbauer_t;

@@ -16,6 +16,7 @@
 #include "../simintr.h"
 #include "../simgraph.h"
 #include "../simwin.h"
+#include "../player/simplay.h"
 
 #include "../besch/reader/obj_reader.h"
 #include "../simskin.h"
@@ -60,6 +61,16 @@ void gui_frame_t::set_fenstergroesse(koord groesse)
 	}
 }
 
+
+/**
+ * gibt farbinformationen fuer Fenstertitel, -ränder und -körper
+ * zurück
+ * @author Hj. Malthaner
+ */
+PLAYER_COLOR_VAL gui_frame_t::get_titelcolor() const
+{
+	return owner ? PLAYER_FLAG|(owner->get_player_color1()+1) : WIN_TITEL;
+}
 
 
 /**

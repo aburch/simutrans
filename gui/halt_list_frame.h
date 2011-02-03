@@ -16,6 +16,7 @@
 #include "components/gui_button.h"
 #include "components/gui_label.h"
 #include "components/action_listener.h"
+#include "../tpl/vector_tpl.h"
 
 class spieler_t;
 class ware_besch_t;

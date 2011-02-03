@@ -35,6 +35,8 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
+#include "../player/simplay.h"
+
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 

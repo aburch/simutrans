@@ -7,6 +7,8 @@
 
 #define COLORS_MAX_BUTTONS (21)
 
+class karte_t;
+
 /**
  * Menü zur Änderung der Anzeigeeinstellungen.
  * @author Hj. Malthaner

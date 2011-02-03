@@ -27,6 +27,7 @@
 #include "../dings/baum.h"
 #include "../simcity.h"
 #include "../vehicle/simvehikel.h"
+#include "../player/simplay.h"
 
 #include "../simcolor.h"
 

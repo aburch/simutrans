@@ -18,6 +18,8 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 
+#include "../player/simplay.h"
+
 #include "field.h"
 
 // ***************** static ***********************

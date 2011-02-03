@@ -23,6 +23,7 @@
 #include "../convoihandle_t.h"
 #include "../linehandle_t.h"
 #include "../simwin.h"
+#include "../tpl/vector_tpl.h"
 
 
 class schedule_t;
