@@ -10,6 +10,7 @@
 #include "../simcity.h"
 #include "../simfab.h"
 #include "../simhalt.h"
+#include "../simline.h"
 #include "../simmenu.h"
 #include "../simtools.h"
 #include "../simmesg.h"

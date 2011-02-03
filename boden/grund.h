@@ -12,7 +12,6 @@
 #include "../halthandle_t.h"
 #include "../simimg.h"
 #include "../simcolor.h"
-#include "../simdepot.h"
 #include "../dataobj/koord3d.h"
 #include "../dataobj/dingliste.h"
 #include "wege/weg.h"
@@ -534,7 +533,7 @@ public:
 	* Falls es hier ein Depot gibt, dieses zurueckliefern
 	* @author Volker Meyer
 	*/
-	depot_t *get_depot() const { return dynamic_cast<depot_t *>(first_obj()); }
+	depot_t *get_depot() const;
 
 	/*
 	* Interface zur Abfrage der Wege

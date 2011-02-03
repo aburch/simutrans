@@ -1254,6 +1254,16 @@ ribi_t::ribi grund_t::get_weg_ribi_unmasked(waytype_t typ) const
 }
 
 
+/**
+* Falls es hier ein Depot gibt, dieses zurueckliefern
+* @author Volker Meyer
+*/
+depot_t* grund_t::get_depot() const
+{
+	return dynamic_cast<depot_t *>(first_obj());
+}
+
+
 bool grund_t::weg_erweitern(waytype_t wegtyp, ribi_t::ribi ribi)
 {
 	weg_t   *weg = get_weg(wegtyp);
