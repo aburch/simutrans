@@ -594,8 +594,8 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt):
 	lb_load("Full load"),
 	stats(welt,NULL),
 	scrolly(&stats),
-	old_fpl(NULL),
 	fpl(NULL),
+	old_fpl(NULL),
 	sp(NULL),
 	cnv()
 {

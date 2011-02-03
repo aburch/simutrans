@@ -4280,7 +4280,7 @@ uint8 wkz_link_factory_t::is_valid_pos( karte_t *welt, spieler_t *, const koord3
 }
 
 
-const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &pos )
+const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *, const koord3d &start, const koord3d &pos )
 {
 	fabrik_t *last_fab = fabrik_t::get_fab( welt, start.get_2d() );
 	fabrik_t *fab = fabrik_t::get_fab( welt, pos.get_2d() );

@@ -82,7 +82,6 @@ void simlinemgmt_t::check_create_id(linehandle_t new_line)
 		dbg->error("simlinemgmt_t::check_create_id()","New line id %i", id );
 	}
 	else if( (used_ids[id/8] & (1<<(id&7)) ) !=0 ) {
-		uint16 old_id = id;
 		id = get_unique_line_id();
 		dbg->error("simlinemgmt_t::check_create_id()","Reassigned new line id %i to line %s!", id, new_line->get_name());
 		new_line->set_line_id( id );
