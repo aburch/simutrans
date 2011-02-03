@@ -19,6 +19,7 @@
  {
 public:
 	line_management_gui_t(linehandle_t line, spieler_t* sp);
+	virtual ~line_management_gui_t() { delete old_fpl; }	// since we pass a *copy* of the line's schedule to the base class
 	const char * get_name() const;
 	bool infowin_event(const event_t *ev);
 

@@ -410,11 +410,6 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 				}
 			}
 		}
-		else {
-			// the changes for lines or depot convois are handled by line gui ....
-			old_fpl->copy_from( fpl );
-			old_fpl->eingabe_abschliessen();
-		}
 	}
 	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
 		// just to be sure, renew the tools ...
