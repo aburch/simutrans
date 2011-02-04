@@ -282,19 +282,7 @@ schedule_list_gui_t::schedule_list_gui_t(spieler_t *sp_) :
 schedule_list_gui_t::~schedule_list_gui_t()
 {
 	// change line name if necessary
-	if (line.is_bound()) {
-		const char *t = inp_name.get_text();
-		if(  t  &&  t[0]  &&  strcmp(t, line->get_name())) {
-			// text changed => call tool
-			cbuffer_t buf(300);
-			buf.printf( "l%u,%s", line.get_id(), t );
-			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
-			w->set_default_param( buf );
-			sp->get_welt()->set_werkzeug( w, line->get_besitzer() );
-			// since init always returns false, it is save to delete immediately
-			delete w;
-		}
-	}
+	rename_line();
 }
 
 
