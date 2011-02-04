@@ -46,7 +46,7 @@ public:
 protected:
 	simline_t(karte_t* welt, spieler_t*sp);
 
-	schedule_t * fpl,  *old_fpl;
+	schedule_t * fpl;
 	spieler_t *sp;
 	linetype type;
 
@@ -142,11 +142,7 @@ public:
 	 */
 	schedule_t * get_schedule() { return fpl; }
 
-	void set_schedule(schedule_t* fpl)
-	{
-		delete this->fpl;
-		this->fpl = fpl;
-	}
+	void set_schedule(schedule_t* fpl);
 
 	/*
 	 * get name of line
@@ -210,11 +206,6 @@ public:
 
 	void new_month();
 
-	/*
-	 * called from line_management_gui.cc to prepare line for a change of its schedule
-	 */
-	void prepare_for_update();
-
 	linetype get_linetype() { return type; }
 
 	void set_linetype(linetype lt) { type = lt; }
@@ -241,9 +232,6 @@ public:
 	spieler_t *get_besitzer() const {return sp;}
 
 	void recalc_status();
-
-	// Added by : Knightly
-	bool is_schedule_updated() const;
 
 };
 

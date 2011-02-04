@@ -25,7 +25,6 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp)
 	init_financial_history();
 	this->id = INVALID_LINE_ID;
 	this->welt = welt;
-	this->old_fpl = NULL;
 	this->fpl = NULL;
 	this->sp = sp;
 	withdraw = false;
@@ -52,13 +51,12 @@ void simline_t::set_line_id(uint32 id)
 
 simline_t::~simline_t()
 {
-	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p and old_fpl=%p", fpl, old_fpl);
+	DBG_DEBUG("simline_t::~simline_t()", "deleting fpl=%p", fpl);
 
 	assert(count_convoys()==0);
 	unregister_stops();
 
 	delete fpl;
-	delete old_fpl;
 	self.detach();
 
 	DBG_MESSAGE("simline_t::~simline_t()", "line %d (%p) destroyed", id, this);
@@ -316,18 +314,10 @@ void simline_t::unregister_stops(schedule_t * fpl)
 }
 
 
-
 void simline_t::renew_stops()
 {
 	if(  line_managed_convoys.get_count()>0  ) 
 	{
-		if(  old_fpl  ) 
-		{
-			unregister_stops( old_fpl );
-
-			// Added by : Knightly
-			haltestelle_t::refresh_routing(old_fpl, goods_catg_index, sp, 0);
-		}
 		register_stops( fpl );
 	
 		// Added by Knightly
@@ -335,6 +325,17 @@ void simline_t::renew_stops()
 		
 		DBG_DEBUG("simline_t::renew_stops()", "Line id=%d, name='%s'", id, name.c_str());
 	}
+}
+
+void simline_t::set_schedule(schedule_t* fpl)
+{
+	if (this->fpl) 
+	{
+		haltestelle_t::refresh_routing(fpl, goods_catg_index, sp, 0);
+		unregister_stops();
+		delete this->fpl;
+	}
+	this->fpl = fpl;
 }
 
 
@@ -356,19 +357,6 @@ void simline_t::new_month()
 		rolling_average_count[i] = 0;
 	}
 }
-
-
-
-/*
- * called from line_management_gui.cc to prepare line for a change of its schedule
- */
-void simline_t::prepare_for_update()
-{
-	DBG_DEBUG("simline_t::prepare_for_update()", "line %d (%p)", id, this);
-	delete old_fpl;
-	old_fpl = fpl->copy();
-}
-
 
 
 void simline_t::init_financial_history()
@@ -500,14 +488,3 @@ void simline_t::set_withdraw( bool yes_no )
 	}
 }
 
-
-// Added by : Knightly
-bool simline_t::is_schedule_updated() const
-{
-	if (!fpl)
-		return false;
-	else if (!old_fpl)
-		return true;
-	else  // Case : Both fpl and old_fpl contains a schedule
-		return !old_fpl->matches(welt, fpl);
-}

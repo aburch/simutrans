@@ -17,7 +17,6 @@ line_management_gui_t::line_management_gui_t(linehandle_t line, spieler_t* sp) :
 	fahrplan_gui_t(line->get_schedule()->copy(), sp, convoihandle_t() )
 {
 	this->line = line;
-	line->prepare_for_update();
 	show_line_selector(false);
 }
 
