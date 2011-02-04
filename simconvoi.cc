@@ -301,6 +301,10 @@ void convoi_t::laden_abschliessen()
 		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
 			vehikel_t* v = fahr[i];
 			v->set_convoi(this);
+			if(  state!=INITIAL  &&  welt->lookup(v->get_pos())  ) {
+				// mark vehicle as used
+				v->set_driven();
+			}
 		}
 		return;
 	}
