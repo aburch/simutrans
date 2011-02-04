@@ -118,6 +118,7 @@
 	ADD: server can do monthly announcements
 	ADD: announcements can be configured on command line
 	ADD: also schedules and line windows are kept during joining
+	ADD: vehicles can immeadtily loose part of their value when starting running (used_vehicle_reduction) to make expensive vehicle unattractive when starting a game
 
 
 Release of 102.2.2 (r3131 on 8-Mar-2010):
