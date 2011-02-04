@@ -887,6 +887,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
 	use_calc_height = true;
+	has_driven = false;
 
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 	target_halt = halthandle_t();
@@ -1562,13 +1563,24 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 			total_freight += iter.get_current().menge;
 		}
 	}
+
+	if(  file->get_version()>=110000  ) {
+		bool hd = has_driven;
+		file->rdwr_bool( hd );
+		has_driven = hd;
+	}
 }
 
 
 uint32 vehikel_t::calc_restwert() const
 {
+	// if already used, there is a general price reduction
+	double value = (double)besch->get_preis();
+	if(  has_driven  ) {
+		value *= (double)(1000-welt->get_einstellungen()->get_used_vehicle_reduction())/1000.0;
+	}
 	// after 20 year, it has only half value
-	return (uint32)((double)besch->get_preis() * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())));
+	return (uint32)( value * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())));
 }
 
 

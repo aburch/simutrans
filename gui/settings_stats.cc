@@ -232,6 +232,7 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_BOOL( "first_beginner", sets->get_beginner_mode() );
 	INIT_NUM( "beginner_price_factor", sets->get_beginner_price_factor(), 1, 25000, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_BOOL( "allow_buying_obsolete_vehicles", sets->get_allow_buying_obsolete_vehicles() );
+	INIT_NUM( "used_vehicle_reduction", sets->get_used_vehicle_reduction(), 0, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
 	INIT_BOOL( "just_in_time", sets->get_just_in_time() );
 	INIT_BOOL( "crossconnect_factories", sets->is_crossconnect_factories() );
@@ -279,6 +280,7 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_BOOL_VALUE( sets->beginner_mode );
 	READ_NUM_VALUE( sets->beginner_price_factor );
 	READ_BOOL_VALUE( sets->allow_buying_obsolete_vehicles );
+	READ_NUM_VALUE( sets->used_vehicle_reduction );
 
 	READ_BOOL_VALUE( sets->just_in_time );
 	READ_BOOL_VALUE( sets->crossconnect_factories );

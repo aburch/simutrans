@@ -235,6 +235,7 @@ protected:
 	bool ist_letztes:1;				// flags auskunft über die position
 	bool rauchen:1;
 	bool check_for_finish:1;		// true, if on the last tile
+	bool has_driven:1;
 
 	virtual void calc_bild();
 
@@ -410,6 +411,9 @@ public:
 
 	void set_letztes(bool janein) {ist_letztes = janein;}
 	bool is_last() {return ist_letztes;}
+
+	// marks the vehicle as really used
+	void set_driven() { has_driven = true; }
 
 	virtual void set_convoi(convoi_t *c);
 

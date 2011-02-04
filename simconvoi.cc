@@ -1187,6 +1187,7 @@ void convoi_t::start()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->set_erstes( false );
 			fahr[i]->set_letztes( false );
+			fahr[i]->set_driven();
 			fahr[i]->clear_flag( ding_t::not_on_map );
 			fahr[i]->beladen( halthandle_t() );
 		}
