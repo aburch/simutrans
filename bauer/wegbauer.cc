@@ -389,97 +389,23 @@ wegbauer_t::check_for_leitung(const koord zv, const grund_t *bd) const
 
 
 
-// allowed slope? (not used ... since get_neightbour and some further check does this even better)
+// allowed slope?
 bool wegbauer_t::check_slope( const grund_t *from, const grund_t *to )
 {
 	const koord from_pos=from->get_pos().get_2d();
 	const koord to_pos=to->get_pos().get_2d();
-	const sint8 ribi=ribi_typ( from_pos, to_pos );
+	const koord zv=to_pos-from_pos;
 
 	if(from==to) {
-		// this may happen, if the starting position is tested!
-		return hang_t::ist_wegbar(from->get_grund_hang());
-	}
-
-	// check for valid slopes
-	if(from->get_weg_hang()!=0) {
 		if(!hang_t::ist_wegbar(from->get_weg_hang())) {
-			// not valid
-			return false;
-		}
-		const sint8 hang_ribi=ribi_typ(from->get_weg_hang());
-		if(ribi!=hang_ribi  &&  ribi!=ribi_t::rueckwaerts(hang_ribi)) {
-			// not down or up ...
 			return false;
 		}
 	}
-	// ok, now check destination hang
-	if(to->get_weg_hang()!=0) {
-		if(!hang_t::ist_wegbar(to->get_weg_hang())) {
-			// not valid
+	else {
+		if(from->get_weg_hang()  &&  ribi_t::doppelt(ribi_typ(from->get_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
 			return false;
 		}
-		const sint8 hang_ribi=ribi_typ(to->get_weg_hang());
-		if(ribi!=hang_ribi  &&  ribi!=ribi_t::rueckwaerts(hang_ribi)) {
-			// not down or up ...
-			return false;
-		}
-	}
-
-	// now check offsets before changing the slope ...
-	const sint8 slope_this = from->get_weg_hang();
-	const sint16 hgt=from->get_hoehe()/Z_TILE_STEP;
-	const sint16 to_hgt=to->get_hoehe()/Z_TILE_STEP;
-	const sint8 to_slope=to->get_weg_hang();
-
-	if(ribi==ribi_t::west) {
-#ifndef DOUBLE_GROUNDS
-		const sint8 diff_from_ground_1 = to_hgt+((to_slope/2)%2)-hgt-(slope_this%2);
-		const sint8 diff_from_ground_2 = to_hgt+((to_slope/4)%2)-hgt-(slope_this/8);
-#else
-		const sint8 diff_from_ground_1 = to_hgt+((to_slope/3)%3)-hgt-(slope_this%3);
-		const sint8 diff_from_ground_2 = to_hgt+((to_slope/9)%3)-hgt-(slope_this/27);
-#endif
-		if(diff_from_ground_1!=0  ||  diff_from_ground_2!=0) {
-			return false;
-		}
-	}
-
-	if(ribi==ribi_t::ost) {
-#ifndef DOUBLE_GROUNDS
-		const sint8 diff_from_ground_1 = to_hgt-((slope_this/2)%2)-hgt+(to_slope%2);
-		const sint8 diff_from_ground_2 = to_hgt-((slope_this/4)%2)-hgt+(to_slope/8);
-#else
-		const sint8 diff_from_ground_1 = to_hgt-((slope_this/3)%3)-hgt+(to_slope%3);
-		const sint8 diff_from_ground_2 = to_hgt-((slope_this/9)%3)-hgt+(to_slope/27);
-#endif
-		if(diff_from_ground_1!=0  ||  diff_from_ground_2!=0) {
-			return false;
-		}
-	}
-
-	if(ribi==ribi_t::nord) {
-#ifndef DOUBLE_GROUNDS
-		const sint8 diff_from_ground_1 = to_hgt+(to_slope%2)-hgt-(slope_this/8);
-		const sint8 diff_from_ground_2 = to_hgt+((to_slope/2)%2)-hgt-((slope_this/4)%2);
-#else
-		const sint8 diff_from_ground_1 = to_hgt+(to_slope%3)-hgt-(slope_this/27);
-		const sint8 diff_from_ground_2 = to_hgt+((to_slope/3)%3)-hgt-((slope_this/9)%3);
-#endif
-		if(diff_from_ground_1!=0  ||  diff_from_ground_2!=0) {
-			return false;
-		}
-	}
-
-	if(ribi==ribi_t::sued) {
-#ifndef DOUBLE_GROUNDS
-		const sint8 diff_from_ground_1 = to_hgt-(slope_this%2)-hgt+(to_slope/8);
-		const sint8 diff_from_ground_2 = to_hgt-((slope_this/2)%2)-hgt+((to_slope/4)%2);
-#else
-		const sint8 diff_from_ground_1 = to_hgt-(slope_this%3)-hgt+(to_slope/27);
-		const sint8 diff_from_ground_2 = to_hgt-((slope_this/3)%3)-hgt+((to_slope/9)%3);
-#endif
-		if(diff_from_ground_1!=0  ||  diff_from_ground_2!=0) {
+		if(to->get_weg_hang()  &&  ribi_t::doppelt(ribi_typ(to->get_weg_hang()))!=ribi_t::doppelt(ribi_typ(zv))) {
 			return false;
 		}
 	}

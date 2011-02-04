@@ -125,9 +125,6 @@ private:
 
 	koord3d_vector_t route;
 
-	// allowed slope?
-	bool check_slope( const grund_t *from, const grund_t *to );
-
 	/* This is the core routine for the way search
 	* it will check
 	* A) allowed step
@@ -209,6 +206,8 @@ public:
 	bool check_owner( const spieler_t *sp1, const spieler_t *sp2 ) const;
 	// checks whether buildings on the tile allow to leave in direction dir
 	bool check_building( const grund_t *to, const koord dir ) const;
+	// allowed slope?
+	static bool check_slope( const grund_t *from, const grund_t *to );
 
 	void baue();
 };
