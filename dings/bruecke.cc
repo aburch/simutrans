@@ -7,17 +7,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../simworld.h"
 #include "../simdings.h"
-#include "../boden/grund.h"
-#include "../boden/wege/strasse.h"
-#include "../boden/wege/schiene.h"
 #include "../boden/grund.h"
 #include "../player/simplay.h"
 #include "../simimg.h"
 #include "../simmem.h"
 #include "../bauer/brueckenbauer.h"
-#include "../bauer/wegbauer.h"
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
