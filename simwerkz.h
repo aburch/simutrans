@@ -524,6 +524,8 @@ public:
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
+	virtual bool is_init_network_save() const { return !umgebung_t::networkmode; }
+	virtual bool is_work_network_save() const { return !umgebung_t::networkmode; }
 };
 
 class wkz_fastforward_t : public werkzeug_t {
@@ -540,6 +542,8 @@ public:
 		return false;
 	}
 	bool exit( karte_t *w, spieler_t *s ) { return init(w,s); }
+	virtual bool is_init_network_save() const { return !umgebung_t::networkmode; }
+	virtual bool is_work_network_save() const { return !umgebung_t::networkmode; }
 };
 
 class wkz_screenshot_t : public werkzeug_t {
@@ -769,6 +773,8 @@ public:
 		}
 		return false;
 	}
+	virtual bool is_init_network_save() const { return !umgebung_t::networkmode; }
+	virtual bool is_work_network_save() const { return !umgebung_t::networkmode; }
 };
 
 class wkz_quit_t : public werkzeug_t {
