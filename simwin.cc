@@ -638,6 +638,7 @@ static void destroy_framed_win(simwin_t *wins)
 		for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
 			if(  kill_list[j].gui == wins->gui  ) {
 				kill_list.remove_at(j);
+				break;
 			}
 		}
 		delete wins->gui;
@@ -665,8 +666,9 @@ void destroy_win(const gui_frame_t *gui)
 				kill_list.append_unique(wins[i]);
 			}
 			else {
-				destroy_framed_win(&wins[i]);
+				simwin_t win = wins[i];
 				wins.remove_at(i);
+				destroy_framed_win(&win);
 			}
 			break;
 		}
