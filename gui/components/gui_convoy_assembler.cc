@@ -28,6 +28,7 @@
 #include "../../utils/simstring.h"
 #include "../../vehicle/simvehikel.h"
 #include "../../besch/haus_besch.h"
+#include "../../player/simplay.h"
 
 #include "../../utils/cbuffer_t.h"
 

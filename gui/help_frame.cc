@@ -17,6 +17,7 @@
 #include "../utils/simstring.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/translator.h"
+#include "../player/simplay.h"
 
 #include "help_frame.h"
 

@@ -24,6 +24,8 @@
 #include "../besch/ware_besch.h"
 #include "../bauer/warenbauer.h"
 
+#include "../player/simplay.h"
+
 #include "../utils/simstring.h"
 
 #include "../vehicle/simvehikel.h"

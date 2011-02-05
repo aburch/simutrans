@@ -30,6 +30,8 @@
 #include "../boden/grund.h"
 #include "messagebox.h"
 
+#include "../player/simplay.h"
+
 #include "../utils/simstring.h"
 
 #include "components/list_button.h"

@@ -13,11 +13,8 @@
 
 #include "path_explorer.h"
 #include "simdebug.h"
-#include "simworld.h"
-#include "player/simplay.h"
 #include "simsound.h"
 #include "simevent.h"
-#include "simskin.h"
 #include "simcity.h"
 #include "simtools.h"
 #include "simmesg.h"
@@ -36,14 +33,12 @@
 
 #include "simdepot.h"
 #include "simfab.h"
-#include "simwin.h"
 #include "simimg.h"
 #include "simintr.h"
 #include "simhalt.h"
 
 #include "besch/grund_besch.h"
 #include "besch/haus_besch.h"
-#include "besch/way_obj_besch.h"
 #include "besch/skin_besch.h"
 #include "besch/roadsign_besch.h"
 #include "besch/tunnel_besch.h"
@@ -60,6 +55,8 @@
 #include "gui/karte.h"	// to update map after construction of new industry
 #include "gui/depot_frame.h"
 #include "gui/fahrplan_gui.h"
+#include "gui/player_frame_t.h"
+#include "gui/schedule_list.h"
 #include "gui/signal_spacing.h"
 #include "gui/stadt_info.h"
 #include "gui/trafficlight_info.h"
@@ -4688,7 +4685,7 @@ uint8 wkz_link_factory_t::is_valid_pos( karte_t *welt, spieler_t *, const koord3
 }
 
 
-const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *sp, const koord3d &start, const koord3d &pos )
+const char *wkz_link_factory_t::do_work( karte_t *welt, spieler_t *, const koord3d &start, const koord3d &pos )
 {
 	fabrik_t *last_fab = fabrik_t::get_fab( welt, start.get_2d() );
 	fabrik_t *fab = fabrik_t::get_fab( welt, pos.get_2d() );
@@ -5706,7 +5703,6 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 		case 'g': // change schedule
 			{
 				if (line.is_bound()) {
-					line->get_schedule()->eingabe_abschliessen();
 					schedule_t *fpl = line->get_schedule()->copy();
 					if (fpl->sscanf_schedule( p )) {
 						line->set_schedule( fpl );

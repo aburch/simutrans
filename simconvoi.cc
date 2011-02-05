@@ -362,6 +362,10 @@ void convoi_t::laden_abschliessen()
 			fahr[i]->set_convoi(this);
 			// BG, 06.06.2009: loader does not call laden_abschliessen() for vehicles in depots
 			fahr[i]->laden_abschliessen();
+			if(  state!=INITIAL  &&  welt->lookup(fahr[i]->get_pos())  ) {
+				// mark vehicle as used
+				fahr[i]->set_driven();
+			}
 		}
 		return;
 	}
@@ -1530,6 +1534,7 @@ void convoi_t::start()
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			fahr[i]->set_erstes( false );
 			fahr[i]->set_letztes( false );
+			fahr[i]->set_driven();
 			fahr[i]->clear_flag( ding_t::not_on_map );
 			fahr[i]->beladen( halthandle_t() );
 		}

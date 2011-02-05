@@ -8,14 +8,15 @@
 
 #include "../linehandle_t.h"
 
- class spieler_t;
- class karte_t;
- class loadsave_t;
+class spieler_t;
+class karte_t;
+class loadsave_t;
 
- class line_management_gui_t : public fahrplan_gui_t
- {
+class line_management_gui_t : public fahrplan_gui_t
+{
 public:
 	line_management_gui_t(linehandle_t line, spieler_t* sp);
+	virtual ~line_management_gui_t();
 	const char * get_name() const;
 	bool infowin_event(const event_t *ev);
 

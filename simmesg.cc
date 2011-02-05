@@ -18,6 +18,7 @@
 
 #include "dataobj/loadsave.h"
 #include "dataobj/umgebung.h"
+#include "player/simplay.h"
 #include "utils/simstring.h"
 #include "tpl/slist_tpl.h"
 #include "gui/messagebox.h"

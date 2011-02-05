@@ -1,7 +1,21 @@
 #include "line_item.h"
+#include "../simline.h"
 #include "../simmenu.h"
 #include "../player/simplay.h"
 #include "../utils/cbuffer_t.h"
+
+
+const char* line_scrollitem_t::get_text()
+{
+	return line->get_name();
+}
+
+
+COLOR_VAL line_scrollitem_t::get_color()
+{
+	return line->get_state_color();
+}
+
 
 void line_scrollitem_t::set_text(char *t)
 {

@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "simio.h"
 #include "simmem.h"
 #include "simdebug.h"
 #include "simhalt.h"

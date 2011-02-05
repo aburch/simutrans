@@ -27,6 +27,8 @@
 #include "../boden/grund.h"
 #include "messagebox.h"
 
+#include "../player/simplay.h"
+
 #include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 

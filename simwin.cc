@@ -636,6 +636,13 @@ static void destroy_framed_win(simwin_t *wins)
 	}
 
 	if(  (wins->wt&w_do_not_delete)==0  ) {
+		// remove from kill list first
+		// otherwise delete will be called again on that window
+		for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
+			if(  kill_list[j].gui == wins->gui  ) {
+				kill_list.remove_at(j);
+			}
+		}
 		delete wins->gui;
 	}
 	windows_dirty = true;
@@ -1015,7 +1022,7 @@ bool win_is_open(gui_frame_t *gui)
 	for(  uint i=0;  i<wins.get_count();  i++  ) {
 		if(  wins[i].gui == gui  ) {
 			for(  uint j = 0;  j < kill_list.get_count();  j++  ) {
-				if(  kill_list[i].gui == gui  ) {
+				if(  kill_list[j].gui == gui  ) {
 					return false;
 				}
 			}

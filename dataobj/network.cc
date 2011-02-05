@@ -22,8 +22,6 @@
 #include "../simdebug.h"
 #include "../simgraph.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
-#include "../simmesg.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
@@ -31,7 +29,6 @@
 #include "../utils/simstring.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
-#include "../tpl/slist_tpl.h"
 
 // forward declaration ..
 static char const* network_receive_file(SOCKET s, char const* save_as, long length);

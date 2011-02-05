@@ -10,6 +10,7 @@
 #include "../simgraph.h"
 #include "../simcolor.h"
 #include "../simworld.h"
+#include "../simconvoi.h"
 
 #include "../bauer/warenbauer.h"
 #include "../besch/ware_besch.h"

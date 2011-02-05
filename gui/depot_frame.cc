@@ -33,6 +33,8 @@
 #include "../dataobj/fahrplan.h"
 #include "../dataobj/translator.h"
 
+#include "../player/simplay.h"
+
 #include "../utils/simstring.h"
 
 #include "../boden/wege/weg.h"

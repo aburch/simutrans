@@ -364,6 +364,8 @@ private:
 
 	// if true, you can buy obsolete stuff
 	bool allow_buying_obsolete_vehicles;
+	// vehicle value is decrease by this factor/1000 when a vehicle leaved the depot
+	sint16 used_vehicle_reduction;
 
 	uint32 random_counter;
 	uint32 frames_per_second;	// only used in network mode ...
@@ -781,7 +783,9 @@ public:
 
 	uint32 get_industry_increase_every() const { return industry_increase; }
 	uint32 get_city_isolation_factor() const { return city_isolation_factor; }
-	
+
+	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }
+
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }
 	uint32 get_frames_per_second() const { return frames_per_second; }

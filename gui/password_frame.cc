@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2001 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2001 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -11,6 +11,7 @@
 #include "../simwin.h"
 #include "../simworld.h"
 
+#include "../utils/cbuffer_t.h"
 #include "../utils/sha1.h"
 #include "../utils/simstring.h"
 

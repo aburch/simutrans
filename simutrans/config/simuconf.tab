@@ -309,6 +309,10 @@ left_to_right_graphs  = 0
 # allow buying obsolete vehicles (=1) in depot
 allow_buying_obsolete_vehicles = 1
 
+# vehicle can loose a part of their value, when the are once used
+# the loss is given in 1/1000th, i.e 300 mean the value will be 70%
+used_vehicle_reduction = 0
+
 # Maintenance costs of buildings
 #maintenance_building = 2000
 

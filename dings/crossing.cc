@@ -21,7 +21,6 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/umgebung.h"
 
-#include "../utils/simstring.h"
 #include "../utils/cbuffer_t.h"
 
 #include "crossing.h"

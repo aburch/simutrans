@@ -15,7 +15,6 @@
 #include <string.h>
 
 #include "simdebug.h"
-#include "simio.h"
 #include "simimg.h"
 #include "simmem.h"
 #include "simcolor.h"

@@ -411,7 +411,6 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 		update_werkzeug( false );
 		fpl->cleanup();
 		fpl->eingabe_abschliessen();
-		old_fpl->eingabe_abschliessen();
 		// now apply the changes
 		if(cnv.is_bound()) {
 			// do not send changes if the convoi is about to be deleted
@@ -436,11 +435,6 @@ bool fahrplan_gui_t::infowin_event(const event_t *ev)
 					cnv->call_convoi_tool( 'g', buf );
 				}
 			}
-		}
-		else {
-			// the changes for lines or depot convois are handled by line gui ....
-			old_fpl->copy_from( fpl );
-			old_fpl->eingabe_abschliessen();
 		}
 	}
 	else if(ev->ev_class == INFOWIN  &&  (ev->ev_code == WIN_TOP  ||  ev->ev_code == WIN_OPEN)  &&  fpl!=NULL  ) {
@@ -632,8 +626,8 @@ fahrplan_gui_t::fahrplan_gui_t(karte_t *welt):
 	lb_load("Full load"),
 	stats(welt,NULL),
 	scrolly(&stats),
-	old_fpl(NULL),
 	fpl(NULL),
+	old_fpl(NULL),
 	sp(NULL),
 	cnv()
 {

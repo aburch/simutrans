@@ -18,7 +18,6 @@
 #include "karte.h"
 
 #include "../simdebug.h"
-#include "../simio.h"
 #include "../simworld.h"
 #include "../simwin.h"
 #include "../simimg.h"
@@ -41,6 +40,7 @@
 #include "../dings/baum.h"
 #include "../simcity.h"
 #include "../vehicle/simvehikel.h"
+#include "../player/simplay.h"
 
 #include "../simcolor.h"
 

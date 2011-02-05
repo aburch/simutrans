@@ -10,6 +10,8 @@
 #include "../simcolor.h"
 #include "../simwin.h"
 #include "../simworld.h"
+#include "../player/simplay.h"
+#include "../simline.h"
 
 #include "../dataobj/translator.h"
 #include "../dataobj/replace_data.h"

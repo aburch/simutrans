@@ -378,7 +378,6 @@ einstellungen_t::einstellungen_t() :
 	// default: load also private extensions of the pak file
 	with_private_paks = true;
 
-
 	// The default is a selective refresh.
 	default_path_option = 2;
 
@@ -403,6 +402,8 @@ einstellungen_t::einstellungen_t() :
 	//max_longdistance_tolerance = 150;
 
 	max_walking_distance = 4;
+
+	used_vehicle_reduction = 0;
 
 	// some network thing to keep client in sync
 	random_counter = 0;	// will be set when actually saving
@@ -1131,6 +1132,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			if(  !umgebung_t::networkmode  ||  umgebung_t::server  ) {
 				server_frames_ahead = umgebung_t::server_frames_ahead;
 			}
+			file->rdwr_short( used_vehicle_reduction );
 		}
 		
 		if(file->get_experimental_version() >= 8)
@@ -1364,6 +1366,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	verkehr_level = contents.get_int("citycar_level", verkehr_level );	// ten normal years
 	stadtauto_duration = contents.get_int("default_citycar_life", stadtauto_duration );	// ten normal years
 	allow_buying_obsolete_vehicles = contents.get_int("allow_buying_obsolete_vehicles", allow_buying_obsolete_vehicles );
+	used_vehicle_reduction  = clamp( contents.get_int("used_vehicle_reduction", used_vehicle_reduction ), 0, 1000 );
 
 	// starting money
 	starting_money = contents.get_int64("starting_money", starting_money );

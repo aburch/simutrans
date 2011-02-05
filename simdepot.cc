@@ -18,7 +18,6 @@
 #include "simhalt.h"
 #include "player/simplay.h"
 #include "simworld.h"
-#include "simio.h"
 #include "simdepot.h"
 #include "simline.h"
 #include "simlinemgmt.h"
@@ -41,6 +40,7 @@
 #include "besch/haus_besch.h"
 
 #define CREDIT_MESSAGE "That would exceed\nyour credit limit."
+#include "utils/cbuffer_t.h"
 
 slist_tpl<depot_t *> depot_t::all_depots;
 
@@ -299,12 +299,12 @@ convoihandle_t depot_t::add_convoi()
 {
 	convoi_t* new_cnv = new convoi_t(get_besitzer());
 	new_cnv->set_home_depot(get_pos());
-    convois.append(new_cnv->self);
+	convois.append(new_cnv->self);
 	depot_frame_t *win = dynamic_cast<depot_frame_t *>(win_get_magic( (long)this ));
 	if(  win  ) {
 		win->activate_convoi( new_cnv->self );
 	}
-    return new_cnv->self;
+	return new_cnv->self;
 }
 
 
@@ -373,7 +373,8 @@ convoihandle_t depot_t::copy_convoi(convoihandle_t old_cnv)
 				win->activate_convoi( new_cnv );
 			}
 		}
-		return new_cnv->self;
+
+		return new_cnv;
 	}
 	return convoihandle_t();
 }

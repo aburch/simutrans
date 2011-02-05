@@ -17,6 +17,7 @@
 
 #include "../simcolor.h"
 #include "../simworld.h"
+#include "../simconvoi.h"
 
 /**
  * This variable defines the current speed for bonus calculation

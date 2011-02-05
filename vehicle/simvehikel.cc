@@ -679,16 +679,18 @@ void vehikel_t::set_convoi(convoi_t *c)
 			check_for_finish = r.empty() || route_index >= r.get_count() || get_pos() == r.position_bei(route_index);
 		}
 		// some convois were saved with broken coordinates
-		if(!welt->lookup(pos_prev)) {
-			dbg->error("vehikel_t::set_convoi()","pos_prev is illegal of convoi %i at %s", cnv->self.get_id(), get_pos().get_str() );
-			if(welt->lookup_kartenboden(pos_prev.get_2d())) { //"Kartenboden" = "map ground" (Babelfish)
-				pos_prev = welt->lookup_kartenboden(pos_prev.get_2d())->get_pos();
+		if(  !welt->lookup(pos_prev)  ) {
+			if(  pos_prev!=koord3d::invalid  ) {
+				dbg->error("vehikel_t::set_convoi()","pos_prev is illegal of convoi %i at %s", cnv->self.get_id(), get_pos().get_str() );
+			}
+			if(  grund_t *gr = welt->lookup_kartenboden(pos_prev.get_2d())  ) {
+				pos_prev = gr->get_pos();
 			}
 			else {
 				pos_prev = get_pos();
 			}
 		}
-		if (pos_next != koord3d::invalid) {
+		if(  pos_next != koord3d::invalid  ) {
 			route_t const& r = *cnv->get_route();
 			if (!r.empty() && route_index < r.get_count() - 1) {
 				grund_t const* const gr = welt->lookup(pos_next);
@@ -1071,6 +1073,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 
 	rauchen = true;
 	fahrtrichtung = ribi_t::keine;
+	pos_prev = koord3d::invalid;
 
 	current_friction = 4;
 	total_freight = 0;
@@ -1079,6 +1082,7 @@ vehikel_t::vehikel_t(koord3d pos, const vehikel_besch_t* besch, spieler_t* sp) :
 	ist_erstes = ist_letztes = false;
 	check_for_finish = false;
 	use_calc_height = true;
+	has_driven = false;
 
 	alte_fahrtrichtung = fahrtrichtung = ribi_t::keine;
 	target_halt = halthandle_t();
@@ -2116,13 +2120,23 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		reversed = false;
 	}
 
+	if(  file->get_version()>=110000  ) {
+		bool hd = has_driven;
+		file->rdwr_bool( hd );
+		has_driven = hd;
+	}
 }
 
 
 uint32 vehikel_t::calc_restwert() const
 {
+	// if already used, there is a general price reduction
+	double value = (double)besch->get_preis();
+	if(  has_driven  ) {
+		value *= (double)(1000-welt->get_einstellungen()->get_used_vehicle_reduction())/1000.0;
+	}
 	// after 20 year, it has only half value
-	return (uint32)((double)besch->get_preis() * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())));
+	return (uint32)( value * pow(0.997, (int)(welt->get_current_month() - get_insta_zeit())));
 }
 
 

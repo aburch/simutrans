@@ -17,7 +17,7 @@
 #include "components/gui_numberinput.h"
 
 class einstellungen_t;
-
+class karte_t;
 
 /**
  * Ein Dialog mit Einstellungen fuer eine neue Karte
