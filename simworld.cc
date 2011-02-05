@@ -1749,6 +1749,8 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	// @author: jamespetts
 	set_scale();
+
+	next_private_car_update_month = 1;
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
@@ -5263,6 +5265,11 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	if ( einstellungen->get_default_path_option() == 2 )
 	{
 		path_explorer_t::full_instant_refresh();
+	}
+
+	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	{
+		file->rdwr_byte(next_private_car_update_month);
 	}
 	
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);

@@ -459,6 +459,13 @@ private:
 	// will be done in step when client number changed
 	void announce_server();
 
+	// The month in which the next city generated will update its private car 
+	// routes if an update is needed. This spreads the computational load over
+	// a year instead of forcing it all into a month, thus improving 
+	// performance.
+	// @author: jamespetts, February 2011
+	uint8 next_private_car_update_month;
+
 public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
@@ -1225,6 +1232,17 @@ public:
 
 	uint32 generate_new_map_counter() const;
 
+	uint8 step_next_private_car_update_month() 
+	{ 
+		uint8 tmp = next_private_car_update_month;
+		next_private_car_update_month ++ ; 
+		if(next_private_car_update_month > 12)
+		{
+			next_private_car_update_month = 1;
+		}
+		return tmp;
+	}
+
 #ifdef DEBUG_SIMRAND_CALLS
 	static fixed_list_tpl<const char*, 128> random_callers;
 #endif
@@ -1237,3 +1255,4 @@ private:
 };
 
 #endif
+

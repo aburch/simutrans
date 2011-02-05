@@ -1428,6 +1428,8 @@ next_name:;
 	private_car_route = new route_t();
 	check_road_connexions = false;
 
+	private_car_update_month = welt->step_next_private_car_update_month();
+
 }
 
 
@@ -1676,8 +1678,54 @@ void stadt_t::rdwr(loadsave_t* file)
 		townhall_road = koord::invalid;
 	}
 
+	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	{
+		file->rdwr_bool(check_road_connexions);
+		file->rdwr_byte(private_car_update_month);
+	}
 
-	if(file->is_loading()) {
+	if(file->is_saving() && file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	{		
+		uint16 time;
+		koord k;
+		uint32 count;
+
+		count = connected_cities.get_count();
+		file->rdwr_long(count);
+		koordhashtable_iterator_tpl<koord, uint16> city_iter(connected_cities);
+		while(city_iter.next())
+		{
+			time = city_iter.get_current_value();
+			file->rdwr_short(time);
+			k = city_iter.get_current_key();
+			k.rdwr(file);
+		}
+
+		count = connected_industries.get_count();
+		file->rdwr_long(count);
+		koordhashtable_iterator_tpl<koord, uint16> industry_iter(connected_industries);
+		while(industry_iter.next())
+		{
+			time = industry_iter.get_current_value();
+			file->rdwr_short(time);
+			k = industry_iter.get_current_key();
+			k.rdwr(file);
+		}
+
+		count = connected_attractions.get_count();
+		file->rdwr_long(count);
+		koordhashtable_iterator_tpl<koord, uint16> attraction_iter(connected_attractions);
+		while(attraction_iter.next())
+		{
+			time = attraction_iter.get_current_value();
+			file->rdwr_short(time);
+			k = attraction_iter.get_current_key();
+			k.rdwr(file);
+		}
+	}
+
+	if(file->is_loading()) 
+	{
 		// 08-Jan-03: Due to some bugs in the special buildings/town hall
 		// placement code, li,re,ob,un could've gotten irregular values
 		// If a game is loaded, the game might suffer from such an mistake
@@ -1685,12 +1733,49 @@ void stadt_t::rdwr(loadsave_t* file)
 		DBG_MESSAGE("stadt_t::rdwr()", "borders (%i,%i) -> (%i,%i)", lo.x, lo.y, ur.x, ur.y);
 
 		// recalculate borders
-		recalc_city_size();
+		recalc_city_size();	
 
 		connected_cities.clear();
 		connected_industries.clear();
 		connected_attractions.clear();
-		check_road_connexions = false;
+		if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+		{		
+			uint16 time;
+			koord k;
+			uint32 count;
+
+			// Cities
+			file->rdwr_long(count);
+			for(uint32 x = 0; x < count; x ++)
+			{
+				file->rdwr_short(time);
+				k.rdwr(file);
+				connected_cities.put(k, time);
+			}
+
+			// Industries
+			file->rdwr_long(count);
+			for(uint32 x = 0; x < count; x ++)
+			{
+				file->rdwr_short(time);
+				k.rdwr(file);
+				connected_industries.put(k, time);
+			}
+
+			// Attractions
+			file->rdwr_long(count);
+			for(uint32 x = 0; x < count; x ++)
+			{
+				file->rdwr_short(time);
+				k.rdwr(file);
+				connected_attractions.put(k, time);
+			}
+		}
+
+		else
+		{
+			check_road_connexions = false;
+		}
 	}
 }
 
@@ -2105,7 +2190,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	// Cannot do this too often, as it severely impacts on performance.
 	check_road_connexions = check;
 
-	if(check_road_connexions)
+	if(check_road_connexions && private_car_update_month == welt->get_current_month())
 	{
 		connected_cities.clear();
 		connected_industries.clear();
