@@ -43,7 +43,9 @@ bool line_management_gui_t::infowin_event(const event_t *ev)
 				// Check if the schedule is modified
 				// Bernd Gabriel, Feb 14, 2010: this->fpl is a copy of line->schedule now.
 				//  Thus line->is_schedule_updated() always returns false now, as changes to this->fpl aren't present there, yet.
-				//if ( line->is_schedule_updated() )
+				//if ( line->is_schedule_updated() ) 
+				// @jamespetts, 3rd of February 2011: And, further, with the change in Standard yesterday removing "old_fpl", the is_schedule_updated
+				// method is completely depracated.
 				karte_t * world = line->get_besitzer()->get_welt();
 				if (!fpl->matches(world, line->get_schedule()))
 				{
