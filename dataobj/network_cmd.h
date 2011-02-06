@@ -260,7 +260,8 @@ public:
 	virtual bool execute(karte_t *);
 	// really executes it, here exec should be true
 	virtual void do_command(karte_t*);
-	virtual const char* get_name() { return "nwc_tool_t";}
+	virtual const char* get_name() { return "nwc_tool_t"; }
+	bool is_from_initiator() const { return !exec; }
 private:
 	char *default_param;
 	uint32 tool_client_id;

@@ -5641,21 +5641,23 @@ bool karte_t::interactive(uint32 quit_month)
 				// check random number generator states
 				if(  umgebung_t::server  &&  nwc->get_id()==NWC_TOOL  ) {
 					nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-					if(  nwt->last_sync_step>sync_steps  ) {
-						dbg->warning("karte_t::interactive", "client was too fast (skipping command)" );
-						delete nwc;
-						nwc = NULL;
-					}
-					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
-					else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
-						// lost synchronisation -> server kicks client out actively
-						char buf[256];
-						const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
-						nwt->last_checklist.print(buf + offset, "initiator");
-						dbg->warning("karte_t::interactive", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
-						socket_list_t::remove_client( nwc->get_sender() );
-						delete nwc;
-						nwc = NULL;
+					if(  nwt->is_from_initiator()  ) {
+						if(  nwt->last_sync_step>sync_steps  ) {
+							dbg->warning("karte_t::interactive", "client was too fast (skipping command)" );
+							delete nwc;
+							nwc = NULL;
+						}
+						// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
+						else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
+							// lost synchronisation -> server kicks client out actively
+							char buf[256];
+							const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
+							nwt->last_checklist.print(buf + offset, "initiator");
+							dbg->warning("karte_t::interactive", "kicking client due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
+							socket_list_t::remove_client( nwc->get_sender() );
+							delete nwc;
+							nwc = NULL;
+						}
 					}
 				}
 
