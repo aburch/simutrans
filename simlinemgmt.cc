@@ -73,7 +73,7 @@ DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line->get_line_id());
 		if(  ( used_ids[id/8] & (1<<(id&7)) )!=0  ) {
 			// line ID is already used -> defer reassignment of line ID to check_create_id() after all lines are loaded
 			dbg->error("simlinemgmt_t::add_line()","Line id %i doubled! (0x%X)!", id, used_ids[id/8] );
-			id = REASSIGN_LINE_ID;
+			new_line->set_line_id( REASSIGN_LINE_ID );
 		}
 		else {
 			// register line ID as used
