@@ -5647,7 +5647,7 @@ bool karte_t::interactive(uint32 quit_month)
 						nwc = NULL;
 					}
 					// out of sync => drop client (but we can only compare if nwt->last_sync_step is not too old)
-					else if(  nwt->last_sync_step+LAST_CHECKLISTS_COUNT>sync_steps  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
+					else if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 						// lost synchronisation -> server kicks client out actively
 						char buf[256];
 						const int offset = LCHKLST(nwt->last_sync_step).print(buf, "server");
@@ -5732,7 +5732,7 @@ bool karte_t::interactive(uint32 quit_month)
 				else {
 					if(  nwc->get_id()==NWC_TOOL  ) {
 						nwc_tool_t *nwt = dynamic_cast<nwc_tool_t *>(nwc);
-						if(  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
+						if(  is_checklist_available(nwt->last_sync_step)  &&  LCHKLST(nwt->last_sync_step)!=nwt->last_checklist  ) {
 							// lost synchronisation ...
 							char buf[256];
 							const int offset = nwt->last_checklist.print(buf, "server");

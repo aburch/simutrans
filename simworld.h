@@ -1003,6 +1003,8 @@ public:
 
 	uint32 get_sync_steps() const { return sync_steps; }
 
+	// check whether checklist is available, ie given sync_step is not too far into past
+	bool is_checklist_available(const uint32 sync_step) const { return sync_step + LAST_CHECKLISTS_COUNT > sync_steps; }
 	const checklist_t& get_checklist_at(const uint32 sync_step) const { return LCHKLST(sync_step); }
 	void set_checklist_at(const uint32 sync_step, const checklist_t &chklst) { LCHKLST(sync_step) = chklst; }
 
