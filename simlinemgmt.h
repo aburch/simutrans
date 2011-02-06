@@ -17,7 +17,8 @@ class spieler_t;
 class schedule_list_gui_t;
 class karte_t;
 
-#define INVALID_LINE_ID ((uint16)(-1))
+#define INVALID_LINE_ID ((uint16)(0))
+#define REASSIGN_LINE_ID ((uint16)(-1))
 
 class simlinemgmt_t
 {
