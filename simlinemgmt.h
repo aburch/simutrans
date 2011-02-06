@@ -120,6 +120,12 @@ public:
 private:
 	static uint8 used_ids[8192];
 
+	/**
+	 * Last allocated line ID
+	 * @author Knightly
+	 */
+	static uint16 last_id;
+
 	vector_tpl<linehandle_t> all_managed_lines;
 
 	static karte_t * welt;

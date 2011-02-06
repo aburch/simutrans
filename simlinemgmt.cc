@@ -21,7 +21,7 @@
 #include "player/simplay.h"
 
 uint8 simlinemgmt_t::used_ids[8192];
-
+uint16 simlinemgmt_t::last_id = 0;
 karte_t *simlinemgmt_t::welt = NULL;
 
 void simlinemgmt_t::init_line_ids()
@@ -32,6 +32,7 @@ void simlinemgmt_t::init_line_ids()
 	}
 	used_ids[INVALID_LINE_ID/8] |= (1<<(INVALID_LINE_ID&7));
 	used_ids[REASSIGN_LINE_ID/8] |= (1<<(REASSIGN_LINE_ID&7));
+	last_id = 0;
 }
 
 
@@ -69,6 +70,10 @@ void simlinemgmt_t::add_line(linehandle_t new_line)
 	uint16 id = new_line->get_line_id();
 DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line->get_line_id());
 	if(  id!=INVALID_LINE_ID  ) {
+		// update last line ID to the largest ID number
+		if(  last_id<id  ) {
+			last_id = id;
+		}
 		// case : line restored from save game
 		if(  ( used_ids[id/8] & (1<<(id&7)) )!=0  ) {
 			// line ID is already used -> defer reassignment of line ID to check_create_id() after all lines are loaded
@@ -114,6 +119,13 @@ linehandle_t simlinemgmt_t::get_line_by_id(uint16 id)
 void simlinemgmt_t::delete_line(linehandle_t line)
 {
 	if (line.is_bound()) {
+		// free the line ID
+		uint16 id = line->get_line_id();
+		used_ids[id/8] &= ~(1<<(id&7));
+		// if possible, rewind the last line ID
+		while(  ( used_ids[last_id/8] & (1<<(last_id&7)) )==0  ) {
+			--last_id;
+		}
 		all_managed_lines.remove(line);
 		//destroy line object
 		delete line.get_rep();
@@ -242,21 +254,40 @@ void simlinemgmt_t::rotate90( sint16 y_size )
  */
 uint16 simlinemgmt_t::get_unique_line_id()
 {
-	for(uint16 i=0;  i<8192;  i++  ) {
-		if(used_ids[i]!=255) {
-DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","free id near %i",i*8);
-			for(uint16 id=0;  id<8;  id++ ) {
-				if((used_ids[i]&(1<<id))==0) {
-					used_ids[i] |= (1<<(id&7));
-DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()","New id %i",i*8+id);
-					return (i*8)+id;
+	++last_id;
+DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "Free ID near %u", last_id);
+	// first, try to find an ID larger than the last ID
+	const uint16 last_id_i = last_id / 8;
+	const uint16 last_id_j = last_id & 7;
+	uint16 j = last_id_j;
+	for(  uint16 i=last_id_i;  i<8192;  ++i  ) {
+		if(  used_ids[i]!=255  ) {
+			for(  ;  j<8;  ++j  ) {
+				if(  ( used_ids[i]&(1<<j) )==0  ) {
+					used_ids[i] |= (1<<j);
+					last_id = i * 8 + j;
+DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "New ID %i", last_id);
+					return last_id;
 				}
 			}
-			break;
+		}
+		j = 0;
+	}
+	// if no larger ID available, try to find an ID smaller than the last ID
+	for(  uint16 i=0;  i<=last_id_i;  ++i  ) {
+		if(  used_ids[i]!=255  ) {
+			for(  j=0;  j<8;  ++j  ) {
+				if(  ( used_ids[i]&(1<<j) )==0  ) {
+					used_ids[i] |= (1<<j);
+					last_id = i * 8 + j;
+DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "New ID %i", last_id);
+					return last_id;
+				}
+			}
 		}
 	}
 	// not found
-	dbg->error("simlinemgmt_t::get_unique_line_id()","No valid id found!");
+	dbg->error("simlinemgmt_t::get_unique_line_id()","No valid ID found!");
 	return INVALID_LINE_ID;
 }
 
