@@ -976,8 +976,8 @@ next_ware_check:
 	}
 
 	// now decide producer of electricity or normal ...
-	const sint32 promille = (electric_productivity*4000l)/total_electric_demand;
-	int no_electric = promille > welt->get_einstellungen()->get_electric_promille();
+	const sint64 promille = ((sint64)electric_productivity*4000l)/total_electric_demand;
+	int no_electric = promille > (sint64)welt->get_einstellungen()->get_electric_promille();
 	DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "production of electricity/total electrical demand is %i/%i (%i o/oo)", electric_productivity, total_electric_demand, promille );
 
 	bool not_yet_too_desperate_to_ignore_climates = false;
