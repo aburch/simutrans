@@ -535,6 +535,18 @@ void convoi_t::set_name(const char *name, bool with_new_id)
 	if (info) {
 		info->update_data();
 	}
+	if(  in_depot()  ) {
+		const grund_t *const ground = welt->lookup( get_home_depot() );
+		if(  ground  ) {
+			const depot_t *const depot = ground->get_depot();
+			if(  depot  ) {
+				depot_frame_t *const frame = dynamic_cast<depot_frame_t *>( win_get_magic( (long)depot ) );
+				if(  frame  ) {
+					frame->reset_convoy_name( self );
+				}
+			}
+		}
+	}
 }
 
 
@@ -2186,10 +2198,7 @@ void convoi_t::zeige_info()
 	if(  in_depot()  ) {
 		// Knightly : if ownership matches, we can try to open the depot dialog
 		if(  get_besitzer()==welt->get_active_player()  ) {
-			grund_t *ground = welt->lookup( front()->get_pos() );
-			if(  ground==NULL  ||  ground->get_depot()==NULL  ) {
-				ground = welt->lookup( get_home_depot() );
-			}
+			grund_t *const ground = welt->lookup( get_home_depot() );
 			if(  ground  ) {
 				depot_t *const depot = ground->get_depot();
 				if(  depot  ) {
