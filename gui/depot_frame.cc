@@ -19,6 +19,7 @@
 #include "../simline.h"
 #include "../simlinemgmt.h"
 #include "../vehicle/simvehikel.h"
+#include "../simmenu.h"
 
 #include "../besch/haus_besch.h"
 
@@ -36,6 +37,7 @@
 #include "../player/simplay.h"
 
 #include "../utils/simstring.h"
+#include "../utils/cbuffer_t.h"
 
 #include "../boden/wege/weg.h"
 
@@ -75,6 +77,7 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	bt_prev.add_listener(this);
 	add_komponente(&bt_prev);
 
+	inp_name.add_listener(this);
 	add_komponente(&inp_name);
 
 	bt_next.set_typ(button_t::arrowright);
@@ -189,6 +192,13 @@ DBG_DEBUG("depot_frame_t::depot_frame_t()","get_max_convoi_length()=%i",depot->g
 	// Hajo: Trigger layouting
 	set_resizemode(diagonal_resize);
 }
+
+depot_frame_t::~depot_frame_t()
+{
+	// change convoy name if necessary
+	rename_convoy( depot->get_convoi(icnv) );
+}
+
 
 void depot_frame_t::layout(koord *gr)
 {
@@ -406,9 +416,12 @@ void depot_frame_t::update_data()
 	* Reset counts and check for valid vehicles
 	*/
 	convoihandle_t cnv = depot->get_convoi(icnv);
-	if(cnv.is_bound() && cnv->get_vehikel_anzahl() > 0) {
-		tstrncpy(txt_cnv_name, cnv->get_internal_name(), lengthof(txt_cnv_name));
-		inp_name.set_text(txt_cnv_name, lengthof(txt_cnv_name));
+
+	// if select convoy is changed -> apply name changes, as well as reset text buffers and text input
+	if(  cnv!=prev_cnv  ) {
+		rename_convoy( prev_cnv );
+		reset_convoy_name( cnv );
+		prev_cnv = cnv;
 	}
 
 	// update the line selector
@@ -432,12 +445,44 @@ void depot_frame_t::update_data()
 	convoy_assembler.update_data();
 }
 
+void depot_frame_t::reset_convoy_name(convoihandle_t cnv)
+{
+	// reset convoy name only if the convoy is currently selected
+	if(  cnv.is_bound()  &&  cnv==depot->get_convoi(icnv)  ) {
+		tstrncpy(txt_old_cnv_name, cnv->get_name(), lengthof(txt_old_cnv_name));
+		tstrncpy(txt_cnv_name, cnv->get_name(), lengthof(txt_cnv_name));
+		inp_name.set_text(txt_cnv_name, lengthof(txt_cnv_name));
+	}
+}
+
+
+void depot_frame_t::rename_convoy(convoihandle_t cnv)
+{
+	if(  cnv.is_bound()  ) {
+		const char *t = inp_name.get_text();
+		// only change if old name and current name are the same
+		// otherwise some unintended undo if renaming would occur
+		if(  t  &&  t[0]  &&  strcmp(t, cnv->get_name())  &&  strcmp(txt_old_cnv_name, cnv->get_name())==0  ) {
+			// text changed => call tool
+			cbuffer_t buf(300);
+			buf.printf( "c%u,%s", cnv.get_id(), t );
+			werkzeug_t *w = create_tool( WKZ_RENAME_TOOL | SIMPLE_TOOL );
+			w->set_default_param( buf );
+			cnv->get_welt()->set_werkzeug( w, cnv->get_besitzer() );
+			// since init always returns false, it is safe to delete immediately
+			delete w;
+			// do not trigger this command again
+			tstrncpy(txt_old_cnv_name, t, lengthof(txt_old_cnv_name));
+		}
+	}
+}
+
+
+
 bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 {
 	convoihandle_t cnv = depot->get_convoi(icnv);
-	if(cnv.is_bound()) {
-		cnv->set_name(txt_cnv_name);
-	}
+	rename_convoy( cnv );
 
 	if(komp != NULL) {	// message from outside!
 		if(komp == &bt_start) {
@@ -457,6 +502,8 @@ bool depot_frame_t::action_triggered( gui_action_creator_t *komp,value_t p)
 		} else if(komp == &bt_sell) {
 			depot->call_depot_tool( 'v', cnv, NULL );
 			update_convoy();
+		} else if(komp == &inp_name) {
+			return true;	// already call rename_convoy() above
 		} else if(komp == &bt_next) {
 			if(++icnv == (int)depot->convoi_count()) {
 				icnv = -1;

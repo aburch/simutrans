@@ -14,6 +14,8 @@
 
 #include "../simtypes.h"
 
+#define INVALID_RDWR_ID (-1)
+
 /**
  * loadsave_t:
  *
