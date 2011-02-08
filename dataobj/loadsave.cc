@@ -823,34 +823,35 @@ void loadsave_t::end_tag(const char *tag)
 
 void loadsave_t::wr_obj_id(sint16 id)
 {
-	if(saving) {
-		if(!is_xml()) {
-			lsputc( id );
-		}
-		else {
-			sint64 ll=id;
-			rdwr_xml_number( ll, "id" );
-		}
+	if(!saving) {
+		dbg->fatal( "loadsave_t::rd_obj_id()", "must be only called during saving!" );
+	}
+	if(!is_xml()) {
+		lsputc( id );
+	}
+	else {
+		sint64 ll=id;
+		rdwr_xml_number( ll, "id" );
 	}
 }
 
 
 sint16 loadsave_t::rd_obj_id()
 {
-	sint16 id;
-	if(!saving) {
-		if(!is_xml()) {
-			sint8 idc;
-			read(&idc, sizeof(sint8));
-			id = (sint8)idc;
-		}
-		else {
-			sint64 ll;
-			rdwr_xml_number( ll, "id" );
-			return (sint16)ll;
-		}
+	if(saving) {
+		dbg->fatal( "loadsave_t::rd_obj_id()", "must be only called during reading!" );
+		return INVALID_RDWR_ID;
 	}
-	return id;
+	if(!is_xml()) {
+		sint8 idc;
+		read(&idc, sizeof(sint8));
+		return (sint8)idc;
+	}
+	else {
+		sint64 ll;
+		rdwr_xml_number( ll, "id" );
+		return (sint16)ll;
+	}
 }
 
 

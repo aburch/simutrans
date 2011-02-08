@@ -988,9 +988,9 @@ wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl
 	// some thing for the search
 	grund_t *to;
 	koord3d gr_pos;	// just the last valid pos ...
-	route_t::ANode *tmp;
+	route_t::ANode *tmp=NULL;
 	uint32 step = 0;
-	const grund_t* gr;
+	const grund_t* gr=NULL;
 
 	for( uint32 i = 0; i < start.get_count(); i++ ) {
 		gr = welt->lookup(start[i]);

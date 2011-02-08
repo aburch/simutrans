@@ -96,7 +96,7 @@ void simlinemgmt_t::check_create_id(linehandle_t new_line)
 	if(  id==INVALID_LINE_ID  ) {
 		id = get_unique_line_id();
 		new_line->set_line_id( id );
-		dbg->error("simlinemgmt_t::check_create_id()","New line id %i", id );
+		DBG_MESSAGE("simlinemgmt_t::check_create_id()","New line id %i", id );
 	}
 	else if(  id==REASSIGN_LINE_ID  ) {
 		id = get_unique_line_id();

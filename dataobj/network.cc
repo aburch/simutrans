@@ -77,7 +77,7 @@ bool network_initialize()
 		/* Let's load the network in windows */
 		WSADATA wsa;
 		if(int err = WSAStartup( MAKEWORD(2, 2), &wsa)) {
-			dbg->error("NetworkInitialize()","failed loading windows socket library");
+			dbg->error("NetworkInitialize()","failed loading windows socket library with %i", err);
 			return false;
 		}
 #endif /* _WIN32 */
@@ -590,7 +590,7 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 	fd_set fds;
 	FD_ZERO(&fds);
 
-	int s_max = socket_list_t::fill_set(&fds);
+	socket_list_t::fill_set(&fds);
 
 	// time out: MAC complains about too long timeouts
 	struct timeval tv;
@@ -647,7 +647,7 @@ void network_process_send_queues(int timeout)
 	fd_set fds;
 	FD_ZERO(&fds);
 
-	int s_max = socket_list_t::fill_set(&fds);
+	socket_list_t::fill_set(&fds);
 
 	// time out
 	struct timeval tv;
@@ -691,7 +691,7 @@ bool network_check_server_connection()
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 		FD_ZERO(&fds);
-		int s_max = socket_list_t::fill_set(&fds);
+		socket_list_t::fill_set(&fds);
 
 		int action = select( FD_SETSIZE, NULL, &fds, NULL, &tv );
 		if(  action<=0  ) {
