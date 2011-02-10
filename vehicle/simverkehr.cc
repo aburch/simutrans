@@ -23,6 +23,7 @@
 #include "../simimg.h"
 #include "../simconst.h"
 #include "../simtypes.h"
+#include "../simcity.h"
 
 #include "simverkehr.h"
 #ifdef DESTINATION_CITYCARS
@@ -484,9 +485,17 @@ bool stadtauto_t::sync_step(long delta_t)
 				current_speed = 48;
 			}
 			else {
-				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month) {
+				if(ms_traffic_jam>welt->ticks_per_world_month  &&  old_ms_traffic_jam<=welt->ticks_per_world_month) 
+				{
 					// message after two month, reset waiting timer
-					welt->get_message()->add_message( translator::translate("Excess traffic \nresults in traffic jams.\n"), get_pos().get_2d(), message_t::traffic_jams, COL_ORANGE );
+					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams, COL_ORANGE );
+					
+					// Increase a town's congestion rating if this occurs in a town.
+					stadt_t*  city = welt->get_city(get_pos().get_2d());
+					if(city &&  city->get_finance_history_month(0, HIST_CONGESTION) < city->get_finance_history_month(1, HIST_CONGESTION) + 20)
+					{
+						city->add_congestion(20);
+					}
 				}
 			}
 		}
