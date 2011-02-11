@@ -14,7 +14,7 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../simgraph.h"
 #include "../simtools.h"
 
@@ -27,6 +27,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
+#include "../player/simplay.h"
 #include "../vehicle/simvehikel.h"
 
 #include "../tpl/vector_tpl.h"

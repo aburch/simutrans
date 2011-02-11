@@ -22,7 +22,6 @@
 #include "../convoihandle_t.h"
 #include "../ifc/fahrer.h"
 #include "../boden/grund.h"
-#include "../boden/wege/weg.h"
 #include "../besch/vehikel_besch.h"
 #include "../vehicle/overtaker.h"
 #include "../tpl/slist_tpl.h"
