@@ -135,8 +135,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	maintenance = 0;
 
-	last_message_index = 0;
-
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
 }
@@ -897,8 +895,6 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 				}
 			}
 		}
-		last_message_index = 0;
-
 		// empty undo buffer
 		init_undo(road_wt,0);
 	}
@@ -970,9 +966,6 @@ void spieler_t::rotate90( const sint16 y_size )
 {
 	simlinemgmt.rotate90( y_size );
 	headquarter_pos.rotate90( y_size );
-	for(int n=0; n<=last_message_index; n++) {
-		text_pos[n].rotate90( y_size );
-	}
 }
 
 
