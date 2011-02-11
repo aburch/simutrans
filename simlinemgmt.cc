@@ -158,6 +158,10 @@ void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
 		if(  file->get_version()<101000  ) {
 			file->wr_obj_id("Linemanagement");
 		}
+
+		// ensure that lines are saved in the same order on all clients
+		sort_lines();
+
 		uint32 count = all_managed_lines.get_count();
 		file->rdwr_long(count);
 		for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
