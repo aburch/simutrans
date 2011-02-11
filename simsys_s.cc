@@ -103,8 +103,8 @@ static Uint8 hourglass_cursor_mask[] = {
 
 
 static SDL_Surface *screen;
-static int width = 640;
-static int height = 480;
+static int width = 16;
+static int height = 16;
 
 // switch off is a little faster (<3%)
 static int sync_blit = 0;
@@ -258,6 +258,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 #endif
 	int flags = screen->flags;
 
+	display_set_actual_width( w );
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
 	w = (w + 15) & 0x7FF0;
@@ -265,22 +266,24 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 		w = 16;
 	}
 
-	width = w;
-	height = h;
+	if(  w!=width  &&  h!=height  ) {
 
-	screen = SDL_SetVideoMode(width, height, bpp, flags);
-	printf("textur_resize()::screen=%p\n", screen);
-	if (screen) {
-		DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
-	}
-	else {
-		if (dbg) {
-			dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
+		width = w;
+		height = h;
+
+		screen = SDL_SetVideoMode(width, height, bpp, flags);
+		printf("textur_resize()::screen=%p\n", screen);
+		if (screen) {
+			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);
 		}
+		else {
+			if (dbg) {
+				dbg->warning("dr_textur_resize(SDL)", "screen is NULL. Good luck!");
+			}
+		}
+		fflush(NULL);
 	}
-	fflush(NULL);
 	*textur = (unsigned short*)screen->pixels;
-	display_set_actual_width( w );
 	return w;
 }
 
