@@ -116,8 +116,9 @@ void bruecke_t::laden_abschliessen()
 				gr->neuen_weg_bauen( weg, 0, welt->get_spieler(1) );
 			}
 			weg->set_max_speed(besch->get_topspeed());
+			// take ownership of way
+			spieler_t::add_maintenance( weg->get_besitzer(), -weg->get_besch()->get_wartung());
 			weg->set_besitzer(sp);
-			spieler_t::add_maintenance( sp, -weg->get_besch()->get_wartung());
 		}
 		spieler_t::add_maintenance( sp,  besch->get_wartung() );
 	}
