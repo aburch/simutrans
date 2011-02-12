@@ -15,6 +15,7 @@
 #include "../simworld.h"
 #include "../simwerkz.h"
 #include "../simmesg.h"
+#include "../simintr.h"
 #include "../player/simplay.h"
 #include "../simplan.h"
 #include "../simtools.h"
