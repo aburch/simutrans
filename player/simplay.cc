@@ -41,6 +41,7 @@
 #include "../besch/grund_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/sound_besch.h"
+#include "../besch/tunnel_besch.h"
 #include "../besch/weg_besch.h"
 
 #include "../boden/boden.h"
@@ -59,6 +60,7 @@
 #include "../dings/bruecke.h"
 #include "../dings/gebaeude.h"
 #include "../dings/leitung2.h"
+#include "../dings/tunnel.h"
 #include "../dings/wayobj.h"
 #include "../dings/zeiger.h"
 
@@ -609,11 +611,14 @@ void spieler_t::ai_bankrupt()
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
 			for(  slist_tpl<haltestelle_t::tile_t>::const_iterator iter_tiles = halt->get_tiles().begin(), end = halt->get_tiles().end();  iter_tiles != end;  ++iter_tiles  ) {
+				const grund_t *gr = iter_tiles->grund;
 				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
-					weg_t *w = iter_tiles->grund->get_weg_nr(wnr);
+					weg_t *w = gr->get_weg_nr(wnr);
 					if(  w  &&  w->get_besitzer()==this  ) {
 						// take ownership
-						spieler_t::add_maintenance( this, -w->get_besch()->get_wartung() );
+						if (wnr>1  ||  (!gr->ist_bruecke()  &&  !gr->ist_tunnel())) {
+							spieler_t::add_maintenance( this, -w->get_besch()->get_wartung() );
+						}
 						w->set_besitzer(NULL); // make public
 					}
 				}
@@ -685,8 +690,11 @@ void spieler_t::ai_bankrupt()
 							case ding_t::way:
 							{
 								weg_t *w=(weg_t *)dt;
-								if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
+								if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
 									add_maintenance( -w->get_besch()->get_wartung() );
+									w->set_besitzer( NULL );
+								}
+								else if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
 									w->set_besitzer( NULL );
 								}
 								else {
@@ -696,7 +704,12 @@ void spieler_t::ai_bankrupt()
 							}
 							case ding_t::bruecke:
 								add_maintenance( -((bruecke_t*)dt)->get_besch()->get_wartung() );
-								// fall through: make public
+								dt->set_besitzer( NULL );
+								break;
+							case ding_t::tunnel:
+								add_maintenance( -((tunnel_t*)dt)->get_besch()->get_wartung() );
+								dt->set_besitzer( NULL );
+								break;
 
 							default:
 								dt->set_besitzer( welt->get_spieler(1) );
