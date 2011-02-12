@@ -9,6 +9,7 @@
 #include "simplay.h"
 
 #include "../simhalt.h"
+#include "../simintr.h"
 #include "../simline.h"
 #include "../simmesg.h"
 #include "../simtools.h"
