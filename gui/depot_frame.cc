@@ -1070,6 +1070,10 @@ bool depot_frame_t::infowin_event(const event_t *ev)
 			win_set_pos( win_get_magic((long)next_dep), x, y );
 			get_welt()->change_world_position(next_dep->get_pos());
 		}
+		else {
+			// recenter on current depot
+			get_welt()->change_world_position(depot->get_pos());
+		}
 
 		return true;
 
