@@ -620,6 +620,8 @@ void spieler_t::ai_bankrupt()
 		}
 	}
 
+	// deactivate active tool (remove dummy grounds)
+	welt->set_werkzeug(werkzeug_t::general_tool[WKZ_ABFRAGE], this);
 
 	// next remove all ways, depot etc, that are not road or channels
 	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
@@ -630,11 +632,13 @@ void spieler_t::ai_bankrupt()
 				// remove tunnel and bridges first
 				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_besitzer()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
 					koord3d pos = gr->get_pos();
+
+					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
 					if (gr->ist_bruecke()) {
-						brueckenbauer_t::remove( welt, this, pos, gr->get_weg_nr(0)->get_waytype() );
+						brueckenbauer_t::remove( welt, this, pos, wt );
 					}
 					else {
-						tunnelbauer_t::remove( welt, this, pos, gr->get_weg_nr(0)->get_waytype() );
+						tunnelbauer_t::remove( welt, this, pos, wt );
 					}
 					// maybe there are some objects left (station on bridge head etc)
 					gr = plan->get_boden_in_hoehe(pos.z);
