@@ -504,19 +504,20 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		// since init always returns false, it is save to delete immediately
 		delete w;
 	}
+	scrolly.set_groesse( scrolly.get_groesse() );
 	// recheck lines
 	if (cnv.is_bound()) {
 		// unequal to line => remove from line ...
-		if(old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())) {
-			new_line = old_line;
-			init_line_selector();
-		}
-		else if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_schedule())) {
+		if(  new_line.is_bound()  &&  !fpl->matches(sp->get_welt(),new_line->get_schedule())  ) {
 			new_line = linehandle_t();
 			line_selector.set_selection(0);
 		}
+		// only assing old line, when new_line is not equal
+		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())  ) {
+			new_line = old_line;
+			init_line_selector();
+		}
 	}
-	scrolly.set_groesse( scrolly.get_groesse() );
 	return true;
 }
 
