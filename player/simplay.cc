@@ -56,6 +56,7 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
+#include "../dings/bruecke.h"
 #include "../dings/gebaeude.h"
 #include "../dings/leitung2.h"
 #include "../dings/wayobj.h"
@@ -636,6 +637,7 @@ void spieler_t::ai_bankrupt()
 					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
 					if (gr->ist_bruecke()) {
 						brueckenbauer_t::remove( welt, this, pos, wt );
+						// fails if powerline bridge somehow connected to powerline bridge of another player
 					}
 					else {
 						tunnelbauer_t::remove( welt, this, pos, wt );
@@ -660,12 +662,22 @@ void spieler_t::ai_bankrupt()
 							case ding_t::tramdepot:
 							case ding_t::strassendepot:
 							case ding_t::schiffdepot:
-							case ding_t::leitung:
 							case ding_t::senke:
 							case ding_t::pumpe:
 							case ding_t::wayobj:
 								dt->entferne(this);
 								delete dt;
+								break;
+							case ding_t::leitung:
+								if (gr->ist_bruecke()) {
+									add_maintenance( -((leitung_t*)dt)->get_besch()->get_wartung() );
+									// do not remove powerline from bridges
+									dt->set_besitzer( welt->get_spieler(1) );
+								}
+								else {
+									dt->entferne(this);
+									delete dt;
+								}
 								break;
 							case ding_t::gebaeude:
 								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
@@ -682,8 +694,12 @@ void spieler_t::ai_bankrupt()
 								}
 								break;
 							}
+							case ding_t::bruecke:
+								add_maintenance( -((bruecke_t*)dt)->get_besch()->get_wartung() );
+								// fall through: make public
+
 							default:
-								gr->obj_bei(i)->set_besitzer( welt->get_spieler(1) );
+								dt->set_besitzer( welt->get_spieler(1) );
 						}
 					}
 				}
