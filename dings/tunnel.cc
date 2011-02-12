@@ -122,7 +122,7 @@ void tunnel_t::laden_abschliessen()
 	}
 
 	if(sp) {
-		// change maintainance
+		// change maintenance
 		weg_t *weg = gr->get_weg(besch->get_waytype());
 		if(weg) {
 			weg->set_max_speed(besch->get_topspeed());
@@ -134,7 +134,7 @@ void tunnel_t::laden_abschliessen()
 
 
 
-// correct speed and maitainace
+// correct speed and maintenance
 void tunnel_t::entferne( spieler_t *sp2 )
 {
 	if(sp2==NULL) {

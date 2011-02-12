@@ -572,7 +572,7 @@ void brueckenbauer_t::baue_auffahrt(karte_t* welt, spieler_t* sp, koord3d end, k
 			bruecke->obj_add( lt );
 		}
 		else {
-			// remove maintainance - it will be added in leitung_t::laden_abschliessen
+			// remove maintenance - it will be added in leitung_t::laden_abschliessen
 			spieler_t::add_maintenance( sp, -lt->get_besch()->get_wartung());
 		}
 		// connect to neighbor tiles and networks, add maintenance

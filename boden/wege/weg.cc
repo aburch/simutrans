@@ -540,7 +540,7 @@ void weg_t::neuer_monat()
 }
 
 
-// correct speed and maitainace
+// correct speed and maintenance
 void weg_t::laden_abschliessen()
 {
 	spieler_t *sp = get_besitzer();

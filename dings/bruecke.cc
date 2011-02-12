@@ -91,7 +91,7 @@ void bruecke_t::rdwr(loadsave_t *file)
 
 
 
-// correct speed and maitainace
+// correct speed and maintenance
 void bruecke_t::laden_abschliessen()
 {
 	grund_t *gr = welt->lookup(get_pos());
@@ -107,7 +107,7 @@ void bruecke_t::laden_abschliessen()
 
 	spieler_t *sp=get_besitzer();
 	if(sp) {
-		// change maintainance
+		// change maintenance
 		if(besch->get_waytype()!=powerline_wt) {
 			weg_t *weg = gr->get_weg(besch->get_waytype());
 			if(weg==NULL) {
@@ -126,12 +126,12 @@ void bruecke_t::laden_abschliessen()
 
 
 
-// correct speed and maitainace
+// correct speed and maintenance
 void bruecke_t::entferne( spieler_t *sp2 )
 {
 	spieler_t *sp = get_besitzer();
 	if(sp) {
-		// on bridge => do nothing but change maintainance
+		// on bridge => do nothing but change maintenance
 		const grund_t *gr = welt->lookup(get_pos());
 		if(gr) {
 			weg_t *weg = gr->get_weg( besch->get_waytype() );
