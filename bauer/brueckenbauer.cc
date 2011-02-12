@@ -683,6 +683,17 @@ const char *brueckenbauer_t::remove(karte_t *welt, spieler_t *sp, koord3d pos, w
 				br->entferne(sp);
 				delete br;
 			}
+			leitung_t *lt = gr->get_leitung();
+			if (lt) {
+				spieler_t *old_owner = lt->get_besitzer();
+				// first delete powerline to decouple from the bridge powernet
+				lt->entferne(old_owner);
+				delete lt;
+				// .. now create powerline to create new powernet
+				lt = new leitung_t(welt, gr->get_pos(), old_owner);
+				lt->laden_abschliessen();
+				gr->obj_add(lt);
+			}
 		}
 		else {
 			ribi_t::ribi ribi = gr->get_weg_ribi_unmasked(wegtyp);
