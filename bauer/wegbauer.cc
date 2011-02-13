@@ -1095,13 +1095,12 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		// testing all four possible directions
 		for(int r=0; r<4; r++) {
 
-			to = NULL;
 			if(!gr->get_neighbour(to,invalid_wt,koord::nsow[r])) {
 				continue;
 			}
 
 			// something valid?
-			if(to==NULL  ||   welt->ist_markiert(to)) {
+			if(welt->ist_markiert(to)) {
 				continue;
 			}
 
@@ -1141,9 +1140,6 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		for(uint32 r=0; r<next_gr.get_count(); r++) {
 
 			to = next_gr[r].gr;
-			if(welt->ist_markiert(to)) {
-				continue;
-			}
 
 			// new values for cost g
 			uint32 new_g = tmp->g + next_gr[r].cost;
