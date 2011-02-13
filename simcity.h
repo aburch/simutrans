@@ -261,6 +261,8 @@ private:
 	// @author: jamespetts, February 2011
 	uint8 private_car_update_month;
 
+	sint32 number_of_cars;
+
 public:
 	/**
 	 * Returns pointer to history for city
@@ -659,6 +661,13 @@ public:
 	// @author: jamespetts
 	// September 2010
 	uint16 get_max_dimension();
+
+	/*@author: jamespetts
+	 * February 2011
+	 */
+	void add_car(stadtauto_t* car);
+
+	slist_tpl<stadtauto_t *> * get_current_cars() { return &current_cars; }
 
 };
 

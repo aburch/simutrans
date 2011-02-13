@@ -1738,8 +1738,6 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	base_pathing_counter = 0;
 
-	outstanding_cars = 0;
-
 	citycar_speed_average = 50;
 
 	city_road = NULL;
@@ -3176,6 +3174,7 @@ void karte_t::neuer_monat()
 	// roll city history and copy the new citicens (i.e. the new weight) into the stadt array
 	// no INT_CHECK() here, or dialoges will go crazy!!!
 	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	sint32 outstanding_cars = 0;
 	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
 		stadt_t* s = *i;
 		s->neuer_monat(recheck_road_connexions);
@@ -4642,13 +4641,6 @@ bool karte_t::laden(const char *filename)
 #endif
 	access_einstellungen()->set_filename(filename);
 	display_show_load_pointer(false);
-
-	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) 
-	{
-		stadt_t* s = *i;
-		outstanding_cars += s->get_outstanding_cars();
-	}
 
 	calc_generic_road_speed_city();
 	calc_generic_road_speed_intercity();

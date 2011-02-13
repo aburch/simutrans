@@ -32,8 +32,9 @@
 #include "simintr.h"
 
 #include "simdebug.h"
-#ifdef DEBUG_SIMRAND_CALLES
+#ifdef DEBUG_SIMRAND_CALLS
 #include "utils/cbuffer_t.h"
+#include "tpl/fixed_list_tpl.h"
 #endif
 
 
@@ -122,7 +123,7 @@ public:
 	// @author:jamespetts
 	slist_tpl<stadtauto_t *> unassigned_cars;
 	
-	void add_unassigned_car(stadtauto_t* car) { unassigned_cars.append(car); outstanding_cars --; } 
+	void add_unassigned_car(stadtauto_t* car) { unassigned_cars.append(car); } 
 
 	enum { NORMAL=0, PAUSE_FLAG = 0x01, FAST_FORWARD=0x02, FIX_RATIO=0x04 };
 
@@ -245,11 +246,6 @@ private:
 	sint64 finance_history_year[MAX_WORLD_HISTORY_YEARS][MAX_WORLD_COST];
 	sint64 finance_history_month[MAX_WORLD_HISTORY_MONTHS][MAX_WORLD_COST];
 	
-	// The number of cars that should be in the world somewhere, but are not
-	// in any particular city's list.
-	//@author: jamespetts
-	sint32 outstanding_cars;
-
 	// word record of speed ...
 	class speed_record_t {
 	public:

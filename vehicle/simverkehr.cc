@@ -430,13 +430,6 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 {
 	rdwr(file);
 		
-	//No provision for saving the destinations yet.
-	target = koord::invalid;
-	
-	current_list = &welt->unassigned_cars;
-	welt->add_unassigned_car(this);
-
-	ms_traffic_jam = 0;
 	if(besch) {
 		welt->sync_add(this);
 	}
@@ -462,6 +455,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
 	calc_bild();
 	welt->buche( +1, karte_t::WORLD_CITYCARS );
 	current_list = car_list;
+	origin = pos.get_2d();
 }
 
 
@@ -489,13 +483,6 @@ bool stadtauto_t::sync_step(long delta_t)
 				{
 					// message after two month, reset waiting timer
 					welt->get_message()->add_message( translator::translate("To heavy traffic\nresults in traffic jam.\n"), get_pos().get_2d(), message_t::traffic_jams, COL_ORANGE );
-					
-					// Increase a town's congestion rating if this occurs in a town.
-					stadt_t*  city = welt->get_city(get_pos().get_2d());
-					if(city &&  city->get_finance_history_month(0, HIST_CONGESTION) < city->get_finance_history_month(1, HIST_CONGESTION) + 20)
-					{
-						city->add_congestion(20);
-					}
 				}
 			}
 		}
@@ -513,7 +500,7 @@ bool stadtauto_t::sync_step(long delta_t)
 		}
 	}
 
-	return time_to_life>0;
+	return time_to_life > 0;
 }
 
 
@@ -580,6 +567,33 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	else {
 		file->rdwr_byte(tiles_overtaking);
 		set_tiles_overtaking( tiles_overtaking );
+	}
+
+	if(file->get_experimental_version() >= 9 && file->get_version() >= 1100000)
+	{
+		file->rdwr_long(ms_traffic_jam);
+		target.rdwr(file);
+		origin.rdwr(file);
+		stadt_t* const city = welt->get_city(origin);
+		if(city)
+		{
+			city->add_car(this);
+			current_list = city->get_current_cars();
+		}
+		else
+		{
+			current_list = &welt->unassigned_cars;
+			welt->add_unassigned_car(this);
+		}
+	}
+
+	else if(file->is_loading())
+	{
+		ms_traffic_jam = 0;
+		target = koord::invalid;
+		origin = koord::invalid;
+		current_list = &welt->unassigned_cars;
+		welt->add_unassigned_car(this);
 	}
 
 	// do not start with zero speed!
@@ -656,11 +670,11 @@ bool stadtauto_t::ist_weg_frei(const grund_t *gr) //Frie = "freely" (Babelfish)
 								// otherwise the overtaken car would stop for us ...
 								if (automobil_t const* const car = ding_cast<automobil_t>(dt)) {
 									convoi_t* const cnv = car->get_convoi();
-									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_min_top_speed(), cnv->get_length()*16, diagonal_length)  ) {
+									if(  cnv==NULL  ||  !can_overtake( cnv, cnv->get_akt_speed(), cnv->get_length()*16, diagonal_length)  ) {
 										frei = false;
 									}
 								} else if (stadtauto_t* const caut = ding_cast<stadtauto_t>(dt)) {
-									if ( !can_overtake(caut, caut->get_besch()->get_geschw(), 256, diagonal_length) ) {
+									if ( !can_overtake(caut, caut->get_current_speed(), 256, diagonal_length) ) {
 										frei = false;
 									}
 								}
@@ -981,7 +995,12 @@ void stadtauto_t::calc_current_speed()
 
 void stadtauto_t::info(cbuffer_t & buf) const
 {
+	const stadt_t* const origin_city = welt->get_city(origin);
+	const stadt_t* const destination_city = welt->get_city(target);
+	const char* origin_name = origin_city ? origin_city->get_name() : translator::translate("keine");
+	const char* destination_name = destination_city ? destination_city->get_name() : translator::translate("keine");
 	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), speed_to_kmh(current_speed), speed_to_kmh(besch->get_geschw()), dx, dy);
+	buf.printf(translator::translate("\nOrigin: %s\nDestination: %s"), origin_name, destination_name);
 }
 
 
@@ -1078,7 +1097,8 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 		}
 
 		// street gets too slow (TODO: should be able to be correctly accounted for)
-		if(  besch->get_geschw() > kmh_to_speed(str->get_max_speed())  ) {
+		//if(  besch->get_geschw() > kmh_to_speed(str->get_max_speed())  ) {
+		if(  current_speed > kmh_to_speed(str->get_max_speed())  ) {
 			return false;
 		}
 

@@ -67,8 +67,6 @@
 
 karte_t* stadt_t::welt = NULL; // one is enough ...
 
-sint32 number_of_cars;
-
 // Private car ownership information.
 // @author: jamespetts
 // (But much of this code is adapted from the speed bonus code,
@@ -1430,6 +1428,8 @@ next_name:;
 
 	private_car_update_month = welt->step_next_private_car_update_month();
 
+	number_of_cars = 0;
+
 }
 
 
@@ -1722,6 +1722,8 @@ void stadt_t::rdwr(loadsave_t* file)
 			k = attraction_iter.get_current_key();
 			k.rdwr(file);
 		}
+
+		file->rdwr_long(number_of_cars);
 	}
 
 	if(file->is_loading()) 
@@ -1754,6 +1756,7 @@ void stadt_t::rdwr(loadsave_t* file)
 			}
 
 			// Industries
+			
 			file->rdwr_long(count);
 			for(uint32 x = 0; x < count; x ++)
 			{
@@ -1763,6 +1766,7 @@ void stadt_t::rdwr(loadsave_t* file)
 			}
 
 			// Attractions
+			
 			file->rdwr_long(count);
 			for(uint32 x = 0; x < count; x ++)
 			{
@@ -1770,6 +1774,8 @@ void stadt_t::rdwr(loadsave_t* file)
 				k.rdwr(file);
 				connected_attractions.put(k, time);
 			}
+
+			file->rdwr_long(number_of_cars);
 		}
 
 		else
@@ -2210,7 +2216,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		// everywhere will become completely clogged with traffic. Linear rather than logorithmic scaling so
 		// that the player can have a better idea visually of the amount of traffic.
 
-#define DESTINATION_CITYCARS
+//#define DESTINATION_CITYCARS
 
 #ifdef DESTINATION_CITYCARS 
 		// Subtract incoming trips and cars already generated to prevent double counting.
@@ -2225,63 +2231,63 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 			break;
 
 		case 1:
-			traffic_level = 0.001F;
+			traffic_level = 0.005F;
 			break;
 			
 			case 2:
-			traffic_level = 0.005F;
-			break;
-
-			case 3:
 			traffic_level = 0.01F;
 			break;
 
-		case 4:
+			case 3:
 			traffic_level = 0.02F;
 			break;
 
-		case 5:
+		case 4:
 			traffic_level = 0.025F;
 			break;
 
-		case 6:
+		case 5:
 			traffic_level = 0.05F;
 			break;
 
-		case 7:
-			traffic_level = 0.075F;
-			break;
-
-		case 8:
+		case 6:
 			traffic_level = 0.1F;
 			break;
 
-		case 9:
-			traffic_level = 0.15F;
-			break;
-
-		case 10:
+		case 7:
 			traffic_level = 0.2F;
 			break;
 
-		case 11:
+		case 8:
 			traffic_level = 0.25F;
 			break;
 
-		case 12:
+		case 9:
 			traffic_level = 0.33F;
 			break;
 
-		case 13:
+		case 10:
 			traffic_level = 0.5F;
 			break;
 
+		case 11:
+			traffic_level = 0.6125F; // Average car occupancy of 1.6 = 0.6125.
+			break;
+
+		case 12:
+			traffic_level = 0.67F; 
+			break;
+
+		case 13:
+			traffic_level = 0.75F;
+			break;
+
 		case 14:
-			traffic_level = 0.66F;
+			traffic_level = 0.85F;
 			break;
 
 		case 15:
-			traffic_level = 0.75F;
+			traffic_level = 0.9F;
 			break;
 
 		case 16:
@@ -2292,7 +2298,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		number_of_cars = factor * traffic_level;
 		incoming_private_cars = 0;
 #else
-		//uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
+		uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
 #endif
 
 		while(!current_cars.empty() && (sint32)current_cars.get_count() > number_of_cars)
@@ -2328,6 +2334,11 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 sint32 stadt_t::get_outstanding_cars()
 {
 	return number_of_cars - current_cars.get_count();
+}
+
+void stadt_t::add_car(stadtauto_t* car)
+{
+	current_cars.append(car);
 }
 
 
@@ -4090,10 +4101,12 @@ void stadt_t::baue_gebaeude(const koord k, bool new_town)
 }
 
 
-void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 level, koord target)
+void stadt_t::erzeuge_verkehrsteilnehmer(koord pos, sint32 /*level*/, koord target)
 {
 	const int verkehr_level = welt->get_einstellungen()->get_verkehr_level();
-	if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
+	//if (verkehr_level > 0 && level % (17 - verkehr_level) == 0) {
+	if(current_cars.get_count() < number_of_cars)
+	{
 		koord k;
 		for (k.y = pos.y - 1; k.y <= pos.y + 1; k.y++) {
 			for (k.x = pos.x - 1; k.x <= pos.x + 1; k.x++) {
