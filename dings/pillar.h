@@ -2,15 +2,13 @@
 #define dings_pillar_h
 
 #include "../simdings.h"
-#include "../simworld.h"
-#include "../besch/bruecke_besch.h"
 
 /**
  * Brueckenteile (sichtbar)
  *
  * Hj. Malthaner
  */
-
+class bruecke_besch_t;
 class loadsave_t;
 class karte_t;
 

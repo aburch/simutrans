@@ -132,12 +132,6 @@ protected:
 
 	slist_tpl<income_message_t *>messages;
 
-	char  texte[50][32];
-	sint8 text_alter[50];
-	koord text_pos[50];
-
-	int last_message_index;
-
 	void add_message(koord k, sint32 summe);
 
 	/**
@@ -448,7 +442,4 @@ public:
 	void ai_bankrupt();
 };
 
-
-
-/**************************************** AI-sutff from here ******************************************/
 #endif

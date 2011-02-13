@@ -26,8 +26,9 @@
 #include "../vehicle/simvehikel.h"
 #include "../simwin.h"
 #include "../simlinemgmt.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../utils/simstring.h"
+#include "../player/simplay.h"
 
 #include "../bauer/vehikelbauer.h"
 

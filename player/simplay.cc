@@ -41,6 +41,7 @@
 #include "../besch/grund_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/sound_besch.h"
+#include "../besch/tunnel_besch.h"
 #include "../besch/weg_besch.h"
 
 #include "../boden/boden.h"
@@ -56,8 +57,10 @@
 #include "../dataobj/translator.h"
 #include "../dataobj/umgebung.h"
 
+#include "../dings/bruecke.h"
 #include "../dings/gebaeude.h"
 #include "../dings/leitung2.h"
+#include "../dings/tunnel.h"
 #include "../dings/wayobj.h"
 #include "../dings/zeiger.h"
 
@@ -135,8 +138,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	for (int maint=0; maint < MAINT_COUNT; maint++) 
 		maintenance[maint] = 0;
-
-	last_message_index = 0;
 
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);
@@ -752,11 +753,14 @@ void spieler_t::ai_bankrupt()
 		if(  halt->get_besitzer()==welt->get_spieler(1)  ) {
 			// only concerns public stops tiles
 			for(  slist_tpl<haltestelle_t::tile_t>::const_iterator iter_tiles = halt->get_tiles().begin(), end = halt->get_tiles().end();  iter_tiles != end;  ++iter_tiles  ) {
+				const grund_t *gr = iter_tiles->grund;
 				for(  uint8 wnr=0;  wnr<2;  wnr++  ) {
-					weg_t *w = iter_tiles->grund->get_weg_nr(wnr);
+					weg_t *w = gr->get_weg_nr(wnr);
 					if(  w  &&  w->get_besitzer()==this  ) {
 						// take ownership
-						spieler_t::add_maintenance( this, -w->get_besch()->get_wartung() );
+						if (wnr>1  ||  (!gr->ist_bruecke()  &&  !gr->ist_tunnel())) {
+							spieler_t::add_maintenance( this, -w->get_besch()->get_wartung() );
+						}
 						w->set_besitzer(NULL); // make public
 					}
 				}
@@ -764,6 +768,8 @@ void spieler_t::ai_bankrupt()
 		}
 	}
 
+	// deactivate active tool (remove dummy grounds)
+	welt->set_werkzeug(werkzeug_t::general_tool[WKZ_ABFRAGE], this);
 
 	// next remove all ways, depot etc, that are not road or channels
 	for( int y=0;  y<welt->get_groesse_y();  y++  ) {
@@ -774,11 +780,14 @@ void spieler_t::ai_bankrupt()
 				// remove tunnel and bridges first
 				if(  gr->get_top()>0  &&  gr->obj_bei(0)->get_besitzer()==this   &&  (gr->ist_bruecke()  ||  gr->ist_tunnel())  ) {
 					koord3d pos = gr->get_pos();
+
+					waytype_t wt = gr->hat_wege() ? gr->get_weg_nr(0)->get_waytype() : powerline_wt;
 					if (gr->ist_bruecke()) {
-						brueckenbauer_t::remove( welt, this, pos, gr->get_weg_nr(0)->get_waytype() );
+						brueckenbauer_t::remove( welt, this, pos, wt );
+						// fails if powerline bridge somehow connected to powerline bridge of another player
 					}
 					else {
-						tunnelbauer_t::remove( welt, this, pos, gr->get_weg_nr(0)->get_waytype() );
+						tunnelbauer_t::remove( welt, this, pos, wt );
 					}
 					// maybe there are some objects left (station on bridge head etc)
 					gr = plan->get_boden_in_hoehe(pos.z);
@@ -800,12 +809,22 @@ void spieler_t::ai_bankrupt()
 							case ding_t::tramdepot:
 							case ding_t::strassendepot:
 							case ding_t::schiffdepot:
-							case ding_t::leitung:
 							case ding_t::senke:
 							case ding_t::pumpe:
 							case ding_t::wayobj:
 								dt->entferne(this);
 								delete dt;
+								break;
+							case ding_t::leitung:
+								if (gr->ist_bruecke()) {
+									add_maintenance( -((leitung_t*)dt)->get_besch()->get_wartung() );
+									// do not remove powerline from bridges
+									dt->set_besitzer( welt->get_spieler(1) );
+								}
+								else {
+									dt->entferne(this);
+									delete dt;
+								}
 								break;
 							case ding_t::gebaeude:
 								hausbauer_t::remove( welt, this, (gebaeude_t *)dt );
@@ -813,7 +832,10 @@ void spieler_t::ai_bankrupt()
 							case ding_t::way:
 							{
 								weg_t *w=(weg_t *)dt;
-								if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt  ) {
+								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
+									w->set_besitzer( NULL );
+								}
+								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
 									add_maintenance( -w->get_besch()->get_wartung() );
 									w->set_besitzer( NULL );
 								}
@@ -822,8 +844,17 @@ void spieler_t::ai_bankrupt()
 								}
 								break;
 							}
+							case ding_t::bruecke:
+								add_maintenance( -((bruecke_t*)dt)->get_besch()->get_wartung() );
+								dt->set_besitzer( NULL );
+								break;
+							case ding_t::tunnel:
+								add_maintenance( -((tunnel_t*)dt)->get_besch()->get_wartung() );
+								dt->set_besitzer( NULL );
+								break;
+
 							default:
-								gr->obj_bei(i)->set_besitzer( welt->get_spieler(1) );
+								dt->set_besitzer( welt->get_spieler(1) );
 						}
 					}
 				}
@@ -1159,8 +1190,6 @@ DBG_DEBUG("spieler_t::rdwr()","player %i: loading %i halts.",welt->sp2num( this 
 				}
 			}
 		}
-		last_message_index = 0;
-
 		// empty undo buffer
 		init_undo(road_wt,0);
 	}
@@ -1248,9 +1277,6 @@ void spieler_t::rotate90( const sint16 y_size )
 {
 	simlinemgmt.rotate90( y_size );
 	headquarter_pos.rotate90( y_size );
-	for(int n=0; n<=last_message_index; n++) {
-		text_pos[n].rotate90( y_size );
-	}
 }
 
 

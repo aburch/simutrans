@@ -7,9 +7,10 @@
 #include "loadsave.h"
 #include "gameinfo.h"
 #include "../simtools.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../simmesg.h"
 #include "../simversion.h"
+#include "../dataobj/umgebung.h"
 #include "../player/simplay.h"
 
 #ifdef _MSC_VER

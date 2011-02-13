@@ -13,6 +13,8 @@
 
 #include "../bauer/brueckenbauer.h"
 
+#include "../besch/bruecke_besch.h"
+
 #include "../boden/grund.h"
 
 #include "../dataobj/loadsave.h"

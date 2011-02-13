@@ -29,8 +29,6 @@
 
 #include "simplan.h"
 
-#include "simintr.h"
-
 #include "simdebug.h"
 #ifdef DEBUG_SIMRAND_CALLS
 #include "utils/cbuffer_t.h"

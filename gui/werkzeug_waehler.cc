@@ -11,7 +11,7 @@
 #include "../simskin.h"
 #include "../simwin.h"
 #include "../simgraph.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../besch/skin_besch.h"
 #include "../besch/sound_besch.h"
 #include "../dataobj/umgebung.h"

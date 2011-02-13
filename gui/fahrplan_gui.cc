@@ -14,7 +14,7 @@
 #include "../simhalt.h"
 #include "../simskin.h"
 #include "../simworld.h"
-#include "../simwerkz.h"
+#include "../simmenu.h"
 #include "../simgraph.h"
 #include "../simtools.h"
 
@@ -27,6 +27,7 @@
 #include "../dataobj/loadsave.h"
 #include "../dataobj/translator.h"
 
+#include "../player/simplay.h"
 #include "../vehicle/simvehikel.h"
 
 #include "../tpl/vector_tpl.h"
@@ -536,19 +537,20 @@ DBG_MESSAGE("fahrplan_gui_t::action_triggered()","komp=%p combo=%p",komp,&line_s
 		// since init always returns false, it is save to delete immediately
 		delete w;
 	}
+	scrolly.set_groesse( scrolly.get_groesse() );
 	// recheck lines
 	if (cnv.is_bound()) {
 		// unequal to line => remove from line ...
-		if(old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())) {
-			new_line = old_line;
-			init_line_selector();
-		}
-		else if(new_line.is_bound()  &&   !fpl->matches(sp->get_welt(),new_line->get_schedule())) {
+		if(  new_line.is_bound()  &&  !fpl->matches(sp->get_welt(),new_line->get_schedule())  ) {
 			new_line = linehandle_t();
 			line_selector.set_selection(0);
 		}
+		// only assing old line, when new_line is not equal
+		if(  !new_line.is_bound()  &&  old_line.is_bound()  &&   fpl->matches(sp->get_welt(),old_line->get_schedule())  ) {
+			new_line = old_line;
+			init_line_selector();
+		}
 	}
-	scrolly.set_groesse( scrolly.get_groesse() );
 	return true;
 }
 
@@ -560,13 +562,28 @@ void fahrplan_gui_t::init_line_selector()
 	int selection = -1;
 	sp->simlinemgmt.sort_lines();	// to take care of renaming ...
 	sp->simlinemgmt.get_lines(fpl->get_type(), &lines);
-	new_line = linehandle_t();
+
+	// keep assignment with identical schedules
+	if(  new_line.is_bound()  &&  !fpl->matches( sp->get_welt(), new_line->get_schedule() )  ) {
+		if(  old_line.is_bound()  &&  fpl->matches( sp->get_welt(), old_line->get_schedule() )  ) {
+			new_line = old_line;
+		}
+		else {
+			new_line = linehandle_t();
+		}
+	}
+
 	for (vector_tpl<linehandle_t>::const_iterator i = lines.begin(), end = lines.end(); i != end; i++) {
 		linehandle_t line = *i;
 		line_selector.append_element( new line_scrollitem_t(line) );
-		if(  fpl->matches(sp->get_welt(),line->get_schedule() )  ) {
+		if(  !new_line.is_bound()  ) {
+			if(  fpl->matches( sp->get_welt(), line->get_schedule() )  ) {
+				selection = line_selector.count_elements() - 1;
+				new_line = line;
+			}
+		}
+		else if(  line==new_line  ) {
 			selection = line_selector.count_elements() - 1;
-			new_line = line;
 		}
 	}
 	line_selector.set_selection( selection );

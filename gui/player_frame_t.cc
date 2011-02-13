@@ -91,7 +91,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 
 		// income label
 		ai_income[i] = new gui_label_t(account_str[i], MONEY_PLUS, gui_label_t::money);
-		ai_income[i]->set_pos( koord( 225, 8+i*2*LINESPACE ) );
+		ai_income[i]->set_pos( koord( 261, 8+i*2*LINESPACE ) );
 		add_komponente( ai_income[i] );
 	}
 
@@ -104,7 +104,7 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 	freeplay.pressed = welt->get_einstellungen()->is_freeplay();
 	add_komponente( &freeplay );
 
-	set_fenstergroesse(koord(260, (MAX_PLAYER_COUNT-1)*LINESPACE*2+16+14+4));
+	set_fenstergroesse(koord(295, (MAX_PLAYER_COUNT-1)*LINESPACE*2+16+14+4));
 	update_data();
 }
 
@@ -264,7 +264,7 @@ void ki_kontroll_t::zeichnen(koord pos, koord gr)
 				double account=sp->get_konto_als_double();
 				money_to_string(account_str[i], account );
 				ai_income[i]->set_color( account>=0.0 ? MONEY_PLUS : MONEY_MINUS );
-				ai_income[i]->set_pos( koord( 225, 8+i*2*LINESPACE ) );
+				ai_income[i]->set_pos( koord( 261, 8+i*2*LINESPACE ) );
 			}
 		}
 		else {

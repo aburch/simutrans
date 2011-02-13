@@ -3402,7 +3402,7 @@ void karte_t::recalc_average_speed()
 							translator::translate("Production of %s has been stopped:\n%s\n"),
 							vehicle_type,
 							translator::translate(info->get_name()));
-							msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
+						msg->add_message(buf,koord::invalid,message_t::new_vehicle,NEW_VEHICLE,info->get_basis_bild());
 					}
 
 					const uint16 obsolete_month = info->get_obsolete_year_month(this);
@@ -4777,6 +4777,8 @@ DBG_DEBUG("karte_t::laden", "einstellungen loaded (groesse %i,%i) timeline=%i be
 
 DBG_MESSAGE("karte_t::laden()","savegame loading at tick count %i",ticks);
 	recalc_average_speed();	// resets timeline
+	// recalc_average_speed may have opened message windows
+	destroy_all_win(true);
 
 DBG_MESSAGE("karte_t::laden()", "init player");
 	for(int i=0; i<MAX_PLAYER_COUNT; i++) {
