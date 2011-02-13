@@ -690,11 +690,11 @@ void spieler_t::ai_bankrupt()
 							case ding_t::way:
 							{
 								weg_t *w=(weg_t *)dt;
-								if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
-									add_maintenance( -w->get_besch()->get_wartung() );
+								if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
 									w->set_besitzer( NULL );
 								}
-								else if (gr->ist_bruecke()  ||  gr->ist_tunnel()) {
+								else if(w->get_waytype()==road_wt  ||  w->get_waytype()==water_wt) {
+									add_maintenance( -w->get_besch()->get_wartung() );
 									w->set_besitzer( NULL );
 								}
 								else {
