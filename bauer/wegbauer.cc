@@ -779,23 +779,56 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 
 	/*
 	 * now check existing ways:
-	 * no tunnels/bridges at crossings and no track tunnels/bridges on roads (bot road tunnels/bridges on tram are allowed).
+	 * no tunnels/bridges at crossings and no track tunnels/bridges on roads (but road tunnels/bridges on tram are allowed).
 	 * (keep in mind, that our waytype isn't currently on the tile and will be built later)
 	 */
-	if(  from->has_two_ways()  ) {
-		if(  from->ist_uebergang()  ||  besch->get_wtyp() != road_wt  ) {
-			return;
-		}
-	}
-	else if(  from->hat_wege()  ) {
-		// ground has (currently) exact one way
-		weg_t *w = from->get_weg_nr(0);
-		if(  w->get_besch()->get_styp() != weg_t::type_tram  &&  w->get_besch() != besch  ) {
-			return;
+	const weg_t *way0 = from->get_weg_nr(0);
+	const weg_t *way1 = from->get_weg_nr(1);
+	if(  way0  ) {
+		switch(  bautyp&bautyp_mask  ) {
+			case schiene_tram:
+			case strasse: {
+				const weg_t *other = way1;
+				if (  way0->get_waytype() != besch->get_wtyp()  ) {
+					if (  way1  ) {
+						// two different ways
+						return;
+					}
+					other = way0;
+				}
+				if (  other  ) {
+					if (  (bautyp&bautyp_mask) == strasse  ) {
+						if (  other->get_waytype() != track_wt  ||  other->get_besch()->get_styp()!=weg_t::type_tram  ) {
+							// road only on tram
+							return;
+						}
+					}
+					else {
+						if (  other->get_waytype() != road_wt  ) {
+							// tram only on road
+							return;
+						}
+					}
+				}
+			}
+
+			default:
+				if (way0->get_waytype()!=besch->get_wtyp()  ||  way1!=NULL) {
+					// no other ways allowed
+					return;
+				}
 		}
 	}
 
 	const koord zv=from->get_pos().get_2d()-parent_from->get_pos().get_2d();
+	const ribi_t::ribi ribi = ribi_typ(zv);
+
+	// now check ribis of existing ways
+	const ribi_t::ribi wayribi = way0 ? way0->get_ribi_unmasked() | (way1 ? way1->get_ribi_unmasked() : ribi_t::keine) : ribi_t::keine;
+	if (  wayribi & (~ribi)  ) {
+		// curves at bridge start
+		return;
+	}
 
 	// ok, so now we do a closer investigation
 	if(  bruecke_besch && (  ribi_typ(from->get_grund_hang()) == ribi_t::rueckwaerts(ribi_typ(zv))  ||  from->get_grund_hang() == 0  )
