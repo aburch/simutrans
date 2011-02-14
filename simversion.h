@@ -3,18 +3,18 @@
 
 #define MAKEOBJ_VERSION "51"
 
-#define VERSION_NUMBER "102.3 Nightly"
-#define WIDE_VERSION_NUMBER L"102.3 Nightly"
+#define VERSION_NUMBER "110.0"
+#define WIDE_VERSION_NUMBER L"110.0"
 
 #define VERSION_DATE __DATE__
 
 #define SAVEGAME_PREFIX  "Simutrans "
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
-#define SAVEGAME_VER_NR  "0.102.2"
+#define SAVEGAME_VER_NR  "0.110.0"
 #define SERVER_SAVEGAME_VER_NR  "0.110.0"
 
-#define RES_VERSION_NUMBER  0, 102, 3, 0
+#define RES_VERSION_NUMBER  0, 110, 0, 0
 
 #define ANNOUNCE_SERVER "simutrans-germany.com:80"
 
