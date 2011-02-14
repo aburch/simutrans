@@ -129,13 +129,13 @@ Section "!pak64 (standard)" pak64
 SectionEnd
 
 
-Section /o "pak64 Food addon 102.2.1"
+Section /o "pak64 Food addon 110.1"
   AddSize 272
   StrCmp $multiuserinstall "1" InstallInUserDir
 
   ; no multiuser => install in normal directory
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-1/"
-  StrCpy $archievename "simupak64-addon-food-102-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0/"
+  StrCpy $archievename "simupak64-addon-food-110-0.zip"
   StrCpy $downloadname "pak64"
   Call DownloadInstall
   goto FinishFood64
@@ -144,13 +144,13 @@ InstallInUserDir:
   ; else install in User directory
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-1/simupak64-addon-food-102-2-1.zip" "$Temp\simupak64-addon-food-102-2-1.zip"
+  NSISdl::download "http://downloads.sourceforge.net/project/simutrans/pak64/110-0/simupak64-addon-food-110-0.zip" "$Temp\simupak64-addon-food-110-0.zip"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of food addon pak64 failed: $R0"
      Abort
 
-  ZipDLL::extractall "$TEMP\simupak64-addon-food-102-2-1.zip" "$TEMP"
+  ZipDLL::extractall "$TEMP\simupak64-addon-food-110-0.zip" "$TEMP"
   Pop $0
   StrCmp $0 "success" +4
     DetailPrint "$0" ;print error message to log
@@ -166,7 +166,7 @@ SectionGroupEnd
 
 
 
-Section /o "pak64.german (Freeware) 102.2.2" pak64german
+Section /o "pak64.german (Freeware) 110.0" pak64german
   AddSize 18740
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak.german_110-0/"
   StrCpy $archievename "pak.german_0-110-0_full.zip"

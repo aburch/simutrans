@@ -258,6 +258,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 #endif
 	int flags = screen->flags;
 
+
 	display_set_actual_width( w );
 	// some cards need those alignments
 	// especially 64bit want a border of 8bytes
@@ -266,12 +267,12 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 		w = 16;
 	}
 
-	if(  w!=width  &&  h!=height  ) {
+	if(  w!=screen->w  &&  h!=screen->h  ) {
 
 		width = w;
 		height = h;
 
-		screen = SDL_SetVideoMode(width, height, bpp, flags);
+		screen = SDL_SetVideoMode(w, h, bpp, flags);
 		printf("textur_resize()::screen=%p\n", screen);
 		if (screen) {
 			DBG_MESSAGE("dr_textur_resize(SDL)", "SDL realized screen size width=%d, height=%d (requested w=%d, h=%d)", screen->w, screen->h, w, h);

@@ -1,4 +1,4 @@
-Release of 110.0 (r4301 on 14-Feb-2011):
+Release of 110.0 (r4303 on 14-Feb-2011):
 
 	CHANGE: default savegame now bzip2 (games 33% smaller)
 	ADD: Odometer and distance per month available for convois/lines
