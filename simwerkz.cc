@@ -5166,7 +5166,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 					if(  fg  ) {
 						fg->init_line_selector();
 					}
-					schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic((long)&(sp->simlinemgmt)));
+					schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(magic_line_management_t+sp->get_player_nr()));
 					if(  sl  ) {
 						sl->show_lineinfo( line );
 					}
@@ -5646,7 +5646,7 @@ bool wkz_rename_t::init(karte_t* const welt, spieler_t *sp)
 			if(  line.is_bound()  ) {
 				line->set_name( p );
 
-				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic((long)&(sp->simlinemgmt)));
+				schedule_list_gui_t *sl = dynamic_cast<schedule_list_gui_t *>(win_get_magic(magic_line_management_t+sp->get_player_nr()));
 				if(  sl  ) {
 					sl->update_data( line );
 				}
