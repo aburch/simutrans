@@ -4102,31 +4102,34 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
+	KOORD_VAL old_actual_disp_width = disp_actual_width;
 	disp_actual_width = max( 16, w );
 	if(  h<=0  ) {
 		h = 64;
 	}
 	// only resize, if internal values are different
 	if (disp_width != w || disp_height != h) {
-		disp_width = w;
-		disp_height = h;
+		KOORD_VAL new_width = dr_textur_resize(&textur, w, h, 16);
+		if(  new_width!=disp_width  ||  disp_height != h) {
 
-		guarded_free(tile_dirty);
-		guarded_free(tile_dirty_old);
+			disp_width = new_width;
+			disp_height = h;
 
-		disp_width = dr_textur_resize(&textur, disp_width, disp_height, 16);
+			guarded_free(tile_dirty);
+			guarded_free(tile_dirty_old);
 
-		tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-		tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
-		tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
+			tiles_per_line     = (disp_width  + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_lines         = (disp_height + DIRTY_TILE_SIZE - 1) / DIRTY_TILE_SIZE;
+			tile_buffer_length = (tile_lines * tiles_per_line + 7) / 8;
 
-		tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
-		tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
+			tile_dirty     = MALLOCN(unsigned char, tile_buffer_length);
+			tile_dirty_old = MALLOCN(unsigned char, tile_buffer_length);
 
-		memset(tile_dirty,     255, tile_buffer_length);
-		memset(tile_dirty_old, 255, tile_buffer_length);
+			memset(tile_dirty,     255, tile_buffer_length);
+			memset(tile_dirty_old, 255, tile_buffer_length);
 
-		display_set_clip_wh(0, 0, disp_width, disp_height);
+			display_set_clip_wh(0, 0, disp_actual_width, disp_height);
+		}
 	}
 }
 

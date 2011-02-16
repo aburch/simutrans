@@ -89,8 +89,8 @@ FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
   AddSize 7279
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-2/"
-  StrCpy $archievename "simuwin-102-2-2.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0/"
+  StrCpy $archievename "simuwin-110-0.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstall
   Call PostExeInstall
@@ -99,8 +99,8 @@ SectionEnd
 
 Section /o "Executable (SDL, better sound)" SDLexe
   AddSize 8227
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/102-2-2/"
-  StrCpy $archievename "simuwin-sdl-102-2-2.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0/"
+  StrCpy $archievename "simuwin-sdl-110-0.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstall
   Call PostExeInstall
@@ -122,20 +122,20 @@ SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak64 (standard)" pak64
   AddSize 10882
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-2/"
-  StrCpy $archievename "simupak64-102-2-2.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0/"
+  StrCpy $archievename "simupak64-110-0.zip"
   StrCpy $downloadname "pak64"
   Call DownloadInstall
 SectionEnd
 
 
-Section /o "pak64 Food addon 102.2.1"
+Section /o "pak64 Food addon 110.1"
   AddSize 272
   StrCmp $multiuserinstall "1" InstallInUserDir
 
   ; no multiuser => install in normal directory
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-1/"
-  StrCpy $archievename "simupak64-addon-food-102-2-1.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0/"
+  StrCpy $archievename "simupak64-addon-food-110-0.zip"
   StrCpy $downloadname "pak64"
   Call DownloadInstall
   goto FinishFood64
@@ -144,13 +144,13 @@ InstallInUserDir:
   ; else install in User directory
   Call ConnectInternet
   RMdir /r "$TEMP\simutrans"
-  NSISdl::download "http://downloads.sourceforge.net/project/simutrans/pak64/102-2-1/simupak64-addon-food-102-2-1.zip" "$Temp\simupak64-addon-food-102-2-1.zip"
+  NSISdl::download "http://downloads.sourceforge.net/project/simutrans/pak64/110-0/simupak64-addon-food-110-0.zip" "$Temp\simupak64-addon-food-110-0.zip"
   Pop $R0 ;Get the return value
   StrCmp $R0 "success" +3
      MessageBox MB_OK "Download of food addon pak64 failed: $R0"
      Abort
 
-  ZipDLL::extractall "$TEMP\simupak64-addon-food-102-2-1.zip" "$TEMP"
+  ZipDLL::extractall "$TEMP\simupak64-addon-food-110-0.zip" "$TEMP"
   Pop $0
   StrCmp $0 "success" +4
     DetailPrint "$0" ;print error message to log
@@ -166,10 +166,10 @@ SectionGroupEnd
 
 
 
-Section /o "pak64.german (Freeware) 102.2.2" pak64german
+Section /o "pak64.german (Freeware) 110.0" pak64german
   AddSize 18740
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak.german_102-2-2/"
-  StrCpy $archievename "pak.german_0-102-2-2_full.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak.german/pak.german_110-0/"
+  StrCpy $archievename "pak.german_0-110-0_full.zip"
   StrCpy $downloadname "pak64.German"
   Call DownloadInstall
   RMdir /r "$INSTDIR\Simutrans\Maps"
@@ -179,8 +179,8 @@ SectionEnd
 
 Section /o "pak64 HAJO (Freeware) 102.2.2" pak64HAJO
   AddSize 6376
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_102-2-2/"
-  StrCpy $archievename "pakHAJO_0-102-2-2.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pakHAJO/pakHAJO_110-0/"
+  StrCpy $archievename "pakHAJO_0-110-0.zip"
   StrCpy $downloadname "pak64.HAJO"
   Call DownloadInstall
 SectionEnd
@@ -199,7 +199,7 @@ SectionEnd
 
 Section /o "pak128 (Freeware) 102.2.2" pak128
   AddSize 63445
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-2-2/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20110-0/"
   StrCpy $archievename "pak128-1.4.6--102.2.zip"
   StrCpy $downloadname "pak128"
   Call DownloadInstall
