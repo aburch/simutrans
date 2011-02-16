@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="&quot;G:\Projects\SDL-1.2.10\include&quot;;&quot;G:\Program Files\PlatformSDK\Include&quot;;G:\Projects\zlib\include"
-				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN"
+				PreprocessorDefinitions="ZLIB_WINAPI;LITTLE_ENDIAN;NDEBUG"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -2085,13 +2085,13 @@
 				>
 			</File>
 			<File
+				RelativePath=".\simwerkz-dialogs.h"
+				>
+			</File>
+			<File
 				RelativePath=".\simwerkz.h"
 				>
 			</File>
-                        <File
-                                RelativePath=".\simwerkz-dialogs.h"
-                                >
-                        </File>
 			<File
 				RelativePath=".\simwin.h"
 				>
