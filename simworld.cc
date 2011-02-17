@@ -4501,6 +4501,18 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_double(industry_density_proportion);
 	}
 
+	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	{
+		file->rdwr_byte(next_private_car_update_month);
+		
+		// Existing values now saved in order to prevent network desyncs
+		file->rdwr_long(citycar_speed_average);
+		file->rdwr_bool(recheck_road_connexions);
+		file->rdwr_short(generic_road_speed_city);
+		file->rdwr_short(generic_road_speed_intercity);
+		file->rdwr_long(max_road_check_depth);
+	}
+
 	// save all open windows (upon request)
 	file->rdwr_byte( active_player_nr );
 	rdwr_all_win(file);
@@ -5189,21 +5201,54 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		scenario->rdwr(file);
 	}
 
-	if(file->get_experimental_version() >= 2)
-	{
-		file->rdwr_short(base_pathing_counter);
-	}
-	if(file->get_experimental_version() >= 7)
-	{
-		file->rdwr_double(industry_density_proportion);
-	}
-
-
 	// restore locked state
 	for(  uint8 i=0;  i<PLAYER_UNOWNED;  i++  ) {
 		if(  spieler[i]  ) {
 			spieler[i]->set_unlock( player_password_hash[i] );
 		}
+	}
+
+	if(file->get_experimental_version() >= 2)
+	{
+		file->rdwr_short(base_pathing_counter);
+	}
+	
+	if(file->get_experimental_version() >= 7)
+	{
+		file->rdwr_double(industry_density_proportion);
+	}
+
+	else
+	{
+		// Reconstruct the actual industry density.
+		// @author: jamespetts			
+		// Loading a game - must set this to zero here and recalculate.
+		actual_industry_density = 0;
+		double weight;
+		ITERATE(fab_list, i)
+		{
+			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
+			if(!factory_type->is_electricity_producer())
+			{
+				// Power stations are excluded from the target weight:
+				// a different system is used for them.
+				weight = factory_type->get_gewichtung();
+				actual_industry_density += (1.0 / weight);
+			}
+		}
+		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
+	}
+
+	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	{
+		file->rdwr_byte(next_private_car_update_month);
+		
+		// Existing values now saved in order to prevent network desyncs
+		file->rdwr_long(citycar_speed_average);
+		file->rdwr_bool(recheck_road_connexions);
+		file->rdwr_short(generic_road_speed_city);
+		file->rdwr_short(generic_road_speed_intercity);
+		file->rdwr_long(max_road_check_depth);
 	}
 
 	if(  file->get_version()>=102004  ) {
@@ -5218,53 +5263,13 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		}
 	}
 
-
-	clear_random_mode(LOAD_RANDOM);
-
-	DBG_MESSAGE("karte_t::laden()","savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
-
-
-	if(file->get_experimental_version() >= 2)
-	{
-		file->rdwr_short(base_pathing_counter);
-	}
-	
-		if(file->get_experimental_version() >= 7)
-		{
-			file->rdwr_double(industry_density_proportion);
-		}
-		else
-		{
-			// Reconstruct the actual industry density.
-			// @author: jamespetts			
-			// Loading a game - must set this to zero here and recalculate.
-			actual_industry_density = 0;
-			double weight;
-			ITERATE(fab_list, i)
-			{
-				const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
-				if(!factory_type->is_electricity_producer())
-				{
-					// Power stations are excluded from the target weight:
-					// a different system is used for them.
-					weight = factory_type->get_gewichtung();
-					actual_industry_density += (1.0 / weight);
-				}
-			}
-			industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
-		}
-
-	clear_random_mode(LOAD_RANDOM);
 	// Added by : Knightly
 	if ( einstellungen->get_default_path_option() == 2 )
 	{
 		path_explorer_t::full_instant_refresh();
 	}
 
-	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
-	{
-		file->rdwr_byte(next_private_car_update_month);
-	}
+	clear_random_mode(LOAD_RANDOM);
 	
 	dbg->warning("karte_t::laden()","loaded savegame from %i/%i, next month=%i, ticks=%i (per month=1<<%i)",letzter_monat,letztes_jahr,next_month_ticks,ticks,karte_t::ticks_per_world_month_shift);
 }

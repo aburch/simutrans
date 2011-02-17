@@ -2125,6 +2125,37 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		file->rdwr_bool( hd );
 		has_driven = hd;
 	}
+
+	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	{
+		// Existing values now saved in order to prevent network desyncs
+		file->rdwr_short(direction_steps);
+		file->rdwr_longlong(current_revenue);
+		
+		if(file->is_saving())
+		{
+			uint8 count = pre_corner_direction.get_count();
+			file->rdwr_byte(count);
+			sint16 dir;
+			ITERATE(pre_corner_direction,n)
+			{
+				dir = pre_corner_direction[n];
+				file->rdwr_short(dir);
+			}
+		}
+		else
+		{
+			pre_corner_direction.clear();
+			uint8 count;
+			file->rdwr_byte(count);
+			for(uint8 n = 0; n < count; n++)
+			{
+				sint16 dir;
+				file->rdwr_short(dir);
+				pre_corner_direction.add_to_tail(dir);
+			}
+		}
+	}
 }
 
 

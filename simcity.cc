@@ -1682,6 +1682,10 @@ void stadt_t::rdwr(loadsave_t* file)
 	{
 		file->rdwr_bool(check_road_connexions);
 		file->rdwr_byte(private_car_update_month);
+
+		// Existing values now saved in order to prevent network desyncs
+		file->rdwr_long(outgoing_private_cars);
+		file->rdwr_long(incoming_private_cars);
 	}
 
 	if(file->is_saving() && file->get_experimental_version() >=9 && file->get_version() >= 110000)
