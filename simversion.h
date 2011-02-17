@@ -5,7 +5,6 @@
 
 #define VERSION_NUMBER "110.0 Experimental "
 #define WIDE_VERSION_NUMBER L"110.0 Experimental "
-
 #define VERSION_DATE __DATE__
 
 #define SAVEGAME_PREFIX  "Simutrans "

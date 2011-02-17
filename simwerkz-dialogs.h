@@ -101,14 +101,14 @@ public:
 	wkz_lines_t() : werkzeug_t() { id = WKZ_LINEOVERVIEW | DIALOGE_TOOL; }
 	const char *get_tooltip(spieler_t *) { return translator::translate("Line Management"); }
 	virtual image_id get_icon(spieler_t *sp) const { return sp->get_player_nr()==1 ? IMG_LEER : icon; }
-	bool is_selected(karte_t *welt) const { return win_get_magic((long)(&(welt->get_active_player()->simlinemgmt))); }
+	bool is_selected(karte_t *welt) const { return win_get_magic(magic_line_management_t+welt->get_active_player_nr()); }
 	bool init( karte_t *, spieler_t *sp ) {
 		if(sp->get_player_nr()!=1) {
 			sp->simlinemgmt.line_management_window( sp );
 		}
 		return false;
 	}
-	bool exit( karte_t *welt, spieler_t * ) { destroy_win(win_get_magic((long)(&(welt->get_active_player()->simlinemgmt)))); return false; }
+	bool exit( karte_t *welt, spieler_t *sp) { destroy_win(win_get_magic(magic_line_management_t+sp->get_player_nr())); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };
