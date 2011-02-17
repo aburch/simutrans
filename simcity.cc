@@ -257,7 +257,7 @@ void stadt_t::electricity_consumption_init(const std::string &objfilename)
 /**
 * Reads/writes electricity consumption data from/to a savegame
 * called from karte_t::speichern and karte_t::laden
-* only written for networkgames
+* only written for network games
 * @author jamespetts
 */
 void stadt_t::electricity_consumption_rdwr(loadsave_t *file)
@@ -289,7 +289,7 @@ void stadt_t::electricity_consumption_rdwr(loadsave_t *file)
 		{
 			file->rdwr_longlong(year);
 			file->rdwr_short(consumption_percent);
-			electric_consumption_record_t ele(year, consumption_percent);
+			electric_consumption_record_t ele(year / 12, consumption_percent);
 			electricity_consumption[0].append( ele );
 		}
 	}
