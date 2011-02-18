@@ -395,7 +395,7 @@ bool win_is_top(const gui_frame_t *ig)
 void rdwr_all_win(loadsave_t *file)
 {
 	//FIXME: This does not work in Experimental, so disable this code for now.
-	return;
+	//return;
 
 	if(  file->get_version()>102003  ) {
 		if(  file->is_saving()  ) {

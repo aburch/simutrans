@@ -2081,7 +2081,7 @@ void stadt_t::step(long delta_t)
 
 	while(stadt_t::step_bau_interval < next_bau_step) {
 		calc_growth();
-		outgoing_private_cars = 0;
+		//outgoing_private_cars = 0;
 		step_bau();
 		next_bau_step -= stadt_t::step_bau_interval;
 	}
@@ -2150,7 +2150,7 @@ void stadt_t::roll_history()
 		city_history_year[0][HIST_GOODS_NEEDED] = 0;
 
 	}
-
+	outgoing_private_cars = 0;
 }
 
 
