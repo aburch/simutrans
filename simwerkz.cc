@@ -5705,6 +5705,7 @@ bool wkz_change_line_t::init( karte_t *, spieler_t *sp )
 				if (line.is_bound()) {
 					schedule_t *fpl = line->get_schedule()->copy();
 					if (fpl->sscanf_schedule( p )) {
+						fpl->eingabe_abschliessen();
 						line->set_schedule( fpl );
 						line->get_besitzer()->simlinemgmt.update_line(line);
 					}
