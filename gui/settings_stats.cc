@@ -21,14 +21,15 @@ INIT_NUM( "diagonal_multiplier", pak_diagonal_multiplier);
 */
 
 
-static const char *version[6]=
+static const char *version[7]=
 {
 	"0.99.17",
 	"0.100.0",
 	"0.101.0",
 	"0.102.1",
 	"0.102.2",
-	"0.102.5"
+	"0.102.5",
+	"0.110.0"
 };
 
 
