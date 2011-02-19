@@ -308,7 +308,7 @@ private:
 	// the odometer was last incremented.
 	// Used for converting tiles to km.
 	// @author: jamespetts
-	float tiles_since_last_odometer_increment;
+	double tiles_since_last_odometer_increment;
 
 	/**
 	* Set, when there was a income calculation (avoids some cheats)

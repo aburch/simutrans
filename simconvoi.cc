@@ -168,7 +168,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
-	tiles_since_last_odometer_increment = 0;
+	tiles_since_last_odometer_increment = 0.0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -641,20 +641,20 @@ void convoi_t::add_running_cost(sint64 cost)
 
 void convoi_t::increment_odometer()
 {
-	float tiles = 1;
+	double tiles = 1.0;
 	if(fahr[0]->get_steps() != 255)
 	{
 		// Diagonal
-		tiles = fahr[0]->get_diagonal_length() / 255.0F;
+		tiles = (double)fahr[0]->get_diagonal_length() / 255.0;
 	}
 	tiles_since_last_odometer_increment += tiles;
 	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-	const float km = tiles_since_last_odometer_increment * distance_per_tile;
-	if(km >= 1.0F)
+	const sint64 km = tiles_since_last_odometer_increment * (double)distance_per_tile;
+	if(km >= 1)
 	{
 		book( km, CONVOI_DISTANCE );
 		total_distance_traveled += km;
-		tiles_since_last_odometer_increment = (km - 1) * distance_per_tile;
+		tiles_since_last_odometer_increment -= (double)km / (double)distance_per_tile;
 		for(uint8 i= 0; i < anz_vehikel; i++)
 		{
 			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
@@ -2922,9 +2922,7 @@ void convoi_t::rdwr(loadsave_t *file)
 		}
 		else
 		{
-			double tiles = (double)tiles_since_last_odometer_increment;
-			file->rdwr_double(tiles);
-			tiles_since_last_odometer_increment = (float)tiles;
+			file->rdwr_double(tiles_since_last_odometer_increment);
 		}
 	}
 
