@@ -362,16 +362,12 @@ bool ai_t::built_update_headquarter()
 			const char *err="No suitable ground!";
 			if(  place!=koord::invalid  ) {
 				err = werkzeug_t::general_tool[WKZ_HEADQUARTER]->work( welt, this, welt->lookup_kartenboden(place)->get_pos() );
-
-				// catching more errors
+				// success
 				if(  err==NULL  ) {
-					// tell the player
-					cbuffer_t buf(256);
-					buf.printf( translator::translate("%s s\nheadquarter now\nat (%i,%i)."), get_name(), place.x, place.y );
-					welt->get_message()->add_message( buf, place, message_t::ai, PLAYER_FLAG|player_nr, welt->lookup_kartenboden(place)->find<gebaeude_t>()->get_tile()->get_hintergrund(0,0,0) );
 					return true;
 				}
 			}
+			// failed
 			if(  place==koord::invalid  ||  err!=NULL  ) {
 				dbg->warning( "ai_t::built_update_headquarter()", "HQ failed with : %s", translator::translate(err) );
 			}
