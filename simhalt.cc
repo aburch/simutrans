@@ -3536,6 +3536,12 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			}
 		}
 	}
+
+	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
+	{
+		file->rdwr_bool(do_alternative_seats_calculation);
+	}
+	
 	pax_happy    = financial_history[0][HALT_HAPPY];
 	pax_unhappy  = financial_history[0][HALT_UNHAPPY];
 	pax_no_route = financial_history[0][HALT_NOROUTE];

@@ -779,7 +779,7 @@ public:
 	* Set whether the convoi is traversing its schedule in reverse.
 	* @author yobbobandana
 	*/
-	void set_reverse_schedule(bool reverse = true) { reverse_schedule = reverse; }
+	void set_reverse_schedule(bool reverse) { reverse_schedule = reverse; }
 
 #if 0
 private:

@@ -6300,7 +6300,11 @@ bool karte_t::interactive(uint32 quit_month)
 					if(  LCHKLST(server_sync_step)!=server_checklist  ) {
 						dbg->warning("karte_t::interactive", "disconnecting due to checklist mismatch" );
 						network_disconnect();
+#ifdef DEBUG_SIMRAND_CALLS
+						ticker::add_msg( buf, koord::invalid, COL_LIGHT_BLUE );
+#endif
 					}
+
 				}
 				else {
 					if(  nwc->get_id()==NWC_TOOL  ) {

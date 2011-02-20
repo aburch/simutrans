@@ -64,7 +64,7 @@ simline_t::~simline_t()
 
 
 
-void simline_t::add_convoy(convoihandle_t cnv)
+void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 {
 	if (line_managed_convoys.empty()) {
 		// first convoi -> ok, now we can announce this connection to the stations
@@ -132,7 +132,7 @@ void simline_t::add_convoy(convoihandle_t cnv)
 	}
 
 	// if the schedule is flagged as bidirectional, set the initial convoy direction
-	if( fpl->is_bidirectional() ) {
+	if( fpl->is_bidirectional() && !from_loading ) {
 		cnv->set_reverse_schedule(start_reversed);
 		start_reversed = !start_reversed;
 	}

@@ -110,7 +110,7 @@ public:
 	 * add convoy to route
 	 * @author hsiegeln
 	 */
-	void add_convoy(convoihandle_t cnv);
+	void add_convoy(convoihandle_t cnv, bool from_loading = false);
 
 	/*
 	 * remove convoy from route

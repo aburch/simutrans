@@ -437,7 +437,7 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			if(new_line.is_bound()) {
 				line = new_line;
 				line_id = new_line->get_line_id();
-				line->add_convoy(self);
+				line->add_convoy(self, true);
 				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line_id);
 			}
 			else {
@@ -3037,18 +3037,15 @@ void convoi_t::rdwr(loadsave_t *file)
 	}
 
 	// reverse_schedule
-	if(file->is_loading() && file->get_version()<102003 || (file->get_experimental_version() < 9 && file->get_experimental_version() > 0)) 
+	if(file->get_experimental_version() >= 9)
+	{
+		file->rdwr_bool(reverse_schedule);
+	}
+	else if(file->is_loading())
 	{
 		reverse_schedule = false;
 	}
-	else 
-	{
-		file->rdwr_bool( reverse_schedule);
-	}
-
-	// Simutrans-Experimental specific parameters. 
-	// Must *always* go after standard parameters.
-
+	
 	if(file->is_loading())
 	{
 		heaviest_vehicle = calc_heaviest_vehicle();

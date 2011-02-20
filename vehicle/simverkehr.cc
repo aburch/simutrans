@@ -41,7 +41,6 @@
 #include "../boden/grund.h"
 #include "../boden/wege/weg.h"
 #include "../boden/wege/strasse.h"
-
 #include "../besch/stadtauto_besch.h"
 #include "../besch/roadsign_besch.h"
 
