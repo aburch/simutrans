@@ -4511,6 +4511,7 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_short(generic_road_speed_city);
 		file->rdwr_short(generic_road_speed_intercity);
 		file->rdwr_long(max_road_check_depth);
+		file->rdwr_double(actual_industry_density);
 	}
 
 	// save all open windows (upon request)
@@ -5217,7 +5218,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 	{
 		file->rdwr_double(industry_density_proportion);
 	}
-
 	else
 	{
 		// Reconstruct the actual industry density.
@@ -5249,6 +5249,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		file->rdwr_short(generic_road_speed_city);
 		file->rdwr_short(generic_road_speed_intercity);
 		file->rdwr_long(max_road_check_depth);
+		file->rdwr_double(actual_industry_density);
 	}
 
 	if(  file->get_version()>=102004  ) {
