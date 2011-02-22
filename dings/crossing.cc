@@ -127,24 +127,29 @@ void crossing_t::rdwr(loadsave_t *file)
 	}
 	// which waytypes?
 	uint8 w1, w2;
-	uint32 speedlimit = 999;
+	uint32 speedlimit0 = 999;
+	uint32 speedlimit1 = 999;
 	if(file->is_saving()) {
 		w1 = besch->get_waytype(0);
 		w2 = besch->get_waytype(1);
-		speedlimit = besch->get_maxspeed(0);
+		speedlimit0 = besch->get_maxspeed(0);
+		speedlimit1 = besch->get_maxspeed(1);
 	}
 
 	file->rdwr_byte(w1);
 	file->rdwr_byte(w2);
 	if(  file->get_version()>=110000  ) {
-		file->rdwr_long( speedlimit );
+		file->rdwr_long( speedlimit0 );
+	}
+	if(  file->get_version()>=110001  ) {
+		file->rdwr_long( speedlimit1 );
 	}
 
 	if(  file->is_loading()  ) {
-		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit, welt->get_timeline_year_month());
+		besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, welt->get_timeline_year_month());
 		if(besch==NULL) {
 			dbg->warning("crossing_t::rdwr()","requested for waytypes %i and %i not available, try to load object without timeline", w1, w2 );
-			besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit, 0);
+			besch = crossing_logic_t::get_crossing( (waytype_t)w1, (waytype_t)w2, speedlimit0, speedlimit1, 0);
 		}
 		if(besch==NULL) {
 			dbg->fatal("crossing_t::rdwr()","requested for waytypes %i and %i but nothing defined!", w1, w2 );
