@@ -3133,7 +3133,9 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 		PIXVAL *p = textur + xp + yp * disp_width;
 		int dx = disp_width - w;
 		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
+#if ndef USE_C  ||  ndef ALIGN_COPY
 		const uint32 longcolval = (colval << 16) | colval;
+#endif
 
 		if (dirty) {
 			mark_rect_dirty_nc(xp, yp, xp + w - 1, yp + h - 1);
@@ -4102,7 +4104,6 @@ int simgraph_exit()
  */
 void simgraph_resize(KOORD_VAL w, KOORD_VAL h)
 {
-	KOORD_VAL old_actual_disp_width = disp_actual_width;
 	disp_actual_width = max( 16, w );
 	if(  h<=0  ) {
 		h = 64;

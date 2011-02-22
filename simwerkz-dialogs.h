@@ -108,7 +108,7 @@ public:
 		}
 		return false;
 	}
-	bool exit( karte_t *welt, spieler_t *sp) { destroy_win(win_get_magic(magic_line_management_t+sp->get_player_nr())); return false; }
+	bool exit( karte_t *, spieler_t *sp) { destroy_win(win_get_magic(magic_line_management_t+sp->get_player_nr())); return false; }
 	virtual bool is_init_network_save() const { return true; }
 	virtual bool is_work_network_save() const { return true; }
 };

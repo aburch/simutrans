@@ -824,7 +824,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	const ribi_t::ribi ribi = ribi_typ(zv);
 
 	// now check ribis of existing ways
-	const ribi_t::ribi wayribi = way0 ? way0->get_ribi_unmasked() | (way1 ? way1->get_ribi_unmasked() : ribi_t::keine) : ribi_t::keine;
+	const ribi_t::ribi wayribi = way0 ? way0->get_ribi_unmasked() | (way1 ? way1->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::keine) : (ribi_t::ribi)ribi_t::keine;
 	if (  wayribi & (~ribi)  ) {
 		// curves at bridge start
 		return;
