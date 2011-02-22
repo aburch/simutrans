@@ -1,4 +1,5 @@
 	ADD: try to build crossing that match maxspeed of the ways to be crossed
+	CHG: sheep will not walk in cities anymore
 
 Release of 110.0 (r4303 on 14-Feb-2011):
 

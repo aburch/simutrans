@@ -321,7 +321,8 @@ bool movingobj_t::ist_befahrbar( const grund_t *gr ) const
 		if(gr->get_typ()!=grund_t::boden  ||  !hang_t::ist_wegbar(gr->get_grund_hang())) {
 			return false;
 		}
-		if(gr->hat_wege()  &&  !gr->hat_weg(road_wt)) {
+		// only on roads, do not walk in cities
+		if(gr->hat_wege()  &&  (!gr->hat_weg(road_wt)  ||  gr->get_weg(road_wt)->hat_gehweg())) {
 			return false;
 		}
 		if(!besch->can_built_trees_here()) {
