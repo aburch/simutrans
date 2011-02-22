@@ -267,7 +267,7 @@ int dr_textur_resize(unsigned short** textur, int w, int h, int bpp)
 		w = 16;
 	}
 
-	if(  w!=screen->w  &&  h!=screen->h  ) {
+	if(  w!=screen->w  ||  h!=screen->h  ) {
 
 		width = w;
 		height = h;
