@@ -174,10 +174,15 @@ void crossing_t::laden_abschliessen()
 		dbg->error("crossing_t::laden_abschliessen","way/ground missing at %i,%i => ignore", get_pos().x, get_pos().y );
 	}
 	else {
-		// after loading restore speedlimits
+		// try to find crossing that matches way max speed
 		weg_t *w1=gr->get_weg(besch->get_waytype(0));
-		w1->count_sign();
 		weg_t *w2=gr->get_weg(besch->get_waytype(1));
+		const kreuzung_besch_t *test = crossing_logic_t::get_crossing( besch->get_waytype(0), besch->get_waytype(1), w1->get_besch()->get_topspeed(), w2->get_besch()->get_topspeed(), welt->get_timeline_year_month());
+		if (test  &&  test!=besch) {
+			besch = test;
+		}
+		// after loading restore speedlimits
+		w1->count_sign();
 		w2->count_sign();
 		ns = ribi_t::ist_gerade_ns(w2->get_ribi_unmasked());
 		crossing_logic_t::add( welt, this, static_cast<crossing_logic_t::crossing_state_t>(zustand) );
