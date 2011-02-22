@@ -3308,10 +3308,10 @@ void convoi_t::open_schedule_window( bool show )
 		return;
 	}
 
-	if(state==DRIVING) {
+	/*if(state==DRIVING) {
 		// book the current value of goods
 		last_departure_time = welt->get_zeit_ms();
-	}
+	}*/
 
 	akt_speed = 0;	// stop the train ...
 	if(state!=INITIAL) {
@@ -3372,12 +3372,17 @@ void convoi_t::laden() //"load" (Babelfish)
 	//Calculate average speed
 	//@author: jamespetts
 	const uint32 journey_distance = accurate_distance(fahr[0]->get_pos().get_2d(), fahr[0]->last_stop_pos);
-	
-	const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0F;
-	const sint32 average_speed = ((double)journey_distance / journey_time) * 20.0;
+
 	if(journey_distance > 0)
 	{
-		book(average_speed, CONVOI_AVERAGE_SPEED);
+		const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0;
+		const sint32 average_speed = ((double)journey_distance / journey_time) * 20.0;
+		// For some odd reason, in some cases, laden() is called when the journey time is
+		// excessively low, resulting in perverse average speeds. 
+		if(average_speed <= speed_to_kmh(get_min_top_speed()))
+		{
+			book(average_speed, CONVOI_AVERAGE_SPEED);
+		}
 	}
 	last_departure_time = welt->get_zeit_ms();
 		
