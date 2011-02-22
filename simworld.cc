@@ -3265,6 +3265,25 @@ void karte_t::neuer_monat()
 	wegbauer_t::neuer_monat(this);
 	INT_CHECK("simworld 1299");
 
+	// Check whether downstream substations have become engulfed by
+	// an expanding city.
+	slist_iterator_tpl<senke_t *> senke_iter( senke_t::senke_list );
+	while(senke_iter.next()) 
+	{
+		// This will add a city if the city has engulfed the substation, and remove a city if
+		// the city has been deleted or become smaller. 
+		stadt_t* const city = get_city(senke_iter.get_current()->get_pos().get_2d());
+		senke_t* const substation = senke_iter.access_current();
+		substation->set_city(city);
+		if(city)
+		{
+			city->add_substation(substation);
+		}
+		
+		// Check whether an industry has placed itself near the substation.
+		substation->check_industry_connexion();
+	}
+
 	recalc_average_speed();
 	INT_CHECK("simworld 1921");
 

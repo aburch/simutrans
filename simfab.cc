@@ -1320,19 +1320,20 @@ void fabrik_t::neuer_monat()
 		ausgang[index].abgabe_sum = 0;
 	}
 
-	// This needs to be re-checked regularly, as cities grow.
+	// This needs to be re-checked regularly, as cities grow and can be deleted.
 	stadt_t* c = welt->get_city(pos.get_2d());
 
-	if(city == NULL && c != NULL)
+	if(c && !c->get_city_factories().is_contained(this))
 	{
-		city = c;
-		city->add_city_factory(this);
+		c->add_city_factory(this);
 	}
-	if(city != NULL && c != city && c != NULL)
+
+	if(c != city && city)
 	{
-		city = c;
-		city->add_city_factory(this);
+		city->remove_city_factory(this);
 	}
+
+	city = c;
 
 	// Check to see whether factory is obsolete.
 	// If it is, give it a chance of being closed down.

@@ -735,7 +735,9 @@ void senke_t::step(long delta_t)
 
 	power_load = get_power_load();
 
-	/* Now actually feed the power through to the factories and city */
+	/* Now actually feed the power through to the factories and city
+	 * Note that a substation cannot supply both a city and factory at once.
+	 */
 	if (fab != NULL && fab->get_city() == NULL) {
 		// the connected fab gets priority access to the power supply if there's a shortage
 		// This should use 'min', but the current version of that in simtypes.h 
@@ -761,6 +763,7 @@ void senke_t::step(long delta_t)
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
+			city_factories[i]->set_transformer_connected(true);
 			const uint32 current_factory_demand = city_factories[i]->step_power_demand() * load_proportion;
 			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
 				(
@@ -874,16 +877,25 @@ void senke_t::laden_abschliessen()
 	leitung_t::laden_abschliessen();
 	spieler_t::add_maintenance(get_besitzer(), -welt->get_einstellungen()->cst_maintain_transformer);
 
-	if(fab == NULL && city == NULL && get_net()) 
-	{
-		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( true );
-	}
+	check_industry_connexion();
+
 	senke_list.insert( this );
 	welt->sync_add(this);
 
 	set_bild(skinverwaltung_t::senke->get_bild_nr(0));
 	is_crossing = false;
+}
+
+void senke_t::check_industry_connexion()
+{
+	if(fab == NULL && city == NULL && get_net()) 
+	{
+		fab = leitung_t::suche_fab_4(get_pos().get_2d());
+		if(fab)
+		{
+			fab->set_transformer_connected(true);
+		}
+	}
 }
 
 

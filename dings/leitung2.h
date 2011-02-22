@@ -169,10 +169,10 @@ class senke_t : public leitung_t, public sync_steppable
 public:
 	static void neue_karte();
 	static void step_all(long delta_t);
-
-private:
 	static slist_tpl<senke_t *> senke_list;
 
+private:
+	
 	sint32 einkommen;
 	sint32 max_einkommen;
 	fabrik_t *fab;
@@ -203,6 +203,10 @@ public:
 	void calc_bild() {}	// otherwise it will change to leitung
 
 	uint32 get_power_load() const;
+
+	void set_city(stadt_t* c) { city = c; }
+
+	void check_industry_connexion();
 };
 
 
