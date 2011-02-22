@@ -119,7 +119,10 @@ void bruecke_t::laden_abschliessen()
 			weg->set_max_weight(besch->get_max_weight());
 			//weg->add_way_constraints(besch->get_way_constraints_permissive(), besch->get_way_constraints_prohibitive());
 			weg->add_way_constraints(besch->get_way_constraints());
-			weg->get_besitzer()->add_maintenance(-weg->get_besch()->get_wartung());
+			if(weg->get_besitzer())
+			{
+				weg->get_besitzer()->add_maintenance(-weg->get_besch()->get_wartung());
+			}
 			weg->set_besitzer(sp);  //"besitzer" = owner (Babelfish)
 		}
 		sp->add_maintenance(besch->get_wartung() );
