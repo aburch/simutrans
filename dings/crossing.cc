@@ -127,8 +127,8 @@ void crossing_t::rdwr(loadsave_t *file)
 	}
 	// which waytypes?
 	uint8 w1, w2;
-	uint32 speedlimit0 = 999;
-	uint32 speedlimit1 = 999;
+	sint32 speedlimit0 = 999;
+	sint32 speedlimit1 = 999;
 	if(file->is_saving()) {
 		w1 = besch->get_waytype(0);
 		w2 = besch->get_waytype(1);

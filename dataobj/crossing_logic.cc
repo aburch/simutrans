@@ -245,7 +245,7 @@ DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
 	}
 }
 
-const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, uint32 way_0_speed, uint32 way_1_speed, uint16 timeline_year_month)
+const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
 	// mark if crossing possible
 	const waytype_t way0 = ns <  ow ? ns : ow;
