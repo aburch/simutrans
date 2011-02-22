@@ -245,10 +245,16 @@ void modal_dialogue( gui_frame_t *gui, long magic, karte_t *welt, bool (*quit)()
 			dr_flush();
 
 			display_poll_event(&ev);
-			if(ev.ev_class==EVENT_SYSTEM  &&  ev.ev_code==SYSTEM_RESIZE) {
-				// main window resized
-				simgraph_resize( ev.mx, ev.my );
-				display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+			if(ev.ev_class==EVENT_SYSTEM) {
+				if (ev.ev_code==SYSTEM_RESIZE) {
+					// main window resized
+					simgraph_resize( ev.mx, ev.my );
+					display_fillbox_wh( 0, 0, ev.mx, ev.my, COL_BLACK, true );
+				}
+				else if (ev.ev_code == SYSTEM_QUIT) {
+					umgebung_t::quit_simutrans = true;
+					break;
+				}
 			}
 			else {
 				// other events
@@ -681,6 +687,10 @@ int simu_main(int argc, char** argv)
 	if(  umgebung_t::objfilename.empty()  ) {
 		show_pointer(1);
 		ask_objfilename();
+		if(  umgebung_t::quit_simutrans  ) {
+			simgraph_exit();
+			return 0;
+		}
 		if(  umgebung_t::objfilename.empty()  ) {
 			// nothing to be loaded => exit
 			fprintf(stderr, "*** No pak set found ***\n\nMost likely, you have no pak set installed.\nPlease download and install also graphics (pak).\n");
