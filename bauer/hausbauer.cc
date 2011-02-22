@@ -624,6 +624,9 @@ hausbauer_t::neues_gebaeude(karte_t *welt, spieler_t *sp, koord3d pos, int built
 		(*static_cast<halthandle_t *>(param))->add_grund(gr);
 		gr->calc_bild();
 	}
+	else {
+		gb->calc_bild();
+	}
 
 	if(besch->ist_ausflugsziel()) {
 		welt->add_ausflugsziel( gb );
