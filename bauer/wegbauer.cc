@@ -2003,6 +2003,7 @@ void wegbauer_t::baue_leitung()
 			spieler_t::accounting(sp, -besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 			// this adds maintenance
 			lt->leitung_t::laden_abschliessen();
+			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 		}
 
 		if((i&3)==0) {
