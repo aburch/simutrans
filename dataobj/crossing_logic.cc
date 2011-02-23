@@ -200,6 +200,22 @@ crossing_logic_t::set_state( crossing_state_t new_state )
  */
 minivec_tpl<const kreuzung_besch_t *> crossing_logic_t::can_cross_array[36];
 
+/**
+ * compare crossings for the same waytype-combinations
+ */
+int compare_crossing(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
+{
+	// sort descending wrt maxspeed
+	int diff = c1->get_maxspeed(0) - c0->get_maxspeed(0);
+	if (diff==0) {
+		diff = c1->get_maxspeed(1) - c0->get_maxspeed(1);
+	}
+	if (diff==0) {
+		diff = strcmp(c0->get_name(), c1->get_name());
+	}
+	return diff;
+}
+
 void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 {
 	// mark if crossing possible
@@ -210,19 +226,26 @@ void crossing_logic_t::register_besch(kreuzung_besch_t *besch)
 		// max index = 7*9 + 8 - 9*4 = 71-36 = 35
 		// .. overwrite double entries
 		minivec_tpl<const kreuzung_besch_t *> &vec = can_cross_array[index];
+		// first check for existing crossign with the same name
 		for(uint8 i=0; i<vec.get_count(); i++) {
 			if (strcmp(vec[i]->get_name(), besch->get_name())==0) {
-				vec[i] = besch;
+				vec.remove_at(i);
 				dbg->warning( "crossing_logic_t::register_besch()", "Object %s was overlaid by addon!", besch->get_name() );
+			}
+		}
+DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
+		// .. then make sorted insert
+		for(uint8 i=0; i<vec.get_count(); i++) {
+			if (compare_crossing(besch, vec[i])<0) {
+				vec.insert_at(i, besch);
 				return;
 			}
 		}
 		vec.append(besch);
 	}
-DBG_DEBUG( "crossing_logic_t::register_besch()","%s", besch->get_name() );
 }
 
-const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, uint32 way0_maxspeed, uint16 timeline_year_month)
+const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const waytype_t ow, sint32 way_0_speed, sint32 way_1_speed, uint16 timeline_year_month)
 {
 	// mark if crossing possible
 	const waytype_t way0 = ns <  ow ? ns : ow;
@@ -239,9 +262,15 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 				}
 				else {
 					const uint8 way0_nr = way0==ow;
+					const uint8 way1_nr = way1==ow;
 					if(
-					(vec[i]->get_maxspeed(way0_nr) >= way0_maxspeed  &&  vec[i]->get_maxspeed(way0_nr) < best->get_maxspeed(way0_nr))  ||
-					(best->get_maxspeed(way0_nr) < way0_maxspeed  &&  best->get_maxspeed(way0_nr) < vec[i]->get_maxspeed(way0_nr))
+					// match maxspeed of first way
+						((vec[i]->get_maxspeed(way0_nr) >= way_0_speed  &&  vec[i]->get_maxspeed(way0_nr) <= best->get_maxspeed(way0_nr))  ||
+						 (best->get_maxspeed(way0_nr) <= way_0_speed  &&  best->get_maxspeed(way0_nr) <= vec[i]->get_maxspeed(way0_nr)))
+					// match maxspeed of second way
+						&&
+						((vec[i]->get_maxspeed(way1_nr) >= way_1_speed  &&  vec[i]->get_maxspeed(way1_nr) <= best->get_maxspeed(way1_nr))  ||
+						 (best->get_maxspeed(way1_nr) <= way_1_speed  &&  best->get_maxspeed(way1_nr) <= vec[i]->get_maxspeed(way1_nr)))
 					) {
 						best = vec[i];
 					}
@@ -250,7 +279,6 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 		}
 	}
 	return best;
-	return NULL;
 }
 
 // returns a new or an existing crossing_logic_t object

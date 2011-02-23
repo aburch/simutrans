@@ -391,7 +391,7 @@ bool wegbauer_t::check_crossing(const koord zv, const grund_t *bd, waytype_t wty
 		return false;
 	}
 	// crossing available and ribis ok
-	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, welt->get_timeline_year_month())!=NULL) {
+	if(crossing_logic_t::get_crossing(wtyp, w->get_waytype(), 0, 0, welt->get_timeline_year_month())!=NULL) {
 		ribi_t::ribi w_ribi = w->get_ribi_unmasked();
 		// it is our way we want to cross: can we built a crossing here?
 		// both ways must be straight and no ends
@@ -869,7 +869,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 	const ribi_t::ribi ribi = ribi_typ(zv);
 
 	// now check ribis of existing ways
-	const ribi_t::ribi wayribi = way0 ? way0->get_ribi_unmasked() | (way1 ? way1->get_ribi_unmasked() : ribi_t::keine) : ribi_t::keine;
+	const ribi_t::ribi wayribi = way0 ? way0->get_ribi_unmasked() | (way1 ? way1->get_ribi_unmasked() : (ribi_t::ribi)ribi_t::keine) : (ribi_t::ribi)ribi_t::keine;
 	if (  wayribi & (~ribi)  ) {
 		// curves at bridge start
 		return;
@@ -2093,6 +2093,7 @@ void wegbauer_t::baue_leitung()
 			spieler_t::accounting(sp, -besch->get_preis(), gr->get_pos().get_2d(), COST_CONSTRUCTION);
 			// this adds maintenance
 			lt->leitung_t::laden_abschliessen();
+			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
 		}
 
 		if((i&3)==0) {
