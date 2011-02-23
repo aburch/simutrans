@@ -3133,7 +3133,7 @@ static void display_fb_internal(KOORD_VAL xp, KOORD_VAL yp, KOORD_VAL w, KOORD_V
 		PIXVAL *p = textur + xp + yp * disp_width;
 		int dx = disp_width - w;
 		const PIXVAL colval = specialcolormap_all_day[color & 0xFF];
-#if ndef USE_C  ||  ndef ALIGN_COPY
+#if !defined( USE_C )  ||  !defined( ALIGN_COPY )
 		const uint32 longcolval = (colval << 16) | colval;
 #endif
 
