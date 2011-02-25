@@ -7,7 +7,7 @@
  *
  * Usage for Iso-Angband is granted.
  */
-
+#ifdef COMMAND_LINE_SERVER
 #include "simconst.h"
 #include "simsys.h"
 #include "simdebug.h"
@@ -350,3 +350,4 @@ void clear_all_poly_clip()
 void activate_ribi_clip(int)
 {
 }
+#endif

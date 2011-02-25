@@ -6,6 +6,7 @@
  *
  */
 
+#ifndef COMMAND_LINE_SERVER
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -4163,5 +4164,4 @@ void display_snapshot()
 
 	dr_screenshot(buf);
 }
-
-
+#endif
