@@ -212,7 +212,7 @@ void spieler_t::income_message_t::operator delete(void *p)
 
 
 /**
- * Show them and probably delete them if too old
+ * Show income messages
  * @author prissi
  */
 void spieler_t::display_messages()
@@ -221,44 +221,35 @@ void spieler_t::display_messages()
 	const sint16 yoffset = welt->get_y_off()+((display_get_width()/raster)&1)*(raster/4);
 
 	slist_iterator_tpl<income_message_t *>iter(messages);
-	// Hajo: we use a slight hack here to remove the current
-	// object from the list without wrecking the iterator
-	bool ok = iter.next();
-	while(ok) {
+	while(iter.next()) {
 		income_message_t *m = iter.get_current();
 
-		// Hajo: advance iterator, so that we can remove the current object
-		// safely
-		ok = iter.next();
-
-		if (m->alter<-80) {
-			messages.remove(m);
-			delete m;
-		}
-		else {
-			const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
-			const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
-			const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
-			display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
-		}
+		const koord ij = m->pos - welt->get_world_position()-welt->get_ansicht_ij_offset();
+		const sint16 x = (ij.x-ij.y)*(raster/2) + welt->get_x_off();
+		const sint16 y = (ij.x+ij.y)*(raster/4) + (m->alter >> 4) - tile_raster_scale_y( welt->lookup_hgt(m->pos)*TILE_HEIGHT_STEP, raster) + yoffset;
+		display_shadow_proportional( x, y, PLAYER_FLAG|(kennfarbe1+3), COL_BLACK, m->str, true);
 	}
 }
 
 
 
 /**
- * Age messages (move them upwards)
+ * Age messages (move them upwards), delete too old ones
  * @author prissi
  */
 void spieler_t::age_messages(long /*delta_t*/)
 {
-	slist_iterator_tpl<income_message_t *>iter(messages);
-	while(iter.next()) {
-		income_message_t *m = iter.get_current();
+	for(slist_tpl<income_message_t *>::iterator iter = messages.begin(); iter != messages.end(); ) {
+		income_message_t *m = *iter;
+		m->alter -= 5;
+
 		if(m->alter<-80) {
-			return;
+			iter = messages.erase(iter);
+			delete m;
 		}
-		m->alter -= 5;//delta_t>>2;
+		else {
+			++iter;
+		}
 	}
 }
 

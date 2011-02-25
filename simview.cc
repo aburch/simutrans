@@ -266,7 +266,7 @@ void karte_ansicht_t::display(bool force_dirty)
 
 	DBG_DEBUG4("karte_ansicht_t::display", "display ticker");
 	if(welt) {
-		// finally update the ticker
+		// show players income/cost messages
 		for(int x=0; x<MAX_PLAYER_COUNT; x++) {
 			if(  welt->get_spieler(x)  ) {
 				welt->get_spieler(x)->display_messages();
