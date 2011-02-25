@@ -141,7 +141,7 @@ void crossing_t::rdwr(loadsave_t *file)
 	if(  file->get_version()>=110000  ) {
 		file->rdwr_long( speedlimit0 );
 	}
-	if(  file->get_version()>=110001  ) {
+	if(  file->get_version()>=110001 || (file->get_version() >= 110000 && file->get_experimental_version() >= 9)  ) {
 		file->rdwr_long( speedlimit1 );
 	}
 
