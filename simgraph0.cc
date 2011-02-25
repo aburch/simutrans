@@ -7,6 +7,7 @@
  *
  * Usage for Iso-Angband is granted.
  */
+
 #ifdef COMMAND_LINE_SERVER
 #include "simconst.h"
 #include "simsys.h"
