@@ -23,9 +23,6 @@
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
 
-// global client id
-extern uint32 client_id;
-
 // forward declaration ..
 char const* network_receive_file(SOCKET s, char const* save_as, long length);
 
@@ -121,7 +118,7 @@ const char *network_connect(const char *cp, karte_t *world)
 			err = "Server busy";
 			goto end;
 		}
-		client_id = nwj->client_id;
+		network_set_client_id(nwj->client_id);
 		// update map counter
 		// wait for sync command (tolerate some wrong commands)
 		for(  uint8 i=0;  i<5;  ++i  ) {
@@ -146,7 +143,7 @@ const char *network_connect(const char *cp, karte_t *world)
 		int len = ((nwc_game_t*)nwc)->len;
 		// guaranteed individual file name ...
 		char filename[256];
-		sprintf( filename, "client%i-network.sve", client_id );
+		sprintf( filename, "client%i-network.sve", network_get_client_id() );
 		err = network_receive_file( my_client_socket, filename, len );
 	}
 end:

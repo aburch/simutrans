@@ -142,7 +142,8 @@ void network_reset_server();
 
 void network_core_shutdown();
 
-// get our id on the server
+// get & set our id on the server
 uint32 network_get_client_id();
+void network_set_client_id(uint32 id);
 
 #endif

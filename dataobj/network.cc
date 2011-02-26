@@ -45,6 +45,12 @@ void clear_command_queue()
 
 // global client id
 static uint32 client_id;
+
+void network_set_client_id(uint32 id)
+{
+	client_id = id;
+}
+
 uint32 network_get_client_id()
 {
 	return client_id;
