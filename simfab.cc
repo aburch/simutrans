@@ -1160,6 +1160,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 			}
 		}
 		ausgang[produkt].menge -= menge << precision_bits;
+		ausgang[produkt].abgabe_sum += menge;
 		best_halt->starte_mit_route(best_ware);
 		best_halt->recalc_status();
 	}
