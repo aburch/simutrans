@@ -697,6 +697,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\dataobj\network_file_transfer.cc"
+				>
+			</File>
+			<File
 				RelativePath=".\dataobj\network_packet.cc"
 				>
 			</File>
@@ -1770,6 +1774,10 @@
 			</File>
 			<File
 				RelativePath=".\dataobj\network_cmp_pakset.h"
+				>
+			</File>
+			<File
+				RelativePath=".\dataobj\network_file_transfer.h"
 				>
 			</File>
 			<File

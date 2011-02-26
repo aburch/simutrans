@@ -1,5 +1,6 @@
 #include "network_cmd.h"
 #include "network.h"
+#include "network_file_transfer.h"
 #include "network_packet.h"
 #include "network_socket_list.h"
 #include "network_cmp_pakset.h"

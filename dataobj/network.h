@@ -74,15 +74,12 @@ bool network_initialize();
 // connect to address with patch name receive to localname, close
 const char *network_download_http( const char *address, const char *name, const char *localname );
 
-// connect to address (cp), receive gameinfo, close
-const char *network_gameinfo(const char *cp, gameinfo_t *gi);
-
-// connects to server at (cp), receives game, save to client%i-network.sve
-const char* network_connect(const char *cp, karte_t *world);
-
 void network_close_socket( SOCKET sock );
 
 void network_set_socket_nodelay( SOCKET sock );
+
+// open a socket or give a decent error message
+SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err);
 
 // if sucessful, starts a server on this port
 bool network_init_server( int port );
@@ -129,9 +126,6 @@ bool network_send_data( SOCKET dest, const char *buf, const uint16 size, uint16 
 bool network_receive_data( SOCKET sender, void *dest, const uint16 len, uint16 &received, const int timeout_ms );
 
 void network_process_send_queues(int timeout);
-
-// sending file over network
-const char *network_send_file( uint32 client_id, const char *filename );
 
 // true, if I can wrinte on the server connection
 bool network_check_server_connection();

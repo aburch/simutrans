@@ -15,6 +15,7 @@
 #include "components/list_button.h"
 #include "../dataobj/translator.h"
 #include "../dataobj/network.h"
+#include "../dataobj/network_file_transfer.h"
 #include "../dataobj/network_cmp_pakset.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/pakset_info.h"

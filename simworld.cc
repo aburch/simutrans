@@ -77,6 +77,7 @@
 #include "gui/player_frame_t.h"
 
 #include "dataobj/network.h"
+#include "dataobj/network_file_transfer.h"
 #include "dataobj/network_socket_list.h"
 #include "dataobj/network_cmd.h"
 #include "dataobj/translator.h"
