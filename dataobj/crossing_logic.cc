@@ -281,6 +281,14 @@ const kreuzung_besch_t *crossing_logic_t::get_crossing(const waytype_t ns, const
 	return best;
 }
 
+/**
+ * compare crossings for the same waytype-combinations
+ */
+bool have_crossings_same_wt(const kreuzung_besch_t *c0, const kreuzung_besch_t *c1)
+{
+	return c0->get_waytype(0)==c1->get_waytype(0)  &&  c0->get_waytype(1)==c1->get_waytype(1);
+}
+
 // returns a new or an existing crossing_logic_t object
 // new, of no matching crossings are next to it
 void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t zustand )
@@ -300,7 +308,7 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  found_cr->get_besch()!=start_cr->get_besch()) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),start_cr->get_besch())) {
 			break;
 		}
 		crossings.append( found_cr );
@@ -317,7 +325,7 @@ void crossing_logic_t::add( karte_t *w, crossing_t *start_cr, crossing_state_t z
 			break;
 		}
 		crossing_t *found_cr = gr->find<crossing_t>();
-		if(found_cr==NULL  ||  found_cr->get_besch()!=start_cr->get_besch()) {
+		if(found_cr==NULL  ||  !have_crossings_same_wt(found_cr->get_besch(),start_cr->get_besch())) {
 			break;
 		}
 		crossings.append( found_cr );
