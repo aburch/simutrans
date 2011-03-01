@@ -572,10 +572,6 @@ DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 	}
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
-	// clear all ids
-	simlinemgmt_t::init_line_ids();
-DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
-
 	// alle fabriken aufraeumen
 	slist_iterator_tpl<fabrik_t*> fab_iter(fab_list);
 	while(fab_iter.next()) {
@@ -674,8 +670,6 @@ void karte_t::init_felder()
 	MEMZERON(grid_hgts, (x + 1) * (y + 1));
 
 	marker.init(x, y);
-
-	simlinemgmt_t::init_line_ids();
 
 	win_set_welt( this );
 	reliefkarte_t::get_karte()->set_welt(this);

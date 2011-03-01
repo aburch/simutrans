@@ -55,7 +55,11 @@ private:
 				return i;
 			}
 		}
+		return enlarge();
+	}
 
+	static uint16 enlarge()
+	{
 		// no free entry found, extend array if possible
 		uint16 newsize;
 		if (size == 65535) {
@@ -125,6 +129,27 @@ public:
 			data[entry] = p;
 		}
 		else {
+			// all NULL pointers are mapped to entry 0
+			entry = 0;
+		}
+	}
+
+	// creates handle with id, fails if already taken
+	quickstone_tpl(T* p, uint16 id)
+	{
+		if(p) {
+			while (id >= size) enlarge();
+			if (data[id]!=NULL  &&  data[id]!=p) {
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%) already taken", id);
+			}
+			entry = id;
+			data[entry] = p;
+		}
+		else {
+			if (id!=0) {
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign null pointer to non-null index");
+			}
+			assert(id==0);
 			// all NULL pointers are mapped to entry 0
 			entry = 0;
 		}

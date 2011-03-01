@@ -84,7 +84,6 @@ private:
 	* @author hsiegeln
 	*/
 	linehandle_t line;
-	uint16 line_id;
 
 	/**
 	* holds id of line with pendig update

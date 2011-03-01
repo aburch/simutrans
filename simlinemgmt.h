@@ -17,9 +17,6 @@ class spieler_t;
 class schedule_list_gui_t;
 class karte_t;
 
-#define INVALID_LINE_ID ((uint16)(0))
-#define REASSIGN_LINE_ID ((uint16)(-1))
-
 class simlinemgmt_t
 {
 public:
@@ -35,12 +32,6 @@ public:
 	void add_line(linehandle_t new_line);
 
 	/*
-	 * creates/checks a line ID for a new line
-	 * @author hsiegeln
-	 */
-	void check_create_id(linehandle_t new_line);
-
-	/*
 	 * delete a line
 	 * @author hsiegeln
 	 */
@@ -51,12 +42,6 @@ public:
 	 * @author hsiegeln
 	 */
 	void update_line(linehandle_t line);
-
-	/*
-	* return a line by its ID
-	* @author hsiegeln
-	*/
-	linehandle_t get_line_by_id(uint16 line);
 
 	/*
 	 * load or save the linemanagement
@@ -79,13 +64,6 @@ public:
 	void laden_abschliessen();
 
 	void rotate90( sint16 y_size );
-
-	/**
-	 * Creates a unique line id.
-	 * @author Hj. Malthaner
-	 */
-	static uint16 get_unique_line_id();
-	static void init_line_ids();
 
 	void new_month();
 
@@ -118,14 +96,6 @@ public:
 	void show_lineinfo(spieler_t *sp, linehandle_t line);
 
 private:
-	static uint8 used_ids[8192];
-
-	/**
-	 * Last allocated line ID
-	 * @author Knightly
-	 */
-	static uint16 last_id;
-
 	vector_tpl<linehandle_t> all_managed_lines;
 
 	static karte_t * welt;

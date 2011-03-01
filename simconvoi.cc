@@ -120,7 +120,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	fpl = NULL;
 	line = linehandle_t();
-	line_id = INVALID_LINE_ID;
 
 	anz_vehikel = 0;
 	steps_driven = -1;
@@ -354,11 +353,9 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
-		// lines have been still unknown during loading for old savegames!
-		if (line_id != INVALID_LINE_ID) {
-			// if a line is assigned, set line!
-			linehandle_t new_line = besitzer_p->simlinemgmt.get_line_by_id(line_id);
-			if(  new_line.is_bound()  &&  !fpl->matches( welt, new_line->get_schedule() )  ) {
+		if(  line.is_bound()  ) {
+			linehandle_t new_line  = line;
+			if (  !fpl->matches( welt, line->get_schedule() )  ) {
 				// 101 version produced broken line ids => we have to find our line the hard way ...
 				vector_tpl<linehandle_t> lines;
 				get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);
@@ -375,12 +372,10 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_ind
 			// now the line should match our schedule or else ...
 			if(new_line.is_bound()) {
 				line = new_line;
-				line_id = new_line->get_line_id();
 				line->add_convoy(self);
-				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line_id);
+				DBG_DEBUG("convoi_t::laden_abschliessen()","%s registers for %d", name_and_id, line.get_id());
 			}
 			else {
-				line_id = INVALID_LINE_ID;
 				line = linehandle_t();
 			}
 		}
@@ -1843,20 +1838,11 @@ void convoi_t::rdwr(loadsave_t *file)
 	if(file->is_saving()) {
 		if(  file->get_version()<101000  ) {
 			file->wr_obj_id("Convoi");
+			// the matching read is in karte_t::laden(loadsave*)...
 		}
-		line_id = line.is_bound() ? line->get_line_id() : INVALID_LINE_ID;
 	}
 
-	// for new line management we need to load/save the assigned line id
-	// @author hsiegeln
-	if(file->get_version()<88003) {
-		dummy = 0;
-		file->rdwr_long(dummy);
-		line_id = (uint16)dummy;
-	}
-	else {
-		file->rdwr_short(line_id);
-	}
+	simline_t::rdwr_linehandle_t(file, line);
 
 	dummy = anz_vehikel;
 	file->rdwr_long(dummy);
@@ -2696,7 +2682,7 @@ void convoi_t::dump() const
 		(int)alte_richtung,
 		(long)(jahresgewinn/100),
 		(const char *)name_and_id,
-		(int)line_id,
+		line.is_bound() ? line.get_id() : 0,
 		(const void *)fpl );
 }
 
@@ -2774,8 +2760,6 @@ DBG_DEBUG("convoi_t::unset_line()", "removing old destinations from line=%d, fpl
 		line->remove_convoy(self);
 		line = linehandle_t();
 	}
-	// just to be sure ...
-	line_id = INVALID_LINE_ID;
 }
 
 

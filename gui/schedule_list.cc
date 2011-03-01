@@ -705,20 +705,16 @@ uint32 schedule_list_gui_t::get_rdwr_id()
 void schedule_list_gui_t::rdwr( loadsave_t *file )
 {
 	koord gr;
-	uint16 id = INVALID_LINE_ID;
 	sint32 cont_xoff, cont_yoff, halt_xoff, halt_yoff;
 	if(  file->is_saving()  ) {
 		gr = get_fenstergroesse();
-		if(  line.is_bound()  ) {
-			id = line->get_line_id();
-		}
 		cont_xoff = scrolly.get_scroll_x();
 		cont_yoff = scrolly.get_scroll_y();
 		halt_xoff = scrolly_haltestellen.get_scroll_x();
 		halt_yoff = scrolly_haltestellen.get_scroll_y();
 	}
 	gr.rdwr( file );
-	file->rdwr_short( id );
+	simline_t::rdwr_linehandle_t(file, line);
 	for (int i=0; i<MAX_LINE_COST; i++) {
 		bool b = filterButtons[i].pressed;
 		file->rdwr_bool( b );
@@ -730,7 +726,7 @@ void schedule_list_gui_t::rdwr( loadsave_t *file )
 	file->rdwr_long( halt_yoff );
 	// open dialoge
 	if(  file->is_loading()  ) {
-		show_lineinfo( sp->simlinemgmt.get_line_by_id(id) );
+		show_lineinfo( line );
 		set_fenstergroesse( gr );
 		resize( koord(0,0) );
 		scrolly.set_scroll_position( cont_xoff, cont_yoff );

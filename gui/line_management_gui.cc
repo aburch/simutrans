@@ -75,11 +75,9 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 {
 	// this handles only schedules of bound convois
 	// lines are handled by line_management_gui_t
-	uint16 id;
 	uint8 player_nr;
 	koord gr = get_fenstergroesse();
 	if(  file->is_saving()  ) {
-		id = line->get_line_id();
 		player_nr = line->get_besitzer()->get_player_nr();
 	}
 	else {
@@ -89,13 +87,12 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 	}
 	gr.rdwr( file );
 	file->rdwr_byte( player_nr );
-	file->rdwr_short( id );
+	simline_t::rdwr_linehandle_t(file, line);
 	old_fpl->rdwr(file);
 	fpl->rdwr(file);
 	if(  file->is_loading()  ) {
 		spieler_t *sp = welt->get_spieler(player_nr);
 		assert(sp);	// since it was alive during saving, this shoudl never happen
-		line = sp->simlinemgmt.get_line_by_id( id );
 
 		if(  line.is_bound()  &&  old_fpl->matches( welt, line->get_schedule() )  ) {
 			// now we can open the window ...
@@ -107,7 +104,7 @@ void line_management_gui_t::rdwr(loadsave_t *file)
 			w->fpl->copy_from( fpl );
 		}
 		else {
-			dbg->error( "line_management_gui_t::rdwr", "Could not restore schedule window for line id %i", id );
+			dbg->error( "line_management_gui_t::rdwr", "Could not restore schedule window for line id %i", line.get_id() );
 		}
 		sp = NULL;
 		delete old_fpl;

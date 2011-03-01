@@ -20,20 +20,7 @@
 
 #include "player/simplay.h"
 
-uint8 simlinemgmt_t::used_ids[8192];
-uint16 simlinemgmt_t::last_id = 0;
 karte_t *simlinemgmt_t::welt = NULL;
-
-void simlinemgmt_t::init_line_ids()
-{
-	DBG_MESSAGE("simlinemgmt_t::init_line_ids()","done");
-	for(int i=0;  i<8192;  i++  ) {
-		used_ids[i] = 0;
-	}
-	used_ids[INVALID_LINE_ID/8] |= (1<<(INVALID_LINE_ID&7));
-	used_ids[REASSIGN_LINE_ID/8] |= (1<<(REASSIGN_LINE_ID&7));
-	last_id = 0;
-}
 
 
 simlinemgmt_t::simlinemgmt_t(karte_t* welt)
@@ -67,65 +54,13 @@ void simlinemgmt_t::line_management_window(spieler_t *sp)
 
 void simlinemgmt_t::add_line(linehandle_t new_line)
 {
-	uint16 id = new_line->get_line_id();
-DBG_MESSAGE("simlinemgmt_t::add_line()","id=%d",new_line->get_line_id());
-	if(  id!=INVALID_LINE_ID  ) {
-		// update last line ID to the largest ID number
-		if(  last_id<id  ) {
-			last_id = id;
-		}
-		// case : line restored from save game
-		if(  ( used_ids[id/8] & (1<<(id&7)) )!=0  ) {
-			// line ID is already used -> defer reassignment of line ID to check_create_id() after all lines are loaded
-			dbg->error("simlinemgmt_t::add_line()","Line id %i doubled! (0x%X)!", id, used_ids[id/8] );
-			new_line->set_line_id( REASSIGN_LINE_ID );
-		}
-		else {
-			// register line ID as used
-			used_ids[id/8] |= (1<<(id&7));
-		}
-	}
 	all_managed_lines.append(new_line);
-}
-
-
-// since after loading there might be double line ID this routine will correct it
-void simlinemgmt_t::check_create_id(linehandle_t new_line)
-{
-	uint16 id = new_line->get_line_id();
-	if(  id==INVALID_LINE_ID  ) {
-		id = get_unique_line_id();
-		new_line->set_line_id( id );
-		DBG_MESSAGE("simlinemgmt_t::check_create_id()","New line id %i", id );
-	}
-	else if(  id==REASSIGN_LINE_ID  ) {
-		id = get_unique_line_id();
-		new_line->set_line_id( id );
-		dbg->error("simlinemgmt_t::check_create_id()","Reassigned new line id %i to line %s!", id, new_line->get_name());
-	}
-}
-
-
-linehandle_t simlinemgmt_t::get_line_by_id(uint16 id)
-{
-	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		if ((*i)->get_line_id() == id) return *i;
-	}
-	dbg->warning("simlinemgmt_t::get_line_by_id()","no line for id=%i",id);
-	return linehandle_t();
 }
 
 
 void simlinemgmt_t::delete_line(linehandle_t line)
 {
 	if (line.is_bound()) {
-		// free the line ID
-		uint16 id = line->get_line_id();
-		used_ids[id/8] &= ~(1<<(id&7));
-		// if possible, rewind the last line ID
-		while(  ( used_ids[last_id/8] & (1<<(last_id&7)) )==0  ) {
-			--last_id;
-		}
 		all_managed_lines.remove(line);
 		//destroy line object
 		delete line.get_rep();
@@ -186,21 +121,11 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 		for (int i = 0; i<totalLines; i++) {
 			simline_t::linetype lt=simline_t::line;
 			file->rdwr_enum(lt);
-			simline_t * line;
-			switch(lt) {
-				case simline_t::truckline:    line = new truckline_t(   welt, sp); break;
-				case simline_t::trainline:    line = new trainline_t(   welt, sp); break;
-				case simline_t::shipline:     line = new shipline_t(    welt, sp); break;
-				case simline_t::airline:      line = new airline_t(     welt, sp); break;
-				case simline_t::monorailline: line = new monorailline_t(welt, sp); break;
-				case simline_t::tramline:     line = new tramline_t(    welt, sp); break;
-				case simline_t::maglevline:   line = new maglevline_t(  welt, sp); break;
-				case simline_t::narrowgaugeline:line = new narrowgaugeline_t(welt, sp); break;
-				default:
-					// line = new simline_t(     welt, sp); break;
-					dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
+
+			if(lt < simline_t::truckline  ||  lt > simline_t::narrowgaugeline) {
+					dbg->fatal( "simlinemgmt_t::rdwr()", "Cannot create default line!" );
 			}
-			line->rdwr(file);
+			simline_t *line = new simline_t(welt, sp, lt, file);
 			add_line( line->get_handle() );
 		}
 	}
@@ -233,7 +158,6 @@ void simlinemgmt_t::laden_abschliessen()
 {
 	sort_lines();
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
-		check_create_id( *i );
 		(*i)->laden_abschliessen();
 	}
 	sort_lines();
@@ -251,51 +175,6 @@ void simlinemgmt_t::rotate90( sint16 y_size )
 }
 
 
-
-/**
- * Creates a unique line id. (max uint16, but this should be enough anyway)
- * @author prissi
- */
-uint16 simlinemgmt_t::get_unique_line_id()
-{
-	++last_id;
-DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "Free ID near %u", last_id);
-	// first, try to find an ID larger than the last ID
-	const uint16 last_id_i = last_id / 8;
-	const uint16 last_id_j = last_id & 7;
-	uint16 j = last_id_j;
-	for(  uint16 i=last_id_i;  i<8192;  ++i  ) {
-		if(  used_ids[i]!=255  ) {
-			for(  ;  j<8;  ++j  ) {
-				if(  ( used_ids[i]&(1<<j) )==0  ) {
-					used_ids[i] |= (1<<j);
-					last_id = i * 8 + j;
-DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "New ID %i", last_id);
-					return last_id;
-				}
-			}
-		}
-		j = 0;
-	}
-	// if no larger ID available, try to find an ID smaller than the last ID
-	for(  uint16 i=0;  i<=last_id_i;  ++i  ) {
-		if(  used_ids[i]!=255  ) {
-			for(  j=0;  j<8;  ++j  ) {
-				if(  ( used_ids[i]&(1<<j) )==0  ) {
-					used_ids[i] |= (1<<j);
-					last_id = i * 8 + j;
-DBG_MESSAGE("simlinemgmt_t::get_unique_line_id()", "New ID %i", last_id);
-					return last_id;
-				}
-			}
-		}
-	}
-	// not found
-	dbg->error("simlinemgmt_t::get_unique_line_id()","No valid ID found!");
-	return INVALID_LINE_ID;
-}
-
-
 void simlinemgmt_t::new_month()
 {
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
@@ -306,46 +185,13 @@ void simlinemgmt_t::new_month()
 
 linehandle_t simlinemgmt_t::create_line(int ltype, spieler_t * sp)
 {
-	simline_t * line = NULL;
-	switch (ltype) {
-		case simline_t::truckline:
-			line = new truckline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "truckline created");
-			break;
-		case simline_t::trainline:
-			line = new trainline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "trainline created");
-			break;
-		case simline_t::shipline:
-			line = new shipline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "shipline created");
-			break;
-		case simline_t::airline:
-			line = new airline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "airline created");
-			break;
-		case simline_t::monorailline:
-			line = new monorailline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "monorailline created");
-			break;
-		case simline_t::tramline:
-			line = new tramline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "tramline created");
-			break;
-		case simline_t::maglevline:
-			line = new maglevline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "maglevline created");
-			break;
-		case simline_t::narrowgaugeline:
-			line = new narrowgaugeline_t(welt, sp);
-			DBG_MESSAGE("simlinemgmt_t::create_line()", "narrowgaugeline created");
-			break;
-		default:
+	if(ltype < simline_t::truckline  ||  ltype > simline_t::narrowgaugeline) {
 			dbg->fatal( "simlinemgmt_t::create_line()", "Cannot create default line!" );
-			break;
 	}
+
+	simline_t * line = new simline_t(welt, sp, (simline_t::linetype)ltype);
+
 	add_line( line->get_handle() );
-	check_create_id( line->get_handle() );
 	sort_lines();
 	return line->get_handle();
 }
