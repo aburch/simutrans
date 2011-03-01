@@ -3497,7 +3497,7 @@ void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_y
 
 	// truncate new_yoff, modify new_ij.y
 	int lines = 0;
-	if(y_off>0) {
+	if(new_yoff>0) {
 		lines = (new_yoff + (raster/4))/(raster/2);
 	}
 	else {
