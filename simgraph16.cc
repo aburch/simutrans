@@ -10,7 +10,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include <limits.h>
 
 #include "macros.h"
 #include "simtypes.h"
@@ -91,7 +90,8 @@ static struct clip_dimension clip_rect;
  * associated to some clipline
  */
 struct xrange {
-	int xmin,xmax,sx,sy,y;
+	int sx,sy;
+	KOORD_VAL y;
 	bool non_convex_active;
 };
 
@@ -726,62 +726,56 @@ public:
 	// -- initialize the clipping
 	//    has to be called before image will be drawn
 	//    return interval for x coordinate
-	inline void get_x_range(int y, xrange &r) const {
+	inline void get_x_range(KOORD_VAL y, xrange &r) const {
+		// do everything for the previous row
+		y--;
 		r.y = y;
 		r.non_convex_active = false;
 		if (non_convex  &&  y<y0  &&  y<(y0+dy)) {
 			r.non_convex_active = true;
-			const bool left = dy<0;
-			r.xmin = left ? INT_MIN : x0+1;
-			r.xmax = left ? x0+dx   : INT_MAX;
 		}
 		else if (dy != 0) {
+			// init Bresenham algorithm
 			const int t = ((y-y0) << 16) / sdy;
 			// sx >> 16 = x
 			// sy >> 16 = y
 			r.sx = t * sdx + inc + (x0 << 16);
 			r.sy = t * sdy + (y0 << 16);
-			if (dy > 0) {
-				r.xmin = r.sx >> 16;
-				r.xmax = INT_MAX;
-			}
-			else {
-				r.xmin = INT_MIN;
-				r.xmax = r.sx >> 16;
-			}
-		}
-		else {
-			const bool clip = dx*(y-y0)>0;
-			r.xmin = clip ? INT_MAX : INT_MIN;
-			r.xmax = clip ? INT_MIN : INT_MAX;
 		}
 	}
 
 	// -- step one line down, return interval for x coordinate
-	inline void inc_y(xrange &r) const {
+	inline void inc_y(xrange &r, int &xmin, int &xmax) const {
 		r.y ++;
 		// switch between clip vertical and along ray
 		if (r.non_convex_active) {
 			if (r.y==min(y0,y0+dy)) {
 				r.non_convex_active = false;
 				if (dy != 0) {
+					// init Bresenham algorithm
 					const int t = ((r.y-y0) << 16) / sdy;
 					// sx >> 16 = x
 					// sy >> 16 = y
 					r.sx = t * sdx + inc + (x0 << 16);
 					r.sy = t * sdy + (y0 << 16);
 					if (dy > 0) {
-						r.xmin = r.sx >> 16;
-						r.xmax = INT_MAX;
+						const int r_xmin = r.sx >> 16;
+						if (xmin < r_xmin) xmin = r_xmin;
 					}
 					else {
-						r.xmin = INT_MIN;
-						r.xmax = r.sx >> 16;
+						const int r_xmax = r.sx >> 16;
+						if (xmax > r_xmax) xmax = r_xmax;
 					}
 				}
+			}
+			else {
+				if (dy<0) {
+					const int r_xmax = x0+dx;
+					if (xmax > r_xmax) xmax = r_xmax;
+				}
 				else {
-					r.xmin = INT_MIN;
-					r.xmax = INT_MAX;
+					const int r_xmin = x0+1;
+					if (xmin < r_xmin) xmin = r_xmin;
 				}
 			}
 		}
@@ -792,21 +786,26 @@ public:
 					r.sx += sdx;
 					r.sy += sdy;
 				} while ((r.sy >> 16) < r.y);
-				r.xmin = r.sx >> 16;
+				const int r_xmin = r.sx >> 16;
+				if (xmin < r_xmin) xmin = r_xmin;
 			}
 			else {
 				do {
 					r.sx -= sdx;
 					r.sy -= sdy;
 				} while ((r.sy >> 16) < r.y);
-				r.xmax = r.sx >> 16;
+				const int r_xmax = r.sx >> 16;
+				if (xmax > r_xmax) xmax = r_xmax;
 			}
 		}
 		// horicontal clip
 		else {
 			const bool clip = dx*(r.y-y0)>0;
-			r.xmin = clip ? INT_MAX : INT_MIN;
-			r.xmax = clip ? INT_MIN : INT_MAX;
+			if (clip) {
+				// invisible row
+				xmin = +1;
+				xmax = -1;
+			}
 		}
 	}
 };
@@ -874,13 +873,7 @@ inline void get_xrange_and_step_y(int &xmin, int &xmax)
 	xmax = clip_rect.xx;
 	for (uint8 i=0; i<number_of_clips; i++) {
 		if (clip_ribi[i] & active_ribi) {
-			if (xmin < xranges[i].xmin) {
-				xmin = xranges[i].xmin;
-			}
-			if (xmax > xranges[i].xmax) {
-				xmax = xranges[i].xmax;
-			}
-			poly_clips[i].inc_y(xranges[i]);
+			poly_clips[i].inc_y(xranges[i], xmin, xmax);
 		}
 	}
 }
