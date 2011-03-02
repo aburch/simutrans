@@ -73,13 +73,18 @@ public:
 	};
 
 private:
+	enum build_type_t {
+		build_straight = 1
+	};
+
 	struct next_gr_t
 	{
 		next_gr_t() {}
-		next_gr_t(grund_t* gr_, long cost_) : gr(gr_), cost(cost_) {}
+		next_gr_t(grund_t* gr_, long cost_, uint8 flag_=0) : gr(gr_), cost(cost_), flag(flag_) {}
 
 		grund_t* gr;
-		long		cost;
+		long     cost;
+		uint8    flag;
 	};
 	vector_tpl<next_gr_t> next_gr;
 

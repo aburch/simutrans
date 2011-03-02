@@ -849,7 +849,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 				sint8 num_slopes = (from->get_grund_hang() == hang_t::flach) ? 1 : -1;
 				// On the end tile, we haven't to subtract way_count_slope, since is_allowed_step isn't called with this tile.
 				num_slopes += (gr_end->get_grund_hang() == hang_t::flach) ? 1 : 0;
-				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_einstellungen()->way_count_slope ));
+				next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference + num_slopes*welt->get_einstellungen()->way_count_slope, build_straight ));
 				min_length = length+1;
 			}
 			else {
@@ -865,7 +865,7 @@ void wegbauer_t::check_for_bridge(const grund_t* parent_from, const grund_t* fro
 		koord3d end = tunnelbauer_t::finde_ende( welt, from->get_pos(), zv, besch->get_wtyp());
 		if(  end != koord3d::invalid  &&  !ziel.is_contained(end)  ) {
 			uint32 length = koord_distance(from->get_pos(), end);
-			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference ));
+			next_gr.append(next_gr_t(welt->lookup(end), length * cost_difference, build_straight ));
 			return;
 		}
 	}
@@ -1090,12 +1090,23 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		next_gr.clear();
 
 		// only one direction allowed ...
-		const koord bridge_nsow=tmp->parent!=NULL ? gr->get_pos().get_2d()-tmp->parent->gr->get_pos().get_2d() : koord::invalid;
+		const ribi_t::ribi straight_dir = tmp->parent!=NULL ? ribi_typ(gr->get_pos().get_2d()-tmp->parent->gr->get_pos().get_2d()) : ribi_t::alle;
+
+		// test directions
+		// .. use only those that are allowed by current slope
+		// .. do not go backward
+		const ribi_t::ribi slope_dir = (hang_t::ist_wegbar_ns(gr->get_weg_hang()) ? ribi_t::nordsued : ribi_t::keine) | (hang_t::ist_wegbar_ow(gr->get_weg_hang()) ? ribi_t::ostwest : ribi_t::keine);
+		const ribi_t::ribi test_dir = (tmp->count & build_straight)==0  ?  slope_dir  & ~ribi_t::rueckwaerts(straight_dir)
+		                                                                :  straight_dir;
 
 		// testing all four possible directions
-		for(int r=0; r<4; r++) {
+		for(ribi_t::ribi r=1; (r&16)==0; r<<=1) {
+			if((r & test_dir)==0) {
+				// not allowed to go this direction
+				continue;
+			}
 
-			if(!gr->get_neighbour(to,invalid_wt,koord::nsow[r])) {
+			if(!gr->get_neighbour(to,invalid_wt,koord(r))) {
 				continue;
 			}
 
@@ -1107,30 +1118,11 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			long new_cost = 0;
 			bool is_ok = is_allowed_step(gr,to,&new_cost);
 
-			// we check here for 180 degree turns and the end of bridges ...
 			if(is_ok) {
-				if(tmp->parent) {
-
-					// no 180 deg turns ...
-					if(tmp->parent->gr==to) {
-						continue;
-					}
-
-					// ok, check if previous was tunnel or bridge (i.e. there is a gap)
-					const koord parent_pos=tmp->parent->gr->get_pos().get_2d();
-					const koord to_pos=to->get_pos().get_2d();
-					// distance>1
-					if(abs(parent_pos.x-gr_pos.x)>1  ||   abs(parent_pos.y-gr_pos.y)>1) {
-						if(ribi_typ(parent_pos,to_pos)!=ribi_typ(gr_pos.get_2d(),to_pos)) {
-							// not a straight line
-							continue;
-						}
-					}
-				}
 				// now add it to the array ...
 				next_gr.append(next_gr_t(to, new_cost));
 			}
-			else if(tmp->parent!=NULL  &&  bridge_nsow==koord::nsow[r]) {
+			else if(tmp->parent!=NULL  &&  r==straight_dir) {
 				// try to build a bridge or tunnel here, since we cannot go here ...
 				check_for_bridge(tmp->parent->gr,gr,ziel);
 			}
@@ -1214,6 +1206,8 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 			k->g = new_g;
 			k->f = new_f;
 			k->dir = current_dir;
+			// count is unused here, use it as flag-variable instead
+			k->count = next_gr[r].flag;
 
 			queue.insert( k );
 
