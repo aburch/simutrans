@@ -1003,7 +1003,7 @@ DBG_MESSAGE("ai_goods_t::do_ki()","No roadway possible.");
 				}
 				else {
 					ship_vehicle = NULL;
-					state = CHECK_CONVOI;
+					state = NR_BAUE_CLEAN_UP;
 				}
 			}
 			break;
