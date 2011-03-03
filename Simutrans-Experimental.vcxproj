@@ -367,6 +367,7 @@
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
     <ClCompile Include="dataobj\network_cmp_pakset.cc" />
+    <ClCompile Include="dataobj\network_file_transfer.cc" />
     <ClCompile Include="dataobj\network_socket_list.cc" />
     <ClCompile Include="dataobj\pakset_info.cc" />
     <ClCompile Include="gui\line_item.cc" />
@@ -641,6 +642,7 @@
   <ItemGroup>
     <ClInclude Include="dataobj\gameinfo.h" />
     <ClInclude Include="dataobj\network_cmd.h" />
+    <ClInclude Include="dataobj\network_file_transfer.h" />
     <ClInclude Include="dataobj\network_packet.h" />
     <ClInclude Include="dataobj\pakset_info.h" />
     <ClInclude Include="gui\components\action_listener.h" />
