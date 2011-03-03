@@ -243,7 +243,7 @@ void fabrik_t::baue(sint32 rotate)
 	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
 	hausbauer_t::baue(welt, besitzer_p, pos, rotate, besch->get_haus(), this);
 	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
-	if(besch->get_field()) {
+	if(besch->get_field_group()) {
 		// if there are fields
 		if(!fields.empty()) {
 			for( uint16 i=0;  i<fields.get_count();  i++  ) {
@@ -253,7 +253,7 @@ void fabrik_t::baue(sint32 rotate)
 					// first make foundation below
 					grund_t *gr2 = new fundament_t(welt, gr->get_pos(), gr->get_grund_hang());
 					welt->access(k)->boden_ersetzen(gr, gr2);
-					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field()->get_field_class( fields[i].field_class_index ), this ) );
+					gr2->obj_add( new field_t( welt, gr2->get_pos(), besitzer_p, besch->get_field_group()->get_field_class( fields[i].field_class_index ), this ) );
 				}
 				else {
 					// there was already a building at this position => do not restore!
@@ -264,7 +264,7 @@ void fabrik_t::baue(sint32 rotate)
 		}
 		else {
 			// we will start with a certain minimum number
-			while(fields.get_count()<besch->get_field()->get_min_fields()  &&  add_random_field(0))
+			while(fields.get_count()<besch->get_field_group()->get_min_fields()  &&  add_random_field(0))
 				;
 		}
 	}
@@ -278,7 +278,7 @@ void fabrik_t::baue(sint32 rotate)
 bool fabrik_t::add_random_field(uint16 probability)
 {
 	// has fields, and not yet too many?
-	const field_besch_t *fb = besch->get_field();
+	const field_group_besch_t *fb = besch->get_field_group();
 	if(fb==NULL  ||  fb->get_max_fields() <= fields.get_count()) {
 		return false;
 	}
@@ -364,7 +364,7 @@ void fabrik_t::remove_field_at(koord pos)
 	field_data_t field(pos);
 	assert(fields.is_contained( field ));
 	field = fields[ fields.index_of(field) ];
-	const field_class_besch_t *const field_class = besch->get_field()->get_field_class( field.field_class_index );
+	const field_class_besch_t *const field_class = besch->get_field_group()->get_field_class( field.field_class_index );
 	// Knightly : revert the field's effect on production base and storage capacities
 	prodbase -= field_class->get_field_production();
 	const uint32 ware_types = eingang.get_count() + ausgang.get_count();
@@ -625,7 +625,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 				for(  uint16 i=0  ;  i<nr  ;  ++i  ) {
 					k.rdwr(file);
 					file->rdwr_short(idx);
-					if(  idx>=besch->get_field()->get_field_class_count()  ) {
+					if(  idx>=besch->get_field_group()->get_field_class_count()  ) {
 						// set class index to 0 if it is out of range
 						idx = 0;
 					}
@@ -952,9 +952,9 @@ void fabrik_t::step(long delta_t)
 			// we produced some real quantity => smoke
 			smoke();
 
-			if(besch->get_field()  &&  fields.get_count()<besch->get_field()->get_max_fields()) {
+			if(besch->get_field_group()  &&  fields.get_count()<besch->get_field_group()->get_max_fields()) {
 				// spawn new field with given probablitily
-				add_random_field(besch->get_field()->get_probability());
+				add_random_field(besch->get_field_group()->get_probability());
 			}
 
 			INT_CHECK("simfab 558");

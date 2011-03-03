@@ -64,6 +64,7 @@ private:
 
 public:
 	static void register_besch(fabrik_besch_t *besch);
+	static bool alles_geladen();
 
 	/**
 	 * Teilt dem Hausbauer mit, dass eine neue Karte geladen oder generiert wird.

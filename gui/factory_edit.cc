@@ -226,13 +226,13 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			fab_besch = new_fab_besch;
 			production = fab_besch->get_produktivitaet() + sim_async_rand( fab_besch->get_bereich() );
 			// Knightly : should also consider the effects of the minimum number of fields
-			const field_besch_t *const field_besch = fab_besch->get_field();
-			if(  field_besch  &&  field_besch->get_field_class_count()>0  ) {
-				const weighted_vector_tpl<uint16> &field_class_indices = field_besch->get_field_class_indices();
-				sint32 min_fields = field_besch->get_min_fields();
+			const field_group_besch_t *const field_group_besch = fab_besch->get_field_group();
+			if(  field_group_besch  &&  field_group_besch->get_field_class_count()>0  ) {
+				const weighted_vector_tpl<uint16> &field_class_indices = field_group_besch->get_field_class_indices();
+				sint32 min_fields = field_group_besch->get_min_fields();
 				while(  min_fields-- > 0  ) {
 					const uint16 field_class_index = field_class_indices.at_weight( sim_async_rand( field_class_indices.get_sum_weight() ) );
-					production += field_besch->get_field_class(field_class_index)->get_field_production();
+					production += field_group_besch->get_field_class(field_class_index)->get_field_production();
 				}
 			}
 			production <<= (welt->ticks_per_world_month_shift-18);
