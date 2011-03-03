@@ -339,7 +339,7 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
 						dt->zeige_info();
 						// did some new window open?
-						if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+						if(old_count!=win_get_open_count()) {
 							return NULL;
 						}
 					}
@@ -388,7 +388,7 @@ const char *wkz_abfrage_t::work( karte_t *welt, spieler_t *sp, koord3d pos )
 						DBG_MESSAGE("wkz_abfrage()", "index %d", n);
 						dt->zeige_info();
 						// did some new window open?
-						if(old_count!=win_get_open_count()  &&  !gr->ist_wasser()) {
+						if(old_count!=win_get_open_count()) {
 							return NULL;
 						}
 					}
