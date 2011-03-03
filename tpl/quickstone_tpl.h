@@ -138,15 +138,17 @@ public:
 	quickstone_tpl(T* p, uint16 id)
 	{
 		if(p) {
-			while (id >= size) enlarge();
-			if (data[id]!=NULL  &&  data[id]!=p) {
+			while(  id >= size  ) {
+				enlarge();
+			}
+			if(  data[id]!=NULL  &&  data[id]!=p  ) {
 				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%) already taken", id);
 			}
 			entry = id;
 			data[entry] = p;
 		}
 		else {
-			if (id!=0) {
+			if(  id!=0  ) {
 				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign null pointer to non-null index");
 			}
 			assert(id==0);
@@ -157,23 +159,9 @@ public:
 
 	quickstone_tpl(const quickstone_tpl& r) : entry(r.entry) {}
 
-#if 0	// shoudl be unneccessary, since compiler handles this much faster
-	/**
-	 * Assignment operator. Adjusts counters if one handle is
-	 * assigned ot another one.
-	 *
-	 * @author Hj. Malthaner
-	 */
-	quickstone_tpl operator=(const quickstone_tpl &other)
-	{
-		entry = other.entry;
-		return *this;
-	}
-#endif
-
 	// returns true, if no handles left
-	static bool is_exhausted() {
-
+	static bool is_exhausted()
+	{
 		if(  size==65535  ) {
 			// scan  array
 			for(  uint16 i = 1; i<size; i++) {
@@ -238,15 +226,9 @@ public:
 	 */
 	T* operator->() const { return data[entry]; }
 
-	bool operator== (const quickstone_tpl<T> &other) const
-	{
-		return entry == other.entry;
-	}
+	bool operator== (const quickstone_tpl<T> &other) const { return entry == other.entry; }
 
-	bool operator!= (const quickstone_tpl<T> &other) const
-	{
-		return entry != other.entry;
-	}
+	bool operator!= (const quickstone_tpl<T> &other) const { return entry != other.entry; }
 
 	static uint16 get_size() { return size; }
 
