@@ -1090,7 +1090,7 @@ DBG_DEBUG("insert to close","(%i,%i,%i)  f=%i",gr->get_pos().x,gr->get_pos().y,g
 		next_gr.clear();
 
 		// only one direction allowed ...
-		const ribi_t::ribi straight_dir = tmp->parent!=NULL ? ribi_typ(gr->get_pos().get_2d()-tmp->parent->gr->get_pos().get_2d()) : ribi_t::alle;
+		const ribi_t::ribi straight_dir = tmp->parent!=NULL ? ribi_typ(gr->get_pos().get_2d()-tmp->parent->gr->get_pos().get_2d()) : (ribi_t::ribi)ribi_t::alle;
 
 		// test directions
 		// .. use only those that are allowed by current slope
