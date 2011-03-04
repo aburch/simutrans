@@ -2,6 +2,7 @@
 #include "xref_besch.h"
 #include "../utils/checksum.h"
 
+
 void field_class_besch_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input(production_per_field);
@@ -9,7 +10,8 @@ void field_class_besch_t::calc_checksum(checksum_t *chk) const
 	chk->input(spawn_weight);
 }
 
-void field_besch_t::calc_checksum(checksum_t *chk) const
+
+void field_group_besch_t::calc_checksum(checksum_t *chk) const
 {
 	chk->input(probability);
 	chk->input(max_fields);
@@ -64,9 +66,9 @@ void fabrik_besch_t::calc_checksum(checksum_t *chk) const
 		prod->calc_checksum(chk);
 	}
 
-	const field_besch_t *field = get_field();
-	if (field) {
-		field->calc_checksum(chk);
+	const field_group_besch_t *field_group = get_field_group();
+	if (field_group) {
+		field_group->calc_checksum(chk);
 	}
 
 	get_haus()->calc_checksum(chk);

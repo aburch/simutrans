@@ -585,10 +585,6 @@ DBG_MESSAGE("karte_t::destroy()", "marker destroyed");
 	}
 DBG_MESSAGE("karte_t::destroy()", "player destroyed");
 
-	// clear all ids
-	simlinemgmt_t::init_line_ids();
-DBG_MESSAGE("karte_t::destroy()", "lines destroyed");
-
 	// alle fabriken aufräumen
 	// "all factories clear up" (Babelfish)
 	ITERATE(fab_list, i)
@@ -701,8 +697,6 @@ void karte_t::init_felder()
 	MEMZERON(grid_hgts, (x + 1) * (y + 1));
 
 	marker.init(x, y);
-
-	simlinemgmt_t::init_line_ids();
 
 	win_set_welt( this );
 	reliefkarte_t::get_karte()->set_welt(this);
@@ -3941,7 +3935,7 @@ void karte_t::change_world_position( koord new_ij, sint16 new_xoff, sint16 new_y
 
 	// truncate new_yoff, modify new_ij.y
 	int lines = 0;
-	if(y_off>0) {
+	if(new_yoff>0) {
 		lines = (new_yoff + (raster/4))/(raster/2);
 	}
 	else {
