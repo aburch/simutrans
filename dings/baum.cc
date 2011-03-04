@@ -78,13 +78,13 @@ vector_tpl<weighted_vector_tpl<uint32> > baum_t::baum_typen_per_climate(MAX_CLIM
  */
 stringhashtable_tpl<const baum_besch_t *> baum_t::besch_names;
 
+
 // total number of trees
 // the same for a certain climate
 int baum_t::get_anzahl_besch(climate cl)
 {
 	return baum_typen_per_climate[cl].get_count();
 }
-
 
 
 /**
@@ -127,7 +127,6 @@ uint8 baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const uint8 ma
 	}
 	return 0;
 }
-
 
 
 /**
@@ -175,7 +174,6 @@ bool baum_t::plant_tree_on_coordinate(karte_t * welt, koord pos, const baum_besc
 	}
 	return false;
 }
-
 
 
 uint32 baum_t::create_forest(karte_t *welt, koord new_center, koord wh )
@@ -239,7 +237,6 @@ DBG_MESSAGE("verteile_baeume()","distributing single trees");
 }
 
 
-
 static bool compare_baum_besch(const baum_besch_t* a, const baum_besch_t* b)
 {
 	/* Gleiches Level - wir führen eine künstliche, aber eindeutige Sortierung
@@ -258,6 +255,10 @@ bool baum_t::alles_geladen()
 		stringhashtable_iterator_tpl<const baum_besch_t*> iter(besch_names);
 		while(  iter.next()  ) {
 			baum_typen.insert_ordered( iter.get_current_value(), compare_baum_besch );
+			if(  baum_typen.get_count()==254  ) {
+				dbg->error( "baum_t::alles_geladen()", "Maximum tree count exceeded! (max 254 instead of %i)", besch_names.get_count() );
+				break;
+			}
 		}
 		// fill the vector with zeros
 		for (uint8 j=0; j<MAX_CLIMATES; j++) {
@@ -276,7 +277,6 @@ bool baum_t::alles_geladen()
 }
 
 
-
 bool baum_t::register_besch(baum_besch_t *besch)
 {
 	// avoid duplicates with same name
@@ -288,14 +288,13 @@ bool baum_t::register_besch(baum_besch_t *besch)
 }
 
 
-
 // calculates tree position on a tile
 // takes care of slopes
-void baum_t::calc_off()
+void baum_t::calc_off( uint8 slope )
 {
 	int liob;
 	int reob;
-	switch (welt->lookup( get_pos())->get_grund_hang() ) {
+	switch( slope ) {
 		case 0:
 			liob=simrand(30)-15;
 			reob=simrand(30)-15;
@@ -331,7 +330,6 @@ void baum_t::calc_off()
 			break;
 	}
 }
-
 
 
 void baum_t::calc_bild()
@@ -371,7 +369,6 @@ void baum_t::calc_bild()
 }
 
 
-
 image_id baum_t::get_bild() const
 {
 	// alter/2048 is the age of the tree
@@ -384,7 +381,6 @@ image_id baum_t::get_bild() const
 }
 
 
-
 // image which transparent outline is used
 image_id baum_t::get_outline_bild() const
 {
@@ -392,6 +388,11 @@ image_id baum_t::get_outline_bild() const
 	return get_besch()->get_bild_nr( season, baum_alter );
 }
 
+
+const sint32 baum_t::get_age() const
+{
+	return  welt->get_current_month()-geburt;
+}
 
 
 /* also checks for distribution values
@@ -412,7 +413,6 @@ uint16 baum_t::random_tree_for_climate_intern(climate cl)
 }
 
 
-
 baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 {
 	season = 0;
@@ -422,34 +422,33 @@ baum_t::baum_t(karte_t *welt, loadsave_t *file) : ding_t(welt)
 }
 
 
-
 baum_t::baum_t(karte_t *welt, koord3d pos) : ding_t(welt, pos)
 {
 	// Hajo: auch aeltere Baeume erzeugen
 	geburt = welt->get_current_month() - simrand(703);
 	baumtype = random_tree_for_climate_intern(welt->get_climate(pos.z));
 	season = 0;
-	calc_off();
+	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_bild();
 }
 
 
-
-baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type) : ding_t(welt, pos)
+baum_t::baum_t(karte_t *welt, koord3d pos, uint16 type, sint32 age, uint8 slope ) : ding_t(welt, pos)
 {
-	geburt = welt->get_current_month();
+	geburt = welt->get_current_month()-age;
 	baumtype = type;
 	season = 0;
-	calc_off();
+	calc_off( slope );
 	calc_bild();
 }
+
 
 baum_t::baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch) : ding_t(welt, pos)
 {
 	geburt = welt->get_current_month();
 	baumtype = baum_typen.index_of(besch);
 	season = 0;
-	calc_off();
+	calc_off( welt->lookup( get_pos())->get_grund_hang() );
 	calc_bild();
 }
 
@@ -466,7 +465,6 @@ bool baum_t::saee_baum()
 
 	return plant_tree_on_coordinate(welt, k, baum_typen[baumtype], true, false);
 }
-
 
 
 /* we should be as fast as possible for this, because trees are nearly the most common object on a map */

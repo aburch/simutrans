@@ -737,18 +737,23 @@ ding_t *dingliste_t::get_convoi_vehicle() const
 
 void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 {
-	sint32 max_object_index;
-	if(file->is_saving()) {
-		max_object_index = top-1;
-	}
-	file->rdwr_long(max_object_index);
+	if(file->is_loading()) {
 
-	if(max_object_index>254) {
-		dbg->error("dingliste_t::laden()","Too many objects (%i) at (%i,%i), some vehicle may not appear immediately.",max_object_index,current_pos.x,current_pos.y);
-	}
+		sint32 max_object_index;
+		if(  file->get_version()<=110000  ) {
+			file->rdwr_long(max_object_index);
+			if(max_object_index>254) {
+				dbg->error("dingliste_t::laden()","Too many objects (%i) at (%i,%i), some vehicle may not appear immediately.",max_object_index,current_pos.x,current_pos.y);
+			}
+		}
+		else {
+			uint8 obj_count;
+			file->rdwr_byte(obj_count);
+			max_object_index = -1+(sint32)obj_count;
+		}
 
-	for(sint32 i=0; i<=max_object_index; i++) {
-		if(file->is_loading()) {
+
+		for(sint32 i=0; i<=max_object_index; i++) {
 			ding_t::typ typ = (ding_t::typ)file->rd_obj_id();
 			// DBG_DEBUG("dingliste_t::laden()", "Thing type %d", typ);
 
@@ -995,8 +1000,14 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				add(d);
 			}
 		}
-		else {
-			// here is the saving part ...
+	}
+	else {
+		/* here is the saving part ...
+		 * first: construct a lsit of stuff really neded to save
+		 */
+		ding_t *save[256];
+		sint32 max_object_index = 0;
+		for(  uint16 i=0;  i<top;  i++  ) {
 			ding_t *d=bei(i);
 			if(d->is_way()
 				// do not save smoke
@@ -1008,28 +1019,40 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				// do not save factory buildings => factory will reconstruct them
 				||  (d->get_typ()==ding_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
 				// things with convoi will not be saved
-				||  (d->get_typ()>=66  &&  d->get_typ()<82)
+				||  (d->get_typ()>=66  &&  d->get_typ()<82
+				||  (umgebung_t::networkmode  &&  d->get_typ()==ding_t::baum  &&  file->get_version()>=110001)  )
 			) {
 				// these objects are simply not saved
-				file->wr_obj_id(-1);
 			}
 			else {
-				// on old versions
-				if(d->get_pos()==current_pos) {
-					file->wr_obj_id(d->get_typ());
-					d->rdwr(file);
-				}
-				else if (d->get_pos().get_2d() == current_pos.get_2d()) {
-					// ok, just error in z direction => we will correct it
-					dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i", d->get_pos().x, d->get_pos().y, d->get_pos().z, current_pos.z);
-					file->wr_obj_id(d->get_typ());
-					d->set_pos(current_pos);
-					d->rdwr(file);
-				}
-				else {
-					dbg->error("dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", d->get_pos().x, d->get_pos().y, current_pos.x, current_pos.y, d->get_typ());
-					file->wr_obj_id(-1);
-				}
+				save[max_object_index++] = d;
+			}
+		}
+		// now we know the number of stuff to save
+		max_object_index --;
+		if(  file->get_version()<=110000  ) {
+			file->rdwr_long( max_object_index );
+		}
+		else {
+			uint8 obj_count = max_object_index+1;
+			file->rdwr_byte( obj_count );
+		}
+		for(sint32 i=0; i<=max_object_index; i++) {
+			ding_t *d = save[i];
+			if(d->get_pos()==current_pos) {
+				file->wr_obj_id(d->get_typ());
+				d->rdwr(file);
+			}
+			else if (d->get_pos().get_2d() == current_pos.get_2d()) {
+				// ok, just error in z direction => we will correct it
+				dbg->warning( "dingliste_t::rdwr()","position error: z pos corrected on %i,%i from %i to %i", d->get_pos().x, d->get_pos().y, d->get_pos().z, current_pos.z);
+				file->wr_obj_id(d->get_typ());
+				d->set_pos(current_pos);
+				d->rdwr(file);
+			}
+			else {
+				dbg->error("dingliste_t::rdwr()","unresolvable position error: %i,%i instead %i,%i (object type %i will be not saved!)", d->get_pos().x, d->get_pos().y, current_pos.x, current_pos.y, d->get_typ());
+				file->wr_obj_id(-1);
 			}
 		}
 	}

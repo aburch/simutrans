@@ -22,7 +22,7 @@
 
 tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos ) : boden_t(welt, koord3d(pos,0), 0)
 {
-	rdwr(file);
+	grund_t::rdwr(file);	// since it has no trees, we do not need to invoke boden_t
 
 	// some versions had tunnel without tunnel objects
 	if (!find<tunnel_t>()) {
@@ -34,9 +34,7 @@ tunnelboden_t::tunnelboden_t(karte_t *welt, loadsave_t *file, koord pos ) : bode
 }
 
 
-
-void
-tunnelboden_t::calc_bild_internal()
+void tunnelboden_t::calc_bild_internal()
 {
 	// tunnel mouth
 	if (ist_karten_boden()) {
@@ -80,9 +78,7 @@ tunnelboden_t::calc_bild_internal()
 }
 
 
-
-void
-tunnelboden_t::rdwr(loadsave_t *file)
+void tunnelboden_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "tunnelboden_t" );
 
@@ -107,6 +103,7 @@ tunnelboden_t::rdwr(loadsave_t *file)
 		}
 	}
 }
+
 
 void tunnelboden_t::info(cbuffer_t & buf) const
 {
