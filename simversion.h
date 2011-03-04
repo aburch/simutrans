@@ -12,9 +12,9 @@
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
 #define SAVEGAME_VER_NR  "0.110.0"
-#define SERVER_SAVEGAME_VER_NR  "0.110.0"
+#define SERVER_SAVEGAME_VER_NR  "0.110.1"
 
-#define RES_VERSION_NUMBER  0, 110, 0, 0
+#define RES_VERSION_NUMBER  0, 110, 0, 1
 
 #define ANNOUNCE_SERVER "simutrans-germany.com:80"
 
