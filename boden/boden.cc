@@ -45,6 +45,8 @@ boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, k
 			if(  baum_t::get_anzahl_besch()>id  &&  (*(baum_t::get_all_besch()))[id]!=NULL  ) {
 				baum_t *tree = new baum_t( welt, get_pos(), (uint16)id, age, slope );
 				dinge.add( tree );
+			}
+			else {
 				dbg->warning( "boden_t::boden_t()", "Could not restore tree type %i at (%s)", id, pos.get_str() );
 			}
 			// check for next tree

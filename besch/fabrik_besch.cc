@@ -29,8 +29,7 @@ void fabrik_lieferant_besch_t::calc_checksum(checksum_t *chk) const
     chk->input(kapazitaet);
 	chk->input(anzahl);
 	chk->input(verbrauch);
-	const xref_besch_t *xref = get_child<xref_besch_t>(0);
-	chk->input(xref ? xref->get_name() : "NULL");
+	chk->input(get_ware()->get_name());
 }
 
 
@@ -38,8 +37,7 @@ void fabrik_produkt_besch_t::calc_checksum(checksum_t *chk) const
 {
     chk->input(kapazitaet);
 	chk->input(faktor);
-	const xref_besch_t *xref = get_child<xref_besch_t>(0);
-	chk->input(xref ? xref->get_name() : "NULL");
+	chk->input(get_ware()->get_name());
 }
 
 
