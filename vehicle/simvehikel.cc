@@ -749,13 +749,6 @@ bool vehikel_t::load_freight(halthandle_t halt)
 }
 
 
-void vehikel_t::set_offsets(int x, int y)
-{
-	set_xoff( x );
-	set_yoff( y );
-}
-
-
 /**
  * Remove freight that no longer can reach it's destination
  * i.e. becuase of a changed schedule

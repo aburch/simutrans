@@ -207,15 +207,6 @@ void verkehrsteilnehmer_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "verkehrsteilnehmer_t" );
 
-	// correct old offsets ... REMOVE after savegame increase ...
-	if(file->get_version()<99018  &&  file->is_saving()) {
-		dx = dxdy[ ribi_t::get_dir(fahrtrichtung)*2 ];
-		dy = dxdy[ ribi_t::get_dir(fahrtrichtung)*2+1 ];
-		sint8 i = steps/16;
-		set_xoff( get_xoff() + i*dx );
-		set_yoff( get_yoff() + i*dy + hoff );
-	}
-
 	vehikel_basis_t::rdwr(file);
 
 	if(file->get_version() < 86006) {

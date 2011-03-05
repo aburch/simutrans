@@ -272,8 +272,6 @@ public:
 	uint16 get_route_index() const {return route_index;}
 	const koord3d get_pos_prev() const {return pos_prev;}
 
-	void set_offsets(int x, int y);
-
 	/**
 	* gibt das Basisbild zurueck
 	* @author Hj. Malthaner
