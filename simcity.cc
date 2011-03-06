@@ -3162,7 +3162,7 @@ void stadt_t::step_passagiere()
 				{
 					// this comes most of the times for free and balances also the amounts!
 					halthandle_t ret_halt = pax.get_ziel();
-					bool return_in_private_car = private_car_only || !ret_halt.is_bound();
+					bool return_in_private_car = (route_good == private_car_only) || !ret_halt.is_bound();
 
 					if(!return_in_private_car)
 					{
