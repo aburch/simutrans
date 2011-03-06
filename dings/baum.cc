@@ -288,16 +288,21 @@ bool baum_t::register_besch(baum_besch_t *besch)
 }
 
 
+#define LOWRAND(i,x) (((i)%x)-(x/2))
+#define HIGHRAND(i,x) ((((i)/x)%x)-(x/2))
+
+
 // calculates tree position on a tile
 // takes care of slopes
 void baum_t::calc_off( uint8 slope )
 {
 	int liob;
 	int reob;
+	int random = get_pos().x + get_pos().y + get_pos().z + slope + baumtype + get_age() + (int)this;
 	switch( slope ) {
 		case 0:
-			liob=simrand(30)-15;
-			reob=simrand(30)-15;
+			liob = LOWRAND(random,27);
+			reob = HIGHRAND(random,27);
 			set_xoff( reob - liob  );
 			set_yoff( (reob + liob)/2 );
 			break;
@@ -309,8 +314,8 @@ void baum_t::calc_off( uint8 slope )
 		case 9:
 		case 12:
 		case 13:
-			liob=simrand(16)-8;
-			reob=simrand(16)-8;
+			liob = LOWRAND(random,13);
+			reob = HIGHRAND(random,13);
 			set_xoff( reob - liob  );
 			set_yoff( reob + liob );
 			break;
@@ -323,8 +328,8 @@ void baum_t::calc_off( uint8 slope )
 		case 11:
 		case 14:
 		case 15:
-			liob=simrand(TILE_STEPS)-(TILE_STEPS/2);
-			reob=simrand(TILE_STEPS)-(TILE_STEPS/2);
+			liob = LOWRAND(random,TILE_STEPS-1);
+			reob = HIGHRAND(random,TILE_STEPS-1);
 			set_xoff( reob + liob  );
 			set_yoff( -(10*TILE_STEPS/16)-(reob - liob)/2 );
 			break;
