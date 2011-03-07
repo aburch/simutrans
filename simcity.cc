@@ -1938,6 +1938,17 @@ void stadt_t::check_bau_rathaus(bool new_town)
 					}
 				}
 			}
+			else {
+				// make tiles flat, hausbauer_t::remove could have set some natural slopes
+				for (k.x = 0; k.x < besch->get_b(old_layout); k.x++) {
+					for (k.y = 0; k.y < besch->get_h(old_layout); k.y++) {
+						gr = welt->lookup_kartenboden(best_pos + k);
+						if (gr  &&  gr->ist_natur()) {
+							gr->set_grund_hang(hang_t::flach);
+						}
+					}
+				}
+			}
 		}
 
 		// Now built the new townhall (remember old orientation)
