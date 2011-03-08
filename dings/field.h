@@ -1,10 +1,7 @@
 #ifndef dings_field_h
 #define dings_field_h
 
-#include "../tpl/stringhashtable_tpl.h"
-
 #include "../simdings.h"
-#include "../simworld.h"
 #include "../simimg.h"
 
 
@@ -39,15 +36,6 @@ public:
 	const char * ist_entfernbar(const spieler_t *);
 
 	void entferne(spieler_t *sp);
-
-	// static routines from here
-private:
-	static stringhashtable_tpl<const field_class_besch_t *> besch_table;
-
-public:
-	static void register_besch(field_class_besch_t *besch, const char *name);
-
-	static const field_class_besch_t *get_besch(const char *name);
 };
 
 #endif

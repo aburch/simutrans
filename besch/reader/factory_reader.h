@@ -13,8 +13,6 @@ class factory_field_class_reader_t : public obj_reader_t {
     static factory_field_class_reader_t the_instance;
 
     factory_field_class_reader_t() { register_reader(); }
-protected:
-    virtual void register_obj(obj_besch_t *&data);
 public:
     static factory_field_class_reader_t *instance() { return &the_instance; }
 
