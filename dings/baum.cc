@@ -298,7 +298,7 @@ void baum_t::calc_off( uint8 slope )
 {
 	int liob;
 	int reob;
-	int random = get_pos().x + get_pos().y + get_pos().z + slope + baumtype + get_age() + (int)this;
+	int random = get_pos().x + get_pos().y + get_pos().z + slope + baumtype + get_age() + (long)this;
 	switch( slope ) {
 		case 0:
 			liob = LOWRAND(random,27);
@@ -394,7 +394,7 @@ image_id baum_t::get_outline_bild() const
 }
 
 
-const sint32 baum_t::get_age() const
+sint32 baum_t::get_age() const
 {
 	return  welt->get_current_month()-geburt;
 }
