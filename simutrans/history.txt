@@ -1,3 +1,5 @@
+Release of 110.0.1 (r4349 on 11-Mar-2011):
+
 	ADD: try to build crossing that match maxspeed of the ways to be crossed
 	ADD: sheep will not walk in cities anymore
 	CHANGE: much smaller savegames in online mode with trees
