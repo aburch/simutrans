@@ -654,7 +654,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				file->rdwr_byte( default_player_color[i][1] );
 			}
 		}
-		else {
+		else if(  file->is_loading()  ) {
 			default_player_color_random = false;
 			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
 				// default colors for player ...
