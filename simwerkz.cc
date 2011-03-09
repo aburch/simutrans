@@ -5466,8 +5466,9 @@ bool wkz_change_password_hash_t::init( karte_t *welt, spieler_t *sp)
  * 'a' : activate/deactivate player (depends on state)
  * 'n' : create player at id of type state
  * 'f' : activates/deactivates freeplay
+ * 'c' : change player color
  */
-bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
+bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp )
 {
 	if(  default_param==NULL  ) {
 		dbg->error( "wkz_change_player_t::init()", "nothing to do!" );
@@ -5502,6 +5503,13 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp)
 			if(welt->get_spieler(id)  &&  welt->get_spieler(id)->get_ai_id()!=spieler_t::HUMAN) {
 				welt->get_spieler(id)->set_active(state);
 				welt->access_einstellungen()->set_player_active( id, welt->get_spieler(id)->is_active() );
+			}
+			break;
+		case 'c': // change player color
+			if(  welt->get_spieler(id)  ) {
+				uint16 c1, c2, dummy;
+				sscanf( p, "%c,%i,%i,%i", &tool, &dummy, &c1, &c2 );
+				welt->get_spieler(id)->set_player_color( c1, c2 );
 			}
 			break;
 		case 'f': // activate/deactivate freeplay

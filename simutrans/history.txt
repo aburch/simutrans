@@ -1,5 +1,13 @@
 	ADD: try to build crossing that match maxspeed of the ways to be crossed
-	CHG: sheep will not walk in cities anymore
+	ADD: sheep will not walk in cities anymore
+	CHANGE: much smaller savegames in online mode with trees
+	FIX: broken townhalls when the land was flattend before
+	FIX: AI better cleans up when building of shipping lines fails
+	FIX: line IDs are now tied to line handles => no double line ID any more
+	FIX: crashes with window resizing under SDL
+	FIX: convois stuck after modifying schedule of line
+	ADD: pak set specific pre-defined player colors and random player colors
+
 
 Release of 110.0 (r4303 on 14-Feb-2011):
 

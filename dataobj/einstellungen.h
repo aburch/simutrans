@@ -14,6 +14,7 @@
  * April 2000
  */
 
+class spieler_t;
 class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
@@ -276,6 +277,10 @@ public:
 	// 0 = emtpy, otherwise some vaule from simplay
 	uint8 spieler_type[MAX_PLAYER_COUNT];
 
+	// player color suggestions for new games
+	bool default_player_color_random;
+	uint8 default_player_color[MAX_PLAYER_COUNT][2];
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -471,6 +476,8 @@ public:
 	uint32 get_minimum_city_distance() const { return minimum_city_distance; }
 
 	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }
+
+	void set_default_player_color( spieler_t *sp ) const;
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }

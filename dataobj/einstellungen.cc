@@ -13,6 +13,7 @@
 #include "../simtools.h"
 #include "../simtypes.h"
 #include "../simdebug.h"
+#include "../simworld.h"
 #include "../bauer/wegbauer.h"
 #include "../besch/weg_besch.h"
 #include "../utils/simstring.h"
@@ -21,6 +22,8 @@
 #include "loadsave.h"
 #include "tabfile.h"
 #include "translator.h"
+
+#include "../tpl/minivec_tpl.h"
 
 
 #define NEVER 0xFFFFU
@@ -169,7 +172,11 @@ einstellungen_t::einstellungen_t() :
 			automaten[i] = false;
 			spieler_type[i] = spieler_t::EMPTY;
 		}
+		// undefined colors
+		default_player_color[i][0] = 255;
+		default_player_color[i][1] = 255;
 	}
+	default_player_color_random = false;
 
 	/* the big cost section */
 	freeplay = false;
@@ -639,6 +646,22 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			}
 			file->rdwr_short( used_vehicle_reduction );
 		}
+
+		if(  file->get_version()>=110001  ) {
+			file->rdwr_bool( default_player_color_random );
+			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				file->rdwr_byte( default_player_color[i][0] );
+				file->rdwr_byte( default_player_color[i][1] );
+			}
+		}
+		else {
+			default_player_color_random = false;
+			for(  int i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				// default colors for player ...
+				default_player_color[i][0] = 255;
+				default_player_color[i][1] = 255;
+			}
+		}
 	}
 }
 
@@ -908,6 +931,19 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		}
 	}
 
+	// player colors
+	default_player_color_random = contents.get_int("random_player_colors", default_player_color_random ) != 0;
+	for(  int i = 0;  i<MAX_PLAYER_COUNT;  i++  ) {
+		char name[32];
+		sprintf( name, "player_color[%i]", i );
+		const char *command = contents.get(name);
+		int c1, c2;
+		if(  sscanf( command, "%i,%i", &c1, &c2 )==2  ) {
+			default_player_color[i][0] = c1;
+			default_player_color[i][1] = c2;
+		}
+	}
+
 	maint_building = contents.get_int("maintenance_building", maint_building );
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
@@ -1128,3 +1164,77 @@ void einstellungen_t::copy_city_road( einstellungen_t &other )
 		city_roads[i] = other.city_roads[i];
 	}
 }
+
+
+// returns default player colors for new players
+void einstellungen_t::set_default_player_color( spieler_t *sp ) const
+{
+	COLOR_VAL color1 = default_player_color[sp->get_player_nr()][0];
+	if(  color1 == 255  ) {
+		if(  default_player_color_random  ) {
+			// build a vector with all colors
+			minivec_tpl<uint8>all_colors1(28);
+			for(  uint8 i=0;  i<28;  i++  ) {
+				all_colors1.append(i);
+			}
+			// remove all used colors
+			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				spieler_t *test_sp = sp->get_welt()->get_spieler(i);
+				if(  test_sp  &&  sp!=test_sp  ) {
+					uint8 rem = 1<<(sp->get_player_color1()/8);
+					if(  all_colors1.is_contained(rem)  ) {
+						all_colors1.remove( rem );
+					}
+				}
+				else if(  default_player_color[i][0]!=255  ) {
+					uint8 rem = default_player_color[i][0];
+					if(  all_colors1.is_contained(rem)  ) {
+						all_colors1.remove( rem );
+					}
+				}
+			}
+			// now choose a random empty color
+			color1 = all_colors1[simrand(all_colors1.get_count())];
+		}
+		else {
+			color1 = sp->get_player_nr();
+		}
+	}
+
+	COLOR_VAL color2 = default_player_color[sp->get_player_nr()][1];
+	if(  color2 == 255  ) {
+		if(  default_player_color_random  ) {
+			// build a vector with all colors
+			minivec_tpl<uint8>all_colors2(28);
+			for(  uint8 i=0;  i<28;  i++  ) {
+				all_colors2.append(i);
+			}
+			// remove color1
+			all_colors2.remove( color1/8 );
+			// remove all used colors
+			for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
+				spieler_t *test_sp = sp->get_welt()->get_spieler(i);
+				if(  test_sp  &&  sp!=test_sp  ) {
+					uint8 rem = 1<<(sp->get_player_color2()/8);
+					if(  all_colors2.is_contained(rem)  ) {
+						all_colors2.remove( rem );
+					}
+				}
+				else if(  default_player_color[i][1]!=255  ) {
+					uint8 rem = default_player_color[i][1];
+					if(  all_colors2.is_contained(rem)  ) {
+						all_colors2.remove( rem );
+					}
+				}
+			}
+			// now choose a random empty color
+			color2 = all_colors2[simrand(all_colors2.get_count())];
+		}
+		else {
+			color2 = sp->get_player_nr() + 3;
+		}
+	}
+
+	sp->set_player_color( color1*8, color2*8 );
+}
+

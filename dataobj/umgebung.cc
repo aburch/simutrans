@@ -199,8 +199,6 @@ void umgebung_t::init()
 }
 
 
-
-
 // save/restore environment
 void umgebung_t::rdwr(loadsave_t *file)
 {
@@ -291,6 +289,7 @@ void umgebung_t::rdwr(loadsave_t *file)
 		file->rdwr_bool( add_player_name_to_message );
 		file->rdwr_short( window_snap_distance );
 	}
+
 	else if(  file->is_loading()  ) {
 		// did not know about chat message, so we enable it
 		message_flags[0] |= (1 << message_t::chat);	// ticker
