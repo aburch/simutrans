@@ -4903,7 +4903,10 @@ int road_destination_finder_t::get_kosten( const grund_t* gr, sint32 max_speed, 
 
 void stadt_t::remove_connected_city(stadt_t* city)
 {
-	connected_cities.remove(city->get_pos());
+	if(city)
+	{
+		connected_cities.remove(city->get_pos());
+	}
 }
 
 
