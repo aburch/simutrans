@@ -1,4 +1,4 @@
-Release of 110.0.1 (r4350 on 11-Mar-2011):
+Release of 110.0.1 (r4352 on 11-Mar-2011):
 
 	ADD: try to build crossing that match maxspeed of the ways to be crossed
 	ADD: sheep will not walk in cities anymore
@@ -9,6 +9,7 @@ Release of 110.0.1 (r4350 on 11-Mar-2011):
 	FIX: crashes with window resizing under SDL
 	FIX: convois stuck after modifying schedule of line
 	ADD: pak set specific pre-defined player colors and random player colors
+	FIX: world enlargement
 
 
 Release of 110.0 (r4303 on 14-Feb-2011):
