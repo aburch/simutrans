@@ -447,22 +447,34 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 		}
 	}
 
-	// now lower the corners to ground level
+	// now lower the corners and edge between new/old part to ground level
 	for(i=0; i<get_groesse_x(); i++) {
 		lower_to(i, 0, grundwasser,false);
 		lower_to(i, get_groesse_y(), grundwasser,false);
+		if (i <= xoff) {
+			lower_to(i, yoff, grundwasser,false);
+		}
 	}
 	for(i=0; i<=get_groesse_y(); i++) {
 		lower_to(0, i, grundwasser,false);
 		lower_to(get_groesse_x(), i, grundwasser,false);
+		if (i < yoff) {
+			lower_to(xoff, i, grundwasser,false);
+		}
 	}
 	for(i=0; i<=get_groesse_x(); i++) {
 		raise_to(i, 0, grundwasser,false);
 		raise_to(i, get_groesse_y(), grundwasser,false);
+		if (i <= xoff) {
+			raise_to(i, yoff, grundwasser,false);
+		}
 	}
 	for(i=0; i<=get_groesse_y(); i++) {
 		raise_to(0, i, grundwasser,false);
 		raise_to(get_groesse_x(), i, grundwasser,false);
+		if (i < yoff) {
+			raise_to(xoff, i, grundwasser,false);
+		}
 	}
 
 	// recalculate slopes and water tiles
@@ -1409,39 +1421,18 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 			}
 		}
 		exit_perlin_map();
-		// now lower the corners and edge between new/old part to ground level
-		sint16 i;
-		for(  i=0;  i<=get_groesse_x();  i++  ) {
-			lower_to(i, i<old_x?old_y:0,grundwasser,false);
-			lower_to(i, get_groesse_y(), grundwasser,false);
-		}
-		for(  i=0;  i<=get_groesse_y();  i++  ) {
-			lower_to(i<old_y?old_x:0, i,grundwasser,false);
-			lower_to(get_groesse_x(), i, grundwasser,false);
-		}
-		for(i=0; i<=get_groesse_x(); i++) {
-			raise_to(i, i<old_x?old_y:0,grundwasser,false);
-			raise_to(i, get_groesse_y(), grundwasser,false);
-		}
-		for(i=0; i<=get_groesse_y(); i++) {
-			raise_to(i<old_y?old_x:0, i,grundwasser,false);
-			raise_to(get_groesse_x(), i, grundwasser,false);
-		}
-		raise_to(old_x, old_y, grundwasser,false);
-		lower_to(old_x, old_y, grundwasser,false);
 	}
 
-//	int old_progress = 16;
-
+	// create grounds on new part
 	for (sint16 ix = 0; ix<new_groesse_x; ix++) {
 		for (sint16 iy = (ix>=old_x)?0:old_y; iy<new_groesse_y; iy++) {
 			koord k = koord(ix,iy);
 			access(k)->kartenboden_setzen(new boden_t(this, koord3d(ix,iy,min_hgt(k)),0));
-			access(k)->abgesenkt(this);
-			grund_t *gr = lookup_kartenboden(k);
-			gr->set_grund_hang(calc_natural_slope(k));
 		}
 	}
+
+	// set borders to water level, smooth the new part, reassign slopes on new part
+	cleanup_karte( old_x, old_y );
 
 	// smoothing the seam (if possible)
 	for (sint16 x=1; x<old_x; x++) {
@@ -1467,7 +1458,7 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		}
 	}
 
-	// new recalc the images of the old map near the seam ...
+	// now recalc the images of the old map near the seam ...
 	for (sint16 x=0; x<old_x-20; x++) {
 		for (sint16 y=max(old_y-20,0); y<old_y; y++) {
 			plan[x+y*cached_groesse_gitter_x].get_kartenboden()->calc_bild();
@@ -1479,7 +1470,6 @@ void karte_t::enlarge_map(einstellungen_t* sets, sint8 *h_field)
 		}
 	}
 
-	cleanup_karte( old_x, old_y );
 
 	// eventuall update origin
 	switch( einstellungen->get_rotation() ) {
