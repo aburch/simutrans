@@ -89,8 +89,8 @@ FunctionEnd
 
 Section "Executable (GDI, Unicode)" GDIexe
   AddSize 6913
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0/"
-  StrCpy $archievename "simuwin-110-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/"
+  StrCpy $archievename "simuwin-110-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (GDI)"
   Call DownloadInstall
   Call PostExeInstall
@@ -99,8 +99,8 @@ SectionEnd
 
 Section /o "Executable (SDL, better sound)" SDLexe
   AddSize 8849
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0/"
-  StrCpy $archievename "simuwin-sdl-110-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/simutrans/110-0-1/"
+  StrCpy $archievename "simuwin-sdl-110-0-1.zip"
   StrCpy $downloadname "Simutrans Executable (SDL)"
   Call DownloadInstall
   Call PostExeInstall
@@ -122,17 +122,17 @@ SectionGroup "Pak64: main and addons" pak64group
 
 Section "!pak64 (standard)" pak64
   AddSize 10438
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0/"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/"
   StrCpy $archievename "simupak64-110-0.zip"
   StrCpy $downloadname "pak64"
   Call DownloadInstall
 SectionEnd
 
 
-Section /o "pak64 Food addon 110.1"
+Section /o "pak64 Food addon 110.0.1"
   AddSize 222
-  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0/"
-  StrCpy $archievename "simupak64-addon-food-110-0.zip"
+  StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/"
+  StrCpy $archievename "simupak64-addon-food-110-0-1.zip"
   StrCpy $downloadname "pak64"
 
   StrCmp $multiuserinstall "1" InstallInUserDir
@@ -289,13 +289,13 @@ SectionEnd
 
 
 
-Section /o "pak48 excentrique (Freeware, alpha) 102.2.1" pak48excentrique
-  AddSize 1136
-  StrCpy $downloadlink "http://www.funkelwerk.de/data/pak.excentrique/releases/"
-  StrCpy $archievename "pak48.excentrique-v0002.zip"
-  StrCpy $downloadname "pak48.Excentrique"
-  Call DownloadInstallWithoutSimutrans
-SectionEnd
+;Section /o "pak48 excentrique (Freeware, alpha) 102.2.1" pak48excentrique
+;  AddSize 1136
+;  StrCpy $downloadlink "http://www.funkelwerk.de/data/pak.excentrique/releases/"
+;  StrCpy $archievename "pak48.excentrique-v0002.zip"
+;  StrCpy $downloadname "pak48.Excentrique"
+;  Call DownloadInstallWithoutSimutrans
+;SectionEnd
 
 
 
@@ -356,9 +356,9 @@ Function CheckForClosedSource
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show
 
-  SectionGetFlags ${pak48excentrique} $R0
-  IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show
+;  SectionGetFlags ${pak48excentrique} $R0
+;  IntOp $R0 $R0 & ${SF_SELECTED}
+;  IntCmp $R0 ${SF_SELECTED} show
 
   SectionGetFlags ${pak64HAJO} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
@@ -495,9 +495,9 @@ test_for_pak:
   SectionGetFlags ${pak192comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
-  SectionGetFlags ${pak48excentrique} $R0
-  IntOp $R0 $R0 & ${SF_SELECTED}
-  IntCmp $R0 ${SF_SELECTED} show_not
+;  SectionGetFlags ${pak48excentrique} $R0
+;  IntOp $R0 $R0 & ${SF_SELECTED}
+;  IntCmp $R0 ${SF_SELECTED} show_not
   SectionGetFlags ${pak32comic} $R0
   IntOp $R0 $R0 & ${SF_SELECTED}
   IntCmp $R0 ${SF_SELECTED} show_not
