@@ -223,7 +223,7 @@ bool fabrikbauer_t::alles_geladen()
 	stringhashtable_iterator_tpl<const fabrik_besch_t *> iter(table);
 	while(iter.next()) {
 		const fabrik_besch_t *current=iter.get_current_value();
-		if(  field_group_besch_t * fg = (field_group_besch_t *)(current->get_field_group())  ) {
+		if(  field_group_besch_t * fg = const_cast<field_group_besch_t *>(current->get_field_group())  ) {
 			// initialize weighted vector for the field class indices
 			fg->init_field_class_indices();
 		}

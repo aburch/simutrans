@@ -5507,7 +5507,7 @@ bool wkz_change_player_t::init( karte_t *welt, spieler_t *sp )
 			break;
 		case 'c': // change player color
 			if(  welt->get_spieler(id)  ) {
-				uint16 c1, c2, dummy;
+				int c1, c2, dummy;
 				sscanf( p, "%c,%i,%i,%i", &tool, &dummy, &c1, &c2 );
 				welt->get_spieler(id)->set_player_color( c1, c2 );
 			}
