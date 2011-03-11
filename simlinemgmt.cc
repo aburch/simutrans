@@ -118,6 +118,9 @@ void simlinemgmt_t::rdwr(karte_t * welt, loadsave_t *file, spieler_t *sp)
 		sint32 totalLines = 0;
 		file->rdwr_long(totalLines);
 DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
+
+		simline_t *unbound_line = NULL;
+
 		for (int i = 0; i<totalLines; i++) {
 			simline_t::linetype lt=simline_t::line;
 			file->rdwr_enum(lt);
@@ -126,7 +129,24 @@ DBG_MESSAGE("simlinemgmt_t::rdwr()","number of lines=%i",totalLines);
 					dbg->fatal( "simlinemgmt_t::rdwr()", "Cannot create default line!" );
 			}
 			simline_t *line = new simline_t(welt, sp, lt, file);
-			add_line( line->get_handle() );
+			if (!line->get_handle().is_bound()) {
+				// line id was saved as zero ...
+				if (unbound_line) {
+					dbg->fatal( "simlinemgmt_t::rdwr()", "More than one line with unbound id read" );
+				}
+				else {
+					unbound_line = line;
+				}
+			}
+			else {
+				add_line( line->get_handle() );
+			}
+		}
+
+		if (unbound_line) {
+			// linehandle will be corrected in simline_t::laden_abschliessen
+			line_with_id_zero = linehandle_t(unbound_line);
+			add_line( line_with_id_zero );
 		}
 	}
 }
@@ -156,7 +176,6 @@ void simlinemgmt_t::sort_lines()
 
 void simlinemgmt_t::laden_abschliessen()
 {
-	sort_lines();
 	for (vector_tpl<linehandle_t>::const_iterator i = all_managed_lines.begin(), end = all_managed_lines.end(); i != end; i++) {
 		(*i)->laden_abschliessen();
 	}

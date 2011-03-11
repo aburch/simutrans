@@ -79,6 +79,12 @@ public:
 	 */
 	linehandle_t create_line(int ltype, spieler_t * sp, schedule_t * fpl);
 
+
+	/**
+	 * If there was a line with id=0 map it to non-zero handle
+	 */
+	linehandle_t get_line_with_id_zero() const {return line_with_id_zero; }
+
 	/*
 	 * fill the list with all lines of a certain type
 	 * type == simline_t::line will return all lines
@@ -101,6 +107,8 @@ private:
 	static karte_t * welt;
 
 	schedule_list_gui_t *schedule_list_gui;  // Use with caution.  Valid only afer zeige_info
+
+	linehandle_t line_with_id_zero;
 };
 
 #endif

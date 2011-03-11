@@ -353,9 +353,14 @@ DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", sta
 			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
-		if(  line.is_bound()  ) {
-			linehandle_t new_line  = line;
-			if (  !fpl->matches( welt, line->get_schedule() )  ) {
+
+		linehandle_t new_line  = line;
+		if(  !new_line.is_bound()  ) {
+			// if there is a line with id=0 in the savegame try to assign cnv to this line
+			new_line = get_besitzer()->simlinemgmt.get_line_with_id_zero();
+		}
+		if(  new_line.is_bound()  ) {
+			if (  !fpl->matches( welt, new_line->get_schedule() )  ) {
 				// 101 version produced broken line ids => we have to find our line the hard way ...
 				vector_tpl<linehandle_t> lines;
 				get_besitzer()->simlinemgmt.get_lines(fpl->get_type(), &lines);

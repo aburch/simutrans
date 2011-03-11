@@ -138,11 +138,14 @@ public:
 	quickstone_tpl(T* p, uint16 id)
 	{
 		if(p) {
+			if(  id == 0  ) {
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","wants to assign non-null pointer to null index");
+			}
 			while(  id >= size  ) {
 				enlarge();
 			}
 			if(  data[id]!=NULL  &&  data[id]!=p  ) {
-				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%) already taken", id);
+				dbg->fatal("quickstone<T>::quickstone_tpl(T*,uint16)","slot (%d) already taken", id);
 			}
 			entry = id;
 			data[entry] = p;
