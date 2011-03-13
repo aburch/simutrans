@@ -23,11 +23,11 @@
 class baum_t : public ding_t
 {
 private:
+	// type of tree (was 9 but for more compact saves now only 254 different ree types are allowed)
+	uint32 baumtype:8;
+
 	// month of birth
 	sint32 geburt:20;
-
-	// type of tree
-	uint32 baumtype:9;
 
 	uint32 season:3;
 
@@ -41,17 +41,18 @@ private:
 	/**
 	 * Berechnet offsets für gepflanzte Bäume
 	 */
-	void calc_off();
+	void calc_off( uint8 slope );
 
 	static uint16 random_tree_for_climate_intern(climate cl);
 
 	static uint8 plant_tree_on_coordinate(karte_t *welt, koord pos, const uint8 maximum_count, const uint8 count);
+
 public:
 	// only the load save constructor should be called outside
 	// otherwise I suggest use the plant tree function (see below)
 	baum_t(karte_t *welt, loadsave_t *file);
 	baum_t(karte_t *welt, koord3d pos);
-	baum_t(karte_t *welt, koord3d pos, uint16 type);
+	baum_t(karte_t *welt, koord3d pos, uint16 type, sint32 age, uint8 slope );
 	baum_t(karte_t *welt, koord3d pos, const baum_besch_t *besch);
 
 	void rdwr(loadsave_t *file);
@@ -83,6 +84,8 @@ public:
 	void operator delete(void *p);
 
 	const baum_besch_t* get_besch() const { return baum_typen[baumtype]; }
+	const uint16 get_besch_id() const { return baumtype; }
+	const sint32 get_age() const;
 
 	// static functions to handle trees
 

@@ -80,7 +80,7 @@ private:
 	sint32 next_contruction_steps;
 
 	/* start and end stop position (and their size) */
-	koord platz1, size1, platz2, size2;
+	koord platz1, size1, platz2, size2, harbour;
 
 	// KI helper class
 	class fabconnection_t{

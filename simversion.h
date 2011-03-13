@@ -11,7 +11,7 @@
 #define XML_SAVEGAME_PREFIX  "<?xml version=\"1.0\"?>"
 
 #define SAVEGAME_VER_NR  "0.110.0"
-#define SERVER_SAVEGAME_VER_NR  "0.110.0"
+#define SERVER_SAVEGAME_VER_NR  "0.110.1"
 
 #define EXPERIMENTAL_VERSION L"9.4"
 #define NARROW_EXPERIMENTAL_VERSION "9.4"
