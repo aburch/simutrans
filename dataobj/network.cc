@@ -303,7 +303,7 @@ const char *network_download_http( const char *address, const char *name, const 
 		}
 		// read the header
 		char line[1024], rbuf;
-		int pos = 0;
+		unsigned int pos = 0;
 		long length = 0;
 		while(1) {
 			int i = recv( my_client_socket, &rbuf, 1, 0 );

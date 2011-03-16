@@ -173,6 +173,17 @@ first_beginner = 0
 
 ##################################display stuff#################################
 
+# player color can be fixed for several players or set totally random
+# in the latter case each player will get unique but random coloring
+# (default 0)
+random_player_colors = 0
+
+# when set here, the player will always get these player colors, even
+# if random colors were enabled.
+# color values range from 0 to 27 for first and second player color
+# and there are 0...15 player in the game
+player_color[1] = 1,4
+
 # how long is a diagonal (512: faktor 2=1024/512, old way, 724: sqrt(2)=1024/724
 # THIS WILL BE ONLY USED, WHEN THIS FILE IS IN THE pakxyz/config!
 #diagonal_multiplier = 724

@@ -99,7 +99,6 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 {
 	welt = wl;
 	player_nr = nr;
-	set_player_color( nr*8, nr*8+24 );
 
 	konto = welt->get_einstellungen()->get_starting_money(welt->get_last_year());
 	starting_money = konto;
@@ -138,6 +137,8 @@ spieler_t::spieler_t(karte_t *wl, uint8 nr) :
 
 	for (int maint=0; maint < MAINT_COUNT; maint++) 
 		maintenance[maint] = 0;
+
+	welt->get_einstellungen()->set_default_player_color( this );
 
 	// we have different AI, try to find out our type:
 	sprintf(spieler_name_buf,"player %i",player_nr-1);

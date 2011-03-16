@@ -53,7 +53,10 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type, loadsave_t *fi
 	rdwr(file);
 	// now self has the right id but the this-pointer is not assigned to the quickstone handle yet
 	// do this explicitly
-	self = linehandle_t(this, self.get_id());
+	// some savegames have line_id=0, resolve that in laden_abschliessen
+	if (self.get_id()!=0) {
+		self = linehandle_t(this, self.get_id());
+	}
 }
 
 
@@ -89,8 +92,9 @@ void simline_t::create_schedule()
 
 void simline_t::add_convoy(convoihandle_t cnv, bool from_loading)
 {
-	if (line_managed_convoys.empty()) {
+	if (line_managed_convoys.empty()  &&  self.is_bound()) {
 		// first convoi -> ok, now we can announce this connection to the stations
+		// unbound self can happen during loading if this line had line_id=0
 		register_stops(fpl);
 	}
 
@@ -307,6 +311,12 @@ void simline_t::rdwr(loadsave_t *file)
 
 void simline_t::laden_abschliessen()
 {
+	if(  !self.is_bound()  ) {
+		// get correct handle
+		self = sp->simlinemgmt.get_line_with_id_zero();
+		assert( self.get_rep() == this );
+		DBG_MESSAGE("simline_t::laden_abschliessen", "assigned id=%d to line %s", self.get_id(), get_name());
+	}
 	if(  line_managed_convoys.get_count()>0  ) {
 		register_stops(fpl);
 	}

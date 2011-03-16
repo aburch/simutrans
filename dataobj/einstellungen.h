@@ -15,6 +15,7 @@
  * April 2000
  */
 
+class spieler_t;
 class loadsave_t;
 class tabfile_t;
 class weg_besch_t;
@@ -431,6 +432,10 @@ public:
 	uint32 city_threshold_size;
 	uint32 capital_threshold_size;
 
+	// player color suggestions for new games
+	bool default_player_color_random;
+	uint8 default_player_color[MAX_PLAYER_COUNT][2];
+
 public:
 	/**
 	 * If map is read from a heightfield, this is the name of the heightfield.
@@ -785,6 +790,8 @@ public:
 	uint32 get_city_isolation_factor() const { return city_isolation_factor; }
 
 	sint16 get_used_vehicle_reduction() const { return used_vehicle_reduction; }
+
+	void set_default_player_color( spieler_t *sp ) const;
 
 	// usually only used in network mode => no need to set them!
 	uint32 get_random_counter() const { return random_counter; }

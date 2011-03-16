@@ -1003,7 +1003,7 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 	}
 	else {
 		/* here is the saving part ...
-		 * first: construct a lsit of stuff really neded to save
+		 * first: construct a list of stuff really neded to save
 		 */
 		ding_t *save[256];
 		sint32 max_object_index = 0;
@@ -1019,8 +1019,8 @@ void dingliste_t::rdwr(karte_t *welt, loadsave_t *file, koord3d current_pos)
 				// do not save factory buildings => factory will reconstruct them
 				||  (d->get_typ()==ding_t::gebaeude  &&  ((gebaeude_t *)d)->get_fabrik())
 				// things with convoi will not be saved
-				||  (d->get_typ()>=66  &&  d->get_typ()<82
-				||  (umgebung_t::server  &&  d->get_typ()==ding_t::baum  &&  file->get_version()>=110001)  )
+				||  (d->get_typ()>=66  &&  d->get_typ()<82)
+				||  (umgebung_t::server  &&  d->get_typ()==ding_t::baum  &&  file->get_version()>=110001)
 			) {
 				// these objects are simply not saved
 			}
