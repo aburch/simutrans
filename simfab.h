@@ -151,7 +151,7 @@ private:
 	uint32 delta_menge;
 
 	// true if the factory has a transformer adjacent
-	bool transformer_connected;
+	leitung_t* transformer_connected;
 
 	// true, if the factory did produce enough in the last step to require power
 	bool currently_producing;
@@ -270,8 +270,9 @@ public:
 	bool is_currently_producing() const { return currently_producing; }
 
 	// used to limit transformers to 1 per factory
-	bool is_transformer_connected() const { return transformer_connected; }
-	void set_transformer_connected(bool connected) { transformer_connected = connected; }
+	bool is_transformer_connected() const { return (bool)transformer_connected; }
+	leitung_t* get_transformer_connected() { return transformer_connected; }
+	void set_transformer_connected(leitung_t* connected) { transformer_connected = connected; }
 
 	/**
 	 * @return 1 wenn verbrauch,

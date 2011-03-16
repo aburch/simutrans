@@ -221,7 +221,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 	total_input = total_output = 0;
 	status = nothing;
 	currently_producing = false;
-	transformer_connected = false;
+	transformer_connected = NULL;
 }
 
 
@@ -240,7 +240,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	delta_sum = 0;
 	delta_menge = 0;
 	currently_producing = false;
-	transformer_connected = false;
+	transformer_connected = NULL;
 	power = 0;
 	power_demand = 0;
 	index_offset = 0;
@@ -352,6 +352,10 @@ fabrik_t::~fabrik_t()
 				gebaeude_t* gb = gr->find<gebaeude_t>();
 				hausbauer_t::remove(welt,  welt->get_spieler(1), gb);
 			}
+		}
+		if(transformer_connected)
+		{
+			transformer_connected->clear_factory();
 		}
 	}
 }

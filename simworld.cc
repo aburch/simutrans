@@ -3257,16 +3257,18 @@ void karte_t::neuer_monat()
 	{
 		// This will add a city if the city has engulfed the substation, and remove a city if
 		// the city has been deleted or become smaller. 
-		stadt_t* const city = get_city(senke_iter.get_current()->get_pos().get_2d());
 		senke_t* const substation = senke_iter.access_current();
+		stadt_t* const city = get_city(substation->get_pos().get_2d());
 		substation->set_city(city);
 		if(city)
 		{
 			city->add_substation(substation);
 		}
-		
-		// Check whether an industry has placed itself near the substation.
-		substation->check_industry_connexion();
+		else
+		{		
+			// Check whether an industry has placed itself near the substation.
+			substation->check_industry_connexion();
+		}
 	}
 
 	recalc_average_speed();

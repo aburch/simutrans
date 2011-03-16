@@ -1938,7 +1938,7 @@ void einstellungen_t::set_default_player_color( spieler_t *sp ) const
 				}
 			}
 			// now choose a random empty color
-			color1 = all_colors1[simrand(all_colors1.get_count())];
+			color1 = all_colors1[simrand(all_colors1.get_count(), "einstellungen_t::set_default_player_color()")];
 		}
 		else {
 			color1 = sp->get_player_nr();
@@ -1972,7 +1972,7 @@ void einstellungen_t::set_default_player_color( spieler_t *sp ) const
 				}
 			}
 			// now choose a random empty color
-			color2 = all_colors2[simrand(all_colors2.get_count())];
+			color2 = all_colors2[simrand(all_colors2.get_count(), "einstellungen_t::set_default_player_color()")];
 		}
 		else {
 			color2 = sp->get_player_nr() + 3;

@@ -42,6 +42,8 @@ protected:
 
 	const weg_besch_t *besch;
 
+	fabrik_t *fab;
+
 	/**
 	* Connect this piece of powerline to its neighbours
 	* -> this can merge power networks
@@ -127,6 +129,8 @@ public:
 	virtual void rdwr(loadsave_t *file);
 
 	stadt_t *city;
+
+	void clear_factory() { fab = NULL; }
 };
 
 
@@ -140,7 +144,6 @@ public:
 private:
 	static slist_tpl<pumpe_t *> pumpe_list;
 
-	fabrik_t *fab;
 	uint32 supply;
 
 	void step(long delta_t);
@@ -175,7 +178,6 @@ private:
 	
 	sint32 einkommen;
 	sint32 max_einkommen;
-	fabrik_t *fab;
 	sint32 delta_sum;
 	sint32 next_t;
 	uint32 last_power_demand;

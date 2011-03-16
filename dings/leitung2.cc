@@ -394,7 +394,7 @@ void leitung_t::rdwr(loadsave_t *file)
 	if(get_typ()==leitung) 
 	{
 		/* ATTENTION: during loading thus MUST not be called from the constructor!!!
-		 * (Otherwise it will be always true!
+		 * (Otherwise it will be always true!)
 		 */
 		if(file->get_version() > 102002 && (file->get_experimental_version() >= 8 || file->get_experimental_version() == 0))
 		{
@@ -484,7 +484,7 @@ pumpe_t::~pumpe_t()
 {
 	if(fab) {
 		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
-		fab->set_transformer_connected( false );
+		fab->set_transformer_connected( NULL );
 		pumpe_list.remove( this );
 		fab = NULL;
 	}
@@ -530,7 +530,7 @@ void pumpe_t::laden_abschliessen()
 
 	if(fab==NULL  &&  get_net()) {
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
-		fab->set_transformer_connected( true );
+		fab->set_transformer_connected( this );
 	}
 	pumpe_list.insert( this );
 
@@ -609,7 +609,7 @@ senke_t::~senke_t()
 		if(fab)
 		{
 			fab->set_prodfaktor( 16 );
-			fab->set_transformer_connected( false );
+			fab->set_transformer_connected( NULL );
 		}
 		if(city)
 		{
@@ -763,7 +763,7 @@ void senke_t::step(long delta_t)
 		const vector_tpl<fabrik_t*>& city_factories = city->get_city_factories();
 		ITERATE(city_factories, i)
 		{
-			city_factories[i]->set_transformer_connected(true);
+			city_factories[i]->set_transformer_connected(this);
 			const uint32 current_factory_demand = city_factories[i]->step_power_demand() * load_proportion;
 			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
 				(
@@ -820,7 +820,7 @@ uint32 senke_t::get_power_load() const
 bool senke_t::sync_step(long delta_t)
 {
 	if( fab == NULL && city == NULL) {
-		return false;
+		return true;
 	}
 
 	delta_sum += delta_t;
@@ -893,7 +893,7 @@ void senke_t::check_industry_connexion()
 		fab = leitung_t::suche_fab_4(get_pos().get_2d());
 		if(fab)
 		{
-			fab->set_transformer_connected(true);
+			fab->set_transformer_connected(this);
 		}
 	}
 }

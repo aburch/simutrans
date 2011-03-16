@@ -1434,20 +1434,23 @@ DBG_MESSAGE("wkz_senke()","called on %d,%d", k.x, k.y);
 		}
 		gr->obj_loesche_alle(sp);
 		// now decide from the string whether a source or drain is built
+		leitung_t* check = NULL;
 		if(fab != NULL && fab->get_besch()->is_electricity_producer()) 
 		{
 			pumpe_t *p = new pumpe_t(welt, gr->get_pos(), sp);
 			gr->obj_add( p );
 			p->laden_abschliessen();
+			check = (leitung_t*)p;
 		}
 		else 
 		{
 			senke_t *s = new senke_t(welt, gr->get_pos(), sp, city);
 			gr->obj_add(s);
 			s->laden_abschliessen();
+			check = (leitung_t*)s;
 		}
 		if (fab != NULL) {
-			fab->set_transformer_connected( true );
+			fab->set_transformer_connected( check );
 		}
 		return NULL;	// ok
 	}
