@@ -4226,6 +4226,10 @@ void convoi_t::check_pending_updates()
 				 * we try first same sequence as in old schedule;
 				 * if not found, we try for same nextnext station
 				 */
+				if(aktuell > fpl->eintrag.get_count() - 1)
+				{
+					aktuell = fpl->eintrag.get_count() - 1;
+				}
 				uint8 index = aktuell;
 				bool reverse = reverse_schedule;
 				koord3d next[4];
