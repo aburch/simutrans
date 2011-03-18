@@ -123,7 +123,7 @@ SectionGroup "Pak64: main and addons" pak64group
 Section "!pak64 (standard)" pak64
   AddSize 10438
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak64/110-0-1/"
-  StrCpy $archievename "simupak64-110-0.zip"
+  StrCpy $archievename "simupak64-110-0-1.zip"
   StrCpy $downloadname "pak64"
   Call DownloadInstall
 SectionEnd
