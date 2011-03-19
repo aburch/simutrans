@@ -2391,6 +2391,7 @@ void stadt_t::renoviere_gebaeude(gebaeude_t* gb)
 		}
 
 		// exchange building; try to face it to street in front
+		gb->mark_images_dirty();
 		gb->set_tile( h->get_tile(gebaeude_layout[streetdir], 0, 0) );
 		welt->lookup_kartenboden(k)->calc_bild();
 		update_gebaeude_from_stadt(gb);

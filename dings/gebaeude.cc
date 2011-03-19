@@ -967,7 +967,11 @@ void gebaeude_t::entferne(spieler_t *sp)
 			}
 		}
 	}
+	mark_images_dirty();
+}
 
+void gebaeude_t::mark_images_dirty() const
+{
 	// remove all traces from the screen
 	image_id img;
 	if(  zeige_baugrube  ||

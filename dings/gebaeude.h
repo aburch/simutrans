@@ -128,6 +128,7 @@ public:
 	image_id get_bild() const;
 	image_id get_bild(int nr) const;
 	image_id get_after_bild() const;
+	void mark_images_dirty() const;
 
 	image_id get_outline_bild() const;
 	PLAYER_COLOR_VAL get_outline_colour() const;
