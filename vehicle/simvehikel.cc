@@ -1002,6 +1002,7 @@ void vehikel_t::hop()
 		pos_next = cnv->get_route()->position_bei(route_index);
 	}
 	else {
+		route_index ++;
 		check_for_finish = true;
 	}
 	alte_fahrtrichtung = fahrtrichtung;
@@ -1044,6 +1045,9 @@ void vehikel_t::hop()
 
 	// friction factors and speedlimit may have changed
 	cnv->must_recalc_data();
+	if(  ist_erstes  ) {
+		cnv->must_recalc_brake_soll();
+	}
 
 	calc_akt_speed(gr);
 }
@@ -1074,29 +1078,6 @@ void vehikel_t::calc_akt_speed(const grund_t *gr) //,const int h_alt, const int 
 		else {
 			// hill down: accelrate
 			current_friction += -13;
-		}
-	}
-
-	if(ist_erstes) {
-		uint32 tiles_left = cnv->get_next_stop_index()-route_index;
-		if(tiles_left<4) {
-			// break at the end of stations/in front of signals
-			sint32 brake_speed_soll = speed_limit;
-
-			if(check_for_finish) {
-				// for the half last tile to stop in stations only
-				brake_speed_soll = kmh_to_speed(25);
-			}
-			else {
-				switch(tiles_left) {
-					case 3: brake_speed_soll = kmh_to_speed(200); break;
-					case 2: brake_speed_soll = kmh_to_speed(100); break;
-					case 1: brake_speed_soll = kmh_to_speed(50); break;
-					case 0: assert(1);
-					default: break;
-				}
-			}
-			speed_limit = min(speed_limit, brake_speed_soll);
 		}
 	}
 }
@@ -2834,7 +2815,7 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 		// find out if stop or waypoint, waypoint: do not brake at waypoints
 		grund_t const* const gr = welt->lookup(route->back());
 		if(  gr  &&  gr->is_halt()  ) {
-			next_signal_index = route->get_count();
+			next_signal_index = route->get_count()-1-1; // extra -1 to brake 1 tile earlier when entering station
 		}
 	}
 	return true;
@@ -3336,6 +3317,9 @@ bool aircraft_t::ist_weg_frei(int & restart_speed)
 		if(state!=flying2  &&  !block_reserver( touchdown-1, suchen, true )) {
 			// circle slowly next round
 			cnv->must_recalc_data();
+			if(  ist_erstes  ) {
+				cnv->must_recalc_brake_soll();
+			}
 			speed_limit = kmh_to_speed(besch->get_geschw())/2;
 			state = flying;
 			route_index -= 16;

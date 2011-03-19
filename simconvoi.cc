@@ -146,6 +146,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	loading_limit = 0;
 
 	max_record_speed = 0;
+	brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
 	akt_speed = 0;                 // momentane Geschwindigkeit
 	sp_soll = 0;
@@ -157,6 +158,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	home_depot = koord3d::invalid;
 	last_stop_pos = koord3d::invalid;
 
+	recalc_brake_soll = true;
 	recalc_data = true;
 }
 
@@ -594,16 +596,37 @@ void convoi_t::calc_acceleration(long delta_t)
 	if (recalc_data) {
 		sum_friction_weight = 0;
 		sum_gesamtgewicht = 0;
-		akt_speed_soll = min_top_speed;
-		// calculate total friction
+		// calculate total friction and lowest speed limit
+		sint32 min_speed_limit = min_top_speed;
 		for(unsigned i=0; i<anz_vehikel; i++) {
 			const vehikel_t* v = fahr[i];
 			int total_vehicle_weight = v->get_gesamtgewicht();
 
 			sum_friction_weight += v->get_frictionfactor() * total_vehicle_weight;
 			sum_gesamtgewicht += total_vehicle_weight;
-			akt_speed_soll = min(akt_speed_soll, v->get_speed_limit());
+			min_speed_limit = min( min_speed_limit, v->get_speed_limit() );
 		}
+
+		if(  recalc_brake_soll  ) {
+			// brake at the end of stations/in front of signals and crossings
+			const sint32 tiles_left = get_next_stop_index() - front()->get_route_index();
+			if(  tiles_left < 3  ) {
+				switch(  tiles_left  ) {
+					case  2: brake_speed_soll = kmh_to_speed(200); break;
+					case  1: brake_speed_soll = kmh_to_speed(100); break;
+					case  0: brake_speed_soll = kmh_to_speed(50); break;
+					case -1: brake_speed_soll = kmh_to_speed(25); break; // for the last tile to stop in stations only
+					default: break;
+				}
+			}
+			else {
+				brake_speed_soll = 2147483647;  // ==SPEED_UNLIMITED
+			}
+
+			recalc_brake_soll = false;
+		}
+
+		akt_speed_soll = min( min_speed_limit, brake_speed_soll );
 		recalc_data = false;
 	}
 	// Prissi: more pleasant and a little more "physical" model *
@@ -1720,6 +1743,7 @@ void convoi_t::vorfahren()
 	// Hajo: init speed settings
 	sp_soll = 0;
 	set_tiles_overtaking( 0 );
+	recalc_brake_soll = true;
 	recalc_data = true;
 
 	koord3d k0 = route.front();
