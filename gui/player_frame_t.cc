@@ -65,8 +65,10 @@ ki_kontroll_t::ki_kontroll_t(karte_t *wl) :
 		player_select[i].set_groesse( koord(120,BUTTON_HEIGHT) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
 		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
-		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
-		player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
+		if(  !welt->get_spieler(1)->is_locked()  ||  !umgebung_t::networkmode  ) {
+			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
+			player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
+		}
 		assert(  spieler_t::MAX_AI==4  );
 
 		// when adding new players, add a name here ...
@@ -226,6 +228,22 @@ void ki_kontroll_t::update_data()
 				remove_komponente( player_active+i-2 );
 				if(  0<player_select[i].get_selection()  &&  player_select[i].get_selection()<spieler_t::MAX_AI) {
 					add_komponente( player_active+i-2 );
+				}
+			}
+			if(  umgebung_t::networkmode  ) {
+				// change available selection of AIs
+				if(  !welt->get_spieler(1)->is_locked()  ) {
+					if(  player_select[i].count_elements()==2  ) {
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Goods AI"), COL_BLACK ) );
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Passenger AI"), COL_BLACK ) );
+					}
+				}
+				else {
+					if(  player_select[i].count_elements()==4  ) {
+						player_select[i].clear_elements();
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("slot empty"), COL_BLACK ) );
+						player_select[i].append_element( new gui_scrolled_list_t::const_text_scrollitem_t( translator::translate("Manual (Human)"), COL_BLACK ) );
+					}
 				}
 			}
 		}
