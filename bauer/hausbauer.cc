@@ -460,7 +460,6 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 				gr = gr2;
 //DBG_DEBUG("hausbauer_t::baue()","ground count now %i",gr->obj_count());
 				gr->obj_add( gb );
-				gb->set_pos( gr->get_pos() );
 				if(lt) {
 					gr->obj_add( lt );
 				}
@@ -470,6 +469,7 @@ gebaeude_t* hausbauer_t::baue(karte_t* welt, spieler_t* sp, koord3d pos, int org
 					welt->lookup_kartenboden(pos.get_2d()+k+koord(1,1))->calc_bild();
 				}
 			}
+			gb->set_pos( gr->get_pos() );
 			if(besch->ist_ausflugsziel()) {
 				welt->add_ausflugsziel( gb );
 			}
