@@ -5552,7 +5552,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// quit the program if this windows is closed
 			destroy_all_win(true);
 			umgebung_t::quit_simutrans = true;
-			return false;
+			break;
 		}
 
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
@@ -5829,7 +5829,7 @@ bool karte_t::interactive(uint32 quit_month)
 	if(  umgebung_t::announce_server  ) {
 		cbuffer_t buf(2048);
 		buf.printf( "/serverlist/slist.php?ID=%u&st=off", umgebung_t::announce_server );
-		network_download_http( "simutrans-germany.com:80", buf, NULL );
+		network_download_http( ANNOUNCE_SERVER, buf, NULL );
 	}
 
 	intr_enable();
@@ -5847,7 +5847,7 @@ void karte_t::announce_server()
 	if(  umgebung_t::announce_server  ) {
 		// now send the status
 		cbuffer_t buf(2048);
-		buf.printf( "/serverlist/slist.php?ID=%u", umgebung_t::announce_server );
+		buf.printf( "/serverlist/map.php?ID=%u", umgebung_t::announce_server );
 		buf.printf( "&gd=time%u.%u:size%ux%u:", (get_current_month()%12)+1, get_current_month()/12, get_groesse_x(), get_groesse_y() );
 		uint8 player=0, locked = 0;
 		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -5859,7 +5859,7 @@ void karte_t::announce_server()
 			}
 		}
 		last_clients = socket_list_t::get_playing_clients();
-		buf.printf( "Players%u:locked%u:Clients%u", player, locked, last_clients );
+		buf.printf( "Players%u:locked%u:Clients%u:", player, locked, last_clients );
 		buf.printf( "Towns%u:citicens%u:Factories%u:Convoys%u:Stops%u", stadt.get_count(), stadt.get_sum_weight(), fab_list.get_count(), get_convoi_count(), haltestelle_t::get_alle_haltestellen().get_count() );
 		network_download_http( ANNOUNCE_SERVER, buf, NULL );
 		if(  umgebung_t::announce_server_intervall > 0  ) {
