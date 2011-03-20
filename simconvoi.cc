@@ -138,6 +138,7 @@ void convoi_t::reset()
 	max_record_speed = 0;
 	akt_speed = 0;          // momentane Geschwindigkeit / current speed
 	sp_soll = 0;
+	brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
 
 	heaviest_vehicle = 0;
 	longest_loading_time = 0;
@@ -192,6 +193,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	reversable = false;
 	reversed = false;
+	recalc_brake_soll = true;
 	recalc_data = true;
 }
 
@@ -669,7 +671,8 @@ void convoi_t::increment_odometer()
 void convoi_t::calc_acceleration(long delta_t)
 {
 	// Dwachs: only compute this if a vehicle in the convoi hopped
-	if (recalc_data) {
+	if (recalc_data) 
+	{
 		// neroden: Speed limits based on the track etc. are handled by
 		// convoy.calc_move, in the 'adverse' class.
 		// When there is a permanent convoy_t for each convoi_t,
@@ -677,10 +680,41 @@ void convoi_t::calc_acceleration(long delta_t)
 		// In the meantime, this does nothing interesting.
 		recalc_data = false;
 	}
+	
+	if(  recalc_brake_soll  ) 
+	{
+			// brake at the end of stations/in front of signals and crossings
+			const sint32 tiles_left = get_next_stop_index() - front()->get_route_index();
+			waytype_t waytype = front()->get_waytype();
+			const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
+			double braking_rate;  // km/h decay per kilometre. TODO: Consider having this set in .dat files
+			switch(waytype)
+			{
+			case track_wt:
+			case narrowgauge_wt:
+			case monorail_wt:
+				braking_rate = 62.5;
+				break;
+
+			case tram_wt:
+				braking_rate = 85.0;
+				break;
+
+			default:
+				braking_rate = 100.0;
+				break;
+			}
+
+			const double km_left = (double)(tiles_left + 1) * (double)distance_per_tile;
+			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * km_left));
+
+			recalc_brake_soll = false;
+ 		}
+	
 	// existing_convoy_t is designed to become a part of convoi_t. 
 	// There it will help to minimize updating convoy summary data.
 	existing_convoy_t convoy(*this);
-	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), min_top_speed, akt_speed, sp_soll);
+	convoy.calc_move(delta_t, get_welt()->get_einstellungen()->get_distance_per_tile(), min( min_top_speed, brake_speed_soll ), akt_speed, sp_soll);
 }
 
 
