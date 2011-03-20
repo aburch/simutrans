@@ -515,7 +515,9 @@ void button_t::zeichnen(koord offset)
 					display_fillbox_wh_clip( bx, by, 11, 11, COL_BLACK, true );
 					display_fillbox_wh_clip( bx+1, by+1, 9, 9, pressed ? MN_GREY3 : MN_GREY1, true );
 				}
-				display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+				if(  text  ) {
+					display_proportional_clip(bx+16,by+(12-large_font_height)/2, translated_text, ALIGN_LEFT, b_enabled ? foreground : COL_GREY4, true);
+				}
 				if(  win_get_focus()==this  ) {
 					// white box around
 					int rw = 13;

@@ -598,7 +598,12 @@ void convoi_t::calc_acceleration(long delta_t)
 		sum_gesamtgewicht = 0;
 		// calculate total friction and lowest speed limit
 		sint32 min_speed_limit = min_top_speed;
-		for(unsigned i=0; i<anz_vehikel; i++) {
+
+		sum_gesamtgewicht = front()->get_gesamtgewicht();
+		sum_friction_weight = front()->get_frictionfactor() * sum_gesamtgewicht;
+		min_speed_limit = min( min_speed_limit, front()->get_speed_limit() );
+
+		for(  unsigned i=1; i<anz_vehikel; i++  ) {
 			const vehikel_t* v = fahr[i];
 			int total_vehicle_weight = v->get_gesamtgewicht();
 
@@ -609,24 +614,21 @@ void convoi_t::calc_acceleration(long delta_t)
 
 		if(  recalc_brake_soll  ) {
 			// brake at the end of stations/in front of signals and crossings
-			const sint32 tiles_left = get_next_stop_index() - front()->get_route_index();
-			if(  tiles_left < 3  ) {
-				switch(  tiles_left  ) {
-					case  2: brake_speed_soll = kmh_to_speed(200); break;
-					case  1: brake_speed_soll = kmh_to_speed(100); break;
-					case  0: brake_speed_soll = kmh_to_speed(50); break;
-					case -1: brake_speed_soll = kmh_to_speed(25); break; // for the last tile to stop in stations only
-					default: break;
-				}
+			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
+			brake_speed_soll = 2147483647;  // ==SPEED_UNLIMITED
+			if(  tiles_left < 4  ) {
+				static sint32 brake_speed_countdown[4] = {
+					kmh_to_speed(25),
+					kmh_to_speed(50),
+					kmh_to_speed(100),
+					kmh_to_speed(200)
+				};
+				brake_speed_soll = brake_speed_countdown[tiles_left];
 			}
-			else {
-				brake_speed_soll = 2147483647;  // ==SPEED_UNLIMITED
-			}
-
 			recalc_brake_soll = false;
 		}
-
 		akt_speed_soll = min( min_speed_limit, brake_speed_soll );
+
 		recalc_data = false;
 	}
 	// Prissi: more pleasant and a little more "physical" model *
@@ -1319,9 +1321,7 @@ void convoi_t::warten_bis_weg_frei(int restart_speed)
 }
 
 
-
-bool
-convoi_t::add_vehikel(vehikel_t *v, bool infront)
+bool convoi_t::add_vehikel(vehikel_t *v, bool infront)
 {
 DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i totals.",anz_vehikel,max_vehicle);
 	// extend array if requested (only needed for trains)
