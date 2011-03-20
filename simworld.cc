@@ -5826,7 +5826,7 @@ bool karte_t::interactive(uint32 quit_month)
 		umgebung_t::quit_simutrans = true;
 	}
 
-	if(  umgebung_t::announce_server  ) {
+	if(  umgebung_t::server  &&  umgebung_t::announce_server  ) {
 		cbuffer_t buf(2048);
 		buf.printf( "/serverlist/slist.php?ID=%u&st=off", umgebung_t::announce_server );
 		network_download_http( ANNOUNCE_SERVER, buf, NULL );
