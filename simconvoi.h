@@ -261,6 +261,7 @@ private:
 	// cached values
 	// will be recalculated if
 	// recalc_data is true
+	bool recalc_brake_soll;
 	bool recalc_data;
 	sint32 sum_friction_weight;
 	sint32 speed_limit;
@@ -991,6 +992,7 @@ public:
 	bool has_no_cargo() const;
 
 	void must_recalc_data() { recalc_data = true; }
+	void must_recalc_brake_soll() { recalc_brake_soll = true; }
 
 	// Overtaking for convois
 	virtual bool can_overtake(overtaker_t *other_overtaker, int other_speed, int steps_other, int diagonal_length);

@@ -192,7 +192,6 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	reversable = false;
 	reversed = false;
-
 	recalc_data = true;
 }
 
