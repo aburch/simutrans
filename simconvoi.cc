@@ -594,15 +594,10 @@ void convoi_t::calc_acceleration(long delta_t)
 {
 	// Dwachs: only compute this if a vehicle in the convoi hopped
 	if (recalc_data) {
-		sum_friction_weight = 0;
-		sum_gesamtgewicht = 0;
 		// calculate total friction and lowest speed limit
-		sint32 min_speed_limit = min_top_speed;
-
+		sint32 min_speed_limit = min( min_top_speed, front()->get_speed_limit() );
 		sum_gesamtgewicht = front()->get_gesamtgewicht();
 		sum_friction_weight = front()->get_frictionfactor() * sum_gesamtgewicht;
-		min_speed_limit = min( min_speed_limit, front()->get_speed_limit() );
-
 		for(  unsigned i=1; i<anz_vehikel; i++  ) {
 			const vehikel_t* v = fahr[i];
 			int total_vehicle_weight = v->get_gesamtgewicht();
