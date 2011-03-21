@@ -2838,7 +2838,7 @@ void karte_t::neuer_monat()
 	if(  letzter_monat == 0  &&  !get_einstellungen()->is_freeplay()  ) {
 		// remove all player (but first and second) who went bankrupt during last year
 		for(int i=2; i<MAX_PLAYER_COUNT-1; i++) {
-			if(  spieler[i] != NULL  &&  (spieler[i]->get_ai_id()==spieler_t::HUMAN  ||  !umgebung_t::networkmode)  &&
+			if(  spieler[i] != NULL  &&
 				spieler[i]->get_finance_history_year(0,COST_NETWEALTH)<=0  &&
 				spieler[i]->get_finance_history_year(0,COST_MAINTENANCE)==0  &&
 				spieler[i]->get_maintenance()==0  &&
