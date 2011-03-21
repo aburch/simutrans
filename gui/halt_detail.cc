@@ -93,7 +93,6 @@ halt_detail_t::~halt_detail_t()
 	while(!label_names.empty()) {
 		free( (void *)(label_names.remove_first()) );
 	}
-	buf.clear();
 }
 
 
