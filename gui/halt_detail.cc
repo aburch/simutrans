@@ -70,6 +70,30 @@ halt_detail_t::~halt_detail_t()
 		cont.remove_komponente( b );
 		delete b;
 	}
+	while(!linelabels.empty()) {
+		gui_label_t *l = linelabels.remove_first();
+		cont.remove_komponente( l );
+		delete l;
+	}
+	while(!linebuttons.empty()) {
+		button_t *b = linebuttons.remove_first();
+		cont.remove_komponente( b );
+		delete b;
+	}
+	while(!convoylabels.empty()) {
+		gui_label_t *l = convoylabels.remove_first();
+		cont.remove_komponente( l );
+		delete l;
+	}
+	while(!convoybuttons.empty()) {
+		button_t *b = convoybuttons.remove_first();
+		cont.remove_komponente( b );
+		delete b;
+	}
+	while(!label_names.empty()) {
+		free( (void *)(label_names.remove_first()) );
+	}
+	buf.clear();
 }
 
 
