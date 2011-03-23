@@ -1151,7 +1151,8 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
 			const koord &zwpos = ware.get_zielpos();
-			const long dist = koord_distance( zwpos, start ) - koord_distance( end, zwpos );
+			// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
+			const sint32 dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
 
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
 			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
@@ -1172,8 +1173,9 @@ sint64 vehikel_t::calc_gewinn(koord start, koord end) const
 			}
 
 			// now only use the real gain in difference for the revenue (may as well be negative!)
-			const koord zwpos = ware.get_zwischenziel()->get_basis_pos();
-			const long dist = koord_distance( zwpos, start ) - koord_distance( end, zwpos );
+			const koord &zwpos = ware.get_zwischenziel()->get_basis_pos();
+			// cast of koord_distance to sint32 is necessary otherwise the r-value would be interpreted as unsigned, leading to overflows
+			const sint32 dist = (sint32)koord_distance( zwpos, start ) - (sint32)koord_distance( end, zwpos );
 
 			const sint32 grundwert128 = ware.get_besch()->get_preis()<<7;	// bonus price will be always at least 0.128 of the real price
 			const sint32 grundwert_bonus = (ware.get_besch()->get_preis()*(1000+speed_base*ware.get_besch()->get_speed_bonus()));
