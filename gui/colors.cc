@@ -215,6 +215,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	set_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
 }
 
+
 void color_gui_t::set_fenstergroesse(koord groesse)
 {
 	gui_frame_t::set_fenstergroesse(groesse);
