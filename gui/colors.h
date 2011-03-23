@@ -41,6 +41,8 @@ public:
 	 * V.Meyer
 	 */
 	bool action_triggered( gui_action_creator_t *komp, value_t extra);
+
+	virtual void set_fenstergroesse(koord groesse);
 };
 
 #endif

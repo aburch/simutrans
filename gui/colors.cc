@@ -209,9 +209,23 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	// add_komponente( buttons+4 );
 	// add_komponente( buttons+5 );
 
+
+	set_resizemode(gui_frame_t::horizonal_resize);
+	set_min_windowsize( koord(RIGHT_WIDTH, BOTTOM) );
 	set_fenstergroesse( koord(RIGHT_WIDTH, BOTTOM) );
 }
 
+void color_gui_t::set_fenstergroesse(koord groesse)
+{
+	gui_frame_t::set_fenstergroesse(groesse);
+	const sint16 w = groesse.x;
+	inp_underground_level.set_pos( koord(w-10-50, SLICE) );
+	brightness.set_pos( koord(w-10-40,BRIGHTNESS) );
+	scrollspeed.set_pos( koord(w-10-40,SCROLL_SPEED) );
+	traffic_density.set_pos( koord(w-10-45,DENS_TRAFFIC) );
+	buttons[1].set_pos( koord(w-10-10,CONVOI_TOOLTIPS) );
+	buttons[13].set_pos( koord(w-10-10,HIDE_CITY_HOUSES) );
+}
 
 
 bool color_gui_t::action_triggered( gui_action_creator_t *komp, value_t v)
@@ -348,10 +362,11 @@ void color_gui_t::zeichnen(koord pos, koord gr)
 	}
 
 	// seperator
-	display_ddd_box_clip(x+10, y+SEPERATE1, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE2, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE3, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
-	display_ddd_box_clip(x+10, y+SEPERATE4, RIGHT_WIDTH-20, 0, MN_GREY0, MN_GREY4);
+	const sint16 w = this->get_fenstergroesse().x;
+	display_ddd_box_clip(x+10, y+SEPERATE1, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE2, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE3, w-20, 0, MN_GREY0, MN_GREY4);
+	display_ddd_box_clip(x+10, y+SEPERATE4, w-20, 0, MN_GREY0, MN_GREY4);
 
 	display_proportional_clip(x+10, y+BRIGHTNESS+1, translator::translate("1LIGHT_CHOOSE"), ALIGN_LEFT, COL_BLACK, true);
 
