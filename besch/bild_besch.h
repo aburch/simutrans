@@ -11,6 +11,13 @@
 #include "obj_besch.h"
 
 
+// number of special colors
+#define SPECIAL (31)
+
+//#define TRANSPARENT 0x808088
+#define SPECIAL_TRANSPARENT (0xE7FFFF)
+
+
 struct bild_t {
 	sint16 x;
 	sint16 y;
@@ -35,6 +42,8 @@ struct bild_t {
 class bild_besch_t : public obj_besch_t
 {
 public:
+	static const uint32 rgbtab[SPECIAL];
+
 	const bild_t* get_pic() const { return &pic; }
 
 	uint16 const* get_daten() const { return pic.data; }
@@ -50,10 +59,14 @@ public:
 
 	using obj_besch_t::operator new;
 
+	// decodes this image into a 32 bit bitmap with width target_width
+	void decode_img( sint16 xoff, sint16 yoff, uint32 *target, uint32 target_width, uint32 target_height );
+
 private:
 	bild_t pic;
 
 	friend class image_reader_t;
+	friend class image_writer_t;
 	friend class grund_besch_t; // XXX ugly
 };
 
