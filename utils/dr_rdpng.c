@@ -31,7 +31,6 @@ static void read_png(unsigned char** block, unsigned* width, unsigned* height, F
 		exit(1);
 	}
 
-
 	if (setjmp(png_ptr->jmpbuf)) {
 		printf("read_png: fatal error.\n");
 		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
@@ -140,4 +139,68 @@ int load_block(unsigned char** block, unsigned* width, unsigned* height, const c
 	}
 
 	return file != NULL;
+}
+
+
+// output either a 32 or 16 or 15 bitmap
+int write_png( const char *file_name, unsigned char *data, int width, int height, int bit_depth )
+{
+	FILE *fp = fopen(file_name, "wb");
+	if (!fp) {
+		return 0;
+	}
+
+	// init structures
+	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+	if (!png_ptr) {
+		fclose( fp );
+		return 0;
+	}
+
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if (!info_ptr) {
+		png_destroy_write_struct( &png_ptr, (png_infopp)NULL );
+		fclose( fp );
+		return 0;
+	}
+
+	if (setjmp(png_ptr->jmpbuf)) {
+		printf("read_png: fatal error.\n");
+		png_destroy_read_struct(&png_ptr, &info_ptr, (png_info**)0);
+		/* free pointers before returning, if necessary */
+		free(png_ptr);
+		free(info_ptr);
+		exit(1);
+	}
+
+	// assign file
+	png_init_io(png_ptr, fp);
+
+	/* set the zlib compression level */
+	png_set_compression_level( png_ptr, Z_BEST_COMPRESSION );
+
+	// output header
+	png_set_IHDR( png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_INTERLACE_NONE, PNG_FILTER_TYPE_DEFAULT );
+	png_write_info(png_ptr, info_ptr);
+
+	if(  bit_depth==32  ) {
+		// write image data
+		int i;
+		png_set_filler(png_ptr, 0, PNG_FILLER_BEFORE);
+		for(  i=0;  i<height;  i++ ) {
+			png_bytep row_pointer = data+(i*width*4);
+			png_write_row( png_ptr, row_pointer );
+		}
+	}
+	else {
+		puts("No implemented yet!\n");
+		exit(0);
+	}
+
+	// free all
+	png_write_end(png_ptr, info_ptr);
+	png_destroy_write_struct(&png_ptr, &info_ptr);
+
+	fclose( fp );
+	return 1;
 }
