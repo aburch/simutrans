@@ -3515,11 +3515,11 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
-	const sint32 min_price = price << 7;
+	const sint32 min_price = (sint32)price << 7;
 	const uint16 speed_bonus_rating = calc_adjusted_speed_bonus(goods->get_speed_bonus(), distance);
 	const sint32 ref_speed = welt->get_average_speed( fahr[0]->get_besch()->get_waytype() );
-	const sint32 speed_base = (100 * average_speed) / ref_speed - 100;
-	const sint32 base_bonus = (price * (1000 + speed_base * speed_bonus_rating));
+	const sint32 speed_base = (sint32)(100 * average_speed) / ref_speed - 100;
+	const sint32 base_bonus = ((sint32)price * (1000 + speed_base * (sint32)speed_bonus_rating));
 	const sint64 revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)revenue_distance * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
@@ -3589,12 +3589,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier;
 			if(differential >= max_differential)
 			{
-				final_revenue += (revenue * multiplier);
+				final_revenue += (sint64)(revenue * multiplier);
 			}
 			else
 			{
 				const float proportion = (float)differential / (float)max_differential;
-				final_revenue += revenue * (multiplier * proportion);
+				final_revenue += revenue * (sint64)(multiplier * proportion);
 			}
 		}
 		else if(comfort < tolerable_comfort)
@@ -3606,12 +3606,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			multiplier = multiplier < 0.95F ? multiplier : 0.95F;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (revenue * multiplier);
+				final_revenue -= (sint64)(revenue * multiplier);
 			}
 			else
 			{
 				const float proportion = (float)differential / (float)max_differential;
-				final_revenue -= revenue * (multiplier * proportion);
+				final_revenue -= revenue * (sint64)(multiplier * proportion);
 			}
 		}
 		
@@ -3627,7 +3627,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Mail
 			if(journey_minutes >= welt->get_einstellungen()->get_tpo_min_minutes())
 			{
-				final_revenue += (welt->get_einstellungen()->get_tpo_revenue() * ware.menge);
+				final_revenue += (sint64)(welt->get_einstellungen()->get_tpo_revenue() * ware.menge);
 			}
 		}
 		else if(ware.is_passenger())
@@ -3649,7 +3649,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 					}
 					
 					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
-					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge));
+					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge));
 					break;
 				}
 
@@ -3658,12 +3658,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				{
 					if(journey_minutes > welt->get_einstellungen()->get_catering_level4_minutes())
 					{
-						final_revenue += (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge);
 						break;
 					}
 					
 					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
-					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge));
+					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge));
 					break;
 				}
 
@@ -3672,12 +3672,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				{
 					if(journey_minutes > welt->get_einstellungen()->get_catering_level3_minutes())
 					{
-						final_revenue += (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge);
 						break;
 					}
 					
 					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
-					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge));
+					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge));
 					break;
 				}
 
@@ -3686,12 +3686,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				{
 					if(journey_minutes > welt->get_einstellungen()->get_catering_level2_minutes())
 					{
-						final_revenue += (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge);
+						final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge);
 						break;
 					}
 					
 					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
-					final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge));
+					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge));
 					break;
 				}
 
@@ -3702,12 +3702,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 				}
 				if(journey_minutes > welt->get_einstellungen()->get_catering_level1_minutes())
 				{
-					final_revenue += (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge);
+					final_revenue += (sint64)(welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge);
 					break;
 				}
 
 				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_min_minutes()) / (welt->get_einstellungen()->get_catering_level1_minutes() - welt->get_einstellungen()->get_catering_min_minutes());
-				final_revenue += (proportion * (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge));
+				final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge));
 				break;
 
 			};

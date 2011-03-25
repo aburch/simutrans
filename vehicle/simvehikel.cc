@@ -2407,7 +2407,7 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 		const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
 		if(str && routing_weight > str->get_max_weight())
 		{
-			weight = false;
+			weight = welt->get_einstellungen()->get_enforce_weight_limits() != 2;
 		}
 	}
 	// check for signs
