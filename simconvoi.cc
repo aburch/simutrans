@@ -1691,9 +1691,7 @@ void convoi_t::warten_bis_weg_frei(int restart_speed)
 }
 
 
-
-bool
-convoi_t::add_vehikel(vehikel_t *v, bool infront)
+bool convoi_t::add_vehikel(vehikel_t *v, bool infront)
 {
 DBG_MESSAGE("convoi_t::add_vehikel()","at pos %i of %i totals.",anz_vehikel,max_vehicle);
 	// extend array if requested (only needed for trains)

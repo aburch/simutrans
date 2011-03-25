@@ -209,9 +209,9 @@ SectionEnd
 
 
 
-Section /o "pak96 Comic (beta, Freeware) 102.2" pak96comic
+Section /o "pak96 Comic (beta, Freeware) V0.4.7  for 102.2" pak96comic
   AddSize 16976
-  StrCpy $downloadlink "http://www.simutrans-forum.de/forum/attachment.php?attachmentid=8734"
+  StrCpy $downloadlink "http://www.simutrans-forum.de/forum/attachment.php?attachmentid=12730"
   StrCpy $archievename "Pak96comic.zip"
   StrCpy $downloadname "pak96.Comic"
   Call DownloadInstall
@@ -219,8 +219,8 @@ SectionEnd
 
 
 
-Section /o "pak96.HD (0.4) 102.2.2" pak96HD
-  AddSize 12306
+Section /o "pak96.HD (0.4) for 102.2.2" pak96HD
+  AddSize 26189
   StrCpy $downloadlink "http://hd.simutrans.com/release/"
   StrCpy $archievename "PakHD_v04B_100-0.zip"
   StrCpy $downloadname "pak96.HD"
@@ -249,7 +249,7 @@ SectionEnd
 
 
 
-Section /o "pak128 (Freeware) 102.2.2" pak128
+Section /o "pak128 (Freeware) V1.4.6 for 102.2.2" pak128
   AddSize 63445
   StrCpy $downloadlink "http://downloads.sourceforge.net/project/simutrans/pak128/pak128%20for%20102-2-2/"
   StrCpy $archievename "pak128-1.4.6--102.2.zip"

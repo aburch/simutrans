@@ -9,11 +9,7 @@
 #include "image_writer.h"
 #include "../../macros.h"
 
-//#define TRANSPARENT 0x808088
-#define TRANSPARENT 0xE7FFFF
-
-// Made IMG_SIZE changeable - set in static member image_writer_t::img_size
-//#define IMG_SIZE 64
+#include <stdio.h>
 
 using std::string;
 
@@ -24,52 +20,6 @@ struct dimension
 	int ymin;
 	int ymax;
 };
-
-// number of special colors
-
-#define SPECIAL 31
-
-
-/*
- * Definition of special colors
- * @author Hj. Malthaner
- */
-static const PIXRGB rgbtab[SPECIAL] = {
-	0x244B67, // Player color 1
-	0x395E7C,
-	0x4C7191,
-	0x6084A7,
-	0x7497BD,
-	0x88ABD3,
-	0x9CBEE9,
-	0xB0D2FF,
-
-	0x7B5803, // Player color 2
-	0x8E6F04,
-	0xA18605,
-	0xB49D07,
-	0xC6B408,
-	0xD9CB0A,
-	0xECE20B,
-	0xFFF90D,
-
-	0x57656F, // Dark windows, lit yellowish at night
-	0x7F9BF1, // Lighter windows, lit blueish at night
-	0xFFFF53, // Yellow light
-	0xFF211D, // Red light
-	0x01DD01, // Green light
-	0x6B6B6B, // Non-darkening grey 1 (menus)
-	0x9B9B9B, // Non-darkening grey 2 (menus)
-	0xB3B3B3, // non-darkening grey 3 (menus)
-	0xC9C9C9, // Non-darkening grey 4 (menus)
-	0xDFDFDF, // Non-darkening grey 5 (menus)
-	0xE3E3FF, // Nearly white light at day, yellowish light at night
-	0xC1B1D1, // Windows, lit yellow
-	0x4D4D4D, // Windows, lit yellow
-	0xFF017F, // purple light
-	0x0101FF, // blue light
-};
-
 
 static int special_hist[SPECIAL];
 
@@ -82,10 +32,11 @@ unsigned char* image_writer_t::block = NULL;
 int image_writer_t::img_size = 64;
 
 
+
 void image_writer_t::dump_special_histogramm()
 {
 	for(int i = 0; i < SPECIAL; i++) {
-		printf("%2d) 0x%06x : %d\n", i, rgbtab[i], special_hist[i]);
+		printf("%2d) 0x%06x : %d\n", i, bild_besch_t::rgbtab[i], special_hist[i]);
 	}
 }
 
@@ -96,12 +47,12 @@ void image_writer_t::dump_special_histogramm()
  *
  * @author Hj. Malthaner
  */
-static PIXVAL pixrgb_to_pixval(int rgb)
+static uint16 pixrgb_to_pixval(uint32 rgb)
 {
-	PIXVAL pix;
+	uint16 pix;
 
 	for (int i = 0; i < SPECIAL; i++) {
-		if (rgbtab[i] == (PIXRGB)rgb) {
+		if (bild_besch_t::rgbtab[i] == (uint32)rgb) {
 			pix = 0x8000 + i;
 			return endian(pix);
 		}
@@ -118,7 +69,7 @@ static PIXVAL pixrgb_to_pixval(int rgb)
 
 
 
-static void init_dim(PIXRGB* image, dimension* dim, int img_size)
+static void init_dim(uint32 *image, dimension *dim, int img_size)
 {
 	int x,y;
 	bool found = false;
@@ -128,7 +79,7 @@ static void init_dim(PIXRGB* image, dimension* dim, int img_size)
 
 	for (y = 0; y < img_size; y++) {
 		for (x = 0; x < img_size; x++) {
-			if (image[x + y * img_size] != TRANSPARENT) {
+			if (image[x + y * img_size] != SPECIAL_TRANSPARENT) {
 				if (x < dim->xmin) dim->xmin = x;
 				if (y < dim->ymin) dim->ymin = y;
 				if (x > dim->xmax) dim->xmax = x;
@@ -151,12 +102,12 @@ static void init_dim(PIXRGB* image, dimension* dim, int img_size)
  *
  * @author Hj. Malthaner
  */
-PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
+uint16 *image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 {
 	int line;
-	PIXVAL* dest;
-	PIXVAL* dest_base = new PIXVAL[img_size * img_size * 2];
-	PIXVAL* colored_run_counter;
+	uint16 *dest;
+	uint16 *dest_base = new uint16[img_size * img_size * 2];
+	uint16 *colored_run_counter;
 
 	dest = dest_base;
 
@@ -167,13 +118,13 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 
 	for (line = 0; line < height; line++) {
 		int row_px_count = 0;
-		PIXRGB pix = block_getpix(x, y + line);
+		uint32 pix = block_getpix(x, y + line);
 		uint16 count = 0;
 		uint16 clear_colored_run_pair_count = 0;
 
 		do {
 			count = 0;
-			while (pix == TRANSPARENT && row_px_count < width) {
+			while (pix == SPECIAL_TRANSPARENT && row_px_count < width) {
 				count++;
 				row_px_count++;
 				pix = block_getpix(x + row_px_count, y + line);
@@ -184,7 +135,7 @@ PIXVAL* image_writer_t::encode_image(int x, int y, dimension* dim, int* len)
 			colored_run_counter = dest++;
 			count = 0;
 
-			while (pix != TRANSPARENT && row_px_count < width) {
+			while (pix != SPECIAL_TRANSPARENT && row_px_count < width) {
 				*dest++ = pixrgb_to_pixval(pix);
 				count++;
 				row_px_count++;
@@ -240,7 +191,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 {
 	bild_t bild;
 	dimension dim;
-	PIXVAL* pixdata = NULL;
+	uint16 *pixdata = NULL;
 	string imagekey;
 
 	MEMZERO(bild);
@@ -316,7 +267,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 		col *= img_size;
 
 		// Temp. read image and determine drawing area.
-		PIXRGB* image = new PIXRGB[img_size * img_size];
+		uint32 *image = new uint32[img_size * img_size];
 		for (int x = 0; x < img_size; x++) {
 			for (int y = 0; y < img_size; y++) {
 				image[x + y * img_size] = block_getpix(x + col, y + row);
@@ -394,7 +345,7 @@ void image_writer_t::write_obj(FILE* outfp, obj_node_t& parent, string an_imagek
 
 	if (bild.len) {
 		// only called, if there is something to store
-		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(PIXVAL));
+		node.write_data_at(outfp, pixdata, 10, bild.len * sizeof(uint16));
 		free(pixdata);
 	}
 #endif

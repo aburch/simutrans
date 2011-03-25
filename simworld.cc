@@ -494,18 +494,30 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			koord k(i,j);
 			uint8 slope = calc_natural_slope(k);
 			gr->set_pos(koord3d(k,min_hgt(k)));
+			bool recalc_water = false;
 			if(  gr->get_typ()!=grund_t::wasser  &&  max_hgt(k) <= get_grundwasser()  ) {
 				// below water but ground => convert
 				pl->kartenboden_setzen(new wasser_t(this, gr->get_pos()) );
+				recalc_water = true;
 			}
 			else if(  gr->get_typ()==grund_t::wasser  &&  max_hgt(k) > get_grundwasser()  ) {
 				// water above ground => to ground
 				pl->kartenboden_setzen(new boden_t(this, gr->get_pos(), slope ) );
+				recalc_water = true;
 			}
 			else {
 				gr->set_grund_hang( slope );
 			}
 			pl->get_kartenboden()->calc_bild();
+			// recalc water ribis
+			if (recalc_water) {
+				if (i>0) {
+					lookup_kartenboden(koord(i-1,j))->calc_bild();
+				}
+				if (j>0) {
+					lookup_kartenboden(koord(i,j-1))->calc_bild();
+				}
+			}
 		}
 	}
 }
@@ -3185,7 +3197,7 @@ void karte_t::neuer_monat()
 	if(  letzter_monat == 0  &&  !get_einstellungen()->is_freeplay()  ) {
 		// remove all player (but first and second) who went bankrupt during last year
 		for(int i=2; i<MAX_PLAYER_COUNT-1; i++) {
-			if(  spieler[i] != NULL  &&  (spieler[i]->get_ai_id()==spieler_t::HUMAN  ||  !umgebung_t::networkmode)  &&
+			if(  spieler[i] != NULL  &&
 				spieler[i]->get_finance_history_year(0,COST_NETWEALTH)<=0  &&
 				spieler[i]->get_finance_history_year(0,COST_MAINTENANCE)==0  &&
 				spieler[i]->get_maintenance(spieler_t::MAINT_VEHICLE)==0  &&
@@ -6129,7 +6141,7 @@ bool karte_t::interactive(uint32 quit_month)
 			// quit the program if this windows is closed
 			destroy_all_win(true);
 			umgebung_t::quit_simutrans = true;
-			return false;
+			break;
 		}
 
 		if(ev.ev_class!=EVENT_NONE &&  ev.ev_class!=IGNORE_EVENT) {
@@ -6421,10 +6433,10 @@ bool karte_t::interactive(uint32 quit_month)
 		umgebung_t::quit_simutrans = true;
 	}
 
-	if(  umgebung_t::announce_server  ) {
+	if(  umgebung_t::server  &&  umgebung_t::announce_server  ) {
 		cbuffer_t buf(2048);
 		buf.printf( "/serverlist_ex/slist.php?ID=%u&st=off", umgebung_t::announce_server );
-		network_download_http( "simutrans-germany.com:80", buf, NULL );
+		network_download_http( ANNOUNCE_SERVER, buf, NULL );
 	}
 
 	intr_enable();
@@ -6442,7 +6454,7 @@ void karte_t::announce_server()
 	if(  umgebung_t::announce_server  ) {
 		// now send the status
 		cbuffer_t buf(2048);
-		buf.printf( "/serverlist_ex/slist.php?ID=%u", umgebung_t::announce_server );
+		buf.printf( "/serverlist_ex/map.php?ID=%u", umgebung_t::announce_server );
 		buf.printf( "&gd=time%u.%u:size%ux%u:", (get_current_month()%12)+1, get_current_month()/12, get_groesse_x(), get_groesse_y() );
 		uint8 player=0, locked = 0;
 		for(  uint8 i=0;  i<MAX_PLAYER_COUNT;  i++  ) {
@@ -6454,7 +6466,7 @@ void karte_t::announce_server()
 			}
 		}
 		last_clients = socket_list_t::get_playing_clients();
-		buf.printf( "Players%u:locked%u:Clients%u", player, locked, last_clients );
+		buf.printf( "Players%u:locked%u:Clients%u:", player, locked, last_clients );
 		buf.printf( "Towns%u:citicens%u:Factories%u:Convoys%u:Stops%u", stadt.get_count(), stadt.get_sum_weight(), fab_list.get_count(), get_convoi_count(), haltestelle_t::get_alle_haltestellen().get_count() );
 		network_download_http( ANNOUNCE_SERVER, buf, NULL );
 		if(  umgebung_t::announce_server_intervall > 0  ) {

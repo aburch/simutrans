@@ -82,7 +82,8 @@ bool gui_frame_t::infowin_event(const event_t *ev)
 {
 	// %DB0 printf( "\nMessage: gui_frame_t::infowin_event( event_t const * ev ) : Fenster|Window %p : Event is %d", (void*)this, ev->ev_class );
 	if(IS_WINDOW_RESIZE(ev)) {
-		koord delta (ev->mx - ev->cx, ev->my - ev->cy);
+		koord delta (  resize_mode & horizonal_resize ? ev->mx - ev->cx : 0,
+		               resize_mode & vertical_resize  ? ev->my - ev->cy : 0);
 		resize(delta);
 		return true;	// not pass to childs!
 	} else if(IS_WINDOW_MAKE_MIN_SIZE(ev)) {

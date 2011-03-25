@@ -1645,6 +1645,7 @@ void vehikel_t::rauche()
 	}
 }
 
+
 const char *vehikel_t::get_fracht_mass() const
 {
 	return get_fracht_typ()->get_mass();
