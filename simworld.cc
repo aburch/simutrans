@@ -485,18 +485,30 @@ void karte_t::cleanup_karte( int xoff, int yoff )
 			koord k(i,j);
 			uint8 slope = calc_natural_slope(k);
 			gr->set_pos(koord3d(k,min_hgt(k)));
+			bool recalc_water = false;
 			if(  gr->get_typ()!=grund_t::wasser  &&  max_hgt(k) <= get_grundwasser()  ) {
 				// below water but ground => convert
 				pl->kartenboden_setzen(new wasser_t(this, gr->get_pos()) );
+				recalc_water = true;
 			}
 			else if(  gr->get_typ()==grund_t::wasser  &&  max_hgt(k) > get_grundwasser()  ) {
 				// water above ground => to ground
 				pl->kartenboden_setzen(new boden_t(this, gr->get_pos(), slope ) );
+				recalc_water = true;
 			}
 			else {
 				gr->set_grund_hang( slope );
 			}
 			pl->get_kartenboden()->calc_bild();
+			// recalc water ribis
+			if (recalc_water) {
+				if (i>0) {
+					lookup_kartenboden(koord(i-1,j))->calc_bild();
+				}
+				if (j>0) {
+					lookup_kartenboden(koord(i,j-1))->calc_bild();
+				}
+			}
 		}
 	}
 }
