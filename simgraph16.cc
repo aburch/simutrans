@@ -1770,13 +1770,12 @@ void register_image(struct bild_t* bild)
 		return;
 	}
 
-	if(  anz_images >= 65535  ) {
-		fprintf(stderr, "FATAL:\n*** Out of images (more than 65534!) ***\n");
-		abort();
-	}
-
 	if(  anz_images == alloc_images  ) {
 		alloc_images += 128;
+		if(  anz_images > alloc_images  ) {
+			// overflow
+			dbg->fatal( "register_image", "*** Out of images (more than 65534!) ***" );
+		}
 		images = REALLOC(images, imd, alloc_images);
 	}
 
