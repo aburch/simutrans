@@ -234,9 +234,7 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 
 	besitzer_p = spieler;
 	prodfaktor = 16;
-	prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "fabrik_t::fabrik_t");
-	prodbase = prodbase > 0 ? prodbase : 1;
-
+	
 	delta_sum = 0;
 	delta_menge = 0;
 	currently_producing = false;
@@ -279,6 +277,58 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	{
 		city->add_city_factory(this);
 	}
+
+	if(fabesch->get_platzierung() == 2 && city && fabesch->get_produkte() == 0)
+	{
+		// City consumer industries set their consumption rates by the relative size of the city
+		const weighted_vector_tpl<stadt_t*>& cities = welt->get_staedte();
+
+		sint64 biggest_city_population = 0;
+		sint64 smallest_city_population = -1;
+
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = cities.begin(), end = cities.end(); i != end; ++i)
+		{
+			stadt_t* const c = *i;
+			const sint64 pop = c->get_finance_history_month(0,HIST_CITICENS);
+			if(pop > biggest_city_population)
+			{
+				biggest_city_population = pop;
+			}
+			else if(pop < smallest_city_population || smallest_city_population == -1)
+			{
+				smallest_city_population = pop;
+			}
+		}
+
+		const sint64 this_city_population = city->get_finance_history_month(0,HIST_CITICENS);
+		sint32 production;
+
+		if(this_city_population == biggest_city_population)
+		{
+			production = besch->get_bereich();
+		}
+		else if(this_city_population == smallest_city_population)
+		{
+			production = 0;
+		}
+		else
+		{
+			const double proportion = (double)(this_city_population - smallest_city_population) / (double)(biggest_city_population - smallest_city_population);
+			production = (double)besch->get_bereich() * proportion;
+		}
+		prodbase = besch->get_produktivitaet() + production;
+	}
+	else if(fabesch->get_platzierung() == 2 && !city && fabesch->get_produkte() == 0)
+	{
+		prodbase = besch->get_produktivitaet();
+	}
+	else
+	{
+		prodbase = besch->get_produktivitaet() + simrand(besch->get_bereich(), "fabrik_t::fabrik_t");
+	}
+	
+	prodbase = prodbase > 0 ? prodbase : 1;
+	
 }
 
 void fabrik_t::delete_all_fields()
