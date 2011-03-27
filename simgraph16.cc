@@ -1771,7 +1771,12 @@ void register_image(struct bild_t* bild)
 	}
 
 	if(  anz_images == alloc_images  ) {
-		alloc_images += 128;
+		if(  images==NULL  ) {
+			alloc_images = 510;
+		}
+		else {
+			alloc_images += 512;
+		}
 		if(  anz_images > alloc_images  ) {
 			// overflow
 			dbg->fatal( "register_image", "*** Out of images (more than 65534!) ***" );
