@@ -4585,7 +4585,7 @@ DBG_MESSAGE("convoi_t::go_to_depot()","convoi state %i => cannot change schedule
 			}
 		}
 		depot_finder_t finder( self, traction_type );
-		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, 0x7FFFFFFF);
+		route.find_route( welt, get_vehikel(0)->get_pos(), &finder, 0, ribi_t::alle, get_heaviest_vehicle(), 0x7FFFFFFF);
 	}
 
 	// if route to a depot has been found, update the convoy's schedule

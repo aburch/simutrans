@@ -2398,18 +2398,12 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	if(str==NULL  ||  str->get_max_speed()==0) {
 		return false;
 	}
-	bool weight = true;
 	if(!is_checker)
 	{
 		bool electric = cnv!=NULL  ?  cnv->needs_electrification() : besch->get_engine_type()==vehikel_besch_t::electric;
 		if(electric  &&  !str->is_electrified()) {
 			return false;
 		}
-		/*const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
-		if(str && routing_weight > str->get_max_weight())
-		{
-			weight = welt->get_einstellungen()->get_enforce_weight_limits() != 2;
-		}*/
 	}
 	// check for signs
 	if(str->has_sign()) {
@@ -2426,9 +2420,9 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 	}
 	if(!is_checker)
 	{
-		return check_way_constraints(*str) && weight;
+		return check_way_constraints(*str);
 	}
-	return weight;
+	return true;
 }
 
 
@@ -2593,7 +2587,7 @@ bool automobil_t::ist_weg_frei(int &restart_speed)
 
 							// now it make sense to search a route
 							route_t target_rt;
-							if(!target_rt.find_route( welt, pos_next, this, 50, richtung, 33 )) {
+							if(!target_rt.find_route( welt, pos_next, this, 50, richtung, cnv->get_heaviest_vehicle(), 33 )) {
 								// nothing empty or not route with less than 33 tiles
 								target_halt = halthandle_t();
 								restart_speed = 0;
@@ -2940,14 +2934,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	// also allow driving on foreign tracks ...
 	const bool needs_no_electric = !(cnv!=NULL ? cnv->needs_electrification() : besch->get_engine_type() == vehikel_besch_t::electric);
 	
-	bool weight = true;
-	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
-	if(sch && routing_weight > sch->get_max_weight())
-	{
-		weight = welt->get_einstellungen()->get_enforce_weight_limits() != 2;
-	}
-
-	const bool ok = weight && sch && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
+	const bool ok = sch && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
 	
 
 	if(!ok || !target_halt.is_bound() || !cnv->is_waiting()) 
@@ -3224,9 +3211,9 @@ bool waggon_t::is_weg_frei_choose_signal( signal_t *sig, const uint16 start_bloc
 		route_t target_rt;
 		const int richtung = ribi_typ(get_pos().get_2d(),pos_next.get_2d());	// to avoid confusion at diagonals
 #ifdef MAX_CHOOSE_BLOCK_TILES
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, MAX_CHOOSE_BLOCK_TILES )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), MAX_CHOOSE_BLOCK_TILES )  ) {
 #else
-		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, welt->get_groesse_x()+welt->get_groesse_y() )  ) {
+		if(  !target_rt.find_route( welt, cnv->get_route()->position_bei(start_block), this, speed_to_kmh(cnv->get_min_top_speed()), richtung, cnv->get_heaviest_vehicle(), welt->get_groesse_x()+welt->get_groesse_y() )  ) {
 #endif
 			// nothing empty or not route with less than MAX_CHOOSE_BLOCK_TILES tiles
 			target_halt = halthandle_t();
@@ -3964,7 +3951,7 @@ aircraft_t::find_route_to_stop_position()
 		route_t target_rt;
 		flight_state prev_state = state;
 		state = looking_for_parking;
-		if(!target_rt.find_route( welt, rt->position_bei(suchen), this, 500, ribi_t::alle, 100 )) {
+		if(!target_rt.find_route( welt, rt->position_bei(suchen), this, 500, ribi_t::alle, cnv->get_heaviest_vehicle(), 100 )) {
 DBG_MESSAGE("aircraft_t::find_route_to_stop_position()","found no route to free one");
 			// circle slowly another round ...
 			target_halt = halthandle_t();
@@ -4402,7 +4389,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 		approach_dir = ribi_t::nordost;	// reverse
 		DBG_MESSAGE("aircraft_t::calc_route()","search runway start near %i,%i,%i",start.x,start.y,start.z);
 #endif
-		if(!route->find_route( welt, start, this, max_speed, ribi_t::alle, 100 )) {
+		if(!route->find_route( welt, start, this, max_speed, ribi_t::alle, cnv->get_heaviest_vehicle(), 100 )) {
 			DBG_MESSAGE("aircraft_t::calc_route()","failed");
 			return false;
 		}
@@ -4422,7 +4409,7 @@ bool aircraft_t::calc_route(koord3d start, koord3d ziel, sint32 max_speed, route
 #endif
 	route_t end_route;
 
-	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, 100 )) {
+	if(!end_route.find_route( welt, ziel, this, max_speed, ribi_t::alle, cnv->get_heaviest_vehicle(), 100 )) {
 		// well, probably this is a waypoint
 		end_in_air = true;
 		search_end = ziel;

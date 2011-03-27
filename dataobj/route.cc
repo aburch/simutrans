@@ -142,7 +142,7 @@ bool route_t::node_in_use=false;
 /* find the route to an unknow location
  * @author prissi
  */
-bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 max_depth )
+bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, const uint32 /*max_khm*/, uint8 start_dir, uint32 weight, uint32 max_depth )
 {
 	bool ok = false;
 
@@ -151,6 +151,8 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 	if (g == NULL) {
 		return false;
 	}
+
+	const uint8 enforce_weight_limits = welt->get_einstellungen()->get_enforce_weight_limits();
 
 	// some thing for the search
 	const waytype_t wegtyp = fahr->get_waytype();
@@ -243,6 +245,21 @@ bool route_t::find_route(karte_t *welt, const koord3d start, fahrer_t *fahr, con
 				// in close list => ignore this
 				if(index<close.get_count()) {
 					continue;
+				}
+
+				weg_t* w = to->get_weg(fahr->get_waytype());
+				
+				if (enforce_weight_limits && w != NULL)
+				{
+					// Bernd Gabriel, Mar 10, 2010: way limit info
+					const uint32 way_max_weight = w->get_max_weight();
+					max_weight = min(max_weight, way_max_weight);
+
+					if(enforce_weight_limits == 2 && weight > way_max_weight)
+					{
+						// Avoid routing over ways for which the convoy is overweight.
+						continue;
+					}
 				}
 
 				// not in there or taken out => add new
