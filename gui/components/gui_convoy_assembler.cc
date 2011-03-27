@@ -594,12 +594,6 @@ void gui_convoy_assembler_t::build_vehicle_lists()
 	else {
 		// list only matching ones
 
-		if(depot_frame)
-		{
-			depot_frame->get_icnv() < 0 ? clear_convoy() : set_vehicles(depot_frame->get_convoy());
-			depot_frame->update_data();
-		}
-
 		slist_iterator_tpl<vehikel_besch_t*> vehinfo(vehikelbauer_t::get_info(way_type));
 		while (vehinfo.next()) {
 			const vehikel_besch_t* info = vehinfo.get_current();
