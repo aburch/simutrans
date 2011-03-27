@@ -2405,11 +2405,11 @@ bool automobil_t::ist_befahrbar(const grund_t *bd) const
 		if(electric  &&  !str->is_electrified()) {
 			return false;
 		}
-		const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
+		/*const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
 		if(str && routing_weight > str->get_max_weight())
 		{
 			weight = welt->get_einstellungen()->get_enforce_weight_limits() != 2;
-		}
+		}*/
 	}
 	// check for signs
 	if(str->has_sign()) {
@@ -2944,7 +2944,7 @@ bool waggon_t::ist_befahrbar(const grund_t *bd) const
 	const uint32 routing_weight = cnv != NULL ? cnv->get_heaviest_vehicle() : get_sum_weight();
 	if(sch && routing_weight > sch->get_max_weight())
 	{
-		weight = false;
+		weight = welt->get_einstellungen()->get_enforce_weight_limits() != 2;
 	}
 
 	const bool ok = weight && sch && (needs_no_electric || sch->is_electrified()) &&  (sch->get_max_speed() > 0 && check_way_constraints(*sch));
