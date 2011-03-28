@@ -32,10 +32,14 @@ void xref_writer_t::dump_node(FILE* infp, const obj_node_info_t& node)
 {
 	obj_writer_t::dump_node(infp, node);
 
-	char* buf = new char[node.size];
+	if(  node.size>=5  ) {
+		char* buf = new char[node.size+1];
 
-	fread(buf, node.size, 1, infp);
-	printf(" -> %4.4s-node '%s'", buf, buf + 4);
+		fread(buf, node.size, 1, infp);
+		buf[node.size] = 0;
 
-	delete [] buf;
+		printf(" -> %4.4s-node (%s) '%s'", buf, buf[4] ? "required" : "optional", buf+5 );
+
+		delete [] buf;
+	}
 }
