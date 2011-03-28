@@ -677,12 +677,9 @@ int fabrikbauer_t::baue_link_hierarchie(const fabrik_t* our_fab, const fabrik_be
 DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i of %s)",info->get_lieferanten(),lcount,verbrauch,ware->get_name());
 
 	// Hajo: search if there already is one or two (crossconnect everything if possible)
-	//const slist_tpl<fabrik_t *> & list = welt->get_fab_list();
 	const vector_tpl<fabrik_t *> & list = welt->get_fab_list();
-	//slist_iterator_tpl <fabrik_t *> iter (list);
 	bool found = false;
 
-	//while( iter.next() &&
 	for(sint16 i = list.get_count() - 1; (i >= 0) && ( (lcount==0  &&  verbrauch>0) || (lcount>=lfound+1) ); i --)
 	{
 			// try to find matching factories for this consumption
@@ -691,7 +688,6 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","lieferanten %i, lcount %i (need %i
 			  //(lcount>=lfound+1) )
 			//)
 	//{
-		//fabrik_t * fab = iter.get_current();
 		fabrik_t * fab = list[i];
 
 		// connect to an existing one, if this is an producer
@@ -873,7 +869,7 @@ DBG_MESSAGE("fabrikbauer_t::baue_hierarchie","failed to built lieferant %s aroun
 
 
 
-/* this function is called, whenever it is time for industry growth
+/* This method is called whenever it is time for industry growth.
  * If there is still a pending consumer, it will first complete another chain for it
  * If not, it will decide to either built a power station (if power is needed)
  * or built a new consumer near the indicated position
@@ -924,33 +920,40 @@ next_ware_check:
 	}
 
 	// first: do we have to continue unfinished business?
-	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()) {
+	if(last_built_consumer  &&  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()) 
+	{
 		int org_rotation = -1;
 		// rotate until we can save it, if one of the factory is non-rotateable ...
-		if(welt->cannot_save()  &&  !can_factory_tree_rotate(last_built_consumer->get_besch()) ) {
+		if(welt->cannot_save()  &&  !can_factory_tree_rotate(last_built_consumer->get_besch()) ) 
+		{
 			org_rotation = welt->get_einstellungen()->get_rotation();
-			for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) {
+			for(  int i=0;  i<3  &&  welt->cannot_save();  i++  ) 
+			{
 				welt->rotate90();
 			}
 			assert( !welt->cannot_save() );
 		}
 
 		uint32 last_suppliers = last_built_consumer->get_suppliers().get_count();
-		do {
+		do 
+		{
 			nr += baue_link_hierarchie( last_built_consumer, last_built_consumer->get_besch(), last_built_consumer_ware, welt->get_spieler(1) );
 			last_built_consumer_ware ++;
 		} while(  last_built_consumer_ware < last_built_consumer->get_besch()->get_lieferanten()  &&  last_built_consumer->get_suppliers().get_count()==last_suppliers  );
 
 		// must rotate back?
-		if(org_rotation>=0) {
-			for(  int i=0;  i<4  &&  welt->get_einstellungen()->get_rotation()!=org_rotation;  i++  ) {
+		if(org_rotation>=0)
+		{
+			for(  int i=0;  i<4  &&  welt->get_einstellungen()->get_rotation()!=org_rotation;  i++  ) 
+			{
 				welt->rotate90();
 			}
 			welt->update_map();
 		}
 
 		// only return, if successful
-		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) {
+		if(  last_built_consumer->get_suppliers().get_count() > last_suppliers  ) 
+		{
 			DBG_MESSAGE( "fabrikbauer_t::increase_industry_density()", "added ware %i to factory %s", last_built_consumer_ware, last_built_consumer->get_name() );
 			// tell the player
 			if(tell_me) {
