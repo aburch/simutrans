@@ -693,15 +693,16 @@ void convoi_t::calc_acceleration(long delta_t)
 			case track_wt:
 			case narrowgauge_wt:
 			case monorail_wt:
+			case maglev_wt:
 				braking_rate = 62.5;
 				break;
 
 			case tram_wt:
-				braking_rate = 85.0;
+				braking_rate = 100.0;
 				break;
 
 			default:
-				braking_rate = 100.0;
+				braking_rate = 150.0;
 				break;
 			}
 
@@ -4842,7 +4843,8 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	//   If time is exhausted, we are guaranteed that no facing traffic will
 	//   invade the dangerous zone.
 	// Conditions for the street are milder: e.g. if no street, no facing traffic
-	time_overtaking = (time_overtaking << 16)/akt_speed;
+	akt_speed = (akt_speed == 0 ? 1 : akt_speed);
+	time_overtaking = (time_overtaking << 16)/ akt_speed;
 	while(  time_overtaking > 0  ) {
 
 		if(  route_index >= route.get_count()  ) {
