@@ -1164,6 +1164,10 @@ bool stadtauto_t::can_overtake(overtaker_t *other_overtaker, int other_speed, in
 	//   Each empty tile will substract tile_dimension/max_street_speed.
 	//   If time is exhausted, we are guaranteed that no facing traffic will
 	//   invade the dangerous zone.
+	if(current_speed == 0)
+	{
+		return false;
+	}
 	time_overtaking = (time_overtaking << 16)/(sint32)current_speed;
 	do {
 		// we can allow crossings or traffic lights here, since they will stop also oncoming traffic

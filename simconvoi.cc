@@ -687,7 +687,7 @@ void convoi_t::calc_acceleration(long delta_t)
 			const sint32 tiles_left = get_next_stop_index() - front()->get_route_index();
 			waytype_t waytype = front()->get_waytype();
 			const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-			double braking_rate;  // km/h decay per kilometre. TODO: Consider having this set in .dat files
+			double braking_rate;  // km/h decay per kilometre. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
 			switch(waytype)
 			{
 			case track_wt:
@@ -698,11 +698,11 @@ void convoi_t::calc_acceleration(long delta_t)
 				break;
 
 			case tram_wt:
-				braking_rate = 100.0;
+				braking_rate = 85.0;
 				break;
 
 			default:
-				braking_rate = 150.0;
+				braking_rate = 100.0;
 				break;
 			}
 
@@ -4843,7 +4843,10 @@ bool convoi_t::can_overtake(overtaker_t *other_overtaker, int other_speed, int s
 	//   If time is exhausted, we are guaranteed that no facing traffic will
 	//   invade the dangerous zone.
 	// Conditions for the street are milder: e.g. if no street, no facing traffic
-	akt_speed = (akt_speed == 0 ? 1 : akt_speed);
+	if(akt_speed == 0)
+	{
+		return false;
+	}
 	time_overtaking = (time_overtaking << 16)/ akt_speed;
 	while(  time_overtaking > 0  ) {
 

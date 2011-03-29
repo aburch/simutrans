@@ -42,7 +42,8 @@ protected:
 	const roadsign_besch_t *besch;
 
 public:
-	enum signalzustand {rot=0, gruen=1, naechste_rot=2 };
+	// "Signal state" (Google)
+	enum signalzustand {rot=0, gruen=1, naechste_rot=2 }; // "Red, green, next red" (Google)
 
 	/*
 	 * return direction or the state of the traffic light

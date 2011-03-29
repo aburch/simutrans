@@ -3075,7 +3075,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 
 	if(  next_signal < cnv->get_route()->get_count()  ) {
 		// success, and there is a signal before end of route => finished
-		sig->set_zustand( roadsign_t::gruen );
+		sig->set_zustand( roadsign_t::gruen ); // "gruen" = "green" (Google); "zustand" = "condition" (Google)
 		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 		return true;
 	}
@@ -3287,7 +3287,7 @@ bool waggon_t::is_weg_frei_signal( uint16 next_block, int &restart_speed )
 			return true;
 		}
 		// not free => wait here if directly in front
-		sig->set_zustand(  roadsign_t::rot );
+		sig->set_zustand(  roadsign_t::rot ); // "rot" = "red" (Google)
 		restart_speed = 0;
 		return false;
 	}
@@ -3364,7 +3364,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return true;
 	}
 
-	// it happened in the past that a convoi has a next signal stored way after the curretn position!
+	// it happened in the past that a convoi has a next signal stored way after the current position!
 	// this only happens in vorfahren, but we can cure this easily
 	if(  next_block+1<route_index  ) {
 		bool ok = block_reserver( cnv->get_route(), route_index, next_signal, next_crossing, 0, true, false );
@@ -3372,7 +3372,20 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return ok;
 	}
 
-	if(  next_block <= route_index+3  ) {
+	// Braking rate assumed at 62.5, as only rail vehicles use the block reserver.
+	// TODO: Set this from .dat files (or even physics computations)
+	const double braking_rate = 62.5;
+
+	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
+
+	const double speed = (double)speed_to_kmh(cnv->get_akt_speed());
+
+	const double km_check = speed / braking_rate;
+	uint16 tiles_check_for_signal = km_check / (double)distance_per_tile;
+	
+	if(next_block <= route_index + tiles_check_for_signal) 
+	{ 
+		
 		koord3d block_pos=cnv->get_route()->position_bei(next_block);
 
 		grund_t *gr_next_block = welt->lookup(block_pos);
