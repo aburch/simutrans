@@ -4220,6 +4220,7 @@ void karte_t::laden(loadsave_t *file)
 
 	// jetzt geht das laden los
 	dbg->warning("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
+	*einstellungen = umgebung_t::default_einstellungen;
 	einstellungen->rdwr(file);
 
 	if(  umgebung_t::networkmode  ) {
