@@ -110,7 +110,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			buf.append(fab_list[i]->get_name());
 			buf.append(" (");
 
-			if (!fab->get_eingang().empty()) {
+			if (fab->get_eingang().get_size()>0) {
 				buf.append(fab->get_total_in(),0);
 			}
 			else {
@@ -118,7 +118,7 @@ void factorylist_stats_t::zeichnen(koord offset)
 			}
 			buf.append(", ");
 
-			if (!fab->get_ausgang().empty()) {
+			if (fab->get_ausgang().get_size()>0) {
 				buf.append(fab->get_total_out(),0);
 			}
 			else {
@@ -133,12 +133,18 @@ void factorylist_stats_t::zeichnen(koord offset)
 			//display_ddd_box_clip(xoff+7, yoff+2, 8, 8, MN_GREY0, MN_GREY4);
 			display_fillbox_wh_clip(xoff+2, yoff+2, INDICATOR_WIDTH, INDICATOR_HEIGHT, indikatorfarbe, true);
 
-			if (fab->get_prodfaktor() > 16) {
-				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, false);
+			if(  fab->get_prodfactor_electric()>0  ) {
+				display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), xoff+4+INDICATOR_WIDTH, yoff, 0, false, true);
+			}
+			if(  fab->get_prodfactor_pax()>0  ) {
+				display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), xoff+4+8+INDICATOR_WIDTH, yoff, 0, false, true);
+			}
+			if(  fab->get_prodfactor_mail()>0  ) {
+				display_color_img(skinverwaltung_t::post->get_bild_nr(0), xoff+4+18+INDICATOR_WIDTH, yoff, 0, false, true);
 			}
 
 			// show text
-			display_proportional_clip(xoff+INDICATOR_WIDTH+6+10,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
+			display_proportional_clip(xoff+INDICATOR_WIDTH+6+28,yoff,buf,ALIGN_LEFT,COL_BLACK,true);
 
 			// goto button
 			display_color_img( i!=line_selected ? button_t::arrow_right_normal : button_t::arrow_right_pushed, xoff-14, yoff, 0, false, true);
@@ -168,22 +174,22 @@ class compare_factories
 
 				case factorylist::by_input:
 				{
-					int a_in = (a->get_eingang().empty() ? -1 : (int)a->get_total_in());
-					int b_in = (b->get_eingang().empty() ? -1 : (int)b->get_total_in());
+					int a_in = (a->get_eingang().get_size()==0 ? -1 : (int)a->get_total_in());
+					int b_in = (b->get_eingang().get_size()==0 ? -1 : (int)b->get_total_in());
 					cmp = a_in - b_in;
 					break;
 				}
 
 				case factorylist::by_output:
 				{
-					int a_out = (a->get_ausgang().empty() ? -1 : (int)a->get_total_out());
-					int b_out = (b->get_ausgang().empty() ? -1 : (int)b->get_total_out());
+					int a_out = (a->get_ausgang().get_size()==0 ? -1 : (int)a->get_total_out());
+					int b_out = (b->get_ausgang().get_size()==0 ? -1 : (int)b->get_total_out());
 					cmp = a_out - b_out;
 					break;
 				}
 
 				case factorylist::by_maxprod:
-					cmp = a->get_base_production()*a->get_prodfaktor() - b->get_base_production()*b->get_prodfaktor();
+					cmp = a->get_base_production()*a->get_prodfactor() - b->get_base_production()*b->get_prodfactor();
 					break;
 
 				case factorylist::by_status:
@@ -191,7 +197,7 @@ class compare_factories
 					break;
 
 				case factorylist::by_power:
-					cmp = a->get_prodfaktor() - b->get_prodfaktor();
+					cmp = a->get_prodfactor_electric() - b->get_prodfactor_electric();
 					break;
 			}
 			if (cmp == 0) cmp = strcmp(a->get_name(), b->get_name());

@@ -227,6 +227,16 @@ private:
 	uint8 fields;	// only if there are any ...
 	uint16 pax_level;
 	bool electricity_producer;
+	uint16 expand_probability;
+	uint16 expand_minimum;
+	uint16 expand_range;
+	uint16 expand_times;
+	uint16 electric_boost;
+	uint16 pax_boost;
+	uint16 mail_boost;
+	uint16 electric_amount;
+	uint16 pax_demand;
+	uint16 mail_demand;
 
 public:
 	/*
@@ -270,6 +280,18 @@ public:
 	int get_pax_level() const { return pax_level; }
 
 	int is_electricity_producer() const { return electricity_producer; }
+
+	uint16 get_expand_probability() const { return expand_probability; }
+	uint16 get_expand_minumum() const { return expand_minimum; }
+	uint16 get_expand_range() const { return expand_range; }
+	uint16 get_expand_times() const { return expand_times; }
+
+	uint16 get_electric_boost() const { return electric_boost; }
+	uint16 get_pax_boost() const { return pax_boost; }
+	uint16 get_mail_boost() const { return mail_boost; }
+	uint16 get_electric_amount() const { return electric_amount; }
+	uint16 get_pax_demand() const { return pax_demand; }
+	uint16 get_mail_demand() const { return mail_demand; }
 
 	void calc_checksum(checksum_t *chk) const;
 };

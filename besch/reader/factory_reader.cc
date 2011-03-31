@@ -228,7 +228,29 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 	const uint16 v = decode_uint16(p);
 	const int version = v & 0x8000 ? v & 0x7FFF : 0;
 
-	if(version == 2) {
+	if(version == 3) {
+		// Versioned node, version 3
+		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
+		besch->produktivitaet = decode_uint16(p);
+		besch->bereich = decode_uint16(p);
+		besch->gewichtung = decode_uint16(p);
+		besch->kennfarbe = decode_uint8(p);
+		besch->fields = decode_uint8(p);
+		besch->lieferanten = decode_uint16(p);
+		besch->produkte = decode_uint16(p);
+		besch->pax_level = decode_uint16(p);
+		besch->expand_probability = decode_uint16(p);
+		besch->expand_minimum = decode_uint16(p);
+		besch->expand_range = decode_uint16(p);
+		besch->expand_times = decode_uint16(p);
+		besch->electric_boost = decode_uint16(p);
+		besch->pax_boost = decode_uint16(p);
+		besch->mail_boost = decode_uint16(p);
+		besch->electric_amount = decode_uint16(p);
+		besch->pax_demand = decode_uint16(p);
+		besch->mail_demand = decode_uint16(p);
+		DBG_DEBUG("factory_reader_t::read_node()","version=3, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
+	} else if(version == 2) {
 		// Versioned node, version 2
 		besch->platzierung = (enum fabrik_besch_t::platzierung)decode_uint16(p);
 		besch->produktivitaet = decode_uint16(p);
@@ -239,6 +261,16 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->lieferanten = decode_uint16(p);
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = decode_uint16(p);
+		besch->expand_probability = 0;
+		besch->expand_minimum = 0;
+		besch->expand_range = 0;
+		besch->expand_times = 0;
+		besch->electric_boost = 256;
+		besch->pax_boost = 0;
+		besch->mail_boost = 0;
+		besch->electric_amount = 65535;
+		besch->pax_demand = 65535;
+		besch->mail_demand = 65535;
 		DBG_DEBUG("factory_reader_t::read_node()","version=2, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level );
 	} else if(version == 1) {
 		// Versioned node, version 1
@@ -251,6 +283,16 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = decode_uint16(p);
 		besch->fields = 0;
+		besch->expand_probability = 0;
+		besch->expand_minimum = 0;
+		besch->expand_range = 0;
+		besch->expand_times = 0;
+		besch->electric_boost = 256;
+		besch->pax_boost = 0;
+		besch->mail_boost = 0;
+		besch->electric_amount = 65535;
+		besch->pax_demand = 65535;
+		besch->mail_demand = 65535;
 		DBG_DEBUG("factory_reader_t::read_node()","version=1, platz=%i, lieferanten=%i, pax=%i", besch->platzierung, besch->lieferanten, besch->pax_level);
 	}
 	else {
@@ -266,6 +308,16 @@ obj_besch_t *factory_reader_t::read_node(FILE *fp, obj_node_info_t &node)
 		besch->produkte = decode_uint16(p);
 		besch->pax_level = 12;
 		besch->fields = 0;
+		besch->expand_probability = 0;
+		besch->expand_minimum = 0;
+		besch->expand_range = 0;
+		besch->expand_times = 0;
+		besch->electric_boost = 256;
+		besch->pax_boost = 0;
+		besch->mail_boost = 0;
+		besch->electric_amount = 65535;
+		besch->pax_demand = 65535;
+		besch->mail_demand = 65535;
 	}
 	return besch;
 }

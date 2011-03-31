@@ -84,6 +84,12 @@ private:
 	sint32 factory_worker_minimum_towns;
 	sint32 factory_worker_maximum_towns;
 
+	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
+	uint16 factory_arrival_periods;
+
+	// Knightly : whether factory pax/mail demands are enforced
+	bool factory_enforce_demand;
+
 	uint16 station_coverage_size;
 
 	/**
@@ -457,6 +463,12 @@ public:
 	// any factory will be connected to not more than this number of next cities
 	uint32 get_factory_worker_maximum_towns() const { return factory_worker_maximum_towns; }
 	void set_factory_worker_maximum_towns(uint32 n) { factory_worker_maximum_towns = n; }
+
+	// Knightly : number of periods for averaging the amount of arrived pax/mail at factories
+	uint16 get_factory_arrival_periods() const { return factory_arrival_periods; }
+
+	// Knightly : whether factory pax/mail demands are enforced
+	bool get_factory_enforce_demand() const { return factory_enforce_demand; }
 
 	// disallow using obsolete vehicles in depot
 	bool get_allow_buying_obsolete_vehicles() const { return allow_buying_obsolete_vehicles; }

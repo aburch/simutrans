@@ -248,6 +248,8 @@ void settings_economy_stats_t::init(einstellungen_t *sets)
 	INIT_NUM( "factory_worker_radius", sets->get_factory_worker_radius(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_minimum_towns", sets->get_factory_worker_minimum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "factory_worker_maximum_towns", sets->get_factory_worker_maximum_towns(), 0, 32767, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "factory_arrival_periods", sets->get_factory_arrival_periods(), 1, 16, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_BOOL( "factory_enforce_demand", sets->get_factory_enforce_demand() );
 	INIT_NUM( "factory_worker_percentage", sets->get_factory_worker_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "tourist_percentage", sets->get_tourist_percentage(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR
@@ -295,6 +297,8 @@ void settings_economy_stats_t::read( einstellungen_t *sets )
 	READ_NUM_VALUE( sets->factory_worker_radius );
 	READ_NUM_VALUE( sets->factory_worker_minimum_towns );
 	READ_NUM_VALUE( sets->factory_worker_maximum_towns );
+	READ_NUM_VALUE( sets->factory_arrival_periods );
+	READ_BOOL_VALUE( sets->factory_enforce_demand );
 	READ_NUM_VALUE( sets->factory_worker_percentage );
 	READ_NUM_VALUE( sets->tourist_percentage );
 	READ_NUM_VALUE( sets->passenger_multiplier );

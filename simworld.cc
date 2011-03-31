@@ -670,7 +670,7 @@ bool karte_t::rem_stadt(stadt_t *s)
 	DBG_DEBUG4("karte_t::rem_stadt()", "fab_list %i", fab_list.get_count() );
 	slist_iterator_tpl<fabrik_t *> iter(fab_list);
 	while(iter.next()) {
-		(iter.get_current())->remove_arbeiterziel(s);
+		(iter.get_current())->remove_target_city(s);
 	}
 
 	// ok, we can delete this
@@ -2483,10 +2483,7 @@ bool karte_t::rem_fab(fabrik_t *fab)
 		}
 
 		// remove all links to cities
-		slist_iterator_tpl<stadt_t *> iter_city (fab->get_arbeiterziele());
-		while(iter_city.next()) {
-			iter_city.get_current()->remove_arbeiterziel(fab);
-		}
+		fab->clear_target_cities();
 
 		// finally delete it
 		delete fab;
@@ -4437,33 +4434,6 @@ DBG_DEBUG("karte_t::laden", "init %i cities",einstellungen->get_anzahl_staedte()
 		}
 	}
 
-	DBG_MESSAGE("karte_t::laden()", "clean up factories");
-	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
-	while(fiter.next()) {
-		fiter.get_current()->laden_abschliessen();
-	}
-
-	display_progress(get_groesse_y()+24, get_groesse_y()+256+stadt.get_count());
-
-DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
-
-	// must be done after reliefkarte is initialized
-	int x = get_groesse_y() + 24;
-	// old versions did not save factory connections
-	if(file->get_version()<99014) {
-		sint32 temp_min = get_einstellungen()->get_factory_worker_minimum_towns();
-		sint32 temp_max = get_einstellungen()->get_factory_worker_maximum_towns();
-		// this needs to avoid the first city to be connected to all town
-		access_einstellungen()->set_factory_worker_minimum_towns(0);
-		access_einstellungen()->set_factory_worker_maximum_towns(stadt.get_count()+1);
-		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-			(*i)->verbinde_fabriken();
-			display_progress(x++, get_groesse_y() + 256 + stadt.get_count());
-		}
-		access_einstellungen()->set_factory_worker_minimum_towns(temp_min);
-		access_einstellungen()->set_factory_worker_maximum_towns(temp_max);
-	}
-
 	// load linemanagement status (and lines)
 	// @author hsiegeln
 	if (file->get_version() > 82003  &&  file->get_version()<88003) {
@@ -4584,6 +4554,41 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		display_progress(get_groesse_y()+48+stadt.get_count()+(y*128)/get_groesse_y(), get_groesse_y()+256+stadt.get_count());
 	}
 
+	// must finish loading cities first before cleaning up factories
+	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
+	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+		stadt_t* s = *i;
+		s->laden_abschliessen();
+		new_weighted_stadt.append(s, s->get_einwohner(), 64);
+		INT_CHECK("simworld 1278");
+	}
+	swap(stadt, new_weighted_stadt);
+	DBG_MESSAGE("karte_t::laden()", "cities initialized");
+
+	DBG_MESSAGE("karte_t::laden()", "clean up factories");
+	slist_iterator_tpl<fabrik_t*> fiter ( fab_list );
+	while(fiter.next()) {
+		fiter.get_current()->laden_abschliessen();
+	}
+
+DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
+
+	// must be done after reliefkarte is initialized
+	int x = get_groesse_y() + 24;
+	// old versions did not save factory connections
+	if(file->get_version()<99014) {
+		sint32 temp_min = get_einstellungen()->get_factory_worker_minimum_towns();
+		sint32 temp_max = get_einstellungen()->get_factory_worker_maximum_towns();
+		// this needs to avoid the first city to be connected to all town
+		access_einstellungen()->set_factory_worker_minimum_towns(0);
+		access_einstellungen()->set_factory_worker_maximum_towns(stadt.get_count()+1);
+		for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
+			(*i)->verbinde_fabriken();
+		}
+		access_einstellungen()->set_factory_worker_minimum_towns(temp_min);
+		access_einstellungen()->set_factory_worker_maximum_towns(temp_max);
+	}
+
 	// resolve dummy stops into real stops first ...
 	for(  slist_tpl<halthandle_t>::const_iterator i=haltestelle_t::get_alle_haltestellen().begin(); i!=haltestelle_t::get_alle_haltestellen().end();  ++i  ) {
 		if(  (*i)->get_besitzer()  &&  (*i)->existiert_in_welt()  ) {
@@ -4620,17 +4625,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 			spieler[i]->laden_abschliessen();
 		}
 	}
-
-	// must resort them ...
-	weighted_vector_tpl<stadt_t*> new_weighted_stadt(stadt.get_count() + 1);
-	for (weighted_vector_tpl<stadt_t*>::const_iterator i = stadt.begin(), end = stadt.end(); i != end; ++i) {
-		stadt_t* s = *i;
-		s->laden_abschliessen();
-		new_weighted_stadt.append(s, s->get_einwohner(), 64);
-		INT_CHECK("simworld 1278");
-	}
-	swap(stadt, new_weighted_stadt);
-	DBG_MESSAGE("karte_t::laden()", "cities initialized");
 
 #ifdef DEBUG
 	long dt = dr_time();

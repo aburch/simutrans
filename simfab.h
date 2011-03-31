@@ -13,6 +13,7 @@
 
 #include "tpl/slist_tpl.h"
 #include "tpl/vector_tpl.h"
+#include "tpl/array_tpl.h"
 #include "besch/fabrik_besch.h"
 #include "halthandle_t.h"
 #include "simworld.h"
@@ -22,8 +23,52 @@ class spieler_t;
 class stadt_t;
 
 
+/**
+ * Factory statistics
+ * @author Knightly
+ */
+#define MAX_MONTH                  (12)
+#define FAB_PRODUCTION              (0)
+#define FAB_POWER                   (1)
+#define FAB_BOOST_ELECTRIC          (2)
+#define FAB_BOOST_PAX               (3)
+#define FAB_BOOST_MAIL              (4)
+#define FAB_PAX_GENERATED           (5)
+#define FAB_PAX_DEPARTED            (6)
+#define FAB_PAX_ARRIVED             (7)
+#define FAB_MAIL_GENERATED          (8)
+#define FAB_MAIL_DEPARTED           (9)
+#define FAB_MAIL_ARRIVED           (10)
+#define MAX_FAB_STAT               (11)
+
+// reference lines
+#define FAB_REF_MAX_BOOST_ELECTRIC  (0)
+#define FAB_REF_MAX_BOOST_PAX       (1)
+#define FAB_REF_MAX_BOOST_MAIL      (2)
+#define FAB_REF_DEMAND_ELECTRIC     (3)
+#define FAB_REF_DEMAND_PAX          (4)
+#define FAB_REF_DEMAND_MAIL         (5)
+#define MAX_FAB_REF_LINE            (6)
+
+// statistics for goods
+#define MAX_FAB_GOODS_STAT          (3)
+// common to both input and output goods
+#define FAB_GOODS_STORAGE           (0)
+// input goods
+#define FAB_GOODS_RECEIVED          (1)
+#define FAB_GOODS_CONSUMED          (2)
+// output goods
+#define FAB_GOODS_DELIVERED         (1)
+#define FAB_GOODS_PRODUCED          (2)
+
+
 // production happens in every second
 #define PRODUCTION_DELTA_T (1024)
+// default production factor
+#define DEFAULT_PRODUCTION_FACTOR_BITS (8)
+#define DEFAULT_PRODUCTION_FACTOR (1 << DEFAULT_PRODUCTION_FACTOR_BITS)
+// precision of apportioned demand (i.e. weights of factories at target cities)
+#define DEMAND_BITS (4)
 
 
 // to prepare for 64 precision ...
@@ -31,13 +76,25 @@ class ware_production_t
 {
 private:
 	const ware_besch_t *type;
+	// Knightly : statistics for each goods
+	sint64 statistics[MAX_MONTH][MAX_FAB_GOODS_STAT];
+	sint64 weighted_sum_storage;
 public:
 	const ware_besch_t* get_typ() const { return type; }
 	void set_typ(const ware_besch_t *t) { type=t; }
+
+	// Knightly : functions for manipulating goods statistics
+	void init_stats();
+	void roll_stats(sint64 aggregate_weight);
+	void rdwr_stats(loadsave_t *file);
+	const sint64* get_stats() const { return *statistics; }
+	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] += value; }
+	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_GOODS_STAT); statistics[0][stat_type] = value; }
+	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_GOODS_STAT); return statistics[month][stat_type]; }
+	void book_weighted_sum_storage(sint64 delta_time);
+
 	sint32 menge;	// in internal untis shifted by precision (see produktion)
 	sint32 max;
-	sint32 abgabe_sum;	// total this month (in units)
-	sint32 abgabe_letzt;	// total last month (in units)
 };
 
 
@@ -64,6 +121,25 @@ public:
 	enum { precision_bits = 10, old_precision_bits = 10, precision_mask = 1023 };
 
 private:
+	/**
+	 * Factory statistics
+	 * @author Knightly
+	 */
+	sint64 statistics[MAX_MONTH][MAX_FAB_STAT];
+	sint64 weighted_sum_production;
+	sint64 weighted_sum_boost_electric;
+	sint64 weighted_sum_boost_pax;
+	sint64 weighted_sum_boost_mail;
+	sint64 weighted_sum_power;
+	sint64 aggregate_weight;
+
+	// Knightly : Functions for manipulating factory statistics
+	void init_stats();
+	void set_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] = value; }
+
+	// Knightly : For accumulating weighted sums for average statistics
+	void book_weighted_sums(sint64 delta_time);
+
 	// used for haltlist and lieferziele searches in verteile_waren to produce round robin results
 	uint32 index_offset;
 
@@ -102,9 +178,8 @@ private:
 	 */
 	void verteile_waren(const uint32 produkt);
 
-	/* still needed for the info dialog; otherwise useless
-	 */
-	slist_tpl<stadt_t *> arbeiterziele;
+	// List of target cities
+	vector_tpl<stadt_t *> target_cities;
 
 	spieler_t *besitzer_p;
 	karte_t *welt;
@@ -127,10 +202,12 @@ private:
 	 * multiplikator für die Produktionsgrundmenge
 	 * @author Hj. Malthaner
 	 */
-	sint32 prodfaktor;
+	sint32 prodfactor_electric;
+	sint32 prodfactor_pax;
+	sint32 prodfactor_mail;
 
-	vector_tpl<ware_production_t> eingang; //< das einganslagerfeld
-	vector_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld
+	array_tpl<ware_production_t> eingang; //< das einganslagerfeld
+	array_tpl<ware_production_t> ausgang; //< das ausgangslagerfeld
 
 	/**
 	 * Zeitakkumulator für Produktion
@@ -160,6 +237,99 @@ private:
 	 */
 	koord3d pos;
 
+	/**
+	 * Number of times the factory has expanded so far
+	 * Only for factories without fields
+	 * @author Knightly
+	 */
+	uint16 times_expanded;
+
+	/**
+	 * Electricity amount scaled with prodbase
+	 * @author TurfIt
+	 */
+	uint32 scaled_electric_amount;
+
+	/**
+	 * Pax/mail demand scaled with prodbase and month length
+	 * @author Knightly
+	 */
+	uint32 scaled_pax_demand;
+	uint32 scaled_mail_demand;
+
+	/**
+	 * Update scaled electricity amount
+	 * @author TurfIt
+	 */
+	void update_scaled_electric_amount();
+
+	/**
+	 * Update scaled pax/mail demand
+	 * @author Knightly
+	 */
+	void update_scaled_pax_demand();
+	void update_scaled_mail_demand();
+
+	/**
+	 * Update production multipliers for pax and mail
+	 * @author Knightly
+	 */
+	void update_prodfactor_pax();
+	void update_prodfactor_mail();
+
+	/**
+	 * Re-calculate the pax/mail demands of factory at target cities
+	 * @author Knightly
+	 */
+	void recalc_demands_at_target_cities();
+
+	/**
+	 * Recalculate storage capacities based on prodbase or capacities contributed by fields
+	 * @author Knightly
+	 */
+	void recalc_storage_capacities();
+
+	/**
+	 * Class for collecting arrival data and calculating pax/mail boost with fixed period length
+	 * @author Knightly
+	 */
+	#define PERIOD_BITS   (18)				// determines period length on which boost calculation is based
+	#define SLOT_BITS     (6)				// determines the number of time slots available
+	#define SLOT_COUNT    (1<<SLOT_BITS)	// number of time slots for accumulating arrived pax/mail
+	class arrival_statistics_t
+	{
+	private:
+		uint16 slots[SLOT_COUNT];
+		uint16 current_slot;
+		uint16 active_slots;		// number of slots covered since aggregate arrival last increased from 0 to +ve
+		uint32 aggregate_arrival;
+		uint32 scaled_demand;
+	public:
+		void init();
+		void rdwr(loadsave_t *file);
+		void set_scaled_demand(const uint32 demand) { scaled_demand = demand; }
+		#define ARRIVALS_CHANGED (1)
+		#define ACTIVE_SLOTS_INCREASED (2)
+		sint32 advance_slot();
+		void book_arrival(const uint16 amount);
+		uint16 get_active_slots() const { return active_slots; }
+		uint32 get_aggregate_arrival() const { return aggregate_arrival; }
+		uint32 get_scaled_demand() const { return scaled_demand; }
+	};
+
+	/**
+	 * Arrival data for calculating pax/mail boost
+	 * @author Knightly
+	 */
+	arrival_statistics_t arrival_stats_pax;
+	arrival_statistics_t arrival_stats_mail;
+
+	/**
+	 * For advancement of slots for boost calculation
+	 * @author Knightly
+	 */
+	sint32 delta_slot;
+
 	void recalc_factory_status();
 
 	// create some smoke on the map
@@ -175,6 +345,14 @@ public:
 	fabrik_t(karte_t *welt, loadsave_t *file);
 	fabrik_t(koord3d pos, spieler_t* sp, const fabrik_besch_t* fabesch);
 	~fabrik_t();
+
+	/**
+	 * Return/book statistics
+	 * @author Knightly
+	 */
+	const sint64* get_stats() const { return *statistics; }
+	sint64 get_stat(int month, int stat_type) const { assert(stat_type<MAX_FAB_STAT); return statistics[month][stat_type]; }
+	void book_stat(sint64 value, int stat_type) { assert(stat_type<MAX_FAB_STAT); statistics[0][stat_type] += value; }
 
 	static fabrik_t * get_fab(const karte_t *welt, const koord pos);
 
@@ -196,13 +374,14 @@ public:
 	const vector_tpl<koord>& get_lieferziele() const { return lieferziele; }
 	const vector_tpl<koord>& get_suppliers() const { return suppliers; }
 
-	/* workers origin only used for info dialog purposes and saving; otherwise useless ...
-	 * @author Hj. Malthaner/prissi
+	/**
+	 * Functions for manipulating the list of connected cities
+	 * @author Hj. Malthaner/prissi/Knightly
 	 */
-	void  add_arbeiterziel(stadt_t *s) { if(!arbeiterziele.is_contained(s)) arbeiterziele.insert(s); }
-	void  remove_arbeiterziel(stadt_t *s) { arbeiterziele.remove(s); }
-	void  clear_arbeiterziele() { arbeiterziele.clear(); }
-	const slist_tpl<stadt_t*>& get_arbeiterziele() const { return arbeiterziele; }
+	void add_target_city(stadt_t *const city);
+	void remove_target_city(stadt_t *const city);
+	void clear_target_cities();
+	const vector_tpl<stadt_t *>& get_target_cities() const { return target_cities; }
 
 	/**
 	 * Fügt ein neues Lieferziel hinzu
@@ -253,8 +432,6 @@ public:
 	 */
 	sint32 verbraucht(const ware_besch_t *);             // Nimmt fab das an ??
 	sint32 liefere_an(const ware_besch_t *, sint32 menge);
-
-	sint32 get_abgabe_letzt(sint32 t) const { return ausgang[t].abgabe_letzt; }
 
 	void step(long delta_t);                  // fabrik muss auch arbeiten
 	void neuer_monat();
@@ -320,21 +497,23 @@ public:
 	 * total and current procduction/storage values
 	 * @author Hj. Malthaner
 	 */
-	const vector_tpl<ware_production_t>& get_eingang() const { return eingang; }
-	const vector_tpl<ware_production_t>& get_ausgang() const { return ausgang; }
+	const array_tpl<ware_production_t>& get_eingang() const { return eingang; }
+	const array_tpl<ware_production_t>& get_ausgang() const { return ausgang; }
 
 	/**
-	 * Produktionsmultiplikator
+	 * Production multipliers
 	 * @author Hj. Malthaner
 	 */
-	void set_prodfaktor(sint32 i) { prodfaktor = (i < 16 ? 16 : i); }
-	sint32 get_prodfaktor(void) const { return prodfaktor; }
+	sint32 get_prodfactor_electric() const { return prodfactor_electric; }
+	sint32 get_prodfactor_pax() const { return prodfactor_pax; }
+	sint32 get_prodfactor_mail() const { return prodfactor_mail; }
+	sint32 get_prodfactor() const { return DEFAULT_PRODUCTION_FACTOR + prodfactor_electric + prodfactor_pax + prodfactor_mail; }
 
 	/* does not takes month length into account */
 	sint32 get_base_production() const { return prodbase; }
-	void set_base_production( sint32 p ) {prodbase = p; }
+	void set_base_production(sint32 p);
 
-	sint32 get_current_production() const { return (prodbase * prodfaktor * 16l)>>(26l-(long)welt->ticks_per_world_month_shift); }
+	sint32 get_current_production() const { return ((sint64)prodbase * (sint64)(get_prodfactor()))>>(26l-(long)welt->ticks_per_world_month_shift); }
 
 	/* prissi: returns the status of the current factory, as well as output */
 	enum { bad, medium, good, inactive, nothing };
@@ -354,6 +533,14 @@ public:
 	 * fails if no matching goods are there
 	 */
 	bool add_supplier(fabrik_t* fab);
+
+	/**
+	 * Return the scaled electricity amount and pax/mail demand
+	 * @author Knightly
+	 */
+	uint32 get_scaled_electric_amount() const { return scaled_electric_amount; }
+	uint32 get_scaled_pax_demand() const { return scaled_pax_demand; }
+	uint32 get_scaled_mail_demand() const { return scaled_mail_demand; }
 };
 
 #endif

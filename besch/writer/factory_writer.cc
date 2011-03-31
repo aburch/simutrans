@@ -173,7 +173,19 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 	besch.pax_level      = obj.get_int("pax_level", 12);
 
-	obj_node_t node(this, 18, &parent);
+	besch.expand_probability	= obj.get_int("expand_probability", 0);
+	besch.expand_minimum		= obj.get_int("expand_minimum", 0);
+	besch.expand_range			= obj.get_int("expand_range", 0);
+	besch.expand_times			= obj.get_int("expand_times", 0);
+
+	besch.electric_boost        = (obj.get_int("electricity_boost", 1000) * 256 + 500) / 1000;
+	besch.pax_boost				= (obj.get_int("passenger_boost", 0) * 256 + 500) / 1000;
+	besch.mail_boost			= (obj.get_int("mail_boost", 0) * 256 + 500) / 1000;
+	besch.electric_amount       = obj.get_int("electricity_amount", 65535);
+	besch.pax_demand			= obj.get_int("passenger_demand", 65535);
+	besch.mail_demand			= obj.get_int("mail_demand", 65535);
+
+	obj_node_t node(this, 38, &parent);
 
 	obj.put("type", "fac");
 
@@ -228,7 +240,7 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// new version with pax_level
-	node.write_uint16(fp, 0x8002,                      0); // version
+	node.write_uint16(fp, 0x8003,                      0); // version
 
 	node.write_uint16(fp, (uint16) besch.platzierung,  2);
 	node.write_uint16(fp, besch.produktivitaet,        4);
@@ -239,6 +251,16 @@ void factory_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	node.write_uint16(fp, besch.lieferanten,          12);
 	node.write_uint16(fp, besch.produkte,             14);
 	node.write_uint16(fp, besch.pax_level,            16);
+	node.write_uint16(fp, besch.expand_probability,   18);
+	node.write_uint16(fp, besch.expand_minimum,       20);
+	node.write_uint16(fp, besch.expand_range,         22);
+	node.write_uint16(fp, besch.expand_times,         24);
+	node.write_uint16(fp, besch.electric_boost,       26);
+	node.write_uint16(fp, besch.pax_boost,            28);
+	node.write_uint16(fp, besch.mail_boost,           30);
+	node.write_uint16(fp, besch.electric_amount,      32);
+	node.write_uint16(fp, besch.pax_demand,           34);
+	node.write_uint16(fp, besch.mail_demand,          36);
 
 	node.write(fp);
 }

@@ -186,11 +186,65 @@ private:
 	best_t best_haus;
 	best_t best_strasse;
 
+public:
 	/**
-	 * Arbeitsplätze der Einwohner
-	 * @author Hj. Malthaner
+	 * Classes for storing and manipulating target factories and their data
+	 * @author Knightly
 	 */
-	weighted_vector_tpl<fabrik_t *> arbeiterziele;
+	struct factory_entry_t
+	{
+		union
+		{
+			fabrik_t *factory;
+			struct
+			{
+				sint16 factory_pos_x;
+				sint16 factory_pos_y;
+			};
+		};
+		sint32 demand;		// amount demanded by the factory; shifted by DEMAND_BITS
+		sint32 supply;		// amount that the city can supply
+		sint32 remaining;	// portion of supply which has not realised yet; remaining <= supply
+
+		factory_entry_t() : factory(NULL), demand(0), supply(0), remaining(0) { }
+		factory_entry_t(fabrik_t *_factory) : factory(_factory), demand(0), supply(0), remaining(0) { }
+		factory_entry_t(fabrik_t *_factory, sint32 _demand) : factory(_factory), demand(_demand), supply(0), remaining(0) { }
+
+		bool operator == (const factory_entry_t &other) const { return ( this->factory==other.factory ); }
+		void new_month() { supply = 0; remaining = 0; }
+		void rdwr(loadsave_t *file);
+		void resolve_factory();
+	};
+	#define RATIO_BITS (25)
+	struct factory_set_t
+	{
+		vector_tpl<factory_entry_t> entries;
+		sint32 total_demand;		// shifted by DEMAND_BITS
+		sint32 total_remaining;
+		sint32 total_generated;
+		uint32 generation_ratio;
+		bool ratio_stale;
+
+		factory_set_t() : total_demand(0), total_remaining(0), total_generated(0), generation_ratio(0), ratio_stale(true) { }
+
+		const vector_tpl<factory_entry_t>& get_entries() const { return entries; }
+		const factory_entry_t* get_entry(const fabrik_t *const factory) const;
+		factory_entry_t* get_random_entry();
+		void update_factory(fabrik_t *const factory, const sint32 demand);
+		void remove_factory(fabrik_t *const factory);
+		void recalc_generation_ratio(const sint32 default_percent, const sint64 *city_stats, const int stats_count, const int stat_type);
+		void new_month();
+		void rdwr(loadsave_t *file);
+		void resolve_factories();
+	};
+
+private:
+	/**
+	 * Data of target factories for pax/mail
+	 * @author Knightly
+	 */
+	factory_set_t target_factories_pax;
+	factory_set_t target_factories_mail;
 
 	/**
 	 * Initialization of pax_destinations_old/new
@@ -210,7 +264,7 @@ private:
 	 */
 	void step_bau();
 
-	enum pax_zieltyp { no_return, factoy_return, tourist_return, town_return };
+	enum pax_zieltyp { no_return, factory_return, tourist_return, town_return };
 
 	/**
 	 * verteilt die Passagiere auf die Haltestellen
@@ -298,11 +352,14 @@ public:
 	 */
 	void verbinde_fabriken();
 
-	/* returns all factories connected to this city ...
+	/**
+	 * Returns the data set associated with the pax/mail target factories
 	 * @author: prissi
 	 */
-	const weighted_vector_tpl<fabrik_t*>& get_arbeiterziele() const { return arbeiterziele; }
-	void remove_arbeiterziel(fabrik_t *fab) { arbeiterziele.remove(fab); }
+	const factory_set_t& get_target_factories_for_pax() const { return target_factories_pax; }
+	const factory_set_t& get_target_factories_for_mail() const { return target_factories_mail; }
+	factory_set_t& access_target_factories_for_pax() { return target_factories_pax; }
+	factory_set_t& access_target_factories_for_mail() { return target_factories_mail; }
 
 	// this function removes houses from the city house list
 	// (called when removed by player, or by town)
@@ -430,7 +487,7 @@ public:
 	 * such ein (zufälliges) ziel für einen Passagier
 	 * @author Hj. Malthaner
 	 */
-	koord finde_passagier_ziel(pax_zieltyp *will_return);
+	koord find_destination(factory_set_t &target_factories, const sint64 generated, pax_zieltyp *will_return, factory_entry_t* &factory_entry);
 
 	/**
 	 * Gibt die Gruendungsposition der Stadt zurueck.
@@ -456,8 +513,6 @@ public:
 	// geeigneten platz zur Stadtgruendung durch Zufall ermitteln
 
 	void zeige_info(void);
-
-	void add_factory_arbeiterziel(fabrik_t *fab);
 };
 
 #endif

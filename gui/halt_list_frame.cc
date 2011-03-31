@@ -175,8 +175,8 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 				  // begrenzt (Normal 1-2 Fabriken mit je 0-1 Ausgang) -  V. Meyer
 					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
 					while(!ok && fab_iter.next()) {
-						const vector_tpl<ware_production_t>& ausgang = fab_iter.get_current()->get_ausgang();
-						for (j = 0; !ok && j < ausgang.get_count(); j++) {
+						const array_tpl<ware_production_t>& ausgang = fab_iter.get_current()->get_ausgang();
+						for (j = 0; !ok && j < ausgang.get_size(); j++) {
 							ok = (ausgang[j].get_typ() == ware);
 						}
 					}
@@ -218,8 +218,8 @@ bool halt_list_frame_t::passes_filter(halthandle_t halt)
 
 					slist_iterator_tpl<fabrik_t *> fab_iter(halt->get_fab_list());
 					while(!ok && fab_iter.next()) {
-						const vector_tpl<ware_production_t>& eingang = fab_iter.get_current()->get_eingang();
-						for (j = 0; !ok && j < eingang.get_count(); j++) {
+						const array_tpl<ware_production_t>& eingang = fab_iter.get_current()->get_eingang();
+						for (j = 0; !ok && j < eingang.get_size(); j++) {
 							ok = (eingang[j].get_typ() == ware);
 						}
 					}

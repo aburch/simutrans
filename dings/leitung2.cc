@@ -442,7 +442,6 @@ pumpe_t::pumpe_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 pumpe_t::~pumpe_t()
 {
 	if(fab) {
-		fab->set_prodfaktor( max(16,fab->get_prodfaktor()/2) );
 		fab->set_transformer_connected( false );
 		pumpe_list.remove( this );
 		fab = NULL;
@@ -557,7 +556,6 @@ senke_t::senke_t(karte_t *welt, koord3d pos, spieler_t *sp) : leitung_t(welt , p
 senke_t::~senke_t()
 {
 	if(fab!=NULL) {
-		fab->set_prodfaktor( 16 );
 		fab->set_transformer_connected( false );
 		senke_list.remove( this );
 		welt->sync_remove( this );
@@ -593,8 +591,19 @@ void senke_t::step(long delta_t)
 	}
 	fab->add_power_demand( power_demand-power_load ); // allows subsequently stepped senke to supply demand this senke couldn't
 
-	max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-	einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
+	if(  fab->get_besch()->get_electric_amount() == 65535  ){
+		// demand not specified in pak, use old fixed demands
+		max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
+		einkommen += power_load  * delta_t / PRODUCTION_DELTA_T;
+	}
+	else if(  welt->ticks_per_world_month_shift >= 18  ) {
+		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
+		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) >> (welt->ticks_per_world_month_shift-18);
+	}
+	else {
+		max_einkommen += (last_power_demand * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+		einkommen += (power_load  * delta_t / PRODUCTION_DELTA_T) << (18-welt->ticks_per_world_month_shift);
+	}
 
 	if(max_einkommen>(2000<<11)) {
 		get_besitzer()->buche(einkommen >> 11, get_pos().get_2d(), COST_POWERLINES);

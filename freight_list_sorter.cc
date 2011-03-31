@@ -4,6 +4,7 @@
 #include "simhalt.h"
 #include "simtypes.h"
 #include "simware.h"
+#include "simfab.h"
 #include "simworld.h"
 
 #include "dataobj/translator.h"
@@ -13,6 +14,8 @@
 
 #include "utils/cbuffer_t.h"
 
+
+karte_t *freight_list_sorter_t::welt = NULL;
 freight_list_sorter_t::sort_mode_t freight_list_sorter_t::sortby=by_name;
 
 
@@ -62,7 +65,10 @@ bool freight_list_sorter_t::compare_ware(ware_t const& w1, ware_t const& w2)
 			halthandle_t const d1 = w1.get_ziel();
 			halthandle_t const d2 = w2.get_ziel();
 			if (d1.is_bound() && d2.is_bound()) {
-				return strcmp(d1->get_name(), d2->get_name()) < 0;
+				const fabrik_t *fab = NULL;
+				const char *const name1 = ( w1.to_factory ? ( (fab=fabrik_t::get_fab(welt,w1.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d1->get_name() );
+				const char *const name2 = ( w2.to_factory ? ( (fab=fabrik_t::get_fab(welt,w2.get_zielpos())) ? fab->get_name() : "Invalid Factory" ) : d2->get_name() );
+				return strcmp(name1, name2) < 0;
 			} else if (d1.is_bound()) {
 				return false;
 			} else if (d2.is_bound()) {
@@ -101,8 +107,9 @@ freight_list_sorter_t::add_ware_heading( cbuffer_t &buf, uint32 sum, uint32 max,
 }
 
 
-void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing)
+void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuffer_t& buf, sort_mode_t sort_mode, const slist_tpl<ware_t>* full_list, const char* what_doing, karte_t *world)
 {
+	welt = world;
 	sortby = sort_mode;
 
 	// if there, give the capacity for each freight
@@ -128,9 +135,8 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			// only add it, if there is not another thing waiting with the same via but another destination
 			for( int i=0;  i<pos;  i++ ) {
 				ware_t& wi = wlist[i];
-				if (wi.get_index()        == ware.get_index()        &&
-						wi.get_zwischenziel() == ware.get_zwischenziel() &&
-						wi.get_ziel()         != wi.get_zwischenziel()) {
+				if(  wi.get_index()==ware.get_index()  &&  wi.get_zwischenziel()==ware.get_zwischenziel()  &&
+					( wi.get_ziel()==wi.get_zwischenziel() )==( ware.get_ziel()==ware.get_zwischenziel() )    ) {
 					wi.menge += ware.menge;
 					--pos;
 					break;
@@ -200,8 +206,15 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 			ware_besch_t const& desc = *ware.get_besch();
 			buf.printf("   %u%s %s > ", ware.menge, translator::translate(desc.get_mass()), translator::translate(desc.get_name()));
 			// the target name is not correct for the via sort
-			if(sortby!=by_via_sum  ||  via_halt==halt  ) {
-				buf.append(name);
+			const bool is_factory_going = ( sortby!=by_via_sum  &&  ware.to_factory );	// exclude merged packets
+			if(  sortby!=by_via_sum  ||  via_halt==halt  ) {
+				if(  is_factory_going  ) {
+					const fabrik_t *const factory = fabrik_t::get_fab( world, ware.get_zielpos() );
+					buf.printf("%s <%i,%i>", (factory ? factory->get_name() : "Invalid Factory"), ware.get_zielpos().x, ware.get_zielpos().y);
+				}
+				else {
+					buf.append(name);
+				}
 			}
 
 			// for debugging
@@ -210,7 +223,7 @@ void freight_list_sorter_t::sort_freight(const vector_tpl<ware_t>* warray, cbuff
 				via_name = via_halt->get_name();
 			}
 
-			if(via_halt != halt) {
+			if(  via_halt!=halt  ||  is_factory_going  ) {
 				buf.printf(translator::translate("via %s\n"), via_name);
 			}
 			else {

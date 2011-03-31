@@ -21,7 +21,13 @@ private:
 public:
 	uint32 index: 8;
 
-	uint32 menge : 24;
+	uint32 menge : 23;
+
+	/**
+	 * To indicate that the ware's destination is a factory/consumer store
+	 * @author Knightly
+	 */
+	uint32 to_factory : 1;
 
 private:
 	/**
@@ -82,6 +88,7 @@ public:
 	int operator==(const ware_t &w) {
 		return index  == w.index  &&
 			menge == w.menge &&
+			to_factory == w.to_factory &&
 			ziel  == w.ziel  &&
 			zwischenziel == w.zwischenziel &&
 			zielpos == w.zielpos;
@@ -92,7 +99,7 @@ public:
 	// mail and passengers just care about target station
 	// freight needs to obey coordinates (since more than one factory might by connected!)
 	inline bool same_destination(const ware_t &w) const {
-		return index==w.get_index()  &&  ziel==w.get_ziel()  &&  (index<2  ||  zielpos==w.get_zielpos());
+		return index==w.get_index()  &&  ziel==w.get_ziel()  &&  to_factory==w.to_factory  &&  (!to_factory  ||  zielpos==w.get_zielpos());
 	}
 };
 

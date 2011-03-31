@@ -9,6 +9,7 @@
 
 #include "components/gui_button.h"
 #include "help_frame.h"
+#include "factory_chart.h"
 
 #include "../simfab.h"
 #include "../simcolor.h"
@@ -33,13 +34,18 @@ fabrik_info_t::fabrik_info_t(const fabrik_t* fab_, const gebaeude_t* gb) :
 
 	const sint16 width = max(290, 226+view.get_groesse().x);
 
+	// Knightly : chart button for opening factory chart dialog
+	chart_button.init( button_t::roundbox, translator::translate("Chart"), koord(width - view.get_groesse().x - 20, view.get_groesse().y + 18), koord(view.get_groesse().x, 14) );
+	chart_button.add_listener(this);
+	add_komponente(&chart_button);
+
 	// Hajo: "About" button only if translation is available
 	char key[256];
 	sprintf(key, "factory_%s_details", fab->get_besch()->get_name());
 	const char * value = translator::translate(key);
 	if(value && *value != 'f') {
 		about = new button_t();
-		about->init(button_t::roundbox,translator::translate("About"),koord(width - view.get_groesse().x - 20, view.get_groesse().y + 18), koord(view.get_groesse().x, 14));
+		about->init(button_t::roundbox,translator::translate("About"),koord(width - view.get_groesse().x - 20, view.get_groesse().y + 32), koord(view.get_groesse().x, 14));
 		about->add_listener(this);
 		add_komponente(about);
 	}
@@ -103,8 +109,14 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
 	unsigned indikatorfarbe = fabrik_t::status_to_color[fab->get_status()];
 	display_ddd_box_clip(pos.x + view.get_pos().x, pos.y + view.get_pos().y + view.get_groesse().y + 16, view.get_groesse().x, 8, MN_GREY0, MN_GREY4);
 	display_fillbox_wh_clip(pos.x + view.get_pos().x + 1, pos.y + view.get_pos().y + view.get_groesse().y + 17, view.get_groesse().x - 2, 6, indikatorfarbe, true);
-	if (fab->get_prodfaktor() > 16) {
+	if(  fab->get_prodfactor_electric()>0  ) {
 		display_color_img(skinverwaltung_t::electricity->get_bild_nr(0), pos.x + view.get_pos().x + 4, pos.y + view.get_pos().y + 20, 0, false, false);
+	}
+	if(  fab->get_prodfactor_pax()>0  ) {
+		display_color_img(skinverwaltung_t::passagiere->get_bild_nr(0), pos.x + view.get_pos().x + 4 + 8, pos.y + view.get_pos().y + 20, 0, false, false);
+	}
+	if(  fab->get_prodfactor_mail()>0  ) {
+		display_color_img(skinverwaltung_t::post->get_bild_nr(0), pos.x + view.get_pos().x + 4 + 18, pos.y + view.get_pos().y + 20, 0, false, false);
 	}
 }
 
@@ -120,6 +132,9 @@ void fabrik_info_t::zeichnen(koord pos, koord gr)
    */
 bool fabrik_info_t::action_triggered( gui_action_creator_t *komp, value_t v)
 {
+	if(komp == &chart_button) {
+		create_win( new factory_chart_t(fab), w_info, (long)fab );
+	}
 	if(komp == about) {
 		help_frame_t * frame = new help_frame_t();
 		char key[256];
@@ -184,18 +199,18 @@ void fabrik_info_t::update_info()
 
 	int yy_off = (suppliers.get_count() ? (int)suppliers.get_count()-1 : -3)*LINESPACE;
 	y_off += yy_off;
-	const slist_tpl <stadt_t *> & arbeiterziele = fab->get_arbeiterziele();
+	const vector_tpl<stadt_t *> &target_cities = fab->get_target_cities();
 #ifdef _MSC_VER
 	// V.Meyer: MFC has a bug with "new x[0]"
-	stadtbuttons = new button_t [arbeiterziele.get_count()+1];
+	stadtbuttons = new button_t [target_cities.get_count()+1];
 #else
-	stadtbuttons = new button_t [arbeiterziele.get_count()];
+	stadtbuttons = new button_t [target_cities.get_count()];
 #endif
-	for(unsigned i=0; i<arbeiterziele.get_count(); i++) {
-		stadtbuttons[i].set_pos(koord(16, 112+y_off+i*LINESPACE));
-		stadtbuttons[i].set_typ(button_t::posbutton);
-		stadtbuttons[i].set_targetpos(arbeiterziele.at(i)->get_pos());
-		stadtbuttons[i].add_listener(this);
-		cont.add_komponente(&stadtbuttons[i]);
+	for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
+		stadtbuttons[c].set_pos(koord(16, 112+y_off+c*LINESPACE*2));
+		stadtbuttons[c].set_typ(button_t::posbutton);
+		stadtbuttons[c].set_targetpos(target_cities[c]->get_pos());
+		stadtbuttons[c].add_listener(this);
+		cont.add_komponente(&stadtbuttons[c]);
 	}
 }

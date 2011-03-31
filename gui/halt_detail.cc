@@ -166,8 +166,8 @@ void halt_detail_t::halt_detail_info(cbuffer_t & buf)
 			buf.append(")\n");
 			offset_y += LINESPACE;
 
-			const vector_tpl<ware_production_t>& eingang = fab->get_eingang();
-			for (uint32 i = 0; i < eingang.get_count(); i++) {
+			const array_tpl<ware_production_t>& eingang = fab->get_eingang();
+			for (uint32 i = 0; i < eingang.get_size(); i++) {
 				const ware_besch_t* ware = eingang[i].get_typ();
 
 				if(!nimmt_an.is_contained(ware)) {

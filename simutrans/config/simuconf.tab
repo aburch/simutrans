@@ -171,6 +171,14 @@ just_in_time = 1
 # use beginner mode for new maps (can be switched anyway on the new map dialog)
 first_beginner = 0
 
+# number of periods for averaging the amount of arrived pax/mail at factories for boost calculation
+# one period represents a fixed interval of 2^18 ms in-game time
+# value can range from 1 to 16, inclusive; 1 means no averaging; default is 4
+factory_arrival_periods = 4
+
+# whether factory's pax/mail demands are enforced or not; default is on
+factory_enforce_demand = 1
+
 ##################################display stuff#################################
 
 # player color can be fixed for several players or set totally random

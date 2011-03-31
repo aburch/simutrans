@@ -1007,7 +1007,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 				// 25 % of all connections are tourist attractions
 				const weighted_vector_tpl<gebaeude_t*> &ausflugsziele = welt->get_ausflugsziele();
 				// this way, we are sure, our factory is connected to this town ...
-				const weighted_vector_tpl<fabrik_t *> &fabriken = start_stadt->get_arbeiterziele();
+				const vector_tpl<stadt_t::factory_entry_t> &fabriken = start_stadt->get_target_factories_for_pax().get_entries();
 				unsigned	last_dist = 0xFFFFFFFF;
 				bool ausflug=simrand(2)!=0;	// holidays first ...
 				int ziel_count=ausflug?ausflugsziele.get_count():fabriken.get_count();
@@ -1024,8 +1024,9 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 						size = a->get_tile()->get_besch()->get_groesse(a->get_tile()->get_layout());
 					}
 					else {
-						const fabrik_t* f = fabriken[i];
-						if (f->get_besch()->get_pax_level() <= 10) {
+						const fabrik_t* f = fabriken[i].factory;
+						const fabrik_besch_t *const besch = f->get_besch();
+						if (( besch->get_pax_demand()==65535 ? besch->get_pax_level() : besch->get_pax_demand() ) <= 10) {
 							// not a good object to go to ... we want more action ...
 							continue;
 						}
@@ -1048,7 +1049,7 @@ DBG_MESSAGE("ai_passenger_t::do_passenger_ki()","searching attraction");
 									end_ausflugsziel = ausflugsziele[i];
 								}
 								else {
-									ziel = fabriken[i];
+									ziel = fabriken[i].factory;
 								}
 								last_dist = dist;
 								platz2 = test_platz;

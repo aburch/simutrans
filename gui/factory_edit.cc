@@ -291,14 +291,14 @@ void factory_edit_frame_t::change_item_info(sint32 entry)
 			}
 			buf.append("\n");
 
-			buf.append(translator::translate("Passagierrate"));
+			buf.append(translator::translate("Passenger Demand"));
 			buf.append(": ");
-			buf.append(fablist[entry]->get_pax_level());
+			buf.append( fablist[entry]->get_pax_demand()==65535 ? fablist[entry]->get_pax_level() : fablist[entry]->get_pax_demand() );
 			buf.append("\n");
 
-			buf.append(translator::translate("Postrate"));
+			buf.append(translator::translate("Mail Demand"));
 			buf.append(": ");
-			buf.append(fablist[entry]->get_pax_level());
+			buf.append( fablist[entry]->get_mail_demand()==65535 ? (fablist[entry]->get_pax_level() >> 2) : fablist[entry]->get_mail_demand() );
 			buf.append("\n");
 
 			buf.append(translator::translate("\nBauzeit von"));
