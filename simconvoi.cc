@@ -684,7 +684,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	if(  recalc_brake_soll  ) 
 	{
 			// brake at the end of stations/in front of signals and crossings
-			const sint32 tiles_left = get_next_stop_index() - front()->get_route_index();
+			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
 			waytype_t waytype = front()->get_waytype();
 			const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
 			double braking_rate;  // km/h decay per kilometre. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
