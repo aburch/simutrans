@@ -143,7 +143,7 @@ int load_block(unsigned char** block, unsigned* width, unsigned* height, const c
 	return file != NULL;
 }
 
-
+#ifndef _WIN32
 // output either a 32 or 16 or 15 bitmap
 int write_png( const char *file_name, unsigned char *data, int width, int height, int bit_depth )
 {
@@ -206,3 +206,4 @@ int write_png( const char *file_name, unsigned char *data, int width, int height
 	fclose( fp );
 	return 1;
 }
+#endif
