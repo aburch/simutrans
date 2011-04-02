@@ -33,8 +33,8 @@ class checksum_t;
  *	1   Copyright
  *	2   freight
  *	3   smoke
- *	4   empty 1d image list
- *	5   either 1d (freight_image_type==0) or 2d image list
+ *	4   empty 1d image list (or 2d list if there are multiple liveries)
+ *	5   either 1d (freight_image_type==0), 2d image list or 3d image list (if multiple liveries)
  *	6   required leading vehicle 1
  *	7   required leading vehicle 2
  *	... ...
@@ -173,7 +173,7 @@ public:
 	// default vehicle (used for way seach and similar tasks)
 	// since it has no images and not even a name knot any calls to this will case a crash
 	vehikel_besch_t(uint8 wtyp, uint16 speed, engine_t engine) {
-		freight_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
+		freight_image_type = livery_image_type = preis = upgrade_price = zuladung = overcrowded_capacity = betriebskosten = intro_date = vorgaenger = nachfolger = catering_level = upgrades = 0;
 		fixed_maintenance = DEFAULT_FIXED_VEHICLE_MAINTENANCE;
 		leistung = gewicht = comfort = 1;
 		gear = GEAR_FACTOR;
@@ -202,15 +202,42 @@ public:
 	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_bild(4) ? 8 : 4; }
 
 	// return a matching image
-	// beware, there are three class of vehicles
-	// vehicles with and without freight images, and vehicles with different freight images
+	// Vehicles can have single liveries, multiple liveries, 
+	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
 	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware) const
 	{
 		const bild_besch_t *bild=0;
 		const bildliste_besch_t *liste=0;
 
-		if(freight_image_type>0  &&  ware!=NULL)
+		if(livery_image_type > 0 && ware == NULL)
+		{
+			// Multiple liveries, empty images
+			sint8 livery_index = 0;
+			const char* livery_type = "BR-Large-Logo"; //TODO: Set this programatically.
+			for(sint8 i = 0; i < livery_image_type; i++) 
+			{
+				if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + i)->get_text()))
+				{
+					livery_index = i;
+					break;
+				}
+			}
+			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
+			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(4);
+			bild=liste2d->get_bild(dir, livery_index);
+			
+			if(!bild) 
+			{
+				if(dir>3)
+				{
+					bild = liste2d->get_bild(dir - 4, livery_index);
+				}
+			}
+			if (bild != NULL) return bild->get_nummer();
+		}
+
+		if(freight_image_type > 0 && ware!=NULL)
 		{
 			// more freight images and a freight: find the right one
 
