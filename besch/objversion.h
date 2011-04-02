@@ -41,6 +41,7 @@ enum obj_type
 	obj_image       = C4ID('I','M','G', 0 ),
 	obj_imagelist   = C4ID('I','M','G','1'),
 	obj_imagelist2d = C4ID('I','M','G','2'),
+	obj_imagelist3d = C4ID('I','M','G','3'),
 	obj_menu        = C4ID('M','E','N','U'),
 	obj_miscimages  = C4ID('M','I','S','C'),
 	obj_pedestrian  = C4ID('P','A','S','S'),

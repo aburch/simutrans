@@ -116,7 +116,7 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	// Finally, this is the experimental version number. This is *added*
 	// to the standard version number, to be subtracted again when read.
 	// Start at 0x100 and increment in hundreds (hex).
-	version += 0x500;
+	version += 0x600;
 
 	node.write_uint16(fp, version, 0);
 
@@ -255,22 +255,31 @@ void vehicle_writer_t::write_obj(FILE* fp, obj_node_t& parent, tabfileobj_t& obj
 	}
 
 	// prissi: added more error checks
-	if (has_8_images && emptykeys.get_count() < 8) {
+	if (has_8_images && emptykeys.get_count() < 8) 
+	{
 		printf("*** FATAL ***:\nMissing images (must be either 4 or 8 directions (but %i found)!)\n", emptykeys.get_count());
 		exit(0);
 	}
-	if (!freightkeys_old.empty() && emptykeys.get_count() != freightkeys_old.get_count()) {
+
+	if (!freightkeys_old.empty() && emptykeys.get_count() != freightkeys_old.get_count()) 
+	{
 		printf("*** FATAL ***:\nMissing freigthimages (must be either 4 or 8 directions (but %i found)!)\n", freightkeys_old.get_count());
 		exit(0);
 	}
 
 	imagelist_writer_t::instance()->write_obj(fp, node, emptykeys);
-	if (freight_max > 0) {
+	if (freight_max > 0) 
+	{
 		imagelist2d_writer_t::instance()->write_obj(fp, node, freightkeys);
-	} else {
-		if (freightkeys_old.get_count() == emptykeys.get_count()) {
+	} 
+	else 
+	{
+		if (freightkeys_old.get_count() == emptykeys.get_count()) 
+		{
 			imagelist_writer_t::instance()->write_obj(fp, node, freightkeys_old);
-		} else {
+		} 
+		else 
+		{
 			// really empty list ...
 			xref_writer_t::instance()->write_obj(fp, node, obj_imagelist, "", false);
 		}

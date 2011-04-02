@@ -123,6 +123,8 @@ private:
 
 	sint8 freight_image_type;	// number of freight images (displayed for different goods)
 
+	sint8 livery_image_type;	// Number of different liveries (@author: jamespetts, April 2011)
+
 	bool is_tilting; //Whether it is a tilting train (can take corners at higher speeds). 0 for no, 1 for yes. Anything other than 1 is assumed to be no.
 	
 	//uint8 way_constraints_permissive; //Way constraints. Actually, 8 boolean values. Bitwise operations necessary
@@ -208,13 +210,16 @@ public:
 		const bild_besch_t *bild=0;
 		const bildliste_besch_t *liste=0;
 
-		if(freight_image_type>0  &&  ware!=NULL) {
+		if(freight_image_type>0  &&  ware!=NULL)
+		{
 			// more freight images and a freight: find the right one
 
 			sint8 ware_index=0; // freight images: if not found use first freight
 
-			for( sint8 i=0;  i<freight_image_type;  i++  ) {
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) {
+			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			{
+				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) 
+				{
 					ware_index = i;
 					break;
 				}
@@ -223,8 +228,10 @@ public:
 			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
 			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
 			bild=liste2d->get_bild(dir, ware_index);
-			if(!bild) {
-				if(dir>3) {
+			if(!bild) 
+			{
+				if(dir>3)
+				{
 					bild = liste2d->get_bild(dir - 4, ware_index);
 				}
 			}
@@ -232,23 +239,29 @@ public:
 		}
 
 		// only try 1d freight image list for old style vehicles
-		if(freight_image_type==0  &&  ware!=NULL) {
+		if(freight_image_type==0  &&  ware!=NULL) 
+		{
 			liste = get_child<bildliste_besch_t>(5);
 		}
 
-		if(!liste) {
+		if(!liste) 
+		{
 			liste = get_child<bildliste_besch_t>(4);
-			if(!liste) {
+			if(!liste)
+			{
 				return IMG_LEER;
 			}
 		}
 
 		bild = liste->get_bild(dir);
-		if(!bild) {
-			if(dir>3) {
+		if(!bild) 
+		{
+			if(dir>3)
+			{
 				bild = liste->get_bild(dir - 4);
 			}
-			if(!bild) {
+			if(!bild) 
+			{
 				return IMG_LEER;
 			}
 		}
