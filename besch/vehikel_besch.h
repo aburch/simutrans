@@ -11,6 +11,7 @@
 #include "ware_besch.h"
 #include "bildliste_besch.h"
 #include "bildliste2d_besch.h"
+#include "bildliste3d_besch.h"
 #include "skin_besch.h"
 #include "sound_besch.h"
 #include "../dataobj/ribi.h"
@@ -210,6 +211,11 @@ public:
 		const bild_besch_t *bild=0;
 		const bildliste_besch_t *liste=0;
 
+		if(zuladung == 0 && ware)
+		{
+			ware = NULL;
+		}
+
 		if(livery_image_type > 0 && ware == NULL)
 		{
 			// Multiple liveries, empty images
@@ -237,14 +243,43 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		if(freight_image_type > 0 && ware!=NULL)
+		if(livery_image_type > 0 && freight_image_type == 0 && ware != NULL)
 		{
+			// Multiple liveries, single freight image
+			sint8 livery_index = 0;
+			const char* livery_type = "BR-Blue"; //TODO: Set this programatically.
+			for(sint8 i = 0; i < livery_image_type; i++) 
+			{
+				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + i)->get_text()))
+				{
+					livery_index = i;
+					break;
+				}
+			}
+			// vehicle has multiple liveries - get the appropriate one (if no list then fallback to livery zero)
+			bildliste2d_besch_t const* const liste2d = get_child<bildliste2d_besch_t>(5);
+			bild = liste2d->get_bild(dir, livery_index);
+			
+			if(!bild) 
+			{
+				if(dir>3)
+				{
+					bild = liste2d->get_bild(dir - 4, livery_index);
+				}
+			}
+			if (bild != NULL) return bild->get_nummer();
+		}
+
+		if(freight_image_type > 0 && ware!=NULL && livery_image_type == 0)
+		{
+			// Multiple freight images, single livery
 			// more freight images and a freight: find the right one
 
-			sint8 ware_index=0; // freight images: if not found use first freight
-
+			sint8 ware_index = 0; // freight images: if not found use first freight
+			
 			for( sint8 i=0;  i<freight_image_type;  i++  ) 
 			{
+				
 				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) 
 				{
 					ware_index = i;
@@ -265,9 +300,50 @@ public:
 			if (bild != NULL) return bild->get_nummer();
 		}
 
-		// only try 1d freight image list for old style vehicles
-		if(freight_image_type==0  &&  ware!=NULL) 
+		if(freight_image_type > 0 && ware!=NULL && livery_image_type > 0)
 		{
+			// Multiple freight images, multiple liveries
+
+			sint8 ware_index = 0; // freight images: if not found use first freight
+			sint8 livery_index = 0;
+
+			const char* livery_type = "BR-Large-Logo"; //TODO: Set this programatically.
+
+			for( sint8 i=0;  i<freight_image_type;  i++  ) 
+			{
+				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) 
+				{
+					ware_index = i;
+					break;
+				}
+			}
+
+			for(sint8 j = 0; j < livery_image_type; j++) 
+			{
+				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + j)->get_text()))
+				{
+					livery_index = j;
+					break;
+				}
+			}
+
+			// vehicle has freight images and we want to use - get appropriate one (if no list then fallback to empty image)
+			bildliste3d_besch_t const* const liste3d = get_child<bildliste3d_besch_t>(5);
+			bild = liste3d->get_bild(dir, livery_index, ware_index);
+			if(!bild) 
+			{
+				if(dir>3)
+				{
+					bild = liste3d->get_bild(dir - 4, livery_index, ware_index);
+				}
+			}
+			if (bild != NULL) return bild->get_nummer();
+		}
+
+		// only try 1d freight image list for old style vehicles
+		if(freight_image_type == 0 && ware != NULL && livery_image_type == 0) 
+		{
+			// Single freight image, single livery
 			liste = get_child<bildliste_besch_t>(5);
 		}
 
