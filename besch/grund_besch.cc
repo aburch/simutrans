@@ -349,19 +349,16 @@ bool grund_besch_t::register_besch(const grund_besch_t *besch)
 }
 
 
-
 /*
  * called after loading; usually checks for completeness
  * however, in our case hang_t::we have to calculate all textures
  * and put them into images
  */
-bool
-grund_besch_t::alles_geladen()
+bool grund_besch_t::alles_geladen()
 {
 	DBG_MESSAGE("grund_besch_t::alles_geladen()","boden");
 	return ::alles_geladen(grounds);
 }
-
 
 
 /* returns the untranslated name of the matching climate
@@ -370,7 +367,6 @@ char const* grund_besch_t::get_climate_name_from_bit(climate n)
 {
 	return n<MAX_CLIMATES ? climate_names[n] : NULL;
 }
-
 
 
 /* this routine is called during the creation of a new map
@@ -582,7 +578,6 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
 }
 
 
-
 /* returns a ground image for all ground tiles
  * current is the current climate
  * transition is true, if the next level is another climate
@@ -591,8 +586,7 @@ DBG_MESSAGE("grund_besch_t::calc_water_level()","height %i: list %i vs. %i", h, 
  * Since not all of the climates are used in their numerical order, we use a
  * private (static table "height_to_texture_climate" for lookup)
  */
-image_id
-grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
+image_id grund_besch_t::get_ground_tile(hang_t::typ slope, sint16 height )
 {
 	const sint16 h = (height-welt->get_grundwasser())/Z_TILE_STEP;
 #ifdef DOUBLE_GROUNDS
