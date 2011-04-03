@@ -18,6 +18,7 @@
 #include "../dataobj/umgebung.h"
 #include "../dataobj/tabfile.h"
 #include "../dataobj/loadsave.h"
+#include "../dataobj/livery_scheme.h"
 
 #include "../besch/bildliste_besch.h"
 #include "../besch/vehikel_besch.h"
@@ -167,7 +168,7 @@ void vehikelbauer_t::rdwr_speedbonus(loadsave_t *file)
 }
 
 
-vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade )
+vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const vehikel_besch_t* vb, bool upgrade, uint16 livery_scheme_index )
 {
 	vehikel_t* v;
 	switch (vb->get_waytype()) {
@@ -184,6 +185,17 @@ vehikel_t* vehikelbauer_t::baue(koord3d k, spieler_t* sp, convoi_t* cnv, const v
 			dbg->fatal("vehikelbauer_t::baue()", "cannot built a vehicle with waytype %i", vb->get_waytype());
 	}
 
+	if(cnv)
+	{
+		livery_scheme_index = cnv->get_livery_scheme_index();
+	}
+
+	const char* livery = sp->get_welt()->access_einstellungen()->get_livery_scheme(livery_scheme_index)->get_latest_available_livery(sp->get_welt()->get_timeline_year_month(), vb);
+	if(livery)
+	{
+		v->set_current_livery(livery);
+	}
+	
 	sint64 price = 0;
 
 	if(upgrade)

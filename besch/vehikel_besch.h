@@ -222,7 +222,7 @@ public:
 			sint8 livery_index = 0;
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + i)->get_text()))
+				if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
 				{
 					livery_index = i;
 					break;
@@ -248,7 +248,7 @@ public:
 			sint8 livery_index = 0;
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + i)->get_text()))
+				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)->get_text()))
 				{
 					livery_index = i;
 					break;
@@ -278,7 +278,7 @@ public:
 			for( sint8 i=0;  i<freight_image_type;  i++  ) 
 			{
 				
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) 
+				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -307,7 +307,7 @@ public:
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) 
 			{
-				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + i)) 
+				if (ware == get_child<ware_besch_t>(6 + nachfolger + vorgaenger + upgrades + i)) 
 				{
 					ware_index = i;
 					break;
@@ -316,7 +316,7 @@ public:
 
 			for(sint8 j = 0; j < livery_image_type; j++) 
 			{
-				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + j)->get_text()))
+				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + upgrades + j)->get_text()))
 				{
 					livery_index = j;
 					break;
@@ -378,7 +378,7 @@ public:
 			sint8 livery_index = 0;
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
-				if(!strcmp(name, get_child<text_besch_t>(5 + nachfolger + vorgaenger + i)->get_text()))
+				if(!strcmp(name, get_child<text_besch_t>(5 + nachfolger + vorgaenger + upgrades + i)->get_text()))
 				{
 					return true;
 				}

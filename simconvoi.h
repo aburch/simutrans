@@ -1047,7 +1047,7 @@ public:
 	static uint8 calc_tolerable_comfort(uint16 journey_minutes, karte_t* w);
 	inline uint8 calc_tolerable_comfort(uint16 journey_minutes) { return calc_tolerable_comfort(journey_minutes, welt); }
 
-	uint16 get_livery_scheme_index() const { return livery_scheme_index; }
+	uint16 get_livery_scheme_index() const;
 	void set_livery_scheme_index(uint16 value) { livery_scheme_index = value; }
 
 	void apply_livery_scheme(); 

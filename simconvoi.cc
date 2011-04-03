@@ -5006,3 +5006,15 @@ void convoi_t::clear_replace()
 		}
 	 }
  }
+
+ uint16 convoi_t::get_livery_scheme_index() const
+ {
+	 if(line.is_bound())
+	 {
+		 return line->get_livery_scheme_index();
+	 }
+	 else
+	 {
+		 return livery_scheme_index;
+	 }
+ }
