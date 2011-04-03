@@ -44,6 +44,7 @@
 #include "dataobj/replace_data.h"
 #include "dataobj/translator.h"
 #include "dataobj/umgebung.h"
+#include "dataobj/livery_scheme.h"
 
 #include "dings/crossing.h"
 #include "dings/roadsign.h"
@@ -195,6 +196,8 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	reversed = false;
 	recalc_brake_soll = true;
 	recalc_data = true;
+
+	livery_scheme_index = 0;
 }
 
 
@@ -226,6 +229,8 @@ convoi_t::convoi_t(spieler_t* sp) : fahr(max_vehicle, NULL)
 	// Added by : Knightly
 	old_fpl = NULL;
 	free_seats = 0;
+
+	livery_scheme_index = 0;
 }
 
 
@@ -3171,6 +3176,15 @@ void convoi_t::rdwr(loadsave_t *file)
 		last_departure_time = welt->get_zeit_ms() - 20000;
 	}
 
+	if(file->get_experimental_version() >= 10)
+	{
+		file->rdwr_short(livery_scheme_index);
+	}
+	else
+	{
+		livery_scheme_index = 0;
+	}
+
 	// This must come *after* all the loading/saving.
 	if( file->is_loading() ) {
 		recalc_catg_index();
@@ -4971,4 +4985,24 @@ void convoi_t::clear_replace()
 		 replace->decrement_convoys(self);
 	 }
 	 replace = new_replace;
+ }
+
+ void convoi_t::apply_livery_scheme()
+ {
+	 const livery_scheme_t* const scheme = welt->access_einstellungen()->get_livery_scheme(livery_scheme_index);
+	 if(!scheme)
+	 {
+		 return;
+	 }
+	 const uint16 date = welt->get_timeline_year_month();
+	 for (int i = 0; i < anz_vehikel; i++) 
+	 {
+		vehikel_t& v = *fahr[i];
+		const char* liv = scheme->get_latest_available_livery(date, v.get_besch());
+		if(liv)
+		{
+			// Only change the livery if there is an available scheme livery.
+			v.set_current_livery(liv);
+		}
+	 }
  }

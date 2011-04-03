@@ -296,6 +296,8 @@ bool  gui_convoy_assembler_t::show_retired_vehicles = false;
 
 bool  gui_convoy_assembler_t::show_all = false;
 
+uint16 gui_convoy_assembler_t::livery_scheme_index = 0;
+
 
 void gui_convoy_assembler_t::layout()
 {
@@ -724,7 +726,25 @@ void gui_convoy_assembler_t::add_to_vehicle_list(const vehikel_besch_t *info)
 	// prissi: and retirement date
 	gui_image_list_t::image_data_t img_data;
 
-	img_data.image = info->get_basis_bild();
+	
+	const livery_scheme_t* const scheme = welt->access_einstellungen()->get_livery_scheme(livery_scheme_index);
+	uint16 date = welt->get_timeline_year_month();
+	if(scheme)
+	{
+		const char* livery = scheme->get_latest_available_livery(date, info);
+		if(livery)
+		{
+			img_data.image = info->get_basis_bild(livery);
+		}
+		else
+		{
+			img_data.image = info->get_basis_bild();
+		}
+	}
+	else
+	{
+		img_data.image = info->get_basis_bild();
+	}
 	img_data.count = 0;
 	img_data.lcolor = img_data.rcolor = EMPTY_IMAGE_BAR;
 	img_data.text = info->get_name();
@@ -897,7 +917,24 @@ void gui_convoy_assembler_t::update_data()
 			}
 
 			gui_image_list_t::image_data_t img_data;
-			img_data.image = vehicles[i]->get_basis_bild();
+			const livery_scheme_t* const scheme = welt->access_einstellungen()->get_livery_scheme(livery_scheme_index);
+			uint16 date = welt->get_timeline_year_month();
+			if(scheme)
+			{
+				const char* livery = scheme->get_latest_available_livery(date, vehicles[i]);
+				if(livery)
+				{
+					img_data.image = vehicles[i]->get_basis_bild(livery);
+				}
+				else
+				{
+					img_data.image = vehicles[i]->get_basis_bild();
+				}
+			}
+			else
+			{
+				img_data.image = vehicles[i]->get_basis_bild();
+			}
 			img_data.count = 0;
 			img_data.lcolor = img_data.rcolor= EMPTY_IMAGE_BAR;
 			img_data.text = vehicles[i]->get_name();

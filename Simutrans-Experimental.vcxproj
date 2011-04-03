@@ -367,6 +367,7 @@
     <ClCompile Include="besch\reader\imagelist3d_reader.cc" />
     <ClCompile Include="clipboard_w32.cc" />
     <ClCompile Include="dataobj\gameinfo.cc" />
+    <ClCompile Include="dataobj\livery_scheme.cc" />
     <ClCompile Include="dataobj\network_cmp_pakset.cc" />
     <ClCompile Include="dataobj\network_file_transfer.cc" />
     <ClCompile Include="dataobj\network_socket_list.cc" />
@@ -644,6 +645,7 @@
     <ClInclude Include="besch\reader\imagelist3d_reader.h" />
     <ClInclude Include="besch\writer\imagelist3d_writer.h" />
     <ClInclude Include="dataobj\gameinfo.h" />
+    <ClInclude Include="dataobj\livery_scheme.h" />
     <ClInclude Include="dataobj\network_cmd.h" />
     <ClInclude Include="dataobj\network_file_transfer.h" />
     <ClInclude Include="dataobj\network_packet.h" />

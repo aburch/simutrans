@@ -6,7 +6,6 @@
  * April 2000
  */
 
-#include <string>
 #include "einstellungen.h"
 #include "umgebung.h"
 #include "../simconst.h"
@@ -22,6 +21,7 @@
 #include "loadsave.h"
 #include "tabfile.h"
 #include "translator.h"
+#include "../besch/intro_dates.h"
 
 #include "../tpl/minivec_tpl.h"
 
@@ -1170,6 +1170,40 @@ void einstellungen_t::rdwr(loadsave_t *file)
 				default_player_color[i][1] = 255;
 			}
 		}
+
+		if(file->get_experimental_version() >= 10)
+		{
+			uint16 livery_schemes_count = 0;
+			if(file->is_loading())
+			{
+				ITERATE(livery_schemes, i)
+				{
+					delete livery_schemes[i];
+				}
+				livery_schemes.clear();
+			}
+			if(file->is_saving())
+			{
+				livery_schemes_count = livery_schemes.get_count();
+			}
+			
+			file->rdwr_short(livery_schemes_count);
+
+			for(int i = 0; i < livery_schemes_count; i ++)
+			{
+				if(file->is_saving())
+				{
+					livery_schemes[i]->rdwr(file);
+				}
+				else
+				{
+					livery_scheme_t* scheme = new livery_scheme_t("default", DEFAULT_RETIRE_DATE);
+					scheme->rdwr(file);
+					livery_schemes.append(scheme);
+				}
+			}
+			
+		}
 	}
 }
 
@@ -1759,6 +1793,55 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	city_threshold_size  = contents.get_int("city_threshold_size", city_threshold_size);
 	capital_threshold_size  = contents.get_int("capital_threshold_size", capital_threshold_size);
 
+	for(int i = 0; i < 65336; i ++)
+	{
+		char name[128] ;
+		sprintf( name, "livery_scheme[%i]", i );
+		const char* scheme_name = ltrim(contents.get(name));
+		if(scheme_name[0] == NULL)
+		{
+			break;
+		}
+		
+		sprintf( name, "retire_year[%i]", i );
+		uint16 retire = contents.get_int(name, DEFAULT_RETIRE_DATE) * 12;
+
+		sprintf( name, "retire_month[%i]", i );
+		retire += contents.get_int(name, 1) - 1;
+
+		livery_scheme_t* scheme = new livery_scheme_t(scheme_name, retire);
+
+		bool has_liveries = false;
+		for(int j = 0; j < 65536; j ++)
+		{
+			char livery[128];
+			sprintf(livery, "livery[%i][%i]", i, j);
+			const char* liv_name = ltrim(contents.get(livery));
+			if(liv_name[0] == NULL)
+			{
+				break;
+			}
+
+			has_liveries = true;
+			sprintf(livery, "intro_year[%i][%i]", i, j);
+			uint16 intro = contents.get_int(livery, DEFAULT_INTRO_DATE) * 12;
+
+			sprintf(livery, "intro_month[%i][%i]", i, j);
+			intro += contents.get_int("intro_month", 1) - 1;
+
+			scheme->add_livery(liv_name, intro);
+			livery_t liv = {liv_name, intro};
+		}
+		if(has_liveries)
+		{
+			livery_schemes.append(scheme);
+		}
+		else
+		{
+			delete scheme;
+		}
+	}
+
 	/*
 	 * Selection of savegame format through inifile
 	 */
@@ -1981,4 +2064,3 @@ void einstellungen_t::set_default_player_color( spieler_t *sp ) const
 
 	sp->set_player_color( color1*8, color2*8 );
 }
-

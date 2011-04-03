@@ -4,6 +4,7 @@
 #include <string>
 #include "../simtypes.h"
 #include "../simconst.h"
+#include "livery_scheme.h"
 
 
 /**
@@ -206,6 +207,8 @@ private:
 
 	// true, if the different caacities (passengers/mail/freight) are counted seperately
 	bool seperate_halt_capacities;
+
+	vector_tpl<livery_scheme_t*> livery_schemes;
 
 public:
 
@@ -812,6 +815,9 @@ public:
 	uint16 get_default_increase_maintenance_after_years(waytype_t wtype) const { return default_increase_maintenance_after_years[wtype]; }
 	void set_default_increase_maintenance_after_years(waytype_t wtype, uint16 value) { default_increase_maintenance_after_years[wtype] = value; }
 	uint32 get_server_frames_ahead() const { return server_frames_ahead; }
+
+	livery_scheme_t* get_livery_scheme(uint16 index) { return !livery_schemes.empty() ? livery_schemes.get_element(index) : NULL; } 
+	vector_tpl<livery_scheme_t*>* get_livery_schemes() { return &livery_schemes; }
 };
 
 #endif

@@ -19,7 +19,6 @@
 #include "../simworld.h"
 #include "../simtypes.h"
 
-
 // GEAR_FACTOR: a gear of 1.0 is stored as 64
 #define GEAR_FACTOR 64
 
@@ -198,6 +197,7 @@ public:
 	skin_besch_t const* get_rauch() const { return get_child<skin_besch_t>(3); }
 
 	image_id get_basis_bild() const { return get_bild_nr(ribi_t::dir_sued, get_ware() ); }
+	image_id get_basis_bild(const char* livery) const { return get_bild_nr(ribi_t::dir_sued, get_ware(), livery ); }
 
 	// returns the number of different directions
 	uint8 get_dirs() const { return get_child<bildliste_besch_t>(4)->get_bild(4) ? 8 : 4; }
@@ -206,7 +206,7 @@ public:
 	// Vehicles can have single liveries, multiple liveries, 
 	// single frieght images, multiple frieght images or no freight images.
 	// they can have 4 or 8 directions ...
-	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware) const
+	image_id get_bild_nr(ribi_t::dir dir, const ware_besch_t *ware, const char* livery_type = "default") const
 	{
 		const bild_besch_t *bild=0;
 		const bildliste_besch_t *liste=0;
@@ -220,7 +220,6 @@ public:
 		{
 			// Multiple liveries, empty images
 			sint8 livery_index = 0;
-			const char* livery_type = "BR-Large-Logo"; //TODO: Set this programatically.
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
 				if(!strcmp(livery_type, get_child<text_besch_t>(5 + nachfolger + vorgaenger + i)->get_text()))
@@ -247,7 +246,6 @@ public:
 		{
 			// Multiple liveries, single freight image
 			sint8 livery_index = 0;
-			const char* livery_type = "BR-Blue"; //TODO: Set this programatically.
 			for(sint8 i = 0; i < livery_image_type; i++) 
 			{
 				if(!strcmp(livery_type, get_child<text_besch_t>(6 + nachfolger + vorgaenger + i)->get_text()))
@@ -306,8 +304,6 @@ public:
 
 			sint8 ware_index = 0; // freight images: if not found use first freight
 			sint8 livery_index = 0;
-
-			const char* livery_type = "BR-Large-Logo"; //TODO: Set this programatically.
 
 			for( sint8 i=0;  i<freight_image_type;  i++  ) 
 			{
@@ -369,6 +365,30 @@ public:
 			}
 		}
 		return bild->get_nummer();
+	}
+
+	const bool check_livery(const char* name) const
+	{
+		// Note: this only checks empty images. The assumption is
+		// that a livery defined for empty images will also be 
+		// defined for freight images. If that assumption is false,
+		// the default livery will be used for freight images.
+		if(livery_image_type > 0)
+		{
+			sint8 livery_index = 0;
+			for(sint8 i = 0; i < livery_image_type; i++) 
+			{
+				if(!strcmp(name, get_child<text_besch_t>(5 + nachfolger + vorgaenger + i)->get_text()))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	// Liefert die erlaubten Vorgaenger.

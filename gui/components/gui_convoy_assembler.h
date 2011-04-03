@@ -157,6 +157,8 @@ class gui_convoy_assembler_t :
 
 	static const sint16 VINFO_HEIGHT = 186 + 12;
 
+	static uint16 livery_scheme_index;
+
 public:
 	// Used for listeners to know what has happened
 	enum { clear_convoy_action, remove_vehicle_action, insert_vehicle_in_front_action, append_vehicle_action };

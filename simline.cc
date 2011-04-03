@@ -542,3 +542,10 @@ void simline_t::set_withdraw( bool yes_no )
 	}
 }
 
+void simline_t::propogate_livery_scheme()
+{
+	ITERATE(line_managed_convoys, i)
+	{
+		line_managed_convoys[i]->set_livery_scheme_index(livery_scheme_index);
+	}
+}
