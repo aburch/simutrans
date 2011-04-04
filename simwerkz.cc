@@ -5549,21 +5549,7 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				}
 				// Else fallthrough
 			}
-
-		case 'P': // Go to depot
-		{
-			cnv->go_to_depot(true);
-			break;
-		}
-
-		case 'V': // Reverse button
-		{
-			const bool rs = cnv->get_reverse_schedule();
-			cnv->set_reverse_schedule(!rs);
-			break;
-		}
-
-			
+		
 		case 'R': // Add new replace
 		{
 			replace_data_t* rpl = new replace_data_t();
@@ -5578,6 +5564,19 @@ bool wkz_change_convoi_t::init( karte_t *welt, spieler_t *sp )
 				cnv->set_no_load(false);
 				cnv->go_to_depot(false, rpl->get_use_home_depot());
 			}
+			break;
+		}
+
+		case 'P': // Go to depot
+		{
+			cnv->go_to_depot(true);
+			break;
+		}
+
+		case 'V': // Reverse button
+		{
+			const bool rs = cnv->get_reverse_schedule();
+			cnv->set_reverse_schedule(!rs);
 			break;
 		}
 
