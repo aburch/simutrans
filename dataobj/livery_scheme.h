@@ -44,6 +44,12 @@ public:
 
 	bool is_available(uint16 date)
 	{
+		if(date == 0)
+		{
+			// Allow all schemes when the timeline is turned off.
+			return true;
+		}
+
 		if(date > retire_date)
 		{
 			return false;

@@ -8,6 +8,8 @@
 #include "components/gui_scrolled_list.h"
 #include "components/gui_scrollpane.h"
 #include "components/gui_tab_panel.h"
+#include "components/gui_combobox.h"
+#include "components/gui_label.h"
 #include "gui_convoiinfo.h"
 #include "../simline.h"
 
@@ -37,6 +39,8 @@ private:
 	button_t filterButtons[MAX_LINE_COST];
 	gui_tab_panel_t tabs;
 
+	gui_combobox_t livery_selector;
+
 	sint32 selection, capacity, load, loadfactor;
 
 	uint32 old_line_count;
@@ -63,6 +67,9 @@ private:
 	vector_tpl<linehandle_t> lines;
 
 	void build_line_list(int filter);
+
+	static uint16 livery_scheme_index;
+	vector_tpl<uint16> livery_scheme_indices;
 
 public:
 	schedule_list_gui_t(spieler_t* sp);

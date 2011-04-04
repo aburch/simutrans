@@ -305,6 +305,15 @@ void simline_t::rdwr(loadsave_t *file)
 			file->rdwr_short(rolling_average_count[i]);
 		}	
 	}
+
+	if(file->get_experimental_version() >= 10)
+	{
+		file->rdwr_short(livery_scheme_index);
+	}
+	else
+	{
+		livery_scheme_index = 0;
+	}
 }
 
 
@@ -547,5 +556,6 @@ void simline_t::propogate_livery_scheme()
 	ITERATE(line_managed_convoys, i)
 	{
 		line_managed_convoys[i]->set_livery_scheme_index(livery_scheme_index);
+		line_managed_convoys[i]->apply_livery_scheme();
 	}
 }

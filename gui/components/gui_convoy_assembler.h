@@ -118,6 +118,9 @@ class gui_convoy_assembler_t :
 	gui_container_t cont_loks;
 	gui_container_t cont_waggons;
 
+	gui_label_t lb_livery_selector;
+	gui_combobox_t livery_selector;
+
 	char txt_convoi_count[80];
 	char txt_convoi_speed[120];
 
@@ -158,6 +161,7 @@ class gui_convoy_assembler_t :
 	static const sint16 VINFO_HEIGHT = 186 + 12;
 
 	static uint16 livery_scheme_index;
+	vector_tpl<uint16> livery_scheme_indices;
 
 public:
 	// Used for listeners to know what has happened

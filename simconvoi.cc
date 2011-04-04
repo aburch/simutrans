@@ -1030,7 +1030,7 @@ end_loop:
 						if(veh == NULL)
 						{
 							// Fourth - if all else fails, buy from new (expensive).
-							veh = dep->buy_vehicle(replace->get_replacing_vehicle(i));
+							veh = dep->buy_vehicle(replace->get_replacing_vehicle(i), livery_scheme_index);
 						}
 						
 						// This new method is needed to enable this method to iterate over
