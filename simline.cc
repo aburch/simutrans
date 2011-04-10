@@ -36,6 +36,7 @@ simline_t::simline_t(karte_t* welt, spieler_t* sp, linetype type)
 		rolling_average_count[i] = 0;
 	}
 	start_reversed = false;
+	livery_scheme_index = 0;
 
 	create_schedule();
 }

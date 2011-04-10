@@ -2136,7 +2136,7 @@ DBG_MESSAGE("vehicle_t::rdwr_from_convoi()","bought at %i/%i.",(insta_zeit%12)+1
 		file->rdwr_str(name);
 		current_livery = name;
 	}
-	else
+	else if(file->is_loading())
 	{
 		current_livery = "default";
 	}
