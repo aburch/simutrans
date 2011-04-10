@@ -1011,7 +1011,7 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 		umgebung_t::server_name = ref_str;
 	}
 
-	ref_str = gimme_arg(argc, argv, "-server_comment", 1);
+	ref_str = gimme_arg(argc, argv, "-server_name", 1);
 	if (ref_str != NULL) {
 		umgebung_t::server_comment = ref_str;
 	}
