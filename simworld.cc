@@ -6513,15 +6513,15 @@ void karte_t::set_citycar_speed_average()
 		return;
 	}
 	stringhashtable_iterator_tpl<const stadtauto_besch_t*> iter(&stadtauto_t::table);
-	int vehicle_speed_sum = 0;
-	uint16 count = 0;
+	double vehicle_speed_sum = 0.0;
+	double count = 0.0;
 	while(iter.next())
 	{
 		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
-		vehicle_speed_sum += (speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
-		count += iter.get_current_value()->get_gewichtung();
+		vehicle_speed_sum += (double)(speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
+		count += (double)iter.get_current_value()->get_gewichtung();
 	}
-	citycar_speed_average = vehicle_speed_sum / count;
+	citycar_speed_average = (sint32)(vehicle_speed_sum / count);
 }
 
 void karte_t::calc_generic_road_speed_intercity()
@@ -6544,13 +6544,13 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 	if(besch || city_road)
 	{
 		const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
-		const sint32 speed_average = (float)min(road_speed_limit, citycar_speed_average) / 1.5F;
-		const uint16 journey_time_per_tile = 600 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *600, not *60.
+		const sint32 speed_average = (float)min((float)road_speed_limit, (float)citycar_speed_average) / 1.5F;
+		const uint16 journey_time_per_tile = 600 * (float)(einstellungen->get_distance_per_tile() / (float)speed_average); // *Tenths* of minutes: hence *600, not *60.
 		return journey_time_per_tile;
 	}
 	else
 	{
-		return 600 * (einstellungen->get_distance_per_tile() / (citycar_speed_average / 1.5F)); 
+		return 600 * (float)(einstellungen->get_distance_per_tile() / ((float)citycar_speed_average / 1.5F)); 
 	}
 }
 

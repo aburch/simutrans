@@ -3166,7 +3166,7 @@ void stadt_t::step_passagiere()
 
 					if(!return_in_private_car)
 					{
-						// we just have to ensure, the ware can be delivered at this station
+						// we just have to ensure that the ware can be delivered at this station
 						bool found = false;
 						for (uint i = 0; i < plan->get_haltlist_count(); i++) 
 						{
