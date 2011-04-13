@@ -388,9 +388,6 @@ einstellungen_t::einstellungen_t() :
 	// The default is a selective refresh.
 	default_path_option = 2;
 
-	// The default is using multimedia timer functions.
-	system_time_option = 0;
-
 	// The defaults for journey time tolerance.
 	// Applies to passengers only.
 	// NOTE: The *maximum* numbers need to be 
@@ -1691,13 +1688,6 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	bool path_searching_approach = contents.get_int("path_searching_approach", default_path_option == 2);
 	default_path_option = path_searching_approach ? 2 : 1;
-
-	// Added by : Knightly
-	system_time_option = contents.get_int("system_time_functions", system_time_option);
-	if (system_time_option > 1)
-	{
-		system_time_option = 1;
-	}
 
 	// Multiply by 10 because journey times are measured in tenths of minutes.
 	//@author: jamespetts

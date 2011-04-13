@@ -141,11 +141,6 @@ int dr_os_init(const int* parameter)
 
 	atexit(SDL_Quit); // clean up on exit
 
-	// Added by : Knightly
-	// Note		: SDL will call timeBeginPeriod(1) even if we don't call SDL_GetTicks()
-	//			  Thus, there is no benefit of using performance counter with SDL version
-	umgebung_t::default_einstellungen.set_system_time_option(0); // reset to using multimedia timer
-
 	return TRUE;
 }
 

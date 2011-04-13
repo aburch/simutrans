@@ -66,7 +66,6 @@
 #define SEPERATE5						(LOOP_DATA+13)
 
 #define CENTRALISED_SEARCH				(SEPERATE5+7)
-#define USE_PERFORMANCE_COUNTER			(CENTRALISED_SEARCH+13)
 #define PHASE_REBUILD_CONNEXIONS		(USE_PERFORMANCE_COUNTER+13)
 #define PHASE_FILTER_ELIGIBLE			(PHASE_REBUILD_CONNEXIONS+13)
 #define PHASE_FILL_MATRIX				(PHASE_FILTER_ELIGIBLE+13)
@@ -223,18 +222,7 @@ color_gui_t::color_gui_t(karte_t *welt) :
 	buttons[b].set_text("sliced underground mode");
 	buttons[b].set_tooltip("See under the ground, one layer at a time. Toggle with CTRL + U. Move up/down in layers with HOME and END.");
 
-	// Added by : Knightly
 	//22
-	buttons[++b].set_pos( koord(10,USE_PERFORMANCE_COUNTER) );
-	buttons[b].set_typ(button_t::square_state);
-	buttons[b].set_text("Use performance counter");
-	buttons[b].pressed = umgebung_t::default_einstellungen.get_system_time_option() == 1;
-	buttons[b].set_tooltip("Read-only option for Windows/GDI version only: configurable in simuconf.tab");
-#if ( !WIN32 || SDL )
-	buttons[b].disable();
-#endif
-	
-	//23
 	buttons[++b].set_pos( koord(10, LEFT_TO_RIGHT_GRAPHS) );
 	buttons[b].set_typ(button_t::square_state);
 	buttons[b].set_text("Inverse graphs");

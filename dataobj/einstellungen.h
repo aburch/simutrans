@@ -336,13 +336,6 @@ private:
 	// 1 = distributed approach
 	// 2 = centralised approach
 	uint8 default_path_option;
-
-	// Added by : Knightly
-	// Windows specific setting : determine what time functions to use in dr_time()
-	// This option is *not* saved to save game
-	// 0 = multimedia timer functions
-	// 1 = performance counter functions
-	uint8 system_time_option;
 	
 public:
 
@@ -725,10 +718,6 @@ public:
 
 	inline uint8 get_default_path_option() const { return default_path_option; }
 	inline void set_default_path_option(const uint8 value) { default_path_option = value; }
-
-	// Added by : Knightly
-	inline uint8 get_system_time_option() const { return system_time_option; }
-	inline void set_system_time_option(const uint8 value) { system_time_option = value; }
 
 	// @author: jamespetts
 	uint16 get_min_local_tolerance() const { return min_local_tolerance; }
