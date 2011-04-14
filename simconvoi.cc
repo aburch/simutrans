@@ -2952,6 +2952,14 @@ void convoi_t::unregister_stops()
 // currently only used for tracks
 void convoi_t::set_next_stop_index(uint16 n)
 {
+	// stop at station or signals, not at waypoints
+	if(  n==INVALID_INDEX  ) {
+		// find out if stop or waypoint, waypoint: do not brake at waypoints
+		grund_t const* const gr = welt->lookup(route.back());
+		if(  gr  &&  gr->is_halt()  ) {
+			n = route.get_count()-1-1; // extra -1 to brake 1 tile earlier when entering station
+		}
+	}
 	next_stop_index = n+1;
 }
 

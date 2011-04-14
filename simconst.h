@@ -101,6 +101,11 @@
 #define height_unscaling(i) (i)
 #endif
 
+
+#define INVALID_INDEX (65530u)
+
+#define SPEED_UNLIMITED (INT_MAX)
+
 /*
  * Global vehicle speed conversion factor between Simutrans speed
  * and km/h

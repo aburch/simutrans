@@ -71,10 +71,6 @@
 #include "simvehikel.h"
 #include "simverkehr.h"
 
-#define INVALID_INDEX (65530u)
-
-#define SPEED_UNLIMITED (INT_MAX)
-
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
  * will go this distance per sync step.
@@ -2354,7 +2350,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 		return false;
 	}
 
-	if(  next_signal < cnv->get_route()->get_count()  ) {
+	if(  next_signal != INVALID_INDEX  ) {
 		// success, and there is a signal before end of route => finished
 		sig->set_zustand( roadsign_t::gruen );
 		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
@@ -2362,7 +2358,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 	}
 
 	// no signal before end_of_route => need to do routesearch in a step
-	if(!cnv->is_waiting()) {
+	if(  !cnv->is_waiting()  ) {
 		restart_speed = -1;
 		return false;
 	}
@@ -2527,7 +2523,7 @@ bool waggon_t::is_weg_frei_pre_signal( signal_t *sig, uint16 next_block, int &re
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal, next_crossing;
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
-		if(  next_signal+1u >= cnv->get_route()->get_count()  ||  is_weg_frei_signal( next_signal, restart_speed )  ) {
+		if(  next_signal == INVALID_INDEX  ||  is_weg_frei_signal( next_signal, restart_speed )  ) {
 			// ok, end of route => we can go
 			sig->set_zustand( roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
@@ -2650,7 +2646,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 	// this only happens in vorfahren, but we can cure this easily
 	if(  next_block+1<route_index  ) {
 		bool ok = block_reserver( cnv->get_route(), route_index, next_signal, next_crossing, 0, true, false );
-		cnv->set_next_stop_index( next_crossing<next_signal ? next_crossing : next_signal );
+		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
 		return ok;
 	}
 
@@ -2812,14 +2808,6 @@ bool waggon_t::block_reserver(const route_t *route, uint16 start_index, uint16 &
 		}
 	}
 
-	// stop at station or signals, not at waypoints
-	if(next_signal_index==INVALID_INDEX) {
-		// find out if stop or waypoint, waypoint: do not brake at waypoints
-		grund_t const* const gr = welt->lookup(route->back());
-		if(  gr  &&  gr->is_halt()  ) {
-			next_signal_index = route->get_count()-1-1; // extra -1 to brake 1 tile earlier when entering station
-		}
-	}
 	return true;
 }
 
