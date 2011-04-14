@@ -112,7 +112,7 @@ ifneq ($(PROFILE),)
 endif
 
 ifneq ($(WITH_REVISION),)
-  REV = $(shell svnversion)
+  REV = $(shell git log|head -1|tail -c +8|cksum| awk '{print $1}')
   ifneq ($(REV),)
     CFLAGS  += -DREVISION="$(REV)"
   endif
