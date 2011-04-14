@@ -242,7 +242,7 @@ factory_chart_t::~factory_chart_t()
 }
 
 
-bool factory_chart_t::action_triggered(gui_action_creator_t *komp, value_t extra)
+bool factory_chart_t::action_triggered(gui_action_creator_t *komp, value_t)
 {
 	if(  tab_panel.get_active_tab_index()==0  ) {
 		// case : goods statistics' buttons

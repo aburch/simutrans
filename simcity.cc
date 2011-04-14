@@ -866,7 +866,7 @@ void stadt_t::factory_set_t::recalc_generation_ratio(const sint32 default_percen
 	}
 
 	// adjust supply and remaining figures
-	if(  welt->get_einstellungen()->get_factory_enforce_demand()  &&  (generation_ratio>>RATIO_BITS)==default_percent  &&  average_generated>0  &&  total_demand>0  ) {
+	if(  welt->get_einstellungen()->get_factory_enforce_demand()  &&  (generation_ratio>>RATIO_BITS)==(uint32)default_percent  &&  average_generated>0  &&  total_demand>0  ) {
 		const sint64 supply_promille = ( ( (average_generated << 10) * (sint64)default_percent ) / 100 ) / (sint64)target_supply;
 		if(  supply_promille<1024  ) {
 			// expected supply is really smaller than target supply

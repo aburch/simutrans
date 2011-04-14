@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997 - 2003 Hansjörg Malthaner
+ * Copyright (c) 1997 - 2003 Hj. Malthaner
  *
  * This file is part of the Simutrans project under the artistic licence.
  * (see licence.txt)
@@ -110,7 +110,7 @@ void settings_general_stats_t::init(einstellungen_t *sets)
 	// combobox for savegame version
 	savegame.set_pos( koord(2,ypos-2) );
 	savegame.set_groesse( koord(70,BUTTON_HEIGHT) );
-	for(  int i=0;  i<lengthof(version);  i++  ) {
+	for(  uint32 i=0;  i<lengthof(version);  i++  ) {
 		savegame.append_element( new gui_scrolled_list_t::const_text_scrollitem_t( version[i]+2, COL_BLACK ) );
 		if(  strcmp(version[i],umgebung_t::savegame_version_str)==0  ) {
 			savegame.set_selection( i );
@@ -170,7 +170,7 @@ void settings_general_stats_t::read(einstellungen_t *sets)
 	READ_BOOL_VALUE( umgebung_t::left_to_right_graphs );
 
 	int selected = savegame.get_selection();
-	if(  0 <= selected  &&  selected < lengthof(version)  ) {
+	if(  0 <= selected  &&  (uint32)selected < lengthof(version)  ) {
 		umgebung_t::savegame_version_str = version[ selected ];
 	}
 }
