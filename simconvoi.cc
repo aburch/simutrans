@@ -684,6 +684,7 @@ void convoi_t::calc_acceleration(long delta_t)
 	if(  recalc_brake_soll  ) 
 	{
 			// brake at the end of stations/in front of signals and crossings
+			//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
 			waytype_t waytype = front()->get_waytype();
 			const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
@@ -706,7 +707,7 @@ void convoi_t::calc_acceleration(long delta_t)
 				break;
 			}
 
-			const double km_left = (double)(tiles_left + 1) * (double)distance_per_tile;
+			const double km_left = (double)(tiles_left) * (double)distance_per_tile;
 			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * km_left));
 
 			recalc_brake_soll = false;

@@ -274,7 +274,7 @@ void vehikel_basis_t::betrete_feld()
 
 
 /* THE routine for moving vehicles
- * it will drive on as log as it can
+ * it will drive on as long as it can
  * @return the distance actually travelled
  */
 uint32 vehikel_basis_t::fahre_basis(uint32 distance)
@@ -1001,7 +1001,7 @@ vehikel_t::play_sound() const
  */
 void vehikel_t::neue_fahrt(uint16 start_route_index, bool recalc)
 {
-	route_index = start_route_index+1;
+	route_index = start_route_index + 1;
 	check_for_finish = false;
 	use_calc_height = true;
 
@@ -1230,7 +1230,7 @@ void vehikel_t::hop()
 		pos_next = cnv->get_route()->position_bei(route_index);
 	}
 	else {
-		//route_index ++;
+		route_index ++;
 		check_for_finish = true;
 	}
 	alte_fahrtrichtung = fahrtrichtung;
@@ -1281,7 +1281,7 @@ void vehikel_t::hop()
 			//pre_corner_direction.add_to_tail(999);
 		//}
 
-		speed_limit = calc_modified_speed_limit(&(cnv->get_route()->position_bei(route_index)), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
+		speed_limit = calc_modified_speed_limit(&get_pos(), fahrtrichtung, (alte_fahrtrichtung != fahrtrichtung));
 		if(weg->is_crossing()) 
 		{
 			gr->find<crossing_t>(2)->add_to_crossing(this);
