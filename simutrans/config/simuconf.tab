@@ -559,3 +559,6 @@ fast_forward = 50
 
 # Additionally comment on your server; will be shown on game-info
 #server_comment = Testserver
+
+# Admin password for server; if not set, command-line tool nettool not usable
+#server_admin_pw = abc

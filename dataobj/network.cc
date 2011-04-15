@@ -10,21 +10,28 @@
 #include <time.h>
 
 #include "network.h"
+#include "network_address.h"
 #include "network_socket_list.h"
 #include "network_cmd.h"
+#include "network_cmd_ingame.h"
 #include "network_cmp_pakset.h"
-#include "network_file_transfer.h"
 #include "../simconst.h"
 
+#ifndef NETTOOL
 #include "../dataobj/umgebung.h"
+#endif
 
 #include "../utils/simstring.h"
 #include "../tpl/slist_tpl.h"
 
 static bool network_active = false;
+uint16 network_server_port = 0;
 
 // list of received commands
 static slist_tpl<network_command_t *> received_command_queue;
+
+// blacklist
+address_list_t blacklist;
 
 void clear_command_queue()
 {
@@ -288,56 +295,6 @@ SOCKET network_open_address( const char *cp, long timeout_ms, const char * &err)
 }
 
 
-// download a http file from server address="www.simutrans.com:88" at path "/b/xxx.htm" to file localname="list.txt"
-const char *network_download_http( const char *address, const char *name, const char *localname )
-{
-	// open from network
-	const char *err = NULL;
-	SOCKET my_client_socket = network_open_address( address, 5000, err );
-	if(  err==NULL  ) {
-		char uri[1024];
-		int const len = sprintf(uri, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", name, address);
-		uint16 dummy;
-		if(  !network_send_data(my_client_socket, uri, len, dummy, 250)  ) {
-			err = "Server did not respond!";
-		}
-		// read the header
-		char line[1024], rbuf;
-		unsigned int pos = 0;
-		long length = 0;
-		while(1) {
-			int i = recv( my_client_socket, &rbuf, 1, 0 );
-			if(  i>0  ) {
-				if(  rbuf>=32  &&  pos<sizeof(line)-1  ) {
-					line[pos++] = rbuf;
-				}
-				if(  rbuf==10  ) {
-					if(  pos == 0  ) {
-						// this line was empty => now data will follow
-						break;
-					}
-					line[pos] = 0;
-					// we only need the length tag
-					if(  STRNICMP("Content-Length:",line,15)==0  ) {
-						length = atol( line+15 );
-					}
-					pos = 0;
-				}
-			}
-			else {
-				break;
-			}
-		}
-		// for a simple query, just pass an empty filename
-		if(  localname  &&  *localname  ) {
-			err = network_receive_file( my_client_socket, localname, length );
-		}
-		network_close_socket( my_client_socket );
-	}
-	return err;
-}
-
-
 // if sucessful, starts a server on this port
 bool network_init_server( int port )
 {
@@ -410,9 +367,14 @@ bool network_init_server( int port )
 
 	dbg->message("network_init_server", "added server %d sockets", socket_list_t::get_server_sockets());
 #endif
+	network_server_port = port;
 	client_id = 0;
 	clear_command_queue();
+#ifndef NETTOOL
 	nwc_ready_t::clear_map_counters();
+#endif
+
+	blacklist.append(net_address_t( 44 << 24, 255 << 24));
 	return true;
 }
 
@@ -470,12 +432,24 @@ network_command_t* network_check_activity(karte_t *, int timeout)
 			socklen_t size = sizeof(client_name);
 			SOCKET s = accept(accept_sock, (struct sockaddr *)&client_name, &size);
 			if(  s!=INVALID_SOCKET  ) {
-	#ifdef  __BEOS__
-				dbg->message("check_activity()", "Accepted connection from: %lh.", client_name.sin_addr.s_addr );
+	#ifdef _WIN32
+				uint32 ip = ntohl((uint32)client_name.sin_addr.S_un.S_addr);
 	#else
-				dbg->message("check_activity()", "Accepted connection from: %s.", inet_ntoa(client_name.sin_addr) );
+				uint32 ip = ntohl((uint32)client_name.sin_addr.s_addr);
 	#endif
-				socket_list_t::add_client(s);
+				if (blacklist.contains(net_address_t( ip ))) {
+					// refuse connection
+					network_close_socket(s);
+					continue;
+				}
+	#ifdef  __BEOS__
+				char name[256];
+				sprintf(name, "%lh", client_name.sin_addr.s_addr );
+	#else
+				const char *name = inet_ntoa(client_name.sin_addr);
+	#endif
+				dbg->message("check_activity()", "Accepted connection from: %s.",  name);
+				socket_list_t::add_client(s, ip);
 			}
 		}
 	}
@@ -535,7 +509,7 @@ void network_process_send_queues(int timeout)
 
 bool network_check_server_connection()
 {
-	if(  !umgebung_t::server  ) {
+	if(  !network_server_port  ) {
 		// I am client
 
 		// If I am playing, playing_clients should be at least one.
@@ -567,7 +541,7 @@ void network_send_all(network_command_t* nwc, bool exclude_us )
 	if (nwc) {
 		nwc->prepare_to_send();
 		socket_list_t::send_all(nwc, true);
-		if(  !exclude_us  &&  umgebung_t::server  ) {
+		if(  !exclude_us  &&  network_server_port  ) {
 			// I am the server
 			received_command_queue.append(nwc);
 		}
@@ -584,7 +558,7 @@ void network_send_server(network_command_t* nwc )
 {
 	if (nwc) {
 		nwc->prepare_to_send();
-		if(  !umgebung_t::server  ) {
+		if(  !network_server_port  ) {
 			// I am client
 			socket_list_t::send_all(nwc, true);
 			delete nwc;
@@ -703,6 +677,8 @@ void network_close_socket( SOCKET sock )
 #else
 		close( sock );
 #endif
+
+#ifndef NETTOOL
 		// reset all the special / static socket variables
 		if(  sock==nwc_join_t::pending_join_client  ) {
 			nwc_join_t::pending_join_client = INVALID_SOCKET;
@@ -711,6 +687,7 @@ void network_close_socket( SOCKET sock )
 		if(  sock==nwc_pakset_info_t::server_receiver) {
 			nwc_pakset_info_t::server_receiver = INVALID_SOCKET;
 		}
+#endif
 	}
 }
 
@@ -719,7 +696,9 @@ void network_reset_server()
 {
 	clear_command_queue();
 	socket_list_t::reset_clients();
+#ifndef NETTOOL
 	nwc_ready_t::clear_map_counters();
+#endif
 }
 
 
@@ -739,5 +718,7 @@ void network_core_shutdown()
 	}
 
 	network_active = false;
+#ifndef NETTOOL
 	umgebung_t::networkmode = false;
+#endif
 }

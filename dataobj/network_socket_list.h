@@ -2,8 +2,10 @@
 #define _NETWORK_SOCKET_LIST_H_
 
 #include "network.h"
+#include "network_address.h"
 #include "../tpl/slist_tpl.h"
 #include "../tpl/vector_tpl.h"
+#include <string>
 
 class network_command_t;
 class packet_t;
@@ -18,13 +20,16 @@ public:
 		inactive	= 0, // client disconnected
 		server		= 1, // server socket
 		connected	= 2, // connection established but client does not participate in the game yet
-		playing		= 3  // client actively plays
+		playing		= 3, // client actively plays
+		admin       = 4  // admin connection
 	};
 	uint8 state;
 
 	SOCKET socket;
 
-	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET) {}
+	net_address_t address;
+
+	socket_info_t() : packet(0), send_queue(), state(inactive), socket(INVALID_SOCKET), address() {}
 
 	/**
 	 * marks all information as invalid
@@ -47,6 +52,11 @@ public:
 	void process_send_queue();
 
 	void send_queue_append(packet_t *p);
+
+	/**
+	 * rdwr client information to packet
+	 */
+	void rdwr(packet_t *p);
 };
 
 /**
@@ -88,7 +98,7 @@ public:
 	 * server: adds client socket (ie connection to client)
 	 * client: adds client socket (ie connection to server)
 	 */
-	static void add_client( SOCKET sock );
+	static void add_client( SOCKET sock, uint32 ip = 0 );
 
 	/**
 	 * @ returns true if socket is already in our list
@@ -122,6 +132,11 @@ public:
 	static void send_all(network_command_t* nwc, bool only_playing_clients);
 
 	static void change_state(uint32 id, uint8 new_state);
+
+	/**
+	 * rdwr client-list information to packet
+	 */
+	static void rdwr(packet_t *p, vector_tpl<socket_info_t> *writeto=&list);
 
 private:
 	static void book_state_change(uint8 state, sint8 incr);

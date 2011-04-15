@@ -14,7 +14,8 @@ const char *umgebung_t::user_dir = 0;
 const char *umgebung_t::savegame_version_str = SAVEGAME_VER_NR;
 bool umgebung_t::networkmode = false;
 bool umgebung_t::restore_UI = false;
-uint16 umgebung_t::server = 0;
+extern uint16 network_server_port;
+uint16 const &umgebung_t::server = network_server_port;
 
 // if !=0 contains ID from simutrans-germany.com
 uint32 umgebung_t::announce_server = 0;
@@ -25,6 +26,7 @@ uint32 umgebung_t::announce_server = 0;
 sint32 umgebung_t::announce_server_intervall = 0;
 std::string umgebung_t::server_name;
 std::string umgebung_t::server_comment;
+std::string umgebung_t::server_admin_pw;
 
 long umgebung_t::server_frames_ahead = 4;
 long umgebung_t::additional_client_frames_behind = 0;

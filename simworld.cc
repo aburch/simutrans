@@ -79,7 +79,7 @@
 #include "dataobj/network.h"
 #include "dataobj/network_file_transfer.h"
 #include "dataobj/network_socket_list.h"
-#include "dataobj/network_cmd.h"
+#include "dataobj/network_cmd_ingame.h"
 #include "dataobj/translator.h"
 #include "dataobj/loadsave.h"
 #include "dataobj/scenario.h"
@@ -4079,7 +4079,6 @@ bool karte_t::laden(const char *filename)
 		// probably finish network mode?
 		if(  umgebung_t::networkmode  ) {
 			network_core_shutdown();
-			umgebung_t::server = 0;
 		}
 		chdir( umgebung_t::user_dir );
 		const char *err = network_connect(filename+4, this);

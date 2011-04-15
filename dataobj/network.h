@@ -71,9 +71,6 @@ class karte_t;
 
 bool network_initialize();
 
-// connect to address with patch name receive to localname, close
-const char *network_download_http( const char *address, const char *name, const char *localname );
-
 void network_close_socket( SOCKET sock );
 
 void network_set_socket_nodelay( SOCKET sock );

@@ -414,6 +414,7 @@ int simu_main(int argc, char** argv)
 			" -server_id NUM      ID for server announcements\n"
 			" -server_name NAME   name for server announcements\n"
 			" -server_comment TXT comment for server announcements\n"
+			" -server_admin_pw PW password for server administration\n"
 			" -singleuser         Save everything in program directory (portable version)\n"
 #ifdef DEBUG
 			" -sizes              Show current size of some structures\n"
@@ -590,9 +591,6 @@ int simu_main(int argc, char** argv)
 		// will fail fatal on the opening routine ...
 		dbg->message( "simmain()", "Server started on port %i", portadress );
 		umgebung_t::networkmode = network_init_server( portadress );
-		if(  umgebung_t::networkmode  ) {
-			umgebung_t::server = portadress;
-		}
 	}
 	else {
 		// no announce for clients ...
@@ -940,6 +938,11 @@ DBG_MESSAGE("simmain","loadgame file found at %s",buffer);
 	ref_str = gimme_arg(argc, argv, "-server_comment", 1);
 	if (ref_str != NULL) {
 		umgebung_t::server_comment = ref_str;
+	}
+
+	ref_str = gimme_arg(argc, argv, "-server_admin_pw", 1);
+	if (ref_str != NULL) {
+		umgebung_t::server_admin_pw = ref_str;
 	}
 
 	chdir(umgebung_t::user_dir);

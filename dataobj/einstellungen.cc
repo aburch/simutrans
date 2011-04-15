@@ -734,6 +734,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	if(  *contents.get("server_comment")  ) {
 		umgebung_t::server_comment = ltrim(contents.get("server_comment"));
 	}
+	if(  *contents.get("server_admin_pw")  ) {
+		umgebung_t::server_admin_pw = ltrim(contents.get("server_admin_pw"));
+	}
 
 	// up to ten rivers are possible
 	for(  int i = 0;  i<10;  i++  ) {

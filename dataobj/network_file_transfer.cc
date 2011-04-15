@@ -3,28 +3,75 @@
  * .. and to connect to a running simutrans server
  */
 #include "network_file_transfer.h"
+#include "../simdebug.h"
+
+/*
+ * Nettool only needs network_receive_file
+ */
+#ifndef NETTOOL
+#include "../simgraph.h"
+#include "../dataobj/translator.h"
+#endif
+
+char const* network_receive_file(SOCKET const s, char const* const save_as, long const length)
+{
+	// ok, we have a socket to connect
+	remove(save_as);
+
+	DBG_MESSAGE("network_receive_file","Game size %li", length );
+
+#ifndef NETTOOL // no display, no translator available
+	if(is_display_init()  &&  length>0) {
+		display_set_progress_text(translator::translate("Transferring game ..."));
+		display_progress(0, length);
+	}
+	else {
+		printf("\n");fflush(NULL);
+	}
+#endif
+
+	// good place to show a progress bar
+	char rbuf[4096];
+	sint32 length_read = 0;
+	if (FILE* const f = fopen(save_as, "wb")) {
+		while (length_read < length) {
+			int i = recv(s, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
+			if (i > 0) {
+				fwrite(rbuf, 1, i, f);
+				length_read += i;
+#ifndef NETTOOL
+				display_progress(length_read, length);
+#endif
+			}
+			else {
+				if (i < 0) {
+					dbg->error("loadsave_t::rd_open()", "recv failed with %i", i);
+				}
+				break;
+			}
+		}
+		fclose(f);
+	}
+	if(  length_read<length  ) {
+		return "Not enough bytes transferred";
+	}
+	return NULL;
+}
+
+/*
+ * Functions not needed by Nettool following below
+ */
+#ifndef NETTOOL
 
 #include "network_cmd.h"
+#include "network_cmd_ingame.h"
 #include "network_socket_list.h"
 
 #include "loadsave.h"
 #include "gameinfo.h"
-
-#include "../simconst.h"
-
-#include "../simdebug.h"
-#include "../simgraph.h"
 #include "../simworld.h"
-
-#include "../dataobj/translator.h"
-#include "../dataobj/umgebung.h"
-
 #include "../utils/simstring.h"
-#include "../tpl/slist_tpl.h"
-#include "../tpl/vector_tpl.h"
 
-// forward declaration ..
-char const* network_receive_file(SOCKET s, char const* save_as, long length);
 
 // connect to address (cp), receive gameinfo, close
 const char *network_gameinfo(const char *cp, gameinfo_t *gi)
@@ -62,6 +109,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		char filename[1024];
 		sprintf( filename, "client%i-network.sve", nwgi->len );
 		err = network_receive_file( my_client_socket, filename, len );
+
 		// now into gameinfo
 		loadsave_t fd;
 		if(  fd.rd_open( filename )  ) {
@@ -74,6 +122,7 @@ const char *network_gameinfo(const char *cp, gameinfo_t *gi)
 		socket_list_t::remove_client( my_client_socket );
 	}
 end:
+	network_close_socket( my_client_socket );
 	if(err) {
 		dbg->warning("network_gameinfo", err);
 	}
@@ -204,43 +253,52 @@ const char *network_send_file( uint32 client_id, const char *filename )
 }
 
 
-char const* network_receive_file(SOCKET const s, char const* const save_as, long const length)
+// download a http file from server address="www.simutrans.com:88" at path "/b/xxx.htm" to file localname="list.txt"
+const char *network_download_http( const char *address, const char *name, const char *localname )
 {
-	// ok, we have a socket to connect
-	remove(save_as);
-
-	DBG_MESSAGE("network_receive_file","Game size %li", length );
-
-	if(is_display_init()  &&  length>0) {
-		display_set_progress_text(translator::translate("Transferring game ..."));
-		display_progress(0, length);
-	}
-	else {
-		printf("\n");fflush(NULL);
-	}
-
-	// good place to show a progress bar
-	char rbuf[4096];
-	sint32 length_read = 0;
-	if (FILE* const f = fopen(save_as, "wb")) {
-		while (length_read < length) {
-			int i = recv(s, rbuf, length_read + 4096 < length ? 4096 : length - length_read, 0);
-			if (i > 0) {
-				fwrite(rbuf, 1, i, f);
-				length_read += i;
-				display_progress(length_read, length);
+	// open from network
+	const char *err = NULL;
+	SOCKET my_client_socket = network_open_address( address, 5000, err );
+	if(  err==NULL  ) {
+		char uri[1024];
+		int const len = sprintf(uri, "GET %s HTTP/1.1\r\nHost: %s\r\n\r\n", name, address);
+		uint16 dummy;
+		if(  !network_send_data(my_client_socket, uri, len, dummy, 250)  ) {
+			err = "Server did not respond!";
+		}
+		// read the header
+		char line[1024], rbuf;
+		unsigned int pos = 0;
+		long length = 0;
+		while(1) {
+			int i = recv( my_client_socket, &rbuf, 1, 0 );
+			if(  i>0  ) {
+				if(  rbuf>=32  &&  pos<sizeof(line)-1  ) {
+					line[pos++] = rbuf;
+				}
+				if(  rbuf==10  ) {
+					if(  pos == 0  ) {
+						// this line was empty => now data will follow
+						break;
+					}
+					line[pos] = 0;
+					// we only need the length tag
+					if(  STRNICMP("Content-Length:",line,15)==0  ) {
+						length = atol( line+15 );
+					}
+					pos = 0;
+				}
 			}
 			else {
-				if (i < 0) {
-					dbg->error("loadsave_t::rd_open()", "recv failed with %i", i);
-				}
 				break;
 			}
 		}
-		fclose(f);
+		// for a simple query, just pass an empty filename
+		if(  localname  &&  *localname  ) {
+			err = network_receive_file( my_client_socket, localname, length );
+		}
+		network_close_socket( my_client_socket );
 	}
-	if(  length_read<length  ) {
-		return "Not enough bytes transferred";
-	}
-	return NULL;
+	return err;
 }
+#endif // ifndef NETTOOL

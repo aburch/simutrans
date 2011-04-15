@@ -399,11 +399,11 @@ private:
 	// when this month is reached, server will do next announcement
 	uint32 server_next_announce_month;
 
+public:
 	// announce server and current state to listserver
 	// will be done in step when client number changed
 	void announce_server();
 
-public:
 	/* reads height data from 8 or 25 bit bmp or ppm files
 	 * @return either pointer to heightfield (use delete [] for it) or NULL
 	 */
