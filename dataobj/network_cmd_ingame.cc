@@ -16,6 +16,13 @@
 #include "../player/simplay.h"
 #include "../utils/cbuffer_t.h"
 
+// for chdir
+#ifdef _WIN32
+#include <direct.h>
+#else
+#include <unistd.h>
+#endif
+
 #ifdef DO_NOT_SEND_HASHES
 static vector_tpl<uint16>hashes_ok;	// bit set, if this player on that client is not protected
 #endif
