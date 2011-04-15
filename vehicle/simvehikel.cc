@@ -77,10 +77,6 @@
 
 #include "../simcity.h"
 
-#define INVALID_INDEX (65530u)
-
-//#define SPEED_UNLIMITED (INT_MAX)
-
 /* get dx and dy from dir (just to remind you)
  * any vehikel (including city cars and pedestrians)
  * will go this distance per sync step.
@@ -3073,7 +3069,7 @@ bool waggon_t::is_weg_frei_longblock_signal( signal_t *sig, uint16 next_block, i
 		return false;
 	}
 
-	if(  next_signal < cnv->get_route()->get_count()  ) {
+	if(  next_signal != INVALID_INDEX  ) {
 		// success, and there is a signal before end of route => finished
 		sig->set_zustand( roadsign_t::gruen ); // "gruen" = "green" (Google); "zustand" = "condition" (Google)
 		cnv->set_next_stop_index( min( next_crossing, next_signal ) );
@@ -3246,7 +3242,7 @@ bool waggon_t::is_weg_frei_pre_signal( signal_t *sig, uint16 next_block, int &re
 	// parse to next signal; if needed recurse, since we allow cascading
 	uint16 next_signal, next_crossing;
 	if(  block_reserver( cnv->get_route(), next_block+1, next_signal, next_crossing, 0, true, false )  ) {
-		if(  next_signal+1u >= cnv->get_route()->get_count()  ||  is_weg_frei_signal( next_signal, restart_speed )  ) {
+		if(  next_signal == INVALID_INDEX  ||  is_weg_frei_signal( next_signal, restart_speed )  ) {
 			// ok, end of route => we can go
 			sig->set_zustand( roadsign_t::gruen );
 			cnv->set_next_stop_index( min( next_signal, next_crossing ) );
@@ -3596,15 +3592,6 @@ bool waggon_t::block_reserver(route_t *route, uint16 start_index, uint16 &next_s
 			next_signal_index = early_platform_index;
 			// directly modify the route
 			route->truncate_from(early_platform_index);
-		}
-	}
-
-	// stop at station or signals, not at waypoints
-	if(next_signal_index==INVALID_INDEX) {
-		// find out if stop or waypoint, waypoint: do not brake at waypoints
-		grund_t const* const gr = welt->lookup(route->back());
-		if(  gr  &&  gr->is_halt()  ) {
-			next_signal_index = route->get_count()-1-1; // extra -1 to brake 1 tile earlier when entering station
 		}
 	}
 	return true;

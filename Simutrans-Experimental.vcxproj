@@ -995,7 +995,6 @@
     <None Include="Makefile" />
     <None Include="..\simutrans-experimental-binaries\config\privatecar.tab" />
     <None Include="..\simutrans-experimental-binaries\config\simuconf.tab" />
-    <None Include="makeobj\Makefile" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="simres.rc" />
