@@ -20,8 +20,6 @@
 #include "../ifc/sync_steppable.h"
 //#include "../slisthandle_t.h"
 
-#define DESTINATION_CITYCARS
-
 class stadtauto_besch_t;
 class karte_t;
 

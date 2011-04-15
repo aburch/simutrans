@@ -2220,8 +2220,6 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		// everywhere will become completely clogged with traffic. Linear rather than logorithmic scaling so
 		// that the player can have a better idea visually of the amount of traffic.
 
-//#define DESTINATION_CITYCARS
-
 #ifdef DESTINATION_CITYCARS 
 		// Subtract incoming trips and cars already generated to prevent double counting.
 		const sint32 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - (sint32)current_cars.get_count();
