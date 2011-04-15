@@ -153,12 +153,12 @@ static int display_gadget_box(simwin_gadget_et const  code,
 			      int const color,
 			      bool const pushed)
 {
-	display_vline_wh(x,    y,   16, color+1, false);
-	display_vline_wh(x+15, y+1, 14, COL_BLACK, false);
-	display_vline_wh(x+16, y+1, 14, color+1, false);
+	display_vline_wh_clip(x,    y,   16, color+1, false);
+	display_vline_wh_clip(x+15, y+1, 14, COL_BLACK, false);
+	display_vline_wh_clip(x+16, y+1, 14, color+1, false);
 
 	if(pushed) {
-		display_fillbox_wh(x+1, y+1, 14, 14, color+1, false);
+		display_fillbox_wh_clip(x+1, y+1, 14, 14, color+1, false);
 	}
 
 	if(  skinverwaltung_t::window_skin  ) {
