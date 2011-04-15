@@ -467,7 +467,7 @@ CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)
 
-PROG ?= sim
+PROG ?= simutrans-experimental	
 
 
 include common.mk

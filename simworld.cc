@@ -1684,11 +1684,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 
 	// length of day and other time stuff
 	ticks_per_world_month_shift = 20;
-#ifdef _MSC_VER
-	ticks_per_world_month = (1i64 << ticks_per_world_month_shift);
-#else
-	ticks_per_world_month = (1ll << ticks_per_world_month_shift);
-#endif
+	ticks_per_world_month = (1LL << ticks_per_world_month_shift);
 	last_step_ticks = 0;
 	server_next_announce_month = 0xFFFFFFFFu;
 	last_interaction = dr_time();

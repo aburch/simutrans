@@ -633,12 +633,8 @@ public:
 	*/
 
 	sint64 ticks_per_world_month;
-#ifdef _MSC_VER
-	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1i64 << ticks_per_world_month_shift); }
-#else
-	// GCC complains about the i64 - it requires its own 64-bit denotation.
-	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1ll << ticks_per_world_month_shift); }
-#endif
+
+	void set_ticks_per_world_month_shift(sint64 bits) {ticks_per_world_month_shift = bits; ticks_per_world_month = (1LL << ticks_per_world_month_shift); }
 
 	sint32 get_time_multiplier() const { return time_multiplier; }
 	void change_time_multiplier( sint32 delta );
