@@ -100,7 +100,7 @@ static const char * state_names[convoi_t::MAX_STATES] =
  */
 static int calc_min_top_speed(const array_tpl<vehikel_t*>& fahr, uint8 anz_vehikel)
 {
-	int min_top_speed = 9999999;
+	int min_top_speed = SPEED_UNLIMITED;
 	for(uint8 i=0; i<anz_vehikel; i++) {
 		min_top_speed = min(min_top_speed, kmh_to_speed( fahr[i]->get_besch()->get_geschw() ) );
 	}
@@ -116,7 +116,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	is_electric = false;
 	sum_gesamtgewicht = sum_gewicht = sum_gear_und_leistung = sum_leistung = 0;
 	previous_delta_v = 0;
-	min_top_speed = 9999999;
+	min_top_speed = SPEED_UNLIMITED;
 
 	fpl = NULL;
 	line = linehandle_t();
@@ -146,7 +146,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 	loading_limit = 0;
 
 	max_record_speed = 0;
-	brake_speed_soll = 2147483647; // ==SPEED_UNLIMITED
+	brake_speed_soll = SPEED_UNLIMITED;
 	akt_speed_soll = 0;            // Sollgeschwindigkeit
 	akt_speed = 0;                 // momentane Geschwindigkeit
 	sp_soll = 0;
@@ -610,7 +610,7 @@ void convoi_t::calc_acceleration(long delta_t)
 		if(  recalc_brake_soll  ) {
 			// brake at the end of stations/in front of signals and crossings
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
-			brake_speed_soll = 2147483647;  // ==SPEED_UNLIMITED
+			brake_speed_soll = SPEED_UNLIMITED;
 			if(  tiles_left < 4  ) {
 				static sint32 brake_speed_countdown[4] = {
 					kmh_to_speed(25),

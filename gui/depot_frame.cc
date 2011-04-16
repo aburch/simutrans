@@ -1147,7 +1147,7 @@ void depot_frame_t::zeichnen(koord pos, koord groesse)
 			sprintf(txt_convoi_count, "%s %d (%s %i)",
 				translator::translate("Fahrzeuge:"), cnv->get_vehikel_anzahl(),
 				translator::translate("Station tiles:"), cnv->get_tile_length() );
-			if(  empty_speed != max_speed  ) {
+			if(  empty_speed != min_speed  ) {
 				if(  max_speed != min_speed  ) {
 					sprintf( txt_convoi_speed, "%s %d km/h, %d-%d km/h %s", translator::translate("Max. speed:"), empty_speed, min_speed, max_speed, translator::translate("loaded") );
 				}

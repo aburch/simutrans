@@ -194,12 +194,12 @@ sint32 fabrik_t::arrival_statistics_t::advance_slot()
 			// reset slot count to 0 as all previous arrivals have expired
 			active_slots = 0;
 		}
-		result &= ARRIVALS_CHANGED;
+		result |= ARRIVALS_CHANGED;
 	}
 	// count the number of slots covered since aggregate arrival last increased from 0 to +ve
 	if(  active_slots>0  &&  active_slots<SLOT_COUNT  ) {
 		++active_slots;
-		result &= ACTIVE_SLOTS_INCREASED;
+		result |= ACTIVE_SLOTS_INCREASED;
 	}
 	return result;
 }
