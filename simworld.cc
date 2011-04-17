@@ -3650,7 +3650,8 @@ void karte_t::step()
 		path_explorer_t::step();
 		INT_CHECK("karte_t::step");
 	}
-
+	
+	
 	DBG_DEBUG4("karte_t::step", "step convois");
 	// since convois will be deleted during stepping, we need to step backwards
 	for(sint32 i=convoi_array.get_count()-1;  i>=0;  i--  ) {
@@ -3729,6 +3730,7 @@ void karte_t::step()
 		ITERATE(karte_t::random_callers, n)
 		{
 			get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
+			printf(random_callers.get_element(n));
 		}
 #endif
 	}
@@ -6317,6 +6319,7 @@ bool karte_t::interactive(uint32 quit_month)
 						network_disconnect();
 #ifdef DEBUG_SIMRAND_CALLS
 						ticker::add_msg( buf, koord::invalid, COL_LIGHT_BLUE );
+						printf(buf);
 #endif
 					}
 
@@ -6496,6 +6499,7 @@ void karte_t::network_disconnect()
 	ITERATE(karte_t::random_callers, n)
 	{
 		get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
+		printf(random_callers.get_element(n));
 	}
 #endif
 }

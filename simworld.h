@@ -622,7 +622,7 @@ public:
 	* number ticks per day in bits (Babelfish)
 	*/
 
-	sint64 ticks_per_world_month_shift;
+	sint64 ticks_per_world_month_shift; 
 
 
 	/**

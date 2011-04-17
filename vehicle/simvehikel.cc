@@ -1380,8 +1380,8 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 #endif
  		sint16 direction_difference = 0;
 		sint16 direction = get_direction_degrees(ribi_t::get_dir(current_direction));
-		//const koord3d *current_tile = position; // unused
-		const koord3d *previous_tile = &cnv->get_route()->position_bei(route_index - 1);
+		const uint16 modified_route_index = min(route_index - 1, cnv->get_route()->get_count() - 1);
+		const koord3d *previous_tile = &cnv->get_route()->position_bei(modified_route_index);
 		ribi_t::ribi old_direction = current_direction;
 		if(previous_tile != NULL)
 		{

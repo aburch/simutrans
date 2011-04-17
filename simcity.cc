@@ -793,33 +793,33 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 
 	uint32 num_house_rules = 0;
 	for (;;) {
-		sprintf(buf, "house_%d", num_house_rules + 1);
+		sprintf(buf, "house_%u", num_house_rules + 1);
 		if (contents.get_string(buf, 0)) {
 			num_house_rules++;
 		} else {
 			break;
 		}
 	}
-	DBG_MESSAGE("stadt_t::init()", "Read %d house building rules", num_house_rules);
+	DBG_MESSAGE("stadt_t::init()", "Read %u house building rules", num_house_rules);
 
 	uint32 num_road_rules = 0;
 	for (;;) {
-		sprintf(buf, "road_%d", num_road_rules + 1);
+		sprintf(buf, "road_%u", num_road_rules + 1);
 		if (contents.get_string(buf, 0)) {
 			num_road_rules++;
 		} else {
 			break;
 		}
 	}
-	DBG_MESSAGE("stadt_t::init()", "Read %d road building rules", num_road_rules);
+	DBG_MESSAGE("stadt_t::init()", "Read %u road building rules", num_road_rules);
 
 	house_rules.clear();
 	for (uint32 i = 0; i < num_house_rules; i++) {
 		house_rules.append(new rule_t());
-		sprintf(buf, "house_%d.chance", i + 1);
+		sprintf(buf, "house_%u.chance", i + 1);
 		house_rules[i]->chance = contents.get_int(buf, 0);
 
-		sprintf(buf, "house_%d", i + 1);
+		sprintf(buf, "house_%u", i + 1);
 		const char* rule = contents.get_string(buf, "");
 
 		// skip leading spaces (use . for padding)
@@ -835,7 +835,7 @@ bool stadt_t::cityrules_init(const std::string &objfilename)
 		}
 
 		if (size > 7  ||  maxlen < size * (size + 1) - 1  ||  (size & 1) == 0  ||  size <= 2 ) {
-			dbg->fatal("stadt_t::cityrules_init()", "house rule %d has bad format!", i + 1);
+			dbg->fatal("stadt_t::cityrules_init()", "house rule %u has bad format!", i + 1);
 		}
 
 		// put rule into memory
@@ -2824,7 +2824,8 @@ void stadt_t::step_passagiere()
 			* Hajo: for efficiency we try to route not every
 			* single pax, but packets. If possible, we do 7 passengers at a time
 			* the last packet might have less then 7 pax
-			* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)*/
+			* Number now not fixed at 7, but set in simuconf.tab (@author: jamespetts)
+			*/
 
 			int pax_left_to_do = min(passenger_packet_size, num_pax - pax_routed);
 
@@ -2856,7 +2857,7 @@ void stadt_t::step_passagiere()
 				if(range == local)
 				{
 					//Local - a designated proportion will automatically go to destinations within the town.
-					if((float)passenger_routing_choice <= adjusted_passenger_routing_local_chance)
+					if(passenger_routing_choice <= adjusted_passenger_routing_local_chance)
 					{
 						// Will always be a destination in the current town.
 						destinations[destinations_assigned] = finde_passagier_ziel(&will_return, 0, local_passengers_max_distance, k);	
@@ -2932,8 +2933,6 @@ void stadt_t::step_passagiere()
 						}
 					}
 				}
-
-				// check, if they can walk there?
 
 				if (route_good == can_walk) 
 				{
@@ -3088,7 +3087,7 @@ void stadt_t::step_passagiere()
 
 							INT_CHECK( "simcity 3004" );
 
-							const float proportion = ((float)best_journey_time / (float)car_minutes) * car_minutes > best_journey_time ? 1.25F : 0.75F;
+							const float proportion = ((float)best_journey_time / (float)car_minutes) * (float)car_minutes > best_journey_time ? 1.25F : 0.75F;
 							car_preference *= proportion;
 						
 							// If identical, no adjustment.
@@ -3156,7 +3155,7 @@ void stadt_t::step_passagiere()
 
 				// send them also back
 				// (Calculate a return journey)
-				if(will_return != no_return && route_good == good || route_good == private_car_only)
+				if(will_return != no_return && (route_good == good || route_good == private_car_only))
 				{
 					// this comes most of the times for free and balances also the amounts!
 					halthandle_t ret_halt = pax.get_ziel();
@@ -3477,8 +3476,8 @@ stadt_t::destination stadt_t::finde_passagier_ziel(pax_zieltyp* will_return, uin
 		else
 		{
 			const uint32 weight = welt->get_town_list_weight();
-			const uint16 number_of_towns = welt->get_staedte().get_count();
-			uint16 town_step = weight / number_of_towns;
+			const uint32 number_of_towns = welt->get_staedte().get_count();
+			uint32 town_step = weight / number_of_towns;
 			uint32 random = simrand(weight, "stadt_t::destination stadt_t::finde_passagier_ziel (town)");
 			uint32 distance = 0;
 			const uint16 max_x = max((origin.x - ur.x), (origin.x - lo.x));
@@ -4795,7 +4794,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 			if(city_nr < sizes_list->get_count() - 1) {
 				char buf[256];		
 				if(number_of_clusters > 0) {
-					sprintf(buf, /*256,*/ translator::translate("City generation: only %d cities could be placed inside clusters.\n"), city_nr);
+					sprintf(buf, /*256,*/ translator::translate("City generation: only %i cities could be placed inside clusters.\n"), city_nr);
 					wl->get_message()->add_message(buf,koord::invalid,message_t::city,COL_GROWTH);
 					for (int y = 0; y < ymax; y++) {
 						for (int x = 0; x < xmax; x++) {
@@ -4806,7 +4805,7 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 					city_nr--;
 					continue;
 				}
-				sprintf(buf, /*256,*/ translator::translate("City generation: not enough places found for cities. Only %d cities generated.\n"), city_nr);
+				sprintf(buf, /*256,*/ translator::translate("City generation: not enough places found for cities. Only %i cities generated.\n"), city_nr);
 				wl->get_message()->add_message(buf,koord::invalid,message_t::city,COL_GROWTH);				
 				dbg->warning("stadt_t::random_place()", "Not enough places found for cities.");
 			}

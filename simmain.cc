@@ -638,7 +638,7 @@ int simu_main(int argc, char** argv)
 		if(  gimme_arg(argc, argv, "-server", 0)  ) {
 			const char *p = gimme_arg(argc, argv, "-server", 1);
 			int portadress = p ? atoi( p ) : 13353;
-			sprintf( temp_log_name, "simu-server%d.log", portadress==0 ? 13353 : portadress );
+			sprintf( temp_log_name, "simu-server%i.log", portadress==0 ? 13353 : portadress );
 			logname = temp_log_name;
 		}
 		init_logging( logname, true, gimme_arg(argc, argv, "-log", 0 ) != NULL, version );

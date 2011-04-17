@@ -3293,7 +3293,10 @@ void haltestelle_t::rdwr(loadsave_t *file)
 			if(!gr) {
 				dbg->error("haltestelle_t::rdwr()", "invalid position %s", k.get_str() );
 				gr = welt->lookup_kartenboden(k.get_2d());
-				dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
+				if(gr)
+				{
+					dbg->error("haltestelle_t::rdwr()", "setting to %s", gr->get_pos().get_str() );
+				}
 			}
 			// during loading and saving halts will be referred by their base postion
 			// so we may alrady be defined ...

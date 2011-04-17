@@ -62,9 +62,7 @@ ifeq ($(OSTYPE),mingw)
   CC ?= gcc
   SOURCES += simsys_w32_png.cc
   CFLAGS  += -mno-cygwin -DPNG_STATIC -DZLIB_STATIC -march=pentium
-  ifdef MINGW_STATIC
-    LDFLAGS += -static-libgcc -static-libstdc++
-  endif
+  LDFLAGS += -static-libgcc -static-libstdc++
   ifeq ($(BACKEND),gdi)
     LIBS += -lunicows
   endif
@@ -462,7 +460,7 @@ ifneq ($(findstring $(OSTYPE), cygwin mingw),)
   WINDRES ?= windres
 endif
 
-CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL
+CCFLAGS += -DUSE_INDEPENDENT_PATH_POOL -DDEBUG_SIMRAND_CALLS
 
 CCFLAGS  += $(CFLAGS)
 CXXFLAGS += $(CFLAGS)

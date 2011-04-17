@@ -1291,7 +1291,7 @@ DBG_MESSAGE("spieler_t::bescheid_vehikel_problem","Vehicle %s can't find a route
 				const uint32 cnv_weight = cnv->get_heaviest_vehicle();
 				if (cnv_weight > max_weight) {
 					buf.printf(" ");
-					buf.printf(translator::translate("Vehicle weighs %dt, but max weight is %dt"), cnv_weight, max_weight); 
+					buf.printf(translator::translate("Vehicle weighs %it, but max weight is %it"), cnv_weight, max_weight); 
 				}
 				welt->get_message()->add_message( (const char *)buf, cnv->get_pos().get_2d(), message_t::problems, PLAYER_FLAG | player_nr, cnv->front()->get_basis_bild());
 			}
