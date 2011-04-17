@@ -4573,8 +4573,6 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 
 DBG_MESSAGE("karte_t::laden()", "%d factories loaded", fab_list.get_count());
 
-	// must be done after reliefkarte is initialized
-	int x = get_groesse_y() + 24;
 	// old versions did not save factory connections
 	if(file->get_version()<99014) {
 		sint32 temp_min = get_einstellungen()->get_factory_worker_minimum_towns();
