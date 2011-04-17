@@ -808,6 +808,20 @@ bool nwc_service_t::execute(karte_t *welt)
 				// since init always returns false, it is save to delete immediately
 				delete w;
 			}
+
+		case SRVC_SHUTDOWN: {
+			welt->beenden( true );
+			break;
+		}
+
+		case SRVC_FORCE_SYNC: {
+			// send sync command
+			const uint32 new_map_counter = welt->generate_new_map_counter();
+			nwc_sync_t *nw_sync = new nwc_sync_t(welt->get_sync_steps() + 1, welt->get_map_counter(), -1, new_map_counter);
+			network_send_all(nw_sync, false);
+			break;
+		}
+
 		default: ;
 	}
 	return true; // to delete

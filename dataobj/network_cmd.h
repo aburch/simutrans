@@ -98,6 +98,8 @@ public:
 		SRVC_BAN_IP          = 6,
 		SRVC_UNBAN_IP        = 7,
 		SRVC_ADMIN_MSG       = 8,
+		SRVC_SHUTDOWN        = 9,
+		SRVC_FORCE_SYNC      = 10,
 		SRVC_MAX
 	};
 

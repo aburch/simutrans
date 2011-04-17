@@ -102,12 +102,14 @@ int main(int argc, char* argv[])
 				nwcs.text = strdup(ltrim(argv[0]));
 				argv++, argc--;
 				if (!nwcs.send(socket)) {
+					printf("Could not send login data!\n");
 					return 2;
 				}
 			}
 			// wait for acknowledgement
 			nwc_service_t *nws = (nwc_service_t*)network_receive_command(NWC_SERVICE);
 			if (nws==NULL  ||  nws->flag != nwc_service_t::SRVC_LOGIN_ADMIN) {
+				printf("Authentification failed!\n");
 				delete nws;
 				return 3;
 			}
@@ -247,6 +249,26 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		// shutdown server
+		if (argc  &&  !STRICMP(argv[0], "shut-down")) {
+			argv++, argc--;
+			nwc_service_t nwcs;
+			nwcs.flag = nwc_service_t::SRVC_SHUTDOWN;
+			if (!nwcs.send(socket)) {
+				return 2;
+			}
+		}
+
+		// force server to send sync command
+		if (argc  &&  !STRICMP(argv[0], "force-sync")) {
+			argv++, argc--;
+			nwc_service_t nwcs;
+			nwcs.flag = nwc_service_t::SRVC_FORCE_SYNC;
+			if (!nwcs.send(socket)) {
+				return 2;
+			}
+		}
+
 		return 0;
 	}
 
@@ -269,6 +291,12 @@ int main(int argc, char* argv[])
 		"\n"
 		"      NetTool <server-url> <passwd> say <message>\n"
 		"         Send admin message to all clients\n"
+		"\n"
+		"      NetTool <server-url> <passwd> shut-down <message>\n"
+		"         Shut down server\n"
+		"\n"
+		"      NetTool <server-url> <passwd> force-sync <message>\n"
+		"         Force server to send sync command in order to save & reload the game\n"
 		"\n"
 		"      with QUIET as first arg copyright message will be omitted\n"
 		"\n"
