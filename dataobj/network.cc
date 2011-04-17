@@ -374,7 +374,6 @@ bool network_init_server( int port )
 	nwc_ready_t::clear_map_counters();
 #endif
 
-	blacklist.append(net_address_t( 44 << 24, 255 << 24));
 	return true;
 }
 
