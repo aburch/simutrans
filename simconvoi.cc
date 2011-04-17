@@ -311,47 +311,60 @@ void convoi_t::laden_abschliessen()
 	}
 
 	bool realing_position = false;
-	if(anz_vehikel>0) {
+	if(  anz_vehikel>0  ) {
 DBG_MESSAGE("convoi_t::laden_abschliessen()","state=%s, next_stop_index=%d", state_names[state] );
-		sint16 step_pos;
-		koord3d drive_pos;
-		const uint8 diagonal_length = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
-		for( uint8 i=0;  i<anz_vehikel;  i++ ) {
-			vehikel_t* v = fahr[i];
-			v->set_erstes( i==0 );
-			v->set_letztes( i+1==anz_vehikel );
-			// this sets the convoi and will renew the block reservation, if needed!
-			v->set_convoi(this);
-
-			// wrong alingmant here => must relocate
-			if(v->need_realignment()) {
-				// diagonal => convoi must restart
-				realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
+		// only realign convois not leaving depot to avoid jumps through signals
+		if(  steps_driven!=-1  ) {
+			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
+				vehikel_t* v = fahr[i];
+				v->set_erstes( i==0 );
+				v->set_letztes( i+1==anz_vehikel );
+				// this sets the convoi and will renew the block reservation, if needed!
+				v->set_convoi(this);
 			}
-			// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
-			if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
-				if(  i==0  ) {
-					step_pos = v->get_steps();
+		}
+		else {
+			// test also for realignment
+			sint16 step_pos;
+			koord3d drive_pos;
+			const uint8 diagonal_length = (uint8)(130560u/welt->get_einstellungen()->get_pak_diagonal_multiplier());
+			for( uint8 i=0;  i<anz_vehikel;  i++ ) {
+				vehikel_t* v = fahr[i];
+				v->set_erstes( i==0 );
+				v->set_letztes( i+1==anz_vehikel );
+				// this sets the convoi and will renew the block reservation, if needed!
+				v->set_convoi(this);
+
+				// wrong alignment here => must relocate
+				if(v->need_realignment()) {
+					// diagonal => convoi must restart
+					realing_position |= ribi_t::ist_kurve(v->get_fahrtrichtung())  &&  (state==DRIVING  ||  is_waiting());
 				}
-				else {
-					if(  drive_pos!=v->get_pos()  ) {
-						// with long vehicles on diagonals, vehicles need not to be on consecutive tiles
-						// do some guessing here
-						uint32 dist = koord_distance(drive_pos, v->get_pos());
-						if (dist>1) {
-							step_pos += (dist-1) * diagonal_length;
+				// if version is 99.17 or lower, some convois are broken, i.e. had too large gaps between vehicles
+				if(  !realing_position  &&  state!=INITIAL  &&  state!=LEAVING_DEPOT  ) {
+					if(  i==0  ) {
+						step_pos = v->get_steps();
+					}
+					else {
+						if(  drive_pos!=v->get_pos()  ) {
+							// with long vehicles on diagonals, vehicles need not to be on consecutive tiles
+							// do some guessing here
+							uint32 dist = koord_distance(drive_pos, v->get_pos());
+							if (dist>1) {
+								step_pos += (dist-1) * diagonal_length;
+							}
+							step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_length : 256;
 						}
-						step_pos += ribi_t::ist_kurve(v->get_fahrtrichtung()) ? diagonal_length : 256;
+						dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
+						if(  abs( v->get_steps() - step_pos )>15  ) {
+							// not where it should be => realing
+							realing_position = true;
+							dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
+						}
 					}
-					dbg->message("convoi_t::laden_abschliessen()", "v: pos(%s) steps(%d) len=%d ribi=%d prev (%s) step(%d)", v->get_pos().get_str(), v->get_steps(), v->get_besch()->get_length()*16, v->get_fahrtrichtung(),  drive_pos.get_2d().get_str(), step_pos);
-					if(  abs( v->get_steps() - step_pos )>15  ) {
-						// not where it should be => realing
-						realing_position = true;
-						dbg->warning( "convoi_t::laden_abschliessen()", "convoi (%s) is broken => realign", get_name() );
-					}
+					step_pos -= v->get_besch()->get_length()*16;
+					drive_pos = v->get_pos();
 				}
-				step_pos -= v->get_besch()->get_length()*16;
-				drive_pos = v->get_pos();
 			}
 		}
 DBG_MESSAGE("convoi_t::laden_abschliessen()","next_stop_index=%d", next_stop_index );
@@ -940,7 +953,7 @@ void convoi_t::step()
 						// position in depot: waiting
 						grund_t *gr = welt->lookup(fpl->get_current_eintrag().pos);
 						if(  gr  &&  gr->get_depot()  ) {
-							state = INITIAL;
+							betrete_depot( gr->get_depot() );
 						}
 						else {
 							state = ROUTING_1;
@@ -1000,6 +1013,14 @@ void convoi_t::step()
 					state = (steps_driven>=0) ? LEAVING_DEPOT : DRIVING;
 					if(haltestelle_t::get_halt(welt,v->get_pos(),besitzer_p).is_bound()) {
 						v->play_sound();
+					}
+				}
+				else if(  steps_driven==0  ) {
+					// on rail depot tile, do not reserve this
+					if(  grund_t *gr = welt->lookup(fahr[0]->get_pos())  ) {
+						if (schiene_t* const sch0 = ding_cast<schiene_t>(gr->get_weg(fahr[0]->get_waytype()))) {
+							sch0->unreserve(fahr[0]);
+						}
 					}
 				}
 				if(restart_speed>=0) {
@@ -1455,23 +1476,6 @@ void convoi_t::recalc_catg_index()
 	/* since during composition of convois all kinds of composition could happen,
 	 * we do not enforce schedule recalculation here; it will be done anyway all times when leaving the INTI state ...
 	 */
-#if 0
-	// if different => schedule need recalculation
-	if(  goods_catg_index.get_count()!=old_goods_catg_index.get_count()  ) {
-		// surely changed
-		welt->set_schedule_counter();
-	}
-	else {
-		// maybe changed => must test all entries
-		for(  uint i=0;  i<goods_catg_index.get_count();  i++  ) {
-			if(  !old_goods_catg_index.is_contained(goods_catg_index[i])  ) {
-				// different => recalc
-				welt->set_schedule_counter();
-				break;
-			}
-		}
-	}
-#endif
 }
 
 

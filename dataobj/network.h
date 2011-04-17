@@ -6,6 +6,8 @@
 #ifdef _WIN32
 // must be include before all simutrans stuff!
 
+#define NOMINMAX 1
+
 // first: we must find out version number
 #ifndef WINVER
 #	define _WINSOCKAPI_
@@ -23,11 +25,12 @@
 #	include <WinSock2.h>
 #	include <ws2tcpip.h>
 #endif
-#	undef min
-#	undef max
 #	ifndef IPV6_V6ONLY
 #		define IPV6_V6ONLY (27)
 #	endif
+
+#	undef min
+#	undef max
 
 #	define GET_LAST_ERROR() WSAGetLastError()
 #	include <errno.h>

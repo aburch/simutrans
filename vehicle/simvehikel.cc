@@ -2161,7 +2161,7 @@ void waggon_t::set_convoi(convoi_t *c)
 			if(cnv!=NULL  &&  cnv!=(convoi_t *)1) {
 				// free route from old convoi
 				route_t const& r = *cnv->get_route();
-				if (!r.empty() && route_index + 1U < r.get_count() - 1) {
+				if(  !r.empty()  &&  route_index + 1U < r.get_count() - 1  ) {
 					uint16 dummy;
 					block_reserver(&r, cnv->back()->get_route_index(), dummy, dummy, 100000, false, false);
 					target_halt = halthandle_t();
@@ -2170,7 +2170,7 @@ void waggon_t::set_convoi(convoi_t *c)
 			else {
 				assert(c!=NULL);
 				// eventually reserve new route
-				if(  c->get_state()==convoi_t::DRIVING  || c->get_state()==convoi_t::LEAVING_DEPOT  ) {
+				if(  c->get_state()==convoi_t::DRIVING  ||  c->get_state()==convoi_t::LEAVING_DEPOT  ) {
 					route_t const& r = *c->get_route();
 					if (route_index >= r.get_count()) {
 						c->suche_neue_route();
@@ -2596,7 +2596,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		weg_t *w = gr ? gr->get_weg(get_waytype()) : NULL;
 		if(  w==NULL  ||  !(w->has_signal()  ||  w->is_crossing())  ) {
 			// free track => reserve up to next signal
-			if(  !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )  ) {
+			if(  !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 1, true, false )  ) {
 				restart_speed = 0;
 				return false;
 			}

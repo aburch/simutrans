@@ -19,6 +19,7 @@
 
 #ifdef _MSC_VER
 #include <direct.h>
+#undef min
 #else
 #include <unistd.h>
 #endif

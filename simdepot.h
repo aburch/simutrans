@@ -45,8 +45,6 @@ protected:
 
 	void rdwr_vehikel(slist_tpl<vehikel_t*> &list, loadsave_t *file);
 
-	virtual bool can_convoi_start(convoihandle_t cnv) const;
-
 	static slist_tpl<depot_t *> all_depots;
 
 public:
@@ -231,9 +229,6 @@ private:
  */
 class bahndepot_t : public depot_t
 {
-protected:
-	bool can_convoi_start(convoihandle_t cnv) const;
-
 public:
 	bahndepot_t(karte_t *welt, loadsave_t *file) : depot_t(welt,file) {}
 	bahndepot_t(karte_t *welt, koord3d pos,spieler_t *sp, const haus_tile_besch_t *t) : depot_t(welt,pos,sp,t) {}
