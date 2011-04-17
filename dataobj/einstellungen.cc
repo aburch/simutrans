@@ -807,18 +807,17 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 		num_city_roads = 1;
 	}
 
-	// intercity road
+	// intercity roads
 	// old syntax for single intercity road
 	str = ltrim(contents.get("intercity_road_type") );
-	if(str[0]==0) {
-		str = "asphalt_road";
+	if(  str[0]  ) {
+		num_intercity_roads = 1;
+		tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name) );
+		rtrim( intercity_roads[0].name );
+		// default her: always available
+		intercity_roads[0].intro = 1;
+		intercity_roads[0].retire = NEVER;
 	}
-	num_intercity_roads = 1;
-	tstrncpy(intercity_roads[0].name, str, lengthof(intercity_roads[0].name) );
-	rtrim( intercity_roads[0].name );
-	// default her: always available
-	intercity_roads[0].intro = 0;
-	intercity_roads[0].retire = NEVER;
 
 	// new: up to ten intercity_roads are possible
 	if(  *contents.get("intercity_road[0]")  ) {
@@ -852,6 +851,16 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 			}
 		}
 	}
+	if (num_intercity_roads == 0) {
+		// take fallback value: "asphalt_road"
+		tstrncpy(intercity_roads[0].name, "asphalt_road", lengthof(intercity_roads[0].name) );
+		rtrim( intercity_roads[0].name );
+		// default her: always available
+		intercity_roads[0].intro = 1;
+		intercity_roads[0].retire = NEVER;
+		num_intercity_roads = 1;
+	}
+
 
 	umgebung_t::autosave = (contents.get_int("autosave", umgebung_t::autosave) );
 	umgebung_t::fps = contents.get_int("frames_per_second",umgebung_t::fps );
