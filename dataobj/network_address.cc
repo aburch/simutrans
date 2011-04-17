@@ -1,6 +1,7 @@
 #include "network_address.h"
 #include "network_packet.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 net_address_t::net_address_t(const char *text)
