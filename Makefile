@@ -80,7 +80,7 @@ SDL_CONFIG     ?= sdl-config
 
 
 ifneq ($(OPTIMISE),)
-    CFLAGS += -O3 -fno-schedule-insns
+    CFLAGS += -O2 -fno-schedule-insns
   ifneq ($(OSTYPE),mac)
     ifneq ($(OSTYPE),haiku)
       CFLAGS += -minline-all-stringops
