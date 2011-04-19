@@ -2596,7 +2596,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		weg_t *w = gr ? gr->get_weg(get_waytype()) : NULL;
 		if(  w==NULL  ||  !(w->has_signal()  ||  w->is_crossing())  ) {
 			// free track => reserve up to next signal
-			if(  !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 1, true, false )  ) {
+			if(  !block_reserver(cnv->get_route(), max(route_index,1)-1, next_signal, next_crossing, 0, true, false )  ) {
 				restart_speed = 0;
 				return false;
 			}
@@ -2642,7 +2642,7 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return true;
 	}
 
-	// it happened in the past that a convoi has a next signal stored way after the curretn position!
+	// it happened in the past that a convoi has a next signal stored way after the current position!
 	// this only happens in vorfahren, but we can cure this easily
 	if(  next_block+1<route_index  ) {
 		bool ok = block_reserver( cnv->get_route(), route_index, next_signal, next_crossing, 0, true, false );
