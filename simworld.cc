@@ -114,6 +114,9 @@
 #include "player/ai_passenger.h"
 #include "player/ai_goods.h"
 
+#ifdef DEBUG_SIMRAND_CALLS
+bool karte_t::print_randoms = true;
+#endif
 
 
 //#define DEMO
@@ -3727,10 +3730,18 @@ void karte_t::step()
 		// since init always returns false, it is save to delete immediately
 		delete w;
 #ifdef DEBUG_SIMRAND_CALLS
-		ITERATE(karte_t::random_callers, n)
+		if(last_clients == 0)
 		{
-			get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-			printf(random_callers.get_element(n));
+			ITERATE(karte_t::random_callers, n)
+			{
+				get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
+				printf(random_callers.get_element(n));
+			}
+			print_randoms = false;
+		}
+		else
+		{
+			print_randoms = true;
 		}
 #endif
 	}
@@ -6500,6 +6511,7 @@ void karte_t::network_disconnect()
 	{
 		get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
 		printf(random_callers.get_element(n));
+		print_randoms = false;
 	}
 #endif
 }

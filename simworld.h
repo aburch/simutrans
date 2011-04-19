@@ -22,7 +22,6 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
-#include "tpl/ptrhashtable_tpl.h"
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"
@@ -86,6 +85,10 @@ struct checklist_t
 class karte_t
 {
 public:
+
+#ifdef DEBUG_SIMRAND_CALLS
+	static bool print_randoms;
+#endif
 	/**
 	* Hoehe eines Punktes der Karte mit "perlin noise"
 	*

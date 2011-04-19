@@ -108,6 +108,10 @@ uint32 simrand(const uint32 max, const char*)
 	char* buf = new char[256];
 	sprintf(buf, "%s (%i)", caller, get_random_seed());
 	dbg->warning("simrand", buf);
+	if(karte_t::print_randoms)
+	{
+		printf("%s\n", buf);
+	}
 
 	karte_t::random_callers.add_to_head(buf);
 #endif

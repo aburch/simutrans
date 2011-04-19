@@ -6,7 +6,6 @@
 #include "tpl/fixed_list_tpl.h"
 #endif
 
-
 uint32 get_random_seed();
 
 uint32 setsimrand(uint32 seed, uint32 noise_seed);
