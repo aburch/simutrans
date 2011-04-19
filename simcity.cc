@@ -2709,6 +2709,7 @@ void stadt_t::set_no_connexion_to_attraction(const gebaeude_t* unconnected_attra
  */
 void stadt_t::step_passagiere()
 {
+
 	//@author: jamespetts
 	// Passenger routing and generation metrics.	
 	const uint32 local_passengers_min_distance = welt->get_einstellungen()->get_local_passengers_min_distance();
@@ -2793,7 +2794,6 @@ void stadt_t::step_passagiere()
 	// Check whether this batch of passengers has access to a private car each.
 	// Check run in batches to save computational effort.
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(welt->get_timeline_year_month()) : 0; 
-	
 	// Only passengers have private cars
 	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere() (has private car?)") <= (uint16)private_car_percent : false;
 
