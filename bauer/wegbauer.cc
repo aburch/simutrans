@@ -906,9 +906,7 @@ void wegbauer_t::set_keep_existing_faster_ways(bool yesno)
 }
 
 
-
-void
-wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
+void wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *tunnel, const bruecke_besch_t *br)
 {
 	bautyp = wt;
 	besch = b;
@@ -945,6 +943,7 @@ wegbauer_t::route_fuer(bautyp_t wt, const weg_besch_t *b, const tunnel_besch_t *
          );
 }
 
+
 void get_mini_maxi( const vector_tpl<koord3d> &ziel, koord3d &mini, koord3d &maxi )
 {
 	mini = maxi = ziel[0];
@@ -968,12 +967,12 @@ void get_mini_maxi( const vector_tpl<koord3d> &ziel, koord3d &mini, koord3d &max
 	}
 }
 
+
 /* this routine uses A* to calculate the best route
  * beware: change the cost and you will mess up the system!
  * (but you can try, look at simuconf.tab)
  */
-long
-wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
+long wegbauer_t::intern_calc_route(const vector_tpl<koord3d> &start, const vector_tpl<koord3d> &ziel)
 {
 	// we clear it here probably twice: does not hurt ...
 	route.clear();
@@ -1246,9 +1245,7 @@ DBG_DEBUG("wegbauer_t::intern_calc_route()","steps=%i  (max %i) in route, open %
 }
 
 
-
-void
-wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
+void wegbauer_t::intern_calc_straight_route(const koord3d start, const koord3d ziel)
 {
 	bool ok=true;
 
@@ -1378,10 +1375,8 @@ DBG_MESSAGE("wegbauer_t::intern_calc_straight_route()","found straight route max
 }
 
 
-
 // special for starting/landing runways
-bool
-wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
+bool wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 {
 	const koord start=start3d.get_2d();
 	const koord ziel=ziel3d.get_2d();
@@ -1438,13 +1433,10 @@ wegbauer_t::intern_calc_route_runways(koord3d start3d, const koord3d ziel3d)
 }
 
 
-
-
 /* calc_straight_route (maximum one curve, including diagonals)
  *
  */
-void
-wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
+void wegbauer_t::calc_straight_route(koord3d start, const koord3d ziel)
 {
 	DBG_MESSAGE("wegbauer_t::calc_straight_route()","from %d,%d,%d to %d,%d,%d",start.x,start.y,start.z, ziel.x,ziel.y,ziel.z );
 	if(bautyp==luft  &&  besch->get_topspeed()>=250) {
@@ -1876,7 +1868,6 @@ void wegbauer_t::baue_strasse()
 }
 
 
-
 void wegbauer_t::baue_schiene()
 {
 	if(get_count() > 1) {
@@ -1902,14 +1893,32 @@ void wegbauer_t::baue_schiene()
 			}
 
 			if(extend) {
-				weg_t * weg = gr->get_weg((waytype_t)besch->get_wtyp());
 
+				weg_t * weg = gr->get_weg((waytype_t)besch->get_wtyp());
+				bool change_besch = true;
+				cost = 0;
+
+				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(weg->get_besch()==besch  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->get_weg_nr(0)!=weg) || keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0) ) {
+				if(weg->get_besch()==besch  ||  weg->get_besch()->get_styp()!=0  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->get_weg_nr(0)!=weg) || keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden  &&  (bautyp&elevated_flag)==0) ) {
 					//nothing to be done
-					cost = 0;
+					change_besch = false;
 				}
-				else {
+
+				// already a crossing
+				if(  gr->has_two_ways()  ) {
+					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
+						// change to tram track
+						gr->obj_remove( cr );
+						change_besch = true;
+					}
+					else {
+						// since existing is already tram tram
+						change_besch = false;
+					}
+				}
+
+				if(  change_besch  ) {
 					// we take ownership => we take care to maintain the roads completely ...
 					spieler_t *s = weg->get_besitzer();
 					spieler_t::add_maintenance( s, -weg->get_besch()->get_wartung());
