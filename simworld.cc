@@ -3742,9 +3742,7 @@ void karte_t::step()
 		{
 			print_randoms = true;
 		}
-		char* buf_2;
-		sprintf(buf_2, buf);
-		printf("%s\n", buf_2);
+		printf("Number of connected clients changed to %u", last_clients);
 #endif
 	}
 	DBG_DEBUG4("karte_t::step", "end");
