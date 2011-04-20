@@ -1748,7 +1748,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
-	fixed_list_tpl<const char*, 128> karte_t::random_callers;
+	//fixed_list_tpl<const char*, 128> karte_t::random_callers;
 #endif
 
 
@@ -3732,16 +3732,17 @@ void karte_t::step()
 #ifdef DEBUG_SIMRAND_CALLS
 		if(last_clients == 0)
 		{
-			ITERATE(karte_t::random_callers, n)
+			/*ITERATE(karte_t::random_callers, n)
 			{
 				get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-			}
+			}*/
 			print_randoms = false;
 		}
 		else
 		{
 			print_randoms = true;
 		}
+		printf("%s\n", buf);
 #endif
 	}
 	DBG_DEBUG4("karte_t::step", "end");
@@ -6329,6 +6330,7 @@ bool karte_t::interactive(uint32 quit_month)
 						network_disconnect();
 #ifdef DEBUG_SIMRAND_CALLS
 						ticker::add_msg( buf, koord::invalid, COL_LIGHT_BLUE );
+						printf("disconnecting due to checklist mismatch (%s)\n", buf);
 #endif
 					}
 
@@ -6505,11 +6507,12 @@ void karte_t::network_disconnect()
 	beenden(false);
 
 #ifdef DEBUG_SIMRAND_CALLS
-	ITERATE(karte_t::random_callers, n)
+	print_randoms = false;
+	printf("Lost synchronisation\nwith server.\n");
+	/*ITERATE(karte_t::random_callers, n)
 	{
 		get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-		print_randoms = false;
-	}
+	}*/
 #endif
 }
 
