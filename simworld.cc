@@ -3742,7 +3742,9 @@ void karte_t::step()
 		{
 			print_randoms = true;
 		}
-		printf("%s\n", buf);
+		char* buf_2;
+		sprintf(buf_2, buf);
+		printf("%s\n", buf_2);
 #endif
 	}
 	DBG_DEBUG4("karte_t::step", "end");
