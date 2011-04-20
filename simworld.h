@@ -22,7 +22,6 @@
 #include "tpl/weighted_vector_tpl.h"
 #include "tpl/vector_tpl.h"
 #include "tpl/slist_tpl.h"
-#include "tpl/ptrhashtable_tpl.h"
 
 #include "dataobj/marker.h"
 #include "dataobj/einstellungen.h"

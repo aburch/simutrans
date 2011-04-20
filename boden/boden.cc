@@ -28,8 +28,6 @@
 #include "../simtools.h"
 #include "../simimg.h"
 
-#include "../tpl/ptrhashtable_tpl.h"
-
 
 boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) )
 {
