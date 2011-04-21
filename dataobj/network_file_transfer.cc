@@ -144,7 +144,20 @@ const char *network_connect(const char *cp, karte_t *world)
 		// guaranteed individual file name ...
 		char filename[256];
 		sprintf( filename, "client%i-network.sve", network_get_client_id() );
-		err = network_receive_file( my_client_socket, filename, len );
+		if(  err = network_receive_file( my_client_socket, filename, len )  ) {
+			goto end;
+		}
+		// Knightly : update iteration limits
+		// wait for routesearch command (tolerate some wrong commands)
+		for(  uint8 i=0;  i<5;  ++i  ) {
+			nwc = network_check_activity( NULL, 10000 );
+			if(  nwc  &&  nwc->get_id()==NWC_ROUTESEARCH  ) break;
+		}
+		if(  nwc==NULL  ||  nwc->get_id()!=NWC_ROUTESEARCH  ) {
+			err = "Protocol error (expected NWC_ROUTESEARCH)";
+			goto end;
+		}
+		((nwc_routesearch_t*)nwc)->do_command(world);
 	}
 end:
 	if(err) {
