@@ -2789,19 +2789,19 @@ void stadt_t::step_passagiere()
 		}
 	}
 
-	INT_CHECK( "simcity 2282" );
+	INT_CHECK( "simcity 2794" );
 
 	// Check whether this batch of passengers has access to a private car each.
 	// Check run in batches to save computational effort.
 	const sint16 private_car_percent = wtyp == warenbauer_t::passagiere ? get_private_car_ownership(welt->get_timeline_year_month()) : 0; 
 	// Only passengers have private cars
 	const bool has_private_car = private_car_percent > 0 ? simrand(100, "void stadt_t::step_passagiere() (has private car?)") <= (uint16)private_car_percent : false;
-
-		// Record the most useful set of information about why passengers cannot reach their chosen destination:
-		//  Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
-		koord best_bad_destination;
-		uint8 best_bad_start_halt;
-		bool too_slow_already_set;
+	
+	// Record the most useful set of information about why passengers cannot reach their chosen destination:
+	//  Too slow > overcrowded > no route. Tiebreaker: higher destination preference.
+	koord best_bad_destination;
+	uint8 best_bad_start_halt;
+	bool too_slow_already_set;
 
 	//Only continue if there are suitable start halts nearby, or the passengers have their own car.
 	if(start_halts.get_count() > 0 || has_private_car)
