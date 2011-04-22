@@ -599,7 +599,7 @@ fabrik_t::fabrik_t(karte_t* wl, loadsave_t* file)
 		dbg->error( "fabrik_t::baue()", "%s is not a valid position! (Will not be built!)", pos.get_str() );
 	}
 	else {
-		baue(rotate);
+		baue(rotate, false);
 		// now get rid of construction image
 		for(  sint16 y=0;  y<besch->get_haus()->get_h(rotate);  y++  ) {
 			for(  sint16 x=0;  x<besch->get_haus()->get_b(rotate);  x++  ) {
@@ -707,7 +707,7 @@ fabrik_t::~fabrik_t()
 }
 
 
-void fabrik_t::baue(sint32 rotate)
+void fabrik_t::baue(sint32 rotate, bool build_fields)
 {
 	this->rotate = rotate;
 	pos = welt->lookup_kartenboden(pos.get_2d())->get_pos();
@@ -733,9 +733,11 @@ void fabrik_t::baue(sint32 rotate)
 			}
 		}
 		else {
-			// we will start with a certain minimum number
-			while(fields.get_count()<besch->get_field_group()->get_min_fields()  &&  add_random_field(0))
-				;
+			if (build_fields) {
+				// we will start with a certain minimum number
+				while(fields.get_count()<besch->get_field_group()->get_min_fields()  &&  add_random_field(0))
+					;
+			}
 		}
 	}
 }
@@ -1450,7 +1452,7 @@ void fabrik_t::step(long delta_t)
 
 			if(  besch->get_field_group()  ) {
 				if(  fields.get_count()<besch->get_field_group()->get_max_fields()  ) {
-					// spawn new field with given probablitily
+					// spawn new field with given probability
 					add_random_field(besch->get_field_group()->get_probability());
 				}
 			}

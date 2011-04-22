@@ -479,7 +479,7 @@ public:
 	 *
 	 * @author Hj. Malthaner, V. Meyer
 	 */
-	void baue(sint32 rotate);
+	void baue(sint32 rotate, bool build_fields = true);
 
 	sint16 get_rotate() const { return rotate; }
 
