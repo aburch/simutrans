@@ -1896,7 +1896,6 @@ void wegbauer_t::baue_schiene()
 
 				weg_t * weg = gr->get_weg((waytype_t)besch->get_wtyp());
 				bool change_besch = true;
-				cost = 0;
 
 				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
