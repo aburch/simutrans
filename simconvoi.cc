@@ -3523,12 +3523,12 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	const sint64 revenue = (sint64)(min_price > base_bonus ? min_price : base_bonus) * (sint64)revenue_distance * (sint64)ware.menge;
 	sint64 final_revenue = revenue;
 
-	const float happy_ratio = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_proportion(1) : 1;
-	if(speed_bonus_rating > 0 && happy_ratio > 0)
+	const uint16 happy_percentage = ware.get_origin().is_bound() ? ware.get_origin()->get_unhappy_percentage(1) : 100;
+	if(speed_bonus_rating > 0 && happy_percentage > 0)
 	{
 		// Reduce revenue if the origin stop is crowded, if speed is important for the cargo.
-		sint64 tmp = ((float)speed_bonus_rating / 100.0F) * revenue;
-		tmp *= (happy_ratio * 2);
+		sint64 tmp = (speed_bonus_rating * revenue) / 100;
+		tmp *= (happy_percentage * 2) / 100;
 		final_revenue -= tmp;
 	}
 	

@@ -2990,39 +2990,40 @@ void stadt_t::step_passagiere()
 					}
 				}
 
-				INT_CHECK("simcity.cc 2882");
+				INT_CHECK("simcity.cc 2993");
 
-				if(has_private_car)
-				{
-					const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
-					uint16 time_per_tile = 65535;
-					switch(destinations[current_destination].type)
-					{
-					case 1:
-						//Town
-						time_per_tile = check_road_connexion_to(destinations[current_destination].object.town);
-						break;
-					case FACTORY_PAX:
-						time_per_tile = check_road_connexion_to(destinations[current_destination].object.industry);
-						break;
-					case TOURIST_PAX:
-						time_per_tile = check_road_connexion_to(destinations[current_destination].object.attraction);
-						break;
-					default:
-						//Some error - this should not be reached.
-						dbg->error("simcity.cc", "Incorrect destination type detected");
-					};
-					
-					if(time_per_tile < 65535)
-					{
-						// *Tenths* of minutes used here.
-						car_minutes =  time_per_tile * straight_line_distance;
-					}
-					else
-					{
-						car_minutes = 65535;
-					}
-				}		
+				if(has_private_car) car_minutes = 300;
+				// THIS IS SUSPECT CODE FOR DIFFERENT COMPILER DESYNCS.
+				//{
+				//	const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
+				//	uint16 time_per_tile = 65535;
+				//	switch(destinations[current_destination].type)
+				//	{
+				//	case 1:
+				//		//Town
+				//		time_per_tile = check_road_connexion_to(destinations[current_destination].object.town);
+				//		break;
+				//	case FACTORY_PAX:
+				//		time_per_tile = check_road_connexion_to(destinations[current_destination].object.industry);
+				//		break;
+				//	case TOURIST_PAX:
+				//		time_per_tile = check_road_connexion_to(destinations[current_destination].object.attraction);
+				//		break;
+				//	default:
+				//		//Some error - this should not be reached.
+				//		dbg->error("simcity.cc", "Incorrect destination type detected");
+				//	};
+				//	
+				//	if(time_per_tile < 65535)
+				//	{
+				//		// *Tenths* of minutes used here.
+				//		car_minutes =  time_per_tile * straight_line_distance;
+				//	}
+				//	else
+				//	{
+				//		car_minutes = 65535;
+				//	}
+				//}		
 				
 				if(car_minutes <= tolerance)
 				{
@@ -3032,7 +3033,7 @@ void stadt_t::step_passagiere()
 						// Therefore, they will certainly use their car. 
 						route_good = private_car_only;
 					}
-					
+									
 					else
 					{
 						// The passengers can get to their destination both by car and public transport.
@@ -3043,15 +3044,16 @@ void stadt_t::step_passagiere()
 						const uint32 distance = accurate_distance(destinations[current_destination].location, k);			
 						
 						//Weighted random.
-						uint8 private_car_chance = simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
+						uint16 private_car_chance = (uint16)simrand(100, "void stadt_t::step_passagiere() (private car chance?)");
 						if(private_car_chance >= 1)
 						{
 							// The basic preference for using a private car if available.
-							sint16 car_preference = welt->get_einstellungen()->get_base_car_preference_percent();
+							uint16 car_preference = welt->get_einstellungen()->get_base_car_preference_percent();
 						
 							//First, adjust for distance. For very long-distance journies, cars are less popular.
 						
-							if(distance > (midrange_passengers_max_distance * 3))
+							// THIS CODE SEEMS CLEAR FOR DIFFERENT COMPILER DESYNCS
+							/*if(distance > (midrange_passengers_max_distance * 3))
 							{
 								if(distance >= longdistance_passengers_max_distance)
 								{
@@ -3059,25 +3061,27 @@ void stadt_t::step_passagiere()
 								}
 								else
 								{
-									const float proportion = ((float)distance - (float)(midrange_passengers_max_distance * 3.0F)) / (float)longdistance_passengers_max_distance;
-									car_preference /= (10 * proportion);
+									const float proportion = (float) (distance - (midrange_passengers_max_distance * 3.0F)) / longdistance_passengers_max_distance;
+									car_preference /= (10.0F * proportion);
 								}
-							}
+							}*/
 						
 							// Secondly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
 
 							// This percentage of drivers will prefer to use the car however congested that it is.
-							const sint16 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
+							const uint8 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
 
+							// THIS IS SUSPECT CODE FOR DIFFERENT COMPILER DESYNCS.
 							//Average congestion of origin and destination towns, and, at the same time, reduce factor.
-							uint8 congestion_total;
+							uint16 congestion_total;
 							if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
 							{
+								// Destination type is town and the destination town object can be found.
 								congestion_total = (city_history_month[0][HIST_CONGESTION] + destinations[current_destination].object.town->get_congestion()) / 4;
 							}
 							else
 							{
-								congestion_total = (city_history_month[0][HIST_CONGESTION] / 1.33);
+								congestion_total = (city_history_month[0][HIST_CONGESTION] * 100) / 133;
 							}
 							car_preference = ((car_preference - congestion_total) > always_prefer_car_percent) ? car_preference - congestion_total : always_prefer_car_percent;
 
@@ -3085,19 +3089,24 @@ void stadt_t::step_passagiere()
 							// Compare best journey speed on public transport with the 
 							// likely private car journey time.
 
-							INT_CHECK( "simcity 3004" );
+							//INT_CHECK( "simcity 3004" );
 
-							const float proportion = ((float)best_journey_time / (float)car_minutes) * (float)car_minutes > best_journey_time ? 1.25F : 0.75F;
-							car_preference *= proportion;
+							// Journey times of private transport as a percentage of player journey times.
+							uint32 car_journey_time_percent = (100 * car_minutes) / best_journey_time;
+							// Set a limit to how much this affects things.
+							car_journey_time_percent = max(car_journey_time_percent, 15);
+							car_journey_time_percent = min(car_journey_time_percent, 250);
+							// Modify the preference by how much better or worse that the car journey time is than the player's.
+							car_preference = (car_preference * 100) / car_journey_time_percent;
 						
 							// If identical, no adjustment.
 
 							//Fourthly, the number of unhappy passengers at the start station compared with the number of happy passengers.
-							float unhappy_factor = start_halt->get_unhappy_proportion(0);
+							const uint16 unhappy_percentage = start_halt->get_unhappy_percentage(0);
 						
-							if(unhappy_factor > 0.8F)
+							if(unhappy_percentage > 80)
 							{
-								private_car_chance /= unhappy_factor;
+								car_preference = (car_preference * 100) / unhappy_percentage;
 							}
 						
 							//Finally, determine whether the private car is used.
@@ -3150,8 +3159,9 @@ void stadt_t::step_passagiere()
 					merke_passagier_ziel(destinations[current_destination].location, COL_TURQUOISE);
 #ifdef DESTINATION_CITYCARS
 					erzeuge_verkehrsteilnehmer(k, step_count, destinations[current_destination].location);
-				}
 #endif
+				}
+
 
 				// send them also back
 				// (Calculate a return journey)
@@ -3356,7 +3366,7 @@ void stadt_t::step_passagiere()
 }
 
 
-inline void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
+void stadt_t::set_private_car_trip(int passengers, stadt_t* destination_town)
 {
 	if(destination_town == NULL || (destination_town->get_pos().x == pos.x && destination_town->get_pos().y == pos.y))
 	{

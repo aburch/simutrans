@@ -223,7 +223,7 @@ private:
 	*/
 	void roll_history(void);
 
-	inline void set_private_car_trip(int passengers, stadt_t* destination_town);
+	void set_private_car_trip(int passengers, stadt_t* destination_town);
 
 	// This is needed to prevent double counting of incoming traffic.
 	sint32 incoming_private_cars;

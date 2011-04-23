@@ -6548,7 +6548,7 @@ void karte_t::calc_generic_road_speed_intercity()
 		// Hajo: try some default (might happen with timeline ... )
 		besch = wegbauer_t::weg_search(road_wt,80,get_timeline_year_month(),weg_t::type_flat);
 	}
-	generic_road_speed_intercity = calc_generic_road_speed(besch);
+	generic_road_speed_intercity = (uint16)calc_generic_road_speed(besch);
 }
 
 sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
@@ -6557,7 +6557,7 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 	{
 		const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
 		const sint32 speed_average = (float)min((float)road_speed_limit, (float)citycar_speed_average) / 1.5F;
-		const uint16 journey_time_per_tile = 600 * (float)(einstellungen->get_distance_per_tile() / (float)speed_average); // *Tenths* of minutes: hence *600, not *60.
+		const uint16 journey_time_per_tile = 600.0F * (float)(einstellungen->get_distance_per_tile() / (float)speed_average); // *Tenths* of minutes: hence *600, not *60.
 		return journey_time_per_tile;
 	}
 	else

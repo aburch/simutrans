@@ -1207,8 +1207,8 @@ public:
 	 * speed limit of the appropriate type
 	 * of road.
 	 */
-	sint32 get_generic_road_speed_city() const { return generic_road_speed_city; }
-	sint32 get_generic_road_speed_intercity() const { return generic_road_speed_intercity; };
+	uint16 get_generic_road_speed_city() const { return generic_road_speed_city; }
+	uint16 get_generic_road_speed_intercity() const { return generic_road_speed_intercity; };
 
 	sint32 calc_generic_road_speed(const weg_besch_t* besch);
 

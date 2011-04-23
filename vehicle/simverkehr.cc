@@ -439,7 +439,7 @@ stadtauto_t::stadtauto_t(karte_t *welt, loadsave_t *file) :
 #ifdef DESTINATION_CITYCARS
 stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord target, slist_tpl<stadtauto_t*>* car_list)
 #else
-stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord )
+stadtauto_t::stadtauto_t(karte_t *welt, koord3d pos, koord, slist_tpl<stadtauto_t*>* car_list )
 #endif
 	: verkehrsteilnehmer_t(welt, pos)
 {
@@ -571,7 +571,13 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	if(file->get_experimental_version() >= 9 && file->get_version() >= 1100000)
 	{
 		file->rdwr_long(ms_traffic_jam);
+#ifdef DESTINATION_CITYCARS
 		target.rdwr(file);
+#else
+		koord dummy;
+		dummy.rdwr(file);
+#endif
+
 		origin.rdwr(file);
 		stadt_t* const city = welt->get_city(origin);
 		if(city)
@@ -589,7 +595,9 @@ void stadtauto_t::rdwr(loadsave_t *file)
 	else if(file->is_loading())
 	{
 		ms_traffic_jam = 0;
+#ifdef DESTINATION_CITYCARS
 		target = koord::invalid;
+#endif
 		origin = koord::invalid;
 		current_list = &welt->unassigned_cars;
 		welt->add_unassigned_car(this);
@@ -995,7 +1003,11 @@ void stadtauto_t::calc_current_speed()
 void stadtauto_t::info(cbuffer_t & buf) const
 {
 	const stadt_t* const origin_city = welt->get_city(origin);
+#ifdef DESTINATION_CITYCARS
 	const stadt_t* const destination_city = welt->get_city(target);
+#else
+	const stadt_t* const destination_city = NULL;
+#endif
 	const char* origin_name = origin_city ? origin_city->get_name() : translator::translate("keine");
 	const char* destination_name = destination_city ? destination_city->get_name() : translator::translate("keine");
 	buf.printf(translator::translate("%s\nspeed %i\nmax_speed %i\ndx:%i dy:%i"), translator::translate(besch->get_name()), speed_to_kmh(current_speed), speed_to_kmh(besch->get_geschw()), dx, dy);
