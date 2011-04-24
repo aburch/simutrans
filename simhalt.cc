@@ -1412,12 +1412,12 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 		sint32 average_speed = 0;
 		if(line.is_bound())
 		{
-			average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) : line->get_finance_history(0, LINE_AVERAGE_SPEED);
+			average_speed = line->get_finance_history(1, LINE_AVERAGE_SPEED) > 0 ? line->get_finance_history(1, LINE_AVERAGE_SPEED) * 100 : line->get_finance_history(0, LINE_AVERAGE_SPEED) * 100;
 
 			if(average_speed == 0)
 			{
 				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) >> 1;
+				average_speed = speed_to_kmh(line->get_convoy(0)->get_min_top_speed()) >> 1 * 100;
 			}
 		}
 		else if(cnv.is_bound())
@@ -1427,7 +1427,7 @@ void haltestelle_t::add_connexion(const uint8 category, const convoihandle_t cnv
 			if(average_speed == 0)
 			{
 				// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
-				average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1;
+				average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1  * 100;
 			}
 		}
 
@@ -2322,7 +2322,7 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 
 		uint32 accumulated_journey_time = 0;
 		halthandle_t previous_halt = self;
-		const sint32 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED);
+		sint32 average_speed = cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) > 0 ? cnv->get_finance_history(1, CONVOI_AVERAGE_SPEED) * 100 : cnv->get_finance_history(0, CONVOI_AVERAGE_SPEED) * 100;
 
 		// uses fpl->increment_index to iterate over stops
 		uint8 index = fpl->get_aktuell();
@@ -2342,8 +2342,15 @@ ware_t haltestelle_t::hole_ab(const ware_besch_t *wtyp, uint32 maxi, const sched
 			{
 				// Calculate the journey time for *this* convoy from here (if not already calculated)
 				
+				if(average_speed == 0)
+				{
+					// If the average speed is not initialised, take a guess to prevent perverse outcomes and possible deadlocks.
+					average_speed = speed_to_kmh(cnv->get_min_top_speed()) >> 1  * 100;
+				}
+						
 				accumulated_journey_time += ((accurate_distance(plan_halt->get_basis_pos(), previous_halt->get_basis_pos()) 
 												/ average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 6);
+				
 				//previous_halt = plan_halt;		
 								
 				// The random offset will ensure that all goods have an equal chance to be loaded.

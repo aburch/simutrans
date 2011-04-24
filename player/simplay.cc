@@ -372,10 +372,10 @@ void spieler_t::neuer_monat()
 		// Add interest
 
 		// Monthly rate
-		if(welt->get_einstellungen()->get_interest_rate_percent() > 0.0)
+		if(welt->get_einstellungen()->get_interest_rate_percent() > 0)
 		{
-			double interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() / 100.0) / 12.0); 
-			sint32 monthly_interest = interest_rate * konto;
+			uint16 interest_rate = ((welt->get_einstellungen()->get_interest_rate_percent() * 100) / 1200); 
+			sint32 monthly_interest = (interest_rate * konto) / 100;
 			konto += monthly_interest;
 			finance_history_month[0][COST_INTEREST] += monthly_interest;
 			finance_history_year[0][COST_INTEREST] += monthly_interest;

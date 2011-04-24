@@ -103,7 +103,9 @@ static inline uint32 koord_distance(const koord &a, const koord &b)
 static inline uint32 accurate_distance(const koord &a, const koord &b)
 {
 	// Euclidian distance
-	return int_sqrt(((a.x - b.x) * (a.x - b.x)) + ((a.y - b.y) * (a.y - b.y)));
+	const sint32 delta_x = (sint32)a.x - (sint32)b.x;
+	const sint32 delta_y = (sint32)a.y - (sint32)b.y;
+	return int_sqrt( delta_x * delta_x + delta_y * delta_y );
 }
 
 

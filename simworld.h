@@ -1239,7 +1239,7 @@ public:
 	}
 
 #ifdef DEBUG_SIMRAND_CALLS
-	//static fixed_list_tpl<const char*, 128> random_callers;
+	static fixed_list_tpl<const char*, 256> random_callers;
 #endif
 
 private:

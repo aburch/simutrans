@@ -1748,7 +1748,7 @@ karte_t::karte_t() : convoi_array(0), ausflugsziele(16), stadt(0), marker(0,0)
 }
 
 #ifdef DEBUG_SIMRAND_CALLS
-	//fixed_list_tpl<const char*, 128> karte_t::random_callers;
+	fixed_list_tpl<const char*, 256> karte_t::random_callers;
 #endif
 
 
@@ -3152,7 +3152,7 @@ void karte_t::neuer_monat()
 		// Set the industry density proportion for the first time when the number of citizens is populated.
 		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
 	}
-	const double target_industry_density = get_target_industry_density();
+	const uint32 target_industry_density = get_target_industry_density();
 	if(actual_industry_density < target_industry_density)
 	{
 		// Only add one per month, and randomise.
@@ -3732,10 +3732,10 @@ void karte_t::step()
 #ifdef DEBUG_SIMRAND_CALLS
 		if(last_clients == 0)
 		{
-			/*ITERATE(karte_t::random_callers, n)
+			ITERATE(karte_t::random_callers, n)
 			{
 				get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-			}*/
+			}
 			print_randoms = false;
 		}
 		else
@@ -6338,6 +6338,7 @@ bool karte_t::interactive(uint32 quit_month)
 				if (nwc->get_sync_step() < sync_steps) {
 					if (!nwc->ignore_old_events()) {
 						dbg->warning("karte_t::interactive", "wanted to do_command(%d) in the past", nwc->get_id());
+						printf("Desync for attempting past execution\n");
 						network_disconnect();
 					}
 				}
@@ -6357,6 +6358,7 @@ bool karte_t::interactive(uint32 quit_month)
 					dbg->warning("karte_t::interactive", "sync_step=%u  %s", server_sync_step, buf);
 					if(  LCHKLST(server_sync_step)!=server_checklist  ) {
 						dbg->warning("karte_t::interactive", "disconnecting due to checklist mismatch" );
+						printf("Desync due to checklist mismatch\nsync_step=%u  %s", server_sync_step, buf);
 						network_disconnect();
 #ifdef DEBUG_SIMRAND_CALLS
 						ticker::add_msg( buf, koord::invalid, COL_LIGHT_BLUE );
@@ -6376,6 +6378,7 @@ bool karte_t::interactive(uint32 quit_month)
 							dbg->warning("karte_t::interactive", "skipping command due to checklist mismatch : sync_step=%u %s", nwt->last_sync_step, buf);
 							if(  !umgebung_t::server  ) {
 								network_disconnect();
+								printf("Desync due to checklist mismatch\nsync_step=%u  %s", nwt->last_sync_step, buf);
 							}
 							delete nwc;
 							continue;
@@ -6539,10 +6542,10 @@ void karte_t::network_disconnect()
 #ifdef DEBUG_SIMRAND_CALLS
 	print_randoms = false;
 	printf("Lost synchronisation\nwith server.\n");
-	/*ITERATE(karte_t::random_callers, n)
+	ITERATE(karte_t::random_callers, n)
 	{
 		get_message()->add_message(random_callers.get_element(n), koord::invalid, message_t::ai);
-	}*/
+	}
 #endif
 }
 
@@ -6555,15 +6558,15 @@ void karte_t::set_citycar_speed_average()
 		return;
 	}
 	stringhashtable_iterator_tpl<const stadtauto_besch_t*> iter(&stadtauto_t::table);
-	double vehicle_speed_sum = 0.0;
-	double count = 0.0;
+	sint32 vehicle_speed_sum = 0;
+	sint32 count = 0;
 	while(iter.next())
 	{
 		// Take into account the *chance* of vehicles, too: fewer people have sports cars than Minis. 
-		vehicle_speed_sum += (double)(speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
-		count += (double)iter.get_current_value()->get_gewichtung();
+		vehicle_speed_sum += (speed_to_kmh(iter.get_current_value()->get_geschw())) * iter.get_current_value()->get_gewichtung();
+		count += iter.get_current_value()->get_gewichtung();
 	}
-	citycar_speed_average = (sint32)(vehicle_speed_sum / count);
+	citycar_speed_average = vehicle_speed_sum / count;
 }
 
 void karte_t::calc_generic_road_speed_intercity()

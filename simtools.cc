@@ -113,7 +113,7 @@ uint32 simrand(const uint32 max, const char*)
 		printf("%s\n", buf);
 	}
 
-	//karte_t::random_callers.add_to_head(buf);
+	karte_t::random_callers.add_to_head(buf);
 #endif
 
 	if(max<=1) {	// may rather assert this?

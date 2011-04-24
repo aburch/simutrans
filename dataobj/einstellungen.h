@@ -217,8 +217,8 @@ public:
 	
 	uint32 max_corner_limit[10];
 	uint32 min_corner_limit[10];
-	float max_corner_adjustment_factor[10];
-	float min_corner_adjustment_factor[10];
+	uint16 max_corner_adjustment_factor[10];
+	uint16 min_corner_adjustment_factor[10];
 	uint8 min_direction_steps[10];
 	uint8 max_direction_steps[10];
 	uint8 curve_friction_factor[10];
@@ -675,8 +675,8 @@ public:
 
 	sint32 get_max_corner_limit(waytype_t waytype) const { return kmh_to_speed(max_corner_limit[waytype]); }
 	sint32 get_min_corner_limit (waytype_t waytype) const { return kmh_to_speed(min_corner_limit[waytype]); }
-	float get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
-	float get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
+	uint16 get_max_corner_adjustment_factor (waytype_t waytype) const { return max_corner_adjustment_factor[waytype]; }
+	uint16 get_min_corner_adjustment_factor (waytype_t waytype) const {  return  min_corner_adjustment_factor[waytype]; }
 	uint8 get_min_direction_steps (waytype_t waytype) const { return min_direction_steps[waytype]; }
 	uint8 get_max_direction_steps (waytype_t waytype) const { return max_direction_steps[waytype]; }
 	uint8 get_curve_friction_factor (waytype_t waytype) const { return curve_friction_factor[waytype]; }

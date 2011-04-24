@@ -3305,7 +3305,7 @@ void stadt_t::step_passagiere()
 		// First, check whether the passengers can *walk*. Just because
 		// they do not have a start halt does not mean that they cannot
 		// walk to their destination!
-		const double tile_distance = accurate_distance(k, destination_now.location);
+		const uint32 tile_distance = accurate_distance(k, destination_now.location);
 		if(tile_distance < welt->get_einstellungen()->get_max_walking_distance())
 		{
 			// Passengers will walk to their destination if it is within the specified range.

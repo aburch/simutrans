@@ -1369,8 +1369,8 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 	// Cornering settings. Vehicles must slow to take corners.
 	const uint32 max_corner_limit = welt->get_einstellungen()->get_max_corner_limit(waytype);
 	const uint32 min_corner_limit = welt->get_einstellungen()->get_min_corner_limit(waytype);
-	const float max_corner_adjustment_factor = welt->get_einstellungen()->get_max_corner_adjustment_factor(waytype);
-	const float min_corner_adjustment_factor = welt->get_einstellungen()->get_min_corner_adjustment_factor(waytype);
+	const uint16 max_corner_adjustment_factor = welt->get_einstellungen()->get_max_corner_adjustment_factor(waytype);
+	const uint16 min_corner_adjustment_factor = welt->get_einstellungen()->get_min_corner_adjustment_factor(waytype);
 	const uint8 min_direction_steps = welt->get_einstellungen()->get_min_direction_steps(waytype);
 	const uint8 max_direction_steps = welt->get_einstellungen()->get_max_direction_steps(waytype);
 	
@@ -1388,16 +1388,16 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			old_direction = calc_check_richtung(previous_tile->get_2d(), position->get_2d());
 		}
 	
-		double limit_adjustment_factor = 1.0;
+		uint16 limit_adjustment_percentage = 100;
 		
 		if(base_limit > max_corner_limit)
 		{
-			limit_adjustment_factor = max_corner_adjustment_factor;
+			limit_adjustment_percentage = max_corner_adjustment_factor;
 			direction_steps = max_direction_steps;
 		}
 		else if(base_limit < min_corner_limit)
 		{
-			limit_adjustment_factor = min_corner_adjustment_factor;
+			limit_adjustment_percentage = min_corner_adjustment_factor;
 			direction_steps = min_direction_steps;
 		}
 		else
@@ -1405,9 +1405,9 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 			//Smooth the difference
 			uint32 tmp1 = base_limit - min_corner_limit;
 			uint32 tmp2 = max_corner_limit - min_corner_limit;
-			double proportion = (double)tmp1 / (double)tmp2;
-			limit_adjustment_factor = ((max_corner_adjustment_factor - min_corner_adjustment_factor) * proportion) + min_corner_adjustment_factor;
-			direction_steps = (sint16)((max_direction_steps - min_direction_steps) * proportion) + min_direction_steps; 
+			const uint32 percentage = (tmp1 * 100) / tmp2;
+			limit_adjustment_percentage = (((max_corner_adjustment_factor - min_corner_adjustment_factor) * percentage) + min_corner_adjustment_factor) / 100;
+			direction_steps = (sint16)(((max_direction_steps - min_direction_steps) * percentage) / 100) + min_direction_steps; 
 		}
 		
 		uint16 tmp;
@@ -1435,14 +1435,14 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 		//Smoothing code: slightly smoothed corners benefit.		
 		sint32 max_speed_90 = kmh_to_speed(55);
-		if(direction_difference > compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) && limit_adjustment_factor < 0.8))
+		if(direction_difference > compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) && limit_adjustment_percentage < 80))
 		{
-			limit_adjustment_factor += 0.15;
+			limit_adjustment_percentage += 15;
 			max_speed_90 = kmh_to_speed(75);
-			if(limit_adjustment_factor >= 1)
+			if(limit_adjustment_percentage >= 100)
 			{
 				//But there is a limit to the benefit of smoothness.
-				limit_adjustment_factor = 0.97;
+				limit_adjustment_percentage = 97;
 			}
 		}
 
@@ -1450,11 +1450,11 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 		if(is_tilting && base_limit > kmh_to_speed(120) && compare_directions(direction, get_direction_degrees(ribi_t::get_dir(old_direction)) <= 45))
 		{	
 			// Tilting trains can take corners faster
-			limit_adjustment_factor += 0.30;
-			if(limit_adjustment_factor > 1)
+			limit_adjustment_percentage += 30;
+			if(limit_adjustment_percentage > 100)
 			{
 				//But cannot go faster on a corner than on the straight!
-				limit_adjustment_factor = 1;
+				limit_adjustment_percentage = 100;
 			}
 		}
 
@@ -1465,7 +1465,7 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 				//If we are here, there *must* be a curve, since we have already checked that.
 				//If this is 0, this is an error, and we will assume a 45 degree bend.
 #ifndef debug_corners
-				corner_speed_limit = base_limit * limit_adjustment_factor; 
+				corner_speed_limit = (base_limit * limit_adjustment_percentage) / 100; 
 #else
 				corner_speed_limit = base_limit;
 #endif
@@ -1473,29 +1473,29 @@ vehikel_t::calc_modified_speed_limit(const koord3d *position, ribi_t::ribi curre
 
 			case 45 :
 				
-				corner_speed_limit = base_limit * limit_adjustment_factor;
+				corner_speed_limit = (base_limit * limit_adjustment_percentage) / 100;
 				break;
 
 			case 90 :
 				// Sharp corners have a hard limit for speed irrespective of the base
 				// speed limit of the underlying way.
-				corner_speed_limit = min(base_limit * (limit_adjustment_factor * 0.5), max_speed_90);
+				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 2) / 100), max_speed_90);
 				break;
 					
 			case 135 :
 
-				corner_speed_limit = min(base_limit * (limit_adjustment_factor * 0.35), kmh_to_speed(40));
+				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 3) / 100), kmh_to_speed(40));
 				break;
 
 			case 180 :
 
-				corner_speed_limit = min(base_limit * (limit_adjustment_factor * 0.25), kmh_to_speed(30));
+				corner_speed_limit = min((base_limit * (limit_adjustment_percentage / 4) / 100), kmh_to_speed(30));
 				break;
 				
 			default :
 				//treat as 45 degree bend if something has gone wrong in the calculations.
 				//There *must* be a curve here, as the original bool flag was triggered.
-				corner_speed_limit = (uint32)(base_limit * limit_adjustment_factor);
+				corner_speed_limit = (uint32)((base_limit * limit_adjustment_percentage) / 100);
 		}
 #ifndef debug_corners
 	}

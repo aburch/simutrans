@@ -2952,7 +2952,7 @@ void convoi_t::rdwr(loadsave_t *file)
 			file->rdwr_double(tiles_since_last_odometer_increment);
 			tile_hundredths_since_last_odometer_increment = tiles_since_last_odometer_increment * 100.0;
 		}
-		else
+		else if(file->get_experimental_version() >= 10)
 		{
 			file->rdwr_longlong(tile_hundredths_since_last_odometer_increment);
 		}
@@ -3407,8 +3407,8 @@ void convoi_t::laden() //"load" (Babelfish)
 
 	if(journey_distance > 0)
 	{
-		const double journey_time = (welt->get_zeit_ms() - last_departure_time) / 4096.0;
-		const sint32 average_speed = ((double)journey_distance / journey_time) * 20.0;
+		const sint64 journey_time = ((welt->get_zeit_ms() - last_departure_time) * 100) / 4096;
+		const sint32 average_speed = (((journey_distance * 10000) / journey_time) * 20) / 100;
 		// For some odd reason, in some cases, laden() is called when the journey time is
 		// excessively low, resulting in perverse average speeds. 
 		if(average_speed <= speed_to_kmh(get_min_top_speed()))
@@ -3811,8 +3811,8 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 	if(median_distance == 0)
 	{
 		// There is no median, so scale evenly.
-		const double proportion = (double)(distance - min_distance) / (double)(max_distance - min_distance);
-		return (base_bonus * multiplier) * proportion;
+		const uint32 percentage = ((distance - min_distance) * 100) / (max_distance - min_distance);
+		return ((base_bonus * multiplier) * percentage) / 100;
 	}
 
 	// There is a median, so scale differently each side of the median.
@@ -3824,16 +3824,17 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 
 	if(distance < median_distance)
 	{
-		const double proportion = (double)(distance - min_distance) / (double)(median_distance - min_distance);
-		return base_bonus * proportion;
+		const uint32 percentage = ((distance - min_distance) * 100) / (median_distance - min_distance);
+		return (base_bonus * percentage) / 100;
 	}
 
 	// If the program gets here, it must be true that:
 	// distance > median_distance
 
-	const double proportion = (double)(distance - median_distance) / (double)(max_distance - min_distance);
-	uint16 intermediate_bonus = (base_bonus * multiplier) - base_bonus;
-	intermediate_bonus *= proportion;
+	const uint32 percentage = ((distance - median_distance) * 100) / (max_distance - min_distance);
+	uint32 intermediate_bonus = (base_bonus * multiplier) - base_bonus;
+	intermediate_bonus *= percentage;
+	intermediate_bonus /= 100;
 	return intermediate_bonus + base_bonus;
 }
 
