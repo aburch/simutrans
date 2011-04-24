@@ -3462,8 +3462,17 @@ void convoi_t::laden() //"load" (Babelfish)
 		const koord k = fpl->get_current_eintrag().pos.get_2d(); //"eintrag" = "entry" (Google)
 		const spieler_t* owner = halt->get_besitzer(); //"get owner" (Google)
 		const weg_t *w = welt->lookup(fpl->get_current_eintrag().pos)->get_weg(fpl->get_waytype());
+		bool tram_stop_public = false;
+		if(fpl->get_waytype() == tram_wt)
+		{
+			const weg_t *street = welt->lookup(fpl->get_current_eintrag().pos)->get_weg(road_wt);
+			if(street && (street->get_besitzer() == get_besitzer() || street->get_besitzer() == welt->get_spieler(1) || street->get_besitzer() == NULL))
+			{
+				tram_stop_public = true;
+			}
+		}
 		const spieler_t *sp = w ? w->get_besitzer() : NULL;
-		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1) || (w && sp == NULL) || (w && sp == welt->get_spieler(1)) )
+		if(  owner == get_besitzer()  ||  owner == welt->get_spieler(1) || (w && sp == NULL) || (w && sp == welt->get_spieler(1)) || tram_stop_public)
 		{
 			// loading/unloading ...
 			halt->request_loading( self );
