@@ -5,6 +5,7 @@
 	ADD: new factory expansion settings for factories without fields
 	ADD: command-line tool NETTOOL to administrate server
 	ADD: start as many trains as you like in a depot without waiting
+	CHG: when building artificial slopes on water, create underwater hill first
 
 
 Release of 110.0.1 (r4359 on 12-Mar-2011):

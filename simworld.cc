@@ -2188,7 +2188,8 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 {
 	int n = 0;
 	bool ok = false;
-	const sint8 old_hgt = lookup_kartenboden(pos)->get_hoehe();
+	const grund_t *gr = lookup_kartenboden(pos);
+	const sint8 old_hgt = gr->ist_wasser() ? min_hgt(pos) : gr->get_hoehe();
 	if(  old_hgt>=hgt  ) {
 		if(  can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt)  ) {
 			n = lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);

@@ -1143,6 +1143,10 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 				gr1 = welt->lookup_kartenboden(new_pos.get_2d());
 			}
 			else if(gr1->ist_wasser()  &&  (new_pos.z>welt->get_grundwasser()  ||  new_slope!=0)) {
+				// build underwater hill first
+				if (!welt->ebne_planquadrat(sp, pos.get_2d(), welt->get_grundwasser())) {
+					return "Tile not empty.";
+				}
 				gr1->obj_loesche_alle(sp);
 				welt->access(pos.get_2d())->kartenboden_setzen( new boden_t(welt,new_pos,new_slope) );
 				gr1 = welt->lookup_kartenboden(new_pos.get_2d());
