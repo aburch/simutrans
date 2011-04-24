@@ -1,18 +1,13 @@
 /*
- * runwayn für Simutrans
+ * runways für Simutrans
  *
  * Überarbeitet Januar 2001
  * von Hj. Malthaner
  */
 
-#include <stdio.h>
-
-#include "../../simdebug.h"
-#include "../../simworld.h"
-#include "../grund.h"
-#include "../../dataobj/loadsave.h"
 #include "../../bauer/wegbauer.h"
 #include "../../besch/weg_besch.h"
+#include "../../dataobj/loadsave.h"
 
 #include "runway.h"
 
@@ -31,9 +26,7 @@ runway_t::runway_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
 }
 
 
-
-void
-runway_t::rdwr(loadsave_t *file)
+void runway_t::rdwr(loadsave_t *file)
 {
 	xml_tag_t t( file, "runway_t" );
 

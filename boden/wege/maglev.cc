@@ -1,6 +1,4 @@
 #include "../../simtypes.h"
-#include "../../simdebug.h"
-#include "../grund.h"
 #include "../../bauer/wegbauer.h"
 #include "../../besch/weg_besch.h"
 
@@ -20,9 +18,7 @@ maglev_t::maglev_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
 }
 
 
-
-void
-maglev_t::rdwr(loadsave_t *file)
+void maglev_t::rdwr(loadsave_t *file)
 {
 	schiene_t::rdwr(file);
 

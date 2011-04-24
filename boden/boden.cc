@@ -4,29 +4,19 @@
  * von Hj. Malthaner
  */
 
-#include <stdio.h>
-
 #include "../simworld.h"
-#include "../simhalt.h"
-#include "../simwin.h"
 #include "../simskin.h"
-#include "../simintr.h"
 
 #include "../dings/baum.h"
 
-#include "../gui/ground_info.h"
-#include "../gui/karte.h"
 #include "../dataobj/umgebung.h"
 #include "../dataobj/loadsave.h"
 
 #include "boden.h"
-#include "wege/strasse.h"
 
 #include "../besch/grund_besch.h"
 #include "../besch/skin_besch.h"
 
-#include "../simtools.h"
-#include "../simimg.h"
 
 
 boden_t::boden_t(karte_t *welt, loadsave_t *file, koord pos ) : grund_t( welt, koord3d(pos,0) )

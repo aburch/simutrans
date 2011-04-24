@@ -1,6 +1,3 @@
-#include "../../simtypes.h"
-#include "../../simdebug.h"
-#include "../grund.h"
 #include "../../bauer/wegbauer.h"
 #include "../../besch/weg_besch.h"
 
@@ -16,9 +13,7 @@ narrowgauge_t::narrowgauge_t(karte_t *welt, loadsave_t *file) : schiene_t(welt)
 }
 
 
-
-void
-narrowgauge_t::rdwr(loadsave_t *file)
+void narrowgauge_t::rdwr(loadsave_t *file)
 {
 	schiene_t::rdwr(file);
 

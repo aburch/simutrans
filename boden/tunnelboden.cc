@@ -1,19 +1,16 @@
 #include <string.h>
 
-#include "../dataobj/translator.h"
 #include "tunnelboden.h"
 
-#include "../simimg.h"
 #include "../simworld.h"
-#include "../player/simplay.h"
 #include "../simskin.h"
 
 #include "../bauer/tunnelbauer.h"
 
 #include "../dataobj/loadsave.h"
+#include "../dataobj/translator.h"
 #include "../dings/tunnel.h"
 
-#include "../besch/grund_besch.h"
 #include "../besch/skin_besch.h"
 #include "../besch/tunnel_besch.h"
 

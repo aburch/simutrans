@@ -1,6 +1,4 @@
 #include "../../simtypes.h"
-#include "../../simdebug.h"
-#include "../grund.h"
 #include "../../bauer/wegbauer.h"
 #include "../../besch/weg_besch.h"
 

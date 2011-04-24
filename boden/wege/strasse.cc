@@ -8,12 +8,7 @@
 #include <stdio.h>
 
 #include "strasse.h"
-#include "../../simdebug.h"
-#include "../../simworld.h"
-#include "../../simimg.h"
-#include "../grund.h"
 #include "../../dataobj/loadsave.h"
-#include "../../utils/cbuffer_t.h"
 #include "../../besch/weg_besch.h"
 #include "../../bauer/wegbauer.h"
 #include "../../dataobj/translator.h"
