@@ -359,7 +359,7 @@ fabrik_t::~fabrik_t()
 		city->remove_city_factory(this);
 	}
 
-	welt->decrease_actual_industry_density(1.0 / (double)get_besch()->get_gewichtung());
+	welt->decrease_actual_industry_density(1 / get_besch()->get_gewichtung() * 100);
 
 	//Disconnect this factory from all chains.
 	//@author: jamespetts
@@ -839,7 +839,7 @@ DBG_DEBUG("fabrik_t::rdwr()","loading factory '%s'",s);
 	}
 	
 	// Necessary to ensure that the industry density is correct after re-loading a game.
-	welt->increase_actual_industry_density(1.0 / (double)besch->get_gewichtung());
+	welt->increase_actual_industry_density(1 / besch->get_gewichtung() * 100);
 }
 
 
@@ -1097,7 +1097,7 @@ void fabrik_t::step(long delta_t)
 		if(  currently_producing || besch->get_produkte() == 0  ) {
 			// Pure consumers (i.e., those that do not produce anything) should require full power at all times
 			// requires full power even if runs out of raw material next cycle
-			power_demand = PRODUCTION_DELTA_T * (uint32)( (float)prodbase * besch->get_electricity_proportion() );
+			power_demand = PRODUCTION_DELTA_T * (uint32)(prodbase * besch->get_electricity_proportion()) / 100;
 		}
 
 		// not a power station => then consume all electricity ...
@@ -1406,9 +1406,9 @@ void fabrik_t::neuer_monat()
 		
 		else
 		{
-			float proportion = (float)difference / (float)max_difference;
-			proportion *= 2.5F; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100.0F - large change to take into account frequency of checking)
-			const float chance = (float)(simrand(10000, "void fabrik_t::neuer_monat()") / 100.0F);
+			uint32 proportion = (difference * 100) / max_difference;
+			proportion *= 25; //Set to percentage value, but take into account fact will be frequently checked (would otherwise be * 100.0F - large change to take into account frequency of checking)
+			const uint32 chance = (simrand(10000000, "void fabrik_t::neuer_monat()"));
 			if(chance <= proportion)
 			{
 				closedown = true;
@@ -1427,8 +1427,8 @@ void fabrik_t::neuer_monat()
 			{
 				// This factory has some upgrades: consider upgrading.
 				minivec_tpl<const fabrik_besch_t*> upgrade_list(upgrades_count);
-				const double max_density = welt->get_target_industry_density() * 1.5;
-				const double adjusted_density = welt->get_actual_industry_density() - (1 / besch->get_gewichtung());
+				const uint32 max_density = (welt->get_target_industry_density() * 150) / 100;
+				const uint32 adjusted_density = welt->get_actual_industry_density() - ((1 / besch->get_gewichtung()) * 100);
 				for(uint16 i = 0; i < upgrades_count; i ++)
 				{
 					// Check whether any upgrades are suitable.
@@ -1449,7 +1449,7 @@ void fabrik_t::neuer_monat()
 						fab->get_produkte() ==  besch->get_produkte() &&
 						fab->get_haus()->get_intro_year_month() <= welt->get_timeline_year_month() &&
 						fab->get_haus()->get_retire_year_month() >= welt->get_timeline_year_month() &&
-						adjusted_density < (max_density + (1 / fab->get_gewichtung())))
+						adjusted_density < (max_density + ((1 / fab->get_gewichtung()) * 100)))
 					{
 						upgrade_list.append_unique(fab);
 					}
@@ -1458,20 +1458,20 @@ void fabrik_t::neuer_monat()
 				const uint8 list_count = upgrade_list.get_count();
 				if(list_count > 0)
 				{
-					double total_density = 0;
+					uint32 total_density = 0;
 					ITERATE(upgrade_list, j)
 					{
-						total_density += (1 / upgrade_list[j]->get_gewichtung());
+						total_density += (1 / upgrade_list[j]->get_gewichtung()) * 100;
 					}
-					const double average_density = total_density / list_count;
-					const double probability_floating = 1 / ((1 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count());
-					const uint32 chance = simrand(probability_floating, "void fabrik_t::neuer_monat()");
+					const uint32 average_density = total_density / list_count;
+					const uint32 probability = 1 / ((100 - ((adjusted_density + average_density) / max_density)) * upgrade_list.get_count()) / 100;
+					const uint32 chance = simrand(probability, "void fabrik_t::neuer_monat()");
 					if(chance < list_count)
 					{
 						// All the conditions are met: upgrade.
 						const fabrik_besch_t* new_type = upgrade_list[chance];
-						float proportion = new_type->get_field_group() ? (float)new_type->get_field_group()->get_max_fields() / (float)besch->get_field_group()->get_max_fields() : 0.0;
-						const uint16 adjusted_number_of_fields = proportion ? fields.get_count() * proportion : 0;
+						uint32 percentage = new_type->get_field_group() ? (new_type->get_field_group()->get_max_fields() * 100) / besch->get_field_group()->get_max_fields() : 0;
+						const uint16 adjusted_number_of_fields = percentage ? (fields.get_count() * percentage) / 100 : 0;
 						delete_all_fields();
 						const char* old_name = get_name();
 						besch = new_type;
@@ -1661,8 +1661,8 @@ void fabrik_t::info(cbuffer_t& buf) const
 		buf.append(translator::translate("Electrical demand: "));
 	}
 
-	const float electricity_proportion = get_besch()->is_electricity_producer() ? 4 : get_besch()->get_electricity_proportion();
-	const uint32 p = (prodbase * PRODUCTION_DELTA_T) * electricity_proportion;
+	const uint16 electricity_proportion = get_besch()->is_electricity_producer() ? 400 : get_besch()->get_electricity_proportion();
+	const uint32 p = ((prodbase * PRODUCTION_DELTA_T) * electricity_proportion) / 100;
 	buf.append(p>>POWER_TO_MW);
 	buf.append(" MW");
 

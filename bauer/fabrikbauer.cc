@@ -985,7 +985,7 @@ next_ware_check:
 		}
 		else 
 		{
-			total_electric_demand += fab->get_base_production() * fab->get_besch()->get_electricity_proportion();
+			total_electric_demand += (fab->get_base_production() * fab->get_besch()->get_electricity_proportion()) / 100;
 		}
 	}
 
@@ -1009,7 +1009,7 @@ next_ware_check:
 				if(do_not_add_beyond_target_density && !fab->is_electricity_producer())
 				{
 					//Make sure that industries are not added beyond target density.
-					if((double)(1.0 / (double)fab->get_gewichtung()) > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
+					if((1 / fab->get_gewichtung() * 100) > (welt->get_target_industry_density() - welt->get_actual_industry_density()))
 					{
 						continue;
 					}

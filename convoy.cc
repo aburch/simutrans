@@ -185,7 +185,7 @@ double convoy_t::calc_speed_holding_force(double speed /* in m/s */, double Frs 
 #define DT_SLICE_SECONDS 2
 #define DT_SLICE (DT_TIME_FACTOR * DT_SLICE_SECONDS)
 
-void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 	double dx = 0;
 	if (adverse.max_speed < KMH_SPEED_UNLIMITED)
@@ -274,7 +274,7 @@ void convoy_t::calc_move(long delta_t, float simtime_factor, const weight_summar
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			long dt;
-			double df = simtime_factor * (f - sgn(v) * adverse.cf * v * v);
+			double df = (simtime_factor * (f - sgn(v) * adverse.cf * v * v)) / 100.0;
 			if (delta_t >= DT_SLICE && (sint32)abs(df) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
 				// This part is important for acceleration/deceleration phases only.

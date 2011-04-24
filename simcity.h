@@ -139,7 +139,7 @@ public:
 	static bool cityrules_init(const std::string &objpathname);
 	static void privatecar_init(const std::string &objfilename);
 	sint16 get_private_car_ownership(sint32 monthyear);
-	float get_electricity_consumption(sint32 monthyear) const;
+	uint16 get_electricity_consumption(sint32 monthyear) const;
 	static void electricity_consumption_init(const std::string &objfilename);
 
 	/**

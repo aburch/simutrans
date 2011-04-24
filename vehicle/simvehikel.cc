@@ -3368,16 +3368,16 @@ bool waggon_t::ist_weg_frei(int & restart_speed)
 		return ok;
 	}
 
-	// Braking rate assumed at 62.5, as only rail vehicles use the block reserver.
+	// Braking rate assumed at 63, as only rail vehicles use the block reserver.
 	// TODO: Set this from .dat files (or even physics computations)
-	const double braking_rate = 62.5;
+	const uint16 braking_rate = 63;
 
-	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
+	const uint16 distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
 
-	const double speed = (double)speed_to_kmh(cnv->get_akt_speed());
+	const sint32 speed = speed_to_kmh(cnv->get_akt_speed());
 
-	const double km_check = speed / braking_rate;
-	uint16 tiles_check_for_signal = km_check / (double)distance_per_tile;
+	const sint32 km_check = speed / braking_rate;
+	uint16 tiles_check_for_signal = (km_check * 100) / distance_per_tile;
 	
 	if(next_block <= route_index + tiles_check_for_signal) 
 	{ 

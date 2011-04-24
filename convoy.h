@@ -329,7 +329,7 @@ public:
 	 * @param akt_speed is the current speed and returns the new speed after delta_t has gone in simutrans speed.
 	 * @param sp_soll is the number of simutrans steps still to go and returns the new number of steps to go.
 	 */
-	void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
+	void calc_move(long delta_t, uint16 simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll);
 	virtual ~convoy_t(){}
 };
 
@@ -496,7 +496,7 @@ public:
 		return convoy_t::calc_max_starting_weight(sin_alpha);
 	}
 
-	void calc_move(long delta_t, float simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	void calc_move(long delta_t, uint16 simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_vehicle_summary();
 		validate_adverse_summary();
@@ -587,7 +587,7 @@ public:
 		return weight;
 	}
 
-	inline void calc_move(long delta_t, float simtime_factor, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
+	inline void calc_move(long delta_t, uint16 simtime_factor, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 	{
 		validate_weight_summary();
 		convoy_t::calc_move(delta_t, simtime_factor, weight, akt_speed_soll, akt_speed, sp_soll);

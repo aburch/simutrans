@@ -218,7 +218,7 @@ public:
 	};
 };
 
-static float default_electricity_consumption = 1.0F;
+static uint16 default_electricity_consumption = 100;
 
 static vector_tpl<electric_consumption_record_t> electricity_consumption[1];
 
@@ -296,8 +296,8 @@ void stadt_t::electricity_consumption_rdwr(loadsave_t *file)
 }
 
 
-// Returns a *float* which represents a fraction -- so, 1.0F means "100%".
-float stadt_t::get_electricity_consumption(sint32 monthyear) const
+// Returns a percentage
+uint16 stadt_t::get_electricity_consumption(sint32 monthyear) const
 {
 
 	if(monthyear == 0) 
@@ -316,19 +316,19 @@ float stadt_t::get_electricity_consumption(sint32 monthyear) const
 		if(  i==electricity_consumption->get_count()  ) 
 		{
 			// past final year
-			return electricity_consumption[0][i-1].consumption_percent / 100.0F;
+			return electricity_consumption[0][i-1].consumption_percent;
 		}
 		else if(i==0) 
 		{
 			// before first year
-			return electricity_consumption[0][0].consumption_percent / 100.0F;
+			return electricity_consumption[0][0].consumption_percent;
 		}
 		else 
 		{
 			// interpolate linear
 			const sint32 delta_consumption_percent = electricity_consumption[0][i].consumption_percent - electricity_consumption[0][i-1].consumption_percent;
 			const sint64 delta_years = electricity_consumption[0][i].year - electricity_consumption[0][i-1].year;
-			return (((float)(delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent) / 100.0F;
+			return (((delta_consumption_percent*(monthyear-electricity_consumption[0][i-1].year)) / delta_years ) + electricity_consumption[0][i-1].consumption_percent);
 		}
 	}
 	else
@@ -1438,25 +1438,25 @@ void stadt_t::calc_internal_passengers()
 	//const uint32 median_town_size = welt->get_einstellungen()->get_mittlere_einwohnerzahl();
 	const uint32 capital_threshold = welt->get_einstellungen()->get_capital_threshold_size();
 	const uint32 city_threshold = welt->get_einstellungen()->get_city_threshold_size();
-	float internal_passenger_multiplier;
+	uint16 internal_passenger_percentage;
 	//if(city_history_month[0][HIST_CITICENS] >= (median_town_size * 2.5F))
 	if(city_history_month[0][HIST_CITICENS] >= capital_threshold)
 	{
-		internal_passenger_multiplier = 0.85F;
+		internal_passenger_percentage = 85;
 	}
 	//else if(city_history_month[0][HIST_CITICENS] <= median_town_size >> 1)
 	else if(city_history_month[0][HIST_CITICENS] <= city_threshold)
 	{
-		internal_passenger_multiplier = 0.33F;
+		internal_passenger_percentage = 33;
 	}
 	else
 	{
 		//float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)(median_town_size / 2.0F)) / (float)(median_town_size * 2.5F);
-		float proportion = ((float)city_history_month[0][HIST_CITICENS] - (float)city_threshold) / (float)capital_threshold;
-		internal_passenger_multiplier = (proportion * 0.52F) + 0.33F;
+		uint16 proportion = ((city_history_month[0][HIST_CITICENS] - city_threshold) * 100) / capital_threshold;
+		internal_passenger_percentage = (((proportion * 52) /100) + 33) / 100;
 	}
 
-	adjusted_passenger_routing_local_chance = (float)welt->get_einstellungen()->get_passenger_routing_local_chance() * internal_passenger_multiplier;
+	adjusted_passenger_routing_local_chance = (welt->get_einstellungen()->get_passenger_routing_local_chance() * internal_passenger_percentage) / 100;
 }
 
 
@@ -2174,18 +2174,18 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 	// Anything > 4, very congested.
 	// @author: jamespetts
 	
-	const float city_size = (float)(ur.x - lo.x) * (ur.y - lo.y);
-	const float cars_per_tile = (float)city_history_month[1][HIST_CITYCARS] / city_size;
-	const float population_density = (float)city_history_month[1][HIST_CITICENS] / city_size;
-	if(cars_per_tile <= 0.4F)
+	const uint16 city_size = (ur.x - lo.x) * (ur.y - lo.y);
+	const uint16 cars_per_tile_thousandths = (city_history_month[1][HIST_CITYCARS] * 1000) / city_size;
+	const uint16 population_density = (city_history_month[1][HIST_CITICENS] * 10) / city_size;
+	if(cars_per_tile_thousandths <= 400)
 	{
 		city_history_month[0][HIST_CONGESTION] = 0;
 	}
 	else
 	{
 		const uint8 congestion_density_factor = welt->get_einstellungen()->get_congestion_density_factor();
-		const float proportion = congestion_density_factor > 0 ? (((cars_per_tile - 0.4F) / 4.5F) * population_density) / congestion_density_factor : (cars_per_tile - 0.4F) / 3;
-		city_history_month[0][HIST_CONGESTION] = proportion * 100;
+		const uint16 percentage = congestion_density_factor > 0 ? ((((cars_per_tile_thousandths - 400) / 45) * population_density) / congestion_density_factor) / 10 : (cars_per_tile_thousandths - 400) / 30;
+		city_history_month[0][HIST_CONGESTION] = percentage;
 	}
 
 	city_history_month[0][HIST_CAR_OWNERSHIP] = get_private_car_ownership(welt->get_timeline_year_month());
@@ -2225,7 +2225,7 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 		const sint32 factor = city_history_month[1][HIST_CITYCARS] - incoming_private_cars - (sint32)current_cars.get_count();
 		
 		//Manual assignment of traffic level modifiers, since I could not find a suitable mathematical formula.
-		float traffic_level;
+		uint32 traffic_level;
 		switch(welt->get_einstellungen()->get_verkehr_level())
 		{
 		case 0:
@@ -2233,71 +2233,71 @@ void stadt_t::neuer_monat(bool check) //"New month" (Google)
 			break;
 
 		case 1:
-			traffic_level = 0.005F;
+			traffic_level = 5;
 			break;
 			
 			case 2:
-			traffic_level = 0.01F;
+			traffic_level = 10;
 			break;
 
 			case 3:
-			traffic_level = 0.02F;
+			traffic_level = 20;
 			break;
 
 		case 4:
-			traffic_level = 0.025F;
+			traffic_level = 25;
 			break;
 
 		case 5:
-			traffic_level = 0.05F;
+			traffic_level = 50;
 			break;
 
 		case 6:
-			traffic_level = 0.1F;
+			traffic_level = 100;
 			break;
 
 		case 7:
-			traffic_level = 0.2F;
+			traffic_level = 200;
 			break;
 
 		case 8:
-			traffic_level = 0.25F;
+			traffic_level = 250;
 			break;
 
 		case 9:
-			traffic_level = 0.33F;
+			traffic_level = 333;
 			break;
 
 		case 10:
-			traffic_level = 0.5F;
+			traffic_level = 500;
 			break;
 
 		case 11:
-			traffic_level = 0.6125F; // Average car occupancy of 1.6 = 0.6125.
+			traffic_level = 613; // Average car occupancy of 1.6 = 0.6125.
 			break;
 
 		case 12:
-			traffic_level = 0.67F; 
+			traffic_level = 670; 
 			break;
 
 		case 13:
-			traffic_level = 0.75F;
+			traffic_level = 750;
 			break;
 
 		case 14:
-			traffic_level = 0.85F;
+			traffic_level = 850;
 			break;
 
 		case 15:
-			traffic_level = 0.9F;
+			traffic_level = 900;
 			break;
 
 		case 16:
 		default:
-			traffic_level = 1;
+			traffic_level = 1000;
 		};
 		
-		number_of_cars = factor * traffic_level;
+		number_of_cars = (factor * traffic_level) / 1000;
 		incoming_private_cars = 0;
 #else
 		uint16 number_of_cars = ((city_history_month[1][HIST_CITYCARS] * welt->get_einstellungen()->get_verkehr_level()) / 16) / 64;
@@ -2384,7 +2384,7 @@ void stadt_t::calc_growth()
 
 	const uint8 electricity_multiplier = 20;
 	// const uint8 electricity_multiplier = welt->get_einstellungen()->get_electricity_multiplier();
-	const uint8 electricity_proportion = get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier;
+	const uint8 electricity_proportion = (get_electricity_consumption(welt->get_timeline_year_month()) * electricity_multiplier / 100);
 	const uint8 mail_proportion = 100 - (welt->get_einstellungen()->get_passenger_multiplier() + electricity_proportion + welt->get_einstellungen()->get_goods_multiplier());
 
 	const sint32 pas = ((city_history_month[0][HIST_PAS_TRANSPORTED] + (city_history_month[0][HIST_CITYCARS] - outgoing_private_cars)) * (welt->get_einstellungen()->get_passenger_multiplier()<<6)) / (city_history_month[0][HIST_PAS_GENERATED] + 1);
@@ -2407,8 +2407,8 @@ void stadt_t::calc_growth()
 	//Congestion adversely impacts on growth. At 100% congestion, there will be no growth. 
 	if(city_history_month[0][HIST_CONGESTION] > 0)
 	{
-		const float congestion_factor = (city_history_month[0][HIST_CONGESTION] / 100.0F);
-		growth_factor -= (congestion_factor * growth_factor);
+		const uint32 congestion_factor = city_history_month[0][HIST_CONGESTION];
+		growth_factor -= (congestion_factor * growth_factor) / 100;
 	}
 	
 	wachstum += growth_factor;
@@ -2668,9 +2668,9 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 		speed_sum += min(top_speed, vehicle_speed_average);
 		count += road->is_diagonal() ? 7 : 10; //Use precalculated numbers to avoid division here.
 	}
-	const sint32 speed_average = (float)(speed_sum / ((float)count / 10.0F))  / 1.3F;
-	const float journey_distance_km = (float)private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile();
-	const uint16 journey_time = 600 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *600, not *60.
+	const sint32 speed_average = ((speed_sum * 100) / count) / 13;
+	const uint32 journey_distance_km = (private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile());
+	const uint16 journey_time = 6 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *6 not *0.6 (note: the line above does not divide by 100 as it otherwise would).
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
@@ -2993,7 +2993,6 @@ void stadt_t::step_passagiere()
 				INT_CHECK("simcity.cc 2993");
 
 				if(has_private_car) car_minutes = 300;
-				// THIS IS SUSPECT CODE FOR DIFFERENT COMPILER DESYNCS.
 				//{
 				//	const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
 				//	uint16 time_per_tile = 65535;
@@ -3049,29 +3048,12 @@ void stadt_t::step_passagiere()
 						{
 							// The basic preference for using a private car if available.
 							uint16 car_preference = welt->get_einstellungen()->get_base_car_preference_percent();
-						
-							//First, adjust for distance. For very long-distance journies, cars are less popular.
-						
-							// THIS CODE SEEMS CLEAR FOR DIFFERENT COMPILER DESYNCS
-							/*if(distance > (midrange_passengers_max_distance * 3))
-							{
-								if(distance >= longdistance_passengers_max_distance)
-								{
-									car_preference /= 10;
-								}
-								else
-								{
-									const float proportion = (float) (distance - (midrange_passengers_max_distance * 3.0F)) / longdistance_passengers_max_distance;
-									car_preference /= (10.0F * proportion);
-								}
-							}*/
-						
-							// Secondly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
+										
+							// Firstly, congestion. Drivers will turn to public transport if the origin or destination towns are congested.
 
 							// This percentage of drivers will prefer to use the car however congested that it is.
 							const uint8 always_prefer_car_percent = welt->get_einstellungen()->get_always_prefer_car_percent();
 
-							// THIS IS SUSPECT CODE FOR DIFFERENT COMPILER DESYNCS.
 							//Average congestion of origin and destination towns, and, at the same time, reduce factor.
 							uint16 congestion_total;
 							if(destinations[current_destination].type == 1 && destinations[current_destination].object.town != NULL)
@@ -3085,11 +3067,11 @@ void stadt_t::step_passagiere()
 							}
 							car_preference = ((car_preference - congestion_total) > always_prefer_car_percent) ? car_preference - congestion_total : always_prefer_car_percent;
 
-							// Thirdly adjust for service quality of the public transport.
+							// Secondly, adjust for service quality of the public transport.
 							// Compare best journey speed on public transport with the 
 							// likely private car journey time.
 
-							//INT_CHECK( "simcity 3004" );
+							INT_CHECK( "simcity 3004" );
 
 							// Journey times of private transport as a percentage of player journey times.
 							uint32 car_journey_time_percent = (100 * car_minutes) / best_journey_time;
@@ -3101,7 +3083,7 @@ void stadt_t::step_passagiere()
 						
 							// If identical, no adjustment.
 
-							//Fourthly, the number of unhappy passengers at the start station compared with the number of happy passengers.
+							//Thirdly, the number of unhappy passengers at the start station compared with the number of happy passengers.
 							const uint16 unhappy_percentage = start_halt->get_unhappy_percentage(0);
 						
 							if(unhappy_percentage > 80)
@@ -4857,10 +4839,12 @@ vector_tpl<koord>* stadt_t::random_place(const karte_t* wl, const vector_tpl<sin
 uint32 stadt_t::get_power_demand() const
 {
 	// The 'magic number' in here is the actual amount of electricity consumed per citizen per month at '100%' in electricity.tab
-	float electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month()); 
+	//uint16 electricity_per_citizen = 0.02F * get_electricity_consumption(welt->get_timeline_year_month(); 
+	uint16 electricity_per_citizen = (get_electricity_consumption(welt->get_timeline_year_month()) * 100) / 5; 
 	// The weird order of operations is designed for greater precision.
 	// Really, POWER_TO_MW should come last.
-	return (city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen;
+
+	return ((city_history_month[0][HIST_CITICENS] << POWER_TO_MW) * electricity_per_citizen) / 100000;
 }
 
 void stadt_t::add_substation(senke_t* substation)

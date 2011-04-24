@@ -296,7 +296,7 @@ einstellungen_t::einstellungen_t() :
 	max_bonus_min_distance = 256;
 	median_bonus_distance = 0;
 	max_bonus_multiplier_percent = 300;
-	distance_per_tile = 0.25F;
+	distance_per_tile = 25;
 	tolerable_comfort_short = 15;
 	tolerable_comfort_median_short = 60;
 	tolerable_comfort_median_median = 100;
@@ -869,22 +869,22 @@ void einstellungen_t::rdwr(loadsave_t *file)
 			{
 				file->rdwr_short(median_bonus_distance);
 				file->rdwr_short(max_bonus_multiplier_percent);
-				uint16 distance_per_tile_integer = distance_per_tile * 100.0F;
-				file->rdwr_short(distance_per_tile_integer);
+				file->rdwr_short(distance_per_tile);
 				if(file->get_experimental_version() < 5 && file->get_experimental_version() >= 1)
 				{
 					// In earlier versions, the default was set to a higher level. This
 					// is a problem when the new journey time tolerance features is used.
 					if(file->is_loading())
 					{
-						distance_per_tile_integer *= 0.8F;
+						distance_per_tile *= 100;
+						distance_per_tile /= 80;
 					}
 					else
 					{
-						distance_per_tile_integer /= 0.8F;
+						distance_per_tile *= 125;
+						distance_per_tile /= 100;
 					}
 				}		
-				distance_per_tile = distance_per_tile_integer / 100.0F;
 				
 				file->rdwr_byte(tolerable_comfort_short);
 				file->rdwr_byte(tolerable_comfort_median_short);
@@ -919,17 +919,25 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 			if(file->get_experimental_version() < 6)
 			{
-				min_bonus_max_distance /= distance_per_tile;
-				max_bonus_min_distance /= distance_per_tile;
+				min_bonus_max_distance = ((uint32)min_bonus_max_distance * 100) / distance_per_tile;
+				max_bonus_min_distance = ((uint32)max_bonus_min_distance * 100) / distance_per_tile;
 				// Scale the costs to match the scale factor.
-				cst_multiply_dock *= distance_per_tile;
-				cst_multiply_station *= distance_per_tile;
-				cst_multiply_roadstop *= distance_per_tile;
-				cst_multiply_airterminal *= distance_per_tile;
-				cst_multiply_post *= distance_per_tile;
-				maint_building *= distance_per_tile;
-				cst_buy_land *= distance_per_tile;
-				cst_remove_tree *= distance_per_tile;
+				cst_multiply_dock *= 100;
+				cst_multiply_dock /= distance_per_tile;
+				cst_multiply_station *= 100;
+				cst_multiply_station /= distance_per_tile;
+				cst_multiply_roadstop *= 100;
+				cst_multiply_roadstop /= distance_per_tile;
+				cst_multiply_airterminal *= 100;
+				cst_multiply_airterminal /=	distance_per_tile;
+				cst_multiply_post *= 100;
+				cst_multiply_post /= distance_per_tile;
+				maint_building *= 100;
+				maint_building /= distance_per_tile;
+				cst_buy_land *= 100;
+				maint_building /= distance_per_tile;
+				cst_remove_tree *= 100;
+				cst_remove_tree /= distance_per_tile;
 			}
 
 			file->rdwr_short(obsolete_running_cost_increase_percent);
@@ -1182,8 +1190,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// This needs to be first as other settings are based on this.
 	// @author: jamespetts
-	uint16 distance_per_tile_integer = distance_per_tile * 100;
-	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile_integer) / 100.0F;
+	distance_per_tile = contents.get_int("distance_per_tile", distance_per_tile);
 
 	umgebung_t::water_animation = contents.get_int("water_animation_ms", umgebung_t::water_animation);
 	umgebung_t::ground_object_probability = contents.get_int("random_grounds_probability", umgebung_t::ground_object_probability);
@@ -1456,6 +1463,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	maint_building = contents.get_int("maintenance_building", maint_building);
 	maint_building *= distance_per_tile;
+	maint_building /= 100;
 
 	numbered_stations = contents.get_int("numbered_stations", numbered_stations );
 	station_coverage_size = contents.get_int("station_coverage", station_coverage_size );
@@ -1492,11 +1500,11 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	beginner_mode = contents.get_int("first_beginner", beginner_mode ); /* start in beginner mode */
 
 	/* now the cost section */
-	cst_multiply_dock = (contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_station = (contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_roadstop = (contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_airterminal = (contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_post = (contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100) * distance_per_tile;
+	cst_multiply_dock = ((contents.get_int64("cost_multiply_dock", cst_multiply_dock/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_station = ((contents.get_int64("cost_multiply_station", cst_multiply_station/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_roadstop = ((contents.get_int64("cost_multiply_roadstop", cst_multiply_roadstop/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_airterminal = ((contents.get_int64("cost_multiply_airterminal", cst_multiply_airterminal/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_post = ((contents.get_int64("cost_multiply_post", cst_multiply_post/(-100) ) * -100) * distance_per_tile) / 100;
 	cst_multiply_headquarter = contents.get_int64("cost_multiply_headquarter", cst_multiply_headquarter/(-100) ) * -100;
 	cst_depot_air = contents.get_int64("cost_depot_air", cst_depot_air/(-100) ) * -100;
 	cst_depot_rail = contents.get_int64("cost_depot_rail", cst_depot_rail/(-100) ) * -100;
@@ -1504,13 +1512,13 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	cst_depot_ship = contents.get_int64("cost_depot_ship", cst_depot_ship/(-100) ) * -100;
 
 	// alter landscape
-	cst_buy_land = (contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile;
+	cst_buy_land = ((contents.get_int64("cost_buy_land", cst_buy_land/(-100) ) * -100) * distance_per_tile) / 100;
 	cst_alter_land = contents.get_int64("cost_alter_land", cst_alter_land/(-100) ) * -100;
 	cst_set_slope = contents.get_int64("cost_set_slope", cst_set_slope/(-100) ) * -100;
 	cst_found_city = contents.get_int64("cost_found_city", cst_found_city/(-100) ) * -100;
 	cst_multiply_found_industry = contents.get_int64("cost_multiply_found_industry", cst_multiply_found_industry/(-100) ) * -100;
-	cst_remove_tree = (contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile;
-	cst_multiply_remove_haus = (contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile;
+	cst_remove_tree = ((contents.get_int64("cost_remove_tree", cst_remove_tree/(-100) ) * -100) * distance_per_tile) / 100;
+	cst_multiply_remove_haus = ((contents.get_int64("cost_multiply_remove_haus", cst_multiply_remove_haus/(-100) ) * -100) * distance_per_tile) / 100;
 	cst_multiply_remove_field = contents.get_int64("cost_multiply_remove_field", cst_multiply_remove_field/(-100) ) * -100;
 	// powerlines
 	cst_transformer = contents.get_int64("cost_transformer", cst_transformer/(-100) ) * -100;
@@ -1528,9 +1536,9 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Revenue calibration settings
 	// @author: jamespetts
-	min_bonus_max_distance = contents.get_int("min_bonus_max_distance", min_bonus_max_distance) / distance_per_tile;
-	max_bonus_min_distance = contents.get_int("max_bonus_min_distance", max_bonus_min_distance) / distance_per_tile;
-	median_bonus_distance = contents.get_int("median_bonus_distance", median_bonus_distance) / distance_per_tile;
+	min_bonus_max_distance = (contents.get_int("min_bonus_max_distance", min_bonus_max_distance) * 100) / distance_per_tile;
+	max_bonus_min_distance = (contents.get_int("max_bonus_min_distance", max_bonus_min_distance) * 100) / distance_per_tile;
+	median_bonus_distance = (contents.get_int("median_bonus_distance", median_bonus_distance) * 100) / distance_per_tile;
 	max_bonus_multiplier_percent = contents.get_int("max_bonus_multiplier_percent", max_bonus_multiplier_percent);
 	tolerable_comfort_short = contents.get_int("tolerable_comfort_short", tolerable_comfort_short);
 	tolerable_comfort_long = contents.get_int("tolerable_comfort_long", tolerable_comfort_long);
@@ -1567,12 +1575,12 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	obsolete_running_cost_increase_phase_years = contents.get_int("obsolete_running_cost_increase_phase_years", obsolete_running_cost_increase_phase_years);
 
 	// Passenger destination ranges
-	local_passengers_min_distance = contents.get_int("local_passengers_min_distance", local_passengers_min_distance) / distance_per_tile;
-	local_passengers_max_distance = contents.get_int("local_passengers_max_distance", local_passengers_max_distance) / distance_per_tile;
-	midrange_passengers_min_distance = contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) / distance_per_tile;
-	midrange_passengers_max_distance = contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance) / distance_per_tile;
-	longdistance_passengers_min_distance = contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) / distance_per_tile;
-	longdistance_passengers_max_distance = contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) / distance_per_tile;
+	local_passengers_min_distance = (contents.get_int("local_passengers_min_distance", local_passengers_min_distance) * 100) / distance_per_tile;
+	local_passengers_max_distance = (contents.get_int("local_passengers_max_distance", local_passengers_max_distance) * 100) / distance_per_tile;
+	midrange_passengers_min_distance = (contents.get_int("midrange_passengers_min_distance", midrange_passengers_min_distance) * 100) / distance_per_tile;
+	midrange_passengers_max_distance = (contents.get_int("midrange_passengers_max_distance", midrange_passengers_max_distance) * 100) / distance_per_tile;
+	longdistance_passengers_min_distance = (contents.get_int("longdistance_passengers_min_distance", longdistance_passengers_min_distance) * 100) / distance_per_tile;
+	longdistance_passengers_max_distance = (contents.get_int("longdistance_passengers_max_distance", longdistance_passengers_max_distance) * 100) / distance_per_tile;
 
 	// Passenger routing settings
 	passenger_routing_packet_size = contents.get_int("passenger_routing_packet_size", passenger_routing_packet_size);
@@ -1704,8 +1712,8 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 	const uint16 max_longdistance_tolerance_minutes = contents.get_int("max_longdistance_tolerance", (max_longdistance_tolerance / 10));
 	max_longdistance_tolerance = max_longdistance_tolerance_minutes * 10;
 
-	const float max_walking_distance_km = (contents.get_int("max_walking_distance_km_tenth", (max_walking_distance * (distance_per_tile * 10))) / 10.0);
-	max_walking_distance = max_walking_distance_km / distance_per_tile;
+	const uint16 max_walking_distance_km = contents.get_int("max_walking_distance_km_tenth", ((max_walking_distance * distance_per_tile) / 10));
+	max_walking_distance = (max_walking_distance_km * 10) / distance_per_tile;
 
 	quick_city_growth = (bool)(contents.get_int("quick_city_growth", quick_city_growth));
 

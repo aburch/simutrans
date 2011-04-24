@@ -141,7 +141,7 @@ void settings_stats_t::set_cell_component(gui_component_table_t &tbl, gui_kompon
 void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 {
 	INIT_INIT;
-	INIT_NUM( "distance_per_tile_percent", sets->get_distance_per_tile_percent(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
+	INIT_NUM( "distance_per_tile", sets->get_distance_per_tile(), 1, 1000, gui_numberinput_t::AUTOLINEAR, false );
 	SEPERATOR;
 	INIT_NUM( "min_bonus_max_distance", sets->get_min_bonus_max_distance(), 0, 100, gui_numberinput_t::AUTOLINEAR, false );
 	INIT_NUM( "median_bonus_distance", sets->get_median_bonus_distance(), 10, 1000, gui_numberinput_t::AUTOLINEAR, false );
@@ -204,7 +204,7 @@ void settings_experimental_general_stats_t::init( einstellungen_t *sets )
 void settings_experimental_general_stats_t::read(einstellungen_t *sets)
 {
 	READ_INIT;
-	READ_NUM( sets->set_distance_per_tile_percent );
+	READ_NUM( sets->set_distance_per_tile );
 
 	READ_NUM( sets->set_min_bonus_max_distance );
 	READ_NUM( sets->set_median_bonus_distance );

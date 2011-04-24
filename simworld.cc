@@ -1427,7 +1427,7 @@ DBG_DEBUG("karte_t::init()","built timeline");
 
 	// Set the actual industry density and industry density proportion
 	actual_industry_density = 0;
-	double weight;
+	uint32 weight;
 	ITERATE(fab_list, i)
 	{
 		const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
@@ -1436,11 +1436,11 @@ DBG_DEBUG("karte_t::init()","built timeline");
 			// Power stations are excluded from the target weight:
 			// a different system is used for them.
 			weight = factory_type->get_gewichtung();
-			actual_industry_density += (1.0 / weight);
+			actual_industry_density += (1 / weight) * 100;
 		}
 	}
 	// The population is not counted at this point, so cannot set this here.
-	industry_density_proportion = 0.0;
+	industry_density_proportion = 0;
 }
 
 
@@ -1769,7 +1769,7 @@ karte_t::~karte_t()
 
 void karte_t::set_scale()
 {
-	const float scale_factor = get_einstellungen()->get_distance_per_tile();
+	const uint16 scale_factor = get_einstellungen()->get_distance_per_tile();
 	
 	// Vehicles
 	for(int i = road_wt; i <= air_wt; i++) 
@@ -3135,7 +3135,7 @@ void karte_t::neuer_monat()
 			}
 			else 
 			{
-				total_electric_demand += fab->get_base_production() * fab->get_besch()->get_electricity_proportion();
+				total_electric_demand += (fab->get_base_production() * fab->get_besch()->get_electricity_proportion()) / 100;
 			}
 			number_of_factories = fab_list.get_count();
 		}
@@ -3156,9 +3156,9 @@ void karte_t::neuer_monat()
 	if(actual_industry_density < target_industry_density)
 	{
 		// Only add one per month, and randomise.
-		const double proportion = ((target_industry_density - actual_industry_density) / target_industry_density) * 100;
-		const uint8 chance = simrand(100, "void karte_t::neuer_monat()");
-		if(chance < proportion)
+		const uint32 percentage = ((target_industry_density - actual_industry_density) / target_industry_density) * 100;
+		const uint8 chance = simrand(10000, "void karte_t::neuer_monat()");
+		if(chance < percentage)
 		{
 			fabrikbauer_t::increase_industry_density(this, true, true);
 		}
@@ -4523,9 +4523,15 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 	{
 		file->rdwr_short(base_pathing_counter);
 	}
-	if(file->get_experimental_version() >= 7)
+	if(file->get_experimental_version() >= 7 && file->get_experimental_version() < 10)
 	{
-		file->rdwr_double(industry_density_proportion);
+		double old_proportion = (double)industry_density_proportion / 100.0;
+		file->rdwr_double(old_proportion);
+		industry_density_proportion = old_proportion * 100.0;
+	}
+	else if(file->get_experimental_version() >= 10)
+	{
+		file->rdwr_long(industry_density_proportion);
 	}
 
 	if(file->get_experimental_version() >=9 && file->get_version() >= 110000)
@@ -4538,7 +4544,16 @@ DBG_MESSAGE("karte_t::speichern(loadsave_t *file)", "saved messages");
 		file->rdwr_short(generic_road_speed_city);
 		file->rdwr_short(generic_road_speed_intercity);
 		file->rdwr_long(max_road_check_depth);
-		file->rdwr_double(actual_industry_density);
+		if(file->get_experimental_version() < 10)
+		{
+			double old_density = actual_industry_density / 100.0;
+			file->rdwr_double(old_density);
+			actual_industry_density = old_density * 100;
+		}
+		else
+		{
+			file->rdwr_long(actual_industry_density);
+		}
 	}
 
 	// save all open windows (upon request)
@@ -4725,7 +4740,7 @@ void karte_t::laden(loadsave_t *file)
 	pumpe_t::neue_karte();
 	senke_t::neue_karte();
 
-	const float old_scale_factor = get_einstellungen()->get_distance_per_tile();
+	const uint16 old_scale_factor = get_einstellungen()->get_distance_per_tile();
 
 	// jetzt geht das laden los
 	dbg->warning("karte_t::laden", "Fileversion: %d, %p", file->get_version(), einstellungen);
@@ -5241,9 +5256,15 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		file->rdwr_short(base_pathing_counter);
 	}
 	
-	if(file->get_experimental_version() >= 7)
+	if(file->get_experimental_version() >= 7 && file->get_experimental_version() < 10)
 	{
-		file->rdwr_double(industry_density_proportion);
+		double old_proportion = industry_density_proportion / 100.0;
+		file->rdwr_double(old_proportion);
+		industry_density_proportion = old_proportion * 100.0;
+	}
+	else if(file->get_experimental_version() >= 10)
+	{
+		file->rdwr_long(industry_density_proportion);
 	}
 	else
 	{
@@ -5251,7 +5272,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		// @author: jamespetts			
 		// Loading a game - must set this to zero here and recalculate.
 		actual_industry_density = 0;
-		double weight;
+		uint32 weight;
 		ITERATE(fab_list, i)
 		{
 			const fabrik_besch_t* factory_type = fab_list[i]->get_besch();
@@ -5260,7 +5281,7 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 				// Power stations are excluded from the target weight:
 				// a different system is used for them.
 				weight = factory_type->get_gewichtung();
-				actual_industry_density += (1.0 / weight);
+				actual_industry_density += (1 / weight) * 100;
 			}
 		}
 		industry_density_proportion = actual_industry_density / finance_history_month[0][WORLD_CITICENS];
@@ -5276,7 +5297,16 @@ DBG_MESSAGE("karte_t::laden()", "%d ways loaded",weg_t::get_alle_wege().get_coun
 		file->rdwr_short(generic_road_speed_city);
 		file->rdwr_short(generic_road_speed_intercity);
 		file->rdwr_long(max_road_check_depth);
-		file->rdwr_double(actual_industry_density);
+		if(file->get_experimental_version() < 10)
+		{
+			double old_density = actual_industry_density / 100.0;
+			file->rdwr_double(old_density);
+			actual_industry_density = old_density * 100.0;
+		}
+		else
+		{
+			file->rdwr_long(actual_industry_density);
+		}
 	}
 
 	if(  file->get_version()>=102004  ) {
@@ -6556,13 +6586,13 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 	if(besch || city_road)
 	{
 		const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
-		const sint32 speed_average = (float)min((float)road_speed_limit, (float)citycar_speed_average) / 1.5F;
-		const uint16 journey_time_per_tile = 600.0F * (float)(einstellungen->get_distance_per_tile() / (float)speed_average); // *Tenths* of minutes: hence *600, not *60.
+		const sint32 speed_average = min(road_speed_limit * 10, citycar_speed_average * 10) / 15;
+		const uint16 journey_time_per_tile = 6 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *6, not *0.6
 		return journey_time_per_tile;
 	}
 	else
 	{
-		return 600 * (float)(einstellungen->get_distance_per_tile() / ((float)citycar_speed_average / 1.5F)); 
+		return 6 * (einstellungen->get_distance_per_tile() / ((citycar_speed_average * 10 ) / 15)); 
 	}
 }
 
@@ -6595,5 +6625,5 @@ void karte_t::calc_max_road_check_depth()
 		max_road_speed = citycar_speed_average;
 	}
 
-	max_road_check_depth = (((float)einstellungen->get_max_longdistance_tolerance() / einstellungen->get_distance_per_tile()) / 60.0F) * min(citycar_speed_average, max_road_speed);
+	max_road_check_depth = (((uint32)einstellungen->get_max_longdistance_tolerance() * 10 / einstellungen->get_distance_per_tile()) / 6) * min(citycar_speed_average, max_road_speed);
 }

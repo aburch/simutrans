@@ -462,11 +462,12 @@ public:
 	*@author: jamespetts*/
 	uint8 get_catering_level() const { return catering_level; }
 
-	void set_scale(float scale_factor)
+	void set_scale(uint16 scale_factor)
 	{ 
-		// BG: 29.08.2009: explicit typecasts avoid warnings
-		preis = (uint32)(preis == 0 ? 0 : (preis * scale_factor >= 1 ? preis * scale_factor : 1));
-		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 : (fixed_maintenance * scale_factor >= 1 ? fixed_maintenance * scale_factor : 1));
+		const uint32 scaled_price = set_scale_generic<uint32>(preis, scale_factor);
+		const uint32 scaled_maintenance =  set_scale_generic<uint32>(fixed_maintenance, scale_factor);
+		preis = (preis == 0 ? 0 : (scaled_price >= 1 ? scaled_price : 1));
+		fixed_maintenance = (uint32)(fixed_maintenance == 0 ? 0 :(scaled_maintenance >= 1 ? scaled_maintenance : 1));
 	}
 
 	/**

@@ -658,7 +658,7 @@ void senke_t::step(long delta_t)
 
 	power_demand = fab_power_demand + municipal_power_demand;
 	uint32 shared_power_demand = power_demand;
-	double load_proportion = 1.0;
+	uint32 load_proportion = 100;
 
 	bool supply_max = false;
 	if(city)
@@ -730,7 +730,7 @@ void senke_t::step(long delta_t)
 	
 	if(city && city->get_substations()->get_count() > 1)
 	{
-		load_proportion = (double)shared_power_demand / (double)power_demand;
+		load_proportion = (shared_power_demand * 100) / power_demand;
 	}
 
 	power_load = get_power_load();
@@ -764,7 +764,7 @@ void senke_t::step(long delta_t)
 		ITERATE(city_factories, i)
 		{
 			city_factories[i]->set_transformer_connected(this);
-			const uint32 current_factory_demand = city_factories[i]->step_power_demand() * load_proportion;
+			const uint32 current_factory_demand = (city_factories[i]->step_power_demand() * load_proportion) / 100;
 			const uint32 current_factory_load = municipal_power_demand == 0 ? current_factory_demand : 
 				(
 					current_factory_demand
@@ -780,12 +780,12 @@ void senke_t::step(long delta_t)
 			}
 		}
 		// City gets growth credit for power for both citizens and city factories
-		city->add_power((municipal_power_load>>POWER_TO_MW) * load_proportion);
-		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion));
+		city->add_power(((municipal_power_load>>POWER_TO_MW) * load_proportion) / 100);
+		city->add_power_demand((municipal_power_demand>>POWER_TO_MW) * (load_proportion * load_proportion) / 10000);
 	}
 	// Income
 	max_einkommen += last_power_demand * delta_t / PRODUCTION_DELTA_T;
-	einkommen += ((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion);
+	einkommen += (((power_load  * delta_t / PRODUCTION_DELTA_T) * load_proportion) / 100);
 
 	// Income rollover
 	if(max_einkommen>(2000<<11)) {

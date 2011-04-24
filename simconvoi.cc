@@ -168,7 +168,7 @@ void convoi_t::init(karte_t *wl, spieler_t *sp)
 
 	jahresgewinn = 0;
 	total_distance_traveled = 0;
-	tiles_since_last_odometer_increment = 0.0;
+	tile_hundredths_since_last_odometer_increment = 0;
 
 	alte_richtung = ribi_t::keine;
 	next_wolke = 0;
@@ -643,20 +643,20 @@ void convoi_t::add_running_cost(sint64 cost)
 
 void convoi_t::increment_odometer()
 {
-	double tiles = 1.0;
+	uint32 tile_hundredths = 1;
 	if(fahr[0]->get_steps() != 255)
 	{
 		// Diagonal
-		tiles = (double)fahr[0]->get_diagonal_length() / 255.0;
+		tile_hundredths = fahr[0]->get_diagonal_length() * 100 / 255;
 	}
-	tiles_since_last_odometer_increment += tiles;
-	const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-	const sint64 km = tiles_since_last_odometer_increment * (double)distance_per_tile;
+	tile_hundredths_since_last_odometer_increment += tile_hundredths;
+	const uint16 distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
+	const sint64 km = (tile_hundredths_since_last_odometer_increment * distance_per_tile) / 10000;
 	if(km >= 1)
 	{
 		book( km, CONVOI_DISTANCE );
 		total_distance_traveled += km;
-		tiles_since_last_odometer_increment -= (double)km / (double)distance_per_tile;
+		tile_hundredths_since_last_odometer_increment -= km * 10000 / distance_per_tile;
 		for(uint8 i= 0; i < anz_vehikel; i++)
 		{
 			add_running_cost(-fahr[i]->get_besch()->get_betriebskosten(welt));
@@ -687,28 +687,29 @@ void convoi_t::calc_acceleration(long delta_t)
 			//const uint32 tiles_left = get_next_stop_index() - get_route()->index_of(get_pos());
 			const uint32 tiles_left = 1 + get_next_stop_index() - front()->get_route_index();
 			waytype_t waytype = front()->get_waytype();
-			const float distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
-			double braking_rate;  // km/h decay per kilometre. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
+			const uint16 distance_per_tile = welt->get_einstellungen()->get_distance_per_tile();
+			uint16 braking_rate;  // km/h decay per km. TODO: Consider having this set in .dat files. Look for all instances of "braking_rate".
 			switch(waytype)
 			{
 			case track_wt:
 			case narrowgauge_wt:
 			case monorail_wt:
 			case maglev_wt:
-				braking_rate = 62.5;
+				braking_rate = 63;
 				break;
 
 			case tram_wt:
-				braking_rate = 85.0;
+				braking_rate = 85;
 				break;
 
 			default:
-				braking_rate = 100.0;
+				braking_rate = 100;
 				break;
 			}
 
-			const double km_left = (double)(tiles_left) * (double)distance_per_tile;
-			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * km_left));
+			const uint32 meters_left = tiles_left * distance_per_tile * 10;
+			brake_speed_soll = kmh_to_speed((sint32)(braking_rate * meters_left) / 1000);
+			brake_speed_soll = max(brake_speed_soll, kmh_to_speed(16));
 
 			recalc_brake_soll = false;
  		}
@@ -2344,7 +2345,7 @@ void convoi_t::vorfahren()
 								&& fahr[anz_vehikel-2]->get_besch()->get_ware()->get_catg_index() > 1)
 							{
 								// Goods train with brake van - longer reverse time.
-								reverse_delay = welt->get_einstellungen()->get_hauled_reverse_time() * 1.4F;
+								reverse_delay = (welt->get_einstellungen()->get_hauled_reverse_time() * 14) / 10;
 							}
 							else
 							{
@@ -2898,11 +2899,11 @@ void convoi_t::rdwr(loadsave_t *file)
 					if(file->is_loading())
 					{
 						file->rdwr_longlong(distance);
-						financial_history[k][j] = (double)distance * welt->get_einstellungen()->get_distance_per_tile();
+						financial_history[k][j] = (distance * welt->get_einstellungen()->get_distance_per_tile()) / 100;
 					}
 					else
 					{
-						distance = financial_history[k][j] / welt->get_einstellungen()->get_distance_per_tile();
+						distance = (financial_history[k][j] * 100) / welt->get_einstellungen()->get_distance_per_tile();
 						file->rdwr_longlong(distance);
 					}
 					continue;
@@ -2922,11 +2923,11 @@ void convoi_t::rdwr(loadsave_t *file)
 			{
 				sint64 tile_distance;
 				file->rdwr_longlong(tile_distance);
-				total_distance_traveled = (double)tile_distance * welt->get_einstellungen()->get_distance_per_tile();
+				total_distance_traveled = (tile_distance * welt->get_einstellungen()->get_distance_per_tile()) / 100;
 			}
 			else
 			{
-				sint64 km_distance = (double)total_distance_traveled / welt->get_einstellungen()->get_distance_per_tile();
+				sint64 km_distance = (total_distance_traveled * 100) / welt->get_einstellungen()->get_distance_per_tile();
 				file->rdwr_longlong(km_distance);
 			}
 		}
@@ -2941,13 +2942,19 @@ void convoi_t::rdwr(loadsave_t *file)
 	{
 		if(file->get_experimental_version() <= 8)
 		{
-			uint8 old_tiles = (uint8)tiles_since_last_odometer_increment;
+			uint8 old_tiles = (uint8)tile_hundredths_since_last_odometer_increment / 100;
 			file->rdwr_byte(old_tiles);
-			tiles_since_last_odometer_increment = (float)old_tiles;
+			tile_hundredths_since_last_odometer_increment = old_tiles * 100;
+		}
+		else if (file->get_experimental_version() > 8 && file->get_experimental_version() < 10)
+		{
+			double tiles_since_last_odometer_increment = tile_hundredths_since_last_odometer_increment / 100.0;
+			file->rdwr_double(tiles_since_last_odometer_increment);
+			tile_hundredths_since_last_odometer_increment = tiles_since_last_odometer_increment * 100.0;
 		}
 		else
 		{
-			file->rdwr_double(tiles_since_last_odometer_increment);
+			file->rdwr_longlong(tile_hundredths_since_last_odometer_increment);
 		}
 	}
 
@@ -3472,7 +3479,7 @@ void convoi_t::laden() //"load" (Babelfish)
 
 sint64 convoi_t::calc_revenue(ware_t& ware)
 {
-	float average_speed;
+	sint64 average_speed;
 	
 	if(!line.is_bound())
 	{
@@ -3511,7 +3518,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	ware.reset_accumulated_distance();
 
 	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
-	uint16 journey_minutes = (((float)distance / average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 60.0F);
+	uint16 journey_minutes = ((distance / average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 6) / 10;
 
 	const ware_besch_t* goods = ware.get_besch();
 	const uint16 price = goods->get_preis();
@@ -3539,21 +3546,21 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		
 		// Comfort matters more the longer the journey.
 		// @author: jamespetts, March 2010
-		float comfort_modifier;
+		uint32 comfort_modifier;
 		if(journey_minutes <= welt->get_einstellungen()->get_tolerable_comfort_short_minutes())
 		{
-			comfort_modifier = 0.2F;
+			comfort_modifier = 20;
 		}
 		else if(journey_minutes >= welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes())
 		{
-			comfort_modifier = 1.0F;
+			comfort_modifier = 100;
 		}
 		else
 		{
 			const uint8 differential = journey_minutes - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
 			const uint8 max_differential = welt->get_einstellungen()->get_tolerable_comfort_median_long_minutes() - welt->get_einstellungen()->get_tolerable_comfort_short_minutes();
-			const float proportion = (float)differential / (float)max_differential;
-			comfort_modifier = (0.8F * proportion) + 0.2F;
+			const uint32 proportion = differential * 100 / max_differential;
+			comfort_modifier = (80 * proportion / 100) + 20;
 		}
 
 		uint8 comfort = 100;
@@ -3586,15 +3593,15 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply luxury bonus
 			const uint8 max_differential = welt->get_einstellungen()->get_max_luxury_bonus_differential();
 			const uint8 differential = comfort - tolerable_comfort;
-			const float multiplier = welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier;
+			const uint32 multiplier = (welt->get_einstellungen()->get_max_luxury_bonus() * comfort_modifier) / 100;
 			if(differential >= max_differential)
 			{
 				final_revenue += (sint64)(revenue * multiplier);
 			}
 			else
 			{
-				const float proportion = (float)differential / (float)max_differential;
-				final_revenue += revenue * (sint64)(multiplier * proportion);
+				const uint32 proportion = (differential * 100) / max_differential;
+				final_revenue += revenue * (sint64)(multiplier * proportion) / 100;
 			}
 		}
 		else if(comfort < tolerable_comfort)
@@ -3602,16 +3609,16 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 			// Apply discomfort penalty
 			const uint8 max_differential = welt->get_einstellungen()->get_max_discomfort_penalty_differential();
 			const uint8 differential = tolerable_comfort - comfort;
-			float multiplier = welt->get_einstellungen()->get_max_discomfort_penalty() * comfort_modifier;
-			multiplier = multiplier < 0.95F ? multiplier : 0.95F;
+			uint32 multiplier = welt->get_einstellungen()->get_max_discomfort_penalty() * comfort_modifier;
+			multiplier = multiplier < 95 ? multiplier : 95;
 			if(differential >= max_differential)
 			{
-				final_revenue -= (sint64)(revenue * multiplier);
+				final_revenue -= (sint64)(revenue * multiplier) / 100;
 			}
 			else
 			{
-				const float proportion = (float)differential / (float)max_differential;
-				final_revenue -= revenue * (sint64)(multiplier * proportion);
+				const uint32 proportion = (differential * 100) / max_differential;
+				final_revenue -= revenue * (sint64)(multiplier * proportion) / 100;
 			}
 		}
 		
@@ -3633,7 +3640,7 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 		else if(ware.is_passenger())
 		{
 			// Passengers
-			float proportion = 0.0F;
+			uint32 proportion = 0;
 			// Knightly : Reorganised the switch cases to get rid of goto statements
 			switch(catering_level)
 			{
@@ -3648,8 +3655,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 						break;
 					}
 					
-					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
-					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge));
+					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level4_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level5_minutes() - welt->get_einstellungen()->get_catering_level4_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level5_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
@@ -3662,8 +3669,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 						break;
 					}
 					
-					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
-					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge));
+					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level3_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level4_minutes() - welt->get_einstellungen()->get_catering_level3_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level4_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
@@ -3676,8 +3683,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 						break;
 					}
 					
-					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
-					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge));
+					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level2_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level3_minutes() - welt->get_einstellungen()->get_catering_level2_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level3_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
@@ -3690,8 +3697,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 						break;
 					}
 					
-					proportion = (journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
-					final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge));
+					proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_level1_max_revenue()) * 100) / (welt->get_einstellungen()->get_catering_level2_minutes() - welt->get_einstellungen()->get_catering_level1_minutes());
+					final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level2_max_revenue() * ware.menge)) / 100);
 					break;
 				}
 
@@ -3706,8 +3713,8 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 					break;
 				}
 
-				proportion = (journey_minutes - welt->get_einstellungen()->get_catering_min_minutes()) / (welt->get_einstellungen()->get_catering_level1_minutes() - welt->get_einstellungen()->get_catering_min_minutes());
-				final_revenue += (sint64)(proportion * (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge));
+				proportion = ((journey_minutes - welt->get_einstellungen()->get_catering_min_minutes()) * 100) / (welt->get_einstellungen()->get_catering_level1_minutes() - welt->get_einstellungen()->get_catering_min_minutes());
+				final_revenue += (sint64)((proportion * (welt->get_einstellungen()->get_catering_level1_max_revenue() * ware.menge)) / 100);
 				break;
 
 			};

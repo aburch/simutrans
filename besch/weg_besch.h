@@ -14,7 +14,9 @@
 #include "../dataobj/way_constraints.h"
 #include "../utils/checksum.h"
 
+
 class werkzeug_t;
+class karte_t;
 
 /**
  * Way type description. Contains all needed values to describe a
@@ -110,11 +112,12 @@ public:
 
 	sint32 get_base_maintenance() const { return  maintenance; }
 
-	void set_scale(float scale_factor) 
+	void set_scale(uint16 scale_factor) 
 	{
-		// BG: 29.08.2009: explicit typecasts avoid warnings
-		scaled_price = (sint32)(price * scale_factor < 1 ? (price > 0 ? 1 : 0) : price * scale_factor);
-		scaled_maintenance = (sint32)(maintenance * scale_factor < (maintenance > 0 ? 1 : 0) ? 1: maintenance * scale_factor);
+		const sint32 scaled_price_preliminary =  set_scale_generic<sint32>(price, scale_factor);
+		const sint32 scaled_maintenance_preliminary =  set_scale_generic<sint32>(maintenance, scale_factor);
+		scaled_price = scaled_price_preliminary < 1 ? (price > 0 ? 1 : 0) : scaled_price_preliminary;
+		scaled_maintenance = (scaled_maintenance_preliminary < (maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance_preliminary);
 	}
 
 	/**

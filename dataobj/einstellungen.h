@@ -239,7 +239,7 @@ public:
 	uint16 max_bonus_min_distance;
 	uint16 median_bonus_distance;
 	uint16 max_bonus_multiplier_percent;
-	float distance_per_tile;
+	uint16 distance_per_tile;
 	uint8 tolerable_comfort_short;
 	uint8 tolerable_comfort_median_short;
 	uint8 tolerable_comfort_median_median;
@@ -571,9 +571,8 @@ public:
 	uint16 get_max_bonus_multiplier_percent() { return max_bonus_multiplier_percent; }
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
-	float  get_distance_per_tile() const { return distance_per_tile; }
-	uint16 get_distance_per_tile_percent() const { return (uint16)(distance_per_tile * 100); }
-	void   set_distance_per_tile_percent(uint16 value) { distance_per_tile = value / 100.0f; }
+	uint16  get_distance_per_tile() const { return distance_per_tile; }
+	void   set_distance_per_tile(uint16 value) { distance_per_tile = value; }
 
 	uint8  get_tolerable_comfort_short() const { return tolerable_comfort_short; }
 	void   set_tolerable_comfort_short(uint8 value) { tolerable_comfort_short = value; }

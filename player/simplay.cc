@@ -452,7 +452,7 @@ void spieler_t::neuer_monat()
 		{
 			// Restore credit rating slowly 
 			// after a period of debt
-			base_credit_limit += (get_base_credit_limit() *0.1);
+			base_credit_limit += (get_base_credit_limit() / 10);
 		}
 		if(base_credit_limit > get_base_credit_limit())
 		{
@@ -562,16 +562,16 @@ sint64 spieler_t::calc_credit_limit()
 	// plus 40% of the net assets for the past year,
 	// or 0, whichever is lower.
 
-	profit = (profit / 12.0) * 0.4;
-	assets = (assets / 12.0) * 0.4;
+	profit = ((profit * 100) / 12) / 400;
+	assets = ((assets * 100) / 12) * 400;
 
 	sint64 new_limit = ((profit + assets) > base_credit_limit) ? profit + assets : base_credit_limit;
 
 	if(base_credit_limit < get_base_credit_limit())
 	{
 		// Credit rating adversely affected.
-		const float proportion = (float)base_credit_limit / (float)get_base_credit_limit();
-		new_limit *= proportion;
+		const uint32 proportion = (base_credit_limit * 100) / get_base_credit_limit();
+		new_limit *= (proportion / 100);
 	}
 
 	return new_limit;

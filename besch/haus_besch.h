@@ -352,11 +352,13 @@ public:
 
 	uint16 get_station_capacity() const { return station_capacity; }
 	
-	void set_scale(float scale_factor) 
+	void set_scale(uint16 scale_factor) 
 	{
 		// BG: 29.08.2009: explicit typecasts avoid warnings
-		scaled_station_price = (sint32)(station_price * scale_factor < 1 ? (station_price > 0 ? 1 : 0) : station_price * scale_factor);
-		scaled_station_maintenance = (sint32)(station_maintenance * scale_factor < (station_maintenance > 0 ? 1 : 0) ? 1: station_maintenance * scale_factor);
+		const sint32 scaled_price =  set_scale_generic<sint32>(station_price, scale_factor);
+		const sint32 scaled_maintenance =  set_scale_generic<sint32>(station_maintenance, scale_factor);
+		scaled_station_price = (scaled_price < 1 ? (station_price > 0 ? 1 : 0) : scaled_price);
+		scaled_station_maintenance = (scaled_maintenance < (station_maintenance > 0 ? 1 : 0) ? 1: scaled_maintenance);
 	}
 
 	// default tool for building
