@@ -344,7 +344,7 @@ void leitung_t::laden_abschliessen()
 {
 	verbinde();
 	calc_neighbourhood();
-	grund_t *gr = welt->lookup(get_pos());
+	const grund_t *gr = welt->lookup(get_pos());
 	assert(gr);
 	spieler_t::add_maintenance(get_besitzer(), besch->get_wartung());
 }

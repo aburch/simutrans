@@ -63,7 +63,7 @@
 //#define DEBUG_FLUSH_BUFFER
 
 /* Provides debugging for random calls to diagnose network desyncs*/
-#define DEBUG_SIMRAND_CALLS
+//#define DEBUG_SIMRAND_CALLS
 
 /**************************** automatic stuff ********************************/
 
