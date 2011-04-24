@@ -1971,13 +1971,30 @@ void wegbauer_t::baue_schiene()
 
 			if(extend) {
 				weg_t * weg = gr->get_weg((waytype_t)besch->get_wtyp());
+				bool change_besch = true;
+				cost = 0;
 
+				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(weg->get_besch()==besch  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->get_weg_nr(0)!=weg) || keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden && (bautyp&elevated_flag)==0) ) {
+				if(weg->get_besch()==besch  ||  weg->get_besch()->get_styp()!=0  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->get_weg_nr(0)!=weg) || keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden  &&  (bautyp&elevated_flag)==0) ) {
 					//nothing to be done
-					cost = 0;
+					change_besch = false;
 				}
-				else {
+
+				// already a crossing
+				if(  gr->has_two_ways()  ) {
+					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
+						// change to tram track
+						gr->obj_remove( cr );
+						change_besch = true;
+					}
+					else {
+						// since existing is already tram tram
+						change_besch = false;
+					}
+				}
+				
+				if(  change_besch  ) {
 					// we take ownership => we take care to maintain the roads completely ...
 					spieler_t *s = weg->get_besitzer();
 					spieler_t::add_maintenance( s, -weg->get_besch()->get_wartung());
@@ -2019,6 +2036,7 @@ void wegbauer_t::baue_schiene()
 				cost = -gr->neuen_weg_bauen(sch, ribi, sp)-besch->get_preis();
 
 				// connect canals to sea
+
 				if(besch->get_wtyp()==water_wt  &&  gr->get_hoehe()==welt->get_grundwasser()) 
 				{
 					grund_t *sea = welt->lookup_kartenboden(gr->get_pos().get_2d() - koord( ribi_typ(gr->get_grund_hang() ) ));
