@@ -342,6 +342,9 @@ void spieler_t::neuer_monat()
 
 	simlinemgmt.new_month();
 
+	const sint64 TEST_1 = get_maintenance(MAINT_INFRASTRUCTURE);
+	const sint64 TEST_2 = welt->calc_adjusted_monthly_figure(TEST_1);
+	
 	// subtract maintenance
 	buche( -welt->calc_adjusted_monthly_figure(get_maintenance(MAINT_INFRASTRUCTURE)), COST_MAINTENANCE);
 
@@ -563,7 +566,7 @@ sint64 spieler_t::calc_credit_limit()
 	// or 0, whichever is lower.
 
 	profit = ((profit * 100) / 12) / 400;
-	assets = ((assets * 100) / 12) * 400;
+	assets = ((assets * 100) / 12) / 400;
 
 	sint64 new_limit = ((profit + assets) > base_credit_limit) ? profit + assets : base_credit_limit;
 

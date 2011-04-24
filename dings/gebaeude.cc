@@ -928,7 +928,7 @@ void gebaeude_t::laden_abschliessen()
 	calc_bild();
 
 	sint64 maint = tile->get_besch()->get_station_maintenance();
-	if(maint == 2147483647)
+	if(maint == 2147483647) 
 	{
 		maint = welt->get_einstellungen()->maint_building*tile->get_besch()->get_level();
 	}

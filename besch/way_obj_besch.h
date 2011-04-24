@@ -101,8 +101,8 @@ public:
 
 	void set_scale(uint16 scale_factor)
 	{
-		const sint32 scaled_price_preliminary =  set_scale_generic<sint32>(price, scale_factor);
-		const sint32 scaled_maintenance_preliminary =  set_scale_generic<sint32>(maintenance, scale_factor);
+		const uint32 scaled_price_preliminary =  set_scale_generic<uint32>(price, scale_factor);
+		const uint32 scaled_maintenance_preliminary =  set_scale_generic<uint32>(maintenance, scale_factor);
 		scaled_price = scaled_price_preliminary > 0 ? scaled_price_preliminary : 1;
 		scaled_maintenance = scaled_maintenance_preliminary > 0 ? scaled_maintenance_preliminary : 1;
 	}
