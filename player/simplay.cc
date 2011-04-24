@@ -199,6 +199,7 @@ spieler_t::income_message_t::income_message_t( sint32 betrag, koord p )
 	money_to_string(str, betrag/100.0);
 	alter = 127;
 	pos = p;
+	amount = betrag;
 }
 
 void *spieler_t::income_message_t::operator new(size_t /*s*/)
@@ -260,8 +261,8 @@ void spieler_t::add_message(koord k, sint32 betrag)
 {
 	if(  !messages.empty()  &&  messages.back()->pos==k  &&  messages.back()->alter==127  ) {
 		// last message exactly at same place, not aged
-		betrag += (sint32)(100.0*atof(messages.back()->str));
-		money_to_string(messages.back()->str, betrag/100.0);
+		messages.back()->amount += betrag;
+		money_to_string(messages.back()->str, messages.back()->amount/100.0);
 	}
 	else {
 		// otherwise new message
