@@ -12,6 +12,7 @@
 #include <typeinfo>
 #include "../dataobj/freelist.h"
 #include "../simdebug.h"
+#include <stddef.h> // for ptrdiff_t
 
 #ifdef _MSC_VER
 #pragma warning(disable:4786)
