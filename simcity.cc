@@ -2532,7 +2532,7 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 		grund_t *gr;
 		for(uint8 i = 0; i < 8; i ++)
 		{
-			koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.neighbours[i]));
+			koord3d pos3d(pos + pos.second_neighbours[i], welt->lookup_hgt(pos + pos.second_neighbours[i]));
 			gr = welt->lookup(pos3d);
 			if(!gr)
 			{
@@ -2546,8 +2546,6 @@ uint16 stadt_t::check_road_connexion_to(const fabrik_t* industry)
 			road = gr->get_weg(road_wt);
 			if(road != NULL)
 			{
-				goto found_road;
-				found_road:
 				const koord3d destination = road->get_pos();
 				const uint16 journey_time_per_tile = check_road_connexion(destination);
 				connected_industries.put(industry->get_pos().get_2d(), journey_time_per_tile);
@@ -2596,7 +2594,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	weg_t* road = NULL;
 	for(uint8 i = 0; i < 16; i ++)
 	{
-		koord3d pos3d(pos + pos.neighbours[i], welt->lookup_hgt(pos + pos.second_neighbours[i]));
+		koord3d pos3d(pos + pos.second_neighbours[i], welt->lookup_hgt(pos + pos.second_neighbours[i]));
 		gr = welt->lookup(pos3d);
 		if(!gr)
 		{
@@ -2615,7 +2613,7 @@ uint16 stadt_t::check_road_connexion_to(const gebaeude_t* attraction)
 	}
 	if(road == NULL)
 	{
-		// No road connecting to industry - no connexion at all.
+		// No road connecting to attraction - no connexion at all.
 		// We should therefore set *every* city to register this
 		// industry as unconnected.
 		
@@ -2670,7 +2668,7 @@ uint16 stadt_t::check_road_connexion(koord3d dest)
 	}
 	const sint32 speed_average = ((speed_sum * 100) / count) / 13;
 	const uint32 journey_distance_km = (private_car_route->get_count() * welt->get_einstellungen()->get_distance_per_tile());
-	const uint16 journey_time = 6 * (journey_distance_km / speed_average); // *Tenths* of minutes: hence *6 not *0.6 (note: the line above does not divide by 100 as it otherwise would).
+	const uint16 journey_time = (6 * journey_distance_km) / speed_average; // *Tenths* of minutes: hence *6 not *0.6 (note: the line above does not divide by 100 as it otherwise would).
 	const uint16 straight_line_distance_tiles = accurate_distance(origin.get_2d(), dest.get_2d());
 	return journey_time / (straight_line_distance_tiles == 0 ? 1 : straight_line_distance_tiles);
 }
@@ -2682,7 +2680,7 @@ void stadt_t::add_road_connexion(uint16 journey_time_per_tile, stadt_t* origin_c
 	{
 		return;
 	}
-	connected_cities.put(origin_city->get_pos(), journey_time_per_tile);
+	connected_cities.set(origin_city->get_pos(), journey_time_per_tile);
 }
 
 void stadt_t::set_no_connexion_to_industry(const fabrik_t* unconnected_industry)
@@ -2691,7 +2689,7 @@ void stadt_t::set_no_connexion_to_industry(const fabrik_t* unconnected_industry)
 	{
 		return;
 	}
-	connected_industries.put(unconnected_industry->get_pos().get_2d(), 65535);
+	connected_industries.set(unconnected_industry->get_pos().get_2d(), 65535);
 }
 
 void stadt_t::set_no_connexion_to_attraction(const gebaeude_t* unconnected_attraction)
@@ -2700,7 +2698,7 @@ void stadt_t::set_no_connexion_to_attraction(const gebaeude_t* unconnected_attra
 	{
 		return;
 	}
-	connected_attractions.put(unconnected_attraction->get_pos().get_2d(), 65535);
+	connected_attractions.set(unconnected_attraction->get_pos().get_2d(), 65535);
 }
 
 
@@ -2992,37 +2990,37 @@ void stadt_t::step_passagiere()
 
 				INT_CHECK("simcity.cc 2993");
 
-				if(has_private_car) car_minutes = 300;
-				//{
-				//	const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
-				//	uint16 time_per_tile = 65535;
-				//	switch(destinations[current_destination].type)
-				//	{
-				//	case 1:
-				//		//Town
-				//		time_per_tile = check_road_connexion_to(destinations[current_destination].object.town);
-				//		break;
-				//	case FACTORY_PAX:
-				//		time_per_tile = check_road_connexion_to(destinations[current_destination].object.industry);
-				//		break;
-				//	case TOURIST_PAX:
-				//		time_per_tile = check_road_connexion_to(destinations[current_destination].object.attraction);
-				//		break;
-				//	default:
-				//		//Some error - this should not be reached.
-				//		dbg->error("simcity.cc", "Incorrect destination type detected");
-				//	};
-				//	
-				//	if(time_per_tile < 65535)
-				//	{
-				//		// *Tenths* of minutes used here.
-				//		car_minutes =  time_per_tile * straight_line_distance;
-				//	}
-				//	else
-				//	{
-				//		car_minutes = 65535;
-				//	}
-				//}		
+				if(has_private_car) /*car_minutes = 300;*/
+				{
+					const uint32 straight_line_distance = accurate_distance(k, destinations[current_destination].location);
+					uint16 time_per_tile = 65535;
+					switch(destinations[current_destination].type)
+					{
+					case 1:
+						//Town
+						time_per_tile = check_road_connexion_to(destinations[current_destination].object.town);
+						break;
+					case FACTORY_PAX:
+						time_per_tile = check_road_connexion_to(destinations[current_destination].object.industry);
+						break;
+					case TOURIST_PAX:
+						time_per_tile = check_road_connexion_to(destinations[current_destination].object.attraction);
+						break;
+					default:
+						//Some error - this should not be reached.
+						dbg->error("simcity.cc", "Incorrect destination type detected");
+					};
+					
+					if(time_per_tile < 65535)
+					{
+						// *Tenths* of minutes used here.
+						car_minutes =  time_per_tile * straight_line_distance;
+					}
+					else
+					{
+						car_minutes = 65535;
+					}
+				}		
 				
 				if(car_minutes <= tolerance)
 				{

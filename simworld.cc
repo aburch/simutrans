@@ -6590,12 +6590,12 @@ sint32 karte_t::calc_generic_road_speed(const weg_besch_t* besch)
 	{
 		const sint32 road_speed_limit = besch ? besch->get_topspeed() : city_road->get_topspeed();
 		const sint32 speed_average = min(road_speed_limit * 10, citycar_speed_average * 10) / 15;
-		const uint16 journey_time_per_tile = 6 * (einstellungen->get_distance_per_tile() / speed_average); // *Tenths* of minutes: hence *6, not *0.6
+		const uint16 journey_time_per_tile = (einstellungen->get_distance_per_tile() * 6) / speed_average; // *Tenths* of minutes: hence *6, not *0.6
 		return journey_time_per_tile;
 	}
 	else
 	{
-		return 6 * (einstellungen->get_distance_per_tile() / ((citycar_speed_average * 10 ) / 15)); 
+		return (einstellungen->get_distance_per_tile() * 6) / ((citycar_speed_average * 10 ) / 15); 
 	}
 }
 
