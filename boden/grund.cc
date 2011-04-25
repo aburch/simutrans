@@ -800,12 +800,9 @@ void grund_t::calc_back_bild(const sint8 hgt,const sint8 slope_this)
 	this->back_bild_nr = (is_building!=0)? -back_bild_nr : back_bild_nr;
 	// needs a fence?
 	if(back_bild_nr==0) {
-		back_bild_nr = 121;
-		if(fence_west) {
-			back_bild_nr += 1;
-		}
-		if(fence_north) {
-			back_bild_nr += 2;
+		sint8 fence_offset = fence_west + 2 * fence_north;
+		if(fence_offset) {
+			back_bild_nr = 121 + fence_offset;
 		}
 		this->back_bild_nr = (get_typ()==grund_t::fundament)? -back_bild_nr : back_bild_nr;
 	}
@@ -1005,7 +1002,7 @@ void grund_t::display_dinge_all(const sint16 xpos, const sint16 ypos, const sint
 	}
 
 	// ships might be larg and could be clipped by vertical walls on our tile
-	const bool ontile_se = back_bild_nr  &&  (ist_wasser()  ||  hat_weg(water_wt));
+	const bool ontile_se = back_bild_nr  &&  ist_wasser();
 
 #ifdef DOUBLE_GROUNDS
 #error "Clipping routines not suitable for double heights!"
