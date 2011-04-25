@@ -827,12 +827,13 @@ bool convoi_t::sync_step(long delta_t)
 			
 		case DRIVING:
 			{
-				//calc_acceleration(delta_t);
-				akt_speed = kmh_to_speed(50);
+				calc_acceleration(delta_t);
+				//akt_speed = kmh_to_speed(50);
 
 				// now actually move the units
 				//moved to inside calc_acceleration(): 
-				sp_soll += (akt_speed*delta_t);
+				//sp_soll += (akt_speed*delta_t);
+
 				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll);
 				// stop when depot reached ...
 				if(state==INITIAL) {

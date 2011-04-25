@@ -188,6 +188,7 @@ double convoy_t::calc_speed_holding_force(double speed /* in m/s */, double Frs 
 void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summary_t &weight, sint32 akt_speed_soll, sint32 &akt_speed, sint32 &sp_soll)
 {
 	double dx = 0;
+	sint32 new_dx_100 = 0;
 	if (adverse.max_speed < KMH_SPEED_UNLIMITED)
 	{
 		const sint32 speed_limit = kmh_to_speed(adverse.max_speed);
@@ -206,10 +207,15 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 	else
 	{
 		const double Frs = 9.81 * (adverse.fr * weight.weight_cos + weight.weight_sin); // msin, mcos are calculated per vehicle due to vehicle specific slope angle.
+		const sint32 new_frs_100 = 981 * (adverse.fr * weight.weight_cos + weight.weight_sin);
 		const double vmax = speed_to_v(akt_speed_soll);
+		const uint32 new_vmax_100 = speed_to_v(akt_speed_soll)  * 100;
 		double v = speed_to_v(akt_speed); // v in m/s, akt_speed in simutrans vehicle speed;
+		sint32 new_v_10000 = speed_to_v(akt_speed) * 10000; // v in m/s, akt_speed in simutrans vehicle speed;
 		double fvmax = 0; // force needed to hold vmax. will be calculated as needed
+		sint32 new_fvmax_100 = 0;
 		double speed_ratio = 0; 
+		sint32 new_speed_ratio_100 = 0;
 		//static uint32 count1 = 0;
 		//static sint32 count2 = 0;
 		//static sint32 count3 = 0;
@@ -219,49 +225,71 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 		{
 			// the driver's part: select accelerating force:
 			double f;
+			uint32 new_f_100;
 			bool is_breaking = false; // don't roll backwards, due to breaking
+
 			if (v < 0.999 * vmax)
 			{
+				assert(new_v_10000 < (999 * new_vmax_100) / 10);
 				// Below set speed: full acceleration
 				// If set speed is far below the convoy max speed as e.g. aircrafts on ground reduce force.
 				// If set speed is at most a 10th of convoy's maximum, we reduce force to its 10th.
 				f = get_force(v) - Frs;
+				new_f_100 = (get_force(new_v_10000) / 100) - new_frs_100;
 				if (f > 1000000.0) // reducing force does not apply to 'weak' convoy's, thus we can save a lot of time skipping this code.
 				{
+					assert(new_f_100 > 100000000);
 					if (speed_ratio == 0) // speed_ratio is a constant within this function. So calculate it once only.
 					{
 						speed_ratio = 3.6 * vmax / vehicle.max_speed;
+						new_speed_ratio_100 = 360 * new_vmax_100 / (vehicle.max_speed * 100);
 					}
 					if (speed_ratio < 0.1)
 					{
+						assert(new_speed_ratio_100 < 10);
 						fvmax = calc_speed_holding_force(vmax, Frs);
+						new_fvmax_100 = fvmax * 100; /*TEMPORARY - need to re-do method called */
 						if (f > fvmax)
 						{
+							assert(new_f_100 > new_fvmax_100);
+
 							f = (f - fvmax) * 0.1 + fvmax;
+
+							new_f_100 = (new_f_100 - new_fvmax_100) * 10 + new_fvmax_100;
+							assert(new_f_100 == ((uint32)f * 100));
 						}
 					}
 				}
 			}
 			else if (v < 1.001 * vmax)
 			{
+				assert(new_v_10000 < (1001 * new_vmax_100) / 10);
 				// at or slightly above set speed: hold this speed
 				if (fvmax == 0) // fvmax is a constant within this function. So calculate it once only.
 				{
 					fvmax = calc_speed_holding_force(vmax, Frs);
+					new_fvmax_100 = calc_speed_holding_force(new_vmax_100, new_frs_100);
+					assert(fvmax * 100 == new_fvmax_100);
 				}
 				f = fvmax;
+				new_f_100 = new_fvmax_100;
+
 			}
 			else if (v < 1.1 * vmax)
 			{
+				assert(new_v_10000 < 110 * new_vmax_100);
 				// slightly above set speed: coasting 'til back to set speed.
 				f = -Frs;
+				new_f_100 = -new_frs_100;
 			}
 			else if (v < 1.5 * vmax)
 			{
+				assert(new_v_10000 <  150 * new_vmax_100);
 				is_breaking = true;
 				// running too fast, apply the breaks! 
 				// hill-down Frs might become negative and works against the brake.
 				f = -(get_starting_force() + Frs);
+				new_f_100 -(get_starting_force() * 100 + new_frs_100);
 			}
 			else
 			{
@@ -270,46 +298,65 @@ void convoy_t::calc_move(long delta_t, uint16 simtime_factor, const weight_summa
 				// assuming the brakes are up to 5 times stronger than the start-up force.
 				// hill-down Frs might become negative and works against the brake.
 				f = -(5 * get_starting_force() + Frs);
+				new_f_100 -(500 * get_starting_force() + new_frs_100);
 			}
 
 			// accelerate: calculate new speed according to acceleration within the passed second(s).
 			long dt;
 			double df = (simtime_factor * (f - sgn(v) * adverse.cf * v * v)) / 100.0;
+			const sint32 new_v_100 = new_v_10000 / 100;
+			sint32 new_df_100 = (simtime_factor * (new_f_100 - sgn<sint32>(new_v_10000) * adverse.cf * new_v_100 * new_v_100)) / 1000000; /* Will need to be / 100000000 when cf is *100*/
 			if (delta_t >= DT_SLICE && (sint32)abs(df) > weight.weight / (10 * DT_SLICE_SECONDS))
 			{
+				assert(delta_t >= DT_SLICE && abs(new_df_100) > weight.weight * 10 / (DT_SLICE_SECONDS));
 				// This part is important for acceleration/deceleration phases only.
 				// When a small force produces small speed change, we can add it at once in the 'else' section.
 				//count2++;
 				v += (DT_SLICE_SECONDS * df) / weight.weight; 
+				new_v_10000 += (DT_SLICE_SECONDS * 100 * new_df_100) / weight.weight; 
+				assert(new_v_10000 ==  v * 10000);
 				dt = DT_SLICE;
 			}
 			else
 			{
 				//count3++;
 				v += (delta_t * df) / (DT_TIME_FACTOR * weight.weight); 
+				new_v_10000 += (delta_t * new_df_100 * 100) / (DT_TIME_FACTOR * weight.weight); 
 				dt = delta_t;
 			}
 			if (is_breaking)
 			{
 				if (v < vmax)
 				{
+					assert(new_v_10000 < new_vmax_100 * 100);
 					v = vmax;
+					new_v_10000 = new_vmax_100 * 100;
 				}
 			}
 			else if (/* is_breaking */ f < 0 && v < 1)
 			{
+				assert(new_f_100 < 0 && new_v_10000 < 10000);
 				v = 1;
+				new_v_10000 = 10000;
 			}
 			dx += dt * v;
+			new_dx_100 += (dt * new_v_10000) / 100;
 			delta_t -= dt; // another DT_SLICE_SECONDS passed
 		}
 		akt_speed = v_to_speed(v); // akt_speed in simutrans vehicle speed, v in m/s
+		assert(akt_speed == v_to_speed(new_v_10000) / 10000);
 		dx = x_to_steps(dx);
+		new_dx_100 = x_to_steps(new_dx_100);
+		assert(dx == new_dx_100 / 100);
 	}
 	if (dx < KMH_SPEED_UNLIMITED - sp_soll)
+	{
 		sp_soll += (sint32) dx;
+	}	
 	else
+	{
 		sp_soll = KMH_SPEED_UNLIMITED;
+	}
 }
 
 /******************************************************************************/
