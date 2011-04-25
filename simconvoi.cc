@@ -827,10 +827,12 @@ bool convoi_t::sync_step(long delta_t)
 			
 		case DRIVING:
 			{
-				calc_acceleration(delta_t);
+				//calc_acceleration(delta_t);
+				akt_speed = kmh_to_speed(50);
 
 				// now actually move the units
-				//moved to inside calc_acceleration(): sp_soll += (akt_speed*delta_t);
+				//moved to inside calc_acceleration(): 
+				sp_soll += (akt_speed*delta_t);
 				uint32 sp_hat = fahr[0]->fahre_basis(sp_soll);
 				// stop when depot reached ...
 				if(state==INITIAL) {
@@ -3527,6 +3529,10 @@ sint64 convoi_t::calc_revenue(ware_t& ware)
 	ware.reset_accumulated_distance();
 
 	//Multiply by a factor (default: 0.3) to ensure that it fits the scale properly. Journey times can easily appear too long.
+	if(average_speed == 0)
+	{
+		average_speed = 1;
+	}
 	uint16 journey_minutes = ((distance / average_speed) * welt->get_einstellungen()->get_distance_per_tile() * 6) / 10;
 
 	const ware_besch_t* goods = ware.get_besch();
