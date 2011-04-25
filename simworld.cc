@@ -2171,9 +2171,11 @@ int karte_t::lower(koord pos)
 
 static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
 
-bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water) const
+bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water, bool make_underwater_hill) const
 {
-	if (lookup_kartenboden(pos)->get_hoehe()>=hgt) {
+	const grund_t *gr = lookup_kartenboden(pos);
+	const sint8 old_hgt = make_underwater_hill  &&  gr->ist_wasser() ? min_hgt(pos) : gr->get_hoehe();
+	if (old_hgt>=hgt) {
 		return can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 	}
 	else {
@@ -2184,12 +2186,12 @@ bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water) const
 
 
 // make a flat leve at this position (only used for AI at the moment)
-bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
+bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_water, bool make_underwater_hill)
 {
 	int n = 0;
 	bool ok = false;
 	const grund_t *gr = lookup_kartenboden(pos);
-	const sint8 old_hgt = gr->ist_wasser() ? min_hgt(pos) : gr->get_hoehe();
+	const sint8 old_hgt = make_underwater_hill  &&  gr->ist_wasser() ? min_hgt(pos) : gr->get_hoehe();
 	if(  old_hgt>=hgt  ) {
 		if(  can_lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt)  ) {
 			n = lower_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
@@ -2197,7 +2199,7 @@ bool karte_t::ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt)
 		}
 	}
 	else {
-		if(  can_raise_to(pos.x, pos.y, false, hgt, hgt, hgt, hgt)  ) {
+		if(  can_raise_to(pos.x, pos.y, keep_water, hgt, hgt, hgt, hgt)  ) {
 			n = raise_to(pos.x, pos.y, hgt, hgt, hgt, hgt);
 			ok = true;
 		}

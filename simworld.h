@@ -843,8 +843,8 @@ public:
 	int lower(koord pos);
 
 	// mostly used by AI: Ask to flatten a tile
-	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false) const;
-	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt);
+	bool can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false) const;
+	bool ebne_planquadrat(spieler_t *sp, koord pos, sint8 hgt, bool keep_water=false, bool make_underwater_hill=false);
 
 	// the convois are also handled each step => thus we keep track of them too
 	void add_convoi(convoihandle_t &cnv);

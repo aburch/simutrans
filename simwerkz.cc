@@ -1144,7 +1144,7 @@ const char *wkz_setslope_t::wkz_set_slope_work( karte_t *welt, spieler_t *sp, ko
 			}
 			else if(gr1->ist_wasser()  &&  (new_pos.z>welt->get_grundwasser()  ||  new_slope!=0)) {
 				// build underwater hill first
-				if (!welt->ebne_planquadrat(sp, pos.get_2d(), welt->get_grundwasser())) {
+				if (!welt->ebne_planquadrat(sp, pos.get_2d(), welt->get_grundwasser(), false, true)) {
 					return "Tile not empty.";
 				}
 				gr1->obj_loesche_alle(sp);
