@@ -127,8 +127,8 @@ factory_chart_t::factory_chart_t(const fabrik_t *_factory) :
 	goods_chart.set_groesse( koord( CHART_WIDTH, CHART_HEIGHT ) );
 	goods_chart.set_dimension(12, 10000);
 	goods_chart.set_background(MN_GREY1);
-	const uint32 input_count = factory->get_eingang().get_size();
-	const uint32 output_count = factory->get_ausgang().get_size();
+	const uint32 input_count = factory->get_eingang().get_count();
+	const uint32 output_count = factory->get_ausgang().get_count();
 	if(  input_count>0  ||  output_count>0  ) {
 		goods_buttons = new button_t[ (input_count + output_count) * 3 ];
 		goods_labels = new gui_label_t[ (input_count>0 ? input_count + 1 : 0) + (output_count>0 ? output_count + 1 : 0) ];

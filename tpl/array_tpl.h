@@ -28,7 +28,7 @@ template<class T> class array_tpl
 
 		~array_tpl() { delete [] data; }
 
-		index get_size() const { return size; }
+		index get_count() const { return size; }
 
 		void clear()
 		{

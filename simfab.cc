@@ -238,10 +238,10 @@ void fabrik_t::book_weighted_sums(sint64 delta_time)
 	aggregate_weight += delta_time;
 
 	// storage level of input/output stores
-	for(  uint32 g=0;  g<eingang.get_size();  ++g  ) {
+	for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
 		eingang[g].book_weighted_sum_storage( delta_time );
 	}
-	for(  uint32 g=0;  g<ausgang.get_size();  ++g  ) {
+	for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
 		ausgang[g].book_weighted_sum_storage( delta_time );
 	}
 
@@ -442,7 +442,7 @@ void fabrik_t::recalc_storage_capacities()
 {
 	if(  besch->get_field_group()  ) {
 		// with fields -> calculate based on capacities contributed by fields
-		const uint32 ware_types = eingang.get_size() + ausgang.get_size();
+		const uint32 ware_types = eingang.get_count() + ausgang.get_count();
 		if(  ware_types>0  ) {
 			// calculate total storage capacity contributed by fields
 			const field_group_besch_t *const field_group = besch->get_field_group();
@@ -452,7 +452,7 @@ void fabrik_t::recalc_storage_capacities()
 			}
 			const sint32 share = (sint32)( ( (sint64)field_capacities << precision_bits ) / (sint64)ware_types );
 			// first, for input goods
-			for(  uint32 g=0;  g<eingang.get_size();  ++g  ) {
+			for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
 				for(  int b=0;  b<besch->get_lieferanten();  ++b  ) {
 					const fabrik_lieferant_besch_t *const input = besch->get_lieferant(b);
 					if(  eingang[g].get_typ()==input->get_ware()  ) {
@@ -461,7 +461,7 @@ void fabrik_t::recalc_storage_capacities()
 				}
 			}
 			// then, for output goods
-			for(  uint32 g=0;  g<ausgang.get_size();  ++g  ) {
+			for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
 				for(  uint b=0;  b<besch->get_produkte();  ++b  ) {
 					const fabrik_produkt_besch_t *const output = besch->get_produkt(b);
 					if(  ausgang[g].get_typ()==output->get_ware()  ) {
@@ -474,7 +474,7 @@ void fabrik_t::recalc_storage_capacities()
 	else {
 		// without fields -> scaling based on prodbase
 		// first, for input goods
-		for(  uint32 g=0;  g<eingang.get_size();  ++g  ) {
+		for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
 			for(  int b=0;  b<besch->get_lieferanten();  ++b  ) {
 				const fabrik_lieferant_besch_t *const input = besch->get_lieferant(b);
 				if(  eingang[g].get_typ()==input->get_ware()  ) {
@@ -483,7 +483,7 @@ void fabrik_t::recalc_storage_capacities()
 			}
 		}
 		// then, for output goods
-		for(  uint32 g=0;  g<ausgang.get_size();  ++g  ) {
+		for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
 			for(  uint b=0;  b<besch->get_produkte();  ++b  ) {
 				const fabrik_produkt_besch_t *const output = besch->get_produkt(b);
 				if(  ausgang[g].get_typ()==output->get_ware()  ) {
@@ -665,8 +665,8 @@ fabrik_t::fabrik_t(koord3d pos_, spieler_t* spieler, const fabrik_besch_t* fabes
 	}
 
 	recalc_storage_capacities();
-	if(  eingang.get_size()==0  ) {
-		for(  uint32 g=0;  g<ausgang.get_size();  ++g  ) {
+	if(  eingang.get_count()==0  ) {
+		for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
 			if(  ausgang[g].max>0  ) {
 				// if source then start with full storage, so that AI will build line(s) immediately
 				ausgang[g].menge = ausgang[g].max - 1;
@@ -900,8 +900,8 @@ void fabrik_t::rdwr(loadsave_t *file)
 	sint32 anz_lieferziele;
 
 	if(file->is_saving()) {
-		eingang_count = eingang.get_size();
-		ausgang_count = ausgang.get_size();
+		eingang_count = eingang.get_count();
+		ausgang_count = ausgang.get_count();
 		anz_lieferziele = lieferziele.get_count();
 		const char *s = besch->get_name();
 		file->rdwr_str(s);
@@ -1170,7 +1170,7 @@ uint32 fabrik_t::produktion(const uint32 produkt, const long delta_t) const
 	const sint64 max = (sint64)prodbase * (sint64)(get_prodfactor());
 	uint32 menge = (uint32)((max >> (18-10+DEFAULT_PRODUCTION_FACTOR_BITS-fabrik_t::precision_bits)) * delta_t / PRODUCTION_DELTA_T);
 
-	if (ausgang.get_size() > produkt) {
+	if (ausgang.get_count() > produkt) {
 		// wenn das lager voller wird, produziert eine Fabrik weniger pro step
 
 		const uint32 maxi = ausgang[produkt].max;
@@ -1200,7 +1200,7 @@ sint32 fabrik_t::input_vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
 
-	for (uint32 index = 0; index < eingang.get_size(); index++) {
+	for (uint32 index = 0; index < eingang.get_count(); index++) {
 		if (typ == eingang[index].get_typ()) {
 			menge = eingang[index].menge >> precision_bits;
 			break;
@@ -1215,7 +1215,7 @@ sint32 fabrik_t::vorrat_an(const ware_besch_t *typ)
 {
 	sint32 menge = -1;
 
-	for (uint32 index = 0; index < ausgang.get_size(); index++) {
+	for (uint32 index = 0; index < ausgang.get_count(); index++) {
 		if (typ == ausgang[index].get_typ()) {
 			menge = ausgang[index].menge >> precision_bits;
 			break;
@@ -1244,7 +1244,7 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 	}
 	else {
 		// case : freight
-		for(  uint32 i=0;  i<eingang.get_size();  ++i  ) {
+		for(  uint32 i=0;  i<eingang.get_count();  ++i  ) {
 			if(  eingang[i].get_typ()==typ  ) {
 				// Hajo: avoid overflow
 				if(  eingang[i].menge<((FAB_MAX_INPUT-menge)<<precision_bits)  ) {
@@ -1263,7 +1263,7 @@ sint32 fabrik_t::liefere_an(const ware_besch_t *typ, sint32 menge)
 
 sint32 fabrik_t::verbraucht(const ware_besch_t *typ)
 {
-	for(uint32 index = 0; index < eingang.get_size(); index ++) {
+	for(uint32 index = 0; index < eingang.get_count(); index ++) {
 		if (eingang[index].get_typ() == typ) {
 			// sollte maximale lagerkapazitaet pruefen
 			return eingang[index].menge > eingang[index].max;
@@ -1280,7 +1280,7 @@ void fabrik_t::step(long delta_t)
 	}
 
 	// produce nothing/consumes nothing ...
-	if(  eingang.get_size()==0  &&  ausgang.get_size()==0  ) {
+	if(  eingang.get_count()==0  &&  ausgang.get_count()==0  ) {
 		// power station? => produce power
 		if(  besch->is_electricity_producer()  ) {
 			currently_producing = true;
@@ -1297,14 +1297,14 @@ void fabrik_t::step(long delta_t)
 			prodfactor_electric = (sint32)( ( (sint64)(besch->get_electric_boost()) * (sint64)power + (sint64)(scaled_electric_amount >> 1) ) / (sint64)scaled_electric_amount );
 		}
 
-		const uint32 ecount = eingang.get_size();
+		const uint32 ecount = eingang.get_count();
 		uint32 index = 0;
 		uint32 produkt = 0;
 
 		currently_producing = false;	// needed for electricity
 		power_demand = 0;
 
-		if(  ausgang.get_size()==0  ) {
+		if(  ausgang.get_count()==0  ) {
 			// consumer only ...
 			uint32 menge = produktion(produkt, delta_t);
 
@@ -1356,7 +1356,7 @@ void fabrik_t::step(long delta_t)
 			}
 
 			// produces something
-			for (produkt = 0; produkt < ausgang.get_size(); produkt++) {
+			for (produkt = 0; produkt < ausgang.get_count(); produkt++) {
 				uint32 menge;
 
 				if(ecount>0) {
@@ -1430,7 +1430,7 @@ void fabrik_t::step(long delta_t)
 		delta_sum = delta_sum % PRODUCTION_DELTA_T;
 
 		// distribute, if there are more than 10 waiting ...
-		for(  uint32 produkt = 0;  produkt < ausgang.get_size();  produkt++  ) {
+		for(  uint32 produkt = 0;  produkt < ausgang.get_count();  produkt++  ) {
 			// either more than ten or nearly full (if there are less than ten output)
 			if(  ausgang[produkt].menge > (10 << precision_bits)  ||  ausgang[produkt].menge*2 > ausgang[produkt].max  ) {
 
@@ -1443,7 +1443,7 @@ void fabrik_t::step(long delta_t)
 
 		// rescale delta_menge here: all products should be produced at least once
 		// (if consumer only: all supplements should be consumed once)
-		const uint32 min_change = ausgang.get_size()==0 ? eingang.get_size() : ausgang.get_size();
+		const uint32 min_change = ausgang.get_count()==0 ? eingang.get_count() : ausgang.get_count();
 
 		if((delta_menge>>fabrik_t::precision_bits) > min_change) {
 
@@ -1562,7 +1562,7 @@ void fabrik_t::verteile_waren(const uint32 produkt)
 
 				unsigned w;
 				// find the index in the target factory
-				for (w = 0; w < ziel_fab->get_eingang().get_size() && ziel_fab->get_eingang()[w].get_typ() != ware.get_besch(); w++) {
+				for (w = 0; w < ziel_fab->get_eingang().get_count() && ziel_fab->get_eingang()[w].get_typ() != ware.get_besch(); w++) {
 					// emtpy
 				}
 
@@ -1705,10 +1705,10 @@ void fabrik_t::neuer_monat()
 	}
 
 	// update statistics for input and output goods
-	for(  uint32 g=0;  g<eingang.get_size();  ++g  ) {
+	for(  uint32 g=0;  g<eingang.get_count();  ++g  ) {
 		eingang[g].roll_stats(aggregate_weight);
 	}
-	for(  uint32 g=0;  g<ausgang.get_size();  ++g  ) {
+	for(  uint32 g=0;  g<ausgang.get_count();  ++g  ) {
 		ausgang[g].roll_stats(aggregate_weight);
 	}
 
@@ -1762,7 +1762,7 @@ void fabrik_t::recalc_factory_status()
 	// set bits for input
 	warenlager = 0;
 	status_ein = FL_WARE_ALLELIMIT;
-	for (uint j = 0; j < eingang.get_size(); j++) {
+	for (uint j = 0; j < eingang.get_count(); j++) {
 		if (eingang[j].menge >= eingang[j].max) {
 			status_ein |= FL_WARE_LIMIT;
 		}
@@ -1782,7 +1782,7 @@ void fabrik_t::recalc_factory_status()
 	total_input = warenlager;
 
 	// one ware missing, but producing
-	if(status_ein&FL_WARE_FEHLT_WAS  &&  ausgang.get_size()>0  &&  haltcount>0) {
+	if(status_ein&FL_WARE_FEHLT_WAS  &&  ausgang.get_count()>0  &&  haltcount>0) {
 		status = bad;
 		return;
 	}
@@ -1790,7 +1790,7 @@ void fabrik_t::recalc_factory_status()
 	// set bits for output
 	warenlager = 0;
 	status_aus = FL_WARE_ALLEUEBER75|FL_WARE_ALLENULL;
-	for (uint j = 0;j < ausgang.get_size(); j++) {
+	for (uint j = 0;j < ausgang.get_count(); j++) {
 		if (ausgang[j].menge > 0) {
 
 			status_aus &= ~FL_WARE_ALLENULL;
@@ -1812,10 +1812,10 @@ void fabrik_t::recalc_factory_status()
 	total_output = warenlager;
 
 	// now calculate status bar
-	if(eingang.get_size()==0) {
+	if(eingang.get_count()==0) {
 		// does not consume anything, should just produce
 
-		if(ausgang.get_size()==0) {
+		if(ausgang.get_count()==0) {
 			// does also not produce anything
 			status = nothing;
 		}
@@ -1834,7 +1834,7 @@ void fabrik_t::recalc_factory_status()
 			status = good;
 		}
 	}
-	else if(ausgang.get_size()==0) {
+	else if(ausgang.get_count()==0) {
 		// nothing to produce
 
 		if(status_ein&FL_WARE_ALLELIMIT) {
@@ -1938,7 +1938,7 @@ void fabrik_t::info(cbuffer_t& buf) const
 
 	if (  target_cities.get_count()>0  ) {
 		buf.append("\n");
-		buf.append(ausgang.get_size()==0 && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
+		buf.append(ausgang.get_count()==0 && !besch->is_electricity_producer() ? translator::translate("Customers live in:") : translator::translate("Arbeiter aus:"));
 		buf.append("\n");
 
 		for(  uint32 c=0;  c<target_cities.get_count();  ++c  ) {
@@ -1953,13 +1953,13 @@ void fabrik_t::info(cbuffer_t& buf) const
 		}
 	}
 
-	if (ausgang.get_size()>0) {
+	if (ausgang.get_count()>0) {
 
 		buf.append("\n");
 		buf.append(translator::translate("Produktion"));
 		buf.append(":\n");
 
-		for (uint32 index = 0; index < ausgang.get_size(); index++) {
+		for (uint32 index = 0; index < ausgang.get_count(); index++) {
 			const ware_besch_t * type = ausgang[index].get_typ();
 
 			buf.append(" - ");
@@ -1981,13 +1981,13 @@ void fabrik_t::info(cbuffer_t& buf) const
 		}
 	}
 
-	if (eingang.get_size()>0) {
+	if (eingang.get_count()>0) {
 
 		buf.append("\n");
 		buf.append(translator::translate("Verbrauch"));
 		buf.append(":\n");
 
-		for (uint32 index = 0; index < eingang.get_size(); index++) {
+		for (uint32 index = 0; index < eingang.get_count(); index++) {
 
 			buf.append(" - ");
 			buf.append(translator::translate(eingang[index].get_typ()->get_name()));
