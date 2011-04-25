@@ -2169,8 +2169,6 @@ int karte_t::lower(koord pos)
 }
 
 
-static koord ebene_offsets[] = {koord(0,0), koord(1,0), koord(0,1), koord(1,1)};
-
 bool karte_t::can_ebne_planquadrat(koord pos, sint8 hgt, bool keep_water, bool make_underwater_hill) const
 {
 	const grund_t *gr = lookup_kartenboden(pos);
