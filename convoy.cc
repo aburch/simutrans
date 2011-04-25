@@ -359,7 +359,7 @@ sint32 potential_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += vehicles[i]->get_effective_force_index(speed);
 	}
-	return force * world.get_einstellungen()->get_global_power_factor() * (1.0f/GEAR_FACTOR) + 0.5f;
+	return (force * world.get_einstellungen()->get_global_power_factor_percent() * (100 / GEAR_FACTOR) + 50) / 10000;
 }
 
 
@@ -370,7 +370,7 @@ sint32 potential_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += vehicles[i]->get_effective_power_index(speed);
 	}
-	return (sint32)(power * world.get_einstellungen()->get_global_power_factor() * (1.0f/GEAR_FACTOR) + 0.5f);
+	return (power * world.get_einstellungen()->get_global_power_factor_percent() * (100 / GEAR_FACTOR) + 50) / 10000;
 }
 
 // Bernd Gabriel, Dec, 25 2009
@@ -447,7 +447,7 @@ sint32 existing_convoy_t::get_force_summary(sint32 speed /* in m/s */)
 	{
 		force += convoy.get_vehikel(i)->get_besch()->get_effective_force_index(speed);
 	}
-	return force * convoy.get_welt()->get_einstellungen()->get_global_power_factor()  * (1.0f/GEAR_FACTOR) + 0.5f;
+	return (force * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent() * (100 / GEAR_FACTOR) + 50) / 10000;
 }
 
 
@@ -458,6 +458,6 @@ sint32 existing_convoy_t::get_power_summary(sint32 speed /* in m/s */)
 	{
 		power += convoy.get_vehikel(i)->get_besch()->get_effective_power_index(speed);
 	}
-	return (sint32)(power * convoy.get_welt()->get_einstellungen()->get_global_power_factor()  * (1.0f/GEAR_FACTOR) + 0.5f);
+	return (power * convoy.get_welt()->get_einstellungen()->get_global_power_factor_percent() * (100 / GEAR_FACTOR) + 50) / 10000;
 }
 

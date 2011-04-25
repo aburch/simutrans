@@ -316,7 +316,7 @@ public:
 	uint16 turntable_reverse_time;
 
 	//@author: jamespetts
-	float global_power_factor; 
+	uint16 global_power_factor_percent; 
 	
 	// Whether and how weight limits are enforced
 	// @author: jamespetts
@@ -691,7 +691,7 @@ public:
 	uint16 get_hauled_reverse_time() const { return hauled_reverse_time; }
 	uint16 get_turntable_reverse_time() const { return turntable_reverse_time; }
 
-	float get_global_power_factor() const { return global_power_factor; }
+	uint16 get_global_power_factor_percent() const { return global_power_factor_percent; }
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 

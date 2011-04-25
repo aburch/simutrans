@@ -370,7 +370,7 @@ einstellungen_t::einstellungen_t() :
 
 	// Global power factor
 	// @author: jamespetts
-	global_power_factor = 1.0F;
+	global_power_factor_percent = 100;
 
 	avoid_overcrowding = false;
 
@@ -1070,9 +1070,7 @@ void einstellungen_t::rdwr(loadsave_t *file)
 
 		if(file->get_experimental_version() >= 2)
 		{
-			uint16 global_power_factor_percent = global_power_factor * 100;
 			file->rdwr_short(global_power_factor_percent);
-			global_power_factor = (float)global_power_factor_percent / 100;
 			if(file->get_experimental_version() <= 7)
 			{
 				uint16 old_passenger_max_wait;
@@ -1657,9 +1655,7 @@ void einstellungen_t::parse_simuconf( tabfile_t &simuconf, sint16 &disp_width, s
 
 	// Global power factor
 	// @author: jamespetts
-	uint16 global_power_factor_percent = 100;
 	global_power_factor_percent = contents.get_int("global_power_factor_percent", global_power_factor_percent);
-	global_power_factor = (float)global_power_factor_percent / 100;
 
 	// How and whether weight limits are enforced.
 	// @author: jamespetts
