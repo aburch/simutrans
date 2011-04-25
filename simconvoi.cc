@@ -3799,12 +3799,13 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 		return 0;
 	}
 
+	const uint16 global_multiplier = welt->get_einstellungen()->get_speed_bonus_multiplier();
 	const uint16 max_distance = w != NULL ? w->get_einstellungen()->get_max_bonus_min_distance() : 16;
-	const float multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier() : 30;
+	const uint16 multiplier = w != NULL ? w->get_einstellungen()->get_max_bonus_multiplier_percent() : 3000;
 	
 	if(distance >= max_distance)
 	{
-		return base_bonus * multiplier;
+		return (base_bonus * multiplier * global_multiplier) / 10000;
 	}
 
 	const uint16 median_distance = w != NULL ? w->get_einstellungen()->get_median_bonus_distance() : 128;
@@ -3812,30 +3813,32 @@ uint16 convoi_t::calc_adjusted_speed_bonus(uint16 base_bonus, uint32 distance, k
 	{
 		// There is no median, so scale evenly.
 		const uint32 percentage = ((distance - min_distance) * 100) / (max_distance - min_distance);
-		return ((base_bonus * multiplier) * percentage) / 100;
+		const uint32 return_figure = ((base_bonus * multiplier) * percentage) / 10000;
+		return (uint16)return_figure;
 	}
 
 	// There is a median, so scale differently each side of the median.
 
 	if(distance == median_distance)
 	{
-		return base_bonus;
+		return (base_bonus * global_multiplier) / 100;
 	}
 
 	if(distance < median_distance)
 	{
 		const uint32 percentage = ((distance - min_distance) * 100) / (median_distance - min_distance);
-		return (base_bonus * percentage) / 100;
+		const uint32 return_figure =  (base_bonus * percentage * global_multiplier) / 10000;
+		return (uint16)return_figure;
 	}
 
 	// If the program gets here, it must be true that:
 	// distance > median_distance
 
 	const uint32 percentage = ((distance - median_distance) * 100) / (max_distance - min_distance);
-	uint32 intermediate_bonus = (base_bonus * multiplier) - base_bonus;
+	uint32 intermediate_bonus = ((base_bonus * multiplier) / 100) - base_bonus;
 	intermediate_bonus *= percentage;
 	intermediate_bonus /= 100;
-	return intermediate_bonus + base_bonus;
+	return ((intermediate_bonus + base_bonus) * global_multiplier) / 100;
 }
 
 /**

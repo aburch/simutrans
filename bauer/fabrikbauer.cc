@@ -1019,9 +1019,9 @@ next_ware_check:
 					// we cannot built this factory here
 					continue;
 				}
-				koord   testpos = in_city ? welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight(), "fabrikbauer_t::increase_industry_density()" ) )->get_pos() : koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
-				koord3d pos =  welt->lookup_kartenboden( testpos )->get_pos();
-				int     rotation=simrand(fab->get_haus()->get_all_layouts()-1, "fabrikbauer_t::increase_industry_density()");
+				koord  testpos = in_city ? welt->get_staedte().at_weight( simrand( welt->get_staedte().get_sum_weight(), "fabrikbauer_t::increase_industry_density()" ) )->get_pos() : koord::koord_random(welt->get_groesse_x(),welt->get_groesse_y());
+				koord3d pos = welt->lookup_kartenboden( testpos )->get_pos();
+				int rotation = simrand(fab->get_haus()->get_all_layouts()-1, "fabrikbauer_t::increase_industry_density()");
 				if(!in_city) {
 					pos = finde_zufallsbauplatz(welt, pos, 20, fab->get_haus()->get_groesse(rotation),fab->get_platzierung()==fabrik_besch_t::Wasser,fab->get_haus(),not_yet_too_desperate_to_ignore_climates);
 				}

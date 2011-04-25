@@ -3347,9 +3347,9 @@ void karte_t::recalc_average_speed()
 
 	for(int i=road_wt; i<=narrowgauge_wt; i++) {
 		const int typ = i==4 ? 3 : (i-1)&7;
-		const float speed_bonus_multiplier = get_einstellungen()->get_speed_bonus_multiplier();
+		const uint16 speed_bonus_multiplier = get_einstellungen()->get_speed_bonus_multiplier();
 		const uint32 base_speed_bonus = vehikelbauer_t::get_speedbonus( this->get_timeline_year_month(), i==4 ? air_wt : (waytype_t)i );
-		average_speed[typ] = (float)base_speed_bonus * speed_bonus_multiplier;
+		average_speed[typ] = (base_speed_bonus * speed_bonus_multiplier) / 100;
 	}
 
 	//	DBG_MESSAGE("karte_t::recalc_average_speed()","");

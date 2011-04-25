@@ -325,7 +325,7 @@ public:
 	// Adjustment of the speed bonus for use with
 	// speedbonus.tab files from Simutrans-Standard
 	// @author: jamespetts
-	float speed_bonus_multiplier;
+	uint16 speed_bonus_multiplier;
 	
 private:
 
@@ -567,8 +567,7 @@ public:
 	uint16 get_max_bonus_min_distance() const { return max_bonus_min_distance; }
 	void   set_max_bonus_min_distance(uint16 value) { max_bonus_min_distance = value; }
 
-	float  get_max_bonus_multiplier() const { return (float)max_bonus_multiplier_percent * 0.01F; }
-	uint16 get_max_bonus_multiplier_percent() { return max_bonus_multiplier_percent; }
+	uint16 get_max_bonus_multiplier_percent() const { return max_bonus_multiplier_percent; }
 	void   set_max_bonus_multiplier_percent(uint16 value) { max_bonus_multiplier_percent = value; }
 
 	uint16  get_distance_per_tile() const { return distance_per_tile; }
@@ -695,7 +694,7 @@ public:
 
 	uint8 get_enforce_weight_limits() const { return enforce_weight_limits; }
 
-	float get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
+	uint16 get_speed_bonus_multiplier() const { return speed_bonus_multiplier; }
 	// allowed modes are 0,1,2
 	enum { TO_PREVIOUS=0, TO_TRANSFER, TO_DESTINATION };
 
