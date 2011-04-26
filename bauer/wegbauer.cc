@@ -1899,21 +1899,18 @@ void wegbauer_t::baue_schiene()
 
 				// do not touch fences, tram way etc. if there is already same way with different type
 				// keep faster ways or if it is the same way ... (@author prissi)
-				if(weg->get_besch()==besch  ||  weg->get_besch()->get_styp()!=0  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->get_weg_nr(0)!=weg) || keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden  &&  (bautyp&elevated_flag)==0) ) {
+				if(weg->get_besch()==besch  ||  (besch->get_styp()==0 && weg->get_besch()->get_styp()==7 && gr->has_two_ways())  ||  keep_existing_ways  ||  (keep_existing_faster_ways  &&  weg->get_besch()->get_topspeed()>besch->get_topspeed()) || (gr->get_typ()==grund_t::monorailboden  &&  (bautyp&elevated_flag)==0) ) {
 					//nothing to be done
 					change_besch = false;
 				}
 
-				// already a crossing
-				if(  gr->has_two_ways()  ) {
+				// build tram track over crossing -> remove crossing
+				if(  gr->has_two_ways()  &&  besch->get_styp()==7  ) {
 					if(  crossing_t *cr = gr->find<crossing_t>(2)  ) {
 						// change to tram track
-						gr->obj_remove( cr );
+						cr->mark_image_dirty( cr->get_bild(), 0);
+						delete cr;
 						change_besch = true;
-					}
-					else {
-						// since existing is already tram tram
-						change_besch = false;
 					}
 				}
 
@@ -1951,6 +1948,7 @@ void wegbauer_t::baue_schiene()
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
 			}
+		printf("cross=%d ", gr->find<crossing_t>()!=0);
 
 			gr->calc_bild();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
