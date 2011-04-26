@@ -898,14 +898,14 @@ void convoi_t::suche_neue_route()
  */
 void convoi_t::step()
 {
+	if(wait_lock!=0) {
+		return;
+	}
+
 	// moved check to here, as this will apply the same update
 	// logic/constraints convois have for manual schedule manipulation
 	if (line_update_pending.is_bound()) {
 		check_pending_updates();
-	}
-
-	if(wait_lock!=0) {
-		return;
 	}
 
 	switch(state) {
