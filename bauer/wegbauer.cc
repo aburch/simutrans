@@ -1948,7 +1948,6 @@ void wegbauer_t::baue_schiene()
 				// prissi: into UNDO-list, so wie can remove it later
 				sp->add_undo( route[i] );
 			}
-		printf("cross=%d ", gr->find<crossing_t>()!=0);
 
 			gr->calc_bild();
 			reliefkarte_t::get_karte()->calc_map_pixel( gr->get_pos().get_2d() );
