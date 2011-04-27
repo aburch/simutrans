@@ -268,8 +268,7 @@ private:
 	 */
 	inline sint32 get_force(double speed) 
 	{
-		//uint16 v = abs((uint16)abs(speed));
-		sint32 v = (sint32)abs(speed);
+		sint32 v = (sint32)abs((sint32)speed);
 		return (v == 0) ? get_starting_force() : get_force_summary(v) * 1000;
 	}
 	/*
